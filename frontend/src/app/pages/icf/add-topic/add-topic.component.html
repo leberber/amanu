@@ -1,0 +1,66 @@
+
+
+<form   (ngSubmit)="onUserSave()" [formGroup]="bookForm">
+    <p-card header="Login" [style]="{ width: '300px' }">
+      <div class="field">
+        <label >Title</label>
+        <input
+          type="text"
+          pInputText
+          formControlName="title"
+          class="w-full"
+          name="title"
+
+          pSize="large" 
+        />
+        <div class="errors">
+            <small *ngIf="bookForm.controls['title'].errors?.['required']">
+                This is required
+            </small>
+        </div>
+       
+
+      </div>
+      <div class="field">
+        <label >Description</label>
+        <input
+          type="text"
+          pSize="large" 
+          pInputText
+          formControlName="description"
+          class="w-full"
+          name="description"
+          placeholder="description"
+        />
+
+      </div>
+      <div class="field">
+        <label >Author</label>
+        <input
+          type="text"
+          pInputText
+          formControlName="author"
+          class="w-full"
+          name="author"
+          placeholder="Author"
+          pSize="large" 
+        />
+
+      </div>
+      <div class="field">
+        <label >Year</label>
+        <p-inputnumber inputId="integeronly" formControlName="year" class="w-full" />
+
+      </div>
+      <p-button
+        label="SIGN IN"
+        styleClass="w-full"
+        [disabled]="bookForm.invalid"
+        type="submit"
+      ></p-button>
+
+
+
+
+    </p-card>
+  </form>

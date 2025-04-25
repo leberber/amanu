@@ -1,0 +1,12 @@
+<div *ngIf="books.length > 0; else noBooks">
+    <h2>Book List</h2>
+    <ul>
+      <li *ngFor="let book of books">
+        <strong>{{ book.title }}</strong> by {{ book.author }} ({{ book.year }})
+      </li>
+    </ul>
+  </div>
+  
+  <ng-template #noBooks>
+    <p>No books available. {{ books }}</p>
+  </ng-template>

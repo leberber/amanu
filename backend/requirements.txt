@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+pydantic 
+psycopg
+psycopg[binary]
+pandas
+numpy
+jupyterlab
+fastapi[standard]
