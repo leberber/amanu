@@ -1,0 +1,103 @@
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+
+<p-table 
+    [value]="users" 
+    [loading]="loading"
+    [tableStyle]="{'min-width': '60rem'}"
+    [paginator]="true"
+    [rows]="10"
+    [rowsPerPageOptions]="[5, 10, 25, 50]"
+    [globalFilterFields]="['nom', 'prenom', 'email', 'role']"
+    styleClass="p-datatable-striped">
+
+    <ng-template pTemplate="caption">
+        <div class="flex justify-content-between align-items-center">
+            <h5 class="m-0">Manage Users</h5>
+            <div class="flex align-items-center gap-2">
+                <button 
+                    pButton 
+                    type="button" 
+                    icon="pi pi-plus" 
+                    label="Add User" 
+                    class="p-button-success" 
+                    (click)="openNew()">
+                </button>
+                <span class="p-input-icon-left">
+                    <i class="pi pi-search"></i>
+                    <input 
+                        pInputText 
+                        type="text" 
+                        placeholder="Search..." 
+                        (input)="onGlobalFilter($event)" />
+                </span>
+            </div>
+        </div>
+    </ng-template>
+
+    <ng-template pTemplate="header">
+        <tr>
+            <th pSortableColumn="user_id">ID <p-sortIcon field="user_id"></p-sortIcon></th>
+            <th pSortableColumn="nom">Nom <p-sortIcon field="nom"></p-sortIcon></th>
+            <th pSortableColumn="prenom">Prénom <p-sortIcon field="prenom"></p-sortIcon></th>
+            <th pSortableColumn="email">Email <p-sortIcon field="email"></p-sortIcon></th>
+            <th pSortableColumn="mobile">Mobile <p-sortIcon field="mobile"></p-sortIcon></th>
+            <th pSortableColumn="commune">Commune <p-sortIcon field="commune"></p-sortIcon></th>
+            <th pSortableColumn="wilaya">Wilaya <p-sortIcon field="wilaya"></p-sortIcon></th>
+            <th pSortableColumn="role">Role <p-sortIcon field="role"></p-sortIcon></th>
+            <th pSortableColumn="createdAt">Created <p-sortIcon field="createdAt"></p-sortIcon></th>
+            <th>Actions</th>
+        </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-user>
+        <tr>
+            <td>{{ user.user_id }}</td>
+            <td>{{ user.nom }}</td>
+            <td>{{ user.prenom }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ user.mobile }}</td>
+            <td>{{ user.commune }}</td>
+            <td>{{ user.wilaya }}</td>
+            <td>
+                <span [class]="'user-badge status-' + user.role.toLowerCase()">
+                    {{ user.role }}
+                </span>
+            </td>
+            <td>{{ user.createdAt | date:'medium' }}</td>
+            <td>
+                <div class="flex justify-content-center gap-2">
+                    <button 
+                        pButton 
+                        pRipple 
+                        icon="pi pi-pencil" 
+                        class="p-button-rounded p-button-success p-button-text" 
+                        (click)="editUser(user)">
+                    </button>
+                    <button 
+                        pButton 
+                        pRipple 
+                        icon="pi pi-trash" 
+                        class="p-button-rounded p-button-danger p-button-text" 
+                        (click)="deleteUser(user)">
+                    </button>
+                </div>
+            </td>
+        </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+        <tr>
+            <td colspan="10">No users found.</td>
+        </tr>
+    </ng-template>
+
+</p-table>
+
+<!-- User Dialog Component -->
+<app-user-dialog 
+    [(visible)]="dialogVisible" 
+    [user]="selectedUser"
+    (update)="handleUpdateUser($event)"
+    (add)="handleAddUser($event)">
+</app-user-dialog>

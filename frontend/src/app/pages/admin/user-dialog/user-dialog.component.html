@@ -1,0 +1,197 @@
+<!-- User Form Dialog -->
+<p-dialog 
+  [(visible)]="visible" 
+  [style]="{ width: '1100px' }" 
+  [header]="isEditMode ? 'Edit User' : 'Add New User'" 
+  [modal]="true" 
+  styleClass="p-fluid form-dialog"
+  (onHide)="hideDialog()"
+>
+  <ng-template pTemplate="content">
+    <form [formGroup]="userForm">
+      <div class="grid form-grid">
+        <!-- Left Column -->
+        <div class="col-6 px-3">
+          <!-- Nom Field -->
+          <div class="field">
+            <label for="nom" class="form-label">Nom</label>
+            <div class="input-wrapper">
+              <i class="pi pi-user input-icon"></i>
+              <input id="nom" type="text" pInputText formControlName="nom" required autofocus />
+            </div>
+            <small *ngIf="userForm.get('nom')?.invalid && userForm.get('nom')?.touched" class="form-errors">
+              Nom is required
+            </small>
+          </div>
+
+          <!-- Prenom Field -->
+          <div class="field">
+            <label for="prenom" class="form-label">Prénom</label>
+            <div class="input-wrapper">
+              <i class="pi pi-user-plus input-icon"></i>
+              <input id="prenom" type="text" pInputText formControlName="prenom" required />
+            </div>
+            <small *ngIf="userForm.get('prenom')?.invalid && userForm.get('prenom')?.touched" class="form-errors">
+              Prénom is required
+            </small>
+          </div>
+
+          <!-- Email Field -->
+          <div class="field" *ngIf="!isEditMode">
+            <label for="email" class="form-label">Email</label>
+            <div class="input-wrapper">
+              <i class="pi pi-envelope input-icon"></i>
+              <input id="email" type="email" pInputText formControlName="email" />
+            </div>
+            <small *ngIf="userForm.get('email')?.invalid && userForm.get('email')?.touched" class="form-errors">
+              <span *ngIf="userForm.get('email')?.errors?.['required']">Email is required</span>
+              <span *ngIf="userForm.get('email')?.errors?.['email']">Please enter a valid email address</span>
+            </small>
+          </div>
+
+          <!-- Mobile Field -->
+          <div class="field">
+            <label for="mobile" class="form-label">Mobile</label>
+            <div class="input-wrapper">
+              <i class="pi pi-mobile input-icon"></i>
+              <input id="mobile" type="tel" pInputText formControlName="mobile" required />
+            </div>
+            <small *ngIf="userForm.get('mobile')?.invalid && userForm.get('mobile')?.touched" class="form-errors">
+              Mobile number is required
+            </small>
+          </div>
+
+          <!-- Password Field (only in Add Mode) -->
+          <div class="field" *ngIf="!isEditMode">
+            <label for="password" class="form-label">Password</label>
+            <div class="input-wrapper">
+              <i class="pi pi-lock input-icon"></i>
+              <input id="password" type="password" pInputText formControlName="password" required />
+            </div>
+            <small *ngIf="userForm.get('password')?.invalid && userForm.get('password')?.touched" class="form-errors">
+              Password is required (minimum 6 characters)
+            </small>
+          </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="col-6 px-3">
+          <!-- Address Field -->
+          <div class="field">
+            <label for="address" class="form-label">Address</label>
+            <div class="input-wrapper">
+              <i class="pi pi-home input-icon"></i>
+              <input id="address" type="text" pInputText formControlName="address" required />
+            </div>
+            <small *ngIf="userForm.get('address')?.invalid && userForm.get('address')?.touched" class="form-errors">
+              Address is required
+            </small>
+          </div>
+
+          <!-- Commune Field -->
+          <div class="field">
+            <label for="commune" class="form-label">Commune</label>
+            <div class="input-wrapper">
+              <i class="pi pi-map-marker input-icon"></i>
+              <input id="commune" type="text" pInputText formControlName="commune" required />
+            </div>
+            <small *ngIf="userForm.get('commune')?.invalid && userForm.get('commune')?.touched" class="form-errors">
+              Commune is required
+            </small>
+          </div>
+
+          <!-- Village Field -->
+          <div class="field">
+            <label for="village" class="form-label">Village</label>
+            <div class="input-wrapper">
+              <i class="pi pi-map input-icon"></i>
+              <input id="village" type="text" pInputText formControlName="village" required />
+            </div>
+            <small *ngIf="userForm.get('village')?.invalid && userForm.get('village')?.touched" class="form-errors">
+              Village is required
+            </small>
+          </div>
+
+          <!-- Wilaya Field -->
+          <div class="field">
+            <label for="wilaya" class="form-label">Wilaya</label>
+            <div class="input-wrapper">
+              <i class="pi pi-globe input-icon"></i>
+              <input id="wilaya" type="text" pInputText formControlName="wilaya" required />
+            </div>
+            <small *ngIf="userForm.get('wilaya')?.invalid && userForm.get('wilaya')?.touched" class="form-errors">
+              Wilaya is required
+            </small>
+          </div>
+
+          <!-- Role Field -->
+          <div class="field">
+            <label for="role" class="form-label">Role</label>
+            <div class="input-wrapper">
+              <i class="pi pi-users input-icon"></i>
+              <p-dropdown 
+                id="role" 
+                [options]="roleOptions" 
+                formControlName="role" 
+                optionLabel="label" 
+                optionValue="value" 
+                [style]="{ width: '100%' }" 
+                placeholder="Select a role"
+              ></p-dropdown>
+            </div>
+            <small *ngIf="userForm.get('role')?.invalid && userForm.get('role')?.touched" class="form-errors">
+              Role is required
+            </small>
+          </div>
+        </div>
+      </div>
+
+      <p-divider></p-divider>
+
+      <!-- Profile Picture Section -->
+      <div>
+        <h4 class="section-title">Profile Picture</h4>
+        <div class="grid">
+          <div class="col-4">
+            <div class="profile-card">
+              <div class="profile-header bg-blue-50">
+                <i class="pi pi-user profile-icon text-blue-700"></i>
+                <span class="profile-title text-blue-700">User Photo</span>
+              </div>
+              <div class="profile-content">
+                <div class="upload-placeholder">
+                  <i class="pi pi-camera"></i>
+                  <span>Upload photo</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <div class="dialog-footer">
+      <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-outlined" (click)="hideDialog()"></button>
+      <button 
+        *ngIf="!isEditMode"
+        pButton pRipple 
+        label="Add User" 
+        icon="pi pi-plus" 
+        class="p-button-success" 
+        [disabled]="userForm.invalid" 
+        (click)="addUser()"
+      ></button>
+      <button 
+        *ngIf="isEditMode"
+        pButton pRipple 
+        label="Update" 
+        icon="pi pi-check" 
+        class="p-button-primary" 
+        [disabled]="userForm.invalid" 
+        (click)="updateUser()"
+      ></button>
+    </div>
+  </ng-template>
+</p-dialog>

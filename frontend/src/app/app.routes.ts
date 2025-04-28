@@ -1,7 +1,19 @@
 import { Routes } from '@angular/router';
-import { IcfComponent } from './pages/icf/icf/icf.component';
+import { LoginComponent } from './pages/admin/login/login.component';
+import { UserListComponent } from './pages/admin/user-list/user-list.component';
 
 export const routes: Routes = [
-  { path: 'icf', component: IcfComponent },
-  { path: '', redirectTo: 'icf', pathMatch: 'full' },
+  {
+    path: '',
+    redirectTo: '',
+    pathMatch: 'full',
+  },
+  {
+    path: 'login',
+    component: LoginComponent,
+  },
+  {
+    path: 'users',
+    component: UserListComponent,
+  },
 ];

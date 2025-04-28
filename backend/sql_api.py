@@ -1,6 +1,8 @@
 import os
 import psycopg
+import json
 from psycopg.sql import SQL, Identifier, Literal
+from contextlib import contextmanager
 
 class PostgesAPI:
     def __init__(self, con_string) -> None:
@@ -15,34 +17,105 @@ class PostgesAPI:
         print(f"{_half} {msg} {_half}")
         print("")
 
-    def safe_insert(self, table_name, records):
+    
+    @contextmanager
+    def transaction(self):
+        conn = psycopg.connect(self.con_string)
         try:
-            with psycopg.connect(self.con_string) as conn:
-                with conn.cursor() as cur:
-                    # Convert a single dictionary into a list for consistency
-                    if isinstance(records, dict): 
-                        records = [records] 
-    
-                    # Extract column names
-                    cols = ', '.join(records[0].keys())
-    
-                    # Create placeholders for parameterized query
-                    placeholders = ', '.join(['%s'] * len(records[0]))
-    
-                    # Construct SQL statement
-                    insert_query = f"""INSERT INTO {table_name} ({cols}) VALUES ({placeholders})"""
-    
-                    # Convert records into a list of tuples (for parameter substitution)
-                    values = [tuple(record.values()) for record in records]
-    
-                    # Execute the query safely
-                    cur.executemany(insert_query, values)
-                    conn.commit()
-    
-            return f'{len(records)} records were inserted'
-    
+            with conn.cursor() as cur:
+                yield cur
+            conn.commit()
         except Exception as e:
-            print("Error:", e)
+            conn.rollback()
+            print("Transaction error:", e)
+            raise
+        finally:
+            conn.close()
+
+    def safe_insert(self, table_name, records):
+
+        with psycopg.connect(self.con_string) as conn:
+            with conn.cursor() as cur:
+                # Convert a single dictionary into a list for consistency
+                if isinstance(records, dict):
+                    records = [records]
+                
+                # Make a copy of records to avoid modifying the original
+                processed_records = []
+                
+                for record in records:
+                    # Create a copy of the record
+                    processed_record = dict(record)
+                    
+                    # Convert any dictionary values to JSON strings
+                    for key, value in processed_record.items():
+                        if isinstance(value, dict) or isinstance(value, list):
+                            processed_record[key] = json.dumps(value)
+                    
+                    processed_records.append(processed_record)
+                
+                # Extract column names
+                cols = ', '.join(processed_records[0].keys())
+                
+                # Create placeholders for parameterized query
+                placeholders = ', '.join(['%s'] * len(processed_records[0]))
+                
+                # Construct SQL statement
+                insert_query = f"""INSERT INTO {table_name} ({cols}) VALUES ({placeholders})"""
+                
+                # Convert records into a list of tuples (for parameter substitution)
+                values = [tuple(record.values()) for record in processed_records]
+                
+                # Execute the query safely
+                cur.executemany(insert_query, values)
+                conn.commit()
+        
+        return f'{len(records)} records were inserted'
+        
+
+
+    def safe_update(self, table_name, params):
+        """
+        Update user information in the specified table.
+
+        Parameters:
+        - table_name (str): The name of the table to update.
+        - params (dict): Dictionary with:
+            - 'SET' (dict): Column-value pairs to update.
+            - 'WHERE' (str): Column used in the WHERE condition.
+            - 'CONDITION': Value to match in the WHERE condition.
+
+        Example:
+            params = {
+                'SET': {'name': 'John Doe', 'email': 'john@example.com'},
+                'WHERE': 'id',
+                'CONDITION': 123
+            }
+
+        Returns:
+        - str: Success message or error message.
+        """
+    
+        with psycopg.connect(self.con_string) as conn:
+            with conn.cursor() as cur:
+                # Generate SET clause dynamically for multiple fields
+                set_clause = SQL(", ").join(
+                    SQL("{} = {}").format(Identifier(k), Literal(v)) for k, v in params['SET'].items()
+                )
+
+                update_query = SQL("UPDATE {} SET {} WHERE {} = {}").format(
+                    Identifier(table_name),
+                    set_clause,
+                    Identifier(params['WHERE']),
+                    Literal(params['CONDITION'])
+                )
+
+            
+                cur.execute(update_query)
+                conn.commit()
+        
+        return 'Update executed successfully'
+
         
     def insert(self, table_name, records):
         # self.print_msg('insert')
@@ -53,7 +126,7 @@ class PostgesAPI:
                     cols = ', '.join(list(records[0].keys()))
                     vals = ', '.join([f"{tuple(record.values())}" for record in records])
                     insert_statements = f"""INSERT INTO {table_name} ({cols}) VALUES {vals}"""
-                    print(insert_statements)
+         
                     cur.execute(insert_statements)
                     conn.commit()
             return f'{len(records)} records were inserted'
@@ -125,50 +198,7 @@ class PostgesAPI:
         except Exception as e:
             print(e)
 
-    def safe_update(self, table_name, params):
-        """
-        Update user information in the specified table.
 
-        Parameters:
-        - table_name (str): The name of the table to update.
-        - params (dict): Dictionary with:
-            - 'SET' (dict): Column-value pairs to update.
-            - 'WHERE' (str): Column used in the WHERE condition.
-            - 'CONDITION': Value to match in the WHERE condition.
-
-        Example:
-            params = {
-                'SET': {'name': 'John Doe', 'email': 'john@example.com'},
-                'WHERE': 'id',
-                'CONDITION': 123
-            }
-
-        Returns:
-        - str: Success message or error message.
-        """
-        try:
-            with psycopg.connect(self.con_string) as conn:
-                with conn.cursor() as cur:
-                    # Generate SET clause dynamically for multiple fields
-                    set_clause = SQL(", ").join(
-                        SQL("{} = {}").format(Identifier(k), Literal(v)) for k, v in params['SET'].items()
-                    )
-
-                    update_query = SQL("UPDATE {} SET {} WHERE {} = {}").format(
-                        Identifier(table_name),
-                        set_clause,
-                        Identifier(params['WHERE']),
-                        Literal(params['CONDITION'])
-                    )
-
-                    print(update_query.as_string(conn))  # Debugging: Print the final SQL query
-                    cur.execute(update_query)
-                    conn.commit()
-            
-            return 'Update executed successfully'
-        except Exception as e:
-            print(e)
-            return 'Update failed'
 
 
     def create(self, sql_file):
@@ -225,4 +255,56 @@ class PostgesAPI:
         except Exception as e:
             print(e)
 
+    def safe_insert_tx(self, cur, table_name, records):
+        if isinstance(records, dict):
+            records = [records]
 
+        processed_records = []
+        for record in records:
+            processed_record = dict(record)
+            for key, value in processed_record.items():
+                if isinstance(value, (dict, list)):
+                    processed_record[key] = json.dumps(value)
+            processed_records.append(processed_record)
+
+        cols = ', '.join(processed_records[0].keys())
+        placeholders = ', '.join(['%s'] * len(processed_records[0]))
+        insert_query = f"""INSERT INTO {table_name} ({cols}) VALUES ({placeholders})"""
+        values = [tuple(record.values()) for record in processed_records]
+        cur.executemany(insert_query, values)
+
+    def safe_update_tx(self, cur, table_name, params):
+        set_clause = SQL(", ").join(
+            SQL("{} = {}").format(Identifier(k), Literal(v)) for k, v in params['SET'].items()
+        )
+
+        update_query = SQL("UPDATE {} SET {} WHERE {} = {}").format(
+            Identifier(table_name),
+            set_clause,
+            Identifier(params['WHERE']),
+            Literal(params['CONDITION'])
+        )
+
+        cur.execute(update_query)
+
+    def get_next_sequence_value(self, sequence_name):
+        """
+        Retrieves the next value from the specified sequence.
+        
+        Parameters:
+        - sequence_name (str): The name of the sequence.
+        
+        Returns:
+        - int: The next value in the sequence.
+        """
+        try:
+            with psycopg.connect(self.con_string) as conn:
+                with conn.cursor() as cur:
+           
+                    cur.execute(f"SELECT nextval('{sequence_name}');")
+                    # Fetch the next value
+                    result = cur.fetchone()
+                    return result[0]  # Assuming the next value is in the first column
+        except Exception as e:
+            print(f"Error retrieving next sequence value: {e}")
+            return None

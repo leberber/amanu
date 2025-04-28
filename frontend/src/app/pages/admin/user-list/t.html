@@ -1,0 +1,583 @@
+<!-- Main layout grid -->
+<div class="grid   p-0" [ngClass]="{'full-width': isFullScreen}">
+    <!-- Global components -->
+    <p-confirmDialog></p-confirmDialog>
+    <p-toast></p-toast>
+    
+    <!-- Left column - table -->
+    <div [ngClass]="isFullScreen ? 'col-12' : 'col-8'">
+      <p-card class="table-card-padding">
+        <p-table
+          #dt
+          [columns]="selectedColumns"
+          [value]="studyProceduresData"
+          selectionMode="single"
+          [selection]="selectedStudyProcedure()"
+          [metaKeySelection]="false"
+          dataKey="study_id"
+          (onRowSelect)="onRowSelect($event)"
+          (onRowUnselect)="onRowUnselect($event)"
+          [globalFilterFields]="['study_id', 'status', 'icf_topic', 'icf_section', 'ta']"
+          sortMode="multiple"
+          [scrollable]="!isPaginatorMode"
+          [scrollHeight]="!isPaginatorMode ? 'calc(100vh - 210px)' : undefined"
+          [paginator]="isPaginatorMode"
+          [rows]="rowsPerPage"
+          [rowsPerPageOptions]="[10, 25, 50, 100]"
+        >
+          <!-- Table Caption with Controls -->
+          <ng-template pTemplate="caption">
+            <div class="flex justify-content-between align-items-center w-full">
+              <!-- Left side: Search -->
+              <div class="flex align-items-center">
+                <p-iconfield iconPosition="left" class="mr-2">
+                  <p-inputicon><i class="pi pi-search"></i></p-inputicon>
+                  <input
+                    pInputText
+                    (input)="dt.filterGlobal($any($event.target).value, 'contains')"
+                    placeholder="Search..."
+                    [value]="searchValue"
+                  />
+                </p-iconfield>
+              </div>
+              
+              <!-- Right side: Actions -->
+              <div class="flex align-items-center gap-2">
+                <!-- Clear filters button -->
+                <p-button 
+                  [outlined]="true" 
+                  icon="pi pi-filter-slash" 
+                  label="Clear Filters" 
+                  (click)="clear(dt)" 
+                ></p-button>
+                
+                <!-- Table options button - desktop -->
+                <p-button 
+                  icon="pi pi-cog" 
+                  label="Table Options" 
+                  (click)="popover.toggle($event)"
+                  styleClass="hidden lg:inline-flex"
+                ></p-button>
+  
+                <!-- Table options button - mobile -->
+                <p-button 
+                  icon="pi pi-cog" 
+                  (click)="popover.toggle($event)"
+                  styleClass="lg:hidden"
+                  pTooltip="Table Options"
+                  tooltipPosition="bottom"
+                ></p-button>
+                
+                <!-- Add Topic button - desktop -->
+                <p-button *ngIf="role !== 'viewer'"
+                  icon="pi pi-plus" 
+                  label="Add Topic" 
+                  (click)="openNewRecordDialog()" 
+                  styleClass="p-button-success hidden lg:inline-flex"
+                ></p-button>
+                
+                <!-- Add Topic button - mobile -->
+                <p-button *ngIf="role !== 'viewer'"
+                  icon="pi pi-plus" 
+                  (click)="openNewRecordDialog()" 
+                  styleClass="p-button-success lg:hidden"
+                  pTooltip="Add Topic"
+                  tooltipPosition="bottom"
+                ></p-button>
+  
+                <!-- Toggle full screen button -->
+                <p-button 
+                  icon="{{isFullScreen ? 'pi pi-window-minimize' : 'pi pi-window-maximize'}}" 
+                  (click)="toggleFullScreen()" 
+                  class="minimize-icon"
+                  [outlined]="true" 
+                  [pTooltip]="isFullScreen ? 'Exit Full Screen' : 'Full Screen'"
+                ></p-button>
+              </div>
+            </div>
+            
+            <!-- Table Options Popover -->
+            <p-popover #popover>
+              <div class="p-3" style="min-width: 560px; max-width: 600px;">
+                <div class="grid">
+                  <!-- Left Column: Column Selection -->
+                  <div class="col-6">
+                    <h4 class="mb-3">Display Columns</h4>
+                    <div class="mb-2 pb-2 border-bottom-1 border-gray-200">
+                      <div class="flex align-items-center">
+                        <p-checkbox
+                          inputId="selectAll"
+                          [binary]="true"
+                          [ngModel]="areAllColumnsSelected()"
+                          (onChange)="toggleAllColumns($event)"
+                        ></p-checkbox>
+                        <label for="selectAll" class="ml-2 font-medium">Select All</label>
+                      </div>
+                    </div>
+                    
+                    <!-- Column List with scrolling -->
+                    <div class="column-list pr-2" style="max-height: 300px; overflow-y: auto;">
+                      <div *ngFor="let col of cols" class="flex align-items-center mb-2">
+                        <p-checkbox
+                          [inputId]="col.field"
+                          [binary]="true"
+                          [ngModel]="isColumnSelected(col)"
+                          (onChange)="toggleColumnSelection(col, $event.checked)"
+                        ></p-checkbox>
+                        <label [for]="col.field" class="ml-2">{{ col.header }}</label>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <!-- Right Column: Table Settings -->
+                  <div class="col-6 pl-3 border-left-1 border-gray-200">
+                    <h4 class="mb-3">Table Settings</h4>
+                    
+                    <!-- Rows per page setting -->
+                    <div class="mb-3">
+                      <label for="rowsPerPage" class="block mb-1 font-medium">Rows Per Page</label>
+                      <p-dropdown 
+                        id="rowsPerPage" 
+                        [options]="[5, 10, 25, 50, 100]" 
+                        [(ngModel)]="rowsPerPage" 
+                        class="w-full"
+                      ></p-dropdown>
+                    </div>
+                    
+                    <!-- Pagination toggle -->
+                    <div class="flex align-items-center mb-3">
+                      <p-checkbox 
+                        inputId="paginatorMode" 
+                        [binary]="true" 
+                        [(ngModel)]="isPaginatorMode"
+                      ></p-checkbox>
+                      <label for="paginatorMode" class="ml-2">Use Pagination</label>
+                    </div>
+                    
+                    <!-- Include archived records toggle -->
+                    <div class="flex align-items-center mb-3 mt-3">
+                      <p-checkbox
+                        inputId="includeArchived"
+                        [binary]="true"
+                        [(ngModel)]="includeArchived"
+                        (onChange)="toggleArchivedRecords($event)"
+                      ></p-checkbox>
+                      <label for="includeArchived" class="ml-2">Include Archived Records</label>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Footer with Save Button -->
+                <div class="flex justify-content-end pt-3 border-top-1 border-gray-200 mt-3">
+                </div>
+              </div>
+            </p-popover>
+          </ng-template>
+      
+          <!-- Header Template -->
+          <ng-template pTemplate="header">
+            <tr>
+              <!-- Dynamic Columns -->
+              @for (col of renderColumns(); track col.field) {
+                <!-- Standard frozen left columns -->
+                @if (col.frozen && col.alignFrozen === undefined) {
+                  @if (col.field === 'icf_topic') {
+                    <th [pSortableColumn]="col.field" pFrozenColumn class="right-border">
+                      <span class="inline-flex gap-2">
+                        <p-sortIcon [field]="col.field" />
+                        {{ col.header }}
+                      </span>
+                      <p-columnFilter type="text" [field]="col.field" display="menu" />
+                    </th>
+                  } @else {
+                    <th [pSortableColumn]="col.field" pFrozenColumn>
+                      <span class="inline-flex gap-2">
+                        <p-sortIcon [field]="col.field" />
+                        {{ col.header }}
+                      </span>
+                      <p-columnFilter type="text" [field]="col.field" display="menu" />
+                    </th>
+                  }
+                }
+                <!-- ICF Section Column (Custom Filter) -->
+                @else if (col.field === 'icf_section') {
+                  <th [pSortableColumn]="col.field">
+                    <span class="inline-flex gap-2">
+                      <p-sortIcon [field]="col.field" />
+                      {{ col.header }}
+                    </span>
+                    <p-columnFilter
+                      [field]="col.field"
+                      matchMode="in"
+                      display="menu"
+                      [showMatchModes]="false"
+                      [showOperator]="false"
+                      [showAddButton]="false"
+                    >
+                      <ng-template #filter let-value let-filter="filterCallback">
+                        <p-multiselect
+                          [options]="filterOptions"
+                          [(ngModel)]="selectedICFSection"
+                          placeholder="Select Status"
+                          class="w-full"
+                          (onChange)="filter($event.value)"
+                        ></p-multiselect>
+                      </ng-template>
+                    </p-columnFilter>
+                  </th>
+                }
+                <!-- Status Column (Frozen Right) -->
+                @else if (col.field === 'status') {
+                  <th [pSortableColumn]="col.field" pFrozenColumn alignFrozen="right">
+                    <span class="inline-flex gap-2">
+                      <p-sortIcon [field]="col.field" />
+                      {{ col.header }}
+                    </span>
+                    <p-columnFilter type="text" [field]="col.field" display="menu" />
+                  </th>
+                }
+                <!-- Date Column -->
+                @else if (col.field === 'created_date') {
+                  <th [pSortableColumn]="col.field">
+                    <span class="inline-flex gap-2">
+                      <p-sortIcon [field]="col.field" />
+                      {{ col.header }}
+                    </span>
+                    <p-columnFilter type="date" [field]="col.field" display="menu" />
+                  </th>
+                }
+                <!-- Standard columns -->
+                @else {
+                  <th [pSortableColumn]="col.field">
+                    <span class="inline-flex">
+                      <p-sortIcon [field]="col.field" class="space" />
+                      {{ col.header }}
+                    </span>
+                    <p-columnFilter type="text" [field]="col.field" display="menu" />
+                  </th>
+                }
+              }
+              <!-- Actions column -->
+              <th pFrozenColumn alignFrozen="right" class="left-border"></th>
+            </tr>
+          </ng-template>
+      
+          <!-- Body Template -->
+          <ng-template pTemplate="body" let-icfSection let-rowIndex="rowIndex">
+            <tr [pSelectableRow]="icfSection">
+              <!-- Row Number (Optional) -->
+              <td *ngIf="showRowNumbers" style="text-align: center;">
+                {{ rowIndex + 1 }}
+              </td>
+              
+              <!-- Dynamic Columns -->
+              @for (col of renderColumns(); track col.field) {
+                <!-- Frozen Left Columns -->
+                @if (col.frozen && col.alignFrozen === undefined) {
+                  @if (col.field === 'status') {
+                    <td pFrozenColumn>
+                      <p-tag [value]="icfSection[col.field]" [severity]="isApprovedColors(icfSection[col.field])" />
+                    </td>
+                  } @else {
+                    <td pFrozenColumn class="right-border">
+                      {{ icfSection[col.field] }}
+                    </td>
+                  }
+                }
+                <!-- Date Column -->
+                @else if (col.field === 'created_date') {
+                  <td>
+                    {{ icfSection[col.field] | date:'MMMM d, yyyy' }}
+                  </td>
+                }
+                <!-- Language Columns (with Tooltips) -->
+                @else if (col.field.startsWith('approved_')) {
+                  <td>
+                    <div
+                      class="truncate-cell"
+                      pTooltip="{{ icfSection[col.field] }}"
+                      tooltipPosition="top"
+                      [showDelay]="250"
+                      [hideDelay]="150"
+                    >
+                      {{ icfSection[col.field] }}
+                    </div>
+                  </td>
+                }
+                <!-- Standard Columns -->
+                @else {
+                  <td>
+                    {{ icfSection[col.field] }}
+                  </td>
+                }
+              }
+              
+              <!-- Actions Column -->
+              <td pFrozenColumn alignFrozen="right" class="left-border">
+                <div class="action-buttons" style="display: flex; gap: 0.5rem;">
+                  <!-- Admin/Approver Actions -->
+                  <ng-container *ngIf="role === 'admin' || role === 'approver'">
+                    <!-- Edit button -->
+                    <p-button 
+                      icon="pi pi-pencil" 
+                      [rounded]="true" 
+                      [outlined]="true" 
+                      (click)="editRecordDialog(icfSection)"
+                      pTooltip="Edit Topic"
+                    ></p-button>
+                    
+                    <!-- Approve button -->
+                    <p-button 
+                      icon="pi pi-check" 
+                      severity="success" 
+                      [rounded]="true" 
+                      [outlined]="true" 
+                      (click)="approveRecordDialog(icfSection)"
+                      [disabled]="icfSection.status === 'approved'"
+                      pTooltip="{{ icfSection.status === 'approved' ? 'Already approved' : 'Approve Topic' }}"
+                    ></p-button>
+                    
+                    <!-- Archive button -->
+                    <p-button 
+                      icon="pi pi-folder-plus" 
+                      severity="warn" 
+                      [rounded]="true" 
+                      [outlined]="true" 
+                      (click)="archiveRecordDialog(icfSection)"
+                      [disabled]="icfSection.status === 'archived'"
+                      pTooltip="{{ icfSection.status === 'archived' ? 'Already archived' : 'Archived Topic' }}"
+                    ></p-button>
+                  </ng-container>
+                  
+                  <!-- Editor Actions -->
+                  <ng-container *ngIf="role === 'editor'">
+                    <p-button 
+                      icon="pi pi-pencil" 
+                      [rounded]="true" 
+                      [outlined]="true" 
+                      (click)="editRecordDialog(icfSection)"
+                    ></p-button>
+                  </ng-container>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+          
+          <!-- Empty State -->
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td [attr.colspan]="(showRowNumbers ? 1 : 0) + selectedColumns.length" class="text-center p-4">
+                No data found.
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </p-card>
+    </div>
+  
+    <!-- Right column - details -->
+    <div class="col-4 border-round" *ngIf="!isFullScreen">
+      <app-change-history #changeHistory></app-change-history>
+    </div>
+  </div>
+  
+  <!-- Form Dialog -->
+  <p-dialog 
+    [(visible)]="displayNewRecordDialog" 
+    [style]="{width: '1100px'}" 
+    [header]="isEditMode ? 'Edit Record' : 'Add New Record'" 
+    [modal]="true" 
+    styleClass="p-fluid form-dialog"
+  >
+    <ng-template pTemplate="content">
+      <form [formGroup]="recordForm">
+        <!-- Two-column layout for main fields with standardized styling -->
+        <div class="grid form-grid">
+          <!-- Left Column -->
+          <div class="col-6 px-3">
+            <!-- ICF Topic field -->
+            <div class="field">
+              <label class="form-label" for="icf_topic">ICF Topic</label>
+              <div class="input-wrapper">
+                <i class="pi pi-tag input-icon"></i>
+                <input type="text" pInputText id="icf_topic" formControlName="icf_topic" required autofocus />
+              </div>
+              <small *ngIf="recordForm.get('icf_topic')?.invalid && recordForm.get('icf_topic')?.touched" class="form-errors">
+                ICF Topic is required
+              </small>
+            </div>
+            
+            <!-- Status field -->
+            <div class="field">
+              <label class="form-label" for="status">Status</label>
+              <div class="input-wrapper">
+                <i class="pi pi-flag input-icon"></i>
+                <p-select id="status" [options]="statusOptions" formControlName="status" [style]="{'width':'100%'}" styleClass="w-full"></p-select>
+              </div>
+            </div>
+            
+            <!-- Subcategory field -->
+            <div class="field">
+              <label class="form-label" for="subcategory">Subcategory</label>
+              <div class="input-wrapper">
+                <i class="pi pi-bookmark input-icon"></i>
+                <input type="text" pInputText id="subcategory" formControlName="subcategory" />
+              </div>
+            </div>
+          </div>
+          
+          <!-- Right Column -->
+          <div class="col-6 px-3">
+            <!-- ICF Section field -->
+            <div class="field">
+              <label class="form-label" for="icf_section">ICF Section</label>
+              <div class="input-wrapper">
+                <i class="pi pi-sitemap input-icon"></i>
+                <p-select
+                  id="icf_section"
+                  [options]="filterOptions"
+                  formControlName="icf_section"
+                  optionValue="value"
+                  [style]="{'width':'100%'}"
+                  styleClass="w-full"
+                  [disabled]="isDisabled">
+                </p-select>
+              </div>
+              <small *ngIf="recordForm.get('icf_section')?.invalid && recordForm.get('icf_section')?.touched" class="form-errors">
+                ICF Section is required
+              </small>
+            </div>
+            
+            <!-- TA field -->
+            <div class="field">
+              <label class="form-label" for="ta">TA</label>
+              <div class="input-wrapper">
+                <i class="pi pi-chart-bar input-icon"></i>
+                <input type="text" pInputText id="ta" formControlName="ta" />
+              </div>
+            </div>
+            
+            <!-- Language Owner field -->
+            <div class="field">
+              <label class="form-label" for="language_owner">Language Owner</label>
+              <div class="input-wrapper">
+                <i class="pi pi-user-edit input-icon"></i>
+                <input type="text" pInputText id="language_owner" formControlName="language_owner" />
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Divider -->
+        <p-divider></p-divider>
+        
+        <!-- Language Content Section -->
+        <div>
+          <h4 class="language-section-title">Language Content</h4>
+          <div class="grid">
+            <!-- Adult Language -->
+            <div class="col-4">
+              <div class="language-card">
+                <div class="language-header bg-blue-50">
+                  <i class="pi pi-user language-icon text-blue-700"></i>
+                  <span class="language-title text-blue-700">Adult Language</span>
+                </div>
+                <div class="language-content">
+                  <textarea 
+                    id="approved_adult_language" 
+                    pInputTextarea 
+                    formControlName="approved_adult_language" 
+                    rows="6"
+                    class="language-textarea"
+                    placeholder="Enter adult language content..."
+                  ></textarea>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Adolescent Language -->
+            <div class="col-4">
+              <div class="language-card">
+                <div class="language-header bg-green-50">
+                  <i class="pi pi-users language-icon text-green-700"></i>
+                  <span class="language-title text-green-700">Adolescent Language</span>
+                </div>
+                <div class="language-content">
+                  <textarea 
+                    id="approved_adolescent_language" 
+                    pInputTextarea 
+                    formControlName="approved_adolescent_language" 
+                    rows="6"
+                    class="language-textarea"
+                    placeholder="Enter adolescent language content..."
+                  ></textarea>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Child Language -->
+            <div class="col-4">
+              <div class="language-card">
+                <div class="language-header bg-orange-50">
+                  <i class="pi pi-heart language-icon text-orange-700"></i>
+                  <span class="language-title text-orange-700">Child Language</span>
+                </div>
+                <div class="language-content">
+                  <textarea 
+                    id="approved_child_language" 
+                    pInputTextarea 
+                    formControlName="approved_child_language" 
+                    rows="6"
+                    class="language-textarea"
+                    placeholder="Enter child language content..."
+                  ></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </ng-template>
+  
+    <!-- Dialog Footer -->
+    <ng-template pTemplate="footer">
+      <div class="dialog-footer">
+        <!-- Cancel button -->
+        <button 
+          pButton 
+          pRipple 
+          label="Cancel" 
+          icon="pi pi-times" 
+          class="p-button-outlined" 
+          (click)="hideDialog()"
+        ></button>
+        
+        <!-- Add button - only in Add mode -->
+        <button 
+          *ngIf="!isEditMode"
+          pButton 
+          pRipple 
+          label="Add Topic" 
+          icon="pi pi-plus" 
+          class="p-button-success" 
+          [disabled]="recordForm.invalid" 
+          (click)="addNewRecord()"
+        ></button>
+        
+        <!-- Update button - only in Edit mode -->
+        <button 
+          *ngIf="isEditMode"
+          pButton 
+          pRipple 
+          label="Update" 
+          icon="pi pi-check" 
+          class="p-button-primary" 
+          [disabled]="recordForm.invalid" 
+          (click)="updateExistingRecord()"
+        ></button>
+      </div>
+    </ng-template>
+  </p-dialog>
+
+
+  

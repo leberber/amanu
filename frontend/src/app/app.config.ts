@@ -7,10 +7,13 @@ import { providePrimeNG } from 'primeng/config';
 import { MyPreset } from './styles';
 
 import { routes } from './app.routes';
+import { provideHttpClient } from '@angular/common/http';
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideZoneChangeDetection({ eventCoalescing: true }), provideRouter(routes),
+    provideZoneChangeDetection({ eventCoalescing: true }), 
+    provideHttpClient(),
+    provideRouter(routes),
     provideAnimationsAsync(),
     providePrimeNG({
         theme: {

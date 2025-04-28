@@ -1,4 +1,15 @@
+<!-- <app-layout/>
+<router-outlet /> -->
 
-<p-button label="Toggle Dark Mode"  (onClick)="toggleDarkMode()"/>
-
-<router-outlet />
+<!-- app-layout.component.html -->
+<div class="app-container">
+    <!-- Fixed height header -->
+    <header class="app-header">
+        <app-header/>
+    </header>
+  
+    <!-- Main content area with router-outlet -->
+    <main class="app-content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
