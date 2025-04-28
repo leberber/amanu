@@ -1,25 +1,86 @@
-<!-- User Form Dialog -->
+<!-- User Form Dialog - Only modified the upload section -->
 <p-dialog 
   [(visible)]="visible" 
-  [style]="{ width: '1100px' }" 
+  [style]="{ width: '90vh' }" 
   [header]="isEditMode ? 'Edit User' : 'Add New User'" 
   [modal]="true" 
   styleClass="p-fluid form-dialog"
   (onHide)="hideDialog()"
 >
+<p-toast></p-toast>
   <ng-template pTemplate="content">
     <form [formGroup]="userForm">
       <div class="grid form-grid">
         <!-- Left Column -->
-        <div class="col-6 px-3">
+        <div class="col-12 md:col-6  px-3">
+            <!-- IMPROVED UPLOAD SECTION START -->
+            <div class="mb-3">
+              <!-- Image Preview -->
+              <div class="flex align-items-center justify-content-center mb-2">
+                <div class="relative">
+                  <p-avatar *ngIf="!previewImageUrl" 
+                    icon="pi pi-user" 
+                    size="xlarge" 
+                    [style]="{'background-color':'#2196F3', 'color': '#ffffff', 'width': '152px', 'height': '152px'}"
+                    shape="circle"
+                    class="shadow-3">
+                  </p-avatar>
+                  <img 
+                    *ngIf="previewImageUrl"
+                    [src]="previewImageUrl" 
+                    alt="Profile preview" 
+                    class="border-circle shadow-3" 
+                    style="width: 147px; height: 147px; object-fit: cover;" 
+                  />
+                  
+                  <!-- Floating Camera Button -->
+                  <button 
+                    pButton 
+                    type="button" 
+                    icon="pi pi-camera" 
+                    class="p-button-rounded p-button-info"
+                    style="position: absolute; bottom: 0; right: 0; width: 40px; height: 40px;"
+                    (click)="fileInput.click()">
+                  </button>
+                </div>
+              </div>
+            
+              <!-- Hidden File Input -->
+              <input 
+                #fileInput
+                id="profile-upload"
+                type="file" 
+                (change)="onFileSelected($event)" 
+                accept="image/*"
+                class="hidden"
+                style="display: none;"
+              />
+              
+              <!-- Selected Filename -->
+              <div *ngIf="selectedFileName" class="flex justify-content-center">
+                <small class="text-600 text-center">
+                  <i class="pi pi-check-circle text-success mr-1"></i>
+                  {{selectedFileName}}
+                </small>
+              </div>
+
+              <div *ngIf="!selectedFileName" class="flex justify-content-center">
+                <small class="text-600 text-center">
+                 
+                  Click the camera icon to upload a profile picture
+                </small>
+              </div>
+            </div>
+            <!-- IMPROVED UPLOAD SECTION END -->
+            
           <!-- Nom Field -->
           <div class="field">
             <label for="nom" class="form-label">Nom</label>
             <div class="input-wrapper">
               <i class="pi pi-user input-icon"></i>
-              <input id="nom" type="text" pInputText formControlName="nom" required autofocus />
+              <input class= "w-full py-3 pl-5" id="nom" type="text" pInputText formControlName="nom"  />
             </div>
-            <small *ngIf="userForm.get('nom')?.invalid && userForm.get('nom')?.touched" class="form-errors">
+            <small *ngIf="userForm.get('nom')?.invalid && userForm.get('nom')?.touched" class="p-error">
               Nom is required
             </small>
           </div>
@@ -29,34 +90,23 @@
             <label for="prenom" class="form-label">Prénom</label>
             <div class="input-wrapper">
               <i class="pi pi-user-plus input-icon"></i>
-              <input id="prenom" type="text" pInputText formControlName="prenom" required />
+              <input id="prenom" class= "w-full py-3 pl-5" type="text" pInputText formControlName="prenom"  />
             </div>
-            <small *ngIf="userForm.get('prenom')?.invalid && userForm.get('prenom')?.touched" class="form-errors">
+            <small *ngIf="userForm.get('prenom')?.invalid && userForm.get('prenom')?.touched" class="p-error">
               Prénom is required
             </small>
           </div>
 
-          <!-- Email Field -->
-          <div class="field" *ngIf="!isEditMode">
-            <label for="email" class="form-label">Email</label>
-            <div class="input-wrapper">
-              <i class="pi pi-envelope input-icon"></i>
-              <input id="email" type="email" pInputText formControlName="email" />
-            </div>
-            <small *ngIf="userForm.get('email')?.invalid && userForm.get('email')?.touched" class="form-errors">
-              <span *ngIf="userForm.get('email')?.errors?.['required']">Email is required</span>
-              <span *ngIf="userForm.get('email')?.errors?.['email']">Please enter a valid email address</span>
-            </small>
-          </div>
+
 
           <!-- Mobile Field -->
           <div class="field">
             <label for="mobile" class="form-label">Mobile</label>
             <div class="input-wrapper">
               <i class="pi pi-mobile input-icon"></i>
-              <input id="mobile" type="tel" pInputText formControlName="mobile" required />
+              <input id="mobile" class= "w-full py-3 pl-5" type="tel" pInputText formControlName="mobile"  />
             </div>
-            <small *ngIf="userForm.get('mobile')?.invalid && userForm.get('mobile')?.touched" class="form-errors">
+            <small *ngIf="userForm.get('mobile')?.invalid && userForm.get('mobile')?.touched" class="p-error">
               Mobile number is required
             </small>
           </div>
@@ -66,24 +116,36 @@
             <label for="password" class="form-label">Password</label>
             <div class="input-wrapper">
               <i class="pi pi-lock input-icon"></i>
-              <input id="password" type="password" pInputText formControlName="password" required />
+              <input id="password" class= "w-full py-3 pl-5" type="password" pInputText formControlName="password"  />
             </div>
-            <small *ngIf="userForm.get('password')?.invalid && userForm.get('password')?.touched" class="form-errors">
+            <small *ngIf="userForm.get('password')?.invalid && userForm.get('password')?.touched" class="p-error">
               Password is required (minimum 6 characters)
             </small>
           </div>
         </div>
 
-        <!-- Right Column -->
-        <div class="col-6 px-3">
+        <!-- Right Column - Untouched -->
+        <div class="col-12 md:col-6 px-3">
+                      <!-- Email Field -->
+          <div class="field" *ngIf="!isEditMode">
+            <label for="email" class="form-label">Email</label>
+            <div class="input-wrapper">
+              <i class="pi pi-envelope input-icon"></i>
+              <input id="email" class= "w-full py-3 pl-5" type="email" pInputText formControlName="email" />
+            </div>
+            <small *ngIf="userForm.get('email')?.invalid && userForm.get('email')?.touched" class="p-error">
+              <span *ngIf="userForm.get('email')?.errors?.['required']">Email is required</span>
+              <span *ngIf="userForm.get('email')?.errors?.['email']">Please enter a valid email address</span>
+            </small>
+          </div>
           <!-- Address Field -->
           <div class="field">
             <label for="address" class="form-label">Address</label>
             <div class="input-wrapper">
               <i class="pi pi-home input-icon"></i>
-              <input id="address" type="text" pInputText formControlName="address" required />
+              <input id="address" class= "w-full py-3 pl-5" type="text" pInputText formControlName="address"  />
             </div>
-            <small *ngIf="userForm.get('address')?.invalid && userForm.get('address')?.touched" class="form-errors">
+            <small *ngIf="userForm.get('address')?.invalid && userForm.get('address')?.touched" class="p-error">
               Address is required
             </small>
           </div>
@@ -93,9 +155,9 @@
             <label for="commune" class="form-label">Commune</label>
             <div class="input-wrapper">
               <i class="pi pi-map-marker input-icon"></i>
-              <input id="commune" type="text" pInputText formControlName="commune" required />
+              <input id="commune" class= "w-full py-3 pl-5" type="text" pInputText formControlName="commune"  />
             </div>
-            <small *ngIf="userForm.get('commune')?.invalid && userForm.get('commune')?.touched" class="form-errors">
+            <small *ngIf="userForm.get('commune')?.invalid && userForm.get('commune')?.touched" class="p-error">
               Commune is required
             </small>
           </div>
@@ -105,9 +167,9 @@
             <label for="village" class="form-label">Village</label>
             <div class="input-wrapper">
               <i class="pi pi-map input-icon"></i>
-              <input id="village" type="text" pInputText formControlName="village" required />
+              <input id="village" class= "w-full py-3 pl-5"  type="text" pInputText formControlName="village"  />
             </div>
-            <small *ngIf="userForm.get('village')?.invalid && userForm.get('village')?.touched" class="form-errors">
+            <small *ngIf="userForm.get('village')?.invalid && userForm.get('village')?.touched" class="p-error">
               Village is required
             </small>
           </div>
@@ -117,9 +179,10 @@
             <label for="wilaya" class="form-label">Wilaya</label>
             <div class="input-wrapper">
               <i class="pi pi-globe input-icon"></i>
-              <input id="wilaya" type="text" pInputText formControlName="wilaya" required />
+              <input id="wilaya" class= "w-full py-3 pl-5" type="text" pInputText formControlName="wilaya"  />
+              
             </div>
-            <small *ngIf="userForm.get('wilaya')?.invalid && userForm.get('wilaya')?.touched" class="form-errors">
+            <small *ngIf="userForm.get('wilaya')?.invalid && userForm.get('wilaya')?.touched" class="p-error">
               Wilaya is required
             </small>
           </div>
@@ -131,6 +194,7 @@
               <i class="pi pi-users input-icon"></i>
               <p-dropdown 
                 id="role" 
+                class= "w-full py-2 pl-5" 
                 [options]="roleOptions" 
                 formControlName="role" 
                 optionLabel="label" 
@@ -139,32 +203,9 @@
                 placeholder="Select a role"
               ></p-dropdown>
             </div>
-            <small *ngIf="userForm.get('role')?.invalid && userForm.get('role')?.touched" class="form-errors">
+            <small *ngIf="userForm.get('role')?.invalid && userForm.get('role')?.touched" class="p-error">
               Role is required
             </small>
-          </div>
-        </div>
-      </div>
-
-      <p-divider></p-divider>
-
-      <!-- Profile Picture Section -->
-      <div>
-        <h4 class="section-title">Profile Picture</h4>
-        <div class="grid">
-          <div class="col-4">
-            <div class="profile-card">
-              <div class="profile-header bg-blue-50">
-                <i class="pi pi-user profile-icon text-blue-700"></i>
-                <span class="profile-title text-blue-700">User Photo</span>
-              </div>
-              <div class="profile-content">
-                <div class="upload-placeholder">
-                  <i class="pi pi-camera"></i>
-                  <span>Upload photo</span>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </div>
@@ -173,7 +214,7 @@
 
   <ng-template pTemplate="footer">
     <div class="dialog-footer">
-      <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-outlined" (click)="hideDialog()"></button>
+      <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-outlined mr-2" (click)="hideDialog()"></button>
       <button 
         *ngIf="!isEditMode"
         pButton pRipple 
@@ -188,7 +229,7 @@
         pButton pRipple 
         label="Update" 
         icon="pi pi-check" 
-        class="p-button-primary" 
+        class="p-button-primary " 
         [disabled]="userForm.invalid" 
         (click)="updateUser()"
       ></button>

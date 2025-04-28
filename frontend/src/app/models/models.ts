@@ -8,7 +8,7 @@ export interface User {
     commune: string;         // VARCHAR(200) NOT NULL
     village: string;         // VARCHAR(200) NOT NULL
     wilaya: string;          // VARCHAR(100) NOT NULL
-    profile_picture?: string; // BYTEA (optional, will be base64 encoded when used in frontend)
+    profilePicture?: string; // BYTEA (optional, will be base64 encoded when used in frontend)
     password?: string;       // VARCHAR(255) NOT NULL (optional in responses)
     role: string;            // VARCHAR(50) NOT NULL
     createdAt?: Date;        // TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP

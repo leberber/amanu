@@ -140,3 +140,4 @@ async def delete_user(user_id: int):
     # Delete the user
     result = sql_api.safe_delete("users", {"user_id": user_id})
     return {"message": "User deleted successfully"}
+

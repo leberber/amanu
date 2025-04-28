@@ -16,6 +16,23 @@ html, body{
   --p-datatable-header-cell-selected-color: inherit !important;
   --bottom-header-nav: 90px !important;
   --top-header-nav: 50px !important;
+  --backdrop: rgba(253, 253, 253, 0.8);
+}
+
+
+
+/* Dark theme */
+:root.my-app-dark {
+  // --p-blue-50: #080911;
+  // --p-green-50: #080911;
+  // --p-orange-50: #080911;
+  --backdrop: rgba(22, 21, 21, 0.7);
+
+}
+
+.p-dialog-mask {
+  backdrop-filter: blur(5px) !important;
+  background-color: var(--backdrop) !important; 
 }
 
 @media screen and (max-width: 992px) {
@@ -48,3 +65,28 @@ html, body {
 
 
 
+
+.input-wrapper {
+  position: relative;
+  
+  .input-icon {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+    padding-right: 20px;
+  }
+}
+
+.table-card-padding .p-card-body{
+  padding: 0 !important;
+}
+
+th.left-border, td.left-border {
+  border-left: 1px solid var(--p-datatable-body-cell-border-color) !important;
+}
+
+th.right-border, td.right-border  {
+  border-right: 1px solid var(    --p-datatable-body-cell-border-color) !important;
+}

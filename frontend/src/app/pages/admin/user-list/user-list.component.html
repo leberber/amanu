@@ -2,18 +2,26 @@
 <p-confirmDialog></p-confirmDialog>
 
 <p-table 
+    #usersTable
     [value]="users" 
     [loading]="loading"
+    [scrollable]="true"
     [tableStyle]="{'min-width': '60rem'}"
-    [paginator]="true"
-    [rows]="10"
-    [rowsPerPageOptions]="[5, 10, 25, 50]"
+    scrollHeight="88vh"
     [globalFilterFields]="['nom', 'prenom', 'email', 'role']"
-    styleClass="p-datatable-striped">
+>
 
     <ng-template pTemplate="caption">
         <div class="flex justify-content-between align-items-center">
-            <h5 class="m-0">Manage Users</h5>
+            <p-iconfield iconPosition="left" class="mr-2">
+                <p-inputicon><i class="pi pi-search"></i></p-inputicon>
+                <input
+                  pInputText
+                  (input)="usersTable.filterGlobal($any($event.target).value, 'contains')"
+                  placeholder="Search..."
+                  [value]=""
+                />
+              </p-iconfield>
             <div class="flex align-items-center gap-2">
                 <button 
                     pButton 
@@ -23,37 +31,31 @@
                     class="p-button-success" 
                     (click)="openNew()">
                 </button>
-                <span class="p-input-icon-left">
-                    <i class="pi pi-search"></i>
-                    <input 
-                        pInputText 
-                        type="text" 
-                        placeholder="Search..." 
-                        (input)="onGlobalFilter($event)" />
-                </span>
+ 
+                
             </div>
         </div>
     </ng-template>
 
     <ng-template pTemplate="header">
         <tr>
-            <th pSortableColumn="user_id">ID <p-sortIcon field="user_id"></p-sortIcon></th>
-            <th pSortableColumn="nom">Nom <p-sortIcon field="nom"></p-sortIcon></th>
-            <th pSortableColumn="prenom">Prénom <p-sortIcon field="prenom"></p-sortIcon></th>
-            <th pSortableColumn="email">Email <p-sortIcon field="email"></p-sortIcon></th>
-            <th pSortableColumn="mobile">Mobile <p-sortIcon field="mobile"></p-sortIcon></th>
-            <th pSortableColumn="commune">Commune <p-sortIcon field="commune"></p-sortIcon></th>
-            <th pSortableColumn="wilaya">Wilaya <p-sortIcon field="wilaya"></p-sortIcon></th>
-            <th pSortableColumn="role">Role <p-sortIcon field="role"></p-sortIcon></th>
-            <th pSortableColumn="createdAt">Created <p-sortIcon field="createdAt"></p-sortIcon></th>
-            <th>Actions</th>
+            <!-- <th pSortableColumn="user_id" style="white-space: nowrap">ID <p-sortIcon field="user_id"></p-sortIcon></th> -->
+            <th pSortableColumn="nom" class="right-border" pFrozenColumn style="white-space: nowrap">Nom <p-sortIcon field="nom"></p-sortIcon></th>
+            <th pSortableColumn="prenom" style="white-space: nowrap">Prénom <p-sortIcon field="prenom"></p-sortIcon></th>
+            <th pSortableColumn="email" style="white-space: nowrap">Email <p-sortIcon field="email"></p-sortIcon></th>
+            <th pSortableColumn="mobile" style="white-space: nowrap">Mobile <p-sortIcon field="mobile"></p-sortIcon></th>
+            <th pSortableColumn="commune" style="white-space: nowrap">Commune <p-sortIcon field="commune"></p-sortIcon></th>
+            <th pSortableColumn="wilaya" style="white-space: nowrap">Wilaya <p-sortIcon field="wilaya"></p-sortIcon></th>
+            <th pSortableColumn="role" style="white-space: nowrap">Role <p-sortIcon field="role"></p-sortIcon></th>
+            <th pSortableColumn="createdAt" style="white-space: nowrap" >Created <p-sortIcon field="createdAt"></p-sortIcon></th>
+            <th class="left-border"   alignFrozen="right"  pFrozenColumn></th>
         </tr>
     </ng-template>
 
     <ng-template pTemplate="body" let-user>
         <tr>
-            <td>{{ user.user_id }}</td>
-            <td>{{ user.nom }}</td>
+            <!-- <td>{{ user.user_id }}</td> -->
+            <td pFrozenColumn class="right-border">{{ user.nom }}</td>
             <td>{{ user.prenom }}</td>
             <td>{{ user.email }}</td>
             <td>{{ user.mobile }}</td>
@@ -64,14 +66,14 @@
                     {{ user.role }}
                 </span>
             </td>
-            <td>{{ user.createdAt | date:'medium' }}</td>
-            <td>
-                <div class="flex justify-content-center gap-2">
+            <td style="white-space: nowrap">{{ user.createdAt | date:'medium' }}</td>
+            <td  pFrozenColumn alignFrozen="right" class="left-border">
+                <div class="flex justify-content-center ">
                     <button 
                         pButton 
                         pRipple 
                         icon="pi pi-pencil" 
-                        class="p-button-rounded p-button-success p-button-text" 
+                        class="p-button-rounded p-button-info p-button-text" 
                         (click)="editUser(user)">
                     </button>
                     <button 

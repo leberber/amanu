@@ -11,6 +11,8 @@ import { Router } from '@angular/router';
 import { User } from '../../../models/models';
 import { DbService } from '../../../services/db.service';
 import { UserDialogComponent } from '../user-dialog/user-dialog.component';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
 
 @Component({
   selector: 'app-user-list',
@@ -22,7 +24,9 @@ import { UserDialogComponent } from '../user-dialog/user-dialog.component';
     InputTextModule,
     ToastModule,
     ConfirmDialogModule,
-    UserDialogComponent
+    UserDialogComponent,
+    IconFieldModule,
+    InputIconModule
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './user-list.component.html',
@@ -33,6 +37,7 @@ export class UserListComponent implements OnInit {
   private messageService = inject(MessageService);
   private confirmationService = inject(ConfirmationService);
   private router = inject(Router);
+  
 
   users: User[] = [];
   loading = true;
