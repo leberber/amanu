@@ -1,0 +1,177 @@
+<!-- src/app/pages/admin/admin-orders/admin-orders.component.html -->
+<div class="surface-ground px-4 py-5">
+    <p-toast></p-toast>
+    <p-confirmDialog></p-confirmDialog>
+    
+    <div class="surface-card p-4 shadow-2 border-round">
+      <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+        <h1 class="text-3xl font-medium mb-3 md:mb-0">Order Management</h1>
+        
+        <div class="flex align-items-center">
+          <span class="mr-2">Filter by Status:</span>
+          <p-select 
+          [options]="statusOptions" 
+          [(ngModel)]="filterStatus" 
+          (onChange)="onStatusChange()" 
+          placeholder="Select Status"
+          optionLabel="label"
+          optionValue="value"
+          class="w-full"
+        ></p-select>
+        </div>
+      </div>
+  
+      <p-table [value]="orders" [loading]="loading" styleClass="p-datatable-striped mt-4" 
+               [tableStyle]="{'min-width': '100%'}" dataKey="id" [paginator]="false">
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Order ID</th>
+            <th>Customer</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th>Total</th>
+            <th>Actions</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-order>
+          <tr>
+            <td>#{{order.id}}</td>
+            <td>{{order.user?.full_name || 'User #' + order.user_id}}</td>
+            <td>{{formatDate(order.created_at)}}</td>
+            <td>
+              <!-- <p-tag [severity]="getStatusSeverity(order.status)" [value]="order.status"></p-tag> -->
+            </td>
+            <td>${{order.total_amount.toFixed(2)}}</td>
+            <td>
+              <div class="flex gap-2">
+                <button pButton icon="pi pi-eye" class="p-button-text p-button-sm" 
+                        (click)="openOrderDetails(order)" pTooltip="View Details"></button>
+                
+                @if (order.status === 'pending') {
+                  <button pButton icon="pi pi-check" class="p-button-text p-button-success p-button-sm" 
+                          (click)="updateOrderStatus(order.id, 'confirmed')" pTooltip="Confirm"></button>
+                }
+                
+                @if (order.status === 'confirmed') {
+                  <button pButton icon="pi pi-send" class="p-button-text p-button-info p-button-sm" 
+                          (click)="updateOrderStatus(order.id, 'shipped')" pTooltip="Mark as Shipped"></button>
+                }
+                
+                @if (order.status === 'shipped') {
+                  <button pButton icon="pi pi-check-circle" class="p-button-text p-button-success p-button-sm" 
+                          (click)="updateOrderStatus(order.id, 'delivered')" pTooltip="Mark as Delivered"></button>
+                }
+                
+                @if (order.status !== 'cancelled' && order.status !== 'delivered') {
+                  <button pButton icon="pi pi-times" class="p-button-text p-button-danger p-button-sm" 
+                          (click)="updateOrderStatus(order.id, 'cancelled')" pTooltip="Cancel"></button>
+                }
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="6" class="text-center p-4">
+              @if (loading) {
+                <p>Loading orders...</p>
+              } @else {
+                <p>No orders found.</p>
+              }
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+      
+      <!-- Paginator -->
+      <p-paginator 
+        [rows]="pageSize" 
+        [totalRecords]="totalRecords" 
+        [rowsPerPageOptions]="[10, 25, 50]" 
+        (onPageChange)="onPageChange($event)">
+      </p-paginator>
+    </div>
+    
+    <!-- Order Details Dialog -->
+    <p-dialog 
+      [(visible)]="displayOrderDialog" 
+      [style]="{width: '90%', maxWidth: '800px'}" 
+      header="Order Details" 
+      [modal]="true"
+      [draggable]="false"
+      [resizable]="false">
+      
+      @if (selectedOrder) {
+        <div class="grid">
+          <div class="col-12 md:col-6">
+            <h3 class="text-lg font-medium">Order #{{selectedOrder.id}}</h3>
+            <p><strong>Customer:</strong> {{selectedOrder.user?.full_name || 'User #' + selectedOrder.user_id}}</p>
+            <p><strong>Date:</strong> {{formatDate(selectedOrder.created_at)}}</p>
+            <p><strong>Status:</strong> <p-tag [severity]="getStatusSeverity(selectedOrder.status)" [value]="selectedOrder.status"></p-tag></p>
+            <p><strong>Total:</strong> ${{selectedOrder.total_amount.toFixed(2)}}</p>
+          </div>
+          
+          <div class="col-12 md:col-6">
+            <h3 class="text-lg font-medium">Shipping Information</h3>
+            <p><strong>Address:</strong> {{selectedOrder.shipping_address}}</p>
+            <p><strong>Phone:</strong> {{selectedOrder.contact_phone}}</p>
+          </div>
+          
+          <div class="col-12">
+            <h3 class="text-lg font-medium mt-4">Order Items</h3>
+            
+            <p-table [value]="selectedOrder.items || []" styleClass="p-datatable-sm" [tableStyle]="{'min-width': '100%'}">
+              <ng-template pTemplate="header">
+                <tr>
+                  <th>Product</th>
+                  <th>Unit Price</th>
+                  <th>Quantity</th>
+                  <th>Unit</th>
+                  <th>Total</th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-item>
+                <tr>
+                  <td>{{item.product_name}}</td>
+                  <td>${{item.unit_price.toFixed(2)}}</td>
+                  <td>{{item.quantity}}</td>
+                  <td>{{item.product_unit}}</td>
+                  <td>${{(item.unit_price * item.quantity).toFixed(2)}}</td>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="footer">
+                <tr>
+                  <td colspan="4" class="text-right font-bold">Total:</td>
+                  <td class="font-bold">${{selectedOrder.total_amount.toFixed(2)}}</td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+        </div>
+        
+        <div class="flex flex-wrap gap-2 justify-content-end mt-4">
+          <button pButton label="Close" icon="pi pi-times" class="p-button-text" (click)="displayOrderDialog = false"></button>
+          
+          @if (selectedOrder.status === 'pending') {
+            <button pButton label="Confirm" icon="pi pi-check" 
+                    (click)="updateOrderStatus(selectedOrder.id, 'confirmed'); displayOrderDialog = false"></button>
+          }
+          
+          @if (selectedOrder.status === 'confirmed') {
+            <button pButton label="Mark as Shipped" icon="pi pi-send" 
+                    (click)="updateOrderStatus(selectedOrder.id, 'shipped'); displayOrderDialog = false"></button>
+          }
+          
+          @if (selectedOrder.status === 'shipped') {
+            <button pButton label="Mark as Delivered" icon="pi pi-check-circle" 
+                    (click)="updateOrderStatus(selectedOrder.id, 'delivered'); displayOrderDialog = false"></button>
+          }
+          
+          @if (selectedOrder.status !== 'cancelled' && selectedOrder.status !== 'delivered') {
+            <button pButton label="Cancel Order" icon="pi pi-times" class="p-button-danger" 
+                    (click)="updateOrderStatus(selectedOrder.id, 'cancelled'); displayOrderDialog = false"></button>
+          }
+        </div>
+      }
+    </p-dialog>
+   </div>

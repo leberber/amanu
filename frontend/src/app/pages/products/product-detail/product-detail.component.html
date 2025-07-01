@@ -1,0 +1,201 @@
+<!-- src/app/pages/products/product-detail/product-detail.component.html -->
+<div class="h-full p-2 px-2 overflow-hidden">
+  <p-toast></p-toast>
+  
+  <div class="surface-card p-4 shadow-2 border-round h-full overflow-auto">
+    <!-- Loading state -->
+    @if (loading()) {
+      <div class="flex justify-content-center align-items-center h-full">
+        <i class="pi pi-spin pi-spinner text-4xl text-primary"></i>
+      </div>
+    } 
+    <!-- Error state -->
+    @else if (error()) {
+      <div class="flex justify-content-center align-items-center h-full">
+        <div class="surface-card p-5 shadow-2 border-round text-center">
+          <i class="pi pi-exclamation-triangle text-5xl text-pink-500 mb-3"></i>
+          <h2 class="text-2xl font-medium mb-2">Product Not Found</h2>
+          <p class="text-lg mb-4">The product you're looking for doesn't exist or has been removed.</p>
+          <button pButton label="Back to Products" icon="pi pi-arrow-left" routerLink="/products"></button>
+        </div>
+      </div>
+    } 
+    <!-- Product Detail -->
+    @else if (product()) {
+      <div class="grid">
+        <!-- Breadcrumb -->
+        <div class="col-12 mb-3">
+          <nav class="flex">
+            <a routerLink="/" class="text-primary no-underline hover:underline">Home</a>
+            <i class="pi pi-angle-right mx-2 text-500"></i>
+            <a routerLink="/products" class="text-primary no-underline hover:underline">Products</a>
+            <i class="pi pi-angle-right mx-2 text-500"></i>
+            @if (category()) {
+              <a [routerLink]="['/products']" [queryParams]="{category: category()?.id}" class="text-primary no-underline hover:underline">{{category()?.name}}</a>
+              <i class="pi pi-angle-right mx-2 text-500"></i>
+            }
+            <span class="text-700">{{product()?.name}}</span>
+          </nav>
+        </div>
+        
+        <!-- Product Main Info -->
+        <div class="col-12 lg:col-5">
+          <div class="surface-card p-3 shadow-2 border-round relative">
+            <img [src]="product()?.image_url || 'assets/images/product-placeholder.jpg'" 
+                 [alt]="product()?.name" 
+                 class="w-full border-round"
+                 style="max-height: 400px; object-fit: contain;">
+                 
+            @if (product()?.is_organic) {
+              <span class="absolute top-0 right-0 bg-green-500 text-white px-2 py-1 text-xs m-2 border-round">Organic</span>
+            }
+          </div>
+        </div>
+        
+        <div class="col-12 lg:col-7">
+          <div class="surface-card p-4 shadow-2 border-round h-full">
+            <div class="flex justify-content-between align-items-start">
+              <div>
+                <h1 class="text-3xl font-semibold mb-2">{{product()?.name}}</h1>
+                @if (product()?.is_organic) {
+                  <p-tag severity="success" value="Organic" styleClass="mb-3"></p-tag>
+                }
+              </div>
+              <span class="text-3xl font-bold text-primary">${{product()?.price}}/{{getUnitDisplay(product()?.unit || '')}}</span>
+            </div>
+            
+            <p class="text-lg line-height-3 my-4">{{product()?.description}}</p>
+            
+            <!-- Stock Status -->
+            @if (isOutOfStock() || isLowStock()) {
+              <div class="mt-2 mb-4 text-xs flex align-items-center justify-content-start" 
+                   [ngClass]="isOutOfStock() ? 'text-red-500' : 'text-orange-500'">
+                <i [class]="isOutOfStock() ? 'pi pi-exclamation-circle mr-2' : 'pi pi-exclamation-triangle mr-2'"></i>
+                <span>{{stockMessage()}}</span>
+              </div>
+            } @else {
+              <div class="bg-primary-50 p-3 border-round mb-4">
+                <div class="flex align-items-center">
+                  <i class="pi pi-info-circle text-primary mr-2"></i>
+                  <div>
+                    <span class="font-medium">Available Stock:</span> 
+                    <span class="font-bold">{{product()?.stock_quantity}} {{product()?.stock_quantity === 1 ? getUnitDisplay(product()?.unit || '') : getUnitDisplay(product()?.unit || '')}}</span>
+                  </div>
+                </div>
+              </div>
+            }
+            
+            <!-- Add to Cart Section -->
+            <div class="flex flex-column sm:flex-row align-items-center gap-3">
+              <!-- Quantity Selector -->
+              <p-select
+                  [(ngModel)]="selectedQuantity"
+                  [options]="getQuantityOptions(product()?.stock_quantity || 0)"
+                  placeholder="Qty"
+                  styleClass="w-12rem"
+                  [filter]="true"
+                  [virtualScroll]="true"
+                  [virtualScrollItemSize]="38"
+                  filterBy="label"
+                  [disabled]="isOutOfStock()">
+              </p-select>
+              
+              <!-- Add to Cart Button -->
+              <button 
+                pButton 
+                label="Add to Cart" 
+                icon="pi pi-shopping-cart" 
+                (click)="addToCart()"
+                [disabled]="isOutOfStock()"
+                class="flex-1"
+              ></button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Related Products -->
+        @if (relatedProducts().length > 0) {
+          <div class="col-12 mt-5">
+            <div class="mb-3 flex justify-content-between align-items-center">
+              <h2 class="text-2xl font-semibold m-0">Related Products</h2>
+              <a routerLink="/products" [queryParams]="{category: category()?.id}" class="text-primary no-underline hover:underline">
+                View All <i class="pi pi-arrow-right ml-1"></i>
+              </a>
+            </div>
+            
+            <div class="grid">
+              @for (relatedProduct of relatedProducts(); track relatedProduct.id) {
+                <div class="col-12 sm:col-6 lg:col-3 p-2">
+                  <div class="surface-card p-2 shadow-1 border-round h-full hover:shadow-3 transition-duration-300">
+                    <!-- Product Image with Organic badge -->
+                    <div class="relative">
+                      <img [src]="relatedProduct.image_url || 'assets/images/product-placeholder.jpg'"
+                          [alt]="relatedProduct.name" 
+                          class="w-full border-round h-200 obj-cover">
+                          
+                      @if (relatedProduct.is_organic) {
+                        <span class="absolute top-0 right-0 bg-green-500 text-white px-2 py-1 text-xs m-1 border-round">Organic</span>
+                      }
+                    </div>
+                    
+                    <div class="p-2">
+                      <!-- Product Information -->
+                      <div class="flex justify-content-between align-items-center mb-2">
+                        <span class="text-lg font-medium text-primary">${{relatedProduct.price}}/{{getUnitDisplay(relatedProduct.unit)}}</span>
+                        <h3 class="text-md font-semibold m-0 text-right">{{relatedProduct.name}}</h3>
+                      </div>
+                      
+                      <!-- Product Description -->
+                      <p class="mb-2 text-sm text-600 overflow-hidden min-h-20" >
+                        {{relatedProduct.description}}
+                      </p>
+                      
+                      <!-- Product Controls -->
+                      <div class="flex gap-1 align-items-center justify-content-between">
+                          <!-- Quantity Selector -->
+                          <p-select
+                              [(ngModel)]="productQuantities[relatedProduct.id]"
+                              [options]="getRelatedQuantityOptions(relatedProduct)"
+                              placeholder="Qty"
+                              styleClass="w-6"
+                              [filter]="true"
+                              [virtualScroll]="true"
+                              [virtualScrollItemSize]="38"
+                              filterBy="label"
+                              [disabled]="isProductOutOfStock(relatedProduct)">
+                              <ng-template let-value pTemplate="selectedItem">
+                                  <div>{{ getSelectedQuantityLabel(relatedProduct.id) }}</div>
+                              </ng-template>
+                          </p-select>
+                          
+                          <!-- Action Buttons -->
+                          <div class="flex gap-1">
+                              <button pButton icon="pi pi-eye" 
+                                    class="p-button-rounded p-button-outlined p-button-sm"
+                                    [routerLink]="['/products', relatedProduct.id]"></button>
+                              
+                              <button pButton icon="pi pi-cart-plus" 
+                                    class="p-button-rounded p-button-success p-button-sm"
+                                    (click)="addRelatedToCart(relatedProduct, $event)"
+                                    [disabled]="isProductOutOfStock(relatedProduct)"></button>
+                          </div>
+                      </div>
+                      
+                      <!-- Stock Status -->
+                      @if (isProductOutOfStock(relatedProduct) || isProductLowStock(relatedProduct)) {
+                        <div class="mt-1 text-xs flex align-items-center justify-content-center" [ngClass]="getStockColorClass(relatedProduct)">
+                            <i [class]="getStockIcon(relatedProduct) + ' mr-1'"></i>
+                            <span>{{getProductStockMessage(relatedProduct)}}</span>
+                        </div>
+                      }
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>

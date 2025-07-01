@@ -1,0 +1,71 @@
+<!-- src/app/pages/home/home.component.html -->
+<div class="surface-ground">
+    <!-- Hero Section -->
+    <div class="bg-primary text-white py-7 px-4 text-center">
+      <div class="py-6">
+        <h1 class="text-5xl font-bold mb-3">Fresh Produce Delivered to Your Door</h1>
+        <p class="text-2xl line-height-3 mb-5">
+          Shop the freshest fruits and vegetables with ease
+        </p>
+        <button pButton label="Shop Now" icon="pi pi-shopping-bag" routerLink="/products" class="p-button-rounded p-button-lg"></button>
+      </div>
+    </div>
+  
+    <!-- Categories Section -->
+    <div class="py-5 px-4">
+      <h2 class="text-3xl font-bold mb-5 text-center">Shop by Category</h2>
+      
+      <div class="grid">
+        @for (category of categories; track category.name) {
+          <div class="col-12 md:col-4 p-3">
+            <p-card 
+              styleClass="h-full"
+              [style]="{'border-radius': '1rem', 'overflow': 'hidden'}" 
+            >
+              <ng-template pTemplate="header">
+                <img [src]="category.image" alt="{{ category.name }}" class="w-full" style="height: 200px; object-fit: cover;">
+              </ng-template>
+              
+              <h3 class="text-xl font-semibold mb-3">{{ category.name }}</h3>
+              <p class="line-height-3 mb-3">{{ category.description }}</p>
+              
+              <ng-template pTemplate="footer">
+                <div class="flex justify-content-center">
+                  <button 
+                    pButton 
+                    [label]="'Explore ' + category.name" 
+                    icon="pi pi-arrow-right" 
+                    [routerLink]="category.link"
+                    class="p-button-outlined"
+                  ></button>
+                </div>
+              </ng-template>
+            </p-card>
+          </div>
+        }
+      </div>
+    </div>
+  
+    <!-- Features Section -->
+    <div class="py-5 px-4 surface-card">
+      <div class="grid">
+        <div class="col-12 md:col-4 p-3 text-center">
+          <i class="pi pi-truck text-5xl text-primary mb-3"></i>
+          <h3 class="text-xl font-semibold mb-2">Fast Delivery</h3>
+          <p>Get your produce delivered to your doorstep within 24 hours</p>
+        </div>
+        
+        <div class="col-12 md:col-4 p-3 text-center">
+          <i class="pi pi-check-circle text-5xl text-primary mb-3"></i>
+          <h3 class="text-xl font-semibold mb-2">Quality Guaranteed</h3>
+          <p>We source only the freshest produce from local farmers</p>
+        </div>
+        
+        <div class="col-12 md:col-4 p-3 text-center">
+          <i class="pi pi-heart text-5xl text-primary mb-3"></i>
+          <h3 class="text-xl font-semibold mb-2">Organic Options</h3>
+          <p>Choose from a wide range of organic fruits and vegetables</p>
+        </div>
+      </div>
+    </div>
+  </div>

@@ -1,0 +1,740 @@
+
+    """
+    Create new category (staff only).
+    """
+    # Check if category already exists
+    existing = session.exec(
+        select(Category).where(Category.name == category_in.name)
+    ).first()
+    
+    if existing:
+        raise HTTPException(
+            status_code=400,
+            detail="Category with this name already exists",
+        )
+    
+    category = Category.model_validate(category_in)
+    session.add(category)
+    session.commit()
+    session.refresh(category)
+    return category
+
+@router.get("", response_model=List[CategoryRead])
+def read_categories(
+    skip: int = Query(0, ge=0),
+    limit: int = Query(100, ge=1, le=1000),
+    active_only: bool = Query(False),
+    session: Session = Depends(get_session),
+) -> Any:
+    """
+    Retrieve categories.
+    """
+    query = select(Category)
+    
+    if active_only:
+        query = query.where(Category.is_active == True)
+    
+    categories = session.exec(query.offset(skip).limit(limit)).all()
+    return categories
+
+@router.get("/{category_id}", response_model=CategoryRead)
+def read_category(
+    category_id: int,
+    session: Session = Depends(get_session),
+) -> Any:
+    """
+    Get category by ID.
+    """
+    category = session.get(Category, category_id)
+    if not category:
+        raise HTTPException(
+            status_code=404,
+            detail="Category not found",
+        )
+    return category
+
+@router.patch("/{category_id}", response_model=CategoryRead)
+def update_category(
+    category_id: int,
+    category_in: CategoryUpdate,
+    current_user: User = Depends(get_current_staff_user),
+    session: Session = Depends(get_session),
+) -> Any:
+    """
+    Update a category (staff only).
+    """
+    category = session.get(Category, category_id)
+    if not category:
+        raise HTTPException(
+            status_code=404,
+            detail="Category not found",
+        )
+    
+    # Check if name is being changed and already exists
+    if category_in.name is not None and category_in.name != category.name:
+        existing = session.exec(
+            select(Category).where(Category.name == category_in.name)
+        ).first()
+        
+        if existing:
+            raise HTTPException(
+                status_code=400,
+                detail="Category with this name already exists",
+            )
+    
+    # Update fields
+    update_data = category_in.model_dump(exclude_unset=True)
+    for field, value in update_data.items():
+        setattr(category, field, value)
+    
+    category.updated_at = datetime.now(timezone.utc)
+    
+    session.add(category)
+    session.commit()
+    session.refresh(category)
+    return category
+
+@router.delete("/{category_id}")
+def delete_category(
+    category_id: int,
+    current_user: User = Depends(get_current_staff_user),
+    session: Session = Depends(get_session),
+) -> None:  # Change return type to None
+    """
+    Delete a category (staff only).
+    """
+    category = session.get(Category, category_id)
+    if not category:
+        raise HTTPException(
+            status_code=404,
+            detail="Category not found",
+        )
+    
+    # Check if category has products
+    if category.products:
+        # Instead of deleting, mark as inactive
+        category.is_active = False
+        category.updated_at = datetime.now(timezone.utc)
+        session.add(category)
+        session.commit()
+    else:
+        # Delete category if it has no products
+        session.delete(category)
+        session.commit()
+    
+    return None  # Explicitly return None
+
+=== app/api/api_v1/endpoints/orders.py ===
+
+from typing import Any, List, Optional
+from datetime import datetime, timezone
+from sqlalchemy.orm import joinedload
+from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlmodel import Session, select
+
+from app.database import get_session
+from app.models.order import (
+    Order, OrderCreate, OrderUpdate, OrderRead, OrderItem, 
+    OrderStatus, OrderWithItems
+)
+from app.models.product import Product
+from app.core.security import get_current_active_user, get_current_staff_user
+from app.models.user import User, UserRole
+from app.api.utils.common import format_price
+
+router = APIRouter()
+
+@router.post("", response_model=OrderRead)
+def create_order(
+    order_in: OrderCreate,
+    current_user: User = Depends(get_current_active_user),
+    session: Session = Depends(get_session),
+) -> Any:
+    """
+    Create new order.
+    """
+    # Ensure user can only create orders for themselves
+    if order_in.user_id != current_user.id:
+        raise HTTPException(
+            status_code=403,
+            detail="Not authorized to create order for another user",
+        )
+    
+    # Process order items
+    order_items = []
+    total_amount = 0
+    
+    for item in order_in.items:
+        # Check if product exists and is active
+        product = session.get(Product, item.product_id)
+        if not product:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Product with ID {item.product_id} not found",
+            )
+        
+        if not product.is_active:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Product {product.name} is not available",
+            )
+        
+        # Check stock
+        if product.stock_quantity < item.quantity:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Not enough stock for {product.name}. Available: {product.stock_quantity}",
+            )
+        
+        # Calculate item total
+        item_total = product.price * item.quantity
+        total_amount += item_total
+        
+        # Create order item
+        order_item = OrderItem(
+            product_id=item.product_id,
+            quantity=item.quantity,
+            unit_price=product.price,
+            product_name=product.name,
+            product_unit=product.unit,
+            order_id=0  # Will be updated after order creation
+        )
+        
+        order_items.append(order_item)
+        
+        # Update product stock
+        product.stock_quantity -= item.quantity
+        session.add(product)
+    
+    # Format total amount
+    total_amount = format_price(total_amount)
+    
+    # Create order
+    order = Order(
+        user_id=current_user.id,
+        status=OrderStatus.PENDING,
+        shipping_address=order_in.shipping_address,
+        contact_phone=order_in.contact_phone,
+        total_amount=total_amount
+    )
+    
+    session.add(order)
+    session.commit()
+    session.refresh(order)
+    
+    # Update order items with order ID and add to database
+    for item in order_items:
+        item.order_id = order.id
+        session.add(item)
+    
+    session.commit()
+    session.refresh(order)
+    
+    return order
+
+# The rest of the file remains unchanged
+@router.get("", response_model=List[OrderRead])
+def read_user_orders(
+    skip: int = Query(0, ge=0),
+    limit: int = Query(100, ge=1, le=1000),
+    current_user: User = Depends(get_current_active_user),
+    session: Session = Depends(get_session),
+) -> Any:
+    """
+    Get current user's orders.
+    """
+    # Regular users can only see their own orders
+    if current_user.role == UserRole.CUSTOMER:
+        orders = session.exec(
+            select(Order)
+            .where(Order.user_id == current_user.id)
+            .offset(skip)
+            .limit(limit)
+            .order_by(Order.created_at.desc())
+        ).all()
+    # Staff and admins can see all orders
+    else:
+        orders = session.exec(
+            select(Order)
+            .offset(skip)
+            .limit(limit)
+            .order_by(Order.created_at.desc())
+        ).all()
+    
+    return orders
+
+@router.get("/{order_id}", response_model=OrderWithItems)
+def read_order(
+    order_id: int,
+    current_user: User = Depends(get_current_active_user),
+    session: Session = Depends(get_session),
+) -> Any:
+    """
+    Get order by ID.
+    """
+    order = session.exec(
+        select(Order)
+        .where(Order.id == order_id)
+        .options(joinedload(Order.items))  # This explicitly loads the items
+    ).first()
+    
+    if not order:
+        raise HTTPException(
+            status_code=404,
+            detail="Order not found",
+        )
+    
+    # Regular users can only view their own orders
+    if current_user.role == UserRole.CUSTOMER and order.user_id != current_user.id:
+        raise HTTPException(
+            status_code=403,
+            detail="Not authorized to access this order",
+        )
+    
+    # Include order items in response
+    return order
+
+@router.patch("/{order_id}", response_model=Order)
+def update_order(
+    order_id: int,
+    order_in: OrderUpdate,
+    current_user: User = Depends(get_current_active_user),
+    session: Session = Depends(get_session),
+) -> Any:
+    """
+    Update order.
+    """
+    order = session.get(Order, order_id)
+    
+    if not order:
+        raise HTTPException(
+            status_code=404,
+            detail="Order not found",
+        )
+    
+    # Regular users can only cancel their own pending orders
+    if current_user.role == UserRole.CUSTOMER:
+        if order.user_id != current_user.id:
+            raise HTTPException(
+                status_code=403,
+                detail="Not authorized to modify this order",
+            )
+        
+        # Regular users can only update status to cancelled and only if order is pending
+        if order_in.status and order_in.status != OrderStatus.CANCELLED:
+            raise HTTPException(
+                status_code=403,
+                detail="Not authorized to change order status to anything other than cancelled",
+            )
+        
+        if order_in.status == OrderStatus.CANCELLED and order.status != OrderStatus.PENDING:
+            raise HTTPException(
+                status_code=400,
+                detail="Only pending orders can be cancelled",
+            )
+        
+        # Only allow updating status field for regular users
+        update_data = {"status": order_in.status} if order_in.status else {}
+    else:
+        # Staff and admins can update all fields
+        update_data = order_in.model_dump(exclude_unset=True)
+    
+    # Apply updates
+    for field, value in update_data.items():
+        setattr(order, field, value)
+    
+    order.updated_at = datetime.now(timezone.utc)
+    
+    session.add(order)
+    session.commit()
+    session.refresh(order)
+    
+    # Include order items in response
+    return order
+
+=== app/api/api_v1/endpoints/products.py ===
+
+from typing import Any, List, Optional
+from datetime import datetime, timezone
+
+from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlmodel import Session, select, or_
+
+from app.database import get_session
+from app.models.product import Product, ProductCreate, ProductUpdate, ProductRead
+from app.models.category import Category
+from app.core.security import get_current_staff_user, get_current_active_user
+from app.models.user import User
+
+router = APIRouter()
+
+@router.post("", response_model=ProductRead)
+def create_product(
+    product_in: ProductCreate,
+    current_user: User = Depends(get_current_staff_user),
+    session: Session = Depends(get_session),
+) -> Any:
+    """
+    Create new product (staff only).
+    """
+    # Check if category exists
+    category = session.get(Category, product_in.category_id)
+    if not category:
+        raise HTTPException(
+            status_code=404,
+            detail="Category not found",
+        )
+    
+    product = Product.model_validate(product_in)
+    session.add(product)
+    session.commit()
+    session.refresh(product)
+    return product
+
+@router.get("", response_model=List[ProductRead])
+def read_products(
+    skip: int = Query(0, ge=0),
+    limit: int = Query(100, ge=1, le=1000),
+    category_id: Optional[int] = None,
+    is_organic: Optional[bool] = None,
+    active_only: bool = Query(True),
+    search: Optional[str] = None,
+    min_price: Optional[float] = None,
+    max_price: Optional[float] = None,
+    sort_by: str = Query("name", enum=["name", "price", "created_at"]),
+    sort_order: str = Query("asc", enum=["asc", "desc"]),
+    session: Session = Depends(get_session),
+) -> Any:
+    """
+    Retrieve products with various filters.
+    """
+    query = select(Product)
+    
+    # Apply filters
+    if category_id:
+        query = query.where(Product.category_id == category_id)
+    
+    if is_organic is not None:
+        query = query.where(Product.is_organic == is_organic)
+    
+    if active_only:
+        query = query.where(Product.is_active == True)
+    
+    if min_price is not None:
+        query = query.where(Product.price >= min_price)
+    
+    if max_price is not None:
+        query = query.where(Product.price <= max_price)
+    
+    if search:
+        query = query.where(
+            or_(
+                Product.name.ilike(f"%{search}%"),
+                Product.description.ilike(f"%{search}%")
+            )
+        )
+    
+    # Apply sorting
+    if sort_by == "name":
+        query = query.order_by(Product.name.desc() if sort_order == "desc" else Product.name)
+    elif sort_by == "price":
+        query = query.order_by(Product.price.desc() if sort_order == "desc" else Product.price)
+    elif sort_by == "created_at":
+        query = query.order_by(Product.created_at.desc() if sort_order == "desc" else Product.created_at)
+    
+    # Apply pagination
+    products = session.exec(query.offset(skip).limit(limit)).all()
+    return products
+
+@router.get("/{product_id}", response_model=ProductRead)
+def read_product(
+    product_id: int,
+    session: Session = Depends(get_session),
+) -> Any:
+    """
+    Get product by ID.
+    """
+    product = session.get(Product, product_id)
+    if not product:
+        raise HTTPException(
+            status_code=404,
+            detail="Product not found",
+        )
+    return product
+
+@router.patch("/{product_id}", response_model=ProductRead)
+def update_product(
+    product_id: int,
+    product_in: ProductUpdate,
+    current_user: User = Depends(get_current_staff_user),
+    session: Session = Depends(get_session),
+) -> Any:
+    """
+    Update a product (staff only).
+    """
+    product = session.get(Product, product_id)
+    if not product:
+        raise HTTPException(
+            status_code=404,
+            detail="Product not found",
+        )
+    
+    # Check if category exists if being updated
+    if product_in.category_id is not None:
+        category = session.get(Category, product_in.category_id)
+        if not category:
+            raise HTTPException(
+                status_code=404,
+                detail="Category not found",
+            )
+    
+    # Update fields
+    update_data = product_in.model_dump(exclude_unset=True)
+    for field, value in update_data.items():
+        setattr(product, field, value)
+    
+    product.updated_at = datetime.now(timezone.utc)
+    
+    session.add(product)
+    session.commit()
+    session.refresh(product)
+    return product
+
+@router.delete("/{product_id}")
+def delete_product(
+    product_id: int,
+    current_user: User = Depends(get_current_staff_user),
+    session: Session = Depends(get_session),
+) -> Any:
+    """
+    Delete a product (staff only).
+    """
+    product = session.get(Product, product_id)
+    if not product:
+        raise HTTPException(
+            status_code=404,
+            detail="Product not found",
+        )
+    
+    # Check if product has related orders
+    if product.order_items:
+        # Instead of deleting, mark as inactive
+        product.is_active = False
+        product.updated_at = datetime.now(timezone.utc)
+        session.add(product)
+        session.commit()
+    else:
+        # Delete product if no related records
+        session.delete(product)
+        session.commit()
+    
+    return None
+
+@router.get("/category/{category_id}", response_model=List[ProductRead])
+def read_products_by_category(
+    category_id: int,
+    active_only: bool = Query(True),
+    session: Session = Depends(get_session),
+) -> Any:
+    """
+    Get all products in a specific category.
+    """
+    # Check if category exists
+    category = session.get(Category, category_id)
+    if not category:
+        raise HTTPException(
+            status_code=404,
+            detail="Category not found",
+        )
+    
+    # Build query
+    query = select(Product).where(Product.category_id == category_id)
+    
+    if active_only:
+        query = query.where(Product.is_active == True)
+    
+    products = session.exec(query).all()
+    return products
+
+=== app/api/api_v1/endpoints/users.py ===
+
+from typing import Any, List
+from datetime import datetime, timezone
+
+from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlmodel import Session, select
+
+from app.database import get_session
+from app.models.user import User, UserUpdate, UserRead, UserRole
+from app.core.security import (
+    get_current_active_user,
+    get_current_admin_user,
+    get_password_hash,
+)
+
+router = APIRouter()
+
+@router.get("/me", response_model=UserRead)
+def read_user_me(
+    current_user: User = Depends(get_current_active_user),
+) -> Any:
+    """
+    Get current user.
+    """
+    return current_user
+
+@router.patch("/me", response_model=UserRead)
+def update_user_me(
+    user_in: UserUpdate,
+    current_user: User = Depends(get_current_active_user),
+    session: Session = Depends(get_session),
+) -> Any:
+    """
+    Update own user information.
+    """
+    # Ensure user can't update their own role
+    if user_in.role is not None:
+        raise HTTPException(
+            status_code=400,
+            detail="Changing your own role is not allowed",
+        )
+    
+    # Update user fields
+    update_data = user_in.model_dump(exclude_unset=True)
+    
+    # Handle password update
+    if "password" in update_data:
+        update_data["hashed_password"] = get_password_hash(update_data.pop("password"))
+    
+    # Apply updates
+    for field, value in update_data.items():
+        setattr(current_user, field, value)
+    
+    current_user.updated_at = datetime.now(timezone.utc)
+    
+    session.add(current_user)
+    session.commit()
+    session.refresh(current_user)
+    return current_user
+
+@router.get("", response_model=List[UserRead])
+def read_users(
+    skip: int = Query(0, ge=0),
+    limit: int = Query(100, ge=1, le=1000),
+    current_user: User = Depends(get_current_admin_user),
+    session: Session = Depends(get_session),
+) -> Any:
+    """
+    Retrieve users (admin only).
+    """
+    users = session.exec(select(User).offset(skip).limit(limit)).all()
+    return users
+
+@router.get("/{user_id}", response_model=UserRead)
+def read_user_by_id(
+    user_id: int,
+    current_user: User = Depends(get_current_active_user),
+    session: Session = Depends(get_session),
+) -> Any:
+    """
+    Get a specific user by id.
+    """
+    user = session.get(User, user_id)
+    if not user:
+        raise HTTPException(
+            status_code=404,
+            detail="User not found",
+        )
+    
+    # Only admin can view other users
+    if user.id != current_user.id and current_user.role != UserRole.ADMIN:
+        raise HTTPException(
+            status_code=403,
+            detail="Access denied",
+        )
+    
+    return user
+
+@router.patch("/{user_id}", response_model=UserRead)
+def update_user(
+    user_id: int,
+    user_in: UserUpdate,
+    current_user: User = Depends(get_current_admin_user),
+    session: Session = Depends(get_session),
+) -> Any:
+    """
+    Update a user (admin only).
+    """
+    user = session.get(User, user_id)
+    if not user:
+        raise HTTPException(
+            status_code=404,
+            detail="User not found",
+        )
+    
+    # Update user fields
+    update_data = user_in.model_dump(exclude_unset=True)
+    
+    # Handle password update
+    if "password" in update_data:
+        update_data["hashed_password"] = get_password_hash(update_data.pop("password"))
+    
+    # Apply updates
+    for field, value in update_data.items():
+        setattr(user, field, value)
+    
+    user.updated_at = datetime.now(timezone.utc)
+    
+    session.add(user)
+    session.commit()
+    session.refresh(user)
+    return user
+
+@router.delete("/{user_id}")
+def delete_user(
+    user_id: int,
+    current_user: User = Depends(get_current_admin_user),
+    session: Session = Depends(get_session),
+) -> None:  # Changed to None
+    """
+    Delete a user (admin only).
+    """
+    user = session.get(User, user_id)
+    if not user:
+        raise HTTPException(
+            status_code=404,
+            detail="User not found",
+        )
+    
+    # Prevent self-deletion
+    if user.id == current_user.id:
+        raise HTTPException(
+            status_code=400,
+            detail="Cannot delete your own user account",
+        )
+    
+    session.delete(user)
+    session.commit()
+    return None  # Explicitly return None
+
+=== app/api/utils/__init__.py ===
+
+# Import utility functions to make them available
+from app.api.utils.common import format_price, calculate_order_total, format_date
+
+=== app/api/utils/common.py ===
+
+from typing import Dict, List, Union, Any
+from datetime import datetime
+
+def format_price(price: float) -> float:
+    """Format price to 2 decimal places"""
+    return round(price, 2)
+
+def calculate_order_total(items: List[Dict[str, Any]]) -> float:
+    """Calculate the total price of order items"""
+    return sum(item.get("quantity", 0) * item.get("unit_price", 0) for item in items)
+
+def format_date(date: datetime) -> str:
+    """Format date to ISO string"""
+    return date.isoformat()

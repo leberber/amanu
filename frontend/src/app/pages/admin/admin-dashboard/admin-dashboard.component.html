@@ -1,0 +1,177 @@
+<!-- src/app/pages/admin/admin-dashboard/admin-dashboard.component.html -->
+<div class="h-full pt-2 px-2 overflow-hidden overflow-scroll border-1">
+    <p-toast></p-toast>
+    
+    <h1 class="text-3xl font-medium mb-4">Admin Dashboard</h1>
+    
+    @if (loading) {
+      <div class="flex justify-content-center">
+        <p-progressSpinner></p-progressSpinner>
+      </div>
+    } @else if (stats) {
+      <!-- Quick Actions -->
+      <div class="grid mb-4">
+        <div class="col-12">
+          <div class="surface-card p-4 shadow-2 border-round">
+            <h2 class="text-xl font-medium mb-3">Quick Actions</h2>
+            <div class="flex flex-wrap gap-2">
+              <button pButton label="Manage Orders" icon="pi pi-list" (click)="navigateToOrders()"></button>
+              <button pButton label="Manage Users" icon="pi pi-users" (click)="navigateToUsers()"></button>
+              <button pButton label="Manage Products" icon="pi pi-box" (click)="navigateToProducts()"></button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Key Metrics -->
+      <div class="grid mb-4">
+        <div class="col-12 md:col-3">
+          <div class="surface-card p-4 shadow-2 border-round text-center">
+            <div class="text-900 text-3xl font-medium mb-3">{{stats.total_orders}}</div>
+            <div class="text-600">Total Orders</div>
+          </div>
+        </div>
+        
+        <div class="col-12 md:col-3">
+          <div class="surface-card p-4 shadow-2 border-round text-center">
+            <div class="text-900 text-3xl font-medium mb-3">${{stats.total_revenue.toFixed(2)}}</div>
+            <div class="text-600">Total Revenue</div>
+          </div>
+        </div>
+        
+        <div class="col-12 md:col-3">
+          <div class="surface-card p-4 shadow-2 border-round text-center">
+            <div class="text-900 text-3xl font-medium mb-3">{{stats.total_users}}</div>
+            <div class="text-600">Total Users</div>
+          </div>
+        </div>
+        
+        <div class="col-12 md:col-3">
+          <div class="surface-card p-4 shadow-2 border-round text-center">
+            <div class="text-900 text-3xl font-medium mb-3">{{stats.total_products}}</div>
+            <div class="text-600">Total Products</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Additional Stats -->
+      <div class="grid mb-4">
+        <div class="col-12 md:col-4">
+          <div class="surface-card p-4 shadow-2 border-round">
+            <div class="flex justify-content-between align-items-center mb-3">
+              <h3 class="text-xl font-medium m-0">Pending Orders</h3>
+              <!-- <p-tag severity="warning" value="{{stats.pending_orders}}"></p-tag> -->
+            </div>
+            <button pButton label="View All Orders" icon="pi pi-arrow-right" 
+                    class="p-button-text p-button-sm" (click)="navigateToOrders()"></button>
+          </div>
+        </div>
+        
+        <div class="col-12 md:col-4">
+          <div class="surface-card p-4 shadow-2 border-round">
+            <div class="flex justify-content-between align-items-center mb-3">
+              <h3 class="text-xl font-medium m-0">Low Stock Items</h3>
+              <p-tag severity="danger" value="{{stats.low_stock_products}}"></p-tag>
+            </div>
+            <button pButton label="View Low Stock" icon="pi pi-arrow-right" 
+                    class="p-button-text p-button-sm" (click)="navigateToProducts()"></button>
+          </div>
+        </div>
+        
+        <div class="col-12 md:col-4">
+          <div class="surface-card p-4 shadow-2 border-round">
+            <div class="flex justify-content-between align-items-center mb-3">
+              <h3 class="text-xl font-medium m-0">Total Categories</h3>
+              <p-tag severity="info" value="{{stats.total_categories}}"></p-tag>
+            </div>
+            <button pButton label="Manage Categories" icon="pi pi-arrow-right" 
+                    class="p-button-text p-button-sm" routerLink="/admin/categories"></button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Chart and Table Row -->
+      <div class="grid">
+        <!-- Sales by Category Chart -->
+        <div class="col-12 md:col-6">
+          <div class="surface-card p-4 shadow-2 border-round">
+            <h3 class="text-xl font-medium mb-3">Sales by Category</h3>
+            @if (categoryChartData) {
+              <p-chart type="pie" [data]="categoryChartData" [options]="categoryChartOptions" width="100%"></p-chart>
+            }
+          </div>
+        </div>
+        
+        <!-- Recent Orders Table -->
+        <div class="col-12 md:col-6">
+          <div class="surface-card p-4 shadow-2 border-round">
+            <h3 class="text-xl font-medium mb-3">Recent Orders</h3>
+            
+            <p-table [value]="stats.recent_orders" styleClass="p-datatable-sm p-datatable-striped" [tableStyle]="{'min-width': '100%'}">
+              <ng-template pTemplate="header">
+                <tr>
+                  <th>ID</th>
+                  <th>Customer</th>
+                  <th>Status</th>
+                  <th>Amount</th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-order>
+                <tr>
+                  <td>
+                    <a [routerLink]="['/admin/orders', order.order_id]">
+                      #{{order.order_id}}
+                    </a>
+                  </td>
+                  <td>{{order.customer_name}}</td>
+                  <td>
+                    <p-tag [severity]="getStatusSeverity(order.status)" [value]="order.status"></p-tag>
+                  </td>
+                  <td>${{order.total_amount.toFixed(2)}}</td>
+                </tr>
+              </ng-template>
+            </p-table>
+            
+            <div class="mt-3">
+              <button pButton label="View All Orders" icon="pi pi-arrow-right" 
+                      class="p-button-text p-button-sm" (click)="navigateToOrders()"></button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Top Selling Products -->
+        <div class="col-12 mt-4">
+          <div class="surface-card p-4 shadow-2 border-round">
+            <h3 class="text-xl font-medium mb-3">Top Selling Products</h3>
+            
+            <p-table [value]="stats.top_selling_products" styleClass="p-datatable-sm" [tableStyle]="{'min-width': '100%'}">
+              <ng-template pTemplate="header">
+                <tr>
+                  <th>Product</th>
+                  <th>Category</th>
+                  <th>Quantity Sold</th>
+                  <th>Total Sales</th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-product>
+                <tr>
+                  <td>
+                    <a [routerLink]="['/admin/products', product.product_id]">
+                      {{product.name}}
+                    </a>
+                  </td>
+                  <td>{{product.category}}</td>
+                  <td>{{product.total_quantity}}</td>
+                  <td>${{product.total_sales.toFixed(2)}}</td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+        </div>
+      </div>
+    } @else {
+      <div class="surface-card p-4 shadow-2 border-round">
+        <p>Error loading dashboard data. Please try again later.</p>
+      </div>
+    }
+  </div>

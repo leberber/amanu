@@ -14,7 +14,7 @@ RUN ng build --configuration=production
 
 FROM nginx:latest
 
-COPY --from=build app/dist/vtx-gco/browser /usr/share/nginx/html
+COPY --from=build app/dist/amanu/browser /usr/share/nginx/html
 
 COPY nginx.conf /etc/nginx/conf.d/default.conf  
 

@@ -1,0 +1,24 @@
+
+  // For header.component.scss
+.mobile-menu {
+  position: relative;
+  z-index: 1000;
+  
+  .surface-overlay {
+    animation: slideDown 0.3s ease;
+    max-height: calc(100vh - 70px);
+    overflow-y: auto;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+

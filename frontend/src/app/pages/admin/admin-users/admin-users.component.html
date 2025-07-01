@@ -1,0 +1,170 @@
+<!-- src/app/pages/admin/admin-users/admin-users.component.html -->
+<div class="surface-ground px-4 py-5">
+    <p-toast></p-toast>
+    <p-confirmDialog></p-confirmDialog>
+    
+    <div class="surface-card p-4 shadow-2 border-round">
+      <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+        <h1 class="text-3xl font-medium mb-3 md:mb-0">User Management</h1>
+        
+        <button pButton label="Create New User" icon="pi pi-plus" (click)="createNewUser()"></button>
+      </div>
+  
+      <p-table [value]="users" [loading]="loading" styleClass="p-datatable-striped mt-4" 
+               [tableStyle]="{'min-width': '100%'}" dataKey="id" [paginator]="false">
+        <ng-template pTemplate="header">
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Status</th>
+            <th>Created</th>
+            <th>Actions</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-user>
+          <tr>
+            <td>{{user.id}}</td>
+            <td>{{user.full_name}}</td>
+            <td>{{user.email}}</td>
+            <td>
+              <!-- <p-tag [severity]="getRoleSeverity(user.role)" [value]="user.role"></p-tag> -->
+            </td>
+            <td>
+              <p-tag [severity]="user.is_active ? 'success' : 'danger'" 
+                     [value]="user.is_active ? 'Active' : 'Inactive'"></p-tag>
+            </td>
+            <td>{{formatDate(user.created_at)}}</td>
+            <td>
+              <div class="flex gap-2">
+                <button pButton icon="pi pi-pencil" class="p-button-text p-button-sm" 
+                        (click)="openUserDetails(user)" pTooltip="Edit User"></button>
+                
+                <button pButton icon="pi pi-trash" class="p-button-text p-button-danger p-button-sm" 
+                        (click)="confirmDeleteUser(user)" pTooltip="Delete User"></button>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="7" class="text-center p-4">
+              @if (loading) {
+                <p>Loading users...</p>
+              } @else {
+                <p>No users found.</p>
+              }
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+      
+      <!-- Paginator -->
+      <p-paginator 
+        [rows]="pageSize" 
+        [totalRecords]="totalRecords" 
+        [rowsPerPageOptions]="[10, 25, 50]" 
+        (onPageChange)="onPageChange($event)">
+      </p-paginator>
+    </div>
+    
+    <!-- User Edit/Create Dialog -->
+    <p-dialog 
+      [(visible)]="displayUserDialog" 
+      [style]="{width: '90%', maxWidth: '600px'}" 
+      [header]="isEditing ? 'Edit User' : 'Create New User'" 
+      [modal]="true"
+      [draggable]="false"
+      [resizable]="false">
+      
+      <form [formGroup]="userForm" (ngSubmit)="saveUser()">
+        <div class="grid p-fluid">
+          <div class="col-12">
+            <div class="field">
+              <label for="full_name">Full Name</label>
+              <input type="text" pInputText id="full_name" formControlName="full_name" />
+              @if (userForm.get('full_name')?.touched && userForm.get('full_name')?.invalid) {
+                <small class="p-error">Full name is required</small>
+              }
+            </div>
+          </div>
+          
+          <div class="col-12">
+            <div class="field">
+              <label for="email">Email</label>
+              <input type="email" pInputText id="email" formControlName="email" />
+              @if (userForm.get('email')?.touched && userForm.get('email')?.invalid) {
+                <small class="p-error">
+                  @if (userForm.get('email')?.errors?.['required']) {
+                    Email is required
+                  } @else if (userForm.get('email')?.errors?.['email']) {
+                    Please enter a valid email address
+                  }
+                </small>
+              }
+            </div>
+          </div>
+          
+          <div class="col-12 md:col-6">
+            <div class="field">
+              <label for="phone">Phone</label>
+              <input type="text" pInputText id="phone" formControlName="phone" />
+            </div>
+          </div>
+          
+          <div class="col-12 md:col-6">
+            <div class="field">
+              <label for="role">Role</label>
+              <p-dropdown id="role" [options]="roleOptions" formControlName="role" 
+                          [style]="{'width':'100%'}" placeholder="Select a role"></p-dropdown>
+            </div>
+          </div>
+          
+          <div class="col-12">
+            <div class="field">
+              <label for="address">Address</label>
+              <textarea pInputTextarea id="address" formControlName="address" rows="3"></textarea>
+            </div>
+          </div>
+          
+          <div class="col-12">
+            <div class="field">
+              <label for="password">
+                @if (isEditing) {
+                  Password (Leave blank to keep current password)
+                } @else {
+                  Password
+                }
+              </label>
+              <p-password id="password" formControlName="password" [feedback]="true" 
+                           [toggleMask]="true" styleClass="w-full"></p-password>
+              @if (userForm.get('password')?.touched && userForm.get('password')?.invalid) {
+                <small class="p-error">
+                  @if (userForm.get('password')?.errors?.['required']) {
+                    Password is required
+                  } @else if (userForm.get('password')?.errors?.['minlength']) {
+                    Password must be at least 8 characters long
+                  }
+                </small>
+              }
+            </div>
+          </div>
+          
+          <div class="col-12">
+            <div class="field-checkbox">
+              <p-checkbox formControlName="is_active" [binary]="true" inputId="is_active"></p-checkbox>
+              <label for="is_active">Active</label>
+            </div>
+          </div>
+        </div>
+        
+        <div class="flex justify-content-end mt-4">
+          <button pButton label="Cancel" icon="pi pi-times" class="p-button-text mr-2" 
+                  type="button" (click)="displayUserDialog = false"></button>
+          <button pButton label="Save" icon="pi pi-check" type="submit" 
+                  [disabled]="userForm.invalid"></button>
+        </div>
+      </form>
+    </p-dialog>
+  </div>

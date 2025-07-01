@@ -5,7 +5,7 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
 ## Create project 
 
 ```bash
-ng new vtx-gco
+ng new amanu
 ```
 
 ## Install PrimeNG Dependencies

@@ -1,0 +1,65 @@
+<!-- src/app/pages/orders/order-list/order-list.component.html -->
+<div class="h-full pt-2 px-2 overflow-auto">
+    <p-toast></p-toast>
+    
+    <div class="surface-card p-4 shadow-2 border-round">
+      <h1 class="text-3xl font-medium mb-4">My Orders</h1>
+      
+      <!-- Loading state -->
+      <div *ngIf="loading" class="text-center py-5">
+        <i class="pi pi-spin pi-spinner text-4xl text-primary mb-3"></i>
+        <p>Loading your orders...</p>
+      </div>
+      
+      <!-- Empty state -->
+      <div *ngIf="!loading && orders.length === 0" class="text-center py-5">
+        <i class="pi pi-inbox text-6xl text-primary-200 mb-4"></i>
+        <h2 class="text-2xl font-medium mb-3">No orders found</h2>
+        <p class="text-lg mb-5">You haven't placed any orders yet.</p>
+        <p-button label="Browse Products" icon="pi pi-shopping-bag" routerLink="/products"></p-button>
+      </div>
+      
+      <!-- Orders table -->
+      <p-table 
+        *ngIf="!loading && orders.length > 0" 
+        [value]="orders" 
+        [tableStyle]="{'min-width': '100%'}"
+        [paginator]="orders.length > 10"
+        [rows]="10"
+        [showCurrentPageReport]="true"
+        [rowsPerPageOptions]="[5, 10, 25]"
+        scrollHeight="68vh"  [scrollable]="true" 
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} orders"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Order #</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th>Total</th>
+            <th style="width: 150px">Actions</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-order>
+          <tr>
+            <td>{{order.id}}</td>
+            <td>{{order.created_at | date:'medium'}}</td>
+            <td>
+              <p-tag [severity]="getStatusSeverity(order.status)" [value]="getStatusLabel(order.status)"></p-tag>
+            </td>
+            <td>${{order.total_amount}}</td>
+            <td>
+              <button 
+                pButton 
+                type="button" 
+                label="View" 
+                icon="pi pi-eye" 
+                class="p-button-sm"
+                (click)="viewOrderDetails(order.id)"
+              ></button>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>

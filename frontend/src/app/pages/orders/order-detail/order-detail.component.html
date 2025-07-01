@@ -1,0 +1,229 @@
+<!-- src/app/pages/orders/order-detail/order-detail.component.html -->
+<div class="h-full p-2 px-2 overflow-scroll  ">
+  <p-toast></p-toast>
+  
+  <div class="surface-card p-4 shadow-2 border-round h-full overflow-auto">
+    <!-- Loading state -->
+    @if (loading()) {
+      <ng-container *ngTemplateOutlet="loadingTemplate"></ng-container>
+    } 
+    <!-- Error state -->
+    @else if (error()) {
+      <ng-container *ngTemplateOutlet="errorTemplate"></ng-container>
+    } 
+    <!-- Order details -->
+    @else if (order()) {
+      <!-- Order Header -->
+      <ng-container *ngTemplateOutlet="orderHeaderTemplate"></ng-container>
+      
+      <div class="grid">
+        <!-- Order Items section -->
+        <div class="col-12 md:col-6 lg:col-7">
+          <ng-container *ngTemplateOutlet="orderItemsTemplate"></ng-container>
+        </div>
+        
+        <!-- Order details sidebar -->
+        <div class="col-12 md:col-6 lg:col-5">
+          <!-- Order Information -->
+          <!-- <ng-container *ngTemplateOutlet="orderInfoTemplate"></ng-container> -->
+          
+          <!-- Order Timeline -->
+          <ng-container *ngTemplateOutlet="orderTimelineTemplate"></ng-container>
+          
+          <!-- Order Actions -->
+          <ng-container *ngTemplateOutlet="orderActionsTemplate"></ng-container>
+        </div>
+      </div>
+    }
+  </div>
+</div>
+
+<!-- TEMPLATES -->
+
+<!-- Loading Template -->
+<ng-template #loadingTemplate>
+  <div class="text-center py-5">
+    <i class="pi pi-spin pi-spinner text-4xl text-primary mb-3"></i>
+    <p>Loading order details...</p>
+  </div>
+</ng-template>
+
+<!-- Error Template -->
+<ng-template #errorTemplate>
+  <div class="text-center py-5">
+    <i class="pi pi-exclamation-circle text-4xl text-danger mb-3"></i>
+    <h2 class="text-2xl font-medium mb-3">Failed to load order</h2>
+    <p class="text-lg mb-4">We couldn't retrieve the order details. Please try again later.</p>
+    <button pButton type="button" label="Go to Orders" routerLink="/orders"></button>
+  </div>
+</ng-template>
+
+<!-- Order Header Template -->
+<ng-template #orderHeaderTemplate>
+  <div class="mb-4">
+    <!-- Back button -->
+    <div class="mb-2">
+      <div class="flex align-items-center">
+        <button pButton type="button" icon="pi pi-arrow-left" 
+          label="Back to Orders" 
+          class="p-button-text" 
+          (click)="backToOrders()"></button>
+        
+        <span class="text-xl font-medium text-center flex-grow-1">Order #{{order()?.id}}</span>
+      </div>
+    </div>
+    
+    <p-panel header="Order  Details"  [collapsed]="true" [toggleable]="true" styleClass="mb-3">
+      <ng-template pTemplate="icons">
+        <p-tag [severity]="getStatusSeverity(order()?.status || '')" 
+              [value]="getStatusLabel(order()?.status || '')"
+              class="mr-2"></p-tag>
+      </ng-template>
+      
+      <div class="grid">
+        <div class="col-12 md:col-4 p-2">
+          <p-card styleClass="h-full shadow-1 hover:shadow-3 transition-duration-200">
+            <ng-template pTemplate="header">
+              <div class="bg-primary-50 p-3 border-bottom-1 surface-border">
+                <div class="flex align-items-center">
+                  <div class="flex align-items-center justify-content-center bg-primary border-circle h-2rem w-2rem mr-3">
+                    <i class="pi pi-hashtag text-white text-sm"></i>
+                  </div>
+                  <span class="font-medium text-primary-900">Order Number</span>
+                </div>
+              </div>
+            </ng-template>
+            <div class="text-2xl font-bold text-center p-3">{{order()?.id}}</div>
+          </p-card>
+        </div>
+        
+        <div class="col-12 md:col-4 p-2">
+          <p-card styleClass="h-full shadow-1 hover:shadow-3 transition-duration-200">
+            <ng-template pTemplate="header">
+              <div class="bg-primary-50 p-3 border-bottom-1 surface-border">
+                <div class="flex align-items-center">
+                  <div class="flex align-items-center justify-content-center bg-primary border-circle h-2rem w-2rem mr-3">
+                    <i class="pi pi-map-marker text-white text-sm"></i>
+                  </div>
+                  <span class="font-medium text-primary-900">Shipping Address</span>
+                </div>
+              </div>
+            </ng-template>
+            <div class="p-3">
+              <div class="text-md line-height-3">{{order()?.shipping_address}}</div>
+            </div>
+          </p-card>
+        </div>
+        
+        <div class="col-12 md:col-4 p-2">
+          <p-card styleClass="h-full shadow-1 hover:shadow-3 transition-duration-200">
+            <ng-template pTemplate="header">
+              <div class="bg-primary-50 p-3 border-bottom-1 surface-border">
+                <div class="flex align-items-center">
+                  <div class="flex align-items-center justify-content-center bg-primary border-circle h-2rem w-2rem mr-3">
+                    <i class="pi pi-phone text-white text-sm"></i>
+                  </div>
+                  <span class="font-medium text-primary-900">Contact Phone</span>
+                </div>
+              </div>
+            </ng-template>
+            <div class="text-xl text-center p-3">
+              <a href="tel:{{order()?.contact_phone}}" class="text-primary no-underline hover:underline">
+                {{order()?.contact_phone}}
+              </a>
+            </div>
+          </p-card>
+        </div>
+      </div>
+    </p-panel>
+  </div>
+</ng-template>
+
+<!-- Order Items Template -->
+<ng-template #orderItemsTemplate>
+  <div class="surface-card p-3 border-1 border-200 border-round">
+    <div class="text-lg font-medium mb-3">Order Items</div>
+    <p-table [value]="order()?.items || []" [tableStyle]="{'min-width': '100%'}" scrollHeight="calc(100vh - 350px)"  [scrollable]="true" >
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Product</th>
+          <th style="width: 20%">Price</th>
+          <th style="width: 20%">Qty</th>
+          <th style="width: 20%">Total</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-item>
+        <tr>
+          <td>{{item.product_name}}</td>
+          <td>${{item.unit_price}}/{{getUnitDisplay(item.product_unit)}}</td>
+          <td>{{item.quantity}}</td>
+          <td class="text-right font-medium">${{(item.unit_price * item.quantity).toFixed(2)}}</td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="footer">
+        <tr>
+          <td colspan="3" class="text-right font-medium">Total:</td>
+          <td class="text-right font-bold">${{totalAmount()}}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</ng-template>
+
+<!-- Order Information Template -->
+
+
+<!-- Order Timeline Template -->
+<ng-template #orderTimelineTemplate>
+  <div class="surface-card p-3 border-1 border-200 border-round mb-4">
+    <div class="text-lg font-medium mb-3">Order Timeline</div>
+    
+    <p-timeline [value]="orderStatuses()" align="left">
+      <ng-template pTemplate="content" let-status>
+        <div class="text-sm mb-1 font-medium">{{status.status}}</div>
+        <div class="text-xs text-600">{{status.date | date:'medium'}}</div>
+      </ng-template>
+      <ng-template pTemplate="opposite" let-status>
+        <!-- Empty opposite template -->
+      </ng-template>
+      <ng-template pTemplate="marker" let-status>
+        <span class="flex align-items-center justify-content-center text-white border-circle z-1 shadow-1" 
+              [style.background-color]="status.color" 
+              style="width: 2rem; height: 2rem">
+          <i [class]="status.icon"></i>
+        </span>
+      </ng-template>
+    </p-timeline>
+  </div>
+</ng-template>
+
+<!-- Order Actions Template -->
+<ng-template #orderActionsTemplate>
+  <div class="surface-card p-3 border-1 border-200 border-round">
+    <div class="text-lg font-medium mb-3">Order Actions</div>
+    
+    <div *ngIf="canCancelOrder()" class="mb-3">
+      <button 
+        pButton 
+        type="button" 
+        label="Cancel Order" 
+        icon="pi pi-times" 
+        class="p-button-danger w-full"
+        (click)="cancelOrder()"
+      ></button>
+      <small class="block text-xs text-600 mt-1">
+        You can only cancel orders that haven't been processed yet.
+      </small>
+    </div>
+    
+    <div>
+      <button 
+        pButton 
+        type="button" 
+        label="Contact Support" 
+        icon="pi pi-comments" 
+        class="p-button-outlined w-full"
+      ></button>
+    </div>
+  </div>
+</ng-template>

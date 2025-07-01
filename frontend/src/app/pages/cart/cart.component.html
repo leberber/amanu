@@ -1,0 +1,221 @@
+<!-- src/app/pages/cart/cartcomponent.html -->
+<div class="h-full pt-2 px-2 overflow-auto">
+  <p-toast></p-toast>
+  
+  <div class="surface-card p-4 shadow-1 border-round">
+    <div class="flex justify-content-start mb-4">
+      <button 
+        pButton 
+        label="Continue Shopping" 
+        icon="pi pi-arrow-left" 
+        class="p-button-outlined"
+        routerLink="/products"
+      ></button>
+    </div>
+    
+    <!-- Loading State -->
+    @if (loading()) {
+      <div class="flex justify-content-center align-items-center py-8">
+        <i class="pi pi-spin pi-spinner text-4xl text-primary"></i>
+      </div>
+    } @else if (cartItemCount() === 0) {
+      <!-- Empty Cart -->
+      <div class="text-center py-5">
+        <i class="pi pi-shopping-cart text-6xl text-primary-200 mb-4"></i>
+        <h2 class="text-2xl font-medium mb-3">Your cart is empty</h2>
+        <p class="text-lg mb-5">Looks like you haven't added any products to your cart yet.</p>
+        <p-button label="Browse Products" icon="pi pi-shopping-bag" routerLink="/products"></p-button>
+      </div>
+    } @else {
+      <!-- Cart Content -->
+      <div class="grid">
+        <!-- Cart Items - Main column -->
+        <div class="col-12 md:col-8">
+          <!-- Desktop View (Table) -->
+          <div class="hidden md:block overflow-hidden shadow-1">
+            <p-table 
+              [value]="cartItems()" 
+              styleClass="p-datatable-sm" 
+              [scrollable]="true" 
+              scrollHeight="78vh"
+              [tableStyle]="{'min-width':'100%'}"
+            >
+              <ng-template pTemplate="header">
+                <tr>
+                  <th style="width: 40%" class="text-left">Product</th>
+                  <th style="width: 15%" class="text-center">Price</th>
+                  <th style="width: 20%" class="text-center">Quantity</th>
+                  <th style="width: 15%" class="text-right">Total</th>
+                  <th style="width: 10%" class="text-center"></th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-item>
+                <tr>
+                  <td>
+                    <div class="flex align-items-center">
+                      <img 
+                        [src]="item.product_image || 'assets/images/product-placeholder.jpg'" 
+                        [alt]="item.product_name" 
+                        width="60" 
+                        height="60" 
+                        class="shadow-1 mr-3 border-round"
+                        style="object-fit: cover;"
+                      >
+                      <div>
+                        <p class="font-medium text-900 dark:text-white m-0 white-space-nowrap overflow-hidden text-overflow-ellipsis" style="max-width: 200px">
+                          {{item.product_name}}
+                        </p>
+                        @if (item.is_organic) {
+                          <p-tag severity="success" value="Organic" styleClass="mt-1"></p-tag>
+                        }
+                      </div>
+                    </div>
+                  </td>
+                  <td class="text-center font-medium text-700 dark:text-white">
+                    ${{item.product_price}}/{{getUnitDisplay(item.product_unit)}}
+                  </td>
+                  <td>
+                    <div class="flex align-items-center justify-content-center">
+                      <p-select
+                        [(ngModel)]="productQuantities[item.id]"
+                        [options]="getQuantityOptions(item.stock_quantity, item.id)"
+                        placeholder="Qty"
+                        styleClass="w-8rem"
+                        [filter]="true"
+                        [virtualScroll]="true"
+                        [virtualScrollItemSize]="38"
+                        filterBy="label"
+                        appendTo="body"
+                        [disabled]="isOutOfStock(item)"
+                        (onChange)="updateItemQuantity(item, $event.value)">
+                        <ng-template let-value pTemplate="selectedItem">
+                          <div>{{ getSelectedQuantityLabel(item.id) }}</div>
+                        </ng-template>
+                      </p-select>
+                    </div>
+                  </td>
+                  <td class="text-right font-bold text-900 dark:text-white">
+                    ${{(item.product_price * item.quantity).toFixed(2)}}
+                  </td>
+                  <td class="text-center">
+                    <button 
+                      pButton 
+                      type="button" 
+                      icon="pi pi-trash" 
+                      class="p-button-rounded p-button-danger p-button-text p-button-sm"
+                      pTooltip="Remove Item"
+                      tooltipPosition="left"
+                      (click)="removeItem(item.id)"
+                    ></button>
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+          
+          <!-- Mobile View (Cards) -->
+          <div class="block md:hidden">
+            @for (item of cartItems(); track item.id) {
+              <div class="surface-card p-3 mb-2 border-round shadow-1">
+                <div class="flex align-items-center">
+                  <!-- Image (smaller) -->
+                  <div style="width: 60px; height: 60px;" class="mr-3 flex-shrink-0">
+                    <img [src]="item.product_image || 'assets/images/product-placeholder.jpg'" 
+                         [alt]="item.product_name" class="w-full h-full border-round"
+                         style="object-fit: cover;">
+                  </div>
+                  
+                  <!-- Content -->
+                  <div class="flex-grow-1 overflow-hidden">
+                    <!-- Name with tag -->
+                    <div class="flex align-items-center justify-content-between">
+                      <div class="flex align-items-center overflow-hidden">
+                        <span class="font-medium text-overflow-ellipsis overflow-hidden white-space-nowrap">{{item.product_name}}</span>
+                        @if (item.is_organic) {
+                          <p-tag severity="success" value="O" styleClass="ml-1"></p-tag>
+                        }
+                      </div>
+                      <button pButton icon="pi pi-trash" class="p-button-rounded p-button-danger p-button-text p-button-sm p-0"
+                          (click)="removeItem(item.id)"></button>
+                    </div>
+                    
+                    <!-- Price/Quantity row -->
+                    <div class="flex justify-content-between align-items-center text-sm mt-2">
+                      <!-- Left column: Price with fixed width -->
+                      <span class="text-700 w-4rem text-left">${{item.product_price}}/{{getUnitDisplay(item.product_unit)}}</span>
+                      
+                      <!-- Middle column: Quantity select dropdown -->
+                      <div class="flex align-items-center justify-content-center" style="width: 120px; z-index: 1;">
+                        <p-select
+                          [(ngModel)]="productQuantities[item.id]"
+                          [options]="getQuantityOptions(item.stock_quantity, item.id)"
+                          placeholder="Qty"
+                          styleClass="w-full mobile-dropdown"
+                          [filter]="true"
+                          [virtualScroll]="true"
+                          [virtualScrollItemSize]="38"
+                          filterBy="label"
+                          appendTo="body"
+                          [disabled]="isOutOfStock(item)"
+                          (onChange)="updateItemQuantity(item, $event.value)">
+                          <ng-template let-value pTemplate="selectedItem">
+                            <div>{{ getSelectedQuantityLabel(item.id) }}</div>
+                          </ng-template>
+                        </p-select>
+                      </div>
+                      
+                      <!-- Right column: Total price with fixed width for 6 digits -->
+                      <span class="font-bold text-900 w-5rem text-right">${{(item.product_price * item.quantity).toFixed(2)}}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+        
+        <!-- Order Summary -->
+        <div class="col-12 md:col-4">
+          <div class="surface-card p-4 shadow-1 border-round flex flex-column">
+            <h3 class="text-xl font-medium text-900 dark:text-white">Order Summary</h3>
+            
+            <div class="flex justify-content-between mb-3">
+              <span class="text-900 dark:text-white">Items ({{cartItemCount()}})</span>
+              <span class="font-medium text-900 dark:text-white">${{cartTotal().toFixed(2)}}</span>
+            </div>
+            
+            <div class="flex justify-content-between mb-3">
+              <span class="text-900 dark:text-white">Shipping</span>
+              <span class="font-medium text-900 dark:text-white">Free</span>
+            </div>
+            
+            <p-divider></p-divider>
+            
+            <div class="flex justify-content-between mb-4">
+              <span class="text-lg font-medium text-900 dark:text-white">Total</span>
+              <span class="text-lg font-bold text-900 dark:text-white">${{cartTotal().toFixed(2)}}</span>
+            </div>
+            
+            <div class="flex flex-column mt-auto">
+              <button 
+                pButton 
+                label="Proceed to Checkout" 
+                icon="pi pi-credit-card" 
+                (click)="proceedToCheckout()"
+                class="mb-2"
+              ></button>
+              
+              <button 
+                pButton 
+                label="Clear Cart" 
+                icon="pi pi-trash" 
+                class="p-button-outlined p-button-danger"
+                (click)="clearCart()"
+              ></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>

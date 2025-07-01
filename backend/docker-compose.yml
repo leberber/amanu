@@ -1,0 +1,17 @@
+services:
+  api:
+    build: .
+    ports:
+      - "8001:8000"  # Changed to 8001 in case 8000 is in use
+    volumes:
+      - ./app:/app/app
+      - ./main.py:/app/main.py
+      - ./data:/app/data  # Mount a data directory for the database
+    environment:
+      - DATABASE_URL=sqlite:///./data/app.db
+      - SECRET_KEY=your-super-secret-key-change-this-in-production
+      - ADMIN_EMAIL=admin@freshproduce.com
+      - ADMIN_PASSWORD=admin123
+      - ADMIN_NAME=Admin User
+      - BACKEND_CORS_ORIGINS=["http://localhost:3000","http://localhost:8001","http://localhost:8080"]
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload

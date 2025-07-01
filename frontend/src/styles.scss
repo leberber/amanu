@@ -1,112 +1,111 @@
 /* You can add global styles to this file, and also import other style files */
 @use 'primeflex/primeflex' as *;
 
-@import "primeicons/primeicons.css";
+@font-face {
+  font-family: 'primeicons';
+  font-style: normal;
+  font-weight: normal;
+  src: url('/assets/fonts/primeicons.eot');
+  src: url('/assets/fonts/primeicons.eot?#iefix') format('embedded-opentype'),
+       url('/assets/fonts/primeicons.ttf') format('truetype'),
+       url('/assets/fonts/primeicons.woff') format('woff'),
+       url('/assets/fonts/primeicons.woff2') format('woff2'),
+       url('/assets/fonts/primeicons.svg?#primeicons') format('svg');
+}
+
+
+
+
+@import 'primeicons/primeicons.css';
+// @import "tailwindcss";
+
+
+
 html, body{
     font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
       Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
       "Segoe UI Symbol";
+
+      padding: 0 !important; margin: 0 !important;
 }
+
+:root {
+  --header-height: 9vh;
+  --filters-header-height: 9vh;
+  --p-datatable-header-cell-selected-background: transparent !important;
+--p-datatable-header-cell-selected-color: inherit !important;
+  
+}
+
+.p-timeline-event-opposite {
+  flex: 0 !important;
+}
+
+
+
+.header-height{height: var(--header-height) !important};
+.header-height-margin{ margin-top:  var(--header-height) };
+.content-height {
+  padding: 0 !important;
+  height: calc(100vh - var(--header-height) ) !important; 
+  overflow: hidden;
+
+}
+
 .p-error{
   color:rgb(240, 52, 52);
 }
 
-:root{
-  --p-datatable-header-cell-selected-background: transparent !important;
-  --p-datatable-header-cell-selected-color: inherit !important;
-  --bottom-header-nav: 90px !important;
-  --top-header-nav: 50px !important;
-  --backdrop: rgba(253, 253, 253, 0.8);
-}
-
-
-
-/* Dark theme */
-:root.my-app-dark {
-  // --p-blue-50: #080911;
-  // --p-green-50: #080911;
-  // --p-orange-50: #080911;
-  --backdrop: rgba(22, 21, 21, 0.7);
-
-}
-
-.p-dialog-mask {
-  backdrop-filter: blur(5px) !important;
-  background-color: var(--backdrop) !important; 
-}
-
-@media screen and (max-width: 992px) {
-  :root{
-    --bottom-header-nav: 50px !important;
-    --top-header-nav: 0px !important;
+@media (max-width: 968px) {
+  :root {
+    --header-height: 7vh !important;
   }
+  // .h-height{top: 2rem !important}
 }
 
-html, body {
-  margin: 0 !important;
-  padding: 0 !important;
-  width: 100%;
-
-}
-
-
-.bottom-header-nav {
-  height: var(--bottom-header-nav);
-}
-.top-header-nav {
-  height: var(--top-header-nav);
-  // background-color: red !important;
-}
-
-.app-content{
-  height: calc(100vh - var(--bottom-header-nav) - var(--top-header-nav) );
-  overflow: scroll;
-}
-
-.mobile-menu-drop-down{
-  height: calc(100vh - var(--bottom-header-nav));
- 
-}
-
-
-
-
-.input-wrapper {
-  position: relative;
+  /* Custom heights for product cards */
+   .h-200 {
+    height: 200px;
+  }
   
-  .input-icon {
-    position: absolute;
-    left: 0.75rem;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #6c757d;
-    padding-right: 20px;
+.h-100 {
+    height: 100px;
+
   }
-}
-
-.table-card-padding .p-card-body{
-  padding: 0 !important;
-}
-
-th.left-border, td.left-border {
-  border-left: 1px solid var(--p-datatable-body-cell-border-color) !important;
-}
-
-th.right-border, td.right-border  {
-  border-right: 1px solid var(    --p-datatable-body-cell-border-color) !important;
-}
-
-.profile-menu {
-  animation: fadeInDown 0.2s ease-out;
-}
-
-@keyframes fadeInDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
+  
+.min-h-20 {
+    min-height: 5rem;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  
+  .obj-cover {
+    object-fit: cover;
   }
+
+// :root {
+//   // Layout dimensions
+//   --header-height: 85px;
+//   --app-spacing: 15px;
+//   --font-family:"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+//     Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+//     "Segoe UI Symbol";
+  
+//   // Color & appearance
+//   --backdrop: rgba(253, 253, 253, 0.8);
+//   --language-input-border: none;
+  
+//   // PrimeNG overrides
+//   --p-datatable-header-cell-selected-background: transparent !important;
+//   --p-datatable-header-cell-selected-color: inherit !important;
+// }
+
+// Dark Theme
+:root.my-app-dark {
+  // Color overrides for dark mode
+  --p-blue-50: #080911;
+  --p-green-50: #080911;
+  --p-orange-50: #080911;
+  --bg-blue-200: red;
+  --backdrop: rgba(22, 21, 21, 0.7);
+  --language-input-border: rgb(49, 47, 47) !important;
 }
+
