@@ -1,8 +1,8 @@
 {
-    "/api": {
-      "target": "https://amanu-5028o9mls-yazids-projects-3370118f.vercel.app",
-      "secure": true,
-      "changeOrigin": true,
-      "logLevel": "debug"
-    }
+  "/api": {
+    "target": "https://Elsuq-5028o9mls-yazids-projects-3370118f.vercel.app",
+    "secure": true,
+    "changeOrigin": true,
+    "logLevel": "debug"
   }
+}

@@ -1,24 +1,9 @@
-FROM node as build
+FROM nginx:alpine
 
-WORKDIR /app
+# Copy the pre-built Angular app
+COPY dist/Elsuq/browser /usr/share/nginx/html
 
-COPY package*.json ./
-
-RUN npm install
-
-RUN npm install -g @angular/cli
-
-COPY . .
-
-RUN ng build --configuration=production
-
-FROM nginx:latest
-
-COPY --from=build app/dist/amanu/browser /usr/share/nginx/html
-
-COPY nginx.conf /etc/nginx/conf.d/default.conf  
 
 EXPOSE 80
-# docker build --no-cache -t gco .
-# docker run  -p 4200:80 --name dev gco
 
+CMD ["nginx", "-g", "daemon off;"]

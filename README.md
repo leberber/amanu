@@ -1,5 +1,1 @@
-http-server -p 8080 -c-1 dist/amanu/browser
-
-uvicorn main:app --host 0.0.0.0 --port 8002 --reload
-
- vercel .  
+1) Create a key value pair to use when using CDK to launch the instance# cdk

@@ -4,12 +4,12 @@
 
   <div class="grid h-full overflow-hidden">
       <!-- Filters Sidebar - Hidden on mobile -->
-      <div class="col-12 md:col-4 lg:col-3 hidden md:block h-full overflow-auto">
+      <div class="col-12 md:col-4 lg:col-3 hidden md:block h-full overflow-auto desktop-fixed-sidebar">
         <ng-container *ngTemplateOutlet="categoryFilterTemplate"></ng-container>
       </div>
 
       <!-- Products Column -->
-      <div class="col-12 md:col-8 lg:col-9 h-full flex flex-column">
+      <div class="col-12 md:col-8 lg:col-9 h-full flex flex-column products-column-with-fixed-sidebar">
           <!-- Search & Sort Bar -->
           <ng-container *ngTemplateOutlet="searchSortBarTemplate"></ng-container>
 
@@ -230,7 +230,7 @@
 <ng-template #gridViewTemplate>
   <div class="grid">
     @for (product of products(); track product.id) {
-      <div class="col-12 sm:col-6 lg:col-4 xl:col-3 p-1">
+      <div class="col-12 sm:col-6 lg:col-4 xl:col-3">
         <div class="surface-card p-2 shadow-1 border-round h-full hover:shadow-5 transition-duration-300">
             <!-- Product Image with Organic badge -->
             <div class="relative">

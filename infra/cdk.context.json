@@ -1,0 +1,38 @@
+{
+  "vpc-provider:account=974445237958:filter.isDefault=true:region=eu-west-3:returnAsymmetricSubnets=true": {
+    "vpcId": "vpc-01fa743127f2b5bfa",
+    "vpcCidrBlock": "172.31.0.0/16",
+    "ownerAccountId": "974445237958",
+    "availabilityZones": [],
+    "subnetGroups": [
+      {
+        "name": "Public",
+        "type": "Public",
+        "subnets": [
+          {
+            "subnetId": "subnet-0653848b1b02595ac",
+            "cidr": "172.31.0.0/20",
+            "availabilityZone": "eu-west-3a",
+            "routeTableId": "rtb-09cbeb78723bd40b0"
+          },
+          {
+            "subnetId": "subnet-060dd99af1fc4d1a2",
+            "cidr": "172.31.16.0/20",
+            "availabilityZone": "eu-west-3b",
+            "routeTableId": "rtb-09cbeb78723bd40b0"
+          },
+          {
+            "subnetId": "subnet-080a92dc46dee5563",
+            "cidr": "172.31.32.0/20",
+            "availabilityZone": "eu-west-3c",
+            "routeTableId": "rtb-09cbeb78723bd40b0"
+          }
+        ]
+      }
+    ]
+  },
+  "hosted-zone:account=974445237958:domainName=elsuq.org:region=eu-west-3": {
+    "Id": "/hostedzone/Z040531834UZQRHG5PULE",
+    "Name": "elsuq.org."
+  }
+}

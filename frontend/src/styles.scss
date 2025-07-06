@@ -45,12 +45,12 @@ html, body{
 
 .header-height{height: var(--header-height) !important};
 .header-height-margin{ margin-top:  var(--header-height) };
-.content-height {
-  padding: 0 !important;
-  height: calc(100vh - var(--header-height) ) !important; 
-  overflow: hidden;
+// .content-height {
+//   padding: 0 !important;
+//   height: calc(100vh - var(--header-height) ) !important; 
+//   overflow: hidden;
 
-}
+// }
 
 .p-error{
   color:rgb(240, 52, 52);
@@ -60,7 +60,14 @@ html, body{
   :root {
     --header-height: 7vh !important;
   }
-  // .h-height{top: 2rem !important}
+
+.content-height {
+  padding: 0 !important;
+  height: 100%; 
+  overflow: scroll;
+
+}
+//   // .h-height{top: 2rem !important}
 }
 
   /* Custom heights for product cards */
@@ -109,3 +116,8 @@ html, body{
   --language-input-border: rgb(49, 47, 47) !important;
 }
 
+.grid {
+  margin-right: 0 !important;
+  margin-left: 0 !important;
+  margin-top: 0 !important;
+}

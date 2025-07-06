@@ -22,3 +22,52 @@
   }
 }
 
+
+/* Import artistic font from Google Fonts */
+// @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+// /* Option 1: Futuristic/Sci-fi */
+// @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap');
+// font-family: 'Orbitron', monospace;
+
+// /* Option 2: Modern/Geometric */
+@import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@700&display=swap');
+// font-family: 'Exo 2', sans-serif;
+
+// /* Option 3: Stylish/Fashion */
+@import url('https://fonts.googleapis.com/css2?family=Righteous&display=swap');
+// font-family: 'Righteous', cursive;
+
+// /* Option 4: Tech/Gaming */
+@import url('https://fonts.googleapis.com/css2?family=Audiowide&display=swap');
+// font-family: 'Audiowide', cursive;
+
+// /* Option 5: Elegant/Modern */
+@import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@700&display=swap');
+// font-family: 'Comfortaa', cursive;
+
+/* Add this to your component's CSS file or global styles */
+.logo-modern {
+  font-family: 'Comfortaa', cursive;
+  font-size: 1.75rem; /* 28px */
+  font-weight: 900;
+  text-decoration: none;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  // letter-spacing: 0.05em; /* Adjusted for Orbitron */
+  transition: all 0.3s ease;
+  display: inline-block;
+}
+
+.logo-modern:hover {
+  transform: scale(1.05);
+}
+
+/* Fallback for browsers that don't support background-clip: text */
+@supports not (-webkit-background-clip: text) {
+  .logo-modern {
+    background: none;
+    color: #667eea;
+  }
+}

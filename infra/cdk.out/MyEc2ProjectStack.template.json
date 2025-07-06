@@ -1,0 +1,231 @@
+{
+  "Resources": {
+    "WebServerSG4D0F372C": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "Security group for web server",
+        "SecurityGroupEgress": [
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Allow all outbound traffic by default",
+            "IpProtocol": "-1"
+          }
+        ],
+        "SecurityGroupIngress": [
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Allow SSH",
+            "FromPort": 22,
+            "IpProtocol": "tcp",
+            "ToPort": 22
+          },
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Allow HTTP",
+            "FromPort": 80,
+            "IpProtocol": "tcp",
+            "ToPort": 80
+          },
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Allow HTTPS",
+            "FromPort": 443,
+            "IpProtocol": "tcp",
+            "ToPort": 443
+          },
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Allow FastAPI",
+            "FromPort": 8000,
+            "IpProtocol": "tcp",
+            "ToPort": 8000
+          },
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Allow Angular",
+            "FromPort": 4200,
+            "IpProtocol": "tcp",
+            "ToPort": 4200
+          }
+        ],
+        "VpcId": "vpc-01fa743127f2b5bfa"
+      },
+      "Metadata": {
+        "aws:cdk:path": "MyEc2ProjectStack/WebServerSG/Resource"
+      }
+    },
+    "WebServerInstanceRoleEEE3F4CD": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "ec2.amazonaws.com"
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "MyEc2ProjectStack/WebServer"
+          }
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "MyEc2ProjectStack/WebServer/InstanceRole/Resource"
+      }
+    },
+    "WebServerInstanceProfile7A5DA8F6": {
+      "Type": "AWS::IAM::InstanceProfile",
+      "Properties": {
+        "Roles": [
+          {
+            "Ref": "WebServerInstanceRoleEEE3F4CD"
+          }
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "MyEc2ProjectStack/WebServer/InstanceProfile"
+      }
+    },
+    "WebServer99EDD300": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "AvailabilityZone": "eu-west-3a",
+        "IamInstanceProfile": {
+          "Ref": "WebServerInstanceProfile7A5DA8F6"
+        },
+        "ImageId": {
+          "Ref": "SsmParameterValueawsserviceamiamazonlinuxlatestal2023amikernel61x8664C96584B6F00A464EAD1953AFF4B05118Parameter"
+        },
+        "InstanceType": "t3.small",
+        "KeyName": "Elsuq-ssh-key",
+        "SecurityGroupIds": [
+          {
+            "Fn::GetAtt": ["WebServerSG4D0F372C", "GroupId"]
+          }
+        ],
+        "SubnetId": "subnet-0653848b1b02595ac",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "MyEc2ProjectStack/WebServer"
+          }
+        ],
+        "UserData": {
+          "Fn::Base64": "#!/bin/bash\n#!/bin/bash\nsudo dnf update -y\nsudo dnf install -y git\necho 'Instance is ready!' | sudo tee /var/log/user-data.log\nsudo dnf install -y docker\nsudo systemctl start docker\nsudo systemctl enable docker\nsudo usermod -a -G docker ec2-user\nsudo curl -L https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose\nsudo chmod +x /usr/local/bin/docker-compose\nsudo dnf install -y python3 python3-pip\nsudo dnf install -y nginx certbot python3-certbot-nginx\nsudo systemctl enable nginx"
+        }
+      },
+      "DependsOn": ["WebServerInstanceRoleEEE3F4CD"],
+      "Metadata": {
+        "aws:cdk:path": "MyEc2ProjectStack/WebServer/Resource"
+      }
+    },
+    "ARecordE7B57761": {
+      "Type": "AWS::Route53::RecordSet",
+      "Properties": {
+        "HostedZoneId": "Z040531834UZQRHG5PULE",
+        "Name": "elsuq.org.",
+        "ResourceRecords": [
+          {
+            "Fn::GetAtt": ["WebServer99EDD300", "PublicIp"]
+          }
+        ],
+        "TTL": "300",
+        "Type": "A"
+      },
+      "Metadata": {
+        "aws:cdk:path": "MyEc2ProjectStack/ARecord/Resource"
+      }
+    },
+    "WWWRecordA21741B4": {
+      "Type": "AWS::Route53::RecordSet",
+      "Properties": {
+        "HostedZoneId": "Z040531834UZQRHG5PULE",
+        "Name": "www.elsuq.org.",
+        "ResourceRecords": [
+          {
+            "Fn::GetAtt": ["WebServer99EDD300", "PublicIp"]
+          }
+        ],
+        "TTL": "300",
+        "Type": "A"
+      },
+      "Metadata": {
+        "aws:cdk:path": "MyEc2ProjectStack/WWWRecord/Resource"
+      }
+    },
+    "CDKMetadata": {
+      "Type": "AWS::CDK::Metadata",
+      "Properties": {
+        "Analytics": "v2:deflate64:H4sIAAAAAAAA/1WOzQqDMBCEn8V73PpD6bn0UHqq6AOUNK40VRPZbBAJefei4qGnmflmDlNAnmWQJXJ2qWr7dNBvCA1L1YsanfWkUMjZvQKqAkKDypPm5U7WT+LWmX/wMI6lUbg2h49CyxFCbYcNH3rUFdlODxgFWc94LiFca1SW2m28uQY5xjVWkuSIjLSGp+fJ877af0ZRLfyx5lRCXsAl+TqtU/KG9YhQ7/oDVj/Hcu8AAAA="
+      },
+      "Metadata": {
+        "aws:cdk:path": "MyEc2ProjectStack/CDKMetadata/Default"
+      }
+    }
+  },
+  "Parameters": {
+    "SsmParameterValueawsserviceamiamazonlinuxlatestal2023amikernel61x8664C96584B6F00A464EAD1953AFF4B05118Parameter": {
+      "Type": "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>",
+      "Default": "/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-6.1-x86_64"
+    },
+    "BootstrapVersion": {
+      "Type": "AWS::SSM::Parameter::Value<String>",
+      "Default": "/cdk-bootstrap/hnb659fds/version",
+      "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
+    }
+  },
+  "Outputs": {
+    "PublicIP": {
+      "Description": "Public IP of the EC2 instance",
+      "Value": {
+        "Fn::GetAtt": ["WebServer99EDD300", "PublicIp"]
+      }
+    },
+    "SSHCommand": {
+      "Description": "SSH command to connect to the instance",
+      "Value": {
+        "Fn::Join": [
+          "",
+          [
+            "ssh -i Elsuq-ssh-key.pem ec2-user@",
+            {
+              "Fn::GetAtt": ["WebServer99EDD300", "PublicIp"]
+            }
+          ]
+        ]
+      }
+    },
+    "ServerStatusURL": {
+      "Description": "Application URL",
+      "Value": "https://elsuq.org"
+    }
+  },
+  "Rules": {
+    "CheckBootstrapVersion": {
+      "Assertions": [
+        {
+          "Assert": {
+            "Fn::Not": [
+              {
+                "Fn::Contains": [
+                  ["1", "2", "3", "4", "5"],
+                  {
+                    "Ref": "BootstrapVersion"
+                  }
+                ]
+              }
+            ]
+          },
+          "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+        }
+      ]
+    }
+  }
+}

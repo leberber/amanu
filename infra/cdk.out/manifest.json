@@ -1,0 +1,125 @@
+{
+  "version": "34.0.0",
+  "artifacts": {
+    "MyEc2ProjectStack.assets": {
+      "type": "cdk:asset-manifest",
+      "properties": {
+        "file": "MyEc2ProjectStack.assets.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+      }
+    },
+    "MyEc2ProjectStack": {
+      "type": "aws:cloudformation:stack",
+      "environment": "aws://974445237958/eu-west-3",
+      "properties": {
+        "templateFile": "MyEc2ProjectStack.template.json",
+        "terminationProtection": false,
+        "validateOnSynth": false,
+        "assumeRoleArn": "arn:${AWS::Partition}:iam::974445237958:role/cdk-hnb659fds-deploy-role-974445237958-eu-west-3",
+        "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::974445237958:role/cdk-hnb659fds-cfn-exec-role-974445237958-eu-west-3",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-974445237958-eu-west-3/1c78418f4b53a53221c162c4d61c7a4c6ecfbeef722c0ff1646d205a86a83f6b.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
+        "additionalDependencies": [
+          "MyEc2ProjectStack.assets"
+        ],
+        "lookupRole": {
+          "arn": "arn:${AWS::Partition}:iam::974445237958:role/cdk-hnb659fds-lookup-role-974445237958-eu-west-3",
+          "requiresBootstrapStackVersion": 8,
+          "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+        }
+      },
+      "dependencies": [
+        "MyEc2ProjectStack.assets"
+      ],
+      "metadata": {
+        "/MyEc2ProjectStack/WebServerSG/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WebServerSG4D0F372C"
+          }
+        ],
+        "/MyEc2ProjectStack/WebServer/InstanceRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WebServerInstanceRoleEEE3F4CD"
+          }
+        ],
+        "/MyEc2ProjectStack/WebServer/InstanceProfile": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WebServerInstanceProfile7A5DA8F6"
+          }
+        ],
+        "/MyEc2ProjectStack/WebServer/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WebServer99EDD300"
+          }
+        ],
+        "/MyEc2ProjectStack/SsmParameterValue:--aws--service--ami-amazon-linux-latest--al2023-ami-kernel-6.1-x86_64:C96584B6-F00A-464E-AD19-53AFF4B05118.Parameter": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "SsmParameterValueawsserviceamiamazonlinuxlatestal2023amikernel61x8664C96584B6F00A464EAD1953AFF4B05118Parameter"
+          }
+        ],
+        "/MyEc2ProjectStack/ARecord/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ARecordE7B57761"
+          }
+        ],
+        "/MyEc2ProjectStack/WWWRecord/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "WWWRecordA21741B4"
+          }
+        ],
+        "/MyEc2ProjectStack/PublicIP": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PublicIP"
+          }
+        ],
+        "/MyEc2ProjectStack/SSHCommand": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "SSHCommand"
+          }
+        ],
+        "/MyEc2ProjectStack/ServerStatusURL": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ServerStatusURL"
+          }
+        ],
+        "/MyEc2ProjectStack/CDKMetadata/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CDKMetadata"
+          }
+        ],
+        "/MyEc2ProjectStack/BootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BootstrapVersion"
+          }
+        ],
+        "/MyEc2ProjectStack/CheckBootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CheckBootstrapVersion"
+          }
+        ]
+      },
+      "displayName": "MyEc2ProjectStack"
+    },
+    "Tree": {
+      "type": "cdk:tree",
+      "properties": {
+        "file": "tree.json"
+      }
+    }
+  }
+}

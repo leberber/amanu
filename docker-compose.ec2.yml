@@ -1,0 +1,14 @@
+services:
+  backend:
+    image: backend:latest
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+    
+  frontend:
+    image: frontend:latest
+    ports:
+      - "4200:80" 
+    depends_on:
+      - backend
+    restart: unless-stopped
