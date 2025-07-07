@@ -2,8 +2,8 @@
 <div class="h-full pt-2 px-2 overflow-auto">
     <p-toast></p-toast>
     
-    <div class="surface-card p-4 shadow-2 border-round">
-      <h1 class="text-3xl font-medium mb-4">My Orders</h1>
+    <div class="surface-card p-3 border-round">
+      <h1 class="text-2xl font-medium mb-4 ml-2">My Orders</h1>
       
       <!-- Loading state -->
       <div *ngIf="loading" class="text-center py-5">
@@ -19,7 +19,7 @@
         <p-button label="Browse Products" icon="pi pi-shopping-bag" routerLink="/products"></p-button>
       </div>
       
-      <!-- Orders table -->
+      <!-- Desktop Table View - Hidden on mobile -->
       <p-table 
         *ngIf="!loading && orders.length > 0" 
         [value]="orders" 
@@ -28,8 +28,10 @@
         [rows]="10"
         [showCurrentPageReport]="true"
         [rowsPerPageOptions]="[5, 10, 25]"
-        scrollHeight="68vh"  [scrollable]="true" 
+        scrollHeight="68vh"
+        [scrollable]="true" 
         currentPageReportTemplate="Showing {first} to {last} of {totalRecords} orders"
+        class="hidden md:block"
       >
         <ng-template pTemplate="header">
           <tr>
@@ -61,5 +63,46 @@
           </tr>
         </ng-template>
       </p-table>
+
+      <!-- Mobile Card View - Clickable Rows -->
+  <!-- Mobile Card View - Clickable Rows -->
+<div *ngIf="!loading && orders.length > 0" class="block md:hidden">
+  <div *ngFor="let order of orders" 
+       class="surface-card p-4 mb-4 border-bottom-1 border-100 cursor-pointer hover:surface-100 transition-colors transition-duration-150"
+       (click)="viewOrderDetails(order.id)">
+    
+    <div class="flex align-items-center">
+      <!-- Icon -->
+      <div class="flex align-items-center justify-content-center w-3rem h-3rem border-circle bg-primary text-primary mr-4 flex-shrink-0">
+        <i class="pi pi-eye text-lg"></i>
+      </div>
+      
+      <!-- Content -->
+      <div class="flex-grow-1 overflow-hidden">
+        <!-- Order number with status -->
+        <div class="flex align-items-center justify-content-between mb-3">
+          <span class="font-medium text-overflow-ellipsis overflow-hidden white-space-nowrap text-base">Order #{{order.id}}</span>
+          <p-tag 
+            [severity]="getStatusSeverity(order.status)" 
+            [value]="getStatusLabel(order.status)"
+            [style]="{'font-size': '0.875rem', 'padding': '0.5rem 0.75rem'}"
+          ></p-tag>
+        </div>
+        
+        <!-- Date/Total row -->
+        <div class="flex justify-content-between align-items-center">
+          <span class="text-600 text-sm">{{order.created_at | date:'MMM d, y'}}</span>
+          <span class="font-bold text-900 text-base">${{order.total_amount}}</span>
+        </div>
+      </div>
+
+      <!-- Chevron indicator -->
+      <div class="flex align-items-center justify-content-center ml-3">
+        <i class="pi pi-chevron-right text-400"></i>
+      </div>
     </div>
   </div>
+</div>
+
+    </div>
+</div>

@@ -49,6 +49,9 @@ html, body{
   font-size: 1.2rem !important;
 }
 
+.filtes-fixed{
+position: fixed; top:var(--header-height) ; z-index: 200; left:20%;right:0;
+}
 
 
 .header-height{height: var(--header-height) !important};
@@ -68,6 +71,10 @@ html, body{
   :root {
     --header-height: 8vh !important;
   }
+
+  .filtes-fixed{
+position: fixed; top:var(--header-height) ; z-index: 200; left:0;right:0;
+}
 
 .content-height {
   padding: 0 !important;

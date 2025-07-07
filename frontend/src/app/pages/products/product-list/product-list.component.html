@@ -112,16 +112,20 @@
 
 <!-- Search & Sort Bar Template -->
 <ng-template #searchSortBarTemplate>
-  <div class="surface-card p-2 border-round mb-2" 
-     style="box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);"
+  <div class="surface-card p-2 border-round mb-2 filtes-fixed" 
+     
      >
       <div class="flex flex-column sm:flex-row justify-content-between align-items-center">
           <!-- Desktop Search -->
-          <div class="p-inputgroup mb-2 sm:mb-0 sm:w-5 hidden sm:flex">
-              <input type="text" pInputText [ngModel]="searchQuery()" 
-                     (ngModelChange)="searchQuery.set($event); onSearch()"
-                     placeholder="Search products...">
-          </div>
+          <div class="p-inputgroup mb-2 sm:mb-0 sm:w-8 hidden sm:flex">
+ <input type="text" pInputText [ngModel]="searchQuery()" 
+        (ngModelChange)="searchQuery.set($event); onSearch()"
+        placeholder="Search products..."
+        class="text-lg"
+
+        [style]="{'padding': '0.75rem 1rem', 'height': '3rem', 'width': '500px'}">
+</div>
+
           
           <!-- Mobile Layout -->
           <div class="flex justify-content-between align-items-center w-full sm:hidden">
@@ -234,7 +238,7 @@
   <div class="grid">
     @for (product of products(); track product.id) {
       <div class="col-12 sm:col-6 lg:col-4 xl:col-3">
-        <div class="surface-card p-2 shadow-1 border-round h-full hover:shadow-5 transition-duration-300">
+        <div class="surface-card py-3 border-bottom-1 border-100  h-full hover:shadow-5 transition-duration-300">
             <!-- Product Image with Organic badge -->
             <div class="relative">
               <img [src]="product.image_url || 'assets/images/product-placeholder.jpg'"
@@ -307,10 +311,10 @@
 
 <!-- List View Template -->
 <ng-template #listViewTemplate>
-  <div class="grid">
+  <div class="grid pt-5">
     @for (product of products(); track product.id) {
       <div class="col-12 p-1">
-        <div class="surface-card p-2 shadow-2 border-round hover:shadow-5 transition-duration-300">
+        <div class="surface-card px-0 pt-3 p-2 border-bottom-1 border-100 border-round hover:shadow-5 transition-duration-300">
             <div class="grid">
                 <!-- Product Image -->
                 <div class="col-5 col-sm-4 md:col-3 lg:col-2 relative">

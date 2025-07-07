@@ -1,8 +1,8 @@
 <!-- src/app/pages/orders/order-detail/order-detail.component.html -->
-<div class="h-full p-2 px-2 overflow-scroll  ">
+<div class="h-full  overflow-scroll  ">
   <p-toast></p-toast>
   
-  <div class="surface-card p-4 shadow-2 border-round h-full overflow-auto">
+  <div class="surface-card p-3 shadow-2 border-round h-full overflow-auto">
     <!-- Loading state -->
     @if (loading()) {
       <ng-container *ngTemplateOutlet="loadingTemplate"></ng-container>
@@ -18,12 +18,12 @@
       
       <div class="grid">
         <!-- Order Items section -->
-        <div class="col-12 md:col-6 lg:col-7">
+        <div class="col-12 md:col-6 lg:col-7 p-0 pb-2 lg:pr-3">
           <ng-container *ngTemplateOutlet="orderItemsTemplate"></ng-container>
         </div>
         
         <!-- Order details sidebar -->
-        <div class="col-12 md:col-6 lg:col-5">
+        <div class="col-12 md:col-6 lg:col-5 p-0">
           <!-- Order Information -->
           <!-- <ng-container *ngTemplateOutlet="orderInfoTemplate"></ng-container> -->
           
@@ -60,20 +60,20 @@
 
 <!-- Order Header Template -->
 <ng-template #orderHeaderTemplate>
-  <div class="mb-4">
+  <div class="mb-0">
     <!-- Back button -->
     <div class="mb-2">
       <div class="flex align-items-center">
         <button pButton type="button" icon="pi pi-arrow-left" 
           label="Back to Orders" 
-          class="p-button-text" 
+          class="p-button-text text-xl" 
           (click)="backToOrders()"></button>
         
         <span class="text-xl font-medium text-center flex-grow-1">Order #{{order()?.id}}</span>
       </div>
     </div>
     
-    <p-panel header="Order  Details"  [collapsed]="true" [toggleable]="true" styleClass="mb-3">
+    <p-panel header="Order  Details"  [collapsed]="true" [toggleable]="true" styleClass="mb-2">
       <ng-template pTemplate="icons">
         <p-tag [severity]="getStatusSeverity(order()?.status || '')" 
               [value]="getStatusLabel(order()?.status || '')"
@@ -141,7 +141,7 @@
 
 <!-- Order Items Template -->
 <ng-template #orderItemsTemplate>
-  <div class="surface-card p-3 border-1 border-200 border-round">
+  <div class="surface-card pt-3 px-2 border-1 border-200 border-round">
     <div class="text-lg font-medium mb-3">Order Items</div>
     <p-table [value]="order()?.items || []" [tableStyle]="{'min-width': '100%'}" scrollHeight="calc(100vh - 350px)"  [scrollable]="true" >
       <ng-template pTemplate="header">
@@ -175,7 +175,7 @@
 
 <!-- Order Timeline Template -->
 <ng-template #orderTimelineTemplate>
-  <div class="surface-card p-3 border-1 border-200 border-round mb-4">
+  <div class="surface-card p-3 border-1 border-200 border-round mb-2">
     <div class="text-lg font-medium mb-3">Order Timeline</div>
     
     <p-timeline [value]="orderStatuses()" align="left">
@@ -208,7 +208,7 @@
         type="button" 
         label="Cancel Order" 
         icon="pi pi-times" 
-        class="p-button-danger w-full"
+        class="p-button-danger w-full p-button-lg"
         (click)="cancelOrder()"
       ></button>
       <small class="block text-xs text-600 mt-1">
@@ -222,7 +222,7 @@
         type="button" 
         label="Contact Support" 
         icon="pi pi-comments" 
-        class="p-button-outlined w-full"
+        class="p-button-outlined w-full p-button-lg"
       ></button>
     </div>
   </div>

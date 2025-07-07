@@ -7,9 +7,9 @@
 @media (min-width: 768px) {
   .desktop-fixed-sidebar {
     position: fixed;
-    top: 4rem;
+    top: 3.5rem;
     left: 0;
-    width: 50%; /* Adjust based on your col-3 sizing */
+    width: 20%; /* Adjust based on your col-3 sizing */
     height: 100vh;
     z-index: 100;
     padding-top: 2rem; /* Match your pt-2 class */

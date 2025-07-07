@@ -99,13 +99,14 @@
           routerLink="/cart"
           class="flex align-items-center justify-content-center h-2rem w-2rem mr-2"
         >
-          <p-overlayBadge
-            badgeSize="small"
-            severity="danger"
-            [value]="cartCount() ?? '0'"
-          >
-            <i class="pi pi-shopping-cart text-2xl mobile-menu-btn"></i>
-          </p-overlayBadge>
+       <p-overlayBadge
+  badgeSize="small"
+  severity="danger"
+  [value]="cartCount() ?? '0'"
+  [style.display]="cartCount() && +cartCount()! > 0 ? 'inline-block' : 'none'"
+>
+  <i class="pi pi-shopping-cart text-xl"></i>
+</p-overlayBadge>
         </a>
 
         <!-- Theme toggle - matched dimensions and styling -->
