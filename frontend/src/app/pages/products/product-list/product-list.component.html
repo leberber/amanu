@@ -1,5 +1,5 @@
 <!-- src/app/pages/products/product-list/product-list.component.html -->
-<div class="h-full pt-2 px-2 overflow-hidden">
+<div class="h-full pt-2  overflow-hidden">
   <p-toast></p-toast>
 
   <div class="grid h-full overflow-hidden">
@@ -112,7 +112,9 @@
 
 <!-- Search & Sort Bar Template -->
 <ng-template #searchSortBarTemplate>
-  <div class="surface-card p-2 shadow-2 border-round mb-2">
+  <div class="surface-card p-2 border-round mb-2" 
+     style="box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);"
+     >
       <div class="flex flex-column sm:flex-row justify-content-between align-items-center">
           <!-- Desktop Search -->
           <div class="p-inputgroup mb-2 sm:mb-0 sm:w-5 hidden sm:flex">
@@ -123,21 +125,22 @@
           
           <!-- Mobile Layout -->
           <div class="flex justify-content-between align-items-center w-full sm:hidden">
-              <div class="p-inputgroup flex-1 mr-2">
-                  <input type="text" pInputText [ngModel]="searchQuery()" 
-                         (ngModelChange)="searchQuery.set($event); onSearch()"
-                         placeholder="Search...">
-              </div>
+            <div class="p-inputgroup flex-1 mr-2">
+    <input type="text" pInputText [ngModel]="searchQuery()" 
+           (ngModelChange)="searchQuery.set($event); onSearch()"
+           placeholder="Search..."
+           class="text-lg p-2">
+</div>
               
               <!-- Mobile View Toggle - Single button that changes based on current view -->
               <button pButton 
                       [icon]="layout() === 'grid' ? 'pi pi-list' : 'pi pi-th-large'" 
-                      class="p-button-outlined p-button-sm mr-2"
+                      class=" mr-2"
                       (click)="toggleLayout()"></button>
               
-              <button pButton icon="pi pi-sort-alt" class="p-button-outlined p-button-sm"
+              <button pButton icon="pi pi-sort-alt" 
                       (click)="sortMenu.toggle($event)"></button>
-              <button pButton icon="pi pi-filter" class="p-button-outlined p-button-sm ml-2"
+              <button pButton icon="pi pi-filter" class="p ml-2"
                       (click)="toggleMobileFilters()"></button>
               
               <p-menu #sortMenu [popup]="true" [model]="sortMenuItems()"></p-menu>
@@ -265,7 +268,7 @@
                         [options]="getQuantityOptions(product.stock_quantity, product.id)"
                         placeholder="Qty"
                         styleClass="w-6"
-                        [filter]="true"
+                        
                         [virtualScroll]="true"
                         [virtualScrollItemSize]="38"
                         filterBy="label"
@@ -351,7 +354,7 @@
                               [options]="getQuantityOptions(product.stock_quantity, product.id)"
                               placeholder="Qty"
                               styleClass="w-6rem mr-2"
-                              [filter]="true"
+                              
                               [virtualScroll]="true"
                               [virtualScrollItemSize]="38"
                               filterBy="label"

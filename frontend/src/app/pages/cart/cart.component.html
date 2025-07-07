@@ -1,8 +1,8 @@
 <!-- src/app/pages/cart/cartcomponent.html -->
-<div class="h-full pt-2 px-2 overflow-auto">
+<div class="h-full pt-2  overflow-auto">
   <p-toast></p-toast>
   
-  <div class="surface-card p-4 shadow-1 border-round">
+  <div class="surface-card p-2 ">
     <div class="flex justify-content-start mb-4">
       <button 
         pButton 
@@ -81,7 +81,7 @@
                         [options]="getQuantityOptions(item.stock_quantity, item.id)"
                         placeholder="Qty"
                         styleClass="w-8rem"
-                        [filter]="true"
+                     
                         [virtualScroll]="true"
                         [virtualScrollItemSize]="38"
                         filterBy="label"

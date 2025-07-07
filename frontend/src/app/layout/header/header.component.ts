@@ -1,4 +1,4 @@
-// src/app/pages/header/header.component.ts
+// src/app/layout/header/header.component.ts
 import { Component, OnInit, OnDestroy, signal, computed, effect, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
@@ -48,29 +48,28 @@ export class HeaderComponent implements OnInit, OnDestroy {
   items = signal<MenuItem[]>([]);
   mobileItems = signal<MenuItem[]>([]);
   userMenuItems = signal<MenuItem[]>([]);
-  
-  // Style definitions
-  avatarStyle = {'background-color':'var(--primary-color)', 'color': 'var(--primary-text-color)'};
+  private cartItems = signal<any[]>([]);
   
   // Subscriptions
   private subscriptions: Subscription[] = [];
   
+  // Style definitions
+  // avatarStyle = {'background-color':'var(--primary-color)', 'color': 'var(--primary-text-color)'};
+  avatarStyle={ 'background-color': '#ece9fc', color: '#2a1261' }
+  
   // Computed signals
-  isAdmin = computed(() => 
-    this.authService.isLoggedIn && 
-    (this.currentUser()?.role === 'admin' || this.currentUser()?.role === 'staff')
-  );
+  isAdmin = computed(() => {
+    const user = this.currentUser();
+    const isLoggedIn = this.authService.isLoggedIn;
+    const hasAdminRole = user?.role === 'admin' || user?.role === 'staff';
+    
+    return isLoggedIn && user && hasAdminRole;
+  });
   
   displayName = computed(() => this.currentUser()?.full_name || 'User');
-  
   userEmail = computed(() => this.currentUser()?.email || '');
   
-  // Track cart items 
-  private cartItems = signal<any[]>([]);
-  
-  // Display distinct items count in cart
   cartCount = computed(() => {
-    // Use the cart items signal that we maintain
     return this.cartItems().length > 0 
       ? this.cartItems().length.toString() 
       : null;
@@ -78,58 +77,45 @@ export class HeaderComponent implements OnInit, OnDestroy {
   
   themeIcon = computed(() => this.isDarkMode() ? 'pi pi-sun' : 'pi pi-moon');
 
-  constructor() {
-    // Effect to update menus when relevant values change
-    effect(() => {
-      // This effect depends on isAdmin and authService.isLoggedIn
-      const admin = this.isAdmin();
-      const loggedIn = this.authService.isLoggedIn;
-      
-      // Build menus when these dependencies change
-      this.buildMenus();
-    });
+  ngOnInit() {
+    this.initializeTheme();
+    this.subscribeToUserChanges();
+    this.loadInitialUserData();
+    this.loadCartItems();
   }
 
-  ngOnInit() {
-    // Check for current theme
+  private initializeTheme(): void {
     this.isDarkMode.set(document.querySelector('html')?.classList.contains('my-app-dark') || false);
-    
-    // Subscribe to user changes
+  }
+
+  private subscribeToUserChanges(): void {
     this.subscriptions.push(
       this.authService.currentUser$.subscribe(user => {
         this.currentUser.set(user);
-        this.buildMenus();
+        this.buildMenus(); // Rebuild menus when user changes
       })
     );
-    
-    // Always try to load user data on initialization
+  }
+
+  private loadInitialUserData(): void {
     if (this.authService.isLoggedIn) {
       this.authService.loadCurrentUser().subscribe({
         error: err => console.error('Error loading user in header:', err)
       });
     }
-    
-    // Load cart items and subscribe to cart changes
-    this.loadCartItems();
   }
-  
-  /**
-   * Load cart items and subscribe to changes
-   */
+
   private loadCartItems(): void {
-    // Initial cart load
     this.cartService.getCartItems().subscribe();
     
-    // Subscribe to cart items changes
     this.subscriptions.push(
       this.cartService.cartItems$.subscribe(items => {
-        // Update our local signal with the cart items
         this.cartItems.set(items || []);
       })
     );
   }
 
-  // UI actions
+  // UI Actions
   toggleDarkMode(): void {
     this.isDarkMode.update(isDark => !isDark);
     const element = document.querySelector('html');
@@ -151,9 +137,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.closeMenu();
   }
 
-  // Menu building
+  // Menu Configuration
   private buildMenus(): void {
-    // Base items for both menus
     const baseItems: MenuItem[] = [
       {
         label: 'Home',
@@ -167,11 +152,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
       }
     ];
 
+    const user = this.currentUser();
+    const isAdminUser = this.authService.isLoggedIn && user && (user.role === 'admin' || user.role === 'staff');
+
     // Desktop menu with sub-menus
     const desktopItems: MenuItem[] = [...baseItems];
-    
-    // Add admin submenu for desktop (when appropriate)
-    if (this.isAdmin()) {
+    if (isAdminUser) {
       desktopItems.push(this.getAdminMenuItem());
     }
     this.items.set(desktopItems);
@@ -179,14 +165,24 @@ export class HeaderComponent implements OnInit, OnDestroy {
     // Mobile menu - flattened with direct links
     const mobileItems: MenuItem[] = [...baseItems];
     
-    // Add direct admin link for mobile
-    if (this.isAdmin()) {
+    // Add Orders for logged-in users
+    if (this.authService.isLoggedIn) {
+      mobileItems.push({
+        label: 'Orders',
+        icon: 'pi pi-list',
+        routerLink: '/orders'
+      });
+    }
+    
+    // Add Admin for admin users
+    if (isAdminUser) {
       mobileItems.push({
         label: 'Admin',
         icon: 'pi pi-cog',
         routerLink: '/admin'
       });
     }
+    
     this.mobileItems.set(mobileItems);
 
     // User dropdown menu items
@@ -194,8 +190,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
       this.authService.isLoggedIn ? this.getUserMenuItems() : []
     );
   }
+
+  // Add trackBy function for better change detection
+  trackByLabel(index: number, item: MenuItem): string {
+    return item.label || index.toString();
+  }
   
-  // Admin menu configuration
   private getAdminMenuItem(): MenuItem {
     return {
       label: 'Admin',
@@ -230,7 +230,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
     };
   }
   
-  // User menu configuration
   private getUserMenuItems(): MenuItem[] {
     return [
       {
@@ -252,7 +251,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    // Clean up subscriptions
     this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 }

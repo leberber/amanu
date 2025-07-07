@@ -1,9 +1,10 @@
 // src/app/app.component.ts
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { HeaderComponent } from './layout/header/header.component';
 import { FooterComponent } from './layout/footer/footer.component';
+import { ViewportService } from './services/viewport.service';
 
 @Component({
   selector: 'app-root',
@@ -15,4 +16,7 @@ import { FooterComponent } from './layout/footer/footer.component';
 export class AppComponent {
 
   title = 'Fresh Produce';
+  private viewportService = inject(ViewportService);
 }
+
+// src/app/app.component.ts

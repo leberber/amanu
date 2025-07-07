@@ -11,6 +11,10 @@ export class AuthService {
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
   
+  // Add login state observable
+  private isLoggedInSubject = new BehaviorSubject<boolean>(this.isLoggedIn);
+  public isLoggedIn$ = this.isLoggedInSubject.asObservable();
+  
   constructor(private apiService: ApiService) {
     this.loadStoredUser();
   }
@@ -31,6 +35,7 @@ export class AuthService {
     return this.apiService.post<LoginResponse>('/auth/login', body.toString(), options).pipe(
       tap(response => {
         localStorage.setItem('token', response.access_token);
+        this.isLoggedInSubject.next(true); // Notify login state change
       }),
       // Chain the user loading after successful token acquisition
       switchMap(() => this.loadCurrentUser())
@@ -45,6 +50,7 @@ export class AuthService {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     this.currentUserSubject.next(null);
+    this.isLoggedInSubject.next(false); // Notify logout state change
   }
   
   loadCurrentUser(): Observable<User> {
@@ -52,6 +58,7 @@ export class AuthService {
       tap(user => {
         localStorage.setItem('user', JSON.stringify(user));
         this.currentUserSubject.next(user);
+        this.isLoggedInSubject.next(true); // Ensure login state is true
       })
     );
   }
@@ -62,7 +69,9 @@ export class AuthService {
     
     if (storedUser && token) {
       try {
-        this.currentUserSubject.next(JSON.parse(storedUser));
+        const user = JSON.parse(storedUser);
+        this.currentUserSubject.next(user);
+        this.isLoggedInSubject.next(true); // Set login state to true
       } catch (e) {
         console.error('Error parsing stored user:', e);
         this.logout(); // Clear invalid data

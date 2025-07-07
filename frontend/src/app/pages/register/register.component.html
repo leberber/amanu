@@ -1,125 +1,124 @@
 <!-- src/app/pages/register/register.component.html -->
-<div class="flex justify-content-center align-items-center mt-6">
-    <p-card styleClass="p-5" [style]="{width: '500px'}">
-      <ng-template pTemplate="header">
-        <div class="text-center py-4">
-          <h2 class="text-3xl font-bold mb-2">Register</h2>
-          <p class="m-0 text-lg">Create a new account</p>
+<div class="flex justify-content-center align-items-center min-h-screen p-4">
+  <div [style]="{width: '100%', 'max-width': '500px'}">
+    
+    <div class="text-center mb-4">
+      <h2 class="text-3xl font-bold mb-2">Register</h2>
+      <p class="m-0 text-lg">Create a new account</p>
+    </div>
+
+    <p-toast></p-toast>
+
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+      <!-- Email Field -->
+      <div class="field mb-4">
+        <label for="email" class="block font-medium text-600 mb-2">Email <span class="p-error">*</span></label>
+        <div class="relative">
+          <i class="pi pi-envelope input-icon"></i>
+          <input 
+            id="email" 
+            type="email" 
+            pInputText 
+            class="w-full pl-5" 
+            formControlName="email" 
+            placeholder="Enter your email"
+            [style]="{'padding': '0.75rem 1rem 0.75rem 2.5rem', 'height': '3rem'}"
+          />
         </div>
-      </ng-template>
-  
-      <p-toast></p-toast>
-  
-      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
-        <div class="mb-4">
-          <label for="email" class="block text-900 font-medium mb-2">Email</label>
-          <div class="p-input-icon-left w-full">
-            <i class="pi pi-envelope"></i>
-            <input 
-              id="email" 
-              type="email" 
-              pInputText 
-              class="w-full" 
-              formControlName="email" 
-              placeholder="Enter your email"
-            />
-          </div>
-          @if (f['email'].touched && f['email'].invalid) {
-            <small class="errors">
-              @if (f['email'].errors?.['required']) {
-                Email is required
-              } @else if (f['email'].errors?.['email']) {
-                Enter a valid email address
-              }
-            </small>
-          }
-        </div>
-  
-        <div class="mb-4">
-          <label for="full_name" class="block text-900 font-medium mb-2">Full Name</label>
-          <div class="p-input-icon-left w-full">
-            <i class="pi pi-user"></i>
-            <input 
-              id="full_name" 
-              type="text" 
-              pInputText 
-              class="w-full" 
-              formControlName="full_name" 
-              placeholder="Enter your full name"
-            />
-          </div>
-          @if (f['full_name'].touched && f['full_name'].errors?.['required']) {
-            <small class="errors">Full name is required</small>
-          }
-        </div>
-  
-        <div class="mb-4">
-          <label for="password" class="block text-900 font-medium mb-2">Password</label>
-          <div class="p-input-icon-left w-full">
-            <i class="pi pi-lock"></i>
-            <p-password 
-              id="password"
-              formControlName="password"
-              [toggleMask]="true"
-              [style]="{'width':'100%'}"
-              [inputStyle]="{'width':'100%'}"
-              placeholder="Enter your password"
-              [feedback]="true"
-            ></p-password>
-          </div>
-          @if (f['password'].touched && f['password'].invalid) {
-            <small class="errors">
-              @if (f['password'].errors?.['required']) {
-                Password is required
-              } @else if (f['password'].errors?.['minlength']) {
-                Password must be at least 8 characters
-              }
-            </small>
-          }
-        </div>
-  
-        <div class="mb-4">
-          <label for="phone" class="block text-900 font-medium mb-2">Phone (Optional)</label>
-          <div class="p-input-icon-left w-full">
-            <i class="pi pi-phone"></i>
-            <input 
-              id="phone" 
-              type="text" 
-              pInputText 
-              class="w-full" 
-              formControlName="phone" 
-              placeholder="Enter your phone number"
-            />
-          </div>
-        </div>
-  
-        <div class="mb-4">
-          <label for="address" class="block text-900 font-medium mb-2">Address (Optional)</label>
-          <div class="p-input-icon-left w-full">
-            <i class="pi pi-map-marker"></i>
-            <input 
-              id="address" 
-              type="text" 
-              pInputText 
-              class="w-full" 
-              formControlName="address" 
-              placeholder="Enter your address"
-            />
-          </div>
-        </div>
-  
-        <button 
-          pButton 
-          type="submit" 
-          label="Register" 
-          class="p-button-rounded w-full p-3"
-          [loading]="loading"
-          [disabled]="registerForm.invalid || loading"
-        ></button>
-      </form>
-      
-      <div class="text-center mt-4">
-        <p>Already have an account? <a routerLink="/login" class="text-primary font-medium no-underline">Sign in</a></p>
+        <small *ngIf="f['email'].touched && f['email'].invalid" class="p-error block mt-1">
+          <span *ngIf="f['email'].errors?.['required']">Email is required</span>
+          <span *ngIf="f['email'].errors?.['email']">Enter a valid email address</span>
+        </small>
       </div>
-    </p-card>
+
+      <!-- Full Name Field -->
+      <div class="field mb-4">
+        <label for="full_name" class="block font-medium text-600 mb-2">Full Name <span class="p-error">*</span></label>
+        <div class="relative">
+          <i class="pi pi-user input-icon"></i>
+          <input 
+            id="full_name" 
+            type="text" 
+            pInputText 
+            class="w-full pl-5" 
+            formControlName="full_name" 
+            placeholder="Enter your full name"
+            [style]="{'padding': '0.75rem 1rem 0.75rem 2.5rem', 'height': '3rem'}"
+          />
+        </div>
+        <small *ngIf="f['full_name'].touched && f['full_name'].errors?.['required']" class="p-error block mt-1">
+          Full name is required
+        </small>
+      </div>
+
+      <!-- Password Field -->
+      <div class="field mb-4">
+        <label for="password" class="block font-medium text-600 mb-2">Password <span class="p-error">*</span></label>
+        <div class="relative">
+          <i class="pi pi-lock input-icon"></i>
+          <p-password 
+            id="password"
+            formControlName="password"
+            [toggleMask]="true"
+            [style]="{'width':'100%'}"
+            [inputStyle]="{'width':'100%', 'padding':'0.75rem 1rem 0.75rem 2.5rem', 'height':'3rem'}"
+            placeholder="Enter your password"
+            [feedback]="true"
+          ></p-password>
+        </div>
+        <small *ngIf="f['password'].touched && f['password'].invalid" class="p-error block mt-1">
+          <span *ngIf="f['password'].errors?.['required']">Password is required</span>
+          <span *ngIf="f['password'].errors?.['minlength']">Password must be at least 8 characters</span>
+        </small>
+      </div>
+
+      <!-- Phone Field -->
+      <div class="field mb-4">
+        <label for="phone" class="block font-medium text-600 mb-2">Phone (Optional)</label>
+        <div class="relative">
+          <i class="pi pi-phone input-icon"></i>
+          <input 
+            id="phone" 
+            type="tel" 
+            pInputText 
+            class="w-full pl-5" 
+            formControlName="phone" 
+            placeholder="Enter your phone number"
+            [style]="{'padding': '0.75rem 1rem 0.75rem 2.5rem', 'height': '3rem'}"
+          />
+        </div>
+      </div>
+
+      <!-- Address Field -->
+      <div class="field mb-4">
+        <label for="address" class="block font-medium text-600 mb-2">Address (Optional)</label>
+        <div class="relative">
+          <i class="pi pi-map-marker input-icon"></i>
+          <input 
+            id="address" 
+            type="text" 
+            pInputText 
+            class="w-full pl-5" 
+            formControlName="address" 
+            placeholder="Enter your address"
+            [style]="{'padding': '0.75rem 1rem 0.75rem 2.5rem', 'height': '3rem'}"
+          />
+        </div>
+      </div>
+
+      <button 
+        pButton 
+        type="submit" 
+        label="Register" 
+        class="p-button-rounded w-full p-3"
+        [loading]="loading"
+        [disabled]="registerForm.invalid || loading"
+      ></button>
+    </form>
+    
+    <div class="text-center mt-5">
+      <p>Already have an account? <a routerLink="/login" class="text-primary font-medium no-underline">Sign in</a></p>
+    </div>
+
   </div>
+</div>

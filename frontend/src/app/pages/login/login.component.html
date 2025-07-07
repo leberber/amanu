@@ -1,86 +1,85 @@
 <!-- src/app/pages/login/login.component.html -->
-<div class="flex justify-content-center align-items-center mt-8">
-    <p-card styleClass="p-5" [style]="{width: '450px'}">
-      <ng-template pTemplate="header">
-        <div class="text-center py-5">
-          <h2 class="text-3xl font-bold mb-2">Login</h2>
-          <p class="m-0 text-lg">Sign in to your account</p>
-        </div>
-      </ng-template>
-  
-      <p-toast></p-toast>
-  
-      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-        <div class="mb-4">
-          <label for="username" class="block text-900 font-medium mb-2">Email</label>
-          <div class="p-input-icon-left w-full">
-            <i class="pi pi-envelope"></i>
-            <input 
-              id="username" 
-              type="email" 
-              pInputText 
-              class="w-full" 
-              formControlName="username" 
-              placeholder="Enter your email"
-            />
-          </div>
-          @if (f['username'].touched && f['username'].invalid) {
-            <small class="errors">
-              @if (f['username'].errors?.['required']) {
-                Email is required
-              } @else if (f['username'].errors?.['email']) {
-                Enter a valid email address
-              }
-            </small>
-          }
-        </div>
-  
-        <div class="mb-4">
-          <label for="password" class="block text-900 font-medium mb-2">Password</label>
-          <div class="p-input-icon-left w-full">
-            <i class="pi pi-lock"></i>
-            <p-password 
-              id="password"
-              formControlName="password"
-              [toggleMask]="true"
-              [style]="{'width':'100%'}"
-              [inputStyle]="{'width':'100%'}"
-              placeholder="Enter your password"
-              [feedback]="false"
-            ></p-password>
-          </div>
-          @if (f['password'].touched && f['password'].errors?.['required']) {
-            <small class="errors">Password is required</small>
-          }
-        </div>
-  
-        <div class="flex align-items-center justify-content-between mb-4">
-          <div class="flex align-items-center">
-            <p-checkbox 
-              name="remember" 
-              value="remember" 
-              inputId="remember" 
-              binary="true"
-            ></p-checkbox>
-            <label for="remember" class="ml-2">Remember me</label>
-          </div>
-          <a class="text-primary font-medium no-underline ml-2">Forgot your password?</a>
-        </div>
-  
-        <button 
-          pButton 
-          type="submit" 
-          label="Login" 
-          class="p-button-rounded w-full p-3"
-          [loading]="loading"
-          [disabled]="loginForm.invalid || loading"
-        ></button>
-      </form>
-      
-      <div class="text-center mt-5">
-        <p>Don't have an account? <a routerLink="/register" class="text-primary font-medium no-underline">Sign up</a></p>
-      </div>
-    </p-card>
-  </div>
+<div class="flex justify-content-center align-items-center  p-4">
+  <div [style]="{width: '100%', 'max-width': '450px'}">
+    
+    <div class="text-center mb-4">
+      <h2 class="text-3xl font-bold mb-2">Login</h2>
+      <p class="m-0 text-lg">Sign in to your account</p>
+    </div>
 
-  
+    <p-toast></p-toast>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+        <!-- Email Field -->
+      <div class="field mb-4">
+        <label for="username" class="block font-medium text-600 mb-2">Email <span class="p-error">*</span></label>
+        <div class="relative">
+          <i class="pi pi-envelope input-icon"></i>
+          <input 
+            id="username" 
+            type="email" 
+            pInputText 
+            class="w-full" 
+            formControlName="username" 
+            placeholder="Enter your email"
+            [style]="{'padding': '0.75rem 1rem 0.75rem 2.5rem', 'height': '3rem'}"
+          />
+        </div>
+        <small *ngIf="f['username'].touched && f['username'].invalid" class="p-error block mt-1">
+          <span *ngIf="f['username'].errors?.['required']">Email is required</span>
+          <span *ngIf="f['username'].errors?.['email']">Enter a valid email address</span>
+        </small>
+      </div>
+
+      <!-- Password Field -->
+      <div class="field mb-4">
+        <label for="password" class="block font-medium text-600 mb-2">Password <span class="p-error">*</span></label>
+        <div class="relative">
+          <i class="pi pi-lock input-icon"></i>
+          <p-password 
+            id="password"
+            formControlName="password"
+            [toggleMask]="true"
+            [style]="{'width':'100%'}"
+            [inputStyle]="{'width':'100%', 'padding':'0.75rem 1rem 0.75rem 2.5rem', 'height':'3rem'}"
+            placeholder="Enter your password"
+            [feedback]="false"
+          ></p-password>
+        </div>
+        <small *ngIf="f['password'].touched && f['password'].errors?.['required']" class="p-error block mt-1">
+          Password is required
+        </small>
+      </div>
+
+      <!-- Remember me and Forgot password -->
+      <div class="flex align-items-center justify-content-between mb-4">
+        <div class="flex align-items-center">
+          <p-checkbox 
+            name="remember" 
+            value="remember" 
+            inputId="remember" 
+            binary="true"
+          ></p-checkbox>
+          <label for="remember" class="ml-2">Remember me</label>
+        </div>
+        <a class="text-primary font-medium no-underline ml-2 cursor-pointer">Forgot your password?</a>
+      </div>
+
+      <!-- Submit Button -->
+      <button 
+        pButton 
+        type="submit" 
+        label="Login" 
+        class="p-button-rounded w-full p-3"
+        [loading]="loading"
+        [disabled]="loginForm.invalid || loading"
+      ></button>
+    </form>
+    
+    <!-- Sign up link -->
+    <div class="text-center mt-5">
+      <p>Don't have an account? <a routerLink="/register" class="text-primary font-medium no-underline">Sign up</a></p>
+    </div>
+
+  </div>
+</div>

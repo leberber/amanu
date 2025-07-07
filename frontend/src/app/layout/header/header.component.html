@@ -1,5 +1,5 @@
 <!-- header.component.html -->
-<div class="fixed top-0 left-0 w-full shadow-2 z-5 surface-card header-height">
+<div class="fixed top-0 left-0 w-full  z-5 surface-card header-height">
   <div class="p-3">
     <!-- Desktop header -->
     <div class="hidden lg:flex justify-content-between align-items-center">
@@ -104,25 +104,26 @@
             severity="danger"
             [value]="cartCount() ?? '0'"
           >
-            <i class="pi pi-shopping-cart text-xl"></i>
+            <i class="pi pi-shopping-cart text-2xl mobile-menu-btn"></i>
           </p-overlayBadge>
         </a>
 
         <!-- Theme toggle - matched dimensions and styling -->
-        <button
+        <!-- <button
           pButton
           [icon]="themeIcon()"
           (click)="toggleDarkMode()"
-          class="p-button-rounded p-button-text p-0 h-2rem w-2rem flex align-items-center justify-content-center mr-2"
-        ></button>
+          class="p-button-rounded p-button-text p-0 h-2rem w-2rem flex align-items-center justify-content-center mr-2 mobile-menu-btn"
+        ></button> -->
 
         <!-- Mobile menu toggle - matched dimensions and styling -->
-        <button
-          pButton
-          icon="pi pi-bars"
-          class="p-button-text p-button-rounded p-0 h-2rem w-2rem flex align-items-center justify-content-center"
-          (click)="toggleMobileMenu()"
-        ></button>
+      <button
+        pButton
+        icon="pi pi-bars"
+        class="p-button-text p-button-rounded p-0 h-2rem w-2rem flex align-items-center justify-content-center mobile-menu-btn"
+        (click)="toggleMobileMenu()"
+      ></button>
+
       </div>
     </div>
   </div>
@@ -131,8 +132,8 @@
 <!-- Mobile menu using PrimeNG Drawer -->
 <p-drawer
   [visible]="menuVisible()"
-  position="left"
-  [style]="{ width: '85vw' }"
+  position="full"
+ 
   [showCloseIcon]="true"
   [closeOnEscape]="true"
   [modal]="true"
@@ -144,7 +145,9 @@
     <div
       class="flex align-items-center justify-content-between p-3 border-bottom-1 surface-border"
     >
-      <span class="text-xl font-medium">Elsuq</span>
+           <a routerLink="/">
+  <img src="/logo.png" alt="logo" style="height: 40px; width: auto;">
+</a>
     </div>
   </ng-template>
 
@@ -158,6 +161,7 @@
             pRipple
             [routerLink]="item.routerLink"
             (click)="closeMenu()"
+             style="text-decoration: none;"
             class="p-3 flex align-items-center border-round font-medium text-700 hover:surface-100 transition-colors transition-duration-150 w-full"
           >
             <i *ngIf="item.icon" [class]="item.icon + ' mr-3'"></i>
@@ -168,7 +172,7 @@
     </div>
 
     <!-- User section at bottom -->
-    <div class="border-top-1 surface-border shadow-2 p-0 mt-auto surface-card">
+    <div class="surface-border border-round-xl shadow-1 p-0 mt-auto">
       <div
         *ngIf="authService.isLoggedIn; else mobileLoginButtons"
         class="grid m-0"
@@ -182,6 +186,7 @@
               icon="pi pi-user"
               class="mr-2"
               shape="circle"
+
               [style]="avatarStyle"
             ></p-avatar>
             <div class="block overflow-hidden">
@@ -190,11 +195,7 @@
               >
                 {{ displayName() }}
               </div>
-              <span
-                class="text-600 font-medium text-sm text-overflow-ellipsis white-space-nowrap overflow-hidden"
-              >
-                {{ userEmail() }}
-              </span>
+           
             </div>
           </div>
         </div>
@@ -204,9 +205,17 @@
           <a
             pRipple
             (click)="logout()"
+            
             class="w-full h-full inline-flex align-items-center justify-content-center cursor-pointer py-3 px-4 text-700 font-medium hover:surface-100 transition-colors transition-duration-150"
           >
-            <i class="pi pi-sign-out mr-3"></i>
+               <p-avatar
+              icon="pi pi-sign-out"
+              class="mr-2"
+              shape="circle"
+
+              [style]="avatarStyle"
+            ></p-avatar>
+            <!-- <i class="pi pi-sign-out mr-3 bg-black-alpha-10 p-2"></i> -->
             <span>Logout</span>
           </a>
         </div>
@@ -215,10 +224,11 @@
       <!-- Login/Register buttons for non-logged in users -->
       <ng-template #mobileLoginButtons>
         <div class="grid m-0">
-          <div class="col-6 border-right-1 surface-border p-0">
+          <div class="col-6 border-right-1 rounded surface-border p-0">
             <a
               pRipple
               routerLink="/login"
+              style="text-decoration: none;"
               (click)="closeMenu()"
               class="flex justify-content-center align-items-center w-full h-full py-3 px-4 font-medium cursor-pointer hover:surface-100 transition-colors transition-duration-150"
             >
@@ -228,6 +238,7 @@
           </div>
           <div class="col-6 p-0">
             <a
+            style="text-decoration: none;"
               pRipple
               routerLink="/register"
               (click)="closeMenu()"

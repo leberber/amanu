@@ -41,6 +41,9 @@ html, body{
   flex: 0 !important;
 }
 
+.mobile-menu-btn .pi {
+  font-size: 1.5rem !important;
+}
 
 
 .header-height{height: var(--header-height) !important};
@@ -58,7 +61,7 @@ html, body{
 
 @media (max-width: 968px) {
   :root {
-    --header-height: 7vh !important;
+    --header-height: 8vh !important;
   }
 
 .content-height {
@@ -120,4 +123,34 @@ html, body{
   margin-right: 0 !important;
   margin-left: 0 !important;
   margin-top: 0 !important;
+}
+
+/* Remove default link styling globally */
+a {
+  color: inherit !important;
+  text-decoration: none !important;
+}
+
+a:hover {
+  color: inherit !important;
+}
+
+a:visited {
+  color: inherit !important;
+}
+
+a:active {
+  color: inherit !important;
+}
+
+
+.input-icon {
+  position: absolute;
+  z-index: 1;
+  left: 10px;
+  top: 50%;
+  margin-top: -0.5rem;
+  color: var(--text-color-secondary);
+  
+
 }
