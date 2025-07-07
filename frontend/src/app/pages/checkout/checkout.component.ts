@@ -3,7 +3,9 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-
+import { AccordionModule } from 'primeng/accordion';
+import { ProgressBarModule } from 'primeng/progressbar';
+import { BadgeModule } from 'primeng/badge';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
@@ -12,6 +14,7 @@ import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { DividerModule } from 'primeng/divider';
 import { TableModule } from 'primeng/table';
+import { TagModule } from 'primeng/tag';
 
 import { AuthService } from '../../services/auth.service';
 import { CartService, CartItem } from '../../services/cart.service';
@@ -35,7 +38,11 @@ import { User } from '../../models/user.model';
     TextareaModule,
     ToastModule,
     DividerModule,
-    TableModule
+    TableModule,
+    AccordionModule,
+    ProgressBarModule,
+    BadgeModule,
+    TagModule
   ],
   providers: [MessageService],
   templateUrl: './checkout.component.html',
@@ -46,6 +53,19 @@ export class CheckoutComponent implements OnInit {
   cartItems: CartItem[] = [];
   currentUser: User | null = null;
   isSubmitting = false;
+accordionExpanded = false;
+
+toggleShippingAccordion() {
+  this.accordionExpanded = !this.accordionExpanded;
+}
+
+getFormCompletionPercentage() {
+  const controls = ['fullName', 'phone', 'address'];
+  const completed = controls.filter(control => 
+    this.checkoutForm.get(control)?.value?.trim()
+  ).length;
+  return Math.round((completed / controls.length) * 100);
+}
 
   constructor(
     private fb: FormBuilder,

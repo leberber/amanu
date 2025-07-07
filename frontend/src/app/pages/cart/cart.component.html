@@ -8,7 +8,7 @@
         pButton 
         label="Continue Shopping" 
         icon="pi pi-arrow-left" 
-        class="p-button-outlined"
+        class="ml-3 mt-4"
         routerLink="/products"
       ></button>
     </div>
@@ -116,12 +116,12 @@
           <!-- Mobile View (Cards) -->
           <div class="block md:hidden">
             @for (item of cartItems(); track item.id) {
-              <div class="surface-card p-3 mb-2 border-round shadow-1">
+              <div class="surface-card p-3 mb-2 border-bottom-1 border-100">
                 <div class="flex align-items-center">
                   <!-- Image (smaller) -->
                   <div style="width: 60px; height: 60px;" class="mr-3 flex-shrink-0">
                     <img [src]="item.product_image || 'assets/images/product-placeholder.jpg'" 
-                         [alt]="item.product_name" class="w-full h-full border-round"
+                         [alt]="item.product_name" class="w-full h-full "
                          style="object-fit: cover;">
                   </div>
                   
@@ -135,7 +135,7 @@
                           <p-tag severity="success" value="O" styleClass="ml-1"></p-tag>
                         }
                       </div>
-                      <button pButton icon="pi pi-trash" class="p-button-rounded p-button-danger p-button-text p-button-sm p-0"
+                      <button pButton icon="pi pi-trash" class="p-button-rounded p-button-danger p-button-text p-button-sm p-0 icon-large "
                           (click)="removeItem(item.id)"></button>
                     </div>
                     
@@ -151,7 +151,6 @@
                           [options]="getQuantityOptions(item.stock_quantity, item.id)"
                           placeholder="Qty"
                           styleClass="w-full mobile-dropdown"
-                          [filter]="true"
                           [virtualScroll]="true"
                           [virtualScrollItemSize]="38"
                           filterBy="label"
@@ -203,12 +202,14 @@
                 icon="pi pi-credit-card" 
                 (click)="proceedToCheckout()"
                 class="mb-2"
+                style="padding:14px"
               ></button>
               
               <button 
                 pButton 
                 label="Clear Cart" 
                 icon="pi pi-trash" 
+                        style="padding:14px"
                 class="p-button-outlined p-button-danger"
                 (click)="clearCart()"
               ></button>

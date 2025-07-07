@@ -1,15 +1,24 @@
 <!-- src/app/pages/checkout/checkout.component.html -->
-<div class="surface-ground px-4 py-5">
+<div class="">
   <p-toast></p-toast>
   
-  <div class="surface-card p-4 shadow-2 border-round">
-    <h1 class="text-3xl font-medium mb-4">Checkout</h1>
+  <div class="p-1  border-round">
+    <div class="mt-5"></div>
+ 
     
     <div class="grid">
-      <!-- Order Summary -->
-      <div class="col-12 md:col-5 lg:col-4 order-2 md:order-1">
-        <div class="surface-card p-4 shadow-1 border-round">
-          <h3 class="text-xl font-medium mb-3">Order Summary</h3>
+      <!-- Order Summary - Initially half page centered -->
+      <div [class]="accordionExpanded ? 'col-12 md:col-6' : 'col-12 md:col-6 md:col-offset-3'" 
+           class="transition-all transition-duration-300">
+        <div class="surface-card p-4 shadow-1 border-round h-full">
+          <div class="flex justify-content-between align-items-center mb-3">
+            <h3 class="text-xl font-medium m-0">Order Summary</h3>
+            <!-- <p-badge 
+              [value]="cartItems.length.toString()" 
+              severity="danger" 
+              [style]="{'font-size': '0.875rem'}">
+            </p-badge> -->
+          </div>
           
           <p-table [value]="cartItems" [tableStyle]="{'min-width': '100%'}" styleClass="p-datatable-sm mb-4">
             <ng-template pTemplate="body" let-item>
@@ -25,118 +34,122 @@
             </ng-template>
           </p-table>
           
-          <div class="flex justify-content-between mb-3">
-            <span>Subtotal</span>
-            <span class="font-medium">${{getCartTotal().toFixed(2)}}</span>
+          <div class="shadow-1 border-round p-3  mb-4">
+            <div class="flex justify-content-between mb-2">
+              <span class="text-600">Subtotal</span>
+              <span class="font-medium">${{getCartTotal().toFixed(2)}}</span>
+            </div>
+            
+            <div class="flex justify-content-between mb-2">
+              <span class="text-600">Shipping</span>
+              <span class="font-medium text-green-600">Free</span>
+            </div>
+            
+            
+            <p-divider class="my-2"></p-divider>
+            
+            <div class="flex justify-content-between">
+              <span class="text-xl font-bold">Total</span>
+              <span class="text-xl font-bold text-primary">${{getCartTotal().toFixed(2)}}</span>
+            </div>
           </div>
-          
-          <div class="flex justify-content-between mb-3">
-            <span>Shipping</span>
-            <span class="font-medium">Free</span>
-          </div>
-          
-          <p-divider></p-divider>
-          
-          <div class="flex justify-content-between mb-4">
-            <span class="text-lg font-medium">Total</span>
-            <span class="text-lg font-bold">${{getCartTotal().toFixed(2)}}</span>
+
+          <!-- Action Buttons -->
+          <div class="flex flex-column gap-3">
+            <button 
+              pButton 
+              type="submit" 
+              label="Complete Order" 
+              icon="pi pi-credit-card" 
+              class="p-button-lg"
+              [disabled]="checkoutForm.invalid || isSubmitting"
+              [loading]="isSubmitting"
+              (click)="placeOrder()"
+              [style]="{'padding': '0.875rem 1.5rem', 'font-size': '1.1rem'}"
+            ></button>
+            
+            <button 
+              pButton 
+              type="button" 
+              label="Continue Shopping" 
+              icon="pi pi-shopping-cart" 
+              class="p-button-outlined p-button-lg"
+              routerLink="/cart"
+              [disabled]="isSubmitting"
+            ></button>
+
+            <!-- Shipping Info Toggle -->
+            <div class="mt-3">
+              <button 
+                pButton 
+                type="button" 
+                [label]="accordionExpanded ? 'Hide Shipping Details' : 'View Shipping Information'"
+                [icon]="accordionExpanded ? 'pi pi-eye-slash' : 'pi pi-truck'"
+                class="p-button-text w-full"
+                (click)="toggleShippingAccordion()"
+                [style]="{'border': '2px dashed var(--primary-color)'}"
+              ></button>
+            </div>
           </div>
         </div>
       </div>
       
-      <!-- Shipping Information -->
-      <div class="col-12 md:col-7 lg:col-8 order-1 md:order-2">
-        <div class="surface-card p-4 shadow-1 border-round">
-          <h3 class="text-xl font-medium mb-3">Shipping Information</h3>
+      <!-- Shipping Information - Only visible when expanded -->
+      <div *ngIf="accordionExpanded" 
+           class="col-12 md:col-6 transition-all transition-duration-300">
+        <div class="surface-card p-4 shadow-1 border-round h-full">
+          <div class="flex align-items-center gap-2 w-full mb-4">
+            <i class="pi pi-truck text-primary text-lg"></i>
+            <span class="font-bold text-xl">Shipping Information</span>
+            <i class="pi pi-check-circle text-green-500 ml-auto" 
+               *ngIf="checkoutForm.valid"></i>
+          </div>
           
-          <form [formGroup]="checkoutForm" (ngSubmit)="placeOrder()">
-            <div class="field mb-4">
-              <label for="fullName" class="block font-medium mb-2">Full Name</label>
-              <div class="p-input-icon-left w-full">
-                <i class="pi pi-user"></i>
-                <input 
-                  id="fullName" 
-                  type="text" 
-                  pInputText 
-                  formControlName="fullName" 
-                  class="w-full"
-                  placeholder="Your full name"
-                >
+          <!-- Shipping Details Display -->
+          <div class="flex flex-column gap-4">
+            <!-- Full Name -->
+            <div class="flex align-items-center p-3 shadow-1 border-round ">
+              <div class="flex align-items-center justify-content-center w-3rem h-3rem border-circle bg-primary text-white mr-3">
+                <i class="pi pi-user text-lg"></i>
               </div>
-              @if (f['fullName'].touched && f['fullName'].invalid) {
-                <small class="p-error">Full name is required</small>
-              }
-            </div>
-            
-            <div class="field mb-4">
-              <label for="phone" class="block font-medium mb-2">Phone Number</label>
-              <div class="p-input-icon-left w-full">
-                <i class="pi pi-phone"></i>
-                <input 
-                  id="phone" 
-                  type="text" 
-                  pInputText 
-                  formControlName="phone" 
-                  class="w-full"
-                  placeholder="+1 123-456-7890"
-                >
+              <div class="flex-1">
+                <label class="block text-sm font-medium text-600 mb-1">Full Name</label>
+                <span class="text-lg font-medium text-900">{{checkoutForm.get('fullName')?.value || 'John Doe'}}</span>
               </div>
-              @if (f['phone'].touched && f['phone'].invalid) {
-                <small class="p-error">
-                  @if (f['phone'].errors?.['required']) {
-                    Phone number is required
-                  } @else if (f['phone'].errors?.['pattern']) {
-                    Please enter a valid phone number
-                  }
-                </small>
-              }
             </div>
-            
-            <div class="field mb-4">
-              <label for="address" class="block font-medium mb-2">Shipping Address</label>
-              <div class="p-input-icon-left w-full">
-                <i class="pi pi-map-marker"></i>
-                <textarea 
-                  id="address" 
-                  pInputTextarea 
-                  formControlName="address" 
-                  rows="3" 
-                  class="w-full"
-                  placeholder="Street address, city, state, zip code"
-                ></textarea>
+
+            <!-- Phone Number -->
+            <div class="flex align-items-center p-3 shadow-1 border-round ">
+              <div class="flex align-items-center justify-content-center w-3rem h-3rem border-circle bg-green-500 text-white mr-3">
+                <i class="pi pi-phone text-lg"></i>
               </div>
-              @if (f['address'].touched && f['address'].invalid) {
-                <small class="p-error">
-                  @if (f['address'].errors?.['required']) {
-                    Address is required
-                  } @else if (f['address'].errors?.['minlength']) {
-                    Please enter a complete address (at least 10 characters)
-                  }
-                </small>
-              }
-            </div>
-            
-            <div class="flex flex-column">
-              <button 
-                pButton 
-                type="submit" 
-                label="Place Order" 
-                icon="pi pi-check" 
-                [disabled]="checkoutForm.invalid || isSubmitting"
-                [loading]="isSubmitting"
-              ></button>
+              <div class="flex-1">
+                <label class="block text-sm font-medium text-600 mb-1">Phone Number</label>
+                <span class="text-lg font-medium text-900">{{checkoutForm.get('phone')?.value || '+1 (555) 123-4567'}}</span>
+              </div>
               
-              <button 
-                pButton 
-                type="button" 
-                label="Back to Cart" 
-                icon="pi pi-arrow-left" 
-                class="p-button-outlined mt-3"
-                routerLink="/cart"
-                [disabled]="isSubmitting"
-              ></button>
             </div>
-          </form>
+
+            <!-- Shipping Address -->
+            <div class="flex align-items-start p-3 shadow-1 border-round ">
+              <div class="flex align-items-center justify-content-center w-3rem h-3rem border-circle bg-orange-500 text-white mr-3 mt-1">
+                <i class="pi pi-map-marker text-lg"></i>
+              </div>
+              <div class="flex-1">
+                <label class="block text-sm font-medium text-600 mb-1">Shipping Address</label>
+                <div class="text-lg font-medium text-900 line-height-3">
+                  <div *ngIf="checkoutForm.get('address')?.value; else defaultAddress">
+                    {{checkoutForm.get('address')?.value}}
+                  </div>
+                  <ng-template #defaultAddress>
+                    <div>123 Main Street, Apt 4B</div>
+                    <div>New York, NY 10001</div>
+                    <div>United States</div>
+                  </ng-template>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
