@@ -1,5 +1,5 @@
 <!-- src/app/pages/orders/order-detail/order-detail.component.html -->
-<div class="h-full  overflow-scroll  ">
+<div class="h-full overflow-scroll">
   <p-toast></p-toast>
   
   <div class="surface-card p-3 shadow-2 border-round h-full overflow-auto">
@@ -24,9 +24,6 @@
         
         <!-- Order details sidebar -->
         <div class="col-12 md:col-6 lg:col-5 p-0">
-          <!-- Order Information -->
-          <!-- <ng-container *ngTemplateOutlet="orderInfoTemplate"></ng-container> -->
-          
           <!-- Order Timeline -->
           <ng-container *ngTemplateOutlet="orderTimelineTemplate"></ng-container>
           
@@ -44,7 +41,7 @@
 <ng-template #loadingTemplate>
   <div class="text-center py-5">
     <i class="pi pi-spin pi-spinner text-4xl text-primary mb-3"></i>
-    <p>Loading order details...</p>
+    <p>{{ 'orders.detail.loading_order' | translate }}</p>
   </div>
 </ng-template>
 
@@ -52,9 +49,9 @@
 <ng-template #errorTemplate>
   <div class="text-center py-5">
     <i class="pi pi-exclamation-circle text-4xl text-danger mb-3"></i>
-    <h2 class="text-2xl font-medium mb-3">Failed to load order</h2>
-    <p class="text-lg mb-4">We couldn't retrieve the order details. Please try again later.</p>
-    <button pButton type="button" label="Go to Orders" routerLink="/orders"></button>
+    <h2 class="text-2xl font-medium mb-3">{{ 'orders.detail.failed_to_load_order' | translate }}</h2>
+    <p class="text-lg mb-4">{{ 'orders.detail.load_error_message' | translate }}</p>
+    <button pButton type="button" [label]="'orders.detail.go_to_orders' | translate" routerLink="/orders"></button>
   </div>
 </ng-template>
 
@@ -65,15 +62,17 @@
     <div class="mb-2">
       <div class="flex align-items-center">
         <button pButton type="button" icon="pi pi-arrow-left" 
-          label="Back to Orders" 
+          [label]="'orders.detail.back_to_orders' | translate"
           class="p-button-text text-xl" 
           (click)="backToOrders()"></button>
         
-        <span class="text-xl font-medium text-center flex-grow-1">Order #{{order()?.id}}</span>
+        <span class="text-xl font-medium text-center flex-grow-1">
+          {{ 'orders.table.order_number' | translate }}{{order()?.id}}
+        </span>
       </div>
     </div>
     
-    <p-panel header="Order  Details"  [collapsed]="true" [toggleable]="true" styleClass="mb-2">
+    <p-panel [header]="'orders.detail.title' | translate" [collapsed]="true" [toggleable]="true" styleClass="mb-2">
       <ng-template pTemplate="icons">
         <p-tag [severity]="getStatusSeverity(order()?.status || '')" 
               [value]="getStatusLabel(order()?.status || '')"
@@ -89,7 +88,7 @@
                   <div class="flex align-items-center justify-content-center bg-primary border-circle h-2rem w-2rem mr-3">
                     <i class="pi pi-hashtag text-white text-sm"></i>
                   </div>
-                  <span class="font-medium text-primary-900">Order Number</span>
+                  <span class="font-medium text-primary-900">{{ 'orders.detail.order_number' | translate }}</span>
                 </div>
               </div>
             </ng-template>
@@ -105,7 +104,7 @@
                   <div class="flex align-items-center justify-content-center bg-primary border-circle h-2rem w-2rem mr-3">
                     <i class="pi pi-map-marker text-white text-sm"></i>
                   </div>
-                  <span class="font-medium text-primary-900">Shipping Address</span>
+                  <span class="font-medium text-primary-900">{{ 'orders.detail.shipping_address' | translate }}</span>
                 </div>
               </div>
             </ng-template>
@@ -123,7 +122,7 @@
                   <div class="flex align-items-center justify-content-center bg-primary border-circle h-2rem w-2rem mr-3">
                     <i class="pi pi-phone text-white text-sm"></i>
                   </div>
-                  <span class="font-medium text-primary-900">Contact Phone</span>
+                  <span class="font-medium text-primary-900">{{ 'orders.detail.contact_phone' | translate }}</span>
                 </div>
               </div>
             </ng-template>
@@ -142,14 +141,14 @@
 <!-- Order Items Template -->
 <ng-template #orderItemsTemplate>
   <div class="surface-card pt-3 px-2 border-1 border-200 border-round">
-    <div class="text-lg font-medium mb-3">Order Items</div>
-    <p-table [value]="order()?.items || []" [tableStyle]="{'min-width': '100%'}" scrollHeight="calc(100vh - 350px)"  [scrollable]="true" >
+    <div class="text-lg font-medium mb-3">{{ 'orders.detail.order_items_title' | translate }}</div>
+    <p-table [value]="order()?.items || []" [tableStyle]="{'min-width': '100%'}" scrollHeight="calc(100vh - 350px)" [scrollable]="true">
       <ng-template pTemplate="header">
         <tr>
-          <th>Product</th>
-          <th style="width: 20%">Price</th>
-          <th style="width: 20%">Qty</th>
-          <th style="width: 20%">Total</th>
+          <th>{{ 'orders.detail.product' | translate }}</th>
+          <th style="width: 20%">{{ 'orders.detail.price' | translate }}</th>
+          <th style="width: 20%">{{ 'orders.detail.qty' | translate }}</th>
+          <th style="width: 20%">{{ 'common.total' | translate }}</th>
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-item>
@@ -162,7 +161,7 @@
       </ng-template>
       <ng-template pTemplate="footer">
         <tr>
-          <td colspan="3" class="text-right font-medium">Total:</td>
+          <td colspan="3" class="text-right font-medium">{{ 'common.total' | translate }}:</td>
           <td class="text-right font-bold">${{totalAmount()}}</td>
         </tr>
       </ng-template>
@@ -170,13 +169,10 @@
   </div>
 </ng-template>
 
-<!-- Order Information Template -->
-
-
 <!-- Order Timeline Template -->
 <ng-template #orderTimelineTemplate>
   <div class="surface-card p-3 border-1 border-200 border-round mb-2">
-    <div class="text-lg font-medium mb-3">Order Timeline</div>
+    <div class="text-lg font-medium mb-3">{{ 'orders.detail.order_timeline' | translate }}</div>
     
     <p-timeline [value]="orderStatuses()" align="left">
       <ng-template pTemplate="content" let-status>
@@ -200,19 +196,19 @@
 <!-- Order Actions Template -->
 <ng-template #orderActionsTemplate>
   <div class="surface-card p-3 border-1 border-200 border-round">
-    <div class="text-lg font-medium mb-3">Order Actions</div>
+    <div class="text-lg font-medium mb-3">{{ 'orders.detail.order_actions_title' | translate }}</div>
     
     <div *ngIf="canCancelOrder()" class="mb-3">
       <button 
         pButton 
         type="button" 
-        label="Cancel Order" 
+        [label]="'orders.detail.cancel_order_button' | translate"
         icon="pi pi-times" 
         class="p-button-danger w-full p-button-lg"
         (click)="cancelOrder()"
       ></button>
       <small class="block text-xs text-600 mt-1">
-        You can only cancel orders that haven't been processed yet.
+        {{ 'orders.detail.cancel_order_note' | translate }}
       </small>
     </div>
     
@@ -220,7 +216,7 @@
       <button 
         pButton 
         type="button" 
-        label="Contact Support" 
+        [label]="'orders.detail.contact_support' | translate"
         icon="pi pi-comments" 
         class="p-button-outlined w-full p-button-lg"
       ></button>

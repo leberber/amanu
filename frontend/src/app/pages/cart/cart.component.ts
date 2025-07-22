@@ -140,12 +140,12 @@ export class CartComponent implements OnInit, OnDestroy {
   removeItem(itemId: string) {
     this.cartService.removeCartItem(itemId).subscribe({
       next: () => {
-        this.messageService.add({
-          severity: 'success',
-          summary: this.translateService.instant('cart.item_removed'),
-          detail: this.translateService.instant('cart.item_removed_message'),
-          life: 3000
-        });
+        // this.messageService.add({
+        //   severity: 'success',
+        //   summary: this.translateService.instant('cart.item_removed'),
+        //   detail: this.translateService.instant('cart.item_removed_message'),
+        //   life: 3000
+        // });
         // Clean up the quantities object
         delete this.productQuantities[itemId];
       },

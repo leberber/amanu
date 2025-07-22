@@ -154,16 +154,16 @@ export class ProductDetailComponent implements OnInit {
     
     this.cartService.addToCart(currentProduct, quantity).subscribe({
       next: () => {
-        this.messageService.add({
-          severity: 'success',
-          summary: this.translateService.instant('products.cart.added_to_cart'),
-          detail: this.translateService.instant('products.cart.added_message', {
-            quantity: quantity,
-            unit: this.getUnitDisplay(currentProduct.unit),
-            name: currentProduct.name
-          }),
-          life: 3000
-        });
+        // this.messageService.add({
+        //   severity: 'success',
+        //   summary: this.translateService.instant('products.cart.added_to_cart'),
+        //   detail: this.translateService.instant('products.cart.added_message', {
+        //     quantity: quantity,
+        //     unit: this.getUnitDisplay(currentProduct.unit),
+        //     name: currentProduct.name
+        //   }),
+        //   life: 3000
+        // });
       },
       error: (error) => {
         console.error('Error adding to cart:', error);

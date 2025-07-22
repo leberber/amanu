@@ -15,14 +15,13 @@ import { MessageService } from 'primeng/api';
 import { DividerModule } from 'primeng/divider';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { AuthService } from '../../services/auth.service';
 import { CartService, CartItem } from '../../services/cart.service';
 import { OrderService } from '../../services/order.service';
 import { OrderCreate } from '../../models/order.model';
 import { User } from '../../models/user.model';
-
-
 
 @Component({
   selector: 'app-checkout',
@@ -42,7 +41,8 @@ import { User } from '../../models/user.model';
     AccordionModule,
     ProgressBarModule,
     BadgeModule,
-    TagModule
+    TagModule,
+    TranslateModule
   ],
   providers: [MessageService],
   templateUrl: './checkout.component.html',
@@ -53,19 +53,19 @@ export class CheckoutComponent implements OnInit {
   cartItems: CartItem[] = [];
   currentUser: User | null = null;
   isSubmitting = false;
-accordionExpanded = false;
+  accordionExpanded = false;
 
-toggleShippingAccordion() {
-  this.accordionExpanded = !this.accordionExpanded;
-}
+  toggleShippingAccordion() {
+    this.accordionExpanded = !this.accordionExpanded;
+  }
 
-getFormCompletionPercentage() {
-  const controls = ['fullName', 'phone', 'address'];
-  const completed = controls.filter(control => 
-    this.checkoutForm.get(control)?.value?.trim()
-  ).length;
-  return Math.round((completed / controls.length) * 100);
-}
+  getFormCompletionPercentage() {
+    const controls = ['fullName', 'phone', 'address'];
+    const completed = controls.filter(control => 
+      this.checkoutForm.get(control)?.value?.trim()
+    ).length;
+    return Math.round((completed / controls.length) * 100);
+  }
 
   constructor(
     private fb: FormBuilder,
@@ -73,7 +73,8 @@ getFormCompletionPercentage() {
     private authService: AuthService,
     private cartService: CartService,
     private orderService: OrderService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private translateService: TranslateService
   ) {
     this.checkoutForm = this.fb.group({
       fullName: ['', Validators.required],
@@ -89,8 +90,8 @@ getFormCompletionPercentage() {
     if (!this.currentUser) {
       this.messageService.add({
         severity: 'error',
-        summary: 'Authentication Error',
-        detail: 'You must be logged in to checkout'
+        summary: this.translateService.instant('checkout.auth_required'),
+        detail: this.translateService.instant('checkout.auth_required_message')
       });
       this.router.navigate(['/login'], { queryParams: { returnUrl: '/checkout' }});
       return;
@@ -103,8 +104,8 @@ getFormCompletionPercentage() {
       if (items.length === 0) {
         this.messageService.add({
           severity: 'info',
-          summary: 'Empty Cart',
-          detail: 'Your cart is empty. Add some products before checkout.'
+          summary: this.translateService.instant('checkout.empty_cart'),
+          detail: this.translateService.instant('checkout.empty_cart_message')
         });
         this.router.navigate(['/products']);
         return;
@@ -151,8 +152,8 @@ getFormCompletionPercentage() {
     if (!this.currentUser) {
       this.messageService.add({
         severity: 'error',
-        summary: 'Authentication Error',
-        detail: 'You must be logged in to checkout'
+        summary: this.translateService.instant('checkout.auth_required'),
+        detail: this.translateService.instant('checkout.auth_required_message')
       });
       return;
     }
@@ -172,8 +173,8 @@ getFormCompletionPercentage() {
       next: (order) => {
         this.messageService.add({
           severity: 'success',
-          summary: 'Order Placed',
-          detail: `Your order #${order.id} has been placed successfully!`
+          summary: this.translateService.instant('checkout.order_placed'),
+          detail: this.translateService.instant('checkout.order_placed_message', { orderNumber: order.id })
         });
         
         // Clear cart after successful order
@@ -189,7 +190,7 @@ getFormCompletionPercentage() {
         console.error('Error creating order:', error);
         this.isSubmitting = false;
         
-        let errorMessage = 'Failed to place order. Please try again.';
+        let errorMessage = this.translateService.instant('checkout.order_error_default');
         
         if (error.error && error.error.detail) {
           errorMessage = error.error.detail;
@@ -197,7 +198,7 @@ getFormCompletionPercentage() {
         
         this.messageService.add({
           severity: 'error',
-          summary: 'Order Error',
+          summary: this.translateService.instant('checkout.order_error'),
           detail: errorMessage
         });
       }

@@ -6,21 +6,18 @@ import { switchMap, catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 
 import { ButtonModule } from 'primeng/button';
-
 import { TableModule } from 'primeng/table';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { TagModule } from 'primeng/tag';
 import { TimelineModule } from 'primeng/timeline';
 import { DividerModule } from 'primeng/divider';
+import { PanelModule } from 'primeng/panel';
+import { CardModule } from 'primeng/card';
+import { TranslateModule, TranslateService } from '@ngx-translate/core'; // Added TranslateModule and TranslateService
 
 import { OrderService } from '../../../services/order.service'; 
 import { Order } from '../../../models/order.model';
-import { PanelModule } from 'primeng/panel';
-import { CardModule } from 'primeng/card';
-
-
-
 
 interface OrderStatus {
   status: string;
@@ -42,7 +39,8 @@ interface OrderStatus {
     ToastModule,
     TagModule,
     TimelineModule,
-    DividerModule
+    DividerModule,
+    TranslateModule // Added TranslateModule
   ],
   providers: [MessageService],
   templateUrl: './order-detail.component.html'
@@ -53,6 +51,7 @@ export class OrderDetailComponent implements OnInit {
   private router = inject(Router);
   private orderService = inject(OrderService);
   private messageService = inject(MessageService);
+  private translateService = inject(TranslateService); // Added TranslateService
 
   // Signals
   order = signal<Order | null>(null);
@@ -70,8 +69,8 @@ export class OrderDetailComponent implements OnInit {
       if (params['success'] === 'true') {
         this.messageService.add({
           severity: 'success',
-          summary: 'Order Placed',
-          detail: 'Your order has been placed successfully!',
+          summary: this.translateService.instant('orders.detail.order_placed_success'),
+          detail: this.translateService.instant('orders.detail.order_placed_success_message'),
           life: 5000
         });
       }
@@ -93,8 +92,8 @@ export class OrderDetailComponent implements OnInit {
             this.loading.set(false);
             this.messageService.add({
               severity: 'error',
-              summary: 'Error',
-              detail: 'Failed to load order details'
+              summary: this.translateService.instant('orders.detail.load_error_title'),
+              detail: this.translateService.instant('orders.detail.load_error_message')
             });
             return of(null);
           })
@@ -111,10 +110,10 @@ export class OrderDetailComponent implements OnInit {
   }
 
   generateOrderStatusTimeline(order: Order): void {
-    // Create timeline based on order status
+    // Create timeline based on order status with translated labels
     const statuses: OrderStatus[] = [
       {
-        status: 'Order Placed',
+        status: this.translateService.instant('orders.detail.timeline.order_placed'),
         date: order.created_at,
         icon: 'pi pi-shopping-cart',
         color: '#607D8B'
@@ -125,7 +124,7 @@ export class OrderDetailComponent implements OnInit {
     switch (order.status) {
       case 'cancelled':
         statuses.push({
-          status: 'Order Cancelled',
+          status: this.translateService.instant('orders.detail.timeline.order_cancelled'),
           date: order.updated_at || order.created_at,
           icon: 'pi pi-times',
           color: '#F44336'
@@ -136,7 +135,7 @@ export class OrderDetailComponent implements OnInit {
       case 'shipped':
       case 'delivered':
         statuses.push({
-          status: 'Order Confirmed',
+          status: this.translateService.instant('orders.detail.timeline.order_confirmed'),
           date: order.updated_at || order.created_at,
           icon: 'pi pi-check-circle',
           color: '#4CAF50'
@@ -144,7 +143,7 @@ export class OrderDetailComponent implements OnInit {
         
         if (order.status === 'shipped' || order.status === 'delivered') {
           statuses.push({
-            status: 'Order Shipped',
+            status: this.translateService.instant('orders.detail.timeline.order_shipped'),
             date: order.updated_at || order.created_at,
             icon: 'pi pi-truck',
             color: '#3F51B5'
@@ -152,7 +151,7 @@ export class OrderDetailComponent implements OnInit {
           
           if (order.status === 'delivered') {
             statuses.push({
-              status: 'Order Delivered',
+              status: this.translateService.instant('orders.detail.timeline.order_delivered'),
               date: order.updated_at || order.created_at,
               icon: 'pi pi-check-square',
               color: '#2E7D32'
@@ -177,7 +176,8 @@ export class OrderDetailComponent implements OnInit {
   }
 
   getStatusLabel(status: string): string {
-    return status.charAt(0).toUpperCase() + status.slice(1);
+    // Use translation service for status labels
+    return this.translateService.instant(`orders.status.${status}`);
   }
 
   getUnitDisplay(unit: string): string {
@@ -205,8 +205,8 @@ export class OrderDetailComponent implements OnInit {
         
         this.messageService.add({
           severity: 'success',
-          summary: 'Order Cancelled',
-          detail: 'Your order has been cancelled successfully'
+          summary: this.translateService.instant('orders.detail.order_cancelled_success'),
+          detail: this.translateService.instant('orders.detail.order_cancelled_success_message')
         });
       },
       error: (error) => {
@@ -214,8 +214,8 @@ export class OrderDetailComponent implements OnInit {
         
         this.messageService.add({
           severity: 'error',
-          summary: 'Error',
-          detail: 'Failed to cancel order'
+          summary: this.translateService.instant('orders.detail.cancel_error_title'),
+          detail: this.translateService.instant('orders.detail.cancel_error_message')
         });
       }
     });

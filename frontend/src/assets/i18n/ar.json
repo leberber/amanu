@@ -165,7 +165,9 @@
     "cart_cleared_message": "تم حذف جميع العناصر من سلتك",
     "table": {
       "product": "المنتج",
-      "actions": "الإجراءات"
+      "actions": "الإجراءات",
+      "class": "text-right"
+      
     }
   },
   "auth": {
@@ -230,15 +232,26 @@
     "subtotal": "المجموع الفرعي",
     "delivery_fee": "رسوم التوصيل",
     "free": "مجاني",
+    "shipping": "الشحن",
     "total": "المجموع الكلي",
     "place_order": "تأكيد الطلب",
     "secure_checkout": "دفع آمن ومحمي",
     "order_placed": "تم تأكيد طلبك بنجاح!",
+    "order_placed_message": "تم تقديم طلبك رقم #{{orderNumber}} بنجاح!",
     "processing": "جاري معالجة طلبك...",
     "empty_cart": "سلتك فارغة",
     "empty_cart_message": "يرجى إضافة منتجات إلى سلتك قبل إتمام الطلب",
     "auth_required": "تسجيل الدخول مطلوب",
-    "auth_required_message": "يجب تسجيل الدخول لإتمام عملية الشراء"
+    "auth_required_message": "يجب تسجيل الدخول لإتمام عملية الشراء",
+    "order_error": "خطأ في الطلب",
+    "order_error_default": "فشل في تقديم الطلب. يرجى المحاولة مرة أخرى.",
+    "view_shipping_details": "عرض تفاصيل الشحن",
+    "hide_shipping_details": "إخفاء تفاصيل الشحن",
+    "default_name": "أحمد محمد",
+    "default_phone": "+966 50 123 4567",
+    "default_address_line1": "شارع الملك فهد، حي العليا",
+    "default_address_line2": "الرياض 12234",
+    "default_address_line3": "المملكة العربية السعودية"
   },
   "orders": {
     "title": "طلباتي",
@@ -277,6 +290,27 @@
       "back_to_orders": "العودة للطلبات",
       "order_cancelled": "تم إلغاء طلبك بنجاح",
       "cancel_error": "فشل في إلغاء الطلب",
+         "loading_order": "جاري تحميل تفاصيل الطلب...",
+      "failed_to_load_order": "فشل في تحميل الطلب",
+      "go_to_orders": "الذهاب للطلبات",
+      "order_number": "رقم الطلب",
+      "order_items_title": "عناصر الطلب",
+      "product": "المنتج",
+      "price": "السعر",
+      "qty": "الكمية",
+      "order_actions_title": "إجراءات الطلب",
+      "cancel_order_button": "إلغاء الطلب",
+      "cancel_order_note": "يمكنك إلغاء الطلبات التي لم تتم معالجتها بعد فقط.",
+      "contact_support": "اتصل بالدعم",
+      "order_placed_success": "تم تقديم الطلب",
+      "order_placed_success_message": "تم تقديم طلبك بنجاح!",
+      "order_cancelled_success": "تم إلغاء الطلب",
+      "order_cancelled_success_message": "تم إلغاء طلبك بنجاح",
+      "cancel_error_title": "خطأ",
+      "cancel_error_message": "فشل في إلغاء الطلب",
+      "load_error_title": "خطأ",
+      "load_error_message": "فشل في تحميل تفاصيل الطلب",
+
       "timeline": {
         "order_placed": "تم تقديم الطلب",
         "order_confirmed": "تم تأكيد الطلب",
