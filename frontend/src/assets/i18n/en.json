@@ -1,0 +1,84 @@
+{
+  "common": {
+    "welcome": "Welcome",
+    "home": "Home",
+    "products": "Products",
+    "cart": "Cart",
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout",
+    "search": "Search",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "view": "View",
+    "price": "Price",
+    "quantity": "Quantity",
+    "total": "Total",
+    "name": "Name",
+    "description": "Description",
+    "category": "Category",
+    "email": "Email",
+    "password": "Password",
+    "phone": "Phone",
+    "address": "Address",
+    "menu": "Menu"
+  },
+  "header": {
+    "fresh_produce": "Fresh Produce",
+    "dark_mode": "Dark mode",
+    "light_mode": "Light mode",
+    "profile": "Profile",
+    "orders": "Orders",
+    "admin": "Admin"
+  },
+  "home": {
+    "title": "Welcome to our fresh produce store",
+    "subtitle": "Discover our quality fresh fruits and vegetables",
+    "shop_now": "Shop now",
+    "fresh_fruits": "Fresh fruits",
+    "fresh_vegetables": "Fresh vegetables",
+    "organic_produce": "Organic produce"
+  },
+  "products": {
+    "title": "Our Products",
+    "filters": "Filters",
+    "sort_by": "Sort by",
+    "categories": "Categories",
+    "organic_only": "Organic only",
+    "out_of_stock": "Out of stock",
+    "low_stock": "Low stock",
+    "add_to_cart": "Add to cart",
+    "select_quantity": "Select quantity"
+  },
+  "cart": {
+    "title": "My Cart",
+    "empty": "Your cart is empty",
+    "item_count": "item(s)",
+    "subtotal": "Subtotal",
+    "checkout": "Checkout",
+    "remove_item": "Remove item",
+    "update_quantity": "Update quantity"
+  },
+  "auth": {
+    "login_title": "Login",
+    "register_title": "Create Account",
+    "full_name": "Full name",
+    "forgot_password": "Forgot password?",
+    "no_account": "No account?",
+    "already_have_account": "Already have an account?",
+    "login_success": "Login successful",
+    "register_success": "Registration successful"
+  },
+  "language": {
+    "select": "Select language",
+    "french": "Français",
+    "english": "English",
+    "arabic": "العربية"
+  }
+}

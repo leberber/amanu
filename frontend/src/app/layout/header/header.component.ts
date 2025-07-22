@@ -1,5 +1,5 @@
 // src/app/layout/header/header.component.ts
-import { Component, OnInit, OnDestroy, signal, computed, effect, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
@@ -11,8 +11,13 @@ import { BadgeModule } from 'primeng/badge';
 import { OverlayBadgeModule } from 'primeng/overlaybadge';
 import { RippleModule } from 'primeng/ripple';
 import { DrawerModule } from 'primeng/drawer';
+import { TooltipModule } from 'primeng/tooltip';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+
 import { AuthService } from '../../services/auth.service';
 import { CartService } from '../../services/cart.service';
+import { TranslationService } from '../../services/translation.service';
+import { LanguageSelectorComponent } from '../../components/language-selector/language-selector.component';
 import { User } from '../../models/user.model';
 import { Subscription } from 'rxjs';
 
@@ -29,7 +34,10 @@ import { Subscription } from 'rxjs';
     AvatarModule, 
     MenuModule,
     RippleModule,
-    DrawerModule
+    DrawerModule,
+    TooltipModule,
+    TranslateModule,
+    LanguageSelectorComponent
   ],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss'
@@ -38,6 +46,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
   // Dependency injection
   public authService = inject(AuthService);
   private cartService = inject(CartService);
+  private translationService = inject(TranslationService);
+  private translateService = inject(TranslateService);
   
   // UI state signals
   menuVisible = signal(false);
@@ -54,8 +64,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription[] = [];
   
   // Style definitions
-  // avatarStyle = {'background-color':'var(--primary-color)', 'color': 'var(--primary-text-color)'};
-  avatarStyle={ 'background-color': '#ece9fc', color: '#2a1261' }
+  avatarStyle = { 'background-color': '#ece9fc', color: '#2a1261' }
   
   // Computed signals
   isAdmin = computed(() => {
@@ -77,9 +86,13 @@ export class HeaderComponent implements OnInit, OnDestroy {
   
   themeIcon = computed(() => this.isDarkMode() ? 'pi pi-sun' : 'pi pi-moon');
 
+  // RTL support
+  isRTL = computed(() => this.translationService.isRTL());
+
   ngOnInit() {
     this.initializeTheme();
     this.subscribeToUserChanges();
+    this.subscribeToLanguageChanges();
     this.loadInitialUserData();
     this.loadCartItems();
   }
@@ -93,6 +106,14 @@ export class HeaderComponent implements OnInit, OnDestroy {
       this.authService.currentUser$.subscribe(user => {
         this.currentUser.set(user);
         this.buildMenus(); // Rebuild menus when user changes
+      })
+    );
+  }
+
+  private subscribeToLanguageChanges(): void {
+    this.subscriptions.push(
+      this.translationService.currentLanguage$.subscribe(() => {
+        this.buildMenus(); // Rebuild menus when language changes
       })
     );
   }
@@ -137,16 +158,23 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.closeMenu();
   }
 
-  // Menu Configuration
+  // Helper method to execute menu item commands
+  executeCommand(item: MenuItem, event: Event): void {
+    if (item.command) {
+      item.command({ originalEvent: event, item: item });
+    }
+  }
+
+  // Menu Configuration with translations
   private buildMenus(): void {
     const baseItems: MenuItem[] = [
       {
-        label: 'Home',
+        label: this.translateService.instant('common.home'),
         icon: 'pi pi-home',
         routerLink: '/'
       },
       {
-        label: 'Products',
+        label: this.translateService.instant('common.products'),
         icon: 'pi pi-shopping-bag',
         routerLink: '/products'
       }
@@ -168,7 +196,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     // Add Orders for logged-in users
     if (this.authService.isLoggedIn) {
       mobileItems.push({
-        label: 'Orders',
+        label: this.translateService.instant('header.orders'),
         icon: 'pi pi-list',
         routerLink: '/orders'
       });
@@ -177,7 +205,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     // Add Admin for admin users
     if (isAdminUser) {
       mobileItems.push({
-        label: 'Admin',
+        label: this.translateService.instant('header.admin'),
         icon: 'pi pi-cog',
         routerLink: '/admin'
       });
@@ -198,31 +226,31 @@ export class HeaderComponent implements OnInit, OnDestroy {
   
   private getAdminMenuItem(): MenuItem {
     return {
-      label: 'Admin',
+      label: this.translateService.instant('header.admin'),
       icon: 'pi pi-cog',
       items: [
         {
-          label: 'Dashboard',
+          label: this.translateService.instant('common.home'), // Dashboard
           icon: 'pi pi-chart-bar',
           routerLink: '/admin'
         },
         {
-          label: 'Orders',
+          label: this.translateService.instant('header.orders'),
           icon: 'pi pi-list',
           routerLink: '/admin/orders'
         },
         {
-          label: 'Users',
+          label: 'Users', // We'll add this translation later
           icon: 'pi pi-users',
           routerLink: '/admin/users'
         },
         {
-          label: 'Products',
+          label: this.translateService.instant('common.products'),
           icon: 'pi pi-tag',
           routerLink: '/admin/products'
         },
         {
-          label: 'Categories',
+          label: 'Categories', // We'll add this translation later
           icon: 'pi pi-tags',
           routerLink: '/admin/categories'
         }
@@ -233,17 +261,17 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private getUserMenuItems(): MenuItem[] {
     return [
       {
-        label: 'Profile',
+        label: this.translateService.instant('header.profile'),
         icon: 'pi pi-user',
         routerLink: '/profile'
       },
       {
-        label: 'Orders',
+        label: this.translateService.instant('header.orders'),
         icon: 'pi pi-list',
         routerLink: '/orders'
       },
       {
-        label: 'Logout',
+        label: this.translateService.instant('common.logout'),
         icon: 'pi pi-sign-out',
         command: () => this.logout()
       }

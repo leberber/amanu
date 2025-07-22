@@ -1,0 +1,84 @@
+{
+  "common": {
+    "welcome": "Bienvenue",
+    "home": "Accueil",
+    "products": "Produits",
+    "cart": "Panier",
+    "login": "Connexion",
+    "register": "S'inscrire",
+    "logout": "Déconnexion",
+    "search": "Rechercher",
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "success": "Succès",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "add": "Ajouter",
+    "view": "Voir",
+    "price": "Prix",
+    "quantity": "Quantité",
+    "total": "Total",
+    "name": "Nom",
+    "description": "Description",
+    "category": "Catégorie",
+    "email": "Email",
+    "password": "Mot de passe",
+    "phone": "Téléphone",
+    "address": "Adresse",
+    "menu": "Menu"
+  },
+  "header": {
+    "fresh_produce": "Produits Frais",
+    "dark_mode": "Mode sombre",
+    "light_mode": "Mode clair",
+    "profile": "Profil",
+    "orders": "Commandes",
+    "admin": "Administration"
+  },
+  "home": {
+    "title": "Bienvenue dans notre magasin de produits frais",
+    "subtitle": "Découvrez nos fruits et légumes frais de qualité",
+    "shop_now": "Acheter maintenant",
+    "fresh_fruits": "Fruits frais",
+    "fresh_vegetables": "Légumes frais",
+    "organic_produce": "Produits bio"
+  },
+  "products": {
+    "title": "Nos Produits",
+    "filters": "Filtres",
+    "sort_by": "Trier par",
+    "categories": "Catégories",
+    "organic_only": "Bio uniquement",
+    "out_of_stock": "Rupture de stock",
+    "low_stock": "Stock faible",
+    "add_to_cart": "Ajouter au panier",
+    "select_quantity": "Sélectionner la quantité"
+  },
+  "cart": {
+    "title": "Mon Panier",
+    "empty": "Votre panier est vide",
+    "item_count": "article(s)",
+    "subtotal": "Sous-total",
+    "checkout": "Passer la commande",
+    "remove_item": "Retirer l'article",
+    "update_quantity": "Mettre à jour la quantité"
+  },
+  "auth": {
+    "login_title": "Connexion",
+    "register_title": "Créer un compte",
+    "full_name": "Nom complet",
+    "forgot_password": "Mot de passe oublié ?",
+    "no_account": "Pas de compte ?",
+    "already_have_account": "Déjà un compte ?",
+    "login_success": "Connexion réussie",
+    "register_success": "Inscription réussie"
+  },
+  "language": {
+    "select": "Choisir la langue",
+    "french": "Français",
+    "english": "English",
+    "arabic": "العربية"
+  }
+}

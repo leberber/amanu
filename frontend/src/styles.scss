@@ -185,3 +185,128 @@ h1, h2, h3, h4, h5, h6 {
 code, pre {
     font-family: var(--font-family-mono);
 }
+
+/* Add this to your existing src/styles.scss file */
+
+// /* RTL Support */
+// [dir="rtl"] {
+//   /* Text alignment */
+//   .text-left { text-align: right !important; }
+//   .text-right { text-align: left !important; }
+  
+//   /* Margins */
+//   .ml-1 { margin-right: 0.25rem !important; margin-left: 0 !important; }
+//   .ml-2 { margin-right: 0.5rem !important; margin-left: 0 !important; }
+//   .ml-3 { margin-right: 0.75rem !important; margin-left: 0 !important; }
+//   .ml-4 { margin-right: 1rem !important; margin-left: 0 !important; }
+//   .ml-auto { margin-right: auto !important; margin-left: 0 !important; }
+  
+//   .mr-1 { margin-left: 0.25rem !important; margin-right: 0 !important; }
+//   .mr-2 { margin-left: 0.5rem !important; margin-right: 0 !important; }
+//   .mr-3 { margin-left: 0.75rem !important; margin-right: 0 !important; }
+//   .mr-4 { margin-left: 1rem !important; margin-right: 0 !important; }
+//   .mr-auto { margin-left: auto !important; margin-right: 0 !important; }
+  
+//   /* Padding */
+//   .pl-1 { padding-right: 0.25rem !important; padding-left: 0 !important; }
+//   .pl-2 { padding-right: 0.5rem !important; padding-left: 0 !important; }
+//   .pl-3 { padding-right: 0.75rem !important; padding-left: 0 !important; }
+//   .pl-4 { padding-right: 1rem !important; padding-left: 0 !important; }
+  
+//   .pr-1 { padding-left: 0.25rem !important; padding-right: 0 !important; }
+//   .pr-2 { padding-left: 0.5rem !important; padding-right: 0 !important; }
+//   .pr-3 { padding-left: 0.75rem !important; padding-right: 0 !important; }
+//   .pr-4 { padding-left: 1rem !important; padding-right: 0 !important; }
+  
+//   /* Border radius */
+//   .border-radius-left { 
+//     border-top-right-radius: var(--border-radius) !important;
+//     border-bottom-right-radius: var(--border-radius) !important;
+//     border-top-left-radius: 0 !important;
+//     border-bottom-left-radius: 0 !important;
+//   }
+  
+//   .border-radius-right { 
+//     border-top-left-radius: var(--border-radius) !important;
+//     border-bottom-left-radius: var(--border-radius) !important;
+//     border-top-right-radius: 0 !important;
+//     border-bottom-right-radius: 0 !important;
+//   }
+// }
+
+// /* PrimeNG RTL Support */
+// [dir="rtl"] {
+//   /* Menu items */
+//   .p-menuitem-link {
+//     text-align: right;
+//   }
+  
+//   /* Input icons */
+//   .input-icon {
+//     left: auto !important;
+//     right: 10px !important;
+//   }
+  
+//   /* Button icons */
+//   .p-button .p-button-icon-left {
+//     margin-right: 0 !important;
+//     margin-left: 0.5rem !important;
+//   }
+  
+//   .p-button .p-button-icon-right {
+//     margin-left: 0 !important;
+//     margin-right: 0.5rem !important;
+//   }
+  
+//   /* Dropdown */
+//   .p-dropdown .p-dropdown-trigger {
+//     right: auto !important;
+//     left: 0 !important;
+//   }
+  
+//   /* Card headers */
+//   .p-card-header {
+//     text-align: right;
+//   }
+  
+//   /* Breadcrumb */
+//   .p-breadcrumb ol li + li::before {
+//     content: "◀" !important;
+//   }
+  
+//   /* Table */
+//   .p-datatable .p-datatable-tbody > tr > td {
+//     text-align: right;
+//   }
+  
+//   .p-datatable .p-datatable-thead > tr > th {
+//     text-align: right;
+//   }
+// }
+
+// /* Language-specific fonts */
+// [lang="ar"] {
+//   font-family: 'Noto Sans Arabic', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  
+//   /* Improve Arabic text rendering */
+//   text-rendering: optimizeLegibility;
+//   -webkit-font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+//   font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+// }
+
+// [lang="fr"], [lang="en"] {
+//   font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+//     Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+//     "Segoe UI Symbol";
+// }
+
+// /* Smooth transitions for direction changes */
+// * {
+//   transition: margin 0.3s ease, padding 0.3s ease;
+// }
+
+.p-select-overlay,
+.p-select-panel,
+.language-panel {
+  z-index: 99999 !important;
+}

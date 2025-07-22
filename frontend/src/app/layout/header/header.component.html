@@ -8,7 +8,6 @@
   <img src="/logo.png" alt="logo" style="height: 60px; width: auto;">
 </a>
 
-
         <p-menubar
           [model]="items()"
           [style]="{ border: 'none', background: 'transparent' }"
@@ -16,6 +15,9 @@
       </div>
 
       <div class="flex align-items-center">
+        <!-- Language Selector -->
+        <app-language-selector></app-language-selector>
+        
         <!-- Cart Icon -->
         <a
           routerLink="/cart"
@@ -43,7 +45,7 @@
           *ngIf="isAdmin()"
           pButton
           icon="pi pi-cog"
-          label="Admin"
+          [label]="'header.admin' | translate"
           class="p-button-outlined mr-3"
           routerLink="/admin"
         ></button>
@@ -72,13 +74,13 @@
         <ng-template #loginButtons>
           <div>
             <p-button
-              label="Login"
+              [label]="'common.login' | translate"
               icon="pi pi-sign-in"
               styleClass="p-button-text mr-2"
               routerLink="/login"
             ></p-button>
             <p-button
-              label="Register"
+              [label]="'common.register' | translate"
               icon="pi pi-user-plus"
               routerLink="/register"
             ></p-button>
@@ -109,14 +111,6 @@
 </p-overlayBadge>
         </a>
 
-        <!-- Theme toggle - matched dimensions and styling -->
-        <!-- <button
-          pButton
-          [icon]="themeIcon()"
-          (click)="toggleDarkMode()"
-          class="p-button-rounded p-button-text p-0 h-2rem w-2rem flex align-items-center justify-content-center mr-2 mobile-menu-btn"
-        ></button> -->
-
         <!-- Mobile menu toggle - matched dimensions and styling -->
       <button
         pButton
@@ -134,7 +128,6 @@
 <p-drawer
   [visible]="menuVisible()"
   position="full"
- 
   [showCloseIcon]="true"
   [closeOnEscape]="true"
   [modal]="true"
@@ -153,6 +146,11 @@
   </ng-template>
 
   <div class="flex flex-column h-full">
+    <!-- Language Selector for Mobile -->
+    <div class="p-3 border-bottom-1 surface-border">
+      <app-language-selector></app-language-selector>
+    </div>
+    
     <!-- Navigation items with proper scrolling -->
     <div class="flex-grow-1 overflow-y-auto">
       <ul class="list-none p-3 m-0 flex flex-column">
@@ -187,7 +185,6 @@
               icon="pi pi-user"
               class="mr-2"
               shape="circle"
-
               [style]="avatarStyle"
             ></p-avatar>
             <div class="block overflow-hidden">
@@ -206,18 +203,15 @@
           <a
             pRipple
             (click)="logout()"
-            
             class="w-full h-full inline-flex align-items-center justify-content-center cursor-pointer py-3 px-4 text-700 font-medium hover:surface-100 transition-colors transition-duration-150"
           >
                <p-avatar
               icon="pi pi-sign-out"
               class="mr-2"
               shape="circle"
-
               [style]="avatarStyle"
             ></p-avatar>
-            <!-- <i class="pi pi-sign-out mr-3 bg-black-alpha-10 p-2"></i> -->
-            <span>Logout</span>
+            <span>{{ 'common.logout' | translate }}</span>
           </a>
         </div>
       </div>
@@ -234,7 +228,7 @@
               class="flex justify-content-center align-items-center w-full h-full py-3 px-4 font-medium cursor-pointer hover:surface-100 transition-colors transition-duration-150"
             >
               <i class="pi pi-sign-in mr-2"></i>
-              <span>Login</span>
+              <span>{{ 'common.login' | translate }}</span>
             </a>
           </div>
           <div class="col-6 p-0">
@@ -246,7 +240,7 @@
               class="flex justify-content-center align-items-center w-full h-full py-3 px-4 font-medium cursor-pointer hover:surface-100 transition-colors transition-duration-150"
             >
               <i class="pi pi-user-plus mr-2"></i>
-              <span>Register</span>
+              <span>{{ 'common.register' | translate }}</span>
             </a>
           </div>
         </div>

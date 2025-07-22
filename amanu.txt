@@ -79,7 +79,7 @@ if __name__ == "__main__":
         exclude_files={'package-lock.json'}  # Added new parameter to exclude this file
     )
 
-=== Elsuq.txt ===
+=== amanu.txt ===
 
 
 
@@ -131,19 +131,21 @@ This directory contains AWS CDK infrastructure code and deployment scripts for t
 - **`cdk.out/`** - CDK synthesized templates (auto-generated)
 
 ## Prerequisites
-0. **Domain name**  registered and hosted zone created in Route53
+
+0. **Domain name** registered and hosted zone created in Route53
 
 1. **AWS CLI installed and configured**:
+
    ```bash
    # Install AWS CLI (if not installed)
    curl "https://awscli.amazonaws.com/AWSCLIV2.pkg" -o "AWSCLIV2.pkg"
    sudo installer -pkg AWSCLIV2.pkg -target /
-   
+
    # Configure AWS credentials
    aws configure
    # Enter your:
    # - AWS Access Key ID
-   # - AWS Secret Access Key  
+   # - AWS Secret Access Key
    # - Default region (e.g., eu-west-3)
    # - Default output format (json)
    ```
@@ -155,6 +157,7 @@ This directory contains AWS CDK infrastructure code and deployment scripts for t
 ## Quick Start
 
 ### 1. Create SSH Key Pair
+
 ```bash
 # Create AWS key pair
 aws ec2 create-key-pair \
@@ -167,6 +170,7 @@ chmod 400 ~/.ssh/Elsuq-ssh-key.pem
 ```
 
 ### 2. Deploy Infrastructure
+
 ```bash
 cd infra
 cdk bootstrap  # First time only
@@ -174,6 +178,7 @@ cdk deploy
 ```
 
 ### 3. Configure Server
+
 ```bash
 # Update the EC2_IP in setup-instance.sh with the output from step 2
 # Then run:
@@ -181,6 +186,7 @@ cdk deploy
 ```
 
 **Important Configuration**: Before running, update these variables in your scripts:
+
 - **`setup-instance.sh`**: Update `EC2_IP` with your instance's public IP
 - **`ec2-setup.sh`**: Update `DOMAIN_NAME` and `EMAIL` if using a different domain
   ```bash
@@ -191,12 +197,14 @@ cdk deploy
 ## What Gets Created
 
 ### AWS Resources
+
 - **EC2 Instance** (t3.small) with Amazon Linux 2023
 - **Security Group** with ports: 22 (SSH), 80 (HTTP), 443 (HTTPS), 4200 (Angular), 8000 (FastAPI)
 - **Route53 Records** for `example.com` and `www.example.com`
 - **IAM Role** for the EC2 instance
 
 ### Server Configuration
+
 - **Docker & Docker Compose** installed
 - **Nginx** configured as reverse proxy
 - **SSL certificates** via Let's Encrypt/Certbot
@@ -205,15 +213,18 @@ cdk deploy
 ## Configuration Variables
 
 ### Domain Setup
+
 The domain is configured in multiple places:
 
 1. **CDK Stack** (`app.py`):
+
    ```python
    Ec2ProjectStack(app, "MyEc2ProjectStack",
        domain_name="example.com",  # Main domain configuration
    ```
 
 2. **Setup Script** (`ec2-setup.sh`):
+
    ```bash
    DOMAIN_NAME="example.com"        # Domain for SSL certificate
    EMAIL="example@gmail.com"    # Email for Let's Encrypt
@@ -227,13 +238,17 @@ The domain is configured in multiple places:
 **To use a different domain**: Update all three locations with your domain name.
 
 ### `ec2-setup.sh`
+
 Runs ON the EC2 instance to configure:
+
 - Nginx reverse proxy (port 80 → 4200 for frontend, /api → 8000 for backend)
 - SSL certificates for HTTPS
 - Automatic certificate renewal
 
 ### `setup-instance.sh`
+
 Runs FROM your local machine to:
+
 - Copy the setup script to EC2
 - Execute the setup script via SSH
 - Handle the deployment process
@@ -241,6 +256,7 @@ Runs FROM your local machine to:
 ## DNS Configuration
 
 The stack automatically creates:
+
 - `example.com` → EC2 public IP
 - `www.example.com` → EC2 public IP
 
@@ -273,6 +289,7 @@ cdk destroy
 ## Troubleshooting
 
 ### DNS Issues
+
 ```bash
 # Check if DNS has propagated
 dig example.com +short
@@ -280,6 +297,7 @@ nslookup example.com
 ```
 
 ### SSL Certificate Issues
+
 ```bash
 # On EC2 instance, check certbot logs
 sudo tail -f /var/log/letsencrypt/letsencrypt.log
@@ -289,6 +307,7 @@ sudo certbot renew --dry-run
 ```
 
 ### Application Issues
+
 ```bash
 # Check Docker containers on EC2
 docker ps
@@ -312,6 +331,7 @@ docker-compose logs
 ---
 
 **Next**: See the [main README](../README.md) for application deployment instructions.
+
 
 === infra/app.py ===
 
@@ -554,259 +574,237 @@ class Ec2ProjectStack(Stack):
 === infra/cdk.out/MyEc2ProjectStack.template.json ===
 
 {
- "Resources": {
-  "WebServerSG4D0F372C": {
-   "Type": "AWS::EC2::SecurityGroup",
-   "Properties": {
-    "GroupDescription": "Security group for web server",
-    "SecurityGroupEgress": [
-     {
-      "CidrIp": "0.0.0.0/0",
-      "Description": "Allow all outbound traffic by default",
-      "IpProtocol": "-1"
-     }
-    ],
-    "SecurityGroupIngress": [
-     {
-      "CidrIp": "0.0.0.0/0",
-      "Description": "Allow SSH",
-      "FromPort": 22,
-      "IpProtocol": "tcp",
-      "ToPort": 22
-     },
-     {
-      "CidrIp": "0.0.0.0/0",
-      "Description": "Allow HTTP",
-      "FromPort": 80,
-      "IpProtocol": "tcp",
-      "ToPort": 80
-     },
-     {
-      "CidrIp": "0.0.0.0/0",
-      "Description": "Allow HTTPS",
-      "FromPort": 443,
-      "IpProtocol": "tcp",
-      "ToPort": 443
-     },
-     {
-      "CidrIp": "0.0.0.0/0",
-      "Description": "Allow FastAPI",
-      "FromPort": 8000,
-      "IpProtocol": "tcp",
-      "ToPort": 8000
-     },
-     {
-      "CidrIp": "0.0.0.0/0",
-      "Description": "Allow Angular",
-      "FromPort": 4200,
-      "IpProtocol": "tcp",
-      "ToPort": 4200
-     }
-    ],
-    "VpcId": "vpc-01fa743127f2b5bfa"
-   },
-   "Metadata": {
-    "aws:cdk:path": "MyEc2ProjectStack/WebServerSG/Resource"
-   }
-  },
-  "WebServerInstanceRoleEEE3F4CD": {
-   "Type": "AWS::IAM::Role",
-   "Properties": {
-    "AssumeRolePolicyDocument": {
-     "Statement": [
-      {
-       "Action": "sts:AssumeRole",
-       "Effect": "Allow",
-       "Principal": {
-        "Service": "ec2.amazonaws.com"
-       }
+  "Resources": {
+    "WebServerSG4D0F372C": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "Security group for web server",
+        "SecurityGroupEgress": [
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Allow all outbound traffic by default",
+            "IpProtocol": "-1"
+          }
+        ],
+        "SecurityGroupIngress": [
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Allow SSH",
+            "FromPort": 22,
+            "IpProtocol": "tcp",
+            "ToPort": 22
+          },
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Allow HTTP",
+            "FromPort": 80,
+            "IpProtocol": "tcp",
+            "ToPort": 80
+          },
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Allow HTTPS",
+            "FromPort": 443,
+            "IpProtocol": "tcp",
+            "ToPort": 443
+          },
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Allow FastAPI",
+            "FromPort": 8000,
+            "IpProtocol": "tcp",
+            "ToPort": 8000
+          },
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Allow Angular",
+            "FromPort": 4200,
+            "IpProtocol": "tcp",
+            "ToPort": 4200
+          }
+        ],
+        "VpcId": "vpc-01fa743127f2b5bfa"
+      },
+      "Metadata": {
+        "aws:cdk:path": "MyEc2ProjectStack/WebServerSG/Resource"
       }
-     ],
-     "Version": "2012-10-17"
     },
-    "Tags": [
-     {
-      "Key": "Name",
-      "Value": "MyEc2ProjectStack/WebServer"
-     }
-    ]
-   },
-   "Metadata": {
-    "aws:cdk:path": "MyEc2ProjectStack/WebServer/InstanceRole/Resource"
-   }
-  },
-  "WebServerInstanceProfile7A5DA8F6": {
-   "Type": "AWS::IAM::InstanceProfile",
-   "Properties": {
-    "Roles": [
-     {
-      "Ref": "WebServerInstanceRoleEEE3F4CD"
-     }
-    ]
-   },
-   "Metadata": {
-    "aws:cdk:path": "MyEc2ProjectStack/WebServer/InstanceProfile"
-   }
-  },
-  "WebServer99EDD300": {
-   "Type": "AWS::EC2::Instance",
-   "Properties": {
-    "AvailabilityZone": "eu-west-3a",
-    "IamInstanceProfile": {
-     "Ref": "WebServerInstanceProfile7A5DA8F6"
-    },
-    "ImageId": {
-     "Ref": "SsmParameterValueawsserviceamiamazonlinuxlatestal2023amikernel61x8664C96584B6F00A464EAD1953AFF4B05118Parameter"
-    },
-    "InstanceType": "t3.small",
-    "KeyName": "Elsuq-ssh-key",
-    "SecurityGroupIds": [
-     {
-      "Fn::GetAtt": [
-       "WebServerSG4D0F372C",
-       "GroupId"
-      ]
-     }
-    ],
-    "SubnetId": "subnet-0653848b1b02595ac",
-    "Tags": [
-     {
-      "Key": "Name",
-      "Value": "MyEc2ProjectStack/WebServer"
-     }
-    ],
-    "UserData": {
-     "Fn::Base64": "#!/bin/bash\n#!/bin/bash\nsudo dnf update -y\nsudo dnf install -y git\necho 'Instance is ready!' | sudo tee /var/log/user-data.log\nsudo dnf install -y docker\nsudo systemctl start docker\nsudo systemctl enable docker\nsudo usermod -a -G docker ec2-user\nsudo curl -L https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose\nsudo chmod +x /usr/local/bin/docker-compose\nsudo dnf install -y python3 python3-pip\nsudo dnf install -y nginx certbot python3-certbot-nginx\nsudo systemctl enable nginx"
-    }
-   },
-   "DependsOn": [
-    "WebServerInstanceRoleEEE3F4CD"
-   ],
-   "Metadata": {
-    "aws:cdk:path": "MyEc2ProjectStack/WebServer/Resource"
-   }
-  },
-  "ARecordE7B57761": {
-   "Type": "AWS::Route53::RecordSet",
-   "Properties": {
-    "HostedZoneId": "Z040531834UZQRHG5PULE",
-    "Name": "elsuq.org.",
-    "ResourceRecords": [
-     {
-      "Fn::GetAtt": [
-       "WebServer99EDD300",
-       "PublicIp"
-      ]
-     }
-    ],
-    "TTL": "300",
-    "Type": "A"
-   },
-   "Metadata": {
-    "aws:cdk:path": "MyEc2ProjectStack/ARecord/Resource"
-   }
-  },
-  "WWWRecordA21741B4": {
-   "Type": "AWS::Route53::RecordSet",
-   "Properties": {
-    "HostedZoneId": "Z040531834UZQRHG5PULE",
-    "Name": "www.elsuq.org.",
-    "ResourceRecords": [
-     {
-      "Fn::GetAtt": [
-       "WebServer99EDD300",
-       "PublicIp"
-      ]
-     }
-    ],
-    "TTL": "300",
-    "Type": "A"
-   },
-   "Metadata": {
-    "aws:cdk:path": "MyEc2ProjectStack/WWWRecord/Resource"
-   }
-  },
-  "CDKMetadata": {
-   "Type": "AWS::CDK::Metadata",
-   "Properties": {
-    "Analytics": "v2:deflate64:H4sIAAAAAAAA/1WOzQqDMBCEn8V73PpD6bn0UHqq6AOUNK40VRPZbBAJefei4qGnmflmDlNAnmWQJXJ2qWr7dNBvCA1L1YsanfWkUMjZvQKqAkKDypPm5U7WT+LWmX/wMI6lUbg2h49CyxFCbYcNH3rUFdlODxgFWc94LiFca1SW2m28uQY5xjVWkuSIjLSGp+fJ877af0ZRLfyx5lRCXsAl+TqtU/KG9YhQ7/oDVj/Hcu8AAAA="
-   },
-   "Metadata": {
-    "aws:cdk:path": "MyEc2ProjectStack/CDKMetadata/Default"
-   }
-  }
- },
- "Parameters": {
-  "SsmParameterValueawsserviceamiamazonlinuxlatestal2023amikernel61x8664C96584B6F00A464EAD1953AFF4B05118Parameter": {
-   "Type": "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>",
-   "Default": "/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-6.1-x86_64"
-  },
-  "BootstrapVersion": {
-   "Type": "AWS::SSM::Parameter::Value<String>",
-   "Default": "/cdk-bootstrap/hnb659fds/version",
-   "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
-  }
- },
- "Outputs": {
-  "PublicIP": {
-   "Description": "Public IP of the EC2 instance",
-   "Value": {
-    "Fn::GetAtt": [
-     "WebServer99EDD300",
-     "PublicIp"
-    ]
-   }
-  },
-  "SSHCommand": {
-   "Description": "SSH command to connect to the instance",
-   "Value": {
-    "Fn::Join": [
-     "",
-     [
-      "ssh -i Elsuq-ssh-key.pem ec2-user@",
-      {
-       "Fn::GetAtt": [
-        "WebServer99EDD300",
-        "PublicIp"
-       ]
-      }
-     ]
-    ]
-   }
-  },
-  "ServerStatusURL": {
-   "Description": "Application URL",
-   "Value": "https://elsuq.org"
-  }
- },
- "Rules": {
-  "CheckBootstrapVersion": {
-   "Assertions": [
-    {
-     "Assert": {
-      "Fn::Not": [
-       {
-        "Fn::Contains": [
-         [
-          "1",
-          "2",
-          "3",
-          "4",
-          "5"
-         ],
-         {
-          "Ref": "BootstrapVersion"
-         }
+    "WebServerInstanceRoleEEE3F4CD": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "ec2.amazonaws.com"
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "MyEc2ProjectStack/WebServer"
+          }
         ]
-       }
-      ]
-     },
-     "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+      },
+      "Metadata": {
+        "aws:cdk:path": "MyEc2ProjectStack/WebServer/InstanceRole/Resource"
+      }
+    },
+    "WebServerInstanceProfile7A5DA8F6": {
+      "Type": "AWS::IAM::InstanceProfile",
+      "Properties": {
+        "Roles": [
+          {
+            "Ref": "WebServerInstanceRoleEEE3F4CD"
+          }
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "MyEc2ProjectStack/WebServer/InstanceProfile"
+      }
+    },
+    "WebServer99EDD300": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "AvailabilityZone": "eu-west-3a",
+        "IamInstanceProfile": {
+          "Ref": "WebServerInstanceProfile7A5DA8F6"
+        },
+        "ImageId": {
+          "Ref": "SsmParameterValueawsserviceamiamazonlinuxlatestal2023amikernel61x8664C96584B6F00A464EAD1953AFF4B05118Parameter"
+        },
+        "InstanceType": "t3.small",
+        "KeyName": "Elsuq-ssh-key",
+        "SecurityGroupIds": [
+          {
+            "Fn::GetAtt": ["WebServerSG4D0F372C", "GroupId"]
+          }
+        ],
+        "SubnetId": "subnet-0653848b1b02595ac",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "MyEc2ProjectStack/WebServer"
+          }
+        ],
+        "UserData": {
+          "Fn::Base64": "#!/bin/bash\n#!/bin/bash\nsudo dnf update -y\nsudo dnf install -y git\necho 'Instance is ready!' | sudo tee /var/log/user-data.log\nsudo dnf install -y docker\nsudo systemctl start docker\nsudo systemctl enable docker\nsudo usermod -a -G docker ec2-user\nsudo curl -L https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose\nsudo chmod +x /usr/local/bin/docker-compose\nsudo dnf install -y python3 python3-pip\nsudo dnf install -y nginx certbot python3-certbot-nginx\nsudo systemctl enable nginx"
+        }
+      },
+      "DependsOn": ["WebServerInstanceRoleEEE3F4CD"],
+      "Metadata": {
+        "aws:cdk:path": "MyEc2ProjectStack/WebServer/Resource"
+      }
+    },
+    "ARecordE7B57761": {
+      "Type": "AWS::Route53::RecordSet",
+      "Properties": {
+        "HostedZoneId": "Z040531834UZQRHG5PULE",
+        "Name": "elsuq.org.",
+        "ResourceRecords": [
+          {
+            "Fn::GetAtt": ["WebServer99EDD300", "PublicIp"]
+          }
+        ],
+        "TTL": "300",
+        "Type": "A"
+      },
+      "Metadata": {
+        "aws:cdk:path": "MyEc2ProjectStack/ARecord/Resource"
+      }
+    },
+    "WWWRecordA21741B4": {
+      "Type": "AWS::Route53::RecordSet",
+      "Properties": {
+        "HostedZoneId": "Z040531834UZQRHG5PULE",
+        "Name": "www.elsuq.org.",
+        "ResourceRecords": [
+          {
+            "Fn::GetAtt": ["WebServer99EDD300", "PublicIp"]
+          }
+        ],
+        "TTL": "300",
+        "Type": "A"
+      },
+      "Metadata": {
+        "aws:cdk:path": "MyEc2ProjectStack/WWWRecord/Resource"
+      }
+    },
+    "CDKMetadata": {
+      "Type": "AWS::CDK::Metadata",
+      "Properties": {
+        "Analytics": "v2:deflate64:H4sIAAAAAAAA/1WOzQqDMBCEn8V73PpD6bn0UHqq6AOUNK40VRPZbBAJefei4qGnmflmDlNAnmWQJXJ2qWr7dNBvCA1L1YsanfWkUMjZvQKqAkKDypPm5U7WT+LWmX/wMI6lUbg2h49CyxFCbYcNH3rUFdlODxgFWc94LiFca1SW2m28uQY5xjVWkuSIjLSGp+fJ877af0ZRLfyx5lRCXsAl+TqtU/KG9YhQ7/oDVj/Hcu8AAAA="
+      },
+      "Metadata": {
+        "aws:cdk:path": "MyEc2ProjectStack/CDKMetadata/Default"
+      }
     }
-   ]
+  },
+  "Parameters": {
+    "SsmParameterValueawsserviceamiamazonlinuxlatestal2023amikernel61x8664C96584B6F00A464EAD1953AFF4B05118Parameter": {
+      "Type": "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>",
+      "Default": "/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-6.1-x86_64"
+    },
+    "BootstrapVersion": {
+      "Type": "AWS::SSM::Parameter::Value<String>",
+      "Default": "/cdk-bootstrap/hnb659fds/version",
+      "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
+    }
+  },
+  "Outputs": {
+    "PublicIP": {
+      "Description": "Public IP of the EC2 instance",
+      "Value": {
+        "Fn::GetAtt": ["WebServer99EDD300", "PublicIp"]
+      }
+    },
+    "SSHCommand": {
+      "Description": "SSH command to connect to the instance",
+      "Value": {
+        "Fn::Join": [
+          "",
+          [
+            "ssh -i Elsuq-ssh-key.pem ec2-user@",
+            {
+              "Fn::GetAtt": ["WebServer99EDD300", "PublicIp"]
+            }
+          ]
+        ]
+      }
+    },
+    "ServerStatusURL": {
+      "Description": "Application URL",
+      "Value": "https://elsuq.org"
+    }
+  },
+  "Rules": {
+    "CheckBootstrapVersion": {
+      "Assertions": [
+        {
+          "Assert": {
+            "Fn::Not": [
+              {
+                "Fn::Contains": [
+                  ["1", "2", "3", "4", "5"],
+                  {
+                    "Ref": "BootstrapVersion"
+                  }
+                ]
+              }
+            ]
+          },
+          "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+        }
+      ]
+    }
   }
- }
 }
+
 
 === infra/cdk.out/manifest.json ===
 
@@ -1139,10 +1137,7 @@ class Ec2ProjectStack(Stack):
                     "keyName": "Elsuq-ssh-key",
                     "securityGroupIds": [
                       {
-                        "Fn::GetAtt": [
-                          "WebServerSG4D0F372C",
-                          "GroupId"
-                        ]
+                        "Fn::GetAtt": ["WebServerSG4D0F372C", "GroupId"]
                       }
                     ],
                     "subnetId": "subnet-0653848b1b02595ac",
@@ -1206,10 +1201,7 @@ class Ec2ProjectStack(Stack):
                     "name": "elsuq.org.",
                     "resourceRecords": [
                       {
-                        "Fn::GetAtt": [
-                          "WebServer99EDD300",
-                          "PublicIp"
-                        ]
+                        "Fn::GetAtt": ["WebServer99EDD300", "PublicIp"]
                       }
                     ],
                     "ttl": "300",
@@ -1241,10 +1233,7 @@ class Ec2ProjectStack(Stack):
                     "name": "www.elsuq.org.",
                     "resourceRecords": [
                       {
-                        "Fn::GetAtt": [
-                          "WebServer99EDD300",
-                          "PublicIp"
-                        ]
+                        "Fn::GetAtt": ["WebServer99EDD300", "PublicIp"]
                       }
                     ],
                     "ttl": "300",
@@ -1342,6 +1331,7 @@ class Ec2ProjectStack(Stack):
   }
 }
 
+
 === frontend/.gitignore ===
 
 # See https://docs.github.com/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
@@ -1407,21 +1397,20 @@ CMD ["nginx", "-g", "daemon off;"]
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.3.
 
-## Create project 
+## Create project
 
 ```bash
 ng new Elsuq
 ```
 
 ## Install PrimeNG Dependencies
+
 ```bash
 npm install primeng primeflex primeicons @primeng/themes
 ```
 
 
-
 === frontend/angular.json ===
-
 
 {
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
@@ -1440,14 +1429,12 @@ npm install primeng primeflex primeicons @primeng/themes
       "prefix": "app",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-angular:application",
+          "builder": "@angular/build:application",
           "options": {
             "outputPath": "dist/Elsuq",
             "index": "src/index.html",
             "browser": "src/main.ts",
-            "polyfills": [
-              "zone.js"
-            ],
+            "polyfills": ["zone.js"],
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "assets": [
@@ -1476,9 +1463,7 @@ npm install primeng primeflex primeicons @primeng/themes
                 "output": "/assets/fonts"
               }
             ],
-            "styles": [
-              "src/styles.scss"
-            ],
+            "styles": ["src/styles.scss"],
             "stylePreprocessorOptions": {
               "includePaths": ["node_modules/"]
             },
@@ -1486,6 +1471,12 @@ npm install primeng primeflex primeicons @primeng/themes
           },
           "configurations": {
             "production": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.prod.ts"
+                }
+              ],
               "budgets": [
                 {
                   "type": "initial",
@@ -1518,7 +1509,7 @@ npm install primeng primeflex primeicons @primeng/themes
           "defaultConfiguration": "production"
         },
         "serve": {
-          "builder": "@angular-devkit/build-angular:dev-server",
+          "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
               "buildTarget": "Elsuq:build:production"
@@ -1530,15 +1521,12 @@ npm install primeng primeflex primeicons @primeng/themes
           "defaultConfiguration": "development"
         },
         "extract-i18n": {
-          "builder": "@angular-devkit/build-angular:extract-i18n"
+          "builder": "@angular/build:extract-i18n"
         },
         "test": {
-          "builder": "@angular-devkit/build-angular:karma",
+          "builder": "@angular/build:karma",
           "options": {
-            "polyfills": [
-              "zone.js",
-              "zone.js/testing"
-            ],
+            "polyfills": ["zone.js", "zone.js/testing"],
             "tsConfig": "tsconfig.spec.json",
             "inlineStyleLanguage": "scss",
             "assets": [
@@ -1551,16 +1539,13 @@ npm install primeng primeflex primeicons @primeng/themes
                 "input": "src",
                 "output": "/"
               },
-         
               {
                 "glob": "**/*",
                 "input": "node_modules/primeicons/fonts",
                 "output": "/assets/fonts"
               }
             ],
-            "styles": [
-              "src/styles.scss"
-            ],
+            "styles": ["src/styles.scss"],
             "scripts": []
           }
         }
@@ -1569,6 +1554,32 @@ npm install primeng primeflex primeicons @primeng/themes
   },
   "cli": {
     "analytics": "0af97856-5cd7-4361-9724-b5d1d731a3cd"
+  },
+  "schematics": {
+    "@schematics/angular:component": {
+      "type": "component"
+    },
+    "@schematics/angular:directive": {
+      "type": "directive"
+    },
+    "@schematics/angular:service": {
+      "type": "service"
+    },
+    "@schematics/angular:guard": {
+      "typeSeparator": "."
+    },
+    "@schematics/angular:interceptor": {
+      "typeSeparator": "."
+    },
+    "@schematics/angular:module": {
+      "typeSeparator": "."
+    },
+    "@schematics/angular:pipe": {
+      "typeSeparator": "."
+    },
+    "@schematics/angular:resolver": {
+      "typeSeparator": "."
+    }
   }
 }
 
@@ -1585,13 +1596,11 @@ npm install primeng primeflex primeicons @primeng/themes
       "resources": {
         "files": [
           "/favicon.ico",
-        "/index.html",
-        "/*.css",
-        "/*.js",
-        "/manifest.webmanifest",
-        "/assets/fonts/*",
-        "/icons/*",
-        "/screenshots/*"
+          "/index.csr.html",
+          "/index.html",
+          "/manifest.webmanifest",
+          "/*.css",
+          "/*.js"
         ]
       }
     },
@@ -1601,39 +1610,13 @@ npm install primeng primeflex primeicons @primeng/themes
       "updateMode": "prefetch",
       "resources": {
         "files": [
-          "/assets/**"
+          "/**/*.(svg|cur|jpg|jpeg|png|apng|webp|avif|gif|otf|ttf|woff|woff2)"
         ]
-      }
-    }
-  ],
-  "dataGroups": [
-    {
-      "name": "api-freshness",
-      "urls": [
-        "/api/v1/me",
-        "/api/v1/categories",
-        "/api/v1/products"
-      ],
-      "cacheConfig": {
-        "maxSize": 100,
-        "maxAge": "1h",
-        "timeout": "10s",
-        "strategy": "freshness"
-      }
-    },
-    {
-      "name": "api-performance",
-      "urls": [
-        "/api/v1/static-data"
-      ],
-      "cacheConfig": {
-        "maxSize": 100,
-        "maxAge": "7d",
-        "strategy": "performance"
       }
     }
   ]
 }
+
 
 === frontend/package.json ===
 
@@ -1650,38 +1633,43 @@ npm install primeng primeflex primeicons @primeng/themes
   },
   "private": true,
   "dependencies": {
-    "@angular/common": "^19.2.10",
-    "@angular/compiler": "^19.2.10",
-    "@angular/core": "^19.2.10",
-    "@angular/forms": "^19.2.10",
-    "@angular/platform-browser": "^19.2.10",
-    "@angular/platform-browser-dynamic": "^19.2.10",
-    "@angular/router": "^19.2.10",
-    "@angular/service-worker": "^19.2.10",
-    "@primeng/themes": "^19.0.10",
+    "@angular/animations": "^20.1.2",
+    "@angular/common": "^20.1.2",
+    "@angular/compiler": "^20.1.2",
+    "@angular/core": "^20.1.2",
+    "@angular/forms": "^20.1.2",
+    "@angular/localize": "^20.1.2",
+    "@angular/platform-browser": "^20.1.2",
+    "@angular/platform-browser-dynamic": "^20.1.2",
+    "@angular/router": "^20.1.2",
+    "@angular/service-worker": "^20.1.2",
+    "@ngx-translate/core": "^16.0.4",
+    "@ngx-translate/http-loader": "^16.0.1",
+    "@primeng/themes": "^20.0.0",
     "chart.js": "^4.4.9",
     "jwt-decode": "^4.0.0",
     "primeflex": "^4.0.0",
     "primeicons": "^7.0.0",
-    "primeng": "^19.0.10",
-    "rxjs": "~7.8.0",
+    "primeng": "^20.0.0",
+    "rxjs": "~7.8.1",
     "tailwindcss-primeui": "^0.6.1",
-    "tslib": "^2.3.0",
+    "tslib": "^2.6.2",
     "zone.js": "~0.15.0"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "^19.2.12",
-    "@angular/cli": "^19.2.12",
-    "@angular/compiler-cli": "^19.2.10",
+    "@angular-devkit/build-angular": "^20.1.1",
+    "@angular/cli": "^20.1.1",
+    "@angular/compiler-cli": "^20.1.2",
     "@fullhuman/postcss-purgecss": "^7.0.2",
     "@types/jasmine": "~5.1.0",
-    "jasmine-core": "~5.6.0",
-    "karma": "~6.4.0",
+    "@vite-pwa/assets-generator": "^1.0.0",
+    "jasmine-core": "~5.1.1",
+    "karma": "~6.4.2",
     "karma-chrome-launcher": "~3.2.0",
-    "karma-coverage": "~2.2.0",
+    "karma-coverage": "~2.2.1",
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
-    "typescript": "~5.7.2"
+    "typescript": "5.8.2"
   }
 }
 
@@ -1689,217 +1677,14 @@ npm install primeng primeflex primeicons @primeng/themes
 === frontend/proxy.conf.json ===
 
 {
-    "/api": {
-      "target": "https://Elsuq-5028o9mls-yazids-projects-3370118f.vercel.app",
-      "secure": true,
-      "changeOrigin": true,
-      "logLevel": "debug"
-    }
+  "/api": {
+    "target": "https://Elsuq-5028o9mls-yazids-projects-3370118f.vercel.app",
+    "secure": true,
+    "changeOrigin": true,
+    "logLevel": "debug"
   }
+}
 
-=== frontend/sv.json ===
-
-{
-    "name": "Elsuq",
-    "short_name": "Elsuq",
-    "theme_color": "#1976d2",
-    "background_color": "#fafafa",
-    "display": "standalone",
-    "scope": "./",
-    "start_url": "./",
-    "description": "Organic shopping application",
-    "categories": ["shopping", "food"],
-    "screenshots": [
-      {
-        "src": "screenshots/mobile-home.png",
-        "sizes": "1080x1920",
-        "type": "image/png",
-        "form_factor": "narrow",
-        "label": "Elsuq Home Screen"
-      },
-      {
-        "src": "screenshots/mobile-products.png",
-        "sizes": "1080x1920",
-        "type": "image/png",
-        "form_factor": "narrow",
-        "label": "Elsuq Products"
-      },
-      {
-        "src": "screenshots/desktop-home.png",
-        "sizes": "1920x1080",
-        "type": "image/png",
-        "form_factor": "wide",
-        "label": "Elsuq Desktop Home"
-      },
-      {
-        "src": "screenshots/desktop-products.png",
-        "sizes": "1920x1080",
-        "type": "image/png",
-        "form_factor": "wide",
-        "label": "Elsuq Desktop Products"
-      }
-    ],
-    "icons": [
-      {
-        "src": "icons/icon-72x72.png",
-        "sizes": "72x72",
-        "type": "image/png",
-        "purpose": "any"
-      },
-      {
-        "src": "icons/icon-96x96.png",
-        "sizes": "96x96",
-        "type": "image/png",
-        "purpose": "any"
-      },
-      {
-        "src": "icons/icon-128x128.png",
-        "sizes": "128x128",
-        "type": "image/png",
-        "purpose": "any"
-      },
-      {
-        "src": "icons/icon-144x144.png",
-        "sizes": "144x144",
-        "type": "image/png",
-        "purpose": "any"
-      },
-      {
-        "src": "icons/icon-152x152.png",
-        "sizes": "152x152",
-        "type": "image/png",
-        "purpose": "any"
-      },
-      {
-        "src": "icons/icon-192x192.png",
-        "sizes": "192x192",
-        "type": "image/png",
-        "purpose": "any"
-      },
-      {
-        "src": "icons/icon-384x384.png",
-        "sizes": "384x384",
-        "type": "image/png",
-        "purpose": "any"
-      },
-      {
-        "src": "icons/icon-512x512.png",
-        "sizes": "512x512",
-        "type": "image/png",
-        "purpose": "any"
-      }
-    ]
-  }
-
-  
-
-  {
-    "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
-    "version": 1,
-    "newProjectRoot": "projects",
-    "projects": {
-      "Elsuq": {
-        "projectType": "application",
-        "schematics": {
-          "@schematics/angular:component": {
-            "style": "scss"
-          }
-        },
-        "root": "",
-        "sourceRoot": "src",
-        "prefix": "app",
-        "architect": {
-          "build": {
-            "builder": "@angular-devkit/build-angular:application",
-            "options": {
-              "outputPath": "dist/Elsuq",
-              "index": "src/index.html",
-              "browser": "src/main.ts",
-              "polyfills": [
-                "zone.js"
-              ],
-              "tsConfig": "tsconfig.app.json",
-              "inlineStyleLanguage": "scss",
-              "assets": [
-                {
-                  "glob": "**/*",
-                  "input": "public"
-                }
-              ],
-              "styles": [
-                "src/styles.scss"
-              ],
-              "scripts": []
-            },
-            "configurations": {
-              "production": {
-                "budgets": [
-                  {
-                    "type": "initial",
-                    "maximumWarning": "2MB",
-                    "maximumError": "3MB"
-                  },
-                  {
-                    "type": "anyComponentStyle",
-                    "maximumWarning": "4kB",
-                    "maximumError": "8kB"
-                  }
-                ],
-                "outputHashing": "all"
-              },
-              "development": {
-                "optimization": false,
-                "extractLicenses": false,
-                "sourceMap": true
-              }
-            },
-            "defaultConfiguration": "production"
-          },
-          "serve": {
-            "builder": "@angular-devkit/build-angular:dev-server",
-            "configurations": {
-              "production": {
-                "buildTarget": "Elsuq:build:production"
-              },
-              "development": {
-                "buildTarget": "Elsuq:build:development"
-              }
-            },
-            "defaultConfiguration": "development"
-          },
-          "extract-i18n": {
-            "builder": "@angular-devkit/build-angular:extract-i18n"
-          },
-          "test": {
-            "builder": "@angular-devkit/build-angular:karma",
-            "options": {
-              "polyfills": [
-                "zone.js",
-                "zone.js/testing"
-              ],
-              "tsConfig": "tsconfig.spec.json",
-              "inlineStyleLanguage": "scss",
-              "assets": [
-                {
-                  "glob": "**/*",
-                  "input": "public"
-                }
-              ],
-              "styles": [
-                "src/styles.scss"
-              ],
-              "scripts": []
-            }
-          }
-        }
-      }
-    },
-    "cli": {
-      "analytics": "0af97856-5cd7-4361-9724-b5d1d731a3cd"
-    }
-  }
-  
-  
 
 === frontend/tsconfig.app.json ===
 
@@ -2687,7 +2472,7 @@ SOFTWARE.
 
 {
   "configVersion": 1,
-  "timestamp": 1751418286753,
+  "timestamp": 1753139956711,
   "index": "/index.html",
   "assetGroups": [
     {
@@ -2698,44 +2483,28 @@ SOFTWARE.
         "ignoreVary": true
       },
       "urls": [
-        "/assets/fonts/primeicons.eot",
-        "/assets/fonts/primeicons.svg",
-        "/assets/fonts/primeicons.ttf",
-        "/assets/fonts/primeicons.woff",
-        "/assets/fonts/primeicons.woff2",
-        "/chunk-3JOZTPQ3.js",
         "/chunk-3XQLIVAJ.js",
-        "/chunk-EEZDTWUG.js",
-        "/chunk-EGTF3WA5.js",
-        "/chunk-GBN7IZYK.js",
-        "/chunk-JULPS4GR.js",
-        "/chunk-KAQEQICK.js",
-        "/chunk-LFKZXW4Q.js",
-        "/chunk-NKAPT4BW.js",
+        "/chunk-52K45TNK.js",
+        "/chunk-5KXUJUKE.js",
+        "/chunk-6BQFCXYI.js",
+        "/chunk-BDKHI4ZM.js",
+        "/chunk-HCI3OPLW.js",
+        "/chunk-J2Q5JUYZ.js",
+        "/chunk-J2VLTBHC.js",
+        "/chunk-JSKIRH73.js",
+        "/chunk-MR3LTEKL.js",
         "/chunk-NN2DNJJJ.js",
-        "/chunk-OLS2WRHK.js",
-        "/chunk-QEGLZAZB.js",
-        "/chunk-RAQXRREO.js",
-        "/chunk-RX5BH3VO.js",
-        "/chunk-VC73HY7K.js",
-        "/chunk-Y2DOTU3C.js",
-        "/chunk-YCUD734O.js",
+        "/chunk-RXTX4AFK.js",
+        "/chunk-TKRJ2DRO.js",
+        "/chunk-VC6FG47Q.js",
+        "/chunk-YZI3BQ6A.js",
+        "/chunk-ZNY6AGU3.js",
         "/favicon.ico",
-        "/icons/icon-128x128.png",
-        "/icons/icon-144x144.png",
-        "/icons/icon-152x152.png",
-        "/icons/icon-192x192.png",
-        "/icons/icon-384x384.png",
-        "/icons/icon-512x512.png",
-        "/icons/icon-72x72.png",
-        "/icons/icon-96x96.png",
         "/index.html",
-        "/main-4RRXCKS2.js",
+        "/main-US5BHQ2Y.js",
         "/manifest.webmanifest",
         "/polyfills-FFHMD2TL.js",
-        "/screenshots/desktop-home.jpg",
-        "/screenshots/mobile-home.png",
-        "/styles-22CNF7C6.css"
+        "/styles-E45T435F.css"
       ],
       "patterns": []
     },
@@ -2747,82 +2516,122 @@ SOFTWARE.
         "ignoreVary": true
       },
       "urls": [
-        "/assets/images/product-placeholder.jpg"
+        "/assets/fonts/primeicons.svg",
+        "/assets/fonts/primeicons.ttf",
+        "/assets/fonts/primeicons.woff",
+        "/assets/fonts/primeicons.woff2",
+        "/assets/images/product-placeholder.jpg",
+        "/elsuq.png",
+        "/icons/apple-touch-icon-114x114.png",
+        "/icons/apple-touch-icon-120x120.png",
+        "/icons/apple-touch-icon-144x144.png",
+        "/icons/apple-touch-icon-152x152.png",
+        "/icons/apple-touch-icon-167x167.png",
+        "/icons/apple-touch-icon-180x180.png",
+        "/icons/apple-touch-icon-57x57.png",
+        "/icons/apple-touch-icon-60x60.png",
+        "/icons/apple-touch-icon-72x72.png",
+        "/icons/apple-touch-icon-76x76.png",
+        "/icons/icon-192x192.png",
+        "/icons/icon-512x512.png",
+        "/icons/icon-64x64.png",
+        "/icons/maskable-icon-128x128.png",
+        "/icons/maskable-icon-144x144.png",
+        "/icons/maskable-icon-152x152.png",
+        "/icons/maskable-icon-192x192.png",
+        "/icons/maskable-icon-384x384.png",
+        "/icons/maskable-icon-512x512.png",
+        "/icons/maskable-icon-64x64.png",
+        "/icons/maskable-icon-72x72.png",
+        "/icons/maskable-icon-96x96.png",
+        "/icons/pwa-128x128.png",
+        "/icons/pwa-144x144.png",
+        "/icons/pwa-152x152.png",
+        "/icons/pwa-192x192.png",
+        "/icons/pwa-384x384.png",
+        "/icons/pwa-512x512.png",
+        "/icons/pwa-64x64.png",
+        "/icons/pwa-72x72.png",
+        "/icons/pwa-96x96.png",
+        "/logo.png",
+        "/media/primeicons-4GST5W3O.woff2",
+        "/media/primeicons-DHQU4SEP.svg",
+        "/media/primeicons-GEFHGEHP.ttf",
+        "/media/primeicons-P53SE5CV.woff",
+        "/screenshots/desktop-home.jpg",
+        "/screenshots/mobile-home.png"
       ],
       "patterns": []
     }
   ],
-  "dataGroups": [
-    {
-      "name": "api-freshness",
-      "patterns": [
-        "\\/api\\/v1\\/me",
-        "\\/api\\/v1\\/categories",
-        "\\/api\\/v1\\/products"
-      ],
-      "strategy": "freshness",
-      "maxSize": 100,
-      "maxAge": 3600000,
-      "timeoutMs": 10000,
-      "cacheQueryOptions": {
-        "ignoreVary": true
-      },
-      "version": 1
-    },
-    {
-      "name": "api-performance",
-      "patterns": [
-        "\\/api\\/v1\\/static-data"
-      ],
-      "strategy": "performance",
-      "maxSize": 100,
-      "maxAge": 604800000,
-      "cacheQueryOptions": {
-        "ignoreVary": true
-      },
-      "version": 1
-    }
-  ],
+  "dataGroups": [],
   "hashTable": {
-    "/assets/fonts/primeicons.eot": "e24ec13e95366c82ba69a821bf65a0eaef29450c",
     "/assets/fonts/primeicons.svg": "a07ae39027c1a780b42fd82fad7575c2924d9d28",
     "/assets/fonts/primeicons.ttf": "3b878ca7e88945a8ec25814810b95367d8977ae6",
     "/assets/fonts/primeicons.woff": "361e3af71bb4e515feead2f787348a92a5527158",
     "/assets/fonts/primeicons.woff2": "837c1279b6af9d297f34fdb43e6fcc9206a79f32",
     "/assets/images/product-placeholder.jpg": "7d29bd1c2721fa5afb594ef689a851db0b1f3b27",
-    "/chunk-3JOZTPQ3.js": "a7a9278b790ec7aee9b3ddf97ce0dbc3ac82f746",
     "/chunk-3XQLIVAJ.js": "448e208f80a9653e0949b0a6fe036aecaf64f426",
-    "/chunk-EEZDTWUG.js": "0c74edba1fb903912806c85d83a041d80904d3bc",
-    "/chunk-EGTF3WA5.js": "d3f151baacc0321ce02dac69bcb0c9a7f0acb08c",
-    "/chunk-GBN7IZYK.js": "66133fdaf701da372b9dfc86063e18e89611b1b8",
-    "/chunk-JULPS4GR.js": "f1b6de406680fa122bbcb099f557c949ece40a78",
-    "/chunk-KAQEQICK.js": "29410d3f96e574de987bc886ebe070b8019bd171",
-    "/chunk-LFKZXW4Q.js": "48e0de33014df0602deccd51dabfb65c9848056f",
-    "/chunk-NKAPT4BW.js": "c2dfb64c34ce8463630147b8bf1130ffb7b22bfb",
+    "/chunk-52K45TNK.js": "c694ed81a97432fe18ac7739b2e8390d2afb04f8",
+    "/chunk-5KXUJUKE.js": "01d973af058105a9def69116493ff1c13a9c8c1f",
+    "/chunk-6BQFCXYI.js": "21351b79aff5f857aab8ebd66ef0a18a74d37027",
+    "/chunk-BDKHI4ZM.js": "b7686b158fd5427752556359b09c0e5d21b57c1c",
+    "/chunk-HCI3OPLW.js": "6f25feb7b09b69c89266a7ade291028952d433b2",
+    "/chunk-J2Q5JUYZ.js": "ed58d4a309391c30d73cad888923fb1ceba9f64c",
+    "/chunk-J2VLTBHC.js": "4ea210c4f9bd3586509b669f65a551bcbd1404a2",
+    "/chunk-JSKIRH73.js": "9ab45990bef127356bc32512a0941ddca738230a",
+    "/chunk-MR3LTEKL.js": "3823b7a01a53af20a087b89bb24f16290b8dc97c",
     "/chunk-NN2DNJJJ.js": "41e36d09692218f105ea25e6de0aca2a65f2fb11",
-    "/chunk-OLS2WRHK.js": "71a6bcf02ad3268fe63a25b1654df26bd565a39d",
-    "/chunk-QEGLZAZB.js": "35275b829f65defe721597ddfca3edbd4e1b5a9d",
-    "/chunk-RAQXRREO.js": "7d26b67e43432e958534d4e4724c5a3a5f224b5a",
-    "/chunk-RX5BH3VO.js": "e9eec4cbf25ae67c31036b48d9c488edc1ff3d4f",
-    "/chunk-VC73HY7K.js": "75505bfeca02180ba8cc57fc99ce388d34d6c49d",
-    "/chunk-Y2DOTU3C.js": "5840037484542f82e7e6f3b33f4c9fa1e23254ec",
-    "/chunk-YCUD734O.js": "8ab5a0899aa357a0cd3825214041d155d3e47275",
-    "/favicon.ico": "9c39f434fe1261f68c5e3eefdf734630d99c5670",
-    "/icons/icon-128x128.png": "f912963bdc6d5a38d8f1dd0afbaab2ce8d657acb",
-    "/icons/icon-144x144.png": "b155fd5f2fd5d2ea7760721063003c4cd95fd783",
-    "/icons/icon-152x152.png": "eae6e0f0c8afb8aaae339e2a569b43e9238e5e6c",
-    "/icons/icon-192x192.png": "15c4180454633880d98674aa7394656196c91584",
-    "/icons/icon-384x384.png": "94a915751ef6c9282df9aea405ad679230631814",
-    "/icons/icon-512x512.png": "1de182f76f7329dfa8f9fcdd1fdcdd695bea6a99",
-    "/icons/icon-72x72.png": "aa88a6096bd973be7f6d7a5489bfa6bc2463f8c4",
-    "/icons/icon-96x96.png": "7fb8f59c30ce2ff12c700321a0b39e14b3dc8f95",
-    "/index.html": "6342d07f6716f8e31e02436ae87a30abad2721ff",
-    "/main-4RRXCKS2.js": "1b667675adc453f3415569f188bb05efce136bdc",
-    "/manifest.webmanifest": "3d56abfcfe492504cb0f01116b3669ad14f1cb0f",
+    "/chunk-RXTX4AFK.js": "d0606d7cb082714c8181422e4c66367a302b0f15",
+    "/chunk-TKRJ2DRO.js": "834b65e9e2135633068e9ec5f7edebf8d254c963",
+    "/chunk-VC6FG47Q.js": "0da49e5579c0ddcf2085142cc962b2ad24035b59",
+    "/chunk-YZI3BQ6A.js": "b9e7b01c9c505088bfb129a9f8cdc121265eaece",
+    "/chunk-ZNY6AGU3.js": "8eaefbfbbfe21957b580088b3d6574b35a323108",
+    "/elsuq.png": "959d1ad0ef7fa6770e990a9bbc4696fb7deeb258",
+    "/favicon.ico": "c7eb568aaa4e9ac393dd78391f119a0a32c4f887",
+    "/icons/apple-touch-icon-114x114.png": "ea23edbb78662938b2049a378bc76c91f3e2ee9e",
+    "/icons/apple-touch-icon-120x120.png": "ebc515a114dc9cb9fb3e707c9b98ae5aa64865ea",
+    "/icons/apple-touch-icon-144x144.png": "a80ab7ff46c82225a5dbdad1f940adc367e43d5b",
+    "/icons/apple-touch-icon-152x152.png": "bd0cda1216b04a056ed58ce78d295a7f61da22c3",
+    "/icons/apple-touch-icon-167x167.png": "abe33922435bfb2de56d43a7523b69c4b024fb58",
+    "/icons/apple-touch-icon-180x180.png": "7344ca7e16b42e2e2873de12cb430df204e43cb1",
+    "/icons/apple-touch-icon-57x57.png": "81c57949b3ea6d9094883b8c495371f155abad6a",
+    "/icons/apple-touch-icon-60x60.png": "0bdf98569fd3a932f161db4016037c22ac351887",
+    "/icons/apple-touch-icon-72x72.png": "46cafa3677202ac56d90ea158f3e3e689ba84d46",
+    "/icons/apple-touch-icon-76x76.png": "8b20383df5c656be648d95afbefd26e4d8fbb54f",
+    "/icons/icon-192x192.png": "f0c73b7be1037857c292b81ce9d74e6c2fac5916",
+    "/icons/icon-512x512.png": "59b65cb35eb15e1993a7049555450631f967e487",
+    "/icons/icon-64x64.png": "75e2d0e9c16d2d3ff8188fd06443659b609cef50",
+    "/icons/maskable-icon-128x128.png": "4beafe86ae242be5d47892214ba82ef695f7dbb5",
+    "/icons/maskable-icon-144x144.png": "a80ab7ff46c82225a5dbdad1f940adc367e43d5b",
+    "/icons/maskable-icon-152x152.png": "bd0cda1216b04a056ed58ce78d295a7f61da22c3",
+    "/icons/maskable-icon-192x192.png": "67b739703212e84753a2fe78c7f5caa786e12446",
+    "/icons/maskable-icon-384x384.png": "b32150d646455980b632ca75afcebe2099321949",
+    "/icons/maskable-icon-512x512.png": "ba758a32de23ec1902b2c73676489cb62988f141",
+    "/icons/maskable-icon-64x64.png": "5179cb2e3b0059b5f32e1ceee0c6b02b51f2a7f9",
+    "/icons/maskable-icon-72x72.png": "46cafa3677202ac56d90ea158f3e3e689ba84d46",
+    "/icons/maskable-icon-96x96.png": "4eb26549d463686059cee1d4a0fdbcbfa69cd6f2",
+    "/icons/pwa-128x128.png": "480c95014efe11b0005fce6bbabcc695f4b9381f",
+    "/icons/pwa-144x144.png": "44581f48d7561116e595bacf57ad803592dfcf30",
+    "/icons/pwa-152x152.png": "e25b9677b4ad51959141448349585507b4210b13",
+    "/icons/pwa-192x192.png": "f0c73b7be1037857c292b81ce9d74e6c2fac5916",
+    "/icons/pwa-384x384.png": "44ae976c0c6d93a3eeb862d7a913a3e6c5b79130",
+    "/icons/pwa-512x512.png": "59b65cb35eb15e1993a7049555450631f967e487",
+    "/icons/pwa-64x64.png": "75e2d0e9c16d2d3ff8188fd06443659b609cef50",
+    "/icons/pwa-72x72.png": "cc22a55ed50d7c0adac285cb1f149c879547a987",
+    "/icons/pwa-96x96.png": "67d4238900fb76b1211ad566a64f201aff529000",
+    "/index.html": "9f487ffc1eabd5fcac269cf62f0b902c0961334b",
+    "/logo.png": "f9adace283daf0516029f2c3f949976beb3cd705",
+    "/main-US5BHQ2Y.js": "c1f907ff48d1878cd2131b9df3b579f92ed5549a",
+    "/manifest.webmanifest": "c0bb7f5fe330751818718607ba8fe248cc40558a",
+    "/media/primeicons-4GST5W3O.woff2": "837c1279b6af9d297f34fdb43e6fcc9206a79f32",
+    "/media/primeicons-DHQU4SEP.svg": "a07ae39027c1a780b42fd82fad7575c2924d9d28",
+    "/media/primeicons-GEFHGEHP.ttf": "3b878ca7e88945a8ec25814810b95367d8977ae6",
+    "/media/primeicons-P53SE5CV.woff": "361e3af71bb4e515feead2f787348a92a5527158",
     "/polyfills-FFHMD2TL.js": "f49b49a155bc7d192db62a4c15d0a612b460a667",
     "/screenshots/desktop-home.jpg": "4e4a9f858aa359c21cc32c909ad666786c8feed6",
     "/screenshots/mobile-home.png": "6294c08fb485d92af7e537f8c16c1ecd5b79e519",
-    "/styles-22CNF7C6.css": "379098917c0a984f38d891f9e36fce629354905a"
+    "/styles-E45T435F.css": "9404cbb4845fec9af207de64de0f048d4824a567"
   },
   "navigationUrls": [
     {
@@ -2900,16 +2709,27 @@ html, body{
   flex: 0 !important;
 }
 
+.mobile-menu-btn .pi {
+  font-size: 1.5rem !important;
+}
+
+.icon-large .pi {
+  font-size: 1.2rem !important;
+}
+
+.filtes-fixed{
+position: fixed; top:var(--header-height) ; z-index: 200; left:20%;right:0;
+}
 
 
 .header-height{height: var(--header-height) !important};
 .header-height-margin{ margin-top:  var(--header-height) };
-.content-height {
-  padding: 0 !important;
-  height: calc(100vh - var(--header-height) ) !important; 
-  overflow: hidden;
+// .content-height {
+//   padding: 0 !important;
+//   height: calc(100vh - var(--header-height) ) !important; 
+//   overflow: hidden;
 
-}
+// }
 
 .p-error{
   color:rgb(240, 52, 52);
@@ -2917,9 +2737,20 @@ html, body{
 
 @media (max-width: 968px) {
   :root {
-    --header-height: 7vh !important;
+    --header-height: 8vh !important;
   }
-  // .h-height{top: 2rem !important}
+
+  .filtes-fixed{
+position: fixed; top:var(--header-height) ; z-index: 200; left:0;right:0;
+}
+
+.content-height {
+  padding: 0 !important;
+  height: 100%; 
+  overflow: scroll;
+
+}
+//   // .h-height{top: 2rem !important}
 }
 
   /* Custom heights for product cards */
@@ -2968,7 +2799,179 @@ html, body{
   --language-input-border: rgb(49, 47, 47) !important;
 }
 
+.grid {
+  margin-right: 0 !important;
+  margin-left: 0 !important;
+  margin-top: 0 !important;
+}
 
+/* Remove default link styling globally */
+a {
+  color: inherit !important;
+  text-decoration: none !important;
+}
+
+a:hover {
+  color: inherit !important;
+}
+
+a:visited {
+  color: inherit !important;
+}
+
+a:active {
+  color: inherit !important;
+}
+
+
+.input-icon {
+  position: absolute;
+  z-index: 1;
+  left: 10px;
+  top: 50%;
+  margin-top: -0.5rem;
+  color: var(--text-color-secondary);
+  
+
+}
+
+/* In your styles.css or global stylesheet */
+:root {
+    --font-family: 'Inter', sans-serif;
+    --font-family-heading: 'Poppins', sans-serif;
+    --font-family-mono: 'Courier New', monospace;
+}
+
+body {
+    font-family: var(--font-family);
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-family-heading);
+}
+
+code, pre {
+    font-family: var(--font-family-mono);
+}
+
+/* Add this to your existing src/styles.scss file */
+
+// /* RTL Support */
+// [dir="rtl"] {
+//   /* Text alignment */
+//   .text-left { text-align: right !important; }
+//   .text-right { text-align: left !important; }
+  
+//   /* Margins */
+//   .ml-1 { margin-right: 0.25rem !important; margin-left: 0 !important; }
+//   .ml-2 { margin-right: 0.5rem !important; margin-left: 0 !important; }
+//   .ml-3 { margin-right: 0.75rem !important; margin-left: 0 !important; }
+//   .ml-4 { margin-right: 1rem !important; margin-left: 0 !important; }
+//   .ml-auto { margin-right: auto !important; margin-left: 0 !important; }
+  
+//   .mr-1 { margin-left: 0.25rem !important; margin-right: 0 !important; }
+//   .mr-2 { margin-left: 0.5rem !important; margin-right: 0 !important; }
+//   .mr-3 { margin-left: 0.75rem !important; margin-right: 0 !important; }
+//   .mr-4 { margin-left: 1rem !important; margin-right: 0 !important; }
+//   .mr-auto { margin-left: auto !important; margin-right: 0 !important; }
+  
+//   /* Padding */
+//   .pl-1 { padding-right: 0.25rem !important; padding-left: 0 !important; }
+//   .pl-2 { padding-right: 0.5rem !important; padding-left: 0 !important; }
+//   .pl-3 { padding-right: 0.75rem !important; padding-left: 0 !important; }
+//   .pl-4 { padding-right: 1rem !important; padding-left: 0 !important; }
+  
+//   .pr-1 { padding-left: 0.25rem !important; padding-right: 0 !important; }
+//   .pr-2 { padding-left: 0.5rem !important; padding-right: 0 !important; }
+//   .pr-3 { padding-left: 0.75rem !important; padding-right: 0 !important; }
+//   .pr-4 { padding-left: 1rem !important; padding-right: 0 !important; }
+  
+//   /* Border radius */
+//   .border-radius-left { 
+//     border-top-right-radius: var(--border-radius) !important;
+//     border-bottom-right-radius: var(--border-radius) !important;
+//     border-top-left-radius: 0 !important;
+//     border-bottom-left-radius: 0 !important;
+//   }
+  
+//   .border-radius-right { 
+//     border-top-left-radius: var(--border-radius) !important;
+//     border-bottom-left-radius: var(--border-radius) !important;
+//     border-top-right-radius: 0 !important;
+//     border-bottom-right-radius: 0 !important;
+//   }
+// }
+
+// /* PrimeNG RTL Support */
+// [dir="rtl"] {
+//   /* Menu items */
+//   .p-menuitem-link {
+//     text-align: right;
+//   }
+  
+//   /* Input icons */
+//   .input-icon {
+//     left: auto !important;
+//     right: 10px !important;
+//   }
+  
+//   /* Button icons */
+//   .p-button .p-button-icon-left {
+//     margin-right: 0 !important;
+//     margin-left: 0.5rem !important;
+//   }
+  
+//   .p-button .p-button-icon-right {
+//     margin-left: 0 !important;
+//     margin-right: 0.5rem !important;
+//   }
+  
+//   /* Dropdown */
+//   .p-dropdown .p-dropdown-trigger {
+//     right: auto !important;
+//     left: 0 !important;
+//   }
+  
+//   /* Card headers */
+//   .p-card-header {
+//     text-align: right;
+//   }
+  
+//   /* Breadcrumb */
+//   .p-breadcrumb ol li + li::before {
+//     content: "◀" !important;
+//   }
+  
+//   /* Table */
+//   .p-datatable .p-datatable-tbody > tr > td {
+//     text-align: right;
+//   }
+  
+//   .p-datatable .p-datatable-thead > tr > th {
+//     text-align: right;
+//   }
+// }
+
+// /* Language-specific fonts */
+// [lang="ar"] {
+//   font-family: 'Noto Sans Arabic', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  
+//   /* Improve Arabic text rendering */
+//   text-rendering: optimizeLegibility;
+//   -webkit-font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+//   font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+// }
+
+// [lang="fr"], [lang="en"] {
+//   font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+//     Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+//     "Segoe UI Symbol";
+// }
+
+// /* Smooth transitions for direction changes */
+// * {
+//   transition: margin 0.3s ease, padding 0.3s ease;
+// }
 
 === frontend/src/app/app.component.scss ===
 
@@ -3010,36 +3013,60 @@ html, body{
 === frontend/src/app/app.component.ts ===
 
 // src/app/app.component.ts
-import { Component } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { HeaderComponent } from './layout/header/header.component';
 import { FooterComponent } from './layout/footer/footer.component';
+import { ViewportService } from './services/viewport.service';
+import { TranslationService } from './services/translation.service';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, ButtonModule, HeaderComponent],
+  imports: [
+    RouterOutlet, 
+    ButtonModule, 
+    HeaderComponent,
+    TranslateModule
+  ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
-export class AppComponent {
-
+export class AppComponent implements OnInit {
   title = 'Fresh Produce';
+  
+  private viewportService = inject(ViewportService);
+  private translationService = inject(TranslationService);
+
+  ngOnInit() {
+    // Initialize translation service
+    // The service will automatically load the saved language or default to French
+    console.log('App initialized with language:', this.translationService.getCurrentLanguage());
+  }
 }
 
 === frontend/src/app/app.config.ts ===
 
 // src/app/app.config.ts
-import { ApplicationConfig, provideZoneChangeDetection, isDevMode } from '@angular/core';
+import { ApplicationConfig, provideZoneChangeDetection, isDevMode, importProvidersFrom } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { provideHttpClient, withInterceptors, HttpClient } from '@angular/common/http';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { providePrimeNG } from 'primeng/config';
+import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
+import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+
 import { MyPreset } from './styles';
 import { routes } from './app.routes';
 import { authInterceptor } from './interceptors/auth.interceptor';
 import { provideServiceWorker } from '@angular/service-worker';
+
+// Factory function for TranslateHttpLoader
+export function HttpLoaderFactory(http: HttpClient) {
+  return new TranslateHttpLoader(http, './assets/i18n/', '.json');
+}
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -3054,15 +3081,24 @@ export const appConfig: ApplicationConfig = {
           darkModeSelector: '.my-app-dark'
         },
       }
-    }), provideServiceWorker('ngsw-worker.js', {
-            enabled: !isDevMode(),
-            registrationStrategy: 'registerWhenStable:30000'
-          })
+    }),
+    // Import TranslateModule with configuration
+    importProvidersFrom(
+      TranslateModule.forRoot({
+        loader: {
+          provide: TranslateLoader,
+          useFactory: HttpLoaderFactory,
+          deps: [HttpClient]
+        },
+        defaultLanguage: 'fr'
+      })
+    ),
+    provideServiceWorker('ngsw-worker.js', {
+      enabled: !isDevMode(),
+      registrationStrategy: 'registerWhenStable:30000'
+    })
   ]
 };
-
-
-
 
 === frontend/src/app/app.routes.ts ===
 
@@ -3125,15 +3161,6 @@ import Aura from '@primeng/themes/aura';
 
 export const MyPreset = definePreset(Aura, {
     semantic: {
-        tokens: {
-            typography: {
-                fontFamily: {
-                    body: "'Inter', sans-serif", // Default text font
-                    heading: "'Poppins', sans-serif", // Headings
-                    mono: "'Courier New', monospace" // Monospace text
-                }
-            }
-        },
         primary: {
             50: '{pink.50}',
             100: '{pink.100}',
@@ -3151,10 +3178,8 @@ export const MyPreset = definePreset(Aura, {
             light: {
                 primary: {
                     color: '{zinc.950}',
-                    inverseColor: '#ffffff',
                     hoverColor: '{zinc.900}',
-                    activeColor: '{zinc.800}',
-                    fontFamily:'poppins'
+                    activeColor: '{zinc.800}'
                 },
                 highlight: {
                     background: '{zinc.950}',
@@ -3166,7 +3191,6 @@ export const MyPreset = definePreset(Aura, {
             dark: {
                 primary: {
                     color: '{zinc.50}',
-                    inverseColor: '{zinc.950}',
                     hoverColor: '{zinc.100}',
                     activeColor: '{zinc.200}'
                 },
@@ -3310,6 +3334,7 @@ export class FooterComponent {}
 
 
 
+
 === frontend/src/app/layout/header/header.component.spec.ts ===
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -3339,8 +3364,8 @@ describe('HeaderComponent', () => {
 
 === frontend/src/app/layout/header/header.component.ts ===
 
-// src/app/pages/header/header.component.ts
-import { Component, OnInit, OnDestroy, signal, computed, effect, inject } from '@angular/core';
+// src/app/layout/header/header.component.ts
+import { Component, OnInit, OnDestroy, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
@@ -3352,8 +3377,13 @@ import { BadgeModule } from 'primeng/badge';
 import { OverlayBadgeModule } from 'primeng/overlaybadge';
 import { RippleModule } from 'primeng/ripple';
 import { DrawerModule } from 'primeng/drawer';
+import { TooltipModule } from 'primeng/tooltip';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+
 import { AuthService } from '../../services/auth.service';
 import { CartService } from '../../services/cart.service';
+import { TranslationService } from '../../services/translation.service';
+import { LanguageSelectorComponent } from '../../components/language-selector/language-selector.component';
 import { User } from '../../models/user.model';
 import { Subscription } from 'rxjs';
 
@@ -3370,7 +3400,10 @@ import { Subscription } from 'rxjs';
     AvatarModule, 
     MenuModule,
     RippleModule,
-    DrawerModule
+    DrawerModule,
+    TooltipModule,
+    TranslateModule,
+    LanguageSelectorComponent
   ],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss'
@@ -3379,6 +3412,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
   // Dependency injection
   public authService = inject(AuthService);
   private cartService = inject(CartService);
+  private translationService = inject(TranslationService);
+  private translateService = inject(TranslateService);
   
   // UI state signals
   menuVisible = signal(false);
@@ -3389,29 +3424,27 @@ export class HeaderComponent implements OnInit, OnDestroy {
   items = signal<MenuItem[]>([]);
   mobileItems = signal<MenuItem[]>([]);
   userMenuItems = signal<MenuItem[]>([]);
-  
-  // Style definitions
-  avatarStyle = {'background-color':'var(--primary-color)', 'color': 'var(--primary-text-color)'};
+  private cartItems = signal<any[]>([]);
   
   // Subscriptions
   private subscriptions: Subscription[] = [];
   
+  // Style definitions
+  avatarStyle = { 'background-color': '#ece9fc', color: '#2a1261' }
+  
   // Computed signals
-  isAdmin = computed(() => 
-    this.authService.isLoggedIn && 
-    (this.currentUser()?.role === 'admin' || this.currentUser()?.role === 'staff')
-  );
+  isAdmin = computed(() => {
+    const user = this.currentUser();
+    const isLoggedIn = this.authService.isLoggedIn;
+    const hasAdminRole = user?.role === 'admin' || user?.role === 'staff';
+    
+    return isLoggedIn && user && hasAdminRole;
+  });
   
   displayName = computed(() => this.currentUser()?.full_name || 'User');
-  
   userEmail = computed(() => this.currentUser()?.email || '');
   
-  // Track cart items 
-  private cartItems = signal<any[]>([]);
-  
-  // Display distinct items count in cart
   cartCount = computed(() => {
-    // Use the cart items signal that we maintain
     return this.cartItems().length > 0 
       ? this.cartItems().length.toString() 
       : null;
@@ -3419,58 +3452,57 @@ export class HeaderComponent implements OnInit, OnDestroy {
   
   themeIcon = computed(() => this.isDarkMode() ? 'pi pi-sun' : 'pi pi-moon');
 
-  constructor() {
-    // Effect to update menus when relevant values change
-    effect(() => {
-      // This effect depends on isAdmin and authService.isLoggedIn
-      const admin = this.isAdmin();
-      const loggedIn = this.authService.isLoggedIn;
-      
-      // Build menus when these dependencies change
-      this.buildMenus();
-    });
-  }
+  // RTL support
+  isRTL = computed(() => this.translationService.isRTL());
 
   ngOnInit() {
-    // Check for current theme
+    this.initializeTheme();
+    this.subscribeToUserChanges();
+    this.subscribeToLanguageChanges();
+    this.loadInitialUserData();
+    this.loadCartItems();
+  }
+
+  private initializeTheme(): void {
     this.isDarkMode.set(document.querySelector('html')?.classList.contains('my-app-dark') || false);
-    
-    // Subscribe to user changes
+  }
+
+  private subscribeToUserChanges(): void {
     this.subscriptions.push(
       this.authService.currentUser$.subscribe(user => {
         this.currentUser.set(user);
-        this.buildMenus();
+        this.buildMenus(); // Rebuild menus when user changes
       })
     );
-    
-    // Always try to load user data on initialization
+  }
+
+  private subscribeToLanguageChanges(): void {
+    this.subscriptions.push(
+      this.translationService.currentLanguage$.subscribe(() => {
+        this.buildMenus(); // Rebuild menus when language changes
+      })
+    );
+  }
+
+  private loadInitialUserData(): void {
     if (this.authService.isLoggedIn) {
       this.authService.loadCurrentUser().subscribe({
         error: err => console.error('Error loading user in header:', err)
       });
     }
-    
-    // Load cart items and subscribe to cart changes
-    this.loadCartItems();
   }
-  
-  /**
-   * Load cart items and subscribe to changes
-   */
+
   private loadCartItems(): void {
-    // Initial cart load
     this.cartService.getCartItems().subscribe();
     
-    // Subscribe to cart items changes
     this.subscriptions.push(
       this.cartService.cartItems$.subscribe(items => {
-        // Update our local signal with the cart items
         this.cartItems.set(items || []);
       })
     );
   }
 
-  // UI actions
+  // UI Actions
   toggleDarkMode(): void {
     this.isDarkMode.update(isDark => !isDark);
     const element = document.querySelector('html');
@@ -3492,27 +3524,34 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.closeMenu();
   }
 
-  // Menu building
+  // Helper method to execute menu item commands
+  executeCommand(item: MenuItem, event: Event): void {
+    if (item.command) {
+      item.command({ originalEvent: event, item: item });
+    }
+  }
+
+  // Menu Configuration with translations
   private buildMenus(): void {
-    // Base items for both menus
     const baseItems: MenuItem[] = [
       {
-        label: 'Home',
+        label: this.translateService.instant('common.home'),
         icon: 'pi pi-home',
         routerLink: '/'
       },
       {
-        label: 'Products',
+        label: this.translateService.instant('common.products'),
         icon: 'pi pi-shopping-bag',
         routerLink: '/products'
       }
     ];
 
+    const user = this.currentUser();
+    const isAdminUser = this.authService.isLoggedIn && user && (user.role === 'admin' || user.role === 'staff');
+
     // Desktop menu with sub-menus
     const desktopItems: MenuItem[] = [...baseItems];
-    
-    // Add admin submenu for desktop (when appropriate)
-    if (this.isAdmin()) {
+    if (isAdminUser) {
       desktopItems.push(this.getAdminMenuItem());
     }
     this.items.set(desktopItems);
@@ -3520,14 +3559,24 @@ export class HeaderComponent implements OnInit, OnDestroy {
     // Mobile menu - flattened with direct links
     const mobileItems: MenuItem[] = [...baseItems];
     
-    // Add direct admin link for mobile
-    if (this.isAdmin()) {
+    // Add Orders for logged-in users
+    if (this.authService.isLoggedIn) {
       mobileItems.push({
-        label: 'Admin',
+        label: this.translateService.instant('header.orders'),
+        icon: 'pi pi-list',
+        routerLink: '/orders'
+      });
+    }
+    
+    // Add Admin for admin users
+    if (isAdminUser) {
+      mobileItems.push({
+        label: this.translateService.instant('header.admin'),
         icon: 'pi pi-cog',
         routerLink: '/admin'
       });
     }
+    
     this.mobileItems.set(mobileItems);
 
     // User dropdown menu items
@@ -3535,35 +3584,39 @@ export class HeaderComponent implements OnInit, OnDestroy {
       this.authService.isLoggedIn ? this.getUserMenuItems() : []
     );
   }
+
+  // Add trackBy function for better change detection
+  trackByLabel(index: number, item: MenuItem): string {
+    return item.label || index.toString();
+  }
   
-  // Admin menu configuration
   private getAdminMenuItem(): MenuItem {
     return {
-      label: 'Admin',
+      label: this.translateService.instant('header.admin'),
       icon: 'pi pi-cog',
       items: [
         {
-          label: 'Dashboard',
+          label: this.translateService.instant('common.home'), // Dashboard
           icon: 'pi pi-chart-bar',
           routerLink: '/admin'
         },
         {
-          label: 'Orders',
+          label: this.translateService.instant('header.orders'),
           icon: 'pi pi-list',
           routerLink: '/admin/orders'
         },
         {
-          label: 'Users',
+          label: 'Users', // We'll add this translation later
           icon: 'pi pi-users',
           routerLink: '/admin/users'
         },
         {
-          label: 'Products',
+          label: this.translateService.instant('common.products'),
           icon: 'pi pi-tag',
           routerLink: '/admin/products'
         },
         {
-          label: 'Categories',
+          label: 'Categories', // We'll add this translation later
           icon: 'pi pi-tags',
           routerLink: '/admin/categories'
         }
@@ -3571,21 +3624,20 @@ export class HeaderComponent implements OnInit, OnDestroy {
     };
   }
   
-  // User menu configuration
   private getUserMenuItems(): MenuItem[] {
     return [
       {
-        label: 'Profile',
+        label: this.translateService.instant('header.profile'),
         icon: 'pi pi-user',
         routerLink: '/profile'
       },
       {
-        label: 'Orders',
+        label: this.translateService.instant('header.orders'),
         icon: 'pi pi-list',
         routerLink: '/orders'
       },
       {
-        label: 'Logout',
+        label: this.translateService.instant('common.logout'),
         icon: 'pi pi-sign-out',
         command: () => this.logout()
       }
@@ -3593,7 +3645,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    // Clean up subscriptions
     this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 }
@@ -3854,6 +3905,101 @@ export interface RegisterRequest {
   role?: UserRole;
 }
 
+=== frontend/src/app/components/language-selector/language-selector.component.ts ===
+
+// src/app/components/language-selector/language-selector.component.ts
+import { Component, inject, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { SelectModule } from 'primeng/select';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+
+import { TranslationService, Language } from '../../services/translation.service';
+
+@Component({
+  selector: 'app-language-selector',
+  standalone: true,
+  imports: [
+    CommonModule,
+    SelectModule,
+    TranslateModule
+  ],
+  template: `
+    <div class="language-selector">
+      <p-select
+        [options]="languageOptions()"
+        [ngModel]="getCurrentLanguageCode()"
+        (ngModelChange)="changeLanguage($event)"
+        optionLabel="label"
+        optionValue="code"
+        [placeholder]="'language.select' | translate"
+        styleClass="language-select"
+        panelStyleClass="language-panel"
+      />
+    </div>
+  `,
+  styles: [`
+    .language-selector {
+      min-width: 120px;
+    }
+
+    :host ::ng-deep .language-select {
+      min-width: 120px;
+    }
+
+    :host ::ng-deep .language-select .p-select-label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    :host ::ng-deep .language-panel {
+      min-width: 150px;
+    }
+
+    :host ::ng-deep .language-panel .p-select-option {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 0.75rem;
+    }
+  `]
+})
+export class LanguageSelectorComponent {
+  private translationService = inject(TranslationService);
+  private translateService = inject(TranslateService);
+
+  // Signal for select options
+  languageOptions = signal<{code: string, label: string}[]>([]);
+
+  constructor() {
+    this.buildLanguageOptions();
+    
+    // Rebuild options when language changes
+    this.translationService.currentLanguage$.subscribe(() => {
+      this.buildLanguageOptions();
+    });
+  }
+
+  private buildLanguageOptions(): void {
+    const options = this.translationService.availableLanguages.map((language: Language) => ({
+      code: language.code,
+      label: `${language.flag} ${language.name}`
+    }));
+
+    this.languageOptions.set(options);
+  }
+
+  changeLanguage(languageCode: string): void {
+    if (languageCode) {
+      this.translationService.setLanguage(languageCode);
+    }
+  }
+
+  getCurrentLanguageCode(): string {
+    return this.translationService.getCurrentLanguage();
+  }
+}
+
 === frontend/src/app/pages/home/home.component.scss ===
 
 
@@ -3969,7 +4115,7 @@ import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
-import { TabViewModule } from 'primeng/tabview';
+// import { TabViewModule } from 'primeng/tabview';
 import { TagModule } from 'primeng/tag';
 import { SelectModule } from 'primeng/select';
 import { BadgeModule } from 'primeng/badge';
@@ -3990,7 +4136,7 @@ import { Product, Category } from '../../../models/product.model';
     ButtonModule,
     CardModule,
     ToastModule,
-    TabViewModule,
+    // TabViewModule,
     TagModule,
     SelectModule,
     BadgeModule
@@ -4256,6 +4402,49 @@ export class ProductDetailComponent implements OnInit {
 
 
   
+/* Add this CSS to your component's stylesheet or global styles */
+
+/* Desktop fixed sidebar - only applies on md screens and up */
+@media (min-width: 768px) {
+  .desktop-fixed-sidebar {
+    position: fixed;
+    top: 3.5rem;
+    left: 0;
+    width: 20%; /* Adjust based on your col-3 sizing */
+    height: 100vh;
+    z-index: 100;
+    padding-top: 2rem; /* Match your pt-2 class */
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    overflow-y: auto;
+  }
+  
+  .products-column-with-fixed-sidebar {
+    margin-left: 25%; /* Same as sidebar width */
+    width: 75%;
+  }
+}
+
+/* For lg screens and up, adjust the width */
+@media (min-width: 1024px) {
+  .desktop-fixed-sidebar {
+    width: 20%; /* Adjust based on your col-3 sizing for large screens */
+  }
+  
+  .products-column-with-fixed-sidebar {
+    margin-left: 20%;
+    width: 80%;
+  }
+}
+
+.search-bar-sticky {
+  position: -webkit-sticky !important;
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 9999 !important;
+  background: white !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+}
 
 
 === frontend/src/app/pages/products/product-list/product-list.component.spec.ts ===
@@ -4299,7 +4488,6 @@ import { switchMap, tap, map } from 'rxjs/operators';
 // PrimeNG imports
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
-import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
 import { ToastModule } from 'primeng/toast';
 import { MessageService, MenuItem } from 'primeng/api';
@@ -4336,7 +4524,6 @@ interface LayoutOption {
     RouterLink,
     ButtonModule,
     CardModule,
-    DropdownModule,
     InputTextModule,
     ToastModule,
     SelectButtonModule,
@@ -5059,12 +5246,13 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { SelectModule } from 'primeng/select';
 
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
-import { DropdownModule } from 'primeng/dropdown';
+
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { TagModule } from 'primeng/tag';
@@ -5089,14 +5277,14 @@ import { UserManage } from '../../../models/admin.model';
     ButtonModule,
     CardModule,
     InputTextModule,
-    DropdownModule,
     ToastModule,
     TagModule,
     PaginatorModule,
     DialogModule,
     ConfirmDialogModule,
     CheckboxModule,
-    PasswordModule
+    PasswordModule,
+    SelectModule
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './admin-users.component.html',
@@ -5353,7 +5541,7 @@ import { RouterLink, Router } from '@angular/router';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
-import { DropdownModule } from 'primeng/dropdown';
+
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { TagModule } from 'primeng/tag';
@@ -5376,7 +5564,6 @@ import { Order } from '../../../models/admin.model';
     TableModule,
     ButtonModule,
     CardModule,
-    DropdownModule,
     ToastModule,
     TagModule,
     PaginatorModule,
@@ -5586,7 +5773,9 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-
+import { AccordionModule } from 'primeng/accordion';
+import { ProgressBarModule } from 'primeng/progressbar';
+import { BadgeModule } from 'primeng/badge';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
@@ -5595,6 +5784,7 @@ import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { DividerModule } from 'primeng/divider';
 import { TableModule } from 'primeng/table';
+import { TagModule } from 'primeng/tag';
 
 import { AuthService } from '../../services/auth.service';
 import { CartService, CartItem } from '../../services/cart.service';
@@ -5618,7 +5808,11 @@ import { User } from '../../models/user.model';
     TextareaModule,
     ToastModule,
     DividerModule,
-    TableModule
+    TableModule,
+    AccordionModule,
+    ProgressBarModule,
+    BadgeModule,
+    TagModule
   ],
   providers: [MessageService],
   templateUrl: './checkout.component.html',
@@ -5629,6 +5823,19 @@ export class CheckoutComponent implements OnInit {
   cartItems: CartItem[] = [];
   currentUser: User | null = null;
   isSubmitting = false;
+accordionExpanded = false;
+
+toggleShippingAccordion() {
+  this.accordionExpanded = !this.accordionExpanded;
+}
+
+getFormCompletionPercentage() {
+  const controls = ['fullName', 'phone', 'address'];
+  const completed = controls.filter(control => 
+    this.checkoutForm.get(control)?.value?.trim()
+  ).length;
+  return Math.round((completed / controls.length) * 100);
+}
 
   constructor(
     private fb: FormBuilder,
@@ -6911,6 +7118,10 @@ export class AuthService {
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
   
+  // Add login state observable
+  private isLoggedInSubject = new BehaviorSubject<boolean>(this.isLoggedIn);
+  public isLoggedIn$ = this.isLoggedInSubject.asObservable();
+  
   constructor(private apiService: ApiService) {
     this.loadStoredUser();
   }
@@ -6931,6 +7142,7 @@ export class AuthService {
     return this.apiService.post<LoginResponse>('/auth/login', body.toString(), options).pipe(
       tap(response => {
         localStorage.setItem('token', response.access_token);
+        this.isLoggedInSubject.next(true); // Notify login state change
       }),
       // Chain the user loading after successful token acquisition
       switchMap(() => this.loadCurrentUser())
@@ -6945,6 +7157,7 @@ export class AuthService {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     this.currentUserSubject.next(null);
+    this.isLoggedInSubject.next(false); // Notify logout state change
   }
   
   loadCurrentUser(): Observable<User> {
@@ -6952,6 +7165,7 @@ export class AuthService {
       tap(user => {
         localStorage.setItem('user', JSON.stringify(user));
         this.currentUserSubject.next(user);
+        this.isLoggedInSubject.next(true); // Ensure login state is true
       })
     );
   }
@@ -6962,7 +7176,9 @@ export class AuthService {
     
     if (storedUser && token) {
       try {
-        this.currentUserSubject.next(JSON.parse(storedUser));
+        const user = JSON.parse(storedUser);
+        this.currentUserSubject.next(user);
+        this.isLoggedInSubject.next(true); // Set login state to true
       } catch (e) {
         console.error('Error parsing stored user:', e);
         this.logout(); // Clear invalid data
@@ -7224,28 +7440,550 @@ export class ProductService {
   }
 }
 
+=== frontend/src/app/services/translation.service.ts ===
+
+// src/app/services/translation.service.ts
+import { Injectable, signal, computed } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
+import { BehaviorSubject } from 'rxjs';
+
+export interface Language {
+  code: string;
+  name: string;
+  flag: string;
+  rtl: boolean;
+}
+
+@Injectable({
+  providedIn: 'root'
+})
+export class TranslationService {
+  // Available languages
+  public readonly availableLanguages: Language[] = [
+    { code: 'fr', name: 'Français', flag: '🇫🇷', rtl: false },
+    { code: 'en', name: 'English', flag: '🇬🇧', rtl: false },
+    { code: 'ar', name: 'العربية', flag: '🇸🇦', rtl: true }
+  ];
+
+  // Default language
+  private readonly defaultLanguage = 'fr';
+  
+  // Current language signals
+  private currentLanguageSubject = new BehaviorSubject<string>(this.defaultLanguage);
+  public currentLanguage$ = this.currentLanguageSubject.asObservable();
+  
+  // Signal for current language
+  public currentLanguage = signal<string>(this.defaultLanguage);
+  
+  // Computed signal for current language object
+  public currentLanguageObj = computed(() => {
+    return this.availableLanguages.find(lang => lang.code === this.currentLanguage()) || this.availableLanguages[0];
+  });
+  
+  // Computed signal for RTL direction
+  public isRTL = computed(() => {
+    return this.currentLanguageObj().rtl;
+  });
+
+  constructor(private translate: TranslateService) {
+    this.initializeTranslation();
+  }
+
+  private initializeTranslation(): void {
+    // Set available languages
+    this.translate.addLangs(this.availableLanguages.map(lang => lang.code));
+    
+    // Set default language
+    this.translate.setDefaultLang(this.defaultLanguage);
+    
+    // Get saved language from localStorage or use default
+    const savedLanguage = this.getSavedLanguage();
+    const languageToUse = this.isLanguageSupported(savedLanguage) ? savedLanguage : this.defaultLanguage;
+    
+    // Set initial language
+    this.setLanguage(languageToUse);
+  }
+
+  private getSavedLanguage(): string {
+    try {
+      return localStorage.getItem('selected-language') || this.defaultLanguage;
+    } catch (error) {
+      console.warn('Could not access localStorage:', error);
+      return this.defaultLanguage;
+    }
+  }
+
+  private saveLanguage(language: string): void {
+    try {
+      localStorage.setItem('selected-language', language);
+    } catch (error) {
+      console.warn('Could not save language to localStorage:', error);
+    }
+  }
+
+  private isLanguageSupported(language: string): boolean {
+    return this.availableLanguages.some(lang => lang.code === language);
+  }
+
+  public setLanguage(language: string): void {
+    if (!this.isLanguageSupported(language)) {
+      console.warn(`Language '${language}' is not supported. Using default language '${this.defaultLanguage}'.`);
+      language = this.defaultLanguage;
+    }
+
+    // Set the language in ngx-translate
+    this.translate.use(language).subscribe({
+      next: () => {
+        // Update signals and subject
+        this.currentLanguage.set(language);
+        this.currentLanguageSubject.next(language);
+        
+        // Save to localStorage
+        this.saveLanguage(language);
+        
+        // Update document direction and language attributes
+        this.updateDocumentAttributes(language);
+        
+        console.log(`Language changed to: ${language}`);
+      },
+      error: (error) => {
+        console.error(`Error loading language '${language}':`, error);
+        // Fallback to default language
+        if (language !== this.defaultLanguage) {
+          this.setLanguage(this.defaultLanguage);
+        }
+      }
+    });
+  }
+
+  private updateDocumentAttributes(language: string): void {
+    const html = document.documentElement;
+    const languageObj = this.availableLanguages.find(lang => lang.code === language);
+    
+    if (languageObj) {
+      // Set language attribute
+      html.setAttribute('lang', language);
+      
+      // Set direction attribute
+      html.setAttribute('dir', languageObj.rtl ? 'rtl' : 'ltr');
+      
+      // Update body class for RTL styling
+      if (languageObj.rtl) {
+        document.body.classList.add('rtl');
+        document.body.classList.remove('ltr');
+      } else {
+        document.body.classList.add('ltr');
+        document.body.classList.remove('rtl');
+      }
+    }
+  }
+
+  public getTranslation(key: string, params?: any): string {
+    return this.translate.instant(key, params);
+  }
+
+  public getTranslationAsync(key: string, params?: any) {
+    return this.translate.get(key, params);
+  }
+
+  // Helper method to get current language code
+  public getCurrentLanguage(): string {
+    return this.currentLanguage();
+  }
+
+  // Helper method to get current language object
+  public getCurrentLanguageObject(): Language {
+    return this.currentLanguageObj();
+  }
+
+  // Method to cycle through languages (useful for quick switching)
+  public switchToNextLanguage(): void {
+    const currentIndex = this.availableLanguages.findIndex(lang => lang.code === this.currentLanguage());
+    const nextIndex = (currentIndex + 1) % this.availableLanguages.length;
+    this.setLanguage(this.availableLanguages[nextIndex].code);
+  }
+}
+
+=== frontend/src/app/services/viewport.service.ts ===
+
+// src/app/services/viewport.service.ts
+import { Injectable, OnDestroy } from '@angular/core';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class ViewportService implements OnDestroy {
+  private cleanupFunctions: (() => void)[] = [];
+  private isInitialized = false;
+
+  constructor() {
+    this.initialize();
+  }
+
+  ngOnDestroy() {
+    this.cleanup();
+  }
+
+  private initialize() {
+    if (this.isInitialized || !('visualViewport' in window)) {
+      return;
+    }
+
+    const viewport = window.visualViewport!;
+    let lastScrollTime = 0;
+    let scrollTimeout: any;
+
+    // Track when user is manually scrolling
+    const handleUserScroll = () => {
+      lastScrollTime = Date.now();
+    };
+
+    // Listen for user scroll events
+    window.addEventListener('scroll', handleUserScroll, { passive: true });
+    window.addEventListener('touchmove', handleUserScroll, { passive: true });
+
+    const handleViewportResize = () => {
+      const activeElement = document.activeElement as HTMLElement;
+
+      // Only proceed if there's an active input element
+      if (!activeElement || !['INPUT', 'TEXTAREA'].includes(activeElement.tagName)) {
+        return;
+      }
+
+      // Check if user has scrolled recently (within last 1 second)
+      const timeSinceLastScroll = Date.now() - lastScrollTime;
+      if (timeSinceLastScroll < 1000) {
+        return; // Don't auto-scroll if user was recently scrolling
+      }
+
+      // Clear any existing timeout
+      if (scrollTimeout) {
+        clearTimeout(scrollTimeout);
+      }
+
+      // Only scroll when keyboard opens (viewport height decreases significantly)
+      const viewportHeight = viewport.height;
+      const windowHeight = window.innerHeight;
+
+      if (viewportHeight < windowHeight * 0.75) { // Keyboard is likely open
+        scrollTimeout = setTimeout(() => {
+          // Double-check user hasn't started scrolling
+          if (Date.now() - lastScrollTime > 500) {
+            activeElement.scrollIntoView({ 
+              behavior: 'smooth', 
+              block: 'center' 
+            });
+          }
+        }, 200);
+      }
+    };
+
+    viewport.addEventListener('resize', handleViewportResize);
+
+    // Store cleanup functions
+    this.cleanupFunctions.push(() => {
+      window.removeEventListener('scroll', handleUserScroll);
+      window.removeEventListener('touchmove', handleUserScroll);
+      viewport.removeEventListener('resize', handleViewportResize);
+      if (scrollTimeout) {
+        clearTimeout(scrollTimeout);
+      }
+    });
+
+    this.isInitialized = true;
+  }
+
+  private cleanup() {
+    this.cleanupFunctions.forEach(cleanup => cleanup());
+    this.cleanupFunctions = [];
+    this.isInitialized = false;
+  }
+}
+
 === frontend/src/environments/environment.prod.ts ===
 
 export const environment = {
-    production: true,
-    apiUrl: 'http://your-production-api-url'  // Replace with actual production URL
-  };
+  production: true,
+  apiUrl: '/api/v1'  
+};
 
 === frontend/src/environments/environment.ts ===
 
 // src/environments/environment.ts
 export const environment = {
-    // production: false,
-    // apiUrl: 'https://Elsuq-5028o9mls-yazids-projects-3370118f.vercel.app/api/v1'  
-    //  apiUrl: '/api/v1'
-    apiUrl: 'http://localhost:8000/api/v1'  // Using port 8001 as specified in your docker-compose.yml
-  };
-  
+  // production: false,
+  // apiUrl: 'https://Elsuq-5028o9mls-yazids-projects-3370118f.vercel.app/api/v1'
+  //  apiUrl: '/api/v1'
+  apiUrl: 'http://localhost:8000/api/v1', // Using port 8001 as specified in your docker-compose.yml
+};
+
 //   // src/environments/environment.prod.ts
 //   export const environment = {
 //     production: true,
 //     apiUrl: 'http://your-production-api-url'  // Replace with actual production URL
 //   };
+
+
+=== frontend/src/assets/i18n/ar.json ===
+
+{
+  "common": {
+    "welcome": "مرحباً",
+    "home": "الرئيسية",
+    "products": "المنتجات",
+    "cart": "السلة",
+    "login": "تسجيل الدخول",
+    "register": "إنشاء حساب",
+    "logout": "تسجيل الخروج",
+    "search": "البحث",
+    "loading": "جاري التحميل...",
+    "error": "خطأ",
+    "success": "نجح",
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "delete": "حذف",
+    "edit": "تحرير",
+    "add": "إضافة",
+    "view": "عرض",
+    "price": "السعر",
+    "quantity": "الكمية",
+    "total": "المجموع",
+    "name": "الاسم",
+    "description": "الوصف",
+    "category": "الفئة",
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "phone": "الهاتف",
+    "address": "العنوان",
+    "menu": "القائمة"
+  },
+  "header": {
+    "fresh_produce": "المنتجات الطازجة",
+    "dark_mode": "الوضع المظلم",
+    "light_mode": "الوضع المضيء",
+    "profile": "الملف الشخصي",
+    "orders": "الطلبات",
+    "admin": "الإدارة"
+  },
+  "home": {
+    "title": "مرحباً بكم في متجر المنتجات الطازجة",
+    "subtitle": "اكتشفوا فواكهنا وخضرواتنا الطازجة عالية الجودة",
+    "shop_now": "تسوق الآن",
+    "fresh_fruits": "فواكه طازجة",
+    "fresh_vegetables": "خضروات طازجة",
+    "organic_produce": "منتجات عضوية"
+  },
+  "products": {
+    "title": "منتجاتنا",
+    "filters": "المرشحات",
+    "sort_by": "ترتيب حسب",
+    "categories": "الفئات",
+    "organic_only": "عضوي فقط",
+    "out_of_stock": "غير متوفر",
+    "low_stock": "مخزون منخفض",
+    "add_to_cart": "إضافة للسلة",
+    "select_quantity": "اختر الكمية"
+  },
+  "cart": {
+    "title": "سلتي",
+    "empty": "سلتك فارغة",
+    "item_count": "عنصر/عناصر",
+    "subtotal": "المجموع الفرعي",
+    "checkout": "إتمام الطلب",
+    "remove_item": "إزالة العنصر",
+    "update_quantity": "تحديث الكمية"
+  },
+  "auth": {
+    "login_title": "تسجيل الدخول",
+    "register_title": "إنشاء حساب",
+    "full_name": "الاسم الكامل",
+    "forgot_password": "نسيت كلمة المرور؟",
+    "no_account": "ليس لديك حساب؟",
+    "already_have_account": "لديك حساب بالفعل؟",
+    "login_success": "تم تسجيل الدخول بنجاح",
+    "register_success": "تم إنشاء الحساب بنجاح"
+  },
+  "language": {
+    "select": "اختر اللغة",
+    "french": "Français",
+    "english": "English",
+    "arabic": "العربية"
+  }
+}
+
+=== frontend/src/assets/i18n/en.json ===
+
+{
+  "common": {
+    "welcome": "Welcome",
+    "home": "Home",
+    "products": "Products",
+    "cart": "Cart",
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout",
+    "search": "Search",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "view": "View",
+    "price": "Price",
+    "quantity": "Quantity",
+    "total": "Total",
+    "name": "Name",
+    "description": "Description",
+    "category": "Category",
+    "email": "Email",
+    "password": "Password",
+    "phone": "Phone",
+    "address": "Address",
+    "menu": "Menu"
+  },
+  "header": {
+    "fresh_produce": "Fresh Produce",
+    "dark_mode": "Dark mode",
+    "light_mode": "Light mode",
+    "profile": "Profile",
+    "orders": "Orders",
+    "admin": "Admin"
+  },
+  "home": {
+    "title": "Welcome to our fresh produce store",
+    "subtitle": "Discover our quality fresh fruits and vegetables",
+    "shop_now": "Shop now",
+    "fresh_fruits": "Fresh fruits",
+    "fresh_vegetables": "Fresh vegetables",
+    "organic_produce": "Organic produce"
+  },
+  "products": {
+    "title": "Our Products",
+    "filters": "Filters",
+    "sort_by": "Sort by",
+    "categories": "Categories",
+    "organic_only": "Organic only",
+    "out_of_stock": "Out of stock",
+    "low_stock": "Low stock",
+    "add_to_cart": "Add to cart",
+    "select_quantity": "Select quantity"
+  },
+  "cart": {
+    "title": "My Cart",
+    "empty": "Your cart is empty",
+    "item_count": "item(s)",
+    "subtotal": "Subtotal",
+    "checkout": "Checkout",
+    "remove_item": "Remove item",
+    "update_quantity": "Update quantity"
+  },
+  "auth": {
+    "login_title": "Login",
+    "register_title": "Create Account",
+    "full_name": "Full name",
+    "forgot_password": "Forgot password?",
+    "no_account": "No account?",
+    "already_have_account": "Already have an account?",
+    "login_success": "Login successful",
+    "register_success": "Registration successful"
+  },
+  "language": {
+    "select": "Select language",
+    "french": "Français",
+    "english": "English",
+    "arabic": "العربية"
+  }
+}
+
+=== frontend/src/assets/i18n/fr.json ===
+
+{
+  "common": {
+    "welcome": "Bienvenue",
+    "home": "Accueil",
+    "products": "Produits",
+    "cart": "Panier",
+    "login": "Connexion",
+    "register": "S'inscrire",
+    "logout": "Déconnexion",
+    "search": "Rechercher",
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "success": "Succès",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "add": "Ajouter",
+    "view": "Voir",
+    "price": "Prix",
+    "quantity": "Quantité",
+    "total": "Total",
+    "name": "Nom",
+    "description": "Description",
+    "category": "Catégorie",
+    "email": "Email",
+    "password": "Mot de passe",
+    "phone": "Téléphone",
+    "address": "Adresse",
+    "menu": "Menu"
+  },
+  "header": {
+    "fresh_produce": "Produits Frais",
+    "dark_mode": "Mode sombre",
+    "light_mode": "Mode clair",
+    "profile": "Profil",
+    "orders": "Commandes",
+    "admin": "Administration"
+  },
+  "home": {
+    "title": "Bienvenue dans notre magasin de produits frais",
+    "subtitle": "Découvrez nos fruits et légumes frais de qualité",
+    "shop_now": "Acheter maintenant",
+    "fresh_fruits": "Fruits frais",
+    "fresh_vegetables": "Légumes frais",
+    "organic_produce": "Produits bio"
+  },
+  "products": {
+    "title": "Nos Produits",
+    "filters": "Filtres",
+    "sort_by": "Trier par",
+    "categories": "Catégories",
+    "organic_only": "Bio uniquement",
+    "out_of_stock": "Rupture de stock",
+    "low_stock": "Stock faible",
+    "add_to_cart": "Ajouter au panier",
+    "select_quantity": "Sélectionner la quantité"
+  },
+  "cart": {
+    "title": "Mon Panier",
+    "empty": "Votre panier est vide",
+    "item_count": "article(s)",
+    "subtotal": "Sous-total",
+    "checkout": "Passer la commande",
+    "remove_item": "Retirer l'article",
+    "update_quantity": "Mettre à jour la quantité"
+  },
+  "auth": {
+    "login_title": "Connexion",
+    "register_title": "Créer un compte",
+    "full_name": "Nom complet",
+    "forgot_password": "Mot de passe oublié ?",
+    "no_account": "Pas de compte ?",
+    "already_have_account": "Déjà un compte ?",
+    "login_success": "Connexion réussie",
+    "register_success": "Inscription réussie"
+  },
+  "language": {
+    "select": "Choisir la langue",
+    "french": "Français",
+    "english": "English",
+    "arabic": "العربية"
+  }
+}
 
 === backend/.env ===
 

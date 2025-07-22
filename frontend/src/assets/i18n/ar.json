@@ -1,0 +1,84 @@
+{
+  "common": {
+    "welcome": "مرحباً",
+    "home": "الرئيسية",
+    "products": "المنتجات",
+    "cart": "السلة",
+    "login": "تسجيل الدخول",
+    "register": "إنشاء حساب",
+    "logout": "تسجيل الخروج",
+    "search": "البحث",
+    "loading": "جاري التحميل...",
+    "error": "خطأ",
+    "success": "نجح",
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "delete": "حذف",
+    "edit": "تحرير",
+    "add": "إضافة",
+    "view": "عرض",
+    "price": "السعر",
+    "quantity": "الكمية",
+    "total": "المجموع",
+    "name": "الاسم",
+    "description": "الوصف",
+    "category": "الفئة",
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "phone": "الهاتف",
+    "address": "العنوان",
+    "menu": "القائمة"
+  },
+  "header": {
+    "fresh_produce": "المنتجات الطازجة",
+    "dark_mode": "الوضع المظلم",
+    "light_mode": "الوضع المضيء",
+    "profile": "الملف الشخصي",
+    "orders": "الطلبات",
+    "admin": "الإدارة"
+  },
+  "home": {
+    "title": "مرحباً بكم في متجر المنتجات الطازجة",
+    "subtitle": "اكتشفوا فواكهنا وخضرواتنا الطازجة عالية الجودة",
+    "shop_now": "تسوق الآن",
+    "fresh_fruits": "فواكه طازجة",
+    "fresh_vegetables": "خضروات طازجة",
+    "organic_produce": "منتجات عضوية"
+  },
+  "products": {
+    "title": "منتجاتنا",
+    "filters": "المرشحات",
+    "sort_by": "ترتيب حسب",
+    "categories": "الفئات",
+    "organic_only": "عضوي فقط",
+    "out_of_stock": "غير متوفر",
+    "low_stock": "مخزون منخفض",
+    "add_to_cart": "إضافة للسلة",
+    "select_quantity": "اختر الكمية"
+  },
+  "cart": {
+    "title": "سلتي",
+    "empty": "سلتك فارغة",
+    "item_count": "عنصر/عناصر",
+    "subtotal": "المجموع الفرعي",
+    "checkout": "إتمام الطلب",
+    "remove_item": "إزالة العنصر",
+    "update_quantity": "تحديث الكمية"
+  },
+  "auth": {
+    "login_title": "تسجيل الدخول",
+    "register_title": "إنشاء حساب",
+    "full_name": "الاسم الكامل",
+    "forgot_password": "نسيت كلمة المرور؟",
+    "no_account": "ليس لديك حساب؟",
+    "already_have_account": "لديك حساب بالفعل؟",
+    "login_success": "تم تسجيل الدخول بنجاح",
+    "register_success": "تم إنشاء الحساب بنجاح"
+  },
+  "language": {
+    "select": "اختر اللغة",
+    "french": "Français",
+    "english": "English",
+    "arabic": "العربية"
+  }
+}
