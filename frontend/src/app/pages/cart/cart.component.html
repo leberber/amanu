@@ -1,12 +1,12 @@
-<!-- src/app/pages/cart/cartcomponent.html -->
-<div class="h-full pt-2  overflow-auto">
+<!-- src/app/pages/cart/cart.component.html -->
+<div class="h-full pt-2 overflow-auto">
   <p-toast></p-toast>
   
-  <div class="surface-card p-2 ">
+  <div class="surface-card p-2">
     <div class="flex justify-content-start mb-4">
       <button 
         pButton 
-        label="Continue Shopping" 
+        [label]="'cart.continue_shopping' | translate" 
         icon="pi pi-arrow-left" 
         class="ml-3 mt-4"
         routerLink="/products"
@@ -22,9 +22,13 @@
       <!-- Empty Cart -->
       <div class="text-center py-5">
         <i class="pi pi-shopping-cart text-6xl text-primary-200 mb-4"></i>
-        <h2 class="text-2xl font-medium mb-3">Your cart is empty</h2>
-        <p class="text-lg mb-5">Looks like you haven't added any products to your cart yet.</p>
-        <p-button label="Browse Products" icon="pi pi-shopping-bag" routerLink="/products"></p-button>
+        <h2 class="text-2xl font-medium mb-3">{{ 'cart.empty' | translate }}</h2>
+        <p class="text-lg mb-5">{{ 'cart.empty_message' | translate }}</p>
+        <p-button 
+          [label]="'cart.shop_now' | translate" 
+          icon="pi pi-shopping-bag" 
+          routerLink="/products"
+        ></p-button>
       </div>
     } @else {
       <!-- Cart Content -->
@@ -42,11 +46,11 @@
             >
               <ng-template pTemplate="header">
                 <tr>
-                  <th style="width: 40%" class="text-left">Product</th>
-                  <th style="width: 15%" class="text-center">Price</th>
-                  <th style="width: 20%" class="text-center">Quantity</th>
-                  <th style="width: 15%" class="text-right">Total</th>
-                  <th style="width: 10%" class="text-center"></th>
+                  <th style="width: 40%" class="text-left">{{ 'cart.table.product' | translate }}</th>
+                  <th style="width: 15%" class="text-center">{{ 'common.price' | translate }}</th>
+                  <th style="width: 20%" class="text-center">{{ 'common.quantity' | translate }}</th>
+                  <th style="width: 15%" class="text-right">{{ 'common.total' | translate }}</th>
+                  <th style="width: 10%" class="text-center">{{ 'cart.table.actions' | translate }}</th>
                 </tr>
               </ng-template>
               <ng-template pTemplate="body" let-item>
@@ -66,7 +70,7 @@
                           {{item.product_name}}
                         </p>
                         @if (item.is_organic) {
-                          <p-tag severity="success" value="Organic" styleClass="mt-1"></p-tag>
+                          <p-tag severity="success" [value]="'products.product.organic' | translate" styleClass="mt-1"></p-tag>
                         }
                       </div>
                     </div>
@@ -79,9 +83,8 @@
                       <p-select
                         [(ngModel)]="productQuantities[item.id]"
                         [options]="getQuantityOptions(item.stock_quantity, item.id)"
-                        placeholder="Qty"
+                        [placeholder]="'products.product.qty' | translate"
                         styleClass="w-8rem"
-                     
                         [virtualScroll]="true"
                         [virtualScrollItemSize]="38"
                         filterBy="label"
@@ -103,7 +106,7 @@
                       type="button" 
                       icon="pi pi-trash" 
                       class="p-button-rounded p-button-danger p-button-text p-button-sm"
-                      pTooltip="Remove Item"
+                      [pTooltip]="'cart.remove_item' | translate"
                       tooltipPosition="left"
                       (click)="removeItem(item.id)"
                     ></button>
@@ -149,7 +152,7 @@
                         <p-select
                           [(ngModel)]="productQuantities[item.id]"
                           [options]="getQuantityOptions(item.stock_quantity, item.id)"
-                          placeholder="Qty"
+                          [placeholder]="'products.product.qty' | translate"
                           styleClass="w-full mobile-dropdown"
                           [virtualScroll]="true"
                           [virtualScrollItemSize]="38"
@@ -176,29 +179,31 @@
         <!-- Order Summary -->
         <div class="col-12 md:col-4">
           <div class="surface-card p-4 shadow-1 border-round flex flex-column">
-            <h3 class="text-xl font-medium text-900 dark:text-white">Order Summary</h3>
+            <h3 class="text-xl font-medium text-900 dark:text-white">{{ 'cart.order_summary' | translate }}</h3>
             
             <div class="flex justify-content-between mb-3">
-              <span class="text-900 dark:text-white">Items ({{cartItemCount()}})</span>
+              <span class="text-900 dark:text-white">
+                {{cartItemCount()}} {{ 'cart.items_with_count' | translate }} 
+              </span>
               <span class="font-medium text-900 dark:text-white">${{cartTotal().toFixed(2)}}</span>
             </div>
             
             <div class="flex justify-content-between mb-3">
-              <span class="text-900 dark:text-white">Shipping</span>
-              <span class="font-medium text-900 dark:text-white">Free</span>
+              <span class="text-900 dark:text-white">{{ 'cart.shipping' | translate }}</span>
+              <span class="font-medium text-900 dark:text-white">{{ 'cart.free' | translate }}</span>
             </div>
             
             <p-divider></p-divider>
             
             <div class="flex justify-content-between mb-4">
-              <span class="text-lg font-medium text-900 dark:text-white">Total</span>
+              <span class="text-lg font-medium text-900 dark:text-white">{{ 'common.total' | translate }}</span>
               <span class="text-lg font-bold text-900 dark:text-white">${{cartTotal().toFixed(2)}}</span>
             </div>
             
             <div class="flex flex-column mt-auto">
               <button 
                 pButton 
-                label="Proceed to Checkout" 
+                [label]="'cart.checkout' | translate" 
                 icon="pi pi-credit-card" 
                 (click)="proceedToCheckout()"
                 class="mb-2"
@@ -207,9 +212,9 @@
               
               <button 
                 pButton 
-                label="Clear Cart" 
+                [label]="'cart.clear_cart' | translate" 
                 icon="pi pi-trash" 
-                        style="padding:14px"
+                style="padding:14px"
                 class="p-button-outlined p-button-danger"
                 (click)="clearCart()"
               ></button>

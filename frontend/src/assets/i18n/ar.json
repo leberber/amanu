@@ -145,6 +145,7 @@
     "empty_message": "لم تقم بإضافة أي منتجات إلى سلتك بعد",
     "shop_now": "تسوق الآن",
     "item_count": "عنصر/عناصر",
+    "items_with_count": "عناصر",
     "subtotal": "المجموع الفرعي",
     "checkout": "إتمام الطلب",
     "continue_shopping": "متابعة التسوق",
@@ -155,7 +156,17 @@
     "cart_cleared": "تم مسح السلة",
     "quantity_updated": "تم تحديث الكمية",
     "login_required": "تسجيل الدخول مطلوب",
-    "login_message": "يرجى تسجيل الدخول أو إنشاء حساب للمتابعة"
+    "login_message": "يرجى تسجيل الدخول أو إنشاء حساب للمتابعة",
+    "order_summary": "ملخص الطلب",
+    "shipping": "الشحن",
+    "free": "مجاني",
+    "empty_checkout_message": "يرجى إضافة منتجات إلى سلتك قبل إتمام الطلب",
+    "item_removed_message": "تم إزالة العنصر من سلتك",
+    "cart_cleared_message": "تم حذف جميع العناصر من سلتك",
+    "table": {
+      "product": "المنتج",
+      "actions": "الإجراءات"
+    }
   },
   "auth": {
     "login_title": "تسجيل الدخول",

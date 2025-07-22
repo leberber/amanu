@@ -4208,7 +4208,6 @@ import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
-// import { TabViewModule } from 'primeng/tabview';
 import { TagModule } from 'primeng/tag';
 import { SelectModule } from 'primeng/select';
 import { BadgeModule } from 'primeng/badge';
@@ -4230,7 +4229,6 @@ import { Product, Category } from '../../../models/product.model';
     ButtonModule,
     CardModule,
     ToastModule,
-    // TabViewModule,
     TagModule,
     SelectModule,
     BadgeModule,
@@ -4269,14 +4267,23 @@ export class ProductDetailComponent implements OnInit {
     const product = this.product();
     return product ? (product.stock_quantity > 0 && product.stock_quantity < 10) : false;
   });
-  
-  stockMessage = computed(() => {
-    const product = this.product();
-    if (!product) return '';
+
+  // Computed property for low stock translation parameters
+  lowStockParams = computed(() => {
+    const currentProduct = this.product();
+    if (!currentProduct) return { count: 0 };
     
-    return this.isOutOfStock() 
-      ? this.translateService.instant('products.stock.out_of_stock')
-      : this.translateService.instant('products.stock.low_stock', { count: product.stock_quantity });
+    return {
+      count: currentProduct.stock_quantity
+    };
+  });
+
+  // Computed property for unit display
+  unitDisplay = computed(() => {
+    const currentProduct = this.product();
+    if (!currentProduct) return '';
+    
+    return this.getUnitDisplay(currentProduct.unit);
   });
 
   ngOnInit() {
@@ -8081,10 +8088,13 @@ export const environment = {
       "product_details": "تفاصيل المنتج",
       "reviews": "التقييمات"
     },
-    "stock": {
+      "stock": {
       "out_of_stock": "غير متوفر",
       "low_stock": "باقي {count} فقط في المخزون",
-      "in_stock": "متوفر في المخزون"
+      "low_stock_title": "مخزون قليل",
+      "in_stock": "متوفر في المخزون",
+      "available": "متاح",
+      "unavailable_message": "هذا العنصر غير متوفر حالياً"
     },
     "empty": {
       "title": "لم يتم العثور على منتجات",
@@ -8466,7 +8476,7 @@ export const environment = {
       "low_stock": "Only {count} left in stock",
       "low_stock_title": "Low Stock",
       "in_stock": "In stock",
-      "available": "{count} {unit} available",
+      "available": " available",
       "unavailable_message": "This item is currently unavailable"
     },
     "empty": {
@@ -8852,7 +8862,7 @@ export const environment = {
       "low_stock": "Plus que {count} en stock",
       "low_stock_title": "Stock Faible",
       "in_stock": "En stock",
-      "available": "{count} {unit} disponible(s)",
+      "available": "disponible(s)",
       "unavailable_message": "Cet article n'est actuellement pas disponible"
     },
     "empty": {

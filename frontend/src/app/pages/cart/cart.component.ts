@@ -1,5 +1,5 @@
 // src/app/pages/cart/cart.component.ts
-import { Component, OnInit, inject, signal, computed, effect, OnDestroy } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink, Router } from '@angular/router';
@@ -11,6 +11,7 @@ import { TagModule } from 'primeng/tag';
 import { DividerModule } from 'primeng/divider';
 import { TooltipModule } from 'primeng/tooltip';
 import { SelectModule } from 'primeng/select';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
 
 import { CartService, CartItem } from '../../services/cart.service';
@@ -29,11 +30,11 @@ import { AuthService } from '../../services/auth.service';
     TagModule,
     DividerModule,
     TooltipModule,
-    SelectModule
+    SelectModule,
+    TranslateModule
   ],
   providers: [MessageService],
   templateUrl: './cart.component.html',
-
 })
 export class CartComponent implements OnInit, OnDestroy {
   // Dependency injection
@@ -41,6 +42,7 @@ export class CartComponent implements OnInit, OnDestroy {
   private authService = inject(AuthService);
   private messageService = inject(MessageService);
   private router = inject(Router);
+  private translateService = inject(TranslateService);
   
   // Signals
   cartItems = signal<CartItem[]>([]);
@@ -95,8 +97,8 @@ export class CartComponent implements OnInit, OnDestroy {
         console.error('Error loading cart:', error);
         this.messageService.add({
           severity: 'error',
-          summary: 'Error',
-          detail: 'Failed to load cart items'
+          summary: this.translateService.instant('common.error'),
+          detail: this.translateService.instant('cart.errors.failed_to_load')
         });
         this.loading.set(false);
       }
@@ -126,8 +128,8 @@ export class CartComponent implements OnInit, OnDestroy {
         console.error('Error updating quantity:', error);
         this.messageService.add({
           severity: 'error',
-          summary: 'Error',
-          detail: 'Failed to update quantity'
+          summary: this.translateService.instant('common.error'),
+          detail: this.translateService.instant('cart.errors.update_failed')
         });
         // Reset the select value to match the item's actual quantity
         this.productQuantities[item.id] = item.quantity;
@@ -140,9 +142,9 @@ export class CartComponent implements OnInit, OnDestroy {
       next: () => {
         this.messageService.add({
           severity: 'success',
-          summary: 'Removed',
-          detail: 'Item removed from cart',
-          life: 300
+          summary: this.translateService.instant('cart.item_removed'),
+          detail: this.translateService.instant('cart.item_removed_message'),
+          life: 3000
         });
         // Clean up the quantities object
         delete this.productQuantities[itemId];
@@ -151,8 +153,8 @@ export class CartComponent implements OnInit, OnDestroy {
         console.error('Error removing item:', error);
         this.messageService.add({
           severity: 'error',
-          summary: 'Error',
-          detail: 'Failed to remove item'
+          summary: this.translateService.instant('common.error'),
+          detail: this.translateService.instant('cart.errors.remove_failed')
         });
       }
     });
@@ -163,8 +165,8 @@ export class CartComponent implements OnInit, OnDestroy {
       next: () => {
         this.messageService.add({
           severity: 'success',
-          summary: 'Cart Cleared',
-          detail: 'All items have been removed from your cart'
+          summary: this.translateService.instant('cart.cart_cleared'),
+          detail: this.translateService.instant('cart.cart_cleared_message')
         });
         // Reset quantities
         this.productQuantities = {};
@@ -173,8 +175,8 @@ export class CartComponent implements OnInit, OnDestroy {
         console.error('Error clearing cart:', error);
         this.messageService.add({
           severity: 'error',
-          summary: 'Error',
-          detail: 'Failed to clear cart'
+          summary: this.translateService.instant('common.error'),
+          detail: this.translateService.instant('cart.errors.clear_failed')
         });
       }
     });
@@ -217,7 +219,7 @@ export class CartComponent implements OnInit, OnDestroy {
   
   getSelectedQuantityLabel(itemId: string): string {
     const quantity = this.productQuantities[itemId];
-    if (!quantity) return 'Qty';
+    if (!quantity) return this.translateService.instant('products.product.qty');
     
     const item = this.cartItems().find(i => i.id === itemId);
     if (!item) return `${quantity} units`;
@@ -233,8 +235,8 @@ export class CartComponent implements OnInit, OnDestroy {
     if (this.cartItemCount() === 0) {
       this.messageService.add({
         severity: 'info',
-        summary: 'Empty Cart',
-        detail: 'Your cart is empty. Add some products before checkout.'
+        summary: this.translateService.instant('cart.empty'),
+        detail: this.translateService.instant('cart.empty_checkout_message')
       });
       return;
     }
@@ -246,8 +248,8 @@ export class CartComponent implements OnInit, OnDestroy {
       // User is not logged in, redirect to login with returnUrl
       this.messageService.add({
         severity: 'info', 
-        summary: 'Login Required', 
-        detail: 'Please login or register to continue with checkout.'
+        summary: this.translateService.instant('cart.login_required'), 
+        detail: this.translateService.instant('cart.login_message')
       });
       
       // Save the return URL

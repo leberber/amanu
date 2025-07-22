@@ -145,6 +145,7 @@
     "empty_message": "Vous n'avez pas encore ajouté de produits à votre panier",
     "shop_now": "Acheter Maintenant",
     "item_count": "article(s)",
+    "items_with_count": "Articles ",
     "subtotal": "Sous-total",
     "checkout": "Passer la commande",
     "continue_shopping": "Continuer les Achats",
@@ -155,7 +156,17 @@
     "cart_cleared": "Panier vidé",
     "quantity_updated": "Quantité mise à jour",
     "login_required": "Connexion Requise",
-    "login_message": "Veuillez vous connecter ou vous inscrire pour continuer"
+    "login_message": "Veuillez vous connecter ou vous inscrire pour continuer",
+    "order_summary": "Résumé de Commande",
+    "shipping": "Livraison",
+    "free": "Gratuit",
+    "empty_checkout_message": "Veuillez ajouter des produits à votre panier avant de passer commande",
+    "item_removed_message": "L'article a été retiré de votre panier",
+    "cart_cleared_message": "Tous les articles ont été supprimés de votre panier",
+    "table": {
+      "product": "Produit",
+      "actions": "Actions"
+    }
   },
   "auth": {
     "login_title": "Connexion",

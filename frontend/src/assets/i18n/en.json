@@ -148,6 +148,7 @@
     "empty_message": "You haven't added any products to your cart yet",
     "shop_now": "Shop Now",
     "item_count": "item(s)",
+    "items_with_count": "Items",
     "subtotal": "Subtotal",
     "checkout": "Checkout",
     "continue_shopping": "Continue Shopping",
@@ -158,7 +159,17 @@
     "cart_cleared": "Cart cleared",
     "quantity_updated": "Quantity updated",
     "login_required": "Login Required",
-    "login_message": "Please login or register to continue with checkout"
+    "login_message": "Please login or register to continue with checkout",
+    "order_summary": "Order Summary",
+    "shipping": "Shipping",
+    "free": "Free",
+    "empty_checkout_message": "Please add some products to your cart before checkout",
+    "item_removed_message": "Item has been removed from your cart",
+    "cart_cleared_message": "All items have been removed from your cart",
+    "table": {
+      "product": "Product",
+      "actions": "Actions"
+    }
   },
   "auth": {
     "login_title": "Login",
