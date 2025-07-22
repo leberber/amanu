@@ -3,12 +3,13 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { SelectModule } from 'primeng/select';
 
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
-import { DropdownModule } from 'primeng/dropdown';
+
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { TagModule } from 'primeng/tag';
@@ -33,14 +34,14 @@ import { UserManage } from '../../../models/admin.model';
     ButtonModule,
     CardModule,
     InputTextModule,
-    DropdownModule,
     ToastModule,
     TagModule,
     PaginatorModule,
     DialogModule,
     ConfirmDialogModule,
     CheckboxModule,
-    PasswordModule
+    PasswordModule,
+    SelectModule
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './admin-users.component.html',

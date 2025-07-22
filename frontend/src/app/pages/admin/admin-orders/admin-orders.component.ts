@@ -7,7 +7,7 @@ import { RouterLink, Router } from '@angular/router';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
-import { DropdownModule } from 'primeng/dropdown';
+
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { TagModule } from 'primeng/tag';
@@ -30,7 +30,6 @@ import { Order } from '../../../models/admin.model';
     TableModule,
     ButtonModule,
     CardModule,
-    DropdownModule,
     ToastModule,
     TagModule,
     PaginatorModule,

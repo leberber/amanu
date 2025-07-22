@@ -10,7 +10,6 @@ import { switchMap, tap, map } from 'rxjs/operators';
 // PrimeNG imports
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
-import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
 import { ToastModule } from 'primeng/toast';
 import { MessageService, MenuItem } from 'primeng/api';
@@ -47,7 +46,6 @@ interface LayoutOption {
     RouterLink,
     ButtonModule,
     CardModule,
-    DropdownModule,
     InputTextModule,
     ToastModule,
     SelectButtonModule,

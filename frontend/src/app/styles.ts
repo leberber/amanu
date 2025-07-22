@@ -3,15 +3,6 @@ import Aura from '@primeng/themes/aura';
 
 export const MyPreset = definePreset(Aura, {
     semantic: {
-        tokens: {
-            typography: {
-                fontFamily: {
-                    body: "'Inter', sans-serif", // Default text font
-                    heading: "'Poppins', sans-serif", // Headings
-                    mono: "'Courier New', monospace" // Monospace text
-                }
-            }
-        },
         primary: {
             50: '{pink.50}',
             100: '{pink.100}',
@@ -29,10 +20,8 @@ export const MyPreset = definePreset(Aura, {
             light: {
                 primary: {
                     color: '{zinc.950}',
-                    inverseColor: '#ffffff',
                     hoverColor: '{zinc.900}',
-                    activeColor: '{zinc.800}',
-                    fontFamily:'poppins'
+                    activeColor: '{zinc.800}'
                 },
                 highlight: {
                     background: '{zinc.950}',
@@ -44,7 +33,6 @@ export const MyPreset = definePreset(Aura, {
             dark: {
                 primary: {
                     color: '{zinc.50}',
-                    inverseColor: '{zinc.950}',
                     hoverColor: '{zinc.100}',
                     activeColor: '{zinc.200}'
                 },

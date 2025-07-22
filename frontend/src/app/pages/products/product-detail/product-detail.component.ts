@@ -11,7 +11,7 @@ import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
-import { TabViewModule } from 'primeng/tabview';
+// import { TabViewModule } from 'primeng/tabview';
 import { TagModule } from 'primeng/tag';
 import { SelectModule } from 'primeng/select';
 import { BadgeModule } from 'primeng/badge';
@@ -32,7 +32,7 @@ import { Product, Category } from '../../../models/product.model';
     ButtonModule,
     CardModule,
     ToastModule,
-    TabViewModule,
+    // TabViewModule,
     TagModule,
     SelectModule,
     BadgeModule

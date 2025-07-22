@@ -166,3 +166,22 @@ a:active {
   
 
 }
+
+/* In your styles.css or global stylesheet */
+:root {
+    --font-family: 'Inter', sans-serif;
+    --font-family-heading: 'Poppins', sans-serif;
+    --font-family-mono: 'Courier New', monospace;
+}
+
+body {
+    font-family: var(--font-family);
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-family-heading);
+}
+
+code, pre {
+    font-family: var(--font-family-mono);
+}

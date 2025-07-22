@@ -116,8 +116,12 @@
           <div class="col-12 md:col-6">
             <div class="field">
               <label for="role">Role</label>
-              <p-dropdown id="role" [options]="roleOptions" formControlName="role" 
-                          [style]="{'width':'100%'}" placeholder="Select a role"></p-dropdown>
+                  <select id="role" formControlName="role" style="width: 100%">
+  <option value="" disabled selected>Select a role</option>
+  <option *ngFor="let role of roleOptions" [value]="role.value">
+    {{ role.label }}
+  </option>
+</select>
             </div>
           </div>
           
