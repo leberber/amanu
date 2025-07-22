@@ -210,7 +210,9 @@
     "register_failed": "Registration failed",
     "terms_agreement": "By creating an account, you agree to our",
     "terms_of_service": "Terms of Service",
-    "privacy_policy": "Privacy Policy"
+    "privacy_policy": "Privacy Policy",
+    "optional": "Optional"
+    
   },
   "checkout": {
     "title": "Checkout",

@@ -10,6 +10,7 @@ import { PasswordModule } from 'primeng/password';
 import { MessageModule } from 'primeng/message';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
@@ -24,7 +25,8 @@ import { AuthService } from '../../services/auth.service';
     PasswordModule,
     MessageModule,
     ToastModule,
-    RouterLink
+    RouterLink,
+    TranslateModule // Add this import
   ],
   providers: [MessageService],
   templateUrl: './register.component.html',
@@ -38,7 +40,8 @@ export class RegisterComponent {
     private fb: FormBuilder,
     private authService: AuthService,
     private router: Router,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private translateService: TranslateService // Add this injection
   ) {
     // Initialize form
     this.registerForm = this.fb.group({
@@ -59,16 +62,14 @@ export class RegisterComponent {
       return;
     }
 
-    
-
     this.loading = true;
     this.authService.register(this.registerForm.value)
       .subscribe({
         next: () => {
           this.messageService.add({
             severity: 'success',
-            summary: 'Success',
-            detail: 'Registration successful. You can now login.'
+            summary: this.translateService.instant('common.success'),
+            detail: this.translateService.instant('auth.register_success')
           });
           // Navigate to login page after successful registration
           setTimeout(() => {
@@ -78,8 +79,8 @@ export class RegisterComponent {
         error: (error) => {
           this.messageService.add({
             severity: 'error',
-            summary: 'Error',
-            detail: error.error?.detail || 'Registration failed'
+            summary: this.translateService.instant('common.error'),
+            detail: error.error?.detail || this.translateService.instant('auth.register_failed')
           });
           this.loading = false;
         }

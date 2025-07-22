@@ -3,8 +3,8 @@
   <div [style]="{width: '100%', 'max-width': '500px'}">
     
     <div class="text-center mb-4">
-      <h2 class="text-3xl font-bold mb-2">Register</h2>
-      <p class="m-0 text-lg">Create a new account</p>
+      <h2 class="text-3xl font-bold mb-2">{{ 'auth.register_title' | translate }}</h2>
+      <p class="m-0 text-lg">{{ 'auth.register_subtitle' | translate }}</p>
     </div>
 
     <p-toast></p-toast>
@@ -12,7 +12,9 @@
     <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
       <!-- Email Field -->
       <div class="field mb-4">
-        <label for="email" class="block font-medium text-600 mb-2">Email <span class="p-error">*</span></label>
+        <label for="email" class="block font-medium text-600 mb-2">
+          {{ 'common.email' | translate }} <span class="p-error">*</span>
+        </label>
         <div class="relative">
           <i class="pi pi-envelope input-icon"></i>
           <input 
@@ -21,19 +23,21 @@
             pInputText 
             class="w-full pl-5" 
             formControlName="email" 
-            placeholder="Enter your email"
+            [placeholder]="'auth.email_placeholder' | translate"
             [style]="{'padding': '0.75rem 1rem 0.75rem 2.5rem', 'height': '3rem'}"
           />
         </div>
         <small *ngIf="f['email'].touched && f['email'].invalid" class="p-error block mt-1">
-          <span *ngIf="f['email'].errors?.['required']">Email is required</span>
-          <span *ngIf="f['email'].errors?.['email']">Enter a valid email address</span>
+          <span *ngIf="f['email'].errors?.['required']">{{ 'auth.email_required' | translate }}</span>
+          <span *ngIf="f['email'].errors?.['email']">{{ 'auth.email_invalid' | translate }}</span>
         </small>
       </div>
 
       <!-- Full Name Field -->
       <div class="field mb-4">
-        <label for="full_name" class="block font-medium text-600 mb-2">Full Name <span class="p-error">*</span></label>
+        <label for="full_name" class="block font-medium text-600 mb-2">
+          {{ 'auth.full_name' | translate }} <span class="p-error">*</span>
+        </label>
         <div class="relative">
           <i class="pi pi-user input-icon"></i>
           <input 
@@ -42,18 +46,20 @@
             pInputText 
             class="w-full pl-5" 
             formControlName="full_name" 
-            placeholder="Enter your full name"
+            [placeholder]="'auth.full_name_placeholder' | translate"
             [style]="{'padding': '0.75rem 1rem 0.75rem 2.5rem', 'height': '3rem'}"
           />
         </div>
         <small *ngIf="f['full_name'].touched && f['full_name'].errors?.['required']" class="p-error block mt-1">
-          Full name is required
+          {{ 'auth.full_name_required' | translate }}
         </small>
       </div>
 
       <!-- Password Field -->
       <div class="field mb-4">
-        <label for="password" class="block font-medium text-600 mb-2">Password <span class="p-error">*</span></label>
+        <label for="password" class="block font-medium text-600 mb-2">
+          {{ 'common.password' | translate }} <span class="p-error">*</span>
+        </label>
         <div class="relative">
           <i class="pi pi-lock input-icon"></i>
           <p-password 
@@ -62,19 +68,23 @@
             [toggleMask]="true"
             [style]="{'width':'100%'}"
             [inputStyle]="{'width':'100%', 'padding':'0.75rem 1rem 0.75rem 2.5rem', 'height':'3rem'}"
-            placeholder="Enter your password"
+            [placeholder]="'auth.password_placeholder' | translate"
             [feedback]="true"
+            [promptLabel]="'auth.password_prompt' | translate"
+            [weakLabel]="'auth.password_weak' | translate"
+            [mediumLabel]="'auth.password_medium' | translate"
+            [strongLabel]="'auth.password_strong' | translate"
           ></p-password>
         </div>
         <small *ngIf="f['password'].touched && f['password'].invalid" class="p-error block mt-1">
-          <span *ngIf="f['password'].errors?.['required']">Password is required</span>
-          <span *ngIf="f['password'].errors?.['minlength']">Password must be at least 8 characters</span>
+          <span *ngIf="f['password'].errors?.['required']">{{ 'auth.password_required' | translate }}</span>
+          <span *ngIf="f['password'].errors?.['minlength']">{{ 'auth.password_minlength' | translate }}</span>
         </small>
       </div>
 
       <!-- Phone Field -->
       <div class="field mb-4">
-        <label for="phone" class="block font-medium text-600 mb-2">Phone (Optional)</label>
+        <label for="phone" class="block font-medium text-600 mb-2">{{ 'common.phone' | translate }} ({{ 'auth.optional' | translate }})</label>
         <div class="relative">
           <i class="pi pi-phone input-icon"></i>
           <input 
@@ -83,7 +93,7 @@
             pInputText 
             class="w-full pl-5" 
             formControlName="phone" 
-            placeholder="Enter your phone number"
+            [placeholder]="'auth.phone_placeholder' | translate"
             [style]="{'padding': '0.75rem 1rem 0.75rem 2.5rem', 'height': '3rem'}"
           />
         </div>
@@ -91,7 +101,7 @@
 
       <!-- Address Field -->
       <div class="field mb-4">
-        <label for="address" class="block font-medium text-600 mb-2">Address (Optional)</label>
+        <label for="address" class="block font-medium text-600 mb-2">{{ 'common.address' | translate }} ({{ 'auth.optional' | translate }})</label>
         <div class="relative">
           <i class="pi pi-map-marker input-icon"></i>
           <input 
@@ -100,7 +110,7 @@
             pInputText 
             class="w-full pl-5" 
             formControlName="address" 
-            placeholder="Enter your address"
+            [placeholder]="'auth.address_placeholder' | translate"
             [style]="{'padding': '0.75rem 1rem 0.75rem 2.5rem', 'height': '3rem'}"
           />
         </div>
@@ -109,7 +119,7 @@
       <button 
         pButton 
         type="submit" 
-        label="Register" 
+        [label]="'auth.register' | translate"
         class="p-button-rounded w-full p-3"
         [loading]="loading"
         [disabled]="registerForm.invalid || loading"
@@ -117,7 +127,22 @@
     </form>
     
     <div class="text-center mt-5">
-      <p>Already have an account? <a routerLink="/login" class="text-primary font-medium no-underline">Sign in</a></p>
+      <p>
+        {{ 'auth.already_have_account' | translate }} 
+        <a routerLink="/login" class="text-primary font-medium no-underline">
+          {{ 'auth.login_now' | translate }}
+        </a>
+      </p>
+    </div>
+
+    <!-- Optional: Terms and Privacy Policy -->
+    <div class="text-center mt-3">
+      <small class="text-color-secondary">
+        {{ 'auth.terms_agreement' | translate }} 
+        <a href="#" class="text-primary no-underline">{{ 'auth.terms_of_service' | translate }}</a>
+        {{ 'common.and' | translate }}
+        <a href="#" class="text-primary no-underline">{{ 'auth.privacy_policy' | translate }}</a>
+      </small>
     </div>
 
   </div>

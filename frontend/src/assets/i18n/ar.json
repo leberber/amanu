@@ -209,7 +209,8 @@
     "register_failed": "فشل في إنشاء الحساب",
     "terms_agreement": "بإنشاء حساب، أنت توافق على",
     "terms_of_service": "شروط الخدمة",
-    "privacy_policy": "سياسة الخصوصية"
+    "privacy_policy": "سياسة الخصوصية",
+     "optional": "اختياري"
   },
   "checkout": {
     "title": "إتمام الطلب",

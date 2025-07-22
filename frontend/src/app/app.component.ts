@@ -3,7 +3,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { HeaderComponent } from './layout/header/header.component';
-import { FooterComponent } from './layout/footer/footer.component';
+import { BottomNavigationComponent } from './components/bottom-navigation/bottom-navigation.component';
 import { ViewportService } from './services/viewport.service';
 import { TranslationService } from './services/translation.service';
 import { TranslateModule } from '@ngx-translate/core';
@@ -15,6 +15,7 @@ import { TranslateModule } from '@ngx-translate/core';
     RouterOutlet, 
     ButtonModule, 
     HeaderComponent,
+    BottomNavigationComponent, // Add this import
     TranslateModule
   ],
   templateUrl: './app.component.html',

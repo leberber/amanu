@@ -3,7 +3,7 @@ export const environment = {
   // production: false,
   // apiUrl: 'https://Elsuq-5028o9mls-yazids-projects-3370118f.vercel.app/api/v1'
   //  apiUrl: '/api/v1'
-  apiUrl: 'http://localhost:8000/api/v1', // Using port 8001 as specified in your docker-compose.yml
+  apiUrl: 'http://localhost:8001/api/v1', // Using port 8001 as specified in your docker-compose.yml
 };
 
 //   // src/environments/environment.prod.ts

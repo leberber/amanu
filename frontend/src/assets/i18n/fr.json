@@ -207,7 +207,8 @@
     "register_failed": "Échec de l'inscription",
     "terms_agreement": "En créant un compte, vous acceptez nos",
     "terms_of_service": "Conditions d'Utilisation",
-    "privacy_policy": "Politique de Confidentialité"
+    "privacy_policy": "Politique de Confidentialité",
+    "optional": "Optionnel"
   },
   "checkout": {
     "title": "Commande",

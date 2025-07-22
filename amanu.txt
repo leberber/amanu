@@ -5016,16 +5016,16 @@ export class ProductListComponent implements OnInit {
     
     this.cartService.addToCart(product, actualQuantity).subscribe({
       next: () => {
-        this.messageService.add({
-          severity: 'success',
-          summary: this.translateService.instant('products.cart.added_to_cart'),
-          detail: this.translateService.instant('products.cart.added_message', {
-            quantity: actualQuantity,
-            unit: this.getUnitDisplay(product.unit),
-            name: product.name
-          }),
-          life: 3000
-        });
+        // this.messageService.add({
+        //   severity: 'success',
+        //   summary: this.translateService.instant('products.cart.added_to_cart'),
+        //   detail: this.translateService.instant('products.cart.added_message', {
+        //     quantity: actualQuantity,
+        //     unit: this.getUnitDisplay(product.unit),
+        //     name: product.name
+        //   }),
+        //   life: 3000
+        // });
       },
       error: (error) => {
         console.error('Error adding to cart:', error);
@@ -5904,14 +5904,13 @@ import { MessageService } from 'primeng/api';
 import { DividerModule } from 'primeng/divider';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { AuthService } from '../../services/auth.service';
 import { CartService, CartItem } from '../../services/cart.service';
 import { OrderService } from '../../services/order.service';
 import { OrderCreate } from '../../models/order.model';
 import { User } from '../../models/user.model';
-
-
 
 @Component({
   selector: 'app-checkout',
@@ -5931,7 +5930,8 @@ import { User } from '../../models/user.model';
     AccordionModule,
     ProgressBarModule,
     BadgeModule,
-    TagModule
+    TagModule,
+    TranslateModule
   ],
   providers: [MessageService],
   templateUrl: './checkout.component.html',
@@ -5942,19 +5942,19 @@ export class CheckoutComponent implements OnInit {
   cartItems: CartItem[] = [];
   currentUser: User | null = null;
   isSubmitting = false;
-accordionExpanded = false;
+  accordionExpanded = false;
 
-toggleShippingAccordion() {
-  this.accordionExpanded = !this.accordionExpanded;
-}
+  toggleShippingAccordion() {
+    this.accordionExpanded = !this.accordionExpanded;
+  }
 
-getFormCompletionPercentage() {
-  const controls = ['fullName', 'phone', 'address'];
-  const completed = controls.filter(control => 
-    this.checkoutForm.get(control)?.value?.trim()
-  ).length;
-  return Math.round((completed / controls.length) * 100);
-}
+  getFormCompletionPercentage() {
+    const controls = ['fullName', 'phone', 'address'];
+    const completed = controls.filter(control => 
+      this.checkoutForm.get(control)?.value?.trim()
+    ).length;
+    return Math.round((completed / controls.length) * 100);
+  }
 
   constructor(
     private fb: FormBuilder,
@@ -5962,7 +5962,8 @@ getFormCompletionPercentage() {
     private authService: AuthService,
     private cartService: CartService,
     private orderService: OrderService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private translateService: TranslateService
   ) {
     this.checkoutForm = this.fb.group({
       fullName: ['', Validators.required],
@@ -5978,8 +5979,8 @@ getFormCompletionPercentage() {
     if (!this.currentUser) {
       this.messageService.add({
         severity: 'error',
-        summary: 'Authentication Error',
-        detail: 'You must be logged in to checkout'
+        summary: this.translateService.instant('checkout.auth_required'),
+        detail: this.translateService.instant('checkout.auth_required_message')
       });
       this.router.navigate(['/login'], { queryParams: { returnUrl: '/checkout' }});
       return;
@@ -5992,8 +5993,8 @@ getFormCompletionPercentage() {
       if (items.length === 0) {
         this.messageService.add({
           severity: 'info',
-          summary: 'Empty Cart',
-          detail: 'Your cart is empty. Add some products before checkout.'
+          summary: this.translateService.instant('checkout.empty_cart'),
+          detail: this.translateService.instant('checkout.empty_cart_message')
         });
         this.router.navigate(['/products']);
         return;
@@ -6040,8 +6041,8 @@ getFormCompletionPercentage() {
     if (!this.currentUser) {
       this.messageService.add({
         severity: 'error',
-        summary: 'Authentication Error',
-        detail: 'You must be logged in to checkout'
+        summary: this.translateService.instant('checkout.auth_required'),
+        detail: this.translateService.instant('checkout.auth_required_message')
       });
       return;
     }
@@ -6061,8 +6062,8 @@ getFormCompletionPercentage() {
       next: (order) => {
         this.messageService.add({
           severity: 'success',
-          summary: 'Order Placed',
-          detail: `Your order #${order.id} has been placed successfully!`
+          summary: this.translateService.instant('checkout.order_placed'),
+          detail: this.translateService.instant('checkout.order_placed_message', { orderNumber: order.id })
         });
         
         // Clear cart after successful order
@@ -6078,7 +6079,7 @@ getFormCompletionPercentage() {
         console.error('Error creating order:', error);
         this.isSubmitting = false;
         
-        let errorMessage = 'Failed to place order. Please try again.';
+        let errorMessage = this.translateService.instant('checkout.order_error_default');
         
         if (error.error && error.error.detail) {
           errorMessage = error.error.detail;
@@ -6086,7 +6087,7 @@ getFormCompletionPercentage() {
         
         this.messageService.add({
           severity: 'error',
-          summary: 'Order Error',
+          summary: this.translateService.instant('checkout.order_error'),
           detail: errorMessage
         });
       }
@@ -6250,7 +6251,7 @@ describe('CartComponent', () => {
 === frontend/src/app/pages/cart/cart.component.ts ===
 
 // src/app/pages/cart/cart.component.ts
-import { Component, OnInit, inject, signal, computed, effect, OnDestroy } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink, Router } from '@angular/router';
@@ -6262,6 +6263,7 @@ import { TagModule } from 'primeng/tag';
 import { DividerModule } from 'primeng/divider';
 import { TooltipModule } from 'primeng/tooltip';
 import { SelectModule } from 'primeng/select';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
 
 import { CartService, CartItem } from '../../services/cart.service';
@@ -6280,11 +6282,11 @@ import { AuthService } from '../../services/auth.service';
     TagModule,
     DividerModule,
     TooltipModule,
-    SelectModule
+    SelectModule,
+    TranslateModule
   ],
   providers: [MessageService],
   templateUrl: './cart.component.html',
-
 })
 export class CartComponent implements OnInit, OnDestroy {
   // Dependency injection
@@ -6292,6 +6294,7 @@ export class CartComponent implements OnInit, OnDestroy {
   private authService = inject(AuthService);
   private messageService = inject(MessageService);
   private router = inject(Router);
+  private translateService = inject(TranslateService);
   
   // Signals
   cartItems = signal<CartItem[]>([]);
@@ -6346,8 +6349,8 @@ export class CartComponent implements OnInit, OnDestroy {
         console.error('Error loading cart:', error);
         this.messageService.add({
           severity: 'error',
-          summary: 'Error',
-          detail: 'Failed to load cart items'
+          summary: this.translateService.instant('common.error'),
+          detail: this.translateService.instant('cart.errors.failed_to_load')
         });
         this.loading.set(false);
       }
@@ -6377,8 +6380,8 @@ export class CartComponent implements OnInit, OnDestroy {
         console.error('Error updating quantity:', error);
         this.messageService.add({
           severity: 'error',
-          summary: 'Error',
-          detail: 'Failed to update quantity'
+          summary: this.translateService.instant('common.error'),
+          detail: this.translateService.instant('cart.errors.update_failed')
         });
         // Reset the select value to match the item's actual quantity
         this.productQuantities[item.id] = item.quantity;
@@ -6389,12 +6392,12 @@ export class CartComponent implements OnInit, OnDestroy {
   removeItem(itemId: string) {
     this.cartService.removeCartItem(itemId).subscribe({
       next: () => {
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Removed',
-          detail: 'Item removed from cart',
-          life: 300
-        });
+        // this.messageService.add({
+        //   severity: 'success',
+        //   summary: this.translateService.instant('cart.item_removed'),
+        //   detail: this.translateService.instant('cart.item_removed_message'),
+        //   life: 3000
+        // });
         // Clean up the quantities object
         delete this.productQuantities[itemId];
       },
@@ -6402,8 +6405,8 @@ export class CartComponent implements OnInit, OnDestroy {
         console.error('Error removing item:', error);
         this.messageService.add({
           severity: 'error',
-          summary: 'Error',
-          detail: 'Failed to remove item'
+          summary: this.translateService.instant('common.error'),
+          detail: this.translateService.instant('cart.errors.remove_failed')
         });
       }
     });
@@ -6414,8 +6417,8 @@ export class CartComponent implements OnInit, OnDestroy {
       next: () => {
         this.messageService.add({
           severity: 'success',
-          summary: 'Cart Cleared',
-          detail: 'All items have been removed from your cart'
+          summary: this.translateService.instant('cart.cart_cleared'),
+          detail: this.translateService.instant('cart.cart_cleared_message')
         });
         // Reset quantities
         this.productQuantities = {};
@@ -6424,8 +6427,8 @@ export class CartComponent implements OnInit, OnDestroy {
         console.error('Error clearing cart:', error);
         this.messageService.add({
           severity: 'error',
-          summary: 'Error',
-          detail: 'Failed to clear cart'
+          summary: this.translateService.instant('common.error'),
+          detail: this.translateService.instant('cart.errors.clear_failed')
         });
       }
     });
@@ -6468,7 +6471,7 @@ export class CartComponent implements OnInit, OnDestroy {
   
   getSelectedQuantityLabel(itemId: string): string {
     const quantity = this.productQuantities[itemId];
-    if (!quantity) return 'Qty';
+    if (!quantity) return this.translateService.instant('products.product.qty');
     
     const item = this.cartItems().find(i => i.id === itemId);
     if (!item) return `${quantity} units`;
@@ -6484,8 +6487,8 @@ export class CartComponent implements OnInit, OnDestroy {
     if (this.cartItemCount() === 0) {
       this.messageService.add({
         severity: 'info',
-        summary: 'Empty Cart',
-        detail: 'Your cart is empty. Add some products before checkout.'
+        summary: this.translateService.instant('cart.empty'),
+        detail: this.translateService.instant('cart.empty_checkout_message')
       });
       return;
     }
@@ -6497,8 +6500,8 @@ export class CartComponent implements OnInit, OnDestroy {
       // User is not logged in, redirect to login with returnUrl
       this.messageService.add({
         severity: 'info', 
-        summary: 'Login Required', 
-        detail: 'Please login or register to continue with checkout.'
+        summary: this.translateService.instant('cart.login_required'), 
+        detail: this.translateService.instant('cart.login_message')
       });
       
       // Save the return URL
@@ -8113,6 +8116,7 @@ export const environment = {
     "empty_message": "لم تقم بإضافة أي منتجات إلى سلتك بعد",
     "shop_now": "تسوق الآن",
     "item_count": "عنصر/عناصر",
+    "items_with_count": "عناصر",
     "subtotal": "المجموع الفرعي",
     "checkout": "إتمام الطلب",
     "continue_shopping": "متابعة التسوق",
@@ -8123,7 +8127,19 @@ export const environment = {
     "cart_cleared": "تم مسح السلة",
     "quantity_updated": "تم تحديث الكمية",
     "login_required": "تسجيل الدخول مطلوب",
-    "login_message": "يرجى تسجيل الدخول أو إنشاء حساب للمتابعة"
+    "login_message": "يرجى تسجيل الدخول أو إنشاء حساب للمتابعة",
+    "order_summary": "ملخص الطلب",
+    "shipping": "الشحن",
+    "free": "مجاني",
+    "empty_checkout_message": "يرجى إضافة منتجات إلى سلتك قبل إتمام الطلب",
+    "item_removed_message": "تم إزالة العنصر من سلتك",
+    "cart_cleared_message": "تم حذف جميع العناصر من سلتك",
+    "table": {
+      "product": "المنتج",
+      "actions": "الإجراءات",
+      "class": "text-right"
+      
+    }
   },
   "auth": {
     "login_title": "تسجيل الدخول",
@@ -8187,15 +8203,26 @@ export const environment = {
     "subtotal": "المجموع الفرعي",
     "delivery_fee": "رسوم التوصيل",
     "free": "مجاني",
+    "shipping": "الشحن",
     "total": "المجموع الكلي",
     "place_order": "تأكيد الطلب",
     "secure_checkout": "دفع آمن ومحمي",
     "order_placed": "تم تأكيد طلبك بنجاح!",
+    "order_placed_message": "تم تقديم طلبك رقم #{{orderNumber}} بنجاح!",
     "processing": "جاري معالجة طلبك...",
     "empty_cart": "سلتك فارغة",
     "empty_cart_message": "يرجى إضافة منتجات إلى سلتك قبل إتمام الطلب",
     "auth_required": "تسجيل الدخول مطلوب",
-    "auth_required_message": "يجب تسجيل الدخول لإتمام عملية الشراء"
+    "auth_required_message": "يجب تسجيل الدخول لإتمام عملية الشراء",
+    "order_error": "خطأ في الطلب",
+    "order_error_default": "فشل في تقديم الطلب. يرجى المحاولة مرة أخرى.",
+    "view_shipping_details": "عرض تفاصيل الشحن",
+    "hide_shipping_details": "إخفاء تفاصيل الشحن",
+    "default_name": "أحمد محمد",
+    "default_phone": "+966 50 123 4567",
+    "default_address_line1": "شارع الملك فهد، حي العليا",
+    "default_address_line2": "الرياض 12234",
+    "default_address_line3": "المملكة العربية السعودية"
   },
   "orders": {
     "title": "طلباتي",
@@ -8499,6 +8526,7 @@ export const environment = {
     "empty_message": "You haven't added any products to your cart yet",
     "shop_now": "Shop Now",
     "item_count": "item(s)",
+    "items_with_count": "Items",
     "subtotal": "Subtotal",
     "checkout": "Checkout",
     "continue_shopping": "Continue Shopping",
@@ -8509,7 +8537,17 @@ export const environment = {
     "cart_cleared": "Cart cleared",
     "quantity_updated": "Quantity updated",
     "login_required": "Login Required",
-    "login_message": "Please login or register to continue with checkout"
+    "login_message": "Please login or register to continue with checkout",
+    "order_summary": "Order Summary",
+    "shipping": "Shipping",
+    "free": "Free",
+    "empty_checkout_message": "Please add some products to your cart before checkout",
+    "item_removed_message": "Item has been removed from your cart",
+    "cart_cleared_message": "All items have been removed from your cart",
+    "table": {
+      "product": "Product",
+      "actions": "Actions"
+    }
   },
   "auth": {
     "login_title": "Login",
@@ -8573,15 +8611,27 @@ export const environment = {
     "subtotal": "Subtotal",
     "delivery_fee": "Delivery Fee",
     "free": "Free",
+    "shipping": "Shipping",
     "total": "Total",
-    "place_order": "Place Order",
+    "place_order": "Complete Order",
     "secure_checkout": "Secure & Protected Payment",
-    "order_placed": "Your order has been placed successfully!",
+    "order_placed": "Order Placed Successfully!",
+    "order_placed_message": "Your order #{{orderNumber}} has been placed successfully!",
     "processing": "Processing your order...",
     "empty_cart": "Your cart is empty",
     "empty_cart_message": "Please add some products to your cart before checkout",
     "auth_required": "Authentication Required",
-    "auth_required_message": "You must be logged in to checkout"
+    "auth_required_message": "You must be logged in to checkout",
+    "order_error": "Order Error",
+    "order_error_default": "Failed to place order. Please try again.",
+    "view_shipping_details": "View Shipping Information",
+    "hide_shipping_details": "Hide Shipping Details",
+    "default_name": "John Doe",
+    "default_phone": "+1 (555) 123-4567",
+    "default_address_line1": "123 Main Street, Apt 4B",
+    "default_address_line2": "New York, NY 10001",
+    "default_address_line3": "United States"
+
   },
   "orders": {
     "title": "My Orders",
@@ -8882,6 +8932,7 @@ export const environment = {
     "empty_message": "Vous n'avez pas encore ajouté de produits à votre panier",
     "shop_now": "Acheter Maintenant",
     "item_count": "article(s)",
+    "items_with_count": "Articles ",
     "subtotal": "Sous-total",
     "checkout": "Passer la commande",
     "continue_shopping": "Continuer les Achats",
@@ -8892,7 +8943,17 @@ export const environment = {
     "cart_cleared": "Panier vidé",
     "quantity_updated": "Quantité mise à jour",
     "login_required": "Connexion Requise",
-    "login_message": "Veuillez vous connecter ou vous inscrire pour continuer"
+    "login_message": "Veuillez vous connecter ou vous inscrire pour continuer",
+    "order_summary": "Résumé de Commande",
+    "shipping": "Livraison",
+    "free": "Gratuit",
+    "empty_checkout_message": "Veuillez ajouter des produits à votre panier avant de passer commande",
+    "item_removed_message": "L'article a été retiré de votre panier",
+    "cart_cleared_message": "Tous les articles ont été supprimés de votre panier",
+    "table": {
+      "product": "Produit",
+      "actions": "Actions"
+    }
   },
   "auth": {
     "login_title": "Connexion",
@@ -8956,15 +9017,26 @@ export const environment = {
     "subtotal": "Sous-total",
     "delivery_fee": "Frais de Livraison",
     "free": "Gratuit",
+    "shipping": "Livraison",
     "total": "Total",
-    "place_order": "Passer la Commande",
+    "place_order": "Finaliser la Commande",
     "secure_checkout": "Paiement Sécurisé et Protégé",
-    "order_placed": "Votre commande a été passée avec succès !",
+    "order_placed": "Commande Passée avec Succès!",
+    "order_placed_message": "Votre commande #{{orderNumber}} a été passée avec succès!",
     "processing": "Traitement de votre commande...",
     "empty_cart": "Votre panier est vide",
     "empty_cart_message": "Veuillez ajouter des produits à votre panier avant de passer commande",
     "auth_required": "Authentification Requise",
-    "auth_required_message": "Vous devez être connecté pour passer commande"
+    "auth_required_message": "Vous devez être connecté pour passer commande",
+    "order_error": "Erreur de Commande",
+    "order_error_default": "Échec de la commande. Veuillez réessayer.",
+    "view_shipping_details": "Voir les Détails de Livraison",
+    "hide_shipping_details": "Masquer les Détails de Livraison",
+    "default_name": "Jean Dupont",
+    "default_phone": "+33 1 23 45 67 89",
+    "default_address_line1": "123 Rue de la Paix, Apt 4B",
+    "default_address_line2": "75001 Paris",
+    "default_address_line3": "France"
   },
   "orders": {
     "title": "Mes Commandes",

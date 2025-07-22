@@ -310,3 +310,20 @@ code, pre {
 .language-panel {
   z-index: 99999 !important;
 }
+
+
+// Add this minimal CSS to your src/styles.scss
+
+// Bottom Navigation - Mobile Only
+@media (max-width: 968px) {
+  // Add bottom padding to account for bottom nav
+  .content-height {
+    padding-bottom: 80px !important; // Space for bottom nav
+  }
+}
+
+// Bottom nav z-index (higher than content, lower than dialogs)
+.bottom-nav {
+  z-index: 1000 !important;
+}
+
