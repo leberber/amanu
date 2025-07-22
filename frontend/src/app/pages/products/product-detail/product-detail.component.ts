@@ -11,10 +11,10 @@ import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
-// import { TabViewModule } from 'primeng/tabview';
 import { TagModule } from 'primeng/tag';
 import { SelectModule } from 'primeng/select';
 import { BadgeModule } from 'primeng/badge';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 // Services and models
 import { ProductService } from '../../../services/product.service';
@@ -32,10 +32,10 @@ import { Product, Category } from '../../../models/product.model';
     ButtonModule,
     CardModule,
     ToastModule,
-    // TabViewModule,
     TagModule,
     SelectModule,
-    BadgeModule
+    BadgeModule,
+    TranslateModule
   ],
   providers: [MessageService],
   templateUrl: './product-detail.component.html'
@@ -47,6 +47,7 @@ export class ProductDetailComponent implements OnInit {
   private productService = inject(ProductService);
   private cartService = inject(CartService);
   private messageService = inject(MessageService);
+  private translateService = inject(TranslateService);
   public authService = inject(AuthService);
   
   // Signals
@@ -69,14 +70,23 @@ export class ProductDetailComponent implements OnInit {
     const product = this.product();
     return product ? (product.stock_quantity > 0 && product.stock_quantity < 10) : false;
   });
-  
-  stockMessage = computed(() => {
-    const product = this.product();
-    if (!product) return '';
+
+  // Computed property for low stock translation parameters
+  lowStockParams = computed(() => {
+    const currentProduct = this.product();
+    if (!currentProduct) return { count: 0 };
     
-    return this.isOutOfStock() 
-      ? 'Out of stock' 
-      : `Only ${product.stock_quantity} left in stock`;
+    return {
+      count: currentProduct.stock_quantity
+    };
+  });
+
+  // Computed property for unit display
+  unitDisplay = computed(() => {
+    const currentProduct = this.product();
+    if (!currentProduct) return '';
+    
+    return this.getUnitDisplay(currentProduct.unit);
   });
 
   ngOnInit() {
@@ -95,8 +105,8 @@ export class ProductDetailComponent implements OnInit {
             this.loading.set(false);
             this.messageService.add({
               severity: 'error',
-              summary: 'Error',
-              detail: 'Failed to load product'
+              summary: this.translateService.instant('common.error'),
+              detail: this.translateService.instant('products.errors.failed_to_load')
             });
             return of(null);
           })
@@ -146,8 +156,12 @@ export class ProductDetailComponent implements OnInit {
       next: () => {
         this.messageService.add({
           severity: 'success',
-          summary: 'Added to Cart',
-          detail: `${quantity} ${this.getUnitDisplay(currentProduct.unit)} of ${currentProduct.name} added to your cart`,
+          summary: this.translateService.instant('products.cart.added_to_cart'),
+          detail: this.translateService.instant('products.cart.added_message', {
+            quantity: quantity,
+            unit: this.getUnitDisplay(currentProduct.unit),
+            name: currentProduct.name
+          }),
           life: 3000
         });
       },
@@ -155,8 +169,8 @@ export class ProductDetailComponent implements OnInit {
         console.error('Error adding to cart:', error);
         this.messageService.add({
           severity: 'error',
-          summary: 'Error',
-          detail: 'Failed to add item to cart',
+          summary: this.translateService.instant('common.error'),
+          detail: this.translateService.instant('products.cart.error'),
           life: 3000
         });
       }
@@ -180,8 +194,12 @@ export class ProductDetailComponent implements OnInit {
       next: () => {
         this.messageService.add({
           severity: 'success',
-          summary: 'Added to Cart',
-          detail: `${quantity} ${this.getUnitDisplay(product.unit)} of ${product.name} added to your cart`,
+          summary: this.translateService.instant('products.cart.added_to_cart'),
+          detail: this.translateService.instant('products.cart.added_message', {
+            quantity: quantity,
+            unit: this.getUnitDisplay(product.unit),
+            name: product.name
+          }),
           life: 3000
         });
       },
@@ -189,8 +207,8 @@ export class ProductDetailComponent implements OnInit {
         console.error('Error adding to cart:', error);
         this.messageService.add({
           severity: 'error',
-          summary: 'Error',
-          detail: 'Failed to add item to cart',
+          summary: this.translateService.instant('common.error'),
+          detail: this.translateService.instant('products.cart.error'),
           life: 3000
         });
       }
@@ -241,7 +259,7 @@ export class ProductDetailComponent implements OnInit {
   // Get the display label for the selected quantity
   getSelectedQuantityLabel(productId: number): string {
     const quantity = this.productQuantities[productId];
-    if (!quantity) return 'Select quantity';
+    if (!quantity) return this.translateService.instant('products.product.select_quantity');
     
     const products = this.relatedProducts();
     const product = products.find(p => p.id === productId);
@@ -276,8 +294,8 @@ export class ProductDetailComponent implements OnInit {
   // Get stock message for a specific product
   getProductStockMessage(product: Product): string {
     return this.isProductOutOfStock(product) 
-      ? 'Out of stock' 
-      : `Only ${product.stock_quantity} left in stock`;
+      ? this.translateService.instant('products.stock.out_of_stock')
+      : this.translateService.instant('products.stock.low_stock', { count: product.stock_quantity });
   }
   
   // Get stock icon

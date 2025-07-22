@@ -9,6 +9,7 @@ import { TableModule } from 'primeng/table';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { TagModule } from 'primeng/tag';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { OrderService } from '../../../services/order.service';
 import { Order } from '../../../models/order.model';
@@ -23,7 +24,8 @@ import { Order } from '../../../models/order.model';
     CardModule,
     TableModule,
     ToastModule,
-    TagModule
+    TagModule,
+    TranslateModule
   ],
   providers: [MessageService],
   templateUrl: './order-list.component.html',
@@ -36,7 +38,8 @@ export class OrderListComponent implements OnInit {
   constructor(
     private orderService: OrderService,
     private router: Router,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private translateService: TranslateService
   ) {}
 
   ngOnInit() {
@@ -55,8 +58,8 @@ export class OrderListComponent implements OnInit {
         this.loading = false;
         this.messageService.add({
           severity: 'error',
-          summary: 'Error',
-          detail: 'Failed to load your orders'
+          summary: this.translateService.instant('common.error'),
+          detail: this.translateService.instant('orders.errors.failed_to_load')
         });
       }
     });
@@ -68,7 +71,7 @@ export class OrderListComponent implements OnInit {
 
   getStatusSeverity(status: string): "success" | "secondary" | "info" | "warn" | "danger" | "contrast" {
     switch (status) {
-      case 'pending': return 'warn';     // Changed from 'warning' to 'warn'
+      case 'pending': return 'warn';
       case 'confirmed': return 'info';
       case 'shipped': return 'info';
       case 'delivered': return 'success';
@@ -78,6 +81,6 @@ export class OrderListComponent implements OnInit {
   }
 
   getStatusLabel(status: string): string {
-    return status.charAt(0).toUpperCase() + status.slice(1);
+    return this.translateService.instant(`orders.status.${status}`);
   }
 }

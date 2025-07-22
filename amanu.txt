@@ -2973,6 +2973,12 @@ code, pre {
 //   transition: margin 0.3s ease, padding 0.3s ease;
 // }
 
+.p-select-overlay,
+.p-select-panel,
+.language-panel {
+  z-index: 99999 !important;
+}
+
 === frontend/src/app/app.component.scss ===
 
 
@@ -3910,7 +3916,8 @@ export interface RegisterRequest {
 // src/app/components/language-selector/language-selector.component.ts
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { SelectModule } from 'primeng/select';
+import { ButtonModule } from 'primeng/button';
+import { DialogModule } from 'primeng/dialog';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { TranslationService, Language } from '../../services/translation.service';
@@ -3920,21 +3927,50 @@ import { TranslationService, Language } from '../../services/translation.service
   standalone: true,
   imports: [
     CommonModule,
-    SelectModule,
+    ButtonModule,
+    DialogModule,
     TranslateModule
   ],
   template: `
     <div class="language-selector">
-      <p-select
-        [options]="languageOptions()"
-        [ngModel]="getCurrentLanguageCode()"
-        (ngModelChange)="changeLanguage($event)"
-        optionLabel="label"
-        optionValue="code"
-        [placeholder]="'language.select' | translate"
-        styleClass="language-select"
-        panelStyleClass="language-panel"
+      <!-- Language trigger button -->
+      <p-button 
+        [label]="getCurrentLanguageDisplay()" 
+        (onClick)="showLanguageDialog = true"
+        severity="secondary"
+        text
+        size="small"
+        styleClass="language-trigger"
       />
+      
+      <!-- Language selection dialog -->
+      <p-dialog 
+        [(visible)]="showLanguageDialog"
+        [header]="'language.select' | translate"
+        [modal]="true"
+        [closable]="true"
+        [draggable]="false"
+        [resizable]="false"
+        [blockScroll]="true"
+        [dismissableMask]="true"
+        [closeOnEscape]="true"
+        styleClass="language-dialog"
+        [style]="{width: '300px'}"
+        appendTo="body"
+      >
+        <div class="language-options">
+          <div 
+            *ngFor="let language of languageOptions()" 
+            class="language-option"
+            [class.selected]="language.code === getCurrentLanguageCode()"
+            (click)="selectLanguage(language.code)"
+          >
+            <span class="language-flag">{{ getLanguageFlag(language.code) }}</span>
+            <span class="language-name">{{ getLanguageName(language.code) }}</span>
+            <i *ngIf="language.code === getCurrentLanguageCode()" class="pi pi-check language-check"></i>
+          </div>
+        </div>
+      </p-dialog>
     </div>
   `,
   styles: [`
@@ -3942,25 +3978,64 @@ import { TranslationService, Language } from '../../services/translation.service
       min-width: 120px;
     }
 
-    :host ::ng-deep .language-select {
+    .language-trigger {
       min-width: 120px;
     }
 
-    :host ::ng-deep .language-select .p-select-label {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
+    :host ::ng-deep .language-dialog {
+      z-index: 999999 !important;
     }
 
-    :host ::ng-deep .language-panel {
-      min-width: 150px;
+    :host ::ng-deep .language-dialog .p-dialog-mask {
+      z-index: 999998 !important;
+      background-color: rgba(0, 0, 0, 0.4) !important;
     }
 
-    :host ::ng-deep .language-panel .p-select-option {
+    :host ::ng-deep .language-dialog .p-dialog-content {
+      padding: 0;
+    }
+
+    .language-options {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .language-option {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
-      padding: 0.5rem 0.75rem;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+      border-bottom: 1px solid var(--surface-border);
+    }
+
+    .language-option:last-child {
+      border-bottom: none;
+    }
+
+    .language-option:hover {
+      background-color: var(--surface-hover);
+    }
+
+    .language-option.selected {
+      background-color: var(--primary-50);
+      color: var(--primary-color);
+    }
+
+    .language-flag {
+      font-size: 1.2rem;
+      min-width: 24px;
+    }
+
+    .language-name {
+      flex: 1;
+      font-weight: 500;
+    }
+
+    .language-check {
+      color: var(--primary-color);
+      font-weight: bold;
     }
   `]
 })
@@ -3970,6 +4045,9 @@ export class LanguageSelectorComponent {
 
   // Signal for select options
   languageOptions = signal<{code: string, label: string}[]>([]);
+  
+  // Control dialog visibility
+  showLanguageDialog = false;
 
   constructor() {
     this.buildLanguageOptions();
@@ -3989,14 +4067,28 @@ export class LanguageSelectorComponent {
     this.languageOptions.set(options);
   }
 
-  changeLanguage(languageCode: string): void {
-    if (languageCode) {
-      this.translationService.setLanguage(languageCode);
-    }
+  selectLanguage(languageCode: string): void {
+    this.translationService.setLanguage(languageCode);
+    this.showLanguageDialog = false; // Close dialog after selection
   }
 
   getCurrentLanguageCode(): string {
     return this.translationService.getCurrentLanguage();
+  }
+
+  getCurrentLanguageDisplay(): string {
+    const currentLang = this.translationService.getCurrentLanguageObject();
+    return `${currentLang.flag} ${currentLang.name}`;
+  }
+
+  getLanguageFlag(code: string): string {
+    const language = this.translationService.availableLanguages.find(lang => lang.code === code);
+    return language?.flag || '';
+  }
+
+  getLanguageName(code: string): string {
+    const language = this.translationService.availableLanguages.find(lang => lang.code === code);
+    return language?.name || '';
   }
 }
 
@@ -4038,31 +4130,32 @@ import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [RouterLink, ButtonModule, CardModule],
+  imports: [RouterLink, ButtonModule, CardModule, TranslateModule],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'
 })
 export class HomeComponent {
   categories = [
     { 
-      name: 'Fresh Fruits', 
-      description: 'Fresh and seasonal fruits', 
+      name: 'home.categories.fresh_fruits.name',
+      description: 'home.categories.fresh_fruits.description',
       image: 'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?auto=format&fit=crop&w=1470&q=80',
       link: '/products?category=1'
     },
     { 
-      name: 'Fresh Vegetables', 
-      description: 'Fresh and seasonal vegetables', 
+      name: 'home.categories.fresh_vegetables.name',
+      description: 'home.categories.fresh_vegetables.description',
       image: 'https://images.unsplash.com/photo-1518843875459-f738682238a6?auto=format&fit=crop&w=1442&q=80',
       link: '/products?category=2'
     },
     { 
-      name: 'Organic Produce', 
-      description: 'Certified organic fruits and vegetables', 
+      name: 'home.categories.organic_produce.name',
+      description: 'home.categories.organic_produce.description',
       image: 'https://images.unsplash.com/photo-1576675466969-38eeae4b41f6?auto=format&fit=crop&w=1442&q=80',
       link: '/products?category=3'
     }
@@ -4119,6 +4212,7 @@ import { MessageService } from 'primeng/api';
 import { TagModule } from 'primeng/tag';
 import { SelectModule } from 'primeng/select';
 import { BadgeModule } from 'primeng/badge';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 // Services and models
 import { ProductService } from '../../../services/product.service';
@@ -4139,7 +4233,8 @@ import { Product, Category } from '../../../models/product.model';
     // TabViewModule,
     TagModule,
     SelectModule,
-    BadgeModule
+    BadgeModule,
+    TranslateModule
   ],
   providers: [MessageService],
   templateUrl: './product-detail.component.html'
@@ -4151,6 +4246,7 @@ export class ProductDetailComponent implements OnInit {
   private productService = inject(ProductService);
   private cartService = inject(CartService);
   private messageService = inject(MessageService);
+  private translateService = inject(TranslateService);
   public authService = inject(AuthService);
   
   // Signals
@@ -4179,8 +4275,8 @@ export class ProductDetailComponent implements OnInit {
     if (!product) return '';
     
     return this.isOutOfStock() 
-      ? 'Out of stock' 
-      : `Only ${product.stock_quantity} left in stock`;
+      ? this.translateService.instant('products.stock.out_of_stock')
+      : this.translateService.instant('products.stock.low_stock', { count: product.stock_quantity });
   });
 
   ngOnInit() {
@@ -4199,8 +4295,8 @@ export class ProductDetailComponent implements OnInit {
             this.loading.set(false);
             this.messageService.add({
               severity: 'error',
-              summary: 'Error',
-              detail: 'Failed to load product'
+              summary: this.translateService.instant('common.error'),
+              detail: this.translateService.instant('products.errors.failed_to_load')
             });
             return of(null);
           })
@@ -4250,8 +4346,12 @@ export class ProductDetailComponent implements OnInit {
       next: () => {
         this.messageService.add({
           severity: 'success',
-          summary: 'Added to Cart',
-          detail: `${quantity} ${this.getUnitDisplay(currentProduct.unit)} of ${currentProduct.name} added to your cart`,
+          summary: this.translateService.instant('products.cart.added_to_cart'),
+          detail: this.translateService.instant('products.cart.added_message', {
+            quantity: quantity,
+            unit: this.getUnitDisplay(currentProduct.unit),
+            name: currentProduct.name
+          }),
           life: 3000
         });
       },
@@ -4259,8 +4359,8 @@ export class ProductDetailComponent implements OnInit {
         console.error('Error adding to cart:', error);
         this.messageService.add({
           severity: 'error',
-          summary: 'Error',
-          detail: 'Failed to add item to cart',
+          summary: this.translateService.instant('common.error'),
+          detail: this.translateService.instant('products.cart.error'),
           life: 3000
         });
       }
@@ -4284,8 +4384,12 @@ export class ProductDetailComponent implements OnInit {
       next: () => {
         this.messageService.add({
           severity: 'success',
-          summary: 'Added to Cart',
-          detail: `${quantity} ${this.getUnitDisplay(product.unit)} of ${product.name} added to your cart`,
+          summary: this.translateService.instant('products.cart.added_to_cart'),
+          detail: this.translateService.instant('products.cart.added_message', {
+            quantity: quantity,
+            unit: this.getUnitDisplay(product.unit),
+            name: product.name
+          }),
           life: 3000
         });
       },
@@ -4293,8 +4397,8 @@ export class ProductDetailComponent implements OnInit {
         console.error('Error adding to cart:', error);
         this.messageService.add({
           severity: 'error',
-          summary: 'Error',
-          detail: 'Failed to add item to cart',
+          summary: this.translateService.instant('common.error'),
+          detail: this.translateService.instant('products.cart.error'),
           life: 3000
         });
       }
@@ -4345,7 +4449,7 @@ export class ProductDetailComponent implements OnInit {
   // Get the display label for the selected quantity
   getSelectedQuantityLabel(productId: number): string {
     const quantity = this.productQuantities[productId];
-    if (!quantity) return 'Select quantity';
+    if (!quantity) return this.translateService.instant('products.product.select_quantity');
     
     const products = this.relatedProducts();
     const product = products.find(p => p.id === productId);
@@ -4380,8 +4484,8 @@ export class ProductDetailComponent implements OnInit {
   // Get stock message for a specific product
   getProductStockMessage(product: Product): string {
     return this.isProductOutOfStock(product) 
-      ? 'Out of stock' 
-      : `Only ${product.stock_quantity} left in stock`;
+      ? this.translateService.instant('products.stock.out_of_stock')
+      : this.translateService.instant('products.stock.low_stock', { count: product.stock_quantity });
   }
   
   // Get stock icon
@@ -4497,6 +4601,7 @@ import { AccordionModule } from 'primeng/accordion';
 import { MenuModule } from 'primeng/menu';
 import { SelectModule } from 'primeng/select';
 import { BadgeModule } from 'primeng/badge';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 // Services and models
 import { CartService } from '../../../services/cart.service';
@@ -4529,12 +4634,12 @@ interface LayoutOption {
     SelectButtonModule,
     CheckboxModule,
     MenuModule,
-    SelectModule
+    SelectModule,
+    TranslateModule
   ],
   providers: [MessageService],
   templateUrl: './product-list.component.html',
   styleUrl: './product-list.component.scss'
-
 })
 export class ProductListComponent implements OnInit {
   // Services
@@ -4542,6 +4647,7 @@ export class ProductListComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private messageService = inject(MessageService);
   private cartService = inject(CartService);
+  private translateService = inject(TranslateService);
   
   // Signals
   products = signal<Product[]>([]);
@@ -4566,14 +4672,16 @@ export class ProductListComponent implements OnInit {
     sort_order: 'asc'
   });
   
-  // Sort options
-  sortOptions: SortOption[] = [
-    { label: 'Name A-Z', value: 'name_asc' },
-    { label: 'Name Z-A', value: 'name_desc' },
-    { label: 'Price Low to High', value: 'price_asc' },
-    { label: 'Price High to Low', value: 'price_desc' },
-    { label: 'Newest First', value: 'created_at_desc' }
-  ];
+  // Sort options - now using translations
+  get sortOptions(): SortOption[] {
+    return [
+      { label: this.translateService.instant('products.sort.name_asc'), value: 'name_asc' },
+      { label: this.translateService.instant('products.sort.name_desc'), value: 'name_desc' },
+      { label: this.translateService.instant('products.sort.price_asc'), value: 'price_asc' },
+      { label: this.translateService.instant('products.sort.price_desc'), value: 'price_desc' },
+      { label: this.translateService.instant('products.sort.created_at_desc'), value: 'created_at_desc' }
+    ];
+  }
   
   // Computed sort menu items for mobile based on sort options
   sortMenuItems = computed(() => {
@@ -4718,8 +4826,8 @@ export class ProductListComponent implements OnInit {
       error: () => {
         this.messageService.add({
           severity: 'error',
-          summary: 'Error',
-          detail: 'Failed to load categories'
+          summary: this.translateService.instant('common.error'),
+          detail: this.translateService.instant('products.filters.error')
         });
         this.loading.set(false);
       }
@@ -4903,17 +5011,21 @@ export class ProductListComponent implements OnInit {
       next: () => {
         this.messageService.add({
           severity: 'success',
-          summary: 'Added to Cart',
-          detail: `${actualQuantity} ${this.getUnitDisplay(product.unit)} of ${product.name} added to your cart`,
-          life: 300
+          summary: this.translateService.instant('products.cart.added_to_cart'),
+          detail: this.translateService.instant('products.cart.added_message', {
+            quantity: actualQuantity,
+            unit: this.getUnitDisplay(product.unit),
+            name: product.name
+          }),
+          life: 3000
         });
       },
       error: (error) => {
         console.error('Error adding to cart:', error);
         this.messageService.add({
           severity: 'error',
-          summary: 'Error',
-          detail: 'Failed to add item to cart',
+          summary: this.translateService.instant('common.error'),
+          detail: this.translateService.instant('products.cart.error'),
           life: 3000
         });
       }
@@ -4994,7 +5106,7 @@ export class ProductListComponent implements OnInit {
   // Get the display label for the selected quantity with dynamic unit
   getSelectedQuantityLabel(productId: number): string {
     const quantity = this.productQuantities[productId];
-    if (!quantity) return 'Select quantity';
+    if (!quantity) return this.translateService.instant('products.product.select_quantity');
     
     const product = this.products().find(p => p.id === productId);
     if (!product) return `${quantity} units`;
@@ -5015,8 +5127,8 @@ export class ProductListComponent implements OnInit {
   // Get stock message
   getStockMessage(product: Product): string {
     return this.isOutOfStock(product) 
-      ? 'Out of stock' 
-      : `Only ${product.stock_quantity} left in stock`;
+      ? this.translateService.instant('products.stock.out_of_stock')
+      : this.translateService.instant('products.stock.low_stock', { count: product.stock_quantity });
   }
   
   // Get stock icon
@@ -6446,6 +6558,7 @@ import { TableModule } from 'primeng/table';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { TagModule } from 'primeng/tag';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { OrderService } from '../../../services/order.service';
 import { Order } from '../../../models/order.model';
@@ -6460,7 +6573,8 @@ import { Order } from '../../../models/order.model';
     CardModule,
     TableModule,
     ToastModule,
-    TagModule
+    TagModule,
+    TranslateModule
   ],
   providers: [MessageService],
   templateUrl: './order-list.component.html',
@@ -6473,7 +6587,8 @@ export class OrderListComponent implements OnInit {
   constructor(
     private orderService: OrderService,
     private router: Router,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private translateService: TranslateService
   ) {}
 
   ngOnInit() {
@@ -6492,8 +6607,8 @@ export class OrderListComponent implements OnInit {
         this.loading = false;
         this.messageService.add({
           severity: 'error',
-          summary: 'Error',
-          detail: 'Failed to load your orders'
+          summary: this.translateService.instant('common.error'),
+          detail: this.translateService.instant('orders.errors.failed_to_load')
         });
       }
     });
@@ -6505,7 +6620,7 @@ export class OrderListComponent implements OnInit {
 
   getStatusSeverity(status: string): "success" | "secondary" | "info" | "warn" | "danger" | "contrast" {
     switch (status) {
-      case 'pending': return 'warn';     // Changed from 'warning' to 'warn'
+      case 'pending': return 'warn';
       case 'confirmed': return 'info';
       case 'shipped': return 'info';
       case 'delivered': return 'success';
@@ -6515,7 +6630,7 @@ export class OrderListComponent implements OnInit {
   }
 
   getStatusLabel(status: string): string {
-    return status.charAt(0).toUpperCase() + status.slice(1);
+    return this.translateService.instant(`orders.status.${status}`);
   }
 }
 
@@ -6825,9 +6940,11 @@ import { PasswordModule } from 'primeng/password';
 import { MessageModule } from 'primeng/message';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
-import { AuthService } from '../../services/auth.service';
 import { CheckboxModule } from 'primeng/checkbox';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { finalize } from 'rxjs';
+
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -6842,10 +6959,111 @@ import { finalize } from 'rxjs';
     MessageModule,
     ToastModule,
     RouterLink,
-    CheckboxModule
+    CheckboxModule,
+    TranslateModule
   ],
   providers: [MessageService],
-  templateUrl: './login.component.html',
+  template: `
+    <div class="flex align-items-center justify-content-center min-h-screen p-4">
+      <p-card styleClass="w-full max-w-md">
+        <ng-template pTemplate="header">
+          <div class="text-center py-4">
+            <h2 class="text-2xl font-bold mb-2">{{ 'auth.login_title' | translate }}</h2>
+            <p class="text-color-secondary">{{ 'auth.login_subtitle' | translate }}</p>
+          </div>
+        </ng-template>
+        
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="p-4">
+          <div class="field mb-4">
+            <label for="username" class="block font-medium mb-2">
+              {{ 'common.email' | translate }} *
+            </label>
+            <input 
+              id="username"
+              type="email" 
+              pInputText 
+              formControlName="username"
+              [placeholder]="'auth.email_placeholder' | translate"
+              [class.ng-invalid]="f['username'].invalid && f['username'].touched"
+              class="w-full"
+            />
+            <small 
+              *ngIf="f['username'].invalid && f['username'].touched" 
+              class="p-error block mt-1"
+            >
+              <span *ngIf="f['username'].errors?.['required']">
+                {{ 'auth.email_required' | translate }}
+              </span>
+              <span *ngIf="f['username'].errors?.['email']">
+                {{ 'auth.email_invalid' | translate }}
+              </span>
+            </small>
+          </div>
+
+          <div class="field mb-4">
+            <label for="password" class="block font-medium mb-2">
+              {{ 'common.password' | translate }} *
+            </label>
+            <p-password
+              id="password"
+              formControlName="password"
+              [placeholder]="'auth.password_placeholder' | translate"
+              [feedback]="false"
+              [toggleMask]="true"
+              styleClass="w-full"
+              inputStyleClass="w-full"
+              [class.ng-invalid]="f['password'].invalid && f['password'].touched"
+            />
+            <small 
+              *ngIf="f['password'].invalid && f['password'].touched" 
+              class="p-error block mt-1"
+            >
+              {{ 'auth.password_required' | translate }}
+            </small>
+          </div>
+
+          <div class="flex align-items-center justify-content-between mb-4">
+            <div class="flex align-items-center">
+              <p-checkbox 
+                formControlName="rememberMe" 
+                binary="true" 
+                inputId="rememberMe"
+              />
+              <label for="rememberMe" class="ml-2">
+                {{ 'auth.remember_me' | translate }}
+              </label>
+            </div>
+            <a 
+              href="#" 
+              class="text-primary font-medium text-sm hover:text-primary-600"
+              (click)="onForgotPassword($event)"
+            >
+              {{ 'auth.forgot_password' | translate }}
+            </a>
+          </div>
+
+          <p-button 
+            type="submit" 
+            [label]="'auth.login' | translate"
+            styleClass="w-full"
+            [loading]="loading"
+            [disabled]="loginForm.invalid"
+          />
+        </form>
+
+        <ng-template pTemplate="footer">
+          <div class="text-center pt-4 border-top-1 surface-border">
+            <span class="text-color-secondary">{{ 'auth.no_account' | translate }}</span>
+            <a routerLink="/register" class="text-primary font-medium ml-2 hover:text-primary-600">
+              {{ 'auth.register_now' | translate }}
+            </a>
+          </div>
+        </ng-template>
+      </p-card>
+      
+      <p-toast />
+    </div>
+  `,
   styleUrl: './login.component.scss'
 })
 export class LoginComponent implements OnInit {
@@ -6858,12 +7076,14 @@ export class LoginComponent implements OnInit {
     private authService: AuthService,
     private router: Router,
     private route: ActivatedRoute,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private translateService: TranslateService
   ) {
     // Initialize form
     this.loginForm = this.fb.group({
       username: ['', [Validators.required, Validators.email]],
-      password: ['', Validators.required]
+      password: ['', Validators.required],
+      rememberMe: [false]
     });
   }
 
@@ -6881,8 +7101,8 @@ export class LoginComponent implements OnInit {
       setTimeout(() => {
         this.messageService.add({
           severity: 'info',
-          summary: 'Session Expired',
-          detail: 'Your session has expired. Please login again to continue.',
+          summary: this.translateService.instant('auth.session_expired_title'),
+          detail: this.translateService.instant('auth.session_expired_message'),
           life: 7000
         });
       }, 300);
@@ -6895,6 +7115,10 @@ export class LoginComponent implements OnInit {
   onSubmit() {
     // Stop here if form is invalid
     if (this.loginForm.invalid) {
+      // Mark all fields as touched to show validation errors
+      Object.keys(this.loginForm.controls).forEach(key => {
+        this.loginForm.get(key)?.markAsTouched();
+      });
       return;
     }
 
@@ -6911,8 +7135,8 @@ export class LoginComponent implements OnInit {
           console.log('Login successful, user:', user);
           this.messageService.add({
             severity: 'success',
-            summary: 'Success',
-            detail: 'Login successful'
+            summary: this.translateService.instant('common.success'),
+            detail: this.translateService.instant('auth.login_success')
           });
           // Navigate to return url
           setTimeout(() => {
@@ -6923,11 +7147,20 @@ export class LoginComponent implements OnInit {
           console.error('Login error:', error);
           this.messageService.add({
             severity: 'error',
-            summary: 'Error',
-            detail: error.error?.detail || 'Login failed'
+            summary: this.translateService.instant('common.error'),
+            detail: error.error?.detail || this.translateService.instant('auth.login_failed')
           });
         }
       });
+  }
+
+  onForgotPassword(event: Event) {
+    event.preventDefault();
+    this.messageService.add({
+      severity: 'info',
+      summary: this.translateService.instant('auth.forgot_password'),
+      detail: this.translateService.instant('auth.forgot_password_message')
+    });
   }
 }
 
@@ -7462,7 +7695,7 @@ export class TranslationService {
   public readonly availableLanguages: Language[] = [
     { code: 'fr', name: 'Français', flag: '🇫🇷', rtl: false },
     { code: 'en', name: 'English', flag: '🇬🇧', rtl: false },
-    { code: 'ar', name: 'العربية', flag: '🇸🇦', rtl: true }
+    { code: 'ar', name: 'الجزائرية', flag: '🇩🇿', rtl: true }
   ];
 
   // Default language
@@ -7755,7 +7988,14 @@ export const environment = {
     "password": "كلمة المرور",
     "phone": "الهاتف",
     "address": "العنوان",
-    "menu": "القائمة"
+    "menu": "القائمة",
+    "back": "العودة",
+    "continue": "المتابعة",
+    "confirm": "تأكيد",
+    "close": "إغلاق",
+    "yes": "نعم",
+    "no": "لا",
+    "and": "و"
   },
   "header": {
     "fresh_produce": "المنتجات الطازجة",
@@ -7766,48 +8006,334 @@ export const environment = {
     "admin": "الإدارة"
   },
   "home": {
-    "title": "مرحباً بكم في متجر المنتجات الطازجة",
-    "subtitle": "اكتشفوا فواكهنا وخضرواتنا الطازجة عالية الجودة",
-    "shop_now": "تسوق الآن",
-    "fresh_fruits": "فواكه طازجة",
-    "fresh_vegetables": "خضروات طازجة",
-    "organic_produce": "منتجات عضوية"
+    "hero": {
+      "title": "منتجات طازجة تُسلم إلى باب منزلك",
+      "subtitle": "تسوق أطزج الفواكه والخضروات بسهولة",
+      "shop_now": "تسوق الآن"
+    },
+    "categories": {
+      "title": "تسوق حسب الفئة",
+      "fresh_fruits": {
+        "name": "فواكه طازجة",
+        "description": "فواكه طازجة وموسمية"
+      },
+      "fresh_vegetables": {
+        "name": "خضروات طازجة",
+        "description": "خضروات طازجة وموسمية"
+      },
+      "organic_produce": {
+        "name": "منتجات عضوية",
+        "description": "فواكه وخضروات عضوية معتمدة"
+      },
+      "explore": "استكشف"
+    },
+    "features": {
+      "fast_delivery": {
+        "title": "توصيل سريع",
+        "description": "احصل على منتجاتك مُسلمة إلى عتبة منزلك خلال 24 ساعة"
+      },
+      "quality_guaranteed": {
+        "title": "جودة مضمونة",
+        "description": "نحن نتزود فقط من أطزج المنتجات من المزارعين المحليين"
+      },
+      "organic_options": {
+        "title": "خيارات عضوية",
+        "description": "اختر من مجموعة واسعة من الفواكه والخضروات العضوية"
+      }
+    }
   },
   "products": {
     "title": "منتجاتنا",
-    "filters": "المرشحات",
-    "sort_by": "ترتيب حسب",
-    "categories": "الفئات",
-    "organic_only": "عضوي فقط",
-    "out_of_stock": "غير متوفر",
-    "low_stock": "مخزون منخفض",
-    "add_to_cart": "إضافة للسلة",
-    "select_quantity": "اختر الكمية"
+    "filters": {
+      "title": "المرشحات",
+      "category_filter": "مرشح الفئة",
+      "quick_selection": "اختيار سريع",
+      "all": "الكل",
+      "none": "لا شيء",
+      "categories_selected": "الفئات المحددة",
+      "reset_filters": "إعادة تعيين المرشحات",
+      "clear_filters": "مسح المرشحات",
+      "error": "فشل في تحميل المرشحات"
+    },
+    "search": {
+      "placeholder": "البحث عن المنتجات...",
+      "placeholder_mobile": "البحث..."
+    },
+    "sort": {
+      "title": "ترتيب حسب",
+      "name_asc": "الاسم أ-ي",
+      "name_desc": "الاسم ي-أ",
+      "price_asc": "السعر من الأقل للأعلى",
+      "price_desc": "السعر من الأعلى للأقل",
+      "created_at_desc": "الأحدث أولاً"
+    },
+    "view": {
+      "grid": "عرض الشبكة",
+      "list": "عرض القائمة"
+    },
+    "product": {
+      "organic": "عضوي",
+      "select_quantity": "اختر الكمية",
+      "qty": "كمية",
+      "out_of_stock": "غير متوفر",
+      "add_to_cart": "إضافة للسلة",
+      "related_products": "منتجات ذات صلة",
+      "product_details": "تفاصيل المنتج",
+      "reviews": "التقييمات"
+    },
+    "stock": {
+      "out_of_stock": "غير متوفر",
+      "low_stock": "باقي {count} فقط في المخزون",
+      "in_stock": "متوفر في المخزون"
+    },
+    "empty": {
+      "title": "لم يتم العثور على منتجات",
+      "subtitle": "حاول تغيير المرشحات أو معايير البحث."
+    },
+    "cart": {
+      "add_to_cart": "إضافة للسلة",
+      "added_to_cart": "تمت الإضافة للسلة",
+      "added_message": "تمت إضافة {quantity} {unit} من {name} إلى سلتك",
+      "error": "فشل في إضافة العنصر للسلة"
+    }
   },
   "cart": {
     "title": "سلتي",
     "empty": "سلتك فارغة",
+    "empty_message": "لم تقم بإضافة أي منتجات إلى سلتك بعد",
+    "shop_now": "تسوق الآن",
     "item_count": "عنصر/عناصر",
     "subtotal": "المجموع الفرعي",
     "checkout": "إتمام الطلب",
+    "continue_shopping": "متابعة التسوق",
     "remove_item": "إزالة العنصر",
-    "update_quantity": "تحديث الكمية"
+    "update_quantity": "تحديث الكمية",
+    "clear_cart": "مسح السلة",
+    "item_removed": "تم إزالة العنصر",
+    "cart_cleared": "تم مسح السلة",
+    "quantity_updated": "تم تحديث الكمية",
+    "login_required": "تسجيل الدخول مطلوب",
+    "login_message": "يرجى تسجيل الدخول أو إنشاء حساب للمتابعة"
   },
   "auth": {
     "login_title": "تسجيل الدخول",
+    "login_subtitle": "أدخل بياناتك للوصول إلى حسابك",
     "register_title": "إنشاء حساب",
+    "register_subtitle": "انضم إلينا وابدأ التسوق اليوم",
     "full_name": "الاسم الكامل",
+    "full_name_placeholder": "أدخل اسمك الكامل",
+    "full_name_required": "الاسم الكامل مطلوب",
+    "full_name_minlength": "الاسم الكامل يجب أن يكون حرفين على الأقل",
+    "email_placeholder": "أدخل بريدك الإلكتروني",
+    "email_required": "البريد الإلكتروني مطلوب",
+    "email_invalid": "البريد الإلكتروني غير صحيح",
+    "password_placeholder": "أدخل كلمة المرور",
+    "password_required": "كلمة المرور مطلوبة",
+    "password_minlength": "كلمة المرور يجب أن تكون 8 أحرف على الأقل",
+    "password_prompt": "أدخل كلمة مرور",
+    "password_weak": "ضعيفة",
+    "password_medium": "متوسطة",
+    "password_strong": "قوية",
+    "phone_placeholder": "أدخل رقم هاتفك",
+    "phone_invalid": "رقم الهاتف غير صحيح",
+    "address_placeholder": "أدخل عنوانك",
+    "remember_me": "تذكرني",
     "forgot_password": "نسيت كلمة المرور؟",
+    "forgot_password_message": "ستتم إضافة ميزة استعادة كلمة المرور قريباً",
     "no_account": "ليس لديك حساب؟",
+    "register_now": "سجل الآن",
     "already_have_account": "لديك حساب بالفعل؟",
+    "login_now": "سجل دخولك الآن",
+    "login": "تسجيل الدخول",
+    "register": "إنشاء حساب",
+    "session_expired_title": "انتهت الجلسة",
+    "session_expired_message": "انتهت صلاحية جلستك. يرجى تسجيل الدخول مرة أخرى للمتابعة",
     "login_success": "تم تسجيل الدخول بنجاح",
-    "register_success": "تم إنشاء الحساب بنجاح"
+    "login_failed": "فشل تسجيل الدخول",
+    "register_success": "تم إنشاء الحساب بنجاح. يمكنك الآن تسجيل الدخول",
+    "register_failed": "فشل في إنشاء الحساب",
+    "terms_agreement": "بإنشاء حساب، أنت توافق على",
+    "terms_of_service": "شروط الخدمة",
+    "privacy_policy": "سياسة الخصوصية"
+  },
+  "checkout": {
+    "title": "إتمام الطلب",
+    "subtitle": "راجع طلبك وأكمل عملية الشراء",
+    "progress": {
+      "title": "تقدم النموذج",
+      "subtitle": "املأ جميع الحقول المطلوبة لإتمام طلبك"
+    },
+    "shipping_info": "معلومات الشحن",
+    "order_summary": "ملخص الطلب",
+    "full_name_placeholder": "أدخل اسمك الكامل",
+    "full_name_required": "الاسم الكامل مطلوب",
+    "phone_placeholder": "أدخل رقم هاتفك",
+    "phone_required": "رقم الهاتف مطلوب",
+    "phone_invalid": "رقم الهاتف غير صحيح",
+    "shipping_address": "عنوان الشحن",
+    "address_placeholder": "أدخل عنوانك الكامل للشحن",
+    "address_required": "عنوان الشحن مطلوب",
+    "address_minlength": "عنوان الشحن قصير جداً",
+    "subtotal": "المجموع الفرعي",
+    "delivery_fee": "رسوم التوصيل",
+    "free": "مجاني",
+    "total": "المجموع الكلي",
+    "place_order": "تأكيد الطلب",
+    "secure_checkout": "دفع آمن ومحمي",
+    "order_placed": "تم تأكيد طلبك بنجاح!",
+    "processing": "جاري معالجة طلبك...",
+    "empty_cart": "سلتك فارغة",
+    "empty_cart_message": "يرجى إضافة منتجات إلى سلتك قبل إتمام الطلب",
+    "auth_required": "تسجيل الدخول مطلوب",
+    "auth_required_message": "يجب تسجيل الدخول لإتمام عملية الشراء"
+  },
+  "orders": {
+    "title": "طلباتي",
+    "loading": "جاري تحميل طلباتك...",
+    "empty": {
+      "title": "لم يتم العثور على طلبات",
+      "subtitle": "لم تقم بتقديم أي طلبات بعد.",
+      "browse_products": "تصفح المنتجات"
+    },
+    "table": {
+      "order_number": "طلب #",
+      "date": "التاريخ",
+      "status": "الحالة",
+      "total": "المجموع",
+      "actions": "الإجراءات",
+      "view": "عرض",
+      "pagination": "عرض {first} إلى {last} من {totalRecords} طلبات"
+    },
+    "status": {
+      "pending": "قيد الانتظار",
+      "confirmed": "مؤكد",
+      "shipped": "مُرسل",
+      "delivered": "مُسلم",
+      "cancelled": "ملغي"
+    },
+    "detail": {
+      "title": "تفاصيل الطلب",
+      "order_info": "معلومات الطلب",
+      "order_timeline": "مراحل الطلب",
+      "order_items": "عناصر الطلب",
+      "shipping_address": "عنوان الشحن",
+      "contact_phone": "هاتف التواصل",
+      "order_total": "إجمالي الطلب",
+      "order_date": "تاريخ الطلب",
+      "cancel_order": "إلغاء الطلب",
+      "back_to_orders": "العودة للطلبات",
+      "order_cancelled": "تم إلغاء طلبك بنجاح",
+      "cancel_error": "فشل في إلغاء الطلب",
+      "timeline": {
+        "order_placed": "تم تقديم الطلب",
+        "order_confirmed": "تم تأكيد الطلب",
+        "order_shipped": "تم شحن الطلب",
+        "order_delivered": "تم تسليم الطلب",
+        "order_cancelled": "تم إلغاء الطلب"
+      }
+    },
+    "errors": {
+      "failed_to_load": "فشل في تحميل طلباتك",
+      "order_not_found": "لم يتم العثور على الطلب"
+    }
+  },
+  "admin": {
+    "dashboard": {
+      "title": "لوحة التحكم",
+      "welcome": "مرحباً بك في لوحة تحكم الإدارة",
+      "overview": "نظرة عامة"
+    },
+    "stats": {
+      "total_users": "إجمالي المستخدمين",
+      "total_products": "إجمالي المنتجات",
+      "total_categories": "إجمالي الفئات",
+      "total_orders": "إجمالي الطلبات",
+      "total_revenue": "إجمالي الإيرادات",
+      "pending_orders": "الطلبات المعلقة",
+      "low_stock_products": "منتجات قليلة المخزون",
+      "top_selling_products": "المنتجات الأكثر مبيعاً",
+      "recent_orders": "الطلبات الحديثة",
+      "sales_by_category": "المبيعات حسب الفئة"
+    },
+    "orders": {
+      "title": "إدارة الطلبات",
+      "all_orders": "جميع الطلبات",
+      "filter_by_status": "تصفية حسب الحالة",
+      "update_status": "تحديث الحالة",
+      "order_details": "تفاصيل الطلب",
+      "customer_info": "معلومات العميل"
+    },
+    "users": {
+      "title": "إدارة المستخدمين",
+      "all_users": "جميع المستخدمين",
+      "user_details": "تفاصيل المستخدم",
+      "edit_user": "تحرير المستخدم",
+      "delete_user": "حذف المستخدم",
+      "create_user": "إنشاء مستخدم جديد",
+      "user_role": "دور المستخدم",
+      "user_status": "حالة المستخدم",
+      "active": "نشط",
+      "inactive": "غير نشط",
+      "roles": {
+        "customer": "عميل",
+        "staff": "موظف",
+        "admin": "مدير"
+      }
+    },
+    "products": {
+      "title": "إدارة المنتجات",
+      "all_products": "جميع المنتجات",
+      "add_product": "إضافة منتج جديد",
+      "edit_product": "تحرير المنتج",
+      "delete_product": "حذف المنتج",
+      "product_info": "معلومات المنتج",
+      "stock_management": "إدارة المخزون"
+    },
+    "categories": {
+      "title": "إدارة الفئات",
+      "all_categories": "جميع الفئات",
+      "add_category": "إضافة فئة جديدة",
+      "edit_category": "تحرير الفئة",
+      "delete_category": "حذف الفئة"
+    },
+    "navigation": {
+      "dashboard": "الرئيسية",
+      "orders": "الطلبات",
+      "users": "المستخدمين",
+      "products": "المنتجات",
+      "categories": "الفئات",
+      "reports": "التقارير",
+      "settings": "الإعدادات"
+    }
+  },
+  "footer": {
+    "copyright": "© 2025 متجر المنتجات الطازجة. جميع الحقوق محفوظة.",
+    "about": "حول الموقع",
+    "contact": "اتصل بنا",
+    "privacy": "سياسة الخصوصية",
+    "terms": "شروط الاستخدام"
   },
   "language": {
     "select": "اختر اللغة",
     "french": "Français",
     "english": "English",
     "arabic": "العربية"
+  },
+  "errors": {
+    "network_error": "خطأ في الشبكة",
+    "server_error": "خطأ في الخادم",
+    "not_found": "غير موجود",
+    "unauthorized": "غير مصرح",
+    "forbidden": "ممنوع",
+    "validation_error": "خطأ في التحقق",
+    "unknown_error": "خطأ غير معروف"
+  },
+  "actions": {
+    "refresh": "تحديث",
+    "retry": "إعادة المحاولة",
+    "go_back": "العودة",
+    "go_home": "الرئيسية",
+    "contact_support": "اتصل بالدعم"
   }
 }
 
@@ -7842,7 +8368,14 @@ export const environment = {
     "password": "Password",
     "phone": "Phone",
     "address": "Address",
-    "menu": "Menu"
+    "menu": "Menu",
+    "back": "Back",
+    "continue": "Continue",
+    "confirm": "Confirm",
+    "close": "Close",
+    "yes": "Yes",
+    "no": "No",
+    "and": "and"
   },
   "header": {
     "fresh_produce": "Fresh Produce",
@@ -7853,48 +8386,340 @@ export const environment = {
     "admin": "Admin"
   },
   "home": {
-    "title": "Welcome to our fresh produce store",
-    "subtitle": "Discover our quality fresh fruits and vegetables",
-    "shop_now": "Shop now",
-    "fresh_fruits": "Fresh fruits",
-    "fresh_vegetables": "Fresh vegetables",
-    "organic_produce": "Organic produce"
+    "hero": {
+      "title": "Fresh Produce Delivered to Your Door",
+      "subtitle": "Shop the freshest fruits and vegetables with ease",
+      "shop_now": "Shop Now"
+    },
+    "categories": {
+      "title": "Shop by Category",
+      "fresh_fruits": {
+        "name": "Fresh Fruits",
+        "description": "Fresh and seasonal fruits"
+      },
+      "fresh_vegetables": {
+        "name": "Fresh Vegetables", 
+        "description": "Fresh and seasonal vegetables"
+      },
+      "organic_produce": {
+        "name": "Organic Produce",
+        "description": "Certified organic fruits and vegetables"
+      },
+      "explore": "Explore"
+    },
+    "features": {
+      "fast_delivery": {
+        "title": "Fast Delivery",
+        "description": "Get your produce delivered to your doorstep within 24 hours"
+      },
+      "quality_guaranteed": {
+        "title": "Quality Guaranteed",
+        "description": "We source only the freshest produce from local farmers"
+      },
+      "organic_options": {
+        "title": "Organic Options",
+        "description": "Choose from a wide range of organic fruits and vegetables"
+      }
+    }
   },
   "products": {
     "title": "Our Products",
-    "filters": "Filters",
-    "sort_by": "Sort by",
-    "categories": "Categories",
-    "organic_only": "Organic only",
-    "out_of_stock": "Out of stock",
-    "low_stock": "Low stock",
-    "add_to_cart": "Add to cart",
-    "select_quantity": "Select quantity"
+    "filters": {
+      "title": "Filters",
+      "category_filter": "Category Filter",
+      "quick_selection": "Quick Selection",
+      "all": "All",
+      "none": "None",
+      "categories_selected": "Categories Selected",
+      "reset_filters": "Reset Filters",
+      "clear_filters": "Clear Filters",
+      "error": "Failed to load filters"
+    },
+    "search": {
+      "placeholder": "Search products...",
+      "placeholder_mobile": "Search..."
+    },
+    "sort": {
+      "title": "Sort By",
+      "name_asc": "Name A-Z",
+      "name_desc": "Name Z-A", 
+      "price_asc": "Price Low to High",
+      "price_desc": "Price High to Low",
+      "created_at_desc": "Newest First"
+    },
+    "view": {
+      "grid": "Grid View",
+      "list": "List View"
+    },
+    "product": {
+      "organic": "Organic",
+      "select_quantity": "Select quantity",
+      "qty": "Qty",
+      "out_of_stock": "Out of stock",
+      "add_to_cart": "Add to cart",
+      "related_products": "Related Products",
+      "product_details": "Product Details",
+      "reviews": "Reviews"
+    },
+    "stock": {
+      "out_of_stock": "Out of stock",
+      "low_stock": "Only {count} left in stock",
+      "low_stock_title": "Low Stock",
+      "in_stock": "In stock",
+      "available": "{count} {unit} available",
+      "unavailable_message": "This item is currently unavailable"
+    },
+    "empty": {
+      "title": "No products found",
+      "subtitle": "Try changing your filters or search criteria."
+    },
+    "cart": {
+      "add_to_cart": "Add to cart",
+      "added_to_cart": "Added to Cart",
+      "added_message": "{quantity} {unit} of {name} added to your cart",
+      "error": "Failed to add item to cart"
+    },
+    "errors": {
+      "failed_to_load": "Failed to load product"
+    }
   },
   "cart": {
     "title": "My Cart",
     "empty": "Your cart is empty",
+    "empty_message": "You haven't added any products to your cart yet",
+    "shop_now": "Shop Now",
     "item_count": "item(s)",
     "subtotal": "Subtotal",
     "checkout": "Checkout",
+    "continue_shopping": "Continue Shopping",
     "remove_item": "Remove item",
-    "update_quantity": "Update quantity"
+    "update_quantity": "Update quantity",
+    "clear_cart": "Clear cart",
+    "item_removed": "Item removed",
+    "cart_cleared": "Cart cleared",
+    "quantity_updated": "Quantity updated",
+    "login_required": "Login Required",
+    "login_message": "Please login or register to continue with checkout"
   },
   "auth": {
     "login_title": "Login",
+    "login_subtitle": "Enter your credentials to access your account",
     "register_title": "Create Account",
+    "register_subtitle": "Join us and start shopping today",
     "full_name": "Full name",
+    "full_name_placeholder": "Enter your full name",
+    "full_name_required": "Full name is required",
+    "full_name_minlength": "Full name must be at least 2 characters",
+    "email_placeholder": "Enter your email address",
+    "email_required": "Email is required",
+    "email_invalid": "Please enter a valid email address",
+    "password_placeholder": "Enter your password",
+    "password_required": "Password is required",
+    "password_minlength": "Password must be at least 8 characters",
+    "password_prompt": "Enter a password",
+    "password_weak": "Weak",
+    "password_medium": "Medium",
+    "password_strong": "Strong",
+    "phone_placeholder": "Enter your phone number",
+    "phone_invalid": "Please enter a valid phone number",
+    "address_placeholder": "Enter your address",
+    "remember_me": "Remember me",
     "forgot_password": "Forgot password?",
+    "forgot_password_message": "Password recovery feature will be added soon",
     "no_account": "No account?",
+    "register_now": "Register now",
     "already_have_account": "Already have an account?",
+    "login_now": "Login now",
+    "login": "Login",
+    "register": "Register",
+    "session_expired_title": "Session Expired",
+    "session_expired_message": "Your session has expired. Please login again to continue",
     "login_success": "Login successful",
-    "register_success": "Registration successful"
+    "login_failed": "Login failed",
+    "register_success": "Registration successful. You can now login",
+    "register_failed": "Registration failed",
+    "terms_agreement": "By creating an account, you agree to our",
+    "terms_of_service": "Terms of Service",
+    "privacy_policy": "Privacy Policy"
+  },
+  "checkout": {
+    "title": "Checkout",
+    "subtitle": "Review your order and complete your purchase",
+    "progress": {
+      "title": "Form Progress",
+      "subtitle": "Complete all required fields to place your order"
+    },
+    "shipping_info": "Shipping Information",
+    "order_summary": "Order Summary",
+    "full_name_placeholder": "Enter your full name",
+    "full_name_required": "Full name is required",
+    "phone_placeholder": "Enter your phone number",
+    "phone_required": "Phone number is required",
+    "phone_invalid": "Please enter a valid phone number",
+    "shipping_address": "Shipping Address",
+    "address_placeholder": "Enter your complete shipping address",
+    "address_required": "Shipping address is required",
+    "address_minlength": "Shipping address is too short",
+    "subtotal": "Subtotal",
+    "delivery_fee": "Delivery Fee",
+    "free": "Free",
+    "total": "Total",
+    "place_order": "Place Order",
+    "secure_checkout": "Secure & Protected Payment",
+    "order_placed": "Your order has been placed successfully!",
+    "processing": "Processing your order...",
+    "empty_cart": "Your cart is empty",
+    "empty_cart_message": "Please add some products to your cart before checkout",
+    "auth_required": "Authentication Required",
+    "auth_required_message": "You must be logged in to checkout"
+  },
+  "orders": {
+    "title": "My Orders",
+    "loading": "Loading your orders...",
+    "empty": {
+      "title": "No orders found",
+      "subtitle": "You haven't placed any orders yet.",
+      "browse_products": "Browse Products"
+    },
+    "table": {
+      "order_number": "Order #",
+      "date": "Date",
+      "status": "Status",
+      "total": "Total",
+      "actions": "Actions",
+      "view": "View",
+      "pagination": "Showing {first} to {last} of {totalRecords} orders"
+    },
+    "status": {
+      "pending": "Pending",
+      "confirmed": "Confirmed",
+      "shipped": "Shipped",
+      "delivered": "Delivered",
+      "cancelled": "Cancelled"
+    },
+    "detail": {
+      "title": "Order Details",
+      "order_info": "Order Information",
+      "order_timeline": "Order Timeline",
+      "order_items": "Order Items",
+      "shipping_address": "Shipping Address",
+      "contact_phone": "Contact Phone",
+      "order_total": "Order Total",
+      "order_date": "Order Date",
+      "cancel_order": "Cancel Order",
+      "back_to_orders": "Back to Orders",
+      "order_cancelled": "Your order has been cancelled successfully",
+      "cancel_error": "Failed to cancel order",
+      "timeline": {
+        "order_placed": "Order Placed",
+        "order_confirmed": "Order Confirmed",
+        "order_shipped": "Order Shipped",
+        "order_delivered": "Order Delivered",
+        "order_cancelled": "Order Cancelled"
+      }
+    },
+    "errors": {
+      "failed_to_load": "Failed to load your orders",
+      "order_not_found": "Order not found"
+    }
+  },
+  "admin": {
+    "dashboard": {
+      "title": "Admin Dashboard",
+      "welcome": "Welcome to the Admin Dashboard",
+      "overview": "Overview"
+    },
+    "stats": {
+      "total_users": "Total Users",
+      "total_products": "Total Products",
+      "total_categories": "Total Categories",
+      "total_orders": "Total Orders",
+      "total_revenue": "Total Revenue",
+      "pending_orders": "Pending Orders",
+      "low_stock_products": "Low Stock Products",
+      "top_selling_products": "Top Selling Products",
+      "recent_orders": "Recent Orders",
+      "sales_by_category": "Sales by Category"
+    },
+    "orders": {
+      "title": "Order Management",
+      "all_orders": "All Orders",
+      "filter_by_status": "Filter by Status",
+      "update_status": "Update Status",
+      "order_details": "Order Details",
+      "customer_info": "Customer Information"
+    },
+    "users": {
+      "title": "User Management",
+      "all_users": "All Users",
+      "user_details": "User Details",
+      "edit_user": "Edit User",
+      "delete_user": "Delete User",
+      "create_user": "Create New User",
+      "user_role": "User Role",
+      "user_status": "User Status",
+      "active": "Active",
+      "inactive": "Inactive",
+      "roles": {
+        "customer": "Customer",
+        "staff": "Staff",
+        "admin": "Admin"
+      }
+    },
+    "products": {
+      "title": "Product Management",
+      "all_products": "All Products",
+      "add_product": "Add New Product",
+      "edit_product": "Edit Product",
+      "delete_product": "Delete Product",
+      "product_info": "Product Information",
+      "stock_management": "Stock Management"
+    },
+    "categories": {
+      "title": "Category Management",
+      "all_categories": "All Categories",
+      "add_category": "Add New Category",
+      "edit_category": "Edit Category",
+      "delete_category": "Delete Category"
+    },
+    "navigation": {
+      "dashboard": "Dashboard",
+      "orders": "Orders",
+      "users": "Users",
+      "products": "Products",
+      "categories": "Categories",
+      "reports": "Reports",
+      "settings": "Settings"
+    }
+  },
+  "footer": {
+    "copyright": "© 2025 Fresh Produce E-commerce. All rights reserved.",
+    "about": "About Us",
+    "contact": "Contact",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Use"
   },
   "language": {
     "select": "Select language",
     "french": "Français",
     "english": "English",
     "arabic": "العربية"
+  },
+  "errors": {
+    "network_error": "Network error",
+    "server_error": "Server error",
+    "not_found": "Not found",
+    "unauthorized": "Unauthorized",
+    "forbidden": "Forbidden",
+    "validation_error": "Validation error",
+    "unknown_error": "Unknown error"
+  },
+  "actions": {
+    "refresh": "Refresh",
+    "retry": "Retry",
+    "go_back": "Go Back",
+    "go_home": "Go Home",
+    "contact_support": "Contact Support"
   }
 }
 
@@ -7929,7 +8754,14 @@ export const environment = {
     "password": "Mot de passe",
     "phone": "Téléphone",
     "address": "Adresse",
-    "menu": "Menu"
+    "menu": "Menu",
+    "back": "Retour",
+    "continue": "Continuer",
+    "confirm": "Confirmer",
+    "close": "Fermer",
+    "yes": "Oui",
+    "no": "Non",
+    "and": "et"
   },
   "header": {
     "fresh_produce": "Produits Frais",
@@ -7940,48 +8772,337 @@ export const environment = {
     "admin": "Administration"
   },
   "home": {
-    "title": "Bienvenue dans notre magasin de produits frais",
-    "subtitle": "Découvrez nos fruits et légumes frais de qualité",
-    "shop_now": "Acheter maintenant",
-    "fresh_fruits": "Fruits frais",
-    "fresh_vegetables": "Légumes frais",
-    "organic_produce": "Produits bio"
+    "hero": {
+      "title": "Produits Frais Livrés à Votre Porte",
+      "subtitle": "Achetez les fruits et légumes les plus frais en toute simplicité",
+      "shop_now": "Acheter Maintenant"
+    },
+    "categories": {
+      "title": "Acheter par Catégorie",
+      "fresh_fruits": {
+        "name": "Fruits Frais",
+        "description": "Fruits frais et de saison"
+      },
+      "fresh_vegetables": {
+        "name": "Légumes Frais",
+        "description": "Légumes frais et de saison"
+      },
+      "organic_produce": {
+        "name": "Produits Bio",
+        "description": "Fruits et légumes bio certifiés"
+      },
+      "explore": "Explorer"
+    },
+    "features": {
+      "fast_delivery": {
+        "title": "Livraison Rapide",
+        "description": "Recevez vos produits livrés à votre porte sous 24 heures"
+      },
+      "quality_guaranteed": {
+        "title": "Qualité Garantie",
+        "description": "Nous nous approvisionnons uniquement auprès d'agriculteurs locaux"
+      },
+      "organic_options": {
+        "title": "Options Bio",
+        "description": "Choisissez parmi une large gamme de fruits et légumes bio"
+      }
+    }
   },
   "products": {
     "title": "Nos Produits",
-    "filters": "Filtres",
-    "sort_by": "Trier par",
-    "categories": "Catégories",
-    "organic_only": "Bio uniquement",
-    "out_of_stock": "Rupture de stock",
-    "low_stock": "Stock faible",
-    "add_to_cart": "Ajouter au panier",
-    "select_quantity": "Sélectionner la quantité"
+    "filters": {
+      "title": "Filtres",
+      "category_filter": "Filtre par Catégorie",
+      "quick_selection": "Sélection Rapide",
+      "all": "Tout",
+      "none": "Aucun",
+      "categories_selected": "Catégories Sélectionnées",
+      "reset_filters": "Réinitialiser les Filtres",
+      "clear_filters": "Effacer les Filtres",
+      "error": "Échec du chargement des filtres"
+    },
+    "search": {
+      "placeholder": "Rechercher des produits...",
+      "placeholder_mobile": "Rechercher..."
+    },
+    "sort": {
+      "title": "Trier Par",
+      "name_asc": "Nom A-Z",
+      "name_desc": "Nom Z-A",
+      "price_asc": "Prix Croissant",
+      "price_desc": "Prix Décroissant",
+      "created_at_desc": "Plus Récents"
+    },
+    "view": {
+      "grid": "Vue Grille",
+      "list": "Vue Liste"
+    },
+    "product": {
+      "organic": "Bio",
+      "select_quantity": "Sélectionner la quantité",
+      "qty": "Qté",
+      "out_of_stock": "Rupture de stock",
+      "add_to_cart": "Ajouter au panier",
+      "related_products": "Produits Similaires",
+      "product_details": "Détails du Produit",
+      "reviews": "Avis"
+    },
+    "stock": {
+      "out_of_stock": "Rupture de stock",
+      "low_stock": "Plus que {count} en stock",
+      "low_stock_title": "Stock Faible",
+      "in_stock": "En stock",
+      "available": "{count} {unit} disponible(s)",
+      "unavailable_message": "Cet article n'est actuellement pas disponible"
+    },
+    "empty": {
+      "title": "Aucun produit trouvé",
+      "subtitle": "Essayez de modifier vos filtres ou critères de recherche."
+    },
+    "cart": {
+      "add_to_cart": "Ajouter au panier",
+      "added_to_cart": "Ajouté au Panier",
+      "added_message": "{quantity} {unit} de {name} ajouté à votre panier",
+      "error": "Échec de l'ajout au panier"
+    }
   },
   "cart": {
     "title": "Mon Panier",
     "empty": "Votre panier est vide",
+    "empty_message": "Vous n'avez pas encore ajouté de produits à votre panier",
+    "shop_now": "Acheter Maintenant",
     "item_count": "article(s)",
     "subtotal": "Sous-total",
     "checkout": "Passer la commande",
+    "continue_shopping": "Continuer les Achats",
     "remove_item": "Retirer l'article",
-    "update_quantity": "Mettre à jour la quantité"
+    "update_quantity": "Mettre à jour la quantité",
+    "clear_cart": "Vider le panier",
+    "item_removed": "Article retiré",
+    "cart_cleared": "Panier vidé",
+    "quantity_updated": "Quantité mise à jour",
+    "login_required": "Connexion Requise",
+    "login_message": "Veuillez vous connecter ou vous inscrire pour continuer"
   },
   "auth": {
     "login_title": "Connexion",
+    "login_subtitle": "Entrez vos identifiants pour accéder à votre compte",
     "register_title": "Créer un compte",
+    "register_subtitle": "Rejoignez-nous et commencez vos achats aujourd'hui",
     "full_name": "Nom complet",
+    "full_name_placeholder": "Entrez votre nom complet",
+    "full_name_required": "Le nom complet est requis",
+    "full_name_minlength": "Le nom complet doit contenir au moins 2 caractères",
+    "email_placeholder": "Entrez votre adresse email",
+    "email_required": "L'email est requis",
+    "email_invalid": "Veuillez entrer une adresse email valide",
+    "password_placeholder": "Entrez votre mot de passe",
+    "password_required": "Le mot de passe est requis",
+    "password_minlength": "Le mot de passe doit contenir au moins 8 caractères",
+    "password_prompt": "Entrez un mot de passe",
+    "password_weak": "Faible",
+    "password_medium": "Moyen",
+    "password_strong": "Fort",
+    "phone_placeholder": "Entrez votre numéro de téléphone",
+    "phone_invalid": "Veuillez entrer un numéro de téléphone valide",
+    "address_placeholder": "Entrez votre adresse",
+    "remember_me": "Se souvenir de moi",
     "forgot_password": "Mot de passe oublié ?",
+    "forgot_password_message": "La fonctionnalité de récupération de mot de passe sera ajoutée bientôt",
     "no_account": "Pas de compte ?",
+    "register_now": "S'inscrire maintenant",
     "already_have_account": "Déjà un compte ?",
+    "login_now": "Se connecter maintenant",
+    "login": "Connexion",
+    "register": "S'inscrire",
+    "session_expired_title": "Session Expirée",
+    "session_expired_message": "Votre session a expiré. Veuillez vous reconnecter pour continuer",
     "login_success": "Connexion réussie",
-    "register_success": "Inscription réussie"
+    "login_failed": "Échec de la connexion",
+    "register_success": "Inscription réussie. Vous pouvez maintenant vous connecter",
+    "register_failed": "Échec de l'inscription",
+    "terms_agreement": "En créant un compte, vous acceptez nos",
+    "terms_of_service": "Conditions d'Utilisation",
+    "privacy_policy": "Politique de Confidentialité"
+  },
+  "checkout": {
+    "title": "Commande",
+    "subtitle": "Vérifiez votre commande et finalisez votre achat",
+    "progress": {
+      "title": "Progression du Formulaire",
+      "subtitle": "Remplissez tous les champs requis pour passer votre commande"
+    },
+    "shipping_info": "Informations de Livraison",
+    "order_summary": "Résumé de Commande",
+    "full_name_placeholder": "Entrez votre nom complet",
+    "full_name_required": "Le nom complet est requis",
+    "phone_placeholder": "Entrez votre numéro de téléphone",
+    "phone_required": "Le numéro de téléphone est requis",
+    "phone_invalid": "Veuillez entrer un numéro de téléphone valide",
+    "shipping_address": "Adresse de Livraison",
+    "address_placeholder": "Entrez votre adresse complète de livraison",
+    "address_required": "L'adresse de livraison est requise",
+    "address_minlength": "L'adresse de livraison est trop courte",
+    "subtotal": "Sous-total",
+    "delivery_fee": "Frais de Livraison",
+    "free": "Gratuit",
+    "total": "Total",
+    "place_order": "Passer la Commande",
+    "secure_checkout": "Paiement Sécurisé et Protégé",
+    "order_placed": "Votre commande a été passée avec succès !",
+    "processing": "Traitement de votre commande...",
+    "empty_cart": "Votre panier est vide",
+    "empty_cart_message": "Veuillez ajouter des produits à votre panier avant de passer commande",
+    "auth_required": "Authentification Requise",
+    "auth_required_message": "Vous devez être connecté pour passer commande"
+  },
+  "orders": {
+    "title": "Mes Commandes",
+    "loading": "Chargement de vos commandes...",
+    "empty": {
+      "title": "Aucune commande trouvée",
+      "subtitle": "Vous n'avez pas encore passé de commandes.",
+      "browse_products": "Parcourir les Produits"
+    },
+    "table": {
+      "order_number": "Commande #",
+      "date": "Date",
+      "status": "Statut",
+      "total": "Total",
+      "actions": "Actions",
+      "view": "Voir",
+      "pagination": "Affichage de {first} à {last} sur {totalRecords} commandes"
+    },
+    "status": {
+      "pending": "En attente",
+      "confirmed": "Confirmée",
+      "shipped": "Expédiée",
+      "delivered": "Livrée",
+      "cancelled": "Annulée"
+    },
+    "detail": {
+      "title": "Détails de la Commande",
+      "order_info": "Informations de Commande",
+      "order_timeline": "Chronologie de la Commande",
+      "order_items": "Articles de la Commande",
+      "shipping_address": "Adresse de Livraison",
+      "contact_phone": "Téléphone de Contact",
+      "order_total": "Total de la Commande",
+      "order_date": "Date de Commande",
+      "cancel_order": "Annuler la Commande",
+      "back_to_orders": "Retour aux Commandes",
+      "order_cancelled": "Votre commande a été annulée avec succès",
+      "cancel_error": "Échec de l'annulation de la commande",
+      "timeline": {
+        "order_placed": "Commande Passée",
+        "order_confirmed": "Commande Confirmée",
+        "order_shipped": "Commande Expédiée",
+        "order_delivered": "Commande Livrée",
+        "order_cancelled": "Commande Annulée"
+      }
+    },
+    "errors": {
+      "failed_to_load": "Échec du chargement de vos commandes",
+      "order_not_found": "Commande introuvable"
+    }
+  },
+  "admin": {
+    "dashboard": {
+      "title": "Tableau de Bord Admin",
+      "welcome": "Bienvenue dans le Tableau de Bord Admin",
+      "overview": "Aperçu"
+    },
+    "stats": {
+      "total_users": "Total Utilisateurs",
+      "total_products": "Total Produits",
+      "total_categories": "Total Catégories",
+      "total_orders": "Total Commandes",
+      "total_revenue": "Chiffre d'Affaires Total",
+      "pending_orders": "Commandes en Attente",
+      "low_stock_products": "Produits en Rupture",
+      "top_selling_products": "Produits les Plus Vendus",
+      "recent_orders": "Commandes Récentes",
+      "sales_by_category": "Ventes par Catégorie"
+    },
+    "orders": {
+      "title": "Gestion des Commandes",
+      "all_orders": "Toutes les Commandes",
+      "filter_by_status": "Filtrer par Statut",
+      "update_status": "Mettre à Jour le Statut",
+      "order_details": "Détails de la Commande",
+      "customer_info": "Informations Client"
+    },
+    "users": {
+      "title": "Gestion des Utilisateurs",
+      "all_users": "Tous les Utilisateurs",
+      "user_details": "Détails Utilisateur",
+      "edit_user": "Modifier Utilisateur",
+      "delete_user": "Supprimer Utilisateur",
+      "create_user": "Créer Nouvel Utilisateur",
+      "user_role": "Rôle Utilisateur",
+      "user_status": "Statut Utilisateur",
+      "active": "Actif",
+      "inactive": "Inactif",
+      "roles": {
+        "customer": "Client",
+        "staff": "Personnel",
+        "admin": "Administrateur"
+      }
+    },
+    "products": {
+      "title": "Gestion des Produits",
+      "all_products": "Tous les Produits",
+      "add_product": "Ajouter Nouveau Produit",
+      "edit_product": "Modifier Produit",
+      "delete_product": "Supprimer Produit",
+      "product_info": "Informations Produit",
+      "stock_management": "Gestion du Stock"
+    },
+    "categories": {
+      "title": "Gestion des Catégories",
+      "all_categories": "Toutes les Catégories",
+      "add_category": "Ajouter Nouvelle Catégorie",
+      "edit_category": "Modifier Catégorie",
+      "delete_category": "Supprimer Catégorie"
+    },
+    "navigation": {
+      "dashboard": "Tableau de Bord",
+      "orders": "Commandes",
+      "users": "Utilisateurs",
+      "products": "Produits",
+      "categories": "Catégories",
+      "reports": "Rapports",
+      "settings": "Paramètres"
+    }
+  },
+  "footer": {
+    "copyright": "© 2025 E-commerce Produits Frais. Tous droits réservés.",
+    "about": "À Propos",
+    "contact": "Contact",
+    "privacy": "Politique de Confidentialité",
+    "terms": "Conditions d'Utilisation"
   },
   "language": {
     "select": "Choisir la langue",
     "french": "Français",
     "english": "English",
     "arabic": "العربية"
+  },
+  "errors": {
+    "network_error": "Erreur réseau",
+    "server_error": "Erreur serveur",
+    "not_found": "Introuvable",
+    "unauthorized": "Non autorisé",
+    "forbidden": "Interdit",
+    "validation_error": "Erreur de validation",
+    "unknown_error": "Erreur inconnue"
+  },
+  "actions": {
+    "refresh": "Actualiser",
+    "retry": "Réessayer",
+    "go_back": "Retour",
+    "go_home": "Accueil",
+    "contact_support": "Contacter le Support"
   }
 }
 

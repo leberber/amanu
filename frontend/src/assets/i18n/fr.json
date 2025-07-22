@@ -27,7 +27,14 @@
     "password": "Mot de passe",
     "phone": "Téléphone",
     "address": "Adresse",
-    "menu": "Menu"
+    "menu": "Menu",
+    "back": "Retour",
+    "continue": "Continuer",
+    "confirm": "Confirmer",
+    "close": "Fermer",
+    "yes": "Oui",
+    "no": "Non",
+    "and": "et"
   },
   "header": {
     "fresh_produce": "Produits Frais",
@@ -38,47 +45,336 @@
     "admin": "Administration"
   },
   "home": {
-    "title": "Bienvenue dans notre magasin de produits frais",
-    "subtitle": "Découvrez nos fruits et légumes frais de qualité",
-    "shop_now": "Acheter maintenant",
-    "fresh_fruits": "Fruits frais",
-    "fresh_vegetables": "Légumes frais",
-    "organic_produce": "Produits bio"
+    "hero": {
+      "title": "Produits Frais Livrés à Votre Porte",
+      "subtitle": "Achetez les fruits et légumes les plus frais en toute simplicité",
+      "shop_now": "Acheter Maintenant"
+    },
+    "categories": {
+      "title": "Acheter par Catégorie",
+      "fresh_fruits": {
+        "name": "Fruits Frais",
+        "description": "Fruits frais et de saison"
+      },
+      "fresh_vegetables": {
+        "name": "Légumes Frais",
+        "description": "Légumes frais et de saison"
+      },
+      "organic_produce": {
+        "name": "Produits Bio",
+        "description": "Fruits et légumes bio certifiés"
+      },
+      "explore": "Explorer"
+    },
+    "features": {
+      "fast_delivery": {
+        "title": "Livraison Rapide",
+        "description": "Recevez vos produits livrés à votre porte sous 24 heures"
+      },
+      "quality_guaranteed": {
+        "title": "Qualité Garantie",
+        "description": "Nous nous approvisionnons uniquement auprès d'agriculteurs locaux"
+      },
+      "organic_options": {
+        "title": "Options Bio",
+        "description": "Choisissez parmi une large gamme de fruits et légumes bio"
+      }
+    }
   },
   "products": {
     "title": "Nos Produits",
-    "filters": "Filtres",
-    "sort_by": "Trier par",
-    "categories": "Catégories",
-    "organic_only": "Bio uniquement",
-    "out_of_stock": "Rupture de stock",
-    "low_stock": "Stock faible",
-    "add_to_cart": "Ajouter au panier",
-    "select_quantity": "Sélectionner la quantité"
+    "filters": {
+      "title": "Filtres",
+      "category_filter": "Filtre par Catégorie",
+      "quick_selection": "Sélection Rapide",
+      "all": "Tout",
+      "none": "Aucun",
+      "categories_selected": "Catégories Sélectionnées",
+      "reset_filters": "Réinitialiser les Filtres",
+      "clear_filters": "Effacer les Filtres",
+      "error": "Échec du chargement des filtres"
+    },
+    "search": {
+      "placeholder": "Rechercher des produits...",
+      "placeholder_mobile": "Rechercher..."
+    },
+    "sort": {
+      "title": "Trier Par",
+      "name_asc": "Nom A-Z",
+      "name_desc": "Nom Z-A",
+      "price_asc": "Prix Croissant",
+      "price_desc": "Prix Décroissant",
+      "created_at_desc": "Plus Récents"
+    },
+    "view": {
+      "grid": "Vue Grille",
+      "list": "Vue Liste"
+    },
+    "product": {
+      "organic": "Bio",
+      "select_quantity": "Sélectionner la quantité",
+      "qty": "Qté",
+      "out_of_stock": "Rupture de stock",
+      "add_to_cart": "Ajouter au panier",
+      "related_products": "Produits Similaires",
+      "product_details": "Détails du Produit",
+      "reviews": "Avis"
+    },
+    "stock": {
+      "out_of_stock": "Rupture de stock",
+      "low_stock": "Plus que {count} en stock",
+      "low_stock_title": "Stock Faible",
+      "in_stock": "En stock",
+      "available": "disponible(s)",
+      "unavailable_message": "Cet article n'est actuellement pas disponible"
+    },
+    "empty": {
+      "title": "Aucun produit trouvé",
+      "subtitle": "Essayez de modifier vos filtres ou critères de recherche."
+    },
+    "cart": {
+      "add_to_cart": "Ajouter au panier",
+      "added_to_cart": "Ajouté au Panier",
+      "added_message": "{quantity} {unit} de {name} ajouté à votre panier",
+      "error": "Échec de l'ajout au panier"
+    }
   },
   "cart": {
     "title": "Mon Panier",
     "empty": "Votre panier est vide",
+    "empty_message": "Vous n'avez pas encore ajouté de produits à votre panier",
+    "shop_now": "Acheter Maintenant",
     "item_count": "article(s)",
     "subtotal": "Sous-total",
     "checkout": "Passer la commande",
+    "continue_shopping": "Continuer les Achats",
     "remove_item": "Retirer l'article",
-    "update_quantity": "Mettre à jour la quantité"
+    "update_quantity": "Mettre à jour la quantité",
+    "clear_cart": "Vider le panier",
+    "item_removed": "Article retiré",
+    "cart_cleared": "Panier vidé",
+    "quantity_updated": "Quantité mise à jour",
+    "login_required": "Connexion Requise",
+    "login_message": "Veuillez vous connecter ou vous inscrire pour continuer"
   },
   "auth": {
     "login_title": "Connexion",
+    "login_subtitle": "Entrez vos identifiants pour accéder à votre compte",
     "register_title": "Créer un compte",
+    "register_subtitle": "Rejoignez-nous et commencez vos achats aujourd'hui",
     "full_name": "Nom complet",
+    "full_name_placeholder": "Entrez votre nom complet",
+    "full_name_required": "Le nom complet est requis",
+    "full_name_minlength": "Le nom complet doit contenir au moins 2 caractères",
+    "email_placeholder": "Entrez votre adresse email",
+    "email_required": "L'email est requis",
+    "email_invalid": "Veuillez entrer une adresse email valide",
+    "password_placeholder": "Entrez votre mot de passe",
+    "password_required": "Le mot de passe est requis",
+    "password_minlength": "Le mot de passe doit contenir au moins 8 caractères",
+    "password_prompt": "Entrez un mot de passe",
+    "password_weak": "Faible",
+    "password_medium": "Moyen",
+    "password_strong": "Fort",
+    "phone_placeholder": "Entrez votre numéro de téléphone",
+    "phone_invalid": "Veuillez entrer un numéro de téléphone valide",
+    "address_placeholder": "Entrez votre adresse",
+    "remember_me": "Se souvenir de moi",
     "forgot_password": "Mot de passe oublié ?",
+    "forgot_password_message": "La fonctionnalité de récupération de mot de passe sera ajoutée bientôt",
     "no_account": "Pas de compte ?",
+    "register_now": "S'inscrire maintenant",
     "already_have_account": "Déjà un compte ?",
+    "login_now": "Se connecter maintenant",
+    "login": "Connexion",
+    "register": "S'inscrire",
+    "session_expired_title": "Session Expirée",
+    "session_expired_message": "Votre session a expiré. Veuillez vous reconnecter pour continuer",
     "login_success": "Connexion réussie",
-    "register_success": "Inscription réussie"
+    "login_failed": "Échec de la connexion",
+    "register_success": "Inscription réussie. Vous pouvez maintenant vous connecter",
+    "register_failed": "Échec de l'inscription",
+    "terms_agreement": "En créant un compte, vous acceptez nos",
+    "terms_of_service": "Conditions d'Utilisation",
+    "privacy_policy": "Politique de Confidentialité"
+  },
+  "checkout": {
+    "title": "Commande",
+    "subtitle": "Vérifiez votre commande et finalisez votre achat",
+    "progress": {
+      "title": "Progression du Formulaire",
+      "subtitle": "Remplissez tous les champs requis pour passer votre commande"
+    },
+    "shipping_info": "Informations de Livraison",
+    "order_summary": "Résumé de Commande",
+    "full_name_placeholder": "Entrez votre nom complet",
+    "full_name_required": "Le nom complet est requis",
+    "phone_placeholder": "Entrez votre numéro de téléphone",
+    "phone_required": "Le numéro de téléphone est requis",
+    "phone_invalid": "Veuillez entrer un numéro de téléphone valide",
+    "shipping_address": "Adresse de Livraison",
+    "address_placeholder": "Entrez votre adresse complète de livraison",
+    "address_required": "L'adresse de livraison est requise",
+    "address_minlength": "L'adresse de livraison est trop courte",
+    "subtotal": "Sous-total",
+    "delivery_fee": "Frais de Livraison",
+    "free": "Gratuit",
+    "total": "Total",
+    "place_order": "Passer la Commande",
+    "secure_checkout": "Paiement Sécurisé et Protégé",
+    "order_placed": "Votre commande a été passée avec succès !",
+    "processing": "Traitement de votre commande...",
+    "empty_cart": "Votre panier est vide",
+    "empty_cart_message": "Veuillez ajouter des produits à votre panier avant de passer commande",
+    "auth_required": "Authentification Requise",
+    "auth_required_message": "Vous devez être connecté pour passer commande"
+  },
+  "orders": {
+    "title": "Mes Commandes",
+    "loading": "Chargement de vos commandes...",
+    "empty": {
+      "title": "Aucune commande trouvée",
+      "subtitle": "Vous n'avez pas encore passé de commandes.",
+      "browse_products": "Parcourir les Produits"
+    },
+    "table": {
+      "order_number": "Commande #",
+      "date": "Date",
+      "status": "Statut",
+      "total": "Total",
+      "actions": "Actions",
+      "view": "Voir",
+      "pagination": "Affichage de {first} à {last} sur {totalRecords} commandes"
+    },
+    "status": {
+      "pending": "En attente",
+      "confirmed": "Confirmée",
+      "shipped": "Expédiée",
+      "delivered": "Livrée",
+      "cancelled": "Annulée"
+    },
+    "detail": {
+      "title": "Détails de la Commande",
+      "order_info": "Informations de Commande",
+      "order_timeline": "Chronologie de la Commande",
+      "order_items": "Articles de la Commande",
+      "shipping_address": "Adresse de Livraison",
+      "contact_phone": "Téléphone de Contact",
+      "order_total": "Total de la Commande",
+      "order_date": "Date de Commande",
+      "cancel_order": "Annuler la Commande",
+      "back_to_orders": "Retour aux Commandes",
+      "order_cancelled": "Votre commande a été annulée avec succès",
+      "cancel_error": "Échec de l'annulation de la commande",
+      "timeline": {
+        "order_placed": "Commande Passée",
+        "order_confirmed": "Commande Confirmée",
+        "order_shipped": "Commande Expédiée",
+        "order_delivered": "Commande Livrée",
+        "order_cancelled": "Commande Annulée"
+      }
+    },
+    "errors": {
+      "failed_to_load": "Échec du chargement de vos commandes",
+      "order_not_found": "Commande introuvable"
+    }
+  },
+  "admin": {
+    "dashboard": {
+      "title": "Tableau de Bord Admin",
+      "welcome": "Bienvenue dans le Tableau de Bord Admin",
+      "overview": "Aperçu"
+    },
+    "stats": {
+      "total_users": "Total Utilisateurs",
+      "total_products": "Total Produits",
+      "total_categories": "Total Catégories",
+      "total_orders": "Total Commandes",
+      "total_revenue": "Chiffre d'Affaires Total",
+      "pending_orders": "Commandes en Attente",
+      "low_stock_products": "Produits en Rupture",
+      "top_selling_products": "Produits les Plus Vendus",
+      "recent_orders": "Commandes Récentes",
+      "sales_by_category": "Ventes par Catégorie"
+    },
+    "orders": {
+      "title": "Gestion des Commandes",
+      "all_orders": "Toutes les Commandes",
+      "filter_by_status": "Filtrer par Statut",
+      "update_status": "Mettre à Jour le Statut",
+      "order_details": "Détails de la Commande",
+      "customer_info": "Informations Client"
+    },
+    "users": {
+      "title": "Gestion des Utilisateurs",
+      "all_users": "Tous les Utilisateurs",
+      "user_details": "Détails Utilisateur",
+      "edit_user": "Modifier Utilisateur",
+      "delete_user": "Supprimer Utilisateur",
+      "create_user": "Créer Nouvel Utilisateur",
+      "user_role": "Rôle Utilisateur",
+      "user_status": "Statut Utilisateur",
+      "active": "Actif",
+      "inactive": "Inactif",
+      "roles": {
+        "customer": "Client",
+        "staff": "Personnel",
+        "admin": "Administrateur"
+      }
+    },
+    "products": {
+      "title": "Gestion des Produits",
+      "all_products": "Tous les Produits",
+      "add_product": "Ajouter Nouveau Produit",
+      "edit_product": "Modifier Produit",
+      "delete_product": "Supprimer Produit",
+      "product_info": "Informations Produit",
+      "stock_management": "Gestion du Stock"
+    },
+    "categories": {
+      "title": "Gestion des Catégories",
+      "all_categories": "Toutes les Catégories",
+      "add_category": "Ajouter Nouvelle Catégorie",
+      "edit_category": "Modifier Catégorie",
+      "delete_category": "Supprimer Catégorie"
+    },
+    "navigation": {
+      "dashboard": "Tableau de Bord",
+      "orders": "Commandes",
+      "users": "Utilisateurs",
+      "products": "Produits",
+      "categories": "Catégories",
+      "reports": "Rapports",
+      "settings": "Paramètres"
+    }
+  },
+  "footer": {
+    "copyright": "© 2025 E-commerce Produits Frais. Tous droits réservés.",
+    "about": "À Propos",
+    "contact": "Contact",
+    "privacy": "Politique de Confidentialité",
+    "terms": "Conditions d'Utilisation"
   },
   "language": {
     "select": "Choisir la langue",
     "french": "Français",
     "english": "English",
     "arabic": "العربية"
+  },
+  "errors": {
+    "network_error": "Erreur réseau",
+    "server_error": "Erreur serveur",
+    "not_found": "Introuvable",
+    "unauthorized": "Non autorisé",
+    "forbidden": "Interdit",
+    "validation_error": "Erreur de validation",
+    "unknown_error": "Erreur inconnue"
+  },
+  "actions": {
+    "refresh": "Actualiser",
+    "retry": "Réessayer",
+    "go_back": "Retour",
+    "go_home": "Accueil",
+    "contact_support": "Contacter le Support"
   }
 }

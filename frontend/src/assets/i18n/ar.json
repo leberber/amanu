@@ -27,7 +27,14 @@
     "password": "كلمة المرور",
     "phone": "الهاتف",
     "address": "العنوان",
-    "menu": "القائمة"
+    "menu": "القائمة",
+    "back": "العودة",
+    "continue": "المتابعة",
+    "confirm": "تأكيد",
+    "close": "إغلاق",
+    "yes": "نعم",
+    "no": "لا",
+    "and": "و"
   },
   "header": {
     "fresh_produce": "المنتجات الطازجة",
@@ -38,47 +45,336 @@
     "admin": "الإدارة"
   },
   "home": {
-    "title": "مرحباً بكم في متجر المنتجات الطازجة",
-    "subtitle": "اكتشفوا فواكهنا وخضرواتنا الطازجة عالية الجودة",
-    "shop_now": "تسوق الآن",
-    "fresh_fruits": "فواكه طازجة",
-    "fresh_vegetables": "خضروات طازجة",
-    "organic_produce": "منتجات عضوية"
+    "hero": {
+      "title": "منتجات طازجة تُسلم إلى باب منزلك",
+      "subtitle": "تسوق أطزج الفواكه والخضروات بسهولة",
+      "shop_now": "تسوق الآن"
+    },
+    "categories": {
+      "title": "تسوق حسب الفئة",
+      "fresh_fruits": {
+        "name": "فواكه طازجة",
+        "description": "فواكه طازجة وموسمية"
+      },
+      "fresh_vegetables": {
+        "name": "خضروات طازجة",
+        "description": "خضروات طازجة وموسمية"
+      },
+      "organic_produce": {
+        "name": "منتجات عضوية",
+        "description": "فواكه وخضروات عضوية معتمدة"
+      },
+      "explore": "استكشف"
+    },
+    "features": {
+      "fast_delivery": {
+        "title": "توصيل سريع",
+        "description": "احصل على منتجاتك مُسلمة إلى عتبة منزلك خلال 24 ساعة"
+      },
+      "quality_guaranteed": {
+        "title": "جودة مضمونة",
+        "description": "نحن نتزود فقط من أطزج المنتجات من المزارعين المحليين"
+      },
+      "organic_options": {
+        "title": "خيارات عضوية",
+        "description": "اختر من مجموعة واسعة من الفواكه والخضروات العضوية"
+      }
+    }
   },
   "products": {
     "title": "منتجاتنا",
-    "filters": "المرشحات",
-    "sort_by": "ترتيب حسب",
-    "categories": "الفئات",
-    "organic_only": "عضوي فقط",
-    "out_of_stock": "غير متوفر",
-    "low_stock": "مخزون منخفض",
-    "add_to_cart": "إضافة للسلة",
-    "select_quantity": "اختر الكمية"
+    "filters": {
+      "title": "المرشحات",
+      "category_filter": "مرشح الفئة",
+      "quick_selection": "اختيار سريع",
+      "all": "الكل",
+      "none": "لا شيء",
+      "categories_selected": "الفئات المحددة",
+      "reset_filters": "إعادة تعيين المرشحات",
+      "clear_filters": "مسح المرشحات",
+      "error": "فشل في تحميل المرشحات"
+    },
+    "search": {
+      "placeholder": "البحث عن المنتجات...",
+      "placeholder_mobile": "البحث..."
+    },
+    "sort": {
+      "title": "ترتيب حسب",
+      "name_asc": "الاسم أ-ي",
+      "name_desc": "الاسم ي-أ",
+      "price_asc": "السعر من الأقل للأعلى",
+      "price_desc": "السعر من الأعلى للأقل",
+      "created_at_desc": "الأحدث أولاً"
+    },
+    "view": {
+      "grid": "عرض الشبكة",
+      "list": "عرض القائمة"
+    },
+    "product": {
+      "organic": "عضوي",
+      "select_quantity": "اختر الكمية",
+      "qty": "كمية",
+      "out_of_stock": "غير متوفر",
+      "add_to_cart": "إضافة للسلة",
+      "related_products": "منتجات ذات صلة",
+      "product_details": "تفاصيل المنتج",
+      "reviews": "التقييمات"
+    },
+      "stock": {
+      "out_of_stock": "غير متوفر",
+      "low_stock": "باقي {count} فقط في المخزون",
+      "low_stock_title": "مخزون قليل",
+      "in_stock": "متوفر في المخزون",
+      "available": "متاح",
+      "unavailable_message": "هذا العنصر غير متوفر حالياً"
+    },
+    "empty": {
+      "title": "لم يتم العثور على منتجات",
+      "subtitle": "حاول تغيير المرشحات أو معايير البحث."
+    },
+    "cart": {
+      "add_to_cart": "إضافة للسلة",
+      "added_to_cart": "تمت الإضافة للسلة",
+      "added_message": "تمت إضافة {quantity} {unit} من {name} إلى سلتك",
+      "error": "فشل في إضافة العنصر للسلة"
+    }
   },
   "cart": {
     "title": "سلتي",
     "empty": "سلتك فارغة",
+    "empty_message": "لم تقم بإضافة أي منتجات إلى سلتك بعد",
+    "shop_now": "تسوق الآن",
     "item_count": "عنصر/عناصر",
     "subtotal": "المجموع الفرعي",
     "checkout": "إتمام الطلب",
+    "continue_shopping": "متابعة التسوق",
     "remove_item": "إزالة العنصر",
-    "update_quantity": "تحديث الكمية"
+    "update_quantity": "تحديث الكمية",
+    "clear_cart": "مسح السلة",
+    "item_removed": "تم إزالة العنصر",
+    "cart_cleared": "تم مسح السلة",
+    "quantity_updated": "تم تحديث الكمية",
+    "login_required": "تسجيل الدخول مطلوب",
+    "login_message": "يرجى تسجيل الدخول أو إنشاء حساب للمتابعة"
   },
   "auth": {
     "login_title": "تسجيل الدخول",
+    "login_subtitle": "أدخل بياناتك للوصول إلى حسابك",
     "register_title": "إنشاء حساب",
+    "register_subtitle": "انضم إلينا وابدأ التسوق اليوم",
     "full_name": "الاسم الكامل",
+    "full_name_placeholder": "أدخل اسمك الكامل",
+    "full_name_required": "الاسم الكامل مطلوب",
+    "full_name_minlength": "الاسم الكامل يجب أن يكون حرفين على الأقل",
+    "email_placeholder": "أدخل بريدك الإلكتروني",
+    "email_required": "البريد الإلكتروني مطلوب",
+    "email_invalid": "البريد الإلكتروني غير صحيح",
+    "password_placeholder": "أدخل كلمة المرور",
+    "password_required": "كلمة المرور مطلوبة",
+    "password_minlength": "كلمة المرور يجب أن تكون 8 أحرف على الأقل",
+    "password_prompt": "أدخل كلمة مرور",
+    "password_weak": "ضعيفة",
+    "password_medium": "متوسطة",
+    "password_strong": "قوية",
+    "phone_placeholder": "أدخل رقم هاتفك",
+    "phone_invalid": "رقم الهاتف غير صحيح",
+    "address_placeholder": "أدخل عنوانك",
+    "remember_me": "تذكرني",
     "forgot_password": "نسيت كلمة المرور؟",
+    "forgot_password_message": "ستتم إضافة ميزة استعادة كلمة المرور قريباً",
     "no_account": "ليس لديك حساب؟",
+    "register_now": "سجل الآن",
     "already_have_account": "لديك حساب بالفعل؟",
+    "login_now": "سجل دخولك الآن",
+    "login": "تسجيل الدخول",
+    "register": "إنشاء حساب",
+    "session_expired_title": "انتهت الجلسة",
+    "session_expired_message": "انتهت صلاحية جلستك. يرجى تسجيل الدخول مرة أخرى للمتابعة",
     "login_success": "تم تسجيل الدخول بنجاح",
-    "register_success": "تم إنشاء الحساب بنجاح"
+    "login_failed": "فشل تسجيل الدخول",
+    "register_success": "تم إنشاء الحساب بنجاح. يمكنك الآن تسجيل الدخول",
+    "register_failed": "فشل في إنشاء الحساب",
+    "terms_agreement": "بإنشاء حساب، أنت توافق على",
+    "terms_of_service": "شروط الخدمة",
+    "privacy_policy": "سياسة الخصوصية"
+  },
+  "checkout": {
+    "title": "إتمام الطلب",
+    "subtitle": "راجع طلبك وأكمل عملية الشراء",
+    "progress": {
+      "title": "تقدم النموذج",
+      "subtitle": "املأ جميع الحقول المطلوبة لإتمام طلبك"
+    },
+    "shipping_info": "معلومات الشحن",
+    "order_summary": "ملخص الطلب",
+    "full_name_placeholder": "أدخل اسمك الكامل",
+    "full_name_required": "الاسم الكامل مطلوب",
+    "phone_placeholder": "أدخل رقم هاتفك",
+    "phone_required": "رقم الهاتف مطلوب",
+    "phone_invalid": "رقم الهاتف غير صحيح",
+    "shipping_address": "عنوان الشحن",
+    "address_placeholder": "أدخل عنوانك الكامل للشحن",
+    "address_required": "عنوان الشحن مطلوب",
+    "address_minlength": "عنوان الشحن قصير جداً",
+    "subtotal": "المجموع الفرعي",
+    "delivery_fee": "رسوم التوصيل",
+    "free": "مجاني",
+    "total": "المجموع الكلي",
+    "place_order": "تأكيد الطلب",
+    "secure_checkout": "دفع آمن ومحمي",
+    "order_placed": "تم تأكيد طلبك بنجاح!",
+    "processing": "جاري معالجة طلبك...",
+    "empty_cart": "سلتك فارغة",
+    "empty_cart_message": "يرجى إضافة منتجات إلى سلتك قبل إتمام الطلب",
+    "auth_required": "تسجيل الدخول مطلوب",
+    "auth_required_message": "يجب تسجيل الدخول لإتمام عملية الشراء"
+  },
+  "orders": {
+    "title": "طلباتي",
+    "loading": "جاري تحميل طلباتك...",
+    "empty": {
+      "title": "لم يتم العثور على طلبات",
+      "subtitle": "لم تقم بتقديم أي طلبات بعد.",
+      "browse_products": "تصفح المنتجات"
+    },
+    "table": {
+      "order_number": "طلب #",
+      "date": "التاريخ",
+      "status": "الحالة",
+      "total": "المجموع",
+      "actions": "الإجراءات",
+      "view": "عرض",
+      "pagination": "عرض {first} إلى {last} من {totalRecords} طلبات"
+    },
+    "status": {
+      "pending": "قيد الانتظار",
+      "confirmed": "مؤكد",
+      "shipped": "مُرسل",
+      "delivered": "مُسلم",
+      "cancelled": "ملغي"
+    },
+    "detail": {
+      "title": "تفاصيل الطلب",
+      "order_info": "معلومات الطلب",
+      "order_timeline": "مراحل الطلب",
+      "order_items": "عناصر الطلب",
+      "shipping_address": "عنوان الشحن",
+      "contact_phone": "هاتف التواصل",
+      "order_total": "إجمالي الطلب",
+      "order_date": "تاريخ الطلب",
+      "cancel_order": "إلغاء الطلب",
+      "back_to_orders": "العودة للطلبات",
+      "order_cancelled": "تم إلغاء طلبك بنجاح",
+      "cancel_error": "فشل في إلغاء الطلب",
+      "timeline": {
+        "order_placed": "تم تقديم الطلب",
+        "order_confirmed": "تم تأكيد الطلب",
+        "order_shipped": "تم شحن الطلب",
+        "order_delivered": "تم تسليم الطلب",
+        "order_cancelled": "تم إلغاء الطلب"
+      }
+    },
+    "errors": {
+      "failed_to_load": "فشل في تحميل طلباتك",
+      "order_not_found": "لم يتم العثور على الطلب"
+    }
+  },
+  "admin": {
+    "dashboard": {
+      "title": "لوحة التحكم",
+      "welcome": "مرحباً بك في لوحة تحكم الإدارة",
+      "overview": "نظرة عامة"
+    },
+    "stats": {
+      "total_users": "إجمالي المستخدمين",
+      "total_products": "إجمالي المنتجات",
+      "total_categories": "إجمالي الفئات",
+      "total_orders": "إجمالي الطلبات",
+      "total_revenue": "إجمالي الإيرادات",
+      "pending_orders": "الطلبات المعلقة",
+      "low_stock_products": "منتجات قليلة المخزون",
+      "top_selling_products": "المنتجات الأكثر مبيعاً",
+      "recent_orders": "الطلبات الحديثة",
+      "sales_by_category": "المبيعات حسب الفئة"
+    },
+    "orders": {
+      "title": "إدارة الطلبات",
+      "all_orders": "جميع الطلبات",
+      "filter_by_status": "تصفية حسب الحالة",
+      "update_status": "تحديث الحالة",
+      "order_details": "تفاصيل الطلب",
+      "customer_info": "معلومات العميل"
+    },
+    "users": {
+      "title": "إدارة المستخدمين",
+      "all_users": "جميع المستخدمين",
+      "user_details": "تفاصيل المستخدم",
+      "edit_user": "تحرير المستخدم",
+      "delete_user": "حذف المستخدم",
+      "create_user": "إنشاء مستخدم جديد",
+      "user_role": "دور المستخدم",
+      "user_status": "حالة المستخدم",
+      "active": "نشط",
+      "inactive": "غير نشط",
+      "roles": {
+        "customer": "عميل",
+        "staff": "موظف",
+        "admin": "مدير"
+      }
+    },
+    "products": {
+      "title": "إدارة المنتجات",
+      "all_products": "جميع المنتجات",
+      "add_product": "إضافة منتج جديد",
+      "edit_product": "تحرير المنتج",
+      "delete_product": "حذف المنتج",
+      "product_info": "معلومات المنتج",
+      "stock_management": "إدارة المخزون"
+    },
+    "categories": {
+      "title": "إدارة الفئات",
+      "all_categories": "جميع الفئات",
+      "add_category": "إضافة فئة جديدة",
+      "edit_category": "تحرير الفئة",
+      "delete_category": "حذف الفئة"
+    },
+    "navigation": {
+      "dashboard": "الرئيسية",
+      "orders": "الطلبات",
+      "users": "المستخدمين",
+      "products": "المنتجات",
+      "categories": "الفئات",
+      "reports": "التقارير",
+      "settings": "الإعدادات"
+    }
+  },
+  "footer": {
+    "copyright": "© 2025 متجر المنتجات الطازجة. جميع الحقوق محفوظة.",
+    "about": "حول الموقع",
+    "contact": "اتصل بنا",
+    "privacy": "سياسة الخصوصية",
+    "terms": "شروط الاستخدام"
   },
   "language": {
     "select": "اختر اللغة",
     "french": "Français",
     "english": "English",
     "arabic": "العربية"
+  },
+  "errors": {
+    "network_error": "خطأ في الشبكة",
+    "server_error": "خطأ في الخادم",
+    "not_found": "غير موجود",
+    "unauthorized": "غير مصرح",
+    "forbidden": "ممنوع",
+    "validation_error": "خطأ في التحقق",
+    "unknown_error": "خطأ غير معروف"
+  },
+  "actions": {
+    "refresh": "تحديث",
+    "retry": "إعادة المحاولة",
+    "go_back": "العودة",
+    "go_home": "الرئيسية",
+    "contact_support": "اتصل بالدعم"
   }
 }

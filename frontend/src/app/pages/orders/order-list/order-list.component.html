@@ -3,20 +3,24 @@
     <p-toast></p-toast>
     
     <div class="surface-card p-3 border-round">
-      <h1 class="text-2xl font-medium mb-4 ml-2">My Orders</h1>
+      <h1 class="text-2xl font-medium mb-4 ml-2">{{ 'orders.title' | translate }}</h1>
       
       <!-- Loading state -->
       <div *ngIf="loading" class="text-center py-5">
         <i class="pi pi-spin pi-spinner text-4xl text-primary mb-3"></i>
-        <p>Loading your orders...</p>
+        <p>{{ 'orders.loading' | translate }}</p>
       </div>
       
       <!-- Empty state -->
       <div *ngIf="!loading && orders.length === 0" class="text-center py-5">
         <i class="pi pi-inbox text-6xl text-primary-200 mb-4"></i>
-        <h2 class="text-2xl font-medium mb-3">No orders found</h2>
-        <p class="text-lg mb-5">You haven't placed any orders yet.</p>
-        <p-button label="Browse Products" icon="pi pi-shopping-bag" routerLink="/products"></p-button>
+        <h2 class="text-2xl font-medium mb-3">{{ 'orders.empty.title' | translate }}</h2>
+        <p class="text-lg mb-5">{{ 'orders.empty.subtitle' | translate }}</p>
+        <p-button 
+          [label]="'orders.empty.browse_products' | translate" 
+          icon="pi pi-shopping-bag" 
+          routerLink="/products">
+        </p-button>
       </div>
       
       <!-- Desktop Table View - Hidden on mobile -->
@@ -30,16 +34,16 @@
         [rowsPerPageOptions]="[5, 10, 25]"
         scrollHeight="68vh"
         [scrollable]="true" 
-        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} orders"
+        [currentPageReportTemplate]="'orders.table.pagination' | translate"
         class="hidden md:block"
       >
         <ng-template pTemplate="header">
           <tr>
-            <th>Order #</th>
-            <th>Date</th>
-            <th>Status</th>
-            <th>Total</th>
-            <th style="width: 150px">Actions</th>
+            <th>{{ 'orders.table.order_number' | translate }}</th>
+            <th>{{ 'orders.table.date' | translate }}</th>
+            <th>{{ 'orders.table.status' | translate }}</th>
+            <th>{{ 'orders.table.total' | translate }}</th>
+            <th style="width: 150px">{{ 'orders.table.actions' | translate }}</th>
           </tr>
         </ng-template>
         <ng-template pTemplate="body" let-order>
@@ -54,7 +58,7 @@
               <button 
                 pButton 
                 type="button" 
-                label="View" 
+                [label]="'orders.table.view' | translate" 
                 icon="pi pi-eye" 
                 class="p-button-sm"
                 (click)="viewOrderDetails(order.id)"
@@ -65,44 +69,45 @@
       </p-table>
 
       <!-- Mobile Card View - Clickable Rows -->
-  <!-- Mobile Card View - Clickable Rows -->
-<div *ngIf="!loading && orders.length > 0" class="block md:hidden">
-  <div *ngFor="let order of orders" 
-       class="surface-card p-4 mb-4 border-bottom-1 border-100 cursor-pointer hover:surface-100 transition-colors transition-duration-150"
-       (click)="viewOrderDetails(order.id)">
-    
-    <div class="flex align-items-center">
-      <!-- Icon -->
-      <div class="flex align-items-center justify-content-center w-3rem h-3rem border-circle bg-primary text-primary mr-4 flex-shrink-0">
-        <i class="pi pi-eye text-lg"></i>
-      </div>
-      
-      <!-- Content -->
-      <div class="flex-grow-1 overflow-hidden">
-        <!-- Order number with status -->
-        <div class="flex align-items-center justify-content-between mb-3">
-          <span class="font-medium text-overflow-ellipsis overflow-hidden white-space-nowrap text-base">Order #{{order.id}}</span>
-          <p-tag 
-            [severity]="getStatusSeverity(order.status)" 
-            [value]="getStatusLabel(order.status)"
-            [style]="{'font-size': '0.875rem', 'padding': '0.5rem 0.75rem'}"
-          ></p-tag>
-        </div>
-        
-        <!-- Date/Total row -->
-        <div class="flex justify-content-between align-items-center">
-          <span class="text-600 text-sm">{{order.created_at | date:'MMM d, y'}}</span>
-          <span class="font-bold text-900 text-base">${{order.total_amount}}</span>
-        </div>
-      </div>
+      <div *ngIf="!loading && orders.length > 0" class="block md:hidden">
+        <div *ngFor="let order of orders" 
+             class="surface-card p-4 mb-4 border-bottom-1 border-100 cursor-pointer hover:surface-100 transition-colors transition-duration-150"
+             (click)="viewOrderDetails(order.id)">
+          
+          <div class="flex align-items-center">
+            <!-- Icon -->
+            <div class="flex align-items-center justify-content-center w-3rem h-3rem border-circle bg-primary text-primary mr-4 flex-shrink-0">
+              <i class="pi pi-eye text-lg"></i>
+            </div>
+            
+            <!-- Content -->
+            <div class="flex-grow-1 overflow-hidden">
+              <!-- Order number with status -->
+              <div class="flex align-items-center justify-content-between mb-3">
+                <span class="font-medium text-overflow-ellipsis overflow-hidden white-space-nowrap text-base">
+                  {{ 'orders.table.order_number' | translate }} {{order.id}}
+                </span>
+                <p-tag 
+                  [severity]="getStatusSeverity(order.status)" 
+                  [value]="getStatusLabel(order.status)"
+                  [style]="{'font-size': '0.875rem', 'padding': '0.5rem 0.75rem'}"
+                ></p-tag>
+              </div>
+              
+              <!-- Date/Total row -->
+              <div class="flex justify-content-between align-items-center">
+                <span class="text-600 text-sm">{{order.created_at | date:'MMM d, y'}}</span>
+                <span class="font-bold text-900 text-base">${{order.total_amount}}</span>
+              </div>
+            </div>
 
-      <!-- Chevron indicator -->
-      <div class="flex align-items-center justify-content-center ml-3">
-        <i class="pi pi-chevron-right text-400"></i>
+            <!-- Chevron indicator -->
+            <div class="flex align-items-center justify-content-center ml-3">
+              <i class="pi pi-chevron-right text-400"></i>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
-</div>
 
     </div>
 </div>

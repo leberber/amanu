@@ -8,7 +8,7 @@
       <div class="flex justify-content-center align-items-center h-full">
         <div class="text-center">
           <i class="pi pi-spin pi-spinner text-4xl text-primary mb-3"></i>
-          <p class="text-lg text-600">Loading product details...</p>
+          <p class="text-lg text-600">{{ 'common.loading' | translate }}</p>
         </div>
       </div>
     } 
@@ -17,11 +17,11 @@
       <div class="flex justify-content-center align-items-center h-full">
         <div class="surface-card p-6 border-round text-center shadow-1">
           <i class="pi pi-exclamation-triangle text-6xl text-red-500 mb-4"></i>
-          <h2 class="text-2xl font-semibold mb-3">Product Not Found</h2>
-          <p class="text-lg text-600 mb-5">The product you're looking for doesn't exist or has been removed.</p>
+          <h2 class="text-2xl font-semibold mb-3">{{ 'products.empty.title' | translate }}</h2>
+          <p class="text-lg text-600 mb-5">{{ 'errors.not_found' | translate }}</p>
           <button 
             pButton 
-            label="Back to Products" 
+            [label]="'actions.go_back' | translate" 
             icon="pi pi-arrow-left" 
             routerLink="/products"
             style="padding:14px"
@@ -35,7 +35,7 @@
       <div class="mb-4">
         <button 
           pButton 
-          label="Back to Products" 
+          [label]="'actions.go_back' | translate" 
           icon="pi pi-arrow-left" 
           style="padding:12px"
           routerLink="/products"
@@ -45,7 +45,7 @@
       <div class="grid">
         <!-- Product Image -->
         <div class="col-12 lg:col-6">
-          <div class="surface-card  border-round  relative">
+          <div class="surface-card border-round relative">
             <img 
               [src]="product()?.image_url || 'assets/images/product-placeholder.jpg'" 
               [alt]="product()?.name" 
@@ -56,19 +56,19 @@
             @if (product()?.is_organic) {
               <span class="absolute top-0 right-0 bg-green-500 text-white px-3 py-2 text-sm font-medium m-3 border-round-lg shadow-2">
                 <i class="pi pi-leaf mr-1"></i>
-                Organic
+                {{ 'products.product.organic' | translate }}
               </span>
             }
 
             @if (isOutOfStock()) {
               <span class="absolute top-0 left-0 bg-red-500 text-white px-3 py-2 text-sm font-medium m-3 border-round-lg shadow-2">
                 <i class="pi pi-times-circle mr-1"></i>
-                Out of Stock
+                {{ 'products.stock.out_of_stock' | translate }}
               </span>
             } @else if (isLowStock()) {
               <span class="absolute top-0 left-0 bg-orange-500 text-white px-3 py-2 text-sm font-medium m-3 border-round-lg shadow-2">
                 <i class="pi pi-exclamation-triangle mr-1"></i>
-                Low Stock
+                {{ 'products.stock.low_stock_title' | translate }}
               </span>
             }
           </div>
@@ -85,7 +85,7 @@
                   @if (product()?.is_organic) {
                     <p-tag 
                       severity="success" 
-                      value="Certified Organic" 
+                      [value]="'products.product.organic' | translate" 
                       icon="pi pi-leaf"
                       [style]="{'font-size': '0.875rem', 'padding': '0.5rem 0.75rem'}"
                     ></p-tag>
@@ -96,7 +96,7 @@
                     ${{product()?.price}}
                   </div>
                   <div class="text-lg text-600">
-                    per {{getUnitDisplay(product()?.unit || '')}}
+                    {{ 'common.price' | translate }} {{unitDisplay()}}
                   </div>
                 </div>
               </div>
@@ -104,7 +104,7 @@
 
             <!-- Description -->
             <div class="mb-4">
-              <h3 class="text-2xl font-semibold text-900 mb-3">Description</h3>
+              <h3 class="text-2xl font-semibold text-900 mb-3">{{ 'common.description' | translate }}</h3>
               <p class="text-lg line-height-3 text-700">{{product()?.description}}</p>
             </div>
             
@@ -115,8 +115,8 @@
                   <div class="flex align-items-center">
                     <i class="pi pi-times-circle text-red-500 text-xl mr-3"></i>
                     <div>
-                      <h4 class="text-red-800 font-semibold m-0 mb-1">Out of Stock</h4>
-                      <p class="text-red-600 m-0">This item is currently unavailable</p>
+                      <h4 class="text-red-800 font-semibold m-0 mb-1">{{ 'products.stock.out_of_stock' | translate }}</h4>
+                      <p class="text-red-600 m-0">{{ 'products.stock.unavailable_message' | translate }}</p>
                     </div>
                   </div>
                 </div>
@@ -125,8 +125,8 @@
                   <div class="flex align-items-center">
                     <i class="pi pi-exclamation-triangle text-orange-500 text-xl mr-3"></i>
                     <div>
-                      <h4 class="text-orange-800 font-semibold m-0 mb-1">Low Stock</h4>
-                      <p class="text-orange-600 m-0">Only {{product()?.stock_quantity}} {{getUnitDisplay(product()?.unit || '')}} remaining</p>
+                      <h4 class="text-orange-800 font-semibold m-0 mb-1">{{ 'products.stock.low_stock_title' | translate }}</h4>
+                      <p class="text-orange-600 m-0">{{ 'products.stock.low_stock' | translate : lowStockParams() }} {{unitDisplay()}}</p>
                     </div>
                   </div>
                 </div>
@@ -135,8 +135,8 @@
                   <div class="flex align-items-center">
                     <i class="pi pi-check-circle text-green-500 text-xl mr-3"></i>
                     <div>
-                      <h4 class="text-green-800 font-semibold m-0 mb-1">In Stock</h4>
-                      <p class="text-green-600 m-0">{{product()?.stock_quantity}} {{getUnitDisplay(product()?.unit || '')}} available</p>
+                      <h4 class="text-green-800 font-semibold m-0 mb-1">{{ 'products.stock.in_stock' | translate }}</h4>
+                      <p class="text-green-600 m-0">{{product()?.stock_quantity}} {{ unitDisplay() }} {{ 'products.stock.available' | translate }}</p>
                     </div>
                   </div>
                 </div>
@@ -145,15 +145,15 @@
             
             <!-- Add to Cart Section -->
             <div class="mt-auto">
-              <div class=" p-4 border-round shadow-1">
+              <div class="p-4 border-round shadow-1">
                 <div class="flex flex-column gap-4">
                   <!-- Quantity Selector -->
                   <div>
-                    <label class="block text-900 font-medium mb-2">Quantity</label>
+                    <label class="block text-900 font-medium mb-2">{{ 'common.quantity' | translate }}</label>
                     <p-select
                       [(ngModel)]="selectedQuantity"
                       [options]="getQuantityOptions(product()?.stock_quantity || 0)"
-                      placeholder="Select quantity"
+                      [placeholder]="'products.product.select_quantity' | translate"
                       styleClass="w-full"
                       [virtualScroll]="true"
                       [virtualScrollItemSize]="38"
@@ -167,7 +167,7 @@
                   <!-- Add to Cart Button -->
                   <button 
                     pButton 
-                    label="Add to Cart" 
+                    [label]="'products.cart.add_to_cart' | translate" 
                     icon="pi pi-shopping-cart" 
                     (click)="addToCart()"
                     [disabled]="isOutOfStock() || !selectedQuantity"
@@ -180,8 +180,6 @@
             </div>
           </div>
         </div>
-        
- 
       </div>
     }
   </div>

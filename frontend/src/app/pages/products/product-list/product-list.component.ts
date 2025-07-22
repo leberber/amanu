@@ -19,6 +19,7 @@ import { AccordionModule } from 'primeng/accordion';
 import { MenuModule } from 'primeng/menu';
 import { SelectModule } from 'primeng/select';
 import { BadgeModule } from 'primeng/badge';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 // Services and models
 import { CartService } from '../../../services/cart.service';
@@ -51,12 +52,12 @@ interface LayoutOption {
     SelectButtonModule,
     CheckboxModule,
     MenuModule,
-    SelectModule
+    SelectModule,
+    TranslateModule
   ],
   providers: [MessageService],
   templateUrl: './product-list.component.html',
   styleUrl: './product-list.component.scss'
-
 })
 export class ProductListComponent implements OnInit {
   // Services
@@ -64,6 +65,7 @@ export class ProductListComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private messageService = inject(MessageService);
   private cartService = inject(CartService);
+  private translateService = inject(TranslateService);
   
   // Signals
   products = signal<Product[]>([]);
@@ -88,14 +90,16 @@ export class ProductListComponent implements OnInit {
     sort_order: 'asc'
   });
   
-  // Sort options
-  sortOptions: SortOption[] = [
-    { label: 'Name A-Z', value: 'name_asc' },
-    { label: 'Name Z-A', value: 'name_desc' },
-    { label: 'Price Low to High', value: 'price_asc' },
-    { label: 'Price High to Low', value: 'price_desc' },
-    { label: 'Newest First', value: 'created_at_desc' }
-  ];
+  // Sort options - now using translations
+  get sortOptions(): SortOption[] {
+    return [
+      { label: this.translateService.instant('products.sort.name_asc'), value: 'name_asc' },
+      { label: this.translateService.instant('products.sort.name_desc'), value: 'name_desc' },
+      { label: this.translateService.instant('products.sort.price_asc'), value: 'price_asc' },
+      { label: this.translateService.instant('products.sort.price_desc'), value: 'price_desc' },
+      { label: this.translateService.instant('products.sort.created_at_desc'), value: 'created_at_desc' }
+    ];
+  }
   
   // Computed sort menu items for mobile based on sort options
   sortMenuItems = computed(() => {
@@ -240,8 +244,8 @@ export class ProductListComponent implements OnInit {
       error: () => {
         this.messageService.add({
           severity: 'error',
-          summary: 'Error',
-          detail: 'Failed to load categories'
+          summary: this.translateService.instant('common.error'),
+          detail: this.translateService.instant('products.filters.error')
         });
         this.loading.set(false);
       }
@@ -425,17 +429,21 @@ export class ProductListComponent implements OnInit {
       next: () => {
         this.messageService.add({
           severity: 'success',
-          summary: 'Added to Cart',
-          detail: `${actualQuantity} ${this.getUnitDisplay(product.unit)} of ${product.name} added to your cart`,
-          life: 300
+          summary: this.translateService.instant('products.cart.added_to_cart'),
+          detail: this.translateService.instant('products.cart.added_message', {
+            quantity: actualQuantity,
+            unit: this.getUnitDisplay(product.unit),
+            name: product.name
+          }),
+          life: 3000
         });
       },
       error: (error) => {
         console.error('Error adding to cart:', error);
         this.messageService.add({
           severity: 'error',
-          summary: 'Error',
-          detail: 'Failed to add item to cart',
+          summary: this.translateService.instant('common.error'),
+          detail: this.translateService.instant('products.cart.error'),
           life: 3000
         });
       }
@@ -516,7 +524,7 @@ export class ProductListComponent implements OnInit {
   // Get the display label for the selected quantity with dynamic unit
   getSelectedQuantityLabel(productId: number): string {
     const quantity = this.productQuantities[productId];
-    if (!quantity) return 'Select quantity';
+    if (!quantity) return this.translateService.instant('products.product.select_quantity');
     
     const product = this.products().find(p => p.id === productId);
     if (!product) return `${quantity} units`;
@@ -537,8 +545,8 @@ export class ProductListComponent implements OnInit {
   // Get stock message
   getStockMessage(product: Product): string {
     return this.isOutOfStock(product) 
-      ? 'Out of stock' 
-      : `Only ${product.stock_quantity} left in stock`;
+      ? this.translateService.instant('products.stock.out_of_stock')
+      : this.translateService.instant('products.stock.low_stock', { count: product.stock_quantity });
   }
   
   // Get stock icon

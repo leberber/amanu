@@ -40,7 +40,7 @@
 <ng-template #categoryFilterTemplate>
   <div class=" shadow-2 border-round">
     <div class="bg-black-alpha-90 p-3 border-round-top">
-        <h2 class="text-xl font-medium m-0 text-white">Filters</h2>
+        <h2 class="text-xl font-medium m-0 text-white">{{ 'products.filters.title' | translate }}</h2>
     </div>
     
     <div class="p-3">
@@ -56,7 +56,7 @@
                 </ng-template>
                 <span class="flex items-center gap-2 w-full">
                     <i class="pi pi-filter"></i>
-                    <span class="font-bold whitespace-nowrap">Category Filter</span>
+                    <span class="font-bold whitespace-nowrap">{{ 'products.filters.category_filter' | translate }}</span>
                     <p-badge [value]="selectedCategories().length.toString()" class="ml-auto mr-2" />
                 </span>
             </p-accordion-header>
@@ -64,12 +64,12 @@
                 <div class="p-2">
                     <!-- Quick selection controls -->
                     <div class="flex flex-column align-items-center mb-2 border-bottom-1 surface-border pb-2">
-                        <span class="font-medium text-600 mb-2">Quick Selection</span>
+                        <span class="font-medium text-600 mb-2">{{ 'products.filters.quick_selection' | translate }}</span>
                         <div class="flex">
-                            <button pButton type="button" label="All" icon="pi pi-check" 
+                            <button pButton type="button" [label]="'products.filters.all' | translate" icon="pi pi-check" 
                                     class="p-button-rounded p-button-sm p-button-success mr-2"
                                     (click)="selectAllCategories()"></button>
-                            <button pButton type="button" label="None" icon="pi pi-times" 
+                            <button pButton type="button" [label]="'products.filters.none' | translate" icon="pi pi-times" 
                                     class="p-button-rounded p-button-sm p-button-danger"
                                     (click)="deselectAllCategories()"></button>
                         </div>
@@ -78,7 +78,7 @@
                     <!-- Category counter -->
                     <div class="mb-2 text-center p-2 border-round border-1 border-green-500">
                         <div class="text-xl font-bold text-primary">{{ selectedCategories().length }}/{{ categories().length }}</div>
-                        <div class="text-sm text-700">Categories Selected</div>
+                        <div class="text-sm text-700">{{ 'products.filters.categories_selected' | translate }}</div>
                     </div>
     
                     <!-- Categories list -->
@@ -99,7 +99,7 @@
                     </div>
     
                     <!-- Reset Filters Button -->
-                    <button pButton label="Reset Filters" icon="pi pi-filter-slash" 
+                    <button pButton [label]="'products.filters.reset_filters' | translate" icon="pi pi-filter-slash" 
                             class="p-button-outlined w-full p-button-danger"
                             (click)="clearFilters()"></button>
                 </div>
@@ -112,29 +112,25 @@
 
 <!-- Search & Sort Bar Template -->
 <ng-template #searchSortBarTemplate>
-  <div class="surface-card p-2 border-round mb-2 filtes-fixed" 
-     
-     >
+  <div class="surface-card p-2 border-round mb-2 filtes-fixed">
       <div class="flex flex-column sm:flex-row justify-content-between align-items-center">
           <!-- Desktop Search -->
           <div class="p-inputgroup mb-2 sm:mb-0 sm:w-8 hidden sm:flex">
- <input type="text" pInputText [ngModel]="searchQuery()" 
-        (ngModelChange)="searchQuery.set($event); onSearch()"
-        placeholder="Search products..."
-        class="text-lg"
-
-        [style]="{'padding': '0.75rem 1rem', 'height': '3rem', 'width': '500px'}">
-</div>
-
+            <input type="text" pInputText [ngModel]="searchQuery()" 
+                   (ngModelChange)="searchQuery.set($event); onSearch()"
+                   [placeholder]="'products.search.placeholder' | translate"
+                   class="text-lg"
+                   [style]="{'padding': '0.75rem 1rem', 'height': '3rem', 'width': '500px'}">
+          </div>
           
           <!-- Mobile Layout -->
           <div class="flex justify-content-between align-items-center w-full sm:hidden">
             <div class="p-inputgroup flex-1 mr-2">
-    <input type="text" pInputText [ngModel]="searchQuery()" 
-           (ngModelChange)="searchQuery.set($event); onSearch()"
-           placeholder="Search..."
-           class="text-lg p-2">
-</div>
+              <input type="text" pInputText [ngModel]="searchQuery()" 
+                     (ngModelChange)="searchQuery.set($event); onSearch()"
+                     [placeholder]="'products.search.placeholder_mobile' | translate"
+                     class="text-lg p-2">
+            </div>
               
               <!-- Mobile View Toggle - Single button that changes based on current view -->
               <button pButton 
@@ -153,14 +149,14 @@
           <!-- Desktop Controls -->
           <div class="hidden sm:flex align-items-center">
             <p-select
-            [options]="sortOptions"
-            [ngModel]="selectedSort()"
-            (ngModelChange)="selectedSort.set($event); onSortChange()"
-            optionLabel="label"
-            optionValue="value"
-            placeholder="Sort By"
-            styleClass="mr-2">
-        </p-select>
+              [options]="sortOptions"
+              [ngModel]="selectedSort()"
+              (ngModelChange)="selectedSort.set($event); onSortChange()"
+              optionLabel="label"
+              optionValue="value"
+              [placeholder]="'products.sort.title' | translate"
+              styleClass="mr-2">
+            </p-select>
 
               <p-selectButton [options]="viewOptions" [ngModel]="layout()" 
                              (ngModelChange)="layout.set($event); onLayoutChange()"
@@ -178,18 +174,18 @@
 <ng-template #mobileFiltersTemplate>
   <div *ngIf="showMobileFilters()" class="surface-card p-3 shadow-2 border-round mb-2 md:hidden">
       <div class="flex justify-content-between align-items-center mb-2">
-          <h3 class="text-lg font-medium m-0">Categories</h3>
+          <h3 class="text-lg font-medium m-0">{{ 'common.categories' | translate }}</h3>
           <div class="flex">
-              <button pButton type="button" label="All" icon="pi pi-check" 
+              <button pButton type="button" [label]="'products.filters.all' | translate" icon="pi pi-check" 
                       class="p-button-text p-button-sm mr-2" (click)="selectAllCategories()"></button>
-              <button pButton type="button" label="None" icon="pi pi-times" 
+              <button pButton type="button" [label]="'products.filters.none' | translate" icon="pi pi-times" 
                       class="p-button-text p-button-sm mr-2" (click)="deselectAllCategories()"></button>
               <button pButton icon="pi pi-times" class="p-button-rounded p-button-text"
                       (click)="toggleMobileFilters()"></button>
           </div>
       </div>
       
-                    <!-- Mobile Categories -->
+      <!-- Mobile Categories -->
       <div class="mb-3">
           <div class="grid">
               @for (category of categories(); track category.id) {
@@ -209,7 +205,7 @@
           </div>
       </div>
       
-      <button pButton label="Clear Filters" icon="pi pi-filter-slash" 
+      <button pButton [label]="'products.filters.clear_filters' | translate" icon="pi pi-filter-slash" 
               class="p-button-outlined w-full" (click)="clearFilters()"></button>
   </div>
 </ng-template>
@@ -225,30 +221,29 @@
 <ng-template #noResultsTemplate>
   <div class="surface-card p-4 shadow-2 border-round text-center">
       <i class="pi pi-search text-4xl text-primary mb-2"></i>
-      <h2 class="text-xl font-medium mb-2">No products found</h2>
-      <p>Try changing your filters or search criteria.</p>
-      <button pButton label="Clear Filters" class="mt-2" (click)="clearFilters()"></button>
+      <h2 class="text-xl font-medium mb-2">{{ 'products.empty.title' | translate }}</h2>
+      <p>{{ 'products.empty.subtitle' | translate }}</p>
+      <button pButton [label]="'products.filters.clear_filters' | translate" class="mt-2" (click)="clearFilters()"></button>
   </div>
 </ng-template>
-
-<!-- This template is now unused as we've moved the conditional logic to the main component -->
 
 <!-- Grid View Template -->
 <ng-template #gridViewTemplate>
   <div class="grid">
     @for (product of products(); track product.id) {
       <div class="col-12 sm:col-6 lg:col-4 xl:col-3">
-        <div class="surface-card py-3 border-bottom-1 border-100  h-full hover:shadow-5 transition-duration-300">
+        <div class="surface-card py-3 border-bottom-1 border-100  h-full hover:shadow-1 transition-duration-300">
             <!-- Product Image with Organic badge -->
             <div class="relative">
               <img [src]="product.image_url || 'assets/images/product-placeholder.jpg'"
-              [alt]="product.name" 
-              loading="lazy"
-              class="w-full border-round h-200 obj-cover"
-              >
+                   [alt]="product.name" 
+                   loading="lazy"
+                   class="w-full border-round h-200 obj-cover">
                 
                 @if (product.is_organic) {
-                  <span class="absolute top-0 right-0 bg-green-500 text-white px-2 py-1 text-xs m-1 border-round">Organic</span>
+                  <span class="absolute top-0 right-0 bg-green-500 text-white px-2 py-1 text-xs m-1 border-round">
+                    {{ 'products.product.organic' | translate }}
+                  </span>
                 }
             </div>
             
@@ -260,7 +255,7 @@
                 </div>
                 
                 <!-- Product Description -->
-                <p class="mb-2 text-sm text-600 overflow-hidden min-h-20" >
+                <p class="mb-2 text-sm text-600 overflow-hidden min-h-20">
                   {{product.description}}
                 </p>
                 
@@ -270,9 +265,8 @@
                     <p-select
                         [(ngModel)]="productQuantities[product.id]"
                         [options]="getQuantityOptions(product.stock_quantity, product.id)"
-                        placeholder="Qty"
+                        [placeholder]="'products.product.qty' | translate"
                         styleClass="w-6"
-                        
                         [virtualScroll]="true"
                         [virtualScrollItemSize]="38"
                         filterBy="label"
@@ -314,16 +308,18 @@
   <div class="grid pt-5">
     @for (product of products(); track product.id) {
       <div class="col-12 p-1">
-        <div class="surface-card px-0 pt-3 p-2 border-bottom-1 border-100 border-round hover:shadow-5 transition-duration-300">
+        <div class="surface-card px-0 pt-3 p-2 border-bottom-1 border-100 border-round hover:shadow-1 transition-duration-300">
             <div class="grid">
                 <!-- Product Image -->
                 <div class="col-5 col-sm-4 md:col-3 lg:col-2 relative">
                     <img [src]="product.image_url || 'assets/images/product-placeholder.jpg'"
-                    loading="lazy"
-                        [alt]="product.name" class="w-full border-round h-100 obj-cover">
+                         loading="lazy"
+                         [alt]="product.name" class="w-full border-round h-100 obj-cover">
                     
                     @if (product.is_organic) {
-                      <span class="absolute top-0 right-0 bg-green-500 text-white px-1 py-0 text-xs m-1 border-round">Organic</span>
+                      <span class="absolute top-0 right-0 bg-green-500 text-white px-1 py-0 text-xs m-1 border-round">
+                        {{ 'products.product.organic' | translate }}
+                      </span>
                     }
                 </div>
                 
@@ -334,7 +330,6 @@
                       <div class="flex justify-content-between align-items-center mb-1">
                         <h3 class="text-md font-semibold m-0 text-right">{{product.name}}</h3>
                         <span class="text-lg font-medium text-primary">${{product.price}}/{{getUnitDisplay(product.unit)}}</span>
-                        
                       </div>
                       
                       <!-- Description -->
@@ -349,16 +344,15 @@
                         @if (isOutOfStock(product)) {
                           <div class="text-red-500 text-xs flex align-items-center mr-2">
                               <i class="pi pi-exclamation-circle mr-1"></i>
-                              <span>Out of stock</span>
+                              <span>{{ 'products.stock.out_of_stock' | translate }}</span>
                           </div>
                         } @else {
                           <!-- Quantity Select -->
                           <p-select
                               [(ngModel)]="productQuantities[product.id]"
                               [options]="getQuantityOptions(product.stock_quantity, product.id)"
-                              placeholder="Qty"
+                              [placeholder]="'products.product.qty' | translate"
                               styleClass="w-6rem mr-2"
-                              
                               [virtualScroll]="true"
                               [virtualScrollItemSize]="38"
                               filterBy="label"
