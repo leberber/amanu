@@ -15,6 +15,8 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { AdminService } from '../../../services/admin.service'; 
 import { DashboardStats } from '../../../models/admin.model';
 
+import { AdminAddProductComponent } from '../admin-add-product/admin-add-product.component';
+import { ViewChild } from '@angular/core';
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
@@ -27,13 +29,20 @@ import { DashboardStats } from '../../../models/admin.model';
     ToastModule,
     ChartModule,
     TagModule,
-    ProgressSpinnerModule
+    ProgressSpinnerModule,
+    AdminAddProductComponent 
   ],
   providers: [MessageService],
   templateUrl: './admin-dashboard.component.html',
   styleUrl: './admin-dashboard.component.scss'
 })
 export class AdminDashboardComponent implements OnInit {
+
+   @ViewChild(AdminAddProductComponent) addProductComponent!: AdminAddProductComponent;
+
+   openAddProductDialog() {
+    this.addProductComponent.show();
+  }
   stats: DashboardStats | null = null;
   loading = true;
   salesChartData: any;

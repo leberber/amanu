@@ -10,6 +10,10 @@ import { Product, Category, ProductFilter } from '../models/product.model';
 export class ProductService {
   constructor(private apiService: ApiService) {}
 
+  createProduct(productData: any): Observable<Product> {
+  return this.apiService.post<Product>('/products', productData);
+}
+
   getProducts(filters?: ProductFilter): Observable<Product[]> {
     // Convert filters to query params
     const params: any = {};

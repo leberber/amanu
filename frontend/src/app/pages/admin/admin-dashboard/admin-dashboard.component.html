@@ -90,6 +90,36 @@
         </div>
       </div>
       
+      <div class="grid mb-4">
+  <div class="col-12">
+    <p-card>
+      <ng-template pTemplate="header">
+        <div class="flex justify-content-between align-items-center p-3">
+          <h3 class="m-0">Quick Actions</h3>
+        </div>
+      </ng-template>
+      
+      <div class="flex gap-3">
+        <p-button 
+          label="Add New Product" 
+          icon="pi pi-plus"
+          severity="success"
+          (onClick)="openAddProductDialog()"
+        />
+        
+        <!-- You can add more action buttons here later -->
+        <p-button 
+          label="View All Products" 
+          icon="pi pi-eye"
+          severity="secondary"
+          routerLink="/admin/products"
+          [disabled]="true"
+        />
+      </div>
+    </p-card>
+  </div>
+</div>
+
       <!-- Chart and Table Row -->
       <div class="grid">
         <!-- Sales by Category Chart -->
@@ -175,3 +205,4 @@
       </div>
     }
   </div>
+  <app-admin-add-product></app-admin-add-product>
