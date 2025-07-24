@@ -16,6 +16,7 @@ import { AdminService } from '../../../services/admin.service';
 import { DashboardStats } from '../../../models/admin.model';
 
 import { AdminAddProductComponent } from '../admin-add-product/admin-add-product.component';
+import { AdminAddCategoryComponent } from '../admin-add-category/admin-add-category.component';
 import { ViewChild } from '@angular/core';
 @Component({
   selector: 'app-admin-dashboard',
@@ -30,7 +31,8 @@ import { ViewChild } from '@angular/core';
     ChartModule,
     TagModule,
     ProgressSpinnerModule,
-    AdminAddProductComponent 
+    AdminAddProductComponent,
+    AdminAddCategoryComponent
   ],
   providers: [MessageService],
   templateUrl: './admin-dashboard.component.html',
@@ -39,10 +41,15 @@ import { ViewChild } from '@angular/core';
 export class AdminDashboardComponent implements OnInit {
 
    @ViewChild(AdminAddProductComponent) addProductComponent!: AdminAddProductComponent;
+   @ViewChild(AdminAddCategoryComponent) addCategoryComponent!: AdminAddCategoryComponent;
 
    openAddProductDialog() {
     this.addProductComponent.show();
   }
+    openAddCategoryDialog() {
+    this.addCategoryComponent.show();
+  }
+
   stats: DashboardStats | null = null;
   loading = true;
   salesChartData: any;

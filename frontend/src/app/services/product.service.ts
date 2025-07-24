@@ -14,6 +14,12 @@ export class ProductService {
   return this.apiService.post<Product>('/products', productData);
 }
 
+createCategory(categoryData: any): Observable<Category> {
+  return this.apiService.post<Category>('/categories', categoryData);
+}
+deleteProduct(productId: number): Observable<void> {
+  return this.apiService.delete<void>(`/products/${productId}`);
+}
   getProducts(filters?: ProductFilter): Observable<Product[]> {
     // Convert filters to query params
     const params: any = {};

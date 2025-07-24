@@ -1,4 +1,6 @@
 // frontend/src/app/pages/admin/admin-add-product/admin-add-product.component.ts
+// UPDATE: Replace the existing file with this version
+
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -14,6 +16,7 @@ import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 
 import { ProductService } from '../../../services/product.service';
+import { Category } from '../../../models/category.model';
 
 @Component({
   selector: 'app-admin-add-product',
@@ -50,6 +53,7 @@ import { ProductService } from '../../../services/product.service';
 export class AdminAddProductComponent implements OnInit {
   visible = signal(false);
   loading = signal(false);
+  categoriesLoading = signal(false);
   productForm: FormGroup;
 
   // Dropdown options
@@ -62,12 +66,8 @@ export class AdminAddProductComponent implements OnInit {
     { label: 'Pound', value: 'pound' }
   ];
 
-  // We'll load these from the API later
-  categoryOptions = [
-    { label: 'Fresh Fruits', value: 1 },
-    { label: 'Fresh Vegetables', value: 2 },
-    { label: 'Organic Produce', value: 3 }
-  ];
+  // Dynamic categories - loaded from API
+  categoryOptions = signal<{ label: string; value: number }[]>([]);
 
   constructor(
     private fb: FormBuilder,
@@ -87,7 +87,36 @@ export class AdminAddProductComponent implements OnInit {
   }
 
   ngOnInit() {
-    // We'll add category loading here later
+    this.loadCategories();
+  }
+
+  loadCategories() {
+    this.categoriesLoading.set(true);
+    
+    this.productService.getCategories(true).subscribe({
+      next: (categories: Category[]) => {
+        // Convert categories to dropdown options
+        const options = categories.map(category => ({
+          label: category.name,
+          value: category.id
+        }));
+        
+        this.categoryOptions.set(options);
+        this.categoriesLoading.set(false);
+        
+        console.log('Categories loaded:', options);
+      },
+      error: (error) => {
+        console.error('Error loading categories:', error);
+        this.categoriesLoading.set(false);
+        
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Failed to load categories. Please try again.'
+        });
+      }
+    });
   }
 
   show() {
@@ -102,6 +131,9 @@ export class AdminAddProductComponent implements OnInit {
       image_url: '',
       is_organic: false
     });
+    
+    // Reload categories when opening the form (in case new ones were added)
+    this.loadCategories();
   }
 
   onCancel() {

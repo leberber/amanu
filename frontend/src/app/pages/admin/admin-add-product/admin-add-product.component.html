@@ -106,21 +106,29 @@
 
     <!-- Category -->
     <div class="field mb-4">
-      <label for="category_id" class="block font-medium mb-2">Category *</label>
-      <p-select
+    <label for="category_id" class="block font-medium mb-2">Category *</label>
+    <p-select
         id="category_id"
         formControlName="category_id"
-        [options]="categoryOptions"
+        [options]="categoryOptions()"
         placeholder="Select category"
         styleClass="w-full"
-      />
-      <small 
+        [loading]="categoriesLoading()"
+    />
+    <small 
         *ngIf="productForm.get('category_id')?.invalid && productForm.get('category_id')?.touched" 
         class="p-error block mt-1"
-      >
+    >
         Category is required
-      </small>
+    </small>
+    <small 
+        *ngIf="categoriesLoading()" 
+        class="text-color-secondary block mt-1"
+    >
+        Loading categories...
+    </small>
     </div>
+
 
     <!-- Image URL -->
     <div class="field mb-4">

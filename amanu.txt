@@ -5184,6 +5184,19 @@ export interface DashboardStats {
     updated_at?: string;
   }
 
+=== frontend/src/app/models/category.model.ts ===
+
+// frontend/src/app/models/category.model.ts
+export interface Category {
+  id: number;
+  name: string;
+  description?: string;
+  image_url?: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at?: string;
+}
+
 === frontend/src/app/models/order.model.ts ===
 
 export interface OrderItem {
@@ -6750,6 +6763,211 @@ export class ProductListComponent implements OnInit {
   }
 }
 
+=== frontend/src/app/pages/admin/admin-add-product/admin-add-product.component.ts ===
+
+// frontend/src/app/pages/admin/admin-add-product/admin-add-product.component.ts
+// UPDATE: Replace the existing file with this version
+
+import { Component, OnInit, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+
+import { ButtonModule } from 'primeng/button';
+import { DialogModule } from 'primeng/dialog';
+import { InputTextModule } from 'primeng/inputtext';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { TextareaModule } from 'primeng/textarea';
+import { SelectModule } from 'primeng/select';
+import { CheckboxModule } from 'primeng/checkbox';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
+
+import { ProductService } from '../../../services/product.service';
+import { Category } from '../../../models/category.model';
+
+@Component({
+  selector: 'app-admin-add-product',
+  standalone: true,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    ButtonModule,
+    DialogModule,
+    InputTextModule,
+    InputNumberModule,
+    TextareaModule,
+    SelectModule,
+    CheckboxModule,
+    ToastModule
+  ],
+  providers: [MessageService],
+  templateUrl: './admin-add-product.component.html',
+  styles: [`
+    .field {
+      margin-bottom: 1rem;
+    }
+    
+    .grid-cols-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+    
+    .gap-4 {
+      gap: 1rem;
+    }
+  `]
+})
+export class AdminAddProductComponent implements OnInit {
+  visible = signal(false);
+  loading = signal(false);
+  categoriesLoading = signal(false);
+  productForm: FormGroup;
+
+  // Dropdown options
+  unitOptions = [
+    { label: 'Kg', value: 'kg' },
+    { label: 'Gram', value: 'gram' },
+    { label: 'Piece', value: 'piece' },
+    { label: 'Bunch', value: 'bunch' },
+    { label: 'Dozen', value: 'dozen' },
+    { label: 'Pound', value: 'pound' }
+  ];
+
+  // Dynamic categories - loaded from API
+  categoryOptions = signal<{ label: string; value: number }[]>([]);
+
+  constructor(
+    private fb: FormBuilder,
+    private messageService: MessageService,
+    private productService: ProductService
+  ) {
+    this.productForm = this.fb.group({
+      name: ['', [Validators.required, Validators.minLength(1)]],
+      description: [''],
+      price: [null, [Validators.required, Validators.min(0.01)]],
+      unit: ['', Validators.required],
+      stock_quantity: [0, [Validators.required, Validators.min(0)]],
+      category_id: [null, Validators.required],
+      image_url: [''],
+      is_organic: [false]
+    });
+  }
+
+  ngOnInit() {
+    this.loadCategories();
+  }
+
+  loadCategories() {
+    this.categoriesLoading.set(true);
+    
+    this.productService.getCategories(true).subscribe({
+      next: (categories: Category[]) => {
+        // Convert categories to dropdown options
+        const options = categories.map(category => ({
+          label: category.name,
+          value: category.id
+        }));
+        
+        this.categoryOptions.set(options);
+        this.categoriesLoading.set(false);
+        
+        console.log('Categories loaded:', options);
+      },
+      error: (error) => {
+        console.error('Error loading categories:', error);
+        this.categoriesLoading.set(false);
+        
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Failed to load categories. Please try again.'
+        });
+      }
+    });
+  }
+
+  show() {
+    this.visible.set(true);
+    this.productForm.reset({
+      name: '',
+      description: '',
+      price: null,
+      unit: '',
+      stock_quantity: 0,
+      category_id: null,
+      image_url: '',
+      is_organic: false
+    });
+    
+    // Reload categories when opening the form (in case new ones were added)
+    this.loadCategories();
+  }
+
+  onCancel() {
+    this.visible.set(false);
+    this.productForm.reset();
+  }
+
+  onSubmit() {
+    if (this.productForm.invalid) {
+      this.productForm.markAllAsTouched();
+      return;
+    }
+
+    this.loading.set(true);
+    
+    // Get form data
+    const productData = this.productForm.value;
+    
+    // Call the backend API
+    this.productService.createProduct(productData).subscribe({
+      next: (createdProduct) => {
+        this.loading.set(false);
+        
+        // Show success message
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: `Product "${createdProduct.name}" has been created successfully!`
+        });
+        
+        // Close the dialog and reset form
+        this.visible.set(false);
+        this.productForm.reset({
+          name: '',
+          description: '',
+          price: null,
+          unit: '',
+          stock_quantity: 0,
+          category_id: null,
+          image_url: '',
+          is_organic: false
+        });
+        
+        console.log('Product created successfully:', createdProduct);
+      },
+      error: (error) => {
+        this.loading.set(false);
+        
+        console.error('Error creating product:', error);
+        
+        // Show error message
+        let errorMessage = 'Failed to create product. Please try again.';
+        
+        if (error.error && error.error.detail) {
+          errorMessage = error.error.detail;
+        }
+        
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: errorMessage
+        });
+      }
+    });
+  }
+}
+
 === frontend/src/app/pages/admin/admin-dashboard/admin-dashboard.component.scss ===
 
 
@@ -6800,6 +7018,9 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { AdminService } from '../../../services/admin.service'; 
 import { DashboardStats } from '../../../models/admin.model';
 
+import { AdminAddProductComponent } from '../admin-add-product/admin-add-product.component';
+import { AdminAddCategoryComponent } from '../admin-add-category/admin-add-category.component';
+import { ViewChild } from '@angular/core';
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
@@ -6812,13 +7033,26 @@ import { DashboardStats } from '../../../models/admin.model';
     ToastModule,
     ChartModule,
     TagModule,
-    ProgressSpinnerModule
+    ProgressSpinnerModule,
+    AdminAddProductComponent,
+    AdminAddCategoryComponent
   ],
   providers: [MessageService],
   templateUrl: './admin-dashboard.component.html',
   styleUrl: './admin-dashboard.component.scss'
 })
 export class AdminDashboardComponent implements OnInit {
+
+   @ViewChild(AdminAddProductComponent) addProductComponent!: AdminAddProductComponent;
+   @ViewChild(AdminAddCategoryComponent) addCategoryComponent!: AdminAddCategoryComponent;
+
+   openAddProductDialog() {
+    this.addProductComponent.show();
+  }
+    openAddCategoryDialog() {
+    this.addCategoryComponent.show();
+  }
+
   stats: DashboardStats | null = null;
   loading = true;
   salesChartData: any;
@@ -7447,6 +7681,137 @@ loadOrders() {
               detail: error.error?.detail || 'Failed to update order status'
             });
           }
+        });
+      }
+    });
+  }
+}
+
+=== frontend/src/app/pages/admin/admin-add-category/admin-add-category.component.ts ===
+
+// frontend/src/app/pages/admin/admin-add-category/admin-add-category.component.ts
+import { Component, OnInit, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+
+import { ButtonModule } from 'primeng/button';
+import { DialogModule } from 'primeng/dialog';
+import { InputTextModule } from 'primeng/inputtext';
+import { TextareaModule } from 'primeng/textarea';
+import { CheckboxModule } from 'primeng/checkbox';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
+
+import { ProductService } from '../../../services/product.service';
+
+@Component({
+  selector: 'app-admin-add-category',
+  standalone: true,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    ButtonModule,
+    DialogModule,
+    InputTextModule,
+    TextareaModule,
+    CheckboxModule,
+    ToastModule
+  ],
+  providers: [MessageService],
+  templateUrl: './admin-add-category.component.html',
+  styles: [`
+    .field {
+      margin-bottom: 1rem;
+    }
+  `]
+})
+export class AdminAddCategoryComponent implements OnInit {
+  visible = signal(false);
+  loading = signal(false);
+  categoryForm: FormGroup;
+
+  constructor(
+    private fb: FormBuilder,
+    private messageService: MessageService,
+    private productService: ProductService
+  ) {
+    this.categoryForm = this.fb.group({
+      name: ['', [Validators.required, Validators.minLength(1)]],
+      description: [''],
+      image_url: [''],
+      is_active: [true]
+    });
+  }
+
+  ngOnInit() {
+    // Nothing to load for categories
+  }
+
+  show() {
+    this.visible.set(true);
+    this.categoryForm.reset({
+      name: '',
+      description: '',
+      image_url: '',
+      is_active: true
+    });
+  }
+
+  onCancel() {
+    this.visible.set(false);
+    this.categoryForm.reset();
+  }
+
+  onSubmit() {
+    if (this.categoryForm.invalid) {
+      this.categoryForm.markAllAsTouched();
+      return;
+    }
+
+    this.loading.set(true);
+    
+    // Get form data
+    const categoryData = this.categoryForm.value;
+    
+    // Call the backend API
+    this.productService.createCategory(categoryData).subscribe({
+      next: (createdCategory) => {
+        this.loading.set(false);
+        
+        // Show success message
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: `Category "${createdCategory.name}" has been created successfully!`
+        });
+        
+        // Close the dialog and reset form
+        this.visible.set(false);
+        this.categoryForm.reset({
+          name: '',
+          description: '',
+          image_url: '',
+          is_active: true
+        });
+        
+        console.log('Category created successfully:', createdCategory);
+      },
+      error: (error) => {
+        this.loading.set(false);
+        
+        console.error('Error creating category:', error);
+        
+        // Show error message
+        let errorMessage = 'Failed to create category. Please try again.';
+        
+        if (error.error && error.error.detail) {
+          errorMessage = error.error.detail;
+        }
+        
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: errorMessage
         });
       }
     });
@@ -9248,6 +9613,14 @@ import { Product, Category, ProductFilter } from '../models/product.model';
 export class ProductService {
   constructor(private apiService: ApiService) {}
 
+  createProduct(productData: any): Observable<Product> {
+  return this.apiService.post<Product>('/products', productData);
+}
+
+createCategory(categoryData: any): Observable<Category> {
+  return this.apiService.post<Category>('/categories', categoryData);
+}
+
   getProducts(filters?: ProductFilter): Observable<Product[]> {
     // Convert filters to query params
     const params: any = {};
@@ -9557,7 +9930,7 @@ export const environment = {
   // production: false,
   // apiUrl: 'https://Elsuq-5028o9mls-yazids-projects-3370118f.vercel.app/api/v1'
   //  apiUrl: '/api/v1'
-  apiUrl: 'http://localhost:8001/api/v1', // Using port 8001 as specified in your docker-compose.yml
+  apiUrl: 'http://localhost:8000/api/v1', // Using port 8001 as specified in your docker-compose.yml
 };
 
 //   // src/environments/environment.prod.ts

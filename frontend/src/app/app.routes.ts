@@ -8,6 +8,7 @@ import { ProductDetailComponent } from './pages/products/product-detail/product-
 import { authGuard } from './shared/auth.guard';
 import { CartComponent } from './pages/cart/cart.component';
 import { adminGuard } from './shared/admin.guard'; 
+import { AdminProductsComponent } from './pages/admin/admin-products/admin-products.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -16,6 +17,7 @@ export const routes: Routes = [
   { path: 'products', component: ProductListComponent },
   { path: 'products/:id', component: ProductDetailComponent },
   { path: 'cart', component: CartComponent },
+  { path: 'admin/products', component: AdminProductsComponent, canActivate: [adminGuard] },
   { 
     path: 'checkout', 
     loadComponent: () => import('./pages/checkout/checkout.component').then(m => m.CheckoutComponent),

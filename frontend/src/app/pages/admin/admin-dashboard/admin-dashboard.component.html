@@ -106,6 +106,12 @@
           severity="success"
           (onClick)="openAddProductDialog()"
         />
+        <p-button 
+          label="Add New Category" 
+          icon="pi pi-tags"
+          severity="info"
+          (onClick)="openAddCategoryDialog()"
+        />
         
         <!-- You can add more action buttons here later -->
         <p-button 
@@ -206,3 +212,4 @@
     }
   </div>
   <app-admin-add-product></app-admin-add-product>
+  <app-admin-add-category></app-admin-add-category>  
