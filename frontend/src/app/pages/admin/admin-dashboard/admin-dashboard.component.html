@@ -60,7 +60,7 @@
           <div class="surface-card p-4 shadow-2 border-round">
             <div class="flex justify-content-between align-items-center mb-3">
               <h3 class="text-xl font-medium m-0">Pending Orders</h3>
-              <!-- <p-tag severity="warning" value="{{stats.pending_orders}}"></p-tag> -->
+              <p-tag severity="warn" value="{{stats.pending_orders}}"></p-tag>
             </div>
             <button pButton label="View All Orders" icon="pi pi-arrow-right" 
                     class="p-button-text p-button-sm" (click)="navigateToOrders()"></button>
@@ -85,46 +85,39 @@
               <p-tag severity="info" value="{{stats.total_categories}}"></p-tag>
             </div>
             <button pButton label="Manage Categories" icon="pi pi-arrow-right" 
-                    class="p-button-text p-button-sm" routerLink="/admin/categories"></button>
+                    class="p-button-text p-button-sm" (click)="navigateToAddCategory()"></button>
           </div>
         </div>
       </div>
       
+      <!-- Enhanced Quick Actions Card -->
       <div class="grid mb-4">
-  <div class="col-12">
-    <p-card>
-      <ng-template pTemplate="header">
-        <div class="flex justify-content-between align-items-center p-3">
-          <h3 class="m-0">Quick Actions</h3>
+        <div class="col-12">
+          <p-card>
+            <ng-template pTemplate="header">
+              <div class="flex justify-content-between align-items-center p-3">
+                <h3 class="m-0">Product Management</h3>
+              </div>
+            </ng-template>
+            
+            <div class="flex gap-3">
+              <p-button 
+                label="Add New Product" 
+                icon="pi pi-plus"
+                severity="success"
+                (onClick)="navigateToAddProduct()"
+              />
+              
+              <p-button 
+                label="View All Products" 
+                icon="pi pi-eye"
+                severity="secondary"
+                (onClick)="navigateToProducts()"
+              />
+            </div>
+          </p-card>
         </div>
-      </ng-template>
-      
-      <div class="flex gap-3">
-        <p-button 
-          label="Add New Product" 
-          icon="pi pi-plus"
-          severity="success"
-          (onClick)="openAddProductDialog()"
-        />
-        <p-button 
-          label="Add New Category" 
-          icon="pi pi-tags"
-          severity="info"
-          (onClick)="openAddCategoryDialog()"
-        />
-        
-        <!-- You can add more action buttons here later -->
-        <p-button 
-          label="View All Products" 
-          icon="pi pi-eye"
-          severity="secondary"
-          routerLink="/admin/products"
-          [disabled]="true"
-        />
       </div>
-    </p-card>
-  </div>
-</div>
 
       <!-- Chart and Table Row -->
       <div class="grid">
@@ -210,6 +203,4 @@
         <p>Error loading dashboard data. Please try again later.</p>
       </div>
     }
-  </div>
-  <app-admin-add-product></app-admin-add-product>
-  <app-admin-add-category></app-admin-add-category>  
+</div>

@@ -13,6 +13,9 @@ export class ProductService {
   createProduct(productData: any): Observable<Product> {
   return this.apiService.post<Product>('/products', productData);
 }
+updateProduct(productId: number, productData: any): Observable<Product> {
+  return this.apiService.patch<Product>(`/products/${productId}`, productData);
+}
 
 createCategory(categoryData: any): Observable<Category> {
   return this.apiService.post<Category>('/categories', categoryData);

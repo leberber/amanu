@@ -20,14 +20,24 @@ import { SelectModule } from 'primeng/select';
 import { ProductService } from '../../../services/product.service';
 import { Product } from '../../../models/product.model';
 import { Category } from '../../../models/category.model';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { BadgeModule } from 'primeng/badge';
+import { OverlayBadgeModule } from 'primeng/overlaybadge';
+import { TooltipModule } from 'primeng/tooltip';
+
 
 @Component({
   selector: 'app-admin-products',
   standalone: true,
   imports: [
+    TooltipModule,
     CommonModule,
     FormsModule,
-    RouterLink,
+    BadgeModule,
+    OverlayBadgeModule,
+    // RouterLink,
     TableModule,
     ButtonModule,
     CardModule,
@@ -37,14 +47,18 @@ import { Category } from '../../../models/category.model';
     PaginatorModule,
     DialogModule,
     ConfirmDialogModule,
-    SelectModule
+    SelectModule,
+    IconFieldModule,
+    InputIconModule,
+    ProgressSpinnerModule
   ],
   providers: [MessageService, ConfirmationService],
-  templateUrl: './admin-products.component.html',
+    templateUrl:'./admin-products.component.html',
   styleUrl: './admin-products.component.scss'
 })
 export class AdminProductsComponent implements OnInit {
-  products: Product[] = [];
+  allProducts: Product[] = []; // Store all products loaded once
+  products: Product[] = [];    // Filtered products to display
   categories: Category[] = [];
   loading = true;
   searchQuery = '';
@@ -54,6 +68,8 @@ export class AdminProductsComponent implements OnInit {
   categoryOptions: any[] = [
     { label: 'All Categories', value: null }
   ];
+
+  private searchTimeout: any;
   
   constructor(
     private productService: ProductService,
@@ -64,7 +80,14 @@ export class AdminProductsComponent implements OnInit {
 
   ngOnInit() {
     this.loadCategories();
-    this.loadProducts();
+    this.loadAllProducts(); // Load all products once
+  }
+
+  hasActiveFilters(): boolean {
+    return !!(
+      this.searchQuery?.trim() || 
+      this.selectedCategory
+    );
   }
 
   loadCategories() {
@@ -87,28 +110,22 @@ export class AdminProductsComponent implements OnInit {
     });
   }
 
-  loadProducts() {
+  // Load all products once on page load
+  loadAllProducts() {
     this.loading = true;
     
-    // Build filters - no pagination, load all products
+    // Load all products without filters
     const filters: any = {
       active_only: false // Show both active and inactive
     };
     
-    if (this.searchQuery && this.searchQuery.trim()) {
-      filters.search = this.searchQuery.trim();
-    }
-    
-    if (this.selectedCategory) {
-      filters.category_id = this.selectedCategory;
-    }
-    
-    console.log('Loading all products with filters:', filters);
+ 
     
     this.productService.getProducts(filters).subscribe({
       next: (products) => {
-        console.log('Products loaded successfully:', products.length);
-        this.products = products;
+        console.log('All products loaded successfully:', products.length);
+        this.allProducts = products; // Store all products
+        this.products = products;    // Initially display all products
         this.loading = false;
       },
       error: (error) => {
@@ -124,23 +141,64 @@ export class AdminProductsComponent implements OnInit {
     });
   }
 
-  onSearch() {
-    this.loadProducts();
+  // Filter products client-side (no API calls)
+  filterProducts() {
+    let filtered = [...this.allProducts];
+
+    // Apply search filter
+    if (this.searchQuery?.trim()) {
+      const search = this.searchQuery.toLowerCase();
+      filtered = filtered.filter(product => 
+        product.name.toLowerCase().includes(search) ||
+        product.description?.toLowerCase().includes(search) ||
+        this.getCategoryName(product.category_id).toLowerCase().includes(search)
+      );
+    }
+
+    // Apply category filter
+    if (this.selectedCategory) {
+      filtered = filtered.filter(product => 
+        product.category_id === this.selectedCategory
+      );
+    }
+
+    this.products = filtered;
+    console.log(`Filtered ${filtered.length} products from ${this.allProducts.length} total`);
   }
 
+  // Search input with client-side filtering
+  onSearchInput() {
+    // Clear the previous timeout if user is still typing
+    if (this.searchTimeout) {
+      clearTimeout(this.searchTimeout);
+    }
+    
+    // Set a new timeout to filter after 300ms of no typing
+    this.searchTimeout = setTimeout(() => {
+      this.filterProducts(); // Filter client-side instead of API call
+    }, 300);
+  }
+
+  // Category change with client-side filtering
   onCategoryChange() {
-    this.loadProducts();
+    this.filterProducts(); // Filter client-side instead of API call
   }
 
+  // Keep for backward compatibility
+  onSearch() {
+    this.filterProducts();
+  }
+
+  // Clear filters with client-side filtering
   clearFilters() {
     this.searchQuery = '';
     this.selectedCategory = null;
-    this.loadProducts();
+    this.filterProducts(); // Filter client-side instead of API call
   }
 
-  // Navigation methods
+  // Navigation methods - FIXED
   createNewProduct() {
-    this.router.navigate(['/admin/products/new']);
+    this.router.navigate(['/admin/products/add']);
   }
 
   editProduct(product: Product) {
@@ -165,6 +223,7 @@ export class AdminProductsComponent implements OnInit {
     });
   }
 
+  // After delete, remove from local array and refresh filters
   deleteProduct(product: Product) {
     this.productService.deleteProduct(product.id).subscribe({
       next: () => {
@@ -174,8 +233,10 @@ export class AdminProductsComponent implements OnInit {
           detail: `Product "${product.name}" has been deleted successfully`
         });
         
-        // Reload products
-        this.loadProducts();
+        // Remove deleted product from allProducts array
+        this.allProducts = this.allProducts.filter(p => p.id !== product.id);
+        // Reapply current filters
+        this.filterProducts();
       },
       error: (error) => {
         console.error('Error deleting product:', error);
@@ -186,6 +247,11 @@ export class AdminProductsComponent implements OnInit {
         });
       }
     });
+  }
+
+  // Method to refresh data after adding/editing products
+  refreshProductData() {
+    this.loadAllProducts();
   }
 
   // Utility methods

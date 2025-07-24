@@ -1,178 +1,240 @@
-<!-- frontend/src/app/pages/admin/admin-add-product/admin-add-product.component.html -->
-<p-dialog 
-  [(visible)]="visible" 
-  [modal]="true" 
-  [closable]="true"
-  [draggable]="false"
-  [resizable]="false"
-  header="Add New Product"
-  [style]="{width: '600px'}"
-  (onHide)="onCancel()"
->
-  <form [formGroup]="productForm" (ngSubmit)="onSubmit()">
-    
-    <!-- Product Name -->
-    <div class="field mb-4">
-      <label for="name" class="block font-medium mb-2">Product Name *</label>
-      <input 
-        id="name"
-        type="text" 
-        pInputText 
-        formControlName="name"
-        placeholder="Enter product name"
-        class="w-full"
-        [class.ng-invalid]="productForm.get('name')?.invalid && productForm.get('name')?.touched"
-      />
-      <small 
-        *ngIf="productForm.get('name')?.invalid && productForm.get('name')?.touched" 
-        class="p-error block mt-1"
-      >
-        Product name is required
-      </small>
-    </div>
-
-    <!-- Description -->
-    <div class="field mb-4">
-      <label for="description" class="block font-medium mb-2">Description</label>
-      <textarea 
-        id="description"
-        pTextarea 
-        formControlName="description"
-        placeholder="Enter product description"
-        class="w-full"
-        rows="3"
-      ></textarea>
-    </div>
-
-    <!-- Price and Unit Row -->
-    <div class="grid grid-cols-2 gap-4 mb-4">
-      <div class="field">
-        <label for="price" class="block font-medium mb-2">Price *</label>
-        <p-inputNumber
-          id="price"
-          formControlName="price"
-          mode="currency"
-          currency="USD"
-          locale="en-US"
-          [min]="0"
-          [step]="0.01"
-          placeholder="0.00"
-          styleClass="w-full"
-        />
-        <small 
-          *ngIf="productForm.get('price')?.invalid && productForm.get('price')?.touched" 
-          class="p-error block mt-1"
-        >
-          Price is required and must be greater than 0
-        </small>
-      </div>
-
-      <div class="field">
-        <label for="unit" class="block font-medium mb-2">Unit *</label>
-        <p-select
-          id="unit"
-          formControlName="unit"
-          [options]="unitOptions"
-          placeholder="Select unit"
-          styleClass="w-full"
-        />
-        <small 
-          *ngIf="productForm.get('unit')?.invalid && productForm.get('unit')?.touched" 
-          class="p-error block mt-1"
-        >
-          Unit is required
-        </small>
-      </div>
-    </div>
-
-    <!-- Stock Quantity -->
-    <div class="field mb-4">
-      <label for="stock_quantity" class="block font-medium mb-2">Stock Quantity *</label>
-      <p-inputNumber
-        id="stock_quantity"
-        formControlName="stock_quantity"
-        [min]="0"
-        [step]="1"
-        placeholder="0"
-        styleClass="w-full"
-      />
-      <small 
-        *ngIf="productForm.get('stock_quantity')?.invalid && productForm.get('stock_quantity')?.touched" 
-        class="p-error block mt-1"
-      >
-        Stock quantity is required and must be 0 or greater
-      </small>
-    </div>
-
-    <!-- Category -->
-    <div class="field mb-4">
-    <label for="category_id" class="block font-medium mb-2">Category *</label>
-    <p-select
-        id="category_id"
-        formControlName="category_id"
-        [options]="categoryOptions()"
-        placeholder="Select category"
-        styleClass="w-full"
-        [loading]="categoriesLoading()"
-    />
-    <small 
-        *ngIf="productForm.get('category_id')?.invalid && productForm.get('category_id')?.touched" 
-        class="p-error block mt-1"
-    >
-        Category is required
-    </small>
-    <small 
-        *ngIf="categoriesLoading()" 
-        class="text-color-secondary block mt-1"
-    >
-        Loading categories...
-    </small>
-    </div>
-
-
-    <!-- Image URL -->
-    <div class="field mb-4">
-      <label for="image_url" class="block font-medium mb-2">Image URL</label>
-      <input 
-        id="image_url"
-        type="url" 
-        pInputText 
-        formControlName="image_url"
-        placeholder="https://example.com/image.jpg"
-        class="w-full"
-      />
-    </div>
-
-    <!-- Organic Checkbox -->
-    <div class="field mb-4">
-      <div class="flex align-items-center">
-        <p-checkbox 
-          formControlName="is_organic" 
-          binary="true" 
-          inputId="is_organic"
-        />
-        <label for="is_organic" class="ml-2">Organic Product</label>
-      </div>
-    </div>
-
-  </form>
+<!-- src/app/pages/admin/admin-add-product/admin-add-product.component.html -->
+<div class="h-full  p-4">
+  <p-toast></p-toast>
   
-  <!-- Dialog Footer -->
-  <ng-template pTemplate="footer">
-    <div class="flex justify-content-end gap-2">
-      <p-button 
-        label="Cancel" 
-        severity="secondary" 
-        (onClick)="onCancel()"
-      />
-      <p-button 
-        label="Add Product" 
-        [loading]="loading()"
-        [disabled]="productForm.invalid"
-        (onClick)="onSubmit()"
-      />
-    </div>
-  </ng-template>
-</p-dialog>
+  <!-- Page Header -->
+  <div class="flex justify-content-between align-items-center mb-4">
+    
+    <p-button 
+      label="Back to Products" 
+      icon="pi pi-arrow-left"
+   
+      (onClick)="goBackToProductsList()"
+      [disabled]="loading()"
+    />
+  </div>
 
-<p-toast />
+  <!-- Main Content Card -->
+  <div>
+    <ng-template pTemplate="header">
+      <div class="flex align-items-center gap-2 p-3">
+        <i [class]="isEditMode() ? 'pi pi-pencil' : 'pi pi-plus'"></i>
+        <span class="font-medium">{{ pageTitle }}</span>
+      </div>
+    </ng-template>
+
+    <!-- Form Content -->
+    <form [formGroup]="productForm" (ngSubmit)="onSubmit()" >
+      
+      <!-- Product Name -->
+      <div class="field mb-4">
+        <label for="name" class="block font-medium mb-2">
+          Product Name *
+        </label>
+        <input 
+          id="name"
+          type="text" 
+          pInputText 
+          formControlName="name"
+          placeholder="Enter product name"
+          [class.ng-invalid]="productForm.get('name')?.invalid && productForm.get('name')?.touched"
+          class="w-full"
+        />
+        <small 
+          *ngIf="productForm.get('name')?.invalid && productForm.get('name')?.touched" 
+          class="p-error block mt-1"
+        >
+          Product name is required
+        </small>
+      </div>
+
+      <!-- Description -->
+      <div class="field mb-4">
+        <label for="description" class="block font-medium mb-2">
+          Description
+        </label>
+        <textarea 
+          id="description"
+          pInputTextarea 
+          formControlName="description"
+          placeholder="Enter product description (optional)"
+          rows="3"
+          class="w-full"
+        ></textarea>
+      </div>
+
+      <!-- Price and Unit Row -->
+      <div class="grid mb-4">
+        <div class="col-12 md:col-6">
+          <div class="field">
+            <label for="price" class="block font-medium mb-2">
+              Price *
+            </label>
+            <p-inputNumber
+              id="price"
+              formControlName="price"
+              mode="currency"
+              currency="USD"
+              locale="en-US"
+              [min]="0.01"
+              placeholder="0.00"
+              styleClass="w-full"
+              [class.ng-invalid]="productForm.get('price')?.invalid && productForm.get('price')?.touched"
+            />
+            <small 
+              *ngIf="productForm.get('price')?.invalid && productForm.get('price')?.touched" 
+              class="p-error block mt-1"
+            >
+              Price is required and must be greater than 0
+            </small>
+          </div>
+        </div>
+
+        <div class="col-12 md:col-6">
+          <div class="field">
+            <label for="unit" class="block font-medium mb-2">
+              Unit *
+            </label>
+            <p-select
+              id="unit"
+              formControlName="unit"
+              [options]="unitOptions"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Select unit"
+              styleClass="w-full"
+              [class.ng-invalid]="productForm.get('unit')?.invalid && productForm.get('unit')?.touched"
+            />
+            <small 
+              *ngIf="productForm.get('unit')?.invalid && productForm.get('unit')?.touched" 
+              class="p-error block mt-1"
+            >
+              Unit is required
+            </small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stock and Category Row -->
+      <div class="grid mb-4">
+        <div class="col-12 md:col-6">
+          <div class="field">
+            <label for="stock_quantity" class="block font-medium mb-2">
+              Stock Quantity *
+            </label>
+            <p-inputNumber
+              id="stock_quantity"
+              formControlName="stock_quantity"
+              [min]="0"
+              placeholder="0"
+              styleClass="w-full"
+              [class.ng-invalid]="productForm.get('stock_quantity')?.invalid && productForm.get('stock_quantity')?.touched"
+            />
+            <small 
+              *ngIf="productForm.get('stock_quantity')?.invalid && productForm.get('stock_quantity')?.touched" 
+              class="p-error block mt-1"
+            >
+              Stock quantity is required
+            </small>
+          </div>
+        </div>
+
+        <div class="col-12 md:col-6">
+          <div class="field">
+            <label for="category_id" class="block font-medium mb-2">
+              Category *
+              <i *ngIf="categoriesLoading()" class="pi pi-spin pi-spinner ml-2"></i>
+            </label>
+            <p-select
+              id="category_id"
+              formControlName="category_id"
+              [options]="categoryOptions()"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Select category"
+              [loading]="categoriesLoading()"
+              styleClass="w-full"
+              [class.ng-invalid]="productForm.get('category_id')?.invalid && productForm.get('category_id')?.touched"
+            />
+            <small 
+              *ngIf="productForm.get('category_id')?.invalid && productForm.get('category_id')?.touched" 
+              class="p-error block mt-1"
+            >
+              Category is required
+            </small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Image URL -->
+      <div class="field mb-4">
+        <label for="image_url" class="block font-medium mb-2">
+          Image URL (Optional)
+        </label>
+        <input 
+          id="image_url"
+          type="url" 
+          pInputText 
+          formControlName="image_url"
+          placeholder="Enter image URL (optional)"
+          class="w-full"
+        />
+      </div>
+
+      <!-- Checkboxes Row -->
+      <div class="grid mb-4">
+        <div class="col-12 md:col-6">
+          <div class="field">
+            <div class="flex align-items-center">
+              <p-checkbox 
+                formControlName="is_organic" 
+                binary="true" 
+                inputId="is_organic"
+              />
+              <label for="is_organic" class="ml-2">
+                Organic Product
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Active Status (show in edit mode) -->
+        <div *ngIf="isEditMode()" class="col-12 md:col-6">
+          <div class="field">
+            <div class="flex align-items-center">
+              <p-checkbox 
+                formControlName="is_active" 
+                binary="true" 
+                inputId="is_active"
+              />
+              <label for="is_active" class="ml-2">
+                Active Product
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form Actions -->
+      <div class="flex justify-content-end gap-2 pt-4 border-top-1 surface-border">
+        <p-button 
+          type="button"
+          label="Cancel" 
+          severity="secondary"
+          icon="pi pi-times"
+          (onClick)="onCancel()"
+          [disabled]="loading()"
+        />
+        
+        <p-button 
+          type="submit"
+          [label]="submitButtonLabel"
+          [loading]="loading()"
+          [disabled]="productForm.invalid"
+          icon="pi pi-check"
+          severity="success"
+        />
+      </div>
+    </form>
+</div>
+</div>

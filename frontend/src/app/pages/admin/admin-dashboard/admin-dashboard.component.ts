@@ -15,9 +15,9 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { AdminService } from '../../../services/admin.service'; 
 import { DashboardStats } from '../../../models/admin.model';
 
-import { AdminAddProductComponent } from '../admin-add-product/admin-add-product.component';
-import { AdminAddCategoryComponent } from '../admin-add-category/admin-add-category.component';
-import { ViewChild } from '@angular/core';
+// REMOVED: AdminAddProductComponent and AdminAddCategoryComponent imports
+// REMOVED: ViewChild decorators and modal methods
+
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
@@ -30,26 +30,16 @@ import { ViewChild } from '@angular/core';
     ToastModule,
     ChartModule,
     TagModule,
-    ProgressSpinnerModule,
-    AdminAddProductComponent,
-    AdminAddCategoryComponent
+    ProgressSpinnerModule
+    // REMOVED: AdminAddProductComponent, AdminAddCategoryComponent
   ],
   providers: [MessageService],
   templateUrl: './admin-dashboard.component.html',
   styleUrl: './admin-dashboard.component.scss'
 })
 export class AdminDashboardComponent implements OnInit {
-
-   @ViewChild(AdminAddProductComponent) addProductComponent!: AdminAddProductComponent;
-   @ViewChild(AdminAddCategoryComponent) addCategoryComponent!: AdminAddCategoryComponent;
-
-   openAddProductDialog() {
-    this.addProductComponent.show();
-  }
-    openAddCategoryDialog() {
-    this.addCategoryComponent.show();
-  }
-
+  // REMOVED: ViewChild references and modal methods
+  
   stats: DashboardStats | null = null;
   loading = true;
   salesChartData: any;
@@ -130,7 +120,7 @@ export class AdminDashboardComponent implements OnInit {
 
   getStatusSeverity(status: string): "success" | "secondary" | "info" | "warn" | "danger" | "contrast" {
     switch (status) {
-      case 'pending': return 'warn';     // Changed from 'warning' to 'warn'
+      case 'pending': return 'warn';
       case 'confirmed': return 'info';
       case 'shipped': return 'info';
       case 'delivered': return 'success';
@@ -144,6 +134,7 @@ export class AdminDashboardComponent implements OnInit {
     return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
   }
 
+  // UPDATED: All navigation methods now use routing instead of modals
   navigateToOrders() {
     this.router.navigate(['/admin/orders']);
   }
@@ -154,5 +145,20 @@ export class AdminDashboardComponent implements OnInit {
 
   navigateToProducts() {
     this.router.navigate(['/admin/products']);
+  }
+
+  // NEW: Navigate to add product page instead of opening modal
+  navigateToAddProduct() {
+    this.router.navigate(['/admin/products/add']);
+  }
+
+  // NEW: Navigate to add category page (you can implement this later)
+  navigateToAddCategory() {
+    // For now, show a message. You can create a similar page for categories later
+    this.messageService.add({
+      severity: 'info',
+      summary: 'Coming Soon',
+      detail: 'Add Category page will be available soon'
+    });
   }
 }
