@@ -10,6 +10,8 @@ import { CartComponent } from './pages/cart/cart.component';
 import { adminGuard } from './shared/admin.guard'; 
 import { AdminProductsComponent } from './pages/admin/admin-products/admin-products.component';
 import { AdminAddProductComponent } from './pages/admin/admin-add-product/admin-add-product.component';
+import { AdminAddCategoryComponent } from './pages/admin/admin-add-category/admin-add-category.component';
+import { AdminCategoriesComponent } from './pages/admin/admin-categories/admin-categories.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -20,6 +22,12 @@ export const routes: Routes = [
   { path: 'cart', component: CartComponent },
   
   // Admin Routes
+  { 
+  path: 'admin/categories', 
+  component: AdminCategoriesComponent,
+  canActivate: [adminGuard]
+},
+
   { 
     path: 'admin', 
     loadComponent: () => import('./pages/admin/admin-dashboard/admin-dashboard.component').then(m => m.AdminDashboardComponent),
@@ -42,10 +50,18 @@ export const routes: Routes = [
     canActivate: [adminGuard],
     data: { mode: 'edit' }
   },
+  // FIXED: Only one category route using direct import
   { 
     path: 'admin/categories/add', 
-    loadComponent: () => import('./pages/admin/admin-add-category/admin-add-category.component').then(m => m.AdminAddCategoryComponent),
-    canActivate: [adminGuard]
+    component: AdminAddCategoryComponent,
+    canActivate: [adminGuard],
+    data: { mode: 'add' }
+  },
+  { 
+    path: 'admin/categories/edit/:id', 
+    component: AdminAddCategoryComponent,
+    canActivate: [adminGuard],
+    data: { mode: 'edit' }
   },
   { 
     path: 'admin/orders', 

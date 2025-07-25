@@ -1,27 +1,70 @@
-<!-- frontend/src/app/pages/admin/admin-add-category/admin-add-category.component.html -->
+<!-- src/app/pages/admin/admin-add-category/admin-add-category.component.html -->
+
+<!-- Page Mode (for add/edit as a standalone page) -->
+<div *ngIf="!visible()" class="h-full pt-2 px-2">
+  <p-toast></p-toast>
+  
+  <!-- Page Header -->
+  <div class="flex justify-content-between align-items-center mb-4">
+    <h1 class="text-3xl font-medium m-0">{{ pageTitle }}</h1>
+    <p-button 
+      label="Back to Categories" 
+      icon="pi pi-arrow-left"
+      severity="secondary"
+      (onClick)="goBackToCategoriesList()"
+      [disabled]="loading()"
+    />
+  </div>
+
+  <!-- Page Form -->
+  <p-card>
+    <ng-template pTemplate="header">
+      <div class="flex align-items-center gap-2">
+        <i [class]="isEditMode() ? 'pi pi-pencil' : 'pi pi-plus'"></i>
+        <span class="font-medium">{{ pageTitle }}</span>
+      </div>
+    </ng-template>
+
+    <!-- Form Content (shared) -->
+    <ng-container *ngTemplateOutlet="formContent"></ng-container>
+  </p-card>
+</div>
+
+<!-- Modal Mode (for add from dashboard) -->
 <p-dialog 
   [(visible)]="visible" 
   [modal]="true" 
   [closable]="true"
   [draggable]="false"
   [resizable]="false"
-  header="Add New Category"
+  [header]="pageTitle"
   [style]="{width: '500px'}"
-  (onHide)="onCancel()"
+  [blockScroll]="true"
+  [dismissableMask]="false"
+  [closeOnEscape]="true"
+  position="center"
 >
-  <form [formGroup]="categoryForm" (ngSubmit)="onSubmit()">
+  <!-- Form Content (shared) -->
+  <ng-container *ngTemplateOutlet="formContent"></ng-container>
+</p-dialog>
+
+<!-- Shared Form Template -->
+<ng-template #formContent>
+  <form [formGroup]="categoryForm" (ngSubmit)="onSubmit()" class="p-4">
     
     <!-- Category Name -->
     <div class="field mb-4">
-      <label for="name" class="block font-medium mb-2">Category Name *</label>
+      <label for="name" class="block font-medium mb-2">
+        Category Name *
+      </label>
       <input 
         id="name"
         type="text" 
         pInputText 
         formControlName="name"
         placeholder="Enter category name"
-        class="w-full"
         [class.ng-invalid]="categoryForm.get('name')?.invalid && categoryForm.get('name')?.touched"
+        class="w-full"
       />
       <small 
         *ngIf="categoryForm.get('name')?.invalid && categoryForm.get('name')?.touched" 
@@ -33,61 +76,66 @@
 
     <!-- Description -->
     <div class="field mb-4">
-      <label for="description" class="block font-medium mb-2">Description</label>
+      <label for="description" class="block font-medium mb-2">
+        Description
+      </label>
       <textarea 
         id="description"
-        pTextarea 
+        pInputTextarea 
         formControlName="description"
-        placeholder="Enter category description"
-        class="w-full"
+        placeholder="Enter category description (optional)"
         rows="3"
+        class="w-full"
       ></textarea>
     </div>
 
     <!-- Image URL -->
     <div class="field mb-4">
-      <label for="image_url" class="block font-medium mb-2">Image URL</label>
+      <label for="image_url" class="block font-medium mb-2">
+        Image URL (Optional)
+      </label>
       <input 
         id="image_url"
         type="url" 
         pInputText 
         formControlName="image_url"
-        placeholder="https://example.com/image.jpg"
+        placeholder="Enter image URL (optional)"
         class="w-full"
       />
     </div>
 
-    <!-- Active Checkbox -->
-    <div class="field mb-4">
+    <!-- Active Status (only show in edit mode) -->
+    <div *ngIf="isEditMode()" class="field mb-4">
       <div class="flex align-items-center">
         <p-checkbox 
           formControlName="is_active" 
           binary="true" 
           inputId="is_active"
         />
-        <label for="is_active" class="ml-2">Active Category</label>
+        <label for="is_active" class="ml-2">
+          Active Category
+        </label>
       </div>
-      <small class="text-color-secondary">Inactive categories won't appear in product forms</small>
     </div>
 
-  </form>
-  
-  <!-- Dialog Footer -->
-  <ng-template pTemplate="footer">
-    <div class="flex justify-content-end gap-2">
+    <!-- Form Actions -->
+    <div class="flex justify-content-end gap-2 pt-3 border-top-1 surface-border">
       <p-button 
+        type="button"
         label="Cancel" 
-        severity="secondary" 
+        severity="secondary"
         (onClick)="onCancel()"
+        [disabled]="loading()"
       />
+      
       <p-button 
-        label="Add Category" 
+        type="submit"
+        [label]="submitButtonLabel"
         [loading]="loading()"
         [disabled]="categoryForm.invalid"
-        (onClick)="onSubmit()"
+        icon="pi pi-check"
+        severity="success"
       />
     </div>
-  </ng-template>
-</p-dialog>
-
-<p-toast />
+  </form>
+</ng-template>

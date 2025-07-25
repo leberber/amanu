@@ -1,4 +1,4 @@
-<!-- src/app/pages/admin/admin-products/admin-products.component.html -->
+<!-- src/app/pages/admin/admin-categories/admin-categories.component.html -->
 <div class="h-full pt-2 px-2">
   <p-toast></p-toast>
   <p-confirmDialog></p-confirmDialog>
@@ -6,16 +6,16 @@
   <div class="border-1 border-100 border-round-md p-3">
     <p-table
       #dt
-      [value]="products"
+      [value]="categories"
       [loading]="loading"
       selectionMode="single"
       dataKey="id"
-      [globalFilterFields]="['name', 'description', 'price', 'unit', 'stock_quantity']"
+      [globalFilterFields]="['name', 'description']"
       sortMode="multiple"
       [scrollable]="true"
       [scrollHeight]="'calc(100vh - 200px)'"
       [showCurrentPageReport]="true"
-      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} categories"
     >
       
       <!-- Table Caption with Enhanced Controls -->
@@ -25,13 +25,13 @@
           <div class="col-12 hidden md:flex">
             <div class="grid w-full">
               <!-- Search Row -->
-              <div class="col-3">
+              <div class="col-4">
                 <p-iconfield iconPosition="left" class="w-full">
                   <p-inputicon><i class="pi pi-search"></i></p-inputicon>
                   <input 
                     type="text" 
                     pInputText 
-                    placeholder="Search products..." 
+                    placeholder="Search categories..." 
                     [(ngModel)]="searchQuery"
                     (input)="onSearchInput()"
                     class="w-full"
@@ -39,7 +39,7 @@
                   <p-inputicon>
                     <i 
                       class="pi pi-info-circle text-500 cursor-pointer ml-2" 
-                      pTooltip="Search by product name, description, or category"
+                      pTooltip="Search by category name or description"
                       tooltipPosition="right"
                       [showDelay]="300"
                       [hideDelay]="100"
@@ -47,17 +47,6 @@
                     ></i>
                   </p-inputicon>
                 </p-iconfield>
-              </div>
-
-              <!-- Category Filter - Desktop -->
-              <div class="col-2">
-                <p-select
-                  [options]="categoryOptions"
-                  [(ngModel)]="selectedCategory"
-                  placeholder="Filter by category"
-                  (onChange)="onCategoryChange()"
-                  class="w-full h-full"
-                />
               </div>
               
               <!-- Clear Filters - Desktop -->
@@ -73,26 +62,26 @@
               </div>
               
               <!-- Refresh Button - Desktop -->
-              <div class="col-2">
+              <div class="col-3">
                 <p-button 
                   icon="pi pi-refresh" 
                   label="Refresh"
                   severity="secondary"
                   [outlined]="true"
-                  (click)="refreshProductData()"
-                  pTooltip="Refresh product data"
+                  (click)="refreshCategoryData()"
+                  pTooltip="Refresh category data"
                   tooltipPosition="bottom"
                   class="w-full h-full"
                 />
               </div>
               
-              <!-- Add Product - Desktop -->
+              <!-- Add Category - Desktop -->
               <div class="col-3 flex justify-content-end">
                 <p-button 
-                  label="Add New Product" 
+                  label="Add New Category" 
                   icon="pi pi-plus"
                   severity="success"
-                  (click)="createNewProduct()"
+                  (click)="createNewCategory()"
                   class="h-full"
                 />
               </div>
@@ -101,7 +90,7 @@
           
           <!-- Mobile Layout - Everything on same line -->
           <div class="col-12 md:hidden">
-            <div class="flex gap-2 align-items-center mb-2">
+            <div class="flex gap-2 align-items-center">
               <!-- Search - Mobile (flex-grow to take remaining space) -->
               <div class="flex-grow-1">
                 <p-iconfield iconPosition="left" class="w-full">
@@ -133,7 +122,7 @@
                 icon="pi pi-refresh" 
                 severity="secondary"
                 [outlined]="true"
-                (click)="refreshProductData()"
+                (click)="refreshCategoryData()"
                 pTooltip="Refresh"
                 tooltipPosition="top"
                 [rounded]="true"
@@ -143,22 +132,11 @@
               <p-button 
                 icon="pi pi-plus"
                 severity="success"
-                (click)="createNewProduct()"
-                pTooltip="Add Product"
+                (click)="createNewCategory()"
+                pTooltip="Add Category"
                 tooltipPosition="top"
                 [rounded]="true"
                 size="small"
-              />
-            </div>
-            
-            <!-- Category Filter - Mobile (separate row) -->
-            <div class="w-full">
-              <p-select
-                [options]="categoryOptions"
-                [(ngModel)]="selectedCategory"
-                placeholder="Filter by category"
-                (onChange)="onCategoryChange()"
-                class="w-full"
               />
             </div>
           </div>
@@ -168,41 +146,30 @@
       <!-- Enhanced Header Template -->
       <ng-template pTemplate="header">
         <tr>
-          <!-- Product Image Column -->
+          <!-- Category Image Column -->
           <th style="width: 80px" class="text-center">
             <!-- <i class="pi pi-image"></i> -->
           </th>
           
-          <!-- Product Name Column -->
+          <!-- Category Name Column -->
           <th pSortableColumn="name" style="min-width: 200px" class="p-3">
             <div class="flex align-items-center gap-2">
-              <span>Product Name</span>
+              <span>Category Name</span>
               <p-sortIcon [field]="'name'" />
             </div>
           </th>
           
-          <!-- Category Column -->
-          <th pSortableColumn="category_id" style="min-width: 120px">
+          <!-- Description Column -->
+          <th pSortableColumn="description" style="min-width: 300px">
             <div class="flex align-items-center gap-2">
-              <span>Category</span>
-              <p-sortIcon [field]="'category_id'" />
+              <span>Description</span>
+              <p-sortIcon [field]="'description'" />
             </div>
           </th>
           
-          <!-- Price Column -->
-          <th pSortableColumn="price" style="min-width: 100px" class="text-right">
-            <div class="flex align-items-center justify-content-end gap-2">
-              <span>Price</span>
-              <p-sortIcon [field]="'price'" />
-            </div>
-          </th>
-          
-          <!-- Stock Column -->
-          <th pSortableColumn="stock_quantity" style="min-width: 120px" class="text-center">
-            <div class="flex align-items-center justify-content-center gap-2">
-              <span>Stock</span>
-              <p-sortIcon [field]="'stock_quantity'" />
-            </div>
+          <!-- Product Count Column -->
+          <th style="min-width: 120px" class="text-center">
+            <span>Products</span>
           </th>
           
           <!-- Status Column -->
@@ -213,123 +180,98 @@
             </div>
           </th>
           
+          <!-- Created Date Column -->
+          <th pSortableColumn="created_at" style="min-width: 120px" class="text-center">
+            <div class="flex align-items-center justify-content-center gap-2">
+              <span>Created</span>
+              <p-sortIcon [field]="'created_at'" />
+            </div>
+          </th>
+          
           <!-- Actions Column -->
-          <th style="width: 180px" class="text-center">
+          <th style="width: 150px" class="text-center">
             Actions
           </th>
         </tr>
       </ng-template>
       
       <!-- Enhanced Body Template -->
-      <ng-template pTemplate="body" let-product let-rowIndex="rowIndex">
+      <ng-template pTemplate="body" let-category let-rowIndex="rowIndex">
         <tr>
-          <!-- Product Image -->
+          <!-- Category Image -->
           <td class="text-center">
             <div class="w-3rem h-3rem border-circle overflow-hidden flex align-items-center justify-content-center bg-gray-100 shadow-1">
               <img 
-                *ngIf="product.image_url" 
-                [src]="product.image_url" 
-                [alt]="product.name"
+                *ngIf="category.image_url" 
+                [src]="category.image_url" 
+                [alt]="category.name"
                 class="w-full h-full object-cover border-circle"
-               
               />
               <i 
-                *ngIf="!product.image_url" 
-                class="pi pi-image text-gray-400 text-xl"
+                *ngIf="!category.image_url" 
+                class="pi pi-folder text-gray-400 text-xl"
               ></i>
             </div>
           </td>
           
-          <!-- Product Name with Description -->
+          <!-- Category Name -->
           <td>
             <div class="flex flex-column">
-              <span class="font-medium text-900 mb-1">{{ product.name }}</span>
-              <span 
-                *ngIf="product.description" 
-                class="text-600 text-sm line-height-3 white-space-nowrap overflow-hidden text-overflow-ellipsis"
-                style="max-width: 200px;"
-                [pTooltip]="product.description"
-                tooltipPosition="top"
-              >
-                {{ product.description }}
-              </span>
-              <div class="flex align-items-center gap-2 mt-1">
-                <p-tag 
-                  *ngIf="product.is_organic" 
-                  value="Organic" 
-                  severity="success" 
-                  icon="pi pi-check-circle"
-                />
-              </div>
+              <span class="font-medium text-900 mb-1 text-lg">{{ category.name }}</span>
             </div>
           </td>
           
-          <!-- Category -->
+          <!-- Description -->
           <td>
+            <span 
+              *ngIf="category.description" 
+              class="text-600 text-sm line-height-3 white-space-nowrap overflow-hidden text-overflow-ellipsis"
+              style="max-width: 300px;"
+              [pTooltip]="category.description"
+              tooltipPosition="top"
+            >
+              {{ category.description }}
+            </span>
+            <span *ngIf="!category.description" class="text-400 italic">
+              No description
+            </span>
+          </td>
+          
+          <!-- Product Count -->
+          <td class="text-center">
             <p-tag 
-              [value]="getCategoryName(product.category_id)" 
+              [value]="getCategoryProductCount(category.id).toString() + ' products'"
               severity="info"
             />
-          </td>
-          
-          <!-- Price -->
-          <td class="text-right">
-            <div class="flex flex-column align-items-end">
-              <span class="font-semibold text-lg text-900">
-                ${{ product.price.toFixed(2) }}
-              </span>
-              <span class="text-600 text-sm">
-                per {{ getUnitDisplay(product.unit) }}
-              </span>
-            </div>
-          </td>
-          
-          <!-- Stock -->
-          <td class="text-center">
-            <div class="flex flex-column align-items-center">
-              <p-tag 
-                [value]="getStockLabel(product.stock_quantity)" 
-                [severity]="getStockSeverity(product.stock_quantity)"
-                class="mb-1"
-              />
-              <span class="text-600 text-sm">
-                {{ product.stock_quantity }} {{ getUnitDisplay(product.unit) }}
-              </span>
-            </div>
           </td>
           
           <!-- Status -->
           <td class="text-center">
             <p-tag 
-              [value]="product.is_active ? 'Active' : 'Inactive'" 
-              [severity]="product.is_active ? 'success' : 'danger'"
-              [icon]="product.is_active ? 'pi pi-check' : 'pi pi-times'"
+              [value]="category.is_active ? 'Active' : 'Inactive'" 
+              [severity]="category.is_active ? 'success' : 'danger'"
+              [icon]="category.is_active ? 'pi pi-check' : 'pi pi-times'"
             />
+          </td>
+          
+          <!-- Created Date -->
+          <td class="text-center">
+            <span class="text-600 text-sm">
+              {{ formatDate(category.created_at) }}
+            </span>
           </td>
           
           <!-- Actions -->
           <td class="text-center">
             <div class="flex justify-content-center gap-1">
-              <!-- View Button -->
-              <p-button 
-                icon="pi pi-eye" 
-                severity="info"
-                size="small"
-                [outlined]="true" 
-                [rounded]="true"
-                (click)="viewProduct(product)"
-                pTooltip="View Product"
-                tooltipPosition="top"
-              />
-              
               <!-- Edit Button -->
               <p-button 
                 icon="pi pi-pencil" 
                 size="small"
                 [outlined]="true" 
                 [rounded]="true"
-                (click)="editProduct(product)"
-                pTooltip="Edit Product"
+                (click)="editCategory(category)"
+                pTooltip="Edit Category"
                 tooltipPosition="top"
               />
               
@@ -340,8 +282,8 @@
                 size="small"
                 [outlined]="true" 
                 [rounded]="true"
-                (click)="confirmDeleteProduct(product)"
-                pTooltip="Delete Product"
+                (click)="confirmDeleteCategory(category)"
+                pTooltip="Delete Category"
                 tooltipPosition="top"
               />
             </div>
@@ -354,27 +296,27 @@
         <tr>
           <td colspan="7" class="text-center p-6">
             <div class="flex flex-column align-items-center gap-3">
-              <i class="pi pi-box text-6xl text-gray-300"></i>
+              <i class="pi pi-folder text-6xl text-gray-300"></i>
               <div>
                 <h3 class="text-xl font-medium text-gray-600 mb-2">
-                  {{ hasActiveFilters() ? 'No products match your filters' : 'No products found' }}
+                  {{ hasActiveFilters() ? 'No categories match your search' : 'No categories found' }}
                 </h3>
                 <p class="text-gray-500 mb-3">
-                  {{ hasActiveFilters() ? 'Try adjusting your search or filters' : 'Get started by adding your first product' }}
+                  {{ hasActiveFilters() ? 'Try adjusting your search terms' : 'Get started by adding your first category' }}
                 </p>
                 <p-button 
                   *ngIf="hasActiveFilters()"
-                  label="Clear Filters" 
+                  label="Clear Search" 
                   icon="pi pi-filter-slash"
                   severity="secondary"
                   (click)="clearFilters()"
                 />
                 <p-button 
                   *ngIf="!hasActiveFilters()"
-                  label="Add First Product" 
+                  label="Add First Category" 
                   icon="pi pi-plus"
                   severity="success"
-                  (click)="createNewProduct()"
+                  (click)="createNewCategory()"
                 />
               </div>
             </div>
@@ -388,7 +330,7 @@
           <td colspan="7" class="text-center p-4">
             <div class="flex align-items-center justify-content-center gap-2">
               <p-progressSpinner [style]="{'width': '2rem', 'height': '2rem'}" />
-              <span class="text-600">Loading products...</span>
+              <span class="text-600">Loading categories...</span>
             </div>
           </td>
         </tr>

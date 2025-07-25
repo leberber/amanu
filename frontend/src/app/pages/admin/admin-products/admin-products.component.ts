@@ -54,7 +54,13 @@ import { TooltipModule } from 'primeng/tooltip';
   ],
   providers: [MessageService, ConfirmationService],
     templateUrl:'./admin-products.component.html',
-  styleUrl: './admin-products.component.scss'
+  styleUrl: './admin-products.component.scss',
+   styles: [`
+    :host ::ng-deep .p-datatable-header {
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+    }
+  `]
 })
 export class AdminProductsComponent implements OnInit {
   allProducts: Product[] = []; // Store all products loaded once

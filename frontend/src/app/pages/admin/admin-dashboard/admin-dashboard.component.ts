@@ -39,7 +39,7 @@ import { DashboardStats } from '../../../models/admin.model';
 })
 export class AdminDashboardComponent implements OnInit {
   // REMOVED: ViewChild references and modal methods
-  
+
   stats: DashboardStats | null = null;
   loading = true;
   salesChartData: any;
@@ -153,12 +153,16 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   // NEW: Navigate to add category page (you can implement this later)
-  navigateToAddCategory() {
-    // For now, show a message. You can create a similar page for categories later
-    this.messageService.add({
-      severity: 'info',
-      summary: 'Coming Soon',
-      detail: 'Add Category page will be available soon'
-    });
-  }
+  // navigateToAddCategory() {
+  //   // For now, show a message. You can create a similar page for categories later
+  //   this.messageService.add({
+  //     severity: 'info',
+  //     summary: 'Coming Soon',
+  //     detail: 'Add Category page will be available soon'
+  //   });
+  // }
+
+    navigateToAddCategory() {
+  this.router.navigate(['/admin/categories/add']);
+}
 }

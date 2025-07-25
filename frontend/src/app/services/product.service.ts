@@ -10,19 +10,19 @@ import { Product, Category, ProductFilter } from '../models/product.model';
 export class ProductService {
   constructor(private apiService: ApiService) {}
 
+  // Product methods
   createProduct(productData: any): Observable<Product> {
-  return this.apiService.post<Product>('/products', productData);
-}
-updateProduct(productId: number, productData: any): Observable<Product> {
-  return this.apiService.patch<Product>(`/products/${productId}`, productData);
-}
+    return this.apiService.post<Product>('/products', productData);
+  }
 
-createCategory(categoryData: any): Observable<Category> {
-  return this.apiService.post<Category>('/categories', categoryData);
-}
-deleteProduct(productId: number): Observable<void> {
-  return this.apiService.delete<void>(`/products/${productId}`);
-}
+  updateProduct(productId: number, productData: any): Observable<Product> {
+    return this.apiService.patch<Product>(`/products/${productId}`, productData);
+  }
+
+  deleteProduct(productId: number): Observable<void> {
+    return this.apiService.delete<void>(`/products/${productId}`);
+  }
+
   getProducts(filters?: ProductFilter): Observable<Product[]> {
     // Convert filters to query params
     const params: any = {};
@@ -41,6 +41,27 @@ deleteProduct(productId: number): Observable<void> {
     return this.apiService.get<Product>(`/products/${id}`);
   }
 
+  getProductsByCategory(categoryId: number, activeOnly = true): Observable<Product[]> {
+    return this.apiService.get<Product[]>(`/products/category/${categoryId}`, {
+      params: { active_only: activeOnly }
+    });
+  }
+
+  // Category methods
+  createCategory(categoryData: any): Observable<Category> {
+    return this.apiService.post<Category>('/categories', categoryData);
+  }
+
+  // NEW: Update existing category
+  updateCategory(categoryId: number, categoryData: any): Observable<Category> {
+    return this.apiService.patch<Category>(`/categories/${categoryId}`, categoryData);
+  }
+
+  // NEW: Delete category
+  deleteCategory(categoryId: number): Observable<void> {
+    return this.apiService.delete<void>(`/categories/${categoryId}`);
+  }
+
   getCategories(activeOnly = false): Observable<Category[]> {
     return this.apiService.get<Category[]>('/categories', { 
       params: { active_only: activeOnly } 
@@ -49,11 +70,5 @@ deleteProduct(productId: number): Observable<void> {
 
   getCategory(id: number): Observable<Category> {
     return this.apiService.get<Category>(`/categories/${id}`);
-  }
-
-  getProductsByCategory(categoryId: number, activeOnly = true): Observable<Product[]> {
-    return this.apiService.get<Product[]>(`/products/category/${categoryId}`, {
-      params: { active_only: activeOnly }
-    });
   }
 }
