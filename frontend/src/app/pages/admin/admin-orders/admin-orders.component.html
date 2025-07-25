@@ -1,177 +1,464 @@
 <!-- src/app/pages/admin/admin-orders/admin-orders.component.html -->
-<div class="surface-ground px-4 py-5">
-    <p-toast></p-toast>
-    <p-confirmDialog></p-confirmDialog>
+<div class="h-full pt-2 px-2">
+  <p-toast></p-toast>
+  <p-confirmDialog></p-confirmDialog>
+  
+  <div class="border-1 border-100 border-round-md p-3">
+    <p-table
+      #dt
+      [value]="orders"
+      [loading]="loading"
+      selectionMode="single"
+      dataKey="id"
+      [globalFilterFields]="['id', 'user.full_name', 'status', 'total_amount']"
+      sortMode="multiple"
+      [scrollable]="true"
+      [scrollHeight]="'calc(100vh - 200px)'"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} orders"
+      styleClass="p-datatable-sm p-datatable-striped"
+    >
+      
+      <!-- Table Caption with Enhanced Controls -->
+      <ng-template pTemplate="caption">
+        <div class="grid mb-3">
+          <!-- Desktop Layout -->
+          <div class="col-12 hidden md:flex">
+            <div class="grid w-full">
+              <!-- Search Row -->
+              <div class="col-4">
+                <p-iconfield iconPosition="left" class="w-full">
+                  <p-inputicon><i class="pi pi-search"></i></p-inputicon>
+                  <input 
+                    type="text" 
+                    pInputText 
+                    placeholder="Search orders..." 
+                    [(ngModel)]="searchQuery"
+                    (input)="onSearchInput()"
+                    class="w-full"
+                  />
+                  <p-inputicon>
+                    <i 
+                      class="pi pi-info-circle text-500 cursor-pointer ml-2" 
+                      pTooltip="Search by order ID, customer name, email, phone, or status"
+                      tooltipPosition="right"
+                      [showDelay]="300"
+                      [hideDelay]="100"
+                      style="font-size: 1rem;"
+                    ></i>
+                  </p-inputicon>
+                </p-iconfield>
+              </div>
+
+              <!-- Status Filter - Desktop -->
+              <div class="col-2">
+                <p-select
+                  [options]="statusOptions"
+                  [(ngModel)]="filterStatus"
+                  placeholder="Filter by status"
+                  optionLabel="label"
+                  optionValue="value"
+                  (onChange)="onStatusChange()"
+                  class="w-full h-full"
+                />
+              </div>
+              
+              <!-- Clear Filters - Desktop -->
+              <div class="col-2">
+                <p-button 
+                  label="Clear Filters" 
+                  icon="pi pi-filter-slash"
+                  [severity]="hasActiveFilters() ? 'warn' : 'secondary'"
+                  (click)="clearFilters()"
+                  [disabled]="!hasActiveFilters()"
+                  class="w-full h-full"
+                />
+              </div>
+              
+              <!-- Refresh Button - Desktop -->
+              <div class="col-2">
+                <p-button 
+                  icon="pi pi-refresh" 
+                  label="Refresh"
+                  severity="secondary"
+                  [outlined]="true"
+                  (click)="refreshOrderData()"
+                  pTooltip="Refresh order data"
+                  tooltipPosition="bottom"
+                  class="w-full h-full"
+                />
+              </div>
+              
+              <!-- Export/Actions - Desktop -->
+              <div class="col-2 flex justify-content-end">
+                <p-button 
+                  label="Export Orders" 
+                  icon="pi pi-download"
+                  severity="info"
+                  [outlined]="true"
+                  (click)="exportOrders()"
+                  class="h-full"
+                />
+              </div>
+            </div>
+          </div>
+          
+          <!-- Mobile Layout - Everything on same line -->
+          <div class="col-12 md:hidden">
+            <div class="flex gap-2 align-items-center mb-2">
+              <!-- Search - Mobile (flex-grow to take remaining space) -->
+              <div class="flex-grow-1">
+                <p-iconfield iconPosition="left" class="w-full">
+                  <p-inputicon><i class="pi pi-search"></i></p-inputicon>
+                  <input 
+                    type="text" 
+                    pInputText 
+                    placeholder="Search..." 
+                    [(ngModel)]="searchQuery"
+                    (input)="onSearchInput()"
+                    class="w-full"
+                  />
+                </p-iconfield>
+              </div>
+              
+              <!-- Action Icons - Mobile -->
+              <p-button 
+                icon="pi pi-filter-slash"
+                [severity]="hasActiveFilters() ? 'warn' : 'secondary'"
+                (click)="clearFilters()"
+                [disabled]="!hasActiveFilters()"
+                pTooltip="Clear Filters"
+                tooltipPosition="top"
+                [rounded]="true"
+                size="small"
+              />
+              
+              <p-button 
+                icon="pi pi-refresh" 
+                severity="secondary"
+                [outlined]="true"
+                (click)="refreshOrderData()"
+                pTooltip="Refresh"
+                tooltipPosition="top"
+                [rounded]="true"
+                size="small"
+              />
+
+              <p-button 
+                icon="pi pi-download"
+                severity="info"
+                [outlined]="true"
+                (click)="exportOrders()"
+                pTooltip="Export"
+                tooltipPosition="top"
+                [rounded]="true"
+                size="small"
+              />
+            </div>
+            
+            <!-- Status Filter - Mobile (separate row) -->
+            <div class="w-full">
+              <p-select
+                [options]="statusOptions"
+                [(ngModel)]="filterStatus"
+                placeholder="Filter by status"
+                optionLabel="label"
+                optionValue="value"
+                (onChange)="onStatusChange()"
+                class="w-full"
+              />
+            </div>
+          </div>
+        </div>
+      </ng-template>
+
+      <!-- Enhanced Header Template -->
+      <ng-template pTemplate="header">
+        <tr>
+          <!-- Order ID Column -->
+          <th pSortableColumn="id" style="min-width: 100px" class="p-3">
+            <div class="flex align-items-center gap-2">
+              <span>Order ID</span>
+              <p-sortIcon [field]="'id'" />
+            </div>
+          </th>
+          
+          <!-- Customer Column -->
+          <th pSortableColumn="user.full_name" style="min-width: 180px">
+            <div class="flex align-items-center gap-2">
+              <span>Customer Details</span>
+              <p-sortIcon [field]="'user.full_name'" />
+            </div>
+          </th>
+          
+          <!-- Date Column -->
+          <th pSortableColumn="created_at" style="min-width: 150px" class="text-center">
+            <div class="flex align-items-center justify-content-center gap-2">
+              <span>Order Date</span>
+              <p-sortIcon [field]="'created_at'" />
+            </div>
+          </th>
+          
+          <!-- Status Column -->
+          <th pSortableColumn="status" style="min-width: 120px" class="text-center">
+            <div class="flex align-items-center justify-content-center gap-2">
+              <span>Status</span>
+              <p-sortIcon [field]="'status'" />
+            </div>
+          </th>
+          
+          <!-- Total Column -->
+          <th pSortableColumn="total_amount" style="min-width: 100px" class="text-right">
+            <div class="flex align-items-center justify-content-end gap-2">
+              <span>Total</span>
+              <p-sortIcon [field]="'total_amount'" />
+            </div>
+          </th>
+          
+          <!-- Actions Column -->
+          <th style="width: 200px" class="text-center">
+            Actions
+          </th>
+        </tr>
+      </ng-template>
+      
+      <!-- Enhanced Body Template -->
+      <ng-template pTemplate="body" let-order let-rowIndex="rowIndex">
+        <tr>
+          <!-- Order ID -->
+          <td>
+            <div class="flex align-items-center">
+              <span class="font-medium text-primary">#{{ order.id }}</span>
+            </div>
+          </td>
+          
+          <!-- Customer -->
+          <td>
+            <div class="flex flex-column">
+              <span class="font-medium text-900 mb-1">
+                {{ getUserById(order.user_id)?.full_name || order.user?.full_name || 'User ID: ' + order.user_id }}
+              </span>
+              <span class="text-600 text-sm">
+                {{ getUserById(order.user_id)?.email || order.user?.email || 'No email' }}
+              </span>
+              <span *ngIf="order.contact_phone" class="text-500 text-xs">{{ order.contact_phone }}</span>
+            </div>
+          </td>
+          
+          <!-- Date -->
+          <td class="text-center">
+            <div class="flex flex-column align-items-center">
+              <span class="font-medium text-900">{{ formatDate(order.created_at).split(' ')[0] }}</span>
+              <span class="text-600 text-sm">{{ formatDate(order.created_at).split(' ')[1] }}</span>
+            </div>
+          </td>
+          
+          <!-- Status -->
+          <td class="text-center">
+            <p-tag 
+              [value]="order.status" 
+              [severity]="getStatusSeverity(order.status)"
+              [icon]="getStatusIcon(order.status)"
+            />
+          </td>
+          
+          <!-- Total -->
+          <td class="text-right">
+            <span class="font-semibold text-lg text-900">
+              ${{ order.total_amount.toFixed(2) }}
+            </span>
+          </td>
+          
+          <!-- Actions -->
+          <td class="text-center">
+            <div class="flex justify-content-center gap-1">
+              <!-- View Button -->
+              <p-button 
+                icon="pi pi-eye" 
+                severity="info"
+                size="small"
+                [outlined]="true" 
+                [rounded]="true"
+                (click)="openOrderDetails(order)"
+                pTooltip="View Details"
+                tooltipPosition="top"
+              />
+              
+              <!-- Status Action Buttons -->
+              <p-button 
+                *ngIf="order.status === 'pending'"
+                icon="pi pi-check" 
+                severity="success"
+                size="small"
+                [outlined]="true" 
+                [rounded]="true"
+                (click)="updateOrderStatus(order.id, 'confirmed')"
+                pTooltip="Confirm Order"
+                tooltipPosition="top"
+              />
+              
+              <p-button 
+                *ngIf="order.status === 'confirmed'"
+                icon="pi pi-send" 
+                severity="info"
+                size="small"
+                [outlined]="true" 
+                [rounded]="true"
+                (click)="updateOrderStatus(order.id, 'shipped')"
+                pTooltip="Mark as Shipped"
+                tooltipPosition="top"
+              />
+              
+              <p-button 
+                *ngIf="order.status === 'shipped'"
+                icon="pi pi-check-circle" 
+                severity="success"
+                size="small"
+                [outlined]="true" 
+                [rounded]="true"
+                (click)="updateOrderStatus(order.id, 'delivered')"
+                pTooltip="Mark as Delivered"
+                tooltipPosition="top"
+              />
+              
+              <!-- Cancel Button -->
+              <p-button 
+                *ngIf="order.status !== 'cancelled' && order.status !== 'delivered'"
+                icon="pi pi-times" 
+                severity="danger"
+                size="small"
+                [outlined]="true" 
+                [rounded]="true"
+                (click)="updateOrderStatus(order.id, 'cancelled')"
+                pTooltip="Cancel Order"
+                tooltipPosition="top"
+              />
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+      
+      <!-- Enhanced Empty State -->
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="6" class="text-center p-6">
+            <div class="flex flex-column align-items-center gap-3">
+              <i class="pi pi-shopping-cart text-6xl text-gray-300"></i>
+              <div>
+                <h3 class="text-xl font-medium text-gray-600 mb-2">
+                  {{ hasActiveFilters() ? 'No orders match your filters' : 'No orders found' }}
+                </h3>
+                <p class="text-gray-500 mb-3">
+                  {{ hasActiveFilters() ? 'Try adjusting your search or filters' : 'Orders will appear here once customers start placing them' }}
+                </p>
+                <p-button 
+                  *ngIf="hasActiveFilters()"
+                  label="Clear Filters" 
+                  icon="pi pi-filter-slash"
+                  severity="secondary"
+                  (click)="clearFilters()"
+                />
+              </div>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+      
+      <!-- Loading Template -->
+      <ng-template pTemplate="loadingbody">
+        <tr>
+          <td colspan="6" class="text-center p-4">
+            <div class="flex align-items-center justify-content-center gap-2">
+              <p-progressSpinner [style]="{'width': '2rem', 'height': '2rem'}" />
+              <span class="text-600">Loading orders...</span>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <!-- Order Details Dialog -->
+  <p-dialog 
+    [(visible)]="displayOrderDialog" 
+    [style]="{width: '90%', maxWidth: '800px'}" 
+    header="Order Details" 
+    [modal]="true"
+    [draggable]="false"
+    [resizable]="false"
+    styleClass="border-round-lg">
     
-    <div class="surface-card p-4 shadow-2 border-round">
-      <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
-        <h1 class="text-3xl font-medium mb-3 md:mb-0">Order Management</h1>
+    @if (selectedOrder) {
+      <div class="grid">
+        <div class="col-12 md:col-6">
+          <h3 class="text-lg font-medium">Order #{{selectedOrder.id}}</h3>
+          <p><strong>Customer:</strong> {{selectedOrder.user?.full_name || 'User #' + selectedOrder.user_id}}</p>
+          <p><strong>Date:</strong> {{formatDate(selectedOrder.created_at)}}</p>
+          <p><strong>Status:</strong> <p-tag [severity]="getStatusSeverity(selectedOrder.status)" [value]="selectedOrder.status"></p-tag></p>
+          <p><strong>Total:</strong> ${{selectedOrder.total_amount.toFixed(2)}}</p>
+        </div>
         
-        <div class="flex align-items-center">
-          <span class="mr-2">Filter by Status:</span>
-          <p-select 
-          [options]="statusOptions" 
-          [(ngModel)]="filterStatus" 
-          (onChange)="onStatusChange()" 
-          placeholder="Select Status"
-          optionLabel="label"
-          optionValue="value"
-          class="w-full"
-        ></p-select>
+        <div class="col-12 md:col-6">
+          <h3 class="text-lg font-medium">Shipping Information</h3>
+          <p><strong>Address:</strong> {{selectedOrder.shipping_address}}</p>
+          <p><strong>Phone:</strong> {{selectedOrder.contact_phone}}</p>
+        </div>
+        
+        <div class="col-12">
+          <h3 class="text-lg font-medium mt-4">Order Items</h3>
+          
+          <p-table [value]="selectedOrder.items || []" styleClass="p-datatable-sm" [tableStyle]="{'min-width': '100%'}">
+            <ng-template pTemplate="header">
+              <tr>
+                <th>Product</th>
+                <th>Unit Price</th>
+                <th>Quantity</th>
+                <th>Unit</th>
+                <th>Total</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-item>
+              <tr>
+                <td>{{item.product_name}}</td>
+                <td>${{item.unit_price.toFixed(2)}}</td>
+                <td>{{item.quantity}}</td>
+                <td>{{item.product_unit}}</td>
+                <td>${{(item.unit_price * item.quantity).toFixed(2)}}</td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="footer">
+              <tr>
+                <td colspan="4" class="text-right font-bold">Total:</td>
+                <td class="font-bold">${{selectedOrder.total_amount.toFixed(2)}}</td>
+              </tr>
+            </ng-template>
+          </p-table>
         </div>
       </div>
-  
-      <p-table [value]="orders" [loading]="loading" styleClass="p-datatable-striped mt-4" 
-               [tableStyle]="{'min-width': '100%'}" dataKey="id" [paginator]="false">
-        <ng-template pTemplate="header">
-          <tr>
-            <th>Order ID</th>
-            <th>Customer</th>
-            <th>Date</th>
-            <th>Status</th>
-            <th>Total</th>
-            <th>Actions</th>
-          </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-order>
-          <tr>
-            <td>#{{order.id}}</td>
-            <td>{{order.user?.full_name || 'User #' + order.user_id}}</td>
-            <td>{{formatDate(order.created_at)}}</td>
-            <td>
-              <!-- <p-tag [severity]="getStatusSeverity(order.status)" [value]="order.status"></p-tag> -->
-            </td>
-            <td>${{order.total_amount.toFixed(2)}}</td>
-            <td>
-              <div class="flex gap-2">
-                <button pButton icon="pi pi-eye" class="p-button-text p-button-sm" 
-                        (click)="openOrderDetails(order)" pTooltip="View Details"></button>
-                
-                @if (order.status === 'pending') {
-                  <button pButton icon="pi pi-check" class="p-button-text p-button-success p-button-sm" 
-                          (click)="updateOrderStatus(order.id, 'confirmed')" pTooltip="Confirm"></button>
-                }
-                
-                @if (order.status === 'confirmed') {
-                  <button pButton icon="pi pi-send" class="p-button-text p-button-info p-button-sm" 
-                          (click)="updateOrderStatus(order.id, 'shipped')" pTooltip="Mark as Shipped"></button>
-                }
-                
-                @if (order.status === 'shipped') {
-                  <button pButton icon="pi pi-check-circle" class="p-button-text p-button-success p-button-sm" 
-                          (click)="updateOrderStatus(order.id, 'delivered')" pTooltip="Mark as Delivered"></button>
-                }
-                
-                @if (order.status !== 'cancelled' && order.status !== 'delivered') {
-                  <button pButton icon="pi pi-times" class="p-button-text p-button-danger p-button-sm" 
-                          (click)="updateOrderStatus(order.id, 'cancelled')" pTooltip="Cancel"></button>
-                }
-              </div>
-            </td>
-          </tr>
-        </ng-template>
-        <ng-template pTemplate="emptymessage">
-          <tr>
-            <td colspan="6" class="text-center p-4">
-              @if (loading) {
-                <p>Loading orders...</p>
-              } @else {
-                <p>No orders found.</p>
-              }
-            </td>
-          </tr>
-        </ng-template>
-      </p-table>
       
-      <!-- Paginator -->
-      <p-paginator 
-        [rows]="pageSize" 
-        [totalRecords]="totalRecords" 
-        [rowsPerPageOptions]="[10, 25, 50]" 
-        (onPageChange)="onPageChange($event)">
-      </p-paginator>
-    </div>
-    
-    <!-- Order Details Dialog -->
-    <p-dialog 
-      [(visible)]="displayOrderDialog" 
-      [style]="{width: '90%', maxWidth: '800px'}" 
-      header="Order Details" 
-      [modal]="true"
-      [draggable]="false"
-      [resizable]="false">
-      
-      @if (selectedOrder) {
-        <div class="grid">
-          <div class="col-12 md:col-6">
-            <h3 class="text-lg font-medium">Order #{{selectedOrder.id}}</h3>
-            <p><strong>Customer:</strong> {{selectedOrder.user?.full_name || 'User #' + selectedOrder.user_id}}</p>
-            <p><strong>Date:</strong> {{formatDate(selectedOrder.created_at)}}</p>
-            <p><strong>Status:</strong> <p-tag [severity]="getStatusSeverity(selectedOrder.status)" [value]="selectedOrder.status"></p-tag></p>
-            <p><strong>Total:</strong> ${{selectedOrder.total_amount.toFixed(2)}}</p>
-          </div>
-          
-          <div class="col-12 md:col-6">
-            <h3 class="text-lg font-medium">Shipping Information</h3>
-            <p><strong>Address:</strong> {{selectedOrder.shipping_address}}</p>
-            <p><strong>Phone:</strong> {{selectedOrder.contact_phone}}</p>
-          </div>
-          
-          <div class="col-12">
-            <h3 class="text-lg font-medium mt-4">Order Items</h3>
-            
-            <p-table [value]="selectedOrder.items || []" styleClass="p-datatable-sm" [tableStyle]="{'min-width': '100%'}">
-              <ng-template pTemplate="header">
-                <tr>
-                  <th>Product</th>
-                  <th>Unit Price</th>
-                  <th>Quantity</th>
-                  <th>Unit</th>
-                  <th>Total</th>
-                </tr>
-              </ng-template>
-              <ng-template pTemplate="body" let-item>
-                <tr>
-                  <td>{{item.product_name}}</td>
-                  <td>${{item.unit_price.toFixed(2)}}</td>
-                  <td>{{item.quantity}}</td>
-                  <td>{{item.product_unit}}</td>
-                  <td>${{(item.unit_price * item.quantity).toFixed(2)}}</td>
-                </tr>
-              </ng-template>
-              <ng-template pTemplate="footer">
-                <tr>
-                  <td colspan="4" class="text-right font-bold">Total:</td>
-                  <td class="font-bold">${{selectedOrder.total_amount.toFixed(2)}}</td>
-                </tr>
-              </ng-template>
-            </p-table>
-          </div>
-        </div>
+      <div class="flex flex-wrap gap-2 justify-content-end mt-4">
+        <button pButton label="Close" icon="pi pi-times" class="p-button-text" (click)="displayOrderDialog = false"></button>
         
-        <div class="flex flex-wrap gap-2 justify-content-end mt-4">
-          <button pButton label="Close" icon="pi pi-times" class="p-button-text" (click)="displayOrderDialog = false"></button>
-          
-          @if (selectedOrder.status === 'pending') {
-            <button pButton label="Confirm" icon="pi pi-check" 
-                    (click)="updateOrderStatus(selectedOrder.id, 'confirmed'); displayOrderDialog = false"></button>
-          }
-          
-          @if (selectedOrder.status === 'confirmed') {
-            <button pButton label="Mark as Shipped" icon="pi pi-send" 
-                    (click)="updateOrderStatus(selectedOrder.id, 'shipped'); displayOrderDialog = false"></button>
-          }
-          
-          @if (selectedOrder.status === 'shipped') {
-            <button pButton label="Mark as Delivered" icon="pi pi-check-circle" 
-                    (click)="updateOrderStatus(selectedOrder.id, 'delivered'); displayOrderDialog = false"></button>
-          }
-          
-          @if (selectedOrder.status !== 'cancelled' && selectedOrder.status !== 'delivered') {
-            <button pButton label="Cancel Order" icon="pi pi-times" class="p-button-danger" 
-                    (click)="updateOrderStatus(selectedOrder.id, 'cancelled'); displayOrderDialog = false"></button>
-          }
-        </div>
-      }
-    </p-dialog>
-   </div>
+        @if (selectedOrder.status === 'pending') {
+          <button pButton label="Confirm" icon="pi pi-check" 
+                  (click)="updateOrderStatus(selectedOrder.id, 'confirmed'); displayOrderDialog = false"></button>
+        }
+        
+        @if (selectedOrder.status === 'confirmed') {
+          <button pButton label="Mark as Shipped" icon="pi pi-send" 
+                  (click)="updateOrderStatus(selectedOrder.id, 'shipped'); displayOrderDialog = false"></button>
+        }
+        
+        @if (selectedOrder.status === 'shipped') {
+          <button pButton label="Mark as Delivered" icon="pi pi-check-circle" 
+                  (click)="updateOrderStatus(selectedOrder.id, 'delivered'); displayOrderDialog = false"></button>
+        }
+        
+        @if (selectedOrder.status !== 'cancelled' && selectedOrder.status !== 'delivered') {
+          <button pButton label="Cancel Order" icon="pi pi-times" class="p-button-danger" 
+                  (click)="updateOrderStatus(selectedOrder.id, 'cancelled'); displayOrderDialog = false"></button>
+        }
+      </div>
+    }
+  </p-dialog>
+</div>

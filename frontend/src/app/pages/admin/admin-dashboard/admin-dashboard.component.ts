@@ -38,6 +38,7 @@ import { DashboardStats } from '../../../models/admin.model';
   styleUrl: './admin-dashboard.component.scss'
 })
 export class AdminDashboardComponent implements OnInit {
+
   // REMOVED: ViewChild references and modal methods
 
   stats: DashboardStats | null = null;
@@ -164,5 +165,8 @@ export class AdminDashboardComponent implements OnInit {
 
     navigateToAddCategory() {
   this.router.navigate(['/admin/categories/add']);
+}
+navigateToCategories() {
+  this.router.navigate(['/admin/categories']);
 }
 }

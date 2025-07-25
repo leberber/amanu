@@ -1,123 +1,124 @@
 <!-- src/app/pages/admin/admin-dashboard/admin-dashboard.component.html -->
-<div class="h-full pt-2 px-2 overflow-hidden overflow-scroll border-1">
+<div class="h-full pt-2 px-2 overflow-hidden overflow-scroll ">
     <p-toast></p-toast>
     
-    <h1 class="text-3xl font-medium mb-4">Admin Dashboard</h1>
-    
-    @if (loading) {
+
+   @if (loading) {
       <div class="flex justify-content-center">
         <p-progressSpinner></p-progressSpinner>
       </div>
     } @else if (stats) {
-      <!-- Quick Actions -->
+      <!-- Title and Quick Actions on Same Line -->
+      <div class="flex flex-column md:flex-row justify-content-between align-items-start md:align-items-center mb-4 surface-card p-4   gap-3">
+        <h1 class="text-3xl font-medium m-0">Admin Dashboard</h1>
+        
+        <div class="flex flex-wrap gap-2">
+          <button pButton label="Manage Orders" icon="pi pi-list" (click)="navigateToOrders()"></button>
+          <button pButton label="Manage Users" icon="pi pi-users" (click)="navigateToUsers()"></button>
+          <button pButton label="Manage Products" icon="pi pi-box" (click)="navigateToProducts()"></button>
+          <button pButton label="Manage Categories" icon="pi pi-folder" (click)="navigateToCategories()"></button>
+        
+        </div>
+      </div>
+      
+      
+<!-- Enhanced Key Metrics -->
       <div class="grid mb-4">
-        <div class="col-12">
-          <div class="surface-card p-4 shadow-2 border-round">
-            <h2 class="text-xl font-medium mb-3">Quick Actions</h2>
-            <div class="flex flex-wrap gap-2">
-              <button pButton label="Manage Orders" icon="pi pi-list" (click)="navigateToOrders()"></button>
-              <button pButton label="Manage Users" icon="pi pi-users" (click)="navigateToUsers()"></button>
-              <button pButton label="Manage Products" icon="pi pi-box" (click)="navigateToProducts()"></button>
+
+        <!-- Total Revenue -->
+        <div class="col-6 md:col-4 lg:col">
+          <div class="surface-card p-4 border-round-lg text-center hover:shadow-3 transition-all transition-duration-300 cursor-pointer"
+               style="box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);">
+            <div class="flex align-items-center justify-content-center w-4rem h-4rem mx-auto mb-3 border-circle bg-green-100">
+              <i class="pi pi-dollar text-3xl text-green-600"></i>
             </div>
+            <div class="text-900 text-2xl font-bold mb-1">${{stats.total_revenue.toFixed(2)}}</div>
+            <div class="text-600 text-sm font-medium">Total Revenue</div>
+          </div>
+        </div>
+
+                <!-- Total Users -->
+        <div class="col-6 md:col-4 lg:col">
+          <div class="surface-card p-4 border-round-lg text-center hover:shadow-3 transition-all transition-duration-300 cursor-pointer"
+               style="box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);"
+               (click)="navigateToUsers()">
+            <div class="flex align-items-center justify-content-center w-4rem h-4rem mx-auto mb-3 border-circle bg-purple-100">
+              <i class="pi pi-users text-3xl text-purple-600"></i>
+            </div>
+            <div class="text-900 text-2xl font-bold mb-1">{{stats.total_users}}</div>
+            <div class="text-600 text-sm font-medium">Total Users</div>
+          </div>
+        </div>
+
+                <!-- Total Products -->
+        <div class="col-6 md:col-4 lg:col">
+          <div class="surface-card p-4 border-round-lg text-center hover:shadow-3 transition-all transition-duration-300 cursor-pointer"
+               style="box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);"
+               (click)="navigateToProducts()">
+            <div class="flex align-items-center justify-content-center w-4rem h-4rem mx-auto mb-3 border-circle bg-orange-100">
+              <i class="pi pi-box text-3xl text-orange-600"></i>
+            </div>
+            <div class="text-900 text-2xl font-bold mb-1">{{stats.total_products}}</div>
+            <div class="text-600 text-sm font-medium">Total Products</div>
+          </div>
+        </div>
+        
+        <!-- Total Categories -->
+        <div class="col-6 md:col-4 lg:col">
+          <div class="surface-card p-4 border-round-lg text-center hover:shadow-3 transition-all transition-duration-300 cursor-pointer"
+               style="box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);"
+               (click)="navigateToCategories()">
+            <div class="flex align-items-center justify-content-center w-4rem h-4rem mx-auto mb-3 border-circle bg-cyan-100">
+              <i class="pi pi-folder text-3xl text-cyan-600"></i>
+            </div>
+            <div class="text-900 text-2xl font-bold mb-1">{{stats.total_categories}}</div>
+            <div class="text-600 text-sm font-medium">Total Categories</div>
+          </div>
+        </div>
+
+        <!-- Total Orders -->
+        <div class="col-6 md:col-4 lg:col">
+          <div class="surface-card p-4 border-round-lg text-center hover:shadow-3 transition-all transition-duration-300 cursor-pointer" 
+               style="box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);"
+               (click)="navigateToOrders()">
+            <div class="flex align-items-center justify-content-center w-4rem h-4rem mx-auto mb-3 border-circle bg-blue-100">
+              <i class="pi pi-shopping-cart text-3xl text-blue-600"></i>
+            </div>
+            <div class="text-900 text-2xl font-bold mb-1">{{stats.total_orders}}</div>
+            <div class="text-600 text-sm font-medium">Total Orders</div>
+          </div>
+        </div>
+        
+
+        
+        <!-- Pending Orders -->
+        <div class="col-6 md:col-4 lg:col">
+          <div class="surface-card p-4 border-round-lg text-center hover:shadow-3 transition-all transition-duration-300 cursor-pointer"
+               style="box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);"
+               (click)="navigateToOrders()">
+            <div class="flex align-items-center justify-content-center w-4rem h-4rem mx-auto mb-3 border-circle bg-yellow-100">
+              <i class="pi pi-clock text-3xl text-yellow-600"></i>
+            </div>
+            <div class="text-900 text-2xl font-bold mb-1">{{stats.pending_orders}}</div>
+            <div class="text-600 text-sm font-medium">Pending Orders</div>
+          </div>
+        </div>
+        
+        <!-- Low Stock -->
+        <div class="col-6 md:col-4 lg:col">
+          <div class="surface-card p-4 border-round-lg text-center hover:shadow-3 transition-all transition-duration-300 cursor-pointer"
+               style="box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);"
+               (click)="navigateToProducts()">
+            <div class="flex align-items-center justify-content-center w-4rem h-4rem mx-auto mb-3 border-circle bg-red-100">
+              <i class="pi pi-exclamation-triangle text-3xl text-red-600"></i>
+            </div>
+            <div class="text-900 text-2xl font-bold mb-1">{{stats.low_stock_products}}</div>
+            <div class="text-600 text-sm font-medium">Low Stock Items</div>
           </div>
         </div>
       </div>
       
-      <!-- Key Metrics -->
-      <div class="grid mb-4">
-        <div class="col-12 md:col-3">
-          <div class="surface-card p-4 shadow-2 border-round text-center">
-            <div class="text-900 text-3xl font-medium mb-3">{{stats.total_orders}}</div>
-            <div class="text-600">Total Orders</div>
-          </div>
-        </div>
-        
-        <div class="col-12 md:col-3">
-          <div class="surface-card p-4 shadow-2 border-round text-center">
-            <div class="text-900 text-3xl font-medium mb-3">${{stats.total_revenue.toFixed(2)}}</div>
-            <div class="text-600">Total Revenue</div>
-          </div>
-        </div>
-        
-        <div class="col-12 md:col-3">
-          <div class="surface-card p-4 shadow-2 border-round text-center">
-            <div class="text-900 text-3xl font-medium mb-3">{{stats.total_users}}</div>
-            <div class="text-600">Total Users</div>
-          </div>
-        </div>
-        
-        <div class="col-12 md:col-3">
-          <div class="surface-card p-4 shadow-2 border-round text-center">
-            <div class="text-900 text-3xl font-medium mb-3">{{stats.total_products}}</div>
-            <div class="text-600">Total Products</div>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Additional Stats -->
-      <div class="grid mb-4">
-        <div class="col-12 md:col-4">
-          <div class="surface-card p-4 shadow-2 border-round">
-            <div class="flex justify-content-between align-items-center mb-3">
-              <h3 class="text-xl font-medium m-0">Pending Orders</h3>
-              <p-tag severity="warn" value="{{stats.pending_orders}}"></p-tag>
-            </div>
-            <button pButton label="View All Orders" icon="pi pi-arrow-right" 
-                    class="p-button-text p-button-sm" (click)="navigateToOrders()"></button>
-          </div>
-        </div>
-        
-        <div class="col-12 md:col-4">
-          <div class="surface-card p-4 shadow-2 border-round">
-            <div class="flex justify-content-between align-items-center mb-3">
-              <h3 class="text-xl font-medium m-0">Low Stock Items</h3>
-              <p-tag severity="danger" value="{{stats.low_stock_products}}"></p-tag>
-            </div>
-            <button pButton label="View Low Stock" icon="pi pi-arrow-right" 
-                    class="p-button-text p-button-sm" (click)="navigateToProducts()"></button>
-          </div>
-        </div>
-        
-        <div class="col-12 md:col-4">
-          <div class="surface-card p-4 shadow-2 border-round">
-            <div class="flex justify-content-between align-items-center mb-3">
-              <h3 class="text-xl font-medium m-0">Total Categories</h3>
-              <p-tag severity="info" value="{{stats.total_categories}}"></p-tag>
-            </div>
-            <button pButton label="Manage Categories" icon="pi pi-arrow-right" 
-                    class="p-button-text p-button-sm" (click)="navigateToAddCategory()"></button>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Enhanced Quick Actions Card -->
-      <div class="grid mb-4">
-        <div class="col-12">
-          <p-card>
-            <ng-template pTemplate="header">
-              <div class="flex justify-content-between align-items-center p-3">
-                <h3 class="m-0">Product Management</h3>
-              </div>
-            </ng-template>
-            
-            <div class="flex gap-3">
-              <p-button 
-                label="Add New Product" 
-                icon="pi pi-plus"
-                severity="success"
-                (onClick)="navigateToAddProduct()"
-              />
-              
-              <p-button 
-                label="View All Products" 
-                icon="pi pi-eye"
-                severity="secondary"
-                (onClick)="navigateToProducts()"
-              />
-            </div>
-          </p-card>
-        </div>
-      </div>
+
 
       <!-- Chart and Table Row -->
       <div class="grid">

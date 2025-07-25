@@ -2066,19 +2066,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 --------------------------------------------------------------------------------
-Package: @ngx-translate/core
-License: "MIT"
-
-Copyright (c) 2018 Olivier Combe
-Copyright (c) 2024 Andreas Löw / CodeAndWeb GmbH
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
---------------------------------------------------------------------------------
 Package: @kurkle/color
 License: "MIT"
 
@@ -2099,6 +2086,19 @@ License: "MIT"
 The MIT License (MIT)
 
 Copyright (c) 2014-2024 Chart.js Contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+--------------------------------------------------------------------------------
+Package: @ngx-translate/core
+License: "MIT"
+
+Copyright (c) 2018 Olivier Combe
+Copyright (c) 2024 Andreas Löw / CodeAndWeb GmbH
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -2550,7 +2550,7 @@ SOFTWARE.
 
 {
   "configVersion": 1,
-  "timestamp": 1753204945326,
+  "timestamp": 1753457093309,
   "index": "/index.html",
   "assetGroups": [
     {
@@ -2561,26 +2561,26 @@ SOFTWARE.
         "ignoreVary": true
       },
       "urls": [
-        "/chunk-2OIXKV7R.js",
+        "/chunk-7WJF7V2E.js",
+        "/chunk-ADPIQS7E.js",
+        "/chunk-AEHFSGKV.js",
         "/chunk-BMJC4GWV.js",
-        "/chunk-DC5ZQPO6.js",
-        "/chunk-HDMPD75X.js",
-        "/chunk-KWG7S3XM.js",
-        "/chunk-MOWEF77R.js",
-        "/chunk-MWGDH3OI.js",
-        "/chunk-OQ5FURMN.js",
-        "/chunk-Q6H2ML7Y.js",
-        "/chunk-QKDTF2QD.js",
-        "/chunk-T2RRMXYR.js",
-        "/chunk-TXSA6IKW.js",
+        "/chunk-CE7SICNH.js",
+        "/chunk-CWKGX3QN.js",
+        "/chunk-DF7PLUXJ.js",
+        "/chunk-EUGDZBYL.js",
+        "/chunk-HR3VBPE6.js",
+        "/chunk-IOVWXIR3.js",
+        "/chunk-KCXYYO4W.js",
+        "/chunk-O6GLZZWG.js",
+        "/chunk-RM7YWA6M.js",
         "/chunk-U2ZNEMDC.js",
-        "/chunk-UBXWWVKF.js",
         "/chunk-VFQCHNBN.js",
-        "/chunk-VJUY5GXU.js",
-        "/chunk-ZMSNSBWL.js",
+        "/chunk-ZMOEZH53.js",
+        "/chunk-ZNFW6653.js",
         "/favicon.ico",
         "/index.html",
-        "/main-AAHKLA3C.js",
+        "/main-3B5ID63Y.js",
         "/manifest.webmanifest",
         "/polyfills-B6TNHZQ6.js",
         "/styles-4CNCFVM4.css"
@@ -2650,23 +2650,23 @@ SOFTWARE.
     "/assets/fonts/primeicons.woff": "361e3af71bb4e515feead2f787348a92a5527158",
     "/assets/fonts/primeicons.woff2": "837c1279b6af9d297f34fdb43e6fcc9206a79f32",
     "/assets/images/product-placeholder.jpg": "7d29bd1c2721fa5afb594ef689a851db0b1f3b27",
-    "/chunk-2OIXKV7R.js": "c7b47fa44c24ac88839a58e01090d92df0b7e076",
+    "/chunk-7WJF7V2E.js": "458254f347d81bf3c3bdb4be76b0305f7189ce33",
+    "/chunk-ADPIQS7E.js": "5ea9eb54c8e4a1930189d6ef36a2fc152193a92d",
+    "/chunk-AEHFSGKV.js": "38e9d701ee4c2c7f8cc8c33f239f90e64e6dc21c",
     "/chunk-BMJC4GWV.js": "ad36e20bf5926362ecb896ad57eb8d38811dd661",
-    "/chunk-DC5ZQPO6.js": "b05b2d6963dee4865276e4474daf96ce16fafbff",
-    "/chunk-HDMPD75X.js": "fa643c490eed51fda6abf1ff3e6274e57764a1fc",
-    "/chunk-KWG7S3XM.js": "1e4ca3c5be4d1d032b0e95a8529cab39c1b58cc6",
-    "/chunk-MOWEF77R.js": "d8c01208899ccaec37b7ed90cacab292f7c76fff",
-    "/chunk-MWGDH3OI.js": "aa5c487af1a0b42d4248573afbfc39e8886fa53d",
-    "/chunk-OQ5FURMN.js": "57f49818a5b8b83c02d6b65e715a06b6884ac0e6",
-    "/chunk-Q6H2ML7Y.js": "2a7344b1cfcca6a7cffa311ba19baa54e11544ee",
-    "/chunk-QKDTF2QD.js": "8dea2f5efc266ac49e8d6a84cfb6de80aeb7dd28",
-    "/chunk-T2RRMXYR.js": "0effd4d554de2b209c5b5ec02a75e67ea4f0403f",
-    "/chunk-TXSA6IKW.js": "ac546a62f5ab2ae0f2ae80826f4863259be4eaf6",
+    "/chunk-CE7SICNH.js": "59ed1258ab18e3d7473dfc97c2e11ed8ef1bef23",
+    "/chunk-CWKGX3QN.js": "6e9f8593fd5fa225d10b246c7103e080197eba21",
+    "/chunk-DF7PLUXJ.js": "5b69a33da359e6b5df007070e0b3f9c98444b370",
+    "/chunk-EUGDZBYL.js": "83cbbd91c847059def76a8582cbf69f9ed8e040f",
+    "/chunk-HR3VBPE6.js": "113e921792c7561939cd6f04580813ea04e6039b",
+    "/chunk-IOVWXIR3.js": "b0a21a4c55cce0d97e2bad4ef69cc6a7fea02e57",
+    "/chunk-KCXYYO4W.js": "cfcc6b58711357c9865940d03d615d9785b0e660",
+    "/chunk-O6GLZZWG.js": "652acc38cfc5c4395aef2de3931ad016bca979e6",
+    "/chunk-RM7YWA6M.js": "ae59c3d35c010df260ef11e0e0b6fd8cd4716207",
     "/chunk-U2ZNEMDC.js": "6a2929a979daef3d82961e408c6ef555beca18b8",
-    "/chunk-UBXWWVKF.js": "43ab20e66d799462b1ef7c37f838dad4cd4e10ed",
     "/chunk-VFQCHNBN.js": "5c0f0526412c0aa669a52887273f4322ec33195e",
-    "/chunk-VJUY5GXU.js": "f9dc46edf5f657dc78026c8729fea84cecd3756a",
-    "/chunk-ZMSNSBWL.js": "48d38215d0fe59880bac1bedc862d41edf769331",
+    "/chunk-ZMOEZH53.js": "d6d62e4fa7c8517deae4555451bbdc79e1055319",
+    "/chunk-ZNFW6653.js": "98e3e596f1775867537f2948c3220218619ad20a",
     "/elsuq.png": "959d1ad0ef7fa6770e990a9bbc4696fb7deeb258",
     "/favicon.ico": "c7eb568aaa4e9ac393dd78391f119a0a32c4f887",
     "/icons/apple-touch-icon-114x114.png": "ea23edbb78662938b2049a378bc76c91f3e2ee9e",
@@ -2700,9 +2700,9 @@ SOFTWARE.
     "/icons/pwa-64x64.png": "75e2d0e9c16d2d3ff8188fd06443659b609cef50",
     "/icons/pwa-72x72.png": "cc22a55ed50d7c0adac285cb1f149c879547a987",
     "/icons/pwa-96x96.png": "67d4238900fb76b1211ad566a64f201aff529000",
-    "/index.html": "54b198fa74726befc23907d0fa80a6758f8e1b7b",
+    "/index.html": "83f0cc7536416ad955ca2f8ee33e18f522722682",
     "/logo.png": "f9adace283daf0516029f2c3f949976beb3cd705",
-    "/main-AAHKLA3C.js": "4b9662fe9a4f9dcc6f8b666878f79ff371262a86",
+    "/main-3B5ID63Y.js": "b3397f943c084ccc5c562a35be16fae5680c426e",
     "/manifest.webmanifest": "c0bb7f5fe330751818718607ba8fe248cc40558a",
     "/media/primeicons-4GST5W3O.woff2": "837c1279b6af9d297f34fdb43e6fcc9206a79f32",
     "/media/primeicons-DHQU4SEP.svg": "a07ae39027c1a780b42fd82fad7575c2924d9d28",
@@ -4507,6 +4507,8 @@ import { CartComponent } from './pages/cart/cart.component';
 import { adminGuard } from './shared/admin.guard'; 
 import { AdminProductsComponent } from './pages/admin/admin-products/admin-products.component';
 import { AdminAddProductComponent } from './pages/admin/admin-add-product/admin-add-product.component';
+import { AdminAddCategoryComponent } from './pages/admin/admin-add-category/admin-add-category.component';
+import { AdminCategoriesComponent } from './pages/admin/admin-categories/admin-categories.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -4515,12 +4517,61 @@ export const routes: Routes = [
   { path: 'products', component: ProductListComponent },
   { path: 'products/:id', component: ProductDetailComponent },
   { path: 'cart', component: CartComponent },
-  { path: 'admin/products', component: AdminProductsComponent, canActivate: [adminGuard] },
+  
+  // Admin Routes
   { 
-  path: 'admin/products/edit/:id', 
-  component: AdminAddProductComponent, 
-  canActivate: [adminGuard] 
+  path: 'admin/categories', 
+  component: AdminCategoriesComponent,
+  canActivate: [adminGuard]
 },
+
+  { 
+    path: 'admin', 
+    loadComponent: () => import('./pages/admin/admin-dashboard/admin-dashboard.component').then(m => m.AdminDashboardComponent),
+    canActivate: [adminGuard]
+  },
+  { 
+    path: 'admin/products', 
+    component: AdminProductsComponent, 
+    canActivate: [adminGuard] 
+  },
+  { 
+    path: 'admin/products/add', 
+    component: AdminAddProductComponent, 
+    canActivate: [adminGuard],
+    data: { mode: 'add' }
+  },
+  { 
+    path: 'admin/products/edit/:id', 
+    component: AdminAddProductComponent, 
+    canActivate: [adminGuard],
+    data: { mode: 'edit' }
+  },
+  // FIXED: Only one category route using direct import
+  { 
+    path: 'admin/categories/add', 
+    component: AdminAddCategoryComponent,
+    canActivate: [adminGuard],
+    data: { mode: 'add' }
+  },
+  { 
+    path: 'admin/categories/edit/:id', 
+    component: AdminAddCategoryComponent,
+    canActivate: [adminGuard],
+    data: { mode: 'edit' }
+  },
+  { 
+    path: 'admin/orders', 
+    loadComponent: () => import('./pages/admin/admin-orders/admin-orders.component').then(m => m.AdminOrdersComponent),
+    canActivate: [adminGuard]
+  },
+  { 
+    path: 'admin/users', 
+    loadComponent: () => import('./pages/admin/admin-users/admin-users.component').then(m => m.AdminUsersComponent),
+    canActivate: [adminGuard]
+  },
+  
+  // User Routes
   { 
     path: 'checkout', 
     loadComponent: () => import('./pages/checkout/checkout.component').then(m => m.CheckoutComponent),
@@ -4536,22 +4587,7 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/orders/order-detail/order-detail.component').then(m => m.OrderDetailComponent),
     canActivate: [authGuard]
   },
-  // Admin Routes
-  { 
-    path: 'admin', 
-    loadComponent: () => import('./pages/admin/admin-dashboard/admin-dashboard.component').then(m => m.AdminDashboardComponent),
-    canActivate: [adminGuard]
-  },
-  { 
-    path: 'admin/orders', 
-    loadComponent: () => import('./pages/admin/admin-orders/admin-orders.component').then(m => m.AdminOrdersComponent),
-    canActivate: [adminGuard]
-  },
-  { 
-    path: 'admin/users', 
-    loadComponent: () => import('./pages/admin/admin-users/admin-users.component').then(m => m.AdminUsersComponent),
-    canActivate: [adminGuard]
-  },
+  
   { path: '**', redirectTo: '' }
 ];
 
@@ -6773,16 +6809,13 @@ export class ProductListComponent implements OnInit {
 
 === frontend/src/app/pages/admin/admin-add-product/admin-add-product.component.ts ===
 
-// frontend/src/app/pages/admin/admin-add-product/admin-add-product.component.ts
-// UPDATE: Enhanced version that handles both ADD and EDIT
-
-import { Component, OnInit, signal, Input } from '@angular/core';
+// src/app/pages/admin/admin-add-product/admin-add-product.component.ts
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { ButtonModule } from 'primeng/button';
-import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { TextareaModule } from 'primeng/textarea';
@@ -6790,11 +6823,11 @@ import { SelectModule } from 'primeng/select';
 import { CheckboxModule } from 'primeng/checkbox';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
+import { CardModule } from 'primeng/card';
 
 import { ProductService } from '../../../services/product.service';
 import { Product } from '../../../models/product.model';
 import { Category } from '../../../models/category.model';
-import { CardModule } from 'primeng/card';
 
 @Component({
   selector: 'app-admin-add-product',
@@ -6803,7 +6836,6 @@ import { CardModule } from 'primeng/card';
     CommonModule,
     ReactiveFormsModule,
     ButtonModule,
-    DialogModule,
     InputTextModule,
     InputNumberModule,
     TextareaModule,
@@ -6811,7 +6843,6 @@ import { CardModule } from 'primeng/card';
     CheckboxModule,
     ToastModule,
     CardModule
-    
   ],
   providers: [MessageService],
   templateUrl: './admin-add-product.component.html',
@@ -6819,24 +6850,14 @@ import { CardModule } from 'primeng/card';
     .field {
       margin-bottom: 1rem;
     }
-    
-    .grid-cols-2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-    }
-    
-    .gap-4 {
-      gap: 1rem;
-    }
   `]
 })
 export class AdminAddProductComponent implements OnInit {
-  visible = signal(false);
   loading = signal(false);
   categoriesLoading = signal(false);
   productForm: FormGroup;
 
-  // NEW: Support for edit mode
+  // Mode detection
   isEditMode = signal(false);
   editProductId: number | null = null;
   currentProduct: Product | null = null;
@@ -6854,8 +6875,8 @@ export class AdminAddProductComponent implements OnInit {
   // Dynamic categories - loaded from API
   categoryOptions = signal<{ label: string; value: number }[]>([]);
 
-  // Computed title based on mode
-  get dialogTitle(): string {
+  // Computed properties
+  get pageTitle(): string {
     return this.isEditMode() ? 'Edit Product' : 'Add New Product';
   }
 
@@ -6879,14 +6900,23 @@ export class AdminAddProductComponent implements OnInit {
       category_id: [null, Validators.required],
       image_url: [''],
       is_organic: [false],
-      is_active: [true] // Added for edit mode
+      is_active: [true]
     });
   }
 
   ngOnInit() {
     this.loadCategories();
-    
-    // Check if we're in edit mode (when used as a page)
+    this.detectMode();
+  }
+
+  detectMode() {
+    // Check route data first
+    const routeData = this.route.snapshot.data;
+    if (routeData['mode'] === 'edit') {
+      this.isEditMode.set(true);
+    }
+
+    // Check for ID parameter
     this.route.paramMap.subscribe(params => {
       const id = params.get('id');
       if (id) {
@@ -6966,46 +6996,8 @@ export class AdminAddProductComponent implements OnInit {
     });
   }
 
-  // Show modal (for add mode from dashboard)
-  show() {
-    this.isEditMode.set(false);
-    this.editProductId = null;
-    this.currentProduct = null;
-    this.visible.set(true);
-    this.resetForm();
-  }
-
-  // Show modal for edit (can be called from products table)
-  showEdit(productId: number) {
-    this.editProductId = productId;
-    this.isEditMode.set(true);
-    this.visible.set(true);
-    this.loadProductForEdit();
-  }
-
-  resetForm() {
-    this.productForm.reset({
-      name: '',
-      description: '',
-      price: null,
-      unit: '',
-      stock_quantity: 0,
-      category_id: null,
-      image_url: '',
-      is_organic: false,
-      is_active: true
-    });
-  }
-
   onCancel() {
-    if (this.isEditMode() && !this.visible()) {
-      // If we're in edit page mode, go back to products list
-      this.goBackToProductsList();
-    } else {
-      // If we're in modal mode, just close the modal
-      this.visible.set(false);
-      this.resetForm();
-    }
+    this.goBackToProductsList();
   }
 
   goBackToProductsList() {
@@ -7036,16 +7028,10 @@ export class AdminAddProductComponent implements OnInit {
           
           console.log('Product updated successfully:', updatedProduct);
           
-          // Close modal or navigate back
-          if (this.visible()) {
-            this.visible.set(false);
-            this.resetForm();
-          } else {
-            // Navigate back to products list after delay
-            setTimeout(() => {
-              this.goBackToProductsList();
-            }, 1500);
-          }
+          // Navigate back to products list after delay
+          setTimeout(() => {
+            this.goBackToProductsList();
+          }, 1500);
         },
         error: (error) => {
           this.loading.set(false);
@@ -7066,8 +7052,10 @@ export class AdminAddProductComponent implements OnInit {
           
           console.log('Product created successfully:', createdProduct);
           
-          this.visible.set(false);
-          this.resetForm();
+          // Navigate back to products list after delay
+          setTimeout(() => {
+            this.goBackToProductsList();
+          }, 1500);
         },
         error: (error) => {
           this.loading.set(false);
@@ -7144,9 +7132,9 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { AdminService } from '../../../services/admin.service'; 
 import { DashboardStats } from '../../../models/admin.model';
 
-import { AdminAddProductComponent } from '../admin-add-product/admin-add-product.component';
-import { AdminAddCategoryComponent } from '../admin-add-category/admin-add-category.component';
-import { ViewChild } from '@angular/core';
+// REMOVED: AdminAddProductComponent and AdminAddCategoryComponent imports
+// REMOVED: ViewChild decorators and modal methods
+
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
@@ -7159,9 +7147,8 @@ import { ViewChild } from '@angular/core';
     ToastModule,
     ChartModule,
     TagModule,
-    ProgressSpinnerModule,
-    AdminAddProductComponent,
-    AdminAddCategoryComponent
+    ProgressSpinnerModule
+    // REMOVED: AdminAddProductComponent, AdminAddCategoryComponent
   ],
   providers: [MessageService],
   templateUrl: './admin-dashboard.component.html',
@@ -7169,15 +7156,7 @@ import { ViewChild } from '@angular/core';
 })
 export class AdminDashboardComponent implements OnInit {
 
-   @ViewChild(AdminAddProductComponent) addProductComponent!: AdminAddProductComponent;
-   @ViewChild(AdminAddCategoryComponent) addCategoryComponent!: AdminAddCategoryComponent;
-
-   openAddProductDialog() {
-    this.addProductComponent.show();
-  }
-    openAddCategoryDialog() {
-    this.addCategoryComponent.show();
-  }
+  // REMOVED: ViewChild references and modal methods
 
   stats: DashboardStats | null = null;
   loading = true;
@@ -7259,7 +7238,7 @@ export class AdminDashboardComponent implements OnInit {
 
   getStatusSeverity(status: string): "success" | "secondary" | "info" | "warn" | "danger" | "contrast" {
     switch (status) {
-      case 'pending': return 'warn';     // Changed from 'warning' to 'warn'
+      case 'pending': return 'warn';
       case 'confirmed': return 'info';
       case 'shipped': return 'info';
       case 'delivered': return 'success';
@@ -7273,6 +7252,7 @@ export class AdminDashboardComponent implements OnInit {
     return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
   }
 
+  // UPDATED: All navigation methods now use routing instead of modals
   navigateToOrders() {
     this.router.navigate(['/admin/orders']);
   }
@@ -7283,6 +7263,258 @@ export class AdminDashboardComponent implements OnInit {
 
   navigateToProducts() {
     this.router.navigate(['/admin/products']);
+  }
+
+  // NEW: Navigate to add product page instead of opening modal
+  navigateToAddProduct() {
+    this.router.navigate(['/admin/products/add']);
+  }
+
+  // NEW: Navigate to add category page (you can implement this later)
+  // navigateToAddCategory() {
+  //   // For now, show a message. You can create a similar page for categories later
+  //   this.messageService.add({
+  //     severity: 'info',
+  //     summary: 'Coming Soon',
+  //     detail: 'Add Category page will be available soon'
+  //   });
+  // }
+
+    navigateToAddCategory() {
+  this.router.navigate(['/admin/categories/add']);
+}
+navigateToCategories() {
+  this.router.navigate(['/admin/categories']);
+}
+}
+
+=== frontend/src/app/pages/admin/admin-categories/admin-categories.component.ts ===
+
+// src/app/pages/admin/admin-categories/admin-categories.component.ts
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+
+import { TableModule } from 'primeng/table';
+import { ButtonModule } from 'primeng/button';
+import { CardModule } from 'primeng/card';
+import { InputTextModule } from 'primeng/inputtext';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
+import { TagModule } from 'primeng/tag';
+import { PaginatorModule } from 'primeng/paginator';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ConfirmationService } from 'primeng/api';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
+import { TooltipModule } from 'primeng/tooltip';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+
+import { ProductService } from '../../../services/product.service';
+import { Category } from '../../../models/category.model';
+
+@Component({
+  selector: 'app-admin-categories',
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    TableModule,
+    ButtonModule,
+    CardModule,
+    InputTextModule,
+    ToastModule,
+    TagModule,
+    PaginatorModule,
+    ConfirmDialogModule,
+    IconFieldModule,
+    InputIconModule,
+    TooltipModule,
+    ProgressSpinnerModule
+  ],
+  providers: [MessageService, ConfirmationService],
+  templateUrl: './admin-categories.component.html',
+  styles: [`
+    :host ::ng-deep .p-datatable-header {
+      
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+    
+    }
+  `]
+})
+export class AdminCategoriesComponent implements OnInit {
+  allCategories: Category[] = []; // Store all categories loaded once
+  categories: Category[] = [];    // Filtered categories to display
+  loading = true;
+  searchQuery = '';
+  
+  // NEW: Store product counts for each category
+  categoryProductCounts: { [categoryId: number]: number } = {};
+
+  private searchTimeout: any;
+  
+  constructor(
+    private productService: ProductService,
+    private messageService: MessageService,
+    private confirmationService: ConfirmationService,
+    private router: Router
+  ) {}
+
+  ngOnInit() {
+    this.loadAllCategories();
+  }
+
+  hasActiveFilters(): boolean {
+    return !!(this.searchQuery?.trim());
+  }
+
+  // Load all categories once on page load
+  loadAllCategories() {
+    this.loading = true;
+    
+    console.log('Loading all categories once...');
+    
+    this.productService.getCategories(false).subscribe({ // false = include inactive
+      next: (categories) => {
+        console.log('All categories loaded successfully:', categories.length);
+        this.allCategories = categories; // Store all categories
+        this.categories = categories;    // Initially display all categories
+        this.loadProductCounts(); // NEW: Load product counts for each category
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('Error loading categories:', error);
+        this.loading = false;
+        
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Failed to load categories'
+        });
+      }
+    });
+  }
+
+  // NEW: Load product counts for all categories
+  loadProductCounts() {
+    this.allCategories.forEach(category => {
+      this.productService.getProductsByCategory(category.id, false).subscribe({
+        next: (products) => {
+          this.categoryProductCounts[category.id] = products.length;
+        },
+        error: (error) => {
+          console.error(`Error loading products for category ${category.id}:`, error);
+          this.categoryProductCounts[category.id] = 0;
+        }
+      });
+    });
+  }
+
+  // Filter categories client-side (no API calls)
+  filterCategories() {
+    let filtered = [...this.allCategories];
+
+    // Apply search filter
+    if (this.searchQuery?.trim()) {
+      const search = this.searchQuery.toLowerCase();
+      filtered = filtered.filter(category => 
+        category.name.toLowerCase().includes(search) ||
+        category.description?.toLowerCase().includes(search)
+      );
+    }
+
+    this.categories = filtered;
+    console.log(`Filtered ${filtered.length} categories from ${this.allCategories.length} total`);
+  }
+
+  // Search input with client-side filtering
+  onSearchInput() {
+    // Clear the previous timeout if user is still typing
+    if (this.searchTimeout) {
+      clearTimeout(this.searchTimeout);
+    }
+    
+    // Set a new timeout to filter after 300ms of no typing
+    this.searchTimeout = setTimeout(() => {
+      this.filterCategories(); // Filter client-side instead of API call
+    }, 300);
+  }
+
+  // Keep for backward compatibility
+  onSearch() {
+    this.filterCategories();
+  }
+
+  // Clear filters with client-side filtering
+  clearFilters() {
+    this.searchQuery = '';
+    this.filterCategories(); // Filter client-side instead of API call
+  }
+
+  // Navigation methods
+  createNewCategory() {
+    this.router.navigate(['/admin/categories/add']);
+  }
+
+  editCategory(category: Category) {
+    this.router.navigate(['/admin/categories/edit', category.id]);
+  }
+
+  // Delete confirmation
+  confirmDeleteCategory(category: Category) {
+    this.confirmationService.confirm({
+      message: `Are you sure you want to delete "${category.name}"? This action cannot be undone.`,
+      header: 'Confirm Delete',
+      icon: 'pi pi-exclamation-triangle',
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: () => {
+        this.deleteCategory(category);
+      }
+    });
+  }
+
+  // After delete, remove from local array and refresh filters
+  deleteCategory(category: Category) {
+    this.productService.deleteCategory(category.id).subscribe({
+      next: () => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Category Deleted',
+          detail: `Category "${category.name}" has been deleted successfully`
+        });
+        
+        // Remove deleted category from allCategories array
+        this.allCategories = this.allCategories.filter(c => c.id !== category.id);
+        // Reapply current filters
+        this.filterCategories();
+      },
+      error: (error) => {
+        console.error('Error deleting category:', error);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Delete Failed',
+          detail: error.error?.detail || 'Failed to delete category'
+        });
+      }
+    });
+  }
+
+  // Method to refresh data after adding/editing categories
+  refreshCategoryData() {
+    this.loadAllCategories();
+  }
+
+  // Utility methods
+  formatDate(dateString: string): string {
+    const date = new Date(dateString);
+    return date.toLocaleDateString();
+  }
+
+  getCategoryProductCount(categoryId: number): number {
+    // Return the actual count from our loaded data
+    return this.categoryProductCounts[categoryId] || 0;
   }
 }
 
@@ -7619,7 +7851,6 @@ import { RouterLink, Router } from '@angular/router';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
-
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { TagModule } from 'primeng/tag';
@@ -7628,6 +7859,12 @@ import { DialogModule } from 'primeng/dialog';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
 import { SelectModule } from 'primeng/select';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
+import { InputTextModule } from 'primeng/inputtext';
+import { TooltipModule } from 'primeng/tooltip';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+
 import { AdminService } from '../../../services/admin.service';
 import { Order } from '../../../models/admin.model';
 
@@ -7638,27 +7875,42 @@ import { Order } from '../../../models/admin.model';
     CommonModule,
     FormsModule,
     SelectModule,
-    // RouterLink,
     TableModule,
     ButtonModule,
     CardModule,
+    InputTextModule,
     ToastModule,
     TagModule,
     PaginatorModule,
     DialogModule,
-    ConfirmDialogModule
+    ConfirmDialogModule,
+    IconFieldModule,
+    InputIconModule,
+    TooltipModule,
+    ProgressSpinnerModule
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './admin-orders.component.html',
-  styleUrl: './admin-orders.component.scss'
+  styleUrl: './admin-orders.component.scss',
+  styles: [`
+    :host ::ng-deep .p-datatable-header {
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+    }
+  `]
 })
 export class AdminOrdersComponent implements OnInit {
-  orders: Order[] = [];
+  allOrders: Order[] = []; // Store all orders loaded once
+  orders: Order[] = [];    // Filtered orders to display
+  users: any[] = [];       // Store users for lookup
   totalRecords = 0;
   loading = true;
+  searchQuery = '';
   filterStatus = '';
   page = 1;
   pageSize = 10;
+
+  private searchTimeout: any;
   
   statusOptions = [
     { label: 'All', value: '' },
@@ -7680,77 +7932,157 @@ export class AdminOrdersComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.loadOrders();
+    this.loadUsersAndOrders();
   }
 
-// Updated loadOrders method in component with better error handling
-loadOrders() {
-  this.loading = true;
-  this.adminService.getAllOrders(this.filterStatus, this.page, this.pageSize).subscribe({
-    next: (response) => {
-      console.log('Orders response:', response);
-      
-      // Check if we received a valid response
-      if (!response) {
-        console.error('Response is null or undefined');
-        this.orders = [];
-        this.totalRecords = 0;
-      } else {
-        // Check if orders property exists
-        if (response.orders) {
-          this.orders = response.orders;
-          console.log('Parsed orders:', this.orders);
-        } else {
-          console.error('Orders property missing in response:', response);
-          this.orders = [];
-        }
+  // Load both users and orders, then match them
+  loadUsersAndOrders() {
+    this.loading = true;
+    
+    // First load users
+    this.adminService.getAllUsers().subscribe({
+      next: (usersResponse) => {
+        this.users = Array.isArray(usersResponse) ? usersResponse : usersResponse.users;
         
-        // Check if total property exists
-        if (response.total !== undefined) {
-          this.totalRecords = response.total;
+        // Then load orders
+        this.loadAllOrders();
+      },
+      error: (error) => {
+        console.error('Error loading users:', error);
+        this.loading = false;
+      }
+    });
+  }
+
+  // Get user by ID from loaded users
+  getUserById(userId: number) {
+    return this.users.find(user => user.id === userId);
+  }
+
+  hasActiveFilters(): boolean {
+    return !!(this.searchQuery?.trim() || this.filterStatus);
+  }
+
+  // Load all orders once on page load
+  loadAllOrders() {
+    console.log('Loading orders, users available:', this.users.length);
+    
+    this.adminService.getAllOrders('', 1, 1000).subscribe({ // Load large number to get all
+      next: (response) => {
+        console.log('Orders loaded, sample order:', response?.orders?.[0]);
+        
+        if (response && response.orders) {
+          this.allOrders = response.orders;
+          this.orders = response.orders;
+          this.totalRecords = response.total || response.orders.length;
+          
+          // Debug: Check if we can match users
+          if (this.orders.length > 0 && this.users.length > 0) {
+            const firstOrder = this.orders[0];
+            const matchedUser = this.getUserById(firstOrder.user_id);
+            console.log('First order user_id:', firstOrder.user_id);
+            console.log('Matched user:', matchedUser);
+          }
         } else {
-          console.error('Total property missing in response');
+          this.allOrders = [];
+          this.orders = [];
           this.totalRecords = 0;
         }
+        
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('Error loading orders:', error);
+        this.loading = false;
+        
+        let errorMessage = 'Failed to load orders';
+        if (error.status === 403) {
+          errorMessage = 'You do not have permission to access this page';
+          this.router.navigate(['/']);
+        }
+        
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: errorMessage
+        });
+        
+        this.allOrders = [];
+        this.orders = [];
+        this.totalRecords = 0;
       }
-      
-      this.loading = false;
-    },
-    error: (error) => {
-      console.error('Error loading orders:', error);
-      this.loading = false;
-      
-      let errorMessage = 'Failed to load orders';
-      if (error.status === 403) {
-        errorMessage = 'You do not have permission to access this page';
-        this.router.navigate(['/']);
-      } else if (error.status === 404) {
-        errorMessage = 'Orders endpoint not found';
-      } else if (error.status === 500) {
-        errorMessage = 'Server error while loading orders';
-      }
-      
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Error',
-        detail: errorMessage
-      });
-      
-      this.orders = [];
-      this.totalRecords = 0;
+    });
+  }
+
+  // Filter orders client-side (no API calls)
+  filterOrders() {
+    let filtered = [...this.allOrders];
+
+    // Apply search filter
+    if (this.searchQuery?.trim()) {
+      const search = this.searchQuery.toLowerCase();
+      filtered = filtered.filter(order => 
+        order.id.toString().includes(search) ||
+        order.user?.full_name?.toLowerCase().includes(search) ||
+        order.user?.email?.toLowerCase().includes(search) ||
+        order.status.toLowerCase().includes(search) ||
+        order.total_amount.toString().includes(search) ||
+        order.contact_phone?.toLowerCase().includes(search)
+      );
     }
-  });
-}
+
+    // Apply status filter
+    if (this.filterStatus) {
+      filtered = filtered.filter(order => 
+        order.status === this.filterStatus
+      );
+    }
+
+    this.orders = filtered;
+    this.totalRecords = filtered.length;
+    console.log(`Filtered ${filtered.length} orders from ${this.allOrders.length} total`);
+  }
+
+  // Search input with client-side filtering
+  onSearchInput() {
+    // Clear the previous timeout if user is still typing
+    if (this.searchTimeout) {
+      clearTimeout(this.searchTimeout);
+    }
+    
+    // Set a new timeout to filter after 300ms of no typing
+    this.searchTimeout = setTimeout(() => {
+      this.filterOrders(); // Filter client-side instead of API call
+    }, 300);
+  }
+
+  onStatusChange() {
+    this.filterOrders(); // Filter client-side instead of API call
+  }
+
+  clearFilters() {
+    this.searchQuery = '';
+    this.filterStatus = '';
+    this.filterOrders(); // Filter client-side instead of API call
+  }
+
+  refreshOrderData() {
+    this.loadAllOrders();
+  }
+
+  exportOrders() {
+    // TODO: Implement export functionality
+    this.messageService.add({
+      severity: 'info',
+      summary: 'Export',
+      detail: 'Export functionality coming soon!'
+    });
+  }
 
   onPageChange(event: any) {
     this.page = event.page + 1;
     this.pageSize = event.rows;
-    this.loadOrders();
-  }
-
-  onStatusChange() {
-    this.page = 1; // Reset to first page on filter change
-    this.loadOrders();
+    this.loadAllOrders();
   }
 
   openOrderDetails(order: Order) {
@@ -7760,12 +8092,23 @@ loadOrders() {
 
   getStatusSeverity(status: string): "success" | "secondary" | "info" | "warn" | "danger" | "contrast" {
     switch (status) {
-      case 'pending': return 'warn';     // Changed from 'warning' to 'warn'
+      case 'pending': return 'warn';
       case 'confirmed': return 'info';
       case 'shipped': return 'info';
       case 'delivered': return 'success';
       case 'cancelled': return 'danger';
       default: return 'secondary';
+    }
+  }
+
+  getStatusIcon(status: string): string {
+    switch (status) {
+      case 'pending': return 'pi pi-clock';
+      case 'confirmed': return 'pi pi-check';
+      case 'shipped': return 'pi pi-send';
+      case 'delivered': return 'pi pi-check-circle';
+      case 'cancelled': return 'pi pi-times';
+      default: return 'pi pi-info-circle';
     }
   }
 
@@ -7782,11 +8125,14 @@ loadOrders() {
       accept: () => {
         this.adminService.updateOrderStatus(orderId, newStatus).subscribe({
           next: (updatedOrder) => {
-            // Update order in the list
-            const index = this.orders.findIndex(o => o.id === orderId);
-            if (index !== -1) {
-              this.orders[index] = updatedOrder;
+            // Update order in both arrays
+            const allIndex = this.allOrders.findIndex(o => o.id === orderId);
+            if (allIndex !== -1) {
+              this.allOrders[allIndex] = updatedOrder;
             }
+            
+            // Reapply filters to update display
+            this.filterOrders();
             
             this.messageService.add({
               severity: 'success',
@@ -7794,7 +8140,7 @@ loadOrders() {
               detail: `Order #${orderId} status changed to ${newStatus}`
             });
             
-            // Close dialog if open
+            // Update selected order if in dialog
             if (this.selectedOrder && this.selectedOrder.id === orderId) {
               this.selectedOrder = updatedOrder;
             }
@@ -7815,10 +8161,11 @@ loadOrders() {
 
 === frontend/src/app/pages/admin/admin-add-category/admin-add-category.component.ts ===
 
-// frontend/src/app/pages/admin/admin-add-category/admin-add-category.component.ts
+// src/app/pages/admin/admin-add-category/admin-add-category.component.ts
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
@@ -7827,6 +8174,7 @@ import { TextareaModule } from 'primeng/textarea';
 import { CheckboxModule } from 'primeng/checkbox';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
+import { CardModule } from 'primeng/card';
 
 import { ProductService } from '../../../services/product.service';
 
@@ -7841,7 +8189,8 @@ import { ProductService } from '../../../services/product.service';
     InputTextModule,
     TextareaModule,
     CheckboxModule,
-    ToastModule
+    ToastModule,
+    CardModule
   ],
   providers: [MessageService],
   templateUrl: './admin-add-category.component.html',
@@ -7856,10 +8205,25 @@ export class AdminAddCategoryComponent implements OnInit {
   loading = signal(false);
   categoryForm: FormGroup;
 
+  // NEW: Add page-based properties
+  isEditMode = signal(false);
+  editCategoryId: number | null = null;
+
+  // NEW: Computed properties for page mode
+  get pageTitle(): string {
+    return this.isEditMode() ? 'Edit Category' : 'Add New Category';
+  }
+
+  get submitButtonLabel(): string {
+    return this.isEditMode() ? 'Update Category' : 'Add Category';
+  }
+
   constructor(
     private fb: FormBuilder,
     private messageService: MessageService,
-    private productService: ProductService
+    private productService: ProductService,
+    private route: ActivatedRoute,
+    private router: Router
   ) {
     this.categoryForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(1)]],
@@ -7870,9 +8234,63 @@ export class AdminAddCategoryComponent implements OnInit {
   }
 
   ngOnInit() {
-    // Nothing to load for categories
+    // NEW: Detect if we're in edit mode
+    this.detectMode();
   }
 
+  // NEW: Mode detection method
+  detectMode() {
+    const routeData = this.route.snapshot.data;
+    if (routeData['mode'] === 'edit') {
+      this.isEditMode.set(true);
+    }
+
+    this.route.paramMap.subscribe(params => {
+      const id = params.get('id');
+      if (id) {
+        this.editCategoryId = parseInt(id, 10);
+        this.isEditMode.set(true);
+        this.loadCategoryForEdit(); // NOW CALLING THIS METHOD
+      }
+    });
+  }
+
+  // ADD: Load category for editing method
+  loadCategoryForEdit() {
+    if (!this.editCategoryId) return;
+
+    this.loading.set(true);
+    
+    this.productService.getCategory(this.editCategoryId).subscribe({
+      next: (category) => {
+        // Populate form with existing category data
+        this.categoryForm.patchValue({
+          name: category.name,
+          description: category.description || '',
+          image_url: category.image_url || '',
+          is_active: category.is_active
+        });
+        
+        this.loading.set(false);
+        console.log('Category loaded for editing:', category);
+      },
+      error: (error) => {
+        console.error('Error loading category:', error);
+        this.loading.set(false);
+        
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Failed to load category. Please try again.'
+        });
+        
+        // Redirect back if category not found
+        this.goBackToCategoriesList();
+      }
+    });
+  }
+
+  // KEEP: Original modal method for backward compatibility
   show() {
     this.visible.set(true);
     this.categoryForm.reset({
@@ -7883,9 +8301,21 @@ export class AdminAddCategoryComponent implements OnInit {
     });
   }
 
+  // UPDATED: Cancel method that works for both modal and page
   onCancel() {
-    this.visible.set(false);
-    this.categoryForm.reset();
+    if (this.isEditMode() && !this.visible()) {
+      // Page mode - navigate back
+      this.goBackToCategoriesList();
+    } else {
+      // Modal mode - close modal
+      this.visible.set(false);
+      this.categoryForm.reset();
+    }
+  }
+
+  // NEW: Navigation method for page mode
+  goBackToCategoriesList() {
+    this.router.navigate(['/admin/categories']);
   }
 
   onSubmit() {
@@ -7896,50 +8326,97 @@ export class AdminAddCategoryComponent implements OnInit {
 
     this.loading.set(true);
     
-    // Get form data
     const categoryData = this.categoryForm.value;
     
-    // Call the backend API
-    this.productService.createCategory(categoryData).subscribe({
-      next: (createdCategory) => {
-        this.loading.set(false);
-        
-        // Show success message
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Success',
-          detail: `Category "${createdCategory.name}" has been created successfully!`
-        });
-        
-        // Close the dialog and reset form
-        this.visible.set(false);
-        this.categoryForm.reset({
-          name: '',
-          description: '',
-          image_url: '',
-          is_active: true
-        });
-        
-        console.log('Category created successfully:', createdCategory);
-      },
-      error: (error) => {
-        this.loading.set(false);
-        
-        console.error('Error creating category:', error);
-        
-        // Show error message
-        let errorMessage = 'Failed to create category. Please try again.';
-        
-        if (error.error && error.error.detail) {
-          errorMessage = error.error.detail;
+    if (this.isEditMode() && this.editCategoryId) {
+      // UPDATE existing category
+      this.productService.updateCategory(this.editCategoryId, categoryData).subscribe({
+        next: (updatedCategory) => {
+          this.loading.set(false);
+          
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Success',
+            detail: `Category "${updatedCategory.name}" has been updated successfully!`
+          });
+          
+          console.log('Category updated successfully:', updatedCategory);
+
+          // Handle success based on mode
+          if (this.visible()) {
+            // Modal mode - close modal and reset
+            this.visible.set(false);
+            this.categoryForm.reset({
+              name: '',
+              description: '',
+              image_url: '',
+              is_active: true
+            });
+          } else {
+            // Page mode - navigate back after delay
+            setTimeout(() => {
+              this.goBackToCategoriesList();
+            }, 1500);
+          }
+        },
+        error: (error) => {
+          this.loading.set(false);
+          this.handleError('update', error);
         }
-        
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: errorMessage
-        });
-      }
+      });
+    } else {
+      // CREATE new category
+      this.productService.createCategory(categoryData).subscribe({
+        next: (createdCategory) => {
+          this.loading.set(false);
+          
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Success',
+            detail: `Category "${createdCategory.name}" has been created successfully!`
+          });
+          
+          console.log('Category created successfully:', createdCategory);
+
+          // Handle success based on mode
+          if (this.visible()) {
+            // Modal mode - close modal and reset
+            this.visible.set(false);
+            this.categoryForm.reset({
+              name: '',
+              description: '',
+              image_url: '',
+              is_active: true
+            });
+          } else {
+            // Page mode - navigate back after delay
+            setTimeout(() => {
+              this.goBackToCategoriesList();
+            }, 1500);
+          }
+        },
+        error: (error) => {
+          this.loading.set(false);
+          this.handleError('create', error);
+        }
+      });
+    }
+  }
+
+  // ADD: Error handling method
+  private handleError(operation: 'create' | 'update', error: any) {
+    console.error(`Error ${operation}ing category:`, error);
+    
+    let errorMessage = `Failed to ${operation} category. Please try again.`;
+    
+    if (error.error && error.error.detail) {
+      errorMessage = error.error.detail;
+    }
+    
+    this.messageService.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: errorMessage
     });
   }
 }
@@ -7972,14 +8449,24 @@ import { SelectModule } from 'primeng/select';
 import { ProductService } from '../../../services/product.service';
 import { Product } from '../../../models/product.model';
 import { Category } from '../../../models/category.model';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { BadgeModule } from 'primeng/badge';
+import { OverlayBadgeModule } from 'primeng/overlaybadge';
+import { TooltipModule } from 'primeng/tooltip';
+
 
 @Component({
   selector: 'app-admin-products',
   standalone: true,
   imports: [
+    TooltipModule,
     CommonModule,
     FormsModule,
-    RouterLink,
+    BadgeModule,
+    OverlayBadgeModule,
+    // RouterLink,
     TableModule,
     ButtonModule,
     CardModule,
@@ -7989,14 +8476,24 @@ import { Category } from '../../../models/category.model';
     PaginatorModule,
     DialogModule,
     ConfirmDialogModule,
-    SelectModule
+    SelectModule,
+    IconFieldModule,
+    InputIconModule,
+    ProgressSpinnerModule
   ],
   providers: [MessageService, ConfirmationService],
-  templateUrl: './admin-products.component.html',
-  styleUrl: './admin-products.component.scss'
+    templateUrl:'./admin-products.component.html',
+  styleUrl: './admin-products.component.scss',
+   styles: [`
+    :host ::ng-deep .p-datatable-header {
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+    }
+  `]
 })
 export class AdminProductsComponent implements OnInit {
-  products: Product[] = [];
+  allProducts: Product[] = []; // Store all products loaded once
+  products: Product[] = [];    // Filtered products to display
   categories: Category[] = [];
   loading = true;
   searchQuery = '';
@@ -8006,6 +8503,8 @@ export class AdminProductsComponent implements OnInit {
   categoryOptions: any[] = [
     { label: 'All Categories', value: null }
   ];
+
+  private searchTimeout: any;
   
   constructor(
     private productService: ProductService,
@@ -8016,7 +8515,14 @@ export class AdminProductsComponent implements OnInit {
 
   ngOnInit() {
     this.loadCategories();
-    this.loadProducts();
+    this.loadAllProducts(); // Load all products once
+  }
+
+  hasActiveFilters(): boolean {
+    return !!(
+      this.searchQuery?.trim() || 
+      this.selectedCategory
+    );
   }
 
   loadCategories() {
@@ -8039,28 +8545,22 @@ export class AdminProductsComponent implements OnInit {
     });
   }
 
-  loadProducts() {
+  // Load all products once on page load
+  loadAllProducts() {
     this.loading = true;
     
-    // Build filters - no pagination, load all products
+    // Load all products without filters
     const filters: any = {
       active_only: false // Show both active and inactive
     };
     
-    if (this.searchQuery && this.searchQuery.trim()) {
-      filters.search = this.searchQuery.trim();
-    }
-    
-    if (this.selectedCategory) {
-      filters.category_id = this.selectedCategory;
-    }
-    
-    console.log('Loading all products with filters:', filters);
+ 
     
     this.productService.getProducts(filters).subscribe({
       next: (products) => {
-        console.log('Products loaded successfully:', products.length);
-        this.products = products;
+        console.log('All products loaded successfully:', products.length);
+        this.allProducts = products; // Store all products
+        this.products = products;    // Initially display all products
         this.loading = false;
       },
       error: (error) => {
@@ -8076,23 +8576,64 @@ export class AdminProductsComponent implements OnInit {
     });
   }
 
-  onSearch() {
-    this.loadProducts();
+  // Filter products client-side (no API calls)
+  filterProducts() {
+    let filtered = [...this.allProducts];
+
+    // Apply search filter
+    if (this.searchQuery?.trim()) {
+      const search = this.searchQuery.toLowerCase();
+      filtered = filtered.filter(product => 
+        product.name.toLowerCase().includes(search) ||
+        product.description?.toLowerCase().includes(search) ||
+        this.getCategoryName(product.category_id).toLowerCase().includes(search)
+      );
+    }
+
+    // Apply category filter
+    if (this.selectedCategory) {
+      filtered = filtered.filter(product => 
+        product.category_id === this.selectedCategory
+      );
+    }
+
+    this.products = filtered;
+    console.log(`Filtered ${filtered.length} products from ${this.allProducts.length} total`);
   }
 
+  // Search input with client-side filtering
+  onSearchInput() {
+    // Clear the previous timeout if user is still typing
+    if (this.searchTimeout) {
+      clearTimeout(this.searchTimeout);
+    }
+    
+    // Set a new timeout to filter after 300ms of no typing
+    this.searchTimeout = setTimeout(() => {
+      this.filterProducts(); // Filter client-side instead of API call
+    }, 300);
+  }
+
+  // Category change with client-side filtering
   onCategoryChange() {
-    this.loadProducts();
+    this.filterProducts(); // Filter client-side instead of API call
   }
 
+  // Keep for backward compatibility
+  onSearch() {
+    this.filterProducts();
+  }
+
+  // Clear filters with client-side filtering
   clearFilters() {
     this.searchQuery = '';
     this.selectedCategory = null;
-    this.loadProducts();
+    this.filterProducts(); // Filter client-side instead of API call
   }
 
-  // Navigation methods
+  // Navigation methods - FIXED
   createNewProduct() {
-    this.router.navigate(['/admin/products/new']);
+    this.router.navigate(['/admin/products/add']);
   }
 
   editProduct(product: Product) {
@@ -8117,6 +8658,7 @@ export class AdminProductsComponent implements OnInit {
     });
   }
 
+  // After delete, remove from local array and refresh filters
   deleteProduct(product: Product) {
     this.productService.deleteProduct(product.id).subscribe({
       next: () => {
@@ -8126,8 +8668,10 @@ export class AdminProductsComponent implements OnInit {
           detail: `Product "${product.name}" has been deleted successfully`
         });
         
-        // Reload products
-        this.loadProducts();
+        // Remove deleted product from allProducts array
+        this.allProducts = this.allProducts.filter(p => p.id !== product.id);
+        // Reapply current filters
+        this.filterProducts();
       },
       error: (error) => {
         console.error('Error deleting product:', error);
@@ -8138,6 +8682,11 @@ export class AdminProductsComponent implements OnInit {
         });
       }
     });
+  }
+
+  // Method to refresh data after adding/editing products
+  refreshProductData() {
+    this.loadAllProducts();
   }
 
   // Utility methods
@@ -9972,19 +10521,19 @@ import { Product, Category, ProductFilter } from '../models/product.model';
 export class ProductService {
   constructor(private apiService: ApiService) {}
 
+  // Product methods
   createProduct(productData: any): Observable<Product> {
-  return this.apiService.post<Product>('/products', productData);
-}
-updateProduct(productId: number, productData: any): Observable<Product> {
-  return this.apiService.patch<Product>(`/products/${productId}`, productData);
-}
+    return this.apiService.post<Product>('/products', productData);
+  }
 
-createCategory(categoryData: any): Observable<Category> {
-  return this.apiService.post<Category>('/categories', categoryData);
-}
-deleteProduct(productId: number): Observable<void> {
-  return this.apiService.delete<void>(`/products/${productId}`);
-}
+  updateProduct(productId: number, productData: any): Observable<Product> {
+    return this.apiService.patch<Product>(`/products/${productId}`, productData);
+  }
+
+  deleteProduct(productId: number): Observable<void> {
+    return this.apiService.delete<void>(`/products/${productId}`);
+  }
+
   getProducts(filters?: ProductFilter): Observable<Product[]> {
     // Convert filters to query params
     const params: any = {};
@@ -10003,6 +10552,27 @@ deleteProduct(productId: number): Observable<void> {
     return this.apiService.get<Product>(`/products/${id}`);
   }
 
+  getProductsByCategory(categoryId: number, activeOnly = true): Observable<Product[]> {
+    return this.apiService.get<Product[]>(`/products/category/${categoryId}`, {
+      params: { active_only: activeOnly }
+    });
+  }
+
+  // Category methods
+  createCategory(categoryData: any): Observable<Category> {
+    return this.apiService.post<Category>('/categories', categoryData);
+  }
+
+  // NEW: Update existing category
+  updateCategory(categoryId: number, categoryData: any): Observable<Category> {
+    return this.apiService.patch<Category>(`/categories/${categoryId}`, categoryData);
+  }
+
+  // NEW: Delete category
+  deleteCategory(categoryId: number): Observable<void> {
+    return this.apiService.delete<void>(`/categories/${categoryId}`);
+  }
+
   getCategories(activeOnly = false): Observable<Category[]> {
     return this.apiService.get<Category[]>('/categories', { 
       params: { active_only: activeOnly } 
@@ -10011,12 +10581,6 @@ deleteProduct(productId: number): Observable<void> {
 
   getCategory(id: number): Observable<Category> {
     return this.apiService.get<Category>(`/categories/${id}`);
-  }
-
-  getProductsByCategory(categoryId: number, activeOnly = true): Observable<Product[]> {
-    return this.apiService.get<Product[]>(`/products/category/${categoryId}`, {
-      params: { active_only: activeOnly }
-    });
   }
 }
 
