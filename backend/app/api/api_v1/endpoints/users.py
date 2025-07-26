@@ -2,7 +2,8 @@ from typing import Any, List
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlmodel import Session, select
+from sqlmodel import Session, select, func
+from pydantic import BaseModel
 
 from app.database import get_session
 from app.models.user import User, UserUpdate, UserRead, UserRole
@@ -13,6 +14,11 @@ from app.core.security import (
 )
 
 router = APIRouter()
+
+# Add response model for paginated users
+class UsersResponse(BaseModel):
+    users: List[UserRead]
+    total: int
 
 @router.get("/me", response_model=UserRead)
 def read_user_me(
@@ -57,7 +63,7 @@ def update_user_me(
     session.refresh(current_user)
     return current_user
 
-@router.get("", response_model=List[UserRead])
+@router.get("", response_model=UsersResponse)
 def read_users(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=1000),
@@ -67,8 +73,14 @@ def read_users(
     """
     Retrieve users (admin only).
     """
+    # Get total count
+    total = session.exec(select(func.count()).select_from(User)).first()
+    
+    # Get users with pagination
     users = session.exec(select(User).offset(skip).limit(limit)).all()
-    return users
+    
+    # Return structured response
+    return UsersResponse(users=users, total=total)
 
 @router.get("/{user_id}", response_model=UserRead)
 def read_user_by_id(
@@ -135,7 +147,7 @@ def delete_user(
     user_id: int,
     current_user: User = Depends(get_current_admin_user),
     session: Session = Depends(get_session),
-) -> None:  # Changed to None
+) -> None:
     """
     Delete a user (admin only).
     """
@@ -155,4 +167,4 @@ def delete_user(
     
     session.delete(user)
     session.commit()
-    return None  # Explicitly return None
+    return None

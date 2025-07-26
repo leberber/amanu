@@ -1,174 +1,296 @@
 <!-- src/app/pages/admin/admin-users/admin-users.component.html -->
-<div class="surface-ground px-4 py-5">
-    <p-toast></p-toast>
-    <p-confirmDialog></p-confirmDialog>
-    
-    <div class="surface-card p-4 shadow-2 border-round">
-      <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
-        <h1 class="text-3xl font-medium mb-3 md:mb-0">User Management</h1>
-        
-        <button pButton label="Create New User" icon="pi pi-plus" (click)="createNewUser()"></button>
-      </div>
+<div class="px-2 py-3">
+  <p-toast></p-toast>
+  <p-confirmDialog></p-confirmDialog>
   
-      <p-table [value]="users" [loading]="loading" styleClass="p-datatable-striped mt-4" 
-               [tableStyle]="{'min-width': '100%'}" dataKey="id" [paginator]="false">
+  <div class="surface-card p-4 shadow-1 border-round">
+    <!-- Header Section -->
+    <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center mb-4">
+      <div>
+        <h1 class="text-3xl font-medium mb-2 md:mb-0">User Management</h1>
+        <p class="text-color-secondary m-0">Manage system users and their permissions</p>
+      </div>
+      
+      <div class="flex flex-column sm:flex-row gap-2 mt-3 md:mt-0">
+        <button pButton label="Refresh" icon="pi pi-refresh" class="p-button-outlined p-button-sm" 
+                (click)="refreshUserData()" [loading]="loading"></button>
+        <button pButton label="Export" icon="pi pi-download" class="p-button-outlined p-button-sm" 
+                (click)="exportUsers()"></button>
+        <button pButton label="Create New User" icon="pi pi-plus" class="p-button-sm"
+                (click)="navigateAddUser()"></button>
+      </div>
+    </div>
+
+    <!-- Filters Section -->
+    <div class="grid mb-4">
+      <div class="col-12 md:col-6 lg:col-4">
+        <p-iconfield iconPosition="left" class="w-full">
+          <p-inputicon styleClass="pi pi-search"></p-inputicon>
+          <input pInputText 
+                 [(ngModel)]="searchQuery" 
+                 (input)="onSearchInput()" 
+                 placeholder="Search users..."
+                 class="w-full" />
+        </p-iconfield>
+      </div>
+      
+      <div class="col-12 md:col-6 lg:col-3">
+        <p-select 
+          [(ngModel)]="filterRole" 
+          [options]="roleOptions" 
+          (onChange)="onRoleChange()"
+          placeholder="Filter by Role"
+          optionLabel="label"
+          optionValue="value"
+          class="w-full" />
+      </div>
+      
+      <div class="col-12 lg:col-5">
+        <div class="flex justify-content-start lg:justify-content-end gap-2 align-items-center">
+          @if (hasActiveFilters()) {
+            <button pButton label="Clear Filters" icon="pi pi-filter-slash" 
+                    class="p-button-outlined p-button-sm" (click)="clearFilters()"></button>
+          }
+          <span class="text-sm text-color-secondary">
+            Showing {{users.length}} of {{allUsers.length}} users
+          </span>
+        </div>
+      </div>
+    </div>
+
+
+
+    <!-- Loading Spinner -->
+    @if (loading) {
+      <div class="flex justify-content-center align-items-center py-8">
+        <p-progressSpinner></p-progressSpinner>
+        <span class="ml-2">Loading users...</span>
+      </div>
+    } @else {
+      <!-- Users Table -->
+      <p-table [value]="users" 
+               styleClass="p-datatable-striped" 
+               [tableStyle]="{'min-width': '100%'}" 
+               dataKey="id" 
+               [paginator]="false"
+               responsiveLayout="scroll">
         <ng-template pTemplate="header">
           <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Role</th>
-            <th>Status</th>
-            <th>Created</th>
-            <th>Actions</th>
+            <th style="width: 80px">ID</th>
+            <th>User Details</th>
+            <th style="width: 100px">Role</th>
+            <th style="width: 100px">Status</th>
+            <th style="width: 150px">Created</th>
+            <th style="width: 120px">Actions</th>
           </tr>
         </ng-template>
+        
         <ng-template pTemplate="body" let-user>
           <tr>
             <td>{{user.id}}</td>
-            <td>{{user.full_name}}</td>
-            <td>{{user.email}}</td>
             <td>
-              <!-- <p-tag [severity]="getRoleSeverity(user.role)" [value]="user.role"></p-tag> -->
+              <div class="flex align-items-center gap-2">
+                <div>
+                  <div class="font-semibold">{{user.full_name}}</div>
+                  <div class="text-sm text-color-secondary">{{user.email}}</div>
+                  @if (user.phone) {
+                    <div class="text-sm text-color-secondary">{{user.phone}}</div>
+                  }
+                </div>
+              </div>
+            </td>
+            <td>
+              <p-tag [severity]="getRoleSeverity(user.role)" 
+                     [value]="user.role" 
+                     class="text-uppercase"></p-tag>
             </td>
             <td>
               <p-tag [severity]="user.is_active ? 'success' : 'danger'" 
                      [value]="user.is_active ? 'Active' : 'Inactive'"></p-tag>
             </td>
-            <td>{{formatDate(user.created_at)}}</td>
+            <td class="text-sm">{{formatDate(user.created_at)}}</td>
             <td>
-              <div class="flex gap-2">
-                <button pButton icon="pi pi-pencil" class="p-button-text p-button-sm" 
-                        (click)="openUserDetails(user)" pTooltip="Edit User"></button>
+              <div class="flex gap-1">
+                <button pButton icon="pi pi-eye" 
+                        class="p-button-text p-button-sm" 
+                        (click)="openUserDetails(user)" 
+                        pTooltip="View/Edit User"
+                        tooltipPosition="top"></button>
                 
-                <button pButton icon="pi pi-trash" class="p-button-text p-button-danger p-button-sm" 
-                        (click)="confirmDeleteUser(user)" pTooltip="Delete User"></button>
+                <button pButton icon="pi pi-trash" 
+                        class="p-button-text p-button-danger p-button-sm" 
+                        (click)="confirmDeleteUser(user)" 
+                        pTooltip="Delete User"
+                        tooltipPosition="top"></button>
               </div>
             </td>
           </tr>
         </ng-template>
+        
         <ng-template pTemplate="emptymessage">
           <tr>
-            <td colspan="7" class="text-center p-4">
-              @if (loading) {
-                <p>Loading users...</p>
+            <td colspan="6" class="text-center p-4">
+              @if (hasActiveFilters()) {
+                <div class="flex flex-column align-items-center gap-3">
+                  <i class="pi pi-filter text-4xl text-color-secondary"></i>
+                  <div>
+                    <h3 class="m-0">No users match your filters</h3>
+                    <p class="text-color-secondary m-0">Try adjusting your search criteria</p>
+                  </div>
+                  <button pButton label="Clear Filters" 
+                          class="p-button-outlined p-button-sm" 
+                          (click)="clearFilters()"></button>
+                </div>
               } @else {
-                <p>No users found.</p>
+                <div class="flex flex-column align-items-center gap-3">
+                  <i class="pi pi-users text-4xl text-color-secondary"></i>
+                  <div>
+                    <h3 class="m-0">No users found</h3>
+                    <p class="text-color-secondary m-0">Start by creating your first user</p>
+                  </div>
+                  <button pButton label="Create User" 
+                          icon="pi pi-plus" 
+                          class="p-button-sm"
+                          (click)="createNewUser()"></button>
+                </div>
               }
             </td>
           </tr>
         </ng-template>
       </p-table>
       
-      <!-- Paginator -->
-      <p-paginator 
-        [rows]="pageSize" 
-        [totalRecords]="totalRecords" 
-        [rowsPerPageOptions]="[10, 25, 50]" 
-        (onPageChange)="onPageChange($event)">
-      </p-paginator>
-    </div>
+      <!-- Pagination Info -->
+      @if (users.length > 0) {
+        <div class="flex justify-content-between align-items-center mt-3">
+          <span class="text-sm text-color-secondary">
+            Showing {{users.length}} of {{totalRecords}} users
+          </span>
+        </div>
+      }
+    }
+  </div>
+  
+  <!-- User Edit/Create Dialog -->
+  <p-dialog 
+    [(visible)]="displayUserDialog" 
+    [style]="{width: '90%', maxWidth: '600px'}" 
+    [header]="isEditing ? 'Edit User' : 'Create New User'" 
+    [modal]="true"
+    [draggable]="false"
+    [resizable]="false"
+    [blockScroll]="true"
+    [dismissableMask]="true"
+    [closeOnEscape]="true">
     
-    <!-- User Edit/Create Dialog -->
-    <p-dialog 
-      [(visible)]="displayUserDialog" 
-      [style]="{width: '90%', maxWidth: '600px'}" 
-      [header]="isEditing ? 'Edit User' : 'Create New User'" 
-      [modal]="true"
-      [draggable]="false"
-      [resizable]="false">
-      
-      <form [formGroup]="userForm" (ngSubmit)="saveUser()">
-        <div class="grid p-fluid">
-          <div class="col-12">
-            <div class="field">
-              <label for="full_name">Full Name</label>
-              <input type="text" pInputText id="full_name" formControlName="full_name" />
-              @if (userForm.get('full_name')?.touched && userForm.get('full_name')?.invalid) {
-                <small class="p-error">Full name is required</small>
-              }
-            </div>
-          </div>
-          
-          <div class="col-12">
-            <div class="field">
-              <label for="email">Email</label>
-              <input type="email" pInputText id="email" formControlName="email" />
-              @if (userForm.get('email')?.touched && userForm.get('email')?.invalid) {
-                <small class="p-error">
-                  @if (userForm.get('email')?.errors?.['required']) {
-                    Email is required
-                  } @else if (userForm.get('email')?.errors?.['email']) {
-                    Please enter a valid email address
-                  }
-                </small>
-              }
-            </div>
-          </div>
-          
-          <div class="col-12 md:col-6">
-            <div class="field">
-              <label for="phone">Phone</label>
-              <input type="text" pInputText id="phone" formControlName="phone" />
-            </div>
-          </div>
-          
-          <div class="col-12 md:col-6">
-            <div class="field">
-              <label for="role">Role</label>
-                  <select id="role" formControlName="role" style="width: 100%">
-  <option value="" disabled selected>Select a role</option>
-  <option *ngFor="let role of roleOptions" [value]="role.value">
-    {{ role.label }}
-  </option>
-</select>
-            </div>
-          </div>
-          
-          <div class="col-12">
-            <div class="field">
-              <label for="address">Address</label>
-              <textarea pInputTextarea id="address" formControlName="address" rows="3"></textarea>
-            </div>
-          </div>
-          
-          <div class="col-12">
-            <div class="field">
-              <label for="password">
-                @if (isEditing) {
-                  Password (Leave blank to keep current password)
-                } @else {
-                  Password
+    <form [formGroup]="userForm" (ngSubmit)="saveUser()">
+      <div class="grid p-fluid">
+        <div class="col-12">
+          <div class="field">
+            <label for="full_name" class="font-semibold">Full Name *</label>
+            <input type="text" pInputText id="full_name" formControlName="full_name" />
+            @if (userForm.get('full_name')?.touched && userForm.get('full_name')?.invalid) {
+              <small class="p-error">
+                @if (userForm.get('full_name')?.errors?.['required']) {
+                  Full name is required
+                } @else if (userForm.get('full_name')?.errors?.['minlength']) {
+                  Full name must be at least 3 characters
                 }
-              </label>
-              <p-password id="password" formControlName="password" [feedback]="true" 
-                           [toggleMask]="true" styleClass="w-full"></p-password>
-              @if (userForm.get('password')?.touched && userForm.get('password')?.invalid) {
-                <small class="p-error">
-                  @if (userForm.get('password')?.errors?.['required']) {
-                    Password is required
-                  } @else if (userForm.get('password')?.errors?.['minlength']) {
-                    Password must be at least 8 characters long
-                  }
-                </small>
-              }
-            </div>
-          </div>
-          
-          <div class="col-12">
-            <div class="field-checkbox">
-              <p-checkbox formControlName="is_active" [binary]="true" inputId="is_active"></p-checkbox>
-              <label for="is_active">Active</label>
-            </div>
+              </small>
+            }
           </div>
         </div>
         
-        <div class="flex justify-content-end mt-4">
-          <button pButton label="Cancel" icon="pi pi-times" class="p-button-text mr-2" 
-                  type="button" (click)="displayUserDialog = false"></button>
-          <button pButton label="Save" icon="pi pi-check" type="submit" 
-                  [disabled]="userForm.invalid"></button>
+        <div class="col-12">
+          <div class="field">
+            <label for="email" class="font-semibold">Email *</label>
+            <input type="email" pInputText id="email" formControlName="email" />
+            @if (userForm.get('email')?.touched && userForm.get('email')?.invalid) {
+              <small class="p-error">
+                @if (userForm.get('email')?.errors?.['required']) {
+                  Email is required
+                } @else if (userForm.get('email')?.errors?.['email']) {
+                  Please enter a valid email address
+                }
+              </small>
+            }
+          </div>
         </div>
-      </form>
-    </p-dialog>
-  </div>
+        
+        <div class="col-12 md:col-6">
+          <div class="field">
+            <label for="phone" class="font-semibold">Phone</label>
+            <input type="text" pInputText id="phone" formControlName="phone" />
+          </div>
+        </div>
+        
+        <div class="col-12 md:col-6">
+          <div class="field">
+            <label for="role" class="font-semibold">Role *</label>
+            <p-select id="role" 
+                      formControlName="role" 
+                      [options]="roleOptions.slice(1)" 
+                      optionLabel="label" 
+                      optionValue="value"
+                      placeholder="Select a role"
+                      class="w-full" />
+          </div>
+        </div>
+        
+        <div class="col-12">
+          <div class="field">
+            <label for="address" class="font-semibold">Address</label>
+            <textarea pInputTextarea id="address" formControlName="address" rows="3"></textarea>
+          </div>
+        </div>
+        
+        <div class="col-12">
+          <div class="field">
+            <label for="password" class="font-semibold">
+              @if (isEditing) {
+                Password (Leave blank to keep current password)
+              } @else {
+                Password *
+              }
+            </label>
+            <p-password id="password" 
+                        formControlName="password" 
+                        [feedback]="true" 
+                        [toggleMask]="true" 
+                        styleClass="w-full"
+                        inputStyleClass="w-full" />
+            @if (userForm.get('password')?.touched && userForm.get('password')?.invalid) {
+              <small class="p-error">
+                @if (userForm.get('password')?.errors?.['required']) {
+                  Password is required
+                } @else if (userForm.get('password')?.errors?.['minlength']) {
+                  Password must be at least 8 characters long
+                }
+              </small>
+            }
+          </div>
+        </div>
+        
+        <div class="col-12">
+          <div class="field-checkbox">
+            <p-checkbox formControlName="is_active" [binary]="true" inputId="is_active"></p-checkbox>
+            <label for="is_active" class="ml-2 font-semibold">Active User</label>
+          </div>
+        </div>
+      </div>
+      
+      <div class="flex justify-content-end gap-2 mt-4">
+        <button pButton label="Cancel" 
+                icon="pi pi-times" 
+                class="p-button-outlined" 
+                type="button" 
+                (click)="displayUserDialog = false"></button>
+        <button pButton 
+                [label]="isEditing ? 'Update User' : 'Create User'" 
+                icon="pi pi-check" 
+                type="submit" 
+                [disabled]="userForm.invalid"></button>
+      </div>
+    </form>
+  </p-dialog>
+</div>
+

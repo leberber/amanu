@@ -10,7 +10,9 @@ import {
   SalesReport, 
   LowStockProduct,
   Order,
-  UserManage
+  UserManage,
+  UsersResponse,
+  OrdersResponse
 } from '../models/admin.model';
 
 @Injectable({
@@ -44,7 +46,7 @@ export class AdminService {
   }
 
   // Orders management
-  getAllOrders(status?: string, page: number = 1, pageSize: number = 10): Observable<{ orders: Order[], total: number }> {
+  getAllOrders(status?: string, page: number = 1, pageSize: number = 10): Observable<OrdersResponse> {
     let params: any = { skip: (page - 1) * pageSize, limit: pageSize };
     
     if (status) {
@@ -72,9 +74,9 @@ export class AdminService {
     return this.apiService.patch<Order>(`/orders/${orderId}`, { status });
   }
 
-  // Users management
-  getAllUsers(page: number = 1, pageSize: number = 10): Observable<{ users: UserManage[], total: number }> {
-    return this.apiService.get<{ users: UserManage[], total: number }>('/users', { 
+  // Users management - UPDATED to use new response format
+  getAllUsers(page: number = 1, pageSize: number = 10): Observable<UsersResponse> {
+    return this.apiService.get<UsersResponse>('/users', { 
       params: { skip: (page - 1) * pageSize, limit: pageSize }
     });
   }

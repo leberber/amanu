@@ -90,3 +90,14 @@ export interface DashboardStats {
     created_at: string;
     updated_at?: string;
   }
+
+  // NEW: Add consistent response models
+  export interface UsersResponse {
+    users: UserManage[];
+    total: number;
+  }
+
+  export interface OrdersResponse {
+    orders: Order[];
+    total: number;
+  }
