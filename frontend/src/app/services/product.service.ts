@@ -1,14 +1,16 @@
-// src/app/services/product.service.ts
-import { Injectable } from '@angular/core';
+// frontend/src/app/services/product.service.ts
+import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
+import { TranslationService } from './translation.service';
 import { Product, Category, ProductFilter } from '../models/product.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ProductService {
-  constructor(private apiService: ApiService) {}
+  private apiService = inject(ApiService);
+  private translationService = inject(TranslationService);
 
   // Product methods
   createProduct(productData: any): Observable<Product> {
@@ -23,9 +25,12 @@ export class ProductService {
     return this.apiService.delete<void>(`/products/${productId}`);
   }
 
+  // 🌍 UPDATED: Automatically include language parameter
   getProducts(filters?: ProductFilter): Observable<Product[]> {
-    // Convert filters to query params
-    const params: any = {};
+    const params: any = {
+      lang: this.translationService.getCurrentLanguage() // Add current language
+    };
+    
     if (filters) {
       Object.keys(filters).forEach(key => {
         if (filters[key as keyof ProductFilter] !== undefined) {
@@ -37,38 +42,56 @@ export class ProductService {
     return this.apiService.get<Product[]>('/products', { params });
   }
 
+  // 🌍 UPDATED: Include language parameter
   getProduct(id: number): Observable<Product> {
-    return this.apiService.get<Product>(`/products/${id}`);
+    const params = {
+      lang: this.translationService.getCurrentLanguage()
+    };
+    return this.apiService.get<Product>(`/products/${id}`, { params });
   }
 
+  // 🌍 UPDATED: Include language parameter
   getProductsByCategory(categoryId: number, activeOnly = true): Observable<Product[]> {
-    return this.apiService.get<Product[]>(`/products/category/${categoryId}`, {
-      params: { active_only: activeOnly }
-    });
+    const params = {
+      active_only: activeOnly,
+      lang: this.translationService.getCurrentLanguage()
+    };
+    return this.apiService.get<Product[]>(`/products/category/${categoryId}`, { params });
   }
 
-  // Category methods
+  // Category methods with translation support
   createCategory(categoryData: any): Observable<Category> {
     return this.apiService.post<Category>('/categories', categoryData);
   }
 
-  // NEW: Update existing category
   updateCategory(categoryId: number, categoryData: any): Observable<Category> {
     return this.apiService.patch<Category>(`/categories/${categoryId}`, categoryData);
   }
 
-  // NEW: Delete category
   deleteCategory(categoryId: number): Observable<void> {
     return this.apiService.delete<void>(`/categories/${categoryId}`);
   }
 
+  // 🌍 UPDATED: Include language parameter for categories
   getCategories(activeOnly = false): Observable<Category[]> {
-    return this.apiService.get<Category[]>('/categories', { 
-      params: { active_only: activeOnly } 
-    });
+    const params = { 
+      active_only: activeOnly,
+      lang: this.translationService.getCurrentLanguage() // Add current language
+    };
+    return this.apiService.get<Category[]>('/categories', { params });
   }
 
+  // 🌍 UPDATED: Include language parameter
   getCategory(id: number): Observable<Category> {
-    return this.apiService.get<Category>(`/categories/${id}`);
+    const params = {
+      lang: this.translationService.getCurrentLanguage()
+    };
+    return this.apiService.get<Category>(`/categories/${id}`, { params });
+  }
+
+  // 🆕 NEW: Method to refresh data when language changes
+  refreshDataForLanguage(): void {
+    // This can be called when language changes to refresh any cached data
+    console.log('Language changed to:', this.translationService.getCurrentLanguage());
   }
 }

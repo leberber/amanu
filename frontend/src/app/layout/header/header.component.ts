@@ -1,4 +1,4 @@
-// src/app/layout/header/header.component.ts
+// frontend/src/app/layout/header/header.component.ts
 import { Component, OnInit, OnDestroy, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
@@ -97,6 +97,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.loadCartItems();
   }
 
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
+  }
+
   private initializeTheme(): void {
     this.isDarkMode.set(document.querySelector('html')?.classList.contains('my-app-dark') || false);
   }
@@ -110,12 +114,31 @@ export class HeaderComponent implements OnInit, OnDestroy {
     );
   }
 
+  // 🌍 UPDATED: Enhanced language change handling
   private subscribeToLanguageChanges(): void {
     this.subscriptions.push(
-      this.translationService.currentLanguage$.subscribe(() => {
-        this.buildMenus(); // Rebuild menus when language changes
+      this.translationService.currentLanguage$.subscribe((newLanguage) => {
+        console.log('Header detected language change to:', newLanguage);
+        
+        // Rebuild menus with new translations
+        this.buildMenus();
+        
+        // 🆕 Notify other components about language change
+        // This triggers a refresh of data in product lists, home page, etc.
+        this.notifyLanguageChange(newLanguage);
       })
     );
+  }
+
+  // 🆕 NEW: Method to notify other parts of app about language changes
+  private notifyLanguageChange(newLanguage: string): void {
+    // Dispatch a custom event that other components can listen to
+    window.dispatchEvent(new CustomEvent('languageChanged', { 
+      detail: { language: newLanguage } 
+    }));
+    
+    // Alternative: Could also use a shared service to broadcast changes
+    console.log('Language change notification sent:', newLanguage);
   }
 
   private loadInitialUserData(): void {
@@ -165,7 +188,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Menu Configuration with translations
+  // 🌍 UPDATED: Enhanced menu building with better translation handling
   private buildMenus(): void {
     const baseItems: MenuItem[] = [
       {
@@ -217,6 +240,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.userMenuItems.set(
       this.authService.isLoggedIn ? this.getUserMenuItems() : []
     );
+
+    console.log('Menus rebuilt with current language:', this.translationService.getCurrentLanguage());
   }
 
   // Add trackBy function for better change detection
@@ -230,27 +255,27 @@ export class HeaderComponent implements OnInit, OnDestroy {
       icon: 'pi pi-cog',
       items: [
         {
-          label: this.translateService.instant('common.home'), // Dashboard
+          label: this.translateService.instant('admin.navigation.dashboard'),
           icon: 'pi pi-chart-bar',
           routerLink: '/admin'
         },
         {
-          label: this.translateService.instant('header.orders'),
+          label: this.translateService.instant('admin.navigation.orders'),
           icon: 'pi pi-list',
           routerLink: '/admin/orders'
         },
         {
-          label: 'Users', // We'll add this translation later
+          label: this.translateService.instant('admin.navigation.users'),
           icon: 'pi pi-users',
           routerLink: '/admin/users'
         },
         {
-          label: this.translateService.instant('common.products'),
+          label: this.translateService.instant('admin.navigation.products'),
           icon: 'pi pi-tag',
           routerLink: '/admin/products'
         },
         {
-          label: 'Categories', // We'll add this translation later
+          label: this.translateService.instant('admin.navigation.categories'),
           icon: 'pi pi-tags',
           routerLink: '/admin/categories'
         }
@@ -276,9 +301,5 @@ export class HeaderComponent implements OnInit, OnDestroy {
         command: () => this.logout()
       }
     ];
-  }
-
-  ngOnDestroy(): void {
-    this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 }

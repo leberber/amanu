@@ -1,3 +1,4 @@
+# backend/app/api/api_v1/endpoints/products.py
 from typing import Any, List, Optional
 from datetime import datetime, timezone
 
@@ -8,6 +9,7 @@ from app.database import get_session
 from app.models.product import Product, ProductCreate, ProductUpdate, ProductRead
 from app.models.category import Category
 from app.core.security import get_current_staff_user, get_current_active_user
+from app.core.translation import TranslationService
 from app.models.user import User
 
 router = APIRouter()
@@ -47,10 +49,11 @@ def read_products(
     max_price: Optional[float] = None,
     sort_by: str = Query("name", enum=["name", "price", "created_at"]),
     sort_order: str = Query("asc", enum=["asc", "desc"]),
+    lang: str = Query("en", description="Language for translations (en, fr, ar)"),
     session: Session = Depends(get_session),
 ) -> Any:
     """
-    Retrieve products with various filters.
+    Retrieve products with various filters and translation support.
     """
     query = select(Product)
     
@@ -71,12 +74,20 @@ def read_products(
         query = query.where(Product.price <= max_price)
     
     if search:
-        query = query.where(
-            or_(
-                Product.name.ilike(f"%{search}%"),
-                Product.description.ilike(f"%{search}%")
-            )
-        )
+        # Search in both default fields and translations
+        search_conditions = [
+            Product.name.ilike(f"%{search}%"),
+            Product.description.ilike(f"%{search}%")
+        ]
+        
+        # Add translation-based search for better multilingual support
+        # Note: SQLite JSON search is limited, this is a basic implementation
+        search_conditions.extend([
+            Product.name_translations.ilike(f"%{search}%"),
+            Product.description_translations.ilike(f"%{search}%")
+        ])
+        
+        query = query.where(or_(*search_conditions))
     
     # Apply sorting
     if sort_by == "name":
@@ -88,15 +99,21 @@ def read_products(
     
     # Apply pagination
     products = session.exec(query.offset(skip).limit(limit)).all()
+    
+    # Apply translations to each product
+    for product in products:
+        TranslationService.apply_translations_to_model(product, lang)
+    
     return products
 
 @router.get("/{product_id}", response_model=ProductRead)
 def read_product(
     product_id: int,
+    lang: str = Query("en", description="Language for translations (en, fr, ar)"),
     session: Session = Depends(get_session),
 ) -> Any:
     """
-    Get product by ID.
+    Get product by ID with translation support.
     """
     product = session.get(Product, product_id)
     if not product:
@@ -104,6 +121,10 @@ def read_product(
             status_code=404,
             detail="Product not found",
         )
+    
+    # Apply translations
+    TranslationService.apply_translations_to_model(product, lang)
+    
     return product
 
 @router.patch("/{product_id}", response_model=ProductRead)
@@ -178,10 +199,11 @@ def delete_product(
 def read_products_by_category(
     category_id: int,
     active_only: bool = Query(True),
+    lang: str = Query("en", description="Language for translations (en, fr, ar)"),
     session: Session = Depends(get_session),
 ) -> Any:
     """
-    Get all products in a specific category.
+    Get all products in a specific category with translation support.
     """
     # Check if category exists
     category = session.get(Category, category_id)
@@ -198,4 +220,9 @@ def read_products_by_category(
         query = query.where(Product.is_active == True)
     
     products = session.exec(query).all()
+    
+    # Apply translations to each product
+    for product in products:
+        TranslationService.apply_translations_to_model(product, lang)
+    
     return products

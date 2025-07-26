@@ -1,81 +1,222 @@
-<!-- src/app/pages/home/home.component.html -->
-<div class="surface-ground">
-    <!-- Hero Section -->
-    <div class="bg-primary text-white py-7 px-4 text-center">
-      <div class="py-6">
-        <h1 class="text-5xl font-bold mb-3">{{ 'home.hero.title' | translate }}</h1>
-        <p class="text-2xl line-height-3 mb-5">
+<!-- frontend/src/app/pages/home/home.component.html -->
+<div class="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 dark:from-gray-900 dark:to-gray-800">
+  <!-- Hero Section -->
+  <section class="relative overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-r from-green-600 to-blue-600 opacity-90"></div>
+    <div class="relative z-10 max-w-7xl mx-auto px-4 py-24 sm:px-6 lg:px-8">
+      <div class="text-center text-white">
+        <h1 class="text-4xl md:text-6xl font-bold mb-6">
+          {{ 'home.hero.title' | translate }}
+        </h1>
+        <p class="text-xl md:text-2xl mb-8 opacity-90">
           {{ 'home.hero.subtitle' | translate }}
         </p>
-        <button 
-          pButton 
-          [label]="'home.hero.shop_now' | translate" 
-          icon="pi pi-shopping-bag" 
-          routerLink="/products" 
-          class="p-button-rounded p-button-lg">
-        </button>
+        <p-button 
+          [label]="'home.hero.shop_now' | translate"
+          routerLink="/products"
+          size="large"
+          styleClass="p-button-secondary p-button-lg"
+          icon="pi pi-shopping-cart"
+        />
       </div>
     </div>
-  
-    <!-- Categories Section -->
-    <div class="py-5 px-4">
-      <h2 class="text-3xl font-bold mb-5 text-center">{{ 'home.categories.title' | translate }}</h2>
+  </section>
+
+  <!-- Categories Section -->
+  <section class="py-16 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+          {{ 'home.categories.title' | translate }}
+        </h2>
+      </div>
       
-      <div class="grid">
-        @for (category of categories; track category.name) {
-          <div class="col-12 md:col-4 p-3">
-            <p-card 
-              styleClass="h-full"
-              [style]="{'border-radius': '1rem', 'overflow': 'hidden'}" 
-            >
-              <ng-template pTemplate="header">
+      <!-- 🆕 Dynamic Categories Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <!-- 🆕 Loop through dynamic categories from API -->
+        @for (category of categories(); track category.id) {
+          <p-card 
+            styleClass="overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 cursor-pointer h-full"
+            [routerLink]="category.link"
+          >
+            <ng-template pTemplate="header">
+              <div class="relative overflow-hidden h-48">
                 <img 
                   [src]="category.image" 
-                  [alt]="category.name | translate" 
-                  class="w-full" 
-                  style="height: 200px; object-fit: cover;">
-              </ng-template>
+                  [alt]="category.name"
+                  class="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
+                />
+                <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+              </div>
+            </ng-template>
+            
+            <div class="p-6">
+              <!-- 🌍 Category name is already translated by the API -->
+              <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-3">
+                {{ category.name }}
+              </h3>
               
-              <h3 class="text-xl font-semibold mb-3">{{ category.name | translate }}</h3>
-              <p class="line-height-3 mb-3">{{ category.description | translate }}</p>
+              <!-- 🌍 Category description is already translated by the API -->
+              <p class="text-gray-600 dark:text-gray-300 mb-4 line-height-3">
+                {{ category.description }}
+              </p>
               
-              <ng-template pTemplate="footer">
-                <div class="flex justify-content-center">
-                  <button 
-                    pButton 
-                    [label]="('home.categories.explore' | translate) + ' ' + (category.name | translate)" 
-                    icon="pi pi-arrow-right" 
-                    [routerLink]="category.link"
-                    class="p-button-outlined">
-                  </button>
-                </div>
-              </ng-template>
-            </p-card>
-          </div>
+              <p-button 
+                [label]="'home.categories.explore' | translate"
+                [routerLink]="category.link"
+                styleClass="p-button-outlined w-full"
+                icon="pi pi-arrow-right"
+                iconPos="right"
+              />
+            </div>
+          </p-card>
+        }
+        
+        <!-- 🆕 Fallback: Show translated placeholders if no categories loaded -->
+        @if (categories().length === 0) {
+          <p-card 
+            styleClass="overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 cursor-pointer h-full"
+            routerLink="/products?category=1"
+          >
+            <ng-template pTemplate="header">
+              <div class="relative overflow-hidden h-48">
+                <img 
+                  src="https://images.unsplash.com/photo-1619566636858-adf3ef46400b?auto=format&fit=crop&w=1470&q=80" 
+                  [alt]="'home.categories.fresh_fruits.name' | translate"
+                  class="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
+                />
+                <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+              </div>
+            </ng-template>
+            
+            <div class="p-6">
+              <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-3">
+                {{ 'home.categories.fresh_fruits.name' | translate }}
+              </h3>
+              <p class="text-gray-600 dark:text-gray-300 mb-4 line-height-3">
+                {{ 'home.categories.fresh_fruits.description' | translate }}
+              </p>
+              <p-button 
+                [label]="'home.categories.explore' | translate"
+                routerLink="/products?category=1"
+                styleClass="p-button-outlined w-full"
+                icon="pi pi-arrow-right"
+                iconPos="right"
+              />
+            </div>
+          </p-card>
+
+          <p-card 
+            styleClass="overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 cursor-pointer h-full"
+            routerLink="/products?category=2"
+          >
+            <ng-template pTemplate="header">
+              <div class="relative overflow-hidden h-48">
+                <img 
+                  src="https://images.unsplash.com/photo-1518843875459-f738682238a6?auto=format&fit=crop&w=1442&q=80" 
+                  [alt]="'home.categories.fresh_vegetables.name' | translate"
+                  class="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
+                />
+                <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+              </div>
+            </ng-template>
+            
+            <div class="p-6">
+              <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-3">
+                {{ 'home.categories.fresh_vegetables.name' | translate }}
+              </h3>
+              <p class="text-gray-600 dark:text-gray-300 mb-4 line-height-3">
+                {{ 'home.categories.fresh_vegetables.description' | translate }}
+              </p>
+              <p-button 
+                [label]="'home.categories.explore' | translate"
+                routerLink="/products?category=2"
+                styleClass="p-button-outlined w-full"
+                icon="pi pi-arrow-right"
+                iconPos="right"
+              />
+            </div>
+          </p-card>
+
+          <p-card 
+            styleClass="overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 cursor-pointer h-full"
+            routerLink="/products?category=3"
+          >
+            <ng-template pTemplate="header">
+              <div class="relative overflow-hidden h-48">
+                <img 
+                  src="https://images.unsplash.com/photo-1576675466969-38eeae4b41f6?auto=format&fit=crop&w=1442&q=80" 
+                  [alt]="'home.categories.organic_produce.name' | translate"
+                  class="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
+                />
+                <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+              </div>
+            </ng-template>
+            
+            <div class="p-6">
+              <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-3">
+                {{ 'home.categories.organic_produce.name' | translate }}
+              </h3>
+              <p class="text-gray-600 dark:text-gray-300 mb-4 line-height-3">
+                {{ 'home.categories.organic_produce.description' | translate }}
+              </p>
+              <p-button 
+                [label]="'home.categories.explore' | translate"
+                routerLink="/products?category=3"
+                styleClass="p-button-outlined w-full"
+                icon="pi pi-arrow-right"
+                iconPos="right"
+              />
+            </div>
+          </p-card>
         }
       </div>
     </div>
-  
-    <!-- Features Section -->
-    <div class="py-5 px-4 surface-card">
-      <div class="grid">
-        <div class="col-12 md:col-4 p-3 text-center">
-          <i class="pi pi-truck text-5xl text-primary mb-3"></i>
-          <h3 class="text-xl font-semibold mb-2">{{ 'home.features.fast_delivery.title' | translate }}</h3>
-          <p>{{ 'home.features.fast_delivery.description' | translate }}</p>
+  </section>
+
+  <!-- Features Section -->
+  <section class="py-16 bg-white dark:bg-gray-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <!-- Fast Delivery -->
+        <div class="text-center p-6">
+          <div class="w-16 h-16 mx-auto mb-4 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
+            <i class="pi pi-truck text-2xl text-green-600 dark:text-green-400"></i>
+          </div>
+          <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-3">
+            {{ 'home.features.fast_delivery.title' | translate }}
+          </h3>
+          <p class="text-gray-600 dark:text-gray-300">
+            {{ 'home.features.fast_delivery.description' | translate }}
+          </p>
         </div>
-        
-        <div class="col-12 md:col-4 p-3 text-center">
-          <i class="pi pi-check-circle text-5xl text-primary mb-3"></i>
-          <h3 class="text-xl font-semibold mb-2">{{ 'home.features.quality_guaranteed.title' | translate }}</h3>
-          <p>{{ 'home.features.quality_guaranteed.description' | translate }}</p>
+
+        <!-- Quality Guaranteed -->
+        <div class="text-center p-6">
+          <div class="w-16 h-16 mx-auto mb-4 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
+            <i class="pi pi-shield text-2xl text-blue-600 dark:text-blue-400"></i>
+          </div>
+          <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-3">
+            {{ 'home.features.quality_guaranteed.title' | translate }}
+          </h3>
+          <p class="text-gray-600 dark:text-gray-300">
+            {{ 'home.features.quality_guaranteed.description' | translate }}
+          </p>
         </div>
-        
-        <div class="col-12 md:col-4 p-3 text-center">
-          <i class="pi pi-heart text-5xl text-primary mb-3"></i>
-          <h3 class="text-xl font-semibold mb-2">{{ 'home.features.organic_options.title' | translate }}</h3>
-          <p>{{ 'home.features.organic_options.description' | translate }}</p>
+
+        <!-- Organic Options -->
+        <div class="text-center p-6">
+          <div class="w-16 h-16 mx-auto mb-4 bg-orange-100 dark:bg-orange-900 rounded-full flex items-center justify-center">
+            <i class="pi pi-sun text-2xl text-orange-600 dark:text-orange-400"></i>
+          </div>
+          <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-3">
+            {{ 'home.features.organic_options.title' | translate }}
+          </h3>
+          <p class="text-gray-600 dark:text-gray-300">
+            {{ 'home.features.organic_options.description' | translate }}
+          </p>
         </div>
       </div>
     </div>
-  </div>
+  </section>
+</div>

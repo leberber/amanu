@@ -1,10 +1,10 @@
-// src/app/pages/products/product-list/product-list.component.ts
-import { Component, computed, effect, inject, OnInit, signal } from '@angular/core';
+// frontend/src/app/pages/products/product-list/product-list.component.ts
+import { Component, computed, effect, inject, OnInit, signal, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
-import { Observable, forkJoin, of } from 'rxjs';
+import { Observable, forkJoin, of, Subscription } from 'rxjs';
 import { switchMap, tap, map } from 'rxjs/operators';
 
 // PrimeNG imports
@@ -24,6 +24,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 // Services and models
 import { CartService } from '../../../services/cart.service';
 import { ProductService } from '../../../services/product.service';
+import { TranslationService } from '../../../services/translation.service'; // 🆕 ADD THIS
 import { Product, Category, ProductFilter } from '../../../models/product.model';
 
 interface SortOption {
@@ -59,13 +60,14 @@ interface LayoutOption {
   templateUrl: './product-list.component.html',
   styleUrl: './product-list.component.scss'
 })
-export class ProductListComponent implements OnInit {
+export class ProductListComponent implements OnInit, OnDestroy {
   // Services
   private productService = inject(ProductService);
   private route = inject(ActivatedRoute);
   private messageService = inject(MessageService);
   private cartService = inject(CartService);
   private translateService = inject(TranslateService);
+  private translationService = inject(TranslationService); // 🆕 ADD THIS
   
   // Signals
   products = signal<Product[]>([]);
@@ -82,6 +84,9 @@ export class ProductListComponent implements OnInit {
   
   // For quantities (keeping as object for performance)
   productQuantities: { [key: number]: number } = {};
+  
+  // 🆕 Subscription for language changes
+  private languageSubscription?: Subscription;
   
   // Filters signal with computed values for sort
   filters = signal<ProductFilter>({
@@ -199,8 +204,28 @@ export class ProductListComponent implements OnInit {
       this.layout.set(savedLayout);
     }
     
+    // 🆕 Subscribe to language changes - refresh data when language changes
+    this.languageSubscription = this.translationService.currentLanguage$.subscribe(() => {
+      console.log('Language changed in product list, reloading data...');
+      // Reload both categories and products when language changes
+      this.loadCategoriesAndProducts();
+    });
+    
+    this.loadCategoriesAndProducts();
+  }
+
+  ngOnDestroy(): void {
+    // 🆕 Cleanup language subscription
+    if (this.languageSubscription) {
+      this.languageSubscription.unsubscribe();
+    }
+  }
+
+  // 🆕 NEW: Combined method to load both categories and products
+  private loadCategoriesAndProducts(): void {
     this.productService.getCategories(true).subscribe({
       next: (categories) => {
+        console.log('Categories loaded with translations:', categories);
         this.categories.set(categories);
         this.selectedCategories.set([...categories]);
         
@@ -267,6 +292,7 @@ export class ProductListComponent implements OnInit {
       const currentFilters = { ...this.filters(), category_id: selectedCats[0].id };
       return this.productService.getProducts(currentFilters).pipe(
         tap(products => {
+          console.log('Products loaded with translations:', products);
           this.products.set(products);
           this.initializeQuantities(products);
           this.loading.set(false);
@@ -302,6 +328,7 @@ export class ProductListComponent implements OnInit {
         // Sort the combined results according to the current sort option
         this.sortProducts(allProducts);
         
+        console.log('Combined products loaded with translations:', allProducts);
         this.products.set(allProducts);
         this.initializeQuantities(allProducts);
         this.loading.set(false);
@@ -427,6 +454,7 @@ export class ProductListComponent implements OnInit {
     
     this.cartService.addToCart(product, actualQuantity).subscribe({
       next: () => {
+        // Success message can be uncommented if needed
         // this.messageService.add({
         //   severity: 'success',
         //   summary: this.translateService.instant('products.cart.added_to_cart'),
