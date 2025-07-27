@@ -1,5 +1,5 @@
 // src/app/pages/checkout/checkout.component.ts
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -16,10 +16,14 @@ import { DividerModule } from 'primeng/divider';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { Subscription, forkJoin, of } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
 
 import { AuthService } from '../../services/auth.service';
 import { CartService, CartItem } from '../../services/cart.service';
 import { OrderService } from '../../services/order.service';
+import { ProductService } from '../../services/product.service'; // 🆕 ADD THIS
+import { TranslationService } from '../../services/translation.service'; // 🆕 ADD THIS
 import { OrderCreate } from '../../models/order.model';
 import { User } from '../../models/user.model';
 
@@ -48,12 +52,15 @@ import { User } from '../../models/user.model';
   templateUrl: './checkout.component.html',
   styleUrl: './checkout.component.scss'
 })
-export class CheckoutComponent implements OnInit {
+export class CheckoutComponent implements OnInit, OnDestroy {
   checkoutForm: FormGroup;
   cartItems: CartItem[] = [];
   currentUser: User | null = null;
   isSubmitting = false;
   accordionExpanded = false;
+
+  // 🆕 NEW: Subscription management
+  private languageSubscription?: Subscription;
 
   toggleShippingAccordion() {
     this.accordionExpanded = !this.accordionExpanded;
@@ -74,7 +81,9 @@ export class CheckoutComponent implements OnInit {
     private cartService: CartService,
     private orderService: OrderService,
     private messageService: MessageService,
-    private translateService: TranslateService
+    private translateService: TranslateService,
+    private productService: ProductService, // 🆕 ADD THIS
+    private translationService: TranslationService // 🆕 ADD THIS
   ) {
     this.checkoutForm = this.fb.group({
       fullName: ['', Validators.required],
@@ -110,6 +119,15 @@ export class CheckoutComponent implements OnInit {
         this.router.navigate(['/products']);
         return;
       }
+
+      // 🆕 Load translated names after loading cart items
+      this.loadTranslatedNames();
+    });
+
+    // 🆕 NEW: Subscribe to language changes
+    this.languageSubscription = this.translationService.currentLanguage$.subscribe(() => {
+      console.log('Language changed in checkout, reloading translated names...');
+      this.loadTranslatedNames();
     });
     
     // Pre-fill form with user data
@@ -120,6 +138,56 @@ export class CheckoutComponent implements OnInit {
         address: this.currentUser.address || ''
       });
     }
+  }
+
+  // 🆕 NEW: Cleanup subscription
+  ngOnDestroy() {
+    if (this.languageSubscription) {
+      this.languageSubscription.unsubscribe();
+    }
+  }
+
+  // 🆕 NEW: Load translated names for cart items
+  private loadTranslatedNames(): void {
+    if (this.cartItems.length === 0) return;
+
+    const currentLanguage = this.translationService.getCurrentLanguage();
+    
+    // Create observables to fetch each product with translations
+    const productObservables = this.cartItems.map(item => 
+      this.productService.getProduct(item.product_id).pipe(
+        map(product => ({
+          cartItemId: item.id,
+          translatedName: product.name, // This will be translated by the API
+          translatedDescription: product.description || ''
+        })),
+        catchError(error => {
+          console.error(`Error loading product ${item.product_id}:`, error);
+          return of({
+            cartItemId: item.id,
+            translatedName: item.product_name, // Fallback to original name
+            translatedDescription: ''
+          });
+        })
+      )
+    );
+
+    // Execute all requests in parallel
+    forkJoin(productObservables).subscribe(results => {
+      // Update cart items with translated names
+      this.cartItems = this.cartItems.map(item => {
+        const translation = results.find(r => r.cartItemId === item.id);
+        if (translation) {
+          return {
+            ...item,
+            product_name: translation.translatedName // Update with translated name
+          };
+        }
+        return item;
+      });
+
+      console.log('Checkout cart items updated with translations:', this.cartItems);
+    });
   }
   
   // Convenience getter for easy access to form fields

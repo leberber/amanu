@@ -1,9 +1,9 @@
 // src/app/pages/orders/order-detail/order-detail.component.ts
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
-import { switchMap, catchError } from 'rxjs/operators';
-import { of } from 'rxjs';
+import { switchMap, catchError, map } from 'rxjs/operators';
+import { of, Subscription, forkJoin } from 'rxjs';
 
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
@@ -14,10 +14,12 @@ import { TimelineModule } from 'primeng/timeline';
 import { DividerModule } from 'primeng/divider';
 import { PanelModule } from 'primeng/panel';
 import { CardModule } from 'primeng/card';
-import { TranslateModule, TranslateService } from '@ngx-translate/core'; // Added TranslateModule and TranslateService
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { OrderService } from '../../../services/order.service'; 
-import { Order } from '../../../models/order.model';
+import { ProductService } from '../../../services/product.service'; // 🆕 ADD THIS
+import { TranslationService } from '../../../services/translation.service'; // 🆕 ADD THIS
+import { Order, OrderItem } from '../../../models/order.model';
 
 interface OrderStatus {
   status: string;
@@ -40,24 +42,29 @@ interface OrderStatus {
     TagModule,
     TimelineModule,
     DividerModule,
-    TranslateModule // Added TranslateModule
+    TranslateModule
   ],
   providers: [MessageService],
   templateUrl: './order-detail.component.html'
 })
-export class OrderDetailComponent implements OnInit {
+export class OrderDetailComponent implements OnInit, OnDestroy {
   // Dependency injection
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private orderService = inject(OrderService);
+  private productService = inject(ProductService); // 🆕 ADD THIS
+  private translationService = inject(TranslationService); // 🆕 ADD THIS
   private messageService = inject(MessageService);
-  private translateService = inject(TranslateService); // Added TranslateService
+  private translateService = inject(TranslateService);
 
   // Signals
   order = signal<Order | null>(null);
   loading = signal<boolean>(true);
   error = signal<boolean>(false);
   orderStatuses = signal<OrderStatus[]>([]);
+
+  // 🆕 NEW: Subscription management
+  private languageSubscription?: Subscription;
 
   // Computed values
   totalAmount = computed(() => this.order()?.total_amount || 0);
@@ -74,6 +81,12 @@ export class OrderDetailComponent implements OnInit {
           life: 5000
         });
       }
+    });
+    
+    // 🆕 NEW: Subscribe to language changes
+    this.languageSubscription = this.translationService.currentLanguage$.subscribe(() => {
+      console.log('Language changed in order detail, reloading translated names...');
+      this.loadTranslatedNames();
     });
     
     // Load order details
@@ -105,7 +118,64 @@ export class OrderDetailComponent implements OnInit {
       
       if (orderData) {
         this.generateOrderStatusTimeline(orderData);
+        // 🆕 Load translated names after order is loaded
+        this.loadTranslatedNames();
       }
+    });
+  }
+
+  // 🆕 NEW: Cleanup subscription
+  ngOnDestroy(): void {
+    if (this.languageSubscription) {
+      this.languageSubscription.unsubscribe();
+    }
+  }
+
+  // 🆕 NEW: Load translated names for order items
+  private loadTranslatedNames(): void {
+    const currentOrder = this.order();
+    if (!currentOrder || !currentOrder.items || currentOrder.items.length === 0) {
+      return;
+    }
+
+    const currentLanguage = this.translationService.getCurrentLanguage();
+    
+    // Create observables to fetch each product with translations
+    const productObservables = currentOrder.items.map(item => 
+      this.productService.getProduct(item.product_id).pipe(
+        map(product => ({
+          orderItemId: item.id,
+          translatedName: product.name, // This will be translated by the API
+          translatedDescription: product.description || ''
+        })),
+        catchError(error => {
+          console.error(`Error loading product ${item.product_id}:`, error);
+          return of({
+            orderItemId: item.id,
+            translatedName: item.product_name, // Fallback to original name
+            translatedDescription: ''
+          });
+        })
+      )
+    );
+
+    // Execute all requests in parallel
+    forkJoin(productObservables).subscribe(results => {
+      // Update order items with translated names
+      const updatedOrder = { ...currentOrder };
+      updatedOrder.items = currentOrder.items!.map(item => {
+        const translation = results.find(r => r.orderItemId === item.id);
+        if (translation) {
+          return {
+            ...item,
+            product_name: translation.translatedName // Update with translated name
+          };
+        }
+        return item;
+      });
+
+      this.order.set(updatedOrder);
+      console.log('Order items updated with translations:', updatedOrder.items);
     });
   }
 

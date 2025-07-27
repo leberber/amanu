@@ -4801,7 +4801,7 @@ describe('HeaderComponent', () => {
 
 === frontend/src/app/layout/header/header.component.ts ===
 
-// src/app/layout/header/header.component.ts
+// frontend/src/app/layout/header/header.component.ts
 import { Component, OnInit, OnDestroy, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
@@ -4900,6 +4900,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.loadCartItems();
   }
 
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
+  }
+
   private initializeTheme(): void {
     this.isDarkMode.set(document.querySelector('html')?.classList.contains('my-app-dark') || false);
   }
@@ -4913,12 +4917,31 @@ export class HeaderComponent implements OnInit, OnDestroy {
     );
   }
 
+  // 🌍 UPDATED: Enhanced language change handling
   private subscribeToLanguageChanges(): void {
     this.subscriptions.push(
-      this.translationService.currentLanguage$.subscribe(() => {
-        this.buildMenus(); // Rebuild menus when language changes
+      this.translationService.currentLanguage$.subscribe((newLanguage) => {
+        console.log('Header detected language change to:', newLanguage);
+        
+        // Rebuild menus with new translations
+        this.buildMenus();
+        
+        // 🆕 Notify other components about language change
+        // This triggers a refresh of data in product lists, home page, etc.
+        this.notifyLanguageChange(newLanguage);
       })
     );
+  }
+
+  // 🆕 NEW: Method to notify other parts of app about language changes
+  private notifyLanguageChange(newLanguage: string): void {
+    // Dispatch a custom event that other components can listen to
+    window.dispatchEvent(new CustomEvent('languageChanged', { 
+      detail: { language: newLanguage } 
+    }));
+    
+    // Alternative: Could also use a shared service to broadcast changes
+    console.log('Language change notification sent:', newLanguage);
   }
 
   private loadInitialUserData(): void {
@@ -4968,7 +4991,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Menu Configuration with translations
+  // 🌍 UPDATED: Enhanced menu building with better translation handling
   private buildMenus(): void {
     const baseItems: MenuItem[] = [
       {
@@ -5020,6 +5043,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.userMenuItems.set(
       this.authService.isLoggedIn ? this.getUserMenuItems() : []
     );
+
+    console.log('Menus rebuilt with current language:', this.translationService.getCurrentLanguage());
   }
 
   // Add trackBy function for better change detection
@@ -5033,27 +5058,27 @@ export class HeaderComponent implements OnInit, OnDestroy {
       icon: 'pi pi-cog',
       items: [
         {
-          label: this.translateService.instant('common.home'), // Dashboard
+          label: this.translateService.instant('admin.navigation.dashboard'),
           icon: 'pi pi-chart-bar',
           routerLink: '/admin'
         },
         {
-          label: this.translateService.instant('header.orders'),
+          label: this.translateService.instant('admin.navigation.orders'),
           icon: 'pi pi-list',
           routerLink: '/admin/orders'
         },
         {
-          label: 'Users', // We'll add this translation later
+          label: this.translateService.instant('admin.navigation.users'),
           icon: 'pi pi-users',
           routerLink: '/admin/users'
         },
         {
-          label: this.translateService.instant('common.products'),
+          label: this.translateService.instant('admin.navigation.products'),
           icon: 'pi pi-tag',
           routerLink: '/admin/products'
         },
         {
-          label: 'Categories', // We'll add this translation later
+          label: this.translateService.instant('admin.navigation.categories'),
           icon: 'pi pi-tags',
           routerLink: '/admin/categories'
         }
@@ -5079,10 +5104,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
         command: () => this.logout()
       }
     ];
-  }
-
-  ngOnDestroy(): void {
-    this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 }
 
@@ -5792,12 +5813,17 @@ describe('HomeComponent', () => {
 
 === frontend/src/app/pages/home/home.component.ts ===
 
-// src/app/pages/home/home.component.ts
-import { Component } from '@angular/core';
+// frontend/src/app/pages/home/home.component.ts
+import { Component, inject, OnInit, OnDestroy, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { TranslateModule } from '@ngx-translate/core';
+import { Subscription } from 'rxjs';
+
+import { ProductService } from '../../services/product.service';
+import { TranslationService } from '../../services/translation.service';
+import { Category } from '../../models/product.model';
 
 @Component({
   selector: 'app-home',
@@ -5806,8 +5832,24 @@ import { TranslateModule } from '@ngx-translate/core';
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'
 })
-export class HomeComponent {
-  categories = [
+export class HomeComponent implements OnInit, OnDestroy {
+  private productService = inject(ProductService);
+  private translationService = inject(TranslationService);
+  
+  // 🆕 Dynamic categories from API
+  categories = signal<Array<{
+    id: number;
+    name: string;
+    description: string;
+    image: string;
+    link: string;
+  }>>([]);
+  
+  // 🆕 Subscription for language changes
+  private languageSubscription?: Subscription;
+  
+  // 🆕 Fallback categories (in case API fails)
+  private fallbackCategories = [
     { 
       name: 'home.categories.fresh_fruits.name',
       description: 'home.categories.fresh_fruits.description',
@@ -5827,6 +5869,71 @@ export class HomeComponent {
       link: '/products?category=3'
     }
   ];
+
+  ngOnInit(): void {
+    // 🆕 Subscribe to language changes - refresh categories when language changes
+    this.languageSubscription = this.translationService.currentLanguage$.subscribe(() => {
+      console.log('Language changed in home component, reloading categories...');
+      this.loadCategories();
+    });
+    
+    // Load initial categories
+    this.loadCategories();
+  }
+
+  ngOnDestroy(): void {
+    // 🆕 Cleanup language subscription
+    if (this.languageSubscription) {
+      this.languageSubscription.unsubscribe();
+    }
+  }
+
+  // 🆕 Load categories from API with translation support
+  private loadCategories(): void {
+    this.productService.getCategories(true).subscribe({
+      next: (apiCategories: Category[]) => {
+        console.log('Categories loaded from API with translations:', apiCategories);
+        
+        // Transform API categories to component format
+        const transformedCategories = apiCategories.map(category => ({
+          id: category.id,
+          name: category.name, // This is already translated by the API
+          description: category.description || '', // This is already translated by the API
+          image: category.image_url || this.getDefaultImageForCategory(category.name),
+          link: `/products?category=${category.id}`
+        }));
+        
+        this.categories.set(transformedCategories);
+      },
+      error: (error) => {
+        console.error('Error loading categories, using fallback:', error);
+        // Use fallback categories if API fails
+        this.categories.set(this.fallbackCategories.map((cat, index) => ({
+          id: index + 1,
+          name: cat.name,
+          description: cat.description,
+          image: cat.image,
+          link: cat.link
+        })));
+      }
+    });
+  }
+
+  // 🆕 Helper method to get default images based on category name
+  private getDefaultImageForCategory(categoryName: string): string {
+    const name = categoryName.toLowerCase();
+    
+    if (name.includes('fruit') || name.includes('فواكه')) {
+      return 'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?auto=format&fit=crop&w=1470&q=80';
+    } else if (name.includes('vegetable') || name.includes('légume') || name.includes('خضروات')) {
+      return 'https://images.unsplash.com/photo-1518843875459-f738682238a6?auto=format&fit=crop&w=1442&q=80';
+    } else if (name.includes('organic') || name.includes('bio') || name.includes('عضوي')) {
+      return 'https://images.unsplash.com/photo-1576675466969-38eeae4b41f6?auto=format&fit=crop&w=1442&q=80';
+    } else {
+      // Default fallback image
+      return 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=1470&q=80';
+    }
+  }
 }
 
 === frontend/src/app/pages/products/product-detail/product-detail.component.scss ===
@@ -6254,13 +6361,13 @@ describe('ProductListComponent', () => {
 
 === frontend/src/app/pages/products/product-list/product-list.component.ts ===
 
-// src/app/pages/products/product-list/product-list.component.ts
-import { Component, computed, effect, inject, OnInit, signal } from '@angular/core';
+// frontend/src/app/pages/products/product-list/product-list.component.ts
+import { Component, computed, effect, inject, OnInit, signal, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
-import { Observable, forkJoin, of } from 'rxjs';
+import { Observable, forkJoin, of, Subscription } from 'rxjs';
 import { switchMap, tap, map } from 'rxjs/operators';
 
 // PrimeNG imports
@@ -6280,6 +6387,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 // Services and models
 import { CartService } from '../../../services/cart.service';
 import { ProductService } from '../../../services/product.service';
+import { TranslationService } from '../../../services/translation.service'; // 🆕 ADD THIS
 import { Product, Category, ProductFilter } from '../../../models/product.model';
 
 interface SortOption {
@@ -6315,13 +6423,14 @@ interface LayoutOption {
   templateUrl: './product-list.component.html',
   styleUrl: './product-list.component.scss'
 })
-export class ProductListComponent implements OnInit {
+export class ProductListComponent implements OnInit, OnDestroy {
   // Services
   private productService = inject(ProductService);
   private route = inject(ActivatedRoute);
   private messageService = inject(MessageService);
   private cartService = inject(CartService);
   private translateService = inject(TranslateService);
+  private translationService = inject(TranslationService); // 🆕 ADD THIS
   
   // Signals
   products = signal<Product[]>([]);
@@ -6338,6 +6447,9 @@ export class ProductListComponent implements OnInit {
   
   // For quantities (keeping as object for performance)
   productQuantities: { [key: number]: number } = {};
+  
+  // 🆕 Subscription for language changes
+  private languageSubscription?: Subscription;
   
   // Filters signal with computed values for sort
   filters = signal<ProductFilter>({
@@ -6455,8 +6567,28 @@ export class ProductListComponent implements OnInit {
       this.layout.set(savedLayout);
     }
     
+    // 🆕 Subscribe to language changes - refresh data when language changes
+    this.languageSubscription = this.translationService.currentLanguage$.subscribe(() => {
+      console.log('Language changed in product list, reloading data...');
+      // Reload both categories and products when language changes
+      this.loadCategoriesAndProducts();
+    });
+    
+    this.loadCategoriesAndProducts();
+  }
+
+  ngOnDestroy(): void {
+    // 🆕 Cleanup language subscription
+    if (this.languageSubscription) {
+      this.languageSubscription.unsubscribe();
+    }
+  }
+
+  // 🆕 NEW: Combined method to load both categories and products
+  private loadCategoriesAndProducts(): void {
     this.productService.getCategories(true).subscribe({
       next: (categories) => {
+        console.log('Categories loaded with translations:', categories);
         this.categories.set(categories);
         this.selectedCategories.set([...categories]);
         
@@ -6523,6 +6655,7 @@ export class ProductListComponent implements OnInit {
       const currentFilters = { ...this.filters(), category_id: selectedCats[0].id };
       return this.productService.getProducts(currentFilters).pipe(
         tap(products => {
+          console.log('Products loaded with translations:', products);
           this.products.set(products);
           this.initializeQuantities(products);
           this.loading.set(false);
@@ -6558,6 +6691,7 @@ export class ProductListComponent implements OnInit {
         // Sort the combined results according to the current sort option
         this.sortProducts(allProducts);
         
+        console.log('Combined products loaded with translations:', allProducts);
         this.products.set(allProducts);
         this.initializeQuantities(allProducts);
         this.loading.set(false);
@@ -6683,6 +6817,7 @@ export class ProductListComponent implements OnInit {
     
     this.cartService.addToCart(product, actualQuantity).subscribe({
       next: () => {
+        // Success message can be uncommented if needed
         // this.messageService.add({
         //   severity: 'success',
         //   summary: this.translateService.instant('products.cart.added_to_cart'),
@@ -9509,10 +9644,13 @@ import { DividerModule } from 'primeng/divider';
 import { TooltipModule } from 'primeng/tooltip';
 import { SelectModule } from 'primeng/select';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Subscription } from 'rxjs';
+import { Subscription, forkJoin, of } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
 
 import { CartService, CartItem } from '../../services/cart.service';
 import { AuthService } from '../../services/auth.service';
+import { ProductService } from '../../services/product.service'; // Add this import
+import { TranslationService } from '../../services/translation.service'; // Add this import
 
 @Component({
   selector: 'app-cart-page',
@@ -9540,6 +9678,8 @@ export class CartComponent implements OnInit, OnDestroy {
   private messageService = inject(MessageService);
   private router = inject(Router);
   private translateService = inject(TranslateService);
+  private productService = inject(ProductService); // Add this
+  private translationService = inject(TranslationService); // Add this
   
   // Signals
   cartItems = signal<CartItem[]>([]);
@@ -9558,6 +9698,7 @@ export class CartComponent implements OnInit, OnDestroy {
   
   // Subscription management
   private cartSubscription?: Subscription;
+  private languageSubscription?: Subscription;
   
   ngOnInit() {
     this.loadCart();
@@ -9569,6 +9710,15 @@ export class CartComponent implements OnInit, OnDestroy {
       items.forEach(item => {
         this.productQuantities[item.id] = item.quantity;
       });
+      
+      // 🆕 Load translated names for cart items
+      this.loadTranslatedNames();
+    });
+
+    // 🆕 Subscribe to language changes
+    this.languageSubscription = this.translationService.currentLanguage$.subscribe(() => {
+      console.log('Language changed in cart, reloading translated names...');
+      this.loadTranslatedNames();
     });
   }
   
@@ -9576,6 +9726,54 @@ export class CartComponent implements OnInit, OnDestroy {
     if (this.cartSubscription) {
       this.cartSubscription.unsubscribe();
     }
+    if (this.languageSubscription) {
+      this.languageSubscription.unsubscribe();
+    }
+  }
+
+  // 🆕 NEW: Load translated names for cart items
+  private loadTranslatedNames(): void {
+    const currentItems = this.cartItems();
+    if (currentItems.length === 0) return;
+
+    const currentLanguage = this.translationService.getCurrentLanguage();
+    
+    // Create observables to fetch each product with translations
+    const productObservables = currentItems.map(item => 
+      this.productService.getProduct(item.product_id).pipe(
+        map(product => ({
+          cartItemId: item.id,
+          translatedName: product.name, // This will be translated by the API
+          translatedDescription: product.description || ''
+        })),
+        catchError(error => {
+          console.error(`Error loading product ${item.product_id}:`, error);
+          return of({
+            cartItemId: item.id,
+            translatedName: item.product_name, // Fallback to original name
+            translatedDescription: ''
+          });
+        })
+      )
+    );
+
+    // Execute all requests in parallel
+    forkJoin(productObservables).subscribe(results => {
+      // Update cart items with translated names
+      const updatedItems = currentItems.map(item => {
+        const translation = results.find(r => r.cartItemId === item.id);
+        if (translation) {
+          return {
+            ...item,
+            product_name: translation.translatedName // Update with translated name
+          };
+        }
+        return item;
+      });
+
+      this.cartItems.set(updatedItems);
+      console.log('Cart items updated with translations:', updatedItems);
+    });
   }
   
   loadCart() {
@@ -9589,6 +9787,9 @@ export class CartComponent implements OnInit, OnDestroy {
           this.productQuantities[item.id] = item.quantity;
         });
         this.loading.set(false);
+        
+        // 🆕 Load translated names after loading cart
+        this.loadTranslatedNames();
       },
       error: (error) => {
         console.error('Error loading cart:', error);
@@ -9637,12 +9838,6 @@ export class CartComponent implements OnInit, OnDestroy {
   removeItem(itemId: string) {
     this.cartService.removeCartItem(itemId).subscribe({
       next: () => {
-        // this.messageService.add({
-        //   severity: 'success',
-        //   summary: this.translateService.instant('cart.item_removed'),
-        //   detail: this.translateService.instant('cart.item_removed_message'),
-        //   life: 3000
-        // });
         // Clean up the quantities object
         delete this.productQuantities[itemId];
       },
@@ -10910,8 +11105,8 @@ export class ProductService {
     return this.apiService.delete<void>(`/products/${productId}`);
   }
 
+  // 🌍 UPDATED: Automatically include language parameter
   getProducts(filters?: ProductFilter): Observable<Product[]> {
-    // Convert filters to query params and add language
     const params: any = {
       lang: this.translationService.getCurrentLanguage() // Add current language
     };
@@ -10927,6 +11122,7 @@ export class ProductService {
     return this.apiService.get<Product[]>('/products', { params });
   }
 
+  // 🌍 UPDATED: Include language parameter
   getProduct(id: number): Observable<Product> {
     const params = {
       lang: this.translationService.getCurrentLanguage()
@@ -10934,6 +11130,7 @@ export class ProductService {
     return this.apiService.get<Product>(`/products/${id}`, { params });
   }
 
+  // 🌍 UPDATED: Include language parameter
   getProductsByCategory(categoryId: number, activeOnly = true): Observable<Product[]> {
     const params = {
       active_only: activeOnly,
@@ -10942,7 +11139,7 @@ export class ProductService {
     return this.apiService.get<Product[]>(`/products/category/${categoryId}`, { params });
   }
 
-  // Category methods
+  // Category methods with translation support
   createCategory(categoryData: any): Observable<Category> {
     return this.apiService.post<Category>('/categories', categoryData);
   }
@@ -10955,6 +11152,7 @@ export class ProductService {
     return this.apiService.delete<void>(`/categories/${categoryId}`);
   }
 
+  // 🌍 UPDATED: Include language parameter for categories
   getCategories(activeOnly = false): Observable<Category[]> {
     const params = { 
       active_only: activeOnly,
@@ -10963,11 +11161,18 @@ export class ProductService {
     return this.apiService.get<Category[]>('/categories', { params });
   }
 
+  // 🌍 UPDATED: Include language parameter
   getCategory(id: number): Observable<Category> {
     const params = {
       lang: this.translationService.getCurrentLanguage()
     };
     return this.apiService.get<Category>(`/categories/${id}`, { params });
+  }
+
+  // 🆕 NEW: Method to refresh data when language changes
+  refreshDataForLanguage(): void {
+    // This can be called when language changes to refresh any cached data
+    console.log('Language changed to:', this.translationService.getCurrentLanguage());
   }
 }
 
@@ -14680,7 +14885,8 @@ from typing import Any, List, Optional
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlmodel import Session, select, or_
+from sqlmodel import Session, select, or_, func
+from sqlalchemy import Text
 
 from app.database import get_session
 from app.models.product import Product, ProductCreate, ProductUpdate, ProductRead
@@ -14751,18 +14957,31 @@ def read_products(
         query = query.where(Product.price <= max_price)
     
     if search:
-        # Search in both default fields and translations
+        # Search in basic text fields (default language)
         search_conditions = [
             Product.name.ilike(f"%{search}%"),
             Product.description.ilike(f"%{search}%")
         ]
         
-        # Add translation-based search for better multilingual support
-        # Note: SQLite JSON search is limited, this is a basic implementation
-        search_conditions.extend([
-            Product.name_translations.ilike(f"%{search}%"),
-            Product.description_translations.ilike(f"%{search}%")
-        ])
+        # Search in translations for the current language
+        if lang and lang in ['en', 'fr', 'ar']:
+            # PostgreSQL JSON extraction: Search in specific language translations
+            search_conditions.extend([
+                func.coalesce(
+                    func.json_extract_path_text(Product.name_translations, lang),
+                    Product.name
+                ).ilike(f"%{search}%"),
+                func.coalesce(
+                    func.json_extract_path_text(Product.description_translations, lang),
+                    Product.description
+                ).ilike(f"%{search}%")
+            ])
+        else:
+            # Fallback: Search in all translations (convert entire JSON to text)
+            search_conditions.extend([
+                func.cast(Product.name_translations, Text).ilike(f"%{search}%"),
+                func.cast(Product.description_translations, Text).ilike(f"%{search}%")
+            ])
         
         query = query.where(or_(*search_conditions))
     

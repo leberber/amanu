@@ -12,10 +12,13 @@ import { DividerModule } from 'primeng/divider';
 import { TooltipModule } from 'primeng/tooltip';
 import { SelectModule } from 'primeng/select';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Subscription } from 'rxjs';
+import { Subscription, forkJoin, of } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
 
 import { CartService, CartItem } from '../../services/cart.service';
 import { AuthService } from '../../services/auth.service';
+import { ProductService } from '../../services/product.service'; // Add this import
+import { TranslationService } from '../../services/translation.service'; // Add this import
 
 @Component({
   selector: 'app-cart-page',
@@ -43,6 +46,8 @@ export class CartComponent implements OnInit, OnDestroy {
   private messageService = inject(MessageService);
   private router = inject(Router);
   private translateService = inject(TranslateService);
+  private productService = inject(ProductService); // Add this
+  private translationService = inject(TranslationService); // Add this
   
   // Signals
   cartItems = signal<CartItem[]>([]);
@@ -61,6 +66,7 @@ export class CartComponent implements OnInit, OnDestroy {
   
   // Subscription management
   private cartSubscription?: Subscription;
+  private languageSubscription?: Subscription;
   
   ngOnInit() {
     this.loadCart();
@@ -72,6 +78,15 @@ export class CartComponent implements OnInit, OnDestroy {
       items.forEach(item => {
         this.productQuantities[item.id] = item.quantity;
       });
+      
+      // 🆕 Load translated names for cart items
+      this.loadTranslatedNames();
+    });
+
+    // 🆕 Subscribe to language changes
+    this.languageSubscription = this.translationService.currentLanguage$.subscribe(() => {
+      console.log('Language changed in cart, reloading translated names...');
+      this.loadTranslatedNames();
     });
   }
   
@@ -79,6 +94,54 @@ export class CartComponent implements OnInit, OnDestroy {
     if (this.cartSubscription) {
       this.cartSubscription.unsubscribe();
     }
+    if (this.languageSubscription) {
+      this.languageSubscription.unsubscribe();
+    }
+  }
+
+  // 🆕 NEW: Load translated names for cart items
+  private loadTranslatedNames(): void {
+    const currentItems = this.cartItems();
+    if (currentItems.length === 0) return;
+
+    const currentLanguage = this.translationService.getCurrentLanguage();
+    
+    // Create observables to fetch each product with translations
+    const productObservables = currentItems.map(item => 
+      this.productService.getProduct(item.product_id).pipe(
+        map(product => ({
+          cartItemId: item.id,
+          translatedName: product.name, // This will be translated by the API
+          translatedDescription: product.description || ''
+        })),
+        catchError(error => {
+          console.error(`Error loading product ${item.product_id}:`, error);
+          return of({
+            cartItemId: item.id,
+            translatedName: item.product_name, // Fallback to original name
+            translatedDescription: ''
+          });
+        })
+      )
+    );
+
+    // Execute all requests in parallel
+    forkJoin(productObservables).subscribe(results => {
+      // Update cart items with translated names
+      const updatedItems = currentItems.map(item => {
+        const translation = results.find(r => r.cartItemId === item.id);
+        if (translation) {
+          return {
+            ...item,
+            product_name: translation.translatedName // Update with translated name
+          };
+        }
+        return item;
+      });
+
+      this.cartItems.set(updatedItems);
+      console.log('Cart items updated with translations:', updatedItems);
+    });
   }
   
   loadCart() {
@@ -92,6 +155,9 @@ export class CartComponent implements OnInit, OnDestroy {
           this.productQuantities[item.id] = item.quantity;
         });
         this.loading.set(false);
+        
+        // 🆕 Load translated names after loading cart
+        this.loadTranslatedNames();
       },
       error: (error) => {
         console.error('Error loading cart:', error);
@@ -140,12 +206,6 @@ export class CartComponent implements OnInit, OnDestroy {
   removeItem(itemId: string) {
     this.cartService.removeCartItem(itemId).subscribe({
       next: () => {
-        // this.messageService.add({
-        //   severity: 'success',
-        //   summary: this.translateService.instant('cart.item_removed'),
-        //   detail: this.translateService.instant('cart.item_removed_message'),
-        //   life: 3000
-        // });
         // Clean up the quantities object
         delete this.productQuantities[itemId];
       },

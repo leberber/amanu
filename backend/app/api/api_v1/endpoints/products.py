@@ -3,7 +3,8 @@ from typing import Any, List, Optional
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlmodel import Session, select, or_
+from sqlmodel import Session, select, or_, func
+from sqlalchemy import Text
 
 from app.database import get_session
 from app.models.product import Product, ProductCreate, ProductUpdate, ProductRead
@@ -74,18 +75,31 @@ def read_products(
         query = query.where(Product.price <= max_price)
     
     if search:
-        # Search in both default fields and translations
+        # Search in basic text fields (default language)
         search_conditions = [
             Product.name.ilike(f"%{search}%"),
             Product.description.ilike(f"%{search}%")
         ]
         
-        # Add translation-based search for better multilingual support
-        # Note: SQLite JSON search is limited, this is a basic implementation
-        search_conditions.extend([
-            Product.name_translations.ilike(f"%{search}%"),
-            Product.description_translations.ilike(f"%{search}%")
-        ])
+        # Search in translations for the current language
+        if lang and lang in ['en', 'fr', 'ar']:
+            # PostgreSQL JSON extraction: Search in specific language translations
+            search_conditions.extend([
+                func.coalesce(
+                    func.json_extract_path_text(Product.name_translations, lang),
+                    Product.name
+                ).ilike(f"%{search}%"),
+                func.coalesce(
+                    func.json_extract_path_text(Product.description_translations, lang),
+                    Product.description
+                ).ilike(f"%{search}%")
+            ])
+        else:
+            # Fallback: Search in all translations (convert entire JSON to text)
+            search_conditions.extend([
+                func.cast(Product.name_translations, Text).ilike(f"%{search}%"),
+                func.cast(Product.description_translations, Text).ilike(f"%{search}%")
+            ])
         
         query = query.where(or_(*search_conditions))
     
