@@ -18,6 +18,12 @@ import { ProductService } from '../../../services/product.service';
 import { Product } from '../../../models/product.model';
 import { Category } from '../../../models/category.model';
 
+// 🆕 UPDATED: Extended Product interface to include translations
+interface ProductWithTranslations extends Product {
+  name_translations?: { [key: string]: string };
+  description_translations?: { [key: string]: string };
+}
+
 @Component({
   selector: 'app-admin-add-product',
   standalone: true,
@@ -39,6 +45,25 @@ import { Category } from '../../../models/category.model';
     .field {
       margin-bottom: 1rem;
     }
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin: 1.5rem 0 1rem 0;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--surface-border);
+      color: var(--primary-color);
+    }
+    .language-section {
+      background: var(--surface-50);
+      padding: 1rem;
+      border-radius: 6px;
+      margin-bottom: 1rem;
+      border-left: 4px solid var(--primary-color);
+    }
+    .language-flag {
+      font-size: 1.2rem;
+      margin-right: 0.5rem;
+    }
   `]
 })
 export class AdminAddProductComponent implements OnInit {
@@ -49,19 +74,19 @@ export class AdminAddProductComponent implements OnInit {
   // Mode detection
   isEditMode = signal(false);
   editProductId: number | null = null;
-  currentProduct: Product | null = null;
+  currentProduct: ProductWithTranslations | null = null;
 
   // Dropdown options
   unitOptions = [
-    { label: 'Kg', value: 'kg' },
-    { label: 'Gram', value: 'gram' },
+    { label: 'Kilogram (Kg)', value: 'kg' },
+    { label: 'Gram (g)', value: 'gram' },
     { label: 'Piece', value: 'piece' },
     { label: 'Bunch', value: 'bunch' },
     { label: 'Dozen', value: 'dozen' },
-    { label: 'Pound', value: 'pound' }
+    { label: 'Pound (lb)', value: 'pound' }
   ];
 
-  // Dynamic categories - loaded from API
+  // Dynamic categories
   categoryOptions = signal<{ label: string; value: number }[]>([]);
 
   // Computed properties
@@ -80,13 +105,28 @@ export class AdminAddProductComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router
   ) {
+    // 🆕 UPDATED: Enhanced form WITHOUT primary name/description fields
     this.productForm = this.fb.group({
-      name: ['', [Validators.required, Validators.minLength(1)]],
-      description: [''],
+      // 🚫 REMOVED: Primary name and description
+      // name: ['', [Validators.required, Validators.minLength(1)]],
+      // description: [''],
+      
+      // 🆕 NEW: Only translation fields for all 3 languages (all required)
+      name_en: ['', [Validators.required, Validators.minLength(1)]],
+      name_fr: ['', [Validators.required, Validators.minLength(1)]],
+      name_ar: ['', [Validators.required, Validators.minLength(1)]],
+      
+      description_en: [''],
+      description_fr: [''],
+      description_ar: [''],
+      
+      // Pricing & Inventory
       price: [null, [Validators.required, Validators.min(0.01)]],
       unit: ['', Validators.required],
       stock_quantity: [0, [Validators.required, Validators.min(0)]],
       category_id: [null, Validators.required],
+      
+      // Settings
       image_url: [''],
       is_organic: [false],
       is_active: [true]
@@ -99,13 +139,11 @@ export class AdminAddProductComponent implements OnInit {
   }
 
   detectMode() {
-    // Check route data first
     const routeData = this.route.snapshot.data;
     if (routeData['mode'] === 'edit') {
       this.isEditMode.set(true);
     }
 
-    // Check for ID parameter
     this.route.paramMap.subscribe(params => {
       const id = params.get('id');
       if (id) {
@@ -128,8 +166,6 @@ export class AdminAddProductComponent implements OnInit {
         
         this.categoryOptions.set(options);
         this.categoriesLoading.set(false);
-        
-        console.log('Categories loaded:', options);
       },
       error: (error) => {
         console.error('Error loading categories:', error);
@@ -151,12 +187,23 @@ export class AdminAddProductComponent implements OnInit {
     
     this.productService.getProduct(this.editProductId).subscribe({
       next: (product: Product) => {
-        this.currentProduct = product;
+        this.currentProduct = product as ProductWithTranslations;
         
-        // Populate form with existing product data
+        // 🆕 UPDATED: Populate form with existing product data including translations
         this.productForm.patchValue({
-          name: product.name,
-          description: product.description || '',
+          // 🚫 REMOVED: Primary name and description
+          // name: product.name,
+          // description: product.description || '',
+          
+          // 🆕 NEW: Load translation values or fallback to main name/description
+          name_en: this.currentProduct.name_translations?.['en'] || product.name,
+          name_fr: this.currentProduct.name_translations?.['fr'] || product.name,
+          name_ar: this.currentProduct.name_translations?.['ar'] || product.name,
+          
+          description_en: this.currentProduct.description_translations?.['en'] || product.description || '',
+          description_fr: this.currentProduct.description_translations?.['fr'] || product.description || '',
+          description_ar: this.currentProduct.description_translations?.['ar'] || product.description || '',
+          
           price: product.price,
           unit: product.unit,
           stock_quantity: product.stock_quantity,
@@ -167,7 +214,6 @@ export class AdminAddProductComponent implements OnInit {
         });
         
         this.loading.set(false);
-        console.log('Product loaded for editing:', product);
       },
       error: (error) => {
         console.error('Error loading product:', error);
@@ -179,7 +225,6 @@ export class AdminAddProductComponent implements OnInit {
           detail: 'Failed to load product. Please try again.'
         });
         
-        // Redirect back if product not found
         this.goBackToProductsList();
       }
     });
@@ -201,7 +246,34 @@ export class AdminAddProductComponent implements OnInit {
 
     this.loading.set(true);
     
-    const productData = this.productForm.value;
+    const formValues = this.productForm.value;
+    
+    // 🆕 NEW: Build the product data with translation JSON objects
+    const productData = {
+      name: formValues.name_en, // Use English as primary name
+      description: formValues.description_en || '', // Use English as primary description
+      
+      // 🆕 NEW: Create translation JSON objects
+      name_translations: {
+        en: formValues.name_en,
+        fr: formValues.name_fr,
+        ar: formValues.name_ar
+      },
+      description_translations: {
+        en: formValues.description_en || '',
+        fr: formValues.description_fr || '',
+        ar: formValues.description_ar || ''
+      },
+      
+      // Other fields
+      price: formValues.price,
+      unit: formValues.unit,
+      stock_quantity: formValues.stock_quantity,
+      category_id: formValues.category_id,
+      image_url: formValues.image_url || '',
+      is_organic: formValues.is_organic,
+      is_active: formValues.is_active
+    };
     
     if (this.isEditMode() && this.editProductId) {
       // UPDATE existing product
@@ -215,9 +287,6 @@ export class AdminAddProductComponent implements OnInit {
             detail: `Product "${updatedProduct.name}" has been updated successfully!`
           });
           
-          console.log('Product updated successfully:', updatedProduct);
-          
-          // Navigate back to products list after delay
           setTimeout(() => {
             this.goBackToProductsList();
           }, 1500);
@@ -239,9 +308,6 @@ export class AdminAddProductComponent implements OnInit {
             detail: `Product "${createdProduct.name}" has been created successfully!`
           });
           
-          console.log('Product created successfully:', createdProduct);
-          
-          // Navigate back to products list after delay
           setTimeout(() => {
             this.goBackToProductsList();
           }, 1500);

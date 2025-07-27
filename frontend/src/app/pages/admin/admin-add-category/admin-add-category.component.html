@@ -1,141 +1,277 @@
 <!-- src/app/pages/admin/admin-add-category/admin-add-category.component.html -->
-
-<!-- Page Mode (for add/edit as a standalone page) -->
-<div *ngIf="!visible()" class="h-full pt-2 px-2">
-  <p-toast></p-toast>
-  
-  <!-- Page Header -->
-  <div class="flex justify-content-between align-items-center mb-4">
-    <h1 class="text-3xl font-medium m-0">{{ pageTitle }}</h1>
-    <p-button 
-      label="Back to Categories" 
-      icon="pi pi-arrow-left"
-      severity="secondary"
-      (onClick)="goBackToCategoriesList()"
-      [disabled]="loading()"
-    />
-  </div>
-
-  <!-- Page Form -->
+<div class="content-height p-4">
   <p-card>
     <ng-template pTemplate="header">
-      <div class="flex align-items-center gap-2">
-        <i [class]="isEditMode() ? 'pi pi-pencil' : 'pi pi-plus'"></i>
-        <span class="font-medium">{{ pageTitle }}</span>
+      <div class="flex justify-content-between align-items-center p-4">
+        <h2 class="m-0">{{ pageTitle }}</h2>
+        <p-button 
+          icon="pi pi-arrow-left" 
+          label="Cancel" 
+          severity="secondary" 
+          (onClick)="onCancel()"
+        />
       </div>
     </ng-template>
 
-    <!-- Form Content (shared) -->
-    <ng-container *ngTemplateOutlet="formContent"></ng-container>
-  </p-card>
-</div>
-
-<!-- Modal Mode (for add from dashboard) -->
-<p-dialog 
-  [(visible)]="visible" 
-  [modal]="true" 
-  [closable]="true"
-  [draggable]="false"
-  [resizable]="false"
-  [header]="pageTitle"
-  [style]="{width: '500px'}"
-  [blockScroll]="true"
-  [dismissableMask]="false"
-  [closeOnEscape]="true"
-  position="center"
->
-  <!-- Form Content (shared) -->
-  <ng-container *ngTemplateOutlet="formContent"></ng-container>
-</p-dialog>
-
-<!-- Shared Form Template -->
-<ng-template #formContent>
-  <form [formGroup]="categoryForm" (ngSubmit)="onSubmit()" class="p-4">
-    
-    <!-- Category Name -->
-    <div class="field mb-4">
-      <label for="name" class="block font-medium mb-2">
-        Category Name *
-      </label>
-      <input 
-        id="name"
-        type="text" 
-        pInputText 
-        formControlName="name"
-        placeholder="Enter category name"
-        [class.ng-invalid]="categoryForm.get('name')?.invalid && categoryForm.get('name')?.touched"
-        class="w-full"
-      />
-      <small 
-        *ngIf="categoryForm.get('name')?.invalid && categoryForm.get('name')?.touched" 
-        class="p-error block mt-1"
-      >
-        Category name is required
-      </small>
-    </div>
-
-    <!-- Description -->
-    <div class="field mb-4">
-      <label for="description" class="block font-medium mb-2">
-        Description
-      </label>
-      <textarea 
-        id="description"
-        pInputTextarea 
-        formControlName="description"
-        placeholder="Enter category description (optional)"
-        rows="3"
-        class="w-full"
-      ></textarea>
-    </div>
-
-    <!-- Image URL -->
-    <div class="field mb-4">
-      <label for="image_url" class="block font-medium mb-2">
-        Image URL (Optional)
-      </label>
-      <input 
-        id="image_url"
-        type="url" 
-        pInputText 
-        formControlName="image_url"
-        placeholder="Enter image URL (optional)"
-        class="w-full"
-      />
-    </div>
-
-    <!-- Active Status (only show in edit mode) -->
-    <div *ngIf="isEditMode()" class="field mb-4">
-      <div class="flex align-items-center">
-        <p-checkbox 
-          formControlName="is_active" 
-          binary="true" 
-          inputId="is_active"
-        />
-        <label for="is_active" class="ml-2">
-          Active Category
-        </label>
-      </div>
-    </div>
-
-    <!-- Form Actions -->
-    <div class="flex justify-content-end gap-2 pt-3 border-top-1 surface-border">
-      <p-button 
-        type="button"
-        label="Cancel" 
-        severity="secondary"
-        (onClick)="onCancel()"
-        [disabled]="loading()"
-      />
+    <form [formGroup]="categoryForm" (ngSubmit)="onSubmit()" class="p-4">
       
-      <p-button 
-        type="submit"
-        [label]="submitButtonLabel"
-        [loading]="loading()"
-        [disabled]="categoryForm.invalid"
-        icon="pi pi-check"
-        severity="success"
-      />
-    </div>
-  </form>
-</ng-template>
+      <!-- 🆕 UPDATED: Category Names Section (No Primary Field) -->
+      <div class="section-title">
+        <i class="pi pi-globe mr-2"></i>Category Names *
+      </div>
+      <p class="text-sm text-color-secondary mb-3">
+        Provide the category name in all supported languages. English will be used as the primary name.
+      </p>
+
+      <!-- English Name (Primary) -->
+      <div class="language-section">
+        <div class="flex align-items-center mb-2">
+          <span class="language-flag">🇬🇧</span>
+          <strong>English Name (Primary) *</strong>
+        </div>
+        <div class="field">
+          <input 
+            type="text" 
+            id="name_en"
+            pInputText 
+            formControlName="name_en" 
+            placeholder="Enter category name in English"
+            class="w-full"
+            [class.ng-invalid]="categoryForm.get('name_en')?.invalid && categoryForm.get('name_en')?.touched"
+          />
+          <small 
+            *ngIf="categoryForm.get('name_en')?.invalid && categoryForm.get('name_en')?.touched" 
+            class="p-error"
+          >
+            <span *ngIf="categoryForm.get('name_en')?.errors?.['required']">
+              English name is required
+            </span>
+            <span *ngIf="categoryForm.get('name_en')?.errors?.['minlength']">
+              English name must be at least 1 character
+            </span>
+          </small>
+        </div>
+      </div>
+
+      <!-- French Name -->
+      <div class="language-section">
+        <div class="flex align-items-center mb-2">
+          <span class="language-flag">🇫🇷</span>
+          <strong>French Name (Nom en Français) *</strong>
+        </div>
+        <div class="field">
+          <input 
+            type="text" 
+            id="name_fr"
+            pInputText 
+            formControlName="name_fr" 
+            placeholder="Entrez le nom de la catégorie en français"
+            class="w-full"
+            [class.ng-invalid]="categoryForm.get('name_fr')?.invalid && categoryForm.get('name_fr')?.touched"
+          />
+          <small 
+            *ngIf="categoryForm.get('name_fr')?.invalid && categoryForm.get('name_fr')?.touched" 
+            class="p-error"
+          >
+            <span *ngIf="categoryForm.get('name_fr')?.errors?.['required']">
+              French name is required
+            </span>
+            <span *ngIf="categoryForm.get('name_fr')?.errors?.['minlength']">
+              French name must be at least 1 character
+            </span>
+          </small>
+        </div>
+      </div>
+
+      <!-- Arabic Name -->
+      <div class="language-section">
+        <div class="flex align-items-center mb-2">
+          <span class="language-flag">🇩🇿</span>
+          <strong>Arabic Name (الاسم بالعربية) *</strong>
+        </div>
+        <div class="field">
+          <input 
+            type="text" 
+            id="name_ar"
+            pInputText 
+            formControlName="name_ar" 
+            placeholder="أدخل اسم الفئة بالعربية"
+            class="w-full"
+            dir="rtl"
+            [class.ng-invalid]="categoryForm.get('name_ar')?.invalid && categoryForm.get('name_ar')?.touched"
+          />
+          <small 
+            *ngIf="categoryForm.get('name_ar')?.invalid && categoryForm.get('name_ar')?.touched" 
+            class="p-error"
+          >
+            <span *ngIf="categoryForm.get('name_ar')?.errors?.['required']">
+              Arabic name is required
+            </span>
+            <span *ngIf="categoryForm.get('name_ar')?.errors?.['minlength']">
+              Arabic name must be at least 1 character
+            </span>
+          </small>
+        </div>
+      </div>
+
+      <!-- 🆕 UPDATED: Category Descriptions Section -->
+      <div class="section-title">
+        <i class="pi pi-file-text mr-2"></i>Category Descriptions
+      </div>
+      <p class="text-sm text-color-secondary mb-3">
+        Provide detailed descriptions in all supported languages (optional).
+      </p>
+
+      <!-- English Description -->
+      <div class="language-section">
+        <div class="flex align-items-center mb-2">
+          <span class="language-flag">🇬🇧</span>
+          <strong>English Description</strong>
+        </div>
+        <div class="field">
+          <textarea 
+            id="description_en"
+            pTextarea 
+            formControlName="description_en" 
+            placeholder="Enter category description in English"
+            class="w-full"
+            rows="3"
+          ></textarea>
+        </div>
+      </div>
+
+      <!-- French Description -->
+      <div class="language-section">
+        <div class="flex align-items-center mb-2">
+          <span class="language-flag">🇫🇷</span>
+          <strong>French Description (Description en Français)</strong>
+        </div>
+        <div class="field">
+          <textarea 
+            id="description_fr"
+            pTextarea 
+            formControlName="description_fr" 
+            placeholder="Entrez la description de la catégorie en français"
+            class="w-full"
+            rows="3"
+          ></textarea>
+        </div>
+      </div>
+
+      <!-- Arabic Description -->
+      <div class="language-section">
+        <div class="flex align-items-center mb-2">
+          <span class="language-flag">🇩🇿</span>
+          <strong>Arabic Description (الوصف بالعربية)</strong>
+        </div>
+        <div class="field">
+          <textarea 
+            id="description_ar"
+            pTextarea 
+            formControlName="description_ar" 
+            placeholder="أدخل وصف الفئة بالعربية"
+            class="w-full"
+            rows="3"
+            dir="rtl"
+          ></textarea>
+        </div>
+      </div>
+
+      <!-- Settings Section -->
+      <div class="section-title">
+        <i class="pi pi-cog mr-2"></i>Settings
+      </div>
+
+      <div class="grid">
+        <div class="col-12">
+          <div class="field">
+            <label for="image_url">Image URL</label>
+            <input 
+              type="url" 
+              id="image_url"
+              pInputText 
+              formControlName="image_url" 
+              placeholder="Enter category image URL (e.g., https://example.com/image.jpg)"
+              class="w-full"
+            />
+            <small class="text-color-secondary">
+              Optional: Provide a URL to an image for this category
+            </small>
+          </div>
+        </div>
+
+        <div class="col-12">
+          <div class="field-checkbox">
+            <p-checkbox 
+              id="is_active" 
+              formControlName="is_active" 
+              binary="true"
+            />
+            <label for="is_active" class="ml-2">Active Category</label>
+            <small class="block text-color-secondary mt-1">
+              Uncheck to hide this category from customers
+            </small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Translation Help Text -->
+      <div class="mt-4 p-3 surface-100 border-round">
+        <div class="flex align-items-start">
+          <i class="pi pi-info-circle text-blue-500 mr-2 mt-1"></i>
+          <div>
+            <strong class="text-blue-500">Translation Guidelines:</strong>
+            <ul class="mt-2 mb-0 text-sm text-color-secondary">
+              <li>All language names are required to ensure consistent multilingual support</li>
+              <li>English will be used as the primary name in the database</li>
+              <li>Descriptions are optional but recommended for better category information</li>
+              <li>Use proper language-specific characters and formatting</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form Actions -->
+      <div class="flex justify-content-end gap-2 mt-4">
+        <p-button 
+          label="Cancel" 
+          severity="secondary" 
+          (onClick)="onCancel()"
+          [disabled]="loading()"
+          icon="pi pi-times"
+        />
+        <p-button 
+          type="submit" 
+          [label]="submitButtonLabel" 
+          [loading]="loading()"
+          [disabled]="categoryForm.invalid"
+          icon="pi pi-check"
+        />
+      </div>
+
+      <!-- Form Validation Summary (for debugging) -->
+      <div *ngIf="categoryForm.invalid && categoryForm.touched" class="mt-4 p-3 surface-200 border-round">
+        <div class="flex align-items-start">
+          <i class="pi pi-exclamation-triangle text-orange-500 mr-2 mt-1"></i>
+          <div>
+            <strong class="text-orange-500">Please fix the following errors:</strong>
+            <ul class="mt-2 mb-0 text-sm">
+              <li *ngIf="categoryForm.get('name_en')?.invalid && categoryForm.get('name_en')?.touched">
+                English name is required
+              </li>
+              <li *ngIf="categoryForm.get('name_fr')?.invalid && categoryForm.get('name_fr')?.touched">
+                French name is required
+              </li>
+              <li *ngIf="categoryForm.get('name_ar')?.invalid && categoryForm.get('name_ar')?.touched">
+                Arabic name is required
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </form>
+  </p-card>
+
+  <!-- Toast messages -->
+  <p-toast />
+</div>

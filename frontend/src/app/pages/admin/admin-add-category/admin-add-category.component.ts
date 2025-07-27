@@ -14,6 +14,13 @@ import { MessageService } from 'primeng/api';
 import { CardModule } from 'primeng/card';
 
 import { ProductService } from '../../../services/product.service';
+import { Category } from '../../../models/category.model';
+
+// 🆕 UPDATED: Extended Category interface to include translations
+interface CategoryWithTranslations extends Category {
+  name_translations?: { [key: string]: string };
+  description_translations?: { [key: string]: string };
+}
 
 @Component({
   selector: 'app-admin-add-category',
@@ -35,6 +42,25 @@ import { ProductService } from '../../../services/product.service';
     .field {
       margin-bottom: 1rem;
     }
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin: 1.5rem 0 1rem 0;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--surface-border);
+      color: var(--primary-color);
+    }
+    .language-section {
+      background: var(--surface-50);
+      padding: 1rem;
+      border-radius: 6px;
+      margin-bottom: 1rem;
+      border-left: 4px solid var(--primary-color);
+    }
+    .language-flag {
+      font-size: 1.2rem;
+      margin-right: 0.5rem;
+    }
   `]
 })
 export class AdminAddCategoryComponent implements OnInit {
@@ -45,6 +71,7 @@ export class AdminAddCategoryComponent implements OnInit {
   // NEW: Add page-based properties
   isEditMode = signal(false);
   editCategoryId: number | null = null;
+  currentCategory: CategoryWithTranslations | null = null;
 
   // NEW: Computed properties for page mode
   get pageTitle(): string {
@@ -62,9 +89,22 @@ export class AdminAddCategoryComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router
   ) {
+    // 🆕 UPDATED: Enhanced form WITHOUT primary name/description fields
     this.categoryForm = this.fb.group({
-      name: ['', [Validators.required, Validators.minLength(1)]],
-      description: [''],
+      // 🚫 REMOVED: Primary name and description
+      // name: ['', [Validators.required, Validators.minLength(1)]],
+      // description: [''],
+      
+      // 🆕 NEW: Only translation fields for all 3 languages (all required for names)
+      name_en: ['', [Validators.required, Validators.minLength(1)]],
+      name_fr: ['', [Validators.required, Validators.minLength(1)]],
+      name_ar: ['', [Validators.required, Validators.minLength(1)]],
+      
+      description_en: [''],
+      description_fr: [''],
+      description_ar: [''],
+      
+      // Settings
       image_url: [''],
       is_active: [true]
     });
@@ -87,7 +127,7 @@ export class AdminAddCategoryComponent implements OnInit {
       if (id) {
         this.editCategoryId = parseInt(id, 10);
         this.isEditMode.set(true);
-        this.loadCategoryForEdit(); // NOW CALLING THIS METHOD
+        this.loadCategoryForEdit();
       }
     });
   }
@@ -100,10 +140,23 @@ export class AdminAddCategoryComponent implements OnInit {
     
     this.productService.getCategory(this.editCategoryId).subscribe({
       next: (category) => {
-        // Populate form with existing category data
+        this.currentCategory = category as CategoryWithTranslations;
+        
+        // 🆕 UPDATED: Populate form with existing category data including translations
         this.categoryForm.patchValue({
-          name: category.name,
-          description: category.description || '',
+          // 🚫 REMOVED: Primary name and description
+          // name: category.name,
+          // description: category.description || '',
+          
+          // 🆕 NEW: Load translation values or fallback to main name/description
+          name_en: this.currentCategory.name_translations?.['en'] || category.name,
+          name_fr: this.currentCategory.name_translations?.['fr'] || category.name,
+          name_ar: this.currentCategory.name_translations?.['ar'] || category.name,
+          
+          description_en: this.currentCategory.description_translations?.['en'] || category.description || '',
+          description_fr: this.currentCategory.description_translations?.['fr'] || category.description || '',
+          description_ar: this.currentCategory.description_translations?.['ar'] || category.description || '',
+          
           image_url: category.image_url || '',
           is_active: category.is_active
         });
@@ -131,8 +184,13 @@ export class AdminAddCategoryComponent implements OnInit {
   show() {
     this.visible.set(true);
     this.categoryForm.reset({
-      name: '',
-      description: '',
+      // 🆕 UPDATED: Reset translation fields instead of primary fields
+      name_en: '',
+      name_fr: '',
+      name_ar: '',
+      description_en: '',
+      description_fr: '',
+      description_ar: '',
       image_url: '',
       is_active: true
     });
@@ -163,7 +221,29 @@ export class AdminAddCategoryComponent implements OnInit {
 
     this.loading.set(true);
     
-    const categoryData = this.categoryForm.value;
+    const formValues = this.categoryForm.value;
+    
+    // 🆕 NEW: Build the category data with translation JSON objects
+    const categoryData = {
+      name: formValues.name_en, // Use English as primary name
+      description: formValues.description_en || '', // Use English as primary description
+      
+      // 🆕 NEW: Create translation JSON objects
+      name_translations: {
+        en: formValues.name_en,
+        fr: formValues.name_fr,
+        ar: formValues.name_ar
+      },
+      description_translations: {
+        en: formValues.description_en || '',
+        fr: formValues.description_fr || '',
+        ar: formValues.description_ar || ''
+      },
+      
+      // Other fields
+      image_url: formValues.image_url || '',
+      is_active: formValues.is_active
+    };
     
     if (this.isEditMode() && this.editCategoryId) {
       // UPDATE existing category
@@ -184,8 +264,12 @@ export class AdminAddCategoryComponent implements OnInit {
             // Modal mode - close modal and reset
             this.visible.set(false);
             this.categoryForm.reset({
-              name: '',
-              description: '',
+              name_en: '',
+              name_fr: '',
+              name_ar: '',
+              description_en: '',
+              description_fr: '',
+              description_ar: '',
               image_url: '',
               is_active: true
             });
@@ -220,8 +304,12 @@ export class AdminAddCategoryComponent implements OnInit {
             // Modal mode - close modal and reset
             this.visible.set(false);
             this.categoryForm.reset({
-              name: '',
-              description: '',
+              name_en: '',
+              name_fr: '',
+              name_ar: '',
+              description_en: '',
+              description_fr: '',
+              description_ar: '',
               image_url: '',
               is_active: true
             });

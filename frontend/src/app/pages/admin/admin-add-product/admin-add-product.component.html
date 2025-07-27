@@ -1,164 +1,273 @@
 <!-- src/app/pages/admin/admin-add-product/admin-add-product.component.html -->
-<div class="h-full  p-4">
-  <p-toast></p-toast>
-  
-  <!-- Page Header -->
-  <div class="flex justify-content-between align-items-center mb-4">
-    
-    <p-button 
-      label="Back to Products" 
-      icon="pi pi-arrow-left"
-   
-      (onClick)="goBackToProductsList()"
-      [disabled]="loading()"
-    />
-  </div>
-
-  <!-- Main Content Card -->
-  <div>
+<div class="content-height p-4">
+  <p-card>
     <ng-template pTemplate="header">
-      <div class="flex align-items-center gap-2 p-3">
-        <i [class]="isEditMode() ? 'pi pi-pencil' : 'pi pi-plus'"></i>
-        <span class="font-medium">{{ pageTitle }}</span>
+      <div class="flex justify-content-between align-items-center p-4">
+        <h2 class="m-0">{{ pageTitle }}</h2>
+        <p-button 
+          icon="pi pi-arrow-left" 
+          label="Cancel" 
+          severity="secondary" 
+          (onClick)="onCancel()"
+        />
       </div>
     </ng-template>
 
-    <!-- Form Content -->
-    <form [formGroup]="productForm" (ngSubmit)="onSubmit()" >
+    <form [formGroup]="productForm" (ngSubmit)="onSubmit()" class="p-4">
       
-      <!-- Product Name -->
-      <div class="field mb-4">
-        <label for="name" class="block font-medium mb-2">
-          Product Name *
-        </label>
-        <input 
-          id="name"
-          type="text" 
-          pInputText 
-          formControlName="name"
-          placeholder="Enter product name"
-          [class.ng-invalid]="productForm.get('name')?.invalid && productForm.get('name')?.touched"
-          class="w-full"
-        />
-        <small 
-          *ngIf="productForm.get('name')?.invalid && productForm.get('name')?.touched" 
-          class="p-error block mt-1"
-        >
-          Product name is required
-        </small>
+      <!-- 🆕 UPDATED: Product Names Section (No Primary Field) -->
+      <div class="section-title">
+        <i class="pi pi-globe mr-2"></i>Product Names *
+      </div>
+      <p class="text-sm text-color-secondary mb-3">
+        Provide the product name in all supported languages. English will be used as the primary name.
+      </p>
+
+      <!-- English Name (Primary) -->
+      <div class="language-section">
+        <div class="flex align-items-center mb-2">
+          <span class="language-flag">🇬🇧</span>
+          <strong>English Name (Primary) *</strong>
+        </div>
+        <div class="field">
+          <input 
+            type="text" 
+            id="name_en"
+            pInputText 
+            formControlName="name_en" 
+            placeholder="Enter product name in English"
+            class="w-full"
+            [class.ng-invalid]="productForm.get('name_en')?.invalid && productForm.get('name_en')?.touched"
+          />
+          <small 
+            *ngIf="productForm.get('name_en')?.invalid && productForm.get('name_en')?.touched" 
+            class="p-error"
+          >
+            <span *ngIf="productForm.get('name_en')?.errors?.['required']">
+              English name is required
+            </span>
+            <span *ngIf="productForm.get('name_en')?.errors?.['minlength']">
+              English name must be at least 1 character
+            </span>
+          </small>
+        </div>
       </div>
 
-      <!-- Description -->
-      <div class="field mb-4">
-        <label for="description" class="block font-medium mb-2">
-          Description
-        </label>
-        <textarea 
-          id="description"
-          pInputTextarea 
-          formControlName="description"
-          placeholder="Enter product description (optional)"
-          rows="3"
-          class="w-full"
-        ></textarea>
+      <!-- French Name -->
+      <div class="language-section">
+        <div class="flex align-items-center mb-2">
+          <span class="language-flag">🇫🇷</span>
+          <strong>French Name (Nom en Français) *</strong>
+        </div>
+        <div class="field">
+          <input 
+            type="text" 
+            id="name_fr"
+            pInputText 
+            formControlName="name_fr" 
+            placeholder="Entrez le nom du produit en français"
+            class="w-full"
+            [class.ng-invalid]="productForm.get('name_fr')?.invalid && productForm.get('name_fr')?.touched"
+          />
+          <small 
+            *ngIf="productForm.get('name_fr')?.invalid && productForm.get('name_fr')?.touched" 
+            class="p-error"
+          >
+            <span *ngIf="productForm.get('name_fr')?.errors?.['required']">
+              French name is required
+            </span>
+            <span *ngIf="productForm.get('name_fr')?.errors?.['minlength']">
+              French name must be at least 1 character
+            </span>
+          </small>
+        </div>
       </div>
 
-      <!-- Price and Unit Row -->
-      <div class="grid mb-4">
+      <!-- Arabic Name -->
+      <div class="language-section">
+        <div class="flex align-items-center mb-2">
+          <span class="language-flag">🇩🇿</span>
+          <strong>Arabic Name (الاسم بالعربية) *</strong>
+        </div>
+        <div class="field">
+          <input 
+            type="text" 
+            id="name_ar"
+            pInputText 
+            formControlName="name_ar" 
+            placeholder="أدخل اسم المنتج بالعربية"
+            class="w-full"
+            dir="rtl"
+            [class.ng-invalid]="productForm.get('name_ar')?.invalid && productForm.get('name_ar')?.touched"
+          />
+          <small 
+            *ngIf="productForm.get('name_ar')?.invalid && productForm.get('name_ar')?.touched" 
+            class="p-error"
+          >
+            <span *ngIf="productForm.get('name_ar')?.errors?.['required']">
+              Arabic name is required
+            </span>
+            <span *ngIf="productForm.get('name_ar')?.errors?.['minlength']">
+              Arabic name must be at least 1 character
+            </span>
+          </small>
+        </div>
+      </div>
+
+      <!-- 🆕 UPDATED: Product Descriptions Section -->
+      <div class="section-title">
+        <i class="pi pi-file-text mr-2"></i>Product Descriptions
+      </div>
+      <p class="text-sm text-color-secondary mb-3">
+        Provide detailed descriptions in all supported languages (optional).
+      </p>
+
+      <!-- English Description -->
+      <div class="language-section">
+        <div class="flex align-items-center mb-2">
+          <span class="language-flag">🇬🇧</span>
+          <strong>English Description</strong>
+        </div>
+        <div class="field">
+          <textarea 
+            id="description_en"
+            pTextarea 
+            formControlName="description_en" 
+            placeholder="Enter product description in English"
+            class="w-full"
+            rows="3"
+          ></textarea>
+        </div>
+      </div>
+
+      <!-- French Description -->
+      <div class="language-section">
+        <div class="flex align-items-center mb-2">
+          <span class="language-flag">🇫🇷</span>
+          <strong>French Description (Description en Français)</strong>
+        </div>
+        <div class="field">
+          <textarea 
+            id="description_fr"
+            pTextarea 
+            formControlName="description_fr" 
+            placeholder="Entrez la description du produit en français"
+            class="w-full"
+            rows="3"
+          ></textarea>
+        </div>
+      </div>
+
+      <!-- Arabic Description -->
+      <div class="language-section">
+        <div class="flex align-items-center mb-2">
+          <span class="language-flag">🇩🇿</span>
+          <strong>Arabic Description (الوصف بالعربية)</strong>
+        </div>
+        <div class="field">
+          <textarea 
+            id="description_ar"
+            pTextarea 
+            formControlName="description_ar" 
+            placeholder="أدخل وصف المنتج بالعربية"
+            class="w-full"
+            rows="3"
+            dir="rtl"
+          ></textarea>
+        </div>
+      </div>
+
+      <!-- Pricing & Inventory Section -->
+      <div class="section-title">
+        <i class="pi pi-dollar mr-2"></i>Pricing & Inventory
+      </div>
+
+      <div class="grid">
         <div class="col-12 md:col-6">
           <div class="field">
-            <label for="price" class="block font-medium mb-2">
-              Price *
-            </label>
+            <label for="price">Price *</label>
             <p-inputNumber
               id="price"
               formControlName="price"
               mode="currency"
-              currency="USD"
-              locale="en-US"
-              [min]="0.01"
-              placeholder="0.00"
-              styleClass="w-full"
+              currency="EUR"
+              locale="fr-FR"
+              class="w-full"
               [class.ng-invalid]="productForm.get('price')?.invalid && productForm.get('price')?.touched"
             />
             <small 
               *ngIf="productForm.get('price')?.invalid && productForm.get('price')?.touched" 
-              class="p-error block mt-1"
+              class="p-error"
             >
-              Price is required and must be greater than 0
+              <span *ngIf="productForm.get('price')?.errors?.['required']">
+                Price is required
+              </span>
+              <span *ngIf="productForm.get('price')?.errors?.['min']">
+                Price must be greater than 0
+              </span>
             </small>
           </div>
         </div>
 
         <div class="col-12 md:col-6">
           <div class="field">
-            <label for="unit" class="block font-medium mb-2">
-              Unit *
-            </label>
+            <label for="unit">Unit *</label>
             <p-select
               id="unit"
               formControlName="unit"
               [options]="unitOptions"
-              optionLabel="label"
-              optionValue="value"
               placeholder="Select unit"
-              styleClass="w-full"
+              class="w-full"
               [class.ng-invalid]="productForm.get('unit')?.invalid && productForm.get('unit')?.touched"
             />
             <small 
               *ngIf="productForm.get('unit')?.invalid && productForm.get('unit')?.touched" 
-              class="p-error block mt-1"
+              class="p-error"
             >
               Unit is required
             </small>
           </div>
         </div>
-      </div>
 
-      <!-- Stock and Category Row -->
-      <div class="grid mb-4">
         <div class="col-12 md:col-6">
           <div class="field">
-            <label for="stock_quantity" class="block font-medium mb-2">
-              Stock Quantity *
-            </label>
+            <label for="stock_quantity">Stock Quantity *</label>
             <p-inputNumber
               id="stock_quantity"
               formControlName="stock_quantity"
               [min]="0"
-              placeholder="0"
-              styleClass="w-full"
+              class="w-full"
               [class.ng-invalid]="productForm.get('stock_quantity')?.invalid && productForm.get('stock_quantity')?.touched"
             />
             <small 
               *ngIf="productForm.get('stock_quantity')?.invalid && productForm.get('stock_quantity')?.touched" 
-              class="p-error block mt-1"
+              class="p-error"
             >
-              Stock quantity is required
+              <span *ngIf="productForm.get('stock_quantity')?.errors?.['required']">
+                Stock quantity is required
+              </span>
+              <span *ngIf="productForm.get('stock_quantity')?.errors?.['min']">
+                Stock quantity cannot be negative
+              </span>
             </small>
           </div>
         </div>
 
         <div class="col-12 md:col-6">
           <div class="field">
-            <label for="category_id" class="block font-medium mb-2">
-              Category *
-              <i *ngIf="categoriesLoading()" class="pi pi-spin pi-spinner ml-2"></i>
-            </label>
+            <label for="category_id">Category *</label>
             <p-select
               id="category_id"
               formControlName="category_id"
               [options]="categoryOptions()"
-              optionLabel="label"
-              optionValue="value"
               placeholder="Select category"
+              class="w-full"
               [loading]="categoriesLoading()"
-              styleClass="w-full"
               [class.ng-invalid]="productForm.get('category_id')?.invalid && productForm.get('category_id')?.touched"
             />
             <small 
               *ngIf="productForm.get('category_id')?.invalid && productForm.get('category_id')?.touched" 
-              class="p-error block mt-1"
+              class="p-error"
             >
               Category is required
             </small>
@@ -166,75 +275,127 @@
         </div>
       </div>
 
-      <!-- Image URL -->
-      <div class="field mb-4">
-        <label for="image_url" class="block font-medium mb-2">
-          Image URL (Optional)
-        </label>
-        <input 
-          id="image_url"
-          type="url" 
-          pInputText 
-          formControlName="image_url"
-          placeholder="Enter image URL (optional)"
-          class="w-full"
-        />
+      <!-- Settings Section -->
+      <div class="section-title">
+        <i class="pi pi-cog mr-2"></i>Settings
       </div>
 
-      <!-- Checkboxes Row -->
-      <div class="grid mb-4">
-        <div class="col-12 md:col-6">
+      <div class="grid">
+        <div class="col-12">
           <div class="field">
-            <div class="flex align-items-center">
-              <p-checkbox 
-                formControlName="is_organic" 
-                binary="true" 
-                inputId="is_organic"
-              />
-              <label for="is_organic" class="ml-2">
-                Organic Product
-              </label>
-            </div>
+            <label for="image_url">Image URL</label>
+            <input 
+              type="url" 
+              id="image_url"
+              pInputText 
+              formControlName="image_url" 
+              placeholder="Enter product image URL (e.g., https://example.com/image.jpg)"
+              class="w-full"
+            />
+            <small class="text-color-secondary">
+              Optional: Provide a URL to an image for this product
+            </small>
           </div>
         </div>
 
-        <!-- Active Status (show in edit mode) -->
-        <div *ngIf="isEditMode()" class="col-12 md:col-6">
-          <div class="field">
-            <div class="flex align-items-center">
-              <p-checkbox 
-                formControlName="is_active" 
-                binary="true" 
-                inputId="is_active"
-              />
-              <label for="is_active" class="ml-2">
-                Active Product
-              </label>
-            </div>
+        <div class="col-12 md:col-6">
+          <div class="field-checkbox">
+            <p-checkbox 
+              id="is_organic" 
+              formControlName="is_organic" 
+              binary="true"
+            />
+            <label for="is_organic" class="ml-2">Organic Product</label>
+            <small class="block text-color-secondary mt-1">
+              Check if this product is organically grown
+            </small>
+          </div>
+        </div>
+
+        <div class="col-12 md:col-6">
+          <div class="field-checkbox">
+            <p-checkbox 
+              id="is_active" 
+              formControlName="is_active" 
+              binary="true"
+            />
+            <label for="is_active" class="ml-2">Active Product</label>
+            <small class="block text-color-secondary mt-1">
+              Uncheck to hide this product from customers
+            </small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Translation Help Text -->
+      <div class="mt-4 p-3 surface-100 border-round">
+        <div class="flex align-items-start">
+          <i class="pi pi-info-circle text-blue-500 mr-2 mt-1"></i>
+          <div>
+            <strong class="text-blue-500">Translation Guidelines:</strong>
+            <ul class="mt-2 mb-0 text-sm text-color-secondary">
+              <li>All language names are required to ensure consistent multilingual support</li>
+              <li>English will be used as the primary name in the database</li>
+              <li>Descriptions are optional but recommended for better product information</li>
+              <li>Use proper language-specific characters and formatting</li>
+            </ul>
           </div>
         </div>
       </div>
 
       <!-- Form Actions -->
-      <div class="flex justify-content-end gap-2 pt-4 border-top-1 surface-border">
+      <div class="flex justify-content-end gap-2 mt-4">
         <p-button 
-          type="button"
           label="Cancel" 
-          severity="secondary"
-          icon="pi pi-times"
+          severity="secondary" 
           (onClick)="onCancel()"
           [disabled]="loading()"
+          icon="pi pi-times"
         />
-        
         <p-button 
-          type="submit"
-          [label]="submitButtonLabel"
+          type="submit" 
+          [label]="submitButtonLabel" 
           [loading]="loading()"
           [disabled]="productForm.invalid"
           icon="pi pi-check"
-          severity="success"
         />
       </div>
+
+      <!-- Form Validation Summary (for debugging) -->
+      <div *ngIf="productForm.invalid && productForm.touched" class="mt-4 p-3 surface-200 border-round">
+        <div class="flex align-items-start">
+          <i class="pi pi-exclamation-triangle text-orange-500 mr-2 mt-1"></i>
+          <div>
+            <strong class="text-orange-500">Please fix the following errors:</strong>
+            <ul class="mt-2 mb-0 text-sm">
+              <li *ngIf="productForm.get('name_en')?.invalid && productForm.get('name_en')?.touched">
+                English name is required
+              </li>
+              <li *ngIf="productForm.get('name_fr')?.invalid && productForm.get('name_fr')?.touched">
+                French name is required
+              </li>
+              <li *ngIf="productForm.get('name_ar')?.invalid && productForm.get('name_ar')?.touched">
+                Arabic name is required
+              </li>
+              <li *ngIf="productForm.get('price')?.invalid && productForm.get('price')?.touched">
+                Valid price is required
+              </li>
+              <li *ngIf="productForm.get('unit')?.invalid && productForm.get('unit')?.touched">
+                Unit selection is required
+              </li>
+              <li *ngIf="productForm.get('stock_quantity')?.invalid && productForm.get('stock_quantity')?.touched">
+                Valid stock quantity is required
+              </li>
+              <li *ngIf="productForm.get('category_id')?.invalid && productForm.get('category_id')?.touched">
+                Category selection is required
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
     </form>
-</div>
+  </p-card>
+
+  <!-- Toast messages -->
+  <p-toast />
 </div>
