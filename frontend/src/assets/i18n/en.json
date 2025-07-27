@@ -371,15 +371,61 @@
         "admin": "Admin"
       }
     },
-    "products": {
-      "title": "Product Management",
-      "all_products": "All Products",
-      "add_product": "Add New Product",
-      "edit_product": "Edit Product",
-      "delete_product": "Delete Product",
-      "product_info": "Product Information",
-      "stock_management": "Stock Management"
+  "products": {
+    "title": "Product Management",
+    "all_products": "All Products",
+    "add_product": "Add New Product",
+    "edit_product": "Edit Product",
+    "delete_product": "Delete Product",
+    "product_info": "Product Information",
+    "stock_management": "Stock Management",
+    "create_success": "Product created successfully!",
+    "update_success": "Product updated successfully!",
+    "delete_success": "Product deleted successfully!",
+    "form": {
+      "basic_info": "Basic Information",
+      "translations": "Translations",
+      "pricing_inventory": "Pricing & Inventory",
+      "settings": "Settings",
+      "name": "Product Name",
+      "name_required": "Product name is required",
+      "name_minlength": "Product name must be at least 1 character",
+      "description": "Description",
+      "english_name": "English Name",
+      "french_name": "French Name (Nom en Français)",
+      "arabic_name": "Arabic Name (الاسم بالعربية)",
+      "english_description": "English Description",
+      "french_description": "French Description (Description en Français)",
+      "arabic_description": "Arabic Description (الوصف بالعربية)",
+      "price": "Price",
+      "price_required": "Price is required",
+      "price_min": "Price must be greater than 0",
+      "unit": "Unit",
+      "unit_required": "Unit is required",
+      "stock_quantity": "Stock Quantity",
+      "stock_required": "Stock quantity is required",
+      "stock_min": "Stock quantity cannot be negative",
+      "category": "Category",
+      "category_required": "Category is required",
+      "image_url": "Image URL",
+      "image_placeholder": "Enter product image URL",
+      "is_organic": "Organic Product",
+      "is_active": "Active Product",
+      "submit_add": "Add Product",
+      "submit_update": "Update Product",
+      "cancel": "Cancel",
+      "translation_help": "Translations are optional. If not provided, the main name/description will be used.",
+      "required_field": "Required field"
     },
+    "units": {
+      "kg": "Kilogram (Kg)",
+      "gram": "Gram (g)",
+      "piece": "Piece",
+      "bunch": "Bunch",
+      "dozen": "Dozen",
+      "pound": "Pound (lb)"
+    }
+  },
     "categories": {
       "title": "Category Management",
       "all_categories": "All Categories",
@@ -426,4 +472,6 @@
     "go_home": "Go Home",
     "contact_support": "Contact Support"
   }
+
+  
 }

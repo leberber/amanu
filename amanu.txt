@@ -9267,7 +9267,7 @@ describe('CheckoutComponent', () => {
 === frontend/src/app/pages/checkout/checkout.component.ts ===
 
 // src/app/pages/checkout/checkout.component.ts
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -9284,10 +9284,14 @@ import { DividerModule } from 'primeng/divider';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { Subscription, forkJoin, of } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
 
 import { AuthService } from '../../services/auth.service';
 import { CartService, CartItem } from '../../services/cart.service';
 import { OrderService } from '../../services/order.service';
+import { ProductService } from '../../services/product.service'; // 🆕 ADD THIS
+import { TranslationService } from '../../services/translation.service'; // 🆕 ADD THIS
 import { OrderCreate } from '../../models/order.model';
 import { User } from '../../models/user.model';
 
@@ -9316,12 +9320,15 @@ import { User } from '../../models/user.model';
   templateUrl: './checkout.component.html',
   styleUrl: './checkout.component.scss'
 })
-export class CheckoutComponent implements OnInit {
+export class CheckoutComponent implements OnInit, OnDestroy {
   checkoutForm: FormGroup;
   cartItems: CartItem[] = [];
   currentUser: User | null = null;
   isSubmitting = false;
   accordionExpanded = false;
+
+  // 🆕 NEW: Subscription management
+  private languageSubscription?: Subscription;
 
   toggleShippingAccordion() {
     this.accordionExpanded = !this.accordionExpanded;
@@ -9342,7 +9349,9 @@ export class CheckoutComponent implements OnInit {
     private cartService: CartService,
     private orderService: OrderService,
     private messageService: MessageService,
-    private translateService: TranslateService
+    private translateService: TranslateService,
+    private productService: ProductService, // 🆕 ADD THIS
+    private translationService: TranslationService // 🆕 ADD THIS
   ) {
     this.checkoutForm = this.fb.group({
       fullName: ['', Validators.required],
@@ -9378,6 +9387,15 @@ export class CheckoutComponent implements OnInit {
         this.router.navigate(['/products']);
         return;
       }
+
+      // 🆕 Load translated names after loading cart items
+      this.loadTranslatedNames();
+    });
+
+    // 🆕 NEW: Subscribe to language changes
+    this.languageSubscription = this.translationService.currentLanguage$.subscribe(() => {
+      console.log('Language changed in checkout, reloading translated names...');
+      this.loadTranslatedNames();
     });
     
     // Pre-fill form with user data
@@ -9388,6 +9406,56 @@ export class CheckoutComponent implements OnInit {
         address: this.currentUser.address || ''
       });
     }
+  }
+
+  // 🆕 NEW: Cleanup subscription
+  ngOnDestroy() {
+    if (this.languageSubscription) {
+      this.languageSubscription.unsubscribe();
+    }
+  }
+
+  // 🆕 NEW: Load translated names for cart items
+  private loadTranslatedNames(): void {
+    if (this.cartItems.length === 0) return;
+
+    const currentLanguage = this.translationService.getCurrentLanguage();
+    
+    // Create observables to fetch each product with translations
+    const productObservables = this.cartItems.map(item => 
+      this.productService.getProduct(item.product_id).pipe(
+        map(product => ({
+          cartItemId: item.id,
+          translatedName: product.name, // This will be translated by the API
+          translatedDescription: product.description || ''
+        })),
+        catchError(error => {
+          console.error(`Error loading product ${item.product_id}:`, error);
+          return of({
+            cartItemId: item.id,
+            translatedName: item.product_name, // Fallback to original name
+            translatedDescription: ''
+          });
+        })
+      )
+    );
+
+    // Execute all requests in parallel
+    forkJoin(productObservables).subscribe(results => {
+      // Update cart items with translated names
+      this.cartItems = this.cartItems.map(item => {
+        const translation = results.find(r => r.cartItemId === item.id);
+        if (translation) {
+          return {
+            ...item,
+            product_name: translation.translatedName // Update with translated name
+          };
+        }
+        return item;
+      });
+
+      console.log('Checkout cart items updated with translations:', this.cartItems);
+    });
   }
   
   // Convenience getter for easy access to form fields
@@ -10118,11 +10186,11 @@ describe('OrderDetailComponent', () => {
 === frontend/src/app/pages/orders/order-detail/order-detail.component.ts ===
 
 // src/app/pages/orders/order-detail/order-detail.component.ts
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
-import { switchMap, catchError } from 'rxjs/operators';
-import { of } from 'rxjs';
+import { switchMap, catchError, map } from 'rxjs/operators';
+import { of, Subscription, forkJoin } from 'rxjs';
 
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
@@ -10133,10 +10201,12 @@ import { TimelineModule } from 'primeng/timeline';
 import { DividerModule } from 'primeng/divider';
 import { PanelModule } from 'primeng/panel';
 import { CardModule } from 'primeng/card';
-import { TranslateModule, TranslateService } from '@ngx-translate/core'; // Added TranslateModule and TranslateService
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { OrderService } from '../../../services/order.service'; 
-import { Order } from '../../../models/order.model';
+import { ProductService } from '../../../services/product.service'; // 🆕 ADD THIS
+import { TranslationService } from '../../../services/translation.service'; // 🆕 ADD THIS
+import { Order, OrderItem } from '../../../models/order.model';
 
 interface OrderStatus {
   status: string;
@@ -10159,24 +10229,29 @@ interface OrderStatus {
     TagModule,
     TimelineModule,
     DividerModule,
-    TranslateModule // Added TranslateModule
+    TranslateModule
   ],
   providers: [MessageService],
   templateUrl: './order-detail.component.html'
 })
-export class OrderDetailComponent implements OnInit {
+export class OrderDetailComponent implements OnInit, OnDestroy {
   // Dependency injection
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private orderService = inject(OrderService);
+  private productService = inject(ProductService); // 🆕 ADD THIS
+  private translationService = inject(TranslationService); // 🆕 ADD THIS
   private messageService = inject(MessageService);
-  private translateService = inject(TranslateService); // Added TranslateService
+  private translateService = inject(TranslateService);
 
   // Signals
   order = signal<Order | null>(null);
   loading = signal<boolean>(true);
   error = signal<boolean>(false);
   orderStatuses = signal<OrderStatus[]>([]);
+
+  // 🆕 NEW: Subscription management
+  private languageSubscription?: Subscription;
 
   // Computed values
   totalAmount = computed(() => this.order()?.total_amount || 0);
@@ -10193,6 +10268,12 @@ export class OrderDetailComponent implements OnInit {
           life: 5000
         });
       }
+    });
+    
+    // 🆕 NEW: Subscribe to language changes
+    this.languageSubscription = this.translationService.currentLanguage$.subscribe(() => {
+      console.log('Language changed in order detail, reloading translated names...');
+      this.loadTranslatedNames();
     });
     
     // Load order details
@@ -10224,7 +10305,64 @@ export class OrderDetailComponent implements OnInit {
       
       if (orderData) {
         this.generateOrderStatusTimeline(orderData);
+        // 🆕 Load translated names after order is loaded
+        this.loadTranslatedNames();
       }
+    });
+  }
+
+  // 🆕 NEW: Cleanup subscription
+  ngOnDestroy(): void {
+    if (this.languageSubscription) {
+      this.languageSubscription.unsubscribe();
+    }
+  }
+
+  // 🆕 NEW: Load translated names for order items
+  private loadTranslatedNames(): void {
+    const currentOrder = this.order();
+    if (!currentOrder || !currentOrder.items || currentOrder.items.length === 0) {
+      return;
+    }
+
+    const currentLanguage = this.translationService.getCurrentLanguage();
+    
+    // Create observables to fetch each product with translations
+    const productObservables = currentOrder.items.map(item => 
+      this.productService.getProduct(item.product_id).pipe(
+        map(product => ({
+          orderItemId: item.id,
+          translatedName: product.name, // This will be translated by the API
+          translatedDescription: product.description || ''
+        })),
+        catchError(error => {
+          console.error(`Error loading product ${item.product_id}:`, error);
+          return of({
+            orderItemId: item.id,
+            translatedName: item.product_name, // Fallback to original name
+            translatedDescription: ''
+          });
+        })
+      )
+    );
+
+    // Execute all requests in parallel
+    forkJoin(productObservables).subscribe(results => {
+      // Update order items with translated names
+      const updatedOrder = { ...currentOrder };
+      updatedOrder.items = currentOrder.items!.map(item => {
+        const translation = results.find(r => r.orderItemId === item.id);
+        if (translation) {
+          return {
+            ...item,
+            product_name: translation.translatedName // Update with translated name
+          };
+        }
+        return item;
+      });
+
+      this.order.set(updatedOrder);
+      console.log('Order items updated with translations:', updatedOrder.items);
     });
   }
 
@@ -11832,15 +11970,61 @@ export const environment = {
         "admin": "مدير"
       }
     },
-    "products": {
-      "title": "إدارة المنتجات",
-      "all_products": "جميع المنتجات",
-      "add_product": "إضافة منتج جديد",
-      "edit_product": "تحرير المنتج",
-      "delete_product": "حذف المنتج",
-      "product_info": "معلومات المنتج",
-      "stock_management": "إدارة المخزون"
+  "products": {
+    "title": "إدارة المنتجات",
+    "all_products": "جميع المنتجات",
+    "add_product": "إضافة منتج جديد",
+    "edit_product": "تحرير المنتج",
+    "delete_product": "حذف المنتج",
+    "product_info": "معلومات المنتج",
+    "stock_management": "إدارة المخزون",
+    "create_success": "تم إنشاء المنتج بنجاح!",
+    "update_success": "تم تحديث المنتج بنجاح!",
+    "delete_success": "تم حذف المنتج بنجاح!",
+    "form": {
+      "basic_info": "المعلومات الأساسية",
+      "translations": "الترجمات",
+      "pricing_inventory": "التسعير والمخزون",
+      "settings": "الإعدادات",
+      "name": "اسم المنتج",
+      "name_required": "اسم المنتج مطلوب",
+      "name_minlength": "اسم المنتج يجب أن يكون حرف واحد على الأقل",
+      "description": "الوصف",
+      "english_name": "الاسم الإنجليزي (English Name)",
+      "french_name": "الاسم الفرنسي (Nom en Français)",
+      "arabic_name": "الاسم العربي",
+      "english_description": "الوصف الإنجليزي (English Description)",
+      "french_description": "الوصف الفرنسي (Description en Français)",
+      "arabic_description": "الوصف العربي",
+      "price": "السعر",
+      "price_required": "السعر مطلوب",
+      "price_min": "السعر يجب أن يكون أكبر من 0",
+      "unit": "الوحدة",
+      "unit_required": "الوحدة مطلوبة",
+      "stock_quantity": "كمية المخزون",
+      "stock_required": "كمية المخزون مطلوبة",
+      "stock_min": "كمية المخزون لا يمكن أن تكون سالبة",
+      "category": "الفئة",
+      "category_required": "الفئة مطلوبة",
+      "image_url": "رابط الصورة",
+      "image_placeholder": "أدخل رابط صورة المنتج",
+      "is_organic": "منتج عضوي",
+      "is_active": "منتج نشط",
+      "submit_add": "إضافة المنتج",
+      "submit_update": "تحديث المنتج",
+      "cancel": "إلغاء",
+      "translation_help": "الترجمات اختيارية. إذا لم تُقدم، سيتم استخدام الاسم/الوصف الرئيسي.",
+      "required_field": "حقل مطلوب"
     },
+    "units": {
+      "kg": "كيلوغرام (كغ)",
+      "gram": "غرام (غ)",
+      "piece": "قطعة",
+      "bunch": "حزمة",
+      "dozen": "دزينة",
+      "pound": "باوند (رطل)"
+    }
+  },
     "categories": {
       "title": "إدارة الفئات",
       "all_categories": "جميع الفئات",
@@ -12264,15 +12448,61 @@ export const environment = {
         "admin": "Admin"
       }
     },
-    "products": {
-      "title": "Product Management",
-      "all_products": "All Products",
-      "add_product": "Add New Product",
-      "edit_product": "Edit Product",
-      "delete_product": "Delete Product",
-      "product_info": "Product Information",
-      "stock_management": "Stock Management"
+  "products": {
+    "title": "Product Management",
+    "all_products": "All Products",
+    "add_product": "Add New Product",
+    "edit_product": "Edit Product",
+    "delete_product": "Delete Product",
+    "product_info": "Product Information",
+    "stock_management": "Stock Management",
+    "create_success": "Product created successfully!",
+    "update_success": "Product updated successfully!",
+    "delete_success": "Product deleted successfully!",
+    "form": {
+      "basic_info": "Basic Information",
+      "translations": "Translations",
+      "pricing_inventory": "Pricing & Inventory",
+      "settings": "Settings",
+      "name": "Product Name",
+      "name_required": "Product name is required",
+      "name_minlength": "Product name must be at least 1 character",
+      "description": "Description",
+      "english_name": "English Name",
+      "french_name": "French Name (Nom en Français)",
+      "arabic_name": "Arabic Name (الاسم بالعربية)",
+      "english_description": "English Description",
+      "french_description": "French Description (Description en Français)",
+      "arabic_description": "Arabic Description (الوصف بالعربية)",
+      "price": "Price",
+      "price_required": "Price is required",
+      "price_min": "Price must be greater than 0",
+      "unit": "Unit",
+      "unit_required": "Unit is required",
+      "stock_quantity": "Stock Quantity",
+      "stock_required": "Stock quantity is required",
+      "stock_min": "Stock quantity cannot be negative",
+      "category": "Category",
+      "category_required": "Category is required",
+      "image_url": "Image URL",
+      "image_placeholder": "Enter product image URL",
+      "is_organic": "Organic Product",
+      "is_active": "Active Product",
+      "submit_add": "Add Product",
+      "submit_update": "Update Product",
+      "cancel": "Cancel",
+      "translation_help": "Translations are optional. If not provided, the main name/description will be used.",
+      "required_field": "Required field"
     },
+    "units": {
+      "kg": "Kilogram (Kg)",
+      "gram": "Gram (g)",
+      "piece": "Piece",
+      "bunch": "Bunch",
+      "dozen": "Dozen",
+      "pound": "Pound (lb)"
+    }
+  },
     "categories": {
       "title": "Category Management",
       "all_categories": "All Categories",
@@ -12319,6 +12549,8 @@ export const environment = {
     "go_home": "Go Home",
     "contact_support": "Contact Support"
   }
+
+  
 }
 
 === frontend/src/assets/i18n/fr.json ===
@@ -12698,7 +12930,53 @@ export const environment = {
       "edit_product": "Modifier Produit",
       "delete_product": "Supprimer Produit",
       "product_info": "Informations Produit",
-      "stock_management": "Gestion du Stock"
+      "stock_management": "Gestion du Stock",
+      "create_success": "Produit créé avec succès !",
+      "update_success": "Produit mis à jour avec succès !",
+      "delete_success": "Produit supprimé avec succès !",
+      "form": {
+        "basic_info": "Informations de Base",
+        "translations": "Traductions",
+        "pricing_inventory": "Prix et Inventaire",
+        "settings": "Paramètres",
+        "name": "Nom du Produit",
+        "name_required": "Le nom du produit est requis",
+        "name_minlength": "Le nom du produit doit contenir au moins 1 caractère",
+        "description": "Description",
+        "english_name": "Nom Anglais (English Name)",
+        "french_name": "Nom Français",
+        "arabic_name": "Nom Arabe (الاسم بالعربية)",
+        "english_description": "Description Anglaise (English Description)",
+        "french_description": "Description Française",
+        "arabic_description": "Description Arabe (الوصف بالعربية)",
+        "price": "Prix",
+        "price_required": "Le prix est requis",
+        "price_min": "Le prix doit être supérieur à 0",
+        "unit": "Unité",
+        "unit_required": "L'unité est requise",
+        "stock_quantity": "Quantité en Stock",
+        "stock_required": "La quantité en stock est requise",
+        "stock_min": "La quantité en stock ne peut pas être négative",
+        "category": "Catégorie",
+        "category_required": "La catégorie est requise",
+        "image_url": "URL de l'Image",
+        "image_placeholder": "Entrez l'URL de l'image du produit",
+        "is_organic": "Produit Bio",
+        "is_active": "Produit Actif",
+        "submit_add": "Ajouter le Produit",
+        "submit_update": "Mettre à Jour le Produit",
+        "cancel": "Annuler",
+        "translation_help": "Les traductions sont optionnelles. Si non fournies, le nom/description principal sera utilisé.",
+        "required_field": "Champ requis"
+      },
+      "units": {
+        "kg": "Kilogramme (Kg)",
+        "gram": "Gramme (g)",
+        "piece": "Pièce",
+        "bunch": "Bouquet",
+        "dozen": "Douzaine",
+        "pound": "Livre (lb)"
+      }
     },
     "categories": {
       "title": "Gestion des Catégories",

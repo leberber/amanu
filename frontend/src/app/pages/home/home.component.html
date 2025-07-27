@@ -1,7 +1,7 @@
 <!-- frontend/src/app/pages/home/home.component.html -->
 <div class="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 dark:from-gray-900 dark:to-gray-800">
   <!-- Hero Section -->
-  <section class="relative overflow-hidden">
+  <section class="relative bg-primary p-6 overflow-hidden">
     <div class="absolute inset-0 bg-gradient-to-r from-green-600 to-blue-600 opacity-90"></div>
     <div class="relative z-10 max-w-7xl mx-auto px-4 py-24 sm:px-6 lg:px-8">
       <div class="text-center text-white">
@@ -180,9 +180,7 @@
       <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
         <!-- Fast Delivery -->
         <div class="text-center p-6">
-          <div class="w-16 h-16 mx-auto mb-4 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
-            <i class="pi pi-truck text-2xl text-green-600 dark:text-green-400"></i>
-          </div>
+         <i class="pi pi-truck text-2xl text-green-600 dark:text-green-400"></i>
           <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-3">
             {{ 'home.features.fast_delivery.title' | translate }}
           </h3>
@@ -193,9 +191,7 @@
 
         <!-- Quality Guaranteed -->
         <div class="text-center p-6">
-          <div class="w-16 h-16 mx-auto mb-4 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
             <i class="pi pi-shield text-2xl text-blue-600 dark:text-blue-400"></i>
-          </div>
           <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-3">
             {{ 'home.features.quality_guaranteed.title' | translate }}
           </h3>
@@ -206,9 +202,7 @@
 
         <!-- Organic Options -->
         <div class="text-center p-6">
-          <div class="w-16 h-16 mx-auto mb-4 bg-orange-100 dark:bg-orange-900 rounded-full flex items-center justify-center">
-            <i class="pi pi-sun text-2xl text-orange-600 dark:text-orange-400"></i>
-          </div>
+          <i class="pi pi-sun text-2xl text-orange-600 dark:text-orange-400"></i>
           <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-3">
             {{ 'home.features.organic_options.title' | translate }}
           </h3>
