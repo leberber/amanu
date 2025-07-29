@@ -5,7 +5,7 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../services/auth.service';
 import { CartService } from '../../services/cart.service';
-import { User, UserRole } from '../../models/user.model';
+import { User } from '../../models/user.model';
 import { MobileAdminMenuComponent } from '../mobile-admin-menu/mobile-admin-menu.component';
 
 
@@ -179,8 +179,7 @@ export class BottomNavigationComponent implements OnInit, OnDestroy {
   });
   
   isAdminOrStaff(): boolean {
-    const user = this.authService.currentUserValue;
-    return user ? (user.role === UserRole.ADMIN || user.role === UserRole.STAFF) : false;
+    return this.authService.isAdminOrStaff();
   }
   
   showAdminMenu(): void {

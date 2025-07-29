@@ -17,6 +17,7 @@ import { AdminService } from '../../../services/admin.service';
 import { DashboardStats } from '../../../models/admin.model';
 import { ProductService } from '../../../services/product.service';
 import { DateService } from '../../../core/services/date.service';
+import { TranslationHelperService } from '../../../core/services/translation-helper.service';
 
 // REMOVED: AdminAddProductComponent and AdminAddCategoryComponent imports
 // REMOVED: ViewChild decorators and modal methods
@@ -61,6 +62,7 @@ export class AdminDashboardComponent implements OnInit {
   private translateService = inject(TranslateService);
   private productService = inject(ProductService);
   private dateService = inject(DateService);
+  private translationHelper = inject(TranslationHelperService);
 
   ngOnInit() {
     this.loadDashboardStats();
@@ -227,37 +229,36 @@ navigateToCategories() {
 }
 
   getCategoryName(category: any): string {
-    const currentLang = this.translateService.currentLang;
-    
-    // If category already has translations
-    if (category.name_translations && category.name_translations[currentLang]) {
-      return category.name_translations[currentLang];
+    // If it's already a category object with translations
+    if (category.name_translations || category.name) {
+      return this.translationHelper.getCategoryName(category);
     }
     
     // For sales by category, try to find the full category object
     if (category.category_id && this.categories.length > 0) {
       const fullCategory = this.categories.find(c => c.id === category.category_id);
-      if (fullCategory && fullCategory.name_translations && fullCategory.name_translations[currentLang]) {
-        return fullCategory.name_translations[currentLang];
+      if (fullCategory) {
+        return this.translationHelper.getCategoryName(fullCategory);
       }
     }
     
     // For top selling products, category is just a string
     if (typeof category === 'string') {
       if (this.categories.length > 0) {
+        // Try to find by name
         const fullCategory = this.categories.find(c => c.name === category);
-        if (fullCategory && fullCategory.name_translations && fullCategory.name_translations[currentLang]) {
-          return fullCategory.name_translations[currentLang];
+        if (fullCategory) {
+          return this.translationHelper.getCategoryName(fullCategory);
         }
-        // If no translation found, try to match by name in any language
+        // Try to match by name in any language
         const matchingCategory = this.categories.find(c => {
           if (c.name_translations) {
             return Object.values(c.name_translations).includes(category);
           }
           return false;
         });
-        if (matchingCategory && matchingCategory.name_translations && matchingCategory.name_translations[currentLang]) {
-          return matchingCategory.name_translations[currentLang];
+        if (matchingCategory) {
+          return this.translationHelper.getCategoryName(matchingCategory);
         }
       }
       // Return the string as is if we can't find a match
@@ -268,18 +269,16 @@ navigateToCategories() {
   }
 
   getProductName(product: any): string {
-    const currentLang = this.translateService.currentLang;
-    
-    // If product already has translations
-    if (product.name_translations && product.name_translations[currentLang]) {
-      return product.name_translations[currentLang];
+    // If it's already a product object with translations
+    if (product.name_translations || product.name) {
+      return this.translationHelper.getProductName(product);
     }
     
     // For top selling products, try to find the full product object
     if (product.product_id && this.products.length > 0) {
       const fullProduct = this.products.find(p => p.id === product.product_id);
-      if (fullProduct && fullProduct.name_translations && fullProduct.name_translations[currentLang]) {
-        return fullProduct.name_translations[currentLang];
+      if (fullProduct) {
+        return this.translationHelper.getProductName(fullProduct);
       }
     }
     

@@ -21,6 +21,7 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { ProductService } from '../../../services/product.service';
+import { TranslationHelperService } from '../../../core/services/translation-helper.service';
 import { Category } from '../../../models/category.model';
 
 @Component({
@@ -70,7 +71,8 @@ export class AdminCategoriesComponent implements OnInit {
     private messageService: MessageService,
     private confirmationService: ConfirmationService,
     private router: Router,
-    private translateService: TranslateService
+    private translateService: TranslateService,
+    private translationHelper: TranslationHelperService
   ) {}
 
   ngOnInit() {
@@ -235,28 +237,10 @@ export class AdminCategoriesComponent implements OnInit {
   }
 
   getCategoryName(category: Category): string {
-    const currentLang = this.translateService.currentLang;
-    
-    // Check if category has translations
-    const categoryWithTranslations = category as any;
-    if (categoryWithTranslations.name_translations && categoryWithTranslations.name_translations[currentLang]) {
-      return categoryWithTranslations.name_translations[currentLang];
-    }
-    
-    // Fallback to primary name
-    return category.name;
+    return this.translationHelper.getCategoryName(category);
   }
 
   getCategoryDescription(category: Category): string {
-    const currentLang = this.translateService.currentLang;
-    
-    // Check if category has translations
-    const categoryWithTranslations = category as any;
-    if (categoryWithTranslations.description_translations && categoryWithTranslations.description_translations[currentLang]) {
-      return categoryWithTranslations.description_translations[currentLang];
-    }
-    
-    // Fallback to primary description
-    return category.description || '';
+    return this.translationHelper.getCategoryDescription(category);
   }
 }

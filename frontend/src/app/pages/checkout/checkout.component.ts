@@ -22,6 +22,7 @@ import { map, catchError } from 'rxjs/operators';
 import { AuthService } from '../../services/auth.service';
 import { CartService, CartItem } from '../../services/cart.service';
 import { OrderService } from '../../services/order.service';
+import { CurrencyService } from '../../core/services/currency.service';
 import { ProductService } from '../../services/product.service'; // 🆕 ADD THIS
 import { TranslationService } from '../../services/translation.service'; // 🆕 ADD THIS
 import { OrderCreate } from '../../models/order.model';
@@ -82,6 +83,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     private orderService: OrderService,
     private messageService: MessageService,
     private translateService: TranslateService,
+    private currencyService: CurrencyService,
     private productService: ProductService, // 🆕 ADD THIS
     private translationService: TranslationService // 🆕 ADD THIS
   ) {
@@ -271,5 +273,10 @@ export class CheckoutComponent implements OnInit, OnDestroy {
         });
       }
     });
+  }
+
+  // Format price using CurrencyService
+  formatPrice(price: number): string {
+    return this.currencyService.formatCurrency(price);
   }
 }

@@ -53,7 +53,7 @@
             <td>
               <p-tag [severity]="getStatusSeverity(order.status)" [value]="getStatusLabel(order.status)"></p-tag>
             </td>
-            <td>${{order.total_amount}}</td>
+            <td>{{formatPrice(order.total_amount)}}</td>
             <td>
               <button 
                 pButton 
@@ -97,7 +97,7 @@
               <!-- Date/Total row -->
               <div class="flex justify-content-between align-items-center">
                 <span class="text-600 text-sm">{{order.created_at | date:'MMM d, y'}}</span>
-                <span class="font-bold text-900 text-base">${{order.total_amount}}</span>
+                <span class="font-bold text-900 text-base">{{formatPrice(order.total_amount)}}</span>
               </div>
             </div>
 

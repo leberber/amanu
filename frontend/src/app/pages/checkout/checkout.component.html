@@ -23,7 +23,7 @@
                     <span class="text-sm ml-2 text-600">x{{item.quantity}}</span>
                   </div>
                 </td>
-                <td class="text-right">${{(item.product_price * item.quantity).toFixed(2)}}</td>
+                <td class="text-right">{{formatPrice(item.product_price * item.quantity)}}</td>
               </tr>
             </ng-template>
           </p-table>
@@ -31,7 +31,7 @@
           <div class="shadow-1 border-round p-3 mb-4">
             <div class="flex justify-content-between mb-2">
               <span class="text-600">{{ 'checkout.subtotal' | translate }}</span>
-              <span class="font-medium">${{getCartTotal().toFixed(2)}}</span>
+              <span class="font-medium">{{formatPrice(getCartTotal())}}</span>
             </div>
             
             <div class="flex justify-content-between mb-2">
@@ -43,7 +43,7 @@
             
             <div class="flex justify-content-between">
               <span class="text-xl font-bold">{{ 'common.total' | translate }}</span>
-              <span class="text-xl font-bold text-primary">${{getCartTotal().toFixed(2)}}</span>
+              <span class="text-xl font-bold text-primary">{{formatPrice(getCartTotal())}}</span>
             </div>
           </div>
 

@@ -276,7 +276,7 @@
           <td class="text-right">
             <div class="flex flex-column align-items-end">
               <span class="font-semibold text-lg text-900">
-                ${{ product.price.toFixed(2) }}
+                {{ formatPrice(product.price) }}
               </span>
               <span class="text-600 text-sm">
                 {{ 'admin.products.per' | translate }} {{ getUnitDisplay(product.unit) }}

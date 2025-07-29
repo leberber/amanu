@@ -71,6 +71,15 @@ export class TranslationHelperService {
   }
 
   /**
+   * Get category description with proper translation fallback
+   * @param category - Category object
+   * @returns Translated category description
+   */
+  getCategoryDescription(category: any): string {
+    return this.getTranslatedField(category, 'description', true);
+  }
+
+  /**
    * Get all available translations for a field
    * @param obj - Object containing translations
    * @param fieldName - Base field name

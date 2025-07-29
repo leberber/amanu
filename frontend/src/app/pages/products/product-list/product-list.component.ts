@@ -25,7 +25,10 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { CartService } from '../../../services/cart.service';
 import { ProductService } from '../../../services/product.service';
 import { TranslationService } from '../../../services/translation.service'; // 🆕 ADD THIS
+import { CurrencyService } from '../../../core/services/currency.service';
 import { Product, Category, ProductFilter } from '../../../models/product.model';
+import { LoadingStateComponent } from '../../../shared/components/loading-state/loading-state.component';
+import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 
 interface SortOption {
   label: string;
@@ -54,7 +57,9 @@ interface LayoutOption {
     CheckboxModule,
     MenuModule,
     SelectModule,
-    TranslateModule
+    TranslateModule,
+    LoadingStateComponent,
+    EmptyStateComponent
   ],
   providers: [MessageService],
   templateUrl: './product-list.component.html',
@@ -68,6 +73,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
   private cartService = inject(CartService);
   private translateService = inject(TranslateService);
   private translationService = inject(TranslationService); // 🆕 ADD THIS
+  private currencyService = inject(CurrencyService);
   
   // Signals
   products = signal<Product[]>([]);
@@ -418,6 +424,22 @@ export class ProductListComponent implements OnInit, OnDestroy {
     this.showMobileFilters.set(false);
   }
 
+  hasActiveFilters(): boolean {
+    // Check if search query is not empty
+    if (this.searchQuery().trim() !== '') {
+      return true;
+    }
+    
+    // Check if not all categories are selected
+    const allCategories = this.categories();
+    const selectedCategories = this.selectedCategories();
+    if (allCategories.length > 0 && selectedCategories.length !== allCategories.length) {
+      return true;
+    }
+    
+    return false;
+  }
+
   // Unit display helper
   getUnitDisplay(unit: string): string {
     switch (unit) {
@@ -587,5 +609,10 @@ export class ProductListComponent implements OnInit, OnDestroy {
   // Get stock color class
   getStockColorClass(product: Product): string {
     return this.isOutOfStock(product) ? 'text-red-500' : 'text-orange-500';
+  }
+  
+  // Format price using CurrencyService
+  formatPrice(price: number): string {
+    return this.currencyService.formatCurrency(price);
   }
 }

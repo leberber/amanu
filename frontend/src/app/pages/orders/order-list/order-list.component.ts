@@ -12,6 +12,7 @@ import { TagModule } from 'primeng/tag';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { OrderService } from '../../../services/order.service';
+import { CurrencyService } from '../../../core/services/currency.service';
 import { Order } from '../../../models/order.model';
 
 @Component({
@@ -39,7 +40,8 @@ export class OrderListComponent implements OnInit {
     private orderService: OrderService,
     private router: Router,
     private messageService: MessageService,
-    private translateService: TranslateService
+    private translateService: TranslateService,
+    private currencyService: CurrencyService
   ) {}
 
   ngOnInit() {
@@ -82,5 +84,10 @@ export class OrderListComponent implements OnInit {
 
   getStatusLabel(status: string): string {
     return this.translateService.instant(`orders.status.${status}`);
+  }
+
+  // Format price using CurrencyService
+  formatPrice(price: number): string {
+    return this.currencyService.formatCurrency(price);
   }
 }

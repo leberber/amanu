@@ -18,7 +18,7 @@ import { AuthService } from '../../services/auth.service';
 import { CartService } from '../../services/cart.service';
 import { TranslationService } from '../../services/translation.service';
 import { LanguageSelectorComponent } from '../../components/language-selector/language-selector.component';
-import { User, UserRole } from '../../models/user.model';
+import { User } from '../../models/user.model';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -68,11 +68,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   
   // Computed signals
   isAdmin = computed(() => {
-    const user = this.currentUser();
-    const isLoggedIn = this.authService.isLoggedIn;
-    const hasAdminRole = user?.role === UserRole.ADMIN || user?.role === UserRole.STAFF;
-    
-    return isLoggedIn && user && hasAdminRole;
+    return this.authService.isAdminOrStaff();
   });
   
   displayName = computed(() => this.currentUser()?.full_name || 'User');
@@ -203,8 +199,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
       }
     ];
 
-    const user = this.currentUser();
-    const isAdminUser = this.authService.isLoggedIn && user && (user.role === UserRole.ADMIN || user.role === UserRole.STAFF);
+    const isAdminUser = this.authService.isAdminOrStaff();
 
     // Desktop menu with sub-menus
     const desktopItems: MenuItem[] = [...baseItems];
@@ -250,11 +245,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
   
   private getAdminMenuItem(): MenuItem {
-    const user = this.currentUser();
     const items: MenuItem[] = [];
     
     // Admin-only items (Dashboard and Users)
-    if (user?.role === UserRole.ADMIN) {
+    if (this.authService.isAdmin()) {
       items.push({
         label: this.translateService.instant('admin.navigation.dashboard'),
         icon: 'pi pi-chart-bar',
@@ -270,7 +264,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     });
     
     // Admin-only item (Users)
-    if (user?.role === UserRole.ADMIN) {
+    if (this.authService.isAdmin()) {
       items.push({
         label: this.translateService.instant('admin.navigation.users'),
         icon: 'pi pi-users',

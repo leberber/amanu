@@ -26,6 +26,8 @@ import { AdminService } from '../../../services/admin.service';
 import { Order } from '../../../models/admin.model';
 import { ProductService } from '../../../services/product.service';
 import { DateService } from '../../../core/services/date.service';
+import { CurrencyService } from '../../../core/services/currency.service';
+import { TranslationHelperService } from '../../../core/services/translation-helper.service';
 
 @Component({
   selector: 'app-admin-orders',
@@ -86,6 +88,8 @@ export class AdminOrdersComponent implements OnInit {
   private translateService = inject(TranslateService);
   private productService = inject(ProductService);
   private dateService = inject(DateService);
+  private currencyService = inject(CurrencyService);
+  private translationHelper = inject(TranslationHelperService);
 
   ngOnInit() {
     this.initializeStatusOptions();
@@ -303,18 +307,16 @@ export class AdminOrdersComponent implements OnInit {
   }
 
   getProductName(item: any): string {
-    const currentLang = this.translateService.currentLang;
-    
-    // If item already has translations
-    if (item.name_translations && item.name_translations[currentLang]) {
-      return item.name_translations[currentLang];
+    // If item already has translations, use it as a product
+    if (item.name_translations || item.name) {
+      return this.translationHelper.getProductName(item);
     }
     
     // Try to find the full product object
     if (item.product_id && this.products.length > 0) {
       const fullProduct = this.products.find(p => p.id === item.product_id);
-      if (fullProduct && fullProduct.name_translations && fullProduct.name_translations[currentLang]) {
-        return fullProduct.name_translations[currentLang];
+      if (fullProduct) {
+        return this.translationHelper.getProductName(fullProduct);
       }
     }
     
@@ -326,11 +328,7 @@ export class AdminOrdersComponent implements OnInit {
   }
 
   formatCurrency(amount: number): string {
-    const currencySymbol = this.translateService.currentLang === 'ar' ? 'د.ج' : '$';
-    if (this.translateService.currentLang === 'ar') {
-      return `${amount.toFixed(2)} ${currencySymbol}`;
-    }
-    return `${currencySymbol}${amount.toFixed(2)}`;
+    return this.currencyService.formatCurrency(amount);
   }
 
   updateOrderStatus(orderId: number, newStatus: string) {

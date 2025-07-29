@@ -18,6 +18,8 @@ import { ConfirmationService } from 'primeng/api';
 import { SelectModule } from 'primeng/select';
 
 import { ProductService } from '../../../services/product.service';
+import { CurrencyService } from '../../../core/services/currency.service';
+import { TranslationHelperService } from '../../../core/services/translation-helper.service';
 import { Product } from '../../../models/product.model';
 import { Category } from '../../../models/category.model';
 import { IconFieldModule } from 'primeng/iconfield';
@@ -82,7 +84,9 @@ export class AdminProductsComponent implements OnInit {
     private messageService: MessageService,
     private confirmationService: ConfirmationService,
     private router: Router,
-    private translateService: TranslateService
+    private translateService: TranslateService,
+    private currencyService: CurrencyService,
+    private translationHelper: TranslationHelperService
   ) {}
 
   ngOnInit() {
@@ -278,41 +282,15 @@ export class AdminProductsComponent implements OnInit {
     if (!category) {
       return this.translateService.instant('common.unknown');
     }
-    
-    // Get current language
-    const currentLang = this.translateService.currentLang;
-    
-    // Check if category has translations
-    if (category.name_translations && category.name_translations[currentLang]) {
-      return category.name_translations[currentLang];
-    }
-    
-    // Fallback to primary name
-    return category.name;
+    return this.translationHelper.getCategoryName(category);
   }
 
   getProductName(product: Product): string {
-    const currentLang = this.translateService.currentLang;
-    
-    // Check if product has translations
-    if (product.name_translations && product.name_translations[currentLang]) {
-      return product.name_translations[currentLang];
-    }
-    
-    // Fallback to primary name
-    return product.name;
+    return this.translationHelper.getProductName(product);
   }
 
   getProductDescription(product: Product): string {
-    const currentLang = this.translateService.currentLang;
-    
-    // Check if product has translations
-    if (product.description_translations && product.description_translations[currentLang]) {
-      return product.description_translations[currentLang];
-    }
-    
-    // Fallback to primary description
-    return product.description || '';
+    return this.translationHelper.getProductDescription(product);
   }
 
   getStockSeverity(stockQuantity: number): "success" | "secondary" | "info" | "warn" | "danger" | "contrast" {
@@ -344,5 +322,10 @@ export class AdminProductsComponent implements OnInit {
   formatDate(dateString: string): string {
     const date = new Date(dateString);
     return date.toLocaleDateString();
+  }
+
+  // Format price using CurrencyService
+  formatPrice(price: number): string {
+    return this.currencyService.formatCurrency(price);
   }
 }

@@ -19,6 +19,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { OrderService } from '../../../services/order.service'; 
 import { ProductService } from '../../../services/product.service'; // 🆕 ADD THIS
 import { TranslationService } from '../../../services/translation.service'; // 🆕 ADD THIS
+import { CurrencyService } from '../../../core/services/currency.service';
 import { Order, OrderItem } from '../../../models/order.model';
 
 interface OrderStatus {
@@ -56,6 +57,7 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
   private translationService = inject(TranslationService); // 🆕 ADD THIS
   private messageService = inject(MessageService);
   private translateService = inject(TranslateService);
+  private currencyService = inject(CurrencyService);
 
   // Signals
   order = signal<Order | null>(null);
@@ -293,5 +295,10 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
 
   backToOrders(): void {
     this.router.navigate(['/orders']);
+  }
+
+  // Format price using CurrencyService
+  formatPrice(price: number): string {
+    return this.currencyService.formatCurrency(price);
   }
 }

@@ -76,7 +76,7 @@
                     </div>
                   </td>
                   <td class="text-center font-medium text-700 dark:text-white">
-                    ${{item.product_price}}/{{getUnitDisplay(item.product_unit)}}
+                    {{formatPrice(item.product_price)}}/{{getUnitDisplay(item.product_unit)}}
                   </td>
                   <td>
                     <div class="flex align-items-center justify-content-center">
@@ -98,7 +98,7 @@
                     </div>
                   </td>
                   <td class="text-right font-bold text-900 dark:text-white">
-                    ${{(item.product_price * item.quantity).toFixed(2)}}
+                    {{formatPrice(item.product_price * item.quantity)}}
                   </td>
                   <td class="text-center">
                     <button 
@@ -145,7 +145,7 @@
                     <!-- Price/Quantity row -->
                     <div class="flex justify-content-between align-items-center text-sm mt-2">
                       <!-- Left column: Price with fixed width -->
-                      <span class="text-700 w-4rem text-left">${{item.product_price}}/{{getUnitDisplay(item.product_unit)}}</span>
+                      <span class="text-700 w-4rem text-left">{{formatPrice(item.product_price)}}/{{getUnitDisplay(item.product_unit)}}</span>
                       
                       <!-- Middle column: Quantity select dropdown -->
                       <div class="flex align-items-center justify-content-center" style="width: 120px; z-index: 1;">
@@ -167,7 +167,7 @@
                       </div>
                       
                       <!-- Right column: Total price with fixed width for 6 digits -->
-                      <span class="font-bold text-900 w-5rem text-right">${{(item.product_price * item.quantity).toFixed(2)}}</span>
+                      <span class="font-bold text-900 w-5rem text-right">{{formatPrice(item.product_price * item.quantity)}}</span>
                     </div>
                   </div>
                 </div>
@@ -185,7 +185,7 @@
               <span class="text-900 dark:text-white">
                 {{cartItemCount()}} {{ 'cart.items_with_count' | translate }} 
               </span>
-              <span class="font-medium text-900 dark:text-white">${{cartTotal().toFixed(2)}}</span>
+              <span class="font-medium text-900 dark:text-white">{{formatPrice(cartTotal())}}</span>
             </div>
             
             <div class="flex justify-content-between mb-3">
@@ -197,7 +197,7 @@
             
             <div class="flex justify-content-between mb-4">
               <span class="text-lg font-medium text-900 dark:text-white">{{ 'common.total' | translate }}</span>
-              <span class="text-lg font-bold text-900 dark:text-white">${{cartTotal().toFixed(2)}}</span>
+              <span class="text-lg font-bold text-900 dark:text-white">{{formatPrice(cartTotal())}}</span>
             </div>
             
             <div class="flex flex-column mt-auto">

@@ -20,6 +20,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ProductService } from '../../../services/product.service';
 import { CartService } from '../../../services/cart.service';
 import { AuthService } from '../../../services/auth.service';
+import { CurrencyService } from '../../../core/services/currency.service';
 import { Product, Category } from '../../../models/product.model';
 
 @Component({
@@ -48,6 +49,7 @@ export class ProductDetailComponent implements OnInit {
   private cartService = inject(CartService);
   private messageService = inject(MessageService);
   private translateService = inject(TranslateService);
+  private currencyService = inject(CurrencyService);
   public authService = inject(AuthService);
   
   // Signals
@@ -308,5 +310,10 @@ export class ProductDetailComponent implements OnInit {
   // Get stock color class
   getStockColorClass(product: Product): string {
     return this.isProductOutOfStock(product) ? 'text-red-500' : 'text-orange-500';
+  }
+
+  // Format price using CurrencyService
+  formatPrice(price: number): string {
+    return this.currencyService.formatCurrency(price);
   }
 }

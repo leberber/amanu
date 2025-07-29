@@ -17,6 +17,7 @@ import { map, catchError } from 'rxjs/operators';
 
 import { CartService, CartItem } from '../../services/cart.service';
 import { AuthService } from '../../services/auth.service';
+import { CurrencyService } from '../../core/services/currency.service';
 import { ProductService } from '../../services/product.service'; // Add this import
 import { TranslationService } from '../../services/translation.service'; // Add this import
 
@@ -46,6 +47,7 @@ export class CartComponent implements OnInit, OnDestroy {
   private messageService = inject(MessageService);
   private router = inject(Router);
   private translateService = inject(TranslateService);
+  private currencyService = inject(CurrencyService);
   private productService = inject(ProductService); // Add this
   private translationService = inject(TranslationService); // Add this
   
@@ -317,5 +319,10 @@ export class CartComponent implements OnInit, OnDestroy {
         queryParams: { returnUrl: '/checkout' } 
       });
     }
+  }
+
+  // Format price using CurrencyService
+  formatPrice(price: number): string {
+    return this.currencyService.formatCurrency(price);
   }
 }

@@ -5,7 +5,6 @@ import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../services/auth.service';
-import { UserRole } from '../../models/user.model';
 
 @Component({
   selector: 'app-mobile-admin-menu',
@@ -154,7 +153,6 @@ export class MobileAdminMenuComponent {
   }
   
   isAdmin(): boolean {
-    const user = this.authService.currentUserValue;
-    return user?.role === UserRole.ADMIN;
+    return this.authService.isAdmin();
   }
 }

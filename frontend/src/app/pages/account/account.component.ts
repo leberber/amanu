@@ -15,7 +15,8 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
 import { User } from '../../models/user.model';
-import { DateService } from '../../../core/services/date.service';
+import { DateService } from '../../core/services/date.service';
+import { FormValidationService } from '../../core/services/form-validation.service';
 
 @Component({
   selector: 'app-account',
@@ -51,6 +52,7 @@ export class AccountComponent implements OnInit {
   public translateService = inject(TranslateService);
   private router = inject(Router);
   private dateService = inject(DateService);
+  private formValidation = inject(FormValidationService);
   
   constructor() {
     this.profileForm = this.createProfileForm();
@@ -176,11 +178,11 @@ export class AccountComponent implements OnInit {
   }
   
   getFieldError(form: FormGroup, fieldName: string, errorType: string): boolean {
-    const field = form.get(fieldName);
-    return !!(field?.hasError(errorType) && field?.touched);
+    return this.formValidation.hasError(form, fieldName, errorType);
   }
   
   formatDate(dateString: string | undefined): string {
+    if (!dateString) return '';
     return this.dateService.formatDate(dateString);
   }
   
