@@ -1,0 +1,125 @@
+/* Global Theme Variables */
+:root {
+  /* Primary colors - main brand colors */
+  --primary-50: #f0f9ff;
+  --primary-100: #e0f2fe;
+  --primary-200: #bae6fd;
+  --primary-300: #7dd3fc;
+  --primary-400: #38bdf8;
+  --primary-500: #0ea5e9;  /* Main primary */
+  --primary-600: #0284c7;
+  --primary-700: #0369a1;
+  --primary-800: #075985;
+  --primary-900: #0c4a6e;
+  
+  /* Secondary colors - complementary colors */
+  --secondary-50: #faf5ff;
+  --secondary-100: #f3e8ff;
+  --secondary-200: #e9d5ff;
+  --secondary-300: #d8b4fe;
+  --secondary-400: #c084fc;
+  --secondary-500: #a855f7;  /* Main secondary */
+  --secondary-600: #9333ea;
+  --secondary-700: #7c3aed;
+  --secondary-800: #6b21a8;
+  --secondary-900: #581c87;
+  
+  /* Tertiary colors - accent colors */
+  --tertiary-50: #fff7ed;
+  --tertiary-100: #ffedd5;
+  --tertiary-200: #fed7aa;
+  --tertiary-300: #fdba74;
+  --tertiary-400: #fb923c;
+  --tertiary-500: #f97316;  /* Main tertiary */
+  --tertiary-600: #ea580c;
+  --tertiary-700: #c2410c;
+  --tertiary-800: #9a3412;
+  --tertiary-900: #7c2d12;
+  
+  /* Semantic colors */
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  --color-info: #3b82f6;
+  
+  /* Neutral colors */
+  --neutral-0: #ffffff;
+  --neutral-50: #f9fafb;
+  --neutral-100: #f3f4f6;
+  --neutral-200: #e5e7eb;
+  --neutral-300: #d1d5db;
+  --neutral-400: #9ca3af;
+  --neutral-500: #6b7280;
+  --neutral-600: #4b5563;
+  --neutral-700: #374151;
+  --neutral-800: #1f2937;
+  --neutral-900: #111827;
+  --neutral-950: #030712;
+  
+  /* Applied theme colors */
+  --color-primary: var(--primary-500);
+  --color-primary-hover: var(--primary-600);
+  --color-primary-active: var(--primary-700);
+  --color-primary-light: var(--primary-100);
+  --color-primary-lighter: var(--primary-50);
+  
+  --color-secondary: var(--secondary-500);
+  --color-secondary-hover: var(--secondary-600);
+  --color-secondary-active: var(--secondary-700);
+  --color-secondary-light: var(--secondary-100);
+  --color-secondary-lighter: var(--secondary-50);
+  
+  --color-tertiary: var(--tertiary-500);
+  --color-tertiary-hover: var(--tertiary-600);
+  --color-tertiary-active: var(--tertiary-700);
+  --color-tertiary-light: var(--tertiary-100);
+  --color-tertiary-lighter: var(--tertiary-50);
+  
+  /* Text colors */
+  --text-primary: var(--neutral-900);
+  --text-secondary: var(--neutral-700);
+  --text-muted: var(--neutral-500);
+  --text-disabled: var(--neutral-400);
+  --text-inverse: var(--neutral-0);
+  
+  /* Background colors */
+  --bg-primary: var(--neutral-0);
+  --bg-secondary: var(--neutral-50);
+  --bg-tertiary: var(--neutral-100);
+  --bg-inverse: var(--neutral-900);
+  
+  /* Border colors */
+  --border-primary: var(--neutral-200);
+  --border-secondary: var(--neutral-300);
+  --border-focus: var(--color-primary);
+  
+  /* Component-specific colors */
+  --button-primary-bg: var(--color-primary);
+  --button-primary-hover: var(--color-primary-hover);
+  --button-primary-text: var(--text-inverse);
+  
+  --button-secondary-bg: var(--color-secondary);
+  --button-secondary-hover: var(--color-secondary-hover);
+  --button-secondary-text: var(--text-inverse);
+  
+  --card-bg: var(--bg-primary);
+  --card-border: var(--border-primary);
+  --card-shadow: rgba(0, 0, 0, 0.1);
+  
+  --input-bg: var(--bg-primary);
+  --input-border: var(--border-primary);
+  --input-focus-border: var(--border-focus);
+  
+  --link-color: var(--color-primary);
+  --link-hover: var(--color-primary-hover);
+  
+  /* Notification colors */
+  --notify-success-bg: var(--color-success);
+  --notify-success-text: var(--text-inverse);
+  --notify-error-bg: var(--color-error);
+  --notify-error-text: var(--text-inverse);
+  --notify-warning-bg: var(--color-warning);
+  --notify-warning-text: var(--text-inverse);
+  --notify-info-bg: var(--color-info);
+  --notify-info-text: var(--text-inverse);
+}

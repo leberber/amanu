@@ -1,6 +1,11 @@
 /* You can add global styles to this file, and also import other style files */
 @use 'primeflex/primeflex' as *;
 
+/* Import global styles */
+@import './styles/theme.css';
+@import './styles/spacing.css';
+@import './styles/utilities.css';
+
 @font-face {
   font-family: 'primeicons';
   font-style: normal;
