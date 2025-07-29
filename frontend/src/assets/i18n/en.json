@@ -34,7 +34,8 @@
     "close": "Close",
     "yes": "Yes",
     "no": "No",
-    "and": "and"
+    "and": "and",
+    "unknown": "Unknown"
   },
   "header": {
     "fresh_produce": "Fresh Produce",
@@ -332,7 +333,35 @@
     "dashboard": {
       "title": "Admin Dashboard",
       "welcome": "Welcome to the Admin Dashboard",
-      "overview": "Overview"
+      "overview": "Overview",
+      "manage_orders": "Manage Orders",
+      "manage_users": "Manage Users",
+      "manage_products": "Manage Products",
+      "manage_categories": "Manage Categories",
+      "total_revenue": "Total Revenue",
+      "total_users": "Total Users",
+      "total_products": "Total Products",
+      "total_categories": "Total Categories",
+      "total_orders": "Total Orders",
+      "pending_orders": "Pending Orders",
+      "low_stock_items": "Low Stock Items",
+      "sales_by_category": "Sales by Category",
+      "recent_orders": "Recent Orders",
+      "top_selling_products": "Top Selling Products",
+      "load_error": "Failed to load dashboard stats",
+      "permission_error": "You don't have permission to access this dashboard",
+      "error_loading": "Error loading dashboard",
+      "view_all_orders": "View All Orders",
+      "table": {
+        "id": "ID",
+        "customer": "Customer",
+        "status": "Status",
+        "amount": "Amount",
+        "product": "Product",
+        "category": "Category",
+        "quantity_sold": "Quantity Sold",
+        "total_sales": "Total Sales"
+      }
     },
     "stats": {
       "total_users": "Total Users",
@@ -352,7 +381,70 @@
       "filter_by_status": "Filter by Status",
       "update_status": "Update Status",
       "order_details": "Order Details",
-      "customer_info": "Customer Information"
+      "customer_info": "Customer Information",
+      "search": "Search",
+      "search_placeholder": "Search orders...",
+      "search_tooltip": "Search by order ID, customer name, email, phone, or status",
+      "clear_filters": "Clear Filters",
+      "refresh": "Refresh",
+      "refresh_tooltip": "Refresh order data",
+      "export": "Export",
+      "export_orders": "Export Orders",
+      "export_coming_soon": "Export functionality coming soon!",
+      "loading": "Loading orders...",
+      "no_orders": "No orders found",
+      "no_match": "No orders match your filters",
+      "try_adjusting": "Try adjusting your search or filters",
+      "orders_will_appear": "Orders will appear here once customers start placing them",
+      "showing_orders": "Showing {{first}} to {{last}} of {{totalRecords}} orders",
+      "view_details": "View Details",
+      "confirm_order": "Confirm Order",
+      "mark_shipped": "Mark as Shipped",
+      "mark_delivered": "Mark as Delivered",
+      "cancel_order": "Cancel Order",
+      "confirm": "Confirm",
+      "order_number": "Order",
+      "customer": "Customer",
+      "date": "Date",
+      "status": "Status",
+      "total": "Total",
+      "shipping_info": "Shipping Information",
+      "address": "Address",
+      "phone": "Phone",
+      "order_items": "Order Items",
+      "confirm_status_update": "Are you sure you want to update this order status to {{status}}?",
+      "confirm_header": "Confirm Status Update",
+      "status_updated": "Status Updated",
+      "status_update_message": "Order #{{orderId}} status changed to {{status}}",
+      "update_failed": "Update Failed",
+      "update_error": "Failed to update order status",
+      "load_error": "Failed to load orders",
+      "permission_error": "You do not have permission to access this page",
+      "user_id": "User ID",
+      "no_email": "No email",
+      "user_number": "User #",
+      "filters": {
+        "all": "All"
+      },
+      "table": {
+        "order_id": "Order ID",
+        "customer": "Customer Details",
+        "date": "Order Date",
+        "status": "Status",
+        "total": "Total",
+        "actions": "Actions",
+        "product": "Product",
+        "unit_price": "Unit Price",
+        "quantity": "Quantity",
+        "unit": "Unit"
+      },
+      "status": {
+        "pending": "Pending",
+        "confirmed": "Confirmed",
+        "shipped": "Shipped",
+        "delivered": "Delivered",
+        "cancelled": "Cancelled"
+      }
     },
     "users": {
       "title": "User Management",
@@ -382,6 +474,53 @@
     "create_success": "Product created successfully!",
     "update_success": "Product updated successfully!",
     "delete_success": "Product deleted successfully!",
+    "delete_failed": "Failed to delete product",
+    "load_error": "Failed to load products",
+    "confirm_delete_header": "Confirm Delete",
+    "confirm_delete_message": "Are you sure you want to delete \"{{productName}}\"? This action cannot be undone.",
+    "showing_products": "Showing {{first}} to {{last}} of {{totalRecords}} products",
+    "search": "Search",
+    "search_placeholder": "Search products...",
+    "search_tooltip": "Search by product name, description, or category",
+    "filter_by_category": "Filter by category",
+    "clear_filters": "Clear Filters",
+    "refresh": "Refresh",
+    "refresh_tooltip": "Refresh product data",
+    "add_first_product": "Add First Product",
+    "loading": "Loading products...",
+    "organic": "Organic",
+    "per": "per",
+    "filters": {
+      "all_categories": "All Categories"
+    },
+    "table": {
+      "product_name": "Product Name",
+      "category": "Category",
+      "price": "Price",
+      "stock": "Stock",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "stock": {
+      "in_stock": "In Stock",
+      "low_stock": "Low Stock",
+      "out_of_stock": "Out of Stock"
+    },
+    "actions": {
+      "view": "View Product",
+      "edit": "Edit Product",
+      "delete": "Delete Product"
+    },
+    "empty": {
+      "no_products": "No products found",
+      "no_match": "No products match your filters",
+      "get_started": "Get started by adding your first product",
+      "try_adjusting": "Try adjusting your search or filters"
+    },
     "form": {
       "basic_info": "Basic Information",
       "translations": "Translations",
@@ -419,11 +558,17 @@
     },
     "units": {
       "kg": "Kilogram (Kg)",
+      "kg_short": "kg",
       "gram": "Gram (g)",
+      "gram_short": "g",
       "piece": "Piece",
+      "piece_short": "pc",
       "bunch": "Bunch",
+      "bunch_short": "bunch",
       "dozen": "Dozen",
-      "pound": "Pound (lb)"
+      "dozen_short": "dz",
+      "pound": "Pound (lb)",
+      "pound_short": "lb"
     }
   },
     "categories": {
@@ -436,7 +581,45 @@
       "update_success": "Category updated successfully!",
       "create_failed": "Failed to create category",
       "update_failed": "Failed to update category",
-      "load_error": "Failed to load category",
+      "load_error": "Failed to load categories",
+      "delete_success": "Category deleted successfully!",
+      "delete_failed": "Failed to delete category",
+      "confirm_delete_header": "Confirm Delete",
+      "confirm_delete_message": "Are you sure you want to delete \"{{categoryName}}\"? This action cannot be undone.",
+      "showing_categories": "Showing {{first}} to {{last}} of {{totalRecords}} categories",
+      "search": "Search",
+      "search_placeholder": "Search categories...",
+      "search_tooltip": "Search by category name or description",
+      "clear_filters": "Clear Filters",
+      "clear_search": "Clear Search",
+      "refresh": "Refresh",
+      "refresh_tooltip": "Refresh category data",
+      "add_first_category": "Add First Category",
+      "loading": "Loading categories...",
+      "no_description": "No description",
+      "products_label": "products",
+      "table": {
+        "category_name": "Category Name",
+        "description": "Description",
+        "products": "Products",
+        "status": "Status",
+        "created": "Created",
+        "actions": "Actions"
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "actions": {
+        "edit": "Edit Category",
+        "delete": "Delete Category"
+      },
+      "empty": {
+        "no_categories": "No categories found",
+        "no_match": "No categories match your search",
+        "get_started": "Get started by adding your first category",
+        "try_adjusting": "Try adjusting your search terms"
+      },
       "form": {
         "translations": "Category Names",
         "translation_help": "Provide the category name in all supported languages. English will be used as the primary name.",
@@ -469,6 +652,91 @@
         "french_name_required": "French name is required",
         "arabic_name_required": "Arabic name is required"
       }
+    },
+    "users": {
+      "title": "User Management",
+      "subtitle": "Manage system users and their permissions",
+      "refresh": "Refresh",
+      "export": "Export",
+      "create_new": "Create New User",
+      "create_user": "Create User",
+      "search_placeholder": "Search users...",
+      "filter_by_role": "Filter by Role",
+      "filters": {
+        "all_roles": "All Roles"
+      },
+      "roles": {
+        "customer": "Customer",
+        "staff": "Staff",
+        "admin": "Admin"
+      },
+      "clear_filters": "Clear Filters",
+      "showing": "Showing {{shown}} of {{total}} users",
+      "loading": "Loading users...",
+      "table": {
+        "id": "ID",
+        "user_details": "User Details",
+        "role": "Role",
+        "status": "Status",
+        "created": "Created",
+        "actions": "Actions"
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "actions": {
+        "view_edit": "View/Edit User",
+        "delete": "Delete User"
+      },
+      "empty": {
+        "no_match_title": "No users match your filters",
+        "no_match_description": "Try adjusting your search criteria",
+        "no_users_title": "No users found",
+        "no_users_description": "Start by creating your first user"
+      },
+      "dialog": {
+        "edit_title": "Edit User",
+        "create_title": "Create New User",
+        "update_button": "Update User",
+        "create_button": "Create User"
+      },
+      "form": {
+        "full_name": "Full Name",
+        "email": "Email",
+        "phone": "Phone",
+        "role": "Role",
+        "select_role": "Select a role",
+        "address": "Address",
+        "password": "Password",
+        "password_edit": "Password (Leave blank to keep current password)",
+        "active_user": "Active User",
+        "errors": {
+          "full_name_required": "Full name is required",
+          "full_name_min": "Full name must be at least 3 characters",
+          "email_required": "Email is required",
+          "email_invalid": "Please enter a valid email address",
+          "password_required": "Password is required",
+          "password_min": "Password must be at least 8 characters long"
+        }
+      },
+      "messages": {
+        "user_updated": "User Updated",
+        "user_updated_detail": "User {{name}} has been updated successfully",
+        "update_failed": "Update Failed",
+        "update_failed_detail": "Failed to update user",
+        "not_implemented": "Not Implemented",
+        "create_not_implemented": "Creating users from admin panel is not implemented in this demo",
+        "user_deleted": "User Deleted",
+        "user_deleted_detail": "User {{name}} has been deleted successfully",
+        "deletion_failed": "Deletion Failed",
+        "deletion_failed_detail": "Failed to delete user"
+      },
+      "confirm_delete_header": "Confirm Deletion",
+      "confirm_delete_message": "Are you sure you want to delete user {{name}}?",
+      "export_coming_soon": "Export functionality coming soon!",
+      "load_error": "Failed to load users",
+      "permission_error": "You do not have permission to access this page"
     },
     "navigation": {
       "dashboard": "Dashboard",

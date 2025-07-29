@@ -85,12 +85,7 @@ export class AdminUsersComponent implements OnInit {
   userForm: FormGroup;
   
   // Options
-  roleOptions = [
-    { label: 'All Roles', value: '' },
-    { label: 'Customer', value: 'customer' },
-    { label: 'Staff', value: 'staff' },
-    { label: 'Admin', value: 'admin' }
-  ];
+  roleOptions: any[] = [];
   
   // Private properties
   private searchTimeout: any;
@@ -107,7 +102,22 @@ export class AdminUsersComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.initializeRoleOptions();
     this.loadAllUsers();
+    
+    // Update role options when language changes
+    this.translateService.onLangChange.subscribe(() => {
+      this.initializeRoleOptions();
+    });
+  }
+  
+  initializeRoleOptions() {
+    this.roleOptions = [
+      { label: this.translateService.instant('admin.users.filters.all_roles'), value: '' },
+      { label: this.translateService.instant('admin.users.roles.customer'), value: 'customer' },
+      { label: this.translateService.instant('admin.users.roles.staff'), value: 'staff' },
+      { label: this.translateService.instant('admin.users.roles.admin'), value: 'admin' }
+    ];
   }
 
   // ===== FORM SETUP =====
@@ -156,15 +166,15 @@ export class AdminUsersComponent implements OnInit {
     
     this.loading = false;
     
-    let errorMessage = 'Failed to load users';
+    let errorMessage = this.translateService.instant('admin.users.load_error');
     if (error.status === 403) {
-      errorMessage = 'You do not have permission to access this page';
+      errorMessage = this.translateService.instant('admin.users.permission_error');
       this.router.navigate(['/']);
     }
     
     this.messageService.add({
       severity: 'error',
-      summary: 'Error',
+      summary: this.translateService.instant('common.error'),
       detail: errorMessage
     });
     
@@ -306,8 +316,8 @@ export class AdminUsersComponent implements OnInit {
         
         this.messageService.add({
           severity: 'success',
-          summary: 'User Updated',
-          detail: `User ${updatedUser.full_name} has been updated successfully`
+          summary: this.translateService.instant('admin.users.messages.user_updated'),
+          detail: this.translateService.instant('admin.users.messages.user_updated_detail', { name: updatedUser.full_name })
         });
         
         this.displayUserDialog = false;
@@ -321,8 +331,8 @@ export class AdminUsersComponent implements OnInit {
         console.error('Error updating user:', error);
         this.messageService.add({
           severity: 'error',
-          summary: 'Update Failed',
-          detail: error.error?.detail || 'Failed to update user'
+          summary: this.translateService.instant('admin.users.messages.update_failed'),
+          detail: error.error?.detail || this.translateService.instant('admin.users.messages.update_failed_detail')
         });
       }
     });
@@ -334,8 +344,8 @@ export class AdminUsersComponent implements OnInit {
     this.displayUserDialog = false;
     this.messageService.add({
       severity: 'info',
-      summary: 'Not Implemented',
-      detail: 'Creating users from admin panel is not implemented in this demo'
+      summary: this.translateService.instant('admin.users.messages.not_implemented'),
+      detail: this.translateService.instant('admin.users.messages.create_not_implemented')
     });
   }
 
@@ -343,8 +353,8 @@ export class AdminUsersComponent implements OnInit {
   
   confirmDeleteUser(user: UserManage): void {
     this.confirmationService.confirm({
-      message: `Are you sure you want to delete user ${user.full_name}?`,
-      header: 'Confirm Deletion',
+      message: this.translateService.instant('admin.users.confirm_delete_message', { name: user.full_name }),
+      header: this.translateService.instant('admin.users.confirm_delete_header'),
       icon: 'pi pi-exclamation-triangle',
       acceptButtonStyleClass: 'p-button-danger',
       accept: () => this.deleteUser(user)
@@ -362,16 +372,16 @@ export class AdminUsersComponent implements OnInit {
         
         this.messageService.add({
           severity: 'success',
-          summary: 'User Deleted',
-          detail: `User ${user.full_name} has been deleted successfully`
+          summary: this.translateService.instant('admin.users.messages.user_deleted'),
+          detail: this.translateService.instant('admin.users.messages.user_deleted_detail', { name: user.full_name })
         });
       },
       error: (error) => {
         console.error('Error deleting user:', error);
         this.messageService.add({
           severity: 'error',
-          summary: 'Deletion Failed',
-          detail: error.error?.detail || 'Failed to delete user'
+          summary: this.translateService.instant('admin.users.messages.deletion_failed'),
+          detail: error.error?.detail || this.translateService.instant('admin.users.messages.deletion_failed_detail')
         });
       }
     });
@@ -387,8 +397,8 @@ export class AdminUsersComponent implements OnInit {
     // TODO: Implement export functionality
     this.messageService.add({
       severity: 'info',
-      summary: 'Export',
-      detail: 'Export functionality coming soon!'
+      summary: this.translateService.instant('admin.users.export'),
+      detail: this.translateService.instant('admin.users.export_coming_soon')
     });
   }
 
@@ -409,7 +419,13 @@ export class AdminUsersComponent implements OnInit {
 
   formatDate(dateString: string): string {
     const date = new Date(dateString);
-    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+    const day = date.getDate();
+    const month = date.getMonth() + 1;
+    const year = date.getFullYear();
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    
+    return `${day}/${month}/${year} ${hours}:${minutes}`;
   }
 
     navigateAddUser() {

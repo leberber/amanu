@@ -10,13 +10,13 @@
     } @else if (stats) {
       <!-- Title and Quick Actions on Same Line -->
       <div class="flex flex-column md:flex-row justify-content-between align-items-start md:align-items-center mb-4 surface-card p-4   gap-3">
-        <h1 class="text-3xl font-medium m-0">Admin Dashboard</h1>
+        <h1 class="text-3xl font-medium m-0">{{ 'admin.dashboard.title' | translate }}</h1>
         
         <div class="flex flex-wrap gap-2">
-          <button pButton label="Manage Orders" icon="pi pi-list" (click)="navigateToOrders()"></button>
-          <button pButton label="Manage Users" icon="pi pi-users" (click)="navigateToUsers()"></button>
-          <button pButton label="Manage Products" icon="pi pi-box" (click)="navigateToProducts()"></button>
-          <button pButton label="Manage Categories" icon="pi pi-folder" (click)="navigateToCategories()"></button>
+          <button pButton [label]="'admin.dashboard.manage_orders' | translate" icon="pi pi-list" (click)="navigateToOrders()"></button>
+          <button pButton [label]="'admin.dashboard.manage_users' | translate" icon="pi pi-users" (click)="navigateToUsers()"></button>
+          <button pButton [label]="'admin.dashboard.manage_products' | translate" icon="pi pi-box" (click)="navigateToProducts()"></button>
+          <button pButton [label]="'admin.dashboard.manage_categories' | translate" icon="pi pi-folder" (click)="navigateToCategories()"></button>
         
         </div>
       </div>
@@ -33,7 +33,7 @@
               <i class="pi pi-dollar text-3xl text-green-600"></i>
             </div>
             <div class="text-900 text-2xl font-bold mb-1">${{stats.total_revenue.toFixed(2)}}</div>
-            <div class="text-600 text-sm font-medium">Total Revenue</div>
+            <div class="text-600 text-sm font-medium">{{ 'admin.dashboard.total_revenue' | translate }}</div>
           </div>
         </div>
 
@@ -46,7 +46,7 @@
               <i class="pi pi-users text-3xl text-purple-600"></i>
             </div>
             <div class="text-900 text-2xl font-bold mb-1">{{stats.total_users}}</div>
-            <div class="text-600 text-sm font-medium">Total Users</div>
+            <div class="text-600 text-sm font-medium">{{ 'admin.dashboard.total_users' | translate }}</div>
           </div>
         </div>
 
@@ -59,7 +59,7 @@
               <i class="pi pi-box text-3xl text-orange-600"></i>
             </div>
             <div class="text-900 text-2xl font-bold mb-1">{{stats.total_products}}</div>
-            <div class="text-600 text-sm font-medium">Total Products</div>
+            <div class="text-600 text-sm font-medium">{{ 'admin.dashboard.total_products' | translate }}</div>
           </div>
         </div>
         
@@ -72,7 +72,7 @@
               <i class="pi pi-folder text-3xl text-cyan-600"></i>
             </div>
             <div class="text-900 text-2xl font-bold mb-1">{{stats.total_categories}}</div>
-            <div class="text-600 text-sm font-medium">Total Categories</div>
+            <div class="text-600 text-sm font-medium">{{ 'admin.dashboard.total_categories' | translate }}</div>
           </div>
         </div>
 
@@ -85,7 +85,7 @@
               <i class="pi pi-shopping-cart text-3xl text-blue-600"></i>
             </div>
             <div class="text-900 text-2xl font-bold mb-1">{{stats.total_orders}}</div>
-            <div class="text-600 text-sm font-medium">Total Orders</div>
+            <div class="text-600 text-sm font-medium">{{ 'admin.dashboard.total_orders' | translate }}</div>
           </div>
         </div>
         
@@ -100,7 +100,7 @@
               <i class="pi pi-clock text-3xl text-yellow-600"></i>
             </div>
             <div class="text-900 text-2xl font-bold mb-1">{{stats.pending_orders}}</div>
-            <div class="text-600 text-sm font-medium">Pending Orders</div>
+            <div class="text-600 text-sm font-medium">{{ 'admin.dashboard.pending_orders' | translate }}</div>
           </div>
         </div>
         
@@ -113,7 +113,7 @@
               <i class="pi pi-exclamation-triangle text-3xl text-red-600"></i>
             </div>
             <div class="text-900 text-2xl font-bold mb-1">{{stats.low_stock_products}}</div>
-            <div class="text-600 text-sm font-medium">Low Stock Items</div>
+            <div class="text-600 text-sm font-medium">{{ 'admin.dashboard.low_stock_items' | translate }}</div>
           </div>
         </div>
       </div>
@@ -125,7 +125,7 @@
         <!-- Sales by Category Chart -->
         <div class="col-12 md:col-6">
           <div class="surface-card p-4 shadow-2 border-round">
-            <h3 class="text-xl font-medium mb-3">Sales by Category</h3>
+            <h3 class="text-xl font-medium mb-3">{{ 'admin.dashboard.sales_by_category' | translate }}</h3>
             @if (categoryChartData) {
               <p-chart type="pie" [data]="categoryChartData" [options]="categoryChartOptions" width="100%"></p-chart>
             }
@@ -135,15 +135,15 @@
         <!-- Recent Orders Table -->
         <div class="col-12 md:col-6">
           <div class="surface-card p-4 shadow-2 border-round">
-            <h3 class="text-xl font-medium mb-3">Recent Orders</h3>
+            <h3 class="text-xl font-medium mb-3">{{ 'admin.dashboard.recent_orders' | translate }}</h3>
             
             <p-table [value]="stats.recent_orders" styleClass="p-datatable-sm p-datatable-striped" [tableStyle]="{'min-width': '100%'}">
               <ng-template pTemplate="header">
                 <tr>
-                  <th>ID</th>
-                  <th>Customer</th>
-                  <th>Status</th>
-                  <th>Amount</th>
+                  <th>{{ 'admin.dashboard.table.id' | translate }}</th>
+                  <th>{{ 'admin.dashboard.table.customer' | translate }}</th>
+                  <th>{{ 'admin.dashboard.table.status' | translate }}</th>
+                  <th>{{ 'admin.dashboard.table.amount' | translate }}</th>
                 </tr>
               </ng-template>
               <ng-template pTemplate="body" let-order>
@@ -155,7 +155,7 @@
                   </td>
                   <td>{{order.customer_name}}</td>
                   <td>
-                    <p-tag [severity]="getStatusSeverity(order.status)" [value]="order.status"></p-tag>
+                    <p-tag [severity]="getStatusSeverity(order.status)" [value]="'admin.orders.status.' + order.status | translate"></p-tag>
                   </td>
                   <td>${{order.total_amount.toFixed(2)}}</td>
                 </tr>
@@ -163,7 +163,7 @@
             </p-table>
             
             <div class="mt-3">
-              <button pButton label="View All Orders" icon="pi pi-arrow-right" 
+              <button pButton [label]="'admin.dashboard.view_all_orders' | translate" icon="pi pi-arrow-right" 
                       class="p-button-text p-button-sm" (click)="navigateToOrders()"></button>
             </div>
           </div>
@@ -172,25 +172,25 @@
         <!-- Top Selling Products -->
         <div class="col-12 mt-4">
           <div class="surface-card p-4 shadow-2 border-round">
-            <h3 class="text-xl font-medium mb-3">Top Selling Products</h3>
+            <h3 class="text-xl font-medium mb-3">{{ 'admin.dashboard.top_selling_products' | translate }}</h3>
             
             <p-table [value]="stats.top_selling_products" styleClass="p-datatable-sm" [tableStyle]="{'min-width': '100%'}">
               <ng-template pTemplate="header">
                 <tr>
-                  <th>Product</th>
-                  <th>Category</th>
-                  <th>Quantity Sold</th>
-                  <th>Total Sales</th>
+                  <th>{{ 'admin.dashboard.table.product' | translate }}</th>
+                  <th>{{ 'admin.dashboard.table.category' | translate }}</th>
+                  <th>{{ 'admin.dashboard.table.quantity_sold' | translate }}</th>
+                  <th>{{ 'admin.dashboard.table.total_sales' | translate }}</th>
                 </tr>
               </ng-template>
               <ng-template pTemplate="body" let-product>
                 <tr>
                   <td>
                     <a [routerLink]="['/admin/products', product.product_id]">
-                      {{product.name}}
+                      {{getProductName(product)}}
                     </a>
                   </td>
-                  <td>{{product.category}}</td>
+                  <td>{{getCategoryName(product.category)}}</td>
                   <td>{{product.total_quantity}}</td>
                   <td>${{product.total_sales.toFixed(2)}}</td>
                 </tr>
@@ -201,7 +201,7 @@
       </div>
     } @else {
       <div class="surface-card p-4 shadow-2 border-round">
-        <p>Error loading dashboard data. Please try again later.</p>
+        <p>{{ 'admin.dashboard.error_loading' | translate }}</p>
       </div>
     }
 </div>

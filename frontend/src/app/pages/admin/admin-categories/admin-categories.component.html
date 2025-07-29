@@ -15,7 +15,7 @@
       [scrollable]="true"
       [scrollHeight]="'calc(100vh - 200px)'"
       [showCurrentPageReport]="true"
-      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} categories"
+      [currentPageReportTemplate]="'admin.categories.showing_categories' | translate: {first: '{first}', last: '{last}', totalRecords: '{totalRecords}'}"
     >
       
       <!-- Table Caption with Enhanced Controls -->
@@ -31,7 +31,7 @@
                   <input 
                     type="text" 
                     pInputText 
-                    placeholder="Search categories..." 
+                    [placeholder]="'admin.categories.search_placeholder' | translate" 
                     [(ngModel)]="searchQuery"
                     (input)="onSearchInput()"
                     class="w-full"
@@ -39,7 +39,7 @@
                   <p-inputicon>
                     <i 
                       class="pi pi-info-circle text-500 cursor-pointer ml-2" 
-                      pTooltip="Search by category name or description"
+                      [pTooltip]="'admin.categories.search_tooltip' | translate"
                       tooltipPosition="right"
                       [showDelay]="300"
                       [hideDelay]="100"
@@ -52,7 +52,7 @@
               <!-- Clear Filters - Desktop -->
               <div class="col-2">
                 <p-button 
-                  label="Clear Filters" 
+                  [label]="'admin.categories.clear_filters' | translate" 
                   icon="pi pi-filter-slash"
                   [severity]="hasActiveFilters() ? 'warn' : 'secondary'"
                   (click)="clearFilters()"
@@ -65,11 +65,11 @@
               <div class="col-3">
                 <p-button 
                   icon="pi pi-refresh" 
-                  label="Refresh"
+                  [label]="'admin.categories.refresh' | translate"
                   severity="secondary"
                   [outlined]="true"
                   (click)="refreshCategoryData()"
-                  pTooltip="Refresh category data"
+                  [pTooltip]="'admin.categories.refresh_tooltip' | translate"
                   tooltipPosition="bottom"
                   class="w-full h-full"
                 />
@@ -78,7 +78,7 @@
               <!-- Add Category - Desktop -->
               <div class="col-3 flex justify-content-end">
                 <p-button 
-                  label="Add New Category" 
+                  [label]="'admin.categories.add_category' | translate" 
                   icon="pi pi-plus"
                   severity="success"
                   (click)="createNewCategory()"
@@ -98,7 +98,7 @@
                   <input 
                     type="text" 
                     pInputText 
-                    placeholder="Search..." 
+                    [placeholder]="'admin.categories.search' | translate" 
                     [(ngModel)]="searchQuery"
                     (input)="onSearchInput()"
                     class="w-full"
@@ -112,7 +112,7 @@
                 [severity]="hasActiveFilters() ? 'warn' : 'secondary'"
                 (click)="clearFilters()"
                 [disabled]="!hasActiveFilters()"
-                pTooltip="Clear Filters"
+                [pTooltip]="'admin.categories.clear_filters' | translate"
                 tooltipPosition="top"
                 [rounded]="true"
                 size="small"
@@ -123,7 +123,7 @@
                 severity="secondary"
                 [outlined]="true"
                 (click)="refreshCategoryData()"
-                pTooltip="Refresh"
+                [pTooltip]="'admin.categories.refresh' | translate"
                 tooltipPosition="top"
                 [rounded]="true"
                 size="small"
@@ -133,7 +133,7 @@
                 icon="pi pi-plus"
                 severity="success"
                 (click)="createNewCategory()"
-                pTooltip="Add Category"
+                [pTooltip]="'admin.categories.add_category' | translate"
                 tooltipPosition="top"
                 [rounded]="true"
                 size="small"
@@ -154,7 +154,7 @@
           <!-- Category Name Column -->
           <th pSortableColumn="name" style="min-width: 200px" class="p-3">
             <div class="flex align-items-center gap-2">
-              <span>Category Name</span>
+              <span>{{ 'admin.categories.table.category_name' | translate }}</span>
               <p-sortIcon [field]="'name'" />
             </div>
           </th>
@@ -162,20 +162,20 @@
           <!-- Description Column -->
           <th pSortableColumn="description" style="min-width: 300px">
             <div class="flex align-items-center gap-2">
-              <span>Description</span>
+              <span>{{ 'admin.categories.table.description' | translate }}</span>
               <p-sortIcon [field]="'description'" />
             </div>
           </th>
           
           <!-- Product Count Column -->
           <th style="min-width: 120px" class="text-center">
-            <span>Products</span>
+            <span>{{ 'admin.categories.table.products' | translate }}</span>
           </th>
           
           <!-- Status Column -->
           <th pSortableColumn="is_active" style="min-width: 100px" class="text-center">
             <div class="flex align-items-center justify-content-center gap-2">
-              <span>Status</span>
+              <span>{{ 'admin.categories.table.status' | translate }}</span>
               <p-sortIcon [field]="'is_active'" />
             </div>
           </th>
@@ -183,14 +183,14 @@
           <!-- Created Date Column -->
           <th pSortableColumn="created_at" style="min-width: 120px" class="text-center">
             <div class="flex align-items-center justify-content-center gap-2">
-              <span>Created</span>
+              <span>{{ 'admin.categories.table.created' | translate }}</span>
               <p-sortIcon [field]="'created_at'" />
             </div>
           </th>
           
           <!-- Actions Column -->
           <th style="width: 150px" class="text-center">
-            Actions
+            {{ 'admin.categories.table.actions' | translate }}
           </th>
         </tr>
       </ng-template>
@@ -217,30 +217,30 @@
           <!-- Category Name -->
           <td>
             <div class="flex flex-column">
-              <span class="font-medium text-900 mb-1 text-lg">{{ category.name }}</span>
+              <span class="font-medium text-900 mb-1 text-lg">{{ getCategoryName(category) }}</span>
             </div>
           </td>
           
           <!-- Description -->
           <td>
             <span 
-              *ngIf="category.description" 
+              *ngIf="getCategoryDescription(category)" 
               class="text-600 text-sm line-height-3 white-space-nowrap overflow-hidden text-overflow-ellipsis"
               style="max-width: 300px;"
-              [pTooltip]="category.description"
+              [pTooltip]="getCategoryDescription(category)"
               tooltipPosition="top"
             >
-              {{ category.description }}
+              {{ getCategoryDescription(category) }}
             </span>
-            <span *ngIf="!category.description" class="text-400 italic">
-              No description
+            <span *ngIf="!getCategoryDescription(category)" class="text-400 italic">
+              {{ 'admin.categories.no_description' | translate }}
             </span>
           </td>
           
           <!-- Product Count -->
           <td class="text-center">
             <p-tag 
-              [value]="getCategoryProductCount(category.id).toString() + ' products'"
+              [value]="getCategoryProductCount(category.id).toString() + ' ' + ('admin.categories.products_label' | translate)"
               severity="info"
             />
           </td>
@@ -248,7 +248,7 @@
           <!-- Status -->
           <td class="text-center">
             <p-tag 
-              [value]="category.is_active ? 'Active' : 'Inactive'" 
+              [value]="category.is_active ? ('admin.categories.status.active' | translate) : ('admin.categories.status.inactive' | translate)" 
               [severity]="category.is_active ? 'success' : 'danger'"
               [icon]="category.is_active ? 'pi pi-check' : 'pi pi-times'"
             />
@@ -271,7 +271,7 @@
                 [outlined]="true" 
                 [rounded]="true"
                 (click)="editCategory(category)"
-                pTooltip="Edit Category"
+                [pTooltip]="'admin.categories.actions.edit' | translate"
                 tooltipPosition="top"
               />
               
@@ -283,7 +283,7 @@
                 [outlined]="true" 
                 [rounded]="true"
                 (click)="confirmDeleteCategory(category)"
-                pTooltip="Delete Category"
+                [pTooltip]="'admin.categories.actions.delete' | translate"
                 tooltipPosition="top"
               />
             </div>
@@ -299,21 +299,21 @@
               <i class="pi pi-folder text-6xl text-gray-300"></i>
               <div>
                 <h3 class="text-xl font-medium text-gray-600 mb-2">
-                  {{ hasActiveFilters() ? 'No categories match your search' : 'No categories found' }}
+                  {{ hasActiveFilters() ? ('admin.categories.empty.no_match' | translate) : ('admin.categories.empty.no_categories' | translate) }}
                 </h3>
                 <p class="text-gray-500 mb-3">
-                  {{ hasActiveFilters() ? 'Try adjusting your search terms' : 'Get started by adding your first category' }}
+                  {{ hasActiveFilters() ? ('admin.categories.empty.try_adjusting' | translate) : ('admin.categories.empty.get_started' | translate) }}
                 </p>
                 <p-button 
                   *ngIf="hasActiveFilters()"
-                  label="Clear Search" 
+                  [label]="'admin.categories.clear_search' | translate" 
                   icon="pi pi-filter-slash"
                   severity="secondary"
                   (click)="clearFilters()"
                 />
                 <p-button 
                   *ngIf="!hasActiveFilters()"
-                  label="Add First Category" 
+                  [label]="'admin.categories.add_first_category' | translate" 
                   icon="pi pi-plus"
                   severity="success"
                   (click)="createNewCategory()"
@@ -330,7 +330,7 @@
           <td colspan="7" class="text-center p-4">
             <div class="flex align-items-center justify-content-center gap-2">
               <p-progressSpinner [style]="{'width': '2rem', 'height': '2rem'}" />
-              <span class="text-600">Loading categories...</span>
+              <span class="text-600">{{ 'admin.categories.loading' | translate }}</span>
             </div>
           </td>
         </tr>

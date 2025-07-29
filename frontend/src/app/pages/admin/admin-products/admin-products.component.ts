@@ -26,6 +26,7 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { BadgeModule } from 'primeng/badge';
 import { OverlayBadgeModule } from 'primeng/overlaybadge';
 import { TooltipModule } from 'primeng/tooltip';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 
 @Component({
@@ -50,7 +51,8 @@ import { TooltipModule } from 'primeng/tooltip';
     SelectModule,
     IconFieldModule,
     InputIconModule,
-    ProgressSpinnerModule
+    ProgressSpinnerModule,
+    TranslateModule
   ],
   providers: [MessageService, ConfirmationService],
     templateUrl:'./admin-products.component.html',
@@ -71,9 +73,7 @@ export class AdminProductsComponent implements OnInit {
   selectedCategory = null;
   
   // Category options for filter
-  categoryOptions: any[] = [
-    { label: 'All Categories', value: null }
-  ];
+  categoryOptions: any[] = [];
 
   private searchTimeout: any;
   
@@ -81,12 +81,18 @@ export class AdminProductsComponent implements OnInit {
     private productService: ProductService,
     private messageService: MessageService,
     private confirmationService: ConfirmationService,
-    private router: Router
+    private router: Router,
+    private translateService: TranslateService
   ) {}
 
   ngOnInit() {
     this.loadCategories();
     this.loadAllProducts(); // Load all products once
+    
+    // Subscribe to language changes
+    this.translateService.onLangChange.subscribe(() => {
+      this.loadCategories(); // Reload categories to update translations
+    });
   }
 
   hasActiveFilters(): boolean {
@@ -101,12 +107,18 @@ export class AdminProductsComponent implements OnInit {
       next: (categories) => {
         this.categories = categories;
         // Build category options for filter
-        const options = categories.map(cat => ({
-          label: cat.name,
-          value: cat.id
-        }));
+        const currentLang = this.translateService.currentLang;
+        const options = categories.map(cat => {
+          const category = cat as any; // Temporary type assertion
+          return {
+            label: (category.name_translations && category.name_translations[currentLang]) 
+              ? category.name_translations[currentLang] 
+              : category.name,
+            value: category.id
+          };
+        });
         this.categoryOptions = [
-          { label: 'All Categories', value: null },
+          { label: this.translateService.instant('admin.products.filters.all_categories'), value: null },
           ...options
         ];
       },
@@ -140,8 +152,8 @@ export class AdminProductsComponent implements OnInit {
         
         this.messageService.add({
           severity: 'error',
-          summary: 'Error',
-          detail: 'Failed to load products'
+          summary: this.translateService.instant('common.error'),
+          detail: this.translateService.instant('admin.products.load_error')
         });
       }
     });
@@ -155,8 +167,8 @@ export class AdminProductsComponent implements OnInit {
     if (this.searchQuery?.trim()) {
       const search = this.searchQuery.toLowerCase();
       filtered = filtered.filter(product => 
-        product.name.toLowerCase().includes(search) ||
-        product.description?.toLowerCase().includes(search) ||
+        this.getProductName(product).toLowerCase().includes(search) ||
+        this.getProductDescription(product).toLowerCase().includes(search) ||
         this.getCategoryName(product.category_id).toLowerCase().includes(search)
       );
     }
@@ -219,8 +231,8 @@ export class AdminProductsComponent implements OnInit {
   // Delete confirmation
   confirmDeleteProduct(product: Product) {
     this.confirmationService.confirm({
-      message: `Are you sure you want to delete "${product.name}"? This action cannot be undone.`,
-      header: 'Confirm Delete',
+      message: this.translateService.instant('admin.products.confirm_delete_message', { productName: product.name }),
+      header: this.translateService.instant('admin.products.confirm_delete_header'),
       icon: 'pi pi-exclamation-triangle',
       acceptButtonStyleClass: 'p-button-danger',
       accept: () => {
@@ -235,8 +247,8 @@ export class AdminProductsComponent implements OnInit {
       next: () => {
         this.messageService.add({
           severity: 'success',
-          summary: 'Product Deleted',
-          detail: `Product "${product.name}" has been deleted successfully`
+          summary: this.translateService.instant('common.success'),
+          detail: this.translateService.instant('admin.products.delete_success')
         });
         
         // Remove deleted product from allProducts array
@@ -248,8 +260,8 @@ export class AdminProductsComponent implements OnInit {
         console.error('Error deleting product:', error);
         this.messageService.add({
           severity: 'error',
-          summary: 'Delete Failed',
-          detail: error.error?.detail || 'Failed to delete product'
+          summary: this.translateService.instant('common.error'),
+          detail: error.error?.detail || this.translateService.instant('admin.products.delete_failed')
         });
       }
     });
@@ -262,8 +274,45 @@ export class AdminProductsComponent implements OnInit {
 
   // Utility methods
   getCategoryName(categoryId: number): string {
-    const category = this.categories.find(cat => cat.id === categoryId);
-    return category ? category.name : 'Unknown';
+    const category = this.categories.find(cat => cat.id === categoryId) as any;
+    if (!category) {
+      return this.translateService.instant('common.unknown');
+    }
+    
+    // Get current language
+    const currentLang = this.translateService.currentLang;
+    
+    // Check if category has translations
+    if (category.name_translations && category.name_translations[currentLang]) {
+      return category.name_translations[currentLang];
+    }
+    
+    // Fallback to primary name
+    return category.name;
+  }
+
+  getProductName(product: Product): string {
+    const currentLang = this.translateService.currentLang;
+    
+    // Check if product has translations
+    if (product.name_translations && product.name_translations[currentLang]) {
+      return product.name_translations[currentLang];
+    }
+    
+    // Fallback to primary name
+    return product.name;
+  }
+
+  getProductDescription(product: Product): string {
+    const currentLang = this.translateService.currentLang;
+    
+    // Check if product has translations
+    if (product.description_translations && product.description_translations[currentLang]) {
+      return product.description_translations[currentLang];
+    }
+    
+    // Fallback to primary description
+    return product.description || '';
   }
 
   getStockSeverity(stockQuantity: number): "success" | "secondary" | "info" | "warn" | "danger" | "contrast" {
@@ -274,19 +323,20 @@ export class AdminProductsComponent implements OnInit {
   }
 
   getStockLabel(stockQuantity: number): string {
-    if (stockQuantity === 0) return 'Out of Stock';
-    if (stockQuantity < 10) return 'Low Stock';
-    return 'In Stock';
+    if (stockQuantity === 0) return this.translateService.instant('admin.products.stock.out_of_stock');
+    if (stockQuantity < 10) return this.translateService.instant('admin.products.stock.low_stock');
+    return this.translateService.instant('admin.products.stock.in_stock');
   }
 
   getUnitDisplay(unit: string): string {
+    // For table display, just show the abbreviation
     switch (unit) {
-      case 'kg': return 'Kg';
-      case 'gram': return 'g';
-      case 'piece': return 'Piece';
-      case 'bunch': return 'Bunch';
-      case 'dozen': return 'Dozen';
-      case 'pound': return 'lb';
+      case 'kg': return this.translateService.instant('admin.products.units.kg_short') || 'kg';
+      case 'gram': return this.translateService.instant('admin.products.units.gram_short') || 'g';
+      case 'piece': return this.translateService.instant('admin.products.units.piece_short') || 'pc';
+      case 'bunch': return this.translateService.instant('admin.products.units.bunch_short') || 'bunch';
+      case 'dozen': return this.translateService.instant('admin.products.units.dozen_short') || 'dz';
+      case 'pound': return this.translateService.instant('admin.products.units.pound_short') || 'lb';
       default: return unit;
     }
   }

@@ -11,9 +11,11 @@ import { ChartModule } from 'primeng/chart';
 import { MessageService } from 'primeng/api';
 import { TagModule } from 'primeng/tag';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { AdminService } from '../../../services/admin.service'; 
 import { DashboardStats } from '../../../models/admin.model';
+import { ProductService } from '../../../services/product.service';
 
 // REMOVED: AdminAddProductComponent and AdminAddCategoryComponent imports
 // REMOVED: ViewChild decorators and modal methods
@@ -30,7 +32,8 @@ import { DashboardStats } from '../../../models/admin.model';
     ToastModule,
     ChartModule,
     TagModule,
-    ProgressSpinnerModule
+    ProgressSpinnerModule,
+    TranslateModule
     // REMOVED: AdminAddProductComponent, AdminAddCategoryComponent
   ],
   providers: [MessageService],
@@ -47,15 +50,53 @@ export class AdminDashboardComponent implements OnInit {
   salesChartOptions: any;
   categoryChartData: any;
   categoryChartOptions: any;
+  products: any[] = [];
+  categories: any[] = [];
 
   constructor(
     private adminService: AdminService,
     private router: Router,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private translateService: TranslateService,
+    private productService: ProductService
   ) {}
 
   ngOnInit() {
     this.loadDashboardStats();
+    this.loadProductsAndCategories();
+    this.translateService.onLangChange.subscribe(() => {
+      this.prepareChartData();
+    });
+  }
+  
+  loadProductsAndCategories() {
+    // Load products to get translations
+    this.productService.getProducts().subscribe({
+      next: (products) => {
+        this.products = products || [];
+        // Re-prepare chart data after loading products
+        if (this.stats) {
+          this.prepareChartData();
+        }
+      },
+      error: (error) => {
+        console.error('Error loading products:', error);
+      }
+    });
+    
+    // Load categories to get translations
+    this.productService.getCategories().subscribe({
+      next: (categories: any) => {
+        this.categories = categories || [];
+        // Re-prepare chart data after loading categories
+        if (this.stats) {
+          this.prepareChartData();
+        }
+      },
+      error: (error: any) => {
+        console.error('Error loading categories:', error);
+      }
+    });
   }
 
   loadDashboardStats() {
@@ -70,15 +111,15 @@ export class AdminDashboardComponent implements OnInit {
         console.error('Error loading dashboard stats:', error);
         this.loading = false;
         
-        let errorMessage = 'Failed to load dashboard statistics';
+        let errorMessage = this.translateService.instant('admin.dashboard.load_error');
         if (error.status === 403) {
-          errorMessage = 'You do not have permission to access this page';
+          errorMessage = this.translateService.instant('admin.dashboard.permission_error');
           this.router.navigate(['/']);
         }
         
         this.messageService.add({
           severity: 'error',
-          summary: 'Error',
+          summary: this.translateService.instant('common.error'),
           detail: errorMessage
         });
       }
@@ -89,14 +130,14 @@ export class AdminDashboardComponent implements OnInit {
     if (!this.stats) return;
 
     // Sales by category chart
-    const categoryLabels = this.stats.sales_by_category.map(item => item.name);
+    const categoryLabels = this.stats.sales_by_category.map(item => this.getCategoryName(item));
     const categorySales = this.stats.sales_by_category.map(item => item.total_sales);
     
     this.categoryChartData = {
       labels: categoryLabels,
       datasets: [
         {
-          label: 'Sales by Category',
+          label: this.translateService.instant('admin.dashboard.sales_by_category'),
           data: categorySales,
           backgroundColor: [
             '#42A5F5', '#66BB6A', '#FFA726', '#26C6DA', '#7E57C2', 
@@ -113,9 +154,24 @@ export class AdminDashboardComponent implements OnInit {
     this.categoryChartOptions = {
       plugins: {
         legend: {
-          position: 'right'
+          position: 'right',
+          labels: {
+            usePointStyle: true,
+            padding: 15
+          }
+        },
+        tooltip: {
+          callbacks: {
+            label: (context: any) => {
+              const label = context.label || '';
+              const value = context.raw || 0;
+              const currencySymbol = this.translateService.currentLang === 'ar' ? 'د.ج' : '$';
+              return `${label}: ${currencySymbol}${value.toFixed(2)}`;
+            }
+          }
         }
-      }
+      },
+      locale: this.translateService.currentLang === 'ar' ? 'ar-SA' : this.translateService.currentLang
     };
   }
 
@@ -132,7 +188,13 @@ export class AdminDashboardComponent implements OnInit {
 
   formatDate(dateString: string): string {
     const date = new Date(dateString);
-    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+    const day = date.getDate();
+    const month = date.getMonth() + 1;
+    const year = date.getFullYear();
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    
+    return `${day}/${month}/${year} ${hours}:${minutes}`;
   }
 
   // UPDATED: All navigation methods now use routing instead of modals
@@ -169,4 +231,65 @@ export class AdminDashboardComponent implements OnInit {
 navigateToCategories() {
   this.router.navigate(['/admin/categories']);
 }
+
+  getCategoryName(category: any): string {
+    const currentLang = this.translateService.currentLang;
+    
+    // If category already has translations
+    if (category.name_translations && category.name_translations[currentLang]) {
+      return category.name_translations[currentLang];
+    }
+    
+    // For sales by category, try to find the full category object
+    if (category.category_id && this.categories.length > 0) {
+      const fullCategory = this.categories.find(c => c.id === category.category_id);
+      if (fullCategory && fullCategory.name_translations && fullCategory.name_translations[currentLang]) {
+        return fullCategory.name_translations[currentLang];
+      }
+    }
+    
+    // For top selling products, category is just a string
+    if (typeof category === 'string') {
+      if (this.categories.length > 0) {
+        const fullCategory = this.categories.find(c => c.name === category);
+        if (fullCategory && fullCategory.name_translations && fullCategory.name_translations[currentLang]) {
+          return fullCategory.name_translations[currentLang];
+        }
+        // If no translation found, try to match by name in any language
+        const matchingCategory = this.categories.find(c => {
+          if (c.name_translations) {
+            return Object.values(c.name_translations).includes(category);
+          }
+          return false;
+        });
+        if (matchingCategory && matchingCategory.name_translations && matchingCategory.name_translations[currentLang]) {
+          return matchingCategory.name_translations[currentLang];
+        }
+      }
+      // Return the string as is if we can't find a match
+      return category;
+    }
+    
+    return category.name || category;
+  }
+
+  getProductName(product: any): string {
+    const currentLang = this.translateService.currentLang;
+    
+    // If product already has translations
+    if (product.name_translations && product.name_translations[currentLang]) {
+      return product.name_translations[currentLang];
+    }
+    
+    // For top selling products, try to find the full product object
+    if (product.product_id && this.products.length > 0) {
+      const fullProduct = this.products.find(p => p.id === product.product_id);
+      if (fullProduct && fullProduct.name_translations && fullProduct.name_translations[currentLang]) {
+        return fullProduct.name_translations[currentLang];
+      }
+    }
+    
+    // For top selling products, the name field might be used instead of product_name
+    return product.product_name || product.name;
+  }
 }

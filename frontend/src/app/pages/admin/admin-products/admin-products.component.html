@@ -15,7 +15,7 @@
       [scrollable]="true"
       [scrollHeight]="'calc(100vh - 200px)'"
       [showCurrentPageReport]="true"
-      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products"
+      [currentPageReportTemplate]="'admin.products.showing_products' | translate: {first: '{first}', last: '{last}', totalRecords: '{totalRecords}'}"
     >
       
       <!-- Table Caption with Enhanced Controls -->
@@ -31,7 +31,7 @@
                   <input 
                     type="text" 
                     pInputText 
-                    placeholder="Search products..." 
+                    [placeholder]="'admin.products.search_placeholder' | translate" 
                     [(ngModel)]="searchQuery"
                     (input)="onSearchInput()"
                     class="w-full"
@@ -39,7 +39,7 @@
                   <p-inputicon>
                     <i 
                       class="pi pi-info-circle text-500 cursor-pointer ml-2" 
-                      pTooltip="Search by product name, description, or category"
+                      [pTooltip]="'admin.products.search_tooltip' | translate"
                       tooltipPosition="right"
                       [showDelay]="300"
                       [hideDelay]="100"
@@ -54,7 +54,7 @@
                 <p-select
                   [options]="categoryOptions"
                   [(ngModel)]="selectedCategory"
-                  placeholder="Filter by category"
+                  [placeholder]="'admin.products.filter_by_category' | translate"
                   (onChange)="onCategoryChange()"
                   class="w-full h-full"
                 />
@@ -63,7 +63,7 @@
               <!-- Clear Filters - Desktop -->
               <div class="col-2">
                 <p-button 
-                  label="Clear Filters" 
+                  [label]="'admin.products.clear_filters' | translate" 
                   icon="pi pi-filter-slash"
                   [severity]="hasActiveFilters() ? 'warn' : 'secondary'"
                   (click)="clearFilters()"
@@ -76,11 +76,11 @@
               <div class="col-2">
                 <p-button 
                   icon="pi pi-refresh" 
-                  label="Refresh"
+                  [label]="'admin.products.refresh' | translate"
                   severity="secondary"
                   [outlined]="true"
                   (click)="refreshProductData()"
-                  pTooltip="Refresh product data"
+                  [pTooltip]="'admin.products.refresh_tooltip' | translate"
                   tooltipPosition="bottom"
                   class="w-full h-full"
                 />
@@ -89,7 +89,7 @@
               <!-- Add Product - Desktop -->
               <div class="col-3 flex justify-content-end">
                 <p-button 
-                  label="Add New Product" 
+                  [label]="'admin.products.add_product' | translate" 
                   icon="pi pi-plus"
                   severity="success"
                   (click)="createNewProduct()"
@@ -109,7 +109,7 @@
                   <input 
                     type="text" 
                     pInputText 
-                    placeholder="Search..." 
+                    [placeholder]="'admin.products.search' | translate" 
                     [(ngModel)]="searchQuery"
                     (input)="onSearchInput()"
                     class="w-full"
@@ -123,7 +123,7 @@
                 [severity]="hasActiveFilters() ? 'warn' : 'secondary'"
                 (click)="clearFilters()"
                 [disabled]="!hasActiveFilters()"
-                pTooltip="Clear Filters"
+                [pTooltip]="'admin.products.clear_filters' | translate"
                 tooltipPosition="top"
                 [rounded]="true"
                 size="small"
@@ -134,7 +134,7 @@
                 severity="secondary"
                 [outlined]="true"
                 (click)="refreshProductData()"
-                pTooltip="Refresh"
+                [pTooltip]="'admin.products.refresh' | translate"
                 tooltipPosition="top"
                 [rounded]="true"
                 size="small"
@@ -144,7 +144,7 @@
                 icon="pi pi-plus"
                 severity="success"
                 (click)="createNewProduct()"
-                pTooltip="Add Product"
+                [pTooltip]="'admin.products.add_product' | translate"
                 tooltipPosition="top"
                 [rounded]="true"
                 size="small"
@@ -156,7 +156,7 @@
               <p-select
                 [options]="categoryOptions"
                 [(ngModel)]="selectedCategory"
-                placeholder="Filter by category"
+                [placeholder]="'admin.products.filter_by_category' | translate"
                 (onChange)="onCategoryChange()"
                 class="w-full"
               />
@@ -176,7 +176,7 @@
           <!-- Product Name Column -->
           <th pSortableColumn="name" style="min-width: 200px" class="p-3">
             <div class="flex align-items-center gap-2">
-              <span>Product Name</span>
+              <span>{{ 'admin.products.table.product_name' | translate }}</span>
               <p-sortIcon [field]="'name'" />
             </div>
           </th>
@@ -184,7 +184,7 @@
           <!-- Category Column -->
           <th pSortableColumn="category_id" style="min-width: 120px">
             <div class="flex align-items-center gap-2">
-              <span>Category</span>
+              <span>{{ 'admin.products.table.category' | translate }}</span>
               <p-sortIcon [field]="'category_id'" />
             </div>
           </th>
@@ -192,7 +192,7 @@
           <!-- Price Column -->
           <th pSortableColumn="price" style="min-width: 100px" class="text-right">
             <div class="flex align-items-center justify-content-end gap-2">
-              <span>Price</span>
+              <span>{{ 'admin.products.table.price' | translate }}</span>
               <p-sortIcon [field]="'price'" />
             </div>
           </th>
@@ -200,7 +200,7 @@
           <!-- Stock Column -->
           <th pSortableColumn="stock_quantity" style="min-width: 120px" class="text-center">
             <div class="flex align-items-center justify-content-center gap-2">
-              <span>Stock</span>
+              <span>{{ 'admin.products.table.stock' | translate }}</span>
               <p-sortIcon [field]="'stock_quantity'" />
             </div>
           </th>
@@ -208,14 +208,14 @@
           <!-- Status Column -->
           <th pSortableColumn="is_active" style="min-width: 100px" class="text-center">
             <div class="flex align-items-center justify-content-center gap-2">
-              <span>Status</span>
+              <span>{{ 'admin.products.table.status' | translate }}</span>
               <p-sortIcon [field]="'is_active'" />
             </div>
           </th>
           
           <!-- Actions Column -->
           <th style="width: 180px" class="text-center">
-            Actions
+            {{ 'admin.products.table.actions' | translate }}
           </th>
         </tr>
       </ng-template>
@@ -243,20 +243,20 @@
           <!-- Product Name with Description -->
           <td>
             <div class="flex flex-column">
-              <span class="font-medium text-900 mb-1">{{ product.name }}</span>
+              <span class="font-medium text-900 mb-1">{{ getProductName(product) }}</span>
               <span 
-                *ngIf="product.description" 
+                *ngIf="getProductDescription(product)" 
                 class="text-600 text-sm line-height-3 white-space-nowrap overflow-hidden text-overflow-ellipsis"
                 style="max-width: 200px;"
-                [pTooltip]="product.description"
+                [pTooltip]="getProductDescription(product)"
                 tooltipPosition="top"
               >
-                {{ product.description }}
+                {{ getProductDescription(product) }}
               </span>
               <div class="flex align-items-center gap-2 mt-1">
                 <p-tag 
                   *ngIf="product.is_organic" 
-                  value="Organic" 
+                  [value]="'admin.products.organic' | translate" 
                   severity="success" 
                   icon="pi pi-check-circle"
                 />
@@ -279,7 +279,7 @@
                 ${{ product.price.toFixed(2) }}
               </span>
               <span class="text-600 text-sm">
-                per {{ getUnitDisplay(product.unit) }}
+                {{ 'admin.products.per' | translate }} {{ getUnitDisplay(product.unit) }}
               </span>
             </div>
           </td>
@@ -301,7 +301,7 @@
           <!-- Status -->
           <td class="text-center">
             <p-tag 
-              [value]="product.is_active ? 'Active' : 'Inactive'" 
+              [value]="product.is_active ? ('admin.products.status.active' | translate) : ('admin.products.status.inactive' | translate)" 
               [severity]="product.is_active ? 'success' : 'danger'"
               [icon]="product.is_active ? 'pi pi-check' : 'pi pi-times'"
             />
@@ -364,14 +364,14 @@
                 </p>
                 <p-button 
                   *ngIf="hasActiveFilters()"
-                  label="Clear Filters" 
+                  [label]="'admin.products.clear_filters' | translate" 
                   icon="pi pi-filter-slash"
                   severity="secondary"
                   (click)="clearFilters()"
                 />
                 <p-button 
                   *ngIf="!hasActiveFilters()"
-                  label="Add First Product" 
+                  [label]="'admin.products.add_first_product' | translate" 
                   icon="pi pi-plus"
                   severity="success"
                   (click)="createNewProduct()"

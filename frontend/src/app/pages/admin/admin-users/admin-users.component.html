@@ -7,16 +7,16 @@
     <!-- Header Section -->
     <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center mb-4">
       <div>
-        <h1 class="text-3xl font-medium mb-2 md:mb-0">User Management</h1>
-        <p class="text-color-secondary m-0">Manage system users and their permissions</p>
+        <h1 class="text-3xl font-medium mb-2 md:mb-0">{{ 'admin.users.title' | translate }}</h1>
+        <p class="text-color-secondary m-0">{{ 'admin.users.subtitle' | translate }}</p>
       </div>
       
       <div class="flex flex-column sm:flex-row gap-2 mt-3 md:mt-0">
-        <button pButton label="Refresh" icon="pi pi-refresh" class="p-button-outlined p-button-sm" 
+        <button pButton [label]="'admin.users.refresh' | translate" icon="pi pi-refresh" class="p-button-outlined p-button-sm" 
                 (click)="refreshUserData()" [loading]="loading"></button>
-        <button pButton label="Export" icon="pi pi-download" class="p-button-outlined p-button-sm" 
+        <button pButton [label]="'admin.users.export' | translate" icon="pi pi-download" class="p-button-outlined p-button-sm" 
                 (click)="exportUsers()"></button>
-        <button pButton label="Create New User" icon="pi pi-plus" class="p-button-sm"
+        <button pButton [label]="'admin.users.create_new' | translate" icon="pi pi-plus" class="p-button-sm"
                 (click)="navigateAddUser()"></button>
       </div>
     </div>
@@ -29,7 +29,7 @@
           <input pInputText 
                  [(ngModel)]="searchQuery" 
                  (input)="onSearchInput()" 
-                 placeholder="Search users..."
+                 [placeholder]="'admin.users.search_placeholder' | translate"
                  class="w-full" />
         </p-iconfield>
       </div>
@@ -39,7 +39,7 @@
           [(ngModel)]="filterRole" 
           [options]="roleOptions" 
           (onChange)="onRoleChange()"
-          placeholder="Filter by Role"
+          [placeholder]="'admin.users.filter_by_role' | translate"
           optionLabel="label"
           optionValue="value"
           class="w-full" />
@@ -48,11 +48,11 @@
       <div class="col-12 lg:col-5">
         <div class="flex justify-content-start lg:justify-content-end gap-2 align-items-center">
           @if (hasActiveFilters()) {
-            <button pButton label="Clear Filters" icon="pi pi-filter-slash" 
+            <button pButton [label]="'admin.users.clear_filters' | translate" icon="pi pi-filter-slash" 
                     class="p-button-outlined p-button-sm" (click)="clearFilters()"></button>
           }
           <span class="text-sm text-color-secondary">
-            Showing {{users.length}} of {{allUsers.length}} users
+            {{ 'admin.users.showing' | translate:{ shown: users.length, total: allUsers.length } }}
           </span>
         </div>
       </div>
@@ -64,7 +64,7 @@
     @if (loading) {
       <div class="flex justify-content-center align-items-center py-8">
         <p-progressSpinner></p-progressSpinner>
-        <span class="ml-2">Loading users...</span>
+        <span class="ml-2">{{ 'admin.users.loading' | translate }}</span>
       </div>
     } @else {
       <!-- Users Table -->
@@ -76,12 +76,12 @@
                responsiveLayout="scroll">
         <ng-template pTemplate="header">
           <tr>
-            <th style="width: 80px">ID</th>
-            <th>User Details</th>
-            <th style="width: 100px">Role</th>
-            <th style="width: 100px">Status</th>
-            <th style="width: 150px">Created</th>
-            <th style="width: 120px">Actions</th>
+            <th style="width: 80px">{{ 'admin.users.table.id' | translate }}</th>
+            <th>{{ 'admin.users.table.user_details' | translate }}</th>
+            <th style="width: 100px">{{ 'admin.users.table.role' | translate }}</th>
+            <th style="width: 100px">{{ 'admin.users.table.status' | translate }}</th>
+            <th style="width: 150px">{{ 'admin.users.table.created' | translate }}</th>
+            <th style="width: 120px">{{ 'admin.users.table.actions' | translate }}</th>
           </tr>
         </ng-template>
         
@@ -106,7 +106,7 @@
             </td>
             <td>
               <p-tag [severity]="user.is_active ? 'success' : 'danger'" 
-                     [value]="user.is_active ? 'Active' : 'Inactive'"></p-tag>
+                     [value]="user.is_active ? ('admin.users.status.active' | translate) : ('admin.users.status.inactive' | translate)"></p-tag>
             </td>
             <td class="text-sm">{{formatDate(user.created_at)}}</td>
             <td>
@@ -114,13 +114,13 @@
                 <button pButton icon="pi pi-eye" 
                         class="p-button-text p-button-sm" 
                         (click)="openUserDetails(user)" 
-                        pTooltip="View/Edit User"
+                        [pTooltip]="'admin.users.actions.view_edit' | translate"
                         tooltipPosition="top"></button>
                 
                 <button pButton icon="pi pi-trash" 
                         class="p-button-text p-button-danger p-button-sm" 
                         (click)="confirmDeleteUser(user)" 
-                        pTooltip="Delete User"
+                        [pTooltip]="'admin.users.actions.delete' | translate"
                         tooltipPosition="top"></button>
               </div>
             </td>
@@ -134,10 +134,10 @@
                 <div class="flex flex-column align-items-center gap-3">
                   <i class="pi pi-filter text-4xl text-color-secondary"></i>
                   <div>
-                    <h3 class="m-0">No users match your filters</h3>
-                    <p class="text-color-secondary m-0">Try adjusting your search criteria</p>
+                    <h3 class="m-0">{{ 'admin.users.empty.no_match_title' | translate }}</h3>
+                    <p class="text-color-secondary m-0">{{ 'admin.users.empty.no_match_description' | translate }}</p>
                   </div>
-                  <button pButton label="Clear Filters" 
+                  <button pButton [label]="'admin.users.clear_filters' | translate" 
                           class="p-button-outlined p-button-sm" 
                           (click)="clearFilters()"></button>
                 </div>
@@ -145,10 +145,10 @@
                 <div class="flex flex-column align-items-center gap-3">
                   <i class="pi pi-users text-4xl text-color-secondary"></i>
                   <div>
-                    <h3 class="m-0">No users found</h3>
-                    <p class="text-color-secondary m-0">Start by creating your first user</p>
+                    <h3 class="m-0">{{ 'admin.users.empty.no_users_title' | translate }}</h3>
+                    <p class="text-color-secondary m-0">{{ 'admin.users.empty.no_users_description' | translate }}</p>
                   </div>
-                  <button pButton label="Create User" 
+                  <button pButton [label]="'admin.users.create_user' | translate" 
                           icon="pi pi-plus" 
                           class="p-button-sm"
                           (click)="createNewUser()"></button>
@@ -163,7 +163,7 @@
       @if (users.length > 0) {
         <div class="flex justify-content-between align-items-center mt-3">
           <span class="text-sm text-color-secondary">
-            Showing {{users.length}} of {{totalRecords}} users
+            {{ 'admin.users.showing' | translate:{ shown: users.length, total: totalRecords } }}
           </span>
         </div>
       }
@@ -174,7 +174,7 @@
   <p-dialog 
     [(visible)]="displayUserDialog" 
     [style]="{width: '90%', maxWidth: '600px'}" 
-    [header]="isEditing ? 'Edit User' : 'Create New User'" 
+    [header]="isEditing ? ('admin.users.dialog.edit_title' | translate) : ('admin.users.dialog.create_title' | translate)" 
     [modal]="true"
     [draggable]="false"
     [resizable]="false"
@@ -186,14 +186,14 @@
       <div class="grid p-fluid">
         <div class="col-12">
           <div class="field">
-            <label for="full_name" class="font-semibold">Full Name *</label>
+            <label for="full_name" class="font-semibold">{{ 'admin.users.form.full_name' | translate }} *</label>
             <input type="text" pInputText id="full_name" formControlName="full_name" />
             @if (userForm.get('full_name')?.touched && userForm.get('full_name')?.invalid) {
               <small class="p-error">
                 @if (userForm.get('full_name')?.errors?.['required']) {
-                  Full name is required
+                  {{ 'admin.users.form.errors.full_name_required' | translate }}
                 } @else if (userForm.get('full_name')?.errors?.['minlength']) {
-                  Full name must be at least 3 characters
+                  {{ 'admin.users.form.errors.full_name_min' | translate }}
                 }
               </small>
             }
@@ -202,14 +202,14 @@
         
         <div class="col-12">
           <div class="field">
-            <label for="email" class="font-semibold">Email *</label>
+            <label for="email" class="font-semibold">{{ 'admin.users.form.email' | translate }} *</label>
             <input type="email" pInputText id="email" formControlName="email" />
             @if (userForm.get('email')?.touched && userForm.get('email')?.invalid) {
               <small class="p-error">
                 @if (userForm.get('email')?.errors?.['required']) {
-                  Email is required
+                  {{ 'admin.users.form.errors.email_required' | translate }}
                 } @else if (userForm.get('email')?.errors?.['email']) {
-                  Please enter a valid email address
+                  {{ 'admin.users.form.errors.email_invalid' | translate }}
                 }
               </small>
             }
@@ -218,27 +218,27 @@
         
         <div class="col-12 md:col-6">
           <div class="field">
-            <label for="phone" class="font-semibold">Phone</label>
+            <label for="phone" class="font-semibold">{{ 'admin.users.form.phone' | translate }}</label>
             <input type="text" pInputText id="phone" formControlName="phone" />
           </div>
         </div>
         
         <div class="col-12 md:col-6">
           <div class="field">
-            <label for="role" class="font-semibold">Role *</label>
+            <label for="role" class="font-semibold">{{ 'admin.users.form.role' | translate }} *</label>
             <p-select id="role" 
                       formControlName="role" 
                       [options]="roleOptions.slice(1)" 
                       optionLabel="label" 
                       optionValue="value"
-                      placeholder="Select a role"
+                      [placeholder]="'admin.users.form.select_role' | translate"
                       class="w-full" />
           </div>
         </div>
         
         <div class="col-12">
           <div class="field">
-            <label for="address" class="font-semibold">Address</label>
+            <label for="address" class="font-semibold">{{ 'admin.users.form.address' | translate }}</label>
             <textarea pInputTextarea id="address" formControlName="address" rows="3"></textarea>
           </div>
         </div>
@@ -247,9 +247,9 @@
           <div class="field">
             <label for="password" class="font-semibold">
               @if (isEditing) {
-                Password (Leave blank to keep current password)
+                {{ 'admin.users.form.password_edit' | translate }}
               } @else {
-                Password *
+                {{ 'admin.users.form.password' | translate }} *
               }
             </label>
             <p-password id="password" 
@@ -261,9 +261,9 @@
             @if (userForm.get('password')?.touched && userForm.get('password')?.invalid) {
               <small class="p-error">
                 @if (userForm.get('password')?.errors?.['required']) {
-                  Password is required
+                  {{ 'admin.users.form.errors.password_required' | translate }}
                 } @else if (userForm.get('password')?.errors?.['minlength']) {
-                  Password must be at least 8 characters long
+                  {{ 'admin.users.form.errors.password_min' | translate }}
                 }
               </small>
             }
@@ -273,19 +273,19 @@
         <div class="col-12">
           <div class="field-checkbox">
             <p-checkbox formControlName="is_active" [binary]="true" inputId="is_active"></p-checkbox>
-            <label for="is_active" class="ml-2 font-semibold">Active User</label>
+            <label for="is_active" class="ml-2 font-semibold">{{ 'admin.users.form.active_user' | translate }}</label>
           </div>
         </div>
       </div>
       
       <div class="flex justify-content-end gap-2 mt-4">
-        <button pButton label="Cancel" 
+        <button pButton [label]="'common.cancel' | translate" 
                 icon="pi pi-times" 
                 class="p-button-outlined" 
                 type="button" 
                 (click)="displayUserDialog = false"></button>
         <button pButton 
-                [label]="isEditing ? 'Update User' : 'Create User'" 
+                [label]="isEditing ? ('admin.users.dialog.update_button' | translate) : ('admin.users.dialog.create_button' | translate)" 
                 icon="pi pi-check" 
                 type="submit" 
                 [disabled]="userForm.invalid"></button>

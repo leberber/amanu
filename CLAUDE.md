@@ -84,6 +84,7 @@ The deployment script:
 2. **Frontend Proxy**: Configured to proxy `/api` to backend in development
 3. **Environment Variables**: Backend uses `.env` file (not in repo)
 4. **Database Migrations**: SQLModel handles schema updates automatically
+5. **Date Format**: Always display dates in numeric format: DD/MM/YYYY HH:MM (e.g., 28/7/2025 14:23)
 
 ## Project Structure
 

@@ -34,7 +34,8 @@
     "close": "إغلاق",
     "yes": "نعم",
     "no": "لا",
-    "and": "و"
+    "and": "و",
+    "unknown": "غير معروف"
   },
   "header": {
     "fresh_produce": "المنتجات الطازجة",
@@ -329,7 +330,35 @@
     "dashboard": {
       "title": "لوحة التحكم",
       "welcome": "مرحباً بك في لوحة تحكم الإدارة",
-      "overview": "نظرة عامة"
+      "overview": "نظرة عامة",
+      "manage_orders": "إدارة الطلبات",
+      "manage_users": "إدارة المستخدمين",
+      "manage_products": "إدارة المنتجات",
+      "manage_categories": "إدارة الفئات",
+      "total_revenue": "إجمالي الإيرادات",
+      "total_users": "إجمالي المستخدمين",
+      "total_products": "إجمالي المنتجات",
+      "total_categories": "إجمالي الفئات",
+      "total_orders": "إجمالي الطلبات",
+      "pending_orders": "الطلبات المعلقة",
+      "low_stock_items": "منتجات قليلة المخزون",
+      "sales_by_category": "المبيعات حسب الفئة",
+      "recent_orders": "الطلبات الحديثة",
+      "top_selling_products": "المنتجات الأكثر مبيعاً",
+      "load_error": "فشل في تحميل إحصائيات لوحة التحكم",
+      "permission_error": "ليس لديك إذن للوصول إلى لوحة التحكم هذه",
+      "error_loading": "خطأ في تحميل لوحة التحكم",
+      "view_all_orders": "عرض جميع الطلبات",
+      "table": {
+        "id": "المعرف",
+        "customer": "العميل",
+        "status": "الحالة",
+        "amount": "المبلغ",
+        "product": "المنتج",
+        "category": "الفئة",
+        "quantity_sold": "الكمية المباعة",
+        "total_sales": "إجمالي المبيعات"
+      }
     },
     "stats": {
       "total_users": "إجمالي المستخدمين",
@@ -349,7 +378,70 @@
       "filter_by_status": "تصفية حسب الحالة",
       "update_status": "تحديث الحالة",
       "order_details": "تفاصيل الطلب",
-      "customer_info": "معلومات العميل"
+      "customer_info": "معلومات العميل",
+      "search": "بحث",
+      "search_placeholder": "البحث عن الطلبات...",
+      "search_tooltip": "البحث برقم الطلب، اسم العميل، البريد الإلكتروني، الهاتف أو الحالة",
+      "clear_filters": "مسح الفلاتر",
+      "refresh": "تحديث",
+      "refresh_tooltip": "تحديث بيانات الطلبات",
+      "export": "تصدير",
+      "export_orders": "تصدير الطلبات",
+      "export_coming_soon": "ميزة التصدير قريباً!",
+      "loading": "جاري تحميل الطلبات...",
+      "no_orders": "لم يتم العثور على طلبات",
+      "no_match": "لا توجد طلبات تطابق فلاترك",
+      "try_adjusting": "حاول تعديل البحث أو الفلاتر",
+      "orders_will_appear": "ستظهر الطلبات هنا بمجرد أن يبدأ العملاء في تقديمها",
+      "showing_orders": "عرض {{first}} إلى {{last}} من {{totalRecords}} طلب",
+      "view_details": "عرض التفاصيل",
+      "confirm_order": "تأكيد الطلب",
+      "mark_shipped": "وضع علامة مرسل",
+      "mark_delivered": "وضع علامة مسلم",
+      "cancel_order": "إلغاء الطلب",
+      "confirm": "تأكيد",
+      "order_number": "الطلب",
+      "customer": "العميل",
+      "date": "التاريخ",
+      "status": "الحالة",
+      "total": "المجموع",
+      "shipping_info": "معلومات الشحن",
+      "address": "العنوان",
+      "phone": "الهاتف",
+      "order_items": "عناصر الطلب",
+      "confirm_status_update": "هل أنت متأكد من تحديث حالة هذا الطلب إلى {{status}}؟",
+      "confirm_header": "تأكيد تحديث الحالة",
+      "status_updated": "تم تحديث الحالة",
+      "status_update_message": "تم تغيير حالة الطلب #{{orderId}} إلى {{status}}",
+      "update_failed": "فشل التحديث",
+      "update_error": "فشل في تحديث حالة الطلب",
+      "load_error": "فشل في تحميل الطلبات",
+      "permission_error": "ليس لديك إذن للوصول إلى هذه الصفحة",
+      "user_id": "معرف المستخدم",
+      "no_email": "لا يوجد بريد إلكتروني",
+      "user_number": "مستخدم #",
+      "filters": {
+        "all": "الكل"
+      },
+      "table": {
+        "order_id": "رقم الطلب",
+        "customer": "تفاصيل العميل",
+        "date": "تاريخ الطلب",
+        "status": "الحالة",
+        "total": "المجموع",
+        "actions": "الإجراءات",
+        "product": "المنتج",
+        "unit_price": "سعر الوحدة",
+        "quantity": "الكمية",
+        "unit": "الوحدة"
+      },
+      "status": {
+        "pending": "قيد الانتظار",
+        "confirmed": "مؤكد",
+        "shipped": "مُرسل",
+        "delivered": "مُسلم",
+        "cancelled": "ملغي"
+      }
     },
     "users": {
       "title": "إدارة المستخدمين",
@@ -379,6 +471,53 @@
     "create_success": "تم إنشاء المنتج بنجاح!",
     "update_success": "تم تحديث المنتج بنجاح!",
     "delete_success": "تم حذف المنتج بنجاح!",
+    "delete_failed": "فشل في حذف المنتج",
+    "load_error": "فشل في تحميل المنتجات",
+    "confirm_delete_header": "تأكيد الحذف",
+    "confirm_delete_message": "هل أنت متأكد من حذف \"{{productName}}\"؟ لا يمكن التراجع عن هذا الإجراء.",
+    "showing_products": "عرض {{first}} إلى {{last}} من {{totalRecords}} منتج",
+    "search": "بحث",
+    "search_placeholder": "البحث عن المنتجات...",
+    "search_tooltip": "البحث بالاسم أو الوصف أو الفئة",
+    "filter_by_category": "تصفية حسب الفئة",
+    "clear_filters": "مسح الفلاتر",
+    "refresh": "تحديث",
+    "refresh_tooltip": "تحديث بيانات المنتج",
+    "add_first_product": "إضافة أول منتج",
+    "loading": "جاري تحميل المنتجات...",
+    "organic": "عضوي",
+    "per": "لكل",
+    "filters": {
+      "all_categories": "جميع الفئات"
+    },
+    "table": {
+      "product_name": "اسم المنتج",
+      "category": "الفئة",
+      "price": "السعر",
+      "stock": "المخزون",
+      "status": "الحالة",
+      "actions": "الإجراءات"
+    },
+    "status": {
+      "active": "نشط",
+      "inactive": "غير نشط"
+    },
+    "stock": {
+      "in_stock": "متوفر",
+      "low_stock": "مخزون منخفض",
+      "out_of_stock": "نفذ المخزون"
+    },
+    "actions": {
+      "view": "عرض المنتج",
+      "edit": "تحرير المنتج",
+      "delete": "حذف المنتج"
+    },
+    "empty": {
+      "no_products": "لم يتم العثور على منتجات",
+      "no_match": "لا توجد منتجات تطابق الفلاتر",
+      "get_started": "ابدأ بإضافة أول منتج لك",
+      "try_adjusting": "حاول تعديل البحث أو الفلاتر"
+    },
     "form": {
       "basic_info": "المعلومات الأساسية",
       "translations": "الترجمات",
@@ -416,11 +555,17 @@
     },
     "units": {
       "kg": "كيلوغرام (كغ)",
+      "kg_short": "كغ",
       "gram": "غرام (غ)",
+      "gram_short": "غ",
       "piece": "قطعة",
+      "piece_short": "قطعة",
       "bunch": "حزمة",
+      "bunch_short": "حزمة",
       "dozen": "دزينة",
-      "pound": "باوند (رطل)"
+      "dozen_short": "دزينة",
+      "pound": "باوند (رطل)",
+      "pound_short": "رطل"
     }
   },
     "categories": {
@@ -433,7 +578,45 @@
       "update_success": "تم تحديث الفئة بنجاح!",
       "create_failed": "فشل في إنشاء الفئة",
       "update_failed": "فشل في تحديث الفئة",
-      "load_error": "فشل في تحميل الفئة",
+      "load_error": "فشل في تحميل الفئات",
+      "delete_success": "تم حذف الفئة بنجاح!",
+      "delete_failed": "فشل في حذف الفئة",
+      "confirm_delete_header": "تأكيد الحذف",
+      "confirm_delete_message": "هل أنت متأكد من حذف \"{{categoryName}}\"؟ لا يمكن التراجع عن هذا الإجراء.",
+      "showing_categories": "عرض {{first}} إلى {{last}} من {{totalRecords}} فئة",
+      "search": "بحث",
+      "search_placeholder": "البحث عن الفئات...",
+      "search_tooltip": "البحث بالاسم أو الوصف",
+      "clear_filters": "مسح الفلاتر",
+      "clear_search": "مسح البحث",
+      "refresh": "تحديث",
+      "refresh_tooltip": "تحديث بيانات الفئات",
+      "add_first_category": "إضافة أول فئة",
+      "loading": "جاري تحميل الفئات...",
+      "no_description": "لا يوجد وصف",
+      "products_label": "منتجات",
+      "table": {
+        "category_name": "اسم الفئة",
+        "description": "الوصف",
+        "products": "المنتجات",
+        "status": "الحالة",
+        "created": "تاريخ الإنشاء",
+        "actions": "الإجراءات"
+      },
+      "status": {
+        "active": "نشط",
+        "inactive": "غير نشط"
+      },
+      "actions": {
+        "edit": "تحرير الفئة",
+        "delete": "حذف الفئة"
+      },
+      "empty": {
+        "no_categories": "لم يتم العثور على فئات",
+        "no_match": "لا توجد فئات تطابق البحث",
+        "get_started": "ابدأ بإضافة أول فئة لك",
+        "try_adjusting": "حاول تعديل مصطلحات البحث"
+      },
       "form": {
         "translations": "أسماء الفئة",
         "translation_help": "أدخل اسم الفئة بجميع اللغات المدعومة. سيتم استخدام الإنجليزية كالاسم الأساسي.",
@@ -466,6 +649,91 @@
         "french_name_required": "الاسم بالفرنسية مطلوب",
         "arabic_name_required": "الاسم بالعربية مطلوب"
       }
+    },
+    "users": {
+      "title": "إدارة المستخدمين",
+      "subtitle": "إدارة مستخدمي النظام وصلاحياتهم",
+      "refresh": "تحديث",
+      "export": "تصدير",
+      "create_new": "إنشاء مستخدم جديد",
+      "create_user": "إنشاء مستخدم",
+      "search_placeholder": "البحث عن المستخدمين...",
+      "filter_by_role": "تصفية حسب الدور",
+      "filters": {
+        "all_roles": "جميع الأدوار"
+      },
+      "roles": {
+        "customer": "عميل",
+        "staff": "موظف",
+        "admin": "مدير"
+      },
+      "clear_filters": "مسح الفلاتر",
+      "showing": "عرض {{shown}} من {{total}} مستخدم",
+      "loading": "جارٍ تحميل المستخدمين...",
+      "table": {
+        "id": "المعرف",
+        "user_details": "تفاصيل المستخدم",
+        "role": "الدور",
+        "status": "الحالة",
+        "created": "تاريخ الإنشاء",
+        "actions": "الإجراءات"
+      },
+      "status": {
+        "active": "نشط",
+        "inactive": "غير نشط"
+      },
+      "actions": {
+        "view_edit": "عرض/تعديل المستخدم",
+        "delete": "حذف المستخدم"
+      },
+      "empty": {
+        "no_match_title": "لا يوجد مستخدمون يطابقون الفلاتر",
+        "no_match_description": "حاول تعديل معايير البحث",
+        "no_users_title": "لا يوجد مستخدمون",
+        "no_users_description": "ابدأ بإنشاء أول مستخدم"
+      },
+      "dialog": {
+        "edit_title": "تعديل المستخدم",
+        "create_title": "إنشاء مستخدم جديد",
+        "update_button": "تحديث المستخدم",
+        "create_button": "إنشاء المستخدم"
+      },
+      "form": {
+        "full_name": "الاسم الكامل",
+        "email": "البريد الإلكتروني",
+        "phone": "الهاتف",
+        "role": "الدور",
+        "select_role": "اختر دورًا",
+        "address": "العنوان",
+        "password": "كلمة المرور",
+        "password_edit": "كلمة المرور (اتركها فارغة للاحتفاظ بكلمة المرور الحالية)",
+        "active_user": "مستخدم نشط",
+        "errors": {
+          "full_name_required": "الاسم الكامل مطلوب",
+          "full_name_min": "يجب أن يحتوي الاسم الكامل على 3 أحرف على الأقل",
+          "email_required": "البريد الإلكتروني مطلوب",
+          "email_invalid": "الرجاء إدخال عنوان بريد إلكتروني صالح",
+          "password_required": "كلمة المرور مطلوبة",
+          "password_min": "يجب أن تحتوي كلمة المرور على 8 أحرف على الأقل"
+        }
+      },
+      "messages": {
+        "user_updated": "تم تحديث المستخدم",
+        "user_updated_detail": "تم تحديث المستخدم {{name}} بنجاح",
+        "update_failed": "فشل التحديث",
+        "update_failed_detail": "فشل تحديث المستخدم",
+        "not_implemented": "غير مطبق",
+        "create_not_implemented": "إنشاء المستخدمين من لوحة الإدارة غير مطبق في هذا العرض التوضيحي",
+        "user_deleted": "تم حذف المستخدم",
+        "user_deleted_detail": "تم حذف المستخدم {{name}} بنجاح",
+        "deletion_failed": "فشل الحذف",
+        "deletion_failed_detail": "فشل حذف المستخدم"
+      },
+      "confirm_delete_header": "تأكيد الحذف",
+      "confirm_delete_message": "هل أنت متأكد من حذف المستخدم {{name}}؟",
+      "export_coming_soon": "ميزة التصدير قادمة قريبًا!",
+      "load_error": "فشل تحميل المستخدمين",
+      "permission_error": "ليس لديك صلاحية للوصول إلى هذه الصفحة"
     },
     "navigation": {
       "dashboard": "الرئيسية",

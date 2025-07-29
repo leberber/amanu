@@ -15,7 +15,7 @@
       [scrollable]="true"
       [scrollHeight]="'calc(100vh - 200px)'"
       [showCurrentPageReport]="true"
-      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} orders"
+      [currentPageReportTemplate]="'admin.orders.showing_orders' | translate"
       styleClass="p-datatable-sm p-datatable-striped"
     >
       
@@ -32,7 +32,7 @@
                   <input 
                     type="text" 
                     pInputText 
-                    placeholder="Search orders..." 
+                    [placeholder]="'admin.orders.search_placeholder' | translate" 
                     [(ngModel)]="searchQuery"
                     (input)="onSearchInput()"
                     class="w-full"
@@ -40,7 +40,7 @@
                   <p-inputicon>
                     <i 
                       class="pi pi-info-circle text-500 cursor-pointer ml-2" 
-                      pTooltip="Search by order ID, customer name, email, phone, or status"
+                      [pTooltip]="'admin.orders.search_tooltip' | translate"
                       tooltipPosition="right"
                       [showDelay]="300"
                       [hideDelay]="100"
@@ -55,7 +55,7 @@
                 <p-select
                   [options]="statusOptions"
                   [(ngModel)]="filterStatus"
-                  placeholder="Filter by status"
+                  [placeholder]="'admin.orders.filter_by_status' | translate"
                   optionLabel="label"
                   optionValue="value"
                   (onChange)="onStatusChange()"
@@ -66,7 +66,7 @@
               <!-- Clear Filters - Desktop -->
               <div class="col-2">
                 <p-button 
-                  label="Clear Filters" 
+                  [label]="'admin.orders.clear_filters' | translate" 
                   icon="pi pi-filter-slash"
                   [severity]="hasActiveFilters() ? 'warn' : 'secondary'"
                   (click)="clearFilters()"
@@ -79,11 +79,11 @@
               <div class="col-2">
                 <p-button 
                   icon="pi pi-refresh" 
-                  label="Refresh"
+                  [label]="'admin.orders.refresh' | translate"
                   severity="secondary"
                   [outlined]="true"
                   (click)="refreshOrderData()"
-                  pTooltip="Refresh order data"
+                  [pTooltip]="'admin.orders.refresh_tooltip' | translate"
                   tooltipPosition="bottom"
                   class="w-full h-full"
                 />
@@ -92,7 +92,7 @@
               <!-- Export/Actions - Desktop -->
               <div class="col-2 flex justify-content-end">
                 <p-button 
-                  label="Export Orders" 
+                  [label]="'admin.orders.export_orders' | translate" 
                   icon="pi pi-download"
                   severity="info"
                   [outlined]="true"
@@ -113,7 +113,7 @@
                   <input 
                     type="text" 
                     pInputText 
-                    placeholder="Search..." 
+                    [placeholder]="'admin.orders.search' | translate" 
                     [(ngModel)]="searchQuery"
                     (input)="onSearchInput()"
                     class="w-full"
@@ -127,7 +127,7 @@
                 [severity]="hasActiveFilters() ? 'warn' : 'secondary'"
                 (click)="clearFilters()"
                 [disabled]="!hasActiveFilters()"
-                pTooltip="Clear Filters"
+                [pTooltip]="'admin.orders.clear_filters' | translate"
                 tooltipPosition="top"
                 [rounded]="true"
                 size="small"
@@ -138,7 +138,7 @@
                 severity="secondary"
                 [outlined]="true"
                 (click)="refreshOrderData()"
-                pTooltip="Refresh"
+                [pTooltip]="'admin.orders.refresh' | translate"
                 tooltipPosition="top"
                 [rounded]="true"
                 size="small"
@@ -149,7 +149,7 @@
                 severity="info"
                 [outlined]="true"
                 (click)="exportOrders()"
-                pTooltip="Export"
+                [pTooltip]="'admin.orders.export' | translate"
                 tooltipPosition="top"
                 [rounded]="true"
                 size="small"
@@ -161,7 +161,7 @@
               <p-select
                 [options]="statusOptions"
                 [(ngModel)]="filterStatus"
-                placeholder="Filter by status"
+                [placeholder]="'admin.orders.filter_by_status' | translate"
                 optionLabel="label"
                 optionValue="value"
                 (onChange)="onStatusChange()"
@@ -178,7 +178,7 @@
           <!-- Order ID Column -->
           <th pSortableColumn="id" style="min-width: 100px" class="p-3">
             <div class="flex align-items-center gap-2">
-              <span>Order ID</span>
+              <span>{{ 'admin.orders.table.order_id' | translate }}</span>
               <p-sortIcon [field]="'id'" />
             </div>
           </th>
@@ -186,7 +186,7 @@
           <!-- Customer Column -->
           <th pSortableColumn="user.full_name" style="min-width: 180px">
             <div class="flex align-items-center gap-2">
-              <span>Customer Details</span>
+              <span>{{ 'admin.orders.table.customer' | translate }}</span>
               <p-sortIcon [field]="'user.full_name'" />
             </div>
           </th>
@@ -194,7 +194,7 @@
           <!-- Date Column -->
           <th pSortableColumn="created_at" style="min-width: 150px" class="text-center">
             <div class="flex align-items-center justify-content-center gap-2">
-              <span>Order Date</span>
+              <span>{{ 'admin.orders.table.date' | translate }}</span>
               <p-sortIcon [field]="'created_at'" />
             </div>
           </th>
@@ -202,7 +202,7 @@
           <!-- Status Column -->
           <th pSortableColumn="status" style="min-width: 120px" class="text-center">
             <div class="flex align-items-center justify-content-center gap-2">
-              <span>Status</span>
+              <span>{{ 'admin.orders.table.status' | translate }}</span>
               <p-sortIcon [field]="'status'" />
             </div>
           </th>
@@ -210,14 +210,14 @@
           <!-- Total Column -->
           <th pSortableColumn="total_amount" style="min-width: 100px" class="text-right">
             <div class="flex align-items-center justify-content-end gap-2">
-              <span>Total</span>
+              <span>{{ 'admin.orders.table.total' | translate }}</span>
               <p-sortIcon [field]="'total_amount'" />
             </div>
           </th>
           
           <!-- Actions Column -->
           <th style="width: 200px" class="text-center">
-            Actions
+            {{ 'admin.orders.table.actions' | translate }}
           </th>
         </tr>
       </ng-template>
@@ -236,10 +236,10 @@
           <td>
             <div class="flex flex-column">
               <span class="font-medium text-900 mb-1">
-                {{ getUserById(order.user_id)?.full_name || order.user?.full_name || 'User ID: ' + order.user_id }}
+                {{ getUserById(order.user_id)?.full_name || order.user?.full_name || ('admin.orders.user_id' | translate) + ': ' + order.user_id }}
               </span>
               <span class="text-600 text-sm">
-                {{ getUserById(order.user_id)?.email || order.user?.email || 'No email' }}
+                {{ getUserById(order.user_id)?.email || order.user?.email || ('admin.orders.no_email' | translate) }}
               </span>
               <span *ngIf="order.contact_phone" class="text-500 text-xs">{{ order.contact_phone }}</span>
             </div>
@@ -247,16 +247,13 @@
           
           <!-- Date -->
           <td class="text-center">
-            <div class="flex flex-column align-items-center">
-              <span class="font-medium text-900">{{ formatDate(order.created_at).split(' ')[0] }}</span>
-              <span class="text-600 text-sm">{{ formatDate(order.created_at).split(' ')[1] }}</span>
-            </div>
+            <span class="font-medium text-900">{{ formatDate(order.created_at) }}</span>
           </td>
           
           <!-- Status -->
           <td class="text-center">
             <p-tag 
-              [value]="order.status" 
+              [value]="'admin.orders.status.' + order.status | translate" 
               [severity]="getStatusSeverity(order.status)"
               [icon]="getStatusIcon(order.status)"
             />
@@ -265,7 +262,7 @@
           <!-- Total -->
           <td class="text-right">
             <span class="font-semibold text-lg text-900">
-              ${{ order.total_amount.toFixed(2) }}
+              {{ formatCurrency(order.total_amount) }}
             </span>
           </td>
           
@@ -280,7 +277,7 @@
                 [outlined]="true" 
                 [rounded]="true"
                 (click)="openOrderDetails(order)"
-                pTooltip="View Details"
+                pTooltip="{{ 'admin.orders.view_details' | translate }}"
                 tooltipPosition="top"
               />
               
@@ -293,7 +290,7 @@
                 [outlined]="true" 
                 [rounded]="true"
                 (click)="updateOrderStatus(order.id, 'confirmed')"
-                pTooltip="Confirm Order"
+                pTooltip="{{ 'admin.orders.confirm_order' | translate }}"
                 tooltipPosition="top"
               />
               
@@ -305,7 +302,7 @@
                 [outlined]="true" 
                 [rounded]="true"
                 (click)="updateOrderStatus(order.id, 'shipped')"
-                pTooltip="Mark as Shipped"
+                pTooltip="{{ 'admin.orders.mark_shipped' | translate }}"
                 tooltipPosition="top"
               />
               
@@ -317,7 +314,7 @@
                 [outlined]="true" 
                 [rounded]="true"
                 (click)="updateOrderStatus(order.id, 'delivered')"
-                pTooltip="Mark as Delivered"
+                pTooltip="{{ 'admin.orders.mark_delivered' | translate }}"
                 tooltipPosition="top"
               />
               
@@ -330,7 +327,7 @@
                 [outlined]="true" 
                 [rounded]="true"
                 (click)="updateOrderStatus(order.id, 'cancelled')"
-                pTooltip="Cancel Order"
+                pTooltip="{{ 'admin.orders.cancel_order' | translate }}"
                 tooltipPosition="top"
               />
             </div>
@@ -346,14 +343,14 @@
               <i class="pi pi-shopping-cart text-6xl text-gray-300"></i>
               <div>
                 <h3 class="text-xl font-medium text-gray-600 mb-2">
-                  {{ hasActiveFilters() ? 'No orders match your filters' : 'No orders found' }}
+                  {{ hasActiveFilters() ? ('admin.orders.no_match' | translate) : ('admin.orders.no_orders' | translate) }}
                 </h3>
                 <p class="text-gray-500 mb-3">
-                  {{ hasActiveFilters() ? 'Try adjusting your search or filters' : 'Orders will appear here once customers start placing them' }}
+                  {{ hasActiveFilters() ? ('admin.orders.try_adjusting' | translate) : ('admin.orders.orders_will_appear' | translate) }}
                 </p>
                 <p-button 
                   *ngIf="hasActiveFilters()"
-                  label="Clear Filters" 
+                  [label]="'admin.orders.clear_filters' | translate" 
                   icon="pi pi-filter-slash"
                   severity="secondary"
                   (click)="clearFilters()"
@@ -370,7 +367,7 @@
           <td colspan="6" class="text-center p-4">
             <div class="flex align-items-center justify-content-center gap-2">
               <p-progressSpinner [style]="{'width': '2rem', 'height': '2rem'}" />
-              <span class="text-600">Loading orders...</span>
+              <span class="text-600">{{ 'admin.orders.loading' | translate }}</span>
             </div>
           </td>
         </tr>
@@ -382,7 +379,7 @@
   <p-dialog 
     [(visible)]="displayOrderDialog" 
     [style]="{width: '90%', maxWidth: '800px'}" 
-    header="Order Details" 
+    header="{{ 'admin.orders.order_details' | translate }}" 
     [modal]="true"
     [draggable]="false"
     [resizable]="false"
@@ -391,45 +388,45 @@
     @if (selectedOrder) {
       <div class="grid">
         <div class="col-12 md:col-6">
-          <h3 class="text-lg font-medium">Order #{{selectedOrder.id}}</h3>
-          <p><strong>Customer:</strong> {{selectedOrder.user?.full_name || 'User #' + selectedOrder.user_id}}</p>
-          <p><strong>Date:</strong> {{formatDate(selectedOrder.created_at)}}</p>
-          <p><strong>Status:</strong> <p-tag [severity]="getStatusSeverity(selectedOrder.status)" [value]="selectedOrder.status"></p-tag></p>
-          <p><strong>Total:</strong> ${{selectedOrder.total_amount.toFixed(2)}}</p>
+          <h3 class="text-lg font-medium">{{ 'admin.orders.order_number' | translate }} #{{selectedOrder.id}}</h3>
+          <p><strong>{{ 'admin.orders.customer' | translate }}:</strong> {{selectedOrder.user?.full_name || ('admin.orders.user_number' | translate) + selectedOrder.user_id}}</p>
+          <p><strong>{{ 'admin.orders.date' | translate }}:</strong> {{formatDate(selectedOrder.created_at)}}</p>
+          <p><strong>{{ 'admin.orders.status' | translate }}:</strong> <p-tag [severity]="getStatusSeverity(selectedOrder.status)" [value]="'admin.orders.status.' + selectedOrder.status | translate"></p-tag></p>
+          <p><strong>{{ 'admin.orders.total' | translate }}:</strong> {{formatCurrency(selectedOrder.total_amount)}}</p>
         </div>
         
         <div class="col-12 md:col-6">
-          <h3 class="text-lg font-medium">Shipping Information</h3>
-          <p><strong>Address:</strong> {{selectedOrder.shipping_address}}</p>
-          <p><strong>Phone:</strong> {{selectedOrder.contact_phone}}</p>
+          <h3 class="text-lg font-medium">{{ 'admin.orders.shipping_info' | translate }}</h3>
+          <p><strong>{{ 'admin.orders.address' | translate }}:</strong> {{selectedOrder.shipping_address}}</p>
+          <p><strong>{{ 'admin.orders.phone' | translate }}:</strong> {{selectedOrder.contact_phone}}</p>
         </div>
         
         <div class="col-12">
-          <h3 class="text-lg font-medium mt-4">Order Items</h3>
+          <h3 class="text-lg font-medium mt-4">{{ 'admin.orders.order_items' | translate }}</h3>
           
           <p-table [value]="selectedOrder.items || []" styleClass="p-datatable-sm" [tableStyle]="{'min-width': '100%'}">
             <ng-template pTemplate="header">
               <tr>
-                <th>Product</th>
-                <th>Unit Price</th>
-                <th>Quantity</th>
-                <th>Unit</th>
-                <th>Total</th>
+                <th>{{ 'admin.orders.table.product' | translate }}</th>
+                <th>{{ 'admin.orders.table.unit_price' | translate }}</th>
+                <th>{{ 'admin.orders.table.quantity' | translate }}</th>
+                <th>{{ 'admin.orders.table.unit' | translate }}</th>
+                <th>{{ 'admin.orders.table.total' | translate }}</th>
               </tr>
             </ng-template>
             <ng-template pTemplate="body" let-item>
               <tr>
-                <td>{{item.product_name}}</td>
-                <td>${{item.unit_price.toFixed(2)}}</td>
+                <td>{{getProductName(item)}}</td>
+                <td>{{formatCurrency(item.unit_price)}}</td>
                 <td>{{item.quantity}}</td>
-                <td>{{item.product_unit}}</td>
-                <td>${{(item.unit_price * item.quantity).toFixed(2)}}</td>
+                <td>{{getUnitDisplay(item.product_unit)}}</td>
+                <td>{{formatCurrency(item.unit_price * item.quantity)}}</td>
               </tr>
             </ng-template>
             <ng-template pTemplate="footer">
               <tr>
-                <td colspan="4" class="text-right font-bold">Total:</td>
-                <td class="font-bold">${{selectedOrder.total_amount.toFixed(2)}}</td>
+                <td colspan="4" class="text-right font-bold">{{ 'admin.orders.total' | translate }}:</td>
+                <td class="font-bold">{{formatCurrency(selectedOrder.total_amount)}}</td>
               </tr>
             </ng-template>
           </p-table>
@@ -437,25 +434,25 @@
       </div>
       
       <div class="flex flex-wrap gap-2 justify-content-end mt-4">
-        <button pButton label="Close" icon="pi pi-times" class="p-button-text" (click)="displayOrderDialog = false"></button>
+        <button pButton label="{{ 'common.close' | translate }}" icon="pi pi-times" class="p-button-text" (click)="displayOrderDialog = false"></button>
         
         @if (selectedOrder.status === 'pending') {
-          <button pButton label="Confirm" icon="pi pi-check" 
+          <button pButton label="{{ 'admin.orders.confirm' | translate }}" icon="pi pi-check" 
                   (click)="updateOrderStatus(selectedOrder.id, 'confirmed'); displayOrderDialog = false"></button>
         }
         
         @if (selectedOrder.status === 'confirmed') {
-          <button pButton label="Mark as Shipped" icon="pi pi-send" 
+          <button pButton label="{{ 'admin.orders.mark_shipped' | translate }}" icon="pi pi-send" 
                   (click)="updateOrderStatus(selectedOrder.id, 'shipped'); displayOrderDialog = false"></button>
         }
         
         @if (selectedOrder.status === 'shipped') {
-          <button pButton label="Mark as Delivered" icon="pi pi-check-circle" 
+          <button pButton label="{{ 'admin.orders.mark_delivered' | translate }}" icon="pi pi-check-circle" 
                   (click)="updateOrderStatus(selectedOrder.id, 'delivered'); displayOrderDialog = false"></button>
         }
         
         @if (selectedOrder.status !== 'cancelled' && selectedOrder.status !== 'delivered') {
-          <button pButton label="Cancel Order" icon="pi pi-times" class="p-button-danger" 
+          <button pButton label="{{ 'admin.orders.cancel_order' | translate }}" icon="pi pi-times" class="p-button-danger" 
                   (click)="updateOrderStatus(selectedOrder.id, 'cancelled'); displayOrderDialog = false"></button>
         }
       </div>

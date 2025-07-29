@@ -34,7 +34,8 @@
     "close": "Fermer",
     "yes": "Oui",
     "no": "Non",
-    "and": "et"
+    "and": "et",
+    "unknown": "Inconnu"
   },
   "header": {
     "fresh_produce": "Produits Frais",
@@ -327,7 +328,35 @@
     "dashboard": {
       "title": "Tableau de Bord Admin",
       "welcome": "Bienvenue dans le Tableau de Bord Admin",
-      "overview": "Aperçu"
+      "overview": "Aperçu",
+      "manage_orders": "Gérer les Commandes",
+      "manage_users": "Gérer les Utilisateurs",
+      "manage_products": "Gérer les Produits",
+      "manage_categories": "Gérer les Catégories",
+      "total_revenue": "Chiffre d'Affaires Total",
+      "total_users": "Total Utilisateurs",
+      "total_products": "Total Produits",
+      "total_categories": "Total Catégories",
+      "total_orders": "Total Commandes",
+      "pending_orders": "Commandes en Attente",
+      "low_stock_items": "Articles en Rupture",
+      "sales_by_category": "Ventes par Catégorie",
+      "recent_orders": "Commandes Récentes",
+      "top_selling_products": "Produits les Plus Vendus",
+      "load_error": "Échec du chargement des statistiques",
+      "permission_error": "Vous n'avez pas la permission d'accéder à ce tableau de bord",
+      "error_loading": "Erreur lors du chargement du tableau de bord",
+      "view_all_orders": "Voir Toutes les Commandes",
+      "table": {
+        "id": "ID",
+        "customer": "Client",
+        "status": "Statut",
+        "amount": "Montant",
+        "product": "Produit",
+        "category": "Catégorie",
+        "quantity_sold": "Quantité Vendue",
+        "total_sales": "Ventes Totales"
+      }
     },
     "stats": {
       "total_users": "Total Utilisateurs",
@@ -347,7 +376,70 @@
       "filter_by_status": "Filtrer par Statut",
       "update_status": "Mettre à Jour le Statut",
       "order_details": "Détails de la Commande",
-      "customer_info": "Informations Client"
+      "customer_info": "Informations Client",
+      "search": "Rechercher",
+      "search_placeholder": "Rechercher des commandes...",
+      "search_tooltip": "Rechercher par ID de commande, nom du client, email, téléphone ou statut",
+      "clear_filters": "Effacer les Filtres",
+      "refresh": "Actualiser",
+      "refresh_tooltip": "Actualiser les données des commandes",
+      "export": "Exporter",
+      "export_orders": "Exporter les Commandes",
+      "export_coming_soon": "La fonctionnalité d'export arrive bientôt !",
+      "loading": "Chargement des commandes...",
+      "no_orders": "Aucune commande trouvée",
+      "no_match": "Aucune commande ne correspond à vos filtres",
+      "try_adjusting": "Essayez d'ajuster votre recherche ou vos filtres",
+      "orders_will_appear": "Les commandes apparaîtront ici une fois que les clients commenceront à en passer",
+      "showing_orders": "Affichage de {{first}} à {{last}} sur {{totalRecords}} commandes",
+      "view_details": "Voir les Détails",
+      "confirm_order": "Confirmer la Commande",
+      "mark_shipped": "Marquer comme Expédiée",
+      "mark_delivered": "Marquer comme Livrée",
+      "cancel_order": "Annuler la Commande",
+      "confirm": "Confirmer",
+      "order_number": "Commande",
+      "customer": "Client",
+      "date": "Date",
+      "status": "Statut",
+      "total": "Total",
+      "shipping_info": "Informations de Livraison",
+      "address": "Adresse",
+      "phone": "Téléphone",
+      "order_items": "Articles de la Commande",
+      "confirm_status_update": "Êtes-vous sûr de vouloir mettre à jour le statut de cette commande vers {{status}} ?",
+      "confirm_header": "Confirmer la Mise à Jour du Statut",
+      "status_updated": "Statut Mis à Jour",
+      "status_update_message": "Le statut de la commande #{{orderId}} a été changé vers {{status}}",
+      "update_failed": "Échec de la Mise à Jour",
+      "update_error": "Échec de la mise à jour du statut de la commande",
+      "load_error": "Échec du chargement des commandes",
+      "permission_error": "Vous n'avez pas la permission d'accéder à cette page",
+      "user_id": "ID Utilisateur",
+      "no_email": "Pas d'email",
+      "user_number": "Utilisateur #",
+      "filters": {
+        "all": "Tout"
+      },
+      "table": {
+        "order_id": "ID Commande",
+        "customer": "Détails Client",
+        "date": "Date de Commande",
+        "status": "Statut",
+        "total": "Total",
+        "actions": "Actions",
+        "product": "Produit",
+        "unit_price": "Prix Unitaire",
+        "quantity": "Quantité",
+        "unit": "Unité"
+      },
+      "status": {
+        "pending": "En attente",
+        "confirmed": "Confirmée",
+        "shipped": "Expédiée",
+        "delivered": "Livrée",
+        "cancelled": "Annulée"
+      }
     },
     "users": {
       "title": "Gestion des Utilisateurs",
@@ -377,6 +469,53 @@
       "create_success": "Produit créé avec succès !",
       "update_success": "Produit mis à jour avec succès !",
       "delete_success": "Produit supprimé avec succès !",
+      "delete_failed": "Échec de la suppression du produit",
+      "load_error": "Échec du chargement des produits",
+      "confirm_delete_header": "Confirmer la Suppression",
+      "confirm_delete_message": "Êtes-vous sûr de vouloir supprimer \"{{productName}}\" ? Cette action ne peut pas être annulée.",
+      "showing_products": "Affichage de {{first}} à {{last}} sur {{totalRecords}} produits",
+      "search": "Rechercher",
+      "search_placeholder": "Rechercher des produits...",
+      "search_tooltip": "Rechercher par nom, description ou catégorie de produit",
+      "filter_by_category": "Filtrer par catégorie",
+      "clear_filters": "Effacer les Filtres",
+      "refresh": "Actualiser",
+      "refresh_tooltip": "Actualiser les données produits",
+      "add_first_product": "Ajouter Premier Produit",
+      "loading": "Chargement des produits...",
+      "organic": "Bio",
+      "per": "par",
+      "filters": {
+        "all_categories": "Toutes les Catégories"
+      },
+      "table": {
+        "product_name": "Nom du Produit",
+        "category": "Catégorie",
+        "price": "Prix",
+        "stock": "Stock",
+        "status": "Statut",
+        "actions": "Actions"
+      },
+      "status": {
+        "active": "Actif",
+        "inactive": "Inactif"
+      },
+      "stock": {
+        "in_stock": "En Stock",
+        "low_stock": "Stock Faible",
+        "out_of_stock": "Rupture de Stock"
+      },
+      "actions": {
+        "view": "Voir Produit",
+        "edit": "Modifier Produit",
+        "delete": "Supprimer Produit"
+      },
+      "empty": {
+        "no_products": "Aucun produit trouvé",
+        "no_match": "Aucun produit ne correspond à vos filtres",
+        "get_started": "Commencez par ajouter votre premier produit",
+        "try_adjusting": "Essayez d'ajuster votre recherche ou vos filtres"
+      },
       "form": {
         "basic_info": "Informations de Base",
         "translations": "Traductions",
@@ -414,11 +553,17 @@
       },
       "units": {
         "kg": "Kilogramme (Kg)",
+        "kg_short": "kg",
         "gram": "Gramme (g)",
+        "gram_short": "g",
         "piece": "Pièce",
+        "piece_short": "pc",
         "bunch": "Bouquet",
+        "bunch_short": "bouquet",
         "dozen": "Douzaine",
-        "pound": "Livre (lb)"
+        "dozen_short": "dz",
+        "pound": "Livre (lb)",
+        "pound_short": "lb"
       }
     },
     "categories": {
@@ -431,7 +576,45 @@
       "update_success": "Catégorie mise à jour avec succès !",
       "create_failed": "Échec de la création de la catégorie",
       "update_failed": "Échec de la mise à jour de la catégorie",
-      "load_error": "Échec du chargement de la catégorie",
+      "load_error": "Échec du chargement des catégories",
+      "delete_success": "Catégorie supprimée avec succès !",
+      "delete_failed": "Échec de la suppression de la catégorie",
+      "confirm_delete_header": "Confirmer la Suppression",
+      "confirm_delete_message": "Êtes-vous sûr de vouloir supprimer \"{{categoryName}}\" ? Cette action ne peut pas être annulée.",
+      "showing_categories": "Affichage de {{first}} à {{last}} sur {{totalRecords}} catégories",
+      "search": "Rechercher",
+      "search_placeholder": "Rechercher des catégories...",
+      "search_tooltip": "Rechercher par nom ou description de catégorie",
+      "clear_filters": "Effacer les Filtres",
+      "clear_search": "Effacer la Recherche",
+      "refresh": "Actualiser",
+      "refresh_tooltip": "Actualiser les données des catégories",
+      "add_first_category": "Ajouter Première Catégorie",
+      "loading": "Chargement des catégories...",
+      "no_description": "Pas de description",
+      "products_label": "produits",
+      "table": {
+        "category_name": "Nom de la Catégorie",
+        "description": "Description",
+        "products": "Produits",
+        "status": "Statut",
+        "created": "Créé",
+        "actions": "Actions"
+      },
+      "status": {
+        "active": "Actif",
+        "inactive": "Inactif"
+      },
+      "actions": {
+        "edit": "Modifier Catégorie",
+        "delete": "Supprimer Catégorie"
+      },
+      "empty": {
+        "no_categories": "Aucune catégorie trouvée",
+        "no_match": "Aucune catégorie ne correspond à votre recherche",
+        "get_started": "Commencez par ajouter votre première catégorie",
+        "try_adjusting": "Essayez d'ajuster vos termes de recherche"
+      },
       "form": {
         "translations": "Noms de Catégorie",
         "translation_help": "Fournissez le nom de la catégorie dans toutes les langues prises en charge. L'anglais sera utilisé comme nom principal.",
@@ -464,6 +647,91 @@
         "french_name_required": "Le nom en français est requis",
         "arabic_name_required": "Le nom en arabe est requis"
       }
+    },
+    "users": {
+      "title": "Gestion des Utilisateurs",
+      "subtitle": "Gérer les utilisateurs du système et leurs permissions",
+      "refresh": "Actualiser",
+      "export": "Exporter",
+      "create_new": "Créer Nouvel Utilisateur",
+      "create_user": "Créer Utilisateur",
+      "search_placeholder": "Rechercher des utilisateurs...",
+      "filter_by_role": "Filtrer par Rôle",
+      "filters": {
+        "all_roles": "Tous les Rôles"
+      },
+      "roles": {
+        "customer": "Client",
+        "staff": "Personnel",
+        "admin": "Admin"
+      },
+      "clear_filters": "Effacer les Filtres",
+      "showing": "Affichage de {{shown}} sur {{total}} utilisateurs",
+      "loading": "Chargement des utilisateurs...",
+      "table": {
+        "id": "ID",
+        "user_details": "Détails de l'Utilisateur",
+        "role": "Rôle",
+        "status": "Statut",
+        "created": "Créé",
+        "actions": "Actions"
+      },
+      "status": {
+        "active": "Actif",
+        "inactive": "Inactif"
+      },
+      "actions": {
+        "view_edit": "Voir/Modifier l'Utilisateur",
+        "delete": "Supprimer l'Utilisateur"
+      },
+      "empty": {
+        "no_match_title": "Aucun utilisateur ne correspond à vos filtres",
+        "no_match_description": "Essayez d'ajuster vos critères de recherche",
+        "no_users_title": "Aucun utilisateur trouvé",
+        "no_users_description": "Commencez par créer votre premier utilisateur"
+      },
+      "dialog": {
+        "edit_title": "Modifier l'Utilisateur",
+        "create_title": "Créer un Nouvel Utilisateur",
+        "update_button": "Mettre à Jour l'Utilisateur",
+        "create_button": "Créer l'Utilisateur"
+      },
+      "form": {
+        "full_name": "Nom Complet",
+        "email": "Email",
+        "phone": "Téléphone",
+        "role": "Rôle",
+        "select_role": "Sélectionner un rôle",
+        "address": "Adresse",
+        "password": "Mot de Passe",
+        "password_edit": "Mot de Passe (Laisser vide pour conserver le mot de passe actuel)",
+        "active_user": "Utilisateur Actif",
+        "errors": {
+          "full_name_required": "Le nom complet est requis",
+          "full_name_min": "Le nom complet doit contenir au moins 3 caractères",
+          "email_required": "L'email est requis",
+          "email_invalid": "Veuillez entrer une adresse email valide",
+          "password_required": "Le mot de passe est requis",
+          "password_min": "Le mot de passe doit contenir au moins 8 caractères"
+        }
+      },
+      "messages": {
+        "user_updated": "Utilisateur Mis à Jour",
+        "user_updated_detail": "L'utilisateur {{name}} a été mis à jour avec succès",
+        "update_failed": "Échec de la Mise à Jour",
+        "update_failed_detail": "Échec de la mise à jour de l'utilisateur",
+        "not_implemented": "Non Implémenté",
+        "create_not_implemented": "La création d'utilisateurs depuis le panneau d'administration n'est pas implémentée dans cette démo",
+        "user_deleted": "Utilisateur Supprimé",
+        "user_deleted_detail": "L'utilisateur {{name}} a été supprimé avec succès",
+        "deletion_failed": "Échec de la Suppression",
+        "deletion_failed_detail": "Échec de la suppression de l'utilisateur"
+      },
+      "confirm_delete_header": "Confirmer la Suppression",
+      "confirm_delete_message": "Êtes-vous sûr de vouloir supprimer l'utilisateur {{name}} ?",
+      "export_coming_soon": "La fonctionnalité d'exportation arrive bientôt !",
+      "load_error": "Échec du chargement des utilisateurs",
+      "permission_error": "Vous n'avez pas la permission d'accéder à cette page"
     },
     "navigation": {
       "dashboard": "Tableau de Bord",

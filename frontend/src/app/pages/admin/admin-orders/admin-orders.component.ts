@@ -20,9 +20,11 @@ import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { TooltipModule } from 'primeng/tooltip';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { AdminService } from '../../../services/admin.service';
 import { Order } from '../../../models/admin.model';
+import { ProductService } from '../../../services/product.service';
 
 @Component({
   selector: 'app-admin-orders',
@@ -43,7 +45,8 @@ import { Order } from '../../../models/admin.model';
     IconFieldModule,
     InputIconModule,
     TooltipModule,
-    ProgressSpinnerModule
+    ProgressSpinnerModule,
+    TranslateModule
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './admin-orders.component.html',
@@ -59,6 +62,7 @@ export class AdminOrdersComponent implements OnInit {
   allOrders: Order[] = []; // Store all orders loaded once
   orders: Order[] = [];    // Filtered orders to display
   users: any[] = [];       // Store users for lookup
+  products: any[] = [];    // Store products for translation lookup
   totalRecords = 0;
   loading = true;
   searchQuery = '';
@@ -68,14 +72,7 @@ export class AdminOrdersComponent implements OnInit {
 
   private searchTimeout: any;
   
-  statusOptions = [
-    { label: 'All', value: '' },
-    { label: 'Pending', value: 'pending' },
-    { label: 'Confirmed', value: 'confirmed' },
-    { label: 'Shipped', value: 'shipped' },
-    { label: 'Delivered', value: 'delivered' },
-    { label: 'Cancelled', value: 'cancelled' }
-  ];
+  statusOptions: any[] = [];
   
   selectedOrder: Order | null = null;
   displayOrderDialog = false;
@@ -84,11 +81,42 @@ export class AdminOrdersComponent implements OnInit {
     private adminService: AdminService,
     private messageService: MessageService,
     private confirmationService: ConfirmationService,
-    private router: Router
+    private router: Router,
+    private translateService: TranslateService,
+    private productService: ProductService
   ) {}
 
   ngOnInit() {
+    this.initializeStatusOptions();
     this.loadUsersAndOrders();
+    this.loadProducts();
+    
+    // Update status options when language changes
+    this.translateService.onLangChange.subscribe(() => {
+      this.initializeStatusOptions();
+    });
+  }
+  
+  loadProducts() {
+    this.productService.getProducts().subscribe({
+      next: (products) => {
+        this.products = products || [];
+      },
+      error: (error) => {
+        console.error('Error loading products:', error);
+      }
+    });
+  }
+  
+  initializeStatusOptions() {
+    this.statusOptions = [
+      { label: this.translateService.instant('admin.orders.filters.all'), value: '' },
+      { label: this.translateService.instant('admin.orders.status.pending'), value: 'pending' },
+      { label: this.translateService.instant('admin.orders.status.confirmed'), value: 'confirmed' },
+      { label: this.translateService.instant('admin.orders.status.shipped'), value: 'shipped' },
+      { label: this.translateService.instant('admin.orders.status.delivered'), value: 'delivered' },
+      { label: this.translateService.instant('admin.orders.status.cancelled'), value: 'cancelled' }
+    ];
   }
 
   // Load both users and orders, then match them
@@ -151,15 +179,15 @@ export class AdminOrdersComponent implements OnInit {
         console.error('Error loading orders:', error);
         this.loading = false;
         
-        let errorMessage = 'Failed to load orders';
+        let errorMessage = this.translateService.instant('admin.orders.load_error');
         if (error.status === 403) {
-          errorMessage = 'You do not have permission to access this page';
+          errorMessage = this.translateService.instant('admin.orders.permission_error');
           this.router.navigate(['/']);
         }
         
         this.messageService.add({
           severity: 'error',
-          summary: 'Error',
+          summary: this.translateService.instant('common.error'),
           detail: errorMessage
         });
         
@@ -230,8 +258,8 @@ export class AdminOrdersComponent implements OnInit {
     // TODO: Implement export functionality
     this.messageService.add({
       severity: 'info',
-      summary: 'Export',
-      detail: 'Export functionality coming soon!'
+      summary: this.translateService.instant('admin.orders.export'),
+      detail: this.translateService.instant('admin.orders.export_coming_soon')
     });
   }
 
@@ -270,13 +298,50 @@ export class AdminOrdersComponent implements OnInit {
 
   formatDate(dateString: string): string {
     const date = new Date(dateString);
-    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+    const day = date.getDate();
+    const month = date.getMonth() + 1;
+    const year = date.getFullYear();
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    
+    return `${day}/${month}/${year} ${hours}:${minutes}`;
+  }
+
+  getProductName(item: any): string {
+    const currentLang = this.translateService.currentLang;
+    
+    // If item already has translations
+    if (item.name_translations && item.name_translations[currentLang]) {
+      return item.name_translations[currentLang];
+    }
+    
+    // Try to find the full product object
+    if (item.product_id && this.products.length > 0) {
+      const fullProduct = this.products.find(p => p.id === item.product_id);
+      if (fullProduct && fullProduct.name_translations && fullProduct.name_translations[currentLang]) {
+        return fullProduct.name_translations[currentLang];
+      }
+    }
+    
+    return item.product_name || item.name;
+  }
+
+  getUnitDisplay(unit: string): string {
+    return this.translateService.instant('admin.products.units.' + unit + '_short');
+  }
+
+  formatCurrency(amount: number): string {
+    const currencySymbol = this.translateService.currentLang === 'ar' ? 'د.ج' : '$';
+    if (this.translateService.currentLang === 'ar') {
+      return `${amount.toFixed(2)} ${currencySymbol}`;
+    }
+    return `${currencySymbol}${amount.toFixed(2)}`;
   }
 
   updateOrderStatus(orderId: number, newStatus: string) {
     this.confirmationService.confirm({
-      message: `Are you sure you want to update this order status to ${newStatus}?`,
-      header: 'Confirm Status Update',
+      message: this.translateService.instant('admin.orders.confirm_status_update', { status: this.translateService.instant('admin.orders.status.' + newStatus) }),
+      header: this.translateService.instant('admin.orders.confirm_header'),
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
         this.adminService.updateOrderStatus(orderId, newStatus).subscribe({
@@ -292,8 +357,11 @@ export class AdminOrdersComponent implements OnInit {
             
             this.messageService.add({
               severity: 'success',
-              summary: 'Status Updated',
-              detail: `Order #${orderId} status changed to ${newStatus}`
+              summary: this.translateService.instant('admin.orders.status_updated'),
+              detail: this.translateService.instant('admin.orders.status_update_message', { 
+                orderId: orderId, 
+                status: this.translateService.instant('admin.orders.status.' + newStatus) 
+              })
             });
             
             // Update selected order if in dialog
@@ -305,8 +373,8 @@ export class AdminOrdersComponent implements OnInit {
             console.error('Error updating order status:', error);
             this.messageService.add({
               severity: 'error',
-              summary: 'Update Failed',
-              detail: error.error?.detail || 'Failed to update order status'
+              summary: this.translateService.instant('admin.orders.update_failed'),
+              detail: error.error?.detail || this.translateService.instant('admin.orders.update_error')
             });
           }
         });

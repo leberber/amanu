@@ -13,6 +13,8 @@ export interface Product {
     created_at: string;
     updated_at?: string;
     tempQuantity?: number;
+    name_translations?: { [key: string]: string };
+    description_translations?: { [key: string]: string };
   }
   
   export interface Category {
