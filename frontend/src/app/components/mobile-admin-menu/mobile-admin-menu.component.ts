@@ -16,7 +16,7 @@ import { UserRole } from '../../models/user.model';
       [(visible)]="visible" 
       [modal]="true" 
       [showHeader]="false"
-      [style]="{width: '90vw', maxWidth: '600px'}"
+      [style]="{width: '100vw'}"
       [baseZIndex]="10000"
       [draggable]="false"
       [resizable]="false"
@@ -82,15 +82,23 @@ import { UserRole } from '../../models/user.model';
   styles: [`
     :host ::ng-deep {
       .p-dialog {
-        margin: 0;
+        margin: 0 !important;
         border-radius: 1rem 1rem 0 0;
         overflow: hidden;
+        width: 100vw !important;
+        max-width: 100vw !important;
+        left: 0 !important;
+        right: 0 !important;
       }
       
       .p-dialog-content {
         padding: 0;
         border-radius: 1rem 1rem 0 0;
         overflow: hidden;
+      }
+      
+      .p-dialog-wrapper {
+        padding: 0 !important;
       }
     }
     
