@@ -925,7 +925,160 @@ export class ThemeService {
 4. Add theme toggle to UI
 5. Store user preference in localStorage
 
-### 9.6 Standardized Spacing System
+### 9.6 Form Input Icon Positioning
+**Issue**: Icons in form inputs are not consistently centered
+**Found in**: Multiple form components with input icons
+
+**Current problems**:
+- Icons misaligned vertically in different inputs
+- Inconsistent positioning across components
+- Different approaches to icon placement
+- Icons not properly centered with input text
+
+**Solution**: Create standardized CSS for input icon positioning
+
+```css
+/* Standardized input with icon container */
+.input-with-icon {
+  position: relative;
+  display: block;
+}
+
+.input-with-icon input,
+.input-with-icon .p-inputtext {
+  padding-left: 2.5rem; /* Space for icon */
+}
+
+.input-with-icon .input-icon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Right-side icon variant */
+.input-with-icon-right input,
+.input-with-icon-right .p-inputtext {
+  padding-left: 0.75rem;
+  padding-right: 2.5rem;
+}
+
+.input-with-icon-right .input-icon {
+  left: auto;
+  right: 0.75rem;
+}
+
+/* Icon sizing */
+.input-icon {
+  font-size: 1.125rem;
+  width: 1.125rem;
+  height: 1.125rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* For different input sizes */
+.input-with-icon.input-sm .input-icon {
+  font-size: 0.875rem;
+  left: 0.5rem;
+}
+
+.input-with-icon.input-sm input {
+  padding-left: 2rem;
+}
+
+.input-with-icon.input-lg .input-icon {
+  font-size: 1.25rem;
+  left: 1rem;
+}
+
+.input-with-icon.input-lg input {
+  padding-left: 3rem;
+}
+
+/* For PrimeNG p-inputgroup with icons */
+.p-inputgroup .p-inputgroup-addon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.5rem;
+}
+
+/* Focus state */
+.input-with-icon input:focus ~ .input-icon {
+  color: var(--color-primary);
+}
+
+/* Disabled state */
+.input-with-icon input:disabled ~ .input-icon {
+  color: var(--text-disabled);
+  opacity: 0.6;
+}
+
+/* Error state */
+.input-with-icon.error input ~ .input-icon {
+  color: var(--color-error);
+}
+
+/* Search input specific */
+.search-input {
+  position: relative;
+}
+
+.search-input .search-icon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.search-input input {
+  padding-left: 2.5rem;
+}
+```
+
+**Usage pattern**:
+```html
+<!-- Basic input with icon -->
+<div class="input-with-icon">
+  <i class="pi pi-user input-icon"></i>
+  <input type="text" pInputText [(ngModel)]="username">
+</div>
+
+<!-- Right-side icon -->
+<div class="input-with-icon input-with-icon-right">
+  <input type="password" pInputText [(ngModel)]="password">
+  <i class="pi pi-eye input-icon"></i>
+</div>
+
+<!-- With PrimeNG InputGroup -->
+<div class="p-inputgroup">
+  <span class="p-inputgroup-addon">
+    <i class="pi pi-envelope"></i>
+  </span>
+  <input type="email" pInputText [(ngModel)]="email">
+</div>
+
+<!-- Search input -->
+<div class="search-input">
+  <i class="pi pi-search search-icon"></i>
+  <input type="text" pInputText placeholder="Search...">
+</div>
+```
+
+**Implementation**:
+1. Add these styles to global CSS
+2. Update all form inputs to use consistent structure
+3. Remove component-specific icon positioning CSS
+4. Test with different input sizes and states
+
+### 9.7 Standardized Spacing System
 **Issue**: Inconsistent padding and margins across components
 **Found in**: Every component uses different spacing values
 

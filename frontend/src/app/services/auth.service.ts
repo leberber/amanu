@@ -1,8 +1,8 @@
 // src/app/services/auth.service.ts - Fix login flow
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, tap, switchMap } from 'rxjs';
+import { BehaviorSubject, Observable, tap, switchMap, map } from 'rxjs';
 import { ApiService } from './api.service';
-import { LoginRequest, LoginResponse, RegisterRequest, User } from '../models/user.model';
+import { LoginRequest, LoginResponse, RegisterRequest, User, UserRole } from '../models/user.model';
 
 @Injectable({
   providedIn: 'root'
@@ -92,5 +92,81 @@ export class AuthService {
       localStorage.setItem('user', JSON.stringify(user));
       this.currentUserSubject.next(user);
     }
+  }
+  
+  // Centralized role checking methods
+  
+  /**
+   * Check if user is an admin
+   * @returns boolean
+   */
+  isAdmin(): boolean {
+    const user = this.currentUserValue;
+    return user?.role === UserRole.ADMIN;
+  }
+  
+  /**
+   * Check if user is staff
+   * @returns boolean
+   */
+  isStaff(): boolean {
+    const user = this.currentUserValue;
+    return user?.role === UserRole.STAFF;
+  }
+  
+  /**
+   * Check if user is a customer
+   * @returns boolean
+   */
+  isCustomer(): boolean {
+    const user = this.currentUserValue;
+    return user?.role === UserRole.CUSTOMER;
+  }
+  
+  /**
+   * Check if user is admin or staff
+   * @returns boolean
+   */
+  isAdminOrStaff(): boolean {
+    const user = this.currentUserValue;
+    return user ? (user.role === UserRole.ADMIN || user.role === UserRole.STAFF) : false;
+  }
+  
+  /**
+   * Check if user has a specific role
+   * @param role - UserRole to check
+   * @returns boolean
+   */
+  hasRole(role: UserRole): boolean {
+    const user = this.currentUserValue;
+    return user?.role === role;
+  }
+  
+  /**
+   * Check if user has any of the specified roles
+   * @param roles - Array of UserRole to check
+   * @returns boolean
+   */
+  hasAnyRole(roles: UserRole[]): boolean {
+    const user = this.currentUserValue;
+    return user ? roles.includes(user.role) : false;
+  }
+  
+  /**
+   * Get user role as observable
+   * @returns Observable of UserRole or null
+   */
+  getUserRole$(): Observable<UserRole | null> {
+    return this.currentUser$.pipe(
+      map(user => user?.role || null)
+    );
+  }
+  
+  /**
+   * Get current user role
+   * @returns UserRole or null
+   */
+  getCurrentUserRole(): UserRole | null {
+    return this.currentUserValue?.role || null;
   }
 }
