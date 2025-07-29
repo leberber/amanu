@@ -7,7 +7,8 @@ import { ProductListComponent } from './pages/products/product-list/product-list
 import { ProductDetailComponent } from './pages/products/product-detail/product-detail.component';
 import { authGuard } from './shared/auth.guard';
 import { CartComponent } from './pages/cart/cart.component';
-import { adminGuard } from './shared/admin.guard'; 
+import { adminGuard } from './shared/admin.guard';
+import { adminOnlyGuard } from './shared/admin-only.guard';
 import { AdminProductsComponent } from './pages/admin/admin-products/admin-products.component';
 import { AdminAddProductComponent } from './pages/admin/admin-add-product/admin-add-product.component';
 import { AdminAddCategoryComponent } from './pages/admin/admin-add-category/admin-add-category.component';
@@ -31,7 +32,7 @@ export const routes: Routes = [
   { 
     path: 'admin', 
     loadComponent: () => import('./pages/admin/admin-dashboard/admin-dashboard.component').then(m => m.AdminDashboardComponent),
-    canActivate: [adminGuard]
+    canActivate: [adminOnlyGuard]
   },
   { 
     path: 'admin/products', 
@@ -71,10 +72,15 @@ export const routes: Routes = [
   { 
     path: 'admin/users', 
     loadComponent: () => import('./pages/admin/admin-users/admin-users.component').then(m => m.AdminUsersComponent),
-    canActivate: [adminGuard]
+    canActivate: [adminOnlyGuard]
   },
   
   // User Routes
+  { 
+    path: 'account', 
+    loadComponent: () => import('./pages/account/account.component').then(m => m.AccountComponent),
+    canActivate: [authGuard]
+  },
   { 
     path: 'checkout', 
     loadComponent: () => import('./pages/checkout/checkout.component').then(m => m.CheckoutComponent),

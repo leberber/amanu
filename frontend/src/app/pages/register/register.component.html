@@ -9,122 +9,13 @@
 
     <p-toast></p-toast>
 
-    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
-      <!-- Email Field -->
-      <div class="field mb-4">
-        <label for="email" class="block font-medium text-600 mb-2">
-          {{ 'common.email' | translate }} <span class="p-error">*</span>
-        </label>
-        <div class="relative">
-          <i class="pi pi-envelope input-icon"></i>
-          <input 
-            id="email" 
-            type="email" 
-            pInputText 
-            class="w-full pl-5" 
-            formControlName="email" 
-            [placeholder]="'auth.email_placeholder' | translate"
-            [style]="{'padding': '0.75rem 1rem 0.75rem 2.5rem', 'height': '3rem'}"
-          />
-        </div>
-        <small *ngIf="f['email'].touched && f['email'].invalid" class="p-error block mt-1">
-          <span *ngIf="f['email'].errors?.['required']">{{ 'auth.email_required' | translate }}</span>
-          <span *ngIf="f['email'].errors?.['email']">{{ 'auth.email_invalid' | translate }}</span>
-        </small>
-      </div>
-
-      <!-- Full Name Field -->
-      <div class="field mb-4">
-        <label for="full_name" class="block font-medium text-600 mb-2">
-          {{ 'auth.full_name' | translate }} <span class="p-error">*</span>
-        </label>
-        <div class="relative">
-          <i class="pi pi-user input-icon"></i>
-          <input 
-            id="full_name" 
-            type="text" 
-            pInputText 
-            class="w-full pl-5" 
-            formControlName="full_name" 
-            [placeholder]="'auth.full_name_placeholder' | translate"
-            [style]="{'padding': '0.75rem 1rem 0.75rem 2.5rem', 'height': '3rem'}"
-          />
-        </div>
-        <small *ngIf="f['full_name'].touched && f['full_name'].errors?.['required']" class="p-error block mt-1">
-          {{ 'auth.full_name_required' | translate }}
-        </small>
-      </div>
-
-      <!-- Password Field -->
-      <div class="field mb-4">
-        <label for="password" class="block font-medium text-600 mb-2">
-          {{ 'common.password' | translate }} <span class="p-error">*</span>
-        </label>
-        <div class="relative">
-          <i class="pi pi-lock input-icon"></i>
-          <p-password 
-            id="password"
-            formControlName="password"
-            [toggleMask]="true"
-            [style]="{'width':'100%'}"
-            [inputStyle]="{'width':'100%', 'padding':'0.75rem 1rem 0.75rem 2.5rem', 'height':'3rem'}"
-            [placeholder]="'auth.password_placeholder' | translate"
-            [feedback]="true"
-            [promptLabel]="'auth.password_prompt' | translate"
-            [weakLabel]="'auth.password_weak' | translate"
-            [mediumLabel]="'auth.password_medium' | translate"
-            [strongLabel]="'auth.password_strong' | translate"
-          ></p-password>
-        </div>
-        <small *ngIf="f['password'].touched && f['password'].invalid" class="p-error block mt-1">
-          <span *ngIf="f['password'].errors?.['required']">{{ 'auth.password_required' | translate }}</span>
-          <span *ngIf="f['password'].errors?.['minlength']">{{ 'auth.password_minlength' | translate }}</span>
-        </small>
-      </div>
-
-      <!-- Phone Field -->
-      <div class="field mb-4">
-        <label for="phone" class="block font-medium text-600 mb-2">{{ 'common.phone' | translate }} ({{ 'auth.optional' | translate }})</label>
-        <div class="relative">
-          <i class="pi pi-phone input-icon"></i>
-          <input 
-            id="phone" 
-            type="tel" 
-            pInputText 
-            class="w-full pl-5" 
-            formControlName="phone" 
-            [placeholder]="'auth.phone_placeholder' | translate"
-            [style]="{'padding': '0.75rem 1rem 0.75rem 2.5rem', 'height': '3rem'}"
-          />
-        </div>
-      </div>
-
-      <!-- Address Field -->
-      <div class="field mb-4">
-        <label for="address" class="block font-medium text-600 mb-2">{{ 'common.address' | translate }} ({{ 'auth.optional' | translate }})</label>
-        <div class="relative">
-          <i class="pi pi-map-marker input-icon"></i>
-          <input 
-            id="address" 
-            type="text" 
-            pInputText 
-            class="w-full pl-5" 
-            formControlName="address" 
-            [placeholder]="'auth.address_placeholder' | translate"
-            [style]="{'padding': '0.75rem 1rem 0.75rem 2.5rem', 'height': '3rem'}"
-          />
-        </div>
-      </div>
-
-      <button 
-        pButton 
-        type="submit" 
-        [label]="'auth.register' | translate"
-        class="p-button-rounded w-full p-3"
+    <p-card>
+      <app-user-form 
+        [config]="userFormConfig" 
         [loading]="loading"
-        [disabled]="registerForm.invalid || loading"
-      ></button>
-    </form>
+        (formSubmit)="onRegister($event)">
+      </app-user-form>
+    </p-card>
     
     <div class="text-center mt-5">
       <p>

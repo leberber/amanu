@@ -1,0 +1,215 @@
+<!-- src/app/shared/components/user-form/user-form.component.html -->
+<form [formGroup]="userForm" (ngSubmit)="onSubmit()">
+  <!-- Full Name -->
+  <div class="field mb-4">
+    <label for="full_name" class="block font-medium text-600 mb-2">
+      {{ 'admin.users.form.full_name' | translate }} <span class="p-error">*</span>
+    </label>
+    <div class="relative">
+      <i class="pi pi-user input-icon"></i>
+      <input 
+        type="text" 
+        pInputText 
+        id="full_name" 
+        formControlName="full_name"
+        class="w-full"
+        [placeholder]="'admin.users.form.full_name' | translate"
+        [style]="{'padding': '0.75rem 1rem 0.75rem 2.5rem', 'height': '3rem'}" />
+    </div>
+    @if (getFieldError('full_name', 'required')) {
+      <small class="p-error block mt-1">
+        {{ 'admin.users.form.errors.full_name_required' | translate }}
+      </small>
+    }
+    @if (getFieldError('full_name', 'minlength')) {
+      <small class="p-error block mt-1">
+        {{ 'admin.users.form.errors.full_name_min' | translate }}
+      </small>
+    }
+  </div>
+  
+  <!-- Email -->
+  <div class="field mb-4">
+    <label for="email" class="block font-medium text-600 mb-2">
+      {{ 'admin.users.form.email' | translate }} <span class="p-error">*</span>
+    </label>
+    <div class="relative">
+      <i class="pi pi-envelope input-icon"></i>
+      <input 
+        type="email" 
+        pInputText 
+        id="email" 
+        formControlName="email"
+        class="w-full"
+        [placeholder]="'admin.users.form.email' | translate"
+        [style]="{'padding': '0.75rem 1rem 0.75rem 2.5rem', 'height': '3rem'}" />
+    </div>
+    @if (getFieldError('email', 'required')) {
+      <small class="p-error block mt-1">
+        {{ 'admin.users.form.errors.email_required' | translate }}
+      </small>
+    }
+    @if (getFieldError('email', 'email')) {
+      <small class="p-error block mt-1">
+        {{ 'admin.users.form.errors.email_invalid' | translate }}
+      </small>
+    }
+  </div>
+  
+  <!-- Phone and Role in same row for admin mode -->
+  @if (config.showPhoneField && config.showRoleSelection) {
+    <div class="grid">
+      <!-- Phone -->
+      <div class="col-12 md:col-6">
+        <div class="field mb-4">
+          <label for="phone" class="block font-medium text-600 mb-2">
+            {{ 'admin.users.form.phone' | translate }}
+          </label>
+          <div class="relative">
+            <i class="pi pi-phone input-icon"></i>
+            <input 
+              type="text" 
+              pInputText 
+              id="phone" 
+              formControlName="phone"
+              class="w-full"
+              [placeholder]="'admin.users.form.phone' | translate"
+              [style]="{'padding': '0.75rem 1rem 0.75rem 2.5rem', 'height': '3rem'}" />
+          </div>
+        </div>
+      </div>
+      
+      <!-- Role -->
+      <div class="col-12 md:col-6">
+        <div class="field mb-4">
+          <label for="role" class="block font-medium text-600 mb-2">
+            {{ 'admin.users.form.role' | translate }} <span class="p-error">*</span>
+          </label>
+          <p-select 
+            id="role" 
+            formControlName="role" 
+            [options]="roleOptions" 
+            optionLabel="label" 
+            optionValue="value"
+            [placeholder]="'admin.users.form.select_role' | translate"
+            class="w-full" 
+            [style]="{'height': '3rem'}" />
+        </div>
+      </div>
+    </div>
+  }
+  
+  <!-- Phone only (for register mode) -->
+  @if (config.showPhoneField && !config.showRoleSelection) {
+    <div class="field mb-4">
+      <label for="phone" class="block font-medium text-600 mb-2">
+        {{ 'admin.users.form.phone' | translate }}
+      </label>
+      <div class="relative">
+        <i class="pi pi-phone input-icon"></i>
+        <input 
+          type="text" 
+          pInputText 
+          id="phone" 
+          formControlName="phone"
+          class="w-full"
+          [placeholder]="'admin.users.form.phone' | translate"
+          [style]="{'padding': '0.75rem 1rem 0.75rem 2.5rem', 'height': '3rem'}" />
+      </div>
+    </div>
+  }
+  
+  <!-- Address -->
+  @if (config.showAddressField) {
+    <div class="field mb-4">
+      <label for="address" class="block font-medium text-600 mb-2">
+        {{ 'admin.users.form.address' | translate }}
+      </label>
+      <div class="relative">
+        <i class="pi pi-map-marker input-icon"></i>
+        <input 
+          type="text" 
+          pInputText 
+          id="address" 
+          formControlName="address"
+          class="w-full"
+          [placeholder]="'admin.users.form.address' | translate"
+          [style]="{'padding': '0.75rem 1rem 0.75rem 2.5rem', 'height': '3rem'}" />
+      </div>
+    </div>
+  }
+  
+  <!-- Password -->
+  <div class="field mb-4">
+    <label for="password" class="block font-medium text-600 mb-2">
+      {{ passwordLabel }}
+      @if (showPasswordRequired) {
+        <span class="p-error"> *</span>
+      }
+    </label>
+    <div class="relative">
+      @if (currentLang !== 'ar') {
+        <i class="pi pi-lock input-icon"></i>
+      }
+      <p-password 
+        id="password" 
+        formControlName="password" 
+        [feedback]="true" 
+        [toggleMask]="true" 
+        [style]="{'width':'100%'}"
+        [inputStyle]="{'width':'100%', 'padding': currentLang === 'ar' ? '0.75rem 1rem' : '0.75rem 1rem 0.75rem 2.5rem', 'height':'3rem'}"
+        [placeholder]="passwordLabel"
+        [promptLabel]="'auth.password_prompt' | translate"
+        [weakLabel]="'auth.password_weak' | translate"
+        [mediumLabel]="'auth.password_medium' | translate"
+        [strongLabel]="'auth.password_strong' | translate" />
+    </div>
+    @if (getFieldError('password', 'required')) {
+      <small class="p-error block mt-1">
+        {{ 'admin.users.form.errors.password_required' | translate }}
+      </small>
+    }
+    @if (getFieldError('password', 'minlength')) {
+      <small class="p-error block mt-1">
+        {{ 'admin.users.form.errors.password_min' | translate }}
+      </small>
+    }
+  </div>
+  
+  <!-- Active Status (for admin mode) -->
+  @if (config.showActiveToggle) {
+    <div class="field mb-4">
+      <div class="flex align-items-center">
+        <p-checkbox 
+          formControlName="is_active" 
+          [binary]="true" 
+          inputId="is_active"></p-checkbox>
+        <label for="is_active" class="ml-2">
+          {{ 'admin.users.form.active_user' | translate }}
+        </label>
+      </div>
+    </div>
+  }
+  
+  <!-- Action Buttons -->
+  <div class="flex justify-content-end gap-2 mt-4">
+    @if (config.showCancelButton) {
+      <button 
+        pButton 
+        [label]="config.cancelButtonLabel || ('common.cancel' | translate)" 
+        icon="pi pi-times" 
+        class="p-button-outlined p-button-rounded" 
+        type="button" 
+        (click)="onCancel()"></button>
+    }
+    
+    <button 
+      pButton 
+      [label]="submitButtonLabel" 
+      icon="pi pi-check" 
+      type="submit"
+      [class]="config.showCancelButton ? 'p-button-rounded' : 'p-button-rounded w-full p-3'"
+      [loading]="loading"
+      [disabled]="userForm.invalid || loading"></button>
+  </div>
+</form>

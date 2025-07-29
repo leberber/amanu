@@ -1,0 +1,342 @@
+<!-- src/app/pages/account/account.component.html -->
+<div class=" min-h-screen p-2 md:p-6">
+  <p-toast></p-toast>
+  
+  <div class="max-w-6xl mx-auto">
+    <!-- Page Header -->
+    <div class="text-center mb-4 md:mb-6">
+      <h1 class="text-3xl md:text-4xl font-bold mb-2">{{ 'account.title' | translate }}</h1>
+      <p class="text-lg text-color-secondary">{{ 'account.profile_description' | translate }}</p>
+    </div>
+    
+    <div class="grid">
+      <!-- Left Column - Profile & Password -->
+      <div class="col-12 lg:col-8">
+        <div class="grid gap-4">
+          <!-- Profile Information Card -->
+          <div class="col-12">
+            <div class="surface-card p-4 md:p-6 shadow-1 border-round">
+              <div class="flex align-items-center gap-3 mb-4">
+                <div class="flex align-items-center justify-content-center bg-primary-100 text-primary border-circle" 
+                     style="width: 3rem; height: 3rem;">
+                  <i class="pi pi-user text-xl"></i>
+                </div>
+                <div>
+                  <h2 class="text-xl font-semibold m-0">{{ 'account.profile_information' | translate }}</h2>
+                  <p class="text-color-secondary m-0 text-sm">{{ 'account.profile_description' | translate }}</p>
+                </div>
+              </div>
+              
+              <form [formGroup]="profileForm" (ngSubmit)="onUpdateProfile()">
+                <div class="grid">
+                  <!-- Full Name -->
+                  <div class="col-12 md:col-6 field mb-4">
+                    <label for="full_name" class="block font-medium text-600 mb-2">
+                      {{ 'account.full_name' | translate }} <span class="p-error">*</span>
+                    </label>
+                    <div class="relative">
+                      <i class="pi pi-user input-icon"></i>
+                      <input 
+                        type="text" 
+                        pInputText 
+                        id="full_name" 
+                        formControlName="full_name"
+                        class="w-full pl-5"
+                        [style]="{'padding': '0.75rem 1rem 0.75rem 2.5rem', 'height': '3rem'}"
+                        [placeholder]="'account.full_name_placeholder' | translate" />
+                    </div>
+                    @if (getFieldError(profileForm, 'full_name', 'required')) {
+                      <small class="p-error block mt-1">
+                        {{ 'account.full_name_required' | translate }}
+                      </small>
+                    }
+                    @if (getFieldError(profileForm, 'full_name', 'minlength')) {
+                      <small class="p-error block mt-1">
+                        {{ 'account.full_name_min' | translate }}
+                      </small>
+                    }
+                  </div>
+                  
+                  <!-- Email (Disabled) -->
+                  <div class="col-12 md:col-6 field mb-4">
+                    <label for="email" class="block font-medium text-600 mb-2">
+                      {{ 'account.email' | translate }}
+                    </label>
+                    <div class="relative">
+                      <i class="pi pi-envelope input-icon"></i>
+                      <input 
+                        type="email" 
+                        pInputText 
+                        id="email" 
+                        formControlName="email"
+                        class="w-full pl-5 pr-5"
+                        [style]="{'padding': '0.75rem 2.5rem 0.75rem 2.5rem', 'height': '3rem'}"
+                        [placeholder]="'account.email_placeholder' | translate" />
+                      <i class="pi pi-lock absolute right-3 top-50 -translate-y-50 text-400" 
+                         style="transform: translateY(-50%)"
+                         [pTooltip]="'account.email_cannot_change' | translate"
+                         tooltipPosition="top"></i>
+                    </div>
+                    <small class="text-color-secondary text-sm">{{ 'account.email_hint' | translate }}</small>
+                  </div>
+                  
+                  <!-- Phone -->
+                  <div class="col-12 md:col-6 field mb-4">
+                    <label for="phone" class="block font-medium text-600 mb-2">
+                      {{ 'account.phone' | translate }}
+                    </label>
+                    <div class="relative">
+                      <i class="pi pi-phone input-icon"></i>
+                      <input 
+                        type="tel" 
+                        pInputText 
+                        id="phone" 
+                        formControlName="phone"
+                        class="w-full pl-5"
+                        [style]="{'padding': '0.75rem 1rem 0.75rem 2.5rem', 'height': '3rem'}"
+                        [placeholder]="'account.phone_placeholder' | translate" />
+                    </div>
+                  </div>
+                  
+                  <!-- Address -->
+                  <div class="col-12 md:col-6 field mb-4">
+                    <label for="address" class="block font-medium text-600 mb-2">
+                      {{ 'account.address' | translate }}
+                    </label>
+                    <div class="relative">
+                      <i class="pi pi-map-marker input-icon"></i>
+                      <input 
+                        type="text" 
+                        pInputText 
+                        id="address" 
+                        formControlName="address"
+                        class="w-full pl-5"
+                        [style]="{'padding': '0.75rem 1rem 0.75rem 2.5rem', 'height': '3rem'}"
+                        [placeholder]="'account.address_placeholder' | translate" />
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="flex justify-content-end mt-4">
+                  <button 
+                    pButton 
+                    type="submit" 
+                    [label]="'account.save_changes' | translate"
+                    icon="pi pi-check"
+                    class="p-button-rounded"
+                    [style]="{'padding': '0.75rem 1.5rem'}"
+                    [loading]="loading"
+                    [disabled]="profileForm.invalid || loading"></button>
+                </div>
+              </form>
+            </div>
+          </div>
+          
+          <!-- Change Password Card -->
+          <div class="col-12">
+            <div class="surface-card p-4 md:p-6 shadow-1 border-round">
+              <div class="flex align-items-center gap-3 mb-4">
+                <div class="flex align-items-center justify-content-center bg-orange-100 text-orange-500 border-circle" 
+                     style="width: 3rem; height: 3rem;">
+                  <i class="pi pi-lock text-xl"></i>
+                </div>
+                <div>
+                  <h2 class="text-xl font-semibold m-0">{{ 'account.change_password' | translate }}</h2>
+                  <p class="text-color-secondary m-0 text-sm">{{ 'account.password_description' | translate }}</p>
+                </div>
+              </div>
+              
+              <form [formGroup]="passwordForm" (ngSubmit)="onChangePassword()">
+                <div class="grid">
+                  <!-- Current Password -->
+                  <div class="col-12 field mb-4">
+                    <label for="current_password" class="block font-medium text-600 mb-2">
+                      {{ 'account.current_password' | translate }} <span class="p-error">*</span>
+                    </label>
+                    <div class="relative">
+                      <i class="pi pi-lock input-icon" 
+                         [class.lock-icon-with-eye]="translateService.currentLang !== 'ar'"></i>
+                      <p-password 
+                        id="current_password" 
+                        formControlName="current_password" 
+                        [feedback]="false" 
+                        [toggleMask]="true" 
+                        styleClass="w-full"
+                        [inputStyle]="{'width':'100%', 'padding':'0.75rem 1rem 0.75rem 2.5rem', 'height':'3rem'}"
+                        [placeholder]="'account.current_password_placeholder' | translate" />
+                    </div>
+                    @if (getFieldError(passwordForm, 'current_password', 'required')) {
+                      <small class="p-error block mt-1">
+                        {{ 'account.current_password_required' | translate }}
+                      </small>
+                    }
+                  </div>
+                  
+                  <!-- New Password -->
+                  <div class="col-12 md:col-6 field mb-4">
+                    <label for="new_password" class="block font-medium text-600 mb-2">
+                      {{ 'account.new_password' | translate }} <span class="p-error">*</span>
+                    </label>
+                    <div class="relative">
+                      <i class="pi pi-lock input-icon" 
+                         [class.lock-icon-with-eye]="translateService.currentLang !== 'ar'"></i>
+                      <p-password 
+                        id="new_password" 
+                        formControlName="new_password" 
+                        [feedback]="true" 
+                        [toggleMask]="true" 
+                        styleClass="w-full"
+                        [inputStyle]="{'width':'100%', 'padding':'0.75rem 1rem 0.75rem 2.5rem', 'height':'3rem'}"
+                        [placeholder]="'account.new_password_placeholder' | translate"
+                        [promptLabel]="'auth.password_prompt' | translate"
+                        [weakLabel]="'auth.password_weak' | translate"
+                        [mediumLabel]="'auth.password_medium' | translate"
+                        [strongLabel]="'auth.password_strong' | translate" />
+                    </div>
+                    @if (getFieldError(passwordForm, 'new_password', 'required')) {
+                      <small class="p-error block mt-1">
+                        {{ 'account.new_password_required' | translate }}
+                      </small>
+                    }
+                    @if (getFieldError(passwordForm, 'new_password', 'minlength')) {
+                      <small class="p-error block mt-1">
+                        {{ 'account.password_min' | translate }}
+                      </small>
+                    }
+                  </div>
+                  
+                  <!-- Confirm Password -->
+                  <div class="col-12 md:col-6 field mb-4">
+                    <label for="confirm_password" class="block font-medium text-600 mb-2">
+                      {{ 'account.confirm_password' | translate }} <span class="p-error">*</span>
+                    </label>
+                    <div class="relative">
+                      <i class="pi pi-lock input-icon" 
+                         [class.lock-icon-with-eye]="translateService.currentLang !== 'ar'"></i>
+                      <p-password 
+                        id="confirm_password" 
+                        formControlName="confirm_password" 
+                        [feedback]="false" 
+                        [toggleMask]="true" 
+                        styleClass="w-full"
+                        [inputStyle]="{'width':'100%', 'padding':'0.75rem 1rem 0.75rem 2.5rem', 'height':'3rem'}"
+                        [placeholder]="'account.confirm_password_placeholder' | translate" />
+                    </div>
+                    @if (getFieldError(passwordForm, 'confirm_password', 'required')) {
+                      <small class="p-error block mt-1">
+                        {{ 'account.confirm_password_required' | translate }}
+                      </small>
+                    }
+                    @if (getFieldError(passwordForm, 'confirm_password', 'passwordMismatch')) {
+                      <small class="p-error block mt-1">
+                        {{ 'account.passwords_not_match' | translate }}
+                      </small>
+                    }
+                  </div>
+                </div>
+                
+                <div class="flex justify-content-end mt-4">
+                  <button 
+                    pButton 
+                    type="submit" 
+                    [label]="'account.change_password_button' | translate"
+                    icon="pi pi-key"
+                    class="p-button-rounded p-button-warning"
+                    [style]="{'padding': '0.75rem 1.5rem'}"
+                    [loading]="loadingPassword"
+                    [disabled]="passwordForm.invalid || loadingPassword"></button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Right Column - Account Info -->
+      <div class="col-12 lg:col-4">
+        <div class="surface-card p-4 md:p-6 shadow-1 border-round sticky top-2">
+          <div class="flex align-items-center gap-3 mb-4">
+            <div class="flex align-items-center justify-content-center bg-blue-100 text-blue-500 border-circle" 
+                 style="width: 3rem; height: 3rem;">
+              <i class="pi pi-info-circle text-xl"></i>
+            </div>
+            <h2 class="text-xl font-semibold m-0">{{ 'account.account_info' | translate }}</h2>
+          </div>
+          
+          <!-- User Avatar and Name -->
+          <div class="text-center mb-4 pb-4 border-bottom-1 surface-border">
+            <div class="flex align-items-center justify-content-center bg-primary-100 text-primary border-circle mx-auto mb-3" 
+                 style="width: 5rem; height: 5rem; font-size: 2rem;">
+              {{ user?.full_name?.charAt(0)?.toUpperCase() || 'U' }}
+            </div>
+            <h3 class="text-xl font-semibold m-0 mb-1">{{ user?.full_name || 'User' }}</h3>
+            <p class="text-color-secondary m-0">{{ user?.email }}</p>
+          </div>
+          
+          <!-- Account Details -->
+          <div class="grid gap-3">
+            <div class="col-12">
+              <div class="surface-50 border-round p-3">
+                <div class="flex justify-content-between align-items-center mb-2">
+                  <span class="font-medium text-600">
+                    <i class="pi pi-id-card mr-2"></i>{{ 'account.user_role' | translate }}
+                  </span>
+                </div>
+                <p-tag 
+                  [severity]="user?.role === 'admin' ? 'danger' : (user?.role === 'staff' ? 'warning' : 'info')" 
+                  [value]="'admin.users.roles.' + user?.role | translate"
+                  [style]="{'font-size': '0.875rem'}">
+                </p-tag>
+              </div>
+            </div>
+            
+            <div class="col-12">
+              <div class="surface-50 border-round p-3">
+                <div class="flex justify-content-between align-items-center mb-2">
+                  <span class="font-medium text-600">
+                    <i class="pi pi-calendar mr-2"></i>{{ 'account.member_since' | translate }}
+                  </span>
+                </div>
+                <span class="font-semibold">{{ formatDate(user?.created_at) }}</span>
+              </div>
+            </div>
+            
+            <div class="col-12">
+              <div class="surface-50 border-round p-3">
+                <div class="flex justify-content-between align-items-center mb-2">
+                  <span class="font-medium text-600">
+                    <i class="pi pi-check-circle mr-2"></i>{{ 'account.account_status' | translate }}
+                  </span>
+                </div>
+                <p-tag 
+                  [severity]="user?.is_active ? 'success' : 'danger'" 
+                  [value]="user?.is_active ? ('account.active' | translate) : ('account.inactive' | translate)"
+                  [icon]="user?.is_active ? 'pi pi-check' : 'pi pi-times'"
+                  [style]="{'font-size': '0.875rem'}">
+                </p-tag>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Quick Actions -->
+          <div class="mt-4 pt-4 border-top-1 surface-border">
+            <button 
+              pButton 
+              type="button" 
+              [label]="'header.orders' | translate"
+              icon="pi pi-shopping-bag"
+              class="p-button-text w-full mb-2"
+              routerLink="/orders"></button>
+            <button 
+              pButton 
+              type="button" 
+              [label]="'common.logout' | translate"
+              icon="pi pi-sign-out"
+              class="p-button-text p-button-danger w-full"
+              (click)="logout()"></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

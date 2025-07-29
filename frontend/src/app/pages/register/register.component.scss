@@ -1,0 +1,14 @@
+// src/app/pages/register/register.component.scss
+
+.relative {
+  position: relative;
+}
+
+.input-icon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  z-index: 1;
+}

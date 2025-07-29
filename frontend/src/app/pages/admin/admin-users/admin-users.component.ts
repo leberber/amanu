@@ -1,7 +1,7 @@
 // src/app/pages/admin/admin-users/admin-users.component.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 
 import { TableModule } from 'primeng/table';
@@ -26,6 +26,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { AdminService } from '../../../services/admin.service';
 import { UserManage, UsersResponse } from '../../../models/admin.model';
+import { UserFormComponent, UserFormData, UserFormConfig } from '../../../shared/components/user-form/user-form.component';
 
 @Component({
   selector: 'app-admin-users',
@@ -33,7 +34,6 @@ import { UserManage, UsersResponse } from '../../../models/admin.model';
   imports: [
     CommonModule,
     FormsModule,
-    ReactiveFormsModule,
     TableModule,
     ButtonModule,
     CardModule,
@@ -43,14 +43,13 @@ import { UserManage, UsersResponse } from '../../../models/admin.model';
     PaginatorModule,
     DialogModule,
     ConfirmDialogModule,
-    CheckboxModule,
-    PasswordModule,
     SelectModule,
     IconFieldModule,
     InputIconModule,
     TooltipModule,
     ProgressSpinnerModule,
-    TranslateModule
+    TranslateModule,
+    UserFormComponent
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './admin-users.component.html',
@@ -81,8 +80,17 @@ export class AdminUsersComponent implements OnInit {
   displayUserDialog = false;
   isEditing = false;
   
-  // Form
-  userForm: FormGroup;
+  // User form configuration
+  userFormConfig: UserFormConfig = {
+    mode: 'create',
+    showRoleSelection: true,
+    showActiveToggle: true,
+    showAddressField: true,
+    showPhoneField: true,
+    passwordRequired: true,
+    showCancelButton: true
+  };
+  userFormData?: Partial<UserFormData>;
   
   // Options
   roleOptions: any[] = [];
@@ -94,12 +102,9 @@ export class AdminUsersComponent implements OnInit {
     private adminService: AdminService,
     private messageService: MessageService,
     private confirmationService: ConfirmationService,
-    private fb: FormBuilder,
     private router: Router,
     private translateService: TranslateService
-  ) {
-    this.userForm = this.createUserForm();
-  }
+  ) {}
 
   ngOnInit(): void {
     this.initializeRoleOptions();
@@ -120,19 +125,6 @@ export class AdminUsersComponent implements OnInit {
     ];
   }
 
-  // ===== FORM SETUP =====
-  
-  private createUserForm(): FormGroup {
-    return this.fb.group({
-      full_name: ['', [Validators.required, Validators.minLength(3)]],
-      email: ['', [Validators.required, Validators.email]],
-      phone: [''],
-      address: [''],
-      role: ['customer', Validators.required],
-      is_active: [true],
-      password: ['', [Validators.minLength(8)]]
-    });
-  }
 
   // ===== DATA LOADING =====
   
@@ -242,18 +234,24 @@ export class AdminUsersComponent implements OnInit {
     this.selectedUser = user;
     this.isEditing = true;
     
-    this.userForm.patchValue({
+    this.userFormConfig = {
+      mode: 'edit',
+      showRoleSelection: true,
+      showActiveToggle: true,
+      showAddressField: true,
+      showPhoneField: true,
+      passwordRequired: false,
+      showCancelButton: true
+    };
+    
+    this.userFormData = {
       full_name: user.full_name,
       email: user.email,
       phone: user.phone || '',
       address: user.address || '',
       role: user.role,
-      is_active: user.is_active,
-      password: '' // Never patch password for security
-    });
-    
-    // Disable email field in edit mode
-    this.userForm.get('email')?.disable();
+      is_active: user.is_active
+    };
     
     this.displayUserDialog = true;
   }
@@ -262,42 +260,34 @@ export class AdminUsersComponent implements OnInit {
     this.selectedUser = null;
     this.isEditing = false;
     
-    this.userForm.reset({
+    this.userFormConfig = {
+      mode: 'create',
+      showRoleSelection: true,
+      showActiveToggle: true,
+      showAddressField: true,
+      showPhoneField: true,
+      passwordRequired: true,
+      showCancelButton: true
+    };
+    
+    this.userFormData = {
       role: 'customer',
       is_active: true
-    });
-    
-    // Enable email field in create mode
-    this.userForm.get('email')?.enable();
-    
-    // Make password required for new users
-    this.userForm.get('password')?.setValidators([
-      Validators.required, 
-      Validators.minLength(8)
-    ]);
-    this.userForm.get('password')?.updateValueAndValidity();
+    };
     
     this.displayUserDialog = true;
   }
 
-  saveUser(): void {
-    if (this.userForm.invalid) {
-      this.userForm.markAllAsTouched();
-      return;
-    }
-    
-    const userData = this.userForm.value;
-    
-    // Remove empty password from payload when editing
-    if (this.isEditing && !userData.password) {
-      delete userData.password;
-    }
-    
+  onUserFormSubmit(formData: UserFormData): void {
     if (this.isEditing && this.selectedUser) {
-      this.updateExistingUser(userData);
+      this.updateExistingUser(formData);
     } else {
-      this.handleCreateUser();
+      this.createUser(formData);
     }
+  }
+  
+  onUserFormCancel(): void {
+    this.displayUserDialog = false;
   }
 
   private updateExistingUser(userData: any): void {
@@ -338,14 +328,31 @@ export class AdminUsersComponent implements OnInit {
     });
   }
 
-  private handleCreateUser(): void {
-    // Note: In this demo, user creation is handled by the registration endpoint
-    // In a real application, you would implement this functionality
-    this.displayUserDialog = false;
-    this.messageService.add({
-      severity: 'info',
-      summary: this.translateService.instant('admin.users.messages.not_implemented'),
-      detail: this.translateService.instant('admin.users.messages.create_not_implemented')
+  private createUser(userData: UserFormData): void {
+    this.adminService.createUser(userData).subscribe({
+      next: (newUser: UserManage) => {
+        // Add new user to arrays
+        this.allUsers.unshift(newUser);
+        
+        // Reapply filters to update display
+        this.filterUsers();
+        
+        this.messageService.add({
+          severity: 'success',
+          summary: this.translateService.instant('admin.users.messages.user_created'),
+          detail: this.translateService.instant('admin.users.messages.user_created_detail', { name: newUser.full_name })
+        });
+        
+        this.displayUserDialog = false;
+      },
+      error: (error) => {
+        console.error('Error creating user:', error);
+        this.messageService.add({
+          severity: 'error',
+          summary: this.translateService.instant('admin.users.messages.create_failed'),
+          detail: error.error?.detail || this.translateService.instant('admin.users.messages.create_failed_detail')
+        });
+      }
     });
   }
 
@@ -428,7 +435,7 @@ export class AdminUsersComponent implements OnInit {
     return `${day}/${month}/${year} ${hours}:${minutes}`;
   }
 
-    navigateAddUser() {
-    this.router.navigate(['/register']);
+  navigateAddUser() {
+    this.createNewUser();
   }
 }

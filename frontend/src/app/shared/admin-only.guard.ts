@@ -1,10 +1,10 @@
-// src/app/shared/admin.guard.ts
+// src/app/shared/admin-only.guard.ts
 import { inject } from '@angular/core';
 import { Router, CanActivateFn } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { UserRole } from '../models/user.model';
 
-export const adminGuard: CanActivateFn = (route, state) => {
+export const adminOnlyGuard: CanActivateFn = (route, state) => {
   const router = inject(Router);
   const authService = inject(AuthService);
   
@@ -15,10 +15,18 @@ export const adminGuard: CanActivateFn = (route, state) => {
   
   const currentUser = authService.currentUserValue;
   
-  if (currentUser && (currentUser.role === UserRole.ADMIN || currentUser.role === UserRole.STAFF)) {
+  // Only allow admin role
+  if (currentUser && currentUser.role === UserRole.ADMIN) {
     return true;
   }
   
+  // Redirect staff to orders page (their main work area)
+  if (currentUser && currentUser.role === UserRole.STAFF) {
+    router.navigate(['/admin/orders']);
+    return false;
+  }
+  
+  // Redirect customers to home
   router.navigate(['/']);
   return false;
 };

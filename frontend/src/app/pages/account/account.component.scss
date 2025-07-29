@@ -1,0 +1,57 @@
+// src/app/pages/account/account.component.scss
+
+:host ::ng-deep {
+  .p-password {
+    width: 100%;
+    
+    .p-password-input {
+      width: 100%;
+    }
+  }
+  
+  // Icon positioning
+  .input-icon {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-10%);
+    color: var(--text-color-secondary);
+    z-index: 1;
+  }
+  
+  // Lock icon adjustment when eye icon is present
+  .lock-icon-with-eye {
+    display: none !important;
+  }
+  
+  // Responsive adjustments
+  @media (max-width: 768px) {
+    .sticky {
+      position: relative !important;
+    }
+  }
+  
+  // Custom tag styling
+  .p-tag {
+    font-weight: 600;
+  }
+  
+  // Card hover effects
+  .surface-card {
+    transition: box-shadow 0.2s;
+    
+    &:hover {
+      box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
+  }
+  
+  // Input field styling
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"] {
+    &:disabled {
+      background-color: var(--surface-100);
+      cursor: not-allowed;
+    }
+  }
+}

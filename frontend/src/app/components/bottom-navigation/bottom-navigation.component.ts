@@ -1,16 +1,18 @@
 // src/app/components/bottom-navigation/bottom-navigation.component.ts
-import { Component, inject, OnInit, OnDestroy, computed, signal } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, computed, signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../services/auth.service';
 import { CartService } from '../../services/cart.service';
+import { User, UserRole } from '../../models/user.model';
+import { MobileAdminMenuComponent } from '../mobile-admin-menu/mobile-admin-menu.component';
 
 
 @Component({
   selector: 'app-bottom-navigation',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, TranslateModule],
+  imports: [CommonModule, RouterLink, RouterLinkActive, TranslateModule, MobileAdminMenuComponent],
   template: `
     <div class="bottom-nav" [class.hidden]="isHidden" [style.opacity]="opacity">
       <!-- Home -->
@@ -25,8 +27,8 @@ import { CartService } from '../../services/cart.service';
         <span>{{ 'common.products' | translate }}</span>
       </a>
       
-      <!-- Cart -->
-      <a routerLink="/cart" routerLinkActive="active" class="cart-link">
+      <!-- Cart (only for customers) -->
+      <a *ngIf="!isAdminOrStaff()" routerLink="/cart" routerLinkActive="active" class="cart-link">
         <div class="cart-icon">
           <i class="pi pi-shopping-cart"></i>
           <span *ngIf="cartCount() > 0" class="badge">{{cartCount() > 99 ? '99+' : cartCount()}}</span>
@@ -34,18 +36,33 @@ import { CartService } from '../../services/cart.service';
         <span>{{ 'common.cart' | translate }}</span>
       </a>
       
-      <!-- Orders (only if logged in) -->
-      <a *ngIf="authService.isLoggedIn" routerLink="/orders" routerLinkActive="active">
+      <!-- Orders (only for logged in customers) -->
+      <a *ngIf="authService.isLoggedIn && !isAdminOrStaff()" routerLink="/orders" routerLinkActive="active">
         <i class="pi pi-list"></i>
         <span>{{ 'header.orders' | translate }}</span>
       </a>
       
-      <!-- Login/Profile -->
-      <a [routerLink]="authService.isLoggedIn ? '/profile' : '/login'" routerLinkActive="active">
-        <i [class]="authService.isLoggedIn ? 'pi pi-user' : 'pi pi-sign-in'"></i>
-        <span>{{ (authService.isLoggedIn ? 'header.profile' : 'common.login') | translate }}</span>
+      <!-- Admin (for staff/admin) -->
+      <a *ngIf="isAdminOrStaff()" (click)="showAdminMenu()" class="admin-link">
+        <i class="pi pi-cog"></i>
+        <span>{{ 'header.admin' | translate }}</span>
+      </a>
+      
+      <!-- Account (for logged in users including staff) -->
+      <a *ngIf="authService.isLoggedIn" routerLink="/account" routerLinkActive="active">
+        <i class="pi pi-user"></i>
+        <span>{{ translateService.currentLang === 'ar' ? 'حسابي' : ('account.title' | translate) }}</span>
+      </a>
+      
+      <!-- Login (for non-logged in users) -->
+      <a *ngIf="!authService.isLoggedIn" routerLink="/login" routerLinkActive="active">
+        <i class="pi pi-sign-in"></i>
+        <span>{{ 'common.login' | translate }}</span>
       </a>
     </div>
+    
+    <!-- Mobile Admin Menu -->
+    <app-mobile-admin-menu #adminMenu></app-mobile-admin-menu>
   `,
   styles: [`
     .bottom-nav {
@@ -79,14 +96,17 @@ import { CartService } from '../../services/cart.service';
       transition: all 0.2s ease;
     }
     
-    .bottom-nav a:hover {
-      background: #f0f0f0;
+    .bottom-nav a.active {
+      color: var(--primary-color, #007bff);
+      font-weight: 600;
     }
     
-    .bottom-nav a.active {
-      color: #007bff;
-      background: #e3f2fd;
-      font-weight: 600;
+    .bottom-nav a.active i {
+      color: var(--primary-color, #007bff);
+    }
+    
+    .bottom-nav a.admin-link {
+      cursor: pointer;
     }
     
     .bottom-nav i {
@@ -130,30 +150,44 @@ import { CartService } from '../../services/cart.service';
       border-top-color: #333;
     }
     
-    :host-context(.my-app-dark) .bottom-nav a:hover {
-      background: #333;
-    }
-    
     :host-context(.my-app-dark) .bottom-nav a.active {
       color: #64b5f6;
-      background: #1e3a8a;
+    }
+    
+    :host-context(.my-app-dark) .bottom-nav a.active i {
+      color: #64b5f6;
     }
   `]
 })
 export class BottomNavigationComponent implements OnInit, OnDestroy {
   authService = inject(AuthService);
   private cartService = inject(CartService);
+  translateService = inject(TranslateService);
+  
+  @ViewChild('adminMenu') adminMenu!: MobileAdminMenuComponent;
   
   isHidden = false;
   opacity = 1;
   private lastScrollY = 0;
   private scrollAccumulator = 0; // Track continued scrolling
   cartItems = signal<any[]>([]);
+  currentUser = signal<User | null>(null);
   
   // Computed cart count - count distinct products (like cart component's cartItemCount)
   cartCount = computed(() => {
     return this.cartItems().length; // Number of different products, not total quantities
   });
+  
+  isAdminOrStaff(): boolean {
+    const user = this.authService.currentUserValue;
+    return user ? (user.role === UserRole.ADMIN || user.role === UserRole.STAFF) : false;
+  }
+  
+  showAdminMenu(): void {
+    if (this.adminMenu) {
+      this.adminMenu.show();
+    }
+  }
   
   ngOnInit() {
     if (typeof window !== 'undefined') {
@@ -163,6 +197,11 @@ export class BottomNavigationComponent implements OnInit, OnDestroy {
     // Subscribe to cart changes - same as cart component
     this.cartService.cartItems$.subscribe(items => {
       this.cartItems.set(items || []);
+    });
+    
+    // Subscribe to user changes
+    this.authService.currentUser$.subscribe(user => {
+      this.currentUser.set(user);
     });
     
     // Load cart items

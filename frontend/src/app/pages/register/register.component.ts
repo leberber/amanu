@@ -1,69 +1,66 @@
 // src/app/pages/register/register.component.ts
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
-import { InputTextModule } from 'primeng/inputtext';
-import { PasswordModule } from 'primeng/password';
-import { MessageModule } from 'primeng/message';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../services/auth.service';
+import { UserFormComponent, UserFormData, UserFormConfig } from '../../shared/components/user-form/user-form.component';
+import { UserRole } from '../../models/user.model';
 
 @Component({
   selector: 'app-register',
   standalone: true,
   imports: [
     CommonModule,
-    ReactiveFormsModule,
     ButtonModule,
     CardModule,
-    InputTextModule,
-    PasswordModule,
-    MessageModule,
     ToastModule,
     RouterLink,
-    TranslateModule // Add this import
+    TranslateModule,
+    UserFormComponent
   ],
   providers: [MessageService],
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss'
 })
 export class RegisterComponent {
-  registerForm: FormGroup;
   loading = false;
+  
+  userFormConfig: UserFormConfig = {
+    mode: 'register',
+    showRoleSelection: false,
+    showActiveToggle: false,
+    showAddressField: true,
+    showPhoneField: true,
+    passwordRequired: true,
+    showCancelButton: false
+  };
 
   constructor(
-    private fb: FormBuilder,
     private authService: AuthService,
     private router: Router,
     private messageService: MessageService,
-    private translateService: TranslateService // Add this injection
-  ) {
-    // Initialize form
-    this.registerForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
-      full_name: ['', Validators.required],
-      password: ['', [Validators.required, Validators.minLength(8)]],
-      phone: [''],
-      address: ['']
-    });
-  }
+    private translateService: TranslateService
+  ) {}
 
-  // Convenience getter for easy access to form fields
-  get f() { return this.registerForm.controls; }
-
-  onSubmit() {
-    // Stop here if form is invalid
-    if (this.registerForm.invalid) {
-      return;
-    }
-
+  onRegister(formData: UserFormData) {
     this.loading = true;
-    this.authService.register(this.registerForm.value)
+    
+    // Ensure role is set to customer for registration and password is provided
+    const registerData = {
+      full_name: formData.full_name,
+      email: formData.email,
+      password: formData.password!, // Password is required for registration
+      phone: formData.phone,
+      address: formData.address,
+      role: UserRole.CUSTOMER
+    };
+    
+    this.authService.register(registerData)
       .subscribe({
         next: () => {
           this.messageService.add({

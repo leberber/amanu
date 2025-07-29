@@ -123,17 +123,18 @@ export class AdminOrdersComponent implements OnInit {
   loadUsersAndOrders() {
     this.loading = true;
     
-    // First load users
+    // First try to load users (only admins have access)
     this.adminService.getAllUsers().subscribe({
       next: (usersResponse) => {
         this.users = Array.isArray(usersResponse) ? usersResponse : usersResponse.users;
-        
-        // Then load orders
+        // Load orders after users
         this.loadAllOrders();
       },
       error: (error) => {
-        console.error('Error loading users:', error);
-        this.loading = false;
+        console.error('Error loading users (this is normal for staff users):', error);
+        // Still load orders even if users can't be loaded
+        this.users = [];
+        this.loadAllOrders();
       }
     });
   }

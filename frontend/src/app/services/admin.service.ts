@@ -92,4 +92,8 @@ export class AdminService {
   deleteUser(userId: number): Observable<void> {
     return this.apiService.delete<void>(`/users/${userId}`);
   }
+
+  createUser(userData: any): Observable<UserManage> {
+    return this.apiService.post<UserManage>('/auth/register', userData);
+  }
 }

@@ -15,6 +15,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { finalize } from 'rxjs';
 
 import { AuthService } from '../../services/auth.service';
+import { UserRole } from '../../models/user.model';
 
 @Component({
   selector: 'app-login',
@@ -208,9 +209,22 @@ export class LoginComponent implements OnInit {
             summary: this.translateService.instant('common.success'),
             detail: this.translateService.instant('auth.login_success')
           });
-          // Navigate to return url
+          
+          // Determine where to redirect based on user role
+          let targetUrl = this.returnUrl;
+          
+          // If no specific return URL and user is staff, redirect to orders
+          if (this.returnUrl === '/' && user.role === UserRole.STAFF) {
+            targetUrl = '/admin/orders';
+          }
+          // If no specific return URL and user is admin, redirect to dashboard
+          else if (this.returnUrl === '/' && user.role === UserRole.ADMIN) {
+            targetUrl = '/admin';
+          }
+          
+          // Navigate to appropriate url
           setTimeout(() => {
-            this.router.navigate([this.returnUrl]);
+            this.router.navigate([targetUrl]);
           }, 1500);
         },
         error: (error) => {

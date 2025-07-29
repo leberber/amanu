@@ -18,7 +18,7 @@ import { AuthService } from '../../services/auth.service';
 import { CartService } from '../../services/cart.service';
 import { TranslationService } from '../../services/translation.service';
 import { LanguageSelectorComponent } from '../../components/language-selector/language-selector.component';
-import { User } from '../../models/user.model';
+import { User, UserRole } from '../../models/user.model';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -70,7 +70,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   isAdmin = computed(() => {
     const user = this.currentUser();
     const isLoggedIn = this.authService.isLoggedIn;
-    const hasAdminRole = user?.role === 'admin' || user?.role === 'staff';
+    const hasAdminRole = user?.role === UserRole.ADMIN || user?.role === UserRole.STAFF;
     
     return isLoggedIn && user && hasAdminRole;
   });
@@ -204,7 +204,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     ];
 
     const user = this.currentUser();
-    const isAdminUser = this.authService.isLoggedIn && user && (user.role === 'admin' || user.role === 'staff');
+    const isAdminUser = this.authService.isLoggedIn && user && (user.role === UserRole.ADMIN || user.role === UserRole.STAFF);
 
     // Desktop menu with sub-menus
     const desktopItems: MenuItem[] = [...baseItems];
@@ -250,36 +250,52 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
   
   private getAdminMenuItem(): MenuItem {
+    const user = this.currentUser();
+    const items: MenuItem[] = [];
+    
+    // Admin-only items (Dashboard and Users)
+    if (user?.role === UserRole.ADMIN) {
+      items.push({
+        label: this.translateService.instant('admin.navigation.dashboard'),
+        icon: 'pi pi-chart-bar',
+        routerLink: '/admin'
+      });
+    }
+    
+    // Items for both admin and staff
+    items.push({
+      label: this.translateService.instant('admin.navigation.orders'),
+      icon: 'pi pi-list',
+      routerLink: '/admin/orders'
+    });
+    
+    // Admin-only item (Users)
+    if (user?.role === UserRole.ADMIN) {
+      items.push({
+        label: this.translateService.instant('admin.navigation.users'),
+        icon: 'pi pi-users',
+        routerLink: '/admin/users'
+      });
+    }
+    
+    // Items for both admin and staff
+    items.push(
+      {
+        label: this.translateService.instant('admin.navigation.products'),
+        icon: 'pi pi-tag',
+        routerLink: '/admin/products'
+      },
+      {
+        label: this.translateService.instant('admin.navigation.categories'),
+        icon: 'pi pi-tags',
+        routerLink: '/admin/categories'
+      }
+    );
+    
     return {
       label: this.translateService.instant('header.admin'),
       icon: 'pi pi-cog',
-      items: [
-        {
-          label: this.translateService.instant('admin.navigation.dashboard'),
-          icon: 'pi pi-chart-bar',
-          routerLink: '/admin'
-        },
-        {
-          label: this.translateService.instant('admin.navigation.orders'),
-          icon: 'pi pi-list',
-          routerLink: '/admin/orders'
-        },
-        {
-          label: this.translateService.instant('admin.navigation.users'),
-          icon: 'pi pi-users',
-          routerLink: '/admin/users'
-        },
-        {
-          label: this.translateService.instant('admin.navigation.products'),
-          icon: 'pi pi-tag',
-          routerLink: '/admin/products'
-        },
-        {
-          label: this.translateService.instant('admin.navigation.categories'),
-          icon: 'pi pi-tags',
-          routerLink: '/admin/categories'
-        }
-      ]
+      items: items
     };
   }
   
@@ -288,7 +304,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
       {
         label: this.translateService.instant('header.profile'),
         icon: 'pi pi-user',
-        routerLink: '/profile'
+        routerLink: '/account'
       },
       {
         label: this.translateService.instant('header.orders'),
