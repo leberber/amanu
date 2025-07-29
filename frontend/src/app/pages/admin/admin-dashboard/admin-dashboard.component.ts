@@ -1,5 +1,5 @@
 // src/app/pages/admin/admin-dashboard/admin-dashboard.component.ts
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 
@@ -16,6 +16,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AdminService } from '../../../services/admin.service'; 
 import { DashboardStats } from '../../../models/admin.model';
 import { ProductService } from '../../../services/product.service';
+import { DateService } from '../../../core/services/date.service';
 
 // REMOVED: AdminAddProductComponent and AdminAddCategoryComponent imports
 // REMOVED: ViewChild decorators and modal methods
@@ -53,13 +54,13 @@ export class AdminDashboardComponent implements OnInit {
   products: any[] = [];
   categories: any[] = [];
 
-  constructor(
-    private adminService: AdminService,
-    private router: Router,
-    private messageService: MessageService,
-    private translateService: TranslateService,
-    private productService: ProductService
-  ) {}
+  // Services injected using inject()
+  private adminService = inject(AdminService);
+  private router = inject(Router);
+  private messageService = inject(MessageService);
+  private translateService = inject(TranslateService);
+  private productService = inject(ProductService);
+  private dateService = inject(DateService);
 
   ngOnInit() {
     this.loadDashboardStats();
@@ -187,14 +188,7 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   formatDate(dateString: string): string {
-    const date = new Date(dateString);
-    const day = date.getDate();
-    const month = date.getMonth() + 1;
-    const year = date.getFullYear();
-    const hours = date.getHours().toString().padStart(2, '0');
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-    
-    return `${day}/${month}/${year} ${hours}:${minutes}`;
+    return this.dateService.formatDate(dateString);
   }
 
   // UPDATED: All navigation methods now use routing instead of modals

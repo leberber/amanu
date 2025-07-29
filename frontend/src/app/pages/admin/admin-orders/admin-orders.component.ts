@@ -1,5 +1,5 @@
 // src/app/pages/admin/admin-orders/admin-orders.component.ts
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink, Router } from '@angular/router';
@@ -25,6 +25,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AdminService } from '../../../services/admin.service';
 import { Order } from '../../../models/admin.model';
 import { ProductService } from '../../../services/product.service';
+import { DateService } from '../../../core/services/date.service';
 
 @Component({
   selector: 'app-admin-orders',
@@ -77,14 +78,14 @@ export class AdminOrdersComponent implements OnInit {
   selectedOrder: Order | null = null;
   displayOrderDialog = false;
   
-  constructor(
-    private adminService: AdminService,
-    private messageService: MessageService,
-    private confirmationService: ConfirmationService,
-    private router: Router,
-    private translateService: TranslateService,
-    private productService: ProductService
-  ) {}
+  // Services injected using inject()
+  private adminService = inject(AdminService);
+  private messageService = inject(MessageService);
+  private confirmationService = inject(ConfirmationService);
+  private router = inject(Router);
+  private translateService = inject(TranslateService);
+  private productService = inject(ProductService);
+  private dateService = inject(DateService);
 
   ngOnInit() {
     this.initializeStatusOptions();
@@ -298,14 +299,7 @@ export class AdminOrdersComponent implements OnInit {
   }
 
   formatDate(dateString: string): string {
-    const date = new Date(dateString);
-    const day = date.getDate();
-    const month = date.getMonth() + 1;
-    const year = date.getFullYear();
-    const hours = date.getHours().toString().padStart(2, '0');
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-    
-    return `${day}/${month}/${year} ${hours}:${minutes}`;
+    return this.dateService.formatDate(dateString);
   }
 
   getProductName(item: any): string {

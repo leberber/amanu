@@ -1,5 +1,5 @@
 // src/app/pages/account/account.component.ts
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -15,6 +15,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
 import { User } from '../../models/user.model';
+import { DateService } from '../../../core/services/date.service';
 
 @Component({
   selector: 'app-account',
@@ -43,14 +44,15 @@ export class AccountComponent implements OnInit {
   loading = false;
   loadingPassword = false;
   
-  constructor(
-    private fb: FormBuilder,
-    public authService: AuthService,
-    private userService: UserService,
-    private messageService: MessageService,
-    public translateService: TranslateService,
-    private router: Router
-  ) {
+  private fb = inject(FormBuilder);
+  public authService = inject(AuthService);
+  private userService = inject(UserService);
+  private messageService = inject(MessageService);
+  public translateService = inject(TranslateService);
+  private router = inject(Router);
+  private dateService = inject(DateService);
+  
+  constructor() {
     this.profileForm = this.createProfileForm();
     this.passwordForm = this.createPasswordForm();
   }
@@ -179,14 +181,7 @@ export class AccountComponent implements OnInit {
   }
   
   formatDate(dateString: string | undefined): string {
-    if (!dateString) return '';
-    const date = new Date(dateString);
-    const day = date.getDate();
-    const month = date.getMonth() + 1;
-    const year = date.getFullYear();
-    const hours = date.getHours().toString().padStart(2, '0');
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-    return `${day}/${month}/${year} ${hours}:${minutes}`;
+    return this.dateService.formatDate(dateString);
   }
   
   logout(): void {

@@ -1,5 +1,5 @@
 // src/app/pages/admin/admin-users/admin-users.component.ts
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -27,6 +27,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AdminService } from '../../../services/admin.service';
 import { UserManage, UsersResponse } from '../../../models/admin.model';
 import { UserFormComponent, UserFormData, UserFormConfig } from '../../../shared/components/user-form/user-form.component';
+import { DateService } from '../../../core/services/date.service';
 
 @Component({
   selector: 'app-admin-users',
@@ -98,13 +99,13 @@ export class AdminUsersComponent implements OnInit {
   // Private properties
   private searchTimeout: any;
   
-  constructor(
-    private adminService: AdminService,
-    private messageService: MessageService,
-    private confirmationService: ConfirmationService,
-    private router: Router,
-    private translateService: TranslateService
-  ) {}
+  // Services injected using inject()
+  private adminService = inject(AdminService);
+  private messageService = inject(MessageService);
+  private confirmationService = inject(ConfirmationService);
+  private router = inject(Router);
+  private translateService = inject(TranslateService);
+  private dateService = inject(DateService);
 
   ngOnInit(): void {
     this.initializeRoleOptions();
@@ -425,14 +426,7 @@ export class AdminUsersComponent implements OnInit {
   }
 
   formatDate(dateString: string): string {
-    const date = new Date(dateString);
-    const day = date.getDate();
-    const month = date.getMonth() + 1;
-    const year = date.getFullYear();
-    const hours = date.getHours().toString().padStart(2, '0');
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-    
-    return `${day}/${month}/${year} ${hours}:${minutes}`;
+    return this.dateService.formatDate(dateString);
   }
 
   navigateAddUser() {
