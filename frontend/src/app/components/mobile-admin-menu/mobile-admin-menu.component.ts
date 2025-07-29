@@ -16,13 +16,13 @@ import { UserRole } from '../../models/user.model';
       [(visible)]="visible" 
       [modal]="true" 
       [showHeader]="false"
-      [style]="{width: '90vw', maxWidth: '400px'}"
+      [style]="{width: '90vw', maxWidth: '600px'}"
       [baseZIndex]="10000"
       [draggable]="false"
       [resizable]="false"
       position="bottom">
       
-      <div class="admin-menu-content">
+      <div class="admin-menu-content ">
         <div class="flex align-items-center justify-content-between mb-4 pb-3 border-bottom-1 surface-border">
           <h3 class="m-0 text-xl font-semibold">{{ 'header.admin' | translate }}</h3>
           <button 
@@ -84,10 +84,13 @@ import { UserRole } from '../../models/user.model';
       .p-dialog {
         margin: 0;
         border-radius: 1rem 1rem 0 0;
+        overflow: hidden;
       }
       
       .p-dialog-content {
         padding: 0;
+        border-radius: 1rem 1rem 0 0;
+        overflow: hidden;
       }
     }
     
