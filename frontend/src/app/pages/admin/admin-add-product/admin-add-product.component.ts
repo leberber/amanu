@@ -13,6 +13,7 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { CardModule } from 'primeng/card';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { ProductService } from '../../../services/product.service';
 import { Product } from '../../../models/product.model';
@@ -37,7 +38,8 @@ interface ProductWithTranslations extends Product {
     SelectModule,
     CheckboxModule,
     ToastModule,
-    CardModule
+    CardModule,
+    TranslateModule
   ],
   providers: [MessageService],
   templateUrl: './admin-add-product.component.html',
@@ -76,26 +78,16 @@ export class AdminAddProductComponent implements OnInit {
   editProductId: number | null = null;
   currentProduct: ProductWithTranslations | null = null;
 
-  // Dropdown options
-  unitOptions = [
-    { label: 'Kilogram (Kg)', value: 'kg' },
-    { label: 'Gram (g)', value: 'gram' },
-    { label: 'Piece', value: 'piece' },
-    { label: 'Bunch', value: 'bunch' },
-    { label: 'Dozen', value: 'dozen' },
-    { label: 'Pound (lb)', value: 'pound' }
-  ];
-
   // Dynamic categories
   categoryOptions = signal<{ label: string; value: number }[]>([]);
 
   // Computed properties
   get pageTitle(): string {
-    return this.isEditMode() ? 'Edit Product' : 'Add New Product';
+    return this.isEditMode() ? 'admin.products.edit_product' : 'admin.products.add_product';
   }
 
   get submitButtonLabel(): string {
-    return this.isEditMode() ? 'Update Product' : 'Add Product';
+    return this.isEditMode() ? 'admin.products.form.submit_update' : 'admin.products.form.submit_add';
   }
 
   constructor(
@@ -103,14 +95,11 @@ export class AdminAddProductComponent implements OnInit {
     private messageService: MessageService,
     private productService: ProductService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private translateService: TranslateService
   ) {
     // 🆕 UPDATED: Enhanced form WITHOUT primary name/description fields
     this.productForm = this.fb.group({
-      // 🚫 REMOVED: Primary name and description
-      // name: ['', [Validators.required, Validators.minLength(1)]],
-      // description: [''],
-      
       // 🆕 NEW: Only translation fields for all 3 languages (all required)
       name_en: ['', [Validators.required, Validators.minLength(1)]],
       name_fr: ['', [Validators.required, Validators.minLength(1)]],
@@ -173,8 +162,8 @@ export class AdminAddProductComponent implements OnInit {
         
         this.messageService.add({
           severity: 'error',
-          summary: 'Error',
-          detail: 'Failed to load categories. Please try again.'
+          summary: this.translateService.instant('common.error'),
+          detail: this.translateService.instant('products.filters.error')
         });
       }
     });
@@ -191,10 +180,6 @@ export class AdminAddProductComponent implements OnInit {
         
         // 🆕 UPDATED: Populate form with existing product data including translations
         this.productForm.patchValue({
-          // 🚫 REMOVED: Primary name and description
-          // name: product.name,
-          // description: product.description || '',
-          
           // 🆕 NEW: Load translation values or fallback to main name/description
           name_en: this.currentProduct.name_translations?.['en'] || product.name,
           name_fr: this.currentProduct.name_translations?.['fr'] || product.name,
@@ -221,8 +206,8 @@ export class AdminAddProductComponent implements OnInit {
         
         this.messageService.add({
           severity: 'error',
-          summary: 'Error',
-          detail: 'Failed to load product. Please try again.'
+          summary: this.translateService.instant('common.error'),
+          detail: this.translateService.instant('products.filters.error')
         });
         
         this.goBackToProductsList();
@@ -283,8 +268,8 @@ export class AdminAddProductComponent implements OnInit {
           
           this.messageService.add({
             severity: 'success',
-            summary: 'Success',
-            detail: `Product "${updatedProduct.name}" has been updated successfully!`
+            summary: this.translateService.instant('common.success'),
+            detail: this.translateService.instant('admin.products.update_success')
           });
           
           setTimeout(() => {
@@ -304,8 +289,8 @@ export class AdminAddProductComponent implements OnInit {
           
           this.messageService.add({
             severity: 'success',
-            summary: 'Success',
-            detail: `Product "${createdProduct.name}" has been created successfully!`
+            summary: this.translateService.instant('common.success'),
+            detail: this.translateService.instant('admin.products.create_success')
           });
           
           setTimeout(() => {
@@ -320,10 +305,24 @@ export class AdminAddProductComponent implements OnInit {
     }
   }
 
+  // Get translated unit options
+  getUnitOptions() {
+    return [
+      { label: this.translateService.instant('admin.products.units.kg'), value: 'kg' },
+      { label: this.translateService.instant('admin.products.units.gram'), value: 'gram' },
+      { label: this.translateService.instant('admin.products.units.piece'), value: 'piece' },
+      { label: this.translateService.instant('admin.products.units.bunch'), value: 'bunch' },
+      { label: this.translateService.instant('admin.products.units.dozen'), value: 'dozen' },
+      { label: this.translateService.instant('admin.products.units.pound'), value: 'pound' }
+    ];
+  }
+
   private handleError(operation: 'create' | 'update', error: any) {
     console.error(`Error ${operation}ing product:`, error);
     
-    let errorMessage = `Failed to ${operation} product. Please try again.`;
+    let errorMessage = this.translateService.instant(
+      operation === 'create' ? 'admin.products.create_failed' : 'admin.products.update_failed'
+    );
     
     if (error.error && error.error.detail) {
       errorMessage = error.error.detail;
@@ -331,7 +330,7 @@ export class AdminAddProductComponent implements OnInit {
     
     this.messageService.add({
       severity: 'error',
-      summary: 'Error',
+      summary: this.translateService.instant('common.error'),
       detail: errorMessage
     });
   }

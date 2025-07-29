@@ -12,6 +12,7 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { CardModule } from 'primeng/card';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { ProductService } from '../../../services/product.service';
 import { Category } from '../../../models/category.model';
@@ -34,7 +35,8 @@ interface CategoryWithTranslations extends Category {
     TextareaModule,
     CheckboxModule,
     ToastModule,
-    CardModule
+    CardModule,
+    TranslateModule
   ],
   providers: [MessageService],
   templateUrl: './admin-add-category.component.html',
@@ -75,11 +77,11 @@ export class AdminAddCategoryComponent implements OnInit {
 
   // NEW: Computed properties for page mode
   get pageTitle(): string {
-    return this.isEditMode() ? 'Edit Category' : 'Add New Category';
+    return this.isEditMode() ? 'admin.categories.edit_category' : 'admin.categories.add_category';
   }
 
   get submitButtonLabel(): string {
-    return this.isEditMode() ? 'Update Category' : 'Add Category';
+    return this.isEditMode() ? 'admin.categories.form.submit_update' : 'admin.categories.form.submit_add';
   }
 
   constructor(
@@ -87,7 +89,8 @@ export class AdminAddCategoryComponent implements OnInit {
     private messageService: MessageService,
     private productService: ProductService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private translateService: TranslateService
   ) {
     // 🆕 UPDATED: Enhanced form WITHOUT primary name/description fields
     this.categoryForm = this.fb.group({
@@ -170,8 +173,8 @@ export class AdminAddCategoryComponent implements OnInit {
         
         this.messageService.add({
           severity: 'error',
-          summary: 'Error',
-          detail: 'Failed to load category. Please try again.'
+          summary: this.translateService.instant('common.error'),
+          detail: this.translateService.instant('categories.load_error')
         });
         
         // Redirect back if category not found
@@ -253,8 +256,8 @@ export class AdminAddCategoryComponent implements OnInit {
           
           this.messageService.add({
             severity: 'success',
-            summary: 'Success',
-            detail: `Category "${updatedCategory.name}" has been updated successfully!`
+            summary: this.translateService.instant('common.success'),
+            detail: this.translateService.instant('admin.categories.update_success')
           });
           
           console.log('Category updated successfully:', updatedCategory);
@@ -293,8 +296,8 @@ export class AdminAddCategoryComponent implements OnInit {
           
           this.messageService.add({
             severity: 'success',
-            summary: 'Success',
-            detail: `Category "${createdCategory.name}" has been created successfully!`
+            summary: this.translateService.instant('common.success'),
+            detail: this.translateService.instant('admin.categories.create_success')
           });
           
           console.log('Category created successfully:', createdCategory);
@@ -332,7 +335,9 @@ export class AdminAddCategoryComponent implements OnInit {
   private handleError(operation: 'create' | 'update', error: any) {
     console.error(`Error ${operation}ing category:`, error);
     
-    let errorMessage = `Failed to ${operation} category. Please try again.`;
+    let errorMessage = this.translateService.instant(
+      operation === 'create' ? 'admin.categories.create_failed' : 'admin.categories.update_failed'
+    );
     
     if (error.error && error.error.detail) {
       errorMessage = error.error.detail;
@@ -340,7 +345,7 @@ export class AdminAddCategoryComponent implements OnInit {
     
     this.messageService.add({
       severity: 'error',
-      summary: 'Error',
+      summary: this.translateService.instant('common.error'),
       detail: errorMessage
     });
   }

@@ -2550,7 +2550,7 @@ SOFTWARE.
 
 {
   "configVersion": 1,
-  "timestamp": 1753463960117,
+  "timestamp": 1753738702506,
   "index": "/index.html",
   "assetGroups": [
     {
@@ -2561,26 +2561,26 @@ SOFTWARE.
         "ignoreVary": true
       },
       "urls": [
-        "/chunk-4WBJCYP2.js",
-        "/chunk-6WKI4MUI.js",
-        "/chunk-D7474GTL.js",
-        "/chunk-FEQLEGQR.js",
-        "/chunk-GCZRKM6H.js",
-        "/chunk-HCCZKRAT.js",
-        "/chunk-IFMD3M5C.js",
-        "/chunk-MLYRYBVU.js",
-        "/chunk-NP64S26D.js",
-        "/chunk-QEEXD2V6.js",
-        "/chunk-QGWXH7PS.js",
-        "/chunk-RUDPTJHL.js",
-        "/chunk-VL57QTNH.js",
-        "/chunk-VSWPCFEY.js",
-        "/chunk-WXICXEJ2.js",
-        "/chunk-ZHCHQ5BR.js",
-        "/chunk-ZHUQFSEU.js",
+        "/chunk-3YTUF4QJ.js",
+        "/chunk-42M6YJH7.js",
+        "/chunk-5Q7FX2JL.js",
+        "/chunk-7VQT5XV7.js",
+        "/chunk-EENCPSUO.js",
+        "/chunk-HIQD6ZVL.js",
+        "/chunk-HUKGJVYH.js",
+        "/chunk-J6Z5SXUW.js",
+        "/chunk-N7KSPFOU.js",
+        "/chunk-ORNSGACJ.js",
+        "/chunk-WAR3MZQY.js",
+        "/chunk-WD5JFKWQ.js",
+        "/chunk-WNCKBLAG.js",
+        "/chunk-Y63GPHHO.js",
+        "/chunk-YJ6AUXRJ.js",
+        "/chunk-Z35Y4E65.js",
+        "/chunk-ZE34QSIX.js",
         "/favicon.ico",
         "/index.html",
-        "/main-M2QK6STL.js",
+        "/main-QJJTYUAW.js",
         "/manifest.webmanifest",
         "/polyfills-B6TNHZQ6.js",
         "/styles-4CNCFVM4.css"
@@ -2650,23 +2650,23 @@ SOFTWARE.
     "/assets/fonts/primeicons.woff": "361e3af71bb4e515feead2f787348a92a5527158",
     "/assets/fonts/primeicons.woff2": "837c1279b6af9d297f34fdb43e6fcc9206a79f32",
     "/assets/images/product-placeholder.jpg": "7d29bd1c2721fa5afb594ef689a851db0b1f3b27",
-    "/chunk-4WBJCYP2.js": "c1515d903bcc73bb14c16e3bc833e339474b4354",
-    "/chunk-6WKI4MUI.js": "4949ea3b3cf31bdae7deb35d86d1656065b5a8fd",
-    "/chunk-D7474GTL.js": "0ef49502bb53d6627dc8d1070285c12211a3da1c",
-    "/chunk-FEQLEGQR.js": "b82f6491bbbd2e315c7418f07dc58be6483eaed8",
-    "/chunk-GCZRKM6H.js": "b9ec1eaa49c3daacd0909ee0c7b15fc0ed5b2c50",
-    "/chunk-HCCZKRAT.js": "090bf7ba33ce387308d19969e3fa4e20d38aa036",
-    "/chunk-IFMD3M5C.js": "2870cf390fa5754f6964f98fdba233a3cf9e247c",
-    "/chunk-MLYRYBVU.js": "1b92e93239f3d171f2771a3c7ac5c4a9efeb7239",
-    "/chunk-NP64S26D.js": "6585a06bc8863db9e4f120f601a2400216783dce",
-    "/chunk-QEEXD2V6.js": "523ef99e28778d1b3eb7a7bcbcbbb9ceaf367f69",
-    "/chunk-QGWXH7PS.js": "89195127bb6c97e57314724dea0e31de023a814a",
-    "/chunk-RUDPTJHL.js": "f4c61782f726b703f8c30671cebf2126e0053c1f",
-    "/chunk-VL57QTNH.js": "794c96c69731e8227fd1b5fdd745182d21b77fd0",
-    "/chunk-VSWPCFEY.js": "90550824e07ec62e1bf1d3d14436612d794c3132",
-    "/chunk-WXICXEJ2.js": "4c19b762f6323831fc032887b05416bd7e8a1003",
-    "/chunk-ZHCHQ5BR.js": "ac8782eda306d71714f65660cae3d427e2a9e9b8",
-    "/chunk-ZHUQFSEU.js": "0110fdc960ade154613e6c3289b99846f1fd49c7",
+    "/chunk-3YTUF4QJ.js": "73c31978d07c1d9de2dc2bc9667a6fd4c8e2a6cd",
+    "/chunk-42M6YJH7.js": "4905b1c2fd00931919d8a0f7d3cadfaccdfae42e",
+    "/chunk-5Q7FX2JL.js": "281cea244d9a9286fdcb4ec16eaf7435dea47fb5",
+    "/chunk-7VQT5XV7.js": "434b3703c5028e23d01a0528784fb3dfce3be2d2",
+    "/chunk-EENCPSUO.js": "884612797535d01a35a8600fd6bb55d4fa4d30d3",
+    "/chunk-HIQD6ZVL.js": "897e95027c1c6440fd8ec0b4d6f328b341865222",
+    "/chunk-HUKGJVYH.js": "9ea459df11005e8711d026c8c82eb081459671c4",
+    "/chunk-J6Z5SXUW.js": "dd76771c75371df760951651c85d96a831b87259",
+    "/chunk-N7KSPFOU.js": "a298c90126be71522c9c50f00234eb8b043f1b3d",
+    "/chunk-ORNSGACJ.js": "a1e012b3949ca38c792df1b9499e135645cf68e4",
+    "/chunk-WAR3MZQY.js": "46197c06445b9bec2c0fa353f97d4e7c2e14662a",
+    "/chunk-WD5JFKWQ.js": "ebeb5238075d2027009b70042e3304004d70999f",
+    "/chunk-WNCKBLAG.js": "ac3f33aa49afbd2c128b845ee17d3e922e5bc249",
+    "/chunk-Y63GPHHO.js": "7b922e4203c8714d713cbd35698f4ea463e9ed70",
+    "/chunk-YJ6AUXRJ.js": "983fde84d3ae407e708f477f93f4b169a7e24ca7",
+    "/chunk-Z35Y4E65.js": "4008bc3f5bf65eda51672586871e17bd07814d35",
+    "/chunk-ZE34QSIX.js": "80a091b0ca26e0e2be35cde6571b084d40c0b629",
     "/elsuq.png": "959d1ad0ef7fa6770e990a9bbc4696fb7deeb258",
     "/favicon.ico": "c7eb568aaa4e9ac393dd78391f119a0a32c4f887",
     "/icons/apple-touch-icon-114x114.png": "ea23edbb78662938b2049a378bc76c91f3e2ee9e",
@@ -2700,9 +2700,9 @@ SOFTWARE.
     "/icons/pwa-64x64.png": "75e2d0e9c16d2d3ff8188fd06443659b609cef50",
     "/icons/pwa-72x72.png": "cc22a55ed50d7c0adac285cb1f149c879547a987",
     "/icons/pwa-96x96.png": "67d4238900fb76b1211ad566a64f201aff529000",
-    "/index.html": "44795fbde63c83f2c524799600865ab4c4ef3424",
+    "/index.html": "80cc32fce1f5960c78d4dd6622accd4f9ed6d43c",
     "/logo.png": "f9adace283daf0516029f2c3f949976beb3cd705",
-    "/main-M2QK6STL.js": "0ace04cef85ec721b72b6024fe83b2912040d706",
+    "/main-QJJTYUAW.js": "a5efc31c8804cef045e884345cae77202d2ae1dd",
     "/manifest.webmanifest": "c0bb7f5fe330751818718607ba8fe248cc40558a",
     "/media/primeicons-4GST5W3O.woff2": "837c1279b6af9d297f34fdb43e6fcc9206a79f32",
     "/media/primeicons-DHQU4SEP.svg": "a07ae39027c1a780b42fd82fad7575c2924d9d28",
@@ -3106,15 +3106,61 @@ SOFTWARE.
         "admin": "مدير"
       }
     },
-    "products": {
-      "title": "إدارة المنتجات",
-      "all_products": "جميع المنتجات",
-      "add_product": "إضافة منتج جديد",
-      "edit_product": "تحرير المنتج",
-      "delete_product": "حذف المنتج",
-      "product_info": "معلومات المنتج",
-      "stock_management": "إدارة المخزون"
+  "products": {
+    "title": "إدارة المنتجات",
+    "all_products": "جميع المنتجات",
+    "add_product": "إضافة منتج جديد",
+    "edit_product": "تحرير المنتج",
+    "delete_product": "حذف المنتج",
+    "product_info": "معلومات المنتج",
+    "stock_management": "إدارة المخزون",
+    "create_success": "تم إنشاء المنتج بنجاح!",
+    "update_success": "تم تحديث المنتج بنجاح!",
+    "delete_success": "تم حذف المنتج بنجاح!",
+    "form": {
+      "basic_info": "المعلومات الأساسية",
+      "translations": "الترجمات",
+      "pricing_inventory": "التسعير والمخزون",
+      "settings": "الإعدادات",
+      "name": "اسم المنتج",
+      "name_required": "اسم المنتج مطلوب",
+      "name_minlength": "اسم المنتج يجب أن يكون حرف واحد على الأقل",
+      "description": "الوصف",
+      "english_name": "الاسم الإنجليزي (English Name)",
+      "french_name": "الاسم الفرنسي (Nom en Français)",
+      "arabic_name": "الاسم العربي",
+      "english_description": "الوصف الإنجليزي (English Description)",
+      "french_description": "الوصف الفرنسي (Description en Français)",
+      "arabic_description": "الوصف العربي",
+      "price": "السعر",
+      "price_required": "السعر مطلوب",
+      "price_min": "السعر يجب أن يكون أكبر من 0",
+      "unit": "الوحدة",
+      "unit_required": "الوحدة مطلوبة",
+      "stock_quantity": "كمية المخزون",
+      "stock_required": "كمية المخزون مطلوبة",
+      "stock_min": "كمية المخزون لا يمكن أن تكون سالبة",
+      "category": "الفئة",
+      "category_required": "الفئة مطلوبة",
+      "image_url": "رابط الصورة",
+      "image_placeholder": "أدخل رابط صورة المنتج",
+      "is_organic": "منتج عضوي",
+      "is_active": "منتج نشط",
+      "submit_add": "إضافة المنتج",
+      "submit_update": "تحديث المنتج",
+      "cancel": "إلغاء",
+      "translation_help": "الترجمات اختيارية. إذا لم تُقدم، سيتم استخدام الاسم/الوصف الرئيسي.",
+      "required_field": "حقل مطلوب"
     },
+    "units": {
+      "kg": "كيلوغرام (كغ)",
+      "gram": "غرام (غ)",
+      "piece": "قطعة",
+      "bunch": "حزمة",
+      "dozen": "دزينة",
+      "pound": "باوند (رطل)"
+    }
+  },
     "categories": {
       "title": "إدارة الفئات",
       "all_categories": "جميع الفئات",
@@ -3538,15 +3584,61 @@ SOFTWARE.
         "admin": "Admin"
       }
     },
-    "products": {
-      "title": "Product Management",
-      "all_products": "All Products",
-      "add_product": "Add New Product",
-      "edit_product": "Edit Product",
-      "delete_product": "Delete Product",
-      "product_info": "Product Information",
-      "stock_management": "Stock Management"
+  "products": {
+    "title": "Product Management",
+    "all_products": "All Products",
+    "add_product": "Add New Product",
+    "edit_product": "Edit Product",
+    "delete_product": "Delete Product",
+    "product_info": "Product Information",
+    "stock_management": "Stock Management",
+    "create_success": "Product created successfully!",
+    "update_success": "Product updated successfully!",
+    "delete_success": "Product deleted successfully!",
+    "form": {
+      "basic_info": "Basic Information",
+      "translations": "Translations",
+      "pricing_inventory": "Pricing & Inventory",
+      "settings": "Settings",
+      "name": "Product Name",
+      "name_required": "Product name is required",
+      "name_minlength": "Product name must be at least 1 character",
+      "description": "Description",
+      "english_name": "English Name",
+      "french_name": "French Name (Nom en Français)",
+      "arabic_name": "Arabic Name (الاسم بالعربية)",
+      "english_description": "English Description",
+      "french_description": "French Description (Description en Français)",
+      "arabic_description": "Arabic Description (الوصف بالعربية)",
+      "price": "Price",
+      "price_required": "Price is required",
+      "price_min": "Price must be greater than 0",
+      "unit": "Unit",
+      "unit_required": "Unit is required",
+      "stock_quantity": "Stock Quantity",
+      "stock_required": "Stock quantity is required",
+      "stock_min": "Stock quantity cannot be negative",
+      "category": "Category",
+      "category_required": "Category is required",
+      "image_url": "Image URL",
+      "image_placeholder": "Enter product image URL",
+      "is_organic": "Organic Product",
+      "is_active": "Active Product",
+      "submit_add": "Add Product",
+      "submit_update": "Update Product",
+      "cancel": "Cancel",
+      "translation_help": "Translations are optional. If not provided, the main name/description will be used.",
+      "required_field": "Required field"
     },
+    "units": {
+      "kg": "Kilogram (Kg)",
+      "gram": "Gram (g)",
+      "piece": "Piece",
+      "bunch": "Bunch",
+      "dozen": "Dozen",
+      "pound": "Pound (lb)"
+    }
+  },
     "categories": {
       "title": "Category Management",
       "all_categories": "All Categories",
@@ -3593,6 +3685,8 @@ SOFTWARE.
     "go_home": "Go Home",
     "contact_support": "Contact Support"
   }
+
+  
 }
 
 === frontend/dist/Elsuq/browser/assets/i18n/fr.json ===
@@ -3972,7 +4066,53 @@ SOFTWARE.
       "edit_product": "Modifier Produit",
       "delete_product": "Supprimer Produit",
       "product_info": "Informations Produit",
-      "stock_management": "Gestion du Stock"
+      "stock_management": "Gestion du Stock",
+      "create_success": "Produit créé avec succès !",
+      "update_success": "Produit mis à jour avec succès !",
+      "delete_success": "Produit supprimé avec succès !",
+      "form": {
+        "basic_info": "Informations de Base",
+        "translations": "Traductions",
+        "pricing_inventory": "Prix et Inventaire",
+        "settings": "Paramètres",
+        "name": "Nom du Produit",
+        "name_required": "Le nom du produit est requis",
+        "name_minlength": "Le nom du produit doit contenir au moins 1 caractère",
+        "description": "Description",
+        "english_name": "Nom Anglais (English Name)",
+        "french_name": "Nom Français",
+        "arabic_name": "Nom Arabe (الاسم بالعربية)",
+        "english_description": "Description Anglaise (English Description)",
+        "french_description": "Description Française",
+        "arabic_description": "Description Arabe (الوصف بالعربية)",
+        "price": "Prix",
+        "price_required": "Le prix est requis",
+        "price_min": "Le prix doit être supérieur à 0",
+        "unit": "Unité",
+        "unit_required": "L'unité est requise",
+        "stock_quantity": "Quantité en Stock",
+        "stock_required": "La quantité en stock est requise",
+        "stock_min": "La quantité en stock ne peut pas être négative",
+        "category": "Catégorie",
+        "category_required": "La catégorie est requise",
+        "image_url": "URL de l'Image",
+        "image_placeholder": "Entrez l'URL de l'image du produit",
+        "is_organic": "Produit Bio",
+        "is_active": "Produit Actif",
+        "submit_add": "Ajouter le Produit",
+        "submit_update": "Mettre à Jour le Produit",
+        "cancel": "Annuler",
+        "translation_help": "Les traductions sont optionnelles. Si non fournies, le nom/description principal sera utilisé.",
+        "required_field": "Champ requis"
+      },
+      "units": {
+        "kg": "Kilogramme (Kg)",
+        "gram": "Gramme (g)",
+        "piece": "Pièce",
+        "bunch": "Bouquet",
+        "dozen": "Douzaine",
+        "pound": "Livre (lb)"
+      }
     },
     "categories": {
       "title": "Gestion des Catégories",
@@ -6970,6 +7110,7 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { CardModule } from 'primeng/card';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { ProductService } from '../../../services/product.service';
 import { Product } from '../../../models/product.model';
@@ -6994,7 +7135,8 @@ interface ProductWithTranslations extends Product {
     SelectModule,
     CheckboxModule,
     ToastModule,
-    CardModule
+    CardModule,
+    TranslateModule
   ],
   providers: [MessageService],
   templateUrl: './admin-add-product.component.html',
@@ -7033,26 +7175,16 @@ export class AdminAddProductComponent implements OnInit {
   editProductId: number | null = null;
   currentProduct: ProductWithTranslations | null = null;
 
-  // Dropdown options
-  unitOptions = [
-    { label: 'Kilogram (Kg)', value: 'kg' },
-    { label: 'Gram (g)', value: 'gram' },
-    { label: 'Piece', value: 'piece' },
-    { label: 'Bunch', value: 'bunch' },
-    { label: 'Dozen', value: 'dozen' },
-    { label: 'Pound (lb)', value: 'pound' }
-  ];
-
   // Dynamic categories
   categoryOptions = signal<{ label: string; value: number }[]>([]);
 
   // Computed properties
   get pageTitle(): string {
-    return this.isEditMode() ? 'Edit Product' : 'Add New Product';
+    return this.isEditMode() ? 'admin.products.edit_product' : 'admin.products.add_product';
   }
 
   get submitButtonLabel(): string {
-    return this.isEditMode() ? 'Update Product' : 'Add Product';
+    return this.isEditMode() ? 'admin.products.form.submit_update' : 'admin.products.form.submit_add';
   }
 
   constructor(
@@ -7060,14 +7192,11 @@ export class AdminAddProductComponent implements OnInit {
     private messageService: MessageService,
     private productService: ProductService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private translateService: TranslateService
   ) {
     // 🆕 UPDATED: Enhanced form WITHOUT primary name/description fields
     this.productForm = this.fb.group({
-      // 🚫 REMOVED: Primary name and description
-      // name: ['', [Validators.required, Validators.minLength(1)]],
-      // description: [''],
-      
       // 🆕 NEW: Only translation fields for all 3 languages (all required)
       name_en: ['', [Validators.required, Validators.minLength(1)]],
       name_fr: ['', [Validators.required, Validators.minLength(1)]],
@@ -7130,8 +7259,8 @@ export class AdminAddProductComponent implements OnInit {
         
         this.messageService.add({
           severity: 'error',
-          summary: 'Error',
-          detail: 'Failed to load categories. Please try again.'
+          summary: this.translateService.instant('common.error'),
+          detail: this.translateService.instant('products.filters.error')
         });
       }
     });
@@ -7148,10 +7277,6 @@ export class AdminAddProductComponent implements OnInit {
         
         // 🆕 UPDATED: Populate form with existing product data including translations
         this.productForm.patchValue({
-          // 🚫 REMOVED: Primary name and description
-          // name: product.name,
-          // description: product.description || '',
-          
           // 🆕 NEW: Load translation values or fallback to main name/description
           name_en: this.currentProduct.name_translations?.['en'] || product.name,
           name_fr: this.currentProduct.name_translations?.['fr'] || product.name,
@@ -7178,8 +7303,8 @@ export class AdminAddProductComponent implements OnInit {
         
         this.messageService.add({
           severity: 'error',
-          summary: 'Error',
-          detail: 'Failed to load product. Please try again.'
+          summary: this.translateService.instant('common.error'),
+          detail: this.translateService.instant('products.filters.error')
         });
         
         this.goBackToProductsList();
@@ -7240,8 +7365,8 @@ export class AdminAddProductComponent implements OnInit {
           
           this.messageService.add({
             severity: 'success',
-            summary: 'Success',
-            detail: `Product "${updatedProduct.name}" has been updated successfully!`
+            summary: this.translateService.instant('common.success'),
+            detail: this.translateService.instant('admin.products.update_success')
           });
           
           setTimeout(() => {
@@ -7261,8 +7386,8 @@ export class AdminAddProductComponent implements OnInit {
           
           this.messageService.add({
             severity: 'success',
-            summary: 'Success',
-            detail: `Product "${createdProduct.name}" has been created successfully!`
+            summary: this.translateService.instant('common.success'),
+            detail: this.translateService.instant('admin.products.create_success')
           });
           
           setTimeout(() => {
@@ -7277,10 +7402,24 @@ export class AdminAddProductComponent implements OnInit {
     }
   }
 
+  // Get translated unit options
+  getUnitOptions() {
+    return [
+      { label: this.translateService.instant('admin.products.units.kg'), value: 'kg' },
+      { label: this.translateService.instant('admin.products.units.gram'), value: 'gram' },
+      { label: this.translateService.instant('admin.products.units.piece'), value: 'piece' },
+      { label: this.translateService.instant('admin.products.units.bunch'), value: 'bunch' },
+      { label: this.translateService.instant('admin.products.units.dozen'), value: 'dozen' },
+      { label: this.translateService.instant('admin.products.units.pound'), value: 'pound' }
+    ];
+  }
+
   private handleError(operation: 'create' | 'update', error: any) {
     console.error(`Error ${operation}ing product:`, error);
     
-    let errorMessage = `Failed to ${operation} product. Please try again.`;
+    let errorMessage = this.translateService.instant(
+      operation === 'create' ? 'admin.products.create_failed' : 'admin.products.update_failed'
+    );
     
     if (error.error && error.error.detail) {
       errorMessage = error.error.detail;
@@ -7288,7 +7427,7 @@ export class AdminAddProductComponent implements OnInit {
     
     this.messageService.add({
       severity: 'error',
-      summary: 'Error',
+      summary: this.translateService.instant('common.error'),
       detail: errorMessage
     });
   }
@@ -8750,6 +8889,13 @@ import { MessageService } from 'primeng/api';
 import { CardModule } from 'primeng/card';
 
 import { ProductService } from '../../../services/product.service';
+import { Category } from '../../../models/category.model';
+
+// 🆕 UPDATED: Extended Category interface to include translations
+interface CategoryWithTranslations extends Category {
+  name_translations?: { [key: string]: string };
+  description_translations?: { [key: string]: string };
+}
 
 @Component({
   selector: 'app-admin-add-category',
@@ -8771,6 +8917,25 @@ import { ProductService } from '../../../services/product.service';
     .field {
       margin-bottom: 1rem;
     }
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin: 1.5rem 0 1rem 0;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--surface-border);
+      color: var(--primary-color);
+    }
+    .language-section {
+      background: var(--surface-50);
+      padding: 1rem;
+      border-radius: 6px;
+      margin-bottom: 1rem;
+      border-left: 4px solid var(--primary-color);
+    }
+    .language-flag {
+      font-size: 1.2rem;
+      margin-right: 0.5rem;
+    }
   `]
 })
 export class AdminAddCategoryComponent implements OnInit {
@@ -8781,6 +8946,7 @@ export class AdminAddCategoryComponent implements OnInit {
   // NEW: Add page-based properties
   isEditMode = signal(false);
   editCategoryId: number | null = null;
+  currentCategory: CategoryWithTranslations | null = null;
 
   // NEW: Computed properties for page mode
   get pageTitle(): string {
@@ -8798,9 +8964,22 @@ export class AdminAddCategoryComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router
   ) {
+    // 🆕 UPDATED: Enhanced form WITHOUT primary name/description fields
     this.categoryForm = this.fb.group({
-      name: ['', [Validators.required, Validators.minLength(1)]],
-      description: [''],
+      // 🚫 REMOVED: Primary name and description
+      // name: ['', [Validators.required, Validators.minLength(1)]],
+      // description: [''],
+      
+      // 🆕 NEW: Only translation fields for all 3 languages (all required for names)
+      name_en: ['', [Validators.required, Validators.minLength(1)]],
+      name_fr: ['', [Validators.required, Validators.minLength(1)]],
+      name_ar: ['', [Validators.required, Validators.minLength(1)]],
+      
+      description_en: [''],
+      description_fr: [''],
+      description_ar: [''],
+      
+      // Settings
       image_url: [''],
       is_active: [true]
     });
@@ -8823,7 +9002,7 @@ export class AdminAddCategoryComponent implements OnInit {
       if (id) {
         this.editCategoryId = parseInt(id, 10);
         this.isEditMode.set(true);
-        this.loadCategoryForEdit(); // NOW CALLING THIS METHOD
+        this.loadCategoryForEdit();
       }
     });
   }
@@ -8836,10 +9015,23 @@ export class AdminAddCategoryComponent implements OnInit {
     
     this.productService.getCategory(this.editCategoryId).subscribe({
       next: (category) => {
-        // Populate form with existing category data
+        this.currentCategory = category as CategoryWithTranslations;
+        
+        // 🆕 UPDATED: Populate form with existing category data including translations
         this.categoryForm.patchValue({
-          name: category.name,
-          description: category.description || '',
+          // 🚫 REMOVED: Primary name and description
+          // name: category.name,
+          // description: category.description || '',
+          
+          // 🆕 NEW: Load translation values or fallback to main name/description
+          name_en: this.currentCategory.name_translations?.['en'] || category.name,
+          name_fr: this.currentCategory.name_translations?.['fr'] || category.name,
+          name_ar: this.currentCategory.name_translations?.['ar'] || category.name,
+          
+          description_en: this.currentCategory.description_translations?.['en'] || category.description || '',
+          description_fr: this.currentCategory.description_translations?.['fr'] || category.description || '',
+          description_ar: this.currentCategory.description_translations?.['ar'] || category.description || '',
+          
           image_url: category.image_url || '',
           is_active: category.is_active
         });
@@ -8867,8 +9059,13 @@ export class AdminAddCategoryComponent implements OnInit {
   show() {
     this.visible.set(true);
     this.categoryForm.reset({
-      name: '',
-      description: '',
+      // 🆕 UPDATED: Reset translation fields instead of primary fields
+      name_en: '',
+      name_fr: '',
+      name_ar: '',
+      description_en: '',
+      description_fr: '',
+      description_ar: '',
       image_url: '',
       is_active: true
     });
@@ -8899,7 +9096,29 @@ export class AdminAddCategoryComponent implements OnInit {
 
     this.loading.set(true);
     
-    const categoryData = this.categoryForm.value;
+    const formValues = this.categoryForm.value;
+    
+    // 🆕 NEW: Build the category data with translation JSON objects
+    const categoryData = {
+      name: formValues.name_en, // Use English as primary name
+      description: formValues.description_en || '', // Use English as primary description
+      
+      // 🆕 NEW: Create translation JSON objects
+      name_translations: {
+        en: formValues.name_en,
+        fr: formValues.name_fr,
+        ar: formValues.name_ar
+      },
+      description_translations: {
+        en: formValues.description_en || '',
+        fr: formValues.description_fr || '',
+        ar: formValues.description_ar || ''
+      },
+      
+      // Other fields
+      image_url: formValues.image_url || '',
+      is_active: formValues.is_active
+    };
     
     if (this.isEditMode() && this.editCategoryId) {
       // UPDATE existing category
@@ -8920,8 +9139,12 @@ export class AdminAddCategoryComponent implements OnInit {
             // Modal mode - close modal and reset
             this.visible.set(false);
             this.categoryForm.reset({
-              name: '',
-              description: '',
+              name_en: '',
+              name_fr: '',
+              name_ar: '',
+              description_en: '',
+              description_fr: '',
+              description_ar: '',
               image_url: '',
               is_active: true
             });
@@ -8956,8 +9179,12 @@ export class AdminAddCategoryComponent implements OnInit {
             // Modal mode - close modal and reset
             this.visible.set(false);
             this.categoryForm.reset({
-              name: '',
-              description: '',
+              name_en: '',
+              name_fr: '',
+              name_ar: '',
+              description_en: '',
+              description_fr: '',
+              description_ar: '',
               image_url: '',
               is_active: true
             });
@@ -13095,10 +13322,13 @@ export const environment = {
 === backend/.env ===
 
 
-DATABASE_URL=postgresql://postgres:it is me@localhost:5432/elsuq
+# DATABASE_URL=postgresql://postgres:it is me@localhost:5432/elsuq
+DATABASE_URL=postgresql://elsuq:ValidPass2025@elsuq.c94sm0q46x5u.us-east-2.rds.amazonaws.com:5432/elsuq
+
 # DATABASE_URL=sqlite:///./Elsuq.db
+
 SECRET_KEY=your-super-secret-key-change-this-in-production
-ADMIN_EMAIL=admin@freshproduce.com
+ADMIN_EMAIL=admin@elsuq.shop
 ADMIN_PASSWORD=admin123
 ADMIN_NAME=Admin User
 BACKEND_CORS_ORIGINS=["http://localhost:3000","http://localhost:8000","http://localhost:8080", "http://localhost:4200"]
