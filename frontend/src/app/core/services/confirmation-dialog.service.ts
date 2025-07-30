@@ -20,17 +20,17 @@ export interface ConfirmConfig {
   providedIn: 'root'
 })
 export class ConfirmationDialogService {
-  private confirmationService = inject(ConfirmationService);
   private translateService = inject(TranslateService);
 
   /**
    * Show a delete confirmation dialog
+   * @param confirmationService - ConfirmationService instance from component
    * @param itemName - Name of the item being deleted
    * @param onConfirm - Callback when user confirms
    * @param config - Additional configuration
    */
-  confirmDelete(itemName: string, onConfirm: () => void, config?: ConfirmConfig): void {
-    this.confirmationService.confirm({
+  confirmDelete(confirmationService: ConfirmationService, itemName: string, onConfirm: () => void, config?: ConfirmConfig): void {
+    confirmationService.confirm({
       message: config?.message || this.translateService.instant('common.confirm_delete_message', { item: itemName }),
       header: config?.header || this.translateService.instant('common.confirm_delete'),
       icon: config?.icon || 'pi pi-exclamation-triangle',
@@ -44,12 +44,13 @@ export class ConfirmationDialogService {
 
   /**
    * Show a generic confirmation dialog
+   * @param confirmationService - ConfirmationService instance from component
    * @param message - Confirmation message
    * @param onConfirm - Callback when user confirms
    * @param config - Additional configuration
    */
-  confirm(message: string, onConfirm: () => void, config?: ConfirmConfig): void {
-    this.confirmationService.confirm({
+  confirm(confirmationService: ConfirmationService, message: string, onConfirm: () => void, config?: ConfirmConfig): void {
+    confirmationService.confirm({
       message: message,
       header: config?.header || this.translateService.instant('common.confirm'),
       icon: config?.icon || 'pi pi-question-circle',
@@ -63,12 +64,13 @@ export class ConfirmationDialogService {
 
   /**
    * Show a warning confirmation dialog
+   * @param confirmationService - ConfirmationService instance from component
    * @param message - Warning message
    * @param onConfirm - Callback when user confirms
    * @param config - Additional configuration
    */
-  confirmWarning(message: string, onConfirm: () => void, config?: ConfirmConfig): void {
-    this.confirmationService.confirm({
+  confirmWarning(confirmationService: ConfirmationService, message: string, onConfirm: () => void, config?: ConfirmConfig): void {
+    confirmationService.confirm({
       message: message,
       header: config?.header || this.translateService.instant('common.warning'),
       icon: config?.icon || 'pi pi-exclamation-triangle',

@@ -24,7 +24,6 @@ import { ProductService } from '../../../services/product.service';
 import { TranslationHelperService } from '../../../core/services/translation-helper.service';
 import { DateService } from '../../../core/services/date.service';
 import { SearchDebounceService } from '../../../core/services/search-debounce.service';
-import { ConfirmationDialogService } from '../../../core/services/confirmation-dialog.service';
 import { Category } from '../../../models/category.model';
 
 @Component({
@@ -76,7 +75,6 @@ export class AdminCategoriesComponent implements OnInit {
   private translationHelper = inject(TranslationHelperService);
   private dateService = inject(DateService);
   private searchDebounce = inject(SearchDebounceService);
-  private confirmDialog = inject(ConfirmationDialogService);
 
   ngOnInit() {
     this.loadAllCategories();
@@ -182,8 +180,15 @@ export class AdminCategoriesComponent implements OnInit {
   // Delete confirmation
   confirmDeleteCategory(category: Category) {
     const categoryName = this.getCategoryName(category);
-    this.confirmDialog.confirmDelete(categoryName, () => {
-      this.deleteCategory(category);
+    this.confirmationService.confirm({
+      message: this.translateService.instant('common.confirm_delete_message', { item: categoryName }),
+      header: this.translateService.instant('common.confirm_delete'),
+      icon: 'pi pi-exclamation-triangle',
+      acceptButtonStyleClass: 'p-button-danger',
+      rejectButtonStyleClass: 'p-button-text',
+      acceptLabel: this.translateService.instant('common.delete'),
+      rejectLabel: this.translateService.instant('common.cancel'),
+      accept: () => this.deleteCategory(category)
     });
   }
 

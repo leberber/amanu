@@ -29,7 +29,6 @@ import { UserManage, UsersResponse } from '../../../models/admin.model';
 import { UserFormComponent, UserFormData, UserFormConfig } from '../../../shared/components/user-form/user-form.component';
 import { DateService } from '../../../core/services/date.service';
 import { SearchDebounceService } from '../../../core/services/search-debounce.service';
-import { ConfirmationDialogService } from '../../../core/services/confirmation-dialog.service';
 import { StatusSeverityService } from '../../../core/services/status-severity.service';
 
 @Component({
@@ -108,8 +107,8 @@ export class AdminUsersComponent implements OnInit {
   private translateService = inject(TranslateService);
   private dateService = inject(DateService);
   private searchDebounce = inject(SearchDebounceService);
-  private confirmDialog = inject(ConfirmationDialogService);
   private statusSeverity = inject(StatusSeverityService);
+  private confirmationService = inject(ConfirmationService);
 
   ngOnInit(): void {
     this.initializeRoleOptions();
@@ -359,8 +358,15 @@ export class AdminUsersComponent implements OnInit {
   // ===== USER DELETION =====
   
   confirmDeleteUser(user: UserManage): void {
-    this.confirmDialog.confirmDelete(user.full_name, () => {
-      this.deleteUser(user);
+    this.confirmationService.confirm({
+      message: this.translateService.instant('common.confirm_delete_message', { item: user.full_name }),
+      header: this.translateService.instant('common.confirm_delete'),
+      icon: 'pi pi-exclamation-triangle',
+      acceptButtonStyleClass: 'p-button-danger',
+      rejectButtonStyleClass: 'p-button-text',
+      acceptLabel: this.translateService.instant('common.delete'),
+      rejectLabel: this.translateService.instant('common.cancel'),
+      accept: () => this.deleteUser(user)
     });
   }
 

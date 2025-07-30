@@ -29,7 +29,6 @@ import { DateService } from '../../../core/services/date.service';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { TranslationHelperService } from '../../../core/services/translation-helper.service';
 import { SearchDebounceService } from '../../../core/services/search-debounce.service';
-import { ConfirmationDialogService } from '../../../core/services/confirmation-dialog.service';
 import { UnitsService } from '../../../core/services/units.service';
 import { StatusSeverityService } from '../../../core/services/status-severity.service';
 
@@ -94,8 +93,7 @@ export class AdminOrdersComponent implements OnInit {
   private translationHelper = inject(TranslationHelperService);
   private unitsService = inject(UnitsService);
   private searchDebounce = inject(SearchDebounceService);
-  private confirmDialog = inject(ConfirmationDialogService);
-  private statusSeverity = inject(StatusSeverityService);
+    private statusSeverity = inject(StatusSeverityService);
 
   ngOnInit() {
     this.initializeStatusOptions();
@@ -322,7 +320,15 @@ export class AdminOrdersComponent implements OnInit {
     const statusText = this.translateService.instant('admin.orders.status.' + newStatus);
     const message = this.translateService.instant('admin.orders.confirm_status_update', { status: statusText });
     
-    this.confirmDialog.confirmWarning(message, () => {
+    this.confirmationService.confirm({
+      message: message,
+      header: this.translateService.instant('common.warning'),
+      icon: 'pi pi-exclamation-triangle',
+      acceptButtonStyleClass: 'p-button-warning',
+      rejectButtonStyleClass: 'p-button-text',
+      acceptLabel: this.translateService.instant('common.proceed'),
+      rejectLabel: this.translateService.instant('common.cancel'),
+      accept: () => {
         this.adminService.updateOrderStatus(orderId, newStatus).subscribe({
           next: (updatedOrder) => {
             // Update order in both arrays
@@ -357,6 +363,7 @@ export class AdminOrdersComponent implements OnInit {
             });
           }
         });
+      }
     });
   }
 }

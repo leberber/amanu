@@ -21,7 +21,6 @@ import { CurrencyService } from '../../../core/services/currency.service';
 import { TranslationHelperService } from '../../../core/services/translation-helper.service';
 import { UnitsService } from '../../../core/services/units.service';
 import { SearchDebounceService } from '../../../core/services/search-debounce.service';
-import { ConfirmationDialogService } from '../../../core/services/confirmation-dialog.service';
 import { DateService } from '../../../core/services/date.service';
 import { StockStatusService } from '../../../core/services/stock-status.service';
 import { Product } from '../../../models/product.model';
@@ -61,7 +60,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
     TranslateModule
   ],
   providers: [MessageService, ConfirmationService],
-    templateUrl:'./admin-products.component.html',
+  templateUrl: './admin-products.component.html',
   styleUrl: './admin-products.component.scss',
    styles: [`
     :host ::ng-deep .p-datatable-header {
@@ -89,7 +88,7 @@ export class AdminProductsComponent implements OnInit {
   private translationHelper = inject(TranslationHelperService);
   private unitsService = inject(UnitsService);
   private searchDebounce = inject(SearchDebounceService);
-  private confirmDialog = inject(ConfirmationDialogService);
+  private confirmationService = inject(ConfirmationService);
   private dateService = inject(DateService);
   private stockStatus = inject(StockStatusService);
 
@@ -143,8 +142,15 @@ export class AdminProductsComponent implements OnInit {
 
   confirmDeleteProduct(product: Product) {
     const productName = this.getProductName(product);
-    this.confirmDialog.confirmDelete(productName, () => {
-      this.deleteProduct(product);
+    this.confirmationService.confirm({
+      message: this.translateService.instant('common.confirm_delete_message', { item: productName }),
+      header: this.translateService.instant('common.confirm_delete'),
+      icon: 'pi pi-exclamation-triangle',
+      acceptButtonStyleClass: 'p-button-danger',
+      rejectButtonStyleClass: 'p-button-text',
+      acceptLabel: this.translateService.instant('common.delete'),
+      rejectLabel: this.translateService.instant('common.cancel'),
+      accept: () => this.deleteProduct(product)
     });
   }
 
