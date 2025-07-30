@@ -156,7 +156,6 @@ export class AdminAddCategoryComponent implements OnInit {
         });
         
         this.loading.set(false);
-        console.log('Category loaded for editing:', category);
       },
       error: (error) => {
         console.error('Error loading category:', error);
@@ -239,7 +238,6 @@ export class AdminAddCategoryComponent implements OnInit {
             detail: this.translateService.instant('admin.categories.update_success')
           });
           
-          console.log('Category updated successfully:', updatedCategory);
 
           // Handle success based on mode
           if (this.visible()) {
@@ -279,7 +277,6 @@ export class AdminAddCategoryComponent implements OnInit {
             detail: this.translateService.instant('admin.categories.create_success')
           });
           
-          console.log('Category created successfully:', createdCategory);
 
           // Handle success based on mode
           if (this.visible()) {

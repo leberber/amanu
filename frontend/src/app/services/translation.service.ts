@@ -100,7 +100,6 @@ export class TranslationService {
         // Update document direction and language attributes
         this.updateDocumentAttributes(language);
         
-        console.log(`Language changed to: ${language}`);
       },
       error: (error) => {
         console.error(`Error loading language '${language}':`, error);

@@ -18,8 +18,7 @@ import { TranslateModule } from '@ngx-translate/core';
     BottomNavigationComponent, // Add this import
     TranslateModule
   ],
-  templateUrl: './app.component.html',
-  styleUrl: './app.component.scss'
+  templateUrl: './app.component.html'
 })
 export class AppComponent implements OnInit {
   title = 'Fresh Produce';
@@ -30,6 +29,5 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     // Initialize translation service
     // The service will automatically load the saved language or default to French
-    console.log('App initialized with language:', this.translationService.getCurrentLanguage());
   }
 }

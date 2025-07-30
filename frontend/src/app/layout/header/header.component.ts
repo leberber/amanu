@@ -114,7 +114,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private subscribeToLanguageChanges(): void {
     this.subscriptions.push(
       this.translationService.currentLanguage$.subscribe((newLanguage) => {
-        console.log('Header detected language change to:', newLanguage);
         
         // Rebuild menus with new translations
         this.buildMenus();
@@ -134,7 +133,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
     }));
     
     // Alternative: Could also use a shared service to broadcast changes
-    console.log('Language change notification sent:', newLanguage);
   }
 
   private loadInitialUserData(): void {
@@ -236,7 +234,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
       this.authService.isLoggedIn ? this.getUserMenuItems() : []
     );
 
-    console.log('Menus rebuilt with current language:', this.translationService.getCurrentLanguage());
   }
 
   // Add trackBy function for better change detection

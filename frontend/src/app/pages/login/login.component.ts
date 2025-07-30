@@ -134,7 +134,6 @@ import { UserRole } from '../../models/user.model';
       <p-toast />
     </div>
   `,
-  styleUrl: './login.component.scss'
 })
 export class LoginComponent implements OnInit {
   // State properties
@@ -178,7 +177,6 @@ export class LoginComponent implements OnInit {
       )
       .subscribe({
         next: (user) => {
-          console.log('Login successful, user:', user);
           this.messageService.add({
             severity: 'success',
             summary: this.translateService.instant('common.success'),
@@ -199,7 +197,6 @@ export class LoginComponent implements OnInit {
           }, 1500);
         },
         error: (error) => {
-          console.error('Login error:', error);
           this.messageService.add({
             severity: 'error',
             summary: this.translateService.instant('common.error'),

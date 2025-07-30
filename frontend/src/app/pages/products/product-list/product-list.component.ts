@@ -207,7 +207,6 @@ export class ProductListComponent implements OnInit, OnDestroy {
   private loadCategoriesAndProducts(): void {
     this.productService.getCategories(true).subscribe({
       next: (categories) => {
-        console.log('Categories loaded with translations:', categories);
         this.categories.set(categories);
         this.selectedCategories.set([...categories]);
         
@@ -274,7 +273,6 @@ export class ProductListComponent implements OnInit, OnDestroy {
       const currentFilters = { ...this.filters(), category_id: selectedCats[0].id };
       return this.productService.getProducts(currentFilters).pipe(
         tap(products => {
-          console.log('Products loaded with translations:', products);
           this.products.set(products);
           this.initializeQuantities(products);
           this.loading.set(false);
@@ -310,7 +308,6 @@ export class ProductListComponent implements OnInit, OnDestroy {
         // Sort the combined results according to the current sort option
         this.sortProducts(allProducts);
         
-        console.log('Combined products loaded with translations:', allProducts);
         this.products.set(allProducts);
         this.initializeQuantities(allProducts);
         this.loading.set(false);

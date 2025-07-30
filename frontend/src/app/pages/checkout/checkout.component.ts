@@ -52,8 +52,8 @@ import { VALIDATION } from '../../core/constants/app.constants';
     TranslateModule
   ],
   providers: [MessageService],
-  templateUrl: './checkout.component.html',
-  styleUrl: './checkout.component.scss'
+  templateUrl: './checkout.component.html'
+
 })
 export class CheckoutComponent implements OnInit, OnDestroy {
   checkoutForm!: FormGroup;
@@ -126,7 +126,6 @@ export class CheckoutComponent implements OnInit, OnDestroy {
 
     // 🆕 NEW: Subscribe to language changes
     this.languageSubscription = this.translationService.currentLanguage$.subscribe(() => {
-      console.log('Language changed in checkout, reloading translated names...');
       this.loadTranslatedNames();
     });
     
@@ -184,7 +183,6 @@ export class CheckoutComponent implements OnInit, OnDestroy {
         return item;
       });
 
-      console.log('Checkout cart items updated with translations:', this.cartItems);
     });
   }
   

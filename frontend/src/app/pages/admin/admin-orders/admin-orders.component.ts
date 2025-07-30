@@ -56,7 +56,6 @@ import { StatusSeverityService } from '../../../core/services/status-severity.se
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './admin-orders.component.html',
-  styleUrl: './admin-orders.component.scss',
   styles: [`
     :host ::ng-deep .p-datatable-header {
       padding-left: 0 !important;
@@ -159,11 +158,9 @@ export class AdminOrdersComponent implements OnInit {
 
   // Load all orders once on page load
   loadAllOrders() {
-    console.log('Loading orders, users available:', this.users.length);
     
     this.adminService.getAllOrders('', 1, 1000).subscribe({ // Load large number to get all
       next: (response) => {
-        console.log('Orders loaded, sample order:', response?.orders?.[0]);
         
         if (response && response.orders) {
           this.allOrders = response.orders;
@@ -174,8 +171,6 @@ export class AdminOrdersComponent implements OnInit {
           if (this.orders.length > 0 && this.users.length > 0) {
             const firstOrder = this.orders[0];
             const matchedUser = this.getUserById(firstOrder.user_id);
-            console.log('First order user_id:', firstOrder.user_id);
-            console.log('Matched user:', matchedUser);
           }
         } else {
           this.allOrders = [];
@@ -234,7 +229,6 @@ export class AdminOrdersComponent implements OnInit {
 
     this.orders = filtered;
     this.totalRecords = filtered.length;
-    console.log(`Filtered ${filtered.length} orders from ${this.allOrders.length} total`);
   }
 
   // Search input with client-side filtering

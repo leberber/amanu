@@ -39,7 +39,8 @@ import { TranslationService } from '../../services/translation.service'; // Add 
     TranslateModule
   ],
   providers: [MessageService],
-  templateUrl: './cart.component.html',
+  templateUrl: './cart.component.html'
+
 })
 export class CartComponent implements OnInit, OnDestroy {
   // Dependency injection
@@ -89,7 +90,6 @@ export class CartComponent implements OnInit, OnDestroy {
 
     // 🆕 Subscribe to language changes
     this.languageSubscription = this.translationService.currentLanguage$.subscribe(() => {
-      console.log('Language changed in cart, reloading translated names...');
       this.loadTranslatedNames();
     });
   }
@@ -144,7 +144,6 @@ export class CartComponent implements OnInit, OnDestroy {
       });
 
       this.cartItems.set(updatedItems);
-      console.log('Cart items updated with translations:', updatedItems);
     });
   }
   

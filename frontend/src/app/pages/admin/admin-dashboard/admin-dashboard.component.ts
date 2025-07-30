@@ -40,8 +40,8 @@ import { StatusSeverityService } from '../../../core/services/status-severity.se
     // REMOVED: AdminAddProductComponent, AdminAddCategoryComponent
   ],
   providers: [MessageService],
-  templateUrl: './admin-dashboard.component.html',
-  styleUrl: './admin-dashboard.component.scss'
+  templateUrl: './admin-dashboard.component.html'
+
 })
 export class AdminDashboardComponent implements OnInit {
 

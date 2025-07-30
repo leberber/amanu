@@ -91,7 +91,6 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
     
     // 🆕 NEW: Subscribe to language changes
     this.languageSubscription = this.translationService.currentLanguage$.subscribe(() => {
-      console.log('Language changed in order detail, reloading translated names...');
       this.loadTranslatedNames();
     });
     
@@ -181,7 +180,6 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
       });
 
       this.order.set(updatedOrder);
-      console.log('Order items updated with translations:', updatedOrder.items);
     });
   }
 

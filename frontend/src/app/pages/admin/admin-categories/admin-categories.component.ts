@@ -94,11 +94,9 @@ export class AdminCategoriesComponent implements OnInit {
   loadAllCategories() {
     this.loading = true;
     
-    console.log('Loading all categories once...');
     
     this.productService.getCategories(false).subscribe({ // false = include inactive
       next: (categories) => {
-        console.log('All categories loaded successfully:', categories.length);
         this.allCategories = categories; // Store all categories
         this.categories = categories;    // Initially display all categories
         this.loadProductCounts(); // NEW: Load product counts for each category
@@ -146,7 +144,6 @@ export class AdminCategoriesComponent implements OnInit {
     }
 
     this.categories = filtered;
-    console.log(`Filtered ${filtered.length} categories from ${this.allCategories.length} total`);
   }
 
   // Search input with client-side filtering

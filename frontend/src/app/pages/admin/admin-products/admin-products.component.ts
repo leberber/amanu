@@ -61,8 +61,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './admin-products.component.html',
-  styleUrl: './admin-products.component.scss',
-   styles: [`
+  styles: [`
     :host ::ng-deep .p-datatable-header {
       padding-left: 0 !important;
       padding-right: 0 !important;
@@ -229,7 +228,6 @@ export class AdminProductsComponent implements OnInit {
     
     this.productService.getProducts(filters).subscribe({
       next: (products) => {
-        console.log('All products loaded successfully:', products.length);
         this.allProducts = products;
         this.products = products;
         this.loading = false;
@@ -266,7 +264,6 @@ export class AdminProductsComponent implements OnInit {
     }
 
     this.products = filtered;
-    console.log(`Filtered ${filtered.length} products from ${this.allProducts.length} total`);
   }
 
   private deleteProduct(product: Product) {

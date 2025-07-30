@@ -14,8 +14,8 @@ import { Category } from '../../models/product.model';
   selector: 'app-home',
   standalone: true,
   imports: [RouterLink, ButtonModule, CardModule, TranslateModule],
-  templateUrl: './home.component.html',
-  styleUrl: './home.component.scss'
+  templateUrl: './home.component.html'
+
 })
 export class HomeComponent implements OnInit, OnDestroy {
   private productService = inject(ProductService);
@@ -58,7 +58,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     // 🆕 Subscribe to language changes - refresh categories when language changes
     this.languageSubscription = this.translationService.currentLanguage$.subscribe(() => {
-      console.log('Language changed in home component, reloading categories...');
       this.loadCategories();
     });
     
@@ -77,7 +76,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   private loadCategories(): void {
     this.productService.getCategories(true).subscribe({
       next: (apiCategories: Category[]) => {
-        console.log('Categories loaded from API with translations:', apiCategories);
         
         // Transform API categories to component format
         const transformedCategories = apiCategories.map(category => ({

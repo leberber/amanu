@@ -134,20 +134,14 @@ export class AdminUsersComponent implements OnInit {
   
   loadAllUsers(): void {
     this.loading = true;
-    console.log('Starting to load users...');
     
     this.adminService.getAllUsers(1, 1000).subscribe({
       next: (response: UsersResponse) => {
-        console.log('Raw API response:', response);
-        console.log('Users in response:', response.users);
-        console.log('Total in response:', response.total);
         
         this.allUsers = response.users || [];
         this.users = response.users || [];
         this.totalRecords = response.total || 0;
         
-        console.log('Final users array length:', this.users.length);
-        console.log('Final users array:', this.users);
         
         this.loading = false;
       },
@@ -207,7 +201,6 @@ export class AdminUsersComponent implements OnInit {
     this.users = filtered;
     this.totalRecords = filtered.length;
     
-    console.log(`Filtered ${filtered.length} users from ${this.allUsers.length} total`);
   }
 
   onSearchInput(): void {

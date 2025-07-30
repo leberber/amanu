@@ -24,8 +24,6 @@ export class OrderService {
     return this.apiService.get<Order>(`/orders/${orderId}`).pipe(
       tap(order => {
         // Log the response to help with debugging
-        console.log('Order details received from API:', order);
-        console.log('Order items received:', order.items);
       }),
       map(order => {
         // Ensure the items property exists

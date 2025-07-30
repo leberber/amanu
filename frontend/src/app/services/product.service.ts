@@ -92,6 +92,5 @@ export class ProductService {
   // 🆕 NEW: Method to refresh data when language changes
   refreshDataForLanguage(): void {
     // This can be called when language changes to refresh any cached data
-    console.log('Language changed to:', this.translationService.getCurrentLanguage());
   }
 }

@@ -25,7 +25,6 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     return next(cloned).pipe(
       catchError((error) => {
         if (error instanceof HttpErrorResponse && error.status === 401) {
-          console.log('Token expired, redirecting to login');
           
           // Store the session expired message flag in localStorage
           localStorage.setItem('session_expired', 'true');
