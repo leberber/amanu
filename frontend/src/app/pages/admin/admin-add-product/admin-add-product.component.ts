@@ -1,4 +1,3 @@
-// src/app/pages/admin/admin-add-product/admin-add-product.component.ts
 import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';

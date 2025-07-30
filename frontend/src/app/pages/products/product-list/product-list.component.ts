@@ -110,6 +110,24 @@ export class ProductListComponent implements OnInit, OnDestroy {
   private currencyService = inject(CurrencyService);
   private unitsService = inject(UnitsService);
   
+  constructor() {
+    // Effects must be created in constructor or field initializer
+    effect(() => {
+      const sortValue = this.selectedSort();
+      const [sortBy, sortOrder] = sortValue.split('_');
+      this.filters.update(f => ({
+        ...f,
+        sort_by: sortBy as 'name' | 'price' | 'created_at',
+        sort_order: sortOrder as 'asc' | 'desc'
+      }));
+    });
+
+    effect(() => {
+      const currentLayout = this.layout();
+      localStorage.setItem('product-list-layout', currentLayout);
+    });
+  }
+  
   // Public methods
   isSelected(category: Category): boolean {
     return this.selectedCategories().includes(category);
@@ -167,21 +185,6 @@ export class ProductListComponent implements OnInit, OnDestroy {
       { label: this.translateService.instant('products.sort.newest'), value: 'created_at_desc' },
       { label: this.translateService.instant('products.sort.oldest'), value: 'created_at_asc' }
     ];
-    
-    effect(() => {
-      const sortValue = this.selectedSort();
-      const [sortBy, sortOrder] = sortValue.split('_');
-      this.filters.update(f => ({
-        ...f,
-        sort_by: sortBy as 'name' | 'price' | 'created_at',
-        sort_order: sortOrder as 'asc' | 'desc'
-      }));
-    });
-
-    effect(() => {
-      const currentLayout = this.layout();
-      localStorage.setItem('product-list-layout', currentLayout);
-    });
     
     const savedLayout = localStorage.getItem('product-list-layout');
     if (savedLayout === 'grid' || savedLayout === 'list') {
