@@ -28,6 +28,9 @@ import { AdminService } from '../../../services/admin.service';
 import { UserManage, UsersResponse } from '../../../models/admin.model';
 import { UserFormComponent, UserFormData, UserFormConfig } from '../../../shared/components/user-form/user-form.component';
 import { DateService } from '../../../core/services/date.service';
+import { SearchDebounceService } from '../../../core/services/search-debounce.service';
+import { ConfirmationDialogService } from '../../../core/services/confirmation-dialog.service';
+import { StatusSeverityService } from '../../../core/services/status-severity.service';
 
 @Component({
   selector: 'app-admin-users',
@@ -97,15 +100,16 @@ export class AdminUsersComponent implements OnInit {
   roleOptions: any[] = [];
   
   // Private properties
-  private searchTimeout: any;
   
   // Services injected using inject()
   private adminService = inject(AdminService);
   private messageService = inject(MessageService);
-  private confirmationService = inject(ConfirmationService);
   private router = inject(Router);
   private translateService = inject(TranslateService);
   private dateService = inject(DateService);
+  private searchDebounce = inject(SearchDebounceService);
+  private confirmDialog = inject(ConfirmationDialogService);
+  private statusSeverity = inject(StatusSeverityService);
 
   ngOnInit(): void {
     this.initializeRoleOptions();
@@ -208,15 +212,10 @@ export class AdminUsersComponent implements OnInit {
   }
 
   onSearchInput(): void {
-    // Clear previous timeout if user is still typing
-    if (this.searchTimeout) {
-      clearTimeout(this.searchTimeout);
-    }
-    
-    // Set new timeout to filter after 300ms of no typing
-    this.searchTimeout = setTimeout(() => {
+    // Use the debounce service instead of managing timeout manually
+    this.searchDebounce.debounce('users-search', () => {
       this.filterUsers();
-    }, 300);
+    });
   }
 
   onRoleChange(): void {
@@ -360,12 +359,8 @@ export class AdminUsersComponent implements OnInit {
   // ===== USER DELETION =====
   
   confirmDeleteUser(user: UserManage): void {
-    this.confirmationService.confirm({
-      message: this.translateService.instant('admin.users.confirm_delete_message', { name: user.full_name }),
-      header: this.translateService.instant('admin.users.confirm_delete_header'),
-      icon: 'pi pi-exclamation-triangle',
-      acceptButtonStyleClass: 'p-button-danger',
-      accept: () => this.deleteUser(user)
+    this.confirmDialog.confirmDelete(user.full_name, () => {
+      this.deleteUser(user);
     });
   }
 
@@ -417,12 +412,7 @@ export class AdminUsersComponent implements OnInit {
   }
 
   getRoleSeverity(role: string): "success" | "secondary" | "info" | "warn" | "danger" | "contrast" {
-    switch (role) {
-      case 'admin': return 'danger';
-      case 'staff': return 'warn';
-      case 'customer': return 'info';
-      default: return 'secondary';
-    }
+    return this.statusSeverity.getRoleSeverity(role);
   }
 
   formatDate(dateString: string): string {

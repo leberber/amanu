@@ -1,5 +1,5 @@
 // src/app/pages/admin/admin-categories/admin-categories.component.ts
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -22,6 +22,9 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { ProductService } from '../../../services/product.service';
 import { TranslationHelperService } from '../../../core/services/translation-helper.service';
+import { DateService } from '../../../core/services/date.service';
+import { SearchDebounceService } from '../../../core/services/search-debounce.service';
+import { ConfirmationDialogService } from '../../../core/services/confirmation-dialog.service';
 import { Category } from '../../../models/category.model';
 
 @Component({
@@ -63,17 +66,17 @@ export class AdminCategoriesComponent implements OnInit {
   
   // NEW: Store product counts for each category
   categoryProductCounts: { [categoryId: number]: number } = {};
-
-  private searchTimeout: any;
   
-  constructor(
-    private productService: ProductService,
-    private messageService: MessageService,
-    private confirmationService: ConfirmationService,
-    private router: Router,
-    private translateService: TranslateService,
-    private translationHelper: TranslationHelperService
-  ) {}
+  // Services injected using inject()
+  private productService = inject(ProductService);
+  private messageService = inject(MessageService);
+  private confirmationService = inject(ConfirmationService);
+  private router = inject(Router);
+  private translateService = inject(TranslateService);
+  private translationHelper = inject(TranslationHelperService);
+  private dateService = inject(DateService);
+  private searchDebounce = inject(SearchDebounceService);
+  private confirmDialog = inject(ConfirmationDialogService);
 
   ngOnInit() {
     this.loadAllCategories();
@@ -150,15 +153,10 @@ export class AdminCategoriesComponent implements OnInit {
 
   // Search input with client-side filtering
   onSearchInput() {
-    // Clear the previous timeout if user is still typing
-    if (this.searchTimeout) {
-      clearTimeout(this.searchTimeout);
-    }
-    
-    // Set a new timeout to filter after 300ms of no typing
-    this.searchTimeout = setTimeout(() => {
+    // Use the debounce service instead of managing timeout manually
+    this.searchDebounce.debounce('categories-search', () => {
       this.filterCategories(); // Filter client-side instead of API call
-    }, 300);
+    });
   }
 
   // Keep for backward compatibility
@@ -183,14 +181,9 @@ export class AdminCategoriesComponent implements OnInit {
 
   // Delete confirmation
   confirmDeleteCategory(category: Category) {
-    this.confirmationService.confirm({
-      message: this.translateService.instant('admin.categories.confirm_delete_message', { categoryName: this.getCategoryName(category) }),
-      header: this.translateService.instant('admin.categories.confirm_delete_header'),
-      icon: 'pi pi-exclamation-triangle',
-      acceptButtonStyleClass: 'p-button-danger',
-      accept: () => {
-        this.deleteCategory(category);
-      }
+    const categoryName = this.getCategoryName(category);
+    this.confirmDialog.confirmDelete(categoryName, () => {
+      this.deleteCategory(category);
     });
   }
 
@@ -227,8 +220,7 @@ export class AdminCategoriesComponent implements OnInit {
 
   // Utility methods
   formatDate(dateString: string): string {
-    const date = new Date(dateString);
-    return date.toLocaleDateString();
+    return this.dateService.formatDate(dateString);
   }
 
   getCategoryProductCount(categoryId: number): number {

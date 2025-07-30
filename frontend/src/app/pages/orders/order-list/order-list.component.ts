@@ -1,5 +1,5 @@
 // src/app/pages/orders/order-list/order-list.component.ts
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 
@@ -14,6 +14,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { OrderService } from '../../../services/order.service';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { Order } from '../../../models/order.model';
+import { StatusSeverityService } from '../../../core/services/status-severity.service';
 
 @Component({
   selector: 'app-order-list',
@@ -36,13 +37,13 @@ export class OrderListComponent implements OnInit {
   orders: Order[] = [];
   loading = true;
 
-  constructor(
-    private orderService: OrderService,
-    private router: Router,
-    private messageService: MessageService,
-    private translateService: TranslateService,
-    private currencyService: CurrencyService
-  ) {}
+  // Services injected using inject()
+  private orderService = inject(OrderService);
+  private router = inject(Router);
+  private messageService = inject(MessageService);
+  private translateService = inject(TranslateService);
+  private currencyService = inject(CurrencyService);
+  private statusSeverity = inject(StatusSeverityService);
 
   ngOnInit() {
     this.loadOrders();
@@ -72,14 +73,7 @@ export class OrderListComponent implements OnInit {
   }
 
   getStatusSeverity(status: string): "success" | "secondary" | "info" | "warn" | "danger" | "contrast" {
-    switch (status) {
-      case 'pending': return 'warn';
-      case 'confirmed': return 'info';
-      case 'shipped': return 'info';
-      case 'delivered': return 'success';
-      case 'cancelled': return 'danger';
-      default: return 'secondary';
-    }
+    return this.statusSeverity.getOrderStatusSeverity(status);
   }
 
   getStatusLabel(status: string): string {

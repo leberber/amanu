@@ -1,5 +1,5 @@
 // src/app/pages/register/register.component.ts
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
@@ -40,12 +40,11 @@ export class RegisterComponent {
     showCancelButton: false
   };
 
-  constructor(
-    private authService: AuthService,
-    private router: Router,
-    private messageService: MessageService,
-    private translateService: TranslateService
-  ) {}
+  // Services injected using inject()
+  private authService = inject(AuthService);
+  private router = inject(Router);
+  private messageService = inject(MessageService);
+  private translateService = inject(TranslateService);
 
   onRegister(formData: UserFormData) {
     this.loading = true;

@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { MessageService } from 'primeng/api';
+import { NOTIFICATION } from '../constants/app.constants';
 
 export interface NotificationConfig {
   position?: 'top-right' | 'top-center' | 'top-left' | 'bottom-right' | 'bottom-center' | 'bottom-left' | 'center';
@@ -18,7 +19,7 @@ export class NotificationService {
   // Default configurations
   private readonly defaultConfig: NotificationConfig = {
     position: 'top-right',
-    duration: 3000,
+    duration: NOTIFICATION.DEFAULT_DURATION,
     closable: true,
     style: 'toast',
     sticky: false
@@ -26,7 +27,7 @@ export class NotificationService {
   
   private readonly errorConfig: NotificationConfig = {
     ...this.defaultConfig,
-    duration: 5000,
+    duration: NOTIFICATION.ERROR_DURATION,
     sticky: false
   };
 
@@ -234,7 +235,7 @@ export class NotificationService {
       .map(([field, messages]) => `${field}: ${messages.join(', ')}`)
       .join('\n');
     
-    this.error(errorMessages, 'Validation Error', { duration: 6000 });
+    this.error(errorMessages, 'Validation Error', { duration: NOTIFICATION.ERROR_DURATION });
   }
   
   /**

@@ -1,4 +1,3 @@
-// frontend/src/app/pages/products/product-list/product-list.component.ts
 import { Component, computed, effect, inject, OnInit, signal, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -7,12 +6,11 @@ import { ActivatedRoute } from '@angular/router';
 import { Observable, forkJoin, of, Subscription } from 'rxjs';
 import { switchMap, tap, map } from 'rxjs/operators';
 
-// PrimeNG imports
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { ToastModule } from 'primeng/toast';
-import { MessageService, MenuItem } from 'primeng/api';
+import { MessageService } from 'primeng/api';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { CheckboxModule } from 'primeng/checkbox';
 import { AccordionModule } from 'primeng/accordion';
@@ -21,19 +19,15 @@ import { SelectModule } from 'primeng/select';
 import { BadgeModule } from 'primeng/badge';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
-// Services and models
 import { CartService } from '../../../services/cart.service';
 import { ProductService } from '../../../services/product.service';
-import { TranslationService } from '../../../services/translation.service'; // 🆕 ADD THIS
+import { TranslationService } from '../../../services/translation.service';
 import { CurrencyService } from '../../../core/services/currency.service';
+import { UnitsService } from '../../../core/services/units.service';
 import { Product, Category, ProductFilter } from '../../../models/product.model';
+import { PRODUCT } from '../../../core/constants/app.constants';
 import { LoadingStateComponent } from '../../../shared/components/loading-state/loading-state.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
-
-interface SortOption {
-  label: string;
-  value: string;
-}
 
 interface LayoutOption {
   icon: string;
@@ -66,15 +60,6 @@ interface LayoutOption {
   styleUrl: './product-list.component.scss'
 })
 export class ProductListComponent implements OnInit, OnDestroy {
-  // Services
-  private productService = inject(ProductService);
-  private route = inject(ActivatedRoute);
-  private messageService = inject(MessageService);
-  private cartService = inject(CartService);
-  private translateService = inject(TranslateService);
-  private translationService = inject(TranslationService); // 🆕 ADD THIS
-  private currencyService = inject(CurrencyService);
-  
   // Signals
   products = signal<Product[]>([]);
   categories = signal<Category[]>([]);
@@ -84,35 +69,24 @@ export class ProductListComponent implements OnInit, OnDestroy {
   searchQuery = signal('');
   selectedSort = signal('name_asc');
   layout = signal<'grid' | 'list'>('grid');
-  
-  // For category checkbox state (binary)
-  categorySelections: { [key: number]: boolean } = {};
-  
-  // For quantities (keeping as object for performance)
-  productQuantities: { [key: number]: number } = {};
-  
-  // 🆕 Subscription for language changes
-  private languageSubscription?: Subscription;
-  
-  // Filters signal with computed values for sort
   filters = signal<ProductFilter>({
     active_only: true,
     sort_by: 'name',
     sort_order: 'asc'
   });
   
-  // Sort options - now using translations
-  get sortOptions(): SortOption[] {
-    return [
-      { label: this.translateService.instant('products.sort.name_asc'), value: 'name_asc' },
-      { label: this.translateService.instant('products.sort.name_desc'), value: 'name_desc' },
-      { label: this.translateService.instant('products.sort.price_asc'), value: 'price_asc' },
-      { label: this.translateService.instant('products.sort.price_desc'), value: 'price_desc' },
-      { label: this.translateService.instant('products.sort.created_at_desc'), value: 'created_at_desc' }
-    ];
-  }
+  // State properties
+  categorySelections: { [key: number]: boolean } = {};
+  productQuantities: { [key: number]: number } = {};
   
-  // Computed sort menu items for mobile based on sort options
+  // UI properties
+  viewOptions: LayoutOption[] = [
+    { icon: 'pi pi-th-large', value: 'grid' },
+    { icon: 'pi pi-list', value: 'list' }
+  ];
+  
+  sortOptions: any[] = [];
+  
   sortMenuItems = computed(() => {
     return this.sortOptions.map(option => ({
       label: option.label,
@@ -123,14 +97,77 @@ export class ProductListComponent implements OnInit, OnDestroy {
     }));
   });
   
-  // View options - modified for better mobile display
-  viewOptions: LayoutOption[] = [
-    { icon: 'pi pi-th-large', value: 'grid' },
-    { icon: 'pi pi-list', value: 'list' }
-  ];
-
-  constructor() {
-    // Setup effect to update filters when sort changes
+  // Subscriptions
+  private languageSubscription?: Subscription;
+  
+  // Services
+  private productService = inject(ProductService);
+  private route = inject(ActivatedRoute);
+  private messageService = inject(MessageService);
+  private cartService = inject(CartService);
+  private translateService = inject(TranslateService);
+  private translationService = inject(TranslationService);
+  private currencyService = inject(CurrencyService);
+  private unitsService = inject(UnitsService);
+  
+  // Public methods
+  isSelected(category: Category): boolean {
+    return this.selectedCategories().includes(category);
+  }
+  
+  onCategorySelectionChange(category: Category): void {
+    const isChecked = this.categorySelections[category.id];
+    const currentSelected = this.selectedCategories();
+    
+    if (isChecked) {
+      if (!this.isSelected(category)) {
+        this.selectedCategories.set([...currentSelected, category]);
+      }
+    } else {
+      this.selectedCategories.set(
+        currentSelected.filter(c => c.id !== category.id)
+      );
+    }
+    
+    this.onCategoryChange();
+  }
+  
+  toggleMobileFilters(): void {
+    this.showMobileFilters.update(show => !show);
+  }
+  
+  selectAllCategories(): void {
+    const allCategories = this.categories();
+    this.selectedCategories.set([...allCategories]);
+    
+    allCategories.forEach(category => {
+      this.categorySelections[category.id] = true;
+    });
+    
+    this.onCategoryChange();
+  }
+  
+  deselectAllCategories(): void {
+    this.selectedCategories.set([]);
+    
+    this.categories().forEach(category => {
+      this.categorySelections[category.id] = false;
+    });
+    
+    this.onCategoryChange();
+  }
+  
+  // Lifecycle hooks
+  ngOnInit(): void {
+    this.sortOptions = [
+      { label: this.translateService.instant('products.sort.name_asc'), value: 'name_asc' },
+      { label: this.translateService.instant('products.sort.name_desc'), value: 'name_desc' },
+      { label: this.translateService.instant('products.sort.price_asc'), value: 'price_asc' },
+      { label: this.translateService.instant('products.sort.price_desc'), value: 'price_desc' },
+      { label: this.translateService.instant('products.sort.newest'), value: 'created_at_desc' },
+      { label: this.translateService.instant('products.sort.oldest'), value: 'created_at_asc' }
+    ];
+    
     effect(() => {
       const sortValue = this.selectedSort();
       const [sortBy, sortOrder] = sortValue.split('_');
@@ -141,79 +178,17 @@ export class ProductListComponent implements OnInit, OnDestroy {
       }));
     });
 
-    // Effect to save layout preference in localStorage
     effect(() => {
       const currentLayout = this.layout();
       localStorage.setItem('product-list-layout', currentLayout);
     });
-  }
-  
-  // Helper method to check if a category is selected
-  isSelected(category: Category): boolean {
-    return this.selectedCategories().includes(category);
-  }
-  
-  // Handle category selection change with binary checkbox
-  onCategorySelectionChange(category: Category): void {
-    const isChecked = this.categorySelections[category.id];
-    const currentSelected = this.selectedCategories();
     
-    if (isChecked) {
-      // Add to selection if not already there
-      if (!this.isSelected(category)) {
-        this.selectedCategories.set([...currentSelected, category]);
-      }
-    } else {
-      // Remove from selection
-      this.selectedCategories.set(
-        currentSelected.filter(c => c.id !== category.id)
-      );
-    }
-    
-    this.onCategoryChange();
-  }
-  
-  // Toggle mobile filters panel
-  toggleMobileFilters(): void {
-    this.showMobileFilters.update(show => !show);
-  }
-  
-  // Select all categories
-  selectAllCategories(): void {
-    const allCategories = this.categories();
-    this.selectedCategories.set([...allCategories]);
-    
-    // Update checkbox state
-    allCategories.forEach(category => {
-      this.categorySelections[category.id] = true;
-    });
-    
-    this.onCategoryChange();
-  }
-  
-  // Deselect all categories
-  deselectAllCategories(): void {
-    this.selectedCategories.set([]);
-    
-    // Update checkbox state
-    this.categories().forEach(category => {
-      this.categorySelections[category.id] = false;
-    });
-    
-    this.onCategoryChange();
-  }
-  
-  ngOnInit(): void {
-    // Check if we have a stored layout preference
     const savedLayout = localStorage.getItem('product-list-layout');
     if (savedLayout === 'grid' || savedLayout === 'list') {
       this.layout.set(savedLayout);
     }
     
-    // 🆕 Subscribe to language changes - refresh data when language changes
     this.languageSubscription = this.translationService.currentLanguage$.subscribe(() => {
-      console.log('Language changed in product list, reloading data...');
-      // Reload both categories and products when language changes
       this.loadCategoriesAndProducts();
     });
     
@@ -221,13 +196,11 @@ export class ProductListComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    // 🆕 Cleanup language subscription
     if (this.languageSubscription) {
       this.languageSubscription.unsubscribe();
     }
   }
 
-  // 🆕 NEW: Combined method to load both categories and products
   private loadCategoriesAndProducts(): void {
     this.productService.getCategories(true).subscribe({
       next: (categories) => {
@@ -343,17 +316,14 @@ export class ProductListComponent implements OnInit, OnDestroy {
     );
   }
   
-  // Initialize quantity inputs for all products
   private initializeQuantities(products: Product[]): void {
     products.forEach(product => {
       if (!this.productQuantities[product.id]) {
-        // Set default quantity to 5 for each product
         this.productQuantities[product.id] = 5;
       }
     });
   }
   
-  // Helper method to sort products
   private sortProducts(products: Product[]): void {
     const [sortBy, sortOrder] = this.selectedSort().split('_');
     
@@ -390,13 +360,10 @@ export class ProductListComponent implements OnInit, OnDestroy {
   }
 
   onLayoutChange(): void {
-    // Store layout preference in localStorage
     localStorage.setItem('product-list-layout', this.layout());
   }
   
-  // Toggle between grid and list view
   toggleLayout(): void {
-    // Switch to opposite layout
     const newLayout = this.layout() === 'grid' ? 'list' : 'grid';
     this.layout.set(newLayout);
     this.onLayoutChange();
@@ -425,12 +392,10 @@ export class ProductListComponent implements OnInit, OnDestroy {
   }
 
   hasActiveFilters(): boolean {
-    // Check if search query is not empty
     if (this.searchQuery().trim() !== '') {
       return true;
     }
     
-    // Check if not all categories are selected
     const allCategories = this.categories();
     const selectedCategories = this.selectedCategories();
     if (allCategories.length > 0 && selectedCategories.length !== allCategories.length) {
@@ -440,27 +405,10 @@ export class ProductListComponent implements OnInit, OnDestroy {
     return false;
   }
 
-  // Unit display helper
   getUnitDisplay(unit: string): string {
-    switch (unit) {
-      case 'kg':
-        return 'Kg';
-      case 'gram':
-        return 'g';
-      case 'piece':
-        return 'Piece';
-      case 'bunch':
-        return 'Bunch';
-      case 'dozen':
-        return 'Dozen';
-      case 'pound':
-        return 'lb';
-      default:
-        return unit;
-    }
+    return this.unitsService.getUnitDisplay(unit);
   }
 
-  // Method to add product to cart with specific quantity
   addToCartWithQuantity(product: Product, quantity: number, event?: Event): void {
     if (event) {
       event.preventDefault();
@@ -471,23 +419,10 @@ export class ProductListComponent implements OnInit, OnDestroy {
       return;
     }
     
-    // Check if quantity is greater than stock and cap it if needed
     const actualQuantity = Math.min(quantity, product.stock_quantity);
     
     this.cartService.addToCart(product, actualQuantity).subscribe({
-      next: () => {
-        // Success message can be uncommented if needed
-        // this.messageService.add({
-        //   severity: 'success',
-        //   summary: this.translateService.instant('products.cart.added_to_cart'),
-        //   detail: this.translateService.instant('products.cart.added_message', {
-        //     quantity: actualQuantity,
-        //     unit: this.getUnitDisplay(product.unit),
-        //     name: product.name
-        //   }),
-        //   life: 3000
-        // });
-      },
+      next: () => {},
       error: (error) => {
         console.error('Error adding to cart:', error);
         this.messageService.add({
@@ -500,7 +435,6 @@ export class ProductListComponent implements OnInit, OnDestroy {
     });
   }
 
-  // Add from select dropdown
   addToCart(event: Event, product: Product): void {
     if (event) {
       event.preventDefault();
@@ -515,7 +449,6 @@ export class ProductListComponent implements OnInit, OnDestroy {
     this.addToCartWithQuantity(product, quantity, event);
   }
   
-  // Generate quantity options with a consistent step size and dynamic unit
   private generateQuantityOptions(product: Product, step: number = 5, max: number = 1000): { label: string; value: number }[] {
     const unitDisplay = this.getUnitDisplay(product.unit);
     
@@ -525,12 +458,10 @@ export class ProductListComponent implements OnInit, OnDestroy {
         label: `${value} ${unitDisplay}`,
         value
       };
-    }).slice(1); // remove 0
+    }).slice(1);
   }
   
-  // Get select options with increments of 5 and dynamic unit
   getQuantityOptions(maxQuantity: number, productId?: number): any[] {
-    // Find the product by id or by stock quantity
     let product: Product | undefined;
     
     if (productId) {
@@ -540,15 +471,12 @@ export class ProductListComponent implements OnInit, OnDestroy {
                this.products().find(p => p.stock_quantity >= maxQuantity);
     }
     
-    // Default to first product if we still don't have one
     if (!product && this.products().length > 0) {
       product = this.products()[0];
     }
     
-    // If we have no products yet, use a default unit
     const unitDisplay = product ? this.getUnitDisplay(product.unit) : 'units';
     
-    // Generate options with increments of 5
     const allOptions = product ? 
       this.generateQuantityOptions(product, 5, 1000) : 
       Array.from({ length: Math.floor(1000 / 5) + 1 }, (_, i) => {
@@ -556,11 +484,9 @@ export class ProductListComponent implements OnInit, OnDestroy {
         return { label: `${value} ${unitDisplay}`, value };
       }).slice(1);
     
-    // Filter options to not exceed the max stock quantity
-    const maxStock = maxQuantity || 5; // Default to at least showing 5 if no stock
+    const maxStock = maxQuantity || 5;
     const filteredOptions = allOptions.filter(option => option.value <= maxStock);
     
-    // If no options were added (very low stock), add at least one option
     if (filteredOptions.length === 0) {
       filteredOptions.push({
         label: `${maxStock} ${unitDisplay}`,
@@ -571,7 +497,6 @@ export class ProductListComponent implements OnInit, OnDestroy {
     return filteredOptions;
   }
   
-  // Get the display label for the selected quantity with dynamic unit
   getSelectedQuantityLabel(productId: number): string {
     const quantity = this.productQuantities[productId];
     if (!quantity) return this.translateService.instant('products.product.select_quantity');
@@ -582,36 +507,30 @@ export class ProductListComponent implements OnInit, OnDestroy {
     return `${quantity} ${this.getUnitDisplay(product.unit)}`;
   }
   
-  // Check if a product is out of stock
   isOutOfStock(product: Product): boolean {
     return product.stock_quantity === 0;
   }
   
-  // Check if a product is low on stock
   isLowStock(product: Product): boolean {
-    return product.stock_quantity > 0 && product.stock_quantity < 10;
+    return product.stock_quantity > 0 && product.stock_quantity < PRODUCT.LOW_STOCK_THRESHOLD;
   }
   
-  // Get stock message
   getStockMessage(product: Product): string {
     return this.isOutOfStock(product) 
       ? this.translateService.instant('products.stock.out_of_stock')
       : this.translateService.instant('products.stock.low_stock', { count: product.stock_quantity });
   }
   
-  // Get stock icon
   getStockIcon(product: Product): string {
     return this.isOutOfStock(product) 
       ? 'pi pi-exclamation-circle' 
       : 'pi pi-exclamation-triangle';
   }
   
-  // Get stock color class
   getStockColorClass(product: Product): string {
     return this.isOutOfStock(product) ? 'text-red-500' : 'text-orange-500';
   }
   
-  // Format price using CurrencyService
   formatPrice(price: number): string {
     return this.currencyService.formatCurrency(price);
   }

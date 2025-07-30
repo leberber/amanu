@@ -23,7 +23,7 @@
               } @else if (products().length === 0) {
                 <app-empty-state
                   icon="pi-search"
-                  [message]="'products.empty.title' | translate"
+                  [title]="'products.empty.title' | translate"
                   [description]="hasActiveFilters() ? ('products.empty.filter_message' | translate) : ('products.empty.subtitle' | translate)"
                   [actionLabel]="hasActiveFilters() ? ('products.empty.clear_filters' | translate) : ''"
                   [action]="clearFilters.bind(this)">

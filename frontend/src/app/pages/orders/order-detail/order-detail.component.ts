@@ -20,7 +20,9 @@ import { OrderService } from '../../../services/order.service';
 import { ProductService } from '../../../services/product.service'; // 🆕 ADD THIS
 import { TranslationService } from '../../../services/translation.service'; // 🆕 ADD THIS
 import { CurrencyService } from '../../../core/services/currency.service';
+import { UnitsService } from '../../../core/services/units.service';
 import { Order, OrderItem } from '../../../models/order.model';
+import { StatusSeverityService } from '../../../core/services/status-severity.service';
 
 interface OrderStatus {
   status: string;
@@ -58,6 +60,8 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
   private messageService = inject(MessageService);
   private translateService = inject(TranslateService);
   private currencyService = inject(CurrencyService);
+  private unitsService = inject(UnitsService);
+  private statusSeverity = inject(StatusSeverityService);
 
   // Signals
   order = signal<Order | null>(null);
@@ -237,14 +241,7 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
   }
 
   getStatusSeverity(status: string): "success" | "secondary" | "info" | "warn" | "danger" | "contrast" {
-    switch (status) {
-      case 'pending': return 'warn';
-      case 'confirmed': return 'info';
-      case 'shipped': return 'info';
-      case 'delivered': return 'success';
-      case 'cancelled': return 'danger';
-      default: return 'secondary';
-    }
+    return this.statusSeverity.getOrderStatusSeverity(status);
   }
 
   getStatusLabel(status: string): string {
@@ -253,15 +250,7 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
   }
 
   getUnitDisplay(unit: string): string {
-    switch (unit) {
-      case 'kg': return 'Kg';
-      case 'gram': return 'g';
-      case 'piece': return 'Piece';
-      case 'bunch': return 'Bunch';
-      case 'dozen': return 'Dozen';
-      case 'pound': return 'lb';
-      default: return unit;
-    }
+    return this.unitsService.getUnitDisplay(unit);
   }
 
   cancelOrder(): void {

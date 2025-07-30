@@ -1,5 +1,5 @@
 // src/app/shared/components/user-form/user-form.component.ts
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
@@ -9,6 +9,7 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { ButtonModule } from 'primeng/button';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormValidationService } from '../../../core/services/form-validation.service';
+import { VALIDATION } from '../../../core/constants/app.constants';
 
 export interface UserFormData {
   full_name: string;
@@ -65,19 +66,16 @@ export class UserFormComponent implements OnInit {
   @Output() formSubmit = new EventEmitter<UserFormData>();
   @Output() formCancel = new EventEmitter<void>();
   
-  userForm: FormGroup;
+  userForm!: FormGroup;
   roleOptions: any[] = [];
   currentLang: string = 'en';
   
-  constructor(
-    private fb: FormBuilder,
-    private translateService: TranslateService,
-    private formValidation: FormValidationService
-  ) {
-    this.userForm = this.createForm();
-  }
+  private fb = inject(FormBuilder);
+  private translateService = inject(TranslateService);
+  private formValidation = inject(FormValidationService);
   
   ngOnInit(): void {
+    this.userForm = this.createForm();
     this.currentLang = this.translateService.currentLang;
     this.initializeRoleOptions();
     this.configureForm();
@@ -86,7 +84,6 @@ export class UserFormComponent implements OnInit {
       this.userForm.patchValue(this.initialData);
     }
     
-    // Update role options when language changes
     this.translateService.onLangChange.subscribe(() => {
       this.currentLang = this.translateService.currentLang;
       this.initializeRoleOptions();
@@ -95,7 +92,7 @@ export class UserFormComponent implements OnInit {
   
   private createForm(): FormGroup {
     return this.fb.group({
-      full_name: ['', [Validators.required, Validators.minLength(3)]],
+      full_name: ['', [Validators.required, Validators.minLength(VALIDATION.MIN_NAME_LENGTH)]],
       email: ['', [Validators.required, Validators.email]],
       phone: [''],
       address: [''],
@@ -110,10 +107,10 @@ export class UserFormComponent implements OnInit {
     if (this.config.passwordRequired) {
       this.userForm.get('password')?.setValidators([
         Validators.required,
-        Validators.minLength(8)
+        Validators.minLength(VALIDATION.MIN_PASSWORD_LENGTH)
       ]);
     } else {
-      this.userForm.get('password')?.setValidators([Validators.minLength(8)]);
+      this.userForm.get('password')?.setValidators([Validators.minLength(VALIDATION.MIN_PASSWORD_LENGTH)]);
     }
     
     // Set default role for register mode

@@ -18,6 +18,7 @@ import { DashboardStats } from '../../../models/admin.model';
 import { ProductService } from '../../../services/product.service';
 import { DateService } from '../../../core/services/date.service';
 import { TranslationHelperService } from '../../../core/services/translation-helper.service';
+import { StatusSeverityService } from '../../../core/services/status-severity.service';
 
 // REMOVED: AdminAddProductComponent and AdminAddCategoryComponent imports
 // REMOVED: ViewChild decorators and modal methods
@@ -63,6 +64,7 @@ export class AdminDashboardComponent implements OnInit {
   private productService = inject(ProductService);
   private dateService = inject(DateService);
   private translationHelper = inject(TranslationHelperService);
+  private statusSeverity = inject(StatusSeverityService);
 
   ngOnInit() {
     this.loadDashboardStats();
@@ -179,14 +181,7 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   getStatusSeverity(status: string): "success" | "secondary" | "info" | "warn" | "danger" | "contrast" {
-    switch (status) {
-      case 'pending': return 'warn';
-      case 'confirmed': return 'info';
-      case 'shipped': return 'info';
-      case 'delivered': return 'success';
-      case 'cancelled': return 'danger';
-      default: return 'secondary';
-    }
+    return this.statusSeverity.getOrderStatusSeverity(status);
   }
 
   formatDate(dateString: string): string {

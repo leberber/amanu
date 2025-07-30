@@ -1,5 +1,5 @@
 // src/app/pages/checkout/checkout.component.ts
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -23,10 +23,12 @@ import { AuthService } from '../../services/auth.service';
 import { CartService, CartItem } from '../../services/cart.service';
 import { OrderService } from '../../services/order.service';
 import { CurrencyService } from '../../core/services/currency.service';
+import { UnitsService } from '../../core/services/units.service';
 import { ProductService } from '../../services/product.service'; // 🆕 ADD THIS
 import { TranslationService } from '../../services/translation.service'; // 🆕 ADD THIS
 import { OrderCreate } from '../../models/order.model';
 import { User } from '../../models/user.model';
+import { VALIDATION } from '../../core/constants/app.constants';
 
 @Component({
   selector: 'app-checkout',
@@ -54,14 +56,24 @@ import { User } from '../../models/user.model';
   styleUrl: './checkout.component.scss'
 })
 export class CheckoutComponent implements OnInit, OnDestroy {
-  checkoutForm: FormGroup;
+  checkoutForm!: FormGroup;
   cartItems: CartItem[] = [];
   currentUser: User | null = null;
   isSubmitting = false;
   accordionExpanded = false;
-
-  // 🆕 NEW: Subscription management
   private languageSubscription?: Subscription;
+
+  private fb = inject(FormBuilder);
+  private router = inject(Router);
+  private authService = inject(AuthService);
+  private cartService = inject(CartService);
+  private orderService = inject(OrderService);
+  private messageService = inject(MessageService);
+  private translateService = inject(TranslateService);
+  private currencyService = inject(CurrencyService);
+  private unitsService = inject(UnitsService);
+  private productService = inject(ProductService);
+  private translationService = inject(TranslationService);
 
   toggleShippingAccordion() {
     this.accordionExpanded = !this.accordionExpanded;
@@ -75,27 +87,13 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     return Math.round((completed / controls.length) * 100);
   }
 
-  constructor(
-    private fb: FormBuilder,
-    private router: Router,
-    private authService: AuthService,
-    private cartService: CartService,
-    private orderService: OrderService,
-    private messageService: MessageService,
-    private translateService: TranslateService,
-    private currencyService: CurrencyService,
-    private productService: ProductService, // 🆕 ADD THIS
-    private translationService: TranslationService // 🆕 ADD THIS
-  ) {
+  ngOnInit() {
     this.checkoutForm = this.fb.group({
       fullName: ['', Validators.required],
-      phone: ['', [Validators.required, Validators.pattern(/^\+?[0-9\s\-()]+$/)]],
-      address: ['', [Validators.required, Validators.minLength(10)]]
+      phone: ['', [Validators.required, Validators.pattern(VALIDATION.PHONE_PATTERN)]],
+      address: ['', [Validators.required, Validators.minLength(VALIDATION.MIN_ADDRESS_LENGTH)]]
     });
-  }
-
-  ngOnInit() {
-    // Get current user
+    
     this.currentUser = this.authService.currentUserValue;
     
     if (!this.currentUser) {
@@ -174,15 +172,13 @@ export class CheckoutComponent implements OnInit, OnDestroy {
       )
     );
 
-    // Execute all requests in parallel
     forkJoin(productObservables).subscribe(results => {
-      // Update cart items with translated names
       this.cartItems = this.cartItems.map(item => {
         const translation = results.find(r => r.cartItemId === item.id);
         if (translation) {
           return {
             ...item,
-            product_name: translation.translatedName // Update with translated name
+            product_name: translation.translatedName
           };
         }
         return item;
@@ -201,15 +197,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   }
 
   getUnitDisplay(unit: string): string {
-    switch (unit) {
-      case 'kg': return 'Kg';
-      case 'gram': return 'g';
-      case 'piece': return 'Piece';
-      case 'bunch': return 'Bunch';
-      case 'dozen': return 'Dozen';
-      case 'pound': return 'lb';
-      default: return unit;
-    }
+    return this.unitsService.getUnitDisplay(unit);
   }
 
   placeOrder() {

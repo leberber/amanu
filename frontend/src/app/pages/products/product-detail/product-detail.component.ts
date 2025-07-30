@@ -21,7 +21,9 @@ import { ProductService } from '../../../services/product.service';
 import { CartService } from '../../../services/cart.service';
 import { AuthService } from '../../../services/auth.service';
 import { CurrencyService } from '../../../core/services/currency.service';
+import { UnitsService } from '../../../core/services/units.service';
 import { Product, Category } from '../../../models/product.model';
+import { PRODUCT } from '../../../core/constants/app.constants';
 
 @Component({
   selector: 'app-product-detail',
@@ -50,6 +52,7 @@ export class ProductDetailComponent implements OnInit {
   private messageService = inject(MessageService);
   private translateService = inject(TranslateService);
   private currencyService = inject(CurrencyService);
+  private unitsService = inject(UnitsService);
   public authService = inject(AuthService);
   
   // Signals
@@ -70,7 +73,7 @@ export class ProductDetailComponent implements OnInit {
   
   isLowStock = computed(() => {
     const product = this.product();
-    return product ? (product.stock_quantity > 0 && product.stock_quantity < 10) : false;
+    return product ? (product.stock_quantity > 0 && product.stock_quantity < PRODUCT.LOW_STOCK_THRESHOLD) : false;
   });
 
   // Computed property for low stock translation parameters
@@ -272,15 +275,7 @@ export class ProductDetailComponent implements OnInit {
 
   // Helper function to get proper unit display
   getUnitDisplay(unit: string): string {
-    switch (unit) {
-      case 'kg': return 'Kg';
-      case 'gram': return 'g';
-      case 'piece': return 'Piece';
-      case 'bunch': return 'Bunch';
-      case 'dozen': return 'Dozen';
-      case 'pound': return 'lb';
-      default: return unit;
-    }
+    return this.unitsService.getUnitDisplay(unit);
   }
   
   // Check if a product is out of stock
@@ -290,7 +285,7 @@ export class ProductDetailComponent implements OnInit {
   
   // Check if a product is low on stock
   isProductLowStock(product: Product): boolean {
-    return product.stock_quantity > 0 && product.stock_quantity < 10;
+    return product.stock_quantity > 0 && product.stock_quantity < PRODUCT.LOW_STOCK_THRESHOLD;
   }
   
   // Get stock message for a specific product

@@ -1,8 +1,7 @@
-// frontend/src/app/pages/admin/admin-products/admin-products.component.ts
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink, Router } from '@angular/router';
+import { Router } from '@angular/router';
 
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
@@ -20,8 +19,14 @@ import { SelectModule } from 'primeng/select';
 import { ProductService } from '../../../services/product.service';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { TranslationHelperService } from '../../../core/services/translation-helper.service';
+import { UnitsService } from '../../../core/services/units.service';
+import { SearchDebounceService } from '../../../core/services/search-debounce.service';
+import { ConfirmationDialogService } from '../../../core/services/confirmation-dialog.service';
+import { DateService } from '../../../core/services/date.service';
+import { StockStatusService } from '../../../core/services/stock-status.service';
 import { Product } from '../../../models/product.model';
 import { Category } from '../../../models/category.model';
+import { ROUTES, RouteHelpers } from '../../../core/constants/routes.constants';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
@@ -40,7 +45,6 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
     FormsModule,
     BadgeModule,
     OverlayBadgeModule,
-    // RouterLink,
     TableModule,
     ButtonModule,
     CardModule,
@@ -67,53 +71,131 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
   `]
 })
 export class AdminProductsComponent implements OnInit {
-  allProducts: Product[] = []; // Store all products loaded once
-  products: Product[] = [];    // Filtered products to display
+  // State properties
+  allProducts: Product[] = [];
+  products: Product[] = [];
   categories: Category[] = [];
+  categoryOptions: any[] = [];
   loading = true;
   searchQuery = '';
   selectedCategory = null;
   
-  // Category options for filter
-  categoryOptions: any[] = [];
+  // Services
+  private productService = inject(ProductService);
+  private messageService = inject(MessageService);
+  private router = inject(Router);
+  private translateService = inject(TranslateService);
+  private currencyService = inject(CurrencyService);
+  private translationHelper = inject(TranslationHelperService);
+  private unitsService = inject(UnitsService);
+  private searchDebounce = inject(SearchDebounceService);
+  private confirmDialog = inject(ConfirmationDialogService);
+  private dateService = inject(DateService);
+  private stockStatus = inject(StockStatusService);
 
-  private searchTimeout: any;
-  
-  constructor(
-    private productService: ProductService,
-    private messageService: MessageService,
-    private confirmationService: ConfirmationService,
-    private router: Router,
-    private translateService: TranslateService,
-    private currencyService: CurrencyService,
-    private translationHelper: TranslationHelperService
-  ) {}
-
+  // Lifecycle hooks
   ngOnInit() {
     this.loadCategories();
-    this.loadAllProducts(); // Load all products once
+    this.loadAllProducts();
     
-    // Subscribe to language changes
     this.translateService.onLangChange.subscribe(() => {
-      this.loadCategories(); // Reload categories to update translations
+      this.loadCategories();
     });
   }
 
+
+  // Public methods
   hasActiveFilters(): boolean {
-    return !!(
-      this.searchQuery?.trim() || 
-      this.selectedCategory
-    );
+    return !!(this.searchQuery?.trim() || this.selectedCategory);
   }
 
-  loadCategories() {
+  onSearchInput() {
+    this.searchDebounce.debounce('products-search', () => {
+      this.filterProducts();
+    });
+  }
+
+  onCategoryChange() {
+    this.filterProducts();
+  }
+
+  onSearch() {
+    this.filterProducts();
+  }
+
+  clearFilters() {
+    this.searchQuery = '';
+    this.selectedCategory = null;
+    this.filterProducts();
+  }
+
+  createNewProduct() {
+    this.router.navigate([ROUTES.ADMIN.ADD_PRODUCT]);
+  }
+
+  editProduct(product: Product) {
+    this.router.navigate([RouteHelpers.adminEditProduct(product.id)]);
+  }
+
+  viewProduct(product: Product) {
+    this.router.navigate([RouteHelpers.productDetail(product.id)]);
+  }
+
+  confirmDeleteProduct(product: Product) {
+    const productName = this.getProductName(product);
+    this.confirmDialog.confirmDelete(productName, () => {
+      this.deleteProduct(product);
+    });
+  }
+
+  refreshProductData() {
+    this.loadAllProducts();
+  }
+
+  getCategoryName(categoryId: number): string {
+    const category = this.categories.find(cat => cat.id === categoryId) as any;
+    if (!category) {
+      return this.translateService.instant('common.unknown');
+    }
+    return this.translationHelper.getCategoryName(category);
+  }
+
+  getProductName(product: Product): string {
+    return this.translationHelper.getProductName(product);
+  }
+
+  getProductDescription(product: Product): string {
+    return this.translationHelper.getProductDescription(product);
+  }
+
+  getStockSeverity(stockQuantity: number): "success" | "secondary" | "info" | "warn" | "danger" | "contrast" {
+    return this.stockStatus.getStockSeverity(stockQuantity);
+  }
+
+  getStockLabel(stockQuantity: number): string {
+    return this.stockStatus.getStockLabel(stockQuantity);
+  }
+
+  getUnitDisplay(unit: string): string {
+    return this.unitsService.getUnitTranslated(unit, true);
+  }
+
+  formatDate(dateString: string): string {
+    return this.dateService.formatDate(dateString);
+  }
+
+  formatPrice(price: number): string {
+    return this.currencyService.formatCurrency(price);
+  }
+
+  // Private methods
+  private loadCategories() {
     this.productService.getCategories(true).subscribe({
       next: (categories) => {
         this.categories = categories;
-        // Build category options for filter
         const currentLang = this.translateService.currentLang;
         const options = categories.map(cat => {
-          const category = cat as any; // Temporary type assertion
+          const category = cat as any;
           return {
             label: (category.name_translations && category.name_translations[currentLang]) 
               ? category.name_translations[currentLang] 
@@ -132,22 +214,18 @@ export class AdminProductsComponent implements OnInit {
     });
   }
 
-  // Load all products once on page load
-  loadAllProducts() {
+  private loadAllProducts() {
     this.loading = true;
     
-    // Load all products without filters
     const filters: any = {
-      active_only: false // Show both active and inactive
+      active_only: false
     };
-    
- 
     
     this.productService.getProducts(filters).subscribe({
       next: (products) => {
         console.log('All products loaded successfully:', products.length);
-        this.allProducts = products; // Store all products
-        this.products = products;    // Initially display all products
+        this.allProducts = products;
+        this.products = products;
         this.loading = false;
       },
       error: (error) => {
@@ -163,11 +241,9 @@ export class AdminProductsComponent implements OnInit {
     });
   }
 
-  // Filter products client-side (no API calls)
-  filterProducts() {
+  private filterProducts() {
     let filtered = [...this.allProducts];
 
-    // Apply search filter
     if (this.searchQuery?.trim()) {
       const search = this.searchQuery.toLowerCase();
       filtered = filtered.filter(product => 
@@ -177,7 +253,6 @@ export class AdminProductsComponent implements OnInit {
       );
     }
 
-    // Apply category filter
     if (this.selectedCategory) {
       filtered = filtered.filter(product => 
         product.category_id === this.selectedCategory
@@ -188,65 +263,7 @@ export class AdminProductsComponent implements OnInit {
     console.log(`Filtered ${filtered.length} products from ${this.allProducts.length} total`);
   }
 
-  // Search input with client-side filtering
-  onSearchInput() {
-    // Clear the previous timeout if user is still typing
-    if (this.searchTimeout) {
-      clearTimeout(this.searchTimeout);
-    }
-    
-    // Set a new timeout to filter after 300ms of no typing
-    this.searchTimeout = setTimeout(() => {
-      this.filterProducts(); // Filter client-side instead of API call
-    }, 300);
-  }
-
-  // Category change with client-side filtering
-  onCategoryChange() {
-    this.filterProducts(); // Filter client-side instead of API call
-  }
-
-  // Keep for backward compatibility
-  onSearch() {
-    this.filterProducts();
-  }
-
-  // Clear filters with client-side filtering
-  clearFilters() {
-    this.searchQuery = '';
-    this.selectedCategory = null;
-    this.filterProducts(); // Filter client-side instead of API call
-  }
-
-  // Navigation methods - FIXED
-  createNewProduct() {
-    this.router.navigate(['/admin/products/add']);
-  }
-
-  editProduct(product: Product) {
-    this.router.navigate(['/admin/products/edit', product.id]);
-  }
-
-  viewProduct(product: Product) {
-    // Navigate to public product page
-    this.router.navigate(['/products', product.id]);
-  }
-
-  // Delete confirmation
-  confirmDeleteProduct(product: Product) {
-    this.confirmationService.confirm({
-      message: this.translateService.instant('admin.products.confirm_delete_message', { productName: product.name }),
-      header: this.translateService.instant('admin.products.confirm_delete_header'),
-      icon: 'pi pi-exclamation-triangle',
-      acceptButtonStyleClass: 'p-button-danger',
-      accept: () => {
-        this.deleteProduct(product);
-      }
-    });
-  }
-
-  // After delete, remove from local array and refresh filters
-  deleteProduct(product: Product) {
+  private deleteProduct(product: Product) {
     this.productService.deleteProduct(product.id).subscribe({
       next: () => {
         this.messageService.add({
@@ -255,9 +272,7 @@ export class AdminProductsComponent implements OnInit {
           detail: this.translateService.instant('admin.products.delete_success')
         });
         
-        // Remove deleted product from allProducts array
         this.allProducts = this.allProducts.filter(p => p.id !== product.id);
-        // Reapply current filters
         this.filterProducts();
       },
       error: (error) => {
@@ -271,61 +286,4 @@ export class AdminProductsComponent implements OnInit {
     });
   }
 
-  // Method to refresh data after adding/editing products
-  refreshProductData() {
-    this.loadAllProducts();
-  }
-
-  // Utility methods
-  getCategoryName(categoryId: number): string {
-    const category = this.categories.find(cat => cat.id === categoryId) as any;
-    if (!category) {
-      return this.translateService.instant('common.unknown');
-    }
-    return this.translationHelper.getCategoryName(category);
-  }
-
-  getProductName(product: Product): string {
-    return this.translationHelper.getProductName(product);
-  }
-
-  getProductDescription(product: Product): string {
-    return this.translationHelper.getProductDescription(product);
-  }
-
-  getStockSeverity(stockQuantity: number): "success" | "secondary" | "info" | "warn" | "danger" | "contrast" {
-    if (stockQuantity === 0) return 'danger';
-    if (stockQuantity < 10) return 'warn';
-    if (stockQuantity < 50) return 'info';
-    return 'success';
-  }
-
-  getStockLabel(stockQuantity: number): string {
-    if (stockQuantity === 0) return this.translateService.instant('admin.products.stock.out_of_stock');
-    if (stockQuantity < 10) return this.translateService.instant('admin.products.stock.low_stock');
-    return this.translateService.instant('admin.products.stock.in_stock');
-  }
-
-  getUnitDisplay(unit: string): string {
-    // For table display, just show the abbreviation
-    switch (unit) {
-      case 'kg': return this.translateService.instant('admin.products.units.kg_short') || 'kg';
-      case 'gram': return this.translateService.instant('admin.products.units.gram_short') || 'g';
-      case 'piece': return this.translateService.instant('admin.products.units.piece_short') || 'pc';
-      case 'bunch': return this.translateService.instant('admin.products.units.bunch_short') || 'bunch';
-      case 'dozen': return this.translateService.instant('admin.products.units.dozen_short') || 'dz';
-      case 'pound': return this.translateService.instant('admin.products.units.pound_short') || 'lb';
-      default: return unit;
-    }
-  }
-
-  formatDate(dateString: string): string {
-    const date = new Date(dateString);
-    return date.toLocaleDateString();
-  }
-
-  // Format price using CurrencyService
-  formatPrice(price: number): string {
-    return this.currencyService.formatCurrency(price);
-  }
 }

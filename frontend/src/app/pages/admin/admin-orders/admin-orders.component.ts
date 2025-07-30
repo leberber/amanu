@@ -28,6 +28,10 @@ import { ProductService } from '../../../services/product.service';
 import { DateService } from '../../../core/services/date.service';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { TranslationHelperService } from '../../../core/services/translation-helper.service';
+import { SearchDebounceService } from '../../../core/services/search-debounce.service';
+import { ConfirmationDialogService } from '../../../core/services/confirmation-dialog.service';
+import { UnitsService } from '../../../core/services/units.service';
+import { StatusSeverityService } from '../../../core/services/status-severity.service';
 
 @Component({
   selector: 'app-admin-orders',
@@ -72,8 +76,6 @@ export class AdminOrdersComponent implements OnInit {
   filterStatus = '';
   page = 1;
   pageSize = 10;
-
-  private searchTimeout: any;
   
   statusOptions: any[] = [];
   
@@ -90,6 +92,10 @@ export class AdminOrdersComponent implements OnInit {
   private dateService = inject(DateService);
   private currencyService = inject(CurrencyService);
   private translationHelper = inject(TranslationHelperService);
+  private unitsService = inject(UnitsService);
+  private searchDebounce = inject(SearchDebounceService);
+  private confirmDialog = inject(ConfirmationDialogService);
+  private statusSeverity = inject(StatusSeverityService);
 
   ngOnInit() {
     this.initializeStatusOptions();
@@ -235,15 +241,10 @@ export class AdminOrdersComponent implements OnInit {
 
   // Search input with client-side filtering
   onSearchInput() {
-    // Clear the previous timeout if user is still typing
-    if (this.searchTimeout) {
-      clearTimeout(this.searchTimeout);
-    }
-    
-    // Set a new timeout to filter after 300ms of no typing
-    this.searchTimeout = setTimeout(() => {
+    // Use the debounce service instead of managing timeout manually
+    this.searchDebounce.debounce('orders-search', () => {
       this.filterOrders(); // Filter client-side instead of API call
-    }, 300);
+    });
   }
 
   onStatusChange() {
@@ -281,25 +282,11 @@ export class AdminOrdersComponent implements OnInit {
   }
 
   getStatusSeverity(status: string): "success" | "secondary" | "info" | "warn" | "danger" | "contrast" {
-    switch (status) {
-      case 'pending': return 'warn';
-      case 'confirmed': return 'info';
-      case 'shipped': return 'info';
-      case 'delivered': return 'success';
-      case 'cancelled': return 'danger';
-      default: return 'secondary';
-    }
+    return this.statusSeverity.getOrderStatusSeverity(status);
   }
 
   getStatusIcon(status: string): string {
-    switch (status) {
-      case 'pending': return 'pi pi-clock';
-      case 'confirmed': return 'pi pi-check';
-      case 'shipped': return 'pi pi-send';
-      case 'delivered': return 'pi pi-check-circle';
-      case 'cancelled': return 'pi pi-times';
-      default: return 'pi pi-info-circle';
-    }
+    return this.statusSeverity.getOrderStatusIcon(status);
   }
 
   formatDate(dateString: string): string {
@@ -324,7 +311,7 @@ export class AdminOrdersComponent implements OnInit {
   }
 
   getUnitDisplay(unit: string): string {
-    return this.translateService.instant('admin.products.units.' + unit + '_short');
+    return this.unitsService.getUnitTranslated(unit, true);
   }
 
   formatCurrency(amount: number): string {
@@ -332,11 +319,10 @@ export class AdminOrdersComponent implements OnInit {
   }
 
   updateOrderStatus(orderId: number, newStatus: string) {
-    this.confirmationService.confirm({
-      message: this.translateService.instant('admin.orders.confirm_status_update', { status: this.translateService.instant('admin.orders.status.' + newStatus) }),
-      header: this.translateService.instant('admin.orders.confirm_header'),
-      icon: 'pi pi-exclamation-triangle',
-      accept: () => {
+    const statusText = this.translateService.instant('admin.orders.status.' + newStatus);
+    const message = this.translateService.instant('admin.orders.confirm_status_update', { status: statusText });
+    
+    this.confirmDialog.confirmWarning(message, () => {
         this.adminService.updateOrderStatus(orderId, newStatus).subscribe({
           next: (updatedOrder) => {
             // Update order in both arrays
@@ -371,7 +357,6 @@ export class AdminOrdersComponent implements OnInit {
             });
           }
         });
-      }
     });
   }
 }

@@ -1,5 +1,5 @@
 // src/app/pages/admin/admin-add-category/admin-add-category.component.ts
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -16,6 +16,8 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { ProductService } from '../../../services/product.service';
 import { Category } from '../../../models/category.model';
+import { VALIDATION } from '../../../core/constants/app.constants';
+import { AdminFormService } from '../../../core/services/admin-form.service';
 
 // 🆕 UPDATED: Extended Category interface to include translations
 interface CategoryWithTranslations extends Category {
@@ -68,7 +70,7 @@ interface CategoryWithTranslations extends Category {
 export class AdminAddCategoryComponent implements OnInit {
   visible = signal(false);
   loading = signal(false);
-  categoryForm: FormGroup;
+  categoryForm!: FormGroup;
 
   // NEW: Add page-based properties
   isEditMode = signal(false);
@@ -84,37 +86,26 @@ export class AdminAddCategoryComponent implements OnInit {
     return this.isEditMode() ? 'admin.categories.form.submit_update' : 'admin.categories.form.submit_add';
   }
 
-  constructor(
-    private fb: FormBuilder,
-    private messageService: MessageService,
-    private productService: ProductService,
-    private route: ActivatedRoute,
-    private router: Router,
-    private translateService: TranslateService
-  ) {
-    // 🆕 UPDATED: Enhanced form WITHOUT primary name/description fields
+  private fb = inject(FormBuilder);
+  private messageService = inject(MessageService);
+  private productService = inject(ProductService);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private translateService = inject(TranslateService);
+  private adminFormService = inject(AdminFormService);
+
+  ngOnInit() {
     this.categoryForm = this.fb.group({
-      // 🚫 REMOVED: Primary name and description
-      // name: ['', [Validators.required, Validators.minLength(1)]],
-      // description: [''],
-      
-      // 🆕 NEW: Only translation fields for all 3 languages (all required for names)
-      name_en: ['', [Validators.required, Validators.minLength(1)]],
-      name_fr: ['', [Validators.required, Validators.minLength(1)]],
-      name_ar: ['', [Validators.required, Validators.minLength(1)]],
-      
+      name_en: ['', [Validators.required, Validators.minLength(VALIDATION.MIN_NAME_LENGTH)]],
+      name_fr: ['', [Validators.required, Validators.minLength(VALIDATION.MIN_NAME_LENGTH)]],
+      name_ar: ['', [Validators.required, Validators.minLength(VALIDATION.MIN_NAME_LENGTH)]],
       description_en: [''],
       description_fr: [''],
       description_ar: [''],
-      
-      // Settings
       image_url: [''],
       is_active: [true]
     });
-  }
-
-  ngOnInit() {
-    // NEW: Detect if we're in edit mode
+    
     this.detectMode();
   }
 
@@ -226,27 +217,15 @@ export class AdminAddCategoryComponent implements OnInit {
     
     const formValues = this.categoryForm.value;
     
-    // 🆕 NEW: Build the category data with translation JSON objects
-    const categoryData = {
-      name: formValues.name_en, // Use English as primary name
-      description: formValues.description_en || '', // Use English as primary description
-      
-      // 🆕 NEW: Create translation JSON objects
-      name_translations: {
-        en: formValues.name_en,
-        fr: formValues.name_fr,
-        ar: formValues.name_ar
-      },
-      description_translations: {
-        en: formValues.description_en || '',
-        fr: formValues.description_fr || '',
-        ar: formValues.description_ar || ''
-      },
-      
-      // Other fields
-      image_url: formValues.image_url || '',
-      is_active: formValues.is_active
-    };
+    // Use AdminFormService to build category data with translations
+    const categoryData = this.adminFormService.buildFormDataWithTranslations(
+      formValues,
+      ['name', 'description'],
+      {
+        image_url: formValues.image_url || '',
+        is_active: formValues.is_active
+      }
+    );
     
     if (this.isEditMode() && this.editCategoryId) {
       // UPDATE existing category

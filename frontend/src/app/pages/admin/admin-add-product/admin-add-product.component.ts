@@ -1,5 +1,5 @@
 // src/app/pages/admin/admin-add-product/admin-add-product.component.ts
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -18,6 +18,10 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ProductService } from '../../../services/product.service';
 import { Product } from '../../../models/product.model';
 import { Category } from '../../../models/category.model';
+import { VALIDATION, PRODUCT } from '../../../core/constants/app.constants';
+import { ROUTES } from '../../../core/constants/routes.constants';
+import { UnitsService } from '../../../core/services/units.service';
+import { AdminFormService } from '../../../core/services/admin-form.service';
 
 // 🆕 UPDATED: Extended Product interface to include translations
 interface ProductWithTranslations extends Product {
@@ -71,7 +75,7 @@ interface ProductWithTranslations extends Product {
 export class AdminAddProductComponent implements OnInit {
   loading = signal(false);
   categoriesLoading = signal(false);
-  productForm: FormGroup;
+  productForm!: FormGroup;
 
   // Mode detection
   isEditMode = signal(false);
@@ -90,39 +94,32 @@ export class AdminAddProductComponent implements OnInit {
     return this.isEditMode() ? 'admin.products.form.submit_update' : 'admin.products.form.submit_add';
   }
 
-  constructor(
-    private fb: FormBuilder,
-    private messageService: MessageService,
-    private productService: ProductService,
-    private route: ActivatedRoute,
-    private router: Router,
-    private translateService: TranslateService
-  ) {
-    // 🆕 UPDATED: Enhanced form WITHOUT primary name/description fields
+  private fb = inject(FormBuilder);
+  private messageService = inject(MessageService);
+  private productService = inject(ProductService);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private translateService = inject(TranslateService);
+  private unitsService = inject(UnitsService);
+  private adminFormService = inject(AdminFormService);
+
+  ngOnInit() {
     this.productForm = this.fb.group({
-      // 🆕 NEW: Only translation fields for all 3 languages (all required)
-      name_en: ['', [Validators.required, Validators.minLength(1)]],
-      name_fr: ['', [Validators.required, Validators.minLength(1)]],
-      name_ar: ['', [Validators.required, Validators.minLength(1)]],
-      
+      name_en: ['', [Validators.required, Validators.minLength(VALIDATION.MIN_NAME_LENGTH)]],
+      name_fr: ['', [Validators.required, Validators.minLength(VALIDATION.MIN_NAME_LENGTH)]],
+      name_ar: ['', [Validators.required, Validators.minLength(VALIDATION.MIN_NAME_LENGTH)]],
       description_en: [''],
       description_fr: [''],
       description_ar: [''],
-      
-      // Pricing & Inventory
-      price: [null, [Validators.required, Validators.min(0.01)]],
+      price: [null, [Validators.required, Validators.min(PRODUCT.MIN_PRICE)]],
       unit: ['', Validators.required],
-      stock_quantity: [0, [Validators.required, Validators.min(0)]],
+      stock_quantity: [0, [Validators.required, Validators.min(PRODUCT.MIN_STOCK)]],
       category_id: [null, Validators.required],
-      
-      // Settings
       image_url: [''],
       is_organic: [false],
       is_active: [true]
     });
-  }
-
-  ngOnInit() {
+    
     this.loadCategories();
     this.detectMode();
   }
@@ -178,17 +175,13 @@ export class AdminAddProductComponent implements OnInit {
       next: (product: Product) => {
         this.currentProduct = product as ProductWithTranslations;
         
-        // 🆕 UPDATED: Populate form with existing product data including translations
         this.productForm.patchValue({
-          // 🆕 NEW: Load translation values or fallback to main name/description
           name_en: this.currentProduct.name_translations?.['en'] || product.name,
           name_fr: this.currentProduct.name_translations?.['fr'] || product.name,
           name_ar: this.currentProduct.name_translations?.['ar'] || product.name,
-          
           description_en: this.currentProduct.description_translations?.['en'] || product.description || '',
           description_fr: this.currentProduct.description_translations?.['fr'] || product.description || '',
           description_ar: this.currentProduct.description_translations?.['ar'] || product.description || '',
-          
           price: product.price,
           unit: product.unit,
           stock_quantity: product.stock_quantity,
@@ -210,17 +203,13 @@ export class AdminAddProductComponent implements OnInit {
           detail: this.translateService.instant('products.filters.error')
         });
         
-        this.goBackToProductsList();
+        this.router.navigate([ROUTES.ADMIN.PRODUCTS]);
       }
     });
   }
 
   onCancel() {
-    this.goBackToProductsList();
-  }
-
-  goBackToProductsList() {
-    this.router.navigate(['/admin/products']);
+    this.router.navigate([ROUTES.ADMIN.PRODUCTS]);
   }
 
   onSubmit() {
@@ -233,73 +222,57 @@ export class AdminAddProductComponent implements OnInit {
     
     const formValues = this.productForm.value;
     
-    // 🆕 NEW: Build the product data with translation JSON objects
-    const productData = {
-      name: formValues.name_en, // Use English as primary name
-      description: formValues.description_en || '', // Use English as primary description
-      
-      // 🆕 NEW: Create translation JSON objects
-      name_translations: {
-        en: formValues.name_en,
-        fr: formValues.name_fr,
-        ar: formValues.name_ar
-      },
-      description_translations: {
-        en: formValues.description_en || '',
-        fr: formValues.description_fr || '',
-        ar: formValues.description_ar || ''
-      },
-      
-      // Other fields
-      price: formValues.price,
-      unit: formValues.unit,
-      stock_quantity: formValues.stock_quantity,
-      category_id: formValues.category_id,
-      image_url: formValues.image_url || '',
-      is_organic: formValues.is_organic,
-      is_active: formValues.is_active
-    };
+    // Use AdminFormService to build product data with translations
+    const productData = this.adminFormService.buildFormDataWithTranslations(
+      formValues,
+      ['name', 'description'],
+      {
+        price: formValues.price,
+        unit: formValues.unit,
+        stock_quantity: formValues.stock_quantity,
+        category_id: formValues.category_id,
+        image_url: formValues.image_url || '',
+        is_organic: formValues.is_organic,
+        is_active: formValues.is_active
+      }
+    );
     
     if (this.isEditMode() && this.editProductId) {
       // UPDATE existing product
       this.productService.updateProduct(this.editProductId, productData).subscribe({
-        next: (updatedProduct) => {
+        next: () => {
           this.loading.set(false);
           
-          this.messageService.add({
-            severity: 'success',
-            summary: this.translateService.instant('common.success'),
-            detail: this.translateService.instant('admin.products.update_success')
+          this.adminFormService.handleSuccess({
+            message: 'admin.products.update_success',
+            redirectUrl: ROUTES.ADMIN.PRODUCTS,
+            redirectDelay: 1500
           });
-          
-          setTimeout(() => {
-            this.goBackToProductsList();
-          }, 1500);
         },
         error: (error) => {
           this.loading.set(false);
-          this.handleError('update', error);
+          this.adminFormService.handleError('update', error, {
+            updateMessage: 'admin.products.update_failed'
+          });
         }
       });
     } else {
       // CREATE new product
       this.productService.createProduct(productData).subscribe({
-        next: (createdProduct) => {
+        next: () => {
           this.loading.set(false);
           
-          this.messageService.add({
-            severity: 'success',
-            summary: this.translateService.instant('common.success'),
-            detail: this.translateService.instant('admin.products.create_success')
+          this.adminFormService.handleSuccess({
+            message: 'admin.products.create_success',
+            redirectUrl: ROUTES.ADMIN.PRODUCTS,
+            redirectDelay: 1500
           });
-          
-          setTimeout(() => {
-            this.goBackToProductsList();
-          }, 1500);
         },
         error: (error) => {
           this.loading.set(false);
-          this.handleError('create', error);
+          this.adminFormService.handleError('create', error, {
+            createMessage: 'admin.products.create_failed'
+          });
         }
       });
     }
@@ -307,31 +280,7 @@ export class AdminAddProductComponent implements OnInit {
 
   // Get translated unit options
   getUnitOptions() {
-    return [
-      { label: this.translateService.instant('admin.products.units.kg'), value: 'kg' },
-      { label: this.translateService.instant('admin.products.units.gram'), value: 'gram' },
-      { label: this.translateService.instant('admin.products.units.piece'), value: 'piece' },
-      { label: this.translateService.instant('admin.products.units.bunch'), value: 'bunch' },
-      { label: this.translateService.instant('admin.products.units.dozen'), value: 'dozen' },
-      { label: this.translateService.instant('admin.products.units.pound'), value: 'pound' }
-    ];
+    return this.unitsService.getUnitOptions(true);
   }
 
-  private handleError(operation: 'create' | 'update', error: any) {
-    console.error(`Error ${operation}ing product:`, error);
-    
-    let errorMessage = this.translateService.instant(
-      operation === 'create' ? 'admin.products.create_failed' : 'admin.products.update_failed'
-    );
-    
-    if (error.error && error.error.detail) {
-      errorMessage = error.error.detail;
-    }
-    
-    this.messageService.add({
-      severity: 'error',
-      summary: this.translateService.instant('common.error'),
-      detail: errorMessage
-    });
-  }
 }

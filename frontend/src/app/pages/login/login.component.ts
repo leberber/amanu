@@ -1,5 +1,4 @@
-// src/app/pages/login/login.component.ts
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
@@ -138,55 +137,32 @@ import { UserRole } from '../../models/user.model';
   styleUrl: './login.component.scss'
 })
 export class LoginComponent implements OnInit {
-  loginForm: FormGroup;
+  // State properties
+  loginForm!: FormGroup;
   loading = false;
   returnUrl: string = '/';
 
-  constructor(
-    private fb: FormBuilder,
-    private authService: AuthService,
-    private router: Router,
-    private route: ActivatedRoute,
-    private messageService: MessageService,
-    private translateService: TranslateService
-  ) {
-    // Initialize form
-    this.loginForm = this.fb.group({
-      username: ['', [Validators.required, Validators.email]],
-      password: ['', Validators.required],
-      rememberMe: [false]
-    });
-  }
+  // Services
+  private fb = inject(FormBuilder);
+  private authService = inject(AuthService);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  private messageService = inject(MessageService);
+  private translateService = inject(TranslateService);
 
+  // Lifecycle hooks
   ngOnInit() {
-    // Get return url from route parameters or default to '/'
-    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
-    
-    // Check for session expired flag in localStorage
-    const sessionExpired = localStorage.getItem('session_expired');
-    if (sessionExpired === 'true') {
-      // Clear the flag immediately
-      localStorage.removeItem('session_expired');
-      
-      // Show the message
-      setTimeout(() => {
-        this.messageService.add({
-          severity: 'info',
-          summary: this.translateService.instant('auth.session_expired_title'),
-          detail: this.translateService.instant('auth.session_expired_message'),
-          life: 7000
-        });
-      }, 300);
-    }
+    this.initializeForm();
+    this.checkReturnUrl();
+    this.checkSessionExpired();
   }
 
-  // Convenience getter for easy access to form fields
+  // Getters
   get f() { return this.loginForm.controls; }
 
+  // Public methods
   onSubmit() {
-    // Stop here if form is invalid
     if (this.loginForm.invalid) {
-      // Mark all fields as touched to show validation errors
       Object.keys(this.loginForm.controls).forEach(key => {
         this.loginForm.get(key)?.markAsTouched();
       });
@@ -197,7 +173,6 @@ export class LoginComponent implements OnInit {
     this.authService.login(this.loginForm.value)
       .pipe(
         finalize(() => {
-          // Always set loading to false when done (success or error)
           setTimeout(() => this.loading = false, 1000);
         })
       )
@@ -210,19 +185,15 @@ export class LoginComponent implements OnInit {
             detail: this.translateService.instant('auth.login_success')
           });
           
-          // Determine where to redirect based on user role
           let targetUrl = this.returnUrl;
           
-          // If no specific return URL and user is staff, redirect to orders
           if (this.returnUrl === '/' && user.role === UserRole.STAFF) {
             targetUrl = '/admin/orders';
           }
-          // If no specific return URL and user is admin, redirect to dashboard
           else if (this.returnUrl === '/' && user.role === UserRole.ADMIN) {
             targetUrl = '/admin';
           }
           
-          // Navigate to appropriate url
           setTimeout(() => {
             this.router.navigate([targetUrl]);
           }, 1500);
@@ -245,5 +216,34 @@ export class LoginComponent implements OnInit {
       summary: this.translateService.instant('auth.forgot_password'),
       detail: this.translateService.instant('auth.forgot_password_message')
     });
+  }
+
+  // Private methods
+  private initializeForm(): void {
+    this.loginForm = this.fb.group({
+      username: ['', [Validators.required, Validators.email]],
+      password: ['', Validators.required],
+      rememberMe: [false]
+    });
+  }
+
+  private checkReturnUrl(): void {
+    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
+  }
+
+  private checkSessionExpired(): void {
+    const sessionExpired = localStorage.getItem('session_expired');
+    if (sessionExpired === 'true') {
+      localStorage.removeItem('session_expired');
+      
+      setTimeout(() => {
+        this.messageService.add({
+          severity: 'info',
+          summary: this.translateService.instant('auth.session_expired_title'),
+          detail: this.translateService.instant('auth.session_expired_message'),
+          life: 7000
+        });
+      }, 300);
+    }
   }
 }

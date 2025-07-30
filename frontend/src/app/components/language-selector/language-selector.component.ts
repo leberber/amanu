@@ -1,5 +1,5 @@
 // src/app/components/language-selector/language-selector.component.ts
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
@@ -124,20 +124,16 @@ import { TranslationService, Language } from '../../services/translation.service
     }
   `]
 })
-export class LanguageSelectorComponent {
+export class LanguageSelectorComponent implements OnInit {
   private translationService = inject(TranslationService);
   private translateService = inject(TranslateService);
 
-  // Signal for select options
   languageOptions = signal<{code: string, label: string}[]>([]);
-  
-  // Control dialog visibility
   showLanguageDialog = false;
 
-  constructor() {
+  ngOnInit(): void {
     this.buildLanguageOptions();
     
-    // Rebuild options when language changes
     this.translationService.currentLanguage$.subscribe(() => {
       this.buildLanguageOptions();
     });

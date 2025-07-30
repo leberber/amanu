@@ -1,7 +1,7 @@
 // src/app/app.config.ts
 import { ApplicationConfig, provideZoneChangeDetection, isDevMode, importProvidersFrom } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { provideHttpClient, withInterceptors, HttpClient } from '@angular/common/http';
+import { provideHttpClient, withInterceptors, HttpClient, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { providePrimeNG } from 'primeng/config';
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
@@ -10,6 +10,7 @@ import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { MyPreset } from './styles';
 import { routes } from './app.routes';
 import { authInterceptor } from './interceptors/auth.interceptor';
+import { ApiErrorInterceptor } from './core/interceptors/api-error.interceptor';
 import { provideServiceWorker } from '@angular/service-worker';
 
 // Factory function for TranslateHttpLoader
@@ -22,6 +23,11 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }), 
     provideRouter(routes),
     provideHttpClient(withInterceptors([authInterceptor])),
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: ApiErrorInterceptor,
+      multi: true
+    },
     provideAnimationsAsync(),
     providePrimeNG({
       theme: {

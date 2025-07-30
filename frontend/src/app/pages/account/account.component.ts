@@ -17,6 +17,7 @@ import { UserService } from '../../services/user.service';
 import { User } from '../../models/user.model';
 import { DateService } from '../../core/services/date.service';
 import { FormValidationService } from '../../core/services/form-validation.service';
+import { VALIDATION } from '../../core/constants/app.constants';
 
 @Component({
   selector: 'app-account',
@@ -40,8 +41,8 @@ import { FormValidationService } from '../../core/services/form-validation.servi
 })
 export class AccountComponent implements OnInit {
   user: User | null = null;
-  profileForm: FormGroup;
-  passwordForm: FormGroup;
+  profileForm!: FormGroup;
+  passwordForm!: FormGroup;
   loading = false;
   loadingPassword = false;
   
@@ -54,19 +55,16 @@ export class AccountComponent implements OnInit {
   private dateService = inject(DateService);
   private formValidation = inject(FormValidationService);
   
-  constructor() {
+  ngOnInit(): void {
     this.profileForm = this.createProfileForm();
     this.passwordForm = this.createPasswordForm();
-  }
-  
-  ngOnInit(): void {
     this.loadUserData();
   }
   
   private createProfileForm(): FormGroup {
     return this.fb.group({
-      full_name: ['', [Validators.required, Validators.minLength(3)]],
-      email: [{value: '', disabled: true}], // Email is disabled
+      full_name: ['', [Validators.required, Validators.minLength(VALIDATION.MIN_NAME_LENGTH)]],
+      email: [{value: '', disabled: true}],
       phone: [''],
       address: ['']
     });
@@ -75,7 +73,7 @@ export class AccountComponent implements OnInit {
   private createPasswordForm(): FormGroup {
     return this.fb.group({
       current_password: ['', Validators.required],
-      new_password: ['', [Validators.required, Validators.minLength(8)]],
+      new_password: ['', [Validators.required, Validators.minLength(VALIDATION.MIN_PASSWORD_LENGTH)]],
       confirm_password: ['', Validators.required]
     }, { validators: this.passwordMatchValidator });
   }
