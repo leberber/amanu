@@ -40,7 +40,6 @@ interface CategoryWithTranslations extends Category {
     CardModule,
     TranslateModule
   ],
-  providers: [MessageService],
   templateUrl: './admin-add-category.component.html',
   styles: [`
     .field {
@@ -191,7 +190,7 @@ export class AdminAddCategoryComponent implements OnInit {
 
   // UPDATED: Cancel method that works for both modal and page
   onCancel() {
-    if (this.isEditMode() && !this.visible()) {
+    if (!this.visible()) {
       // Page mode - navigate back
       this.goBackToCategoriesList();
     } else {

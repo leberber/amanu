@@ -44,7 +44,6 @@ interface ProductWithTranslations extends Product {
     CardModule,
     TranslateModule
   ],
-  providers: [MessageService],
   templateUrl: './admin-add-product.component.html',
   styles: [`
     .field {
