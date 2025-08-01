@@ -1,250 +1,236 @@
-<!-- header.component.html -->
-<div class="fixed top-0 left-0 w-full  z-5 surface-card header-height">
-  <div class="p-3">
-    <!-- Desktop header -->
-    <div class="hidden lg:flex justify-content-between align-items-center">
-      <div class="flex align-items-center">
-<a routerLink="/">
-  <img src="/logo.png" alt="logo" style="height: 60px; width: auto;">
-</a>
-
-        <p-menubar
-          [model]="items()"
-          [style]="{ border: 'none', background: 'transparent' }"
-        ></p-menubar>
-      </div>
-
-      <div class="flex align-items-center">
-        <!-- Language Selector -->
-        <app-language-selector></app-language-selector>
-        
-        <!-- Cart Icon -->
-        <a
-          routerLink="/cart"
-          class="p-button-text p-button-rounded relative mr-3"
-        >
-          <p-overlayBadge
-            badgeSize="small"
-            severity="danger"
-            [value]="cartCount() ?? '0'"
-          >
-            <i class="pi pi-shopping-cart text-xl"></i>
-          </p-overlayBadge>
-        </a>
-
-        <!-- Theme toggle -->
-        <button
-          pButton
-          [icon]="themeIcon()"
-          (click)="toggleDarkMode()"
-          class="p-button-rounded p-button-text mr-3"
-        ></button>
-
-        <!-- Admin Panel Button (if admin) -->
-        <button
-          *ngIf="isAdmin()"
-          pButton
-          icon="pi pi-cog"
-          [label]="'header.admin' | translate"
-          class="p-button-outlined mr-3"
-          routerLink="/admin"
-        ></button>
-
-        <!-- User Menu (For logged in users) -->
-        <ng-container *ngIf="authService.isLoggedIn; else loginButtons">
-          <p-menu #userMenu [model]="userMenuItems()" [popup]="true"></p-menu>
-
-          <button
-            type="button"
-            class="p-button-text p-button-rounded flex align-items-center"
-            (click)="userMenu.toggle($event)"
-            style="gap: 8px"
-          >
-            <p-avatar
-              icon="pi pi-user"
-              shape="circle"
-              [style]="avatarStyle"
-            ></p-avatar>
-            <span>{{ displayName() }}</span>
-            <i class="pi pi-angle-down"></i>
-          </button>
-        </ng-container>
-
-        <!-- Login/Register buttons -->
-        <ng-template #loginButtons>
-          <div>
-            <p-button
-              [label]="'common.login' | translate"
-              icon="pi pi-sign-in"
-              styleClass="p-button-text mr-2"
-              routerLink="/login"
-            ></p-button>
-            <p-button
-              [label]="'common.register' | translate"
-              icon="pi pi-user-plus"
-              routerLink="/register"
-            ></p-button>
-          </div>
-        </ng-template>
-      </div>
+<!-- Header Container -->
+<div class="fixed top-0 left-0 w-full surface-card z-5 header-height">
+  <div class="h-full px-4">
+    
+    <!-- Desktop Layout -->
+    <div class="hidden lg:flex h-full justify-content-between align-items-center">
+      <ng-container *ngTemplateOutlet="desktopLogo"></ng-container>
+      <ng-container *ngTemplateOutlet="desktopActions"></ng-container>
     </div>
 
-    <!-- Mobile header -->
-    <div class="flex lg:hidden justify-content-between align-items-center">
-     <a routerLink="/">
-  <img src="/logo.png" alt="logo" style="height: 40px; width: auto;">
-</a>
-
-      <div class="flex align-items-center">
-        <!-- Cart Icon - using consistent height and styling -->
-        <a
-          routerLink="/cart"
-          class="flex align-items-center justify-content-center h-2rem w-2rem mr-2"
-        >
-       <p-overlayBadge
-  badgeSize="small"
-  severity="danger"
-  [value]="cartCount() ?? '0'"
-  [style.display]="cartCount() && +cartCount()! > 0 ? 'inline-block' : 'none'"
->
-  <i class="pi pi-shopping-cart text-xl"></i>
-</p-overlayBadge>
-        </a>
-
-        <!-- Mobile menu toggle - matched dimensions and styling -->
-      <button
-        pButton
-        icon="pi pi-bars"
-        class="p-button-text p-button-rounded p-0 h-2rem w-2rem flex align-items-center justify-content-center mobile-menu-btn"
-        (click)="toggleMobileMenu()"
-      ></button>
-
-      </div>
+    <!-- Mobile Layout -->
+    <div class="flex lg:hidden h-full justify-content-between align-items-center">
+      <ng-container *ngTemplateOutlet="mobileLogo"></ng-container>
+      <ng-container *ngTemplateOutlet="mobileActions"></ng-container>
     </div>
+    
   </div>
 </div>
 
-<!-- Mobile menu using PrimeNG Drawer -->
-<p-drawer
-  [visible]="menuVisible()"
+<!-- Mobile Drawer -->
+<p-drawer 
+  [(visible)]="menuVisible"
   position="full"
   [showCloseIcon]="true"
-  [closeOnEscape]="true"
   [modal]="true"
-  [baseZIndex]="1000"
-  styleClass="p-0"
-  (visibleChange)="menuVisible.set($event)"
->
+  styleClass="p-0">
+  
   <ng-template pTemplate="header">
-    <div
-      class="flex align-items-center justify-content-between p-3 border-bottom-1 surface-border"
-    >
-           <a routerLink="/">
-  <img src="/logo.png" alt="logo" style="height: 40px; width: auto;">
-</a>
-    </div>
+    <ng-container *ngTemplateOutlet="drawerHeader"></ng-container>
   </ng-template>
+  
+  <ng-container *ngTemplateOutlet="drawerContent"></ng-container>
+</p-drawer>
 
+<!-- ===================== TEMPLATE DEFINITIONS ===================== -->
+
+<!-- Desktop Logo Template -->
+<ng-template #desktopLogo>
+  <div class="flex align-items-center">
+    <a routerLink="/" class="mr-4">
+      <img src="/logo.png" alt="Elsuq" class="h-3rem">
+    </a>
+    <p-menubar 
+      [model]="items()" 
+      styleClass="border-none bg-transparent">
+    </p-menubar>
+  </div>
+</ng-template>
+
+<!-- Desktop Actions Template -->
+<ng-template #desktopActions>
+  <div class="flex align-items-center gap-2">
+    <a routerLink="/cart" class="flex align-items-center gap-1 text-color">
+      <p-overlayBadge [value]="cartCount()" severity="danger">
+        <i class="pi pi-shopping-cart text-xl"></i>
+      </p-overlayBadge>
+      <span class="ml-1">{{ 'common.cart' | translate }}</span>
+    </a>
+    
+    <ng-container *ngIf="authService.isLoggedIn; else loginButtons">
+      <ng-container *ngTemplateOutlet="userMenu"></ng-container>
+    </ng-container>
+    
+    <ng-template #loginButtons>
+      <p-button 
+        [label]="'common.login' | translate" 
+        icon="pi pi-sign-in"
+        styleClass="p-button-text" 
+        routerLink="/login">
+      </p-button>
+      <p-button 
+        [label]="'common.register' | translate" 
+        icon="pi pi-user-plus"
+        routerLink="/register">
+      </p-button>
+    </ng-template>
+  </div>
+</ng-template>
+
+<!-- Mobile Logo Template -->
+<ng-template #mobileLogo>
+  <a routerLink="/">
+    <img src="/logo.png" alt="Elsuq" class="h-2rem">
+  </a>
+</ng-template>
+
+<!-- Mobile Actions Template -->
+<ng-template #mobileActions>
+  <div class="flex align-items-center gap-2">
+    <a routerLink="/cart">
+      <p-overlayBadge [value]="cartCount()" severity="danger">
+        <i class="pi pi-shopping-cart text-xl"></i>
+      </p-overlayBadge>
+    </a>
+    
+    <button 
+      pButton 
+      icon="pi pi-bars"
+      class="p-button-text p-button-rounded"
+      (click)="toggleMobileMenu()">
+    </button>
+  </div>
+</ng-template>
+
+<!-- User Menu Template -->
+<ng-template #userMenu>
+  <p-menu #menu [model]="userMenuItems()" [popup]="true">
+    <ng-template pTemplate="start">
+      <div class="p-3 border-bottom-1 surface-border">
+        <app-language-selector></app-language-selector>
+      </div>
+    </ng-template>
+  </p-menu>
+  <button 
+    type="button" 
+    class="user-menu-btn flex align-items-center"
+    (click)="menu.toggle($event)">
+    <p-avatar 
+      [label]="userInitials()" 
+      shape="circle" 
+      styleClass="user-avatar">
+    </p-avatar>
+  </button>
+</ng-template>
+
+<!-- Drawer Header Template -->
+<ng-template #drawerHeader>
+  <div class="flex align-items-center justify-content-between p-3">
+    <a routerLink="/" (click)="closeMenu()">
+      <img src="/logo.png" alt="Elsuq" class="h-2rem">
+    </a>
+  </div>
+</ng-template>
+
+<!-- Drawer Content Template -->
+<ng-template #drawerContent>
   <div class="flex flex-column h-full">
-    <!-- Language Selector for Mobile -->
+    <!-- Language Selector -->
     <div class="p-3 border-bottom-1 surface-border">
       <app-language-selector></app-language-selector>
     </div>
     
-    <!-- Navigation items with proper scrolling -->
+    <!-- Navigation Items -->
     <div class="flex-grow-1 overflow-y-auto">
-      <ul class="list-none p-3 m-0 flex flex-column">
-        <!-- Regular menu items -->
-        <li *ngFor="let item of mobileItems()" class="mb-3">
-          <a
-            pRipple
-            [routerLink]="item.routerLink"
-            (click)="closeMenu()"
-             style="text-decoration: none;"
-            class="p-3 flex align-items-center border-round font-medium text-700 hover:surface-100 transition-colors transition-duration-150 w-full"
-          >
-            <i *ngIf="item.icon" [class]="item.icon + ' mr-3'"></i>
-            <span>{{ item.label }}</span>
-          </a>
-        </li>
-      </ul>
+      <nav class="p-3">
+        <a 
+          *ngFor="let item of mobileItems()"
+          [routerLink]="item.routerLink" 
+          (click)="closeMenu()"
+          [class]="getMobileLinkClass()">
+          <i [class]="item.icon + ' mr-3'"></i>
+          <span>{{ item.label }}</span>
+        </a>
+      </nav>
     </div>
 
-    <!-- User section at bottom -->
-    <div class="surface-border border-round-xl shadow-1 p-0 mt-auto">
-      <div
-        *ngIf="authService.isLoggedIn; else mobileLoginButtons"
-        class="grid m-0"
-      >
-        <!-- User info -->
-        <div class="col-6 border-right-1 surface-border p-0">
-          <div
-            class="flex p-3 align-items-center hover:surface-100 cursor-pointer transition-colors transition-duration-150"
-          >
-            <p-avatar
-              icon="pi pi-user"
-              class="mr-2"
-              shape="circle"
-              [style]="avatarStyle"
-            ></p-avatar>
-            <div class="block overflow-hidden">
-              <div
-                class="text-900 font-medium text-overflow-ellipsis white-space-nowrap overflow-hidden"
-              >
-                {{ displayName() }}
-              </div>
-           
-            </div>
-          </div>
-        </div>
-
-        <!-- Logout button -->
-        <div class="col-6 p-0">
-          <a
-            pRipple
-            (click)="logout()"
-            class="w-full h-full inline-flex align-items-center justify-content-center cursor-pointer py-3 px-4 text-700 font-medium hover:surface-100 transition-colors transition-duration-150"
-          >
-               <p-avatar
-              icon="pi pi-sign-out"
-              class="mr-2"
-              shape="circle"
-              [style]="avatarStyle"
-            ></p-avatar>
-            <span>{{ 'common.logout' | translate }}</span>
-          </a>
-        </div>
-      </div>
-
-      <!-- Login/Register buttons for non-logged in users -->
-      <ng-template #mobileLoginButtons>
-        <div class="grid m-0">
-          <div class="col-6 border-right-1 rounded surface-border p-0">
-            <a
-              pRipple
-              routerLink="/login"
-              style="text-decoration: none;"
-              (click)="closeMenu()"
-              class="flex justify-content-center align-items-center w-full h-full py-3 px-4 font-medium cursor-pointer hover:surface-100 transition-colors transition-duration-150"
-            >
-              <i class="pi pi-sign-in mr-2"></i>
-              <span>{{ 'common.login' | translate }}</span>
-            </a>
-          </div>
-          <div class="col-6 p-0">
-            <a
-            style="text-decoration: none;"
-              pRipple
-              routerLink="/register"
-              (click)="closeMenu()"
-              class="flex justify-content-center align-items-center w-full h-full py-3 px-4 font-medium cursor-pointer hover:surface-100 transition-colors transition-duration-150"
-            >
-              <i class="pi pi-user-plus mr-2"></i>
-              <span>{{ 'common.register' | translate }}</span>
-            </a>
-          </div>
-        </div>
+    <!-- User Section -->
+    <div class="mt-auto border-top-1 surface-border">
+      <ng-container *ngIf="authService.isLoggedIn; else mobileLogin">
+        <ng-container *ngTemplateOutlet="mobileUserSection"></ng-container>
+      </ng-container>
+      
+      <ng-template #mobileLogin>
+        <ng-container *ngTemplateOutlet="mobileLoginSection"></ng-container>
       </ng-template>
     </div>
   </div>
-</p-drawer>
+</ng-template>
+
+<!-- Mobile User Section Template -->
+<ng-template #mobileUserSection>
+  <div class="p-3">
+    <div class="flex align-items-center gap-3 mb-3">
+      <p-avatar 
+        [label]="userInitials()" 
+        shape="circle" 
+        size="large"
+        styleClass="user-avatar">
+      </p-avatar>
+      <div class="flex-1">
+        <div class="font-semibold">{{ displayName() }}</div>
+        <div class="text-sm text-500">{{ userEmail() }}</div>
+      </div>
+    </div>
+    
+    <div class="flex flex-column gap-2">
+      <button 
+        *ngFor="let item of getMobileUserActions()"
+        pButton 
+        [label]="item.label || ''"
+        [icon]="item.icon || ''"
+        [class]="'w-full p-button-text justify-content-start ' + (item.styleClass || '')"
+        [routerLink]="item.routerLink"
+        (click)="closeMenu()">
+      </button>
+      <div class="my-2 border-top-1 surface-border"></div>
+      <button 
+        pButton 
+        [label]="'common.logout' | translate"
+        icon="pi pi-sign-out"
+        class="w-full p-button-danger p-button-text justify-content-start"
+        (click)="logout()">
+      </button>
+    </div>
+  </div>
+</ng-template>
+
+<!-- Mobile Login Section Template -->
+<ng-template #mobileLoginSection>
+  <div class="p-3">
+    <div class="text-center mb-3">
+      <i class="pi pi-user-plus text-5xl text-300"></i>
+      <h3 class="mt-3 mb-1">Welcome to Elsuq</h3>
+      <p class="text-500 mb-0">Sign in to access your account</p>
+    </div>
+    
+    <div class="flex flex-column gap-2">
+      <button 
+        pButton 
+        [label]="'common.login' | translate"
+        icon="pi pi-sign-in"
+        class="w-full"
+        routerLink="/login"
+        (click)="closeMenu()">
+      </button>
+      <button 
+        pButton 
+        [label]="'common.register' | translate"
+        icon="pi pi-user-plus"
+        class="w-full p-button-outlined"
+        routerLink="/register"
+        (click)="closeMenu()">
+      </button>
+    </div>
+  </div>
+</ng-template>

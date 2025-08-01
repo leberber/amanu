@@ -74,7 +74,7 @@ position: fixed; top:var(--header-height) ; z-index: 200; left:20%;right:0;
 
 @media (max-width: 968px) {
   :root {
-    --header-height: 8vh !important;
+    --header-height: 6vh !important;
   }
 
   .filtes-fixed{

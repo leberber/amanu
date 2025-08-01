@@ -1,25 +1,58 @@
+:host {
+  display: block;
+  width: 100%;
+  font-family: var(--font-family);
+}
 
-  // For header.component.scss
-.mobile-menu {
-  position: relative;
-  z-index: 1000;
+::ng-deep {
+  // Avatar styling
+  .user-avatar .p-avatar {
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: 600;
+    font-size: 0.875rem;
+  }
   
-  .surface-overlay {
-    animation: slideDown 0.3s ease;
-    max-height: calc(100vh - 70px);
-    overflow-y: auto;
+  // Ensure consistent fonts in menubar
+  .p-menubar {
+    font-family: var(--font-family);
+    
+    .p-menuitem-text {
+      font-family: var(--font-family);
+      font-weight: normal;
+    }
+  }
+  
+  // Menu styling
+  .p-menu {
+    font-family: var(--font-family);
+    
+    .p-menuitem-text {
+      font-family: var(--font-family);
+      font-weight: normal;
+    }
+    
+    .selected-language {
+      background-color: var(--primary-50);
+      
+      .p-menuitem-link {
+        color: var(--primary-color);
+      }
+    }
   }
 }
 
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+// User menu button styling
+.user-menu-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: var(--border-radius);
+  transition: background-color 0.2s;
+  font-family: var(--font-family);
+  
+  &:hover {
+    background-color: var(--surface-hover);
   }
 }
-
-

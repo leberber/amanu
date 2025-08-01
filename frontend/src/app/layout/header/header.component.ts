@@ -1,41 +1,43 @@
-// frontend/src/app/layout/header/header.component.ts
 import { Component, OnInit, OnDestroy, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { Subscription } from 'rxjs';
+
+// PrimeNG imports
 import { ButtonModule } from 'primeng/button';
 import { MenubarModule } from 'primeng/menubar';
 import { MenuItem } from 'primeng/api';
 import { AvatarModule } from 'primeng/avatar';
 import { MenuModule } from 'primeng/menu';
-import { BadgeModule } from 'primeng/badge';
 import { OverlayBadgeModule } from 'primeng/overlaybadge';
-import { RippleModule } from 'primeng/ripple';
 import { DrawerModule } from 'primeng/drawer';
-import { TooltipModule } from 'primeng/tooltip';
+
+// Translation imports
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
+// Service imports
 import { AuthService } from '../../services/auth.service';
 import { CartService } from '../../services/cart.service';
 import { TranslationService } from '../../services/translation.service';
+
+// Component imports
 import { LanguageSelectorComponent } from '../../components/language-selector/language-selector.component';
+
+// Model imports
 import { User } from '../../models/user.model';
-import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-header',
   standalone: true,
   imports: [
-    CommonModule, 
-    RouterLink, 
+    CommonModule,
+    RouterLink,
     OverlayBadgeModule,
-    BadgeModule,
-    ButtonModule, 
-    MenubarModule, 
-    AvatarModule, 
+    ButtonModule,
+    MenubarModule,
+    AvatarModule,
     MenuModule,
-    RippleModule,
     DrawerModule,
-    TooltipModule,
     TranslateModule,
     LanguageSelectorComponent
   ],
@@ -43,109 +45,74 @@ import { Subscription } from 'rxjs';
   styleUrl: './header.component.scss'
 })
 export class HeaderComponent implements OnInit, OnDestroy {
-  // Dependency injection
-  public authService = inject(AuthService);
-  private cartService = inject(CartService);
-  private translationService = inject(TranslationService);
-  private translateService = inject(TranslateService);
+  // Constants
+  private readonly MOBILE_LINK_CLASS = 'flex align-items-center p-3 mb-2 border-round text-700 hover:surface-100 transition-colors transition-duration-150';
   
-  // UI state signals
+  // Services
+  readonly authService = inject(AuthService);
+  private readonly cartService = inject(CartService);
+  private readonly translationService = inject(TranslationService);
+  private readonly translateService = inject(TranslateService);
+  
+  // State signals
   menuVisible = signal(false);
   isDarkMode = signal(false);
-  
-  // Data signals
   currentUser = signal<User | null>(null);
   items = signal<MenuItem[]>([]);
   mobileItems = signal<MenuItem[]>([]);
   userMenuItems = signal<MenuItem[]>([]);
-  private cartItems = signal<any[]>([]);
+  cartItems = signal<any[]>([]);
   
   // Subscriptions
   private subscriptions: Subscription[] = [];
   
-  // Style definitions
-  avatarStyle = { 'background-color': '#ece9fc', color: '#2a1261' }
-  
-  // Computed signals
-  isAdmin = computed(() => {
-    return this.authService.isAdminOrStaff();
-  });
-  
+  // Computed values
+  isAdmin = computed(() => this.authService.isAdminOrStaff());
   displayName = computed(() => this.currentUser()?.full_name || 'User');
   userEmail = computed(() => this.currentUser()?.email || '');
-  
-  cartCount = computed(() => {
-    return this.cartItems().length > 0 
-      ? this.cartItems().length.toString() 
-      : null;
+  userInitials = computed(() => {
+    const name = this.currentUser()?.full_name || 'U';
+    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
   });
-  
+  cartCount = computed(() => {
+    const count = this.cartItems().length;
+    return count > 0 ? count.toString() : null;
+  });
   themeIcon = computed(() => this.isDarkMode() ? 'pi pi-sun' : 'pi pi-moon');
 
-  // RTL support
-  isRTL = computed(() => this.translationService.isRTL());
-
-  ngOnInit() {
+  ngOnInit(): void {
     this.initializeTheme();
-    this.subscribeToUserChanges();
-    this.subscribeToLanguageChanges();
-    this.loadInitialUserData();
-    this.loadCartItems();
+    this.setupSubscriptions();
+    this.loadInitialData();
   }
 
   ngOnDestroy(): void {
     this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 
+  // Initialization methods
   private initializeTheme(): void {
-    this.isDarkMode.set(document.querySelector('html')?.classList.contains('my-app-dark') || false);
+    const isDark = document.querySelector('html')?.classList.contains('my-app-dark');
+    this.isDarkMode.set(isDark || false);
   }
 
-  private subscribeToUserChanges(): void {
+  private setupSubscriptions(): void {
+    // User changes subscription
     this.subscriptions.push(
       this.authService.currentUser$.subscribe(user => {
         this.currentUser.set(user);
-        this.buildMenus(); // Rebuild menus when user changes
-      })
-    );
-  }
-
-  // 🌍 UPDATED: Enhanced language change handling
-  private subscribeToLanguageChanges(): void {
-    this.subscriptions.push(
-      this.translationService.currentLanguage$.subscribe((newLanguage) => {
-        
-        // Rebuild menus with new translations
         this.buildMenus();
-        
-        // 🆕 Notify other components about language change
-        // This triggers a refresh of data in product lists, home page, etc.
-        this.notifyLanguageChange(newLanguage);
       })
     );
-  }
 
-  // 🆕 NEW: Method to notify other parts of app about language changes
-  private notifyLanguageChange(newLanguage: string): void {
-    // Dispatch a custom event that other components can listen to
-    window.dispatchEvent(new CustomEvent('languageChanged', { 
-      detail: { language: newLanguage } 
-    }));
-    
-    // Alternative: Could also use a shared service to broadcast changes
-  }
+    // Language changes subscription
+    this.subscriptions.push(
+      this.translationService.currentLanguage$.subscribe(() => {
+        this.buildMenus();
+      })
+    );
 
-  private loadInitialUserData(): void {
-    if (this.authService.isLoggedIn) {
-      this.authService.loadCurrentUser().subscribe({
-        error: err => console.error('Error loading user in header:', err)
-      });
-    }
-  }
-
-  private loadCartItems(): void {
-    this.cartService.getCartItems().subscribe();
-    
+    // Cart items subscription
     this.subscriptions.push(
       this.cartService.cartItems$.subscribe(items => {
         this.cartItems.set(items || []);
@@ -153,13 +120,17 @@ export class HeaderComponent implements OnInit, OnDestroy {
     );
   }
 
-  // UI Actions
+  private loadInitialData(): void {
+    if (this.authService.isLoggedIn) {
+      this.authService.loadCurrentUser().subscribe();
+    }
+    this.cartService.getCartItems().subscribe();
+  }
+
+  // UI Action methods
   toggleDarkMode(): void {
     this.isDarkMode.update(isDark => !isDark);
-    const element = document.querySelector('html');
-    if (element) {
-      element.classList.toggle('my-app-dark');
-    }
+    document.querySelector('html')?.classList.toggle('my-app-dark');
   }
 
   toggleMobileMenu(): void {
@@ -175,16 +146,27 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.closeMenu();
   }
 
-  // Helper method to execute menu item commands
-  executeCommand(item: MenuItem, event: Event): void {
-    if (item.command) {
-      item.command({ originalEvent: event, item: item });
-    }
+  // Menu building methods
+  buildMenus(): void {
+    const baseItems = this.getBaseMenuItems();
+    const isAdminUser = this.authService.isAdminOrStaff();
+
+    // Desktop menu
+    this.items.set(
+      isAdminUser ? [...baseItems, this.getAdminMenuItem()] : baseItems
+    );
+
+    // Mobile menu
+    this.mobileItems.set(this.getMobileMenuItems(baseItems, isAdminUser));
+
+    // User dropdown menu
+    this.userMenuItems.set(
+      this.authService.isLoggedIn ? this.getUserMenuItems() : []
+    );
   }
 
-  // 🌍 UPDATED: Enhanced menu building with better translation handling
-  private buildMenus(): void {
-    const baseItems: MenuItem[] = [
+  private getBaseMenuItems(): MenuItem[] {
+    return [
       {
         label: this.translateService.instant('common.home'),
         icon: 'pi pi-home',
@@ -196,56 +178,36 @@ export class HeaderComponent implements OnInit, OnDestroy {
         routerLink: '/products'
       }
     ];
+  }
 
-    const isAdminUser = this.authService.isAdminOrStaff();
-
-    // Desktop menu with sub-menus
-    const desktopItems: MenuItem[] = [...baseItems];
-    if (isAdminUser) {
-      desktopItems.push(this.getAdminMenuItem());
-    }
-    this.items.set(desktopItems);
-
-    // Mobile menu - flattened with direct links
-    const mobileItems: MenuItem[] = [...baseItems];
+  private getMobileMenuItems(baseItems: MenuItem[], isAdminUser: boolean): MenuItem[] {
+    const items = [...baseItems];
     
-    // Add Orders for logged-in users
     if (this.authService.isLoggedIn) {
-      mobileItems.push({
+      items.push({
         label: this.translateService.instant('header.orders'),
         icon: 'pi pi-list',
         routerLink: '/orders'
       });
     }
     
-    // Add Admin for admin users
     if (isAdminUser) {
-      mobileItems.push({
+      items.push({
         label: this.translateService.instant('header.admin'),
         icon: 'pi pi-cog',
         routerLink: '/admin'
       });
     }
     
-    this.mobileItems.set(mobileItems);
-
-    // User dropdown menu items
-    this.userMenuItems.set(
-      this.authService.isLoggedIn ? this.getUserMenuItems() : []
-    );
-
+    return items;
   }
 
-  // Add trackBy function for better change detection
-  trackByLabel(index: number, item: MenuItem): string {
-    return item.label || index.toString();
-  }
-  
   private getAdminMenuItem(): MenuItem {
     const items: MenuItem[] = [];
+    const isAdmin = this.authService.isAdmin();
     
-    // Admin-only items (Dashboard and Users)
-    if (this.authService.isAdmin()) {
+    // Admin-only items
+    if (isAdmin) {
       items.push({
         label: this.translateService.instant('admin.navigation.dashboard'),
         icon: 'pi pi-chart-bar',
@@ -253,24 +215,13 @@ export class HeaderComponent implements OnInit, OnDestroy {
       });
     }
     
-    // Items for both admin and staff
-    items.push({
-      label: this.translateService.instant('admin.navigation.orders'),
-      icon: 'pi pi-list',
-      routerLink: '/admin/orders'
-    });
-    
-    // Admin-only item (Users)
-    if (this.authService.isAdmin()) {
-      items.push({
-        label: this.translateService.instant('admin.navigation.users'),
-        icon: 'pi pi-users',
-        routerLink: '/admin/users'
-      });
-    }
-    
-    // Items for both admin and staff
+    // Admin and staff items
     items.push(
+      {
+        label: this.translateService.instant('admin.navigation.orders'),
+        icon: 'pi pi-list',
+        routerLink: '/admin/orders'
+      },
       {
         label: this.translateService.instant('admin.navigation.products'),
         icon: 'pi pi-tag',
@@ -283,14 +234,23 @@ export class HeaderComponent implements OnInit, OnDestroy {
       }
     );
     
+    // Admin-only items
+    if (isAdmin) {
+      items.splice(2, 0, {
+        label: this.translateService.instant('admin.navigation.users'),
+        icon: 'pi pi-users',
+        routerLink: '/admin/users'
+      });
+    }
+    
     return {
       label: this.translateService.instant('header.admin'),
       icon: 'pi pi-cog',
-      items: items
+      items
     };
   }
   
-  private getUserMenuItems(): MenuItem[] {
+  private getCommonUserMenuItems(): MenuItem[] {
     return [
       {
         label: this.translateService.instant('header.profile'),
@@ -301,12 +261,33 @@ export class HeaderComponent implements OnInit, OnDestroy {
         label: this.translateService.instant('header.orders'),
         icon: 'pi pi-list',
         routerLink: '/orders'
+      }
+    ];
+  }
+
+  private getUserMenuItems(): MenuItem[] {
+    return [
+      ...this.getCommonUserMenuItems(),
+      { separator: true },
+      {
+        label: this.isDarkMode() ? 'Light Mode' : 'Dark Mode',
+        icon: this.themeIcon(),
+        command: () => this.toggleDarkMode()
       },
+      { separator: true },
       {
         label: this.translateService.instant('common.logout'),
         icon: 'pi pi-sign-out',
         command: () => this.logout()
       }
     ];
+  }
+
+  getMobileUserActions(): MenuItem[] {
+    return this.getCommonUserMenuItems();
+  }
+
+  getMobileLinkClass(): string {
+    return this.MOBILE_LINK_CLASS;
   }
 }
