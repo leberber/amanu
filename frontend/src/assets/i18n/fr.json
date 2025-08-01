@@ -209,7 +209,9 @@
     "terms_agreement": "En créant un compte, vous acceptez nos",
     "terms_of_service": "Conditions d'Utilisation",
     "privacy_policy": "Politique de Confidentialité",
-    "optional": "Optionnel"
+    "optional": "Optionnel",
+    "welcome": "Bienvenue chez Elsuq",
+    "signInMessage": "Connectez-vous pour accéder à votre compte"
   },
   "checkout": {
     "title": "Commande",

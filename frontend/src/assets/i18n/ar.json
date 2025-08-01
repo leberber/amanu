@@ -211,7 +211,9 @@
     "terms_agreement": "بإنشاء حساب، أنت توافق على",
     "terms_of_service": "شروط الخدمة",
     "privacy_policy": "سياسة الخصوصية",
-     "optional": "اختياري"
+     "optional": "اختياري",
+     "welcome": "مرحباً بك في السوق",
+     "signInMessage": "سجل الدخول للوصول إلى حسابك"
   },
   "checkout": {
     "title": "إتمام الطلب",

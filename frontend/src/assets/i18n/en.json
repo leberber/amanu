@@ -212,8 +212,9 @@
     "terms_agreement": "By creating an account, you agree to our",
     "terms_of_service": "Terms of Service",
     "privacy_policy": "Privacy Policy",
-    "optional": "Optional"
-    
+    "optional": "Optional",
+    "welcome": "Welcome to Elsuq",
+    "signInMessage": "Sign in to access your account"
   },
   "checkout": {
     "title": "Checkout",
