@@ -1,6 +1,6 @@
 <!-- Header Container -->
-<div class="fixed top-0 left-0 w-full surface-card z-5 header-height">
-  <div class="h-full px-4">
+<div class="fixed top-0 left-0 w-full surface-card z-5 header-height pt-2">
+  <div class="h-full px-2">
     
     <!-- Desktop Layout -->
     <div class="hidden lg:flex h-full justify-content-between align-items-center">
@@ -50,7 +50,7 @@
 <!-- Desktop Actions Template -->
 <ng-template #desktopActions>
   <div class="flex align-items-center gap-2">
-    <a routerLink="/cart" class="flex align-items-center gap-1 text-color">
+    <a *ngIf="cartCount()" routerLink="/cart" class="flex align-items-center gap-1 text-color">
       <p-overlayBadge [value]="cartCount()" severity="danger">
         <i class="pi pi-shopping-cart text-xl"></i>
       </p-overlayBadge>
@@ -87,16 +87,16 @@
 <!-- Mobile Actions Template -->
 <ng-template #mobileActions>
   <div class="flex align-items-center gap-2">
-    <a routerLink="/cart">
+    <a *ngIf="cartCount()" routerLink="/cart" class="button-icon-large">
       <p-overlayBadge [value]="cartCount()" severity="danger">
-        <i class="pi pi-shopping-cart text-xl"></i>
+        <i class="pi pi-shopping-cart"></i>
       </p-overlayBadge>
     </a>
     
     <button 
       pButton 
       icon="pi pi-bars"
-      class="p-button-text p-button-rounded"
+      class="p-button-text p-button-rounded button-icon-large"
       (click)="toggleMobileMenu()">
     </button>
   </div>

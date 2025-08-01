@@ -56,3 +56,10 @@
     background-color: var(--surface-hover);
   }
 }
+
+// Make cart badge smaller
+:host ::ng-deep .p-badge {
+  font-size: 0.7rem !important;
+  min-width: 1.1rem !important;
+  height: 1.1rem !important;
+}
