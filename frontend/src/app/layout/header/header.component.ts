@@ -284,7 +284,14 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   getMobileUserActions(): MenuItem[] {
-    return this.getCommonUserMenuItems();
+    // Only return profile for mobile since Orders is already in the navigation menu
+    return [
+      {
+        label: this.translateService.instant('header.profile'),
+        icon: 'pi pi-user',
+        routerLink: '/account'
+      }
+    ];
   }
 
   getMobileLinkClass(): string {
