@@ -73,7 +73,7 @@ import { MobileAdminMenuComponent } from '../mobile-admin-menu/mobile-admin-menu
       background: white;
       border-top: 1px solid #e0e0e0;
       display: flex;
-      padding: 8px 0;
+      padding: 8px 8px 12px 8px;
       z-index: 1000;
       transform: translateY(0);
       transition: transform 0.3s ease, opacity 0.3s ease;
@@ -101,7 +101,8 @@ import { MobileAdminMenuComponent } from '../mobile-admin-menu/mobile-admin-menu
       font-weight: 600;
     }
     
-    .bottom-nav a.active i {
+    .bottom-nav a.active i,
+    .bottom-nav a.active span {
       color: var(--primary-color, #007bff);
     }
     
@@ -116,6 +117,7 @@ import { MobileAdminMenuComponent } from '../mobile-admin-menu/mobile-admin-menu
     
     .bottom-nav span {
       font-size: 12px;
+      white-space: nowrap;
     }
     
     .cart-icon {
