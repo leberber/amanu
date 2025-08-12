@@ -1,46 +1,66 @@
 
+:host {
+  display: block;
+  height: 100%;
+}
 
-  
-/* Add this CSS to your component's stylesheet or global styles */
+// Custom scrollbar styling
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--surface-400) var(--surface-100);
 
-/* Desktop fixed sidebar - only applies on md screens and up */
-@media (min-width: 768px) {
-  .desktop-fixed-sidebar {
-    position: fixed;
-    top: 3.5rem;
-    left: 0;
-    width: 20%; /* Adjust based on your col-3 sizing */
-    height: 100vh;
-    z-index: 100;
-    padding-top: 2rem; /* Match your pt-2 class */
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
-    overflow-y: auto;
+  &::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
   }
-  
-  .products-column-with-fixed-sidebar {
-    margin-left: 25%; /* Same as sidebar width */
-    width: 75%;
+
+  &::-webkit-scrollbar-track {
+    background: var(--surface-100);
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: var(--surface-400);
+    border-radius: 4px;
+    border: 2px solid var(--surface-100);
+    
+    &:hover {
+      background-color: var(--surface-500);
+    }
   }
 }
 
-/* For lg screens and up, adjust the width */
-@media (min-width: 1024px) {
-  .desktop-fixed-sidebar {
-    width: 20%; /* Adjust based on your col-3 sizing for large screens */
-  }
+// List view hover effects
+.list-view-item {
+  border: 1px solid var(--surface-border);
   
-  .products-column-with-fixed-sidebar {
-    margin-left: 20%;
-    width: 80%;
+  &:hover {
+    border-color: var(--primary-color-light);
+    transform: translateY(-1px);
   }
 }
 
-.search-bar-sticky {
-  position: -webkit-sticky !important;
-  position: sticky !important;
-  top: 0 !important;
-  z-index: 9999 !important;
-  background: white !important;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+// Link styles
+.no-underline {
+  text-decoration: none;
+}
+
+.hover\:text-primary:hover {
+  color: var(--primary-color);
+}
+
+// Ensure proper spacing
+.product-grid {
+  margin: -0.5rem;
+  
+  > div {
+    padding: 0.5rem;
+  }
+}
+
+// Mobile specific styles
+@media (max-width: 1023px) {
+  .main-container {
+    height: calc(100vh - 3.5rem); // Adjust for mobile header
+  }
 }

@@ -37,6 +37,13 @@
     "and": "et",
     "unknown": "Inconnu"
   },
+  "Select All": "Tout Sélectionner",
+  "Clear": "Effacer",
+  "Apply Filters": "Appliquer les Filtres",
+  "Reset": "Réinitialiser",
+  "Qty": "Qté",
+  "Add to Cart": "Ajouter au Panier",
+  "Out of Stock": "Rupture de Stock",
   "header": {
     "fresh_produce": "Produits Frais",
     "dark_mode": "Mode sombre",
@@ -90,6 +97,7 @@
       "quick_selection": "Sélection Rapide",
       "all": "Tout",
       "none": "Aucun",
+      "categories": "Catégories",
       "categories_selected": "Catégories Sélectionnées",
       "reset_filters": "Réinitialiser les Filtres",
       "clear_filters": "Effacer les Filtres",
@@ -99,8 +107,10 @@
       "placeholder": "Rechercher des produits...",
       "placeholder_mobile": "Rechercher..."
     },
+    "search_placeholder": "Rechercher des produits...",
     "sort": {
       "title": "Trier Par",
+      "label": "Trier Par",
       "name_asc": "Nom A-Z",
       "name_desc": "Nom Z-A",
       "price_asc": "Prix Croissant",
@@ -131,8 +141,14 @@
     },
     "empty": {
       "title": "Aucun produit trouvé",
-      "subtitle": "Essayez de modifier vos filtres ou critères de recherche."
+      "subtitle": "Essayez de modifier vos filtres ou critères de recherche.",
+      "filter_message": "Aucun produit ne correspond à vos filtres actuels",
+      "clear_filters": "Effacer les Filtres"
     },
+    "active_filters": "Filtres Actifs",
+    "clear_filters": "Effacer les Filtres",
+    "out_of_stock": "Rupture de Stock",
+    "add_to_cart": "Ajouter au Panier",
     "cart": {
       "add_to_cart": "Ajouter au panier",
       "added_to_cart": "Ajouté au Panier",

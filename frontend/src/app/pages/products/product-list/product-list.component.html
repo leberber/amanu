@@ -1,372 +1,197 @@
-<!-- src/app/pages/products/product-list/product-list.component.html -->
-<div class="h-full pt-2  overflow-hidden">
+<!-- Product List with Fixed Sidebar Layout -->
+<div class="flex flex-column border-3" style="height: calc(100vh - 4rem);">
   <p-toast></p-toast>
-
-  <div class="grid h-full overflow-hidden">
-      <!-- Filters Sidebar - Hidden on mobile -->
-      <div class="col-12 md:col-4 lg:col-3 hidden md:block h-full overflow-auto desktop-fixed-sidebar">
-        <ng-container *ngTemplateOutlet="categoryFilterTemplate"></ng-container>
-      </div>
-
-      <!-- Products Column -->
-      <div class="col-12 md:col-8 lg:col-9 h-full flex flex-column products-column-with-fixed-sidebar">
-          <!-- Search & Sort Bar -->
-          <ng-container *ngTemplateOutlet="searchSortBarTemplate"></ng-container>
-
-          <!-- Mobile Filters Panel -->
-          <ng-container *ngTemplateOutlet="mobileFiltersTemplate"></ng-container>
-
-          <!-- Products Content Area -->
-          <div class="flex-grow-1 overflow-auto px-1">
-              @if (loading()) {
-                <app-loading-state></app-loading-state>
-              } @else if (products().length === 0) {
-                <app-empty-state
-                  icon="pi-search"
-                  [title]="'products.empty.title' | translate"
-                  [description]="hasActiveFilters() ? ('products.empty.filter_message' | translate) : ('products.empty.subtitle' | translate)"
-                  [actionLabel]="hasActiveFilters() ? ('products.empty.clear_filters' | translate) : ''"
-                  [action]="clearFilters.bind(this)">
-                </app-empty-state>
-              } @else {
-                @if (layout() === 'grid') {
-                  <ng-container *ngTemplateOutlet="gridViewTemplate"></ng-container>
-                } @else {
-                  <ng-container *ngTemplateOutlet="listViewTemplate"></ng-container>
-                }
-              }
-          </div>
-      </div>
-  </div>
-</div>
-
-<!-- TEMPLATES -->
-
-<!-- Category Filter Template -->
-<ng-template #categoryFilterTemplate>
-  <div class=" shadow-2 border-round">
-    <div class="bg-black-alpha-90 p-3 border-round-top">
-        <h2 class="text-xl font-medium m-0 text-white">{{ 'products.filters.title' | translate }}</h2>
-    </div>
+  
+  <!-- Main Container -->
+  <div class="flex-grow-1 flex overflow-hidden">
+    <!-- Fixed Sidebar Filter (Desktop) -->
+    <aside class="hidden lg:block surface-ground border-right-1 surface-border" style="width: 350px; flex-shrink: 0;">
+      <app-product-filters
+        [categories]="categories()"
+        [selectedCategories]="selectedCategories()"
+        (categoriesChange)="onCategoriesChange($event)"
+        (filtersApplied)="applyFilters()"
+        class="h-full block"
+      ></app-product-filters>
+    </aside>
     
-    <div class="p-3">
-      <p-accordion value="0">
-        <p-accordion-panel value="0">
-            <p-accordion-header>
-                <ng-template #toggleicon let-active="active">
-                    @if (active) {
-                        <i class="pi pi-minus"></i>
-                    } @else {
-                        <i class="pi pi-plus"></i>
-                    }
-                </ng-template>
-                <span class="flex items-center gap-2 w-full">
-                    <i class="pi pi-filter"></i>
-                    <span class="font-bold whitespace-nowrap">{{ 'products.filters.category_filter' | translate }}</span>
-                    <p-badge [value]="selectedCategories().length.toString()" class="ml-auto mr-2" />
-                </span>
-            </p-accordion-header>
-            <p-accordion-content>
-                <div class="p-2">
-                    <!-- Quick selection controls -->
-                    <div class="flex flex-column align-items-center mb-2 border-bottom-1 surface-border pb-2">
-                        <span class="font-medium text-600 mb-2">{{ 'products.filters.quick_selection' | translate }}</span>
-                        <div class="flex">
-                            <button pButton type="button" [label]="'products.filters.all' | translate" icon="pi pi-check" 
-                                    class="p-button-rounded p-button-sm p-button-success mr-2"
-                                    (click)="selectAllCategories()"></button>
-                            <button pButton type="button" [label]="'products.filters.none' | translate" icon="pi pi-times" 
-                                    class="p-button-rounded p-button-sm p-button-danger"
-                                    (click)="deselectAllCategories()"></button>
-                        </div>
-                    </div>
-    
-                    <!-- Category counter -->
-                    <div class="mb-2 text-center p-2 border-round border-1 border-green-500">
-                        <div class="text-xl font-bold text-primary">{{ selectedCategories().length }}/{{ categories().length }}</div>
-                        <div class="text-sm text-700">{{ 'products.filters.categories_selected' | translate }}</div>
-                    </div>
-    
-                    <!-- Categories list -->
-                    <div class="mb-3 overflow-y-auto max-h-screen-70">
-                        @for (category of categories(); track category.id) {
-                            <div class="field-checkbox mb-1 p-2 border-round transition-colors transition-duration-150"
-                                [ngClass]="{'bg-primary-50': categorySelections[category.id]}">
-                                <p-checkbox 
-                                    [name]="'category-' + category.id" 
-                                    [binary]="true"
-                                    [(ngModel)]="categorySelections[category.id]"
-                                    (onChange)="onCategorySelectionChange(category)"
-                                    [inputId]="'category-' + category.id">
-                                </p-checkbox>
-                                <label [for]="'category-' + category.id" class="ml-2 cursor-pointer text-900 dark:text-white">{{category.name}}</label>
-                            </div>
-                        }
-                    </div>
-    
-                    <!-- Reset Filters Button -->
-                    <button pButton [label]="'products.filters.reset_filters' | translate" icon="pi pi-filter-slash" 
-                            class="p-button-outlined w-full p-button-danger"
-                            (click)="clearFilters()"></button>
-                </div>
-            </p-accordion-content>
-        </p-accordion-panel>
-    </p-accordion>
-    </div>
-  </div>
-</ng-template>
-
-<!-- Search & Sort Bar Template -->
-<ng-template #searchSortBarTemplate>
-  <div class="surface-card p-2 border-round mb-2 filtes-fixed">
-      <div class="flex flex-column sm:flex-row justify-content-between align-items-center">
-          <!-- Desktop Search -->
-          <div class="p-inputgroup mb-2 sm:mb-0 sm:w-8 hidden sm:flex">
-            <input type="text" pInputText [ngModel]="searchQuery()" 
-                   (ngModelChange)="searchQuery.set($event); onSearch()"
-                   [placeholder]="'products.search.placeholder' | translate"
-                   class="text-lg"
-                   [style]="{'padding': '0.75rem 1rem', 'height': '3rem', 'width': '500px'}">
-          </div>
-          
-          <!-- Mobile Layout -->
-          <div class="flex justify-content-between align-items-center w-full sm:hidden">
-            <div class="p-inputgroup flex-1 mr-2">
-              <input type="text" pInputText [ngModel]="searchQuery()" 
-                     (ngModelChange)="searchQuery.set($event); onSearch()"
-                     [placeholder]="'products.search.placeholder_mobile' | translate"
-                     class="text-lg p-2">
-            </div>
-              
-              <!-- Mobile View Toggle - Single button that changes based on current view -->
-              <button pButton 
-                      [icon]="layout() === 'grid' ? 'pi pi-list' : 'pi pi-th-large'" 
-                      class=" mr-2"
-                      (click)="toggleLayout()"></button>
-              
-              <button pButton icon="pi pi-sort-alt" 
-                      (click)="sortMenu.toggle($event)"></button>
-              <button pButton icon="pi pi-filter" class="p ml-2"
-                      (click)="toggleMobileFilters()"></button>
-              
-              <p-menu #sortMenu [popup]="true" [model]="sortMenuItems()"></p-menu>
-          </div>
-          
-          <!-- Desktop Controls -->
-          <div class="hidden sm:flex align-items-center">
-            <p-select
-              [options]="sortOptions"
-              [ngModel]="selectedSort()"
-              (ngModelChange)="selectedSort.set($event); onSortChange()"
-              optionLabel="label"
-              optionValue="value"
-              [placeholder]="'products.sort.title' | translate"
-              styleClass="mr-2">
-            </p-select>
-
-              <p-selectButton [options]="viewOptions" [ngModel]="layout()" 
-                             (ngModelChange)="layout.set($event); onLayoutChange()"
-                             optionValue="value">
-                  <ng-template let-option pTemplate="item">
-                      <i [class]="option.icon" class="text-lg"></i>
-                  </ng-template>
-              </p-selectButton>
-          </div>
-      </div>
-  </div>
-</ng-template>
-
-<!-- Mobile Filters Template -->
-<ng-template #mobileFiltersTemplate>
-  <div *ngIf="showMobileFilters()" class="surface-card p-3 shadow-2 border-round mb-2 md:hidden">
-      <div class="flex justify-content-between align-items-center mb-2">
-          <h3 class="text-lg font-medium m-0">{{ 'common.categories' | translate }}</h3>
-          <div class="flex">
-              <button pButton type="button" [label]="'products.filters.all' | translate" icon="pi pi-check" 
-                      class="p-button-text p-button-sm mr-2" (click)="selectAllCategories()"></button>
-              <button pButton type="button" [label]="'products.filters.none' | translate" icon="pi pi-times" 
-                      class="p-button-text p-button-sm mr-2" (click)="deselectAllCategories()"></button>
-              <button pButton icon="pi pi-times" class="p-button-rounded p-button-text"
-                      (click)="toggleMobileFilters()"></button>
-          </div>
-      </div>
+    <!-- Main Content Area -->
+    <main class="flex-grow-1 flex flex-column overflow-hidden surface-ground">
+      <!-- Fixed Top Toolbar -->
+      <app-product-toolbar
+        [(searchQuery)]="searchQuery"
+        [(sortBy)]="selectedSort"
+        [(viewMode)]="layout"
+        [filterCount]="activeFilterCount()"
+        (search)="onSearch()"
+        (mobileFiltersToggle)="toggleMobileFilters()"
+        (filtersCleared)="clearFilters()"
+      ></app-product-toolbar>
       
-      <!-- Mobile Categories -->
-      <div class="mb-3">
-          <div class="grid">
-              @for (category of categories(); track category.id) {
-                  <div class="col-6 mb-1">
-                      <div class="field-checkbox">
-                          <p-checkbox 
-                              [name]="'mobile-category-' + category.id" 
-                              [binary]="true"
-                              [(ngModel)]="categorySelections[category.id]"
-                              (onChange)="onCategorySelectionChange(category)"
-                              [inputId]="'mobile-category-' + category.id">
-                          </p-checkbox>
-                          <label [for]="'mobile-category-' + category.id" class="ml-2 text-900 dark:text-white">{{category.name}}</label>
-                      </div>
-                  </div>
-              }
-          </div>
-      </div>
-      
-      <button pButton [label]="'products.filters.clear_filters' | translate" icon="pi pi-filter-slash" 
-              class="p-button-outlined w-full" (click)="clearFilters()"></button>
-  </div>
-</ng-template>
-
-
-<!-- Grid View Template -->
-<ng-template #gridViewTemplate>
-  <div class="grid">
-    @for (product of products(); track product.id) {
-      <div class="col-12 sm:col-6 lg:col-4 xl:col-3">
-        <div class="surface-card py-3 border-bottom-1 border-100  h-full hover:shadow-1 transition-duration-300">
-            <!-- Product Image with Organic badge -->
-            <div class="relative">
-              <img [src]="product.image_url || 'assets/images/product-placeholder.jpg'"
-                   [alt]="product.name" 
-                   loading="lazy"
-                   class="w-full border-round h-200 obj-cover">
-                
-                @if (product.is_organic) {
-                  <span class="absolute top-0 right-0 bg-green-500 text-white px-2 py-1 text-xs m-1 border-round">
-                    {{ 'products.product.organic' | translate }}
-                  </span>
-                }
-            </div>
-            
-            <div class="p-2">
-                <!-- Product Information -->
-                <div class="flex justify-content-between align-items-center mb-2">
-                  <span class="text-lg font-medium text-primary">{{formatPrice(product.price)}}/{{getUnitDisplay(product.unit)}}</span>
-                  <h3 class="text-md font-semibold m-0 text-right">{{product.name}}</h3>
-                </div>
-                
-                <!-- Product Description -->
-                <p class="mb-2 text-sm text-600 overflow-hidden min-h-20">
-                  {{product.description}}
-                </p>
-                
-                <!-- Product Controls -->
-                <div class="flex gap-1 align-items-center justify-content-between">
-                    <!-- Quantity Selector -->
-                    <p-select
-                        [(ngModel)]="productQuantities[product.id]"
-                        [options]="getQuantityOptions(product.stock_quantity, product.id)"
-                        [placeholder]="'products.product.qty' | translate"
-                        styleClass="w-6"
-                        [virtualScroll]="true"
-                        [virtualScrollItemSize]="38"
-                        filterBy="label"
-                        [disabled]="isOutOfStock(product)">
-                        <ng-template let-value pTemplate="selectedItem">
-                            <div>{{ getSelectedQuantityLabel(product.id) }}</div>
-                        </ng-template>
-                    </p-select>
-                    
-                    <!-- Action Buttons -->
-                    <div class="flex gap-1">
-                        <button pButton icon="pi pi-eye" 
-                              class="p-button-rounded p-button-outlined p-button-sm"
-                              [routerLink]="['/products', product.id]"></button>
-                        
-                        <button pButton icon="pi pi-cart-plus" 
-                              class="p-button-rounded p-button-success p-button-sm"
-                              (click)="addToCart($event, product)"
-                              [disabled]="isOutOfStock(product)"></button>
-                    </div>
-                </div>
-                
-                <!-- Stock Status -->
-                @if (isOutOfStock(product) || isLowStock(product)) {
-                  <div class="mt-1 text-xs flex align-items-center justify-content-center" [ngClass]="getStockColorClass(product)">
-                      <i [class]="getStockIcon(product) + ' mr-1'"></i>
-                      <span>{{getStockMessage(product)}}</span>
-                  </div>
-                }
-            </div>
-        </div>
-      </div>
-    }
-  </div>
-</ng-template>
-
-<!-- List View Template -->
-<ng-template #listViewTemplate>
-  <div class="grid pt-5">
-    @for (product of products(); track product.id) {
-      <div class="col-12 p-1">
-        <div class="surface-card px-0 pt-3 p-2 border-bottom-1 border-100 border-round hover:shadow-1 transition-duration-300">
+      <!-- Scrollable Products Area -->
+      <div class="flex-grow-1 overflow-y-auto p-3 custom-scrollbar">
+        @if (loading()) {
+          <app-loading-state></app-loading-state>
+        } @else if (products().length === 0) {
+          <app-empty-state
+            icon="pi-search"
+            [title]="'products.empty.title' | translate"
+            [description]="hasActiveFilters() ? ('products.empty.filter_message' | translate) : ('products.empty.subtitle' | translate)"
+            [actionLabel]="hasActiveFilters() ? ('products.empty.clear_filters' | translate) : ''"
+            [action]="clearFilters.bind(this)">
+          </app-empty-state>
+        } @else {
+          <!-- Grid View -->
+          @if (layout() === 'grid') {
             <div class="grid">
-                <!-- Product Image -->
-                <div class="col-5 col-sm-4 md:col-3 lg:col-2 relative">
-                    <img [src]="product.image_url || 'assets/images/product-placeholder.jpg'"
-                         loading="lazy"
-                         [alt]="product.name" class="w-full border-round h-100 obj-cover">
-                    
-                    @if (product.is_organic) {
-                      <span class="absolute top-0 right-0 bg-green-500 text-white px-1 py-0 text-xs m-1 border-round">
-                        {{ 'products.product.organic' | translate }}
-                      </span>
-                    }
+              @for (product of products(); track product.id) {
+                <div class="col-12 sm:col-6 md:col-4 lg:col-6 xl:col-4 xxl:col-3">
+                  <app-product-card
+                    [product]="product"
+                    (addToCartEvent)="onAddToCart($event)"
+                    class="block h-full"
+                  ></app-product-card>
                 </div>
-                
-                <!-- Product Details -->
-                <div class="col-7 col-sm-8 md:col-9 lg:col-10 flex flex-column justify-content-between pt-1 pl-2">
-                    <div>
-                      <!-- Price and Name -->
-                      <div class="flex justify-content-between align-items-center mb-1">
-                        <h3 class="text-md font-semibold m-0 text-right">{{product.name}}</h3>
-                        <span class="text-lg font-medium text-primary">{{formatPrice(product.price)}}/{{getUnitDisplay(product.unit)}}</span>
-                      </div>
-                      
-                      <!-- Description -->
-                      <p class="mb-2 text-sm text-600 overflow-hidden">
-                        {{product.description}}
-                      </p>
-                    </div>
-                    
-                    <!-- Actions row -->
-                    <div class="flex align-items-center justify-content-end">
-                        <!-- Stock Status -->
-                        @if (isOutOfStock(product)) {
-                          <div class="text-red-500 text-xs flex align-items-center mr-2">
-                              <i class="pi pi-exclamation-circle mr-1"></i>
-                              <span>{{ 'products.stock.out_of_stock' | translate }}</span>
-                          </div>
-                        } @else {
-                          <!-- Quantity Select -->
-                          <p-select
-                              [(ngModel)]="productQuantities[product.id]"
-                              [options]="getQuantityOptions(product.stock_quantity, product.id)"
-                              [placeholder]="'products.product.qty' | translate"
-                              styleClass="w-6rem mr-2"
-                              [virtualScroll]="true"
-                              [virtualScrollItemSize]="38"
-                              filterBy="label"
-                              [disabled]="isOutOfStock(product)">
-                              <ng-template let-value pTemplate="selectedItem">
-                                  <div>{{ getSelectedQuantityLabel(product.id) }}</div>
-                              </ng-template>
-                          </p-select>
-                        
-                          <!-- Action Buttons -->
-                          <button pButton icon="pi pi-eye" 
-                                class="p-button-rounded p-button-outlined p-button-sm mr-1"
-                                [routerLink]="['/products', product.id]"></button>
-                          
-                          <button pButton icon="pi pi-cart-plus" 
-                                class="p-button-rounded p-button-success p-button-sm"
-                                (click)="addToCart($event, product)"
-                                [disabled]="isOutOfStock(product)"></button>
-                        }
-                    </div>
-                </div>
+              }
             </div>
-        </div>
+          }
+          
+          <!-- List View -->
+          @if (layout() === 'list') {
+            <div class="flex flex-column gap-3">
+              @for (product of products(); track product.id) {
+                <div class="surface-card border-round-lg shadow-1 list-view-item transition-all transition-duration-300 hover:shadow-3">
+                  <div class="grid m-0">
+                    <!-- Image Column -->
+                    <div class="col-12 md:col-3 p-0">
+                      <a [routerLink]="['/products', product.id]" class="block relative overflow-hidden border-round-left-lg" style="height: 100%; min-height: 220px;">
+                        <img 
+                          [src]="product.image_url || 'assets/images/product-placeholder.jpg'"
+                          [alt]="product.name"
+                          class="w-full h-full"
+                          style="object-fit: cover;"
+                        >
+                        @if (product.is_organic) {
+                          <p-tag 
+                            severity="success" 
+                            [value]="'Organic' | translate"
+                            icon="pi pi-leaf"
+                            class="absolute top-1 left-1 shadow-2"
+                          ></p-tag>
+                        }
+                      </a>
+                    </div>
+                    
+                    <!-- Content Column -->
+                    <div class="col-12 md:col-9 p-4">
+                      <div class="flex flex-column h-full">
+                        <!-- Header -->
+                        <div class="flex justify-content-between align-items-start mb-2">
+                          <div>
+                            <h3 class="m-0 mb-1 text-xl font-semibold">
+                              <a [routerLink]="['/products', product.id]" class="text-900 no-underline hover:text-primary transition-colors">
+                                {{ product.name }}
+                              </a>
+                            </h3>
+                            <p class="text-sm text-500 m-0">Fresh Produce</p>
+                          </div>
+                          
+                          <!-- Stock badge -->
+                          <div class="text-right">
+                            @if (isOutOfStock(product)) {
+                              <span class="text-red-500 font-medium text-sm">
+                                <i class="pi pi-times-circle mr-1"></i>Out of Stock
+                              </span>
+                            } @else if (product.stock_quantity < 20) {
+                              <span class="text-orange-500 font-medium text-sm">
+                                <i class="pi pi-exclamation-circle mr-1"></i>{{ product.stock_quantity }} left
+                              </span>
+                            } @else {
+                              <span class="text-green-500 font-medium text-sm">
+                                <i class="pi pi-check-circle mr-1"></i>In Stock
+                              </span>
+                            }
+                          </div>
+                        </div>
+                        
+                        <!-- Description -->
+                        <p class="text-600 mb-3 line-height-3">
+                          {{ product.description || 'Fresh, high-quality produce delivered daily from local farms. Perfect for your healthy lifestyle.' }}
+                        </p>
+                        
+                        <!-- Footer with Price and Actions -->
+                        <div class="mt-auto">
+                          <div class="flex flex-column sm:flex-row gap-3 align-items-center">
+                            <!-- Price -->
+                            <div>
+                              <div class="text-3xl font-bold text-900">
+                                {{ formatPrice(product.price) }}
+                              </div>
+                              <span class="text-sm text-600">per {{ getUnitDisplay(product.unit) }}</span>
+                            </div>
+                            
+                            <!-- Actions -->
+                            <div class="flex gap-2 align-items-center sm:ml-auto">
+                              @if (!isOutOfStock(product)) {
+                                <p-select
+                                  [(ngModel)]="productQuantities[product.id]"
+                                  [options]="getQuantityOptions(product)"
+                                  optionLabel="label"
+                                  optionValue="value"
+                                  [placeholder]="'Qty' | translate"
+                                  styleClass="w-7rem"
+                                ></p-select>
+                                <button
+                                  pButton
+                                  icon="pi pi-cart-plus"
+                                  [label]="'Add to Cart' | translate"
+                                  (click)="quickAddToCart(product)"
+                                  class="font-semibold"
+                                ></button>
+                              } @else {
+                                <button
+                                  pButton
+                                  [label]="'Out of Stock' | translate"
+                                  icon="pi pi-times"
+                                  [disabled]="true"
+                                  class="p-button-secondary"
+                                ></button>
+                              }
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        }
       </div>
-    }
+    </main>
   </div>
-</ng-template>
+  
+  <!-- Mobile Filters Drawer -->
+  <p-drawer 
+    [(visible)]="showMobileFilters"
+    position="left"
+    [style]="{width: '85%', maxWidth: '320px'}"
+    [modal]="true"
+    [dismissible]="true"
+    [showCloseIcon]="true"
+    (visibleChange)="showMobileFilters.set($event)"
+  >
+    <ng-template pTemplate="header">
+      <span class="font-bold text-xl">{{ 'products.filters.title' | translate }}</span>
+    </ng-template>
+    
+    <app-product-filters
+      [categories]="categories()"
+      [selectedCategories]="selectedCategories()"
+      (categoriesChange)="onCategoriesChange($event)"
+      (filtersApplied)="applyMobileFilters()"
+      class="h-full block"
+    ></app-product-filters>
+  </p-drawer>
+</div>

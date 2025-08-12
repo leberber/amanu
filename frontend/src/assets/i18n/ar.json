@@ -37,6 +37,13 @@
     "and": "و",
     "unknown": "غير معروف"
   },
+  "Select All": "تحديد الكل",
+  "Clear": "مسح",
+  "Apply Filters": "تطبيق المرشحات",
+  "Reset": "إعادة تعيين",
+  "Qty": "كمية",
+  "Add to Cart": "إضافة للسلة",
+  "Out of Stock": "غير متوفر",
   "header": {
     "fresh_produce": "المنتجات الطازجة",
     "dark_mode": "الوضع المظلم",
@@ -90,6 +97,7 @@
       "quick_selection": "اختيار سريع",
       "all": "الكل",
       "none": "لا شيء",
+      "categories": "الفئات",
       "categories_selected": "الفئات المحددة",
       "reset_filters": "إعادة تعيين المرشحات",
       "clear_filters": "مسح المرشحات",
@@ -99,8 +107,10 @@
       "placeholder": "البحث عن المنتجات...",
       "placeholder_mobile": "البحث..."
     },
+    "search_placeholder": "البحث عن المنتجات...",
     "sort": {
       "title": "ترتيب حسب",
+      "label": "ترتيب حسب",
       "name_asc": "الاسم أ-ي",
       "name_desc": "الاسم ي-أ",
       "price_asc": "السعر من الأقل للأعلى",
@@ -131,8 +141,14 @@
     },
     "empty": {
       "title": "لم يتم العثور على منتجات",
-      "subtitle": "حاول تغيير المرشحات أو معايير البحث."
+      "subtitle": "حاول تغيير المرشحات أو معايير البحث.",
+      "filter_message": "لا توجد منتجات تطابق المرشحات الحالية",
+      "clear_filters": "مسح المرشحات"
     },
+    "active_filters": "المرشحات النشطة",
+    "clear_filters": "مسح المرشحات",
+    "out_of_stock": "غير متوفر",
+    "add_to_cart": "إضافة للسلة",
     "cart": {
       "add_to_cart": "إضافة للسلة",
       "added_to_cart": "تمت الإضافة للسلة",

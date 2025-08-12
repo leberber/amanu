@@ -37,6 +37,16 @@
     "and": "and",
     "unknown": "Unknown"
   },
+  "Select All": "Select All",
+  "Clear": "Clear",
+  "Apply Filters": "Apply Filters",
+  "Reset": "Reset",
+  "Qty": "Qty",
+  "Add to Cart": "Add to Cart",
+  "Out of Stock": "Out of Stock",
+  "Limited Stock": "Limited Stock",
+  "Organic": "Organic",
+  "In Stock": "In Stock",
   "header": {
     "fresh_produce": "Fresh Produce",
     "dark_mode": "Dark mode",
@@ -90,6 +100,7 @@
       "quick_selection": "Quick Selection",
       "all": "All",
       "none": "None",
+      "categories": "Categories",
       "categories_selected": "Categories Selected",
       "reset_filters": "Reset Filters",
       "clear_filters": "Clear Filters",
@@ -99,8 +110,10 @@
       "placeholder": "Search products...",
       "placeholder_mobile": "Search..."
     },
+    "search_placeholder": "Search products...",
     "sort": {
       "title": "Sort By",
+      "label": "Sort By",
       "name_asc": "Name A-Z",
       "name_desc": "Name Z-A", 
       "price_asc": "Price Low to High",
@@ -131,8 +144,14 @@
     },
     "empty": {
       "title": "No products found",
-      "subtitle": "Try changing your filters or search criteria."
+      "subtitle": "Try changing your filters or search criteria.",
+      "filter_message": "No products match your current filters",
+      "clear_filters": "Clear Filters"
     },
+    "active_filters": "Active Filters",
+    "clear_filters": "Clear Filters",
+    "out_of_stock": "Out of Stock",
+    "add_to_cart": "Add to Cart",
     "cart": {
       "add_to_cart": "Add to cart",
       "added_to_cart": "Added to Cart",
