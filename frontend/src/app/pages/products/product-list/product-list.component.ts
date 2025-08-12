@@ -9,7 +9,6 @@ import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { DrawerModule } from 'primeng/drawer';
 import { TagModule } from 'primeng/tag';
-import { SelectModule } from 'primeng/select';
 import { ButtonModule } from 'primeng/button';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
@@ -24,6 +23,7 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
 import { ProductCardComponent, AddToCartEvent } from '../components/product-card/product-card.component';
 import { ProductFiltersComponent } from '../components/product-filters/product-filters.component';
 import { ProductToolbarComponent, SortOption, ViewMode } from '../components/product-toolbar/product-toolbar.component';
+import { ProductQuantitySelectorComponent } from '../../../shared/components/product-quantity-selector/product-quantity-selector.component';
 
 @Component({
   selector: 'app-product-list',
@@ -35,14 +35,14 @@ import { ProductToolbarComponent, SortOption, ViewMode } from '../components/pro
     ToastModule,
     DrawerModule,
     TagModule,
-    SelectModule,
     ButtonModule,
     TranslateModule,
     LoadingStateComponent,
     EmptyStateComponent,
     ProductCardComponent,
     ProductFiltersComponent,
-    ProductToolbarComponent
+    ProductToolbarComponent,
+    ProductQuantitySelectorComponent
   ],
   providers: [MessageService],
   templateUrl: './product-list.component.html',
@@ -199,21 +199,6 @@ export class ProductListComponent implements OnInit, OnDestroy {
     return product.stock_quantity === 0;
   }
 
-  getQuantityOptions(product: Product): any[] {
-    const max = Math.min(product.stock_quantity, 100);
-    const options = [];
-    const minQty = 5;
-    const increment = 5;
-    
-    for (let i = minQty; i <= max; i += increment) {
-      options.push({
-        label: `${i} ${this.getUnitDisplay(product.unit)}`,
-        value: i
-      });
-    }
-    
-    return options;
-  }
 
   quickAddToCart(product: Product): void {
     const quantity = this.productQuantities[product.id] || 5;
@@ -355,12 +340,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
   private handleAddToCart(product: Product, quantity: number): void {
     this.cartService.addToCart(product, quantity).subscribe({
       next: () => {
-        this.messageService.add({
-          severity: 'success',
-          summary: this.translateService.instant('common.success'),
-          detail: this.translateService.instant('products.cart.added_to_cart'),
-          life: 3000
-        });
+        // Successfully added to cart - no toast notification
       },
       error: (error: any) => {
         console.error('Error adding to cart:', error);

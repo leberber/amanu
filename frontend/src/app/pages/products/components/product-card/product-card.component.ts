@@ -8,13 +8,13 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
-import { SelectModule } from 'primeng/select';
 import { BadgeModule } from 'primeng/badge';
 
 import { Product } from '../../../../models/product.model';
 import { CurrencyService } from '../../../../core/services/currency.service';
 import { UnitsService } from '../../../../core/services/units.service';
 import { CartService } from '../../../../services/cart.service';
+import { ProductQuantitySelectorComponent } from '../../../../shared/components/product-quantity-selector/product-quantity-selector.component';
 
 export interface AddToCartEvent {
   product: Product;
@@ -32,8 +32,8 @@ export interface AddToCartEvent {
     CardModule,
     ButtonModule,
     TagModule,
-    SelectModule,
-    BadgeModule
+    BadgeModule,
+    ProductQuantitySelectorComponent
   ],
   template: `
     <div class="product-card surface-card border-round-lg overflow-hidden h-full flex flex-column hover:shadow-2">
@@ -114,14 +114,14 @@ export interface AddToCartEvent {
         <div class="mt-auto">
           @if (!isOutOfStock) {
             <div class="flex gap-2">
-              <p-select
-                [(ngModel)]="selectedQuantity"
-                [options]="quantityOptions"
-                optionLabel="label"
-                optionValue="value"
-                [placeholder]="'Qty' | translate"
-                styleClass="w-6rem"
-              ></p-select>
+              <app-product-quantity-selector
+                [value]="selectedQuantity"
+                [stockQuantity]="product.stock_quantity"
+                [unit]="product.unit"
+                [compact]="true"
+                customClass="w-6rem"
+                (valueChange)="selectedQuantity = $event"
+              ></app-product-quantity-selector>
               <button
                 pButton
                 icon="pi pi-cart-plus"
@@ -194,22 +194,6 @@ export class ProductCardComponent {
 
   get isLowStock(): boolean {
     return this.product.stock_quantity > 0 && this.product.stock_quantity < 20;
-  }
-
-  get quantityOptions(): any[] {
-    const max = Math.min(this.product.stock_quantity, 100);
-    const options = [];
-    const minQty = 5;
-    const increment = 5;
-    
-    for (let i = minQty; i <= max; i += increment) {
-      options.push({
-        label: `${i} ${this.getUnitDisplay(this.product.unit)}`,
-        value: i
-      });
-    }
-    
-    return options;
   }
 
   formatPrice(price: number): string {

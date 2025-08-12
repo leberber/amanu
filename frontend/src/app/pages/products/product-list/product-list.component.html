@@ -244,14 +244,14 @@
 <ng-template #cartActions let-product="product">
   <div class="flex gap-2 sm:ml-auto">
     <ng-container *ngIf="!isOutOfStock(product); else outOfStockButton">
-      <p-select
-        [(ngModel)]="productQuantities[product.id]"
-        [options]="getQuantityOptions(product)"
-        optionLabel="label"
-        optionValue="value"
-        placeholder="Qty"
-        styleClass="w-6rem">
-      </p-select>
+      <app-product-quantity-selector
+        [value]="productQuantities[product.id] || 5"
+        [stockQuantity]="product.stock_quantity"
+        [unit]="product.unit"
+        [compact]="true"
+        customClass="w-6rem"
+        (valueChange)="productQuantities[product.id] = $event">
+      </app-product-quantity-selector>
       <button
         pButton
         icon="pi pi-cart-plus"
