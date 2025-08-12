@@ -97,7 +97,7 @@ import { Category } from '../../../../models/product.model';
           [label]="getApplyButtonLabel()" 
           icon="pi pi-check" 
           class="w-full"
-          [disabled]="selectedCount === 0"
+          [disabled]="activeFilterCount === 0"
           (click)="applyFilters()">
         </button>
       </div>
@@ -321,6 +321,22 @@ export class ProductFiltersComponent {
     return this.selectedCategories.length;
   }
 
+  get activeFilterCount(): number {
+    // Count active filters - for now just categories, but can be expanded
+    let count = 0;
+    
+    // Categories filter (only count if not all selected)
+    if (this.selectedCategories.length > 0 && this.selectedCategories.length < this.categories.length) {
+      count++;
+    }
+    
+    // Future filters can be added here:
+    // if (this.priceRangeActive) count++;
+    // if (this.organicOnly) count++;
+    
+    return count;
+  }
+
   isSelected(category: Category): boolean {
     return this.selectedCategories.some(c => c.id === category.id);
   }
@@ -349,12 +365,14 @@ export class ProductFiltersComponent {
   }
 
   getApplyButtonLabel(): string {
-    if (this.selectedCount === 0) {
-      return 'Select categories to filter';
-    } else if (this.selectedCount === 1) {
-      return 'Apply Filter (1 category)';
+    const filterCount = this.activeFilterCount;
+    
+    if (filterCount === 0) {
+      return 'Select filters to apply';
+    } else if (filterCount === 1) {
+      return 'Apply 1 Filter';
     } else {
-      return `Apply Filters (${this.selectedCount} categories)`;
+      return `Apply ${filterCount} Filters`;
     }
   }
 

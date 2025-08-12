@@ -34,7 +34,7 @@
 <!-- Desktop Layout Template -->
 <ng-template #desktopLayout>
   <!-- Sidebar Filter -->
-  <aside class="w-22rem border-right-1 surface-border shadow-2" style="background-color: var(--surface-50);">
+  <aside class="w-22rem m-1 shadow-1 border-round px-2"  >
     <ng-container *ngTemplateOutlet="filtersSidebar"></ng-container>
   </aside>
   
@@ -64,7 +64,7 @@
 
 <!-- Toolbar Template -->
 <ng-template #toolbar>
-  <div class="border-top-1 border-bottom-1 surface-border">
+  <div class="m-1 shadow-1 border-round px-2">
     <app-product-toolbar
       [(searchQuery)]="searchQuery"
       [(sortBy)]="selectedSort"
