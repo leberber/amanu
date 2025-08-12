@@ -21,6 +21,7 @@ import { CurrencyService } from '../../core/services/currency.service';
 import { UnitsService } from '../../core/services/units.service';
 import { ProductService } from '../../services/product.service'; // Add this import
 import { TranslationService } from '../../services/translation.service'; // Add this import
+import { ProductQuantitySelectorComponent } from '../../shared/components/product-quantity-selector/product-quantity-selector.component';
 
 @Component({
   selector: 'app-cart-page',
@@ -36,11 +37,90 @@ import { TranslationService } from '../../services/translation.service'; // Add 
     DividerModule,
     TooltipModule,
     SelectModule,
-    TranslateModule
+    TranslateModule,
+    ProductQuantitySelectorComponent
   ],
   providers: [MessageService],
-  templateUrl: './cart.component.html'
+  templateUrl: './cart.component.html',
+  styles: [`
+    .quantity-grid-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+      gap: 0.5rem;
+      padding: 1rem 0;
+      max-height: 200px;
+      overflow-y: auto;
+    }
 
+    .qty-grid-item {
+      background: var(--surface-50);
+      border: 2px solid var(--surface-200);
+      border-radius: 8px;
+      padding: 0.75rem 0.5rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .qty-grid-item:hover {
+      background: var(--surface-100);
+      border-color: var(--primary-200);
+      transform: translateY(-2px);
+    }
+
+    .qty-grid-item.selected {
+      background: var(--primary-100);
+      border-color: var(--primary-500);
+      color: var(--primary-700);
+    }
+
+    .qty-value {
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .qty-unit {
+      opacity: 0.7;
+      font-size: 0.75rem;
+    }
+
+    /* Mobile specific styles */
+    .quantity-grid-container-mobile {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+      gap: 0.25rem;
+      padding: 0.5rem 0;
+      max-height: 150px;
+      overflow-y: auto;
+    }
+
+    .qty-grid-item-mobile {
+      background: var(--surface-50);
+      border: 2px solid var(--surface-200);
+      border-radius: 6px;
+      padding: 0.5rem 0.25rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.125rem;
+    }
+
+    .qty-grid-item-mobile:hover {
+      background: var(--surface-100);
+      border-color: var(--primary-200);
+    }
+
+    .qty-grid-item-mobile.selected {
+      background: var(--primary-100);
+      border-color: var(--primary-500);
+      color: var(--primary-700);
+    }
+  `]
 })
 export class CartComponent implements OnInit, OnDestroy {
   // Dependency injection
@@ -57,6 +137,7 @@ export class CartComponent implements OnInit, OnDestroy {
   // Signals
   cartItems = signal<CartItem[]>([]);
   loading = signal(false);
+  showQuantityGridForItem: string | null = null;
   
   // For quantity selection
   productQuantities: { [key: string]: number } = {};
@@ -310,5 +391,33 @@ export class CartComponent implements OnInit, OnDestroy {
   // Format price using CurrencyService
   formatPrice(price: number): string {
     return this.currencyService.formatCurrency(price);
+  }
+
+  // Grid quantity selector methods
+  handleGridToggle(itemId: string, show: boolean): void {
+    this.showQuantityGridForItem = show ? itemId : null;
+  }
+
+  getQuantityOptionsForItem(item: CartItem): number[] {
+    const options: number[] = [];
+    const max = Math.min(item.stock_quantity || 99, 99);
+    
+    for (let i = 1; i <= max; i++) {
+      options.push(i);
+    }
+    
+    return options;
+  }
+
+  selectQuantityForItem(itemId: string, qty: number): void {
+    this.productQuantities[itemId] = qty;
+  }
+
+  updateQuantityAndCloseGrid(item: CartItem): void {
+    const newQuantity = this.productQuantities[item.id];
+    if (newQuantity !== item.quantity) {
+      this.updateItemQuantity(item, newQuantity);
+    }
+    this.showQuantityGridForItem = null;
   }
 }
