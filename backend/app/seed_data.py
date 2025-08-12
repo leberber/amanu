@@ -77,7 +77,8 @@ PRODUCTS = [
         "stock_quantity": 100,
         "image_url": "https://images.unsplash.com/photo-1570913149827-d2ac84ab3f9a?auto=format&fit=crop&w=1470&q=80",
         "is_organic": False,
-        "category_name": "Fresh Fruits"
+        "category_name": "Fresh Fruits",
+        "quantity_config": {"type": "range", "min": 0.5, "max": 10}
     },
     {
         "name": "Organic Apples",
@@ -97,7 +98,8 @@ PRODUCTS = [
         "stock_quantity": 50,
         "image_url": "https://images.unsplash.com/photo-1570913149827-d2ac84ab3f9a?auto=format&fit=crop&w=1470&q=80",
         "is_organic": True,
-        "category_name": "Organic Produce"
+        "category_name": "Organic Produce",
+        "quantity_config": {"type": "range", "min": 0.5, "max": 10}
     },
     {
         "name": "Bananas",
@@ -117,7 +119,8 @@ PRODUCTS = [
         "stock_quantity": 150,
         "image_url": "https://images.unsplash.com/photo-1587132137056-bfbf0166836e?auto=format&fit=crop&w=1480&q=80",
         "is_organic": False,
-        "category_name": "Fresh Fruits"
+        "category_name": "Fresh Fruits",
+        "quantity_config": {"type": "list", "quantities": [6, 12, 18, 24]}
     },
     {
         "name": "Organic Bananas",
@@ -137,7 +140,8 @@ PRODUCTS = [
         "stock_quantity": 75,
         "image_url": "https://images.unsplash.com/photo-1587132137056-bfbf0166836e?auto=format&fit=crop&w=1480&q=80",
         "is_organic": True,
-        "category_name": "Organic Produce"
+        "category_name": "Organic Produce",
+        "quantity_config": {"type": "list", "quantities": [6, 12, 18, 24]}
     },
     {
         "name": "Oranges",
@@ -157,7 +161,8 @@ PRODUCTS = [
         "stock_quantity": 80,
         "image_url": "https://images.unsplash.com/photo-1582979512210-99b6a53386f9?auto=format&fit=crop&w=1374&q=80",
         "is_organic": False,
-        "category_name": "Fresh Fruits"
+        "category_name": "Fresh Fruits",
+        "quantity_config": {"type": "range", "min": 1, "max": 20}
     },
     {
         "name": "Strawberries",
@@ -177,7 +182,8 @@ PRODUCTS = [
         "stock_quantity": 60,
         "image_url": "https://images.unsplash.com/photo-1587393855524-087f83d95bc9?auto=format&fit=crop&w=1460&q=80",
         "is_organic": False,
-        "category_name": "Fresh Fruits"
+        "category_name": "Fresh Fruits",
+        "quantity_config": {"type": "list", "quantities": [250, 500, 1000]}
     },
     
     # Vegetables
@@ -199,7 +205,8 @@ PRODUCTS = [
         "stock_quantity": 120,
         "image_url": "https://images.unsplash.com/photo-1590868309235-ea34bed7bd7f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80",
         "is_organic": False,
-        "category_name": "Fresh Vegetables"
+        "category_name": "Fresh Vegetables",
+        "quantity_config": {"type": "range", "min": 0.5, "max": 5}
     },
     {
         "name": "Organic Carrots",
@@ -219,7 +226,8 @@ PRODUCTS = [
         "stock_quantity": 60,
         "image_url": "https://images.unsplash.com/photo-1590868309235-ea34bed7bd7f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80",
         "is_organic": True,
-        "category_name": "Organic Produce"
+        "category_name": "Organic Produce",
+        "quantity_config": {"type": "range", "min": 0.5, "max": 5}
     },
     {
         "name": "Tomatoes",
@@ -239,7 +247,8 @@ PRODUCTS = [
         "stock_quantity": 100,
         "image_url": "https://images.unsplash.com/photo-1582284540020-8acbe03f4924?auto=format&fit=crop&w=1470&q=80",
         "is_organic": False,
-        "category_name": "Fresh Vegetables"
+        "category_name": "Fresh Vegetables",
+        "quantity_config": {"type": "range", "min": 0.5, "max": 10}
     },
     {
         "name": "Spinach",
@@ -259,7 +268,8 @@ PRODUCTS = [
         "stock_quantity": 50,
         "image_url": "https://images.unsplash.com/photo-1576045057995-568f588f82fb?auto=format&fit=crop&w=1442&q=80",
         "is_organic": False,
-        "category_name": "Fresh Vegetables"
+        "category_name": "Fresh Vegetables",
+        "quantity_config": {"type": "list", "quantities": [1, 2, 3, 4]}
     },
     {
         "name": "Broccoli",
@@ -279,7 +289,8 @@ PRODUCTS = [
         "stock_quantity": 65,
         "image_url": "https://images.unsplash.com/photo-1584270354949-c26b0d5b4a0c?auto=format&fit=crop&w=1470&q=80",
         "is_organic": False,
-        "category_name": "Fresh Vegetables"
+        "category_name": "Fresh Vegetables",
+        "quantity_config": {"type": "range", "min": 0.5, "max": 3}
     },
     {
         "name": "Organic Kale",
@@ -299,7 +310,8 @@ PRODUCTS = [
         "stock_quantity": 40,
         "image_url": "https://images.unsplash.com/photo-1524179091875-bf99a9a6af57?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80",
         "is_organic": True,
-        "category_name": "Organic Produce"
+        "category_name": "Organic Produce",
+        "quantity_config": {"type": "list", "quantities": [1, 2, 3]}
     }
 ]
 

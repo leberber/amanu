@@ -1,5 +1,5 @@
 from sqlmodel import SQLModel, Field, Relationship, JSON, Column
-from typing import Optional, List, Dict, TYPE_CHECKING
+from typing import Optional, List, Dict, Any, TYPE_CHECKING
 from datetime import datetime, timezone
 from enum import Enum
 
@@ -38,6 +38,13 @@ class ProductBase(SQLModel):
     is_organic: bool = Field(default=False)
     is_active: bool = Field(default=True)
     category_id: int = Field(foreign_key="categories.id")
+    
+    # Quantity configuration - stores how the product can be ordered
+    quantity_config: Optional[Dict[str, Any]] = Field(
+        default=None,
+        sa_column=Column(JSON),
+        description="JSON configuration for quantity options (list or range type)"
+    )
 
 class Product(ProductBase, table=True):
     """Database model for products"""
@@ -79,9 +86,11 @@ class ProductUpdate(SQLModel):
     is_organic: Optional[bool] = Field(default=None)
     is_active: Optional[bool] = Field(default=None)
     category_id: Optional[int] = Field(default=None)
+    quantity_config: Optional[Dict[str, Any]] = Field(default=None)
 
 class ProductRead(ProductBase):
     """Model for reading products"""
     id: int
     created_at: datetime
     updated_at: Optional[datetime] = None
+    quantity_config: Optional[Dict[str, Any]] = None
