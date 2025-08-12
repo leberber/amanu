@@ -1,5 +1,5 @@
 <!-- Product List Container -->
-<div class="fixed top-0 left-0 w-full h-screen pt-header-height">
+<div class="fixed top-0 left-0 w-full h-screen pt-header-height ">
   <p-toast></p-toast>
   
   <div class="h-full flex">
@@ -34,7 +34,7 @@
 <!-- Desktop Layout Template -->
 <ng-template #desktopLayout>
   <!-- Sidebar Filter -->
-  <aside class="w-22rem border-right-1 surface-border">
+  <aside class="w-22rem border-right-1 surface-border shadow-2" style="background-color: var(--surface-50);">
     <ng-container *ngTemplateOutlet="filtersSidebar"></ng-container>
   </aside>
   
@@ -64,7 +64,7 @@
 
 <!-- Toolbar Template -->
 <ng-template #toolbar>
-  <div class="border-bottom-1 surface-border">
+  <div class="border-top-1 border-bottom-1 surface-border">
     <app-product-toolbar
       [(searchQuery)]="searchQuery"
       [(sortBy)]="selectedSort"

@@ -28,7 +28,7 @@ export type SortOption = 'name_asc' | 'name_desc' | 'price_asc' | 'price_desc' |
   ],
   template: `
     <!-- Toolbar Container -->
-    <div class="p-3">
+    <div class="toolbar-container">
       <!-- Desktop Layout -->
       <div class="hidden lg:block">
         <ng-container *ngTemplateOutlet="desktopToolbar"></ng-container>
@@ -38,21 +38,29 @@ export type SortOption = 'name_asc' | 'name_desc' | 'price_asc' | 'price_desc' |
       <div class="block lg:hidden">
         <ng-container *ngTemplateOutlet="mobileToolbar"></ng-container>
       </div>
-      
-      <!-- Active Filters Indicator -->
-      <ng-container *ngIf="filterCount > 0">
-        <ng-container *ngTemplateOutlet="activeFilters"></ng-container>
-      </ng-container>
     </div>
 
     <!-- ===================== TEMPLATE DEFINITIONS ===================== -->
 
     <!-- Desktop Toolbar Template -->
     <ng-template #desktopToolbar>
-      <div class="flex gap-3">
-        <ng-container *ngTemplateOutlet="searchBar; context: { class: 'flex-1' }"></ng-container>
-        <ng-container *ngTemplateOutlet="sortDropdown"></ng-container>
-        <ng-container *ngTemplateOutlet="viewToggle"></ng-container>
+      <div class="flex align-items-center gap-3">
+        <!-- Search Section -->
+        <ng-container *ngTemplateOutlet="searchBar; context: { class: 'flex-1 max-w-30rem' }"></ng-container>
+        
+        <!-- Center Spacer -->
+        <div class="flex-1"></div>
+        
+        <!-- Actions Section -->
+        <div class="flex align-items-center gap-2">
+          <ng-container *ngTemplateOutlet="sortDropdown"></ng-container>
+          <div class="mx-2 h-2rem border-left-1 surface-border"></div>
+          <ng-container *ngTemplateOutlet="viewToggle"></ng-container>
+          <ng-container *ngIf="filterCount > 0">
+            <div class="mx-2 h-2rem border-left-1 surface-border"></div>
+            <ng-container *ngTemplateOutlet="filterIndicator"></ng-container>
+          </ng-container>
+        </div>
       </div>
     </ng-template>
 
@@ -63,7 +71,7 @@ export type SortOption = 'name_asc' | 'name_desc' | 'price_asc' | 'price_desc' |
           <ng-container *ngTemplateOutlet="searchBar; context: { class: 'flex-1' }"></ng-container>
           <ng-container *ngTemplateOutlet="mobileFilterButton"></ng-container>
         </div>
-        <div class="flex gap-2">
+        <div class="flex gap-2 align-items-center">
           <ng-container *ngTemplateOutlet="sortDropdown; context: { class: 'flex-1' }"></ng-container>
           <ng-container *ngTemplateOutlet="viewToggle"></ng-container>
         </div>
@@ -72,15 +80,15 @@ export type SortOption = 'name_asc' | 'name_desc' | 'price_asc' | 'price_desc' |
 
     <!-- Search Bar Template -->
     <ng-template #searchBar let-class="class">
-      <div class="p-input-icon-left" [ngClass]="class">
-        <i class="pi pi-search"></i>
+      <div class="search-container p-input-icon-right" [ngClass]="class">
+        <i class="pi pi-search cursor-pointer" (click)="onSearch()"></i>
         <input 
           pInputText 
           type="text"
           [(ngModel)]="searchQuery"
-          [placeholder]="'products.search_placeholder' | translate"
+          [placeholder]="'Search products...' | translate"
           (keyup.enter)="onSearch()"
-          class="w-full">
+          class="w-full search-input">
       </div>
     </ng-template>
 
@@ -105,12 +113,13 @@ export type SortOption = 'name_asc' | 'name_desc' | 'price_asc' | 'price_desc' |
 
     <!-- View Toggle Template -->
     <ng-template #viewToggle>
-      <div class="p-buttonset">
+      <div class="view-toggle-group">
         <button 
           pButton 
           type="button" 
           [icon]="'pi pi-th-large'"
-          [class.p-button-outlined]="viewMode !== 'grid'"
+          class="p-button-text p-button-sm"
+          [ngClass]="{'view-active': viewMode === 'grid'}"
           (click)="setViewMode('grid')"
           [pTooltip]="'Grid View' | translate"
           tooltipPosition="bottom">
@@ -119,7 +128,8 @@ export type SortOption = 'name_asc' | 'name_desc' | 'price_asc' | 'price_desc' |
           pButton 
           type="button" 
           [icon]="'pi pi-list'"
-          [class.p-button-outlined]="viewMode !== 'list'"
+          class="p-button-text p-button-sm"
+          [ngClass]="{'view-active': viewMode === 'list'}"
           (click)="setViewMode('list')"
           [pTooltip]="'List View' | translate"
           tooltipPosition="bottom">
@@ -148,24 +158,118 @@ export type SortOption = 'name_asc' | 'name_desc' | 'price_asc' | 'price_desc' |
       </div>
     </ng-template>
 
-    <!-- Active Filters Template -->
-    <ng-template #activeFilters>
-      <div class="mt-3 flex align-items-center gap-2">
-        <span class="text-600">{{ 'products.active_filters' | translate }}:</span>
-        <p-badge [value]="filterCount.toString()" severity="info"></p-badge>
-        <button
-          pButton
-          [label]="'products.clear_filters' | translate"
-          icon="pi pi-times"
-          class="p-button-text p-button-sm ml-auto"
-          (click)="clearFilters()">
-        </button>
-      </div>
+    <!-- Filter Indicator Template -->
+    <ng-template #filterIndicator>
+      <button
+        pButton
+        [label]="filterCount + ' ' + ('filters' | translate)"
+        icon="pi pi-filter-fill"
+        class="p-button-rounded p-button-sm p-button-outlined"
+        [pTooltip]="'Clear filters' | translate"
+        tooltipPosition="bottom"
+        (click)="clearFilters()">
+      </button>
     </ng-template>
   `,
   styles: [`
     :host {
       display: block;
+    }
+
+    .toolbar-container {
+      padding: 1rem 1.5rem;
+      background: white;
+      position: relative;
+    }
+
+    .search-container {
+      position: relative;
+    }
+
+    .search-input {
+      padding-right: 3rem;
+      border-radius: 50px;
+      background: var(--surface-50);
+      border: 2px solid transparent;
+      transition: all 0.3s;
+    }
+
+    .search-input:focus {
+      background: white;
+      border-color: var(--primary-200);
+      box-shadow: 0 0 0 4px var(--primary-50);
+    }
+
+    .search-container .pi-search {
+      position: absolute;
+      right: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-color-secondary);
+      transition: color 0.3s;
+    }
+
+    .search-container:hover .pi-search,
+    .search-input:focus ~ .pi-search {
+      color: var(--primary-color);
+    }
+
+    ::ng-deep {
+      .p-select {
+        min-width: 180px;
+      }
+
+      .p-select .p-select-label {
+        font-weight: 500;
+      }
+
+      .p-select:not(.p-disabled):hover {
+        border-color: var(--primary-300);
+      }
+
+      .p-select:not(.p-disabled).p-focus {
+        border-color: var(--primary-500);
+        box-shadow: 0 0 0 4px var(--primary-50);
+      }
+    }
+
+    .view-toggle-group {
+      display: flex;
+      background: var(--surface-100);
+      border-radius: 6px;
+      padding: 2px;
+      gap: 2px;
+    }
+
+    .view-toggle-group button {
+      border-radius: 4px;
+      transition: all 0.2s;
+      color: var(--text-color-secondary);
+    }
+
+    .view-toggle-group button:hover:not(.view-active) {
+      background: var(--surface-200);
+      color: var(--text-color);
+    }
+
+    .view-toggle-group button.view-active {
+      background: white;
+      color: var(--primary-color);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    .view-toggle-group button.view-active:hover {
+      background: white;
+    }
+
+    @media (max-width: 768px) {
+      .toolbar-container {
+        padding: 1rem;
+      }
+
+      .search-input {
+        font-size: 14px;
+      }
     }
   `]
 })

@@ -36,13 +36,13 @@ export interface AddToCartEvent {
     BadgeModule
   ],
   template: `
-    <div class="product-card surface-card border-round-lg overflow-hidden h-full flex flex-column transition-all transition-duration-300 hover:shadow-4">
+    <div class="product-card surface-card border-round-lg overflow-hidden h-full flex flex-column hover:shadow-2">
       <!-- Product Image -->
       <a [routerLink]="['/products', product.id]" class="block relative overflow-hidden product-image-container">
         <img 
           [src]="product.image_url || 'assets/images/product-placeholder.jpg'"
           [alt]="product.name"
-          class="w-full product-image transition-all transition-duration-300"
+          class="w-full product-image"
           style="height: 220px; object-fit: cover;"
         >
         <!-- Overlay badges -->

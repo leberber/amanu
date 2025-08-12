@@ -8,6 +8,8 @@ import { AccordionModule } from 'primeng/accordion';
 import { CheckboxModule } from 'primeng/checkbox';
 import { ButtonModule } from 'primeng/button';
 import { BadgeModule } from 'primeng/badge';
+import { DividerModule } from 'primeng/divider';
+import { TooltipModule } from 'primeng/tooltip';
 
 import { Category } from '../../../../models/product.model';
 
@@ -21,11 +23,13 @@ import { Category } from '../../../../models/product.model';
     AccordionModule,
     CheckboxModule,
     ButtonModule,
-    BadgeModule
+    BadgeModule,
+    DividerModule,
+    TooltipModule
   ],
   template: `
     <!-- Filters Container -->
-    <div class="h-full flex flex-column">
+    <div class="h-full flex flex-column bg-white">
       <ng-container *ngTemplateOutlet="filterHeader"></ng-container>
       <ng-container *ngTemplateOutlet="filterContent"></ng-container>
       <ng-container *ngTemplateOutlet="filterActions"></ng-container>
@@ -35,59 +39,78 @@ import { Category } from '../../../../models/product.model';
 
     <!-- Filter Header Template -->
     <ng-template #filterHeader>
-      <div class="p-3 border-bottom-1 surface-border">
-        <h3 class="m-0 text-xl font-semibold">{{ 'products.filters.title' | translate }}</h3>
+      <div class="px-4 py-3">
+        <div class="flex align-items-center justify-content-between">
+          <h3 class="m-0 text-lg font-semibold text-900">{{ 'products.filters.title' | translate }}</h3>
+          <ng-container *ngIf="selectedCount > 0 && selectedCount < categories.length">
+            <button 
+              pButton 
+              type="button" 
+              icon="pi pi-times" 
+              class="p-button-text p-button-rounded p-button-sm text-500"
+              (click)="clearAll()"
+              pTooltip="Clear all filters"
+              tooltipPosition="left">
+            </button>
+          </ng-container>
+        </div>
       </div>
+      <p-divider class="m-0"></p-divider>
     </ng-template>
 
     <!-- Filter Content Template -->
     <ng-template #filterContent>
       <div class="flex-1 overflow-y-auto">
-        <p-accordion [value]="['categories']" [multiple]="true">
+        <p-accordion [value]="['categories']" [multiple]="true" styleClass="filter-accordion">
+          <!-- Categories Filter Panel -->
           <p-accordion-panel value="categories">
             <p-accordion-header>
-              <ng-container *ngTemplateOutlet="categoryHeader"></ng-container>
+              <ng-container *ngTemplateOutlet="categoriesHeader"></ng-container>
             </p-accordion-header>
             <p-accordion-content>
-              <ng-container *ngTemplateOutlet="categoryQuickActions"></ng-container>
-              <ng-container *ngTemplateOutlet="categoryList"></ng-container>
+              <ng-container *ngTemplateOutlet="categoriesContent"></ng-container>
             </p-accordion-content>
           </p-accordion-panel>
+
+          <!-- Future filter panels can be added here -->
+          <!-- Price Range Panel
+          <p-accordion-panel value="price">
+            <p-accordion-header>Price Range</p-accordion-header>
+            <p-accordion-content>Price slider component</p-accordion-content>
+          </p-accordion-panel> -->
+
+          <!-- Organic Only Panel
+          <p-accordion-panel value="organic">
+            <p-accordion-header>Organic</p-accordion-header>
+            <p-accordion-content>Organic checkbox</p-accordion-content>
+          </p-accordion-panel> -->
         </p-accordion>
       </div>
     </ng-template>
 
     <!-- Filter Actions Template -->
     <ng-template #filterActions>
-      <div class="p-3 border-top-1 surface-border">
+      <p-divider class="m-0"></p-divider>
+      <div class="p-3">
         <button 
           pButton 
-          [label]="'Apply Filters' | translate" 
-          icon="pi pi-filter" 
+          [label]="getApplyButtonLabel()" 
+          icon="pi pi-check" 
           class="w-full"
           [disabled]="selectedCount === 0"
           (click)="applyFilters()">
         </button>
-        <ng-container *ngIf="selectedCount < categories.length && selectedCount > 0">
-          <button 
-            pButton 
-            [label]="'Reset' | translate" 
-            icon="pi pi-refresh" 
-            class="w-full mt-2 p-button-outlined p-button-secondary"
-            (click)="resetFilters()">
-          </button>
-        </ng-container>
       </div>
     </ng-template>
 
-    <!-- Category Header Template -->
-    <ng-template #categoryHeader>
+    <!-- Categories Header Template -->
+    <ng-template #categoriesHeader>
       <div class="flex align-items-center gap-2 w-full">
-        <i class="pi pi-tags text-primary"></i>
-        <span class="font-semibold">{{ 'products.filters.categories' | translate }}</span>
+        <i class="pi pi-tags text-500"></i>
+        <span class="font-medium">{{ 'products.filters.categories' | translate }}</span>
         <ng-container *ngIf="selectedCount > 0 && selectedCount < categories.length">
           <p-badge 
-            [value]="selectedCount.toString()" 
+            [value]="selectedCount + '/' + categories.length" 
             severity="info" 
             class="ml-auto mr-2">
           </p-badge>
@@ -95,53 +118,70 @@ import { Category } from '../../../../models/product.model';
       </div>
     </ng-template>
 
-    <!-- Category Quick Actions Template -->
-    <ng-template #categoryQuickActions>
-      <div class="flex gap-2 mb-3 p-2">
-        <button 
-          pButton 
-          type="button" 
-          [label]="'Select All' | translate" 
-          icon="pi pi-check-square" 
-          class="p-button-sm p-button-text flex-1"
-          (click)="selectAll()">
-        </button>
-        <button 
-          pButton 
-          type="button" 
-          [label]="'Clear' | translate" 
-          icon="pi pi-times" 
-          class="p-button-sm p-button-text p-button-secondary flex-1"
-          (click)="clearAll()">
-        </button>
+    <!-- Categories Content Template -->
+    <ng-template #categoriesContent>
+      <div class="px-3 py-2">
+        <!-- Quick Actions -->
+        <div class="flex gap-2 mb-3">
+          <ng-container *ngIf="selectedCount !== categories.length">
+            <button 
+              pButton 
+              type="button" 
+              [label]="'Select All' | translate" 
+              icon="pi pi-check-square"
+              class="p-button-link p-button-sm text-xs flex-1"
+              (click)="selectAll()">
+            </button>
+          </ng-container>
+          <ng-container *ngIf="selectedCount > 0">
+            <button 
+              pButton 
+              type="button" 
+              [label]="'Clear Selection' | translate" 
+              icon="pi pi-times"
+              class="p-button-link p-button-sm text-xs text-orange-600 flex-1"
+              (click)="clearAll()">
+            </button>
+          </ng-container>
+        </div>
+        
+        <!-- Category List -->
+        <ng-container *ngTemplateOutlet="categoryList"></ng-container>
       </div>
     </ng-template>
 
     <!-- Category List Template -->
     <ng-template #categoryList>
-      <div class="flex flex-column gap-1 p-2">
-        <div *ngFor="let category of categories; trackBy: trackByCategoryId"
-          [ngClass]="getCategoryClass(category)"
-          (click)="toggleCategory(category)">
+      <div class="flex flex-column gap-2">
+        <label *ngFor="let category of categories; trackBy: trackByCategoryId"
+          [for]="'cat-' + category.id"
+          class="category-item">
           <ng-container *ngTemplateOutlet="categoryItem; context: { category: category }"></ng-container>
-        </div>
+        </label>
       </div>
     </ng-template>
 
     <!-- Category Item Template -->
     <ng-template #categoryItem let-category="category">
-      <div class="flex align-items-center">
+      <div class="flex align-items-center gap-3 py-2 px-3 border-round cursor-pointer transition-all transition-duration-150">
         <p-checkbox 
           [binary]="true"
           [ngModel]="isSelected(category)"
           [inputId]="'cat-' + category.id"
           (ngModelChange)="toggleCategory(category)"
-          (click)="$event.stopPropagation()"
-          styleClass="mr-2">
+          styleClass="checkbox-sm">
         </p-checkbox>
-        <label [for]="'cat-' + category.id" class="cursor-pointer flex-1">
-          {{ category.name }}
-        </label>
+        <div class="flex-1 flex align-items-center justify-content-between">
+          <span class="text-sm">{{ category.name }}</span>
+          <!-- Product count badge - shows how many products are in this category -->
+          <p-badge 
+            [value]="category.product_count?.toString() || '0'" 
+            [severity]="isSelected(category) ? 'info' : 'secondary'"
+            styleClass="badge-sm"
+            pTooltip="Products in this category"
+            tooltipPosition="left">
+          </p-badge>
+        </div>
       </div>
     </ng-template>
   `,
@@ -151,20 +191,123 @@ import { Category } from '../../../../models/product.model';
       height: 100%;
     }
 
+    ::ng-deep {
+      .p-divider {
+        margin: 0;
+      }
+
+      .filter-accordion {
+        .p-accordion-panel {
+          box-shadow: none;
+          border: none;
+          border-radius: 0;
+          margin-bottom: 0;
+          background: transparent;
+          overflow: hidden;
+        }
+
+        .p-accordion-panel:last-child {
+          margin-bottom: 0;
+        }
+
+        .p-accordion-header-link {
+          background: transparent;
+          border: none;
+          border-radius: 0;
+          padding: 1rem 1.5rem;
+          transition: all 0.2s;
+          border-bottom: 1px solid var(--surface-200);
+        }
+
+        .p-accordion-header-link:hover {
+          background: var(--surface-50);
+        }
+
+        .p-accordion-header-link.p-accordion-header-active {
+          background: transparent;
+          border-bottom: 1px solid var(--primary-200);
+        }
+
+        .p-accordion-content {
+          padding: 0;
+          border: none;
+          border-radius: 0;
+          background: transparent;
+        }
+      }
+
+      .checkbox-sm .p-checkbox-box {
+        width: 1.25rem;
+        height: 1.25rem;
+      }
+
+      .checkbox-sm .p-checkbox-box .p-checkbox-icon {
+        font-size: 0.75rem;
+      }
+
+      .badge-sm {
+        font-size: 0.625rem;
+        min-width: 1.25rem;
+        height: 1.25rem;
+        line-height: 1.25rem;
+      }
+
+      .p-button-link {
+        padding: 0.25rem 0.5rem;
+        font-weight: 500;
+      }
+
+      .p-button-link:hover {
+        text-decoration: underline;
+      }
+    }
+
     .category-item {
-      padding: 0.5rem;
-      border-radius: 4px;
-      cursor: pointer;
-      transition: all 0.15s;
+      display: block;
+      margin: 0;
     }
 
-    .category-item:hover {
-      background-color: var(--surface-hover);
+    .category-item > div {
+      background-color: transparent;
+      border: none;
+      border-radius: 0;
+      margin-bottom: 0;
+      border-bottom: 1px solid var(--surface-100);
     }
 
-    .category-item.selected {
+    .category-item:last-child > div {
+      border-bottom: none;
+    }
+
+    .category-item:hover > div {
+      background-color: var(--surface-50);
+    }
+
+    .category-item:has(p-checkbox[ng-reflect-model="true"]) > div {
       background-color: var(--primary-50);
-      border: 1px solid var(--primary-color);
+    }
+
+    /* Custom scrollbar for filter content */
+    .overflow-y-auto {
+      scrollbar-width: thin;
+      scrollbar-color: var(--surface-300) transparent;
+    }
+
+    .overflow-y-auto::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .overflow-y-auto::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .overflow-y-auto::-webkit-scrollbar-thumb {
+      background-color: var(--surface-300);
+      border-radius: 4px;
+    }
+
+    .overflow-y-auto::-webkit-scrollbar-thumb:hover {
+      background-color: var(--surface-400);
     }
   `]
 })
@@ -180,13 +323,6 @@ export class ProductFiltersComponent {
 
   isSelected(category: Category): boolean {
     return this.selectedCategories.some(c => c.id === category.id);
-  }
-
-  getCategoryClass(category: Category): string {
-    const baseClass = 'category-item p-2 border-round-sm transition-all transition-duration-150';
-    return this.isSelected(category) 
-      ? `${baseClass} bg-primary-50 border-1 border-primary` 
-      : `${baseClass} hover:surface-hover`;
   }
 
   toggleCategory(category: Category): void {
@@ -212,9 +348,14 @@ export class ProductFiltersComponent {
     this.filtersApplied.emit();
   }
 
-  resetFilters(): void {
-    this.selectAll();
-    this.applyFilters();
+  getApplyButtonLabel(): string {
+    if (this.selectedCount === 0) {
+      return 'Select categories to filter';
+    } else if (this.selectedCount === 1) {
+      return 'Apply Filter (1 category)';
+    } else {
+      return `Apply Filters (${this.selectedCount} categories)`;
+    }
   }
 
   trackByCategoryId(_index: number, category: Category): number {

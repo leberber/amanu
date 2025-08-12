@@ -230,6 +230,9 @@ export class ProductListComponent implements OnInit, OnDestroy {
       next: (categories) => {
         this.categories.set(categories);
         this.selectedCategories.set([...categories]);
+        
+        // Load all products to calculate counts
+        this.updateCategoryCounts();
 
         this.route.queryParams.pipe(
           tap(params => {
@@ -374,5 +377,19 @@ export class ProductListComponent implements OnInit, OnDestroy {
   // Track by function for better performance
   trackByProductId(_index: number, product: Product): number {
     return product.id;
+  }
+
+  // Update category counts based on loaded products
+  private updateCategoryCounts(): void {
+    // Load all products without filters to get total counts
+    this.productService.getProducts({ active_only: true }).subscribe({
+      next: (allProducts) => {
+        const categories = this.categories();
+        categories.forEach(category => {
+          category.product_count = allProducts.filter(p => p.category_id === category.id).length;
+        });
+        this.categories.set([...categories]);
+      }
+    });
   }
 }
