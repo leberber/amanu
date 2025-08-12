@@ -202,7 +202,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
 
 
   quickAddToCart(product: Product): void {
-    const quantity = this.productQuantities[product.id] || 5;
+    const quantity = this.productQuantities[product.id] || 1;
     this.handleAddToCart(product, quantity);
   }
 
@@ -297,7 +297,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
           this.products.set(products);
           products.forEach(p => {
             if (!this.productQuantities[p.id]) {
-              this.productQuantities[p.id] = 5;
+              this.productQuantities[p.id] = 1;
             }
           });
           this.loading.set(false);
@@ -331,7 +331,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
         this.products.set(allProducts);
         allProducts.forEach(p => {
           if (!this.productQuantities[p.id]) {
-            this.productQuantities[p.id] = 5;
+            this.productQuantities[p.id] = 1;
           }
         });
         this.loading.set(false);

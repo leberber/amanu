@@ -254,7 +254,7 @@
     <ng-container *ngIf="!isOutOfStock(product); else outOfStockButton">
       <app-product-quantity-selector
         mode="grid-overlay"
-        [value]="productQuantities[product.id] || 5"
+        [value]="productQuantities[product.id] || 1"
         [stockQuantity]="product.stock_quantity"
         [unit]="product.unit"
         [compact]="true"
@@ -304,7 +304,7 @@
       <button
         *ngFor="let qty of getQuantityOptionsForProduct(product)"
         type="button"
-        [ngClass]="{'selected': qty === (productQuantities[product.id] || 5)}"
+        [ngClass]="{'selected': qty === (productQuantities[product.id] || 1)}"
         class="qty-grid-item"
         (click)="selectQuantityForProduct(product.id, qty)">
         <span class="qty-value">{{ qty }}</span>
@@ -316,7 +316,7 @@
       <button
         pButton
         icon="pi pi-cart-plus"
-        [label]="'Add ' + (productQuantities[product.id] || 5) + ' ' + getUnitDisplay(product.unit) + ' to Cart'"
+        [label]="'Add ' + (productQuantities[product.id] || 1) + ' ' + getUnitDisplay(product.unit) + ' to Cart'"
         class="flex-1"
         (click)="addToCartAndCloseGrid(product)">
       </button>

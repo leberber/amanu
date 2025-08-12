@@ -85,7 +85,7 @@ interface QuantityOption {
           type="button"
           [label]="quantity + ' ' + unitLabel"
           icon="pi pi-chevron-down"
-          class="p-button-outlined w-full"
+          class="p-button-outlined w-full quantity-selector-button"
           [disabled]="disabled"
           (click)="toggleGridOverlay()">
         </button>
@@ -127,11 +127,44 @@ interface QuantityOption {
       min-width: 5rem;
       text-align: center;
     }
+
+    /* Custom button styling for grid-overlay mode */
+    ::ng-deep .quantity-selector-button {
+      border: 2px solid var(--surface-300) !important;
+      border-radius: 8px !important;
+      background: var(--surface-50) !important;
+      color: var(--text-color) !important;
+      font-weight: 500 !important;
+      transition: all 0.2s !important;
+    }
+
+    ::ng-deep .quantity-selector-button:hover:not(:disabled) {
+      border-color: var(--primary-400) !important;
+      background: var(--primary-50) !important;
+      color: var(--primary-700) !important;
+      transform: translateY(-1px) !important;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+    }
+
+    ::ng-deep .quantity-selector-button:focus {
+      box-shadow: 0 0 0 3px var(--primary-100) !important;
+      border-color: var(--primary-500) !important;
+    }
+
+    ::ng-deep .quantity-selector-button:disabled {
+      opacity: 0.6 !important;
+      cursor: not-allowed !important;
+    }
+
+    ::ng-deep .quantity-selector-button .p-button-icon {
+      font-size: 0.75rem !important;
+      margin-left: 0.5rem !important;
+    }
   `]
 })
 export class ProductQuantitySelectorComponent implements OnInit {
   @Input() mode: 'dropdown' | 'input' | 'inline' | 'grid-overlay' = 'dropdown';
-  @Input() value: number = 5;
+  @Input() value: number = 1;
   @Input() min: number = 1;
   @Input() max: number = 100;
   @Input() step: number = 1;
@@ -148,7 +181,7 @@ export class ProductQuantitySelectorComponent implements OnInit {
   @Output() quantityChanged = new EventEmitter<number>();
   @Output() gridToggled = new EventEmitter<boolean>();
 
-  quantity: number = 5;
+  quantity: number = 1;
   quantityOptions: QuantityOption[] = [];
   showGridOverlay: boolean = false;
   gridQuantities: number[] = [];

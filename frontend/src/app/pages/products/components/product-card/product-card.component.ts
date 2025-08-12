@@ -299,7 +299,7 @@ export class ProductCardComponent {
   private cartService = inject(CartService);
   private translateService = inject(TranslateService);
 
-  selectedQuantity = 5; // Default quantity
+  selectedQuantity = 1; // Default quantity
   showQuantityGrid = false;
 
   get isOutOfStock(): boolean {
@@ -323,9 +323,8 @@ export class ProductCardComponent {
   }
 
   getCategoryName(): string {
-    // This would ideally come from a category service or be part of the product model
-    // For now, returning a placeholder
-    return 'Fresh Produce';
+    // TODO: Implement category name lookup
+    return this.translateService.instant('products.category.default');
   }
 
   getQuantityOptions(): number[] {
