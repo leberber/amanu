@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SelectModule } from 'primeng/select';
@@ -77,6 +77,19 @@ interface QuantityOption {
           </button>
         </div>
       </ng-container>
+
+      <!-- Grid overlay mode -->
+      <ng-container *ngIf="mode === 'grid-overlay'">
+        <button
+          pButton
+          type="button"
+          [label]="quantity + ' ' + unitLabel"
+          icon="pi pi-chevron-down"
+          class="p-button-outlined w-full"
+          [disabled]="disabled"
+          (click)="toggleGridOverlay()">
+        </button>
+      </ng-container>
     </div>
   `,
   styles: [`
@@ -117,7 +130,7 @@ interface QuantityOption {
   `]
 })
 export class ProductQuantitySelectorComponent implements OnInit {
-  @Input() mode: 'dropdown' | 'input' | 'inline' = 'dropdown';
+  @Input() mode: 'dropdown' | 'input' | 'inline' | 'grid-overlay' = 'dropdown';
   @Input() value: number = 5;
   @Input() min: number = 1;
   @Input() max: number = 100;
@@ -133,9 +146,12 @@ export class ProductQuantitySelectorComponent implements OnInit {
   
   @Output() valueChange = new EventEmitter<number>();
   @Output() quantityChanged = new EventEmitter<number>();
+  @Output() gridToggled = new EventEmitter<boolean>();
 
   quantity: number = 5;
   quantityOptions: QuantityOption[] = [];
+  showGridOverlay: boolean = false;
+  gridQuantities: number[] = [];
 
   get maxAllowed(): number {
     if (this.stockQuantity !== undefined) {
@@ -147,6 +163,7 @@ export class ProductQuantitySelectorComponent implements OnInit {
   ngOnInit(): void {
     this.quantity = this.value;
     this.generateQuantityOptions();
+    this.generateGridQuantities();
     
     // Update unit label if not provided
     if (!this.unitLabel) {
@@ -229,5 +246,29 @@ export class ProductQuantitySelectorComponent implements OnInit {
       'pound': 'lb'
     };
     return unitMap[unit] || unit;
+  }
+
+  generateGridQuantities(): void {
+    if (this.mode !== 'grid-overlay') return;
+    
+    this.gridQuantities = [];
+    const max = this.maxAllowed;
+    
+    // Generate all quantities from min to max
+    for (let i = this.min; i <= max; i += this.step) {
+      this.gridQuantities.push(i);
+    }
+  }
+
+  toggleGridOverlay(): void {
+    this.showGridOverlay = !this.showGridOverlay;
+    this.gridToggled.emit(this.showGridOverlay);
+  }
+
+  selectGridQuantity(qty: number): void {
+    this.quantity = qty;
+    this.showGridOverlay = false;
+    this.gridToggled.emit(false);
+    this.onQuantityChange();
   }
 }

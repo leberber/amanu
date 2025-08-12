@@ -74,6 +74,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
     sort_order: 'asc'
   });
   productQuantities: { [key: number]: number } = {};
+  showQuantityGridForProduct: number | null = null;
 
   // Subscriptions
   private languageSubscription?: Subscription;
@@ -203,6 +204,30 @@ export class ProductListComponent implements OnInit, OnDestroy {
   quickAddToCart(product: Product): void {
     const quantity = this.productQuantities[product.id] || 5;
     this.handleAddToCart(product, quantity);
+  }
+
+  handleGridToggle(productId: number, show: boolean): void {
+    this.showQuantityGridForProduct = show ? productId : null;
+  }
+
+  getQuantityOptionsForProduct(product: Product): number[] {
+    const options: number[] = [];
+    const max = Math.min(product.stock_quantity, 100);
+    
+    for (let i = 1; i <= max; i++) {
+      options.push(i);
+    }
+    
+    return options;
+  }
+
+  selectQuantityForProduct(productId: number, qty: number): void {
+    this.productQuantities[productId] = qty;
+  }
+
+  addToCartAndCloseGrid(product: Product): void {
+    this.quickAddToCart(product);
+    this.showQuantityGridForProduct = null;
   }
 
   getLowStockMessage(product: Product): string {

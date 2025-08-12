@@ -37,34 +37,36 @@ export interface AddToCartEvent {
   ],
   template: `
     <div class="product-card surface-card border-round-lg overflow-hidden h-full flex flex-column hover:shadow-2">
-      <!-- Product Image -->
-      <a [routerLink]="['/products', product.id]" class="block relative overflow-hidden product-image-container">
-        <img 
-          [src]="product.image_url || 'assets/images/product-placeholder.jpg'"
-          [alt]="product.name"
-          class="w-full product-image"
-          style="height: 220px; object-fit: cover;"
-        >
-        <!-- Overlay badges -->
-        <div class="absolute top-0 left-0 w-full p-2 flex justify-content-between align-items-start">
-          @if (product.is_organic) {
-            <p-tag 
-              severity="success" 
-              [value]="'products.product.organic' | translate" 
-              class="shadow-2"
-              icon="pi pi-leaf"
-            ></p-tag>
-          }
-          @if (isLowStock && !isOutOfStock) {
-            <p-tag 
-              severity="warning" 
-              [value]="'Limited Stock' | translate"
-              class="shadow-2 ml-auto"
-              icon="pi pi-exclamation-triangle"
-            ></p-tag>
-          }
-        </div>
-      </a>
+      <!-- Normal card content -->
+      <ng-container *ngIf="!showQuantityGrid">
+        <!-- Product Image -->
+        <a [routerLink]="['/products', product.id]" class="block relative overflow-hidden product-image-container">
+          <img 
+            [src]="product.image_url || 'assets/images/product-placeholder.jpg'"
+            [alt]="product.name"
+            class="w-full product-image"
+            style="height: 220px; object-fit: cover;"
+          >
+          <!-- Overlay badges -->
+          <div class="absolute top-0 left-0 w-full p-2 flex justify-content-between align-items-start">
+            @if (product.is_organic) {
+              <p-tag 
+                severity="success" 
+                [value]="'products.product.organic' | translate" 
+                class="shadow-2"
+                icon="pi pi-leaf"
+              ></p-tag>
+            }
+            @if (isLowStock && !isOutOfStock) {
+              <p-tag 
+                severity="warning" 
+                [value]="'Limited Stock' | translate"
+                class="shadow-2 ml-auto"
+                icon="pi pi-exclamation-triangle"
+              ></p-tag>
+            }
+          </div>
+        </a>
       
       <!-- Product Info -->
       <div class="flex-grow-1 p-4 flex flex-column">
@@ -115,12 +117,14 @@ export interface AddToCartEvent {
           @if (!isOutOfStock) {
             <div class="flex gap-2">
               <app-product-quantity-selector
+                mode="grid-overlay"
                 [value]="selectedQuantity"
                 [stockQuantity]="product.stock_quantity"
                 [unit]="product.unit"
                 [compact]="true"
                 customClass="w-6rem"
                 (valueChange)="selectedQuantity = $event"
+                (gridToggled)="showQuantityGrid = $event"
               ></app-product-quantity-selector>
               <button
                 pButton
@@ -142,6 +146,45 @@ export interface AddToCartEvent {
           }
         </div>
       </div>
+      </ng-container>
+
+      <!-- Quantity grid view -->
+      <ng-container *ngIf="showQuantityGrid">
+        <div class="quantity-grid-view p-4">
+          <div class="flex align-items-center justify-content-between mb-3">
+            <h4 class="m-0">{{ 'Select Quantity' | translate }}</h4>
+            <button
+              pButton
+              type="button"
+              icon="pi pi-times"
+              class="p-button-rounded p-button-text p-button-sm"
+              (click)="showQuantityGrid = false">
+            </button>
+          </div>
+          
+          <div class="quantity-grid">
+            <button
+              *ngFor="let qty of getQuantityOptions()"
+              type="button"
+              [ngClass]="{'selected': qty === selectedQuantity}"
+              class="qty-grid-button"
+              (click)="selectQuantity(qty)">
+              <span class="qty-value">{{ qty }}</span>
+              <span class="qty-unit text-xs">{{ getUnitDisplay(product.unit) }}</span>
+            </button>
+          </div>
+          
+          <div class="mt-3 pt-3 border-top-1 surface-border">
+            <button
+              pButton
+              icon="pi pi-cart-plus"
+              [label]="'Add ' + selectedQuantity + ' ' + getUnitDisplay(product.unit) + ' to Cart' | translate"
+              class="w-full"
+              (click)="addToCart()">
+            </button>
+          </div>
+        </div>
+      </ng-container>
     </div>
   `,
   styles: [`
@@ -175,6 +218,76 @@ export interface AddToCartEvent {
     p-tag {
       font-size: 0.75rem;
     }
+
+    /* Quantity grid view styles */
+    .quantity-grid-view {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .quantity-grid {
+      flex: 1;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+      gap: 0.5rem;
+      padding: 1rem 0;
+      overflow-y: auto;
+      max-height: 300px;
+    }
+
+    .qty-grid-button {
+      background: var(--surface-50);
+      border: 2px solid var(--surface-200);
+      border-radius: 8px;
+      padding: 0.75rem 0.5rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .qty-grid-button:hover {
+      background: var(--surface-100);
+      border-color: var(--primary-200);
+      transform: translateY(-2px);
+    }
+
+    .qty-grid-button.selected {
+      background: var(--primary-100);
+      border-color: var(--primary-500);
+      color: var(--primary-700);
+    }
+
+    .qty-value {
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .qty-unit {
+      opacity: 0.7;
+    }
+
+    /* Scrollbar styling */
+    .quantity-grid::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .quantity-grid::-webkit-scrollbar-track {
+      background: var(--surface-100);
+      border-radius: 4px;
+    }
+
+    .quantity-grid::-webkit-scrollbar-thumb {
+      background: var(--surface-300);
+      border-radius: 4px;
+    }
+
+    .quantity-grid::-webkit-scrollbar-thumb:hover {
+      background: var(--surface-400);
+    }
   `]
 })
 export class ProductCardComponent {
@@ -187,6 +300,7 @@ export class ProductCardComponent {
   private translateService = inject(TranslateService);
 
   selectedQuantity = 5; // Default quantity
+  showQuantityGrid = false;
 
   get isOutOfStock(): boolean {
     return this.product.stock_quantity === 0;
@@ -214,10 +328,27 @@ export class ProductCardComponent {
     return 'Fresh Produce';
   }
 
+  getQuantityOptions(): number[] {
+    const options: number[] = [];
+    const max = Math.min(this.product.stock_quantity, 100);
+    
+    for (let i = 1; i <= max; i++) {
+      options.push(i);
+    }
+    
+    return options;
+  }
+
+  selectQuantity(qty: number): void {
+    this.selectedQuantity = qty;
+  }
+
   addToCart(): void {
     this.addToCartEvent.emit({
       product: this.product,
       quantity: this.selectedQuantity
     });
+    // Reset the view after adding to cart
+    this.showQuantityGrid = false;
   }
 }
