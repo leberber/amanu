@@ -35,15 +35,50 @@ html, body{
 }
 
 :root {
-  --header-height: 9vh;
+  --header-height: 4rem;
   --filters-header-height: 9vh;
   --p-datatable-header-cell-selected-background: transparent !important;
---p-datatable-header-cell-selected-color: inherit !important;
-  
+  --p-datatable-header-cell-selected-color: inherit !important;
 }
 
 .p-timeline-event-opposite {
   flex: 0 !important;
+}
+
+// Main content area
+.main-content {
+  margin-top: var(--header-height);
+  min-height: calc(100vh - var(--header-height));
+}
+
+// Clean utility classes
+.h-screen {
+  height: 100vh;
+}
+
+.pt-4rem {
+  padding-top: var(--header-height);
+}
+
+.pt-header-height {
+  padding-top: var(--header-height);
+}
+
+.object-cover {
+  object-fit: cover;
+}
+
+// Text and hover utilities
+.text-color {
+  color: var(--text-color);
+}
+
+.hover\:text-primary:hover {
+  color: var(--primary-color);
+}
+
+.hover\:shadow-4:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
 .mobile-menu-btn .pi {

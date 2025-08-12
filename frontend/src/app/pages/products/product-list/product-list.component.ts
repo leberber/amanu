@@ -21,9 +21,9 @@ import { UnitsService } from '../../../core/services/units.service';
 import { Product, Category, ProductFilter } from '../../../models/product.model';
 import { LoadingStateComponent } from '../../../shared/components/loading-state/loading-state.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
-import { ProductCardComponent, AddToCartEvent } from '../../../components/product-card/product-card.component';
-import { ProductFiltersComponent } from '../../../components/product-filters/product-filters.component';
-import { ProductToolbarComponent, SortOption, ViewMode } from '../../../components/product-toolbar/product-toolbar.component';
+import { ProductCardComponent, AddToCartEvent } from '../components/product-card/product-card.component';
+import { ProductFiltersComponent } from '../components/product-filters/product-filters.component';
+import { ProductToolbarComponent, SortOption, ViewMode } from '../components/product-toolbar/product-toolbar.component';
 
 @Component({
   selector: 'app-product-list',
@@ -147,6 +147,14 @@ export class ProductListComponent implements OnInit, OnDestroy {
   applyMobileFilters(): void {
     this.showMobileFilters.set(false);
     this.applyFilters();
+  }
+
+  handleFiltersApplied(): void {
+    if (this.showMobileFilters()) {
+      this.applyMobileFilters();
+    } else {
+      this.applyFilters();
+    }
   }
 
   onSearch(): void {
@@ -361,5 +369,10 @@ export class ProductListComponent implements OnInit, OnDestroy {
         });
       }
     });
+  }
+
+  // Track by function for better performance
+  trackByProductId(_index: number, product: Product): number {
+    return product.id;
   }
 }

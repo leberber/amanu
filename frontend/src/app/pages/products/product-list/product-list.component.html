@@ -1,197 +1,274 @@
-<!-- Product List with Fixed Sidebar Layout -->
-<div class="flex flex-column border-3" style="height: calc(100vh - 4rem);">
+<!-- Product List Container -->
+<div class="fixed top-0 left-0 w-full h-screen pt-header-height">
   <p-toast></p-toast>
   
-  <!-- Main Container -->
-  <div class="flex-grow-1 flex overflow-hidden">
-    <!-- Fixed Sidebar Filter (Desktop) -->
-    <aside class="hidden lg:block surface-ground border-right-1 surface-border" style="width: 350px; flex-shrink: 0;">
-      <app-product-filters
-        [categories]="categories()"
-        [selectedCategories]="selectedCategories()"
-        (categoriesChange)="onCategoriesChange($event)"
-        (filtersApplied)="applyFilters()"
-        class="h-full block"
-      ></app-product-filters>
-    </aside>
-    
-    <!-- Main Content Area -->
-    <main class="flex-grow-1 flex flex-column overflow-hidden surface-ground">
-      <!-- Fixed Top Toolbar -->
-      <app-product-toolbar
-        [(searchQuery)]="searchQuery"
-        [(sortBy)]="selectedSort"
-        [(viewMode)]="layout"
-        [filterCount]="activeFilterCount()"
-        (search)="onSearch()"
-        (mobileFiltersToggle)="toggleMobileFilters()"
-        (filtersCleared)="clearFilters()"
-      ></app-product-toolbar>
-      
-      <!-- Scrollable Products Area -->
-      <div class="flex-grow-1 overflow-y-auto p-3 custom-scrollbar">
-        @if (loading()) {
-          <app-loading-state></app-loading-state>
-        } @else if (products().length === 0) {
-          <app-empty-state
-            icon="pi-search"
-            [title]="'products.empty.title' | translate"
-            [description]="hasActiveFilters() ? ('products.empty.filter_message' | translate) : ('products.empty.subtitle' | translate)"
-            [actionLabel]="hasActiveFilters() ? ('products.empty.clear_filters' | translate) : ''"
-            [action]="clearFilters.bind(this)">
-          </app-empty-state>
-        } @else {
-          <!-- Grid View -->
-          @if (layout() === 'grid') {
-            <div class="grid">
-              @for (product of products(); track product.id) {
-                <div class="col-12 sm:col-6 md:col-4 lg:col-6 xl:col-4 xxl:col-3">
-                  <app-product-card
-                    [product]="product"
-                    (addToCartEvent)="onAddToCart($event)"
-                    class="block h-full"
-                  ></app-product-card>
-                </div>
-              }
-            </div>
-          }
-          
-          <!-- List View -->
-          @if (layout() === 'list') {
-            <div class="flex flex-column gap-3">
-              @for (product of products(); track product.id) {
-                <div class="surface-card border-round-lg shadow-1 list-view-item transition-all transition-duration-300 hover:shadow-3">
-                  <div class="grid m-0">
-                    <!-- Image Column -->
-                    <div class="col-12 md:col-3 p-0">
-                      <a [routerLink]="['/products', product.id]" class="block relative overflow-hidden border-round-left-lg" style="height: 100%; min-height: 220px;">
-                        <img 
-                          [src]="product.image_url || 'assets/images/product-placeholder.jpg'"
-                          [alt]="product.name"
-                          class="w-full h-full"
-                          style="object-fit: cover;"
-                        >
-                        @if (product.is_organic) {
-                          <p-tag 
-                            severity="success" 
-                            [value]="'Organic' | translate"
-                            icon="pi pi-leaf"
-                            class="absolute top-1 left-1 shadow-2"
-                          ></p-tag>
-                        }
-                      </a>
-                    </div>
-                    
-                    <!-- Content Column -->
-                    <div class="col-12 md:col-9 p-4">
-                      <div class="flex flex-column h-full">
-                        <!-- Header -->
-                        <div class="flex justify-content-between align-items-start mb-2">
-                          <div>
-                            <h3 class="m-0 mb-1 text-xl font-semibold">
-                              <a [routerLink]="['/products', product.id]" class="text-900 no-underline hover:text-primary transition-colors">
-                                {{ product.name }}
-                              </a>
-                            </h3>
-                            <p class="text-sm text-500 m-0">Fresh Produce</p>
-                          </div>
-                          
-                          <!-- Stock badge -->
-                          <div class="text-right">
-                            @if (isOutOfStock(product)) {
-                              <span class="text-red-500 font-medium text-sm">
-                                <i class="pi pi-times-circle mr-1"></i>Out of Stock
-                              </span>
-                            } @else if (product.stock_quantity < 20) {
-                              <span class="text-orange-500 font-medium text-sm">
-                                <i class="pi pi-exclamation-circle mr-1"></i>{{ product.stock_quantity }} left
-                              </span>
-                            } @else {
-                              <span class="text-green-500 font-medium text-sm">
-                                <i class="pi pi-check-circle mr-1"></i>In Stock
-                              </span>
-                            }
-                          </div>
-                        </div>
-                        
-                        <!-- Description -->
-                        <p class="text-600 mb-3 line-height-3">
-                          {{ product.description || 'Fresh, high-quality produce delivered daily from local farms. Perfect for your healthy lifestyle.' }}
-                        </p>
-                        
-                        <!-- Footer with Price and Actions -->
-                        <div class="mt-auto">
-                          <div class="flex flex-column sm:flex-row gap-3 align-items-center">
-                            <!-- Price -->
-                            <div>
-                              <div class="text-3xl font-bold text-900">
-                                {{ formatPrice(product.price) }}
-                              </div>
-                              <span class="text-sm text-600">per {{ getUnitDisplay(product.unit) }}</span>
-                            </div>
-                            
-                            <!-- Actions -->
-                            <div class="flex gap-2 align-items-center sm:ml-auto">
-                              @if (!isOutOfStock(product)) {
-                                <p-select
-                                  [(ngModel)]="productQuantities[product.id]"
-                                  [options]="getQuantityOptions(product)"
-                                  optionLabel="label"
-                                  optionValue="value"
-                                  [placeholder]="'Qty' | translate"
-                                  styleClass="w-7rem"
-                                ></p-select>
-                                <button
-                                  pButton
-                                  icon="pi pi-cart-plus"
-                                  [label]="'Add to Cart' | translate"
-                                  (click)="quickAddToCart(product)"
-                                  class="font-semibold"
-                                ></button>
-                              } @else {
-                                <button
-                                  pButton
-                                  [label]="'Out of Stock' | translate"
-                                  icon="pi pi-times"
-                                  [disabled]="true"
-                                  class="p-button-secondary"
-                                ></button>
-                              }
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              }
-            </div>
-          }
-        }
-      </div>
-    </main>
+  <div class="h-full flex">
+    <!-- Desktop Layout -->
+    <div class="hidden lg:flex h-full w-full">
+      <ng-container *ngTemplateOutlet="desktopLayout"></ng-container>
+    </div>
+
+    <!-- Mobile Layout -->
+    <div class="flex lg:hidden h-full w-full flex-column">
+      <ng-container *ngTemplateOutlet="mobileLayout"></ng-container>
+    </div>
   </div>
   
   <!-- Mobile Filters Drawer -->
   <p-drawer 
     [(visible)]="showMobileFilters"
     position="left"
-    [style]="{width: '85%', maxWidth: '320px'}"
+    styleClass="w-20rem p-0"
     [modal]="true"
     [dismissible]="true"
-    [showCloseIcon]="true"
-    (visibleChange)="showMobileFilters.set($event)"
-  >
+    [showCloseIcon]="true">
     <ng-template pTemplate="header">
       <span class="font-bold text-xl">{{ 'products.filters.title' | translate }}</span>
     </ng-template>
-    
-    <app-product-filters
-      [categories]="categories()"
-      [selectedCategories]="selectedCategories()"
-      (categoriesChange)="onCategoriesChange($event)"
-      (filtersApplied)="applyMobileFilters()"
-      class="h-full block"
-    ></app-product-filters>
+    <ng-container *ngTemplateOutlet="filtersSidebar"></ng-container>
   </p-drawer>
 </div>
+
+<!-- ===================== TEMPLATE DEFINITIONS ===================== -->
+
+<!-- Desktop Layout Template -->
+<ng-template #desktopLayout>
+  <!-- Sidebar Filter -->
+  <aside class="w-22rem border-right-1 surface-border">
+    <ng-container *ngTemplateOutlet="filtersSidebar"></ng-container>
+  </aside>
+  
+  <!-- Main Content -->
+  <main class="flex-1 flex flex-column min-w-0">
+    <ng-container *ngTemplateOutlet="toolbar"></ng-container>
+    <ng-container *ngTemplateOutlet="productsArea"></ng-container>
+  </main>
+</ng-template>
+
+<!-- Mobile Layout Template -->
+<ng-template #mobileLayout>
+  <ng-container *ngTemplateOutlet="toolbar"></ng-container>
+  <ng-container *ngTemplateOutlet="productsArea"></ng-container>
+</ng-template>
+
+<!-- Filters Sidebar Template -->
+<ng-template #filtersSidebar>
+  <app-product-filters
+    [categories]="categories()"
+    [selectedCategories]="selectedCategories()"
+    (categoriesChange)="onCategoriesChange($event)"
+    (filtersApplied)="handleFiltersApplied()"
+    class="h-full block">
+  </app-product-filters>
+</ng-template>
+
+<!-- Toolbar Template -->
+<ng-template #toolbar>
+  <div class="border-bottom-1 surface-border">
+    <app-product-toolbar
+      [(searchQuery)]="searchQuery"
+      [(sortBy)]="selectedSort"
+      [(viewMode)]="layout"
+      [filterCount]="activeFilterCount()"
+      (search)="onSearch()"
+      (mobileFiltersToggle)="toggleMobileFilters()"
+      (filtersCleared)="clearFilters()">
+    </app-product-toolbar>
+  </div>
+</ng-template>
+
+<!-- Products Area Template -->
+<ng-template #productsArea>
+  <div class="flex-1 overflow-y-auto p-3">
+    <ng-container *ngIf="loading(); else productsContent">
+      <app-loading-state></app-loading-state>
+    </ng-container>
+    
+    <ng-template #productsContent>
+      <ng-container *ngIf="products().length === 0; else productsList">
+        <ng-container *ngTemplateOutlet="emptyState"></ng-container>
+      </ng-container>
+      
+      <ng-template #productsList>
+        <ng-container *ngIf="layout() === 'grid'; else listView">
+          <ng-container *ngTemplateOutlet="gridView"></ng-container>
+        </ng-container>
+        
+        <ng-template #listView>
+          <ng-container *ngTemplateOutlet="listViewTemplate"></ng-container>
+        </ng-template>
+      </ng-template>
+    </ng-template>
+  </div>
+</ng-template>
+
+<!-- Empty State Template -->
+<ng-template #emptyState>
+  <app-empty-state
+    icon="pi-search"
+    [title]="'products.empty.title' | translate"
+    [description]="hasActiveFilters() ? ('products.empty.filter_message' | translate) : ('products.empty.subtitle' | translate)"
+    [actionLabel]="hasActiveFilters() ? ('products.empty.clear_filters' | translate) : ''"
+    [action]="clearFilters.bind(this)">
+  </app-empty-state>
+</ng-template>
+
+<!-- Grid View Template -->
+<ng-template #gridView>
+  <div class="grid">
+    <div *ngFor="let product of products(); trackBy: trackByProductId" 
+         class="col-12 md:col-6 lg:col-4 xl:col-3">
+      <app-product-card
+        [product]="product"
+        (addToCartEvent)="onAddToCart($event)"
+        class="block h-full">
+      </app-product-card>
+    </div>
+  </div>
+</ng-template>
+
+<!-- List View Template -->
+<ng-template #listViewTemplate>
+  <div class="flex flex-column gap-3">
+    <div *ngFor="let product of products(); trackBy: trackByProductId">
+      <ng-container *ngTemplateOutlet="productListItem; context: { product: product }"></ng-container>
+    </div>
+  </div>
+</ng-template>
+
+<!-- Product List Item Template -->
+<ng-template #productListItem let-product="product">
+  <div class="border-bottom-1 surface-border pb-3">
+    <div class="flex flex-column md:flex-row">
+      <!-- Product Image -->
+      <ng-container *ngTemplateOutlet="productImage; context: { product: product }"></ng-container>
+      
+      <!-- Product Content -->
+      <div class="flex-1 p-4">
+        <div class="flex flex-column h-full gap-3">
+          <!-- Header Section -->
+          <div class="flex justify-content-between align-items-start">
+            <ng-container *ngTemplateOutlet="productHeader; context: { product: product }"></ng-container>
+            <ng-container *ngTemplateOutlet="stockStatus; context: { product: product }"></ng-container>
+          </div>
+          
+          <!-- Description -->
+          <ng-container *ngTemplateOutlet="productDescription; context: { product: product }"></ng-container>
+          
+          <!-- Price and Actions -->
+          <ng-container *ngTemplateOutlet="productFooter; context: { product: product }"></ng-container>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+<!-- Product Image Template -->
+<ng-template #productImage let-product="product">
+  <div class="relative overflow-hidden md:w-15rem h-15rem">
+    <a [routerLink]="['/products', product.id]" class="block h-full">
+      <img 
+        [src]="product.image_url || 'assets/images/product-placeholder.jpg'"
+        [alt]="product.name"
+        class="w-full h-full"
+        [style.object-fit]="'cover'">
+    </a>
+    <ng-container *ngIf="product.is_organic">
+      <p-tag 
+        severity="success" 
+        [value]="'Organic' | translate"
+        icon="pi pi-leaf"
+        class="absolute top-1 left-1 shadow-2">
+      </p-tag>
+    </ng-container>
+  </div>
+</ng-template>
+
+<!-- Product Header Template -->
+<ng-template #productHeader let-product="product">
+  <div>
+    <h3 class="text-xl font-semibold m-0 mb-1">
+      <a [routerLink]="['/products', product.id]" 
+         class="text-color no-underline hover:text-primary transition-colors transition-duration-200">
+        {{ product.name }}
+      </a>
+    </h3>
+    <p class="text-500 text-sm m-0">Fresh Produce</p>
+  </div>
+</ng-template>
+
+<!-- Stock Status Template -->
+<ng-template #stockStatus let-product="product">
+  <ng-container *ngIf="isOutOfStock(product); else inStockCheck">
+    <p-tag severity="danger" [value]="'Out of Stock'" icon="pi pi-times"></p-tag>
+  </ng-container>
+  
+  <ng-template #inStockCheck>
+    <ng-container *ngIf="product.stock_quantity < 20; else fullStock">
+      <p-tag severity="warning" [value]="product.stock_quantity + ' left'" icon="pi pi-exclamation-triangle"></p-tag>
+    </ng-container>
+    
+    <ng-template #fullStock>
+      <p-tag severity="success" [value]="'In Stock'" icon="pi pi-check"></p-tag>
+    </ng-template>
+  </ng-template>
+</ng-template>
+
+<!-- Product Description Template -->
+<ng-template #productDescription let-product="product">
+  <p class="text-600 line-height-3 m-0 flex-1">
+    {{ product.description || 'Fresh, high-quality produce delivered daily from local farms.' }}
+  </p>
+</ng-template>
+
+<!-- Product Footer Template -->
+<ng-template #productFooter let-product="product">
+  <div class="flex flex-column sm:flex-row align-items-center gap-3">
+    <!-- Price Display -->
+    <ng-container *ngTemplateOutlet="priceDisplay; context: { product: product }"></ng-container>
+    
+    <!-- Cart Actions -->
+    <ng-container *ngTemplateOutlet="cartActions; context: { product: product }"></ng-container>
+  </div>
+</ng-template>
+
+<!-- Price Display Template -->
+<ng-template #priceDisplay let-product="product">
+  <div class="flex flex-column">
+    <span class="text-xl font-bold text-primary">{{ formatPrice(product.price) }}</span>
+    <span class="text-xs text-500">per {{ getUnitDisplay(product.unit) }}</span>
+  </div>
+</ng-template>
+
+<!-- Cart Actions Template -->
+<ng-template #cartActions let-product="product">
+  <div class="flex gap-2 sm:ml-auto">
+    <ng-container *ngIf="!isOutOfStock(product); else outOfStockButton">
+      <p-select
+        [(ngModel)]="productQuantities[product.id]"
+        [options]="getQuantityOptions(product)"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Qty"
+        styleClass="w-6rem">
+      </p-select>
+      <button
+        pButton
+        icon="pi pi-cart-plus"
+        [label]="'Add to Cart' | translate"
+        (click)="quickAddToCart(product)"
+        class="font-semibold">
+      </button>
+    </ng-container>
+    
+    <ng-template #outOfStockButton>
+      <button
+        pButton
+        [label]="'Out of Stock' | translate"
+        icon="pi pi-times"
+        [disabled]="true"
+        class="p-button-secondary">
+      </button>
+    </ng-template>
+  </div>
+</ng-template>

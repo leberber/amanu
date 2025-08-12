@@ -11,10 +11,10 @@ import { TagModule } from 'primeng/tag';
 import { SelectModule } from 'primeng/select';
 import { BadgeModule } from 'primeng/badge';
 
-import { Product } from '../../models/product.model';
-import { CurrencyService } from '../../core/services/currency.service';
-import { UnitsService } from '../../core/services/units.service';
-import { CartService } from '../../services/cart.service';
+import { Product } from '../../../../models/product.model';
+import { CurrencyService } from '../../../../core/services/currency.service';
+import { UnitsService } from '../../../../core/services/units.service';
+import { CartService } from '../../../../services/cart.service';
 
 export interface AddToCartEvent {
   product: Product;
@@ -86,10 +86,10 @@ export interface AddToCartEvent {
         <!-- Price and Stock -->
         <div class="flex align-items-center justify-content-between mb-3">
           <div>
-            <div class="text-2xl font-bold text-900">
+            <div class="text-xl font-bold text-900">
               {{ formatPrice(product.price) }}
             </div>
-            <span class="text-sm text-600">per {{ getUnitDisplay(product.unit) }}</span>
+            <span class="text-xs text-600">per {{ getUnitDisplay(product.unit) }}</span>
           </div>
           
           <!-- Stock indicator -->

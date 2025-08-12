@@ -1,66 +1,10 @@
-
+// Keep minimal component-specific styles
 :host {
   display: block;
   height: 100%;
 }
 
-// Custom scrollbar styling
-.custom-scrollbar {
-  scrollbar-width: thin;
-  scrollbar-color: var(--surface-400) var(--surface-100);
-
-  &::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: var(--surface-100);
-    border-radius: 4px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background-color: var(--surface-400);
-    border-radius: 4px;
-    border: 2px solid var(--surface-100);
-    
-    &:hover {
-      background-color: var(--surface-500);
-    }
-  }
-}
-
-// List view hover effects
-.list-view-item {
-  border: 1px solid var(--surface-border);
-  
-  &:hover {
-    border-color: var(--primary-color-light);
-    transform: translateY(-1px);
-  }
-}
-
-// Link styles
+// Clean link styles
 .no-underline {
   text-decoration: none;
-}
-
-.hover\:text-primary:hover {
-  color: var(--primary-color);
-}
-
-// Ensure proper spacing
-.product-grid {
-  margin: -0.5rem;
-  
-  > div {
-    padding: 0.5rem;
-  }
-}
-
-// Mobile specific styles
-@media (max-width: 1023px) {
-  .main-container {
-    height: calc(100vh - 3.5rem); // Adjust for mobile header
-  }
 }
