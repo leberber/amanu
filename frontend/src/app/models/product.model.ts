@@ -23,6 +23,8 @@ export interface Product {
     quantities?: number[];  // For 'list' type
     min?: number;          // For 'range' type
     max?: number;          // For 'range' type
+    step?: number;         // For 'range' type - increment value
+    pills?: number[];      // Custom quick select values for any type
   }
   
   export interface Category {

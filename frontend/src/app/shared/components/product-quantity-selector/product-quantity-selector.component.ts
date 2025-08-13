@@ -27,17 +27,38 @@ interface QuantityOption {
     <div class="quantity-selector-container">
       <!-- Dropdown only mode (for cart) -->
       <div *ngIf="dropdownOnly" class="dropdown-only">
-        <p-select
-          [(ngModel)]="quantity"
-          [options]="getDropdownOptions()"
-          optionLabel="label"
-          optionValue="value"
-          [disabled]="disabled"
-          [filter]="false"
-          [showClear]="false"
-          (onChange)="onQuantityChange()"
-          styleClass="w-full">
-        </p-select>
+        <div class="cart-quantity-selector">
+          <button
+            pButton
+            type="button"
+            icon="pi pi-minus"
+            class="p-button-sm p-button-text p-button-rounded"
+            [disabled]="!canDecrease || disabled"
+            (click)="decreaseQuantity()">
+          </button>
+          
+          <p-select
+            [(ngModel)]="quantity"
+            [options]="getDropdownOptions()"
+            optionLabel="label"
+            optionValue="value"
+            [disabled]="disabled"
+            [filter]="false"
+            [showClear]="false"
+            (onChange)="onQuantityChange()"
+            appendTo="body"
+            styleClass="compact-dropdown">
+          </p-select>
+          
+          <button
+            pButton
+            type="button"
+            icon="pi pi-plus"
+            class="p-button-sm p-button-text p-button-rounded"
+            [disabled]="!canIncrease || disabled"
+            (click)="increaseQuantity()">
+          </button>
+        </div>
       </div>
       
       <!-- List type selector -->
@@ -157,12 +178,51 @@ interface QuantityOption {
     /* Dropdown only mode */
     .dropdown-only {
       width: 100%;
-      min-width: 120px;
+    }
+    
+    /* Cart quantity selector */
+    .cart-quantity-selector {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
       
-      ::ng-deep .p-select {
+      ::ng-deep .compact-dropdown {
+        flex: 1;
+        min-width: 70px;
+        max-width: 90px;
+        
+        .p-select {
+          min-width: 100%;
+        }
+        
         .p-select-label {
+          padding: 0.25rem 0.25rem 0.25rem 0.5rem;
+          font-size: 0.875rem;
           font-weight: 600;
           color: var(--primary-color);
+          text-align: center;
+          white-space: nowrap;
+          overflow: visible !important;
+          text-overflow: clip !important;
+        }
+        
+        .p-select-trigger {
+          width: 2rem;
+          padding: 0 0.25rem;
+        }
+        
+        .p-select-trigger-icon {
+          font-size: 0.75rem;
+        }
+      }
+      
+      button {
+        width: 1.75rem !important;
+        height: 1.75rem !important;
+        padding: 0 !important;
+        
+        .p-button-icon {
+          font-size: 0.75rem;
         }
       }
     }
@@ -299,17 +359,35 @@ export class ProductQuantitySelectorComponent implements OnInit, OnChanges {
   quantityOptions: QuantityOption[] = [];
 
   get canIncrease(): boolean {
+    // For list type, check if there's a next value
+    if (this.quantityConfig?.type === 'list' && this.quantityConfig.quantities) {
+      const currentIndex = this.quantityConfig.quantities.indexOf(this.quantity);
+      return currentIndex >= 0 && currentIndex < this.quantityConfig.quantities.length - 1;
+    }
+    
+    // For range or default
     const maxAllowed = this.getMaxAllowed();
     return this.quantity < maxAllowed;
   }
 
   get canDecrease(): boolean {
+    // For list type, check if there's a previous value
+    if (this.quantityConfig?.type === 'list' && this.quantityConfig.quantities) {
+      const currentIndex = this.quantityConfig.quantities.indexOf(this.quantity);
+      return currentIndex > 0;
+    }
+    
+    // For range or default
     return this.quantity > this.min;
   }
 
   ngOnInit() {
-    this.quantity = this.value;
+    this.quantity = this.value || 1;
     this.initializeSelector();
+    // Emit the initial value in case it was adjusted
+    if (this.quantity !== this.value) {
+      this.onQuantityChange();
+    }
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -334,11 +412,25 @@ export class ProductQuantitySelectorComponent implements OnInit, OnChanges {
       this.step = 1; // Always use step of 1 for pills
     }
     
+    // For list type, ensure quantity is one of the valid options
+    if (this.quantityConfig?.type === 'list' && this.quantityConfig.quantities && this.quantityConfig.quantities.length > 0) {
+      // If current quantity is not in the list, set it to the first available option
+      if (!this.quantityConfig.quantities.includes(this.quantity)) {
+        this.quantity = this.quantityConfig.quantities[0];
+      }
+    }
+    
     // Ensure quantity is within bounds
     this.validateQuantity();
   }
 
   getQuickOptions(): number[] {
+    // First check if custom pills are defined
+    if (this.quantityConfig?.pills && this.quantityConfig.pills.length > 0) {
+      return this.quantityConfig.pills.slice(0, 3);
+    }
+    
+    // Otherwise use default behavior
     if (this.quantityConfig?.type === 'list' && this.quantityConfig.quantities) {
       // Return first 3 options
       return this.quantityConfig.quantities.slice(0, 3);
@@ -395,6 +487,11 @@ export class ProductQuantitySelectorComponent implements OnInit, OnChanges {
   }
   
   getRangeOptions(): number[] {
+    // First check if custom pills are defined
+    if (this.quantityConfig?.pills && this.quantityConfig.pills.length > 0) {
+      return this.quantityConfig.pills.slice(0, 3);
+    }
+    
     if (this.quantityConfig?.type === 'range') {
       // Generate 3 evenly spaced options for quick selection
       const min = this.quantityConfig.min || this.min;
@@ -419,18 +516,22 @@ export class ProductQuantitySelectorComponent implements OnInit, OnChanges {
       const max = Math.min(this.quantityConfig.max || this.max, this.maxStock || this.max);
       const options: number[] = [];
       
-      // Generate reasonable increments based on range
-      let increment = 1;
-      const range = max - min;
+      // Use step from config if provided, otherwise calculate reasonable increments
+      let increment = this.quantityConfig.step || 1;
       
-      if (range <= 10) {
-        increment = 1;
-      } else if (range <= 50) {
-        increment = 5;
-      } else if (range <= 100) {
-        increment = 10;
-      } else {
-        increment = 25;
+      if (!this.quantityConfig.step) {
+        // Only calculate increment if not provided in config
+        const range = max - min;
+        
+        if (range <= 10) {
+          increment = 1;
+        } else if (range <= 50) {
+          increment = 5;
+        } else if (range <= 100) {
+          increment = 10;
+        } else {
+          increment = 25;
+        }
       }
       
       for (let i = min; i <= max; i += increment) {
@@ -473,6 +574,16 @@ export class ProductQuantitySelectorComponent implements OnInit, OnChanges {
   }
 
   private validateQuantity() {
+    // For list type, ensure quantity is one of the valid options
+    if (this.quantityConfig?.type === 'list' && this.quantityConfig.quantities) {
+      if (!this.quantityConfig.quantities.includes(this.quantity)) {
+        // Set to first available option
+        this.quantity = this.quantityConfig.quantities[0] || 1;
+      }
+      return;
+    }
+    
+    // For range type or default
     const maxAllowed = this.getMaxAllowed();
     if (this.quantity < this.min) {
       this.quantity = this.min;
@@ -496,17 +607,39 @@ export class ProductQuantitySelectorComponent implements OnInit, OnChanges {
   }
 
   increaseQuantity() {
-    if (this.canIncrease) {
-      this.quantity = Math.min(this.quantity + this.step, this.getMaxAllowed());
-      this.onQuantityChange();
+    if (!this.canIncrease) return;
+    
+    // For list type, move to next value in list
+    if (this.quantityConfig?.type === 'list' && this.quantityConfig.quantities) {
+      const currentIndex = this.quantityConfig.quantities.indexOf(this.quantity);
+      if (currentIndex >= 0 && currentIndex < this.quantityConfig.quantities.length - 1) {
+        this.quantity = this.quantityConfig.quantities[currentIndex + 1];
+        this.onQuantityChange();
+      }
+      return;
     }
+    
+    // For range or default
+    this.quantity = Math.min(this.quantity + this.step, this.getMaxAllowed());
+    this.onQuantityChange();
   }
 
   decreaseQuantity() {
-    if (this.canDecrease) {
-      this.quantity = Math.max(this.quantity - this.step, this.min);
-      this.onQuantityChange();
+    if (!this.canDecrease) return;
+    
+    // For list type, move to previous value in list
+    if (this.quantityConfig?.type === 'list' && this.quantityConfig.quantities) {
+      const currentIndex = this.quantityConfig.quantities.indexOf(this.quantity);
+      if (currentIndex > 0) {
+        this.quantity = this.quantityConfig.quantities[currentIndex - 1];
+        this.onQuantityChange();
+      }
+      return;
     }
+    
+    // For range or default
+    this.quantity = Math.max(this.quantity - this.step, this.min);
+    this.onQuantityChange();
   }
 
 

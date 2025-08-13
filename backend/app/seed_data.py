@@ -78,7 +78,7 @@ PRODUCTS = [
         "image_url": "https://images.unsplash.com/photo-1570913149827-d2ac84ab3f9a?auto=format&fit=crop&w=1470&q=80",
         "is_organic": False,
         "category_name": "Fresh Fruits",
-        "quantity_config": {"type": "range", "min": 0.5, "max": 10}
+        "quantity_config": {"type": "range", "min": 5, "max": 200, "step": 5, "pills": [20, 50, 100]}
     },
     {
         "name": "Organic Apples",
@@ -99,7 +99,7 @@ PRODUCTS = [
         "image_url": "https://images.unsplash.com/photo-1570913149827-d2ac84ab3f9a?auto=format&fit=crop&w=1470&q=80",
         "is_organic": True,
         "category_name": "Organic Produce",
-        "quantity_config": {"type": "range", "min": 0.5, "max": 10}
+        "quantity_config": {"type": "range", "min": 5, "max": 150, "step": 5, "pills": [15, 40, 75]}
     },
     {
         "name": "Bananas",
@@ -120,7 +120,7 @@ PRODUCTS = [
         "image_url": "https://images.unsplash.com/photo-1587132137056-bfbf0166836e?auto=format&fit=crop&w=1480&q=80",
         "is_organic": False,
         "category_name": "Fresh Fruits",
-        "quantity_config": {"type": "list", "quantities": [6, 12, 18, 24]}
+        "quantity_config": {"type": "list", "quantities": [6, 12, 18, 24, 30, 50, 100], "pills": [12, 24, 50]}
     },
     {
         "name": "Organic Bananas",
@@ -141,7 +141,7 @@ PRODUCTS = [
         "image_url": "https://images.unsplash.com/photo-1587132137056-bfbf0166836e?auto=format&fit=crop&w=1480&q=80",
         "is_organic": True,
         "category_name": "Organic Produce",
-        "quantity_config": {"type": "list", "quantities": [6, 12, 18, 24]}
+        "quantity_config": {"type": "list", "quantities": [6, 12, 18, 24, 30, 50, 100], "pills": [12, 24, 50]}
     },
     {
         "name": "Oranges",
@@ -162,7 +162,7 @@ PRODUCTS = [
         "image_url": "https://images.unsplash.com/photo-1582979512210-99b6a53386f9?auto=format&fit=crop&w=1374&q=80",
         "is_organic": False,
         "category_name": "Fresh Fruits",
-        "quantity_config": {"type": "range", "min": 1, "max": 20}
+        "quantity_config": {"type": "range", "min": 10, "max": 200, "step": 10, "pills": [30, 60, 100]}
     },
     {
         "name": "Strawberries",
@@ -206,7 +206,7 @@ PRODUCTS = [
         "image_url": "https://images.unsplash.com/photo-1590868309235-ea34bed7bd7f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80",
         "is_organic": False,
         "category_name": "Fresh Vegetables",
-        "quantity_config": {"type": "range", "min": 0.5, "max": 5}
+        "quantity_config": {"type": "range", "min": 0.5, "max": 5, "step": 0.5, "pills": [1, 2, 3]}
     },
     {
         "name": "Organic Carrots",
@@ -227,7 +227,7 @@ PRODUCTS = [
         "image_url": "https://images.unsplash.com/photo-1590868309235-ea34bed7bd7f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80",
         "is_organic": True,
         "category_name": "Organic Produce",
-        "quantity_config": {"type": "range", "min": 0.5, "max": 5}
+        "quantity_config": {"type": "range", "min": 5, "max": 100, "step": 5, "pills": [10, 25, 50]}
     },
     {
         "name": "Tomatoes",
@@ -248,7 +248,7 @@ PRODUCTS = [
         "image_url": "https://images.unsplash.com/photo-1582284540020-8acbe03f4924?auto=format&fit=crop&w=1470&q=80",
         "is_organic": False,
         "category_name": "Fresh Vegetables",
-        "quantity_config": {"type": "range", "min": 0.5, "max": 10}
+        "quantity_config": {"type": "range", "min": 5, "max": 100, "step": 5, "pills": [10, 30, 50]}
     },
     {
         "name": "Spinach",
@@ -290,7 +290,7 @@ PRODUCTS = [
         "image_url": "https://images.unsplash.com/photo-1584270354949-c26b0d5b4a0c?auto=format&fit=crop&w=1470&q=80",
         "is_organic": False,
         "category_name": "Fresh Vegetables",
-        "quantity_config": {"type": "range", "min": 0.5, "max": 3}
+        "quantity_config": {"type": "range", "min": 5, "max": 150, "step": 5, "pills": [15, 30, 60]}
     },
     {
         "name": "Organic Kale",
@@ -311,7 +311,7 @@ PRODUCTS = [
         "image_url": "https://images.unsplash.com/photo-1524179091875-bf99a9a6af57?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80",
         "is_organic": True,
         "category_name": "Organic Produce",
-        "quantity_config": {"type": "list", "quantities": [1, 2, 3]}
+        "quantity_config": {"type": "list", "quantities": [5, 10, 15, 20, 30, 50, 100], "pills": [10, 30, 50]}
     }
 ]
 

@@ -18,6 +18,13 @@
        url('/assets/fonts/primeicons.svg?#primeicons') format('svg');
 }
 
+/* Fix for PrimeNG select dropdown text truncation in cart */
+.cart-quantity-selector .p-select .p-select-label {
+  text-overflow: clip !important;
+  overflow: visible !important;
+  min-width: auto !important;
+}
+
 
 
 

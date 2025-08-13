@@ -206,7 +206,17 @@ export class ProductListComponent implements OnInit, OnDestroy {
   }
 
   getProductQuantity(productId: number): number {
-    return this.productQuantities[productId] || 1;
+    if (this.productQuantities[productId]) {
+      return this.productQuantities[productId];
+    }
+    
+    // Find the product to get its config
+    const product = this.products().find(p => p.id === productId);
+    if (product?.quantity_config?.type === 'list' && product.quantity_config.quantities && product.quantity_config.quantities.length > 0) {
+      return product.quantity_config.quantities[0];
+    }
+    
+    return 1;
   }
 
   setProductQuantity(productId: number, quantity: number): void {
@@ -299,7 +309,12 @@ export class ProductListComponent implements OnInit, OnDestroy {
           this.products.set(products);
           products.forEach(p => {
             if (!this.productQuantities[p.id]) {
-              this.productQuantities[p.id] = 1;
+              // For list type, set to first available option
+              if (p.quantity_config?.type === 'list' && p.quantity_config.quantities && p.quantity_config.quantities.length > 0) {
+                this.productQuantities[p.id] = p.quantity_config.quantities[0];
+              } else {
+                this.productQuantities[p.id] = 1;
+              }
             }
           });
           this.loading.set(false);
@@ -333,7 +348,12 @@ export class ProductListComponent implements OnInit, OnDestroy {
         this.products.set(allProducts);
         allProducts.forEach(p => {
           if (!this.productQuantities[p.id]) {
-            this.productQuantities[p.id] = 1;
+            // For list type, set to first available option
+            if (p.quantity_config?.type === 'list' && p.quantity_config.quantities && p.quantity_config.quantities.length > 0) {
+              this.productQuantities[p.id] = p.quantity_config.quantities[0];
+            } else {
+              this.productQuantities[p.id] = 1;
+            }
           }
         });
         this.loading.set(false);

@@ -82,15 +82,17 @@
                     </td>
                     <td>
                       <div class="flex align-items-center justify-content-center">
-                        <app-product-quantity-selector
-                          [value]="productQuantities[item.id]"
-                          [stockQuantity]="item.stock_quantity"
-                          [unit]="item.product_unit"
-                          [quantityConfig]="item.quantity_config"
-                          [disabled]="isOutOfStock(item)"
-                          [dropdownOnly]="true"
-                          (valueChange)="updateItemQuantity(item.id, $event)">
-                        </app-product-quantity-selector>
+                        <div style="width: 160px;">
+                          <app-product-quantity-selector
+                            [value]="productQuantities[item.id]"
+                            [stockQuantity]="item.stock_quantity"
+                            [unit]="item.product_unit"
+                            [quantityConfig]="item.quantity_config"
+                            [disabled]="isOutOfStock(item)"
+                            [dropdownOnly]="true"
+                            (valueChange)="updateItemQuantity(item.id, $event)">
+                          </app-product-quantity-selector>
+                        </div>
                       </div>
                     </td>
                     <td class="text-right font-bold text-900 dark:text-white">
@@ -190,7 +192,7 @@
                         <span class="text-700 w-4rem text-left">{{formatPrice(item.product_price)}}/{{getUnitDisplay(item.product_unit)}}</span>
                         
                         <!-- Middle column: Quantity selector -->
-                        <div class="flex align-items-center justify-content-center" style="width: 120px; z-index: 1;">
+                        <div class="flex align-items-center justify-content-center" style="width: 140px;">
                           <app-product-quantity-selector
                             [value]="productQuantities[item.id]"
                             [stockQuantity]="item.stock_quantity"
