@@ -249,7 +249,11 @@ export class CheckoutComponent implements OnInit, OnDestroy {
         let errorMessage = this.translateService.instant('checkout.order_error_default');
         
         if (error.error && error.error.detail) {
-          errorMessage = error.error.detail;
+          if (typeof error.error.detail === 'string') {
+            errorMessage = error.error.detail;
+          } else if (Array.isArray(error.error.detail)) {
+            errorMessage = error.error.detail.map((err: any) => err.msg || err).join(', ');
+          }
         }
         
         this.messageService.add({

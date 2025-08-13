@@ -400,8 +400,26 @@ export class CartComponent implements OnInit, OnDestroy {
 
   getQuantityOptionsForItem(item: CartItem): number[] {
     const options: number[] = [];
-    const max = Math.min(item.stock_quantity || 99, 99);
     
+    // Use quantity config if available
+    if (item.quantity_config) {
+      if (item.quantity_config.type === 'list' && item.quantity_config.quantities) {
+        // Filter quantities based on stock
+        return item.quantity_config.quantities.filter(qty => qty <= (item.stock_quantity || 99));
+      } else if (item.quantity_config.type === 'range') {
+        const min = item.quantity_config.min || 0.5;
+        const max = Math.min(item.quantity_config.max || 99, item.stock_quantity || 99);
+        const step = min < 1 ? 0.5 : 1;
+        
+        for (let i = min; i <= max; i += step) {
+          options.push(i);
+        }
+        return options;
+      }
+    }
+    
+    // Fallback to default behavior
+    const max = Math.min(item.stock_quantity || 99, 99);
     for (let i = 1; i <= max; i++) {
       options.push(i);
     }

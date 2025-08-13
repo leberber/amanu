@@ -5,6 +5,7 @@ import { SelectModule } from 'primeng/select';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { ButtonModule } from 'primeng/button';
 import { TranslateModule } from '@ngx-translate/core';
+import { QuantityConfig } from '../../../models/product.model';
 
 interface QuantityOption {
   label: string;
@@ -176,6 +177,7 @@ export class ProductQuantitySelectorComponent implements OnInit {
   @Input() compact: boolean = false;
   @Input() customClass: string = '';
   @Input() predefinedOptions?: number[];
+  @Input() quantityConfig?: QuantityConfig;
   
   @Output() valueChange = new EventEmitter<number>();
   @Output() quantityChanged = new EventEmitter<number>();
@@ -195,6 +197,18 @@ export class ProductQuantitySelectorComponent implements OnInit {
 
   ngOnInit(): void {
     this.quantity = this.value;
+    
+    // Auto-detect mode based on quantityConfig if not explicitly set
+    if (this.quantityConfig && this.mode === 'dropdown') {
+      if (this.quantityConfig.type === 'range') {
+        this.mode = 'input';
+        this.min = this.quantityConfig.min || 0.5;
+        this.max = this.quantityConfig.max || 100;
+        // Set step based on min value
+        this.step = this.quantityConfig.min && this.quantityConfig.min < 1 ? 0.5 : 1;
+      }
+    }
+    
     this.generateQuantityOptions();
     this.generateGridQuantities();
     
@@ -209,7 +223,17 @@ export class ProductQuantitySelectorComponent implements OnInit {
 
     const options: QuantityOption[] = [];
     
-    if (this.predefinedOptions) {
+    // Use quantityConfig if available
+    if (this.quantityConfig && this.quantityConfig.type === 'list' && this.quantityConfig.quantities) {
+      this.quantityConfig.quantities.forEach(value => {
+        if (value <= this.maxAllowed) {
+          options.push({
+            label: `${value} ${this.unitLabel || this.getUnitDisplay(this.unit)}`,
+            value: value
+          });
+        }
+      });
+    } else if (this.predefinedOptions) {
       // Use predefined options if provided
       this.predefinedOptions.forEach(value => {
         if (value <= this.maxAllowed) {

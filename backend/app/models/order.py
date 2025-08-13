@@ -20,7 +20,7 @@ class OrderItemBase(SQLModel):
     """Base model for order items"""
     order_id: int = Field(foreign_key="orders.id")
     product_id: int = Field(foreign_key="products.id")
-    quantity: int = Field(gt=0)
+    quantity: float = Field(gt=0)
     unit_price: float = Field(gt=0)
 
 class OrderItem(OrderItemBase, table=True):
@@ -56,7 +56,7 @@ class Order(OrderBase, table=True):
 class OrderCreateItem(SQLModel):
     """Model for item in order creation"""
     product_id: int
-    quantity: int = Field(gt=0)
+    quantity: float = Field(gt=0)
 
 class OrderCreate(SQLModel):
     """Model for creating a new order"""
@@ -90,7 +90,7 @@ class OrderItemRead(SQLModel):
     id: int
     order_id: int
     product_id: int
-    quantity: int
+    quantity: float
     unit_price: float
     product_name: str
     product_unit: str

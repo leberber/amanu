@@ -1,7 +1,7 @@
 // src/app/services/cart.service.ts
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of } from 'rxjs';
-import { Product } from '../models/product.model';
+import { Product, QuantityConfig } from '../models/product.model';
 
 export interface CartItem {
   id: string;
@@ -13,6 +13,7 @@ export interface CartItem {
   is_organic?: boolean;
   quantity: number;
   stock_quantity?: number;  // To check stock level at checkout
+  quantity_config?: QuantityConfig;  // Product quantity configuration
 }
 
 @Injectable({
@@ -77,7 +78,8 @@ export class CartService {
         product_image: product.image_url,
         is_organic: product.is_organic,
         stock_quantity: product.stock_quantity,
-        quantity: quantity
+        quantity: quantity,
+        quantity_config: product.quantity_config
       };
       currentCart.push(updatedItem);
     }

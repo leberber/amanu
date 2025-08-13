@@ -15,6 +15,14 @@ export interface Product {
     tempQuantity?: number;
     name_translations?: { [key: string]: string };
     description_translations?: { [key: string]: string };
+    quantity_config?: QuantityConfig;
+  }
+  
+  export interface QuantityConfig {
+    type: 'list' | 'range';
+    quantities?: number[];  // For 'list' type
+    min?: number;          // For 'range' type
+    max?: number;          // For 'range' type
   }
   
   export interface Category {

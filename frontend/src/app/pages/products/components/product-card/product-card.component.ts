@@ -121,6 +121,7 @@ export interface AddToCartEvent {
                 [value]="selectedQuantity"
                 [stockQuantity]="product.stock_quantity"
                 [unit]="product.unit"
+                [quantityConfig]="product.quantity_config"
                 [compact]="true"
                 customClass="w-6rem"
                 (valueChange)="selectedQuantity = $event"
@@ -329,8 +330,26 @@ export class ProductCardComponent {
 
   getQuantityOptions(): number[] {
     const options: number[] = [];
-    const max = Math.min(this.product.stock_quantity, 100);
     
+    // Use quantity config if available
+    if (this.product.quantity_config) {
+      if (this.product.quantity_config.type === 'list' && this.product.quantity_config.quantities) {
+        // Filter quantities based on stock
+        return this.product.quantity_config.quantities.filter(qty => qty <= this.product.stock_quantity);
+      } else if (this.product.quantity_config.type === 'range') {
+        const min = this.product.quantity_config.min || 0.5;
+        const max = Math.min(this.product.quantity_config.max || 100, this.product.stock_quantity);
+        const step = min < 1 ? 0.5 : 1;
+        
+        for (let i = min; i <= max; i += step) {
+          options.push(i);
+        }
+        return options;
+      }
+    }
+    
+    // Fallback to default behavior
+    const max = Math.min(this.product.stock_quantity, 100);
     for (let i = 1; i <= max; i++) {
       options.push(i);
     }
