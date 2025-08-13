@@ -141,7 +141,16 @@
       "add_to_cart": "Ajouter au panier",
       "related_products": "Produits Similaires",
       "product_details": "Détails du Produit",
-      "reviews": "Avis"
+      "reviews": "Avis",
+      "quantity_selector": {
+        "popular": "Populaire",
+        "bulk": "En gros",
+        "not_enough_stock": "Stock insuffisant",
+        "most_customers_choose": "La plupart des clients choisissent ceci",
+        "save_more_bulk": "Économisez plus en achetant en gros",
+        "decrease_quantity": "Diminuer la quantité",
+        "increase_quantity": "Augmenter la quantité"
+      }
     },
     "stock": {
       "out_of_stock": "Rupture de Stock",

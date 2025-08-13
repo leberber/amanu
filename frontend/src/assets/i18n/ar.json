@@ -141,7 +141,16 @@
       "add_to_cart": "إضافة للسلة",
       "related_products": "منتجات ذات صلة",
       "product_details": "تفاصيل المنتج",
-      "reviews": "التقييمات"
+      "reviews": "التقييمات",
+      "quantity_selector": {
+        "popular": "شائع",
+        "bulk": "بالجملة",
+        "not_enough_stock": "المخزون غير كافي",
+        "most_customers_choose": "معظم العملاء يختارون هذا",
+        "save_more_bulk": "وفر أكثر عند الشراء بالجملة",
+        "decrease_quantity": "تقليل الكمية",
+        "increase_quantity": "زيادة الكمية"
+      }
     },
     "stock": {
       "out_of_stock": "غير متوفر",

@@ -141,7 +141,16 @@
       "add_to_cart": "Add to cart",
       "related_products": "Related Products",
       "product_details": "Product Details",
-      "reviews": "Reviews"
+      "reviews": "Reviews",
+      "quantity_selector": {
+        "popular": "Popular",
+        "bulk": "Bulk",
+        "not_enough_stock": "Not enough stock",
+        "most_customers_choose": "Most customers choose this",
+        "save_more_bulk": "Save more with bulk",
+        "decrease_quantity": "Decrease quantity",
+        "increase_quantity": "Increase quantity"
+      }
     },
     "stock": {
       "out_of_stock": "Out of Stock",
