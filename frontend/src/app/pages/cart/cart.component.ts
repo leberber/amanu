@@ -137,10 +137,10 @@ export class CartComponent implements OnInit, OnDestroy {
   // Signals
   cartItems = signal<CartItem[]>([]);
   loading = signal(false);
-  showQuantityGridForItem: string | null = null;
   
   // For quantity selection
   productQuantities: { [key: string]: number } = {};
+  showQuantityGridForItem: string | null = null;
   
   // Computed values
   cartTotal = computed(() => {
@@ -258,21 +258,23 @@ export class CartComponent implements OnInit, OnDestroy {
   increaseQuantity(item: CartItem) {
     const maxStock = item.stock_quantity || 99;
     if (item.quantity < maxStock) {
-      this.updateItemQuantity(item, item.quantity + 1);
+      this.updateItemQuantity(item.id, item.quantity + 1);
     }
   }
   
   decreaseQuantity(item: CartItem) {
     if (item.quantity > 1) {
-      this.updateItemQuantity(item, item.quantity - 1);
+      this.updateItemQuantity(item.id, item.quantity - 1);
     }
   }
   
-  updateItemQuantity(item: CartItem, newQuantity: number) {
-    this.cartService.updateCartItem(item.id, newQuantity).subscribe({
+  updateItemQuantity(itemId: string, newQuantity: number) {
+    const item = this.cartItems().find(i => i.id === itemId);
+    if (!item) return;
+    this.cartService.updateCartItem(itemId, newQuantity).subscribe({
       next: () => {
         // Update the local quantity in productQuantities
-        this.productQuantities[item.id] = newQuantity;
+        this.productQuantities[itemId] = newQuantity;
       },
       error: (error) => {
         console.error('Error updating quantity:', error);
@@ -282,7 +284,7 @@ export class CartComponent implements OnInit, OnDestroy {
           detail: this.translateService.instant('cart.errors.update_failed')
         });
         // Reset the select value to match the item's actual quantity
-        this.productQuantities[item.id] = item.quantity;
+        this.productQuantities[itemId] = item.quantity;
       }
     });
   }
@@ -307,13 +309,16 @@ export class CartComponent implements OnInit, OnDestroy {
   clearCart() {
     this.cartService.clearCart().subscribe({
       next: () => {
+        // Clear the local cart items signal immediately
+        this.cartItems.set([]);
+        // Reset quantities
+        this.productQuantities = {};
+        
         this.messageService.add({
           severity: 'success',
           summary: this.translateService.instant('cart.cart_cleared'),
           detail: this.translateService.instant('cart.cart_cleared_message')
         });
-        // Reset quantities
-        this.productQuantities = {};
       },
       error: (error) => {
         console.error('Error clearing cart:', error);
@@ -360,6 +365,32 @@ export class CartComponent implements OnInit, OnDestroy {
     return item.stock_quantity !== undefined && item.stock_quantity <= 0;
   }
   
+  // Quantity grid methods
+  getQuantityOptionsForItem(item: CartItem): number[] {
+    if (item.quantity_config?.type === 'list' && item.quantity_config.quantities) {
+      // Return all available quantities from config
+      return item.quantity_config.quantities.filter(qty => 
+        !item.stock_quantity || qty <= item.stock_quantity
+      );
+    }
+    
+    // Default: generate range from 1 to maxStock
+    const maxStock = item.stock_quantity || 99;
+    return Array.from({ length: Math.min(maxStock, 20) }, (_, i) => i + 1);
+  }
+  
+  selectQuantityForItem(itemId: string, quantity: number): void {
+    this.productQuantities[itemId] = quantity;
+  }
+  
+  updateQuantityAndCloseGrid(item: CartItem): void {
+    const newQuantity = this.productQuantities[item.id];
+    if (newQuantity !== item.quantity) {
+      this.updateItemQuantity(item.id, newQuantity);
+    }
+    this.showQuantityGridForItem = null;
+  }
+  
   proceedToCheckout() {
     if (this.cartItemCount() === 0) {
       this.messageService.add({
@@ -393,49 +424,4 @@ export class CartComponent implements OnInit, OnDestroy {
     return this.currencyService.formatCurrency(price);
   }
 
-  // Grid quantity selector methods
-  handleGridToggle(itemId: string, show: boolean): void {
-    this.showQuantityGridForItem = show ? itemId : null;
-  }
-
-  getQuantityOptionsForItem(item: CartItem): number[] {
-    const options: number[] = [];
-    
-    // Use quantity config if available
-    if (item.quantity_config) {
-      if (item.quantity_config.type === 'list' && item.quantity_config.quantities) {
-        // Filter quantities based on stock
-        return item.quantity_config.quantities.filter(qty => qty <= (item.stock_quantity || 99));
-      } else if (item.quantity_config.type === 'range') {
-        const min = item.quantity_config.min || 0.5;
-        const max = Math.min(item.quantity_config.max || 99, item.stock_quantity || 99);
-        const step = min < 1 ? 0.5 : 1;
-        
-        for (let i = min; i <= max; i += step) {
-          options.push(i);
-        }
-        return options;
-      }
-    }
-    
-    // Fallback to default behavior
-    const max = Math.min(item.stock_quantity || 99, 99);
-    for (let i = 1; i <= max; i++) {
-      options.push(i);
-    }
-    
-    return options;
-  }
-
-  selectQuantityForItem(itemId: string, qty: number): void {
-    this.productQuantities[itemId] = qty;
-  }
-
-  updateQuantityAndCloseGrid(item: CartItem): void {
-    const newQuantity = this.productQuantities[item.id];
-    if (newQuantity !== item.quantity) {
-      this.updateItemQuantity(item, newQuantity);
-    }
-    this.showQuantityGridForItem = null;
-  }
 }

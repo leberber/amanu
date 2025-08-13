@@ -121,9 +121,19 @@ export interface AddToCartEvent {
               [pricePerUnit]="product.price"
               [disabled]="!product.stock_quantity || product.stock_quantity === 0"
               [showStock]="true"
-              (quantityChanged)="onQuantityChanged($event)"
-              (addToCartClick)="addToCart()">
+              (quantityChanged)="onQuantityChanged($event)">
             </app-product-quantity-selector>
+            
+            <!-- Add to cart button -->
+            <button
+              pButton
+              type="button"
+              [label]="getAddToCartLabel()"
+              icon="pi pi-shopping-cart"
+              class="p-button-primary w-full mt-3"
+              [disabled]="!product.stock_quantity || product.stock_quantity === 0 || selectedQuantity === 0"
+              (click)="addToCart()">
+            </button>
           } @else {
             <button
               pButton
@@ -218,6 +228,23 @@ export class ProductCardComponent {
 
   onQuantityChanged(quantity: number): void {
     this.selectedQuantity = quantity;
+  }
+  
+  getAddToCartLabel(): string {
+    if (this.selectedQuantity === 0) {
+      return this.translateService.instant('products.product.add_to_cart');
+    }
+    
+    let label = this.translateService.instant('products.add_quantity_to_cart', {
+      quantity: this.selectedQuantity,
+      unit: this.product.unit ? this.unitsService.getUnitDisplay(this.product.unit) : ''
+    });
+    
+    if (this.product.price) {
+      label += ` - ${this.currencyService.formatCurrency(this.product.price * this.selectedQuantity)}`;
+    }
+    
+    return label;
   }
 
   addToCart(): void {

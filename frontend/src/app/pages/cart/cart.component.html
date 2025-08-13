@@ -83,16 +83,13 @@
                     <td>
                       <div class="flex align-items-center justify-content-center">
                         <app-product-quantity-selector
-                          mode="grid-overlay"
                           [value]="productQuantities[item.id]"
                           [stockQuantity]="item.stock_quantity"
                           [unit]="item.product_unit"
                           [quantityConfig]="item.quantity_config"
-                          [compact]="true"
-                          customClass="w-8rem"
                           [disabled]="isOutOfStock(item)"
-                          (valueChange)="productQuantities[item.id] = $event"
-                          (gridToggled)="handleGridToggle(item.id, $event)">
+                          [dropdownOnly]="true"
+                          (valueChange)="updateItemQuantity(item.id, $event)">
                         </app-product-quantity-selector>
                       </div>
                     </td>
@@ -195,16 +192,13 @@
                         <!-- Middle column: Quantity selector -->
                         <div class="flex align-items-center justify-content-center" style="width: 120px; z-index: 1;">
                           <app-product-quantity-selector
-                            mode="grid-overlay"
                             [value]="productQuantities[item.id]"
                             [stockQuantity]="item.stock_quantity"
                             [unit]="item.product_unit"
                             [quantityConfig]="item.quantity_config"
-                            [compact]="true"
-                            customClass="w-full"
                             [disabled]="isOutOfStock(item)"
-                            (valueChange)="productQuantities[item.id] = $event"
-                            (gridToggled)="handleGridToggle(item.id, $event)">
+                            [dropdownOnly]="true"
+                            (valueChange)="updateItemQuantity(item.id, $event)">
                           </app-product-quantity-selector>
                         </div>
                         

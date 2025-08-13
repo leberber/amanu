@@ -200,17 +200,30 @@
         <!-- Quantity Selector and Add to Cart -->
         <div class="mt-auto">
           <ng-container *ngIf="!isOutOfStock(product); else outOfStockButton">
-            <app-product-quantity-selector
-              [value]="getProductQuantity(product.id)"
-              [unit]="product.unit"
-              [stockQuantity]="product.stock_quantity"
-              [quantityConfig]="product.quantity_config"
-              [pricePerUnit]="product.price"
-              [disabled]="!product.stock_quantity || product.stock_quantity === 0"
-              [showStock]="true"
-              (quantityChanged)="setProductQuantity(product.id, $event)"
-              (addToCartClick)="quickAddToCart(product)">
-            </app-product-quantity-selector>
+            <div class="flex align-items-center gap-2">
+              <app-product-quantity-selector
+                [value]="getProductQuantity(product.id)"
+                [unit]="product.unit"
+                [stockQuantity]="product.stock_quantity"
+                [quantityConfig]="product.quantity_config"
+                [pricePerUnit]="product.price"
+                [disabled]="!product.stock_quantity || product.stock_quantity === 0"
+                [showStock]="true"
+                (quantityChanged)="setProductQuantity(product.id, $event)"
+                class="flex-1">
+              </app-product-quantity-selector>
+              
+              <!-- Add to cart button -->
+              <button
+                pButton
+                type="button"
+                [label]="getAddToCartLabel(product)"
+                icon="pi pi-shopping-cart"
+                class="p-button-primary"
+                [disabled]="!product.stock_quantity || product.stock_quantity === 0 || getProductQuantity(product.id) === 0"
+                (click)="quickAddToCart(product)">
+              </button>
+            </div>
           </ng-container>
           
           <ng-template #outOfStockButton>

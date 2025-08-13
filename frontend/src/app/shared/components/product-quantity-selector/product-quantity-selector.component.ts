@@ -4,7 +4,6 @@ import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { SelectModule } from 'primeng/select';
-import { SliderModule } from 'primeng/slider';
 import { TranslateModule } from '@ngx-translate/core';
 import { QuantityConfig } from '../../../models/product.model';
 
@@ -22,13 +21,27 @@ interface QuantityOption {
     ButtonModule,
     InputNumberModule,
     SelectModule,
-    SliderModule,
     TranslateModule
   ],
   template: `
     <div class="quantity-selector-container">
+      <!-- Dropdown only mode (for cart) -->
+      <div *ngIf="dropdownOnly" class="dropdown-only">
+        <p-select
+          [(ngModel)]="quantity"
+          [options]="getDropdownOptions()"
+          optionLabel="label"
+          optionValue="value"
+          [disabled]="disabled"
+          [filter]="false"
+          [showClear]="false"
+          (onChange)="onQuantityChange()"
+          styleClass="w-full">
+        </p-select>
+      </div>
+      
       <!-- List type selector -->
-      <div *ngIf="quantityConfig?.type === 'list' && quantityConfig.quantities" class="list-selector">
+      <div *ngIf="!dropdownOnly && quantityConfig?.type === 'list' && quantityConfig?.quantities" class="list-selector">
         <!-- Quick select pills (first 3 options) -->
         <div class="quick-select-pills">
           <button
@@ -56,38 +69,51 @@ interface QuantityOption {
             filterBy="label"
             [placeholder]="'products.product.select_quantity' | translate"
             (onChange)="onQuantityChange()"
+            appendTo="body"
+            [panelStyle]="{'bottom': '100%', 'top': 'auto', 'margin-bottom': '0.5rem'}"
             styleClass="w-full">
           </p-select>
         </div>
       </div>
 
       <!-- Range type selector -->
-      <div *ngIf="quantityConfig?.type === 'range'" class="range-selector">
-        <div class="range-controls">
-          <p-slider
+      <div *ngIf="!dropdownOnly && quantityConfig?.type === 'range'" class="range-selector">
+        <!-- Quick select pills for range -->
+        <div class="quick-select-pills">
+          <button
+            *ngFor="let value of getRangeOptions()"
+            pButton
+            type="button"
+            [label]="formatQuantityLabel(value)"
+            [class.p-button-outlined]="quantity !== value"
+            [class.p-button-primary]="quantity === value"
+            class="p-button-sm quick-pill"
+            [disabled]="disabled || (maxStock && value > maxStock)"
+            (click)="selectQuantity(value)">
+          </button>
+        </div>
+        
+        <!-- Dropdown for more options -->
+        <div class="full-dropdown">
+          <p-select
             [(ngModel)]="quantity"
-            [min]="min"
-            [max]="max"
-            [step]="step"
+            [options]="getAllRangeOptions()"
+            optionLabel="label"
+            optionValue="value"
             [disabled]="disabled"
+            [filter]="true"
+            filterBy="label"
+            [placeholder]="'products.product.select_quantity' | translate"
             (onChange)="onQuantityChange()"
-            styleClass="flex-1">
-          </p-slider>
-          <p-inputnumber
-            [(ngModel)]="quantity"
-            [min]="min"
-            [max]="max"
-            [step]="step"
-            [disabled]="disabled"
-            (onInput)="onQuantityChange()"
-            [suffix]="unit ? ' ' + unit : ''"
-            styleClass="w-6rem ml-3">
-          </p-inputnumber>
+            appendTo="body"
+            [panelStyle]="{'bottom': '100%', 'top': 'auto', 'margin-bottom': '0.5rem'}"
+            styleClass="w-full">
+          </p-select>
         </div>
       </div>
 
       <!-- Simple selector (fallback) -->
-      <div *ngIf="!quantityConfig || (!quantityConfig.type)" class="simple-selector">
+      <div *ngIf="!dropdownOnly && (!quantityConfig || (!quantityConfig.type))" class="simple-selector">
         <div class="simple-controls">
           <button
             pButton
@@ -118,31 +144,27 @@ interface QuantityOption {
           </button>
         </div>
       </div>
-
-      <!-- Add to cart button (full width at bottom) -->
-      <button
-        pButton
-        type="button"
-        [label]="getAddToCartLabel()"
-        icon="pi pi-shopping-cart"
-        class="p-button-primary add-to-cart-btn"
-        [disabled]="disabled || quantity === 0 || (maxStock && quantity > maxStock)"
-        (click)="addToCart()">
-      </button>
-
-      <!-- Stock indicator -->
-      <small *ngIf="showStock && maxStock && maxStock <= 5" class="stock-warning">
-        <i class="pi pi-exclamation-triangle"></i>
-        {{ 'products.stock.items_left' | translate: {count: maxStock} }}
-      </small>
     </div>
   `,
   styles: [`
     .quantity-selector-container {
       display: flex;
       flex-direction: column;
-      gap: 1rem;
+      gap: 0.75rem;
       width: 100%;
+    }
+    
+    /* Dropdown only mode */
+    .dropdown-only {
+      width: 100%;
+      min-width: 120px;
+      
+      ::ng-deep .p-select {
+        .p-select-label {
+          font-weight: 600;
+          color: var(--primary-color);
+        }
+      }
     }
 
     /* List selector styles */
@@ -182,30 +204,6 @@ interface QuantityOption {
       gap: 0.75rem;
     }
 
-    .range-controls {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-
-    ::ng-deep .p-slider {
-      flex: 1;
-      height: 0.5rem;
-      background: var(--surface-300);
-      
-      .p-slider-range {
-        background: var(--primary-color);
-      }
-      
-      .p-slider-handle {
-        width: 1.25rem;
-        height: 1.25rem;
-        border: 3px solid var(--primary-color);
-        background: white;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      }
-    }
-
     /* Simple selector styles */
     .simple-selector {
       display: flex;
@@ -236,38 +234,6 @@ interface QuantityOption {
       &:disabled {
         background-color: var(--surface-100);
         cursor: not-allowed;
-      }
-    }
-
-    /* Add to cart button */
-    .add-to-cart-btn {
-      width: 100%;
-      padding: 0.75rem;
-      font-weight: 600;
-      border-radius: 8px;
-      transition: all 0.2s;
-      
-      &:hover:not(:disabled) {
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      }
-      
-      &:active:not(:disabled) {
-        transform: translateY(0);
-      }
-    }
-
-    /* Stock warning */
-    .stock-warning {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      color: var(--orange-600);
-      font-size: 0.875rem;
-      margin-top: -0.5rem;
-      
-      i {
-        font-size: 0.75rem;
       }
     }
 
@@ -321,12 +287,12 @@ export class ProductQuantitySelectorComponent implements OnInit, OnChanges {
   @Input() quantityConfig?: QuantityConfig;
   @Input() pricePerUnit?: number;
   @Input() currency: string = '$';
+  @Input() dropdownOnly: boolean = false;
   
   // Outputs
   @Output() valueChange = new EventEmitter<number>();
   @Output() quantityChanged = new EventEmitter<number>();
   @Output() quantityChange = new EventEmitter<number>();
-  @Output() addToCartClick = new EventEmitter<number>();
 
   // Internal state
   quantity: number = 1;
@@ -365,15 +331,7 @@ export class ProductQuantitySelectorComponent implements OnInit, OnChanges {
     if (this.quantityConfig?.type === 'range') {
       if (this.quantityConfig.min !== undefined) this.min = this.quantityConfig.min;
       if (this.quantityConfig.max !== undefined) this.max = this.quantityConfig.max;
-      
-      // Set reasonable step based on range
-      if (this.max - this.min <= 10) {
-        this.step = 0.1;
-      } else if (this.max - this.min <= 50) {
-        this.step = 0.5;
-      } else {
-        this.step = 1;
-      }
+      this.step = 1; // Always use step of 1 for pills
     }
     
     // Ensure quantity is within bounds
@@ -404,6 +362,93 @@ export class ProductQuantitySelectorComponent implements OnInit, OnChanges {
     }
     return [];
   }
+  
+  getDropdownOptions(): QuantityOption[] {
+    // For dropdown-only mode, generate options based on config or defaults
+    if (this.quantityConfig?.type === 'list' && this.quantityConfig.quantities) {
+      return this.getAllOptions();
+    }
+    
+    if (this.quantityConfig?.type === 'range') {
+      return this.getAllRangeOptions();
+    }
+    
+    // Default: generate 1-10 or up to maxStock
+    const max = Math.min(this.maxStock || 10, 10);
+    const options: QuantityOption[] = [];
+    for (let i = 1; i <= max; i++) {
+      options.push({
+        label: this.formatQuantityLabel(i),
+        value: i
+      });
+    }
+    
+    // Ensure current value is included if it's higher than max
+    if (this.quantity > max) {
+      options.push({
+        label: this.formatQuantityLabel(this.quantity),
+        value: this.quantity
+      });
+    }
+    
+    return options;
+  }
+  
+  getRangeOptions(): number[] {
+    if (this.quantityConfig?.type === 'range') {
+      // Generate 3 evenly spaced options for quick selection
+      const min = this.quantityConfig.min || this.min;
+      const max = Math.min(this.quantityConfig.max || this.max, this.maxStock || this.max);
+      const step = (max - min) / 2;
+      
+      const options = [
+        min,
+        Math.round(min + step),
+        max
+      ];
+      
+      // Remove duplicates and sort
+      return [...new Set(options)].sort((a, b) => a - b);
+    }
+    return [];
+  }
+  
+  getAllRangeOptions(): QuantityOption[] {
+    if (this.quantityConfig?.type === 'range') {
+      const min = this.quantityConfig.min || this.min;
+      const max = Math.min(this.quantityConfig.max || this.max, this.maxStock || this.max);
+      const options: number[] = [];
+      
+      // Generate reasonable increments based on range
+      let increment = 1;
+      const range = max - min;
+      
+      if (range <= 10) {
+        increment = 1;
+      } else if (range <= 50) {
+        increment = 5;
+      } else if (range <= 100) {
+        increment = 10;
+      } else {
+        increment = 25;
+      }
+      
+      for (let i = min; i <= max; i += increment) {
+        options.push(i);
+      }
+      
+      // Always include max if not already included
+      if (options[options.length - 1] !== max) {
+        options.push(max);
+      }
+      
+      return options.map(value => ({
+        label: this.formatQuantityLabel(value),
+        value: value
+      }));
+    }
+    return [];
+  }
 
   formatQuantityLabel(value: number): string {
     let label = value.toString();
@@ -421,22 +466,6 @@ export class ProductQuantitySelectorComponent implements OnInit, OnChanges {
     return label;
   }
 
-  getAddToCartLabel(): string {
-    if (this.quantity === 0) {
-      return this.translate('products.product.add_to_cart');
-    }
-    
-    let label = this.translate('products.add_quantity_to_cart', {
-      quantity: this.quantity,
-      unit: this.unit ? this.getUnitDisplay(this.unit) : ''
-    });
-    
-    if (this.pricePerUnit) {
-      label += ` - ${this.currency}${(this.pricePerUnit * this.quantity).toFixed(2)}`;
-    }
-    
-    return label;
-  }
 
   selectQuantity(value: number) {
     this.quantity = value;
@@ -480,11 +509,6 @@ export class ProductQuantitySelectorComponent implements OnInit, OnChanges {
     }
   }
 
-  addToCart() {
-    if (this.quantity > 0 && !this.disabled) {
-      this.addToCartClick.emit(this.quantity);
-    }
-  }
 
   private getUnitDisplay(unit: string): string {
     const unitMap: { [key: string]: string } = {

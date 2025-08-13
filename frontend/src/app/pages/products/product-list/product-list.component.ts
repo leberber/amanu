@@ -212,6 +212,24 @@ export class ProductListComponent implements OnInit, OnDestroy {
   setProductQuantity(productId: number, quantity: number): void {
     this.productQuantities[productId] = quantity;
   }
+  
+  getAddToCartLabel(product: Product): string {
+    const quantity = this.getProductQuantity(product.id);
+    if (quantity === 0) {
+      return this.translateService.instant('products.product.add_to_cart');
+    }
+    
+    let label = this.translateService.instant('products.add_quantity_to_cart', {
+      quantity: quantity,
+      unit: product.unit ? this.unitsService.getUnitDisplay(product.unit) : ''
+    });
+    
+    if (product.price) {
+      label += ` - ${this.currencyService.formatCurrency(product.price * quantity)}`;
+    }
+    
+    return label;
+  }
 
 
   getLowStockMessage(product: Product): string {
