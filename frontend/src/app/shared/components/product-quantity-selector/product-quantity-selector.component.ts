@@ -63,73 +63,73 @@ interface QuantityOption {
       
       <!-- List type selector -->
       <div *ngIf="!dropdownOnly && quantityConfig?.type === 'list' && quantityConfig?.quantities" class="list-selector">
-        <!-- Quick select pills (first 3 options) -->
-        <div class="quick-select-pills">
-          <button
-            *ngFor="let value of getQuickOptions()"
-            pButton
-            type="button"
-            [label]="formatQuantityLabel(value)"
-            [class.p-button-outlined]="quantity !== value"
-            [class.p-button-primary]="quantity === value"
-            class="p-button-sm quick-pill"
-            [disabled]="disabled || (maxStock && value > maxStock)"
-            (click)="selectQuantity(value)">
-          </button>
-        </div>
-        
-        <!-- Dropdown for all options (if more than 3) -->
-        <div *ngIf="hasMoreOptions()" class="full-dropdown">
-          <p-select
-            [(ngModel)]="quantity"
-            [options]="getAllOptions()"
-            optionLabel="label"
-            optionValue="value"
-            [disabled]="disabled"
-            [filter]="true"
-            filterBy="label"
-            [placeholder]="'products.product.select_quantity' | translate"
-            (onChange)="onQuantityChange()"
-            appendTo="body"
-            [panelStyle]="{'bottom': '100%', 'top': 'auto', 'margin-bottom': '0.5rem'}"
-            styleClass="w-full">
-          </p-select>
+        <div class="pills-and-dropdown">
+          <!-- Pills container - 50% width -->
+          <div class="pills-container">
+            <button
+              *ngFor="let value of getQuickOptions()"
+              pButton
+              type="button"
+              [label]="value.toString()"
+              [class.p-button-outlined]="quantity !== value"
+              [class.p-button-primary]="quantity === value"
+              class="p-button-sm quick-pill flex-1"
+              [disabled]="disabled || (maxStock && value > maxStock)"
+              (click)="selectQuantity(value)">
+            </button>
+          </div>
+          
+          <!-- Dropdown container - 50% width -->
+          <div class="dropdown-container">
+            <p-select
+              [(ngModel)]="quantity"
+              [options]="getAllOptions()"
+              optionLabel="label"
+              optionValue="value"
+              [disabled]="disabled"
+              [filter]="false"
+              [placeholder]="'Select quantity'"
+              (onChange)="onQuantityChange()"
+              appendTo="body"
+              styleClass="compact-select w-full">
+            </p-select>
+          </div>
         </div>
       </div>
 
       <!-- Range type selector -->
       <div *ngIf="!dropdownOnly && quantityConfig?.type === 'range'" class="range-selector">
-        <!-- Quick select pills for range -->
-        <div class="quick-select-pills">
-          <button
-            *ngFor="let value of getRangeOptions()"
-            pButton
-            type="button"
-            [label]="formatQuantityLabel(value)"
-            [class.p-button-outlined]="quantity !== value"
-            [class.p-button-primary]="quantity === value"
-            class="p-button-sm quick-pill"
-            [disabled]="disabled || (maxStock && value > maxStock)"
-            (click)="selectQuantity(value)">
-          </button>
-        </div>
-        
-        <!-- Dropdown for more options -->
-        <div class="full-dropdown">
-          <p-select
-            [(ngModel)]="quantity"
-            [options]="getAllRangeOptions()"
-            optionLabel="label"
-            optionValue="value"
-            [disabled]="disabled"
-            [filter]="true"
-            filterBy="label"
-            [placeholder]="'products.product.select_quantity' | translate"
-            (onChange)="onQuantityChange()"
-            appendTo="body"
-            [panelStyle]="{'bottom': '100%', 'top': 'auto', 'margin-bottom': '0.5rem'}"
-            styleClass="w-full">
-          </p-select>
+        <div class="pills-and-dropdown">
+          <!-- Pills container - 50% width -->
+          <div class="pills-container">
+            <button
+              *ngFor="let value of getRangeOptions()"
+              pButton
+              type="button"
+              [label]="value.toString()"
+              [class.p-button-outlined]="quantity !== value"
+              [class.p-button-primary]="quantity === value"
+              class="p-button-sm quick-pill flex-1"
+              [disabled]="disabled || (maxStock && value > maxStock)"
+              (click)="selectQuantity(value)">
+            </button>
+          </div>
+          
+          <!-- Dropdown container - 50% width -->
+          <div class="dropdown-container">
+            <p-select
+              [(ngModel)]="quantity"
+              [options]="getAllRangeOptions()"
+              optionLabel="label"
+              optionValue="value"
+              [disabled]="disabled"
+              [filter]="false"
+              [placeholder]="'Select quantity'"
+              (onChange)="onQuantityChange()"
+              appendTo="body"
+              styleClass="compact-select w-full">
+            </p-select>
+          </div>
         </div>
       </div>
 
@@ -168,6 +168,10 @@ interface QuantityOption {
     </div>
   `,
   styles: [`
+    * {
+      box-sizing: border-box;
+    }
+    
     .quantity-selector-container {
       display: flex;
       flex-direction: column;
@@ -234,17 +238,76 @@ interface QuantityOption {
       gap: 0.75rem;
     }
 
-    .quick-select-pills {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
+    .pills-and-dropdown {
+      display: flex;
       gap: 0.5rem;
+      width: 100%;
+      align-items: stretch;
+    }
+    
+    .pills-container {
+      display: flex;
+      gap: 0.5rem;
+      width: 50%;
+    }
+    
+    .dropdown-container {
+      width: 50%;
+      min-height: 2.25rem;
+    }
+
+    
+    ::ng-deep .compact-select {
+      width: 100% !important;
+      max-width: 100% !important;
+      height: 2.25rem;
+      min-height: 2.25rem;
+      overflow: hidden;
+      
+      &.p-select {
+        width: 100% !important;
+        max-width: 100% !important;
+        height: 100%;
+        min-height: 2.25rem;
+        min-width: 0 !important;
+        border: 1px solid #ced4da;
+        border-radius: 6px;
+      }
+      
+      .p-select-label {
+        padding: 0 1.5rem 0 0.5rem !important;
+        font-size: 1rem;
+        font-weight: normal;
+        text-align: center;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      
+      .p-select-trigger {
+        width: 1.5rem;
+        height: 100%;
+        padding: 0;
+      }
+      
+      .p-select-trigger-icon {
+        font-size: 0.625rem;
+      }
     }
 
     .quick-pill {
-      padding: 0.5rem 0.25rem;
-      font-size: 0.875rem;
+      padding: 0.25rem 0.5rem;
+      font-size: 1rem;
       border-radius: 6px;
       transition: all 0.2s;
+      height: 2.25rem;
+      box-sizing: border-box;
+      min-width: 0;
+      border: 1px solid #ced4da !important;
       
       &:hover:not(:disabled) {
         transform: translateY(-1px);
@@ -323,12 +386,33 @@ interface QuantityOption {
     /* Mobile responsiveness */
     @media (max-width: 480px) {
       .quick-pill {
-        font-size: 0.75rem;
-        padding: 0.375rem 0.125rem;
+        font-size: 1rem;
+        padding: 0.375rem 0.5rem;
+        height: 2.25rem;
+        font-weight: 600;
       }
       
       .quantity-input {
         width: 3.5rem;
+      }
+      
+      .pills-and-dropdown {
+        gap: 0.25rem;
+      }
+      
+      ::ng-deep .compact-select {
+        height: 2.25rem !important;
+        min-height: 2.25rem !important;
+        
+        .p-select-label {
+          padding: 0.375rem 0.5rem;
+          font-size: 1rem;
+          font-weight: normal;
+        }
+        
+        .p-select-trigger {
+          width: 1.5rem;
+        }
       }
     }
   `]
@@ -585,6 +669,7 @@ export class ProductQuantitySelectorComponent implements OnInit, OnChanges {
       label = value.toFixed(1);
     }
     
+    // Always add unit to dropdown options
     if (this.unit) {
       const unitDisplay = this.getUnitDisplay(this.unit);
       label = `${label} ${unitDisplay}`;
@@ -698,9 +783,4 @@ export class ProductQuantitySelectorComponent implements OnInit, OnChanges {
     return unitMap[unit] || unit;
   }
 
-  private translate(key: string, params?: any): string {
-    // Simple fallback for translation
-    // In real usage, this would use TranslateService
-    return key;
-  }
 }

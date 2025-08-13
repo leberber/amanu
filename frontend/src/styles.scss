@@ -386,3 +386,102 @@ code, pre {
     font-size: 1.5rem !important;
   }
 }
+
+/* Product List View Improvements */
+.hover\\:shadow-2:hover {
+  box-shadow: 0 5px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.hover\\:shadow-3:hover {
+  box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.15), 0 10px 20px -5px rgba(0, 0, 0, 0.1);
+}
+
+
+.transition-all {
+  transition: all 0.3s ease;
+}
+
+.transition-duration-200 {
+  transition-duration: 200ms;
+}
+
+/* Improve button consistency */
+.p-button-lg {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+/* Compact button styles */
+.p-button-sm.p-button-rounded {
+  width: 2rem !important;
+  height: 2rem !important;
+  padding: 0 !important;
+  
+  .p-button-icon {
+    font-size: 0.875rem;
+  }
+}
+
+/* List view specific styles */
+.product-list-item {
+  .product-image {
+    transition: transform 0.3s ease;
+    
+    &:hover {
+      transform: scale(1.02);
+    }
+  }
+}
+
+/* Utility classes */
+.text-xs {
+  font-size: 0.75rem !important;
+}
+
+.text-sm {
+  font-size: 0.875rem !important;
+}
+
+.text-base {
+  font-size: 1rem !important;
+}
+
+.line-height-2 {
+  line-height: 1.5 !important;
+}
+
+.mr-1 {
+  margin-right: 0.25rem !important;
+}
+
+/* Mobile specific sizes */
+@media (max-width: 480px) {
+  .text-xs {
+    font-size: 0.625rem !important;
+  }
+  
+  .text-sm {
+    font-size: 0.75rem !important;
+  }
+  
+  .text-base {
+    font-size: 0.875rem !important;
+  }
+}
+
+/* Text color utilities */
+.text-green-500 {
+  color: #10b981 !important;
+}
+
+.text-orange-500 {
+  color: #f59e0b !important;
+}
+
+.text-red-500 {
+  color: #ef4444 !important;
+}
+
+.text-blue-500 {
+  color: #3b82f6 !important;
+}

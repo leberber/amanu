@@ -36,7 +36,7 @@ export interface AddToCartEvent {
     ProductQuantitySelectorComponent
   ],
   template: `
-    <div class="product-card surface-card border-round-lg overflow-hidden h-full flex flex-column hover:shadow-2">
+    <div class="product-card surface-card h-full flex flex-column" style="border-radius: 0;">
       <!-- Product Image -->
       <a [routerLink]="['/products', product.id]" class="block relative overflow-hidden product-image-container">
         <img 
@@ -47,19 +47,22 @@ export interface AddToCartEvent {
         >
         <!-- Overlay badges -->
         <div class="absolute top-0 left-0 w-full p-2 flex justify-content-between align-items-start">
-          @if (product.is_organic) {
-            <p-tag 
-              severity="success" 
-              [value]="'products.product.organic' | translate" 
-              class="shadow-2"
-              icon="pi pi-leaf"
-            ></p-tag>
-          }
+          <div class="flex align-items-start gap-2">
+            @if (product.is_organic) {
+              <p-tag 
+                severity="success" 
+                value="Organic" 
+                class="shadow-2 flex-shrink-0"
+                icon="pi pi-leaf"
+                style="width: auto;"
+              ></p-tag>
+            }
+          </div>
           @if (isLowStock && !isOutOfStock) {
             <p-tag 
               severity="warning" 
               [value]="'products.stock.low_stock_title' | translate"
-              class="shadow-2 ml-auto"
+              class="shadow-2"
               icon="pi pi-exclamation-triangle"
             ></p-tag>
           }
@@ -67,26 +70,25 @@ export interface AddToCartEvent {
       </a>
     
       <!-- Product Info -->
-      <div class="flex-grow-1 p-4 flex flex-column">
+      <div class="flex-grow-1 p-3 md:p-4 flex flex-column">
         <!-- Title and Category -->
         <div class="mb-2">
-          <h4 class="m-0 mb-1 text-xl font-semibold">
+          <h4 class="m-0 mb-2 text-xl font-medium">
             <a [routerLink]="['/products', product.id]" class="text-900 no-underline hover:text-primary transition-colors transition-duration-200">
               {{ product.name }}
             </a>
           </h4>
-          <p class="text-sm text-500 m-0">{{ getCategoryName() }}</p>
         </div>
         
         <!-- Description -->
-        <p class="text-600 text-sm mb-3 line-height-3" style="min-height: 2.5rem;">
+        <div class="text-600 text-sm mb-2" style="line-height: 1.5;">
           {{ product.description || ('products.default_description' | translate) }}
-        </p>
+        </div>
         
         <!-- Price and Stock -->
         <div class="flex align-items-center justify-content-between mb-3">
           <div>
-            <div class="text-xl font-bold text-900">
+            <div class="text-base font-semibold text-900">
               {{ formatPrice(product.price) }}
             </div>
             <span class="text-xs text-600">{{ 'products.price_per' | translate }} {{ getUnitDisplay(product.unit) }}</span>
@@ -124,16 +126,27 @@ export interface AddToCartEvent {
               (quantityChanged)="onQuantityChanged($event)">
             </app-product-quantity-selector>
             
-            <!-- Add to cart button -->
-            <button
-              pButton
-              type="button"
-              [label]="getAddToCartLabel()"
-              icon="pi pi-shopping-cart"
-              class="p-button-primary w-full mt-3"
-              [disabled]="!product.stock_quantity || product.stock_quantity === 0 || selectedQuantity === 0 || selectedQuantity > product.stock_quantity"
-              (click)="addToCart()">
-            </button>
+            <!-- Add to cart button and quantity display -->
+            <div class="flex align-items-center gap-2 py-2">
+              <div class="flex-1">
+                @if (isInCart) {
+                  <span class="text-xs" style="color: #10b981;">
+                    <i class="pi pi-check-circle mr-1" style="font-size: 0.75rem;"></i>
+                    {{ quantityInCart }} in cart ({{ formatPrice(product.price * quantityInCart) }})
+                  </span>
+                }
+              </div>
+              <button
+                pButton
+                type="button"
+                [label]="'Add (' + selectedQuantity + ')'"
+                icon="pi pi-shopping-cart"
+                class="p-button-primary"
+                style="height: 2.25rem; padding: 0 1rem; width: 50%; font-size: 0.875rem;"
+                [disabled]="!product.stock_quantity || product.stock_quantity === 0 || selectedQuantity === 0 || selectedQuantity > product.stock_quantity"
+                (click)="addToCart()">
+              </button>
+            </div>
           } @else {
             <button
               pButton
@@ -157,11 +170,31 @@ export interface AddToCartEvent {
       border: 1px solid var(--surface-border);
       background: var(--surface-card);
       transition: all 0.3s ease;
+      overflow: hidden;
     }
     
-    .product-card:hover {
-      border-color: var(--primary-color-light);
-      transform: translateY(-2px);
+    /* Desktop hover effect */
+    @media (min-width: 769px) {
+      .product-card:hover {
+        border-color: var(--primary-color-light);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+      }
+      
+      .product-card:hover .product-image {
+        border-radius: 8px 8px 0 0;
+      }
+    }
+    
+    /* Mobile border bottom */
+    @media (max-width: 768px) {
+      .product-card {
+        border: none !important;
+        border-bottom: 2px solid #e5e7eb !important;
+        border-radius: 0 !important;
+        margin-bottom: 0.5rem;
+      }
     }
     
     .product-image-container {
@@ -188,6 +221,27 @@ export interface AddToCartEvent {
     p-tag {
       font-size: 0.75rem;
     }
+    
+    /* Mobile improvements */
+    @media (max-width: 480px) {
+      .p-button {
+        height: 2.25rem !important;
+        font-size: 0.875rem !important;
+        padding: 0 1rem !important;
+      }
+      
+      h4 {
+        font-size: 1.1rem !important;
+      }
+      
+      .text-sm {
+        font-size: 0.875rem !important;
+      }
+      
+      .text-lg {
+        font-size: 1rem !important;
+      }
+    }
   `]
 })
 export class ProductCardComponent {
@@ -200,6 +254,14 @@ export class ProductCardComponent {
   private translateService = inject(TranslateService);
 
   selectedQuantity = 1;
+
+  get isInCart(): boolean {
+    return this.cartService.isProductInCart(this.product.id);
+  }
+
+  get quantityInCart(): number {
+    return this.cartService.getProductQuantityInCart(this.product.id);
+  }
 
   get isOutOfStock(): boolean {
     return this.product.stock_quantity === 0;
@@ -231,20 +293,29 @@ export class ProductCardComponent {
   }
   
   getAddToCartLabel(): string {
-    if (this.selectedQuantity === 0) {
-      return this.translateService.instant('products.product.add_to_cart');
+    return 'Add to Cart';
+  }
+
+  getQuantityOptions(): any[] {
+    if (this.product.quantity_config?.type === 'list' && this.product.quantity_config.quantities) {
+      return this.product.quantity_config.quantities
+        .filter(qty => qty <= this.product.stock_quantity)
+        .map(value => ({
+          label: `${value} ${this.unitsService.getUnitDisplay(this.product.unit)}`,
+          value: value
+        }));
     }
     
-    let label = this.translateService.instant('products.add_quantity_to_cart', {
-      quantity: this.selectedQuantity,
-      unit: this.product.unit ? this.unitsService.getUnitDisplay(this.product.unit) : ''
-    });
-    
-    if (this.product.price) {
-      label += ` - ${this.currencyService.formatCurrency(this.product.price * this.selectedQuantity)}`;
+    // Default options for range or no config
+    const options = [];
+    const max = Math.min(this.product.stock_quantity || 10, 10);
+    for (let i = 1; i <= max; i++) {
+      options.push({
+        label: `${i} ${this.unitsService.getUnitDisplay(this.product.unit)}`,
+        value: i
+      });
     }
-    
-    return label;
+    return options;
   }
 
   addToCart(): void {

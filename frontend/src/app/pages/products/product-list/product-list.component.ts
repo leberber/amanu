@@ -66,7 +66,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
   loading = signal(true);
   showMobileFilters = signal(false);
   searchQuery = signal('');
-  selectedSort = signal<SortOption>('name_asc');
+  selectedSort = signal<SortOption>('name_asc'); // Always sort alphabetically
   layout = signal<ViewMode>('grid');
   filters = signal<ProductFilter>({
     active_only: true,
@@ -224,21 +224,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
   }
   
   getAddToCartLabel(product: Product): string {
-    const quantity = this.getProductQuantity(product.id);
-    if (quantity === 0) {
-      return this.translateService.instant('products.product.add_to_cart');
-    }
-    
-    let label = this.translateService.instant('products.add_quantity_to_cart', {
-      quantity: quantity,
-      unit: product.unit ? this.unitsService.getUnitDisplay(product.unit) : ''
-    });
-    
-    if (product.price) {
-      label += ` - ${this.currencyService.formatCurrency(product.price * quantity)}`;
-    }
-    
-    return label;
+    return 'Add to Cart';
   }
 
 
@@ -418,5 +404,30 @@ export class ProductListComponent implements OnInit, OnDestroy {
         this.categories.set([...categories]);
       }
     });
+  }
+
+  increaseQuantity(productId: number): void {
+    const currentQty = this.getProductQuantity(productId);
+    const product = this.products().find(p => p.id === productId);
+    
+    if (product && currentQty < product.stock_quantity) {
+      this.setProductQuantity(productId, currentQty + 1);
+    }
+  }
+
+  decreaseQuantity(productId: number): void {
+    const currentQty = this.getProductQuantity(productId);
+    
+    if (currentQty > 1) {
+      this.setProductQuantity(productId, currentQty - 1);
+    }
+  }
+
+  isProductInCart(productId: number): boolean {
+    return this.cartService.isProductInCart(productId);
+  }
+
+  getCartQuantity(productId: number): number {
+    return this.cartService.getProductQuantityInCart(productId);
   }
 }

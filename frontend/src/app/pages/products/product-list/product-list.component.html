@@ -64,10 +64,9 @@
 
 <!-- Toolbar Template -->
 <ng-template #toolbar>
-  <div class="m-1 shadow-1 border-round px-2">
+  <div class="m-1 border-round px-2">
     <app-product-toolbar
       [(searchQuery)]="searchQuery"
-      [(sortBy)]="selectedSort"
       [(viewMode)]="layout"
       [filterCount]="activeFilterCount()"
       (search)="onSearch()"
@@ -117,7 +116,7 @@
 <ng-template #gridView>
   <div class="grid">
     <div *ngFor="let product of products(); trackBy: trackByProductId" 
-         class="col-12 md:col-6 lg:col-4 xl:col-3">
+         class="col-12 md:col-6 lg:col-4 xl:col-4 xxl:col-3">
       <app-product-card
         [product]="product"
         (addToCartEvent)="onAddToCart($event)"
@@ -138,10 +137,10 @@
 
 <!-- Product List Item Template -->
 <ng-template #productListItem let-product="product">
-  <div class="surface-card border-round-lg p-4 shadow-1">
-    <div class="flex flex-column md:flex-row gap-4">
-      <!-- Product Image -->
-      <div class="relative overflow-hidden md:w-15rem h-15rem flex-shrink-0 border-round-lg">
+  <div class="surface-card border-bottom-1 surface-border" style="border-radius: 0;">
+    <div class="flex">
+      <!-- Product Image - Compact -->
+      <div class="relative overflow-hidden w-5rem md:w-10rem h-5rem md:h-8rem flex-shrink-0">
         <a [routerLink]="['/products', product.id]" class="block h-full">
           <img 
             [src]="product.image_url || 'assets/images/product-placeholder.jpg'"
@@ -149,92 +148,212 @@
             class="w-full h-full"
             [style.object-fit]="'cover'">
         </a>
-        <ng-container *ngIf="product.is_organic">
-          <p-tag 
-            severity="success" 
-            [value]="'products.product.organic' | translate"
-            icon="pi pi-leaf"
-            class="absolute top-1 left-1 shadow-2">
-          </p-tag>
-        </ng-container>
+        <!-- Overlay badges - matching grid view -->
+        <div class="absolute top-0 left-0 w-full p-1 flex justify-content-between align-items-start">
+          <div class="flex align-items-start gap-1">
+            <ng-container *ngIf="product.is_organic">
+              <p-tag 
+                severity="success" 
+                value="Organic" 
+                class="shadow-2 text-xs flex-shrink-0"
+                icon="pi pi-leaf"
+                style="width: auto;">
+              </p-tag>
+            </ng-container>
+          </div>
+        </div>
       </div>
       
-      <!-- Product Content -->
-      <div class="flex-1 flex flex-column gap-3">
-        <!-- Header Section -->
-        <div class="flex justify-content-between align-items-start gap-3">
-          <div class="flex-1">
-            <h3 class="text-xl font-semibold m-0 mb-1">
-              <a [routerLink]="['/products', product.id]" 
-                 class="text-color no-underline hover:text-primary transition-colors transition-duration-200">
-                {{ product.name }}
-              </a>
-            </h3>
-            <p class="text-500 text-sm m-0">{{ 'products.category.default' | translate }}</p>
+      <!-- Product Content - Compact -->
+      <div class="flex-1 p-1 md:p-3 flex flex-column" style="min-width: 0;">
+        <!-- Mobile Layout -->
+        <div class="block md:hidden px-3 py-2">
+          <!-- Product name - Bigger and bolder -->
+          <h5 class="text-xl font-medium m-0 mb-2">
+            <a [routerLink]="['/products', product.id]" class="text-900 no-underline">
+              {{ product.name }}
+            </a>
+          </h5>
+          
+          <!-- Description - More readable -->
+          <div class="text-sm text-600 mb-3" style="overflow: hidden; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; line-height: 1.4; opacity: 0.9;">
+            {{ product.description || ('products.default_description' | translate) }}
           </div>
-          <!-- Stock Status -->
-          <ng-container *ngIf="isOutOfStock(product); else inStockCheck">
-            <p-tag severity="danger" [value]="'products.stock.out_of_stock' | translate" icon="pi pi-times"></p-tag>
-          </ng-container>
-          <ng-template #inStockCheck>
-            <ng-container *ngIf="product.stock_quantity < 20; else fullStock">
-              <p-tag severity="warning" [value]="('products.stock.items_left' | translate: {count: product.stock_quantity})" icon="pi pi-exclamation-triangle"></p-tag>
-            </ng-container>
-            <ng-template #fullStock>
-              <p-tag severity="success" [value]="'products.stock.in_stock' | translate" icon="pi pi-check"></p-tag>
-            </ng-template>
-          </ng-template>
-        </div>
-        
-        <!-- Description -->
-        <p class="text-600 line-height-3 m-0">
-          {{ product.description || ('products.default_description' | translate) }}
-        </p>
-        
-        <!-- Price -->
-        <div class="flex align-items-end gap-2">
-          <span class="text-2xl font-bold text-primary">{{ formatPrice(product.price) }}</span>
-          <span class="text-sm text-500 mb-1">{{ 'products.price_per' | translate }} {{ getUnitDisplay(product.unit) }}</span>
-        </div>
-        
-        <!-- Quantity Selector and Add to Cart -->
-        <div class="mt-auto">
-          <ng-container *ngIf="!isOutOfStock(product); else outOfStockButton">
-            <div class="flex align-items-center gap-2">
-              <app-product-quantity-selector
-                [value]="getProductQuantity(product.id)"
-                [unit]="product.unit"
-                [stockQuantity]="product.stock_quantity"
-                [quantityConfig]="product.quantity_config"
-                [pricePerUnit]="product.price"
-                [disabled]="!product.stock_quantity || product.stock_quantity === 0"
-                [showStock]="true"
-                (quantityChanged)="setProductQuantity(product.id, $event)"
-                class="flex-1">
-              </app-product-quantity-selector>
+          
+          <!-- Price and Stock - Cleaner layout -->
+          <div class="flex align-items-center justify-content-between mb-3">
+            <div class="flex align-items-baseline gap-2">
+              <span class="text-base font-semibold text-900">{{ formatPrice(product.price) }}</span>
+              <span class="text-sm text-500">{{ getUnitDisplay(product.unit) }}</span>
+            </div>
+            
+            <!-- Stock Status - Better visibility -->
+            <div>
+              <ng-container *ngIf="isOutOfStock(product)">
+                <span class="text-red-500 font-medium text-sm flex align-items-center">
+                  <i class="pi pi-times-circle mr-1" style="font-size: 0.875rem;"></i>Out of Stock
+                </span>
+              </ng-container>
+              <ng-container *ngIf="!isOutOfStock(product) && product.stock_quantity < 20">
+                <span class="text-orange-500 font-medium text-sm flex align-items-center">
+                  <i class="pi pi-exclamation-circle mr-1" style="font-size: 0.875rem;"></i>{{ product.stock_quantity }} left
+                </span>
+              </ng-container>
+              <ng-container *ngIf="!isOutOfStock(product) && product.stock_quantity >= 20">
+                <span class="text-green-500 font-medium text-sm flex align-items-center">
+                  <i class="pi pi-check-circle mr-1" style="font-size: 0.875rem;"></i>In Stock
+                </span>
+              </ng-container>
+            </div>
+          </div>
+          
+          <!-- Quantity selector and add to cart -->
+          <ng-container *ngIf="!isOutOfStock(product)">
+            <div class="flex flex-column gap-3">
+              <div>
+                <app-product-quantity-selector
+                  [value]="getProductQuantity(product.id)"
+                  [unit]="product.unit"
+                  [stockQuantity]="product.stock_quantity"
+                  [quantityConfig]="product.quantity_config"
+                  [pricePerUnit]="product.price"
+                  [disabled]="!product.stock_quantity || product.stock_quantity === 0"
+                  [showStock]="false"
+                  (quantityChanged)="setProductQuantity(product.id, $event)"
+                  class="w-full">
+                </app-product-quantity-selector>
+              </div>
               
-              <!-- Add to cart button -->
-              <button
-                pButton
-                type="button"
-                [label]="getAddToCartLabel(product)"
-                icon="pi pi-shopping-cart"
-                class="p-button-primary"
-                [disabled]="!product.stock_quantity || product.stock_quantity === 0 || getProductQuantity(product.id) === 0 || getProductQuantity(product.id) > product.stock_quantity"
-                (click)="quickAddToCart(product)">
-              </button>
+              <div class="flex align-items-center gap-2">
+                <div class="flex-1">
+                  <ng-container *ngIf="isProductInCart(product.id)">
+                    <span class="text-xs" style="color: #10b981;">
+                      <i class="pi pi-check-circle mr-1" style="font-size: 0.75rem;"></i>
+                      {{ getCartQuantity(product.id) }} in cart ({{ formatPrice(product.price * getCartQuantity(product.id)) }})
+                    </span>
+                  </ng-container>
+                </div>
+                <button
+                  pButton
+                  type="button"
+                  [label]="'Add (' + getProductQuantity(product.id) + ')'"
+                  icon="pi pi-cart-plus"
+                  class="p-button-primary"
+                  style="width: 50%; height: 2.5rem; padding: 0 1rem; font-size: 0.875rem; font-weight: 600; border-radius: 8px;"
+                  [disabled]="!product.stock_quantity || product.stock_quantity === 0 || getProductQuantity(product.id) === 0 || getProductQuantity(product.id) > product.stock_quantity"
+                  (click)="quickAddToCart(product)">
+                </button>
+              </div>
             </div>
           </ng-container>
           
-          <ng-template #outOfStockButton>
-            <button
-              pButton
-              [label]="'products.stock.out_of_stock' | translate"
-              icon="pi pi-times"
-              [disabled]="true"
-              class="w-full p-button-secondary">
-            </button>
-          </ng-template>
+          <!-- Out of stock state -->
+          <ng-container *ngIf="isOutOfStock(product)">
+            <div>
+              <button
+                pButton
+                label="Out of Stock"
+                [disabled]="true"
+                class="w-full p-button-secondary"
+                style="height: 2.5rem; font-size: 0.875rem; font-weight: 600; border-radius: 8px;">
+              </button>
+            </div>
+          </ng-container>
+        </div>
+        
+        <!-- Desktop Layout -->
+        <div class="hidden md:block">
+          <!-- Header Section -->
+          <div class="mb-2">
+            <h4 class="text-xl font-medium m-0 mb-1">
+              <a [routerLink]="['/products', product.id]" 
+                 class="text-900 no-underline hover:text-primary transition-colors transition-duration-200">
+                {{ product.name }}
+              </a>
+            </h4>
+            
+            <!-- Price and Stock on same line -->
+            <div class="flex align-items-center justify-content-between">
+              <div class="flex align-items-baseline gap-1">
+                <span class="text-base font-semibold text-900">{{ formatPrice(product.price) }}</span>
+                <span class="text-xs text-500">/ {{ getUnitDisplay(product.unit) }}</span>
+              </div>
+              
+              <!-- Stock Status - matching grid view style -->
+              <div>
+                <ng-container *ngIf="isOutOfStock(product)">
+                  <span class="text-red-500 font-medium text-sm">
+                    <i class="pi pi-times-circle mr-1"></i>{{ 'products.stock.out_of_stock' | translate }}
+                  </span>
+                </ng-container>
+                <ng-container *ngIf="!isOutOfStock(product) && product.stock_quantity < 20">
+                  <span class="text-orange-500 font-medium text-sm">
+                    <i class="pi pi-exclamation-circle mr-1"></i>{{ 'products.stock.items_left' | translate: {count: product.stock_quantity} }}
+                  </span>
+                </ng-container>
+                <ng-container *ngIf="!isOutOfStock(product) && product.stock_quantity >= 20">
+                  <span class="text-green-500 font-medium text-sm">
+                    <i class="pi pi-check-circle mr-1"></i>{{ 'products.stock.in_stock' | translate }}
+                  </span>
+                </ng-container>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Description -->
+          <p class="text-sm text-600 line-height-2 m-0 mb-2" style="max-height: 2.5rem; overflow: hidden;">
+            {{ product.description || ('products.default_description' | translate) }}
+          </p>
+          
+          <!-- Quantity Selector and Add to Cart -->
+          <div class="mt-auto">
+            <ng-container *ngIf="!isOutOfStock(product); else outOfStockButton">
+              <div class="flex align-items-center gap-2">
+                <app-product-quantity-selector
+                  [value]="getProductQuantity(product.id)"
+                  [unit]="product.unit"
+                  [stockQuantity]="product.stock_quantity"
+                  [quantityConfig]="product.quantity_config"
+                  [pricePerUnit]="product.price"
+                  [disabled]="!product.stock_quantity || product.stock_quantity === 0"
+                  [showStock]="false"
+                  (quantityChanged)="setProductQuantity(product.id, $event)"
+                  class="flex-1">
+                </app-product-quantity-selector>
+              </div>
+              
+              <div class="flex align-items-center gap-2 mt-2 py-2">
+                <div class="flex-1">
+                  <ng-container *ngIf="isProductInCart(product.id)">
+                    <span class="text-sm" style="color: #10b981;">
+                      <i class="pi pi-check-circle mr-1" style="font-size: 0.875rem;"></i>
+                      {{ getCartQuantity(product.id) }} in cart ({{ formatPrice(product.price * getCartQuantity(product.id)) }})
+                    </span>
+                  </ng-container>
+                </div>
+                <button
+                  pButton
+                  type="button"
+                  [label]="'Add (' + getProductQuantity(product.id) + ')'"
+                  icon="pi pi-shopping-cart"
+                  class="p-button-primary"
+                  style="min-width: 120px; width: 50%; height: 2.25rem; padding: 0 1rem; font-size: 0.875rem;"
+                  [disabled]="!product.stock_quantity || product.stock_quantity === 0 || getProductQuantity(product.id) === 0 || getProductQuantity(product.id) > product.stock_quantity"
+                  (click)="quickAddToCart(product)">
+                </button>
+              </div>
+            </ng-container>
+            
+            <ng-template #outOfStockButton>
+              <button
+                pButton
+                [label]="'Out of Stock'"
+                icon="pi pi-times"
+                [disabled]="true"
+                class="w-full p-button-secondary p-button-sm">
+              </button>
+            </ng-template>
+          </div>
         </div>
       </div>
     </div>

@@ -53,8 +53,6 @@ export type SortOption = 'name_asc' | 'name_desc' | 'price_asc' | 'price_desc' |
         
         <!-- Actions Section -->
         <div class="flex align-items-center gap-2">
-          <ng-container *ngTemplateOutlet="sortDropdown"></ng-container>
-          <div class="mx-2 h-2rem border-left-1 surface-border"></div>
           <ng-container *ngTemplateOutlet="viewToggle"></ng-container>
           <ng-container *ngIf="filterCount > 0">
             <div class="mx-2 h-2rem border-left-1 surface-border"></div>
@@ -66,15 +64,10 @@ export type SortOption = 'name_asc' | 'name_desc' | 'price_asc' | 'price_desc' |
 
     <!-- Mobile Toolbar Template -->
     <ng-template #mobileToolbar>
-      <div class="flex flex-column gap-3">
-        <div class="flex gap-2">
-          <ng-container *ngTemplateOutlet="searchBar; context: { class: 'flex-1' }"></ng-container>
-          <ng-container *ngTemplateOutlet="mobileFilterButton"></ng-container>
-        </div>
-        <div class="flex gap-2 align-items-center">
-          <ng-container *ngTemplateOutlet="sortDropdown; context: { class: 'flex-1' }"></ng-container>
-          <ng-container *ngTemplateOutlet="viewToggle"></ng-container>
-        </div>
+      <div class="flex gap-2 align-items-center">
+        <ng-container *ngTemplateOutlet="searchBar; context: { class: 'flex-1' }"></ng-container>
+        <ng-container *ngTemplateOutlet="viewToggle"></ng-container>
+        <ng-container *ngTemplateOutlet="mobileFilterButton"></ng-container>
       </div>
     </ng-template>
 
@@ -113,28 +106,15 @@ export type SortOption = 'name_asc' | 'name_desc' | 'price_asc' | 'price_desc' |
 
     <!-- View Toggle Template -->
     <ng-template #viewToggle>
-      <div class="view-toggle-group">
-        <button 
-          pButton 
-          type="button" 
-          [icon]="'pi pi-th-large'"
-          class="p-button-text p-button-sm"
-          [ngClass]="{'view-active': viewMode === 'grid'}"
-          (click)="setViewMode('grid')"
-          [pTooltip]="'products.view.grid' | translate"
-          tooltipPosition="bottom">
-        </button>
-        <button 
-          pButton 
-          type="button" 
-          [icon]="'pi pi-list'"
-          class="p-button-text p-button-sm"
-          [ngClass]="{'view-active': viewMode === 'list'}"
-          (click)="setViewMode('list')"
-          [pTooltip]="'products.view.list' | translate"
-          tooltipPosition="bottom">
-        </button>
-      </div>
+      <button 
+        pButton 
+        type="button" 
+        [icon]="viewMode === 'grid' ? 'pi pi-list' : 'pi pi-th-large'"
+        class="p-button-text p-button-sm"
+        (click)="toggleViewMode()"
+        [pTooltip]="viewMode === 'grid' ? ('products.view.list' | translate) : ('products.view.grid' | translate)"
+        tooltipPosition="bottom">
+      </button>
     </ng-template>
 
     <!-- Mobile Filter Button Template -->
@@ -143,7 +123,7 @@ export type SortOption = 'name_asc' | 'name_desc' | 'price_asc' | 'price_desc' |
         <button
           pButton
           icon="pi pi-filter"
-          class="p-button-outlined"
+          class="p-button-text p-button-sm"
           (click)="toggleMobileFilters()"
           [pTooltip]="'products.filters.title' | translate"
           tooltipPosition="bottom">
@@ -188,16 +168,38 @@ export type SortOption = 'name_asc' | 'name_desc' | 'price_asc' | 'price_desc' |
 
     .search-input {
       padding-right: 3rem;
-      border-radius: 50px;
+      border-radius: 8px;
       background: var(--surface-50);
-      border: 2px solid transparent;
-      transition: all 0.3s;
+      border: 2px solid var(--surface-50);
+      transition: all 0.3s ease;
+      outline: none;
+      -webkit-appearance: none;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .search-input:hover {
+      border-color: var(--surface-200);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
     }
 
     .search-input:focus {
       background: white;
-      border-color: var(--primary-200);
-      box-shadow: 0 0 0 4px var(--primary-50);
+      border-color: var(--primary-color);
+      outline: none;
+      box-shadow: 0 0 0 3px var(--primary-50), 0 4px 12px rgba(0, 0, 0, 0.15);
+      transform: translateY(-1px);
+    }
+    
+    /* Mobile adjustments */
+    @media (max-width: 768px) {
+      .search-input {
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+      }
+      
+      .search-input:focus {
+        box-shadow: 0 0 0 2px var(--primary-50), 0 2px 8px rgba(0, 0, 0, 0.1);
+        transform: none;
+      }
     }
 
     .search-container .pi-search {
@@ -206,12 +208,20 @@ export type SortOption = 'name_asc' | 'name_desc' | 'price_asc' | 'price_desc' |
       top: 50%;
       transform: translateY(-50%);
       color: var(--text-color-secondary);
-      transition: color 0.3s;
+      transition: all 0.3s ease;
+      padding: 0.5rem;
+      border-radius: 50%;
     }
 
-    .search-container:hover .pi-search,
+    .search-container:hover .pi-search {
+      color: var(--primary-600);
+      background: var(--primary-50);
+    }
+    
     .search-input:focus ~ .pi-search {
       color: var(--primary-color);
+      background: var(--primary-100);
+      transform: translateY(-50%) scale(1.1);
     }
 
     ::ng-deep {
@@ -268,7 +278,18 @@ export type SortOption = 'name_asc' | 'name_desc' | 'price_asc' | 'price_desc' |
       }
 
       .search-input {
-        font-size: 14px;
+        font-size: 16px; /* Prevents zoom on iOS */
+        padding: 0.75rem 2.5rem 0.75rem 1rem;
+        height: 2.75rem;
+      }
+      
+      .search-container {
+        width: 100%;
+        max-width: 100%;
+      }
+      
+      .search-container .pi-search {
+        font-size: 1rem;
       }
     }
   `]
@@ -320,6 +341,11 @@ export class ProductToolbarComponent implements OnInit {
   setViewMode(mode: ViewMode): void {
     this.viewMode = mode;
     this.viewModeChange.emit(this.viewMode);
+  }
+  
+  toggleViewMode(): void {
+    const newMode = this.viewMode === 'grid' ? 'list' : 'grid';
+    this.setViewMode(newMode);
   }
 
   toggleMobileFilters(): void {

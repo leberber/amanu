@@ -51,6 +51,15 @@ export class CartService {
     // Simply return the current cart from localStorage
     return of(this.cartItemsSubject.value);
   }
+
+  getProductQuantityInCart(productId: number): number {
+    const item = this.cartItemsSubject.value.find(item => item.product_id === productId);
+    return item ? item.quantity : 0;
+  }
+
+  isProductInCart(productId: number): boolean {
+    return this.cartItemsSubject.value.some(item => item.product_id === productId);
+  }
   
   addToCart(product: Product, quantity: number): Observable<CartItem> {
     const currentCart = [...this.cartItemsSubject.value];
