@@ -39,11 +39,16 @@
   },
   "Select All": "تحديد الكل",
   "Clear": "مسح",
+  "Clear Selection": "مسح التحديد",
   "Apply Filters": "تطبيق المرشحات",
   "Reset": "إعادة تعيين",
   "Qty": "كمية",
   "Add to Cart": "إضافة للسلة",
   "Out of Stock": "غير متوفر",
+  "Limited Stock": "المخزون محدود",
+  "Organic": "عضوي",
+  "In Stock": "متوفر",
+  "Select Quantity": "اختر الكمية",
   "header": {
     "fresh_produce": "المنتجات الطازجة",
     "dark_mode": "الوضع المظلم",
@@ -101,7 +106,13 @@
       "categories_selected": "الفئات المحددة",
       "reset_filters": "إعادة تعيين المرشحات",
       "clear_filters": "مسح المرشحات",
-      "error": "فشل في تحميل المرشحات"
+      "error": "فشل في تحميل المرشحات",
+      "clear_all": "مسح جميع المرشحات",
+      "select_filters": "اختر المرشحات للتطبيق",
+      "apply_filters": "تطبيق {{count}} مرشح",
+      "apply_filters_plural": "تطبيق {{count}} مرشحات",
+      "active_count": "{{count}} مرشح نشط",
+      "active_count_plural": "{{count}} مرشحات نشطة"
     },
     "search": {
       "placeholder": "البحث عن المنتجات...",
@@ -111,11 +122,12 @@
     "sort": {
       "title": "ترتيب حسب",
       "label": "ترتيب حسب",
-      "name_asc": "الاسم أ-ي",
-      "name_desc": "الاسم ي-أ",
-      "price_asc": "السعر من الأقل للأعلى",
-      "price_desc": "السعر من الأعلى للأقل",
-      "created_at_desc": "الأحدث أولاً"
+      "name_asc": "الاسم (أ-ي)",
+      "name_desc": "الاسم (ي-أ)",
+      "price_asc": "السعر (من الأقل للأعلى)",
+      "price_desc": "السعر (من الأعلى للأقل)",
+      "created_at_desc": "الأحدث أولاً",
+      "newest": "الأحدث أولاً"
     },
     "view": {
       "grid": "عرض الشبكة",
@@ -131,13 +143,20 @@
       "product_details": "تفاصيل المنتج",
       "reviews": "التقييمات"
     },
-      "stock": {
+    "stock": {
       "out_of_stock": "غير متوفر",
       "low_stock": "باقي {count} فقط في المخزون",
       "low_stock_title": "مخزون قليل",
-      "in_stock": "متوفر في المخزون",
+      "in_stock": "متوفر",
       "available": "متاح",
-      "unavailable_message": "هذا العنصر غير متوفر حالياً"
+      "unavailable_message": "هذا العنصر غير متوفر حالياً",
+      "items_left": "باقي {{count}}"
+    },
+    "default_description": "منتجات طازجة عالية الجودة توصل إلى باب منزلك",
+    "price_per": "لكل",
+    "add_quantity_to_cart": "إضافة {{quantity}} {{unit}} للسلة",
+    "category": {
+      "default": "منتجات طازجة"
     },
     "empty": {
       "title": "لم يتم العثور على منتجات",

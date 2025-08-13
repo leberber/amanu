@@ -82,7 +82,7 @@ export interface AddToCartEvent {
         
         <!-- Description -->
         <p class="text-600 text-sm mb-3 line-height-3" style="min-height: 2.5rem;">
-          {{ product.description || 'Fresh, high-quality produce delivered to your door' }}
+          {{ product.description || ('products.default_description' | translate) }}
         </p>
         
         <!-- Price and Stock -->
@@ -91,22 +91,22 @@ export interface AddToCartEvent {
             <div class="text-xl font-bold text-900">
               {{ formatPrice(product.price) }}
             </div>
-            <span class="text-xs text-600">per {{ getUnitDisplay(product.unit) }}</span>
+            <span class="text-xs text-600">{{ 'products.price_per' | translate }} {{ getUnitDisplay(product.unit) }}</span>
           </div>
           
           <!-- Stock indicator -->
           <div class="text-right">
             @if (isOutOfStock) {
               <span class="text-red-500 font-medium text-sm">
-                <i class="pi pi-times-circle mr-1"></i>Out of Stock
+                <i class="pi pi-times-circle mr-1"></i>{{ 'products.stock.out_of_stock' | translate }}
               </span>
             } @else if (isLowStock) {
               <span class="text-orange-500 font-medium text-sm">
-                <i class="pi pi-exclamation-circle mr-1"></i>{{ product.stock_quantity }} left
+                <i class="pi pi-exclamation-circle mr-1"></i>{{ 'products.stock.items_left' | translate: {count: product.stock_quantity} }}
               </span>
             } @else {
               <span class="text-green-500 font-medium text-sm">
-                <i class="pi pi-check-circle mr-1"></i>In Stock
+                <i class="pi pi-check-circle mr-1"></i>{{ 'products.stock.in_stock' | translate }}
               </span>
             }
           </div>
@@ -179,7 +179,7 @@ export interface AddToCartEvent {
             <button
               pButton
               icon="pi pi-cart-plus"
-              [label]="'Add ' + selectedQuantity + ' ' + getUnitDisplay(product.unit) + ' to Cart' | translate"
+              [label]="('products.add_quantity_to_cart' | translate: {quantity: selectedQuantity, unit: getUnitDisplay(product.unit)})"
               class="w-full"
               (click)="addToCart()">
             </button>

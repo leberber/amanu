@@ -1,7 +1,7 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 // PrimeNG imports
 import { InputTextModule } from 'primeng/inputtext';
@@ -86,7 +86,7 @@ export type SortOption = 'name_asc' | 'name_desc' | 'price_asc' | 'price_desc' |
           pInputText 
           type="text"
           [(ngModel)]="searchQuery"
-          [placeholder]="'Search products...' | translate"
+          [placeholder]="'products.search.placeholder' | translate"
           (keyup.enter)="onSearch()"
           class="w-full search-input">
       </div>
@@ -121,7 +121,7 @@ export type SortOption = 'name_asc' | 'name_desc' | 'price_asc' | 'price_desc' |
           class="p-button-text p-button-sm"
           [ngClass]="{'view-active': viewMode === 'grid'}"
           (click)="setViewMode('grid')"
-          [pTooltip]="'Grid View' | translate"
+          [pTooltip]="'products.view.grid' | translate"
           tooltipPosition="bottom">
         </button>
         <button 
@@ -131,7 +131,7 @@ export type SortOption = 'name_asc' | 'name_desc' | 'price_asc' | 'price_desc' |
           class="p-button-text p-button-sm"
           [ngClass]="{'view-active': viewMode === 'list'}"
           (click)="setViewMode('list')"
-          [pTooltip]="'List View' | translate"
+          [pTooltip]="'products.view.list' | translate"
           tooltipPosition="bottom">
         </button>
       </div>
@@ -145,7 +145,7 @@ export type SortOption = 'name_asc' | 'name_desc' | 'price_asc' | 'price_desc' |
           icon="pi pi-filter"
           class="p-button-outlined"
           (click)="toggleMobileFilters()"
-          [pTooltip]="'Filters' | translate"
+          [pTooltip]="'products.filters.title' | translate"
           tooltipPosition="bottom">
         </button>
         <ng-container *ngIf="filterCount > 0">
@@ -162,10 +162,10 @@ export type SortOption = 'name_asc' | 'name_desc' | 'price_asc' | 'price_desc' |
     <ng-template #filterIndicator>
       <button
         pButton
-        [label]="filterCount + ' ' + ('filters' | translate)"
+        [label]="filterCount === 1 ? ('products.filters.active_count' | translate: {count: filterCount}) : ('products.filters.active_count_plural' | translate: {count: filterCount})"
         icon="pi pi-filter-fill"
         class="p-button-rounded p-button-sm p-button-outlined"
-        [pTooltip]="'Clear filters' | translate"
+        [pTooltip]="'products.filters.clear_all' | translate"
         tooltipPosition="bottom"
         (click)="clearFilters()">
       </button>
@@ -273,7 +273,8 @@ export type SortOption = 'name_asc' | 'name_desc' | 'price_asc' | 'price_desc' |
     }
   `]
 })
-export class ProductToolbarComponent {
+export class ProductToolbarComponent implements OnInit {
+  private translateService = inject(TranslateService);
   @Input() searchQuery = '';
   @Input() sortBy: SortOption = 'name_asc';
   @Input() viewMode: ViewMode = 'grid';
@@ -286,13 +287,26 @@ export class ProductToolbarComponent {
   @Output() mobileFiltersToggle = new EventEmitter<void>();
   @Output() filtersCleared = new EventEmitter<void>();
 
-  sortOptions = [
-    { label: 'Name (A-Z)', value: 'name_asc' },
-    { label: 'Name (Z-A)', value: 'name_desc' },
-    { label: 'Price (Low to High)', value: 'price_asc' },
-    { label: 'Price (High to Low)', value: 'price_desc' },
-    { label: 'Newest First', value: 'created_at_desc' }
-  ];
+  sortOptions: { label: string; value: string }[] = [];
+
+  ngOnInit(): void {
+    this.initializeSortOptions();
+    
+    // Re-initialize on language change
+    this.translateService.onLangChange.subscribe(() => {
+      this.initializeSortOptions();
+    });
+  }
+
+  private initializeSortOptions(): void {
+    this.sortOptions = [
+      { label: this.translateService.instant('products.sort.name_asc'), value: 'name_asc' },
+      { label: this.translateService.instant('products.sort.name_desc'), value: 'name_desc' },
+      { label: this.translateService.instant('products.sort.price_asc'), value: 'price_asc' },
+      { label: this.translateService.instant('products.sort.price_desc'), value: 'price_desc' },
+      { label: this.translateService.instant('products.sort.newest'), value: 'created_at_desc' }
+    ];
+  }
 
   onSearch(): void {
     this.searchQueryChange.emit(this.searchQuery);

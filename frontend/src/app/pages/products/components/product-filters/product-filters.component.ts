@@ -49,7 +49,7 @@ import { Category } from '../../../../models/product.model';
               icon="pi pi-times" 
               class="p-button-text p-button-rounded p-button-sm text-500"
               (click)="clearAll()"
-              pTooltip="Clear all filters"
+              [pTooltip]="'products.filters.clear_all' | translate"
               tooltipPosition="left">
             </button>
           </ng-container>
@@ -94,7 +94,7 @@ import { Category } from '../../../../models/product.model';
       <div class="p-3">
         <button 
           pButton 
-          [label]="getApplyButtonLabel()" 
+          [label]="applyButtonLabel | translate: {count: activeFilterCount}" 
           icon="pi pi-check" 
           class="w-full"
           [disabled]="activeFilterCount === 0"
@@ -337,6 +337,16 @@ export class ProductFiltersComponent {
     return count;
   }
 
+  get applyButtonLabel(): string {
+    if (this.activeFilterCount === 0) {
+      return 'products.filters.select_filters';
+    } else if (this.activeFilterCount === 1) {
+      return 'products.filters.apply_filters';
+    } else {
+      return 'products.filters.apply_filters_plural';
+    }
+  }
+
   isSelected(category: Category): boolean {
     return this.selectedCategories.some(c => c.id === category.id);
   }
@@ -364,17 +374,6 @@ export class ProductFiltersComponent {
     this.filtersApplied.emit();
   }
 
-  getApplyButtonLabel(): string {
-    const filterCount = this.activeFilterCount;
-    
-    if (filterCount === 0) {
-      return 'Select filters to apply';
-    } else if (filterCount === 1) {
-      return 'Apply 1 Filter';
-    } else {
-      return `Apply ${filterCount} Filters`;
-    }
-  }
 
   trackByCategoryId(_index: number, category: Category): number {
     return category.id;

@@ -208,16 +208,16 @@
 <!-- Stock Status Template -->
 <ng-template #stockStatus let-product="product">
   <ng-container *ngIf="isOutOfStock(product); else inStockCheck">
-    <p-tag severity="danger" [value]="'Out of Stock'" icon="pi pi-times"></p-tag>
+    <p-tag severity="danger" [value]="'products.stock.out_of_stock' | translate" icon="pi pi-times"></p-tag>
   </ng-container>
   
   <ng-template #inStockCheck>
     <ng-container *ngIf="product.stock_quantity < 20; else fullStock">
-      <p-tag severity="warning" [value]="product.stock_quantity + ' left'" icon="pi pi-exclamation-triangle"></p-tag>
+      <p-tag severity="warning" [value]="('products.stock.items_left' | translate: {count: product.stock_quantity})" icon="pi pi-exclamation-triangle"></p-tag>
     </ng-container>
     
     <ng-template #fullStock>
-      <p-tag severity="success" [value]="'In Stock'" icon="pi pi-check"></p-tag>
+      <p-tag severity="success" [value]="'products.stock.in_stock' | translate" icon="pi pi-check"></p-tag>
     </ng-template>
   </ng-template>
 </ng-template>
@@ -225,7 +225,7 @@
 <!-- Product Description Template -->
 <ng-template #productDescription let-product="product">
   <p class="text-600 line-height-3 m-0 flex-1">
-    {{ product.description || 'Fresh, high-quality produce delivered daily from local farms.' }}
+    {{ product.description || ('products.default_description' | translate) }}
   </p>
 </ng-template>
 

@@ -39,11 +39,16 @@
   },
   "Select All": "Tout Sélectionner",
   "Clear": "Effacer",
+  "Clear Selection": "Effacer la Sélection",
   "Apply Filters": "Appliquer les Filtres",
   "Reset": "Réinitialiser",
   "Qty": "Qté",
   "Add to Cart": "Ajouter au Panier",
   "Out of Stock": "Rupture de Stock",
+  "Limited Stock": "Stock Limité",
+  "Organic": "Bio",
+  "In Stock": "En Stock",
+  "Select Quantity": "Sélectionner la Quantité",
   "header": {
     "fresh_produce": "Produits Frais",
     "dark_mode": "Mode sombre",
@@ -101,7 +106,13 @@
       "categories_selected": "Catégories Sélectionnées",
       "reset_filters": "Réinitialiser les Filtres",
       "clear_filters": "Effacer les Filtres",
-      "error": "Échec du chargement des filtres"
+      "error": "Échec du chargement des filtres",
+      "clear_all": "Effacer tous les filtres",
+      "select_filters": "Sélectionnez des filtres à appliquer",
+      "apply_filters": "Appliquer {{count}} Filtre",
+      "apply_filters_plural": "Appliquer {{count}} Filtres",
+      "active_count": "{{count}} filtre actif",
+      "active_count_plural": "{{count}} filtres actifs"
     },
     "search": {
       "placeholder": "Rechercher des produits...",
@@ -111,11 +122,12 @@
     "sort": {
       "title": "Trier Par",
       "label": "Trier Par",
-      "name_asc": "Nom A-Z",
-      "name_desc": "Nom Z-A",
-      "price_asc": "Prix Croissant",
-      "price_desc": "Prix Décroissant",
-      "created_at_desc": "Plus Récents"
+      "name_asc": "Nom (A-Z)",
+      "name_desc": "Nom (Z-A)",
+      "price_asc": "Prix (Croissant)",
+      "price_desc": "Prix (Décroissant)",
+      "created_at_desc": "Plus Récents",
+      "newest": "Plus Récents"
     },
     "view": {
       "grid": "Vue Grille",
@@ -132,12 +144,19 @@
       "reviews": "Avis"
     },
     "stock": {
-      "out_of_stock": "Rupture de stock",
+      "out_of_stock": "Rupture de Stock",
       "low_stock": "Plus que {count} en stock",
       "low_stock_title": "Stock Faible",
-      "in_stock": "En stock",
+      "in_stock": "En Stock",
       "available": "disponible(s)",
-      "unavailable_message": "Cet article n'est actuellement pas disponible"
+      "unavailable_message": "Cet article n'est actuellement pas disponible",
+      "items_left": "{{count}} restant(s)"
+    },
+    "default_description": "Produits frais de haute qualité livrés à votre porte",
+    "price_per": "par",
+    "add_quantity_to_cart": "Ajouter {{quantity}} {{unit}} au Panier",
+    "category": {
+      "default": "Produits Frais"
     },
     "empty": {
       "title": "Aucun produit trouvé",

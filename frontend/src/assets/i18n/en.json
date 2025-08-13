@@ -39,6 +39,7 @@
   },
   "Select All": "Select All",
   "Clear": "Clear",
+  "Clear Selection": "Clear Selection",
   "Apply Filters": "Apply Filters",
   "Reset": "Reset",
   "Qty": "Qty",
@@ -47,6 +48,7 @@
   "Limited Stock": "Limited Stock",
   "Organic": "Organic",
   "In Stock": "In Stock",
+  "Select Quantity": "Select Quantity",
   "header": {
     "fresh_produce": "Fresh Produce",
     "dark_mode": "Dark mode",
@@ -104,7 +106,13 @@
       "categories_selected": "Categories Selected",
       "reset_filters": "Reset Filters",
       "clear_filters": "Clear Filters",
-      "error": "Failed to load filters"
+      "error": "Failed to load filters",
+      "clear_all": "Clear all filters",
+      "select_filters": "Select filters to apply",
+      "apply_filters": "Apply {{count}} Filter",
+      "apply_filters_plural": "Apply {{count}} Filters",
+      "active_count": "{{count}} filter active",
+      "active_count_plural": "{{count}} filters active"
     },
     "search": {
       "placeholder": "Search products...",
@@ -114,11 +122,12 @@
     "sort": {
       "title": "Sort By",
       "label": "Sort By",
-      "name_asc": "Name A-Z",
-      "name_desc": "Name Z-A", 
-      "price_asc": "Price Low to High",
-      "price_desc": "Price High to Low",
-      "created_at_desc": "Newest First"
+      "name_asc": "Name (A-Z)",
+      "name_desc": "Name (Z-A)", 
+      "price_asc": "Price (Low to High)",
+      "price_desc": "Price (High to Low)",
+      "created_at_desc": "Newest First",
+      "newest": "Newest First"
     },
     "view": {
       "grid": "Grid View",
@@ -135,13 +144,17 @@
       "reviews": "Reviews"
     },
     "stock": {
-      "out_of_stock": "Out of stock",
+      "out_of_stock": "Out of Stock",
       "low_stock": "Only {count} left in stock",
       "low_stock_title": "Low Stock",
-      "in_stock": "In stock",
+      "in_stock": "In Stock",
       "available": " available",
-      "unavailable_message": "This item is currently unavailable"
+      "unavailable_message": "This item is currently unavailable",
+      "items_left": "{{count}} left"
     },
+    "default_description": "Fresh, high-quality produce delivered to your door",
+    "price_per": "per",
+    "add_quantity_to_cart": "Add {{quantity}} {{unit}} to Cart",
     "empty": {
       "title": "No products found",
       "subtitle": "Try changing your filters or search criteria.",
@@ -160,6 +173,9 @@
     },
     "errors": {
       "failed_to_load": "Failed to load product"
+    },
+    "category": {
+      "default": "Fresh Produce"
     }
   },
   "cart": {
