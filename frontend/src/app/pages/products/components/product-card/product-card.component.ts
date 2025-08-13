@@ -131,7 +131,7 @@ export interface AddToCartEvent {
               [label]="getAddToCartLabel()"
               icon="pi pi-shopping-cart"
               class="p-button-primary w-full mt-3"
-              [disabled]="!product.stock_quantity || product.stock_quantity === 0 || selectedQuantity === 0"
+              [disabled]="!product.stock_quantity || product.stock_quantity === 0 || selectedQuantity === 0 || selectedQuantity > product.stock_quantity"
               (click)="addToCart()">
             </button>
           } @else {

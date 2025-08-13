@@ -220,7 +220,7 @@
                 [label]="getAddToCartLabel(product)"
                 icon="pi pi-shopping-cart"
                 class="p-button-primary"
-                [disabled]="!product.stock_quantity || product.stock_quantity === 0 || getProductQuantity(product.id) === 0"
+                [disabled]="!product.stock_quantity || product.stock_quantity === 0 || getProductQuantity(product.id) === 0 || getProductQuantity(product.id) > product.stock_quantity"
                 (click)="quickAddToCart(product)">
               </button>
             </div>
