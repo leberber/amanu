@@ -13,6 +13,7 @@ import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { TagModule } from 'primeng/tag';
 import { SelectModule } from 'primeng/select';
+import { ProductQuantitySelectorComponent } from '../../../shared/components/product-quantity-selector/product-quantity-selector.component';
 import { BadgeModule } from 'primeng/badge';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
@@ -37,6 +38,7 @@ import { PRODUCT } from '../../../core/constants/app.constants';
     ToastModule,
     TagModule,
     SelectModule,
+    ProductQuantitySelectorComponent,
     BadgeModule,
     TranslateModule
   ],
@@ -61,7 +63,7 @@ export class ProductDetailComponent implements OnInit {
   relatedProducts = signal<Product[]>([]);
   loading = signal<boolean>(true);
   error = signal<boolean>(false);
-  selectedQuantity = signal<number>(5);
+  selectedQuantity = signal<number>(1);
   
   // For related products quantities
   productQuantities: { [key: number]: number } = {};
@@ -121,6 +123,13 @@ export class ProductDetailComponent implements OnInit {
       if (product) {
         this.product.set(product);
         
+        // Initialize selectedQuantity based on product's quantity config
+        if (product.quantity_config?.type === 'list' && product.quantity_config.quantities && product.quantity_config.quantities.length > 0) {
+          this.selectedQuantity.set(product.quantity_config.quantities[0]);
+        } else {
+          this.selectedQuantity.set(1);
+        }
+        
         // Load category
         this.productService.getCategory(product.category_id).subscribe(category => {
           this.category.set(category);
@@ -144,8 +153,12 @@ export class ProductDetailComponent implements OnInit {
   private initializeRelatedProductQuantities(products: Product[]): void {
     products.forEach(product => {
       if (!this.productQuantities[product.id]) {
-        // Set default quantity to 5 for each product
-        this.productQuantities[product.id] = 5;
+        // Set default quantity based on product's quantity config
+        if (product.quantity_config?.type === 'list' && product.quantity_config.quantities && product.quantity_config.quantities.length > 0) {
+          this.productQuantities[product.id] = product.quantity_config.quantities[0];
+        } else {
+          this.productQuantities[product.id] = 1;
+        }
       }
     });
   }
@@ -193,7 +206,7 @@ export class ProductDetailComponent implements OnInit {
       return;
     }
     
-    const quantity = this.productQuantities[product.id] || 5;
+    const quantity = this.productQuantities[product.id] || 1;
     
     this.cartService.addToCart(product, quantity).subscribe({
       next: () => {
@@ -220,46 +233,6 @@ export class ProductDetailComponent implements OnInit {
     });
   }
   
-  // Generate quantity options with a consistent step size
-  getQuantityOptions(maxQuantity: number): any[] {
-    const product = this.product();
-    if (!product) return [];
-    
-    const unitDisplay = this.getUnitDisplay(product.unit);
-    const step = 5;
-    const max = 1000;
-    
-    // Generate options with increments of 5
-    const allOptions = Array.from({ length: Math.floor(max / step) + 1 }, (_, i) => {
-      const value = i * step;
-      return {
-        label: `${value} ${unitDisplay}`,
-        value
-      };
-    }).slice(1); // remove 0
-    
-    // Filter options to not exceed the max stock quantity
-    return allOptions.filter(option => option.value <= maxQuantity);
-  }
-  
-  // Get quantity options for related products
-  getRelatedQuantityOptions(product: Product): any[] {
-    const unitDisplay = this.getUnitDisplay(product.unit);
-    const step = 5;
-    const max = 1000;
-    
-    // Generate options with increments of 5
-    const allOptions = Array.from({ length: Math.floor(max / step) + 1 }, (_, i) => {
-      const value = i * step;
-      return {
-        label: `${value} ${unitDisplay}`,
-        value
-      };
-    }).slice(1); // remove 0
-    
-    // Filter options to not exceed the max stock quantity
-    return allOptions.filter(option => option.value <= product.stock_quantity);
-  }
   
   // Get the display label for the selected quantity
   getSelectedQuantityLabel(productId: number): string {

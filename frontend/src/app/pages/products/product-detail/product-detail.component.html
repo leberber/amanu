@@ -150,18 +150,14 @@
                   <!-- Quantity Selector -->
                   <div>
                     <label class="block text-900 font-medium mb-2">{{ 'common.quantity' | translate }}</label>
-                    <p-select
-                      [(ngModel)]="selectedQuantity"
-                      [options]="getQuantityOptions(product()?.stock_quantity || 0)"
-                      [placeholder]="'products.product.select_quantity' | translate"
-                      styleClass="w-full"
-                      [virtualScroll]="true"
-                      [virtualScrollItemSize]="38"
-                      filterBy="label"
+                    <app-product-quantity-selector
+                      [(value)]="selectedQuantity"
+                      [unit]="product()?.unit"
+                      [maxStock]="product()?.stock_quantity"
+                      [quantityConfig]="product()?.quantity_config"
                       [disabled]="isOutOfStock()"
-                      [style]="{'min-height': '3rem'}"
-                    >
-                    </p-select>
+                      (valueChange)="selectedQuantity.set($event)"
+                    ></app-product-quantity-selector>
                   </div>
                   
                   <!-- Add to Cart Button -->
