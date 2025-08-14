@@ -57,9 +57,16 @@
   }
 }
 
-// Make cart badge smaller
-:host ::ng-deep .p-badge {
-  font-size: 0.7rem !important;
-  min-width: 1.1rem !important;
-  height: 1.1rem !important;
+// Cart icon and badge styling
+:host ::ng-deep {
+  // Adjust overlay badge position
+  .p-overlaybadge {
+    .p-badge {
+      font-size: 0.65rem !important;
+      min-width: 1.1rem !important;
+      height: 1.1rem !important;
+      top: -0.25rem !important;
+      right: -0.25rem !important;
+    }
+  }
 }

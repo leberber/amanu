@@ -123,9 +123,21 @@ export type SortOption = 'name_asc' | 'name_desc' | 'price_asc' | 'price_desc' |
 
     <!-- Mobile Filter Button Template -->
     <ng-template #mobileFilterButton>
-      <p-overlayBadge 
-        [value]="filterCount > 0 ? filterCount.toString() : null" 
-        severity="danger">
+      <ng-container *ngIf="filterCount > 0; else noFilterButton">
+        <p-overlayBadge 
+          [value]="filterCount.toString()" 
+          severity="danger">
+          <button
+            pButton
+            icon="pi pi-filter-slash"
+            class="p-button-text p-button-sm text-red-500"
+            (click)="toggleMobileFilters()"
+            [pTooltip]="'products.filters.title' | translate"
+            tooltipPosition="bottom">
+          </button>
+        </p-overlayBadge>
+      </ng-container>
+      <ng-template #noFilterButton>
         <button
           pButton
           icon="pi pi-filter"
@@ -134,14 +146,14 @@ export type SortOption = 'name_asc' | 'name_desc' | 'price_asc' | 'price_desc' |
           [pTooltip]="'products.filters.title' | translate"
           tooltipPosition="bottom">
         </button>
-      </p-overlayBadge>
+      </ng-template>
     </ng-template>
 
     <!-- Filter Indicator Template -->
     <ng-template #filterIndicator>
       <div class="flex align-items-center gap-2">
         <span class="text-sm text-600">
-          <i class="pi pi-filter-fill text-primary me-1"></i>
+          <i class="pi pi-filter-slash text-red-500 me-1"></i>
           {{ filterCount === 1 ? ('products.filters.active_count' | translate: {count: filterCount}) : ('products.filters.active_count_plural' | translate: {count: filterCount}) }}
         </span>
         <button
