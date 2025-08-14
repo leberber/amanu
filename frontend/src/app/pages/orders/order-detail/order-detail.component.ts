@@ -21,6 +21,7 @@ import { ProductService } from '../../../services/product.service'; // 🆕 ADD 
 import { TranslationService } from '../../../services/translation.service'; // 🆕 ADD THIS
 import { CurrencyService } from '../../../core/services/currency.service';
 import { UnitsService } from '../../../core/services/units.service';
+import { DateService } from '../../../core/services/date.service';
 import { Order, OrderItem } from '../../../models/order.model';
 import { StatusSeverityService } from '../../../core/services/status-severity.service';
 
@@ -61,6 +62,7 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
   private translateService = inject(TranslateService);
   private currencyService = inject(CurrencyService);
   private unitsService = inject(UnitsService);
+  private dateService = inject(DateService);
   private statusSeverity = inject(StatusSeverityService);
 
   // Signals
@@ -294,15 +296,8 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
     return this.currencyService.formatCurrency(price);
   }
 
-  // Format date in DD/MM/YYYY HH:MM format
+  // Format date using DateService
   formatDate(dateString: string): string {
-    const date = new Date(dateString);
-    const day = date.getDate().toString().padStart(2, '0');
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const year = date.getFullYear();
-    const hours = date.getHours().toString().padStart(2, '0');
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-    
-    return `${day}/${month}/${year} ${hours}:${minutes}`;
+    return this.dateService.formatDate(dateString);
   }
 }
