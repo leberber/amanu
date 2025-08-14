@@ -150,12 +150,30 @@ export class CartComponent implements OnInit, OnDestroy {
   
   cartItemCount = computed(() => this.cartItems().length);
   
+  // Shipping cost (can be modified based on business logic)
+  shippingCost = computed(() => {
+    // For now, shipping is always free
+    // In the future, you can add logic like:
+    // - Free shipping for orders above certain amount
+    // - Calculate based on delivery location
+    // - Different rates for different products
+    return 0;
+  });
+  
+  isShippingFree = computed(() => this.shippingCost() === 0);
+  
+  // RTL detection
+  isRTL = computed(() => this.translationService.isRTL());
+  
   // Subscription management
   private cartSubscription?: Subscription;
   private languageSubscription?: Subscription;
   
   ngOnInit() {
     this.loadCart();
+    
+    // Track if this is the first load
+    let isFirstLoad = true;
     
     // Subscribe to cart changes
     this.cartSubscription = this.cartService.cartItems$.subscribe(items => {
@@ -166,12 +184,18 @@ export class CartComponent implements OnInit, OnDestroy {
       });
       
       // 🆕 Load translated names for cart items
-      this.loadTranslatedNames();
+      // Only load on initial load, not on every update
+      if (isFirstLoad && items.length > 0) {
+        this.loadTranslatedNames();
+        isFirstLoad = false;
+      }
     });
 
     // 🆕 Subscribe to language changes
     this.languageSubscription = this.translationService.currentLanguage$.subscribe(() => {
-      this.loadTranslatedNames();
+      if (this.cartItems().length > 0) {
+        this.loadTranslatedNames();
+      }
     });
   }
   
@@ -241,7 +265,9 @@ export class CartComponent implements OnInit, OnDestroy {
         this.loading.set(false);
         
         // 🆕 Load translated names after loading cart
-        this.loadTranslatedNames();
+        if (items.length > 0) {
+          this.loadTranslatedNames();
+        }
       },
       error: (error) => {
         console.error('Error loading cart:', error);
@@ -332,7 +358,7 @@ export class CartComponent implements OnInit, OnDestroy {
   }
   
   getUnitDisplay(unit: string): string {
-    return this.unitsService.getUnitDisplay(unit);
+    return this.unitsService.getUnitTranslated(unit, true);
   }
   
   getQuantityOptions(maxQuantity: number | undefined, itemId?: string): any[] {

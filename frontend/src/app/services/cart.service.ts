@@ -43,8 +43,10 @@ export class CartService {
   }
   
   private saveCartToStorage(cartItems: CartItem[]): void {
-    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(cartItems));
+    // Update the BehaviorSubject first for immediate UI update
     this.cartItemsSubject.next(cartItems);
+    // Then save to localStorage
+    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(cartItems));
   }
   
   getCartItems(): Observable<CartItem[]> {

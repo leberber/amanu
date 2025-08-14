@@ -9,6 +9,7 @@ import { ButtonModule } from 'primeng/button';
 import { SelectModule } from 'primeng/select';
 import { BadgeModule } from 'primeng/badge';
 import { TooltipModule } from 'primeng/tooltip';
+import { OverlayBadgeModule } from 'primeng/overlaybadge';
 
 export type ViewMode = 'grid' | 'list';
 export type SortOption = 'name_asc' | 'name_desc' | 'price_asc' | 'price_desc' | 'created_at_desc';
@@ -24,7 +25,8 @@ export type SortOption = 'name_asc' | 'name_desc' | 'price_asc' | 'price_desc' |
     ButtonModule,
     SelectModule,
     BadgeModule,
-    TooltipModule
+    TooltipModule,
+    OverlayBadgeModule
   ],
   template: `
     <!-- Toolbar Container -->
@@ -73,15 +75,17 @@ export type SortOption = 'name_asc' | 'name_desc' | 'price_asc' | 'price_desc' |
 
     <!-- Search Bar Template -->
     <ng-template #searchBar let-class="class">
-      <div class="search-container p-input-icon-right" [ngClass]="class">
-        <i class="pi pi-search cursor-pointer" (click)="onSearch()"></i>
+      <div class="search-container" [ngClass]="class">
+        <i class="pi pi-search search-icon-left"></i>
         <input 
           pInputText 
           type="text"
           [(ngModel)]="searchQuery"
           [placeholder]="'products.search.placeholder' | translate"
           (keyup.enter)="onSearch()"
+          (input)="onSearchInputChange($event)"
           class="w-full search-input">
+        <i class="pi pi-search cursor-pointer search-icon-right" (click)="onSearch()"></i>
       </div>
     </ng-template>
 
@@ -119,7 +123,9 @@ export type SortOption = 'name_asc' | 'name_desc' | 'price_asc' | 'price_desc' |
 
     <!-- Mobile Filter Button Template -->
     <ng-template #mobileFilterButton>
-      <div class="relative">
+      <p-overlayBadge 
+        [value]="filterCount > 0 ? filterCount.toString() : null" 
+        severity="danger">
         <button
           pButton
           icon="pi pi-filter"
@@ -128,27 +134,25 @@ export type SortOption = 'name_asc' | 'name_desc' | 'price_asc' | 'price_desc' |
           [pTooltip]="'products.filters.title' | translate"
           tooltipPosition="bottom">
         </button>
-        <ng-container *ngIf="filterCount > 0">
-          <p-badge 
-            [value]="filterCount.toString()" 
-            severity="danger" 
-            styleClass="absolute -top-2 -right-2">
-          </p-badge>
-        </ng-container>
-      </div>
+      </p-overlayBadge>
     </ng-template>
 
     <!-- Filter Indicator Template -->
     <ng-template #filterIndicator>
-      <button
-        pButton
-        [label]="filterCount === 1 ? ('products.filters.active_count' | translate: {count: filterCount}) : ('products.filters.active_count_plural' | translate: {count: filterCount})"
-        icon="pi pi-filter-fill"
-        class="p-button-rounded p-button-sm p-button-outlined"
-        [pTooltip]="'products.filters.clear_all' | translate"
-        tooltipPosition="bottom"
-        (click)="clearFilters()">
-      </button>
+      <div class="flex align-items-center gap-2">
+        <span class="text-sm text-600">
+          <i class="pi pi-filter-fill text-primary me-1"></i>
+          {{ filterCount === 1 ? ('products.filters.active_count' | translate: {count: filterCount}) : ('products.filters.active_count_plural' | translate: {count: filterCount}) }}
+        </span>
+        <button
+          pButton
+          icon="pi pi-times"
+          class="p-button-rounded p-button-text p-button-sm p-button-danger"
+          [pTooltip]="'products.filters.clear_all' | translate"
+          tooltipPosition="bottom"
+          (click)="clearFilters()">
+        </button>
+      </div>
     </ng-template>
   `,
   styles: [`
@@ -167,42 +171,50 @@ export type SortOption = 'name_asc' | 'name_desc' | 'price_asc' | 'price_desc' |
     }
 
     .search-input {
-      padding-right: 3rem;
-      border-radius: 8px;
-      background: var(--surface-50);
-      border: 2px solid var(--surface-50);
+      padding: 0.5rem 3rem;
+      border-radius: 12px;
+      background: white;
+      border: 1px solid #e0e0e0;
       transition: all 0.3s ease;
       outline: none;
       -webkit-appearance: none;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      box-shadow: none;
     }
 
     .search-input:hover {
-      border-color: var(--surface-200);
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+      border-color: #c0c0c0;
     }
 
     .search-input:focus {
-      background: white;
       border-color: var(--primary-color);
       outline: none;
-      box-shadow: 0 0 0 3px var(--primary-50), 0 4px 12px rgba(0, 0, 0, 0.15);
-      transform: translateY(-1px);
+      box-shadow: 0 0 0 3px var(--primary-50);
+    }
+    
+    /* Desktop specific - more padding */
+    @media (min-width: 769px) {
+      .search-input {
+        padding: 0.875rem 3rem 0.875rem 3rem;
+      }
     }
     
     /* Mobile adjustments */
     @media (max-width: 768px) {
-      .search-input {
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
-      }
-      
       .search-input:focus {
-        box-shadow: 0 0 0 2px var(--primary-50), 0 2px 8px rgba(0, 0, 0, 0.1);
-        transform: none;
+        box-shadow: 0 0 0 2px var(--primary-50);
       }
     }
 
-    .search-container .pi-search {
+    .search-icon-left {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-color-secondary);
+      pointer-events: none;
+    }
+
+    .search-icon-right {
       position: absolute;
       right: 1rem;
       top: 50%;
@@ -213,15 +225,19 @@ export type SortOption = 'name_asc' | 'name_desc' | 'price_asc' | 'price_desc' |
       border-radius: 50%;
     }
 
-    .search-container:hover .pi-search {
+    .search-container:hover .search-icon-right {
       color: var(--primary-600);
       background: var(--primary-50);
     }
     
-    .search-input:focus ~ .pi-search {
+    .search-input:focus ~ .search-icon-right {
       color: var(--primary-color);
       background: var(--primary-100);
       transform: translateY(-50%) scale(1.1);
+    }
+    
+    .search-input:focus ~ .search-icon-left {
+      color: var(--primary-color);
     }
 
     ::ng-deep {
@@ -279,7 +295,7 @@ export type SortOption = 'name_asc' | 'name_desc' | 'price_asc' | 'price_desc' |
 
       .search-input {
         font-size: 16px; /* Prevents zoom on iOS */
-        padding: 0.75rem 2.5rem 0.75rem 1rem;
+        padding: 0.75rem 2.5rem 0.75rem 2.5rem;
         height: 2.75rem;
       }
       
@@ -288,9 +304,20 @@ export type SortOption = 'name_asc' | 'name_desc' | 'price_asc' | 'price_desc' |
         max-width: 100%;
       }
       
-      .search-container .pi-search {
+      .search-icon-left,
+      .search-icon-right {
         font-size: 1rem;
       }
+    }
+    
+    /* Make overlay badge smaller to match cart badge */
+    ::ng-deep .p-overlaybadge .p-badge {
+      font-size: 0.7rem;
+      min-width: 1.1rem;
+      height: 1.1rem;
+      line-height: 1.1rem;
+      top: 0.25rem !important;
+      right: 0.25rem !important;
     }
   `]
 })
@@ -305,6 +332,7 @@ export class ProductToolbarComponent implements OnInit {
   @Output() sortByChange = new EventEmitter<SortOption>();
   @Output() viewModeChange = new EventEmitter<ViewMode>();
   @Output() search = new EventEmitter<void>();
+  @Output() searchInput = new EventEmitter<string>();
   @Output() mobileFiltersToggle = new EventEmitter<void>();
   @Output() filtersCleared = new EventEmitter<void>();
 
@@ -354,5 +382,11 @@ export class ProductToolbarComponent implements OnInit {
 
   clearFilters(): void {
     this.filtersCleared.emit();
+  }
+
+  onSearchInputChange(event: Event): void {
+    const value = (event.target as HTMLInputElement).value;
+    this.searchQueryChange.emit(value);
+    this.searchInput.emit(value);
   }
 }

@@ -70,6 +70,7 @@
       [(viewMode)]="layout"
       [filterCount]="activeFilterCount()"
       (search)="onSearch()"
+      (searchInput)="onSearchInput($event)"
       (mobileFiltersToggle)="toggleMobileFilters()"
       (filtersCleared)="clearFilters()">
     </app-product-toolbar>
@@ -165,7 +166,7 @@
       </div>
       
       <!-- Product Content - Compact -->
-      <div class="flex-1 p-1 md:p-3 flex flex-column" style="min-width: 0;">
+      <div class="flex-1 p-1 md:px-3 md:py-0 flex flex-column" style="min-width: 0;">
         <!-- Mobile Layout -->
         <div class="block md:hidden px-3 py-2">
           <!-- Product name - Bigger and bolder -->
@@ -236,10 +237,10 @@
                 <button
                   pButton
                   type="button"
-                  [label]="('products.cart.add_to_cart' | translate) + ' (' + getProductQuantity(product.id) + ')'"
+                  [label]="('common.add' | translate) + ' (' + getProductQuantity(product.id) + ')'"
                   icon="pi pi-cart-plus"
                   class="p-button-primary"
-                  style="width: 50%; height: 2.5rem; padding: 0 1rem; font-size: 0.875rem; font-weight: 600; border-radius: 8px;"
+                  style="width: 35%; height: 2.5rem; padding: 0 1rem; font-size: 0.875rem; font-weight: 600; border-radius: 8px;"
                   [disabled]="!product.stock_quantity || product.stock_quantity === 0 || getProductQuantity(product.id) === 0 || getProductQuantity(product.id) > product.stock_quantity"
                   (click)="quickAddToCart(product)">
                 </button>
@@ -265,7 +266,7 @@
         <div class="hidden md:block">
           <!-- Header Section -->
           <div class="mb-2">
-            <h4 class="text-xl font-medium m-0 mb-1">
+            <h4 class="text-xl font-medium m-0 mb-1" style="line-height: 1;">
               <a [routerLink]="['/products', product.id]" 
                  class="text-900 no-underline hover:text-primary transition-colors transition-duration-200">
                 {{ product.name }}
@@ -334,10 +335,10 @@
                 <button
                   pButton
                   type="button"
-                  [label]="('products.cart.add_to_cart' | translate) + ' (' + getProductQuantity(product.id) + ')'"
+                  [label]="('common.add' | translate) + ' (' + getProductQuantity(product.id) + ')'"
                   icon="pi pi-shopping-cart"
                   class="p-button-primary"
-                  style="min-width: 120px; width: 50%; height: 2.25rem; padding: 0 1rem; font-size: 0.875rem;"
+                  style="min-width: 100px; width: 35%; height: 2.25rem; padding: 0 1rem; font-size: 0.875rem;"
                   [disabled]="!product.stock_quantity || product.stock_quantity === 0 || getProductQuantity(product.id) === 0 || getProductQuantity(product.id) > product.stock_quantity"
                   (click)="quickAddToCart(product)">
                 </button>

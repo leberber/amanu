@@ -275,7 +275,7 @@ export class ProductDetailComponent implements OnInit {
 
   // Helper function to get proper unit display
   getUnitDisplay(unit: string): string {
-    return this.unitsService.getUnitDisplay(unit);
+    return this.unitsService.getUnitTranslated(unit, true);
   }
   
   // Check if a product is out of stock

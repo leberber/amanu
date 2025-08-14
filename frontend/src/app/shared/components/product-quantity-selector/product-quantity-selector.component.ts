@@ -204,7 +204,7 @@ interface QuantityOption {
         .p-select-label {
           padding: 0.25rem 0.25rem 0.25rem 0.5rem;
           font-size: 0.875rem;
-          font-weight: 600;
+          font-weight: normal;
           color: var(--primary-color);
           text-align: center;
           white-space: nowrap;
@@ -525,6 +525,8 @@ export class ProductQuantitySelectorComponent implements OnInit, OnChanges, OnDe
       this.quantityOptions = [];
       this.initializeSelector();
       this.updatePlaceholder();
+      // Force change detection to refresh the view
+      this.cdr.detectChanges();
     });
     
     // Set initial placeholder

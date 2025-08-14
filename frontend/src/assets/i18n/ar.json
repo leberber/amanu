@@ -184,6 +184,9 @@
       "added_to_cart": "تمت الإضافة للسلة",
       "added_message": "تمت إضافة {quantity} {unit} من {name} إلى سلتك",
       "error": "فشل في إضافة العنصر للسلة"
+    },
+    "tags": {
+      "organic": "عضوي"
     }
   },
   "cart": {

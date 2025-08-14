@@ -64,8 +64,10 @@
                           [alt]="item.product_name" 
                           width="60" 
                           height="60" 
-                          class="shadow-1 mr-3 border-round"
+                          class="shadow-1 border-round"
                           style="object-fit: cover;"
+                          [style.margin-right]="isRTL() ? '0' : '1rem'"
+                          [style.margin-left]="isRTL() ? '1rem' : '0'"
                         >
                         <div>
                           <p class="font-medium text-900 dark:text-white m-0 white-space-nowrap overflow-hidden text-overflow-ellipsis" style="max-width: 200px">
@@ -166,7 +168,9 @@
                 <ng-container *ngIf="showQuantityGridForItem !== item.id">
                   <div class="flex align-items-center">
                     <!-- Image (smaller) -->
-                    <div style="width: 60px; height: 60px;" class="mr-3 flex-shrink-0">
+                    <div style="width: 60px; height: 60px;" class="flex-shrink-0" 
+                         [style.margin-right]="isRTL() ? '0' : '0.75rem'"
+                         [style.margin-left]="isRTL() ? '0.75rem' : '0'">
                       <img [src]="item.product_image || 'assets/images/product-placeholder.jpg'" 
                            [alt]="item.product_name" class="w-full h-full "
                            style="object-fit: cover;">
@@ -179,7 +183,9 @@
                         <div class="flex align-items-center overflow-hidden">
                           <span class="font-medium text-overflow-ellipsis overflow-hidden white-space-nowrap">{{item.product_name}}</span>
                           @if (item.is_organic) {
-                            <p-tag severity="success" value="O" styleClass="ml-1"></p-tag>
+                            <p-tag severity="success" value="O" 
+                                   [style.margin-left]="isRTL() ? '0' : '0.25rem'"
+                                   [style.margin-right]="isRTL() ? '0.25rem' : '0'"></p-tag>
                           }
                         </div>
                         <button pButton icon="pi pi-trash" class="p-button-rounded p-button-danger p-button-text p-button-sm p-0 icon-large "
@@ -270,14 +276,24 @@
             
             <div class="flex justify-content-between mb-3">
               <span class="text-900 dark:text-white">{{ 'cart.shipping' | translate }}</span>
-              <span class="font-medium text-900 dark:text-white">{{ 'cart.free' | translate }}</span>
+              <span class="font-medium" 
+                    [ngClass]="{
+                      'text-green-600 dark:text-green-400': isShippingFree(),
+                      'text-red-600 dark:text-red-400': !isShippingFree()
+                    }">
+                @if (isShippingFree()) {
+                  {{ 'cart.free' | translate }}
+                } @else {
+                  {{ formatPrice(shippingCost()) }}
+                }
+              </span>
             </div>
             
             <p-divider></p-divider>
             
             <div class="flex justify-content-between mb-4">
               <span class="text-lg font-medium text-900 dark:text-white">{{ 'common.total' | translate }}</span>
-              <span class="text-lg font-bold text-900 dark:text-white">{{formatPrice(cartTotal())}}</span>
+              <span class="text-lg font-bold text-900 dark:text-white">{{formatPrice(cartTotal() + shippingCost())}}</span>
             </div>
             
             <div class="flex flex-column mt-auto">

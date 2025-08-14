@@ -187,6 +187,9 @@
     },
     "category": {
       "default": "Fresh Produce"
+    },
+    "tags": {
+      "organic": "Organic"
     }
   },
   "cart": {

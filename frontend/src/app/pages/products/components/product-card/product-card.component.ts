@@ -139,10 +139,10 @@ export interface AddToCartEvent {
               <button
                 pButton
                 type="button"
-                [label]="('products.cart.add_to_cart' | translate) + ' (' + selectedQuantity + ')'"
+                [label]="('common.add' | translate) + ' (' + selectedQuantity + ')'"
                 icon="pi pi-shopping-cart"
                 class="p-button-primary"
-                style="height: 2.25rem; padding: 0 1rem; width: 50%; font-size: 0.875rem;"
+                style="height: 2.25rem; padding: 0 1rem; width: 35%; font-size: 0.875rem;"
                 [disabled]="!product.stock_quantity || product.stock_quantity === 0 || selectedQuantity === 0 || selectedQuantity > product.stock_quantity"
                 (click)="addToCart()">
               </button>

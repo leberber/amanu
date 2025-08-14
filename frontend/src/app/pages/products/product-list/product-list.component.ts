@@ -2,8 +2,8 @@ import { Component, computed, effect, inject, OnInit, signal, OnDestroy } from '
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { Observable, forkJoin, of, Subscription } from 'rxjs';
-import { switchMap, tap, map } from 'rxjs/operators';
+import { Observable, forkJoin, of, Subscription, Subject } from 'rxjs';
+import { switchMap, tap, map, debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
@@ -63,9 +63,11 @@ export class ProductListComponent implements OnInit, OnDestroy {
   products = signal<Product[]>([]);
   categories = signal<Category[]>([]);
   selectedCategories = signal<Category[]>([]);
+  appliedCategories = signal<Category[]>([]); // Actually applied filters
   loading = signal(true);
   showMobileFilters = signal(false);
   searchQuery = signal('');
+  appliedSearchQuery = signal(''); // Actually applied search
   selectedSort = signal<SortOption>('name_asc'); // Always sort alphabetically
   layout = signal<ViewMode>('grid');
   filters = signal<ProductFilter>({
@@ -77,13 +79,15 @@ export class ProductListComponent implements OnInit, OnDestroy {
 
   // Subscriptions
   private languageSubscription?: Subscription;
+  private searchSubscription?: Subscription;
+  private searchSubject = new Subject<string>();
 
   // Computed values
   activeFilterCount = computed(() => {
-    const allCategoriesSelected = this.selectedCategories().length === this.categories().length;
-    const hasSearch = this.searchQuery().trim() !== '';
+    const allCategoriesApplied = this.appliedCategories().length === this.categories().length;
+    const hasSearch = this.appliedSearchQuery().trim() !== '';
     let count = 0;
-    if (!allCategoriesSelected && this.selectedCategories().length > 0) count++;
+    if (!allCategoriesApplied && this.appliedCategories().length > 0) count++;
     if (hasSearch) count++;
     return count;
   });
@@ -123,11 +127,23 @@ export class ProductListComponent implements OnInit, OnDestroy {
       this.loadCategoriesAndProducts();
     });
 
+    // Set up search debounce
+    this.searchSubscription = this.searchSubject.pipe(
+      debounceTime(500), // Wait 500ms after user stops typing
+      distinctUntilChanged() // Only emit if value is different from previous
+    ).subscribe(searchQuery => {
+      this.searchQuery.set(searchQuery);
+      this.appliedSearchQuery.set(searchQuery);
+      this.filters.update(f => ({ ...f, search: searchQuery }));
+      this.loadProducts().subscribe();
+    });
+
     this.loadCategoriesAndProducts();
   }
 
   ngOnDestroy(): void {
     this.languageSubscription?.unsubscribe();
+    this.searchSubscription?.unsubscribe();
   }
 
   // Public methods for template
@@ -140,6 +156,10 @@ export class ProductListComponent implements OnInit, OnDestroy {
   }
 
   applyFilters(): void {
+    // Update applied filters
+    this.appliedCategories.set([...this.selectedCategories()]);
+    this.appliedSearchQuery.set(this.searchQuery());
+    
     this.loading.set(true);
     this.loadProducts().subscribe();
   }
@@ -158,8 +178,13 @@ export class ProductListComponent implements OnInit, OnDestroy {
   }
 
   onSearch(): void {
+    this.appliedSearchQuery.set(this.searchQuery());
     this.filters.update(f => ({ ...f, search: this.searchQuery() }));
     this.loadProducts().subscribe();
+  }
+
+  onSearchInput(query: string): void {
+    this.searchSubject.next(query);
   }
 
   clearFilters(): void {
@@ -169,7 +194,9 @@ export class ProductListComponent implements OnInit, OnDestroy {
       sort_order: 'asc'
     });
     this.selectedCategories.set([...this.categories()]);
+    this.appliedCategories.set([...this.categories()]);
     this.searchQuery.set('');
+    this.appliedSearchQuery.set('');
     this.selectedSort.set('name_asc');
     this.loadProducts().subscribe();
     this.showMobileFilters.set(false);
@@ -238,6 +265,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
       next: (categories) => {
         this.categories.set(categories);
         this.selectedCategories.set([...categories]);
+        this.appliedCategories.set([...categories]);
         
         // Load all products to calculate counts
         this.updateCategoryCounts();

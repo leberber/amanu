@@ -97,7 +97,6 @@ import { Category } from '../../../../models/product.model';
           [label]="applyButtonLabel | translate: {count: activeFilterCount}" 
           icon="pi pi-check" 
           class="w-full"
-          [disabled]="activeFilterCount === 0"
           (click)="applyFilters()">
         </button>
       </div>
@@ -338,8 +337,12 @@ export class ProductFiltersComponent {
   }
 
   get applyButtonLabel(): string {
-    if (this.activeFilterCount === 0) {
+    // When all categories are selected (or none), show "Apply Filters"
+    if (this.selectedCategories.length === 0) {
       return 'products.filters.select_filters';
+    } else if (this.activeFilterCount === 0) {
+      // All categories selected
+      return 'products.filters.apply_filters';
     } else if (this.activeFilterCount === 1) {
       return 'products.filters.apply_filters';
     } else {
