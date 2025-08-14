@@ -1,0 +1,22 @@
+// Minimal component-specific styles only when necessary
+:host {
+  display: block;
+  height: 100%;
+}
+
+// Clean link styles
+.no-underline {
+  text-decoration: none;
+}
+
+// Mobile-specific border styling - necessary because PrimeFlex doesn't have conditional border styles
+@media (max-width: 768px) {
+  .surface-card {
+    border-left: none !important;
+    border-right: none !important;
+    border-top: none !important;
+    border-bottom: 1px solid rgb(225, 225, 225) !important;
+    border-radius: 0 !important;
+    margin-bottom: 0.5rem;
+  }
+}

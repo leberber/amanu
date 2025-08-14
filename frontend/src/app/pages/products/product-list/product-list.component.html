@@ -235,17 +235,18 @@
                     </span>
                   </ng-container>
                 </div>
-                <button
-                  pButton
-                  type="button"
-                  [label]="('common.add' | translate) + ' (' + getProductQuantity(product.id) + ')'"
-                  icon="pi pi-cart-plus"
-                  class="p-button-primary"
-                  class="p-button-primary border-round-md font-semibold"
-                  style="width: 35%; height: 2.5rem; padding: 0 1rem; font-size: 0.875rem;"
-                  [disabled]="!product.stock_quantity || product.stock_quantity === 0 || getProductQuantity(product.id) === 0 || getProductQuantity(product.id) > product.stock_quantity"
-                  (click)="quickAddToCart(product)">
-                </button>
+                <!-- Mobile button - icon only with badge -->
+                <p-overlayBadge [value]="getProductQuantity(product.id).toString()" severity="success">
+                  <button
+                    pButton
+                    type="button"
+                    icon="pi pi-cart-plus"
+                    class="p-button-primary p-button-rounded"
+                    style="height: 2.5rem; width: 2.5rem;"
+                    [disabled]="!product.stock_quantity || product.stock_quantity === 0 || getProductQuantity(product.id) === 0 || getProductQuantity(product.id) > product.stock_quantity"
+                    (click)="quickAddToCart(product)">
+                  </button>
+                </p-overlayBadge>
               </div>
             </div>
           </ng-container>
@@ -340,7 +341,6 @@
                   type="button"
                   [label]="('common.add' | translate) + ' (' + getProductQuantity(product.id) + ')'"
                   icon="pi pi-shopping-cart"
-                  class="p-button-primary"
                   class="p-button-primary text-sm"
                   style="min-width: 100px; width: 35%; height: 2.25rem; padding: 0 1rem;"
                   [disabled]="!product.stock_quantity || product.stock_quantity === 0 || getProductQuantity(product.id) === 0 || getProductQuantity(product.id) > product.stock_quantity"

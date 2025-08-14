@@ -1,0 +1,218 @@
+<!-- Product Card Container -->
+<div class="surface-card h-full flex flex-column border-1 surface-border md:transition-all md:transition-duration-300 md:hover:shadow-3 md:hover:-translate-y-1 border-round-0 md:border-round">
+  
+  <!-- Mobile Layout -->
+  <div class="block md:hidden">
+    <ng-container *ngTemplateOutlet="mobileCard"></ng-container>
+  </div>
+  
+  <!-- Desktop Layout -->
+  <div class="hidden md:block h-full">
+    <ng-container *ngTemplateOutlet="desktopCard"></ng-container>
+  </div>
+</div>
+
+<!-- ===================== TEMPLATE DEFINITIONS ===================== -->
+
+<!-- Mobile Card Template -->
+<ng-template #mobileCard>
+  <div class="flex flex-column h-full">
+    <ng-container *ngTemplateOutlet="productImage"></ng-container>
+    <div class="flex-grow-1 p-3 flex flex-column">
+      <ng-container *ngTemplateOutlet="productHeader"></ng-container>
+      <ng-container *ngTemplateOutlet="productDescription"></ng-container>
+      <ng-container *ngTemplateOutlet="priceAndStock"></ng-container>
+      <ng-container *ngTemplateOutlet="addToCartSection"></ng-container>
+    </div>
+  </div>
+</ng-template>
+
+<!-- Desktop Card Template -->
+<ng-template #desktopCard>
+  <div class="flex flex-column h-full">
+    <ng-container *ngTemplateOutlet="productImage"></ng-container>
+    <div class="flex-grow-1 p-4 flex flex-column">
+      <ng-container *ngTemplateOutlet="productHeader"></ng-container>
+      <ng-container *ngTemplateOutlet="productDescription"></ng-container>
+      <ng-container *ngTemplateOutlet="priceAndStock"></ng-container>
+      <ng-container *ngTemplateOutlet="addToCartSection"></ng-container>
+    </div>
+  </div>
+</ng-template>
+
+<!-- Product Image Template -->
+<ng-template #productImage>
+  <a [routerLink]="['/products', product.id]" class="block relative overflow-hidden">
+    <img 
+      [src]="product.image_url || 'assets/images/product-placeholder.jpg'"
+      [alt]="product.name"
+      class="w-full md:hover:scale-105 md:transition-all md:transition-duration-300"
+      style="height: 220px; object-fit: cover;"
+    >
+    <!-- Overlay badges -->
+    <div class="absolute top-0 left-0 w-full p-2 flex justify-content-between align-items-start">
+      <ng-container *ngTemplateOutlet="productBadges"></ng-container>
+      <ng-container *ngTemplateOutlet="stockBadge"></ng-container>
+    </div>
+  </a>
+</ng-template>
+
+<!-- Product Badges Template -->
+<ng-template #productBadges>
+  <div class="flex align-items-start gap-2">
+    @if (product.is_organic) {
+      <p-tag 
+        severity="success" 
+        [value]="'products.tags.organic' | translate" 
+        class="shadow-2 flex-shrink-0 w-auto text-xs"
+        icon="pi pi-leaf"
+      ></p-tag>
+    }
+  </div>
+</ng-template>
+
+<!-- Stock Badge Template -->
+<ng-template #stockBadge>
+  @if (isLowStock && !isOutOfStock) {
+    <p-tag 
+      severity="warning" 
+      [value]="'products.stock.low_stock_title' | translate"
+      class="shadow-2 text-xs"
+      icon="pi pi-exclamation-triangle"
+    ></p-tag>
+  }
+</ng-template>
+
+<!-- Product Header Template -->
+<ng-template #productHeader>
+  <div class="mb-2">
+    <h4 class="m-0 mb-2 text-xl font-medium">
+      <a [routerLink]="['/products', product.id]" class="text-900 no-underline hover:text-primary transition-colors transition-duration-200">
+        {{ product.name }}
+      </a>
+    </h4>
+  </div>
+</ng-template>
+
+<!-- Product Description Template -->
+<ng-template #productDescription>
+  <div class="text-600 text-sm mb-2 line-height-2">
+    {{ product.description || ('products.default_description' | translate) }}
+  </div>
+</ng-template>
+
+<!-- Price and Stock Template -->
+<ng-template #priceAndStock>
+  <div class="flex align-items-center justify-content-between mb-3">
+    <ng-container *ngTemplateOutlet="priceInfo"></ng-container>
+    <ng-container *ngTemplateOutlet="stockIndicator"></ng-container>
+  </div>
+</ng-template>
+
+<!-- Price Info Template -->
+<ng-template #priceInfo>
+  <div>
+    <div class="text-base font-semibold text-900">
+      {{ formatPrice(product.price) }}
+    </div>
+    <span class="text-xs text-600">{{ 'products.price_per' | translate }} {{ getUnitDisplay(product.unit) }}</span>
+  </div>
+</ng-template>
+
+<!-- Stock Indicator Template -->
+<ng-template #stockIndicator>
+  <div class="text-right">
+    @if (isOutOfStock) {
+      <span class="text-red-500 font-medium text-sm">
+        <i class="pi pi-times-circle mr-1"></i>{{ 'products.stock.out_of_stock' | translate }}
+      </span>
+    } @else if (isLowStock) {
+      <span class="text-orange-500 font-medium text-sm">
+        <i class="pi pi-exclamation-circle mr-1"></i>{{ 'products.stock.items_left' | translate: {count: product.stock_quantity} }}
+      </span>
+    } @else {
+      <span class="text-green-500 font-medium text-sm">
+        <i class="pi pi-check-circle mr-1"></i>{{ 'products.stock.in_stock' | translate }}
+      </span>
+    }
+  </div>
+</ng-template>
+
+<!-- Add to Cart Section Template -->
+<ng-template #addToCartSection>
+  <div class="mt-auto">
+    @if (!isOutOfStock) {
+      <ng-container *ngTemplateOutlet="inStockActions"></ng-container>
+    } @else {
+      <ng-container *ngTemplateOutlet="outOfStockButton"></ng-container>
+    }
+  </div>
+</ng-template>
+
+<!-- In Stock Actions Template -->
+<ng-template #inStockActions>
+  <app-product-quantity-selector
+    [(value)]="selectedQuantity"
+    [unit]="product.unit"
+    [stockQuantity]="product.stock_quantity"
+    [quantityConfig]="product.quantity_config"
+    [pricePerUnit]="product.price"
+    [disabled]="!product.stock_quantity || product.stock_quantity === 0"
+    [showStock]="true"
+    (quantityChanged)="onQuantityChanged($event)">
+  </app-product-quantity-selector>
+  
+  <!-- Add to cart button and quantity display -->
+  <div class="flex align-items-center gap-2 py-2">
+    <div class="flex-1">
+      <ng-container *ngTemplateOutlet="cartStatus"></ng-container>
+    </div>
+    <!-- Mobile button - icon only -->
+    <div class="md:hidden">
+      <p-overlayBadge [value]="selectedQuantity.toString()" severity="success">
+        <button
+          pButton
+          type="button"
+          icon="pi pi-cart-plus"
+          class="p-button-primary p-button-rounded"
+          style="height: 2.5rem; width: 2.5rem;"
+          [disabled]="!product.stock_quantity || product.stock_quantity === 0 || selectedQuantity === 0 || selectedQuantity > product.stock_quantity"
+          (click)="addToCart()">
+        </button>
+      </p-overlayBadge>
+    </div>
+    
+    <!-- Desktop button - with text -->
+    <button
+      pButton
+      type="button"
+      [label]="('common.add' | translate) + ' (' + selectedQuantity + ')'"
+      icon="pi pi-shopping-cart"
+      class="p-button-primary text-sm hidden md:inline-flex"
+      style="height: 2.25rem; padding: 0 1rem; width: 35%;"
+      [disabled]="!product.stock_quantity || product.stock_quantity === 0 || selectedQuantity === 0 || selectedQuantity > product.stock_quantity"
+      (click)="addToCart()">
+    </button>
+  </div>
+</ng-template>
+
+<!-- Cart Status Template -->
+<ng-template #cartStatus>
+  @if (isInCart) {
+    <span class="text-xs text-green-500">
+      <i class="pi pi-check-circle mr-1 text-xs"></i>
+      {{ quantityInCart }} {{ 'products.cart.in_cart' | translate }} ({{ formatPrice(product.price * quantityInCart) }})
+    </span>
+  }
+</ng-template>
+
+<!-- Out of Stock Button Template -->
+<ng-template #outOfStockButton>
+  <button
+    pButton
+    [label]="'products.stock.out_of_stock' | translate"
+    class="w-full p-button-secondary"
+    icon="pi pi-times"
+    [disabled]="true"
+  ></button>
+</ng-template>

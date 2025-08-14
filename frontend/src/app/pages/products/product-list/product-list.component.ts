@@ -10,6 +10,7 @@ import { MessageService } from 'primeng/api';
 import { DrawerModule } from 'primeng/drawer';
 import { TagModule } from 'primeng/tag';
 import { ButtonModule } from 'primeng/button';
+import { OverlayBadgeModule } from 'primeng/overlaybadge';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { CartService } from '../../../services/cart.service';
@@ -36,6 +37,7 @@ import { ProductQuantitySelectorComponent } from '../../../shared/components/pro
     DrawerModule,
     TagModule,
     ButtonModule,
+    OverlayBadgeModule,
     TranslateModule,
     LoadingStateComponent,
     EmptyStateComponent,
