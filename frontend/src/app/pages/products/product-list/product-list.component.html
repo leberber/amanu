@@ -228,12 +228,18 @@
               
               <div class="flex align-items-center gap-2">
                 <div class="flex-1">
-                  <ng-container *ngIf="isProductInCart(product.id)">
+                  <ng-container *ngIf="isProductInCart(product.id); else notInCartMobile">
                     <span class="text-xs text-green-500">
                       <i class="pi pi-check-circle mr-1 text-sm"></i>
                       {{ getCartQuantity(product.id) }} {{ 'products.cart.in_cart' | translate }} ({{ formatPrice(product.price * getCartQuantity(product.id)) }})
                     </span>
                   </ng-container>
+                  <ng-template #notInCartMobile>
+                    <span class="text-xs text-500">
+                      <i class="pi pi-shopping-cart mr-1 text-xs"></i>
+                      {{ 'products.cart.not_in_cart' | translate }}
+                    </span>
+                  </ng-template>
                 </div>
                 <!-- Mobile button - icon only with badge -->
                 <p-overlayBadge [value]="getProductQuantity(product.id).toString()" severity="success">
@@ -329,12 +335,18 @@
               
               <div class="flex align-items-center gap-2 mt-2 py-2">
                 <div class="flex-1">
-                  <ng-container *ngIf="isProductInCart(product.id)">
+                  <ng-container *ngIf="isProductInCart(product.id); else notInCartDesktop">
                     <span class="text-sm text-green-500">
                       <i class="pi pi-check-circle mr-1 text-sm"></i>
                       {{ getCartQuantity(product.id) }} {{ 'products.cart.in_cart' | translate }} ({{ formatPrice(product.price * getCartQuantity(product.id)) }})
                     </span>
                   </ng-container>
+                  <ng-template #notInCartDesktop>
+                    <span class="text-sm text-500">
+                      <i class="pi pi-shopping-cart mr-1 text-sm"></i>
+                      {{ 'products.cart.not_in_cart' | translate }}
+                    </span>
+                  </ng-template>
                 </div>
                 <button
                   pButton

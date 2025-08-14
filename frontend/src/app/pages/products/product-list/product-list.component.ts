@@ -122,6 +122,10 @@ export class ProductListComponent implements OnInit, OnDestroy {
     const savedLayout = localStorage.getItem('product-list-layout');
     if (savedLayout === 'grid' || savedLayout === 'list') {
       this.layout.set(savedLayout as ViewMode);
+    } else {
+      // Set default based on screen size if no saved preference
+      const isMobile = window.innerWidth < 768;
+      this.layout.set(isMobile ? 'list' : 'grid');
     }
 
     // Subscribe to language changes

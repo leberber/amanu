@@ -181,6 +181,7 @@
     "cart": {
       "add_to_cart": "Ajouter au panier",
       "in_cart": "dans le panier",
+      "not_in_cart": "Pas dans le panier",
       "added_to_cart": "Ajouté au Panier",
       "added_message": "{quantity} {unit} de {name} ajouté à votre panier",
       "error": "Échec de l'ajout au panier"

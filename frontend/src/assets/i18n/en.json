@@ -178,6 +178,7 @@
     "cart": {
       "add_to_cart": "Add to cart",
       "in_cart": "in cart",
+      "not_in_cart": "Not in cart",
       "added_to_cart": "Added to Cart",
       "added_message": "{quantity} {unit} of {name} added to your cart",
       "error": "Failed to add item to cart"

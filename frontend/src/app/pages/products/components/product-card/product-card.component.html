@@ -203,6 +203,11 @@
       <i class="pi pi-check-circle mr-1 text-xs"></i>
       {{ quantityInCart }} {{ 'products.cart.in_cart' | translate }} ({{ formatPrice(product.price * quantityInCart) }})
     </span>
+  } @else {
+    <span class="text-xs text-500">
+      <i class="pi pi-shopping-cart mr-1 text-xs"></i>
+      {{ 'products.cart.not_in_cart' | translate }}
+    </span>
   }
 </ng-template>
 
