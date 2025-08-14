@@ -887,7 +887,11 @@
     "pound_short": "lb",
     "liter": "Litre",
     "liter_short": "L",
-    "milliliter": "Millilitre",
-    "milliliter_short": "ml"
+    "ml": "Millilitre",
+    "ml_short": "ml",
+    "box": "Boîte",
+    "box_short": "boîte",
+    "pack": "Paquet",
+    "pack_short": "paq"
   }
 }

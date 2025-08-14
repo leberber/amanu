@@ -49,7 +49,7 @@
         <ng-template pTemplate="body" let-order>
           <tr>
             <td>{{order.id}}</td>
-            <td>{{order.created_at | date:'medium'}}</td>
+            <td>{{formatDate(order.created_at)}}</td>
             <td>
               <p-tag [severity]="getStatusSeverity(order.status)" [value]="getStatusLabel(order.status)"></p-tag>
             </td>
@@ -96,7 +96,7 @@
               
               <!-- Date/Total row -->
               <div class="flex justify-content-between align-items-center">
-                <span class="text-600 text-sm">{{order.created_at | date:'MMM d, y'}}</span>
+                <span class="text-600 text-sm">{{formatDate(order.created_at)}}</span>
                 <span class="font-bold text-900 text-base">{{formatPrice(order.total_amount)}}</span>
               </div>
             </div>

@@ -40,7 +40,7 @@
 <!-- Loading Template -->
 <ng-template #loadingTemplate>
   <div class="text-center py-5">
-    <i class="pi pi-spin pi-spinner text-4xl text-primary mb-3"></i>
+    <i class="pi pi-spin pi-spinner text-2xl md:text-4xl text-primary mb-3"></i>
     <p>{{ 'orders.detail.loading_order' | translate }}</p>
   </div>
 </ng-template>
@@ -48,9 +48,9 @@
 <!-- Error Template -->
 <ng-template #errorTemplate>
   <div class="text-center py-5">
-    <i class="pi pi-exclamation-circle text-4xl text-danger mb-3"></i>
-    <h2 class="text-2xl font-medium mb-3">{{ 'orders.detail.failed_to_load_order' | translate }}</h2>
-    <p class="text-lg mb-4">{{ 'orders.detail.load_error_message' | translate }}</p>
+    <i class="pi pi-exclamation-circle text-2xl md:text-4xl text-danger mb-3"></i>
+    <h2 class="text-lg md:text-2xl font-medium mb-3">{{ 'orders.detail.failed_to_load_order' | translate }}</h2>
+    <p class="text-sm md:text-lg mb-4">{{ 'orders.detail.load_error_message' | translate }}</p>
     <button pButton type="button" [label]="'orders.detail.go_to_orders' | translate" routerLink="/orders"></button>
   </div>
 </ng-template>
@@ -63,10 +63,10 @@
       <div class="flex align-items-center">
         <button pButton type="button" icon="pi pi-arrow-left" 
           [label]="'orders.detail.back_to_orders' | translate"
-          class="p-button-text text-xl" 
+          class="p-button-text text-base md:text-xl" 
           (click)="backToOrders()"></button>
         
-        <span class="text-xl font-medium text-center flex-grow-1">
+        <span class="text-base md:text-xl font-medium text-center flex-grow-1">
           {{ 'orders.table.order_number' | translate }}{{order()?.id}}
         </span>
       </div>
@@ -88,11 +88,11 @@
                   <div class="flex align-items-center justify-content-center bg-primary border-circle h-2rem w-2rem mr-3">
                     <i class="pi pi-hashtag text-white text-sm"></i>
                   </div>
-                  <span class="font-medium text-primary-900">{{ 'orders.detail.order_number' | translate }}</span>
+                  <span class="font-medium text-primary-900 text-sm md:text-base">{{ 'orders.detail.order_number' | translate }}</span>
                 </div>
               </div>
             </ng-template>
-            <div class="text-2xl font-bold text-center p-3">{{order()?.id}}</div>
+            <div class="text-lg md:text-2xl font-bold text-center p-3">{{order()?.id}}</div>
           </p-card>
         </div>
         
@@ -104,12 +104,12 @@
                   <div class="flex align-items-center justify-content-center bg-primary border-circle h-2rem w-2rem mr-3">
                     <i class="pi pi-map-marker text-white text-sm"></i>
                   </div>
-                  <span class="font-medium text-primary-900">{{ 'orders.detail.shipping_address' | translate }}</span>
+                  <span class="font-medium text-primary-900 text-sm md:text-base">{{ 'orders.detail.shipping_address' | translate }}</span>
                 </div>
               </div>
             </ng-template>
             <div class="p-3">
-              <div class="text-md line-height-3">{{order()?.shipping_address}}</div>
+              <div class="text-sm md:text-base line-height-3">{{order()?.shipping_address}}</div>
             </div>
           </p-card>
         </div>
@@ -122,11 +122,11 @@
                   <div class="flex align-items-center justify-content-center bg-primary border-circle h-2rem w-2rem mr-3">
                     <i class="pi pi-phone text-white text-sm"></i>
                   </div>
-                  <span class="font-medium text-primary-900">{{ 'orders.detail.contact_phone' | translate }}</span>
+                  <span class="font-medium text-primary-900 text-sm md:text-base">{{ 'orders.detail.contact_phone' | translate }}</span>
                 </div>
               </div>
             </ng-template>
-            <div class="text-xl text-center p-3">
+            <div class="text-base md:text-xl text-center p-3">
               <a href="tel:{{order()?.contact_phone}}" class="text-primary no-underline hover:underline">
                 {{order()?.contact_phone}}
               </a>
@@ -141,28 +141,28 @@
 <!-- Order Items Template -->
 <ng-template #orderItemsTemplate>
   <div class="surface-card pt-3 px-2 border-1 border-200 border-round">
-    <div class="text-lg font-medium mb-3">{{ 'orders.detail.order_items_title' | translate }}</div>
-    <p-table [value]="order()?.items || []" [tableStyle]="{'min-width': '100%'}" scrollHeight="calc(100vh - 350px)" [scrollable]="true">
+    <div class="text-base md:text-lg font-medium mb-3">{{ 'orders.detail.order_items_title' | translate }}</div>
+    <p-table [value]="order()?.items || []" [tableStyle]="{'min-width': '100%'}" scrollHeight="calc(100vh - 350px)" [scrollable]="true" styleClass="text-sm md:text-base">
       <ng-template pTemplate="header">
         <tr>
-          <th>{{ 'orders.detail.product' | translate }}</th>
-          <th style="width: 20%">{{ 'orders.detail.price' | translate }}</th>
-          <th style="width: 20%">{{ 'orders.detail.qty' | translate }}</th>
-          <th style="width: 20%">{{ 'common.total' | translate }}</th>
+          <th class="text-xs md:text-sm">{{ 'orders.detail.product' | translate }}</th>
+          <th style="width: 20%" class="text-xs md:text-sm">{{ 'orders.detail.price' | translate }}</th>
+          <th style="width: 20%" class="text-xs md:text-sm">{{ 'orders.detail.qty' | translate }}</th>
+          <th style="width: 20%" class="text-xs md:text-sm">{{ 'common.total' | translate }}</th>
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-item>
         <tr>
-          <td>{{item.product_name}}</td>
-          <td>{{formatPrice(item.unit_price)}}/{{getUnitDisplay(item.product_unit)}}</td>
-          <td>{{item.quantity}}</td>
-          <td class="text-right font-medium">{{formatPrice(item.unit_price * item.quantity)}}</td>
+          <td class="text-xs md:text-sm">{{item.product_name}}</td>
+          <td class="text-xs md:text-sm">{{formatPrice(item.unit_price)}}/{{getUnitDisplay(item.product_unit)}}</td>
+          <td class="text-xs md:text-sm">{{item.quantity}}</td>
+          <td class="text-right font-medium text-xs md:text-sm">{{formatPrice(item.unit_price * item.quantity)}}</td>
         </tr>
       </ng-template>
       <ng-template pTemplate="footer">
         <tr>
-          <td colspan="3" class="text-right font-medium">{{ 'common.total' | translate }}:</td>
-          <td class="text-right font-bold">{{formatPrice(totalAmount())}}</td>
+          <td colspan="3" class="text-right font-medium text-sm md:text-base">{{ 'common.total' | translate }}:</td>
+          <td class="text-right font-bold text-sm md:text-base">{{formatPrice(totalAmount())}}</td>
         </tr>
       </ng-template>
     </p-table>
@@ -172,12 +172,12 @@
 <!-- Order Timeline Template -->
 <ng-template #orderTimelineTemplate>
   <div class="surface-card p-3 border-1 border-200 border-round mb-2">
-    <div class="text-lg font-medium mb-3">{{ 'orders.detail.order_timeline' | translate }}</div>
+    <div class="text-base md:text-lg font-medium mb-3">{{ 'orders.detail.order_timeline' | translate }}</div>
     
     <p-timeline [value]="orderStatuses()" align="left">
       <ng-template pTemplate="content" let-status>
         <div class="text-sm mb-1 font-medium">{{status.status}}</div>
-        <div class="text-xs text-600">{{status.date | date:'medium'}}</div>
+        <div class="text-xs text-600">{{formatDate(status.date)}}</div>
       </ng-template>
       <ng-template pTemplate="opposite" let-status>
         <!-- Empty opposite template -->
@@ -196,7 +196,7 @@
 <!-- Order Actions Template -->
 <ng-template #orderActionsTemplate>
   <div class="surface-card p-3 border-1 border-200 border-round">
-    <div class="text-lg font-medium mb-3">{{ 'orders.detail.order_actions_title' | translate }}</div>
+    <div class="text-base md:text-lg font-medium mb-3">{{ 'orders.detail.order_actions_title' | translate }}</div>
     
     <div *ngIf="canCancelOrder()" class="mb-3">
       <button 
@@ -204,7 +204,7 @@
         type="button" 
         [label]="'orders.detail.cancel_order_button' | translate"
         icon="pi pi-times" 
-        class="p-button-danger w-full p-button-lg"
+        class="p-button-danger w-full p-button-sm md:p-button-lg"
         (click)="cancelOrder()"
       ></button>
       <small class="block text-xs text-600 mt-1">
@@ -218,7 +218,7 @@
         type="button" 
         [label]="'orders.detail.contact_support' | translate"
         icon="pi pi-comments" 
-        class="p-button-outlined w-full p-button-lg"
+        class="p-button-outlined w-full p-button-sm md:p-button-lg"
       ></button>
     </div>
   </div>

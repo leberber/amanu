@@ -889,7 +889,11 @@
     "pound_short": "رطل",
     "liter": "لتر",
     "liter_short": "ل",
-    "milliliter": "ملليلتر",
-    "milliliter_short": "مل"
+    "ml": "ملليلتر",
+    "ml_short": "مل",
+    "box": "صندوق",
+    "box_short": "صندوق",
+    "pack": "عبوة",
+    "pack_short": "عبوة"
   }
 }

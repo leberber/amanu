@@ -608,9 +608,9 @@
       "required_field": "Required field"
     },
     "units": {
-      "kg": "Kilogram (Kg)",
+      "kg": "Kilogram",
       "kg_short": "kg",
-      "gram": "Gram (g)",
+      "gram": "Gram",
       "gram_short": "g",
       "piece": "Piece",
       "piece_short": "pc",
@@ -618,8 +618,16 @@
       "bunch_short": "bunch",
       "dozen": "Dozen",
       "dozen_short": "dz",
-      "pound": "Pound (lb)",
-      "pound_short": "lb"
+      "pound": "Pound",
+      "pound_short": "lb",
+      "liter": "Liter",
+      "liter_short": "L",
+      "ml": "Milliliter",
+      "ml_short": "ml",
+      "box": "Box",
+      "box_short": "box",
+      "pack": "Pack",
+      "pack_short": "pack"
     }
   },
     "categories": {

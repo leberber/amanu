@@ -81,20 +81,14 @@ export class UnitsService {
   ]);
 
   /**
-   * Get display name for a unit
+   * Get display name for a unit (now returns translated version)
    * @param unit - Unit key
    * @param useShort - Whether to use short form
-   * @returns Display name
+   * @returns Translated display name
    */
   getUnitDisplay(unit: string, useShort = true): string {
-    const unitConfig = this.units.get(unit?.toLowerCase());
-    
-    if (!unitConfig) {
-      // Fallback to the unit key itself
-      return unit || '';
-    }
-
-    return useShort ? unitConfig.displayShort : unitConfig.display;
+    // Now delegates to getUnitTranslated for proper translation
+    return this.getUnitTranslated(unit, useShort);
   }
 
   /**
