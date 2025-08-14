@@ -378,4 +378,5 @@ export class ProductFiltersComponent {
   trackByCategoryId(_index: number, category: Category): number {
     return category.id;
   }
+
 }

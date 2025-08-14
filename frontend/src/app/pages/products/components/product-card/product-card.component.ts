@@ -51,7 +51,7 @@ export interface AddToCartEvent {
             @if (product.is_organic) {
               <p-tag 
                 severity="success" 
-                value="Organic" 
+                [value]="'products.tags.organic' | translate" 
                 class="shadow-2 flex-shrink-0"
                 icon="pi pi-leaf"
                 style="width: auto;"
@@ -130,16 +130,16 @@ export interface AddToCartEvent {
             <div class="flex align-items-center gap-2 py-2">
               <div class="flex-1">
                 @if (isInCart) {
-                  <span class="text-xs" style="color: #10b981;">
+                  <span class="text-xs text-green-500">
                     <i class="pi pi-check-circle mr-1" style="font-size: 0.75rem;"></i>
-                    {{ quantityInCart }} in cart ({{ formatPrice(product.price * quantityInCart) }})
+                    {{ quantityInCart }} {{ 'products.cart.in_cart' | translate }} ({{ formatPrice(product.price * quantityInCart) }})
                   </span>
                 }
               </div>
               <button
                 pButton
                 type="button"
-                [label]="'Add (' + selectedQuantity + ')'"
+                [label]="('products.cart.add_to_cart' | translate) + ' (' + selectedQuantity + ')'"
                 icon="pi pi-shopping-cart"
                 class="p-button-primary"
                 style="height: 2.25rem; padding: 0 1rem; width: 50%; font-size: 0.875rem;"
@@ -191,7 +191,7 @@ export interface AddToCartEvent {
     @media (max-width: 768px) {
       .product-card {
         border: none !important;
-        border-bottom: 2px solid #e5e7eb !important;
+        border-bottom: 2px solid var(--surface-border) !important;
         border-radius: 0 !important;
         margin-bottom: 0.5rem;
       }
@@ -276,7 +276,7 @@ export class ProductCardComponent {
   }
 
   getUnitDisplay(unit: string): string {
-    return this.unitsService.getUnitDisplay(unit);
+    return this.unitsService.getUnitTranslated(unit);
   }
 
   getLowStockMessage(): string {
@@ -293,7 +293,7 @@ export class ProductCardComponent {
   }
   
   getAddToCartLabel(): string {
-    return 'Add to Cart';
+    return this.translateService.instant('products.cart.add_to_cart');
   }
 
   getQuantityOptions(): any[] {
@@ -301,7 +301,7 @@ export class ProductCardComponent {
       return this.product.quantity_config.quantities
         .filter(qty => qty <= this.product.stock_quantity)
         .map(value => ({
-          label: `${value} ${this.unitsService.getUnitDisplay(this.product.unit)}`,
+          label: `${value} ${this.unitsService.getUnitTranslated(this.product.unit)}`,
           value: value
         }));
     }
@@ -311,7 +311,7 @@ export class ProductCardComponent {
     const max = Math.min(this.product.stock_quantity || 10, 10);
     for (let i = 1; i <= max; i++) {
       options.push({
-        label: `${i} ${this.unitsService.getUnitDisplay(this.product.unit)}`,
+        label: `${i} ${this.unitsService.getUnitTranslated(this.product.unit)}`,
         value: i
       });
     }

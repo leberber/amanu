@@ -87,7 +87,7 @@
 <!-- Mobile Actions Template -->
 <ng-template #mobileActions>
   <div class="flex align-items-center gap-2">
-    <a *ngIf="cartCount()" routerLink="/cart" class="button-icon-large">
+    <a *ngIf="cartCount()" routerLink="/cart" >
       <p-overlayBadge [value]="cartCount()" severity="danger">
         <i class="pi pi-shopping-cart"></i>
       </p-overlayBadge>
@@ -96,7 +96,7 @@
     <button 
       pButton 
       icon="pi pi-bars"
-      class="p-button-text p-button-rounded button-icon-large"
+      class="p-button-text p-button-rounded "
       (click)="toggleMobileMenu()">
     </button>
   </div>

@@ -1,4 +1,5 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, inject } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 
 export interface CurrencyConfig {
   code: string;
@@ -8,17 +9,21 @@ export interface CurrencyConfig {
   decimalSeparator: string;
   decimalPlaces: number;
   format: string; // e.g., "{value} {symbol}" or "{symbol}{value}"
+  symbolAr?: string; // Arabic symbol override
 }
 
 @Injectable({
   providedIn: 'root'
 })
 export class CurrencyService {
+  private translateService = inject(TranslateService);
+  
   // Available currencies
   private readonly currencies: Record<string, CurrencyConfig> = {
     DZD: {
       code: 'DZD',
       symbol: 'DA',
+      symbolAr: 'د.ج',
       symbolPosition: 'after',
       thousandSeparator: ' ',
       decimalSeparator: ',',
@@ -152,10 +157,13 @@ export class CurrencyService {
       decimalSeparator: currency.decimalSeparator
     });
 
-    // Apply currency format
+    // Apply currency format with language-specific symbol
+    const currentLang = this.translateService.currentLang || 'en';
+    const symbol = (currentLang === 'ar' && currency.symbolAr) ? currency.symbolAr : currency.symbol;
+    
     return currency.format
       .replace('{value}', formattedValue)
-      .replace('{symbol}', currency.symbol)
+      .replace('{symbol}', symbol)
       .trim();
   }
 
@@ -223,7 +231,10 @@ export class CurrencyService {
    */
   getCurrencySymbol(currency?: string): string {
     const currencyConfig = currency ? this.currencies[currency] : this.currentCurrency();
-    return currencyConfig?.symbol || '';
+    if (!currencyConfig) return '';
+    
+    const currentLang = this.translateService.currentLang || 'en';
+    return (currentLang === 'ar' && currencyConfig.symbolAr) ? currencyConfig.symbolAr : currencyConfig.symbol;
   }
 
   /**

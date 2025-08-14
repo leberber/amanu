@@ -143,6 +143,7 @@
       "product_details": "Product Details",
       "reviews": "Reviews",
       "quantity_selector": {
+        "select_quantity": "Select Quantity",
         "popular": "Popular",
         "bulk": "Bulk",
         "not_enough_stock": "Not enough stock",
@@ -176,6 +177,7 @@
     "add_to_cart": "Add to Cart",
     "cart": {
       "add_to_cart": "Add to cart",
+      "in_cart": "in cart",
       "added_to_cart": "Added to Cart",
       "added_message": "{quantity} {unit} of {name} added to your cart",
       "error": "Failed to add item to cart"

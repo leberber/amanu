@@ -154,7 +154,7 @@
             <ng-container *ngIf="product.is_organic">
               <p-tag 
                 severity="success" 
-                value="Organic" 
+                [value]="'products.tags.organic' | translate" 
                 class="shadow-2 text-xs flex-shrink-0"
                 icon="pi pi-leaf"
                 style="width: auto;">
@@ -191,7 +191,7 @@
             <div>
               <ng-container *ngIf="isOutOfStock(product)">
                 <span class="text-red-500 font-medium text-sm flex align-items-center">
-                  <i class="pi pi-times-circle mr-1" style="font-size: 0.875rem;"></i>Out of Stock
+                  <i class="pi pi-times-circle mr-1" style="font-size: 0.875rem;"></i>{{ 'products.stock.out_of_stock' | translate }}
                 </span>
               </ng-container>
               <ng-container *ngIf="!isOutOfStock(product) && product.stock_quantity < 20">
@@ -201,7 +201,7 @@
               </ng-container>
               <ng-container *ngIf="!isOutOfStock(product) && product.stock_quantity >= 20">
                 <span class="text-green-500 font-medium text-sm flex align-items-center">
-                  <i class="pi pi-check-circle mr-1" style="font-size: 0.875rem;"></i>In Stock
+                  <i class="pi pi-check-circle mr-1" style="font-size: 0.875rem;"></i>{{ 'products.stock.in_stock' | translate }}
                 </span>
               </ng-container>
             </div>
@@ -227,16 +227,16 @@
               <div class="flex align-items-center gap-2">
                 <div class="flex-1">
                   <ng-container *ngIf="isProductInCart(product.id)">
-                    <span class="text-xs" style="color: #10b981;">
+                    <span class="text-xs text-green-500">
                       <i class="pi pi-check-circle mr-1" style="font-size: 0.75rem;"></i>
-                      {{ getCartQuantity(product.id) }} in cart ({{ formatPrice(product.price * getCartQuantity(product.id)) }})
+                      {{ getCartQuantity(product.id) }} {{ 'products.cart.in_cart' | translate }} ({{ formatPrice(product.price * getCartQuantity(product.id)) }})
                     </span>
                   </ng-container>
                 </div>
                 <button
                   pButton
                   type="button"
-                  [label]="'Add (' + getProductQuantity(product.id) + ')'"
+                  [label]="('products.cart.add_to_cart' | translate) + ' (' + getProductQuantity(product.id) + ')'"
                   icon="pi pi-cart-plus"
                   class="p-button-primary"
                   style="width: 50%; height: 2.5rem; padding: 0 1rem; font-size: 0.875rem; font-weight: 600; border-radius: 8px;"
@@ -252,7 +252,7 @@
             <div>
               <button
                 pButton
-                label="Out of Stock"
+                [label]="'products.stock.out_of_stock' | translate"
                 [disabled]="true"
                 class="w-full p-button-secondary"
                 style="height: 2.5rem; font-size: 0.875rem; font-weight: 600; border-radius: 8px;">
@@ -325,16 +325,16 @@
               <div class="flex align-items-center gap-2 mt-2 py-2">
                 <div class="flex-1">
                   <ng-container *ngIf="isProductInCart(product.id)">
-                    <span class="text-sm" style="color: #10b981;">
+                    <span class="text-sm text-green-500">
                       <i class="pi pi-check-circle mr-1" style="font-size: 0.875rem;"></i>
-                      {{ getCartQuantity(product.id) }} in cart ({{ formatPrice(product.price * getCartQuantity(product.id)) }})
+                      {{ getCartQuantity(product.id) }} {{ 'products.cart.in_cart' | translate }} ({{ formatPrice(product.price * getCartQuantity(product.id)) }})
                     </span>
                   </ng-container>
                 </div>
                 <button
                   pButton
                   type="button"
-                  [label]="'Add (' + getProductQuantity(product.id) + ')'"
+                  [label]="('products.cart.add_to_cart' | translate) + ' (' + getProductQuantity(product.id) + ')'"
                   icon="pi pi-shopping-cart"
                   class="p-button-primary"
                   style="min-width: 120px; width: 50%; height: 2.25rem; padding: 0 1rem; font-size: 0.875rem;"
@@ -347,7 +347,7 @@
             <ng-template #outOfStockButton>
               <button
                 pButton
-                [label]="'Out of Stock'"
+                [label]="'products.stock.out_of_stock' | translate"
                 icon="pi pi-times"
                 [disabled]="true"
                 class="w-full p-button-secondary p-button-sm">

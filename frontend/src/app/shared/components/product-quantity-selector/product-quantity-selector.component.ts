@@ -1,11 +1,13 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges, inject, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { SelectModule } from 'primeng/select';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { QuantityConfig } from '../../../models/product.model';
+import { UnitsService } from '../../../core/services/units.service';
+import { Subscription } from 'rxjs';
 
 interface QuantityOption {
   label: string;
@@ -88,7 +90,7 @@ interface QuantityOption {
               optionValue="value"
               [disabled]="disabled"
               [filter]="false"
-              [placeholder]="'Select quantity'"
+              [placeholder]="selectQuantityPlaceholder"
               (onChange)="onQuantityChange()"
               appendTo="body"
               styleClass="compact-select w-full">
@@ -124,7 +126,7 @@ interface QuantityOption {
               optionValue="value"
               [disabled]="disabled"
               [filter]="false"
-              [placeholder]="'Select quantity'"
+              [placeholder]="selectQuantityPlaceholder"
               (onChange)="onQuantityChange()"
               appendTo="body"
               styleClass="compact-select w-full">
@@ -270,8 +272,9 @@ interface QuantityOption {
         height: 100%;
         min-height: 2.25rem;
         min-width: 0 !important;
-        border: 1px solid #ced4da;
+        border: 1px solid #e9ecef !important;
         border-radius: 6px;
+        background-color: var(--surface-0) !important;
       }
       
       .p-select-label {
@@ -307,7 +310,16 @@ interface QuantityOption {
       height: 2.25rem;
       box-sizing: border-box;
       min-width: 0;
-      border: 1px solid #ced4da !important;
+      border: 1px solid #e9ecef !important;
+      
+      &.p-button-outlined {
+        border: 1px solid #e9ecef !important;
+        background-color: var(--surface-0);
+      }
+      
+      &.p-button-primary:not(.p-button-outlined) {
+        border: 1px solid var(--primary-color) !important;
+      }
       
       &:hover:not(:disabled) {
         transform: translateY(-1px);
@@ -383,6 +395,23 @@ interface QuantityOption {
       -moz-appearance: textfield;
     }
 
+    /* Ensure borders are visible on PrimeNG components */
+    ::ng-deep {
+      .p-button.quick-pill {
+        border: 1px solid #e9ecef !important;
+        border-radius: 6px !important;
+      }
+      
+      .p-select.compact-select {
+        border: 1px solid #e9ecef !important;
+        border-radius: 6px !important;
+      }
+      
+      .p-select.compact-select .p-select-label {
+        border: none !important;
+      }
+    }
+    
     /* Mobile responsiveness */
     @media (max-width: 480px) {
       .quick-pill {
@@ -390,6 +419,7 @@ interface QuantityOption {
         padding: 0.375rem 0.5rem;
         height: 2.25rem;
         font-weight: 600;
+        border: 1px solid #e9ecef !important;
       }
       
       .quantity-input {
@@ -417,7 +447,12 @@ interface QuantityOption {
     }
   `]
 })
-export class ProductQuantitySelectorComponent implements OnInit, OnChanges {
+export class ProductQuantitySelectorComponent implements OnInit, OnChanges, OnDestroy {
+  private unitsService = inject(UnitsService);
+  private translateService = inject(TranslateService);
+  private cdr = inject(ChangeDetectorRef);
+  private langChangeSubscription?: Subscription;
+  
   // Inputs
   @Input() value: number = 1;
   @Input() min: number = 1;
@@ -441,6 +476,7 @@ export class ProductQuantitySelectorComponent implements OnInit, OnChanges {
   // Internal state
   quantity: number = 1;
   quantityOptions: QuantityOption[] = [];
+  selectQuantityPlaceholder: string = 'Select Quantity';
 
   get canIncrease(): boolean {
     // For list type, check if there's a next value
@@ -482,6 +518,17 @@ export class ProductQuantitySelectorComponent implements OnInit, OnChanges {
     if (this.quantity !== this.value) {
       this.onQuantityChange();
     }
+    
+    // Subscribe to language changes to update unit displays
+    this.langChangeSubscription = this.translateService.onLangChange.subscribe(() => {
+      // Force update of dropdown options when language changes
+      this.quantityOptions = [];
+      this.initializeSelector();
+      this.updatePlaceholder();
+    });
+    
+    // Set initial placeholder
+    this.updatePlaceholder();
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -772,15 +819,17 @@ export class ProductQuantitySelectorComponent implements OnInit, OnChanges {
 
 
   private getUnitDisplay(unit: string): string {
-    const unitMap: { [key: string]: string } = {
-      'kg': 'kg',
-      'gram': 'g',
-      'piece': 'pcs',
-      'bunch': 'bunch',
-      'dozen': 'dozen',
-      'pound': 'lb'
-    };
-    return unitMap[unit] || unit;
+    return this.unitsService.getUnitTranslated(unit, true);
   }
 
+  private updatePlaceholder(): void {
+    this.selectQuantityPlaceholder = this.translateService.instant('products.product.quantity_selector.select_quantity');
+    this.cdr.markForCheck();
+  }
+
+  ngOnDestroy(): void {
+    if (this.langChangeSubscription) {
+      this.langChangeSubscription.unsubscribe();
+    }
+  }
 }

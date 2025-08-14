@@ -192,7 +192,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
   }
 
   getUnitDisplay(unit: string): string {
-    return this.unitsService.getUnitDisplay(unit);
+    return this.unitsService.getUnitTranslated(unit);
   }
 
   isOutOfStock(product: Product): boolean {

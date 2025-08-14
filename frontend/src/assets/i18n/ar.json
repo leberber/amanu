@@ -143,6 +143,7 @@
       "product_details": "تفاصيل المنتج",
       "reviews": "التقييمات",
       "quantity_selector": {
+        "select_quantity": "اختر الكمية",
         "popular": "شائع",
         "bulk": "بالجملة",
         "not_enough_stock": "المخزون غير كافي",
@@ -179,6 +180,7 @@
     "add_to_cart": "إضافة للسلة",
     "cart": {
       "add_to_cart": "إضافة للسلة",
+      "in_cart": "في السلة",
       "added_to_cart": "تمت الإضافة للسلة",
       "added_message": "تمت إضافة {quantity} {unit} من {name} إلى سلتك",
       "error": "فشل في إضافة العنصر للسلة"
@@ -867,5 +869,23 @@
     "password_changed": "تم تغيير كلمة المرور",
     "password_changed_success": "تم تغيير كلمة المرور الخاصة بك بنجاح.",
     "password_change_failed": "فشل تغيير كلمة المرور"
+  },
+  "units": {
+    "kg": "كيلوغرام",
+    "kg_short": "كغ",
+    "gram": "غرام",
+    "gram_short": "غ",
+    "piece": "قطعة",
+    "piece_short": "قطعة",
+    "bunch": "حزمة",
+    "bunch_short": "حزمة",
+    "dozen": "دزينة",
+    "dozen_short": "دزينة",
+    "pound": "باوند",
+    "pound_short": "رطل",
+    "liter": "لتر",
+    "liter_short": "ل",
+    "milliliter": "ملليلتر",
+    "milliliter_short": "مل"
   }
 }
