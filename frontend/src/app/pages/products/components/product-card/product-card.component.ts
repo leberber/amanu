@@ -36,13 +36,13 @@ export interface AddToCartEvent {
     ProductQuantitySelectorComponent
   ],
   template: `
-    <div class="product-card surface-card h-full flex flex-column" style="border-radius: 0;">
+    <div class="surface-card h-full flex flex-column border-1 surface-border hover:border-primary-300 transition-all transition-duration-300 hover:shadow-3 hover:border-round md:hover:-translate-y-1 border-round-0 md:border-round">
       <!-- Product Image -->
-      <a [routerLink]="['/products', product.id]" class="block relative overflow-hidden product-image-container">
+      <a [routerLink]="['/products', product.id]" class="block relative overflow-hidden">
         <img 
           [src]="product.image_url || 'assets/images/product-placeholder.jpg'"
           [alt]="product.name"
-          class="w-full product-image"
+          class="w-full hover:scale-105 transition-all transition-duration-300"
           style="height: 220px; object-fit: cover;"
         >
         <!-- Overlay badges -->
@@ -52,9 +52,8 @@ export interface AddToCartEvent {
               <p-tag 
                 severity="success" 
                 [value]="'products.tags.organic' | translate" 
-                class="shadow-2 flex-shrink-0"
+                class="shadow-2 flex-shrink-0 w-auto text-xs"
                 icon="pi pi-leaf"
-                style="width: auto;"
               ></p-tag>
             }
           </div>
@@ -62,7 +61,7 @@ export interface AddToCartEvent {
             <p-tag 
               severity="warning" 
               [value]="'products.stock.low_stock_title' | translate"
-              class="shadow-2"
+              class="shadow-2 text-xs"
               icon="pi pi-exclamation-triangle"
             ></p-tag>
           }
@@ -81,7 +80,7 @@ export interface AddToCartEvent {
         </div>
         
         <!-- Description -->
-        <div class="text-600 text-sm mb-2" style="line-height: 1.5;">
+        <div class="text-600 text-sm mb-2 line-height-2">
           {{ product.description || ('products.default_description' | translate) }}
         </div>
         
@@ -131,7 +130,7 @@ export interface AddToCartEvent {
               <div class="flex-1">
                 @if (isInCart) {
                   <span class="text-xs text-green-500">
-                    <i class="pi pi-check-circle mr-1" style="font-size: 0.75rem;"></i>
+                    <i class="pi pi-check-circle mr-1 text-xs"></i>
                     {{ quantityInCart }} {{ 'products.cart.in_cart' | translate }} ({{ formatPrice(product.price * quantityInCart) }})
                   </span>
                 }
@@ -141,8 +140,8 @@ export interface AddToCartEvent {
                 type="button"
                 [label]="('common.add' | translate) + ' (' + selectedQuantity + ')'"
                 icon="pi pi-shopping-cart"
-                class="p-button-primary"
-                style="height: 2.25rem; padding: 0 1rem; width: 35%; font-size: 0.875rem;"
+                class="p-button-primary text-sm"
+                style="height: 2.25rem; padding: 0 1rem; width: 35%;"
                 [disabled]="!product.stock_quantity || product.stock_quantity === 0 || selectedQuantity === 0 || selectedQuantity > product.stock_quantity"
                 (click)="addToCart()">
               </button>
@@ -166,80 +165,19 @@ export interface AddToCartEvent {
       height: 100%;
     }
     
-    .product-card {
-      border: 1px solid var(--surface-border);
-      background: var(--surface-card);
-      transition: all 0.3s ease;
-      overflow: hidden;
-    }
-    
-    /* Desktop hover effect */
-    @media (min-width: 769px) {
-      .product-card:hover {
-        border-color: var(--primary-color-light);
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        border-radius: 8px;
-      }
-      
-      .product-card:hover .product-image {
-        border-radius: 8px 8px 0 0;
-      }
-    }
-    
-    /* Mobile border bottom */
-    @media (max-width: 768px) {
-      .product-card {
-        border: none !important;
-        border-bottom: 2px solid var(--surface-border) !important;
-        border-radius: 0 !important;
-        margin-bottom: 0.5rem;
-      }
-    }
-    
-    .product-image-container {
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .product-image {
-      transition: transform 0.3s ease;
-    }
-    
-    .product-image-container:hover .product-image {
-      transform: scale(1.05);
-    }
-    
     .no-underline {
       text-decoration: none;
     }
     
-    .hover\\:text-primary:hover {
-      color: var(--primary-color);
-    }
-    
-    p-tag {
-      font-size: 0.75rem;
-    }
-    
-    /* Mobile improvements */
-    @media (max-width: 480px) {
-      .p-button {
-        height: 2.25rem !important;
-        font-size: 0.875rem !important;
-        padding: 0 1rem !important;
-      }
-      
-      h4 {
-        font-size: 1.1rem !important;
-      }
-      
-      .text-sm {
-        font-size: 0.875rem !important;
-      }
-      
-      .text-lg {
-        font-size: 1rem !important;
+    /* Mobile-specific border styling */
+    @media (max-width: 768px) {
+      .surface-card {
+        border-left: none !important;
+        border-right: none !important;
+        border-top: none !important;
+        border-bottom: 2px solid var(--surface-border) !important;
+        border-radius: 0 !important;
+        margin-bottom: 0.5rem;
       }
     }
   `]

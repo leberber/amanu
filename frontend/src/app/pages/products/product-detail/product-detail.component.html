@@ -24,7 +24,7 @@
             [label]="'actions.go_back' | translate" 
             icon="pi pi-arrow-left" 
             routerLink="/products"
-            style="padding:14px"
+            class="p-3"
           ></button>
         </div>
       </div>
@@ -37,7 +37,7 @@
           pButton 
           [label]="'actions.go_back' | translate" 
           icon="pi pi-arrow-left" 
-          style="padding:12px"
+          class="p-3"
           routerLink="/products"
         ></button>
       </div>
@@ -50,7 +50,8 @@
               [src]="product()?.image_url || 'assets/images/product-placeholder.jpg'" 
               [alt]="product()?.name" 
               class="w-full border-round-lg"
-              style="max-height: 500px; object-fit: contain; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);"
+              class="shadow-2"
+              style="max-height: 500px; object-fit: contain;"
             >
                  
             @if (product()?.is_organic) {
@@ -87,7 +88,7 @@
                       severity="success" 
                       [value]="'products.product.organic' | translate" 
                       icon="pi pi-leaf"
-                      [style]="{'font-size': '0.875rem', 'padding': '0.5rem 0.75rem'}"
+                      class="text-sm px-3 py-2"
                     ></p-tag>
                   }
                 </div>
