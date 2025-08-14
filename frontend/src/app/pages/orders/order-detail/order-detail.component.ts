@@ -92,6 +92,11 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
     // 🆕 NEW: Subscribe to language changes
     this.languageSubscription = this.translationService.currentLanguage$.subscribe(() => {
       this.loadTranslatedNames();
+      // Regenerate timeline with new translations
+      const currentOrder = this.order();
+      if (currentOrder) {
+        this.generateOrderStatusTimeline(currentOrder);
+      }
     });
     
     // Load order details
