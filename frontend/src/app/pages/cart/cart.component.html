@@ -1,323 +1,365 @@
-<!-- src/app/pages/cart/cart.component.html -->
+<!-- Main Container -->
 <div class="h-full pt-2 overflow-auto">
   <p-toast></p-toast>
   
   <div class="surface-card p-2">
+    <!-- Continue Shopping Button -->
     <div class="flex justify-content-start mb-4">
       <button 
         pButton 
         [label]="'cart.continue_shopping' | translate" 
         icon="pi pi-arrow-left" 
         class="ml-3 mt-4"
-        routerLink="/products"
-      ></button>
+        routerLink="/products">
+      </button>
     </div>
     
-    <!-- Loading State -->
+    <!-- Cart States -->
     @if (loading()) {
-      <div class="flex justify-content-center align-items-center py-8">
-        <i class="pi pi-spin pi-spinner text-4xl text-primary"></i>
-      </div>
+      <ng-container *ngTemplateOutlet="loadingState"></ng-container>
     } @else if (cartItemCount() === 0) {
-      <!-- Empty Cart -->
-      <div class="text-center py-5">
-        <i class="pi pi-shopping-cart text-6xl text-primary-200 mb-4"></i>
-        <h2 class="text-2xl font-medium mb-3">{{ 'cart.empty' | translate }}</h2>
-        <p class="text-lg mb-5">{{ 'cart.empty_message' | translate }}</p>
-        <p-button 
-          [label]="'cart.shop_now' | translate" 
-          icon="pi pi-shopping-bag" 
-          routerLink="/products"
-        ></p-button>
-      </div>
+      <ng-container *ngTemplateOutlet="emptyCartState"></ng-container>
     } @else {
-      <!-- Cart Content -->
-      <div class="grid">
-        <!-- Cart Items - Main column -->
-        <div class="col-12 md:col-8">
-          <!-- Desktop View (Table) -->
-          <div class="hidden md:block overflow-hidden shadow-1">
-            <p-table 
-              [value]="cartItems()" 
-              styleClass="p-datatable-sm" 
-              [scrollable]="true" 
-              scrollHeight="78vh"
-              [tableStyle]="{'min-width':'100%'}"
-            >
-              <ng-template pTemplate="header" >
-                <tr >
-                  <th style="width: 40%; padding: 20px;" class="cart.table.class">{{ 'cart.table.product' | translate }}</th>
-                  <th style="width: 15%" class="text-center">{{ 'common.price' | translate }}</th>
-                  <th style="width: 20%" class="text-center">{{ 'common.quantity' | translate }}</th>
-                  <th style="width: 15%" class="text-right">{{ 'common.total' | translate }}</th>
-                  <th style="width: 10%" class="text-center">{{ 'cart.table.actions' | translate }}</th>
-                </tr>
-              </ng-template>
-              <ng-template pTemplate="body" let-item>
-                <tr>
-                  <!-- Normal row view -->
-                  <ng-container *ngIf="showQuantityGridForItem !== item.id">
-                    <td>
-                      <div class="flex align-items-center">
-                        <img 
-                          [src]="item.product_image || 'assets/images/product-placeholder.jpg'" 
-                          [alt]="item.product_name" 
-                          width="60" 
-                          height="60" 
-                          class="shadow-1 border-round"
-                          style="object-fit: cover;"
-                          [style.margin-right]="isRTL() ? '0' : '1rem'"
-                          [style.margin-left]="isRTL() ? '1rem' : '0'"
-                        >
-                        <div>
-                          <p class="font-medium text-900 dark:text-white m-0 white-space-nowrap overflow-hidden text-overflow-ellipsis" style="max-width: 200px">
-                            {{item.product_name}}
-                          </p>
-                          @if (item.is_organic) {
-                            <p-tag severity="success" [value]="'products.product.organic' | translate" styleClass="mt-1"></p-tag>
-                          }
-                        </div>
-                      </div>
-                    </td>
-                    <td class="text-center font-medium text-700 dark:text-white">
-                      {{formatPrice(item.product_price)}}/{{getUnitDisplay(item.product_unit)}}
-                    </td>
-                    <td>
-                      <div class="flex align-items-center justify-content-center">
-                        <div style="width: 160px;">
-                          <app-product-quantity-selector
-                            [value]="productQuantities[item.id]"
-                            [stockQuantity]="item.stock_quantity"
-                            [unit]="item.product_unit"
-                            [quantityConfig]="item.quantity_config"
-                            [disabled]="isOutOfStock(item)"
-                            [dropdownOnly]="true"
-                            (valueChange)="updateItemQuantity(item.id, $event)">
-                          </app-product-quantity-selector>
-                        </div>
-                      </div>
-                    </td>
-                    <td class="text-right font-bold text-900 dark:text-white">
-                      {{formatPrice(item.product_price * item.quantity)}}
-                    </td>
-                    <td class="text-center">
-                      <button 
-                        pButton 
-                        type="button" 
-                        icon="pi pi-trash" 
-                        class="p-button-rounded p-button-danger p-button-text p-button-sm"
-                        [pTooltip]="'cart.remove_item' | translate"
-                        tooltipPosition="left"
-                        (click)="removeItem(item.id)"
-                      ></button>
-                    </td>
-                  </ng-container>
-
-                  <!-- Quantity grid view -->
-                  <ng-container *ngIf="showQuantityGridForItem === item.id">
-                    <td colspan="5">
-                      <div class="p-3">
-                        <div class="flex align-items-center justify-content-between mb-3">
-                          <div>
-                            <h4 class="m-0">{{ item.product_name }}</h4>
-                            <p class="text-sm text-500 mt-1 mb-0">{{ 'Select Quantity' | translate }}</p>
-                          </div>
-                          <button
-                            pButton
-                            type="button"
-                            icon="pi pi-times"
-                            class="p-button-rounded p-button-text p-button-sm"
-                            (click)="showQuantityGridForItem = null">
-                          </button>
-                        </div>
-                        
-                        <div class="quantity-grid-container">
-                          <button
-                            *ngFor="let qty of getQuantityOptionsForItem(item)"
-                            type="button"
-                            [ngClass]="{'selected': qty === productQuantities[item.id]}"
-                            class="qty-grid-item"
-                            (click)="selectQuantityForItem(item.id, qty)">
-                            <span class="qty-value">{{ qty }}</span>
-                            <span class="qty-unit text-xs">{{ getUnitDisplay(item.product_unit) }}</span>
-                          </button>
-                        </div>
-                        
-                        <div class="mt-3 flex justify-content-center">
-                          <button
-                            pButton
-                            icon="pi pi-check"
-                            [label]="'Update Quantity to ' + productQuantities[item.id] + ' ' + getUnitDisplay(item.product_unit)"
-                            class="p-button-sm"
-                            (click)="updateQuantityAndCloseGrid(item)">
-                          </button>
-                        </div>
-                      </div>
-                    </td>
-                  </ng-container>
-                </tr>
-              </ng-template>
-            </p-table>
-          </div>
-          
-          <!-- Mobile View (Cards) -->
-          <div class="block md:hidden">
-            @for (item of cartItems(); track item.id) {
-              <div class="surface-card p-3 mb-2 border-bottom-1 border-100">
-                <!-- Normal view -->
-                <ng-container *ngIf="showQuantityGridForItem !== item.id">
-                  <div class="flex align-items-center">
-                    <!-- Image (smaller) -->
-                    <div style="width: 60px; height: 60px;" class="flex-shrink-0" 
-                         [style.margin-right]="isRTL() ? '0' : '0.75rem'"
-                         [style.margin-left]="isRTL() ? '0.75rem' : '0'">
-                      <img [src]="item.product_image || 'assets/images/product-placeholder.jpg'" 
-                           [alt]="item.product_name" class="w-full h-full "
-                           style="object-fit: cover;">
-                    </div>
-                    
-                    <!-- Content -->
-                    <div class="flex-grow-1 overflow-hidden">
-                      <!-- Name with tag -->
-                      <div class="flex align-items-center justify-content-between">
-                        <div class="flex align-items-center overflow-hidden">
-                          <span class="font-medium text-overflow-ellipsis overflow-hidden white-space-nowrap">{{item.product_name}}</span>
-                          @if (item.is_organic) {
-                            <p-tag severity="success" value="O" 
-                                   [style.margin-left]="isRTL() ? '0' : '0.25rem'"
-                                   [style.margin-right]="isRTL() ? '0.25rem' : '0'"></p-tag>
-                          }
-                        </div>
-                        <button pButton icon="pi pi-trash" class="p-button-rounded p-button-danger p-button-text p-button-sm p-0 icon-large "
-                            (click)="removeItem(item.id)"></button>
-                      </div>
-                      
-                      <!-- Price/Quantity row -->
-                      <div class="flex justify-content-between align-items-center text-sm mt-2">
-                        <!-- Left column: Price with fixed width -->
-                        <span class="text-700 w-4rem text-left">{{formatPrice(item.product_price)}}/{{getUnitDisplay(item.product_unit)}}</span>
-                        
-                        <!-- Middle column: Quantity selector -->
-                        <div class="flex align-items-center justify-content-center" style="width: 140px;">
-                          <app-product-quantity-selector
-                            [value]="productQuantities[item.id]"
-                            [stockQuantity]="item.stock_quantity"
-                            [unit]="item.product_unit"
-                            [quantityConfig]="item.quantity_config"
-                            [disabled]="isOutOfStock(item)"
-                            [dropdownOnly]="true"
-                            (valueChange)="updateItemQuantity(item.id, $event)">
-                          </app-product-quantity-selector>
-                        </div>
-                        
-                        <!-- Right column: Total price with fixed width for 6 digits -->
-                        <span class="font-bold text-900 w-5rem text-right">{{formatPrice(item.product_price * item.quantity)}}</span>
-                      </div>
-                    </div>
-                  </div>
-                </ng-container>
-
-                <!-- Quantity grid view -->
-                <ng-container *ngIf="showQuantityGridForItem === item.id">
-                  <div class="p-2">
-                    <div class="flex align-items-center justify-content-between mb-3">
-                      <div>
-                        <h4 class="m-0 text-sm">{{ item.product_name }}</h4>
-                        <p class="text-xs text-500 mt-1 mb-0">{{ 'Select Quantity' | translate }}</p>
-                      </div>
-                      <button
-                        pButton
-                        type="button"
-                        icon="pi pi-times"
-                        class="p-button-rounded p-button-text p-button-xs"
-                        (click)="showQuantityGridForItem = null">
-                      </button>
-                    </div>
-                    
-                    <div class="quantity-grid-container-mobile">
-                      <button
-                        *ngFor="let qty of getQuantityOptionsForItem(item)"
-                        type="button"
-                        [ngClass]="{'selected': qty === productQuantities[item.id]}"
-                        class="qty-grid-item-mobile"
-                        (click)="selectQuantityForItem(item.id, qty)">
-                        <span class="qty-value text-sm">{{ qty }}</span>
-                        <span class="qty-unit text-xs">{{ getUnitDisplay(item.product_unit) }}</span>
-                      </button>
-                    </div>
-                    
-                    <div class="mt-2 flex justify-content-center">
-                      <button
-                        pButton
-                        icon="pi pi-check"
-                        [label]="'Update'"
-                        class="p-button-sm"
-                        (click)="updateQuantityAndCloseGrid(item)">
-                      </button>
-                    </div>
-                  </div>
-                </ng-container>
-              </div>
-            }
-          </div>
-        </div>
-        
-        <!-- Order Summary -->
-        <div class="col-12 md:col-4">
-          <div class="surface-card p-4 shadow-1 border-round flex flex-column">
-            <h3 class="text-xl font-medium text-900 dark:text-white">{{ 'cart.order_summary' | translate }}</h3>
-            
-            <div class="flex justify-content-between mb-3">
-              <span class="text-900 dark:text-white">
-                {{cartItemCount()}} {{ 'cart.items_with_count' | translate }} 
-              </span>
-              <span class="font-medium text-900 dark:text-white">{{formatPrice(cartTotal())}}</span>
-            </div>
-            
-            <div class="flex justify-content-between mb-3">
-              <span class="text-900 dark:text-white">{{ 'cart.shipping' | translate }}</span>
-              <span class="font-medium" 
-                    [ngClass]="{
-                      'text-green-600 dark:text-green-400': isShippingFree(),
-                      'text-red-600 dark:text-red-400': !isShippingFree()
-                    }">
-                @if (isShippingFree()) {
-                  {{ 'cart.free' | translate }}
-                } @else {
-                  {{ formatPrice(shippingCost()) }}
-                }
-              </span>
-            </div>
-            
-            <p-divider></p-divider>
-            
-            <div class="flex justify-content-between mb-4">
-              <span class="text-lg font-medium text-900 dark:text-white">{{ 'common.total' | translate }}</span>
-              <span class="text-lg font-bold text-900 dark:text-white">{{formatPrice(cartTotal() + shippingCost())}}</span>
-            </div>
-            
-            <div class="flex flex-column mt-auto">
-              <button 
-                pButton 
-                [label]="'cart.checkout' | translate" 
-                icon="pi pi-credit-card" 
-                (click)="proceedToCheckout()"
-                class="mb-2"
-                style="padding:14px"
-              ></button>
-              
-              <button 
-                pButton 
-                [label]="'cart.clear_cart' | translate" 
-                icon="pi pi-trash" 
-                style="padding:14px"
-                class="p-button-outlined p-button-danger"
-                (click)="clearCart()"
-              ></button>
-            </div>
-          </div>
-        </div>
-      </div>
+      <ng-container *ngTemplateOutlet="cartContent"></ng-container>
     }
   </div>
 </div>
+
+<!-- ===================== TEMPLATE DEFINITIONS ===================== -->
+
+<!-- Loading State Template -->
+<ng-template #loadingState>
+  <div class="flex justify-content-center align-items-center py-8">
+    <i class="pi pi-spin pi-spinner text-4xl text-primary"></i>
+  </div>
+</ng-template>
+
+<!-- Empty Cart State Template -->
+<ng-template #emptyCartState>
+  <div class="text-center py-5">
+    <i class="pi pi-shopping-cart text-6xl text-primary-200 mb-4"></i>
+    <h2 class="text-2xl font-medium mb-3">{{ 'cart.empty' | translate }}</h2>
+    <p class="text-lg mb-5">{{ 'cart.empty_message' | translate }}</p>
+    <p-button 
+      [label]="'cart.shop_now' | translate" 
+      icon="pi pi-shopping-bag" 
+      routerLink="/products">
+    </p-button>
+  </div>
+</ng-template>
+
+<!-- Cart Content Template -->
+<ng-template #cartContent>
+  <div class="grid">
+    <!-- Cart Items Column -->
+    <div class="col-12 md:col-8">
+      <!-- Desktop View -->
+      <div class="hidden md:block">
+        <ng-container *ngTemplateOutlet="desktopTable"></ng-container>
+      </div>
+      
+      <!-- Mobile View -->
+      <div class="block md:hidden">
+        <ng-container *ngTemplateOutlet="mobileCards"></ng-container>
+      </div>
+    </div>
+    
+    <!-- Order Summary Column -->
+    <div class="col-12 md:col-4">
+      <ng-container *ngTemplateOutlet="orderSummary"></ng-container>
+    </div>
+  </div>
+</ng-template>
+
+<!-- Desktop Table Template -->
+<ng-template #desktopTable>
+  <div class="overflow-hidden shadow-1">
+    <p-table 
+      [value]="cartItems()" 
+      styleClass="p-datatable-sm" 
+      [scrollable]="true" 
+      scrollHeight="78vh"
+      [tableStyle]="{'min-width':'100%'}">
+      
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width: 40%; padding: 20px;">{{ 'cart.table.product' | translate }}</th>
+          <th style="width: 15%" class="text-center">{{ 'common.price' | translate }}</th>
+          <th style="width: 20%" class="text-center">{{ 'common.quantity' | translate }}</th>
+          <th style="width: 15%" class="text-right">{{ 'common.total' | translate }}</th>
+          <th style="width: 10%" class="text-center">{{ 'cart.table.actions' | translate }}</th>
+        </tr>
+      </ng-template>
+      
+      <ng-template pTemplate="body" let-item>
+        <tr>
+          @if (showQuantityGridForItem !== item.id) {
+            <ng-container *ngTemplateOutlet="desktopTableRow; context: {item: item}"></ng-container>
+          } @else {
+            <ng-container *ngTemplateOutlet="desktopQuantityGrid; context: {item: item}"></ng-container>
+          }
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</ng-template>
+
+<!-- Desktop Table Row Template -->
+<ng-template #desktopTableRow let-item="item">
+  <td>
+    <div class="flex align-items-center">
+      <img 
+        [src]="item.product_image || 'assets/images/product-placeholder.jpg'" 
+        [alt]="item.product_name" 
+        width="60" 
+        height="60" 
+        class="shadow-1 border-round"
+        style="object-fit: cover;"
+        [style.margin-right]="isRTL() ? '0' : '1rem'"
+        [style.margin-left]="isRTL() ? '1rem' : '0'">
+      <div>
+        <p class="font-medium text-900 m-0 white-space-nowrap overflow-hidden text-overflow-ellipsis" style="max-width: 200px">
+          {{item.product_name}}
+        </p>
+        @if (item.is_organic) {
+          <p-tag severity="success" [value]="'products.product.organic' | translate" styleClass="mt-1"></p-tag>
+        }
+      </div>
+    </div>
+  </td>
+  <td class="text-center font-medium text-700">
+    {{formatPrice(item.product_price)}}/{{getUnitDisplay(item.product_unit)}}
+  </td>
+  <td>
+    <div class="flex align-items-center justify-content-center">
+      <div style="width: 160px;">
+        <app-product-quantity-selector
+          [value]="productQuantities[item.id]"
+          [stockQuantity]="item.stock_quantity"
+          [unit]="item.product_unit"
+          [quantityConfig]="item.quantity_config"
+          [disabled]="isOutOfStock(item)"
+          [dropdownOnly]="true"
+          (valueChange)="updateItemQuantity(item.id, $event)">
+        </app-product-quantity-selector>
+      </div>
+    </div>
+  </td>
+  <td class="text-right font-bold text-900">
+    {{formatPrice(item.product_price * item.quantity)}}
+  </td>
+  <td class="text-center">
+    <button 
+      pButton 
+      type="button" 
+      icon="pi pi-trash" 
+      class="p-button-rounded p-button-danger p-button-text p-button-sm"
+      [pTooltip]="'cart.remove_item' | translate"
+      tooltipPosition="left"
+      (click)="removeItem(item.id)">
+    </button>
+  </td>
+</ng-template>
+
+<!-- Desktop Quantity Grid Template -->
+<ng-template #desktopQuantityGrid let-item="item">
+  <td colspan="5">
+    <div class="p-3">
+      <div class="flex align-items-center justify-content-between mb-3">
+        <div>
+          <h4 class="m-0">{{ item.product_name }}</h4>
+          <p class="text-sm text-500 mt-1 mb-0">{{ 'Select Quantity' | translate }}</p>
+        </div>
+        <button
+          pButton
+          type="button"
+          icon="pi pi-times"
+          class="p-button-rounded p-button-text p-button-sm"
+          (click)="showQuantityGridForItem = null">
+        </button>
+      </div>
+      
+      <div class="quantity-grid-container">
+        <button
+          *ngFor="let qty of getQuantityOptionsForItem(item)"
+          type="button"
+          [ngClass]="{'selected': qty === productQuantities[item.id]}"
+          class="qty-grid-item"
+          (click)="selectQuantityForItem(item.id, qty)">
+          <span class="qty-value">{{ qty }}</span>
+          <span class="qty-unit text-xs">{{ getUnitDisplay(item.product_unit) }}</span>
+        </button>
+      </div>
+      
+      <div class="mt-3 flex justify-content-center">
+        <button
+          pButton
+          icon="pi pi-check"
+          [label]="'Update Quantity to ' + productQuantities[item.id] + ' ' + getUnitDisplay(item.product_unit)"
+          class="p-button-sm"
+          (click)="updateQuantityAndCloseGrid(item)">
+        </button>
+      </div>
+    </div>
+  </td>
+</ng-template>
+
+<!-- Mobile Cards Template -->
+<ng-template #mobileCards>
+  @for (item of cartItems(); track item.id) {
+    <div class="surface-card p-3 mb-2 border-bottom-1 border-100">
+      @if (showQuantityGridForItem !== item.id) {
+        <ng-container *ngTemplateOutlet="mobileCardItem; context: {item: item}"></ng-container>
+      } @else {
+        <ng-container *ngTemplateOutlet="mobileQuantityGrid; context: {item: item}"></ng-container>
+      }
+    </div>
+  }
+</ng-template>
+
+<!-- Mobile Card Item Template -->
+<ng-template #mobileCardItem let-item="item">
+  <div class="flex align-items-center">
+    <!-- Image -->
+    <div style="width: 60px; height: 60px;" class="flex-shrink-0" 
+         [style.margin-right]="isRTL() ? '0' : '0.75rem'"
+         [style.margin-left]="isRTL() ? '0.75rem' : '0'">
+      <img [src]="item.product_image || 'assets/images/product-placeholder.jpg'" 
+           [alt]="item.product_name" class="w-full h-full"
+           style="object-fit: cover;">
+    </div>
+    
+    <!-- Content -->
+    <div class="flex-grow-1 overflow-hidden">
+      <!-- Name with tag -->
+      <div class="flex align-items-center justify-content-between">
+        <div class="flex align-items-center overflow-hidden">
+          <span class="font-medium text-overflow-ellipsis overflow-hidden white-space-nowrap">{{item.product_name}}</span>
+          @if (item.is_organic) {
+            <p-tag severity="success" value="O" 
+                   [style.margin-left]="isRTL() ? '0' : '0.25rem'"
+                   [style.margin-right]="isRTL() ? '0.25rem' : '0'"></p-tag>
+          }
+        </div>
+        <button pButton icon="pi pi-trash" class="p-button-rounded p-button-danger p-button-text p-button-sm p-0 icon-large"
+            (click)="removeItem(item.id)"></button>
+      </div>
+      
+      <!-- Price/Quantity row -->
+      <div class="flex justify-content-between align-items-center text-sm mt-2">
+        <span class="text-700 w-4rem text-left">{{formatPrice(item.product_price)}}/{{getUnitDisplay(item.product_unit)}}</span>
+        
+        <div class="flex align-items-center justify-content-center" style="width: 140px;">
+          <app-product-quantity-selector
+            [value]="productQuantities[item.id]"
+            [stockQuantity]="item.stock_quantity"
+            [unit]="item.product_unit"
+            [quantityConfig]="item.quantity_config"
+            [disabled]="isOutOfStock(item)"
+            [dropdownOnly]="true"
+            (valueChange)="updateItemQuantity(item.id, $event)">
+          </app-product-quantity-selector>
+        </div>
+        
+        <span class="font-bold text-900 w-5rem text-right">{{formatPrice(item.product_price * item.quantity)}}</span>
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+<!-- Mobile Quantity Grid Template -->
+<ng-template #mobileQuantityGrid let-item="item">
+  <div class="p-2">
+    <div class="flex align-items-center justify-content-between mb-3">
+      <div>
+        <h4 class="m-0 text-sm">{{ item.product_name }}</h4>
+        <p class="text-xs text-500 mt-1 mb-0">{{ 'Select Quantity' | translate }}</p>
+      </div>
+      <button
+        pButton
+        type="button"
+        icon="pi pi-times"
+        class="p-button-rounded p-button-text p-button-xs"
+        (click)="showQuantityGridForItem = null">
+      </button>
+    </div>
+    
+    <div class="quantity-grid-container-mobile">
+      <button
+        *ngFor="let qty of getQuantityOptionsForItem(item)"
+        type="button"
+        [ngClass]="{'selected': qty === productQuantities[item.id]}"
+        class="qty-grid-item-mobile"
+        (click)="selectQuantityForItem(item.id, qty)">
+        <span class="qty-value text-sm">{{ qty }}</span>
+        <span class="qty-unit text-xs">{{ getUnitDisplay(item.product_unit) }}</span>
+      </button>
+    </div>
+    
+    <div class="mt-2 flex justify-content-center">
+      <button
+        pButton
+        icon="pi pi-check"
+        [label]="'Update'"
+        class="p-button-sm"
+        (click)="updateQuantityAndCloseGrid(item)">
+      </button>
+    </div>
+  </div>
+</ng-template>
+
+<!-- Order Summary Template -->
+<ng-template #orderSummary>
+  <div class="surface-card p-4 shadow-1 border-round flex flex-column">
+    <h3 class="text-xl font-medium text-900 mb-3">{{ 'cart.order_summary' | translate }}</h3>
+    
+    <div class="flex justify-content-between mb-3">
+      <span class="text-900">
+        {{cartItemCount()}} {{ 'cart.items_with_count' | translate }} 
+      </span>
+      <span class="font-medium text-900">{{formatPrice(cartTotal())}}</span>
+    </div>
+    
+    <div class="flex justify-content-between mb-3">
+      <span class="text-900">{{ 'cart.shipping' | translate }}</span>
+      <span class="font-medium" 
+            [ngClass]="{
+              'text-green-600': isShippingFree(),
+              'text-red-600': !isShippingFree()
+            }">
+        @if (isShippingFree()) {
+          {{ 'cart.free' | translate }}
+        } @else {
+          {{ formatPrice(shippingCost()) }}
+        }
+      </span>
+    </div>
+    
+    <p-divider></p-divider>
+    
+    <div class="flex justify-content-between mb-4">
+      <span class="text-lg font-medium text-900">{{ 'common.total' | translate }}</span>
+      <span class="text-lg font-bold text-900">{{formatPrice(cartTotal() + shippingCost())}}</span>
+    </div>
+    
+    <div class="flex flex-column mt-auto">
+      <button 
+        pButton 
+        [label]="'cart.checkout' | translate" 
+        icon="pi pi-credit-card" 
+        (click)="proceedToCheckout()"
+        class="mb-2"
+        style="padding:14px">
+      </button>
+      
+      <button 
+        pButton 
+        [label]="'cart.clear_cart' | translate" 
+        icon="pi pi-trash" 
+        style="padding:14px"
+        class="p-button-outlined p-button-danger"
+        (click)="clearCart()">
+      </button>
+    </div>
+  </div>
+</ng-template>

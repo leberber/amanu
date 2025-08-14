@@ -1,7 +1,6 @@
 // src/app/pages/cart/cart.component.ts
 import { Component, OnInit, inject, signal, computed, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { RouterLink, Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
@@ -28,7 +27,6 @@ import { ProductQuantitySelectorComponent } from '../../shared/components/produc
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule,
     RouterLink,
     ButtonModule,
     TableModule,
@@ -42,85 +40,7 @@ import { ProductQuantitySelectorComponent } from '../../shared/components/produc
   ],
   providers: [MessageService],
   templateUrl: './cart.component.html',
-  styles: [`
-    .quantity-grid-container {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
-      gap: 0.5rem;
-      padding: 1rem 0;
-      max-height: 200px;
-      overflow-y: auto;
-    }
-
-    .qty-grid-item {
-      background: var(--surface-50);
-      border: 2px solid var(--surface-200);
-      border-radius: 8px;
-      padding: 0.75rem 0.5rem;
-      cursor: pointer;
-      transition: all 0.2s;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.25rem;
-    }
-
-    .qty-grid-item:hover {
-      background: var(--surface-100);
-      border-color: var(--primary-200);
-      transform: translateY(-2px);
-    }
-
-    .qty-grid-item.selected {
-      background: var(--primary-100);
-      border-color: var(--primary-500);
-      color: var(--primary-700);
-    }
-
-    .qty-value {
-      font-size: 1rem;
-      font-weight: 600;
-    }
-
-    .qty-unit {
-      opacity: 0.7;
-      font-size: 0.75rem;
-    }
-
-    /* Mobile specific styles */
-    .quantity-grid-container-mobile {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
-      gap: 0.25rem;
-      padding: 0.5rem 0;
-      max-height: 150px;
-      overflow-y: auto;
-    }
-
-    .qty-grid-item-mobile {
-      background: var(--surface-50);
-      border: 2px solid var(--surface-200);
-      border-radius: 6px;
-      padding: 0.5rem 0.25rem;
-      cursor: pointer;
-      transition: all 0.2s;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.125rem;
-    }
-
-    .qty-grid-item-mobile:hover {
-      background: var(--surface-100);
-      border-color: var(--primary-200);
-    }
-
-    .qty-grid-item-mobile.selected {
-      background: var(--primary-100);
-      border-color: var(--primary-500);
-      color: var(--primary-700);
-    }
-  `]
+  styleUrl: './cart.component.scss'
 })
 export class CartComponent implements OnInit, OnDestroy {
   // Dependency injection
@@ -256,18 +176,19 @@ export class CartComponent implements OnInit, OnDestroy {
     this.loading.set(true);
     
     try {
-      const items = this.cartService.getCartItems();
-      this.cartItems.set(items);
-      // Initialize quantities
-      items.forEach(item => {
-        this.productQuantities[item.id] = item.quantity;
+      this.cartService.getCartItems().subscribe(items => {
+        this.cartItems.set(items);
+        // Initialize quantities
+        items.forEach(item => {
+          this.productQuantities[item.id] = item.quantity;
+        });
+        this.loading.set(false);
+        
+        // 🆕 Load translated names after loading cart
+        if (items.length > 0) {
+          this.loadTranslatedNames();
+        }
       });
-      this.loading.set(false);
-      
-      // 🆕 Load translated names after loading cart
-      if (items.length > 0) {
-        this.loadTranslatedNames();
-      }
     } catch (error) {
       console.error('Error loading cart:', error);
       this.messageService.add({

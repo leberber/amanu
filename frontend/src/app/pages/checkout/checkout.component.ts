@@ -107,21 +107,22 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     }
     
     // Get cart items
-    const items = this.cartService.getCartItems();
-    this.cartItems = items;
-    
-    if (items.length === 0) {
-      this.messageService.add({
-        severity: 'info',
-        summary: this.translateService.instant('checkout.empty_cart'),
-        detail: this.translateService.instant('checkout.empty_cart_message')
-      });
-      this.router.navigate(['/products']);
-      return;
-    }
+    this.cartService.getCartItems().subscribe(items => {
+      this.cartItems = items;
+      
+      if (items.length === 0) {
+        this.messageService.add({
+          severity: 'info',
+          summary: this.translateService.instant('checkout.empty_cart'),
+          detail: this.translateService.instant('checkout.empty_cart_message')
+        });
+        this.router.navigate(['/products']);
+        return;
+      }
 
-    // 🆕 Load translated names after loading cart items
-    this.loadTranslatedNames();
+      // 🆕 Load translated names after loading cart items
+      this.loadTranslatedNames();
+    });
 
     // 🆕 NEW: Subscribe to language changes
     this.languageSubscription = this.translationService.currentLanguage$.subscribe(() => {

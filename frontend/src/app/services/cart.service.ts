@@ -49,9 +49,9 @@ export class CartService {
     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(cartItems));
   }
   
-  getCartItems(): CartItem[] {
-    // Return the current cart items directly for better performance
-    return this.cartItemsSubject.value;
+  getCartItems(): Observable<CartItem[]> {
+    // Return the current cart items as an observable
+    return of(this.cartItemsSubject.value);
   }
 
   getProductQuantityInCart(productId: number): number {
