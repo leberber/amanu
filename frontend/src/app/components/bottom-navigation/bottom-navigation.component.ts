@@ -205,8 +205,7 @@ export class BottomNavigationComponent implements OnInit, OnDestroy {
       this.currentUser.set(user);
     });
     
-    // Load cart items
-    this.cartService.getCartItems().subscribe();
+    // Cart items are already loaded via the subscription above
   }
   
   ngOnDestroy() {

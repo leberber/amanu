@@ -124,7 +124,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     if (this.authService.isLoggedIn) {
       this.authService.loadCurrentUser().subscribe();
     }
-    this.cartService.getCartItems().subscribe();
+    // Cart items are loaded via the subscription in setupSubscriptions()
   }
 
   // UI Action methods

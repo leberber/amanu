@@ -1,6 +1,6 @@
 // src/app/services/cart.service.ts
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, of } from 'rxjs';
+import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
 import { Product, QuantityConfig } from '../models/product.model';
 
 export interface CartItem {
@@ -49,9 +49,9 @@ export class CartService {
     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(cartItems));
   }
   
-  getCartItems(): Observable<CartItem[]> {
-    // Simply return the current cart from localStorage
-    return of(this.cartItemsSubject.value);
+  getCartItems(): CartItem[] {
+    // Return the current cart items directly for better performance
+    return this.cartItemsSubject.value;
   }
 
   getProductQuantityInCart(productId: number): number {
@@ -64,6 +64,20 @@ export class CartService {
   }
   
   addToCart(product: Product, quantity: number): Observable<CartItem> {
+    // Validate inputs
+    if (!product || !product.id) {
+      return throwError(() => new Error('Invalid product'));
+    }
+    
+    if (quantity < 1) {
+      return throwError(() => new Error('Quantity must be at least 1'));
+    }
+    
+    // Check stock availability
+    if (product.stock_quantity !== undefined && quantity > product.stock_quantity) {
+      return throwError(() => new Error('Insufficient stock'));
+    }
+    
     const currentCart = [...this.cartItemsSubject.value];
     
     // Check if product already exists in cart
@@ -73,9 +87,16 @@ export class CartService {
     
     if (existingItemIndex !== -1) {
       // Update existing item quantity
+      const newQuantity = currentCart[existingItemIndex].quantity + quantity;
+      
+      // Check if new quantity exceeds stock
+      if (product.stock_quantity !== undefined && newQuantity > product.stock_quantity) {
+        return throwError(() => new Error('Adding this quantity would exceed available stock'));
+      }
+      
       updatedItem = {
         ...currentCart[existingItemIndex],
-        quantity: currentCart[existingItemIndex].quantity + quantity
+        quantity: newQuantity
       };
       currentCart[existingItemIndex] = updatedItem;
     } else {
@@ -102,11 +123,26 @@ export class CartService {
   }
   
   updateCartItem(itemId: string, quantity: number): Observable<CartItem> {
+    // Validate inputs
+    if (!itemId) {
+      return throwError(() => new Error('Invalid item ID'));
+    }
+    
+    if (quantity < 1) {
+      return throwError(() => new Error('Quantity must be at least 1'));
+    }
+    
     const currentCart = [...this.cartItemsSubject.value];
     const itemIndex = currentCart.findIndex(item => item.id === itemId);
     
     if (itemIndex === -1) {
-      return of(null as any); // Item not found
+      return throwError(() => new Error('Item not found in cart'));
+    }
+    
+    // Check stock availability
+    const item = currentCart[itemIndex];
+    if (item.stock_quantity !== undefined && quantity > item.stock_quantity) {
+      return throwError(() => new Error('Quantity exceeds available stock'));
     }
     
     currentCart[itemIndex] = {
@@ -119,7 +155,18 @@ export class CartService {
   }
   
   removeCartItem(itemId: string): Observable<void> {
+    // Validate input
+    if (!itemId) {
+      return throwError(() => new Error('Invalid item ID'));
+    }
+    
     const currentCart = this.cartItemsSubject.value;
+    const itemExists = currentCart.some(item => item.id === itemId);
+    
+    if (!itemExists) {
+      return throwError(() => new Error('Item not found in cart'));
+    }
+    
     const updatedCart = currentCart.filter(item => item.id !== itemId);
     
     this.saveCartToStorage(updatedCart);

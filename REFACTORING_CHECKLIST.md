@@ -6,6 +6,10 @@ This checklist should be used when refactoring components in the Amanu e-commerc
 ## Core Principles
 
 ### 1. DRY (Don't Repeat Yourself)
+- [ ] alwasy refer to the header component for styling and patterns. --> very very very important.
+- [ ] only use custom css for a compente specific scss file when it is very necessary --> very importnat
+- [ ] Use angular 20 and prime ng 20. --> very important
+- [ ] dont not use complex imports just use 
 - [ ] Identify and eliminate duplicate code
 - [ ] Extract common logic into shared services or utilities
 - [ ] Create reusable components for repeated UI patterns

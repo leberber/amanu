@@ -255,30 +255,28 @@ export class CartComponent implements OnInit, OnDestroy {
   loadCart() {
     this.loading.set(true);
     
-    this.cartService.getCartItems().subscribe({
-      next: (items) => {
-        this.cartItems.set(items);
-        // Initialize quantities
-        items.forEach(item => {
-          this.productQuantities[item.id] = item.quantity;
-        });
-        this.loading.set(false);
-        
-        // 🆕 Load translated names after loading cart
-        if (items.length > 0) {
-          this.loadTranslatedNames();
-        }
-      },
-      error: (error) => {
-        console.error('Error loading cart:', error);
-        this.messageService.add({
-          severity: 'error',
-          summary: this.translateService.instant('common.error'),
-          detail: this.translateService.instant('cart.errors.failed_to_load')
-        });
-        this.loading.set(false);
+    try {
+      const items = this.cartService.getCartItems();
+      this.cartItems.set(items);
+      // Initialize quantities
+      items.forEach(item => {
+        this.productQuantities[item.id] = item.quantity;
+      });
+      this.loading.set(false);
+      
+      // 🆕 Load translated names after loading cart
+      if (items.length > 0) {
+        this.loadTranslatedNames();
       }
-    });
+    } catch (error) {
+      console.error('Error loading cart:', error);
+      this.messageService.add({
+        severity: 'error',
+        summary: this.translateService.instant('common.error'),
+        detail: this.translateService.instant('cart.errors.failed_to_load')
+      });
+      this.loading.set(false);
+    }
   }
   
   increaseQuantity(item: CartItem) {
@@ -304,11 +302,15 @@ export class CartComponent implements OnInit, OnDestroy {
       },
       error: (error) => {
         console.error('Error updating quantity:', error);
+        
+        // Show specific error message
+        const errorMessage = error?.message || this.translateService.instant('cart.errors.update_failed');
         this.messageService.add({
           severity: 'error',
           summary: this.translateService.instant('common.error'),
-          detail: this.translateService.instant('cart.errors.update_failed')
+          detail: errorMessage
         });
+        
         // Reset the select value to match the item's actual quantity
         this.productQuantities[itemId] = item.quantity;
       }
@@ -323,10 +325,13 @@ export class CartComponent implements OnInit, OnDestroy {
       },
       error: (error) => {
         console.error('Error removing item:', error);
+        
+        // Show specific error message
+        const errorMessage = error?.message || this.translateService.instant('cart.errors.remove_failed');
         this.messageService.add({
           severity: 'error',
           summary: this.translateService.instant('common.error'),
-          detail: this.translateService.instant('cart.errors.remove_failed')
+          detail: errorMessage
         });
       }
     });
