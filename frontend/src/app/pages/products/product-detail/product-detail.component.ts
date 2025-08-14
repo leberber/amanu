@@ -1,10 +1,10 @@
 // src/app/pages/products/product-detail/product-detail.component.ts
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { switchMap, catchError } from 'rxjs/operators';
-import { of } from 'rxjs';
+import { of, Subscription } from 'rxjs';
 
 // PrimeNG imports
 import { ButtonModule } from 'primeng/button';
@@ -23,6 +23,7 @@ import { CartService } from '../../../services/cart.service';
 import { AuthService } from '../../../services/auth.service';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { UnitsService } from '../../../core/services/units.service';
+import { TranslationService } from '../../../services/translation.service';
 import { Product, Category } from '../../../models/product.model';
 import { PRODUCT } from '../../../core/constants/app.constants';
 
@@ -43,9 +44,10 @@ import { PRODUCT } from '../../../core/constants/app.constants';
     TranslateModule
   ],
   providers: [MessageService],
-  templateUrl: './product-detail.component.html'
+  templateUrl: './product-detail.component.html',
+  styleUrl: './product-detail.component.scss'
 })
-export class ProductDetailComponent implements OnInit {
+export class ProductDetailComponent implements OnInit, OnDestroy {
   // Dependency injection
   private route = inject(ActivatedRoute);
   private router = inject(Router);
@@ -55,6 +57,7 @@ export class ProductDetailComponent implements OnInit {
   private translateService = inject(TranslateService);
   private currencyService = inject(CurrencyService);
   private unitsService = inject(UnitsService);
+  private translationService = inject(TranslationService);
   public authService = inject(AuthService);
   
   // Signals
@@ -64,9 +67,13 @@ export class ProductDetailComponent implements OnInit {
   loading = signal<boolean>(true);
   error = signal<boolean>(false);
   selectedQuantity = signal<number>(1);
+  currentLanguage = signal<string>(this.translationService.getCurrentLanguage());
   
   // For related products quantities
   productQuantities: { [key: number]: number } = {};
+  
+  // Subscription management
+  private languageSubscription?: Subscription;
   
   // Computed values
   isOutOfStock = computed(() => {
@@ -91,33 +98,48 @@ export class ProductDetailComponent implements OnInit {
   // Computed property for unit display
   unitDisplay = computed(() => {
     const currentProduct = this.product();
+    const lang = this.currentLanguage(); // Make it reactive to language changes
     if (!currentProduct) return '';
     
     return this.getUnitDisplay(currentProduct.unit);
   });
 
   ngOnInit() {
-    this.route.paramMap.pipe(
-      switchMap(params => {
-        const productId = params.get('id');
-        if (!productId) {
-          this.error.set(true);
-          this.loading.set(false);
-          return of(null);
-        }
-        
-        return this.productService.getProduct(Number(productId)).pipe(
-          catchError(error => {
-            this.error.set(true);
-            this.loading.set(false);
-            this.messageService.add({
-              severity: 'error',
-              summary: this.translateService.instant('common.error'),
-              detail: this.translateService.instant('products.errors.failed_to_load')
-            });
-            return of(null);
-          })
-        );
+    // Subscribe to language changes
+    this.languageSubscription = this.translationService.currentLanguage$.subscribe(lang => {
+      this.currentLanguage.set(lang);
+      // Reload product data when language changes
+      const currentProduct = this.product();
+      if (currentProduct) {
+        this.loadProduct(currentProduct.id);
+      }
+    });
+    
+    this.route.paramMap.subscribe(params => {
+      const productId = params.get('id');
+      if (!productId) {
+        this.error.set(true);
+        this.loading.set(false);
+      } else {
+        this.loadProduct(Number(productId));
+      }
+    });
+  }
+  
+  // Load product data
+  private loadProduct(productId: number): void {
+    this.loading.set(true);
+    
+    this.productService.getProduct(productId).pipe(
+      catchError(error => {
+        this.error.set(true);
+        this.loading.set(false);
+        this.messageService.add({
+          severity: 'error',
+          summary: this.translateService.instant('common.error'),
+          detail: this.translateService.instant('products.errors.failed_to_load')
+        });
+        return of(null);
       })
     ).subscribe(product => {
       if (product) {
@@ -248,7 +270,7 @@ export class ProductDetailComponent implements OnInit {
 
   // Helper function to get proper unit display
   getUnitDisplay(unit: string): string {
-    return this.unitsService.getUnitTranslated(unit, true);
+    return this.unitsService.getUnitDisplay(unit, true);
   }
   
   // Check if a product is out of stock
@@ -283,5 +305,11 @@ export class ProductDetailComponent implements OnInit {
   // Format price using CurrencyService
   formatPrice(price: number): string {
     return this.currencyService.formatCurrency(price);
+  }
+
+  ngOnDestroy(): void {
+    if (this.languageSubscription) {
+      this.languageSubscription.unsubscribe();
+    }
   }
 }

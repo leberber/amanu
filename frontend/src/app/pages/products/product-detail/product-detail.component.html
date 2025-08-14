@@ -1,183 +1,230 @@
-<!-- src/app/pages/products/product-detail/product-detail.component.html -->
+<!-- Product Detail Container -->
 <div class="h-full p-3 overflow-hidden">
   <p-toast></p-toast>
   
   <div class="surface-card p-2 border-round h-full overflow-auto">
     <!-- Loading state -->
     @if (loading()) {
-      <div class="flex justify-content-center align-items-center h-full">
-        <div class="text-center">
-          <i class="pi pi-spin pi-spinner text-4xl text-primary mb-3"></i>
-          <p class="text-lg text-600">{{ 'common.loading' | translate }}</p>
-        </div>
-      </div>
+      <ng-container *ngTemplateOutlet="loadingTemplate"></ng-container>
     } 
     <!-- Error state -->
     @else if (error()) {
-      <div class="flex justify-content-center align-items-center h-full">
-        <div class="surface-card p-6 border-round text-center shadow-1">
-          <i class="pi pi-exclamation-triangle text-6xl text-red-500 mb-4"></i>
-          <h2 class="text-2xl font-semibold mb-3">{{ 'products.empty.title' | translate }}</h2>
-          <p class="text-lg text-600 mb-5">{{ 'errors.not_found' | translate }}</p>
-          <button 
-            pButton 
-            [label]="'actions.go_back' | translate" 
-            icon="pi pi-arrow-left" 
-            routerLink="/products"
-            class="p-3"
-          ></button>
-        </div>
-      </div>
+      <ng-container *ngTemplateOutlet="errorTemplate"></ng-container>
     } 
     <!-- Product Detail -->
     @else if (product()) {
-      <!-- Back Button -->
-      <div class="mb-4">
-        <button 
-          pButton 
-          [label]="'actions.go_back' | translate" 
-          icon="pi pi-arrow-left" 
-          class="p-3"
-          routerLink="/products"
-        ></button>
+      <ng-container *ngTemplateOutlet="productDetailTemplate"></ng-container>
+    }
+  </div>
+</div>
+
+<!-- ===================== TEMPLATE DEFINITIONS ===================== -->
+
+<!-- Loading Template -->
+<ng-template #loadingTemplate>
+  <div class="flex justify-content-center align-items-center h-full">
+    <div class="text-center">
+      <i class="pi pi-spin pi-spinner text-2xl md:text-4xl text-primary mb-3"></i>
+      <p class="text-sm md:text-lg text-600">{{ 'common.loading' | translate }}</p>
+    </div>
+  </div>
+</ng-template>
+
+<!-- Error Template -->
+<ng-template #errorTemplate>
+  <div class="flex justify-content-center align-items-center h-full">
+    <div class="surface-card p-4 md:p-6 border-round text-center shadow-1">
+      <i class="pi pi-exclamation-triangle text-4xl md:text-6xl text-red-500 mb-4"></i>
+      <h2 class="text-lg md:text-2xl font-semibold mb-3">{{ 'products.empty.title' | translate }}</h2>
+      <p class="text-sm md:text-lg text-600 mb-5">{{ 'errors.not_found' | translate }}</p>
+      <button 
+        pButton 
+        [label]="'actions.go_back' | translate" 
+        icon="pi pi-arrow-left" 
+        routerLink="/products"
+        class="p-button-sm md:p-button-base"
+      ></button>
+    </div>
+  </div>
+</ng-template>
+
+<!-- Product Detail Template -->
+<ng-template #productDetailTemplate>
+  <!-- Back Button -->
+  <div class="mb-3 md:mb-4">
+    <button 
+      pButton 
+      [label]="'actions.go_back' | translate" 
+      icon="pi pi-arrow-left" 
+      routerLink="/products"
+      class="p-button-text p-button-sm md:p-button-base"
+    ></button>
+  </div>
+
+  <div class="grid">
+    <!-- Product Image -->
+    <div class="col-12 lg:col-6">
+      <ng-container *ngTemplateOutlet="productImageTemplate"></ng-container>
+    </div>
+    
+    <!-- Product Info -->
+    <div class="col-12 lg:col-6 mt-3 md:mt-4">
+      <div class="h-full flex flex-column">
+        <ng-container *ngTemplateOutlet="productHeaderTemplate"></ng-container>
+        <ng-container *ngTemplateOutlet="productDescriptionTemplate"></ng-container>
+        <ng-container *ngTemplateOutlet="stockInfoTemplate"></ng-container>
+        <ng-container *ngTemplateOutlet="addToCartTemplate"></ng-container>
       </div>
+    </div>
+  </div>
+</ng-template>
 
-      <div class="grid">
-        <!-- Product Image -->
-        <div class="col-12 lg:col-6">
-          <div class="surface-card border-round relative">
-            <img 
-              [src]="product()?.image_url || 'assets/images/product-placeholder.jpg'" 
-              [alt]="product()?.name" 
-              class="w-full border-round-lg"
-              class="shadow-2"
-              style="max-height: 500px; object-fit: contain;"
-            >
-                 
-            @if (product()?.is_organic) {
-              <span class="absolute top-0 right-0 bg-green-500 text-white px-3 py-2 text-sm font-medium m-3 border-round-lg shadow-2">
-                <i class="pi pi-leaf mr-1"></i>
-                {{ 'products.product.organic' | translate }}
-              </span>
-            }
+<!-- Product Image Template -->
+<ng-template #productImageTemplate>
+  <div class="surface-card border-round relative">
+    <img 
+      [src]="product()?.image_url || 'assets/images/product-placeholder.jpg'" 
+      [alt]="product()?.name" 
+      class="w-full border-round-lg shadow-2"
+      style="max-height: 300px; object-fit: contain;"
+      [style.max-height.md]="'500px'"
+    >
+         
+    @if (product()?.is_organic) {
+      <ng-container *ngTemplateOutlet="organicBadgeTemplate"></ng-container>
+    }
 
-            @if (isOutOfStock()) {
-              <span class="absolute top-0 left-0 bg-red-500 text-white px-3 py-2 text-sm font-medium m-3 border-round-lg shadow-2">
-                <i class="pi pi-times-circle mr-1"></i>
-                {{ 'products.stock.out_of_stock' | translate }}
-              </span>
-            } @else if (isLowStock()) {
-              <span class="absolute top-0 left-0 bg-orange-500 text-white px-3 py-2 text-sm font-medium m-3 border-round-lg shadow-2">
-                <i class="pi pi-exclamation-triangle mr-1"></i>
-                {{ 'products.stock.low_stock_title' | translate }}
-              </span>
-            }
+    @if (isOutOfStock()) {
+      <ng-container *ngTemplateOutlet="outOfStockBadgeTemplate"></ng-container>
+    } @else if (isLowStock()) {
+      <ng-container *ngTemplateOutlet="lowStockBadgeTemplate"></ng-container>
+    }
+  </div>
+</ng-template>
+
+<!-- Product Header Template -->
+<ng-template #productHeaderTemplate>
+  <div class="mb-3 md:mb-4">
+    <div class="flex justify-content-between align-items-start mb-2 md:mb-3">
+      <div class="flex-grow-1">
+        <h1 class="text-xl md:text-4xl font-bold text-900 m-0 mb-2">{{product()?.name}}</h1>
+        @if (product()?.is_organic) {
+          <p-tag 
+            severity="success" 
+            [value]="'products.product.organic' | translate" 
+            icon="pi pi-leaf"
+            class="text-xs md:text-sm"
+          ></p-tag>
+        }
+      </div>
+      <div class="text-right">
+        <div class="text-xl md:text-4xl font-bold text-primary mb-1">
+          {{formatPrice(product()?.price || 0)}}
+        </div>
+        <div class="text-sm md:text-lg text-600">
+          {{ 'common.price' | translate }} {{unitDisplay()}}
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+<!-- Product Description Template -->
+<ng-template #productDescriptionTemplate>
+  <div class="mb-3 md:mb-4">
+    <h3 class="text-lg md:text-2xl font-semibold text-900 mb-2 md:mb-3">{{ 'common.description' | translate }}</h3>
+    <p class="text-sm md:text-lg line-height-3 text-700">{{product()?.description}}</p>
+  </div>
+</ng-template>
+
+<!-- Stock Info Template -->
+<ng-template #stockInfoTemplate>
+  <div class="mb-3 md:mb-4">
+    @if (isOutOfStock()) {
+      <div class="bg-red-50 border-left-3 border-red-500 p-3 md:p-4 border-round">
+        <div class="flex align-items-center">
+          <i class="pi pi-times-circle text-red-500 text-base md:text-xl mr-2 md:mr-3"></i>
+          <div>
+            <h4 class="text-red-800 font-semibold m-0 mb-1 text-sm md:text-base">{{ 'products.stock.out_of_stock' | translate }}</h4>
+            <p class="text-red-600 m-0 text-xs md:text-sm">{{ 'products.stock.unavailable_message' | translate }}</p>
           </div>
         </div>
-        
-        <!-- Product Info -->
-        <div class="col-12 lg:col-6 mt-4">
-          <div class="h-full flex flex-column">
-            <!-- Header -->
-            <div class="">
-              <div class="flex justify-content-between align-items-start mb-3">
-                <div class="flex-grow-1">
-                  <h1 class="text-4xl font-bold text-900 m-0 mb-2">{{product()?.name}}</h1>
-                  @if (product()?.is_organic) {
-                    <p-tag 
-                      severity="success" 
-                      [value]="'products.product.organic' | translate" 
-                      icon="pi pi-leaf"
-                      class="text-sm px-3 py-2"
-                    ></p-tag>
-                  }
-                </div>
-                <div class="text-right">
-                  <div class="text-4xl font-bold text-primary mb-1">
-                    {{formatPrice(product()?.price || 0)}}
-                  </div>
-                  <div class="text-lg text-600">
-                    {{ 'common.price' | translate }} {{unitDisplay()}}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Description -->
-            <div class="mb-4">
-              <h3 class="text-2xl font-semibold text-900 mb-3">{{ 'common.description' | translate }}</h3>
-              <p class="text-lg line-height-3 text-700">{{product()?.description}}</p>
-            </div>
-            
-            <!-- Stock Information -->
-            <div class="mb-4">
-              @if (isOutOfStock()) {
-                <div class="bg-red-50 border-left-3 border-red-500 p-4 border-round">
-                  <div class="flex align-items-center">
-                    <i class="pi pi-times-circle text-red-500 text-xl mr-3"></i>
-                    <div>
-                      <h4 class="text-red-800 font-semibold m-0 mb-1">{{ 'products.stock.out_of_stock' | translate }}</h4>
-                      <p class="text-red-600 m-0">{{ 'products.stock.unavailable_message' | translate }}</p>
-                    </div>
-                  </div>
-                </div>
-              } @else if (isLowStock()) {
-                <div class="bg-orange-50 border-left-3 border-orange-500 p-4 border-round">
-                  <div class="flex align-items-center">
-                    <i class="pi pi-exclamation-triangle text-orange-500 text-xl mr-3"></i>
-                    <div>
-                      <h4 class="text-orange-800 font-semibold m-0 mb-1">{{ 'products.stock.low_stock_title' | translate }}</h4>
-                      <p class="text-orange-600 m-0">{{ 'products.stock.low_stock' | translate : lowStockParams() }} {{unitDisplay()}}</p>
-                    </div>
-                  </div>
-                </div>
-              } @else {
-                <div class="bg-green-50 border-left-3 border-green-500 p-4 border-round">
-                  <div class="flex align-items-center">
-                    <i class="pi pi-check-circle text-green-500 text-xl mr-3"></i>
-                    <div>
-                      <h4 class="text-green-800 font-semibold m-0 mb-1">{{ 'products.stock.in_stock' | translate }}</h4>
-                      <p class="text-green-600 m-0">{{product()?.stock_quantity}} {{ unitDisplay() }} {{ 'products.stock.available' | translate }}</p>
-                    </div>
-                  </div>
-                </div>
-              }
-            </div>
-            
-            <!-- Add to Cart Section -->
-            <div class="mt-auto">
-              <div class="p-4 border-round shadow-1">
-                <div class="flex flex-column gap-4">
-                  <!-- Quantity Selector -->
-                  <div>
-                    <label class="block text-900 font-medium mb-2">{{ 'common.quantity' | translate }}</label>
-                    <app-product-quantity-selector
-                      [(value)]="selectedQuantity"
-                      [unit]="product()?.unit"
-                      [maxStock]="product()?.stock_quantity"
-                      [quantityConfig]="product()?.quantity_config"
-                      [disabled]="isOutOfStock()"
-                      (valueChange)="selectedQuantity.set($event)"
-                    ></app-product-quantity-selector>
-                  </div>
-                  
-                  <!-- Add to Cart Button -->
-                  <button 
-                    pButton 
-                    [label]="'products.cart.add_to_cart' | translate" 
-                    icon="pi pi-shopping-cart" 
-                    (click)="addToCart()"
-                    [disabled]="isOutOfStock() || !selectedQuantity"
-                    class="p-button-lg w-full"
-                    [style]="{'padding': '1rem 2rem', 'font-size': '1.1rem', 'font-weight': '600'}"
-                  >
-                  </button>
-                </div>
-              </div>
-            </div>
+      </div>
+    } @else if (isLowStock()) {
+      <div class="bg-orange-50 border-left-3 border-orange-500 p-3 md:p-4 border-round">
+        <div class="flex align-items-center">
+          <i class="pi pi-exclamation-triangle text-orange-500 text-base md:text-xl mr-2 md:mr-3"></i>
+          <div>
+            <h4 class="text-orange-800 font-semibold m-0 mb-1 text-sm md:text-base">{{ 'products.stock.low_stock_title' | translate }}</h4>
+            <p class="text-orange-600 m-0 text-xs md:text-sm">{{ 'products.stock.low_stock' | translate : lowStockParams() }} {{unitDisplay()}}</p>
+          </div>
+        </div>
+      </div>
+    } @else {
+      <div class="bg-green-50 border-left-3 border-green-500 p-3 md:p-4 border-round">
+        <div class="flex align-items-center">
+          <i class="pi pi-check-circle text-green-500 text-base md:text-xl mr-2 md:mr-3"></i>
+          <div>
+            <h4 class="text-green-800 font-semibold m-0 mb-1 text-sm md:text-base">{{ 'products.stock.in_stock' | translate }}</h4>
+            <p class="text-green-600 m-0 text-xs md:text-sm">{{product()?.stock_quantity}} {{ unitDisplay() }} {{ 'products.stock.available' | translate }}</p>
           </div>
         </div>
       </div>
     }
   </div>
-</div>
+</ng-template>
+
+<!-- Add to Cart Template -->
+<ng-template #addToCartTemplate>
+  <div class="mt-auto">
+    <div class="p-3 md:p-4 border-round shadow-1">
+      <div class="flex flex-column gap-3 md:gap-4">
+        <!-- Quantity Selector -->
+        <div>
+          <label class="block text-900 font-medium mb-2 text-sm md:text-base">{{ 'common.quantity' | translate }}</label>
+          <app-product-quantity-selector
+            [(value)]="selectedQuantity"
+            [unit]="product()?.unit"
+            [maxStock]="product()?.stock_quantity"
+            [quantityConfig]="product()?.quantity_config"
+            [disabled]="isOutOfStock()"
+            (valueChange)="selectedQuantity.set($event)"
+          ></app-product-quantity-selector>
+        </div>
+        
+        <!-- Add to Cart Button -->
+        <button 
+          pButton 
+          [label]="'products.cart.add_to_cart' | translate" 
+          icon="pi pi-shopping-cart" 
+          (click)="addToCart()"
+          [disabled]="isOutOfStock() || !selectedQuantity"
+          class="p-button-sm md:p-button-lg w-full"
+        >
+        </button>
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+<!-- Badge Templates -->
+<ng-template #organicBadgeTemplate>
+  <span class="absolute top-0 right-0 bg-green-500 text-white px-2 py-1 md:px-3 md:py-2 text-xs md:text-sm font-medium m-2 md:m-3 border-round-lg shadow-2">
+    <i class="pi pi-leaf mr-1"></i>
+    {{ 'products.product.organic' | translate }}
+  </span>
+</ng-template>
+
+<ng-template #outOfStockBadgeTemplate>
+  <span class="absolute top-0 left-0 bg-red-500 text-white px-2 py-1 md:px-3 md:py-2 text-xs md:text-sm font-medium m-2 md:m-3 border-round-lg shadow-2">
+    <i class="pi pi-times-circle mr-1"></i>
+    {{ 'products.stock.out_of_stock' | translate }}
+  </span>
+</ng-template>
+
+<ng-template #lowStockBadgeTemplate>
+  <span class="absolute top-0 left-0 bg-orange-500 text-white px-2 py-1 md:px-3 md:py-2 text-xs md:text-sm font-medium m-2 md:m-3 border-round-lg shadow-2">
+    <i class="pi pi-exclamation-triangle mr-1"></i>
+    {{ 'products.stock.low_stock_title' | translate }}
+  </span>
+</ng-template>
