@@ -357,10 +357,10 @@
               <i class="pi pi-box text-6xl text-gray-300"></i>
               <div>
                 <h3 class="text-xl font-medium text-gray-600 mb-2">
-                  {{ hasActiveFilters() ? 'No products match your filters' : 'No products found' }}
+                  {{ hasActiveFilters() ? ('admin.products.empty.no_match' | translate) : ('admin.products.empty.no_products' | translate) }}
                 </h3>
                 <p class="text-gray-500 mb-3">
-                  {{ hasActiveFilters() ? 'Try adjusting your search or filters' : 'Get started by adding your first product' }}
+                  {{ hasActiveFilters() ? ('admin.products.empty.try_adjusting' | translate) : ('admin.products.empty.get_started' | translate) }}
                 </p>
                 <p-button 
                   *ngIf="hasActiveFilters()"
