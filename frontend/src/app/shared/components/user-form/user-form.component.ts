@@ -1,5 +1,5 @@
 // src/app/shared/components/user-form/user-form.component.ts
-import { Component, Input, Output, EventEmitter, OnInit, inject } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
@@ -49,7 +49,7 @@ export interface UserFormConfig {
   templateUrl: './user-form.component.html',
   styleUrl: './user-form.component.scss'
 })
-export class UserFormComponent implements OnInit {
+export class UserFormComponent implements OnInit, OnChanges {
   @Input() config: UserFormConfig = {
     mode: 'register',
     showRoleSelection: false,
@@ -88,6 +88,30 @@ export class UserFormComponent implements OnInit {
       this.currentLang = this.translateService.currentLang;
       this.initializeRoleOptions();
     });
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    // Update form when initialData changes
+    if (changes['initialData'] && !changes['initialData'].firstChange && this.userForm) {
+      const newData = changes['initialData'].currentValue;
+      if (newData) {
+        this.userForm.reset();
+        this.userForm.patchValue(newData);
+        
+        // Re-configure form to ensure validators are correct
+        this.configureForm();
+        
+        // Re-disable email in edit mode
+        if (this.config.mode === 'edit') {
+          this.userForm.get('email')?.disable();
+        }
+      }
+    }
+    
+    // Re-configure form when config changes
+    if (changes['config'] && !changes['config'].firstChange && this.userForm) {
+      this.configureForm();
+    }
   }
   
   private createForm(): FormGroup {
