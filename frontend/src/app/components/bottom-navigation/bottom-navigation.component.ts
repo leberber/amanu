@@ -15,11 +15,12 @@ import { MobileAdminMenuComponent } from '../mobile-admin-menu/mobile-admin-menu
   imports: [CommonModule, RouterLink, RouterLinkActive, TranslateModule, MobileAdminMenuComponent],
   template: `
     <div class="bottom-nav" [class.hidden]="isHidden" [style.opacity]="opacity">
-      <!-- Home -->
+      <!-- Home - Temporarily removed
       <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
         <i class="pi pi-home"></i>
         <span>{{ 'common.home' | translate }}</span>
       </a>
+      -->
       
       <!-- Products -->
       <a routerLink="/products" routerLinkActive="active">

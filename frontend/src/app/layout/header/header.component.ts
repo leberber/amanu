@@ -167,11 +167,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   private getBaseMenuItems(): MenuItem[] {
     return [
-      {
-        label: this.translateService.instant('common.home'),
-        icon: 'pi pi-home',
-        routerLink: '/'
-      },
+      // Temporarily removed home link
+      // {
+      //   label: this.translateService.instant('common.home'),
+      //   icon: 'pi pi-home',
+      //   routerLink: '/'
+      // },
       {
         label: this.translateService.instant('common.products'),
         icon: 'pi pi-shopping-bag',

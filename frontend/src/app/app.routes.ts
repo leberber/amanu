@@ -15,7 +15,8 @@ import { AdminAddCategoryComponent } from './pages/admin/admin-add-category/admi
 import { AdminCategoriesComponent } from './pages/admin/admin-categories/admin-categories.component';
 
 export const routes: Routes = [
-  { path: '', component: HomeComponent },
+  { path: '', component: ProductListComponent },
+  { path: 'home', component: HomeComponent },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
   { path: 'products', component: ProductListComponent },
