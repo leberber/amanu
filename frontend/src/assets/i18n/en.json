@@ -607,7 +607,9 @@
       "submit_update": "Update Product",
       "cancel": "Cancel",
       "translation_help": "Translations are optional. If not provided, the main name/description will be used.",
-      "required_field": "Required field"
+      "required_field": "Required field",
+      "quantity_config": "Quantity Configuration",
+      "quantity_type": "Quantity Selection Type"
     },
     "units": {
       "kg": "Kilogram",

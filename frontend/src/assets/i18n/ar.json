@@ -605,7 +605,9 @@
       "submit_update": "تحديث المنتج",
       "cancel": "إلغاء",
       "translation_help": "الترجمات اختيارية. إذا لم تُقدم، سيتم استخدام الاسم/الوصف الرئيسي.",
-      "required_field": "حقل مطلوب"
+      "required_field": "حقل مطلوب",
+      "quantity_config": "إعدادات الكمية",
+      "quantity_type": "نوع اختيار الكمية"
     },
     "units": {
       "kg": "كيلوغرام (كغ)",

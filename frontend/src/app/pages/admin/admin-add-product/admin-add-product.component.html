@@ -353,6 +353,145 @@
         </div>
       </div>
 
+      <!-- Quantity Configuration Section -->
+      <div class="section-title">
+        <i class="pi pi-sliders-h mr-2"></i>
+        {{ 'admin.products.form.quantity_config' | translate }}
+      </div>
+      
+      <div class="grid">
+        <div class="col-12">
+          <div class="field">
+            <label class="font-semibold text-900 block mb-2">
+              {{ 'admin.products.form.quantity_type' | translate }}
+            </label>
+            <p-select
+              formControlName="quantity_type"
+              [options]="[
+                {label: 'None', value: 'none'},
+                {label: 'List (Specific Quantities)', value: 'list'},
+                {label: 'Range (Min/Max)', value: 'range'}
+              ]"
+              optionLabel="label"
+              optionValue="value"
+              (onChange)="onQuantityTypeChange($event.value)"
+              styleClass="w-full md:w-6"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- List Type Configuration -->
+      <div *ngIf="quantityConfigType() === 'list'" class="quantity-config-section">
+        <div class="grid">
+          <!-- List Quantities -->
+          <div class="col-12 md:col-6">
+            <label class="font-semibold text-900 block mb-2">
+              Available Quantities
+            </label>
+            <div class="chip-input mb-2">
+              <p-chip *ngFor="let qty of listQuantities()" 
+                [label]="qty.toString()" 
+                [removable]="true"
+                (onRemove)="removeListQuantity(qty)"
+              />
+            </div>
+            <p-inputGroup>
+              <input pInputText 
+                #listQtyInput
+                type="number" 
+                placeholder="Add quantity (e.g., 12)"
+                (keyup.enter)="addListQuantity(listQtyInput)"
+              />
+              <p-inputGroupAddon>
+                <p-button icon="pi pi-plus" 
+                  severity="secondary"
+                  [text]="true"
+                  (onClick)="addListQuantity(listQtyInput)">
+                </p-button>
+              </p-inputGroupAddon>
+            </p-inputGroup>
+          </div>
+
+          <!-- Pills for List -->
+          <div class="col-12 md:col-6">
+            <label class="font-semibold text-900 block mb-2">
+              Quick Select Pills (Max 3)
+            </label>
+            <div class="chip-input mb-2">
+              <p-chip *ngFor="let pill of listPills()" 
+                [label]="pill.toString()" 
+                [removable]="true"
+                (onRemove)="removeListPill(pill)"
+              />
+            </div>
+            <p-inputGroup>
+              <input pInputText 
+                #listPillInput
+                type="number" 
+                placeholder="Add pill value"
+                [disabled]="listPills().length >= 3"
+                (keyup.enter)="addListPill(listPillInput)"
+              />
+              <p-inputGroupAddon>
+                <p-button icon="pi pi-plus" 
+                  severity="secondary"
+                  [text]="true"
+                  [disabled]="listPills().length >= 3"
+                  (onClick)="addListPill(listPillInput)">
+                </p-button>
+              </p-inputGroupAddon>
+            </p-inputGroup>
+            <small class="text-color-secondary">Pills must be from available quantities</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Range Type Configuration -->
+      <div *ngIf="quantityConfigType() === 'range'" class="quantity-config-section">
+        <div class="grid">
+          <!-- Min/Max/Step -->
+          <div class="col-12 md:col-3">
+            <div class="field">
+              <label class="font-semibold text-900 block mb-2">Minimum</label>
+              <p-inputNumber formControlName="range_min" 
+                [min]="0.1" 
+                styleClass="w-full"
+              />
+            </div>
+          </div>
+          <div class="col-12 md:col-3">
+            <div class="field">
+              <label class="font-semibold text-900 block mb-2">Maximum</label>
+              <p-inputNumber formControlName="range_max" 
+                [min]="0.1" 
+                styleClass="w-full"
+              />
+            </div>
+          </div>
+          <div class="col-12 md:col-3">
+            <div class="field">
+              <label class="font-semibold text-900 block mb-2">Step</label>
+              <p-inputNumber formControlName="range_step" 
+                [min]="0.1" 
+                styleClass="w-full"
+              />
+            </div>
+          </div>
+          <div class="col-12 md:col-3">
+            <div class="field">
+              <label class="font-semibold text-900 block mb-2">Pills (comma separated)</label>
+              <input pInputText 
+                formControlName="range_pills_input"
+                placeholder="e.g., 15, 40, 75"
+                class="w-full"
+              />
+              <small class="text-color-secondary">Max 3 values</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Action Buttons -->
       <div class="flex justify-content-end gap-2 mt-4 pt-4 border-top-1 surface-border">
         <p-button 

@@ -21,6 +21,9 @@ import { VALIDATION, PRODUCT } from '../../../core/constants/app.constants';
 import { ROUTES } from '../../../core/constants/routes.constants';
 import { UnitsService } from '../../../core/services/units.service';
 import { AdminFormService } from '../../../core/services/admin-form.service';
+import { ChipModule } from 'primeng/chip';
+import { InputGroupModule } from 'primeng/inputgroup';
+import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 
 // 🆕 UPDATED: Extended Product interface to include translations
 interface ProductWithTranslations extends Product {
@@ -42,7 +45,10 @@ interface ProductWithTranslations extends Product {
     CheckboxModule,
     ToastModule,
     CardModule,
-    TranslateModule
+    TranslateModule,
+    ChipModule,
+    InputGroupModule,
+    InputGroupAddonModule
   ],
   templateUrl: './admin-add-product.component.html',
   styles: [`
@@ -68,6 +74,22 @@ interface ProductWithTranslations extends Product {
       font-size: 1.2rem;
       margin-right: 0.5rem;
     }
+    .quantity-config-section {
+      background: var(--surface-50);
+      padding: 1rem;
+      border-radius: 6px;
+      margin-top: 1rem;
+    }
+    .chip-input {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+    }
+    .chip-input input {
+      flex: 1;
+      min-width: 100px;
+    }
   `]
 })
 export class AdminAddProductComponent implements OnInit {
@@ -83,6 +105,11 @@ export class AdminAddProductComponent implements OnInit {
   // Dynamic categories
   categoryOptions = signal<{ label: string; value: number }[]>([]);
 
+  // Quantity config
+  quantityConfigType = signal<'none' | 'list' | 'range'>('none');
+  listQuantities = signal<number[]>([]);
+  listPills = signal<number[]>([]);
+  
   // Computed properties
   get pageTitle(): string {
     return this.isEditMode() ? 'admin.products.edit_product' : 'admin.products.add_product';
@@ -115,7 +142,13 @@ export class AdminAddProductComponent implements OnInit {
       category_id: [null, Validators.required],
       image_url: [''],
       is_organic: [false],
-      is_active: [true]
+      is_active: [true],
+      // Quantity config fields
+      quantity_type: ['none'],
+      range_min: [1],
+      range_max: [100],
+      range_step: [1],
+      range_pills_input: ['']
     });
     
     this.loadCategories();
@@ -189,6 +222,26 @@ export class AdminAddProductComponent implements OnInit {
           is_active: product.is_active
         });
         
+        // Load quantity config if exists
+        if (product.quantity_config) {
+          const config = product.quantity_config;
+          if (config.type === 'list' && config.quantities) {
+            this.quantityConfigType.set('list');
+            this.listQuantities.set([...config.quantities]);
+            this.listPills.set(config.pills ? [...config.pills] : []);
+            this.productForm.patchValue({ quantity_type: 'list' });
+          } else if (config.type === 'range') {
+            this.quantityConfigType.set('range');
+            this.productForm.patchValue({
+              quantity_type: 'range',
+              range_min: config.min || 1,
+              range_max: config.max || 100,
+              range_step: config.step || 1,
+              range_pills_input: config.pills ? config.pills.join(', ') : ''
+            });
+          }
+        }
+        
         this.loading.set(false);
       },
       error: (error) => {
@@ -220,6 +273,31 @@ export class AdminAddProductComponent implements OnInit {
     
     const formValues = this.productForm.value;
     
+    // Build quantity config if needed
+    let quantityConfig = null;
+    if (formValues.quantity_type === 'list') {
+      const quantities = this.listQuantities();
+      const pills = this.listPills();
+      if (quantities.length > 0) {
+        quantityConfig = {
+          type: 'list',
+          quantities: quantities.sort((a, b) => a - b),
+          pills: pills.length > 0 ? pills.slice(0, 3) : undefined
+        };
+      }
+    } else if (formValues.quantity_type === 'range') {
+      const rangePills = formValues.range_pills_input ? 
+        formValues.range_pills_input.split(',').map((p: string) => parseFloat(p.trim())).filter((n: number) => !isNaN(n)) : 
+        [];
+      quantityConfig = {
+        type: 'range',
+        min: formValues.range_min,
+        max: formValues.range_max,
+        step: formValues.range_step,
+        pills: rangePills.length > 0 ? rangePills.slice(0, 3) : undefined
+      };
+    }
+
     // Use AdminFormService to build product data with translations
     const productData = this.adminFormService.buildFormDataWithTranslations(
       formValues,
@@ -231,7 +309,8 @@ export class AdminAddProductComponent implements OnInit {
         category_id: formValues.category_id,
         image_url: formValues.image_url || '',
         is_organic: formValues.is_organic,
-        is_active: formValues.is_active
+        is_active: formValues.is_active,
+        quantity_config: quantityConfig
       }
     );
     
@@ -279,6 +358,53 @@ export class AdminAddProductComponent implements OnInit {
   // Get translated unit options
   getUnitOptions() {
     return this.unitsService.getUnitOptions(true);
+  }
+
+  // Quantity config methods
+  onQuantityTypeChange(type: string) {
+    this.quantityConfigType.set(type as 'none' | 'list' | 'range');
+    
+    // Reset related fields when type changes
+    if (type === 'none') {
+      this.listQuantities.set([]);
+      this.listPills.set([]);
+      this.productForm.patchValue({
+        range_min: 1,
+        range_max: 100,
+        range_step: 1,
+        range_pills_input: ''
+      });
+    }
+  }
+
+  addListQuantity(input: HTMLInputElement) {
+    const value = parseFloat(input.value);
+    if (!isNaN(value) && value > 0) {
+      const current = this.listQuantities();
+      if (!current.includes(value)) {
+        this.listQuantities.set([...current, value].sort((a, b) => a - b));
+      }
+      input.value = '';
+    }
+  }
+
+  removeListQuantity(value: number) {
+    this.listQuantities.set(this.listQuantities().filter(q => q !== value));
+  }
+
+  addListPill(input: HTMLInputElement) {
+    const value = parseFloat(input.value);
+    if (!isNaN(value) && value > 0) {
+      const current = this.listPills();
+      if (!current.includes(value) && current.length < 3) {
+        this.listPills.set([...current, value]);
+      }
+      input.value = '';
+    }
+  }
+
+  removeListPill(value: number) {
+    this.listPills.set(this.listPills().filter(p => p !== value));
   }
 
 }

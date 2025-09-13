@@ -603,7 +603,9 @@
         "submit_update": "Mettre à Jour le Produit",
         "cancel": "Annuler",
         "translation_help": "Les traductions sont optionnelles. Si non fournies, le nom/description principal sera utilisé.",
-        "required_field": "Champ requis"
+        "required_field": "Champ requis",
+        "quantity_config": "Configuration des Quantités",
+        "quantity_type": "Type de Sélection de Quantité"
       },
       "units": {
         "kg": "Kilogramme (Kg)",
