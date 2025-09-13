@@ -15,13 +15,13 @@ import { AdminAddCategoryComponent } from './pages/admin/admin-add-category/admi
 import { AdminCategoriesComponent } from './pages/admin/admin-categories/admin-categories.component';
 
 export const routes: Routes = [
-  { path: '', component: ProductListComponent },
-  { path: 'home', component: HomeComponent },
+  { path: '', component: ProductListComponent, canActivate: [authGuard] },
+  { path: 'home', component: HomeComponent, canActivate: [authGuard] },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
-  { path: 'products', component: ProductListComponent },
-  { path: 'products/:id', component: ProductDetailComponent },
-  { path: 'cart', component: CartComponent },
+  { path: 'products', component: ProductListComponent, canActivate: [authGuard] },
+  { path: 'products/:id', component: ProductDetailComponent, canActivate: [authGuard] },
+  { path: 'cart', component: CartComponent, canActivate: [authGuard] },
   
   // Admin Routes
   { 

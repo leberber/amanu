@@ -1,9 +1,9 @@
 <!-- src/app/app.component.html -->
-<app-header></app-header>
+<app-header *ngIf="showNavigation"></app-header>
 
-<div class="main-content pb-20 md:pb-0">
+<div [class.main-content]="showNavigation" [class.pb-20]="showNavigation" [class.md:pb-0]="showNavigation">
   <router-outlet></router-outlet>
 </div>
 
-<!-- Bottom navigation - only visible on mobile -->
-<app-bottom-navigation></app-bottom-navigation>
+<!-- Bottom navigation - only visible on mobile and when authenticated -->
+<app-bottom-navigation *ngIf="showNavigation"></app-bottom-navigation>

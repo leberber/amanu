@@ -40,6 +40,7 @@ import { UserRole } from '../../models/user.model';
       <p-card styleClass="w-full max-w-md">
         <ng-template pTemplate="header">
           <div class="text-center py-4">
+            <img src="/logo.png" alt="Elsuq" class="h-4rem mb-4">
             <h2 class="text-2xl font-bold mb-2">{{ 'auth.login_title' | translate }}</h2>
             <p class="text-color-secondary">{{ 'auth.login_subtitle' | translate }}</p>
           </div>
