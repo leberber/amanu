@@ -66,7 +66,7 @@ def register_new_user(
         phone=user_in.phone,
         address=user_in.address,
         role=user_in.role,
-        is_active=True,
+        is_active=False,
     )
     session.add(new_user)
     session.commit()

@@ -10,6 +10,7 @@ import { MessageModule } from 'primeng/message';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { CheckboxModule } from 'primeng/checkbox';
+import { DialogModule } from 'primeng/dialog';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { finalize } from 'rxjs';
 
@@ -30,6 +31,7 @@ import { UserRole } from '../../models/user.model';
     ToastModule,
     RouterLink,
     CheckboxModule,
+    DialogModule,
     TranslateModule
   ],
   providers: [MessageService],
@@ -132,6 +134,39 @@ import { UserRole } from '../../models/user.model';
       </p-card>
       
       <p-toast />
+      
+      <!-- Inactive Account Modal -->
+      <p-dialog 
+        [(visible)]="showInactiveModal" 
+        [modal]="true"
+        [closable]="false"
+        [closeOnEscape]="false"
+        [draggable]="false"
+        [resizable]="false"
+        [style]="{width: '90vw', maxWidth: '500px'}"
+        styleClass="inactive-account-dialog"
+      >
+        <ng-template pTemplate="header">
+          <span class="text-xl font-semibold">{{ 'auth.account_inactive_title' | translate }}</span>
+        </ng-template>
+        
+        <div class="p-4">
+          <i class="pi pi-info-circle text-5xl text-orange-500 block text-center mb-4"></i>
+          <p class="text-center text-lg">
+            {{ 'auth.account_inactive' | translate }}
+          </p>
+        </div>
+        
+        <ng-template pTemplate="footer">
+          <div class="text-center w-full">
+            <p-button 
+              [label]="'common.close' | translate"
+              styleClass="p-button-secondary"
+              (click)="showInactiveModal = false; router.navigate(['/'])"
+            />
+          </div>
+        </ng-template>
+      </p-dialog>
     </div>
   `,
 })
@@ -140,11 +175,12 @@ export class LoginComponent implements OnInit {
   loginForm!: FormGroup;
   loading = false;
   returnUrl: string = '/';
+  showInactiveModal = false;
 
   // Services
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
-  private router = inject(Router);
+  router = inject(Router);
   private route = inject(ActivatedRoute);
   private messageService = inject(MessageService);
   private translateService = inject(TranslateService);
@@ -197,11 +233,20 @@ export class LoginComponent implements OnInit {
           }, 1500);
         },
         error: (error) => {
-          this.messageService.add({
-            severity: 'error',
-            summary: this.translateService.instant('common.error'),
-            detail: error.error?.detail || this.translateService.instant('auth.login_failed')
-          });
+          // Check if error is due to inactive account
+          if (error.status === 400 && (error.error?.detail?.toLowerCase().includes('inactive'))) {
+            // Show the inactive account modal
+            this.showInactiveModal = true;
+          } else {
+            // Show regular error toast for other errors
+            let errorMessage = error.error?.detail || this.translateService.instant('auth.login_failed');
+            
+            this.messageService.add({
+              severity: 'error',
+              summary: this.translateService.instant('common.error'),
+              detail: errorMessage
+            });
+          }
         }
       });
   }
