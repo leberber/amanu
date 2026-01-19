@@ -302,23 +302,29 @@ export type SortOption = 'name_asc' | 'name_desc' | 'price_asc' | 'price_desc' |
 
     @media (max-width: 768px) {
       .toolbar-container {
-        padding: 1rem;
+        padding: 0.75rem;
       }
 
       .search-input {
         font-size: 16px; /* Prevents zoom on iOS */
-        padding: 0.75rem 2.5rem 0.75rem 2.5rem;
-        height: 2.75rem;
+        padding: 0.625rem 0.75rem;
+        height: 2.5rem;
       }
-      
+
       .search-container {
         width: 100%;
         max-width: 100%;
       }
-      
-      .search-icon-left,
+
+      .search-icon-left {
+        left: 0.625rem;
+        font-size: 0.875rem;
+      }
+
       .search-icon-right {
-        font-size: 1rem;
+        right: 0.5rem;
+        font-size: 0.875rem;
+        padding: 0.375rem;
       }
     }
     
