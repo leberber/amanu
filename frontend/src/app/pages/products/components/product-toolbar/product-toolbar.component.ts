@@ -183,7 +183,8 @@ export type SortOption = 'name_asc' | 'name_desc' | 'price_asc' | 'price_desc' |
     }
 
     .search-input {
-      padding: 0.5rem 3rem;
+      padding-block: 0.5rem;
+      padding-inline: 3rem;
       border-radius: 12px;
       background: white;
       border: 1px solid #e0e0e0;
@@ -206,7 +207,8 @@ export type SortOption = 'name_asc' | 'name_desc' | 'price_asc' | 'price_desc' |
     /* Desktop specific - more padding */
     @media (min-width: 769px) {
       .search-input {
-        padding: 0.875rem 3rem 0.875rem 3rem;
+        padding-block: 0.875rem;
+        padding-inline: 3rem;
       }
     }
     
@@ -219,7 +221,7 @@ export type SortOption = 'name_asc' | 'name_desc' | 'price_asc' | 'price_desc' |
 
     .search-icon-left {
       position: absolute;
-      left: 1rem;
+      inset-inline-start: 1rem;
       top: 50%;
       transform: translateY(-50%);
       color: var(--text-color-secondary);
@@ -228,7 +230,7 @@ export type SortOption = 'name_asc' | 'name_desc' | 'price_asc' | 'price_desc' |
 
     .search-icon-right {
       position: absolute;
-      right: 1rem;
+      inset-inline-end: 1rem;
       top: 50%;
       transform: translateY(-50%);
       color: var(--text-color-secondary);
@@ -317,12 +319,12 @@ export type SortOption = 'name_asc' | 'name_desc' | 'price_asc' | 'price_desc' |
       }
 
       .search-icon-left {
-        left: 0.625rem;
+        inset-inline-start: 0.625rem;
         font-size: 0.875rem;
       }
 
       .search-icon-right {
-        right: 0.5rem;
+        inset-inline-end: 0.5rem;
         font-size: 0.875rem;
         padding: 0.375rem;
       }
