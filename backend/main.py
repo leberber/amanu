@@ -23,9 +23,9 @@ app.add_middleware(
     CORSMiddleware,
     # allow_origins=settings.BACKEND_CORS_ORIGINS,
         allow_origins=[
-        # "http://localhost:4200",  # Angular dev server
-        '*'
-        # "https://your-production-frontend.com",  # Your production frontend
+        "http://localhost:4200",  # Angular dev server
+        "http://192.168.8.143:4200",  # Mobile testing via local IP
+        "https://elsuq.com",  # Production
     ],
 
     allow_credentials=True,
