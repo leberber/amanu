@@ -71,13 +71,13 @@ PRODUCTS = [
             "fr": "Abricots sucrés et tendres. Parfaits pour grignoter, les desserts ou les confitures.",
             "ar": "مشمش حلو وطري. مثالي للوجبات الخفيفة أو الحلويات أو المربى."
         },
-        "price": 4.49,
+        "price": 200,
         "unit": ProductUnit.KG,
-        "stock_quantity": 80,
+        "stock_quantity": 1000,
         "image_url": "https://elsuq.s3.eu-west-3.amazonaws.com/product-images/aprico.png",
         "is_organic": False,
         "category_name": "Fresh Fruits",
-        "quantity_config": {"type": "range", "min": 5, "max": 150, "step": 5, "pills": [10, 25, 50]}
+        "quantity_config": {"type": "range", "min": 5, "max": 500, "step": 5, "pills": [10, 25, 50]}
     },
 
     # Bananas
@@ -90,9 +90,9 @@ PRODUCTS = [
             "fr": "Bananes sucrées et nutritives. Parfaites pour les smoothies ou une collation rapide.",
             "ar": "موز حلو ومغذي. مثالي للعصائر أو وجبة خفيفة سريعة."
         },
-        "price": 1.49,
+        "price": 450,
         "unit": ProductUnit.KG,
-        "stock_quantity": 150,
+        "stock_quantity": 1000,
         "image_url": "https://elsuq.s3.eu-west-3.amazonaws.com/product-images/banane.png",
         "is_organic": False,
         "category_name": "Fresh Fruits",
@@ -109,13 +109,13 @@ PRODUCTS = [
             "fr": "Clémentines sans pépins, sucrées et juteuses. Parfaites pour les collations.",
             "ar": "كليمنتين بدون بذور، حلو وعصير. مثالي للوجبات الخفيفة."
         },
-        "price": 3.79,
+        "price": 170,
         "unit": ProductUnit.KG,
-        "stock_quantity": 90,
+        "stock_quantity": 1000,
         "image_url": "https://elsuq.s3.eu-west-3.amazonaws.com/product-images/climentine.png",
         "is_organic": False,
         "category_name": "Fresh Fruits",
-        "quantity_config": {"type": "range", "min": 10, "max": 150, "step": 10, "pills": [20, 50, 80]}
+        "quantity_config": {"type": "range", "min": 10, "max": 1000, "step": 10, "pills": [20, 50, 100]}
     },
 
     # Dates
@@ -128,13 +128,13 @@ PRODUCTS = [
             "fr": "Dattes naturellement sucrées. Parfaites pour les collations énergétiques et les desserts.",
             "ar": "تمر حلو طبيعي. رائع للوجبات الخفيفة والطاقة والحلويات."
         },
-        "price": 6.99,
+        "price": 35,
         "unit": ProductUnit.KG,
-        "stock_quantity": 70,
+        "stock_quantity": 400,
         "image_url": "https://elsuq.s3.eu-west-3.amazonaws.com/product-images/date.png",
         "is_organic": False,
         "category_name": "Fresh Fruits",
-        "quantity_config": {"type": "range", "min": 5, "max": 100, "step": 5, "pills": [10, 25, 50]}
+        "quantity_config": {"type": "range", "min": 5, "max": 400, "step": 5, "pills": [10, 25, 50]}
     },
 
     # Yellow Lemons
@@ -147,13 +147,13 @@ PRODUCTS = [
             "fr": "Citrons jaunes frais avec une saveur acidulée. Parfaits pour la cuisine et les boissons.",
             "ar": "ليمون أصفر طازج بنكهة حامضة. مثالي للطبخ والمشروبات."
         },
-        "price": 2.99,
+        "price": 220,
         "unit": ProductUnit.KG,
-        "stock_quantity": 100,
+        "stock_quantity": 500,
         "image_url": "https://elsuq.s3.eu-west-3.amazonaws.com/product-images/citron-jaune.png",
         "is_organic": False,
         "category_name": "Fresh Fruits",
-        "quantity_config": {"type": "range", "min": 5, "max": 100, "step": 5, "pills": [10, 25, 50]}
+        "quantity_config": {"type": "range", "min": 5, "max": 500, "step": 5, "pills": [10, 25, 50]}
     },
 
     # Nectarines
@@ -166,13 +166,13 @@ PRODUCTS = [
             "fr": "Nectarines juteuses à peau lisse. Excellentes fraîches ou en dessert.",
             "ar": "نكتارين عصير بقشرة ناعمة. ممتاز طازجاً أو في الحلويات."
         },
-        "price": 4.99,
+        "price": 600,
         "unit": ProductUnit.KG,
-        "stock_quantity": 75,
+        "stock_quantity": 500,
         "image_url": "https://elsuq.s3.eu-west-3.amazonaws.com/product-images/nictarine.png",
         "is_organic": False,
         "category_name": "Fresh Fruits",
-        "quantity_config": {"type": "range", "min": 5, "max": 120, "step": 5, "pills": [10, 25, 50]}
+        "quantity_config": {"type": "range", "min": 5, "max": 500, "step": 5, "pills": [10, 25, 50]}
     },
 
     # Oranges
@@ -185,13 +185,13 @@ PRODUCTS = [
             "fr": "Oranges juteuses riches en vitamine C. Parfaites en jus ou à grignoter.",
             "ar": "برتقال عصير غني بفيتامين سي. رائع للعصير أو الوجبات الخفيفة."
         },
-        "price": 3.29,
+        "price": 100,
         "unit": ProductUnit.KG,
-        "stock_quantity": 90,
+        "stock_quantity": 600,
         "image_url": "https://elsuq.s3.eu-west-3.amazonaws.com/product-images/orange.png",
         "is_organic": False,
         "category_name": "Fresh Fruits",
-        "quantity_config": {"type": "range", "min": 10, "max": 200, "step": 10, "pills": [30, 60, 100]}
+        "quantity_config": {"type": "range", "min": 10, "max": 600, "step": 10, "pills": [30, 60, 100]}
     },
 
     # Peaches
@@ -204,13 +204,13 @@ PRODUCTS = [
             "fr": "Pêches sucrées et parfumées. Délicieuses fraîches ou en dessert.",
             "ar": "خوخ حلو ومعطر. لذيذ طازجاً أو في الحلويات."
         },
-        "price": 4.79,
+        "price": 350,
         "unit": ProductUnit.KG,
-        "stock_quantity": 80,
+        "stock_quantity": 5000,
         "image_url": "https://elsuq.s3.eu-west-3.amazonaws.com/product-images/peche.png",
         "is_organic": False,
         "category_name": "Fresh Fruits",
-        "quantity_config": {"type": "range", "min": 5, "max": 120, "step": 5, "pills": [10, 25, 50]}
+        "quantity_config": {"type": "range", "min": 5, "max": 300, "step": 5, "pills": [10, 25, 50]}
     },
 
     # Pears
@@ -223,13 +223,13 @@ PRODUCTS = [
             "fr": "Poires sucrées et juteuses au goût délicat. Parfaites pour grignoter.",
             "ar": "كمثرى حلوة وعصيرية بنكهة لطيفة. مثالية للوجبات الخفيفة."
         },
-        "price": 3.99,
+        "price": 550,
         "unit": ProductUnit.KG,
-        "stock_quantity": 85,
+        "stock_quantity": 600,
         "image_url": "https://elsuq.s3.eu-west-3.amazonaws.com/product-images/poire.png",
         "is_organic": False,
         "category_name": "Fresh Fruits",
-        "quantity_config": {"type": "range", "min": 5, "max": 150, "step": 5, "pills": [10, 25, 50]}
+        "quantity_config": {"type": "range", "min": 5, "max": 500, "step": 5, "pills": [10, 25, 50]}
     },
 
     # Yellow Apples
@@ -242,9 +242,9 @@ PRODUCTS = [
             "fr": "Pommes jaunes croquantes au goût sucré équilibré. Parfaites pour grignoter.",
             "ar": "تفاح أصفر مقرمش بنكهة حلوة متوازنة. مثالي للوجبات الخفيفة."
         },
-        "price": 2.99,
+        "price": 420,
         "unit": ProductUnit.KG,
-        "stock_quantity": 100,
+        "stock_quantity": 500,
         "image_url": "https://elsuq.s3.eu-west-3.amazonaws.com/product-images/pomme-jaune.png",
         "is_organic": False,
         "category_name": "Fresh Fruits",
@@ -261,9 +261,9 @@ PRODUCTS = [
             "fr": "Pommes rouges fraîches et croquantes. Parfaites pour les collations, la pâtisserie ou la cuisine.",
             "ar": "تفاح أحمر طازج ومقرمش. مثالي للوجبات الخفيفة أو الطبخ أو الخبز."
         },
-        "price": 2.99,
+        "price": 500,
         "unit": ProductUnit.KG,
-        "stock_quantity": 100,
+        "stock_quantity": 500,
         "image_url": "https://elsuq.s3.eu-west-3.amazonaws.com/product-images/pomme-rouge.png",
         "is_organic": False,
         "category_name": "Fresh Fruits",
@@ -282,13 +282,13 @@ PRODUCTS = [
             "fr": "Artichauts frais avec des cœurs tendres. Une délicatesse méditerranéenne.",
             "ar": "خرشوف طازج بقلوب طرية. من ألذّ أطباق البحر المتوسط."
         },
-        "price": 5.99,
+        "price":220,
         "unit": ProductUnit.KG,
         "stock_quantity": 60,
         "image_url": "https://elsuq.s3.eu-west-3.amazonaws.com/product-images/artichaut.png",
         "is_organic": False,
         "category_name": "Fresh Vegetables",
-        "quantity_config": {"type": "range", "min": 5, "max": 80, "step": 5, "pills": [10, 20, 40]}
+        "quantity_config": {"type": "range", "min": 5, "max": 300, "step": 5, "pills": [10, 20, 40]}
     },
 
     # Eggplants
@@ -301,13 +301,13 @@ PRODUCTS = [
             "fr": "Aubergines fraîches au goût doux. Parfaites pour griller, rôtir et mijoter.",
             "ar": "باذنجان طازج بنكهة خفيفة. مثالي للشواء والتحمير واليخنات."
         },
-        "price": 2.79,
+        "price": 180,
         "unit": ProductUnit.KG,
         "stock_quantity": 90,
         "image_url": "https://elsuq.s3.eu-west-3.amazonaws.com/product-images/aubergine.png",
         "is_organic": False,
         "category_name": "Fresh Vegetables",
-        "quantity_config": {"type": "range", "min": 5, "max": 120, "step": 5, "pills": [10, 25, 50]}
+        "quantity_config": {"type": "range", "min": 5, "max": 330, "step": 5, "pills": [10, 25, 50]}
     },
 
     # Beets
@@ -320,13 +320,13 @@ PRODUCTS = [
             "fr": "Betteraves fraîches, parfaites pour les salades et au four. Riches en nutriments.",
             "ar": "شمندر طازج، مثالي للسلطات والشواء. غني بالعناصر الغذائية."
         },
-        "price": 2.29,
+        "price": 70,
         "unit": ProductUnit.KG,
         "stock_quantity": 80,
         "image_url": "https://elsuq.s3.eu-west-3.amazonaws.com/product-images/betrave.png",
         "is_organic": False,
         "category_name": "Fresh Vegetables",
-        "quantity_config": {"type": "range", "min": 5, "max": 120, "step": 5, "pills": [10, 25, 50]}
+        "quantity_config": {"type": "range", "min": 5, "max": 500, "step": 5, "pills": [10, 25, 50]}
     },
 
     # Broccoli
@@ -339,13 +339,13 @@ PRODUCTS = [
             "fr": "Brocoli frais, riche en nutriments et antioxydants.",
             "ar": "بروكلي طازج غني بالعناصر الغذائية ومضادات الأكسدة."
         },
-        "price": 2.79,
+        "price": 90,
         "unit": ProductUnit.KG,
-        "stock_quantity": 75,
+        "stock_quantity": 500,
         "image_url": "https://elsuq.s3.eu-west-3.amazonaws.com/product-images/brocoli.png",
         "is_organic": False,
         "category_name": "Fresh Vegetables",
-        "quantity_config": {"type": "range", "min": 5, "max": 150, "step": 5, "pills": [15, 30, 60]}
+        "quantity_config": {"type": "range", "min": 5, "max": 250, "step": 5, "pills": [15, 30, 60]}
     },
 
     # Swiss Chard (Carde)
@@ -358,13 +358,13 @@ PRODUCTS = [
             "fr": "Carde fraîche avec feuilles et tiges tendres. Délicieuse sautée ou en soupe.",
             "ar": "سلق طازج بأوراق وسيقان طرية. ممتاز مقلياً أو في الشوربات."
         },
-        "price": 2.49,
+        "price": 110,
         "unit": ProductUnit.BUNCH,
-        "stock_quantity": 70,
+        "stock_quantity": 500,
         "image_url": "https://elsuq.s3.eu-west-3.amazonaws.com/product-images/carde.png",
         "is_organic": False,
         "category_name": "Fresh Vegetables",
-        "quantity_config": {"type": "list", "quantities": [1, 2, 3, 4, 5]}
+        "quantity_config": {"type": "list", "quantities": [5, 10, 20, 30, 50, 100]}
     },
 
     # Carrots
@@ -377,13 +377,13 @@ PRODUCTS = [
             "fr": "Carottes fraîches riches en bêta-carotène. Parfaites pour salades, plats mijotés et jus.",
             "ar": "جزر طازج غني بالبيتا كاروتين. رائع للسلطات واليخنات والعصائر."
         },
-        "price": 1.99,
+        "price": 80,
         "unit": ProductUnit.KG,
-        "stock_quantity": 120,
+        "stock_quantity": 300,
         "image_url": "https://elsuq.s3.eu-west-3.amazonaws.com/product-images/carrote.png",
         "is_organic": False,
         "category_name": "Fresh Vegetables",
-        "quantity_config": {"type": "range", "min": 0.5, "max": 5, "step": 0.5, "pills": [1, 2, 3]}
+        "quantity_config": {"type": "range", "min": 5, "max": 300, "step": 5, "pills": [5, 10, 20, 40, 80, 100]}
     },
 
     # Celery
@@ -396,13 +396,13 @@ PRODUCTS = [
             "fr": "Branches de céleri croquantes. Parfaites pour soupes, salades et collations saines.",
             "ar": "سيقان كرفس مقرمشة. مثالية للشوربات والسلطات والوجبات الخفيفة الصحية."
         },
-        "price": 2.49,
+        "price": 80,
         "unit": ProductUnit.BUNCH,
         "stock_quantity": 65,
         "image_url": "https://elsuq.s3.eu-west-3.amazonaws.com/product-images/celery.png",
         "is_organic": False,
         "category_name": "Fresh Vegetables",
-        "quantity_config": {"type": "list", "quantities": [1, 2, 3, 4, 5]}
+        "quantity_config": {"type": "list", "quantities": [5, 10, 20, 40, 80, 100]}
     },
 
     # Cauliflower
@@ -415,13 +415,13 @@ PRODUCTS = [
             "fr": "Chou-fleur frais, doux et polyvalent. Délicieux rôti, vapeur ou en gratin.",
             "ar": "قرنبيط طازج بطعم خفيف ومتعدد الاستخدامات. رائع مشوياً أو مطهواً على البخار."
         },
-        "price": 2.89,
+        "price": 60,
         "unit": ProductUnit.KG,
-        "stock_quantity": 70,
+        "stock_quantity": 500,
         "image_url": "https://elsuq.s3.eu-west-3.amazonaws.com/product-images/chou-fleur.png",
         "is_organic": False,
         "category_name": "Fresh Vegetables",
-        "quantity_config": {"type": "range", "min": 5, "max": 120, "step": 5, "pills": [10, 25, 50]}
+        "quantity_config": {"type": "range", "min": 5, "max": 200, "step": 5, "pills": [10, 25, 50]}
     },
 
     # Cucumbers
@@ -434,9 +434,9 @@ PRODUCTS = [
             "fr": "Concombres croquants et rafraîchissants. Parfaits pour les salades et les collations.",
             "ar": "خيار مقرمش ومنعش. مثالي للسلطات والوجبات الخفيفة."
         },
-        "price": 1.99,
+        "price": 90,
         "unit": ProductUnit.KG,
-        "stock_quantity": 95,
+        "stock_quantity": 500,
         "image_url": "https://elsuq.s3.eu-west-3.amazonaws.com/product-images/concombre.png",
         "is_organic": False,
         "category_name": "Fresh Vegetables",
@@ -453,13 +453,13 @@ PRODUCTS = [
             "fr": "Coriandre fraîche au parfum citronné. Parfaite pour garnir et cuisiner.",
             "ar": "كزبرة طازجة برائحة منعشة. مثالية للتزيين والطبخ."
         },
-        "price": 1.99,
+        "price": 100,
         "unit": ProductUnit.BUNCH,
-        "stock_quantity": 80,
+        "stock_quantity": 1000,
         "image_url": "https://elsuq.s3.eu-west-3.amazonaws.com/product-images/coriandre.png",
         "is_organic": False,
         "category_name": "Fresh Vegetables",
-        "quantity_config": {"type": "list", "quantities": [1, 2, 3, 4, 5, 10]}
+        "quantity_config": {"type": "list", "quantities": [ 5, 10, 15, 20, 50, 100]}
     },
 
     # Zucchini
@@ -472,13 +472,13 @@ PRODUCTS = [
             "fr": "Courgettes fraîches, polyvalentes et saines. Parfaites pour griller et sauter.",
             "ar": "كوسة طازجة متعددة الاستخدامات وصحية. رائعة للشواء والقلي."
         },
-        "price": 2.29,
+        "price":140,
         "unit": ProductUnit.KG,
-        "stock_quantity": 90,
+        "stock_quantity": 500,
         "image_url": "https://elsuq.s3.eu-west-3.amazonaws.com/product-images/courgette.png",
         "is_organic": False,
         "category_name": "Fresh Vegetables",
-        "quantity_config": {"type": "range", "min": 5, "max": 120, "step": 5, "pills": [10, 25, 50]}
+        "quantity_config": {"type": "range", "min": 5, "max": 200, "step": 5, "pills": [10, 25, 50]}
     },
 
     # Fennel
@@ -491,13 +491,13 @@ PRODUCTS = [
             "fr": "Bulbes de fenouil frais avec une douce saveur d'anis. Parfaits crus ou cuits.",
             "ar": "شمر طازج بنكهة يانسون خفيفة. رائع نيئاً أو مطبوخاً."
         },
-        "price": 3.79,
+        "price": 120,
         "unit": ProductUnit.KG,
         "stock_quantity": 60,
         "image_url": "https://elsuq.s3.eu-west-3.amazonaws.com/product-images/fenouille.png",
         "is_organic": False,
         "category_name": "Fresh Vegetables",
-        "quantity_config": {"type": "range", "min": 5, "max": 80, "step": 5, "pills": [10, 20, 40]}
+        "quantity_config": {"type": "range", "min": 5, "max": 300, "step": 5, "pills": [10, 20, 40]}
     },
 
     # Fava Beans
@@ -510,13 +510,13 @@ PRODUCTS = [
             "fr": "Fèves fraîches, nutritives et consistantes. Parfaites pour les plats traditionnels.",
             "ar": "فول طازج مغذي ومشبع. رائع للأطباق التقليدية واليخنات."
         },
-        "price": 3.99,
+        "price":110,
         "unit": ProductUnit.KG,
         "stock_quantity": 70,
         "image_url": "https://elsuq.s3.eu-west-3.amazonaws.com/product-images/feve.png",
         "is_organic": False,
         "category_name": "Fresh Vegetables",
-        "quantity_config": {"type": "range", "min": 5, "max": 100, "step": 5, "pills": [10, 25, 50]}
+        "quantity_config": {"type": "range", "min": 5, "max": 200, "step": 5, "pills": [10, 25, 50]}
     },
 
     # Green Beans
@@ -529,13 +529,13 @@ PRODUCTS = [
             "fr": "Haricots verts frais, croquants et tendres. Parfaits à la vapeur ou sautés.",
             "ar": "فاصوليا خضراء طازجة مقرمشة وطرية. رائعة بالبخار أو التشويح."
         },
-        "price": 3.49,
+        "price": 240,
         "unit": ProductUnit.KG,
         "stock_quantity": 70,
         "image_url": "https://elsuq.s3.eu-west-3.amazonaws.com/product-images/haricot-vert.png",
         "is_organic": False,
         "category_name": "Fresh Vegetables",
-        "quantity_config": {"type": "range", "min": 5, "max": 120, "step": 5, "pills": [10, 25, 50]}
+        "quantity_config": {"type": "range", "min": 5, "max": 300, "step": 5, "pills": [10, 25, 50]}
     },
 
     # Turnips
@@ -548,13 +548,13 @@ PRODUCTS = [
             "fr": "Navets frais au goût doux et légèrement sucré. Parfaits pour soupes et ragoûts.",
             "ar": "لفت طازج بنكهة خفيفة وحلوة قليلاً. رائع للشوربات واليخنات."
         },
-        "price": 1.79,
+        "price": 70,
         "unit": ProductUnit.KG,
-        "stock_quantity": 90,
+        "stock_quantity": 500,
         "image_url": "https://elsuq.s3.eu-west-3.amazonaws.com/product-images/navet.png",
         "is_organic": False,
         "category_name": "Fresh Vegetables",
-        "quantity_config": {"type": "range", "min": 5, "max": 120, "step": 5, "pills": [10, 25, 50]}
+        "quantity_config": {"type": "range", "min": 5, "max": 200, "step": 5, "pills": [10, 25, 50]}
     },
 
     # Onions
@@ -567,9 +567,9 @@ PRODUCTS = [
             "fr": "Oignons frais, un incontournable de la cuisine. Parfaits pour tout plat salé.",
             "ar": "بصل طازج، أساسي في المطبخ. مثالي لأي طبق مالح."
         },
-        "price": 1.79,
+        "price": 80,
         "unit": ProductUnit.KG,
-        "stock_quantity": 140,
+        "stock_quantity": 500,
         "image_url": "https://elsuq.s3.eu-west-3.amazonaws.com/product-images/oignion.png",
         "is_organic": False,
         "category_name": "Fresh Vegetables",
@@ -586,7 +586,7 @@ PRODUCTS = [
             "fr": "Pommes de terre polyvalentes parfaites pour toute méthode de cuisson. Un incontournable de la cuisine.",
             "ar": "بطاطا متعددة الاستخدامات مثالية لأي طريقة طبخ. أساسية في المطبخ."
         },
-        "price": 1.49,
+        "price": 55,
         "unit": ProductUnit.KG,
         "stock_quantity": 200,
         "image_url": "https://elsuq.s3.eu-west-3.amazonaws.com/product-images/potato.png",
@@ -605,13 +605,13 @@ PRODUCTS = [
             "fr": "Radis frais, croquants et légèrement piquants. Parfaits en salade ou sandwich.",
             "ar": "فجل طازج مقرمش وحار قليلاً. رائع في السلطات والسندويشات."
         },
-        "price": 1.59,
+        "price": 85,
         "unit": ProductUnit.KG,
-        "stock_quantity": 80,
+        "stock_quantity": 400,
         "image_url": "https://elsuq.s3.eu-west-3.amazonaws.com/product-images/radis.png",
         "is_organic": False,
         "category_name": "Fresh Vegetables",
-        "quantity_config": {"type": "range", "min": 5, "max": 80, "step": 5, "pills": [10, 20, 40]}
+        "quantity_config": {"type": "range", "min": 5, "max": 300, "step": 5, "pills": [10, 20, 40]}
     },
 
     # Lettuce (Salad)
@@ -624,13 +624,13 @@ PRODUCTS = [
             "fr": "Salade fraîche, croquante et légère. Parfaite pour salades et wraps.",
             "ar": "خس طازج ومقرمش وخفيف. مثالي للسلطات واللفائف."
         },
-        "price": 1.99,
-        "unit": ProductUnit.BUNCH,
-        "stock_quantity": 90,
+        "price": 120,
+        "unit": ProductUnit.KG,
+        "stock_quantity": 300,
         "image_url": "https://elsuq.s3.eu-west-3.amazonaws.com/product-images/salade.png",
         "is_organic": False,
         "category_name": "Fresh Vegetables",
-        "quantity_config": {"type": "list", "quantities": [1, 2, 3, 4, 5]}
+        "quantity_config": {"type": "range", "min": 5, "max": 300, "step": 5, "pills": [10, 20, 40]}
     },
 
     # Tomatoes
@@ -643,13 +643,13 @@ PRODUCTS = [
             "fr": "Tomates fraîches et mûres. Parfaites pour salades, sauces et cuisine.",
             "ar": "طماطم طازجة وناضجة. مثالية للسلطات والصلصات والطبخ."
         },
-        "price": 2.49,
+        "price": 65,
         "unit": ProductUnit.KG,
-        "stock_quantity": 120,
+        "stock_quantity": 500,
         "image_url": "https://elsuq.s3.eu-west-3.amazonaws.com/product-images/tomate.png",
         "is_organic": False,
         "category_name": "Fresh Vegetables",
-        "quantity_config": {"type": "range", "min": 5, "max": 120, "step": 5, "pills": [10, 30, 50]}
+        "quantity_config": {"type": "range", "min": 5, "max": 500, "step": 5, "pills": [10, 30, 50]}
     },
 
     # Bell Peppers
@@ -662,13 +662,13 @@ PRODUCTS = [
             "fr": "Poivrons sucrés et croquants. Parfaits pour salades, rôtis et cuisine.",
             "ar": "فلفل حلو مقرمش. رائع للسلطات والتحمير والطبخ."
         },
-        "price": 3.99,
+        "price": 120,
         "unit": ProductUnit.KG,
-        "stock_quantity": 85,
+        "stock_quantity": 400,
         "image_url": "https://elsuq.s3.eu-west-3.amazonaws.com/product-images/poivron.png",
         "is_organic": False,
         "category_name": "Fresh Vegetables",
-        "quantity_config": {"type": "range", "min": 5, "max": 100, "step": 5, "pills": [10, 20, 40]}
+        "quantity_config": {"type": "range", "min": 5, "max": 500, "step": 5, "pills": [10, 20, 40]}
     },
 
     # Hot Peppers
@@ -681,13 +681,13 @@ PRODUCTS = [
             "fr": "Piments épicés pour relever vos plats. Une petite quantité suffit!",
             "ar": "فلفل حار لإضافة نكهة قوية. كمية صغيرة تكفي!"
         },
-        "price": 4.99,
+        "price": 120,
         "unit": ProductUnit.KG,
-        "stock_quantity": 60,
+        "stock_quantity": 600,
         "image_url": "https://elsuq.s3.eu-west-3.amazonaws.com/product-images/piment.png",
         "is_organic": False,
         "category_name": "Fresh Vegetables",
-        "quantity_config": {"type": "range", "min": 1, "max": 20, "step": 1, "pills": [3, 5, 10]}
+        "quantity_config": {"type": "range", "min": 5, "max": 20, "step": 5, "pills": [5, 10, 20, 50, 100]}
     }
 
     # NOTE: The following items are in your list but were not included above yet:
