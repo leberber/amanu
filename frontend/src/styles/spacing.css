@@ -233,6 +233,8 @@
 /* Mobile bottom navigation padding - apply to scrollable page content */
 .mobile-scroll-content {
   padding-bottom: 4rem !important; /* 96px for bottom navigation */
+  padding-left:0.75em;
+  padding-right: 0.75rem;
 }
 
 @media (min-width: 1024px) {

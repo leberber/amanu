@@ -27,7 +27,7 @@ export class CurrencyService {
       symbolPosition: 'after',
       thousandSeparator: ' ',
       decimalSeparator: ',',
-      decimalPlaces: 2,
+      decimalPlaces: 0,
       format: '{value} {symbol}'
     },
     USD: {
