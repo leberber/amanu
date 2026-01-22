@@ -485,3 +485,163 @@ code, pre {
 .text-blue-500 {
   color: #3b82f6 !important;
 }
+
+/* ==========================================
+   CUSTOM TOAST STYLES - Clean White Design
+   ========================================== */
+
+// Force override all PrimeNG toast styles
+.p-toast {
+  opacity: 1 !important;
+}
+
+.p-toast .p-toast-message {
+  margin: 0 0 1rem 0 !important;
+  border-radius: 12px !important;
+  overflow: visible !important;
+  background: #ffffff !important;
+  border: none !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 0 1px rgba(0, 0, 0, 0.1) !important;
+  position: relative !important;
+  min-width: 300px !important;
+}
+
+.p-toast .p-toast-message .p-toast-message-content {
+  padding: 16px !important;
+  border: none !important;
+  background: transparent !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+}
+
+.p-toast .p-toast-message .p-toast-message-icon {
+  font-size: 20px !important;
+  flex-shrink: 0 !important;
+}
+
+.p-toast .p-toast-message .p-toast-message-text {
+  flex: 1 !important;
+}
+
+.p-toast .p-toast-message .p-toast-summary {
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  color: #1a1a1a !important;
+  margin: 0 0 2px 0 !important;
+}
+
+.p-toast .p-toast-message .p-toast-detail {
+  font-size: 13px !important;
+  color: #666666 !important;
+  margin: 0 !important;
+}
+
+.p-toast .p-toast-message .p-toast-icon-close {
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 6px !important;
+  color: #999 !important;
+  background: transparent !important;
+  border: none !important;
+  transition: all 0.2s !important;
+}
+
+.p-toast .p-toast-message .p-toast-icon-close:hover {
+  background: #f0f0f0 !important;
+  color: #333 !important;
+}
+
+// Progress bar - bottom line that shrinks
+.p-toast .p-toast-message::before {
+  content: '' !important;
+  position: absolute !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  height: 4px !important;
+  width: 100% !important;
+  border-radius: 0 0 12px 12px !important;
+  animation: toastProgress 4s linear forwards !important;
+  transform-origin: left !important;
+}
+
+// SUCCESS
+.p-toast .p-toast-message.p-toast-message-success {
+  background: #ffffff !important;
+}
+.p-toast .p-toast-message.p-toast-message-success::before {
+  background: #22c55e !important;
+}
+.p-toast .p-toast-message.p-toast-message-success .p-toast-message-icon {
+  color: #22c55e !important;
+}
+
+// ERROR
+.p-toast .p-toast-message.p-toast-message-error {
+  background: #ffffff !important;
+}
+.p-toast .p-toast-message.p-toast-message-error::before {
+  background: #ef4444 !important;
+  animation: toastProgress 5s linear forwards !important;
+}
+.p-toast .p-toast-message.p-toast-message-error .p-toast-message-icon {
+  color: #ef4444 !important;
+}
+
+// WARNING
+.p-toast .p-toast-message.p-toast-message-warn {
+  background: #ffffff !important;
+}
+.p-toast .p-toast-message.p-toast-message-warn::before {
+  background: #f59e0b !important;
+}
+.p-toast .p-toast-message.p-toast-message-warn .p-toast-message-icon {
+  color: #f59e0b !important;
+}
+
+// INFO
+.p-toast .p-toast-message.p-toast-message-info {
+  background: #ffffff !important;
+}
+.p-toast .p-toast-message.p-toast-message-info::before {
+  background: #3b82f6 !important;
+}
+.p-toast .p-toast-message.p-toast-message-info .p-toast-message-icon {
+  color: #3b82f6 !important;
+}
+
+@keyframes toastProgress {
+  from { transform: scaleX(1); }
+  to { transform: scaleX(0); }
+}
+
+// Dark mode
+:root.my-app-dark .p-toast .p-toast-message {
+  background: #262626 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), 0 0 1px rgba(255, 255, 255, 0.1) !important;
+}
+:root.my-app-dark .p-toast .p-toast-message .p-toast-summary {
+  color: #ffffff !important;
+}
+:root.my-app-dark .p-toast .p-toast-message .p-toast-detail {
+  color: #a0a0a0 !important;
+}
+:root.my-app-dark .p-toast .p-toast-message .p-toast-icon-close {
+  color: #888 !important;
+}
+:root.my-app-dark .p-toast .p-toast-message .p-toast-icon-close:hover {
+  background: #333 !important;
+  color: #ccc !important;
+}
+
+// Mobile
+@media (max-width: 480px) {
+  .p-toast {
+    width: calc(100% - 32px) !important;
+    left: 16px !important;
+    right: 16px !important;
+  }
+  .p-toast .p-toast-message {
+    min-width: unset !important;
+  }
+}

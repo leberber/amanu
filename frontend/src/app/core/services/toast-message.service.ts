@@ -13,6 +13,9 @@ export class ToastMessageService {
   private messageService = inject(MessageService);
   private translateService = inject(TranslateService);
 
+  // Default toast duration in milliseconds (matches CSS progress bar animation)
+  private readonly DEFAULT_LIFE = 4000;
+
   /**
    * Show success message
    * @param detail - Message detail key or text
@@ -22,7 +25,8 @@ export class ToastMessageService {
     this.messageService.add({
       severity: 'success',
       summary: this.translateService.instant('common.success'),
-      detail: this.translateService.instant(detail, params)
+      detail: this.translateService.instant(detail, params),
+      life: this.DEFAULT_LIFE
     });
   }
 
@@ -35,7 +39,8 @@ export class ToastMessageService {
     this.messageService.add({
       severity: 'error',
       summary: this.translateService.instant('common.error'),
-      detail: this.translateService.instant(detail, params)
+      detail: this.translateService.instant(detail, params),
+      life: this.DEFAULT_LIFE + 1000 // Errors stay a bit longer
     });
   }
 
@@ -48,7 +53,8 @@ export class ToastMessageService {
     this.messageService.add({
       severity: 'info',
       summary: this.translateService.instant('common.info'),
-      detail: this.translateService.instant(detail, params)
+      detail: this.translateService.instant(detail, params),
+      life: this.DEFAULT_LIFE
     });
   }
 
@@ -61,7 +67,8 @@ export class ToastMessageService {
     this.messageService.add({
       severity: 'warn',
       summary: this.translateService.instant('common.warning'),
-      detail: this.translateService.instant(detail, params)
+      detail: this.translateService.instant(detail, params),
+      life: this.DEFAULT_LIFE
     });
   }
 
@@ -76,7 +83,8 @@ export class ToastMessageService {
     this.messageService.add({
       severity,
       summary: this.translateService.instant(summary, params),
-      detail: this.translateService.instant(detail, params)
+      detail: this.translateService.instant(detail, params),
+      life: this.DEFAULT_LIFE
     });
   }
 
