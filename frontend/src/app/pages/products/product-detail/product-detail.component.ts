@@ -70,12 +70,14 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   error = signal<boolean>(false);
   selectedQuantity = signal<number>(1);
   currentLanguage = signal<string>(this.translationService.getCurrentLanguage());
-  
+  cartVersion = signal<number>(0); // Triggers reactivity when cart changes
+
   // For related products quantities
   productQuantities: { [key: number]: number } = {};
-  
+
   // Subscription management
   private languageSubscription?: Subscription;
+  private cartSubscription?: Subscription;
   
   // Computed values
   isOutOfStock = computed(() => {
@@ -102,11 +104,32 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
     const currentProduct = this.product();
     const lang = this.currentLanguage(); // Make it reactive to language changes
     if (!currentProduct) return '';
-    
+
     return this.getUnitDisplay(currentProduct.unit);
   });
 
+  // Computed property to check if product is in cart
+  isInCart = computed(() => {
+    this.cartVersion(); // Subscribe to cart changes
+    const currentProduct = this.product();
+    if (!currentProduct) return false;
+    return this.cartService.isProductInCart(currentProduct.id);
+  });
+
+  // Computed property to get quantity in cart
+  quantityInCart = computed(() => {
+    this.cartVersion(); // Subscribe to cart changes
+    const currentProduct = this.product();
+    if (!currentProduct) return 0;
+    return this.cartService.getProductQuantityInCart(currentProduct.id);
+  });
+
   ngOnInit() {
+    // Subscribe to cart changes to update the button
+    this.cartSubscription = this.cartService.cartItems$.subscribe(() => {
+      this.cartVersion.update(v => v + 1);
+    });
+
     // Subscribe to language changes
     this.languageSubscription = this.translationService.currentLanguage$.subscribe(lang => {
       this.currentLanguage.set(lang);
@@ -313,6 +336,9 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     if (this.languageSubscription) {
       this.languageSubscription.unsubscribe();
+    }
+    if (this.cartSubscription) {
+      this.cartSubscription.unsubscribe();
     }
   }
 }
