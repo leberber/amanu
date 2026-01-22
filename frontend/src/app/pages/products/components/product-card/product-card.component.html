@@ -177,11 +177,11 @@
           class="p-button-primary p-button-rounded"
           style="height: 2.5rem; width: 2.5rem;"
           [disabled]="!product.stock_quantity || product.stock_quantity === 0 || selectedQuantity === 0 || selectedQuantity > product.stock_quantity"
-          (click)="addToCart()">
+          (click)="addToCart($event)">
         </button>
       </p-overlayBadge>
     </div>
-    
+
     <!-- Desktop button - with text -->
     <button
       pButton
@@ -191,7 +191,7 @@
       class="p-button-primary text-sm hidden md:inline-flex"
       style="height: 2.25rem; padding: 0 1rem; width: 35%;"
       [disabled]="!product.stock_quantity || product.stock_quantity === 0 || selectedQuantity === 0 || selectedQuantity > product.stock_quantity"
-      (click)="addToCart()">
+      (click)="addToCart($event)">
     </button>
   </div>
 </ng-template>

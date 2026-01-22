@@ -193,11 +193,11 @@
         </div>
         
         <!-- Add to Cart Button -->
-        <button 
-          pButton 
-          [label]="'products.cart.add_to_cart' | translate" 
-          icon="pi pi-shopping-cart" 
-          (click)="addToCart()"
+        <button
+          pButton
+          [label]="'products.cart.add_to_cart' | translate"
+          icon="pi pi-shopping-cart"
+          (click)="addToCart($event)"
           [disabled]="isOutOfStock() || !selectedQuantity"
           class="p-button-sm md:p-button-lg w-full"
         >

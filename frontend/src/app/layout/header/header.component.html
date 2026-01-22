@@ -53,9 +53,9 @@
 <!-- Desktop Actions Template -->
 <ng-template #desktopActions>
   <div class="flex align-items-center gap-2">
-    <a *ngIf="cartCount()" routerLink="/cart" class="flex align-items-center gap-1 text-color">
-      <p-overlayBadge [value]="cartCount()" severity="danger">
-        <i class="pi pi-shopping-cart text-xl"></i>
+    <a routerLink="/cart" class="flex align-items-center gap-1 text-color">
+      <p-overlayBadge [value]="cartCount() || null" severity="danger">
+        <i id="cart-icon" class="pi pi-shopping-cart text-xl"></i>
       </p-overlayBadge>
       <span class="ml-1">{{ 'common.cart' | translate }}</span>
     </a>
@@ -93,9 +93,9 @@
 <!-- Mobile Actions Template -->
 <ng-template #mobileActions>
   <div class="flex align-items-center gap-2">
-    <a *ngIf="cartCount()" routerLink="/cart" >
-      <p-overlayBadge [value]="cartCount()" severity="danger">
-        <i class="pi pi-shopping-cart"></i>
+    <a routerLink="/cart">
+      <p-overlayBadge [value]="cartCount() || null" severity="danger">
+        <i id="cart-icon-mobile" class="pi pi-shopping-cart"></i>
       </p-overlayBadge>
     </a>
     

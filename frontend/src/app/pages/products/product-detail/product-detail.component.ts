@@ -26,6 +26,7 @@ import { UnitsService } from '../../../core/services/units.service';
 import { TranslationService } from '../../../services/translation.service';
 import { Product, Category } from '../../../models/product.model';
 import { PRODUCT } from '../../../core/constants/app.constants';
+import { FlyToCartService } from '../../../core/services/fly-to-cart.service';
 
 @Component({
   selector: 'app-product-detail',
@@ -59,6 +60,7 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   private unitsService = inject(UnitsService);
   private translationService = inject(TranslationService);
   public authService = inject(AuthService);
+  private flyToCartService = inject(FlyToCartService);
   
   // Signals
   product = signal<Product | null>(null);
@@ -186,12 +188,18 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   }
 
   // Add to cart method for main product
-  addToCart(): void {
+  addToCart(event?: MouseEvent): void {
     const currentProduct = this.product();
     if (!currentProduct || this.isOutOfStock()) return;
-    
+
+    // Trigger fly-to-cart animation
+    if (event) {
+      const button = event.currentTarget as HTMLElement;
+      this.flyToCartService.animate(button, currentProduct.image_url);
+    }
+
     const quantity = this.selectedQuantity();
-    
+
     this.cartService.addToCart(currentProduct, quantity).subscribe({
       next: () => {
         // this.messageService.add({
@@ -222,26 +230,21 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
     if (event) {
       event.preventDefault();
       event.stopPropagation();
+
+      // Trigger fly-to-cart animation
+      const button = event.currentTarget as HTMLElement;
+      this.flyToCartService.animate(button, product.image_url);
     }
-    
+
     if (product.stock_quantity === 0) {
       return;
     }
-    
+
     const quantity = this.productQuantities[product.id] || 1;
-    
+
     this.cartService.addToCart(product, quantity).subscribe({
       next: () => {
-        this.messageService.add({
-          severity: 'success',
-          summary: this.translateService.instant('products.cart.added_to_cart'),
-          detail: this.translateService.instant('products.cart.added_message', {
-            quantity: quantity,
-            unit: this.getUnitDisplay(product.unit),
-            name: product.name
-          }),
-          life: 3000
-        });
+        // Animation handles the visual feedback
       },
       error: (error) => {
         console.error('Error adding to cart:', error);

@@ -11,6 +11,7 @@ import { OverlayBadgeModule } from 'primeng/overlaybadge';
 import { Product } from '../../../../models/product.model';
 import { CurrencyService } from '../../../../core/services/currency.service';
 import { UnitsService } from '../../../../core/services/units.service';
+import { FlyToCartService } from '../../../../core/services/fly-to-cart.service';
 import { CartService } from '../../../../services/cart.service';
 import { ProductQuantitySelectorComponent } from '../../../../shared/components/product-quantity-selector/product-quantity-selector.component';
 
@@ -41,6 +42,7 @@ export class ProductCardComponent implements OnInit {
   private currencyService = inject(CurrencyService);
   private unitsService = inject(UnitsService);
   private cartService = inject(CartService);
+  private flyToCartService = inject(FlyToCartService);
 
   selectedQuantity = 1;
   
@@ -85,7 +87,11 @@ export class ProductCardComponent implements OnInit {
   
 
 
-  addToCart(): void {
+  addToCart(event: MouseEvent): void {
+    // Trigger fly-to-cart animation from the button
+    const button = event.currentTarget as HTMLElement;
+    this.flyToCartService.animate(button, this.product.image_url);
+
     this.addToCartEvent.emit({
       product: this.product,
       quantity: this.selectedQuantity

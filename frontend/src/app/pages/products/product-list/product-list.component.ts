@@ -18,6 +18,7 @@ import { ProductService } from '../../../services/product.service';
 import { TranslationService } from '../../../services/translation.service';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { UnitsService } from '../../../core/services/units.service';
+import { FlyToCartService } from '../../../core/services/fly-to-cart.service';
 import { Product, Category, ProductFilter } from '../../../models/product.model';
 import { LoadingStateComponent } from '../../../shared/components/loading-state/loading-state.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
@@ -60,6 +61,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
   private translationService = inject(TranslationService);
   protected currencyService = inject(CurrencyService);
   protected unitsService = inject(UnitsService);
+  private flyToCartService = inject(FlyToCartService);
 
   // State signals
   products = signal<Product[]>([]);
@@ -233,7 +235,13 @@ export class ProductListComponent implements OnInit, OnDestroy {
   }
 
 
-  quickAddToCart(product: Product): void {
+  quickAddToCart(product: Product, event?: MouseEvent): void {
+    // Trigger fly-to-cart animation
+    if (event) {
+      const button = event.currentTarget as HTMLElement;
+      this.flyToCartService.animate(button, product.image_url);
+    }
+
     const quantity = this.productQuantities[product.id] || 1;
     this.handleAddToCart(product, quantity);
   }
@@ -407,7 +415,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
   private handleAddToCart(product: Product, quantity: number): void {
     this.cartService.addToCart(product, quantity).subscribe({
       next: () => {
-        // Successfully added to cart - no toast notification
+        // Animation handles the visual feedback
       },
       error: (error: any) => {
         console.error('Error adding to cart:', error);
