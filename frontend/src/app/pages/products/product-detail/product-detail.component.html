@@ -1,20 +1,34 @@
-<!-- Product Detail Container -->
-<div class="h-full p-3 pb-5 overflow-hidden">
+<!-- Outer Container - Full height minus header -->
+<div class="outer-container">
   <p-toast></p-toast>
-  
-  <div class="surface-card p-2 border-round h-full overflow-auto">
-    <!-- Loading state -->
-    @if (loading()) {
-      <ng-container *ngTemplateOutlet="loadingTemplate"></ng-container>
-    } 
-    <!-- Error state -->
-    @else if (error()) {
-      <ng-container *ngTemplateOutlet="errorTemplate"></ng-container>
-    } 
-    <!-- Product Detail -->
-    @else if (product()) {
-      <ng-container *ngTemplateOutlet="productDetailTemplate"></ng-container>
-    }
+
+  <!-- Back Button -->
+  <div class="back-button-container surface-card px-3 py-2 border-bottom-1 surface-border">
+    <button
+      pButton
+      [label]="'actions.go_back' | translate"
+      icon="pi pi-arrow-left"
+      routerLink="/products"
+      class="p-button-text p-button-sm"
+    ></button>
+  </div>
+
+  <!-- Scrollable Product Content -->
+  <div class="product-content-container">
+    <div class="surface-card p-2 border-round">
+      <!-- Loading state -->
+      @if (loading()) {
+        <ng-container *ngTemplateOutlet="loadingTemplate"></ng-container>
+      }
+      <!-- Error state -->
+      @else if (error()) {
+        <ng-container *ngTemplateOutlet="errorTemplate"></ng-container>
+      }
+      <!-- Product Detail -->
+      @else if (product()) {
+        <ng-container *ngTemplateOutlet="productDetailTemplate"></ng-container>
+      }
+    </div>
   </div>
 </div>
 
@@ -50,17 +64,6 @@
 
 <!-- Product Detail Template -->
 <ng-template #productDetailTemplate>
-  <!-- Back Button -->
-  <div class="mb-3 md:mb-4">
-    <button 
-      pButton 
-      [label]="'actions.go_back' | translate" 
-      icon="pi pi-arrow-left" 
-      routerLink="/products"
-      class="p-button-text p-button-sm md:p-button-base"
-    ></button>
-  </div>
-
   <div class="grid">
     <!-- Product Image -->
     <div class="col-12 lg:col-6">
