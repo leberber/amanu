@@ -43,11 +43,11 @@
 <!-- Product Image Template -->
 <ng-template #productImage>
   <a [routerLink]="['/products', product.id]" class="block relative overflow-hidden">
-    <img 
+    <img
       [src]="product.image_url || 'assets/images/product-placeholder.jpg'"
       [alt]="product.name"
-      class="w-full md:hover:scale-105 md:transition-all md:transition-duration-300"
-      style="height: 220px; object-fit: cover;"
+      class="w-full md:hover:scale-105 md:transition-all md:transition-duration-300 p-2"
+      style="height: 220px; object-fit: contain;"
     >
     <!-- Overlay badges -->
     <div class="absolute top-0 left-0 w-full p-2 flex justify-content-between align-items-start">
