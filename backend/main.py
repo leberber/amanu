@@ -1,9 +1,11 @@
 from fastapi import FastAPI, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 import uvicorn
 from sqlmodel import Session
 import time
+import os
 
 from app.database import create_db_and_tables, engine
 from app.api.api_v1.api import api_router
@@ -44,6 +46,11 @@ async def add_process_time_header(request: Request, call_next):
 
 # Include API router
 app.include_router(api_router, prefix=settings.API_V1_STR)
+
+# Serve .well-known directory for Android App Links verification
+well_known_path = os.path.join(os.path.dirname(__file__), ".well-known")
+if os.path.exists(well_known_path):
+    app.mount("/.well-known", StaticFiles(directory=well_known_path), name="well-known")
 
 @app.on_event("startup")
 def on_startup():

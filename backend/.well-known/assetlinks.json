@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "org.elsuq.twa",
+        "sha256_cert_fingerprints": ["4F:48:6A:E0:3E:8B:BD:30:CB:23:BC:E0:0C:91:EB:30:CB:98:F9:FF:FF:FB:46:0E:B9:34:15:30:E0:C7:11:A3"]
+      }
+    }]
