@@ -11,4 +11,4 @@ echo "Setting up $EC2_IP..."
 scp -i "$SSH_KEY" ec2-setup.sh ec2-user@$EC2_IP:~/
 ssh -i "$SSH_KEY" ec2-user@$EC2_IP "chmod +x ec2-setup.sh && ./ec2-setup.sh"
 
-echo "✅ Done! Visit https://elsuq.org"
+echo "✅ Done! Visit https://elsuqhub.com"

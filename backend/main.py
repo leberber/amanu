@@ -27,7 +27,7 @@ app.add_middleware(
         allow_origins=[
         "http://localhost:4200",  # Angular dev server
         "http://192.168.8.143:4200",  # Mobile testing via local IP
-        "https://elsuq.com",  # Production
+        "https://elsuqhub.com",  # Production
     ],
 
     allow_credentials=True,

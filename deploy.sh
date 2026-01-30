@@ -6,7 +6,7 @@ set -e
 EC2_IP="35.181.57.216"
 SSH_KEY="/Users/yazidmekhtoub/.ssh/Elsuq-ssh-key.pem"
 EC2_USER="ec2-user"
-DOMAIN="elsuq.org"
+DOMAIN="elsuqhub.com"
 
 # Directories and files
 FRONTEND_DIR="frontend"

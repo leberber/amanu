@@ -30,9 +30,5 @@
         ]
       }
     ]
-  },
-  "hosted-zone:account=974445237958:domainName=elsuq.org:region=eu-west-3": {
-    "Id": "/hostedzone/Z040531834UZQRHG5PULE",
-    "Name": "elsuq.org."
   }
 }

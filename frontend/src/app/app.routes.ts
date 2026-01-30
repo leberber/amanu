@@ -92,11 +92,17 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/orders/order-list/order-list.component').then(m => m.OrderListComponent),
     canActivate: [authGuard]
   },
-  { 
-    path: 'orders/:id', 
+  {
+    path: 'orders/:id',
     loadComponent: () => import('./pages/orders/order-detail/order-detail.component').then(m => m.OrderDetailComponent),
     canActivate: [authGuard]
   },
-  
+
+  // Public Routes
+  {
+    path: 'privacy-policy',
+    loadComponent: () => import('./pages/privacy-policy/privacy-policy.component').then(m => m.PrivacyPolicyComponent)
+  },
+
   { path: '**', redirectTo: '' }
 ];
