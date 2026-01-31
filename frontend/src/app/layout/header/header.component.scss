@@ -4,6 +4,20 @@
   font-family: var(--font-family);
 }
 
+// Logo styling
+.logo {
+  height: 70px;
+  width: auto;
+  object-fit: contain;
+}
+
+// Mobile logo (smaller)
+@media screen and (max-width: 991px) {
+  .logo {
+    height: 60px;
+  }
+}
+
 ::ng-deep {
   // Avatar styling
   .user-avatar .p-avatar {
