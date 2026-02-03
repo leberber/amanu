@@ -2,7 +2,7 @@
   "name": "Elsuq - Fresh Produce Delivery",
   "short_name": "Elsuq",
   "description": "Order fresh fruits and vegetables online. Fast delivery of quality produce to your doorstep.",
-  "theme_color": "#1976d2",
+  "theme_color": "#ffffff",
   "background_color": "#fafafa",
   "display": "standalone",
   "orientation": "portrait",
