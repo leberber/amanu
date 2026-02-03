@@ -2,7 +2,7 @@
       "relation": ["delegate_permission/common.handle_all_urls"],
       "target": {
         "namespace": "android_app",
-        "package_name": "org.elsuq.twa",
-        "sha256_cert_fingerprints": ["4F:48:6A:E0:3E:8B:BD:30:CB:23:BC:E0:0C:91:EB:30:CB:98:F9:FF:FF:FB:46:0E:B9:34:15:30:E0:C7:11:A3"]
+        "package_name": "com.elsuqhub.app",
+        "sha256_cert_fingerprints": ["79:37:96:4E:53:42:24:B3:E6:D1:05:B6:0A:FB:FC:DF:25:20:B2:0E:5D:18:8B:B4:20:7C:F5:B1:6C:25:E3:83"]
       }
     }]
