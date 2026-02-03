@@ -94,9 +94,14 @@
 <ng-template #mobileActions>
   <div class="flex align-items-center gap-2">
     <a routerLink="/cart">
-      <p-overlayBadge [value]="cartCount() || null" severity="danger">
+      <ng-container *ngIf="cartCount(); else emptyCartMobile">
+        <p-overlayBadge [value]="cartCount()" severity="danger">
+          <i id="cart-icon-mobile" class="pi pi-shopping-cart"></i>
+        </p-overlayBadge>
+      </ng-container>
+      <ng-template #emptyCartMobile>
         <i id="cart-icon-mobile" class="pi pi-shopping-cart"></i>
-      </p-overlayBadge>
+      </ng-template>
     </a>
     
     <button 
