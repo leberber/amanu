@@ -85,6 +85,11 @@ export class ProductListComponent implements OnInit, OnDestroy {
   });
   productQuantities: { [key: number]: number } = {};
 
+  // Mobile category bar - compact on scroll down, full on scroll up
+  compactCategoryBar = false;
+  showMobileToolbar = signal(false);
+  private lastScrollY = 0;
+
   // Subscriptions
   private languageSubscription?: Subscription;
   private searchSubscription?: Subscription;
@@ -150,17 +155,48 @@ export class ProductListComponent implements OnInit, OnDestroy {
       this.loadProducts().subscribe();
     });
 
+    // Set up scroll listener for mobile header (opposite of bottom nav)
+    if (typeof window !== 'undefined') {
+      window.addEventListener('scroll', this.handleScroll, { passive: true });
+    }
+
     this.loadCategoriesAndProducts();
   }
 
   ngOnDestroy(): void {
     this.languageSubscription?.unsubscribe();
     this.searchSubscription?.unsubscribe();
+    if (typeof window !== 'undefined') {
+      window.removeEventListener('scroll', this.handleScroll);
+    }
   }
+
+  // Scroll handler for mobile header - compact categories on scroll down, full on scroll up
+  private handleScroll = (): void => {
+    const currentScrollY = window.scrollY;
+    const scrollDifference = currentScrollY - this.lastScrollY;
+
+    if (currentScrollY <= 50) {
+      // At the top - full size categories
+      this.compactCategoryBar = false;
+    } else if (scrollDifference > 0) {
+      // Scrolling down - compact categories to save space
+      this.compactCategoryBar = true;
+    } else if (scrollDifference < 0) {
+      // Scrolling up - expand categories
+      this.compactCategoryBar = false;
+    }
+
+    this.lastScrollY = currentScrollY;
+  };
 
   // Public methods for template
   onCategoriesChange(categories: Category[]): void {
     this.selectedCategories.set(categories);
+  }
+
+  toggleMobileToolbar(): void {
+    this.showMobileToolbar.update(v => !v);
   }
 
   // Category bar selection
@@ -296,11 +332,6 @@ export class ProductListComponent implements OnInit, OnDestroy {
   setProductQuantity(productId: number, quantity: number): void {
     this.productQuantities[productId] = quantity;
   }
-  
-  getAddToCartLabel(product: Product): string {
-    return 'Add to Cart';
-  }
-
 
   getLowStockMessage(product: Product): string {
     return this.translateService.instant('products.stock.low_stock', { count: product.stock_quantity });

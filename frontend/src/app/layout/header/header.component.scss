@@ -18,7 +18,8 @@
   }
 }
 
-::ng-deep {
+// PrimeNG component overrides
+:host ::ng-deep {
   // Avatar styling
   .user-avatar .p-avatar {
     background-color: var(--primary-color);
@@ -26,33 +27,55 @@
     font-weight: 600;
     font-size: 0.875rem;
   }
-  
-  // Ensure consistent fonts in menubar
+
+  // Menubar font consistency
   .p-menubar {
     font-family: var(--font-family);
-    
+
     .p-menuitem-text {
       font-family: var(--font-family);
       font-weight: normal;
     }
   }
-  
+
   // Menu styling
   .p-menu {
     font-family: var(--font-family);
-    
+
     .p-menuitem-text {
       font-family: var(--font-family);
       font-weight: normal;
     }
-    
+
     .selected-language {
       background-color: var(--primary-50);
-      
+
       .p-menuitem-link {
         color: var(--primary-color);
       }
     }
+  }
+
+  // Cart badge - matching bottom navigation style
+  .p-overlaybadge .p-badge {
+    background: red !important;
+    color: white !important;
+    border-radius: 50% !important;
+    width: 18px !important;
+    height: 18px !important;
+    min-width: 18px !important;
+    font-size: 10px !important;
+    top: 0px !important;
+    right: -4px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+  }
+
+  // Mobile menu button icon
+  .p-button.p-button-text.p-button-rounded .pi-bars {
+    font-size: 1.25rem;
   }
 }
 
@@ -71,16 +94,8 @@
   }
 }
 
-// Cart icon and badge styling
-:host ::ng-deep {
-  // Adjust overlay badge position
-  .p-overlaybadge {
-    .p-badge {
-      font-size: 0.65rem !important;
-      min-width: 1.1rem !important;
-      height: 1.1rem !important;
-      top: -0.25rem !important;
-      right: -0.25rem !important;
-    }
-  }
+// Mobile cart icon
+#cart-icon-mobile {
+  font-size: 1.25rem;
+  color: var(--text-color);
 }

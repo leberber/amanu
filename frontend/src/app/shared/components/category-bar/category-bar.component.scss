@@ -1,25 +1,45 @@
+// CSS Custom Properties for easy customization
 :host {
+  // Default sizes
+  --category-icon-size: 60px;
+  --category-icon-size-mobile: 50px;
+  --category-icon-size-compact: 32px;
+  --category-gap: 1rem;
+  --category-gap-mobile: 0.75rem;
+  --category-gap-compact: 0.2rem;
+  --category-padding: 0.75rem 1rem;
+  --category-padding-mobile: 0.5rem 0.75rem;
+  --category-padding-compact: 0.35rem 0.75rem;
+  --transition-duration: 0.3s;
+
   display: block;
-  background: var(--surface-card);
-  border-bottom: 1px solid var(--surface-border);
+  background: white;
 }
 
+:host-context(.my-app-dark) {
+  background: var(--surface-card);
+}
+
+// Main category bar container
 .category-bar {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: var(--category-gap);
   overflow-x: auto;
   overflow-y: hidden;
-  padding: 0.75rem 1rem;
+  padding: var(--category-padding);
+  padding-right: 4rem;
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
+  position: relative;
 
   &::-webkit-scrollbar {
     display: none;
   }
 }
 
+// Category item
 .category-item {
   display: flex;
   flex-direction: column;
@@ -28,6 +48,8 @@
   min-width: 70px;
   cursor: pointer;
   position: relative;
+  transition: gap var(--transition-duration) ease,
+              min-width var(--transition-duration) ease;
 
   &:hover .category-image {
     border-color: var(--primary-color);
@@ -50,14 +72,17 @@
   position: relative;
 }
 
+// Category image (circular icon)
 .category-image {
-  width: 60px;
-  height: 60px;
+  width: var(--category-icon-size);
+  height: var(--category-icon-size);
   border-radius: 50%;
   object-fit: cover;
   border: 2px solid var(--surface-border);
   background: var(--surface-ground);
-  transition: border-color 0.2s ease;
+  transition: width var(--transition-duration) ease,
+              height var(--transition-duration) ease,
+              border-color 0.2s ease;
 
   &.all-categories {
     display: flex;
@@ -69,6 +94,44 @@
   }
 }
 
+// Search toggle button
+.search-toggle-btn {
+  position: absolute;
+  right: 0.5rem;
+  top: 0.75rem;
+  width: var(--category-icon-size);
+  height: var(--category-icon-size);
+  border-radius: 50%;
+  background: var(--primary-100);
+  border: 2px solid var(--surface-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: width var(--transition-duration) ease,
+              height var(--transition-duration) ease,
+              top var(--transition-duration) ease,
+              right var(--transition-duration) ease,
+              border-color 0.2s ease;
+
+  i {
+    font-size: 1.5rem;
+    color: var(--primary-color);
+    transition: font-size var(--transition-duration) ease;
+  }
+
+  &:hover {
+    border-color: var(--primary-color);
+  }
+
+  &.active {
+    background: var(--primary-100);
+    border-color: var(--primary-color);
+    border-width: 3px;
+  }
+}
+
+// Category name label
 .category-name {
   font-size: 0.75rem;
   color: var(--text-color-secondary);
@@ -77,9 +140,10 @@
   max-width: 70px;
   overflow: hidden;
   text-overflow: ellipsis;
-  transition: color 0.2s ease;
+  transition: opacity var(--transition-duration) ease;
 }
 
+// Category count badge
 .category-count {
   position: absolute;
   top: -4px;
@@ -97,8 +161,13 @@
 // Mobile adjustments
 @media screen and (max-width: 768px) {
   .category-bar {
-    gap: 0.75rem;
-    padding: 0.5rem 0.75rem;
+    gap: var(--category-gap-mobile);
+    padding: var(--category-padding-mobile);
+    padding-right: 3.5rem;
+
+    &.compact {
+      column-gap: var(--category-gap-compact);
+    }
   }
 
   .category-item {
@@ -106,12 +175,74 @@
   }
 
   .category-image {
-    width: 50px;
-    height: 50px;
+    width: var(--category-icon-size-mobile);
+    height: var(--category-icon-size-mobile);
   }
 
   .category-name {
     font-size: 0.7rem;
     max-width: 60px;
+  }
+
+  .search-toggle-btn {
+    width: var(--category-icon-size-mobile);
+    height: var(--category-icon-size-mobile);
+    top: 0.5rem;
+    right: 0.5rem;
+
+    i {
+      font-size: 1.25rem;
+    }
+  }
+}
+
+// Compact mode
+.category-bar.compact {
+  padding: var(--category-padding-compact);
+  padding-right: 2.75rem;
+  column-gap: var(--category-gap-compact);
+
+  .category-item {
+    min-width: 0;
+    gap: 0;
+    margin: 0;
+    padding: 0;
+  }
+
+  .category-image {
+    width: var(--category-icon-size-compact);
+    height: var(--category-icon-size-compact);
+    border-width: 2px;
+
+    &.all-categories {
+      font-size: 0.875rem;
+    }
+  }
+
+  .category-name {
+    display: none;
+  }
+
+  .category-count {
+    top: -2px;
+    right: -2px;
+    font-size: 0.5rem;
+    padding: 1px 3px;
+    min-width: 12px;
+  }
+
+  .category-item.active .category-image {
+    border-width: 2px;
+  }
+
+  .search-toggle-btn {
+    width: var(--category-icon-size-compact);
+    height: var(--category-icon-size-compact);
+    top: 0.35rem;
+    right: 0.35rem;
+
+    i {
+      font-size: 0.875rem;
+    }
   }
 }

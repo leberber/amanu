@@ -1,4 +1,4 @@
-<div class="category-bar">
+<div class="category-bar" [class.compact]="compact">
   <!-- All Categories Option -->
   <div
     *ngIf="showAllOption"
@@ -27,5 +27,15 @@
       <span *ngIf="category.product_count" class="category-count">{{ category.product_count }}</span>
     </div>
     <span class="category-name">{{ category.name }}</span>
+  </div>
+
+  <!-- Search Toggle - Absolute right, styled like "All" icon -->
+  <div
+    *ngIf="showSearchIcon"
+    class="search-toggle-btn"
+    [class.active]="isSearchOpen"
+    (click)="toggleSearch()">
+    <i *ngIf="!isSearchOpen" class="pi pi-search"></i>
+    <i *ngIf="isSearchOpen" class="pi pi-times"></i>
   </div>
 </div>

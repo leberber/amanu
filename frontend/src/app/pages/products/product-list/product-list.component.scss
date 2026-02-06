@@ -1,7 +1,6 @@
 // Minimal component-specific styles only when necessary
 :host {
   display: block;
-  height: 100%;
 }
 
 // Clean link styles
@@ -17,3 +16,40 @@
   -webkit-box-orient: vertical;
 }
 
+// Mobile sticky header - always visible
+.mobile-sticky-header {
+  position: fixed;
+  top: var(--header-height, 60px);
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+:host-context(.my-app-dark) .mobile-sticky-header {
+  background: var(--surface-card);
+}
+
+// Mobile toolbar - hidden by default, slides down when visible
+.mobile-toolbar {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+
+  &.visible {
+    max-height: 100px;
+  }
+}
+
+// Spacer for fixed mobile header
+@media screen and (max-width: 1023px) {
+  .mobile-header-spacer {
+    height: 85px;
+    transition: height 0.3s ease;
+
+    &.toolbar-visible {
+      height: 140px;
+    }
+  }
+}

@@ -15,8 +15,19 @@ export class CategoryBarComponent {
   @Input() activeCategoryId: number | null = null;
   @Input() showAllOption = true;
   @Input() allLabel = 'products.filters.all';
+  @Input() compact = false;
+  @Input() showSearchIcon = false;
+
+  // Internal state for search toggle
+  isSearchOpen = false;
 
   @Output() categorySelected = new EventEmitter<number | null>();
+  @Output() searchToggle = new EventEmitter<void>();
+
+  toggleSearch(): void {
+    this.isSearchOpen = !this.isSearchOpen;
+    this.searchToggle.emit();
+  }
 
   selectCategory(categoryId: number | null): void {
     this.categorySelected.emit(categoryId);
