@@ -1,0 +1,31 @@
+<div class="category-bar">
+  <!-- All Categories Option -->
+  <div
+    *ngIf="showAllOption"
+    class="category-item"
+    [class.active]="isActive(null)"
+    (click)="selectCategory(null)">
+    <div class="category-image-wrapper">
+      <div class="category-image all-categories">
+        <i class="pi pi-th-large"></i>
+      </div>
+    </div>
+    <span class="category-name">{{ allLabel | translate }}</span>
+  </div>
+
+  <!-- Individual Categories -->
+  <div
+    *ngFor="let category of categories; trackBy: trackByCategory"
+    class="category-item"
+    [class.active]="isActive(category.id)"
+    (click)="selectCategory(category.id)">
+    <div class="category-image-wrapper">
+      <img
+        [src]="category.image_url || 'assets/images/category-placeholder.jpg'"
+        [alt]="category.name"
+        class="category-image">
+      <span *ngIf="category.product_count" class="category-count">{{ category.product_count }}</span>
+    </div>
+    <span class="category-name">{{ category.name }}</span>
+  </div>
+</div>

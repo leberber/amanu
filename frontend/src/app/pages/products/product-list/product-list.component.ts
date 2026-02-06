@@ -26,6 +26,7 @@ import { ProductCardComponent, AddToCartEvent } from '../components/product-card
 import { ProductFiltersComponent } from '../components/product-filters/product-filters.component';
 import { ProductToolbarComponent, SortOption, ViewMode } from '../components/product-toolbar/product-toolbar.component';
 import { ProductQuantitySelectorComponent } from '../../../shared/components/product-quantity-selector/product-quantity-selector.component';
+import { CategoryBarComponent } from '../../../shared/components/category-bar/category-bar.component';
 
 @Component({
   selector: 'app-product-list',
@@ -45,7 +46,8 @@ import { ProductQuantitySelectorComponent } from '../../../shared/components/pro
     ProductCardComponent,
     ProductFiltersComponent,
     ProductToolbarComponent,
-    ProductQuantitySelectorComponent
+    ProductQuantitySelectorComponent,
+    CategoryBarComponent
   ],
   providers: [MessageService],
   templateUrl: './product-list.component.html',
@@ -68,6 +70,8 @@ export class ProductListComponent implements OnInit, OnDestroy {
   categories = signal<Category[]>([]);
   selectedCategories = signal<Category[]>([]);
   appliedCategories = signal<Category[]>([]); // Actually applied filters
+  activeCategoryId = signal<number | null>(null); // For category bar - null means "All"
+  categoryBarExpanded = signal(true); // Category bar visibility
   loading = signal(true);
   showMobileFilters = signal(false);
   searchQuery = signal('');
@@ -157,6 +161,35 @@ export class ProductListComponent implements OnInit, OnDestroy {
   // Public methods for template
   onCategoriesChange(categories: Category[]): void {
     this.selectedCategories.set(categories);
+  }
+
+  // Category bar selection
+  selectCategoryFromBar(categoryId: number | null): void {
+    this.activeCategoryId.set(categoryId);
+
+    if (categoryId === null) {
+      // "All" selected - show all categories
+      this.selectedCategories.set([...this.categories()]);
+      this.appliedCategories.set([...this.categories()]);
+    } else {
+      // Single category selected
+      const category = this.categories().find(c => c.id === categoryId);
+      if (category) {
+        this.selectedCategories.set([category]);
+        this.appliedCategories.set([category]);
+      }
+    }
+
+    this.loading.set(true);
+    this.loadProducts().subscribe();
+  }
+
+  isCategoryActive(categoryId: number | null): boolean {
+    return this.activeCategoryId() === categoryId;
+  }
+
+  toggleCategoryBar(): void {
+    this.categoryBarExpanded.update(v => !v);
   }
 
   toggleMobileFilters(): void {

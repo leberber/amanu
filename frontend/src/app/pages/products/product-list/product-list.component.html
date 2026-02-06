@@ -37,9 +37,10 @@
   <aside class="w-22rem m-1 shadow-1 border-round px-2">
     <ng-container *ngTemplateOutlet="filtersSidebar"></ng-container>
   </aside>
-  
+
   <!-- Main Content -->
   <main class="flex-1 flex flex-column min-w-0">
+    <ng-container *ngTemplateOutlet="categoryBar"></ng-container>
     <ng-container *ngTemplateOutlet="toolbar"></ng-container>
     <ng-container *ngTemplateOutlet="productsArea"></ng-container>
   </main>
@@ -47,6 +48,7 @@
 
 <!-- Mobile Layout Template -->
 <ng-template #mobileLayout>
+  <ng-container *ngTemplateOutlet="categoryBar"></ng-container>
   <ng-container *ngTemplateOutlet="toolbar"></ng-container>
   <ng-container *ngTemplateOutlet="productsArea"></ng-container>
 </ng-template>
@@ -60,6 +62,15 @@
     (filtersApplied)="handleFiltersApplied()"
     class="h-full block">
   </app-product-filters>
+</ng-template>
+
+<!-- Category Bar Template -->
+<ng-template #categoryBar>
+  <app-category-bar
+    [categories]="categories()"
+    [activeCategoryId]="activeCategoryId()"
+    (categorySelected)="selectCategoryFromBar($event)">
+  </app-category-bar>
 </ng-template>
 
 <!-- Toolbar Template -->
@@ -79,7 +90,7 @@
 
 <!-- Products Area Template -->
 <ng-template #productsArea>
-  <div class="flex-1 overflow-y-auto  mobile-scroll-content">
+  <div class="flex-1 overflow-y-auto mobile-scroll-content">
     <ng-container *ngIf="loading(); else productsContent">
       <app-loading-state></app-loading-state>
     </ng-container>
