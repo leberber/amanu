@@ -98,13 +98,13 @@ import { MobileAdminMenuComponent } from '../mobile-admin-menu/mobile-admin-menu
     }
     
     .bottom-nav a.active {
-      color: var(--primary-color, #007bff);
-      font-weight: 600;
+      color: #1a1a1a;
+      font-weight: 700;
     }
-    
+
     .bottom-nav a.active i,
     .bottom-nav a.active span {
-      color: var(--primary-color, #007bff);
+      color: #1a1a1a;
     }
     
     .bottom-nav a.admin-link {
@@ -154,11 +154,13 @@ import { MobileAdminMenuComponent } from '../mobile-admin-menu/mobile-admin-menu
     }
     
     :host-context(.my-app-dark) .bottom-nav a.active {
-      color: #64b5f6;
+      color: #ffffff;
+      font-weight: 700;
     }
-    
-    :host-context(.my-app-dark) .bottom-nav a.active i {
-      color: #64b5f6;
+
+    :host-context(.my-app-dark) .bottom-nav a.active i,
+    :host-context(.my-app-dark) .bottom-nav a.active span {
+      color: #ffffff;
     }
   `]
 })
