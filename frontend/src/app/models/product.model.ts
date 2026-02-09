@@ -4,7 +4,7 @@ export interface Product {
     name: string;
     description?: string;
     price: number;
-    unit: 'kg' | 'gram' | 'piece' | 'bunch' | 'dozen' | 'pound';
+    unit: 'kg' | 'gram' | 'piece' | 'bunch' | 'dozen' | 'pound' | 'box';
     stock_quantity: number;
     image_url?: string;
     is_organic: boolean;

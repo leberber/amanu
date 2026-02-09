@@ -22,11 +22,11 @@ export const PRODUCT_CONSTANTS = {
 
 export const PRODUCT_UNITS = {
   KG: 'kg',
-  GRAM: 'gram', 
+  GRAM: 'gram',
   PIECE: 'piece',
   BUNCH: 'bunch',
   DOZEN: 'dozen',
-  POUND: 'pound'
+  BOX: 'box'
 } as const;
 
 export type ProductUnit = typeof PRODUCT_UNITS[keyof typeof PRODUCT_UNITS];

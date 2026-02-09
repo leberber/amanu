@@ -15,6 +15,7 @@ class ProductUnit(str, Enum):
     BUNCH = "bunch"
     DOZEN = "dozen"
     POUND = "pound"
+    BOX = "box"
 
 class ProductBase(SQLModel):
     """Base product model with common fields"""
