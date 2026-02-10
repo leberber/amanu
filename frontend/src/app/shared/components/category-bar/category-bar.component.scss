@@ -10,7 +10,7 @@
   --category-padding: 0.75rem 1rem;
   --category-padding-mobile: 0.5rem 0.75rem;
   --category-padding-compact: 0.35rem 0.75rem;
-  --transition-duration: 0.3s;
+  --transition-duration: 0.25s;
 
   display: block;
   background: white;
@@ -28,11 +28,13 @@
   overflow-x: auto;
   overflow-y: hidden;
   padding: var(--category-padding);
-  padding-right: 4rem;
+  padding-right: 0;
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
   position: relative;
+  transition: gap var(--transition-duration) ease-in-out,
+              padding var(--transition-duration) ease-in-out;
 
   &::-webkit-scrollbar {
     display: none;
@@ -48,8 +50,10 @@
   min-width: 70px;
   cursor: pointer;
   position: relative;
-  transition: gap var(--transition-duration) ease,
-              min-width var(--transition-duration) ease;
+  transition: gap var(--transition-duration) ease-in-out,
+              min-width var(--transition-duration) ease-in-out,
+              margin var(--transition-duration) ease-in-out,
+              padding var(--transition-duration) ease-in-out;
 
   &:hover .category-image {
     border-color: var(--primary-color);
@@ -80,9 +84,11 @@
   object-fit: cover;
   border: 2px solid var(--surface-border);
   background: var(--surface-ground);
-  transition: width var(--transition-duration) ease,
-              height var(--transition-duration) ease,
-              border-color 0.2s ease;
+  transition: width var(--transition-duration) ease-in-out,
+              height var(--transition-duration) ease-in-out,
+              border-width var(--transition-duration) ease-in-out,
+              border-color 0.2s ease-in-out,
+              font-size var(--transition-duration) ease-in-out;
 
   &.all-categories {
     display: flex;
@@ -96,28 +102,32 @@
 
 // Search toggle button
 .search-toggle-btn {
-  position: absolute;
-  right: 0.5rem;
-  top: 0.75rem;
+  position: sticky;
+  right: 10px !important;
+  margin-left: auto;
+  margin-right: 0.5rem;
+  align-self: flex-start;
   width: var(--category-icon-size);
   height: var(--category-icon-size);
+  min-width: var(--category-icon-size);
+  min-height: var(--category-icon-size);
   border-radius: 50%;
   background: var(--primary-100);
   border: 2px solid var(--surface-border);
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
   cursor: pointer;
-  transition: width var(--transition-duration) ease,
-              height var(--transition-duration) ease,
-              top var(--transition-duration) ease,
-              right var(--transition-duration) ease,
-              border-color 0.2s ease;
+  z-index: 10;
+  transition: width var(--transition-duration) ease-in-out,
+              height var(--transition-duration) ease-in-out,
+              border-color 0.2s ease-in-out;
 
   i {
     font-size: 1.5rem;
     color: var(--primary-color);
-    transition: font-size var(--transition-duration) ease;
+    transition: font-size var(--transition-duration) ease-in-out;
   }
 
   &:hover {
@@ -140,7 +150,9 @@
   max-width: 70px;
   overflow: hidden;
   text-overflow: ellipsis;
-  transition: opacity var(--transition-duration) ease;
+  transition: opacity var(--transition-duration) ease-in-out,
+              font-size var(--transition-duration) ease-in-out,
+              max-width var(--transition-duration) ease-in-out;
 }
 
 // Category count badge
@@ -156,6 +168,11 @@
   border-radius: 10px;
   min-width: 18px;
   text-align: center;
+  transition: top var(--transition-duration) ease-in-out,
+              right var(--transition-duration) ease-in-out,
+              font-size var(--transition-duration) ease-in-out,
+              padding var(--transition-duration) ease-in-out,
+              min-width var(--transition-duration) ease-in-out;
 }
 
 // Mobile adjustments
@@ -163,7 +180,7 @@
   .category-bar {
     gap: var(--category-gap-mobile);
     padding: var(--category-padding-mobile);
-    padding-right: 3.5rem;
+    padding-right: 0;
 
     &.compact {
       column-gap: var(--category-gap-compact);
@@ -187,8 +204,10 @@
   .search-toggle-btn {
     width: var(--category-icon-size-mobile);
     height: var(--category-icon-size-mobile);
-    top: 0.5rem;
-    right: 0.5rem;
+    min-width: var(--category-icon-size-mobile);
+    min-height: var(--category-icon-size-mobile);
+    right: 0;
+    margin-right: 0.25rem;
 
     i {
       font-size: 1.25rem;
@@ -199,7 +218,7 @@
 // Compact mode
 .category-bar.compact {
   padding: var(--category-padding-compact);
-  padding-right: 2.75rem;
+  padding-right: 0;
   column-gap: var(--category-gap-compact);
 
   .category-item {
@@ -238,8 +257,10 @@
   .search-toggle-btn {
     width: var(--category-icon-size-compact);
     height: var(--category-icon-size-compact);
-    top: 0.35rem;
-    right: 0.35rem;
+    min-width: var(--category-icon-size-compact);
+    min-height: var(--category-icon-size-compact);
+    right: 0;
+    margin-right: 0.25rem;
 
     i {
       font-size: 0.875rem;
