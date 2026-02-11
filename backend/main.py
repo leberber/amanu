@@ -20,16 +20,16 @@ app = FastAPI(
     openapi_url=f"{settings.API_V1_STR}/openapi.json",
 )
 
-# Configure CORS
+# Configure CORS - Allow all local IPs and production
 app.add_middleware(
     CORSMiddleware,
-    # allow_origins=settings.BACKEND_CORS_ORIGINS,
-        allow_origins=[
-        "http://localhost:4200",  # Angular dev server
-        "http://192.168.43.15:4200",  # Mobile testing via local IP
-        "https://elsuqhub.com",  # Production
+    allow_origins=[
+        "http://localhost:4200",
+        "http://localhost:8000",
+        "https://elsuqhub.com",
+        "https://www.elsuqhub.com",
     ],
-
+    allow_origin_regex=r"http://(192\.168\.\d{1,3}\.\d{1,3}|127\.0\.0\.1)(:\d+)?",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

@@ -1,7 +1,7 @@
 {
   "/api": {
-    "target": "https://Elsuq-5028o9mls-yazids-projects-3370118f.vercel.app",
-    "secure": true,
+    "target": "http://192.168.43.14:8000",
+    "secure": false,
     "changeOrigin": true,
     "logLevel": "debug"
   }
