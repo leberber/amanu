@@ -893,8 +893,8 @@
     "liter_short": "L",
     "ml": "Millilitre",
     "ml_short": "ml",
-    "box": "Boîte",
-    "box_short": "boîte",
+    "box": "Carton",
+    "box_short": "carton",
     "pack": "Paquet",
     "pack_short": "paq"
   }
