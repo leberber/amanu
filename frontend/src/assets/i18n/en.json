@@ -674,6 +674,7 @@
         "stock_min": "Stock quantity cannot be negative",
         "category": "Category",
         "category_required": "Category is required",
+        "brand": "Brand",
         "image_url": "Image URL",
         "image_placeholder": "Enter product image URL",
         "is_organic": "Organic Product",

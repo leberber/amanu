@@ -17,6 +17,8 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ProductService } from '../../../services/product.service';
 import { Product } from '../../../models/product.model';
 import { Category } from '../../../models/category.model';
+import { Brand } from '../../../models/brand.model';
+import { BrandService } from '../../../core/services/brand.service';
 import { VALIDATION, PRODUCT } from '../../../core/constants/app.constants';
 import { ROUTES } from '../../../core/constants/routes.constants';
 import { UnitsService } from '../../../core/services/units.service';
@@ -95,6 +97,7 @@ interface ProductWithTranslations extends Product {
 export class AdminAddProductComponent implements OnInit {
   loading = signal(false);
   categoriesLoading = signal(false);
+  brandsLoading = signal(false);
   productForm!: FormGroup;
 
   // Mode detection
@@ -104,6 +107,9 @@ export class AdminAddProductComponent implements OnInit {
 
   // Dynamic categories
   categoryOptions = signal<{ label: string; value: number }[]>([]);
+
+  // Dynamic brands
+  brandOptions = signal<{ label: string; value: number }[]>([]);
 
   // Quantity config
   quantityConfigType = signal<'none' | 'list' | 'range'>('none');
@@ -122,6 +128,7 @@ export class AdminAddProductComponent implements OnInit {
   private fb = inject(FormBuilder);
   private messageService = inject(MessageService);
   private productService = inject(ProductService);
+  private brandService = inject(BrandService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private translateService = inject(TranslateService);
@@ -140,6 +147,7 @@ export class AdminAddProductComponent implements OnInit {
       unit: ['', Validators.required],
       stock_quantity: [0, [Validators.required, Validators.min(PRODUCT.MIN_STOCK)]],
       category_id: [null, Validators.required],
+      brand_id: [null],
       image_url: [''],
       is_organic: [false],
       is_active: [true],
@@ -150,8 +158,9 @@ export class AdminAddProductComponent implements OnInit {
       range_step: [1],
       range_pills_input: ['']
     });
-    
+
     this.loadCategories();
+    this.loadBrands();
     this.detectMode();
   }
 
@@ -173,25 +182,51 @@ export class AdminAddProductComponent implements OnInit {
 
   loadCategories() {
     this.categoriesLoading.set(true);
-    
+
     this.productService.getCategories(true).subscribe({
       next: (categories: Category[]) => {
         const options = categories.map(category => ({
           label: category.name,
           value: category.id
         }));
-        
+
         this.categoryOptions.set(options);
         this.categoriesLoading.set(false);
       },
       error: (error) => {
         console.error('Error loading categories:', error);
         this.categoriesLoading.set(false);
-        
+
         this.messageService.add({
           severity: 'error',
           summary: this.translateService.instant('common.error'),
           detail: this.translateService.instant('products.filters.error')
+        });
+      }
+    });
+  }
+
+  loadBrands() {
+    this.brandsLoading.set(true);
+
+    this.brandService.getBrands(true).subscribe({
+      next: (brands: Brand[]) => {
+        const options = brands.map(brand => ({
+          label: brand.name,
+          value: brand.id
+        }));
+
+        this.brandOptions.set(options);
+        this.brandsLoading.set(false);
+      },
+      error: (error) => {
+        console.error('Error loading brands:', error);
+        this.brandsLoading.set(false);
+
+        this.messageService.add({
+          severity: 'error',
+          summary: this.translateService.instant('common.error'),
+          detail: this.translateService.instant('admin.brands.load_error')
         });
       }
     });
@@ -217,6 +252,7 @@ export class AdminAddProductComponent implements OnInit {
           unit: product.unit,
           stock_quantity: product.stock_quantity,
           category_id: product.category_id,
+          brand_id: product.brand_id || null,
           image_url: product.image_url || '',
           is_organic: product.is_organic,
           is_active: product.is_active
@@ -307,6 +343,7 @@ export class AdminAddProductComponent implements OnInit {
         unit: formValues.unit,
         stock_quantity: formValues.stock_quantity,
         category_id: formValues.category_id,
+        brand_id: formValues.brand_id || null,
         image_url: formValues.image_url || '',
         is_organic: formValues.is_organic,
         is_active: formValues.is_active,

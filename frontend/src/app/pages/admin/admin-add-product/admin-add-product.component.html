@@ -271,9 +271,9 @@
         </div>
       </div>
 
-      <!-- Category -->
+      <!-- Category & Brand -->
       <div class="grid">
-        <div class="col-12 md:col-6">
+        <div class="col-12 md:col-4">
           <div class="field">
             <label class="font-semibold text-900 block mb-2">
               {{ 'admin.products.form.category' | translate }} *
@@ -288,8 +288,8 @@
               [loading]="categoriesLoading()"
               [class.ng-invalid]="productForm.get('category_id')?.invalid && productForm.get('category_id')?.touched"
             />
-            <small 
-              *ngIf="productForm.get('category_id')?.invalid && productForm.get('category_id')?.touched" 
+            <small
+              *ngIf="productForm.get('category_id')?.invalid && productForm.get('category_id')?.touched"
               class="p-error block mt-1"
             >
               {{ 'admin.products.form.category_required' | translate }}
@@ -297,14 +297,33 @@
           </div>
         </div>
 
+        <!-- Brand -->
+        <div class="col-12 md:col-4">
+          <div class="field">
+            <label class="font-semibold text-900 block mb-2">
+              {{ 'admin.products.form.brand' | translate }}
+            </label>
+            <p-select
+              formControlName="brand_id"
+              [options]="brandOptions()"
+              optionLabel="label"
+              optionValue="value"
+              [placeholder]="'admin.products.form.brand' | translate"
+              styleClass="w-full"
+              [loading]="brandsLoading()"
+              [showClear]="true"
+            />
+          </div>
+        </div>
+
         <!-- Image URL -->
-        <div class="col-12 md:col-6">
+        <div class="col-12 md:col-4">
           <div class="field">
             <label class="font-semibold text-900 block mb-2">
               {{ 'admin.products.form.image_url' | translate }}
             </label>
-            <input 
-              pInputText 
+            <input
+              pInputText
               formControlName="image_url"
               [placeholder]="'admin.products.form.image_placeholder' | translate"
               class="w-full"

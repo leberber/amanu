@@ -671,6 +671,7 @@
         "stock_min": "La quantité en stock ne peut pas être négative",
         "category": "Catégorie",
         "category_required": "La catégorie est requise",
+        "brand": "Marque",
         "image_url": "URL de l'Image",
         "image_placeholder": "Entrez l'URL de l'image du produit",
         "is_organic": "Produit Bio",

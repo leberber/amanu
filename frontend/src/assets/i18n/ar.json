@@ -672,6 +672,7 @@
         "stock_min": "كمية المخزون لا يمكن أن تكون سالبة",
         "category": "الفئة",
         "category_required": "الفئة مطلوبة",
+        "brand": "العلامة التجارية",
         "image_url": "رابط الصورة",
         "image_placeholder": "أدخل رابط صورة المنتج",
         "is_organic": "منتج عضوي",
