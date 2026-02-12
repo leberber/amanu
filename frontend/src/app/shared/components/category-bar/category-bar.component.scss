@@ -5,7 +5,7 @@
   --category-icon-size-mobile: 50px;
   --category-icon-size-compact: 32px;
   --category-gap: 1rem;
-  --category-gap-mobile: 0.75rem;
+  --category-gap-mobile: 1.25rem;
   --category-gap-compact: 0.2rem;
   --category-padding: 0.75rem 1rem;
   --category-padding-mobile: 0.5rem 0.75rem;
@@ -82,13 +82,13 @@
   height: var(--category-icon-size);
   border-radius: 50%;
   object-fit: cover;
-  border: 1px solid rgba(0, 0, 0, 0.15);
+  border: none;
   background: var(--surface-ground);
+  transform: scale(1.7);
   transition: width var(--transition-duration) ease-in-out,
               height var(--transition-duration) ease-in-out,
-              border-width var(--transition-duration) ease-in-out,
-              border-color var(--transition-duration) ease-in-out,
-              font-size var(--transition-duration) ease-in-out;
+              font-size var(--transition-duration) ease-in-out,
+              transform var(--transition-duration) ease-in-out;
 
   &.all-categories {
     display: flex;
@@ -150,6 +150,8 @@
   max-width: 70px;
   word-wrap: break-word;
   line-height: 1.1;
+  position: relative;
+  z-index: 10;
   transition: opacity var(--transition-duration) ease-in-out,
               font-size var(--transition-duration) ease-in-out,
               max-width var(--transition-duration) ease-in-out;
@@ -197,7 +199,7 @@
   }
 
   .category-name {
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     max-width: 60px;
   }
 
