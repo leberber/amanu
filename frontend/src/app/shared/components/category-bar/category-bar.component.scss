@@ -41,6 +41,16 @@
   }
 }
 
+// Sliding indicator
+.category-indicator {
+  position: absolute;
+  bottom: 0;
+  height: 3px;
+  background: black;
+  transition: left 0.3s ease, width 0.3s ease;
+  z-index: 1;
+}
+
 // Category item
 .category-item {
   display: flex;
@@ -60,11 +70,6 @@
   }
 
   &.active {
-    .category-image {
-      border-color: var(--primary-color);
-      border-width: 1.5px;
-    }
-
     .category-name {
       color: var(--primary-color);
       font-weight: 600;
@@ -85,10 +90,7 @@
   border: none;
   background: var(--surface-ground);
   transform: scale(1.7);
-  transition: width var(--transition-duration) ease-in-out,
-              height var(--transition-duration) ease-in-out,
-              font-size var(--transition-duration) ease-in-out,
-              transform var(--transition-duration) ease-in-out;
+  transition: none;
 
   &.all-categories {
     display: flex;

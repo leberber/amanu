@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ViewChildren, QueryList, ElementRef, AfterViewInit, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { Category } from '../../../models/product.model';
@@ -10,7 +10,7 @@ import { Category } from '../../../models/product.model';
   templateUrl: './category-bar.component.html',
   styleUrls: ['./category-bar.component.scss']
 })
-export class CategoryBarComponent {
+export class CategoryBarComponent implements AfterViewInit, OnChanges {
   @Input() categories: Category[] = [];
   @Input() activeCategoryId: number | null = null;
   @Input() showAllOption = true;
@@ -18,11 +18,47 @@ export class CategoryBarComponent {
   @Input() compact = false;
   @Input() showSearchIcon = false;
 
+  @ViewChildren('categoryItem') categoryItems!: QueryList<ElementRef>;
+
   // Internal state for search toggle
   isSearchOpen = false;
 
+  // Indicator position
+  indicatorLeft = 0;
+  indicatorWidth = 0;
+
   @Output() categorySelected = new EventEmitter<number | null>();
   @Output() searchToggle = new EventEmitter<void>();
+
+  ngAfterViewInit(): void {
+    setTimeout(() => this.updateIndicator(), 0);
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['activeCategoryId']) {
+      setTimeout(() => this.updateIndicator(), 0);
+    }
+  }
+
+  updateIndicator(): void {
+    const items = this.categoryItems?.toArray() || [];
+    const activeIndex = this.getActiveIndex();
+
+    if (activeIndex >= 0 && activeIndex < items.length) {
+      const activeElement = items[activeIndex].nativeElement;
+      this.indicatorLeft = activeElement.offsetLeft;
+      this.indicatorWidth = activeElement.offsetWidth;
+    }
+  }
+
+  getActiveIndex(): number {
+    if (this.activeCategoryId === null) {
+      return this.showAllOption ? 0 : -1;
+    }
+
+    const index = this.categories.findIndex(cat => cat.id === this.activeCategoryId);
+    return this.showAllOption ? index + 1 : index;
+  }
 
   toggleSearch(): void {
     this.isSearchOpen = !this.isSearchOpen;

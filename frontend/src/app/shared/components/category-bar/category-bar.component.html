@@ -1,6 +1,7 @@
 <div class="category-bar" [class.compact]="compact">
   <!-- All Categories Option -->
   <div
+    #categoryItem
     *ngIf="showAllOption"
     class="category-item"
     [class.active]="isActive(null)"
@@ -15,6 +16,7 @@
 
   <!-- Individual Categories -->
   <div
+    #categoryItem
     *ngFor="let category of categories; trackBy: trackByCategory"
     class="category-item"
     [class.active]="isActive(category.id)"
@@ -27,6 +29,13 @@
       <span *ngIf="category.product_count" class="category-count">{{ category.product_count }}</span>
     </div>
     <span class="category-name">{{ category.name }}</span>
+  </div>
+
+  <!-- Sliding Indicator -->
+  <div
+    class="category-indicator"
+    [style.left.px]="indicatorLeft"
+    [style.width.px]="indicatorWidth">
   </div>
 
   <!-- Search Toggle - Absolute right, styled like "All" icon -->
