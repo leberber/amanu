@@ -1,0 +1,57 @@
+<div class="filter-bar" [class.compact]="compact" [attr.data-filter-type]="filterType">
+  <!-- All Option -->
+  <div
+    #filterItem
+    *ngIf="showAllOption"
+    class="filter-item"
+    [class.active]="isActive(null)"
+    (click)="selectItem(null)">
+    <div class="item-image-wrapper">
+      <div class="item-image all-option">
+        <i [class]="getIconClass()"></i>
+      </div>
+    </div>
+    <span class="item-name" *ngIf="showItemName()">{{ allLabel | translate }}</span>
+  </div>
+
+  <!-- Individual Items -->
+  <div
+    #filterItem
+    *ngFor="let item of items; trackBy: trackByItem"
+    class="filter-item"
+    [class.active]="isActive(item.id)"
+    (click)="selectItem(item.id)">
+    <div class="item-image-wrapper">
+      <img
+        *ngIf="getItemImage(item)"
+        [src]="getItemImage(item)"
+        [alt]="item.name"
+        class="item-image"
+        [style.transform]="'scale(' + getScale() + ')'">
+      <div
+        *ngIf="!getItemImage(item)"
+        class="item-image placeholder">
+        <i [class]="getIconClass()"></i>
+      </div>
+      <span *ngIf="item.product_count && filterType === 'categories'" class="item-count">{{ item.product_count }}</span>
+    </div>
+    <span class="item-name" *ngIf="showItemName()">{{ item.name }}</span>
+  </div>
+
+  <!-- Sliding Indicator -->
+  <div
+    class="filter-indicator"
+    [style.left.px]="indicatorLeft"
+    [style.width.px]="indicatorWidth">
+  </div>
+
+  <!-- Search Toggle Button -->
+  <div
+    *ngIf="showSearchIcon"
+    class="search-toggle-btn"
+    [class.active]="isSearchOpen"
+    (click)="toggleSearch()">
+    <i *ngIf="!isSearchOpen" class="pi pi-search"></i>
+    <i *ngIf="isSearchOpen" class="pi pi-times"></i>
+  </div>
+</div>

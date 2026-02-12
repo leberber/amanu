@@ -20,15 +20,16 @@ import { TranslationService } from '../../../services/translation.service';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { UnitsService } from '../../../core/services/units.service';
 import { FlyToCartService } from '../../../core/services/fly-to-cart.service';
+import { BrandService } from '../../../core/services/brand.service';
 import { Product, Category, ProductFilter } from '../../../models/product.model';
+import { Brand } from '../../../models/brand.model';
 import { LoadingStateComponent } from '../../../shared/components/loading-state/loading-state.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { ProductCardComponent, AddToCartEvent } from '../components/product-card/product-card.component';
 import { ProductFiltersComponent } from '../components/product-filters/product-filters.component';
 import { ProductToolbarComponent, SortOption, ViewMode } from '../components/product-toolbar/product-toolbar.component';
 import { ProductQuantitySelectorComponent } from '../../../shared/components/product-quantity-selector/product-quantity-selector.component';
-import { CategoryBarComponent } from '../../../shared/components/category-bar/category-bar.component';
-import { BrandFilterComponent } from '../../../shared/components/brand-filter/brand-filter.component';
+import { HorizontalFilterComponent } from '../../../shared/components/horizontal-filter/horizontal-filter.component';
 
 @Component({
   selector: 'app-product-list',
@@ -50,8 +51,7 @@ import { BrandFilterComponent } from '../../../shared/components/brand-filter/br
     ProductFiltersComponent,
     ProductToolbarComponent,
     ProductQuantitySelectorComponent,
-    CategoryBarComponent,
-    BrandFilterComponent
+    HorizontalFilterComponent
   ],
   providers: [MessageService],
   templateUrl: './product-list.component.html',
@@ -61,6 +61,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
   // Services
   private route = inject(ActivatedRoute);
   private productService = inject(ProductService);
+  private brandService = inject(BrandService);
   private cartService = inject(CartService);
   private messageService = inject(MessageService);
   private translateService = inject(TranslateService);
@@ -72,6 +73,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
   // State signals
   products = signal<Product[]>([]);
   categories = signal<Category[]>([]);
+  brands = signal<Brand[]>([]);
   selectedCategories = signal<Category[]>([]);
   appliedCategories = signal<Category[]>([]); // Actually applied filters
   activeCategoryId = signal<number | null>(null); // For category bar - null means "All"
@@ -148,6 +150,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
     // Subscribe to language changes
     this.languageSubscription = this.translationService.currentLanguage$.subscribe(() => {
       this.loadCategoriesAndProducts();
+      this.loadBrands();
     });
 
     // Set up search debounce
@@ -545,6 +548,23 @@ export class ProductListComponent implements OnInit, OnDestroy {
           category.product_count = allProducts.filter(p => p.category_id === category.id).length;
         });
         this.categories.set([...categories]);
+      }
+    });
+  }
+
+  // Load brands
+  private loadBrands(): void {
+    this.brandService.getBrands(true).subscribe({
+      next: (brands) => {
+        this.brands.set(brands);
+      },
+      error: (error) => {
+        console.error('Error loading brands:', error);
+        this.messageService.add({
+          severity: 'error',
+          summary: this.translateService.instant('common.error'),
+          detail: this.translateService.instant('brands.error_loading')
+        });
       }
     });
   }

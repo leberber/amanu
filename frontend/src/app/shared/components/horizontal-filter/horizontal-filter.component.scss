@@ -1,0 +1,270 @@
+// CSS Custom Properties
+:host {
+  --item-icon-size: 60px;
+  --item-icon-size-mobile: 50px;
+  --item-icon-size-compact: 32px;
+  --item-gap: 1rem;
+  --item-gap-mobile: 1.25rem;
+  --item-gap-compact: 0.2rem;
+  --item-padding: 0.75rem 1rem;
+  --item-padding-mobile: 0.5rem 0.75rem;
+  --item-padding-compact: 0.35rem 0.75rem;
+  --transition-duration: 0.25s;
+
+  display: block;
+  background: white;
+}
+
+:host-context(.my-app-dark) {
+  background: var(--surface-card);
+}
+
+// Main filter bar container
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--item-gap);
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: var(--item-padding);
+  padding-right: 0;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  position: relative;
+  transition: gap var(--transition-duration) ease-in-out,
+              padding var(--transition-duration) ease-in-out;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+// Sliding indicator
+.filter-indicator {
+  position: absolute;
+  bottom: 0;
+  height: 3px;
+  background: black;
+  transition: left 0.3s ease, width 0.3s ease;
+  z-index: 1;
+}
+
+// Filter item
+.filter-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  min-width: 70px;
+  cursor: pointer;
+  position: relative;
+  transition: gap var(--transition-duration) ease-in-out,
+              min-width var(--transition-duration) ease-in-out;
+
+  &:hover .item-image {
+    border-color: var(--primary-color);
+  }
+
+  &.active {
+    .item-name {
+      color: var(--primary-color);
+      font-weight: 600;
+    }
+  }
+}
+
+.item-image-wrapper {
+  position: relative;
+}
+
+// Item image (circular icon)
+.item-image {
+  width: var(--item-icon-size);
+  height: var(--item-icon-size);
+  border-radius: 50%;
+  object-fit: cover;
+  border: none;
+  background: var(--surface-ground);
+  transition: none;
+
+  &.all-option,
+  &.placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--primary-100);
+    color: var(--primary-color);
+    font-size: 1.5rem;
+  }
+}
+
+// Item name label (hidden for categories, shown for brands)
+.item-name {
+  font-size: 0.75rem;
+  color: var(--text-color-secondary);
+  text-align: center;
+  white-space: normal;
+  max-width: 70px;
+  word-wrap: break-word;
+  line-height: 1.1;
+  position: relative;
+  z-index: 10;
+  transition: opacity var(--transition-duration) ease-in-out;
+}
+
+// Hide item names for categories (handled by filterType in component)
+.filter-bar[data-filter-type="categories"] .item-name {
+  display: none;
+}
+
+// Item count badge (only for categories)
+.item-count {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: var(--primary-color);
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 10px;
+  min-width: 18px;
+  text-align: center;
+  transition: top var(--transition-duration) ease-in-out,
+              right var(--transition-duration) ease-in-out,
+              font-size var(--transition-duration) ease-in-out;
+}
+
+// Search toggle button
+.search-toggle-btn {
+  position: sticky;
+  right: 10px !important;
+  margin-left: auto;
+  margin-right: 0.5rem;
+  align-self: flex-start;
+  width: var(--item-icon-size);
+  height: var(--item-icon-size);
+  min-width: var(--item-icon-size);
+  min-height: var(--item-icon-size);
+  border-radius: 50%;
+  background: var(--primary-100);
+  border: 2px solid var(--surface-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  cursor: pointer;
+  z-index: 10;
+  transition: width var(--transition-duration) ease-in-out,
+              height var(--transition-duration) ease-in-out,
+              border-color 0.2s ease-in-out;
+
+  i {
+    font-size: 1.5rem;
+    color: var(--primary-color);
+    transition: font-size var(--transition-duration) ease-in-out;
+  }
+
+  &:hover {
+    border-color: var(--primary-color);
+  }
+
+  &.active {
+    background: var(--primary-100);
+    border-color: var(--primary-color);
+    border-width: 3px;
+  }
+}
+
+// Mobile adjustments
+@media screen and (max-width: 768px) {
+  .filter-bar {
+    gap: var(--item-gap-mobile);
+    padding: var(--item-padding-mobile);
+    padding-right: 0;
+
+    &.compact {
+      column-gap: var(--item-gap-compact);
+    }
+  }
+
+  .filter-item {
+    min-width: 60px;
+  }
+
+  .item-image {
+    width: var(--item-icon-size-mobile);
+    height: var(--item-icon-size-mobile);
+  }
+
+  .item-name {
+    font-size: 0.65rem;
+    max-width: 60px;
+  }
+
+  .search-toggle-btn {
+    width: var(--item-icon-size-mobile);
+    height: var(--item-icon-size-mobile);
+    min-width: var(--item-icon-size-mobile);
+    min-height: var(--item-icon-size-mobile);
+    right: 0;
+    margin-right: 0.25rem;
+
+    i {
+      font-size: 1.25rem;
+    }
+  }
+}
+
+// Compact mode
+.filter-bar.compact {
+  padding: var(--item-padding-compact);
+  padding-right: 0;
+  column-gap: var(--item-gap-compact);
+
+  .filter-item {
+    min-width: 0;
+    gap: 0;
+  }
+
+  .item-image {
+    width: var(--item-icon-size-compact);
+    height: var(--item-icon-size-compact);
+    border-width: 1px;
+
+    &.all-option,
+    &.placeholder {
+      font-size: 0.875rem;
+    }
+  }
+
+  .item-name {
+    display: none;
+  }
+
+  .item-count {
+    top: -2px;
+    right: -2px;
+    font-size: 0.5rem;
+    padding: 1px 3px;
+    min-width: 12px;
+  }
+
+  .filter-item.active .item-image {
+    border-width: 3px;
+  }
+
+  .search-toggle-btn {
+    width: var(--item-icon-size-compact);
+    height: var(--item-icon-size-compact);
+    min-width: var(--item-icon-size-compact);
+    min-height: var(--item-icon-size-compact);
+    right: 0;
+    margin-right: 0.25rem;
+
+    i {
+      font-size: 0.875rem;
+    }
+  }
+}

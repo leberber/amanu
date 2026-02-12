@@ -71,23 +71,15 @@
 
 <!-- Unified Filter Bar Template (Categories or Brands) -->
 <ng-template #filterBar>
-  <app-category-bar
-    *ngIf="filterMode() === 'categories'"
-    [categories]="categories()"
-    [activeCategoryId]="activeCategoryId()"
+  <app-horizontal-filter
+    [items]="filterMode() === 'categories' ? categories() : brands()"
+    [activeItemId]="filterMode() === 'categories' ? activeCategoryId() : activeBrandId()"
+    [filterType]="filterMode()"
     [showAllOption]="false"
     [showSearchIcon]="true"
-    (categorySelected)="selectCategoryFromBar($event)"
+    (itemSelected)="filterMode() === 'categories' ? selectCategoryFromBar($event) : selectBrand($event)"
     (searchToggle)="toggleMobileToolbar()">
-  </app-category-bar>
-  <app-brand-filter
-    *ngIf="filterMode() === 'brands'"
-    [activeBrandId]="activeBrandId()"
-    [showAllOption]="false"
-    [showSearchIcon]="true"
-    (brandSelected)="selectBrand($event)"
-    (searchToggle)="toggleMobileToolbar()">
-  </app-brand-filter>
+  </app-horizontal-filter>
 </ng-template>
 
 <!-- Toolbar Template -->
