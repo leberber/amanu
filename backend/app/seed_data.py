@@ -3,6 +3,7 @@ import logging
 from sqlmodel import Session, select
 from app.database import engine
 from app.models.category import Category
+from app.models.brand import Brand
 from app.models.product import Product, ProductUnit
 
 logging.basicConfig(level=logging.INFO)
@@ -53,6 +54,66 @@ CATEGORIES = [
             "en": "Certified organic fruits and vegetables",
             "fr": "Fruits et légumes bio certifiés",
             "ar": "فواكه وخضروات عضوية معتمدة"
+        }
+    }
+]
+
+# Brand data with translations
+BRANDS = [
+    {
+        "name": "Cevital",
+        "description": "Leading Algerian agro-food company",
+        "name_translations": {
+            "en": "Cevital",
+            "fr": "Cevital",
+            "ar": "سيفيتال"
+        },
+        "description_translations": {
+            "en": "Leading Algerian agro-food company",
+            "fr": "Entreprise agroalimentaire algérienne leader",
+            "ar": "شركة جزائرية رائدة في الصناعات الغذائية"
+        }
+    },
+    {
+        "name": "Izdihar",
+        "description": "Quality food products brand",
+        "name_translations": {
+            "en": "Izdihar",
+            "fr": "Izdihar",
+            "ar": "ازدهار"
+        },
+        "description_translations": {
+            "en": "Quality food products brand",
+            "fr": "Marque de produits alimentaires de qualité",
+            "ar": "علامة تجارية لمنتجات غذائية عالية الجودة"
+        }
+    },
+    {
+        "name": "La Belle",
+        "description": "Premium food products",
+        "name_translations": {
+            "en": "La Belle",
+            "fr": "La Belle",
+            "ar": "لابيل"
+        },
+        "description_translations": {
+            "en": "Premium food products",
+            "fr": "Produits alimentaires haut de gamme",
+            "ar": "منتجات غذائية فاخرة"
+        }
+    },
+    {
+        "name": "Sim",
+        "description": "Trusted food brand",
+        "name_translations": {
+            "en": "Sim",
+            "fr": "Sim",
+            "ar": "سيم"
+        },
+        "description_translations": {
+            "en": "Trusted food brand",
+            "fr": "Marque alimentaire de confiance",
+            "ar": "علامة تجارية غذائية موثوقة"
         }
     }
 ]
@@ -766,7 +827,22 @@ def seed_data():
         
         # Commit categories first to ensure they exist before adding products
         session.commit()
-        
+
+        # Seed brands
+        for brand_data in BRANDS:
+            # Check if brand already exists
+            brand = session.exec(
+                select(Brand).where(Brand.name == brand_data["name"])
+            ).first()
+
+            if not brand:
+                brand = Brand(**brand_data)
+                session.add(brand)
+                logger.info(f"Added brand: {brand_data['name']}")
+
+        # Commit brands before adding products
+        session.commit()
+
         # Seed products
         for product_data in PRODUCTS:
             # Get category ID

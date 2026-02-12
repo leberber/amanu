@@ -43,6 +43,7 @@ def read_products(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=1000),
     category_id: Optional[int] = None,
+    brand_id: Optional[int] = None,
     is_organic: Optional[bool] = None,
     active_only: bool = Query(True),
     search: Optional[str] = None,
@@ -57,10 +58,13 @@ def read_products(
     Retrieve products with various filters and translation support.
     """
     query = select(Product)
-    
+
     # Apply filters
     if category_id:
         query = query.where(Product.category_id == category_id)
+
+    if brand_id:
+        query = query.where(Product.brand_id == brand_id)
     
     if is_organic is not None:
         query = query.where(Product.is_organic == is_organic)

@@ -5,6 +5,7 @@ from enum import Enum
 
 if TYPE_CHECKING:
     from app.models.category import Category
+    from app.models.brand import Brand
     from app.models.order import OrderItem
 
 class ProductUnit(str, Enum):
@@ -39,7 +40,8 @@ class ProductBase(SQLModel):
     is_organic: bool = Field(default=False)
     is_active: bool = Field(default=True)
     category_id: int = Field(foreign_key="categories.id")
-    
+    brand_id: Optional[int] = Field(default=None, foreign_key="brands.id")
+
     # Quantity configuration - stores how the product can be ordered
     quantity_config: Optional[Dict[str, Any]] = Field(
         default=None,
@@ -56,6 +58,7 @@ class Product(ProductBase, table=True):
     
     # Relationships
     category: "Category" = Relationship(back_populates="products")
+    brand: Optional["Brand"] = Relationship(back_populates="products")
     order_items: List["OrderItem"] = Relationship(back_populates="product")
     
     def get_translated_name(self, language: str = "en") -> str:
@@ -87,6 +90,7 @@ class ProductUpdate(SQLModel):
     is_organic: Optional[bool] = Field(default=None)
     is_active: Optional[bool] = Field(default=None)
     category_id: Optional[int] = Field(default=None)
+    brand_id: Optional[int] = Field(default=None)
     quantity_config: Optional[Dict[str, Any]] = Field(default=None)
 
 class ProductRead(ProductBase):

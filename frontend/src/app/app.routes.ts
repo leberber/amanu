@@ -13,6 +13,8 @@ import { AdminProductsComponent } from './pages/admin/admin-products/admin-produ
 import { AdminAddProductComponent } from './pages/admin/admin-add-product/admin-add-product.component';
 import { AdminAddCategoryComponent } from './pages/admin/admin-add-category/admin-add-category.component';
 import { AdminCategoriesComponent } from './pages/admin/admin-categories/admin-categories.component';
+import { AdminBrandsComponent } from './pages/admin/admin-brands/admin-brands.component';
+import { AdminAddBrandComponent } from './pages/admin/admin-add-brand/admin-add-brand.component';
 
 export const routes: Routes = [
   { path: '', component: ProductListComponent, canActivate: [authGuard] },
@@ -59,13 +61,31 @@ export const routes: Routes = [
     canActivate: [adminGuard],
     data: { mode: 'add' }
   },
-  { 
-    path: 'admin/categories/edit/:id', 
+  {
+    path: 'admin/categories/edit/:id',
     component: AdminAddCategoryComponent,
     canActivate: [adminGuard],
     data: { mode: 'edit' }
   },
-  { 
+  // Brands Routes
+  {
+    path: 'admin/brands',
+    component: AdminBrandsComponent,
+    canActivate: [adminGuard]
+  },
+  {
+    path: 'admin/brands/add',
+    component: AdminAddBrandComponent,
+    canActivate: [adminGuard],
+    data: { mode: 'add' }
+  },
+  {
+    path: 'admin/brands/edit/:id',
+    component: AdminAddBrandComponent,
+    canActivate: [adminGuard],
+    data: { mode: 'edit' }
+  },
+  {
     path: 'admin/orders', 
     loadComponent: () => import('./pages/admin/admin-orders/admin-orders.component').then(m => m.AdminOrdersComponent),
     canActivate: [adminGuard]

@@ -39,6 +39,7 @@
   <!-- Main Content -->
   <main class="flex-1 flex flex-column min-w-0">
     <ng-container *ngTemplateOutlet="categoryBar"></ng-container>
+    <ng-container *ngTemplateOutlet="brandFilter"></ng-container>
     <ng-container *ngTemplateOutlet="toolbar"></ng-container>
     <ng-container *ngTemplateOutlet="productsArea"></ng-container>
   </main>
@@ -56,6 +57,10 @@
       (categorySelected)="selectCategoryFromBar($event)"
       (searchToggle)="toggleMobileToolbar()">
     </app-category-bar>
+    <app-brand-filter
+      [activeBrandId]="activeBrandId()"
+      (brandSelected)="selectBrand($event)">
+    </app-brand-filter>
     <div class="mobile-toolbar" [class.visible]="showMobileToolbar()">
       <ng-container *ngTemplateOutlet="toolbar"></ng-container>
     </div>
@@ -83,6 +88,14 @@
     [activeCategoryId]="activeCategoryId()"
     (categorySelected)="selectCategoryFromBar($event)">
   </app-category-bar>
+</ng-template>
+
+<!-- Brand Filter Template -->
+<ng-template #brandFilter>
+  <app-brand-filter
+    [activeBrandId]="activeBrandId()"
+    (brandSelected)="selectBrand($event)">
+  </app-brand-filter>
 </ng-template>
 
 <!-- Toolbar Template -->

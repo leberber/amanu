@@ -1,0 +1,76 @@
+.brand-filter {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  background: white;
+  min-height: 60px;
+  border-bottom: 1px solid #e5e7eb;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.brand-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  border: 1px solid var(--surface-border);
+  background: white;
+  color: var(--text-color);
+  font-size: 0.875rem;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: var(--primary-color);
+    background: var(--primary-50);
+  }
+
+  &.active {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+  }
+}
+
+.brand-logo {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  border-radius: 50%;
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  color: var(--text-color-secondary);
+}
+
+// Mobile adjustments
+@media screen and (max-width: 768px) {
+  .brand-filter {
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+  }
+
+  .brand-chip {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.8rem;
+  }
+
+  .brand-logo {
+    width: 18px;
+    height: 18px;
+  }
+}

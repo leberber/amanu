@@ -27,6 +27,7 @@ import { ProductFiltersComponent } from '../components/product-filters/product-f
 import { ProductToolbarComponent, SortOption, ViewMode } from '../components/product-toolbar/product-toolbar.component';
 import { ProductQuantitySelectorComponent } from '../../../shared/components/product-quantity-selector/product-quantity-selector.component';
 import { CategoryBarComponent } from '../../../shared/components/category-bar/category-bar.component';
+import { BrandFilterComponent } from '../../../shared/components/brand-filter/brand-filter.component';
 
 @Component({
   selector: 'app-product-list',
@@ -47,7 +48,8 @@ import { CategoryBarComponent } from '../../../shared/components/category-bar/ca
     ProductFiltersComponent,
     ProductToolbarComponent,
     ProductQuantitySelectorComponent,
-    CategoryBarComponent
+    CategoryBarComponent,
+    BrandFilterComponent
   ],
   providers: [MessageService],
   templateUrl: './product-list.component.html',
@@ -71,6 +73,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
   selectedCategories = signal<Category[]>([]);
   appliedCategories = signal<Category[]>([]); // Actually applied filters
   activeCategoryId = signal<number | null>(null); // For category bar - null means "All"
+  activeBrandId = signal<number | null>(null); // For brand filter - null means "All Brands"
   categoryBarExpanded = signal(true); // Category bar visibility
   loading = signal(true);
   showMobileFilters = signal(false);
@@ -220,6 +223,17 @@ export class ProductListComponent implements OnInit, OnDestroy {
     this.loadProducts().subscribe();
   }
 
+  // Brand filter selection
+  selectBrand(brandId: number | null): void {
+    this.activeBrandId.set(brandId);
+    this.filters.update(f => ({
+      ...f,
+      brand_id: brandId || undefined
+    }));
+    this.loading.set(true);
+    this.loadProducts().subscribe();
+  }
+
   isCategoryActive(categoryId: number | null): boolean {
     return this.activeCategoryId() === categoryId;
   }
@@ -272,6 +286,8 @@ export class ProductListComponent implements OnInit, OnDestroy {
     });
     this.selectedCategories.set([...this.categories()]);
     this.appliedCategories.set([...this.categories()]);
+    this.activeCategoryId.set(null);
+    this.activeBrandId.set(null);
     this.searchQuery.set('');
     this.appliedSearchQuery.set('');
     this.selectedSort.set('name_asc');

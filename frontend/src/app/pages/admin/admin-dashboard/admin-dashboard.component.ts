@@ -223,6 +223,10 @@ navigateToCategories() {
   this.router.navigate(['/admin/categories']);
 }
 
+navigateToBrands() {
+  this.router.navigate(['/admin/brands']);
+}
+
   getCategoryName(category: any): string {
     // If it's already a category object with translations
     if (category.name_translations || category.name) {

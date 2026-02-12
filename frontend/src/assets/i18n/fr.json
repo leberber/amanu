@@ -112,7 +112,8 @@
       "apply_filters": "Appliquer {{count}} Filtre",
       "apply_filters_plural": "Appliquer {{count}} Filtres",
       "active_count": "{{count}} filtre actif",
-      "active_count_plural": "{{count}} filtres actifs"
+      "active_count_plural": "{{count}} filtres actifs",
+      "all_brands": "Toutes les marques"
     },
     "search": {
       "placeholder": "Rechercher des produits...",
@@ -344,7 +345,7 @@
       "back_to_orders": "Retour aux Commandes",
       "order_cancelled": "Votre commande a été annulée avec succès",
       "cancel_error": "Échec de l'annulation de la commande",
-       "loading_order": "Chargement des détails de la commande...",
+      "loading_order": "Chargement des détails de la commande...",
       "failed_to_load_order": "Échec du chargement de la commande",
       "go_to_orders": "Aller aux Commandes",
       "order_number": "Numéro de Commande",
@@ -364,7 +365,6 @@
       "cancel_error_message": "Échec de l'annulation de la commande",
       "load_error_title": "Erreur",
       "load_error_message": "Échec du chargement des détails de la commande",
-      
       "timeline": {
         "order_placed": "Commande Passée",
         "order_confirmed": "Commande Confirmée",
@@ -410,7 +410,8 @@
         "category": "Catégorie",
         "quantity_sold": "Quantité Vendue",
         "total_sales": "Ventes Totales"
-      }
+      },
+      "manage_brands": "Gérer les marques"
     },
     "stats": {
       "total_users": "Total Utilisateurs",
@@ -455,7 +456,13 @@
       "order_number": "Commande",
       "customer": "Client",
       "date": "Date",
-      "status": "Statut",
+      "status": {
+        "pending": "En attente",
+        "confirmed": "Confirmée",
+        "shipped": "Expédiée",
+        "delivered": "Livrée",
+        "cancelled": "Annulée"
+      },
       "total": "Total",
       "shipping_info": "Informations de Livraison",
       "address": "Adresse",
@@ -486,31 +493,96 @@
         "unit_price": "Prix Unitaire",
         "quantity": "Quantité",
         "unit": "Unité"
-      },
-      "status": {
-        "pending": "En attente",
-        "confirmed": "Confirmée",
-        "shipped": "Expédiée",
-        "delivered": "Livrée",
-        "cancelled": "Annulée"
       }
     },
     "users": {
       "title": "Gestion des Utilisateurs",
-      "all_users": "Tous les Utilisateurs",
-      "user_details": "Détails Utilisateur",
-      "edit_user": "Modifier Utilisateur",
-      "delete_user": "Supprimer Utilisateur",
-      "create_user": "Créer Nouvel Utilisateur",
-      "user_role": "Rôle Utilisateur",
-      "user_status": "Statut Utilisateur",
-      "active": "Actif",
-      "inactive": "Inactif",
+      "subtitle": "Gérer les utilisateurs du système et leurs permissions",
+      "refresh": "Actualiser",
+      "export": "Exporter",
+      "create_new": "Créer Nouvel Utilisateur",
+      "create_user": "Créer Utilisateur",
+      "search_placeholder": "Rechercher des utilisateurs...",
+      "filter_by_role": "Filtrer par Rôle",
+      "filters": {
+        "all_roles": "Tous les Rôles"
+      },
       "roles": {
         "customer": "Client",
         "staff": "Personnel",
-        "admin": "Administrateur"
-      }
+        "admin": "Admin"
+      },
+      "clear_filters": "Effacer les Filtres",
+      "showing": "Affichage de {{shown}} sur {{total}} utilisateurs",
+      "loading": "Chargement des utilisateurs...",
+      "table": {
+        "id": "ID",
+        "user_details": "Détails de l'Utilisateur",
+        "role": "Rôle",
+        "status": "Statut",
+        "created": "Créé",
+        "actions": "Actions"
+      },
+      "status": {
+        "active": "Actif",
+        "inactive": "Inactif"
+      },
+      "actions": {
+        "view_edit": "Voir/Modifier l'Utilisateur",
+        "delete": "Supprimer l'Utilisateur"
+      },
+      "empty": {
+        "no_match_title": "Aucun utilisateur ne correspond à vos filtres",
+        "no_match_description": "Essayez d'ajuster vos critères de recherche",
+        "no_users_title": "Aucun utilisateur trouvé",
+        "no_users_description": "Commencez par créer votre premier utilisateur"
+      },
+      "dialog": {
+        "edit_title": "Modifier l'Utilisateur",
+        "create_title": "Créer un Nouvel Utilisateur",
+        "update_button": "Mettre à Jour l'Utilisateur",
+        "create_button": "Créer l'Utilisateur"
+      },
+      "form": {
+        "full_name": "Nom Complet",
+        "email": "Email",
+        "phone": "Téléphone",
+        "role": "Rôle",
+        "select_role": "Sélectionner un rôle",
+        "address": "Adresse",
+        "password": "Mot de Passe",
+        "password_edit": "Mot de Passe (Laisser vide pour conserver le mot de passe actuel)",
+        "active_user": "Utilisateur Actif",
+        "errors": {
+          "full_name_required": "Le nom complet est requis",
+          "full_name_min": "Le nom complet doit contenir au moins 3 caractères",
+          "email_required": "L'email est requis",
+          "email_invalid": "Veuillez entrer une adresse email valide",
+          "password_required": "Le mot de passe est requis",
+          "password_min": "Le mot de passe doit contenir au moins 8 caractères"
+        }
+      },
+      "messages": {
+        "user_created": "Utilisateur Créé",
+        "user_created_detail": "L'utilisateur {{name}} a été créé avec succès",
+        "create_failed": "Échec de la Création",
+        "create_failed_detail": "Échec de la création de l'utilisateur",
+        "user_updated": "Utilisateur Mis à Jour",
+        "user_updated_detail": "L'utilisateur {{name}} a été mis à jour avec succès",
+        "update_failed": "Échec de la Mise à Jour",
+        "update_failed_detail": "Échec de la mise à jour de l'utilisateur",
+        "not_implemented": "Non Implémenté",
+        "create_not_implemented": "La création d'utilisateurs depuis le panneau d'administration n'est pas implémentée dans cette démo",
+        "user_deleted": "Utilisateur Supprimé",
+        "user_deleted_detail": "L'utilisateur {{name}} a été supprimé avec succès",
+        "deletion_failed": "Échec de la Suppression",
+        "deletion_failed_detail": "Échec de la suppression de l'utilisateur"
+      },
+      "confirm_delete_header": "Confirmer la Suppression",
+      "confirm_delete_message": "Êtes-vous sûr de vouloir supprimer l'utilisateur {{name}} ?",
+      "export_coming_soon": "La fonctionnalité d'exportation arrive bientôt !",
+      "load_error": "Échec du chargement des utilisateurs",
+      "permission_error": "Vous n'avez pas la permission d'accéder à cette page"
     },
     "products": {
       "title": "Gestion des Produits",
@@ -704,103 +776,83 @@
         "arabic_name_required": "Le nom en arabe est requis"
       }
     },
-    "users": {
-      "title": "Gestion des Utilisateurs",
-      "subtitle": "Gérer les utilisateurs du système et leurs permissions",
-      "refresh": "Actualiser",
-      "export": "Exporter",
-      "create_new": "Créer Nouvel Utilisateur",
-      "create_user": "Créer Utilisateur",
-      "search_placeholder": "Rechercher des utilisateurs...",
-      "filter_by_role": "Filtrer par Rôle",
-      "filters": {
-        "all_roles": "Tous les Rôles"
-      },
-      "roles": {
-        "customer": "Client",
-        "staff": "Personnel",
-        "admin": "Admin"
-      },
-      "clear_filters": "Effacer les Filtres",
-      "showing": "Affichage de {{shown}} sur {{total}} utilisateurs",
-      "loading": "Chargement des utilisateurs...",
-      "table": {
-        "id": "ID",
-        "user_details": "Détails de l'Utilisateur",
-        "role": "Rôle",
-        "status": "Statut",
-        "created": "Créé",
-        "actions": "Actions"
-      },
-      "status": {
-        "active": "Actif",
-        "inactive": "Inactif"
-      },
-      "actions": {
-        "view_edit": "Voir/Modifier l'Utilisateur",
-        "delete": "Supprimer l'Utilisateur"
-      },
-      "empty": {
-        "no_match_title": "Aucun utilisateur ne correspond à vos filtres",
-        "no_match_description": "Essayez d'ajuster vos critères de recherche",
-        "no_users_title": "Aucun utilisateur trouvé",
-        "no_users_description": "Commencez par créer votre premier utilisateur"
-      },
-      "dialog": {
-        "edit_title": "Modifier l'Utilisateur",
-        "create_title": "Créer un Nouvel Utilisateur",
-        "update_button": "Mettre à Jour l'Utilisateur",
-        "create_button": "Créer l'Utilisateur"
-      },
-      "form": {
-        "full_name": "Nom Complet",
-        "email": "Email",
-        "phone": "Téléphone",
-        "role": "Rôle",
-        "select_role": "Sélectionner un rôle",
-        "address": "Adresse",
-        "password": "Mot de Passe",
-        "password_edit": "Mot de Passe (Laisser vide pour conserver le mot de passe actuel)",
-        "active_user": "Utilisateur Actif",
-        "errors": {
-          "full_name_required": "Le nom complet est requis",
-          "full_name_min": "Le nom complet doit contenir au moins 3 caractères",
-          "email_required": "L'email est requis",
-          "email_invalid": "Veuillez entrer une adresse email valide",
-          "password_required": "Le mot de passe est requis",
-          "password_min": "Le mot de passe doit contenir au moins 8 caractères"
-        }
-      },
-      "messages": {
-        "user_created": "Utilisateur Créé",
-        "user_created_detail": "L'utilisateur {{name}} a été créé avec succès",
-        "create_failed": "Échec de la Création",
-        "create_failed_detail": "Échec de la création de l'utilisateur",
-        "user_updated": "Utilisateur Mis à Jour",
-        "user_updated_detail": "L'utilisateur {{name}} a été mis à jour avec succès",
-        "update_failed": "Échec de la Mise à Jour",
-        "update_failed_detail": "Échec de la mise à jour de l'utilisateur",
-        "not_implemented": "Non Implémenté",
-        "create_not_implemented": "La création d'utilisateurs depuis le panneau d'administration n'est pas implémentée dans cette démo",
-        "user_deleted": "Utilisateur Supprimé",
-        "user_deleted_detail": "L'utilisateur {{name}} a été supprimé avec succès",
-        "deletion_failed": "Échec de la Suppression",
-        "deletion_failed_detail": "Échec de la suppression de l'utilisateur"
-      },
-      "confirm_delete_header": "Confirmer la Suppression",
-      "confirm_delete_message": "Êtes-vous sûr de vouloir supprimer l'utilisateur {{name}} ?",
-      "export_coming_soon": "La fonctionnalité d'exportation arrive bientôt !",
-      "load_error": "Échec du chargement des utilisateurs",
-      "permission_error": "Vous n'avez pas la permission d'accéder à cette page"
-    },
     "navigation": {
       "dashboard": "Tableau de Bord",
       "orders": "Commandes",
       "users": "Utilisateurs",
       "products": "Produits",
       "categories": "Catégories",
+      "brands": "Marques",
       "reports": "Rapports",
       "settings": "Paramètres"
+    },
+    "brands": {
+      "title": "Gestion des marques",
+      "all_brands": "Toutes les marques",
+      "add_brand": "Ajouter une marque",
+      "edit_brand": "Modifier la marque",
+      "delete_brand": "Supprimer la marque",
+      "create_success": "Marque créée avec succès !",
+      "update_success": "Marque mise à jour avec succès !",
+      "create_failed": "Échec de la création de la marque",
+      "update_failed": "Échec de la mise à jour de la marque",
+      "load_error": "Échec du chargement des marques",
+      "delete_success": "Marque supprimée avec succès !",
+      "delete_failed": "Échec de la suppression de la marque",
+      "confirm_delete_header": "Confirmer la suppression",
+      "confirm_delete_message": "Êtes-vous sûr de vouloir supprimer \"{{brandName}}\" ? Cette action est irréversible.",
+      "showing_brands": "Affichage de {{first}} à {{last}} sur {{totalRecords}} marques",
+      "search": "Rechercher",
+      "search_placeholder": "Rechercher des marques...",
+      "search_tooltip": "Rechercher par nom ou description de marque",
+      "clear_filters": "Effacer les filtres",
+      "refresh": "Actualiser",
+      "refresh_tooltip": "Actualiser les données des marques",
+      "add_first_brand": "Ajouter la première marque",
+      "loading": "Chargement des marques...",
+      "no_description": "Aucune description",
+      "no_brands": "Aucune marque trouvée",
+      "no_brands_filtered": "Aucune marque ne correspond à votre recherche",
+      "table": {
+        "logo": "Logo",
+        "name": "Nom de la marque",
+        "description": "Description",
+        "status": "Statut",
+        "created": "Créé le",
+        "actions": "Actions"
+      },
+      "form": {
+        "translations": "Noms de marque",
+        "translation_help": "Fournissez le nom de la marque dans toutes les langues prises en charge. L anglais sera utilisé comme nom principal.",
+        "english_name": "Nom anglais",
+        "french_name": "Nom français",
+        "arabic_name": "Nom arabe",
+        "name_required": "Le nom de la marque est requis",
+        "name_minlength": "Le nom de la marque doit comporter au moins 1 caractère",
+        "descriptions": "Descriptions de la marque",
+        "description_help": "Fournissez des descriptions détaillées dans toutes les langues prises en charge (facultatif).",
+        "english_description": "Description en anglais",
+        "french_description": "Description en français",
+        "arabic_description": "Description en arabe",
+        "settings": "Paramètres",
+        "logo_url": "URL du logo",
+        "logo_placeholder": "Entrez l URL du logo de la marque (ex : https://example.com/logo.png)",
+        "logo_help": "Facultatif : Fournissez une URL vers une image de logo pour cette marque",
+        "is_active": "Marque active",
+        "active_help": "Décochez pour masquer cette marque du filtre de marque",
+        "submit_add": "Ajouter la marque",
+        "submit_update": "Mettre à jour la marque",
+        "cancel": "Annuler",
+        "translation_guidelines": "Directives de traduction",
+        "guideline_all_required": "Tous les noms de langue sont requis pour garantir un support multilingue cohérent",
+        "guideline_english_primary": "L anglais sera utilisé comme nom principal dans la base de données",
+        "guideline_descriptions_optional": "Les descriptions sont facultatives mais recommandées pour de meilleures informations sur la marque",
+        "guideline_proper_formatting": "Utilisez des caractères et un formatage spécifiques à la langue",
+        "fix_errors": "Veuillez corriger les erreurs suivantes",
+        "english_name_required": "Le nom anglais est requis",
+        "french_name_required": "Le nom français est requis",
+        "arabic_name_required": "Le nom arabe est requis"
+      }
     }
   },
   "footer": {

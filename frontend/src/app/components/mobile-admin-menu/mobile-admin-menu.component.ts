@@ -59,13 +59,21 @@ import { AuthService } from '../../services/auth.service';
           </a>
           
           <!-- Categories -->
-          <a routerLink="/admin/categories" 
+          <a routerLink="/admin/categories"
              (click)="hide()"
              class="menu-item">
             <i class="pi pi-tags mr-3"></i>
             <span>{{ 'admin.navigation.categories' | translate }}</span>
           </a>
-          
+
+          <!-- Brands -->
+          <a routerLink="/admin/brands"
+             (click)="hide()"
+             class="menu-item">
+            <i class="pi pi-building mr-3"></i>
+            <span>{{ 'admin.navigation.brands' | translate }}</span>
+          </a>
+
           <!-- Users (Admin only) -->
           <a *ngIf="isAdmin()" 
              routerLink="/admin/users" 

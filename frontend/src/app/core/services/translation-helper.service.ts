@@ -80,6 +80,24 @@ export class TranslationHelperService {
   }
 
   /**
+   * Get brand name with proper translation fallback
+   * @param brand - Brand object
+   * @returns Translated brand name
+   */
+  getBrandName(brand: any): string {
+    return this.getTranslatedField(brand, 'name', true);
+  }
+
+  /**
+   * Get brand description with proper translation fallback
+   * @param brand - Brand object
+   * @returns Translated brand description
+   */
+  getBrandDescription(brand: any): string {
+    return this.getTranslatedField(brand, 'description', true);
+  }
+
+  /**
    * Get all available translations for a field
    * @param obj - Object containing translations
    * @param fieldName - Base field name
@@ -87,7 +105,7 @@ export class TranslationHelperService {
    */
   getAllTranslations(obj: any, fieldName: string): Record<string, string> {
     if (!obj) return {};
-    
+
     const translationFieldName = `${fieldName}_translations`;
     return obj[translationFieldName] || {};
   }

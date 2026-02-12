@@ -1,0 +1,29 @@
+<div class="brand-filter">
+  <!-- All Brands Option -->
+  <button
+    *ngIf="showAllOption"
+    class="brand-chip"
+    [class.active]="isActive(null)"
+    (click)="selectBrand(null)">
+    {{ allLabel | translate }}
+  </button>
+
+  <!-- Individual Brands -->
+  <button
+    *ngFor="let brand of brands; trackBy: trackByBrand"
+    class="brand-chip"
+    [class.active]="isActive(brand.id)"
+    (click)="selectBrand(brand.id)">
+    <img
+      *ngIf="brand.logo_url"
+      [src]="brand.logo_url"
+      [alt]="brand.name"
+      class="brand-logo">
+    {{ brand.name }}
+  </button>
+
+  <!-- Loading state -->
+  <div *ngIf="loading" class="loading">
+    <i class="pi pi-spin pi-spinner"></i>
+  </div>
+</div>

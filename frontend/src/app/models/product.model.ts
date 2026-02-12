@@ -10,6 +10,7 @@ export interface Product {
     is_organic: boolean;
     is_active: boolean;
     category_id: number;
+    brand_id?: number;
     created_at: string;
     updated_at?: string;
     tempQuantity?: number;
@@ -40,6 +41,7 @@ export interface Product {
   
   export interface ProductFilter {
     category_id?: number;
+    brand_id?: number;
     is_organic?: boolean;
     active_only?: boolean;
     search?: string;
