@@ -31,32 +31,6 @@
   background: var(--surface-card);
 }
 
-// Mobile action bar - compact row of action buttons (mobile only)
-.mobile-action-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-  padding: 0.5rem;
-  border-bottom: 1px solid var(--surface-border);
-  background: white;
-
-  button {
-    &.active {
-      color: var(--primary-color);
-      background: var(--primary-50);
-    }
-  }
-
-  // Hide on desktop
-  @media screen and (min-width: 1024px) {
-    display: none;
-  }
-}
-
-:host-context(.my-app-dark) .mobile-action-bar {
-  background: var(--surface-card);
-}
-
 // Mobile toolbar - hidden by default, slides down when visible
 .mobile-toolbar {
   max-height: 0;
@@ -71,11 +45,11 @@
 // Spacer for fixed mobile header
 @media screen and (max-width: 1023px) {
   .mobile-header-spacer {
-    height: 130px; // Action bar + filter bar
+    height: 85px;
     transition: height 0.3s ease;
 
     &.toolbar-visible {
-      height: 185px; // Action bar + filter bar + expanded toolbar
+      height: 140px;
     }
   }
 }

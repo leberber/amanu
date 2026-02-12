@@ -48,38 +48,7 @@
 <ng-template #mobileLayout>
   <!-- Fixed header - always visible, categories compact on scroll down -->
   <div class="mobile-sticky-header">
-    <!-- Compact Action Bar - Always visible -->
-    <div class="mobile-action-bar">
-      <button
-        pButton
-        type="button"
-        icon="pi pi-search"
-        class="p-button-text p-button-rounded"
-        (click)="toggleMobileToolbar()"
-        [class.active]="showMobileToolbar()">
-      </button>
-      <button
-        pButton
-        type="button"
-        [icon]="filterMode() === 'categories' ? 'pi pi-building' : 'pi pi-th-large'"
-        class="p-button-text p-button-rounded"
-        (click)="toggleFilterMode()"
-        [pTooltip]="filterMode() === 'categories' ? ('products.filters.show_brands' | translate) : ('products.filters.show_categories' | translate)">
-      </button>
-      <button
-        pButton
-        type="button"
-        icon="pi pi-filter"
-        class="p-button-text p-button-rounded"
-        [pOverlayBadge]="activeFilterCount() > 0 ? activeFilterCount().toString() : null"
-        (click)="toggleMobileFilters()">
-      </button>
-    </div>
-
-    <!-- Filter Bar (Categories or Brands) -->
     <ng-container *ngTemplateOutlet="filterBar"></ng-container>
-
-    <!-- Expandable Search Toolbar -->
     <div class="mobile-toolbar" [class.visible]="showMobileToolbar()">
       <ng-container *ngTemplateOutlet="toolbar"></ng-container>
     </div>
@@ -107,13 +76,17 @@
     [categories]="categories()"
     [activeCategoryId]="activeCategoryId()"
     [showAllOption]="false"
-    (categorySelected)="selectCategoryFromBar($event)">
+    [showSearchIcon]="true"
+    (categorySelected)="selectCategoryFromBar($event)"
+    (searchToggle)="toggleMobileToolbar()">
   </app-category-bar>
   <app-brand-filter
     *ngIf="filterMode() === 'brands'"
     [activeBrandId]="activeBrandId()"
     [showAllOption]="false"
-    (brandSelected)="selectBrand($event)">
+    [showSearchIcon]="true"
+    (brandSelected)="selectBrand($event)"
+    (searchToggle)="toggleMobileToolbar()">
   </app-brand-filter>
 </ng-template>
 
