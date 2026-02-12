@@ -89,6 +89,7 @@
   object-fit: cover;
   border: none;
   background: var(--surface-ground);
+  transform: scale(1.4);
   transition: none;
 
   &.all-categories {
@@ -156,6 +157,7 @@
   transition: opacity var(--transition-duration) ease-in-out,
               font-size var(--transition-duration) ease-in-out,
               max-width var(--transition-duration) ease-in-out;
+  display: none; // Hide category names
 }
 
 // Category count badge
