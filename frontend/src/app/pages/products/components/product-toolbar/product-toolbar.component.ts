@@ -50,9 +50,6 @@ export type SortOption = 'name_asc' | 'name_desc' | 'price_asc' | 'price_desc' |
         <!-- Search Section -->
         <ng-container *ngTemplateOutlet="searchBar; context: { class: 'flex-1 max-w-30rem' }"></ng-container>
 
-        <!-- Filter Mode Toggle -->
-        <ng-container *ngTemplateOutlet="filterModeToggle"></ng-container>
-
         <!-- Center Spacer -->
         <div class="flex-1"></div>
 
@@ -71,7 +68,6 @@ export type SortOption = 'name_asc' | 'name_desc' | 'price_asc' | 'price_desc' |
     <ng-template #mobileToolbar>
       <div class="flex gap-2 align-items-center">
         <ng-container *ngTemplateOutlet="searchBar; context: { class: 'flex-1' }"></ng-container>
-        <ng-container *ngTemplateOutlet="filterModeToggle"></ng-container>
         <ng-container *ngTemplateOutlet="viewToggle"></ng-container>
         <ng-container *ngTemplateOutlet="mobileFilterButton"></ng-container>
       </div>
@@ -110,20 +106,6 @@ export type SortOption = 'name_asc' | 'name_desc' | 'price_asc' | 'price_desc' |
           </div>
         </ng-template>
       </p-select>
-    </ng-template>
-
-    <!-- Filter Mode Toggle Template -->
-    <ng-template #filterModeToggle>
-      <button
-        pButton
-        type="button"
-        [icon]="filterMode === 'categories' ? 'pi pi-building' : 'pi pi-th-large'"
-        class="p-button-outlined p-button-sm"
-        (click)="toggleFilterMode()"
-        [pTooltip]="filterMode === 'categories' ? ('products.filters.show_brands' | translate) : ('products.filters.show_categories' | translate)"
-        tooltipPosition="bottom">
-        <span class="hidden lg:inline ml-2">{{ (filterMode === 'categories' ? 'products.filters.show_brands' : 'products.filters.show_categories') | translate }}</span>
-      </button>
     </ng-template>
 
     <!-- View Toggle Template -->
