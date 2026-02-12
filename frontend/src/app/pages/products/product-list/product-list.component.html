@@ -77,8 +77,10 @@
     [filterType]="filterMode()"
     [showAllOption]="false"
     [showSearchIcon]="true"
+    [showModeToggle]="true"
     (itemSelected)="filterMode() === 'categories' ? selectCategoryFromBar($event) : selectBrand($event)"
-    (searchToggle)="toggleMobileToolbar()">
+    (searchToggle)="toggleMobileToolbar()"
+    (modeToggle)="toggleFilterMode()">
   </app-horizontal-filter>
 </ng-template>
 

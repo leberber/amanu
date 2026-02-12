@@ -72,7 +72,30 @@
       font-weight: 600;
     }
   }
+
+  // Mode toggle - Simple switch
+  &.mode-toggle {
+    .item-image {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--primary-color);
+
+      i {
+        color: var(--primary-color) !important;
+        font-size: 1.8rem;
+        font-weight: normal;
+      }
+    }
+
+    .toggle-label {
+      color: var(--primary-color);
+      font-weight: 600;
+      font-size: 0.7rem;
+    }
+  }
 }
+
 
 .item-image-wrapper {
   position: relative;
@@ -86,7 +109,7 @@
   object-fit: cover;
   border: none;
   background: var(--surface-ground);
-  transition: none;
+  transition: all 0.2s ease;
 
   &.all-option,
   &.placeholder {
@@ -113,8 +136,8 @@
   transition: opacity var(--transition-duration) ease-in-out;
 }
 
-// Hide item names for categories (handled by filterType in component)
-.filter-bar[data-filter-type="categories"] .item-name {
+// Hide item names for categories
+.filter-bar[data-filter-type="categories"] .item-name:not(.toggle-label) {
   display: none;
 }
 

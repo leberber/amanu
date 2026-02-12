@@ -26,12 +26,14 @@ export class HorizontalFilterComponent implements OnInit, AfterViewInit, OnChang
   @Input() showAllOption: boolean = true;
   @Input() allLabel: string = '';
   @Input() showSearchIcon = false;
+  @Input() showModeToggle = true; // Show toggle to switch between categories/brands
   @Input() compact = false;
 
   @ViewChildren('filterItem') filterItems!: QueryList<ElementRef>;
 
   @Output() itemSelected = new EventEmitter<number | null>();
   @Output() searchToggle = new EventEmitter<void>();
+  @Output() modeToggle = new EventEmitter<void>();
 
   // Indicator position
   indicatorLeft = 0;
@@ -76,6 +78,7 @@ export class HorizontalFilterComponent implements OnInit, AfterViewInit, OnChang
     }
 
     const index = this.items.findIndex(item => item.id === this.activeItemId);
+    // Note: mode toggle is not included in filterItems ViewChildren, so no offset needed
     return this.showAllOption ? index + 1 : index;
   }
 
@@ -86,6 +89,20 @@ export class HorizontalFilterComponent implements OnInit, AfterViewInit, OnChang
   toggleSearch(): void {
     this.isSearchOpen = !this.isSearchOpen;
     this.searchToggle.emit();
+  }
+
+  toggleMode(): void {
+    this.modeToggle.emit();
+  }
+
+  getToggleIcon(): string {
+    return this.filterType === 'categories' ? 'pi pi-building' : 'pi pi-th-large';
+  }
+
+  getToggleLabel(): string {
+    return this.filterType === 'categories'
+      ? 'products.filters.show_brands'
+      : 'products.filters.show_categories';
   }
 
   isActive(itemId: number | null): boolean {
