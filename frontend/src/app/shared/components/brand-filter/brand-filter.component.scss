@@ -112,6 +112,44 @@
   z-index: 10;
 }
 
+// Search toggle button
+.search-toggle-btn {
+  position: sticky;
+  right: 10px !important;
+  margin-left: auto;
+  margin-right: 0.5rem;
+  align-self: flex-start;
+  width: var(--brand-icon-size);
+  height: var(--brand-icon-size);
+  min-width: var(--brand-icon-size);
+  min-height: var(--brand-icon-size);
+  border-radius: 50%;
+  background: var(--primary-100);
+  border: 2px solid var(--surface-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  cursor: pointer;
+  z-index: 10;
+  transition: border-color 0.2s ease-in-out;
+
+  i {
+    font-size: 1.5rem;
+    color: var(--primary-color);
+  }
+
+  &:hover {
+    border-color: var(--primary-color);
+  }
+
+  &.active {
+    background: var(--primary-100);
+    border-color: var(--primary-color);
+    border-width: 3px;
+  }
+}
+
 .loading {
   display: flex;
   align-items: center;
@@ -139,5 +177,18 @@
   .brand-name {
     font-size: 0.65rem;
     max-width: 60px;
+  }
+
+  .search-toggle-btn {
+    width: var(--brand-icon-size-mobile);
+    height: var(--brand-icon-size-mobile);
+    min-width: var(--brand-icon-size-mobile);
+    min-height: var(--brand-icon-size-mobile);
+    right: 0;
+    margin-right: 0.25rem;
+
+    i {
+      font-size: 1.25rem;
+    }
   }
 }

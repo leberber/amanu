@@ -19,14 +19,17 @@ export class BrandFilterComponent implements OnInit, AfterViewInit, OnChanges {
   @Input() allLabel: string = 'products.filters.all_brands';
   @Input() showToggle: boolean = false;
   @Input() filterMode: 'categories' | 'brands' = 'brands';
+  @Input() showSearchIcon = false;
 
   @ViewChildren('brandItem') brandItems!: QueryList<ElementRef>;
 
   @Output() brandSelected = new EventEmitter<number | null>();
   @Output() filterModeToggle = new EventEmitter<void>();
+  @Output() searchToggle = new EventEmitter<void>();
 
   brands: Brand[] = [];
   loading = false;
+  isSearchOpen = false;
 
   // Indicator position
   indicatorLeft = 0;
@@ -87,6 +90,11 @@ export class BrandFilterComponent implements OnInit, AfterViewInit, OnChanges {
 
   toggleFilterMode(): void {
     this.filterModeToggle.emit();
+  }
+
+  toggleSearch(): void {
+    this.isSearchOpen = !this.isSearchOpen;
+    this.searchToggle.emit();
   }
 
   isActive(brandId: number | null): boolean {

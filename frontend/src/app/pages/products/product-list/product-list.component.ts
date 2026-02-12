@@ -11,6 +11,7 @@ import { DrawerModule } from 'primeng/drawer';
 import { TagModule } from 'primeng/tag';
 import { ButtonModule } from 'primeng/button';
 import { OverlayBadgeModule } from 'primeng/overlaybadge';
+import { TooltipModule } from 'primeng/tooltip';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { CartService } from '../../../services/cart.service';
@@ -41,6 +42,7 @@ import { BrandFilterComponent } from '../../../shared/components/brand-filter/br
     TagModule,
     ButtonModule,
     OverlayBadgeModule,
+    TooltipModule,
     TranslateModule,
     LoadingStateComponent,
     EmptyStateComponent,
