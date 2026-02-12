@@ -17,6 +17,8 @@ export class CategoryBarComponent implements AfterViewInit, OnChanges {
   @Input() allLabel = 'products.filters.all';
   @Input() compact = false;
   @Input() showSearchIcon = false;
+  @Input() showFilterToggle = false; // Show toggle button instead of "All"
+  @Input() filterMode: 'categories' | 'brands' = 'categories'; // Current filter mode
 
   @ViewChildren('categoryItem') categoryItems!: QueryList<ElementRef>;
 
@@ -29,6 +31,7 @@ export class CategoryBarComponent implements AfterViewInit, OnChanges {
 
   @Output() categorySelected = new EventEmitter<number | null>();
   @Output() searchToggle = new EventEmitter<void>();
+  @Output() filterModeToggle = new EventEmitter<void>(); // Toggle between categories/brands
 
   ngAfterViewInit(): void {
     setTimeout(() => this.updateIndicator(), 0);
@@ -57,12 +60,17 @@ export class CategoryBarComponent implements AfterViewInit, OnChanges {
     }
 
     const index = this.categories.findIndex(cat => cat.id === this.activeCategoryId);
+    // Add 1 to index only if showAllOption is true (to account for "All" being first)
     return this.showAllOption ? index + 1 : index;
   }
 
   toggleSearch(): void {
     this.isSearchOpen = !this.isSearchOpen;
     this.searchToggle.emit();
+  }
+
+  toggleFilterMode(): void {
+    this.filterModeToggle.emit();
   }
 
   selectCategory(categoryId: number | null): void {

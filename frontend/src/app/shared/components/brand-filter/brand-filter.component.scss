@@ -1,53 +1,115 @@
+// Match category bar design
+:host {
+  --brand-icon-size: 60px;
+  --brand-icon-size-mobile: 50px;
+  --brand-gap: 1rem;
+  --brand-gap-mobile: 1.25rem;
+  --brand-padding: 0.75rem 1rem;
+  --brand-padding-mobile: 0.5rem 0.75rem;
+  --transition-duration: 0.25s;
+
+  display: block;
+  background: white;
+}
+
+:host-context(.my-app-dark) {
+  background: var(--surface-card);
+}
+
 .brand-filter {
   display: flex;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
+  align-items: center;
+  gap: var(--brand-gap);
   overflow-x: auto;
   overflow-y: hidden;
+  padding: var(--brand-padding);
+  padding-right: 0;
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
-  background: white;
-  min-height: 60px;
-  border-bottom: 1px solid #e5e7eb;
+  position: relative;
 
   &::-webkit-scrollbar {
     display: none;
   }
 }
 
-.brand-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  border-radius: 20px;
-  border: 1px solid var(--surface-border);
-  background: white;
-  color: var(--text-color);
-  font-size: 0.875rem;
-  font-weight: 500;
-  white-space: nowrap;
-  cursor: pointer;
-  transition: all 0.2s ease;
+// Sliding indicator
+.brand-indicator {
+  position: absolute;
+  bottom: 0;
+  height: 3px;
+  background: black;
+  transition: left 0.3s ease, width 0.3s ease;
+  z-index: 1;
+}
 
-  &:hover {
+// Brand item (matching category-item structure)
+.brand-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  min-width: 70px;
+  cursor: pointer;
+  position: relative;
+
+  &:hover .brand-image {
     border-color: var(--primary-color);
-    background: var(--primary-50);
   }
 
   &.active {
-    background: var(--primary-color);
-    border-color: var(--primary-color);
-    color: white;
+    .brand-name {
+      color: var(--primary-color);
+      font-weight: 600;
+    }
+  }
+
+  // Toggle button style
+  &.toggle-item {
+    .brand-image {
+      background: var(--primary-100);
+      color: var(--primary-color);
+    }
   }
 }
 
-.brand-logo {
-  width: 20px;
-  height: 20px;
-  object-fit: contain;
+.brand-image-wrapper {
+  position: relative;
+}
+
+// Brand image (circular logo)
+.brand-image {
+  width: var(--brand-icon-size);
+  height: var(--brand-icon-size);
   border-radius: 50%;
+  object-fit: cover;
+  border: none;
+  background: var(--surface-ground);
+  transform: scale(1.7);
+  transition: border-color 0.2s ease;
+
+  &.toggle-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--primary-100);
+    color: var(--primary-color);
+    font-size: 1.5rem;
+  }
+}
+
+// Brand name label
+.brand-name {
+  font-size: 0.75rem;
+  color: var(--text-color-secondary);
+  text-align: center;
+  white-space: normal;
+  max-width: 70px;
+  word-wrap: break-word;
+  line-height: 1.1;
+  position: relative;
+  z-index: 10;
 }
 
 .loading {
@@ -60,17 +122,22 @@
 // Mobile adjustments
 @media screen and (max-width: 768px) {
   .brand-filter {
-    gap: 0.5rem;
-    padding: 0.5rem 0.75rem;
+    gap: var(--brand-gap-mobile);
+    padding: var(--brand-padding-mobile);
+    padding-right: 0;
   }
 
-  .brand-chip {
-    padding: 0.4rem 0.75rem;
-    font-size: 0.8rem;
+  .brand-item {
+    min-width: 60px;
   }
 
-  .brand-logo {
-    width: 18px;
-    height: 18px;
+  .brand-image {
+    width: var(--brand-icon-size-mobile);
+    height: var(--brand-icon-size-mobile);
+  }
+
+  .brand-name {
+    font-size: 0.65rem;
+    max-width: 60px;
   }
 }

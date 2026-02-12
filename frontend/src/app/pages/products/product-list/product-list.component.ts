@@ -75,6 +75,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
   activeCategoryId = signal<number | null>(null); // For category bar - null means "All"
   activeBrandId = signal<number | null>(null); // For brand filter - null means "All Brands"
   categoryBarExpanded = signal(true); // Category bar visibility
+  filterMode = signal<'categories' | 'brands'>('categories'); // Toggle between categories and brands
   loading = signal(true);
   showMobileFilters = signal(false);
   searchQuery = signal('');
@@ -202,21 +203,23 @@ export class ProductListComponent implements OnInit, OnDestroy {
     this.showMobileToolbar.update(v => !v);
   }
 
+  toggleFilterMode(): void {
+    this.filterMode.update(mode => mode === 'categories' ? 'brands' : 'categories');
+  }
+
   // Category bar selection
   selectCategoryFromBar(categoryId: number | null): void {
+    if (categoryId === null) {
+      return; // No "All" option anymore
+    }
+
     this.activeCategoryId.set(categoryId);
 
-    if (categoryId === null) {
-      // "All" selected - show all categories
-      this.selectedCategories.set([...this.categories()]);
-      this.appliedCategories.set([...this.categories()]);
-    } else {
-      // Single category selected
-      const category = this.categories().find(c => c.id === categoryId);
-      if (category) {
-        this.selectedCategories.set([category]);
-        this.appliedCategories.set([category]);
-      }
+    // Single category selected
+    const category = this.categories().find(c => c.id === categoryId);
+    if (category) {
+      this.selectedCategories.set([category]);
+      this.appliedCategories.set([category]);
     }
 
     this.loading.set(true);
@@ -225,10 +228,14 @@ export class ProductListComponent implements OnInit, OnDestroy {
 
   // Brand filter selection
   selectBrand(brandId: number | null): void {
+    if (brandId === null) {
+      return; // No "All" option anymore
+    }
+
     this.activeBrandId.set(brandId);
     this.filters.update(f => ({
       ...f,
-      brand_id: brandId || undefined
+      brand_id: brandId
     }));
     this.loading.set(true);
     this.loadProducts().subscribe();
@@ -284,9 +291,15 @@ export class ProductListComponent implements OnInit, OnDestroy {
       sort_by: 'name',
       sort_order: 'asc'
     });
-    this.selectedCategories.set([...this.categories()]);
-    this.appliedCategories.set([...this.categories()]);
-    this.activeCategoryId.set(null);
+
+    // Set first category as default
+    const categories = this.categories();
+    if (categories.length > 0) {
+      this.activeCategoryId.set(categories[0].id);
+      this.selectedCategories.set([categories[0]]);
+      this.appliedCategories.set([categories[0]]);
+    }
+
     this.activeBrandId.set(null);
     this.searchQuery.set('');
     this.appliedSearchQuery.set('');
@@ -358,9 +371,14 @@ export class ProductListComponent implements OnInit, OnDestroy {
     this.productService.getCategories(true).subscribe({
       next: (categories) => {
         this.categories.set(categories);
-        this.selectedCategories.set([...categories]);
-        this.appliedCategories.set([...categories]);
-        
+
+        // Set first category as default if categories exist
+        if (categories.length > 0) {
+          this.activeCategoryId.set(categories[0].id);
+          this.selectedCategories.set([categories[0]]);
+          this.appliedCategories.set([categories[0]]);
+        }
+
         // Load all products to calculate counts
         this.updateCategoryCounts();
 
@@ -369,9 +387,10 @@ export class ProductListComponent implements OnInit, OnDestroy {
             if (params['category']) {
               const categoryId = Number(params['category']);
               this.filters.update(f => ({ ...f, category_id: categoryId }));
-              
+
               const selectedCategory = this.categories().find(c => c.id === categoryId);
               if (selectedCategory) {
+                this.activeCategoryId.set(categoryId);
                 this.selectedCategories.set([selectedCategory]);
               }
             }

@@ -115,7 +115,9 @@
       "apply_filters_plural": "تطبيق {{count}} مرشحات",
       "active_count": "{{count}} مرشح نشط",
       "active_count_plural": "{{count}} مرشحات نشطة",
-      "all_brands": "جميع العلامات التجارية"
+      "all_brands": "جميع العلامات التجارية",
+      "show_categories": "الفئات",
+      "show_brands": "العلامات التجارية"
     },
     "search": {
       "placeholder": "البحث عن المنتجات...",

@@ -1,26 +1,47 @@
 <div class="brand-filter">
   <!-- All Brands Option -->
-  <button
+  <div
+    #brandItem
     *ngIf="showAllOption"
-    class="brand-chip"
+    class="brand-item"
     [class.active]="isActive(null)"
     (click)="selectBrand(null)">
-    {{ allLabel | translate }}
-  </button>
+    <div class="brand-image-wrapper">
+      <div class="brand-image toggle-button">
+        <i class="pi pi-building"></i>
+      </div>
+    </div>
+    <span class="brand-name">{{ allLabel | translate }}</span>
+  </div>
 
   <!-- Individual Brands -->
-  <button
+  <div
+    #brandItem
     *ngFor="let brand of brands; trackBy: trackByBrand"
-    class="brand-chip"
+    class="brand-item"
     [class.active]="isActive(brand.id)"
     (click)="selectBrand(brand.id)">
-    <img
-      *ngIf="brand.logo_url"
-      [src]="brand.logo_url"
-      [alt]="brand.name"
-      class="brand-logo">
-    {{ brand.name }}
-  </button>
+    <div class="brand-image-wrapper">
+      <img
+        *ngIf="brand.logo_url"
+        [src]="brand.logo_url"
+        [alt]="brand.name"
+        class="brand-image">
+      <div
+        *ngIf="!brand.logo_url"
+        class="brand-image toggle-button">
+        <i class="pi pi-building"></i>
+      </div>
+    </div>
+    <span class="brand-name">{{ brand.name }}</span>
+  </div>
+
+  <!-- Sliding Indicator -->
+  <div
+    class="brand-indicator"
+    [style.left.px]="indicatorLeft"
+    [style.width.px]="indicatorWidth">
+  </div>
 
   <!-- Loading state -->
   <div *ngIf="loading" class="loading">

@@ -115,7 +115,9 @@
       "apply_filters_plural": "Apply {{count}} Filters",
       "active_count": "{{count}} filter active",
       "active_count_plural": "{{count}} filters active",
-      "all_brands": "All Brands"
+      "all_brands": "All Brands",
+      "show_categories": "Categories",
+      "show_brands": "Brands"
     },
     "search": {
       "placeholder": "Search products...",

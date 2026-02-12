@@ -38,8 +38,7 @@
 
   <!-- Main Content -->
   <main class="flex-1 flex flex-column min-w-0">
-    <ng-container *ngTemplateOutlet="categoryBar"></ng-container>
-    <ng-container *ngTemplateOutlet="brandFilter"></ng-container>
+    <ng-container *ngTemplateOutlet="filterBar"></ng-container>
     <ng-container *ngTemplateOutlet="toolbar"></ng-container>
     <ng-container *ngTemplateOutlet="productsArea"></ng-container>
   </main>
@@ -49,18 +48,7 @@
 <ng-template #mobileLayout>
   <!-- Fixed header - always visible, categories compact on scroll down -->
   <div class="mobile-sticky-header">
-    <app-category-bar
-      [categories]="categories()"
-      [activeCategoryId]="activeCategoryId()"
-      [compact]="compactCategoryBar"
-      [showSearchIcon]="true"
-      (categorySelected)="selectCategoryFromBar($event)"
-      (searchToggle)="toggleMobileToolbar()">
-    </app-category-bar>
-    <app-brand-filter
-      [activeBrandId]="activeBrandId()"
-      (brandSelected)="selectBrand($event)">
-    </app-brand-filter>
+    <ng-container *ngTemplateOutlet="filterBar"></ng-container>
     <div class="mobile-toolbar" [class.visible]="showMobileToolbar()">
       <ng-container *ngTemplateOutlet="toolbar"></ng-container>
     </div>
@@ -81,19 +69,19 @@
   </app-product-filters>
 </ng-template>
 
-<!-- Category Bar Template -->
-<ng-template #categoryBar>
+<!-- Unified Filter Bar Template (Categories or Brands) -->
+<ng-template #filterBar>
   <app-category-bar
+    *ngIf="filterMode() === 'categories'"
     [categories]="categories()"
     [activeCategoryId]="activeCategoryId()"
+    [showAllOption]="false"
     (categorySelected)="selectCategoryFromBar($event)">
   </app-category-bar>
-</ng-template>
-
-<!-- Brand Filter Template -->
-<ng-template #brandFilter>
   <app-brand-filter
+    *ngIf="filterMode() === 'brands'"
     [activeBrandId]="activeBrandId()"
+    [showAllOption]="false"
     (brandSelected)="selectBrand($event)">
   </app-brand-filter>
 </ng-template>
@@ -105,10 +93,12 @@
       [(searchQuery)]="searchQuery"
       [(viewMode)]="layout"
       [filterCount]="activeFilterCount()"
+      [filterMode]="filterMode()"
       (search)="onSearch()"
       (searchInput)="onSearchInput($event)"
       (mobileFiltersToggle)="toggleMobileFilters()"
-      (filtersCleared)="clearFilters()">
+      (filtersCleared)="clearFilters()"
+      (filterModeToggle)="toggleFilterMode()">
     </app-product-toolbar>
   </div>
 </ng-template>

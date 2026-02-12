@@ -49,10 +49,13 @@ export type SortOption = 'name_asc' | 'name_desc' | 'price_asc' | 'price_desc' |
       <div class="flex align-items-center gap-3">
         <!-- Search Section -->
         <ng-container *ngTemplateOutlet="searchBar; context: { class: 'flex-1 max-w-30rem' }"></ng-container>
-        
+
+        <!-- Filter Mode Toggle -->
+        <ng-container *ngTemplateOutlet="filterModeToggle"></ng-container>
+
         <!-- Center Spacer -->
         <div class="flex-1"></div>
-        
+
         <!-- Actions Section -->
         <div class="flex align-items-center gap-2">
           <ng-container *ngTemplateOutlet="viewToggle"></ng-container>
@@ -68,6 +71,7 @@ export type SortOption = 'name_asc' | 'name_desc' | 'price_asc' | 'price_desc' |
     <ng-template #mobileToolbar>
       <div class="flex gap-2 align-items-center">
         <ng-container *ngTemplateOutlet="searchBar; context: { class: 'flex-1' }"></ng-container>
+        <ng-container *ngTemplateOutlet="filterModeToggle"></ng-container>
         <ng-container *ngTemplateOutlet="viewToggle"></ng-container>
         <ng-container *ngTemplateOutlet="mobileFilterButton"></ng-container>
       </div>
@@ -108,11 +112,25 @@ export type SortOption = 'name_asc' | 'name_desc' | 'price_asc' | 'price_desc' |
       </p-select>
     </ng-template>
 
+    <!-- Filter Mode Toggle Template -->
+    <ng-template #filterModeToggle>
+      <button
+        pButton
+        type="button"
+        [icon]="filterMode === 'categories' ? 'pi pi-building' : 'pi pi-th-large'"
+        class="p-button-outlined p-button-sm"
+        (click)="toggleFilterMode()"
+        [pTooltip]="filterMode === 'categories' ? ('products.filters.show_brands' | translate) : ('products.filters.show_categories' | translate)"
+        tooltipPosition="bottom">
+        <span class="hidden lg:inline ml-2">{{ (filterMode === 'categories' ? 'products.filters.show_brands' : 'products.filters.show_categories') | translate }}</span>
+      </button>
+    </ng-template>
+
     <!-- View Toggle Template -->
     <ng-template #viewToggle>
-      <button 
-        pButton 
-        type="button" 
+      <button
+        pButton
+        type="button"
         [icon]="viewMode === 'grid' ? 'pi pi-list' : 'pi pi-th-large'"
         class="p-button-text p-button-sm"
         (click)="toggleViewMode()"
@@ -347,7 +365,8 @@ export class ProductToolbarComponent implements OnInit {
   @Input() sortBy: SortOption = 'name_asc';
   @Input() viewMode: ViewMode = 'grid';
   @Input() filterCount = 0;
-  
+  @Input() filterMode: 'categories' | 'brands' = 'categories';
+
   @Output() searchQueryChange = new EventEmitter<string>();
   @Output() sortByChange = new EventEmitter<SortOption>();
   @Output() viewModeChange = new EventEmitter<ViewMode>();
@@ -355,6 +374,7 @@ export class ProductToolbarComponent implements OnInit {
   @Output() searchInput = new EventEmitter<string>();
   @Output() mobileFiltersToggle = new EventEmitter<void>();
   @Output() filtersCleared = new EventEmitter<void>();
+  @Output() filterModeToggle = new EventEmitter<void>();
 
   sortOptions: { label: string; value: string }[] = [];
 
@@ -402,6 +422,10 @@ export class ProductToolbarComponent implements OnInit {
 
   clearFilters(): void {
     this.filtersCleared.emit();
+  }
+
+  toggleFilterMode(): void {
+    this.filterModeToggle.emit();
   }
 
   onSearchInputChange(event: Event): void {
