@@ -35,7 +35,9 @@
     "yes": "Oui",
     "no": "Non",
     "and": "et",
-    "unknown": "Inconnu"
+    "unknown": "Inconnu",
+    "active": "Actif",
+    "inactive": "Inactif"
   },
   "Select All": "Tout Sélectionner",
   "Clear": "Effacer",

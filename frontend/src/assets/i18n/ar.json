@@ -35,7 +35,9 @@
     "yes": "نعم",
     "no": "لا",
     "and": "و",
-    "unknown": "غير معروف"
+    "unknown": "غير معروف",
+    "active": "نشط",
+    "inactive": "غير نشط"
   },
   "Select All": "تحديد الكل",
   "Clear": "مسح",
