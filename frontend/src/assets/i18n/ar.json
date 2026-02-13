@@ -603,6 +603,8 @@
       "delete_failed": "فشل في حذف المنتج",
       "price_updated": "تم تحديث السعر بنجاح!",
       "price_update_failed": "فشل في تحديث السعر",
+      "stock_updated": "تم تحديث المخزون بنجاح!",
+      "stock_update_failed": "فشل في تحديث المخزون",
       "load_error": "فشل في تحميل المنتجات",
       "confirm_delete_header": "تأكيد الحذف",
       "confirm_delete_message": "هل أنت متأكد من حذف \"{{productName}}\"؟ لا يمكن التراجع عن هذا الإجراء.",

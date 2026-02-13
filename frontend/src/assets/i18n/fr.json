@@ -602,6 +602,8 @@
       "delete_failed": "Échec de la suppression du produit",
       "price_updated": "Prix mis à jour avec succès !",
       "price_update_failed": "Échec de la mise à jour du prix",
+      "stock_updated": "Stock mis à jour avec succès !",
+      "stock_update_failed": "Échec de la mise à jour du stock",
       "load_error": "Échec du chargement des produits",
       "confirm_delete_header": "Confirmer la Suppression",
       "confirm_delete_message": "Êtes-vous sûr de vouloir supprimer \"{{productName}}\" ? Cette action ne peut pas être annulée.",

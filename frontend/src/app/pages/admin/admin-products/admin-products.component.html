@@ -331,15 +331,43 @@
           
           <!-- Stock -->
           <td class="text-center">
-            <div class="flex flex-column align-items-center">
-              <p-tag 
-                [value]="getStockLabel(product.stock_quantity)" 
+            <!-- Display Mode -->
+            <div *ngIf="!isEditingStock(product.id)" class="flex flex-column align-items-center cursor-pointer" (click)="startEditStock(product)">
+              <p-tag
+                [value]="getStockLabel(product.stock_quantity)"
                 [severity]="getStockSeverity(product.stock_quantity)"
                 class="mb-1"
               />
-              <span class="text-600 text-sm">
+              <span class="text-600 text-sm hover:text-primary">
                 {{ product.stock_quantity }} {{ getUnitDisplay(product.unit) }}
               </span>
+            </div>
+            <!-- Edit Mode -->
+            <div *ngIf="isEditingStock(product.id)" class="flex align-items-center gap-1 justify-content-center">
+              <input
+                type="number"
+                pInputText
+                [(ngModel)]="editingStock"
+                class="w-5rem text-center p-1"
+                (keydown.enter)="saveStock(product)"
+                (keydown.escape)="cancelEditStock()"
+                min="0"
+                autofocus
+              />
+              <p-button
+                icon="pi pi-check"
+                severity="success"
+                size="small"
+                [rounded]="true"
+                (click)="saveStock(product)"
+              />
+              <p-button
+                icon="pi pi-times"
+                severity="secondary"
+                size="small"
+                [rounded]="true"
+                (click)="cancelEditStock()"
+              />
             </div>
           </td>
           

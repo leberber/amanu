@@ -82,8 +82,10 @@ export class AdminProductsComponent implements OnInit {
   selectedCategory = null;
 
   // Inline editing state
-  editingProductId: number | null = null;
+  editingPriceProductId: number | null = null;
   editingPrice: number = 0;
+  editingStockProductId: number | null = null;
+  editingStock: number = 0;
   
   // Services
   private productService = inject(ProductService);
@@ -216,12 +218,12 @@ export class AdminProductsComponent implements OnInit {
 
   // Inline price editing methods
   startEditPrice(product: Product): void {
-    this.editingProductId = product.id;
+    this.editingPriceProductId = product.id;
     this.editingPrice = product.price;
   }
 
   cancelEditPrice(): void {
-    this.editingProductId = null;
+    this.editingPriceProductId = null;
     this.editingPrice = 0;
   }
 
@@ -232,8 +234,7 @@ export class AdminProductsComponent implements OnInit {
     }
 
     this.productService.updateProduct(product.id, { price: this.editingPrice }).subscribe({
-      next: (updatedProduct) => {
-        // Update in both arrays
+      next: () => {
         const index = this.allProducts.findIndex(p => p.id === product.id);
         if (index !== -1) {
           this.allProducts[index].price = this.editingPrice;
@@ -262,7 +263,57 @@ export class AdminProductsComponent implements OnInit {
   }
 
   isEditingPrice(productId: number): boolean {
-    return this.editingProductId === productId;
+    return this.editingPriceProductId === productId;
+  }
+
+  // Inline stock editing methods
+  startEditStock(product: Product): void {
+    this.editingStockProductId = product.id;
+    this.editingStock = product.stock_quantity;
+  }
+
+  cancelEditStock(): void {
+    this.editingStockProductId = null;
+    this.editingStock = 0;
+  }
+
+  saveStock(product: Product): void {
+    if (this.editingStock === product.stock_quantity) {
+      this.cancelEditStock();
+      return;
+    }
+
+    this.productService.updateProduct(product.id, { stock_quantity: this.editingStock }).subscribe({
+      next: () => {
+        const index = this.allProducts.findIndex(p => p.id === product.id);
+        if (index !== -1) {
+          this.allProducts[index].stock_quantity = this.editingStock;
+        }
+        const displayIndex = this.products.findIndex(p => p.id === product.id);
+        if (displayIndex !== -1) {
+          this.products[displayIndex].stock_quantity = this.editingStock;
+        }
+
+        this.messageService.add({
+          severity: 'success',
+          summary: this.translateService.instant('common.success'),
+          detail: this.translateService.instant('admin.products.stock_updated')
+        });
+        this.cancelEditStock();
+      },
+      error: (error) => {
+        console.error('Error updating stock:', error);
+        this.messageService.add({
+          severity: 'error',
+          summary: this.translateService.instant('common.error'),
+          detail: this.translateService.instant('admin.products.stock_update_failed')
+        });
+      }
+    });
+  }
+
+  isEditingStock(productId: number): boolean {
+    return this.editingStockProductId === productId;
   }
 
   // Private methods
