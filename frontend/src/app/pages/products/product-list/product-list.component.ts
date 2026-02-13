@@ -446,16 +446,49 @@ export class ProductListComponent implements OnInit, OnDestroy {
   }
 
   private loadProducts(): Observable<Product[]> {
+    const currentMode = this.filterMode();
+
+    // In brands mode, use brand filter only (ignore category selection)
+    if (currentMode === 'brands') {
+      const currentFilters = { ...this.filters() };
+      // Ensure brand_id is set if we have an active brand
+      if (this.activeBrandId()) {
+        currentFilters.brand_id = this.activeBrandId()!;
+      }
+      // Remove category_id since we're in brands mode
+      delete currentFilters.category_id;
+
+      return this.productService.getProducts(currentFilters).pipe(
+        tap(products => {
+          this.products.set(products);
+          products.forEach(p => {
+            if (!this.productQuantities[p.id]) {
+              if (p.quantity_config?.type === 'list' && p.quantity_config.quantities && p.quantity_config.quantities.length > 0) {
+                this.productQuantities[p.id] = p.quantity_config.quantities[0];
+              } else {
+                this.productQuantities[p.id] = 1;
+              }
+            }
+          });
+          this.loading.set(false);
+        })
+      );
+    }
+
+    // In categories mode, use category filter only (ignore brand selection)
     const selectedCats = this.selectedCategories();
-    
+
     if (selectedCats.length === 0) {
       this.products.set([]);
       this.loading.set(false);
       return of([]);
     }
-    
+
     if (selectedCats.length === 1) {
       const currentFilters = { ...this.filters(), category_id: selectedCats[0].id };
+      // Remove brand_id since we're in categories mode
+      delete currentFilters.brand_id;
+
       return this.productService.getProducts(currentFilters).pipe(
         tap(products => {
           this.products.set(products);
@@ -473,20 +506,22 @@ export class ProductListComponent implements OnInit, OnDestroy {
         })
       );
     }
-    
+
     // Multiple categories
     this.loading.set(true);
-    
+
     const categoryObservables = selectedCats.map(category => {
       const categoryFilter = { ...this.filters(), category_id: category.id };
+      // Remove brand_id since we're in categories mode
+      delete categoryFilter.brand_id;
       return this.productService.getProducts(categoryFilter);
     });
-    
+
     return forkJoin(categoryObservables).pipe(
       map(results => {
         const allProducts: Product[] = [];
         const productIds = new Set<number>();
-        
+
         results.forEach(categoryProducts => {
           categoryProducts.forEach(product => {
             if (!productIds.has(product.id)) {
@@ -495,7 +530,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
             }
           });
         });
-        
+
         this.sortProducts(allProducts);
         this.products.set(allProducts);
         allProducts.forEach(p => {
