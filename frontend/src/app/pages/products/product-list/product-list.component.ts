@@ -220,11 +220,16 @@ export class ProductListComponent implements OnInit, OnDestroy {
         return rest;
       });
     } else {
-      // Switching TO brands - clear category filter
+      // Switching TO brands - clear category filter and auto-select first brand if none selected
       this.filters.update(f => {
         const { category_id, ...rest } = f;
         return rest;
       });
+
+      // Auto-select first brand if no brand is currently selected
+      if (!this.activeBrandId() && this.brands().length > 0) {
+        this.activeBrandId.set(this.brands()[0].id);
+      }
     }
 
     // Reload products with the cleared filter
