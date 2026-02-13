@@ -3,7 +3,7 @@ export const environment = {
   // production: false,
   // apiUrl: 'https://Elsuq-5028o9mls-yazids-projects-3370118f.vercel.app/api/v1'
   //  apiUrl: '/api/v1'
-  apiUrl: 'http://192.168.43.15:8000/api/v1', // Using local IP for mobile testing
+  apiUrl: 'http://192.168.43.14:8000/api/v1', // Using local IP for mobile testing
 };
 
 //   // src/environments/environment.prod.ts

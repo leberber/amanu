@@ -3,6 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, BehaviorSubject, tap } from 'rxjs';
 import { Brand, BrandCreate, BrandUpdate } from '../../models/brand.model';
 import { TranslateService } from '@ngx-translate/core';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +11,7 @@ import { TranslateService } from '@ngx-translate/core';
 export class BrandService {
   private http = inject(HttpClient);
   private translateService = inject(TranslateService);
-  private apiUrl = '/api/v1/brands/';
+  private apiUrl = `${environment.apiUrl}/brands/`;
 
   // Cache for brands
   private brandsCache$ = new BehaviorSubject<Brand[]>([]);
