@@ -129,6 +129,9 @@
   color: var(--text-color-secondary);
   text-align: center;
   white-space: nowrap;
+  max-width: 90px;
+  overflow: hidden;
+  text-overflow: ellipsis;
   line-height: 1.1;
   position: relative;
   z-index: 10;
