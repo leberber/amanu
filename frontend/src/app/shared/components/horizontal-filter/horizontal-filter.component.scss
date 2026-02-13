@@ -134,14 +134,14 @@
   line-height: 1.1;
   position: relative;
   z-index: 10;
-  margin-top: -0.5rem;
+  margin-top: 0rem;
   transition: opacity var(--transition-duration) ease-in-out;
 }
 
 // Hide item names for categories
-.filter-bar[data-filter-type="categories"] .item-name:not(.toggle-label) {
-  display: none;
-}
+// .filter-bar[data-filter-type="categories"] .item-name:not(.toggle-label) {
+//   display: none;
+// }
 
 // Item count badge (only for categories)
 .item-count {

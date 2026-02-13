@@ -122,8 +122,8 @@ export class HorizontalFilterComponent implements OnInit, AfterViewInit, OnChang
   }
 
   showItemName(): boolean {
-    // For categories, names are hidden. For brands, names are shown
-    return this.filterType === 'brands';
+    // Show names for both categories and brands
+    return true;
   }
 
   trackByItem(_index: number, item: FilterItem): number {
