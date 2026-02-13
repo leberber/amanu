@@ -55,7 +55,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.25rem;
+  gap: 0.15rem;
   min-width: 70px;
   cursor: pointer;
   position: relative;
@@ -91,7 +91,8 @@
     .toggle-label {
       color: var(--primary-color);
       font-weight: 600;
-      font-size: 0.7rem;
+      font-size: 0.7rem !important;
+      margin-top: -0.30rem !important;
     }
   }
 }
@@ -124,7 +125,7 @@
 
 // Item name label (hidden for categories, shown for brands)
 .item-name {
-  font-size: 0.75rem;
+  font-size: 0.85rem !important;
   color: var(--text-color-secondary);
   text-align: center;
   white-space: normal;
@@ -133,6 +134,7 @@
   line-height: 1.1;
   position: relative;
   z-index: 10;
+  margin-top: -0.5rem;
   transition: opacity var(--transition-duration) ease-in-out;
 }
 
