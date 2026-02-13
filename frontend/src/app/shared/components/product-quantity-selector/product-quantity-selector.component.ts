@@ -38,20 +38,9 @@ interface QuantityOption {
             [disabled]="!canDecrease || disabled"
             (click)="decreaseQuantity()">
           </button>
-          
-          <p-select
-            [(ngModel)]="quantity"
-            [options]="getDropdownOptions()"
-            optionLabel="label"
-            optionValue="value"
-            [disabled]="disabled"
-            [filter]="false"
-            [showClear]="false"
-            (onChange)="onQuantityChange()"
-            appendTo="body"
-            styleClass="compact-dropdown">
-          </p-select>
-          
+
+          <span class="quantity-display">{{ formatQuantityLabel(quantity) }}</span>
+
           <button
             pButton
             type="button"
@@ -190,43 +179,22 @@ interface QuantityOption {
     .cart-quantity-selector {
       display: flex;
       align-items: center;
-      gap: 0.25rem;
-      
-      ::ng-deep .compact-dropdown {
-        flex: 1;
-        min-width: 70px;
-        max-width: 90px;
-        
-        .p-select {
-          min-width: 100%;
-        }
-        
-        .p-select-label {
-          padding: 0.25rem 0.25rem 0.25rem 0.5rem;
-          font-size: 0.875rem;
-          font-weight: normal;
-          color: var(--primary-color);
-          text-align: center;
-          white-space: nowrap;
-          overflow: visible !important;
-          text-overflow: clip !important;
-        }
-        
-        .p-select-trigger {
-          width: 2rem;
-          padding: 0 0.25rem;
-        }
-        
-        .p-select-trigger-icon {
-          font-size: 0.75rem;
-        }
+      gap: 0.5rem;
+
+      .quantity-display {
+        min-width: 60px;
+        text-align: center;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--text-color);
+        white-space: nowrap;
       }
-      
+
       button {
         width: 1.75rem !important;
         height: 1.75rem !important;
         padding: 0 !important;
-        
+
         .p-button-icon {
           font-size: 0.75rem;
         }
@@ -479,34 +447,40 @@ export class ProductQuantitySelectorComponent implements OnInit, OnChanges, OnDe
   selectQuantityPlaceholder: string = 'Select Quantity';
 
   get canIncrease(): boolean {
-    // For list type, check if there's a next value
-    if (this.quantityConfig?.type === 'list' && this.quantityConfig.quantities) {
+    // For list type (check both type field and presence of quantities array)
+    const hasQuantitiesList = this.quantityConfig?.quantities && this.quantityConfig.quantities.length > 0;
+    const isListType = this.quantityConfig?.type === 'list' || hasQuantitiesList;
+
+    if (isListType && this.quantityConfig?.quantities) {
       // Filter based on stock first
       const availableQuantities = this.maxStock !== undefined
         ? this.quantityConfig.quantities.filter(qty => qty <= this.maxStock!)
         : this.quantityConfig.quantities;
-      
+
       const currentIndex = availableQuantities.indexOf(this.quantity);
       return currentIndex >= 0 && currentIndex < availableQuantities.length - 1;
     }
-    
+
     // For range or default
     const maxAllowed = this.getMaxAllowed();
     return this.quantity < maxAllowed;
   }
 
   get canDecrease(): boolean {
-    // For list type, check if there's a previous value
-    if (this.quantityConfig?.type === 'list' && this.quantityConfig.quantities) {
+    // For list type (check both type field and presence of quantities array)
+    const hasQuantitiesList = this.quantityConfig?.quantities && this.quantityConfig.quantities.length > 0;
+    const isListType = this.quantityConfig?.type === 'list' || hasQuantitiesList;
+
+    if (isListType && this.quantityConfig?.quantities) {
       // Filter based on stock first
       const availableQuantities = this.maxStock !== undefined
         ? this.quantityConfig.quantities.filter(qty => qty <= this.maxStock!)
         : this.quantityConfig.quantities;
-      
+
       const currentIndex = availableQuantities.indexOf(this.quantity);
       return currentIndex > 0;
     }
-    
+
     // For range or default
     return this.quantity > this.min;
   }
@@ -775,14 +749,17 @@ export class ProductQuantitySelectorComponent implements OnInit, OnChanges, OnDe
 
   increaseQuantity() {
     if (!this.canIncrease) return;
-    
-    // For list type, move to next value in list
-    if (this.quantityConfig?.type === 'list' && this.quantityConfig.quantities) {
+
+    // For list type (check both type field and presence of quantities array)
+    const hasQuantitiesList = this.quantityConfig?.quantities && this.quantityConfig.quantities.length > 0;
+    const isListType = this.quantityConfig?.type === 'list' || hasQuantitiesList;
+
+    if (isListType && this.quantityConfig?.quantities) {
       // Filter based on stock first
       const availableQuantities = this.maxStock !== undefined
         ? this.quantityConfig.quantities.filter(qty => qty <= this.maxStock!)
         : this.quantityConfig.quantities;
-      
+
       const currentIndex = availableQuantities.indexOf(this.quantity);
       if (currentIndex >= 0 && currentIndex < availableQuantities.length - 1) {
         this.quantity = availableQuantities[currentIndex + 1];
@@ -790,22 +767,26 @@ export class ProductQuantitySelectorComponent implements OnInit, OnChanges, OnDe
       }
       return;
     }
-    
-    // For range or default
-    this.quantity = Math.min(this.quantity + this.step, this.getMaxAllowed());
+
+    // For range type, use step from config if available
+    const stepValue = this.quantityConfig?.step || this.step;
+    this.quantity = Math.min(this.quantity + stepValue, this.getMaxAllowed());
     this.onQuantityChange();
   }
 
   decreaseQuantity() {
     if (!this.canDecrease) return;
-    
-    // For list type, move to previous value in list
-    if (this.quantityConfig?.type === 'list' && this.quantityConfig.quantities) {
+
+    // For list type (check both type field and presence of quantities array)
+    const hasQuantitiesList = this.quantityConfig?.quantities && this.quantityConfig.quantities.length > 0;
+    const isListType = this.quantityConfig?.type === 'list' || hasQuantitiesList;
+
+    if (isListType && this.quantityConfig?.quantities) {
       // Filter based on stock first
       const availableQuantities = this.maxStock !== undefined
         ? this.quantityConfig.quantities.filter(qty => qty <= this.maxStock!)
         : this.quantityConfig.quantities;
-      
+
       const currentIndex = availableQuantities.indexOf(this.quantity);
       if (currentIndex > 0) {
         this.quantity = availableQuantities[currentIndex - 1];
@@ -813,9 +794,10 @@ export class ProductQuantitySelectorComponent implements OnInit, OnChanges, OnDe
       }
       return;
     }
-    
-    // For range or default
-    this.quantity = Math.max(this.quantity - this.step, this.min);
+
+    // For range type, use step from config if available
+    const stepValue = this.quantityConfig?.step || this.step;
+    this.quantity = Math.max(this.quantity - stepValue, this.min);
     this.onQuantityChange();
   }
 
