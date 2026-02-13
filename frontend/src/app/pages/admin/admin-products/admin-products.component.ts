@@ -17,6 +17,7 @@ import { ConfirmationService } from 'primeng/api';
 import { SelectModule } from 'primeng/select';
 
 import { ProductService } from '../../../services/product.service';
+import { BrandService } from '../../../core/services/brand.service';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { TranslationHelperService } from '../../../core/services/translation-helper.service';
 import { UnitsService } from '../../../core/services/units.service';
@@ -25,6 +26,7 @@ import { DateService } from '../../../core/services/date.service';
 import { StockStatusService } from '../../../core/services/stock-status.service';
 import { Product } from '../../../models/product.model';
 import { Category } from '../../../models/category.model';
+import { Brand } from '../../../models/brand.model';
 import { ROUTES, RouteHelpers } from '../../../core/constants/routes.constants';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
@@ -73,6 +75,7 @@ export class AdminProductsComponent implements OnInit {
   allProducts: Product[] = [];
   products: Product[] = [];
   categories: Category[] = [];
+  brands: Brand[] = [];
   categoryOptions: any[] = [];
   loading = true;
   searchQuery = '';
@@ -80,6 +83,7 @@ export class AdminProductsComponent implements OnInit {
   
   // Services
   private productService = inject(ProductService);
+  private brandService = inject(BrandService);
   private messageService = inject(MessageService);
   private router = inject(Router);
   private translateService = inject(TranslateService);
@@ -94,10 +98,12 @@ export class AdminProductsComponent implements OnInit {
   // Lifecycle hooks
   ngOnInit() {
     this.loadCategories();
+    this.loadBrands();
     this.loadAllProducts();
-    
+
     this.translateService.onLangChange.subscribe(() => {
       this.loadCategories();
+      this.loadBrands();
     });
   }
 
@@ -165,6 +171,17 @@ export class AdminProductsComponent implements OnInit {
     return this.translationHelper.getCategoryName(category);
   }
 
+  getBrandName(brandId: number | undefined): string {
+    if (!brandId) {
+      return '-';
+    }
+    const brand = this.brands.find(b => b.id === brandId);
+    if (!brand) {
+      return this.translateService.instant('common.unknown');
+    }
+    return brand.name;
+  }
+
   getProductName(product: Product): string {
     return this.translationHelper.getProductName(product);
   }
@@ -202,8 +219,8 @@ export class AdminProductsComponent implements OnInit {
         const options = categories.map(cat => {
           const category = cat as any;
           return {
-            label: (category.name_translations && category.name_translations[currentLang]) 
-              ? category.name_translations[currentLang] 
+            label: (category.name_translations && category.name_translations[currentLang])
+              ? category.name_translations[currentLang]
               : category.name,
             value: category.id
           };
@@ -215,6 +232,17 @@ export class AdminProductsComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading categories:', error);
+      }
+    });
+  }
+
+  private loadBrands() {
+    this.brandService.getBrands(false).subscribe({
+      next: (brands) => {
+        this.brands = brands;
+      },
+      error: (error) => {
+        console.error('Error loading brands:', error);
       }
     });
   }

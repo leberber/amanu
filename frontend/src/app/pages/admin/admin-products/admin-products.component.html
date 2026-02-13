@@ -188,7 +188,15 @@
               <p-sortIcon [field]="'category_id'" />
             </div>
           </th>
-          
+
+          <!-- Brand Column -->
+          <th pSortableColumn="brand_id" style="min-width: 120px">
+            <div class="flex align-items-center gap-2">
+              <span>{{ 'admin.products.table.brand' | translate }}</span>
+              <p-sortIcon [field]="'brand_id'" />
+            </div>
+          </th>
+
           <!-- Price Column -->
           <th pSortableColumn="price" style="min-width: 100px" class="text-right">
             <div class="flex align-items-center justify-content-end gap-2">
@@ -266,12 +274,22 @@
           
           <!-- Category -->
           <td>
-            <p-tag 
-              [value]="getCategoryName(product.category_id)" 
+            <p-tag
+              [value]="getCategoryName(product.category_id)"
               severity="info"
             />
           </td>
-          
+
+          <!-- Brand -->
+          <td>
+            <p-tag
+              *ngIf="product.brand_id"
+              [value]="getBrandName(product.brand_id)"
+              [style]="{ 'background-color': '#FDF2F8', 'color': '#DB2777' }"
+            />
+            <span *ngIf="!product.brand_id" class="text-500">-</span>
+          </td>
+
           <!-- Price -->
           <td class="text-right">
             <div class="flex flex-column align-items-end">
@@ -352,7 +370,7 @@
       <!-- Enhanced Empty State -->
       <ng-template pTemplate="emptymessage">
         <tr>
-          <td colspan="7" class="text-center p-6">
+          <td colspan="8" class="text-center p-6">
             <div class="flex flex-column align-items-center gap-3">
               <i class="pi pi-box text-6xl text-gray-300"></i>
               <div>
@@ -385,7 +403,7 @@
       <!-- Loading Template -->
       <ng-template pTemplate="loadingbody">
         <tr>
-          <td colspan="7" class="text-center p-4">
+          <td colspan="8" class="text-center p-4">
             <div class="flex align-items-center justify-content-center gap-2">
               <p-progressSpinner [style]="{'width': '2rem', 'height': '2rem'}" />
               <span class="text-600">Loading products...</span>

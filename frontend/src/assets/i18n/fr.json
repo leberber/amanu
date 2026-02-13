@@ -621,6 +621,7 @@
       "table": {
         "product_name": "Nom du Produit",
         "category": "Catégorie",
+        "brand": "Marque",
         "price": "Prix",
         "stock": "Stock",
         "status": "Statut",
