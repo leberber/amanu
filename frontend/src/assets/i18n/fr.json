@@ -39,7 +39,9 @@
     "active": "Actif",
     "inactive": "Inactif",
     "confirm_delete": "Confirmer la suppression",
-    "confirm_delete_message": "Êtes-vous sûr de vouloir supprimer \"{{item}}\" ? Cette action est irréversible."
+    "confirm_delete_message": "Êtes-vous sûr de vouloir supprimer \"{{item}}\" ? Cette action est irréversible.",
+    "warning": "Avertissement",
+    "proceed": "Continuer"
   },
   "Select All": "Tout Sélectionner",
   "Clear": "Effacer",

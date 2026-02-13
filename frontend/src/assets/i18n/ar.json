@@ -39,7 +39,9 @@
     "active": "نشط",
     "inactive": "غير نشط",
     "confirm_delete": "تأكيد الحذف",
-    "confirm_delete_message": "هل أنت متأكد من حذف \"{{item}}\"؟ لا يمكن التراجع عن هذا الإجراء."
+    "confirm_delete_message": "هل أنت متأكد من حذف \"{{item}}\"؟ لا يمكن التراجع عن هذا الإجراء.",
+    "warning": "تحذير",
+    "proceed": "متابعة"
   },
   "Select All": "تحديد الكل",
   "Clear": "مسح",
