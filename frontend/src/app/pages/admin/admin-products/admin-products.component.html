@@ -292,13 +292,40 @@
 
           <!-- Price -->
           <td class="text-right">
-            <div class="flex flex-column align-items-end">
-              <span class="font-semibold text-lg text-900">
+            <!-- Display Mode -->
+            <div *ngIf="!isEditingPrice(product.id)" class="flex flex-column align-items-end cursor-pointer" (click)="startEditPrice(product)">
+              <span class="font-semibold text-lg text-900 hover:text-primary">
                 {{ formatPrice(product.price) }}
               </span>
               <span class="text-600 text-sm">
                 {{ 'admin.products.per' | translate }} {{ getUnitDisplay(product.unit) }}
               </span>
+            </div>
+            <!-- Edit Mode -->
+            <div *ngIf="isEditingPrice(product.id)" class="flex align-items-center gap-1 justify-content-end">
+              <input
+                type="number"
+                pInputText
+                [(ngModel)]="editingPrice"
+                class="w-6rem text-right p-1"
+                (keydown.enter)="savePrice(product)"
+                (keydown.escape)="cancelEditPrice()"
+                autofocus
+              />
+              <p-button
+                icon="pi pi-check"
+                severity="success"
+                size="small"
+                [rounded]="true"
+                (click)="savePrice(product)"
+              />
+              <p-button
+                icon="pi pi-times"
+                severity="secondary"
+                size="small"
+                [rounded]="true"
+                (click)="cancelEditPrice()"
+              />
             </div>
           </td>
           

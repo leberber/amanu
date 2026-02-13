@@ -80,6 +80,10 @@ export class AdminProductsComponent implements OnInit {
   loading = true;
   searchQuery = '';
   selectedCategory = null;
+
+  // Inline editing state
+  editingProductId: number | null = null;
+  editingPrice: number = 0;
   
   // Services
   private productService = inject(ProductService);
@@ -208,6 +212,57 @@ export class AdminProductsComponent implements OnInit {
 
   formatPrice(price: number): string {
     return this.currencyService.formatCurrency(price);
+  }
+
+  // Inline price editing methods
+  startEditPrice(product: Product): void {
+    this.editingProductId = product.id;
+    this.editingPrice = product.price;
+  }
+
+  cancelEditPrice(): void {
+    this.editingProductId = null;
+    this.editingPrice = 0;
+  }
+
+  savePrice(product: Product): void {
+    if (this.editingPrice === product.price) {
+      this.cancelEditPrice();
+      return;
+    }
+
+    this.productService.updateProduct(product.id, { price: this.editingPrice }).subscribe({
+      next: (updatedProduct) => {
+        // Update in both arrays
+        const index = this.allProducts.findIndex(p => p.id === product.id);
+        if (index !== -1) {
+          this.allProducts[index].price = this.editingPrice;
+        }
+        const displayIndex = this.products.findIndex(p => p.id === product.id);
+        if (displayIndex !== -1) {
+          this.products[displayIndex].price = this.editingPrice;
+        }
+
+        this.messageService.add({
+          severity: 'success',
+          summary: this.translateService.instant('common.success'),
+          detail: this.translateService.instant('admin.products.price_updated')
+        });
+        this.cancelEditPrice();
+      },
+      error: (error) => {
+        console.error('Error updating price:', error);
+        this.messageService.add({
+          severity: 'error',
+          summary: this.translateService.instant('common.error'),
+          detail: this.translateService.instant('admin.products.price_update_failed')
+        });
+      }
+    });
+  }
+
+  isEditingPrice(productId: number): boolean {
+    return this.editingProductId === productId;
   }
 
   // Private methods

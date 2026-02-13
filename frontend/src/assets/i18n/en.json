@@ -603,6 +603,8 @@
       "update_success": "Product updated successfully!",
       "delete_success": "Product deleted successfully!",
       "delete_failed": "Failed to delete product",
+      "price_updated": "Price updated successfully!",
+      "price_update_failed": "Failed to update price",
       "load_error": "Failed to load products",
       "confirm_delete_header": "Confirm Delete",
       "confirm_delete_message": "Are you sure you want to delete \"{{productName}}\"? This action cannot be undone.",
