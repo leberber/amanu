@@ -128,9 +128,7 @@
   font-size: 0.85rem !important;
   color: var(--text-color-secondary);
   text-align: center;
-  white-space: normal;
-  max-width: 70px;
-  word-wrap: break-word;
+  white-space: nowrap;
   line-height: 1.1;
   position: relative;
   z-index: 10;
