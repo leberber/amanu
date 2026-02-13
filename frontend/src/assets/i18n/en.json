@@ -844,6 +844,14 @@
         "created": "Created",
         "actions": "Actions"
       },
+      "actions": {
+        "edit": "Edit Brand",
+        "delete": "Delete Brand"
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive"
+      },
       "form": {
         "translations": "Brand Names",
         "translation_help": "Provide the brand name in all supported languages. English will be used as the primary name.",

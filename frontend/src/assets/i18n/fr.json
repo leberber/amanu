@@ -490,6 +490,7 @@
       },
       "table": {
         "order_id": "ID Commande",
+        "order_number": "N° Commande",
         "customer": "Détails Client",
         "date": "Date de Commande",
         "status": "Statut",
@@ -523,6 +524,9 @@
       "loading": "Chargement des utilisateurs...",
       "table": {
         "id": "ID",
+        "name": "Nom",
+        "email": "Email",
+        "joined": "Inscrit le",
         "user_details": "Détails de l'Utilisateur",
         "role": "Rôle",
         "status": "Statut",
@@ -599,7 +603,9 @@
       "product_info": "Informations Produit",
       "stock_management": "Gestion du Stock",
       "create_success": "Produit créé avec succès !",
+      "create_failed": "Échec de la création du produit",
       "update_success": "Produit mis à jour avec succès !",
+      "update_failed": "Échec de la mise à jour du produit",
       "delete_success": "Produit supprimé avec succès !",
       "delete_failed": "Échec de la suppression du produit",
       "price_updated": "Prix mis à jour avec succès !",
@@ -625,6 +631,8 @@
         "all_categories": "Toutes les Catégories"
       },
       "table": {
+        "id": "ID",
+        "name": "Nom",
         "product_name": "Nom du Produit",
         "category": "Catégorie",
         "brand": "Marque",
@@ -734,6 +742,8 @@
       "no_description": "Pas de description",
       "products_label": "produits",
       "table": {
+        "id": "ID",
+        "name": "Nom",
         "category_name": "Nom de la Catégorie",
         "description": "Description",
         "products": "Produits",
@@ -832,6 +842,14 @@
         "status": "Statut",
         "created": "Créé le",
         "actions": "Actions"
+      },
+      "actions": {
+        "edit": "Modifier la marque",
+        "delete": "Supprimer la marque"
+      },
+      "status": {
+        "active": "Actif",
+        "inactive": "Inactif"
       },
       "form": {
         "translations": "Noms de marque",
