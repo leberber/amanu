@@ -37,7 +37,9 @@
     "and": "et",
     "unknown": "Inconnu",
     "active": "Actif",
-    "inactive": "Inactif"
+    "inactive": "Inactif",
+    "confirm_delete": "Confirmer la suppression",
+    "confirm_delete_message": "Êtes-vous sûr de vouloir supprimer \"{{item}}\" ? Cette action est irréversible."
   },
   "Select All": "Tout Sélectionner",
   "Clear": "Effacer",

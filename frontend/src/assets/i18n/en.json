@@ -37,7 +37,9 @@
     "and": "and",
     "unknown": "Unknown",
     "active": "Active",
-    "inactive": "Inactive"
+    "inactive": "Inactive",
+    "confirm_delete": "Confirm Delete",
+    "confirm_delete_message": "Are you sure you want to delete \"{{item}}\"? This action cannot be undone."
   },
   "Select All": "Select All",
   "Clear": "Clear",
