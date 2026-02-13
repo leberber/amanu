@@ -209,7 +209,27 @@ export class ProductListComponent implements OnInit, OnDestroy {
   }
 
   toggleFilterMode(): void {
-    this.filterMode.update(mode => mode === 'categories' ? 'brands' : 'categories');
+    const newMode = this.filterMode() === 'categories' ? 'brands' : 'categories';
+    this.filterMode.set(newMode);
+
+    // Clear the OTHER mode's filter when switching
+    if (newMode === 'categories') {
+      // Switching TO categories - clear brand filter
+      this.filters.update(f => {
+        const { brand_id, ...rest } = f;
+        return rest;
+      });
+    } else {
+      // Switching TO brands - clear category filter
+      this.filters.update(f => {
+        const { category_id, ...rest } = f;
+        return rest;
+      });
+    }
+
+    // Reload products with the cleared filter
+    this.loading.set(true);
+    this.loadProducts().subscribe();
   }
 
   // Category bar selection
