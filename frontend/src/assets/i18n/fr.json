@@ -228,6 +228,25 @@
       "actions": "Actions"
     }
   },
+  "promotions": {
+    "title": "Promotions",
+    "promo_code": "Code Promo",
+    "enter_code": "Entrez le code promo",
+    "apply": "Appliquer",
+    "remove": "Supprimer",
+    "discount": "Réduction",
+    "subtotal": "Sous-total",
+    "total": "Total",
+    "invalid_code": "Code promo invalide",
+    "expired_code": "Ce code promo a expiré",
+    "code_applied": "Code promo appliqué !",
+    "discount_applied": "Vous économisez {{amount}}",
+    "no_discount": "Ce code ne s'applique pas à votre panier",
+    "min_order_required": "Commande minimum de {{amount}} requise",
+    "usage_limit_reached": "Ce code promo a atteint sa limite d'utilisation",
+    "sale": "PROMO",
+    "off": "DE RÉDUCTION"
+  },
   "auth": {
     "login_title": "Connexion",
     "login_subtitle": "Entrez vos identifiants pour accéder à votre compte",

@@ -92,10 +92,13 @@ class Promotion(PromotionBase, table=True):
 
     def is_valid(self) -> bool:
         """Check if promotion is currently valid"""
-        now = datetime.now(timezone.utc)
+        now = datetime.utcnow()
+        # Handle both timezone-aware and naive datetimes from DB
+        start = self.start_date.replace(tzinfo=None) if self.start_date.tzinfo else self.start_date
+        end = self.end_date.replace(tzinfo=None) if self.end_date.tzinfo else self.end_date
         return (
             self.is_active and
-            self.start_date <= now <= self.end_date and
+            start <= now <= end and
             (self.usage_limit is None or self.usage_count < self.usage_limit)
         )
 

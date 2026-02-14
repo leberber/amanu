@@ -231,6 +231,25 @@
       "actions": "Actions"
     }
   },
+  "promotions": {
+    "title": "Promotions",
+    "promo_code": "Promo Code",
+    "enter_code": "Enter promo code",
+    "apply": "Apply",
+    "remove": "Remove",
+    "discount": "Discount",
+    "subtotal": "Subtotal",
+    "total": "Total",
+    "invalid_code": "Invalid promo code",
+    "expired_code": "This promo code has expired",
+    "code_applied": "Promo code applied!",
+    "discount_applied": "You saved {{amount}}",
+    "no_discount": "This code doesn't apply to your cart",
+    "min_order_required": "Minimum order of {{amount}} required",
+    "usage_limit_reached": "This promo code has reached its usage limit",
+    "sale": "SALE",
+    "off": "OFF"
+  },
   "auth": {
     "login_title": "Login",
     "login_subtitle": "Enter your credentials to access your account",

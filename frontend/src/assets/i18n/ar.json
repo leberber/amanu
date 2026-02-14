@@ -229,6 +229,25 @@
       "class": "text-right"
     }
   },
+  "promotions": {
+    "title": "العروض",
+    "promo_code": "رمز الخصم",
+    "enter_code": "أدخل رمز الخصم",
+    "apply": "تطبيق",
+    "remove": "إزالة",
+    "discount": "الخصم",
+    "subtotal": "المجموع الفرعي",
+    "total": "المجموع",
+    "invalid_code": "رمز الخصم غير صالح",
+    "expired_code": "انتهت صلاحية رمز الخصم",
+    "code_applied": "تم تطبيق رمز الخصم!",
+    "discount_applied": "وفرت {{amount}}",
+    "no_discount": "هذا الرمز لا ينطبق على سلتك",
+    "min_order_required": "الحد الأدنى للطلب {{amount}}",
+    "usage_limit_reached": "وصل رمز الخصم إلى حد الاستخدام",
+    "sale": "خصم",
+    "off": "تخفيض"
+  },
   "auth": {
     "login_title": "تسجيل الدخول",
     "login_subtitle": "أدخل بياناتك للوصول إلى حسابك",

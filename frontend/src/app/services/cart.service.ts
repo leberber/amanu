@@ -2,6 +2,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
 import { Product, QuantityConfig } from '../models/product.model';
+import { AppliedPromotion } from '../models/promotion.model';
 
 export interface CartItem {
   id: string;
@@ -14,6 +15,8 @@ export interface CartItem {
   quantity: number;
   stock_quantity?: number;  // To check stock level at checkout
   quantity_config?: QuantityConfig;  // Product quantity configuration
+  category_id?: number;  // For promotion scope calculation
+  brand_id?: number;  // For promotion scope calculation
 }
 
 @Injectable({
@@ -21,12 +24,17 @@ export interface CartItem {
 })
 export class CartService {
   private STORAGE_KEY = 'fresh_produce_cart';
+  private PROMO_STORAGE_KEY = 'fresh_produce_promo';
   private cartItemsSubject = new BehaviorSubject<CartItem[]>([]);
+  private appliedPromotionSubject = new BehaviorSubject<AppliedPromotion | null>(null);
+
   public cartItems$ = this.cartItemsSubject.asObservable();
-  
+  public appliedPromotion$ = this.appliedPromotionSubject.asObservable();
+
   constructor() {
-    // Load cart from localStorage on service initialization
+    // Load cart and promotion from localStorage on service initialization
     this.loadCartFromStorage();
+    this.loadPromotionFromStorage();
   }
   
   private loadCartFromStorage(): void {
@@ -41,12 +49,34 @@ export class CartService {
       }
     }
   }
-  
+
+  private loadPromotionFromStorage(): void {
+    const savedPromo = localStorage.getItem(this.PROMO_STORAGE_KEY);
+    if (savedPromo) {
+      try {
+        const promotion: AppliedPromotion = JSON.parse(savedPromo);
+        this.appliedPromotionSubject.next(promotion);
+      } catch (e) {
+        console.error('Error parsing promotion from localStorage:', e);
+        this.appliedPromotionSubject.next(null);
+      }
+    }
+  }
+
   private saveCartToStorage(cartItems: CartItem[]): void {
     // Update the BehaviorSubject first for immediate UI update
     this.cartItemsSubject.next(cartItems);
     // Then save to localStorage
     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(cartItems));
+  }
+
+  private savePromotionToStorage(promotion: AppliedPromotion | null): void {
+    this.appliedPromotionSubject.next(promotion);
+    if (promotion) {
+      localStorage.setItem(this.PROMO_STORAGE_KEY, JSON.stringify(promotion));
+    } else {
+      localStorage.removeItem(this.PROMO_STORAGE_KEY);
+    }
   }
   
   getCartItems(): Observable<CartItem[]> {
@@ -181,9 +211,38 @@ export class CartService {
   get cartCount(): number {
     return this.cartItemsSubject.value.reduce((count, item) => count + item.quantity, 0);
   }
-  
+
   get cartTotal(): number {
-    return this.cartItemsSubject.value.reduce((total, item) => 
+    return this.cartItemsSubject.value.reduce((total, item) =>
       total + (item.product_price * item.quantity), 0);
+  }
+
+  // Promotion methods
+  applyPromotion(appliedPromotion: AppliedPromotion): void {
+    this.savePromotionToStorage(appliedPromotion);
+  }
+
+  removePromotion(): void {
+    this.savePromotionToStorage(null);
+  }
+
+  getAppliedPromotion(): AppliedPromotion | null {
+    return this.appliedPromotionSubject.value;
+  }
+
+  get discountAmount(): number {
+    const promo = this.appliedPromotionSubject.value;
+    return promo ? promo.discount_amount : 0;
+  }
+
+  get finalTotal(): number {
+    return Math.max(0, this.cartTotal - this.discountAmount);
+  }
+
+  // Override clearCart to also clear promotion
+  clearCartAndPromotion(): Observable<void> {
+    this.saveCartToStorage([]);
+    this.savePromotionToStorage(null);
+    return of(void 0);
   }
 }

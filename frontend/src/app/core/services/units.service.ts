@@ -99,21 +99,23 @@ export class UnitsService {
    */
   getUnitTranslated(unit: string, useShort = true): string {
     const unitConfig = this.units.get(unit?.toLowerCase());
-    
+
     if (!unitConfig) {
       return unit || '';
     }
 
-    const translationKey = useShort 
-      ? `${unitConfig.translationKey}_short` 
+    const translationKey = useShort
+      ? `${unitConfig.translationKey}_short`
       : unitConfig.translationKey;
 
     const translated = this.translateService.instant(translationKey);
-    
-    // If translation not found, fallback to display
-    return translated === translationKey 
-      ? this.getUnitDisplay(unit, useShort)
-      : translated;
+
+    // If translation not found, fallback to unit config display value
+    if (translated === translationKey) {
+      return useShort ? unitConfig.displayShort : unitConfig.display;
+    }
+
+    return translated;
   }
 
   /**

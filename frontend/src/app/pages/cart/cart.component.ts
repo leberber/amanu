@@ -2,6 +2,7 @@
 import { Component, OnInit, inject, signal, computed, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { ToastModule } from 'primeng/toast';
@@ -10,6 +11,7 @@ import { TagModule } from 'primeng/tag';
 import { DividerModule } from 'primeng/divider';
 import { TooltipModule } from 'primeng/tooltip';
 import { SelectModule } from 'primeng/select';
+import { InputTextModule } from 'primeng/inputtext';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subscription, forkJoin, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
@@ -18,8 +20,10 @@ import { CartService, CartItem } from '../../services/cart.service';
 import { AuthService } from '../../services/auth.service';
 import { CurrencyService } from '../../core/services/currency.service';
 import { UnitsService } from '../../core/services/units.service';
-import { ProductService } from '../../services/product.service'; // Add this import
-import { TranslationService } from '../../services/translation.service'; // Add this import
+import { ProductService } from '../../services/product.service';
+import { TranslationService } from '../../services/translation.service';
+import { PromotionService } from '../../services/promotion.service';
+import { AppliedPromotion } from '../../models/promotion.model';
 import { ProductQuantitySelectorComponent } from '../../shared/components/product-quantity-selector/product-quantity-selector.component';
 
 @Component({
@@ -28,6 +32,7 @@ import { ProductQuantitySelectorComponent } from '../../shared/components/produc
   imports: [
     CommonModule,
     RouterLink,
+    FormsModule,
     ButtonModule,
     TableModule,
     ToastModule,
@@ -35,6 +40,7 @@ import { ProductQuantitySelectorComponent } from '../../shared/components/produc
     DividerModule,
     TooltipModule,
     SelectModule,
+    InputTextModule,
     TranslateModule,
     ProductQuantitySelectorComponent
   ],
@@ -51,50 +57,65 @@ export class CartComponent implements OnInit, OnDestroy {
   private translateService = inject(TranslateService);
   private currencyService = inject(CurrencyService);
   private unitsService = inject(UnitsService);
-  private productService = inject(ProductService); // Add this
-  private translationService = inject(TranslationService); // Add this
-  
+  private productService = inject(ProductService);
+  private translationService = inject(TranslationService);
+  private promotionService = inject(PromotionService);
+
   // Signals
   cartItems = signal<CartItem[]>([]);
   loading = signal(false);
-  
+
+  // Promotion signals
+  promoCode = signal('');
+  promoLoading = signal(false);
+  promoError = signal<string | null>(null);
+  appliedPromotion = signal<AppliedPromotion | null>(null);
+
   // For quantity selection
   productQuantities: { [key: string]: number } = {};
   showQuantityGridForItem: string | null = null;
   
   // Computed values
-  cartTotal = computed(() => {
-    return this.cartItems().reduce((total, item) => 
+  cartSubtotal = computed(() => {
+    return this.cartItems().reduce((total, item) =>
       total + (item.product_price * item.quantity), 0);
   });
-  
+
+  // Alias for backward compatibility
+  cartTotal = this.cartSubtotal;
+
+  discountAmount = computed(() => {
+    const promo = this.appliedPromotion();
+    return promo ? promo.discount_amount : 0;
+  });
+
+  finalTotal = computed(() => {
+    return Math.max(0, this.cartSubtotal() - this.discountAmount());
+  });
+
   cartItemCount = computed(() => this.cartItems().length);
-  
+
   // Shipping cost (can be modified based on business logic)
   shippingCost = computed(() => {
-    // For now, shipping is always free
-    // In the future, you can add logic like:
-    // - Free shipping for orders above certain amount
-    // - Calculate based on delivery location
-    // - Different rates for different products
     return 0;
   });
-  
+
   isShippingFree = computed(() => this.shippingCost() === 0);
-  
+
   // RTL detection
   isRTL = computed(() => this.translationService.isRTL());
   
   // Subscription management
   private cartSubscription?: Subscription;
   private languageSubscription?: Subscription;
-  
+  private promoSubscription?: Subscription;
+
   ngOnInit() {
     this.loadCart();
-    
+
     // Track if this is the first load
     let isFirstLoad = true;
-    
+
     // Subscribe to cart changes
     this.cartSubscription = this.cartService.cartItems$.subscribe(items => {
       this.cartItems.set(items);
@@ -102,19 +123,35 @@ export class CartComponent implements OnInit, OnDestroy {
       items.forEach(item => {
         this.productQuantities[item.id] = item.quantity;
       });
-      
-      // 🆕 Load translated names for cart items
+
+      // Load translated names for cart items
       // Only load on initial load, not on every update
       if (isFirstLoad && items.length > 0) {
         this.loadTranslatedNames();
         isFirstLoad = false;
       }
+
+      // Recalculate discount when cart changes
+      const promo = this.appliedPromotion();
+      if (promo && items.length > 0) {
+        this.recalculateDiscount(promo.code);
+      } else if (items.length === 0) {
+        this.removePromoCode();
+      }
     });
 
-    // 🆕 Subscribe to language changes
+    // Subscribe to language changes
     this.languageSubscription = this.translationService.currentLanguage$.subscribe(() => {
       if (this.cartItems().length > 0) {
         this.loadTranslatedNames();
+      }
+    });
+
+    // Subscribe to saved promotion from cart service
+    this.promoSubscription = this.cartService.appliedPromotion$.subscribe(promo => {
+      this.appliedPromotion.set(promo);
+      if (promo) {
+        this.promoCode.set(promo.code);
       }
     });
   }
@@ -125,6 +162,9 @@ export class CartComponent implements OnInit, OnDestroy {
     }
     if (this.languageSubscription) {
       this.languageSubscription.unsubscribe();
+    }
+    if (this.promoSubscription) {
+      this.promoSubscription.unsubscribe();
     }
   }
 
@@ -376,4 +416,102 @@ export class CartComponent implements OnInit, OnDestroy {
     return this.currencyService.formatCurrency(price);
   }
 
+  // Promotion methods
+  applyPromoCode(): void {
+    const code = this.promoCode().trim();
+    if (!code) {
+      this.promoError.set(this.translateService.instant('promotions.enter_code'));
+      return;
+    }
+
+    this.promoLoading.set(true);
+    this.promoError.set(null);
+
+    // Build cart items for discount calculation
+    const cartItemsForDiscount = this.cartItems().map(item => ({
+      product_id: item.product_id,
+      quantity: item.quantity,
+      unit_price: item.product_price,
+      category_id: item.category_id,
+      brand_id: item.brand_id
+    }));
+
+    this.promotionService.calculateDiscount({
+      promotion_code: code,
+      cart_items: cartItemsForDiscount
+    }).subscribe({
+      next: (response) => {
+        this.promoLoading.set(false);
+
+        if (response.error) {
+          this.promoError.set(response.error);
+          return;
+        }
+
+        if (response.promotion && response.discount_amount > 0) {
+          const appliedPromo: AppliedPromotion = {
+            code: code,
+            promotion: response.promotion,
+            discount_amount: response.discount_amount
+          };
+          this.appliedPromotion.set(appliedPromo);
+          this.cartService.applyPromotion(appliedPromo);
+
+          this.messageService.add({
+            severity: 'success',
+            summary: this.translateService.instant('promotions.code_applied'),
+            detail: this.translateService.instant('promotions.discount_applied', {
+              amount: this.formatPrice(response.discount_amount)
+            })
+          });
+        } else {
+          this.promoError.set(this.translateService.instant('promotions.no_discount'));
+        }
+      },
+      error: (error) => {
+        this.promoLoading.set(false);
+        this.promoError.set(error?.error?.detail || this.translateService.instant('promotions.invalid_code'));
+      }
+    });
+  }
+
+  removePromoCode(): void {
+    this.appliedPromotion.set(null);
+    this.promoCode.set('');
+    this.promoError.set(null);
+    this.cartService.removePromotion();
+  }
+
+  private recalculateDiscount(code: string): void {
+    const cartItemsForDiscount = this.cartItems().map(item => ({
+      product_id: item.product_id,
+      quantity: item.quantity,
+      unit_price: item.product_price,
+      category_id: item.category_id,
+      brand_id: item.brand_id
+    }));
+
+    this.promotionService.calculateDiscount({
+      promotion_code: code,
+      cart_items: cartItemsForDiscount
+    }).subscribe({
+      next: (response) => {
+        if (response.promotion && response.discount_amount > 0) {
+          const appliedPromo: AppliedPromotion = {
+            code: code,
+            promotion: response.promotion,
+            discount_amount: response.discount_amount
+          };
+          this.appliedPromotion.set(appliedPromo);
+          this.cartService.applyPromotion(appliedPromo);
+        } else {
+          // Promotion no longer valid for current cart
+          this.removePromoCode();
+        }
+      },
+      error: () => {
+        this.removePromoCode();
+      }
+    });
+  }
 }

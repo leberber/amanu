@@ -10,21 +10,34 @@ export interface OrderCreateItem {
     product_id: number;
     quantity: number;
   }
-  
+
   export interface OrderCreate {
     user_id: number;
     shipping_address: string;
     contact_phone: string;
     items: OrderCreateItem[];
+    promotion_code?: string;
   }
-  
+
+  export interface PromotionInfo {
+    id: number;
+    name: string;
+    code?: string;
+    discount_type: string;
+    discount_value: number;
+  }
+
   export interface Order {
     id: number;
     user_id: number;
     status: 'pending' | 'confirmed' | 'shipped' | 'delivered' | 'cancelled';
     shipping_address: string;
     contact_phone: string;
+    subtotal?: number;
+    discount_amount?: number;
     total_amount: number;
+    promotion_id?: number;
+    promotion_info?: PromotionInfo;
     created_at: string;
     updated_at?: string;
     items?: OrderItem[];
