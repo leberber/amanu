@@ -75,6 +75,7 @@ export class AdminAddPromotionComponent implements OnInit {
   scopeOptions: SelectOption[] = [];
   categories: Category[] = [];
   brands: Brand[] = [];
+  products: { id: number; name: string }[] = [];
 
   get pageTitle(): string {
     return this.isEditMode() ? 'admin.promotions.edit_promotion' : 'admin.promotions.add_promotion';
@@ -98,6 +99,7 @@ export class AdminAddPromotionComponent implements OnInit {
     this.initializeForm();
     this.loadCategories();
     this.loadBrands();
+    this.loadProducts();
     this.detectMode();
 
     // Update options when language changes
@@ -197,6 +199,17 @@ export class AdminAddPromotionComponent implements OnInit {
       },
       error: (error: any) => {
         console.error('Error loading brands:', error);
+      }
+    });
+  }
+
+  loadProducts() {
+    this.productService.getProducts().subscribe({
+      next: (products: any[]) => {
+        this.products = products.map(p => ({ id: p.id, name: p.name }));
+      },
+      error: (error: any) => {
+        console.error('Error loading products:', error);
       }
     });
   }

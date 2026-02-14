@@ -486,6 +486,8 @@
         "select_category": "اختر فئة",
         "brand": "العلامة التجارية",
         "select_brand": "اختر علامة تجارية",
+        "product": "المنتج",
+        "select_product": "اختر منتج",
         "min_order_amount": "الحد الأدنى للطلب",
         "usage_limit": "حد الاستخدام",
         "usage_limit_placeholder": "غير محدود",

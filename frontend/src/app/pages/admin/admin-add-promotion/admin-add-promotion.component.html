@@ -202,6 +202,24 @@
             />
           </div>
 
+          <!-- Product Selection (when scope is product) -->
+          <div class="field" *ngIf="getCurrentScope() === 'product'">
+            <label for="product_id" class="block font-medium mb-2">
+              {{ 'admin.promotions.form.product' | translate }} *
+            </label>
+            <p-select
+              id="product_id"
+              formControlName="product_id"
+              [options]="products"
+              optionLabel="name"
+              optionValue="id"
+              [placeholder]="'admin.promotions.form.select_product' | translate"
+              class="w-full"
+              [style]="{'width': '100%'}"
+              [filter]="true"
+            />
+          </div>
+
           <!-- Min Order Amount -->
           <div class="field">
             <label for="min_order_amount" class="block font-medium mb-2">

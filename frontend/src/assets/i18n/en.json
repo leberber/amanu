@@ -488,6 +488,8 @@
         "select_category": "Select a category",
         "brand": "Brand",
         "select_brand": "Select a brand",
+        "product": "Product",
+        "select_product": "Select a product",
         "min_order_amount": "Minimum Order Amount",
         "usage_limit": "Usage Limit",
         "usage_limit_placeholder": "Unlimited",
