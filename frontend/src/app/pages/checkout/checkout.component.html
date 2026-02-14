@@ -33,17 +33,25 @@
               <span class="text-600">{{ 'checkout.subtotal' | translate }}</span>
               <span class="font-medium">{{formatPrice(getCartTotal())}}</span>
             </div>
-            
+
+            <!-- Discount Row - Only show if promotion applied -->
+            <div *ngIf="appliedPromotion" class="flex justify-content-between mb-2">
+              <span class="text-green-600">
+                <i class="pi pi-tag mr-1"></i>{{ 'promotions.discount' | translate }} ({{ appliedPromotion.code }})
+              </span>
+              <span class="font-medium text-green-600">-{{formatPrice(getDiscountAmount())}}</span>
+            </div>
+
             <div class="flex justify-content-between mb-2">
               <span class="text-600">{{ 'checkout.shipping' | translate }}</span>
               <span class="font-medium text-green-600">{{ 'checkout.free' | translate }}</span>
             </div>
-            
+
             <p-divider class="my-2"></p-divider>
-            
+
             <div class="flex justify-content-between">
               <span class="text-xl font-bold">{{ 'common.total' | translate }}</span>
-              <span class="text-xl font-bold text-primary">{{formatPrice(getCartTotal())}}</span>
+              <span class="text-xl font-bold text-primary">{{formatPrice(getFinalTotal())}}</span>
             </div>
           </div>
 

@@ -30,6 +30,17 @@ export class PromotionService {
   }
 
   /**
+   * Get all promotions for admin (includes inactive)
+   */
+  getAllPromotions(): Observable<Promotion[]> {
+    const params = {
+      active_only: false,
+      lang: this.translationService.getCurrentLanguage()
+    };
+    return this.apiService.get<Promotion[]>('/promotions', { params });
+  }
+
+  /**
    * Get currently active promotions (public)
    */
   getActivePromotions(): Observable<Promotion[]> {

@@ -24,10 +24,11 @@ import { CartService, CartItem } from '../../services/cart.service';
 import { OrderService } from '../../services/order.service';
 import { CurrencyService } from '../../core/services/currency.service';
 import { UnitsService } from '../../core/services/units.service';
-import { ProductService } from '../../services/product.service'; // 🆕 ADD THIS
-import { TranslationService } from '../../services/translation.service'; // 🆕 ADD THIS
+import { ProductService } from '../../services/product.service';
+import { TranslationService } from '../../services/translation.service';
 import { OrderCreate } from '../../models/order.model';
 import { User } from '../../models/user.model';
+import { AppliedPromotion } from '../../models/promotion.model';
 import { VALIDATION } from '../../core/constants/app.constants';
 
 @Component({
@@ -61,6 +62,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   currentUser: User | null = null;
   isSubmitting = false;
   accordionExpanded = false;
+  appliedPromotion: AppliedPromotion | null = null;
   private languageSubscription?: Subscription;
 
   private fb = inject(FormBuilder);
@@ -109,7 +111,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     // Get cart items
     this.cartService.getCartItems().subscribe(items => {
       this.cartItems = items;
-      
+
       if (items.length === 0) {
         this.messageService.add({
           severity: 'info',
@@ -120,9 +122,12 @@ export class CheckoutComponent implements OnInit, OnDestroy {
         return;
       }
 
-      // 🆕 Load translated names after loading cart items
+      // Load translated names after loading cart items
       this.loadTranslatedNames();
     });
+
+    // Load applied promotion from cart
+    this.appliedPromotion = this.cartService.getAppliedPromotion();
 
     // 🆕 NEW: Subscribe to language changes
     this.languageSubscription = this.translationService.currentLanguage$.subscribe(() => {
@@ -190,8 +195,16 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   get f() { return this.checkoutForm.controls; }
 
   getCartTotal(): number {
-    return this.cartItems.reduce((total, item) => 
+    return this.cartItems.reduce((total, item) =>
       total + (item.product_price * item.quantity), 0);
+  }
+
+  getDiscountAmount(): number {
+    return this.appliedPromotion?.discount_amount || 0;
+  }
+
+  getFinalTotal(): number {
+    return Math.max(0, this.getCartTotal() - this.getDiscountAmount());
   }
 
   getUnitDisplay(unit: string): string {
@@ -221,9 +234,10 @@ export class CheckoutComponent implements OnInit, OnDestroy {
       user_id: this.currentUser.id,
       shipping_address: this.checkoutForm.value.address,
       contact_phone: this.checkoutForm.value.phone,
-      items: this.orderService.cartItemsToOrderItems(this.cartItems)
+      items: this.orderService.cartItemsToOrderItems(this.cartItems),
+      promotion_code: this.appliedPromotion?.code
     };
-    
+
     // Submit order
     this.orderService.createOrder(orderData).subscribe({
       next: (order) => {
@@ -232,12 +246,12 @@ export class CheckoutComponent implements OnInit, OnDestroy {
           summary: this.translateService.instant('checkout.order_placed'),
           detail: this.translateService.instant('checkout.order_placed_message', { orderNumber: order.id })
         });
-        
-        // Clear cart after successful order
-        this.cartService.clearCart().subscribe(() => {
+
+        // Clear cart and promotion after successful order
+        this.cartService.clearCartAndPromotion().subscribe(() => {
           setTimeout(() => {
-            this.router.navigate(['/orders', order.id], { 
-              queryParams: { success: 'true' } 
+            this.router.navigate(['/orders', order.id], {
+              queryParams: { success: 'true' }
             });
           }, 1500);
         });

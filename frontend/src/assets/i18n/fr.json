@@ -406,6 +406,97 @@
     }
   },
   "admin": {
+    "promotions": {
+      "title": "Gestion des Promotions",
+      "add_promotion": "Ajouter une Promotion",
+      "edit_promotion": "Modifier la Promotion",
+      "search_placeholder": "Rechercher des promotions...",
+      "search": "Rechercher",
+      "clear_filters": "Effacer les Filtres",
+      "clear_search": "Effacer la Recherche",
+      "refresh": "Actualiser",
+      "loading": "Chargement des promotions...",
+      "load_error": "Échec du chargement des promotions",
+      "create_success": "Promotion créée avec succès!",
+      "update_success": "Promotion mise à jour avec succès!",
+      "create_failed": "Échec de la création de la promotion",
+      "update_failed": "Échec de la mise à jour de la promotion",
+      "delete_success": "Promotion supprimée avec succès!",
+      "delete_failed": "Échec de la suppression de la promotion",
+      "no_code": "Pas de code",
+      "to": "au",
+      "add_first_promotion": "Ajouter la Première Promotion",
+      "table": {
+        "name": "Nom",
+        "code": "Code",
+        "discount": "Réduction",
+        "scope": "Portée",
+        "validity": "Validité",
+        "usage": "Utilisation",
+        "status": "Statut",
+        "actions": "Actions"
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive",
+        "scheduled": "Planifiée",
+        "expired": "Expirée"
+      },
+      "scope": {
+        "global": "Globale",
+        "category": "Catégorie",
+        "brand": "Marque",
+        "product": "Produit"
+      },
+      "discount_type": {
+        "percentage": "Pourcentage",
+        "fixed_amount": "Montant Fixe"
+      },
+      "actions": {
+        "edit": "Modifier",
+        "delete": "Supprimer"
+      },
+      "empty": {
+        "no_promotions": "Aucune promotion trouvée",
+        "no_match": "Aucune promotion ne correspond à votre recherche",
+        "get_started": "Commencez par ajouter votre première promotion",
+        "try_adjusting": "Essayez d'ajuster vos termes de recherche"
+      },
+      "form": {
+        "basic_info": "Informations de Base",
+        "discount_settings": "Paramètres de Réduction",
+        "scope_settings": "Portée et Conditions",
+        "validity_period": "Période de Validité",
+        "name": "Nom de la Promotion",
+        "name_placeholder": "ex: Soldes d'Été 2024",
+        "name_required": "Le nom de la promotion est requis",
+        "description": "Description",
+        "description_placeholder": "Description optionnelle pour cette promotion",
+        "code": "Code Promo",
+        "code_placeholder": "ex: ETE10",
+        "code_hint": "Optionnel. Laissez vide pour les promotions automatiques. Uniquement lettres, chiffres, tirets et underscores.",
+        "discount_type": "Type de Réduction",
+        "discount_value": "Valeur de la Réduction",
+        "max_discount": "Réduction Maximum",
+        "max_discount_placeholder": "Pas de limite",
+        "max_discount_hint": "Plafonner le montant maximum de réduction pour les pourcentages",
+        "scope": "Portée de la Promotion",
+        "category": "Catégorie",
+        "select_category": "Sélectionner une catégorie",
+        "brand": "Marque",
+        "select_brand": "Sélectionner une marque",
+        "min_order_amount": "Montant Minimum de Commande",
+        "usage_limit": "Limite d'Utilisation",
+        "usage_limit_placeholder": "Illimité",
+        "usage_limit_hint": "Laissez vide pour une utilisation illimitée",
+        "start_date": "Date de Début",
+        "end_date": "Date de Fin",
+        "date_error": "La date de fin doit être après la date de début",
+        "is_active": "La promotion est active",
+        "submit_add": "Créer la Promotion",
+        "submit_update": "Mettre à Jour la Promotion"
+      }
+    },
     "dashboard": {
       "title": "Tableau de Bord Admin",
       "welcome": "Bienvenue dans le Tableau de Bord Admin",
@@ -826,6 +917,7 @@
       "products": "Produits",
       "categories": "Catégories",
       "brands": "Marques",
+      "promotions": "Promotions",
       "reports": "Rapports",
       "settings": "Paramètres"
     },

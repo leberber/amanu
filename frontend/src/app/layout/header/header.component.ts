@@ -237,6 +237,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
         label: this.translateService.instant('admin.navigation.brands'),
         icon: 'pi pi-building',
         routerLink: '/admin/brands'
+      },
+      {
+        label: this.translateService.instant('admin.navigation.promotions'),
+        icon: 'pi pi-percentage',
+        routerLink: '/admin/promotions'
       }
     );
     

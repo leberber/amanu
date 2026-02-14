@@ -15,6 +15,8 @@ import { AdminAddCategoryComponent } from './pages/admin/admin-add-category/admi
 import { AdminCategoriesComponent } from './pages/admin/admin-categories/admin-categories.component';
 import { AdminBrandsComponent } from './pages/admin/admin-brands/admin-brands.component';
 import { AdminAddBrandComponent } from './pages/admin/admin-add-brand/admin-add-brand.component';
+import { AdminPromotionsComponent } from './pages/admin/admin-promotions/admin-promotions.component';
+import { AdminAddPromotionComponent } from './pages/admin/admin-add-promotion/admin-add-promotion.component';
 
 export const routes: Routes = [
   { path: '', component: ProductListComponent, canActivate: [authGuard] },
@@ -82,6 +84,24 @@ export const routes: Routes = [
   {
     path: 'admin/brands/edit/:id',
     component: AdminAddBrandComponent,
+    canActivate: [adminGuard],
+    data: { mode: 'edit' }
+  },
+  // Promotions Routes
+  {
+    path: 'admin/promotions',
+    component: AdminPromotionsComponent,
+    canActivate: [adminGuard]
+  },
+  {
+    path: 'admin/promotions/add',
+    component: AdminAddPromotionComponent,
+    canActivate: [adminGuard],
+    data: { mode: 'add' }
+  },
+  {
+    path: 'admin/promotions/edit/:id',
+    component: AdminAddPromotionComponent,
     canActivate: [adminGuard],
     data: { mode: 'edit' }
   },

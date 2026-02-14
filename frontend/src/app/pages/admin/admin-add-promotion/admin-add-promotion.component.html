@@ -1,0 +1,310 @@
+<!-- src/app/pages/admin/admin-add-promotion/admin-add-promotion.component.html -->
+<div class="h-full pt-2 px-2 pb-4">
+  <p-toast></p-toast>
+
+  <p-card>
+    <ng-template pTemplate="header">
+      <div class="flex align-items-center justify-content-between p-3">
+        <div class="flex align-items-center gap-2">
+          <i class="pi pi-tag text-2xl text-primary"></i>
+          <h2 class="m-0 text-xl font-semibold">{{ pageTitle | translate }}</h2>
+        </div>
+        <p-button
+          icon="pi pi-arrow-left"
+          [label]="'common.back' | translate"
+          severity="secondary"
+          [outlined]="true"
+          (click)="onCancel()"
+        />
+      </div>
+    </ng-template>
+
+    <form [formGroup]="promotionForm" (ngSubmit)="onSubmit()">
+      <div class="grid">
+        <!-- Left Column - Basic Info -->
+        <div class="col-12 md:col-6">
+          <h4 class="section-title">
+            <i class="pi pi-info-circle mr-2"></i>
+            {{ 'admin.promotions.form.basic_info' | translate }}
+          </h4>
+
+          <!-- Name -->
+          <div class="field">
+            <label for="name" class="block font-medium mb-2">
+              {{ 'admin.promotions.form.name' | translate }} *
+            </label>
+            <input
+              id="name"
+              type="text"
+              pInputText
+              formControlName="name"
+              class="w-full"
+              [placeholder]="'admin.promotions.form.name_placeholder' | translate"
+            />
+            <small
+              *ngIf="promotionForm.get('name')?.invalid && promotionForm.get('name')?.touched"
+              class="p-error"
+            >
+              {{ 'admin.promotions.form.name_required' | translate }}
+            </small>
+          </div>
+
+          <!-- Description -->
+          <div class="field">
+            <label for="description" class="block font-medium mb-2">
+              {{ 'admin.promotions.form.description' | translate }}
+            </label>
+            <textarea
+              id="description"
+              pInputTextarea
+              formControlName="description"
+              rows="3"
+              class="w-full"
+              [placeholder]="'admin.promotions.form.description_placeholder' | translate"
+            ></textarea>
+          </div>
+
+          <!-- Promo Code -->
+          <div class="field">
+            <label for="code" class="block font-medium mb-2">
+              {{ 'admin.promotions.form.code' | translate }}
+            </label>
+            <input
+              id="code"
+              type="text"
+              pInputText
+              formControlName="code"
+              class="w-full font-mono"
+              [placeholder]="'admin.promotions.form.code_placeholder' | translate"
+              style="text-transform: uppercase;"
+            />
+            <small class="text-500">
+              {{ 'admin.promotions.form.code_hint' | translate }}
+            </small>
+          </div>
+
+          <p-divider></p-divider>
+
+          <h4 class="section-title">
+            <i class="pi pi-percentage mr-2"></i>
+            {{ 'admin.promotions.form.discount_settings' | translate }}
+          </h4>
+
+          <!-- Discount Type -->
+          <div class="field">
+            <label for="discount_type" class="block font-medium mb-2">
+              {{ 'admin.promotions.form.discount_type' | translate }} *
+            </label>
+            <p-select
+              id="discount_type"
+              formControlName="discount_type"
+              [options]="discountTypeOptions"
+              optionLabel="label"
+              optionValue="value"
+              class="w-full"
+              [style]="{'width': '100%'}"
+            />
+          </div>
+
+          <!-- Discount Value -->
+          <div class="field">
+            <label for="discount_value" class="block font-medium mb-2">
+              {{ 'admin.promotions.form.discount_value' | translate }} *
+              <span class="text-500">({{ isPercentageDiscount() ? '%' : 'DA' }})</span>
+            </label>
+            <p-inputNumber
+              id="discount_value"
+              formControlName="discount_value"
+              [min]="0.01"
+              [max]="isPercentageDiscount() ? 100 : 999999"
+              [suffix]="isPercentageDiscount() ? '%' : ' DA'"
+              class="w-full"
+              [style]="{'width': '100%'}"
+            />
+          </div>
+
+          <!-- Max Discount (only for percentage) -->
+          <div class="field" *ngIf="isPercentageDiscount()">
+            <label for="max_discount" class="block font-medium mb-2">
+              {{ 'admin.promotions.form.max_discount' | translate }}
+            </label>
+            <p-inputNumber
+              id="max_discount"
+              formControlName="max_discount"
+              [min]="0"
+              suffix=" DA"
+              class="w-full"
+              [style]="{'width': '100%'}"
+              [placeholder]="'admin.promotions.form.max_discount_placeholder' | translate"
+            />
+            <small class="text-500">
+              {{ 'admin.promotions.form.max_discount_hint' | translate }}
+            </small>
+          </div>
+        </div>
+
+        <!-- Right Column - Scope & Conditions -->
+        <div class="col-12 md:col-6">
+          <h4 class="section-title">
+            <i class="pi pi-sliders-h mr-2"></i>
+            {{ 'admin.promotions.form.scope_settings' | translate }}
+          </h4>
+
+          <!-- Scope -->
+          <div class="field">
+            <label for="scope" class="block font-medium mb-2">
+              {{ 'admin.promotions.form.scope' | translate }} *
+            </label>
+            <p-select
+              id="scope"
+              formControlName="scope"
+              [options]="scopeOptions"
+              optionLabel="label"
+              optionValue="value"
+              class="w-full"
+              [style]="{'width': '100%'}"
+            />
+          </div>
+
+          <!-- Category Selection (when scope is category) -->
+          <div class="field" *ngIf="getCurrentScope() === 'category'">
+            <label for="category_id" class="block font-medium mb-2">
+              {{ 'admin.promotions.form.category' | translate }} *
+            </label>
+            <p-select
+              id="category_id"
+              formControlName="category_id"
+              [options]="categories"
+              optionLabel="name"
+              optionValue="id"
+              [placeholder]="'admin.promotions.form.select_category' | translate"
+              class="w-full"
+              [style]="{'width': '100%'}"
+              [filter]="true"
+            />
+          </div>
+
+          <!-- Brand Selection (when scope is brand) -->
+          <div class="field" *ngIf="getCurrentScope() === 'brand'">
+            <label for="brand_id" class="block font-medium mb-2">
+              {{ 'admin.promotions.form.brand' | translate }} *
+            </label>
+            <p-select
+              id="brand_id"
+              formControlName="brand_id"
+              [options]="brands"
+              optionLabel="name"
+              optionValue="id"
+              [placeholder]="'admin.promotions.form.select_brand' | translate"
+              class="w-full"
+              [style]="{'width': '100%'}"
+              [filter]="true"
+            />
+          </div>
+
+          <!-- Min Order Amount -->
+          <div class="field">
+            <label for="min_order_amount" class="block font-medium mb-2">
+              {{ 'admin.promotions.form.min_order_amount' | translate }}
+            </label>
+            <p-inputNumber
+              id="min_order_amount"
+              formControlName="min_order_amount"
+              [min]="0"
+              suffix=" DA"
+              class="w-full"
+              [style]="{'width': '100%'}"
+            />
+          </div>
+
+          <!-- Usage Limit -->
+          <div class="field">
+            <label for="usage_limit" class="block font-medium mb-2">
+              {{ 'admin.promotions.form.usage_limit' | translate }}
+            </label>
+            <p-inputNumber
+              id="usage_limit"
+              formControlName="usage_limit"
+              [min]="1"
+              class="w-full"
+              [style]="{'width': '100%'}"
+              [placeholder]="'admin.promotions.form.usage_limit_placeholder' | translate"
+            />
+            <small class="text-500">
+              {{ 'admin.promotions.form.usage_limit_hint' | translate }}
+            </small>
+          </div>
+
+          <p-divider></p-divider>
+
+          <h4 class="section-title">
+            <i class="pi pi-calendar mr-2"></i>
+            {{ 'admin.promotions.form.validity_period' | translate }}
+          </h4>
+
+          <!-- Start Date -->
+          <div class="field">
+            <label for="start_date" class="block font-medium mb-2">
+              {{ 'admin.promotions.form.start_date' | translate }} *
+            </label>
+            <p-datepicker
+              id="start_date"
+              formControlName="start_date"
+              [showTime]="true"
+              [showIcon]="true"
+              dateFormat="dd/mm/yy"
+              class="w-full"
+              [style]="{'width': '100%'}"
+            />
+          </div>
+
+          <!-- End Date -->
+          <div class="field">
+            <label for="end_date" class="block font-medium mb-2">
+              {{ 'admin.promotions.form.end_date' | translate }} *
+            </label>
+            <p-datepicker
+              id="end_date"
+              formControlName="end_date"
+              [showTime]="true"
+              [showIcon]="true"
+              dateFormat="dd/mm/yy"
+              class="w-full"
+              [style]="{'width': '100%'}"
+            />
+          </div>
+
+          <!-- Is Active -->
+          <div class="field">
+            <p-checkbox
+              formControlName="is_active"
+              [binary]="true"
+              inputId="is_active"
+            />
+            <label for="is_active" class="ml-2 font-medium">
+              {{ 'admin.promotions.form.is_active' | translate }}
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form Actions -->
+      <div class="flex justify-content-end gap-2 mt-4 pt-3 border-top-1 border-200">
+        <p-button
+          [label]="'common.cancel' | translate"
+          severity="secondary"
+          [outlined]="true"
+          (click)="onCancel()"
+          [disabled]="loading()"
+        />
+        <p-button
+          type="submit"
+          [label]="submitButtonLabel | translate"
+          icon="pi pi-check"
+          [loading]="loading()"
+          [disabled]="promotionForm.invalid || loading()"
+        />
+      </div>
+    </form>
+  </p-card>
+</div>

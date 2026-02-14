@@ -409,6 +409,97 @@
     }
   },
   "admin": {
+    "promotions": {
+      "title": "Promotions Management",
+      "add_promotion": "Add Promotion",
+      "edit_promotion": "Edit Promotion",
+      "search_placeholder": "Search promotions...",
+      "search": "Search",
+      "clear_filters": "Clear Filters",
+      "clear_search": "Clear Search",
+      "refresh": "Refresh",
+      "loading": "Loading promotions...",
+      "load_error": "Failed to load promotions",
+      "create_success": "Promotion created successfully!",
+      "update_success": "Promotion updated successfully!",
+      "create_failed": "Failed to create promotion",
+      "update_failed": "Failed to update promotion",
+      "delete_success": "Promotion deleted successfully!",
+      "delete_failed": "Failed to delete promotion",
+      "no_code": "No code",
+      "to": "to",
+      "add_first_promotion": "Add First Promotion",
+      "table": {
+        "name": "Name",
+        "code": "Code",
+        "discount": "Discount",
+        "scope": "Scope",
+        "validity": "Validity",
+        "usage": "Usage",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive",
+        "scheduled": "Scheduled",
+        "expired": "Expired"
+      },
+      "scope": {
+        "global": "Global",
+        "category": "Category",
+        "brand": "Brand",
+        "product": "Product"
+      },
+      "discount_type": {
+        "percentage": "Percentage",
+        "fixed_amount": "Fixed Amount"
+      },
+      "actions": {
+        "edit": "Edit",
+        "delete": "Delete"
+      },
+      "empty": {
+        "no_promotions": "No promotions found",
+        "no_match": "No promotions match your search",
+        "get_started": "Get started by adding your first promotion",
+        "try_adjusting": "Try adjusting your search terms"
+      },
+      "form": {
+        "basic_info": "Basic Information",
+        "discount_settings": "Discount Settings",
+        "scope_settings": "Scope & Conditions",
+        "validity_period": "Validity Period",
+        "name": "Promotion Name",
+        "name_placeholder": "e.g., Summer Sale 2024",
+        "name_required": "Promotion name is required",
+        "description": "Description",
+        "description_placeholder": "Optional description for this promotion",
+        "code": "Promo Code",
+        "code_placeholder": "e.g., SUMMER10",
+        "code_hint": "Optional. Leave empty for automatic promotions. Only letters, numbers, dashes and underscores.",
+        "discount_type": "Discount Type",
+        "discount_value": "Discount Value",
+        "max_discount": "Maximum Discount",
+        "max_discount_placeholder": "No limit",
+        "max_discount_hint": "Cap the maximum discount amount for percentage discounts",
+        "scope": "Promotion Scope",
+        "category": "Category",
+        "select_category": "Select a category",
+        "brand": "Brand",
+        "select_brand": "Select a brand",
+        "min_order_amount": "Minimum Order Amount",
+        "usage_limit": "Usage Limit",
+        "usage_limit_placeholder": "Unlimited",
+        "usage_limit_hint": "Leave empty for unlimited usage",
+        "start_date": "Start Date",
+        "end_date": "End Date",
+        "date_error": "End date must be after start date",
+        "is_active": "Promotion is active",
+        "submit_add": "Create Promotion",
+        "submit_update": "Update Promotion"
+      }
+    },
     "dashboard": {
       "title": "Admin Dashboard",
       "welcome": "Welcome to the Admin Dashboard",
@@ -827,6 +918,7 @@
       "products": "Products",
       "categories": "Categories",
       "brands": "Brands",
+      "promotions": "Promotions",
       "reports": "Reports",
       "settings": "Settings"
     },

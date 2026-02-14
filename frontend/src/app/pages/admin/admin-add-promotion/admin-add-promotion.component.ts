@@ -1,0 +1,384 @@
+// src/app/pages/admin/admin-add-promotion/admin-add-promotion.component.ts
+import { Component, OnInit, signal, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import { TextareaModule } from 'primeng/textarea';
+import { CheckboxModule } from 'primeng/checkbox';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
+import { CardModule } from 'primeng/card';
+import { SelectModule } from 'primeng/select';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { DatePickerModule } from 'primeng/datepicker';
+import { DividerModule } from 'primeng/divider';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+
+import { PromotionService } from '../../../services/promotion.service';
+import { ProductService } from '../../../services/product.service';
+import { BrandService } from '../../../core/services/brand.service';
+import { Promotion, PromotionCreate, PromotionUpdate } from '../../../models/promotion.model';
+import { Category } from '../../../models/category.model';
+import { Brand } from '../../../models/brand.model';
+
+interface SelectOption {
+  label: string;
+  value: string;
+}
+
+@Component({
+  selector: 'app-admin-add-promotion',
+  standalone: true,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    ButtonModule,
+    InputTextModule,
+    TextareaModule,
+    CheckboxModule,
+    ToastModule,
+    CardModule,
+    SelectModule,
+    InputNumberModule,
+    DatePickerModule,
+    DividerModule,
+    TranslateModule
+  ],
+  providers: [MessageService],
+  templateUrl: './admin-add-promotion.component.html',
+  styles: [`
+    .field {
+      margin-bottom: 1rem;
+    }
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin: 1.5rem 0 1rem 0;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--surface-border);
+      color: var(--primary-color);
+    }
+  `]
+})
+export class AdminAddPromotionComponent implements OnInit {
+  loading = signal(false);
+  promotionForm!: FormGroup;
+  isEditMode = signal(false);
+  editPromotionId: number | null = null;
+  currentPromotion: Promotion | null = null;
+
+  // Dropdown options
+  discountTypeOptions: SelectOption[] = [];
+  scopeOptions: SelectOption[] = [];
+  categories: Category[] = [];
+  brands: Brand[] = [];
+
+  get pageTitle(): string {
+    return this.isEditMode() ? 'admin.promotions.edit_promotion' : 'admin.promotions.add_promotion';
+  }
+
+  get submitButtonLabel(): string {
+    return this.isEditMode() ? 'admin.promotions.form.submit_update' : 'admin.promotions.form.submit_add';
+  }
+
+  private fb = inject(FormBuilder);
+  private messageService = inject(MessageService);
+  private promotionService = inject(PromotionService);
+  private productService = inject(ProductService);
+  private brandService = inject(BrandService);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private translateService = inject(TranslateService);
+
+  ngOnInit() {
+    this.initializeOptions();
+    this.initializeForm();
+    this.loadCategories();
+    this.loadBrands();
+    this.detectMode();
+
+    // Update options when language changes
+    this.translateService.onLangChange.subscribe(() => {
+      this.initializeOptions();
+    });
+  }
+
+  initializeOptions() {
+    this.discountTypeOptions = [
+      { label: this.translateService.instant('admin.promotions.discount_type.percentage'), value: 'percentage' },
+      { label: this.translateService.instant('admin.promotions.discount_type.fixed_amount'), value: 'fixed_amount' }
+    ];
+
+    this.scopeOptions = [
+      { label: this.translateService.instant('admin.promotions.scope.global'), value: 'global' },
+      { label: this.translateService.instant('admin.promotions.scope.category'), value: 'category' },
+      { label: this.translateService.instant('admin.promotions.scope.brand'), value: 'brand' },
+      { label: this.translateService.instant('admin.promotions.scope.product'), value: 'product' }
+    ];
+  }
+
+  initializeForm() {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const nextMonth = new Date();
+    nextMonth.setMonth(nextMonth.getMonth() + 1);
+
+    this.promotionForm = this.fb.group({
+      name: ['', [Validators.required, Validators.minLength(2)]],
+      description: [''],
+      code: ['', [Validators.pattern(/^[A-Z0-9_-]+$/i)]],
+      discount_type: ['percentage', Validators.required],
+      discount_value: [10, [Validators.required, Validators.min(0.01)]],
+      scope: ['global', Validators.required],
+      category_id: [null],
+      brand_id: [null],
+      product_id: [null],
+      min_order_amount: [0, [Validators.min(0)]],
+      max_discount: [null],
+      usage_limit: [null],
+      start_date: [tomorrow, Validators.required],
+      end_date: [nextMonth, Validators.required],
+      is_active: [true]
+    });
+
+    // Watch scope changes to validate related fields
+    this.promotionForm.get('scope')?.valueChanges.subscribe(scope => {
+      this.updateScopeValidation(scope);
+    });
+  }
+
+  updateScopeValidation(scope: string) {
+    const categoryControl = this.promotionForm.get('category_id');
+    const brandControl = this.promotionForm.get('brand_id');
+    const productControl = this.promotionForm.get('product_id');
+
+    // Clear all validators first
+    categoryControl?.clearValidators();
+    brandControl?.clearValidators();
+    productControl?.clearValidators();
+
+    // Add required validator based on scope
+    switch (scope) {
+      case 'category':
+        categoryControl?.setValidators([Validators.required]);
+        break;
+      case 'brand':
+        brandControl?.setValidators([Validators.required]);
+        break;
+      case 'product':
+        productControl?.setValidators([Validators.required]);
+        break;
+    }
+
+    categoryControl?.updateValueAndValidity();
+    brandControl?.updateValueAndValidity();
+    productControl?.updateValueAndValidity();
+  }
+
+  loadCategories() {
+    this.productService.getCategories(true).subscribe({
+      next: (categories: Category[]) => {
+        this.categories = categories;
+      },
+      error: (error: any) => {
+        console.error('Error loading categories:', error);
+      }
+    });
+  }
+
+  loadBrands() {
+    this.brandService.getBrands(true).subscribe({
+      next: (brands: Brand[]) => {
+        this.brands = brands;
+      },
+      error: (error: any) => {
+        console.error('Error loading brands:', error);
+      }
+    });
+  }
+
+  detectMode() {
+    const routeData = this.route.snapshot.data;
+    if (routeData['mode'] === 'edit') {
+      this.isEditMode.set(true);
+    }
+
+    this.route.paramMap.subscribe(params => {
+      const id = params.get('id');
+      if (id) {
+        this.editPromotionId = parseInt(id, 10);
+        this.isEditMode.set(true);
+        this.loadPromotionForEdit();
+      }
+    });
+  }
+
+  loadPromotionForEdit() {
+    if (!this.editPromotionId) return;
+
+    this.loading.set(true);
+
+    this.promotionService.getPromotion(this.editPromotionId).subscribe({
+      next: (promotion) => {
+        this.currentPromotion = promotion;
+
+        this.promotionForm.patchValue({
+          name: promotion.name,
+          description: promotion.description || '',
+          code: promotion.code || '',
+          discount_type: promotion.discount_type,
+          discount_value: promotion.discount_value,
+          scope: promotion.scope,
+          category_id: promotion.category_id,
+          brand_id: promotion.brand_id,
+          product_id: promotion.product_id,
+          min_order_amount: promotion.min_order_amount || 0,
+          max_discount: promotion.max_discount,
+          usage_limit: promotion.usage_limit,
+          start_date: new Date(promotion.start_date),
+          end_date: new Date(promotion.end_date),
+          is_active: promotion.is_active
+        });
+
+        this.loading.set(false);
+      },
+      error: (error) => {
+        console.error('Error loading promotion:', error);
+        this.loading.set(false);
+
+        this.messageService.add({
+          severity: 'error',
+          summary: this.translateService.instant('common.error'),
+          detail: this.translateService.instant('admin.promotions.load_error')
+        });
+
+        this.goBackToPromotionsList();
+      }
+    });
+  }
+
+  onCancel() {
+    this.goBackToPromotionsList();
+  }
+
+  goBackToPromotionsList() {
+    this.router.navigate(['/admin/promotions']);
+  }
+
+  onSubmit() {
+    if (this.promotionForm.invalid) {
+      this.promotionForm.markAllAsTouched();
+      return;
+    }
+
+    // Validate dates
+    const startDate = this.promotionForm.value.start_date;
+    const endDate = this.promotionForm.value.end_date;
+
+    if (endDate <= startDate) {
+      this.messageService.add({
+        severity: 'error',
+        summary: this.translateService.instant('common.error'),
+        detail: this.translateService.instant('admin.promotions.form.date_error')
+      });
+      return;
+    }
+
+    this.loading.set(true);
+
+    const formValues = this.promotionForm.value;
+
+    // Build promotion data
+    const promotionData: PromotionCreate = {
+      name: formValues.name,
+      description: formValues.description || undefined,
+      code: formValues.code?.toUpperCase() || undefined,
+      discount_type: formValues.discount_type,
+      discount_value: formValues.discount_value,
+      scope: formValues.scope,
+      category_id: formValues.scope === 'category' ? formValues.category_id : undefined,
+      brand_id: formValues.scope === 'brand' ? formValues.brand_id : undefined,
+      product_id: formValues.scope === 'product' ? formValues.product_id : undefined,
+      min_order_amount: formValues.min_order_amount || 0,
+      max_discount: formValues.max_discount || undefined,
+      usage_limit: formValues.usage_limit || undefined,
+      start_date: formValues.start_date.toISOString(),
+      end_date: formValues.end_date.toISOString(),
+      is_active: formValues.is_active
+    };
+
+    if (this.isEditMode() && this.editPromotionId) {
+      this.promotionService.updatePromotion(this.editPromotionId, promotionData as PromotionUpdate).subscribe({
+        next: () => {
+          this.loading.set(false);
+
+          this.messageService.add({
+            severity: 'success',
+            summary: this.translateService.instant('common.success'),
+            detail: this.translateService.instant('admin.promotions.update_success')
+          });
+
+          setTimeout(() => {
+            this.goBackToPromotionsList();
+          }, 1500);
+        },
+        error: (error) => {
+          this.loading.set(false);
+          this.handleError('update', error);
+        }
+      });
+    } else {
+      this.promotionService.createPromotion(promotionData).subscribe({
+        next: () => {
+          this.loading.set(false);
+
+          this.messageService.add({
+            severity: 'success',
+            summary: this.translateService.instant('common.success'),
+            detail: this.translateService.instant('admin.promotions.create_success')
+          });
+
+          setTimeout(() => {
+            this.goBackToPromotionsList();
+          }, 1500);
+        },
+        error: (error) => {
+          this.loading.set(false);
+          this.handleError('create', error);
+        }
+      });
+    }
+  }
+
+  private handleError(operation: 'create' | 'update', error: any) {
+    console.error(`Error ${operation}ing promotion:`, error);
+
+    let errorMessage = this.translateService.instant(
+      operation === 'create' ? 'admin.promotions.create_failed' : 'admin.promotions.update_failed'
+    );
+
+    if (error.error && error.error.detail) {
+      errorMessage = error.error.detail;
+    }
+
+    this.messageService.add({
+      severity: 'error',
+      summary: this.translateService.instant('common.error'),
+      detail: errorMessage
+    });
+  }
+
+  // Helper to check if discount type is percentage
+  isPercentageDiscount(): boolean {
+    return this.promotionForm.get('discount_type')?.value === 'percentage';
+  }
+
+  // Get current scope value
+  getCurrentScope(): string {
+    return this.promotionForm.get('scope')?.value || 'global';
+  }
+}

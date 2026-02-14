@@ -74,6 +74,14 @@ import { AuthService } from '../../services/auth.service';
             <span>{{ 'admin.navigation.brands' | translate }}</span>
           </a>
 
+          <!-- Promotions -->
+          <a routerLink="/admin/promotions"
+             (click)="hide()"
+             class="menu-item">
+            <i class="pi pi-percentage mr-3"></i>
+            <span>{{ 'admin.navigation.promotions' | translate }}</span>
+          </a>
+
           <!-- Users (Admin only) -->
           <a *ngIf="isAdmin()" 
              routerLink="/admin/users" 

@@ -407,6 +407,97 @@
     }
   },
   "admin": {
+    "promotions": {
+      "title": "إدارة العروض الترويجية",
+      "add_promotion": "إضافة عرض",
+      "edit_promotion": "تعديل العرض",
+      "search_placeholder": "البحث في العروض...",
+      "search": "بحث",
+      "clear_filters": "مسح الفلاتر",
+      "clear_search": "مسح البحث",
+      "refresh": "تحديث",
+      "loading": "جاري تحميل العروض...",
+      "load_error": "فشل في تحميل العروض",
+      "create_success": "تم إنشاء العرض بنجاح!",
+      "update_success": "تم تحديث العرض بنجاح!",
+      "create_failed": "فشل في إنشاء العرض",
+      "update_failed": "فشل في تحديث العرض",
+      "delete_success": "تم حذف العرض بنجاح!",
+      "delete_failed": "فشل في حذف العرض",
+      "no_code": "بدون كود",
+      "to": "إلى",
+      "add_first_promotion": "إضافة أول عرض",
+      "table": {
+        "name": "الاسم",
+        "code": "الكود",
+        "discount": "الخصم",
+        "scope": "النطاق",
+        "validity": "الصلاحية",
+        "usage": "الاستخدام",
+        "status": "الحالة",
+        "actions": "الإجراءات"
+      },
+      "status": {
+        "active": "نشط",
+        "inactive": "غير نشط",
+        "scheduled": "مجدول",
+        "expired": "منتهي الصلاحية"
+      },
+      "scope": {
+        "global": "عام",
+        "category": "فئة",
+        "brand": "علامة تجارية",
+        "product": "منتج"
+      },
+      "discount_type": {
+        "percentage": "نسبة مئوية",
+        "fixed_amount": "مبلغ ثابت"
+      },
+      "actions": {
+        "edit": "تعديل",
+        "delete": "حذف"
+      },
+      "empty": {
+        "no_promotions": "لا توجد عروض",
+        "no_match": "لا توجد عروض مطابقة لبحثك",
+        "get_started": "ابدأ بإضافة أول عرض ترويجي",
+        "try_adjusting": "حاول تعديل مصطلحات البحث"
+      },
+      "form": {
+        "basic_info": "المعلومات الأساسية",
+        "discount_settings": "إعدادات الخصم",
+        "scope_settings": "النطاق والشروط",
+        "validity_period": "فترة الصلاحية",
+        "name": "اسم العرض",
+        "name_placeholder": "مثال: تخفيضات الصيف 2024",
+        "name_required": "اسم العرض مطلوب",
+        "description": "الوصف",
+        "description_placeholder": "وصف اختياري لهذا العرض",
+        "code": "كود الخصم",
+        "code_placeholder": "مثال: SUMMER10",
+        "code_hint": "اختياري. اتركه فارغاً للعروض التلقائية. حروف وأرقام وشرطات فقط.",
+        "discount_type": "نوع الخصم",
+        "discount_value": "قيمة الخصم",
+        "max_discount": "الحد الأقصى للخصم",
+        "max_discount_placeholder": "بدون حد",
+        "max_discount_hint": "تحديد الحد الأقصى لمبلغ الخصم للنسب المئوية",
+        "scope": "نطاق العرض",
+        "category": "الفئة",
+        "select_category": "اختر فئة",
+        "brand": "العلامة التجارية",
+        "select_brand": "اختر علامة تجارية",
+        "min_order_amount": "الحد الأدنى للطلب",
+        "usage_limit": "حد الاستخدام",
+        "usage_limit_placeholder": "غير محدود",
+        "usage_limit_hint": "اتركه فارغاً للاستخدام غير المحدود",
+        "start_date": "تاريخ البدء",
+        "end_date": "تاريخ الانتهاء",
+        "date_error": "يجب أن يكون تاريخ الانتهاء بعد تاريخ البدء",
+        "is_active": "العرض نشط",
+        "submit_add": "إنشاء العرض",
+        "submit_update": "تحديث العرض"
+      }
+    },
     "dashboard": {
       "title": "لوحة التحكم",
       "welcome": "مرحباً بك في لوحة تحكم الإدارة",
@@ -817,6 +908,7 @@
       "products": "المنتجات",
       "categories": "الفئات",
       "brands": "العلامات التجارية",
+      "promotions": "العروض",
       "reports": "التقارير",
       "settings": "الإعدادات"
     },
