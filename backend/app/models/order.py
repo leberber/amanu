@@ -7,6 +7,7 @@ from pydantic import field_validator
 if TYPE_CHECKING:
     from app.models.user import User
     from app.models.product import Product
+    from app.models.promotion import Promotion
 
 class OrderStatus(str, Enum):
     """Order status enumeration"""
@@ -41,6 +42,11 @@ class OrderBase(SQLModel):
     shipping_address: str
     contact_phone: str
     total_amount: float = Field(gt=0)
+    # Promotion fields
+    subtotal: Optional[float] = Field(default=None)
+    discount_amount: float = Field(default=0)
+    promotion_id: Optional[int] = Field(default=None, foreign_key="promotions.id")
+
 
 class Order(OrderBase, table=True):
     """Database model for orders"""
@@ -48,10 +54,11 @@ class Order(OrderBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: Optional[datetime] = Field(default=None)
-    
+
     # Relationships
     user: "User" = Relationship(back_populates="orders")
     items: List[OrderItem] = Relationship(back_populates="order", sa_relationship_kwargs={"cascade": "all, delete-orphan"})
+    promotion: Optional["Promotion"] = Relationship()
 
 class OrderCreateItem(SQLModel):
     """Model for item in order creation"""
@@ -64,7 +71,8 @@ class OrderCreate(SQLModel):
     shipping_address: str
     contact_phone: str
     items: List[OrderCreateItem]
-    
+    promotion_code: Optional[str] = None  # Optional promo code
+
     @field_validator("items")
     def validate_items(cls, v):
         """Validate that order contains items"""
@@ -83,6 +91,10 @@ class OrderRead(OrderBase):
     id: int
     created_at: datetime
     updated_at: Optional[datetime] = None
+    subtotal: Optional[float] = None
+    discount_amount: float = 0
+    promotion_id: Optional[int] = None
+
 
 # Create a new Pydantic model that explicitly includes items
 class OrderItemRead(SQLModel):
@@ -95,6 +107,17 @@ class OrderItemRead(SQLModel):
     product_name: str
     product_unit: str
 
+
+class PromotionInfo(SQLModel):
+    """Minimal promotion info for order display"""
+    id: int
+    name: str
+    code: Optional[str] = None
+    discount_type: str
+    discount_value: float
+
+
 class OrderWithItems(OrderRead):
     """Extended order model that includes items"""
     items: List[OrderItemRead] = []
+    promotion_info: Optional[PromotionInfo] = None
