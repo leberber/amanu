@@ -1,4 +1,13 @@
 // src/app/models/product.model.ts
+
+export interface ProductPromotion {
+  id: number;
+  name: string;
+  discount_type: 'percentage' | 'fixed_amount';
+  discount_value: number;
+  discounted_price: number;
+}
+
 export interface Product {
     id: number;
     name: string;
@@ -17,6 +26,7 @@ export interface Product {
     name_translations?: { [key: string]: string };
     description_translations?: { [key: string]: string };
     quantity_config?: QuantityConfig;
+    promotion?: ProductPromotion;  // Active promotion applied to this product
   }
   
   export interface QuantityConfig {

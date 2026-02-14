@@ -93,9 +93,19 @@ class ProductUpdate(SQLModel):
     brand_id: Optional[int] = Field(default=None)
     quantity_config: Optional[Dict[str, Any]] = Field(default=None)
 
+class ProductPromotion(SQLModel):
+    """Promotion info attached to a product"""
+    id: int
+    name: str
+    discount_type: str  # 'percentage' or 'fixed_amount'
+    discount_value: float
+    discounted_price: float
+
+
 class ProductRead(ProductBase):
     """Model for reading products"""
     id: int
     created_at: datetime
     updated_at: Optional[datetime] = None
     quantity_config: Optional[Dict[str, Any]] = None
+    promotion: Optional[ProductPromotion] = None  # Active promotion for this product

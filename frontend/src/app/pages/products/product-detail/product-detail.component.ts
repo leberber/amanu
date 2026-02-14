@@ -124,6 +124,33 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
     return this.cartService.getProductQuantityInCart(currentProduct.id);
   });
 
+  // Computed property to check if product has promotion
+  hasPromotion = computed(() => {
+    const currentProduct = this.product();
+    return currentProduct?.promotion != null;
+  });
+
+  // Computed property for discount label
+  discountLabel = computed(() => {
+    const currentProduct = this.product();
+    if (!currentProduct?.promotion) return '';
+    if (currentProduct.promotion.discount_type === 'percentage') {
+      return `-${currentProduct.promotion.discount_value}%`;
+    }
+    return `-${this.formatPrice(currentProduct.promotion.discount_value)}`;
+  });
+
+  // Computed property for discounted price
+  discountedPrice = computed(() => {
+    const currentProduct = this.product();
+    return currentProduct?.promotion?.discounted_price || currentProduct?.price || 0;
+  });
+
+  // Computed property for effective price (discounted or original)
+  effectivePrice = computed(() => {
+    return this.hasPromotion() ? this.discountedPrice() : (this.product()?.price || 0);
+  });
+
   ngOnInit() {
     // Subscribe to cart changes to update the button
     this.cartSubscription = this.cartService.cartItems$.subscribe(() => {
@@ -331,6 +358,30 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   // Format price using CurrencyService
   formatPrice(price: number): string {
     return this.currencyService.formatCurrency(price);
+  }
+
+  // Check if a product has promotion
+  productHasPromotion(product: Product): boolean {
+    return product.promotion != null;
+  }
+
+  // Get discount label for a product
+  getProductDiscountLabel(product: Product): string {
+    if (!product.promotion) return '';
+    if (product.promotion.discount_type === 'percentage') {
+      return `-${product.promotion.discount_value}%`;
+    }
+    return `-${this.formatPrice(product.promotion.discount_value)}`;
+  }
+
+  // Get discounted price for a product
+  getProductDiscountedPrice(product: Product): number {
+    return product.promotion?.discounted_price || product.price;
+  }
+
+  // Get effective price for a product (discounted or original)
+  getProductEffectivePrice(product: Product): number {
+    return product.promotion ? product.promotion.discounted_price : product.price;
   }
 
   ngOnDestroy(): void {

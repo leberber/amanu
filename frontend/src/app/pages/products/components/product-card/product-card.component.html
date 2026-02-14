@@ -60,10 +60,18 @@
 <!-- Product Badges Template -->
 <ng-template #productBadges>
   <div class="flex align-items-start gap-2">
+    @if (hasPromotion) {
+      <p-tag
+        severity="danger"
+        [value]="discountLabel"
+        class="shadow-2 flex-shrink-0 w-auto text-xs font-bold"
+        icon="pi pi-tag"
+      ></p-tag>
+    }
     @if (product.is_organic) {
-      <p-tag 
-        severity="success" 
-        [value]="'products.tags.organic' | translate" 
+      <p-tag
+        severity="success"
+        [value]="'products.tags.organic' | translate"
         class="shadow-2 flex-shrink-0 w-auto text-xs"
         icon="pi pi-leaf"
       ></p-tag>
@@ -112,9 +120,20 @@
 <!-- Price Info Template -->
 <ng-template #priceInfo>
   <div>
-    <div class="text-base font-semibold text-900">
-      {{ formatPrice(product.price) }}
-    </div>
+    @if (hasPromotion) {
+      <div class="flex align-items-center gap-2">
+        <span class="text-base font-bold text-red-500">
+          {{ formatPrice(discountedPrice) }}
+        </span>
+        <span class="text-sm text-500 line-through">
+          {{ formatPrice(product.price) }}
+        </span>
+      </div>
+    } @else {
+      <div class="text-base font-semibold text-900">
+        {{ formatPrice(product.price) }}
+      </div>
+    }
     <span class="text-xs text-600">{{ 'products.price_per' | translate }} {{ getUnitDisplay(product.unit) }}</span>
   </div>
 </ng-template>
@@ -201,7 +220,7 @@
   @if (isInCart) {
     <span class="text-xs text-green-500">
       <i class="pi pi-check-circle mr-1 text-xs"></i>
-      {{ quantityInCart }} {{ 'products.cart.in_cart' | translate }} ({{ formatPrice(product.price * quantityInCart) }})
+      {{ quantityInCart }} {{ 'products.cart.in_cart' | translate }} ({{ formatPrice(effectivePrice * quantityInCart) }})
     </span>
   } @else {
     <span class="text-xs text-500">

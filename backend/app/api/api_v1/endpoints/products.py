@@ -7,13 +7,88 @@ from sqlmodel import Session, select, or_, func
 from sqlalchemy import Text
 
 from app.database import get_session
-from app.models.product import Product, ProductCreate, ProductUpdate, ProductRead
+from app.models.product import Product, ProductCreate, ProductUpdate, ProductRead, ProductPromotion
 from app.models.category import Category
+from app.models.promotion import Promotion, PromotionScope
 from app.core.security import get_current_staff_user, get_current_active_user
 from app.core.translation import TranslationService
 from app.models.user import User
 
 router = APIRouter()
+
+
+def get_active_promotions(session: Session) -> List[Promotion]:
+    """Get all currently active promotions"""
+    now = datetime.utcnow()
+    query = select(Promotion).where(
+        Promotion.is_active == True,
+        Promotion.start_date <= now,
+        Promotion.end_date >= now
+    )
+    return list(session.exec(query).all())
+
+
+def get_best_promotion_for_product(
+    product: Product,
+    promotions: List[Promotion]
+) -> Optional[ProductPromotion]:
+    """Find the best (highest discount) promotion applicable to a product"""
+    applicable_promotions = []
+
+    for promo in promotions:
+        # Check if promotion applies to this product
+        applies = False
+
+        if promo.scope == PromotionScope.GLOBAL:
+            applies = True
+        elif promo.scope == PromotionScope.CATEGORY and promo.category_id == product.category_id:
+            applies = True
+        elif promo.scope == PromotionScope.BRAND and promo.brand_id == product.brand_id:
+            applies = True
+        elif promo.scope == PromotionScope.PRODUCT and promo.product_id == product.id:
+            applies = True
+
+        if applies and promo.is_valid():
+            # Calculate discount for this product
+            discount_amount = promo.calculate_discount(product.price)
+            discounted_price = product.price - discount_amount
+            applicable_promotions.append({
+                'promotion': promo,
+                'discount_amount': discount_amount,
+                'discounted_price': discounted_price
+            })
+
+    if not applicable_promotions:
+        return None
+
+    # Return the promotion with the highest discount
+    best = max(applicable_promotions, key=lambda x: x['discount_amount'])
+    promo = best['promotion']
+
+    return ProductPromotion(
+        id=promo.id,
+        name=promo.name,
+        discount_type=promo.discount_type.value,
+        discount_value=promo.discount_value,
+        discounted_price=round(best['discounted_price'], 2)
+    )
+
+
+def enrich_products_with_promotions(
+    products: List[Product],
+    session: Session
+) -> List[dict]:
+    """Add promotion info to products"""
+    promotions = get_active_promotions(session)
+    result = []
+
+    for product in products:
+        product_data = ProductRead.model_validate(product).model_dump()
+        product_data['promotion'] = get_best_promotion_for_product(product, promotions)
+        result.append(product_data)
+
+    return result
+
 
 @router.post("", response_model=ProductRead)
 def create_product(
@@ -117,12 +192,13 @@ def read_products(
     
     # Apply pagination
     products = session.exec(query.offset(skip).limit(limit)).all()
-    
+
     # Apply translations to each product
     for product in products:
         TranslationService.apply_translations_to_model(product, lang)
-    
-    return products
+
+    # Enrich products with promotion info
+    return enrich_products_with_promotions(products, session)
 
 @router.get("/{product_id}", response_model=ProductRead)
 def read_product(
@@ -139,11 +215,16 @@ def read_product(
             status_code=404,
             detail="Product not found",
         )
-    
+
     # Apply translations
     TranslationService.apply_translations_to_model(product, lang)
-    
-    return product
+
+    # Add promotion info
+    promotions = get_active_promotions(session)
+    product_data = ProductRead.model_validate(product).model_dump()
+    product_data['promotion'] = get_best_promotion_for_product(product, promotions)
+
+    return product_data
 
 @router.patch("/{product_id}", response_model=ProductRead)
 def update_product(
@@ -230,17 +311,18 @@ def read_products_by_category(
             status_code=404,
             detail="Category not found",
         )
-    
+
     # Build query
     query = select(Product).where(Product.category_id == category_id)
-    
+
     if active_only:
         query = query.where(Product.is_active == True)
-    
+
     products = session.exec(query).all()
-    
+
     # Apply translations to each product
     for product in products:
         TranslationService.apply_translations_to_model(product, lang)
-    
-    return products
+
+    # Enrich products with promotion info
+    return enrich_products_with_promotions(products, session)

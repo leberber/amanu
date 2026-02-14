@@ -71,6 +71,26 @@ export class ProductCardComponent implements OnInit {
     return this.product.stock_quantity > 0 && this.product.stock_quantity < 20;
   }
 
+  get hasPromotion(): boolean {
+    return !!this.product.promotion;
+  }
+
+  get discountLabel(): string {
+    if (!this.product.promotion) return '';
+    if (this.product.promotion.discount_type === 'percentage') {
+      return `-${this.product.promotion.discount_value}%`;
+    }
+    return `-${this.formatPrice(this.product.promotion.discount_value)}`;
+  }
+
+  get discountedPrice(): number {
+    return this.product.promotion?.discounted_price || this.product.price;
+  }
+
+  get effectivePrice(): number {
+    return this.hasPromotion ? this.discountedPrice : this.product.price;
+  }
+
   formatPrice(price: number): string {
     return this.currencyService.formatCurrency(price);
   }
