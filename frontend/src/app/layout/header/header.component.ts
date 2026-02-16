@@ -151,9 +151,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
     const baseItems = this.getBaseMenuItems();
     const isAdminUser = this.authService.isAdminOrStaff();
 
-    // Desktop menu
+    // Desktop menu - show admin items directly (not in dropdown)
     this.items.set(
-      isAdminUser ? [...baseItems, this.getAdminMenuItem()] : baseItems
+      isAdminUser ? [...baseItems, ...this.getAdminMenuItemsFlat()] : baseItems
     );
 
     // Mobile menu
@@ -203,10 +203,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
     return items;
   }
 
-  private getAdminMenuItem(): MenuItem {
+  private getAdminMenuItemsFlat(): MenuItem[] {
     const items: MenuItem[] = [];
     const isAdmin = this.authService.isAdmin();
-    
+
     // Admin-only items
     if (isAdmin) {
       items.push({
@@ -215,7 +215,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
         routerLink: '/admin'
       });
     }
-    
+
     // Admin and staff items
     items.push(
       {
@@ -244,7 +244,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
         routerLink: '/admin/promotions'
       }
     );
-    
+
     // Admin-only items
     if (isAdmin) {
       items.splice(2, 0, {
@@ -253,11 +253,15 @@ export class HeaderComponent implements OnInit, OnDestroy {
         routerLink: '/admin/users'
       });
     }
-    
+
+    return items;
+  }
+
+  private getAdminMenuItem(): MenuItem {
     return {
       label: this.translateService.instant('header.admin'),
       icon: 'pi pi-cog',
-      items
+      items: this.getAdminMenuItemsFlat()
     };
   }
   
