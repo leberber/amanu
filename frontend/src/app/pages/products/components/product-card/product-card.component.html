@@ -94,7 +94,7 @@
 <!-- Product Header Template -->
 <ng-template #productHeader>
   <div class="mb-2">
-    <h4 class="m-0 mb-2 text-xl font-medium">
+    <h4 class="m-0 mb-2 text-lg font-medium">
       <a [routerLink]="['/products', product.id]" class="text-900 no-underline hover:text-primary transition-colors transition-duration-200">
         {{ product.name }}
       </a>
@@ -136,8 +136,10 @@
     }
     <span class="text-xs text-600">{{ 'products.price_per' | translate }} {{ getUnitDisplay(product.unit) }}</span>
     @if (boxQuantity && boxPrice) {
-      <div class="text-xs text-primary font-medium mt-1">
-        {{ 'products.box_price' | translate }}: {{ formatPrice(boxPrice) }} ({{ boxQuantity }} {{ getUnitDisplay(product.unit) }})
+      <div class="flex align-items-center gap-2 mt-1">
+        <span class="text-xs text-600">{{ 'products.box_price' | translate }}:</span>
+        <span class="text-sm font-bold text-red-500">{{ formatPrice(boxPrice) }}</span>
+        <span class="text-xs text-500">({{ boxQuantity }} {{ getUnitDisplay(product.unit) }})</span>
       </div>
     }
   </div>
