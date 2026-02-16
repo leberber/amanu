@@ -207,9 +207,14 @@
           
           <!-- Price and Stock - Cleaner layout -->
           <div class="flex align-items-center justify-content-between mb-3">
-            <div class="flex align-items-baseline gap-2">
-              <span class="text-base font-semibold text-900">{{ formatPrice(product.price) }}</span>
-              <span class="text-sm text-500">{{ getUnitDisplay(product.unit) }}</span>
+            <div>
+              <div class="flex align-items-baseline gap-2">
+                <span class="text-base font-semibold text-900">{{ formatPrice(product.price) }}</span>
+                <span class="text-sm text-500">{{ getUnitDisplay(product.unit) }}</span>
+              </div>
+              <div *ngIf="getBoxQuantity(product) && getBoxPrice(product)" class="text-xs text-primary font-medium mt-1">
+                {{ 'products.box_price' | translate }}: {{ formatPrice(getBoxPrice(product)!) }} ({{ getBoxQuantity(product) }} {{ getUnitDisplay(product.unit) }})
+              </div>
             </div>
             
             <!-- Stock Status - Better visibility -->
@@ -308,9 +313,14 @@
             
             <!-- Price and Stock on same line -->
             <div class="flex align-items-center justify-content-between">
-              <div class="flex align-items-baseline gap-1">
-                <span class="text-base font-semibold text-900">{{ formatPrice(product.price) }}</span>
-                <span class="text-xs text-500">/ {{ getUnitDisplay(product.unit) }}</span>
+              <div>
+                <div class="flex align-items-baseline gap-1">
+                  <span class="text-base font-semibold text-900">{{ formatPrice(product.price) }}</span>
+                  <span class="text-xs text-500">/ {{ getUnitDisplay(product.unit) }}</span>
+                </div>
+                <div *ngIf="getBoxQuantity(product) && getBoxPrice(product)" class="text-xs text-primary font-medium mt-1">
+                  {{ 'products.box_price' | translate }}: {{ formatPrice(getBoxPrice(product)!) }} ({{ getBoxQuantity(product) }} {{ getUnitDisplay(product.unit) }})
+                </div>
               </div>
               
               <!-- Stock Status - matching grid view style -->

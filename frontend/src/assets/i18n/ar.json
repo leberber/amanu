@@ -173,6 +173,7 @@
     },
     "default_description": "منتجات طازجة عالية الجودة توصل إلى باب منزلك",
     "price_per": "لكل",
+    "box_price": "الكرتون",
     "add_quantity_to_cart": "إضافة {{quantity}} {{unit}} للسلة",
     "category": {
       "default": "منتجات طازجة"

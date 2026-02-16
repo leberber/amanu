@@ -653,4 +653,30 @@ export class ProductListComponent implements OnInit, OnDestroy {
   getCartQuantity(productId: number): number {
     return this.cartService.getProductQuantityInCart(productId);
   }
+
+  getBoxQuantity(product: Product): number | null {
+    const config = product.quantity_config;
+    if (!config) return null;
+
+    // For list type, use first quantity
+    if (config.type === 'list' && config.quantities && config.quantities.length > 0) {
+      return config.quantities[0];
+    }
+
+    // For range type, use min value
+    if (config.type === 'range' && config.min) {
+      return config.min;
+    }
+
+    return null;
+  }
+
+  getBoxPrice(product: Product): number | null {
+    const boxQty = this.getBoxQuantity(product);
+    if (boxQty) {
+      const effectivePrice = product.promotion?.discounted_price || product.price;
+      return effectivePrice * boxQty;
+    }
+    return null;
+  }
 }

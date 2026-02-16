@@ -173,6 +173,7 @@
     },
     "default_description": "Produits frais de haute qualité livrés à votre porte",
     "price_per": "par",
+    "box_price": "Carton",
     "add_quantity_to_cart": "Ajouter {{quantity}} {{unit}} au Panier",
     "category": {
       "default": "Produits Frais"

@@ -91,6 +91,30 @@ export class ProductCardComponent implements OnInit {
     return this.hasPromotion ? this.discountedPrice : this.product.price;
   }
 
+  get boxQuantity(): number | null {
+    const config = this.product.quantity_config;
+    if (!config) return null;
+
+    // For list type, use first quantity
+    if (config.type === 'list' && config.quantities && config.quantities.length > 0) {
+      return config.quantities[0];
+    }
+
+    // For range type, use min value
+    if (config.type === 'range' && config.min) {
+      return config.min;
+    }
+
+    return null;
+  }
+
+  get boxPrice(): number | null {
+    if (this.boxQuantity) {
+      return this.effectivePrice * this.boxQuantity;
+    }
+    return null;
+  }
+
   formatPrice(price: number): string {
     return this.currencyService.formatCurrency(price);
   }

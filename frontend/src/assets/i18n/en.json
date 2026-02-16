@@ -173,6 +173,7 @@
     },
     "default_description": "Fresh, high-quality produce delivered to your door",
     "price_per": "per",
+    "box_price": "Box",
     "add_quantity_to_cart": "Add {{quantity}} {{unit}} to Cart",
     "empty": {
       "title": "No products found",

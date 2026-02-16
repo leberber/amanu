@@ -135,6 +135,11 @@
       </div>
     }
     <span class="text-xs text-600">{{ 'products.price_per' | translate }} {{ getUnitDisplay(product.unit) }}</span>
+    @if (boxQuantity && boxPrice) {
+      <div class="text-xs text-primary font-medium mt-1">
+        {{ 'products.box_price' | translate }}: {{ formatPrice(boxPrice) }} ({{ boxQuantity }} {{ getUnitDisplay(product.unit) }})
+      </div>
+    }
   </div>
 </ng-template>
 
