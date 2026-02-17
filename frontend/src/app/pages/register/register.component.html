@@ -166,17 +166,27 @@
 
           <!-- Overlay Header -->
           <div class="map-overlay-header">
-            <button class="map-back-btn" (click)="prevStep()">
-              <i class="pi pi-arrow-left"></i>
-            </button>
-            <div class="overlay-card">
-              <div class="overlay-icon">
+            <div class="map-top-nav">
+              <button class="map-back-btn" (click)="prevStep()">
+                <i class="pi pi-arrow-left"></i>
+              </button>
+              <div class="map-step-dots">
+                <span *ngFor="let step of [0,1,2,3]"
+                      class="dot"
+                      [class.active]="activeStep === step"
+                      [class.completed]="activeStep > step"
+                      (click)="goToStep(step)"></span>
+              </div>
+              <a routerLink="/login" class="map-login-link">
+                <span>{{ 'auth.login' | translate }}</span>
+                <i class="pi pi-arrow-right"></i>
+              </a>
+            </div>
+            <div class="map-title-card">
+              <div class="title-icon">
                 <i class="pi pi-map-marker"></i>
               </div>
-              <div class="overlay-text">
-                <h2>{{ 'register.step3_title' | translate }}</h2>
-                <p>{{ 'register.step3_subtitle' | translate }}</p>
-              </div>
+              <h2>{{ 'register.step3_title' | translate }}</h2>
             </div>
           </div>
 

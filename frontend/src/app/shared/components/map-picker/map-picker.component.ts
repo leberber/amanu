@@ -23,12 +23,24 @@ export interface LocationData {
 
       <!-- Use My Location Card (shown when no location selected in fullscreen) -->
       <div class="use-location-card" *ngIf="fullscreen && !selectedLocation && !isLocating && !cardDismissed">
-        <button class="use-location-btn" (click)="locateUser()">
-          <i class="pi pi-map-marker"></i>
-          <span>{{ 'register.use_my_location' | translate }}</span>
-        </button>
-        <button class="dismiss-btn" (click)="dismissCard()">
-          {{ 'register.or_tap_map' | translate }}
+        <div class="location-card-content">
+          <div class="pulse-icon" (click)="locateUser()">
+            <div class="pulse-ring"></div>
+            <div class="pulse-ring delay"></div>
+            <div class="icon-center">
+              <i class="pi pi-send"></i>
+            </div>
+          </div>
+          <span class="location-label">{{ 'register.use_my_location' | translate }}</span>
+        </div>
+        <div class="divider">
+          <span class="divider-line"></span>
+          <span class="divider-text">{{ 'common.or' | translate }}</span>
+          <span class="divider-line"></span>
+        </div>
+        <button class="tap-map-btn" (click)="dismissCard()">
+          <i class="pi pi-map"></i>
+          <span>{{ 'register.tap_map_instruction' | translate }}</span>
         </button>
       </div>
 
@@ -137,54 +149,126 @@ export interface LocationData {
       left: 50%;
       transform: translate(-50%, -50%);
       z-index: 999;
-      text-align: center;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 20px;
+      padding: 1.5rem;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+      min-width: 240px;
     }
 
-    .use-location-btn {
+    .location-card-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.75rem;
+      cursor: pointer;
+    }
+
+    .pulse-icon {
+      position: relative;
+      width: 64px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      .pulse-ring {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        border: 2px solid rgba(102, 126, 234, 0.4);
+        animation: pulseRing 2s ease-out infinite;
+
+        &.delay {
+          animation-delay: 1s;
+        }
+      }
+
+      .icon-center {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4);
+        transition: transform 0.3s ease;
+
+        i {
+          font-size: 1.25rem;
+          color: white;
+          transform: rotate(-45deg);
+        }
+      }
+
+      &:hover .icon-center {
+        transform: scale(1.1);
+      }
+    }
+
+    @keyframes pulseRing {
+      0% {
+        transform: scale(0.8);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(1.4);
+        opacity: 0;
+      }
+    }
+
+    .location-label {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .divider {
       display: flex;
       align-items: center;
       gap: 0.75rem;
-      padding: 1rem 1.5rem;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      border: none;
-      border-radius: 16px;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      box-shadow: 0 8px 32px rgba(102, 126, 234, 0.4);
-      transition: all 0.3s ease;
+      margin: 1rem 0;
 
-      &:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 12px 40px rgba(102, 126, 234, 0.5);
+      .divider-line {
+        flex: 1;
+        height: 1px;
+        background: rgba(0, 0, 0, 0.1);
       }
 
-      &:active {
-        transform: translateY(0);
-      }
-
-      i {
-        font-size: 1.25rem;
+      .divider-text {
+        font-size: 0.75rem;
+        color: #999;
+        text-transform: lowercase;
       }
     }
 
-    .dismiss-btn {
-      margin-top: 1rem;
-      color: #333;
-      font-size: 0.875rem;
-      background: rgba(255, 255, 255, 0.95);
-      padding: 0.75rem 1.25rem;
+    .tap-map-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1rem;
+      background: transparent;
+      border: 1px solid rgba(0, 0, 0, 0.1);
       border-radius: 12px;
-      border: none;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: #666;
       cursor: pointer;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
       transition: all 0.3s ease;
 
+      i {
+        font-size: 0.9rem;
+      }
+
       &:hover {
-        background: white;
-        transform: translateY(-1px);
+        background: rgba(0, 0, 0, 0.03);
+        border-color: rgba(0, 0, 0, 0.15);
       }
     }
 
@@ -344,7 +428,14 @@ export class MapPickerComponent implements AfterViewInit, OnDestroy {
     });
     L.Marker.prototype.options.icon = defaultIcon;
 
-    this.map = L.map(this.mapId).setView([lat, lng], this.defaultZoom);
+    this.map = L.map(this.mapId, {
+      zoomControl: false // We'll add it at the bottom
+    }).setView([lat, lng], this.defaultZoom);
+
+    // Add zoom control at bottom-left
+    L.control.zoom({
+      position: 'bottomleft'
+    }).addTo(this.map);
 
     // Google Maps tile layer
     L.tileLayer('https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
