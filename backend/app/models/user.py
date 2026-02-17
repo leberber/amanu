@@ -21,6 +21,8 @@ class UserBase(SQLModel):
     full_name: str = Field(min_length=1, max_length=100)
     phone: Optional[str] = Field(default=None, max_length=20)
     address: Optional[str] = Field(default=None, max_length=200)
+    latitude: Optional[float] = Field(default=None)
+    longitude: Optional[float] = Field(default=None)
     role: UserRole = Field(default=UserRole.CUSTOMER)
     is_active: bool = Field(default=True)
 
@@ -46,6 +48,8 @@ class UserUpdate(SQLModel):
     full_name: Optional[str] = Field(default=None, min_length=1, max_length=100)
     phone: Optional[str] = Field(default=None, max_length=20)
     address: Optional[str] = Field(default=None, max_length=200)
+    latitude: Optional[float] = Field(default=None)
+    longitude: Optional[float] = Field(default=None)
     password: Optional[str] = Field(default=None, min_length=8, max_length=100)
     is_active: Optional[bool] = Field(default=None)
     role: Optional[UserRole] = Field(default=None)

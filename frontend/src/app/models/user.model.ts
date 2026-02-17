@@ -11,6 +11,8 @@ export interface User {
   full_name: string;
   phone?: string;
   address?: string;
+  latitude?: number;
+  longitude?: number;
   role: UserRole;
   is_active: boolean;
   created_at: string;
@@ -33,5 +35,7 @@ export interface RegisterRequest {
   full_name: string;
   phone?: string;
   address?: string;
+  latitude?: number;
+  longitude?: number;
   role?: UserRole;
 }
