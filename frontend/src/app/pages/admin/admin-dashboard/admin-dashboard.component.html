@@ -120,6 +120,36 @@
       
 
 
+      <!-- Send Notification Card -->
+      <div class="surface-card p-4 shadow-2 border-round mb-4">
+        <div class="flex align-items-center gap-2 mb-3">
+          <i class="pi pi-bell text-2xl text-primary"></i>
+          <h3 class="text-xl font-medium m-0">{{ 'admin.dashboard.send_notification' | translate }}</h3>
+        </div>
+        <div class="grid">
+          <div class="col-12 md:col-5">
+            <label class="block mb-2 font-medium">{{ 'admin.dashboard.notification_title' | translate }}</label>
+            <input type="text" pInputText [(ngModel)]="notificationTitle"
+                   [placeholder]="'admin.dashboard.notification_title_placeholder' | translate"
+                   class="w-full" />
+          </div>
+          <div class="col-12 md:col-5">
+            <label class="block mb-2 font-medium">{{ 'admin.dashboard.notification_body' | translate }}</label>
+            <input type="text" pInputText [(ngModel)]="notificationBody"
+                   [placeholder]="'admin.dashboard.notification_body_placeholder' | translate"
+                   class="w-full" />
+          </div>
+          <div class="col-12 md:col-2 flex align-items-end">
+            <button pButton [label]="'admin.dashboard.send' | translate"
+                    icon="pi pi-send"
+                    (click)="sendNotification()"
+                    [loading]="sendingNotification"
+                    [disabled]="sendingNotification || !notificationTitle.trim() || !notificationBody.trim()"
+                    class="w-full"></button>
+          </div>
+        </div>
+      </div>
+
       <!-- Chart and Table Row -->
       <div class="grid">
         <!-- Sales by Category Chart -->

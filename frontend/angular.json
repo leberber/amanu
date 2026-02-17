@@ -47,6 +47,11 @@
                 "glob": "**/*",
                 "input": "node_modules/primeicons/fonts",
                 "output": "/assets/fonts"
+              },
+              {
+                "glob": "custom-sw.js",
+                "input": "src",
+                "output": "/"
               }
             ],
             "styles": ["src/styles.scss"],

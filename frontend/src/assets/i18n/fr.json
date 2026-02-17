@@ -41,7 +41,9 @@
     "confirm_delete": "Confirmer la suppression",
     "confirm_delete_message": "Êtes-vous sûr de vouloir supprimer \"{{item}}\" ? Cette action est irréversible.",
     "warning": "Avertissement",
-    "proceed": "Continuer"
+    "proceed": "Continuer",
+    "on": "Activé",
+    "off": "Désactivé"
   },
   "Select All": "Tout Sélectionner",
   "Clear": "Effacer",
@@ -532,7 +534,16 @@
         "quantity_sold": "Quantité Vendue",
         "total_sales": "Ventes Totales"
       },
-      "manage_brands": "Gérer les marques"
+      "manage_brands": "Gérer les marques",
+      "send_notification": "Envoyer une notification",
+      "notification_title": "Titre",
+      "notification_title_placeholder": "ex: Nouvelle Promotion!",
+      "notification_body": "Message",
+      "notification_body_placeholder": "ex: 20% de réduction sur tous les fruits!",
+      "send": "Envoyer",
+      "notification_sent": "Notification envoyée à {{count}} abonné(s)",
+      "notification_failed": "Échec de l'envoi de la notification",
+      "notification_empty": "Veuillez entrer un titre et un message"
     },
     "stats": {
       "total_users": "Total Utilisateurs",
@@ -1072,7 +1083,12 @@
     "profile_update_failed": "Échec de la mise à jour des informations du profil",
     "password_changed": "Mot de Passe Modifié",
     "password_changed_success": "Votre mot de passe a été modifié avec succès.",
-    "password_change_failed": "Échec du changement de mot de passe"
+    "password_change_failed": "Échec du changement de mot de passe",
+    "notifications": "Notifications",
+    "notifications_hint": "Recevoir des offres promotionnelles et des mises à jour",
+    "notifications_enabled": "Notifications activées",
+    "notifications_disabled": "Notifications désactivées",
+    "notifications_error": "Impossible d'activer les notifications. Veuillez vérifier les paramètres de votre navigateur."
   },
   "units": {
     "kg": "Kilogramme",

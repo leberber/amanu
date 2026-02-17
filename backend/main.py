@@ -12,6 +12,7 @@ from app.api.api_v1.api import api_router
 from app.core.config import settings
 from app.core.admin import create_admin_user
 from app.seed_data import seed_data
+from app.models.push_subscription import PushSubscription  # Register model for table creation
 
 app = FastAPI(
     title=settings.PROJECT_NAME,

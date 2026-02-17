@@ -318,18 +318,40 @@
             </div>
           </div>
           
+          <!-- Notifications -->
+          <div class="col-12">
+            <div class="surface-50 border-round p-3">
+              <div class="flex justify-content-between align-items-center">
+                <span class="font-medium text-600">
+                  <i class="pi pi-bell mr-2"></i>{{ 'account.notifications' | translate }}
+                </span>
+                <p-toggleButton
+                  [(ngModel)]="notificationsEnabled"
+                  (onChange)="toggleNotifications()"
+                  [onLabel]="'common.on' | translate"
+                  [offLabel]="'common.off' | translate"
+                  [disabled]="loadingNotifications"
+                  styleClass="w-6rem">
+                </p-toggleButton>
+              </div>
+              <small class="text-color-secondary block mt-2">
+                {{ 'account.notifications_hint' | translate }}
+              </small>
+            </div>
+          </div>
+
           <!-- Quick Actions -->
           <div class="mt-4 pt-4 border-top-1 surface-border">
-            <button 
-              pButton 
-              type="button" 
+            <button
+              pButton
+              type="button"
               [label]="'header.orders' | translate"
               icon="pi pi-shopping-bag"
               class="p-button-text w-full mb-2"
               routerLink="/orders"></button>
-            <button 
-              pButton 
-              type="button" 
+            <button
+              pButton
+              type="button"
               [label]="'common.logout' | translate"
               icon="pi pi-sign-out"
               class="p-button-text p-button-danger w-full"

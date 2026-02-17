@@ -41,7 +41,9 @@
     "confirm_delete": "تأكيد الحذف",
     "confirm_delete_message": "هل أنت متأكد من حذف \"{{item}}\"؟ لا يمكن التراجع عن هذا الإجراء.",
     "warning": "تحذير",
-    "proceed": "متابعة"
+    "proceed": "متابعة",
+    "on": "مفعّل",
+    "off": "معطّل"
   },
   "Select All": "تحديد الكل",
   "Clear": "مسح",
@@ -533,7 +535,16 @@
         "quantity_sold": "الكمية المباعة",
         "total_sales": "إجمالي المبيعات"
       },
-      "manage_brands": "إدارة العلامات التجارية"
+      "manage_brands": "إدارة العلامات التجارية",
+      "send_notification": "إرسال إشعار",
+      "notification_title": "العنوان",
+      "notification_title_placeholder": "مثال: عرض جديد!",
+      "notification_body": "الرسالة",
+      "notification_body_placeholder": "مثال: خصم 20% على جميع الفواكه!",
+      "send": "إرسال",
+      "notification_sent": "تم إرسال الإشعار إلى {{count}} مشترك",
+      "notification_failed": "فشل إرسال الإشعار",
+      "notification_empty": "يرجى إدخال العنوان والرسالة"
     },
     "stats": {
       "total_users": "إجمالي المستخدمين",
@@ -1063,7 +1074,12 @@
     "profile_update_failed": "فشل تحديث معلومات الملف الشخصي",
     "password_changed": "تم تغيير كلمة المرور",
     "password_changed_success": "تم تغيير كلمة المرور الخاصة بك بنجاح.",
-    "password_change_failed": "فشل تغيير كلمة المرور"
+    "password_change_failed": "فشل تغيير كلمة المرور",
+    "notifications": "الإشعارات",
+    "notifications_hint": "تلقي العروض الترويجية والتحديثات",
+    "notifications_enabled": "تم تفعيل الإشعارات",
+    "notifications_disabled": "تم تعطيل الإشعارات",
+    "notifications_error": "تعذر تفعيل الإشعارات. يرجى التحقق من إعدادات المتصفح."
   },
   "units": {
     "kg": "كيلوغرام",

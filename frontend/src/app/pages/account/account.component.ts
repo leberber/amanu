@@ -1,7 +1,7 @@
 // src/app/pages/account/account.component.ts
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
@@ -10,10 +10,12 @@ import { PasswordModule } from 'primeng/password';
 import { ToastModule } from 'primeng/toast';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
+import { ToggleButtonModule } from 'primeng/togglebutton';
 import { MessageService } from 'primeng/api';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
+import { PushService } from '../../services/push.service';
 import { User } from '../../models/user.model';
 import { DateService } from '../../core/services/date.service';
 import { FormValidationService } from '../../core/services/form-validation.service';
@@ -25,6 +27,7 @@ import { VALIDATION } from '../../core/constants/app.constants';
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    FormsModule,
     RouterLink,
     CardModule,
     ButtonModule,
@@ -33,7 +36,8 @@ import { VALIDATION } from '../../core/constants/app.constants';
     ToastModule,
     TranslateModule,
     TagModule,
-    TooltipModule
+    TooltipModule,
+    ToggleButtonModule
   ],
   providers: [MessageService],
   templateUrl: './account.component.html',
@@ -45,6 +49,8 @@ export class AccountComponent implements OnInit {
   passwordForm!: FormGroup;
   loading = false;
   loadingPassword = false;
+  notificationsEnabled = false;
+  loadingNotifications = false;
   
   private fb = inject(FormBuilder);
   public authService = inject(AuthService);
@@ -54,11 +60,17 @@ export class AccountComponent implements OnInit {
   private router = inject(Router);
   private dateService = inject(DateService);
   private formValidation = inject(FormValidationService);
+  public pushService = inject(PushService);
   
   ngOnInit(): void {
     this.profileForm = this.createProfileForm();
     this.passwordForm = this.createPasswordForm();
     this.loadUserData();
+
+    // Subscribe to push notification status
+    this.pushService.isSubscribed$.subscribe(isSubscribed => {
+      this.notificationsEnabled = isSubscribed;
+    });
   }
   
   private createProfileForm(): FormGroup {
@@ -187,5 +199,40 @@ export class AccountComponent implements OnInit {
   logout(): void {
     this.authService.logout();
     this.router.navigate(['/']);
+  }
+
+  async toggleNotifications(): Promise<void> {
+    this.loadingNotifications = true;
+    try {
+      // notificationsEnabled is already toggled by ngModel, so logic is inverted
+      if (this.notificationsEnabled) {
+        // User wants to enable (toggle is now ON)
+        const success = await this.pushService.subscribe();
+        if (success) {
+          this.messageService.add({
+            severity: 'success',
+            summary: this.translateService.instant('account.notifications'),
+            detail: this.translateService.instant('account.notifications_enabled')
+          });
+        } else {
+          this.notificationsEnabled = false; // Revert toggle
+          this.messageService.add({
+            severity: 'error',
+            summary: this.translateService.instant('common.error'),
+            detail: this.translateService.instant('account.notifications_error')
+          });
+        }
+      } else {
+        // User wants to disable (toggle is now OFF)
+        await this.pushService.unsubscribe();
+        this.messageService.add({
+          severity: 'info',
+          summary: this.translateService.instant('account.notifications'),
+          detail: this.translateService.instant('account.notifications_disabled')
+        });
+      }
+    } finally {
+      this.loadingNotifications = false;
+    }
   }
 }

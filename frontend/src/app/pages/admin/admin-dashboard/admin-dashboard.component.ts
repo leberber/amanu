@@ -2,6 +2,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
@@ -12,10 +13,12 @@ import { MessageService } from 'primeng/api';
 import { TagModule } from 'primeng/tag';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { InputTextModule } from 'primeng/inputtext';
 
-import { AdminService } from '../../../services/admin.service'; 
+import { AdminService } from '../../../services/admin.service';
 import { DashboardStats } from '../../../models/admin.model';
 import { ProductService } from '../../../services/product.service';
+import { ApiService } from '../../../services/api.service';
 import { DateService } from '../../../core/services/date.service';
 import { TranslationHelperService } from '../../../core/services/translation-helper.service';
 import { StatusSeverityService } from '../../../core/services/status-severity.service';
@@ -29,6 +32,7 @@ import { StatusSeverityService } from '../../../core/services/status-severity.se
   imports: [
     CommonModule,
     RouterLink,
+    FormsModule,
     CardModule,
     ButtonModule,
     TableModule,
@@ -36,8 +40,8 @@ import { StatusSeverityService } from '../../../core/services/status-severity.se
     ChartModule,
     TagModule,
     ProgressSpinnerModule,
-    TranslateModule
-    // REMOVED: AdminAddProductComponent, AdminAddCategoryComponent
+    TranslateModule,
+    InputTextModule
   ],
   providers: [MessageService],
   templateUrl: './admin-dashboard.component.html'
@@ -56,6 +60,11 @@ export class AdminDashboardComponent implements OnInit {
   products: any[] = [];
   categories: any[] = [];
 
+  // Notification
+  notificationTitle = '';
+  notificationBody = '';
+  sendingNotification = false;
+
   // Services injected using inject()
   private adminService = inject(AdminService);
   private router = inject(Router);
@@ -65,6 +74,7 @@ export class AdminDashboardComponent implements OnInit {
   private dateService = inject(DateService);
   private translationHelper = inject(TranslationHelperService);
   private statusSeverity = inject(StatusSeverityService);
+  private apiService = inject(ApiService);
 
   ngOnInit() {
     this.loadDashboardStats();
@@ -283,5 +293,42 @@ navigateToBrands() {
     
     // For top selling products, the name field might be used instead of product_name
     return product.product_name || product.name;
+  }
+
+  sendNotification(): void {
+    if (!this.notificationTitle.trim() || !this.notificationBody.trim()) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: this.translateService.instant('common.warning'),
+        detail: this.translateService.instant('admin.dashboard.notification_empty')
+      });
+      return;
+    }
+
+    this.sendingNotification = true;
+    this.apiService.post<any>('/push/send', {
+      title: this.notificationTitle,
+      body: this.notificationBody,
+      url: '/'
+    }).subscribe({
+      next: (response) => {
+        this.sendingNotification = false;
+        this.notificationTitle = '';
+        this.notificationBody = '';
+        this.messageService.add({
+          severity: 'success',
+          summary: this.translateService.instant('common.success'),
+          detail: this.translateService.instant('admin.dashboard.notification_sent', { count: response.sent })
+        });
+      },
+      error: (error) => {
+        this.sendingNotification = false;
+        this.messageService.add({
+          severity: 'error',
+          summary: this.translateService.instant('common.error'),
+          detail: error.error?.detail || this.translateService.instant('admin.dashboard.notification_failed')
+        });
+      }
+    });
   }
 }

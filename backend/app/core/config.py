@@ -32,8 +32,13 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440
     
     # Admin user settings
-    ADMIN_EMAIL: str = os.getenv("ADMIN_EMAIL", "admin@freshproduce.com")
+    ADMIN_EMAIL: str = os.getenv("ADMIN_EMAIL", "admin@elsuqhub.com")
     ADMIN_PASSWORD: str = os.getenv("ADMIN_PASSWORD", "admin123")
     ADMIN_NAME: str = os.getenv("ADMIN_NAME", "Admin User")
+
+    # Web Push (VAPID) settings
+    VAPID_PUBLIC_KEY: str = os.getenv("VAPID_PUBLIC_KEY", "BHkTMQhVsnq8zbGQ3RcFBuECBAc5NQg7oDoL-vOCBqoeHuBiwFTwqaprYE1eSSETpigznJZgaYWQXTAoLeqzASg")
+    VAPID_PRIVATE_KEY: str = os.getenv("VAPID_PRIVATE_KEY", "nBEUTd-UShCMC5O4Eyjsp8uaFJxkfLoL2cz5ln0cZ9c")
+    VAPID_CLAIMS_EMAIL: str = os.getenv("VAPID_CLAIMS_EMAIL", "mailto:admin@elsuqhub.com")
 
 settings = Settings()
