@@ -346,8 +346,11 @@ export class MapPickerComponent implements AfterViewInit, OnDestroy {
 
     this.map = L.map(this.mapId).setView([lat, lng], this.defaultZoom);
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    // Google Maps tile layer
+    L.tileLayer('https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+      maxZoom: 24,
+      subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+      attribution: '&copy; Google Maps'
     }).addTo(this.map);
 
     this.map.on('click', (e: L.LeafletMouseEvent) => {

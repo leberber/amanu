@@ -13,7 +13,7 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
   height: 100vh;
   height: 100dvh;
   overflow: hidden;
-  background: var(--surface-ground);
+  background: white;
   display: flex;
   flex-direction: column;
 }
@@ -40,8 +40,8 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
   &.blob-1 {
     width: 300px;
     height: 300px;
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.4) 0%, rgba(118, 75, 162, 0.4) 100%);
-    top: -100px;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.4) 0%, rgba(166, 131, 201, 0.4) 100%);
+    top: 7%;
     right: -100px;
     animation-delay: 0s;
   }
@@ -50,7 +50,7 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
     width: 250px;
     height: 250px;
     background: linear-gradient(135deg, rgba(17, 153, 142, 0.3) 0%, rgba(56, 239, 125, 0.3) 100%);
-    bottom: 20%;
+    bottom: 15%;
     left: -80px;
     animation-delay: -7s;
   }
@@ -85,9 +85,7 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
   right: 0;
   z-index: 100;
   padding: 1rem 1.25rem;
-  background: rgba(var(--surface-0-rgb, 255, 255, 255), 0.8);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: transparent;
 
   .progress-content {
     display: flex;
@@ -102,7 +100,9 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
     height: 44px;
     border-radius: 50%;
     border: none;
-    background: var(--surface-100);
+    background: rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     color: var(--text-color);
     cursor: pointer;
     display: flex;
@@ -111,7 +111,7 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
     &:hover {
-      background: var(--surface-200);
+      background: rgba(255, 255, 255, 0.5);
       transform: translateX(-2px);
     }
 
@@ -192,6 +192,7 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
   overflow: hidden;
   position: relative;
   z-index: 1;
+  background: transparent;
 }
 
 .carousel-track {
@@ -209,6 +210,7 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
   -webkit-overflow-scrolling: touch;
   padding-top: 76px;
   padding-bottom: 60px;
+  background: transparent;
 
   // Fullscreen map slide has no padding
   &:nth-child(3) {
@@ -222,60 +224,38 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
   display: flex;
   flex-direction: column;
   padding: 1.5rem;
+  padding-bottom: 100px; // Extra space for fixed footer button
   max-width: 440px;
   margin: 0 auto;
+  background: transparent;
 }
 
 // Slide Header with Fancy Icon
 .slide-header {
   text-align: center;
-  margin-bottom: 2.5rem;
-
-  &.compact {
-    margin-bottom: 1rem;
-
-    h1 { font-size: 1.25rem; }
-    p { font-size: 0.85rem; }
-  }
+  margin-bottom: 1.5rem;
 
   h1 {
-    font-size: 1.75rem;
-    font-weight: 800;
-    margin: 0 0 0.5rem 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0 0 0.25rem 0;
     color: var(--text-color);
-    letter-spacing: -0.02em;
+    letter-spacing: -0.01em;
   }
 
   p {
     margin: 0;
     color: var(--text-color-secondary);
-    font-size: 0.95rem;
-    line-height: 1.5;
+    font-size: 0.8rem;
+    line-height: 1.4;
   }
 }
 
 .icon-wrapper {
   position: relative;
-  width: 100px;
-  height: 100px;
-  margin: 0 auto 1.5rem;
-
-  &.small {
-    width: 70px;
-    height: 70px;
-    margin-bottom: 1rem;
-
-    .icon-circle {
-      width: 56px;
-      height: 56px;
-      i { font-size: 1.5rem; }
-    }
-
-    .icon-bg {
-      width: 70px;
-      height: 70px;
-    }
-  }
+  width: 70px;
+  height: 70px;
+  margin: 0 auto 1rem;
 
   &.success {
     .icon-circle {
@@ -291,8 +271,8 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      width: 90px;
-      height: 90px;
+      width: 65px;
+      height: 65px;
       border-radius: 50%;
       border: 2px solid rgba(56, 239, 125, 0.3);
       animation: pulse-ring 2s ease-out infinite;
@@ -305,8 +285,8 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 100px;
-  height: 100px;
+  width: 70px;
+  height: 70px;
   border-radius: 50%;
   background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
   animation: pulse 3s ease-in-out infinite;
@@ -317,17 +297,17 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 72px;
-  height: 72px;
+  width: 52px;
+  height: 52px;
   border-radius: 50%;
   background: $primary-gradient;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 10px 40px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 8px 30px rgba(102, 126, 234, 0.4);
 
   i {
-    font-size: 2rem;
+    font-size: 1.5rem;
     color: white;
   }
 }
@@ -356,17 +336,17 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
   gap: 1rem;
   padding: 1rem 1.25rem;
   background: var(--surface-0);
-  border: 2px solid var(--surface-200);
+  border: none;
   border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
   &:hover {
-    border-color: var(--surface-300);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   }
 
   &.focused {
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.2);
     background: var(--surface-0);
 
     .field-icon {
@@ -591,15 +571,13 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
 
 .map-overlay-footer {
   position: absolute;
-  bottom: 0;
+  bottom: 90px; // Above the fixed footer button
   left: 0;
   right: 0;
-  padding: 1rem;
-  padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
-  z-index: 1000;
+  padding: 0 1.5rem;
+  z-index: 999;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
 
   .location-preview {
     display: flex;
@@ -612,6 +590,9 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
     border-radius: 14px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     animation: slideUp 0.3s ease;
+    max-width: 440px;
+    margin: 0 auto;
+    width: 100%;
 
     i {
       color: var(--primary-color);
@@ -628,10 +609,6 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
       -webkit-box-orient: vertical;
       overflow: hidden;
     }
-  }
-
-  .fancy-btn {
-    box-shadow: 0 8px 32px rgba(102, 126, 234, 0.4);
   }
 }
 
@@ -749,10 +726,22 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
   }
 }
 
-// Slide Footer & Fancy Button
-.slide-footer {
-  padding-top: 1.5rem;
-  margin-top: auto;
+// Fixed Footer - Outside carousel for consistent position
+.fixed-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 1rem 1.5rem;
+  padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(to top, rgba(255, 255, 255, 0.98) 0%, rgba(255, 255, 255, 0.95) 70%, transparent 100%);
+  z-index: 100;
+
+  .fancy-btn {
+    max-width: 440px;
+    margin: 0 auto;
+    display: flex;
+  }
 }
 
 .fancy-btn {
@@ -833,16 +822,37 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
   }
 }
 
-// Terms Footer
+// Terms Text (on confirmation step)
+.terms-text {
+  text-align: center;
+  margin-top: 1.5rem;
+  padding: 0 1rem;
+
+  small {
+    font-size: 0.75rem;
+    color: var(--text-color-secondary);
+    line-height: 1.6;
+
+    a {
+      color: var(--primary-color);
+      text-decoration: none;
+      font-weight: 600;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+// Terms Footer (kept for reference, can be removed)
 .terms-footer {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
   padding: 1rem;
-  background: rgba(var(--surface-0-rgb, 255, 255, 255), 0.9);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background: transparent;
   text-align: center;
   z-index: 100;
 
@@ -850,6 +860,7 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
     font-size: 0.75rem;
     color: var(--text-color-secondary);
     line-height: 1.5;
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
 
     a {
       color: var(--primary-color);
@@ -868,36 +879,27 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
   .slide-content {
     justify-content: center;
     padding: 2rem;
-
-    &.location-slide {
-      max-width: 600px;
-      margin: 0 auto;
-      padding: 1.5rem;
-
-      .map-wrapper {
-        max-height: 400px;
-      }
-    }
+    padding-bottom: 100px;
   }
 
   .icon-wrapper {
-    width: 120px;
-    height: 120px;
+    width: 80px;
+    height: 80px;
 
     .icon-circle {
-      width: 88px;
-      height: 88px;
-      i { font-size: 2.5rem; }
+      width: 60px;
+      height: 60px;
+      i { font-size: 1.75rem; }
     }
 
     .icon-bg {
-      width: 120px;
-      height: 120px;
+      width: 80px;
+      height: 80px;
     }
   }
 
   .slide-header h1 {
-    font-size: 2rem;
+    font-size: 1.5rem;
   }
 
   .blob {
@@ -911,28 +913,28 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
 @media (max-width: 380px) {
   .slide-content {
     padding: 1rem;
+    padding-bottom: 100px;
   }
 
   .icon-wrapper {
-    width: 80px;
-    height: 80px;
-    margin-bottom: 1rem;
+    width: 60px;
+    height: 60px;
 
     .icon-circle {
-      width: 56px;
-      height: 56px;
-      i { font-size: 1.5rem; }
+      width: 44px;
+      height: 44px;
+      i { font-size: 1.25rem; }
     }
 
     .icon-bg {
-      width: 80px;
-      height: 80px;
+      width: 60px;
+      height: 60px;
     }
   }
 
   .slide-header {
-    margin-bottom: 1.5rem;
-    h1 { font-size: 1.375rem; }
+    margin-bottom: 1rem;
+    h1 { font-size: 1.1rem; }
   }
 
   .fancy-field {

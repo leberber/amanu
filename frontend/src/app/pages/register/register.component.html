@@ -64,9 +64,6 @@
                   (blur)="focusedField = ''">
               </div>
             </div>
-            <small class="field-error" *ngIf="getFieldError(personalInfoForm, 'full_name', 'required')">
-              {{ 'auth.full_name_required' | translate }}
-            </small>
 
             <div class="fancy-field" [class.focused]="focusedField === 'email'" [class.filled]="personalInfoForm.get('email')?.value">
               <div class="field-icon">
@@ -82,9 +79,6 @@
                   (blur)="focusedField = ''">
               </div>
             </div>
-            <small class="field-error" *ngIf="getFieldError(personalInfoForm, 'email', 'required') || getFieldError(personalInfoForm, 'email', 'email')">
-              {{ 'auth.email_invalid' | translate }}
-            </small>
 
             <div class="fancy-field" [class.focused]="focusedField === 'phone'" [class.filled]="personalInfoForm.get('phone')?.value">
               <div class="field-icon">
@@ -100,19 +94,7 @@
                   (blur)="focusedField = ''">
               </div>
             </div>
-            <small class="field-error" *ngIf="getFieldError(personalInfoForm, 'phone', 'required')">
-              {{ 'register.phone_required' | translate }}
-            </small>
           </form>
-
-          <div class="slide-footer">
-            <button class="fancy-btn" (click)="nextStep()">
-              <span>{{ 'common.continue' | translate }}</span>
-              <div class="btn-icon">
-                <i class="pi pi-arrow-right"></i>
-              </div>
-            </button>
-          </div>
         </div>
       </div>
 
@@ -152,9 +134,6 @@
                 </p-password>
               </div>
             </div>
-            <small class="field-error" *ngIf="getFieldError(passwordForm, 'password', 'required')">
-              {{ 'auth.password_required' | translate }}
-            </small>
 
             <div class="fancy-field password-field" [class.focused]="focusedField === 'confirmPassword'">
               <div class="field-icon">
@@ -173,19 +152,7 @@
                 </p-password>
               </div>
             </div>
-            <small class="field-error" *ngIf="getFieldError(passwordForm, 'confirmPassword', 'mismatch')">
-              {{ 'register.passwords_mismatch' | translate }}
-            </small>
           </form>
-
-          <div class="slide-footer">
-            <button class="fancy-btn" (click)="nextStep()">
-              <span>{{ 'common.continue' | translate }}</span>
-              <div class="btn-icon">
-                <i class="pi pi-arrow-right"></i>
-              </div>
-            </button>
-          </div>
         </div>
       </div>
 
@@ -213,18 +180,12 @@
             </div>
           </div>
 
-          <!-- Overlay Footer with Button -->
-          <div class="map-overlay-footer">
-            <div class="location-preview" *ngIf="locationData?.address">
+          <!-- Overlay Footer with Location Preview -->
+          <div class="map-overlay-footer" *ngIf="locationData?.address">
+            <div class="location-preview">
               <i class="pi pi-map-marker"></i>
               <span>{{ locationData?.address }}</span>
             </div>
-            <button class="fancy-btn" (click)="nextStep()">
-              <span>{{ 'common.continue' | translate }}</span>
-              <div class="btn-icon">
-                <i class="pi pi-arrow-right"></i>
-              </div>
-            </button>
           </div>
         </div>
       </div>
@@ -241,7 +202,7 @@
               <div class="success-ring"></div>
             </div>
             <h1>{{ 'register.step4_title' | translate }}</h1>
-            <p>{{ 'auth.register_subtitle' | translate }}</p>
+            <p>{{ 'register.step4_subtitle' | translate }}</p>
           </div>
 
           <div class="summary-cards">
@@ -298,14 +259,13 @@
             </div>
           </div>
 
-          <div class="slide-footer">
-            <button class="fancy-btn submit" [disabled]="loading" (click)="onRegister()">
-              <span *ngIf="!loading">{{ 'auth.register' | translate }}</span>
-              <div class="btn-icon" *ngIf="!loading">
-                <i class="pi pi-check"></i>
-              </div>
-              <i *ngIf="loading" class="pi pi-spin pi-spinner"></i>
-            </button>
+          <div class="terms-text">
+            <small>
+              {{ 'auth.terms_agreement' | translate }}
+              <a href="#">{{ 'auth.terms_of_service' | translate }}</a>
+              {{ 'common.and' | translate }}
+              <a href="#">{{ 'auth.privacy_policy' | translate }}</a>
+            </small>
           </div>
         </div>
       </div>
@@ -313,13 +273,23 @@
     </div>
   </div>
 
-  <!-- Bottom Terms (hidden on map step) -->
-  <div class="terms-footer" [class.hidden]="activeStep === 2">
-    <small>
-      {{ 'auth.terms_agreement' | translate }}
-      <a href="#">{{ 'auth.terms_of_service' | translate }}</a>
-      {{ 'common.and' | translate }}
-      <a href="#">{{ 'auth.privacy_policy' | translate }}</a>
-    </small>
+  <!-- Fixed Footer - Outside Carousel -->
+  <div class="fixed-footer">
+    <!-- Continue button for steps 0, 1, 2 -->
+    <button *ngIf="activeStep < 3" class="fancy-btn" (click)="nextStep()">
+      <span>{{ 'common.continue' | translate }}</span>
+      <div class="btn-icon">
+        <i class="pi pi-arrow-right"></i>
+      </div>
+    </button>
+
+    <!-- Register button for step 3 (confirmation) -->
+    <button *ngIf="activeStep === 3" class="fancy-btn submit" [disabled]="loading" (click)="onRegister()">
+      <span *ngIf="!loading">{{ 'auth.register' | translate }}</span>
+      <div class="btn-icon" *ngIf="!loading">
+        <i class="pi pi-check"></i>
+      </div>
+      <i *ngIf="loading" class="pi pi-spin pi-spinner"></i>
+    </button>
   </div>
 </div>
