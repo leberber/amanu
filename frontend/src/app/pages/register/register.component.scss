@@ -141,11 +141,17 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
       border-radius: 50%;
       background: rgba(0, 0, 0, 0.15);
       transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-      cursor: pointer;
+      cursor: not-allowed;
+      opacity: 0.5;
 
-      &:hover {
-        transform: scale(1.2);
-        background: rgba(0, 0, 0, 0.25);
+      &.accessible {
+        cursor: pointer;
+        opacity: 1;
+
+        &:hover {
+          transform: scale(1.2);
+          background: rgba(0, 0, 0, 0.25);
+        }
       }
 
       &.active {
@@ -154,10 +160,13 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
         border-radius: 5px;
         background: $primary-gradient;
         box-shadow: 0 2px 8px rgba(102, 126, 234, 0.5);
+        cursor: default;
+        opacity: 1;
       }
 
       &.completed {
         background: rgba(102, 126, 234, 0.5);
+        opacity: 1;
       }
     }
   }
@@ -434,6 +443,43 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
   font-weight: 500;
 }
 
+// Password Requirements
+.password-requirements {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: var(--surface-0);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+
+  .requirement {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    font-size: 0.8rem;
+    color: #e53935;
+    transition: all 0.3s ease;
+
+    i {
+      font-size: 0.875rem;
+      transition: all 0.3s ease;
+    }
+
+    span {
+      font-weight: 500;
+    }
+
+    &.satisfied {
+      color: #1E7F3F;
+
+      i {
+        color: #1E7F3F;
+      }
+    }
+  }
+}
+
 // Password Override
 :host ::ng-deep {
   .fancy-password {
@@ -548,11 +594,17 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
       border-radius: 50%;
       background: rgba(0, 0, 0, 0.2);
       transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-      cursor: pointer;
+      cursor: not-allowed;
+      opacity: 0.5;
 
-      &:hover {
-        transform: scale(1.2);
-        background: rgba(0, 0, 0, 0.3);
+      &.accessible {
+        cursor: pointer;
+        opacity: 1;
+
+        &:hover {
+          transform: scale(1.2);
+          background: rgba(0, 0, 0, 0.3);
+        }
       }
 
       &.active {
@@ -561,10 +613,13 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
         border-radius: 5px;
         background: $primary-gradient;
         box-shadow: 0 2px 8px rgba(102, 126, 234, 0.5);
+        cursor: default;
+        opacity: 1;
       }
 
       &.completed {
         background: rgba(102, 126, 234, 0.5);
+        opacity: 1;
       }
     }
   }

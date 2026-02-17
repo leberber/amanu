@@ -283,7 +283,11 @@
     "location_unavailable": "Impossible de déterminer votre position. Veuillez appuyer sur la carte pour sélectionner votre lieu de livraison.",
     "location_timeout": "La demande de localisation a expiré. Veuillez appuyer sur la carte pour sélectionner votre lieu de livraison.",
     "geolocation_not_supported": "Votre navigateur ne prend pas en charge les services de localisation. Veuillez appuyer sur la carte pour sélectionner votre lieu de livraison.",
-    "location_error": "Impossible d'obtenir votre position. Veuillez appuyer sur la carte pour sélectionner votre lieu de livraison."
+    "location_error": "Impossible d'obtenir votre position. Veuillez appuyer sur la carte pour sélectionner votre lieu de livraison.",
+    "password_min_chars": "Au moins 8 caractères",
+    "password_has_letter": "Contient des lettres",
+    "password_has_number": "Contient des chiffres",
+    "passwords_must_match": "Les mots de passe correspondent"
   },
   "auth": {
     "login_title": "Connexion",

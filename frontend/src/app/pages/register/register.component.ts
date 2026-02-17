@@ -121,13 +121,41 @@ export class RegisterComponent {
     return !!this.locationData;
   }
 
+  // Check if current step is valid
+  get canProceedCurrentStep(): boolean {
+    switch (this.activeStep) {
+      case 0:
+        return this.canProceedStep1();
+      case 1:
+        return this.canProceedStep2();
+      case 2:
+        return this.canProceedStep3();
+      default:
+        return true;
+    }
+  }
+
+  // Check if a specific step can be accessed (all previous steps must be valid)
+  canAccessStep(step: number): boolean {
+    if (step === 0) return true;
+    if (step === 1) return this.canProceedStep1();
+    if (step === 2) return this.canProceedStep1() && this.canProceedStep2();
+    if (step === 3) return this.canProceedStep1() && this.canProceedStep2() && this.canProceedStep3();
+    return false;
+  }
+
   goToStep(step: number) {
-    this.activeStep = step;
-    this.onStepChange();
+    // Only allow going to steps that are accessible (previous steps completed)
+    // Or going back to previous steps
+    if (step <= this.activeStep || this.canAccessStep(step)) {
+      this.activeStep = step;
+      this.onStepChange();
+    }
   }
 
   nextStep() {
-    if (this.activeStep < 3) {
+    // Only proceed if current step is valid
+    if (this.activeStep < 3 && this.canProceedCurrentStep) {
       this.activeStep++;
       this.onStepChange();
     }
@@ -225,5 +253,27 @@ export class RegisterComponent {
   getFieldError(form: FormGroup, fieldName: string, errorType: string): boolean {
     const field = form.get(fieldName);
     return !!(field?.hasError(errorType) && (field?.dirty || field?.touched));
+  }
+
+  // Password validation checks
+  get passwordHasMinLength(): boolean {
+    const password = this.passwordForm.get('password')?.value || '';
+    return password.length >= 8;
+  }
+
+  get passwordHasLetter(): boolean {
+    const password = this.passwordForm.get('password')?.value || '';
+    return /[a-zA-Z]/.test(password);
+  }
+
+  get passwordHasNumber(): boolean {
+    const password = this.passwordForm.get('password')?.value || '';
+    return /[0-9]/.test(password);
+  }
+
+  get passwordsMatch(): boolean {
+    const password = this.passwordForm.get('password')?.value || '';
+    const confirmPassword = this.passwordForm.get('confirmPassword')?.value || '';
+    return password.length > 0 && confirmPassword.length > 0 && password === confirmPassword;
   }
 }

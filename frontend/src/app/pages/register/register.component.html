@@ -21,6 +21,7 @@
                 class="dot"
                 [class.active]="activeStep === step"
                 [class.completed]="activeStep > step"
+                [class.accessible]="canAccessStep(step) || step <= activeStep"
                 (click)="goToStep(step)"></span>
         </div>
       </div>
@@ -152,6 +153,26 @@
                 </p-password>
               </div>
             </div>
+
+            <!-- Password Requirements -->
+            <div class="password-requirements">
+              <div class="requirement" [class.satisfied]="passwordHasMinLength">
+                <i class="pi" [ngClass]="passwordHasMinLength ? 'pi-check-circle' : 'pi-circle'"></i>
+                <span>{{ 'register.password_min_chars' | translate }}</span>
+              </div>
+              <div class="requirement" [class.satisfied]="passwordHasLetter">
+                <i class="pi" [ngClass]="passwordHasLetter ? 'pi-check-circle' : 'pi-circle'"></i>
+                <span>{{ 'register.password_has_letter' | translate }}</span>
+              </div>
+              <div class="requirement" [class.satisfied]="passwordHasNumber">
+                <i class="pi" [ngClass]="passwordHasNumber ? 'pi-check-circle' : 'pi-circle'"></i>
+                <span>{{ 'register.password_has_number' | translate }}</span>
+              </div>
+              <div class="requirement" [class.satisfied]="passwordsMatch">
+                <i class="pi" [ngClass]="passwordsMatch ? 'pi-check-circle' : 'pi-circle'"></i>
+                <span>{{ 'register.passwords_must_match' | translate }}</span>
+              </div>
+            </div>
           </form>
         </div>
       </div>
@@ -175,6 +196,7 @@
                       class="dot"
                       [class.active]="activeStep === step"
                       [class.completed]="activeStep > step"
+                      [class.accessible]="canAccessStep(step) || step <= activeStep"
                       (click)="goToStep(step)"></span>
               </div>
               <a routerLink="/login" class="map-login-link">
@@ -286,7 +308,7 @@
   <!-- Fixed Footer - Outside Carousel -->
   <div class="fixed-footer">
     <!-- Continue button for steps 0, 1, 2 -->
-    <button *ngIf="activeStep < 3" class="fancy-btn" (click)="nextStep()">
+    <button *ngIf="activeStep < 3" class="fancy-btn" [disabled]="!canProceedCurrentStep" (click)="nextStep()">
       <span>{{ 'common.continue' | translate }}</span>
       <div class="btn-icon">
         <i class="pi pi-arrow-right"></i>
