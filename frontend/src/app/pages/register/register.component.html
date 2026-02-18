@@ -60,7 +60,9 @@
                 <input
                   #fullNameInput
                   type="text"
+                  name="name"
                   formControlName="full_name"
+                  autocomplete="name"
                   [placeholder]="'auth.full_name_placeholder' | translate"
                   (focus)="onInputFocus('full_name')"
                   (blur)="onInputBlur()">
@@ -76,7 +78,9 @@
                 <input
                   #emailInput
                   type="email"
+                  name="email"
                   formControlName="email"
+                  autocomplete="email"
                   [placeholder]="'auth.email_placeholder' | translate"
                   (focus)="onInputFocus('email')"
                   (blur)="onInputBlur()">
@@ -92,7 +96,9 @@
                 <input
                   #phoneInput
                   type="tel"
+                  name="phone"
                   formControlName="phone"
+                  autocomplete="tel"
                   [placeholder]="'auth.phone_placeholder' | translate"
                   (focus)="onInputFocus('phone')"
                   (blur)="onInputBlur()">

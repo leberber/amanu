@@ -36,7 +36,9 @@
             <input
               #usernameInput
               type="email"
+              name="email"
               formControlName="username"
+              autocomplete="email"
               [placeholder]="'auth.email_placeholder' | translate"
               (focus)="onInputFocus('username')"
               (blur)="onInputBlur()">
