@@ -81,7 +81,7 @@
             <ul class="items-simple-list">
               @for (item of order()?.items; track item.id) {
                 <li class="item-line">
-                  <div class="item-image">
+                  <div class="item-image" [class.clickable]="item.product_image_url" (click)="openImage(item.product_image_url || '')">
                     @if (item.product_image_url) {
                       <img [src]="item.product_image_url" [alt]="item.product_name">
                     } @else {
@@ -161,4 +161,11 @@
       </div>
     }
   </div>
+
+  <!-- Image Lightbox -->
+  <app-image-lightbox
+    [imageUrl]="selectedImage()"
+    altText="Product image"
+    (close)="closeImage()">
+  </app-image-lightbox>
 </div>

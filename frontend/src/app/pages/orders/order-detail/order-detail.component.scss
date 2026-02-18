@@ -307,6 +307,16 @@ $primary-dark: #0F3C82;
       justify-content: center;
       flex-shrink: 0;
       margin-right: 0.75rem;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+      &.clickable {
+        cursor: pointer;
+
+        &:hover {
+          transform: scale(1.1);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+      }
 
       img {
         width: 100%;

@@ -19,6 +19,7 @@ import { DateService } from '../../../core/services/date.service';
 import { Order, OrderItem } from '../../../models/order.model';
 import { StatusSeverityService } from '../../../core/services/status-severity.service';
 import { BackButtonComponent } from '../../../shared/components/back-button/back-button.component';
+import { ImageLightboxComponent } from '../../../shared/components/image-lightbox/image-lightbox.component';
 
 interface OrderStatus {
   status: string;
@@ -36,7 +37,8 @@ interface OrderStatus {
     ToastModule,
     TimelineModule,
     TranslateModule,
-    BackButtonComponent
+    BackButtonComponent,
+    ImageLightboxComponent
   ],
   providers: [MessageService],
   templateUrl: './order-detail.component.html',
@@ -61,6 +63,7 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
   loading = signal<boolean>(true);
   error = signal<boolean>(false);
   orderStatuses = signal<OrderStatus[]>([]);
+  selectedImage = signal<string | null>(null);
 
   // 🆕 NEW: Subscription management
   private languageSubscription?: Subscription;
@@ -291,5 +294,16 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
   // Format date using DateService
   formatDate(dateString: string): string {
     return this.dateService.formatDate(dateString);
+  }
+
+  // Image lightbox
+  openImage(imageUrl: string): void {
+    if (imageUrl) {
+      this.selectedImage.set(imageUrl);
+    }
+  }
+
+  closeImage(): void {
+    this.selectedImage.set(null);
   }
 }

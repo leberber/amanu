@@ -26,6 +26,7 @@ import { PromotionService } from '../../services/promotion.service';
 import { AppliedPromotion } from '../../models/promotion.model';
 import { ProductQuantitySelectorComponent } from '../../shared/components/product-quantity-selector/product-quantity-selector.component';
 import { BackButtonComponent } from '../../shared/components/back-button/back-button.component';
+import { ImageLightboxComponent } from '../../shared/components/image-lightbox/image-lightbox.component';
 
 @Component({
   selector: 'app-cart-page',
@@ -44,7 +45,8 @@ import { BackButtonComponent } from '../../shared/components/back-button/back-bu
     InputTextModule,
     TranslateModule,
     ProductQuantitySelectorComponent,
-    BackButtonComponent
+    BackButtonComponent,
+    ImageLightboxComponent
   ],
   providers: [MessageService],
   templateUrl: './cart.component.html',
@@ -66,6 +68,7 @@ export class CartComponent implements OnInit, OnDestroy {
   // Signals
   cartItems = signal<CartItem[]>([]);
   loading = signal(false);
+  selectedImage = signal<string | null>(null);
 
   // Promotion signals
   promoCode = signal('');
@@ -531,5 +534,16 @@ export class CartComponent implements OnInit, OnDestroy {
         this.removePromoCode();
       }
     });
+  }
+
+  // Image lightbox
+  openImage(imageUrl: string | undefined): void {
+    if (imageUrl) {
+      this.selectedImage.set(imageUrl);
+    }
+  }
+
+  closeImage(): void {
+    this.selectedImage.set(null);
   }
 }

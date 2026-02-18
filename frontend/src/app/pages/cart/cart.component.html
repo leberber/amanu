@@ -68,7 +68,7 @@
                 <tr>
                   <td>
                     <div class="desktop-item">
-                      <div class="desktop-item-image">
+                      <div class="desktop-item-image" [class.clickable]="item.product_image" (click)="openImage(item.product_image)">
                         <img
                           [src]="item.product_image || 'assets/images/product-placeholder.jpg'"
                           [alt]="item.product_name">
@@ -116,7 +116,7 @@
           <div class="block md:hidden">
             @for (item of cartItems(); track item.id) {
               <div class="cart-item">
-                <div class="item-image">
+                <div class="item-image" [class.clickable]="item.product_image" (click)="openImage(item.product_image)">
                   <img [src]="item.product_image || 'assets/images/product-placeholder.jpg'" [alt]="item.product_name">
                 </div>
                 <div class="item-details">
@@ -277,4 +277,11 @@
       </div>
     }
   </div>
+
+  <!-- Image Lightbox -->
+  <app-image-lightbox
+    [imageUrl]="selectedImage()"
+    altText="Product image"
+    (close)="closeImage()">
+  </app-image-lightbox>
 </div>
