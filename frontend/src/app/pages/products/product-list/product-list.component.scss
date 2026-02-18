@@ -63,7 +63,7 @@ $primary-gradient: linear-gradient(135deg, #2E6CB7 0%, #0F3C82 100%);
 .products-page {
   position: relative;
   z-index: 1;
-  min-height: 100vh;
+  min-height: var(--page-height, 100vh);
 }
 
 // Clean link styles

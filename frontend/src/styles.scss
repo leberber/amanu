@@ -44,8 +44,17 @@ html, body{
 :root {
   --header-height: 4rem;
   --filters-header-height: 9vh;
+  --bottom-nav-height: 80px;
+  --page-height: calc(100vh - var(--header-height));
   --p-datatable-header-cell-selected-background: transparent !important;
   --p-datatable-header-cell-selected-color: inherit !important;
+}
+
+@media (max-width: 767px) {
+  :root {
+    --header-height: 0px;
+    --page-height: calc(100vh - var(--bottom-nav-height));
+  }
 }
 
 .p-timeline-event-opposite {
@@ -55,7 +64,7 @@ html, body{
 // Main content area
 .main-content {
   margin-top: var(--header-height);
-  min-height: calc(100vh - var(--header-height));
+  min-height: var(--page-height);
 }
 
 // Clean utility classes
