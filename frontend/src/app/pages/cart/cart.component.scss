@@ -288,31 +288,13 @@ $primary-gradient: linear-gradient(135deg, #2E6CB7 0%, #0F3C82 100%);
   background: white;
   margin: 0.375rem 0.5rem;
   border-radius: 12px;
-  border: 1px solid rgba(15, 60, 130, 0.08);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
 
-  &::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 3px;
-    background: $primary-gradient;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
-
   &:hover {
     box-shadow: 0 4px 12px rgba(46, 108, 183, 0.1);
-    border-color: rgba(46, 108, 183, 0.12);
-
-    &::before {
-      opacity: 1;
-    }
   }
 }
 
