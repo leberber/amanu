@@ -147,3 +147,10 @@ $primary-gradient: linear-gradient(135deg, #2E6CB7 0%, #0F3C82 100%);
     padding: 1rem;
   }
 }
+
+// Remove bottom border from last product in list view (mobile)
+@media screen and (max-width: 767px) {
+  .flex.flex-column.gap-3 > div:last-child .surface-card {
+    border-bottom: none !important;
+  }
+}
