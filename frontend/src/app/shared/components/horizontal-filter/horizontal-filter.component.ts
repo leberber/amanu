@@ -26,6 +26,7 @@ export class HorizontalFilterComponent implements OnInit, AfterViewInit, OnChang
   @Input() showAllOption: boolean = true;
   @Input() allLabel: string = '';
   @Input() showSearchIcon = false;
+  @Input() isSearchActive = false; // Controlled from parent
   @Input() showModeToggle = true; // Show toggle to switch between categories/brands
   @Input() compact = false;
 
@@ -38,9 +39,6 @@ export class HorizontalFilterComponent implements OnInit, AfterViewInit, OnChang
   // Indicator position
   indicatorLeft = 0;
   indicatorWidth = 0;
-
-  // Search state
-  isSearchOpen = false;
 
   ngOnInit(): void {
     // Set default all label based on filter type
@@ -87,7 +85,6 @@ export class HorizontalFilterComponent implements OnInit, AfterViewInit, OnChang
   }
 
   toggleSearch(): void {
-    this.isSearchOpen = !this.isSearchOpen;
     this.searchToggle.emit();
   }
 

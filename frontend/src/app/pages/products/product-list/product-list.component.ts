@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, OnInit, signal, OnDestroy } from '@angular/core';
+import { Component, computed, effect, inject, OnInit, signal, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
@@ -96,6 +96,11 @@ export class ProductListComponent implements OnInit, OnDestroy {
   showMobileToolbar = signal(false);
   private lastScrollY = 0;
 
+  // Mobile search overlay
+  showMobileSearch = signal(false);
+  mobileSearchQuery = '';
+  @ViewChild('mobileSearchInput') mobileSearchInput?: ElementRef<HTMLInputElement>;
+
   // Subscriptions
   private languageSubscription?: Subscription;
   private searchSubscription?: Subscription;
@@ -186,6 +191,40 @@ export class ProductListComponent implements OnInit, OnDestroy {
 
   toggleMobileToolbar(): void {
     this.showMobileToolbar.update(v => !v);
+  }
+
+  // Mobile search overlay methods
+  openMobileSearch(): void {
+    this.showMobileSearch.set(true);
+    this.mobileSearchQuery = this.searchQuery() || '';
+    // Focus input after animation
+    setTimeout(() => {
+      this.mobileSearchInput?.nativeElement?.focus();
+    }, 100);
+  }
+
+  closeMobileSearch(): void {
+    this.showMobileSearch.set(false);
+  }
+
+  submitMobileSearch(): void {
+    this.searchQuery.set(this.mobileSearchQuery);
+    this.appliedSearchQuery.set(this.mobileSearchQuery);
+    this.filters.update(f => ({ ...f, search: this.mobileSearchQuery }));
+    this.loadProducts().subscribe();
+    this.closeMobileSearch();
+  }
+
+  clearMobileSearch(): void {
+    this.mobileSearchQuery = '';
+    this.mobileSearchInput?.nativeElement?.focus();
+  }
+
+  onMobileSearchInput(event: Event): void {
+    const value = (event.target as HTMLInputElement).value;
+    this.mobileSearchQuery = value;
+    // Trigger debounced search
+    this.searchSubject.next(value);
   }
 
   toggleFilterMode(): void {

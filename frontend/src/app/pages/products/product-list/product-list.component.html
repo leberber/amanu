@@ -35,15 +35,41 @@
 
 <!-- Mobile Layout Template -->
 <ng-template #mobileLayout>
-  <!-- Fixed header - always visible, categories compact on scroll down -->
+  <!-- Fixed header - always visible -->
   <div class="mobile-sticky-header">
-    <ng-container *ngTemplateOutlet="filterBar"></ng-container>
-    <div class="mobile-toolbar" [class.visible]="showMobileToolbar()">
-      <ng-container *ngTemplateOutlet="toolbar"></ng-container>
+    <!-- Category/Brand Bar Layer -->
+    <div class="header-layer filter-layer" [class.hidden]="showMobileSearch()">
+      <ng-container *ngTemplateOutlet="filterBar"></ng-container>
+    </div>
+
+    <!-- Search Overlay Layer -->
+    <div class="header-layer search-layer" [class.active]="showMobileSearch()">
+      <div class="search-overlay-container">
+        <div class="search-input-wrapper">
+          <i class="pi pi-search search-icon"></i>
+          <input
+            #mobileSearchInput
+            type="text"
+            class="mobile-search-input"
+            [placeholder]="'products.search.placeholder' | translate"
+            [(ngModel)]="mobileSearchQuery"
+            (keyup.enter)="submitMobileSearch()"
+            (input)="onMobileSearchInput($event)">
+          <button
+            *ngIf="mobileSearchQuery"
+            class="clear-search-btn"
+            (click)="clearMobileSearch()">
+            <i class="pi pi-times"></i>
+          </button>
+        </div>
+        <button class="close-search-btn" (click)="closeMobileSearch()">
+          <i class="pi pi-arrow-left"></i>
+        </button>
+      </div>
     </div>
   </div>
   <!-- Spacer for fixed header -->
-  <div class="mobile-header-spacer" [class.toolbar-visible]="showMobileToolbar()"></div>
+  <div class="mobile-header-spacer"></div>
   <ng-container *ngTemplateOutlet="productsArea"></ng-container>
 </ng-template>
 
@@ -55,9 +81,10 @@
     [filterType]="filterMode()"
     [showAllOption]="false"
     [showSearchIcon]="true"
+    [isSearchActive]="showMobileSearch()"
     [showModeToggle]="true"
     (itemSelected)="filterMode() === 'categories' ? selectCategoryFromBar($event) : selectBrand($event)"
-    (searchToggle)="toggleMobileToolbar()"
+    (searchToggle)="openMobileSearch()"
     (modeToggle)="toggleFilterMode()">
   </app-horizontal-filter>
 </ng-template>

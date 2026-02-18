@@ -95,6 +95,168 @@ $primary-gradient: linear-gradient(135deg, #2E6CB7 0%, #0F3C82 100%);
   background: rgba(var(--surface-card-rgb), 0.95);
 }
 
+// Header layers for sliding search
+.header-layer {
+  width: 100%;
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.filter-layer {
+  opacity: 1;
+  transform: translateX(0);
+
+  &.hidden {
+    opacity: 0;
+    transform: translateX(-20px);
+    pointer-events: none;
+    position: absolute;
+  }
+}
+
+.search-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  opacity: 0;
+  transform: translateX(100%);
+  pointer-events: none;
+
+  &.active {
+    position: relative;
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: auto;
+  }
+}
+
+// Search overlay container
+.search-overlay-container {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  padding-top: calc(0.75rem + env(safe-area-inset-top, 0px));
+}
+
+.search-input-wrapper {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-icon {
+  position: absolute;
+  left: 1rem;
+  color: var(--primary-color);
+  font-size: 1rem;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.mobile-search-input {
+  width: 100%;
+  padding: 0.875rem 2.75rem;
+  padding-left: 2.75rem;
+  border: 2px solid var(--primary-color);
+  border-radius: 14px;
+  background: white;
+  font-size: 16px; // Prevents zoom on iOS
+  color: var(--text-color);
+  outline: none;
+  transition: all 0.2s ease;
+
+  &::placeholder {
+    color: var(--text-color-secondary);
+  }
+
+  &:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 4px rgba(46, 108, 183, 0.15);
+  }
+}
+
+.clear-search-btn {
+  position: absolute;
+  right: 0.75rem;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 50%;
+  background: var(--surface-200);
+  color: var(--text-color-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: var(--surface-300);
+    color: var(--text-color);
+  }
+
+  i {
+    font-size: 0.75rem;
+  }
+}
+
+.close-search-btn {
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 12px;
+  background: var(--surface-100);
+  color: var(--text-color);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+
+  &:hover {
+    background: var(--surface-200);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  i {
+    font-size: 1.1rem;
+  }
+}
+
+// Dark theme support for search
+:host-context(.my-app-dark) {
+  .mobile-search-input {
+    background: var(--surface-card);
+    border-color: var(--primary-400);
+
+    &:focus {
+      box-shadow: 0 0 0 4px rgba(46, 108, 183, 0.25);
+    }
+  }
+
+  .clear-search-btn {
+    background: var(--surface-600);
+
+    &:hover {
+      background: var(--surface-500);
+    }
+  }
+
+  .close-search-btn {
+    background: var(--surface-700);
+
+    &:hover {
+      background: var(--surface-600);
+    }
+  }
+}
+
 // Mobile toolbar
 .mobile-toolbar {
   max-height: 0;
@@ -109,12 +271,7 @@ $primary-gradient: linear-gradient(135deg, #2E6CB7 0%, #0F3C82 100%);
 // Spacer for fixed mobile header
 @media screen and (max-width: 1023px) {
   .mobile-header-spacer {
-    height: 93px;
-    transition: height 0.3s ease;
-
-    &.toolbar-visible {
-      height: 148px;
-    }
+    height: 80px;
   }
 }
 

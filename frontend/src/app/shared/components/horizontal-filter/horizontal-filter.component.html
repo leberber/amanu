@@ -59,9 +59,8 @@
   <div
     *ngIf="showSearchIcon"
     class="search-toggle-btn"
-    [class.active]="isSearchOpen"
+    [class.active]="isSearchActive"
     (click)="toggleSearch()">
-    <i *ngIf="!isSearchOpen" class="pi pi-search"></i>
-    <i *ngIf="isSearchOpen" class="pi pi-times"></i>
+    <i class="pi pi-search"></i>
   </div>
 </div>
