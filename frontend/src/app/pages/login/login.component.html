@@ -42,10 +42,6 @@
               (blur)="onInputBlur()">
           </div>
         </div>
-        <small *ngIf="f['username'].invalid && f['username'].touched" class="field-error">
-          <span *ngIf="f['username'].errors?.['required']">{{ 'auth.email_required' | translate }}</span>
-          <span *ngIf="f['username'].errors?.['email']">{{ 'auth.email_invalid' | translate }}</span>
-        </small>
 
         <!-- Password Field -->
         <div class="fancy-field password-field" data-field="password" [class.focused]="focusedField === 'password'" [class.filled]="loginForm.get('password')?.value" (click)="focusField('password')">
@@ -65,9 +61,6 @@
             </p-password>
           </div>
         </div>
-        <small *ngIf="f['password'].invalid && f['password'].touched" class="field-error">
-          {{ 'auth.password_required' | translate }}
-        </small>
 
         <!-- Forgot Password Link -->
         <div class="forgot-password">
