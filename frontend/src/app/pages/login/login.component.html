@@ -1,85 +1,130 @@
 <!-- src/app/pages/login/login.component.html -->
-<div class="flex justify-content-center align-items-center  p-4">
-  <div [style]="{width: '100%', 'max-width': '450px'}">
-    
-    <div class="text-center mb-4">
-      <h2 class="text-3xl font-bold mb-2">Login</h2>
-      <p class="m-0 text-lg">Sign in to your account</p>
-    </div>
+<div class="login-page">
+  <p-toast></p-toast>
 
-    <p-toast></p-toast>
-
-    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-        <!-- Email Field -->
-      <div class="field mb-4">
-        <label for="username" class="block font-medium text-600 mb-2">Email <span class="p-error">*</span></label>
-        <div class="relative">
-          <i class="pi pi-envelope input-icon"></i>
-          <input 
-            id="username" 
-            type="email" 
-            pInputText 
-            class="w-full" 
-            formControlName="username" 
-            placeholder="Enter your email"
-            [style]="{'padding': '0.75rem 1rem 0.75rem 2.5rem', 'height': '3rem'}"
-          />
-        </div>
-        <small *ngIf="f['username'].touched && f['username'].invalid" class="p-error block mt-1">
-          <span *ngIf="f['username'].errors?.['required']">Email is required</span>
-          <span *ngIf="f['username'].errors?.['email']">Enter a valid email address</span>
-        </small>
-      </div>
-
-      <!-- Password Field -->
-      <div class="field mb-4">
-        <label for="password" class="block font-medium text-600 mb-2">Password <span class="p-error">*</span></label>
-        <div class="relative">
-          <i class="pi pi-lock input-icon"></i>
-          <p-password 
-            id="password"
-            formControlName="password"
-            [toggleMask]="true"
-            [style]="{'width':'100%'}"
-            [inputStyle]="{'width':'100%', 'padding':'0.75rem 1rem 0.75rem 2.5rem', 'height':'3rem'}"
-            placeholder="Enter your password"
-            [feedback]="false"
-          ></p-password>
-        </div>
-        <small *ngIf="f['password'].touched && f['password'].errors?.['required']" class="p-error block mt-1">
-          Password is required
-        </small>
-      </div>
-
-      <!-- Remember me and Forgot password -->
-      <div class="flex align-items-center justify-content-between mb-4">
-        <div class="flex align-items-center">
-          <p-checkbox 
-            name="remember" 
-            value="remember" 
-            inputId="remember" 
-            binary="true"
-          ></p-checkbox>
-          <label for="remember" class="ml-2">Remember me</label>
-        </div>
-        <a class="text-primary font-medium no-underline ml-2 cursor-pointer">Forgot your password?</a>
-      </div>
-
-      <!-- Submit Button -->
-      <button 
-        pButton 
-        type="submit" 
-        label="Login" 
-        class="p-button-rounded w-full p-3"
-        [loading]="loading"
-        [disabled]="loginForm.invalid || loading"
-      ></button>
-    </form>
-    
-    <!-- Sign up link -->
-    <div class="text-center mt-5">
-      <p>Don't have an account? <a routerLink="/register" class="text-primary font-medium no-underline">Sign up</a></p>
-    </div>
-
+  <!-- Animated Background -->
+  <div class="bg-decoration">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
   </div>
+
+  <!-- Main Content -->
+  <div class="login-container">
+    <div class="login-content">
+      <!-- Header -->
+      <div class="login-header">
+        <div class="icon-wrapper">
+          <div class="icon-bg"></div>
+          <div class="icon-circle">
+            <i class="pi pi-sign-in"></i>
+          </div>
+        </div>
+        <h1>{{ 'auth.login_title' | translate }}</h1>
+        <p>{{ 'auth.login_subtitle' | translate }}</p>
+      </div>
+
+      <!-- Form -->
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+        <!-- Email Field -->
+        <div class="fancy-field" data-field="username" [class.focused]="focusedField === 'username'" [class.filled]="loginForm.get('username')?.value" (click)="focusField('username')">
+          <div class="field-icon">
+            <i class="pi pi-envelope"></i>
+          </div>
+          <div class="field-content">
+            <label>{{ 'common.email' | translate }}</label>
+            <input
+              #usernameInput
+              type="email"
+              formControlName="username"
+              [placeholder]="'auth.email_placeholder' | translate"
+              (focus)="onInputFocus('username')"
+              (blur)="onInputBlur()">
+          </div>
+        </div>
+        <small *ngIf="f['username'].invalid && f['username'].touched" class="field-error">
+          <span *ngIf="f['username'].errors?.['required']">{{ 'auth.email_required' | translate }}</span>
+          <span *ngIf="f['username'].errors?.['email']">{{ 'auth.email_invalid' | translate }}</span>
+        </small>
+
+        <!-- Password Field -->
+        <div class="fancy-field password-field" data-field="password" [class.focused]="focusedField === 'password'" [class.filled]="loginForm.get('password')?.value" (click)="focusField('password')">
+          <div class="field-icon">
+            <i class="pi pi-lock"></i>
+          </div>
+          <div class="field-content">
+            <label>{{ 'common.password' | translate }}</label>
+            <p-password
+              formControlName="password"
+              [placeholder]="'auth.password_placeholder' | translate"
+              [toggleMask]="true"
+              [feedback]="false"
+              styleClass="fancy-password"
+              (onFocus)="onInputFocus('password')"
+              (onBlur)="onInputBlur()">
+            </p-password>
+          </div>
+        </div>
+        <small *ngIf="f['password'].invalid && f['password'].touched" class="field-error">
+          {{ 'auth.password_required' | translate }}
+        </small>
+
+        <!-- Forgot Password Link -->
+        <div class="forgot-password">
+          <a href="#" (click)="onForgotPassword($event)">
+            {{ 'auth.forgot_password' | translate }}
+          </a>
+        </div>
+      </form>
+
+      <!-- Register Link -->
+      <div class="register-link">
+        <span>{{ 'auth.no_account' | translate }}</span>
+        <a routerLink="/register">
+          {{ 'auth.register_now' | translate }}
+          <i class="pi pi-arrow-right"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fixed Footer Button -->
+  <div class="fixed-footer">
+    <button class="fancy-btn" [disabled]="loginForm.invalid || loading" (click)="onSubmit()">
+      <span *ngIf="!loading">{{ 'auth.login' | translate }}</span>
+      <div class="btn-icon" *ngIf="!loading">
+        <i class="pi pi-sign-in"></i>
+      </div>
+      <i *ngIf="loading" class="pi pi-spin pi-spinner"></i>
+    </button>
+  </div>
+
+  <!-- Inactive Account Modal -->
+  <p-dialog
+    [(visible)]="showInactiveModal"
+    [modal]="true"
+    [closable]="false"
+    [closeOnEscape]="false"
+    [draggable]="false"
+    [resizable]="false"
+    [style]="{width: '90vw', maxWidth: '400px'}"
+    styleClass="inactive-account-dialog"
+  >
+    <ng-template pTemplate="header">
+      <span class="text-xl font-semibold">{{ 'auth.account_inactive_title' | translate }}</span>
+    </ng-template>
+
+    <div class="inactive-modal-content">
+      <div class="inactive-icon">
+        <i class="pi pi-info-circle"></i>
+      </div>
+      <p>{{ 'auth.account_inactive' | translate }}</p>
+    </div>
+
+    <ng-template pTemplate="footer">
+      <button class="fancy-btn secondary" (click)="showInactiveModal = false; router.navigate(['/'])">
+        <span>{{ 'common.close' | translate }}</span>
+      </button>
+    </ng-template>
+  </p-dialog>
 </div>
