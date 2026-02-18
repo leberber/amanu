@@ -10,12 +10,6 @@
   </div>
 
   <div class="cart-content">
-    <!-- Back Button -->
-    <a routerLink="/products" class="back-btn">
-      <i class="pi pi-arrow-left"></i>
-      <span>{{ 'cart.continue_shopping' | translate }}</span>
-    </a>
-
     <!-- Loading State -->
     @if (loading()) {
       <div class="loading-state">
@@ -44,7 +38,10 @@
         <div class="cart-items-card">
           <!-- Card Header -->
           <div class="cart-card-header">
-            <div class="header-left">
+            <a routerLink="/products" class="back-link">
+              <i class="pi pi-arrow-left"></i>
+            </a>
+            <div class="header-center">
               <i class="pi pi-shopping-cart"></i>
               <span>{{ 'cart.your_items' | translate }}</span>
             </div>

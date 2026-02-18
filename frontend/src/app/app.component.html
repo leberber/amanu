@@ -1,7 +1,7 @@
 <!-- src/app/app.component.html -->
-<app-header *ngIf="showNavigation"></app-header>
+<app-header *ngIf="showHeader"></app-header>
 
-<div [class.main-content]="showNavigation" [class.pb-20]="showNavigation" [class.md:pb-0]="showNavigation">
+<div [class.main-content]="showHeader" [class.pb-20]="showNavigation" [class.md:pb-0]="showNavigation">
   <router-outlet></router-outlet>
 </div>
 

@@ -27,28 +27,34 @@ import { filter } from 'rxjs';
 export class AppComponent implements OnInit {
   title = 'Fresh Produce';
   showNavigation = false;
-  
+  showHeader = false;
+
   private viewportService = inject(ViewportService);
   private translationService = inject(TranslationService);
   private authService = inject(AuthService);
   private router = inject(Router);
 
+  // Routes where header should be hidden (even when logged in)
+  private hideHeaderRoutes = ['/cart', '/checkout'];
+  private publicRoutes = ['/login', '/register', '/forgot-password', '/reset-password'];
+
   ngOnInit() {
-    // Initialize translation service
-    // The service will automatically load the saved language or default to French
-    
     // Check authentication status on route changes
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event: NavigationEnd) => {
-      // Hide navigation on login and register pages
-      const publicRoutes = ['/login', '/register'];
-      this.showNavigation = this.authService.isLoggedIn && !publicRoutes.includes(event.url);
+      this.updateNavigation(event.urlAfterRedirects || event.url);
     });
-    
+
     // Check initial authentication status
-    const currentUrl = this.router.url;
-    const publicRoutes = ['/login', '/register'];
-    this.showNavigation = this.authService.isLoggedIn && !publicRoutes.includes(currentUrl);
+    this.updateNavigation(this.router.url);
+  }
+
+  private updateNavigation(url: string): void {
+    const isPublicRoute = this.publicRoutes.some(route => url.startsWith(route));
+    const isHideHeaderRoute = this.hideHeaderRoutes.some(route => url.startsWith(route));
+
+    this.showNavigation = this.authService.isLoggedIn && !isPublicRoute;
+    this.showHeader = this.showNavigation && !isHideHeaderRoute;
   }
 }
