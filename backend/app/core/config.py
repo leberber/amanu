@@ -41,4 +41,15 @@ class Settings(BaseSettings):
     VAPID_PRIVATE_KEY: str = os.getenv("VAPID_PRIVATE_KEY", "nBEUTd-UShCMC5O4Eyjsp8uaFJxkfLoL2cz5ln0cZ9c")
     VAPID_CLAIMS_EMAIL: str = os.getenv("VAPID_CLAIMS_EMAIL", "mailto:admin@elsuqhub.com")
 
+    # Email settings for password reset
+    MAIL_USERNAME: str = os.getenv("MAIL_USERNAME", "")
+    MAIL_PASSWORD: str = os.getenv("MAIL_PASSWORD", "")
+    MAIL_FROM: str = os.getenv("MAIL_FROM", "")
+    MAIL_SERVER: str = os.getenv("MAIL_SERVER", "smtp.gmail.com")
+    MAIL_PORT: int = int(os.getenv("MAIL_PORT", "587"))
+    MAIL_FROM_NAME: str = os.getenv("MAIL_FROM_NAME", "Elsuq")
+
+    # Password reset settings
+    PASSWORD_RESET_EXPIRE_MINUTES: int = 15
+
 settings = Settings()

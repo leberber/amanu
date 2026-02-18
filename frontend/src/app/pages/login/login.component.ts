@@ -114,15 +114,6 @@ export class LoginComponent implements OnInit {
       });
   }
 
-  onForgotPassword(event: Event) {
-    event.preventDefault();
-    this.messageService.add({
-      severity: 'info',
-      summary: this.translateService.instant('auth.forgot_password'),
-      detail: this.translateService.instant('auth.forgot_password_message')
-    });
-  }
-
   // Input focus handling
   onInputFocus(fieldName: string): void {
     this.focusedField = fieldName;

@@ -169,4 +169,28 @@ export class AuthService {
   getCurrentUserRole(): UserRole | null {
     return this.currentUserValue?.role || null;
   }
+
+  /**
+   * Request password reset - sends 6-digit code to email
+   * @param email - User email
+   * @returns Observable with message
+   */
+  forgotPassword(email: string): Observable<{ message: string }> {
+    return this.apiService.post<{ message: string }>('/auth/forgot-password', { email });
+  }
+
+  /**
+   * Reset password with code
+   * @param email - User email
+   * @param code - 6-digit reset code
+   * @param newPassword - New password
+   * @returns Observable with message
+   */
+  resetPassword(email: string, code: string, newPassword: string): Observable<{ message: string }> {
+    return this.apiService.post<{ message: string }>('/auth/reset-password', {
+      email,
+      code,
+      new_password: newPassword
+    });
+  }
 }

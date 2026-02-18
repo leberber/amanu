@@ -1,7 +1,9 @@
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any
+import random
+import string
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlmodel import Session, select
 
@@ -13,6 +15,8 @@ from app.core.security import (
 )
 from app.core.config import settings
 from app.models.user import User, UserCreate, UserRead
+from app.models.password_reset import PasswordResetToken, ForgotPasswordRequest, ResetPasswordRequest
+from app.services.email import send_password_reset_email
 
 router = APIRouter()
 
@@ -72,3 +76,110 @@ def register_new_user(
     session.commit()
     session.refresh(new_user)
     return new_user
+
+
+def generate_reset_code() -> str:
+    """Generate a 6-digit reset code"""
+    return ''.join(random.choices(string.digits, k=6))
+
+
+@router.post("/forgot-password", response_model=dict)
+async def forgot_password(
+    request: ForgotPasswordRequest,
+    background_tasks: BackgroundTasks,
+    session: Session = Depends(get_session),
+) -> Any:
+    """
+    Request password reset - sends 6-digit code to email
+    """
+    # Check if user exists
+    user = session.exec(select(User).where(User.email == request.email)).first()
+
+    # Always return success to prevent email enumeration
+    if not user:
+        return {"message": "If an account with this email exists, a reset code has been sent."}
+
+    # Invalidate any existing reset tokens for this email
+    existing_tokens = session.exec(
+        select(PasswordResetToken).where(
+            PasswordResetToken.email == request.email,
+            PasswordResetToken.used == False
+        )
+    ).all()
+
+    for token in existing_tokens:
+        token.used = True
+        session.add(token)
+
+    # Generate new reset code
+    code = generate_reset_code()
+    expires_at = datetime.utcnow() + timedelta(minutes=settings.PASSWORD_RESET_EXPIRE_MINUTES)
+
+    # Save to database
+    reset_token = PasswordResetToken(
+        email=request.email,
+        code=code,
+        expires_at=expires_at,
+    )
+    session.add(reset_token)
+    session.commit()
+
+    # Send email in background
+    background_tasks.add_task(send_password_reset_email, request.email, code)
+
+    return {"message": "If an account with this email exists, a reset code has been sent."}
+
+
+@router.post("/reset-password", response_model=dict)
+def reset_password(
+    request: ResetPasswordRequest,
+    session: Session = Depends(get_session),
+) -> Any:
+    """
+    Reset password with email, code, and new password
+    """
+    # Find valid reset token
+    reset_token = session.exec(
+        select(PasswordResetToken).where(
+            PasswordResetToken.email == request.email,
+            PasswordResetToken.code == request.code,
+            PasswordResetToken.used == False,
+        )
+    ).first()
+
+    if not reset_token:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid or expired reset code",
+        )
+
+    # Check if expired
+    if datetime.utcnow() > reset_token.expires_at:
+        reset_token.used = True
+        session.add(reset_token)
+        session.commit()
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Reset code has expired",
+        )
+
+    # Find user
+    user = session.exec(select(User).where(User.email == request.email)).first()
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="User not found",
+        )
+
+    # Update password
+    user.hashed_password = get_password_hash(request.new_password)
+    user.updated_at = datetime.utcnow()
+
+    # Mark token as used
+    reset_token.used = True
+
+    session.add(user)
+    session.add(reset_token)
+    session.commit()
+
+    return {"message": "Password has been reset successfully"}
