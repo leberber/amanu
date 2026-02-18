@@ -1,5 +1,5 @@
 // src/app/components/bottom-navigation/bottom-navigation.component.ts
-import { Component, inject, OnInit, OnDestroy, computed, signal, ViewChild } from '@angular/core';
+import { Component, inject, OnInit, computed, signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -15,7 +15,7 @@ import { MobileUserMenuComponent } from '../mobile-user-menu/mobile-user-menu.co
   standalone: true,
   imports: [CommonModule, RouterLink, RouterLinkActive, TranslateModule, MobileAdminMenuComponent, MobileUserMenuComponent],
   template: `
-    <div class="bottom-nav" [class.hidden]="isHidden" [style.opacity]="opacity">
+    <div class="bottom-nav">
       <!-- Home - Temporarily removed
       <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
         <i class="pi pi-home"></i>
@@ -74,12 +74,6 @@ import { MobileUserMenuComponent } from '../mobile-user-menu/mobile-user-menu.co
       display: flex;
       padding: 8px 8px 12px 8px;
       z-index: 1000;
-      transform: translateY(0);
-      transition: transform 0.3s ease, opacity 0.3s ease;
-    }
-    
-    .bottom-nav.hidden {
-      transform: translateY(100%);
     }
     
     .bottom-nav a {
@@ -163,18 +157,14 @@ import { MobileUserMenuComponent } from '../mobile-user-menu/mobile-user-menu.co
     }
   `]
 })
-export class BottomNavigationComponent implements OnInit, OnDestroy {
+export class BottomNavigationComponent implements OnInit {
   authService = inject(AuthService);
   private cartService = inject(CartService);
   translateService = inject(TranslateService);
-  
+
   @ViewChild('adminMenu') adminMenu!: MobileAdminMenuComponent;
   @ViewChild('userMenu') userMenu!: MobileUserMenuComponent;
-  
-  isHidden = false;
-  opacity = 1;
-  private lastScrollY = 0;
-  private scrollAccumulator = 0; // Track continued scrolling
+
   cartItems = signal<any[]>([]);
   currentUser = signal<User | null>(null);
   
@@ -200,58 +190,14 @@ export class BottomNavigationComponent implements OnInit, OnDestroy {
   }
   
   ngOnInit() {
-    if (typeof window !== 'undefined') {
-      window.addEventListener('scroll', this.handleScroll, { passive: true });
-    }
-    
     // Subscribe to cart changes - same as cart component
     this.cartService.cartItems$.subscribe(items => {
       this.cartItems.set(items || []);
     });
-    
+
     // Subscribe to user changes
     this.authService.currentUser$.subscribe(user => {
       this.currentUser.set(user);
     });
-    
-    // Cart items are already loaded via the subscription above
-  }
-  
-  ngOnDestroy() {
-    if (typeof window !== 'undefined') {
-      window.removeEventListener('scroll', this.handleScroll);
-    }
-  }
-  
-  private handleScroll = () => {
-    const currentScrollY = window.scrollY;
-    const scrollDifference = currentScrollY - this.lastScrollY;
-    
-    if (currentScrollY <= 50) {
-      // At the top - always show full opacity
-      this.isHidden = false;
-      this.opacity = 1;
-      this.scrollAccumulator = 0;
-    } else if (scrollDifference > 0) {
-      // Scrolling down
-      this.scrollAccumulator += scrollDifference;
-      
-      if (this.scrollAccumulator > 100 && this.scrollAccumulator < 300) {
-        // Stage 1: Light scrolling - fade to low opacity
-        this.isHidden = false;
-        this.opacity = 0.3;
-      } else if (this.scrollAccumulator >= 300) {
-        // Stage 2: Continued scrolling - completely hide
-        this.isHidden = true;
-        this.opacity = 0.3;
-      }
-    } else if (scrollDifference < 0) {
-      // Scrolling up - immediately show with full opacity
-      this.isHidden = false;
-      this.opacity = 1;
-      this.scrollAccumulator = 0;
-    }
-    
-    this.lastScrollY = currentScrollY;
   }
 }
