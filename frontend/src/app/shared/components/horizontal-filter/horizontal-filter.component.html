@@ -5,9 +5,8 @@
     class="filter-item mode-toggle"
     (click)="toggleMode()">
     <div class="toggle-circle">
-      <i [class]="getToggleIcon()"></i>
+      <img [src]="getToggleImage()" alt="" class="toggle-img">
     </div>
-    <span class="toggle-label">{{ getToggleLabel() | translate }}</span>
   </div>
 
   <!-- All Option -->

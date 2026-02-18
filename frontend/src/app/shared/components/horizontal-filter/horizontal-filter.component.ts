@@ -99,6 +99,11 @@ export class HorizontalFilterComponent implements OnInit, AfterViewInit, OnChang
     return this.filterType === 'categories' ? 'pi pi-building' : 'pi pi-th-large';
   }
 
+  getToggleImage(): string {
+    // Show the icon of what you'll switch TO
+    return this.filterType === 'categories' ? '/brands-icon.png' : '/categories-icon.png';
+  }
+
   getToggleLabel(): string {
     return this.filterType === 'categories'
       ? 'products.filters.show_brands'

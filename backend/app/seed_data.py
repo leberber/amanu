@@ -11,111 +11,111 @@ logger = logging.getLogger(__name__)
 
 # Sample data with translations
 CATEGORIES = [
-    {
-        "name": "Fresh Fruits",
-        "description": "Fresh and seasonal fruits",
-        "image_url": "https://images.unsplash.com/photo-1619566636858-adf3ef46400b?auto=format&fit=crop&w=1470&q=80",
-        "name_translations": {
-            "en": "Fresh Fruits",
-            "fr": "Fruits Frais", 
-            "ar": "فواكه طازجة"
-        },
-        "description_translations": {
-            "en": "Fresh and seasonal fruits",
-            "fr": "Fruits frais et de saison",
-            "ar": "فواكه طازجة وموسمية"
-        }
-    },
-    {
-        "name": "Fresh Vegetables",
-        "description": "Fresh and seasonal vegetables",
-        "image_url": "https://images.unsplash.com/photo-1518843875459-f738682238a6?auto=format&fit=crop&w=1442&q=80",
-        "name_translations": {
-            "en": "Fresh Vegetables",
-            "fr": "Légumes Frais",
-            "ar": "خضروات طازجة"
-        },
-        "description_translations": {
-            "en": "Fresh and seasonal vegetables",
-            "fr": "Légumes frais et de saison",
-            "ar": "خضروات طازجة وموسمية"
-        }
-    },
-    {
-        "name": "Organic Produce",
-        "description": "Certified organic fruits and vegetables",
-        "image_url": "https://images.unsplash.com/photo-1576675466969-38eeae4b41f6?auto=format&fit=crop&w=1442&q=80",
-        "name_translations": {
-            "en": "Organic Produce",
-            "fr": "Produits Bio",
-            "ar": "منتجات عضوية"
-        },
-        "description_translations": {
-            "en": "Certified organic fruits and vegetables",
-            "fr": "Fruits et légumes bio certifiés",
-            "ar": "فواكه وخضروات عضوية معتمدة"
-        }
-    }
+    # {
+    #     "name": "Fresh Fruits",
+    #     "description": "Fresh and seasonal fruits",
+    #     "image_url": "https://images.unsplash.com/photo-1619566636858-adf3ef46400b?auto=format&fit=crop&w=1470&q=80",
+    #     "name_translations": {
+    #         "en": "Fresh Fruits",
+    #         "fr": "Fruits Frais", 
+    #         "ar": "فواكه طازجة"
+    #     },
+    #     "description_translations": {
+    #         "en": "Fresh and seasonal fruits",
+    #         "fr": "Fruits frais et de saison",
+    #         "ar": "فواكه طازجة وموسمية"
+    #     }
+    # },
+    # {
+    #     "name": "Fresh Vegetables",
+    #     "description": "Fresh and seasonal vegetables",
+    #     "image_url": "https://images.unsplash.com/photo-1518843875459-f738682238a6?auto=format&fit=crop&w=1442&q=80",
+    #     "name_translations": {
+    #         "en": "Fresh Vegetables",
+    #         "fr": "Légumes Frais",
+    #         "ar": "خضروات طازجة"
+    #     },
+    #     "description_translations": {
+    #         "en": "Fresh and seasonal vegetables",
+    #         "fr": "Légumes frais et de saison",
+    #         "ar": "خضروات طازجة وموسمية"
+    #     }
+    # },
+    # {
+    #     "name": "Organic Produce",
+    #     "description": "Certified organic fruits and vegetables",
+    #     "image_url": "https://images.unsplash.com/photo-1576675466969-38eeae4b41f6?auto=format&fit=crop&w=1442&q=80",
+    #     "name_translations": {
+    #         "en": "Organic Produce",
+    #         "fr": "Produits Bio",
+    #         "ar": "منتجات عضوية"
+    #     },
+    #     "description_translations": {
+    #         "en": "Certified organic fruits and vegetables",
+    #         "fr": "Fruits et légumes bio certifiés",
+    #         "ar": "فواكه وخضروات عضوية معتمدة"
+    #     }
+    # }
 ]
 
 # Brand data with translations
 BRANDS = [
-    {
-        "name": "Cevital",
-        "description": "Leading Algerian agro-food company",
-        "name_translations": {
-            "en": "Cevital",
-            "fr": "Cevital",
-            "ar": "سيفيتال"
-        },
-        "description_translations": {
-            "en": "Leading Algerian agro-food company",
-            "fr": "Entreprise agroalimentaire algérienne leader",
-            "ar": "شركة جزائرية رائدة في الصناعات الغذائية"
-        }
-    },
-    {
-        "name": "Izdihar",
-        "description": "Quality food products brand",
-        "name_translations": {
-            "en": "Izdihar",
-            "fr": "Izdihar",
-            "ar": "ازدهار"
-        },
-        "description_translations": {
-            "en": "Quality food products brand",
-            "fr": "Marque de produits alimentaires de qualité",
-            "ar": "علامة تجارية لمنتجات غذائية عالية الجودة"
-        }
-    },
-    {
-        "name": "La Belle",
-        "description": "Premium food products",
-        "name_translations": {
-            "en": "La Belle",
-            "fr": "La Belle",
-            "ar": "لابيل"
-        },
-        "description_translations": {
-            "en": "Premium food products",
-            "fr": "Produits alimentaires haut de gamme",
-            "ar": "منتجات غذائية فاخرة"
-        }
-    },
-    {
-        "name": "Sim",
-        "description": "Trusted food brand",
-        "name_translations": {
-            "en": "Sim",
-            "fr": "Sim",
-            "ar": "سيم"
-        },
-        "description_translations": {
-            "en": "Trusted food brand",
-            "fr": "Marque alimentaire de confiance",
-            "ar": "علامة تجارية غذائية موثوقة"
-        }
-    }
+    # {
+    #     "name": "Cevital",
+    #     "description": "Leading Algerian agro-food company",
+    #     "name_translations": {
+    #         "en": "Cevital",
+    #         "fr": "Cevital",
+    #         "ar": "سيفيتال"
+    #     },
+    #     "description_translations": {
+    #         "en": "Leading Algerian agro-food company",
+    #         "fr": "Entreprise agroalimentaire algérienne leader",
+    #         "ar": "شركة جزائرية رائدة في الصناعات الغذائية"
+    #     }
+    # },
+    # {
+    #     "name": "Izdihar",
+    #     "description": "Quality food products brand",
+    #     "name_translations": {
+    #         "en": "Izdihar",
+    #         "fr": "Izdihar",
+    #         "ar": "ازدهار"
+    #     },
+    #     "description_translations": {
+    #         "en": "Quality food products brand",
+    #         "fr": "Marque de produits alimentaires de qualité",
+    #         "ar": "علامة تجارية لمنتجات غذائية عالية الجودة"
+    #     }
+    # },
+    # {
+    #     "name": "La Belle",
+    #     "description": "Premium food products",
+    #     "name_translations": {
+    #         "en": "La Belle",
+    #         "fr": "La Belle",
+    #         "ar": "لابيل"
+    #     },
+    #     "description_translations": {
+    #         "en": "Premium food products",
+    #         "fr": "Produits alimentaires haut de gamme",
+    #         "ar": "منتجات غذائية فاخرة"
+    #     }
+    # },
+    # {
+    #     "name": "Sim",
+    #     "description": "Trusted food brand",
+    #     "name_translations": {
+    #         "en": "Sim",
+    #         "fr": "Sim",
+    #         "ar": "سيم"
+    #     },
+    #     "description_translations": {
+    #         "en": "Trusted food brand",
+    #         "fr": "Marque alimentaire de confiance",
+    #         "ar": "علامة تجارية غذائية موثوقة"
+    #     }
+    # }
 ]
 
 

@@ -112,35 +112,25 @@
     }
   }
 
-  // Mode toggle - Circular design
+  // Mode toggle - Circular design with image
   &.mode-toggle {
     .toggle-circle {
       width: var(--item-icon-size);
       height: var(--item-icon-size);
-      border-radius: 50%;
-      background: linear-gradient(135deg, #2E6CB7 0%, #0F3C82 100%);
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 3px 10px rgba(46, 108, 183, 0.35);
       transition: all 0.3s ease;
 
-      i {
-        color: white !important;
-        font-size: 1.3rem !important;
+      .toggle-img {
+        width: 140%;
+        height: 140%;
+        object-fit: contain;
       }
-    }
-
-    .toggle-label {
-      color: #2E6CB7;
-      font-weight: 700;
-      font-size: 0.7rem !important;
-      margin-top: -0.3rem;
     }
 
     &:hover .toggle-circle {
       transform: scale(1.05);
-      box-shadow: 0 4px 14px rgba(46, 108, 183, 0.45);
     }
 
     &:active .toggle-circle {
@@ -292,14 +282,6 @@
       .toggle-circle {
         width: var(--item-icon-size-mobile);
         height: var(--item-icon-size-mobile);
-
-        i {
-          font-size: 1.1rem !important;
-        }
-      }
-
-      .toggle-label {
-        font-size: 0.6rem !important;
       }
     }
   }
@@ -342,14 +324,6 @@
       .toggle-circle {
         width: var(--item-icon-size-compact);
         height: var(--item-icon-size-compact);
-
-        i {
-          font-size: 0.85rem !important;
-        }
-      }
-
-      .toggle-label {
-        display: none;
       }
     }
   }
