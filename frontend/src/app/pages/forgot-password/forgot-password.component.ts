@@ -2,7 +2,7 @@
 import { Component, OnInit, inject, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { InputTextModule } from 'primeng/inputtext';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
@@ -10,6 +10,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { finalize } from 'rxjs';
 
 import { AuthService } from '../../services/auth.service';
+import { BackButtonComponent } from '../../shared/components/back-button/back-button.component';
 
 @Component({
   selector: 'app-forgot-password',
@@ -19,8 +20,8 @@ import { AuthService } from '../../services/auth.service';
     ReactiveFormsModule,
     InputTextModule,
     ToastModule,
-    RouterLink,
-    TranslateModule
+    TranslateModule,
+    BackButtonComponent
   ],
   providers: [MessageService],
   templateUrl: './forgot-password.component.html',

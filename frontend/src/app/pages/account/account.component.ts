@@ -22,6 +22,7 @@ import { DateService } from '../../core/services/date.service';
 import { FormValidationService } from '../../core/services/form-validation.service';
 import { VALIDATION } from '../../core/constants/app.constants';
 import { PhoneFormatDirective } from '../../directives/phone-format.directive';
+import { BackButtonComponent } from '../../shared/components/back-button/back-button.component';
 
 @Component({
   selector: 'app-account',
@@ -40,7 +41,8 @@ import { PhoneFormatDirective } from '../../directives/phone-format.directive';
     TooltipModule,
     ToggleButtonModule,
     ToggleSwitch,
-    PhoneFormatDirective
+    PhoneFormatDirective,
+    BackButtonComponent
   ],
   providers: [MessageService],
   templateUrl: './account.component.html',

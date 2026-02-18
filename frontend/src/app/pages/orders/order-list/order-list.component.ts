@@ -16,6 +16,7 @@ import { CurrencyService } from '../../../core/services/currency.service';
 import { DateService } from '../../../core/services/date.service';
 import { Order } from '../../../models/order.model';
 import { StatusSeverityService } from '../../../core/services/status-severity.service';
+import { BackButtonComponent } from '../../../shared/components/back-button/back-button.component';
 
 @Component({
   selector: 'app-order-list',
@@ -28,7 +29,8 @@ import { StatusSeverityService } from '../../../core/services/status-severity.se
     TableModule,
     ToastModule,
     TagModule,
-    TranslateModule
+    TranslateModule,
+    BackButtonComponent
   ],
   providers: [MessageService],
   templateUrl: './order-list.component.html',

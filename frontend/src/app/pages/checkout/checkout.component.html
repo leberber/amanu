@@ -88,10 +88,7 @@
               }
             </button>
 
-            <a routerLink="/cart" class="back-to-cart-btn">
-              <i class="pi pi-arrow-left"></i>
-              <span>{{ 'checkout.back_to_cart' | translate }}</span>
-            </a>
+            <app-back-button route="/cart" label="checkout.back_to_cart"></app-back-button>
 
             <button
               class="shipping-toggle-btn"

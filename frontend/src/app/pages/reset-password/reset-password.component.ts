@@ -2,7 +2,7 @@
 import { Component, OnInit, inject, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, AbstractControl } from '@angular/forms';
-import { Router, ActivatedRoute, RouterLink } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { ToastModule } from 'primeng/toast';
@@ -11,6 +11,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { finalize } from 'rxjs';
 
 import { AuthService } from '../../services/auth.service';
+import { BackButtonComponent } from '../../shared/components/back-button/back-button.component';
 
 @Component({
   selector: 'app-reset-password',
@@ -21,8 +22,8 @@ import { AuthService } from '../../services/auth.service';
     InputTextModule,
     PasswordModule,
     ToastModule,
-    RouterLink,
-    TranslateModule
+    TranslateModule,
+    BackButtonComponent
   ],
   providers: [MessageService],
   templateUrl: './reset-password.component.html',

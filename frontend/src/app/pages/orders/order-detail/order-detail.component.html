@@ -61,10 +61,7 @@
     <!-- Back button -->
     <div class="mb-2">
       <div class="flex align-items-center">
-        <button pButton type="button" icon="pi pi-arrow-left" 
-          [label]="'orders.detail.back_to_orders' | translate"
-          class="p-button-text text-base md:text-xl" 
-          (click)="backToOrders()"></button>
+        <app-back-button route="/orders" label="orders.detail.back_to_orders"></app-back-button>
         
         <span class="text-base md:text-xl font-medium text-center flex-grow-1">
           {{ 'orders.table.order_number' | translate }}{{order()?.id}}

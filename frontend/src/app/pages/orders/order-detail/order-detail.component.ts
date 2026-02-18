@@ -24,6 +24,7 @@ import { UnitsService } from '../../../core/services/units.service';
 import { DateService } from '../../../core/services/date.service';
 import { Order, OrderItem } from '../../../models/order.model';
 import { StatusSeverityService } from '../../../core/services/status-severity.service';
+import { BackButtonComponent } from '../../../shared/components/back-button/back-button.component';
 
 interface OrderStatus {
   status: string;
@@ -46,7 +47,8 @@ interface OrderStatus {
     TagModule,
     TimelineModule,
     DividerModule,
-    TranslateModule
+    TranslateModule,
+    BackButtonComponent
   ],
   providers: [MessageService],
   templateUrl: './order-detail.component.html'

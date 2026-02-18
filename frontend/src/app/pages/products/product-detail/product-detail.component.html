@@ -11,10 +11,7 @@
 
   <!-- Back Button -->
   <div class="back-button-container px-3 py-2">
-    <button class="back-btn" routerLink="/products">
-      <i class="pi pi-arrow-left"></i>
-      <span>{{ 'actions.go_back' | translate }}</span>
-    </button>
+    <app-back-button route="/products"></app-back-button>
   </div>
 
   <!-- Scrollable Product Content -->
@@ -57,10 +54,7 @@
       </div>
       <h2>{{ 'products.empty.title' | translate }}</h2>
       <p>{{ 'errors.not_found' | translate }}</p>
-      <button class="back-btn" routerLink="/products">
-        <i class="pi pi-arrow-left"></i>
-        <span>{{ 'actions.go_back' | translate }}</span>
-      </button>
+      <app-back-button route="/products"></app-back-button>
     </div>
   </div>
 </ng-template>

@@ -1,0 +1,49 @@
+// Back Button Component Styles
+$primary-gradient: linear-gradient(135deg, #2E6CB7 0%, #0F3C82 100%);
+
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(46, 108, 183, 0.1) 0%, rgba(15, 60, 130, 0.12) 100%);
+  color: #0F3C82;
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+
+  i {
+    font-size: 0.875rem;
+    transition: transform 0.3s ease;
+  }
+
+  &:hover {
+    background: $primary-gradient;
+    color: white;
+    transform: translateX(-3px);
+    box-shadow: 0 4px 15px rgba(46, 108, 183, 0.25);
+
+    i {
+      transform: translateX(-2px);
+    }
+  }
+
+  &:active {
+    transform: translateX(-3px) scale(0.98);
+  }
+}
+
+// Dark mode support
+:host-context(.my-app-dark) .back-btn {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(37, 99, 235, 0.18) 100%);
+  color: #60a5fa;
+
+  &:hover {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    color: white;
+  }
+}

@@ -38,9 +38,7 @@
         <div class="cart-items-card">
           <!-- Card Header -->
           <div class="cart-card-header">
-            <a routerLink="/products" class="back-link">
-              <i class="pi pi-arrow-left"></i>
-            </a>
+            <app-back-button route="/products" [showLabel]="false" class="back-link"></app-back-button>
             <div class="header-center">
               <i class="pi pi-shopping-cart"></i>
               <span>{{ 'cart.your_items' | translate }}</span>

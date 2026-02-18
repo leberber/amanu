@@ -16,6 +16,7 @@ import { DividerModule } from 'primeng/divider';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { BackButtonComponent } from '../../shared/components/back-button/back-button.component';
 import { Subscription, forkJoin, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 
@@ -50,7 +51,8 @@ import { VALIDATION } from '../../core/constants/app.constants';
     ProgressBarModule,
     BadgeModule,
     TagModule,
-    TranslateModule
+    TranslateModule,
+    BackButtonComponent
   ],
   providers: [MessageService],
   templateUrl: './checkout.component.html',

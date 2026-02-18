@@ -2,7 +2,7 @@
 import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink, ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { switchMap, catchError } from 'rxjs/operators';
 import { of, Subscription } from 'rxjs';
 
@@ -14,6 +14,7 @@ import { MessageService } from 'primeng/api';
 import { TagModule } from 'primeng/tag';
 import { SelectModule } from 'primeng/select';
 import { ProductQuantitySelectorComponent } from '../../../shared/components/product-quantity-selector/product-quantity-selector.component';
+import { BackButtonComponent } from '../../../shared/components/back-button/back-button.component';
 import { BadgeModule } from 'primeng/badge';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
@@ -34,13 +35,13 @@ import { FlyToCartService } from '../../../core/services/fly-to-cart.service';
   imports: [
     CommonModule,
     FormsModule,
-    RouterLink,
     ButtonModule,
     CardModule,
     ToastModule,
     TagModule,
     SelectModule,
     ProductQuantitySelectorComponent,
+    BackButtonComponent,
     BadgeModule,
     TranslateModule
   ],

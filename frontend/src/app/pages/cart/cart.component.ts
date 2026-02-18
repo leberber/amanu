@@ -25,6 +25,7 @@ import { TranslationService } from '../../services/translation.service';
 import { PromotionService } from '../../services/promotion.service';
 import { AppliedPromotion } from '../../models/promotion.model';
 import { ProductQuantitySelectorComponent } from '../../shared/components/product-quantity-selector/product-quantity-selector.component';
+import { BackButtonComponent } from '../../shared/components/back-button/back-button.component';
 
 @Component({
   selector: 'app-cart-page',
@@ -42,7 +43,8 @@ import { ProductQuantitySelectorComponent } from '../../shared/components/produc
     SelectModule,
     InputTextModule,
     TranslateModule,
-    ProductQuantitySelectorComponent
+    ProductQuantitySelectorComponent,
+    BackButtonComponent
   ],
   providers: [MessageService],
   templateUrl: './cart.component.html',
