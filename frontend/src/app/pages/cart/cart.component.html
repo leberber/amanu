@@ -1,418 +1,254 @@
-<!-- Main Container -->
-<div class="h-full pt-2 pb-5 overflow-auto">
+<!-- src/app/pages/cart/cart.component.html -->
+<div class="cart-page">
   <p-toast></p-toast>
-  
-  <div class="surface-card p-2">
-    <!-- Continue Shopping Button -->
-    <div class="flex justify-content-start mb-4">
-      <button 
-        pButton 
-        [label]="'cart.continue_shopping' | translate" 
-        icon="pi pi-arrow-left" 
-        class="ml-3 mt-4"
-        routerLink="/products">
-      </button>
-    </div>
-    
-    <!-- Cart States -->
+
+  <!-- Animated Background -->
+  <div class="bg-decoration">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
+
+  <div class="cart-content">
+    <!-- Back Button -->
+    <a routerLink="/products" class="back-btn">
+      <i class="pi pi-arrow-left"></i>
+      <span>{{ 'cart.continue_shopping' | translate }}</span>
+    </a>
+
+    <!-- Loading State -->
     @if (loading()) {
-      <ng-container *ngTemplateOutlet="loadingState"></ng-container>
+      <div class="loading-state">
+        <i class="pi pi-spin pi-spinner"></i>
+      </div>
     } @else if (cartItemCount() === 0) {
-      <ng-container *ngTemplateOutlet="emptyCartState"></ng-container>
+      <!-- Empty State -->
+      <div class="empty-state">
+        <div class="empty-icon-wrapper">
+          <div class="empty-icon-bg"></div>
+          <div class="empty-icon-circle">
+            <i class="pi pi-shopping-cart"></i>
+          </div>
+        </div>
+        <h2>{{ 'cart.empty' | translate }}</h2>
+        <p>{{ 'cart.empty_message' | translate }}</p>
+        <a routerLink="/products" class="shop-btn">
+          <i class="pi pi-shopping-bag"></i>
+          <span>{{ 'cart.shop_now' | translate }}</span>
+        </a>
+      </div>
     } @else {
-      <ng-container *ngTemplateOutlet="cartContent"></ng-container>
+      <!-- Cart Content -->
+      <div class="cart-grid">
+        <!-- Cart Items -->
+        <div class="cart-items-card">
+          <!-- Card Header -->
+          <div class="cart-card-header">
+            <div class="header-left">
+              <i class="pi pi-shopping-cart"></i>
+              <span>{{ 'cart.your_items' | translate }}</span>
+            </div>
+            <div class="item-count-badge">{{ cartItemCount() }}</div>
+          </div>
+          <!-- Desktop View -->
+          <div class="hidden md:block">
+            <p-table
+              [value]="cartItems()"
+              styleClass="p-datatable-sm"
+              [scrollable]="true"
+              scrollHeight="70vh"
+              [tableStyle]="{'min-width':'100%'}">
+
+              <ng-template pTemplate="header">
+                <tr>
+                  <th style="width: 40%">{{ 'cart.table.product' | translate }}</th>
+                  <th style="width: 15%" class="text-center">{{ 'common.price' | translate }}</th>
+                  <th style="width: 20%" class="text-center">{{ 'common.quantity' | translate }}</th>
+                  <th style="width: 15%" class="text-right">{{ 'common.total' | translate }}</th>
+                  <th style="width: 10%" class="text-center"></th>
+                </tr>
+              </ng-template>
+
+              <ng-template pTemplate="body" let-item>
+                <tr>
+                  <td>
+                    <div class="desktop-item">
+                      <div class="desktop-item-image">
+                        <img
+                          [src]="item.product_image || 'assets/images/product-placeholder.jpg'"
+                          [alt]="item.product_name">
+                      </div>
+                      <div class="desktop-item-info">
+                        <p class="name">{{ item.product_name }}</p>
+                        @if (item.is_organic) {
+                          <span class="organic-badge">{{ 'products.product.organic' | translate }}</span>
+                        }
+                      </div>
+                    </div>
+                  </td>
+                  <td class="text-center">
+                    <span class="desktop-price">{{ formatPrice(item.product_price) }}/{{ getUnitDisplay(item.product_unit) }}</span>
+                  </td>
+                  <td>
+                    <div class="flex justify-content-center">
+                      <div style="width: 140px;">
+                        <app-product-quantity-selector
+                          [value]="productQuantities[item.id]"
+                          [stockQuantity]="item.stock_quantity"
+                          [unit]="item.product_unit"
+                          [quantityConfig]="item.quantity_config"
+                          [disabled]="isOutOfStock(item)"
+                          [dropdownOnly]="true"
+                          (valueChange)="updateItemQuantity(item.id, $event)">
+                        </app-product-quantity-selector>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="text-right">
+                    <span class="desktop-total">{{ formatPrice(item.product_price * item.quantity) }}</span>
+                  </td>
+                  <td class="text-center">
+                    <button class="desktop-delete-btn" (click)="removeItem(item.id)" [pTooltip]="'cart.remove_item' | translate" tooltipPosition="left">
+                      <i class="pi pi-trash"></i>
+                    </button>
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+
+          <!-- Mobile View -->
+          <div class="block md:hidden">
+            @for (item of cartItems(); track item.id) {
+              <div class="cart-item">
+                <div class="item-image">
+                  <img [src]="item.product_image || 'assets/images/product-placeholder.jpg'" [alt]="item.product_name">
+                </div>
+                <div class="item-details">
+                  <div class="item-header">
+                    <div class="flex align-items-center overflow-hidden">
+                      <p class="item-name">{{ item.product_name }}</p>
+                      @if (item.is_organic) {
+                        <span class="organic-badge">O</span>
+                      }
+                    </div>
+                    <button class="delete-btn" (click)="removeItem(item.id)">
+                      <i class="pi pi-trash"></i>
+                    </button>
+                  </div>
+                  <div class="item-row">
+                    <span class="item-price">{{ formatPrice(item.product_price) }}/{{ getUnitDisplay(item.product_unit) }}</span>
+                    <div class="item-quantity" style="width: 120px;">
+                      <app-product-quantity-selector
+                        [value]="productQuantities[item.id]"
+                        [stockQuantity]="item.stock_quantity"
+                        [unit]="item.product_unit"
+                        [quantityConfig]="item.quantity_config"
+                        [disabled]="isOutOfStock(item)"
+                        [dropdownOnly]="true"
+                        (valueChange)="updateItemQuantity(item.id, $event)">
+                      </app-product-quantity-selector>
+                    </div>
+                    <span class="item-total">{{ formatPrice(item.product_price * item.quantity) }}</span>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Order Summary -->
+        <div class="order-summary-card">
+          <h3 class="summary-title">
+            <i class="pi pi-receipt"></i>
+            {{ 'cart.order_summary' | translate }}
+          </h3>
+
+          <!-- Promo Code -->
+          <div class="promo-section">
+            <span class="promo-label">{{ 'promotions.promo_code' | translate }}</span>
+            @if (!appliedPromotion()) {
+              <div class="promo-input-group">
+                <input
+                  type="text"
+                  [ngModel]="promoCode()"
+                  (ngModelChange)="promoCode.set($event)"
+                  [placeholder]="'promotions.enter_code' | translate"
+                  [disabled]="promoLoading()">
+                <button
+                  class="promo-apply-btn"
+                  [disabled]="promoLoading() || !promoCode()"
+                  (click)="applyPromoCode()">
+                  @if (promoLoading()) {
+                    <i class="pi pi-spin pi-spinner"></i>
+                  } @else {
+                    {{ 'promotions.apply' | translate }}
+                  }
+                </button>
+              </div>
+              @if (promoError()) {
+                <small class="promo-error">{{ promoError() }}</small>
+              }
+            } @else {
+              <div class="promo-applied">
+                <div class="promo-code-display">
+                  <i class="pi pi-tag"></i>
+                  <span>{{ appliedPromotion()?.code }}</span>
+                </div>
+                <button class="promo-remove-btn" (click)="removePromoCode()">
+                  <i class="pi pi-times"></i>
+                </button>
+              </div>
+            }
+          </div>
+
+          <div class="summary-divider"></div>
+
+          <!-- Subtotal -->
+          <div class="summary-row">
+            <span class="label">{{ 'promotions.subtotal' | translate }} ({{ cartItemCount() }} {{ 'cart.items_with_count' | translate }})</span>
+            <span class="value">{{ formatPrice(cartSubtotal()) }}</span>
+          </div>
+
+          <!-- Discount -->
+          @if (appliedPromotion()) {
+            <div class="summary-row discount">
+              <span class="label"><i class="pi pi-tag"></i>{{ 'promotions.discount' | translate }}</span>
+              <span class="value">-{{ formatPrice(discountAmount()) }}</span>
+            </div>
+          }
+
+          <!-- Shipping -->
+          <div class="summary-row shipping">
+            <span class="label">{{ 'cart.shipping' | translate }}</span>
+            <span class="value" [ngClass]="{'free': isShippingFree(), 'paid': !isShippingFree()}">
+              @if (isShippingFree()) {
+                {{ 'cart.free' | translate }}
+              } @else {
+                {{ formatPrice(shippingCost()) }}
+              }
+            </span>
+          </div>
+
+          <!-- Total -->
+          <div class="summary-row total">
+            <span class="label">{{ 'common.total' | translate }}</span>
+            <span class="value">{{ formatPrice(finalTotal() + shippingCost()) }}</span>
+          </div>
+
+          <!-- Actions -->
+          <div class="summary-actions">
+            <button class="checkout-btn" (click)="proceedToCheckout()">
+              <i class="pi pi-credit-card"></i>
+              <span>{{ 'cart.checkout' | translate }}</span>
+            </button>
+            <button class="clear-btn" (click)="clearCart()">
+              <i class="pi pi-trash"></i>
+              <span>{{ 'cart.clear_cart' | translate }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
     }
   </div>
 </div>
-
-<!-- ===================== TEMPLATE DEFINITIONS ===================== -->
-
-<!-- Loading State Template -->
-<ng-template #loadingState>
-  <div class="flex justify-content-center align-items-center py-8">
-    <i class="pi pi-spin pi-spinner text-4xl text-primary"></i>
-  </div>
-</ng-template>
-
-<!-- Empty Cart State Template -->
-<ng-template #emptyCartState>
-  <div class="text-center py-5">
-    <i class="pi pi-shopping-cart text-6xl text-primary-200 mb-4"></i>
-    <h2 class="text-2xl font-medium mb-3">{{ 'cart.empty' | translate }}</h2>
-    <p class="text-lg mb-5">{{ 'cart.empty_message' | translate }}</p>
-    <p-button 
-      [label]="'cart.shop_now' | translate" 
-      icon="pi pi-shopping-bag" 
-      routerLink="/products">
-    </p-button>
-  </div>
-</ng-template>
-
-<!-- Cart Content Template -->
-<ng-template #cartContent>
-  <div class="grid">
-    <!-- Cart Items Column -->
-    <div class="col-12 md:col-8">
-      <!-- Desktop View -->
-      <div class="hidden md:block">
-        <ng-container *ngTemplateOutlet="desktopTable"></ng-container>
-      </div>
-      
-      <!-- Mobile View -->
-      <div class="block md:hidden">
-        <ng-container *ngTemplateOutlet="mobileCards"></ng-container>
-      </div>
-    </div>
-    
-    <!-- Order Summary Column -->
-    <div class="col-12 md:col-4">
-      <ng-container *ngTemplateOutlet="orderSummary"></ng-container>
-    </div>
-  </div>
-</ng-template>
-
-<!-- Desktop Table Template -->
-<ng-template #desktopTable>
-  <div class="overflow-hidden shadow-1">
-    <p-table 
-      [value]="cartItems()" 
-      styleClass="p-datatable-sm" 
-      [scrollable]="true" 
-      scrollHeight="78vh"
-      [tableStyle]="{'min-width':'100%'}">
-      
-      <ng-template pTemplate="header">
-        <tr>
-          <th style="width: 40%; padding: 20px;">{{ 'cart.table.product' | translate }}</th>
-          <th style="width: 15%" class="text-center">{{ 'common.price' | translate }}</th>
-          <th style="width: 20%" class="text-center">{{ 'common.quantity' | translate }}</th>
-          <th style="width: 15%" class="text-right">{{ 'common.total' | translate }}</th>
-          <th style="width: 10%" class="text-center">{{ 'cart.table.actions' | translate }}</th>
-        </tr>
-      </ng-template>
-      
-      <ng-template pTemplate="body" let-item>
-        <tr>
-          @if (showQuantityGridForItem !== item.id) {
-            <ng-container *ngTemplateOutlet="desktopTableRow; context: {item: item}"></ng-container>
-          } @else {
-            <ng-container *ngTemplateOutlet="desktopQuantityGrid; context: {item: item}"></ng-container>
-          }
-        </tr>
-      </ng-template>
-    </p-table>
-  </div>
-</ng-template>
-
-<!-- Desktop Table Row Template -->
-<ng-template #desktopTableRow let-item="item">
-  <td>
-    <div class="flex align-items-center">
-      <img 
-        [src]="item.product_image || 'assets/images/product-placeholder.jpg'" 
-        [alt]="item.product_name" 
-        width="60" 
-        height="60" 
-        class="shadow-1 border-round"
-        style="object-fit: cover;"
-        [style.margin-right]="isRTL() ? '0' : '1rem'"
-        [style.margin-left]="isRTL() ? '1rem' : '0'">
-      <div>
-        <p class="font-medium text-900 m-0 white-space-nowrap overflow-hidden text-overflow-ellipsis" style="max-width: 200px">
-          {{item.product_name}}
-        </p>
-        @if (item.is_organic) {
-          <p-tag severity="success" [value]="'products.product.organic' | translate" styleClass="mt-1"></p-tag>
-        }
-      </div>
-    </div>
-  </td>
-  <td class="text-center font-medium text-700">
-    {{formatPrice(item.product_price)}}/{{getUnitDisplay(item.product_unit)}}
-  </td>
-  <td>
-    <div class="flex align-items-center justify-content-center">
-      <div style="width: 160px;">
-        <app-product-quantity-selector
-          [value]="productQuantities[item.id]"
-          [stockQuantity]="item.stock_quantity"
-          [unit]="item.product_unit"
-          [quantityConfig]="item.quantity_config"
-          [disabled]="isOutOfStock(item)"
-          [dropdownOnly]="true"
-          (valueChange)="updateItemQuantity(item.id, $event)">
-        </app-product-quantity-selector>
-      </div>
-    </div>
-  </td>
-  <td class="text-right font-bold text-900">
-    {{formatPrice(item.product_price * item.quantity)}}
-  </td>
-  <td class="text-center">
-    <button 
-      pButton 
-      type="button" 
-      icon="pi pi-trash" 
-      class="p-button-rounded p-button-danger p-button-text p-button-sm"
-      [pTooltip]="'cart.remove_item' | translate"
-      tooltipPosition="left"
-      (click)="removeItem(item.id)">
-    </button>
-  </td>
-</ng-template>
-
-<!-- Desktop Quantity Grid Template -->
-<ng-template #desktopQuantityGrid let-item="item">
-  <td colspan="5">
-    <div class="p-3">
-      <div class="flex align-items-center justify-content-between mb-3">
-        <div>
-          <h4 class="m-0">{{ item.product_name }}</h4>
-          <p class="text-sm text-500 mt-1 mb-0">{{ 'Select Quantity' | translate }}</p>
-        </div>
-        <button
-          pButton
-          type="button"
-          icon="pi pi-times"
-          class="p-button-rounded p-button-text p-button-sm"
-          (click)="showQuantityGridForItem = null">
-        </button>
-      </div>
-      
-      <div class="quantity-grid-container">
-        <button
-          *ngFor="let qty of getQuantityOptionsForItem(item)"
-          type="button"
-          [ngClass]="{'selected': qty === productQuantities[item.id]}"
-          class="qty-grid-item"
-          (click)="selectQuantityForItem(item.id, qty)">
-          <span class="qty-value">{{ qty }}</span>
-          <span class="qty-unit text-xs">{{ getUnitDisplay(item.product_unit) }}</span>
-        </button>
-      </div>
-      
-      <div class="mt-3 flex justify-content-center">
-        <button
-          pButton
-          icon="pi pi-check"
-          [label]="'Update Quantity to ' + productQuantities[item.id] + ' ' + getUnitDisplay(item.product_unit)"
-          class="p-button-sm"
-          (click)="updateQuantityAndCloseGrid(item)">
-        </button>
-      </div>
-    </div>
-  </td>
-</ng-template>
-
-<!-- Mobile Cards Template -->
-<ng-template #mobileCards>
-  @for (item of cartItems(); track item.id) {
-    <div class="surface-card p-3 mb-2 border-bottom-1 border-100">
-      @if (showQuantityGridForItem !== item.id) {
-        <ng-container *ngTemplateOutlet="mobileCardItem; context: {item: item}"></ng-container>
-      } @else {
-        <ng-container *ngTemplateOutlet="mobileQuantityGrid; context: {item: item}"></ng-container>
-      }
-    </div>
-  }
-</ng-template>
-
-<!-- Mobile Card Item Template -->
-<ng-template #mobileCardItem let-item="item">
-  <div class="flex align-items-center">
-    <!-- Image -->
-    <div style="width: 60px; height: 60px;" class="flex-shrink-0" 
-         [style.margin-right]="isRTL() ? '0' : '0.75rem'"
-         [style.margin-left]="isRTL() ? '0.75rem' : '0'">
-      <img [src]="item.product_image || 'assets/images/product-placeholder.jpg'" 
-           [alt]="item.product_name" class="w-full h-full"
-           style="object-fit: cover;">
-    </div>
-    
-    <!-- Content -->
-    <div class="flex-grow-1 overflow-hidden">
-      <!-- Name with tag -->
-      <div class="flex align-items-center justify-content-between">
-        <div class="flex align-items-center overflow-hidden">
-          <span class="font-medium text-overflow-ellipsis overflow-hidden white-space-nowrap">{{item.product_name}}</span>
-          @if (item.is_organic) {
-            <p-tag severity="success" value="O" 
-                   [style.margin-left]="isRTL() ? '0' : '0.25rem'"
-                   [style.margin-right]="isRTL() ? '0.25rem' : '0'"></p-tag>
-          }
-        </div>
-        <button pButton icon="pi pi-trash" class="p-button-rounded p-button-danger p-button-text p-button-sm p-0 icon-large"
-            (click)="removeItem(item.id)"></button>
-      </div>
-      
-      <!-- Price/Quantity row -->
-      <div class="flex justify-content-between align-items-center text-sm mt-2">
-        <span class="text-700 w-4rem text-left">{{formatPrice(item.product_price)}}/{{getUnitDisplay(item.product_unit)}}</span>
-        
-        <div class="flex align-items-center justify-content-center" style="width: 140px;">
-          <app-product-quantity-selector
-            [value]="productQuantities[item.id]"
-            [stockQuantity]="item.stock_quantity"
-            [unit]="item.product_unit"
-            [quantityConfig]="item.quantity_config"
-            [disabled]="isOutOfStock(item)"
-            [dropdownOnly]="true"
-            (valueChange)="updateItemQuantity(item.id, $event)">
-          </app-product-quantity-selector>
-        </div>
-        
-        <span class="font-bold text-900 w-5rem text-right">{{formatPrice(item.product_price * item.quantity)}}</span>
-      </div>
-    </div>
-  </div>
-</ng-template>
-
-<!-- Mobile Quantity Grid Template -->
-<ng-template #mobileQuantityGrid let-item="item">
-  <div class="p-2">
-    <div class="flex align-items-center justify-content-between mb-3">
-      <div>
-        <h4 class="m-0 text-sm">{{ item.product_name }}</h4>
-        <p class="text-xs text-500 mt-1 mb-0">{{ 'Select Quantity' | translate }}</p>
-      </div>
-      <button
-        pButton
-        type="button"
-        icon="pi pi-times"
-        class="p-button-rounded p-button-text p-button-xs"
-        (click)="showQuantityGridForItem = null">
-      </button>
-    </div>
-    
-    <div class="quantity-grid-container-mobile">
-      <button
-        *ngFor="let qty of getQuantityOptionsForItem(item)"
-        type="button"
-        [ngClass]="{'selected': qty === productQuantities[item.id]}"
-        class="qty-grid-item-mobile"
-        (click)="selectQuantityForItem(item.id, qty)">
-        <span class="qty-value text-sm">{{ qty }}</span>
-        <span class="qty-unit text-xs">{{ getUnitDisplay(item.product_unit) }}</span>
-      </button>
-    </div>
-    
-    <div class="mt-2 flex justify-content-center">
-      <button
-        pButton
-        icon="pi pi-check"
-        [label]="'Update'"
-        class="p-button-sm"
-        (click)="updateQuantityAndCloseGrid(item)">
-      </button>
-    </div>
-  </div>
-</ng-template>
-
-<!-- Order Summary Template -->
-<ng-template #orderSummary>
-  <div class="surface-card p-4 shadow-1 border-round flex flex-column">
-    <h3 class="text-xl font-medium text-900 mb-3">{{ 'cart.order_summary' | translate }}</h3>
-
-    <!-- Promo Code Section -->
-    <div class="mb-3">
-      <label class="block text-900 font-medium mb-2">{{ 'promotions.promo_code' | translate }}</label>
-      @if (!appliedPromotion()) {
-        <div class="flex gap-2">
-          <input
-            type="text"
-            pInputText
-            [ngModel]="promoCode()"
-            (ngModelChange)="promoCode.set($event)"
-            [placeholder]="'promotions.enter_code' | translate"
-            class="flex-1"
-            [disabled]="promoLoading()">
-          <button
-            pButton
-            [label]="'promotions.apply' | translate"
-            [loading]="promoLoading()"
-            [disabled]="promoLoading() || !promoCode()"
-            (click)="applyPromoCode()"
-            class="p-button-sm">
-          </button>
-        </div>
-        @if (promoError()) {
-          <small class="p-error block mt-1">{{ promoError() }}</small>
-        }
-      } @else {
-        <div class="flex align-items-center justify-content-between surface-100 p-2 border-round">
-          <div class="flex align-items-center gap-2">
-            <i class="pi pi-tag text-primary"></i>
-            <span class="font-medium text-primary">{{ appliedPromotion()?.code }}</span>
-          </div>
-          <button
-            pButton
-            icon="pi pi-times"
-            class="p-button-rounded p-button-text p-button-sm p-button-danger"
-            (click)="removePromoCode()"
-            [pTooltip]="'promotions.remove' | translate">
-          </button>
-        </div>
-      }
-    </div>
-
-    <p-divider></p-divider>
-
-    <div class="flex justify-content-between mb-3">
-      <span class="text-900">
-        {{ 'promotions.subtotal' | translate }} ({{cartItemCount()}} {{ 'cart.items_with_count' | translate }})
-      </span>
-      <span class="font-medium text-900">{{formatPrice(cartSubtotal())}}</span>
-    </div>
-
-    @if (appliedPromotion()) {
-      <div class="flex justify-content-between mb-3">
-        <span class="text-green-600">
-          <i class="pi pi-tag mr-1"></i>{{ 'promotions.discount' | translate }} ({{ appliedPromotion()?.code }})
-        </span>
-        <span class="font-medium text-green-600">-{{formatPrice(discountAmount())}}</span>
-      </div>
-    }
-
-    <div class="flex justify-content-between mb-3">
-      <span class="text-900">{{ 'cart.shipping' | translate }}</span>
-      <span class="font-medium"
-            [ngClass]="{
-              'text-green-600': isShippingFree(),
-              'text-red-600': !isShippingFree()
-            }">
-        @if (isShippingFree()) {
-          {{ 'cart.free' | translate }}
-        } @else {
-          {{ formatPrice(shippingCost()) }}
-        }
-      </span>
-    </div>
-
-    <p-divider></p-divider>
-
-    <div class="flex justify-content-between mb-4">
-      <span class="text-lg font-medium text-900">{{ 'common.total' | translate }}</span>
-      <span class="text-lg font-bold text-900">{{formatPrice(finalTotal() + shippingCost())}}</span>
-    </div>
-
-    <div class="flex flex-column mt-auto">
-      <button
-        pButton
-        [label]="'cart.checkout' | translate"
-        icon="pi pi-credit-card"
-        (click)="proceedToCheckout()"
-        class="mb-2"
-        style="padding:14px">
-      </button>
-
-      <button
-        pButton
-        [label]="'cart.clear_cart' | translate"
-        icon="pi pi-trash"
-        style="padding:14px"
-        class="p-button-outlined p-button-danger"
-        (click)="clearCart()">
-      </button>
-    </div>
-  </div>
-</ng-template>
