@@ -34,9 +34,11 @@
     } @else {
       <!-- Orders Content -->
       <div class="orders-card">
+        <!-- Back Button -->
+        <app-back-button route="/account" [circular]="true" [fixed]="true"></app-back-button>
+
         <!-- Card Header -->
         <div class="orders-card-header">
-          <app-back-button route="/account" [showLabel]="false" class="back-link"></app-back-button>
           <div class="header-center">
             <i class="pi pi-list"></i>
             <span>{{ 'orders.title' | translate }}</span>

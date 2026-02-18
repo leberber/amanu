@@ -8,13 +8,13 @@ $primary-dark: #0F3C82;
 // Main container
 .order-detail-page {
   min-height: 100vh;
-  background: linear-gradient(180deg, #f8fafc 0%, #e8f4f8 100%);
+  background: white;
   position: relative;
   overflow-x: hidden;
   padding-bottom: 2rem;
 }
 
-// Animated background blobs
+// Animated background blobs (same as register page)
 .bg-decoration {
   position: fixed;
   top: 0;
@@ -29,24 +29,24 @@ $primary-dark: #0F3C82;
     position: absolute;
     border-radius: 50%;
     filter: blur(60px);
-    opacity: 0.4;
+    opacity: 0.5;
     animation: float 20s ease-in-out infinite;
   }
 
   .blob-1 {
     width: 300px;
     height: 300px;
-    background: linear-gradient(135deg, rgba(46, 108, 183, 0.3) 0%, rgba(15, 60, 130, 0.2) 100%);
-    top: -100px;
-    right: -50px;
+    background: linear-gradient(135deg, rgba(46, 108, 183, 0.4) 0%, rgba(15, 60, 130, 0.4) 100%);
+    top: 7%;
+    right: -100px;
     animation-delay: 0s;
   }
 
   .blob-2 {
     width: 250px;
     height: 250px;
-    background: linear-gradient(135deg, rgba(76, 175, 80, 0.25) 0%, rgba(46, 125, 50, 0.15) 100%);
-    bottom: 20%;
+    background: linear-gradient(135deg, rgba(17, 153, 142, 0.3) 0%, rgba(56, 239, 125, 0.3) 100%);
+    bottom: 15%;
     left: -80px;
     animation-delay: -7s;
   }
@@ -54,9 +54,9 @@ $primary-dark: #0F3C82;
   .blob-3 {
     width: 200px;
     height: 200px;
-    background: linear-gradient(135deg, rgba(255, 152, 0, 0.2) 0%, rgba(245, 124, 0, 0.1) 100%);
-    top: 40%;
-    right: -60px;
+    background: linear-gradient(135deg, rgba(255, 154, 158, 0.3) 0%, rgba(250, 208, 196, 0.3) 100%);
+    bottom: -50px;
+    right: 20%;
     animation-delay: -14s;
   }
 }
@@ -629,18 +629,18 @@ $primary-dark: #0F3C82;
 // Dark mode support
 :host-context(.my-app-dark) {
   .order-detail-page {
-    background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+    background: #0f172a;
   }
 
   .bg-decoration {
     .blob-1 {
-      background: linear-gradient(135deg, rgba(46, 108, 183, 0.2) 0%, rgba(15, 60, 130, 0.15) 100%);
+      background: linear-gradient(135deg, rgba(46, 108, 183, 0.25) 0%, rgba(15, 60, 130, 0.25) 100%);
     }
     .blob-2 {
-      background: linear-gradient(135deg, rgba(76, 175, 80, 0.15) 0%, rgba(46, 125, 50, 0.1) 100%);
+      background: linear-gradient(135deg, rgba(17, 153, 142, 0.2) 0%, rgba(56, 239, 125, 0.2) 100%);
     }
     .blob-3 {
-      background: linear-gradient(135deg, rgba(255, 152, 0, 0.15) 0%, rgba(245, 124, 0, 0.08) 100%);
+      background: linear-gradient(135deg, rgba(255, 154, 158, 0.2) 0%, rgba(250, 208, 196, 0.2) 100%);
     }
   }
 

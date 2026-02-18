@@ -404,13 +404,14 @@ $primary-gradient: linear-gradient(135deg, #2E6CB7 0%, #0F3C82 100%);
 // Spacer for fixed mobile header
 @media screen and (max-width: 1023px) {
   .mobile-header-spacer {
-    height: 80px;
+    height: 95px;
   }
 }
 
 // Products grid area
 .products-grid-area {
   padding: 0.5rem;
+  padding-top: 0.75rem;
 }
 
 // Desktop layout improvements

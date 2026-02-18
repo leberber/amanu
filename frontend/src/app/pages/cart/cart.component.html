@@ -32,13 +32,15 @@
         </a>
       </div>
     } @else {
+      <!-- Back Button -->
+      <app-back-button route="/products" [circular]="true" [fixed]="true"></app-back-button>
+
       <!-- Cart Content -->
       <div class="cart-grid">
         <!-- Cart Items -->
         <div class="cart-items-card">
           <!-- Card Header -->
           <div class="cart-card-header">
-            <app-back-button route="/products" [showLabel]="false" class="back-link"></app-back-button>
             <div class="header-center">
               <i class="pi pi-shopping-cart"></i>
               <span>{{ 'cart.your_items' | translate }}</span>
