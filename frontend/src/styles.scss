@@ -123,9 +123,15 @@ position: fixed; top:var(--header-height) ; z-index: 200; left:20%;right:0;
   color:rgb(240, 52, 52);
 }
 
-@media (max-width: 968px) {
+@media (min-width: 768px) and (max-width: 968px) {
   :root {
     --header-height: 6vh !important;
+  }
+}
+
+@media (max-width: 767px) {
+  :root {
+    --header-height: 0px !important;
   }
 
   .filtes-fixed{

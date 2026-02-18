@@ -1,113 +1,121 @@
 <!-- src/app/pages/orders/order-list/order-list.component.html -->
-<div class="h-full pt-2 px-2 overflow-auto">
-    <p-toast></p-toast>
-    
-    <div class="surface-card p-3 border-round">
-      <h1 class="text-2xl font-medium mb-4 ml-2">{{ 'orders.title' | translate }}</h1>
-      
-      <!-- Loading state -->
-      <div *ngIf="loading" class="text-center py-5">
-        <i class="pi pi-spin pi-spinner text-4xl text-primary mb-3"></i>
-        <p>{{ 'orders.loading' | translate }}</p>
-      </div>
-      
-      <!-- Empty state -->
-      <div *ngIf="!loading && orders.length === 0" class="text-center py-5">
-        <i class="pi pi-inbox text-6xl text-primary-200 mb-4"></i>
-        <h2 class="text-2xl font-medium mb-3">{{ 'orders.empty.title' | translate }}</h2>
-        <p class="text-lg mb-5">{{ 'orders.empty.subtitle' | translate }}</p>
-        <p-button 
-          [label]="'orders.empty.browse_products' | translate" 
-          icon="pi pi-shopping-bag" 
-          routerLink="/products">
-        </p-button>
-      </div>
-      
-      <!-- Desktop Table View - Hidden on mobile -->
-      <p-table 
-        *ngIf="!loading && orders.length > 0" 
-        [value]="orders" 
-        [tableStyle]="{'min-width': '100%'}"
-        [paginator]="orders.length > 10"
-        [rows]="10"
-        [showCurrentPageReport]="true"
-        [rowsPerPageOptions]="[5, 10, 25]"
-        scrollHeight="68vh"
-        [scrollable]="true" 
-        [currentPageReportTemplate]="'orders.table.pagination' | translate"
-        class="hidden md:block"
-      >
-        <ng-template pTemplate="header">
-          <tr>
-            <th>{{ 'orders.table.order_number' | translate }}</th>
-            <th>{{ 'orders.table.date' | translate }}</th>
-            <th>{{ 'orders.table.status' | translate }}</th>
-            <th>{{ 'orders.table.total' | translate }}</th>
-            <th style="width: 150px">{{ 'orders.table.actions' | translate }}</th>
-          </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-order>
-          <tr>
-            <td>{{order.id}}</td>
-            <td>{{formatDate(order.created_at)}}</td>
-            <td>
-              <p-tag [severity]="getStatusSeverity(order.status)" [value]="getStatusLabel(order.status)"></p-tag>
-            </td>
-            <td>{{formatPrice(order.total_amount)}}</td>
-            <td>
-              <button 
-                pButton 
-                type="button" 
-                [label]="'orders.table.view' | translate" 
-                icon="pi pi-eye" 
-                class="p-button-sm"
-                (click)="viewOrderDetails(order.id)"
-              ></button>
-            </td>
-          </tr>
-        </ng-template>
-      </p-table>
+<div class="orders-page">
+  <p-toast></p-toast>
 
-      <!-- Mobile Card View - Clickable Rows -->
-      <div *ngIf="!loading && orders.length > 0" class="block md:hidden">
-        <div *ngFor="let order of orders" 
-             class="surface-card p-4 mb-4 border-bottom-1 border-100 cursor-pointer hover:surface-100 transition-colors transition-duration-150"
-             (click)="viewOrderDetails(order.id)">
-          
-          <div class="flex align-items-center">
-            <!-- Icon -->
-            <div class="flex align-items-center justify-content-center w-3rem h-3rem border-circle bg-primary text-primary mr-4 flex-shrink-0">
-              <i class="pi pi-eye text-lg"></i>
-            </div>
-            
-            <!-- Content -->
-            <div class="flex-grow-1 overflow-hidden">
-              <!-- Order number with status -->
-              <div class="flex align-items-center justify-content-between mb-3">
-                <span class="font-medium text-overflow-ellipsis overflow-hidden white-space-nowrap text-base">
-                  {{ 'orders.table.order_number' | translate }} {{order.id}}
-                </span>
-                <p-tag 
-                  [severity]="getStatusSeverity(order.status)" 
-                  [value]="getStatusLabel(order.status)"
-                  [style]="{'font-size': '0.875rem', 'padding': '0.5rem 0.75rem'}"
-                ></p-tag>
-              </div>
-              
-              <!-- Date/Total row -->
-              <div class="flex justify-content-between align-items-center">
-                <span class="text-600 text-sm">{{formatDate(order.created_at)}}</span>
-                <span class="font-bold text-900 text-base">{{formatPrice(order.total_amount)}}</span>
-              </div>
-            </div>
+  <!-- Animated Background -->
+  <div class="bg-decoration">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
 
-            <!-- Chevron indicator -->
-            <div class="flex align-items-center justify-content-center ml-3">
-              <i class="pi pi-chevron-right text-400"></i>
-            </div>
+  <div class="orders-content">
+    <!-- Loading state -->
+    @if (loading) {
+      <div class="loading-state">
+        <i class="pi pi-spin pi-spinner"></i>
+      </div>
+    } @else if (orders.length === 0) {
+      <!-- Empty State -->
+      <div class="empty-state">
+        <div class="empty-icon-wrapper">
+          <div class="empty-icon-bg"></div>
+          <div class="empty-icon-circle">
+            <i class="pi pi-inbox"></i>
           </div>
         </div>
+        <h2>{{ 'orders.empty.title' | translate }}</h2>
+        <p>{{ 'orders.empty.subtitle' | translate }}</p>
+        <a routerLink="/products" class="shop-btn">
+          <i class="pi pi-shopping-bag"></i>
+          <span>{{ 'orders.empty.browse_products' | translate }}</span>
+        </a>
       </div>
+    } @else {
+      <!-- Orders Content -->
+      <div class="orders-card">
+        <!-- Card Header -->
+        <div class="orders-card-header">
+          <div class="header-center">
+            <i class="pi pi-list"></i>
+            <span>{{ 'orders.title' | translate }}</span>
+          </div>
+          <div class="item-count-badge">{{ orders.length }}</div>
+        </div>
 
-    </div>
+        <!-- Desktop Table View -->
+        <div class="hidden md:block">
+          <p-table
+            [value]="orders"
+            [tableStyle]="{'min-width': '100%'}"
+            [paginator]="orders.length > 10"
+            [rows]="10"
+            [showCurrentPageReport]="true"
+            [rowsPerPageOptions]="[5, 10, 25]"
+            scrollHeight="65vh"
+            [scrollable]="true"
+            [currentPageReportTemplate]="'orders.table.pagination' | translate"
+          >
+            <ng-template pTemplate="header">
+              <tr>
+                <th>{{ 'orders.table.order_number' | translate }}</th>
+                <th>{{ 'orders.table.date' | translate }}</th>
+                <th>{{ 'orders.table.status' | translate }}</th>
+                <th>{{ 'orders.table.total' | translate }}</th>
+                <th style="width: 150px">{{ 'orders.table.actions' | translate }}</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-order>
+              <tr>
+                <td>{{order.id}}</td>
+                <td>{{formatDate(order.created_at)}}</td>
+                <td>
+                  <p-tag [severity]="getStatusSeverity(order.status)" [value]="getStatusLabel(order.status)"></p-tag>
+                </td>
+                <td>{{formatPrice(order.total_amount)}}</td>
+                <td>
+                  <button
+                    pButton
+                    type="button"
+                    [label]="'orders.table.view' | translate"
+                    icon="pi pi-eye"
+                    class="p-button-sm"
+                    (click)="viewOrderDetails(order.id)"
+                  ></button>
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+
+        <!-- Mobile Card View -->
+        <div class="block md:hidden">
+          @for (order of orders; track order.id) {
+            <div class="order-item" (click)="viewOrderDetails(order.id)">
+              <div class="order-icon">
+                <i class="pi pi-shopping-bag"></i>
+              </div>
+              <div class="order-details">
+                <div class="order-header">
+                  <span class="order-number">{{ 'orders.table.order_number' | translate }} {{order.id}}</span>
+                  <p-tag
+                    [severity]="getStatusSeverity(order.status)"
+                    [value]="getStatusLabel(order.status)"
+                    styleClass="order-tag"
+                  ></p-tag>
+                </div>
+                <div class="order-footer">
+                  <span class="order-date">{{formatDate(order.created_at)}}</span>
+                  <span class="order-total">{{formatPrice(order.total_amount)}}</span>
+                </div>
+              </div>
+              <div class="order-chevron">
+                <i class="pi pi-chevron-right"></i>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </div>
 </div>

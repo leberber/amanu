@@ -135,13 +135,15 @@
 
 <!-- Empty State Template -->
 <ng-template #emptyState>
-  <app-empty-state
-    icon="pi-search"
-    [title]="'products.empty.title' | translate"
-    [description]="hasActiveFilters() ? ('products.empty.filter_message' | translate) : ('products.empty.subtitle' | translate)"
-    [actionLabel]="hasActiveFilters() ? ('products.empty.clear_filters' | translate) : ''"
-    [action]="clearFilters.bind(this)">
-  </app-empty-state>
+  <div class="empty-state-wrapper">
+    <app-empty-state
+      icon="pi-search"
+      [title]="'products.empty.title' | translate"
+      [description]="hasActiveFilters() ? ('products.empty.filter_message' | translate) : ('products.empty.subtitle' | translate)"
+      [actionLabel]="hasActiveFilters() ? ('products.empty.clear_filters' | translate) : ''"
+      [action]="clearFilters.bind(this)">
+    </app-empty-state>
+  </div>
 </ng-template>
 
 <!-- Grid View Template -->

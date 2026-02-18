@@ -31,8 +31,8 @@ import { StatusSeverityService } from '../../../core/services/status-severity.se
     TranslateModule
   ],
   providers: [MessageService],
-  templateUrl: './order-list.component.html'
-
+  templateUrl: './order-list.component.html',
+  styleUrls: ['./order-list.component.scss']
 })
 export class OrderListComponent implements OnInit {
   orders: Order[] = [];

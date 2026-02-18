@@ -121,11 +121,11 @@ $primary-gradient: linear-gradient(135deg, #2E6CB7 0%, #0F3C82 100%);
 // Spacer for fixed mobile header
 @media screen and (max-width: 1023px) {
   .mobile-header-spacer {
-    height: 70px;
+    height: 93px;
     transition: height 0.3s ease;
 
     &.toolbar-visible {
-      height: 125px;
+      height: 148px;
     }
   }
 }
@@ -153,4 +153,13 @@ $primary-gradient: linear-gradient(135deg, #2E6CB7 0%, #0F3C82 100%);
   .flex.flex-column.gap-3 > div:last-child .surface-card {
     border-bottom: none !important;
   }
+}
+
+// Empty state wrapper with horizontal padding
+.empty-state-wrapper {
+  padding: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(var(--page-height, 100vh) - 150px);
 }
