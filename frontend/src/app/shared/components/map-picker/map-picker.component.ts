@@ -470,38 +470,36 @@ export class MapPickerComponent implements AfterViewInit, OnDestroy {
 
     this.isLocating = true;
     this.locationRequested = true;
-    console.log('Requesting location...');
+    console.log('Requesting high accuracy GPS location...');
 
-    // Try fast location first (network-based), then fall back to high accuracy
+    // Request high accuracy GPS directly for best results
+    // maximumAge: 0 ensures fresh position, not cached
+    // timeout: 15000 gives GPS time to get a fix
     navigator.geolocation.getCurrentPosition(
       (position) => this.handleLocationSuccess(position),
-      (error) => {
-        // If fast location fails, try high accuracy
-        if (error.code === error.TIMEOUT) {
-          console.log('Fast location timed out, trying high accuracy...');
-          navigator.geolocation.getCurrentPosition(
-            (position) => this.handleLocationSuccess(position),
-            (err) => this.handleLocationError(err),
-            { enableHighAccuracy: true, timeout: 30000, maximumAge: 0 }
-          );
-        } else {
-          this.handleLocationError(error);
-        }
-      },
-      { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 }
+      (error) => this.handleLocationError(error),
+      {
+        enableHighAccuracy: true,  // Use GPS for best accuracy
+        timeout: 15000,            // 15 seconds to get GPS fix
+        maximumAge: 0              // Always get fresh position, no cache
+      }
     );
   }
 
   private handleLocationSuccess(position: GeolocationPosition): void {
-    console.log('Location received:', position.coords.latitude, position.coords.longitude);
     const lat = position.coords.latitude;
     const lng = position.coords.longitude;
     const accuracy = position.coords.accuracy;
 
+    console.log('GPS Location received:', lat, lng, 'Accuracy:', accuracy, 'meters');
+
     // Show current location indicator (blue dot)
     this.showCurrentLocationMarker(lat, lng, accuracy);
 
-    this.map.setView([lat, lng], 17);
+    // Zoom level based on accuracy - closer zoom for better accuracy
+    const zoomLevel = accuracy < 50 ? 18 : accuracy < 100 ? 17 : accuracy < 500 ? 16 : 15;
+
+    this.map.setView([lat, lng], zoomLevel);
     // Auto-place delivery marker at user's location
     this.placeMarker(lat, lng);
     this.reverseGeocode(lat, lng);
@@ -511,13 +509,6 @@ export class MapPickerComponent implements AfterViewInit, OnDestroy {
   private handleLocationError(error: GeolocationPositionError): void {
     console.error('Geolocation error:', error.code, error.message);
 
-    // Try IP-based geolocation as fallback
-    if (error.code === error.TIMEOUT || error.code === error.POSITION_UNAVAILABLE) {
-      console.log('Trying IP-based location fallback...');
-      this.tryIPBasedLocation();
-      return;
-    }
-
     this.isLocating = false;
 
     // Emit specific error type
@@ -525,34 +516,15 @@ export class MapPickerComponent implements AfterViewInit, OnDestroy {
       case error.PERMISSION_DENIED:
         this.locationError.emit('permission_denied');
         break;
+      case error.POSITION_UNAVAILABLE:
+        this.locationError.emit('position_unavailable');
+        break;
+      case error.TIMEOUT:
+        this.locationError.emit('timeout');
+        break;
       default:
         this.locationError.emit('unknown_error');
     }
-  }
-
-  private tryIPBasedLocation(): void {
-    // Use free IP geolocation API
-    fetch('https://ipapi.co/json/')
-      .then(response => response.json())
-      .then(data => {
-        if (data.latitude && data.longitude) {
-          console.log('IP location received:', data.latitude, data.longitude, data.city);
-          const lat = data.latitude;
-          const lng = data.longitude;
-
-          this.map.setView([lat, lng], 14);
-          this.placeMarker(lat, lng);
-          this.reverseGeocode(lat, lng);
-          this.isLocating = false;
-        } else {
-          throw new Error('No coordinates in response');
-        }
-      })
-      .catch(err => {
-        console.error('IP geolocation failed:', err);
-        this.isLocating = false;
-        this.locationError.emit('position_unavailable');
-      });
   }
 
   private showCurrentLocationMarker(lat: number, lng: number, accuracy: number): void {
