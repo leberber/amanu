@@ -98,28 +98,56 @@
   <p-dialog
     [(visible)]="showInactiveModal"
     [modal]="true"
-    [closable]="false"
-    [closeOnEscape]="false"
+    [closable]="true"
+    [closeOnEscape]="true"
     [draggable]="false"
     [resizable]="false"
-    [style]="{width: '90vw', maxWidth: '400px'}"
+    [showHeader]="false"
+    [style]="{width: '90vw', maxWidth: '420px'}"
     styleClass="inactive-account-dialog"
   >
-    <ng-template pTemplate="header">
-      <span class="text-xl font-semibold">{{ 'auth.account_inactive_title' | translate }}</span>
-    </ng-template>
-
     <div class="inactive-modal-content">
-      <div class="inactive-icon">
-        <i class="pi pi-info-circle"></i>
+      <!-- Icon -->
+      <div class="inactive-icon-wrapper">
+        <div class="inactive-icon-bg"></div>
+        <div class="inactive-icon-circle">
+          <i class="pi pi-clock"></i>
+        </div>
       </div>
-      <p>{{ 'auth.account_inactive' | translate }}</p>
-    </div>
 
-    <ng-template pTemplate="footer">
-      <button class="fancy-btn secondary" (click)="showInactiveModal = false; router.navigate(['/'])">
+      <!-- Title & Message -->
+      <h2>{{ 'auth.account_inactive_title' | translate }}</h2>
+      <p class="inactive-message">{{ 'auth.account_pending_review' | translate }}</p>
+
+      <!-- Contact Section -->
+      <div class="contact-section">
+        <p class="contact-label">{{ 'auth.contact_us' | translate }}</p>
+        <div class="contact-cards">
+          <a href="tel:+213781091476" class="contact-card">
+            <div class="contact-icon">
+              <i class="pi pi-phone"></i>
+            </div>
+            <div class="contact-info">
+              <span class="contact-number">0781 09 14 76</span>
+              <span class="contact-action">{{ 'auth.tap_to_call' | translate }}</span>
+            </div>
+          </a>
+          <a href="tel:+213551271008" class="contact-card">
+            <div class="contact-icon">
+              <i class="pi pi-phone"></i>
+            </div>
+            <div class="contact-info">
+              <span class="contact-number">0551 27 10 08</span>
+              <span class="contact-action">{{ 'auth.tap_to_call' | translate }}</span>
+            </div>
+          </a>
+        </div>
+      </div>
+
+      <!-- Close Button -->
+      <button class="fancy-btn" (click)="showInactiveModal = false; router.navigate(['/'])">
         <span>{{ 'common.close' | translate }}</span>
       </button>
-    </ng-template>
+    </div>
   </p-dialog>
 </div>
