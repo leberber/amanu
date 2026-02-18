@@ -10,21 +10,88 @@
   </div>
 
   <div class="account-content">
-    <!-- Page Header -->
+    <!-- Page Header with User Info -->
     <div class="page-header">
       <div class="icon-wrapper">
         <div class="icon-bg"></div>
         <div class="icon-circle">
-          <i class="pi pi-user"></i>
+          {{ user?.full_name?.charAt(0)?.toUpperCase() || 'U' }}
         </div>
       </div>
-      <h1>{{ 'account.title' | translate }}</h1>
-      <p>{{ 'account.profile_description' | translate }}</p>
+      <h1>{{ user?.full_name || 'User' }}</h1>
+      <p>{{ user?.email }}</p>
     </div>
 
-    <div class="cards-grid">
-      <!-- Left Column -->
-      <div class="left-column">
+    <!-- Account Info Card -->
+    <div class="account-card info-card-wrapper">
+      <div class="info-items">
+        <!-- Role -->
+        <div class="info-strip-item">
+          <div class="strip-icon role">
+            <i class="pi pi-id-card"></i>
+          </div>
+          <div class="strip-content">
+            <span class="strip-label">{{ 'account.user_role' | translate }}</span>
+            <p-tag
+              [severity]="user?.role === 'admin' ? 'danger' : (user?.role === 'staff' ? 'warn' : 'info')"
+              [value]="'admin.users.roles.' + user?.role | translate">
+            </p-tag>
+          </div>
+        </div>
+
+        <!-- Member Since -->
+        <div class="info-strip-item">
+          <div class="strip-icon date">
+            <i class="pi pi-calendar"></i>
+          </div>
+          <div class="strip-content">
+            <span class="strip-label">{{ 'account.member_since' | translate }}</span>
+            <span class="strip-value">{{ formatDate(user?.created_at) }}</span>
+          </div>
+        </div>
+
+        <!-- Account Status -->
+        <div class="info-strip-item">
+          <div class="strip-icon status">
+            <i class="pi pi-check-circle"></i>
+          </div>
+          <div class="strip-content">
+            <span class="strip-label">{{ 'account.account_status' | translate }}</span>
+            <p-tag
+              [severity]="user?.is_active ? 'success' : 'danger'"
+              [value]="user?.is_active ? ('account.active' | translate) : ('account.inactive' | translate)"
+              [icon]="user?.is_active ? 'pi pi-check' : 'pi pi-times'">
+            </p-tag>
+          </div>
+        </div>
+
+        <!-- Notifications -->
+        <div class="info-strip-item">
+          <div class="strip-icon notifications">
+            <i class="pi pi-bell"></i>
+          </div>
+          <div class="strip-content">
+            <span class="strip-label">{{ 'account.notifications' | translate }}</span>
+            <span class="strip-hint">{{ 'account.notifications_hint' | translate }}</span>
+          </div>
+          <div class="strip-action">
+            <p-toggleswitch
+              [(ngModel)]="notificationsEnabled"
+              (onChange)="toggleNotifications()"
+              [disabled]="loadingNotifications">
+            </p-toggleswitch>
+          </div>
+        </div>
+      </div>
+
+      <!-- Logout Button -->
+      <button class="logout-btn" (click)="logout()">
+        <i class="pi pi-sign-out"></i>
+        <span>{{ 'common.logout' | translate }}</span>
+      </button>
+    </div>
+
+    <div class="cards-grid single-column">
         <!-- Profile Information Card -->
         <div class="account-card">
           <div class="card-header">
@@ -248,106 +315,6 @@
             </div>
           </form>
         </div>
-      </div>
-
-      <!-- Right Column - Sidebar -->
-      <div class="account-card sidebar-card">
-        <div class="card-header">
-          <div class="header-icon info">
-            <i class="pi pi-info-circle"></i>
-          </div>
-          <div class="header-text">
-            <h2>{{ 'account.account_info' | translate }}</h2>
-          </div>
-        </div>
-
-        <!-- User Avatar Section -->
-        <div class="user-avatar-section">
-          <div class="avatar-circle">
-            {{ user?.full_name?.charAt(0)?.toUpperCase() || 'U' }}
-          </div>
-          <h3 class="user-name">{{ user?.full_name || 'User' }}</h3>
-          <p class="user-email">{{ user?.email }}</p>
-        </div>
-
-        <!-- Info Cards -->
-        <div class="info-cards">
-          <!-- Role -->
-          <div class="info-card">
-            <div class="info-icon role">
-              <i class="pi pi-id-card"></i>
-            </div>
-            <div class="info-content">
-              <span class="info-label">{{ 'account.user_role' | translate }}</span>
-              <p-tag
-                [severity]="user?.role === 'admin' ? 'danger' : (user?.role === 'staff' ? 'warn' : 'info')"
-                [value]="'admin.users.roles.' + user?.role | translate">
-              </p-tag>
-            </div>
-          </div>
-
-          <!-- Member Since -->
-          <div class="info-card">
-            <div class="info-icon date">
-              <i class="pi pi-calendar"></i>
-            </div>
-            <div class="info-content">
-              <span class="info-label">{{ 'account.member_since' | translate }}</span>
-              <span class="info-value">{{ formatDate(user?.created_at) }}</span>
-            </div>
-          </div>
-
-          <!-- Account Status -->
-          <div class="info-card">
-            <div class="info-icon status">
-              <i class="pi pi-check-circle"></i>
-            </div>
-            <div class="info-content">
-              <span class="info-label">{{ 'account.account_status' | translate }}</span>
-              <p-tag
-                [severity]="user?.is_active ? 'success' : 'danger'"
-                [value]="user?.is_active ? ('account.active' | translate) : ('account.inactive' | translate)"
-                [icon]="user?.is_active ? 'pi pi-check' : 'pi pi-times'">
-              </p-tag>
-            </div>
-          </div>
-
-          <!-- Notifications -->
-          <div class="info-card">
-            <div class="info-icon notifications">
-              <i class="pi pi-bell"></i>
-            </div>
-            <div class="info-content">
-              <span class="info-label">{{ 'account.notifications' | translate }}</span>
-              <small style="font-size: 0.75rem; color: var(--text-color-secondary); display: block; margin-top: 0.25rem;">
-                {{ 'account.notifications_hint' | translate }}
-              </small>
-            </div>
-            <div class="info-action">
-              <p-toggleButton
-                [(ngModel)]="notificationsEnabled"
-                (onChange)="toggleNotifications()"
-                [onLabel]="'common.on' | translate"
-                [offLabel]="'common.off' | translate"
-                [disabled]="loadingNotifications"
-                styleClass="w-5rem">
-              </p-toggleButton>
-            </div>
-          </div>
-        </div>
-
-        <!-- Quick Actions -->
-        <div class="quick-actions">
-          <button class="action-btn" routerLink="/orders">
-            <i class="pi pi-shopping-bag"></i>
-            <span>{{ 'header.orders' | translate }}</span>
-          </button>
-          <button class="action-btn danger" (click)="logout()">
-            <i class="pi pi-sign-out"></i>
-            <span>{{ 'common.logout' | translate }}</span>
-          </button>
-        </div>
-      </div>
     </div>
   </div>
 </div>

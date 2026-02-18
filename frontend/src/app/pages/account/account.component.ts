@@ -11,6 +11,7 @@ import { ToastModule } from 'primeng/toast';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import { ToggleButtonModule } from 'primeng/togglebutton';
+import { ToggleSwitch } from 'primeng/toggleswitch';
 import { MessageService } from 'primeng/api';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../services/auth.service';
@@ -39,6 +40,7 @@ import { PhoneFormatDirective } from '../../directives/phone-format.directive';
     TagModule,
     TooltipModule,
     ToggleButtonModule,
+    ToggleSwitch,
     PhoneFormatDirective
   ],
   providers: [MessageService],

@@ -1137,7 +1137,7 @@
     "password_changed_success": "تم تغيير كلمة المرور الخاصة بك بنجاح.",
     "password_change_failed": "فشل تغيير كلمة المرور",
     "notifications": "الإشعارات",
-    "notifications_hint": "تلقي العروض الترويجية والتحديثات",
+    "notifications_hint": "حالة الطلبات والعروض",
     "notifications_enabled": "تم تفعيل الإشعارات",
     "notifications_disabled": "تم تعطيل الإشعارات",
     "notifications_error": "تعذر تفعيل الإشعارات. يرجى التحقق من إعدادات المتصفح."

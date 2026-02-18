@@ -111,6 +111,9 @@ $warning-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
       align-items: center;
       justify-content: center;
       box-shadow: 0 8px 30px rgba(46, 108, 183, 0.4);
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: white;
 
       i {
         font-size: 1.75rem;
@@ -138,15 +141,138 @@ $warning-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
   50% { transform: translate(-50%, -50%) scale(1.1); opacity: 0.7; }
 }
 
+// Info Card Wrapper
+.info-card-wrapper {
+  max-width: 500px;
+  margin: 0 auto 1.5rem;
+}
+
+.info-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.info-strip-item {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 0.875rem 1rem;
+  background: var(--surface-50);
+  border-radius: 12px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: var(--surface-100);
+  }
+}
+
+.logout-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 1rem 1.5rem;
+  background: rgba(239, 68, 68, 0.08);
+  border: none;
+  border-radius: 14px;
+  color: #dc2626;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: rgba(239, 68, 68, 0.12);
+  }
+
+  i {
+    font-size: 1.1rem;
+  }
+}
+
+.strip-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  &.role {
+    background: rgba(245, 87, 108, 0.1);
+    i { color: #f5576c; }
+  }
+
+  &.date {
+    background: rgba(46, 108, 183, 0.1);
+    i { color: #2E6CB7; }
+  }
+
+  &.status {
+    background: rgba(17, 153, 142, 0.1);
+    i { color: #11998e; }
+  }
+
+  &.notifications {
+    background: rgba(255, 179, 71, 0.1);
+    i { color: #FFB347; }
+  }
+
+  i {
+    font-size: 1rem;
+  }
+}
+
+.strip-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.strip-label {
+  display: block;
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--text-color-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.25rem;
+}
+
+.strip-value {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.strip-hint {
+  font-size: 0.75rem;
+  color: var(--text-color-secondary);
+}
+
+.strip-action {
+  flex-shrink: 0;
+}
+
 // Cards Layout
 .cards-grid {
   display: grid;
   grid-template-columns: 1fr;
   gap: 1.5rem;
 
+  &.single-column {
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
   @media (min-width: 992px) {
-    grid-template-columns: 2fr 1fr;
-    align-items: start;
+    &:not(.single-column) {
+      grid-template-columns: 2fr 1fr;
+      align-items: start;
+    }
   }
 }
 
