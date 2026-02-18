@@ -12,17 +12,20 @@ export class FlyToCartService {
    * @param imageUrl Optional product image URL to show in the flying element
    */
   animate(sourceElement: HTMLElement, imageUrl?: string): void {
-    // Find the visible cart icon (desktop or mobile)
+    // Find the visible cart icon (bottom nav preferred on mobile, then desktop header)
+    const bottomNavIcon = document.querySelector('#cart-icon-bottom') as HTMLElement;
     const desktopIcon = document.querySelector('#cart-icon') as HTMLElement;
-    const mobileIcon = document.querySelector('#cart-icon-mobile') as HTMLElement;
+    const mobileHeaderIcon = document.querySelector('#cart-icon-mobile') as HTMLElement;
 
-    // Check which icon is actually visible
+    // Check which icon is actually visible - prefer bottom nav on mobile
     let cartIcon: HTMLElement | null = null;
 
-    if (desktopIcon && this.isElementVisible(desktopIcon)) {
+    if (bottomNavIcon && this.isElementVisible(bottomNavIcon)) {
+      cartIcon = bottomNavIcon;
+    } else if (desktopIcon && this.isElementVisible(desktopIcon)) {
       cartIcon = desktopIcon;
-    } else if (mobileIcon && this.isElementVisible(mobileIcon)) {
-      cartIcon = mobileIcon;
+    } else if (mobileHeaderIcon && this.isElementVisible(mobileHeaderIcon)) {
+      cartIcon = mobileHeaderIcon;
     }
 
     if (!cartIcon) {

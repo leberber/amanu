@@ -94,7 +94,7 @@ $primary-gradient: linear-gradient(135deg, #2E6CB7 0%, #0F3C82 100%);
 // Mobile sticky header
 .mobile-sticky-header {
   position: fixed;
-  top: var(--header-height, 60px);
+  top: 0;
   left: 0;
   right: 0;
   z-index: 100;
@@ -121,11 +121,11 @@ $primary-gradient: linear-gradient(135deg, #2E6CB7 0%, #0F3C82 100%);
 // Spacer for fixed mobile header
 @media screen and (max-width: 1023px) {
   .mobile-header-spacer {
-    height: 100px;
+    height: 70px;
     transition: height 0.3s ease;
 
     &.toolbar-visible {
-      height: 155px;
+      height: 125px;
     }
   }
 }

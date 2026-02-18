@@ -4,6 +4,13 @@
   font-family: var(--font-family);
 }
 
+// Hide header on mobile - use bottom navigation instead
+@media screen and (max-width: 767px) {
+  :host {
+    display: none !important;
+  }
+}
+
 // Logo styling
 .logo {
   height: 70px;

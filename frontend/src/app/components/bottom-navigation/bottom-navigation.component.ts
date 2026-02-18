@@ -7,12 +7,13 @@ import { AuthService } from '../../services/auth.service';
 import { CartService } from '../../services/cart.service';
 import { User } from '../../models/user.model';
 import { MobileAdminMenuComponent } from '../mobile-admin-menu/mobile-admin-menu.component';
+import { MobileUserMenuComponent } from '../mobile-user-menu/mobile-user-menu.component';
 
 
 @Component({
   selector: 'app-bottom-navigation',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, TranslateModule, MobileAdminMenuComponent],
+  imports: [CommonModule, RouterLink, RouterLinkActive, TranslateModule, MobileAdminMenuComponent, MobileUserMenuComponent],
   template: `
     <div class="bottom-nav" [class.hidden]="isHidden" [style.opacity]="opacity">
       <!-- Home - Temporarily removed
@@ -31,7 +32,7 @@ import { MobileAdminMenuComponent } from '../mobile-admin-menu/mobile-admin-menu
       <!-- Cart (only for customers) -->
       <a *ngIf="!isAdminOrStaff()" routerLink="/cart" routerLinkActive="active" class="cart-link">
         <div class="cart-icon">
-          <i class="pi pi-shopping-cart"></i>
+          <i id="cart-icon-bottom" class="pi pi-shopping-cart"></i>
           <span *ngIf="cartCount() > 0" class="badge">{{cartCount() > 99 ? '99+' : cartCount()}}</span>
         </div>
         <span>{{ 'common.cart' | translate }}</span>
@@ -49,21 +50,18 @@ import { MobileAdminMenuComponent } from '../mobile-admin-menu/mobile-admin-menu
         <span>{{ 'header.admin' | translate }}</span>
       </a>
       
-      <!-- Account (for logged in users including staff) -->
-      <a *ngIf="authService.isLoggedIn" routerLink="/account" routerLinkActive="active">
-        <i class="pi pi-user"></i>
-        <span>{{ translateService.currentLang === 'ar' ? 'حسابي' : ('account.title' | translate) }}</span>
-      </a>
-      
-      <!-- Login (for non-logged in users) -->
-      <a *ngIf="!authService.isLoggedIn" routerLink="/login" routerLinkActive="active">
-        <i class="pi pi-sign-in"></i>
-        <span>{{ 'common.login' | translate }}</span>
+      <!-- Menu (for all users) -->
+      <a (click)="showUserMenu()" class="menu-link">
+        <i class="pi pi-bars"></i>
+        <span>{{ 'common.menu' | translate }}</span>
       </a>
     </div>
-    
+
     <!-- Mobile Admin Menu -->
     <app-mobile-admin-menu #adminMenu></app-mobile-admin-menu>
+
+    <!-- Mobile User Menu -->
+    <app-mobile-user-menu #userMenu></app-mobile-user-menu>
   `,
   styles: [`
     .bottom-nav {
@@ -107,7 +105,8 @@ import { MobileAdminMenuComponent } from '../mobile-admin-menu/mobile-admin-menu
       color: #1a1a1a;
     }
     
-    .bottom-nav a.admin-link {
+    .bottom-nav a.admin-link,
+    .bottom-nav a.menu-link {
       cursor: pointer;
     }
     
@@ -170,6 +169,7 @@ export class BottomNavigationComponent implements OnInit, OnDestroy {
   translateService = inject(TranslateService);
   
   @ViewChild('adminMenu') adminMenu!: MobileAdminMenuComponent;
+  @ViewChild('userMenu') userMenu!: MobileUserMenuComponent;
   
   isHidden = false;
   opacity = 1;
@@ -190,6 +190,12 @@ export class BottomNavigationComponent implements OnInit, OnDestroy {
   showAdminMenu(): void {
     if (this.adminMenu) {
       this.adminMenu.show();
+    }
+  }
+
+  showUserMenu(): void {
+    if (this.userMenu) {
+      this.userMenu.show();
     }
   }
   
