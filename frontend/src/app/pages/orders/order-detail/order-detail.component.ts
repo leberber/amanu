@@ -5,15 +5,9 @@ import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { switchMap, catchError, map } from 'rxjs/operators';
 import { of, Subscription, forkJoin } from 'rxjs';
 
-import { ButtonModule } from 'primeng/button';
-import { TableModule } from 'primeng/table';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
-import { TagModule } from 'primeng/tag';
 import { TimelineModule } from 'primeng/timeline';
-import { DividerModule } from 'primeng/divider';
-import { PanelModule } from 'primeng/panel';
-import { CardModule } from 'primeng/card';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { OrderService } from '../../../services/order.service'; 
@@ -39,19 +33,14 @@ interface OrderStatus {
   imports: [
     CommonModule,
     RouterLink,
-    PanelModule,
-    ButtonModule,
-    CardModule,
-    TableModule,
     ToastModule,
-    TagModule,
     TimelineModule,
-    DividerModule,
     TranslateModule,
     BackButtonComponent
   ],
   providers: [MessageService],
-  templateUrl: './order-detail.component.html'
+  templateUrl: './order-detail.component.html',
+  styleUrl: './order-detail.component.scss'
 })
 export class OrderDetailComponent implements OnInit, OnDestroy {
   // Dependency injection
@@ -155,19 +144,19 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
     const currentLanguage = this.translationService.getCurrentLanguage();
     
     // Create observables to fetch each product with translations
-    const productObservables = currentOrder.items.map(item => 
+    const productObservables = currentOrder.items.map(item =>
       this.productService.getProduct(item.product_id).pipe(
         map(product => ({
           orderItemId: item.id,
-          translatedName: product.name, // This will be translated by the API
-          translatedDescription: product.description || ''
+          translatedName: product.name,
+          imageUrl: product.image_url || ''
         })),
         catchError(error => {
           console.error(`Error loading product ${item.product_id}:`, error);
           return of({
             orderItemId: item.id,
-            translatedName: item.product_name, // Fallback to original name
-            translatedDescription: ''
+            translatedName: item.product_name,
+            imageUrl: ''
           });
         })
       )
@@ -175,14 +164,15 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
 
     // Execute all requests in parallel
     forkJoin(productObservables).subscribe(results => {
-      // Update order items with translated names
+      // Update order items with translated names and images
       const updatedOrder = { ...currentOrder };
       updatedOrder.items = currentOrder.items!.map(item => {
-        const translation = results.find(r => r.orderItemId === item.id);
-        if (translation) {
+        const productData = results.find(r => r.orderItemId === item.id);
+        if (productData) {
           return {
             ...item,
-            product_name: translation.translatedName // Update with translated name
+            product_name: productData.translatedName,
+            product_image_url: productData.imageUrl
           };
         }
         return item;

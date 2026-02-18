@@ -14,4 +14,6 @@ export class BackButtonComponent {
   @Input() route: string = '/';
   @Input() label: string = 'actions.go_back';
   @Input() showLabel: boolean = true;
+  @Input() circular: boolean = false;
+  @Input() fixed: boolean = false;
 }

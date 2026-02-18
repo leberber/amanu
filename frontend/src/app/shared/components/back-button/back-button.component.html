@@ -1,4 +1,4 @@
-<a [routerLink]="route" class="back-btn">
+<a [routerLink]="route" class="back-btn" [class.circular]="circular" [class.fixed]="fixed">
   <i class="pi pi-arrow-left"></i>
-  <span *ngIf="showLabel">{{ label | translate }}</span>
+  <span *ngIf="showLabel && !circular">{{ label | translate }}</span>
 </a>

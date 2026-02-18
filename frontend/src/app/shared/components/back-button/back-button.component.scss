@@ -1,9 +1,11 @@
 // Back Button Component Styles
 $primary-gradient: linear-gradient(135deg, #2E6CB7 0%, #0F3C82 100%);
+$primary-dark: #0F3C82;
 
 .back-btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
   padding: 0.5rem 1rem;
   border: none;
@@ -35,6 +37,44 @@ $primary-gradient: linear-gradient(135deg, #2E6CB7 0%, #0F3C82 100%);
   &:active {
     transform: translateX(-3px) scale(0.98);
   }
+
+  // Circular variant
+  &.circular {
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    border-radius: 50%;
+    background: $primary-gradient;
+    color: white !important;
+    box-shadow: 0 4px 20px rgba(15, 60, 130, 0.4);
+
+    i {
+      font-size: 1.125rem;
+      color: white !important;
+    }
+
+    &:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 25px rgba(15, 60, 130, 0.5);
+
+      i {
+        transform: translateX(-2px);
+        color: white !important;
+      }
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
+  }
+
+  // Fixed position variant
+  &.fixed {
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    z-index: 100;
+  }
 }
 
 // Dark mode support
@@ -45,5 +85,15 @@ $primary-gradient: linear-gradient(135deg, #2E6CB7 0%, #0F3C82 100%);
   &:hover {
     background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
     color: white;
+  }
+
+  &.circular {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    color: white;
+    box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4);
+
+    &:hover {
+      box-shadow: 0 6px 25px rgba(59, 130, 246, 0.5);
+    }
   }
 }
