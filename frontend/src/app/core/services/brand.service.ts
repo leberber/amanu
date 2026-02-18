@@ -38,7 +38,7 @@ export class BrandService {
     const lang = this.translateService.currentLang || 'en';
     let params = new HttpParams().set('lang', lang);
 
-    return this.http.get<Brand>(`${this.apiUrl}/${id}`, { params });
+    return this.http.get<Brand>(`${this.apiUrl}${id}`, { params });
   }
 
   /**
@@ -52,14 +52,14 @@ export class BrandService {
    * Update brand (staff only)
    */
   updateBrand(id: number, brand: BrandUpdate): Observable<Brand> {
-    return this.http.patch<Brand>(`${this.apiUrl}/${id}`, brand);
+    return this.http.patch<Brand>(`${this.apiUrl}${id}`, brand);
   }
 
   /**
    * Delete brand (staff only)
    */
   deleteBrand(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+    return this.http.delete<void>(`${this.apiUrl}${id}`);
   }
 
   /**

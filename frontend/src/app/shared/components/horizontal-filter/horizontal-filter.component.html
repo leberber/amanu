@@ -4,12 +4,10 @@
     *ngIf="showModeToggle"
     class="filter-item mode-toggle"
     (click)="toggleMode()">
-    <div class="item-image-wrapper">
-      <div class="item-image">
-        <i [class]="getToggleIcon()"></i>
-      </div>
+    <div class="toggle-circle">
+      <i [class]="getToggleIcon()"></i>
     </div>
-    <span class="item-name toggle-label">{{ getToggleLabel() | translate }}</span>
+    <span class="toggle-label">{{ getToggleLabel() | translate }}</span>
   </div>
 
   <!-- All Option -->

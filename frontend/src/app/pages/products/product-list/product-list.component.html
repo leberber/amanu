@@ -1,9 +1,16 @@
 <!-- Product List Container -->
-<div class="pt-2 pb-6">
+<div class="products-page">
   <p-toast></p-toast>
 
+  <!-- Animated Background -->
+  <div class="bg-decoration">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
+
   <!-- Desktop Layout -->
-  <div class="hidden lg:flex w-full">
+  <div class="hidden lg:flex w-full pt-2 pb-6">
     <ng-container *ngTemplateOutlet="desktopLayout"></ng-container>
   </div>
 
@@ -32,7 +39,7 @@
 <!-- Desktop Layout Template -->
 <ng-template #desktopLayout>
   <!-- Sidebar Filter -->
-  <aside class="w-22rem m-1 shadow-1 border-round px-2 sticky top-0 h-screen overflow-y-auto">
+  <aside class="w-22rem filter-sidebar sticky top-0">
     <ng-container *ngTemplateOutlet="filtersSidebar"></ng-container>
   </aside>
 
