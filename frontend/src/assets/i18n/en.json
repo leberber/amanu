@@ -210,6 +210,10 @@
     "title": "My Cart",
     "your_items": "Your Items",
     "carton": "carton",
+    "pieces": "pcs",
+    "of": "of",
+    "article": "item",
+    "articles": "items",
     "empty": "Your cart is empty",
     "empty_message": "You haven't added any products to your cart yet",
     "shop_now": "Shop Now",
@@ -365,6 +369,7 @@
   "checkout": {
     "title": "Checkout",
     "subtitle": "Review your order and complete your purchase",
+    "delivery_note": "Delivery Note",
     "progress": {
       "title": "Form Progress",
       "subtitle": "Complete all required fields to place your order"
@@ -396,8 +401,10 @@
     "auth_required_message": "You must be logged in to checkout",
     "order_error": "Order Error",
     "order_error_default": "Failed to place order. Please try again.",
-    "view_shipping_details": "View Shipping Information",
-    "hide_shipping_details": "Hide Shipping Details",
+    "view_shipping_details": "View details",
+    "hide_shipping_details": "Hide details",
+    "back_to_cart": "Back to cart",
+    "delivery_details": "Delivery details",
     "default_name": "John Doe",
     "default_phone": "+1 (555) 123-4567",
     "default_address_line1": "123 Main Street, Apt 4B",

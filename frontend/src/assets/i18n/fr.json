@@ -207,6 +207,10 @@
     "title": "Mon Panier",
     "your_items": "Vos Articles",
     "carton": "carton",
+    "pieces": "pièces",
+    "of": "de",
+    "article": "article",
+    "articles": "articles",
     "empty": "Votre panier est vide",
     "empty_message": "Vous n'avez pas encore ajouté de produits à votre panier",
     "shop_now": "Acheter Maintenant",
@@ -362,6 +366,7 @@
   "checkout": {
     "title": "Commande",
     "subtitle": "Vérifiez votre commande et finalisez votre achat",
+    "delivery_note": "Bon de Livraison",
     "progress": {
       "title": "Progression du Formulaire",
       "subtitle": "Remplissez tous les champs requis pour passer votre commande"
@@ -393,8 +398,10 @@
     "auth_required_message": "Vous devez être connecté pour passer commande",
     "order_error": "Erreur de Commande",
     "order_error_default": "Échec de la commande. Veuillez réessayer.",
-    "view_shipping_details": "Voir les Détails de Livraison",
-    "hide_shipping_details": "Masquer les Détails de Livraison",
+    "view_shipping_details": "Voir les détails",
+    "hide_shipping_details": "Masquer les détails",
+    "back_to_cart": "Retour au panier",
+    "delivery_details": "Détails de livraison",
     "default_name": "Jean Dupont",
     "default_phone": "+33 1 23 45 67 89",
     "default_address_line1": "123 Rue de la Paix, Apt 4B",

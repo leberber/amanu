@@ -207,6 +207,10 @@
     "title": "سلتي",
     "your_items": "منتجاتك",
     "carton": "كرتون",
+    "pieces": "قطعة",
+    "of": "من",
+    "article": "منتج",
+    "articles": "منتجات",
     "empty": "سلتك فارغة",
     "empty_message": "لم تقم بإضافة أي منتجات إلى سلتك بعد",
     "shop_now": "تسوق الآن",
@@ -363,6 +367,7 @@
   "checkout": {
     "title": "إتمام الطلب",
     "subtitle": "راجع طلبك وأكمل عملية الشراء",
+    "delivery_note": "إيصال التسليم",
     "progress": {
       "title": "تقدم النموذج",
       "subtitle": "املأ جميع الحقول المطلوبة لإتمام طلبك"
@@ -394,8 +399,10 @@
     "auth_required_message": "يجب تسجيل الدخول لإتمام عملية الشراء",
     "order_error": "خطأ في الطلب",
     "order_error_default": "فشل في تقديم الطلب. يرجى المحاولة مرة أخرى.",
-    "view_shipping_details": "عرض تفاصيل الشحن",
-    "hide_shipping_details": "إخفاء تفاصيل الشحن",
+    "view_shipping_details": "عرض التفاصيل",
+    "hide_shipping_details": "إخفاء التفاصيل",
+    "back_to_cart": "العودة للسلة",
+    "delivery_details": "تفاصيل التوصيل",
     "default_name": "أحمد محمد",
     "default_phone": "+966 50 123 4567",
     "default_address_line1": "شارع الملك فهد، حي العليا",

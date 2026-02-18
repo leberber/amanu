@@ -2,7 +2,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -30,7 +30,6 @@ import { PhoneFormatDirective } from '../../directives/phone-format.directive';
     CommonModule,
     ReactiveFormsModule,
     FormsModule,
-    RouterLink,
     CardModule,
     ButtonModule,
     InputTextModule,

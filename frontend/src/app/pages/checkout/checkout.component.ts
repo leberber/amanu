@@ -53,8 +53,8 @@ import { VALIDATION } from '../../core/constants/app.constants';
     TranslateModule
   ],
   providers: [MessageService],
-  templateUrl: './checkout.component.html'
-
+  templateUrl: './checkout.component.html',
+  styleUrl: './checkout.component.scss'
 })
 export class CheckoutComponent implements OnInit, OnDestroy {
   checkoutForm!: FormGroup;
@@ -282,5 +282,17 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   // Format price using CurrencyService
   formatPrice(price: number): string {
     return this.currencyService.formatCurrency(price);
+  }
+
+  // Get carton count based on quantity config
+  getCartonCount(item: CartItem): number {
+    const baseQty = item.quantity_config?.quantities?.[0] || 10;
+    return item.quantity / baseQty;
+  }
+
+  // Format carton count with leading zeros (e.g., "03x")
+  formatCartonCount(item: CartItem): string {
+    const count = this.getCartonCount(item);
+    return count.toString().padStart(2, '0') + 'x';
   }
 }
