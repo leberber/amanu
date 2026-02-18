@@ -98,16 +98,16 @@ $primary-gradient: linear-gradient(135deg, #2E6CB7 0%, #0F3C82 100%);
 // Header layers for sliding search
 .header-layer {
   width: 100%;
-  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .filter-layer {
   opacity: 1;
-  transform: translateX(0);
+  transform: translateX(0) scale(1);
 
   &.hidden {
     opacity: 0;
-    transform: translateX(-20px);
+    transform: translateX(-30px) scale(0.95);
     pointer-events: none;
     position: absolute;
   }
@@ -127,16 +127,33 @@ $primary-gradient: linear-gradient(135deg, #2E6CB7 0%, #0F3C82 100%);
     opacity: 1;
     transform: translateX(0);
     pointer-events: auto;
+
+    .search-overlay-container {
+      animation: searchSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
   }
 }
 
-// Search overlay container
+@keyframes searchSlideIn {
+  0% {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+// Search overlay container - Glassmorphism
 .search-overlay-container {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
-  padding-top: calc(0.75rem + env(safe-area-inset-top, 0px));
+  gap: 0.875rem;
+  padding: 1rem 1rem;
+  padding-top: calc(1rem + env(safe-area-inset-top, 0px));
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 255, 0.98) 100%);
+  position: relative;
 }
 
 .search-input-wrapper {
@@ -146,113 +163,229 @@ $primary-gradient: linear-gradient(135deg, #2E6CB7 0%, #0F3C82 100%);
   align-items: center;
 }
 
+// Animated search icon
 .search-icon {
   position: absolute;
-  left: 1rem;
-  color: var(--primary-color);
-  font-size: 1rem;
+  left: 1.125rem;
+  color: #2E6CB7;
+  font-size: 1.1rem;
   pointer-events: none;
-  z-index: 1;
+  z-index: 2;
+  transition: all 0.3s ease;
 }
 
+// Fancy search input with glow effect
 .mobile-search-input {
   width: 100%;
-  padding: 0.875rem 2.75rem;
-  padding-left: 2.75rem;
-  border: 2px solid var(--primary-color);
-  border-radius: 14px;
+  padding: 1rem 3rem;
+  padding-left: 3rem;
+  border: none;
+  border-radius: 16px;
   background: white;
-  font-size: 16px; // Prevents zoom on iOS
+  font-size: 16px;
+  font-weight: 500;
   color: var(--text-color);
   outline: none;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow:
+    0 2px 8px rgba(46, 108, 183, 0.08),
+    0 0 0 2px rgba(46, 108, 183, 0.15),
+    inset 0 1px 2px rgba(255, 255, 255, 0.8);
 
   &::placeholder {
-    color: var(--text-color-secondary);
+    color: #9ca3af;
+    font-weight: 400;
   }
 
   &:focus {
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 4px rgba(46, 108, 183, 0.15);
+    box-shadow:
+      0 4px 20px rgba(46, 108, 183, 0.2),
+      0 0 0 3px rgba(46, 108, 183, 0.25),
+      inset 0 1px 2px rgba(255, 255, 255, 0.8);
+
+    ~ .search-icon {
+      color: #0F3C82;
+      transform: scale(1.1);
+    }
   }
 }
 
+// Glowing border wrapper
+.search-input-wrapper::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #2E6CB7, #0F3C82, #60a5fa, #2E6CB7);
+  background-size: 300% 300%;
+  opacity: 0;
+  z-index: 0;
+  transition: opacity 0.3s ease;
+  animation: borderGlow 4s ease infinite;
+}
+
+.search-input-wrapper:focus-within::before {
+  opacity: 1;
+}
+
+.search-input-wrapper .mobile-search-input {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes borderGlow {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+// Clear button with animation
 .clear-search-btn {
   position: absolute;
   right: 0.75rem;
-  width: 28px;
-  height: 28px;
+  width: 30px;
+  height: 30px;
   border: none;
   border-radius: 50%;
-  background: var(--surface-200);
-  color: var(--text-color-secondary);
+  background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+  color: #6b7280;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s ease;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 2;
+  animation: clearBtnPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 
   &:hover {
-    background: var(--surface-300);
-    color: var(--text-color);
-  }
-
-  i {
-    font-size: 0.75rem;
-  }
-}
-
-.close-search-btn {
-  width: 44px;
-  height: 44px;
-  border: none;
-  border-radius: 12px;
-  background: var(--surface-100);
-  color: var(--text-color);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-  flex-shrink: 0;
-
-  &:hover {
-    background: var(--surface-200);
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+    color: #dc2626;
+    transform: scale(1.1) rotate(90deg);
   }
 
   &:active {
-    transform: scale(0.95);
+    transform: scale(0.9) rotate(90deg);
   }
 
   i {
-    font-size: 1.1rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+}
+
+@keyframes clearBtnPop {
+  0% {
+    opacity: 0;
+    transform: scale(0) rotate(-90deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0);
+  }
+}
+
+// Back button with gradient hover
+.close-search-btn {
+  width: 48px;
+  height: 48px;
+  border: none;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(46, 108, 183, 0.1) 0%, rgba(15, 60, 130, 0.12) 100%);
+  color: #0F3C82;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+
+  // Gradient fill on hover
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, #2E6CB7 0%, #0F3C82 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    border-radius: 14px;
+  }
+
+  &:hover {
+    transform: translateX(-3px);
+    box-shadow: 0 4px 15px rgba(46, 108, 183, 0.25);
+
+    &::before {
+      opacity: 1;
+    }
+
+    i {
+      color: white;
+    }
+  }
+
+  &:active {
+    transform: translateX(-3px) scale(0.95);
+  }
+
+  i {
+    font-size: 1.2rem;
+    position: relative;
+    z-index: 1;
+    transition: color 0.3s ease;
   }
 }
 
 // Dark theme support for search
 :host-context(.my-app-dark) {
+  .search-overlay-container {
+    background: linear-gradient(135deg, rgba(30, 30, 35, 0.98) 0%, rgba(20, 20, 30, 0.98) 100%);
+  }
+
   .mobile-search-input {
-    background: var(--surface-card);
-    border-color: var(--primary-400);
+    background: rgba(40, 40, 50, 0.95);
+    color: #f3f4f6;
+    box-shadow:
+      0 2px 8px rgba(0, 0, 0, 0.3),
+      0 0 0 2px rgba(96, 165, 250, 0.2),
+      inset 0 1px 2px rgba(0, 0, 0, 0.2);
+
+    &::placeholder {
+      color: #9ca3af;
+    }
 
     &:focus {
-      box-shadow: 0 0 0 4px rgba(46, 108, 183, 0.25);
+      box-shadow:
+        0 4px 20px rgba(96, 165, 250, 0.2),
+        0 0 0 3px rgba(96, 165, 250, 0.3),
+        inset 0 1px 2px rgba(0, 0, 0, 0.2);
     }
   }
 
+  .search-icon {
+    color: #60a5fa;
+  }
+
+  .search-input-wrapper::before {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8, #60a5fa, #3b82f6);
+  }
+
   .clear-search-btn {
-    background: var(--surface-600);
+    background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
+    color: #9ca3af;
 
     &:hover {
-      background: var(--surface-500);
+      background: linear-gradient(135deg, #7f1d1d 0%, #991b1b 100%);
+      color: #fecaca;
     }
   }
 
   .close-search-btn {
-    background: var(--surface-700);
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(37, 99, 235, 0.18) 100%);
+    color: #60a5fa;
 
-    &:hover {
-      background: var(--surface-600);
+    &::before {
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
     }
   }
 }
@@ -308,3 +441,4 @@ $primary-gradient: linear-gradient(135deg, #2E6CB7 0%, #0F3C82 100%);
   align-items: center;
   min-height: calc(var(--page-height, 100vh) - 150px);
 }
+

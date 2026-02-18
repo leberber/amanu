@@ -101,6 +101,9 @@ export class ProductListComponent implements OnInit, OnDestroy {
   mobileSearchQuery = '';
   @ViewChild('mobileSearchInput') mobileSearchInput?: ElementRef<HTMLInputElement>;
 
+  // Minimum search characters
+  readonly minSearchChars = 3;
+
   // Subscriptions
   private languageSubscription?: Subscription;
   private searchSubscription?: Subscription;
@@ -138,15 +141,19 @@ export class ProductListComponent implements OnInit, OnDestroy {
       this.loadBrands();
     });
 
-    // Set up search debounce
+    // Set up search debounce with minimum character filter
     this.searchSubscription = this.searchSubject.pipe(
       debounceTime(500), // Wait 500ms after user stops typing
       distinctUntilChanged() // Only emit if value is different from previous
     ).subscribe(searchQuery => {
-      this.searchQuery.set(searchQuery);
-      this.appliedSearchQuery.set(searchQuery);
-      this.filters.update(f => ({ ...f, search: searchQuery }));
-      this.loadProducts().subscribe();
+      const trimmed = searchQuery.trim();
+      // Only trigger search if query has minimum characters or is empty (to clear search)
+      if (trimmed.length >= this.minSearchChars || trimmed.length === 0) {
+        this.searchQuery.set(searchQuery);
+        this.appliedSearchQuery.set(searchQuery);
+        this.filters.update(f => ({ ...f, search: searchQuery }));
+        this.loadProducts().subscribe();
+      }
     });
 
     // Set up scroll listener for mobile header (opposite of bottom nav)

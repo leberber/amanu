@@ -128,7 +128,8 @@
     },
     "search": {
       "placeholder": "Rechercher des produits...",
-      "placeholder_mobile": "Rechercher..."
+      "placeholder_mobile": "Rechercher...",
+      "min_chars_hint": "Saisissez au moins {{count}} caractères pour rechercher"
     },
     "search_placeholder": "Rechercher des produits...",
     "sort": {

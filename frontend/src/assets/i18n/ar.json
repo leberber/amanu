@@ -128,7 +128,8 @@
     },
     "search": {
       "placeholder": "البحث عن المنتجات...",
-      "placeholder_mobile": "البحث..."
+      "placeholder_mobile": "البحث...",
+      "min_chars_hint": "أدخل {{count}} أحرف على الأقل للبحث"
     },
     "search_placeholder": "البحث عن المنتجات...",
     "sort": {
