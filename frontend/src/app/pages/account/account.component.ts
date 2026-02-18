@@ -53,6 +53,7 @@ export class AccountComponent implements OnInit {
   loadingPassword = false;
   notificationsEnabled = false;
   loadingNotifications = false;
+  focusedField = '';
   
   private fb = inject(FormBuilder);
   public authService = inject(AuthService);

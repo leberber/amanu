@@ -18,8 +18,9 @@ export class PhoneFormatDirective implements ControlValueAccessor {
 
   constructor(private el: ElementRef<HTMLInputElement>) {}
 
-  @HostListener('input', ['$event.target.value'])
-  onInput(value: string): void {
+  @HostListener('input', ['$event'])
+  onInput(event: Event): void {
+    const value = (event.target as HTMLInputElement).value;
     const formatted = this.formatPhone(value);
     this.el.nativeElement.value = formatted;
     // Store raw digits for form value

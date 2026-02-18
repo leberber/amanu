@@ -65,17 +65,18 @@
     </ng-container>
     
     <ng-template #loginButtons>
-      <p-button 
-        [label]="'common.login' | translate" 
-        icon="pi pi-sign-in"
-        styleClass="p-button-text" 
-        routerLink="/login">
-      </p-button>
-      <p-button 
-        [label]="'common.register' | translate" 
-        icon="pi pi-user-plus"
-        routerLink="/register">
-      </p-button>
+      <a routerLink="/login" class="fancy-auth-btn primary">
+        <span>{{ 'common.login' | translate }}</span>
+        <div class="btn-icon">
+          <i class="pi pi-sign-in"></i>
+        </div>
+      </a>
+      <a routerLink="/register" class="fancy-auth-btn primary">
+        <span>{{ 'common.register' | translate }}</span>
+        <div class="btn-icon">
+          <i class="pi pi-arrow-right"></i>
+        </div>
+      </a>
     </ng-template>
   </div>
 </ng-template>
@@ -228,23 +229,17 @@
       <p class="text-500 mb-0">{{ 'auth.signInMessage' | translate }}</p>
     </div>
     
-    <div class="flex flex-column gap-2">
-      <button 
-        pButton 
-        [label]="'common.login' | translate"
-        icon="pi pi-sign-in"
-        class="w-full"
-        routerLink="/login"
-        (click)="closeMenu()">
-      </button>
-      <button 
-        pButton 
-        [label]="'common.register' | translate"
-        icon="pi pi-user-plus"
-        class="w-full p-button-outlined"
-        routerLink="/register"
-        (click)="closeMenu()">
-      </button>
+    <div class="flex flex-column gap-3">
+      <a routerLink="/login" class="mobile-auth-btn primary" (click)="closeMenu()">
+        <span>{{ 'common.login' | translate }}</span>
+        <div class="btn-icon">
+          <i class="pi pi-sign-in"></i>
+        </div>
+      </a>
+      <a routerLink="/register" class="mobile-auth-btn outlined" (click)="closeMenu()">
+        <i class="pi pi-user-plus"></i>
+        <span>{{ 'common.register' | translate }}</span>
+      </a>
     </div>
   </div>
 </ng-template>
