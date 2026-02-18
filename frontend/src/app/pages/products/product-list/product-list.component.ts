@@ -7,7 +7,6 @@ import { switchMap, tap, map, debounceTime, distinctUntilChanged } from 'rxjs/op
 
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
-import { DrawerModule } from 'primeng/drawer';
 import { TagModule } from 'primeng/tag';
 import { ButtonModule } from 'primeng/button';
 import { OverlayBadgeModule } from 'primeng/overlaybadge';
@@ -26,7 +25,6 @@ import { Brand } from '../../../models/brand.model';
 import { LoadingStateComponent } from '../../../shared/components/loading-state/loading-state.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { ProductCardComponent, AddToCartEvent } from '../components/product-card/product-card.component';
-import { ProductFiltersComponent } from '../components/product-filters/product-filters.component';
 import { ProductToolbarComponent, SortOption, ViewMode } from '../components/product-toolbar/product-toolbar.component';
 import { ProductQuantitySelectorComponent } from '../../../shared/components/product-quantity-selector/product-quantity-selector.component';
 import { HorizontalFilterComponent } from '../../../shared/components/horizontal-filter/horizontal-filter.component';
@@ -39,7 +37,6 @@ import { HorizontalFilterComponent } from '../../../shared/components/horizontal
     FormsModule,
     RouterLink,
     ToastModule,
-    DrawerModule,
     TagModule,
     ButtonModule,
     OverlayBadgeModule,
@@ -48,7 +45,6 @@ import { HorizontalFilterComponent } from '../../../shared/components/horizontal
     LoadingStateComponent,
     EmptyStateComponent,
     ProductCardComponent,
-    ProductFiltersComponent,
     ProductToolbarComponent,
     ProductQuantitySelectorComponent,
     HorizontalFilterComponent
@@ -81,7 +77,6 @@ export class ProductListComponent implements OnInit, OnDestroy {
   categoryBarExpanded = signal(true); // Category bar visibility
   filterMode = signal<'categories' | 'brands'>('categories'); // Toggle between categories and brands
   loading = signal(true);
-  showMobileFilters = signal(false);
   searchQuery = signal('');
   appliedSearchQuery = signal(''); // Actually applied search
   selectedSort = signal<SortOption>('name_asc'); // Always sort alphabetically
@@ -279,10 +274,6 @@ export class ProductListComponent implements OnInit, OnDestroy {
     this.categoryBarExpanded.update(v => !v);
   }
 
-  toggleMobileFilters(): void {
-    this.showMobileFilters.set(true);
-  }
-
   applyFilters(): void {
     // Update applied filters
     this.appliedCategories.set([...this.selectedCategories()]);
@@ -292,17 +283,8 @@ export class ProductListComponent implements OnInit, OnDestroy {
     this.loadProducts().subscribe();
   }
 
-  applyMobileFilters(): void {
-    this.showMobileFilters.set(false);
-    this.applyFilters();
-  }
-
   handleFiltersApplied(): void {
-    if (this.showMobileFilters()) {
-      this.applyMobileFilters();
-    } else {
-      this.applyFilters();
-    }
+    this.applyFilters();
   }
 
   onSearch(): void {
@@ -335,7 +317,6 @@ export class ProductListComponent implements OnInit, OnDestroy {
     this.appliedSearchQuery.set('');
     this.selectedSort.set('name_asc');
     this.loadProducts().subscribe();
-    this.showMobileFilters.set(false);
   }
 
   hasActiveFilters(): boolean {

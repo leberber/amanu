@@ -19,30 +19,12 @@
     <ng-container *ngTemplateOutlet="mobileLayout"></ng-container>
   </div>
 
-  <!-- Mobile Filters Drawer -->
-  <p-drawer
-    [(visible)]="showMobileFilters"
-    position="left"
-    styleClass="w-20rem p-0"
-    [modal]="true"
-    [dismissible]="true"
-    [showCloseIcon]="true">
-    <ng-template pTemplate="header">
-      <span class="font-bold text-xl">{{ 'products.filters.title' | translate }}</span>
-    </ng-template>
-    <ng-container *ngTemplateOutlet="filtersSidebar"></ng-container>
-  </p-drawer>
 </div>
 
 <!-- ===================== TEMPLATE DEFINITIONS ===================== -->
 
 <!-- Desktop Layout Template -->
 <ng-template #desktopLayout>
-  <!-- Sidebar Filter -->
-  <aside class="w-22rem filter-sidebar sticky top-0">
-    <ng-container *ngTemplateOutlet="filtersSidebar"></ng-container>
-  </aside>
-
   <!-- Main Content -->
   <main class="flex-1 flex flex-column min-w-0">
     <ng-container *ngTemplateOutlet="filterBar"></ng-container>
@@ -63,17 +45,6 @@
   <!-- Spacer for fixed header -->
   <div class="mobile-header-spacer" [class.toolbar-visible]="showMobileToolbar()"></div>
   <ng-container *ngTemplateOutlet="productsArea"></ng-container>
-</ng-template>
-
-<!-- Filters Sidebar Template -->
-<ng-template #filtersSidebar>
-  <app-product-filters
-    [categories]="categories()"
-    [selectedCategories]="selectedCategories()"
-    (categoriesChange)="onCategoriesChange($event)"
-    (filtersApplied)="handleFiltersApplied()"
-    class="h-full block">
-  </app-product-filters>
 </ng-template>
 
 <!-- Unified Filter Bar Template (Categories or Brands) -->
@@ -97,13 +68,8 @@
     <app-product-toolbar
       [(searchQuery)]="searchQuery"
       [(viewMode)]="layout"
-      [filterCount]="activeFilterCount()"
-      [filterMode]="filterMode()"
       (search)="onSearch()"
-      (searchInput)="onSearchInput($event)"
-      (mobileFiltersToggle)="toggleMobileFilters()"
-      (filtersCleared)="clearFilters()"
-      (filterModeToggle)="toggleFilterMode()">
+      (searchInput)="onSearchInput($event)">
     </app-product-toolbar>
   </div>
 </ng-template>
@@ -139,9 +105,7 @@
     <app-empty-state
       icon="pi-search"
       [title]="'products.empty.title' | translate"
-      [description]="hasActiveFilters() ? ('products.empty.filter_message' | translate) : ('products.empty.subtitle' | translate)"
-      [actionLabel]="hasActiveFilters() ? ('products.empty.clear_filters' | translate) : ''"
-      [action]="clearFilters.bind(this)">
+      [description]="'products.empty.subtitle' | translate">
     </app-empty-state>
   </div>
 </ng-template>

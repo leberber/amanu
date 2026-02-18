@@ -7,9 +7,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { SelectModule } from 'primeng/select';
-import { BadgeModule } from 'primeng/badge';
 import { TooltipModule } from 'primeng/tooltip';
-import { OverlayBadgeModule } from 'primeng/overlaybadge';
 
 export type ViewMode = 'grid' | 'list';
 export type SortOption = 'name_asc' | 'name_desc' | 'price_asc' | 'price_desc' | 'created_at_desc';
@@ -24,9 +22,7 @@ export type SortOption = 'name_asc' | 'name_desc' | 'price_asc' | 'price_desc' |
     InputTextModule,
     ButtonModule,
     SelectModule,
-    BadgeModule,
-    TooltipModule,
-    OverlayBadgeModule
+    TooltipModule
   ],
   template: `
     <!-- Toolbar Container -->
@@ -56,10 +52,6 @@ export type SortOption = 'name_asc' | 'name_desc' | 'price_asc' | 'price_desc' |
         <!-- Actions Section -->
         <div class="flex align-items-center gap-2">
           <ng-container *ngTemplateOutlet="viewToggle"></ng-container>
-          <ng-container *ngIf="filterCount > 0">
-            <div class="mx-2 h-2rem border-left-1 surface-border"></div>
-            <ng-container *ngTemplateOutlet="filterIndicator"></ng-container>
-          </ng-container>
         </div>
       </div>
     </ng-template>
@@ -69,7 +61,6 @@ export type SortOption = 'name_asc' | 'name_desc' | 'price_asc' | 'price_desc' |
       <div class="flex gap-2 align-items-center">
         <ng-container *ngTemplateOutlet="searchBar; context: { class: 'flex-1' }"></ng-container>
         <ng-container *ngTemplateOutlet="viewToggle"></ng-container>
-        <ng-container *ngTemplateOutlet="mobileFilterButton"></ng-container>
       </div>
     </ng-template>
 
@@ -121,51 +112,6 @@ export type SortOption = 'name_asc' | 'name_desc' | 'price_asc' | 'price_desc' |
       </button>
     </ng-template>
 
-    <!-- Mobile Filter Button Template -->
-    <ng-template #mobileFilterButton>
-      <ng-container *ngIf="filterCount > 0; else noFilterButton">
-        <p-overlayBadge 
-          [value]="filterCount.toString()" 
-          severity="danger">
-          <button
-            pButton
-            icon="pi pi-filter-slash"
-            class="p-button-text p-button-sm text-red-500"
-            (click)="toggleMobileFilters()"
-            [pTooltip]="'products.filters.title' | translate"
-            tooltipPosition="bottom">
-          </button>
-        </p-overlayBadge>
-      </ng-container>
-      <ng-template #noFilterButton>
-        <button
-          pButton
-          icon="pi pi-filter"
-          class="p-button-text p-button-sm"
-          (click)="toggleMobileFilters()"
-          [pTooltip]="'products.filters.title' | translate"
-          tooltipPosition="bottom">
-        </button>
-      </ng-template>
-    </ng-template>
-
-    <!-- Filter Indicator Template -->
-    <ng-template #filterIndicator>
-      <div class="flex align-items-center gap-2">
-        <span class="text-sm text-600">
-          <i class="pi pi-filter-slash text-red-500 me-1"></i>
-          {{ filterCount === 1 ? ('products.filters.active_count' | translate: {count: filterCount}) : ('products.filters.active_count_plural' | translate: {count: filterCount}) }}
-        </span>
-        <button
-          pButton
-          icon="pi pi-times"
-          class="p-button-rounded p-button-text p-button-sm p-button-danger"
-          [pTooltip]="'products.filters.clear_all' | translate"
-          tooltipPosition="bottom"
-          (click)="clearFilters()">
-        </button>
-      </div>
-    </ng-template>
   `,
   styles: [`
     :host {
@@ -330,15 +276,6 @@ export type SortOption = 'name_asc' | 'name_desc' | 'price_asc' | 'price_desc' |
       }
     }
     
-    /* Make overlay badge smaller to match cart badge */
-    ::ng-deep .p-overlaybadge .p-badge {
-      font-size: 0.7rem;
-      min-width: 1.1rem;
-      height: 1.1rem;
-      line-height: 1.1rem;
-      top: 0.25rem !important;
-      right: 0.25rem !important;
-    }
   `]
 })
 export class ProductToolbarComponent implements OnInit {
@@ -346,17 +283,12 @@ export class ProductToolbarComponent implements OnInit {
   @Input() searchQuery = '';
   @Input() sortBy: SortOption = 'name_asc';
   @Input() viewMode: ViewMode = 'grid';
-  @Input() filterCount = 0;
-  @Input() filterMode: 'categories' | 'brands' = 'categories';
 
   @Output() searchQueryChange = new EventEmitter<string>();
   @Output() sortByChange = new EventEmitter<SortOption>();
   @Output() viewModeChange = new EventEmitter<ViewMode>();
   @Output() search = new EventEmitter<void>();
   @Output() searchInput = new EventEmitter<string>();
-  @Output() mobileFiltersToggle = new EventEmitter<void>();
-  @Output() filtersCleared = new EventEmitter<void>();
-  @Output() filterModeToggle = new EventEmitter<void>();
 
   sortOptions: { label: string; value: string }[] = [];
 
@@ -396,18 +328,6 @@ export class ProductToolbarComponent implements OnInit {
   toggleViewMode(): void {
     const newMode = this.viewMode === 'grid' ? 'list' : 'grid';
     this.setViewMode(newMode);
-  }
-
-  toggleMobileFilters(): void {
-    this.mobileFiltersToggle.emit();
-  }
-
-  clearFilters(): void {
-    this.filtersCleared.emit();
-  }
-
-  toggleFilterMode(): void {
-    this.filterModeToggle.emit();
   }
 
   onSearchInputChange(event: Event): void {
