@@ -20,12 +20,13 @@ import { CurrencyService } from '../../../core/services/currency.service';
 import { UnitsService } from '../../../core/services/units.service';
 import { FlyToCartService } from '../../../core/services/fly-to-cart.service';
 import { BrandService } from '../../../core/services/brand.service';
+import { UserPreferencesService, ViewMode } from '../../../core/services/user-preferences.service';
 import { Product, Category, ProductFilter } from '../../../models/product.model';
 import { Brand } from '../../../models/brand.model';
 import { LoadingStateComponent } from '../../../shared/components/loading-state/loading-state.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { ProductCardComponent, AddToCartEvent } from '../components/product-card/product-card.component';
-import { ProductToolbarComponent, SortOption, ViewMode } from '../components/product-toolbar/product-toolbar.component';
+import { ProductToolbarComponent, SortOption } from '../components/product-toolbar/product-toolbar.component';
 import { ProductQuantitySelectorComponent } from '../../../shared/components/product-quantity-selector/product-quantity-selector.component';
 import { HorizontalFilterComponent } from '../../../shared/components/horizontal-filter/horizontal-filter.component';
 
@@ -65,6 +66,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
   protected currencyService = inject(CurrencyService);
   protected unitsService = inject(UnitsService);
   private flyToCartService = inject(FlyToCartService);
+  private preferencesService = inject(UserPreferencesService);
 
   // State signals
   products = signal<Product[]>([]);
@@ -80,7 +82,8 @@ export class ProductListComponent implements OnInit, OnDestroy {
   searchQuery = signal('');
   appliedSearchQuery = signal(''); // Actually applied search
   selectedSort = signal<SortOption>('name_asc'); // Always sort alphabetically
-  layout = signal<ViewMode>('grid');
+  // Layout is now managed by UserPreferencesService
+  layout = computed(() => this.preferencesService.productViewMode());
   filters = signal<ProductFilter>({
     active_only: true,
     sort_by: 'name',
@@ -113,7 +116,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
     effect(() => {
       const sortValue = this.selectedSort();
       if (!sortValue) return;
-      
+
       const [sortBy, sortOrder] = sortValue.split('_') as [string, string];
       this.filters.update(f => ({
         ...f,
@@ -121,27 +124,9 @@ export class ProductListComponent implements OnInit, OnDestroy {
         sort_order: sortOrder as 'asc' | 'desc'
       }));
     });
-
-    // Save layout preference
-    effect(() => {
-      const currentLayout = this.layout();
-      if (currentLayout) {
-        localStorage.setItem('product-list-layout', currentLayout);
-      }
-    });
   }
 
   ngOnInit(): void {
-    // Load saved layout preference
-    const savedLayout = localStorage.getItem('product-list-layout');
-    if (savedLayout === 'grid' || savedLayout === 'list') {
-      this.layout.set(savedLayout as ViewMode);
-    } else {
-      // Set default based on screen size if no saved preference
-      const isMobile = window.innerWidth < 768;
-      this.layout.set(isMobile ? 'list' : 'grid');
-    }
-
     // Subscribe to language changes
     this.languageSubscription = this.translationService.currentLanguage$.subscribe(() => {
       this.loadCategoriesAndProducts();
@@ -412,7 +397,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
             }
             
             if (params['layout'] && (params['layout'] === 'grid' || params['layout'] === 'list')) {
-              this.layout.set(params['layout']);
+              this.preferencesService.setProductViewMode(params['layout'] as ViewMode);
             }
             
             this.loading.set(true);

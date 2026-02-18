@@ -9,7 +9,6 @@ import { ButtonModule } from 'primeng/button';
 import { SelectModule } from 'primeng/select';
 import { TooltipModule } from 'primeng/tooltip';
 
-export type ViewMode = 'grid' | 'list';
 export type SortOption = 'name_asc' | 'name_desc' | 'price_asc' | 'price_desc' | 'created_at_desc';
 
 @Component({
@@ -45,14 +44,6 @@ export type SortOption = 'name_asc' | 'name_desc' | 'price_asc' | 'price_desc' |
       <div class="flex align-items-center gap-3">
         <!-- Search Section -->
         <ng-container *ngTemplateOutlet="searchBar; context: { class: 'flex-1 max-w-30rem' }"></ng-container>
-
-        <!-- Center Spacer -->
-        <div class="flex-1"></div>
-
-        <!-- Actions Section -->
-        <div class="flex align-items-center gap-2">
-          <ng-container *ngTemplateOutlet="viewToggle"></ng-container>
-        </div>
       </div>
     </ng-template>
 
@@ -60,7 +51,6 @@ export type SortOption = 'name_asc' | 'name_desc' | 'price_asc' | 'price_desc' |
     <ng-template #mobileToolbar>
       <div class="flex gap-2 align-items-center">
         <ng-container *ngTemplateOutlet="searchBar; context: { class: 'flex-1' }"></ng-container>
-        <ng-container *ngTemplateOutlet="viewToggle"></ng-container>
       </div>
     </ng-template>
 
@@ -97,19 +87,6 @@ export type SortOption = 'name_asc' | 'name_desc' | 'price_asc' | 'price_desc' |
           </div>
         </ng-template>
       </p-select>
-    </ng-template>
-
-    <!-- View Toggle Template -->
-    <ng-template #viewToggle>
-      <button
-        pButton
-        type="button"
-        [icon]="viewMode === 'grid' ? 'pi pi-list' : 'pi pi-th-large'"
-        class="p-button-text p-button-sm"
-        (click)="toggleViewMode()"
-        [pTooltip]="viewMode === 'grid' ? ('products.view.list' | translate) : ('products.view.grid' | translate)"
-        tooltipPosition="bottom">
-      </button>
     </ng-template>
 
   `,
@@ -219,35 +196,6 @@ export type SortOption = 'name_asc' | 'name_desc' | 'price_asc' | 'price_desc' |
       }
     }
 
-    .view-toggle-group {
-      display: flex;
-      background: var(--surface-100);
-      border-radius: 6px;
-      padding: 2px;
-      gap: 2px;
-    }
-
-    .view-toggle-group button {
-      border-radius: 4px;
-      transition: all 0.2s;
-      color: var(--text-color-secondary);
-    }
-
-    .view-toggle-group button:hover:not(.view-active) {
-      background: var(--surface-200);
-      color: var(--text-color);
-    }
-
-    .view-toggle-group button.view-active {
-      background: white;
-      color: var(--primary-color);
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-    }
-
-    .view-toggle-group button.view-active:hover {
-      background: white;
-    }
-
     @media (max-width: 768px) {
       .toolbar-container {
         padding: 0.75rem;
@@ -282,11 +230,9 @@ export class ProductToolbarComponent implements OnInit {
   private translateService = inject(TranslateService);
   @Input() searchQuery = '';
   @Input() sortBy: SortOption = 'name_asc';
-  @Input() viewMode: ViewMode = 'grid';
 
   @Output() searchQueryChange = new EventEmitter<string>();
   @Output() sortByChange = new EventEmitter<SortOption>();
-  @Output() viewModeChange = new EventEmitter<ViewMode>();
   @Output() search = new EventEmitter<void>();
   @Output() searchInput = new EventEmitter<string>();
 
@@ -318,16 +264,6 @@ export class ProductToolbarComponent implements OnInit {
 
   onSortChange(): void {
     this.sortByChange.emit(this.sortBy);
-  }
-
-  setViewMode(mode: ViewMode): void {
-    this.viewMode = mode;
-    this.viewModeChange.emit(this.viewMode);
-  }
-  
-  toggleViewMode(): void {
-    const newMode = this.viewMode === 'grid' ? 'list' : 'grid';
-    this.setViewMode(newMode);
   }
 
   onSearchInputChange(event: Event): void {

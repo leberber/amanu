@@ -1172,5 +1172,11 @@
     "box_short": "صندوق",
     "pack": "عبوة",
     "pack_short": "عبوة"
+  },
+  "settings": {
+    "title": "الإعدادات",
+    "view_mode": "عرض المنتجات",
+    "view_grid": "شبكة",
+    "view_list": "قائمة"
   }
 }

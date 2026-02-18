@@ -1181,5 +1181,11 @@
     "box_short": "carton",
     "pack": "Paquet",
     "pack_short": "paq"
+  },
+  "settings": {
+    "title": "Paramètres",
+    "view_mode": "Affichage des produits",
+    "view_grid": "Grille",
+    "view_list": "Liste"
   }
 }

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { DrawerModule } from 'primeng/drawer';
@@ -6,11 +6,22 @@ import { ButtonModule } from 'primeng/button';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../services/auth.service';
 import { LanguageSelectorComponent } from '../language-selector/language-selector.component';
+import { UserPreferencesService, ViewMode } from '../../core/services/user-preferences.service';
 
 interface NavItem {
   label: string;
   icon: string;
   routerLink: string;
+}
+
+interface SettingItem {
+  id: string;
+  label: string;
+  icon: string;
+  type: 'toggle' | 'select';
+  options?: { value: string; label: string; icon: string }[];
+  getValue: () => string;
+  onToggle?: () => void;
 }
 
 @Component({
@@ -49,19 +60,50 @@ interface NavItem {
               </div>
             </div>
 
-            <!-- Navigation Items -->
-            <div class="drawer-nav-section">
-              <a
-                *ngFor="let item of navItems"
-                [routerLink]="item.routerLink"
-                (click)="hide()"
-                class="drawer-nav-item">
-                <div class="nav-icon">
-                  <i [class]="item.icon"></i>
+            <!-- Scrollable content area -->
+            <div class="drawer-scrollable">
+              <!-- Navigation Items -->
+              <div class="drawer-nav-section">
+                <a
+                  *ngFor="let item of navItems"
+                  [routerLink]="item.routerLink"
+                  (click)="hide()"
+                  class="drawer-nav-item">
+                  <div class="nav-icon">
+                    <i [class]="item.icon"></i>
+                  </div>
+                  <span class="nav-label">{{ item.label }}</span>
+                  <i class="pi pi-chevron-right nav-arrow"></i>
+                </a>
+              </div>
+
+              <!-- Settings Section -->
+              <div class="drawer-settings-section">
+                <div class="settings-header">
+                  <i class="pi pi-sliders-h"></i>
+                  <span>{{ 'settings.title' | translate }}</span>
                 </div>
-                <span class="nav-label">{{ item.label }}</span>
-                <i class="pi pi-chevron-right nav-arrow"></i>
-              </a>
+
+                <div class="settings-list">
+                  <div *ngFor="let setting of settingItems" class="setting-item">
+                    <div class="setting-info">
+                      <i [class]="setting.icon"></i>
+                      <span>{{ setting.label }}</span>
+                    </div>
+
+                    <!-- Toggle type with options -->
+                    <div *ngIf="setting.type === 'toggle' && setting.options" class="setting-toggle">
+                      <button
+                        *ngFor="let option of setting.options"
+                        class="toggle-option"
+                        [class.active]="setting.getValue() === option.value"
+                        (click)="setting.onToggle && setting.onToggle()">
+                        <i [class]="option.icon"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <!-- User Section - Only show login buttons when not logged in -->
@@ -267,15 +309,116 @@ interface NavItem {
       }
     }
 
+    // Scrollable content area
+    .drawer-scrollable {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
     // Navigation Section
     .drawer-nav-section {
-      flex: 1;
       display: flex;
       flex-direction: column;
       gap: 0.75rem;
-      overflow-y: auto;
-      margin-bottom: 1rem;
+      margin-bottom: 1.5rem;
       padding: 0.5rem;
+    }
+
+    // Settings Section
+    .drawer-settings-section {
+      margin-bottom: 1.5rem;
+      padding: 0 0.5rem;
+    }
+
+    .settings-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 0.75rem;
+      margin-bottom: 0.75rem;
+      color: var(--text-color-secondary);
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+
+      i {
+        font-size: 0.85rem;
+      }
+    }
+
+    .settings-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .setting-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.25rem;
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 16px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+      border: 1px solid rgba(46, 108, 183, 0.08);
+    }
+
+    .setting-info {
+      display: flex;
+      align-items: center;
+      gap: 0.875rem;
+
+      i {
+        font-size: 1.1rem;
+        color: var(--primary-color);
+      }
+
+      span {
+        font-size: 0.95rem;
+        font-weight: 500;
+        color: var(--text-color);
+      }
+    }
+
+    .setting-toggle {
+      display: flex;
+      background: var(--surface-100);
+      border-radius: 10px;
+      padding: 3px;
+      gap: 2px;
+    }
+
+    .toggle-option {
+      width: 36px;
+      height: 36px;
+      border: none;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--text-color-secondary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+
+      i {
+        font-size: 1rem;
+      }
+
+      &:hover:not(.active) {
+        background: var(--surface-200);
+        color: var(--text-color);
+      }
+
+      &.active {
+        background: white;
+        color: var(--primary-color);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
     }
 
     .drawer-nav-item {
@@ -556,21 +699,68 @@ interface NavItem {
         background: rgba(30, 30, 30, 0.9);
         border-color: rgba(255, 255, 255, 0.08);
       }
+
+      .setting-item {
+        background: rgba(30, 30, 30, 0.9);
+        border-color: rgba(255, 255, 255, 0.08);
+      }
+
+      .setting-toggle {
+        background: rgba(50, 50, 50, 0.9);
+      }
+
+      .toggle-option.active {
+        background: #333;
+      }
     }
   `]
 })
 export class MobileUserMenuComponent implements OnInit {
   authService = inject(AuthService);
   private translateService = inject(TranslateService);
+  private preferencesService = inject(UserPreferencesService);
+
   visible = false;
   navItems: NavItem[] = [];
+  settingItems: SettingItem[] = [];
+
+  // Computed for reactive view mode
+  currentViewMode = computed(() => this.preferencesService.productViewMode());
 
   ngOnInit() {
     this.updateNavItems();
-    // Update nav items when language changes
+    this.updateSettingItems();
+
+    // Update items when language changes
     this.translateService.onLangChange.subscribe(() => {
       this.updateNavItems();
+      this.updateSettingItems();
     });
+  }
+
+  private updateSettingItems() {
+    this.settingItems = [
+      {
+        id: 'viewMode',
+        label: this.translateService.instant('settings.view_mode'),
+        icon: 'pi pi-eye',
+        type: 'toggle',
+        options: [
+          { value: 'list', label: this.translateService.instant('products.view.list'), icon: 'pi pi-list' },
+          { value: 'grid', label: this.translateService.instant('products.view.grid'), icon: 'pi pi-th-large' }
+        ],
+        getValue: () => this.preferencesService.productViewMode(),
+        onToggle: () => this.preferencesService.toggleProductViewMode()
+      }
+      // Add more settings here in the future:
+      // {
+      //   id: 'theme',
+      //   label: 'Theme',
+      //   icon: 'pi pi-sun',
+      //   type: 'toggle',
+      //   options: [...]
+      // }
+    ];
   }
 
   private updateNavItems() {
