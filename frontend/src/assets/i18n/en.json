@@ -209,6 +209,7 @@
   "cart": {
     "title": "My Cart",
     "your_items": "Your Items",
+    "carton": "carton",
     "empty": "Your cart is empty",
     "empty_message": "You haven't added any products to your cart yet",
     "shop_now": "Shop Now",

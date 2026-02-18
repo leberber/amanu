@@ -206,6 +206,7 @@
   "cart": {
     "title": "Mon Panier",
     "your_items": "Vos Articles",
+    "carton": "carton",
     "empty": "Votre panier est vide",
     "empty_message": "Vous n'avez pas encore ajouté de produits à votre panier",
     "shop_now": "Acheter Maintenant",

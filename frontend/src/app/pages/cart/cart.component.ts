@@ -416,6 +416,22 @@ export class CartComponent implements OnInit, OnDestroy {
     return this.currencyService.formatCurrency(price);
   }
 
+  // Get just the number part of the price
+  formatPriceNumber(price: number): string {
+    return Math.round(price).toString();
+  }
+
+  // Get the currency symbol
+  getCurrencySymbol(): string {
+    return 'DA';
+  }
+
+  // Get carton count based on quantity config
+  getCartonCount(item: CartItem): number {
+    const baseQty = item.quantity_config?.quantities?.[0] || 10;
+    return item.quantity / baseQty;
+  }
+
   // Promotion methods
   applyPromoCode(): void {
     const code = this.promoCode().trim();

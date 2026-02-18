@@ -137,19 +137,22 @@
                     </button>
                   </div>
                   <div class="item-row">
-                    <span class="item-price">{{ formatPrice(item.product_price) }}/{{ getUnitDisplay(item.product_unit) }}</span>
-                    <div class="item-quantity" style="width: 120px;">
-                      <app-product-quantity-selector
-                        [value]="productQuantities[item.id]"
-                        [stockQuantity]="item.stock_quantity"
-                        [unit]="item.product_unit"
-                        [quantityConfig]="item.quantity_config"
-                        [disabled]="isOutOfStock(item)"
-                        [dropdownOnly]="true"
-                        (valueChange)="updateItemQuantity(item.id, $event)">
-                      </app-product-quantity-selector>
+                    <span class="item-price"><strong>{{ formatPrice(item.product_price) }}</strong>/{{ getUnitDisplay(item.product_unit) }}</span>
+                    <div class="item-quantity-wrapper">
+                      <div class="item-quantity" style="width: 120px;">
+                        <app-product-quantity-selector
+                          [value]="productQuantities[item.id]"
+                          [stockQuantity]="item.stock_quantity"
+                          [unit]="item.product_unit"
+                          [quantityConfig]="item.quantity_config"
+                          [disabled]="isOutOfStock(item)"
+                          [dropdownOnly]="true"
+                          (valueChange)="updateItemQuantity(item.id, $event)">
+                        </app-product-quantity-selector>
+                      </div>
+                      <div class="unit-hint">{{ getCartonCount(item) }} {{ 'cart.carton' | translate }}</div>
                     </div>
-                    <span class="item-total">{{ formatPrice(item.product_price * item.quantity) }}</span>
+                    <span class="item-total"><strong>{{ formatPriceNumber(item.product_price * item.quantity) }}</strong><span class="currency">{{ getCurrencySymbol() }}</span></span>
                   </div>
                 </div>
               </div>
