@@ -20,6 +20,7 @@ import { User } from '../../models/user.model';
 import { DateService } from '../../core/services/date.service';
 import { FormValidationService } from '../../core/services/form-validation.service';
 import { VALIDATION } from '../../core/constants/app.constants';
+import { PhoneFormatDirective } from '../../directives/phone-format.directive';
 
 @Component({
   selector: 'app-account',
@@ -37,7 +38,8 @@ import { VALIDATION } from '../../core/constants/app.constants';
     TranslateModule,
     TagModule,
     TooltipModule,
-    ToggleButtonModule
+    ToggleButtonModule,
+    PhoneFormatDirective
   ],
   providers: [MessageService],
   templateUrl: './account.component.html',

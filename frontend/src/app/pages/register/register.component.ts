@@ -12,6 +12,7 @@ import { AuthService } from '../../services/auth.service';
 import { UserRole } from '../../models/user.model';
 import { MapPickerComponent, LocationData } from '../../shared/components/map-picker/map-picker.component';
 import { VALIDATION } from '../../core/constants/app.constants';
+import { PhoneFormatDirective } from '../../directives/phone-format.directive';
 
 @Component({
   selector: 'app-register',
@@ -24,7 +25,8 @@ import { VALIDATION } from '../../core/constants/app.constants';
     PasswordModule,
     RouterLink,
     TranslateModule,
-    MapPickerComponent
+    MapPickerComponent,
+    PhoneFormatDirective
   ],
   providers: [MessageService],
   templateUrl: './register.component.html',
