@@ -9,8 +9,8 @@
     <div class="blob blob-3"></div>
   </div>
 
-  <!-- Progress Bar Fixed at Top (hidden on map step) -->
-  <div class="progress-header" [class.hidden]="activeStep === 2">
+  <!-- Progress Bar Fixed at Top (hidden on map step or when input focused) -->
+  <div class="progress-header" [class.hidden]="activeStep === 2 || isInputFocused">
     <div class="progress-content">
       <button class="back-nav" *ngIf="activeStep > 0" (click)="prevStep()">
         <i class="pi pi-arrow-left"></i>
@@ -39,7 +39,7 @@
       <!-- Step 1: Personal Info -->
       <div class="carousel-slide">
         <div class="slide-content">
-          <div class="slide-header">
+          <div class="slide-header" [class.hidden]="isInputFocused">
             <div class="icon-wrapper">
               <div class="icon-bg"></div>
               <div class="icon-circle">
@@ -51,7 +51,7 @@
           </div>
 
           <form [formGroup]="personalInfoForm" class="slide-form">
-            <div class="fancy-field" [class.focused]="focusedField === 'full_name'" [class.filled]="personalInfoForm.get('full_name')?.value">
+            <div class="fancy-field" data-field="full_name" [class.focused]="focusedField === 'full_name'" [class.filled]="personalInfoForm.get('full_name')?.value">
               <div class="field-icon">
                 <i class="pi pi-user"></i>
               </div>
@@ -61,12 +61,12 @@
                   type="text"
                   formControlName="full_name"
                   [placeholder]="'auth.full_name_placeholder' | translate"
-                  (focus)="focusedField = 'full_name'"
-                  (blur)="focusedField = ''">
+                  (focus)="onInputFocus('full_name')"
+                  (blur)="onInputBlur()">
               </div>
             </div>
 
-            <div class="fancy-field" [class.focused]="focusedField === 'email'" [class.filled]="personalInfoForm.get('email')?.value">
+            <div class="fancy-field" data-field="email" [class.focused]="focusedField === 'email'" [class.filled]="personalInfoForm.get('email')?.value">
               <div class="field-icon">
                 <i class="pi pi-envelope"></i>
               </div>
@@ -76,12 +76,12 @@
                   type="email"
                   formControlName="email"
                   [placeholder]="'auth.email_placeholder' | translate"
-                  (focus)="focusedField = 'email'"
-                  (blur)="focusedField = ''">
+                  (focus)="onInputFocus('email')"
+                  (blur)="onInputBlur()">
               </div>
             </div>
 
-            <div class="fancy-field" [class.focused]="focusedField === 'phone'" [class.filled]="personalInfoForm.get('phone')?.value">
+            <div class="fancy-field" data-field="phone" [class.focused]="focusedField === 'phone'" [class.filled]="personalInfoForm.get('phone')?.value">
               <div class="field-icon">
                 <i class="pi pi-phone"></i>
               </div>
@@ -91,8 +91,8 @@
                   type="tel"
                   formControlName="phone"
                   [placeholder]="'auth.phone_placeholder' | translate"
-                  (focus)="focusedField = 'phone'"
-                  (blur)="focusedField = ''">
+                  (focus)="onInputFocus('phone')"
+                  (blur)="onInputBlur()">
               </div>
             </div>
           </form>
@@ -102,7 +102,7 @@
       <!-- Step 2: Password -->
       <div class="carousel-slide">
         <div class="slide-content">
-          <div class="slide-header">
+          <div class="slide-header" [class.hidden]="isInputFocused">
             <div class="icon-wrapper">
               <div class="icon-bg"></div>
               <div class="icon-circle">
@@ -114,7 +114,7 @@
           </div>
 
           <form [formGroup]="passwordForm" class="slide-form">
-            <div class="fancy-field password-field" [class.focused]="focusedField === 'password'">
+            <div class="fancy-field password-field" data-field="password" [class.focused]="focusedField === 'password'">
               <div class="field-icon">
                 <i class="pi pi-lock"></i>
               </div>
@@ -124,19 +124,15 @@
                   formControlName="password"
                   [placeholder]="'auth.password_placeholder' | translate"
                   [toggleMask]="true"
-                  [feedback]="true"
+                  [feedback]="false"
                   styleClass="fancy-password"
-                  (onFocus)="focusedField = 'password'"
-                  (onBlur)="focusedField = ''"
-                  [promptLabel]="'auth.password_prompt' | translate"
-                  [weakLabel]="'auth.password_weak' | translate"
-                  [mediumLabel]="'auth.password_medium' | translate"
-                  [strongLabel]="'auth.password_strong' | translate">
+                  (onFocus)="onInputFocus('password')"
+                  (onBlur)="onInputBlur()">
                 </p-password>
               </div>
             </div>
 
-            <div class="fancy-field password-field" [class.focused]="focusedField === 'confirmPassword'">
+            <div class="fancy-field password-field" data-field="confirmPassword" [class.focused]="focusedField === 'confirmPassword'">
               <div class="field-icon">
                 <i class="pi pi-lock"></i>
               </div>
@@ -148,8 +144,8 @@
                   [toggleMask]="true"
                   [feedback]="false"
                   styleClass="fancy-password"
-                  (onFocus)="focusedField = 'confirmPassword'"
-                  (onBlur)="focusedField = ''">
+                  (onFocus)="onInputFocus('confirmPassword')"
+                  (onBlur)="onInputBlur()">
                 </p-password>
               </div>
             </div>

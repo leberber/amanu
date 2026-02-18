@@ -1,5 +1,5 @@
 // src/app/pages/register/register.component.ts
-import { Component, inject, ViewChild } from '@angular/core';
+import { Component, inject, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
@@ -36,6 +36,7 @@ export class RegisterComponent {
   loading = false;
   activeStep = 0;
   focusedField = '';
+  isInputFocused = false;
 
   // Form groups for each step
   personalInfoForm: FormGroup;
@@ -50,6 +51,7 @@ export class RegisterComponent {
   private messageService = inject(MessageService);
   private translateService = inject(TranslateService);
   private fb = inject(FormBuilder);
+  private elementRef = inject(ElementRef);
 
   constructor() {
     // Step 1: Personal Info
@@ -275,5 +277,39 @@ export class RegisterComponent {
     const password = this.passwordForm.get('password')?.value || '';
     const confirmPassword = this.passwordForm.get('confirmPassword')?.value || '';
     return password.length > 0 && confirmPassword.length > 0 && password === confirmPassword;
+  }
+
+  // Scroll input into view when focused
+  onInputFocus(fieldName: string): void {
+    this.focusedField = fieldName;
+    this.isInputFocused = true;
+
+    // Scroll the focused input to top with offset
+    setTimeout(() => {
+      const fieldContainer = this.elementRef.nativeElement.querySelector(
+        `[data-field="${fieldName}"]`
+      ) as HTMLElement;
+      if (fieldContainer) {
+        const slideContent = fieldContainer.closest('.carousel-slide') as HTMLElement;
+        if (slideContent) {
+          // Get the field's position relative to the slide content
+          const slideRect = slideContent.getBoundingClientRect();
+          const fieldRect = fieldContainer.getBoundingClientRect();
+          const relativeTop = fieldRect.top - slideRect.top + slideContent.scrollTop;
+          // Scroll to position with 20px from top
+          slideContent.scrollTo({ top: relativeTop - 20, behavior: 'smooth' });
+        }
+      }
+    }, 300); // Delay to let keyboard open first
+  }
+
+  onInputBlur(): void {
+    this.focusedField = '';
+    // Small delay to prevent flicker when switching between inputs
+    setTimeout(() => {
+      if (!this.focusedField) {
+        this.isInputFocused = false;
+      }
+    }, 100);
   }
 }

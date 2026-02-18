@@ -179,7 +179,7 @@ export interface LocationData {
         width: 100%;
         height: 100%;
         border-radius: 50%;
-        border: 2px solid rgba(102, 126, 234, 0.4);
+        border: 2px solid rgba(46, 108, 183, 0.4);
         animation: pulseRing 2s ease-out infinite;
 
         &.delay {
@@ -191,11 +191,11 @@ export interface LocationData {
         width: 48px;
         height: 48px;
         border-radius: 50%;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #2E6CB7 0%, #0F3C82 100%);
         display: flex;
         align-items: center;
         justify-content: center;
-        box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4);
+        box-shadow: 0 4px 16px rgba(46, 108, 183, 0.4);
         transition: transform 0.3s ease;
 
         i {
@@ -391,10 +391,10 @@ export class MapPickerComponent implements AfterViewInit, OnDestroy {
   locationRequested = false;
   cardDismissed = false;
 
-  // Default center (Algeria - Algiers)
-  private defaultLat = 36.7538;
-  private defaultLng = 3.0588;
-  private defaultZoom = 12;
+  // Default center (Algeria - Bordj Bou Arréridj)
+  private defaultLat = 36.5554;
+  private defaultLng = 4.0844;
+  private defaultZoom = 15;
 
   ngAfterViewInit(): void {
     setTimeout(() => {
