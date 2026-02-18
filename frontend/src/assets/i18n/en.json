@@ -1106,7 +1106,7 @@
   "account": {
     "title": "My Account",
     "profile_information": "Profile Information",
-    "profile_description": "Update your account's profile information and email address.",
+    "profile_description": "Update your information.",
     "full_name": "Full Name",
     "full_name_placeholder": "Enter your full name",
     "full_name_required": "Full name is required",

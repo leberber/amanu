@@ -1105,7 +1105,7 @@
   "account": {
     "title": "Mon Compte",
     "profile_information": "Informations du Profil",
-    "profile_description": "Mettez à jour les informations de votre profil et votre adresse email.",
+    "profile_description": "Mettez à jour vos informations.",
     "full_name": "Nom Complet",
     "full_name_placeholder": "Entrez votre nom complet",
     "full_name_required": "Le nom complet est requis",

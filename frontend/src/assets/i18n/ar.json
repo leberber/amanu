@@ -1096,7 +1096,7 @@
   "account": {
     "title": "حسابي",
     "profile_information": "معلومات الملف الشخصي",
-    "profile_description": "قم بتحديث معلومات ملفك الشخصي وعنوان بريدك الإلكتروني.",
+    "profile_description": "قم بتحديث معلوماتك.",
     "full_name": "الاسم الكامل",
     "full_name_placeholder": "أدخل اسمك الكامل",
     "full_name_required": "الاسم الكامل مطلوب",
