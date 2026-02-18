@@ -312,4 +312,13 @@ export class RegisterComponent {
       }
     }, 100);
   }
+
+  // Focus input when clicking anywhere on the field container
+  focusField(fieldName: string): void {
+    const selector = `[data-field="${fieldName}"] input, [data-field="${fieldName}"] .p-password-input`;
+    const input = this.elementRef.nativeElement.querySelector(selector) as HTMLInputElement;
+    if (input) {
+      input.focus();
+    }
+  }
 }
