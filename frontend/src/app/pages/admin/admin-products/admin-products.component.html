@@ -1,471 +1,257 @@
 <!-- src/app/pages/admin/admin-products/admin-products.component.html -->
-<div class="h-full pt-2 px-2">
+<div class="products-page">
   <p-toast></p-toast>
   <p-confirmDialog></p-confirmDialog>
-  
-  <div class="border-1 border-100 border-round-md p-3">
-    <p-table
-      #dt
-      [value]="products"
-      [loading]="loading"
-      selectionMode="single"
-      dataKey="id"
-      [globalFilterFields]="['name', 'description', 'price', 'unit', 'stock_quantity']"
-      sortMode="multiple"
-      [scrollable]="true"
-      [scrollHeight]="'calc(100vh - 200px)'"
-      [showCurrentPageReport]="true"
-      [currentPageReportTemplate]="'admin.products.showing_products' | translate: {first: '{first}', last: '{last}', totalRecords: '{totalRecords}'}"
-    >
-      
-      <!-- Table Caption with Enhanced Controls -->
-      <ng-template pTemplate="caption">
-        <div class="grid mb-3">
-          <!-- Desktop Layout -->
-          <div class="col-12 hidden md:flex">
-            <div class="grid w-full">
-              <!-- Search Row -->
-              <div class="col-3">
-                <p-iconfield iconPosition="left" class="w-full">
-                  <p-inputicon><i class="pi pi-search"></i></p-inputicon>
-                  <input 
-                    type="text" 
-                    pInputText 
-                    [placeholder]="'admin.products.search_placeholder' | translate" 
-                    [(ngModel)]="searchQuery"
-                    (input)="onSearchInput()"
-                    class="w-full"
-                  />
-                  <p-inputicon>
-                    <i 
-                      class="pi pi-info-circle text-500 cursor-pointer ml-2" 
-                      [pTooltip]="'admin.products.search_tooltip' | translate"
-                      tooltipPosition="right"
-                      [showDelay]="300"
-                      [hideDelay]="100"
-                      style="font-size: 1rem;"
-                    ></i>
-                  </p-inputicon>
-                </p-iconfield>
-              </div>
 
-              <!-- Category Filter - Desktop -->
-              <div class="col-2">
-                <p-select
-                  [options]="categoryOptions"
-                  [(ngModel)]="selectedCategory"
-                  [placeholder]="'admin.products.filter_by_category' | translate"
-                  (onChange)="onCategoryChange()"
-                  class="w-full h-full"
-                />
-              </div>
-              
-              <!-- Clear Filters - Desktop -->
-              <div class="col-2">
-                <p-button 
-                  [label]="'admin.products.clear_filters' | translate" 
-                  icon="pi pi-filter-slash"
-                  [severity]="hasActiveFilters() ? 'warn' : 'secondary'"
-                  (click)="clearFilters()"
-                  [disabled]="!hasActiveFilters()"
-                  class="w-full h-full"
-                />
-              </div>
-              
-              <!-- Refresh Button - Desktop -->
-              <div class="col-2">
-                <p-button 
-                  icon="pi pi-refresh" 
-                  [label]="'admin.products.refresh' | translate"
-                  severity="secondary"
-                  [outlined]="true"
-                  (click)="refreshProductData()"
-                  [pTooltip]="'admin.products.refresh_tooltip' | translate"
-                  tooltipPosition="bottom"
-                  class="w-full h-full"
-                />
-              </div>
-              
-              <!-- Add Product - Desktop -->
-              <div class="col-3 flex justify-content-end">
-                <p-button 
-                  [label]="'admin.products.add_product' | translate" 
-                  icon="pi pi-plus"
-                  severity="success"
-                  (click)="createNewProduct()"
-                  class="h-full"
-                />
-              </div>
-            </div>
-          </div>
-          
-          <!-- Mobile Layout - Everything on same line -->
-          <div class="col-12 md:hidden">
-            <div class="flex gap-2 align-items-center mb-2">
-              <!-- Search - Mobile (flex-grow to take remaining space) -->
-              <div class="flex-grow-1">
-                <p-iconfield iconPosition="left" class="w-full">
-                  <p-inputicon><i class="pi pi-search"></i></p-inputicon>
-                  <input 
-                    type="text" 
-                    pInputText 
-                    [placeholder]="'admin.products.search' | translate" 
-                    [(ngModel)]="searchQuery"
-                    (input)="onSearchInput()"
-                    class="w-full"
-                  />
-                </p-iconfield>
-              </div>
-              
-              <!-- Action Icons - Mobile -->
-              <p-button 
-                icon="pi pi-filter-slash"
-                [severity]="hasActiveFilters() ? 'warn' : 'secondary'"
-                (click)="clearFilters()"
-                [disabled]="!hasActiveFilters()"
-                [pTooltip]="'admin.products.clear_filters' | translate"
-                tooltipPosition="top"
-                [rounded]="true"
-                size="small"
-              />
-              
-              <p-button 
-                icon="pi pi-refresh" 
-                severity="secondary"
-                [outlined]="true"
-                (click)="refreshProductData()"
-                [pTooltip]="'admin.products.refresh' | translate"
-                tooltipPosition="top"
-                [rounded]="true"
-                size="small"
-              />
+  <!-- Animated Background -->
+  <div class="bg-decoration">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
 
-              <p-button 
-                icon="pi pi-plus"
-                severity="success"
-                (click)="createNewProduct()"
-                [pTooltip]="'admin.products.add_product' | translate"
-                tooltipPosition="top"
-                [rounded]="true"
-                size="small"
-              />
-            </div>
-            
-            <!-- Category Filter - Mobile (separate row) -->
-            <div class="w-full">
-              <p-select
-                [options]="categoryOptions"
-                [(ngModel)]="selectedCategory"
-                [placeholder]="'admin.products.filter_by_category' | translate"
-                (onChange)="onCategoryChange()"
-                class="w-full"
-              />
-            </div>
+  <div class="page-content">
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="header-title">
+        <div class="icon-wrapper">
+          <div class="icon-bg"></div>
+          <div class="icon-circle">
+            <i class="pi pi-box"></i>
           </div>
         </div>
-      </ng-template>
+        <div class="title-text">
+          <h1>{{ 'admin.products.title' | translate }}</h1>
+          <p>{{ 'admin.products.subtitle' | translate }}</p>
+        </div>
+      </div>
+      <button class="add-btn" (click)="createNewProduct()">
+        <i class="pi pi-plus"></i>
+        <span>{{ 'admin.products.add_product' | translate }}</span>
+      </button>
+    </div>
 
-      <!-- Enhanced Header Template -->
-      <ng-template pTemplate="header">
-        <tr>
-          <!-- Product Image Column -->
-          <th style="width: 80px" class="text-center">
-            <!-- <i class="pi pi-image"></i> -->
-          </th>
-          
-          <!-- Product Name Column -->
-          <th pSortableColumn="name" style="min-width: 200px" class="p-3">
-            <div class="flex align-items-center gap-2">
-              <span>{{ 'admin.products.table.product_name' | translate }}</span>
-              <p-sortIcon [field]="'name'" />
-            </div>
-          </th>
-          
-          <!-- Category Column -->
-          <th pSortableColumn="category_id" style="min-width: 120px">
-            <div class="flex align-items-center gap-2">
-              <span>{{ 'admin.products.table.category' | translate }}</span>
-              <p-sortIcon [field]="'category_id'" />
-            </div>
-          </th>
+    <!-- Status Segmented Control -->
+    <div class="status-segment">
+      <button
+        class="segment-btn"
+        [class.active]="statusFilter === 'all'"
+        (click)="onStatusFilterChange('all')">
+        <span>{{ 'common.all' | translate }}</span>
+        <span class="count">{{ allProducts.length }}</span>
+      </button>
+      <button
+        class="segment-btn"
+        [class.active]="statusFilter === 'active'"
+        (click)="onStatusFilterChange('active')">
+        <span>{{ 'common.active' | translate }}</span>
+        <span class="count active">{{ getActiveCount() }}</span>
+      </button>
+      <button
+        class="segment-btn"
+        [class.active]="statusFilter === 'inactive'"
+        (click)="onStatusFilterChange('inactive')">
+        <span>{{ 'common.inactive' | translate }}</span>
+        <span class="count inactive">{{ getInactiveCount() }}</span>
+      </button>
+    </div>
 
-          <!-- Brand Column -->
-          <th pSortableColumn="brand_id" style="min-width: 120px">
-            <div class="flex align-items-center gap-2">
-              <span>{{ 'admin.products.table.brand' | translate }}</span>
-              <p-sortIcon [field]="'brand_id'" />
-            </div>
-          </th>
+    <!-- Filters Card -->
+    <div class="filters-card">
+      <div class="search-box">
+        <i class="pi pi-search"></i>
+        <input
+          type="text"
+          [(ngModel)]="searchQuery"
+          (input)="onSearchInput()"
+          [placeholder]="'admin.products.search_placeholder' | translate">
+        <button *ngIf="searchQuery" class="clear-search" (click)="searchQuery = ''; filterProducts()">
+          <i class="pi pi-times"></i>
+        </button>
+      </div>
+      <div class="category-filter">
+        <p-select
+          [options]="categoryOptions"
+          [(ngModel)]="selectedCategory"
+          [placeholder]="'admin.products.filter_by_category' | translate"
+          (onChange)="onCategoryChange()"
+          [style]="{'min-width': '180px'}"
+        />
+      </div>
+      <div class="filter-actions">
+        <button class="action-btn" (click)="refreshProductData()" [pTooltip]="'admin.products.refresh' | translate">
+          <i class="pi pi-refresh"></i>
+        </button>
+      </div>
+    </div>
 
-          <!-- Price Column -->
-          <th pSortableColumn="price" style="min-width: 100px" class="text-right">
-            <div class="flex align-items-center justify-content-end gap-2">
-              <span>{{ 'admin.products.table.price' | translate }}</span>
-              <p-sortIcon [field]="'price'" />
-            </div>
-          </th>
-          
-          <!-- Stock Column -->
-          <th pSortableColumn="stock_quantity" style="min-width: 120px" class="text-center">
-            <div class="flex align-items-center justify-content-center gap-2">
-              <span>{{ 'admin.products.table.stock' | translate }}</span>
-              <p-sortIcon [field]="'stock_quantity'" />
-            </div>
-          </th>
-          
-          <!-- Status Column -->
-          <th pSortableColumn="is_active" style="min-width: 100px" class="text-center">
-            <div class="flex align-items-center justify-content-center gap-2">
-              <span>{{ 'admin.products.table.status' | translate }}</span>
-              <p-sortIcon [field]="'is_active'" />
-            </div>
-          </th>
-          
-          <!-- Actions Column -->
-          <th style="width: 180px" class="text-center">
-            {{ 'admin.products.table.actions' | translate }}
-          </th>
-        </tr>
-      </ng-template>
-      
-      <!-- Enhanced Body Template -->
-      <ng-template pTemplate="body" let-product let-rowIndex="rowIndex">
-        <tr>
-          <!-- Product Image -->
-          <td class="text-center">
-            <div class="w-3rem h-3rem border-circle overflow-hidden flex align-items-center justify-content-center bg-gray-100 shadow-1">
-              <img 
-                *ngIf="product.image_url" 
-                [src]="product.image_url" 
-                [alt]="product.name"
-                class="w-full h-full object-cover border-circle"
-               
-              />
-              <i 
-                *ngIf="!product.image_url" 
-                class="pi pi-image text-gray-400 text-xl"
-              ></i>
-            </div>
-          </td>
-          
-          <!-- Product Name with Description -->
-          <td>
-            <div class="flex flex-column">
-              <span class="font-medium text-900 mb-1">{{ getProductName(product) }}</span>
-              <span 
-                *ngIf="getProductDescription(product)" 
-                class="text-600 text-sm line-height-3 white-space-nowrap overflow-hidden text-overflow-ellipsis"
-                style="max-width: 200px;"
-                [pTooltip]="getProductDescription(product)"
-                tooltipPosition="top"
-              >
-                {{ getProductDescription(product) }}
-              </span>
-              <div class="flex align-items-center gap-2 mt-1">
-                <p-tag 
-                  *ngIf="product.is_organic" 
-                  [value]="'admin.products.organic' | translate" 
-                  severity="success" 
-                  icon="pi pi-check-circle"
-                />
-              </div>
-            </div>
-          </td>
-          
-          <!-- Category -->
-          <td>
-            <p-tag
-              [value]="getCategoryName(product.category_id)"
-              severity="info"
-            />
-          </td>
+    <!-- Loading State -->
+    @if (loading) {
+      <div class="loading-container">
+        <div class="loading-card">
+          <div class="loading-spinner">
+            <i class="pi pi-spin pi-spinner"></i>
+          </div>
+          <span>{{ 'admin.products.loading' | translate }}</span>
+        </div>
+      </div>
+    } @else if (products.length === 0) {
+      <!-- Empty State -->
+      <div class="empty-state">
+        <div class="empty-icon">
+          <i class="pi pi-box"></i>
+        </div>
+        <h3>{{ hasActiveFilters() ? ('admin.products.empty.no_match' | translate) : ('admin.products.empty.no_products' | translate) }}</h3>
+        <p>{{ hasActiveFilters() ? ('admin.products.empty.try_adjusting' | translate) : ('admin.products.empty.get_started' | translate) }}</p>
+        <button *ngIf="hasActiveFilters()" class="secondary-btn" (click)="clearFilters()">
+          <i class="pi pi-filter-slash"></i>
+          <span>{{ 'admin.products.clear_filters' | translate }}</span>
+        </button>
+        <button *ngIf="!hasActiveFilters()" class="primary-btn" (click)="createNewProduct()">
+          <i class="pi pi-plus"></i>
+          <span>{{ 'admin.products.add_first_product' | translate }}</span>
+        </button>
+      </div>
+    } @else {
+      <!-- Products Table -->
+      <div class="table-card">
+        <div class="table-wrapper">
+          <table class="products-table">
+            <thead>
+              <tr>
+                <th class="col-image"></th>
+                <th class="col-name">{{ 'admin.products.table.product_name' | translate }}</th>
+                <th class="col-category">{{ 'admin.products.table.category' | translate }}</th>
+                <th class="col-brand">{{ 'admin.products.table.brand' | translate }}</th>
+                <th class="col-price">{{ 'admin.products.table.price' | translate }}</th>
+                <th class="col-stock">{{ 'admin.products.table.stock' | translate }}</th>
+                <th class="col-status">{{ 'admin.products.table.status' | translate }}</th>
+                <th class="col-actions">{{ 'admin.products.table.actions' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (product of paginatedProducts; track product.id) {
+                <tr>
+                  <!-- Product Image -->
+                  <td class="col-image">
+                    <div class="product-image">
+                      <img *ngIf="product.image_url" [src]="product.image_url" [alt]="getProductName(product)">
+                      <i *ngIf="!product.image_url" class="pi pi-image"></i>
+                    </div>
+                  </td>
 
-          <!-- Brand -->
-          <td>
-            <p-tag
-              *ngIf="product.brand_id"
-              [value]="getBrandName(product.brand_id)"
-              [style]="{ 'background-color': '#FDF2F8', 'color': '#DB2777' }"
-            />
-            <span *ngIf="!product.brand_id" class="text-500">-</span>
-          </td>
+                  <!-- Product Name -->
+                  <td class="col-name">
+                    <div class="product-info">
+                      <span class="product-name">{{ getProductName(product) }}</span>
+                      <span class="product-desc" *ngIf="getProductDescription(product)">
+                        {{ getProductDescription(product) }}
+                      </span>
+                      <div class="product-badges" *ngIf="product.is_organic">
+                        <span class="badge organic">
+                          <i class="pi pi-check-circle"></i>
+                          {{ 'admin.products.organic' | translate }}
+                        </span>
+                      </div>
+                    </div>
+                  </td>
 
-          <!-- Price -->
-          <td class="text-right">
-            <!-- Display Mode -->
-            <div *ngIf="!isEditingPrice(product.id)" class="flex flex-column align-items-end cursor-pointer" (click)="startEditPrice(product)">
-              <span class="font-semibold text-lg text-900 hover:text-primary">
-                {{ formatPrice(product.price) }}
-              </span>
-              <span class="text-600 text-sm">
-                {{ 'admin.products.per' | translate }} {{ getUnitDisplay(product.unit) }}
-              </span>
-            </div>
-            <!-- Edit Mode -->
-            <div *ngIf="isEditingPrice(product.id)" class="flex align-items-center gap-1 justify-content-end">
-              <input
-                type="number"
-                pInputText
-                [(ngModel)]="editingPrice"
-                class="w-6rem text-right p-1"
-                (keydown.enter)="savePrice(product)"
-                (keydown.escape)="cancelEditPrice()"
-                autofocus
-              />
-              <p-button
-                icon="pi pi-check"
-                severity="success"
-                size="small"
-                [rounded]="true"
-                (click)="savePrice(product)"
-              />
-              <p-button
-                icon="pi pi-times"
-                severity="secondary"
-                size="small"
-                [rounded]="true"
-                (click)="cancelEditPrice()"
-              />
-            </div>
-          </td>
-          
-          <!-- Stock -->
-          <td class="text-center">
-            <!-- Display Mode -->
-            <div *ngIf="!isEditingStock(product.id)" class="flex flex-column align-items-center cursor-pointer" (click)="startEditStock(product)">
-              <p-tag
-                [value]="getStockLabel(product.stock_quantity)"
-                [severity]="getStockSeverity(product.stock_quantity)"
-                class="mb-1"
-              />
-              <span class="text-600 text-sm hover:text-primary">
-                {{ product.stock_quantity }} {{ getUnitDisplay(product.unit) }}
-              </span>
-            </div>
-            <!-- Edit Mode -->
-            <div *ngIf="isEditingStock(product.id)" class="flex align-items-center gap-1 justify-content-center">
-              <input
-                type="number"
-                pInputText
-                [(ngModel)]="editingStock"
-                class="w-5rem text-center p-1"
-                (keydown.enter)="saveStock(product)"
-                (keydown.escape)="cancelEditStock()"
-                min="0"
-                autofocus
-              />
-              <p-button
-                icon="pi pi-check"
-                severity="success"
-                size="small"
-                [rounded]="true"
-                (click)="saveStock(product)"
-              />
-              <p-button
-                icon="pi pi-times"
-                severity="secondary"
-                size="small"
-                [rounded]="true"
-                (click)="cancelEditStock()"
-              />
-            </div>
-          </td>
-          
-          <!-- Status -->
-          <td class="text-center">
-            <p-tag 
-              [value]="product.is_active ? ('admin.products.status.active' | translate) : ('admin.products.status.inactive' | translate)" 
-              [severity]="product.is_active ? 'success' : 'danger'"
-              [icon]="product.is_active ? 'pi pi-check' : 'pi pi-times'"
-            />
-          </td>
-          
-          <!-- Actions -->
-          <td class="text-center">
-            <div class="flex justify-content-center gap-1">
-              <!-- View Button -->
-              <p-button 
-                icon="pi pi-eye" 
-                severity="info"
-                size="small"
-                [outlined]="true" 
-                [rounded]="true"
-                (click)="viewProduct(product)"
-                pTooltip="View Product"
-                tooltipPosition="top"
-              />
-              
-              <!-- Edit Button -->
-              <p-button 
-                icon="pi pi-pencil" 
-                size="small"
-                [outlined]="true" 
-                [rounded]="true"
-                (click)="editProduct(product)"
-                pTooltip="Edit Product"
-                tooltipPosition="top"
-              />
-              
-              <!-- Delete Button -->
-              <p-button 
-                icon="pi pi-trash" 
-                severity="danger"
-                size="small"
-                [outlined]="true" 
-                [rounded]="true"
-                (click)="confirmDeleteProduct(product)"
-                pTooltip="Delete Product"
-                tooltipPosition="top"
-              />
-            </div>
-          </td>
-        </tr>
-      </ng-template>
-      
-      <!-- Enhanced Empty State -->
-      <ng-template pTemplate="emptymessage">
-        <tr>
-          <td colspan="8" class="text-center p-6">
-            <div class="flex flex-column align-items-center gap-3">
-              <i class="pi pi-box text-6xl text-gray-300"></i>
-              <div>
-                <h3 class="text-xl font-medium text-gray-600 mb-2">
-                  {{ hasActiveFilters() ? ('admin.products.empty.no_match' | translate) : ('admin.products.empty.no_products' | translate) }}
-                </h3>
-                <p class="text-gray-500 mb-3">
-                  {{ hasActiveFilters() ? ('admin.products.empty.try_adjusting' | translate) : ('admin.products.empty.get_started' | translate) }}
-                </p>
-                <p-button 
-                  *ngIf="hasActiveFilters()"
-                  [label]="'admin.products.clear_filters' | translate" 
-                  icon="pi pi-filter-slash"
-                  severity="secondary"
-                  (click)="clearFilters()"
-                />
-                <p-button 
-                  *ngIf="!hasActiveFilters()"
-                  [label]="'admin.products.add_first_product' | translate" 
-                  icon="pi pi-plus"
-                  severity="success"
-                  (click)="createNewProduct()"
-                />
-              </div>
-            </div>
-          </td>
-        </tr>
-      </ng-template>
-      
-      <!-- Loading Template -->
-      <ng-template pTemplate="loadingbody">
-        <tr>
-          <td colspan="8" class="text-center p-4">
-            <div class="flex align-items-center justify-content-center gap-2">
-              <p-progressSpinner [style]="{'width': '2rem', 'height': '2rem'}" />
-              <span class="text-600">Loading products...</span>
-            </div>
-          </td>
-        </tr>
-      </ng-template>
-    </p-table>
+                  <!-- Category -->
+                  <td class="col-category">
+                    <span class="category-pill">{{ getCategoryName(product.category_id) }}</span>
+                  </td>
+
+                  <!-- Brand -->
+                  <td class="col-brand">
+                    <span class="brand-pill" *ngIf="product.brand_id">{{ getBrandName(product.brand_id) }}</span>
+                    <span class="no-brand" *ngIf="!product.brand_id">-</span>
+                  </td>
+
+                  <!-- Price -->
+                  <td class="col-price">
+                    <div *ngIf="!isEditingPrice(product.id)" class="price-display" (click)="startEditPrice(product)">
+                      <span class="price-value">{{ formatPrice(product.price) }}</span>
+                      <span class="price-unit">{{ 'admin.products.per' | translate }} {{ getUnitDisplay(product.unit) }}</span>
+                    </div>
+                    <div *ngIf="isEditingPrice(product.id)" class="price-edit">
+                      <input
+                        type="number"
+                        [(ngModel)]="editingPrice"
+                        (keydown.enter)="savePrice(product)"
+                        (keydown.escape)="cancelEditPrice()"
+                        autofocus>
+                      <button class="save-btn" (click)="savePrice(product)"><i class="pi pi-check"></i></button>
+                      <button class="cancel-btn" (click)="cancelEditPrice()"><i class="pi pi-times"></i></button>
+                    </div>
+                  </td>
+
+                  <!-- Stock -->
+                  <td class="col-stock">
+                    <div *ngIf="!isEditingStock(product.id)" class="stock-display" (click)="startEditStock(product)">
+                      <span class="stock-badge" [class]="'stock-' + getStockSeverity(product.stock_quantity)">
+                        {{ getStockLabel(product.stock_quantity) }}
+                      </span>
+                      <span class="stock-qty">{{ product.stock_quantity }} {{ getUnitDisplay(product.unit) }}</span>
+                    </div>
+                    <div *ngIf="isEditingStock(product.id)" class="stock-edit">
+                      <input
+                        type="number"
+                        [(ngModel)]="editingStock"
+                        (keydown.enter)="saveStock(product)"
+                        (keydown.escape)="cancelEditStock()"
+                        min="0"
+                        autofocus>
+                      <button class="save-btn" (click)="saveStock(product)"><i class="pi pi-check"></i></button>
+                      <button class="cancel-btn" (click)="cancelEditStock()"><i class="pi pi-times"></i></button>
+                    </div>
+                  </td>
+
+                  <!-- Status -->
+                  <td class="col-status">
+                    <span class="status-badge" [class.active]="product.is_active" [class.inactive]="!product.is_active">
+                      <i [class]="product.is_active ? 'pi pi-check' : 'pi pi-times'"></i>
+                      {{ product.is_active ? ('admin.products.status.active' | translate) : ('admin.products.status.inactive' | translate) }}
+                    </span>
+                  </td>
+
+                  <!-- Actions -->
+                  <td class="col-actions">
+                    <div class="action-buttons">
+                      <button class="view-btn" (click)="viewProduct(product)" [pTooltip]="'common.view' | translate">
+                        <i class="pi pi-eye"></i>
+                      </button>
+                      <button class="edit-btn" (click)="editProduct(product)" [pTooltip]="'common.edit' | translate">
+                        <i class="pi pi-pencil"></i>
+                      </button>
+                      <button class="delete-btn" (click)="confirmDeleteProduct(product)" [pTooltip]="'common.delete' | translate">
+                        <i class="pi pi-trash"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <div class="pagination-wrapper" *ngIf="products.length > rows">
+        <p-paginator
+          [first]="first"
+          [rows]="rows"
+          [totalRecords]="products.length"
+          [rowsPerPageOptions]="[10, 25, 50]"
+          (onPageChange)="onPageChange($event)"
+          [showCurrentPageReport]="true"
+          currentPageReportTemplate="{{ 'admin.products.showing' | translate }} {first} - {last} {{ 'admin.products.of' | translate }} {totalRecords}"
+        ></p-paginator>
+      </div>
+
+      <!-- Results Count -->
+      <div class="results-info" *ngIf="products.length <= rows">
+        <span>{{ 'admin.products.showing' | translate }} {{ products.length }} {{ 'admin.products.of' | translate }} {{ allProducts.length }} {{ 'admin.products.products' | translate }}</span>
+      </div>
+    }
   </div>
 </div>

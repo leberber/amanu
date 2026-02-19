@@ -63,23 +63,26 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './admin-products.component.html',
-  styles: [`
-    :host ::ng-deep .p-datatable-header {
-      padding-left: 0 !important;
-      padding-right: 0 !important;
-    }
-  `]
+  styleUrl: './admin-products.component.scss'
 })
 export class AdminProductsComponent implements OnInit {
   // State properties
   allProducts: Product[] = [];
   products: Product[] = [];
+  paginatedProducts: Product[] = [];
   categories: Category[] = [];
   brands: Brand[] = [];
   categoryOptions: any[] = [];
   loading = true;
   searchQuery = '';
   selectedCategory = null;
+
+  // Pagination
+  first = 0;
+  rows = 10;
+
+  // Status filter
+  statusFilter: 'all' | 'active' | 'inactive' = 'all';
 
   // Inline editing state
   editingPriceProductId: number | null = null;
@@ -116,7 +119,33 @@ export class AdminProductsComponent implements OnInit {
 
   // Public methods
   hasActiveFilters(): boolean {
-    return !!(this.searchQuery?.trim() || this.selectedCategory);
+    return !!(this.searchQuery?.trim() || this.selectedCategory || this.statusFilter !== 'all');
+  }
+
+  // Status filter methods
+  onStatusFilterChange(status: 'all' | 'active' | 'inactive') {
+    this.statusFilter = status;
+    this.first = 0;
+    this.filterProducts();
+  }
+
+  getActiveCount(): number {
+    return this.allProducts.filter(p => p.is_active).length;
+  }
+
+  getInactiveCount(): number {
+    return this.allProducts.filter(p => !p.is_active).length;
+  }
+
+  // Pagination methods
+  onPageChange(event: any) {
+    this.first = event.first;
+    this.rows = event.rows;
+    this.updatePaginatedProducts();
+  }
+
+  updatePaginatedProducts() {
+    this.paginatedProducts = this.products.slice(this.first, this.first + this.rows);
   }
 
   onSearchInput() {
@@ -136,6 +165,8 @@ export class AdminProductsComponent implements OnInit {
   clearFilters() {
     this.searchQuery = '';
     this.selectedCategory = null;
+    this.statusFilter = 'all';
+    this.first = 0;
     this.filterProducts();
   }
 
@@ -355,21 +386,22 @@ export class AdminProductsComponent implements OnInit {
 
   private loadAllProducts() {
     this.loading = true;
-    
+
     const filters: any = {
       active_only: false
     };
-    
+
     this.productService.getProducts(filters).subscribe({
       next: (products) => {
         this.allProducts = products;
         this.products = products;
+        this.updatePaginatedProducts();
         this.loading = false;
       },
       error: (error) => {
         console.error('Error loading products:', error);
         this.loading = false;
-        
+
         this.messageService.add({
           severity: 'error',
           summary: this.translateService.instant('common.error'),
@@ -379,12 +411,19 @@ export class AdminProductsComponent implements OnInit {
     });
   }
 
-  private filterProducts() {
+  filterProducts() {
     let filtered = [...this.allProducts];
+
+    // Status filter
+    if (this.statusFilter === 'active') {
+      filtered = filtered.filter(p => p.is_active);
+    } else if (this.statusFilter === 'inactive') {
+      filtered = filtered.filter(p => !p.is_active);
+    }
 
     if (this.searchQuery?.trim()) {
       const search = this.searchQuery.toLowerCase();
-      filtered = filtered.filter(product => 
+      filtered = filtered.filter(product =>
         this.getProductName(product).toLowerCase().includes(search) ||
         this.getProductDescription(product).toLowerCase().includes(search) ||
         this.getCategoryName(product.category_id).toLowerCase().includes(search)
@@ -392,12 +431,13 @@ export class AdminProductsComponent implements OnInit {
     }
 
     if (this.selectedCategory) {
-      filtered = filtered.filter(product => 
+      filtered = filtered.filter(product =>
         product.category_id === this.selectedCategory
       );
     }
 
     this.products = filtered;
+    this.updatePaginatedProducts();
   }
 
   private deleteProduct(product: Product) {
