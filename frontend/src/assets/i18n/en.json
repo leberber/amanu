@@ -895,8 +895,11 @@
         "try_adjusting": "Try adjusting your search or filters"
       },
       "form": {
+        "add_subtitle": "Create a new product for your store",
+        "edit_subtitle": "Update this product's details",
         "basic_info": "Basic Information",
         "translations": "Translations",
+        "descriptions": "Descriptions",
         "pricing_inventory": "Pricing & Inventory",
         "pricing": "Pricing",
         "inventory": "Inventory",
@@ -923,6 +926,7 @@
         "category": "Category",
         "category_required": "Category is required",
         "brand": "Brand",
+        "image": "Image",
         "image_url": "Image URL",
         "image_placeholder": "Enter product image URL",
         "is_organic": "Organic Product",
@@ -933,7 +937,8 @@
         "translation_help": "Translations are optional. If not provided, the main name/description will be used.",
         "required_field": "Required field",
         "quantity_config": "Quantity Configuration",
-        "quantity_type": "Quantity Selection Type"
+        "selection_type": "Selection Type",
+        "quantity_type": "Quantity Type"
       },
       "units": {
         "kg": "Kilogram",
@@ -1027,6 +1032,7 @@
         "french_description": "French Description",
         "arabic_description": "Arabic Description",
         "settings": "Settings",
+        "image": "Image",
         "image_url": "Image URL",
         "image_placeholder": "Enter category image URL (e.g., https://example.com/image.jpg)",
         "image_help": "Optional: Provide a URL to an image for this category",
@@ -1124,6 +1130,7 @@
         "french_description": "French Description",
         "arabic_description": "Arabic Description",
         "settings": "Settings",
+        "logo": "Logo",
         "logo_url": "Logo URL",
         "logo_placeholder": "Enter brand logo URL (e.g., https://example.com/logo.png)",
         "logo_help": "Optional: Provide a URL to a logo image for this brand",

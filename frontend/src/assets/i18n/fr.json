@@ -900,8 +900,11 @@
         "try_adjusting": "Essayez d'ajuster votre recherche ou vos filtres"
       },
       "form": {
+        "add_subtitle": "Créer un nouveau produit pour votre boutique",
+        "edit_subtitle": "Modifier les détails de ce produit",
         "basic_info": "Informations de Base",
         "translations": "Traductions",
+        "descriptions": "Descriptions",
         "pricing_inventory": "Prix et Inventaire",
         "pricing": "Prix",
         "inventory": "Inventaire",
@@ -928,6 +931,7 @@
         "category": "Catégorie",
         "category_required": "La catégorie est requise",
         "brand": "Marque",
+        "image": "Image",
         "image_url": "URL de l'Image",
         "image_placeholder": "Entrez l'URL de l'image du produit",
         "is_organic": "Produit Bio",
@@ -938,7 +942,8 @@
         "translation_help": "Les traductions sont optionnelles. Si non fournies, le nom/description principal sera utilisé.",
         "required_field": "Champ requis",
         "quantity_config": "Configuration des Quantités",
-        "quantity_type": "Type de Sélection de Quantité"
+        "selection_type": "Type de Sélection",
+        "quantity_type": "Type de Quantité"
       },
       "units": {
         "kg": "Kilogramme (Kg)",
@@ -1026,6 +1031,7 @@
         "french_description": "Description en Français",
         "arabic_description": "Description en Arabe",
         "settings": "Paramètres",
+        "image": "Image",
         "image_url": "URL de l'Image",
         "image_placeholder": "Entrez l'URL de l'image de la catégorie (ex: https://exemple.com/image.jpg)",
         "image_help": "Optionnel : Fournissez une URL vers une image pour cette catégorie",
@@ -1123,6 +1129,7 @@
         "french_description": "Description en français",
         "arabic_description": "Description en arabe",
         "settings": "Paramètres",
+        "logo": "Logo",
         "logo_url": "URL du logo",
         "logo_placeholder": "Entrez l URL du logo de la marque (ex : https://example.com/logo.png)",
         "logo_help": "Facultatif : Fournissez une URL vers une image de logo pour cette marque",

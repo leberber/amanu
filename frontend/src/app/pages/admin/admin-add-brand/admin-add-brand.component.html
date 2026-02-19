@@ -105,14 +105,24 @@
               </div>
             </div>
 
-            <!-- Settings Section -->
-            <div class="settings-section">
-              <div class="form-field">
-                <label>{{ 'admin.brands.form.logo_url' | translate }}</label>
-                <input
-                  type="url"
-                  formControlName="logo_url"
-                  [placeholder]="'admin.brands.form.logo_placeholder' | translate">
+            <!-- Logo URL -->
+            <div class="image-section">
+              <div class="section-label">
+                <i class="pi pi-image"></i>
+                <span>{{ 'admin.brands.form.logo' | translate }}</span>
+              </div>
+              <div class="image-field">
+                <div class="field-icon image">
+                  <i class="pi pi-link"></i>
+                </div>
+                <div class="field-content">
+                  <label>{{ 'admin.brands.form.logo_url' | translate }}</label>
+                  <input
+                    pInputText
+                    type="url"
+                    formControlName="logo_url"
+                    [placeholder]="'admin.brands.form.logo_placeholder' | translate">
+                </div>
               </div>
             </div>
           </div>

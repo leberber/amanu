@@ -897,8 +897,11 @@
         "try_adjusting": "حاول تعديل البحث أو الفلاتر"
       },
       "form": {
+        "add_subtitle": "إنشاء منتج جديد لمتجرك",
+        "edit_subtitle": "تعديل تفاصيل هذا المنتج",
         "basic_info": "المعلومات الأساسية",
         "translations": "الترجمات",
+        "descriptions": "الأوصاف",
         "pricing_inventory": "التسعير والمخزون",
         "pricing": "التسعير",
         "inventory": "المخزون",
@@ -925,6 +928,7 @@
         "category": "الفئة",
         "category_required": "الفئة مطلوبة",
         "brand": "العلامة التجارية",
+        "image": "الصورة",
         "image_url": "رابط الصورة",
         "image_placeholder": "أدخل رابط صورة المنتج",
         "is_organic": "منتج عضوي",
@@ -935,7 +939,8 @@
         "translation_help": "الترجمات اختيارية. إذا لم تُقدم، سيتم استخدام الاسم/الوصف الرئيسي.",
         "required_field": "حقل مطلوب",
         "quantity_config": "إعدادات الكمية",
-        "quantity_type": "نوع اختيار الكمية"
+        "selection_type": "نوع الاختيار",
+        "quantity_type": "نوع الكمية"
       },
       "units": {
         "kg": "كيلوغرام (كغ)",
@@ -1021,6 +1026,7 @@
         "french_description": "الوصف بالفرنسية",
         "arabic_description": "الوصف بالعربية",
         "settings": "الإعدادات",
+        "image": "الصورة",
         "image_url": "رابط الصورة",
         "image_placeholder": "أدخل رابط صورة الفئة (مثال: https://example.com/image.jpg)",
         "image_help": "اختياري: أدخل رابط صورة لهذه الفئة",
@@ -1118,6 +1124,7 @@
         "french_description": "الوصف بالفرنسية",
         "arabic_description": "الوصف بالعربية",
         "settings": "الإعدادات",
+        "logo": "الشعار",
         "logo_url": "رابط الشعار",
         "logo_placeholder": "أدخل رابط شعار العلامة التجارية (مثل: https://example.com/logo.png)",
         "logo_help": "اختياري: قدم رابط صورة الشعار لهذه العلامة التجارية",

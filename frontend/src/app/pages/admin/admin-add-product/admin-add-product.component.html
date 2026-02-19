@@ -106,13 +106,23 @@
             </div>
 
             <!-- Image URL -->
-            <div class="settings-section">
-              <div class="form-field">
-                <label>{{ 'admin.products.form.image_url' | translate }}</label>
-                <input
-                  type="url"
-                  formControlName="image_url"
-                  [placeholder]="'admin.products.form.image_placeholder' | translate">
+            <div class="image-section">
+              <div class="section-label">
+                <i class="pi pi-image"></i>
+                <span>{{ 'admin.products.form.image' | translate }}</span>
+              </div>
+              <div class="image-field">
+                <div class="field-icon image">
+                  <i class="pi pi-link"></i>
+                </div>
+                <div class="field-content">
+                  <label>{{ 'admin.products.form.image_url' | translate }}</label>
+                  <input
+                    pInputText
+                    type="url"
+                    formControlName="image_url"
+                    [placeholder]="'admin.products.form.image_placeholder' | translate">
+                </div>
               </div>
             </div>
           </div>
@@ -337,20 +347,31 @@
           </div>
           <div class="card-body">
             <!-- Quantity Type -->
-            <div class="standalone-field">
-              <label>{{ 'admin.products.form.quantity_type' | translate }}</label>
-              <p-select
-                formControlName="quantity_type"
-                [options]="[
-                  {label: 'None', value: 'none'},
-                  {label: 'List (Specific Quantities)', value: 'list'},
-                  {label: 'Range (Min/Max)', value: 'range'}
-                ]"
-                optionLabel="label"
-                optionValue="value"
-                (onChange)="onQuantityTypeChange($event.value)"
-                styleClass="w-full"
-              />
+            <div class="quantity-type-section">
+              <div class="section-label">
+                <i class="pi pi-sliders-h"></i>
+                <span>{{ 'admin.products.form.selection_type' | translate }}</span>
+              </div>
+              <div class="quantity-type-field">
+                <div class="field-icon quantity-type">
+                  <i class="pi pi-list"></i>
+                </div>
+                <div class="field-content">
+                  <label>{{ 'admin.products.form.quantity_type' | translate }}</label>
+                  <p-select
+                    formControlName="quantity_type"
+                    [options]="[
+                      {label: 'None', value: 'none'},
+                      {label: 'List (Specific Quantities)', value: 'list'},
+                      {label: 'Range (Min/Max)', value: 'range'}
+                    ]"
+                    optionLabel="label"
+                    optionValue="value"
+                    (onChange)="onQuantityTypeChange($event.value)"
+                    styleClass="w-full"
+                  />
+                </div>
+              </div>
             </div>
 
             <!-- List Type Configuration -->

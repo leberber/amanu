@@ -105,14 +105,24 @@
               </div>
             </div>
 
-            <!-- Settings Section -->
-            <div class="settings-section">
-              <div class="form-field">
-                <label>{{ 'admin.categories.form.image_url' | translate }}</label>
-                <input
-                  type="url"
-                  formControlName="image_url"
-                  [placeholder]="'admin.categories.form.image_placeholder' | translate">
+            <!-- Image URL -->
+            <div class="image-section">
+              <div class="section-label">
+                <i class="pi pi-image"></i>
+                <span>{{ 'admin.categories.form.image' | translate }}</span>
+              </div>
+              <div class="image-field">
+                <div class="field-icon image">
+                  <i class="pi pi-link"></i>
+                </div>
+                <div class="field-content">
+                  <label>{{ 'admin.categories.form.image_url' | translate }}</label>
+                  <input
+                    pInputText
+                    type="url"
+                    formControlName="image_url"
+                    [placeholder]="'admin.categories.form.image_placeholder' | translate">
+                </div>
               </div>
             </div>
           </div>
