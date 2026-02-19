@@ -751,6 +751,29 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
       color: var(--primary-color);
     }
   }
+
+  // Active state for current page
+  &.active {
+    background: white;
+    box-shadow: 0 6px 20px rgba(46, 108, 183, 0.12);
+    border-color: rgba(46, 108, 183, 0.2);
+
+    .nav-icon {
+      background: $primary-gradient;
+      box-shadow: 0 4px 12px rgba(46, 108, 183, 0.3);
+      i { color: white; }
+    }
+
+    .nav-label {
+      color: var(--primary-color);
+      font-weight: 700;
+    }
+
+    .nav-arrow {
+      opacity: 1;
+      color: var(--primary-color);
+    }
+  }
 }
 
 .nav-icon {

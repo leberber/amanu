@@ -58,6 +58,7 @@
       <a *ngFor="let item of items()"
          [routerLink]="item.routerLink"
          routerLinkActive="active"
+         [routerLinkActiveOptions]="{ exact: item.routerLink === '/admin' }"
          class="nav-link">
         <i [class]="item.icon"></i>
         <span>{{ item.label }}</span>
@@ -158,6 +159,8 @@
       <a
         *ngFor="let item of mobileItems()"
         [routerLink]="item.routerLink"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: item.routerLink === '/admin' }"
         (click)="closeMenu()"
         class="drawer-nav-item">
         <div class="nav-icon">

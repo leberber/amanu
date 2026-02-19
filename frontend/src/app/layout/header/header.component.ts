@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 import { Subscription } from 'rxjs';
 
 // PrimeNG imports
@@ -32,6 +32,7 @@ import { User } from '../../models/user.model';
   imports: [
     CommonModule,
     RouterLink,
+    RouterLinkActive,
     OverlayBadgeModule,
     ButtonModule,
     MenubarModule,
