@@ -25,14 +25,11 @@
           <p>{{ 'admin.categories.subtitle' | translate }}</p>
         </div>
       </div>
-      <button class="add-btn" (click)="createNewCategory()">
-        <i class="pi pi-plus"></i>
-        <span>{{ 'admin.categories.add_category' | translate }}</span>
-      </button>
     </div>
 
-    <!-- Status Segmented Control -->
-    <div class="status-segment">
+    <!-- Status Segmented Control with Add Button -->
+    <div class="segment-row">
+      <div class="status-segment">
       <button
         class="segment-btn"
         [class.active]="statusFilter === 'all'"
@@ -53,6 +50,11 @@
         (click)="onStatusFilterChange('inactive')">
         <span>{{ 'common.inactive' | translate }}</span>
         <span class="count inactive">{{ getInactiveCount() }}</span>
+      </button>
+      </div>
+      <button class="add-btn" (click)="createNewCategory()">
+        <i class="pi pi-plus"></i>
+        <span>{{ 'admin.categories.add_category' | translate }}</span>
       </button>
     </div>
 
