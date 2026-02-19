@@ -494,6 +494,97 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
   }
 }
 
+// Select/Dropdown Override - Make it blend into fancy-field
+:host ::ng-deep {
+  .fancy-field {
+    p-select,
+    .p-select,
+    .p-select-filled,
+    .p-inputwrapper {
+      width: 100%;
+      border: none !important;
+      background: transparent !important;
+      box-shadow: none !important;
+      padding: 0 !important;
+      min-height: auto !important;
+      outline: none !important;
+      border-radius: 0 !important;
+
+      &:hover,
+      &:focus,
+      &.p-focus,
+      &.p-inputwrapper-focus {
+        border: none !important;
+        box-shadow: none !important;
+        outline: none !important;
+        background: transparent !important;
+      }
+    }
+
+    .p-select-label {
+      padding: 0 !important;
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--text-color);
+      background: transparent !important;
+      border: none !important;
+
+      &.p-placeholder {
+        color: #adb3bd;
+        font-weight: 400;
+        font-size: 0.9rem;
+      }
+    }
+
+    .p-select-dropdown,
+    .p-select-trigger {
+      width: 1.5rem !important;
+      color: var(--text-color-secondary);
+      background: transparent !important;
+      padding: 0 !important;
+      border: none !important;
+    }
+
+    .p-select-clear-icon {
+      color: var(--text-color-secondary);
+    }
+  }
+}
+
+// Select overlay (dropdown panel)
+::ng-deep .p-select-overlay,
+::ng-deep .p-select-panel {
+  border-radius: 12px !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  overflow: hidden;
+  margin-top: 4px;
+
+  .p-select-items,
+  .p-select-list {
+    padding: 0.5rem;
+
+    .p-select-item,
+    .p-select-option {
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      margin-bottom: 2px;
+      font-weight: 500;
+      transition: background 0.2s ease;
+
+      &:hover {
+        background: var(--primary-50, rgba(46, 108, 183, 0.1));
+      }
+
+      &.p-select-option-selected,
+      &.p-highlight {
+        background: var(--primary-color);
+        color: white;
+      }
+    }
+  }
+}
+
 // Password Override
 :host ::ng-deep {
   .fancy-password {

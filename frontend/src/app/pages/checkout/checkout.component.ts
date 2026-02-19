@@ -2,7 +2,7 @@
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { AccordionModule } from 'primeng/accordion';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { BadgeModule } from 'primeng/badge';
@@ -39,7 +39,6 @@ import { VALIDATION } from '../../core/constants/app.constants';
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    RouterLink,
     ButtonModule,
     CardModule,
     InputTextModule,

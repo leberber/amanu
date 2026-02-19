@@ -17,7 +17,7 @@
       </button>
       <div class="progress-info">
         <div class="step-dots">
-          <span *ngFor="let step of [0,1,2,3]"
+          <span *ngFor="let step of [0,1,2,3,4]"
                 class="dot"
                 [class.active]="activeStep === step"
                 [class.completed]="activeStep > step"
@@ -198,7 +198,7 @@
                 <i class="pi pi-arrow-left"></i>
               </button>
               <div class="map-step-dots">
-                <span *ngFor="let step of [0,1,2,3]"
+                <span *ngFor="let step of [0,1,2,3,4]"
                       class="dot"
                       [class.active]="activeStep === step"
                       [class.completed]="activeStep > step"
@@ -228,7 +228,103 @@
         </div>
       </div>
 
-      <!-- Step 4: Confirmation -->
+      <!-- Step 4: Store Details -->
+      <div class="carousel-slide">
+        <div class="slide-content">
+          <div class="slide-header" [class.hidden]="isInputFocused">
+            <div class="icon-wrapper">
+              <div class="icon-bg"></div>
+              <div class="icon-circle">
+                <i class="pi pi-building"></i>
+              </div>
+            </div>
+            <h1>{{ 'register.step4_store_title' | translate }}</h1>
+            <p>{{ 'register.step4_store_subtitle' | translate }}</p>
+          </div>
+
+          <form [formGroup]="storeDetailsForm" class="slide-form">
+            <!-- Store Name (Optional) -->
+            <div class="fancy-field" data-field="store_name" [class.focused]="focusedField === 'store_name'" [class.filled]="storeDetailsForm.get('store_name')?.value" (click)="focusField('store_name')">
+              <div class="field-icon">
+                <i class="pi pi-building"></i>
+              </div>
+              <div class="field-content">
+                <label>{{ 'register.store_name' | translate }} <span class="optional">({{ 'common.optional' | translate }})</span></label>
+                <input
+                  type="text"
+                  formControlName="store_name"
+                  [placeholder]="'register.store_name_placeholder' | translate"
+                  (focus)="onInputFocus('store_name')"
+                  (blur)="onInputBlur()">
+              </div>
+            </div>
+
+            <!-- Wilaya Dropdown -->
+            <div class="fancy-field dropdown-field" data-field="wilaya" [class.focused]="focusedField === 'wilaya'" [class.filled]="storeDetailsForm.get('wilaya')?.value" (click)="focusField('wilaya')">
+              <div class="field-icon">
+                <i class="pi pi-map"></i>
+              </div>
+              <div class="field-content">
+                <label>{{ 'register.wilaya' | translate }}</label>
+                <p-select
+                  formControlName="wilaya"
+                  [options]="wilayas"
+                  optionLabel="label"
+                  optionValue="value"
+                  [placeholder]="'register.select_wilaya' | translate"
+                  [showClear]="false"
+                  (onFocus)="onInputFocus('wilaya')"
+                  (onBlur)="onInputBlur()">
+                </p-select>
+              </div>
+            </div>
+
+            <!-- Daira Dropdown -->
+            <div class="fancy-field dropdown-field" data-field="daira" [class.focused]="focusedField === 'daira'" [class.filled]="storeDetailsForm.get('daira')?.value" (click)="focusField('daira')">
+              <div class="field-icon">
+                <i class="pi pi-compass"></i>
+              </div>
+              <div class="field-content">
+                <label>{{ 'register.daira' | translate }}</label>
+                <p-select
+                  formControlName="daira"
+                  [options]="dairas"
+                  optionLabel="label"
+                  optionValue="value"
+                  [placeholder]="'register.select_daira' | translate"
+                  [showClear]="false"
+                  [disabled]="!storeDetailsForm.get('wilaya')?.value"
+                  (onFocus)="onInputFocus('daira')"
+                  (onBlur)="onInputBlur()">
+                </p-select>
+              </div>
+            </div>
+
+            <!-- Commune Dropdown -->
+            <div class="fancy-field dropdown-field" data-field="commune" [class.focused]="focusedField === 'commune'" [class.filled]="storeDetailsForm.get('commune')?.value" (click)="focusField('commune')">
+              <div class="field-icon">
+                <i class="pi pi-home"></i>
+              </div>
+              <div class="field-content">
+                <label>{{ 'register.commune' | translate }}</label>
+                <p-select
+                  formControlName="commune"
+                  [options]="communes"
+                  optionLabel="label"
+                  optionValue="value"
+                  [placeholder]="'register.select_commune' | translate"
+                  [showClear]="false"
+                  [disabled]="!storeDetailsForm.get('daira')?.value"
+                  (onFocus)="onInputFocus('commune')"
+                  (onBlur)="onInputBlur()">
+                </p-select>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Step 5: Confirmation -->
       <div class="carousel-slide">
         <div class="slide-content">
           <div class="slide-header">
@@ -239,8 +335,8 @@
               </div>
               <div class="success-ring"></div>
             </div>
-            <h1>{{ 'register.step4_title' | translate }}</h1>
-            <p>{{ 'register.step4_subtitle' | translate }}</p>
+            <h1>{{ 'register.step5_title' | translate }}</h1>
+            <p>{{ 'register.step5_subtitle' | translate }}</p>
           </div>
 
           <div class="summary-cards">
@@ -295,6 +391,19 @@
                 <i class="pi pi-pencil"></i>
               </div>
             </div>
+
+            <div class="summary-card" (click)="goToStep(3)">
+              <div class="card-icon">
+                <i class="pi pi-building"></i>
+              </div>
+              <div class="card-info">
+                <span class="card-label">{{ 'register.store_details' | translate }}</span>
+                <span class="card-value">{{ storeDetailsForm.value.commune }}, {{ storeDetailsForm.value.daira }}</span>
+              </div>
+              <div class="card-action">
+                <i class="pi pi-pencil"></i>
+              </div>
+            </div>
           </div>
 
           <div class="terms-text">
@@ -313,16 +422,16 @@
 
   <!-- Fixed Footer - Outside Carousel -->
   <div class="fixed-footer">
-    <!-- Continue button for steps 0, 1, 2 -->
-    <button *ngIf="activeStep < 3" class="fancy-btn" [disabled]="!canProceedCurrentStep" (click)="nextStep()">
+    <!-- Continue button for steps 0, 1, 2, 3 -->
+    <button *ngIf="activeStep < 4" class="fancy-btn" [disabled]="!canProceedCurrentStep" (click)="nextStep()">
       <span>{{ 'common.continue' | translate }}</span>
       <div class="btn-icon">
         <i class="pi pi-arrow-right"></i>
       </div>
     </button>
 
-    <!-- Register button for step 3 (confirmation) -->
-    <button *ngIf="activeStep === 3" class="fancy-btn submit" [disabled]="loading" (click)="onRegister()">
+    <!-- Register button for step 4 (confirmation) -->
+    <button *ngIf="activeStep === 4" class="fancy-btn submit" [disabled]="loading" (click)="onRegister()">
       <span *ngIf="!loading">{{ 'auth.register' | translate }}</span>
       <div class="btn-icon" *ngIf="!loading">
         <i class="pi pi-check"></i>

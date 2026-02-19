@@ -1,11 +1,13 @@
 // src/app/pages/register/register.component.ts
-import { Component, inject, ViewChild, ElementRef } from '@angular/core';
+import { Component, inject, ViewChild, ElementRef, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
 import { Router, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ToastModule } from 'primeng/toast';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
+import { SelectModule } from 'primeng/select';
 import { MessageService } from 'primeng/api';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../services/auth.service';
@@ -13,6 +15,24 @@ import { UserRole } from '../../models/user.model';
 import { MapPickerComponent, LocationData } from '../../shared/components/map-picker/map-picker.component';
 import { VALIDATION } from '../../core/constants/app.constants';
 import { PhoneFormatDirective } from '../../directives/phone-format.directive';
+
+// Interfaces for wilaya data
+interface Commune {
+  code: number;
+  name: string;
+}
+
+interface Daira {
+  daira_name: string;
+  daira_code: number;
+  communes: Commune[];
+}
+
+interface WilayaData {
+  wilaya: string;
+  wilaya_code: number;
+  dairas: Daira[];
+}
 
 @Component({
   selector: 'app-register',
@@ -23,6 +43,7 @@ import { PhoneFormatDirective } from '../../directives/phone-format.directive';
     ToastModule,
     InputTextModule,
     PasswordModule,
+    SelectModule,
     RouterLink,
     TranslateModule,
     MapPickerComponent,
@@ -32,7 +53,7 @@ import { PhoneFormatDirective } from '../../directives/phone-format.directive';
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss'
 })
-export class RegisterComponent {
+export class RegisterComponent implements OnInit {
   @ViewChild(MapPickerComponent) mapPicker!: MapPickerComponent;
 
   loading = false;
@@ -43,9 +64,18 @@ export class RegisterComponent {
   // Form groups for each step
   personalInfoForm: FormGroup;
   passwordForm: FormGroup;
+  storeDetailsForm: FormGroup;
 
   // Location data from map
   locationData?: LocationData;
+
+  // Wilaya data
+  wilayaDataList: WilayaData[] = [];
+  wilayas: { label: string; value: string }[] = [];
+  dairas: { label: string; value: string }[] = [];
+  communes: { label: string; value: string }[] = [];
+
+  private http = inject(HttpClient);
 
   // Services
   private authService = inject(AuthService);
@@ -68,6 +98,79 @@ export class RegisterComponent {
       password: ['', [Validators.required, Validators.minLength(VALIDATION.MIN_PASSWORD_LENGTH)]],
       confirmPassword: ['', [Validators.required]]
     }, { validators: this.passwordMatchValidator });
+
+    // Step 4: Store Details (after map)
+    this.storeDetailsForm = this.fb.group({
+      store_name: [''],
+      wilaya: ['', Validators.required],
+      daira: ['', Validators.required],
+      commune: ['', Validators.required]
+    });
+  }
+
+  ngOnInit() {
+    this.loadWilayaData();
+    this.setupFormSubscriptions();
+  }
+
+  private loadWilayaData() {
+    this.http.get<WilayaData>('assets/tizi_ouzou_wilaya_full.json').subscribe({
+      next: (data) => {
+        this.wilayaDataList = [data];
+        this.wilayas = this.wilayaDataList.map(w => ({
+          label: w.wilaya,
+          value: w.wilaya
+        }));
+      },
+      error: (err) => {
+        console.error('Failed to load wilaya data:', err);
+      }
+    });
+  }
+
+  private setupFormSubscriptions() {
+    // Listen for wilaya changes
+    this.storeDetailsForm.get('wilaya')?.valueChanges.subscribe(selectedWilaya => {
+      this.storeDetailsForm.patchValue({ daira: '', commune: '' }, { emitEvent: false });
+      this.communes = [];
+
+      const wilayaData = this.wilayaDataList.find(w => w.wilaya === selectedWilaya);
+      if (wilayaData) {
+        this.dairas = wilayaData.dairas.map(d => ({
+          label: d.daira_name,
+          value: d.daira_name
+        }));
+      } else {
+        this.dairas = [];
+      }
+    });
+
+    // Listen for daira changes
+    this.storeDetailsForm.get('daira')?.valueChanges.subscribe(selectedDaira => {
+      this.storeDetailsForm.patchValue({ commune: '' }, { emitEvent: false });
+
+      const selectedWilaya = this.storeDetailsForm.get('wilaya')?.value;
+      const wilayaData = this.wilayaDataList.find(w => w.wilaya === selectedWilaya);
+      if (wilayaData) {
+        const dairaData = wilayaData.dairas.find(d => d.daira_name === selectedDaira);
+        if (dairaData) {
+          this.communes = dairaData.communes.map(c => ({
+            label: c.name,
+            value: c.name
+          }));
+        } else {
+          this.communes = [];
+        }
+      }
+    });
+  }
+
+  onWilayaChange(event: any) {
+    // Handled by valueChanges subscription
+  }
+
+  onDairaChange(event: any) {
+    // Handled by valueChanges subscription
   }
 
   // Custom validator for password match
@@ -125,6 +228,10 @@ export class RegisterComponent {
     return !!this.locationData;
   }
 
+  canProceedStep4(): boolean {
+    return this.storeDetailsForm.valid;
+  }
+
   // Check if current step is valid
   get canProceedCurrentStep(): boolean {
     switch (this.activeStep) {
@@ -134,6 +241,8 @@ export class RegisterComponent {
         return this.canProceedStep2();
       case 2:
         return this.canProceedStep3();
+      case 3:
+        return this.canProceedStep4();
       default:
         return true;
     }
@@ -145,6 +254,7 @@ export class RegisterComponent {
     if (step === 1) return this.canProceedStep1();
     if (step === 2) return this.canProceedStep1() && this.canProceedStep2();
     if (step === 3) return this.canProceedStep1() && this.canProceedStep2() && this.canProceedStep3();
+    if (step === 4) return this.canProceedStep1() && this.canProceedStep2() && this.canProceedStep3() && this.canProceedStep4();
     return false;
   }
 
@@ -159,7 +269,7 @@ export class RegisterComponent {
 
   nextStep() {
     // Only proceed if current step is valid
-    if (this.activeStep < 3 && this.canProceedCurrentStep) {
+    if (this.activeStep < 4 && this.canProceedCurrentStep) {
       this.activeStep++;
       this.onStepChange();
     }
@@ -185,6 +295,7 @@ export class RegisterComponent {
     // Mark all fields as touched to show validation errors
     this.personalInfoForm.markAllAsTouched();
     this.passwordForm.markAllAsTouched();
+    this.storeDetailsForm.markAllAsTouched();
 
     // Check if all steps are valid
     if (!this.canProceedStep1()) {
@@ -217,6 +328,16 @@ export class RegisterComponent {
       return;
     }
 
+    if (!this.canProceedStep4()) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: this.translateService.instant('common.warning'),
+        detail: this.translateService.instant('register.complete_store_details')
+      });
+      this.goToStep(3);
+      return;
+    }
+
     this.loading = true;
 
     const registerData = {
@@ -227,6 +348,10 @@ export class RegisterComponent {
       address: this.locationData?.address || '',
       latitude: this.locationData?.latitude,
       longitude: this.locationData?.longitude,
+      store_name: this.storeDetailsForm.value.store_name || null,
+      wilaya: this.storeDetailsForm.value.wilaya,
+      daira: this.storeDetailsForm.value.daira,
+      commune: this.storeDetailsForm.value.commune,
       role: UserRole.CUSTOMER
     };
 
@@ -317,10 +442,22 @@ export class RegisterComponent {
 
   // Focus input when clicking anywhere on the field container
   focusField(fieldName: string): void {
-    const selector = `[data-field="${fieldName}"] input, [data-field="${fieldName}"] .p-password-input`;
-    const input = this.elementRef.nativeElement.querySelector(selector) as HTMLInputElement;
+    // Try regular input or password input first
+    let selector = `[data-field="${fieldName}"] input, [data-field="${fieldName}"] .p-password-input`;
+    let input = this.elementRef.nativeElement.querySelector(selector) as HTMLInputElement;
     if (input) {
       input.focus();
+      return;
+    }
+
+    // Try p-select component
+    const selectElement = this.elementRef.nativeElement.querySelector(`[data-field="${fieldName}"] p-select`);
+    if (selectElement) {
+      // Click on the select to open it
+      const selectTrigger = selectElement.querySelector('.p-select, .p-select-label') as HTMLElement;
+      if (selectTrigger) {
+        selectTrigger.click();
+      }
     }
   }
 }
