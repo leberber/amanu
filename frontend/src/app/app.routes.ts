@@ -120,9 +120,14 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/admin/admin-orders/admin-orders.component').then(m => m.AdminOrdersComponent),
     canActivate: [adminGuard]
   },
-  { 
-    path: 'admin/users', 
+  {
+    path: 'admin/users',
     loadComponent: () => import('./pages/admin/admin-users/admin-users.component').then(m => m.AdminUsersComponent),
+    canActivate: [adminOnlyGuard]
+  },
+  {
+    path: 'admin/users/:id/edit',
+    loadComponent: () => import('./pages/admin/admin-edit-user/admin-edit-user.component').then(m => m.AdminEditUserComponent),
     canActivate: [adminOnlyGuard]
   },
   

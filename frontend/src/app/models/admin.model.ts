@@ -85,6 +85,12 @@ export interface DashboardStats {
     full_name: string;
     phone?: string;
     address?: string;
+    latitude?: number;
+    longitude?: number;
+    store_name?: string;
+    wilaya?: string;
+    daira?: string;
+    commune?: string;
     role: string;
     is_active: boolean;
     created_at: string;

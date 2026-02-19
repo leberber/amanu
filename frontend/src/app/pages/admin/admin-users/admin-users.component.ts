@@ -4,32 +4,21 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 
-import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
-import { TagModule } from 'primeng/tag';
-import { PaginatorModule } from 'primeng/paginator';
-import { DialogModule } from 'primeng/dialog';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
-import { CheckboxModule } from 'primeng/checkbox';
-import { PasswordModule } from 'primeng/password';
 import { SelectModule } from 'primeng/select';
-import { IconFieldModule } from 'primeng/iconfield';
-import { InputIconModule } from 'primeng/inputicon';
 import { TooltipModule } from 'primeng/tooltip';
-import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { AdminService } from '../../../services/admin.service';
 import { UserManage, UsersResponse } from '../../../models/admin.model';
-import { UserFormComponent, UserFormData, UserFormConfig } from '../../../shared/components/user-form/user-form.component';
 import { DateService } from '../../../core/services/date.service';
 import { SearchDebounceService } from '../../../core/services/search-debounce.service';
-import { StatusSeverityService } from '../../../core/services/status-severity.service';
+import { ROUTES } from '../../../core/constants/routes.constants';
 
 @Component({
   selector: 'app-admin-users',
@@ -37,112 +26,79 @@ import { StatusSeverityService } from '../../../core/services/status-severity.se
   imports: [
     CommonModule,
     FormsModule,
-    TableModule,
     ButtonModule,
-    CardModule,
     InputTextModule,
     ToastModule,
-    TagModule,
-    PaginatorModule,
-    DialogModule,
     ConfirmDialogModule,
     SelectModule,
-    IconFieldModule,
-    InputIconModule,
     TooltipModule,
-    ProgressSpinnerModule,
-    TranslateModule,
-    UserFormComponent
+    TranslateModule
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './admin-users.component.html',
-  styleUrl: './admin-users.component.scss',
-  styles: [`
-    :host ::ng-deep .p-datatable-header {
-      padding-left: 0 !important;
-      padding-right: 0 !important;
-    }
-  `]
+  styleUrl: './admin-users.component.scss'
 })
 export class AdminUsersComponent implements OnInit {
   // Data properties
   allUsers: UserManage[] = [];
   users: UserManage[] = [];
   totalRecords = 0;
-  
-  
+
   // UI state
   loading = true;
   searchQuery = '';
-  filterRole = '';
-  page = 1;
-  pageSize = 10;
-  
-  // Dialog state
-  selectedUser: UserManage | null = null;
-  displayUserDialog = false;
-  isEditing = false;
-  
-  // User form configuration
-  userFormConfig: UserFormConfig = {
-    mode: 'create',
-    showRoleSelection: true,
-    showActiveToggle: true,
-    showAddressField: true,
-    showPhoneField: true,
-    passwordRequired: true,
-    showCancelButton: true
-  };
-  userFormData?: Partial<UserFormData>;
-  
-  // Options
-  roleOptions: any[] = [];
-  
-  // Private properties
-  
-  // Services injected using inject()
+
+  // Role segment filter
+  roleFilter: 'all' | 'customer' | 'staff' | 'admin' = 'all';
+
+  // Inline editing state - Role
+  editingRoleUserId: number | null = null;
+  editingRole: string = '';
+
+  // Inline editing state - Status
+  editingStatusUserId: number | null = null;
+  editingStatus: boolean = true;
+
+  // Role options for dropdown
+  roleOptions: { label: string; value: string }[] = [];
+
+  // Services
   private adminService = inject(AdminService);
   private messageService = inject(MessageService);
   private router = inject(Router);
   private translateService = inject(TranslateService);
   private dateService = inject(DateService);
   private searchDebounce = inject(SearchDebounceService);
-  private statusSeverity = inject(StatusSeverityService);
   private confirmationService = inject(ConfirmationService);
 
   ngOnInit(): void {
-    this.initializeRoleOptions();
+    this.initializeOptions();
     this.loadAllUsers();
-    
-    // Update role options when language changes
+
+    // Update options when language changes
     this.translateService.onLangChange.subscribe(() => {
-      this.initializeRoleOptions();
+      this.initializeOptions();
     });
   }
-  
-  initializeRoleOptions() {
+
+  initializeOptions() {
+    // Role options for inline dropdown editing
     this.roleOptions = [
-      { label: this.translateService.instant('admin.users.filters.all_roles'), value: '' },
       { label: this.translateService.instant('admin.users.roles.customer'), value: 'customer' },
       { label: this.translateService.instant('admin.users.roles.staff'), value: 'staff' },
       { label: this.translateService.instant('admin.users.roles.admin'), value: 'admin' }
     ];
   }
 
-
   // ===== DATA LOADING =====
-  
+
   loadAllUsers(): void {
     this.loading = true;
-    
+
     this.adminService.getAllUsers(1, 1000).subscribe({
       next: (response: UsersResponse) => {
-        
         this.allUsers = response.users || [];
-        this.users = response.users || [];
-        this.totalRecords = response.total || 0;
-        
-        
+        this.filterUsers();
         this.loading = false;
       },
       error: (error) => this.handleLoadError(error)
@@ -151,205 +107,92 @@ export class AdminUsersComponent implements OnInit {
 
   private handleLoadError(error: any): void {
     console.error('Error loading users:', error);
-    console.error('Error status:', error.status);
-    console.error('Error details:', error.error);
-    
     this.loading = false;
-    
+
     let errorMessage = this.translateService.instant('admin.users.load_error');
     if (error.status === 403) {
       errorMessage = this.translateService.instant('admin.users.permission_error');
       this.router.navigate(['/']);
     }
-    
+
     this.messageService.add({
       severity: 'error',
       summary: this.translateService.instant('common.error'),
       detail: errorMessage
     });
-    
-    // Reset data on error
+
     this.allUsers = [];
     this.users = [];
     this.totalRecords = 0;
   }
 
+  // ===== ROLE SEGMENT FILTER =====
+
+  onRoleFilterChange(role: 'all' | 'customer' | 'staff' | 'admin'): void {
+    this.roleFilter = role;
+    this.filterUsers();
+  }
+
+  getCustomerCount(): number {
+    return this.allUsers.filter(u => u.role === 'customer').length;
+  }
+
+  getStaffCount(): number {
+    return this.allUsers.filter(u => u.role === 'staff').length;
+  }
+
+  getAdminCount(): number {
+    return this.allUsers.filter(u => u.role === 'admin').length;
+  }
+
   // ===== FILTERING =====
-  
+
   hasActiveFilters(): boolean {
-    return !!(this.searchQuery?.trim() || this.filterRole);
+    return !!(this.searchQuery?.trim() || this.roleFilter !== 'all');
   }
 
   filterUsers(): void {
     let filtered = [...this.allUsers];
 
+    // Apply role filter from segment
+    if (this.roleFilter !== 'all') {
+      filtered = filtered.filter(user => user.role === this.roleFilter);
+    }
+
     // Apply search filter
     if (this.searchQuery?.trim()) {
       const search = this.searchQuery.toLowerCase();
-      filtered = filtered.filter(user => 
+      filtered = filtered.filter(user =>
         user.full_name?.toLowerCase().includes(search) ||
         user.email?.toLowerCase().includes(search) ||
         user.role?.toLowerCase().includes(search)
       );
     }
 
-    // Apply role filter
-    if (this.filterRole) {
-      filtered = filtered.filter(user => user.role === this.filterRole);
-    }
-
     this.users = filtered;
     this.totalRecords = filtered.length;
-    
   }
 
   onSearchInput(): void {
-    // Use the debounce service instead of managing timeout manually
     this.searchDebounce.debounce('users-search', () => {
       this.filterUsers();
     });
   }
 
-  onRoleChange(): void {
-    this.filterUsers();
-  }
-
   clearFilters(): void {
     this.searchQuery = '';
-    this.filterRole = '';
+    this.roleFilter = 'all';
     this.filterUsers();
   }
 
-  // ===== USER DIALOG MANAGEMENT =====
-  
-  openUserDetails(user: UserManage): void {
-    this.selectedUser = user;
-    this.isEditing = true;
-    
-    this.userFormConfig = {
-      mode: 'edit',
-      showRoleSelection: true,
-      showActiveToggle: true,
-      showAddressField: true,
-      showPhoneField: true,
-      passwordRequired: false,
-      showCancelButton: true
-    };
-    
-    this.userFormData = {
-      full_name: user.full_name,
-      email: user.email,
-      phone: user.phone || '',
-      address: user.address || '',
-      role: user.role,
-      is_active: user.is_active
-    };
-    
-    this.displayUserDialog = true;
-  }
+  // ===== NAVIGATION =====
 
-  createNewUser(): void {
-    this.selectedUser = null;
-    this.isEditing = false;
-    
-    this.userFormConfig = {
-      mode: 'create',
-      showRoleSelection: true,
-      showActiveToggle: true,
-      showAddressField: true,
-      showPhoneField: true,
-      passwordRequired: true,
-      showCancelButton: true
-    };
-    
-    this.userFormData = {
-      role: 'customer',
-      is_active: true
-    };
-    
-    this.displayUserDialog = true;
-  }
-
-  onUserFormSubmit(formData: UserFormData): void {
-    if (this.isEditing && this.selectedUser) {
-      this.updateExistingUser(formData);
-    } else {
-      this.createUser(formData);
-    }
-  }
-  
-  onUserFormCancel(): void {
-    this.displayUserDialog = false;
-  }
-
-  private updateExistingUser(userData: any): void {
-    if (!this.selectedUser) return;
-    
-    this.adminService.updateUser(this.selectedUser.id, userData).subscribe({
-      next: (updatedUser: UserManage) => {
-        // Update user in arrays
-        const allIndex = this.allUsers.findIndex(u => u.id === this.selectedUser?.id);
-        if (allIndex !== -1) {
-          this.allUsers[allIndex] = updatedUser;
-        }
-        
-        // Reapply filters to update display
-        this.filterUsers();
-        
-        this.messageService.add({
-          severity: 'success',
-          summary: this.translateService.instant('admin.users.messages.user_updated'),
-          detail: this.translateService.instant('admin.users.messages.user_updated_detail', { name: updatedUser.full_name })
-        });
-        
-        this.displayUserDialog = false;
-        
-        // Update selected user reference
-        if (this.selectedUser && this.selectedUser.id === updatedUser.id) {
-          this.selectedUser = updatedUser;
-        }
-      },
-      error: (error) => {
-        console.error('Error updating user:', error);
-        this.messageService.add({
-          severity: 'error',
-          summary: this.translateService.instant('admin.users.messages.update_failed'),
-          detail: error.error?.detail || this.translateService.instant('admin.users.messages.update_failed_detail')
-        });
-      }
-    });
-  }
-
-  private createUser(userData: UserFormData): void {
-    this.adminService.createUser(userData).subscribe({
-      next: (newUser: UserManage) => {
-        // Add new user to arrays
-        this.allUsers.unshift(newUser);
-        
-        // Reapply filters to update display
-        this.filterUsers();
-        
-        this.messageService.add({
-          severity: 'success',
-          summary: this.translateService.instant('admin.users.messages.user_created'),
-          detail: this.translateService.instant('admin.users.messages.user_created_detail', { name: newUser.full_name })
-        });
-        
-        this.displayUserDialog = false;
-      },
-      error: (error) => {
-        console.error('Error creating user:', error);
-        this.messageService.add({
-          severity: 'error',
-          summary: this.translateService.instant('admin.users.messages.create_failed'),
-          detail: error.error?.detail || this.translateService.instant('admin.users.messages.create_failed_detail')
-        });
-      }
-    });
+  navigateToEditUser(user: UserManage): void {
+    this.router.navigate([ROUTES.ADMIN.USERS, user.id, 'edit']);
   }
 
   // ===== USER DELETION =====
-  
+
   confirmDeleteUser(user: UserManage): void {
     this.confirmationService.confirm({
       message: this.translateService.instant('common.confirm_delete_message', { item: user.full_name }),
@@ -366,12 +209,9 @@ export class AdminUsersComponent implements OnInit {
   private deleteUser(user: UserManage): void {
     this.adminService.deleteUser(user.id).subscribe({
       next: () => {
-        // Remove deleted user from arrays
         this.allUsers = this.allUsers.filter(u => u.id !== user.id);
-        
-        // Reapply current filters
         this.filterUsers();
-        
+
         this.messageService.add({
           severity: 'success',
           summary: this.translateService.instant('admin.users.messages.user_deleted'),
@@ -389,14 +229,134 @@ export class AdminUsersComponent implements OnInit {
     });
   }
 
+  // ===== INLINE ROLE EDITING =====
+
+  startEditRole(user: UserManage): void {
+    this.cancelEditStatus(); // Cancel any status edit
+    this.editingRoleUserId = user.id;
+    this.editingRole = user.role;
+  }
+
+  cancelEditRole(): void {
+    this.editingRoleUserId = null;
+    this.editingRole = '';
+  }
+
+  isEditingRole(userId: number): boolean {
+    return this.editingRoleUserId === userId;
+  }
+
+  saveRole(user: UserManage): void {
+    if (this.editingRole === user.role) {
+      this.cancelEditRole();
+      return;
+    }
+
+    const previousRole = user.role;
+    const newRole = this.editingRole;
+
+    this.adminService.updateUser(user.id, { role: newRole }).subscribe({
+      next: () => {
+        // Update in allUsers
+        const index = this.allUsers.findIndex(u => u.id === user.id);
+        if (index !== -1) {
+          this.allUsers[index].role = newRole;
+        }
+        // Update in filtered users
+        const displayIndex = this.users.findIndex(u => u.id === user.id);
+        if (displayIndex !== -1) {
+          this.users[displayIndex].role = newRole;
+        }
+
+        this.messageService.add({
+          severity: 'success',
+          summary: this.translateService.instant('common.success'),
+          detail: this.translateService.instant('admin.users.messages.role_updated', { name: user.full_name })
+        });
+        this.cancelEditRole();
+      },
+      error: (error) => {
+        console.error('Error updating role:', error);
+        this.messageService.add({
+          severity: 'error',
+          summary: this.translateService.instant('common.error'),
+          detail: this.translateService.instant('admin.users.messages.update_failed_detail')
+        });
+      }
+    });
+  }
+
+  getRoleLabel(role: string): string {
+    return this.translateService.instant(`admin.users.roles.${role}`);
+  }
+
+  // ===== INLINE STATUS EDITING =====
+
+  startEditStatus(user: UserManage): void {
+    this.cancelEditRole(); // Cancel any role edit
+    this.editingStatusUserId = user.id;
+    this.editingStatus = user.is_active;
+  }
+
+  cancelEditStatus(): void {
+    this.editingStatusUserId = null;
+    this.editingStatus = true;
+  }
+
+  isEditingStatus(userId: number): boolean {
+    return this.editingStatusUserId === userId;
+  }
+
+  toggleEditingStatus(): void {
+    this.editingStatus = !this.editingStatus;
+  }
+
+  saveStatus(user: UserManage): void {
+    if (this.editingStatus === user.is_active) {
+      this.cancelEditStatus();
+      return;
+    }
+
+    const newStatus = this.editingStatus;
+
+    this.adminService.updateUser(user.id, { is_active: newStatus }).subscribe({
+      next: () => {
+        // Update in allUsers
+        const index = this.allUsers.findIndex(u => u.id === user.id);
+        if (index !== -1) {
+          this.allUsers[index].is_active = newStatus;
+        }
+        // Update in filtered users
+        const displayIndex = this.users.findIndex(u => u.id === user.id);
+        if (displayIndex !== -1) {
+          this.users[displayIndex].is_active = newStatus;
+        }
+
+        this.messageService.add({
+          severity: 'success',
+          summary: this.translateService.instant('common.success'),
+          detail: this.translateService.instant('admin.users.messages.status_updated', { name: user.full_name })
+        });
+        this.cancelEditStatus();
+      },
+      error: (error) => {
+        console.error('Error updating status:', error);
+        this.messageService.add({
+          severity: 'error',
+          summary: this.translateService.instant('common.error'),
+          detail: this.translateService.instant('admin.users.messages.update_failed_detail')
+        });
+      }
+    });
+  }
+
   // ===== UI UTILITIES =====
-  
+
   refreshUserData(): void {
     this.loadAllUsers();
   }
 
   exportUsers(): void {
-    // TODO: Implement export functionality
     this.messageService.add({
       severity: 'info',
       summary: this.translateService.instant('admin.users.export'),
@@ -404,21 +364,7 @@ export class AdminUsersComponent implements OnInit {
     });
   }
 
-  onPageChange(event: any): void {
-    this.page = event.page + 1;
-    this.pageSize = event.rows;
-    this.loadAllUsers();
-  }
-
-  getRoleSeverity(role: string): "success" | "secondary" | "info" | "warn" | "danger" | "contrast" {
-    return this.statusSeverity.getRoleSeverity(role);
-  }
-
   formatDate(dateString: string): string {
     return this.dateService.formatDate(dateString);
-  }
-
-  navigateAddUser() {
-    this.createNewUser();
   }
 }

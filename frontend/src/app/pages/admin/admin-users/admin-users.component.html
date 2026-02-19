@@ -1,193 +1,237 @@
 <!-- src/app/pages/admin/admin-users/admin-users.component.html -->
-<div class="px-2 py-3">
+<div class="users-page">
   <p-toast></p-toast>
   <p-confirmDialog></p-confirmDialog>
-  
-  <div class="surface-card p-4 shadow-1 border-round">
-    <!-- Header Section -->
-    <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center mb-4">
-      <div>
-        <h1 class="text-3xl font-medium mb-2 md:mb-0">{{ 'admin.users.title' | translate }}</h1>
-        <p class="text-color-secondary m-0">{{ 'admin.users.subtitle' | translate }}</p>
-      </div>
-      
-      <div class="flex flex-column sm:flex-row gap-2 mt-3 md:mt-0">
-        <button pButton [label]="'admin.users.refresh' | translate" icon="pi pi-refresh" class="p-button-outlined p-button-sm" 
-                (click)="refreshUserData()" [loading]="loading"></button>
-        <button pButton [label]="'admin.users.export' | translate" icon="pi pi-download" class="p-button-outlined p-button-sm" 
-                (click)="exportUsers()"></button>
-        <button pButton [label]="'admin.users.create_new' | translate" icon="pi pi-plus" class="p-button-sm"
-                (click)="navigateAddUser()"></button>
-      </div>
-    </div>
 
-    <!-- Filters Section -->
-    <div class="grid mb-4">
-      <div class="col-12 md:col-6 lg:col-4">
-        <p-iconfield iconPosition="left" class="w-full">
-          <p-inputicon styleClass="pi pi-search"></p-inputicon>
-          <input pInputText 
-                 [(ngModel)]="searchQuery" 
-                 (input)="onSearchInput()" 
-                 [placeholder]="'admin.users.search_placeholder' | translate"
-                 class="w-full" />
-        </p-iconfield>
-      </div>
-      
-      <div class="col-12 md:col-6 lg:col-3">
-        <p-select 
-          [(ngModel)]="filterRole" 
-          [options]="roleOptions" 
-          (onChange)="onRoleChange()"
-          [placeholder]="'admin.users.filter_by_role' | translate"
-          optionLabel="label"
-          optionValue="value"
-          class="w-full" />
-      </div>
-      
-      <div class="col-12 lg:col-5">
-        <div class="flex justify-content-start lg:justify-content-end gap-2 align-items-center">
-          @if (hasActiveFilters()) {
-            <button pButton [label]="'admin.users.clear_filters' | translate" icon="pi pi-filter-slash" 
-                    class="p-button-outlined p-button-sm" (click)="clearFilters()"></button>
-          }
-          <span class="text-sm text-color-secondary">
-            {{ 'admin.users.showing' | translate:{ shown: users.length, total: allUsers.length } }}
-          </span>
+  <!-- Animated Background -->
+  <div class="bg-decoration">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
+
+  <div class="page-content">
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="header-title">
+        <div class="icon-wrapper">
+          <div class="icon-bg"></div>
+          <div class="icon-circle">
+            <i class="pi pi-users"></i>
+          </div>
+        </div>
+        <div class="title-text">
+          <h1>{{ 'admin.users.title' | translate }}</h1>
+          <p>{{ 'admin.users.subtitle' | translate }}</p>
         </div>
       </div>
     </div>
 
-
-
-    <!-- Loading Spinner -->
-    @if (loading) {
-      <div class="flex justify-content-center align-items-center py-8">
-        <p-progressSpinner></p-progressSpinner>
-        <span class="ml-2">{{ 'admin.users.loading' | translate }}</span>
+    <!-- Role Segmented Control Row -->
+    <div class="segment-row">
+      <div class="role-segment">
+        <button
+          class="segment-btn"
+          [class.active]="roleFilter === 'all'"
+          (click)="onRoleFilterChange('all')">
+          <span>{{ 'common.all' | translate }}</span>
+          <span class="count">{{ allUsers.length }}</span>
+        </button>
+        <button
+          class="segment-btn"
+          [class.active]="roleFilter === 'customer'"
+          (click)="onRoleFilterChange('customer')">
+          <span>{{ 'admin.users.roles.customer' | translate }}</span>
+          <span class="count customer">{{ getCustomerCount() }}</span>
+        </button>
+        <button
+          class="segment-btn"
+          [class.active]="roleFilter === 'staff'"
+          (click)="onRoleFilterChange('staff')">
+          <span>{{ 'admin.users.roles.staff' | translate }}</span>
+          <span class="count staff">{{ getStaffCount() }}</span>
+        </button>
+        <button
+          class="segment-btn"
+          [class.active]="roleFilter === 'admin'"
+          (click)="onRoleFilterChange('admin')">
+          <span>{{ 'admin.users.roles.admin' | translate }}</span>
+          <span class="count admin">{{ getAdminCount() }}</span>
+        </button>
       </div>
-    } @else {
-      <!-- Users Table -->
-      <p-table [value]="users" 
-               styleClass="p-datatable-striped" 
-               [tableStyle]="{'min-width': '100%'}" 
-               dataKey="id" 
-               [paginator]="false"
-               responsiveLayout="scroll">
-        <ng-template pTemplate="header">
-          <tr>
-            <th style="width: 80px">{{ 'admin.users.table.id' | translate }}</th>
-            <th>{{ 'admin.users.table.user_details' | translate }}</th>
-            <th style="width: 100px">{{ 'admin.users.table.role' | translate }}</th>
-            <th style="width: 100px">{{ 'admin.users.table.status' | translate }}</th>
-            <th style="width: 150px">{{ 'admin.users.table.created' | translate }}</th>
-            <th style="width: 120px">{{ 'admin.users.table.actions' | translate }}</th>
-          </tr>
-        </ng-template>
-        
-        <ng-template pTemplate="body" let-user>
-          <tr>
-            <td>{{user.id}}</td>
-            <td>
-              <div class="flex align-items-center gap-2">
-                <div>
-                  <div class="font-semibold">{{user.full_name}}</div>
-                  <div class="text-sm text-color-secondary">{{user.email}}</div>
-                  @if (user.phone) {
-                    <div class="text-sm text-color-secondary">{{user.phone}}</div>
-                  }
-                </div>
-              </div>
-            </td>
-            <td>
-              <p-tag [severity]="getRoleSeverity(user.role)" 
-                     [value]="user.role" 
-                     class="text-uppercase"></p-tag>
-            </td>
-            <td>
-              <p-tag [severity]="user.is_active ? 'success' : 'danger'" 
-                     [value]="user.is_active ? ('admin.users.status.active' | translate) : ('admin.users.status.inactive' | translate)"></p-tag>
-            </td>
-            <td class="text-sm">{{formatDate(user.created_at)}}</td>
-            <td>
-              <div class="flex gap-1">
-                <button pButton icon="pi pi-eye" 
-                        class="p-button-text p-button-sm" 
-                        (click)="openUserDetails(user)" 
-                        [pTooltip]="'admin.users.actions.view_edit' | translate"
-                        tooltipPosition="top"></button>
-                
-                <button pButton icon="pi pi-trash" 
-                        class="p-button-text p-button-danger p-button-sm" 
-                        (click)="confirmDeleteUser(user)" 
-                        [pTooltip]="'admin.users.actions.delete' | translate"
-                        tooltipPosition="top"></button>
-              </div>
-            </td>
-          </tr>
-        </ng-template>
-        
-        <ng-template pTemplate="emptymessage">
-          <tr>
-            <td colspan="6" class="text-center p-4">
-              @if (hasActiveFilters()) {
-                <div class="flex flex-column align-items-center gap-3">
-                  <i class="pi pi-filter text-4xl text-color-secondary"></i>
-                  <div>
-                    <h3 class="m-0">{{ 'admin.users.empty.no_match_title' | translate }}</h3>
-                    <p class="text-color-secondary m-0">{{ 'admin.users.empty.no_match_description' | translate }}</p>
-                  </div>
-                  <button pButton [label]="'admin.users.clear_filters' | translate" 
-                          class="p-button-outlined p-button-sm" 
-                          (click)="clearFilters()"></button>
-                </div>
-              } @else {
-                <div class="flex flex-column align-items-center gap-3">
-                  <i class="pi pi-users text-4xl text-color-secondary"></i>
-                  <div>
-                    <h3 class="m-0">{{ 'admin.users.empty.no_users_title' | translate }}</h3>
-                    <p class="text-color-secondary m-0">{{ 'admin.users.empty.no_users_description' | translate }}</p>
-                  </div>
-                  <button pButton [label]="'admin.users.create_user' | translate" 
-                          icon="pi pi-plus" 
-                          class="p-button-sm"
-                          (click)="createNewUser()"></button>
-                </div>
-              }
-            </td>
-          </tr>
-        </ng-template>
-      </p-table>
-      
-      <!-- Pagination Info -->
-      @if (users.length > 0) {
-        <div class="flex justify-content-between align-items-center mt-3">
-          <span class="text-sm text-color-secondary">
-            {{ 'admin.users.showing' | translate:{ shown: users.length, total: totalRecords } }}
-          </span>
+      <div class="header-actions">
+        <button class="action-btn refresh" (click)="refreshUserData()" [disabled]="loading">
+          <i class="pi pi-refresh" [class.pi-spin]="loading"></i>
+          <span>{{ 'admin.users.refresh' | translate }}</span>
+        </button>
+        <button class="action-btn export" (click)="exportUsers()">
+          <i class="pi pi-download"></i>
+          <span>{{ 'admin.users.export' | translate }}</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Filters Card -->
+    <div class="filters-card">
+      <div class="search-box">
+        <i class="pi pi-search"></i>
+        <input
+          type="text"
+          [(ngModel)]="searchQuery"
+          (input)="onSearchInput()"
+          [placeholder]="'admin.users.search_placeholder' | translate">
+        @if (searchQuery) {
+          <button class="clear-search" (click)="searchQuery = ''; filterUsers()">
+            <i class="pi pi-times"></i>
+          </button>
+        }
+      </div>
+      <div class="filter-actions">
+        @if (hasActiveFilters()) {
+          <button class="clear-btn" (click)="clearFilters()">
+            <i class="pi pi-filter-slash"></i>
+            <span>{{ 'admin.users.clear_filters' | translate }}</span>
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- Users Table Card -->
+    <div class="table-card">
+      @if (loading) {
+        <div class="loading-state">
+          <i class="pi pi-spin pi-spinner"></i>
+          <span>{{ 'admin.users.loading' | translate }}</span>
         </div>
+      } @else {
+        @if (users.length > 0) {
+          <div class="table-container">
+            <table class="users-table">
+              <thead>
+                <tr>
+                  <th class="col-id">{{ 'admin.users.table.id' | translate }}</th>
+                  <th class="col-user">{{ 'admin.users.table.user_details' | translate }}</th>
+                  <th class="col-role">{{ 'admin.users.table.role' | translate }}</th>
+                  <th class="col-status">{{ 'admin.users.table.status' | translate }}</th>
+                  <th class="col-date">{{ 'admin.users.table.created' | translate }}</th>
+                  <th class="col-actions">{{ 'admin.users.table.actions' | translate }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (user of users; track user.id) {
+                  <tr>
+                    <td class="col-id">
+                      <span class="id-badge">{{ user.id }}</span>
+                    </td>
+                    <td class="col-user">
+                      <div class="user-info">
+                        <div class="user-avatar">
+                          {{ user.full_name.charAt(0).toUpperCase() }}
+                        </div>
+                        <div class="user-details">
+                          <span class="user-name">{{ user.full_name }}</span>
+                          <span class="user-email">{{ user.email }}</span>
+                          @if (user.phone) {
+                            <span class="user-phone">{{ user.phone }}</span>
+                          }
+                        </div>
+                      </div>
+                    </td>
+                    <!-- Role Column - Inline Editable -->
+                    <td class="col-role">
+                      @if (!isEditingRole(user.id)) {
+                        <div class="role-display" (click)="startEditRole(user)">
+                          <span class="role-badge" [attr.data-role]="user.role">
+                            {{ getRoleLabel(user.role) }}
+                          </span>
+                          <i class="pi pi-pencil edit-hint"></i>
+                        </div>
+                      } @else {
+                        <div class="role-edit">
+                          <p-select
+                            [(ngModel)]="editingRole"
+                            [options]="roleOptions"
+                            optionLabel="label"
+                            optionValue="value"
+                            [style]="{'width': '120px'}"
+                          />
+                          <button class="save-btn" (click)="saveRole(user)"><i class="pi pi-check"></i></button>
+                          <button class="cancel-btn" (click)="cancelEditRole()"><i class="pi pi-times"></i></button>
+                        </div>
+                      }
+                    </td>
+                    <!-- Status Column - Inline Editable -->
+                    <td class="col-status">
+                      @if (!isEditingStatus(user.id)) {
+                        <div class="status-display" (click)="startEditStatus(user)">
+                          <span class="status-badge" [class.active]="user.is_active" [class.inactive]="!user.is_active">
+                            <i [class]="user.is_active ? 'pi pi-check-circle' : 'pi pi-times-circle'"></i>
+                            {{ user.is_active ? ('admin.users.status.active' | translate) : ('admin.users.status.inactive' | translate) }}
+                          </span>
+                          <i class="pi pi-pencil edit-hint"></i>
+                        </div>
+                      } @else {
+                        <div class="status-edit">
+                          <button
+                            class="status-toggle"
+                            [class.active]="editingStatus"
+                            [class.inactive]="!editingStatus"
+                            (click)="toggleEditingStatus()">
+                            <i [class]="editingStatus ? 'pi pi-check-circle' : 'pi pi-times-circle'"></i>
+                            {{ editingStatus ? ('admin.users.status.active' | translate) : ('admin.users.status.inactive' | translate) }}
+                          </button>
+                          <button class="save-btn" (click)="saveStatus(user)"><i class="pi pi-check"></i></button>
+                          <button class="cancel-btn" (click)="cancelEditStatus()"><i class="pi pi-times"></i></button>
+                        </div>
+                      }
+                    </td>
+                    <td class="col-date">
+                      <span class="date-text">{{ formatDate(user.created_at) }}</span>
+                    </td>
+                    <td class="col-actions">
+                      <div class="action-buttons">
+                        <button class="icon-btn edit" (click)="navigateToEditUser(user)" [pTooltip]="'admin.users.actions.view_edit' | translate" tooltipPosition="top">
+                          <i class="pi pi-pencil"></i>
+                        </button>
+                        <button class="icon-btn delete" (click)="confirmDeleteUser(user)" [pTooltip]="'admin.users.actions.delete' | translate" tooltipPosition="top">
+                          <i class="pi pi-trash"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        } @else {
+          <div class="empty-state">
+            @if (hasActiveFilters()) {
+              <div class="empty-icon filter">
+                <i class="pi pi-filter"></i>
+              </div>
+              <h3>{{ 'admin.users.empty.no_match_title' | translate }}</h3>
+              <p>{{ 'admin.users.empty.no_match_description' | translate }}</p>
+              <button class="primary-btn" (click)="clearFilters()">
+                <i class="pi pi-filter-slash"></i>
+                {{ 'admin.users.clear_filters' | translate }}
+              </button>
+            } @else {
+              <div class="empty-icon users">
+                <i class="pi pi-users"></i>
+              </div>
+              <h3>{{ 'admin.users.empty.no_users_title' | translate }}</h3>
+              <p>{{ 'admin.users.empty.no_users_description' | translate }}</p>
+            }
+          </div>
+        }
       }
+    </div>
+
+    <!-- Pagination Info -->
+    @if (users.length > 0 && !loading) {
+      <div class="pagination-info">
+        <span>{{ 'admin.users.showing' | translate:{ shown: users.length, total: allUsers.length } }}</span>
+      </div>
     }
   </div>
-  
-  <!-- User Edit/Create Dialog -->
-  <p-dialog 
-    [(visible)]="displayUserDialog" 
-    [style]="{width: '90%', maxWidth: '600px'}" 
-    [header]="isEditing ? ('admin.users.dialog.edit_title' | translate) : ('admin.users.dialog.create_title' | translate)" 
-    [modal]="true"
-    [draggable]="false"
-    [resizable]="false"
-    [blockScroll]="true"
-    [dismissableMask]="true"
-    [closeOnEscape]="true">
-    
-    <app-user-form 
-      [config]="userFormConfig" 
-      [initialData]="userFormData"
-      (formSubmit)="onUserFormSubmit($event)"
-      (formCancel)="onUserFormCancel()">
-    </app-user-form>
-  </p-dialog>
 </div>
-

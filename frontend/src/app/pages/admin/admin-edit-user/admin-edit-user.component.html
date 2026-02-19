@@ -1,0 +1,318 @@
+<!-- src/app/pages/admin/admin-edit-user/admin-edit-user.component.html -->
+<div class="user-form-page">
+  <p-toast></p-toast>
+
+  <!-- Animated Background -->
+  <div class="bg-decoration">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
+
+  <div class="page-content">
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="header-content">
+        <div class="header-title">
+          <div class="icon-wrapper">
+            <div class="icon-bg"></div>
+            <div class="icon-circle">
+              <i class="pi pi-user-edit"></i>
+            </div>
+          </div>
+          <div class="title-text">
+            <h1>{{ 'admin.users.edit_user' | translate }}</h1>
+            <p>{{ 'admin.users.edit_subtitle' | translate }}</p>
+          </div>
+        </div>
+        <button class="back-btn" (click)="onCancel()">
+          <i class="pi pi-arrow-left"></i>
+          <span>{{ 'common.back' | translate }}</span>
+        </button>
+      </div>
+    </div>
+
+    <form [formGroup]="userForm" (ngSubmit)="onSubmit()">
+      <!-- Cards Grid - 4 Cards Layout -->
+      <div class="cards-grid">
+        <!-- Card 1: Personal Information -->
+        <div class="form-card">
+          <div class="card-header">
+            <div class="card-icon personal">
+              <i class="pi pi-user"></i>
+            </div>
+            <h3>{{ 'admin.users.form.personal_info' | translate }}</h3>
+          </div>
+          <div class="card-body">
+            <!-- Full Name -->
+            <div class="form-field-styled">
+              <div class="field-icon name">
+                <i class="pi pi-user"></i>
+              </div>
+              <div class="field-content">
+                <label>{{ 'admin.users.form.full_name' | translate }} <span class="required">*</span></label>
+                <input
+                  pInputText
+                  type="text"
+                  formControlName="full_name"
+                  [placeholder]="'admin.users.form.full_name' | translate">
+                @if (userForm.get('full_name')?.invalid && userForm.get('full_name')?.touched) {
+                  <span class="field-error">{{ 'admin.users.form.name_required' | translate }}</span>
+                }
+              </div>
+            </div>
+
+            <!-- Email -->
+            <div class="form-field-styled">
+              <div class="field-icon email">
+                <i class="pi pi-envelope"></i>
+              </div>
+              <div class="field-content">
+                <label>{{ 'admin.users.form.email' | translate }}</label>
+                <input
+                  pInputText
+                  type="email"
+                  formControlName="email"
+                  [placeholder]="'admin.users.form.email' | translate">
+              </div>
+            </div>
+
+            <!-- Phone -->
+            <div class="form-field-styled">
+              <div class="field-icon phone">
+                <i class="pi pi-phone"></i>
+              </div>
+              <div class="field-content">
+                <label>{{ 'admin.users.form.phone' | translate }}</label>
+                <input
+                  pInputText
+                  type="tel"
+                  formControlName="phone"
+                  [placeholder]="'admin.users.form.phone' | translate">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 2: Business Information -->
+        <div class="form-card">
+          <div class="card-header">
+            <div class="card-icon business">
+              <i class="pi pi-building"></i>
+            </div>
+            <h3>{{ 'admin.users.form.business' | translate }}</h3>
+          </div>
+          <div class="card-body">
+            <!-- Store Name -->
+            <div class="form-field-styled">
+              <div class="field-icon store">
+                <i class="pi pi-shop"></i>
+              </div>
+              <div class="field-content">
+                <label>{{ 'admin.users.form.store_name' | translate }}</label>
+                <input
+                  pInputText
+                  type="text"
+                  formControlName="store_name"
+                  [placeholder]="'admin.users.form.store_name' | translate">
+              </div>
+            </div>
+
+            <!-- Address -->
+            <div class="form-field-styled">
+              <div class="field-icon address">
+                <i class="pi pi-home"></i>
+              </div>
+              <div class="field-content">
+                <label>{{ 'admin.users.form.address' | translate }}</label>
+                <input
+                  pInputText
+                  type="text"
+                  formControlName="address"
+                  [placeholder]="'admin.users.form.address' | translate">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 3: Location Information -->
+        <div class="form-card">
+          <div class="card-header">
+            <div class="card-icon location">
+              <i class="pi pi-map-marker"></i>
+            </div>
+            <h3>{{ 'admin.users.form.location_info' | translate }}</h3>
+          </div>
+          <div class="card-body">
+            <!-- Wilaya -->
+            <div class="form-field-styled">
+              <div class="field-icon wilaya">
+                <i class="pi pi-map-marker"></i>
+              </div>
+              <div class="field-content">
+                <label>{{ 'admin.users.form.wilaya' | translate }}</label>
+                <p-select
+                  formControlName="wilaya"
+                  [options]="wilayaOptions()"
+                  optionLabel="label"
+                  optionValue="value"
+                  [placeholder]="'admin.users.form.wilaya' | translate"
+                  [filter]="true"
+                  filterPlaceholder="Search..."
+                  [showClear]="true"
+                  styleClass="w-full"
+                />
+              </div>
+            </div>
+
+            <!-- Daira -->
+            <div class="form-field-styled">
+              <div class="field-icon daira">
+                <i class="pi pi-map"></i>
+              </div>
+              <div class="field-content">
+                <label>{{ 'admin.users.form.daira' | translate }}</label>
+                <input
+                  pInputText
+                  type="text"
+                  formControlName="daira"
+                  [placeholder]="'admin.users.form.daira' | translate">
+              </div>
+            </div>
+
+            <!-- Commune -->
+            <div class="form-field-styled">
+              <div class="field-icon commune">
+                <i class="pi pi-flag"></i>
+              </div>
+              <div class="field-content">
+                <label>{{ 'admin.users.form.commune' | translate }}</label>
+                <input
+                  pInputText
+                  type="text"
+                  formControlName="commune"
+                  [placeholder]="'admin.users.form.commune' | translate">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 4: Account Settings -->
+        <div class="form-card">
+          <div class="card-header">
+            <div class="card-icon settings">
+              <i class="pi pi-cog"></i>
+            </div>
+            <h3>{{ 'admin.users.form.account_settings' | translate }}</h3>
+          </div>
+          <div class="card-body">
+            <!-- Role Segment Control -->
+            <div class="segment-field">
+              <label>{{ 'admin.users.form.role' | translate }} <span class="required">*</span></label>
+              <p-selectButton
+                formControlName="role"
+                [options]="roleOptions()"
+                optionLabel="label"
+                optionValue="value"
+                styleClass="role-segment"
+              />
+            </div>
+
+            <!-- Status Segment Control -->
+            <div class="segment-field">
+              <label>{{ 'admin.users.form.status' | translate }}</label>
+              <p-selectButton
+                formControlName="is_active"
+                [options]="statusOptions()"
+                optionLabel="label"
+                optionValue="value"
+                styleClass="status-segment"
+              />
+            </div>
+
+            <!-- Password -->
+            <div class="form-field-styled">
+              <div class="field-icon password">
+                <i class="pi pi-key"></i>
+              </div>
+              <div class="field-content">
+                <label>{{ 'admin.users.form.password_edit' | translate }}</label>
+                <p-password
+                  formControlName="password"
+                  [placeholder]="'admin.users.form.password_placeholder' | translate"
+                  [toggleMask]="true"
+                  [feedback]="true"
+                  styleClass="w-full"
+                />
+                <small class="field-hint">{{ 'admin.users.form.password_hint' | translate }}</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Map Location Picker Card (Full Width Below) -->
+      <div class="form-card map-card">
+        <div class="card-header">
+          <div class="card-icon map">
+            <i class="pi pi-map"></i>
+          </div>
+          <h3>{{ 'admin.users.form.delivery_location' | translate }}</h3>
+        </div>
+        <div class="card-body map-body">
+          @if (!loading()) {
+            <app-map-picker
+              [initialLatitude]="initialLatitude"
+              [initialLongitude]="initialLongitude"
+              (locationSelected)="onLocationSelected($event)"
+              (locationError)="onLocationError($event)"
+            ></app-map-picker>
+          } @else {
+            <div class="map-loading">
+              <i class="pi pi-spin pi-spinner"></i>
+              <span>{{ 'common.loading' | translate }}</span>
+            </div>
+          }
+          @if (userForm.get('latitude')?.value && userForm.get('longitude')?.value) {
+            <div class="coordinates-display">
+              <i class="pi pi-map-marker"></i>
+              <span>{{ userForm.get('latitude')?.value | number:'1.6-6' }}, {{ userForm.get('longitude')?.value | number:'1.6-6' }}</span>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Form Actions -->
+      <div class="form-actions">
+        <button
+          type="button"
+          class="cancel-btn"
+          (click)="onCancel()"
+          [disabled]="loading()">
+          {{ 'common.cancel' | translate }}
+        </button>
+        <button
+          type="submit"
+          class="submit-btn"
+          [disabled]="userForm.invalid || loading()">
+          @if (loading()) {
+            <i class="pi pi-spin pi-spinner spinner"></i>
+          } @else {
+            <i class="pi pi-check"></i>
+          }
+          <span>{{ 'admin.users.form.submit_update' | translate }}</span>
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Loading Overlay -->
+  @if (loading()) {
+    <div class="loading-overlay">
+      <div class="loading-content">
+        <i class="pi pi-spin pi-spinner"></i>
+        <span>{{ 'common.loading' | translate }}</span>
+      </div>
+    </div>
+  }
+</div>

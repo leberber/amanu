@@ -13,6 +13,10 @@ export interface User {
   address?: string;
   latitude?: number;
   longitude?: number;
+  store_name?: string;
+  wilaya?: string;
+  daira?: string;
+  commune?: string;
   role: UserRole;
   is_active: boolean;
   created_at: string;
