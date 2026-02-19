@@ -559,6 +559,8 @@
         "try_adjusting": "Try adjusting your search terms"
       },
       "form": {
+        "add_subtitle": "Create a new promotional offer for your customers",
+        "edit_subtitle": "Modify the details of this promotion",
         "basic_info": "Basic Information",
         "discount_settings": "Discount Settings",
         "scope_settings": "Scope & Conditions",

@@ -49,19 +49,7 @@ interface SelectOption {
   ],
   providers: [MessageService],
   templateUrl: './admin-add-promotion.component.html',
-  styles: [`
-    .field {
-      margin-bottom: 1rem;
-    }
-    .section-title {
-      font-size: 1.1rem;
-      font-weight: 600;
-      margin: 1.5rem 0 1rem 0;
-      padding-bottom: 0.5rem;
-      border-bottom: 1px solid var(--surface-border);
-      color: var(--primary-color);
-    }
-  `]
+  styleUrl: './admin-add-promotion.component.scss'
 })
 export class AdminAddPromotionComponent implements OnInit {
   loading = signal(false);

@@ -556,6 +556,8 @@
         "try_adjusting": "Essayez d'ajuster vos termes de recherche"
       },
       "form": {
+        "add_subtitle": "Créer une nouvelle offre promotionnelle pour vos clients",
+        "edit_subtitle": "Modifier les détails de cette promotion",
         "basic_info": "Informations de Base",
         "discount_settings": "Paramètres de Réduction",
         "scope_settings": "Portée et Conditions",
