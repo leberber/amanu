@@ -2,11 +2,10 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink, Router } from '@angular/router';
+import { Router } from '@angular/router';
 
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { TagModule } from 'primeng/tag';
@@ -14,12 +13,7 @@ import { PaginatorModule } from 'primeng/paginator';
 import { DialogModule } from 'primeng/dialog';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
-import { SelectModule } from 'primeng/select';
-import { IconFieldModule } from 'primeng/iconfield';
-import { InputIconModule } from 'primeng/inputicon';
-import { InputTextModule } from 'primeng/inputtext';
 import { TooltipModule } from 'primeng/tooltip';
-import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { AdminService } from '../../../services/admin.service';
@@ -38,49 +32,40 @@ import { StatusSeverityService } from '../../../core/services/status-severity.se
   imports: [
     CommonModule,
     FormsModule,
-    SelectModule,
     TableModule,
     ButtonModule,
-    CardModule,
-    InputTextModule,
     ToastModule,
     TagModule,
     PaginatorModule,
     DialogModule,
     ConfirmDialogModule,
-    IconFieldModule,
-    InputIconModule,
     TooltipModule,
-    ProgressSpinnerModule,
     TranslateModule
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './admin-orders.component.html',
-  styles: [`
-    :host ::ng-deep .p-datatable-header {
-      padding-left: 0 !important;
-      padding-right: 0 !important;
-    }
-  `]
+  styleUrl: './admin-orders.component.scss'
 })
 export class AdminOrdersComponent implements OnInit {
-  allOrders: Order[] = []; // Store all orders loaded once
-  orders: Order[] = [];    // Filtered orders to display
-  users: any[] = [];       // Store users for lookup
-  products: any[] = [];    // Store products for translation lookup
-  totalRecords = 0;
+  allOrders: Order[] = [];
+  orders: Order[] = [];
+  paginatedOrders: Order[] = [];
+  users: any[] = [];
+  products: any[] = [];
   loading = true;
   searchQuery = '';
-  filterStatus = '';
-  page = 1;
-  pageSize = 10;
-  
-  statusOptions: any[] = [];
-  
+
+  // Pagination
+  first = 0;
+  rows = 10;
+
+  // Status filter
+  statusFilter: 'all' | 'pending' | 'confirmed' | 'shipped' | 'delivered' | 'cancelled' = 'all';
+
   selectedOrder: Order | null = null;
   displayOrderDialog = false;
-  
-  // Services injected using inject()
+
+  // Services
   private adminService = inject(AdminService);
   private messageService = inject(MessageService);
   private confirmationService = inject(ConfirmationService);
@@ -92,19 +77,18 @@ export class AdminOrdersComponent implements OnInit {
   private translationHelper = inject(TranslationHelperService);
   private unitsService = inject(UnitsService);
   private searchDebounce = inject(SearchDebounceService);
-    private statusSeverity = inject(StatusSeverityService);
+  private statusSeverity = inject(StatusSeverityService);
 
   ngOnInit() {
-    this.initializeStatusOptions();
     this.loadUsersAndOrders();
     this.loadProducts();
-    
-    // Update status options when language changes
+
     this.translateService.onLangChange.subscribe(() => {
-      this.initializeStatusOptions();
+      // Re-filter to update any translated content
+      this.filterOrders();
     });
   }
-  
+
   loadProducts() {
     this.productService.getProducts().subscribe({
       next: (products) => {
@@ -115,102 +99,116 @@ export class AdminOrdersComponent implements OnInit {
       }
     });
   }
-  
-  initializeStatusOptions() {
-    this.statusOptions = [
-      { label: this.translateService.instant('admin.orders.filters.all'), value: '' },
-      { label: this.translateService.instant('admin.orders.status.pending'), value: 'pending' },
-      { label: this.translateService.instant('admin.orders.status.confirmed'), value: 'confirmed' },
-      { label: this.translateService.instant('admin.orders.status.shipped'), value: 'shipped' },
-      { label: this.translateService.instant('admin.orders.status.delivered'), value: 'delivered' },
-      { label: this.translateService.instant('admin.orders.status.cancelled'), value: 'cancelled' }
-    ];
-  }
 
-  // Load both users and orders, then match them
   loadUsersAndOrders() {
     this.loading = true;
-    
-    // First try to load users (only admins have access)
+
     this.adminService.getAllUsers().subscribe({
       next: (usersResponse) => {
         this.users = Array.isArray(usersResponse) ? usersResponse : usersResponse.users;
-        // Load orders after users
         this.loadAllOrders();
       },
       error: (error) => {
-        console.error('Error loading users (this is normal for staff users):', error);
-        // Still load orders even if users can't be loaded
+        console.error('Error loading users:', error);
         this.users = [];
         this.loadAllOrders();
       }
     });
   }
 
-  // Get user by ID from loaded users
   getUserById(userId: number) {
     return this.users.find(user => user.id === userId);
   }
 
   hasActiveFilters(): boolean {
-    return !!(this.searchQuery?.trim() || this.filterStatus);
+    return !!(this.searchQuery?.trim() || this.statusFilter !== 'all');
   }
 
-  // Load all orders once on page load
+  // Status filter methods
+  onStatusFilterChange(status: 'all' | 'pending' | 'confirmed' | 'shipped' | 'delivered' | 'cancelled') {
+    this.statusFilter = status;
+    this.first = 0;
+    this.filterOrders();
+  }
+
+  getPendingCount(): number {
+    return this.allOrders.filter(o => o.status === 'pending').length;
+  }
+
+  getConfirmedCount(): number {
+    return this.allOrders.filter(o => o.status === 'confirmed').length;
+  }
+
+  getShippedCount(): number {
+    return this.allOrders.filter(o => o.status === 'shipped').length;
+  }
+
+  getDeliveredCount(): number {
+    return this.allOrders.filter(o => o.status === 'delivered').length;
+  }
+
+  getCancelledCount(): number {
+    return this.allOrders.filter(o => o.status === 'cancelled').length;
+  }
+
+  // Pagination methods
+  onPageChange(event: any) {
+    this.first = event.first;
+    this.rows = event.rows;
+    this.updatePaginatedOrders();
+  }
+
+  updatePaginatedOrders() {
+    this.paginatedOrders = this.orders.slice(this.first, this.first + this.rows);
+  }
+
   loadAllOrders() {
-    
-    this.adminService.getAllOrders('', 1, 1000).subscribe({ // Load large number to get all
+    this.adminService.getAllOrders('', 1, 1000).subscribe({
       next: (response) => {
-        
         if (response && response.orders) {
           this.allOrders = response.orders;
           this.orders = response.orders;
-          this.totalRecords = response.total || response.orders.length;
-          
-          // Debug: Check if we can match users
-          if (this.orders.length > 0 && this.users.length > 0) {
-            const firstOrder = this.orders[0];
-            const matchedUser = this.getUserById(firstOrder.user_id);
-          }
+          this.updatePaginatedOrders();
         } else {
           this.allOrders = [];
           this.orders = [];
-          this.totalRecords = 0;
         }
-        
         this.loading = false;
       },
       error: (error) => {
         console.error('Error loading orders:', error);
         this.loading = false;
-        
+
         let errorMessage = this.translateService.instant('admin.orders.load_error');
         if (error.status === 403) {
           errorMessage = this.translateService.instant('admin.orders.permission_error');
           this.router.navigate(['/']);
         }
-        
+
         this.messageService.add({
           severity: 'error',
           summary: this.translateService.instant('common.error'),
           detail: errorMessage
         });
-        
+
         this.allOrders = [];
         this.orders = [];
-        this.totalRecords = 0;
       }
     });
   }
 
-  // Filter orders client-side (no API calls)
   filterOrders() {
     let filtered = [...this.allOrders];
 
-    // Apply search filter
+    // Status filter
+    if (this.statusFilter !== 'all') {
+      filtered = filtered.filter(order => order.status === this.statusFilter);
+    }
+
+    // Search filter
     if (this.searchQuery?.trim()) {
       const search = this.searchQuery.toLowerCase();
-      filtered = filtered.filter(order => 
+      filtered = filtered.filter(order =>
         order.id.toString().includes(search) ||
         order.user?.full_name?.toLowerCase().includes(search) ||
         order.user?.email?.toLowerCase().includes(search) ||
@@ -220,33 +218,22 @@ export class AdminOrdersComponent implements OnInit {
       );
     }
 
-    // Apply status filter
-    if (this.filterStatus) {
-      filtered = filtered.filter(order => 
-        order.status === this.filterStatus
-      );
-    }
-
     this.orders = filtered;
-    this.totalRecords = filtered.length;
+    this.first = 0;
+    this.updatePaginatedOrders();
   }
 
-  // Search input with client-side filtering
   onSearchInput() {
-    // Use the debounce service instead of managing timeout manually
     this.searchDebounce.debounce('orders-search', () => {
-      this.filterOrders(); // Filter client-side instead of API call
+      this.filterOrders();
     });
-  }
-
-  onStatusChange() {
-    this.filterOrders(); // Filter client-side instead of API call
   }
 
   clearFilters() {
     this.searchQuery = '';
-    this.filterStatus = '';
-    this.filterOrders(); // Filter client-side instead of API call
+    this.statusFilter = 'all';
+    this.first = 0;
+    this.filterOrders();
   }
 
   refreshOrderData() {
@@ -254,18 +241,11 @@ export class AdminOrdersComponent implements OnInit {
   }
 
   exportOrders() {
-    // TODO: Implement export functionality
     this.messageService.add({
       severity: 'info',
       summary: this.translateService.instant('admin.orders.export'),
       detail: this.translateService.instant('admin.orders.export_coming_soon')
     });
-  }
-
-  onPageChange(event: any) {
-    this.page = event.page + 1;
-    this.pageSize = event.rows;
-    this.loadAllOrders();
   }
 
   openOrderDetails(order: Order) {
@@ -286,19 +266,17 @@ export class AdminOrdersComponent implements OnInit {
   }
 
   getProductName(item: any): string {
-    // If item already has translations, use it as a product
     if (item.name_translations || item.name) {
       return this.translationHelper.getProductName(item);
     }
-    
-    // Try to find the full product object
+
     if (item.product_id && this.products.length > 0) {
       const fullProduct = this.products.find(p => p.id === item.product_id);
       if (fullProduct) {
         return this.translationHelper.getProductName(fullProduct);
       }
     }
-    
+
     return item.product_name || item.name;
   }
 
@@ -313,7 +291,7 @@ export class AdminOrdersComponent implements OnInit {
   updateOrderStatus(orderId: number, newStatus: string) {
     const statusText = this.translateService.instant('admin.orders.status.' + newStatus);
     const message = this.translateService.instant('admin.orders.confirm_status_update', { status: statusText });
-    
+
     this.confirmationService.confirm({
       message: message,
       header: this.translateService.instant('common.warning'),
@@ -325,25 +303,22 @@ export class AdminOrdersComponent implements OnInit {
       accept: () => {
         this.adminService.updateOrderStatus(orderId, newStatus).subscribe({
           next: (updatedOrder) => {
-            // Update order in both arrays
             const allIndex = this.allOrders.findIndex(o => o.id === orderId);
             if (allIndex !== -1) {
               this.allOrders[allIndex] = updatedOrder;
             }
-            
-            // Reapply filters to update display
+
             this.filterOrders();
-            
+
             this.messageService.add({
               severity: 'success',
               summary: this.translateService.instant('admin.orders.status_updated'),
-              detail: this.translateService.instant('admin.orders.status_update_message', { 
-                orderId: orderId, 
-                status: this.translateService.instant('admin.orders.status.' + newStatus) 
+              detail: this.translateService.instant('admin.orders.status_update_message', {
+                orderId: orderId,
+                status: this.translateService.instant('admin.orders.status.' + newStatus)
               })
             });
-            
-            // Update selected order if in dialog
+
             if (this.selectedOrder && this.selectedOrder.id === orderId) {
               this.selectedOrder = updatedOrder;
             }

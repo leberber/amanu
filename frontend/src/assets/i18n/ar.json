@@ -670,6 +670,10 @@
     },
     "orders": {
       "title": "إدارة الطلبات",
+      "subtitle": "عرض وإدارة طلبات العملاء",
+      "showing": "عرض",
+      "of": "من",
+      "orders": "طلبات",
       "all_orders": "جميع الطلبات",
       "filter_by_status": "تصفية حسب الحالة",
       "update_status": "تحديث الحالة",

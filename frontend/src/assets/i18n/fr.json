@@ -665,6 +665,10 @@
     },
     "orders": {
       "title": "Gestion des Commandes",
+      "subtitle": "Voir et gérer les commandes clients",
+      "showing": "Affichage",
+      "of": "sur",
+      "orders": "commandes",
       "all_orders": "Toutes les Commandes",
       "filter_by_status": "Filtrer par Statut",
       "update_status": "Mettre à Jour le Statut",

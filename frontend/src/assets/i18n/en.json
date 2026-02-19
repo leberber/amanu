@@ -668,6 +668,10 @@
     },
     "orders": {
       "title": "Order Management",
+      "subtitle": "View and manage customer orders",
+      "showing": "Showing",
+      "of": "of",
+      "orders": "orders",
       "all_orders": "All Orders",
       "filter_by_status": "Filter by Status",
       "update_status": "Update Status",
