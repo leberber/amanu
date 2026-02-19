@@ -1009,6 +1009,8 @@
         "try_adjusting": "Try adjusting your search terms"
       },
       "form": {
+        "add_subtitle": "Create a new category for your products",
+        "edit_subtitle": "Modify the details of this category",
         "translations": "Category Names",
         "translation_help": "Provide the category name in all supported languages. English will be used as the primary name.",
         "english_name": "English Name",
@@ -1104,6 +1106,8 @@
         "inactive": "Inactive"
       },
       "form": {
+        "add_subtitle": "Create a new brand for your products",
+        "edit_subtitle": "Modify the details of this brand",
         "translations": "Brand Names",
         "translation_help": "Provide the brand name in all supported languages. English will be used as the primary name.",
         "english_name": "English Name",

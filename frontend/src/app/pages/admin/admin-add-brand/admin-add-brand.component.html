@@ -1,277 +1,230 @@
 <!-- src/app/pages/admin/admin-add-brand/admin-add-brand.component.html -->
-<div class="content-height p-4">
-  <p-card>
-    <ng-template pTemplate="header">
-      <div class="flex justify-content-between align-items-center p-4">
-        <h2 class="m-0">{{ pageTitle | translate }}</h2>
-        <p-button
-          icon="pi pi-arrow-left"
-          [label]="'common.back' | translate"
-          severity="secondary"
-          (onClick)="onCancel()"
-        />
+<div class="brand-form-page">
+  <p-toast></p-toast>
+
+  <!-- Animated Background -->
+  <div class="bg-decoration">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
+
+  <div class="page-content">
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="header-content">
+        <div class="header-title">
+          <div class="icon-wrapper">
+            <div class="icon-bg"></div>
+            <div class="icon-circle">
+              <i class="pi pi-bookmark"></i>
+            </div>
+          </div>
+          <div class="title-text">
+            <h1>{{ pageTitle | translate }}</h1>
+            <p>{{ isEditMode() ? ('admin.brands.form.edit_subtitle' | translate) : ('admin.brands.form.add_subtitle' | translate) }}</p>
+          </div>
+        </div>
+        <button class="back-btn" (click)="onCancel()">
+          <i class="pi pi-arrow-left"></i>
+          <span>{{ 'common.back' | translate }}</span>
+        </button>
       </div>
-    </ng-template>
+    </div>
 
-    <form [formGroup]="brandForm" (ngSubmit)="onSubmit()" class="p-4">
+    <form [formGroup]="brandForm" (ngSubmit)="onSubmit()">
+      <!-- Cards Grid -->
+      <div class="cards-grid">
+        <!-- Brand Names Card -->
+        <div class="form-card">
+          <div class="card-header">
+            <div class="card-icon globe">
+              <i class="pi pi-globe"></i>
+            </div>
+            <h3>{{ 'admin.brands.form.translations' | translate }}</h3>
+          </div>
+          <div class="card-body">
+            <!-- English Name -->
+            <div class="language-section">
+              <span class="language-flag">🇬🇧</span>
+              <div class="language-content">
+                <div class="language-header">
+                  <strong>{{ 'admin.brands.form.english_name' | translate }}</strong>
+                  <span class="required">*</span>
+                </div>
+                <div class="form-field">
+                  <input
+                    type="text"
+                    formControlName="name_en"
+                    [placeholder]="'admin.brands.form.english_name' | translate">
+                  @if (brandForm.get('name_en')?.invalid && brandForm.get('name_en')?.touched) {
+                    <span class="field-error">{{ 'admin.brands.form.name_required' | translate }}</span>
+                  }
+                </div>
+              </div>
+            </div>
 
-      <!-- Brand Names Section -->
-      <div class="section-title">
-        <i class="pi pi-globe mr-2"></i>{{ 'admin.brands.form.translations' | translate }}
-      </div>
-      <p class="text-sm text-color-secondary mb-3">
-        {{ 'admin.brands.form.translation_help' | translate }}
-      </p>
+            <!-- French Name -->
+            <div class="language-section">
+              <span class="language-flag">🇫🇷</span>
+              <div class="language-content">
+                <div class="language-header">
+                  <strong>{{ 'admin.brands.form.french_name' | translate }}</strong>
+                  <span class="required">*</span>
+                </div>
+                <div class="form-field">
+                  <input
+                    type="text"
+                    formControlName="name_fr"
+                    [placeholder]="'admin.brands.form.french_name' | translate">
+                  @if (brandForm.get('name_fr')?.invalid && brandForm.get('name_fr')?.touched) {
+                    <span class="field-error">{{ 'admin.brands.form.name_required' | translate }}</span>
+                  }
+                </div>
+              </div>
+            </div>
 
-      <!-- English Name -->
-      <div class="language-section">
-        <div class="flex align-items-center mb-2">
-          <span class="language-flag">🇬🇧</span>
-          <strong>{{ 'admin.brands.form.english_name' | translate }} *</strong>
-        </div>
-        <div class="field">
-          <input
-            type="text"
-            id="name_en"
-            pInputText
-            formControlName="name_en"
-            [placeholder]="'admin.brands.form.english_name' | translate"
-            class="w-full"
-            [class.ng-invalid]="brandForm.get('name_en')?.invalid && brandForm.get('name_en')?.touched"
-          />
-          <small
-            *ngIf="brandForm.get('name_en')?.invalid && brandForm.get('name_en')?.touched"
-            class="p-error"
-          >
-            <span *ngIf="brandForm.get('name_en')?.errors?.['required']">
-              {{ 'admin.brands.form.name_required' | translate }}
-            </span>
-            <span *ngIf="brandForm.get('name_en')?.errors?.['minlength']">
-              {{ 'admin.brands.form.name_minlength' | translate }}
-            </span>
-          </small>
-        </div>
-      </div>
+            <!-- Arabic Name -->
+            <div class="language-section">
+              <span class="language-flag">🇩🇿</span>
+              <div class="language-content">
+                <div class="language-header">
+                  <strong>{{ 'admin.brands.form.arabic_name' | translate }}</strong>
+                  <span class="required">*</span>
+                </div>
+                <div class="form-field">
+                  <input
+                    type="text"
+                    formControlName="name_ar"
+                    dir="rtl"
+                    [placeholder]="'admin.brands.form.arabic_name' | translate">
+                  @if (brandForm.get('name_ar')?.invalid && brandForm.get('name_ar')?.touched) {
+                    <span class="field-error">{{ 'admin.brands.form.name_required' | translate }}</span>
+                  }
+                </div>
+              </div>
+            </div>
 
-      <!-- French Name -->
-      <div class="language-section">
-        <div class="flex align-items-center mb-2">
-          <span class="language-flag">🇫🇷</span>
-          <strong>{{ 'admin.brands.form.french_name' | translate }} *</strong>
-        </div>
-        <div class="field">
-          <input
-            type="text"
-            id="name_fr"
-            pInputText
-            formControlName="name_fr"
-            [placeholder]="'admin.brands.form.french_name' | translate"
-            class="w-full"
-            [class.ng-invalid]="brandForm.get('name_fr')?.invalid && brandForm.get('name_fr')?.touched"
-          />
-          <small
-            *ngIf="brandForm.get('name_fr')?.invalid && brandForm.get('name_fr')?.touched"
-            class="p-error"
-          >
-            <span *ngIf="brandForm.get('name_fr')?.errors?.['required']">
-              {{ 'admin.brands.form.name_required' | translate }}
-            </span>
-            <span *ngIf="brandForm.get('name_fr')?.errors?.['minlength']">
-              {{ 'admin.brands.form.name_minlength' | translate }}
-            </span>
-          </small>
-        </div>
-      </div>
-
-      <!-- Arabic Name -->
-      <div class="language-section">
-        <div class="flex align-items-center mb-2">
-          <span class="language-flag">🇩🇿</span>
-          <strong>{{ 'admin.brands.form.arabic_name' | translate }} *</strong>
-        </div>
-        <div class="field">
-          <input
-            type="text"
-            id="name_ar"
-            pInputText
-            formControlName="name_ar"
-            [placeholder]="'admin.brands.form.arabic_name' | translate"
-            class="w-full"
-            dir="rtl"
-            [class.ng-invalid]="brandForm.get('name_ar')?.invalid && brandForm.get('name_ar')?.touched"
-          />
-          <small
-            *ngIf="brandForm.get('name_ar')?.invalid && brandForm.get('name_ar')?.touched"
-            class="p-error"
-          >
-            <span *ngIf="brandForm.get('name_ar')?.errors?.['required']">
-              {{ 'admin.brands.form.name_required' | translate }}
-            </span>
-            <span *ngIf="brandForm.get('name_ar')?.errors?.['minlength']">
-              {{ 'admin.brands.form.name_minlength' | translate }}
-            </span>
-          </small>
-        </div>
-      </div>
-
-      <!-- Brand Descriptions Section -->
-      <div class="section-title">
-        <i class="pi pi-file-text mr-2"></i>{{ 'admin.brands.form.descriptions' | translate }}
-      </div>
-      <p class="text-sm text-color-secondary mb-3">
-        {{ 'admin.brands.form.description_help' | translate }}
-      </p>
-
-      <!-- English Description -->
-      <div class="language-section">
-        <div class="flex align-items-center mb-2">
-          <span class="language-flag">🇬🇧</span>
-          <strong>{{ 'admin.brands.form.english_description' | translate }}</strong>
-        </div>
-        <div class="field">
-          <textarea
-            id="description_en"
-            pTextarea
-            formControlName="description_en"
-            [placeholder]="'admin.brands.form.english_description' | translate"
-            class="w-full"
-            rows="3"
-          ></textarea>
-        </div>
-      </div>
-
-      <!-- French Description -->
-      <div class="language-section">
-        <div class="flex align-items-center mb-2">
-          <span class="language-flag">🇫🇷</span>
-          <strong>{{ 'admin.brands.form.french_description' | translate }}</strong>
-        </div>
-        <div class="field">
-          <textarea
-            id="description_fr"
-            pTextarea
-            formControlName="description_fr"
-            [placeholder]="'admin.brands.form.french_description' | translate"
-            class="w-full"
-            rows="3"
-          ></textarea>
-        </div>
-      </div>
-
-      <!-- Arabic Description -->
-      <div class="language-section">
-        <div class="flex align-items-center mb-2">
-          <span class="language-flag">🇩🇿</span>
-          <strong>{{ 'admin.brands.form.arabic_description' | translate }}</strong>
-        </div>
-        <div class="field">
-          <textarea
-            id="description_ar"
-            pTextarea
-            formControlName="description_ar"
-            [placeholder]="'admin.brands.form.arabic_description' | translate"
-            class="w-full"
-            rows="3"
-            dir="rtl"
-          ></textarea>
-        </div>
-      </div>
-
-      <!-- Settings Section -->
-      <div class="section-title">
-        <i class="pi pi-cog mr-2"></i>{{ 'admin.brands.form.settings' | translate }}
-      </div>
-
-      <div class="grid">
-        <div class="col-12">
-          <div class="field">
-            <label for="logo_url">{{ 'admin.brands.form.logo_url' | translate }}</label>
-            <input
-              type="url"
-              id="logo_url"
-              pInputText
-              formControlName="logo_url"
-              [placeholder]="'admin.brands.form.logo_placeholder' | translate"
-              class="w-full"
-            />
-            <small class="text-color-secondary">
-              {{ 'admin.brands.form.logo_help' | translate }}
-            </small>
+            <!-- Settings Section -->
+            <div class="settings-section">
+              <div class="form-field">
+                <label>{{ 'admin.brands.form.logo_url' | translate }}</label>
+                <input
+                  type="url"
+                  formControlName="logo_url"
+                  [placeholder]="'admin.brands.form.logo_placeholder' | translate">
+              </div>
+            </div>
           </div>
         </div>
 
-        <div class="col-12">
-          <div class="field-checkbox">
-            <p-checkbox
-              id="is_active"
-              formControlName="is_active"
-              binary="true"
-            />
-            <label for="is_active" class="ml-2">{{ 'admin.brands.form.is_active' | translate }}</label>
-            <small class="block text-color-secondary mt-1">
-              {{ 'admin.brands.form.active_help' | translate }}
-            </small>
+        <!-- Brand Descriptions Card -->
+        <div class="form-card">
+          <div class="card-header">
+            <div class="card-icon description">
+              <i class="pi pi-file-edit"></i>
+            </div>
+            <h3>{{ 'admin.brands.form.descriptions' | translate }}</h3>
           </div>
-        </div>
-      </div>
+          <div class="card-body">
+            <!-- English Description -->
+            <div class="language-section">
+              <span class="language-flag">🇬🇧</span>
+              <div class="language-content">
+                <div class="language-header">
+                  <strong>{{ 'admin.brands.form.english_description' | translate }}</strong>
+                </div>
+                <div class="form-field">
+                  <textarea
+                    formControlName="description_en"
+                    rows="2"
+                    [placeholder]="'admin.brands.form.english_description' | translate"
+                  ></textarea>
+                </div>
+              </div>
+            </div>
 
-      <!-- Translation Help Text -->
-      <div class="mt-4 p-3 surface-100 border-round">
-        <div class="flex align-items-start">
-          <i class="pi pi-info-circle text-blue-500 mr-2 mt-1"></i>
-          <div>
-            <strong class="text-blue-500">{{ 'admin.brands.form.translation_guidelines' | translate }}:</strong>
-            <ul class="mt-2 mb-0 text-sm text-color-secondary">
-              <li>{{ 'admin.brands.form.guideline_all_required' | translate }}</li>
-              <li>{{ 'admin.brands.form.guideline_english_primary' | translate }}</li>
-              <li>{{ 'admin.brands.form.guideline_descriptions_optional' | translate }}</li>
-              <li>{{ 'admin.brands.form.guideline_proper_formatting' | translate }}</li>
-            </ul>
+            <!-- French Description -->
+            <div class="language-section">
+              <span class="language-flag">🇫🇷</span>
+              <div class="language-content">
+                <div class="language-header">
+                  <strong>{{ 'admin.brands.form.french_description' | translate }}</strong>
+                </div>
+                <div class="form-field">
+                  <textarea
+                    formControlName="description_fr"
+                    rows="2"
+                    [placeholder]="'admin.brands.form.french_description' | translate"
+                  ></textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- Arabic Description -->
+            <div class="language-section">
+              <span class="language-flag">🇩🇿</span>
+              <div class="language-content">
+                <div class="language-header">
+                  <strong>{{ 'admin.brands.form.arabic_description' | translate }}</strong>
+                </div>
+                <div class="form-field">
+                  <textarea
+                    formControlName="description_ar"
+                    rows="2"
+                    dir="rtl"
+                    [placeholder]="'admin.brands.form.arabic_description' | translate"
+                  ></textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- Active Status -->
+            <div class="settings-section">
+              <div class="checkbox-field">
+                <p-checkbox
+                  formControlName="is_active"
+                  [binary]="true"
+                  inputId="is_active"
+                />
+                <label for="is_active">{{ 'admin.brands.form.is_active' | translate }}</label>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
       <!-- Form Actions -->
-      <div class="flex justify-content-end gap-2 mt-4">
-        <p-button
-          [label]="'admin.brands.form.cancel' | translate"
-          severity="secondary"
-          (onClick)="onCancel()"
-          [disabled]="loading()"
-          icon="pi pi-times"
-        />
-        <p-button
+      <div class="form-actions">
+        <button
+          type="button"
+          class="cancel-btn"
+          (click)="onCancel()"
+          [disabled]="loading()">
+          {{ 'common.cancel' | translate }}
+        </button>
+        <button
           type="submit"
-          [label]="submitButtonLabel | translate"
-          [loading]="loading()"
-          [disabled]="brandForm.invalid"
-          icon="pi pi-check"
-        />
-      </div>
-
-      <!-- Form Validation Summary -->
-      <div *ngIf="brandForm.invalid && brandForm.touched" class="mt-4 p-3 surface-200 border-round">
-        <div class="flex align-items-start">
-          <i class="pi pi-exclamation-triangle text-orange-500 mr-2 mt-1"></i>
-          <div>
-            <strong class="text-orange-500">{{ 'admin.brands.form.fix_errors' | translate }}:</strong>
-            <ul class="mt-2 mb-0 text-sm">
-              <li *ngIf="brandForm.get('name_en')?.invalid && brandForm.get('name_en')?.touched">
-                {{ 'admin.brands.form.english_name_required' | translate }}
-              </li>
-              <li *ngIf="brandForm.get('name_fr')?.invalid && brandForm.get('name_fr')?.touched">
-                {{ 'admin.brands.form.french_name_required' | translate }}
-              </li>
-              <li *ngIf="brandForm.get('name_ar')?.invalid && brandForm.get('name_ar')?.touched">
-                {{ 'admin.brands.form.arabic_name_required' | translate }}
-              </li>
-            </ul>
-          </div>
-        </div>
+          class="submit-btn"
+          [disabled]="brandForm.invalid || loading()">
+          @if (loading()) {
+            <i class="pi pi-spin pi-spinner spinner"></i>
+          } @else {
+            <i class="pi pi-check"></i>
+          }
+          <span>{{ submitButtonLabel | translate }}</span>
+        </button>
       </div>
     </form>
-  </p-card>
+  </div>
 
-  <!-- Toast messages -->
-  <p-toast />
+  <!-- Loading Overlay -->
+  @if (loading() && isEditMode()) {
+    <div class="loading-overlay">
+      <div class="loading-content">
+        <i class="pi pi-spin pi-spinner"></i>
+        <span>{{ 'common.loading' | translate }}</span>
+      </div>
+    </div>
+  }
 </div>

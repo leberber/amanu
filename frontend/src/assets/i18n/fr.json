@@ -1008,6 +1008,8 @@
         "try_adjusting": "Essayez d'ajuster vos termes de recherche"
       },
       "form": {
+        "add_subtitle": "Créer une nouvelle catégorie pour vos produits",
+        "edit_subtitle": "Modifier les détails de cette catégorie",
         "translations": "Noms de Catégorie",
         "translation_help": "Fournissez le nom de la catégorie dans toutes les langues prises en charge. L'anglais sera utilisé comme nom principal.",
         "english_name": "Nom en Anglais",
@@ -1103,6 +1105,8 @@
         "inactive": "Inactif"
       },
       "form": {
+        "add_subtitle": "Créer une nouvelle marque pour vos produits",
+        "edit_subtitle": "Modifier les détails de cette marque",
         "translations": "Noms de marque",
         "translation_help": "Fournissez le nom de la marque dans toutes les langues prises en charge. L anglais sera utilisé comme nom principal.",
         "english_name": "Nom anglais",

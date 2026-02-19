@@ -41,30 +41,7 @@ interface BrandWithTranslations extends Brand {
   ],
   providers: [MessageService],
   templateUrl: './admin-add-brand.component.html',
-  styles: [`
-    .field {
-      margin-bottom: 1rem;
-    }
-    .section-title {
-      font-size: 1.1rem;
-      font-weight: 600;
-      margin: 1.5rem 0 1rem 0;
-      padding-bottom: 0.5rem;
-      border-bottom: 1px solid var(--surface-border);
-      color: var(--primary-color);
-    }
-    .language-section {
-      background: var(--surface-50);
-      padding: 1rem;
-      border-radius: 6px;
-      margin-bottom: 1rem;
-      border-left: 4px solid var(--primary-color);
-    }
-    .language-flag {
-      font-size: 1.2rem;
-      margin-right: 0.5rem;
-    }
-  `]
+  styleUrl: './admin-add-brand.component.scss'
 })
 export class AdminAddBrandComponent implements OnInit {
   visible = signal(false);
