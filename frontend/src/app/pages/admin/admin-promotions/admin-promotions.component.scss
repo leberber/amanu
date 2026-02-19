@@ -509,15 +509,6 @@ $promo-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
       color: var(--text-color-secondary);
       border-bottom: 1px solid rgba(0, 0, 0, 0.06);
       white-space: nowrap;
-
-      &:nth-child(1) { min-width: 180px; } // Name
-      &:nth-child(2) { min-width: 100px; text-align: center; } // Code
-      &:nth-child(3) { min-width: 100px; text-align: center; } // Discount
-      &:nth-child(4) { min-width: 100px; text-align: center; } // Scope
-      &:nth-child(5) { min-width: 130px; text-align: center; } // Validity
-      &:nth-child(6) { min-width: 80px; text-align: center; }  // Usage
-      &:nth-child(7) { min-width: 100px; text-align: center; } // Status
-      &:nth-child(8) { min-width: 100px; text-align: center; } // Actions
     }
   }
 
@@ -539,16 +530,6 @@ $promo-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
     td {
       padding: 1rem;
       vertical-align: middle;
-
-      &:nth-child(2),
-      &:nth-child(3),
-      &:nth-child(4),
-      &:nth-child(5),
-      &:nth-child(6),
-      &:nth-child(7),
-      &:nth-child(8) {
-        text-align: center;
-      }
     }
   }
 }
@@ -597,14 +578,13 @@ $promo-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
   border-radius: 20px;
   font-size: 0.85rem;
   font-weight: 600;
-  text-align: center;
 
   &.percentage {
     background: rgba(59, 130, 246, 0.15);
     color: #3b82f6;
   }
 
-  &.fixed {
+  &.fixed-amount {
     background: rgba(17, 153, 142, 0.15);
     color: #11998e;
   }

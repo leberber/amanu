@@ -119,21 +119,21 @@
           <table class="promotions-table">
             <thead>
               <tr>
-                <th class="col-name">{{ 'admin.promotions.table.name' | translate }}</th>
-                <th class="col-code">{{ 'admin.promotions.table.code' | translate }}</th>
-                <th class="col-discount">{{ 'admin.promotions.table.discount' | translate }}</th>
-                <th class="col-scope">{{ 'admin.promotions.table.scope' | translate }}</th>
-                <th class="col-validity">{{ 'admin.promotions.table.validity' | translate }}</th>
-                <th class="col-usage">{{ 'admin.promotions.table.usage' | translate }}</th>
-                <th class="col-status">{{ 'admin.promotions.table.status' | translate }}</th>
-                <th class="col-actions">{{ 'admin.promotions.table.actions' | translate }}</th>
+                <th>{{ 'admin.promotions.table.name' | translate }}</th>
+                <th class="text-center">{{ 'admin.promotions.table.code' | translate }}</th>
+                <th class="text-center">{{ 'admin.promotions.table.discount' | translate }}</th>
+                <th class="text-center">{{ 'admin.promotions.table.scope' | translate }}</th>
+                <th class="text-center">{{ 'admin.promotions.table.validity' | translate }}</th>
+                <th class="text-center">{{ 'admin.promotions.table.usage' | translate }}</th>
+                <th class="text-center">{{ 'admin.promotions.table.status' | translate }}</th>
+                <th class="text-center">{{ 'admin.promotions.table.actions' | translate }}</th>
               </tr>
             </thead>
             <tbody>
               @for (promotion of paginatedPromotions; track promotion.id) {
                 <tr>
                   <!-- Name -->
-                  <td class="col-name">
+                  <td>
                     <div class="promotion-info">
                       <span class="promotion-name">{{ promotion.name }}</span>
                       <span class="promotion-desc" *ngIf="promotion.description">
@@ -143,7 +143,7 @@
                   </td>
 
                   <!-- Code -->
-                  <td class="col-code">
+                  <td class="text-center">
                     <span *ngIf="promotion.code" class="code-badge">
                       {{ promotion.code }}
                     </span>
@@ -153,21 +153,21 @@
                   </td>
 
                   <!-- Discount -->
-                  <td class="col-discount">
-                    <span class="discount-badge" [class.percentage]="promotion.discount_type === 'percentage'" [class.fixed]="promotion.discount_type !== 'percentage'">
+                  <td class="text-center">
+                    <span class="discount-badge" [class.percentage]="promotion.discount_type === 'percentage'" [class.fixed-amount]="promotion.discount_type !== 'percentage'">
                       {{ getDiscountDisplay(promotion) }}
                     </span>
                   </td>
 
                   <!-- Scope -->
-                  <td class="col-scope">
+                  <td class="text-center">
                     <span class="scope-badge">
                       {{ getScopeDisplay(promotion) }}
                     </span>
                   </td>
 
                   <!-- Validity -->
-                  <td class="col-validity">
+                  <td class="text-center">
                     <div class="validity-info">
                       <span class="date-start">{{ formatDate(promotion.start_date) }}</span>
                       <span class="date-separator">{{ 'admin.promotions.to' | translate }}</span>
@@ -176,12 +176,12 @@
                   </td>
 
                   <!-- Usage -->
-                  <td class="col-usage">
+                  <td class="text-center">
                     <span class="usage-badge">{{ getUsageDisplay(promotion) }}</span>
                   </td>
 
                   <!-- Status -->
-                  <td class="col-status">
+                  <td class="text-center">
                     <span class="status-badge" [class]="'status-' + getStatusClass(promotion)">
                       <i [class]="getStatusIcon(promotion)"></i>
                       {{ getStatusLabel(promotion) }}
@@ -189,7 +189,7 @@
                   </td>
 
                   <!-- Actions -->
-                  <td class="col-actions">
+                  <td class="text-center">
                     <div class="action-buttons">
                       <button class="edit-btn" (click)="editPromotion(promotion)" [pTooltip]="'admin.promotions.actions.edit' | translate">
                         <i class="pi pi-pencil"></i>
