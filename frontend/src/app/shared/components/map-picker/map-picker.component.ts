@@ -3,11 +3,16 @@ import { Component, Input, Output, EventEmitter, AfterViewInit, OnDestroy, injec
 import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import * as L from 'leaflet';
+import { environment } from '../../../../environments/environment';
 
 export interface LocationData {
   latitude: number;
   longitude: number;
   address: string;
+  wilaya?: string;
+  daira?: string;
+  commune?: string;
+  village?: string;
 }
 
 @Component({
@@ -629,21 +634,55 @@ export class MapPickerComponent implements AfterViewInit, OnDestroy {
   private reverseGeocode(lat: number, lng: number): void {
     this.isLoadingAddress = true;
 
-    const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`;
+    // Google Maps Geocoding API
+    const apiKey = environment.googleMapsApiKey;
+    const language = this.translateService.currentLang || 'en';
+    const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apiKey}&language=${language}`;
 
-    fetch(url, {
-      headers: {
-        'Accept-Language': this.translateService.currentLang || 'en'
-      }
-    })
+    fetch(url)
       .then(response => response.json())
       .then(data => {
-        const address = data.display_name || '';
-        this.selectedLocation = {
-          latitude: lat,
-          longitude: lng,
-          address: address
-        };
+        console.log('Google Geocoder response:', data);
+
+        if (data.status === 'OK' && data.results && data.results.length > 0) {
+          const result = data.results[0];
+          const address = result.formatted_address || '';
+          const components = result.address_components || [];
+
+          // Extract location components from Google's response
+          // For Algeria: Wilaya = administrative_area_level_1, Daira = administrative_area_level_2, Commune = locality
+          const wilaya = this.getAddressComponent(components, 'administrative_area_level_1');
+          const daira = this.getAddressComponent(components, 'administrative_area_level_2');
+          const commune = this.getAddressComponent(components, 'locality');
+          const village = this.getAddressComponent(components, 'neighborhood') ||
+                          this.getAddressComponent(components, 'sublocality') ||
+                          this.getAddressComponent(components, 'sublocality_level_1');
+
+          // Log extracted location data in a clear format
+          console.log('📍 Extracted Location Data:');
+          console.log('  Wilaya:', wilaya || '(not found)');
+          console.log('  Daira:', daira || '(not found)');
+          console.log('  Commune:', commune || '(not found)');
+          console.log('  Village:', village || '(not found)');
+
+          this.selectedLocation = {
+            latitude: lat,
+            longitude: lng,
+            address: address,
+            wilaya: wilaya,
+            daira: daira,
+            commune: commune,
+            village: village
+          };
+        } else {
+          console.warn('Geocoding failed:', data.status);
+          this.selectedLocation = {
+            latitude: lat,
+            longitude: lng,
+            address: ''
+          };
+        }
+
         this.locationSelected.emit(this.selectedLocation);
         this.isLoadingAddress = false;
       })
@@ -657,6 +696,11 @@ export class MapPickerComponent implements AfterViewInit, OnDestroy {
         this.locationSelected.emit(this.selectedLocation);
         this.isLoadingAddress = false;
       });
+  }
+
+  private getAddressComponent(components: any[], type: string): string {
+    const component = components.find(c => c.types && c.types.includes(type));
+    return component ? component.long_name : '';
   }
 
   public reset(): void {

@@ -296,7 +296,6 @@
                   optionValue="value"
                   [placeholder]="'register.select_daira' | translate"
                   [showClear]="false"
-                  [disabled]="!storeDetailsForm.get('wilaya')?.value"
                   (onFocus)="onInputFocus('daira')"
                   (onBlur)="onInputBlur()">
                 </p-select>
@@ -317,7 +316,6 @@
                   optionValue="value"
                   [placeholder]="'register.select_commune' | translate"
                   [showClear]="false"
-                  [disabled]="!storeDetailsForm.get('daira')?.value"
                   (onFocus)="onInputFocus('commune')"
                   (onBlur)="onInputBlur()">
                 </p-select>

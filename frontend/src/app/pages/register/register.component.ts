@@ -105,8 +105,8 @@ export class RegisterComponent implements OnInit {
     this.storeDetailsForm = this.fb.group({
       store_name: [''],
       wilaya: ['', Validators.required],
-      daira: ['', Validators.required],
-      commune: ['', Validators.required]
+      daira: [{ value: '', disabled: true }, Validators.required],
+      commune: [{ value: '', disabled: true }, Validators.required]
     });
   }
 
@@ -131,38 +131,51 @@ export class RegisterComponent implements OnInit {
   }
 
   private setupFormSubscriptions() {
+    const dairaControl = this.storeDetailsForm.get('daira');
+    const communeControl = this.storeDetailsForm.get('commune');
+
     // Listen for wilaya changes
     this.storeDetailsForm.get('wilaya')?.valueChanges.subscribe(selectedWilaya => {
-      this.storeDetailsForm.patchValue({ daira: '', commune: '' }, { emitEvent: false });
+      // Reset and disable dependent fields
+      dairaControl?.setValue('', { emitEvent: false });
+      communeControl?.setValue('', { emitEvent: false });
       this.communes = [];
 
       const wilayaData = this.wilayaDataList.find(w => w.wilaya === selectedWilaya);
-      if (wilayaData) {
+      if (wilayaData && selectedWilaya) {
         this.dairas = wilayaData.dairas.map(d => ({
           label: d.daira_name,
           value: d.daira_name
         }));
+        dairaControl?.enable({ emitEvent: false });
       } else {
         this.dairas = [];
+        dairaControl?.disable({ emitEvent: false });
       }
+      communeControl?.disable({ emitEvent: false });
     });
 
     // Listen for daira changes
-    this.storeDetailsForm.get('daira')?.valueChanges.subscribe(selectedDaira => {
-      this.storeDetailsForm.patchValue({ commune: '' }, { emitEvent: false });
+    dairaControl?.valueChanges.subscribe(selectedDaira => {
+      communeControl?.setValue('', { emitEvent: false });
 
       const selectedWilaya = this.storeDetailsForm.get('wilaya')?.value;
       const wilayaData = this.wilayaDataList.find(w => w.wilaya === selectedWilaya);
-      if (wilayaData) {
+      if (wilayaData && selectedDaira) {
         const dairaData = wilayaData.dairas.find(d => d.daira_name === selectedDaira);
         if (dairaData) {
           this.communes = dairaData.communes.map(c => ({
             label: c.name,
             value: c.name
           }));
+          communeControl?.enable({ emitEvent: false });
         } else {
           this.communes = [];
+          communeControl?.disable({ emitEvent: false });
         }
+      } else {
+        this.communes = [];
+        communeControl?.disable({ emitEvent: false });
       }
     });
   }
@@ -188,6 +201,74 @@ export class RegisterComponent implements OnInit {
 
   onLocationSelected(location: LocationData) {
     this.locationData = location;
+
+    // Auto-populate store details from geocoder data
+    if (location.wilaya || location.daira || location.commune) {
+      this.autoPopulateStoreDetails(location);
+    }
+  }
+
+  private autoPopulateStoreDetails(location: LocationData) {
+    // Try to match wilaya from geocoder with available wilayas
+    if (location.wilaya) {
+      const matchedWilaya = this.findMatchingOption(this.wilayas, location.wilaya);
+      if (matchedWilaya) {
+        this.storeDetailsForm.patchValue({ wilaya: matchedWilaya }, { emitEvent: true });
+
+        // Wait for dairas to load, then try to match daira
+        setTimeout(() => {
+          if (location.daira && this.dairas.length > 0) {
+            const matchedDaira = this.findMatchingOption(this.dairas, location.daira);
+            if (matchedDaira) {
+              this.storeDetailsForm.patchValue({ daira: matchedDaira }, { emitEvent: true });
+
+              // Wait for communes to load, then try to match commune
+              setTimeout(() => {
+                if (location.commune && this.communes.length > 0) {
+                  const matchedCommune = this.findMatchingOption(this.communes, location.commune);
+                  if (matchedCommune) {
+                    this.storeDetailsForm.patchValue({ commune: matchedCommune }, { emitEvent: false });
+                  }
+                }
+              }, 100);
+            }
+          }
+        }, 100);
+      }
+    }
+  }
+
+  private findMatchingOption(options: { label: string; value: string }[], searchValue: string): string | null {
+    if (!searchValue || !options.length) return null;
+
+    const normalizedSearch = this.normalizeString(searchValue);
+
+    // Try exact match first
+    const exactMatch = options.find(opt =>
+      this.normalizeString(opt.value) === normalizedSearch ||
+      this.normalizeString(opt.label) === normalizedSearch
+    );
+    if (exactMatch) return exactMatch.value;
+
+    // Try partial match (contains)
+    const partialMatch = options.find(opt =>
+      this.normalizeString(opt.value).includes(normalizedSearch) ||
+      this.normalizeString(opt.label).includes(normalizedSearch) ||
+      normalizedSearch.includes(this.normalizeString(opt.value)) ||
+      normalizedSearch.includes(this.normalizeString(opt.label))
+    );
+    if (partialMatch) return partialMatch.value;
+
+    return null;
+  }
+
+  private normalizeString(str: string): string {
+    return str
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '') // Remove accents
+      .replace(/[-_]/g, ' ')
+      .trim();
   }
 
   onLocationError(errorType: string) {
@@ -231,7 +312,9 @@ export class RegisterComponent implements OnInit {
   }
 
   canProceedStep4(): boolean {
-    return this.storeDetailsForm.valid;
+    // Check all required fields have values (using getRawValue to include disabled controls)
+    const values = this.storeDetailsForm.getRawValue();
+    return !!(values.wilaya && values.daira && values.commune);
   }
 
   // Check if current step is valid
@@ -342,6 +425,7 @@ export class RegisterComponent implements OnInit {
 
     this.loading = true;
 
+    const storeDetails = this.storeDetailsForm.getRawValue();
     const registerData = {
       full_name: this.personalInfoForm.value.full_name,
       email: this.personalInfoForm.value.email,
@@ -350,10 +434,10 @@ export class RegisterComponent implements OnInit {
       address: this.locationData?.address || '',
       latitude: this.locationData?.latitude,
       longitude: this.locationData?.longitude,
-      store_name: this.storeDetailsForm.value.store_name || null,
-      wilaya: this.storeDetailsForm.value.wilaya,
-      daira: this.storeDetailsForm.value.daira,
-      commune: this.storeDetailsForm.value.commune,
+      store_name: storeDetails.store_name || null,
+      wilaya: storeDetails.wilaya,
+      daira: storeDetails.daira,
+      commune: storeDetails.commune,
       role: UserRole.CUSTOMER
     };
 
