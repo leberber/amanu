@@ -45,7 +45,8 @@
     "proceed": "Proceed",
     "on": "On",
     "off": "Off",
-    "optional": "Optional"
+    "optional": "Optional",
+    "all": "All"
   },
   "Select All": "Select All",
   "Clear": "Clear",

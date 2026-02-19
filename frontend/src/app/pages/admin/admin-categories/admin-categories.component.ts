@@ -61,6 +61,9 @@ export class AdminCategoriesComponent implements OnInit {
   first = 0;
   rows = 12;
 
+  // Status filter
+  statusFilter: 'all' | 'active' | 'inactive' = 'all';
+
   // Store product counts for each category
   categoryProductCounts: { [categoryId: number]: number } = {};
   
@@ -85,7 +88,7 @@ export class AdminCategoriesComponent implements OnInit {
   }
 
   hasActiveFilters(): boolean {
-    return !!(this.searchQuery?.trim());
+    return !!(this.searchQuery?.trim()) || this.statusFilter !== 'all';
   }
 
   // Load all categories once on page load
@@ -132,6 +135,13 @@ export class AdminCategoriesComponent implements OnInit {
   filterCategories() {
     let filtered = [...this.allCategories];
 
+    // Apply status filter
+    if (this.statusFilter === 'active') {
+      filtered = filtered.filter(category => category.is_active);
+    } else if (this.statusFilter === 'inactive') {
+      filtered = filtered.filter(category => !category.is_active);
+    }
+
     // Apply search filter
     if (this.searchQuery?.trim()) {
       const search = this.searchQuery.toLowerCase();
@@ -144,6 +154,11 @@ export class AdminCategoriesComponent implements OnInit {
     this.categories = filtered;
     this.first = 0; // Reset to first page when filtering
     this.updatePaginatedCategories();
+  }
+
+  onStatusFilterChange(status: 'all' | 'active' | 'inactive') {
+    this.statusFilter = status;
+    this.filterCategories();
   }
 
   updatePaginatedCategories() {
@@ -172,6 +187,7 @@ export class AdminCategoriesComponent implements OnInit {
   // Clear filters with client-side filtering
   clearFilters() {
     this.searchQuery = '';
+    this.statusFilter = 'all';
     this.filterCategories(); // Filter client-side instead of API call
   }
 
@@ -246,5 +262,13 @@ export class AdminCategoriesComponent implements OnInit {
 
   getCategoryDescription(category: Category): string {
     return this.translationHelper.getCategoryDescription(category);
+  }
+
+  getActiveCount(): number {
+    return this.allCategories.filter(c => c.is_active).length;
+  }
+
+  getInactiveCount(): number {
+    return this.allCategories.filter(c => !c.is_active).length;
   }
 }

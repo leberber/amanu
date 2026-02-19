@@ -31,6 +31,31 @@
       </button>
     </div>
 
+    <!-- Status Segmented Control -->
+    <div class="status-segment">
+      <button
+        class="segment-btn"
+        [class.active]="statusFilter === 'all'"
+        (click)="onStatusFilterChange('all')">
+        <span>{{ 'common.all' | translate }}</span>
+        <span class="count">{{ allBrands.length }}</span>
+      </button>
+      <button
+        class="segment-btn"
+        [class.active]="statusFilter === 'active'"
+        (click)="onStatusFilterChange('active')">
+        <span>{{ 'common.active' | translate }}</span>
+        <span class="count active">{{ getActiveCount() }}</span>
+      </button>
+      <button
+        class="segment-btn"
+        [class.active]="statusFilter === 'inactive'"
+        (click)="onStatusFilterChange('inactive')">
+        <span>{{ 'common.inactive' | translate }}</span>
+        <span class="count inactive">{{ getInactiveCount() }}</span>
+      </button>
+    </div>
+
     <!-- Search & Filters Card -->
     <div class="filters-card">
       <div class="search-box">

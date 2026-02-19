@@ -45,7 +45,8 @@
     "proceed": "Continuer",
     "on": "Activé",
     "off": "Désactivé",
-    "optional": "Optionnel"
+    "optional": "Optionnel",
+    "all": "Tous"
   },
   "Select All": "Tout Sélectionner",
   "Clear": "Effacer",

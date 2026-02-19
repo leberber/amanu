@@ -62,6 +62,9 @@ export class AdminBrandsComponent implements OnInit {
   first = 0;
   rows = 12;
 
+  // Status filter
+  statusFilter: 'all' | 'active' | 'inactive' = 'all';
+
   // Product counts per brand
   brandProductCounts: { [brandId: number]: number } = {};
 
@@ -84,7 +87,7 @@ export class AdminBrandsComponent implements OnInit {
   }
 
   hasActiveFilters(): boolean {
-    return !!(this.searchQuery?.trim());
+    return !!(this.searchQuery?.trim()) || this.statusFilter !== 'all';
   }
 
   loadAllBrands() {
@@ -128,6 +131,14 @@ export class AdminBrandsComponent implements OnInit {
   filterBrands() {
     let filtered = [...this.allBrands];
 
+    // Apply status filter
+    if (this.statusFilter === 'active') {
+      filtered = filtered.filter(brand => brand.is_active);
+    } else if (this.statusFilter === 'inactive') {
+      filtered = filtered.filter(brand => !brand.is_active);
+    }
+
+    // Apply search filter
     if (this.searchQuery?.trim()) {
       const search = this.searchQuery.toLowerCase();
       filtered = filtered.filter(brand =>
@@ -139,6 +150,11 @@ export class AdminBrandsComponent implements OnInit {
     this.brands = filtered;
     this.first = 0; // Reset to first page when filtering
     this.updatePaginatedBrands();
+  }
+
+  onStatusFilterChange(status: 'all' | 'active' | 'inactive') {
+    this.statusFilter = status;
+    this.filterBrands();
   }
 
   updatePaginatedBrands() {
@@ -167,6 +183,7 @@ export class AdminBrandsComponent implements OnInit {
 
   clearFilters() {
     this.searchQuery = '';
+    this.statusFilter = 'all';
     this.filterBrands();
   }
 
@@ -229,5 +246,13 @@ export class AdminBrandsComponent implements OnInit {
 
   getBrandDescription(brand: Brand): string {
     return this.translationHelper.getBrandDescription(brand);
+  }
+
+  getActiveCount(): number {
+    return this.allBrands.filter(b => b.is_active).length;
+  }
+
+  getInactiveCount(): number {
+    return this.allBrands.filter(b => !b.is_active).length;
   }
 }
