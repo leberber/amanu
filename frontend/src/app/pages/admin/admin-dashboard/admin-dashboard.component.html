@@ -1,237 +1,220 @@
 <!-- src/app/pages/admin/admin-dashboard/admin-dashboard.component.html -->
-<div class="h-full pt-2 px-2 overflow-hidden overflow-scroll ">
-    <p-toast></p-toast>
-    
+<div class="admin-dashboard">
+  <p-toast></p-toast>
 
-   @if (loading) {
-      <div class="flex justify-content-center">
-        <p-progressSpinner></p-progressSpinner>
+  <!-- Animated Background -->
+  <div class="bg-decoration">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
+
+  <div class="dashboard-content">
+    @if (loading) {
+      <div class="loading-container">
+        <div class="loading-card">
+          <div class="loading-spinner">
+            <i class="pi pi-spin pi-spinner"></i>
+          </div>
+          <span>{{ 'common.loading' | translate }}</span>
+        </div>
       </div>
     } @else if (stats) {
-      <!-- Title and Quick Actions on Same Line -->
-      <div class="flex flex-column md:flex-row justify-content-between align-items-start md:align-items-center mb-4 surface-card p-4   gap-3">
-        <h1 class="text-3xl font-medium m-0">{{ 'admin.dashboard.title' | translate }}</h1>
-        
-        <div class="flex flex-wrap gap-2">
-          <button pButton [label]="'admin.dashboard.manage_orders' | translate" icon="pi pi-list" (click)="navigateToOrders()"></button>
-          <button pButton [label]="'admin.dashboard.manage_users' | translate" icon="pi pi-users" (click)="navigateToUsers()"></button>
-          <button pButton [label]="'admin.dashboard.manage_products' | translate" icon="pi pi-box" (click)="navigateToProducts()"></button>
-          <button pButton [label]="'admin.dashboard.manage_categories' | translate" icon="pi pi-folder" (click)="navigateToCategories()"></button>
-          <button pButton [label]="'admin.dashboard.manage_brands' | translate" icon="pi pi-building" (click)="navigateToBrands()"></button>
+      <!-- Dashboard Header -->
+      <div class="dashboard-header">
+        <div class="header-content">
+          <div class="header-title">
+            <div class="icon-wrapper">
+              <div class="icon-bg"></div>
+              <div class="icon-circle">
+                <i class="pi pi-chart-bar"></i>
+              </div>
+            </div>
+            <div class="title-text">
+              <h1>{{ 'admin.dashboard.title' | translate }}</h1>
+              <p>{{ 'admin.dashboard.welcome_message' | translate }}</p>
+            </div>
+          </div>
         </div>
       </div>
-      
-      
-<!-- Enhanced Key Metrics -->
-      <div class="grid mb-4">
 
+      <!-- Stats Grid -->
+      <div class="stats-grid">
         <!-- Total Revenue -->
-        <div class="col-6 md:col-4 lg:col">
-          <div class="surface-card p-4 border-round-lg text-center hover:shadow-3 transition-all transition-duration-300 cursor-pointer"
-               style="box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);">
-            <div class="flex align-items-center justify-content-center w-4rem h-4rem mx-auto mb-3 border-circle bg-green-100">
-              <i class="pi pi-dollar text-3xl text-green-600"></i>
-            </div>
-            <div class="text-900 text-2xl font-bold mb-1">${{stats.total_revenue.toFixed(2)}}</div>
-            <div class="text-600 text-sm font-medium">{{ 'admin.dashboard.total_revenue' | translate }}</div>
+        <div class="stat-card revenue">
+          <div class="stat-icon">
+            <i class="pi pi-dollar"></i>
           </div>
+          <div class="stat-info">
+            <span class="stat-value">${{stats.total_revenue.toFixed(2)}}</span>
+            <span class="stat-label">{{ 'admin.dashboard.total_revenue' | translate }}</span>
+          </div>
+          <div class="stat-decoration"></div>
         </div>
 
-                <!-- Total Users -->
-        <div class="col-6 md:col-4 lg:col">
-          <div class="surface-card p-4 border-round-lg text-center hover:shadow-3 transition-all transition-duration-300 cursor-pointer"
-               style="box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);"
-               (click)="navigateToUsers()">
-            <div class="flex align-items-center justify-content-center w-4rem h-4rem mx-auto mb-3 border-circle bg-purple-100">
-              <i class="pi pi-users text-3xl text-purple-600"></i>
-            </div>
-            <div class="text-900 text-2xl font-bold mb-1">{{stats.total_users}}</div>
-            <div class="text-600 text-sm font-medium">{{ 'admin.dashboard.total_users' | translate }}</div>
+        <!-- Total Users -->
+        <div class="stat-card users" (click)="navigateToUsers()">
+          <div class="stat-icon">
+            <i class="pi pi-users"></i>
           </div>
+          <div class="stat-info">
+            <span class="stat-value">{{stats.total_users}}</span>
+            <span class="stat-label">{{ 'admin.dashboard.total_users' | translate }}</span>
+          </div>
+          <div class="stat-decoration"></div>
         </div>
 
-                <!-- Total Products -->
-        <div class="col-6 md:col-4 lg:col">
-          <div class="surface-card p-4 border-round-lg text-center hover:shadow-3 transition-all transition-duration-300 cursor-pointer"
-               style="box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);"
-               (click)="navigateToProducts()">
-            <div class="flex align-items-center justify-content-center w-4rem h-4rem mx-auto mb-3 border-circle bg-orange-100">
-              <i class="pi pi-box text-3xl text-orange-600"></i>
-            </div>
-            <div class="text-900 text-2xl font-bold mb-1">{{stats.total_products}}</div>
-            <div class="text-600 text-sm font-medium">{{ 'admin.dashboard.total_products' | translate }}</div>
+        <!-- Total Products -->
+        <div class="stat-card products" (click)="navigateToProducts()">
+          <div class="stat-icon">
+            <i class="pi pi-box"></i>
           </div>
+          <div class="stat-info">
+            <span class="stat-value">{{stats.total_products}}</span>
+            <span class="stat-label">{{ 'admin.dashboard.total_products' | translate }}</span>
+          </div>
+          <div class="stat-decoration"></div>
         </div>
-        
+
         <!-- Total Categories -->
-        <div class="col-6 md:col-4 lg:col">
-          <div class="surface-card p-4 border-round-lg text-center hover:shadow-3 transition-all transition-duration-300 cursor-pointer"
-               style="box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);"
-               (click)="navigateToCategories()">
-            <div class="flex align-items-center justify-content-center w-4rem h-4rem mx-auto mb-3 border-circle bg-cyan-100">
-              <i class="pi pi-folder text-3xl text-cyan-600"></i>
-            </div>
-            <div class="text-900 text-2xl font-bold mb-1">{{stats.total_categories}}</div>
-            <div class="text-600 text-sm font-medium">{{ 'admin.dashboard.total_categories' | translate }}</div>
+        <div class="stat-card categories" (click)="navigateToCategories()">
+          <div class="stat-icon">
+            <i class="pi pi-folder"></i>
           </div>
+          <div class="stat-info">
+            <span class="stat-value">{{stats.total_categories}}</span>
+            <span class="stat-label">{{ 'admin.dashboard.total_categories' | translate }}</span>
+          </div>
+          <div class="stat-decoration"></div>
         </div>
 
         <!-- Total Orders -->
-        <div class="col-6 md:col-4 lg:col">
-          <div class="surface-card p-4 border-round-lg text-center hover:shadow-3 transition-all transition-duration-300 cursor-pointer" 
-               style="box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);"
-               (click)="navigateToOrders()">
-            <div class="flex align-items-center justify-content-center w-4rem h-4rem mx-auto mb-3 border-circle bg-blue-100">
-              <i class="pi pi-shopping-cart text-3xl text-blue-600"></i>
-            </div>
-            <div class="text-900 text-2xl font-bold mb-1">{{stats.total_orders}}</div>
-            <div class="text-600 text-sm font-medium">{{ 'admin.dashboard.total_orders' | translate }}</div>
+        <div class="stat-card orders" (click)="navigateToOrders()">
+          <div class="stat-icon">
+            <i class="pi pi-shopping-cart"></i>
           </div>
+          <div class="stat-info">
+            <span class="stat-value">{{stats.total_orders}}</span>
+            <span class="stat-label">{{ 'admin.dashboard.total_orders' | translate }}</span>
+          </div>
+          <div class="stat-decoration"></div>
         </div>
-        
 
-        
         <!-- Pending Orders -->
-        <div class="col-6 md:col-4 lg:col">
-          <div class="surface-card p-4 border-round-lg text-center hover:shadow-3 transition-all transition-duration-300 cursor-pointer"
-               style="box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);"
-               (click)="navigateToOrders()">
-            <div class="flex align-items-center justify-content-center w-4rem h-4rem mx-auto mb-3 border-circle bg-yellow-100">
-              <i class="pi pi-clock text-3xl text-yellow-600"></i>
-            </div>
-            <div class="text-900 text-2xl font-bold mb-1">{{stats.pending_orders}}</div>
-            <div class="text-600 text-sm font-medium">{{ 'admin.dashboard.pending_orders' | translate }}</div>
+        <div class="stat-card pending" (click)="navigateToOrders()">
+          <div class="stat-icon">
+            <i class="pi pi-clock"></i>
           </div>
+          <div class="stat-info">
+            <span class="stat-value">{{stats.pending_orders}}</span>
+            <span class="stat-label">{{ 'admin.dashboard.pending_orders' | translate }}</span>
+          </div>
+          <div class="stat-decoration"></div>
         </div>
-        
+
         <!-- Low Stock -->
-        <div class="col-6 md:col-4 lg:col">
-          <div class="surface-card p-4 border-round-lg text-center hover:shadow-3 transition-all transition-duration-300 cursor-pointer"
-               style="box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);"
-               (click)="navigateToProducts()">
-            <div class="flex align-items-center justify-content-center w-4rem h-4rem mx-auto mb-3 border-circle bg-red-100">
-              <i class="pi pi-exclamation-triangle text-3xl text-red-600"></i>
-            </div>
-            <div class="text-900 text-2xl font-bold mb-1">{{stats.low_stock_products}}</div>
-            <div class="text-600 text-sm font-medium">{{ 'admin.dashboard.low_stock_items' | translate }}</div>
+        <div class="stat-card warning" (click)="navigateToProducts()">
+          <div class="stat-icon">
+            <i class="pi pi-exclamation-triangle"></i>
           </div>
-        </div>
-      </div>
-      
-
-
-      <!-- Send Notification Card -->
-      <div class="surface-card p-4 shadow-2 border-round mb-4">
-        <div class="flex align-items-center gap-2 mb-3">
-          <i class="pi pi-bell text-2xl text-primary"></i>
-          <h3 class="text-xl font-medium m-0">{{ 'admin.dashboard.send_notification' | translate }}</h3>
-        </div>
-        <div class="grid">
-          <div class="col-12 md:col-5">
-            <label class="block mb-2 font-medium">{{ 'admin.dashboard.notification_title' | translate }}</label>
-            <input type="text" pInputText [(ngModel)]="notificationTitle"
-                   [placeholder]="'admin.dashboard.notification_title_placeholder' | translate"
-                   class="w-full" />
+          <div class="stat-info">
+            <span class="stat-value">{{stats.low_stock_products}}</span>
+            <span class="stat-label">{{ 'admin.dashboard.low_stock_items' | translate }}</span>
           </div>
-          <div class="col-12 md:col-5">
-            <label class="block mb-2 font-medium">{{ 'admin.dashboard.notification_body' | translate }}</label>
-            <input type="text" pInputText [(ngModel)]="notificationBody"
-                   [placeholder]="'admin.dashboard.notification_body_placeholder' | translate"
-                   class="w-full" />
-          </div>
-          <div class="col-12 md:col-2 flex align-items-end">
-            <button pButton [label]="'admin.dashboard.send' | translate"
-                    icon="pi pi-send"
-                    (click)="sendNotification()"
-                    [loading]="sendingNotification"
-                    [disabled]="sendingNotification || !notificationTitle.trim() || !notificationBody.trim()"
-                    class="w-full"></button>
-          </div>
+          <div class="stat-decoration"></div>
         </div>
       </div>
 
-      <!-- Chart and Table Row -->
-      <div class="grid">
+      <!-- Charts and Tables -->
+      <div class="data-section">
         <!-- Sales by Category Chart -->
-        <div class="col-12 md:col-6">
-          <div class="surface-card p-4 shadow-2 border-round">
-            <h3 class="text-xl font-medium mb-3">{{ 'admin.dashboard.sales_by_category' | translate }}</h3>
+        <div class="data-card chart-card">
+          <div class="card-header">
+            <div class="header-icon chart">
+              <i class="pi pi-chart-pie"></i>
+            </div>
+            <h3>{{ 'admin.dashboard.sales_by_category' | translate }}</h3>
+          </div>
+          <div class="card-body">
             @if (categoryChartData) {
-              <p-chart type="pie" [data]="categoryChartData" [options]="categoryChartOptions" width="100%"></p-chart>
+              <p-chart type="pie" [data]="categoryChartData" [options]="categoryChartOptions"></p-chart>
             }
           </div>
         </div>
-        
-        <!-- Recent Orders Table -->
-        <div class="col-12 md:col-6">
-          <div class="surface-card p-4 shadow-2 border-round">
-            <h3 class="text-xl font-medium mb-3">{{ 'admin.dashboard.recent_orders' | translate }}</h3>
-            
-            <p-table [value]="stats.recent_orders" styleClass="p-datatable-sm p-datatable-striped" [tableStyle]="{'min-width': '100%'}">
-              <ng-template pTemplate="header">
-                <tr>
-                  <th>{{ 'admin.dashboard.table.id' | translate }}</th>
-                  <th>{{ 'admin.dashboard.table.customer' | translate }}</th>
-                  <th>{{ 'admin.dashboard.table.status' | translate }}</th>
-                  <th>{{ 'admin.dashboard.table.amount' | translate }}</th>
-                </tr>
-              </ng-template>
-              <ng-template pTemplate="body" let-order>
-                <tr>
-                  <td>
-                    <a [routerLink]="['/admin/orders', order.order_id]">
-                      #{{order.order_id}}
-                    </a>
-                  </td>
-                  <td>{{order.customer_name}}</td>
-                  <td>
-                    <p-tag [severity]="getStatusSeverity(order.status)" [value]="'admin.orders.status.' + order.status | translate"></p-tag>
-                  </td>
-                  <td>${{order.total_amount.toFixed(2)}}</td>
-                </tr>
-              </ng-template>
-            </p-table>
-            
-            <div class="mt-3">
-              <button pButton [label]="'admin.dashboard.view_all_orders' | translate" icon="pi pi-arrow-right" 
-                      class="p-button-text p-button-sm" (click)="navigateToOrders()"></button>
+
+        <!-- Recent Orders -->
+        <div class="data-card table-card">
+          <div class="card-header">
+            <div class="header-icon orders">
+              <i class="pi pi-list"></i>
             </div>
+            <h3>{{ 'admin.dashboard.recent_orders' | translate }}</h3>
+          </div>
+          <div class="card-body">
+            <div class="modern-table">
+              <div class="table-header">
+                <span>{{ 'admin.dashboard.table.id' | translate }}</span>
+                <span>{{ 'admin.dashboard.table.customer' | translate }}</span>
+                <span>{{ 'admin.dashboard.table.status' | translate }}</span>
+                <span>{{ 'admin.dashboard.table.amount' | translate }}</span>
+              </div>
+              @for (order of stats.recent_orders; track order.order_id) {
+                <div class="table-row" [routerLink]="['/admin/orders', order.order_id]">
+                  <span class="order-id">#{{order.order_id}}</span>
+                  <span class="customer">{{order.customer_name}}</span>
+                  <span class="status">
+                    <p-tag [severity]="getStatusSeverity(order.status)" [value]="'admin.orders.status.' + order.status | translate"></p-tag>
+                  </span>
+                  <span class="amount">${{order.total_amount.toFixed(2)}}</span>
+                </div>
+              }
+            </div>
+            <button class="view-all-btn" (click)="navigateToOrders()">
+              <span>{{ 'admin.dashboard.view_all_orders' | translate }}</span>
+              <i class="pi pi-arrow-right"></i>
+            </button>
           </div>
         </div>
-        
-        <!-- Top Selling Products -->
-        <div class="col-12 mt-4">
-          <div class="surface-card p-4 shadow-2 border-round">
-            <h3 class="text-xl font-medium mb-3">{{ 'admin.dashboard.top_selling_products' | translate }}</h3>
-            
-            <p-table [value]="stats.top_selling_products" styleClass="p-datatable-sm" [tableStyle]="{'min-width': '100%'}">
-              <ng-template pTemplate="header">
-                <tr>
-                  <th>{{ 'admin.dashboard.table.product' | translate }}</th>
-                  <th>{{ 'admin.dashboard.table.category' | translate }}</th>
-                  <th>{{ 'admin.dashboard.table.quantity_sold' | translate }}</th>
-                  <th>{{ 'admin.dashboard.table.total_sales' | translate }}</th>
-                </tr>
-              </ng-template>
-              <ng-template pTemplate="body" let-product>
-                <tr>
-                  <td>
-                    <a [routerLink]="['/admin/products', product.product_id]">
-                      {{getProductName(product)}}
-                    </a>
-                  </td>
-                  <td>{{getCategoryName(product.category)}}</td>
-                  <td>{{product.total_quantity}}</td>
-                  <td>${{product.total_sales.toFixed(2)}}</td>
-                </tr>
-              </ng-template>
-            </p-table>
+      </div>
+
+      <!-- Top Selling Products -->
+      <div class="data-card full-width">
+        <div class="card-header">
+          <div class="header-icon products">
+            <i class="pi pi-star"></i>
+          </div>
+          <h3>{{ 'admin.dashboard.top_selling_products' | translate }}</h3>
+        </div>
+        <div class="card-body">
+          <div class="modern-table products-table">
+            <div class="table-header">
+              <span>{{ 'admin.dashboard.table.product' | translate }}</span>
+              <span>{{ 'admin.dashboard.table.category' | translate }}</span>
+              <span>{{ 'admin.dashboard.table.quantity_sold' | translate }}</span>
+              <span>{{ 'admin.dashboard.table.total_sales' | translate }}</span>
+            </div>
+            @for (product of stats.top_selling_products; track product.product_id) {
+              <div class="table-row" [routerLink]="['/admin/products', product.product_id]">
+                <span class="product-name">{{getProductName(product)}}</span>
+                <span class="category">{{getCategoryName(product.category)}}</span>
+                <span class="quantity">{{product.total_quantity}}</span>
+                <span class="sales">${{product.total_sales.toFixed(2)}}</span>
+              </div>
+            }
           </div>
         </div>
       </div>
     } @else {
-      <div class="surface-card p-4 shadow-2 border-round">
+      <div class="error-card">
+        <div class="error-icon">
+          <i class="pi pi-exclamation-circle"></i>
+        </div>
         <p>{{ 'admin.dashboard.error_loading' | translate }}</p>
+        <button class="retry-btn" (click)="loadDashboardStats()">
+          <i class="pi pi-refresh"></i>
+          <span>{{ 'common.retry' | translate }}</span>
+        </button>
       </div>
     }
+  </div>
 </div>

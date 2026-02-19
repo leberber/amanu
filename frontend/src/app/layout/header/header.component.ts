@@ -252,6 +252,13 @@ export class HeaderComponent implements OnInit, OnDestroy {
         icon: 'pi pi-users',
         routerLink: '/admin/users'
       });
+
+      // Add notifications link for admin
+      items.push({
+        label: this.translateService.instant('admin.navigation.notifications'),
+        icon: 'pi pi-bell',
+        routerLink: '/admin/notifications'
+      });
     }
 
     return items;

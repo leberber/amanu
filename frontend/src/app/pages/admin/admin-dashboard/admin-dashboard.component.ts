@@ -44,8 +44,8 @@ import { StatusSeverityService } from '../../../core/services/status-severity.se
     InputTextModule
   ],
   providers: [MessageService],
-  templateUrl: './admin-dashboard.component.html'
-
+  templateUrl: './admin-dashboard.component.html',
+  styleUrl: './admin-dashboard.component.scss'
 })
 export class AdminDashboardComponent implements OnInit {
 
@@ -116,8 +116,10 @@ export class AdminDashboardComponent implements OnInit {
 
   loadDashboardStats() {
     this.loading = true;
+    console.log('Loading dashboard stats...');
     this.adminService.getDashboardStats().subscribe({
       next: (stats) => {
+        console.log('Dashboard stats received:', stats);
         this.stats = stats;
         this.loading = false;
         this.prepareChartData();

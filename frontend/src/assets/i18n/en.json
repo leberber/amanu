@@ -590,9 +590,25 @@
         "submit_update": "Update Promotion"
       }
     },
+    "notifications": {
+      "title": "Notifications",
+      "subtitle": "Send push notifications to all users",
+      "send_push": "Send Push Notification",
+      "notification_title": "Title",
+      "title_placeholder": "Enter notification title...",
+      "notification_body": "Message",
+      "body_placeholder": "Enter your message here...",
+      "send_to_all": "Send to All Users",
+      "empty_fields": "Please fill in both title and message",
+      "sent_success": "Notification sent to {{count}} users",
+      "sent_failed": "Failed to send notification",
+      "info_title": "About Push Notifications",
+      "info_description": "Push notifications will be sent to all users who have enabled notifications on their devices."
+    },
     "dashboard": {
       "title": "Admin Dashboard",
       "welcome": "Welcome to the Admin Dashboard",
+      "welcome_message": "Overview of your store's performance",
       "overview": "Overview",
       "manage_orders": "Manage Orders",
       "manage_users": "Manage Users",
@@ -1018,6 +1034,7 @@
       "categories": "Categories",
       "brands": "Brands",
       "promotions": "Promotions",
+      "notifications": "Notifications",
       "reports": "Reports",
       "settings": "Settings"
     },

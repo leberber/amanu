@@ -1,0 +1,96 @@
+<!-- src/app/pages/admin/admin-notifications/admin-notifications.component.html -->
+<div class="notifications-page">
+  <p-toast></p-toast>
+
+  <!-- Animated Background -->
+  <div class="bg-decoration">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
+
+  <div class="page-content">
+    <!-- Page Header -->
+    <div class="page-header">
+      <button class="back-btn" (click)="goBack()">
+        <i class="pi pi-arrow-left"></i>
+      </button>
+      <div class="header-title">
+        <div class="icon-wrapper">
+          <div class="icon-bg"></div>
+          <div class="icon-circle">
+            <i class="pi pi-bell"></i>
+          </div>
+        </div>
+        <div class="title-text">
+          <h1>{{ 'admin.notifications.title' | translate }}</h1>
+          <p>{{ 'admin.notifications.subtitle' | translate }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Notification Form Card -->
+    <div class="notification-card">
+      <div class="card-header">
+        <i class="pi pi-send"></i>
+        <h3>{{ 'admin.notifications.send_push' | translate }}</h3>
+      </div>
+
+      <div class="notification-form">
+        <!-- Title Field -->
+        <div class="fancy-field" [class.focused]="titleFocused" [class.filled]="notificationTitle">
+          <div class="field-icon">
+            <i class="pi pi-bookmark"></i>
+          </div>
+          <div class="field-content">
+            <label>{{ 'admin.notifications.notification_title' | translate }}</label>
+            <input
+              type="text"
+              [(ngModel)]="notificationTitle"
+              (focus)="titleFocused = true"
+              (blur)="titleFocused = false"
+              [placeholder]="'admin.notifications.title_placeholder' | translate">
+          </div>
+        </div>
+
+        <!-- Body Field -->
+        <div class="fancy-field textarea-field" [class.focused]="bodyFocused" [class.filled]="notificationBody">
+          <div class="field-icon">
+            <i class="pi pi-align-left"></i>
+          </div>
+          <div class="field-content">
+            <label>{{ 'admin.notifications.notification_body' | translate }}</label>
+            <textarea
+              [(ngModel)]="notificationBody"
+              (focus)="bodyFocused = true"
+              (blur)="bodyFocused = false"
+              [placeholder]="'admin.notifications.body_placeholder' | translate"
+              rows="4"></textarea>
+          </div>
+        </div>
+
+        <!-- Send Button -->
+        <button
+          class="send-btn"
+          (click)="sendNotification()"
+          [disabled]="sendingNotification || !notificationTitle.trim() || !notificationBody.trim()">
+          <span>{{ 'admin.notifications.send_to_all' | translate }}</span>
+          <div class="btn-icon">
+            <i class="pi" [ngClass]="sendingNotification ? 'pi-spin pi-spinner' : 'pi-send'"></i>
+          </div>
+        </button>
+      </div>
+    </div>
+
+    <!-- Info Card -->
+    <div class="info-card">
+      <div class="info-icon">
+        <i class="pi pi-info-circle"></i>
+      </div>
+      <div class="info-content">
+        <h4>{{ 'admin.notifications.info_title' | translate }}</h4>
+        <p>{{ 'admin.notifications.info_description' | translate }}</p>
+      </div>
+    </div>
+  </div>
+</div>

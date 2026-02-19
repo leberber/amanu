@@ -587,9 +587,25 @@
         "submit_update": "Mettre à Jour la Promotion"
       }
     },
+    "notifications": {
+      "title": "Notifications",
+      "subtitle": "Envoyer des notifications push à tous les utilisateurs",
+      "send_push": "Envoyer une Notification Push",
+      "notification_title": "Titre",
+      "title_placeholder": "Entrez le titre de la notification...",
+      "notification_body": "Message",
+      "body_placeholder": "Entrez votre message ici...",
+      "send_to_all": "Envoyer à Tous les Utilisateurs",
+      "empty_fields": "Veuillez remplir le titre et le message",
+      "sent_success": "Notification envoyée à {{count}} utilisateurs",
+      "sent_failed": "Échec de l'envoi de la notification",
+      "info_title": "À Propos des Notifications Push",
+      "info_description": "Les notifications push seront envoyées à tous les utilisateurs qui ont activé les notifications sur leurs appareils."
+    },
     "dashboard": {
       "title": "Tableau de Bord Admin",
       "welcome": "Bienvenue dans le Tableau de Bord Admin",
+      "welcome_message": "Aperçu des performances de votre boutique",
       "overview": "Aperçu",
       "manage_orders": "Gérer les Commandes",
       "manage_users": "Gérer les Utilisateurs",
@@ -1017,6 +1033,7 @@
       "categories": "Catégories",
       "brands": "Marques",
       "promotions": "Promotions",
+      "notifications": "Notifications",
       "reports": "Rapports",
       "settings": "Paramètres"
     },

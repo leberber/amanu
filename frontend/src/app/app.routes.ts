@@ -109,8 +109,14 @@ export const routes: Routes = [
     canActivate: [adminGuard],
     data: { mode: 'edit' }
   },
+  // Notifications Route
   {
-    path: 'admin/orders', 
+    path: 'admin/notifications',
+    loadComponent: () => import('./pages/admin/admin-notifications/admin-notifications.component').then(m => m.AdminNotificationsComponent),
+    canActivate: [adminGuard]
+  },
+  {
+    path: 'admin/orders',
     loadComponent: () => import('./pages/admin/admin-orders/admin-orders.component').then(m => m.AdminOrdersComponent),
     canActivate: [adminGuard]
   },

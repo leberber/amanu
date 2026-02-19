@@ -739,3 +739,129 @@ code, pre {
     border-radius: 0 0 12px 12px !important;
   }
 }
+
+/* ==========================================
+   USER DROPDOWN MENU - Header User Menu
+   ========================================== */
+
+// PrimeNG popup menu is appended to body, so we need global styles
+.user-dropdown-menu.p-menu {
+  z-index: 10000 !important;
+  position: absolute !important;
+  border-radius: 16px !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05) !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  overflow: hidden !important;
+  min-width: 260px !important;
+  margin-top: 8px !important;
+  background: white !important;
+  padding: 0 !important;
+
+  .p-menu-start {
+    padding: 0 !important;
+  }
+
+  .p-menu-list {
+    padding: 0.5rem !important;
+    margin: 0 !important;
+    list-style: none !important;
+  }
+
+  .p-menuitem {
+    margin: 2px 0 !important;
+    list-style: none !important;
+
+    &:first-child {
+      margin-top: 0 !important;
+    }
+
+    .p-menuitem-content {
+      border-radius: 10px !important;
+      transition: all 0.2s ease !important;
+      background: transparent !important;
+
+      &:hover {
+        background: rgba(46, 108, 183, 0.08) !important;
+      }
+    }
+
+    .p-menuitem-link {
+      padding: 0.75rem 1rem !important;
+      display: flex !important;
+      align-items: center !important;
+      gap: 0.75rem !important;
+      text-decoration: none !important;
+      color: var(--text-color) !important;
+      border-radius: 10px !important;
+      cursor: pointer !important;
+
+      .p-menuitem-icon {
+        color: var(--text-color-secondary) !important;
+        font-size: 1rem !important;
+      }
+
+      .p-menuitem-text {
+        font-weight: 500 !important;
+        font-size: 0.9rem !important;
+        color: var(--text-color) !important;
+      }
+
+      &:hover {
+        background: transparent !important;
+      }
+    }
+  }
+
+  // Separator styling
+  .p-menuitem-separator {
+    margin: 0.5rem 0 !important;
+    border-top: 1px solid rgba(0, 0, 0, 0.06) !important;
+    border-bottom: none !important;
+    padding: 0 !important;
+    height: 0 !important;
+  }
+}
+
+// User menu header section
+.user-menu-header {
+  padding: 1rem 1.25rem !important;
+  background: linear-gradient(135deg, rgba(46, 108, 183, 0.05) 0%, rgba(15, 60, 130, 0.05) 100%) !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04) !important;
+
+  .user-info {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.25rem !important;
+
+    .user-greeting {
+      font-size: 0.7rem !important;
+      color: var(--text-color-secondary) !important;
+      text-transform: uppercase !important;
+      letter-spacing: 0.05em !important;
+      font-weight: 500 !important;
+    }
+
+    .user-name {
+      font-size: 1.05rem !important;
+      font-weight: 600 !important;
+      color: var(--text-color) !important;
+    }
+  }
+}
+
+// Menu divider in header dropdown
+.menu-divider {
+  height: 1px !important;
+  background: rgba(0, 0, 0, 0.06) !important;
+  margin: 0 !important;
+}
+
+// Language section in dropdown
+.language-section {
+  padding: 0.75rem 1rem !important;
+  background: rgba(0, 0, 0, 0.02) !important;
+
+  .p-select {
+    width: 100% !important;
+  }
+}

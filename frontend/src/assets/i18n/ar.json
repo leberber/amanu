@@ -591,9 +591,25 @@
         "submit_update": "تحديث العرض"
       }
     },
+    "notifications": {
+      "title": "الإشعارات",
+      "subtitle": "إرسال إشعارات فورية لجميع المستخدمين",
+      "send_push": "إرسال إشعار فوري",
+      "notification_title": "العنوان",
+      "title_placeholder": "أدخل عنوان الإشعار...",
+      "notification_body": "الرسالة",
+      "body_placeholder": "أدخل رسالتك هنا...",
+      "send_to_all": "إرسال لجميع المستخدمين",
+      "empty_fields": "يرجى ملء العنوان والرسالة",
+      "sent_success": "تم إرسال الإشعار إلى {{count}} مستخدم",
+      "sent_failed": "فشل إرسال الإشعار",
+      "info_title": "حول الإشعارات الفورية",
+      "info_description": "سيتم إرسال الإشعارات الفورية لجميع المستخدمين الذين فعّلوا الإشعارات على أجهزتهم."
+    },
     "dashboard": {
       "title": "لوحة التحكم",
       "welcome": "مرحباً بك في لوحة تحكم الإدارة",
+      "welcome_message": "نظرة عامة على أداء متجرك",
       "overview": "نظرة عامة",
       "manage_orders": "إدارة الطلبات",
       "manage_users": "إدارة المستخدمين",
@@ -1011,6 +1027,7 @@
       "categories": "الفئات",
       "brands": "العلامات التجارية",
       "promotions": "العروض",
+      "notifications": "الإشعارات",
       "reports": "التقارير",
       "settings": "الإعدادات"
     },
