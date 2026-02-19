@@ -59,6 +59,18 @@ export class ProductService {
     return this.apiService.get<Product[]>(`/products/category/${categoryId}`, { params });
   }
 
+  // Get products by brand
+  getProductsByBrand(brandId: number, activeOnly = true): Observable<Product[]> {
+    const params: any = {
+      brand_id: brandId,
+      lang: this.translationService.getCurrentLanguage()
+    };
+    if (!activeOnly) {
+      params.active_only = false;
+    }
+    return this.apiService.get<Product[]>('/products', { params });
+  }
+
   // Category methods with translation support
   createCategory(categoryData: any): Observable<Category> {
     return this.apiService.post<Category>('/categories', categoryData);

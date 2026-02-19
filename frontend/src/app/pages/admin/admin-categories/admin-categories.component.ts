@@ -48,22 +48,20 @@ import { Category } from '../../../models/category.model';
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './admin-categories.component.html',
-  styles: [`
-    :host ::ng-deep .p-datatable-header {
-      
-      padding-left: 0 !important;
-      padding-right: 0 !important;
-    
-    }
-  `]
+  styleUrl: './admin-categories.component.scss'
 })
 export class AdminCategoriesComponent implements OnInit {
   allCategories: Category[] = []; // Store all categories loaded once
   categories: Category[] = [];    // Filtered categories to display
+  paginatedCategories: Category[] = []; // Paginated categories
   loading = true;
   searchQuery = '';
-  
-  // NEW: Store product counts for each category
+
+  // Pagination
+  first = 0;
+  rows = 12;
+
+  // Store product counts for each category
   categoryProductCounts: { [categoryId: number]: number } = {};
   
   // Services injected using inject()
@@ -93,19 +91,19 @@ export class AdminCategoriesComponent implements OnInit {
   // Load all categories once on page load
   loadAllCategories() {
     this.loading = true;
-    
-    
+
     this.productService.getCategories(false).subscribe({ // false = include inactive
       next: (categories) => {
         this.allCategories = categories; // Store all categories
         this.categories = categories;    // Initially display all categories
-        this.loadProductCounts(); // NEW: Load product counts for each category
+        this.loadProductCounts(); // Load product counts for each category
+        this.updatePaginatedCategories();
         this.loading = false;
       },
       error: (error) => {
         console.error('Error loading categories:', error);
         this.loading = false;
-        
+
         this.messageService.add({
           severity: 'error',
           summary: this.translateService.instant('common.error'),
@@ -137,13 +135,25 @@ export class AdminCategoriesComponent implements OnInit {
     // Apply search filter
     if (this.searchQuery?.trim()) {
       const search = this.searchQuery.toLowerCase();
-      filtered = filtered.filter(category => 
+      filtered = filtered.filter(category =>
         this.getCategoryName(category).toLowerCase().includes(search) ||
         this.getCategoryDescription(category).toLowerCase().includes(search)
       );
     }
 
     this.categories = filtered;
+    this.first = 0; // Reset to first page when filtering
+    this.updatePaginatedCategories();
+  }
+
+  updatePaginatedCategories() {
+    this.paginatedCategories = this.categories.slice(this.first, this.first + this.rows);
+  }
+
+  onPageChange(event: any) {
+    this.first = event.first;
+    this.rows = event.rows;
+    this.updatePaginatedCategories();
   }
 
   // Search input with client-side filtering

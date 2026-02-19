@@ -1,340 +1,147 @@
 <!-- src/app/pages/admin/admin-categories/admin-categories.component.html -->
-<div class="h-full pt-2 px-2">
+<div class="categories-page">
   <p-toast></p-toast>
   <p-confirmDialog></p-confirmDialog>
-  
-  <div class="border-1 border-100 border-round-md p-3">
-    <p-table
-      #dt
-      [value]="categories"
-      [loading]="loading"
-      selectionMode="single"
-      dataKey="id"
-      [globalFilterFields]="['name', 'description']"
-      sortMode="multiple"
-      [scrollable]="true"
-      [scrollHeight]="'calc(100vh - 200px)'"
-      [showCurrentPageReport]="true"
-      [currentPageReportTemplate]="'admin.categories.showing_categories' | translate: {first: '{first}', last: '{last}', totalRecords: '{totalRecords}'}"
-    >
-      
-      <!-- Table Caption with Enhanced Controls -->
-      <ng-template pTemplate="caption">
-        <div class="grid mb-3">
-          <!-- Desktop Layout -->
-          <div class="col-12 hidden md:flex">
-            <div class="grid w-full">
-              <!-- Search Row -->
-              <div class="col-4">
-                <p-iconfield iconPosition="left" class="w-full">
-                  <p-inputicon><i class="pi pi-search"></i></p-inputicon>
-                  <input 
-                    type="text" 
-                    pInputText 
-                    [placeholder]="'admin.categories.search_placeholder' | translate" 
-                    [(ngModel)]="searchQuery"
-                    (input)="onSearchInput()"
-                    class="w-full"
-                  />
-                  <p-inputicon>
-                    <i 
-                      class="pi pi-info-circle text-500 cursor-pointer ml-2" 
-                      [pTooltip]="'admin.categories.search_tooltip' | translate"
-                      tooltipPosition="right"
-                      [showDelay]="300"
-                      [hideDelay]="100"
-                      style="font-size: 1rem;"
-                    ></i>
-                  </p-inputicon>
-                </p-iconfield>
-              </div>
-              
-              <!-- Clear Filters - Desktop -->
-              <div class="col-2">
-                <p-button 
-                  [label]="'admin.categories.clear_filters' | translate" 
-                  icon="pi pi-filter-slash"
-                  [severity]="hasActiveFilters() ? 'warn' : 'secondary'"
-                  (click)="clearFilters()"
-                  [disabled]="!hasActiveFilters()"
-                  class="w-full h-full"
-                />
-              </div>
-              
-              <!-- Refresh Button - Desktop -->
-              <div class="col-3">
-                <p-button 
-                  icon="pi pi-refresh" 
-                  [label]="'admin.categories.refresh' | translate"
-                  severity="secondary"
-                  [outlined]="true"
-                  (click)="refreshCategoryData()"
-                  [pTooltip]="'admin.categories.refresh_tooltip' | translate"
-                  tooltipPosition="bottom"
-                  class="w-full h-full"
-                />
-              </div>
-              
-              <!-- Add Category - Desktop -->
-              <div class="col-3 flex justify-content-end">
-                <p-button 
-                  [label]="'admin.categories.add_category' | translate" 
-                  icon="pi pi-plus"
-                  severity="success"
-                  (click)="createNewCategory()"
-                  class="h-full"
-                />
-              </div>
-            </div>
-          </div>
-          
-          <!-- Mobile Layout - Everything on same line -->
-          <div class="col-12 md:hidden">
-            <div class="flex gap-2 align-items-center">
-              <!-- Search - Mobile (flex-grow to take remaining space) -->
-              <div class="flex-grow-1">
-                <p-iconfield iconPosition="left" class="w-full">
-                  <p-inputicon><i class="pi pi-search"></i></p-inputicon>
-                  <input 
-                    type="text" 
-                    pInputText 
-                    [placeholder]="'admin.categories.search' | translate" 
-                    [(ngModel)]="searchQuery"
-                    (input)="onSearchInput()"
-                    class="w-full"
-                  />
-                </p-iconfield>
-              </div>
-              
-              <!-- Action Icons - Mobile -->
-              <p-button 
-                icon="pi pi-filter-slash"
-                [severity]="hasActiveFilters() ? 'warn' : 'secondary'"
-                (click)="clearFilters()"
-                [disabled]="!hasActiveFilters()"
-                [pTooltip]="'admin.categories.clear_filters' | translate"
-                tooltipPosition="top"
-                [rounded]="true"
-                size="small"
-              />
-              
-              <p-button 
-                icon="pi pi-refresh" 
-                severity="secondary"
-                [outlined]="true"
-                (click)="refreshCategoryData()"
-                [pTooltip]="'admin.categories.refresh' | translate"
-                tooltipPosition="top"
-                [rounded]="true"
-                size="small"
-              />
 
-              <p-button 
-                icon="pi pi-plus"
-                severity="success"
-                (click)="createNewCategory()"
-                [pTooltip]="'admin.categories.add_category' | translate"
-                tooltipPosition="top"
-                [rounded]="true"
-                size="small"
-              />
-            </div>
+  <!-- Animated Background -->
+  <div class="bg-decoration">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
+
+  <div class="page-content">
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="header-title">
+        <div class="icon-wrapper">
+          <div class="icon-bg"></div>
+          <div class="icon-circle">
+            <i class="pi pi-tags"></i>
           </div>
         </div>
-      </ng-template>
+        <div class="title-text">
+          <h1>{{ 'admin.categories.title' | translate }}</h1>
+          <p>{{ 'admin.categories.subtitle' | translate }}</p>
+        </div>
+      </div>
+      <button class="add-btn" (click)="createNewCategory()">
+        <i class="pi pi-plus"></i>
+        <span>{{ 'admin.categories.add_category' | translate }}</span>
+      </button>
+    </div>
 
-      <!-- Enhanced Header Template -->
-      <ng-template pTemplate="header">
-        <tr>
-          <!-- Category Image Column -->
-          <th style="width: 80px" class="text-center">
-            <!-- <i class="pi pi-image"></i> -->
-          </th>
-          
-          <!-- Category Name Column -->
-          <th pSortableColumn="name" style="min-width: 200px" class="p-3">
-            <div class="flex align-items-center gap-2">
-              <span>{{ 'admin.categories.table.category_name' | translate }}</span>
-              <p-sortIcon [field]="'name'" />
-            </div>
-          </th>
-          
-          <!-- Description Column -->
-          <th pSortableColumn="description" style="min-width: 300px">
-            <div class="flex align-items-center gap-2">
-              <span>{{ 'admin.categories.table.description' | translate }}</span>
-              <p-sortIcon [field]="'description'" />
-            </div>
-          </th>
-          
-          <!-- Product Count Column -->
-          <th style="min-width: 120px" class="text-center">
-            <span>{{ 'admin.categories.table.products' | translate }}</span>
-          </th>
-          
-          <!-- Status Column -->
-          <th pSortableColumn="is_active" style="min-width: 100px" class="text-center">
-            <div class="flex align-items-center justify-content-center gap-2">
-              <span>{{ 'admin.categories.table.status' | translate }}</span>
-              <p-sortIcon [field]="'is_active'" />
-            </div>
-          </th>
-          
-          <!-- Created Date Column -->
-          <th pSortableColumn="created_at" style="min-width: 120px" class="text-center">
-            <div class="flex align-items-center justify-content-center gap-2">
-              <span>{{ 'admin.categories.table.created' | translate }}</span>
-              <p-sortIcon [field]="'created_at'" />
-            </div>
-          </th>
-          
-          <!-- Actions Column -->
-          <th style="width: 150px" class="text-center">
-            {{ 'admin.categories.table.actions' | translate }}
-          </th>
-        </tr>
-      </ng-template>
-      
-      <!-- Enhanced Body Template -->
-      <ng-template pTemplate="body" let-category let-rowIndex="rowIndex">
-        <tr>
-          <!-- Category Image -->
-          <td class="text-center">
-            <div class="w-3rem h-3rem border-circle overflow-hidden flex align-items-center justify-content-center bg-gray-100 shadow-1">
-              <img 
-                *ngIf="category.image_url" 
-                [src]="category.image_url" 
-                [alt]="category.name"
-                class="w-full h-full object-cover border-circle"
-              />
-              <i 
-                *ngIf="!category.image_url" 
-                class="pi pi-folder text-gray-400 text-xl"
-              ></i>
-            </div>
-          </td>
-          
-          <!-- Category Name -->
-          <td>
-            <div class="flex flex-column">
-              <span class="font-medium text-900 mb-1 text-lg">{{ getCategoryName(category) }}</span>
-            </div>
-          </td>
-          
-          <!-- Description -->
-          <td>
-            <span 
-              *ngIf="getCategoryDescription(category)" 
-              class="text-600 text-sm line-height-3 white-space-nowrap overflow-hidden text-overflow-ellipsis"
-              style="max-width: 300px;"
-              [pTooltip]="getCategoryDescription(category)"
-              tooltipPosition="top"
-            >
-              {{ getCategoryDescription(category) }}
-            </span>
-            <span *ngIf="!getCategoryDescription(category)" class="text-400 italic">
-              {{ 'admin.categories.no_description' | translate }}
-            </span>
-          </td>
-          
-          <!-- Product Count -->
-          <td class="text-center">
-            <p-tag 
-              [value]="getCategoryProductCount(category.id).toString() + ' ' + ('admin.categories.products_label' | translate)"
-              severity="info"
-            />
-          </td>
-          
-          <!-- Status -->
-          <td class="text-center">
-            <p-tag 
-              [value]="category.is_active ? ('admin.categories.status.active' | translate) : ('admin.categories.status.inactive' | translate)" 
-              [severity]="category.is_active ? 'success' : 'danger'"
-              [icon]="category.is_active ? 'pi pi-check' : 'pi pi-times'"
-            />
-          </td>
-          
-          <!-- Created Date -->
-          <td class="text-center">
-            <span class="text-600 text-sm">
-              {{ formatDate(category.created_at) }}
-            </span>
-          </td>
-          
-          <!-- Actions -->
-          <td class="text-center">
-            <div class="flex justify-content-center gap-1">
-              <!-- Edit Button -->
-              <p-button 
-                icon="pi pi-pencil" 
-                size="small"
-                [outlined]="true" 
-                [rounded]="true"
-                (click)="editCategory(category)"
-                [pTooltip]="'admin.categories.actions.edit' | translate"
-                tooltipPosition="top"
-              />
-              
-              <!-- Delete Button -->
-              <p-button 
-                icon="pi pi-trash" 
-                severity="danger"
-                size="small"
-                [outlined]="true" 
-                [rounded]="true"
-                (click)="confirmDeleteCategory(category)"
-                [pTooltip]="'admin.categories.actions.delete' | translate"
-                tooltipPosition="top"
-              />
-            </div>
-          </td>
-        </tr>
-      </ng-template>
-      
-      <!-- Enhanced Empty State -->
-      <ng-template pTemplate="emptymessage">
-        <tr>
-          <td colspan="7" class="text-center p-6">
-            <div class="flex flex-column align-items-center gap-3">
-              <i class="pi pi-folder text-6xl text-gray-300"></i>
-              <div>
-                <h3 class="text-xl font-medium text-gray-600 mb-2">
-                  {{ hasActiveFilters() ? ('admin.categories.empty.no_match' | translate) : ('admin.categories.empty.no_categories' | translate) }}
-                </h3>
-                <p class="text-gray-500 mb-3">
-                  {{ hasActiveFilters() ? ('admin.categories.empty.try_adjusting' | translate) : ('admin.categories.empty.get_started' | translate) }}
-                </p>
-                <p-button 
-                  *ngIf="hasActiveFilters()"
-                  [label]="'admin.categories.clear_search' | translate" 
-                  icon="pi pi-filter-slash"
-                  severity="secondary"
-                  (click)="clearFilters()"
-                />
-                <p-button 
-                  *ngIf="!hasActiveFilters()"
-                  [label]="'admin.categories.add_first_category' | translate" 
-                  icon="pi pi-plus"
-                  severity="success"
-                  (click)="createNewCategory()"
-                />
+    <!-- Search & Filters Card -->
+    <div class="filters-card">
+      <div class="search-box">
+        <i class="pi pi-search"></i>
+        <input
+          type="text"
+          [(ngModel)]="searchQuery"
+          (input)="onSearchInput()"
+          [placeholder]="'admin.categories.search_placeholder' | translate">
+        <button *ngIf="searchQuery" class="clear-search" (click)="searchQuery = ''; filterCategories()">
+          <i class="pi pi-times"></i>
+        </button>
+      </div>
+      <div class="filter-actions">
+        <button class="action-btn" (click)="refreshCategoryData()" [pTooltip]="'admin.categories.refresh' | translate">
+          <i class="pi pi-refresh"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    @if (loading) {
+      <div class="loading-container">
+        <div class="loading-card">
+          <div class="loading-spinner">
+            <i class="pi pi-spin pi-spinner"></i>
+          </div>
+          <span>{{ 'admin.categories.loading' | translate }}</span>
+        </div>
+      </div>
+    } @else if (categories.length === 0) {
+      <!-- Empty State -->
+      <div class="empty-state">
+        <div class="empty-icon">
+          <i class="pi pi-folder-open"></i>
+        </div>
+        <h3>{{ hasActiveFilters() ? ('admin.categories.empty.no_match' | translate) : ('admin.categories.empty.no_categories' | translate) }}</h3>
+        <p>{{ hasActiveFilters() ? ('admin.categories.empty.try_adjusting' | translate) : ('admin.categories.empty.get_started' | translate) }}</p>
+        <button *ngIf="hasActiveFilters()" class="secondary-btn" (click)="clearFilters()">
+          <i class="pi pi-filter-slash"></i>
+          <span>{{ 'admin.categories.clear_filters' | translate }}</span>
+        </button>
+        <button *ngIf="!hasActiveFilters()" class="primary-btn" (click)="createNewCategory()">
+          <i class="pi pi-plus"></i>
+          <span>{{ 'admin.categories.add_first_category' | translate }}</span>
+        </button>
+      </div>
+    } @else {
+      <!-- Categories Grid -->
+      <div class="categories-grid">
+        @for (category of paginatedCategories; track category.id) {
+          <div class="category-card">
+            <div class="card-header">
+              <div class="category-image">
+                <img *ngIf="category.image_url" [src]="category.image_url" [alt]="getCategoryName(category)">
+                <i *ngIf="!category.image_url" class="pi pi-folder"></i>
+              </div>
+              <div class="category-status">
+                <span class="status-badge" [class.active]="category.is_active" [class.inactive]="!category.is_active">
+                  {{ category.is_active ? ('admin.categories.status.active' | translate) : ('admin.categories.status.inactive' | translate) }}
+                </span>
               </div>
             </div>
-          </td>
-        </tr>
-      </ng-template>
-      
-      <!-- Loading Template -->
-      <ng-template pTemplate="loadingbody">
-        <tr>
-          <td colspan="7" class="text-center p-4">
-            <div class="flex align-items-center justify-content-center gap-2">
-              <p-progressSpinner [style]="{'width': '2rem', 'height': '2rem'}" />
-              <span class="text-600">{{ 'admin.categories.loading' | translate }}</span>
+            <div class="card-body">
+              <h3 class="category-name">{{ getCategoryName(category) }}</h3>
+              <p class="category-description" *ngIf="getCategoryDescription(category)">
+                {{ getCategoryDescription(category) }}
+              </p>
+              <p class="category-description empty" *ngIf="!getCategoryDescription(category)">
+                {{ 'admin.categories.no_description' | translate }}
+              </p>
+              <div class="category-meta">
+                <div class="meta-pill">
+                  <i class="pi pi-box"></i>
+                  <span>{{ getCategoryProductCount(category.id) }} {{ 'admin.categories.products_label' | translate }}</span>
+                </div>
+                <div class="meta-item">
+                  <i class="pi pi-calendar"></i>
+                  <span>{{ formatDate(category.created_at) }}</span>
+                </div>
+              </div>
             </div>
-          </td>
-        </tr>
-      </ng-template>
-    </p-table>
+            <div class="card-actions">
+              <button class="edit-btn" (click)="editCategory(category)" [pTooltip]="'admin.categories.actions.edit' | translate">
+                <i class="pi pi-pencil"></i>
+              </button>
+              <button class="delete-btn" (click)="confirmDeleteCategory(category)" [pTooltip]="'admin.categories.actions.delete' | translate">
+                <i class="pi pi-trash"></i>
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Pagination -->
+      <div class="pagination-wrapper" *ngIf="categories.length > rows">
+        <p-paginator
+          [first]="first"
+          [rows]="rows"
+          [totalRecords]="categories.length"
+          [rowsPerPageOptions]="[12, 24, 48]"
+          (onPageChange)="onPageChange($event)"
+          [showCurrentPageReport]="true"
+          currentPageReportTemplate="{{ 'admin.categories.showing' | translate }} {first} - {last} {{ 'admin.categories.of' | translate }} {totalRecords}"
+        ></p-paginator>
+      </div>
+
+      <!-- Results Count (when no pagination needed) -->
+      <div class="results-info" *ngIf="categories.length <= rows">
+        <span>{{ 'admin.categories.showing' | translate }} {{ categories.length }} {{ 'admin.categories.of' | translate }} {{ allCategories.length }} {{ 'admin.categories.categories' | translate }}</span>
+      </div>
+    }
   </div>
 </div>

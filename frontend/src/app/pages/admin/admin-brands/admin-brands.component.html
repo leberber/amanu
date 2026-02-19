@@ -1,296 +1,147 @@
 <!-- src/app/pages/admin/admin-brands/admin-brands.component.html -->
-<div class="h-full pt-2 px-2">
+<div class="brands-page">
   <p-toast></p-toast>
   <p-confirmDialog></p-confirmDialog>
 
-  <div class="border-1 border-100 border-round-md p-3">
-    <p-table
-      #dt
-      [value]="brands"
-      [loading]="loading"
-      selectionMode="single"
-      dataKey="id"
-      [globalFilterFields]="['name', 'description']"
-      sortMode="multiple"
-      [scrollable]="true"
-      [scrollHeight]="'calc(100vh - 200px)'"
-      [showCurrentPageReport]="true"
-      [currentPageReportTemplate]="'admin.brands.showing_brands' | translate: {first: '{first}', last: '{last}', totalRecords: '{totalRecords}'}"
-    >
+  <!-- Animated Background -->
+  <div class="bg-decoration">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
 
-      <!-- Table Caption with Enhanced Controls -->
-      <ng-template pTemplate="caption">
-        <div class="grid mb-3">
-          <!-- Desktop Layout -->
-          <div class="col-12 hidden md:flex">
-            <div class="grid w-full">
-              <!-- Search Row -->
-              <div class="col-4">
-                <p-iconfield iconPosition="left" class="w-full">
-                  <p-inputicon><i class="pi pi-search"></i></p-inputicon>
-                  <input
-                    type="text"
-                    pInputText
-                    [placeholder]="'admin.brands.search_placeholder' | translate"
-                    [(ngModel)]="searchQuery"
-                    (input)="onSearchInput()"
-                    class="w-full"
-                  />
-                  <p-inputicon>
-                    <i
-                      class="pi pi-info-circle text-500 cursor-pointer ml-2"
-                      [pTooltip]="'admin.brands.search_tooltip' | translate"
-                      tooltipPosition="right"
-                      [showDelay]="300"
-                      [hideDelay]="100"
-                      style="font-size: 1rem;"
-                    ></i>
-                  </p-inputicon>
-                </p-iconfield>
-              </div>
-
-              <!-- Clear Filters - Desktop -->
-              <div class="col-2">
-                <p-button
-                  [label]="'admin.brands.clear_filters' | translate"
-                  icon="pi pi-filter-slash"
-                  [severity]="hasActiveFilters() ? 'warn' : 'secondary'"
-                  (click)="clearFilters()"
-                  [disabled]="!hasActiveFilters()"
-                  class="w-full h-full"
-                />
-              </div>
-
-              <!-- Refresh Button - Desktop -->
-              <div class="col-3">
-                <p-button
-                  icon="pi pi-refresh"
-                  [label]="'admin.brands.refresh' | translate"
-                  severity="secondary"
-                  [outlined]="true"
-                  (click)="refreshBrandData()"
-                  [pTooltip]="'admin.brands.refresh_tooltip' | translate"
-                  tooltipPosition="bottom"
-                  class="w-full h-full"
-                />
-              </div>
-
-              <!-- Add Brand - Desktop -->
-              <div class="col-3 flex justify-content-end">
-                <p-button
-                  [label]="'admin.brands.add_brand' | translate"
-                  icon="pi pi-plus"
-                  severity="success"
-                  (click)="createNewBrand()"
-                  class="h-full"
-                />
-              </div>
-            </div>
-          </div>
-
-          <!-- Mobile Layout - Everything on same line -->
-          <div class="col-12 md:hidden">
-            <div class="flex gap-2 align-items-center">
-              <!-- Search - Mobile (flex-grow to take remaining space) -->
-              <div class="flex-grow-1">
-                <p-iconfield iconPosition="left" class="w-full">
-                  <p-inputicon><i class="pi pi-search"></i></p-inputicon>
-                  <input
-                    type="text"
-                    pInputText
-                    [placeholder]="'admin.brands.search' | translate"
-                    [(ngModel)]="searchQuery"
-                    (input)="onSearchInput()"
-                    class="w-full"
-                  />
-                </p-iconfield>
-              </div>
-
-              <!-- Action Icons - Mobile -->
-              <p-button
-                icon="pi pi-filter-slash"
-                [severity]="hasActiveFilters() ? 'warn' : 'secondary'"
-                (click)="clearFilters()"
-                [disabled]="!hasActiveFilters()"
-                [pTooltip]="'admin.brands.clear_filters' | translate"
-                tooltipPosition="top"
-                [rounded]="true"
-                size="small"
-              />
-
-              <p-button
-                icon="pi pi-refresh"
-                severity="secondary"
-                [outlined]="true"
-                (click)="refreshBrandData()"
-                [pTooltip]="'admin.brands.refresh' | translate"
-                tooltipPosition="top"
-                [rounded]="true"
-                size="small"
-              />
-
-              <p-button
-                icon="pi pi-plus"
-                severity="success"
-                (click)="createNewBrand()"
-                [pTooltip]="'admin.brands.add_brand' | translate"
-                tooltipPosition="top"
-                [rounded]="true"
-                size="small"
-              />
-            </div>
+  <div class="page-content">
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="header-title">
+        <div class="icon-wrapper">
+          <div class="icon-bg"></div>
+          <div class="icon-circle">
+            <i class="pi pi-building"></i>
           </div>
         </div>
-      </ng-template>
+        <div class="title-text">
+          <h1>{{ 'admin.brands.title' | translate }}</h1>
+          <p>{{ 'admin.brands.subtitle' | translate }}</p>
+        </div>
+      </div>
+      <button class="add-btn" (click)="createNewBrand()">
+        <i class="pi pi-plus"></i>
+        <span>{{ 'admin.brands.add_brand' | translate }}</span>
+      </button>
+    </div>
 
-      <!-- Enhanced Header Template -->
-      <ng-template pTemplate="header">
-        <tr>
-          <!-- Brand Logo Column -->
-          <th style="width: 80px" class="text-center">
-            <span class="text-sm">{{ 'admin.brands.table.logo' | translate }}</span>
-          </th>
+    <!-- Search & Filters Card -->
+    <div class="filters-card">
+      <div class="search-box">
+        <i class="pi pi-search"></i>
+        <input
+          type="text"
+          [(ngModel)]="searchQuery"
+          (input)="onSearchInput()"
+          [placeholder]="'admin.brands.search_placeholder' | translate">
+        <button *ngIf="searchQuery" class="clear-search" (click)="searchQuery = ''; filterBrands()">
+          <i class="pi pi-times"></i>
+        </button>
+      </div>
+      <div class="filter-actions">
+        <button class="action-btn" (click)="refreshBrandData()" [pTooltip]="'admin.brands.refresh' | translate">
+          <i class="pi pi-refresh"></i>
+        </button>
+      </div>
+    </div>
 
-          <!-- Brand Name Column -->
-          <th pSortableColumn="name" style="width: 25%">
-            <div class="flex align-items-center gap-2">
-              {{ 'admin.brands.table.name' | translate }}
-              <p-sortIcon field="name"></p-sortIcon>
+    <!-- Loading State -->
+    @if (loading) {
+      <div class="loading-container">
+        <div class="loading-card">
+          <div class="loading-spinner">
+            <i class="pi pi-spin pi-spinner"></i>
+          </div>
+          <span>{{ 'common.loading' | translate }}</span>
+        </div>
+      </div>
+    } @else if (brands.length === 0) {
+      <!-- Empty State -->
+      <div class="empty-state">
+        <div class="empty-icon">
+          <i class="pi pi-building"></i>
+        </div>
+        <h3>{{ hasActiveFilters() ? ('admin.brands.no_brands_filtered' | translate) : ('admin.brands.no_brands' | translate) }}</h3>
+        <p>{{ hasActiveFilters() ? ('admin.brands.try_different_search' | translate) : ('admin.brands.get_started' | translate) }}</p>
+        <button *ngIf="hasActiveFilters()" class="secondary-btn" (click)="clearFilters()">
+          <i class="pi pi-filter-slash"></i>
+          <span>{{ 'admin.brands.clear_filters' | translate }}</span>
+        </button>
+        <button *ngIf="!hasActiveFilters()" class="primary-btn" (click)="createNewBrand()">
+          <i class="pi pi-plus"></i>
+          <span>{{ 'admin.brands.add_first_brand' | translate }}</span>
+        </button>
+      </div>
+    } @else {
+      <!-- Brands Grid -->
+      <div class="brands-grid">
+        @for (brand of paginatedBrands; track brand.id) {
+          <div class="brand-card">
+            <div class="card-header">
+              <div class="brand-logo">
+                <img *ngIf="brand.logo_url" [src]="brand.logo_url" [alt]="getBrandName(brand)">
+                <i *ngIf="!brand.logo_url" class="pi pi-building"></i>
+              </div>
+              <div class="brand-status">
+                <span class="status-badge" [class.active]="brand.is_active" [class.inactive]="!brand.is_active">
+                  {{ brand.is_active ? ('common.active' | translate) : ('common.inactive' | translate) }}
+                </span>
+              </div>
             </div>
-          </th>
-
-          <!-- Description Column -->
-          <th pSortableColumn="description" style="width: 35%">
-            <div class="flex align-items-center gap-2">
-              {{ 'admin.brands.table.description' | translate }}
-              <p-sortIcon field="description"></p-sortIcon>
-            </div>
-          </th>
-
-          <!-- Status Column -->
-          <th pSortableColumn="is_active" style="width: 10%">
-            <div class="flex align-items-center gap-2">
-              {{ 'admin.brands.table.status' | translate }}
-              <p-sortIcon field="is_active"></p-sortIcon>
-            </div>
-          </th>
-
-          <!-- Created Date Column -->
-          <th pSortableColumn="created_at" style="width: 15%">
-            <div class="flex align-items-center gap-2">
-              {{ 'admin.brands.table.created' | translate }}
-              <p-sortIcon field="created_at"></p-sortIcon>
-            </div>
-          </th>
-
-          <!-- Actions Column -->
-          <th style="width: 15%">
-            {{ 'admin.brands.table.actions' | translate }}
-          </th>
-        </tr>
-      </ng-template>
-
-      <!-- Body Template -->
-      <ng-template pTemplate="body" let-brand>
-        <tr>
-          <!-- Brand Logo -->
-          <td class="text-center">
-            <div
-              class="w-3rem h-3rem border-circle flex align-items-center justify-content-center overflow-hidden mx-auto"
-              [style.background]="brand.logo_url ? 'transparent' : 'var(--surface-100)'"
-            >
-              <img
-                *ngIf="brand.logo_url"
-                [src]="brand.logo_url"
-                [alt]="getBrandName(brand)"
-                class="w-full h-full object-fit-cover"
-              />
-              <i
-                *ngIf="!brand.logo_url"
-                class="pi pi-building text-500 text-2xl"
-              ></i>
-            </div>
-          </td>
-
-          <!-- Brand Name -->
-          <td>
-            <span class="font-medium">{{ getBrandName(brand) }}</span>
-          </td>
-
-          <!-- Description -->
-          <td>
-            <span class="text-sm text-600">
-              {{ getBrandDescription(brand) || ('admin.brands.no_description' | translate) }}
-            </span>
-          </td>
-
-          <!-- Status -->
-          <td>
-            <p-tag
-              [severity]="brand.is_active ? 'success' : 'danger'"
-              [value]="brand.is_active ? ('common.active' | translate) : ('common.inactive' | translate)"
-            ></p-tag>
-          </td>
-
-          <!-- Created Date -->
-          <td>
-            <span class="text-sm">{{ formatDate(brand.created_at) }}</span>
-          </td>
-
-          <!-- Actions -->
-          <td>
-            <div class="flex gap-2">
-              <p-button
-                icon="pi pi-pencil"
-                [rounded]="true"
-                [text]="true"
-                severity="info"
-                (click)="editBrand(brand)"
-                [pTooltip]="'common.edit' | translate"
-                tooltipPosition="top"
-              ></p-button>
-
-              <p-button
-                icon="pi pi-trash"
-                [rounded]="true"
-                [text]="true"
-                severity="danger"
-                (click)="confirmDeleteBrand(brand)"
-                [pTooltip]="'common.delete' | translate"
-                tooltipPosition="top"
-              ></p-button>
-            </div>
-          </td>
-        </tr>
-      </ng-template>
-
-      <!-- Empty Message -->
-      <ng-template pTemplate="emptymessage">
-        <tr>
-          <td colspan="6" class="text-center py-6">
-            <div class="flex flex-column align-items-center gap-3">
-              <i class="pi pi-building text-400" style="font-size: 3rem;"></i>
-              <p class="text-600 m-0">
-                {{ hasActiveFilters() ? ('admin.brands.no_brands_filtered' | translate) : ('admin.brands.no_brands' | translate) }}
+            <div class="card-body">
+              <h3 class="brand-name">{{ getBrandName(brand) }}</h3>
+              <p class="brand-description" *ngIf="getBrandDescription(brand)">
+                {{ getBrandDescription(brand) }}
               </p>
-              <p-button
-                *ngIf="!hasActiveFilters()"
-                [label]="'admin.brands.add_first_brand' | translate"
-                icon="pi pi-plus"
-                severity="success"
-                (click)="createNewBrand()"
-              ></p-button>
-              <p-button
-                *ngIf="hasActiveFilters()"
-                [label]="'admin.brands.clear_filters' | translate"
-                icon="pi pi-filter-slash"
-                severity="secondary"
-                (click)="clearFilters()"
-              ></p-button>
+              <p class="brand-description empty" *ngIf="!getBrandDescription(brand)">
+                {{ 'admin.brands.no_description' | translate }}
+              </p>
+              <div class="brand-meta">
+                <div class="meta-pill">
+                  <i class="pi pi-box"></i>
+                  <span>{{ getBrandProductCount(brand.id) }} {{ 'admin.brands.products_label' | translate }}</span>
+                </div>
+                <div class="meta-item">
+                  <i class="pi pi-calendar"></i>
+                  <span>{{ formatDate(brand.created_at) }}</span>
+                </div>
+              </div>
             </div>
-          </td>
-        </tr>
-      </ng-template>
-    </p-table>
+            <div class="card-actions">
+              <button class="edit-btn" (click)="editBrand(brand)" [pTooltip]="'common.edit' | translate">
+                <i class="pi pi-pencil"></i>
+              </button>
+              <button class="delete-btn" (click)="confirmDeleteBrand(brand)" [pTooltip]="'common.delete' | translate">
+                <i class="pi pi-trash"></i>
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Pagination -->
+      <div class="pagination-wrapper" *ngIf="brands.length > rows">
+        <p-paginator
+          [first]="first"
+          [rows]="rows"
+          [totalRecords]="brands.length"
+          [rowsPerPageOptions]="[12, 24, 48]"
+          (onPageChange)="onPageChange($event)"
+          [showCurrentPageReport]="true"
+          currentPageReportTemplate="{{ 'admin.brands.showing' | translate }} {first} - {last} {{ 'admin.brands.of' | translate }} {totalRecords}"
+        ></p-paginator>
+      </div>
+
+      <!-- Results Count (when no pagination needed) -->
+      <div class="results-info" *ngIf="brands.length <= rows">
+        <span>{{ 'admin.brands.showing' | translate }} {{ brands.length }} {{ 'admin.brands.of' | translate }} {{ allBrands.length }} {{ 'admin.brands.brands' | translate }}</span>
+      </div>
+    }
   </div>
 </div>

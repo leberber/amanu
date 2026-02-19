@@ -942,8 +942,12 @@
       }
     },
     "categories": {
-      "title": "Gestion des Catégories",
+      "title": "Catégories",
+      "subtitle": "Gérez vos catégories de produits",
       "all_categories": "Toutes les Catégories",
+      "showing": "Affichage de",
+      "of": "sur",
+      "categories": "catégories",
       "add_category": "Ajouter Nouvelle Catégorie",
       "edit_category": "Modifier Catégorie",
       "delete_category": "Supprimer Catégorie",
@@ -1038,8 +1042,14 @@
       "settings": "Paramètres"
     },
     "brands": {
-      "title": "Gestion des marques",
+      "title": "Marques",
+      "subtitle": "Gérez vos marques de produits",
       "all_brands": "Toutes les marques",
+      "showing": "Affichage de",
+      "of": "sur",
+      "brands": "marques",
+      "try_different_search": "Essayez un autre terme de recherche",
+      "get_started": "Commencez par ajouter votre première marque",
       "add_brand": "Ajouter une marque",
       "edit_brand": "Modifier la marque",
       "delete_brand": "Supprimer la marque",
@@ -1064,6 +1074,7 @@
       "no_description": "Aucune description",
       "no_brands": "Aucune marque trouvée",
       "no_brands_filtered": "Aucune marque ne correspond à votre recherche",
+      "products_label": "produits",
       "table": {
         "logo": "Logo",
         "name": "Nom de la marque",

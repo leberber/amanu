@@ -21,6 +21,7 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { BrandService } from '../../../core/services/brand.service';
+import { ProductService } from '../../../services/product.service';
 import { TranslationHelperService } from '../../../core/services/translation-helper.service';
 import { DateService } from '../../../core/services/date.service';
 import { SearchDebounceService } from '../../../core/services/search-debounce.service';
@@ -48,20 +49,24 @@ import { Brand } from '../../../models/brand.model';
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './admin-brands.component.html',
-  styles: [`
-    :host ::ng-deep .p-datatable-header {
-      padding-left: 0 !important;
-      padding-right: 0 !important;
-    }
-  `]
+  styleUrl: './admin-brands.component.scss'
 })
 export class AdminBrandsComponent implements OnInit {
   allBrands: Brand[] = [];
   brands: Brand[] = [];
+  paginatedBrands: Brand[] = [];
   loading = true;
   searchQuery = '';
 
+  // Pagination
+  first = 0;
+  rows = 12;
+
+  // Product counts per brand
+  brandProductCounts: { [brandId: number]: number } = {};
+
   private brandService = inject(BrandService);
+  private productService = inject(ProductService);
   private messageService = inject(MessageService);
   private confirmationService = inject(ConfirmationService);
   private router = inject(Router);
@@ -89,6 +94,8 @@ export class AdminBrandsComponent implements OnInit {
       next: (brands) => {
         this.allBrands = brands;
         this.brands = brands;
+        this.loadProductCounts();
+        this.updatePaginatedBrands();
         this.loading = false;
       },
       error: (error) => {
@@ -104,6 +111,20 @@ export class AdminBrandsComponent implements OnInit {
     });
   }
 
+  loadProductCounts() {
+    this.allBrands.forEach(brand => {
+      this.productService.getProductsByBrand(brand.id, false).subscribe({
+        next: (products) => {
+          this.brandProductCounts[brand.id] = products.length;
+        },
+        error: (error) => {
+          console.error(`Error loading products for brand ${brand.id}:`, error);
+          this.brandProductCounts[brand.id] = 0;
+        }
+      });
+    });
+  }
+
   filterBrands() {
     let filtered = [...this.allBrands];
 
@@ -116,6 +137,22 @@ export class AdminBrandsComponent implements OnInit {
     }
 
     this.brands = filtered;
+    this.first = 0; // Reset to first page when filtering
+    this.updatePaginatedBrands();
+  }
+
+  updatePaginatedBrands() {
+    this.paginatedBrands = this.brands.slice(this.first, this.first + this.rows);
+  }
+
+  onPageChange(event: any) {
+    this.first = event.first;
+    this.rows = event.rows;
+    this.updatePaginatedBrands();
+  }
+
+  getBrandProductCount(brandId: number): number {
+    return this.brandProductCounts[brandId] || 0;
   }
 
   onSearchInput() {
