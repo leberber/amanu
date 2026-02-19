@@ -202,10 +202,8 @@ export class RegisterComponent implements OnInit {
   onLocationSelected(location: LocationData) {
     this.locationData = location;
 
-    // Auto-populate store details from geocoder data
-    if (location.wilaya || location.daira || location.commune) {
-      this.autoPopulateStoreDetails(location);
-    }
+    // Auto-populate store details from geocoder data and then move to next step
+    this.autoPopulateStoreDetails(location);
   }
 
   private autoPopulateStoreDetails(location: LocationData) {
@@ -230,12 +228,36 @@ export class RegisterComponent implements OnInit {
                     this.storeDetailsForm.patchValue({ commune: matchedCommune }, { emitEvent: false });
                   }
                 }
-              }, 100);
+                // Move to next step after populating
+                this.goToNextStepAfterLocation();
+              }, 150);
+            } else {
+              // No daira match, still move to next step
+              this.goToNextStepAfterLocation();
             }
+          } else {
+            // No daira to match, still move to next step
+            this.goToNextStepAfterLocation();
           }
-        }, 100);
+        }, 150);
+      } else {
+        // No wilaya match, still move to next step
+        this.goToNextStepAfterLocation();
       }
+    } else {
+      // No wilaya data, still move to next step
+      this.goToNextStepAfterLocation();
     }
+  }
+
+  private goToNextStepAfterLocation() {
+    // Small delay for smoother transition
+    setTimeout(() => {
+      if (this.activeStep === 2) {
+        this.activeStep = 3;
+        this.onStepChange();
+      }
+    }, 300);
   }
 
   private findMatchingOption(options: { label: string; value: string }[], searchValue: string): string | null {
