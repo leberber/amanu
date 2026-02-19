@@ -1,532 +1,493 @@
-<!-- frontend/src/app/pages/admin/admin-add-product/admin-add-product.component.html -->
-<div class="container-fluid p-4">
-  <p-toast />
-  
-  <!-- Header -->
-  <div class="flex justify-content-between align-items-center mb-4">
-    <div>
-      <h1 class="text-3xl font-bold text-color">{{ pageTitle | translate }}</h1>
-      <p class="text-color-secondary mt-2">
-        {{ (isEditMode() ? 'admin.products.edit_product' : 'admin.products.add_product') | translate }}
-      </p>
-    </div>
-    
-    <p-button 
-      [label]="'common.back' | translate"
-      icon="pi pi-arrow-left" 
-      severity="secondary" 
-      (onClick)="onCancel()"
-      size="small"
-    />
+<!-- src/app/pages/admin/admin-add-product/admin-add-product.component.html -->
+<div class="product-form-page">
+  <p-toast></p-toast>
+
+  <!-- Animated Background -->
+  <div class="bg-decoration">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
   </div>
 
-  <!-- Form Card -->
-  <p-card styleClass="mb-4">
+  <div class="page-content">
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="header-content">
+        <div class="header-title">
+          <div class="icon-wrapper">
+            <div class="icon-bg"></div>
+            <div class="icon-circle">
+              <i class="pi pi-box"></i>
+            </div>
+          </div>
+          <div class="title-text">
+            <h1>{{ pageTitle | translate }}</h1>
+            <p>{{ isEditMode() ? ('admin.products.form.edit_subtitle' | translate) : ('admin.products.form.add_subtitle' | translate) }}</p>
+          </div>
+        </div>
+        <button class="back-btn" (click)="onCancel()">
+          <i class="pi pi-arrow-left"></i>
+          <span>{{ 'common.back' | translate }}</span>
+        </button>
+      </div>
+    </div>
+
     <form [formGroup]="productForm" (ngSubmit)="onSubmit()">
-      
-      <!-- Basic Information Section -->
-      <div class="section-title">
-        <i class="pi pi-info-circle mr-2"></i>
-        {{ 'admin.products.form.basic_info' | translate }}
-      </div>
-      
-      <!-- Translations Section -->
-      <div class="section-title">
-        <i class="pi pi-globe mr-2"></i>
-        {{ 'admin.products.form.translations' | translate }}
-      </div>
-      
-      <div class="grid">
-        <!-- English Name -->
-        <div class="col-12 md:col-4">
-          <div class="language-section">
-            <label class="font-semibold text-900 block mb-2">
+      <!-- Cards Grid -->
+      <div class="cards-grid">
+        <!-- Product Names Card -->
+        <div class="form-card">
+          <div class="card-header">
+            <div class="card-icon globe">
+              <i class="pi pi-globe"></i>
+            </div>
+            <h3>{{ 'admin.products.form.translations' | translate }}</h3>
+          </div>
+          <div class="card-body">
+            <!-- English Name -->
+            <div class="language-section">
               <span class="language-flag">🇬🇧</span>
-              {{ 'admin.products.form.english_name' | translate }} *
-            </label>
-            <input 
-              pInputText 
-              formControlName="name_en"
-              [placeholder]="'admin.products.form.english_name' | translate"
-              class="w-full"
-              [class.ng-invalid]="productForm.get('name_en')?.invalid && productForm.get('name_en')?.touched"
-            />
-            <small 
-              *ngIf="productForm.get('name_en')?.invalid && productForm.get('name_en')?.touched" 
-              class="p-error block mt-1"
-            >
-              <span *ngIf="productForm.get('name_en')?.errors?.['required']">
-                {{ 'admin.products.form.name_required' | translate }}
-              </span>
-              <span *ngIf="productForm.get('name_en')?.errors?.['minlength']">
-                {{ 'admin.products.form.name_minlength' | translate }}
-              </span>
-            </small>
-          </div>
-        </div>
+              <div class="language-content">
+                <div class="language-header">
+                  <strong>{{ 'admin.products.form.english_name' | translate }}</strong>
+                  <span class="required">*</span>
+                </div>
+                <div class="form-field">
+                  <input
+                    type="text"
+                    formControlName="name_en"
+                    [placeholder]="'admin.products.form.english_name' | translate">
+                  @if (productForm.get('name_en')?.invalid && productForm.get('name_en')?.touched) {
+                    <span class="field-error">{{ 'admin.products.form.name_required' | translate }}</span>
+                  }
+                </div>
+              </div>
+            </div>
 
-        <!-- French Name -->
-        <div class="col-12 md:col-4">
-          <div class="language-section">
-            <label class="font-semibold text-900 block mb-2">
+            <!-- French Name -->
+            <div class="language-section">
               <span class="language-flag">🇫🇷</span>
-              {{ 'admin.products.form.french_name' | translate }} *
-            </label>
-            <input 
-              pInputText 
-              formControlName="name_fr"
-              [placeholder]="'admin.products.form.french_name' | translate"
-              class="w-full"
-              [class.ng-invalid]="productForm.get('name_fr')?.invalid && productForm.get('name_fr')?.touched"
-            />
-            <small 
-              *ngIf="productForm.get('name_fr')?.invalid && productForm.get('name_fr')?.touched" 
-              class="p-error block mt-1"
-            >
-              <span *ngIf="productForm.get('name_fr')?.errors?.['required']">
-                {{ 'admin.products.form.name_required' | translate }}
-              </span>
-              <span *ngIf="productForm.get('name_fr')?.errors?.['minlength']">
-                {{ 'admin.products.form.name_minlength' | translate }}
-              </span>
-            </small>
-          </div>
-        </div>
+              <div class="language-content">
+                <div class="language-header">
+                  <strong>{{ 'admin.products.form.french_name' | translate }}</strong>
+                  <span class="required">*</span>
+                </div>
+                <div class="form-field">
+                  <input
+                    type="text"
+                    formControlName="name_fr"
+                    [placeholder]="'admin.products.form.french_name' | translate">
+                  @if (productForm.get('name_fr')?.invalid && productForm.get('name_fr')?.touched) {
+                    <span class="field-error">{{ 'admin.products.form.name_required' | translate }}</span>
+                  }
+                </div>
+              </div>
+            </div>
 
-        <!-- Arabic Name -->
-        <div class="col-12 md:col-4">
-          <div class="language-section">
-            <label class="font-semibold text-900 block mb-2">
+            <!-- Arabic Name -->
+            <div class="language-section">
               <span class="language-flag">🇩🇿</span>
-              {{ 'admin.products.form.arabic_name' | translate }} *
-            </label>
-            <input 
-              pInputText 
-              formControlName="name_ar"
-              [placeholder]="'admin.products.form.arabic_name' | translate"
-              class="w-full"
-              [class.ng-invalid]="productForm.get('name_ar')?.invalid && productForm.get('name_ar')?.touched"
-            />
-            <small 
-              *ngIf="productForm.get('name_ar')?.invalid && productForm.get('name_ar')?.touched" 
-              class="p-error block mt-1"
-            >
-              <span *ngIf="productForm.get('name_ar')?.errors?.['required']">
-                {{ 'admin.products.form.name_required' | translate }}
-              </span>
-              <span *ngIf="productForm.get('name_ar')?.errors?.['minlength']">
-                {{ 'admin.products.form.name_minlength' | translate }}
-              </span>
-            </small>
+              <div class="language-content">
+                <div class="language-header">
+                  <strong>{{ 'admin.products.form.arabic_name' | translate }}</strong>
+                  <span class="required">*</span>
+                </div>
+                <div class="form-field">
+                  <input
+                    type="text"
+                    formControlName="name_ar"
+                    dir="rtl"
+                    [placeholder]="'admin.products.form.arabic_name' | translate">
+                  @if (productForm.get('name_ar')?.invalid && productForm.get('name_ar')?.touched) {
+                    <span class="field-error">{{ 'admin.products.form.name_required' | translate }}</span>
+                  }
+                </div>
+              </div>
+            </div>
+
+            <!-- Image URL -->
+            <div class="settings-section">
+              <div class="form-field">
+                <label>{{ 'admin.products.form.image_url' | translate }}</label>
+                <input
+                  type="url"
+                  formControlName="image_url"
+                  [placeholder]="'admin.products.form.image_placeholder' | translate">
+              </div>
+            </div>
           </div>
         </div>
-      </div>
 
-      <!-- Description Translations -->
-      <div class="grid mt-3">
-        <!-- English Description -->
-        <div class="col-12 md:col-4">
-          <div class="language-section">
-            <label class="font-semibold text-900 block mb-2">
+        <!-- Product Descriptions Card -->
+        <div class="form-card">
+          <div class="card-header">
+            <div class="card-icon description">
+              <i class="pi pi-file-edit"></i>
+            </div>
+            <h3>{{ 'admin.products.form.descriptions' | translate }}</h3>
+          </div>
+          <div class="card-body">
+            <!-- English Description -->
+            <div class="language-section">
               <span class="language-flag">🇬🇧</span>
-              {{ 'admin.products.form.english_description' | translate }}
-            </label>
-            <textarea 
-              pInputTextarea 
-              formControlName="description_en"
-              [placeholder]="'admin.products.form.english_description' | translate"
-              rows="3"
-              class="w-full"
-            ></textarea>
-          </div>
-        </div>
+              <div class="language-content">
+                <div class="language-header">
+                  <strong>{{ 'admin.products.form.english_description' | translate }}</strong>
+                </div>
+                <div class="form-field">
+                  <textarea
+                    pInputTextarea
+                    formControlName="description_en"
+                    rows="2"
+                    [placeholder]="'admin.products.form.english_description' | translate"
+                  ></textarea>
+                </div>
+              </div>
+            </div>
 
-        <!-- French Description -->
-        <div class="col-12 md:col-4">
-          <div class="language-section">
-            <label class="font-semibold text-900 block mb-2">
+            <!-- French Description -->
+            <div class="language-section">
               <span class="language-flag">🇫🇷</span>
-              {{ 'admin.products.form.french_description' | translate }}
-            </label>
-            <textarea 
-              pInputTextarea 
-              formControlName="description_fr"
-              [placeholder]="'admin.products.form.french_description' | translate"
-              rows="3"
-              class="w-full"
-            ></textarea>
-          </div>
-        </div>
+              <div class="language-content">
+                <div class="language-header">
+                  <strong>{{ 'admin.products.form.french_description' | translate }}</strong>
+                </div>
+                <div class="form-field">
+                  <textarea
+                    pInputTextarea
+                    formControlName="description_fr"
+                    rows="2"
+                    [placeholder]="'admin.products.form.french_description' | translate"
+                  ></textarea>
+                </div>
+              </div>
+            </div>
 
-        <!-- Arabic Description -->
-        <div class="col-12 md:col-4">
-          <div class="language-section">
-            <label class="font-semibold text-900 block mb-2">
+            <!-- Arabic Description -->
+            <div class="language-section">
               <span class="language-flag">🇩🇿</span>
-              {{ 'admin.products.form.arabic_description' | translate }}
-            </label>
-            <textarea 
-              pInputTextarea 
-              formControlName="description_ar"
-              [placeholder]="'admin.products.form.arabic_description' | translate"
-              rows="3"
-              class="w-full"
-            ></textarea>
-          </div>
-        </div>
-      </div>
+              <div class="language-content">
+                <div class="language-header">
+                  <strong>{{ 'admin.products.form.arabic_description' | translate }}</strong>
+                </div>
+                <div class="form-field">
+                  <textarea
+                    pInputTextarea
+                    formControlName="description_ar"
+                    rows="2"
+                    dir="rtl"
+                    [placeholder]="'admin.products.form.arabic_description' | translate"
+                  ></textarea>
+                </div>
+              </div>
+            </div>
 
-      <!-- Translation Help Note -->
-      <div class="mt-3 p-3 border-1 border-300 border-round surface-50">
-        <small class="text-600">
-          <i class="pi pi-info-circle mr-2"></i>
-          {{ 'admin.products.form.translation_help' | translate }}
-        </small>
-      </div>
-
-      <!-- Pricing & Inventory Section -->
-      <div class="section-title">
-        <i class="pi pi-dollar mr-2"></i>
-        {{ 'admin.products.form.pricing_inventory' | translate }}
-      </div>
-      
-      <div class="grid">
-        <!-- Price -->
-        <div class="col-12 md:col-4">
-          <div class="field">
-            <label class="font-semibold text-900 block mb-2">
-              {{ 'admin.products.form.price' | translate }} *
-            </label>
-            <p-inputNumber
-              formControlName="price"
-              mode="currency"
-              currency="EUR"
-              locale="fr-FR"
-              [placeholder]="'admin.products.form.price' | translate"
-              styleClass="w-full"
-              [class.ng-invalid]="productForm.get('price')?.invalid && productForm.get('price')?.touched"
-            />
-            <small 
-              *ngIf="productForm.get('price')?.invalid && productForm.get('price')?.touched" 
-              class="p-error block mt-1"
-            >
-              <span *ngIf="productForm.get('price')?.errors?.['required']">
-                {{ 'admin.products.form.price_required' | translate }}
-              </span>
-              <span *ngIf="productForm.get('price')?.errors?.['min']">
-                {{ 'admin.products.form.price_min' | translate }}
-              </span>
-            </small>
-          </div>
-        </div>
-
-        <!-- Unit -->
-        <div class="col-12 md:col-4">
-          <div class="field">
-            <label class="font-semibold text-900 block mb-2">
-              {{ 'admin.products.form.unit' | translate }} *
-            </label>
-            <p-select
-              formControlName="unit"
-              [options]="getUnitOptions()"
-              optionLabel="label"
-              optionValue="value"
-              [placeholder]="'admin.products.form.unit' | translate"
-              styleClass="w-full"
-              [class.ng-invalid]="productForm.get('unit')?.invalid && productForm.get('unit')?.touched"
-            />
-            <small 
-              *ngIf="productForm.get('unit')?.invalid && productForm.get('unit')?.touched" 
-              class="p-error block mt-1"
-            >
-              {{ 'admin.products.form.unit_required' | translate }}
-            </small>
-          </div>
-        </div>
-
-        <!-- Stock Quantity -->
-        <div class="col-12 md:col-4">
-          <div class="field">
-            <label class="font-semibold text-900 block mb-2">
-              {{ 'admin.products.form.stock_quantity' | translate }} *
-            </label>
-            <p-inputNumber
-              formControlName="stock_quantity"
-              [placeholder]="'admin.products.form.stock_quantity' | translate"
-              styleClass="w-full"
-              [class.ng-invalid]="productForm.get('stock_quantity')?.invalid && productForm.get('stock_quantity')?.touched"
-            />
-            <small 
-              *ngIf="productForm.get('stock_quantity')?.invalid && productForm.get('stock_quantity')?.touched" 
-              class="p-error block mt-1"
-            >
-              <span *ngIf="productForm.get('stock_quantity')?.errors?.['required']">
-                {{ 'admin.products.form.stock_required' | translate }}
-              </span>
-              <span *ngIf="productForm.get('stock_quantity')?.errors?.['min']">
-                {{ 'admin.products.form.stock_min' | translate }}
-              </span>
-            </small>
-          </div>
-        </div>
-      </div>
-
-      <!-- Category & Brand -->
-      <div class="grid">
-        <div class="col-12 md:col-4">
-          <div class="field">
-            <label class="font-semibold text-900 block mb-2">
-              {{ 'admin.products.form.category' | translate }} *
-            </label>
-            <p-select
-              formControlName="category_id"
-              [options]="categoryOptions()"
-              optionLabel="label"
-              optionValue="value"
-              [placeholder]="'admin.products.form.category' | translate"
-              styleClass="w-full"
-              [loading]="categoriesLoading()"
-              [class.ng-invalid]="productForm.get('category_id')?.invalid && productForm.get('category_id')?.touched"
-            />
-            <small
-              *ngIf="productForm.get('category_id')?.invalid && productForm.get('category_id')?.touched"
-              class="p-error block mt-1"
-            >
-              {{ 'admin.products.form.category_required' | translate }}
-            </small>
-          </div>
-        </div>
-
-        <!-- Brand -->
-        <div class="col-12 md:col-4">
-          <div class="field">
-            <label class="font-semibold text-900 block mb-2">
-              {{ 'admin.products.form.brand' | translate }}
-            </label>
-            <p-select
-              formControlName="brand_id"
-              [options]="brandOptions()"
-              optionLabel="label"
-              optionValue="value"
-              [placeholder]="'admin.products.form.brand' | translate"
-              styleClass="w-full"
-              [loading]="brandsLoading()"
-              [showClear]="true"
-            />
-          </div>
-        </div>
-
-        <!-- Image URL -->
-        <div class="col-12 md:col-4">
-          <div class="field">
-            <label class="font-semibold text-900 block mb-2">
-              {{ 'admin.products.form.image_url' | translate }}
-            </label>
-            <input
-              pInputText
-              formControlName="image_url"
-              [placeholder]="'admin.products.form.image_placeholder' | translate"
-              class="w-full"
-            />
-          </div>
-        </div>
-      </div>
-
-      <!-- Settings Section -->
-      <div class="section-title">
-        <i class="pi pi-cog mr-2"></i>
-        {{ 'admin.products.form.settings' | translate }}
-      </div>
-      
-      <div class="grid">
-        <!-- Organic Product -->
-        <div class="col-12 md:col-6">
-          <div class="field">
-            <div class="flex align-items-center">
-              <p-checkbox 
-                formControlName="is_organic" 
-                binary="true" 
-                inputId="is_organic"
-              />
-              <label for="is_organic" class="ml-2 font-semibold text-900">
-                {{ 'admin.products.form.is_organic' | translate }}
-              </label>
+            <!-- Active Status -->
+            <div class="settings-section">
+              <div class="checkbox-row">
+                <div class="checkbox-field">
+                  <p-checkbox
+                    formControlName="is_organic"
+                    [binary]="true"
+                    inputId="is_organic"
+                  />
+                  <label for="is_organic">{{ 'admin.products.form.is_organic' | translate }}</label>
+                </div>
+                <div class="checkbox-field">
+                  <p-checkbox
+                    formControlName="is_active"
+                    [binary]="true"
+                    inputId="is_active"
+                  />
+                  <label for="is_active">{{ 'admin.products.form.is_active' | translate }}</label>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- Active Product -->
-        <div class="col-12 md:col-6">
-          <div class="field">
-            <div class="flex align-items-center">
-              <p-checkbox 
-                formControlName="is_active" 
-                binary="true" 
-                inputId="is_active"
-              />
-              <label for="is_active" class="ml-2 font-semibold text-900">
-                {{ 'admin.products.form.is_active' | translate }}
-              </label>
+        <!-- Pricing & Inventory Card -->
+        <div class="form-card">
+          <div class="card-header">
+            <div class="card-icon pricing">
+              <i class="pi pi-dollar"></i>
+            </div>
+            <h3>{{ 'admin.products.form.pricing_inventory' | translate }}</h3>
+          </div>
+          <div class="card-body">
+            <!-- Price & Unit Row -->
+            <div class="pricing-section">
+              <div class="section-label">
+                <i class="pi pi-tag"></i>
+                <span>{{ 'admin.products.form.pricing' | translate }}</span>
+              </div>
+              <div class="pricing-row">
+                <div class="pricing-field price">
+                  <label>{{ 'admin.products.form.price' | translate }} <span class="required">*</span></label>
+                  <p-inputNumber
+                    formControlName="price"
+                    mode="currency"
+                    currency="EUR"
+                    locale="fr-FR"
+                    [placeholder]="'admin.products.form.price' | translate"
+                    styleClass="w-full"
+                  />
+                  @if (productForm.get('price')?.invalid && productForm.get('price')?.touched) {
+                    <span class="field-error">{{ 'admin.products.form.price_required' | translate }}</span>
+                  }
+                </div>
+                <div class="pricing-field unit">
+                  <label>{{ 'admin.products.form.unit' | translate }} <span class="required">*</span></label>
+                  <p-select
+                    formControlName="unit"
+                    [options]="getUnitOptions()"
+                    optionLabel="label"
+                    optionValue="value"
+                    [placeholder]="'admin.products.form.unit' | translate"
+                    styleClass="w-full"
+                  />
+                  @if (productForm.get('unit')?.invalid && productForm.get('unit')?.touched) {
+                    <span class="field-error">{{ 'admin.products.form.unit_required' | translate }}</span>
+                  }
+                </div>
+              </div>
+            </div>
+
+            <!-- Stock Section -->
+            <div class="inventory-section">
+              <div class="section-label">
+                <i class="pi pi-warehouse"></i>
+                <span>{{ 'admin.products.form.inventory' | translate }}</span>
+              </div>
+              <div class="inventory-field">
+                <div class="stock-icon">
+                  <i class="pi pi-box"></i>
+                </div>
+                <div class="stock-content">
+                  <label>{{ 'admin.products.form.stock_quantity' | translate }} <span class="required">*</span></label>
+                  <p-inputNumber
+                    formControlName="stock_quantity"
+                    [placeholder]="'admin.products.form.stock_quantity' | translate"
+                    styleClass="w-full"
+                  />
+                  @if (productForm.get('stock_quantity')?.invalid && productForm.get('stock_quantity')?.touched) {
+                    <span class="field-error">{{ 'admin.products.form.stock_required' | translate }}</span>
+                  }
+                </div>
+              </div>
+            </div>
+
+            <!-- Classification Section -->
+            <div class="classification-section">
+              <div class="section-label">
+                <i class="pi pi-th-large"></i>
+                <span>{{ 'admin.products.form.classification' | translate }}</span>
+              </div>
+              <div class="classification-row">
+                <div class="classification-field">
+                  <div class="field-icon category">
+                    <i class="pi pi-folder"></i>
+                  </div>
+                  <div class="field-content">
+                    <label>{{ 'admin.products.form.category' | translate }} <span class="required">*</span></label>
+                    <p-select
+                      formControlName="category_id"
+                      [options]="categoryOptions()"
+                      optionLabel="label"
+                      optionValue="value"
+                      [placeholder]="'admin.products.form.category' | translate"
+                      styleClass="w-full"
+                      [loading]="categoriesLoading()"
+                    />
+                    @if (productForm.get('category_id')?.invalid && productForm.get('category_id')?.touched) {
+                      <span class="field-error">{{ 'admin.products.form.category_required' | translate }}</span>
+                    }
+                  </div>
+                </div>
+                <div class="classification-field">
+                  <div class="field-icon brand">
+                    <i class="pi pi-bookmark"></i>
+                  </div>
+                  <div class="field-content">
+                    <label>{{ 'admin.products.form.brand' | translate }}</label>
+                    <p-select
+                      formControlName="brand_id"
+                      [options]="brandOptions()"
+                      optionLabel="label"
+                      optionValue="value"
+                      [placeholder]="'admin.products.form.brand' | translate"
+                      styleClass="w-full"
+                      [loading]="brandsLoading()"
+                      [showClear]="true"
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Quantity Configuration Section -->
-      <div class="section-title">
-        <i class="pi pi-sliders-h mr-2"></i>
-        {{ 'admin.products.form.quantity_config' | translate }}
-      </div>
-      
-      <div class="grid">
-        <div class="col-12">
-          <div class="field">
-            <label class="font-semibold text-900 block mb-2">
-              {{ 'admin.products.form.quantity_type' | translate }}
-            </label>
-            <p-select
-              formControlName="quantity_type"
-              [options]="[
-                {label: 'None', value: 'none'},
-                {label: 'List (Specific Quantities)', value: 'list'},
-                {label: 'Range (Min/Max)', value: 'range'}
-              ]"
-              optionLabel="label"
-              optionValue="value"
-              (onChange)="onQuantityTypeChange($event.value)"
-              styleClass="w-full md:w-6"
-            />
-          </div>
-        </div>
-      </div>
-
-      <!-- List Type Configuration -->
-      <div *ngIf="quantityConfigType() === 'list'" class="quantity-config-section">
-        <div class="grid">
-          <!-- List Quantities -->
-          <div class="col-12 md:col-6">
-            <label class="font-semibold text-900 block mb-2">
-              Available Quantities
-            </label>
-            <div class="chip-input mb-2">
-              <p-chip *ngFor="let qty of listQuantities()" 
-                [label]="qty.toString()" 
-                [removable]="true"
-                (onRemove)="removeListQuantity(qty)"
-              />
+        <!-- Quantity Configuration Card -->
+        <div class="form-card">
+          <div class="card-header">
+            <div class="card-icon quantity">
+              <i class="pi pi-sliders-h"></i>
             </div>
-            <p-inputGroup>
-              <input pInputText 
-                #listQtyInput
-                type="number" 
-                placeholder="Add quantity (e.g., 12)"
-                (keyup.enter)="addListQuantity(listQtyInput)"
-              />
-              <p-inputGroupAddon>
-                <p-button icon="pi pi-plus" 
-                  severity="secondary"
-                  [text]="true"
-                  (onClick)="addListQuantity(listQtyInput)">
-                </p-button>
-              </p-inputGroupAddon>
-            </p-inputGroup>
+            <h3>{{ 'admin.products.form.quantity_config' | translate }}</h3>
           </div>
-
-          <!-- Pills for List -->
-          <div class="col-12 md:col-6">
-            <label class="font-semibold text-900 block mb-2">
-              Quick Select Pills (Max 3)
-            </label>
-            <div class="chip-input mb-2">
-              <p-chip *ngFor="let pill of listPills()" 
-                [label]="pill.toString()" 
-                [removable]="true"
-                (onRemove)="removeListPill(pill)"
-              />
-            </div>
-            <p-inputGroup>
-              <input pInputText 
-                #listPillInput
-                type="number" 
-                placeholder="Add pill value"
-                [disabled]="listPills().length >= 3"
-                (keyup.enter)="addListPill(listPillInput)"
-              />
-              <p-inputGroupAddon>
-                <p-button icon="pi pi-plus" 
-                  severity="secondary"
-                  [text]="true"
-                  [disabled]="listPills().length >= 3"
-                  (onClick)="addListPill(listPillInput)">
-                </p-button>
-              </p-inputGroupAddon>
-            </p-inputGroup>
-            <small class="text-color-secondary">Pills must be from available quantities</small>
-          </div>
-        </div>
-      </div>
-
-      <!-- Range Type Configuration -->
-      <div *ngIf="quantityConfigType() === 'range'" class="quantity-config-section">
-        <div class="grid">
-          <!-- Min/Max/Step -->
-          <div class="col-12 md:col-3">
-            <div class="field">
-              <label class="font-semibold text-900 block mb-2">Minimum</label>
-              <p-inputNumber formControlName="range_min" 
-                [min]="0.1" 
+          <div class="card-body">
+            <!-- Quantity Type -->
+            <div class="standalone-field">
+              <label>{{ 'admin.products.form.quantity_type' | translate }}</label>
+              <p-select
+                formControlName="quantity_type"
+                [options]="[
+                  {label: 'None', value: 'none'},
+                  {label: 'List (Specific Quantities)', value: 'list'},
+                  {label: 'Range (Min/Max)', value: 'range'}
+                ]"
+                optionLabel="label"
+                optionValue="value"
+                (onChange)="onQuantityTypeChange($event.value)"
                 styleClass="w-full"
               />
             </div>
-          </div>
-          <div class="col-12 md:col-3">
-            <div class="field">
-              <label class="font-semibold text-900 block mb-2">Maximum</label>
-              <p-inputNumber formControlName="range_max" 
-                [min]="0.1" 
-                styleClass="w-full"
-              />
-            </div>
-          </div>
-          <div class="col-12 md:col-3">
-            <div class="field">
-              <label class="font-semibold text-900 block mb-2">Step</label>
-              <p-inputNumber formControlName="range_step" 
-                [min]="0.1" 
-                styleClass="w-full"
-              />
-            </div>
-          </div>
-          <div class="col-12 md:col-3">
-            <div class="field">
-              <label class="font-semibold text-900 block mb-2">Pills (comma separated)</label>
-              <input pInputText 
-                formControlName="range_pills_input"
-                placeholder="e.g., 15, 40, 75"
-                class="w-full"
-              />
-              <small class="text-color-secondary">Max 3 values</small>
-            </div>
+
+            <!-- List Type Configuration -->
+            @if (quantityConfigType() === 'list') {
+              <div class="quantity-config-section">
+                <!-- List Quantities -->
+                <div class="form-field">
+                  <label>Available Quantities</label>
+                  <div class="chip-input">
+                    @for (qty of listQuantities(); track qty) {
+                      <p-chip
+                        [label]="qty.toString()"
+                        [removable]="true"
+                        (onRemove)="removeListQuantity(qty)"
+                      />
+                    }
+                  </div>
+                  <p-inputGroup>
+                    <input pInputText
+                      #listQtyInput
+                      type="number"
+                      placeholder="Add quantity (e.g., 12)"
+                      (keyup.enter)="addListQuantity(listQtyInput)"
+                    />
+                    <p-inputGroupAddon>
+                      <p-button icon="pi pi-plus"
+                        severity="secondary"
+                        [text]="true"
+                        (onClick)="addListQuantity(listQtyInput)">
+                      </p-button>
+                    </p-inputGroupAddon>
+                  </p-inputGroup>
+                </div>
+
+                <!-- Pills for List -->
+                <div class="form-field" style="margin-top: 1rem;">
+                  <label>Quick Select Pills (Max 3)</label>
+                  <div class="chip-input">
+                    @for (pill of listPills(); track pill) {
+                      <p-chip
+                        [label]="pill.toString()"
+                        [removable]="true"
+                        (onRemove)="removeListPill(pill)"
+                      />
+                    }
+                  </div>
+                  <p-inputGroup>
+                    <input pInputText
+                      #listPillInput
+                      type="number"
+                      placeholder="Add pill value"
+                      [disabled]="listPills().length >= 3"
+                      (keyup.enter)="addListPill(listPillInput)"
+                    />
+                    <p-inputGroupAddon>
+                      <p-button icon="pi pi-plus"
+                        severity="secondary"
+                        [text]="true"
+                        [disabled]="listPills().length >= 3"
+                        (onClick)="addListPill(listPillInput)">
+                      </p-button>
+                    </p-inputGroupAddon>
+                  </p-inputGroup>
+                </div>
+              </div>
+            }
+
+            <!-- Range Type Configuration -->
+            @if (quantityConfigType() === 'range') {
+              <div class="quantity-config-section">
+                <div class="field-row">
+                  <div class="form-field">
+                    <label>Minimum</label>
+                    <p-inputNumber formControlName="range_min"
+                      [min]="0.1"
+                      styleClass="w-full"
+                    />
+                  </div>
+                  <div class="form-field">
+                    <label>Maximum</label>
+                    <p-inputNumber formControlName="range_max"
+                      [min]="0.1"
+                      styleClass="w-full"
+                    />
+                  </div>
+                  <div class="form-field">
+                    <label>Step</label>
+                    <p-inputNumber formControlName="range_step"
+                      [min]="0.1"
+                      styleClass="w-full"
+                    />
+                  </div>
+                </div>
+                <div class="form-field" style="margin-top: 1rem;">
+                  <label>Pills (comma separated, max 3)</label>
+                  <input pInputText
+                    formControlName="range_pills_input"
+                    placeholder="e.g., 15, 40, 75"
+                  />
+                </div>
+              </div>
+            }
           </div>
         </div>
       </div>
 
-      <!-- Action Buttons -->
-      <div class="flex justify-content-end gap-2 mt-4 pt-4 border-top-1 surface-border">
-        <p-button 
-          [label]="'admin.products.form.cancel' | translate"
-          severity="secondary" 
-          (onClick)="onCancel()"
-          [disabled]="loading()"
-        />
-        
-        <p-button 
+      <!-- Form Actions -->
+      <div class="form-actions">
+        <button
+          type="button"
+          class="cancel-btn"
+          (click)="onCancel()"
+          [disabled]="loading()">
+          {{ 'common.cancel' | translate }}
+        </button>
+        <button
           type="submit"
-          [label]="submitButtonLabel | translate"
-          [loading]="loading()"
-          [disabled]="productForm.invalid"
-        />
+          class="submit-btn"
+          [disabled]="productForm.invalid || loading()">
+          @if (loading()) {
+            <i class="pi pi-spin pi-spinner spinner"></i>
+          } @else {
+            <i class="pi pi-check"></i>
+          }
+          <span>{{ submitButtonLabel | translate }}</span>
+        </button>
       </div>
     </form>
-  </p-card>
+  </div>
+
+  <!-- Loading Overlay -->
+  @if (loading() && isEditMode()) {
+    <div class="loading-overlay">
+      <div class="loading-content">
+        <i class="pi pi-spin pi-spinner"></i>
+        <span>{{ 'common.loading' | translate }}</span>
+      </div>
+    </div>
+  }
 </div>
