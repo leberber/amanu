@@ -48,7 +48,7 @@ interface SettingItem {
           <div class="drawer-content">
             <!-- Drawer Header -->
             <div class="drawer-header">
-              <img src="/logo.png" alt="Elsuq" class="drawer-logo">
+              <img src="/logo.png" alt="AgroClik" class="drawer-logo">
               <div class="drawer-header-actions">
                 <app-language-selector></app-language-selector>
                 <a *ngIf="authService.isLoggedIn" routerLink="/account" class="drawer-profile-btn" (click)="hide()">

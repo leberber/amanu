@@ -148,7 +148,7 @@ export const DEFAULTS = {
   LANGUAGE: 'en',
   CURRENCY: 'DZD',
   THEME: 'light',
-  PAGE_TITLE: 'Elsuq - Fresh Produce Marketplace'
+  PAGE_TITLE: 'AgroClik - Wholesale Food Platform'
 } as const;
 
 // Regex Patterns

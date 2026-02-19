@@ -5,7 +5,7 @@ self.addEventListener('push', function(event) {
   if (!event.data) return;
 
   const data = event.data.json();
-  const title = data.title || 'Elsuq';
+  const title = data.title || 'AgroClik';
   const options = {
     body: data.body || '',
     icon: '/icons/icon-192x192.png',

@@ -70,9 +70,9 @@
   },
   "home": {
     "hero": {
-      "title": "Fresh Produce Delivered to Your Door",
-      "subtitle": "Shop the freshest fruits and vegetables with ease",
-      "shop_now": "Shop Now"
+      "title": "Wholesale Fresh Produce for Your Business",
+      "subtitle": "Order quality agro-alimentaire products in bulk with delivery or pickup",
+      "shop_now": "Order Now"
     },
     "categories": {
       "title": "Shop by Category",
@@ -379,7 +379,7 @@
     "terms_of_service": "Terms of Service",
     "privacy_policy": "Privacy Policy",
     "optional": "Optional",
-    "welcome": "Welcome to Elsuq",
+    "welcome": "Welcome to AgroClik",
     "signInMessage": "Sign in to access your account"
   },
   "checkout": {
@@ -1181,7 +1181,7 @@
     }
   },
   "footer": {
-    "copyright": "© 2025 Fresh Produce E-commerce. All rights reserved.",
+    "copyright": "© 2025 AgroClik. All rights reserved.",
     "about": "About Us",
     "contact": "Contact",
     "privacy": "Privacy Policy",

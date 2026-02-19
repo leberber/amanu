@@ -1,7 +1,7 @@
 {
-  "name": "Elsuq - Fresh Produce Delivery",
-  "short_name": "Elsuq",
-  "description": "Order fresh fruits and vegetables online. Fast delivery of quality produce to your doorstep.",
+  "name": "AgroClik - Restock with a Click",
+  "short_name": "AgroClik",
+  "description": "Wholesale agro-alimentaire platform for store owners. Order fresh produce in bulk with delivery or pickup options.",
   "theme_color": "#ffffff",
   "background_color": "#fafafa",
   "display": "standalone",

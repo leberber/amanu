@@ -70,9 +70,9 @@
   },
   "home": {
     "hero": {
-      "title": "Produits Frais Livrés à Votre Porte",
-      "subtitle": "Achetez les fruits et légumes les plus frais en toute simplicité",
-      "shop_now": "Acheter Maintenant"
+      "title": "Produits Agro-alimentaires en Gros pour Votre Commerce",
+      "subtitle": "Commandez des produits de qualité en gros avec livraison ou retrait",
+      "shop_now": "Commander"
     },
     "categories": {
       "title": "Acheter par Catégorie",
@@ -376,7 +376,7 @@
     "terms_of_service": "Conditions d'Utilisation",
     "privacy_policy": "Politique de Confidentialité",
     "optional": "Optionnel",
-    "welcome": "Bienvenue chez Elsuq",
+    "welcome": "Bienvenue chez AgroClik",
     "signInMessage": "Connectez-vous pour accéder à votre compte"
   },
   "checkout": {
@@ -1180,7 +1180,7 @@
     }
   },
   "footer": {
-    "copyright": "© 2025 E-commerce Produits Frais. Tous droits réservés.",
+    "copyright": "© 2025 AgroClik. Tous droits réservés.",
     "about": "À Propos",
     "contact": "Contact",
     "privacy": "Politique de Confidentialité",

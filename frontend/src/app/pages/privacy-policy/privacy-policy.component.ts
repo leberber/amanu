@@ -12,14 +12,14 @@ import { CommonModule } from '@angular/common';
         <p class="text-500 mb-4"><strong>Effective Date:</strong> 30/01/2026</p>
 
         <p class="line-height-3 mb-4">
-          Elsuq Hub ("we", "us", or "our") operates the Elsuq Hub mobile application (the "Service").
+          AgroClik ("we", "us", or "our") operates the AgroClik mobile application (the "Service").
           This page informs you of our policies regarding the collection, use, and disclosure of personal data when you use our Service and the choices you have associated with that data.
         </p>
 
         <section class="mb-4">
           <h2 class="text-xl font-semibold mb-2">1. Introduction</h2>
           <p class="line-height-3">
-            This Service is provided by Elsuq Hub at no cost and is intended for use as is. By using the Service, you agree to the collection and use of information in accordance with this policy.
+            This Service is provided by AgroClik at no cost and is intended for use as is. By using the Service, you agree to the collection and use of information in accordance with this policy.
           </p>
         </section>
 
@@ -89,7 +89,7 @@ import { CommonModule } from '@angular/common';
           <h2 class="text-xl font-semibold mb-2">9. Contact Us</h2>
           <p class="line-height-3">
             If you have any questions or suggestions about our Privacy Policy, do not hesitate to contact us at
-            <a href="mailto:support@elsuqhub.com" class="text-primary">support&#64;elsuqhub.com</a>.
+            <a href="mailto:support@agroclik.com" class="text-primary">support&#64;elsuqhub.com</a>.
           </p>
         </section>
       </div>
