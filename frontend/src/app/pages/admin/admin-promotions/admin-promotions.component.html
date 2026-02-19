@@ -1,303 +1,228 @@
 <!-- src/app/pages/admin/admin-promotions/admin-promotions.component.html -->
-<div class="h-full pt-2 px-2">
+<div class="promotions-page">
   <p-toast></p-toast>
   <p-confirmDialog></p-confirmDialog>
 
-  <div class="border-1 border-100 border-round-md p-3">
-    <p-table
-      #dt
-      [value]="promotions"
-      [loading]="loading"
-      selectionMode="single"
-      dataKey="id"
-      [globalFilterFields]="['name', 'code', 'description']"
-      sortMode="multiple"
-      [scrollable]="true"
-      [scrollHeight]="'calc(100vh - 200px)'"
-      [showCurrentPageReport]="true"
-    >
+  <!-- Animated Background -->
+  <div class="bg-decoration">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
 
-      <!-- Table Caption with Controls -->
-      <ng-template pTemplate="caption">
-        <div class="grid mb-3">
-          <!-- Desktop Layout -->
-          <div class="col-12 hidden md:flex">
-            <div class="grid w-full">
-              <!-- Search Row -->
-              <div class="col-4">
-                <p-iconfield iconPosition="left" class="w-full">
-                  <p-inputicon><i class="pi pi-search"></i></p-inputicon>
-                  <input
-                    type="text"
-                    pInputText
-                    [placeholder]="'admin.promotions.search_placeholder' | translate"
-                    [(ngModel)]="searchQuery"
-                    (input)="onSearchInput()"
-                    class="w-full"
-                  />
-                </p-iconfield>
-              </div>
-
-              <!-- Clear Filters -->
-              <div class="col-2">
-                <p-button
-                  [label]="'admin.promotions.clear_filters' | translate"
-                  icon="pi pi-filter-slash"
-                  [severity]="hasActiveFilters() ? 'warn' : 'secondary'"
-                  (click)="clearFilters()"
-                  [disabled]="!hasActiveFilters()"
-                  class="w-full h-full"
-                />
-              </div>
-
-              <!-- Refresh Button -->
-              <div class="col-3">
-                <p-button
-                  icon="pi pi-refresh"
-                  [label]="'admin.promotions.refresh' | translate"
-                  severity="secondary"
-                  [outlined]="true"
-                  (click)="refreshPromotionData()"
-                  class="w-full h-full"
-                />
-              </div>
-
-              <!-- Add Promotion -->
-              <div class="col-3 flex justify-content-end">
-                <p-button
-                  [label]="'admin.promotions.add_promotion' | translate"
-                  icon="pi pi-plus"
-                  severity="success"
-                  (click)="createNewPromotion()"
-                  class="h-full"
-                />
-              </div>
-            </div>
-          </div>
-
-          <!-- Mobile Layout -->
-          <div class="col-12 md:hidden">
-            <div class="flex gap-2 align-items-center">
-              <div class="flex-grow-1">
-                <p-iconfield iconPosition="left" class="w-full">
-                  <p-inputicon><i class="pi pi-search"></i></p-inputicon>
-                  <input
-                    type="text"
-                    pInputText
-                    [placeholder]="'admin.promotions.search' | translate"
-                    [(ngModel)]="searchQuery"
-                    (input)="onSearchInput()"
-                    class="w-full"
-                  />
-                </p-iconfield>
-              </div>
-
-              <p-button
-                icon="pi pi-filter-slash"
-                [severity]="hasActiveFilters() ? 'warn' : 'secondary'"
-                (click)="clearFilters()"
-                [disabled]="!hasActiveFilters()"
-                [rounded]="true"
-                size="small"
-              />
-
-              <p-button
-                icon="pi pi-refresh"
-                severity="secondary"
-                [outlined]="true"
-                (click)="refreshPromotionData()"
-                [rounded]="true"
-                size="small"
-              />
-
-              <p-button
-                icon="pi pi-plus"
-                severity="success"
-                (click)="createNewPromotion()"
-                [rounded]="true"
-                size="small"
-              />
-            </div>
+  <div class="page-content">
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="header-title">
+        <div class="icon-wrapper">
+          <div class="icon-bg"></div>
+          <div class="icon-circle">
+            <i class="pi pi-tag"></i>
           </div>
         </div>
-      </ng-template>
+        <div class="title-text">
+          <h1>{{ 'admin.promotions.title' | translate }}</h1>
+          <p>{{ 'admin.promotions.subtitle' | translate }}</p>
+        </div>
+      </div>
+    </div>
 
-      <!-- Header Template -->
-      <ng-template pTemplate="header">
-        <tr>
-          <th pSortableColumn="name" style="min-width: 150px">
-            <div class="flex align-items-center gap-2">
-              <span>{{ 'admin.promotions.table.name' | translate }}</span>
-              <p-sortIcon [field]="'name'" />
-            </div>
-          </th>
+    <!-- Status Segmented Control with Add Button -->
+    <div class="segment-row">
+      <div class="status-segment">
+        <button
+          class="segment-btn"
+          [class.active]="statusFilter === 'all'"
+          (click)="onStatusFilterChange('all')">
+          <span>{{ 'common.all' | translate }}</span>
+          <span class="count">{{ allPromotions.length }}</span>
+        </button>
+        <button
+          class="segment-btn"
+          [class.active]="statusFilter === 'active'"
+          (click)="onStatusFilterChange('active')">
+          <span>{{ 'admin.promotions.status.active' | translate }}</span>
+          <span class="count active">{{ getActiveCount() }}</span>
+        </button>
+        <button
+          class="segment-btn"
+          [class.active]="statusFilter === 'expired'"
+          (click)="onStatusFilterChange('expired')">
+          <span>{{ 'admin.promotions.status.expired' | translate }}</span>
+          <span class="count expired">{{ getExpiredCount() }}</span>
+        </button>
+        <button
+          class="segment-btn"
+          [class.active]="statusFilter === 'scheduled'"
+          (click)="onStatusFilterChange('scheduled')">
+          <span>{{ 'admin.promotions.status.scheduled' | translate }}</span>
+          <span class="count scheduled">{{ getScheduledCount() }}</span>
+        </button>
+      </div>
+      <button class="add-btn" (click)="createNewPromotion()">
+        <i class="pi pi-plus"></i>
+        <span>{{ 'admin.promotions.add_promotion' | translate }}</span>
+      </button>
+    </div>
 
-          <th style="min-width: 100px">
-            <span>{{ 'admin.promotions.table.code' | translate }}</span>
-          </th>
+    <!-- Filters Card -->
+    <div class="filters-card">
+      <div class="search-box">
+        <i class="pi pi-search"></i>
+        <input
+          type="text"
+          [(ngModel)]="searchQuery"
+          (input)="onSearchInput()"
+          [placeholder]="'admin.promotions.search_placeholder' | translate">
+        <button *ngIf="searchQuery" class="clear-search" (click)="searchQuery = ''; filterPromotions()">
+          <i class="pi pi-times"></i>
+        </button>
+      </div>
+      <div class="filter-actions">
+        <button class="action-btn" (click)="refreshPromotionData()" [pTooltip]="'admin.promotions.refresh' | translate">
+          <i class="pi pi-refresh"></i>
+        </button>
+      </div>
+    </div>
 
-          <th style="min-width: 100px" class="text-center">
-            <span>{{ 'admin.promotions.table.discount' | translate }}</span>
-          </th>
-
-          <th style="min-width: 100px" class="text-center">
-            <span>{{ 'admin.promotions.table.scope' | translate }}</span>
-          </th>
-
-          <th pSortableColumn="start_date" style="min-width: 120px" class="text-center">
-            <div class="flex align-items-center justify-content-center gap-2">
-              <span>{{ 'admin.promotions.table.validity' | translate }}</span>
-              <p-sortIcon [field]="'start_date'" />
-            </div>
-          </th>
-
-          <th style="min-width: 80px" class="text-center">
-            <span>{{ 'admin.promotions.table.usage' | translate }}</span>
-          </th>
-
-          <th style="min-width: 100px" class="text-center">
-            <span>{{ 'admin.promotions.table.status' | translate }}</span>
-          </th>
-
-          <th style="width: 120px" class="text-center">
-            {{ 'admin.promotions.table.actions' | translate }}
-          </th>
-        </tr>
-      </ng-template>
-
-      <!-- Body Template -->
-      <ng-template pTemplate="body" let-promotion>
-        <tr>
-          <!-- Name -->
-          <td>
-            <div class="flex flex-column">
-              <span class="font-medium text-900">{{ promotion.name }}</span>
-              <span *ngIf="promotion.description" class="text-sm text-500 mt-1">
-                {{ promotion.description | slice:0:50 }}{{ promotion.description.length > 50 ? '...' : '' }}
-              </span>
-            </div>
-          </td>
-
-          <!-- Code -->
-          <td>
-            <span *ngIf="promotion.code" class="font-mono font-bold text-primary">
-              {{ promotion.code }}
-            </span>
-            <span *ngIf="!promotion.code" class="text-400 italic">
-              {{ 'admin.promotions.no_code' | translate }}
-            </span>
-          </td>
-
-          <!-- Discount -->
-          <td class="text-center">
-            <p-tag
-              [value]="getDiscountDisplay(promotion)"
-              [severity]="promotion.discount_type === 'percentage' ? 'info' : 'success'"
-            />
-          </td>
-
-          <!-- Scope -->
-          <td class="text-center">
-            <p-tag
-              [value]="getScopeDisplay(promotion)"
-              severity="secondary"
-            />
-          </td>
-
-          <!-- Validity -->
-          <td class="text-center">
-            <div class="flex flex-column text-sm">
-              <span>{{ formatDate(promotion.start_date) }}</span>
-              <span class="text-400">{{ 'admin.promotions.to' | translate }}</span>
-              <span>{{ formatDate(promotion.end_date) }}</span>
-            </div>
-          </td>
-
-          <!-- Usage -->
-          <td class="text-center">
-            <span class="font-medium">{{ getUsageDisplay(promotion) }}</span>
-          </td>
-
-          <!-- Status -->
-          <td class="text-center">
-            <p-tag
-              [value]="getStatusLabel(promotion)"
-              [severity]="getStatusSeverity(promotion)"
-            />
-          </td>
-
-          <!-- Actions -->
-          <td class="text-center">
-            <div class="flex justify-content-center gap-1">
-              <p-button
-                icon="pi pi-pencil"
-                size="small"
-                [outlined]="true"
-                [rounded]="true"
-                (click)="editPromotion(promotion)"
-                [pTooltip]="'admin.promotions.actions.edit' | translate"
-                tooltipPosition="top"
-              />
-
-              <p-button
-                icon="pi pi-trash"
-                severity="danger"
-                size="small"
-                [outlined]="true"
-                [rounded]="true"
-                (click)="confirmDeletePromotion(promotion)"
-                [pTooltip]="'admin.promotions.actions.delete' | translate"
-                tooltipPosition="top"
-              />
-            </div>
-          </td>
-        </tr>
-      </ng-template>
-
+    <!-- Loading State -->
+    @if (loading) {
+      <div class="loading-container">
+        <div class="loading-card">
+          <div class="loading-spinner">
+            <i class="pi pi-spin pi-spinner"></i>
+          </div>
+          <span>{{ 'admin.promotions.loading' | translate }}</span>
+        </div>
+      </div>
+    } @else if (promotions.length === 0) {
       <!-- Empty State -->
-      <ng-template pTemplate="emptymessage">
-        <tr>
-          <td colspan="8" class="text-center p-6">
-            <div class="flex flex-column align-items-center gap-3">
-              <i class="pi pi-tag text-6xl text-gray-300"></i>
-              <div>
-                <h3 class="text-xl font-medium text-gray-600 mb-2">
-                  {{ hasActiveFilters() ? ('admin.promotions.empty.no_match' | translate) : ('admin.promotions.empty.no_promotions' | translate) }}
-                </h3>
-                <p class="text-gray-500 mb-3">
-                  {{ hasActiveFilters() ? ('admin.promotions.empty.try_adjusting' | translate) : ('admin.promotions.empty.get_started' | translate) }}
-                </p>
-                <p-button
-                  *ngIf="hasActiveFilters()"
-                  [label]="'admin.promotions.clear_search' | translate"
-                  icon="pi pi-filter-slash"
-                  severity="secondary"
-                  (click)="clearFilters()"
-                />
-                <p-button
-                  *ngIf="!hasActiveFilters()"
-                  [label]="'admin.promotions.add_first_promotion' | translate"
-                  icon="pi pi-plus"
-                  severity="success"
-                  (click)="createNewPromotion()"
-                />
-              </div>
-            </div>
-          </td>
-        </tr>
-      </ng-template>
+      <div class="empty-state">
+        <div class="empty-icon">
+          <i class="pi pi-tag"></i>
+        </div>
+        <h3>{{ hasActiveFilters() ? ('admin.promotions.empty.no_match' | translate) : ('admin.promotions.empty.no_promotions' | translate) }}</h3>
+        <p>{{ hasActiveFilters() ? ('admin.promotions.empty.try_adjusting' | translate) : ('admin.promotions.empty.get_started' | translate) }}</p>
+        <button *ngIf="hasActiveFilters()" class="secondary-btn" (click)="clearFilters()">
+          <i class="pi pi-filter-slash"></i>
+          <span>{{ 'admin.promotions.clear_filters' | translate }}</span>
+        </button>
+        <button *ngIf="!hasActiveFilters()" class="primary-btn" (click)="createNewPromotion()">
+          <i class="pi pi-plus"></i>
+          <span>{{ 'admin.promotions.add_first_promotion' | translate }}</span>
+        </button>
+      </div>
+    } @else {
+      <!-- Promotions Table -->
+      <div class="table-card">
+        <div class="table-wrapper">
+          <table class="promotions-table">
+            <thead>
+              <tr>
+                <th class="col-name">{{ 'admin.promotions.table.name' | translate }}</th>
+                <th class="col-code">{{ 'admin.promotions.table.code' | translate }}</th>
+                <th class="col-discount">{{ 'admin.promotions.table.discount' | translate }}</th>
+                <th class="col-scope">{{ 'admin.promotions.table.scope' | translate }}</th>
+                <th class="col-validity">{{ 'admin.promotions.table.validity' | translate }}</th>
+                <th class="col-usage">{{ 'admin.promotions.table.usage' | translate }}</th>
+                <th class="col-status">{{ 'admin.promotions.table.status' | translate }}</th>
+                <th class="col-actions">{{ 'admin.promotions.table.actions' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (promotion of paginatedPromotions; track promotion.id) {
+                <tr>
+                  <!-- Name -->
+                  <td class="col-name">
+                    <div class="promotion-info">
+                      <span class="promotion-name">{{ promotion.name }}</span>
+                      <span class="promotion-desc" *ngIf="promotion.description">
+                        {{ promotion.description | slice:0:50 }}{{ promotion.description.length > 50 ? '...' : '' }}
+                      </span>
+                    </div>
+                  </td>
 
-      <!-- Loading Template -->
-      <ng-template pTemplate="loadingbody">
-        <tr>
-          <td colspan="8" class="text-center p-4">
-            <div class="flex align-items-center justify-content-center gap-2">
-              <p-progressSpinner [style]="{'width': '2rem', 'height': '2rem'}" />
-              <span class="text-600">{{ 'admin.promotions.loading' | translate }}</span>
-            </div>
-          </td>
-        </tr>
-      </ng-template>
-    </p-table>
+                  <!-- Code -->
+                  <td class="col-code">
+                    <span *ngIf="promotion.code" class="code-badge">
+                      {{ promotion.code }}
+                    </span>
+                    <span *ngIf="!promotion.code" class="no-code">
+                      {{ 'admin.promotions.no_code' | translate }}
+                    </span>
+                  </td>
+
+                  <!-- Discount -->
+                  <td class="col-discount">
+                    <span class="discount-badge" [class.percentage]="promotion.discount_type === 'percentage'" [class.fixed]="promotion.discount_type !== 'percentage'">
+                      {{ getDiscountDisplay(promotion) }}
+                    </span>
+                  </td>
+
+                  <!-- Scope -->
+                  <td class="col-scope">
+                    <span class="scope-badge">
+                      {{ getScopeDisplay(promotion) }}
+                    </span>
+                  </td>
+
+                  <!-- Validity -->
+                  <td class="col-validity">
+                    <div class="validity-info">
+                      <span class="date-start">{{ formatDate(promotion.start_date) }}</span>
+                      <span class="date-separator">{{ 'admin.promotions.to' | translate }}</span>
+                      <span class="date-end">{{ formatDate(promotion.end_date) }}</span>
+                    </div>
+                  </td>
+
+                  <!-- Usage -->
+                  <td class="col-usage">
+                    <span class="usage-badge">{{ getUsageDisplay(promotion) }}</span>
+                  </td>
+
+                  <!-- Status -->
+                  <td class="col-status">
+                    <span class="status-badge" [class]="'status-' + getStatusClass(promotion)">
+                      <i [class]="getStatusIcon(promotion)"></i>
+                      {{ getStatusLabel(promotion) }}
+                    </span>
+                  </td>
+
+                  <!-- Actions -->
+                  <td class="col-actions">
+                    <div class="action-buttons">
+                      <button class="edit-btn" (click)="editPromotion(promotion)" [pTooltip]="'admin.promotions.actions.edit' | translate">
+                        <i class="pi pi-pencil"></i>
+                      </button>
+                      <button class="delete-btn" (click)="confirmDeletePromotion(promotion)" [pTooltip]="'admin.promotions.actions.delete' | translate">
+                        <i class="pi pi-trash"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <div class="pagination-wrapper" *ngIf="promotions.length > rows">
+        <p-paginator
+          [first]="first"
+          [rows]="rows"
+          [totalRecords]="promotions.length"
+          [rowsPerPageOptions]="[10, 25, 50]"
+          (onPageChange)="onPageChange($event)"
+          [showCurrentPageReport]="true"
+          currentPageReportTemplate="{{ 'admin.promotions.showing' | translate }} {first} - {last} {{ 'admin.promotions.of' | translate }} {totalRecords}"
+        ></p-paginator>
+      </div>
+
+      <!-- Results Count -->
+      <div class="results-info" *ngIf="promotions.length <= rows">
+        <span>{{ 'admin.promotions.showing' | translate }} {{ promotions.length }} {{ 'admin.promotions.of' | translate }} {{ allPromotions.length }} {{ 'admin.promotions.promotions' | translate }}</span>
+      </div>
+    }
   </div>
 </div>

@@ -502,7 +502,11 @@
   "admin": {
     "promotions": {
       "title": "إدارة العروض الترويجية",
+      "subtitle": "إدارة الخصومات والعروض الترويجية",
       "add_promotion": "إضافة عرض",
+      "showing": "عرض",
+      "of": "من",
+      "promotions": "عروض",
       "edit_promotion": "تعديل العرض",
       "search_placeholder": "البحث في العروض...",
       "search": "بحث",

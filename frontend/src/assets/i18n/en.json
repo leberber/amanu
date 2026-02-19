@@ -500,7 +500,11 @@
   "admin": {
     "promotions": {
       "title": "Promotions Management",
+      "subtitle": "Manage discounts and promotional offers",
       "add_promotion": "Add Promotion",
+      "showing": "Showing",
+      "of": "of",
+      "promotions": "promotions",
       "edit_promotion": "Edit Promotion",
       "search_placeholder": "Search promotions...",
       "search": "Search",

@@ -497,7 +497,11 @@
   "admin": {
     "promotions": {
       "title": "Gestion des Promotions",
+      "subtitle": "Gérer les réductions et offres promotionnelles",
       "add_promotion": "Ajouter une Promotion",
+      "showing": "Affichage de",
+      "of": "sur",
+      "promotions": "promotions",
       "edit_promotion": "Modifier la Promotion",
       "search_placeholder": "Rechercher des promotions...",
       "search": "Rechercher",
