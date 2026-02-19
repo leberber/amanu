@@ -15,6 +15,7 @@ import { UserRole } from '../../models/user.model';
 import { MapPickerComponent, LocationData } from '../../shared/components/map-picker/map-picker.component';
 import { VALIDATION } from '../../core/constants/app.constants';
 import { PhoneFormatDirective } from '../../directives/phone-format.directive';
+import { LanguageSelectorComponent } from '../../components/language-selector/language-selector.component';
 
 // Interfaces for wilaya data
 interface Commune {
@@ -47,7 +48,8 @@ interface WilayaData {
     RouterLink,
     TranslateModule,
     MapPickerComponent,
-    PhoneFormatDirective
+    PhoneFormatDirective,
+    LanguageSelectorComponent
   ],
   providers: [MessageService],
   templateUrl: './register.component.html',

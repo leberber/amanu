@@ -13,6 +13,7 @@ import { finalize } from 'rxjs';
 
 import { AuthService } from '../../services/auth.service';
 import { UserRole } from '../../models/user.model';
+import { LanguageSelectorComponent } from '../../components/language-selector/language-selector.component';
 
 @Component({
   selector: 'app-login',
@@ -25,7 +26,8 @@ import { UserRole } from '../../models/user.model';
     ToastModule,
     RouterLink,
     DialogModule,
-    TranslateModule
+    TranslateModule,
+    LanguageSelectorComponent
   ],
   providers: [MessageService],
   templateUrl: './login.component.html',

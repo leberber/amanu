@@ -71,6 +71,30 @@ import { TranslationService, Language } from '../../services/translation.service
 
     :host ::ng-deep .p-select-overlay {
       z-index: 99999 !important;
+      background: white !important;
+
+      .p-select-list,
+      .p-select-items {
+        background: white !important;
+      }
+
+      .p-select-option,
+      .p-select-item {
+        color: #333 !important;
+
+        span {
+          color: #333 !important;
+        }
+
+        &.p-highlight,
+        &.p-select-option-selected {
+          background: var(--primary-color) !important;
+
+          span {
+            color: white !important;
+          }
+        }
+      }
     }
   `]
 })

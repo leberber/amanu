@@ -25,10 +25,7 @@
                 (click)="goToStep(step)"></span>
         </div>
       </div>
-      <a routerLink="/login" class="login-link">
-        <span>{{ 'auth.login' | translate }}</span>
-        <i class="pi pi-arrow-right"></i>
-      </a>
+      <app-language-selector *ngIf="activeStep === 0"></app-language-selector>
     </div>
   </div>
 
@@ -106,6 +103,12 @@
               </div>
             </div>
           </form>
+
+          <!-- Login Link -->
+          <div class="auth-link-container">
+            <span>{{ 'auth.already_have_account' | translate }}</span>
+            <a routerLink="/login">{{ 'auth.login_now' | translate }}</a>
+          </div>
         </div>
       </div>
 

@@ -371,6 +371,38 @@ code, pre {
 .p-select-panel,
 .language-panel {
   z-index: 99999 !important;
+  background: white !important;
+
+  .p-select-list,
+  .p-select-items,
+  .p-selectlist-list {
+    background: white !important;
+  }
+
+  .p-select-option,
+  .p-select-item,
+  .p-selectlist-option {
+    color: #333 !important;
+    background: transparent !important;
+
+    * {
+      color: #333 !important;
+    }
+
+    &:hover {
+      background: rgba(46, 108, 183, 0.1) !important;
+    }
+
+    &.p-highlight,
+    &.p-select-option-selected,
+    &.p-focus {
+      background: var(--primary-color, #2E6CB7) !important;
+
+      * {
+        color: white !important;
+      }
+    }
+  }
 }
 
 

@@ -9,6 +9,17 @@
     <div class="blob blob-3"></div>
   </div>
 
+  <!-- Top Bar with Language Selector -->
+  <div class="top-bar">
+    <div class="top-bar-content">
+      <app-language-selector></app-language-selector>
+      <a routerLink="/register" class="register-link">
+        <span>{{ 'auth.register' | translate }}</span>
+        <i class="pi pi-arrow-right"></i>
+      </a>
+    </div>
+  </div>
+
   <!-- Main Content -->
   <div class="login-container">
     <div class="login-content">

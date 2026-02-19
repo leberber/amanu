@@ -182,29 +182,26 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
     }
   }
 
-  .login-link {
-    display: flex;
-    align-items: center;
-    gap: 0.375rem;
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: var(--primary-color);
-    text-decoration: none;
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
-    transition: all 0.3s ease;
-
-    &:hover {
-      background: var(--primary-50, rgba(46, 108, 183, 0.1));
+  app-language-selector {
+    ::ng-deep .language-selector {
+      min-width: auto;
     }
 
-    i {
-      font-size: 0.75rem;
-      transition: transform 0.3s ease;
-    }
+    ::ng-deep .p-select {
+      background: rgba(255, 255, 255, 0.3) !important;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-radius: 20px !important;
+      padding: 0.25rem 0.5rem !important;
 
-    &:hover i {
-      transform: translateX(3px);
+      .p-select-label {
+        padding: 0.25rem 0.5rem !important;
+        font-size: 0.8rem;
+      }
+
+      .p-select-dropdown {
+        width: 1.5rem !important;
+      }
     }
   }
 }
@@ -494,6 +491,28 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
   }
 }
 
+// Auth Link (Have an account? Login)
+.auth-link-container {
+  text-align: center;
+  margin-top: 1.5rem;
+  font-size: 0.9rem;
+  color: var(--text-color-secondary);
+
+  span {
+    margin-right: 0.25rem;
+  }
+
+  a {
+    color: var(--primary-color) !important;
+    font-weight: 600;
+    text-decoration: none !important;
+
+    &:hover {
+      text-decoration: underline !important;
+    }
+  }
+}
+
 // Select/Dropdown Override - Make it blend into fancy-field
 :host ::ng-deep {
   .fancy-field {
@@ -559,10 +578,12 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
   border: 1px solid rgba(0, 0, 0, 0.08) !important;
   overflow: hidden;
   margin-top: 4px;
+  background: white !important;
 
   .p-select-items,
   .p-select-list {
     padding: 0.5rem;
+    background: white !important;
 
     .p-select-item,
     .p-select-option {
@@ -571,15 +592,18 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
       margin-bottom: 2px;
       font-weight: 500;
       transition: background 0.2s ease;
+      color: var(--text-color, #333) !important;
+      background: transparent;
 
       &:hover {
         background: var(--primary-50, rgba(46, 108, 183, 0.1));
+        color: var(--text-color, #333) !important;
       }
 
       &.p-select-option-selected,
       &.p-highlight {
         background: var(--primary-color);
-        color: white;
+        color: white !important;
       }
     }
   }
