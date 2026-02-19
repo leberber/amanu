@@ -169,12 +169,38 @@
                     <span class="date-display">{{ formatDate(order.created_at) }}</span>
                   </td>
 
-                  <!-- Status -->
+                  <!-- Status - Inline Editable -->
                   <td class="text-center">
-                    <span class="status-badge" [class]="'status-' + order.status">
-                      <i [class]="getStatusIcon(order.status)"></i>
-                      {{ 'admin.orders.status.' + order.status | translate }}
-                    </span>
+                    @if (!isEditingStatus(order.id)) {
+                      <div class="status-display"
+                           [class.editable]="canEditStatus(order.status)"
+                           (click)="startEditStatus(order)">
+                        <span class="status-badge" [class]="'status-' + order.status">
+                          <i [class]="getStatusIcon(order.status)"></i>
+                          {{ 'admin.orders.status.' + order.status | translate }}
+                        </span>
+                        @if (canEditStatus(order.status)) {
+                          <i class="pi pi-chevron-down edit-hint"></i>
+                        }
+                      </div>
+                    } @else {
+                      <div class="status-edit">
+                        <div class="status-options">
+                          @for (status of getNextStatuses(order.status); track status.value) {
+                            <button
+                              class="status-option"
+                              [class]="'status-' + status.value"
+                              (click)="selectNewStatus(order.id, status.value)">
+                              <i [class]="status.icon"></i>
+                              <span>{{ status.label }}</span>
+                            </button>
+                          }
+                        </div>
+                        <button class="cancel-edit-btn" (click)="cancelEditStatus()">
+                          <i class="pi pi-times"></i>
+                        </button>
+                      </div>
+                    }
                   </td>
 
                   <!-- Total -->

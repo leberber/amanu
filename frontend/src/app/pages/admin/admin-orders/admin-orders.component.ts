@@ -65,6 +65,9 @@ export class AdminOrdersComponent implements OnInit {
   selectedOrder: Order | null = null;
   displayOrderDialog = false;
 
+  // Inline status editing
+  editingStatusOrderId: number | null = null;
+
   // Services
   private adminService = inject(AdminService);
   private messageService = inject(MessageService);
@@ -334,5 +337,50 @@ export class AdminOrdersComponent implements OnInit {
         });
       }
     });
+  }
+
+  // ===== INLINE STATUS EDITING =====
+
+  startEditStatus(order: Order): void {
+    // Only allow editing if there are next statuses available
+    if (this.getNextStatuses(order.status).length > 0) {
+      this.editingStatusOrderId = order.id;
+    }
+  }
+
+  cancelEditStatus(): void {
+    this.editingStatusOrderId = null;
+  }
+
+  isEditingStatus(orderId: number): boolean {
+    return this.editingStatusOrderId === orderId;
+  }
+
+  getNextStatuses(currentStatus: string): { value: string; label: string; icon: string }[] {
+    // Allow skipping steps - show all forward statuses
+    const statusTransitions: Record<string, string[]> = {
+      'pending': ['confirmed', 'shipped', 'delivered', 'cancelled'],
+      'confirmed': ['shipped', 'delivered', 'cancelled'],
+      'shipped': ['delivered', 'cancelled'],
+      'delivered': [],
+      'cancelled': []
+    };
+
+    const nextStatuses = statusTransitions[currentStatus] || [];
+
+    return nextStatuses.map(status => ({
+      value: status,
+      label: this.translateService.instant('admin.orders.status.' + status),
+      icon: this.getStatusIcon(status)
+    }));
+  }
+
+  selectNewStatus(orderId: number, newStatus: string): void {
+    this.cancelEditStatus();
+    this.updateOrderStatus(orderId, newStatus);
+  }
+
+  canEditStatus(status: string): boolean {
+    return this.getNextStatuses(status).length > 0;
   }
 }
