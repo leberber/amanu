@@ -858,6 +858,7 @@
     },
     "products": {
       "title": "Gestion des Produits",
+      "subtitle": "Gérez le catalogue de produits de votre boutique",
       "all_products": "Tous les Produits",
       "add_product": "Ajouter Nouveau Produit",
       "edit_product": "Modifier Produit",
@@ -887,10 +888,14 @@
       "refresh_tooltip": "Actualiser les données produits",
       "add_first_product": "Ajouter Premier Produit",
       "loading": "Chargement des produits...",
+      "showing": "Affichage",
+      "of": "sur",
       "organic": "Bio",
       "per": "par",
+      "products": "produits",
       "filters": {
-        "all_categories": "Toutes les Catégories"
+        "all_categories": "Toutes les Catégories",
+        "all_brands": "Toutes les Marques"
       },
       "table": {
         "id": "ID",

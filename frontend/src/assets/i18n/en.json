@@ -857,6 +857,7 @@
     },
     "products": {
       "title": "Product Management",
+      "subtitle": "Manage your store's product catalog",
       "all_products": "All Products",
       "add_product": "Add New Product",
       "edit_product": "Edit Product",
@@ -884,10 +885,14 @@
       "refresh_tooltip": "Refresh product data",
       "add_first_product": "Add First Product",
       "loading": "Loading products...",
+      "showing": "Showing",
+      "of": "of",
       "organic": "Organic",
       "per": "per",
+      "products": "products",
       "filters": {
-        "all_categories": "All Categories"
+        "all_categories": "All Categories",
+        "all_brands": "All Brands"
       },
       "table": {
         "product_name": "Product Name",

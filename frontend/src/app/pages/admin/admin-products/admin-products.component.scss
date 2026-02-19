@@ -176,13 +176,20 @@ $product-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   }
 }
 
-// Segment Row (contains status segment + add button)
+// Segment Row (contains status segment + dropdowns + add button)
 .segment-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
   margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.filters-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
   flex-wrap: wrap;
 }
 
@@ -251,8 +258,8 @@ $product-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 // Filters Card
 .filters-card {
   display: flex;
-  align-items: center;
-  gap: 1rem;
+  flex-direction: column;
+  gap: 0.75rem;
   padding: 1rem;
   background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(20px);
@@ -260,6 +267,12 @@ $product-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   margin-bottom: 1.5rem;
   border: 1px solid rgba(255, 255, 255, 0.5);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+}
+
+.filters-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
   flex-wrap: wrap;
 }
 
@@ -324,28 +337,172 @@ $product-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   }
 }
 
-.category-filter {
-  :host ::ng-deep {
-    .p-select {
-      border-radius: 12px;
-      border: 1px solid rgba(0, 0, 0, 0.08);
-      background: var(--surface-0);
+// Fancy Filter Dropdowns
+.filter-dropdown {
+  position: relative;
 
-      &:not(.p-disabled):hover {
-        border-color: rgba(102, 126, 234, 0.3);
-      }
+  &.active {
+    .dropdown-trigger {
+      background: white;
+      border-color: #667eea;
+      color: #667eea;
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
 
-      &:not(.p-disabled).p-focus {
-        border-color: #667eea;
-        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-      }
+      i { color: #667eea; }
+      .dropdown-label { color: #667eea; }
     }
+  }
+}
+
+.dropdown-trigger {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1.25rem;
+  background: white;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 190px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+
+  &:hover {
+    border-color: rgba(102, 126, 234, 0.3);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+
+  i {
+    font-size: 1rem;
+    color: var(--text-color-secondary);
+    transition: color 0.2s ease;
+
+    &.dropdown-arrow {
+      font-size: 0.75rem;
+      margin-left: auto;
+    }
+  }
+
+  .dropdown-label {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 140px;
+  }
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 1000;
+  min-width: 200px;
+  max-height: 280px;
+  overflow-y: auto;
+  background: white;
+  border-radius: 14px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  padding: 0.5rem;
+  animation: dropdownFadeIn 0.2s ease;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 3px;
+  }
+}
+
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.625rem 0.875rem;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.875rem;
+  color: var(--text-color);
+
+  &:hover {
+    background: rgba(102, 126, 234, 0.08);
+  }
+
+  &.selected {
+    background: $product-gradient;
+    color: white;
+
+    .item-count {
+      background: rgba(255, 255, 255, 0.25);
+      color: white;
+    }
+  }
+
+  .item-count {
+    padding: 0.125rem 0.5rem;
+    border-radius: 10px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    background: rgba(0, 0, 0, 0.06);
+    color: var(--text-color-secondary);
+  }
+}
+
+// Clear filters button
+.clear-filters-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1rem;
+  background: transparent;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 12px;
+  color: #ef4444;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+
+  &:hover {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: #ef4444;
+  }
+
+  i {
+    font-size: 0.85rem;
   }
 }
 
 .filter-actions {
   display: flex;
-  gap: 0.5rem;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.refresh-btn {
+  flex-shrink: 0;
 }
 
 .action-btn {
@@ -940,6 +1097,12 @@ $product-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     align-items: stretch;
   }
 
+  .filters-left {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+  }
+
   .status-segment {
     width: 100%;
     justify-content: center;
@@ -951,25 +1114,37 @@ $product-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     justify-content: center;
   }
 
-  .filters-card {
-    flex-direction: column;
-  }
-
-  .search-box {
-    width: 100%;
-  }
-
-  .category-filter {
-    width: 100%;
-
-    :host ::ng-deep .p-select {
-      width: 100%;
+  .filters-row {
+    &:first-child {
+      .search-box {
+        flex: 1;
+      }
     }
   }
 
-  .filter-actions {
+  .filter-dropdown {
     width: 100%;
-    justify-content: flex-end;
+
+    .dropdown-trigger {
+      width: 100%;
+      min-width: unset;
+
+      .dropdown-label {
+        max-width: none;
+        flex: 1;
+      }
+    }
+
+    .dropdown-menu {
+      width: 100%;
+      min-width: unset;
+    }
+  }
+
+  .clear-filters-btn {
+    span {
+      display: none;
+    }
   }
 
   .products-table {

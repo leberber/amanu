@@ -27,63 +27,113 @@
       </div>
     </div>
 
-    <!-- Status Segmented Control with Add Button -->
+    <!-- Status Segmented Control with Dropdowns and Add Button -->
     <div class="segment-row">
-      <div class="status-segment">
-      <button
-        class="segment-btn"
-        [class.active]="statusFilter === 'all'"
-        (click)="onStatusFilterChange('all')">
-        <span>{{ 'common.all' | translate }}</span>
-        <span class="count">{{ allProducts.length }}</span>
-      </button>
-      <button
-        class="segment-btn"
-        [class.active]="statusFilter === 'active'"
-        (click)="onStatusFilterChange('active')">
-        <span>{{ 'common.active' | translate }}</span>
-        <span class="count active">{{ getActiveCount() }}</span>
-      </button>
-      <button
-        class="segment-btn"
-        [class.active]="statusFilter === 'inactive'"
-        (click)="onStatusFilterChange('inactive')">
-        <span>{{ 'common.inactive' | translate }}</span>
-        <span class="count inactive">{{ getInactiveCount() }}</span>
-      </button>
+      <div class="filters-left">
+        <div class="status-segment">
+          <button
+            class="segment-btn"
+            [class.active]="statusFilter === 'all'"
+            (click)="onStatusFilterChange('all')">
+            <span>{{ 'common.all' | translate }}</span>
+            <span class="count">{{ allProducts.length }}</span>
+          </button>
+          <button
+            class="segment-btn"
+            [class.active]="statusFilter === 'active'"
+            (click)="onStatusFilterChange('active')">
+            <span>{{ 'common.active' | translate }}</span>
+            <span class="count active">{{ getActiveCount() }}</span>
+          </button>
+          <button
+            class="segment-btn"
+            [class.active]="statusFilter === 'inactive'"
+            (click)="onStatusFilterChange('inactive')">
+            <span>{{ 'common.inactive' | translate }}</span>
+            <span class="count inactive">{{ getInactiveCount() }}</span>
+          </button>
+        </div>
+
+        <!-- Category Dropdown -->
+        <div class="filter-dropdown" [class.active]="categoryFilter !== null">
+          <div class="dropdown-trigger" (click)="toggleCategoryDropdown()">
+            <i class="pi pi-th-large"></i>
+            <span class="dropdown-label">
+              {{ categoryFilter ? getCategoryName(categoryFilter) : ('admin.products.filters.all_categories' | translate) }}
+            </span>
+            <i class="pi pi-chevron-down dropdown-arrow"></i>
+          </div>
+          @if (showCategoryDropdown) {
+            <div class="dropdown-menu">
+              <div class="dropdown-item" [class.selected]="categoryFilter === null" (click)="selectCategory(null)">
+                <span>{{ 'admin.products.filters.all_categories' | translate }}</span>
+                <span class="item-count">{{ allProducts.length }}</span>
+              </div>
+              @for (category of categories; track category.id) {
+                <div class="dropdown-item" [class.selected]="categoryFilter === category.id" (click)="selectCategory(category.id)">
+                  <span>{{ getCategoryName(category.id) }}</span>
+                  <span class="item-count">{{ getCategoryProductCount(category.id) }}</span>
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Brand Dropdown -->
+        <div class="filter-dropdown" [class.active]="brandFilter !== null">
+          <div class="dropdown-trigger" (click)="toggleBrandDropdown()">
+            <i class="pi pi-building"></i>
+            <span class="dropdown-label">
+              {{ brandFilter ? getBrandName(brandFilter) : ('admin.products.filters.all_brands' | translate) }}
+            </span>
+            <i class="pi pi-chevron-down dropdown-arrow"></i>
+          </div>
+          @if (showBrandDropdown) {
+            <div class="dropdown-menu">
+              <div class="dropdown-item" [class.selected]="brandFilter === null" (click)="selectBrand(null)">
+                <span>{{ 'admin.products.filters.all_brands' | translate }}</span>
+                <span class="item-count">{{ allProducts.length }}</span>
+              </div>
+              @for (brand of brands; track brand.id) {
+                <div class="dropdown-item" [class.selected]="brandFilter === brand.id" (click)="selectBrand(brand.id)">
+                  <span>{{ brand.name }}</span>
+                  <span class="item-count">{{ getBrandProductCount(brand.id) }}</span>
+                </div>
+              }
+            </div>
+          }
+        </div>
       </div>
+
       <button class="add-btn" (click)="createNewProduct()">
         <i class="pi pi-plus"></i>
         <span>{{ 'admin.products.add_product' | translate }}</span>
       </button>
     </div>
 
-    <!-- Filters Card -->
+    <!-- Search Bar -->
     <div class="filters-card">
-      <div class="search-box">
-        <i class="pi pi-search"></i>
-        <input
-          type="text"
-          [(ngModel)]="searchQuery"
-          (input)="onSearchInput()"
-          [placeholder]="'admin.products.search_placeholder' | translate">
-        <button *ngIf="searchQuery" class="clear-search" (click)="searchQuery = ''; filterProducts()">
-          <i class="pi pi-times"></i>
-        </button>
-      </div>
-      <div class="category-filter">
-        <p-select
-          [options]="categoryOptions"
-          [(ngModel)]="selectedCategory"
-          [placeholder]="'admin.products.filter_by_category' | translate"
-          (onChange)="onCategoryChange()"
-          [style]="{'min-width': '180px'}"
-        />
-      </div>
-      <div class="filter-actions">
-        <button class="action-btn" (click)="refreshProductData()" [pTooltip]="'admin.products.refresh' | translate">
+      <div class="filters-row">
+        <div class="search-box">
+          <i class="pi pi-search"></i>
+          <input
+            type="text"
+            [(ngModel)]="searchQuery"
+            (input)="onSearchInput()"
+            [placeholder]="'admin.products.search_placeholder' | translate">
+          <button *ngIf="searchQuery" class="clear-search" (click)="searchQuery = ''; filterProducts()">
+            <i class="pi pi-times"></i>
+          </button>
+        </div>
+        <button class="action-btn refresh-btn" (click)="refreshProductData()" [pTooltip]="'admin.products.refresh' | translate">
           <i class="pi pi-refresh"></i>
         </button>
+        @if (hasActiveFilters()) {
+          <button class="clear-filters-btn" (click)="clearFilters()">
+            <i class="pi pi-filter-slash"></i>
+            <span>{{ 'admin.products.clear_filters' | translate }}</span>
+          </button>
+        }
       </div>
     </div>
 
@@ -246,7 +296,7 @@
           [rowsPerPageOptions]="[10, 25, 50]"
           (onPageChange)="onPageChange($event)"
           [showCurrentPageReport]="true"
-          currentPageReportTemplate="{{ 'admin.products.showing' | translate }} {first} - {last} {{ 'admin.products.of' | translate }} {totalRecords}"
+          [currentPageReportTemplate]="getPaginationTemplate()"
         ></p-paginator>
       </div>
 

@@ -72,10 +72,8 @@ export class AdminProductsComponent implements OnInit {
   paginatedProducts: Product[] = [];
   categories: Category[] = [];
   brands: Brand[] = [];
-  categoryOptions: any[] = [];
   loading = true;
   searchQuery = '';
-  selectedCategory = null;
 
   // Pagination
   first = 0;
@@ -83,6 +81,14 @@ export class AdminProductsComponent implements OnInit {
 
   // Status filter
   statusFilter: 'all' | 'active' | 'inactive' = 'all';
+
+  // Category filter
+  categoryFilter: number | null = null;
+  showCategoryDropdown = false;
+
+  // Brand filter
+  brandFilter: number | null = null;
+  showBrandDropdown = false;
 
   // Inline editing state
   editingPriceProductId: number | null = null;
@@ -119,7 +125,7 @@ export class AdminProductsComponent implements OnInit {
 
   // Public methods
   hasActiveFilters(): boolean {
-    return !!(this.searchQuery?.trim() || this.selectedCategory || this.statusFilter !== 'all');
+    return !!(this.searchQuery?.trim() || this.categoryFilter || this.brandFilter || this.statusFilter !== 'all');
   }
 
   // Status filter methods
@@ -135,6 +141,40 @@ export class AdminProductsComponent implements OnInit {
 
   getInactiveCount(): number {
     return this.allProducts.filter(p => !p.is_active).length;
+  }
+
+  // Category filter methods
+  toggleCategoryDropdown(): void {
+    this.showCategoryDropdown = !this.showCategoryDropdown;
+    this.showBrandDropdown = false; // Close other dropdown
+  }
+
+  selectCategory(categoryId: number | null): void {
+    this.categoryFilter = categoryId;
+    this.showCategoryDropdown = false;
+    this.first = 0;
+    this.filterProducts();
+  }
+
+  getCategoryProductCount(categoryId: number): number {
+    return this.allProducts.filter(p => p.category_id === categoryId).length;
+  }
+
+  // Brand filter methods
+  toggleBrandDropdown(): void {
+    this.showBrandDropdown = !this.showBrandDropdown;
+    this.showCategoryDropdown = false; // Close other dropdown
+  }
+
+  selectBrand(brandId: number | null): void {
+    this.brandFilter = brandId;
+    this.showBrandDropdown = false;
+    this.first = 0;
+    this.filterProducts();
+  }
+
+  getBrandProductCount(brandId: number): number {
+    return this.allProducts.filter(p => p.brand_id === brandId).length;
   }
 
   // Pagination methods
@@ -154,17 +194,10 @@ export class AdminProductsComponent implements OnInit {
     });
   }
 
-  onCategoryChange() {
-    this.filterProducts();
-  }
-
-  onSearch() {
-    this.filterProducts();
-  }
-
   clearFilters() {
     this.searchQuery = '';
-    this.selectedCategory = null;
+    this.categoryFilter = null;
+    this.brandFilter = null;
     this.statusFilter = 'all';
     this.first = 0;
     this.filterProducts();
@@ -245,6 +278,12 @@ export class AdminProductsComponent implements OnInit {
 
   formatPrice(price: number): string {
     return this.currencyService.formatCurrency(price);
+  }
+
+  getPaginationTemplate(): string {
+    const showing = this.translateService.instant('admin.products.showing');
+    const of = this.translateService.instant('admin.products.of');
+    return `${showing} {first} - {last} ${of} {totalRecords}`;
   }
 
   // Inline price editing methods
@@ -352,20 +391,6 @@ export class AdminProductsComponent implements OnInit {
     this.productService.getCategories(true).subscribe({
       next: (categories) => {
         this.categories = categories;
-        const currentLang = this.translateService.currentLang;
-        const options = categories.map(cat => {
-          const category = cat as any;
-          return {
-            label: (category.name_translations && category.name_translations[currentLang])
-              ? category.name_translations[currentLang]
-              : category.name,
-            value: category.id
-          };
-        });
-        this.categoryOptions = [
-          { label: this.translateService.instant('admin.products.filters.all_categories'), value: null },
-          ...options
-        ];
       },
       error: (error) => {
         console.error('Error loading categories:', error);
@@ -421,6 +446,17 @@ export class AdminProductsComponent implements OnInit {
       filtered = filtered.filter(p => !p.is_active);
     }
 
+    // Category filter
+    if (this.categoryFilter) {
+      filtered = filtered.filter(p => p.category_id === this.categoryFilter);
+    }
+
+    // Brand filter
+    if (this.brandFilter) {
+      filtered = filtered.filter(p => p.brand_id === this.brandFilter);
+    }
+
+    // Search filter
     if (this.searchQuery?.trim()) {
       const search = this.searchQuery.toLowerCase();
       filtered = filtered.filter(product =>
@@ -430,13 +466,8 @@ export class AdminProductsComponent implements OnInit {
       );
     }
 
-    if (this.selectedCategory) {
-      filtered = filtered.filter(product =>
-        product.category_id === this.selectedCategory
-      );
-    }
-
     this.products = filtered;
+    this.first = 0;
     this.updatePaginatedProducts();
   }
 
