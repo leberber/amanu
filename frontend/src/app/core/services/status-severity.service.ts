@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { USER_ROLES, ORDER_STATUS, PROMOTION_STATUS } from '../constants/app.constants';
+import { USER_ROLES, ORDER_STATUS, PROMOTION_STATUS, PAYMENT_STATUS } from '../constants/app.constants';
 
 /**
  * Service to centralize severity mappings for roles and statuses
@@ -139,10 +139,10 @@ export class StatusSeverityService {
    */
   getPaymentStatusSeverity(status: string): "success" | "secondary" | "info" | "warn" | "danger" | "contrast" {
     switch (status) {
-      case 'paid': return 'success';
-      case 'pending': return 'warn';
-      case 'failed': return 'danger';
-      case 'refunded': return 'info';
+      case PAYMENT_STATUS.PAID: return 'success';
+      case PAYMENT_STATUS.PENDING: return 'warn';
+      case PAYMENT_STATUS.FAILED: return 'danger';
+      case PAYMENT_STATUS.REFUNDED: return 'info';
       default: return 'secondary';
     }
   }

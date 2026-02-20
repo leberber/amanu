@@ -202,3 +202,11 @@ export const PROMOTION_STATUS = {
   EXPIRED: 'expired',
   INACTIVE: 'inactive'
 } as const;
+
+// Payment Status (for tracking payment state)
+export const PAYMENT_STATUS = {
+  PAID: 'paid',
+  PENDING: 'pending',
+  FAILED: 'failed',
+  REFUNDED: 'refunded'
+} as const;

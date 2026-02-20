@@ -1,3 +1,8 @@
+import { ORDER_STATUS } from '../core/constants/app.constants';
+
+// Derive OrderStatus type from ORDER_STATUS constant
+export type OrderStatus = typeof ORDER_STATUS[keyof typeof ORDER_STATUS];
+
 export interface OrderItem {
     id: number;
     product_id: number;
@@ -31,7 +36,7 @@ export interface OrderCreateItem {
   export interface Order {
     id: number;
     user_id: number;
-    status: 'pending' | 'confirmed' | 'shipped' | 'delivered' | 'cancelled';
+    status: OrderStatus;
     shipping_address: string;
     contact_phone: string;
     subtotal?: number;
