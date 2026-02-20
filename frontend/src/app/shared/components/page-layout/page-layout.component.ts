@@ -19,4 +19,7 @@ export class PageLayoutComponent {
 
   // Optional: hide bottom nav padding (for fullscreen pages)
   fullscreen = input(false);
+
+  // Optional: add border around content area
+  contentBorder = input(false);
 }
