@@ -106,6 +106,712 @@ Each page should include a top bar section:
 }
 ```
 
+### 0.8 Page Transitions
+Native-feel animations between pages:
+
+```typescript
+// Route animations
+const slideInAnimation = trigger('routeAnimations', [
+  transition('* <=> *', [
+    style({ opacity: 0, transform: 'translateX(20px)' }),
+    animate('200ms ease-out', style({ opacity: 1, transform: 'translateX(0)' }))
+  ])
+]);
+```
+
+- **Forward navigation**: Slide in from right
+- **Back navigation**: Slide in from left
+- **Modal pages**: Slide up from bottom
+- **Keep animations subtle**: 150-250ms duration
+
+### 0.9 Pull-to-Refresh
+For list pages (products, orders, etc.):
+
+```html
+<div class="pull-to-refresh-container" (touchstart)="onTouchStart($event)" (touchmove)="onTouchMove($event)">
+  @if (isPulling()) {
+    <div class="refresh-indicator">
+      <i class="pi pi-spin pi-spinner"></i>
+    </div>
+  }
+  <!-- List content -->
+</div>
+```
+
+- Enable on: Product list, Order list, Cart, Home
+- Visual indicator when pulling
+- Haptic feedback on mobile (if available)
+
+### 0.10 Swipe Gestures
+Mobile swipe-to-go-back:
+
+```typescript
+// Swipe from left edge to go back
+@HostListener('touchstart', ['$event'])
+@HostListener('touchmove', ['$event'])
+@HostListener('touchend', ['$event'])
+handleSwipe(event: TouchEvent) {
+  // Detect left-edge swipe and navigate back
+}
+```
+
+- Swipe from left edge (first 20px) to go back
+- Visual feedback during swipe
+- Cancel if swipe distance < 100px
+
+### 0.11 Skeleton Loaders (IMPORTANT)
+
+**ALWAYS use skeleton loaders instead of spinners.** Skeletons provide better UX by showing the layout structure while loading.
+
+#### Why Skeletons > Spinners
+- Shows expected content structure
+- Reduces perceived loading time
+- Prevents layout shift when content loads
+- More native app feel
+
+#### Base Skeleton CSS
+
+```scss
+// Global skeleton styles
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--surface-ground) 25%,
+    var(--surface-hover) 50%,
+    var(--surface-ground) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+  border-radius: 4px;
+}
+
+@keyframes skeleton-loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+// Skeleton shapes
+.skeleton-text {
+  height: 1rem;
+  width: 100%;
+
+  &.short { width: 60%; }
+  &.shorter { width: 40%; }
+  &.tiny { width: 20%; }
+}
+
+.skeleton-title {
+  height: 1.5rem;
+  width: 70%;
+}
+
+.skeleton-image {
+  aspect-ratio: 1;
+  width: 100%;
+}
+
+.skeleton-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+.skeleton-button {
+  height: 40px;
+  width: 120px;
+  border-radius: 6px;
+}
+
+.skeleton-badge {
+  height: 24px;
+  width: 60px;
+  border-radius: 12px;
+}
+```
+
+#### Product Card Skeleton
+
+```html
+<!-- product-card-skeleton.component.html -->
+<div class="product-card-skeleton">
+  <div class="skeleton skeleton-image"></div>
+  <div class="skeleton-content">
+    <div class="skeleton skeleton-text short"></div>
+    <div class="skeleton skeleton-title"></div>
+    <div class="skeleton skeleton-text shorter"></div>
+    <div class="skeleton-row">
+      <div class="skeleton skeleton-text tiny"></div>
+      <div class="skeleton skeleton-button"></div>
+    </div>
+  </div>
+</div>
+```
+
+```scss
+.product-card-skeleton {
+  background: var(--surface-card);
+  border-radius: 8px;
+  overflow: hidden;
+
+  .skeleton-content {
+    padding: var(--space-3);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .skeleton-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: var(--space-2);
+  }
+}
+```
+
+#### Product List Skeleton
+
+```html
+<!-- Use in product-list.component.html -->
+@if (loading()) {
+  <div class="product-grid">
+    @for (i of [1,2,3,4,5,6]; track i) {
+      <app-product-card-skeleton />
+    }
+  </div>
+} @else {
+  <div class="product-grid">
+    @for (product of products(); track product.id) {
+      <app-product-card [product]="product" />
+    } @empty {
+      <app-empty-state />
+    }
+  </div>
+}
+```
+
+#### Order Card Skeleton
+
+```html
+<div class="order-card-skeleton">
+  <div class="order-header">
+    <div class="skeleton skeleton-text shorter"></div>
+    <div class="skeleton skeleton-badge"></div>
+  </div>
+  <div class="order-items">
+    @for (i of [1,2]; track i) {
+      <div class="order-item">
+        <div class="skeleton skeleton-avatar"></div>
+        <div class="order-item-details">
+          <div class="skeleton skeleton-text short"></div>
+          <div class="skeleton skeleton-text tiny"></div>
+        </div>
+      </div>
+    }
+  </div>
+  <div class="order-footer">
+    <div class="skeleton skeleton-text shorter"></div>
+    <div class="skeleton skeleton-text tiny"></div>
+  </div>
+</div>
+```
+
+#### Table Skeleton
+
+```html
+<p-table [value]="[1,2,3,4,5]">
+  <ng-template pTemplate="header">
+    <tr>
+      <th>Name</th>
+      <th>Category</th>
+      <th>Price</th>
+      <th>Status</th>
+      <th>Actions</th>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="body">
+    <tr>
+      <td><div class="skeleton skeleton-text"></div></td>
+      <td><div class="skeleton skeleton-text short"></div></td>
+      <td><div class="skeleton skeleton-text tiny"></div></td>
+      <td><div class="skeleton skeleton-badge"></div></td>
+      <td><div class="skeleton skeleton-button"></div></td>
+    </tr>
+  </ng-template>
+</p-table>
+```
+
+#### Profile/Account Skeleton
+
+```html
+<div class="profile-skeleton">
+  <div class="profile-header">
+    <div class="skeleton skeleton-avatar" style="width: 80px; height: 80px;"></div>
+    <div class="profile-info">
+      <div class="skeleton skeleton-title"></div>
+      <div class="skeleton skeleton-text short"></div>
+    </div>
+  </div>
+  <div class="profile-details">
+    @for (i of [1,2,3,4]; track i) {
+      <div class="detail-row">
+        <div class="skeleton skeleton-text tiny"></div>
+        <div class="skeleton skeleton-text short"></div>
+      </div>
+    }
+  </div>
+</div>
+```
+
+#### Cart Skeleton
+
+```html
+<div class="cart-skeleton">
+  @for (i of [1,2,3]; track i) {
+    <div class="cart-item-skeleton">
+      <div class="skeleton skeleton-image" style="width: 80px; height: 80px;"></div>
+      <div class="cart-item-details">
+        <div class="skeleton skeleton-text short"></div>
+        <div class="skeleton skeleton-text tiny"></div>
+        <div class="skeleton-row">
+          <div class="skeleton skeleton-button" style="width: 100px;"></div>
+          <div class="skeleton skeleton-text tiny"></div>
+        </div>
+      </div>
+    </div>
+  }
+  <div class="cart-summary-skeleton">
+    <div class="skeleton skeleton-text short"></div>
+    <div class="skeleton skeleton-title"></div>
+    <div class="skeleton skeleton-button" style="width: 100%;"></div>
+  </div>
+</div>
+```
+
+#### Dashboard Stats Skeleton
+
+```html
+<div class="stats-grid">
+  @for (i of [1,2,3,4]; track i) {
+    <div class="stat-card-skeleton">
+      <div class="skeleton skeleton-text tiny"></div>
+      <div class="skeleton skeleton-title" style="width: 50%;"></div>
+      <div class="skeleton skeleton-text shorter"></div>
+    </div>
+  }
+</div>
+```
+
+#### Form Skeleton
+
+```html
+<div class="form-skeleton">
+  @for (i of [1,2,3,4]; track i) {
+    <div class="form-field-skeleton">
+      <div class="skeleton skeleton-text tiny"></div>
+      <div class="skeleton" style="height: 42px; width: 100%;"></div>
+    </div>
+  }
+  <div class="skeleton skeleton-button" style="width: 100%; margin-top: var(--space-4);"></div>
+</div>
+```
+
+#### Skeleton Components to Create
+
+| Component | Used In |
+|-----------|---------|
+| `ProductCardSkeletonComponent` | Product list, Home, Search results |
+| `OrderCardSkeletonComponent` | Order list, Order history |
+| `CartItemSkeletonComponent` | Cart page |
+| `TableRowSkeletonComponent` | Admin tables |
+| `ProfileSkeletonComponent` | Account page |
+| `StatCardSkeletonComponent` | Admin dashboard |
+| `FormSkeletonComponent` | Edit pages |
+
+#### Usage Pattern
+
+```typescript
+// In component
+loading = signal(true);
+products = signal<Product[]>([]);
+
+loadProducts() {
+  this.loading.set(true);
+  this.productService.getProducts().subscribe({
+    next: (data) => {
+      this.products.set(data);
+      this.loading.set(false);
+    },
+    error: () => {
+      this.loading.set(false);
+      // Show error state
+    }
+  });
+}
+```
+
+```html
+<!-- In template - ALWAYS show skeleton while loading -->
+@if (loading()) {
+  <app-product-list-skeleton />
+} @else if (error()) {
+  <app-error-state (retry)="loadProducts()" />
+} @else if (products().length === 0) {
+  <app-empty-state />
+} @else {
+  @for (product of products(); track product.id) {
+    <app-product-card [product]="product" />
+  }
+}
+```
+
+#### Rules
+1. **NEVER use spinners** for content that has a known structure
+2. **Match the skeleton** to the actual content layout exactly
+3. **Same count**: Show same number of skeleton items as will likely load
+4. **Smooth transition**: No jarring jump when content loads
+5. **Minimum display time**: Show skeleton for at least 300ms to avoid flicker
+
+### 0.12 Image Handling
+
+```html
+<img
+  [src]="product.image_url"
+  [alt]="product.name"
+  loading="lazy"
+  (error)="onImageError($event)"
+  class="product-image"
+/>
+```
+
+Rules:
+- **Lazy loading**: All images below fold use `loading="lazy"`
+- **Placeholder**: Show placeholder while loading
+- **Error fallback**: Show default image on error
+- **Aspect ratio**: Maintain consistent aspect ratios
+- **WebP format**: Prefer WebP with fallback
+- **Responsive**: Use appropriate sizes for viewport
+
+```scss
+.product-image {
+  aspect-ratio: 1;
+  object-fit: cover;
+  background: var(--surface-ground); // Placeholder color
+}
+```
+
+### 0.13 Empty States
+Consistent empty state pattern:
+
+```html
+<app-empty-state
+  icon="pi pi-inbox"
+  [title]="'No products found' | translate"
+  [message]="'Try adjusting your filters' | translate"
+  [actionLabel]="'Clear filters' | translate"
+  (action)="clearFilters()"
+/>
+```
+
+Required for:
+- Product list (no results)
+- Cart (empty)
+- Orders (no orders)
+- Search results (no matches)
+- Favorites (none saved)
+
+### 0.14 Error States
+Consistent error handling pattern:
+
+```html
+<app-error-state
+  [title]="'Failed to load products' | translate"
+  [message]="'Check your connection and try again' | translate"
+  [retryLabel]="'Retry' | translate"
+  (retry)="loadProducts()"
+/>
+```
+
+Error types:
+- **Network error**: "No internet connection"
+- **Server error**: "Something went wrong"
+- **Not found**: "Page not found"
+- **Permission denied**: "Access denied"
+
+### 0.15 Offline Support (PWA)
+
+```typescript
+// Check online status
+isOnline = signal(navigator.onLine);
+
+constructor() {
+  window.addEventListener('online', () => this.isOnline.set(true));
+  window.addEventListener('offline', () => this.isOnline.set(false));
+}
+```
+
+Offline features:
+- Cache product catalog for offline browsing
+- Queue cart actions when offline
+- Show offline indicator banner
+- Sync when back online
+
+### 0.16 Safe Areas (iOS)
+
+```scss
+// Handle iPhone notch and home indicator
+.page-container {
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.bottom-navigation {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.page-top-bar {
+  padding-top: env(safe-area-inset-top);
+}
+```
+
+### 0.17 RTL Support (Arabic)
+
+```scss
+// Use logical properties for RTL
+.element {
+  // BAD
+  margin-left: 1rem;
+  padding-right: 1rem;
+  text-align: left;
+
+  // GOOD
+  margin-inline-start: 1rem;
+  padding-inline-end: 1rem;
+  text-align: start;
+}
+
+// RTL-aware flexbox
+.flex-row {
+  display: flex;
+  flex-direction: row; // Automatically flips in RTL
+}
+
+// Icons that need flipping
+[dir="rtl"] .icon-arrow-right {
+  transform: scaleX(-1);
+}
+```
+
+Rules:
+- Use `start`/`end` instead of `left`/`right`
+- Use logical properties (`margin-inline-start`, `padding-inline-end`)
+- Flip directional icons (arrows, chevrons)
+- Test all pages in Arabic
+
+### 0.18 Keyboard Navigation & Accessibility
+
+```html
+<!-- Focusable elements -->
+<button (click)="action()" (keydown.enter)="action()">
+  <span class="sr-only">{{ accessibleLabel }}</span>
+</button>
+
+<!-- Focus trap in modals -->
+<div cdkTrapFocus [cdkTrapFocusAutoCapture]="true">
+  <!-- Modal content -->
+</div>
+```
+
+Rules:
+- All interactive elements must be keyboard accessible
+- Visible focus indicators
+- Skip links for main content
+- ARIA labels on icon-only buttons
+- Focus trap in modals/dialogs
+- Announce dynamic content changes
+
+### 0.19 Lazy Loading Routes
+
+```typescript
+// app.routes.ts
+export const routes: Routes = [
+  {
+    path: 'admin',
+    loadChildren: () => import('./pages/admin/admin.routes').then(m => m.ADMIN_ROUTES)
+  },
+  {
+    path: 'products',
+    loadComponent: () => import('./pages/products/product-list/product-list.component')
+      .then(m => m.ProductListComponent)
+  }
+];
+```
+
+Rules:
+- Lazy load all admin pages
+- Lazy load feature modules
+- Preload strategy for likely next pages
+- Keep initial bundle small
+
+### 0.20 Image Optimization
+
+```html
+<!-- Responsive images -->
+<img
+  srcset="image-400.webp 400w, image-800.webp 800w, image-1200.webp 1200w"
+  sizes="(max-width: 600px) 400px, (max-width: 1200px) 800px, 1200px"
+  src="image-800.webp"
+  alt="Product"
+  loading="lazy"
+/>
+```
+
+Rules:
+- Use WebP format with JPEG fallback
+- Multiple sizes for responsive
+- Lazy load below-fold images
+- Compress images (max 100KB for thumbnails)
+- Use CDN for images in production
+
+### 0.21 Form Layout Standards
+
+```html
+<form class="form-container">
+  <div class="form-section">
+    <h3 class="form-section-title">Personal Information</h3>
+
+    <div class="form-field">
+      <label for="name" class="form-label">Name</label>
+      <input id="name" pInputText [(ngModel)]="name" />
+      @if (nameInvalid()) {
+        <small class="form-error">Name is required</small>
+      }
+    </div>
+  </div>
+
+  <div class="form-actions">
+    <button pButton type="button" label="Cancel" class="p-button-text"></button>
+    <button pButton type="submit" label="Save"></button>
+  </div>
+</form>
+```
+
+```scss
+.form-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.form-label {
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.form-error {
+  color: var(--color-error);
+  font-size: 0.875rem;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border-primary);
+}
+```
+
+### 0.22 Validation Timing
+
+```typescript
+// Show errors on blur, not on every keystroke
+<input
+  pInputText
+  [(ngModel)]="email"
+  (blur)="validateEmail()"
+  [class.ng-invalid]="emailTouched() && emailInvalid()"
+/>
+```
+
+Rules:
+- **On blur**: Show error after user leaves field
+- **On submit**: Validate all and show all errors
+- **On fix**: Clear error as soon as valid
+- **Required fields**: Mark with asterisk (*)
+- **Real-time**: Only for password strength indicator
+
+### 0.23 Cart Badge
+
+```html
+<!-- Always visible in bottom nav / sidebar -->
+<div class="cart-icon-wrapper">
+  <i class="pi pi-shopping-cart"></i>
+  @if (cartCount() > 0) {
+    <span class="cart-badge">{{ cartCount() }}</span>
+  }
+</div>
+```
+
+```scss
+.cart-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 18px;
+  height: 18px;
+  background: var(--color-error);
+  color: white;
+  border-radius: 9px;
+  font-size: 11px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+```
+
+Rules:
+- Always visible in navigation (bottom nav + sidebar)
+- Show count badge when items > 0
+- Animate badge on add to cart
+- Update in real-time
+
+### 0.24 Search Behavior
+
+```html
+<!-- Global search in top bar -->
+<div class="search-container">
+  <i class="pi pi-search search-icon"></i>
+  <input
+    pInputText
+    [(ngModel)]="searchTerm"
+    (ngModelChange)="onSearch($event)"
+    [placeholder]="'Search products...' | translate"
+    class="search-input"
+  />
+  @if (searchTerm()) {
+    <button class="search-clear" (click)="clearSearch()">
+      <i class="pi pi-times"></i>
+    </button>
+  }
+</div>
+```
+
+Search behavior:
+- **Global search**: Available in sidebar/bottom nav area
+- **Debounced**: 300ms debounce on input
+- **Instant clear**: X button to clear
+- **Recent searches**: Show last 5 searches
+- **Search suggestions**: Show as user types
+- **Results page**: Navigate to /products?search=term
+
 ---
 
 ## 1. TypeScript Requirements
