@@ -18,7 +18,7 @@ import { onLanguageChange } from '../../../core/utils/language-change.util';
 import { AdminService } from '../../../services/admin.service';
 import { UserManage } from '../../../models/admin.model';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
-import { VALIDATION } from '../../../core/constants/app.constants';
+import { VALIDATION, USER_ROLES } from '../../../core/constants/app.constants';
 import { ROUTES } from '../../../core/constants/routes.constants';
 import { StatusSeverityService } from '../../../core/services/status-severity.service';
 import { MapPickerComponent, LocationData } from '../../../shared/components/map-picker/map-picker.component';
@@ -95,7 +95,7 @@ export class AdminEditUserComponent implements OnInit {
       commune: [''],
       latitude: [null],
       longitude: [null],
-      role: ['customer', Validators.required],
+      role: [USER_ROLES.CUSTOMER, Validators.required],
       is_active: [true],
       password: ['', [Validators.minLength(VALIDATION.MIN_PASSWORD_LENGTH)]]
     });

@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
-import { VALIDATION } from '../constants/app.constants';
+import { VALIDATION, USER_ROLES } from '../constants/app.constants';
 
 /**
  * Service to create common form patterns
@@ -41,7 +41,7 @@ export class FormBuilderService {
     }
 
     if (options?.includeRole) {
-      (form as any).addControl('role', this.fb.control('customer'));
+      (form as any).addControl('role', this.fb.control(USER_ROLES.CUSTOMER));
     }
 
     if (options?.includeActive) {

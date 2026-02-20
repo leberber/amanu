@@ -11,7 +11,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { onLanguageChange } from '../../../core/utils/language-change.util';
 import { ValidationMessagesService } from '../../../core/services/validation-messages.service';
 import { StatusSeverityService } from '../../../core/services/status-severity.service';
-import { VALIDATION } from '../../../core/constants/app.constants';
+import { VALIDATION, USER_ROLES } from '../../../core/constants/app.constants';
 
 export interface UserFormData {
   full_name: string;
@@ -125,7 +125,7 @@ export class UserFormComponent implements OnInit, OnChanges {
       phone: [''],
       address: [''],
       password: [''],
-      role: ['customer'],
+      role: [USER_ROLES.CUSTOMER],
       is_active: [true]
     });
   }
@@ -143,7 +143,7 @@ export class UserFormComponent implements OnInit, OnChanges {
     
     // Set default role for register mode
     if (this.config.mode === 'register') {
-      this.userForm.patchValue({ role: 'customer' });
+      this.userForm.patchValue({ role: USER_ROLES.CUSTOMER });
     }
     
     // Disable email field in edit mode
@@ -173,7 +173,7 @@ export class UserFormComponent implements OnInit, OnChanges {
     
     // Remove fields based on configuration
     if (!this.config.showRoleSelection) {
-      formData.role = 'customer';
+      formData.role = USER_ROLES.CUSTOMER;
     }
     
     if (!this.config.showActiveToggle) {

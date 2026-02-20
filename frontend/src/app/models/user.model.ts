@@ -1,9 +1,11 @@
 // src/app/models/user.model.ts
-export enum UserRole {
-  CUSTOMER = 'customer',
-  STAFF = 'staff',
-  ADMIN = 'admin'
-}
+import { USER_ROLES } from '../core/constants/app.constants';
+
+// Derive UserRole type from USER_ROLES constant - single source of truth
+export type UserRole = typeof USER_ROLES[keyof typeof USER_ROLES];
+
+// Re-export for backward compatibility (components using UserRole.ADMIN, etc.)
+export const UserRole = USER_ROLES;
 
 export interface User {
   id: number;

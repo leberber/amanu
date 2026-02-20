@@ -6,6 +6,7 @@ import { TranslateService } from '@ngx-translate/core';
 
 import { ADMIN_CORE_IMPORTS, ADMIN_DIALOG_IMPORTS } from '../../../shared/imports/admin-shared.imports';
 import { ROUTES } from '../../../core/constants/routes.constants';
+import { USER_ROLES } from '../../../core/constants/app.constants';
 import { onLanguageChange } from '../../../core/utils/language-change.util';
 import { AdminService } from '../../../services/admin.service';
 import { UserManage, UsersResponse } from '../../../models/admin.model';
@@ -101,15 +102,15 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
   }
 
   getCustomerCount(): number {
-    return this.getCountByPredicate(this.allUsers, u => u.role === 'customer');
+    return this.getCountByPredicate(this.allUsers, u => u.role === USER_ROLES.CUSTOMER);
   }
 
   getStaffCount(): number {
-    return this.getCountByPredicate(this.allUsers, u => u.role === 'staff');
+    return this.getCountByPredicate(this.allUsers, u => u.role === USER_ROLES.STAFF);
   }
 
   getAdminCount(): number {
-    return this.getCountByPredicate(this.allUsers, u => u.role === 'admin');
+    return this.getCountByPredicate(this.allUsers, u => u.role === USER_ROLES.ADMIN);
   }
 
   // === Abstract method implementations ===
