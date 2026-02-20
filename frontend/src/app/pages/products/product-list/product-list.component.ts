@@ -22,6 +22,8 @@ import { BrandService } from '../../../core/services/brand.service';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
 import { UserPreferencesService, ViewMode } from '../../../core/services/user-preferences.service';
 import { Product, Category, ProductFilter } from '../../../models/product.model';
+import { SEARCH } from '../../../core/constants/app.constants';
+import { getDefaultQuantity } from '../../../shared/utils/quantity.utils';
 import { Brand } from '../../../models/brand.model';
 import { LoadingStateComponent } from '../../../shared/components/loading-state/loading-state.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
@@ -105,7 +107,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
   @ViewChild('mobileSearchInput') mobileSearchInput?: ElementRef<HTMLInputElement>;
 
   // Minimum search characters
-  readonly minSearchChars = 3;
+  readonly minSearchChars = SEARCH.MIN_SEARCH_LENGTH;
 
   // Subscriptions
   private languageSubscription?: Subscription;
@@ -146,7 +148,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
 
     // Set up search debounce with minimum character filter
     this.searchSubscription = this.searchSubject.pipe(
-      debounceTime(500), // Wait 500ms after user stops typing
+      debounceTime(SEARCH.DEBOUNCE_TIME),
       distinctUntilChanged() // Only emit if value is different from previous
     ).subscribe(searchQuery => {
       const trimmed = searchQuery.trim();
@@ -388,11 +390,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
     
     // Find the product to get its config
     const product = this.products().find(p => p.id === productId);
-    if (product?.quantity_config?.type === 'list' && product.quantity_config.quantities && product.quantity_config.quantities.length > 0) {
-      return product.quantity_config.quantities[0];
-    }
-    
-    return 1;
+    return getDefaultQuantity(product?.quantity_config);
   }
 
   setProductQuantity(productId: number, quantity: number): void {
@@ -471,11 +469,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
           this.products.set(products);
           products.forEach(p => {
             if (!this.productQuantities[p.id]) {
-              if (p.quantity_config?.type === 'list' && p.quantity_config.quantities && p.quantity_config.quantities.length > 0) {
-                this.productQuantities[p.id] = p.quantity_config.quantities[0];
-              } else {
-                this.productQuantities[p.id] = 1;
-              }
+              this.productQuantities[p.id] = getDefaultQuantity(p.quantity_config);
             }
           });
           this.loading.set(false);
@@ -503,11 +497,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
           products.forEach(p => {
             if (!this.productQuantities[p.id]) {
               // For list type, set to first available option
-              if (p.quantity_config?.type === 'list' && p.quantity_config.quantities && p.quantity_config.quantities.length > 0) {
-                this.productQuantities[p.id] = p.quantity_config.quantities[0];
-              } else {
-                this.productQuantities[p.id] = 1;
-              }
+              this.productQuantities[p.id] = getDefaultQuantity(p.quantity_config);
             }
           });
           this.loading.set(false);
@@ -543,12 +533,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
         this.products.set(allProducts);
         allProducts.forEach(p => {
           if (!this.productQuantities[p.id]) {
-            // For list type, set to first available option
-            if (p.quantity_config?.type === 'list' && p.quantity_config.quantities && p.quantity_config.quantities.length > 0) {
-              this.productQuantities[p.id] = p.quantity_config.quantities[0];
-            } else {
-              this.productQuantities[p.id] = 1;
-            }
+            this.productQuantities[p.id] = getDefaultQuantity(p.quantity_config);
           }
         });
         this.loading.set(false);

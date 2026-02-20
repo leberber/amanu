@@ -16,6 +16,7 @@ import { CartService } from '../../../../services/cart.service';
 import { ProductQuantitySelectorComponent } from '../../../../shared/components/product-quantity-selector/product-quantity-selector.component';
 import { CurrencyPipe } from '../../../../shared/pipes/currency.pipe';
 import { UnitPipe } from '../../../../shared/pipes/unit.pipe';
+import { getDefaultQuantity } from '../../../../shared/utils/quantity.utils';
 
 export interface AddToCartEvent {
   product: Product;
@@ -52,11 +53,7 @@ export class ProductCardComponent implements OnInit {
   
   ngOnInit() {
     // Initialize quantity based on product's quantity config
-    if (this.product?.quantity_config?.type === 'list' && 
-        this.product.quantity_config.quantities && 
-        this.product.quantity_config.quantities.length > 0) {
-      this.selectedQuantity = this.product.quantity_config.quantities[0];
-    }
+    this.selectedQuantity = getDefaultQuantity(this.product?.quantity_config);
   }
 
   get isInCart(): boolean {

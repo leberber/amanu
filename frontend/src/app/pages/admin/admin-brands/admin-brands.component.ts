@@ -1,24 +1,12 @@
 // src/app/pages/admin/admin-brands/admin-brands.component.ts
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-
-import { TableModule } from 'primeng/table';
-import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
-import { InputTextModule } from 'primeng/inputtext';
-import { ToastModule } from 'primeng/toast';
-import { TagModule } from 'primeng/tag';
-import { PaginatorModule } from 'primeng/paginator';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
-import { IconFieldModule } from 'primeng/iconfield';
-import { InputIconModule } from 'primeng/inputicon';
-import { TooltipModule } from 'primeng/tooltip';
-import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { CardModule } from 'primeng/card';
 
+import { ADMIN_LIST_IMPORTS } from '../../../shared/imports/admin-shared.imports';
+import { ROUTES, RouteHelpers } from '../../../core/constants/routes.constants';
+import { onLanguageChange } from '../../../core/utils/language-change.util';
 import { BrandService } from '../../../core/services/brand.service';
 import { ProductService } from '../../../services/product.service';
 import { TranslationHelperService } from '../../../core/services/translation-helper.service';
@@ -31,21 +19,8 @@ import { BaseAdminListComponent } from '../../../shared/base/base-admin-list.com
   selector: 'app-admin-brands',
   standalone: true,
   imports: [
-    CommonModule,
-    FormsModule,
-    TableModule,
-    ButtonModule,
-    CardModule,
-    InputTextModule,
-    ToastModule,
-    TagModule,
-    PaginatorModule,
-    ConfirmDialogModule,
-    IconFieldModule,
-    InputIconModule,
-    TooltipModule,
-    ProgressSpinnerModule,
-    TranslateModule
+    ...ADMIN_LIST_IMPORTS,
+    CardModule
   ],
   providers: [ConfirmationService],
   templateUrl: './admin-brands.component.html',
@@ -72,15 +47,11 @@ export class AdminBrandsComponent extends BaseAdminListComponent implements OnIn
   private confirmationService = inject(ConfirmationService);
   private confirmDialog = inject(ConfirmationDialogService);
   private router = inject(Router);
-  private translateService = inject(TranslateService);
   private translationHelper = inject(TranslationHelperService);
 
   ngOnInit() {
     this.loadAllBrands();
-
-    this.translateService.onLangChange.subscribe(() => {
-      this.filterItems();
-    });
+    onLanguageChange(() => this.filterItems());
   }
 
   hasActiveFilters(): boolean {
@@ -172,11 +143,11 @@ export class AdminBrandsComponent extends BaseAdminListComponent implements OnIn
   }
 
   createNewBrand() {
-    this.router.navigate(['/admin/brands/add']);
+    this.router.navigate([ROUTES.ADMIN.ADD_BRAND]);
   }
 
   editBrand(brand: Brand) {
-    this.router.navigate(['/admin/brands/edit', brand.id]);
+    this.router.navigate([RouteHelpers.adminEditBrand(brand.id)]);
   }
 
   confirmDeleteBrand(brand: Brand) {

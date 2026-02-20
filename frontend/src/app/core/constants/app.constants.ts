@@ -7,6 +7,7 @@ export const PAGINATION = {
   DEFAULT_PAGE_SIZE: 20,
   DEFAULT_PAGE: 1,
   PAGE_SIZE_OPTIONS: [10, 20, 50, 100],
+  ADMIN_PAGE_SIZE_OPTIONS: [10, 25, 50],
   MAX_PAGE_SIZE: 100
 } as const;
 
@@ -86,6 +87,13 @@ export const CART = {
   MIN_CHECKOUT_AMOUNT: 0,
   SESSION_STORAGE_KEY: 'cart_items',
   SYNC_INTERVAL: 5000 // 5 seconds
+} as const;
+
+// Shipping
+export const SHIPPING = {
+  DEFAULT_COST: 0,
+  FREE_SHIPPING_THRESHOLD: 0, // Free shipping always (set higher value to enable threshold)
+  STANDARD_COST: 500 // DZD - used if free shipping threshold not met
 } as const;
 
 // Date/Time

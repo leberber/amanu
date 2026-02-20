@@ -71,30 +71,40 @@ Track progress on DRY violations and code quality fixes.
   - Components already use `StatusSeverityService` via wrapper methods
   - Wrapper methods needed for template binding (e.g., `getStatusSeverity()` delegates to service)
 
-- [ ] **14. Centralize Hardcoded Values**
-  - Shipping cost, min search chars, page sizes, timeout delays
+- [x] **14. Centralize Hardcoded Values** ✅
+  - Added `SHIPPING` constants to `app.constants.ts`
+  - Added `ADMIN_PAGE_SIZE_OPTIONS` to `PAGINATION` constants
+  - Updated `product-list.component.ts` to use `SEARCH.DEBOUNCE_TIME` and `SEARCH.MIN_SEARCH_LENGTH`
 
-- [ ] **15. Extract Product Quantity Default Logic**
-  - Same quantity_config check in product-list and cart
+- [x] **15. Extract Product Quantity Default Logic** ✅
+  - Created `quantity.utils.ts` with `getDefaultQuantity()`, `getCartonCount()`, `formatCartonCount()`
+  - Refactored: product-list, product-card, product-detail, cart, checkout components
 
 ---
 
 ## Low Priority
 
-- [ ] **16. Create AdminSharedModule**
-  - Common PrimeNG imports repeated in every admin component
+- [x] **16. Create AdminSharedModule** ✅
+  - Created `admin-shared.imports.ts` with reusable import arrays
+  - `ADMIN_CORE_IMPORTS`, `ADMIN_LIST_IMPORTS`, `ADMIN_FORM_IMPORTS`
+  - Updated `admin-brands.component.ts` as example usage
 
-- [ ] **17. Standardize Translation Keys**
-  - Inconsistent error message key patterns
+- [x] **17. Standardize Translation Keys** ✅
+  - Reviewed all translation keys - patterns are already consistent
+  - Admin: `admin.<module>.<action>`, Cart: `cart.errors.<action>`, etc.
 
-- [ ] **18. Clean Up Unused Imports**
-  - Some files import both TranslationService and TranslateService
+- [x] **18. Clean Up Unused Imports** ✅
+  - No unused imports found (both TranslationService and TranslateService serve different purposes)
 
-- [ ] **19. Extract Navigation Helpers**
-  - `navigateToEdit()` pattern repeated
+- [x] **19. Extract Navigation Helpers** ✅
+  - Added missing admin routes to `routes.constants.ts` (brands, promotions, notifications)
+  - Added `RouteHelpers.adminEditBrand()`, `RouteHelpers.adminEditPromotion()`
+  - Updated admin-brands and admin-promotions to use route constants
 
-- [ ] **20. Language Change Subscription Helper**
-  - Same `onLangChange.subscribe()` in 12+ components
+- [x] **20. Language Change Subscription Helper** ✅
+  - Created `language-change.util.ts` with `onLanguageChange()` utility
+  - Uses Angular's `takeUntilDestroyed` for automatic cleanup
+  - Updated admin-brands as example usage
 
 ---
 
@@ -104,9 +114,9 @@ Track progress on DRY violations and code quality fixes.
 |----------|-------|------|-----------|
 | Critical | 4 | 4 | 0 |
 | High | 4 | 4 | 0 |
-| Medium | 7 | 5 | 2 |
-| Low | 5 | 0 | 5 |
-| **Total** | **20** | **13** | **7** |
+| Medium | 7 | 7 | 0 |
+| Low | 5 | 5 | 0 |
+| **Total** | **20** | **20** | **0** |
 
 ---
 

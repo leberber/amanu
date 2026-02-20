@@ -28,6 +28,7 @@ import { ImageLightboxComponent } from '../../shared/components/image-lightbox/i
 import { ToastMessageService } from '../../core/services/toast-message.service';
 import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
 import { UnitPipe } from '../../shared/pipes/unit.pipe';
+import { getCartonCount as calcCartonCount } from '../../shared/utils/quantity.utils';
 
 @Component({
   selector: 'app-cart-page',
@@ -362,8 +363,7 @@ export class CartComponent implements OnInit, OnDestroy {
 
   // Get carton count based on quantity config
   getCartonCount(item: CartItem): number {
-    const baseQty = item.quantity_config?.quantities?.[0] || 10;
-    return item.quantity / baseQty;
+    return calcCartonCount(item.quantity, item.quantity_config);
   }
 
   // Promotion methods

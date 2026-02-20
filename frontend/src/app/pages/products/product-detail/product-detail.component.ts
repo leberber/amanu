@@ -26,6 +26,7 @@ import { UnitsService } from '../../../core/services/units.service';
 import { TranslationService } from '../../../services/translation.service';
 import { Product, Category } from '../../../models/product.model';
 import { PRODUCT } from '../../../core/constants/app.constants';
+import { getDefaultQuantity } from '../../../shared/utils/quantity.utils';
 import { FlyToCartService } from '../../../core/services/fly-to-cart.service';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
 import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
@@ -196,11 +197,7 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
         this.product.set(product);
         
         // Initialize selectedQuantity based on product's quantity config
-        if (product.quantity_config?.type === 'list' && product.quantity_config.quantities && product.quantity_config.quantities.length > 0) {
-          this.selectedQuantity.set(product.quantity_config.quantities[0]);
-        } else {
-          this.selectedQuantity.set(1);
-        }
+        this.selectedQuantity.set(getDefaultQuantity(product.quantity_config));
         
         // Load category
         this.productService.getCategory(product.category_id).subscribe(category => {
@@ -225,12 +222,7 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   private initializeRelatedProductQuantities(products: Product[]): void {
     products.forEach(product => {
       if (!this.productQuantities[product.id]) {
-        // Set default quantity based on product's quantity config
-        if (product.quantity_config?.type === 'list' && product.quantity_config.quantities && product.quantity_config.quantities.length > 0) {
-          this.productQuantities[product.id] = product.quantity_config.quantities[0];
-        } else {
-          this.productQuantities[product.id] = 1;
-        }
+        this.productQuantities[product.id] = getDefaultQuantity(product.quantity_config);
       }
     });
   }

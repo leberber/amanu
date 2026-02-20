@@ -12,6 +12,7 @@ import { ConfirmationService } from 'primeng/api';
 import { TooltipModule } from 'primeng/tooltip';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
+import { ROUTES, RouteHelpers } from '../../../core/constants/routes.constants';
 import { PromotionService } from '../../../services/promotion.service';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { Promotion } from '../../../models/promotion.model';
@@ -155,11 +156,11 @@ export class AdminPromotionsComponent extends BaseAdminListComponent implements 
   }
 
   createNewPromotion() {
-    this.router.navigate(['/admin/promotions/add']);
+    this.router.navigate([ROUTES.ADMIN.ADD_PROMOTION]);
   }
 
   editPromotion(promotion: Promotion) {
-    this.router.navigate(['/admin/promotions/edit', promotion.id]);
+    this.router.navigate([RouteHelpers.adminEditPromotion(promotion.id)]);
   }
 
   confirmDeletePromotion(promotion: Promotion) {

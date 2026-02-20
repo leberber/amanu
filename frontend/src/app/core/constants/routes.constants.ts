@@ -28,10 +28,17 @@ export const ROUTES = {
     CATEGORIES: '/admin/categories',
     ADD_CATEGORY: '/admin/categories/add',
     EDIT_CATEGORY: '/admin/categories/edit/:id',
+    BRANDS: '/admin/brands',
+    ADD_BRAND: '/admin/brands/add',
+    EDIT_BRAND: '/admin/brands/edit/:id',
+    PROMOTIONS: '/admin/promotions',
+    ADD_PROMOTION: '/admin/promotions/add',
+    EDIT_PROMOTION: '/admin/promotions/edit/:id',
     ORDERS: '/admin/orders',
     USERS: '/admin/users',
     ADD_USER: '/admin/users/add',
-    EDIT_USER: '/admin/users/edit/:id'
+    EDIT_USER: '/admin/users/edit/:id',
+    NOTIFICATIONS: '/admin/notifications'
   }
 } as const;
 
@@ -43,7 +50,9 @@ export const RouteHelpers = {
   orderDetail: (id: number | string) => `/orders/${id}`,
   adminEditProduct: (id: number | string) => `/admin/products/edit/${id}`,
   adminEditCategory: (id: number | string) => `/admin/categories/edit/${id}`,
-  adminEditUser: (id: number | string) => `/admin/users/edit/${id}`
+  adminEditBrand: (id: number | string) => `/admin/brands/edit/${id}`,
+  adminEditPromotion: (id: number | string) => `/admin/promotions/edit/${id}`,
+  adminEditUser: (id: number | string) => `/admin/users/${id}/edit`
 };
 
 /**
