@@ -111,7 +111,7 @@ export class AdminBrandsComponent extends BaseAdminListComponent implements OnIn
     return this.brandProductCounts[brandId] || 0;
   }
 
-  clearFilters() {
+  override clearFilters() {
     this.searchQuery = '';
     this.statusFilter = 'all';
     this.filterItems();

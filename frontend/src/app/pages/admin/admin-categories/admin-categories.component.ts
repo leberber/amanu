@@ -107,7 +107,7 @@ export class AdminCategoriesComponent extends BaseAdminListComponent implements 
 
   // === Component-specific methods ===
 
-  clearFilters() {
+  override clearFilters() {
     this.searchQuery = '';
     this.statusFilter = 'all';
     this.filterItems();

@@ -69,16 +69,14 @@ export class AdminAddBrandComponent implements OnInit {
   private adminFormService = inject(AdminFormService);
 
   ngOnInit() {
-    this.brandForm = this.fb.group({
-      name_en: ['', [Validators.required, Validators.minLength(VALIDATION.MIN_NAME_LENGTH)]],
-      name_fr: ['', [Validators.required, Validators.minLength(VALIDATION.MIN_NAME_LENGTH)]],
-      name_ar: ['', [Validators.required, Validators.minLength(VALIDATION.MIN_NAME_LENGTH)]],
-      description_en: [''],
-      description_fr: [''],
-      description_ar: [''],
-      logo_url: [''],
-      is_active: [true]
-    });
+    // Use AdminFormService to build translation form
+    this.brandForm = this.adminFormService.buildTranslationFormGroup(
+      [
+        { name: 'name', required: true, minLength: VALIDATION.MIN_NAME_LENGTH },
+        { name: 'description', required: false }
+      ],
+      { logo_url: [''], is_active: [true] }
+    );
 
     this.detectMode();
   }
@@ -108,18 +106,13 @@ export class AdminAddBrandComponent implements OnInit {
       next: (brand) => {
         this.currentBrand = brand as BrandWithTranslations;
 
-        this.brandForm.patchValue({
-          name_en: this.currentBrand.name_translations?.['en'] || brand.name,
-          name_fr: this.currentBrand.name_translations?.['fr'] || brand.name,
-          name_ar: this.currentBrand.name_translations?.['ar'] || brand.name,
-
-          description_en: this.currentBrand.description_translations?.['en'] || brand.description || '',
-          description_fr: this.currentBrand.description_translations?.['fr'] || brand.description || '',
-          description_ar: this.currentBrand.description_translations?.['ar'] || brand.description || '',
-
-          logo_url: brand.logo_url || '',
-          is_active: brand.is_active
-        });
+        // Use AdminFormService to populate form with translations
+        this.adminFormService.populateFormWithTranslations(
+          this.brandForm,
+          this.currentBrand,
+          ['name', 'description'],
+          { logo_url: brand.logo_url || '', is_active: brand.is_active }
+        );
 
         this.loading.set(false);
       },
@@ -134,16 +127,11 @@ export class AdminAddBrandComponent implements OnInit {
 
   show() {
     this.visible.set(true);
-    this.brandForm.reset({
-      name_en: '',
-      name_fr: '',
-      name_ar: '',
-      description_en: '',
-      description_fr: '',
-      description_ar: '',
-      logo_url: '',
-      is_active: true
-    });
+    const resetValues = this.adminFormService.getTranslationFormResetValues(
+      ['name', 'description'],
+      { logo_url: '', is_active: true }
+    );
+    this.brandForm.reset(resetValues);
   }
 
   onCancel() {
@@ -172,76 +160,50 @@ export class AdminAddBrandComponent implements OnInit {
     const brandData = this.adminFormService.buildFormDataWithTranslations(
       formValues,
       ['name', 'description'],
-      {
-        logo_url: formValues.logo_url || null,
-        is_active: formValues.is_active
-      }
+      { logo_url: formValues.logo_url || null, is_active: formValues.is_active }
     );
 
-    if (this.isEditMode() && this.editBrandId) {
-      this.brandService.updateBrand(this.editBrandId, brandData).subscribe({
-        next: (updatedBrand) => {
-          this.loading.set(false);
-          this.toast.showSuccess('admin.brands.update_success');
+    const isUpdate = this.isEditMode() && this.editBrandId;
+    const operation$ = isUpdate
+      ? this.brandService.updateBrand(this.editBrandId!, brandData)
+      : this.brandService.createBrand(brandData);
 
-          if (this.visible()) {
-            this.visible.set(false);
-            this.brandForm.reset({
-              name_en: '',
-              name_fr: '',
-              name_ar: '',
-              description_en: '',
-              description_fr: '',
-              description_ar: '',
-              logo_url: '',
-              is_active: true
-            });
-          } else {
-            setTimeout(() => {
-              this.goBackToBrandsList();
-            }, 1500);
-          }
-        },
-        error: (error) => {
-          this.loading.set(false);
-          this.handleError('update', error);
-        }
-      });
+    operation$.subscribe({
+      next: () => {
+        this.loading.set(false);
+        this.handleSuccess(isUpdate ? 'update' : 'create');
+      },
+      error: (error) => {
+        this.loading.set(false);
+        this.handleError(isUpdate ? 'update' : 'create', error);
+      }
+    });
+  }
+
+  private handleSuccess(operation: 'create' | 'update') {
+    const messageKey = operation === 'create'
+      ? 'admin.brands.create_success'
+      : 'admin.brands.update_success';
+
+    if (this.visible()) {
+      // Modal mode - close modal and reset
+      this.toast.showSuccess(messageKey);
+      this.visible.set(false);
+      const resetValues = this.adminFormService.getTranslationFormResetValues(
+        ['name', 'description'],
+        { logo_url: '', is_active: true }
+      );
+      this.brandForm.reset(resetValues);
     } else {
-      this.brandService.createBrand(brandData).subscribe({
-        next: (createdBrand) => {
-          this.loading.set(false);
-          this.toast.showSuccess('admin.brands.create_success');
-
-          if (this.visible()) {
-            this.visible.set(false);
-            this.brandForm.reset({
-              name_en: '',
-              name_fr: '',
-              name_ar: '',
-              description_en: '',
-              description_fr: '',
-              description_ar: '',
-              logo_url: '',
-              is_active: true
-            });
-          } else {
-            setTimeout(() => {
-              this.goBackToBrandsList();
-            }, 1500);
-          }
-        },
-        error: (error) => {
-          this.loading.set(false);
-          this.handleError('create', error);
-        }
-      });
+      // Page mode - navigate back after delay
+      this.adminFormService.handleSuccessWithRedirect(messageKey, ROUTES.ADMIN.BRANDS);
     }
   }
 
   private handleError(operation: 'create' | 'update', error: any) {
-    console.error(`Error ${operation}ing brand:`, error);
-    const fallbackKey = operation === 'create' ? 'admin.brands.create_failed' : 'admin.brands.update_failed';
-    this.toast.showApiError(error, fallbackKey);
+    this.adminFormService.handleError(operation, error, {
+      createMessage: 'admin.brands.create_failed',
+      updateMessage: 'admin.brands.update_failed'
+    });
   }
 }

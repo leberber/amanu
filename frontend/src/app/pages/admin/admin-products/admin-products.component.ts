@@ -140,7 +140,7 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
 
   // === Component-specific methods ===
 
-  clearFilters() {
+  override clearFilters() {
     this.searchQuery = '';
     this.categoryFilter = null;
     this.brandFilter = null;
@@ -230,25 +230,17 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
     }
 
     const newPrice = this.priceEdit.value;
-    this.productService.updateProduct(product.id, { price: newPrice }).subscribe({
-      next: () => {
-        const index = this.allProducts.findIndex(p => p.id === product.id);
-        if (index !== -1) {
-          this.allProducts[index].price = newPrice;
-        }
-        const displayIndex = this.products.findIndex(p => p.id === product.id);
-        if (displayIndex !== -1) {
-          this.products[displayIndex].price = newPrice;
-        }
-
-        this.baseToast.showSuccess('admin.products.price_updated');
-        this.priceEdit.cancel();
-      },
-      error: (error) => {
-        console.error('Error updating price:', error);
-        this.baseToast.showError('admin.products.price_update_failed');
-      }
-    });
+    this.handleInlineUpdate(
+      () => this.productService.updateProduct(product.id, { price: newPrice }),
+      this.allProducts,
+      this.products,
+      product.id,
+      'price',
+      newPrice,
+      'admin.products.price_updated',
+      'admin.products.price_update_failed',
+      () => this.priceEdit.cancel()
+    );
   }
 
   isEditingPrice(productId: number): boolean {
@@ -271,25 +263,17 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
     }
 
     const newStock = this.stockEdit.value;
-    this.productService.updateProduct(product.id, { stock_quantity: newStock }).subscribe({
-      next: () => {
-        const index = this.allProducts.findIndex(p => p.id === product.id);
-        if (index !== -1) {
-          this.allProducts[index].stock_quantity = newStock;
-        }
-        const displayIndex = this.products.findIndex(p => p.id === product.id);
-        if (displayIndex !== -1) {
-          this.products[displayIndex].stock_quantity = newStock;
-        }
-
-        this.baseToast.showSuccess('admin.products.stock_updated');
-        this.stockEdit.cancel();
-      },
-      error: (error) => {
-        console.error('Error updating stock:', error);
-        this.baseToast.showError('admin.products.stock_update_failed');
-      }
-    });
+    this.handleInlineUpdate(
+      () => this.productService.updateProduct(product.id, { stock_quantity: newStock }),
+      this.allProducts,
+      this.products,
+      product.id,
+      'stock_quantity',
+      newStock,
+      'admin.products.stock_updated',
+      'admin.products.stock_update_failed',
+      () => this.stockEdit.cancel()
+    );
   }
 
   isEditingStock(productId: number): boolean {

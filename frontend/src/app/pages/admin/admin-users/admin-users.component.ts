@@ -153,7 +153,7 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
     return this.hasSearchQuery() || this.roleFilter !== 'all';
   }
 
-  clearFilters(): void {
+  override clearFilters(): void {
     this.searchQuery = '';
     this.roleFilter = 'all';
     this.filterItems();

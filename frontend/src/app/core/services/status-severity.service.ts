@@ -63,4 +63,66 @@ export class StatusSeverityService {
   getBooleanSeverity(isActive: boolean): "success" | "danger" {
     return isActive ? 'success' : 'danger';
   }
+
+  /**
+   * Get severity color for promotion statuses
+   * @param status - Promotion status (active, expired, scheduled, inactive)
+   * @returns PrimeNG severity type
+   */
+  getPromotionStatusSeverity(status: string): "success" | "secondary" | "info" | "warn" | "danger" | "contrast" {
+    switch (status) {
+      case 'active': return 'success';
+      case 'scheduled': return 'info';
+      case 'expired': return 'secondary';
+      case 'inactive': return 'danger';
+      default: return 'secondary';
+    }
+  }
+
+  /**
+   * Get icon for promotion statuses
+   * @param status - Promotion status
+   * @returns PrimeNG icon class
+   */
+  getPromotionStatusIcon(status: string): string {
+    switch (status) {
+      case 'active': return 'pi pi-check';
+      case 'scheduled': return 'pi pi-clock';
+      case 'expired': return 'pi pi-times';
+      case 'inactive': return 'pi pi-ban';
+      default: return 'pi pi-info';
+    }
+  }
+
+  /**
+   * Get severity for stock levels
+   * @param quantity - Stock quantity
+   * @param lowThreshold - Low stock threshold (default: 10)
+   * @param outThreshold - Out of stock threshold (default: 0)
+   * @returns PrimeNG severity type
+   */
+  getStockSeverity(
+    quantity: number,
+    lowThreshold: number = 10,
+    outThreshold: number = 0
+  ): "success" | "secondary" | "info" | "warn" | "danger" | "contrast" {
+    if (quantity <= outThreshold) return 'danger';
+    if (quantity <= lowThreshold) return 'warn';
+    return 'success';
+  }
+
+  /**
+   * Get severity for payment statuses
+   * @param status - Payment status
+   * @returns PrimeNG severity type
+   */
+  getPaymentStatusSeverity(status: string): "success" | "secondary" | "info" | "warn" | "danger" | "contrast" {
+    switch (status) {
+      case 'paid': return 'success';
+      case 'pending': return 'warn';
+      case 'failed': return 'danger';
+      case 'refunded': return 'info';
+      default: return 'secondary';
+    }
+  }
 }

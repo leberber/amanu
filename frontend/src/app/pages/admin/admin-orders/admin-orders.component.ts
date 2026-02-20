@@ -176,7 +176,7 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
     this.updatePaginatedItems();
   }
 
-  clearFilters() {
+  override clearFilters() {
     this.searchQuery = '';
     this.statusFilter = 'all';
     this.resetPagination();

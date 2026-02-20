@@ -205,6 +205,69 @@ export abstract class BaseAdminListComponent {
     });
   }
 
+  // ===== FILTER HELPERS =====
+
+  /**
+   * Clear all filters and reset to default state.
+   * Override in child class if you have additional filters beyond search and status.
+   */
+  clearFilters(): void {
+    this.searchQuery = '';
+    this.statusFilter = 'all';
+    this.resetPagination();
+    this.filterItems();
+  }
+
+  // ===== INLINE UPDATE HELPERS =====
+
+  /**
+   * Handle inline field update with standardized success/error handling.
+   * Updates the item in both allItems and displayItems arrays.
+   *
+   * @param updateFn - Function that performs the API update
+   * @param allItems - Array of all items
+   * @param displayItems - Array of currently displayed items
+   * @param itemId - ID of the item being updated
+   * @param fieldName - Name of the field being updated
+   * @param newValue - New value for the field
+   * @param successMessageKey - Translation key for success message
+   * @param errorMessageKey - Translation key for error message
+   * @param onComplete - Optional callback after successful update
+   */
+  protected handleInlineUpdate<T extends { id: number }, V>(
+    updateFn: () => Observable<any>,
+    allItems: T[],
+    displayItems: T[],
+    itemId: number,
+    fieldName: keyof T,
+    newValue: V,
+    successMessageKey: string,
+    errorMessageKey: string,
+    onComplete?: () => void
+  ): void {
+    updateFn().subscribe({
+      next: () => {
+        // Update in allItems
+        const allIndex = allItems.findIndex(item => item.id === itemId);
+        if (allIndex !== -1) {
+          (allItems[allIndex] as any)[fieldName] = newValue;
+        }
+        // Update in displayItems
+        const displayIndex = displayItems.findIndex(item => item.id === itemId);
+        if (displayIndex !== -1) {
+          (displayItems[displayIndex] as any)[fieldName] = newValue;
+        }
+
+        this.baseToast.showSuccess(successMessageKey);
+        onComplete?.();
+      },
+      error: (error) => {
+        console.error(`Error updating ${String(fieldName)}:`, error);
+        this.baseToast.showError(errorMessageKey);
+      }
+    });
+  }
+
   // ===== ABSTRACT METHODS =====
 
   /**

@@ -72,17 +72,15 @@ export class AdminAddCategoryComponent implements OnInit {
   private adminFormService = inject(AdminFormService);
 
   ngOnInit() {
-    this.categoryForm = this.fb.group({
-      name_en: ['', [Validators.required, Validators.minLength(VALIDATION.MIN_NAME_LENGTH)]],
-      name_fr: ['', [Validators.required, Validators.minLength(VALIDATION.MIN_NAME_LENGTH)]],
-      name_ar: ['', [Validators.required, Validators.minLength(VALIDATION.MIN_NAME_LENGTH)]],
-      description_en: [''],
-      description_fr: [''],
-      description_ar: [''],
-      image_url: [''],
-      is_active: [true]
-    });
-    
+    // Use AdminFormService to build translation form
+    this.categoryForm = this.adminFormService.buildTranslationFormGroup(
+      [
+        { name: 'name', required: true, minLength: VALIDATION.MIN_NAME_LENGTH },
+        { name: 'description', required: false }
+      ],
+      { image_url: [''], is_active: [true] }
+    );
+
     this.detectMode();
   }
 
@@ -103,61 +101,43 @@ export class AdminAddCategoryComponent implements OnInit {
     });
   }
 
-  // ADD: Load category for editing method
+  // Load category for editing
   loadCategoryForEdit() {
     if (!this.editCategoryId) return;
 
     this.loading.set(true);
-    
+
     this.productService.getCategory(this.editCategoryId).subscribe({
       next: (category) => {
         this.currentCategory = category as CategoryWithTranslations;
-        
-        // 🆕 UPDATED: Populate form with existing category data including translations
-        this.categoryForm.patchValue({
-          // 🚫 REMOVED: Primary name and description
-          // name: category.name,
-          // description: category.description || '',
-          
-          // 🆕 NEW: Load translation values or fallback to main name/description
-          name_en: this.currentCategory.name_translations?.['en'] || category.name,
-          name_fr: this.currentCategory.name_translations?.['fr'] || category.name,
-          name_ar: this.currentCategory.name_translations?.['ar'] || category.name,
-          
-          description_en: this.currentCategory.description_translations?.['en'] || category.description || '',
-          description_fr: this.currentCategory.description_translations?.['fr'] || category.description || '',
-          description_ar: this.currentCategory.description_translations?.['ar'] || category.description || '',
-          
-          image_url: category.image_url || '',
-          is_active: category.is_active
-        });
-        
+
+        // Use AdminFormService to populate form with translations
+        this.adminFormService.populateFormWithTranslations(
+          this.categoryForm,
+          this.currentCategory,
+          ['name', 'description'],
+          { image_url: category.image_url || '', is_active: category.is_active }
+        );
+
         this.loading.set(false);
       },
       error: (error) => {
         console.error('Error loading category:', error);
         this.loading.set(false);
         this.toast.showError('categories.load_error');
-        // Redirect back if category not found
         this.goBackToCategoriesList();
       }
     });
   }
 
-  // KEEP: Original modal method for backward compatibility
+  // Original modal method for backward compatibility
   show() {
     this.visible.set(true);
-    this.categoryForm.reset({
-      // 🆕 UPDATED: Reset translation fields instead of primary fields
-      name_en: '',
-      name_fr: '',
-      name_ar: '',
-      description_en: '',
-      description_fr: '',
-      description_ar: '',
-      image_url: '',
-      is_active: true
-    });
+    const resetValues = this.adminFormService.getTranslationFormResetValues(
+      ['name', 'description'],
+      { image_url: '', is_active: true }
+    );
+    this.categoryForm.reset(resetValues);
   }
 
   // UPDATED: Cancel method that works for both modal and page
@@ -184,92 +164,57 @@ export class AdminAddCategoryComponent implements OnInit {
     }
 
     this.loading.set(true);
-    
+
     const formValues = this.categoryForm.value;
-    
+
     // Use AdminFormService to build category data with translations
     const categoryData = this.adminFormService.buildFormDataWithTranslations(
       formValues,
       ['name', 'description'],
-      {
-        image_url: formValues.image_url || '',
-        is_active: formValues.is_active
-      }
+      { image_url: formValues.image_url || '', is_active: formValues.is_active }
     );
-    
-    if (this.isEditMode() && this.editCategoryId) {
-      // UPDATE existing category
-      this.productService.updateCategory(this.editCategoryId, categoryData).subscribe({
-        next: (updatedCategory) => {
-          this.loading.set(false);
-          this.toast.showSuccess('admin.categories.update_success');
 
-          // Handle success based on mode
-          if (this.visible()) {
-            // Modal mode - close modal and reset
-            this.visible.set(false);
-            this.categoryForm.reset({
-              name_en: '',
-              name_fr: '',
-              name_ar: '',
-              description_en: '',
-              description_fr: '',
-              description_ar: '',
-              image_url: '',
-              is_active: true
-            });
-          } else {
-            // Page mode - navigate back after delay
-            setTimeout(() => {
-              this.goBackToCategoriesList();
-            }, 1500);
-          }
-        },
-        error: (error) => {
-          this.loading.set(false);
-          this.handleError('update', error);
-        }
-      });
+    const isUpdate = this.isEditMode() && this.editCategoryId;
+    const operation$ = isUpdate
+      ? this.productService.updateCategory(this.editCategoryId!, categoryData)
+      : this.productService.createCategory(categoryData);
+
+    operation$.subscribe({
+      next: () => {
+        this.loading.set(false);
+        this.handleSuccess(isUpdate ? 'update' : 'create');
+      },
+      error: (error) => {
+        this.loading.set(false);
+        this.handleError(isUpdate ? 'update' : 'create', error);
+      }
+    });
+  }
+
+  private handleSuccess(operation: 'create' | 'update') {
+    const messageKey = operation === 'create'
+      ? 'admin.categories.create_success'
+      : 'admin.categories.update_success';
+
+    if (this.visible()) {
+      // Modal mode - close modal and reset
+      this.toast.showSuccess(messageKey);
+      this.visible.set(false);
+      const resetValues = this.adminFormService.getTranslationFormResetValues(
+        ['name', 'description'],
+        { image_url: '', is_active: true }
+      );
+      this.categoryForm.reset(resetValues);
     } else {
-      // CREATE new category
-      this.productService.createCategory(categoryData).subscribe({
-        next: (createdCategory) => {
-          this.loading.set(false);
-          this.toast.showSuccess('admin.categories.create_success');
-
-          // Handle success based on mode
-          if (this.visible()) {
-            // Modal mode - close modal and reset
-            this.visible.set(false);
-            this.categoryForm.reset({
-              name_en: '',
-              name_fr: '',
-              name_ar: '',
-              description_en: '',
-              description_fr: '',
-              description_ar: '',
-              image_url: '',
-              is_active: true
-            });
-          } else {
-            // Page mode - navigate back after delay
-            setTimeout(() => {
-              this.goBackToCategoriesList();
-            }, 1500);
-          }
-        },
-        error: (error) => {
-          this.loading.set(false);
-          this.handleError('create', error);
-        }
-      });
+      // Page mode - navigate back after delay
+      this.adminFormService.handleSuccessWithRedirect(messageKey, ROUTES.ADMIN.CATEGORIES);
     }
   }
 
-  // ADD: Error handling method
   private handleError(operation: 'create' | 'update', error: any) {
-    console.error(`Error ${operation}ing category:`, error);
-    const fallbackKey = operation === 'create' ? 'admin.categories.create_failed' : 'admin.categories.update_failed';
-    this.toast.showApiError(error, fallbackKey);
+    this.adminFormService.handleError(operation, error, {
+      createMessage: 'admin.categories.create_failed',
+      updateMessage: 'admin.categories.update_failed'
+    });
   }
 }

@@ -123,7 +123,7 @@ export class AdminPromotionsComponent extends BaseAdminListComponent implements 
     this.updatePaginatedItems();
   }
 
-  clearFilters() {
+  override clearFilters() {
     this.searchQuery = '';
     this.statusFilter = 'all';
     this.resetPagination();

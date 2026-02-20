@@ -1,8 +1,9 @@
 import { Injectable, inject } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastMessageService } from './toast-message.service';
-import { ANIMATION } from '../constants/app.constants';
+import { ANIMATION, VALIDATION } from '../constants/app.constants';
 
 export interface FormSuccessConfig {
   message: string;
@@ -22,6 +23,20 @@ export interface TranslationObject {
   ar: string;
 }
 
+export interface TranslationFieldConfig {
+  name: string;
+  required?: boolean;
+  minLength?: number;
+}
+
+export interface EntityWithTranslations {
+  name?: string;
+  description?: string;
+  name_translations?: { [key: string]: string };
+  description_translations?: { [key: string]: string };
+  [key: string]: any;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -29,6 +44,9 @@ export class AdminFormService {
   private toast = inject(ToastMessageService);
   private translateService = inject(TranslateService);
   private router = inject(Router);
+  private fb = inject(FormBuilder);
+
+  private readonly LANGUAGES = ['en', 'fr', 'ar'];
 
   /**
    * Handle form submission success with optional redirect
@@ -207,5 +225,137 @@ export class AdminFormService {
     if (Object.keys(errors).length > 0) {
       this.toast.showError('validation.form_errors');
     }
+  }
+
+  // ===== TRANSLATION FORM BUILDERS =====
+
+  /**
+   * Build a form group with multi-language translation fields.
+   * Creates fields like name_en, name_fr, name_ar for each translation field.
+   *
+   * @param translationFields - Array of field configs for translation fields
+   * @param additionalFields - Additional non-translation fields to add
+   * @returns FormGroup with all fields
+   *
+   * @example
+   * this.form = this.adminFormService.buildTranslationFormGroup(
+   *   [
+   *     { name: 'name', required: true, minLength: 2 },
+   *     { name: 'description', required: false }
+   *   ],
+   *   { image_url: [''], is_active: [true] }
+   * );
+   */
+  buildTranslationFormGroup(
+    translationFields: TranslationFieldConfig[],
+    additionalFields: { [key: string]: any } = {}
+  ): FormGroup {
+    const formConfig: { [key: string]: any } = {};
+
+    // Build translation fields for each language
+    translationFields.forEach(field => {
+      this.LANGUAGES.forEach(lang => {
+        const validators = [];
+        if (field.required) {
+          validators.push(Validators.required);
+        }
+        if (field.minLength) {
+          validators.push(Validators.minLength(field.minLength));
+        }
+        formConfig[`${field.name}_${lang}`] = ['', validators];
+      });
+    });
+
+    // Add additional fields
+    Object.keys(additionalFields).forEach(key => {
+      formConfig[key] = additionalFields[key];
+    });
+
+    return this.fb.group(formConfig);
+  }
+
+  /**
+   * Populate form with entity data including translations.
+   * Handles both entities with translation objects and legacy entities.
+   *
+   * @param form - FormGroup to populate
+   * @param entity - Entity with possible translations
+   * @param translationFields - Fields that have translations (e.g., ['name', 'description'])
+   * @param additionalMappings - Additional field mappings
+   *
+   * @example
+   * this.adminFormService.populateFormWithTranslations(
+   *   this.categoryForm,
+   *   category,
+   *   ['name', 'description'],
+   *   { image_url: category.image_url || '', is_active: category.is_active }
+   * );
+   */
+  populateFormWithTranslations(
+    form: FormGroup,
+    entity: EntityWithTranslations,
+    translationFields: string[],
+    additionalMappings: { [key: string]: any } = {}
+  ): void {
+    const patchValues: { [key: string]: any } = {};
+
+    // Populate translation fields
+    translationFields.forEach(fieldName => {
+      const translationsKey = `${fieldName}_translations`;
+      const translations = entity[translationsKey] as { [key: string]: string } | undefined;
+      const fallbackValue = entity[fieldName] || '';
+
+      this.LANGUAGES.forEach(lang => {
+        patchValues[`${fieldName}_${lang}`] = translations?.[lang] || fallbackValue;
+      });
+    });
+
+    // Add additional mappings
+    Object.keys(additionalMappings).forEach(key => {
+      patchValues[key] = additionalMappings[key];
+    });
+
+    form.patchValue(patchValues);
+  }
+
+  /**
+   * Get reset values for a translation form.
+   *
+   * @param translationFields - Fields that have translations
+   * @param additionalDefaults - Additional default values
+   * @returns Object with reset values
+   */
+  getTranslationFormResetValues(
+    translationFields: string[],
+    additionalDefaults: { [key: string]: any } = {}
+  ): { [key: string]: any } {
+    const resetValues: { [key: string]: any } = {};
+
+    translationFields.forEach(fieldName => {
+      this.LANGUAGES.forEach(lang => {
+        resetValues[`${fieldName}_${lang}`] = '';
+      });
+    });
+
+    return { ...resetValues, ...additionalDefaults };
+  }
+
+  /**
+   * Standard navigation after successful form submission.
+   * Shows success message and navigates to specified URL.
+   *
+   * @param successMessage - Translation key for success message
+   * @param redirectUrl - URL to navigate to
+   * @param delay - Delay before navigation (default: 1500ms)
+   */
+  handleSuccessWithRedirect(
+    successMessage: string,
+    redirectUrl: string,
+    delay: number = 1500
+  ): void {
+    this.toast.showSuccess(successMessage);
+    setTimeout(() => {
+      this.router.navigate([redirectUrl]);
+    }, delay);
   }
 }
