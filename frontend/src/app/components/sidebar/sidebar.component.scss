@@ -23,6 +23,7 @@
   inset-inline-start: 0;              // RTL-aware (left in LTR, right in RTL)
   top: 0;
   z-index: 100;
+  border-inline-end: 1px solid rgba(0, 0, 0, 0.06);
 }
 
 // =============================================================================
