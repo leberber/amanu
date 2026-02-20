@@ -1,0 +1,83 @@
+// =============================================================================
+// THEME - Design Tokens
+// =============================================================================
+// Centralized design system for consistent styling across the app.
+// Use these variables in all components for visual consistency.
+// =============================================================================
+
+:root {
+  // ---------------------------------------------------------------------------
+  // Typography
+  // ---------------------------------------------------------------------------
+  --font-size-xs: 0.75rem;      // 12px - labels, hints
+  --font-size-sm: 0.8125rem;    // 13px - secondary text
+  --font-size-base: 0.875rem;   // 14px - body text
+  --font-size-md: 0.9375rem;    // 15px - emphasized body
+  --font-size-lg: 1rem;         // 16px - headings, titles
+  --font-size-xl: 1.125rem;     // 18px - section titles
+  --font-size-2xl: 1.25rem;     // 20px - page titles
+  --font-size-3xl: 1.5rem;      // 24px - large headings
+  --font-size-4xl: 2rem;        // 32px - hero text
+
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  // ---------------------------------------------------------------------------
+  // Colors
+  // ---------------------------------------------------------------------------
+  --color-text-primary: #1a1a2e;
+  --color-text-secondary: #64748b;
+  --color-text-muted: #94a3b8;
+
+  // Status colors
+  --color-pending: #f57c00;
+  --color-pending-bg: linear-gradient(135deg, rgba(255, 193, 7, 0.15) 0%, rgba(255, 152, 0, 0.1) 100%);
+  --color-confirmed: #1976d2;
+  --color-confirmed-bg: linear-gradient(135deg, rgba(33, 150, 243, 0.15) 0%, rgba(25, 118, 210, 0.1) 100%);
+  --color-shipped: #512da8;
+  --color-shipped-bg: linear-gradient(135deg, rgba(103, 58, 183, 0.15) 0%, rgba(81, 45, 168, 0.1) 100%);
+  --color-delivered: #2e7d32;
+  --color-delivered-bg: linear-gradient(135deg, rgba(76, 175, 80, 0.15) 0%, rgba(46, 125, 50, 0.1) 100%);
+  --color-cancelled: #d32f2f;
+  --color-cancelled-bg: linear-gradient(135deg, rgba(244, 67, 54, 0.15) 0%, rgba(211, 47, 47, 0.1) 100%);
+
+  // ---------------------------------------------------------------------------
+  // Spacing
+  // ---------------------------------------------------------------------------
+  --space-xs: 0.25rem;   // 4px
+  --space-sm: 0.5rem;    // 8px
+  --space-md: 0.75rem;   // 12px
+  --space-lg: 1rem;      // 16px
+  --space-xl: 1.25rem;   // 20px
+  --space-2xl: 1.5rem;   // 24px
+  --space-3xl: 2rem;     // 32px
+  --space-4xl: 3rem;     // 48px
+
+  // ---------------------------------------------------------------------------
+  // Border Radius
+  // ---------------------------------------------------------------------------
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
+  --radius-full: 50%;
+
+  // ---------------------------------------------------------------------------
+  // Shadows
+  // ---------------------------------------------------------------------------
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.08);
+  --shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.15);
+
+  // ---------------------------------------------------------------------------
+  // Icon Sizes
+  // ---------------------------------------------------------------------------
+  --icon-sm: 32px;
+  --icon-md: 36px;
+  --icon-lg: 40px;
+  --icon-xl: 48px;
+}

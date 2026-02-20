@@ -37,26 +37,26 @@
 
   <!-- Loading state -->
   @if (loading()) {
-    <div class="glass-card">
-      <div class="loading-container">
-        <div class="loading-spinner">
+    <div class="app-card">
+      <div class="loading-state">
+        <div class="loading-state__spinner">
           <i class="pi pi-spin pi-spinner"></i>
         </div>
-        <p class="loading-text">{{ 'orders.detail.loading_order' | translate }}</p>
+        <p class="loading-state__text">{{ 'orders.detail.loading_order' | translate }}</p>
       </div>
     </div>
   }
 
   <!-- Error state -->
   @else if (error()) {
-    <div class="glass-card">
-      <div class="error-container">
-        <div class="error-icon">
+    <div class="app-card">
+      <div class="error-state">
+        <div class="error-state__icon">
           <i class="pi pi-exclamation-circle"></i>
         </div>
-        <h2>{{ 'orders.detail.failed_to_load_order' | translate }}</h2>
-        <p>{{ 'orders.detail.load_error_message' | translate }}</p>
-        <button class="error-btn" routerLink="/orders">
+        <h2 class="error-state__title">{{ 'orders.detail.failed_to_load_order' | translate }}</h2>
+        <p class="error-state__message">{{ 'orders.detail.load_error_message' | translate }}</p>
+        <button class="action-btn action-btn--primary" routerLink="/orders">
           <i class="pi pi-arrow-left"></i>
           {{ 'orders.detail.go_to_orders' | translate }}
         </button>
@@ -70,14 +70,14 @@
       <!-- Main Grid -->
       <div class="order-grid">
         <!-- Order Items -->
-        <div class="order-items-card glass-card">
-          <div class="card-header">
-            <div class="header-icon">
+        <div class="order-items-card app-card">
+          <div class="app-card__header">
+            <div class="app-card__icon">
               <i class="pi pi-list"></i>
             </div>
-            <h2>{{ 'orders.detail.order_items_title' | translate }}</h2>
+            <h2 class="app-card__title">{{ 'orders.detail.order_items_title' | translate }}</h2>
           </div>
-          <div class="card-content">
+          <div class="app-card__content">
             <ul class="items-simple-list">
               @for (item of order()?.items; track item.id) {
                 <li class="item-line">
@@ -104,14 +104,14 @@
         <!-- Sidebar -->
         <div class="order-sidebar">
           <!-- Timeline -->
-          <div class="timeline-card glass-card">
-            <div class="card-header">
-              <div class="header-icon">
+          <div class="timeline-card app-card">
+            <div class="app-card__header">
+              <div class="app-card__icon">
                 <i class="pi pi-history"></i>
               </div>
-              <h2>{{ 'orders.detail.order_timeline' | translate }}</h2>
+              <h2 class="app-card__title">{{ 'orders.detail.order_timeline' | translate }}</h2>
             </div>
-            <div class="card-content">
+            <div class="app-card__content">
               <div class="timeline-wrapper">
                 <p-timeline [value]="orderStatuses()" align="left">
                   <ng-template pTemplate="content" let-status>
@@ -134,23 +134,23 @@
           </div>
 
           <!-- Actions -->
-          <div class="actions-card glass-card">
-            <div class="card-header">
-              <div class="header-icon">
+          <div class="actions-card app-card">
+            <div class="app-card__header">
+              <div class="app-card__icon">
                 <i class="pi pi-cog"></i>
               </div>
-              <h2>{{ 'orders.detail.order_actions_title' | translate }}</h2>
+              <h2 class="app-card__title">{{ 'orders.detail.order_actions_title' | translate }}</h2>
             </div>
-            <div class="card-content">
+            <div class="app-card__content">
               <div class="action-buttons">
                 @if (canCancelOrder()) {
-                  <button class="action-btn cancel-btn" (click)="cancelOrder()">
+                  <button class="action-btn action-btn--danger" (click)="cancelOrder()">
                     <i class="pi pi-times"></i>
                     {{ 'orders.detail.cancel_order_button' | translate }}
                   </button>
                   <p class="action-note">{{ 'orders.detail.cancel_order_note' | translate }}</p>
                 }
-                <button class="action-btn support-btn">
+                <button class="action-btn action-btn--secondary">
                   <i class="pi pi-comments"></i>
                   {{ 'orders.detail.contact_support' | translate }}
                 </button>

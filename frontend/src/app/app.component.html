@@ -3,12 +3,6 @@
      [class.with-sidebar]="showNavigation() && !isMobile()"
      [class.with-bottom-nav]="showNavigation() && isMobile()">
 
-  <!-- Decorative background blobs - visible through transparent components -->
-  <div class="decorative-blob-container">
-    <div class="decorative-blob decorative-blob--primary app-blob-primary"></div>
-    <div class="decorative-blob decorative-blob--accent app-blob-accent"></div>
-  </div>
-
   @if (showNavigation()) {
     <app-sidebar />
   }
