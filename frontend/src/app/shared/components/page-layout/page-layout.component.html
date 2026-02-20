@@ -1,0 +1,32 @@
+<!-- Page Layout - Consistent structure for all pages -->
+<div class="page-layout" [class.page-layout--fullscreen]="fullscreen()">
+
+  <!-- Top Bar - Back button and page title -->
+  <header class="page-topbar">
+    @if (showBackButton()) {
+      <app-back-button
+        [route]="backRoute()"
+        [showLabel]="false"
+        [circular]="false"
+        class="page-topbar__back">
+      </app-back-button>
+    }
+
+    <!-- Custom header content OR simple title -->
+    <ng-content select="[pageHeader]"></ng-content>
+    @if (title()) {
+      <h1 class="page-topbar__title">{{ title() | translate }}</h1>
+    }
+
+    <!-- Right side actions slot -->
+    <div class="page-topbar__actions">
+      <ng-content select="[pageActions]"></ng-content>
+    </div>
+  </header>
+
+  <!-- Scrollable Content Area -->
+  <main class="page-content">
+    <ng-content></ng-content>
+  </main>
+
+</div>

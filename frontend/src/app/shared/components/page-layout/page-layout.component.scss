@@ -1,0 +1,129 @@
+// =============================================================================
+// Page Layout Component Styles
+// =============================================================================
+// Provides consistent page structure with top bar and scrollable content.
+// Accounts for bottom navigation height and safe areas.
+//
+// Structure:
+// ┌─────────────────────────┐
+// │   Page Top Bar          │  ← Back arrow + page title
+// ├─────────────────────────┤
+// │                         │
+// │   Page Content          │  ← Scrollable content area
+// │   (fills remaining)     │
+// │                         │
+// ├─────────────────────────┤
+// │   Bottom Navigation     │  ← Handled at app level
+// └─────────────────────────┘
+//
+// BEM Structure:
+// - .page-layout            : Main container (full viewport)
+// - .page-layout--fullscreen: Modifier for fullscreen pages (no bottom nav)
+// - .page-topbar            : Fixed top bar
+// - .page-topbar__back      : Back button container
+// - .page-topbar__title     : Page title
+// - .page-topbar__actions   : Right-side actions slot
+// - .page-content           : Scrollable content area
+// =============================================================================
+
+// Height variables
+$topbar-height: 56px;
+$bottom-nav-height: 70px;
+
+// -----------------------------------------------------------------------------
+// Main Container
+// -----------------------------------------------------------------------------
+.page-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh; // Dynamic viewport height for mobile
+  overflow: hidden;
+  background: var(--surface-ground, #f8fafc);
+
+  // Fullscreen variant - no bottom nav padding
+  &--fullscreen {
+    .page-content {
+      padding-bottom: env(safe-area-inset-bottom, 0);
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Top Bar
+// -----------------------------------------------------------------------------
+.page-topbar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  height: $topbar-height;
+  min-height: $topbar-height;
+  padding: 0 1rem;
+  padding-top: env(safe-area-inset-top, 0);
+  background: var(--surface-card, white);
+  border-bottom: 1px solid var(--surface-border, #e2e8f0);
+  position: relative;
+  z-index: 10;
+
+  // Back button positioning
+  &__back {
+    flex-shrink: 0;
+  }
+
+  // Page title
+  &__title {
+    flex: 1;
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-color, #1e293b);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  // Right-side actions container
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-shrink: 0;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Scrollable Content Area
+// -----------------------------------------------------------------------------
+.page-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  // Account for bottom navigation
+  padding-bottom: calc(#{$bottom-nav-height} + env(safe-area-inset-bottom, 0));
+}
+
+// -----------------------------------------------------------------------------
+// Responsive Adjustments
+// -----------------------------------------------------------------------------
+@media (min-width: 768px) {
+  .page-topbar {
+    padding: 0 1.5rem;
+
+    &__title {
+      font-size: 1.25rem;
+    }
+  }
+}
+
+// Small mobile adjustments
+@media (max-width: 380px) {
+  .page-topbar {
+    gap: 0.5rem;
+    padding: 0 0.75rem;
+
+    &__title {
+      font-size: 1rem;
+    }
+  }
+}
