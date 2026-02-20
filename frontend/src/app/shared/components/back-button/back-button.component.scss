@@ -22,11 +22,11 @@
 
   // Circular variant
   &.circular {
-    width: 40px;
-    height: 40px;
+    width: 45px;
+    height: 45px;
     padding: 0;
     border-radius: 50%;
-    background: var(--primary-color);
+    background: var(--primary-100, rgba(46, 108, 183, 0.1));
     color: white;
 
     &:hover { transform: scale(1.05); }
