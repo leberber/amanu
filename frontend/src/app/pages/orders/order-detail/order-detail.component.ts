@@ -1,9 +1,10 @@
 // src/app/pages/orders/order-detail/order-detail.component.ts
-import { Component, OnInit, OnDestroy, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, computed, inject, signal, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { switchMap, catchError, map } from 'rxjs/operators';
-import { of, Subscription, forkJoin } from 'rxjs';
+import { of, forkJoin } from 'rxjs';
 
 import { ToastModule } from 'primeng/toast';
 import { TimelineModule } from 'primeng/timeline';
@@ -68,8 +69,7 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
   orderStatuses = signal<OrderStatus[]>([]);
   selectedImage = signal<string | null>(null);
 
-  // 🆕 NEW: Subscription management
-  private languageSubscription?: Subscription;
+  private destroyRef = inject(DestroyRef);
 
   // Computed values
   totalAmount = computed(() => this.order()?.total_amount || 0);
@@ -83,15 +83,17 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
       }
     });
     
-    // 🆕 NEW: Subscribe to language changes
-    this.languageSubscription = this.translationService.currentLanguage$.subscribe(() => {
-      this.loadTranslatedNames();
-      // Regenerate timeline with new translations
-      const currentOrder = this.order();
-      if (currentOrder) {
-        this.generateOrderStatusTimeline(currentOrder);
-      }
-    });
+    // Subscribe to language changes - automatically cleaned up on destroy
+    this.translationService.currentLanguage$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.loadTranslatedNames();
+        // Regenerate timeline with new translations
+        const currentOrder = this.order();
+        if (currentOrder) {
+          this.generateOrderStatusTimeline(currentOrder);
+        }
+      });
     
     // Load order details
     this.route.paramMap.pipe(
@@ -124,11 +126,8 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
     });
   }
 
-  // 🆕 NEW: Cleanup subscription
   ngOnDestroy(): void {
-    if (this.languageSubscription) {
-      this.languageSubscription.unsubscribe();
-    }
+    // Subscriptions are automatically cleaned up by takeUntilDestroyed
   }
 
   // 🆕 NEW: Load translated names for order items

@@ -1,8 +1,9 @@
-import { Component, computed, effect, inject, OnInit, signal, OnDestroy, ViewChild, ElementRef } from '@angular/core';
+import { Component, computed, effect, inject, OnInit, signal, OnDestroy, ViewChild, ElementRef, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { Observable, forkJoin, of, Subscription, Subject } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Observable, forkJoin, of, Subject } from 'rxjs';
 import { switchMap, tap, map, debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 import { ToastModule } from 'primeng/toast';
@@ -109,9 +110,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
   // Minimum search characters
   readonly minSearchChars = SEARCH.MIN_SEARCH_LENGTH;
 
-  // Subscriptions
-  private languageSubscription?: Subscription;
-  private searchSubscription?: Subscription;
+  private destroyRef = inject(DestroyRef);
   private searchSubject = new Subject<string>();
 
   // Computed values
@@ -140,14 +139,17 @@ export class ProductListComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    // Subscribe to language changes
-    this.languageSubscription = this.translationService.currentLanguage$.subscribe(() => {
-      this.loadCategoriesAndProducts();
-      this.loadBrands();
-    });
+    // Subscribe to language changes - automatically cleaned up on destroy
+    this.translationService.currentLanguage$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.loadCategoriesAndProducts();
+        this.loadBrands();
+      });
 
-    // Set up search debounce with minimum character filter
-    this.searchSubscription = this.searchSubject.pipe(
+    // Set up search debounce with minimum character filter - automatically cleaned up on destroy
+    this.searchSubject.pipe(
+      takeUntilDestroyed(this.destroyRef),
       debounceTime(SEARCH.DEBOUNCE_TIME),
       distinctUntilChanged() // Only emit if value is different from previous
     ).subscribe(searchQuery => {
@@ -170,8 +172,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.languageSubscription?.unsubscribe();
-    this.searchSubscription?.unsubscribe();
+    // Subscriptions are automatically cleaned up by takeUntilDestroyed
     if (typeof window !== 'undefined') {
       window.removeEventListener('scroll', this.handleScroll);
     }

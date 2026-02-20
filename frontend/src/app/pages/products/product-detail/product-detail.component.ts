@@ -1,10 +1,11 @@
 // src/app/pages/products/product-detail/product-detail.component.ts
-import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, computed, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { switchMap, catchError } from 'rxjs/operators';
-import { of, Subscription } from 'rxjs';
+import { of } from 'rxjs';
 
 // PrimeNG imports
 import { ButtonModule } from 'primeng/button';
@@ -78,9 +79,7 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   // For related products quantities
   productQuantities: { [key: number]: number } = {};
 
-  // Subscription management
-  private languageSubscription?: Subscription;
-  private cartSubscription?: Subscription;
+  private destroyRef = inject(DestroyRef);
   
   // Computed values
   isOutOfStock = computed(() => {
@@ -155,20 +154,24 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   });
 
   ngOnInit() {
-    // Subscribe to cart changes to update the button
-    this.cartSubscription = this.cartService.cartItems$.subscribe(() => {
-      this.cartVersion.update(v => v + 1);
-    });
+    // Subscribe to cart changes to update the button - automatically cleaned up on destroy
+    this.cartService.cartItems$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.cartVersion.update(v => v + 1);
+      });
 
-    // Subscribe to language changes
-    this.languageSubscription = this.translationService.currentLanguage$.subscribe(lang => {
-      this.currentLanguage.set(lang);
-      // Reload product data when language changes
-      const currentProduct = this.product();
-      if (currentProduct) {
-        this.loadProduct(currentProduct.id);
-      }
-    });
+    // Subscribe to language changes - automatically cleaned up on destroy
+    this.translationService.currentLanguage$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(lang => {
+        this.currentLanguage.set(lang);
+        // Reload product data when language changes
+        const currentProduct = this.product();
+        if (currentProduct) {
+          this.loadProduct(currentProduct.id);
+        }
+      });
     
     this.route.paramMap.subscribe(params => {
       const productId = params.get('id');
@@ -359,11 +362,6 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    if (this.languageSubscription) {
-      this.languageSubscription.unsubscribe();
-    }
-    if (this.cartSubscription) {
-      this.cartSubscription.unsubscribe();
-    }
+    // Subscriptions are automatically cleaned up by takeUntilDestroyed
   }
 }

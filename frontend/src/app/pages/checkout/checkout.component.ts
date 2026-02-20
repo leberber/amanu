@@ -1,8 +1,9 @@
 // src/app/pages/checkout/checkout.component.ts
-import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AccordionModule } from 'primeng/accordion';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { BadgeModule } from 'primeng/badge';
@@ -16,7 +17,6 @@ import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { BackButtonComponent } from '../../shared/components/back-button/back-button.component';
-import { Subscription } from 'rxjs';
 
 import { ROUTES, RouteHelpers } from '../../core/constants/routes.constants';
 import { AuthService } from '../../services/auth.service';
@@ -66,7 +66,8 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   isSubmitting = false;
   accordionExpanded = false;
   appliedPromotion: AppliedPromotion | null = null;
-  private languageSubscription?: Subscription;
+
+  private destroyRef = inject(DestroyRef);
 
   private fb = inject(FormBuilder);
   private router = inject(Router);
@@ -124,10 +125,12 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     // Load applied promotion from cart
     this.appliedPromotion = this.cartService.getAppliedPromotion();
 
-    // 🆕 NEW: Subscribe to language changes
-    this.languageSubscription = this.translationService.currentLanguage$.subscribe(() => {
-      this.loadTranslatedNames();
-    });
+    // Subscribe to language changes - automatically cleaned up on destroy
+    this.translationService.currentLanguage$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.loadTranslatedNames();
+      });
     
     // Pre-fill form with user data
     if (this.currentUser) {
@@ -139,11 +142,8 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     }
   }
 
-  // 🆕 NEW: Cleanup subscription
   ngOnDestroy() {
-    if (this.languageSubscription) {
-      this.languageSubscription.unsubscribe();
-    }
+    // Subscriptions are automatically cleaned up by takeUntilDestroyed
   }
 
   private loadTranslatedNames(): void {

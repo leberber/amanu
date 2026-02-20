@@ -1,10 +1,10 @@
 // frontend/src/app/pages/home/home.component.ts
-import { Component, inject, OnInit, OnDestroy, signal } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, signal, DestroyRef } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { TranslateModule } from '@ngx-translate/core';
-import { Subscription } from 'rxjs';
 
 import { ProductService } from '../../services/product.service';
 import { TranslationService } from '../../services/translation.service';
@@ -28,21 +28,22 @@ export class HomeComponent implements OnInit, OnDestroy {
     image: string;
     link: string;
   }>>([]);
-  
-  private languageSubscription?: Subscription;
+
+  private destroyRef = inject(DestroyRef);
 
   ngOnInit(): void {
-    this.languageSubscription = this.translationService.currentLanguage$.subscribe(() => {
-      this.loadCategories();
-    });
-    
+    // Subscribe to language changes - automatically cleaned up on destroy
+    this.translationService.currentLanguage$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.loadCategories();
+      });
+
     this.loadCategories();
   }
 
   ngOnDestroy(): void {
-    if (this.languageSubscription) {
-      this.languageSubscription.unsubscribe();
-    }
+    // Subscriptions are automatically cleaned up by takeUntilDestroyed
   }
 
   private loadCategories(): void {

@@ -1,8 +1,9 @@
 // src/app/pages/cart/cart.component.ts
-import { Component, OnInit, inject, signal, computed, OnDestroy } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, OnDestroy, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { ToastModule } from 'primeng/toast';
@@ -12,7 +13,6 @@ import { TooltipModule } from 'primeng/tooltip';
 import { SelectModule } from 'primeng/select';
 import { InputTextModule } from 'primeng/inputtext';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Subscription } from 'rxjs';
 
 import { ROUTES } from '../../core/constants/routes.constants';
 import { CartService, CartItem } from '../../services/cart.service';
@@ -113,11 +113,8 @@ export class CartComponent implements OnInit, OnDestroy {
 
   // RTL detection
   isRTL = computed(() => this.translationService.isRTL());
-  
-  // Subscription management
-  private cartSubscription?: Subscription;
-  private languageSubscription?: Subscription;
-  private promoSubscription?: Subscription;
+
+  private destroyRef = inject(DestroyRef);
 
   ngOnInit() {
     this.loadCart();
@@ -125,56 +122,54 @@ export class CartComponent implements OnInit, OnDestroy {
     // Track if this is the first load
     let isFirstLoad = true;
 
-    // Subscribe to cart changes
-    this.cartSubscription = this.cartService.cartItems$.subscribe(items => {
-      this.cartItems.set(items);
-      // Initialize quantities
-      items.forEach(item => {
-        this.productQuantities[item.id] = item.quantity;
+    // Subscribe to cart changes - automatically cleaned up on destroy
+    this.cartService.cartItems$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(items => {
+        this.cartItems.set(items);
+        // Initialize quantities
+        items.forEach(item => {
+          this.productQuantities[item.id] = item.quantity;
+        });
+
+        // Load translated names for cart items
+        // Only load on initial load, not on every update
+        if (isFirstLoad && items.length > 0) {
+          this.loadTranslatedNames();
+          isFirstLoad = false;
+        }
+
+        // Recalculate discount when cart changes
+        const promo = this.appliedPromotion();
+        if (promo && items.length > 0) {
+          this.recalculateDiscount(promo.code);
+        } else if (items.length === 0) {
+          this.removePromoCode();
+        }
       });
 
-      // Load translated names for cart items
-      // Only load on initial load, not on every update
-      if (isFirstLoad && items.length > 0) {
-        this.loadTranslatedNames();
-        isFirstLoad = false;
-      }
+    // Subscribe to language changes - automatically cleaned up on destroy
+    this.translationService.currentLanguage$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        if (this.cartItems().length > 0) {
+          this.loadTranslatedNames();
+        }
+      });
 
-      // Recalculate discount when cart changes
-      const promo = this.appliedPromotion();
-      if (promo && items.length > 0) {
-        this.recalculateDiscount(promo.code);
-      } else if (items.length === 0) {
-        this.removePromoCode();
-      }
-    });
-
-    // Subscribe to language changes
-    this.languageSubscription = this.translationService.currentLanguage$.subscribe(() => {
-      if (this.cartItems().length > 0) {
-        this.loadTranslatedNames();
-      }
-    });
-
-    // Subscribe to saved promotion from cart service
-    this.promoSubscription = this.cartService.appliedPromotion$.subscribe(promo => {
-      this.appliedPromotion.set(promo);
-      if (promo) {
-        this.promoCode.set(promo.code);
-      }
-    });
+    // Subscribe to saved promotion from cart service - automatically cleaned up on destroy
+    this.cartService.appliedPromotion$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(promo => {
+        this.appliedPromotion.set(promo);
+        if (promo) {
+          this.promoCode.set(promo.code);
+        }
+      });
   }
   
   ngOnDestroy() {
-    if (this.cartSubscription) {
-      this.cartSubscription.unsubscribe();
-    }
-    if (this.languageSubscription) {
-      this.languageSubscription.unsubscribe();
-    }
-    if (this.promoSubscription) {
-      this.promoSubscription.unsubscribe();
-    }
+    // Subscriptions are automatically cleaned up by takeUntilDestroyed
   }
 
   private loadTranslatedNames(): void {
