@@ -90,13 +90,13 @@
                   </div>
                   <span class="item-qty">{{item.quantity}}x</span>
                   <span class="item-name">{{item.product_name}}</span>
-                  <span class="item-total">{{formatPrice(item.unit_price * item.quantity)}}</span>
+                  <span class="item-total">{{item.unit_price * item.quantity | appCurrency}}</span>
                 </li>
               }
             </ul>
             <div class="order-total">
               <span class="total-label">{{ 'common.total' | translate }}</span>
-              <span class="total-amount">{{formatPrice(totalAmount())}}</span>
+              <span class="total-amount">{{totalAmount() | appCurrency}}</span>
             </div>
           </div>
         </div>

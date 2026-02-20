@@ -31,6 +31,7 @@ import { User } from '../../models/user.model';
 import { AppliedPromotion } from '../../models/promotion.model';
 import { VALIDATION } from '../../core/constants/app.constants';
 import { ToastMessageService } from '../../core/services/toast-message.service';
+import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
 
 @Component({
   selector: 'app-checkout',
@@ -51,7 +52,8 @@ import { ToastMessageService } from '../../core/services/toast-message.service';
     BadgeModule,
     TagModule,
     TranslateModule,
-    BackButtonComponent
+    BackButtonComponent,
+    CurrencyPipe
   ],
     templateUrl: './checkout.component.html',
   styleUrl: './checkout.component.scss'
@@ -246,11 +248,6 @@ export class CheckoutComponent implements OnInit, OnDestroy {
         this.toast.showApiError(error, 'checkout.order_error_default');
       }
     });
-  }
-
-  // Format price using CurrencyService
-  formatPrice(price: number): string {
-    return this.currencyService.formatCurrency(price);
   }
 
   // Get carton count based on quantity config

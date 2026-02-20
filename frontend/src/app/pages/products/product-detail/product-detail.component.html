@@ -129,10 +129,10 @@
       </div>
       <div class="text-right price-container">
         @if (hasPromotion()) {
-          <div class="promo-price">{{ formatPrice(discountedPrice()) }}</div>
-          <div class="original-price">{{ formatPrice(product()?.price || 0) }}</div>
+          <div class="promo-price">{{ discountedPrice() | appCurrency }}</div>
+          <div class="original-price">{{ product()?.price | appCurrency }}</div>
         } @else {
-          <div class="current-price">{{ formatPrice(product()?.price || 0) }}</div>
+          <div class="current-price">{{ product()?.price | appCurrency }}</div>
         }
         <div class="price-unit">{{ 'common.price' | translate }} {{ unitDisplay() }}</div>
       </div>

@@ -35,7 +35,7 @@ import { BadgeModule } from 'primeng/badge';
 import { OverlayBadgeModule } from 'primeng/overlaybadge';
 import { TooltipModule } from 'primeng/tooltip';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-
+import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
 
 @Component({
   selector: 'app-admin-products',
@@ -59,7 +59,8 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
     IconFieldModule,
     InputIconModule,
     ProgressSpinnerModule,
-    TranslateModule
+    TranslateModule,
+    CurrencyPipe
   ],
   providers: [ConfirmationService],
   templateUrl: './admin-products.component.html',
@@ -274,10 +275,6 @@ export class AdminProductsComponent implements OnInit {
 
   formatDate(dateString: string): string {
     return this.dateService.formatDate(dateString);
-  }
-
-  formatPrice(price: number): string {
-    return this.currencyService.formatCurrency(price);
   }
 
   getPaginationTemplate(): string {

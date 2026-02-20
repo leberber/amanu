@@ -20,6 +20,7 @@ import { StatusSeverityService } from '../../../core/services/status-severity.se
 import { ToastMessageService } from '../../../core/services/toast-message.service';
 import { BackButtonComponent } from '../../../shared/components/back-button/back-button.component';
 import { ImageLightboxComponent } from '../../../shared/components/image-lightbox/image-lightbox.component';
+import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
 
 interface OrderStatus {
   status: string;
@@ -38,7 +39,8 @@ interface OrderStatus {
     TimelineModule,
     TranslateModule,
     BackButtonComponent,
-    ImageLightboxComponent
+    ImageLightboxComponent,
+    CurrencyPipe
   ],
   templateUrl: './order-detail.component.html',
   styleUrl: './order-detail.component.scss'
@@ -264,11 +266,6 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
 
   backToOrders(): void {
     this.router.navigate(['/orders']);
-  }
-
-  // Format price using CurrencyService
-  formatPrice(price: number): string {
-    return this.currencyService.formatCurrency(price);
   }
 
   // Format date using DateService

@@ -75,7 +75,7 @@
                 <td>
                   <p-tag [severity]="getStatusSeverity(order.status)" [value]="getStatusLabel(order.status)"></p-tag>
                 </td>
-                <td>{{formatPrice(order.total_amount)}}</td>
+                <td>{{order.total_amount | appCurrency}}</td>
                 <td>
                   <button
                     pButton
@@ -109,7 +109,7 @@
                 </div>
                 <div class="order-footer">
                   <span class="order-date">{{formatDate(order.created_at)}}</span>
-                  <span class="order-total">{{formatPrice(order.total_amount)}}</span>
+                  <span class="order-total">{{order.total_amount | appCurrency}}</span>
                 </div>
               </div>
               <div class="order-chevron">

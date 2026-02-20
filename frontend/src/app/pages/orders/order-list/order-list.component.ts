@@ -17,6 +17,7 @@ import { DateService } from '../../../core/services/date.service';
 import { Order } from '../../../models/order.model';
 import { StatusSeverityService } from '../../../core/services/status-severity.service';
 import { BackButtonComponent } from '../../../shared/components/back-button/back-button.component';
+import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
 
 @Component({
   selector: 'app-order-list',
@@ -30,7 +31,8 @@ import { BackButtonComponent } from '../../../shared/components/back-button/back
     ToastModule,
     TagModule,
     TranslateModule,
-    BackButtonComponent
+    BackButtonComponent,
+    CurrencyPipe
   ],
   templateUrl: './order-list.component.html',
   styleUrls: ['./order-list.component.scss']
@@ -77,11 +79,6 @@ export class OrderListComponent implements OnInit {
 
   getStatusLabel(status: string): string {
     return this.translateService.instant(`orders.status.${status}`);
-  }
-
-  // Format price using CurrencyService
-  formatPrice(price: number): string {
-    return this.currencyService.formatCurrency(price);
   }
 
   // Format date using DateService

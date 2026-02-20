@@ -29,6 +29,7 @@ import { ProductCardComponent, AddToCartEvent } from '../components/product-card
 import { ProductToolbarComponent, SortOption } from '../components/product-toolbar/product-toolbar.component';
 import { ProductQuantitySelectorComponent } from '../../../shared/components/product-quantity-selector/product-quantity-selector.component';
 import { HorizontalFilterComponent } from '../../../shared/components/horizontal-filter/horizontal-filter.component';
+import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
 
 @Component({
   selector: 'app-product-list',
@@ -48,7 +49,8 @@ import { HorizontalFilterComponent } from '../../../shared/components/horizontal
     ProductCardComponent,
     ProductToolbarComponent,
     ProductQuantitySelectorComponent,
-    HorizontalFilterComponent
+    HorizontalFilterComponent,
+    CurrencyPipe
   ],
   templateUrl: './product-list.component.html',
   styleUrls: ['./product-list.component.scss']
@@ -359,10 +361,6 @@ export class ProductListComponent implements OnInit, OnDestroy {
 
   onAddToCart(event: AddToCartEvent): void {
     this.handleAddToCart(event.product, event.quantity);
-  }
-
-  formatPrice(price: number): string {
-    return this.currencyService.formatCurrency(price);
   }
 
   getUnitDisplay(unit: string): string {

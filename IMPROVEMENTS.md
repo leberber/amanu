@@ -30,9 +30,9 @@ Track progress on DRY violations and code quality fixes.
   - `@keyframes float`, `@keyframes pulse`, gradients repeated in each admin SCSS file
   - Create `_admin-shared.scss`
 
-- [ ] **6. Create Price/Currency Formatting Pipe**
-  - `formatPrice()` wrapper in 11 files
-  - Create `PriceFormatPipe`
+- [x] **6. Create Price/Currency Formatting Pipe** ✅
+  - Created `CurrencyPipe` (`appCurrency`) in `shared/pipes/currency.pipe.ts`
+  - Replaced `formatPrice()` wrapper in 11 components with pipe usage
 
 - [ ] **7. Extract Cart Translation Loading**
   - `loadTranslatedNames()` duplicated in cart and checkout
@@ -93,10 +93,10 @@ Track progress on DRY violations and code quality fixes.
 | Priority | Total | Done | Remaining |
 |----------|-------|------|-----------|
 | Critical | 4 | 1 | 3 |
-| High | 4 | 0 | 4 |
+| High | 4 | 1 | 3 |
 | Medium | 7 | 0 | 7 |
 | Low | 5 | 0 | 5 |
-| **Total** | **20** | **1** | **19** |
+| **Total** | **20** | **2** | **18** |
 
 ---
 

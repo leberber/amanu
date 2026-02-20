@@ -27,6 +27,7 @@ import { ProductQuantitySelectorComponent } from '../../shared/components/produc
 import { BackButtonComponent } from '../../shared/components/back-button/back-button.component';
 import { ImageLightboxComponent } from '../../shared/components/image-lightbox/image-lightbox.component';
 import { ToastMessageService } from '../../core/services/toast-message.service';
+import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
 
 @Component({
   selector: 'app-cart-page',
@@ -46,7 +47,8 @@ import { ToastMessageService } from '../../core/services/toast-message.service';
     TranslateModule,
     ProductQuantitySelectorComponent,
     BackButtonComponent,
-    ImageLightboxComponent
+    ImageLightboxComponent,
+    CurrencyPipe
   ],
     templateUrl: './cart.component.html',
   styleUrl: './cart.component.scss'
@@ -382,11 +384,6 @@ export class CartComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Format price using CurrencyService
-  formatPrice(price: number): string {
-    return this.currencyService.formatCurrency(price);
-  }
-
   // Get just the number part of the price
   formatPriceNumber(price: number): string {
     return Math.round(price).toString();
@@ -445,7 +442,7 @@ export class CartComponent implements OnInit, OnDestroy {
           this.cartService.applyPromotion(appliedPromo);
 
           this.toast.showSuccess('promotions.discount_applied', {
-            amount: this.formatPrice(response.discount_amount)
+            amount: this.currencyService.formatCurrency(response.discount_amount)
           });
         } else {
           this.promoError.set(this.translateService.instant('promotions.no_discount'));

@@ -18,7 +18,6 @@ import { CurrencyService } from '../../../core/services/currency.service';
 import { SearchDebounceService } from '../../../core/services/search-debounce.service';
 import { Promotion } from '../../../models/promotion.model';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
-
 @Component({
   selector: 'app-admin-promotions',
   standalone: true,
@@ -209,15 +208,11 @@ export class AdminPromotionsComponent implements OnInit {
     return this.dateService.formatDate(dateString);
   }
 
-  formatPrice(price: number): string {
-    return this.currencyService.formatCurrency(price);
-  }
-
   getDiscountDisplay(promotion: Promotion): string {
     if (promotion.discount_type === 'percentage') {
       return `${promotion.discount_value}%`;
     }
-    return this.formatPrice(promotion.discount_value);
+    return this.currencyService.formatCurrency(promotion.discount_value);
   }
 
   getScopeDisplay(promotion: Promotion): string {

@@ -222,7 +222,7 @@
                   <!-- Price -->
                   <td class="col-price">
                     <div *ngIf="!isEditingPrice(product.id)" class="price-display" (click)="startEditPrice(product)">
-                      <span class="price-value">{{ formatPrice(product.price) }}</span>
+                      <span class="price-value">{{ product.price | appCurrency }}</span>
                       <span class="price-unit">{{ 'admin.products.per' | translate }} {{ getUnitDisplay(product.unit) }}</span>
                     </div>
                     <div *ngIf="isEditingPrice(product.id)" class="price-edit">

@@ -14,6 +14,7 @@ import { UnitsService } from '../../../../core/services/units.service';
 import { FlyToCartService } from '../../../../core/services/fly-to-cart.service';
 import { CartService } from '../../../../services/cart.service';
 import { ProductQuantitySelectorComponent } from '../../../../shared/components/product-quantity-selector/product-quantity-selector.component';
+import { CurrencyPipe } from '../../../../shared/pipes/currency.pipe';
 
 export interface AddToCartEvent {
   product: Product;
@@ -30,7 +31,8 @@ export interface AddToCartEvent {
     ButtonModule,
     TagModule,
     OverlayBadgeModule,
-    ProductQuantitySelectorComponent
+    ProductQuantitySelectorComponent,
+    CurrencyPipe
   ],
   templateUrl: './product-card.component.html',
   styleUrl: './product-card.component.scss'
@@ -80,7 +82,7 @@ export class ProductCardComponent implements OnInit {
     if (this.product.promotion.discount_type === 'percentage') {
       return `-${this.product.promotion.discount_value}%`;
     }
-    return `-${this.formatPrice(this.product.promotion.discount_value)}`;
+    return `-${this.currencyService.formatCurrency(this.product.promotion.discount_value)}`;
   }
 
   get discountedPrice(): number {
@@ -113,10 +115,6 @@ export class ProductCardComponent implements OnInit {
       return this.effectivePrice * this.boxQuantity;
     }
     return null;
-  }
-
-  formatPrice(price: number): string {
-    return this.currencyService.formatCurrency(price);
   }
 
   getUnitDisplay(unit: string): string {

@@ -84,7 +84,7 @@
                     </div>
                   </td>
                   <td class="text-center">
-                    <span class="desktop-price">{{ formatPrice(item.product_price) }}/{{ getUnitDisplay(item.product_unit) }}</span>
+                    <span class="desktop-price">{{ item.product_price | appCurrency }}/{{ getUnitDisplay(item.product_unit) }}</span>
                   </td>
                   <td>
                     <div class="flex justify-content-center">
@@ -102,7 +102,7 @@
                     </div>
                   </td>
                   <td class="text-right">
-                    <span class="desktop-total">{{ formatPrice(item.product_price * item.quantity) }}</span>
+                    <span class="desktop-total">{{ item.product_price * item.quantity | appCurrency }}</span>
                   </td>
                   <td class="text-center">
                     <button class="desktop-delete-btn" (click)="removeItem(item.id)" [pTooltip]="'cart.remove_item' | translate" tooltipPosition="left">
@@ -134,7 +134,7 @@
                     </button>
                   </div>
                   <div class="item-row">
-                    <span class="item-price"><strong>{{ formatPrice(item.product_price) }}</strong>/{{ getUnitDisplay(item.product_unit) }}</span>
+                    <span class="item-price"><strong>{{ item.product_price | appCurrency }}</strong>/{{ getUnitDisplay(item.product_unit) }}</span>
                     <div class="item-quantity-wrapper">
                       <div class="item-quantity" style="width: 120px;">
                         <app-product-quantity-selector
@@ -218,7 +218,7 @@
                   <i class="pi pi-shopping-bag"></i>
                   <span>{{ 'promotions.subtotal' | translate }}</span>
                 </div>
-                <span class="breakdown-value">{{ formatPrice(cartSubtotal()) }}</span>
+                <span class="breakdown-value">{{ cartSubtotal() | appCurrency }}</span>
               </div>
 
               <!-- Discount -->
@@ -228,7 +228,7 @@
                     <i class="pi pi-percentage"></i>
                     <span>{{ 'promotions.discount' | translate }}</span>
                   </div>
-                  <span class="breakdown-value">-{{ formatPrice(discountAmount()) }}</span>
+                  <span class="breakdown-value">-{{ discountAmount() | appCurrency }}</span>
                 </div>
               }
 
@@ -242,7 +242,7 @@
                   @if (isShippingFree()) {
                     {{ 'cart.free' | translate }}
                   } @else {
-                    {{ formatPrice(shippingCost()) }}
+                    {{ shippingCost() | appCurrency }}
                   }
                 </span>
               </div>

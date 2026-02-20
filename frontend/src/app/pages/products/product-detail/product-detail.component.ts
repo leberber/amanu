@@ -28,6 +28,7 @@ import { Product, Category } from '../../../models/product.model';
 import { PRODUCT } from '../../../core/constants/app.constants';
 import { FlyToCartService } from '../../../core/services/fly-to-cart.service';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
+import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
 
 @Component({
   selector: 'app-product-detail',
@@ -43,7 +44,8 @@ import { ToastMessageService } from '../../../core/services/toast-message.servic
     ProductQuantitySelectorComponent,
     BackButtonComponent,
     BadgeModule,
-    TranslateModule
+    TranslateModule,
+    CurrencyPipe
   ],
   templateUrl: './product-detail.component.html',
   styleUrl: './product-detail.component.scss'
@@ -137,7 +139,7 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
     if (currentProduct.promotion.discount_type === 'percentage') {
       return `-${currentProduct.promotion.discount_value}%`;
     }
-    return `-${this.formatPrice(currentProduct.promotion.discount_value)}`;
+    return `-${this.currencyService.formatCurrency(currentProduct.promotion.discount_value)}`;
   });
 
   // Computed property for discounted price
@@ -340,11 +342,6 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
     return this.isProductOutOfStock(product) ? 'text-red-500' : 'text-orange-500';
   }
 
-  // Format price using CurrencyService
-  formatPrice(price: number): string {
-    return this.currencyService.formatCurrency(price);
-  }
-
   // Check if a product has promotion
   productHasPromotion(product: Product): boolean {
     return product.promotion != null;
@@ -356,7 +353,7 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
     if (product.promotion.discount_type === 'percentage') {
       return `-${product.promotion.discount_value}%`;
     }
-    return `-${this.formatPrice(product.promotion.discount_value)}`;
+    return `-${this.currencyService.formatCurrency(product.promotion.discount_value)}`;
   }
 
   // Get discounted price for a product

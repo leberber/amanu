@@ -26,7 +26,7 @@
               <div class="cart-item-row">
                 <span class="item-qty">{{ formatCartonCount(item) }}<span class="item-pc">{{ item.quantity_config?.quantities?.[0] || 10 }}pc</span></span>
                 <span class="item-name">{{ item.product_name }}</span>
-                <span class="item-price">{{ formatPrice(item.product_price * item.quantity) }}</span>
+                <span class="item-price">{{ item.product_price * item.quantity | appCurrency }}</span>
               </div>
             }
           </div>
@@ -39,7 +39,7 @@
                 <i class="pi pi-shopping-bag"></i>
                 <span>{{ 'checkout.subtotal' | translate }}</span>
               </div>
-              <span class="breakdown-value">{{ formatPrice(getCartTotal()) }}</span>
+              <span class="breakdown-value">{{ getCartTotal() | appCurrency }}</span>
             </div>
 
             <!-- Discount -->
@@ -49,7 +49,7 @@
                   <i class="pi pi-tag"></i>
                   <span>{{ 'promotions.discount' | translate }} ({{ appliedPromotion.code }})</span>
                 </div>
-                <span class="breakdown-value">-{{ formatPrice(getDiscountAmount()) }}</span>
+                <span class="breakdown-value">-{{ getDiscountAmount() | appCurrency }}</span>
               </div>
             }
 
@@ -68,7 +68,7 @@
             <div class="total-row">
               <span class="total-label">{{ 'common.total' | translate }}</span>
               <div class="total-value">
-                <span class="total-amount">{{ formatPrice(getFinalTotal()) }}</span>
+                <span class="total-amount">{{ getFinalTotal() | appCurrency }}</span>
               </div>
             </div>
           </div>

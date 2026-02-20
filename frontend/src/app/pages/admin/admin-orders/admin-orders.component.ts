@@ -19,12 +19,12 @@ import { AdminService } from '../../../services/admin.service';
 import { Order } from '../../../models/admin.model';
 import { ProductService } from '../../../services/product.service';
 import { DateService } from '../../../core/services/date.service';
-import { CurrencyService } from '../../../core/services/currency.service';
 import { TranslationHelperService } from '../../../core/services/translation-helper.service';
 import { SearchDebounceService } from '../../../core/services/search-debounce.service';
 import { UnitsService } from '../../../core/services/units.service';
 import { StatusSeverityService } from '../../../core/services/status-severity.service';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
+import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
 
 @Component({
   selector: 'app-admin-orders',
@@ -40,7 +40,8 @@ import { ToastMessageService } from '../../../core/services/toast-message.servic
     DialogModule,
     ConfirmDialogModule,
     TooltipModule,
-    TranslateModule
+    TranslateModule,
+    CurrencyPipe
   ],
   providers: [ConfirmationService],
   templateUrl: './admin-orders.component.html',
@@ -76,7 +77,6 @@ export class AdminOrdersComponent implements OnInit {
   private translateService = inject(TranslateService);
   private productService = inject(ProductService);
   private dateService = inject(DateService);
-  private currencyService = inject(CurrencyService);
   private translationHelper = inject(TranslationHelperService);
   private unitsService = inject(UnitsService);
   private searchDebounce = inject(SearchDebounceService);
@@ -276,10 +276,6 @@ export class AdminOrdersComponent implements OnInit {
 
   getUnitDisplay(unit: string): string {
     return this.unitsService.getUnitTranslated(unit, true);
-  }
-
-  formatCurrency(amount: number): string {
-    return this.currencyService.formatCurrency(amount);
   }
 
   updateOrderStatus(orderId: number, newStatus: string) {
