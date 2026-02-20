@@ -1,7 +1,6 @@
 <!-- src/app/pages/orders/order-list/order-list.component.html -->
 <div class="orders-page">
   <p-toast></p-toast>
-
   <div class="orders-content">
     <!-- Loading state -->
     @if (loading) {
@@ -37,6 +36,8 @@
             <span>{{ 'orders.title' | translate }}</span>
           </div>
           <div class="item-count-badge">{{ orders.length }}</div>
+        </div>
+
         <!-- Desktop Table View -->
         <div class="hidden md:block">
           <p-table
@@ -80,6 +81,8 @@
               </tr>
             </ng-template>
           </p-table>
+        </div>
+
         <!-- Mobile Card View -->
         <div class="block md:hidden">
           @for (order of orders; track order.id) {

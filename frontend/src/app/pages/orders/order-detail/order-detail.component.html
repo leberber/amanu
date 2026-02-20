@@ -1,7 +1,6 @@
 <!-- src/app/pages/orders/order-detail/order-detail.component.html -->
 <div class="order-detail-page">
   <p-toast></p-toast>
-
   <!-- Main Content -->
   <div class="order-detail-container">
     <!-- Loading state -->
@@ -92,6 +91,8 @@
               <span class="total-amount">{{totalAmount() | appCurrency}}</span>
             </div>
           </div>
+        </div>
+
         <!-- Sidebar -->
         <div class="order-sidebar">
           <!-- Timeline -->
@@ -122,6 +123,8 @@
                 </p-timeline>
               </div>
             </div>
+          </div>
+
           <!-- Actions -->
           <div class="actions-card glass-card">
             <div class="card-header">
@@ -149,9 +152,12 @@
         </div>
       </div>
     }
+  </div>
+
   <!-- Image Lightbox -->
   <app-image-lightbox
     [imageUrl]="selectedImage()"
     altText="Product image"
     (close)="closeImage()">
   </app-image-lightbox>
+</div>

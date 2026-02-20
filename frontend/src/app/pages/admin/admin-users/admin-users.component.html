@@ -2,7 +2,6 @@
 <div class="users-page">
   <p-toast></p-toast>
   <p-confirmDialog></p-confirmDialog>
-
   <div class="page-content">
     <!-- Page Header -->
     <div class="page-header">
@@ -18,6 +17,8 @@
           <p>{{ 'admin.users.subtitle' | translate }}</p>
         </div>
       </div>
+    </div>
+
     <!-- Role Segmented Control Row -->
     <div class="segment-row">
       <div class="role-segment">
@@ -216,6 +217,8 @@
           </div>
         }
       }
+    </div>
+
     <!-- Pagination Info -->
     @if (users.length > 0 && !loading) {
       <div class="pagination-info">

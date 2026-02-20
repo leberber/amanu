@@ -2,7 +2,6 @@
 <div class="categories-page">
   <p-toast></p-toast>
   <p-confirmDialog></p-confirmDialog>
-
   <div class="page-content">
     <!-- Page Header -->
     <div class="page-header">
@@ -18,6 +17,8 @@
           <p>{{ 'admin.categories.subtitle' | translate }}</p>
         </div>
       </div>
+    </div>
+
     <!-- Status Segmented Control with Add Button -->
     <div class="segment-row">
       <div class="status-segment">
@@ -47,6 +48,8 @@
         <i class="pi pi-plus"></i>
         <span>{{ 'admin.categories.add_category' | translate }}</span>
       </button>
+    </div>
+
     <!-- Search & Filters Card -->
     <div class="filters-card">
       <div class="search-box">
@@ -139,6 +142,8 @@
             </div>
           </div>
         }
+      </div>
+
       <!-- Pagination -->
       <div class="pagination-wrapper" *ngIf="categories.length > rows">
         <p-paginator
@@ -150,6 +155,8 @@
           [showCurrentPageReport]="true"
           currentPageReportTemplate="{{ 'admin.categories.showing' | translate }} {first} - {last} {{ 'admin.categories.of' | translate }} {totalRecords}"
         ></p-paginator>
+      </div>
+
       <!-- Results Count (when no pagination needed) -->
       <div class="results-info" *ngIf="categories.length <= rows">
         <span>{{ 'admin.categories.showing' | translate }} {{ categories.length }} {{ 'admin.categories.of' | translate }} {{ allCategories.length }} {{ 'admin.categories.categories' | translate }}</span>

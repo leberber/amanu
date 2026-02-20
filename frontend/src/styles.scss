@@ -1,11 +1,11 @@
 /* You can add global styles to this file, and also import other style files */
 @use 'primeflex/primeflex' as *;
+@use './styles/shared-components' as *;
 
-/* Import global styles */
+/* Import CSS files */
 @import './styles/theme.css';
 @import './styles/spacing.css';
 @import './styles/utilities.css';
-@import './styles/shared-components';
 
 @font-face {
   font-family: 'primeicons';
@@ -70,6 +70,13 @@ html, body{
 .my-app-dark {
   --surface-card-rgb: 30, 30, 30;
   --surface-ground-rgb: 18, 18, 18;
+}
+
+/* Hide component-level blobs - only app-level decorative-blob should be visible */
+.bg-decoration,
+.blob,
+.lightbox-bg {
+  display: none !important;
 }
 
 @media (max-width: 767px) {

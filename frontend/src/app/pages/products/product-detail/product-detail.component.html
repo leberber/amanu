@@ -1,7 +1,6 @@
 <!-- Outer Container - Full height minus header -->
 <div class="outer-container">
   <p-toast></p-toast>
-
   <!-- Back Button -->
   <app-back-button route="/products" [circular]="true" [fixed]="true"></app-back-button>
 
@@ -56,6 +55,8 @@
     <!-- Product Image -->
     <div class="col-12 lg:col-6">
       <ng-container *ngTemplateOutlet="productImageTemplate"></ng-container>
+    </div>
+
     <!-- Product Info -->
     <div class="col-12 lg:col-6">
       <div class="product-info">
@@ -199,6 +200,8 @@
         [disabled]="isOutOfStock()"
         (valueChange)="selectedQuantity.set($event)">
       </app-product-quantity-selector>
+    </div>
+
     <!-- Add to Cart Button -->
     <button
       class="add-to-cart-btn"

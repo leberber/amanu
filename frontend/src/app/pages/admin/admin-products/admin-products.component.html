@@ -2,7 +2,6 @@
 <div class="products-page">
   <p-toast></p-toast>
   <p-confirmDialog></p-confirmDialog>
-
   <div class="page-content">
     <!-- Page Header -->
     <div class="page-header">
@@ -18,6 +17,8 @@
           <p>{{ 'admin.products.subtitle' | translate }}</p>
         </div>
       </div>
+    </div>
+
     <!-- Status Segmented Control with Dropdowns and Add Button -->
     <div class="segment-row">
       <div class="filters-left">
@@ -43,6 +44,8 @@
             <span>{{ 'common.inactive' | translate }}</span>
             <span class="count inactive">{{ getInactiveCount() }}</span>
           </button>
+        </div>
+
         <!-- Category Dropdown -->
         <div class="filter-dropdown" [class.active]="categoryFilter !== null">
           <div class="dropdown-trigger" (click)="toggleCategoryDropdown()">
@@ -66,6 +69,8 @@
               }
             </div>
           }
+        </div>
+
         <!-- Brand Dropdown -->
         <div class="filter-dropdown" [class.active]="brandFilter !== null">
           <div class="dropdown-trigger" (click)="toggleBrandDropdown()">
@@ -96,6 +101,8 @@
         <i class="pi pi-plus"></i>
         <span>{{ 'admin.products.add_product' | translate }}</span>
       </button>
+    </div>
+
     <!-- Search Bar -->
     <div class="filters-card">
       <div class="filters-row">
@@ -283,6 +290,8 @@
           [showCurrentPageReport]="true"
           [currentPageReportTemplate]="getPaginationTemplate()"
         ></p-paginator>
+      </div>
+
       <!-- Results Count -->
       <div class="results-info" *ngIf="products.length <= rows">
         <span>{{ 'admin.products.showing' | translate }} {{ products.length }} {{ 'admin.products.of' | translate }} {{ allProducts.length }} {{ 'admin.products.products' | translate }}</span>

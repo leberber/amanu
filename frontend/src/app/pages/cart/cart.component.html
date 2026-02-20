@@ -1,7 +1,6 @@
 <!-- src/app/pages/cart/cart.component.html -->
 <div class="cart-page">
   <p-toast></p-toast>
-
   <div class="cart-content">
     <!-- Loading State -->
     @if (loading()) {
@@ -105,6 +104,8 @@
                 </tr>
               </ng-template>
             </p-table>
+          </div>
+
           <!-- Mobile View -->
           <div class="block md:hidden">
             @for (item of cartItems(); track item.id) {
@@ -199,6 +200,8 @@
                   </button>
                 </div>
               }
+            </div>
+
             <!-- Price Breakdown -->
             <div class="price-breakdown">
               <!-- Subtotal -->
@@ -208,6 +211,8 @@
                   <span>{{ 'promotions.subtotal' | translate }}</span>
                 </div>
                 <span class="breakdown-value">{{ cartSubtotal() | appCurrency }}</span>
+              </div>
+
               <!-- Discount -->
               @if (appliedPromotion()) {
                 <div class="breakdown-row discount">
@@ -244,6 +249,8 @@
                   <span class="total-currency">{{ getCurrencySymbol() }}</span>
                 </div>
               </div>
+            </div>
+
             <!-- Actions -->
             <div class="summary-actions">
               <button class="checkout-btn" (click)="proceedToCheckout()">
@@ -263,9 +270,12 @@
         </div>
       </div>
     }
+  </div>
+
   <!-- Image Lightbox -->
   <app-image-lightbox
     [imageUrl]="selectedImage()"
     altText="Product image"
     (close)="closeImage()">
   </app-image-lightbox>
+</div>

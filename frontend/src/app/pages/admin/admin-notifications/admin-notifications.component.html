@@ -1,7 +1,6 @@
 <!-- src/app/pages/admin/admin-notifications/admin-notifications.component.html -->
 <div class="notifications-page">
   <p-toast></p-toast>
-
   <div class="page-content">
     <!-- Page Header -->
     <div class="page-header">
@@ -20,11 +19,15 @@
           <p>{{ 'admin.notifications.subtitle' | translate }}</p>
         </div>
       </div>
+    </div>
+
     <!-- Notification Form Card -->
     <div class="notification-card">
       <div class="card-header">
         <i class="pi pi-send"></i>
         <h3>{{ 'admin.notifications.send_push' | translate }}</h3>
+      </div>
+
       <div class="notification-form">
         <!-- Title Field -->
         <div class="fancy-field" [class.focused]="titleFocused" [class.filled]="notificationTitle">

@@ -1,7 +1,6 @@
 <!-- src/app/pages/admin/admin-add-promotion/admin-add-promotion.component.html -->
 <div class="promotion-form-page">
   <p-toast></p-toast>
-
   <div class="page-content">
     <!-- Page Header -->
     <div class="page-header">
@@ -49,6 +48,8 @@
               @if (promotionForm.get('name')?.invalid && promotionForm.get('name')?.touched) {
                 <span class="field-error">{{ 'admin.promotions.form.name_required' | translate }}</span>
               }
+            </div>
+
             <div class="form-field">
               <label for="code">
                 {{ 'admin.promotions.form.code' | translate }}
@@ -59,6 +60,8 @@
                 formControlName="code"
                 [placeholder]="'admin.promotions.form.code_placeholder' | translate">
               <span class="field-hint">{{ 'admin.promotions.form.code_hint' | translate }}</span>
+            </div>
+
             <div class="form-field">
               <label for="description">
                 {{ 'admin.promotions.form.description' | translate }}
@@ -71,6 +74,8 @@
               ></textarea>
             </div>
           </div>
+        </div>
+
         <!-- Discount Settings Card -->
         <div class="form-card">
           <div class="card-header">
@@ -91,6 +96,8 @@
                 optionLabel="label"
                 optionValue="value"
               />
+            </div>
+
             <div class="form-field">
               <label for="discount_value">
                 {{ 'admin.promotions.form.discount_value' | translate }} <span class="required">*</span>
@@ -103,6 +110,8 @@
                 [max]="isPercentageDiscount() ? 100 : 999999"
                 [suffix]="isPercentageDiscount() ? '%' : ' DA'"
               />
+            </div>
+
             @if (isPercentageDiscount()) {
               <div class="form-field">
                 <label for="max_discount">
@@ -140,6 +149,8 @@
                 optionLabel="label"
                 optionValue="value"
               />
+            </div>
+
             @if (getCurrentScope() === 'category') {
               <div class="form-field">
                 <label for="category_id">
@@ -201,6 +212,8 @@
                 [min]="0"
                 suffix=" DA"
               />
+            </div>
+
             <div class="form-field">
               <label for="usage_limit">
                 {{ 'admin.promotions.form.usage_limit' | translate }}
@@ -213,6 +226,8 @@
               <span class="field-hint">{{ 'admin.promotions.form.usage_limit_hint' | translate }}</span>
             </div>
           </div>
+        </div>
+
         <!-- Validity Period Card -->
         <div class="form-card">
           <div class="card-header">
@@ -234,6 +249,8 @@
                 dateFormat="dd/mm/yy"
                 appendTo="body"
               />
+            </div>
+
             <div class="form-field">
               <label for="end_date">
                 {{ 'admin.promotions.form.end_date' | translate }} <span class="required">*</span>
@@ -246,6 +263,8 @@
                 dateFormat="dd/mm/yy"
                 appendTo="body"
               />
+            </div>
+
             <div class="checkbox-field">
               <p-checkbox
                 formControlName="is_active"
@@ -282,6 +301,8 @@
         </button>
       </div>
     </form>
+  </div>
+
   <!-- Loading Overlay -->
   @if (loading() && isEditMode()) {
     <div class="loading-overlay">
@@ -291,3 +312,4 @@
       </div>
     </div>
   }
+</div>
