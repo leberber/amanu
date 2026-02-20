@@ -1,27 +1,59 @@
-// _shared-components.scss
-// Reusable component styles used across the application
+// =============================================================================
+// SHARED COMPONENT STYLES
+// =============================================================================
+// Reusable component styles used across the entire application.
+// These classes can be used in any component without duplication.
+//
+// Import this file in styles.scss to make classes globally available.
+//
+// Contents:
+// - Badge: Notification/cart count indicator
+// - User Avatar: Circular avatar with initials
+// - Icon Button: Square button containing only an icon
+// - Section Header: Small uppercase label for sections
+// - Glass Card: Glassmorphism card effect
+// - Animations: Reusable keyframe animations
+// - Decorative Blob: Floating gradient background decoration
+// - Auth Buttons: Login/register button styles
+// =============================================================================
 
-// ===================== BADGE =====================
-// Notification/cart badge - positioned absolutely on parent
+// =============================================================================
+// BADGE
+// =============================================================================
+// Small notification indicator, typically showing counts
+// Position relative to parent element (parent needs position: relative)
+//
+// Usage: <span class="badge">5</span>
+
 .badge {
   position: absolute;
   top: -4px;
-  inset-inline-end: -4px;
-  min-width: 18px;
+  inset-inline-end: -4px;             // RTL-aware positioning
+  min-width: 18px;                    // Ensures circle shape for single digits
   height: 18px;
-  padding: 0 4px;
+  padding: 0 4px;                     // Horizontal padding for multi-digit numbers
   background: var(--red-500, #ef4444);
   color: white;
   font-size: 10px;
   font-weight: 600;
-  border-radius: 9px;
+  border-radius: 9px;                 // Half of height for pill shape
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-// ===================== USER AVATAR =====================
-// Avatar with initials
+// =============================================================================
+// USER AVATAR
+// =============================================================================
+// Circular avatar displaying user initials
+// Uses primary gradient background
+//
+// Variants:
+// - .avatar-sm: 28px (compact lists)
+// - .avatar-lg: 48px (profile sections)
+//
+// Usage: <div class="user-avatar">JD</div>
+
 .user-avatar {
   width: 36px;
   height: 36px;
@@ -33,14 +65,16 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
+  flex-shrink: 0;                     // Prevent shrinking in flex containers
 
+  // Small variant - for compact spaces
   &.avatar-sm {
     width: 28px;
     height: 28px;
     font-size: 0.75rem;
   }
 
+  // Large variant - for profile sections
   &.avatar-lg {
     width: 48px;
     height: 48px;
@@ -48,8 +82,19 @@
   }
 }
 
-// ===================== ICON BUTTON =====================
-// Square icon button with hover effect
+// =============================================================================
+// ICON BUTTON
+// =============================================================================
+// Square button containing only an icon
+// Used for actions like close, delete, settings
+//
+// Variants:
+// - .icon-btn-sm: 32px (tight spaces)
+// - .icon-btn-lg: 40px (prominent actions)
+// - .icon-btn-danger: Red color scheme for destructive actions
+//
+// Usage: <button class="icon-btn"><i class="pi pi-times"></i></button>
+
 .icon-btn {
   width: 36px;
   height: 36px;
@@ -71,6 +116,7 @@
     font-size: 1rem;
   }
 
+  // Small variant
   &.icon-btn-sm {
     width: 32px;
     height: 32px;
@@ -80,6 +126,7 @@
     }
   }
 
+  // Large variant
   &.icon-btn-lg {
     width: 40px;
     height: 40px;
@@ -89,7 +136,7 @@
     }
   }
 
-  // Danger variant
+  // Danger variant - for destructive actions (delete, logout)
   &.icon-btn-danger {
     background: rgba(239, 68, 68, 0.1);
     color: var(--red-500, #ef4444);
@@ -100,8 +147,18 @@
   }
 }
 
-// ===================== SECTION HEADER =====================
-// Small uppercase section header with optional icon
+// =============================================================================
+// SECTION HEADER
+// =============================================================================
+// Small uppercase label used to introduce content sections
+// Typically used in sidebars, drawers, and settings panels
+//
+// Usage:
+// <div class="section-header">
+//   <i class="pi pi-cog"></i>
+//   <span>Settings</span>
+// </div>
+
 .section-header {
   display: flex;
   align-items: center;
@@ -112,41 +169,138 @@
   font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.05em;             // Slight letter spacing for readability
 
   i {
     font-size: 0.85rem;
   }
 }
 
-// ===================== GLASS CARD =====================
-// Glassmorphism card effect
+// =============================================================================
+// GLASS CARD
+// =============================================================================
+// Glassmorphism card effect with translucent background
+// Creates a frosted glass appearance
+//
+// Usage: <div class="glass-card p-3">Content</div>
+
 .glass-card {
   background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);        // Frosted glass effect
   border-radius: 14px;
   border: 1px solid rgba(var(--primary-rgb, 46, 108, 183), 0.08);
 
+  // Dark mode variant
   :host-context(.my-app-dark) & {
     background: rgba(30, 30, 30, 0.8);
   }
 }
 
-// ===================== ANIMATIONS =====================
-// Floating blob animation
+// =============================================================================
+// ANIMATIONS
+// =============================================================================
+// Reusable keyframe animations
+
+// Floating blob animation - gentle floating movement
+// Used for decorative background elements
 @keyframes blobFloat {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(10px, -10px) scale(1.05); }
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(10px, -10px) scale(1.05);
+  }
 }
 
-// Pulse animation
+// Pulse animation - fading in and out
+// Used for loading states or attention indicators
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 
-// ===================== AUTH BUTTONS =====================
-// Primary and outlined auth buttons
+// =============================================================================
+// DECORATIVE BLOB
+// =============================================================================
+// Floating gradient blob for decorative backgrounds
+// Creates a modern, dynamic visual effect
+//
+// Usage:
+// <div class="decorative-blob-container">
+//   <div class="decorative-blob decorative-blob--primary"></div>
+//   <div class="decorative-blob decorative-blob--accent"></div>
+// </div>
+//
+// Parent container should have: position: relative; overflow: hidden;
+
+// Container for blobs - covers parent and stays behind content
+.decorative-blob-container {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;             // Don't interfere with interactions
+  z-index: 0;                       // Behind content
+}
+
+// Base blob styles - soft gradient circle with floating animation
+.decorative-blob {
+  position: absolute;
+  border-radius: 50%;               // Perfect circle
+  filter: blur(60px);               // Soft edges
+  opacity: 0.4;                     // Subtle effect
+  animation: blobFloat 20s ease-in-out infinite;
+}
+
+// Primary blob variant - uses brand color
+.decorative-blob--primary {
+  width: 200px;
+  height: 200px;
+  background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.4), rgba(var(--primary-rgb), 0.3));
+}
+
+// Accent blob variant - teal/green gradient
+.decorative-blob--accent {
+  width: 150px;
+  height: 150px;
+  background: linear-gradient(135deg, rgba(17, 153, 142, 0.3), rgba(56, 239, 125, 0.3));
+  animation-delay: -10s;            // Offset for varied movement
+}
+
+// Small blob variant - for tighter spaces
+.decorative-blob--sm {
+  width: 100px;
+  height: 100px;
+  filter: blur(40px);
+}
+
+// Large blob variant - for hero sections
+.decorative-blob--lg {
+  width: 300px;
+  height: 300px;
+  filter: blur(80px);
+}
+
+// =============================================================================
+// AUTH BUTTONS
+// =============================================================================
+// Styled buttons for authentication actions
+// Used in login cards, sidebars, and auth pages
+//
+// Variants:
+// - .auth-btn-primary: Gradient background, white text
+// - .auth-btn-outlined: Transparent with border
+// - .auth-btn-danger: Red color scheme for logout
+//
+// Usage:
+// <a class="auth-btn auth-btn-primary">
+//   <i class="pi pi-sign-in"></i>
+//   <span>Login</span>
+// </a>
+
 .auth-btn {
   display: flex;
   align-items: center;
@@ -161,16 +315,18 @@
   border: none;
   cursor: pointer;
 
+  // Primary variant - main call-to-action
   &.auth-btn-primary {
     background: var(--primary-gradient, linear-gradient(135deg, var(--primary-color) 0%, var(--primary-700) 100%));
     color: white;
 
     &:hover {
-      transform: translateY(-1px);
+      transform: translateY(-1px);    // Subtle lift effect
       box-shadow: 0 4px 12px rgba(var(--primary-rgb, 46, 108, 183), 0.3);
     }
   }
 
+  // Outlined variant - secondary action
   &.auth-btn-outlined {
     background: transparent;
     color: var(--primary-color);
@@ -181,6 +337,7 @@
     }
   }
 
+  // Danger variant - destructive actions like logout
   &.auth-btn-danger {
     background: rgba(239, 68, 68, 0.1);
     color: var(--red-600, #dc2626);

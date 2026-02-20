@@ -13,8 +13,8 @@
       <nav class="flex flex-column gap-1">
         @for (item of getVisibleNavItems(); track item.route) {
           <a [routerLink]="item.route" routerLinkActive="active"
-             class="nav-item flex align-items-center gap-3 p-3 border-round no-underline text-color font-medium transition-all transition-duration-200">
-            <div class="nav-icon flex align-items-center justify-content-center">
+             class="sidebar-nav-link flex align-items-center gap-3 p-3 border-round no-underline text-color font-medium transition-all transition-duration-200">
+            <div class="sidebar-nav-link__icon flex align-items-center justify-content-center">
               <i [class]="item.icon" class="text-base"></i>
               @if (item.route === routes.CART && cartCount() > 0) {
                 <span class="badge">{{ cartCount() > 99 ? '99+' : cartCount() }}</span>
@@ -35,8 +35,8 @@
           <nav class="flex flex-column gap-1">
             @for (item of getVisibleAdminItems(); track item.route) {
               <a [routerLink]="item.route" routerLinkActive="active" [routerLinkActiveOptions]="{exact: item.route === routes.ADMIN.DASHBOARD}"
-                 class="nav-item flex align-items-center gap-3 py-2 px-3 border-round no-underline text-color font-medium transition-all transition-duration-200">
-                <div class="nav-icon flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                 class="sidebar-nav-link flex align-items-center gap-3 py-2 px-3 border-round no-underline text-color font-medium transition-all transition-duration-200">
+                <div class="sidebar-nav-link__icon flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
                   <i [class]="item.icon" class="text-base"></i>
                 </div>
                 <span class="flex-1">{{ item.label }}</span>
@@ -86,14 +86,9 @@
   styleClass="sidebar-drawer">
 
   <ng-template pTemplate="headless">
-    <div class="drawer-container relative">
-      <!-- Animated Background -->
-      <div class="drawer-bg">
-        <div class="drawer-blob drawer-blob-1"></div>
-        <div class="drawer-blob drawer-blob-2"></div>
-      </div>
-
-      <div class="drawer-content flex flex-column">
+    <div class="sidebar-mobile-container relative">
+      <!-- Background is transparent to show app-level decorative blobs -->
+      <div class="sidebar-mobile-content flex flex-column">
         <!-- Header -->
         <div class="flex align-items-center justify-content-between mb-4 pb-3 border-bottom-1 surface-border">
           <a [routerLink]="routes.PRODUCTS" (click)="closeMobileDrawer()">
@@ -113,15 +108,15 @@
           <div class="flex flex-column gap-2 mb-4">
             @for (item of getVisibleNavItems(); track item.route) {
               <a [routerLink]="item.route" routerLinkActive="active" (click)="closeMobileDrawer()"
-                 class="drawer-nav-item glass-card flex align-items-center gap-3 p-3 no-underline text-color transition-all transition-duration-200">
-                <div class="nav-icon flex align-items-center justify-content-center flex-shrink-0">
+                 class="sidebar-mobile-nav-link glass-card flex align-items-center gap-3 p-3 no-underline text-color transition-all transition-duration-200">
+                <div class="sidebar-nav-link__icon flex align-items-center justify-content-center flex-shrink-0">
                   <i [class]="item.icon" class="text-lg"></i>
                   @if (item.route === routes.CART && cartCount() > 0) {
                     <span class="badge">{{ cartCount() > 99 ? '99+' : cartCount() }}</span>
                   }
                 </div>
                 <span class="flex-1 font-medium">{{ item.label }}</span>
-                <i class="pi pi-chevron-right nav-arrow text-sm text-color-secondary transition-all transition-duration-200"></i>
+                <i class="pi pi-chevron-right sidebar-nav-link__arrow text-sm text-color-secondary transition-all transition-duration-200"></i>
               </a>
             }
           </div>
@@ -136,12 +131,12 @@
               @for (item of getVisibleAdminItems(); track item.route) {
                 <a [routerLink]="item.route" routerLinkActive="active" [routerLinkActiveOptions]="{exact: item.route === routes.ADMIN.DASHBOARD}"
                    (click)="closeMobileDrawer()"
-                   class="drawer-nav-item glass-card flex align-items-center gap-3 py-3 px-3 mb-2 no-underline text-color transition-all transition-duration-200">
-                  <div class="nav-icon flex align-items-center justify-content-center flex-shrink-0" style="width: 36px; height: 36px;">
+                   class="sidebar-mobile-nav-link glass-card flex align-items-center gap-3 py-3 px-3 mb-2 no-underline text-color transition-all transition-duration-200">
+                  <div class="sidebar-nav-link__icon flex align-items-center justify-content-center flex-shrink-0" style="width: 36px; height: 36px;">
                     <i [class]="item.icon" class="text-lg"></i>
                   </div>
                   <span class="flex-1 font-medium">{{ item.label }}</span>
-                  <i class="pi pi-chevron-right nav-arrow text-sm text-color-secondary transition-all transition-duration-200"></i>
+                  <i class="pi pi-chevron-right sidebar-nav-link__arrow text-sm text-color-secondary transition-all transition-duration-200"></i>
                 </a>
               }
             </div>
@@ -153,17 +148,17 @@
               <i class="pi pi-sliders-h"></i>
               <span>{{ 'settings.title' | translate }}</span>
             </div>
-            <div class="setting-item glass-card flex align-items-center justify-content-between p-3">
+            <div class="sidebar-settings-item glass-card flex align-items-center justify-content-between p-3">
               <div class="flex align-items-center gap-3">
                 <i class="pi pi-eye text-primary"></i>
                 <span class="font-medium">{{ 'settings.view_mode' | translate }}</span>
               </div>
-              <div class="setting-toggle flex">
-                <button class="toggle-option flex align-items-center justify-content-center transition-all transition-duration-200"
+              <div class="sidebar-view-toggle flex">
+                <button class="sidebar-view-toggle__option flex align-items-center justify-content-center transition-all transition-duration-200"
                         [class.active]="currentViewMode() === 'list'" (click)="toggleViewMode()">
                   <i class="pi pi-list"></i>
                 </button>
-                <button class="toggle-option flex align-items-center justify-content-center transition-all transition-duration-200"
+                <button class="sidebar-view-toggle__option flex align-items-center justify-content-center transition-all transition-duration-200"
                         [class.active]="currentViewMode() === 'grid'" (click)="toggleViewMode()">
                   <i class="pi pi-th-large"></i>
                 </button>
@@ -187,8 +182,8 @@
               <span>{{ 'common.logout' | translate }}</span>
             </button>
           } @else {
-            <div class="login-card glass-card text-center p-4 border-round-xl">
-              <div class="login-icon flex align-items-center justify-content-center border-circle mx-auto mb-3">
+            <div class="sidebar-login-card glass-card text-center p-4 border-round-xl">
+              <div class="sidebar-login-card__icon flex align-items-center justify-content-center border-circle mx-auto mb-3">
                 <i class="pi pi-user text-xl text-white"></i>
               </div>
               <h3 class="text-lg font-semibold m-0 mb-1 text-color">{{ 'auth.welcome' | translate }}</h3>

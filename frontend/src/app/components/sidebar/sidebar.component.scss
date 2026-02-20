@@ -1,52 +1,76 @@
-// Sidebar Component - Minimal CSS
-// Uses global styles from _shared-components.scss and PrimeFlex utilities
+// =============================================================================
+// SIDEBAR COMPONENT STYLES
+// =============================================================================
+// This file contains styles specific to the sidebar component.
+// Global reusable styles are imported from _shared-components.scss
+//
+// Naming Convention: BEM-like with sidebar prefix
+// - Block: sidebar-[context] (e.g., sidebar-desktop, sidebar-mobile)
+// - Element: sidebar-[context]__[element] (e.g., sidebar-nav-link__icon)
+// - Modifier: sidebar-[context]--[modifier] (e.g., sidebar-mobile-blob--primary)
+// =============================================================================
 
-// ===================== DESKTOP SIDEBAR =====================
+// =============================================================================
+// DESKTOP SIDEBAR
+// =============================================================================
+// Fixed sidebar for desktop viewport (>= 768px)
+// Positioned on the left (or right for RTL languages)
+
 .sidebar-desktop {
-  width: var(--sidebar-width);
-  height: 100vh;
-  background: var(--surface-card);
-  border-inline-end: 1px solid var(--surface-border);
+  width: var(--sidebar-width);       // Width defined in global CSS variables
+  height: 100vh;                      // Full viewport height
+  background: var(--surface-card);    // Card background from theme
   position: fixed;
-  inset-inline-start: 0;
+  inset-inline-start: 0;              // RTL-aware positioning (left in LTR, right in RTL)
   top: 0;
-  z-index: 100;
+  z-index: 100;                       // Above main content, below modals
 }
 
-// Nav item with icon - sidebar specific styling
-.nav-item {
-  margin: 0; // Prevent browser defaults
+// =============================================================================
+// NAVIGATION LINK (Desktop)
+// =============================================================================
+// Clickable navigation item with icon and label
+// Used in both main navigation and admin section
 
+.sidebar-nav-link {
+  margin: 0; // Reset browser default margins on anchor elements
+
+  // Hover state - subtle background highlight
   &:hover {
     background: rgba(var(--primary-rgb, 46, 108, 183), 0.08);
     color: var(--primary-color);
 
-    .nav-icon i {
+    .sidebar-nav-link__icon i {
       color: var(--primary-color);
     }
   }
 
+  // Active state - current route indicator
+  // Applied via routerLinkActive directive
   &.active {
     background: rgba(var(--primary-rgb, 46, 108, 183), 0.12);
     color: var(--primary-color);
     font-weight: 600;
 
-    .nav-icon {
+    // Icon gets gradient background when active
+    .sidebar-nav-link__icon {
       background: var(--primary-gradient, linear-gradient(135deg, #2E6CB7 0%, #0F3C82 100%));
 
       i {
-        color: white !important;
+        color: white !important; // Override default icon color
       }
     }
   }
 }
 
-.nav-icon {
+// Icon container - square box containing the navigation icon
+// Also serves as badge anchor for cart count
+.sidebar-nav-link__icon {
   width: 36px;
   height: 36px;
   border-radius: 10px;
-  background: var(--surface-100, #f1f5f9);
-  position: relative;
+  background: var(--surface-100, #f1f5f9); // Subtle background
+  position: relative;                       // For badge positioning
 
   i {
     font-size: 1rem;
@@ -54,106 +78,108 @@
   }
 }
 
-// ===================== MOBILE DRAWER =====================
+// Chevron arrow - indicates clickable/navigable item
+// Shown on mobile drawer items
+.sidebar-nav-link__arrow {
+  opacity: 0.5; // Subtle by default, becomes visible on hover
+}
+
+// =============================================================================
+// MOBILE DRAWER
+// =============================================================================
+// Slide-out drawer for mobile viewport (< 768px)
+// Uses PrimeNG p-drawer component with custom styling
+
+// PrimeNG drawer overrides
+// ::ng-deep required to pierce component encapsulation
 :host ::ng-deep .sidebar-drawer {
   .p-drawer {
     width: var(--sidebar-width);
-    max-width: 85vw;
+    max-width: 85vw;              // Prevent drawer from being too wide on small screens
   }
   .p-drawer-content {
-    padding: 0 !important;
+    padding: 0 !important;        // Remove default padding, we handle it ourselves
     background: transparent !important;
   }
 }
 
-.drawer-container {
+// Main container for drawer content
+// Semi-transparent to show app-level decorative blobs
+.sidebar-mobile-container {
   height: 100%;
-  background: var(--surface-card);
+  background: rgba(var(--surface-card-rgb, 255, 255, 255), 0.85);
+  backdrop-filter: blur(20px);    // Frosted glass effect
   overflow: hidden;
 }
 
-// Animated background blobs
-.drawer-bg {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  pointer-events: none;
-  z-index: 0;
-}
+// =============================================================================
+// MOBILE DRAWER CONTENT
+// =============================================================================
+// Drawer is transparent to show app-level decorative blobs
 
-.drawer-blob {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(60px);
-  opacity: 0.4;
-  animation: blobFloat 20s ease-in-out infinite;
-
-  &.drawer-blob-1 {
-    width: 200px;
-    height: 200px;
-    background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.4), rgba(var(--primary-rgb), 0.3));
-    top: 10%;
-    right: -50px;
-  }
-
-  &.drawer-blob-2 {
-    width: 150px;
-    height: 150px;
-    background: linear-gradient(135deg, rgba(17, 153, 142, 0.3), rgba(56, 239, 125, 0.3));
-    bottom: 20%;
-    left: -50px;
-    animation-delay: -10s;
-  }
-}
-
-.drawer-content {
+// Content wrapper - contains all interactive elements
+.sidebar-mobile-content {
   position: relative;
-  z-index: 1;
+  z-index: 1;                     // Above background blobs
   height: 100%;
   padding: 1rem;
+  // Safe area padding for devices with notches/home indicators
   padding-top: calc(1rem + env(safe-area-inset-top));
   padding-bottom: calc(1rem + env(safe-area-inset-bottom));
 }
 
-// Mobile nav item - glass effect
-.drawer-nav-item {
+// Mobile navigation link - card-style with glass effect
+// Larger touch targets for mobile usability
+.sidebar-mobile-nav-link {
+  // Hover and active states
   &:hover, &.active {
     background: white;
     border-color: rgba(var(--primary-rgb), 0.15);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 
-    .nav-icon {
+    // Icon becomes gradient on hover/active
+    .sidebar-nav-link__icon {
       background: var(--primary-gradient);
       i { color: white; }
     }
 
-    .nav-arrow {
+    // Arrow becomes visible
+    .sidebar-nav-link__arrow {
       opacity: 1;
       color: var(--primary-color);
     }
   }
+
+  // Larger icon for mobile touch targets
+  .sidebar-nav-link__icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.1), rgba(var(--primary-rgb), 0.08));
+    i { color: var(--primary-color); }
+  }
 }
 
-.drawer-nav-item .nav-icon {
-  width: 42px;
-  height: 42px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.1), rgba(var(--primary-rgb), 0.08));
-  i { color: var(--primary-color); }
+// =============================================================================
+// SETTINGS SECTION
+// =============================================================================
+// View mode toggle and other user preferences
+
+// Settings item - container for a single setting
+.sidebar-settings-item {
+  // Inherits glass-card styles from global
+  // Additional styles can be added here if needed
 }
 
-.nav-arrow {
-  opacity: 0.5;
-}
-
-// Toggle buttons
-.setting-toggle {
+// View mode toggle - list/grid switcher
+.sidebar-view-toggle {
   background: var(--surface-100);
   border-radius: 8px;
-  padding: 3px;
+  padding: 3px;                   // Space around buttons
 }
 
-.toggle-option {
+// Individual toggle button
+.sidebar-view-toggle__option {
   width: 32px;
   height: 32px;
   border: none;
@@ -162,6 +188,7 @@
   color: var(--text-color-secondary);
   cursor: pointer;
 
+  // Active state - selected option
   &.active {
     background: white;
     color: var(--primary-color);
@@ -169,18 +196,34 @@
   }
 }
 
-// Login card - only non-utility styles
-.login-card .login-icon {
+// =============================================================================
+// LOGIN SECTION
+// =============================================================================
+// Shown to unauthenticated users in mobile drawer
+
+// Login prompt card
+.sidebar-login-card {
+  // Inherits glass-card styles from global
+}
+
+// Decorative icon above login prompt
+.sidebar-login-card__icon {
   width: 56px;
   height: 56px;
   background: var(--primary-gradient);
   box-shadow: 0 6px 20px rgba(var(--primary-rgb), 0.3);
 }
 
-// Dark mode overrides
+// =============================================================================
+// DARK MODE OVERRIDES
+// =============================================================================
+// Adjustments for dark theme compatibility
+
 :host-context(.my-app-dark) {
-  .drawer-container { background: var(--surface-card); }
-  .drawer-nav-item { background: rgba(30, 30, 30, 0.8); }
-  .setting-item { background: rgba(30, 30, 30, 0.8); }
-  .login-card { background: rgba(30, 30, 30, 0.9); }
+  .sidebar-mobile-container {
+    background: rgba(30, 30, 30, 0.85);
+  }
+  .sidebar-mobile-nav-link { background: rgba(30, 30, 30, 0.6); }
+  .sidebar-settings-item { background: rgba(30, 30, 30, 0.6); }
+  .sidebar-login-card { background: rgba(30, 30, 30, 0.7); }
 }

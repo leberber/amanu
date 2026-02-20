@@ -1,12 +1,47 @@
-// App Layout - Native app feel with fixed viewport
+// =============================================================================
+// APP COMPONENT STYLES
+// =============================================================================
+// Root layout styles - native app feel with fixed viewport
 // Base styles handled by utility classes in template: flex h-screen overflow-hidden
 
 :host {
   display: block;
 }
 
+// =============================================================================
+// APP CONTAINER
+// =============================================================================
+// Main container with decorative background blobs
+
+.app-container {
+  position: relative;               // Anchor for decorative blobs
+  background: var(--surface-ground); // Base background color
+}
+
+// =============================================================================
+// DECORATIVE BLOB POSITIONING
+// =============================================================================
+// App-level blob positions - visible through transparent components
+
+.app-blob-primary {
+  top: 5%;
+  inset-inline-end: -100px;         // RTL-aware positioning
+}
+
+.app-blob-accent {
+  bottom: 15%;
+  inset-inline-start: -75px;        // RTL-aware positioning
+}
+
+// =============================================================================
+// MAIN CONTENT AREA
+// =============================================================================
 // Layout adjustments based on navigation state
+
 .app-main {
+  position: relative;               // Above decorative blobs
+  z-index: 1;
+
   // When bottom nav is visible (mobile)
   .with-bottom-nav & {
     height: calc(100vh - var(--bottom-nav-height));
@@ -19,11 +54,20 @@
   }
 }
 
-// Bottom navigation - fixed positioning (component-specific)
+// =============================================================================
+// NAVIGATION COMPONENTS
+// =============================================================================
+
+// Bottom navigation - fixed positioning
 app-bottom-navigation {
   position: fixed;
   bottom: 0;
-  left: 0;
-  right: 0;
+  inset-inline: 0;                  // RTL-aware (replaces left: 0; right: 0)
   z-index: 1000;
+}
+
+// Sidebar - ensure it's above blobs
+app-sidebar {
+  position: relative;
+  z-index: 100;
 }
