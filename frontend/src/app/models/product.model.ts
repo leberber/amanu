@@ -1,4 +1,6 @@
 // src/app/models/product.model.ts
+// Re-export Category from its canonical location for backward compatibility
+export type { Category } from './category.model';
 
 export interface ProductPromotion {
   id: number;
@@ -38,17 +40,8 @@ export interface Product {
     pills?: number[];      // Custom quick select values for any type
   }
   
-  export interface Category {
-    id: number;
-    name: string;
-    description?: string;
-    image_url?: string;
-    is_active: boolean;
-    created_at: string;
-    updated_at?: string;
-    product_count?: number;
-  }
-  
+  // Category is re-exported from category.model.ts at the top of this file
+
   export interface ProductFilter {
     category_id?: number;
     brand_id?: number;

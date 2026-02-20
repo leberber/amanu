@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { USER_ROLES, ORDER_STATUS } from '../constants/app.constants';
+import { USER_ROLES, ORDER_STATUS, PROMOTION_STATUS } from '../constants/app.constants';
 
 /**
  * Service to centralize severity mappings for roles and statuses
@@ -92,10 +92,10 @@ export class StatusSeverityService {
    */
   getPromotionStatusSeverity(status: string): "success" | "secondary" | "info" | "warn" | "danger" | "contrast" {
     switch (status) {
-      case 'active': return 'success';
-      case 'scheduled': return 'info';
-      case 'expired': return 'secondary';
-      case 'inactive': return 'danger';
+      case PROMOTION_STATUS.ACTIVE: return 'success';
+      case PROMOTION_STATUS.SCHEDULED: return 'info';
+      case PROMOTION_STATUS.EXPIRED: return 'secondary';
+      case PROMOTION_STATUS.INACTIVE: return 'danger';
       default: return 'secondary';
     }
   }
@@ -107,10 +107,10 @@ export class StatusSeverityService {
    */
   getPromotionStatusIcon(status: string): string {
     switch (status) {
-      case 'active': return 'pi pi-check';
-      case 'scheduled': return 'pi pi-clock';
-      case 'expired': return 'pi pi-times';
-      case 'inactive': return 'pi pi-ban';
+      case PROMOTION_STATUS.ACTIVE: return 'pi pi-check';
+      case PROMOTION_STATUS.SCHEDULED: return 'pi pi-clock';
+      case PROMOTION_STATUS.EXPIRED: return 'pi pi-times';
+      case PROMOTION_STATUS.INACTIVE: return 'pi pi-ban';
       default: return 'pi pi-info';
     }
   }

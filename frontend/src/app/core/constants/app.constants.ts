@@ -194,3 +194,11 @@ export const PAYMENT_METHODS = {
   CARD: 'card',
   TRANSFER: 'transfer'
 } as const;
+
+// Promotion Status
+export const PROMOTION_STATUS = {
+  ACTIVE: 'active',
+  SCHEDULED: 'scheduled',
+  EXPIRED: 'expired',
+  INACTIVE: 'inactive'
+} as const;

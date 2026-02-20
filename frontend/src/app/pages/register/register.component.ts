@@ -1,9 +1,10 @@
 // src/app/pages/register/register.component.ts
-import { Component, inject, ViewChild, ElementRef, OnInit } from '@angular/core';
+import { Component, inject, ViewChild, ElementRef, OnInit, OnDestroy, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Router, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ToastModule } from 'primeng/toast';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
@@ -55,7 +56,7 @@ interface WilayaData {
     templateUrl: './register.component.html',
   styleUrl: './register.component.scss'
 })
-export class RegisterComponent implements OnInit {
+export class RegisterComponent implements OnInit, OnDestroy {
   @ViewChild(MapPickerComponent) mapPicker!: MapPickerComponent;
 
   loading = false;
@@ -78,6 +79,7 @@ export class RegisterComponent implements OnInit {
   communes: { label: string; value: string }[] = [];
 
   private http = inject(HttpClient);
+  private destroyRef = inject(DestroyRef);
 
   // Services
   private authService = inject(AuthService);
@@ -134,60 +136,59 @@ export class RegisterComponent implements OnInit {
     const dairaControl = this.storeDetailsForm.get('daira');
     const communeControl = this.storeDetailsForm.get('commune');
 
-    // Listen for wilaya changes
-    this.storeDetailsForm.get('wilaya')?.valueChanges.subscribe(selectedWilaya => {
-      // Reset and disable dependent fields
-      dairaControl?.setValue('', { emitEvent: false });
-      communeControl?.setValue('', { emitEvent: false });
-      this.communes = [];
+    // Listen for wilaya changes - properly cleaned up on destroy
+    this.storeDetailsForm.get('wilaya')?.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(selectedWilaya => {
+        // Reset and disable dependent fields
+        dairaControl?.setValue('', { emitEvent: false });
+        communeControl?.setValue('', { emitEvent: false });
+        this.communes = [];
 
-      const wilayaData = this.wilayaDataList.find(w => w.wilaya === selectedWilaya);
-      if (wilayaData && selectedWilaya) {
-        this.dairas = wilayaData.dairas.map(d => ({
-          label: d.daira_name,
-          value: d.daira_name
-        }));
-        dairaControl?.enable({ emitEvent: false });
-      } else {
-        this.dairas = [];
-        dairaControl?.disable({ emitEvent: false });
-      }
-      communeControl?.disable({ emitEvent: false });
-    });
-
-    // Listen for daira changes
-    dairaControl?.valueChanges.subscribe(selectedDaira => {
-      communeControl?.setValue('', { emitEvent: false });
-
-      const selectedWilaya = this.storeDetailsForm.get('wilaya')?.value;
-      const wilayaData = this.wilayaDataList.find(w => w.wilaya === selectedWilaya);
-      if (wilayaData && selectedDaira) {
-        const dairaData = wilayaData.dairas.find(d => d.daira_name === selectedDaira);
-        if (dairaData) {
-          this.communes = dairaData.communes.map(c => ({
-            label: c.name,
-            value: c.name
+        const wilayaData = this.wilayaDataList.find(w => w.wilaya === selectedWilaya);
+        if (wilayaData && selectedWilaya) {
+          this.dairas = wilayaData.dairas.map(d => ({
+            label: d.daira_name,
+            value: d.daira_name
           }));
-          communeControl?.enable({ emitEvent: false });
+          dairaControl?.enable({ emitEvent: false });
+        } else {
+          this.dairas = [];
+          dairaControl?.disable({ emitEvent: false });
+        }
+        communeControl?.disable({ emitEvent: false });
+      });
+
+    // Listen for daira changes - properly cleaned up on destroy
+    dairaControl?.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(selectedDaira => {
+        communeControl?.setValue('', { emitEvent: false });
+
+        const selectedWilaya = this.storeDetailsForm.get('wilaya')?.value;
+        const wilayaData = this.wilayaDataList.find(w => w.wilaya === selectedWilaya);
+        if (wilayaData && selectedDaira) {
+          const dairaData = wilayaData.dairas.find(d => d.daira_name === selectedDaira);
+          if (dairaData) {
+            this.communes = dairaData.communes.map(c => ({
+              label: c.name,
+              value: c.name
+            }));
+            communeControl?.enable({ emitEvent: false });
+          } else {
+            this.communes = [];
+            communeControl?.disable({ emitEvent: false });
+          }
         } else {
           this.communes = [];
           communeControl?.disable({ emitEvent: false });
         }
-      } else {
-        this.communes = [];
-        communeControl?.disable({ emitEvent: false });
-      }
-    });
+      });
   }
 
-  onWilayaChange(event: any) {
-    // Handled by valueChanges subscription
+  ngOnDestroy(): void {
+    // Subscriptions are automatically cleaned up by takeUntilDestroyed
   }
-
-  onDairaChange(event: any) {
-    // Handled by valueChanges subscription
-  }
-
 
   onLocationSelected(location: LocationData) {
     this.locationData = location;

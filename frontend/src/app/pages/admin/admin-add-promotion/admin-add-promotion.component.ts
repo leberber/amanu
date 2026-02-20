@@ -3,6 +3,7 @@ import { Component, OnInit, signal, inject, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -133,10 +134,12 @@ export class AdminAddPromotionComponent implements OnInit {
       is_active: [true]
     });
 
-    // Watch scope changes to validate related fields
-    this.promotionForm.get('scope')?.valueChanges.subscribe(scope => {
-      this.updateScopeValidation(scope);
-    });
+    // Watch scope changes to validate related fields - properly cleaned up on destroy
+    this.promotionForm.get('scope')?.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(scope => {
+        this.updateScopeValidation(scope);
+      });
   }
 
   updateScopeValidation(scope: string) {
