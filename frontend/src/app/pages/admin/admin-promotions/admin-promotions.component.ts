@@ -1,6 +1,5 @@
 // src/app/pages/admin/admin-promotions/admin-promotions.component.ts
 import { Component, OnInit, inject, DestroyRef } from '@angular/core';
-import { Router } from '@angular/router';
 import { ConfirmationService } from 'primeng/api';
 import { TranslateService } from '@ngx-translate/core';
 
@@ -13,7 +12,6 @@ import { onLanguageChange } from '../../../core/utils/language-change.util';
 import { PromotionService } from '../../../services/promotion.service';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { Promotion } from '../../../models/promotion.model';
-import { ToastMessageService } from '../../../core/services/toast-message.service';
 import { ConfirmationDialogService } from '../../../core/services/confirmation-dialog.service';
 import { BaseAdminListComponent } from '../../../shared/base/base-admin-list.component';
 
@@ -35,15 +33,13 @@ export class AdminPromotionsComponent extends BaseAdminListComponent implements 
   promotions: Promotion[] = [];
   paginatedPromotions: Promotion[] = [];
 
-  // Status filter
-  statusFilter: 'all' | 'active' | 'expired' | 'scheduled' = 'all';
+  // Override status filter type for promotions (different from default active/inactive)
+  override statusFilter: string = 'all';
 
   // Services
   private promotionService = inject(PromotionService);
-  private toast = inject(ToastMessageService);
   private confirmationService = inject(ConfirmationService);
   private confirmDialog = inject(ConfirmationDialogService);
-  private router = inject(Router);
   private translateService = inject(TranslateService);
   private currencyService = inject(CurrencyService);
   private destroyRef = inject(DestroyRef);
@@ -57,23 +53,16 @@ export class AdminPromotionsComponent extends BaseAdminListComponent implements 
     return !!(this.searchQuery?.trim() || this.statusFilter !== 'all');
   }
 
-  // Status filter methods
-  onStatusFilterChange(status: 'all' | 'active' | 'expired' | 'scheduled') {
-    this.statusFilter = status;
-    this.first = 0;
-    this.filterItems();
-  }
-
   getActiveCount(): number {
-    return this.allPromotions.filter(p => this.getPromotionStatus(p) === 'active').length;
+    return this.getCountByPredicate(this.allPromotions, p => this.getPromotionStatus(p) === 'active');
   }
 
   getExpiredCount(): number {
-    return this.allPromotions.filter(p => this.getPromotionStatus(p) === 'expired').length;
+    return this.getCountByPredicate(this.allPromotions, p => this.getPromotionStatus(p) === 'expired');
   }
 
   getScheduledCount(): number {
-    return this.allPromotions.filter(p => this.getPromotionStatus(p) === 'scheduled').length;
+    return this.getCountByPredicate(this.allPromotions, p => this.getPromotionStatus(p) === 'scheduled');
   }
 
   getPromotionStatus(promotion: Promotion): 'active' | 'expired' | 'scheduled' | 'inactive' {
@@ -101,27 +90,21 @@ export class AdminPromotionsComponent extends BaseAdminListComponent implements 
   // === Data loading ===
 
   loadAllPromotions() {
-    this.loading = true;
-
-    this.promotionService.getAllPromotions().subscribe({
-      next: (promotions) => {
+    this.loadData(
+      () => this.promotionService.getAllPromotions(),
+      (promotions) => {
         this.allPromotions = promotions;
         this.promotions = promotions;
         this.updatePaginatedItems();
-        this.loading = false;
       },
-      error: (error) => {
-        console.error('Error loading promotions:', error);
-        this.loading = false;
-        this.toast.showError('admin.promotions.load_error');
-      }
-    });
+      'admin.promotions.load_error'
+    );
   }
 
   filterItems(): void {
     let filtered = [...this.allPromotions];
 
-    // Status filter
+    // Status filter (custom for promotions: active/expired/scheduled)
     if (this.statusFilter !== 'all') {
       filtered = filtered.filter(p => this.getPromotionStatus(p) === this.statusFilter);
     }
@@ -148,11 +131,11 @@ export class AdminPromotionsComponent extends BaseAdminListComponent implements 
   }
 
   createNewPromotion() {
-    this.router.navigate([ROUTES.ADMIN.ADD_PROMOTION]);
+    this.baseRouter.navigate([ROUTES.ADMIN.ADD_PROMOTION]);
   }
 
   editPromotion(promotion: Promotion) {
-    this.router.navigate([RouteHelpers.adminEditPromotion(promotion.id)]);
+    this.baseRouter.navigate([RouteHelpers.adminEditPromotion(promotion.id)]);
   }
 
   confirmDeletePromotion(promotion: Promotion) {
@@ -164,17 +147,14 @@ export class AdminPromotionsComponent extends BaseAdminListComponent implements 
   }
 
   deletePromotion(promotion: Promotion) {
-    this.promotionService.deletePromotion(promotion.id).subscribe({
-      next: () => {
-        this.toast.showSuccess('admin.promotions.delete_success');
-        this.allPromotions = this.allPromotions.filter(p => p.id !== promotion.id);
-        this.filterItems();
-      },
-      error: (error) => {
-        console.error('Error deleting promotion:', error);
-        this.toast.showApiError(error, 'admin.promotions.delete_failed');
-      }
-    });
+    this.handleDelete(
+      () => this.promotionService.deletePromotion(promotion.id),
+      this.allPromotions,
+      promotion.id,
+      (updated) => { this.allPromotions = updated; },
+      'admin.promotions.delete_success',
+      'admin.promotions.delete_failed'
+    );
   }
 
   refreshPromotionData() {

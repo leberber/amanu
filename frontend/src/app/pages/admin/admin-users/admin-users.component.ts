@@ -1,6 +1,5 @@
 // src/app/pages/admin/admin-users/admin-users.component.ts
 import { Component, OnInit, inject, DestroyRef } from '@angular/core';
-import { Router } from '@angular/router';
 import { ConfirmationService } from 'primeng/api';
 import { SelectModule } from 'primeng/select';
 import { TranslateService } from '@ngx-translate/core';
@@ -8,7 +7,6 @@ import { TranslateService } from '@ngx-translate/core';
 import { ADMIN_CORE_IMPORTS, ADMIN_DIALOG_IMPORTS } from '../../../shared/imports/admin-shared.imports';
 import { ROUTES } from '../../../core/constants/routes.constants';
 import { onLanguageChange } from '../../../core/utils/language-change.util';
-import { ToastMessageService } from '../../../core/services/toast-message.service';
 import { AdminService } from '../../../services/admin.service';
 import { UserManage, UsersResponse } from '../../../models/admin.model';
 import { BaseAdminListComponent } from '../../../shared/base/base-admin-list.component';
@@ -35,7 +33,7 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
   users: UserManage[] = [];
   totalRecords = 0;
 
-  // Role segment filter
+  // Role segment filter (different from status filter)
   roleFilter: 'all' | 'customer' | 'staff' | 'admin' = 'all';
 
   // Inline editing state
@@ -47,8 +45,6 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
 
   // Services
   private adminService = inject(AdminService);
-  private toast = inject(ToastMessageService);
-  private router = inject(Router);
   private translateService = inject(TranslateService);
   private confirmationService = inject(ConfirmationService);
   private confirmDialog = inject(ConfirmationDialogService);
@@ -89,10 +85,10 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
     this.loading = false;
 
     if (error.status === 403) {
-      this.toast.showPermissionDenied();
-      this.router.navigate([ROUTES.HOME]);
+      this.baseToast.showPermissionDenied();
+      this.baseRouter.navigate([ROUTES.HOME]);
     } else {
-      this.toast.showError('admin.users.load_error');
+      this.baseToast.showError('admin.users.load_error');
     }
 
     this.allUsers = [];
@@ -108,15 +104,15 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
   }
 
   getCustomerCount(): number {
-    return this.allUsers.filter(u => u.role === 'customer').length;
+    return this.getCountByPredicate(this.allUsers, u => u.role === 'customer');
   }
 
   getStaffCount(): number {
-    return this.allUsers.filter(u => u.role === 'staff').length;
+    return this.getCountByPredicate(this.allUsers, u => u.role === 'staff');
   }
 
   getAdminCount(): number {
-    return this.allUsers.filter(u => u.role === 'admin').length;
+    return this.getCountByPredicate(this.allUsers, u => u.role === 'admin');
   }
 
   // === Abstract method implementations ===
@@ -166,7 +162,7 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
   // ===== NAVIGATION =====
 
   navigateToEditUser(user: UserManage): void {
-    this.router.navigate([ROUTES.ADMIN.USERS, user.id, 'edit']);
+    this.baseRouter.navigate([ROUTES.ADMIN.USERS, user.id, 'edit']);
   }
 
   // ===== USER DELETION =====
@@ -180,17 +176,14 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
   }
 
   private deleteUser(user: UserManage): void {
-    this.adminService.deleteUser(user.id).subscribe({
-      next: () => {
-        this.allUsers = this.allUsers.filter(u => u.id !== user.id);
-        this.filterItems();
-        this.toast.showSuccess('admin.users.messages.user_deleted_detail', { name: user.full_name });
-      },
-      error: (error) => {
-        console.error('Error deleting user:', error);
-        this.toast.showApiError(error, 'admin.users.messages.deletion_failed_detail');
-      }
-    });
+    this.handleDelete(
+      () => this.adminService.deleteUser(user.id),
+      this.allUsers,
+      user.id,
+      (updated) => { this.allUsers = updated; },
+      'admin.users.messages.user_deleted_detail',
+      'admin.users.messages.deletion_failed_detail'
+    );
   }
 
   // ===== INLINE ROLE EDITING =====
@@ -229,12 +222,12 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
           this.users[displayIndex].role = newRole;
         }
 
-        this.toast.showSuccess('admin.users.messages.role_updated', { name: user.full_name });
+        this.baseToast.showSuccess('admin.users.messages.role_updated', { name: user.full_name });
         this.roleEdit.cancel();
       },
       error: (error) => {
         console.error('Error updating role:', error);
-        this.toast.showError('admin.users.messages.update_failed_detail');
+        this.baseToast.showError('admin.users.messages.update_failed_detail');
       }
     });
   }
@@ -283,12 +276,12 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
           this.users[displayIndex].is_active = newStatus;
         }
 
-        this.toast.showSuccess('admin.users.messages.status_updated', { name: user.full_name });
+        this.baseToast.showSuccess('admin.users.messages.status_updated', { name: user.full_name });
         this.statusEdit.cancel();
       },
       error: (error) => {
         console.error('Error updating status:', error);
-        this.toast.showError('admin.users.messages.update_failed_detail');
+        this.baseToast.showError('admin.users.messages.update_failed_detail');
       }
     });
   }
@@ -300,6 +293,6 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
   }
 
   exportUsers(): void {
-    this.toast.showInfo('admin.users.export_coming_soon');
+    this.baseToast.showInfo('admin.users.export_coming_soon');
   }
 }

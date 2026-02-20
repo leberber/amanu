@@ -1,6 +1,5 @@
 // src/app/pages/admin/admin-brands/admin-brands.component.ts
 import { Component, OnInit, inject, DestroyRef } from '@angular/core';
-import { Router } from '@angular/router';
 import { ConfirmationService } from 'primeng/api';
 import { CardModule } from 'primeng/card';
 
@@ -12,7 +11,6 @@ import { BrandService } from '../../../core/services/brand.service';
 import { ProductService } from '../../../services/product.service';
 import { TranslationHelperService } from '../../../core/services/translation-helper.service';
 import { Brand } from '../../../models/brand.model';
-import { ToastMessageService } from '../../../core/services/toast-message.service';
 import { ConfirmationDialogService } from '../../../core/services/confirmation-dialog.service';
 import { BaseAdminListComponent } from '../../../shared/base/base-admin-list.component';
 
@@ -35,19 +33,14 @@ export class AdminBrandsComponent extends BaseAdminListComponent implements OnIn
   // Override default rows
   override rows = 12;
 
-  // Status filter
-  statusFilter: 'all' | 'active' | 'inactive' = 'all';
-
   // Product counts per brand
   brandProductCounts: { [brandId: number]: number } = {};
 
   // Services
   private brandService = inject(BrandService);
   private productService = inject(ProductService);
-  private toast = inject(ToastMessageService);
   private confirmationService = inject(ConfirmationService);
   private confirmDialog = inject(ConfirmationDialogService);
-  private router = inject(Router);
   private translationHelper = inject(TranslationHelperService);
   private translateService = inject(TranslateService);
   private destroyRef = inject(DestroyRef);
@@ -62,49 +55,33 @@ export class AdminBrandsComponent extends BaseAdminListComponent implements OnIn
   }
 
   loadAllBrands() {
-    this.loading = true;
-
-    this.brandService.getBrands(false).subscribe({
-      next: (brands) => {
+    this.loadData(
+      () => this.brandService.getBrands(false),
+      (brands) => {
         this.allBrands = brands;
         this.brands = brands;
         this.loadProductCounts();
         this.updatePaginatedItems();
-        this.loading = false;
       },
-      error: (error) => {
-        console.error('Error loading brands:', error);
-        this.loading = false;
-        this.toast.showError('admin.brands.load_error');
-      }
-    });
+      'admin.brands.load_error'
+    );
   }
 
   loadProductCounts() {
     this.allBrands.forEach(brand => {
-      this.productService.getProductsByBrand(brand.id, false).subscribe({
-        next: (products) => {
-          this.brandProductCounts[brand.id] = products.length;
-        },
-        error: (error) => {
-          console.error(`Error loading products for brand ${brand.id}:`, error);
-          this.brandProductCounts[brand.id] = 0;
-        }
-      });
+      this.loadDataSilent(
+        () => this.productService.getProductsByBrand(brand.id, false),
+        (products) => { this.brandProductCounts[brand.id] = products.length; },
+        () => { this.brandProductCounts[brand.id] = 0; }
+      );
     });
   }
 
   // === Abstract method implementations ===
 
   filterItems(): void {
-    let filtered = [...this.allBrands];
-
-    // Apply status filter
-    if (this.statusFilter === 'active') {
-      filtered = filtered.filter(brand => brand.is_active);
-    } else if (this.statusFilter === 'inactive') {
-      filtered = filtered.filter(brand => !brand.is_active);
-    }
+    // Apply status filter using base class helper
+    let filtered = this.filterByActiveStatus(this.allBrands);
 
     // Apply search filter
     if (this.hasSearchQuery()) {
@@ -130,11 +107,6 @@ export class AdminBrandsComponent extends BaseAdminListComponent implements OnIn
 
   // === Component-specific methods ===
 
-  onStatusFilterChange(status: 'all' | 'active' | 'inactive') {
-    this.statusFilter = status;
-    this.filterItems();
-  }
-
   getBrandProductCount(brandId: number): number {
     return this.brandProductCounts[brandId] || 0;
   }
@@ -146,11 +118,11 @@ export class AdminBrandsComponent extends BaseAdminListComponent implements OnIn
   }
 
   createNewBrand() {
-    this.router.navigate([ROUTES.ADMIN.ADD_BRAND]);
+    this.baseRouter.navigate([ROUTES.ADMIN.ADD_BRAND]);
   }
 
   editBrand(brand: Brand) {
-    this.router.navigate([RouteHelpers.adminEditBrand(brand.id)]);
+    this.baseRouter.navigate([RouteHelpers.adminEditBrand(brand.id)]);
   }
 
   confirmDeleteBrand(brand: Brand) {
@@ -162,17 +134,14 @@ export class AdminBrandsComponent extends BaseAdminListComponent implements OnIn
   }
 
   deleteBrand(brand: Brand) {
-    this.brandService.deleteBrand(brand.id).subscribe({
-      next: () => {
-        this.toast.showSuccess('admin.brands.delete_success');
-        this.allBrands = this.allBrands.filter(b => b.id !== brand.id);
-        this.filterItems();
-      },
-      error: (error) => {
-        console.error('Error deleting brand:', error);
-        this.toast.showApiError(error, 'admin.brands.delete_failed');
-      }
-    });
+    this.handleDelete(
+      () => this.brandService.deleteBrand(brand.id),
+      this.allBrands,
+      brand.id,
+      (updated) => { this.allBrands = updated; },
+      'admin.brands.delete_success',
+      'admin.brands.delete_failed'
+    );
   }
 
   refreshBrandData() {
@@ -188,10 +157,10 @@ export class AdminBrandsComponent extends BaseAdminListComponent implements OnIn
   }
 
   getActiveCount(): number {
-    return this.allBrands.filter(b => b.is_active).length;
+    return this.getCountByPredicate(this.allBrands, b => b.is_active);
   }
 
   getInactiveCount(): number {
-    return this.allBrands.filter(b => !b.is_active).length;
+    return this.getCountByPredicate(this.allBrands, b => !b.is_active);
   }
 }

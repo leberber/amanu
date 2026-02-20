@@ -1,6 +1,5 @@
 // src/app/pages/admin/admin-orders/admin-orders.component.ts
 import { Component, OnInit, inject, DestroyRef } from '@angular/core';
-import { Router } from '@angular/router';
 import { ConfirmationService } from 'primeng/api';
 import { TranslateService } from '@ngx-translate/core';
 
@@ -13,7 +12,6 @@ import { ProductService } from '../../../services/product.service';
 import { TranslationHelperService } from '../../../core/services/translation-helper.service';
 import { UnitsService } from '../../../core/services/units.service';
 import { StatusSeverityService } from '../../../core/services/status-severity.service';
-import { ToastMessageService } from '../../../core/services/toast-message.service';
 import { BaseAdminListComponent } from '../../../shared/base/base-admin-list.component';
 
 @Component({
@@ -34,8 +32,8 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
   users: any[] = [];
   products: any[] = [];
 
-  // Status filter
-  statusFilter: 'all' | 'pending' | 'confirmed' | 'shipped' | 'delivered' | 'cancelled' = 'all';
+  // Override status filter type for orders
+  override statusFilter: string = 'all';
 
   selectedOrder: Order | null = null;
   displayOrderDialog = false;
@@ -45,9 +43,7 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
 
   // Services
   private adminService = inject(AdminService);
-  private toast = inject(ToastMessageService);
   private confirmationService = inject(ConfirmationService);
-  private router = inject(Router);
   private translateService = inject(TranslateService);
   private productService = inject(ProductService);
   private translationHelper = inject(TranslationHelperService);
@@ -62,14 +58,10 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
   }
 
   loadProducts() {
-    this.productService.getProducts().subscribe({
-      next: (products) => {
-        this.products = products || [];
-      },
-      error: (error) => {
-        console.error('Error loading products:', error);
-      }
-    });
+    this.loadDataSilent(
+      () => this.productService.getProducts(),
+      (products) => { this.products = products || []; }
+    );
   }
 
   loadUsersAndOrders() {
@@ -96,31 +88,24 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
     return !!(this.searchQuery?.trim() || this.statusFilter !== 'all');
   }
 
-  // Status filter methods
-  onStatusFilterChange(status: 'all' | 'pending' | 'confirmed' | 'shipped' | 'delivered' | 'cancelled') {
-    this.statusFilter = status;
-    this.first = 0;
-    this.filterItems();
-  }
-
   getPendingCount(): number {
-    return this.allOrders.filter(o => o.status === 'pending').length;
+    return this.getCountByPredicate(this.allOrders, o => o.status === 'pending');
   }
 
   getConfirmedCount(): number {
-    return this.allOrders.filter(o => o.status === 'confirmed').length;
+    return this.getCountByPredicate(this.allOrders, o => o.status === 'confirmed');
   }
 
   getShippedCount(): number {
-    return this.allOrders.filter(o => o.status === 'shipped').length;
+    return this.getCountByPredicate(this.allOrders, o => o.status === 'shipped');
   }
 
   getDeliveredCount(): number {
-    return this.allOrders.filter(o => o.status === 'delivered').length;
+    return this.getCountByPredicate(this.allOrders, o => o.status === 'delivered');
   }
 
   getCancelledCount(): number {
-    return this.allOrders.filter(o => o.status === 'cancelled').length;
+    return this.getCountByPredicate(this.allOrders, o => o.status === 'cancelled');
   }
 
   // === Abstract method implementations ===
@@ -153,10 +138,10 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
         this.loading = false;
 
         if (error.status === 403) {
-          this.toast.showPermissionDenied();
-          this.router.navigate([ROUTES.HOME]);
+          this.baseToast.showPermissionDenied();
+          this.baseRouter.navigate([ROUTES.HOME]);
         } else {
-          this.toast.showError('admin.orders.load_error');
+          this.baseToast.showError('admin.orders.load_error');
         }
 
         this.allOrders = [];
@@ -168,7 +153,7 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
   filterItems(): void {
     let filtered = [...this.allOrders];
 
-    // Status filter
+    // Status filter (custom for orders: pending/confirmed/shipped/delivered/cancelled)
     if (this.statusFilter !== 'all') {
       filtered = filtered.filter(order => order.status === this.statusFilter);
     }
@@ -203,7 +188,7 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
   }
 
   exportOrders() {
-    this.toast.showInfo('admin.orders.export_coming_soon');
+    this.baseToast.showInfo('admin.orders.export_coming_soon');
   }
 
   openOrderDetails(order: Order) {
@@ -256,7 +241,7 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
 
             this.filterItems();
 
-            this.toast.showSuccess('admin.orders.status_update_message', {
+            this.baseToast.showSuccess('admin.orders.status_update_message', {
               orderId: orderId,
               status: this.translateService.instant('admin.orders.status.' + newStatus)
             });
@@ -267,7 +252,7 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
           },
           error: (error) => {
             console.error('Error updating order status:', error);
-            this.toast.showApiError(error, 'admin.orders.update_error');
+            this.baseToast.showApiError(error, 'admin.orders.update_error');
           }
         });
       }
