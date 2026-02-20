@@ -97,7 +97,7 @@ export interface DashboardStats {
     updated_at?: string;
   }
 
-  // NEW: Add consistent response models
+  // Consistent response models
   export interface UsersResponse {
     users: UserManage[];
     total: number;

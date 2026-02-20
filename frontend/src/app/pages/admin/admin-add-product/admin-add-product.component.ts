@@ -27,7 +27,7 @@ import { ChipModule } from 'primeng/chip';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 
-// 🆕 UPDATED: Extended Product interface to include translations
+// Extended Product interface to include translations
 interface ProductWithTranslations extends Product {
   name_translations?: { [key: string]: string };
   description_translations?: { [key: string]: string };

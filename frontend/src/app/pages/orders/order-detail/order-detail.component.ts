@@ -54,8 +54,8 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private orderService = inject(OrderService);
-  private productService = inject(ProductService); // 🆕 ADD THIS
-  private translationService = inject(TranslationService); // 🆕 ADD THIS
+  private productService = inject(ProductService);
+  private translationService = inject(TranslationService);
   private toast = inject(ToastMessageService);
   private translateService = inject(TranslateService);
   private currencyService = inject(CurrencyService);
@@ -120,7 +120,7 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
       
       if (orderData) {
         this.generateOrderStatusTimeline(orderData);
-        // 🆕 Load translated names after order is loaded
+        // Load translated names after order is loaded
         this.loadTranslatedNames();
       }
     });
@@ -130,7 +130,7 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
     // Subscriptions are automatically cleaned up by takeUntilDestroyed
   }
 
-  // 🆕 NEW: Load translated names for order items
+  // Load translated names for order items
   private loadTranslatedNames(): void {
     const currentOrder = this.order();
     if (!currentOrder || !currentOrder.items || currentOrder.items.length === 0) {

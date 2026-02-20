@@ -25,7 +25,7 @@ export class ProductService {
     return this.apiService.delete<void>(`/products/${productId}`);
   }
 
-  // 🌍 UPDATED: Automatically include language parameter
+  // Automatically include language parameter
   getProducts(filters?: ProductFilter): Observable<Product[]> {
     const params: any = {
       lang: this.translationService.getCurrentLanguage() // Add current language
@@ -42,7 +42,7 @@ export class ProductService {
     return this.apiService.get<Product[]>('/products', { params });
   }
 
-  // 🌍 UPDATED: Include language parameter
+  // Include language parameter
   getProduct(id: number): Observable<Product> {
     const params = {
       lang: this.translationService.getCurrentLanguage()
@@ -50,7 +50,7 @@ export class ProductService {
     return this.apiService.get<Product>(`/products/${id}`, { params });
   }
 
-  // 🌍 UPDATED: Include language parameter
+  // Include language parameter
   getProductsByCategory(categoryId: number, activeOnly = true): Observable<Product[]> {
     const params = {
       active_only: activeOnly,
@@ -84,7 +84,7 @@ export class ProductService {
     return this.apiService.delete<void>(`/categories/${categoryId}`);
   }
 
-  // 🌍 UPDATED: Include language parameter for categories
+  // Include language parameter for categories
   getCategories(activeOnly = false): Observable<Category[]> {
     const params = { 
       active_only: activeOnly,
@@ -93,7 +93,7 @@ export class ProductService {
     return this.apiService.get<Category[]>('/categories', { params });
   }
 
-  // 🌍 UPDATED: Include language parameter
+  // Include language parameter
   getCategory(id: number): Observable<Category> {
     const params = {
       lang: this.translationService.getCurrentLanguage()
@@ -101,7 +101,7 @@ export class ProductService {
     return this.apiService.get<Category>(`/categories/${id}`, { params });
   }
 
-  // 🆕 NEW: Method to refresh data when language changes
+  // Method to refresh data when language changes
   refreshDataForLanguage(): void {
     // This can be called when language changes to refresh any cached data
   }

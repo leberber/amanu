@@ -20,7 +20,7 @@ import { VALIDATION } from '../../../core/constants/app.constants';
 import { AdminFormService } from '../../../core/services/admin-form.service';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
 
-// 🆕 UPDATED: Extended Category interface to include translations
+// Extended Category interface to include translations
 interface CategoryWithTranslations extends Category {
   name_translations?: { [key: string]: string };
   description_translations?: { [key: string]: string };
@@ -49,12 +49,12 @@ export class AdminAddCategoryComponent implements OnInit {
   loading = signal(false);
   categoryForm!: FormGroup;
 
-  // NEW: Add page-based properties
+  // Page-based properties
   isEditMode = signal(false);
   editCategoryId: number | null = null;
   currentCategory: CategoryWithTranslations | null = null;
 
-  // NEW: Computed properties for page mode
+  // Computed properties for page mode
   get pageTitle(): string {
     return this.isEditMode() ? 'admin.categories.edit_category' : 'admin.categories.add_category';
   }
@@ -84,7 +84,7 @@ export class AdminAddCategoryComponent implements OnInit {
     this.detectMode();
   }
 
-  // NEW: Mode detection method
+  // Mode detection method
   detectMode() {
     const routeData = this.route.snapshot.data;
     if (routeData['mode'] === 'edit') {
@@ -152,7 +152,7 @@ export class AdminAddCategoryComponent implements OnInit {
     }
   }
 
-  // NEW: Navigation method for page mode
+  // Navigation method for page mode
   goBackToCategoriesList() {
     this.router.navigate([ROUTES.ADMIN.CATEGORIES]);
   }

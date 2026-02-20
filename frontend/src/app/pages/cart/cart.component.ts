@@ -193,7 +193,7 @@ export class CartComponent implements OnInit, OnDestroy {
         });
         this.loading.set(false);
         
-        // 🆕 Load translated names after loading cart
+        // Load translated names after loading cart
         if (items.length > 0) {
           this.loadTranslatedNames();
         }

@@ -1,7 +1,7 @@
-import { Component, OnInit, OnDestroy, signal, computed, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, computed, inject, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 // PrimeNG imports
 import { ButtonModule } from 'primeng/button';
@@ -54,7 +54,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private readonly cartService = inject(CartService);
   private readonly translationService = inject(TranslationService);
   private readonly translateService = inject(TranslateService);
-  
+  private readonly destroyRef = inject(DestroyRef);
+
   // State signals
   menuVisible = signal(false);
   isDarkMode = signal(false);
@@ -63,9 +64,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
   mobileItems = signal<MenuItem[]>([]);
   userMenuItems = signal<MenuItem[]>([]);
   cartItems = signal<any[]>([]);
-  
-  // Subscriptions
-  private subscriptions: Subscription[] = [];
   
   // Computed values
   isAdmin = computed(() => this.authService.isAdminOrStaff());
@@ -88,7 +86,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.subscriptions.forEach(sub => sub.unsubscribe());
+    // Subscriptions are automatically cleaned up by takeUntilDestroyed
   }
 
   // Initialization methods
@@ -98,27 +96,27 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   private setupSubscriptions(): void {
-    // User changes subscription
-    this.subscriptions.push(
-      this.authService.currentUser$.subscribe(user => {
+    // User changes subscription - automatically cleaned up on destroy
+    this.authService.currentUser$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(user => {
         this.currentUser.set(user);
         this.buildMenus();
-      })
-    );
+      });
 
-    // Language changes subscription
-    this.subscriptions.push(
-      this.translationService.currentLanguage$.subscribe(() => {
+    // Language changes subscription - automatically cleaned up on destroy
+    this.translationService.currentLanguage$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
         this.buildMenus();
-      })
-    );
+      });
 
-    // Cart items subscription
-    this.subscriptions.push(
-      this.cartService.cartItems$.subscribe(items => {
+    // Cart items subscription - automatically cleaned up on destroy
+    this.cartService.cartItems$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(items => {
         this.cartItems.set(items || []);
-      })
-    );
+      });
   }
 
   private loadInitialData(): void {
