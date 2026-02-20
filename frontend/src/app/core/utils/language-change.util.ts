@@ -3,7 +3,7 @@
  * Provides a standardized way to subscribe to language changes with proper cleanup.
  */
 
-import { DestroyRef, inject } from '@angular/core';
+import { DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TranslateService } from '@ngx-translate/core';
 
@@ -14,18 +14,22 @@ import { TranslateService } from '@ngx-translate/core';
  * Usage in component:
  * ```typescript
  * export class MyComponent {
- *   constructor() {
- *     onLanguageChange(() => {
+ *   private translateService = inject(TranslateService);
+ *   private destroyRef = inject(DestroyRef);
+ *
+ *   ngOnInit() {
+ *     onLanguageChange(this.translateService, this.destroyRef, () => {
  *       this.filterItems();
  *     });
  *   }
  * }
  * ```
  */
-export function onLanguageChange(callback: () => void): void {
-  const translateService = inject(TranslateService);
-  const destroyRef = inject(DestroyRef);
-
+export function onLanguageChange(
+  translateService: TranslateService,
+  destroyRef: DestroyRef,
+  callback: () => void
+): void {
   translateService.onLangChange
     .pipe(takeUntilDestroyed(destroyRef))
     .subscribe(() => callback());

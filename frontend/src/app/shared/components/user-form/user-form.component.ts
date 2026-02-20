@@ -1,5 +1,5 @@
 // src/app/shared/components/user-form/user-form.component.ts
-import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges, inject } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges, inject, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
@@ -8,6 +8,7 @@ import { SelectModule } from 'primeng/select';
 import { CheckboxModule } from 'primeng/checkbox';
 import { ButtonModule } from 'primeng/button';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { onLanguageChange } from '../../../core/utils/language-change.util';
 import { ValidationMessagesService } from '../../../core/services/validation-messages.service';
 import { VALIDATION } from '../../../core/constants/app.constants';
 
@@ -73,6 +74,7 @@ export class UserFormComponent implements OnInit, OnChanges {
   private fb = inject(FormBuilder);
   private translateService = inject(TranslateService);
   private formValidation = inject(ValidationMessagesService);
+  private destroyRef = inject(DestroyRef);
   
   ngOnInit(): void {
     this.userForm = this.createForm();
@@ -83,8 +85,8 @@ export class UserFormComponent implements OnInit, OnChanges {
     if (this.initialData) {
       this.userForm.patchValue(this.initialData);
     }
-    
-    this.translateService.onLangChange.subscribe(() => {
+
+    onLanguageChange(this.translateService, this.destroyRef, () => {
       this.currentLang = this.translateService.currentLang;
       this.initializeRoleOptions();
     });

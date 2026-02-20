@@ -1,23 +1,18 @@
 // src/app/pages/admin/admin-users/admin-users.component.ts
-import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { Component, OnInit, inject, DestroyRef } from '@angular/core';
 import { Router } from '@angular/router';
-
-import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
-import { ToastModule } from 'primeng/toast';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
-import { ToastMessageService } from '../../../core/services/toast-message.service';
 import { SelectModule } from 'primeng/select';
-import { TooltipModule } from 'primeng/tooltip';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
 
+import { ADMIN_CORE_IMPORTS, ADMIN_DIALOG_IMPORTS } from '../../../shared/imports/admin-shared.imports';
+import { ROUTES } from '../../../core/constants/routes.constants';
+import { onLanguageChange } from '../../../core/utils/language-change.util';
+import { ToastMessageService } from '../../../core/services/toast-message.service';
 import { AdminService } from '../../../services/admin.service';
 import { UserManage, UsersResponse } from '../../../models/admin.model';
-import { ROUTES } from '../../../core/constants/routes.constants';
 import { BaseAdminListComponent } from '../../../shared/base/base-admin-list.component';
+import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
 import { InlineEditState } from '../../../shared/utils/inline-edit-state';
 import { ConfirmationDialogService } from '../../../core/services/confirmation-dialog.service';
 
@@ -25,15 +20,10 @@ import { ConfirmationDialogService } from '../../../core/services/confirmation-d
   selector: 'app-admin-users',
   standalone: true,
   imports: [
-    CommonModule,
-    FormsModule,
-    ButtonModule,
-    InputTextModule,
-    ToastModule,
-    ConfirmDialogModule,
+    ...ADMIN_CORE_IMPORTS,
+    ...ADMIN_DIALOG_IMPORTS,
     SelectModule,
-    TooltipModule,
-    TranslateModule
+    DateFormatPipe
   ],
   providers: [ConfirmationService],
   templateUrl: './admin-users.component.html',
@@ -62,15 +52,12 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
   private translateService = inject(TranslateService);
   private confirmationService = inject(ConfirmationService);
   private confirmDialog = inject(ConfirmationDialogService);
+  private destroyRef = inject(DestroyRef);
 
   ngOnInit(): void {
     this.initializeOptions();
     this.loadAllUsers();
-
-    // Update options when language changes
-    this.translateService.onLangChange.subscribe(() => {
-      this.initializeOptions();
-    });
+    onLanguageChange(this.translateService, this.destroyRef, () => this.initializeOptions());
   }
 
   initializeOptions() {
@@ -103,7 +90,7 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
 
     if (error.status === 403) {
       this.toast.showPermissionDenied();
-      this.router.navigate(['/']);
+      this.router.navigate([ROUTES.HOME]);
     } else {
       this.toast.showError('admin.users.load_error');
     }

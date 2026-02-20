@@ -18,6 +18,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { BackButtonComponent } from '../../shared/components/back-button/back-button.component';
 import { Subscription } from 'rxjs';
 
+import { ROUTES, RouteHelpers } from '../../core/constants/routes.constants';
 import { AuthService } from '../../services/auth.service';
 import { CartService, CartItem } from '../../services/cart.service';
 import { OrderService } from '../../services/order.service';
@@ -102,17 +103,17 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     
     if (!this.currentUser) {
       this.toast.showError('checkout.auth_required_message');
-      this.router.navigate(['/login'], { queryParams: { returnUrl: '/checkout' }});
+      this.router.navigate([ROUTES.LOGIN], { queryParams: { returnUrl: ROUTES.CHECKOUT }});
       return;
     }
-    
+
     // Get cart items
     this.cartService.getCartItems().subscribe(items => {
       this.cartItems = items;
 
       if (items.length === 0) {
         this.toast.showInfo('checkout.empty_cart_message');
-        this.router.navigate(['/products']);
+        this.router.navigate([ROUTES.PRODUCTS]);
         return;
       }
 
@@ -200,7 +201,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
         // Clear cart and promotion after successful order
         this.cartService.clearCartAndPromotion().subscribe(() => {
           setTimeout(() => {
-            this.router.navigate(['/orders', order.id], {
+            this.router.navigate([RouteHelpers.orderDetail(order.id)], {
               queryParams: { success: 'true' }
             });
           }, 1500);

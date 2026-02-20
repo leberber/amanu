@@ -1,24 +1,13 @@
 // src/app/pages/admin/admin-categories/admin-categories.component.ts
-import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { Component, OnInit, inject, DestroyRef } from '@angular/core';
 import { Router } from '@angular/router';
-
-import { TableModule } from 'primeng/table';
-import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
-import { InputTextModule } from 'primeng/inputtext';
-import { ToastModule } from 'primeng/toast';
-import { TagModule } from 'primeng/tag';
-import { PaginatorModule } from 'primeng/paginator';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
-import { IconFieldModule } from 'primeng/iconfield';
-import { InputIconModule } from 'primeng/inputicon';
-import { TooltipModule } from 'primeng/tooltip';
-import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { CardModule } from 'primeng/card';
 
+import { TranslateService } from '@ngx-translate/core';
+import { ADMIN_LIST_IMPORTS } from '../../../shared/imports/admin-shared.imports';
+import { ROUTES, RouteHelpers } from '../../../core/constants/routes.constants';
+import { onLanguageChange } from '../../../core/utils/language-change.util';
 import { ProductService } from '../../../services/product.service';
 import { TranslationHelperService } from '../../../core/services/translation-helper.service';
 import { Category } from '../../../models/category.model';
@@ -30,21 +19,8 @@ import { BaseAdminListComponent } from '../../../shared/base/base-admin-list.com
   selector: 'app-admin-categories',
   standalone: true,
   imports: [
-    CommonModule,
-    FormsModule,
-    TableModule,
-    ButtonModule,
-    CardModule,
-    InputTextModule,
-    ToastModule,
-    TagModule,
-    PaginatorModule,
-    ConfirmDialogModule,
-    IconFieldModule,
-    InputIconModule,
-    TooltipModule,
-    ProgressSpinnerModule,
-    TranslateModule
+    ...ADMIN_LIST_IMPORTS,
+    CardModule
   ],
   providers: [ConfirmationService],
   templateUrl: './admin-categories.component.html',
@@ -70,17 +46,13 @@ export class AdminCategoriesComponent extends BaseAdminListComponent implements 
   private confirmationService = inject(ConfirmationService);
   private confirmDialog = inject(ConfirmationDialogService);
   private router = inject(Router);
-  private translateService = inject(TranslateService);
   private translationHelper = inject(TranslationHelperService);
+  private translateService = inject(TranslateService);
+  private destroyRef = inject(DestroyRef);
 
   ngOnInit() {
     this.loadAllCategories();
-    
-    // Subscribe to language changes
-    this.translateService.onLangChange.subscribe(() => {
-      // Force re-render to update translations
-      this.filterItems();
-    });
+    onLanguageChange(this.translateService, this.destroyRef, () => this.filterItems());
   }
 
   hasActiveFilters(): boolean {
@@ -171,11 +143,11 @@ export class AdminCategoriesComponent extends BaseAdminListComponent implements 
 
   // Navigation methods
   createNewCategory() {
-    this.router.navigate(['/admin/categories/add']);
+    this.router.navigate([ROUTES.ADMIN.ADD_CATEGORY]);
   }
 
   editCategory(category: Category) {
-    this.router.navigate(['/admin/categories/edit', category.id]);
+    this.router.navigate([RouteHelpers.adminEditCategory(category.id)]);
   }
 
   // Delete confirmation

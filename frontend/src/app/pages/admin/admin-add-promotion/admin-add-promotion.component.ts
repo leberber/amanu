@@ -1,5 +1,5 @@
 // src/app/pages/admin/admin-add-promotion/admin-add-promotion.component.ts
-import { Component, OnInit, signal, inject } from '@angular/core';
+import { Component, OnInit, signal, inject, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -16,6 +16,8 @@ import { DatePickerModule } from 'primeng/datepicker';
 import { DividerModule } from 'primeng/divider';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
+import { ROUTES } from '../../../core/constants/routes.constants';
+import { onLanguageChange } from '../../../core/utils/language-change.util';
 import { PromotionService } from '../../../services/promotion.service';
 import { ProductService } from '../../../services/product.service';
 import { BrandService } from '../../../core/services/brand.service';
@@ -80,6 +82,7 @@ export class AdminAddPromotionComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private translateService = inject(TranslateService);
+  private destroyRef = inject(DestroyRef);
 
   ngOnInit() {
     this.initializeOptions();
@@ -88,11 +91,7 @@ export class AdminAddPromotionComponent implements OnInit {
     this.loadBrands();
     this.loadProducts();
     this.detectMode();
-
-    // Update options when language changes
-    this.translateService.onLangChange.subscribe(() => {
-      this.initializeOptions();
-    });
+    onLanguageChange(this.translateService, this.destroyRef, () => this.initializeOptions());
   }
 
   initializeOptions() {
@@ -260,7 +259,7 @@ export class AdminAddPromotionComponent implements OnInit {
   }
 
   goBackToPromotionsList() {
-    this.router.navigate(['/admin/promotions']);
+    this.router.navigate([ROUTES.ADMIN.PROMOTIONS]);
   }
 
   onSubmit() {

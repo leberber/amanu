@@ -1,7 +1,9 @@
-import { Component, EventEmitter, Input, Output, inject, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject, OnInit, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+
+import { onLanguageChange } from '../../../../core/utils/language-change.util';
 
 // PrimeNG imports
 import { InputTextModule } from 'primeng/inputtext';
@@ -228,6 +230,7 @@ export type SortOption = 'name_asc' | 'name_desc' | 'price_asc' | 'price_desc' |
 })
 export class ProductToolbarComponent implements OnInit {
   private translateService = inject(TranslateService);
+  private destroyRef = inject(DestroyRef);
   @Input() searchQuery = '';
   @Input() sortBy: SortOption = 'name_asc';
 
@@ -240,11 +243,7 @@ export class ProductToolbarComponent implements OnInit {
 
   ngOnInit(): void {
     this.initializeSortOptions();
-    
-    // Re-initialize on language change
-    this.translateService.onLangChange.subscribe(() => {
-      this.initializeSortOptions();
-    });
+    onLanguageChange(this.translateService, this.destroyRef, () => this.initializeSortOptions());
   }
 
   private initializeSortOptions(): void {

@@ -23,6 +23,7 @@ import { VALIDATION } from '../../core/constants/app.constants';
 import { PhoneFormatDirective } from '../../directives/phone-format.directive';
 import { BackButtonComponent } from '../../shared/components/back-button/back-button.component';
 import { ToastMessageService } from '../../core/services/toast-message.service';
+import { DateFormatPipe } from '../../shared/pipes/date-format.pipe';
 
 @Component({
   selector: 'app-account',
@@ -42,7 +43,8 @@ import { ToastMessageService } from '../../core/services/toast-message.service';
     ToggleButtonModule,
     ToggleSwitch,
     PhoneFormatDirective,
-    BackButtonComponent
+    BackButtonComponent,
+    DateFormatPipe
   ],
     templateUrl: './account.component.html',
   styleUrl: './account.component.scss'

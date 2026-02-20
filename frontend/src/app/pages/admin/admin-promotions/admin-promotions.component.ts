@@ -1,36 +1,30 @@
 // src/app/pages/admin/admin-promotions/admin-promotions.component.ts
-import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { Component, OnInit, inject, DestroyRef } from '@angular/core';
 import { Router } from '@angular/router';
+import { ConfirmationService } from 'primeng/api';
+import { TranslateService } from '@ngx-translate/core';
 
-import { ButtonModule } from 'primeng/button';
-import { ToastModule } from 'primeng/toast';
+import { ADMIN_CORE_IMPORTS } from '../../../shared/imports/admin-shared.imports';
 import { PaginatorModule } from 'primeng/paginator';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { ConfirmationService } from 'primeng/api';
-import { TooltipModule } from 'primeng/tooltip';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
-
+import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
 import { ROUTES, RouteHelpers } from '../../../core/constants/routes.constants';
+import { onLanguageChange } from '../../../core/utils/language-change.util';
 import { PromotionService } from '../../../services/promotion.service';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { Promotion } from '../../../models/promotion.model';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
 import { ConfirmationDialogService } from '../../../core/services/confirmation-dialog.service';
 import { BaseAdminListComponent } from '../../../shared/base/base-admin-list.component';
+
 @Component({
   selector: 'app-admin-promotions',
   standalone: true,
   imports: [
-    CommonModule,
-    FormsModule,
-    ButtonModule,
-    ToastModule,
+    ...ADMIN_CORE_IMPORTS,
     PaginatorModule,
     ConfirmDialogModule,
-    TooltipModule,
-    TranslateModule
+    DateFormatPipe
   ],
   providers: [ConfirmationService],
   templateUrl: './admin-promotions.component.html',
@@ -52,13 +46,11 @@ export class AdminPromotionsComponent extends BaseAdminListComponent implements 
   private router = inject(Router);
   private translateService = inject(TranslateService);
   private currencyService = inject(CurrencyService);
+  private destroyRef = inject(DestroyRef);
 
   ngOnInit() {
     this.loadAllPromotions();
-
-    this.translateService.onLangChange.subscribe(() => {
-      this.filterItems();
-    });
+    onLanguageChange(this.translateService, this.destroyRef, () => this.filterItems());
   }
 
   hasActiveFilters(): boolean {

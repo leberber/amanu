@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges, inject, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges, inject, ChangeDetectorRef, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
@@ -7,7 +7,7 @@ import { SelectModule } from 'primeng/select';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { QuantityConfig } from '../../../models/product.model';
 import { UnitsService } from '../../../core/services/units.service';
-import { Subscription } from 'rxjs';
+import { onLanguageChange } from '../../../core/utils/language-change.util';
 
 interface QuantityOption {
   label: string;
@@ -415,11 +415,11 @@ interface QuantityOption {
     }
   `]
 })
-export class ProductQuantitySelectorComponent implements OnInit, OnChanges, OnDestroy {
+export class ProductQuantitySelectorComponent implements OnInit, OnChanges {
   private unitsService = inject(UnitsService);
   private translateService = inject(TranslateService);
   private cdr = inject(ChangeDetectorRef);
-  private langChangeSubscription?: Subscription;
+  private destroyRef = inject(DestroyRef);
   
   // Inputs
   @Input() value: number = 1;
@@ -494,7 +494,7 @@ export class ProductQuantitySelectorComponent implements OnInit, OnChanges, OnDe
     }
     
     // Subscribe to language changes to update unit displays
-    this.langChangeSubscription = this.translateService.onLangChange.subscribe(() => {
+    onLanguageChange(this.translateService, this.destroyRef, () => {
       // Force update of dropdown options when language changes
       this.quantityOptions = [];
       this.initializeSelector();
@@ -811,9 +811,4 @@ export class ProductQuantitySelectorComponent implements OnInit, OnChanges, OnDe
     this.cdr.markForCheck();
   }
 
-  ngOnDestroy(): void {
-    if (this.langChangeSubscription) {
-      this.langChangeSubscription.unsubscribe();
-    }
   }
-}

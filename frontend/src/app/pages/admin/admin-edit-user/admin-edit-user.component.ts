@@ -1,5 +1,5 @@
 // src/app/pages/admin/admin-edit-user/admin-edit-user.component.ts
-import { Component, OnInit, signal, inject } from '@angular/core';
+import { Component, OnInit, signal, inject, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -14,6 +14,7 @@ import { CardModule } from 'primeng/card';
 import { PasswordModule } from 'primeng/password';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
+import { onLanguageChange } from '../../../core/utils/language-change.util';
 import { AdminService } from '../../../services/admin.service';
 import { UserManage } from '../../../models/admin.model';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
@@ -66,6 +67,7 @@ export class AdminEditUserComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private translateService = inject(TranslateService);
+  private destroyRef = inject(DestroyRef);
 
   ngOnInit() {
     this.initForm();
@@ -73,9 +75,7 @@ export class AdminEditUserComponent implements OnInit {
     this.loadStatusOptions();
     this.loadWilayaOptions();
     this.loadUser();
-
-    // Update options on language change
-    this.translateService.onLangChange.subscribe(() => {
+    onLanguageChange(this.translateService, this.destroyRef, () => {
       this.loadRoleOptions();
       this.loadStatusOptions();
     });

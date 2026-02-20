@@ -49,7 +49,7 @@
           </div>
           <div class="strip-content">
             <span class="strip-label">{{ 'account.member_since' | translate }}</span>
-            <span class="strip-value">{{ formatDate(user?.created_at) }}</span>
+            <span class="strip-value">{{ user?.created_at ? (user!.created_at | appDate) : '-' }}</span>
           </div>
         </div>
 

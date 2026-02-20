@@ -13,6 +13,7 @@ import { ToastModule } from 'primeng/toast';
 import { CardModule } from 'primeng/card';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
+import { ROUTES } from '../../../core/constants/routes.constants';
 import { ProductService } from '../../../services/product.service';
 import { Category } from '../../../models/category.model';
 import { VALIDATION } from '../../../core/constants/app.constants';
@@ -173,7 +174,7 @@ export class AdminAddCategoryComponent implements OnInit {
 
   // NEW: Navigation method for page mode
   goBackToCategoriesList() {
-    this.router.navigate(['/admin/categories']);
+    this.router.navigate([ROUTES.ADMIN.CATEGORIES]);
   }
 
   onSubmit() {

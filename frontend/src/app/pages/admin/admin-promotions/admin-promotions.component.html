@@ -169,9 +169,9 @@
                   <!-- Validity -->
                   <td class="text-center">
                     <div class="validity-info">
-                      <span class="date-start">{{ formatDate(promotion.start_date) }}</span>
+                      <span class="date-start">{{ promotion.start_date | appDate:'dateOnly' }}</span>
                       <span class="date-separator">{{ 'admin.promotions.to' | translate }}</span>
-                      <span class="date-end">{{ formatDate(promotion.end_date) }}</span>
+                      <span class="date-end">{{ promotion.end_date | appDate:'dateOnly' }}</span>
                     </div>
                   </td>
 

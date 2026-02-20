@@ -1,9 +1,10 @@
-import { Component, inject, OnInit, computed } from '@angular/core';
+import { Component, inject, OnInit, computed, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { DrawerModule } from 'primeng/drawer';
 import { ButtonModule } from 'primeng/button';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { onLanguageChange } from '../../core/utils/language-change.util';
 import { AuthService } from '../../services/auth.service';
 import { LanguageSelectorComponent } from '../language-selector/language-selector.component';
 import { UserPreferencesService, ViewMode } from '../../core/services/user-preferences.service';
@@ -719,6 +720,7 @@ export class MobileUserMenuComponent implements OnInit {
   authService = inject(AuthService);
   private translateService = inject(TranslateService);
   private preferencesService = inject(UserPreferencesService);
+  private destroyRef = inject(DestroyRef);
 
   visible = false;
   navItems: NavItem[] = [];
@@ -730,9 +732,7 @@ export class MobileUserMenuComponent implements OnInit {
   ngOnInit() {
     this.updateNavItems();
     this.updateSettingItems();
-
-    // Update items when language changes
-    this.translateService.onLangChange.subscribe(() => {
+    onLanguageChange(this.translateService, this.destroyRef, () => {
       this.updateNavItems();
       this.updateSettingItems();
     });

@@ -1,20 +1,12 @@
 // src/app/pages/admin/admin-orders/admin-orders.component.ts
-import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { Component, OnInit, inject, DestroyRef } from '@angular/core';
 import { Router } from '@angular/router';
-
-import { TableModule } from 'primeng/table';
-import { ButtonModule } from 'primeng/button';
-import { ToastModule } from 'primeng/toast';
-import { TagModule } from 'primeng/tag';
-import { PaginatorModule } from 'primeng/paginator';
-import { DialogModule } from 'primeng/dialog';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
-import { TooltipModule } from 'primeng/tooltip';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
 
+import { ADMIN_LIST_IMPORTS, ADMIN_DIALOG_IMPORTS } from '../../../shared/imports/admin-shared.imports';
+import { ROUTES } from '../../../core/constants/routes.constants';
+import { onLanguageChange } from '../../../core/utils/language-change.util';
 import { AdminService } from '../../../services/admin.service';
 import { Order } from '../../../models/admin.model';
 import { ProductService } from '../../../services/product.service';
@@ -22,27 +14,14 @@ import { TranslationHelperService } from '../../../core/services/translation-hel
 import { UnitsService } from '../../../core/services/units.service';
 import { StatusSeverityService } from '../../../core/services/status-severity.service';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
-import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
-import { UnitPipe } from '../../../shared/pipes/unit.pipe';
 import { BaseAdminListComponent } from '../../../shared/base/base-admin-list.component';
 
 @Component({
   selector: 'app-admin-orders',
   standalone: true,
   imports: [
-    CommonModule,
-    FormsModule,
-    TableModule,
-    ButtonModule,
-    ToastModule,
-    TagModule,
-    PaginatorModule,
-    DialogModule,
-    ConfirmDialogModule,
-    TooltipModule,
-    TranslateModule,
-    CurrencyPipe,
-    UnitPipe
+    ...ADMIN_LIST_IMPORTS,
+    ...ADMIN_DIALOG_IMPORTS
   ],
   providers: [ConfirmationService],
   templateUrl: './admin-orders.component.html',
@@ -74,15 +53,12 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
   private translationHelper = inject(TranslationHelperService);
   private unitsService = inject(UnitsService);
   private statusSeverity = inject(StatusSeverityService);
+  private destroyRef = inject(DestroyRef);
 
   ngOnInit() {
     this.loadUsersAndOrders();
     this.loadProducts();
-
-    this.translateService.onLangChange.subscribe(() => {
-      // Re-filter to update any translated content
-      this.filterItems();
-    });
+    onLanguageChange(this.translateService, this.destroyRef, () => this.filterItems());
   }
 
   loadProducts() {
@@ -178,7 +154,7 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
 
         if (error.status === 403) {
           this.toast.showPermissionDenied();
-          this.router.navigate(['/']);
+          this.router.navigate([ROUTES.HOME]);
         } else {
           this.toast.showError('admin.orders.load_error');
         }

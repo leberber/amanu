@@ -51,7 +51,7 @@
           </div>
           <div class="order-info">
             <h1>{{ 'orders.table.order_number' | translate }}{{order()?.id}}</h1>
-            <div class="order-date">{{ formatDate(order()?.created_at || '') }}</div>
+            <div class="order-date">{{ order()?.created_at ? (order()!.created_at | appDate) : '-' }}</div>
           </div>
         </div>
         <div class="status-badge" [ngClass]="order()?.status || ''">
@@ -117,7 +117,7 @@
                   <ng-template pTemplate="content" let-status>
                     <div class="timeline-content">
                       <div class="status-text">{{status.status}}</div>
-                      <div class="status-date">{{formatDate(status.date)}}</div>
+                      <div class="status-date">{{ status.date | appDate }}</div>
                     </div>
                   </ng-template>
                   <ng-template pTemplate="opposite" let-status>

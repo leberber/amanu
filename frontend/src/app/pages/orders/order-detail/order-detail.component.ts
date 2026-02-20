@@ -9,9 +9,10 @@ import { ToastModule } from 'primeng/toast';
 import { TimelineModule } from 'primeng/timeline';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
-import { OrderService } from '../../../services/order.service'; 
-import { ProductService } from '../../../services/product.service'; // 🆕 ADD THIS
-import { TranslationService } from '../../../services/translation.service'; // 🆕 ADD THIS
+import { ROUTES } from '../../../core/constants/routes.constants';
+import { OrderService } from '../../../services/order.service';
+import { ProductService } from '../../../services/product.service';
+import { TranslationService } from '../../../services/translation.service';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { DateService } from '../../../core/services/date.service';
 import { Order, OrderItem } from '../../../models/order.model';
@@ -20,6 +21,7 @@ import { ToastMessageService } from '../../../core/services/toast-message.servic
 import { BackButtonComponent } from '../../../shared/components/back-button/back-button.component';
 import { ImageLightboxComponent } from '../../../shared/components/image-lightbox/image-lightbox.component';
 import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
+import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
 
 interface OrderStatus {
   status: string;
@@ -39,7 +41,8 @@ interface OrderStatus {
     TranslateModule,
     BackButtonComponent,
     ImageLightboxComponent,
-    CurrencyPipe
+    CurrencyPipe,
+    DateFormatPipe
   ],
   templateUrl: './order-detail.component.html',
   styleUrl: './order-detail.component.scss'
@@ -259,7 +262,7 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
   }
 
   backToOrders(): void {
-    this.router.navigate(['/orders']);
+    this.router.navigate([ROUTES.ORDERS]);
   }
 
   // Format date using DateService

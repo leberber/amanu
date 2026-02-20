@@ -1,20 +1,14 @@
-import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { Component, OnInit, inject, DestroyRef } from '@angular/core';
 import { Router } from '@angular/router';
-
-import { TableModule } from 'primeng/table';
-import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
-import { InputTextModule } from 'primeng/inputtext';
-import { ToastModule } from 'primeng/toast';
-import { TagModule } from 'primeng/tag';
-import { PaginatorModule } from 'primeng/paginator';
-import { DialogModule } from 'primeng/dialog';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
+import { CardModule } from 'primeng/card';
 import { SelectModule } from 'primeng/select';
+import { BadgeModule } from 'primeng/badge';
+import { OverlayBadgeModule } from 'primeng/overlaybadge';
+import { TranslateService } from '@ngx-translate/core';
 
+import { ADMIN_LIST_IMPORTS, ADMIN_DIALOG_IMPORTS } from '../../../shared/imports/admin-shared.imports';
+import { onLanguageChange } from '../../../core/utils/language-change.util';
 import { ProductService } from '../../../services/product.service';
 import { BrandService } from '../../../core/services/brand.service';
 import { CurrencyService } from '../../../core/services/currency.service';
@@ -29,41 +23,17 @@ import { Product } from '../../../models/product.model';
 import { Category } from '../../../models/category.model';
 import { Brand } from '../../../models/brand.model';
 import { ROUTES, RouteHelpers } from '../../../core/constants/routes.constants';
-import { IconFieldModule } from 'primeng/iconfield';
-import { InputIconModule } from 'primeng/inputicon';
-import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { BadgeModule } from 'primeng/badge';
-import { OverlayBadgeModule } from 'primeng/overlaybadge';
-import { TooltipModule } from 'primeng/tooltip';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
-import { UnitPipe } from '../../../shared/pipes/unit.pipe';
 
 @Component({
   selector: 'app-admin-products',
   standalone: true,
   imports: [
-    TooltipModule,
-    CommonModule,
-    FormsModule,
-    BadgeModule,
-    OverlayBadgeModule,
-    TableModule,
-    ButtonModule,
+    ...ADMIN_LIST_IMPORTS,
+    ...ADMIN_DIALOG_IMPORTS,
     CardModule,
-    InputTextModule,
-    ToastModule,
-    TagModule,
-    PaginatorModule,
-    DialogModule,
-    ConfirmDialogModule,
     SelectModule,
-    IconFieldModule,
-    InputIconModule,
-    ProgressSpinnerModule,
-    TranslateModule,
-    CurrencyPipe,
-    UnitPipe
+    BadgeModule,
+    OverlayBadgeModule
   ],
   providers: [ConfirmationService],
   templateUrl: './admin-products.component.html',
@@ -104,14 +74,14 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
   private confirmationService = inject(ConfirmationService);
   private confirmDialog = inject(ConfirmationDialogService);
   private stockStatus = inject(StockStatusService);
+  private destroyRef = inject(DestroyRef);
 
   // Lifecycle hooks
   ngOnInit() {
     this.loadCategories();
     this.loadBrands();
     this.loadAllProducts();
-
-    this.translateService.onLangChange.subscribe(() => {
+    onLanguageChange(this.translateService, this.destroyRef, () => {
       this.loadCategories();
       this.loadBrands();
     });

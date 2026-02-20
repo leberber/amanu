@@ -1,19 +1,17 @@
 // src/app/pages/admin/admin-dashboard/admin-dashboard.component.ts
-import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject, DestroyRef } from '@angular/core';
 import { RouterLink, Router } from '@angular/router';
-import { FormsModule } from '@angular/forms';
-
 import { CardModule } from 'primeng/card';
-import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
-import { ToastModule } from 'primeng/toast';
 import { ChartModule } from 'primeng/chart';
 import { TagModule } from 'primeng/tag';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { InputTextModule } from 'primeng/inputtext';
+import { TranslateService } from '@ngx-translate/core';
 
+import { ADMIN_CORE_IMPORTS } from '../../../shared/imports/admin-shared.imports';
+import { ROUTES } from '../../../core/constants/routes.constants';
+import { onLanguageChange } from '../../../core/utils/language-change.util';
 import { AdminService } from '../../../services/admin.service';
 import { DashboardStats } from '../../../models/admin.model';
 import { ProductService } from '../../../services/product.service';
@@ -23,27 +21,20 @@ import { TranslationHelperService } from '../../../core/services/translation-hel
 import { StatusSeverityService } from '../../../core/services/status-severity.service';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
 
-// REMOVED: AdminAddProductComponent and AdminAddCategoryComponent imports
-// REMOVED: ViewChild decorators and modal methods
-
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
   imports: [
-    CommonModule,
+    ...ADMIN_CORE_IMPORTS,
     RouterLink,
-    FormsModule,
     CardModule,
-    ButtonModule,
     TableModule,
-    ToastModule,
     ChartModule,
     TagModule,
     ProgressSpinnerModule,
-    TranslateModule,
     InputTextModule
   ],
-    templateUrl: './admin-dashboard.component.html',
+  templateUrl: './admin-dashboard.component.html',
   styleUrl: './admin-dashboard.component.scss'
 })
 export class AdminDashboardComponent implements OnInit {
@@ -74,13 +65,12 @@ export class AdminDashboardComponent implements OnInit {
   private translationHelper = inject(TranslationHelperService);
   private statusSeverity = inject(StatusSeverityService);
   private apiService = inject(ApiService);
+  private destroyRef = inject(DestroyRef);
 
   ngOnInit() {
     this.loadDashboardStats();
     this.loadProductsAndCategories();
-    this.translateService.onLangChange.subscribe(() => {
-      this.prepareChartData();
-    });
+    onLanguageChange(this.translateService, this.destroyRef, () => this.prepareChartData());
   }
   
   loadProductsAndCategories() {
@@ -129,7 +119,7 @@ export class AdminDashboardComponent implements OnInit {
 
         if (error.status === 403) {
           this.toast.showPermissionDenied();
-          this.router.navigate(['/']);
+          this.router.navigate([ROUTES.HOME]);
         } else {
           this.toast.showError('admin.dashboard.load_error');
         }
@@ -194,44 +184,33 @@ export class AdminDashboardComponent implements OnInit {
     return this.dateService.formatDate(dateString);
   }
 
-  // UPDATED: All navigation methods now use routing instead of modals
   navigateToOrders() {
-    this.router.navigate(['/admin/orders']);
+    this.router.navigate([ROUTES.ADMIN.ORDERS]);
   }
 
   navigateToUsers() {
-    this.router.navigate(['/admin/users']);
+    this.router.navigate([ROUTES.ADMIN.USERS]);
   }
 
   navigateToProducts() {
-    this.router.navigate(['/admin/products']);
+    this.router.navigate([ROUTES.ADMIN.PRODUCTS]);
   }
 
-  // NEW: Navigate to add product page instead of opening modal
   navigateToAddProduct() {
-    this.router.navigate(['/admin/products/add']);
+    this.router.navigate([ROUTES.ADMIN.ADD_PRODUCT]);
   }
 
-  // NEW: Navigate to add category page (you can implement this later)
-  // navigateToAddCategory() {
-  //   // For now, show a message. You can create a similar page for categories later
-  //   this.messageService.add({
-  //     severity: 'info',
-  //     summary: 'Coming Soon',
-  //     detail: 'Add Category page will be available soon'
-  //   });
-  // }
+  navigateToAddCategory() {
+    this.router.navigate([ROUTES.ADMIN.ADD_CATEGORY]);
+  }
 
-    navigateToAddCategory() {
-  this.router.navigate(['/admin/categories/add']);
-}
-navigateToCategories() {
-  this.router.navigate(['/admin/categories']);
-}
+  navigateToCategories() {
+    this.router.navigate([ROUTES.ADMIN.CATEGORIES]);
+  }
 
-navigateToBrands() {
-  this.router.navigate(['/admin/brands']);
-}
+  navigateToBrands() {
+    this.router.navigate([ROUTES.ADMIN.BRANDS]);
+  }
 
   getCategoryName(category: any): string {
     // If it's already a category object with translations

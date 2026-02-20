@@ -14,6 +14,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
 
+import { ROUTES } from '../../core/constants/routes.constants';
 import { CartService, CartItem } from '../../services/cart.service';
 import { AuthService } from '../../services/auth.service';
 import { CurrencyService } from '../../core/services/currency.service';
@@ -28,7 +29,7 @@ import { ImageLightboxComponent } from '../../shared/components/image-lightbox/i
 import { ToastMessageService } from '../../core/services/toast-message.service';
 import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
 import { UnitPipe } from '../../shared/pipes/unit.pipe';
-import { getCartonCount as calcCartonCount } from '../../shared/utils/quantity.utils';
+import { getCartonCount as calcCartonCount, isListQuantityConfig } from '../../shared/utils/quantity.utils';
 
 @Component({
   selector: 'app-cart-page',
@@ -307,13 +308,13 @@ export class CartComponent implements OnInit, OnDestroy {
   
   // Quantity grid methods
   getQuantityOptionsForItem(item: CartItem): number[] {
-    if (item.quantity_config?.type === 'list' && item.quantity_config.quantities) {
+    if (isListQuantityConfig(item.quantity_config)) {
       // Return all available quantities from config
-      return item.quantity_config.quantities.filter(qty => 
+      return item.quantity_config!.quantities!.filter(qty =>
         !item.stock_quantity || qty <= item.stock_quantity
       );
     }
-    
+
     // Default: generate range from 1 to maxStock
     const maxStock = item.stock_quantity || 99;
     return Array.from({ length: Math.min(maxStock, 20) }, (_, i) => i + 1);
@@ -339,14 +340,14 @@ export class CartComponent implements OnInit, OnDestroy {
 
     if (this.authService.isLoggedIn) {
       // User is logged in, proceed to checkout
-      this.router.navigate(['/checkout']);
+      this.router.navigate([ROUTES.CHECKOUT]);
     } else {
       // User is not logged in, redirect to login with returnUrl
       this.toast.showInfo('cart.login_message');
 
       // Save the return URL
-      this.router.navigate(['/login'], {
-        queryParams: { returnUrl: '/checkout' }
+      this.router.navigate([ROUTES.LOGIN], {
+        queryParams: { returnUrl: ROUTES.CHECKOUT }
       });
     }
   }

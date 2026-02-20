@@ -7,6 +7,7 @@ import { Router } from '@angular/router';
 import { ToastModule } from 'primeng/toast';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
+import { ROUTES } from '../../../core/constants/routes.constants';
 import { ApiService } from '../../../services/api.service';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
 
@@ -60,6 +61,6 @@ export class AdminNotificationsComponent {
   }
 
   goBack(): void {
-    this.router.navigate(['/admin']);
+    this.router.navigate([ROUTES.ADMIN.BASE]);
   }
 }

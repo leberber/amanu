@@ -28,6 +28,8 @@ import { TranslateModule } from '@ngx-translate/core';
 
 // Shared pipes
 import { CurrencyPipe } from '../pipes/currency.pipe';
+import { UnitPipe } from '../pipes/unit.pipe';
+import { DateFormatPipe } from '../pipes/date-format.pipe';
 
 /**
  * Core imports needed by virtually all admin components
@@ -61,7 +63,9 @@ export const ADMIN_LIST_IMPORTS = [
   ProgressSpinnerModule,
   IconFieldModule,
   InputIconModule,
-  CurrencyPipe
+  CurrencyPipe,
+  UnitPipe,
+  DateFormatPipe
 ] as const;
 
 /**

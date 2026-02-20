@@ -166,7 +166,7 @@
 
                   <!-- Date -->
                   <td class="text-center">
-                    <span class="date-display">{{ formatDate(order.created_at) }}</span>
+                    <span class="date-display">{{ order.created_at | appDate }}</span>
                   </td>
 
                   <!-- Status - Inline Editable -->
@@ -286,7 +286,7 @@
         <div class="col-12 md:col-6">
           <h3 class="text-lg font-medium">{{ 'admin.orders.order_number' | translate }} #{{selectedOrder.id}}</h3>
           <p><strong>{{ 'admin.orders.customer' | translate }}:</strong> {{selectedOrder.user?.full_name || ('admin.orders.user_number' | translate) + selectedOrder.user_id}}</p>
-          <p><strong>{{ 'admin.orders.date' | translate }}:</strong> {{formatDate(selectedOrder.created_at)}}</p>
+          <p><strong>{{ 'admin.orders.date' | translate }}:</strong> {{ selectedOrder.created_at | appDate }}</p>
           <p><strong>{{ 'admin.orders.status' | translate }}:</strong> <p-tag [severity]="getStatusSeverity(selectedOrder.status)" [value]="'admin.orders.status.' + selectedOrder.status | translate"></p-tag></p>
           <p><strong>{{ 'admin.orders.total' | translate }}:</strong> {{selectedOrder.total_amount | appCurrency}}</p>
         </div>

@@ -1,9 +1,10 @@
 // src/app/pages/admin/admin-brands/admin-brands.component.ts
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, DestroyRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { ConfirmationService } from 'primeng/api';
 import { CardModule } from 'primeng/card';
 
+import { TranslateService } from '@ngx-translate/core';
 import { ADMIN_LIST_IMPORTS } from '../../../shared/imports/admin-shared.imports';
 import { ROUTES, RouteHelpers } from '../../../core/constants/routes.constants';
 import { onLanguageChange } from '../../../core/utils/language-change.util';
@@ -48,10 +49,12 @@ export class AdminBrandsComponent extends BaseAdminListComponent implements OnIn
   private confirmDialog = inject(ConfirmationDialogService);
   private router = inject(Router);
   private translationHelper = inject(TranslationHelperService);
+  private translateService = inject(TranslateService);
+  private destroyRef = inject(DestroyRef);
 
   ngOnInit() {
     this.loadAllBrands();
-    onLanguageChange(() => this.filterItems());
+    onLanguageChange(this.translateService, this.destroyRef, () => this.filterItems());
   }
 
   hasActiveFilters(): boolean {

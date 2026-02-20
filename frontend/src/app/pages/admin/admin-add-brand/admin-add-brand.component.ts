@@ -13,6 +13,7 @@ import { ToastModule } from 'primeng/toast';
 import { CardModule } from 'primeng/card';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
+import { ROUTES } from '../../../core/constants/routes.constants';
 import { BrandService } from '../../../core/services/brand.service';
 import { Brand } from '../../../models/brand.model';
 import { VALIDATION } from '../../../core/constants/app.constants';
@@ -155,7 +156,7 @@ export class AdminAddBrandComponent implements OnInit {
   }
 
   goBackToBrandsList() {
-    this.router.navigate(['/admin/brands']);
+    this.router.navigate([ROUTES.ADMIN.BRANDS]);
   }
 
   onSubmit() {

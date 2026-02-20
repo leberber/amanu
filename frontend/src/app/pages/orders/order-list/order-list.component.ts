@@ -10,6 +10,7 @@ import { ToastModule } from 'primeng/toast';
 import { TagModule } from 'primeng/tag';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
+import { RouteHelpers } from '../../../core/constants/routes.constants';
 import { OrderService } from '../../../services/order.service';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
 import { CurrencyService } from '../../../core/services/currency.service';
@@ -18,6 +19,7 @@ import { Order } from '../../../models/order.model';
 import { StatusSeverityService } from '../../../core/services/status-severity.service';
 import { BackButtonComponent } from '../../../shared/components/back-button/back-button.component';
 import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
+import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
 
 @Component({
   selector: 'app-order-list',
@@ -32,7 +34,8 @@ import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
     TagModule,
     TranslateModule,
     BackButtonComponent,
-    CurrencyPipe
+    CurrencyPipe,
+    DateFormatPipe
   ],
   templateUrl: './order-list.component.html',
   styleUrls: ['./order-list.component.scss']
@@ -70,7 +73,7 @@ export class OrderListComponent implements OnInit {
   }
 
   viewOrderDetails(orderId: number) {
-    this.router.navigate(['/orders', orderId]);
+    this.router.navigate([RouteHelpers.orderDetail(orderId)]);
   }
 
   getStatusSeverity(status: string): "success" | "secondary" | "info" | "warn" | "danger" | "contrast" {
