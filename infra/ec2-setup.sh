@@ -7,7 +7,7 @@ set -e
 
 # Configuration
 
-DOMAIN_NAME="elsuqhub.com"
+DOMAIN_NAME="agroclik.com"
 EMAIL="ymekhtoub@gmail.com"
 
 echo "=== Setting up nginx and SSL for $DOMAIN_NAME ==="

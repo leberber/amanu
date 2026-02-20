@@ -28,8 +28,8 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:4200",
         "http://localhost:8000",
-        "https://elsuqhub.com",
-        "https://www.elsuqhub.com",
+        "https://agroclik.com",
+        "https://www.agroclik.com",
     ],
     allow_origin_regex=r"http://(192\.168\.\d{1,3}\.\d{1,3}|127\.0\.0\.1)(:\d+)?",
     allow_credentials=True,
