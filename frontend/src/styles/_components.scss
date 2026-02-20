@@ -16,20 +16,7 @@
   overflow-x: hidden;
 }
 
-// Page content wrapper
-.page-content {
-  position: relative;
-  z-index: 1;
-  padding: var(--space-8);
-  padding-top: var(--space-10);
-  max-width: 1400px;
-  margin: 0 auto;
 
-  @media (max-width: 768px) {
-    padding: var(--space-6);
-    padding-top: var(--space-6);
-  }
-}
 
 // Page header
 .page-header {
