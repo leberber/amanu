@@ -32,6 +32,11 @@
   }
 }
 
+// Card styling
+.app-card {
+  border-radius: var(--radius-sm);
+}
+
 // Left column - Order Items Card
 .order-items-card {
   display: flex;
@@ -112,15 +117,13 @@
 }
 
 .item-qty {
-  font-size: var(--font-size-md);
   font-weight: var(--font-weight-semibold);
-  color: var(--primary-color);
+  color: var(--text-color);
   min-width: 36px;
 }
 
 .item-name {
   flex: 1;
-  font-size: var(--font-size-md);
   color: var(--text-color);
   white-space: nowrap;
   overflow: hidden;
@@ -128,9 +131,8 @@
 }
 
 .item-total {
-  font-size: var(--font-size-md);
   font-weight: var(--font-weight-semibold);
-  color: var(--primary-color);
+  color: #000;
 }
 
 // -----------------------------------------------------------------------------
@@ -155,7 +157,7 @@
   .total-amount {
     font-size: var(--font-size-xl);
     font-weight: var(--font-weight-bold);
-    color: var(--primary-color);
+    color: #000;
   }
 }
 
