@@ -11,6 +11,8 @@ import { SidebarService } from '../../services/sidebar.service';
 import { LanguageSelectorComponent } from '../language-selector/language-selector.component';
 import { UserPreferencesService } from '../../core/services/user-preferences.service';
 import { onLanguageChange } from '../../core/utils/language-change.util';
+import { BREAKPOINTS } from '../../core/constants/app.constants';
+import { ROUTES } from '../../core/constants/routes.constants';
 
 interface NavItem {
   label: string;
@@ -42,7 +44,7 @@ export class SidebarComponent implements OnInit {
 
   // State (drawer visibility comes from service)
   mobileDrawerVisible = this.sidebarService.drawerVisible;
-  isMobile = signal(window.innerWidth < 768);
+  isMobile = signal(window.innerWidth < BREAKPOINTS.MD);
   cartCount = signal(0);
   navItems = signal<NavItem[]>([]);
   adminNavItems = signal<NavItem[]>([]);
@@ -58,9 +60,16 @@ export class SidebarComponent implements OnInit {
   });
   currentViewMode = computed(() => this.preferencesService.productViewMode());
 
+  // RTL support
+  isRtl = signal(document.documentElement.dir === 'rtl');
+  drawerPosition = computed(() => this.isRtl() ? 'right' : 'left');
+
+  // Route constants for template
+  readonly routes = ROUTES;
+
   @HostListener('window:resize')
   onResize() {
-    this.isMobile.set(window.innerWidth < 768);
+    this.isMobile.set(window.innerWidth < BREAKPOINTS.MD);
     // Close drawer when switching to desktop
     if (!this.isMobile()) {
       this.mobileDrawerVisible.set(false);
@@ -80,8 +89,11 @@ export class SidebarComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.buildNavItems());
 
-    // Rebuild nav on language change
-    onLanguageChange(this.translateService, this.destroyRef, () => this.buildNavItems());
+    // Rebuild nav on language change and update RTL
+    onLanguageChange(this.translateService, this.destroyRef, () => {
+      this.buildNavItems();
+      this.isRtl.set(document.documentElement.dir === 'rtl');
+    });
 
     // Close drawer on navigation
     this.router.events
@@ -98,25 +110,25 @@ export class SidebarComponent implements OnInit {
       {
         label: this.translateService.instant('common.products'),
         icon: 'pi pi-shopping-bag',
-        route: '/products'
+        route: ROUTES.PRODUCTS
       },
       {
         label: this.translateService.instant('common.cart'),
         icon: 'pi pi-shopping-cart',
-        route: '/cart',
+        route: ROUTES.CART,
         hideForAdmin: true
       },
       {
         label: this.translateService.instant('header.orders'),
         icon: 'pi pi-list',
-        route: '/orders',
+        route: ROUTES.ORDERS,
         authRequired: true,
         hideForAdmin: true
       },
       {
         label: this.translateService.instant('account.title'),
         icon: 'pi pi-user',
-        route: '/account',
+        route: ROUTES.ACCOUNT,
         authRequired: true
       }
     ]);
@@ -126,49 +138,49 @@ export class SidebarComponent implements OnInit {
       {
         label: this.translateService.instant('admin.navigation.dashboard'),
         icon: 'pi pi-chart-bar',
-        route: '/admin',
+        route: ROUTES.ADMIN.DASHBOARD,
         adminOnly: true
       },
       {
         label: this.translateService.instant('admin.navigation.orders'),
         icon: 'pi pi-list',
-        route: '/admin/orders',
+        route: ROUTES.ADMIN.ORDERS,
         staffOnly: true
       },
       {
         label: this.translateService.instant('admin.navigation.products'),
         icon: 'pi pi-tag',
-        route: '/admin/products',
+        route: ROUTES.ADMIN.PRODUCTS,
         staffOnly: true
       },
       {
         label: this.translateService.instant('admin.navigation.categories'),
         icon: 'pi pi-tags',
-        route: '/admin/categories',
+        route: ROUTES.ADMIN.CATEGORIES,
         staffOnly: true
       },
       {
         label: this.translateService.instant('admin.navigation.brands'),
         icon: 'pi pi-building',
-        route: '/admin/brands',
+        route: ROUTES.ADMIN.BRANDS,
         staffOnly: true
       },
       {
         label: this.translateService.instant('admin.navigation.promotions'),
         icon: 'pi pi-percentage',
-        route: '/admin/promotions',
+        route: ROUTES.ADMIN.PROMOTIONS,
         staffOnly: true
       },
       {
         label: this.translateService.instant('admin.navigation.users'),
         icon: 'pi pi-users',
-        route: '/admin/users',
+        route: ROUTES.ADMIN.USERS,
         adminOnly: true
       },
       {
         label: this.translateService.instant('admin.navigation.notifications'),
         icon: 'pi pi-bell',
-        route: '/admin/notifications',
+        route: ROUTES.ADMIN.NOTIFICATIONS,
         adminOnly: true
       }
     ]);

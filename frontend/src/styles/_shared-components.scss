@@ -1,0 +1,193 @@
+// _shared-components.scss
+// Reusable component styles used across the application
+
+// ===================== BADGE =====================
+// Notification/cart badge - positioned absolutely on parent
+.badge {
+  position: absolute;
+  top: -4px;
+  inset-inline-end: -4px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  background: var(--red-500, #ef4444);
+  color: white;
+  font-size: 10px;
+  font-weight: 600;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// ===================== USER AVATAR =====================
+// Avatar with initials
+.user-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--primary-gradient, linear-gradient(135deg, var(--primary-color) 0%, var(--primary-700) 100%));
+  color: white;
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  &.avatar-sm {
+    width: 28px;
+    height: 28px;
+    font-size: 0.75rem;
+  }
+
+  &.avatar-lg {
+    width: 48px;
+    height: 48px;
+    font-size: 1rem;
+  }
+}
+
+// ===================== ICON BUTTON =====================
+// Square icon button with hover effect
+.icon-btn {
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 10px;
+  background: var(--surface-100);
+  color: var(--text-color);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: var(--surface-200);
+  }
+
+  i {
+    font-size: 1rem;
+  }
+
+  &.icon-btn-sm {
+    width: 32px;
+    height: 32px;
+
+    i {
+      font-size: 0.9rem;
+    }
+  }
+
+  &.icon-btn-lg {
+    width: 40px;
+    height: 40px;
+
+    i {
+      font-size: 1.1rem;
+    }
+  }
+
+  // Danger variant
+  &.icon-btn-danger {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--red-500, #ef4444);
+
+    &:hover {
+      background: rgba(239, 68, 68, 0.2);
+    }
+  }
+}
+
+// ===================== SECTION HEADER =====================
+// Small uppercase section header with optional icon
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  margin-bottom: 0.5rem;
+  color: var(--text-color-secondary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+
+  i {
+    font-size: 0.85rem;
+  }
+}
+
+// ===================== GLASS CARD =====================
+// Glassmorphism card effect
+.glass-card {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  border-radius: 14px;
+  border: 1px solid rgba(var(--primary-rgb, 46, 108, 183), 0.08);
+
+  :host-context(.my-app-dark) & {
+    background: rgba(30, 30, 30, 0.8);
+  }
+}
+
+// ===================== ANIMATIONS =====================
+// Floating blob animation
+@keyframes blobFloat {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(10px, -10px) scale(1.05); }
+}
+
+// Pulse animation
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+// ===================== AUTH BUTTONS =====================
+// Primary and outlined auth buttons
+.auth-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--border-radius, 12px);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+  border: none;
+  cursor: pointer;
+
+  &.auth-btn-primary {
+    background: var(--primary-gradient, linear-gradient(135deg, var(--primary-color) 0%, var(--primary-700) 100%));
+    color: white;
+
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(var(--primary-rgb, 46, 108, 183), 0.3);
+    }
+  }
+
+  &.auth-btn-outlined {
+    background: transparent;
+    color: var(--primary-color);
+    border: 1px solid rgba(var(--primary-rgb, 46, 108, 183), 0.3);
+
+    &:hover {
+      background: rgba(var(--primary-rgb, 46, 108, 183), 0.08);
+    }
+  }
+
+  &.auth-btn-danger {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--red-600, #dc2626);
+    border: 1px solid rgba(239, 68, 68, 0.15);
+
+    &:hover {
+      background: rgba(239, 68, 68, 0.15);
+    }
+  }
+}

@@ -72,7 +72,7 @@ For each component check:
 |-----------|:--:|:----:|:----:|:-------:|:--------:|:------:|-------|
 | components/bottom-navigation | [ ] | [ ] | [ ] | [ ] | [ ] | Pending | |
 | components/language-selector | [ ] | [ ] | [ ] | [ ] | [ ] | Pending | |
-| components/sidebar | [ ] | [ ] | [ ] | [ ] | [ ] | Pending | |
+| components/sidebar | [x] | [x] | [x] | [x] | [x] | Done | SCSS 674→173 lines, uses ROUTES/BREAKPOINTS, RTL drawer, PrimeFlex utilities |
 
 ---
 
@@ -155,14 +155,14 @@ For each component check:
 | Layout | 0 | 0 | 0 |
 | Shared | 12 | 0 | 12 |
 | Base | 1 | 0 | 1 |
-| UI | 3 | 0 | 3 |
+| UI | 3 | 1 | 2 |
 | Auth Pages | 4 | 0 | 4 |
 | User Pages | 4 | 0 | 4 |
 | Product Pages | 5 | 0 | 5 |
 | Order Pages | 2 | 0 | 2 |
 | Admin Pages | 13 | 0 | 13 |
 | Other Pages | 1 | 0 | 1 |
-| **TOTAL** | **46** | **1** | **45** |
+| **TOTAL** | **46** | **2** | **44** |
 
 ---
 

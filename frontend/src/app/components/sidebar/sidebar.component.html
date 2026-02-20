@@ -1,43 +1,45 @@
 <!-- Desktop Sidebar -->
 @if (!isMobile()) {
-  <aside class="sidebar-desktop">
-    <div class="sidebar-content">
+  <aside class="sidebar-desktop flex flex-column">
+    <div class="flex flex-column h-full p-3 overflow-y-auto">
       <!-- Logo -->
-      <div class="sidebar-logo">
-        <a routerLink="/products">
-          <img src="/logo.png" alt="Logo" class="logo-img" />
+      <div class="p-2 mb-4 border-bottom-1 surface-border">
+        <a [routerLink]="routes.PRODUCTS" class="block">
+          <img src="/logo.png" alt="Logo" class="max-w-10rem h-auto" />
         </a>
       </div>
 
       <!-- Main Navigation -->
-      <nav class="sidebar-nav">
+      <nav class="flex flex-column gap-1">
         @for (item of getVisibleNavItems(); track item.route) {
-          <a [routerLink]="item.route" routerLinkActive="active" class="nav-item">
-            <div class="nav-icon">
-              <i [class]="item.icon"></i>
-              @if (item.route === '/cart' && cartCount() > 0) {
+          <a [routerLink]="item.route" routerLinkActive="active"
+             class="nav-item flex align-items-center gap-3 p-3 border-round no-underline text-color font-medium transition-all transition-duration-200">
+            <div class="nav-icon flex align-items-center justify-content-center">
+              <i [class]="item.icon" class="text-base"></i>
+              @if (item.route === routes.CART && cartCount() > 0) {
                 <span class="badge">{{ cartCount() > 99 ? '99+' : cartCount() }}</span>
               }
             </div>
-            <span class="nav-label">{{ item.label }}</span>
+            <span class="flex-1">{{ item.label }}</span>
           </a>
         }
       </nav>
 
       <!-- Admin Section -->
       @if (isAdminOrStaff()) {
-        <div class="sidebar-section">
+        <div class="mt-4 pt-3 border-top-1 surface-border">
           <div class="section-header">
             <i class="pi pi-cog"></i>
             <span>{{ 'header.admin' | translate }}</span>
           </div>
-          <nav class="sidebar-nav admin-nav">
+          <nav class="flex flex-column gap-1">
             @for (item of getVisibleAdminItems(); track item.route) {
-              <a [routerLink]="item.route" routerLinkActive="active" [routerLinkActiveOptions]="{exact: item.route === '/admin'}" class="nav-item">
-                <div class="nav-icon">
-                  <i [class]="item.icon"></i>
+              <a [routerLink]="item.route" routerLinkActive="active" [routerLinkActiveOptions]="{exact: item.route === routes.ADMIN.DASHBOARD}"
+                 class="nav-item flex align-items-center gap-3 py-2 px-3 border-round no-underline text-color font-medium transition-all transition-duration-200">
+                <div class="nav-icon flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                  <i [class]="item.icon" class="text-base"></i>
                 </div>
-                <span class="nav-label">{{ item.label }}</span>
+                <span class="flex-1">{{ item.label }}</span>
               </a>
             }
           </nav>
@@ -45,26 +47,26 @@
       }
 
       <!-- Bottom Section -->
-      <div class="sidebar-bottom">
+      <div class="mt-auto pt-3 border-top-1 surface-border">
         <!-- Language Selector -->
-        <div class="sidebar-setting">
+        <div class="mb-3">
           <app-language-selector></app-language-selector>
         </div>
 
         <!-- User Section -->
         @if (isLoggedIn()) {
-          <div class="user-section">
-            <div class="user-info">
+          <div class="flex align-items-center justify-content-between p-3 surface-100 border-round-xl">
+            <div class="flex align-items-center gap-3">
               <div class="user-avatar">{{ userInitials() }}</div>
-              <span class="user-name">{{ currentUser()?.full_name }}</span>
+              <span class="font-medium text-color">{{ currentUser()?.full_name }}</span>
             </div>
-            <button class="logout-btn" (click)="logout()">
+            <button class="icon-btn icon-btn-danger" (click)="logout()">
               <i class="pi pi-sign-out"></i>
             </button>
           </div>
         } @else {
-          <div class="auth-buttons">
-            <a routerLink="/login" class="auth-btn login">
+          <div class="flex flex-column gap-2">
+            <a [routerLink]="routes.LOGIN" class="auth-btn auth-btn-primary">
               <i class="pi pi-sign-in"></i>
               <span>{{ 'common.login' | translate }}</span>
             </a>
@@ -78,86 +80,91 @@
 <!-- Mobile Drawer -->
 <p-drawer
   [(visible)]="mobileDrawerVisible"
-  position="left"
+  [position]="drawerPosition()"
   [showCloseIcon]="false"
   [modal]="true"
   styleClass="sidebar-drawer">
 
   <ng-template pTemplate="headless">
-    <div class="drawer-container">
+    <div class="drawer-container relative">
       <!-- Animated Background -->
       <div class="drawer-bg">
         <div class="drawer-blob drawer-blob-1"></div>
         <div class="drawer-blob drawer-blob-2"></div>
       </div>
 
-      <div class="drawer-content">
+      <div class="drawer-content flex flex-column">
         <!-- Header -->
-        <div class="drawer-header">
-          <a routerLink="/products" (click)="closeMobileDrawer()">
-            <img src="/logo.png" alt="Logo" class="drawer-logo">
+        <div class="flex align-items-center justify-content-between mb-4 pb-3 border-bottom-1 surface-border">
+          <a [routerLink]="routes.PRODUCTS" (click)="closeMobileDrawer()">
+            <img src="/logo.png" alt="Logo" class="h-2rem w-auto">
           </a>
-          <div class="drawer-actions">
+          <div class="flex align-items-center gap-2">
             <app-language-selector></app-language-selector>
-            <button class="close-btn" (click)="closeMobileDrawer()">
+            <button class="icon-btn icon-btn-lg" (click)="closeMobileDrawer()">
               <i class="pi pi-times"></i>
             </button>
           </div>
         </div>
 
         <!-- Scrollable Content -->
-        <div class="drawer-scroll">
+        <div class="flex-1 overflow-y-auto">
           <!-- Main Navigation -->
-          <div class="drawer-nav-section">
+          <div class="flex flex-column gap-2 mb-4">
             @for (item of getVisibleNavItems(); track item.route) {
-              <a [routerLink]="item.route" routerLinkActive="active" (click)="closeMobileDrawer()" class="drawer-nav-item">
-                <div class="nav-icon">
-                  <i [class]="item.icon"></i>
-                  @if (item.route === '/cart' && cartCount() > 0) {
+              <a [routerLink]="item.route" routerLinkActive="active" (click)="closeMobileDrawer()"
+                 class="drawer-nav-item glass-card flex align-items-center gap-3 p-3 no-underline text-color transition-all transition-duration-200">
+                <div class="nav-icon flex align-items-center justify-content-center flex-shrink-0">
+                  <i [class]="item.icon" class="text-lg"></i>
+                  @if (item.route === routes.CART && cartCount() > 0) {
                     <span class="badge">{{ cartCount() > 99 ? '99+' : cartCount() }}</span>
                   }
                 </div>
-                <span class="nav-label">{{ item.label }}</span>
-                <i class="pi pi-chevron-right nav-arrow"></i>
+                <span class="flex-1 font-medium">{{ item.label }}</span>
+                <i class="pi pi-chevron-right nav-arrow text-sm text-color-secondary transition-all transition-duration-200"></i>
               </a>
             }
           </div>
 
           <!-- Admin Section -->
           @if (isAdminOrStaff()) {
-            <div class="drawer-section">
+            <div class="mb-4">
               <div class="section-header">
                 <i class="pi pi-cog"></i>
                 <span>{{ 'header.admin' | translate }}</span>
               </div>
               @for (item of getVisibleAdminItems(); track item.route) {
-                <a [routerLink]="item.route" routerLinkActive="active" [routerLinkActiveOptions]="{exact: item.route === '/admin'}" (click)="closeMobileDrawer()" class="drawer-nav-item admin">
-                  <div class="nav-icon">
-                    <i [class]="item.icon"></i>
+                <a [routerLink]="item.route" routerLinkActive="active" [routerLinkActiveOptions]="{exact: item.route === routes.ADMIN.DASHBOARD}"
+                   (click)="closeMobileDrawer()"
+                   class="drawer-nav-item glass-card flex align-items-center gap-3 py-3 px-3 mb-2 no-underline text-color transition-all transition-duration-200">
+                  <div class="nav-icon flex align-items-center justify-content-center flex-shrink-0" style="width: 36px; height: 36px;">
+                    <i [class]="item.icon" class="text-lg"></i>
                   </div>
-                  <span class="nav-label">{{ item.label }}</span>
-                  <i class="pi pi-chevron-right nav-arrow"></i>
+                  <span class="flex-1 font-medium">{{ item.label }}</span>
+                  <i class="pi pi-chevron-right nav-arrow text-sm text-color-secondary transition-all transition-duration-200"></i>
                 </a>
               }
             </div>
           }
 
           <!-- Settings Section -->
-          <div class="drawer-section">
+          <div class="mb-4">
             <div class="section-header">
               <i class="pi pi-sliders-h"></i>
               <span>{{ 'settings.title' | translate }}</span>
             </div>
-            <div class="setting-item">
-              <div class="setting-info">
-                <i class="pi pi-eye"></i>
-                <span>{{ 'settings.view_mode' | translate }}</span>
+            <div class="setting-item glass-card flex align-items-center justify-content-between p-3">
+              <div class="flex align-items-center gap-3">
+                <i class="pi pi-eye text-primary"></i>
+                <span class="font-medium">{{ 'settings.view_mode' | translate }}</span>
               </div>
-              <div class="setting-toggle">
-                <button class="toggle-option" [class.active]="currentViewMode() === 'list'" (click)="toggleViewMode()">
+              <div class="setting-toggle flex">
+                <button class="toggle-option flex align-items-center justify-content-center transition-all transition-duration-200"
+                        [class.active]="currentViewMode() === 'list'" (click)="toggleViewMode()">
                   <i class="pi pi-list"></i>
                 </button>
-                <button class="toggle-option" [class.active]="currentViewMode() === 'grid'" (click)="toggleViewMode()">
+                <button class="toggle-option flex align-items-center justify-content-center transition-all transition-duration-200"
+                        [class.active]="currentViewMode() === 'grid'" (click)="toggleViewMode()">
                   <i class="pi pi-th-large"></i>
                 </button>
               </div>
@@ -166,32 +173,32 @@
         </div>
 
         <!-- User Section -->
-        <div class="drawer-footer">
+        <div class="mt-auto pt-3 border-top-1 surface-border">
           @if (isLoggedIn()) {
-            <div class="user-card">
+            <div class="flex align-items-center gap-3 p-3 surface-100 border-round-xl mb-3">
               <div class="user-avatar">{{ userInitials() }}</div>
-              <div class="user-details">
-                <span class="user-name">{{ currentUser()?.full_name }}</span>
-                <span class="user-email">{{ currentUser()?.email }}</span>
+              <div class="flex flex-column">
+                <span class="font-semibold text-color">{{ currentUser()?.full_name }}</span>
+                <span class="text-sm text-color-secondary">{{ currentUser()?.email }}</span>
               </div>
             </div>
-            <button class="logout-btn-mobile" (click)="logout()">
+            <button class="auth-btn auth-btn-danger w-full" (click)="logout()">
               <i class="pi pi-sign-out"></i>
               <span>{{ 'common.logout' | translate }}</span>
             </button>
           } @else {
-            <div class="login-card">
-              <div class="login-icon">
-                <i class="pi pi-user"></i>
+            <div class="login-card glass-card text-center p-4 border-round-xl">
+              <div class="login-icon flex align-items-center justify-content-center border-circle mx-auto mb-3">
+                <i class="pi pi-user text-xl text-white"></i>
               </div>
-              <h3>{{ 'auth.welcome' | translate }}</h3>
-              <p>{{ 'auth.signInMessage' | translate }}</p>
-              <div class="login-actions">
-                <a routerLink="/login" class="mobile-auth-btn primary" (click)="closeMobileDrawer()">
+              <h3 class="text-lg font-semibold m-0 mb-1 text-color">{{ 'auth.welcome' | translate }}</h3>
+              <p class="text-sm text-color-secondary m-0 mb-3">{{ 'auth.signInMessage' | translate }}</p>
+              <div class="flex flex-column gap-2">
+                <a [routerLink]="routes.LOGIN" class="auth-btn auth-btn-primary w-full" (click)="closeMobileDrawer()">
                   <span>{{ 'common.login' | translate }}</span>
                   <i class="pi pi-sign-in"></i>
                 </a>
-                <a routerLink="/register" class="mobile-auth-btn outlined" (click)="closeMobileDrawer()">
+                <a [routerLink]="routes.REGISTER" class="auth-btn auth-btn-outlined w-full" (click)="closeMobileDrawer()">
                   <i class="pi pi-user-plus"></i>
                   <span>{{ 'common.register' | translate }}</span>
                 </a>
