@@ -1,24 +1,59 @@
 // =============================================================================
 // Order Detail Component Styles
 // =============================================================================
-// Uses global styles from _components.scss
-// - Topbar header: uses .topbar-header, .topbar-header__icon, etc.
-// - Status badge: uses .topbar-badge
+// Uses global styles from _components.scss:
+// - .app-card, .app-card__header, .app-card__icon, .app-card__title, .app-card__content
+// - .topbar-header, .topbar-badge
+// - .action-btn, .action-btn--primary, .action-btn--secondary, .action-btn--danger
+// - .loading-state, .error-state
 // =============================================================================
 
 // -----------------------------------------------------------------------------
-// Content Wrapper
+// Layout
 // -----------------------------------------------------------------------------
 .order-detail-content {
-  padding: var(--space-lg);
-  max-width: 1200px;
-  margin: 0 auto;
+  padding: var(--space-6);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; // Prevent outer scroll, let items list scroll
 }
 
-// -----------------------------------------------------------------------------
-// Order Items Card
-// -----------------------------------------------------------------------------
+.order-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-6);
+  flex: 1;
+  min-height: 0; // Important for nested flex scroll
 
+  @media (min-width: 768px) {
+    grid-template-columns: 1.5fr 1fr;
+    gap: var(--space-8);
+  }
+}
+
+// Left column - Order Items Card
+.order-items-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 0; // Important for flex scroll
+  overflow: hidden;
+
+  .app-card__content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+}
+
+.order-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  overflow-y: auto;
+}
 
 // -----------------------------------------------------------------------------
 // Order Items List
@@ -27,12 +62,16 @@
   list-style: none;
   margin: 0;
   padding: 0;
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
 }
 
 .item-line {
   display: flex;
   align-items: center;
-  padding: var(--space-md) 0;
+  gap: var(--space-5);
+  padding: var(--space-5) 0;
   border-bottom: 1px solid rgba(0, 0, 0, 0.06);
 
   &:last-child {
@@ -43,21 +82,20 @@
 .item-image {
   width: var(--icon-lg);
   height: var(--icon-lg);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   overflow: hidden;
+  background: var(--surface-100, #f1f5f9);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  margin-inline-end: var(--space-md);
 
   &.clickable {
     cursor: pointer;
-    transition: transform 0.2s ease;
+    transition: transform var(--transition-fast);
 
     &:hover {
-      transform: scale(1.1);
-      box-shadow: var(--shadow-hover);
+      transform: scale(1.05);
     }
   }
 
@@ -69,22 +107,21 @@
 
   i {
     font-size: var(--font-size-lg);
-    color: var(--color-text-muted);
+    color: var(--text-color-secondary);
   }
 }
 
 .item-qty {
-  font-size: var(--font-size-base);
+  font-size: var(--font-size-md);
   font-weight: var(--font-weight-semibold);
-  color: var(--primary-700);
-  min-width: 35px;
+  color: var(--primary-color);
+  min-width: 36px;
 }
 
 .item-name {
   flex: 1;
   font-size: var(--font-size-md);
-  color: var(--color-text-primary);
-  padding: 0 var(--space-sm);
+  color: var(--text-color);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -93,7 +130,7 @@
 .item-total {
   font-size: var(--font-size-md);
   font-weight: var(--font-weight-semibold);
-  color: var(--primary-700);
+  color: var(--primary-color);
 }
 
 // -----------------------------------------------------------------------------
@@ -103,23 +140,22 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: var(--space-lg) 0 0;
-  margin-top: var(--space-sm);
-  border-top: 2px solid rgba(46, 108, 183, 0.15);
+  padding: var(--space-6);
+  margin-top: var(--space-5);
+  background: var(--surface-100, #f8fafc);
+  border-radius: var(--radius-lg);
+  flex-shrink: 0; // Don't shrink - stay at bottom
 
   .total-label {
-    font-size: var(--font-size-lg);
-    font-weight: var(--font-weight-semibold);
-    color: var(--color-text-primary);
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-medium);
+    color: var(--text-color-secondary);
   }
 
   .total-amount {
-    font-size: var(--font-size-2xl);
+    font-size: var(--font-size-xl);
     font-weight: var(--font-weight-bold);
-    background: var(--primary-gradient);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: var(--primary-color);
   }
 }
 
@@ -127,99 +163,65 @@
 // Timeline
 // -----------------------------------------------------------------------------
 .timeline-wrapper {
-  padding: var(--space-sm) 0;
+  padding: var(--space-3) 0;
 }
 
 ::ng-deep .p-timeline {
   .p-timeline-event {
-    min-height: 70px;
+    min-height: 60px;
   }
 
   .p-timeline-event-content {
-    padding: 0 0 var(--space-lg) var(--space-lg);
+    padding: 0 0 var(--space-6) var(--space-5);
   }
 
   .p-timeline-event-connector {
-    background: linear-gradient(180deg, rgba(46, 108, 183, 0.3) 0%, rgba(46, 108, 183, 0.1) 100%);
+    background: var(--surface-200, #e2e8f0);
   }
 }
 
 .timeline-marker {
-  width: var(--icon-lg);
-  height: var(--icon-lg);
+  width: var(--icon-sm);
+  height: var(--icon-sm);
   border-radius: var(--radius-full);
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
-  box-shadow: var(--shadow-hover);
-  position: relative;
-
-  &::before {
-    content: '';
-    position: absolute;
-    inset: -3px;
-    border-radius: var(--radius-full);
-    background: inherit;
-    opacity: 0.2;
-  }
 
   i {
-    font-size: var(--font-size-lg);
-    position: relative;
-    z-index: 1;
+    font-size: var(--font-size-sm);
   }
 }
 
 .timeline-content {
   .status-text {
     font-size: var(--font-size-md);
-    font-weight: var(--font-weight-semibold);
-    color: var(--color-text-primary);
-    margin-bottom: var(--space-xs);
+    font-weight: var(--font-weight-medium);
+    color: var(--text-color);
+    margin-bottom: var(--space-1);
   }
 
   .status-date {
     font-size: var(--font-size-sm);
-    color: var(--color-text-secondary);
+    color: var(--text-color-secondary);
   }
 }
 
 // -----------------------------------------------------------------------------
-// Action Buttons Container
+// Actions
 // -----------------------------------------------------------------------------
 .action-buttons {
   display: flex;
   flex-direction: column;
-  gap: var(--space-md);
+  gap: var(--space-5);
 }
 
 .action-note {
   font-size: var(--font-size-xs);
-  color: var(--color-text-secondary);
-  margin-top: var(--space-sm);
+  color: var(--text-color-secondary);
   text-align: center;
-}
-
-// Note: Use global .action-btn classes directly in HTML
-
-// -----------------------------------------------------------------------------
-// Grid Layout
-// -----------------------------------------------------------------------------
-.order-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--space-lg);
-
-  @media (min-width: 768px) {
-    grid-template-columns: 1.2fr 1fr;
-  }
-}
-
-.order-sidebar {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-lg);
+  margin: 0;
 }
 
 // -----------------------------------------------------------------------------
@@ -227,25 +229,40 @@
 // -----------------------------------------------------------------------------
 @media (max-width: 768px) {
   .order-detail-content {
-    padding: var(--space-md);
+    padding: var(--space-5);
+    height: auto; // Allow natural height on mobile
+    overflow: visible; // Allow normal scroll on mobile
   }
 
-  .order-detail-header {
-    &__icon {
-      width: var(--icon-sm);
-      height: var(--icon-sm);
+  .order-grid {
+    min-height: auto;
+  }
 
-      i {
-        font-size: var(--font-size-base);
-      }
-    }
+  .order-items-card {
+    min-height: auto;
+    overflow: visible;
 
-    &__title {
-      font-size: var(--font-size-base);
+    .app-card__content {
+      overflow: visible;
     }
   }
 
-  .item-name {
+  .items-simple-list {
+    overflow: visible; // No scroll on mobile, let page scroll
+  }
+
+  .item-line {
+    gap: var(--space-3);
+  }
+
+  .item-image {
+    width: var(--icon-md);
+    height: var(--icon-md);
+  }
+
+  .item-qty,
+  .item-name,
+  .item-total {
     font-size: var(--font-size-base);
   }
 }

@@ -142,6 +142,11 @@ $bottom-nav-height: 70px;
 // Responsive Adjustments
 // -----------------------------------------------------------------------------
 @media (min-width: 768px) {
+  .page-content {
+    // No bottom nav padding on desktop
+    padding-bottom: 0;
+  }
+
   .page-topbar {
     padding: 0 1.5rem;
 
