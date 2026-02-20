@@ -121,7 +121,7 @@ export class FormBuilderService {
     return this.fb.group({
       username: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required],
-      rememberMe: [false]
+      rememberMe: [true]
     });
   }
 

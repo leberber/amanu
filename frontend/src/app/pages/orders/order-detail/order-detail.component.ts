@@ -10,6 +10,7 @@ import { TimelineModule } from 'primeng/timeline';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { ROUTES } from '../../../core/constants/routes.constants';
+import { ORDER_STATUS } from '../../../core/constants/app.constants';
 import { OrderService } from '../../../services/order.service';
 import { ProductService } from '../../../services/product.service';
 import { TranslationService } from '../../../services/translation.service';
@@ -72,7 +73,7 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
 
   // Computed values
   totalAmount = computed(() => this.order()?.total_amount || 0);
-  canCancelOrder = computed(() => this.order()?.status === 'pending');
+  canCancelOrder = computed(() => this.order()?.status === ORDER_STATUS.PENDING);
 
   ngOnInit(): void {
     // Check for success parameter
@@ -191,7 +192,7 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
     
     // Add statuses based on current order status
     switch (order.status) {
-      case 'cancelled':
+      case ORDER_STATUS.CANCELLED:
         statuses.push({
           status: this.translateService.instant('orders.detail.timeline.order_cancelled'),
           date: order.updated_at || order.created_at,
@@ -199,26 +200,26 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
           color: '#F44336'
         });
         break;
-        
-      case 'confirmed':
-      case 'shipped':
-      case 'delivered':
+
+      case ORDER_STATUS.CONFIRMED:
+      case ORDER_STATUS.SHIPPED:
+      case ORDER_STATUS.DELIVERED:
         statuses.push({
           status: this.translateService.instant('orders.detail.timeline.order_confirmed'),
           date: order.updated_at || order.created_at,
           icon: 'pi pi-check-circle',
           color: '#4CAF50'
         });
-        
-        if (order.status === 'shipped' || order.status === 'delivered') {
+
+        if (order.status === ORDER_STATUS.SHIPPED || order.status === ORDER_STATUS.DELIVERED) {
           statuses.push({
             status: this.translateService.instant('orders.detail.timeline.order_shipped'),
             date: order.updated_at || order.created_at,
             icon: 'pi pi-truck',
             color: '#3F51B5'
           });
-          
-          if (order.status === 'delivered') {
+
+          if (order.status === ORDER_STATUS.DELIVERED) {
             statuses.push({
               status: this.translateService.instant('orders.detail.timeline.order_delivered'),
               date: order.updated_at || order.created_at,
@@ -244,7 +245,7 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
 
   cancelOrder(): void {
     const currentOrder = this.order();
-    if (!currentOrder || currentOrder.status !== 'pending') {
+    if (!currentOrder || currentOrder.status !== ORDER_STATUS.PENDING) {
       return;
     }
     

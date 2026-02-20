@@ -5,6 +5,7 @@ import { tap, map } from 'rxjs/operators';
 import { ApiService } from './api.service';
 import { CartItem } from './cart.service';
 import { OrderCreate, OrderCreateItem, Order, OrderItem } from '../models/order.model';
+import { ORDER_STATUS } from '../core/constants/app.constants';
 
 @Injectable({
   providedIn: 'root'
@@ -45,7 +46,7 @@ export class OrderService {
 
   cancelOrder(orderId: number): Observable<Order> {
     return this.apiService.patch<Order>(`/orders/${orderId}`, {
-      status: 'cancelled'
+      status: ORDER_STATUS.CANCELLED
     });
   }
 

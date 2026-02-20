@@ -5,6 +5,7 @@ import { TranslateService } from '@ngx-translate/core';
 
 import { ADMIN_LIST_IMPORTS, ADMIN_DIALOG_IMPORTS } from '../../../shared/imports/admin-shared.imports';
 import { ROUTES } from '../../../core/constants/routes.constants';
+import { ORDER_STATUS } from '../../../core/constants/app.constants';
 import { onLanguageChange } from '../../../core/utils/language-change.util';
 import { AdminService } from '../../../services/admin.service';
 import { Order } from '../../../models/admin.model';
@@ -89,23 +90,23 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
   }
 
   getPendingCount(): number {
-    return this.getCountByPredicate(this.allOrders, o => o.status === 'pending');
+    return this.getCountByPredicate(this.allOrders, o => o.status === ORDER_STATUS.PENDING);
   }
 
   getConfirmedCount(): number {
-    return this.getCountByPredicate(this.allOrders, o => o.status === 'confirmed');
+    return this.getCountByPredicate(this.allOrders, o => o.status === ORDER_STATUS.CONFIRMED);
   }
 
   getShippedCount(): number {
-    return this.getCountByPredicate(this.allOrders, o => o.status === 'shipped');
+    return this.getCountByPredicate(this.allOrders, o => o.status === ORDER_STATUS.SHIPPED);
   }
 
   getDeliveredCount(): number {
-    return this.getCountByPredicate(this.allOrders, o => o.status === 'delivered');
+    return this.getCountByPredicate(this.allOrders, o => o.status === ORDER_STATUS.DELIVERED);
   }
 
   getCancelledCount(): number {
-    return this.getCountByPredicate(this.allOrders, o => o.status === 'cancelled');
+    return this.getCountByPredicate(this.allOrders, o => o.status === ORDER_STATUS.CANCELLED);
   }
 
   // === Abstract method implementations ===
@@ -279,11 +280,11 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
   getNextStatuses(currentStatus: string): { value: string; label: string; icon: string }[] {
     // Allow skipping steps - show all forward statuses
     const statusTransitions: Record<string, string[]> = {
-      'pending': ['confirmed', 'shipped', 'delivered', 'cancelled'],
-      'confirmed': ['shipped', 'delivered', 'cancelled'],
-      'shipped': ['delivered', 'cancelled'],
-      'delivered': [],
-      'cancelled': []
+      [ORDER_STATUS.PENDING]: [ORDER_STATUS.CONFIRMED, ORDER_STATUS.SHIPPED, ORDER_STATUS.DELIVERED, ORDER_STATUS.CANCELLED],
+      [ORDER_STATUS.CONFIRMED]: [ORDER_STATUS.SHIPPED, ORDER_STATUS.DELIVERED, ORDER_STATUS.CANCELLED],
+      [ORDER_STATUS.SHIPPED]: [ORDER_STATUS.DELIVERED, ORDER_STATUS.CANCELLED],
+      [ORDER_STATUS.DELIVERED]: [],
+      [ORDER_STATUS.CANCELLED]: []
     };
 
     const nextStatuses = statusTransitions[currentStatus] || [];
