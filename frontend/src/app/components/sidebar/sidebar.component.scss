@@ -1,41 +1,39 @@
 // =============================================================================
 // SIDEBAR COMPONENT STYLES
 // =============================================================================
-// This file contains styles specific to the sidebar component.
-// Global reusable styles are imported from _shared-components.scss
+// Uses global styles from _shared-components.scss and PrimeFlex utilities
+// Mobile drawer is semi-transparent to show app-level decorative blobs
 //
 // Naming Convention: BEM-like with sidebar prefix
 // - Block: sidebar-[context] (e.g., sidebar-desktop, sidebar-mobile)
 // - Element: sidebar-[context]__[element] (e.g., sidebar-nav-link__icon)
-// - Modifier: sidebar-[context]--[modifier] (e.g., sidebar-mobile-blob--primary)
+// - Modifier: sidebar-[context]--[modifier]
 // =============================================================================
 
 // =============================================================================
 // DESKTOP SIDEBAR
 // =============================================================================
 // Fixed sidebar for desktop viewport (>= 768px)
-// Positioned on the left (or right for RTL languages)
 
 .sidebar-desktop {
-  width: var(--sidebar-width);       // Width defined in global CSS variables
-  height: 100vh;                      // Full viewport height
-  background: var(--surface-card);    // Card background from theme
+  width: var(--sidebar-width);
+  height: 100vh;
+  background: var(--surface-card);
   position: fixed;
-  inset-inline-start: 0;              // RTL-aware positioning (left in LTR, right in RTL)
+  inset-inline-start: 0;              // RTL-aware (left in LTR, right in RTL)
   top: 0;
-  z-index: 100;                       // Above main content, below modals
+  z-index: 100;
 }
 
 // =============================================================================
-// NAVIGATION LINK (Desktop)
+// NAVIGATION LINK (Desktop & Mobile shared)
 // =============================================================================
 // Clickable navigation item with icon and label
-// Used in both main navigation and admin section
 
 .sidebar-nav-link {
-  margin: 0; // Reset browser default margins on anchor elements
+  margin: 0; // Reset browser default margins
 
-  // Hover state - subtle background highlight
+  // Hover state
   &:hover {
     background: rgba(var(--primary-rgb, 46, 108, 183), 0.08);
     color: var(--primary-color);
@@ -45,32 +43,29 @@
     }
   }
 
-  // Active state - current route indicator
-  // Applied via routerLinkActive directive
+  // Active state - current route
   &.active {
     background: rgba(var(--primary-rgb, 46, 108, 183), 0.12);
     color: var(--primary-color);
     font-weight: 600;
 
-    // Icon gets gradient background when active
     .sidebar-nav-link__icon {
       background: var(--primary-gradient, linear-gradient(135deg, #2E6CB7 0%, #0F3C82 100%));
 
       i {
-        color: white !important; // Override default icon color
+        color: white !important;
       }
     }
   }
 }
 
-// Icon container - square box containing the navigation icon
-// Also serves as badge anchor for cart count
+// Icon container within nav link
 .sidebar-nav-link__icon {
   width: 36px;
   height: 36px;
   border-radius: 10px;
-  background: var(--surface-100, #f1f5f9); // Subtle background
-  position: relative;                       // For badge positioning
+  background: var(--surface-100, #f1f5f9);
+  position: relative;                  // For badge positioning
 
   i {
     font-size: 1rem;
@@ -78,72 +73,59 @@
   }
 }
 
-// Chevron arrow - indicates clickable/navigable item
-// Shown on mobile drawer items
+// Chevron arrow indicator
 .sidebar-nav-link__arrow {
-  opacity: 0.5; // Subtle by default, becomes visible on hover
+  opacity: 0.5;
 }
 
 // =============================================================================
 // MOBILE DRAWER
 // =============================================================================
 // Slide-out drawer for mobile viewport (< 768px)
-// Uses PrimeNG p-drawer component with custom styling
+// Semi-transparent to show app-level decorative blobs
 
 // PrimeNG drawer overrides
-// ::ng-deep required to pierce component encapsulation
 :host ::ng-deep .sidebar-drawer {
   .p-drawer {
     width: var(--sidebar-width);
-    max-width: 85vw;              // Prevent drawer from being too wide on small screens
+    max-width: 85vw;
   }
   .p-drawer-content {
-    padding: 0 !important;        // Remove default padding, we handle it ourselves
+    padding: 0 !important;
     background: transparent !important;
   }
 }
 
-// Main container for drawer content
-// Semi-transparent to show app-level decorative blobs
+// Main container - semi-transparent with backdrop blur
 .sidebar-mobile-container {
   height: 100%;
   background: rgba(var(--surface-card-rgb, 255, 255, 255), 0.85);
-  backdrop-filter: blur(20px);    // Frosted glass effect
+  backdrop-filter: blur(20px);        // Frosted glass effect
   overflow: hidden;
 }
 
-// =============================================================================
-// MOBILE DRAWER CONTENT
-// =============================================================================
-// Drawer is transparent to show app-level decorative blobs
-
-// Content wrapper - contains all interactive elements
+// Content wrapper
 .sidebar-mobile-content {
   position: relative;
-  z-index: 1;                     // Above background blobs
+  z-index: 1;
   height: 100%;
   padding: 1rem;
-  // Safe area padding for devices with notches/home indicators
   padding-top: calc(1rem + env(safe-area-inset-top));
   padding-bottom: calc(1rem + env(safe-area-inset-bottom));
 }
 
-// Mobile navigation link - card-style with glass effect
-// Larger touch targets for mobile usability
+// Mobile navigation link - card style with glass effect
 .sidebar-mobile-nav-link {
-  // Hover and active states
   &:hover, &.active {
     background: white;
     border-color: rgba(var(--primary-rgb), 0.15);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 
-    // Icon becomes gradient on hover/active
     .sidebar-nav-link__icon {
       background: var(--primary-gradient);
       i { color: white; }
     }
 
-    // Arrow becomes visible
     .sidebar-nav-link__arrow {
       opacity: 1;
       color: var(--primary-color);
@@ -163,22 +145,20 @@
 // =============================================================================
 // SETTINGS SECTION
 // =============================================================================
-// View mode toggle and other user preferences
 
-// Settings item - container for a single setting
+// Settings item container
 .sidebar-settings-item {
-  // Inherits glass-card styles from global
-  // Additional styles can be added here if needed
+  // Inherits glass-card styles
 }
 
-// View mode toggle - list/grid switcher
+// View mode toggle container
 .sidebar-view-toggle {
   background: var(--surface-100);
   border-radius: 8px;
-  padding: 3px;                   // Space around buttons
+  padding: 3px;
 }
 
-// Individual toggle button
+// Toggle option button
 .sidebar-view-toggle__option {
   width: 32px;
   height: 32px;
@@ -188,7 +168,6 @@
   color: var(--text-color-secondary);
   cursor: pointer;
 
-  // Active state - selected option
   &.active {
     background: white;
     color: var(--primary-color);
@@ -199,14 +178,13 @@
 // =============================================================================
 // LOGIN SECTION
 // =============================================================================
-// Shown to unauthenticated users in mobile drawer
 
-// Login prompt card
+// Login card
 .sidebar-login-card {
-  // Inherits glass-card styles from global
+  // Inherits glass-card styles
 }
 
-// Decorative icon above login prompt
+// Login card icon
 .sidebar-login-card__icon {
   width: 56px;
   height: 56px;
@@ -217,13 +195,18 @@
 // =============================================================================
 // DARK MODE OVERRIDES
 // =============================================================================
-// Adjustments for dark theme compatibility
 
 :host-context(.my-app-dark) {
   .sidebar-mobile-container {
     background: rgba(30, 30, 30, 0.85);
   }
-  .sidebar-mobile-nav-link { background: rgba(30, 30, 30, 0.6); }
-  .sidebar-settings-item { background: rgba(30, 30, 30, 0.6); }
-  .sidebar-login-card { background: rgba(30, 30, 30, 0.7); }
+  .sidebar-mobile-nav-link {
+    background: rgba(30, 30, 30, 0.6);
+  }
+  .sidebar-settings-item {
+    background: rgba(30, 30, 30, 0.6);
+  }
+  .sidebar-login-card {
+    background: rgba(30, 30, 30, 0.7);
+  }
 }
