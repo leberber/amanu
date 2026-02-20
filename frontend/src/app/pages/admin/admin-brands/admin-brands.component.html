@@ -3,13 +3,6 @@
   <p-toast></p-toast>
   <p-confirmDialog></p-confirmDialog>
 
-  <!-- Animated Background -->
-  <div class="bg-decoration">
-    <div class="blob blob-1"></div>
-    <div class="blob blob-2"></div>
-    <div class="blob blob-3"></div>
-  </div>
-
   <div class="page-content">
     <!-- Page Header -->
     <div class="page-header">
@@ -25,8 +18,6 @@
           <p>{{ 'admin.brands.subtitle' | translate }}</p>
         </div>
       </div>
-    </div>
-
     <!-- Status Segmented Control with Add Button -->
     <div class="segment-row">
       <div class="status-segment">
@@ -56,8 +47,6 @@
         <i class="pi pi-plus"></i>
         <span>{{ 'admin.brands.add_brand' | translate }}</span>
       </button>
-    </div>
-
     <!-- Search & Filters Card -->
     <div class="filters-card">
       <div class="search-box">
@@ -150,8 +139,6 @@
             </div>
           </div>
         }
-      </div>
-
       <!-- Pagination -->
       <div class="pagination-wrapper" *ngIf="brands.length > rows">
         <p-paginator
@@ -163,8 +150,6 @@
           [showCurrentPageReport]="true"
           currentPageReportTemplate="{{ 'admin.brands.showing' | translate }} {first} - {last} {{ 'admin.brands.of' | translate }} {totalRecords}"
         ></p-paginator>
-      </div>
-
       <!-- Results Count (when no pagination needed) -->
       <div class="results-info" *ngIf="brands.length <= rows">
         <span>{{ 'admin.brands.showing' | translate }} {{ brands.length }} {{ 'admin.brands.of' | translate }} {{ allBrands.length }} {{ 'admin.brands.brands' | translate }}</span>

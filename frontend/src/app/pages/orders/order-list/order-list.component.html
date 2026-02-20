@@ -2,13 +2,6 @@
 <div class="orders-page">
   <p-toast></p-toast>
 
-  <!-- Animated Background -->
-  <div class="bg-decoration">
-    <div class="blob blob-1"></div>
-    <div class="blob blob-2"></div>
-    <div class="blob blob-3"></div>
-  </div>
-
   <div class="orders-content">
     <!-- Loading state -->
     @if (loading) {
@@ -44,8 +37,6 @@
             <span>{{ 'orders.title' | translate }}</span>
           </div>
           <div class="item-count-badge">{{ orders.length }}</div>
-        </div>
-
         <!-- Desktop Table View -->
         <div class="hidden md:block">
           <p-table
@@ -89,8 +80,6 @@
               </tr>
             </ng-template>
           </p-table>
-        </div>
-
         <!-- Mobile Card View -->
         <div class="block md:hidden">
           @for (order of orders; track order.id) {

@@ -2,13 +2,6 @@
 <div class="admin-dashboard">
   <p-toast></p-toast>
 
-  <!-- Animated Background -->
-  <div class="bg-decoration">
-    <div class="blob blob-1"></div>
-    <div class="blob blob-2"></div>
-    <div class="blob blob-3"></div>
-  </div>
-
   <div class="dashboard-content">
     @if (loading) {
       <div class="loading-container">
@@ -50,8 +43,6 @@
             <span class="stat-label">{{ 'admin.dashboard.total_revenue' | translate }}</span>
           </div>
           <div class="stat-decoration"></div>
-        </div>
-
         <!-- Total Users -->
         <div class="stat-card users" (click)="navigateToUsers()">
           <div class="stat-icon">
@@ -62,8 +53,6 @@
             <span class="stat-label">{{ 'admin.dashboard.total_users' | translate }}</span>
           </div>
           <div class="stat-decoration"></div>
-        </div>
-
         <!-- Total Products -->
         <div class="stat-card products" (click)="navigateToProducts()">
           <div class="stat-icon">
@@ -74,8 +63,6 @@
             <span class="stat-label">{{ 'admin.dashboard.total_products' | translate }}</span>
           </div>
           <div class="stat-decoration"></div>
-        </div>
-
         <!-- Total Categories -->
         <div class="stat-card categories" (click)="navigateToCategories()">
           <div class="stat-icon">
@@ -86,8 +73,6 @@
             <span class="stat-label">{{ 'admin.dashboard.total_categories' | translate }}</span>
           </div>
           <div class="stat-decoration"></div>
-        </div>
-
         <!-- Total Orders -->
         <div class="stat-card orders" (click)="navigateToOrders()">
           <div class="stat-icon">
@@ -98,8 +83,6 @@
             <span class="stat-label">{{ 'admin.dashboard.total_orders' | translate }}</span>
           </div>
           <div class="stat-decoration"></div>
-        </div>
-
         <!-- Pending Orders -->
         <div class="stat-card pending" (click)="navigateToOrders()">
           <div class="stat-icon">
@@ -110,8 +93,6 @@
             <span class="stat-label">{{ 'admin.dashboard.pending_orders' | translate }}</span>
           </div>
           <div class="stat-decoration"></div>
-        </div>
-
         <!-- Low Stock -->
         <div class="stat-card warning" (click)="navigateToProducts()">
           <div class="stat-icon">
@@ -175,8 +156,6 @@
             </button>
           </div>
         </div>
-      </div>
-
       <!-- Top Selling Products -->
       <div class="data-card full-width">
         <div class="card-header">

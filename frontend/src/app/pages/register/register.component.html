@@ -2,13 +2,6 @@
 <div class="register-carousel">
   <p-toast></p-toast>
 
-  <!-- Animated Background -->
-  <div class="bg-decoration">
-    <div class="blob blob-1"></div>
-    <div class="blob blob-2"></div>
-    <div class="blob blob-3"></div>
-  </div>
-
   <!-- Progress Bar Fixed at Top (hidden on map step, last step, or when input focused) -->
   <div class="progress-header" [class.hidden]="activeStep === 2 || activeStep === 4 || isInputFocused">
     <div class="progress-content">
@@ -45,8 +38,6 @@
             </div>
             <h1>{{ 'register.step1_title' | translate }}</h1>
             <p>{{ 'auth.register_subtitle' | translate }}</p>
-          </div>
-
           <form [formGroup]="personalInfoForm" class="slide-form">
             <div class="fancy-field" data-field="full_name" [class.focused]="focusedField === 'full_name'" [class.filled]="personalInfoForm.get('full_name')?.value" (click)="focusField('full_name')">
               <div class="field-icon">
@@ -110,8 +101,6 @@
             <a routerLink="/login">{{ 'auth.login_now' | translate }}</a>
           </div>
         </div>
-      </div>
-
       <!-- Step 2: Password -->
       <div class="carousel-slide">
         <div class="slide-content">
@@ -124,8 +113,6 @@
             </div>
             <h1>{{ 'register.step2_title' | translate }}</h1>
             <p>{{ 'auth.password_minlength' | translate }}</p>
-          </div>
-
           <form [formGroup]="passwordForm" class="slide-form">
             <div class="fancy-field password-field" data-field="password" [class.focused]="focusedField === 'password'" (click)="focusField('password')">
               <div class="field-icon">
@@ -192,8 +179,6 @@
           <!-- Map Background -->
           <div class="map-fullscreen">
             <app-map-picker [fullscreen]="true" (locationSelected)="onLocationSelected($event)" (locationError)="onLocationError($event)"></app-map-picker>
-          </div>
-
           <!-- Overlay Header -->
           <div class="map-overlay-header">
             <div class="map-top-nav">
@@ -243,8 +228,6 @@
             </div>
             <h1>{{ 'register.step4_store_title' | translate }}</h1>
             <p>{{ 'register.step4_store_subtitle' | translate }}</p>
-          </div>
-
           <form [formGroup]="storeDetailsForm" class="slide-form">
             <!-- Store Name (Optional) -->
             <div class="fancy-field" data-field="store_name" [class.focused]="focusedField === 'store_name'" [class.filled]="storeDetailsForm.get('store_name')?.value" (click)="focusField('store_name')">
@@ -338,8 +321,6 @@
             </div>
             <h1>{{ 'register.step5_title' | translate }}</h1>
             <p>{{ 'register.step5_subtitle' | translate }}</p>
-          </div>
-
           <div class="summary-cards">
             <div class="summary-card" (click)="goToStep(0)">
               <div class="card-icon">
@@ -405,8 +386,6 @@
                 <i class="pi pi-pencil"></i>
               </div>
             </div>
-          </div>
-
           <div class="terms-text">
             <small>
               {{ 'auth.terms_agreement' | translate }}
@@ -416,8 +395,6 @@
             </small>
           </div>
         </div>
-      </div>
-
     </div>
   </div>
 

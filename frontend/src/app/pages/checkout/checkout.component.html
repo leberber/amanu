@@ -2,13 +2,6 @@
 <div class="checkout-page">
   <p-toast></p-toast>
 
-  <!-- Animated Background -->
-  <div class="bg-decoration">
-    <div class="blob blob-1"></div>
-    <div class="blob blob-2"></div>
-    <div class="blob blob-3"></div>
-  </div>
-
   <div class="checkout-content">
     <!-- Checkout Grid -->
     <div class="checkout-grid" [class.centered]="!accordionExpanded">
@@ -17,8 +10,6 @@
         <div class="card-header compact">
           <h3>{{ 'checkout.delivery_note' | translate }}</h3>
           <span class="item-count-text"><span class="item-count-number">{{ cartItems.length }}</span> {{ cartItems.length === 1 ? ('cart.article' | translate) : ('cart.articles' | translate) }}</span>
-        </div>
-
         <div class="card-body">
           <!-- Cart Items - Compact List -->
           <div class="cart-items-list">
@@ -29,8 +20,6 @@
                 <span class="item-price">{{ item.product_price * item.quantity | appCurrency }}</span>
               </div>
             }
-          </div>
-
           <!-- Price Breakdown -->
           <div class="price-breakdown">
             <!-- Subtotal -->
@@ -40,8 +29,6 @@
                 <span>{{ 'checkout.subtotal' | translate }}</span>
               </div>
               <span class="breakdown-value">{{ getCartTotal() | appCurrency }}</span>
-            </div>
-
             <!-- Discount -->
             @if (appliedPromotion) {
               <div class="breakdown-row discount">
@@ -71,8 +58,6 @@
                 <span class="total-amount">{{ getFinalTotal() | appCurrency }}</span>
               </div>
             </div>
-          </div>
-
           <!-- Actions -->
           <div class="checkout-actions">
             <button
@@ -98,8 +83,6 @@
             </button>
           </div>
         </div>
-      </div>
-
       <!-- Shipping Info Card -->
       @if (accordionExpanded) {
         <div class="shipping-info-card">
@@ -116,8 +99,6 @@
                 <i class="pi pi-check"></i>
               </div>
             }
-          </div>
-
           <div class="card-body">
             <div class="shipping-fields">
               <!-- Full Name -->
@@ -131,8 +112,6 @@
                     {{ checkoutForm.get('fullName')?.value || ('checkout.default_name' | translate) }}
                   </div>
                 </div>
-              </div>
-
               <!-- Phone -->
               <div class="shipping-field">
                 <div class="field-icon phone">
@@ -144,8 +123,6 @@
                     {{ checkoutForm.get('phone')?.value || ('checkout.default_phone' | translate) }}
                   </div>
                 </div>
-              </div>
-
               <!-- Address -->
               <div class="shipping-field">
                 <div class="field-icon address">
@@ -170,4 +147,3 @@
       }
     </div>
   </div>
-</div>

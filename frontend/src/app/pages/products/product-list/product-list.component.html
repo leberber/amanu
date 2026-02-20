@@ -2,25 +2,12 @@
 <div class="products-page">
   <p-toast></p-toast>
 
-  <!-- Animated Background -->
-  <div class="bg-decoration">
-    <div class="blob blob-1"></div>
-    <div class="blob blob-2"></div>
-    <div class="blob blob-3"></div>
-  </div>
-
   <!-- Desktop Layout -->
   <div class="hidden lg:flex w-full pt-2 pb-6">
     <ng-container *ngTemplateOutlet="desktopLayout"></ng-container>
-  </div>
-
   <!-- Mobile Layout -->
   <div class="flex lg:hidden w-full flex-column">
     <ng-container *ngTemplateOutlet="mobileLayout"></ng-container>
-  </div>
-
-</div>
-
 <!-- ===================== TEMPLATE DEFINITIONS ===================== -->
 
 <!-- Desktop Layout Template -->
@@ -40,8 +27,6 @@
     <!-- Category/Brand Bar Layer -->
     <div class="header-layer filter-layer" [class.hidden]="showMobileSearch()">
       <ng-container *ngTemplateOutlet="filterBar"></ng-container>
-    </div>
-
     <!-- Search Overlay Layer -->
     <div class="header-layer search-layer" [class.active]="showMobileSearch()">
       <div class="search-overlay-container">
@@ -186,8 +171,6 @@
             </ng-container>
           </div>
         </div>
-      </div>
-      
       <!-- Product Content - Compact -->
       <div class="flex-1 p-1 md:px-3 md:py-0 flex flex-column overflow-hidden">
         <!-- Mobile Layout -->
@@ -202,8 +185,6 @@
           <!-- Description - More readable -->
           <div class="text-sm text-600 mb-3 line-clamp-1 line-height-2 opacity-90">
             {{ product.description || ('products.default_description' | translate) }}
-          </div>
-          
           <!-- Price and Stock - Cleaner layout -->
           <div class="flex align-items-center justify-content-between mb-3">
             <div>
@@ -253,8 +234,6 @@
                   (quantityChanged)="setProductQuantity(product.id, $event)"
                   class="w-full">
                 </app-product-quantity-selector>
-              </div>
-              
               <div class="flex align-items-center gap-2">
                 <div class="flex-1">
                   <ng-container *ngIf="isProductInCart(product.id); else notInCartMobile">
@@ -299,8 +278,6 @@
               </button>
             </div>
           </ng-container>
-        </div>
-        
         <!-- Desktop Layout -->
         <div class="hidden md:block">
           <!-- Header Section -->
@@ -345,8 +322,6 @@
                 </ng-container>
               </div>
             </div>
-          </div>
-          
           <!-- Description -->
           <p class="text-sm text-600 line-height-2 m-0 mb-2 overflow-hidden" style="max-height: 2.5rem;">
             {{ product.description || ('products.default_description' | translate) }}
@@ -367,8 +342,6 @@
                   (quantityChanged)="setProductQuantity(product.id, $event)"
                   class="flex-1">
                 </app-product-quantity-selector>
-              </div>
-              
               <div class="flex align-items-center gap-2 mt-2 py-2">
                 <div class="flex-1">
                   <ng-container *ngIf="isProductInCart(product.id); else notInCartDesktop">

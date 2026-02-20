@@ -16,52 +16,6 @@ $primary-gradient: linear-gradient(135deg, #2E6CB7 0%, #0F3C82 100%);
 }
 
 // Animated Background Blobs
-.bg-decoration {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  overflow: hidden;
-  pointer-events: none;
-  z-index: 0;
-}
-
-.blob {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(80px);
-  opacity: 0.3;
-  animation: float 25s ease-in-out infinite;
-
-  &.blob-1 {
-    width: 200px;
-    height: 200px;
-    background: linear-gradient(135deg, rgba(46, 108, 183, 0.3) 0%, rgba(15, 60, 130, 0.3) 100%);
-    top: 5%;
-    right: -80px;
-    animation-delay: 0s;
-  }
-
-  &.blob-2 {
-    width: 160px;
-    height: 160px;
-    background: linear-gradient(135deg, rgba(34, 197, 94, 0.25) 0%, rgba(22, 163, 74, 0.25) 100%);
-    bottom: 30%;
-    left: -60px;
-    animation-delay: -7s;
-  }
-
-  &.blob-3 {
-    width: 140px;
-    height: 140px;
-    background: linear-gradient(135deg, rgba(251, 146, 60, 0.2) 0%, rgba(234, 88, 12, 0.2) 100%);
-    bottom: 10%;
-    right: 5%;
-    animation-delay: -14s;
-  }
-}
-
 @keyframes float {
   0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
   25% { transform: translate(15px, -20px) rotate(3deg) scale(1.03); }
@@ -596,14 +550,7 @@ $primary-gradient: linear-gradient(135deg, #2E6CB7 0%, #0F3C82 100%);
 }
 
 // Responsive
-@media (min-width: 768px) {
-  .blob {
-    &.blob-1 { width: 280px; height: 280px; }
-    &.blob-2 { width: 220px; height: 220px; }
-    &.blob-3 { width: 180px; height: 180px; }
-  }
-
-  .product-card {
+@media (min-width: 768px) {.product-card {
     padding: 1.75rem;
   }
 

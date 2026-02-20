@@ -2,13 +2,6 @@
 <div class="account-page">
   <p-toast></p-toast>
 
-  <!-- Animated Background -->
-  <div class="bg-decoration">
-    <div class="blob blob-1"></div>
-    <div class="blob blob-2"></div>
-    <div class="blob blob-3"></div>
-  </div>
-
   <div class="account-content">
     <!-- Back Button -->
     <app-back-button route="/products" [circular]="true" [fixed]="true"></app-back-button>
@@ -23,8 +16,6 @@
       </div>
       <h1>{{ user?.full_name || 'User' }}</h1>
       <p>{{ user?.email }}</p>
-    </div>
-
     <!-- Account Info Card -->
     <div class="account-card info-card-wrapper">
       <div class="info-items">
@@ -85,15 +76,11 @@
             </p-toggleswitch>
           </div>
         </div>
-      </div>
-
       <!-- Logout Button -->
       <button class="logout-btn" (click)="logout()">
         <i class="pi pi-sign-out"></i>
         <span>{{ 'common.logout' | translate }}</span>
       </button>
-    </div>
-
     <div class="cards-grid single-column">
         <!-- Profile Information Card -->
         <div class="account-card">
@@ -133,8 +120,6 @@
                 @if (getFieldError(profileForm, 'full_name', 'minlength')) {
                   <small class="field-error">{{ 'account.full_name_min' | translate }}</small>
                 }
-              </div>
-
               <!-- Email (Disabled) -->
               <div class="field-wrapper">
                 <div class="fancy-field disabled filled">
@@ -155,8 +140,6 @@
                 <small class="field-hint" style="margin-left: 0.5rem; display: block; margin-top: 0.25rem; font-size: 0.75rem; color: var(--text-color-secondary);">
                   {{ 'account.email_hint' | translate }}
                 </small>
-              </div>
-
               <!-- Phone -->
               <div class="field-wrapper">
                 <div class="fancy-field"
@@ -176,8 +159,6 @@
                       (blur)="focusedField = ''">
                   </div>
                 </div>
-              </div>
-
               <!-- Address -->
               <div class="field-wrapper">
                 <div class="fancy-field"
@@ -209,8 +190,6 @@
               </button>
             </div>
           </form>
-        </div>
-
         <!-- Change Password Card -->
         <div class="account-card">
           <div class="card-header">
@@ -248,8 +227,6 @@
                 @if (getFieldError(passwordForm, 'current_password', 'required')) {
                   <small class="field-error">{{ 'account.current_password_required' | translate }}</small>
                 }
-              </div>
-
               <!-- New Password -->
               <div class="field-wrapper">
                 <div class="fancy-field password-field"
@@ -276,8 +253,6 @@
                 @if (getFieldError(passwordForm, 'new_password', 'minlength')) {
                   <small class="field-error">{{ 'account.password_min' | translate }}</small>
                 }
-              </div>
-
               <!-- Confirm Password -->
               <div class="field-wrapper">
                 <div class="fancy-field password-field"

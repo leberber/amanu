@@ -2,13 +2,6 @@
 <div class="login-page">
   <p-toast></p-toast>
 
-  <!-- Animated Background -->
-  <div class="bg-decoration">
-    <div class="blob blob-1"></div>
-    <div class="blob blob-2"></div>
-    <div class="blob blob-3"></div>
-  </div>
-
   <!-- Top Bar with Language Selector -->
   <div class="top-bar">
     <div class="top-bar-content">
@@ -33,8 +26,6 @@
         </div>
         <h1>{{ 'auth.login_title' | translate }}</h1>
         <p>{{ 'auth.login_subtitle' | translate }}</p>
-      </div>
-
       <!-- Form -->
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
         <!-- Email Field -->
@@ -92,8 +83,6 @@
         </a>
       </div>
     </div>
-  </div>
-
   <!-- Fixed Footer Button -->
   <div class="fixed-footer">
     <button class="fancy-btn" [disabled]="loginForm.invalid || loading" (click)="onSubmit()">
@@ -103,8 +92,6 @@
       </div>
       <i *ngIf="loading" class="pi pi-spin pi-spinner"></i>
     </button>
-  </div>
-
   <!-- Inactive Account Modal -->
   <p-dialog
     [(visible)]="showInactiveModal"
@@ -161,4 +148,3 @@
       </button>
     </div>
   </p-dialog>
-</div>

@@ -2,13 +2,6 @@
 <div class="user-form-page">
   <p-toast></p-toast>
 
-  <!-- Animated Background -->
-  <div class="bg-decoration">
-    <div class="blob blob-1"></div>
-    <div class="blob blob-2"></div>
-    <div class="blob blob-3"></div>
-  </div>
-
   <div class="page-content">
     <!-- Page Header -->
     <div class="page-header">
@@ -216,8 +209,6 @@
                 optionValue="value"
                 styleClass="role-segment"
               />
-            </div>
-
             <!-- Status Segment Control -->
             <div class="segment-field">
               <label>{{ 'admin.users.form.status' | translate }}</label>
@@ -228,8 +219,6 @@
                 optionValue="value"
                 styleClass="status-segment"
               />
-            </div>
-
             <!-- Password -->
             <div class="form-field-styled">
               <div class="field-icon password">
@@ -249,8 +238,6 @@
             </div>
           </div>
         </div>
-      </div>
-
       <!-- Map Location Picker Card (Full Width Below) -->
       <div class="form-card map-card">
         <div class="card-header">
@@ -304,8 +291,6 @@
         </button>
       </div>
     </form>
-  </div>
-
   <!-- Loading Overlay -->
   @if (loading()) {
     <div class="loading-overlay">
@@ -315,4 +300,3 @@
       </div>
     </div>
   }
-</div>

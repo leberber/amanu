@@ -2,13 +2,6 @@
 <div class="product-form-page">
   <p-toast></p-toast>
 
-  <!-- Animated Background -->
-  <div class="bg-decoration">
-    <div class="blob blob-1"></div>
-    <div class="blob blob-2"></div>
-    <div class="blob blob-3"></div>
-  </div>
-
   <div class="page-content">
     <!-- Page Header -->
     <div class="page-header">
@@ -62,8 +55,6 @@
                   }
                 </div>
               </div>
-            </div>
-
             <!-- French Name -->
             <div class="language-section">
               <span class="language-flag">🇫🇷</span>
@@ -82,8 +73,6 @@
                   }
                 </div>
               </div>
-            </div>
-
             <!-- Arabic Name -->
             <div class="language-section">
               <span class="language-flag">🇩🇿</span>
@@ -103,8 +92,6 @@
                   }
                 </div>
               </div>
-            </div>
-
             <!-- Image URL -->
             <div class="image-section">
               <div class="section-label">
@@ -126,8 +113,6 @@
               </div>
             </div>
           </div>
-        </div>
-
         <!-- Product Descriptions Card -->
         <div class="form-card">
           <div class="card-header">
@@ -153,8 +138,6 @@
                   ></textarea>
                 </div>
               </div>
-            </div>
-
             <!-- French Description -->
             <div class="language-section">
               <span class="language-flag">🇫🇷</span>
@@ -171,8 +154,6 @@
                   ></textarea>
                 </div>
               </div>
-            </div>
-
             <!-- Arabic Description -->
             <div class="language-section">
               <span class="language-flag">🇩🇿</span>
@@ -190,8 +171,6 @@
                   ></textarea>
                 </div>
               </div>
-            </div>
-
             <!-- Active Status -->
             <div class="settings-section">
               <div class="checkbox-row">
@@ -214,8 +193,6 @@
               </div>
             </div>
           </div>
-        </div>
-
         <!-- Pricing & Inventory Card -->
         <div class="form-card">
           <div class="card-header">
@@ -261,8 +238,6 @@
                   }
                 </div>
               </div>
-            </div>
-
             <!-- Stock Section -->
             <div class="inventory-section">
               <div class="section-label">
@@ -285,8 +260,6 @@
                   }
                 </div>
               </div>
-            </div>
-
             <!-- Classification Section -->
             <div class="classification-section">
               <div class="section-label">
@@ -372,8 +345,6 @@
                   />
                 </div>
               </div>
-            </div>
-
             <!-- List Type Configuration -->
             @if (quantityConfigType() === 'list') {
               <div class="quantity-config-section">
@@ -404,8 +375,6 @@
                       </p-button>
                     </p-inputGroupAddon>
                   </p-inputGroup>
-                </div>
-
                 <!-- Pills for List -->
                 <div class="form-field" style="margin-top: 1rem;">
                   <label>Quick Select Pills (Max 3)</label>
@@ -476,8 +445,6 @@
             }
           </div>
         </div>
-      </div>
-
       <!-- Form Actions -->
       <div class="form-actions">
         <button
@@ -500,8 +467,6 @@
         </button>
       </div>
     </form>
-  </div>
-
   <!-- Loading Overlay -->
   @if (loading() && isEditMode()) {
     <div class="loading-overlay">
@@ -511,4 +476,3 @@
       </div>
     </div>
   }
-</div>
