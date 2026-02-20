@@ -13,6 +13,7 @@ import { AuthService } from '../../services/auth.service';
 import { BackButtonComponent } from '../../shared/components/back-button/back-button.component';
 import { ToastMessageService } from '../../core/services/toast-message.service';
 import { FormBuilderService } from '../../core/services/form-builder.service';
+import { ANIMATION } from '../../core/constants/app.constants';
 
 @Component({
   selector: 'app-reset-password',
@@ -75,7 +76,7 @@ export class ResetPasswordComponent implements OnInit {
     this.authService.resetPassword(this.email, code, password)
       .pipe(
         finalize(() => {
-          setTimeout(() => this.loading = false, 1000);
+          setTimeout(() => this.loading = false, ANIMATION.VERY_SLOW);
         })
       )
       .subscribe({

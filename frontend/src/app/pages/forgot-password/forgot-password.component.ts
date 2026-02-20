@@ -11,6 +11,7 @@ import { finalize } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 import { BackButtonComponent } from '../../shared/components/back-button/back-button.component';
 import { ToastMessageService } from '../../core/services/toast-message.service';
+import { ANIMATION } from '../../core/constants/app.constants';
 
 @Component({
   selector: 'app-forgot-password',
@@ -58,7 +59,7 @@ export class ForgotPasswordComponent implements OnInit {
     this.authService.forgotPassword(email)
       .pipe(
         finalize(() => {
-          setTimeout(() => this.loading = false, 1000);
+          setTimeout(() => this.loading = false, ANIMATION.VERY_SLOW);
         })
       )
       .subscribe({

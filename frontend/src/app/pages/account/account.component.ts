@@ -1,8 +1,9 @@
 // src/app/pages/account/account.component.ts
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -50,7 +51,7 @@ import { DateFormatPipe } from '../../shared/pipes/date-format.pipe';
     templateUrl: './account.component.html',
   styleUrl: './account.component.scss'
 })
-export class AccountComponent implements OnInit {
+export class AccountComponent implements OnInit, OnDestroy {
   user: User | null = null;
   profileForm!: FormGroup;
   passwordForm!: FormGroup;
@@ -59,7 +60,7 @@ export class AccountComponent implements OnInit {
   notificationsEnabled = false;
   loadingNotifications = false;
   focusedField = '';
-  
+
   private fb = inject(FormBuilder);
   public authService = inject(AuthService);
   private userService = inject(UserService);
@@ -69,16 +70,23 @@ export class AccountComponent implements OnInit {
   private dateService = inject(DateService);
   private formValidation = inject(ValidationMessagesService);
   public pushService = inject(PushService);
+  private destroyRef = inject(DestroyRef);
   
   ngOnInit(): void {
     this.profileForm = this.createProfileForm();
     this.passwordForm = this.createPasswordForm();
     this.loadUserData();
 
-    // Subscribe to push notification status
-    this.pushService.isSubscribed$.subscribe(isSubscribed => {
-      this.notificationsEnabled = isSubscribed;
-    });
+    // Subscribe to push notification status - properly cleaned up on destroy
+    this.pushService.isSubscribed$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(isSubscribed => {
+        this.notificationsEnabled = isSubscribed;
+      });
+  }
+
+  ngOnDestroy(): void {
+    // Subscriptions are automatically cleaned up by takeUntilDestroyed
   }
   
   private createProfileForm(): FormGroup {

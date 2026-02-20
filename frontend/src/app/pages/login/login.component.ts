@@ -14,7 +14,7 @@ import { AuthService } from '../../services/auth.service';
 import { UserRole } from '../../models/user.model';
 import { LanguageSelectorComponent } from '../../components/language-selector/language-selector.component';
 import { ToastMessageService } from '../../core/services/toast-message.service';
-import { STORAGE_KEYS } from '../../core/constants/app.constants';
+import { STORAGE_KEYS, ANIMATION } from '../../core/constants/app.constants';
 
 @Component({
   selector: 'app-login',
@@ -71,7 +71,7 @@ export class LoginComponent implements OnInit {
     this.authService.login(this.loginForm.value)
       .pipe(
         finalize(() => {
-          setTimeout(() => this.loading = false, 1000);
+          setTimeout(() => this.loading = false, ANIMATION.VERY_SLOW);
         })
       )
       .subscribe({
