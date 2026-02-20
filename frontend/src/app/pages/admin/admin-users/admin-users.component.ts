@@ -16,9 +16,8 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { AdminService } from '../../../services/admin.service';
 import { UserManage, UsersResponse } from '../../../models/admin.model';
-import { DateService } from '../../../core/services/date.service';
-import { SearchDebounceService } from '../../../core/services/search-debounce.service';
 import { ROUTES } from '../../../core/constants/routes.constants';
+import { BaseAdminListComponent } from '../../../shared/base/base-admin-list.component';
 
 @Component({
   selector: 'app-admin-users',
@@ -38,15 +37,11 @@ import { ROUTES } from '../../../core/constants/routes.constants';
   templateUrl: './admin-users.component.html',
   styleUrl: './admin-users.component.scss'
 })
-export class AdminUsersComponent implements OnInit {
+export class AdminUsersComponent extends BaseAdminListComponent implements OnInit {
   // Data properties
   allUsers: UserManage[] = [];
   users: UserManage[] = [];
   totalRecords = 0;
-
-  // UI state
-  loading = true;
-  searchQuery = '';
 
   // Role segment filter
   roleFilter: 'all' | 'customer' | 'staff' | 'admin' = 'all';
@@ -67,8 +62,6 @@ export class AdminUsersComponent implements OnInit {
   private toast = inject(ToastMessageService);
   private router = inject(Router);
   private translateService = inject(TranslateService);
-  private dateService = inject(DateService);
-  private searchDebounce = inject(SearchDebounceService);
   private confirmationService = inject(ConfirmationService);
 
   ngOnInit(): void {
@@ -98,7 +91,7 @@ export class AdminUsersComponent implements OnInit {
     this.adminService.getAllUsers(1, 1000).subscribe({
       next: (response: UsersResponse) => {
         this.allUsers = response.users || [];
-        this.filterUsers();
+        this.filterItems();
         this.loading = false;
       },
       error: (error) => this.handleLoadError(error)
@@ -125,7 +118,7 @@ export class AdminUsersComponent implements OnInit {
 
   onRoleFilterChange(role: 'all' | 'customer' | 'staff' | 'admin'): void {
     this.roleFilter = role;
-    this.filterUsers();
+    this.filterItems();
   }
 
   getCustomerCount(): number {
@@ -140,13 +133,9 @@ export class AdminUsersComponent implements OnInit {
     return this.allUsers.filter(u => u.role === 'admin').length;
   }
 
-  // ===== FILTERING =====
+  // === Abstract method implementations ===
 
-  hasActiveFilters(): boolean {
-    return !!(this.searchQuery?.trim() || this.roleFilter !== 'all');
-  }
-
-  filterUsers(): void {
+  filterItems(): void {
     let filtered = [...this.allUsers];
 
     // Apply role filter from segment
@@ -155,7 +144,7 @@ export class AdminUsersComponent implements OnInit {
     }
 
     // Apply search filter
-    if (this.searchQuery?.trim()) {
+    if (this.hasSearchQuery()) {
       const search = this.searchQuery.toLowerCase();
       filtered = filtered.filter(user =>
         user.full_name?.toLowerCase().includes(search) ||
@@ -168,16 +157,24 @@ export class AdminUsersComponent implements OnInit {
     this.totalRecords = filtered.length;
   }
 
-  onSearchInput(): void {
-    this.searchDebounce.debounce('users-search', () => {
-      this.filterUsers();
-    });
+  updatePaginatedItems(): void {
+    // No pagination in users component - displays all filtered users
+  }
+
+  getSearchDebounceKey(): string {
+    return 'users-search';
+  }
+
+  // === Component-specific methods ===
+
+  hasActiveFilters(): boolean {
+    return this.hasSearchQuery() || this.roleFilter !== 'all';
   }
 
   clearFilters(): void {
     this.searchQuery = '';
     this.roleFilter = 'all';
-    this.filterUsers();
+    this.filterItems();
   }
 
   // ===== NAVIGATION =====
@@ -205,7 +202,7 @@ export class AdminUsersComponent implements OnInit {
     this.adminService.deleteUser(user.id).subscribe({
       next: () => {
         this.allUsers = this.allUsers.filter(u => u.id !== user.id);
-        this.filterUsers();
+        this.filterItems();
         this.toast.showSuccess('admin.users.messages.user_deleted_detail', { name: user.full_name });
       },
       error: (error) => {
@@ -328,9 +325,5 @@ export class AdminUsersComponent implements OnInit {
 
   exportUsers(): void {
     this.toast.showInfo('admin.users.export_coming_soon');
-  }
-
-  formatDate(dateString: string): string {
-    return this.dateService.formatDate(dateString);
   }
 }

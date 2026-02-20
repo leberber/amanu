@@ -21,10 +21,9 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { ProductService } from '../../../services/product.service';
 import { TranslationHelperService } from '../../../core/services/translation-helper.service';
-import { DateService } from '../../../core/services/date.service';
-import { SearchDebounceService } from '../../../core/services/search-debounce.service';
 import { Category } from '../../../models/category.model';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
+import { BaseAdminListComponent } from '../../../shared/base/base-admin-list.component';
 
 @Component({
   selector: 'app-admin-categories',
@@ -50,32 +49,27 @@ import { ToastMessageService } from '../../../core/services/toast-message.servic
   templateUrl: './admin-categories.component.html',
   styleUrl: './admin-categories.component.scss'
 })
-export class AdminCategoriesComponent implements OnInit {
-  allCategories: Category[] = []; // Store all categories loaded once
-  categories: Category[] = [];    // Filtered categories to display
-  paginatedCategories: Category[] = []; // Paginated categories
-  loading = true;
-  searchQuery = '';
+export class AdminCategoriesComponent extends BaseAdminListComponent implements OnInit {
+  allCategories: Category[] = [];
+  categories: Category[] = [];
+  paginatedCategories: Category[] = [];
 
-  // Pagination
-  first = 0;
-  rows = 12;
+  // Override default rows
+  override rows = 12;
 
   // Status filter
   statusFilter: 'all' | 'active' | 'inactive' = 'all';
 
   // Store product counts for each category
   categoryProductCounts: { [categoryId: number]: number } = {};
-  
-  // Services injected using inject()
+
+  // Services
   private productService = inject(ProductService);
   private toast = inject(ToastMessageService);
   private confirmationService = inject(ConfirmationService);
   private router = inject(Router);
   private translateService = inject(TranslateService);
   private translationHelper = inject(TranslationHelperService);
-  private dateService = inject(DateService);
-  private searchDebounce = inject(SearchDebounceService);
 
   ngOnInit() {
     this.loadAllCategories();
@@ -83,7 +77,7 @@ export class AdminCategoriesComponent implements OnInit {
     // Subscribe to language changes
     this.translateService.onLangChange.subscribe(() => {
       // Force re-render to update translations
-      this.filterCategories();
+      this.filterItems();
     });
   }
 
@@ -100,7 +94,7 @@ export class AdminCategoriesComponent implements OnInit {
         this.allCategories = categories; // Store all categories
         this.categories = categories;    // Initially display all categories
         this.loadProductCounts(); // Load product counts for each category
-        this.updatePaginatedCategories();
+        this.updatePaginatedItems();
         this.loading = false;
       },
       error: (error) => {
@@ -126,8 +120,9 @@ export class AdminCategoriesComponent implements OnInit {
     });
   }
 
-  // Filter categories client-side (no API calls)
-  filterCategories() {
+  // === Abstract method implementations ===
+
+  filterItems(): void {
     let filtered = [...this.allCategories];
 
     // Apply status filter
@@ -138,7 +133,7 @@ export class AdminCategoriesComponent implements OnInit {
     }
 
     // Apply search filter
-    if (this.searchQuery?.trim()) {
+    if (this.hasSearchQuery()) {
       const search = this.searchQuery.toLowerCase();
       filtered = filtered.filter(category =>
         this.getCategoryName(category).toLowerCase().includes(search) ||
@@ -147,43 +142,29 @@ export class AdminCategoriesComponent implements OnInit {
     }
 
     this.categories = filtered;
-    this.first = 0; // Reset to first page when filtering
-    this.updatePaginatedCategories();
+    this.resetPagination();
+    this.updatePaginatedItems();
   }
 
-  onStatusFilterChange(status: 'all' | 'active' | 'inactive') {
-    this.statusFilter = status;
-    this.filterCategories();
-  }
-
-  updatePaginatedCategories() {
+  updatePaginatedItems(): void {
     this.paginatedCategories = this.categories.slice(this.first, this.first + this.rows);
   }
 
-  onPageChange(event: any) {
-    this.first = event.first;
-    this.rows = event.rows;
-    this.updatePaginatedCategories();
+  getSearchDebounceKey(): string {
+    return 'categories-search';
   }
 
-  // Search input with client-side filtering
-  onSearchInput() {
-    // Use the debounce service instead of managing timeout manually
-    this.searchDebounce.debounce('categories-search', () => {
-      this.filterCategories(); // Filter client-side instead of API call
-    });
+  // === Component-specific methods ===
+
+  onStatusFilterChange(status: 'all' | 'active' | 'inactive') {
+    this.statusFilter = status;
+    this.filterItems();
   }
 
-  // Keep for backward compatibility
-  onSearch() {
-    this.filterCategories();
-  }
-
-  // Clear filters with client-side filtering
   clearFilters() {
     this.searchQuery = '';
     this.statusFilter = 'all';
-    this.filterCategories(); // Filter client-side instead of API call
+    this.filterItems();
   }
 
   // Navigation methods
@@ -218,7 +199,7 @@ export class AdminCategoriesComponent implements OnInit {
         // Remove deleted category from allCategories array
         this.allCategories = this.allCategories.filter(c => c.id !== category.id);
         // Reapply current filters
-        this.filterCategories();
+        this.filterItems();
       },
       error: (error) => {
         console.error('Error deleting category:', error);
@@ -230,11 +211,6 @@ export class AdminCategoriesComponent implements OnInit {
   // Method to refresh data after adding/editing categories
   refreshCategoryData() {
     this.loadAllCategories();
-  }
-
-  // Utility methods
-  formatDate(dateString: string): string {
-    return this.dateService.formatDate(dateString);
   }
 
   getCategoryProductCount(categoryId: number): number {

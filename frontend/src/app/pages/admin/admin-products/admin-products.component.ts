@@ -20,10 +20,9 @@ import { BrandService } from '../../../core/services/brand.service';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { TranslationHelperService } from '../../../core/services/translation-helper.service';
 import { UnitsService } from '../../../core/services/units.service';
-import { SearchDebounceService } from '../../../core/services/search-debounce.service';
-import { DateService } from '../../../core/services/date.service';
 import { StockStatusService } from '../../../core/services/stock-status.service';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
+import { BaseAdminListComponent } from '../../../shared/base/base-admin-list.component';
 import { Product } from '../../../models/product.model';
 import { Category } from '../../../models/category.model';
 import { Brand } from '../../../models/brand.model';
@@ -66,19 +65,13 @@ import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
   templateUrl: './admin-products.component.html',
   styleUrl: './admin-products.component.scss'
 })
-export class AdminProductsComponent implements OnInit {
+export class AdminProductsComponent extends BaseAdminListComponent implements OnInit {
   // State properties
   allProducts: Product[] = [];
   products: Product[] = [];
   paginatedProducts: Product[] = [];
   categories: Category[] = [];
   brands: Brand[] = [];
-  loading = true;
-  searchQuery = '';
-
-  // Pagination
-  first = 0;
-  rows = 10;
 
   // Status filter
   statusFilter: 'all' | 'active' | 'inactive' = 'all';
@@ -96,7 +89,7 @@ export class AdminProductsComponent implements OnInit {
   editingPrice: number = 0;
   editingStockProductId: number | null = null;
   editingStock: number = 0;
-  
+
   // Services
   private productService = inject(ProductService);
   private brandService = inject(BrandService);
@@ -106,9 +99,7 @@ export class AdminProductsComponent implements OnInit {
   private currencyService = inject(CurrencyService);
   private translationHelper = inject(TranslationHelperService);
   private unitsService = inject(UnitsService);
-  private searchDebounce = inject(SearchDebounceService);
   private confirmationService = inject(ConfirmationService);
-  private dateService = inject(DateService);
   private stockStatus = inject(StockStatusService);
 
   // Lifecycle hooks
@@ -133,7 +124,7 @@ export class AdminProductsComponent implements OnInit {
   onStatusFilterChange(status: 'all' | 'active' | 'inactive') {
     this.statusFilter = status;
     this.first = 0;
-    this.filterProducts();
+    this.filterItems();
   }
 
   getActiveCount(): number {
@@ -154,7 +145,7 @@ export class AdminProductsComponent implements OnInit {
     this.categoryFilter = categoryId;
     this.showCategoryDropdown = false;
     this.first = 0;
-    this.filterProducts();
+    this.filterItems();
   }
 
   getCategoryProductCount(categoryId: number): number {
@@ -171,37 +162,32 @@ export class AdminProductsComponent implements OnInit {
     this.brandFilter = brandId;
     this.showBrandDropdown = false;
     this.first = 0;
-    this.filterProducts();
+    this.filterItems();
   }
 
   getBrandProductCount(brandId: number): number {
     return this.allProducts.filter(p => p.brand_id === brandId).length;
   }
 
-  // Pagination methods
-  onPageChange(event: any) {
-    this.first = event.first;
-    this.rows = event.rows;
-    this.updatePaginatedProducts();
-  }
+  // === Abstract method implementations ===
 
-  updatePaginatedProducts() {
+  updatePaginatedItems(): void {
     this.paginatedProducts = this.products.slice(this.first, this.first + this.rows);
   }
 
-  onSearchInput() {
-    this.searchDebounce.debounce('products-search', () => {
-      this.filterProducts();
-    });
+  getSearchDebounceKey(): string {
+    return 'products-search';
   }
+
+  // === Component-specific methods ===
 
   clearFilters() {
     this.searchQuery = '';
     this.categoryFilter = null;
     this.brandFilter = null;
     this.statusFilter = 'all';
-    this.first = 0;
-    this.filterProducts();
+    this.resetPagination();
+    this.filterItems();
   }
 
   createNewProduct() {
@@ -271,10 +257,6 @@ export class AdminProductsComponent implements OnInit {
 
   getUnitDisplay(unit: string): string {
     return this.unitsService.getUnitTranslated(unit, true);
-  }
-
-  formatDate(dateString: string): string {
-    return this.dateService.formatDate(dateString);
   }
 
   getPaginationTemplate(): string {
@@ -401,7 +383,7 @@ export class AdminProductsComponent implements OnInit {
       next: (products) => {
         this.allProducts = products;
         this.products = products;
-        this.updatePaginatedProducts();
+        this.updatePaginatedItems();
         this.loading = false;
       },
       error: (error) => {
@@ -412,7 +394,7 @@ export class AdminProductsComponent implements OnInit {
     });
   }
 
-  filterProducts() {
+  filterItems(): void {
     let filtered = [...this.allProducts];
 
     // Status filter
@@ -433,7 +415,7 @@ export class AdminProductsComponent implements OnInit {
     }
 
     // Search filter
-    if (this.searchQuery?.trim()) {
+    if (this.hasSearchQuery()) {
       const search = this.searchQuery.toLowerCase();
       filtered = filtered.filter(product =>
         this.getProductName(product).toLowerCase().includes(search) ||
@@ -443,8 +425,8 @@ export class AdminProductsComponent implements OnInit {
     }
 
     this.products = filtered;
-    this.first = 0;
-    this.updatePaginatedProducts();
+    this.resetPagination();
+    this.updatePaginatedItems();
   }
 
   private deleteProduct(product: Product) {
@@ -452,7 +434,7 @@ export class AdminProductsComponent implements OnInit {
       next: () => {
         this.toast.showSuccess('admin.products.delete_success');
         this.allProducts = this.allProducts.filter(p => p.id !== product.id);
-        this.filterProducts();
+        this.filterItems();
       },
       error: (error) => {
         console.error('Error deleting product:', error);

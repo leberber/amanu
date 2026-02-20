@@ -18,13 +18,12 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AdminService } from '../../../services/admin.service';
 import { Order } from '../../../models/admin.model';
 import { ProductService } from '../../../services/product.service';
-import { DateService } from '../../../core/services/date.service';
 import { TranslationHelperService } from '../../../core/services/translation-helper.service';
-import { SearchDebounceService } from '../../../core/services/search-debounce.service';
 import { UnitsService } from '../../../core/services/units.service';
 import { StatusSeverityService } from '../../../core/services/status-severity.service';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
 import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
+import { BaseAdminListComponent } from '../../../shared/base/base-admin-list.component';
 
 @Component({
   selector: 'app-admin-orders',
@@ -47,18 +46,12 @@ import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
   templateUrl: './admin-orders.component.html',
   styleUrl: './admin-orders.component.scss'
 })
-export class AdminOrdersComponent implements OnInit {
+export class AdminOrdersComponent extends BaseAdminListComponent implements OnInit {
   allOrders: Order[] = [];
   orders: Order[] = [];
   paginatedOrders: Order[] = [];
   users: any[] = [];
   products: any[] = [];
-  loading = true;
-  searchQuery = '';
-
-  // Pagination
-  first = 0;
-  rows = 10;
 
   // Status filter
   statusFilter: 'all' | 'pending' | 'confirmed' | 'shipped' | 'delivered' | 'cancelled' = 'all';
@@ -76,10 +69,8 @@ export class AdminOrdersComponent implements OnInit {
   private router = inject(Router);
   private translateService = inject(TranslateService);
   private productService = inject(ProductService);
-  private dateService = inject(DateService);
   private translationHelper = inject(TranslationHelperService);
   private unitsService = inject(UnitsService);
-  private searchDebounce = inject(SearchDebounceService);
   private statusSeverity = inject(StatusSeverityService);
 
   ngOnInit() {
@@ -88,7 +79,7 @@ export class AdminOrdersComponent implements OnInit {
 
     this.translateService.onLangChange.subscribe(() => {
       // Re-filter to update any translated content
-      this.filterOrders();
+      this.filterItems();
     });
   }
 
@@ -131,7 +122,7 @@ export class AdminOrdersComponent implements OnInit {
   onStatusFilterChange(status: 'all' | 'pending' | 'confirmed' | 'shipped' | 'delivered' | 'cancelled') {
     this.statusFilter = status;
     this.first = 0;
-    this.filterOrders();
+    this.filterItems();
   }
 
   getPendingCount(): number {
@@ -154,16 +145,17 @@ export class AdminOrdersComponent implements OnInit {
     return this.allOrders.filter(o => o.status === 'cancelled').length;
   }
 
-  // Pagination methods
-  onPageChange(event: any) {
-    this.first = event.first;
-    this.rows = event.rows;
-    this.updatePaginatedOrders();
-  }
+  // === Abstract method implementations ===
 
-  updatePaginatedOrders() {
+  updatePaginatedItems(): void {
     this.paginatedOrders = this.orders.slice(this.first, this.first + this.rows);
   }
+
+  getSearchDebounceKey(): string {
+    return 'orders-search';
+  }
+
+  // === Data loading ===
 
   loadAllOrders() {
     this.adminService.getAllOrders('', 1, 1000).subscribe({
@@ -171,7 +163,7 @@ export class AdminOrdersComponent implements OnInit {
         if (response && response.orders) {
           this.allOrders = response.orders;
           this.orders = response.orders;
-          this.updatePaginatedOrders();
+          this.updatePaginatedItems();
         } else {
           this.allOrders = [];
           this.orders = [];
@@ -195,7 +187,7 @@ export class AdminOrdersComponent implements OnInit {
     });
   }
 
-  filterOrders() {
+  filterItems(): void {
     let filtered = [...this.allOrders];
 
     // Status filter
@@ -204,7 +196,7 @@ export class AdminOrdersComponent implements OnInit {
     }
 
     // Search filter
-    if (this.searchQuery?.trim()) {
+    if (this.hasSearchQuery()) {
       const search = this.searchQuery.toLowerCase();
       filtered = filtered.filter(order =>
         order.id.toString().includes(search) ||
@@ -217,21 +209,15 @@ export class AdminOrdersComponent implements OnInit {
     }
 
     this.orders = filtered;
-    this.first = 0;
-    this.updatePaginatedOrders();
-  }
-
-  onSearchInput() {
-    this.searchDebounce.debounce('orders-search', () => {
-      this.filterOrders();
-    });
+    this.resetPagination();
+    this.updatePaginatedItems();
   }
 
   clearFilters() {
     this.searchQuery = '';
     this.statusFilter = 'all';
-    this.first = 0;
-    this.filterOrders();
+    this.resetPagination();
+    this.filterItems();
   }
 
   refreshOrderData() {
@@ -253,10 +239,6 @@ export class AdminOrdersComponent implements OnInit {
 
   getStatusIcon(status: string): string {
     return this.statusSeverity.getOrderStatusIcon(status);
-  }
-
-  formatDate(dateString: string): string {
-    return this.dateService.formatDate(dateString);
   }
 
   getProductName(item: any): string {
@@ -298,7 +280,7 @@ export class AdminOrdersComponent implements OnInit {
               this.allOrders[allIndex] = updatedOrder;
             }
 
-            this.filterOrders();
+            this.filterItems();
 
             this.toast.showSuccess('admin.orders.status_update_message', {
               orderId: orderId,

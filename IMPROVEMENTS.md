@@ -6,9 +6,10 @@ Track progress on DRY violations and code quality fixes.
 
 ## Critical Priority
 
-- [ ] **1. Create Abstract Base List Component**
-  - 6 admin list components have identical pagination, filtering, and counting logic
-  - Files: `admin-users`, `admin-orders`, `admin-products`, `admin-categories`, `admin-brands`, `admin-promotions`
+- [x] **1. Create Abstract Base List Component** ✅
+  - Created `BaseAdminListComponent` in `shared/base/base-admin-list.component.ts`
+  - All 6 admin list components now extend this base class
+  - Consolidated: `loading`, `searchQuery`, `first`, `rows`, `onPageChange()`, `onSearchInput()`, `formatDate()`
 
 - [ ] **2. Extract Inline Editing Logic**
   - Role/Status/Price/Stock editing repeated with identical patterns
@@ -92,11 +93,11 @@ Track progress on DRY violations and code quality fixes.
 
 | Priority | Total | Done | Remaining |
 |----------|-------|------|-----------|
-| Critical | 4 | 1 | 3 |
+| Critical | 4 | 2 | 2 |
 | High | 4 | 1 | 3 |
 | Medium | 7 | 0 | 7 |
 | Low | 5 | 0 | 5 |
-| **Total** | **20** | **2** | **18** |
+| **Total** | **20** | **3** | **17** |
 
 ---
 

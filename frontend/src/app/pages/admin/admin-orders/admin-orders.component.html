@@ -89,7 +89,7 @@
           (input)="onSearchInput()"
           [placeholder]="'admin.orders.search_placeholder' | translate">
         @if (searchQuery) {
-          <button class="clear-search" (click)="searchQuery = ''; filterOrders()">
+          <button class="clear-search" (click)="searchQuery = ''; filterItems()">
             <i class="pi pi-times"></i>
           </button>
         }

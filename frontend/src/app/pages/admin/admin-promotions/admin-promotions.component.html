@@ -74,7 +74,7 @@
           [(ngModel)]="searchQuery"
           (input)="onSearchInput()"
           [placeholder]="'admin.promotions.search_placeholder' | translate">
-        <button *ngIf="searchQuery" class="clear-search" (click)="searchQuery = ''; filterPromotions()">
+        <button *ngIf="searchQuery" class="clear-search" (click)="searchQuery = ''; filterItems()">
           <i class="pi pi-times"></i>
         </button>
       </div>

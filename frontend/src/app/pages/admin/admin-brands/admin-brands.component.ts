@@ -22,10 +22,9 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { BrandService } from '../../../core/services/brand.service';
 import { ProductService } from '../../../services/product.service';
 import { TranslationHelperService } from '../../../core/services/translation-helper.service';
-import { DateService } from '../../../core/services/date.service';
-import { SearchDebounceService } from '../../../core/services/search-debounce.service';
 import { Brand } from '../../../models/brand.model';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
+import { BaseAdminListComponent } from '../../../shared/base/base-admin-list.component';
 
 @Component({
   selector: 'app-admin-brands',
@@ -51,16 +50,13 @@ import { ToastMessageService } from '../../../core/services/toast-message.servic
   templateUrl: './admin-brands.component.html',
   styleUrl: './admin-brands.component.scss'
 })
-export class AdminBrandsComponent implements OnInit {
+export class AdminBrandsComponent extends BaseAdminListComponent implements OnInit {
   allBrands: Brand[] = [];
   brands: Brand[] = [];
   paginatedBrands: Brand[] = [];
-  loading = true;
-  searchQuery = '';
 
-  // Pagination
-  first = 0;
-  rows = 12;
+  // Override default rows
+  override rows = 12;
 
   // Status filter
   statusFilter: 'all' | 'active' | 'inactive' = 'all';
@@ -68,6 +64,7 @@ export class AdminBrandsComponent implements OnInit {
   // Product counts per brand
   brandProductCounts: { [brandId: number]: number } = {};
 
+  // Services
   private brandService = inject(BrandService);
   private productService = inject(ProductService);
   private toast = inject(ToastMessageService);
@@ -75,14 +72,12 @@ export class AdminBrandsComponent implements OnInit {
   private router = inject(Router);
   private translateService = inject(TranslateService);
   private translationHelper = inject(TranslationHelperService);
-  private dateService = inject(DateService);
-  private searchDebounce = inject(SearchDebounceService);
 
   ngOnInit() {
     this.loadAllBrands();
 
     this.translateService.onLangChange.subscribe(() => {
-      this.filterBrands();
+      this.filterItems();
     });
   }
 
@@ -98,7 +93,7 @@ export class AdminBrandsComponent implements OnInit {
         this.allBrands = brands;
         this.brands = brands;
         this.loadProductCounts();
-        this.updatePaginatedBrands();
+        this.updatePaginatedItems();
         this.loading = false;
       },
       error: (error) => {
@@ -123,7 +118,9 @@ export class AdminBrandsComponent implements OnInit {
     });
   }
 
-  filterBrands() {
+  // === Abstract method implementations ===
+
+  filterItems(): void {
     let filtered = [...this.allBrands];
 
     // Apply status filter
@@ -134,7 +131,7 @@ export class AdminBrandsComponent implements OnInit {
     }
 
     // Apply search filter
-    if (this.searchQuery?.trim()) {
+    if (this.hasSearchQuery()) {
       const search = this.searchQuery.toLowerCase();
       filtered = filtered.filter(brand =>
         this.getBrandName(brand).toLowerCase().includes(search) ||
@@ -143,43 +140,33 @@ export class AdminBrandsComponent implements OnInit {
     }
 
     this.brands = filtered;
-    this.first = 0; // Reset to first page when filtering
-    this.updatePaginatedBrands();
+    this.resetPagination();
+    this.updatePaginatedItems();
   }
 
-  onStatusFilterChange(status: 'all' | 'active' | 'inactive') {
-    this.statusFilter = status;
-    this.filterBrands();
-  }
-
-  updatePaginatedBrands() {
+  updatePaginatedItems(): void {
     this.paginatedBrands = this.brands.slice(this.first, this.first + this.rows);
   }
 
-  onPageChange(event: any) {
-    this.first = event.first;
-    this.rows = event.rows;
-    this.updatePaginatedBrands();
+  getSearchDebounceKey(): string {
+    return 'brands-search';
+  }
+
+  // === Component-specific methods ===
+
+  onStatusFilterChange(status: 'all' | 'active' | 'inactive') {
+    this.statusFilter = status;
+    this.filterItems();
   }
 
   getBrandProductCount(brandId: number): number {
     return this.brandProductCounts[brandId] || 0;
   }
 
-  onSearchInput() {
-    this.searchDebounce.debounce('brands-search', () => {
-      this.filterBrands();
-    });
-  }
-
-  onSearch() {
-    this.filterBrands();
-  }
-
   clearFilters() {
     this.searchQuery = '';
     this.statusFilter = 'all';
-    this.filterBrands();
+    this.filterItems();
   }
 
   createNewBrand() {
@@ -209,7 +196,7 @@ export class AdminBrandsComponent implements OnInit {
       next: () => {
         this.toast.showSuccess('admin.brands.delete_success');
         this.allBrands = this.allBrands.filter(b => b.id !== brand.id);
-        this.filterBrands();
+        this.filterItems();
       },
       error: (error) => {
         console.error('Error deleting brand:', error);
@@ -220,10 +207,6 @@ export class AdminBrandsComponent implements OnInit {
 
   refreshBrandData() {
     this.loadAllBrands();
-  }
-
-  formatDate(dateString: string): string {
-    return this.dateService.formatDate(dateString);
   }
 
   getBrandName(brand: Brand): string {

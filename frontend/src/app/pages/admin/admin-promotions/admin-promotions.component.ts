@@ -13,11 +13,10 @@ import { TooltipModule } from 'primeng/tooltip';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { PromotionService } from '../../../services/promotion.service';
-import { DateService } from '../../../core/services/date.service';
 import { CurrencyService } from '../../../core/services/currency.service';
-import { SearchDebounceService } from '../../../core/services/search-debounce.service';
 import { Promotion } from '../../../models/promotion.model';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
+import { BaseAdminListComponent } from '../../../shared/base/base-admin-list.component';
 @Component({
   selector: 'app-admin-promotions',
   standalone: true,
@@ -35,34 +34,27 @@ import { ToastMessageService } from '../../../core/services/toast-message.servic
   templateUrl: './admin-promotions.component.html',
   styleUrl: './admin-promotions.component.scss'
 })
-export class AdminPromotionsComponent implements OnInit {
+export class AdminPromotionsComponent extends BaseAdminListComponent implements OnInit {
   allPromotions: Promotion[] = [];
   promotions: Promotion[] = [];
   paginatedPromotions: Promotion[] = [];
-  loading = true;
-  searchQuery = '';
-
-  // Pagination
-  first = 0;
-  rows = 10;
 
   // Status filter
   statusFilter: 'all' | 'active' | 'expired' | 'scheduled' = 'all';
 
+  // Services
   private promotionService = inject(PromotionService);
   private toast = inject(ToastMessageService);
   private confirmationService = inject(ConfirmationService);
   private router = inject(Router);
   private translateService = inject(TranslateService);
-  private dateService = inject(DateService);
   private currencyService = inject(CurrencyService);
-  private searchDebounce = inject(SearchDebounceService);
 
   ngOnInit() {
     this.loadAllPromotions();
 
     this.translateService.onLangChange.subscribe(() => {
-      this.filterPromotions();
+      this.filterItems();
     });
   }
 
@@ -74,7 +66,7 @@ export class AdminPromotionsComponent implements OnInit {
   onStatusFilterChange(status: 'all' | 'active' | 'expired' | 'scheduled') {
     this.statusFilter = status;
     this.first = 0;
-    this.filterPromotions();
+    this.filterItems();
   }
 
   getActiveCount(): number {
@@ -101,16 +93,17 @@ export class AdminPromotionsComponent implements OnInit {
     return 'active';
   }
 
-  // Pagination methods
-  onPageChange(event: any) {
-    this.first = event.first;
-    this.rows = event.rows;
-    this.updatePaginatedPromotions();
-  }
+  // === Abstract method implementations ===
 
-  updatePaginatedPromotions() {
+  updatePaginatedItems(): void {
     this.paginatedPromotions = this.promotions.slice(this.first, this.first + this.rows);
   }
+
+  getSearchDebounceKey(): string {
+    return 'promotions-search';
+  }
+
+  // === Data loading ===
 
   loadAllPromotions() {
     this.loading = true;
@@ -119,7 +112,7 @@ export class AdminPromotionsComponent implements OnInit {
       next: (promotions) => {
         this.allPromotions = promotions;
         this.promotions = promotions;
-        this.updatePaginatedPromotions();
+        this.updatePaginatedItems();
         this.loading = false;
       },
       error: (error) => {
@@ -130,7 +123,7 @@ export class AdminPromotionsComponent implements OnInit {
     });
   }
 
-  filterPromotions() {
+  filterItems(): void {
     let filtered = [...this.allPromotions];
 
     // Status filter
@@ -138,7 +131,7 @@ export class AdminPromotionsComponent implements OnInit {
       filtered = filtered.filter(p => this.getPromotionStatus(p) === this.statusFilter);
     }
 
-    if (this.searchQuery?.trim()) {
+    if (this.hasSearchQuery()) {
       const search = this.searchQuery.toLowerCase();
       filtered = filtered.filter(promotion =>
         promotion.name.toLowerCase().includes(search) ||
@@ -148,21 +141,15 @@ export class AdminPromotionsComponent implements OnInit {
     }
 
     this.promotions = filtered;
-    this.first = 0;
-    this.updatePaginatedPromotions();
-  }
-
-  onSearchInput() {
-    this.searchDebounce.debounce('promotions-search', () => {
-      this.filterPromotions();
-    });
+    this.resetPagination();
+    this.updatePaginatedItems();
   }
 
   clearFilters() {
     this.searchQuery = '';
     this.statusFilter = 'all';
-    this.first = 0;
-    this.filterPromotions();
+    this.resetPagination();
+    this.filterItems();
   }
 
   createNewPromotion() {
@@ -191,7 +178,7 @@ export class AdminPromotionsComponent implements OnInit {
       next: () => {
         this.toast.showSuccess('admin.promotions.delete_success');
         this.allPromotions = this.allPromotions.filter(p => p.id !== promotion.id);
-        this.filterPromotions();
+        this.filterItems();
       },
       error: (error) => {
         console.error('Error deleting promotion:', error);
@@ -202,10 +189,6 @@ export class AdminPromotionsComponent implements OnInit {
 
   refreshPromotionData() {
     this.loadAllPromotions();
-  }
-
-  formatDate(dateString: string): string {
-    return this.dateService.formatDate(dateString);
   }
 
   getDiscountDisplay(promotion: Promotion): string {
