@@ -5,6 +5,109 @@ This document defines the coding standards and requirements for maintaining clea
 
 ---
 
+## 0. App Layout Architecture
+
+### 0.1 Native App Feel
+The app should feel like a native mobile/desktop application, not a traditional website.
+
+### 0.2 Layout Structure
+
+**Mobile Layout:**
+```
+┌─────────────────────────┐
+│   Page Top Bar          │  ← Back arrow, page title (per-page)
+│   (within page)         │
+├─────────────────────────┤
+│                         │
+│                         │
+│   Page Content          │  ← Scrollable content area
+│   (100vh - bottom nav)  │
+│                         │
+│                         │
+├─────────────────────────┤
+│   Bottom Navigation     │  ← Fixed bottom nav
+└─────────────────────────┘
+```
+
+**Desktop Layout:**
+```
+┌──────────┬──────────────────────────┐
+│          │   Page Top Bar           │  ← Back arrow, page title (per-page)
+│          ├──────────────────────────┤
+│  Sidebar │                          │
+│   Nav    │   Page Content           │  ← Scrollable content area
+│          │   (100vh)                │
+│          │                          │
+│          │                          │
+└──────────┴──────────────────────────┘
+```
+
+### 0.3 Key Layout Rules
+
+1. **No Global Header** - Remove the traditional header component
+2. **Sidebar on Desktop** - Side navigation for desktop screens
+3. **Bottom Nav on Mobile** - Keep existing bottom navigation
+4. **Fixed Viewport Height** - All pages use `100vh` minus navigation height
+5. **Per-Page Top Bar** - Each page/screen has its own top bar area for:
+   - Back arrow (when applicable)
+   - Page title
+   - Page-specific actions
+
+### 0.4 Content Area Sizing
+
+```scss
+// Mobile - subtract bottom nav height
+.page-container {
+  height: calc(100vh - var(--bottom-nav-height));
+  overflow-y: auto;
+}
+
+// Desktop - full height (sidebar is beside, not above)
+@media (min-width: 768px) {
+  .page-container {
+    height: 100vh;
+  }
+}
+```
+
+### 0.5 Page Top Bar Component
+Each page should include a top bar section:
+
+```html
+<!-- Per-page top bar -->
+<div class="page-top-bar">
+  @if (showBackButton) {
+    <app-back-button />
+  }
+  <h1 class="page-title">{{ pageTitle }}</h1>
+  <div class="page-actions">
+    <!-- Page-specific actions -->
+  </div>
+</div>
+
+<div class="page-content">
+  <!-- Scrollable content -->
+</div>
+```
+
+### 0.6 Scroll Behavior
+- **Page container**: Fixed height, no body scroll
+- **Page content**: Internal scrolling within fixed container
+- **No scroll conflicts**: Each page manages its own scroll
+- **Native feel**: Smooth, contained scrolling like native apps
+
+### 0.7 CSS Variables for Layout
+
+```scss
+:root {
+  --bottom-nav-height: 64px;
+  --sidebar-width: 250px;
+  --page-top-bar-height: 56px;
+}
+```
+
+---
+
 ## 1. TypeScript Requirements
 
 ### 1.1 No Hardcoded Values
