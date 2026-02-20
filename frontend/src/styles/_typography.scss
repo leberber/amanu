@@ -2,21 +2,22 @@
 // TYPOGRAPHY
 // =============================================================================
 // Font sizes, weights, and text utility classes.
+// Reference: admin-categories component
 // =============================================================================
 
 :root {
   // ---------------------------------------------------------------------------
-  // Font Sizes
+  // Font Sizes (based on admin-categories)
   // ---------------------------------------------------------------------------
-  --font-size-xs: 0.75rem;      // 12px
-  --font-size-sm: 0.8125rem;    // 13px
-  --font-size-base: 0.875rem;   // 14px
-  --font-size-md: 0.9375rem;    // 15px
-  --font-size-lg: 1rem;         // 16px
-  --font-size-xl: 1.125rem;     // 18px
-  --font-size-2xl: 1.25rem;     // 20px
-  --font-size-3xl: 1.5rem;      // 24px
-  --font-size-4xl: 2rem;        // 32px
+  --font-size-xs: 0.75rem;      // 12px - badges, counts
+  --font-size-sm: 0.8rem;       // 12.8px - meta items
+  --font-size-base: 0.85rem;    // 13.6px - descriptions
+  --font-size-md: 0.9rem;       // 14.4px - buttons, subtitles
+  --font-size-lg: 0.95rem;      // 15.2px - inputs
+  --font-size-xl: 1.1rem;       // 17.6px - card titles
+  --font-size-2xl: 1.25rem;     // 20px - section headers
+  --font-size-3xl: 1.5rem;      // 24px - page titles
+  --font-size-4xl: 2rem;        // 32px - large headings
 
   // ---------------------------------------------------------------------------
   // Font Weights
@@ -25,6 +26,64 @@
   --font-weight-medium: 500;
   --font-weight-semibold: 600;
   --font-weight-bold: 700;
+
+  // ---------------------------------------------------------------------------
+  // Letter Spacing
+  // ---------------------------------------------------------------------------
+  --letter-spacing-tight: -0.02em;
+  --letter-spacing-normal: 0;
+  --letter-spacing-wide: 0.05em;
+}
+
+// =============================================================================
+// Page Typography
+// =============================================================================
+
+// Page title (h1) - "Categories", "Products", etc.
+.page-title {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-color);
+  letter-spacing: var(--letter-spacing-tight);
+  margin: 0 0 0.25rem 0;
+}
+
+// Page subtitle - description under title
+.page-subtitle {
+  font-size: var(--font-size-md);
+  color: var(--text-color-secondary);
+  margin: 0;
+}
+
+// =============================================================================
+// Card Typography
+// =============================================================================
+
+// Card title - "Category Name", "Product Name"
+.card-title {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-color);
+  margin: 0 0 0.5rem 0;
+}
+
+// Card description
+.card-description {
+  font-size: var(--font-size-base);
+  color: var(--text-color-secondary);
+  line-height: 1.5;
+  margin: 0 0 1rem 0;
+
+  // Clamp to 2 lines
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+
+  &.empty {
+    font-style: italic;
+    color: #adb3bd;
+  }
 }
 
 // =============================================================================
@@ -68,7 +127,7 @@
   font-weight: var(--font-weight-semibold);
   color: var(--color-text-secondary);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: var(--letter-spacing-wide);
   margin: 0;
 }
 
@@ -78,4 +137,25 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+}
+
+// Text truncation
+.text-truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.text-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.text-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }

@@ -1,31 +1,80 @@
 // =============================================================================
 // SPACING
 // =============================================================================
-// Spacing scale based on 8px grid system.
+// Spacing scale and icon sizes.
+// Reference: admin-categories component
 // =============================================================================
 
 :root {
   // ---------------------------------------------------------------------------
-  // Spacing Scale (8px base)
+  // Spacing Scale (based on admin-categories)
   // ---------------------------------------------------------------------------
   --space-0: 0;
-  --space-xs: 0.25rem;   // 4px
-  --space-sm: 0.5rem;    // 8px
-  --space-md: 0.75rem;   // 12px
-  --space-lg: 1rem;      // 16px
-  --space-xl: 1.25rem;   // 20px
-  --space-2xl: 1.5rem;   // 24px
-  --space-3xl: 2rem;     // 32px
-  --space-4xl: 3rem;     // 48px
-  --space-5xl: 4rem;     // 64px
+  --space-1: 0.25rem;    // 4px
+  --space-2: 0.375rem;   // 6px - badge padding
+  --space-3: 0.5rem;     // 8px - small gaps
+  --space-4: 0.625rem;   // 10px - segment button padding
+  --space-5: 0.75rem;    // 12px - common gaps, padding
+  --space-6: 1rem;       // 16px - card gaps, standard padding
+  --space-7: 1.25rem;    // 20px - card padding
+  --space-8: 1.5rem;     // 24px - page padding, section gaps
+  --space-9: 2rem;       // 32px - large sections
+  --space-10: 2.5rem;    // 40px - page top padding
+  --space-12: 3rem;      // 48px
+  --space-16: 4rem;      // 64px - empty state padding
+
+  // Semantic spacing aliases
+  --gap-xs: var(--space-2);
+  --gap-sm: var(--space-3);
+  --gap-md: var(--space-5);
+  --gap-lg: var(--space-6);
+  --gap-xl: var(--space-7);
+
+  --padding-xs: var(--space-2);
+  --padding-sm: var(--space-3);
+  --padding-md: var(--space-5);
+  --padding-lg: var(--space-6);
+  --padding-xl: var(--space-7);
 
   // ---------------------------------------------------------------------------
-  // Icon Sizes
+  // Icon Sizes (based on admin-categories)
   // ---------------------------------------------------------------------------
-  --icon-xs: 24px;
-  --icon-sm: 32px;
-  --icon-md: 36px;
-  --icon-lg: 40px;
-  --icon-xl: 48px;
-  --icon-2xl: 64px;
+  --icon-xs: 24px;       // Small buttons
+  --icon-sm: 32px;       // View toggle buttons
+  --icon-md: 40px;       // Action buttons (edit, delete)
+  --icon-lg: 44px;       // Filter action buttons
+  --icon-xl: 46px;       // Page header icon circle
+  --icon-2xl: 60px;      // Page header icon wrapper
+  --icon-3xl: 64px;      // Category image
+  --icon-4xl: 100px;     // Empty state icon
+
+  // ---------------------------------------------------------------------------
+  // Button Sizes
+  // ---------------------------------------------------------------------------
+  --btn-height-sm: 32px;
+  --btn-height-md: 40px;
+  --btn-height-lg: 44px;
+
+  // ---------------------------------------------------------------------------
+  // Card Sizes
+  // ---------------------------------------------------------------------------
+  --card-min-width: 300px;
 }
+
+// =============================================================================
+// Spacing Utility Classes
+// =============================================================================
+
+// Gap utilities
+.gap-xs { gap: var(--gap-xs); }
+.gap-sm { gap: var(--gap-sm); }
+.gap-md { gap: var(--gap-md); }
+.gap-lg { gap: var(--gap-lg); }
+.gap-xl { gap: var(--gap-xl); }
+
+// Padding utilities
+.p-xs { padding: var(--padding-xs); }
+.p-sm { padding: var(--padding-sm); }
+.p-md { padding: var(--padding-md); }
+.p-lg { padding: var(--padding-lg); }
+.p-xl { padding: var(--padding-xl); }
