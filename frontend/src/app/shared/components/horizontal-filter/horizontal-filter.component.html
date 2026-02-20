@@ -1,66 +1,76 @@
-<div class="filter-bar" [class.compact]="compact" [attr.data-filter-type]="filterType">
+<div class="filter-bar" [class.compact]="compact()" [attr.data-filter-type]="filterType()">
   <!-- Mode Toggle -->
-  <div
-    *ngIf="showModeToggle"
-    class="filter-item mode-toggle"
-    (click)="toggleMode()">
-    <div class="toggle-circle">
-      <img [src]="getToggleImage()" alt="" class="toggle-img">
+  @if (showModeToggle()) {
+    <div
+      class="filter-item mode-toggle"
+      (click)="toggleMode()">
+      <div class="toggle-circle">
+        <img [src]="getToggleImage()" alt="" class="toggle-img">
+      </div>
     </div>
-  </div>
+  }
 
   <!-- All Option -->
-  <div
-    #filterItem
-    *ngIf="showAllOption"
-    class="filter-item"
-    [class.active]="isActive(null)"
-    (click)="selectItem(null)">
-    <div class="item-image-wrapper">
-      <div class="item-image all-option">
-        <i [class]="getIconClass()"></i>
+  @if (showAllOption()) {
+    <div
+      #filterItem
+      class="filter-item"
+      [class.active]="isActive(null)"
+      (click)="selectItem(null)">
+      <div class="item-image-wrapper">
+        <div class="item-image all-option">
+          <i [class]="getIconClass()"></i>
+        </div>
       </div>
+      @if (showItemName()) {
+        <span class="item-name">{{ allLabel() | translate }}</span>
+      }
     </div>
-    <span class="item-name" *ngIf="showItemName()">{{ allLabel | translate }}</span>
-  </div>
+  }
 
   <!-- Individual Items -->
-  <div
-    #filterItem
-    *ngFor="let item of items; trackBy: trackByItem"
-    class="filter-item"
-    [class.active]="isActive(item.id)"
-    (click)="selectItem(item.id)">
-    <div class="item-image-wrapper">
-      <img
-        *ngIf="getItemImage(item)"
-        [src]="getItemImage(item)"
-        [alt]="item.name"
-        class="item-image"
-        [style.transform]="'scale(' + getScale() + ')'">
-      <div
-        *ngIf="!getItemImage(item)"
-        class="item-image placeholder">
-        <i [class]="getIconClass()"></i>
+  @for (item of items(); track item.id) {
+    <div
+      #filterItem
+      class="filter-item"
+      [class.active]="isActive(item.id)"
+      (click)="selectItem(item.id)">
+      <div class="item-image-wrapper">
+        @if (getItemImage(item); as imageUrl) {
+          <img
+            [src]="imageUrl"
+            [alt]="item.name"
+            class="item-image"
+            [style.transform]="'scale(' + getScale() + ')'">
+        } @else {
+          <div class="item-image placeholder">
+            <i [class]="getIconClass()"></i>
+          </div>
+        }
+        @if (item.product_count && filterType() === 'categories') {
+          <span class="item-count">{{ item.product_count }}</span>
+        }
       </div>
-      <span *ngIf="item.product_count && filterType === 'categories'" class="item-count">{{ item.product_count }}</span>
+      @if (showItemName()) {
+        <span class="item-name">{{ item.name }}</span>
+      }
     </div>
-    <span class="item-name" *ngIf="showItemName()">{{ item.name }}</span>
-  </div>
+  }
 
   <!-- Sliding Indicator -->
   <div
     class="filter-indicator"
-    [style.left.px]="indicatorLeft"
-    [style.width.px]="indicatorWidth">
+    [style.left.px]="indicatorLeft()"
+    [style.width.px]="indicatorWidth()">
   </div>
 
   <!-- Search Toggle Button -->
-  <div
-    *ngIf="showSearchIcon"
-    class="search-toggle-btn"
-    [class.active]="isSearchActive"
-    (click)="toggleSearch()">
-    <i class="pi pi-search"></i>
-  </div>
+  @if (showSearchIcon()) {
+    <div
+      class="search-toggle-btn"
+      [class.active]="isSearchActive()"
+      (click)="toggleSearch()">
+      <i class="pi pi-search"></i>
+    </div>
+  }
 </div>

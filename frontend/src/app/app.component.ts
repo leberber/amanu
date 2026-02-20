@@ -1,60 +1,63 @@
 // src/app/app.component.ts
-import { Component, inject, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, inject, OnInit, signal, computed, DestroyRef, HostListener } from '@angular/core';
 import { Router, RouterOutlet, NavigationEnd } from '@angular/router';
-import { ButtonModule } from 'primeng/button';
-import { HeaderComponent } from './layout/header/header.component';
-import { BottomNavigationComponent } from './components/bottom-navigation/bottom-navigation.component';
-import { ViewportService } from './services/viewport.service';
-import { TranslationService } from './services/translation.service';
-import { AuthService } from './services/auth.service';
-import { TranslateModule } from '@ngx-translate/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { filter } from 'rxjs';
+
+import { BottomNavigationComponent } from './components/bottom-navigation/bottom-navigation.component';
+import { SidebarComponent } from './components/sidebar/sidebar.component';
+import { AuthService } from './services/auth.service';
+import { ROUTES } from './core/constants/routes.constants';
 
 @Component({
   selector: 'app-root',
   standalone: true,
   imports: [
-    CommonModule,
-    RouterOutlet, 
-    ButtonModule, 
-    HeaderComponent,
+    RouterOutlet,
     BottomNavigationComponent,
-    TranslateModule
+    SidebarComponent
   ],
-  templateUrl: './app.component.html'
+  templateUrl: './app.component.html',
+  styleUrl: './app.component.scss'
 })
 export class AppComponent implements OnInit {
-  title = 'Fresh Produce';
-  showNavigation = false;
-  showHeader = false;
+  // Signals for reactive state
+  showNavigation = signal(false);
+  isMobile = signal(window.innerWidth < 768);
 
-  private viewportService = inject(ViewportService);
-  private translationService = inject(TranslationService);
   private authService = inject(AuthService);
   private router = inject(Router);
+  private destroyRef = inject(DestroyRef);
 
-  // Routes where header should be hidden (even when logged in)
-  private hideHeaderRoutes = ['/cart', '/checkout'];
-  private publicRoutes = ['/login', '/register', '/forgot-password', '/reset-password'];
+  // Routes where navigation should be hidden (auth pages)
+  private readonly publicRoutes = [
+    ROUTES.LOGIN,
+    ROUTES.REGISTER,
+    ROUTES.FORGOT_PASSWORD,
+    ROUTES.RESET_PASSWORD
+  ];
+
+  @HostListener('window:resize')
+  onResize() {
+    this.isMobile.set(window.innerWidth < 768);
+  }
 
   ngOnInit() {
-    // Check authentication status on route changes
+    // Listen to route changes
     this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd)
+      filter(event => event instanceof NavigationEnd),
+      takeUntilDestroyed(this.destroyRef)
     ).subscribe((event: NavigationEnd) => {
       this.updateNavigation(event.urlAfterRedirects || event.url);
     });
 
-    // Check initial authentication status
+    // Check initial route
     this.updateNavigation(this.router.url);
   }
 
   private updateNavigation(url: string): void {
     const isPublicRoute = this.publicRoutes.some(route => url.startsWith(route));
-    const isHideHeaderRoute = this.hideHeaderRoutes.some(route => url.startsWith(route));
-
-    this.showNavigation = this.authService.isLoggedIn && !isPublicRoute;
-    this.showHeader = this.showNavigation && !isHideHeaderRoute;
+    // Show navigation when not on public routes (for both auth and non-auth users)
+    this.showNavigation.set(!isPublicRoute);
   }
 }

@@ -1,6 +1,5 @@
 // src/app/shared/components/user-form/user-form.component.ts
-import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges, inject, DestroyRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, OnChanges, SimpleChanges, inject, DestroyRef, input, output, signal } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
@@ -39,7 +38,6 @@ export interface UserFormConfig {
   selector: 'app-user-form',
   standalone: true,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     InputTextModule,
     PasswordModule,
@@ -52,7 +50,8 @@ export interface UserFormConfig {
   styleUrl: './user-form.component.scss'
 })
 export class UserFormComponent implements OnInit, OnChanges {
-  @Input() config: UserFormConfig = {
+  // Inputs
+  configInput = input<UserFormConfig>({
     mode: 'register',
     showRoleSelection: false,
     showActiveToggle: false,
@@ -60,17 +59,23 @@ export class UserFormComponent implements OnInit, OnChanges {
     showPhoneField: true,
     passwordRequired: true,
     showCancelButton: false
-  };
-  
-  @Input() initialData?: Partial<UserFormData>;
-  @Input() loading = false;
-  
-  @Output() formSubmit = new EventEmitter<UserFormData>();
-  @Output() formCancel = new EventEmitter<void>();
-  
+  }, { alias: 'config' });
+
+  initialDataInput = input<Partial<UserFormData> | undefined>(undefined, { alias: 'initialData' });
+  loadingInput = input(false, { alias: 'loading' });
+
+  // Outputs
+  formSubmit = output<UserFormData>();
+  formCancel = output<void>();
+
+  // State
   userForm!: FormGroup;
   roleOptions: any[] = [];
-  currentLang: string = 'en';
+  currentLang = signal('en');
+
+  // Convenience getter for template
+  get config(): UserFormConfig { return this.configInput(); }
+  get loading(): boolean { return this.loadingInput(); }
   
   private fb = inject(FormBuilder);
   private translateService = inject(TranslateService);
@@ -80,40 +85,37 @@ export class UserFormComponent implements OnInit, OnChanges {
   
   ngOnInit(): void {
     this.userForm = this.createForm();
-    this.currentLang = this.translateService.currentLang;
+    this.currentLang.set(this.translateService.currentLang);
     this.initializeRoleOptions();
     this.configureForm();
-    
-    if (this.initialData) {
-      this.userForm.patchValue(this.initialData);
+
+    const initialData = this.initialDataInput();
+    if (initialData) {
+      this.userForm.patchValue(initialData);
     }
 
     onLanguageChange(this.translateService, this.destroyRef, () => {
-      this.currentLang = this.translateService.currentLang;
+      this.currentLang.set(this.translateService.currentLang);
       this.initializeRoleOptions();
     });
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    // Update form when initialData changes
-    if (changes['initialData'] && !changes['initialData'].firstChange && this.userForm) {
-      const newData = changes['initialData'].currentValue;
+    if (changes['initialDataInput'] && !changes['initialDataInput'].firstChange && this.userForm) {
+      const newData = this.initialDataInput();
       if (newData) {
         this.userForm.reset();
         this.userForm.patchValue(newData);
-        
-        // Re-configure form to ensure validators are correct
+
         this.configureForm();
-        
-        // Re-disable email in edit mode
-        if (this.config.mode === 'edit') {
+
+        if (this.configInput().mode === 'edit') {
           this.userForm.get('email')?.disable();
         }
       }
     }
-    
-    // Re-configure form when config changes
-    if (changes['config'] && !changes['config'].firstChange && this.userForm) {
+
+    if (changes['configInput'] && !changes['configInput'].firstChange && this.userForm) {
       this.configureForm();
     }
   }
@@ -131,8 +133,9 @@ export class UserFormComponent implements OnInit, OnChanges {
   }
   
   private configureForm(): void {
-    // Configure password validation based on mode
-    if (this.config.passwordRequired) {
+    const config = this.configInput();
+
+    if (config.passwordRequired) {
       this.userForm.get('password')?.setValidators([
         Validators.required,
         Validators.minLength(VALIDATION.MIN_PASSWORD_LENGTH)
@@ -140,17 +143,15 @@ export class UserFormComponent implements OnInit, OnChanges {
     } else {
       this.userForm.get('password')?.setValidators([Validators.minLength(VALIDATION.MIN_PASSWORD_LENGTH)]);
     }
-    
-    // Set default role for register mode
-    if (this.config.mode === 'register') {
+
+    if (config.mode === 'register') {
       this.userForm.patchValue({ role: USER_ROLES.CUSTOMER });
     }
-    
-    // Disable email field in edit mode
-    if (this.config.mode === 'edit') {
+
+    if (config.mode === 'edit') {
       this.userForm.get('email')?.disable();
     }
-    
+
     this.userForm.get('password')?.updateValueAndValidity();
   }
   
@@ -163,31 +164,30 @@ export class UserFormComponent implements OnInit, OnChanges {
       this.userForm.markAllAsTouched();
       return;
     }
-    
+
+    const config = this.configInput();
     const formData = this.userForm.getRawValue();
-    
-    // Remove empty password in edit mode
-    if (this.config.mode === 'edit' && !formData.password) {
+
+    if (config.mode === 'edit' && !formData.password) {
       delete formData.password;
     }
-    
-    // Remove fields based on configuration
-    if (!this.config.showRoleSelection) {
+
+    if (!config.showRoleSelection) {
       formData.role = USER_ROLES.CUSTOMER;
     }
-    
-    if (!this.config.showActiveToggle) {
+
+    if (!config.showActiveToggle) {
       formData.is_active = true;
     }
-    
-    if (!this.config.showPhoneField) {
+
+    if (!config.showPhoneField) {
       delete formData.phone;
     }
-    
-    if (!this.config.showAddressField) {
+
+    if (!config.showAddressField) {
       delete formData.address;
     }
-    
+
     this.formSubmit.emit(formData);
   }
   
@@ -200,11 +200,12 @@ export class UserFormComponent implements OnInit, OnChanges {
   }
   
   get submitButtonLabel(): string {
-    if (this.config.submitButtonLabel) {
-      return this.config.submitButtonLabel;
+    const config = this.configInput();
+    if (config.submitButtonLabel) {
+      return config.submitButtonLabel;
     }
-    
-    switch (this.config.mode) {
+
+    switch (config.mode) {
       case 'create':
         return this.translateService.instant('admin.users.dialog.create_button');
       case 'edit':
@@ -215,15 +216,15 @@ export class UserFormComponent implements OnInit, OnChanges {
         return this.translateService.instant('common.submit');
     }
   }
-  
+
   get passwordLabel(): string {
-    if (this.config.mode === 'edit') {
+    if (this.configInput().mode === 'edit') {
       return this.translateService.instant('admin.users.form.password_edit');
     }
     return this.translateService.instant('admin.users.form.password');
   }
-  
+
   get showPasswordRequired(): boolean {
-    return this.config.passwordRequired || false;
+    return this.configInput().passwordRequired || false;
   }
 }

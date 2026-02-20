@@ -1,0 +1,24 @@
+<div class="loading-container">
+  @if (type() === 'spinner') {
+    <p-progressSpinner
+      [style]="{width: size(), height: size()}"
+      strokeWidth="4"
+      animationDuration=".5s">
+    </p-progressSpinner>
+  }
+
+  @if (type() === 'skeleton') {
+    <div class="skeleton-container">
+      @if (showHeader()) {
+        <div class="skeleton skeleton-header"></div>
+      }
+      @for (line of [].constructor(lines()); track $index) {
+        <div class="skeleton skeleton-line" [class.short]="$index === lines() - 1"></div>
+      }
+    </div>
+  }
+
+  @if (message()) {
+    <p class="loading-message">{{ message() }}</p>
+  }
+</div>

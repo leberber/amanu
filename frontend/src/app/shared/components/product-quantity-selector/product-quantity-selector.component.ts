@@ -1,5 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges, inject, ChangeDetectorRef, DestroyRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, OnChanges, SimpleChanges, inject, ChangeDetectorRef, DestroyRef, input, output, signal, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputNumberModule } from 'primeng/inputnumber';
@@ -18,7 +17,6 @@ interface QuantityOption {
   selector: 'app-product-quantity-selector',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     ButtonModule,
     InputNumberModule,
@@ -28,134 +26,140 @@ interface QuantityOption {
   template: `
     <div class="quantity-selector-container">
       <!-- Dropdown only mode (for cart) -->
-      <div *ngIf="dropdownOnly" class="dropdown-only">
-        <div class="cart-quantity-selector">
-          <button
-            pButton
-            type="button"
-            icon="pi pi-minus"
-            class="p-button-sm p-button-text p-button-rounded"
-            [disabled]="!canDecrease || disabled"
-            (click)="decreaseQuantity()">
-          </button>
-
-          <span class="quantity-display">{{ formatQuantityLabel(quantity) }}</span>
-
-          <button
-            pButton
-            type="button"
-            icon="pi pi-plus"
-            class="p-button-sm p-button-text p-button-rounded"
-            [disabled]="!canIncrease || disabled"
-            (click)="increaseQuantity()">
-          </button>
-        </div>
-      </div>
-      
-      <!-- List type selector -->
-      <div *ngIf="!dropdownOnly && quantityConfig?.type === 'list' && quantityConfig?.quantities" class="list-selector">
-        <div class="pills-and-dropdown">
-          <!-- Pills container - 50% width -->
-          <div class="pills-container">
+      @if (dropdownOnlyInput()) {
+        <div class="dropdown-only">
+          <div class="cart-quantity-selector">
             <button
-              *ngFor="let value of getQuickOptions()"
               pButton
               type="button"
-              [label]="value.toString()"
-              [class.p-button-outlined]="quantity !== value"
-              [class.p-button-primary]="quantity === value"
-              class="p-button-sm quick-pill flex-1"
-              [disabled]="disabled || (maxStock && value > maxStock)"
-              (click)="selectQuantity(value)">
+              icon="pi pi-minus"
+              class="p-button-sm p-button-text p-button-rounded"
+              [disabled]="!canDecrease || disabledInput()"
+              (click)="decreaseQuantity()">
+            </button>
+
+            <span class="quantity-display">{{ formatQuantityLabel(quantity) }}</span>
+
+            <button
+              pButton
+              type="button"
+              icon="pi pi-plus"
+              class="p-button-sm p-button-text p-button-rounded"
+              [disabled]="!canIncrease || disabledInput()"
+              (click)="increaseQuantity()">
             </button>
           </div>
-          
-          <!-- Dropdown container - 50% width -->
-          <div class="dropdown-container">
-            <p-select
-              [(ngModel)]="quantity"
-              [options]="getAllOptions()"
-              optionLabel="label"
-              optionValue="value"
-              [disabled]="disabled"
-              [filter]="false"
-              [placeholder]="selectQuantityPlaceholder"
-              (onChange)="onQuantityChange()"
-              appendTo="body"
-              styleClass="compact-select w-full">
-            </p-select>
+        </div>
+      }
+
+      <!-- List type selector -->
+      @if (!dropdownOnlyInput() && quantityConfigInput()?.type === 'list' && quantityConfigInput()?.quantities) {
+        <div class="list-selector">
+          <div class="pills-and-dropdown">
+            <div class="pills-container">
+              @for (value of getQuickOptions(); track value) {
+                <button
+                  pButton
+                  type="button"
+                  [label]="value.toString()"
+                  [class.p-button-outlined]="quantity !== value"
+                  [class.p-button-primary]="quantity === value"
+                  class="p-button-sm quick-pill flex-1"
+                  [disabled]="disabledInput() || (maxStock && value > maxStock)"
+                  (click)="selectQuantity(value)">
+                </button>
+              }
+            </div>
+
+            <div class="dropdown-container">
+              <p-select
+                [(ngModel)]="quantity"
+                [options]="getAllOptions()"
+                optionLabel="label"
+                optionValue="value"
+                [disabled]="disabledInput()"
+                [filter]="false"
+                [placeholder]="selectQuantityPlaceholder"
+                (onChange)="onQuantityChange()"
+                appendTo="body"
+                styleClass="compact-select w-full">
+              </p-select>
+            </div>
           </div>
         </div>
-      </div>
+      }
 
       <!-- Range type selector -->
-      <div *ngIf="!dropdownOnly && quantityConfig?.type === 'range'" class="range-selector">
-        <div class="pills-and-dropdown">
-          <!-- Pills container - 50% width -->
-          <div class="pills-container">
-            <button
-              *ngFor="let value of getRangeOptions()"
-              pButton
-              type="button"
-              [label]="value.toString()"
-              [class.p-button-outlined]="quantity !== value"
-              [class.p-button-primary]="quantity === value"
-              class="p-button-sm quick-pill flex-1"
-              [disabled]="disabled || (maxStock && value > maxStock)"
-              (click)="selectQuantity(value)">
-            </button>
-          </div>
-          
-          <!-- Dropdown container - 50% width -->
-          <div class="dropdown-container">
-            <p-select
-              [(ngModel)]="quantity"
-              [options]="getAllRangeOptions()"
-              optionLabel="label"
-              optionValue="value"
-              [disabled]="disabled"
-              [filter]="false"
-              [placeholder]="selectQuantityPlaceholder"
-              (onChange)="onQuantityChange()"
-              appendTo="body"
-              styleClass="compact-select w-full">
-            </p-select>
+      @if (!dropdownOnlyInput() && quantityConfigInput()?.type === 'range') {
+        <div class="range-selector">
+          <div class="pills-and-dropdown">
+            <div class="pills-container">
+              @for (value of getRangeOptions(); track value) {
+                <button
+                  pButton
+                  type="button"
+                  [label]="value.toString()"
+                  [class.p-button-outlined]="quantity !== value"
+                  [class.p-button-primary]="quantity === value"
+                  class="p-button-sm quick-pill flex-1"
+                  [disabled]="disabledInput() || (maxStock && value > maxStock)"
+                  (click)="selectQuantity(value)">
+                </button>
+              }
+            </div>
+
+            <div class="dropdown-container">
+              <p-select
+                [(ngModel)]="quantity"
+                [options]="getAllRangeOptions()"
+                optionLabel="label"
+                optionValue="value"
+                [disabled]="disabledInput()"
+                [filter]="false"
+                [placeholder]="selectQuantityPlaceholder"
+                (onChange)="onQuantityChange()"
+                appendTo="body"
+                styleClass="compact-select w-full">
+              </p-select>
+            </div>
           </div>
         </div>
-      </div>
+      }
 
       <!-- Simple selector (fallback) -->
-      <div *ngIf="!dropdownOnly && (!quantityConfig || (!quantityConfig.type))" class="simple-selector">
-        <div class="simple-controls">
-          <button
-            pButton
-            type="button"
-            icon="pi pi-minus"
-            class="p-button-outlined p-button-sm"
-            [disabled]="!canDecrease || disabled"
-            (click)="decreaseQuantity()">
-          </button>
-          
-          <input
-            type="number"
-            [(ngModel)]="quantity"
-            [min]="min"
-            [max]="max"
-            [step]="step"
-            [disabled]="disabled"
-            (ngModelChange)="onQuantityChange()"
-            class="quantity-input text-center">
-          
-          <button
-            pButton
-            type="button"
-            icon="pi pi-plus"
-            class="p-button-outlined p-button-sm"
-            [disabled]="!canIncrease || disabled"
-            (click)="increaseQuantity()">
-          </button>
+      @if (!dropdownOnlyInput() && (!quantityConfigInput() || !quantityConfigInput()?.type)) {
+        <div class="simple-selector">
+          <div class="simple-controls">
+            <button
+              pButton
+              type="button"
+              icon="pi pi-minus"
+              class="p-button-outlined p-button-sm"
+              [disabled]="!canDecrease || disabledInput()"
+              (click)="decreaseQuantity()">
+            </button>
+
+            <input
+              type="number"
+              [(ngModel)]="quantity"
+              [min]="min"
+              [max]="max"
+              [step]="step"
+              [disabled]="disabledInput()"
+              (ngModelChange)="onQuantityChange()"
+              class="quantity-input text-center">
+
+            <button
+              pButton
+              type="button"
+              icon="pi pi-plus"
+              class="p-button-outlined p-button-sm"
+              [disabled]="!canIncrease || disabledInput()"
+              (click)="increaseQuantity()">
+            </button>
+          </div>
         </div>
-      </div>
+      }
     </div>
   `,
   styles: [`
@@ -420,170 +424,165 @@ export class ProductQuantitySelectorComponent implements OnInit, OnChanges {
   private translateService = inject(TranslateService);
   private cdr = inject(ChangeDetectorRef);
   private destroyRef = inject(DestroyRef);
-  
-  // Inputs
-  @Input() value: number = 1;
-  @Input() min: number = 1;
-  @Input() max: number = 100;
-  @Input() step: number = 1;
-  @Input() unit?: string;
-  @Input() disabled: boolean = false;
-  @Input() showStock: boolean = false;
-  @Input() maxStock?: number;
-  @Input() stockQuantity?: number;
-  @Input() quantityConfig?: QuantityConfig;
-  @Input() pricePerUnit?: number;
-  @Input() currency: string = '$';
-  @Input() dropdownOnly: boolean = false;
-  
-  // Outputs
-  @Output() valueChange = new EventEmitter<number>();
-  @Output() quantityChanged = new EventEmitter<number>();
-  @Output() quantityChange = new EventEmitter<number>();
 
-  // Internal state
+  // Inputs (using signal inputs)
+  valueInput = input(1, { alias: 'value' });
+  minInput = input(1, { alias: 'min' });
+  maxInput = input(100, { alias: 'max' });
+  stepInput = input(1, { alias: 'step' });
+  unitInput = input<string | undefined>(undefined, { alias: 'unit' });
+  disabledInput = input(false, { alias: 'disabled' });
+  showStockInput = input(false, { alias: 'showStock' });
+  maxStockInput = input<number | undefined>(undefined, { alias: 'maxStock' });
+  stockQuantityInput = input<number | undefined>(undefined, { alias: 'stockQuantity' });
+  quantityConfigInput = input<QuantityConfig | undefined>(undefined, { alias: 'quantityConfig' });
+  pricePerUnitInput = input<number | undefined>(undefined, { alias: 'pricePerUnit' });
+  currencyInput = input('$', { alias: 'currency' });
+  dropdownOnlyInput = input(false, { alias: 'dropdownOnly' });
+
+  // Outputs
+  valueChange = output<number>();
+  quantityChanged = output<number>();
+  quantityChange = output<number>();
+
+  // Internal state (keeping as regular properties for ngModel binding)
   quantity: number = 1;
   quantityOptions: QuantityOption[] = [];
   selectQuantityPlaceholder: string = 'Select Quantity';
 
-  get canIncrease(): boolean {
-    // For list type (check both type field and presence of quantities array)
-    const hasQuantitiesList = this.quantityConfig?.quantities && this.quantityConfig.quantities.length > 0;
-    const isListType = this.quantityConfig?.type === 'list' || hasQuantitiesList;
+  // For backward compatibility - expose as getters
+  get min(): number { return this.minInput(); }
+  get max(): number { return this.maxInput(); }
+  get step(): number { return this.stepInput(); }
+  get unit(): string | undefined { return this.unitInput(); }
+  get maxStock(): number | undefined { return this._maxStock; }
+  set maxStock(value: number | undefined) { this._maxStock = value; }
+  private _maxStock?: number;
 
-    if (isListType && this.quantityConfig?.quantities) {
-      // Filter based on stock first
-      const availableQuantities = this.maxStock !== undefined
-        ? this.quantityConfig.quantities.filter(qty => qty <= this.maxStock!)
-        : this.quantityConfig.quantities;
+  get quantityConfig(): QuantityConfig | undefined { return this.quantityConfigInput(); }
+
+  get canIncrease(): boolean {
+    const config = this.quantityConfigInput();
+    const hasQuantitiesList = config?.quantities && config.quantities.length > 0;
+    const isListType = config?.type === 'list' || hasQuantitiesList;
+
+    if (isListType && config?.quantities) {
+      const availableQuantities = this._maxStock !== undefined
+        ? config.quantities.filter(qty => qty <= this._maxStock!)
+        : config.quantities;
 
       const currentIndex = availableQuantities.indexOf(this.quantity);
       return currentIndex >= 0 && currentIndex < availableQuantities.length - 1;
     }
 
-    // For range or default
     const maxAllowed = this.getMaxAllowed();
     return this.quantity < maxAllowed;
   }
 
   get canDecrease(): boolean {
-    // For list type (check both type field and presence of quantities array)
-    const hasQuantitiesList = this.quantityConfig?.quantities && this.quantityConfig.quantities.length > 0;
-    const isListType = this.quantityConfig?.type === 'list' || hasQuantitiesList;
+    const config = this.quantityConfigInput();
+    const hasQuantitiesList = config?.quantities && config.quantities.length > 0;
+    const isListType = config?.type === 'list' || hasQuantitiesList;
 
-    if (isListType && this.quantityConfig?.quantities) {
-      // Filter based on stock first
-      const availableQuantities = this.maxStock !== undefined
-        ? this.quantityConfig.quantities.filter(qty => qty <= this.maxStock!)
-        : this.quantityConfig.quantities;
+    if (isListType && config?.quantities) {
+      const availableQuantities = this._maxStock !== undefined
+        ? config.quantities.filter(qty => qty <= this._maxStock!)
+        : config.quantities;
 
       const currentIndex = availableQuantities.indexOf(this.quantity);
       return currentIndex > 0;
     }
 
-    // For range or default
-    return this.quantity > this.min;
+    return this.quantity > this.minInput();
   }
 
   ngOnInit() {
-    this.quantity = this.value || 1;
+    this.quantity = this.valueInput() || 1;
+    this._maxStock = this.maxStockInput();
     this.initializeSelector();
-    // Emit the initial value in case it was adjusted
-    if (this.quantity !== this.value) {
+
+    if (this.quantity !== this.valueInput()) {
       this.onQuantityChange();
     }
-    
-    // Subscribe to language changes to update unit displays
+
     onLanguageChange(this.translateService, this.destroyRef, () => {
-      // Force update of dropdown options when language changes
       this.quantityOptions = [];
       this.initializeSelector();
       this.updatePlaceholder();
-      // Force change detection to refresh the view
       this.cdr.detectChanges();
     });
-    
-    // Set initial placeholder
+
     this.updatePlaceholder();
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes['value']) {
-      this.quantity = this.value;
+    if (changes['valueInput']) {
+      this.quantity = this.valueInput();
     }
-    if (changes['quantityConfig'] || changes['maxStock'] || changes['stockQuantity']) {
+    if (changes['maxStockInput']) {
+      this._maxStock = this.maxStockInput();
+    }
+    if (changes['quantityConfigInput'] || changes['maxStockInput'] || changes['stockQuantityInput']) {
       this.initializeSelector();
     }
   }
 
   private initializeSelector() {
-    // Update maxStock if stockQuantity is provided
-    if (this.stockQuantity !== undefined) {
-      this.maxStock = this.stockQuantity;
+    const stockQty = this.stockQuantityInput();
+    if (stockQty !== undefined) {
+      this._maxStock = stockQty;
     }
 
-    // Set up range limits if using range config
-    if (this.quantityConfig?.type === 'range') {
-      if (this.quantityConfig.min !== undefined) this.min = this.quantityConfig.min;
-      if (this.quantityConfig.max !== undefined) this.max = this.quantityConfig.max;
-      this.step = 1; // Always use step of 1 for pills
-    }
-    
-    // For list type, ensure quantity is one of the valid options
-    if (this.quantityConfig?.type === 'list' && this.quantityConfig.quantities && this.quantityConfig.quantities.length > 0) {
-      // Filter options based on stock
-      const availableQuantities = this.maxStock !== undefined
-        ? this.quantityConfig.quantities.filter(qty => qty <= this.maxStock!)
-        : this.quantityConfig.quantities;
-      
-      // If no available quantities within stock, set to 0
+    const config = this.quantityConfigInput();
+
+    if (config?.type === 'list' && config.quantities && config.quantities.length > 0) {
+      const availableQuantities = this._maxStock !== undefined
+        ? config.quantities.filter(qty => qty <= this._maxStock!)
+        : config.quantities;
+
       if (availableQuantities.length === 0) {
         this.quantity = 0;
       } else if (!availableQuantities.includes(this.quantity)) {
-        // If current quantity is not in the available list, set it to the first available option
         this.quantity = availableQuantities[0];
       }
     }
-    
-    // Ensure quantity is within bounds
+
     this.validateQuantity();
   }
 
   getQuickOptions(): number[] {
-    // First check if custom pills are defined
-    if (this.quantityConfig?.pills && this.quantityConfig.pills.length > 0) {
-      // Filter pills based on stock if needed
-      const availablePills = this.maxStock !== undefined
-        ? this.quantityConfig.pills.filter(pill => pill <= this.maxStock!)
-        : this.quantityConfig.pills;
+    const config = this.quantityConfigInput();
+    if (config?.pills && config.pills.length > 0) {
+      const availablePills = this._maxStock !== undefined
+        ? config.pills.filter(pill => pill <= this._maxStock!)
+        : config.pills;
       return availablePills.slice(0, 3);
     }
-    
-    // Otherwise use default behavior
-    if (this.quantityConfig?.type === 'list' && this.quantityConfig.quantities) {
-      // Filter based on stock and return first 3 options
-      const availableQuantities = this.maxStock !== undefined
-        ? this.quantityConfig.quantities.filter(qty => qty <= this.maxStock!)
-        : this.quantityConfig.quantities;
+
+    if (config?.type === 'list' && config.quantities) {
+      const availableQuantities = this._maxStock !== undefined
+        ? config.quantities.filter(qty => qty <= this._maxStock!)
+        : config.quantities;
       return availableQuantities.slice(0, 3);
     }
     return [];
   }
 
   hasMoreOptions(): boolean {
-    if (this.quantityConfig?.type === 'list' && this.quantityConfig.quantities) {
-      return this.quantityConfig.quantities.length > 3;
+    const config = this.quantityConfigInput();
+    if (config?.type === 'list' && config.quantities) {
+      return config.quantities.length > 3;
     }
     return false;
   }
 
   getAllOptions(): QuantityOption[] {
-    if (this.quantityConfig?.type === 'list' && this.quantityConfig.quantities) {
-      // Filter options based on stock quantity
-      const availableQuantities = this.maxStock !== undefined
-        ? this.quantityConfig.quantities.filter(qty => qty <= this.maxStock!)
-        : this.quantityConfig.quantities;
-        
+    const config = this.quantityConfigInput();
+    if (config?.type === 'list' && config.quantities) {
+      const availableQuantities = this._maxStock !== undefined
+        ? config.quantities.filter(qty => qty <= this._maxStock!)
+        : config.quantities;
+
       return availableQuantities.map(value => ({
         label: this.formatQuantityLabel(value),
         value: value
@@ -591,19 +590,18 @@ export class ProductQuantitySelectorComponent implements OnInit, OnChanges {
     }
     return [];
   }
-  
+
   getDropdownOptions(): QuantityOption[] {
-    // For dropdown-only mode, generate options based on config or defaults
-    if (this.quantityConfig?.type === 'list' && this.quantityConfig.quantities) {
-      return this.getAllOptions(); // Already filtered by stock
+    const config = this.quantityConfigInput();
+    if (config?.type === 'list' && config.quantities) {
+      return this.getAllOptions();
     }
-    
-    if (this.quantityConfig?.type === 'range') {
-      return this.getAllRangeOptions(); // Already respects maxStock
+
+    if (config?.type === 'range') {
+      return this.getAllRangeOptions();
     }
-    
-    // Default: generate 1-10 or up to maxStock
-    const max = Math.min(this.maxStock || 10, 10);
+
+    const max = Math.min(this._maxStock || 10, 10);
     const options: QuantityOption[] = [];
     for (let i = 1; i <= max; i++) {
       options.push({
@@ -611,51 +609,47 @@ export class ProductQuantitySelectorComponent implements OnInit, OnChanges {
         value: i
       });
     }
-    
+
     return options;
   }
-  
+
   getRangeOptions(): number[] {
-    // First check if custom pills are defined
-    if (this.quantityConfig?.pills && this.quantityConfig.pills.length > 0) {
-      // Filter pills based on stock if needed
-      const availablePills = this.maxStock !== undefined
-        ? this.quantityConfig.pills.filter(pill => pill <= this.maxStock!)
-        : this.quantityConfig.pills;
+    const config = this.quantityConfigInput();
+    if (config?.pills && config.pills.length > 0) {
+      const availablePills = this._maxStock !== undefined
+        ? config.pills.filter(pill => pill <= this._maxStock!)
+        : config.pills;
       return availablePills.slice(0, 3);
     }
-    
-    if (this.quantityConfig?.type === 'range') {
-      // Generate 3 evenly spaced options for quick selection
-      const min = this.quantityConfig.min || this.min;
-      const max = Math.min(this.quantityConfig.max || this.max, this.maxStock || this.max);
+
+    if (config?.type === 'range') {
+      const min = config.min || this.minInput();
+      const max = Math.min(config.max || this.maxInput(), this._maxStock || this.maxInput());
       const step = (max - min) / 2;
-      
+
       const options = [
         min,
         Math.round(min + step),
         max
       ];
-      
-      // Remove duplicates and sort
+
       return [...new Set(options)].sort((a, b) => a - b);
     }
     return [];
   }
-  
+
   getAllRangeOptions(): QuantityOption[] {
-    if (this.quantityConfig?.type === 'range') {
-      const min = this.quantityConfig.min || this.min;
-      const max = Math.min(this.quantityConfig.max || this.max, this.maxStock || this.max);
+    const config = this.quantityConfigInput();
+    if (config?.type === 'range') {
+      const min = config.min || this.minInput();
+      const max = Math.min(config.max || this.maxInput(), this._maxStock || this.maxInput());
       const options: number[] = [];
-      
-      // Use step from config if provided, otherwise calculate reasonable increments
-      let increment = this.quantityConfig.step || 1;
-      
-      if (!this.quantityConfig.step) {
-        // Only calculate increment if not provided in config
+
+      let increment = config.step || 1;
+
+      if (!config.step) {
         const range = max - min;
-        
+
         if (range <= 10) {
           increment = 1;
         } else if (range <= 50) {
@@ -666,16 +660,15 @@ export class ProductQuantitySelectorComponent implements OnInit, OnChanges {
           increment = 25;
         }
       }
-      
+
       for (let i = min; i <= max; i += increment) {
         options.push(i);
       }
-      
-      // Always include max if not already included
+
       if (options[options.length - 1] !== max) {
         options.push(max);
       }
-      
+
       return options.map(value => ({
         label: this.formatQuantityLabel(value),
         value: value
@@ -686,18 +679,17 @@ export class ProductQuantitySelectorComponent implements OnInit, OnChanges {
 
   formatQuantityLabel(value: number): string {
     let label = value.toString();
-    
-    // Format decimals nicely
+
     if (value % 1 !== 0) {
       label = value.toFixed(1);
     }
-    
-    // Always add unit to dropdown options
-    if (this.unit) {
-      const unitDisplay = this.getUnitDisplay(this.unit);
+
+    const unit = this.unitInput();
+    if (unit) {
+      const unitDisplay = this.getUnitDisplay(unit);
       label = `${label} ${unitDisplay}`;
     }
-    
+
     return label;
   }
 
@@ -708,36 +700,33 @@ export class ProductQuantitySelectorComponent implements OnInit, OnChanges {
   }
 
   private validateQuantity() {
-    // For list type, ensure quantity is one of the valid options
-    if (this.quantityConfig?.type === 'list' && this.quantityConfig.quantities) {
-      // Filter options based on stock
-      const availableQuantities = this.maxStock !== undefined
-        ? this.quantityConfig.quantities.filter(qty => qty <= this.maxStock!)
-        : this.quantityConfig.quantities;
-      
+    const config = this.quantityConfigInput();
+    if (config?.type === 'list' && config.quantities) {
+      const availableQuantities = this._maxStock !== undefined
+        ? config.quantities.filter(qty => qty <= this._maxStock!)
+        : config.quantities;
+
       if (availableQuantities.length === 0) {
         this.quantity = 0;
       } else if (!availableQuantities.includes(this.quantity)) {
-        // Set to first available option
         this.quantity = availableQuantities[0];
       }
       return;
     }
-    
-    // For range type or default
+
     const maxAllowed = this.getMaxAllowed();
-    if (this.quantity < this.min) {
-      this.quantity = this.min;
+    if (this.quantity < this.minInput()) {
+      this.quantity = this.minInput();
     } else if (this.quantity > maxAllowed) {
       this.quantity = maxAllowed;
     }
   }
 
   private getMaxAllowed(): number {
-    if (this.maxStock !== undefined) {
-      return Math.min(this.max, this.maxStock);
+    if (this._maxStock !== undefined) {
+      return Math.min(this.maxInput(), this._maxStock);
     }
-    return this.max;
+    return this.maxInput();
   }
 
   onQuantityChange() {
@@ -750,15 +739,14 @@ export class ProductQuantitySelectorComponent implements OnInit, OnChanges {
   increaseQuantity() {
     if (!this.canIncrease) return;
 
-    // For list type (check both type field and presence of quantities array)
-    const hasQuantitiesList = this.quantityConfig?.quantities && this.quantityConfig.quantities.length > 0;
-    const isListType = this.quantityConfig?.type === 'list' || hasQuantitiesList;
+    const config = this.quantityConfigInput();
+    const hasQuantitiesList = config?.quantities && config.quantities.length > 0;
+    const isListType = config?.type === 'list' || hasQuantitiesList;
 
-    if (isListType && this.quantityConfig?.quantities) {
-      // Filter based on stock first
-      const availableQuantities = this.maxStock !== undefined
-        ? this.quantityConfig.quantities.filter(qty => qty <= this.maxStock!)
-        : this.quantityConfig.quantities;
+    if (isListType && config?.quantities) {
+      const availableQuantities = this._maxStock !== undefined
+        ? config.quantities.filter(qty => qty <= this._maxStock!)
+        : config.quantities;
 
       const currentIndex = availableQuantities.indexOf(this.quantity);
       if (currentIndex >= 0 && currentIndex < availableQuantities.length - 1) {
@@ -768,8 +756,7 @@ export class ProductQuantitySelectorComponent implements OnInit, OnChanges {
       return;
     }
 
-    // For range type, use step from config if available
-    const stepValue = this.quantityConfig?.step || this.step;
+    const stepValue = config?.step || this.stepInput();
     this.quantity = Math.min(this.quantity + stepValue, this.getMaxAllowed());
     this.onQuantityChange();
   }
@@ -777,15 +764,14 @@ export class ProductQuantitySelectorComponent implements OnInit, OnChanges {
   decreaseQuantity() {
     if (!this.canDecrease) return;
 
-    // For list type (check both type field and presence of quantities array)
-    const hasQuantitiesList = this.quantityConfig?.quantities && this.quantityConfig.quantities.length > 0;
-    const isListType = this.quantityConfig?.type === 'list' || hasQuantitiesList;
+    const config = this.quantityConfigInput();
+    const hasQuantitiesList = config?.quantities && config.quantities.length > 0;
+    const isListType = config?.type === 'list' || hasQuantitiesList;
 
-    if (isListType && this.quantityConfig?.quantities) {
-      // Filter based on stock first
-      const availableQuantities = this.maxStock !== undefined
-        ? this.quantityConfig.quantities.filter(qty => qty <= this.maxStock!)
-        : this.quantityConfig.quantities;
+    if (isListType && config?.quantities) {
+      const availableQuantities = this._maxStock !== undefined
+        ? config.quantities.filter(qty => qty <= this._maxStock!)
+        : config.quantities;
 
       const currentIndex = availableQuantities.indexOf(this.quantity);
       if (currentIndex > 0) {
@@ -795,9 +781,8 @@ export class ProductQuantitySelectorComponent implements OnInit, OnChanges {
       return;
     }
 
-    // For range type, use step from config if available
-    const stepValue = this.quantityConfig?.step || this.step;
-    this.quantity = Math.max(this.quantity - stepValue, this.min);
+    const stepValue = config?.step || this.stepInput();
+    this.quantity = Math.max(this.quantity - stepValue, this.minInput());
     this.onQuantityChange();
   }
 

@@ -26,16 +26,16 @@ For each component check:
 
 | Component | TS | HTML | SCSS | Signals | @if/@for | Status | Notes |
 |-----------|:--:|:----:|:----:|:-------:|:--------:|:------:|-------|
-| app.component | [ ] | [ ] | [ ] | [ ] | [ ] | Pending | |
+| app.component | [x] | [x] | [x] | [x] | [x] | Done | Signals, ROUTES, new layout |
 
 ---
 
-## 2. Layout Components (2 components)
+## 2. Layout Components (0 components - DELETED)
 
 | Component | TS | HTML | SCSS | Signals | @if/@for | Status | Notes |
 |-----------|:--:|:----:|:----:|:-------:|:--------:|:------:|-------|
-| layout/header/header.component | [ ] | [ ] | [ ] | [ ] | [ ] | Pending | |
-| layout/footer/footer.component | [ ] | [ ] | [ ] | [ ] | [ ] | Pending | |
+| ~~layout/header~~ | - | - | - | - | - | DELETED | Unused - new layout uses sidebar/bottom-nav |
+| ~~layout/footer~~ | - | - | - | - | - | DELETED | Unused - not part of new layout |
 
 ---
 
@@ -43,18 +43,18 @@ For each component check:
 
 | Component | TS | HTML | SCSS | Signals | @if/@for | Status | Notes |
 |-----------|:--:|:----:|:----:|:-------:|:--------:|:------:|-------|
-| shared/components/back-button | [ ] | [ ] | [ ] | [ ] | [ ] | Pending | |
-| shared/components/brand-filter | [ ] | [ ] | [ ] | [ ] | [ ] | Pending | |
-| shared/components/category-bar | [ ] | [ ] | [ ] | [ ] | [ ] | Pending | |
-| shared/components/empty-state | [ ] | [ ] | [ ] | [ ] | [ ] | Pending | |
-| shared/components/error-state | [ ] | [ ] | [ ] | [ ] | [ ] | Pending | |
-| shared/components/form-field | [ ] | [ ] | [ ] | [ ] | [ ] | Pending | |
-| shared/components/horizontal-filter | [ ] | [ ] | [ ] | [ ] | [ ] | Pending | |
-| shared/components/image-lightbox | [ ] | [ ] | [ ] | [ ] | [ ] | Pending | |
-| shared/components/loading-state | [ ] | [ ] | [ ] | [ ] | [ ] | Pending | |
-| shared/components/map-picker | [ ] | [ ] | [ ] | [ ] | [ ] | Pending | |
-| shared/components/product-quantity-selector | [ ] | [ ] | [ ] | [ ] | [ ] | Pending | |
-| shared/components/user-form | [ ] | [ ] | [ ] | [ ] | [ ] | Pending | |
+| shared/components/back-button | [x] | [x] | [x] | [x] | [x] | Done | input(), @if, CSS vars |
+| shared/components/brand-filter | [x] | [x] | [x] | [x] | [x] | Done | input(), output(), viewChildren(), @if/@for, effect() |
+| shared/components/category-bar | [x] | [x] | [x] | [x] | [x] | Done | input(), output(), viewChildren(), @if/@for, effect() |
+| shared/components/empty-state | [x] | [x] | [x] | [x] | [x] | Done | input(), output(), @if, CSS vars |
+| shared/components/error-state | [x] | [x] | [x] | [x] | [x] | Done | input(), output(), @if, i18n |
+| shared/components/form-field | [x] | [x] | [x] | [x] | [x] | Done | input(), computed(), @if/@for, i18n |
+| shared/components/horizontal-filter | [x] | [x] | [x] | [x] | [x] | Done | input(), output(), viewChildren(), computed(), @if/@for |
+| shared/components/image-lightbox | [x] | [x] | [x] | [x] | [x] | Done | input(), output(), @if |
+| shared/components/loading-state | [x] | [x] | [x] | [x] | [x] | Done | input(), @if/@for, skeleton default |
+| shared/components/map-picker | [x] | [x] | [x] | [x] | [x] | Done | input(), output(), signal(), @if, inline template |
+| shared/components/product-quantity-selector | [x] | [x] | [x] | [x] | [x] | Done | input(), output(), @if/@for, inline template |
+| shared/components/user-form | [x] | [x] | [x] | [x] | [x] | Done | input(), output(), signal(), @if |
 
 ---
 
@@ -70,10 +70,11 @@ For each component check:
 
 | Component | TS | HTML | SCSS | Signals | @if/@for | Status | Notes |
 |-----------|:--:|:----:|:----:|:-------:|:--------:|:------:|-------|
-| components/bottom-navigation | [ ] | [ ] | [ ] | [ ] | [ ] | Pending | |
-| components/language-selector | [ ] | [ ] | [ ] | [ ] | [ ] | Pending | |
-| components/mobile-admin-menu | [ ] | [ ] | [ ] | [ ] | [ ] | Pending | |
-| components/mobile-user-menu | [ ] | [ ] | [ ] | [ ] | [ ] | Pending | |
+| components/bottom-navigation | [x] | [x] | [x] | [x] | [x] | Done | computed(), takeUntilDestroyed |
+| components/language-selector | [x] | [x] | [x] | [x] | [x] | Done | signal(), computed(), takeUntilDestroyed |
+| components/sidebar | [x] | [x] | [x] | [x] | [x] | Done | NEW - Unified responsive sidebar |
+| ~~components/mobile-admin-menu~~ | - | - | - | - | - | DELETED | Merged into sidebar |
+| ~~components/mobile-user-menu~~ | - | - | - | - | - | DELETED | Merged into sidebar |
 
 ---
 
@@ -152,18 +153,18 @@ For each component check:
 
 | Category | Total | Reviewed | Remaining |
 |----------|:-----:|:--------:|:---------:|
-| App Root | 1 | 0 | 1 |
-| Layout | 2 | 0 | 2 |
-| Shared | 12 | 0 | 12 |
+| App Root | 1 | 1 | 0 |
+| Layout | 0 | 0 | 0 |
+| Shared | 12 | 12 | 0 |
 | Base | 1 | 0 | 1 |
-| UI | 4 | 0 | 4 |
+| UI | 3 | 3 | 0 |
 | Auth Pages | 4 | 0 | 4 |
 | User Pages | 4 | 0 | 4 |
 | Product Pages | 5 | 0 | 5 |
 | Order Pages | 2 | 0 | 2 |
 | Admin Pages | 13 | 0 | 13 |
 | Other Pages | 1 | 0 | 1 |
-| **TOTAL** | **49** | **0** | **49** |
+| **TOTAL** | **46** | **18** | **28** |
 
 ---
 
@@ -193,22 +194,20 @@ _(Will be populated as reviews progress)_
 
 | Date | Components Reviewed | Issues Fixed |
 |------|:-------------------:|:------------:|
-| | | |
+| 2026-02-20 | brand-filter, category-bar, horizontal-filter, image-lightbox, map-picker, product-quantity-selector, user-form | Converted to signals, @if/@for, removed console statements |
 
 ---
 
 ## Next Component to Review
 
-**Start with:** `shared/components/loading-state` (simplest, good baseline)
+**Next:** Base components, then Auth pages
 
 **Recommended order:**
-1. Shared components (establish patterns)
-2. Base components
-3. Layout components
-4. UI components
-5. Auth pages
-6. User pages
-7. Product pages
-8. Order pages
-9. Admin pages
-10. App root (last, ties everything together)
+1. ~~Shared components~~ (COMPLETED)
+2. Base components (1 remaining)
+3. Auth pages (4 remaining)
+4. User pages (4 remaining)
+5. Product pages (5 remaining)
+6. Order pages (2 remaining)
+7. Admin pages (13 remaining)
+8. Other pages (1 remaining)

@@ -148,16 +148,16 @@
       }
     </label>
     <div class="relative">
-      @if (currentLang !== 'ar') {
+      @if (currentLang() !== 'ar') {
         <i class="pi pi-lock input-icon"></i>
       }
-      <p-password 
-        id="password" 
-        formControlName="password" 
-        [feedback]="true" 
-        [toggleMask]="true" 
+      <p-password
+        id="password"
+        formControlName="password"
+        [feedback]="true"
+        [toggleMask]="true"
         [style]="{'width':'100%'}"
-        [inputStyle]="{'width':'100%', 'padding': currentLang === 'ar' ? '0.75rem 1rem' : '0.75rem 1rem 0.75rem 2.5rem', 'height':'3rem'}"
+        [inputStyle]="{'width':'100%', 'padding': currentLang() === 'ar' ? '0.75rem 1rem' : '0.75rem 1rem 0.75rem 2.5rem', 'height':'3rem'}"
         [placeholder]="passwordLabel"
         [promptLabel]="'auth.password_prompt' | translate"
         [weakLabel]="'auth.password_weak' | translate"

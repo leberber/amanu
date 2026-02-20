@@ -1,5 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, AfterViewInit, OnChanges, SimpleChanges, ViewChildren, QueryList, ElementRef, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, AfterViewInit, effect, inject, input, output, signal, viewChildren, ElementRef } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { Brand } from '../../../models/brand.model';
 import { BrandService } from '../../../core/services/brand.service';
@@ -7,33 +6,45 @@ import { BrandService } from '../../../core/services/brand.service';
 @Component({
   selector: 'app-brand-filter',
   standalone: true,
-  imports: [CommonModule, TranslateModule],
+  imports: [TranslateModule],
   templateUrl: './brand-filter.component.html',
   styleUrls: ['./brand-filter.component.scss']
 })
-export class BrandFilterComponent implements OnInit, AfterViewInit, OnChanges {
+export class BrandFilterComponent implements OnInit, AfterViewInit {
   private brandService = inject(BrandService);
 
-  @Input() activeBrandId: number | null = null;
-  @Input() showAllOption: boolean = true;
-  @Input() allLabel: string = 'products.filters.all_brands';
-  @Input() showToggle: boolean = false;
-  @Input() filterMode: 'categories' | 'brands' = 'brands';
-  @Input() showSearchIcon = false;
+  // Inputs
+  activeBrandId = input<number | null>(null);
+  showAllOption = input(true);
+  allLabel = input('products.filters.all_brands');
+  showToggle = input(false);
+  filterMode = input<'categories' | 'brands'>('brands');
+  showSearchIcon = input(false);
 
-  @ViewChildren('brandItem') brandItems!: QueryList<ElementRef>;
+  // ViewChildren using signal-based query
+  brandItems = viewChildren<ElementRef>('brandItem');
 
-  @Output() brandSelected = new EventEmitter<number | null>();
-  @Output() filterModeToggle = new EventEmitter<void>();
-  @Output() searchToggle = new EventEmitter<void>();
+  // Outputs
+  brandSelected = output<number | null>();
+  filterModeToggle = output<void>();
+  searchToggle = output<void>();
 
-  brands: Brand[] = [];
-  loading = false;
-  isSearchOpen = false;
+  // State signals
+  brands = signal<Brand[]>([]);
+  loading = signal(false);
+  isSearchOpen = signal(false);
 
-  // Indicator position
-  indicatorLeft = 0;
-  indicatorWidth = 0;
+  // Indicator position signals
+  indicatorLeft = signal(0);
+  indicatorWidth = signal(0);
+
+  constructor() {
+    // React to activeBrandId changes
+    effect(() => {
+      this.activeBrandId();
+      setTimeout(() => this.updateIndicator(), 0);
+    });
+  }
 
   ngOnInit(): void {
     this.loadBrands();
@@ -43,45 +54,38 @@ export class BrandFilterComponent implements OnInit, AfterViewInit, OnChanges {
     setTimeout(() => this.updateIndicator(), 0);
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['activeBrandId']) {
-      setTimeout(() => this.updateIndicator(), 0);
-    }
-  }
-
   loadBrands(): void {
-    this.loading = true;
+    this.loading.set(true);
     this.brandService.getBrands(true).subscribe({
       next: (brands) => {
-        this.brands = brands;
-        this.loading = false;
+        this.brands.set(brands);
+        this.loading.set(false);
         setTimeout(() => this.updateIndicator(), 0);
       },
-      error: (error) => {
-        console.error('Error loading brands:', error);
-        this.loading = false;
+      error: () => {
+        this.loading.set(false);
       }
     });
   }
 
   updateIndicator(): void {
-    const items = this.brandItems?.toArray() || [];
+    const items = this.brandItems();
     const activeIndex = this.getActiveIndex();
 
     if (activeIndex >= 0 && activeIndex < items.length) {
       const activeElement = items[activeIndex].nativeElement;
-      this.indicatorLeft = activeElement.offsetLeft;
-      this.indicatorWidth = activeElement.offsetWidth;
+      this.indicatorLeft.set(activeElement.offsetLeft);
+      this.indicatorWidth.set(activeElement.offsetWidth);
     }
   }
 
   getActiveIndex(): number {
-    if (this.activeBrandId === null) {
-      return this.showAllOption ? 0 : -1;
+    if (this.activeBrandId() === null) {
+      return this.showAllOption() ? 0 : -1;
     }
 
-    const index = this.brands.findIndex(b => b.id === this.activeBrandId);
-    return this.showAllOption ? index + 1 : index;
+    const index = this.brands().findIndex(b => b.id === this.activeBrandId());
+    return this.showAllOption() ? index + 1 : index;
   }
 
   selectBrand(brandId: number | null): void {
@@ -93,15 +97,11 @@ export class BrandFilterComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   toggleSearch(): void {
-    this.isSearchOpen = !this.isSearchOpen;
+    this.isSearchOpen.update(v => !v);
     this.searchToggle.emit();
   }
 
   isActive(brandId: number | null): boolean {
-    return this.activeBrandId === brandId;
-  }
-
-  trackByBrand(_index: number, brand: Brand): number {
-    return brand.id;
+    return this.activeBrandId() === brandId;
   }
 }

@@ -1,9 +1,19 @@
 <!-- src/app/app.component.html -->
-<app-header *ngIf="showHeader"></app-header>
+<div class="app-layout" [class.with-sidebar]="showNavigation() && !isMobile()" [class.with-bottom-nav]="showNavigation() && isMobile()">
 
-<div [class.main-content]="showHeader" [class.pb-20]="showNavigation" [class.md:pb-0]="showNavigation">
-  <router-outlet></router-outlet>
+  <!-- Sidebar - renders fixed on desktop, drawer on mobile -->
+  @if (showNavigation()) {
+    <app-sidebar />
+  }
+
+  <!-- Main content area -->
+  <main class="app-main">
+    <router-outlet></router-outlet>
+  </main>
+
+  <!-- Bottom navigation - Mobile only -->
+  @if (showNavigation() && isMobile()) {
+    <app-bottom-navigation />
+  }
+
 </div>
-
-<!-- Bottom navigation - only visible on mobile and when authenticated -->
-<app-bottom-navigation *ngIf="showNavigation"></app-bottom-navigation>

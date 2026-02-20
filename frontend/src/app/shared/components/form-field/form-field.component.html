@@ -1,0 +1,24 @@
+<div class="field" [class.field-error]="hasError()">
+  @if (label()) {
+    <label [for]="fieldId()" [class.required]="required()">
+      {{ label() }}
+      @if (required()) {
+        <span class="required-indicator">*</span>
+      }
+    </label>
+  }
+
+  <ng-content></ng-content>
+
+  @if (hasError() && showErrors()) {
+    <small class="p-error">
+      @for (error of errors(); track error) {
+        {{ error }}
+      }
+    </small>
+  }
+
+  @if (hint() && !hasError()) {
+    <small class="p-hint">{{ hint() }}</small>
+  }
+</div>

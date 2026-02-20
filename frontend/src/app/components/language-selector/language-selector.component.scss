@@ -1,0 +1,58 @@
+.language-selector {
+  min-width: 140px;
+}
+
+.language-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+:host ::ng-deep .language-dropdown {
+  min-width: 140px;
+
+  .p-select {
+    border: none;
+    background: transparent;
+
+    &:focus {
+      box-shadow: none;
+    }
+  }
+
+  .p-select-label {
+    padding: 0.5rem 0.75rem;
+  }
+
+  .p-select-dropdown {
+    width: 2.5rem;
+  }
+}
+
+:host ::ng-deep .p-select-overlay {
+  z-index: 99999 !important;
+  background: var(--surface-card, white) !important;
+
+  .p-select-list,
+  .p-select-items {
+    background: var(--surface-card, white) !important;
+  }
+
+  .p-select-option,
+  .p-select-item {
+    color: var(--text-color) !important;
+
+    span {
+      color: var(--text-color) !important;
+    }
+
+    &.p-highlight,
+    &.p-select-option-selected {
+      background: var(--primary-color) !important;
+
+      span {
+        color: white !important;
+      }
+    }
+  }
+}

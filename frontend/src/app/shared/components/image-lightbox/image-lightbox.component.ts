@@ -1,17 +1,19 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, input, output } from '@angular/core';
 
 @Component({
   selector: 'app-image-lightbox',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './image-lightbox.component.html',
   styleUrl: './image-lightbox.component.scss'
 })
 export class ImageLightboxComponent {
-  @Input() imageUrl: string | null = null;
-  @Input() altText: string = 'Image';
-  @Output() close = new EventEmitter<void>();
+  // Inputs
+  imageUrl = input<string | null>(null);
+  altText = input('Image');
+
+  // Outputs
+  close = output<void>();
 
   onClose(): void {
     this.close.emit();

@@ -1,71 +1,72 @@
-import { Component, Input, Output, EventEmitter, ViewChildren, QueryList, ElementRef, AfterViewInit, OnChanges, SimpleChanges } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, AfterViewInit, effect, input, output, signal, viewChildren, ElementRef } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { Category } from '../../../models/product.model';
 
 @Component({
   selector: 'app-category-bar',
   standalone: true,
-  imports: [CommonModule, TranslateModule],
+  imports: [TranslateModule],
   templateUrl: './category-bar.component.html',
   styleUrls: ['./category-bar.component.scss']
 })
-export class CategoryBarComponent implements AfterViewInit, OnChanges {
-  @Input() categories: Category[] = [];
-  @Input() activeCategoryId: number | null = null;
-  @Input() showAllOption = true;
-  @Input() allLabel = 'products.filters.all';
-  @Input() compact = false;
-  @Input() showSearchIcon = false;
-  @Input() showFilterToggle = false; // Show toggle button instead of "All"
-  @Input() filterMode: 'categories' | 'brands' = 'categories'; // Current filter mode
+export class CategoryBarComponent implements AfterViewInit {
+  // Inputs
+  categories = input<Category[]>([]);
+  activeCategoryId = input<number | null>(null);
+  showAllOption = input(true);
+  allLabel = input('products.filters.all');
+  compact = input(false);
+  showSearchIcon = input(false);
+  showFilterToggle = input(false);
+  filterMode = input<'categories' | 'brands'>('categories');
 
-  @ViewChildren('categoryItem') categoryItems!: QueryList<ElementRef>;
+  // ViewChildren using signal-based query
+  categoryItems = viewChildren<ElementRef>('categoryItem');
 
-  // Internal state for search toggle
-  isSearchOpen = false;
+  // State signals
+  isSearchOpen = signal(false);
+  indicatorLeft = signal(0);
+  indicatorWidth = signal(0);
 
-  // Indicator position
-  indicatorLeft = 0;
-  indicatorWidth = 0;
+  // Outputs
+  categorySelected = output<number | null>();
+  searchToggle = output<void>();
+  filterModeToggle = output<void>();
 
-  @Output() categorySelected = new EventEmitter<number | null>();
-  @Output() searchToggle = new EventEmitter<void>();
-  @Output() filterModeToggle = new EventEmitter<void>(); // Toggle between categories/brands
+  constructor() {
+    // React to activeCategoryId changes
+    effect(() => {
+      this.activeCategoryId();
+      setTimeout(() => this.updateIndicator(), 0);
+    });
+  }
 
   ngAfterViewInit(): void {
     setTimeout(() => this.updateIndicator(), 0);
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['activeCategoryId']) {
-      setTimeout(() => this.updateIndicator(), 0);
-    }
-  }
-
   updateIndicator(): void {
-    const items = this.categoryItems?.toArray() || [];
+    const items = this.categoryItems();
     const activeIndex = this.getActiveIndex();
 
     if (activeIndex >= 0 && activeIndex < items.length) {
       const activeElement = items[activeIndex].nativeElement;
-      this.indicatorLeft = activeElement.offsetLeft;
-      this.indicatorWidth = activeElement.offsetWidth;
+      this.indicatorLeft.set(activeElement.offsetLeft);
+      this.indicatorWidth.set(activeElement.offsetWidth);
     }
   }
 
   getActiveIndex(): number {
-    if (this.activeCategoryId === null) {
-      return this.showAllOption ? 0 : -1;
+    if (this.activeCategoryId() === null) {
+      return this.showAllOption() ? 0 : -1;
     }
 
-    const index = this.categories.findIndex(cat => cat.id === this.activeCategoryId);
-    // Add 1 to index only if showAllOption is true (to account for "All" being first)
-    return this.showAllOption ? index + 1 : index;
+    const index = this.categories().findIndex(cat => cat.id === this.activeCategoryId());
+    return this.showAllOption() ? index + 1 : index;
   }
 
   toggleSearch(): void {
-    this.isSearchOpen = !this.isSearchOpen;
+    this.isSearchOpen.update(v => !v);
     this.searchToggle.emit();
   }
 
@@ -78,10 +79,6 @@ export class CategoryBarComponent implements AfterViewInit, OnChanges {
   }
 
   isActive(categoryId: number | null): boolean {
-    return this.activeCategoryId === categoryId;
-  }
-
-  trackByCategory(_index: number, category: Category): number {
-    return category.id;
+    return this.activeCategoryId() === categoryId;
   }
 }

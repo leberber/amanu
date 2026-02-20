@@ -1,6 +1,5 @@
 // src/app/shared/components/map-picker/map-picker.component.ts
-import { Component, Input, Output, EventEmitter, AfterViewInit, OnDestroy, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, AfterViewInit, OnDestroy, inject, input, output, signal } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import * as L from 'leaflet';
 import { environment } from '../../../../environments/environment';
@@ -18,66 +17,78 @@ export interface LocationData {
 @Component({
   selector: 'app-map-picker',
   standalone: true,
-  imports: [
-    CommonModule,
-    TranslateModule
-  ],
+  imports: [TranslateModule],
   template: `
-    <div class="map-picker" [class.fullscreen]="fullscreen">
-      <div class="map-container" [id]="mapId"></div>
+    <div class="map-picker" [class.fullscreen]="fullscreen()">
+      <div class="map-container" [id]="mapId()"></div>
 
       <!-- Use My Location Card (shown when no location selected in fullscreen) -->
-      <div class="use-location-card" *ngIf="fullscreen && !selectedLocation && !isLocating && !cardDismissed">
-        <div class="location-card-content">
-          <div class="pulse-icon" (click)="locateUser()">
-            <div class="pulse-ring"></div>
-            <div class="pulse-ring delay"></div>
-            <div class="icon-center">
-              <i class="pi pi-send"></i>
+      @if (fullscreen() && !selectedLocation() && !isLocating() && !cardDismissed()) {
+        <div class="use-location-card">
+          <div class="location-card-content">
+            <div class="pulse-icon" (click)="locateUser()">
+              <div class="pulse-ring"></div>
+              <div class="pulse-ring delay"></div>
+              <div class="icon-center">
+                <i class="pi pi-send"></i>
+              </div>
             </div>
+            <span class="location-label">{{ 'register.use_my_location' | translate }}</span>
           </div>
-          <span class="location-label">{{ 'register.use_my_location' | translate }}</span>
+          <div class="divider">
+            <span class="divider-line"></span>
+            <span class="divider-text">{{ 'common.or' | translate }}</span>
+            <span class="divider-line"></span>
+          </div>
+          <button class="tap-map-btn" (click)="dismissCard()">
+            <i class="pi pi-map"></i>
+            <span>{{ 'register.tap_map_instruction' | translate }}</span>
+          </button>
         </div>
-        <div class="divider">
-          <span class="divider-line"></span>
-          <span class="divider-text">{{ 'common.or' | translate }}</span>
-          <span class="divider-line"></span>
-        </div>
-        <button class="tap-map-btn" (click)="dismissCard()">
-          <i class="pi pi-map"></i>
-          <span>{{ 'register.tap_map_instruction' | translate }}</span>
-        </button>
-      </div>
+      }
 
       <!-- Locate Me Button (fullscreen mode, shown after location selected) -->
-      <button *ngIf="fullscreen && (selectedLocation || locationRequested)" class="locate-btn" (click)="locateUser()" [disabled]="isLocating">
-        <i class="pi" [class.pi-spin]="isLocating" [class.pi-spinner]="isLocating" [class.pi-compass]="!isLocating"></i>
-      </button>
+      @if (fullscreen() && (selectedLocation() || locationRequested())) {
+        <button class="locate-btn" (click)="locateUser()" [disabled]="isLocating()">
+          <i class="pi" [class.pi-spin]="isLocating()" [class.pi-spinner]="isLocating()" [class.pi-compass]="!isLocating()"></i>
+        </button>
+      }
 
-      <div class="address-display" *ngIf="selectedLocation && !fullscreen">
-        <div class="address-card">
-          <i class="pi pi-map-marker"></i>
-          <div class="address-text">
-            <small>{{ 'register.selected_location' | translate }}</small>
-            <span>{{ selectedLocation.address || ('register.location_selected' | translate) }}</span>
+      @if (selectedLocation(); as location) {
+        @if (!fullscreen()) {
+          <div class="address-display">
+            <div class="address-card">
+              <i class="pi pi-map-marker"></i>
+              <div class="address-text">
+                <small>{{ 'register.selected_location' | translate }}</small>
+                <span>{{ location.address || ('register.location_selected' | translate) }}</span>
+              </div>
+            </div>
+          </div>
+        }
+      } @else {
+        @if (!fullscreen()) {
+          <div class="instructions">
+            <p>
+              <i class="pi pi-info-circle"></i>
+              {{ 'register.tap_map_instruction' | translate }}
+            </p>
+          </div>
+        }
+      }
+
+      @if (isLoadingAddress() || isLocating()) {
+        <div class="loading-overlay">
+          <div class="loading-card">
+            <i class="pi pi-spin pi-spinner"></i>
+            @if (isLocating()) {
+              <span>{{ 'register.locating' | translate }}</span>
+            } @else if (isLoadingAddress()) {
+              <span>{{ 'register.fetching_address' | translate }}</span>
+            }
           </div>
         </div>
-      </div>
-
-      <div class="instructions" *ngIf="!selectedLocation && !fullscreen">
-        <p>
-          <i class="pi pi-info-circle"></i>
-          {{ 'register.tap_map_instruction' | translate }}
-        </p>
-      </div>
-
-      <div class="loading-overlay" *ngIf="isLoadingAddress || isLocating">
-        <div class="loading-card">
-          <i class="pi pi-spin pi-spinner"></i>
-          <span *ngIf="isLocating">{{ 'register.locating' | translate }}</span>
-          <span *ngIf="isLoadingAddress && !isLocating">{{ 'register.fetching_address' | translate }}</span>
-        </div>
-      </div>
+      }
     </div>
   `,
   styles: [`
@@ -376,13 +387,15 @@ export interface LocationData {
   `]
 })
 export class MapPickerComponent implements AfterViewInit, OnDestroy {
-  @Input() initialLatitude?: number;
-  @Input() initialLongitude?: number;
-  @Input() fullscreen = false;
-  @Input() mapId = 'map-' + Math.random().toString(36).substr(2, 9);
+  // Inputs
+  initialLatitude = input<number>();
+  initialLongitude = input<number>();
+  fullscreen = input(false);
+  mapId = input('map-' + Math.random().toString(36).substr(2, 9));
 
-  @Output() locationSelected = new EventEmitter<LocationData>();
-  @Output() locationError = new EventEmitter<string>();
+  // Outputs
+  locationSelected = output<LocationData>();
+  locationError = output<string>();
 
   private map!: L.Map;
   private marker?: L.Marker;
@@ -390,11 +403,12 @@ export class MapPickerComponent implements AfterViewInit, OnDestroy {
   private userLocationAccuracy?: L.Circle;
   private translateService = inject(TranslateService);
 
-  selectedLocation?: LocationData;
-  isLoadingAddress = false;
-  isLocating = false;
-  locationRequested = false;
-  cardDismissed = false;
+  // State signals
+  selectedLocation = signal<LocationData | undefined>(undefined);
+  isLoadingAddress = signal(false);
+  isLocating = signal(false);
+  locationRequested = signal(false);
+  cardDismissed = signal(false);
 
   // Default center (Algeria - Bordj Bou Arréridj)
   private defaultLat = 36.5554;
@@ -414,8 +428,8 @@ export class MapPickerComponent implements AfterViewInit, OnDestroy {
   }
 
   private initMap(): void {
-    const lat = this.initialLatitude || this.defaultLat;
-    const lng = this.initialLongitude || this.defaultLng;
+    const lat = this.initialLatitude() || this.defaultLat;
+    const lng = this.initialLongitude() || this.defaultLng;
 
     const iconRetinaUrl = 'assets/leaflet/marker-icon-2x.png';
     const iconUrl = 'assets/leaflet/marker-icon.png';
@@ -433,16 +447,14 @@ export class MapPickerComponent implements AfterViewInit, OnDestroy {
     });
     L.Marker.prototype.options.icon = defaultIcon;
 
-    this.map = L.map(this.mapId, {
-      zoomControl: false // We'll add it at the bottom
+    this.map = L.map(this.mapId(), {
+      zoomControl: false
     }).setView([lat, lng], this.defaultZoom);
 
-    // Add zoom control at bottom-left
     L.control.zoom({
       position: 'bottomleft'
     }).addTo(this.map);
 
-    // Google Maps tile layer
     L.tileLayer('https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
       maxZoom: 24,
       subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
@@ -453,13 +465,12 @@ export class MapPickerComponent implements AfterViewInit, OnDestroy {
       this.onMapClick(e.latlng);
     });
 
-    if (this.initialLatitude && this.initialLongitude) {
+    if (this.initialLatitude() && this.initialLongitude()) {
       this.placeMarker(lat, lng);
       this.reverseGeocode(lat, lng);
     }
 
-    // Invalidate size after a short delay for fullscreen mode
-    if (this.fullscreen) {
+    if (this.fullscreen()) {
       setTimeout(() => {
         this.map.invalidateSize();
       }, 300);
@@ -468,24 +479,20 @@ export class MapPickerComponent implements AfterViewInit, OnDestroy {
 
   private tryGetUserLocation(): void {
     if (!('geolocation' in navigator)) {
-      console.error('Geolocation not supported by browser');
       this.locationError.emit('geolocation_not_supported');
       return;
     }
 
-    this.isLocating = true;
-    this.locationRequested = true;
+    this.isLocating.set(true);
+    this.locationRequested.set(true);
 
-    // Request high accuracy GPS directly for best results
-    // maximumAge: 0 ensures fresh position, not cached
-    // timeout: 15000 gives GPS time to get a fix
     navigator.geolocation.getCurrentPosition(
       (position) => this.handleLocationSuccess(position),
       (error) => this.handleLocationError(error),
       {
-        enableHighAccuracy: true,  // Use GPS for best accuracy
-        timeout: 15000,            // 15 seconds to get GPS fix
-        maximumAge: 0              // Always get fresh position, no cache
+        enableHighAccuracy: true,
+        timeout: 15000,
+        maximumAge: 0
       }
     );
   }
@@ -495,25 +502,19 @@ export class MapPickerComponent implements AfterViewInit, OnDestroy {
     const lng = position.coords.longitude;
     const accuracy = position.coords.accuracy;
 
-    // Show current location indicator (blue dot)
     this.showCurrentLocationMarker(lat, lng, accuracy);
 
-    // Zoom level based on accuracy - closer zoom for better accuracy
     const zoomLevel = accuracy < 50 ? 18 : accuracy < 100 ? 17 : accuracy < 500 ? 16 : 15;
 
     this.map.setView([lat, lng], zoomLevel);
-    // Auto-place delivery marker at user's location
     this.placeMarker(lat, lng);
     this.reverseGeocode(lat, lng);
-    this.isLocating = false;
+    this.isLocating.set(false);
   }
 
   private handleLocationError(error: GeolocationPositionError): void {
-    console.error('Geolocation error:', error.code, error.message);
+    this.isLocating.set(false);
 
-    this.isLocating = false;
-
-    // Emit specific error type
     switch (error.code) {
       case error.PERMISSION_DENIED:
         this.locationError.emit('permission_denied');
@@ -605,9 +606,8 @@ export class MapPickerComponent implements AfterViewInit, OnDestroy {
     this.tryGetUserLocation();
   }
 
-  // Dismiss the location card to allow manual map selection
   public dismissCard(): void {
-    this.cardDismissed = true;
+    this.cardDismissed.set(true);
   }
 
   private onMapClick(latlng: L.LatLng): void {
@@ -629,9 +629,8 @@ export class MapPickerComponent implements AfterViewInit, OnDestroy {
   }
 
   private reverseGeocode(lat: number, lng: number): void {
-    this.isLoadingAddress = true;
+    this.isLoadingAddress.set(true);
 
-    // Google Maps Geocoding API
     const apiKey = environment.googleMapsApiKey;
     const language = this.translateService.currentLang || 'en';
     const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apiKey}&language=${language}`;
@@ -639,13 +638,13 @@ export class MapPickerComponent implements AfterViewInit, OnDestroy {
     fetch(url)
       .then(response => response.json())
       .then(data => {
+        let location: LocationData;
+
         if (data.status === 'OK' && data.results && data.results.length > 0) {
           const result = data.results[0];
           const address = result.formatted_address || '';
           const components = result.address_components || [];
 
-          // Extract location components from Google's response
-          // For Algeria: Wilaya = administrative_area_level_1, Daira = administrative_area_level_2, Commune = locality
           const wilaya = this.getAddressComponent(components, 'administrative_area_level_1');
           const daira = this.getAddressComponent(components, 'administrative_area_level_2');
           const commune = this.getAddressComponent(components, 'locality');
@@ -653,7 +652,7 @@ export class MapPickerComponent implements AfterViewInit, OnDestroy {
                           this.getAddressComponent(components, 'sublocality') ||
                           this.getAddressComponent(components, 'sublocality_level_1');
 
-          this.selectedLocation = {
+          location = {
             latitude: lat,
             longitude: lng,
             address: address,
@@ -663,26 +662,26 @@ export class MapPickerComponent implements AfterViewInit, OnDestroy {
             village: village
           };
         } else {
-          console.warn('Geocoding failed:', data.status);
-          this.selectedLocation = {
+          location = {
             latitude: lat,
             longitude: lng,
             address: ''
           };
         }
 
-        this.locationSelected.emit(this.selectedLocation);
-        this.isLoadingAddress = false;
+        this.selectedLocation.set(location);
+        this.locationSelected.emit(location);
+        this.isLoadingAddress.set(false);
       })
-      .catch(error => {
-        console.error('Reverse geocoding error:', error);
-        this.selectedLocation = {
+      .catch(() => {
+        const location: LocationData = {
           latitude: lat,
           longitude: lng,
           address: ''
         };
-        this.locationSelected.emit(this.selectedLocation);
-        this.isLoadingAddress = false;
+        this.selectedLocation.set(location);
+        this.locationSelected.emit(location);
+        this.isLoadingAddress.set(false);
       });
   }
 
@@ -696,7 +695,7 @@ export class MapPickerComponent implements AfterViewInit, OnDestroy {
       this.map.removeLayer(this.marker);
       this.marker = undefined;
     }
-    this.selectedLocation = undefined;
+    this.selectedLocation.set(undefined);
     this.map.setView([this.defaultLat, this.defaultLng], this.defaultZoom);
   }
 }

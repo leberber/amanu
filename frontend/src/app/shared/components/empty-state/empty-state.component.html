@@ -1,0 +1,32 @@
+<div class="empty-state">
+  <div class="empty-icon-wrapper">
+    <div class="empty-icon-bg"></div>
+    <div class="empty-icon-circle">
+      <i [class]="'pi ' + icon()"></i>
+    </div>
+  </div>
+
+  <h2>{{ title() | translate }}</h2>
+
+  @if (description(); as desc) {
+    <p>{{ desc | translate }}</p>
+  }
+
+  <!-- Action button with router link -->
+  @if (actionLabel(); as label) {
+    @if (actionLink()) {
+      <a [routerLink]="actionLink()" class="action-btn">
+        <i [class]="actionIcon()"></i>
+        <span>{{ label | translate }}</span>
+      </a>
+    } @else {
+      <button (click)="onActionClick()" class="action-btn">
+        <i [class]="actionIcon()"></i>
+        <span>{{ label | translate }}</span>
+      </button>
+    }
+  }
+
+  <!-- Custom action via content projection -->
+  <ng-content></ng-content>
+</div>

@@ -1,0 +1,45 @@
+.field {
+  margin-bottom: 1rem;
+}
+
+.field-error {
+  :host ::ng-deep {
+    .p-inputtext,
+    .p-select,
+    .p-inputnumber,
+    .p-datepicker,
+    .p-textarea {
+      border-color: var(--red-500);
+    }
+  }
+}
+
+label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--text-color);
+
+  &.required {
+    font-weight: 600;
+  }
+}
+
+.required-indicator {
+  color: var(--red-500);
+  margin-inline-start: 0.25rem;
+}
+
+.p-error {
+  display: block;
+  margin-top: 0.25rem;
+  color: var(--red-500);
+  font-size: 0.875rem;
+}
+
+.p-hint {
+  display: block;
+  margin-top: 0.25rem;
+  color: var(--text-color-secondary);
+  font-size: 0.875rem;
+}

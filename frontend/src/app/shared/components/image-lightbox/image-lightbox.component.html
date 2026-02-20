@@ -1,4 +1,4 @@
-@if (imageUrl) {
+@if (imageUrl(); as url) {
   <div class="image-lightbox" (click)="onBackdropClick()">
     <div class="lightbox-bg">
       <div class="lightbox-blob lightbox-blob-1"></div>
@@ -8,6 +8,6 @@
     <button class="lightbox-close" (click)="onClose()">
       <i class="pi pi-times"></i>
     </button>
-    <img [src]="imageUrl" [alt]="altText" (click)="onImageClick($event)">
+    <img [src]="url" [alt]="altText()" (click)="onImageClick($event)">
   </div>
 }
