@@ -20,9 +20,11 @@ Track progress on DRY violations and code quality fixes.
   - All 24 components now use `ToastMessageService` instead of direct `MessageService.add()` calls
   - Services that wrap MessageService (toast-message, notification, admin-form) kept as-is
 
-- [ ] **4. Extract Form Validation Utilities**
-  - Repeated FormBuilder patterns and validation error handling
-  - Files: `login.component.ts`, `register.component.ts`, `checkout.component.ts`
+- [x] **4. Extract Form Validation Utilities** ✅
+  - `FormValidationService` and `ValidationMessagesService` already exist in `core/services/`
+  - Refactored `login.component.ts` to use built-in `markAllAsTouched()`
+  - Removed dead `getFieldError()` method from `register.component.ts`
+  - `checkout.component.ts` already uses `markAllAsTouched()` correctly
 
 ---
 
@@ -94,11 +96,11 @@ Track progress on DRY violations and code quality fixes.
 
 | Priority | Total | Done | Remaining |
 |----------|-------|------|-----------|
-| Critical | 4 | 3 | 1 |
+| Critical | 4 | 4 | 0 |
 | High | 4 | 1 | 3 |
 | Medium | 7 | 0 | 7 |
 | Low | 5 | 0 | 5 |
-| **Total** | **20** | **4** | **16** |
+| **Total** | **20** | **5** | **15** |
 
 ---
 

@@ -62,9 +62,7 @@ export class LoginComponent implements OnInit {
   // Public methods
   onSubmit() {
     if (this.loginForm.invalid) {
-      Object.keys(this.loginForm.controls).forEach(key => {
-        this.loginForm.get(key)?.markAsTouched();
-      });
+      this.loginForm.markAllAsTouched();
       return;
     }
 

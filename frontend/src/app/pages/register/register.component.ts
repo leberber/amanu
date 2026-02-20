@@ -453,12 +453,6 @@ export class RegisterComponent implements OnInit {
       });
   }
 
-  // Helper methods for form validation display
-  getFieldError(form: FormGroup, fieldName: string, errorType: string): boolean {
-    const field = form.get(fieldName);
-    return !!(field?.hasError(errorType) && (field?.dirty || field?.touched));
-  }
-
   // Password validation checks
   get passwordHasMinLength(): boolean {
     const password = this.passwordForm.get('password')?.value || '';

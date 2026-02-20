@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { AbstractControl } from '@angular/forms';
+import { AbstractControl, FormGroup } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { VALIDATION } from '../constants/app.constants';
 
@@ -156,12 +156,24 @@ export class ValidationMessagesService {
   }
 
   /**
+   * Check if a form field has a specific error and has been touched
+   * @param form - FormGroup instance
+   * @param fieldName - Name of the field
+   * @param errorType - Type of error to check for
+   * @returns boolean indicating if the error exists and field is touched
+   */
+  hasFieldError(form: FormGroup, fieldName: string, errorType: string): boolean {
+    const field = form.get(fieldName);
+    return !!(field?.hasError(errorType) && field?.touched);
+  }
+
+  /**
    * Get password strength requirements message
    * @returns Password requirements text
    */
   getPasswordRequirements(): string {
     return this.translateService.instant('validation.password_requirements', {
-      min: VALIDATION.PASSWORD_MIN_LENGTH
+      min: VALIDATION.MIN_PASSWORD_LENGTH
     });
   }
 }

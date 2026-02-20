@@ -18,7 +18,7 @@ import { UserService } from '../../services/user.service';
 import { PushService } from '../../services/push.service';
 import { User } from '../../models/user.model';
 import { DateService } from '../../core/services/date.service';
-import { FormValidationService } from '../../core/services/form-validation.service';
+import { ValidationMessagesService } from '../../core/services/validation-messages.service';
 import { VALIDATION } from '../../core/constants/app.constants';
 import { PhoneFormatDirective } from '../../directives/phone-format.directive';
 import { BackButtonComponent } from '../../shared/components/back-button/back-button.component';
@@ -64,7 +64,7 @@ export class AccountComponent implements OnInit {
   public translateService = inject(TranslateService);
   private router = inject(Router);
   private dateService = inject(DateService);
-  private formValidation = inject(FormValidationService);
+  private formValidation = inject(ValidationMessagesService);
   public pushService = inject(PushService);
   
   ngOnInit(): void {
@@ -175,7 +175,7 @@ export class AccountComponent implements OnInit {
   }
   
   getFieldError(form: FormGroup, fieldName: string, errorType: string): boolean {
-    return this.formValidation.hasError(form, fieldName, errorType);
+    return this.formValidation.hasFieldError(form, fieldName, errorType);
   }
   
   formatDate(dateString: string | undefined): string {

@@ -8,7 +8,7 @@ import { SelectModule } from 'primeng/select';
 import { CheckboxModule } from 'primeng/checkbox';
 import { ButtonModule } from 'primeng/button';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { FormValidationService } from '../../../core/services/form-validation.service';
+import { ValidationMessagesService } from '../../../core/services/validation-messages.service';
 import { VALIDATION } from '../../../core/constants/app.constants';
 
 export interface UserFormData {
@@ -72,7 +72,7 @@ export class UserFormComponent implements OnInit, OnChanges {
   
   private fb = inject(FormBuilder);
   private translateService = inject(TranslateService);
-  private formValidation = inject(FormValidationService);
+  private formValidation = inject(ValidationMessagesService);
   
   ngOnInit(): void {
     this.userForm = this.createForm();
@@ -196,7 +196,7 @@ export class UserFormComponent implements OnInit, OnChanges {
   }
   
   getFieldError(fieldName: string, errorType: string): boolean {
-    return this.formValidation.hasError(this.userForm, fieldName, errorType);
+    return this.formValidation.hasFieldError(this.userForm, fieldName, errorType);
   }
   
   get submitButtonLabel(): string {
