@@ -29,7 +29,7 @@ import { CartTranslationService } from '../../core/services/cart-translation.ser
 import { OrderCreate } from '../../models/order.model';
 import { User } from '../../models/user.model';
 import { AppliedPromotion } from '../../models/promotion.model';
-import { VALIDATION } from '../../core/constants/app.constants';
+import { VALIDATION, UI_DELAY } from '../../core/constants/app.constants';
 import { ToastMessageService } from '../../core/services/toast-message.service';
 import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
 import { getCartonCount, formatCartonCount as formatCarton } from '../../shared/utils/quantity.utils';
@@ -204,7 +204,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
             this.router.navigate([RouteHelpers.orderDetail(order.id)], {
               queryParams: { success: 'true' }
             });
-          }, 1500);
+          }, UI_DELAY.TOAST_BEFORE_NAVIGATE);
         });
       },
       error: (error) => {

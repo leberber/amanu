@@ -18,7 +18,7 @@ import { onLanguageChange } from '../../../core/utils/language-change.util';
 import { AdminService } from '../../../services/admin.service';
 import { UserManage } from '../../../models/admin.model';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
-import { VALIDATION, USER_ROLES } from '../../../core/constants/app.constants';
+import { VALIDATION, USER_ROLES, UI_DELAY } from '../../../core/constants/app.constants';
 import { ROUTES } from '../../../core/constants/routes.constants';
 import { StatusSeverityService } from '../../../core/services/status-severity.service';
 import { MapPickerComponent, LocationData } from '../../../shared/components/map-picker/map-picker.component';
@@ -212,7 +212,7 @@ export class AdminEditUserComponent implements OnInit {
         this.toast.showSuccess('admin.users.update_success');
         setTimeout(() => {
           this.router.navigate([ROUTES.ADMIN.USERS]);
-        }, 1500);
+        }, UI_DELAY.TOAST_BEFORE_NAVIGATE);
       },
       error: (error) => {
         this.loading.set(false);

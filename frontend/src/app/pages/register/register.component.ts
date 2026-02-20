@@ -13,7 +13,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../services/auth.service';
 import { UserRole } from '../../models/user.model';
 import { MapPickerComponent, LocationData } from '../../shared/components/map-picker/map-picker.component';
-import { VALIDATION } from '../../core/constants/app.constants';
+import { VALIDATION, UI_DELAY } from '../../core/constants/app.constants';
 import { FormBuilderService } from '../../core/services/form-builder.service';
 import { PhoneFormatDirective } from '../../directives/phone-format.directive';
 import { LanguageSelectorComponent } from '../../components/language-selector/language-selector.component';
@@ -436,7 +436,7 @@ export class RegisterComponent implements OnInit, OnDestroy {
           this.toast.showSuccess('auth.register_success');
           setTimeout(() => {
             this.router.navigate(['/login']);
-          }, 1500);
+          }, UI_DELAY.TOAST_BEFORE_NAVIGATE);
         },
         error: (error) => {
           this.toast.showApiError(error, 'auth.register_failed');

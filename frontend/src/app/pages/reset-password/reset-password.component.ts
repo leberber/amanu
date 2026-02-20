@@ -13,7 +13,7 @@ import { AuthService } from '../../services/auth.service';
 import { BackButtonComponent } from '../../shared/components/back-button/back-button.component';
 import { ToastMessageService } from '../../core/services/toast-message.service';
 import { FormBuilderService } from '../../core/services/form-builder.service';
-import { ANIMATION } from '../../core/constants/app.constants';
+import { ANIMATION, UI_DELAY } from '../../core/constants/app.constants';
 
 @Component({
   selector: 'app-reset-password',
@@ -85,7 +85,7 @@ export class ResetPasswordComponent implements OnInit {
 
           setTimeout(() => {
             this.router.navigate(['/login']);
-          }, 2000);
+          }, UI_DELAY.TOAST_BEFORE_REDIRECT);
         },
         error: (error) => {
           this.toast.showApiError(error, 'auth.password_reset_failed');

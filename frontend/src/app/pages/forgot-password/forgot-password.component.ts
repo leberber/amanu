@@ -11,7 +11,7 @@ import { finalize } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 import { BackButtonComponent } from '../../shared/components/back-button/back-button.component';
 import { ToastMessageService } from '../../core/services/toast-message.service';
-import { ANIMATION } from '../../core/constants/app.constants';
+import { ANIMATION, UI_DELAY } from '../../core/constants/app.constants';
 
 @Component({
   selector: 'app-forgot-password',
@@ -69,7 +69,7 @@ export class ForgotPasswordComponent implements OnInit {
           // Navigate to reset password page with email
           setTimeout(() => {
             this.router.navigate(['/reset-password'], { queryParams: { email } });
-          }, 1500);
+          }, UI_DELAY.TOAST_BEFORE_NAVIGATE);
         },
         error: (error) => {
           this.toast.showApiError(error, 'auth.reset_code_failed');

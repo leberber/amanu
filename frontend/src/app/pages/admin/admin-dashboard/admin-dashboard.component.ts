@@ -105,10 +105,8 @@ export class AdminDashboardComponent implements OnInit {
 
   loadDashboardStats() {
     this.loading = true;
-    console.log('Loading dashboard stats...');
     this.adminService.getDashboardStats().subscribe({
       next: (stats) => {
-        console.log('Dashboard stats received:', stats);
         this.stats = stats;
         this.loading = false;
         this.prepareChartData();

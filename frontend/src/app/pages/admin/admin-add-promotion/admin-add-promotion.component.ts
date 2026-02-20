@@ -18,6 +18,7 @@ import { DividerModule } from 'primeng/divider';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { ROUTES } from '../../../core/constants/routes.constants';
+import { UI_DELAY } from '../../../core/constants/app.constants';
 import { onLanguageChange } from '../../../core/utils/language-change.util';
 import { PromotionService } from '../../../services/promotion.service';
 import { ProductService } from '../../../services/product.service';
@@ -310,7 +311,7 @@ export class AdminAddPromotionComponent implements OnInit {
           this.toast.showSuccess('admin.promotions.update_success');
           setTimeout(() => {
             this.goBackToPromotionsList();
-          }, 1500);
+          }, UI_DELAY.TOAST_BEFORE_NAVIGATE);
         },
         error: (error) => {
           this.loading.set(false);
@@ -324,7 +325,7 @@ export class AdminAddPromotionComponent implements OnInit {
           this.toast.showSuccess('admin.promotions.create_success');
           setTimeout(() => {
             this.goBackToPromotionsList();
-          }, 1500);
+          }, UI_DELAY.TOAST_BEFORE_NAVIGATE);
         },
         error: (error) => {
           this.loading.set(false);

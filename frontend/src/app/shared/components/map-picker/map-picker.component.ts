@@ -475,7 +475,6 @@ export class MapPickerComponent implements AfterViewInit, OnDestroy {
 
     this.isLocating = true;
     this.locationRequested = true;
-    console.log('Requesting high accuracy GPS location...');
 
     // Request high accuracy GPS directly for best results
     // maximumAge: 0 ensures fresh position, not cached
@@ -495,8 +494,6 @@ export class MapPickerComponent implements AfterViewInit, OnDestroy {
     const lat = position.coords.latitude;
     const lng = position.coords.longitude;
     const accuracy = position.coords.accuracy;
-
-    console.log('GPS Location received:', lat, lng, 'Accuracy:', accuracy, 'meters');
 
     // Show current location indicator (blue dot)
     this.showCurrentLocationMarker(lat, lng, accuracy);
@@ -642,8 +639,6 @@ export class MapPickerComponent implements AfterViewInit, OnDestroy {
     fetch(url)
       .then(response => response.json())
       .then(data => {
-        console.log('Google Geocoder response:', data);
-
         if (data.status === 'OK' && data.results && data.results.length > 0) {
           const result = data.results[0];
           const address = result.formatted_address || '';
@@ -657,13 +652,6 @@ export class MapPickerComponent implements AfterViewInit, OnDestroy {
           const village = this.getAddressComponent(components, 'neighborhood') ||
                           this.getAddressComponent(components, 'sublocality') ||
                           this.getAddressComponent(components, 'sublocality_level_1');
-
-          // Log extracted location data in a clear format
-          console.log('📍 Extracted Location Data:');
-          console.log('  Wilaya:', wilaya || '(not found)');
-          console.log('  Daira:', daira || '(not found)');
-          console.log('  Commune:', commune || '(not found)');
-          console.log('  Village:', village || '(not found)');
 
           this.selectedLocation = {
             latitude: lat,

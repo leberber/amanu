@@ -120,6 +120,12 @@ export const ANIMATION = {
   VERY_SLOW: 1000
 } as const;
 
+// UI Delays (milliseconds) - for user feedback before navigation
+export const UI_DELAY = {
+  TOAST_BEFORE_NAVIGATE: 1500,  // Time for user to read success toast
+  TOAST_BEFORE_REDIRECT: 2000   // Longer delay for important messages
+} as const;
+
 // Layout Breakpoints (pixels)
 export const BREAKPOINTS = {
   XS: 0,

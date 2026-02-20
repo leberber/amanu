@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { Router, CanActivateFn, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { ToastMessageService } from './toast-message.service';
+import { USER_ROLES } from '../constants/app.constants';
 
 /**
  * Service to centralize authentication and role checking logic
@@ -54,7 +55,7 @@ export class AuthGuardService {
    * @returns True if user is admin
    */
   isAdmin(): boolean {
-    return this.hasRole(['admin']);
+    return this.hasRole([USER_ROLES.ADMIN]);
   }
 
   /**
@@ -62,7 +63,7 @@ export class AuthGuardService {
    * @returns True if user is staff or admin
    */
   isStaffOrAdmin(): boolean {
-    return this.hasRole(['admin', 'staff']);
+    return this.hasRole([USER_ROLES.ADMIN, USER_ROLES.STAFF]);
   }
 }
 

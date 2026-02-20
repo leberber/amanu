@@ -14,7 +14,7 @@ import { AuthService } from '../../services/auth.service';
 import { UserRole } from '../../models/user.model';
 import { LanguageSelectorComponent } from '../../components/language-selector/language-selector.component';
 import { ToastMessageService } from '../../core/services/toast-message.service';
-import { STORAGE_KEYS, ANIMATION } from '../../core/constants/app.constants';
+import { STORAGE_KEYS, ANIMATION, UI_DELAY } from '../../core/constants/app.constants';
 
 @Component({
   selector: 'app-login',
@@ -89,7 +89,7 @@ export class LoginComponent implements OnInit {
 
           setTimeout(() => {
             this.router.navigate([targetUrl]);
-          }, 1500);
+          }, UI_DELAY.TOAST_BEFORE_NAVIGATE);
         },
         error: (error) => {
           // Check if error is due to inactive account
