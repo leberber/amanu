@@ -6,7 +6,6 @@ import { Router } from '@angular/router';
 
 import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
 import { PaginatorModule } from 'primeng/paginator';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
@@ -18,6 +17,7 @@ import { DateService } from '../../../core/services/date.service';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { SearchDebounceService } from '../../../core/services/search-debounce.service';
 import { Promotion } from '../../../models/promotion.model';
+import { ToastMessageService } from '../../../core/services/toast-message.service';
 
 @Component({
   selector: 'app-admin-promotions',
@@ -32,7 +32,7 @@ import { Promotion } from '../../../models/promotion.model';
     TooltipModule,
     TranslateModule
   ],
-  providers: [MessageService, ConfirmationService],
+  providers: [ConfirmationService],
   templateUrl: './admin-promotions.component.html',
   styleUrl: './admin-promotions.component.scss'
 })
@@ -51,7 +51,7 @@ export class AdminPromotionsComponent implements OnInit {
   statusFilter: 'all' | 'active' | 'expired' | 'scheduled' = 'all';
 
   private promotionService = inject(PromotionService);
-  private messageService = inject(MessageService);
+  private toast = inject(ToastMessageService);
   private confirmationService = inject(ConfirmationService);
   private router = inject(Router);
   private translateService = inject(TranslateService);
@@ -126,12 +126,7 @@ export class AdminPromotionsComponent implements OnInit {
       error: (error) => {
         console.error('Error loading promotions:', error);
         this.loading = false;
-
-        this.messageService.add({
-          severity: 'error',
-          summary: this.translateService.instant('common.error'),
-          detail: this.translateService.instant('admin.promotions.load_error')
-        });
+        this.toast.showError('admin.promotions.load_error');
       }
     });
   }
@@ -195,22 +190,13 @@ export class AdminPromotionsComponent implements OnInit {
   deletePromotion(promotion: Promotion) {
     this.promotionService.deletePromotion(promotion.id).subscribe({
       next: () => {
-        this.messageService.add({
-          severity: 'success',
-          summary: this.translateService.instant('common.success'),
-          detail: this.translateService.instant('admin.promotions.delete_success')
-        });
-
+        this.toast.showSuccess('admin.promotions.delete_success');
         this.allPromotions = this.allPromotions.filter(p => p.id !== promotion.id);
         this.filterPromotions();
       },
       error: (error) => {
         console.error('Error deleting promotion:', error);
-        this.messageService.add({
-          severity: 'error',
-          summary: this.translateService.instant('common.error'),
-          detail: error.error?.detail || this.translateService.instant('admin.promotions.delete_failed')
-        });
+        this.toast.showApiError(error, 'admin.promotions.delete_failed');
       }
     });
   }

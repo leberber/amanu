@@ -6,7 +6,6 @@ import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
 import { DialogModule } from 'primeng/dialog';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { finalize } from 'rxjs';
@@ -14,6 +13,7 @@ import { finalize } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 import { UserRole } from '../../models/user.model';
 import { LanguageSelectorComponent } from '../../components/language-selector/language-selector.component';
+import { ToastMessageService } from '../../core/services/toast-message.service';
 
 @Component({
   selector: 'app-login',
@@ -29,8 +29,7 @@ import { LanguageSelectorComponent } from '../../components/language-selector/la
     TranslateModule,
     LanguageSelectorComponent
   ],
-  providers: [MessageService],
-  templateUrl: './login.component.html',
+    templateUrl: './login.component.html',
   styleUrl: './login.component.scss'
 })
 export class LoginComponent implements OnInit {
@@ -46,7 +45,7 @@ export class LoginComponent implements OnInit {
   private authService = inject(AuthService);
   router = inject(Router);
   private route = inject(ActivatedRoute);
-  private messageService = inject(MessageService);
+  private toast = inject(ToastMessageService);
   private translateService = inject(TranslateService);
   private elementRef = inject(ElementRef);
 
@@ -78,11 +77,7 @@ export class LoginComponent implements OnInit {
       )
       .subscribe({
         next: (user) => {
-          this.messageService.add({
-            severity: 'success',
-            summary: this.translateService.instant('common.success'),
-            detail: this.translateService.instant('auth.login_success')
-          });
+          this.toast.showSuccess('auth.login_success');
 
           let targetUrl = this.returnUrl;
 
@@ -104,13 +99,7 @@ export class LoginComponent implements OnInit {
             this.showInactiveModal = true;
           } else {
             // Show regular error toast for other errors
-            let errorMessage = error.error?.detail || this.translateService.instant('auth.login_failed');
-
-            this.messageService.add({
-              severity: 'error',
-              summary: this.translateService.instant('common.error'),
-              detail: errorMessage
-            });
+            this.toast.showApiError(error, 'auth.login_failed');
           }
         }
       });
@@ -150,14 +139,8 @@ export class LoginComponent implements OnInit {
     const sessionExpired = localStorage.getItem('session_expired');
     if (sessionExpired === 'true') {
       localStorage.removeItem('session_expired');
-
       setTimeout(() => {
-        this.messageService.add({
-          severity: 'info',
-          summary: this.translateService.instant('auth.session_expired_title'),
-          detail: this.translateService.instant('auth.session_expired_message'),
-          life: 7000
-        });
+        this.toast.showSessionExpired();
       }, 300);
     }
   }

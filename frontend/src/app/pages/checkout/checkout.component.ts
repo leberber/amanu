@@ -11,7 +11,6 @@ import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
 import { DividerModule } from 'primeng/divider';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
@@ -31,6 +30,7 @@ import { OrderCreate } from '../../models/order.model';
 import { User } from '../../models/user.model';
 import { AppliedPromotion } from '../../models/promotion.model';
 import { VALIDATION } from '../../core/constants/app.constants';
+import { ToastMessageService } from '../../core/services/toast-message.service';
 
 @Component({
   selector: 'app-checkout',
@@ -53,8 +53,7 @@ import { VALIDATION } from '../../core/constants/app.constants';
     TranslateModule,
     BackButtonComponent
   ],
-  providers: [MessageService],
-  templateUrl: './checkout.component.html',
+    templateUrl: './checkout.component.html',
   styleUrl: './checkout.component.scss'
 })
 export class CheckoutComponent implements OnInit, OnDestroy {
@@ -71,7 +70,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   private authService = inject(AuthService);
   private cartService = inject(CartService);
   private orderService = inject(OrderService);
-  private messageService = inject(MessageService);
+  private toast = inject(ToastMessageService);
   private translateService = inject(TranslateService);
   private currencyService = inject(CurrencyService);
   private unitsService = inject(UnitsService);
@@ -100,11 +99,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     this.currentUser = this.authService.currentUserValue;
     
     if (!this.currentUser) {
-      this.messageService.add({
-        severity: 'error',
-        summary: this.translateService.instant('checkout.auth_required'),
-        detail: this.translateService.instant('checkout.auth_required_message')
-      });
+      this.toast.showError('checkout.auth_required_message');
       this.router.navigate(['/login'], { queryParams: { returnUrl: '/checkout' }});
       return;
     }
@@ -114,11 +109,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
       this.cartItems = items;
 
       if (items.length === 0) {
-        this.messageService.add({
-          severity: 'info',
-          summary: this.translateService.instant('checkout.empty_cart'),
-          detail: this.translateService.instant('checkout.empty_cart_message')
-        });
+        this.toast.showInfo('checkout.empty_cart_message');
         this.router.navigate(['/products']);
         return;
       }
@@ -220,11 +211,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     }
     
     if (!this.currentUser) {
-      this.messageService.add({
-        severity: 'error',
-        summary: this.translateService.instant('checkout.auth_required'),
-        detail: this.translateService.instant('checkout.auth_required_message')
-      });
+      this.toast.showError('checkout.auth_required_message');
       return;
     }
     
@@ -242,11 +229,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     // Submit order
     this.orderService.createOrder(orderData).subscribe({
       next: (order) => {
-        this.messageService.add({
-          severity: 'success',
-          summary: this.translateService.instant('checkout.order_placed'),
-          detail: this.translateService.instant('checkout.order_placed_message', { orderNumber: order.id })
-        });
+        this.toast.showSuccess('checkout.order_placed_message', { orderNumber: order.id });
 
         // Clear cart and promotion after successful order
         this.cartService.clearCartAndPromotion().subscribe(() => {
@@ -260,22 +243,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
       error: (error) => {
         console.error('Error creating order:', error);
         this.isSubmitting = false;
-        
-        let errorMessage = this.translateService.instant('checkout.order_error_default');
-        
-        if (error.error && error.error.detail) {
-          if (typeof error.error.detail === 'string') {
-            errorMessage = error.error.detail;
-          } else if (Array.isArray(error.error.detail)) {
-            errorMessage = error.error.detail.map((err: any) => err.msg || err).join(', ');
-          }
-        }
-        
-        this.messageService.add({
-          severity: 'error',
-          summary: this.translateService.instant('checkout.order_error'),
-          detail: errorMessage
-        });
+        this.toast.showApiError(error, 'checkout.order_error_default');
       }
     });
   }

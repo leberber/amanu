@@ -10,13 +10,13 @@ import { TextareaModule } from 'primeng/textarea';
 import { SelectModule } from 'primeng/select';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
 import { CardModule } from 'primeng/card';
 import { PasswordModule } from 'primeng/password';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { AdminService } from '../../../services/admin.service';
 import { UserManage } from '../../../models/admin.model';
+import { ToastMessageService } from '../../../core/services/toast-message.service';
 import { VALIDATION } from '../../../core/constants/app.constants';
 import { ROUTES } from '../../../core/constants/routes.constants';
 import { MapPickerComponent, LocationData } from '../../../shared/components/map-picker/map-picker.component';
@@ -61,7 +61,7 @@ export class AdminEditUserComponent implements OnInit {
   wilayaOptions = signal<{ label: string; value: string }[]>([]);
 
   private fb = inject(FormBuilder);
-  private messageService = inject(MessageService);
+  private toast = inject(ToastMessageService);
   private adminService = inject(AdminService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
@@ -169,11 +169,7 @@ export class AdminEditUserComponent implements OnInit {
       error: (error) => {
         console.error('Error loading user:', error);
         this.loading.set(false);
-        this.messageService.add({
-          severity: 'error',
-          summary: this.translateService.instant('common.error'),
-          detail: this.translateService.instant('admin.users.load_error')
-        });
+        this.toast.showError('admin.users.load_error');
         this.router.navigate([ROUTES.ADMIN.USERS]);
       }
     });
@@ -215,12 +211,7 @@ export class AdminEditUserComponent implements OnInit {
     this.adminService.updateUser(this.userId, updateData).subscribe({
       next: () => {
         this.loading.set(false);
-        this.messageService.add({
-          severity: 'success',
-          summary: this.translateService.instant('common.success'),
-          detail: this.translateService.instant('admin.users.update_success')
-        });
-
+        this.toast.showSuccess('admin.users.update_success');
         setTimeout(() => {
           this.router.navigate([ROUTES.ADMIN.USERS]);
         }, 1500);
@@ -228,11 +219,7 @@ export class AdminEditUserComponent implements OnInit {
       error: (error) => {
         this.loading.set(false);
         console.error('Error updating user:', error);
-        this.messageService.add({
-          severity: 'error',
-          summary: this.translateService.instant('common.error'),
-          detail: this.translateService.instant('admin.users.update_error')
-        });
+        this.toast.showError('admin.users.update_error');
       }
     });
   }
@@ -254,25 +241,20 @@ export class AdminEditUserComponent implements OnInit {
   }
 
   onLocationError(errorType: string): void {
-    let message = this.translateService.instant('register.location_error');
+    let messageKey = 'register.location_error';
 
     switch (errorType) {
       case 'permission_denied':
-        message = this.translateService.instant('register.location_permission_denied');
+        messageKey = 'register.location_permission_denied';
         break;
       case 'position_unavailable':
-        message = this.translateService.instant('register.location_unavailable');
+        messageKey = 'register.location_unavailable';
         break;
       case 'timeout':
-        message = this.translateService.instant('register.location_timeout');
+        messageKey = 'register.location_timeout';
         break;
     }
 
-    this.messageService.add({
-      severity: 'warn',
-      summary: this.translateService.instant('common.warning'),
-      detail: message,
-      life: 5000
-    });
+    this.toast.showWarn(messageKey);
   }
 }

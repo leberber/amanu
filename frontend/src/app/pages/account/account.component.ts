@@ -12,7 +12,6 @@ import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import { ToggleButtonModule } from 'primeng/togglebutton';
 import { ToggleSwitch } from 'primeng/toggleswitch';
-import { MessageService } from 'primeng/api';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
@@ -23,6 +22,7 @@ import { FormValidationService } from '../../core/services/form-validation.servi
 import { VALIDATION } from '../../core/constants/app.constants';
 import { PhoneFormatDirective } from '../../directives/phone-format.directive';
 import { BackButtonComponent } from '../../shared/components/back-button/back-button.component';
+import { ToastMessageService } from '../../core/services/toast-message.service';
 
 @Component({
   selector: 'app-account',
@@ -44,8 +44,7 @@ import { BackButtonComponent } from '../../shared/components/back-button/back-bu
     PhoneFormatDirective,
     BackButtonComponent
   ],
-  providers: [MessageService],
-  templateUrl: './account.component.html',
+    templateUrl: './account.component.html',
   styleUrl: './account.component.scss'
 })
 export class AccountComponent implements OnInit {
@@ -61,7 +60,7 @@ export class AccountComponent implements OnInit {
   private fb = inject(FormBuilder);
   public authService = inject(AuthService);
   private userService = inject(UserService);
-  private messageService = inject(MessageService);
+  private toast = inject(ToastMessageService);
   public translateService = inject(TranslateService);
   private router = inject(Router);
   private dateService = inject(DateService);
@@ -138,23 +137,14 @@ export class AccountComponent implements OnInit {
       next: (updatedUser) => {
         this.loading = false;
         this.user = updatedUser;
-        
+
         // Update the user in auth service
         this.authService.updateCurrentUser(updatedUser);
-        
-        this.messageService.add({
-          severity: 'success',
-          summary: this.translateService.instant('account.profile_updated'),
-          detail: this.translateService.instant('account.profile_updated_success')
-        });
+        this.toast.showSuccess('account.profile_updated_success');
       },
       error: (error) => {
         this.loading = false;
-        this.messageService.add({
-          severity: 'error',
-          summary: this.translateService.instant('common.error'),
-          detail: error.error?.detail || this.translateService.instant('account.profile_update_failed')
-        });
+        this.toast.showApiError(error, 'account.profile_update_failed');
       }
     });
   }
@@ -175,20 +165,11 @@ export class AccountComponent implements OnInit {
       next: () => {
         this.loadingPassword = false;
         this.passwordForm.reset();
-        
-        this.messageService.add({
-          severity: 'success',
-          summary: this.translateService.instant('account.password_changed'),
-          detail: this.translateService.instant('account.password_changed_success')
-        });
+        this.toast.showSuccess('account.password_changed_success');
       },
       error: (error) => {
         this.loadingPassword = false;
-        this.messageService.add({
-          severity: 'error',
-          summary: this.translateService.instant('common.error'),
-          detail: error.error?.detail || this.translateService.instant('account.password_change_failed')
-        });
+        this.toast.showApiError(error, 'account.password_change_failed');
       }
     });
   }
@@ -215,27 +196,15 @@ export class AccountComponent implements OnInit {
         // User wants to enable (toggle is now ON)
         const success = await this.pushService.subscribe();
         if (success) {
-          this.messageService.add({
-            severity: 'success',
-            summary: this.translateService.instant('account.notifications'),
-            detail: this.translateService.instant('account.notifications_enabled')
-          });
+          this.toast.showSuccess('account.notifications_enabled');
         } else {
           this.notificationsEnabled = false; // Revert toggle
-          this.messageService.add({
-            severity: 'error',
-            summary: this.translateService.instant('common.error'),
-            detail: this.translateService.instant('account.notifications_error')
-          });
+          this.toast.showError('account.notifications_error');
         }
       } else {
         // User wants to disable (toggle is now OFF)
         await this.pushService.unsubscribe();
-        this.messageService.add({
-          severity: 'info',
-          summary: this.translateService.instant('account.notifications'),
-          detail: this.translateService.instant('account.notifications_disabled')
-        });
+        this.toast.showInfo('account.notifications_disabled');
       }
     } finally {
       this.loadingNotifications = false;

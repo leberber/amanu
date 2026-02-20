@@ -10,7 +10,6 @@ import { of, Subscription } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
 import { TagModule } from 'primeng/tag';
 import { SelectModule } from 'primeng/select';
 import { ProductQuantitySelectorComponent } from '../../../shared/components/product-quantity-selector/product-quantity-selector.component';
@@ -28,6 +27,7 @@ import { TranslationService } from '../../../services/translation.service';
 import { Product, Category } from '../../../models/product.model';
 import { PRODUCT } from '../../../core/constants/app.constants';
 import { FlyToCartService } from '../../../core/services/fly-to-cart.service';
+import { ToastMessageService } from '../../../core/services/toast-message.service';
 
 @Component({
   selector: 'app-product-detail',
@@ -45,7 +45,6 @@ import { FlyToCartService } from '../../../core/services/fly-to-cart.service';
     BadgeModule,
     TranslateModule
   ],
-  providers: [MessageService],
   templateUrl: './product-detail.component.html',
   styleUrl: './product-detail.component.scss'
 })
@@ -55,7 +54,7 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   private productService = inject(ProductService);
   private cartService = inject(CartService);
-  private messageService = inject(MessageService);
+  private toast = inject(ToastMessageService);
   private translateService = inject(TranslateService);
   private currencyService = inject(CurrencyService);
   private unitsService = inject(UnitsService);
@@ -187,11 +186,7 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
       catchError(error => {
         this.error.set(true);
         this.loading.set(false);
-        this.messageService.add({
-          severity: 'error',
-          summary: this.translateService.instant('common.error'),
-          detail: this.translateService.instant('products.errors.failed_to_load')
-        });
+        this.toast.showError('products.errors.failed_to_load');
         return of(null);
       })
     ).subscribe(product => {
@@ -266,16 +261,11 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
       },
       error: (error) => {
         console.error('Error adding to cart:', error);
-        this.messageService.add({
-          severity: 'error',
-          summary: this.translateService.instant('common.error'),
-          detail: this.translateService.instant('products.cart.error'),
-          life: 3000
-        });
+        this.toast.showError('products.cart.error');
       }
     });
   }
-  
+
   // Quick add to cart for related products
   addRelatedToCart(product: Product, event: Event): void {
     if (event) {
@@ -299,17 +289,11 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
       },
       error: (error) => {
         console.error('Error adding to cart:', error);
-        this.messageService.add({
-          severity: 'error',
-          summary: this.translateService.instant('common.error'),
-          detail: this.translateService.instant('products.cart.error'),
-          life: 3000
-        });
+        this.toast.showError('products.cart.error');
       }
     });
   }
-  
-  
+
   // Get the display label for the selected quantity
   getSelectedQuantityLabel(productId: number): string {
     const quantity = this.productQuantities[productId];

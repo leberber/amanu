@@ -9,7 +9,6 @@ import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { ToastModule } from 'primeng/toast';
 import { ChartModule } from 'primeng/chart';
-import { MessageService } from 'primeng/api';
 import { TagModule } from 'primeng/tag';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -22,6 +21,7 @@ import { ApiService } from '../../../services/api.service';
 import { DateService } from '../../../core/services/date.service';
 import { TranslationHelperService } from '../../../core/services/translation-helper.service';
 import { StatusSeverityService } from '../../../core/services/status-severity.service';
+import { ToastMessageService } from '../../../core/services/toast-message.service';
 
 // REMOVED: AdminAddProductComponent and AdminAddCategoryComponent imports
 // REMOVED: ViewChild decorators and modal methods
@@ -43,8 +43,7 @@ import { StatusSeverityService } from '../../../core/services/status-severity.se
     TranslateModule,
     InputTextModule
   ],
-  providers: [MessageService],
-  templateUrl: './admin-dashboard.component.html',
+    templateUrl: './admin-dashboard.component.html',
   styleUrl: './admin-dashboard.component.scss'
 })
 export class AdminDashboardComponent implements OnInit {
@@ -68,7 +67,7 @@ export class AdminDashboardComponent implements OnInit {
   // Services injected using inject()
   private adminService = inject(AdminService);
   private router = inject(Router);
-  private messageService = inject(MessageService);
+  private toast = inject(ToastMessageService);
   private translateService = inject(TranslateService);
   private productService = inject(ProductService);
   private dateService = inject(DateService);
@@ -127,18 +126,13 @@ export class AdminDashboardComponent implements OnInit {
       error: (error) => {
         console.error('Error loading dashboard stats:', error);
         this.loading = false;
-        
-        let errorMessage = this.translateService.instant('admin.dashboard.load_error');
+
         if (error.status === 403) {
-          errorMessage = this.translateService.instant('admin.dashboard.permission_error');
+          this.toast.showPermissionDenied();
           this.router.navigate(['/']);
+        } else {
+          this.toast.showError('admin.dashboard.load_error');
         }
-        
-        this.messageService.add({
-          severity: 'error',
-          summary: this.translateService.instant('common.error'),
-          detail: errorMessage
-        });
       }
     });
   }
@@ -299,11 +293,7 @@ navigateToBrands() {
 
   sendNotification(): void {
     if (!this.notificationTitle.trim() || !this.notificationBody.trim()) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: this.translateService.instant('common.warning'),
-        detail: this.translateService.instant('admin.dashboard.notification_empty')
-      });
+      this.toast.showWarn('admin.dashboard.notification_empty');
       return;
     }
 
@@ -317,19 +307,11 @@ navigateToBrands() {
         this.sendingNotification = false;
         this.notificationTitle = '';
         this.notificationBody = '';
-        this.messageService.add({
-          severity: 'success',
-          summary: this.translateService.instant('common.success'),
-          detail: this.translateService.instant('admin.dashboard.notification_sent', { count: response.sent })
-        });
+        this.toast.showSuccess('admin.dashboard.notification_sent', { count: response.sent });
       },
       error: (error) => {
         this.sendingNotification = false;
-        this.messageService.add({
-          severity: 'error',
-          summary: this.translateService.instant('common.error'),
-          detail: error.error?.detail || this.translateService.instant('admin.dashboard.notification_failed')
-        });
+        this.toast.showApiError(error, 'admin.dashboard.notification_failed');
       }
     });
   }

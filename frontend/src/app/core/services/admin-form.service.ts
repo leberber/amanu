@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
-import { MessageService } from 'primeng/api';
-import { TranslateService } from '@ngx-translate/core';
 import { Router } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
+import { ToastMessageService } from './toast-message.service';
 import { ANIMATION } from '../constants/app.constants';
 
 export interface FormSuccessConfig {
@@ -26,7 +26,7 @@ export interface TranslationObject {
   providedIn: 'root'
 })
 export class AdminFormService {
-  private messageService = inject(MessageService);
+  private toast = inject(ToastMessageService);
   private translateService = inject(TranslateService);
   private router = inject(Router);
 
@@ -36,11 +36,7 @@ export class AdminFormService {
    */
   handleSuccess(config: FormSuccessConfig): void {
     // Show success message
-    this.messageService.add({
-      severity: 'success',
-      summary: this.translateService.instant('common.success'),
-      detail: this.translateService.instant(config.message)
-    });
+    this.toast.showSuccess(config.message);
 
     // Handle redirect if specified
     if (config.redirectUrl) {
@@ -59,32 +55,21 @@ export class AdminFormService {
    */
   handleError(operation: 'create' | 'update', error: any, config?: FormErrorConfig): void {
     console.error(`Error ${operation}ing:`, error);
-    
-    // Determine error message
-    let errorMessage: string;
-    
-    if (error?.error?.detail) {
-      errorMessage = error.error.detail;
-    } else if (config) {
+
+    // Determine fallback key
+    let fallbackKey = 'common.operation_failed';
+    if (config) {
       if (operation === 'create' && config.createMessage) {
-        errorMessage = this.translateService.instant(config.createMessage);
+        fallbackKey = config.createMessage;
       } else if (operation === 'update' && config.updateMessage) {
-        errorMessage = this.translateService.instant(config.updateMessage);
+        fallbackKey = config.updateMessage;
       } else if (config.genericMessage) {
-        errorMessage = this.translateService.instant(config.genericMessage);
-      } else {
-        errorMessage = this.translateService.instant('common.operation_failed');
+        fallbackKey = config.genericMessage;
       }
-    } else {
-      errorMessage = this.translateService.instant('common.operation_failed');
     }
-    
-    // Show error message
-    this.messageService.add({
-      severity: 'error',
-      summary: this.translateService.instant('common.error'),
-      detail: errorMessage
-    });
+
+    // Show error message using toast service
+    this.toast.showApiError(error, fallbackKey);
   }
 
   /**
@@ -218,18 +203,9 @@ export class AdminFormService {
    */
   showFormValidationErrors(form: any): void {
     const errors = this.getFormValidationErrors(form);
-    
+
     if (Object.keys(errors).length > 0) {
-      const errorMessages = Object.entries(errors)
-        .map(([field, messages]) => `${field}: ${messages.join(', ')}`)
-        .join('\n');
-      
-      this.messageService.add({
-        severity: 'error',
-        summary: this.translateService.instant('validation.form_errors'),
-        detail: errorMessages,
-        life: 5000
-      });
+      this.toast.showError('validation.form_errors');
     }
   }
 }

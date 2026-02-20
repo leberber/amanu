@@ -6,7 +6,6 @@ import { Observable, forkJoin, of, Subscription, Subject } from 'rxjs';
 import { switchMap, tap, map, debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
 import { TagModule } from 'primeng/tag';
 import { ButtonModule } from 'primeng/button';
 import { OverlayBadgeModule } from 'primeng/overlaybadge';
@@ -20,6 +19,7 @@ import { CurrencyService } from '../../../core/services/currency.service';
 import { UnitsService } from '../../../core/services/units.service';
 import { FlyToCartService } from '../../../core/services/fly-to-cart.service';
 import { BrandService } from '../../../core/services/brand.service';
+import { ToastMessageService } from '../../../core/services/toast-message.service';
 import { UserPreferencesService, ViewMode } from '../../../core/services/user-preferences.service';
 import { Product, Category, ProductFilter } from '../../../models/product.model';
 import { Brand } from '../../../models/brand.model';
@@ -50,7 +50,6 @@ import { HorizontalFilterComponent } from '../../../shared/components/horizontal
     ProductQuantitySelectorComponent,
     HorizontalFilterComponent
   ],
-  providers: [MessageService],
   templateUrl: './product-list.component.html',
   styleUrls: ['./product-list.component.scss']
 })
@@ -60,7 +59,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
   private productService = inject(ProductService);
   private brandService = inject(BrandService);
   private cartService = inject(CartService);
-  private messageService = inject(MessageService);
+  private toast = inject(ToastMessageService);
   private translateService = inject(TranslateService);
   private translationService = inject(TranslationService);
   protected currencyService = inject(CurrencyService);
@@ -452,11 +451,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
         ).subscribe();
       },
       error: () => {
-        this.messageService.add({
-          severity: 'error',
-          summary: this.translateService.instant('common.error'),
-          detail: this.translateService.instant('products.filters.error')
-        });
+        this.toast.showError('products.filters.error');
         this.loading.set(false);
       }
     });
@@ -595,12 +590,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
       },
       error: (error: any) => {
         console.error('Error adding to cart:', error);
-        this.messageService.add({
-          severity: 'error',
-          summary: this.translateService.instant('common.error'),
-          detail: this.translateService.instant('products.cart.error'),
-          life: 3000
-        });
+        this.toast.showError('products.cart.error');
       }
     });
   }
@@ -632,11 +622,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
       },
       error: (error) => {
         console.error('Error loading brands:', error);
-        this.messageService.add({
-          severity: 'error',
-          summary: this.translateService.instant('common.error'),
-          detail: this.translateService.instant('brands.error_loading')
-        });
+        this.toast.showError('brands.error_loading');
       }
     });
   }

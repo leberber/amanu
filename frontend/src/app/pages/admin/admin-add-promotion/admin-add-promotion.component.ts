@@ -9,7 +9,6 @@ import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 import { CheckboxModule } from 'primeng/checkbox';
 import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
 import { CardModule } from 'primeng/card';
 import { SelectModule } from 'primeng/select';
 import { InputNumberModule } from 'primeng/inputnumber';
@@ -23,6 +22,7 @@ import { BrandService } from '../../../core/services/brand.service';
 import { Promotion, PromotionCreate, PromotionUpdate } from '../../../models/promotion.model';
 import { Category } from '../../../models/category.model';
 import { Brand } from '../../../models/brand.model';
+import { ToastMessageService } from '../../../core/services/toast-message.service';
 
 interface SelectOption {
   label: string;
@@ -47,8 +47,7 @@ interface SelectOption {
     DividerModule,
     TranslateModule
   ],
-  providers: [MessageService],
-  templateUrl: './admin-add-promotion.component.html',
+    templateUrl: './admin-add-promotion.component.html',
   styleUrl: './admin-add-promotion.component.scss'
 })
 export class AdminAddPromotionComponent implements OnInit {
@@ -74,7 +73,7 @@ export class AdminAddPromotionComponent implements OnInit {
   }
 
   private fb = inject(FormBuilder);
-  private messageService = inject(MessageService);
+  private toast = inject(ToastMessageService);
   private promotionService = inject(PromotionService);
   private productService = inject(ProductService);
   private brandService = inject(BrandService);
@@ -250,13 +249,7 @@ export class AdminAddPromotionComponent implements OnInit {
       error: (error) => {
         console.error('Error loading promotion:', error);
         this.loading.set(false);
-
-        this.messageService.add({
-          severity: 'error',
-          summary: this.translateService.instant('common.error'),
-          detail: this.translateService.instant('admin.promotions.load_error')
-        });
-
+        this.toast.showError('admin.promotions.load_error');
         this.goBackToPromotionsList();
       }
     });
@@ -281,11 +274,7 @@ export class AdminAddPromotionComponent implements OnInit {
     const endDate = this.promotionForm.value.end_date;
 
     if (endDate <= startDate) {
-      this.messageService.add({
-        severity: 'error',
-        summary: this.translateService.instant('common.error'),
-        detail: this.translateService.instant('admin.promotions.form.date_error')
-      });
+      this.toast.showError('admin.promotions.form.date_error');
       return;
     }
 
@@ -316,13 +305,7 @@ export class AdminAddPromotionComponent implements OnInit {
       this.promotionService.updatePromotion(this.editPromotionId, promotionData as PromotionUpdate).subscribe({
         next: () => {
           this.loading.set(false);
-
-          this.messageService.add({
-            severity: 'success',
-            summary: this.translateService.instant('common.success'),
-            detail: this.translateService.instant('admin.promotions.update_success')
-          });
-
+          this.toast.showSuccess('admin.promotions.update_success');
           setTimeout(() => {
             this.goBackToPromotionsList();
           }, 1500);
@@ -336,13 +319,7 @@ export class AdminAddPromotionComponent implements OnInit {
       this.promotionService.createPromotion(promotionData).subscribe({
         next: () => {
           this.loading.set(false);
-
-          this.messageService.add({
-            severity: 'success',
-            summary: this.translateService.instant('common.success'),
-            detail: this.translateService.instant('admin.promotions.create_success')
-          });
-
+          this.toast.showSuccess('admin.promotions.create_success');
           setTimeout(() => {
             this.goBackToPromotionsList();
           }, 1500);
@@ -357,20 +334,8 @@ export class AdminAddPromotionComponent implements OnInit {
 
   private handleError(operation: 'create' | 'update', error: any) {
     console.error(`Error ${operation}ing promotion:`, error);
-
-    let errorMessage = this.translateService.instant(
-      operation === 'create' ? 'admin.promotions.create_failed' : 'admin.promotions.update_failed'
-    );
-
-    if (error.error && error.error.detail) {
-      errorMessage = error.error.detail;
-    }
-
-    this.messageService.add({
-      severity: 'error',
-      summary: this.translateService.instant('common.error'),
-      detail: errorMessage
-    });
+    const fallbackKey = operation === 'create' ? 'admin.promotions.create_failed' : 'admin.promotions.update_failed';
+    this.toast.showApiError(error, fallbackKey);
   }
 
   // Helper to check if discount type is percentage

@@ -6,7 +6,6 @@ import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
 import { TagModule } from 'primeng/tag';
 import { DividerModule } from 'primeng/divider';
 import { TooltipModule } from 'primeng/tooltip';
@@ -27,6 +26,7 @@ import { AppliedPromotion } from '../../models/promotion.model';
 import { ProductQuantitySelectorComponent } from '../../shared/components/product-quantity-selector/product-quantity-selector.component';
 import { BackButtonComponent } from '../../shared/components/back-button/back-button.component';
 import { ImageLightboxComponent } from '../../shared/components/image-lightbox/image-lightbox.component';
+import { ToastMessageService } from '../../core/services/toast-message.service';
 
 @Component({
   selector: 'app-cart-page',
@@ -48,15 +48,14 @@ import { ImageLightboxComponent } from '../../shared/components/image-lightbox/i
     BackButtonComponent,
     ImageLightboxComponent
   ],
-  providers: [MessageService],
-  templateUrl: './cart.component.html',
+    templateUrl: './cart.component.html',
   styleUrl: './cart.component.scss'
 })
 export class CartComponent implements OnInit, OnDestroy {
   // Dependency injection
   private cartService = inject(CartService);
   private authService = inject(AuthService);
-  private messageService = inject(MessageService);
+  private toast = inject(ToastMessageService);
   private router = inject(Router);
   private translateService = inject(TranslateService);
   private currencyService = inject(CurrencyService);
@@ -236,11 +235,7 @@ export class CartComponent implements OnInit, OnDestroy {
       });
     } catch (error) {
       console.error('Error loading cart:', error);
-      this.messageService.add({
-        severity: 'error',
-        summary: this.translateService.instant('common.error'),
-        detail: this.translateService.instant('cart.errors.failed_to_load')
-      });
+      this.toast.showError('cart.errors.failed_to_load');
       this.loading.set(false);
     }
   }
@@ -269,13 +264,7 @@ export class CartComponent implements OnInit, OnDestroy {
       error: (error) => {
         console.error('Error updating quantity:', error);
         
-        // Show specific error message
-        const errorMessage = error?.message || this.translateService.instant('cart.errors.update_failed');
-        this.messageService.add({
-          severity: 'error',
-          summary: this.translateService.instant('common.error'),
-          detail: errorMessage
-        });
+        this.toast.showError('cart.errors.update_failed');
         
         // Reset the select value to match the item's actual quantity
         this.productQuantities[itemId] = item.quantity;
@@ -292,13 +281,7 @@ export class CartComponent implements OnInit, OnDestroy {
       error: (error) => {
         console.error('Error removing item:', error);
         
-        // Show specific error message
-        const errorMessage = error?.message || this.translateService.instant('cart.errors.remove_failed');
-        this.messageService.add({
-          severity: 'error',
-          summary: this.translateService.instant('common.error'),
-          detail: errorMessage
-        });
+        this.toast.showError('cart.errors.remove_failed');
       }
     });
   }
@@ -310,20 +293,11 @@ export class CartComponent implements OnInit, OnDestroy {
         this.cartItems.set([]);
         // Reset quantities
         this.productQuantities = {};
-        
-        this.messageService.add({
-          severity: 'success',
-          summary: this.translateService.instant('cart.cart_cleared'),
-          detail: this.translateService.instant('cart.cart_cleared_message')
-        });
+        this.toast.showSuccess('cart.cart_cleared_message');
       },
       error: (error) => {
         console.error('Error clearing cart:', error);
-        this.messageService.add({
-          severity: 'error',
-          summary: this.translateService.instant('common.error'),
-          detail: this.translateService.instant('cart.errors.clear_failed')
-        });
+        this.toast.showError('cart.errors.clear_failed');
       }
     });
   }
@@ -390,28 +364,20 @@ export class CartComponent implements OnInit, OnDestroy {
   
   proceedToCheckout() {
     if (this.cartItemCount() === 0) {
-      this.messageService.add({
-        severity: 'info',
-        summary: this.translateService.instant('cart.empty'),
-        detail: this.translateService.instant('cart.empty_checkout_message')
-      });
+      this.toast.showInfo('cart.empty_checkout_message');
       return;
     }
-    
+
     if (this.authService.isLoggedIn) {
       // User is logged in, proceed to checkout
       this.router.navigate(['/checkout']);
     } else {
       // User is not logged in, redirect to login with returnUrl
-      this.messageService.add({
-        severity: 'info', 
-        summary: this.translateService.instant('cart.login_required'), 
-        detail: this.translateService.instant('cart.login_message')
-      });
-      
+      this.toast.showInfo('cart.login_message');
+
       // Save the return URL
-      this.router.navigate(['/login'], { 
-        queryParams: { returnUrl: '/checkout' } 
+      this.router.navigate(['/login'], {
+        queryParams: { returnUrl: '/checkout' }
       });
     }
   }
@@ -478,12 +444,8 @@ export class CartComponent implements OnInit, OnDestroy {
           this.appliedPromotion.set(appliedPromo);
           this.cartService.applyPromotion(appliedPromo);
 
-          this.messageService.add({
-            severity: 'success',
-            summary: this.translateService.instant('promotions.code_applied'),
-            detail: this.translateService.instant('promotions.discount_applied', {
-              amount: this.formatPrice(response.discount_amount)
-            })
+          this.toast.showSuccess('promotions.discount_applied', {
+            amount: this.formatPrice(response.discount_amount)
           });
         } else {
           this.promoError.set(this.translateService.instant('promotions.no_discount'));

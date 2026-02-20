@@ -8,7 +8,6 @@ import { ToastModule } from 'primeng/toast';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { SelectModule } from 'primeng/select';
-import { MessageService } from 'primeng/api';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../services/auth.service';
 import { UserRole } from '../../models/user.model';
@@ -16,6 +15,7 @@ import { MapPickerComponent, LocationData } from '../../shared/components/map-pi
 import { VALIDATION } from '../../core/constants/app.constants';
 import { PhoneFormatDirective } from '../../directives/phone-format.directive';
 import { LanguageSelectorComponent } from '../../components/language-selector/language-selector.component';
+import { ToastMessageService } from '../../core/services/toast-message.service';
 
 // Interfaces for wilaya data
 interface Commune {
@@ -51,8 +51,7 @@ interface WilayaData {
     PhoneFormatDirective,
     LanguageSelectorComponent
   ],
-  providers: [MessageService],
-  templateUrl: './register.component.html',
+    templateUrl: './register.component.html',
   styleUrl: './register.component.scss'
 })
 export class RegisterComponent implements OnInit {
@@ -82,7 +81,7 @@ export class RegisterComponent implements OnInit {
   // Services
   private authService = inject(AuthService);
   private router = inject(Router);
-  private messageService = inject(MessageService);
+  private toast = inject(ToastMessageService);
   private translateService = inject(TranslateService);
   private fb = inject(FormBuilder);
   private elementRef = inject(ElementRef);
@@ -294,30 +293,22 @@ export class RegisterComponent implements OnInit {
   }
 
   onLocationError(errorType: string) {
-    let message = '';
+    let messageKey = 'register.location_error';
     switch (errorType) {
       case 'permission_denied':
-        message = this.translateService.instant('register.location_permission_denied');
+        messageKey = 'register.location_permission_denied';
         break;
       case 'position_unavailable':
-        message = this.translateService.instant('register.location_unavailable');
+        messageKey = 'register.location_unavailable';
         break;
       case 'timeout':
-        message = this.translateService.instant('register.location_timeout');
+        messageKey = 'register.location_timeout';
         break;
       case 'geolocation_not_supported':
-        message = this.translateService.instant('register.geolocation_not_supported');
+        messageKey = 'register.geolocation_not_supported';
         break;
-      default:
-        message = this.translateService.instant('register.location_error');
     }
-
-    this.messageService.add({
-      severity: 'warn',
-      summary: this.translateService.instant('common.warning'),
-      detail: message,
-      life: 5000
-    });
+    this.toast.showWarn(messageKey);
   }
 
   // Step navigation
@@ -406,41 +397,25 @@ export class RegisterComponent implements OnInit {
 
     // Check if all steps are valid
     if (!this.canProceedStep1()) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: this.translateService.instant('common.warning'),
-        detail: this.translateService.instant('register.complete_personal_info')
-      });
+      this.toast.showWarn('register.complete_personal_info');
       this.goToStep(0);
       return;
     }
 
     if (!this.canProceedStep2()) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: this.translateService.instant('common.warning'),
-        detail: this.translateService.instant('register.complete_password')
-      });
+      this.toast.showWarn('register.complete_password');
       this.goToStep(1);
       return;
     }
 
     if (!this.canProceedStep3()) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: this.translateService.instant('common.warning'),
-        detail: this.translateService.instant('register.select_location')
-      });
+      this.toast.showWarn('register.select_location');
       this.goToStep(2);
       return;
     }
 
     if (!this.canProceedStep4()) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: this.translateService.instant('common.warning'),
-        detail: this.translateService.instant('register.complete_store_details')
-      });
+      this.toast.showWarn('register.complete_store_details');
       this.goToStep(3);
       return;
     }
@@ -466,21 +441,13 @@ export class RegisterComponent implements OnInit {
     this.authService.register(registerData)
       .subscribe({
         next: () => {
-          this.messageService.add({
-            severity: 'success',
-            summary: this.translateService.instant('common.success'),
-            detail: this.translateService.instant('auth.register_success')
-          });
+          this.toast.showSuccess('auth.register_success');
           setTimeout(() => {
             this.router.navigate(['/login']);
           }, 1500);
         },
         error: (error) => {
-          this.messageService.add({
-            severity: 'error',
-            summary: this.translateService.instant('common.error'),
-            detail: error.error?.detail || this.translateService.instant('auth.register_failed')
-          });
+          this.toast.showApiError(error, 'auth.register_failed');
           this.loading = false;
         }
       });

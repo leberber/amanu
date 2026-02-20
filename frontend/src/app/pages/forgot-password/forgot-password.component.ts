@@ -5,12 +5,12 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { Router } from '@angular/router';
 import { InputTextModule } from 'primeng/inputtext';
 import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { finalize } from 'rxjs';
 
 import { AuthService } from '../../services/auth.service';
 import { BackButtonComponent } from '../../shared/components/back-button/back-button.component';
+import { ToastMessageService } from '../../core/services/toast-message.service';
 
 @Component({
   selector: 'app-forgot-password',
@@ -23,8 +23,7 @@ import { BackButtonComponent } from '../../shared/components/back-button/back-bu
     TranslateModule,
     BackButtonComponent
   ],
-  providers: [MessageService],
-  templateUrl: './forgot-password.component.html',
+    templateUrl: './forgot-password.component.html',
   styleUrl: './forgot-password.component.scss'
 })
 export class ForgotPasswordComponent implements OnInit {
@@ -35,7 +34,7 @@ export class ForgotPasswordComponent implements OnInit {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private router = inject(Router);
-  private messageService = inject(MessageService);
+  private toast = inject(ToastMessageService);
   private translateService = inject(TranslateService);
   private elementRef = inject(ElementRef);
 
@@ -64,11 +63,7 @@ export class ForgotPasswordComponent implements OnInit {
       )
       .subscribe({
         next: () => {
-          this.messageService.add({
-            severity: 'success',
-            summary: this.translateService.instant('common.success'),
-            detail: this.translateService.instant('auth.reset_code_sent')
-          });
+          this.toast.showSuccess('auth.reset_code_sent');
 
           // Navigate to reset password page with email
           setTimeout(() => {
@@ -76,11 +71,7 @@ export class ForgotPasswordComponent implements OnInit {
           }, 1500);
         },
         error: (error) => {
-          this.messageService.add({
-            severity: 'error',
-            summary: this.translateService.instant('common.error'),
-            detail: error.error?.detail || this.translateService.instant('auth.reset_code_failed')
-          });
+          this.toast.showApiError(error, 'auth.reset_code_failed');
         }
       });
   }

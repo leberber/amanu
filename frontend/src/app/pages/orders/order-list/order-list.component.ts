@@ -7,11 +7,11 @@ import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { TableModule } from 'primeng/table';
 import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
 import { TagModule } from 'primeng/tag';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { OrderService } from '../../../services/order.service';
+import { ToastMessageService } from '../../../core/services/toast-message.service';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { DateService } from '../../../core/services/date.service';
 import { Order } from '../../../models/order.model';
@@ -32,7 +32,6 @@ import { BackButtonComponent } from '../../../shared/components/back-button/back
     TranslateModule,
     BackButtonComponent
   ],
-  providers: [MessageService],
   templateUrl: './order-list.component.html',
   styleUrls: ['./order-list.component.scss']
 })
@@ -43,7 +42,7 @@ export class OrderListComponent implements OnInit {
   // Services injected using inject()
   private orderService = inject(OrderService);
   private router = inject(Router);
-  private messageService = inject(MessageService);
+  private toast = inject(ToastMessageService);
   private translateService = inject(TranslateService);
   private currencyService = inject(CurrencyService);
   private dateService = inject(DateService);
@@ -63,11 +62,7 @@ export class OrderListComponent implements OnInit {
       error: (error) => {
         console.error('Error loading orders:', error);
         this.loading = false;
-        this.messageService.add({
-          severity: 'error',
-          summary: this.translateService.instant('common.error'),
-          detail: this.translateService.instant('orders.errors.failed_to_load')
-        });
+        this.toast.showError('orders.errors.failed_to_load');
       }
     });
   }

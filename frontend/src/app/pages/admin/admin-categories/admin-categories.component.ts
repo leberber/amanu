@@ -9,7 +9,6 @@ import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
 import { TagModule } from 'primeng/tag';
 import { PaginatorModule } from 'primeng/paginator';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
@@ -25,6 +24,7 @@ import { TranslationHelperService } from '../../../core/services/translation-hel
 import { DateService } from '../../../core/services/date.service';
 import { SearchDebounceService } from '../../../core/services/search-debounce.service';
 import { Category } from '../../../models/category.model';
+import { ToastMessageService } from '../../../core/services/toast-message.service';
 
 @Component({
   selector: 'app-admin-categories',
@@ -46,7 +46,7 @@ import { Category } from '../../../models/category.model';
     ProgressSpinnerModule,
     TranslateModule
   ],
-  providers: [MessageService, ConfirmationService],
+  providers: [ConfirmationService],
   templateUrl: './admin-categories.component.html',
   styleUrl: './admin-categories.component.scss'
 })
@@ -69,7 +69,7 @@ export class AdminCategoriesComponent implements OnInit {
   
   // Services injected using inject()
   private productService = inject(ProductService);
-  private messageService = inject(MessageService);
+  private toast = inject(ToastMessageService);
   private confirmationService = inject(ConfirmationService);
   private router = inject(Router);
   private translateService = inject(TranslateService);
@@ -106,12 +106,7 @@ export class AdminCategoriesComponent implements OnInit {
       error: (error) => {
         console.error('Error loading categories:', error);
         this.loading = false;
-
-        this.messageService.add({
-          severity: 'error',
-          summary: this.translateService.instant('common.error'),
-          detail: this.translateService.instant('admin.categories.load_error')
-        });
+        this.toast.showError('admin.categories.load_error');
       }
     });
   }
@@ -219,12 +214,7 @@ export class AdminCategoriesComponent implements OnInit {
   deleteCategory(category: Category) {
     this.productService.deleteCategory(category.id).subscribe({
       next: () => {
-        this.messageService.add({
-          severity: 'success',
-          summary: this.translateService.instant('common.success'),
-          detail: this.translateService.instant('admin.categories.delete_success')
-        });
-        
+        this.toast.showSuccess('admin.categories.delete_success');
         // Remove deleted category from allCategories array
         this.allCategories = this.allCategories.filter(c => c.id !== category.id);
         // Reapply current filters
@@ -232,11 +222,7 @@ export class AdminCategoriesComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error deleting category:', error);
-        this.messageService.add({
-          severity: 'error',
-          summary: this.translateService.instant('common.error'),
-          detail: error.error?.detail || this.translateService.instant('admin.categories.delete_failed')
-        });
+        this.toast.showApiError(error, 'admin.categories.delete_failed');
       }
     });
   }

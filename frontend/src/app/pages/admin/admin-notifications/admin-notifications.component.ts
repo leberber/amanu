@@ -5,10 +5,10 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 
 import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { ApiService } from '../../../services/api.service';
+import { ToastMessageService } from '../../../core/services/toast-message.service';
 
 @Component({
   selector: 'app-admin-notifications',
@@ -19,8 +19,7 @@ import { ApiService } from '../../../services/api.service';
     ToastModule,
     TranslateModule
   ],
-  providers: [MessageService],
-  templateUrl: './admin-notifications.component.html',
+    templateUrl: './admin-notifications.component.html',
   styleUrl: './admin-notifications.component.scss'
 })
 export class AdminNotificationsComponent {
@@ -31,17 +30,13 @@ export class AdminNotificationsComponent {
   bodyFocused = false;
 
   private router = inject(Router);
-  private messageService = inject(MessageService);
+  private toast = inject(ToastMessageService);
   private translateService = inject(TranslateService);
   private apiService = inject(ApiService);
 
   sendNotification(): void {
     if (!this.notificationTitle.trim() || !this.notificationBody.trim()) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: this.translateService.instant('common.warning'),
-        detail: this.translateService.instant('admin.notifications.empty_fields')
-      });
+      this.toast.showWarn('admin.notifications.empty_fields');
       return;
     }
 
@@ -55,19 +50,11 @@ export class AdminNotificationsComponent {
         this.sendingNotification = false;
         this.notificationTitle = '';
         this.notificationBody = '';
-        this.messageService.add({
-          severity: 'success',
-          summary: this.translateService.instant('common.success'),
-          detail: this.translateService.instant('admin.notifications.sent_success', { count: response.sent })
-        });
+        this.toast.showSuccess('admin.notifications.sent_success', { count: response.sent });
       },
       error: (error) => {
         this.sendingNotification = false;
-        this.messageService.add({
-          severity: 'error',
-          summary: this.translateService.instant('common.error'),
-          detail: error.error?.detail || this.translateService.instant('admin.notifications.sent_failed')
-        });
+        this.toast.showApiError(error, 'admin.notifications.sent_failed');
       }
     });
   }

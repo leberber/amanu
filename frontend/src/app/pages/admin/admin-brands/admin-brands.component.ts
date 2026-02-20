@@ -9,7 +9,6 @@ import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
 import { TagModule } from 'primeng/tag';
 import { PaginatorModule } from 'primeng/paginator';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
@@ -26,6 +25,7 @@ import { TranslationHelperService } from '../../../core/services/translation-hel
 import { DateService } from '../../../core/services/date.service';
 import { SearchDebounceService } from '../../../core/services/search-debounce.service';
 import { Brand } from '../../../models/brand.model';
+import { ToastMessageService } from '../../../core/services/toast-message.service';
 
 @Component({
   selector: 'app-admin-brands',
@@ -47,7 +47,7 @@ import { Brand } from '../../../models/brand.model';
     ProgressSpinnerModule,
     TranslateModule
   ],
-  providers: [MessageService, ConfirmationService],
+  providers: [ConfirmationService],
   templateUrl: './admin-brands.component.html',
   styleUrl: './admin-brands.component.scss'
 })
@@ -70,7 +70,7 @@ export class AdminBrandsComponent implements OnInit {
 
   private brandService = inject(BrandService);
   private productService = inject(ProductService);
-  private messageService = inject(MessageService);
+  private toast = inject(ToastMessageService);
   private confirmationService = inject(ConfirmationService);
   private router = inject(Router);
   private translateService = inject(TranslateService);
@@ -104,12 +104,7 @@ export class AdminBrandsComponent implements OnInit {
       error: (error) => {
         console.error('Error loading brands:', error);
         this.loading = false;
-
-        this.messageService.add({
-          severity: 'error',
-          summary: this.translateService.instant('common.error'),
-          detail: this.translateService.instant('admin.brands.load_error')
-        });
+        this.toast.showError('admin.brands.load_error');
       }
     });
   }
@@ -212,22 +207,13 @@ export class AdminBrandsComponent implements OnInit {
   deleteBrand(brand: Brand) {
     this.brandService.deleteBrand(brand.id).subscribe({
       next: () => {
-        this.messageService.add({
-          severity: 'success',
-          summary: this.translateService.instant('common.success'),
-          detail: this.translateService.instant('admin.brands.delete_success')
-        });
-
+        this.toast.showSuccess('admin.brands.delete_success');
         this.allBrands = this.allBrands.filter(b => b.id !== brand.id);
         this.filterBrands();
       },
       error: (error) => {
         console.error('Error deleting brand:', error);
-        this.messageService.add({
-          severity: 'error',
-          summary: this.translateService.instant('common.error'),
-          detail: error.error?.detail || this.translateService.instant('admin.brands.delete_failed')
-        });
+        this.toast.showApiError(error, 'admin.brands.delete_failed');
       }
     });
   }

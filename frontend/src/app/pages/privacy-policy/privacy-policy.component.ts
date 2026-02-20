@@ -89,7 +89,7 @@ import { CommonModule } from '@angular/common';
           <h2 class="text-xl font-semibold mb-2">9. Contact Us</h2>
           <p class="line-height-3">
             If you have any questions or suggestions about our Privacy Policy, do not hesitate to contact us at
-            <a href="mailto:support@agroclik.com" class="text-primary">support&#64;elsuqhub.com</a>.
+            <a href="mailto:support@agroclik.com" class="text-primary">support&#64;agroclik.com</a>.
           </p>
         </section>
       </div>

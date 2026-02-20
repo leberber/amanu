@@ -10,7 +10,6 @@ import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 import { CheckboxModule } from 'primeng/checkbox';
 import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
 import { CardModule } from 'primeng/card';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
@@ -18,6 +17,7 @@ import { BrandService } from '../../../core/services/brand.service';
 import { Brand } from '../../../models/brand.model';
 import { VALIDATION } from '../../../core/constants/app.constants';
 import { AdminFormService } from '../../../core/services/admin-form.service';
+import { ToastMessageService } from '../../../core/services/toast-message.service';
 
 interface BrandWithTranslations extends Brand {
   name_translations?: { [key: string]: string };
@@ -39,8 +39,7 @@ interface BrandWithTranslations extends Brand {
     CardModule,
     TranslateModule
   ],
-  providers: [MessageService],
-  templateUrl: './admin-add-brand.component.html',
+    templateUrl: './admin-add-brand.component.html',
   styleUrl: './admin-add-brand.component.scss'
 })
 export class AdminAddBrandComponent implements OnInit {
@@ -61,7 +60,7 @@ export class AdminAddBrandComponent implements OnInit {
   }
 
   private fb = inject(FormBuilder);
-  private messageService = inject(MessageService);
+  private toast = inject(ToastMessageService);
   private brandService = inject(BrandService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
@@ -126,13 +125,7 @@ export class AdminAddBrandComponent implements OnInit {
       error: (error) => {
         console.error('Error loading brand:', error);
         this.loading.set(false);
-
-        this.messageService.add({
-          severity: 'error',
-          summary: this.translateService.instant('common.error'),
-          detail: this.translateService.instant('admin.brands.load_error')
-        });
-
+        this.toast.showError('admin.brands.load_error');
         this.goBackToBrandsList();
       }
     });
@@ -188,12 +181,7 @@ export class AdminAddBrandComponent implements OnInit {
       this.brandService.updateBrand(this.editBrandId, brandData).subscribe({
         next: (updatedBrand) => {
           this.loading.set(false);
-
-          this.messageService.add({
-            severity: 'success',
-            summary: this.translateService.instant('common.success'),
-            detail: this.translateService.instant('admin.brands.update_success')
-          });
+          this.toast.showSuccess('admin.brands.update_success');
 
           if (this.visible()) {
             this.visible.set(false);
@@ -222,12 +210,7 @@ export class AdminAddBrandComponent implements OnInit {
       this.brandService.createBrand(brandData).subscribe({
         next: (createdBrand) => {
           this.loading.set(false);
-
-          this.messageService.add({
-            severity: 'success',
-            summary: this.translateService.instant('common.success'),
-            detail: this.translateService.instant('admin.brands.create_success')
-          });
+          this.toast.showSuccess('admin.brands.create_success');
 
           if (this.visible()) {
             this.visible.set(false);
@@ -257,19 +240,7 @@ export class AdminAddBrandComponent implements OnInit {
 
   private handleError(operation: 'create' | 'update', error: any) {
     console.error(`Error ${operation}ing brand:`, error);
-
-    let errorMessage = this.translateService.instant(
-      operation === 'create' ? 'admin.brands.create_failed' : 'admin.brands.update_failed'
-    );
-
-    if (error.error && error.error.detail) {
-      errorMessage = error.error.detail;
-    }
-
-    this.messageService.add({
-      severity: 'error',
-      summary: this.translateService.instant('common.error'),
-      detail: errorMessage
-    });
+    const fallbackKey = operation === 'create' ? 'admin.brands.create_failed' : 'admin.brands.update_failed';
+    this.toast.showApiError(error, fallbackKey);
   }
 }

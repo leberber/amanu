@@ -8,7 +8,6 @@ import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
 import { TagModule } from 'primeng/tag';
 import { PaginatorModule } from 'primeng/paginator';
 import { DialogModule } from 'primeng/dialog';
@@ -24,6 +23,7 @@ import { UnitsService } from '../../../core/services/units.service';
 import { SearchDebounceService } from '../../../core/services/search-debounce.service';
 import { DateService } from '../../../core/services/date.service';
 import { StockStatusService } from '../../../core/services/stock-status.service';
+import { ToastMessageService } from '../../../core/services/toast-message.service';
 import { Product } from '../../../models/product.model';
 import { Category } from '../../../models/category.model';
 import { Brand } from '../../../models/brand.model';
@@ -61,7 +61,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
     ProgressSpinnerModule,
     TranslateModule
   ],
-  providers: [MessageService, ConfirmationService],
+  providers: [ConfirmationService],
   templateUrl: './admin-products.component.html',
   styleUrl: './admin-products.component.scss'
 })
@@ -99,7 +99,7 @@ export class AdminProductsComponent implements OnInit {
   // Services
   private productService = inject(ProductService);
   private brandService = inject(BrandService);
-  private messageService = inject(MessageService);
+  private toast = inject(ToastMessageService);
   private router = inject(Router);
   private translateService = inject(TranslateService);
   private currencyService = inject(CurrencyService);
@@ -314,20 +314,12 @@ export class AdminProductsComponent implements OnInit {
           this.products[displayIndex].price = this.editingPrice;
         }
 
-        this.messageService.add({
-          severity: 'success',
-          summary: this.translateService.instant('common.success'),
-          detail: this.translateService.instant('admin.products.price_updated')
-        });
+        this.toast.showSuccess('admin.products.price_updated');
         this.cancelEditPrice();
       },
       error: (error) => {
         console.error('Error updating price:', error);
-        this.messageService.add({
-          severity: 'error',
-          summary: this.translateService.instant('common.error'),
-          detail: this.translateService.instant('admin.products.price_update_failed')
-        });
+        this.toast.showError('admin.products.price_update_failed');
       }
     });
   }
@@ -364,20 +356,12 @@ export class AdminProductsComponent implements OnInit {
           this.products[displayIndex].stock_quantity = this.editingStock;
         }
 
-        this.messageService.add({
-          severity: 'success',
-          summary: this.translateService.instant('common.success'),
-          detail: this.translateService.instant('admin.products.stock_updated')
-        });
+        this.toast.showSuccess('admin.products.stock_updated');
         this.cancelEditStock();
       },
       error: (error) => {
         console.error('Error updating stock:', error);
-        this.messageService.add({
-          severity: 'error',
-          summary: this.translateService.instant('common.error'),
-          detail: this.translateService.instant('admin.products.stock_update_failed')
-        });
+        this.toast.showError('admin.products.stock_update_failed');
       }
     });
   }
@@ -426,12 +410,7 @@ export class AdminProductsComponent implements OnInit {
       error: (error) => {
         console.error('Error loading products:', error);
         this.loading = false;
-
-        this.messageService.add({
-          severity: 'error',
-          summary: this.translateService.instant('common.error'),
-          detail: this.translateService.instant('admin.products.load_error')
-        });
+        this.toast.showError('admin.products.load_error');
       }
     });
   }
@@ -474,22 +453,13 @@ export class AdminProductsComponent implements OnInit {
   private deleteProduct(product: Product) {
     this.productService.deleteProduct(product.id).subscribe({
       next: () => {
-        this.messageService.add({
-          severity: 'success',
-          summary: this.translateService.instant('common.success'),
-          detail: this.translateService.instant('admin.products.delete_success')
-        });
-        
+        this.toast.showSuccess('admin.products.delete_success');
         this.allProducts = this.allProducts.filter(p => p.id !== product.id);
         this.filterProducts();
       },
       error: (error) => {
         console.error('Error deleting product:', error);
-        this.messageService.add({
-          severity: 'error',
-          summary: this.translateService.instant('common.error'),
-          detail: error.error?.detail || this.translateService.instant('admin.products.delete_failed')
-        });
+        this.toast.showApiError(error, 'admin.products.delete_failed');
       }
     });
   }

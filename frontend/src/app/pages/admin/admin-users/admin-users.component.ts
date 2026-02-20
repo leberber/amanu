@@ -7,9 +7,9 @@ import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
+import { ToastMessageService } from '../../../core/services/toast-message.service';
 import { SelectModule } from 'primeng/select';
 import { TooltipModule } from 'primeng/tooltip';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -34,7 +34,7 @@ import { ROUTES } from '../../../core/constants/routes.constants';
     TooltipModule,
     TranslateModule
   ],
-  providers: [MessageService, ConfirmationService],
+  providers: [ConfirmationService],
   templateUrl: './admin-users.component.html',
   styleUrl: './admin-users.component.scss'
 })
@@ -64,7 +64,7 @@ export class AdminUsersComponent implements OnInit {
 
   // Services
   private adminService = inject(AdminService);
-  private messageService = inject(MessageService);
+  private toast = inject(ToastMessageService);
   private router = inject(Router);
   private translateService = inject(TranslateService);
   private dateService = inject(DateService);
@@ -109,17 +109,12 @@ export class AdminUsersComponent implements OnInit {
     console.error('Error loading users:', error);
     this.loading = false;
 
-    let errorMessage = this.translateService.instant('admin.users.load_error');
     if (error.status === 403) {
-      errorMessage = this.translateService.instant('admin.users.permission_error');
+      this.toast.showPermissionDenied();
       this.router.navigate(['/']);
+    } else {
+      this.toast.showError('admin.users.load_error');
     }
-
-    this.messageService.add({
-      severity: 'error',
-      summary: this.translateService.instant('common.error'),
-      detail: errorMessage
-    });
 
     this.allUsers = [];
     this.users = [];
@@ -211,20 +206,11 @@ export class AdminUsersComponent implements OnInit {
       next: () => {
         this.allUsers = this.allUsers.filter(u => u.id !== user.id);
         this.filterUsers();
-
-        this.messageService.add({
-          severity: 'success',
-          summary: this.translateService.instant('admin.users.messages.user_deleted'),
-          detail: this.translateService.instant('admin.users.messages.user_deleted_detail', { name: user.full_name })
-        });
+        this.toast.showSuccess('admin.users.messages.user_deleted_detail', { name: user.full_name });
       },
       error: (error) => {
         console.error('Error deleting user:', error);
-        this.messageService.add({
-          severity: 'error',
-          summary: this.translateService.instant('admin.users.messages.deletion_failed'),
-          detail: error.error?.detail || this.translateService.instant('admin.users.messages.deletion_failed_detail')
-        });
+        this.toast.showApiError(error, 'admin.users.messages.deletion_failed_detail');
       }
     });
   }
@@ -268,20 +254,12 @@ export class AdminUsersComponent implements OnInit {
           this.users[displayIndex].role = newRole;
         }
 
-        this.messageService.add({
-          severity: 'success',
-          summary: this.translateService.instant('common.success'),
-          detail: this.translateService.instant('admin.users.messages.role_updated', { name: user.full_name })
-        });
+        this.toast.showSuccess('admin.users.messages.role_updated', { name: user.full_name });
         this.cancelEditRole();
       },
       error: (error) => {
         console.error('Error updating role:', error);
-        this.messageService.add({
-          severity: 'error',
-          summary: this.translateService.instant('common.error'),
-          detail: this.translateService.instant('admin.users.messages.update_failed_detail')
-        });
+        this.toast.showError('admin.users.messages.update_failed_detail');
       }
     });
   }
@@ -332,20 +310,12 @@ export class AdminUsersComponent implements OnInit {
           this.users[displayIndex].is_active = newStatus;
         }
 
-        this.messageService.add({
-          severity: 'success',
-          summary: this.translateService.instant('common.success'),
-          detail: this.translateService.instant('admin.users.messages.status_updated', { name: user.full_name })
-        });
+        this.toast.showSuccess('admin.users.messages.status_updated', { name: user.full_name });
         this.cancelEditStatus();
       },
       error: (error) => {
         console.error('Error updating status:', error);
-        this.messageService.add({
-          severity: 'error',
-          summary: this.translateService.instant('common.error'),
-          detail: this.translateService.instant('admin.users.messages.update_failed_detail')
-        });
+        this.toast.showError('admin.users.messages.update_failed_detail');
       }
     });
   }
@@ -357,11 +327,7 @@ export class AdminUsersComponent implements OnInit {
   }
 
   exportUsers(): void {
-    this.messageService.add({
-      severity: 'info',
-      summary: this.translateService.instant('admin.users.export'),
-      detail: this.translateService.instant('admin.users.export_coming_soon')
-    });
+    this.toast.showInfo('admin.users.export_coming_soon');
   }
 
   formatDate(dateString: string): string {

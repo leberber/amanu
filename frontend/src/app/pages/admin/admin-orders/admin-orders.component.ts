@@ -7,7 +7,6 @@ import { Router } from '@angular/router';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
 import { TagModule } from 'primeng/tag';
 import { PaginatorModule } from 'primeng/paginator';
 import { DialogModule } from 'primeng/dialog';
@@ -25,6 +24,7 @@ import { TranslationHelperService } from '../../../core/services/translation-hel
 import { SearchDebounceService } from '../../../core/services/search-debounce.service';
 import { UnitsService } from '../../../core/services/units.service';
 import { StatusSeverityService } from '../../../core/services/status-severity.service';
+import { ToastMessageService } from '../../../core/services/toast-message.service';
 
 @Component({
   selector: 'app-admin-orders',
@@ -42,7 +42,7 @@ import { StatusSeverityService } from '../../../core/services/status-severity.se
     TooltipModule,
     TranslateModule
   ],
-  providers: [MessageService, ConfirmationService],
+  providers: [ConfirmationService],
   templateUrl: './admin-orders.component.html',
   styleUrl: './admin-orders.component.scss'
 })
@@ -70,7 +70,7 @@ export class AdminOrdersComponent implements OnInit {
 
   // Services
   private adminService = inject(AdminService);
-  private messageService = inject(MessageService);
+  private toast = inject(ToastMessageService);
   private confirmationService = inject(ConfirmationService);
   private router = inject(Router);
   private translateService = inject(TranslateService);
@@ -182,17 +182,12 @@ export class AdminOrdersComponent implements OnInit {
         console.error('Error loading orders:', error);
         this.loading = false;
 
-        let errorMessage = this.translateService.instant('admin.orders.load_error');
         if (error.status === 403) {
-          errorMessage = this.translateService.instant('admin.orders.permission_error');
+          this.toast.showPermissionDenied();
           this.router.navigate(['/']);
+        } else {
+          this.toast.showError('admin.orders.load_error');
         }
-
-        this.messageService.add({
-          severity: 'error',
-          summary: this.translateService.instant('common.error'),
-          detail: errorMessage
-        });
 
         this.allOrders = [];
         this.orders = [];
@@ -244,11 +239,7 @@ export class AdminOrdersComponent implements OnInit {
   }
 
   exportOrders() {
-    this.messageService.add({
-      severity: 'info',
-      summary: this.translateService.instant('admin.orders.export'),
-      detail: this.translateService.instant('admin.orders.export_coming_soon')
-    });
+    this.toast.showInfo('admin.orders.export_coming_soon');
   }
 
   openOrderDetails(order: Order) {
@@ -313,13 +304,9 @@ export class AdminOrdersComponent implements OnInit {
 
             this.filterOrders();
 
-            this.messageService.add({
-              severity: 'success',
-              summary: this.translateService.instant('admin.orders.status_updated'),
-              detail: this.translateService.instant('admin.orders.status_update_message', {
-                orderId: orderId,
-                status: this.translateService.instant('admin.orders.status.' + newStatus)
-              })
+            this.toast.showSuccess('admin.orders.status_update_message', {
+              orderId: orderId,
+              status: this.translateService.instant('admin.orders.status.' + newStatus)
             });
 
             if (this.selectedOrder && this.selectedOrder.id === orderId) {
@@ -328,11 +315,7 @@ export class AdminOrdersComponent implements OnInit {
           },
           error: (error) => {
             console.error('Error updating order status:', error);
-            this.messageService.add({
-              severity: 'error',
-              summary: this.translateService.instant('admin.orders.update_failed'),
-              detail: error.error?.detail || this.translateService.instant('admin.orders.update_error')
-            });
+            this.toast.showApiError(error, 'admin.orders.update_error');
           }
         });
       }

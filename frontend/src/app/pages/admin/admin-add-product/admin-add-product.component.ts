@@ -10,7 +10,6 @@ import { TextareaModule } from 'primeng/textarea';
 import { SelectModule } from 'primeng/select';
 import { CheckboxModule } from 'primeng/checkbox';
 import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
 import { CardModule } from 'primeng/card';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
@@ -23,6 +22,7 @@ import { VALIDATION, PRODUCT } from '../../../core/constants/app.constants';
 import { ROUTES } from '../../../core/constants/routes.constants';
 import { UnitsService } from '../../../core/services/units.service';
 import { AdminFormService } from '../../../core/services/admin-form.service';
+import { ToastMessageService } from '../../../core/services/toast-message.service';
 import { ChipModule } from 'primeng/chip';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
@@ -87,7 +87,7 @@ export class AdminAddProductComponent implements OnInit {
   }
 
   private fb = inject(FormBuilder);
-  private messageService = inject(MessageService);
+  private toast = inject(ToastMessageService);
   private productService = inject(ProductService);
   private brandService = inject(BrandService);
   private route = inject(ActivatedRoute);
@@ -157,12 +157,7 @@ export class AdminAddProductComponent implements OnInit {
       error: (error) => {
         console.error('Error loading categories:', error);
         this.categoriesLoading.set(false);
-
-        this.messageService.add({
-          severity: 'error',
-          summary: this.translateService.instant('common.error'),
-          detail: this.translateService.instant('products.filters.error')
-        });
+        this.toast.showError('products.filters.error');
       }
     });
   }
@@ -183,12 +178,7 @@ export class AdminAddProductComponent implements OnInit {
       error: (error) => {
         console.error('Error loading brands:', error);
         this.brandsLoading.set(false);
-
-        this.messageService.add({
-          severity: 'error',
-          summary: this.translateService.instant('common.error'),
-          detail: this.translateService.instant('admin.brands.load_error')
-        });
+        this.toast.showError('admin.brands.load_error');
       }
     });
   }
@@ -244,13 +234,7 @@ export class AdminAddProductComponent implements OnInit {
       error: (error) => {
         console.error('Error loading product:', error);
         this.loading.set(false);
-        
-        this.messageService.add({
-          severity: 'error',
-          summary: this.translateService.instant('common.error'),
-          detail: this.translateService.instant('products.filters.error')
-        });
-        
+        this.toast.showError('products.filters.error');
         this.router.navigate([ROUTES.ADMIN.PRODUCTS]);
       }
     });

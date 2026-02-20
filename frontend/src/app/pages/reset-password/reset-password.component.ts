@@ -6,12 +6,12 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { finalize } from 'rxjs';
 
 import { AuthService } from '../../services/auth.service';
 import { BackButtonComponent } from '../../shared/components/back-button/back-button.component';
+import { ToastMessageService } from '../../core/services/toast-message.service';
 
 @Component({
   selector: 'app-reset-password',
@@ -25,8 +25,7 @@ import { BackButtonComponent } from '../../shared/components/back-button/back-bu
     TranslateModule,
     BackButtonComponent
   ],
-  providers: [MessageService],
-  templateUrl: './reset-password.component.html',
+    templateUrl: './reset-password.component.html',
   styleUrl: './reset-password.component.scss'
 })
 export class ResetPasswordComponent implements OnInit {
@@ -39,7 +38,7 @@ export class ResetPasswordComponent implements OnInit {
   private authService = inject(AuthService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
-  private messageService = inject(MessageService);
+  private toast = inject(ToastMessageService);
   private translateService = inject(TranslateService);
   private elementRef = inject(ElementRef);
 
@@ -80,22 +79,14 @@ export class ResetPasswordComponent implements OnInit {
       )
       .subscribe({
         next: () => {
-          this.messageService.add({
-            severity: 'success',
-            summary: this.translateService.instant('common.success'),
-            detail: this.translateService.instant('auth.password_reset_success')
-          });
+          this.toast.showSuccess('auth.password_reset_success');
 
           setTimeout(() => {
             this.router.navigate(['/login']);
           }, 2000);
         },
         error: (error) => {
-          this.messageService.add({
-            severity: 'error',
-            summary: this.translateService.instant('common.error'),
-            detail: error.error?.detail || this.translateService.instant('auth.password_reset_failed')
-          });
+          this.toast.showApiError(error, 'auth.password_reset_failed');
         }
       });
   }

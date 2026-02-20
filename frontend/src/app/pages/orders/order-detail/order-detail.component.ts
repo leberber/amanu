@@ -6,7 +6,6 @@ import { switchMap, catchError, map } from 'rxjs/operators';
 import { of, Subscription, forkJoin } from 'rxjs';
 
 import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
 import { TimelineModule } from 'primeng/timeline';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
@@ -18,6 +17,7 @@ import { UnitsService } from '../../../core/services/units.service';
 import { DateService } from '../../../core/services/date.service';
 import { Order, OrderItem } from '../../../models/order.model';
 import { StatusSeverityService } from '../../../core/services/status-severity.service';
+import { ToastMessageService } from '../../../core/services/toast-message.service';
 import { BackButtonComponent } from '../../../shared/components/back-button/back-button.component';
 import { ImageLightboxComponent } from '../../../shared/components/image-lightbox/image-lightbox.component';
 
@@ -40,7 +40,6 @@ interface OrderStatus {
     BackButtonComponent,
     ImageLightboxComponent
   ],
-  providers: [MessageService],
   templateUrl: './order-detail.component.html',
   styleUrl: './order-detail.component.scss'
 })
@@ -51,7 +50,7 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
   private orderService = inject(OrderService);
   private productService = inject(ProductService); // 🆕 ADD THIS
   private translationService = inject(TranslationService); // 🆕 ADD THIS
-  private messageService = inject(MessageService);
+  private toast = inject(ToastMessageService);
   private translateService = inject(TranslateService);
   private currencyService = inject(CurrencyService);
   private unitsService = inject(UnitsService);
@@ -76,12 +75,7 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
     // Check for success parameter
     this.route.queryParams.subscribe(params => {
       if (params['success'] === 'true') {
-        this.messageService.add({
-          severity: 'success',
-          summary: this.translateService.instant('orders.detail.order_placed_success'),
-          detail: this.translateService.instant('orders.detail.order_placed_success_message'),
-          life: 5000
-        });
+        this.toast.showSuccess('orders.detail.order_placed_success_message');
       }
     });
     
@@ -109,11 +103,7 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
           catchError(error => {
             this.error.set(true);
             this.loading.set(false);
-            this.messageService.add({
-              severity: 'error',
-              summary: this.translateService.instant('orders.detail.load_error_title'),
-              detail: this.translateService.instant('orders.detail.load_error_message')
-            });
+            this.toast.showError('orders.detail.load_error_message');
             return of(null);
           })
         );
@@ -263,21 +253,11 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
       next: (updatedOrder) => {
         this.order.set(updatedOrder);
         this.generateOrderStatusTimeline(updatedOrder);
-        
-        this.messageService.add({
-          severity: 'success',
-          summary: this.translateService.instant('orders.detail.order_cancelled_success'),
-          detail: this.translateService.instant('orders.detail.order_cancelled_success_message')
-        });
+        this.toast.showSuccess('orders.detail.order_cancelled_success_message');
       },
       error: (error) => {
         console.error('Error cancelling order:', error);
-        
-        this.messageService.add({
-          severity: 'error',
-          summary: this.translateService.instant('orders.detail.cancel_error_title'),
-          detail: this.translateService.instant('orders.detail.cancel_error_message')
-        });
+        this.toast.showApiError(error, 'orders.detail.cancel_error_message');
       }
     });
   }
