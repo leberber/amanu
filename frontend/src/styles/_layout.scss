@@ -96,13 +96,9 @@
 .container--content { max-width: var(--content-max-width); }
 
 // Sidebar layout helpers
-.with-sidebar {
-  padding-inline-start: var(--sidebar-width);
-}
-
-.with-sidebar-collapsed {
-  padding-inline-start: var(--sidebar-collapsed-width);
-}
+// Note: .with-sidebar is used as a state class on the container
+// The actual offset is handled by margin on .app-main in app.component.scss
+// Do NOT add padding here - it would double the offset
 
 // Mobile bottom padding for scrollable content
 @media (max-width: 968px) {
@@ -113,4 +109,17 @@
   .bottom-nav {
     z-index: var(--z-fixed) !important;
   }
+}
+
+// ---------------------------------------------------------------------------
+// Responsive Visibility Utilities
+// ---------------------------------------------------------------------------
+// Hide on mobile (< 768px)
+@media (max-width: 767px) {
+  .hidden-mobile { display: none !important; }
+}
+
+// Hide on desktop (>= 768px)
+@media (min-width: 768px) {
+  .hidden-desktop { display: none !important; }
 }

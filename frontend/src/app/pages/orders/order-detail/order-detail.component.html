@@ -17,7 +17,7 @@
     </div>
   }
 
-  <!-- Status badge as action -->
+  <!-- Status badge as action (icon only on mobile, icon + text on desktop) -->
   @if (order()) {
     <div pageActions class="status-badge" [ngClass]="order()?.status || ''">
       <i class="pi"
@@ -28,7 +28,7 @@
            'pi-check-square': order()?.status === 'delivered',
            'pi-times-circle': order()?.status === 'cancelled'
          }"></i>
-      <span class="status-badge__text">{{ getStatusLabel(order()?.status || '') }}</span>
+      <span class="status-badge__text hidden-mobile">{{ getStatusLabel(order()?.status || '') }}</span>
     </div>
   }
 
