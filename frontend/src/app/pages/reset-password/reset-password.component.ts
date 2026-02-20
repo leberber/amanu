@@ -12,6 +12,7 @@ import { finalize } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 import { BackButtonComponent } from '../../shared/components/back-button/back-button.component';
 import { ToastMessageService } from '../../core/services/toast-message.service';
+import { FormBuilderService } from '../../core/services/form-builder.service';
 
 @Component({
   selector: 'app-reset-password',
@@ -113,18 +114,7 @@ export class ResetPasswordComponent implements OnInit {
       password: ['', [Validators.required, Validators.minLength(8)]],
       confirmPassword: ['', [Validators.required]]
     }, {
-      validators: this.passwordMatchValidator
+      validators: FormBuilderService.createPasswordMatchValidator('password', 'confirmPassword')
     });
-  }
-
-  private passwordMatchValidator(control: AbstractControl): { [key: string]: boolean } | null {
-    const password = control.get('password');
-    const confirmPassword = control.get('confirmPassword');
-
-    if (password && confirmPassword && password.value !== confirmPassword.value) {
-      confirmPassword.setErrors({ passwordMismatch: true });
-      return { passwordMismatch: true };
-    }
-    return null;
   }
 }

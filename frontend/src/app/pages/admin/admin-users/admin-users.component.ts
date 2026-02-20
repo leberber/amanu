@@ -13,6 +13,7 @@ import { BaseAdminListComponent } from '../../../shared/base/base-admin-list.com
 import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
 import { InlineEditState } from '../../../shared/utils/inline-edit-state';
 import { ConfirmationDialogService } from '../../../core/services/confirmation-dialog.service';
+import { StatusSeverityService } from '../../../core/services/status-severity.service';
 
 @Component({
   selector: 'app-admin-users',
@@ -48,6 +49,7 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
   private translateService = inject(TranslateService);
   private confirmationService = inject(ConfirmationService);
   private confirmDialog = inject(ConfirmationDialogService);
+  private statusService = inject(StatusSeverityService);
   private destroyRef = inject(DestroyRef);
 
   ngOnInit(): void {
@@ -57,12 +59,7 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
   }
 
   initializeOptions() {
-    // Role options for inline dropdown editing
-    this.roleOptions = [
-      { label: this.translateService.instant('admin.users.roles.customer'), value: 'customer' },
-      { label: this.translateService.instant('admin.users.roles.staff'), value: 'staff' },
-      { label: this.translateService.instant('admin.users.roles.admin'), value: 'admin' }
-    ];
+    this.roleOptions = this.statusService.getRoleOptions();
   }
 
   // ===== DATA LOADING =====

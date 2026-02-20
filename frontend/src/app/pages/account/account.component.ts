@@ -20,6 +20,7 @@ import { User } from '../../models/user.model';
 import { DateService } from '../../core/services/date.service';
 import { ValidationMessagesService } from '../../core/services/validation-messages.service';
 import { VALIDATION } from '../../core/constants/app.constants';
+import { FormBuilderService } from '../../core/services/form-builder.service';
 import { PhoneFormatDirective } from '../../directives/phone-format.directive';
 import { BackButtonComponent } from '../../shared/components/back-button/back-button.component';
 import { ToastMessageService } from '../../core/services/toast-message.service';
@@ -94,20 +95,7 @@ export class AccountComponent implements OnInit {
       current_password: ['', Validators.required],
       new_password: ['', [Validators.required, Validators.minLength(VALIDATION.MIN_PASSWORD_LENGTH)]],
       confirm_password: ['', Validators.required]
-    }, { validators: this.passwordMatchValidator });
-  }
-  
-  private passwordMatchValidator(form: FormGroup) {
-    const newPassword = form.get('new_password');
-    const confirmPassword = form.get('confirm_password');
-    
-    if (newPassword && confirmPassword && newPassword.value !== confirmPassword.value) {
-      confirmPassword.setErrors({ passwordMismatch: true });
-    } else if (confirmPassword) {
-      confirmPassword.setErrors(null);
-    }
-    
-    return null;
+    }, { validators: FormBuilderService.createPasswordMatchValidator('new_password', 'confirm_password') });
   }
   
   private loadUserData(): void {

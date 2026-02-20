@@ -1,4 +1,6 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
+import { USER_ROLES } from '../constants/app.constants';
 
 /**
  * Service to centralize severity mappings for roles and statuses
@@ -8,7 +10,26 @@ import { Injectable } from '@angular/core';
   providedIn: 'root'
 })
 export class StatusSeverityService {
-  
+  private translateService = inject(TranslateService);
+
+  /**
+   * Get translated role options for dropdowns/selects.
+   * Single source of truth for role options across the app.
+   *
+   * @returns Array of { label: string, value: string } for role selection
+   *
+   * @example
+   * // In component:
+   * roleOptions = this.statusService.getRoleOptions();
+   */
+  getRoleOptions(): { label: string; value: string }[] {
+    return [
+      { label: this.translateService.instant('admin.users.roles.customer'), value: USER_ROLES.CUSTOMER },
+      { label: this.translateService.instant('admin.users.roles.staff'), value: USER_ROLES.STAFF },
+      { label: this.translateService.instant('admin.users.roles.admin'), value: USER_ROLES.ADMIN }
+    ];
+  }
+
   /**
    * Get severity color for user roles
    * @param role - User role (admin, staff, customer)

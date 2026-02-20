@@ -13,6 +13,7 @@ import { AuthService } from '../../services/auth.service';
 import { UserRole } from '../../models/user.model';
 import { MapPickerComponent, LocationData } from '../../shared/components/map-picker/map-picker.component';
 import { VALIDATION } from '../../core/constants/app.constants';
+import { FormBuilderService } from '../../core/services/form-builder.service';
 import { PhoneFormatDirective } from '../../directives/phone-format.directive';
 import { LanguageSelectorComponent } from '../../components/language-selector/language-selector.component';
 import { ToastMessageService } from '../../core/services/toast-message.service';
@@ -98,7 +99,7 @@ export class RegisterComponent implements OnInit {
     this.passwordForm = this.fb.group({
       password: ['', [Validators.required, Validators.minLength(VALIDATION.MIN_PASSWORD_LENGTH)]],
       confirmPassword: ['', [Validators.required]]
-    }, { validators: this.passwordMatchValidator });
+    }, { validators: FormBuilderService.createPasswordMatchValidator('password', 'confirmPassword') });
 
     // Step 4: Store Details (after map)
     this.storeDetailsForm = this.fb.group({
@@ -187,16 +188,6 @@ export class RegisterComponent implements OnInit {
     // Handled by valueChanges subscription
   }
 
-  // Custom validator for password match
-  passwordMatchValidator(form: FormGroup) {
-    const password = form.get('password')?.value;
-    const confirmPassword = form.get('confirmPassword')?.value;
-    if (password !== confirmPassword) {
-      form.get('confirmPassword')?.setErrors({ mismatch: true });
-      return { mismatch: true };
-    }
-    return null;
-  }
 
   onLocationSelected(location: LocationData) {
     this.locationData = location;

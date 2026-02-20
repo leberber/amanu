@@ -20,6 +20,7 @@ import { UserManage } from '../../../models/admin.model';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
 import { VALIDATION } from '../../../core/constants/app.constants';
 import { ROUTES } from '../../../core/constants/routes.constants';
+import { StatusSeverityService } from '../../../core/services/status-severity.service';
 import { MapPickerComponent, LocationData } from '../../../shared/components/map-picker/map-picker.component';
 
 @Component({
@@ -67,6 +68,7 @@ export class AdminEditUserComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private translateService = inject(TranslateService);
+  private statusService = inject(StatusSeverityService);
   private destroyRef = inject(DestroyRef);
 
   ngOnInit() {
@@ -100,11 +102,7 @@ export class AdminEditUserComponent implements OnInit {
   }
 
   private loadRoleOptions() {
-    this.roleOptions.set([
-      { label: this.translateService.instant('admin.users.roles.customer'), value: 'customer' },
-      { label: this.translateService.instant('admin.users.roles.staff'), value: 'staff' },
-      { label: this.translateService.instant('admin.users.roles.admin'), value: 'admin' }
-    ]);
+    this.roleOptions.set(this.statusService.getRoleOptions());
   }
 
   private loadStatusOptions() {

@@ -33,19 +33,19 @@ export class FormBuilderService {
     });
 
     if (options?.includePassword) {
-      form.addControl('password', this.fb.control('', 
-        requiredFields.includes('password') 
-          ? [Validators.required, Validators.minLength(VALIDATION.PASSWORD_MIN_LENGTH)]
-          : [Validators.minLength(VALIDATION.PASSWORD_MIN_LENGTH)]
+      (form as any).addControl('password', this.fb.control('',
+        requiredFields.includes('password')
+          ? [Validators.required, Validators.minLength(VALIDATION.MIN_PASSWORD_LENGTH)]
+          : [Validators.minLength(VALIDATION.MIN_PASSWORD_LENGTH)]
       ));
     }
 
     if (options?.includeRole) {
-      form.addControl('role', this.fb.control('customer'));
+      (form as any).addControl('role', this.fb.control('customer'));
     }
 
     if (options?.includeActive) {
-      form.addControl('is_active', this.fb.control(true));
+      (form as any).addControl('is_active', this.fb.control(true));
     }
 
     return form;
@@ -132,7 +132,7 @@ export class FormBuilderService {
   createPasswordForm(): FormGroup {
     return this.fb.group({
       currentPassword: ['', Validators.required],
-      newPassword: ['', [Validators.required, Validators.minLength(VALIDATION.PASSWORD_MIN_LENGTH)]],
+      newPassword: ['', [Validators.required, Validators.minLength(VALIDATION.MIN_PASSWORD_LENGTH)]],
       confirmPassword: ['', Validators.required]
     }, { validators: this.passwordMatchValidator });
   }
@@ -169,28 +169,51 @@ export class FormBuilderService {
   }
 
   /**
-   * Validator to check if passwords match
-   * @param control - Abstract control (form group)
-   * @returns Validation errors or null
+   * Validator to check if passwords match (internal use)
    */
   private passwordMatchValidator(control: AbstractControl): ValidationErrors | null {
-    const newPassword = control.get('newPassword');
-    const confirmPassword = control.get('confirmPassword');
+    return FormBuilderService.createPasswordMatchValidator('newPassword', 'confirmPassword')(control);
+  }
 
-    if (!newPassword || !confirmPassword) {
-      return null;
-    }
+  /**
+   * Create a password match validator with configurable field names.
+   * Use this static method to create validators for any password/confirm password field pair.
+   *
+   * @param passwordField - Name of the password field
+   * @param confirmField - Name of the confirm password field
+   * @returns Validator function
+   *
+   * @example
+   * // In component:
+   * this.form = this.fb.group({
+   *   password: ['', Validators.required],
+   *   confirmPassword: ['', Validators.required]
+   * }, { validators: FormBuilderService.createPasswordMatchValidator('password', 'confirmPassword') });
+   */
+  static createPasswordMatchValidator(
+    passwordField: string,
+    confirmField: string
+  ): (control: AbstractControl) => ValidationErrors | null {
+    return (control: AbstractControl): ValidationErrors | null => {
+      const password = control.get(passwordField);
+      const confirmPassword = control.get(confirmField);
 
-    if (confirmPassword.errors && !confirmPassword.errors['passwordMismatch']) {
-      return null;
-    }
+      if (!password || !confirmPassword) {
+        return null;
+      }
 
-    if (newPassword.value !== confirmPassword.value) {
-      confirmPassword.setErrors({ passwordMismatch: true });
-      return { passwordMismatch: true };
-    } else {
-      confirmPassword.setErrors(null);
-      return null;
-    }
+      // Don't override other errors
+      if (confirmPassword.errors && !confirmPassword.errors['passwordMismatch']) {
+        return null;
+      }
+
+      if (password.value !== confirmPassword.value) {
+        confirmPassword.setErrors({ passwordMismatch: true });
+        return { passwordMismatch: true };
+      } else {
+        confirmPassword.setErrors(null);
+        return null;
+      }
+    };
   }
 }

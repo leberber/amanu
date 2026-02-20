@@ -10,6 +10,7 @@ import { ButtonModule } from 'primeng/button';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { onLanguageChange } from '../../../core/utils/language-change.util';
 import { ValidationMessagesService } from '../../../core/services/validation-messages.service';
+import { StatusSeverityService } from '../../../core/services/status-severity.service';
 import { VALIDATION } from '../../../core/constants/app.constants';
 
 export interface UserFormData {
@@ -74,6 +75,7 @@ export class UserFormComponent implements OnInit, OnChanges {
   private fb = inject(FormBuilder);
   private translateService = inject(TranslateService);
   private formValidation = inject(ValidationMessagesService);
+  private statusService = inject(StatusSeverityService);
   private destroyRef = inject(DestroyRef);
   
   ngOnInit(): void {
@@ -153,11 +155,7 @@ export class UserFormComponent implements OnInit, OnChanges {
   }
   
   private initializeRoleOptions(): void {
-    this.roleOptions = [
-      { label: this.translateService.instant('admin.users.roles.customer'), value: 'customer' },
-      { label: this.translateService.instant('admin.users.roles.staff'), value: 'staff' },
-      { label: this.translateService.instant('admin.users.roles.admin'), value: 'admin' }
-    ];
+    this.roleOptions = this.statusService.getRoleOptions();
   }
   
   onSubmit(): void {
