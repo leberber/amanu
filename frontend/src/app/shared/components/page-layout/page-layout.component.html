@@ -3,23 +3,28 @@
 
   <!-- Top Bar - Back button and page title -->
   <header class="page-topbar">
-    @if (showBackButton()) {
-      <app-back-button
-        [route]="backRoute()"
-        [showLabel]="false"
-        [circular]="false"
-        class="page-topbar__back">
-      </app-back-button>
-    }
+    <!-- Left: Back button -->
+    <div class="page-topbar__left">
+      @if (showBackButton()) {
+        <app-back-button
+          [route]="backRoute()"
+          [showLabel]="false"
+          [circular]="true"
+          class="page-topbar__back">
+        </app-back-button>
+      }
+    </div>
 
-    <!-- Custom header content OR simple title -->
-    <ng-content select="[pageHeader]"></ng-content>
-    @if (title()) {
-      <h1 class="page-topbar__title">{{ title() | translate }}</h1>
-    }
+    <!-- Center: Title (absolutely centered) -->
+    <div class="page-topbar__center">
+      <ng-content select="[pageHeader]"></ng-content>
+      @if (title()) {
+        <h1 class="page-topbar__title">{{ title() | translate }}</h1>
+      }
+    </div>
 
-    <!-- Right side actions slot -->
-    <div class="page-topbar__actions">
+    <!-- Right: Actions -->
+    <div class="page-topbar__right">
       <ng-content select="[pageActions]"></ng-content>
     </div>
   </header>

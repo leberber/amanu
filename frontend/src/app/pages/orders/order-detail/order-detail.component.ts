@@ -20,7 +20,7 @@ import { DateService } from '../../../core/services/date.service';
 import { Order, OrderItem } from '../../../models/order.model';
 import { StatusSeverityService } from '../../../core/services/status-severity.service';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
-import { BackButtonComponent } from '../../../shared/components/back-button/back-button.component';
+import { PageLayoutComponent } from '../../../shared/components/page-layout/page-layout.component';
 import { ImageLightboxComponent } from '../../../shared/components/image-lightbox/image-lightbox.component';
 import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
 import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
@@ -41,7 +41,7 @@ interface OrderStatus {
     ToastModule,
     TimelineModule,
     TranslateModule,
-    BackButtonComponent,
+    PageLayoutComponent,
     ImageLightboxComponent,
     CurrencyPipe,
     DateFormatPipe

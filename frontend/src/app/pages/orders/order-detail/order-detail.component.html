@@ -1,64 +1,72 @@
 <!-- src/app/pages/orders/order-detail/order-detail.component.html -->
-<div class="order-detail-page">
-  <p-toast></p-toast>
+<app-page-layout
+  [title]="order() ? '' : 'orders.detail.title'"
+  [showBackButton]="true"
+  backRoute="/orders">
+
+  <!-- Custom header when order is loaded -->
+  @if (order()) {
+    <div pageHeader class="order-detail-header">
+      <div class="order-detail-header__icon">
+        <i class="pi pi-shopping-bag"></i>
+      </div>
+      <div class="order-detail-header__info">
+        <span class="order-detail-header__title">{{ 'orders.table.order_number' | translate }}{{ order()?.id }}</span>
+        <span class="order-detail-header__date">{{ order()?.created_at ? (order()!.created_at | appDate) : '-' }}</span>
+      </div>
+    </div>
+  }
+
+  <!-- Status badge as action -->
+  @if (order()) {
+    <div pageActions class="status-badge" [ngClass]="order()?.status || ''">
+      <i class="pi"
+         [ngClass]="{
+           'pi-clock': order()?.status === 'pending',
+           'pi-check-circle': order()?.status === 'confirmed',
+           'pi-truck': order()?.status === 'shipped',
+           'pi-check-square': order()?.status === 'delivered',
+           'pi-times-circle': order()?.status === 'cancelled'
+         }"></i>
+      <span class="status-badge__text">{{ getStatusLabel(order()?.status || '') }}</span>
+    </div>
+  }
+
   <!-- Main Content -->
-  <div class="order-detail-container">
-    <!-- Loading state -->
-    @if (loading()) {
-      <div class="glass-card">
-        <div class="loading-container">
-          <div class="loading-spinner">
-            <i class="pi pi-spin pi-spinner"></i>
-          </div>
-          <p class="loading-text">{{ 'orders.detail.loading_order' | translate }}</p>
-        </div>
-      </div>
-    }
-    <!-- Error state -->
-    @else if (error()) {
-      <div class="glass-card">
-        <div class="error-container">
-          <div class="error-icon">
-            <i class="pi pi-exclamation-circle"></i>
-          </div>
-          <h2>{{ 'orders.detail.failed_to_load_order' | translate }}</h2>
-          <p>{{ 'orders.detail.load_error_message' | translate }}</p>
-          <button class="error-btn" routerLink="/orders">
-            <i class="pi pi-arrow-left"></i>
-            {{ 'orders.detail.go_to_orders' | translate }}
-          </button>
-        </div>
-      </div>
-    }
-    <!-- Order details -->
-    @else if (order()) {
-      <!-- Back button (fixed circular) -->
-      <app-back-button route="/orders" [circular]="true" [fixed]="true"></app-back-button>
+  <p-toast></p-toast>
 
-      <!-- Order Header -->
-      <div class="order-header">
-        <div class="order-title">
-          <div class="order-icon">
-            <i class="pi pi-shopping-bag"></i>
-          </div>
-          <div class="order-info">
-            <h1>{{ 'orders.table.order_number' | translate }}{{order()?.id}}</h1>
-            <div class="order-date">{{ order()?.created_at ? (order()!.created_at | appDate) : '-' }}</div>
-          </div>
+  <!-- Loading state -->
+  @if (loading()) {
+    <div class="glass-card">
+      <div class="loading-container">
+        <div class="loading-spinner">
+          <i class="pi pi-spin pi-spinner"></i>
         </div>
-        <div class="status-badge" [ngClass]="order()?.status || ''">
-          <i class="pi"
-             [ngClass]="{
-               'pi-clock': order()?.status === 'pending',
-               'pi-check-circle': order()?.status === 'confirmed',
-               'pi-truck': order()?.status === 'shipped',
-               'pi-check-square': order()?.status === 'delivered',
-               'pi-times-circle': order()?.status === 'cancelled'
-             }"></i>
-          {{ getStatusLabel(order()?.status || '') }}
-        </div>
+        <p class="loading-text">{{ 'orders.detail.loading_order' | translate }}</p>
       </div>
+    </div>
+  }
 
+  <!-- Error state -->
+  @else if (error()) {
+    <div class="glass-card">
+      <div class="error-container">
+        <div class="error-icon">
+          <i class="pi pi-exclamation-circle"></i>
+        </div>
+        <h2>{{ 'orders.detail.failed_to_load_order' | translate }}</h2>
+        <p>{{ 'orders.detail.load_error_message' | translate }}</p>
+        <button class="error-btn" routerLink="/orders">
+          <i class="pi pi-arrow-left"></i>
+          {{ 'orders.detail.go_to_orders' | translate }}
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Order details -->
+  @else if (order()) {
+    <div class="order-detail-content">
       <!-- Main Grid -->
       <div class="order-grid">
         <!-- Order Items -->
@@ -80,15 +88,15 @@
                       <i class="pi pi-box"></i>
                     }
                   </div>
-                  <span class="item-qty">{{item.quantity}}x</span>
-                  <span class="item-name">{{item.product_name}}</span>
-                  <span class="item-total">{{item.unit_price * item.quantity | appCurrency}}</span>
+                  <span class="item-qty">{{ item.quantity }}x</span>
+                  <span class="item-name">{{ item.product_name }}</span>
+                  <span class="item-total">{{ item.unit_price * item.quantity | appCurrency }}</span>
                 </li>
               }
             </ul>
             <div class="order-total">
               <span class="total-label">{{ 'common.total' | translate }}</span>
-              <span class="total-amount">{{totalAmount() | appCurrency}}</span>
+              <span class="total-amount">{{ totalAmount() | appCurrency }}</span>
             </div>
           </div>
         </div>
@@ -108,7 +116,7 @@
                 <p-timeline [value]="orderStatuses()" align="left">
                   <ng-template pTemplate="content" let-status>
                     <div class="timeline-content">
-                      <div class="status-text">{{status.status}}</div>
+                      <div class="status-text">{{ status.status }}</div>
                       <div class="status-date">{{ status.date | appDate }}</div>
                     </div>
                   </ng-template>
@@ -151,8 +159,8 @@
           </div>
         </div>
       </div>
-    }
-  </div>
+    </div>
+  }
 
   <!-- Image Lightbox -->
   <app-image-lightbox
@@ -160,4 +168,5 @@
     altText="Product image"
     (close)="closeImage()">
   </app-image-lightbox>
-</div>
+
+</app-page-layout>

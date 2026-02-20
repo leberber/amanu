@@ -27,7 +27,7 @@
 // =============================================================================
 
 // Height variables
-$topbar-height: 56px;
+$topbar-height: 64px;
 $bottom-nav-height: 70px;
 
 // -----------------------------------------------------------------------------
@@ -55,24 +55,35 @@ $bottom-nav-height: 70px;
 .page-topbar {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  height: $topbar-height;
+  justify-content: space-between;
   min-height: $topbar-height;
-  padding: 0 1rem;
-  padding-top: env(safe-area-inset-top, 0);
+  padding: 0.75rem 1rem;
+  padding-top: calc(0.75rem + env(safe-area-inset-top, 0));
   background: var(--surface-card, white);
   border-bottom: 1px solid var(--surface-border, #e2e8f0);
   position: relative;
   z-index: 10;
 
-  // Back button positioning
-  &__back {
+  // Left section (back button)
+  &__left {
     flex-shrink: 0;
+    z-index: 2;
+    min-width: 40px;
+  }
+
+  // Center section - absolutely positioned for true centering
+  &__center {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    max-width: 60%;
+    text-align: center;
+    z-index: 1;
   }
 
   // Page title
   &__title {
-    flex: 1;
     margin: 0;
     font-size: 1.125rem;
     font-weight: 600;
@@ -82,12 +93,15 @@ $bottom-nav-height: 70px;
     text-overflow: ellipsis;
   }
 
-  // Right-side actions container
-  &__actions {
+  // Right section (actions)
+  &__right {
     display: flex;
     align-items: center;
     gap: 0.5rem;
     flex-shrink: 0;
+    z-index: 2;
+    min-width: 40px;
+    justify-content: flex-end;
   }
 }
 
