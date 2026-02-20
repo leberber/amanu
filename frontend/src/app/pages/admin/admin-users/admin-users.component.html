@@ -149,7 +149,7 @@
                       } @else {
                         <div class="role-edit">
                           <p-select
-                            [(ngModel)]="editingRole"
+                            [(ngModel)]="roleEdit.value"
                             [options]="roleOptions"
                             optionLabel="label"
                             optionValue="value"
@@ -174,11 +174,11 @@
                         <div class="status-edit">
                           <button
                             class="status-toggle"
-                            [class.active]="editingStatus"
-                            [class.inactive]="!editingStatus"
+                            [class.active]="statusEdit.value"
+                            [class.inactive]="!statusEdit.value"
                             (click)="toggleEditingStatus()">
-                            <i [class]="editingStatus ? 'pi pi-check-circle' : 'pi pi-times-circle'"></i>
-                            {{ editingStatus ? ('admin.users.status.active' | translate) : ('admin.users.status.inactive' | translate) }}
+                            <i [class]="statusEdit.value ? 'pi pi-check-circle' : 'pi pi-times-circle'"></i>
+                            {{ statusEdit.value ? ('admin.users.status.active' | translate) : ('admin.users.status.inactive' | translate) }}
                           </button>
                           <button class="save-btn" (click)="saveStatus(user)"><i class="pi pi-check"></i></button>
                           <button class="cancel-btn" (click)="cancelEditStatus()"><i class="pi pi-times"></i></button>

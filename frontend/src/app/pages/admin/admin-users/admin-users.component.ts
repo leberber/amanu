@@ -18,6 +18,7 @@ import { AdminService } from '../../../services/admin.service';
 import { UserManage, UsersResponse } from '../../../models/admin.model';
 import { ROUTES } from '../../../core/constants/routes.constants';
 import { BaseAdminListComponent } from '../../../shared/base/base-admin-list.component';
+import { InlineEditState } from '../../../shared/utils/inline-edit-state';
 
 @Component({
   selector: 'app-admin-users',
@@ -46,13 +47,9 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
   // Role segment filter
   roleFilter: 'all' | 'customer' | 'staff' | 'admin' = 'all';
 
-  // Inline editing state - Role
-  editingRoleUserId: number | null = null;
-  editingRole: string = '';
-
-  // Inline editing state - Status
-  editingStatusUserId: number | null = null;
-  editingStatus: boolean = true;
+  // Inline editing state
+  roleEdit = new InlineEditState<string>('');
+  statusEdit = new InlineEditState<boolean>(true);
 
   // Role options for dropdown
   roleOptions: { label: string; value: string }[] = [];
@@ -215,28 +212,25 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
   // ===== INLINE ROLE EDITING =====
 
   startEditRole(user: UserManage): void {
-    this.cancelEditStatus(); // Cancel any status edit
-    this.editingRoleUserId = user.id;
-    this.editingRole = user.role;
+    this.statusEdit.cancel(); // Cancel any status edit
+    this.roleEdit.start(user.id, user.role);
   }
 
   cancelEditRole(): void {
-    this.editingRoleUserId = null;
-    this.editingRole = '';
+    this.roleEdit.cancel();
   }
 
   isEditingRole(userId: number): boolean {
-    return this.editingRoleUserId === userId;
+    return this.roleEdit.isEditing(userId);
   }
 
   saveRole(user: UserManage): void {
-    if (this.editingRole === user.role) {
-      this.cancelEditRole();
+    if (!this.roleEdit.hasChanged(user.role)) {
+      this.roleEdit.cancel();
       return;
     }
 
-    const previousRole = user.role;
-    const newRole = this.editingRole;
+    const newRole = this.roleEdit.value;
 
     this.adminService.updateUser(user.id, { role: newRole }).subscribe({
       next: () => {
@@ -252,7 +246,7 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
         }
 
         this.toast.showSuccess('admin.users.messages.role_updated', { name: user.full_name });
-        this.cancelEditRole();
+        this.roleEdit.cancel();
       },
       error: (error) => {
         console.error('Error updating role:', error);
@@ -268,31 +262,29 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
   // ===== INLINE STATUS EDITING =====
 
   startEditStatus(user: UserManage): void {
-    this.cancelEditRole(); // Cancel any role edit
-    this.editingStatusUserId = user.id;
-    this.editingStatus = user.is_active;
+    this.roleEdit.cancel(); // Cancel any role edit
+    this.statusEdit.start(user.id, user.is_active);
   }
 
   cancelEditStatus(): void {
-    this.editingStatusUserId = null;
-    this.editingStatus = true;
+    this.statusEdit.cancel();
   }
 
   isEditingStatus(userId: number): boolean {
-    return this.editingStatusUserId === userId;
+    return this.statusEdit.isEditing(userId);
   }
 
   toggleEditingStatus(): void {
-    this.editingStatus = !this.editingStatus;
+    this.statusEdit.value = !this.statusEdit.value;
   }
 
   saveStatus(user: UserManage): void {
-    if (this.editingStatus === user.is_active) {
-      this.cancelEditStatus();
+    if (!this.statusEdit.hasChanged(user.is_active)) {
+      this.statusEdit.cancel();
       return;
     }
 
-    const newStatus = this.editingStatus;
+    const newStatus = this.statusEdit.value;
 
     this.adminService.updateUser(user.id, { is_active: newStatus }).subscribe({
       next: () => {
@@ -308,7 +300,7 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
         }
 
         this.toast.showSuccess('admin.users.messages.status_updated', { name: user.full_name });
-        this.cancelEditStatus();
+        this.statusEdit.cancel();
       },
       error: (error) => {
         console.error('Error updating status:', error);

@@ -11,9 +11,10 @@ Track progress on DRY violations and code quality fixes.
   - All 6 admin list components now extend this base class
   - Consolidated: `loading`, `searchQuery`, `first`, `rows`, `onPageChange()`, `onSearchInput()`, `formatDate()`
 
-- [ ] **2. Extract Inline Editing Logic**
-  - Role/Status/Price/Stock editing repeated with identical patterns
-  - Files: `admin-users.ts`, `admin-orders.ts`, `admin-products.ts`
+- [x] **2. Extract Inline Editing Logic** ✅
+  - Created `InlineEditState<T>` utility in `shared/utils/inline-edit-state.ts`
+  - Refactored `admin-products.ts` (price, stock editing) and `admin-users.ts` (role, status editing)
+  - Note: `admin-orders.ts` uses a different pattern (status expansion buttons) - not applicable
 
 - [x] **3. Use ToastMessageService Consistently** ✅
   - All 24 components now use `ToastMessageService` instead of direct `MessageService.add()` calls
@@ -93,11 +94,11 @@ Track progress on DRY violations and code quality fixes.
 
 | Priority | Total | Done | Remaining |
 |----------|-------|------|-----------|
-| Critical | 4 | 2 | 2 |
+| Critical | 4 | 3 | 1 |
 | High | 4 | 1 | 3 |
 | Medium | 7 | 0 | 7 |
 | Low | 5 | 0 | 5 |
-| **Total** | **20** | **3** | **17** |
+| **Total** | **20** | **4** | **16** |
 
 ---
 

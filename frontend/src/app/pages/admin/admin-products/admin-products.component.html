@@ -228,7 +228,7 @@
                     <div *ngIf="isEditingPrice(product.id)" class="price-edit">
                       <input
                         type="number"
-                        [(ngModel)]="editingPrice"
+                        [(ngModel)]="priceEdit.value"
                         (keydown.enter)="savePrice(product)"
                         (keydown.escape)="cancelEditPrice()"
                         autofocus>
@@ -248,7 +248,7 @@
                     <div *ngIf="isEditingStock(product.id)" class="stock-edit">
                       <input
                         type="number"
-                        [(ngModel)]="editingStock"
+                        [(ngModel)]="stockEdit.value"
                         (keydown.enter)="saveStock(product)"
                         (keydown.escape)="cancelEditStock()"
                         min="0"
