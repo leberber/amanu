@@ -1,0 +1,33 @@
+// =============================================================================
+// FONTS
+// =============================================================================
+// Font face definitions and font family variables.
+// =============================================================================
+
+:root {
+  // Font families
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-family-mono: 'Courier New', monospace;
+}
+
+// PrimeIcons font face
+@font-face {
+  font-family: 'primeicons';
+  font-style: normal;
+  font-weight: normal;
+  src: url('/assets/fonts/primeicons.eot');
+  src: url('/assets/fonts/primeicons.eot?#iefix') format('embedded-opentype'),
+       url('/assets/fonts/primeicons.ttf') format('truetype'),
+       url('/assets/fonts/primeicons.woff') format('woff'),
+       url('/assets/fonts/primeicons.woff2') format('woff2'),
+       url('/assets/fonts/primeicons.svg?#primeicons') format('svg');
+}
+
+// Base font application
+html, body {
+  font-family: var(--font-family);
+}
+
+code, pre {
+  font-family: var(--font-family-mono);
+}

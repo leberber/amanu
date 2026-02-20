@@ -1,403 +1,69 @@
-/* You can add global styles to this file, and also import other style files */
+// =============================================================================
+// GLOBAL STYLES
+// =============================================================================
+// Main entry point for all styles.
+// Import order: tokens -> libraries -> components -> overrides
+// =============================================================================
+
+// ---------------------------------------------------------------------------
+// 1. Design Tokens (must come first)
+// ---------------------------------------------------------------------------
+@use './styles/fonts' as *;
+@use './styles/colors' as *;
+@use './styles/typography' as *;
+@use './styles/spacing' as *;
+@use './styles/effects' as *;
+@use './styles/layout' as *;
+
+// ---------------------------------------------------------------------------
+// 2. External Libraries
+// ---------------------------------------------------------------------------
 @use 'primeflex/primeflex' as *;
-@use './styles/theme' as *;
-@use './styles/shared-components' as *;
 
-/* Import CSS files */
-@import './styles/theme.css';
-@import './styles/spacing.css';
-@import './styles/utilities.css';
-@import './styles/utilities.css';
+// ---------------------------------------------------------------------------
+// 3. Components
+// ---------------------------------------------------------------------------
+@use './styles/components' as *;
 
-@font-face {
-  font-family: 'primeicons';
-  font-style: normal;
-  font-weight: normal;
-  src: url('/assets/fonts/primeicons.eot');
-  src: url('/assets/fonts/primeicons.eot?#iefix') format('embedded-opentype'),
-       url('/assets/fonts/primeicons.ttf') format('truetype'),
-       url('/assets/fonts/primeicons.woff') format('woff'),
-       url('/assets/fonts/primeicons.woff2') format('woff2'),
-       url('/assets/fonts/primeicons.svg?#primeicons') format('svg');
+// ---------------------------------------------------------------------------
+// 4. CSS Imports
+// ---------------------------------------------------------------------------
+@import 'primeicons/primeicons.css';
+
+// ---------------------------------------------------------------------------
+// 5. Base Resets
+// ---------------------------------------------------------------------------
+html, body {
+  padding: 0 !important;
+  margin: 0 !important;
 }
 
-/* Fix for PrimeNG select dropdown text truncation in cart */
+a {
+  color: inherit !important;
+  text-decoration: none !important;
+  &:hover, &:visited, &:active { color: inherit !important; }
+}
+
+.grid { margin: 0 !important; }
+
+// ---------------------------------------------------------------------------
+// 6. PrimeNG Overrides
+// ---------------------------------------------------------------------------
+:root {
+  --p-datatable-header-cell-selected-background: transparent !important;
+  --p-datatable-header-cell-selected-color: inherit !important;
+}
+
+.p-timeline-event-opposite { flex: 0 !important; }
+.p-drawer { border: none !important; }
+
 .cart-quantity-selector .p-select .p-select-label {
   text-overflow: clip !important;
   overflow: visible !important;
   min-width: auto !important;
 }
 
-
-
-
-@import 'primeicons/primeicons.css';
-// @import "tailwindcss";
-
-
-
-html, body{
-    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-      Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
-      "Segoe UI Symbol";
-
-      padding: 0 !important; margin: 0 !important;
-}
-
-:root {
-  /* Layout dimensions */
-  --header-height: 0;
-  --filters-header-height: 9vh;
-  --bottom-nav-height: 64px;
-  --sidebar-width: 300px;
-  --page-top-bar-height: 56px;
-  --page-height: calc(100vh - var(--bottom-nav-height));
-
-  /* PrimeNG overrides */
-  --p-datatable-header-cell-selected-background: transparent !important;
-  --p-datatable-header-cell-selected-color: inherit !important;
-
-  /* Brand colors */
-  --primary-color: #2E6CB7;
-  --primary-700: #0F3C82;
-  --primary-rgb: 46, 108, 183;
-  --primary-gradient: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-700) 100%);
-
-  /* Surface colors as RGB for transparency support */
-  --surface-card-rgb: 255, 255, 255;
-  --surface-ground-rgb: 249, 250, 251;
-}
-
-/* Dark mode surface colors */
-.my-app-dark {
-  --surface-card-rgb: 30, 30, 30;
-  --surface-ground-rgb: 18, 18, 18;
-}
-
-/* Hide component-level blobs - only app-level decorative-blob should be visible */
-.bg-decoration,
-.blob,
-.lightbox-bg {
-  display: none !important;
-}
-
-@media (max-width: 767px) {
-  :root {
-    --header-height: 0px;
-    --page-height: calc(100vh - var(--bottom-nav-height));
-  }
-}
-
-.p-timeline-event-opposite {
-  flex: 0 !important;
-}
-
-// Main content area
-.main-content {
-  margin-top: var(--header-height);
-  min-height: var(--page-height);
-}
-
-// Clean utility classes
-.h-screen {
-  height: 100vh;
-}
-
-.pt-4rem {
-  padding-top: var(--header-height);
-}
-
-.pt-header-height {
-  padding-top: var(--header-height);
-}
-
-.object-cover {
-  object-fit: cover;
-}
-
-// Text and hover utilities
-.text-color {
-  color: var(--text-color);
-}
-
-.hover\:text-primary:hover {
-  color: var(--primary-color);
-}
-
-.hover\:shadow-4:hover {
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-}
-
-.mobile-menu-btn .pi {
-  font-size: 1.5rem !important;
-}
-
-.icon-large .pi {
-  font-size: 1.2rem !important;
-}
-
-.filtes-fixed{
-position: fixed; top:var(--header-height) ; z-index: 200; left:20%;right:0;
-}
-
-
-.header-height{height: var(--header-height) !important};
-.header-height-margin{ margin-top:  var(--header-height) };
-// .content-height {
-//   padding: 0 !important;
-//   height: calc(100vh - var(--header-height) ) !important; 
-//   overflow: hidden;
-
-// }
-
-.p-error{
-  color:rgb(240, 52, 52);
-}
-
-@media (min-width: 768px) and (max-width: 968px) {
-  :root {
-    --header-height: 6vh !important;
-  }
-}
-
-@media (max-width: 767px) {
-  :root {
-    --header-height: 0px !important;
-  }
-
-  .filtes-fixed{
-position: fixed; top:var(--header-height) ; z-index: 200; left:0;right:0;
-}
-
-.content-height {
-  padding: 0 !important;
-  height: 100%; 
-  overflow: scroll;
-
-}
-//   // .h-height{top: 2rem !important}
-}
-
-  /* Custom heights for product cards */
-   .h-200 {
-    height: 200px;
-  }
-  
-.h-100 {
-    height: 100px;
-
-  }
-  
-.min-h-20 {
-    min-height: 5rem;
-  }
-  
-  .obj-cover {
-    object-fit: cover;
-  }
-
-// :root {
-//   // Layout dimensions
-//   --header-height: 85px;
-//   --app-spacing: 15px;
-//   --font-family:"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-//     Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
-//     "Segoe UI Symbol";
-  
-//   // Color & appearance
-//   --backdrop: rgba(253, 253, 253, 0.8);
-//   --language-input-border: none;
-  
-//   // PrimeNG overrides
-//   --p-datatable-header-cell-selected-background: transparent !important;
-//   --p-datatable-header-cell-selected-color: inherit !important;
-// }
-
-// Dark Theme
-:root.my-app-dark {
-  // Color overrides for dark mode
-  --p-blue-50: #080911;
-  --p-green-50: #080911;
-  --p-orange-50: #080911;
-  --bg-blue-200: red;
-  --backdrop: rgba(22, 21, 21, 0.7);
-  --language-input-border: rgb(49, 47, 47) !important;
-}
-
-.grid {
-  margin-right: 0 !important;
-  margin-left: 0 !important;
-  margin-top: 0 !important;
-}
-
-/* Remove default link styling globally */
-a {
-  color: inherit !important;
-  text-decoration: none !important;
-}
-
-a:hover {
-  color: inherit !important;
-}
-
-a:visited {
-  color: inherit !important;
-}
-
-a:active {
-  color: inherit !important;
-}
-
-
-.input-icon {
-  position: absolute;
-  z-index: 1;
-  left: 10px;
-  top: 50%;
-  margin-top: -0.5rem;
-  color: var(--text-color-secondary);
-  
-
-}
-
-/* In your styles.css or global stylesheet */
-:root {
-    --font-family: 'Inter', sans-serif;
-    --font-family-heading: 'Poppins', sans-serif;
-    --font-family-mono: 'Courier New', monospace;
-}
-
-body {
-    font-family: var(--font-family);
-}
-
-h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-family-heading);
-}
-
-code, pre {
-    font-family: var(--font-family-mono);
-}
-
-/* Add this to your existing src/styles.scss file */
-
-// /* RTL Support */
-// [dir="rtl"] {
-//   /* Text alignment */
-//   .text-left { text-align: right !important; }
-//   .text-right { text-align: left !important; }
-  
-//   /* Margins */
-//   .ml-1 { margin-right: 0.25rem !important; margin-left: 0 !important; }
-//   .ml-2 { margin-right: 0.5rem !important; margin-left: 0 !important; }
-//   .ml-3 { margin-right: 0.75rem !important; margin-left: 0 !important; }
-//   .ml-4 { margin-right: 1rem !important; margin-left: 0 !important; }
-//   .ml-auto { margin-right: auto !important; margin-left: 0 !important; }
-  
-//   .mr-1 { margin-left: 0.25rem !important; margin-right: 0 !important; }
-//   .mr-2 { margin-left: 0.5rem !important; margin-right: 0 !important; }
-//   .mr-3 { margin-left: 0.75rem !important; margin-right: 0 !important; }
-//   .mr-4 { margin-left: 1rem !important; margin-right: 0 !important; }
-//   .mr-auto { margin-left: auto !important; margin-right: 0 !important; }
-  
-//   /* Padding */
-//   .pl-1 { padding-right: 0.25rem !important; padding-left: 0 !important; }
-//   .pl-2 { padding-right: 0.5rem !important; padding-left: 0 !important; }
-//   .pl-3 { padding-right: 0.75rem !important; padding-left: 0 !important; }
-//   .pl-4 { padding-right: 1rem !important; padding-left: 0 !important; }
-  
-//   .pr-1 { padding-left: 0.25rem !important; padding-right: 0 !important; }
-//   .pr-2 { padding-left: 0.5rem !important; padding-right: 0 !important; }
-//   .pr-3 { padding-left: 0.75rem !important; padding-right: 0 !important; }
-//   .pr-4 { padding-left: 1rem !important; padding-right: 0 !important; }
-  
-//   /* Border radius */
-//   .border-radius-left { 
-//     border-top-right-radius: var(--border-radius) !important;
-//     border-bottom-right-radius: var(--border-radius) !important;
-//     border-top-left-radius: 0 !important;
-//     border-bottom-left-radius: 0 !important;
-//   }
-  
-//   .border-radius-right { 
-//     border-top-left-radius: var(--border-radius) !important;
-//     border-bottom-left-radius: var(--border-radius) !important;
-//     border-top-right-radius: 0 !important;
-//     border-bottom-right-radius: 0 !important;
-//   }
-// }
-
-// /* PrimeNG RTL Support */
-// [dir="rtl"] {
-//   /* Menu items */
-//   .p-menuitem-link {
-//     text-align: right;
-//   }
-  
-//   /* Input icons */
-//   .input-icon {
-//     left: auto !important;
-//     right: 10px !important;
-//   }
-  
-//   /* Button icons */
-//   .p-button .p-button-icon-left {
-//     margin-right: 0 !important;
-//     margin-left: 0.5rem !important;
-//   }
-  
-//   .p-button .p-button-icon-right {
-//     margin-left: 0 !important;
-//     margin-right: 0.5rem !important;
-//   }
-  
-//   /* Dropdown */
-//   .p-dropdown .p-dropdown-trigger {
-//     right: auto !important;
-//     left: 0 !important;
-//   }
-  
-//   /* Card headers */
-//   .p-card-header {
-//     text-align: right;
-//   }
-  
-//   /* Breadcrumb */
-//   .p-breadcrumb ol li + li::before {
-//     content: "◀" !important;
-//   }
-  
-//   /* Table */
-//   .p-datatable .p-datatable-tbody > tr > td {
-//     text-align: right;
-//   }
-  
-//   .p-datatable .p-datatable-thead > tr > th {
-//     text-align: right;
-//   }
-// }
-
-// /* Language-specific fonts */
-// [lang="ar"] {
-//   font-family: 'Noto Sans Arabic', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  
-//   /* Improve Arabic text rendering */
-//   text-rendering: optimizeLegibility;
-//   -webkit-font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
-//   font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
-// }
-
-// [lang="fr"], [lang="en"] {
-//   font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-//     Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
-//     "Segoe UI Symbol";
-// }
-
-// /* Smooth transitions for direction changes */
-// * {
-//   transition: margin 0.3s ease, padding 0.3s ease;
-// }
-
+// Select dropdown panels
 .p-select-overlay,
 .p-select-panel,
 .language-panel {
@@ -406,171 +72,42 @@ code, pre {
 
   .p-select-list,
   .p-select-items,
-  .p-selectlist-list {
-    background: white !important;
-  }
+  .p-selectlist-list { background: white !important; }
 
   .p-select-option,
   .p-select-item,
   .p-selectlist-option {
     color: #333 !important;
     background: transparent !important;
-
-    * {
-      color: #333 !important;
-    }
-
-    &:hover {
-      background: rgba(46, 108, 183, 0.1) !important;
-    }
+    * { color: #333 !important; }
+    &:hover { background: rgba(46, 108, 183, 0.1) !important; }
 
     &.p-highlight,
     &.p-select-option-selected,
     &.p-focus {
-      background: var(--primary-color, #2E6CB7) !important;
-
-      * {
-        color: white !important;
-      }
+      background: var(--primary-color) !important;
+      * { color: white !important; }
     }
   }
 }
 
+// Button sizes
+.p-button-lg { font-size: 1rem; font-weight: 600; }
 
-// Add this minimal CSS to your src/styles.scss
-
-// Bottom Navigation - Mobile Only
-@media (max-width: 968px) {
-  // Add bottom padding to account for bottom nav
-  .content-height {
-    padding-bottom: 80px !important; // Space for bottom nav
-  }
-}
-
-// Bottom nav z-index (higher than content, lower than dialogs)
-.bottom-nav {
-  z-index: 1000 !important;
-}
-
-
-
-.p-drawer {
-  border: none !important;
-}
-
-
-.button-icon-large {
-  i, .p-button-icon {
-    font-size: 1.5rem !important;
-  }
-}
-
-/* Product List View Improvements */
-.hover\\:shadow-2:hover {
-  box-shadow: 0 5px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-}
-
-.hover\\:shadow-3:hover {
-  box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.15), 0 10px 20px -5px rgba(0, 0, 0, 0.1);
-}
-
-
-.transition-all {
-  transition: all 0.3s ease;
-}
-
-.transition-duration-200 {
-  transition-duration: 200ms;
-}
-
-/* Improve button consistency */
-.p-button-lg {
-  font-size: 1rem;
-  font-weight: 600;
-}
-
-/* Compact button styles */
 .p-button-sm.p-button-rounded {
   width: 2rem !important;
   height: 2rem !important;
   padding: 0 !important;
-  
-  .p-button-icon {
-    font-size: 0.875rem;
-  }
+  .p-button-icon { font-size: 0.875rem; }
 }
 
-/* List view specific styles */
-.product-list-item {
-  .product-image {
-    transition: transform 0.3s ease;
-    
-    &:hover {
-      transform: scale(1.02);
-    }
-  }
-}
+.button-icon-large i,
+.button-icon-large .p-button-icon { font-size: 1.5rem !important; }
 
-/* Utility classes */
-.text-xs {
-  font-size: 0.75rem !important;
-}
-
-.text-sm {
-  font-size: 0.875rem !important;
-}
-
-.text-base {
-  font-size: 1rem !important;
-}
-
-.line-height-2 {
-  line-height: 1.5 !important;
-}
-
-.mr-1 {
-  margin-right: 0.25rem !important;
-}
-
-/* Mobile specific sizes */
-@media (max-width: 480px) {
-  .text-xs {
-    font-size: 0.625rem !important;
-  }
-  
-  .text-sm {
-    font-size: 0.75rem !important;
-  }
-  
-  .text-base {
-    font-size: 0.875rem !important;
-  }
-}
-
-/* Text color utilities */
-.text-green-500 {
-  color: #10b981 !important;
-}
-
-.text-orange-500 {
-  color: #f59e0b !important;
-}
-
-.text-red-500 {
-  color: #ef4444 !important;
-}
-
-.text-blue-500 {
-  color: #3b82f6 !important;
-}
-
-/* ==========================================
-   CUSTOM TOAST STYLES - Modern Startup Style
-   ========================================== */
-
-.p-toast {
-  opacity: 1 !important;
-}
+// ---------------------------------------------------------------------------
+// 7. Toast Styles
+// ---------------------------------------------------------------------------
+.p-toast { opacity: 1 !important; }
 
 .p-toast-message {
   margin: 0 0 0.75rem 0 !important;
@@ -578,20 +115,26 @@ code, pre {
   overflow: hidden !important;
   background: #fff !important;
   border: 1px solid rgba(0, 0, 0, 0.06) !important;
-  box-shadow:
-    0 10px 25px -5px rgba(0, 0, 0, 0.1),
-    0 8px 10px -6px rgba(0, 0, 0, 0.05) !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05) !important;
   position: relative !important;
   backdrop-filter: blur(8px) !important;
-  -webkit-backdrop-filter: blur(8px) !important;
   transition: transform 0.2s ease, box-shadow 0.2s ease !important;
-}
 
-.p-toast-message:hover {
-  transform: translateY(-1px) !important;
-  box-shadow:
-    0 12px 30px -5px rgba(0, 0, 0, 0.12),
-    0 10px 12px -6px rgba(0, 0, 0, 0.06) !important;
+  &:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 12px 30px -5px rgba(0, 0, 0, 0.12), 0 10px 12px -6px rgba(0, 0, 0, 0.06) !important;
+  }
+
+  &::before {
+    content: '' !important;
+    position: absolute !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    height: 3px !important;
+    transform-origin: left !important;
+    border-radius: 0 0 14px 14px !important;
+  }
 }
 
 .p-toast-message-content {
@@ -603,7 +146,6 @@ code, pre {
   gap: 0.875rem !important;
 }
 
-// Colored dot indicator with pulse animation
 .p-toast-message-icon {
   flex-shrink: 0 !important;
   width: 10px !important;
@@ -612,44 +154,20 @@ code, pre {
   border-radius: 50% !important;
   margin-top: 5px !important;
   position: relative !important;
+
+  &::after {
+    content: '' !important;
+    position: absolute !important;
+    inset: -3px !important;
+    border-radius: 50% !important;
+    opacity: 0.3 !important;
+  }
+  .p-icon, &::before { display: none !important; }
 }
 
-.p-toast-message-icon::after {
-  content: '' !important;
-  position: absolute !important;
-  inset: -3px !important;
-  border-radius: 50% !important;
-  opacity: 0.3 !important;
-}
-
-// Hide default icon content
-.p-toast-message-icon .p-icon,
-.p-toast-message-icon::before {
-  display: none !important;
-}
-
-.p-toast-message-text {
-  flex: 1 !important;
-  min-width: 0 !important;
-}
-
-.p-toast-summary {
-  font-weight: 600 !important;
-  font-size: 0.9rem !important;
-  color: #18181b !important;
-  margin: 0 !important;
-  display: block !important;
-  line-height: 1.4 !important;
-  letter-spacing: -0.01em !important;
-}
-
-.p-toast-detail {
-  font-size: 0.825rem !important;
-  color: #71717a !important;
-  margin: 0.25rem 0 0 0 !important;
-  line-height: 1.5 !important;
-  display: block !important;
-}
+.p-toast-message-text { flex: 1 !important; min-width: 0 !important; }
+.p-toast-summary { font-weight: 600 !important; font-size: 0.9rem !important; color: #18181b !important; margin: 0 !important; line-height: 1.4 !important; }
+.p-toast-detail { font-size: 0.825rem !important; color: #71717a !important; margin: 0.25rem 0 0 0 !important; line-height: 1.5 !important; }
 
 .p-toast-icon-close {
   width: 24px !important;
@@ -658,127 +176,49 @@ code, pre {
   color: #a1a1aa !important;
   background: transparent !important;
   border: none !important;
-  transition: all 0.15s ease !important;
   margin: -4px -4px 0 0 !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
+  transition: all 0.15s ease !important;
+  &:hover { background: #f4f4f5 !important; color: #52525b !important; }
+  .p-icon { width: 14px !important; height: 14px !important; }
 }
 
-.p-toast-icon-close:hover {
-  background: #f4f4f5 !important;
-  color: #52525b !important;
-}
-
-.p-toast-icon-close .p-icon {
-  width: 14px !important;
-  height: 14px !important;
-}
-
-// Progress bar animation
 @keyframes toastProgress {
   from { transform: scaleX(1); }
   to { transform: scaleX(0); }
 }
 
-// Shared progress bar
-.p-toast-message::before {
-  content: '' !important;
-  position: absolute !important;
-  bottom: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  height: 3px !important;
-  transform-origin: left !important;
-  border-radius: 0 0 14px 14px !important;
-}
-
-// SUCCESS
 .p-toast-message-success {
   border-left: 3px solid #22c55e !important;
-}
-.p-toast-message-success .p-toast-message-icon {
-  background: #22c55e !important;
-}
-.p-toast-message-success .p-toast-message-icon::after {
-  background: #22c55e !important;
-}
-.p-toast-message-success::before {
-  background: linear-gradient(90deg, #22c55e 0%, #4ade80 100%) !important;
-  animation: toastProgress 3s linear forwards !important;
+  .p-toast-message-icon { background: #22c55e !important; &::after { background: #22c55e !important; } }
+  &::before { background: linear-gradient(90deg, #22c55e 0%, #4ade80 100%) !important; animation: toastProgress 3s linear forwards !important; }
 }
 
-// ERROR
 .p-toast-message-error {
   border-left: 3px solid #ef4444 !important;
-}
-.p-toast-message-error .p-toast-message-icon {
-  background: #ef4444 !important;
-}
-.p-toast-message-error .p-toast-message-icon::after {
-  background: #ef4444 !important;
-}
-.p-toast-message-error::before {
-  background: linear-gradient(90deg, #ef4444 0%, #f87171 100%) !important;
-  animation: toastProgress 5s linear forwards !important;
+  .p-toast-message-icon { background: #ef4444 !important; &::after { background: #ef4444 !important; } }
+  &::before { background: linear-gradient(90deg, #ef4444 0%, #f87171 100%) !important; animation: toastProgress 5s linear forwards !important; }
 }
 
-// WARNING
 .p-toast-message-warn {
   border-left: 3px solid #f59e0b !important;
-}
-.p-toast-message-warn .p-toast-message-icon {
-  background: #f59e0b !important;
-}
-.p-toast-message-warn .p-toast-message-icon::after {
-  background: #f59e0b !important;
-}
-.p-toast-message-warn::before {
-  background: linear-gradient(90deg, #f59e0b 0%, #fbbf24 100%) !important;
-  animation: toastProgress 4s linear forwards !important;
+  .p-toast-message-icon { background: #f59e0b !important; &::after { background: #f59e0b !important; } }
+  &::before { background: linear-gradient(90deg, #f59e0b 0%, #fbbf24 100%) !important; animation: toastProgress 4s linear forwards !important; }
 }
 
-// INFO
 .p-toast-message-info {
   border-left: 3px solid #0F3C82 !important;
-}
-.p-toast-message-info .p-toast-message-icon {
-  background: #0F3C82 !important;
-}
-.p-toast-message-info .p-toast-message-icon::after {
-  background: #0F3C82 !important;
-}
-.p-toast-message-info::before {
-  background: linear-gradient(90deg, #0F3C82 0%, #2E6CB7 100%) !important;
-  animation: toastProgress 4s linear forwards !important;
+  .p-toast-message-icon { background: #0F3C82 !important; &::after { background: #0F3C82 !important; } }
+  &::before { background: linear-gradient(90deg, #0F3C82 0%, #2E6CB7 100%) !important; animation: toastProgress 4s linear forwards !important; }
 }
 
-// Mobile
-@media (max-width: 480px) {
-  .p-toast {
-    width: calc(100% - 2rem) !important;
-    left: 1rem !important;
-    right: 1rem !important;
-  }
-  .p-toast-message {
-    border-radius: 12px !important;
-  }
-  .p-toast-message-content {
-    padding: 0.875rem 1rem !important;
-  }
-  .p-toast-message::before {
-    border-radius: 0 0 12px 12px !important;
-  }
-}
-
-/* ==========================================
-   USER DROPDOWN MENU - Header User Menu
-   ========================================== */
-
-// PrimeNG popup menu is appended to body, so we need global styles
+// ---------------------------------------------------------------------------
+// 8. User Dropdown Menu
+// ---------------------------------------------------------------------------
 .user-dropdown-menu.p-menu {
   z-index: 10000 !important;
-  position: absolute !important;
   border-radius: 16px !important;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05) !important;
   border: 1px solid rgba(0, 0, 0, 0.08) !important;
@@ -788,32 +228,18 @@ code, pre {
   background: white !important;
   padding: 0 !important;
 
-  .p-menu-start {
-    padding: 0 !important;
-  }
-
-  .p-menu-list {
-    padding: 0.5rem !important;
-    margin: 0 !important;
-    list-style: none !important;
-  }
+  .p-menu-start { padding: 0 !important; }
+  .p-menu-list { padding: 0.5rem !important; margin: 0 !important; list-style: none !important; }
 
   .p-menuitem {
     margin: 2px 0 !important;
     list-style: none !important;
 
-    &:first-child {
-      margin-top: 0 !important;
-    }
-
     .p-menuitem-content {
       border-radius: 10px !important;
       transition: all 0.2s ease !important;
       background: transparent !important;
-
-      &:hover {
-        background: rgba(46, 108, 183, 0.08) !important;
-      }
+      &:hover { background: rgba(46, 108, 183, 0.08) !important; }
     }
 
     .p-menuitem-link {
@@ -825,25 +251,12 @@ code, pre {
       color: var(--text-color) !important;
       border-radius: 10px !important;
       cursor: pointer !important;
-
-      .p-menuitem-icon {
-        color: var(--text-color-secondary) !important;
-        font-size: 1rem !important;
-      }
-
-      .p-menuitem-text {
-        font-weight: 500 !important;
-        font-size: 0.9rem !important;
-        color: var(--text-color) !important;
-      }
-
-      &:hover {
-        background: transparent !important;
-      }
+      .p-menuitem-icon { color: var(--text-color-secondary) !important; font-size: 1rem !important; }
+      .p-menuitem-text { font-weight: 500 !important; font-size: 0.9rem !important; }
+      &:hover { background: transparent !important; }
     }
   }
 
-  // Separator styling
   .p-menuitem-separator {
     margin: 0.5rem 0 !important;
     border-top: 1px solid rgba(0, 0, 0, 0.06) !important;
@@ -853,7 +266,6 @@ code, pre {
   }
 }
 
-// User menu header section
 .user-menu-header {
   padding: 1rem 1.25rem !important;
   background: linear-gradient(135deg, rgba(46, 108, 183, 0.05) 0%, rgba(15, 60, 130, 0.05) 100%) !important;
@@ -863,47 +275,58 @@ code, pre {
     display: flex !important;
     flex-direction: column !important;
     gap: 0.25rem !important;
-
-    .user-greeting {
-      font-size: 0.7rem !important;
-      color: var(--text-color-secondary) !important;
-      text-transform: uppercase !important;
-      letter-spacing: 0.05em !important;
-      font-weight: 500 !important;
-    }
-
-    .user-name {
-      font-size: 1.05rem !important;
-      font-weight: 600 !important;
-      color: var(--text-color) !important;
-    }
+    .user-greeting { font-size: 0.7rem !important; color: var(--text-color-secondary) !important; text-transform: uppercase !important; letter-spacing: 0.05em !important; font-weight: 500 !important; }
+    .user-name { font-size: 1.05rem !important; font-weight: 600 !important; }
   }
 }
 
-// Menu divider in header dropdown
-.menu-divider {
-  height: 1px !important;
-  background: rgba(0, 0, 0, 0.06) !important;
-  margin: 0 !important;
+// ---------------------------------------------------------------------------
+// 9. Utility Classes
+// ---------------------------------------------------------------------------
+.h-screen { height: 100vh; }
+.object-cover, .obj-cover { object-fit: cover; }
+.text-color { color: var(--text-color); }
+.p-error { color: rgb(240, 52, 52); }
+
+// Hover effects
+.hover\:text-primary:hover { color: var(--primary-color); }
+.hover\:shadow-2:hover { box-shadow: 0 5px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
+.hover\:shadow-3:hover { box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.15), 0 10px 20px -5px rgba(0, 0, 0, 0.1); }
+.hover\:shadow-4:hover { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
+
+// Heights
+.h-200 { height: 200px; }
+.h-100 { height: 100px; }
+.min-h-20 { min-height: 5rem; }
+
+// Input icon
+.input-icon {
+  position: absolute;
+  z-index: 1;
+  left: 10px;
+  top: 50%;
+  margin-top: -0.5rem;
+  color: var(--text-color-secondary);
 }
 
-// Language section in dropdown
-.language-section {
-  padding: 0.75rem 1rem !important;
-  background: rgba(0, 0, 0, 0.02) !important;
+// Hide decorations
+.bg-decoration,
+.blob,
+.lightbox-bg { display: none !important; }
 
-  .p-select {
-    width: 100% !important;
-  }
-}
-
-/* ==========================================
-   GLOBAL LAYOUT PATTERNS
-   ========================================== */
-
-// Router outlet content - fills available space with scroll
+// Router outlet
 router-outlet + * {
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
+}
+
+// ---------------------------------------------------------------------------
+// 10. Mobile Toast
+// ---------------------------------------------------------------------------
+@media (max-width: 480px) {
+  .p-toast { width: calc(100% - 2rem) !important; left: 1rem !important; right: 1rem !important; }
+  .p-toast-message { border-radius: 12px !important; }
+  .p-toast-message-content { padding: 0.875rem 1rem !important; }
+  .p-toast-message::before { border-radius: 0 0 12px 12px !important; }
 }

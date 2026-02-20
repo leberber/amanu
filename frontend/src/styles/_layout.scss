@@ -1,0 +1,116 @@
+// =============================================================================
+// LAYOUT
+// =============================================================================
+// Structural dimensions: sidebar, topbar, navbar, containers, breakpoints.
+// =============================================================================
+
+:root {
+  // ---------------------------------------------------------------------------
+  // Navigation & Bars
+  // ---------------------------------------------------------------------------
+  --header-height: 0;
+  --page-top-bar-height: 56px;
+  --bottom-nav-height: 64px;
+  --sidebar-width: 280px;
+  --sidebar-collapsed-width: 80px;
+
+  // ---------------------------------------------------------------------------
+  // Page Dimensions
+  // ---------------------------------------------------------------------------
+  --page-height: calc(100vh - var(--bottom-nav-height));
+  --page-max-width: 1200px;
+  --content-max-width: 800px;
+
+  // ---------------------------------------------------------------------------
+  // Container Widths
+  // ---------------------------------------------------------------------------
+  --container-sm: 640px;
+  --container-md: 768px;
+  --container-lg: 1024px;
+  --container-xl: 1280px;
+
+  // ---------------------------------------------------------------------------
+  // Z-Index Scale
+  // ---------------------------------------------------------------------------
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-fixed: 300;
+  --z-modal-backdrop: 400;
+  --z-modal: 500;
+  --z-popover: 600;
+  --z-tooltip: 700;
+  --z-toast: 800;
+  --z-top: 900;
+}
+
+// ---------------------------------------------------------------------------
+// Responsive Layout Adjustments
+// ---------------------------------------------------------------------------
+@media (max-width: 767px) {
+  :root {
+    --header-height: 0px;
+    --sidebar-width: 100%;
+    --page-height: calc(100vh - var(--bottom-nav-height));
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  :root {
+    --sidebar-width: 240px;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Layout Utility Classes
+// ---------------------------------------------------------------------------
+
+// Full height minus bottom nav
+.page-full-height {
+  height: var(--page-height);
+}
+
+// Main content area
+.main-content {
+  margin-top: var(--header-height);
+  min-height: var(--page-height);
+}
+
+// Scrollable content with bottom nav padding
+.scroll-content {
+  overflow-y: auto;
+  padding-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom));
+}
+
+// Container widths
+.container {
+  width: 100%;
+  max-width: var(--page-max-width);
+  margin: 0 auto;
+  padding: 0 var(--space-lg);
+}
+
+.container--sm { max-width: var(--container-sm); }
+.container--md { max-width: var(--container-md); }
+.container--lg { max-width: var(--container-lg); }
+.container--xl { max-width: var(--container-xl); }
+.container--content { max-width: var(--content-max-width); }
+
+// Sidebar layout helpers
+.with-sidebar {
+  padding-inline-start: var(--sidebar-width);
+}
+
+.with-sidebar-collapsed {
+  padding-inline-start: var(--sidebar-collapsed-width);
+}
+
+// Mobile bottom padding for scrollable content
+@media (max-width: 968px) {
+  .content-height {
+    padding-bottom: calc(var(--bottom-nav-height) + 16px) !important;
+  }
+
+  .bottom-nav {
+    z-index: var(--z-fixed) !important;
+  }
+}

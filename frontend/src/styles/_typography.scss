@@ -1,0 +1,81 @@
+// =============================================================================
+// TYPOGRAPHY
+// =============================================================================
+// Font sizes, weights, and text utility classes.
+// =============================================================================
+
+:root {
+  // ---------------------------------------------------------------------------
+  // Font Sizes
+  // ---------------------------------------------------------------------------
+  --font-size-xs: 0.75rem;      // 12px
+  --font-size-sm: 0.8125rem;    // 13px
+  --font-size-base: 0.875rem;   // 14px
+  --font-size-md: 0.9375rem;    // 15px
+  --font-size-lg: 1rem;         // 16px
+  --font-size-xl: 1.125rem;     // 18px
+  --font-size-2xl: 1.25rem;     // 20px
+  --font-size-3xl: 1.5rem;      // 24px
+  --font-size-4xl: 2rem;        // 32px
+
+  // ---------------------------------------------------------------------------
+  // Font Weights
+  // ---------------------------------------------------------------------------
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+}
+
+// =============================================================================
+// Text Utility Classes
+// =============================================================================
+
+.text-title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.text-subtitle {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.text-body {
+  font-size: var(--font-size-base);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.text-secondary {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.text-caption {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.text-label {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0;
+}
+
+// Gradient text
+.text-gradient {
+  background: var(--primary-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
