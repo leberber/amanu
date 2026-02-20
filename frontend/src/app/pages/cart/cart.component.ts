@@ -12,15 +12,14 @@ import { TooltipModule } from 'primeng/tooltip';
 import { SelectModule } from 'primeng/select';
 import { InputTextModule } from 'primeng/inputtext';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Subscription, forkJoin, of } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
+import { Subscription } from 'rxjs';
 
 import { CartService, CartItem } from '../../services/cart.service';
 import { AuthService } from '../../services/auth.service';
 import { CurrencyService } from '../../core/services/currency.service';
 import { UnitsService } from '../../core/services/units.service';
-import { ProductService } from '../../services/product.service';
 import { TranslationService } from '../../services/translation.service';
+import { CartTranslationService } from '../../core/services/cart-translation.service';
 import { PromotionService } from '../../services/promotion.service';
 import { AppliedPromotion } from '../../models/promotion.model';
 import { ProductQuantitySelectorComponent } from '../../shared/components/product-quantity-selector/product-quantity-selector.component';
@@ -62,9 +61,9 @@ export class CartComponent implements OnInit, OnDestroy {
   private translateService = inject(TranslateService);
   private currencyService = inject(CurrencyService);
   private unitsService = inject(UnitsService);
-  private productService = inject(ProductService);
   private translationService = inject(TranslationService);
   private promotionService = inject(PromotionService);
+  private cartTranslation = inject(CartTranslationService);
 
   // Signals
   cartItems = signal<CartItem[]>([]);
@@ -174,46 +173,11 @@ export class CartComponent implements OnInit, OnDestroy {
     }
   }
 
-  // 🆕 NEW: Load translated names for cart items
   private loadTranslatedNames(): void {
     const currentItems = this.cartItems();
     if (currentItems.length === 0) return;
 
-    const currentLanguage = this.translationService.getCurrentLanguage();
-    
-    // Create observables to fetch each product with translations
-    const productObservables = currentItems.map(item => 
-      this.productService.getProduct(item.product_id).pipe(
-        map(product => ({
-          cartItemId: item.id,
-          translatedName: product.name, // This will be translated by the API
-          translatedDescription: product.description || ''
-        })),
-        catchError(error => {
-          console.error(`Error loading product ${item.product_id}:`, error);
-          return of({
-            cartItemId: item.id,
-            translatedName: item.product_name, // Fallback to original name
-            translatedDescription: ''
-          });
-        })
-      )
-    );
-
-    // Execute all requests in parallel
-    forkJoin(productObservables).subscribe(results => {
-      // Update cart items with translated names
-      const updatedItems = currentItems.map(item => {
-        const translation = results.find(r => r.cartItemId === item.id);
-        if (translation) {
-          return {
-            ...item,
-            product_name: translation.translatedName // Update with translated name
-          };
-        }
-        return item;
-      });
-
+    this.cartTranslation.loadTranslatedNames(currentItems).subscribe(updatedItems => {
       this.cartItems.set(updatedItems);
     });
   }

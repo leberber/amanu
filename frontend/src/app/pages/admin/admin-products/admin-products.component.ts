@@ -22,6 +22,7 @@ import { TranslationHelperService } from '../../../core/services/translation-hel
 import { UnitsService } from '../../../core/services/units.service';
 import { StockStatusService } from '../../../core/services/stock-status.service';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
+import { ConfirmationDialogService } from '../../../core/services/confirmation-dialog.service';
 import { BaseAdminListComponent } from '../../../shared/base/base-admin-list.component';
 import { InlineEditState } from '../../../shared/utils/inline-edit-state';
 import { Product } from '../../../models/product.model';
@@ -99,6 +100,7 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
   private translationHelper = inject(TranslationHelperService);
   private unitsService = inject(UnitsService);
   private confirmationService = inject(ConfirmationService);
+  private confirmDialog = inject(ConfirmationDialogService);
   private stockStatus = inject(StockStatusService);
 
   // Lifecycle hooks
@@ -202,17 +204,11 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
   }
 
   confirmDeleteProduct(product: Product) {
-    const productName = this.getProductName(product);
-    this.confirmationService.confirm({
-      message: this.translateService.instant('common.confirm_delete_message', { item: productName }),
-      header: this.translateService.instant('common.confirm_delete'),
-      icon: 'pi pi-exclamation-triangle',
-      acceptButtonStyleClass: 'p-button-danger',
-      rejectButtonStyleClass: 'p-button-text',
-      acceptLabel: this.translateService.instant('common.delete'),
-      rejectLabel: this.translateService.instant('common.cancel'),
-      accept: () => this.deleteProduct(product)
-    });
+    this.confirmDialog.confirmDelete(
+      this.confirmationService,
+      this.getProductName(product),
+      () => this.deleteProduct(product)
+    );
   }
 
   refreshProductData() {

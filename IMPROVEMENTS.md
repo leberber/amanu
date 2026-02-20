@@ -30,21 +30,22 @@ Track progress on DRY violations and code quality fixes.
 
 ## High Priority
 
-- [ ] **5. Extract SCSS Animations & Variables**
-  - `@keyframes float`, `@keyframes pulse`, gradients repeated in each admin SCSS file
-  - Create `_admin-shared.scss`
+- [x] **5. Extract SCSS Animations & Variables** ✅
+  - Created `_admin-shared.scss` in `src/styles/` with shared animations and blob styles
+  - Contains `@keyframes float`, `@keyframes pulse`, `@keyframes spin`, and blob decorations
 
 - [x] **6. Create Price/Currency Formatting Pipe** ✅
   - Created `CurrencyPipe` (`appCurrency`) in `shared/pipes/currency.pipe.ts`
   - Replaced `formatPrice()` wrapper in 11 components with pipe usage
 
-- [ ] **7. Extract Cart Translation Loading**
-  - `loadTranslatedNames()` duplicated in cart and checkout
-  - Create `CartTranslationService`
+- [x] **7. Extract Cart Translation Loading** ✅
+  - Created `CartTranslationService` in `core/services/cart-translation.service.ts`
+  - Refactored `cart.component.ts` and `checkout.component.ts` to use the service
+  - Note: `order-detail.component.ts` kept separate due to additional image requirements
 
-- [ ] **8. Centralize Confirmation Dialogs**
-  - Same delete confirmation config in all 6 admin list components
-  - Create `ConfirmDialogService`
+- [x] **8. Centralize Confirmation Dialogs** ✅
+  - `ConfirmationDialogService` already existed in `core/services/`
+  - Updated 5 admin components to use it: users, products, brands, categories, promotions
 
 ---
 
@@ -97,10 +98,10 @@ Track progress on DRY violations and code quality fixes.
 | Priority | Total | Done | Remaining |
 |----------|-------|------|-----------|
 | Critical | 4 | 4 | 0 |
-| High | 4 | 1 | 3 |
+| High | 4 | 4 | 0 |
 | Medium | 7 | 0 | 7 |
 | Low | 5 | 0 | 5 |
-| **Total** | **20** | **5** | **15** |
+| **Total** | **20** | **8** | **12** |
 
 ---
 

@@ -16,6 +16,7 @@ import { PromotionService } from '../../../services/promotion.service';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { Promotion } from '../../../models/promotion.model';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
+import { ConfirmationDialogService } from '../../../core/services/confirmation-dialog.service';
 import { BaseAdminListComponent } from '../../../shared/base/base-admin-list.component';
 @Component({
   selector: 'app-admin-promotions',
@@ -46,6 +47,7 @@ export class AdminPromotionsComponent extends BaseAdminListComponent implements 
   private promotionService = inject(PromotionService);
   private toast = inject(ToastMessageService);
   private confirmationService = inject(ConfirmationService);
+  private confirmDialog = inject(ConfirmationDialogService);
   private router = inject(Router);
   private translateService = inject(TranslateService);
   private currencyService = inject(CurrencyService);
@@ -161,16 +163,11 @@ export class AdminPromotionsComponent extends BaseAdminListComponent implements 
   }
 
   confirmDeletePromotion(promotion: Promotion) {
-    this.confirmationService.confirm({
-      message: this.translateService.instant('common.confirm_delete_message', { item: promotion.name }),
-      header: this.translateService.instant('common.confirm_delete'),
-      icon: 'pi pi-exclamation-triangle',
-      acceptButtonStyleClass: 'p-button-danger',
-      rejectButtonStyleClass: 'p-button-text',
-      acceptLabel: this.translateService.instant('common.delete'),
-      rejectLabel: this.translateService.instant('common.cancel'),
-      accept: () => this.deletePromotion(promotion)
-    });
+    this.confirmDialog.confirmDelete(
+      this.confirmationService,
+      promotion.name,
+      () => this.deletePromotion(promotion)
+    );
   }
 
   deletePromotion(promotion: Promotion) {

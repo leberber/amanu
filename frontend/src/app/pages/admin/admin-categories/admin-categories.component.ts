@@ -23,6 +23,7 @@ import { ProductService } from '../../../services/product.service';
 import { TranslationHelperService } from '../../../core/services/translation-helper.service';
 import { Category } from '../../../models/category.model';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
+import { ConfirmationDialogService } from '../../../core/services/confirmation-dialog.service';
 import { BaseAdminListComponent } from '../../../shared/base/base-admin-list.component';
 
 @Component({
@@ -67,6 +68,7 @@ export class AdminCategoriesComponent extends BaseAdminListComponent implements 
   private productService = inject(ProductService);
   private toast = inject(ToastMessageService);
   private confirmationService = inject(ConfirmationService);
+  private confirmDialog = inject(ConfirmationDialogService);
   private router = inject(Router);
   private translateService = inject(TranslateService);
   private translationHelper = inject(TranslationHelperService);
@@ -178,17 +180,11 @@ export class AdminCategoriesComponent extends BaseAdminListComponent implements 
 
   // Delete confirmation
   confirmDeleteCategory(category: Category) {
-    const categoryName = this.getCategoryName(category);
-    this.confirmationService.confirm({
-      message: this.translateService.instant('common.confirm_delete_message', { item: categoryName }),
-      header: this.translateService.instant('common.confirm_delete'),
-      icon: 'pi pi-exclamation-triangle',
-      acceptButtonStyleClass: 'p-button-danger',
-      rejectButtonStyleClass: 'p-button-text',
-      acceptLabel: this.translateService.instant('common.delete'),
-      rejectLabel: this.translateService.instant('common.cancel'),
-      accept: () => this.deleteCategory(category)
-    });
+    this.confirmDialog.confirmDelete(
+      this.confirmationService,
+      this.getCategoryName(category),
+      () => this.deleteCategory(category)
+    );
   }
 
   // After delete, remove from local array and refresh filters

@@ -19,6 +19,7 @@ import { UserManage, UsersResponse } from '../../../models/admin.model';
 import { ROUTES } from '../../../core/constants/routes.constants';
 import { BaseAdminListComponent } from '../../../shared/base/base-admin-list.component';
 import { InlineEditState } from '../../../shared/utils/inline-edit-state';
+import { ConfirmationDialogService } from '../../../core/services/confirmation-dialog.service';
 
 @Component({
   selector: 'app-admin-users',
@@ -60,6 +61,7 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
   private router = inject(Router);
   private translateService = inject(TranslateService);
   private confirmationService = inject(ConfirmationService);
+  private confirmDialog = inject(ConfirmationDialogService);
 
   ngOnInit(): void {
     this.initializeOptions();
@@ -183,16 +185,11 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
   // ===== USER DELETION =====
 
   confirmDeleteUser(user: UserManage): void {
-    this.confirmationService.confirm({
-      message: this.translateService.instant('common.confirm_delete_message', { item: user.full_name }),
-      header: this.translateService.instant('common.confirm_delete'),
-      icon: 'pi pi-exclamation-triangle',
-      acceptButtonStyleClass: 'p-button-danger',
-      rejectButtonStyleClass: 'p-button-text',
-      acceptLabel: this.translateService.instant('common.delete'),
-      rejectLabel: this.translateService.instant('common.cancel'),
-      accept: () => this.deleteUser(user)
-    });
+    this.confirmDialog.confirmDelete(
+      this.confirmationService,
+      user.full_name,
+      () => this.deleteUser(user)
+    );
   }
 
   private deleteUser(user: UserManage): void {

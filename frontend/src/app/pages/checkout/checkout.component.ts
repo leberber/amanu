@@ -16,16 +16,15 @@ import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { BackButtonComponent } from '../../shared/components/back-button/back-button.component';
-import { Subscription, forkJoin, of } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
+import { Subscription } from 'rxjs';
 
 import { AuthService } from '../../services/auth.service';
 import { CartService, CartItem } from '../../services/cart.service';
 import { OrderService } from '../../services/order.service';
 import { CurrencyService } from '../../core/services/currency.service';
 import { UnitsService } from '../../core/services/units.service';
-import { ProductService } from '../../services/product.service';
 import { TranslationService } from '../../services/translation.service';
+import { CartTranslationService } from '../../core/services/cart-translation.service';
 import { OrderCreate } from '../../models/order.model';
 import { User } from '../../models/user.model';
 import { AppliedPromotion } from '../../models/promotion.model';
@@ -76,8 +75,8 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   private translateService = inject(TranslateService);
   private currencyService = inject(CurrencyService);
   private unitsService = inject(UnitsService);
-  private productService = inject(ProductService);
   private translationService = inject(TranslationService);
+  private cartTranslation = inject(CartTranslationService);
 
   toggleShippingAccordion() {
     this.accordionExpanded = !this.accordionExpanded;
@@ -145,43 +144,11 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     }
   }
 
-  // 🆕 NEW: Load translated names for cart items
   private loadTranslatedNames(): void {
     if (this.cartItems.length === 0) return;
 
-    const currentLanguage = this.translationService.getCurrentLanguage();
-    
-    // Create observables to fetch each product with translations
-    const productObservables = this.cartItems.map(item => 
-      this.productService.getProduct(item.product_id).pipe(
-        map(product => ({
-          cartItemId: item.id,
-          translatedName: product.name, // This will be translated by the API
-          translatedDescription: product.description || ''
-        })),
-        catchError(error => {
-          console.error(`Error loading product ${item.product_id}:`, error);
-          return of({
-            cartItemId: item.id,
-            translatedName: item.product_name, // Fallback to original name
-            translatedDescription: ''
-          });
-        })
-      )
-    );
-
-    forkJoin(productObservables).subscribe(results => {
-      this.cartItems = this.cartItems.map(item => {
-        const translation = results.find(r => r.cartItemId === item.id);
-        if (translation) {
-          return {
-            ...item,
-            product_name: translation.translatedName
-          };
-        }
-        return item;
-      });
-
+    this.cartTranslation.loadTranslatedNames(this.cartItems).subscribe(updatedItems => {
+      this.cartItems = updatedItems;
     });
   }
   

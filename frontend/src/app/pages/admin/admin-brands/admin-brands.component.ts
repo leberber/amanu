@@ -24,6 +24,7 @@ import { ProductService } from '../../../services/product.service';
 import { TranslationHelperService } from '../../../core/services/translation-helper.service';
 import { Brand } from '../../../models/brand.model';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
+import { ConfirmationDialogService } from '../../../core/services/confirmation-dialog.service';
 import { BaseAdminListComponent } from '../../../shared/base/base-admin-list.component';
 
 @Component({
@@ -69,6 +70,7 @@ export class AdminBrandsComponent extends BaseAdminListComponent implements OnIn
   private productService = inject(ProductService);
   private toast = inject(ToastMessageService);
   private confirmationService = inject(ConfirmationService);
+  private confirmDialog = inject(ConfirmationDialogService);
   private router = inject(Router);
   private translateService = inject(TranslateService);
   private translationHelper = inject(TranslationHelperService);
@@ -178,17 +180,11 @@ export class AdminBrandsComponent extends BaseAdminListComponent implements OnIn
   }
 
   confirmDeleteBrand(brand: Brand) {
-    const brandName = this.getBrandName(brand);
-    this.confirmationService.confirm({
-      message: this.translateService.instant('common.confirm_delete_message', { item: brandName }),
-      header: this.translateService.instant('common.confirm_delete'),
-      icon: 'pi pi-exclamation-triangle',
-      acceptButtonStyleClass: 'p-button-danger',
-      rejectButtonStyleClass: 'p-button-text',
-      acceptLabel: this.translateService.instant('common.delete'),
-      rejectLabel: this.translateService.instant('common.cancel'),
-      accept: () => this.deleteBrand(brand)
-    });
+    this.confirmDialog.confirmDelete(
+      this.confirmationService,
+      this.getBrandName(brand),
+      () => this.deleteBrand(brand)
+    );
   }
 
   deleteBrand(brand: Brand) {
