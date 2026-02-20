@@ -315,7 +315,7 @@
                 <td>{{getProductName(item)}}</td>
                 <td>{{item.unit_price | appCurrency}}</td>
                 <td>{{item.quantity}}</td>
-                <td>{{getUnitDisplay(item.product_unit)}}</td>
+                <td>{{item.product_unit | appUnit}}</td>
                 <td>{{item.unit_price * item.quantity | appCurrency}}</td>
               </tr>
             </ng-template>

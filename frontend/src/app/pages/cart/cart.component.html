@@ -84,7 +84,7 @@
                     </div>
                   </td>
                   <td class="text-center">
-                    <span class="desktop-price">{{ item.product_price | appCurrency }}/{{ getUnitDisplay(item.product_unit) }}</span>
+                    <span class="desktop-price">{{ item.product_price | appCurrency }}/{{ item.product_unit | appUnit }}</span>
                   </td>
                   <td>
                     <div class="flex justify-content-center">
@@ -134,7 +134,7 @@
                     </button>
                   </div>
                   <div class="item-row">
-                    <span class="item-price"><strong>{{ item.product_price | appCurrency }}</strong>/{{ getUnitDisplay(item.product_unit) }}</span>
+                    <span class="item-price"><strong>{{ item.product_price | appCurrency }}</strong>/{{ item.product_unit | appUnit }}</span>
                     <div class="item-quantity-wrapper">
                       <div class="item-quantity" style="width: 120px;">
                         <app-product-quantity-selector

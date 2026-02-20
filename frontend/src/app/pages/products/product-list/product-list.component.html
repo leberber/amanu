@@ -209,12 +209,12 @@
             <div>
               <div class="flex align-items-baseline gap-2">
                 <span class="text-base font-semibold text-900">{{ product.price | appCurrency }}</span>
-                <span class="text-sm text-500">{{ getUnitDisplay(product.unit) }}</span>
+                <span class="text-sm text-500">{{ product.unit | appUnit }}</span>
               </div>
               <div *ngIf="getBoxQuantity(product) && getBoxPrice(product)" class="flex align-items-center gap-2 mt-1">
                 <span class="text-xs text-600">{{ 'products.box_price' | translate }}:</span>
                 <span class="text-sm font-bold text-red-500">{{ getBoxPrice(product) | appCurrency }}</span>
-                <span class="text-xs text-500">({{ getBoxQuantity(product) }} {{ getUnitDisplay(product.unit) }})</span>
+                <span class="text-xs text-500">({{ getBoxQuantity(product) }} {{ product.unit | appUnit }})</span>
               </div>
             </div>
 
@@ -317,12 +317,12 @@
               <div>
                 <div class="flex align-items-baseline gap-1">
                   <span class="text-base font-semibold text-900">{{ product.price | appCurrency }}</span>
-                  <span class="text-xs text-500">/ {{ getUnitDisplay(product.unit) }}</span>
+                  <span class="text-xs text-500">/ {{ product.unit | appUnit }}</span>
                 </div>
                 <div *ngIf="getBoxQuantity(product) && getBoxPrice(product)" class="flex align-items-center gap-2 mt-1">
                   <span class="text-xs text-600">{{ 'products.box_price' | translate }}:</span>
                   <span class="text-sm font-bold text-red-500">{{ getBoxPrice(product) | appCurrency }}</span>
-                  <span class="text-xs text-500">({{ getBoxQuantity(product) }} {{ getUnitDisplay(product.unit) }})</span>
+                  <span class="text-xs text-500">({{ getBoxQuantity(product) }} {{ product.unit | appUnit }})</span>
                 </div>
               </div>
 

@@ -27,6 +27,7 @@ import { BackButtonComponent } from '../../shared/components/back-button/back-bu
 import { ImageLightboxComponent } from '../../shared/components/image-lightbox/image-lightbox.component';
 import { ToastMessageService } from '../../core/services/toast-message.service';
 import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
+import { UnitPipe } from '../../shared/pipes/unit.pipe';
 
 @Component({
   selector: 'app-cart-page',
@@ -47,7 +48,8 @@ import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
     ProductQuantitySelectorComponent,
     BackButtonComponent,
     ImageLightboxComponent,
-    CurrencyPipe
+    CurrencyPipe,
+    UnitPipe
   ],
     templateUrl: './cart.component.html',
   styleUrl: './cart.component.scss'

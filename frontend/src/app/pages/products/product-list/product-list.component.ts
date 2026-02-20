@@ -30,6 +30,7 @@ import { ProductToolbarComponent, SortOption } from '../components/product-toolb
 import { ProductQuantitySelectorComponent } from '../../../shared/components/product-quantity-selector/product-quantity-selector.component';
 import { HorizontalFilterComponent } from '../../../shared/components/horizontal-filter/horizontal-filter.component';
 import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
+import { UnitPipe } from '../../../shared/pipes/unit.pipe';
 
 @Component({
   selector: 'app-product-list',
@@ -50,7 +51,8 @@ import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
     ProductToolbarComponent,
     ProductQuantitySelectorComponent,
     HorizontalFilterComponent,
-    CurrencyPipe
+    CurrencyPipe,
+    UnitPipe
   ],
   templateUrl: './product-list.component.html',
   styleUrls: ['./product-list.component.scss']
@@ -361,10 +363,6 @@ export class ProductListComponent implements OnInit, OnDestroy {
 
   onAddToCart(event: AddToCartEvent): void {
     this.handleAddToCart(event.product, event.quantity);
-  }
-
-  getUnitDisplay(unit: string): string {
-    return this.unitsService.getUnitTranslated(unit);
   }
 
   isOutOfStock(product: Product): boolean {

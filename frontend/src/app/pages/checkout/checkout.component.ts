@@ -168,10 +168,6 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     return Math.max(0, this.getCartTotal() - this.getDiscountAmount());
   }
 
-  getUnitDisplay(unit: string): string {
-    return this.unitsService.getUnitDisplay(unit);
-  }
-
   placeOrder() {
     if (this.checkoutForm.invalid) {
       // Mark all fields as touched to trigger validation messages

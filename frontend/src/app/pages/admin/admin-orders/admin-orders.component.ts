@@ -23,6 +23,7 @@ import { UnitsService } from '../../../core/services/units.service';
 import { StatusSeverityService } from '../../../core/services/status-severity.service';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
 import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
+import { UnitPipe } from '../../../shared/pipes/unit.pipe';
 import { BaseAdminListComponent } from '../../../shared/base/base-admin-list.component';
 
 @Component({
@@ -40,7 +41,8 @@ import { BaseAdminListComponent } from '../../../shared/base/base-admin-list.com
     ConfirmDialogModule,
     TooltipModule,
     TranslateModule,
-    CurrencyPipe
+    CurrencyPipe,
+    UnitPipe
   ],
   providers: [ConfirmationService],
   templateUrl: './admin-orders.component.html',
@@ -254,10 +256,6 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
     }
 
     return item.product_name || item.name;
-  }
-
-  getUnitDisplay(unit: string): string {
-    return this.unitsService.getUnitTranslated(unit, true);
   }
 
   updateOrderStatus(orderId: number, newStatus: string) {

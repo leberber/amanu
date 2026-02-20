@@ -15,6 +15,7 @@ import { FlyToCartService } from '../../../../core/services/fly-to-cart.service'
 import { CartService } from '../../../../services/cart.service';
 import { ProductQuantitySelectorComponent } from '../../../../shared/components/product-quantity-selector/product-quantity-selector.component';
 import { CurrencyPipe } from '../../../../shared/pipes/currency.pipe';
+import { UnitPipe } from '../../../../shared/pipes/unit.pipe';
 
 export interface AddToCartEvent {
   product: Product;
@@ -32,7 +33,8 @@ export interface AddToCartEvent {
     TagModule,
     OverlayBadgeModule,
     ProductQuantitySelectorComponent,
-    CurrencyPipe
+    CurrencyPipe,
+    UnitPipe
   ],
   templateUrl: './product-card.component.html',
   styleUrl: './product-card.component.scss'
@@ -117,10 +119,7 @@ export class ProductCardComponent implements OnInit {
     return null;
   }
 
-  getUnitDisplay(unit: string): string {
-    return this.unitsService.getUnitTranslated(unit);
-  }
-
+  
 
 
   onQuantityChanged(quantity: number): void {

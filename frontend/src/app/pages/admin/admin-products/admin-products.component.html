@@ -223,7 +223,7 @@
                   <td class="col-price">
                     <div *ngIf="!isEditingPrice(product.id)" class="price-display" (click)="startEditPrice(product)">
                       <span class="price-value">{{ product.price | appCurrency }}</span>
-                      <span class="price-unit">{{ 'admin.products.per' | translate }} {{ getUnitDisplay(product.unit) }}</span>
+                      <span class="price-unit">{{ 'admin.products.per' | translate }} {{ product.unit | appUnit }}</span>
                     </div>
                     <div *ngIf="isEditingPrice(product.id)" class="price-edit">
                       <input
@@ -243,7 +243,7 @@
                       <span class="stock-badge" [class]="'stock-' + getStockSeverity(product.stock_quantity)">
                         {{ getStockLabel(product.stock_quantity) }}
                       </span>
-                      <span class="stock-qty">{{ product.stock_quantity }} {{ getUnitDisplay(product.unit) }}</span>
+                      <span class="stock-qty">{{ product.stock_quantity }} {{ product.unit | appUnit }}</span>
                     </div>
                     <div *ngIf="isEditingStock(product.id)" class="stock-edit">
                       <input

@@ -37,6 +37,7 @@ import { OverlayBadgeModule } from 'primeng/overlaybadge';
 import { TooltipModule } from 'primeng/tooltip';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
+import { UnitPipe } from '../../../shared/pipes/unit.pipe';
 
 @Component({
   selector: 'app-admin-products',
@@ -61,7 +62,8 @@ import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
     InputIconModule,
     ProgressSpinnerModule,
     TranslateModule,
-    CurrencyPipe
+    CurrencyPipe,
+    UnitPipe
   ],
   providers: [ConfirmationService],
   templateUrl: './admin-products.component.html',
@@ -248,10 +250,6 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
 
   getStockLabel(stockQuantity: number): string {
     return this.stockStatus.getStockLabel(stockQuantity);
-  }
-
-  getUnitDisplay(unit: string): string {
-    return this.unitsService.getUnitTranslated(unit, true);
   }
 
   getPaginationTemplate(): string {

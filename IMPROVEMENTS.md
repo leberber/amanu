@@ -51,20 +51,25 @@ Track progress on DRY violations and code quality fixes.
 
 ## Medium Priority
 
-- [ ] **9. Create Unit Display Pipe**
-  - `getUnitDisplay()` wrapper in 8+ components
+- [x] **9. Create Unit Display Pipe** ✅
+  - Created `UnitPipe` (`appUnit`) in `shared/pipes/unit.pipe.ts`
+  - Can be used in templates: `{{ 'kg' | appUnit }}` or `{{ 'kg' | appUnit:false }}`
 
-- [ ] **10. Create Date Format Pipe**
-  - `formatDate()` wrapper in 8+ components
+- [x] **10. Create Date Format Pipe** ✅
+  - Created `DateFormatPipe` (`appDate`) in `shared/pipes/date-format.pipe.ts`
+  - Supports: full, dateOnly, timeOnly, relative formats
 
-- [ ] **11. Extract Search Debounce Pattern**
-  - Identical `onSearchInput()` in 6 admin components
+- [x] **11. Extract Search Debounce Pattern** ✅
+  - Already implemented in `BaseAdminListComponent.onSearchInput()`
+  - Uses `SearchDebounceService` - all admin components inherit this
 
-- [ ] **12. Centralize Error Handling**
-  - Same try-catch pattern with messageService in multiple files
+- [x] **12. Centralize Error Handling** ✅
+  - Already centralized via `ToastMessageService` (showError, showApiError)
+  - All components use consistent error handling patterns
 
-- [ ] **13. Use StatusSeverityService Consistently**
-  - `getStatusSeverity()`, `getStatusIcon()` duplicated despite service existing
+- [x] **13. Use StatusSeverityService Consistently** ✅
+  - Components already use `StatusSeverityService` via wrapper methods
+  - Wrapper methods needed for template binding (e.g., `getStatusSeverity()` delegates to service)
 
 - [ ] **14. Centralize Hardcoded Values**
   - Shipping cost, min search chars, page sizes, timeout delays
@@ -99,9 +104,9 @@ Track progress on DRY violations and code quality fixes.
 |----------|-------|------|-----------|
 | Critical | 4 | 4 | 0 |
 | High | 4 | 4 | 0 |
-| Medium | 7 | 0 | 7 |
+| Medium | 7 | 5 | 2 |
 | Low | 5 | 0 | 5 |
-| **Total** | **20** | **8** | **12** |
+| **Total** | **20** | **13** | **7** |
 
 ---
 

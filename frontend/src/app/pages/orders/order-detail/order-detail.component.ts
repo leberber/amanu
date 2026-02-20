@@ -13,7 +13,6 @@ import { OrderService } from '../../../services/order.service';
 import { ProductService } from '../../../services/product.service'; // 🆕 ADD THIS
 import { TranslationService } from '../../../services/translation.service'; // 🆕 ADD THIS
 import { CurrencyService } from '../../../core/services/currency.service';
-import { UnitsService } from '../../../core/services/units.service';
 import { DateService } from '../../../core/services/date.service';
 import { Order, OrderItem } from '../../../models/order.model';
 import { StatusSeverityService } from '../../../core/services/status-severity.service';
@@ -55,7 +54,6 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
   private toast = inject(ToastMessageService);
   private translateService = inject(TranslateService);
   private currencyService = inject(CurrencyService);
-  private unitsService = inject(UnitsService);
   private dateService = inject(DateService);
   private statusSeverity = inject(StatusSeverityService);
 
@@ -239,10 +237,6 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
   getStatusLabel(status: string): string {
     // Use translation service for status labels
     return this.translateService.instant(`orders.status.${status}`);
-  }
-
-  getUnitDisplay(unit: string): string {
-    return this.unitsService.getUnitDisplay(unit);
   }
 
   cancelOrder(): void {

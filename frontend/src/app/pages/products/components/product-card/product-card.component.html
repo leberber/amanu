@@ -134,12 +134,12 @@
         {{ product.price | appCurrency }}
       </div>
     }
-    <span class="text-xs text-600">{{ 'products.price_per' | translate }} {{ getUnitDisplay(product.unit) }}</span>
+    <span class="text-xs text-600">{{ 'products.price_per' | translate }} {{ product.unit | appUnit }}</span>
     @if (boxQuantity && boxPrice) {
       <div class="flex align-items-center gap-2 mt-1">
         <span class="text-xs text-600">{{ 'products.box_price' | translate }}:</span>
         <span class="text-sm font-bold text-red-500">{{ boxPrice | appCurrency }}</span>
-        <span class="text-xs text-500">({{ boxQuantity }} {{ getUnitDisplay(product.unit) }})</span>
+        <span class="text-xs text-500">({{ boxQuantity }} {{ product.unit | appUnit }})</span>
       </div>
     }
   </div>
