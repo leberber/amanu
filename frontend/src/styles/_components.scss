@@ -225,7 +225,7 @@
 // Standard card (non-glass)
 .app-card {
   background: white;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-2xl);
   box-shadow: var(--shadow-md);
   border: 1px solid rgba(0, 0, 0, 0.05);
   overflow: hidden;
@@ -233,7 +233,7 @@
 
   &__header {
     padding: var(--space-7);
-    
+    background: linear-gradient(135deg, rgba(224, 226, 227, 0.08) 0%, rgba(15, 60, 130, 0.05) 100%);
     border-bottom: 1px solid rgba(46, 108, 183, 0.1);
     display: flex;
     align-items: center;

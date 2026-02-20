@@ -17,10 +17,10 @@
     </div>
   }
 
-  <!-- Status badge as action -->
+  <!-- Status badge as action (icon only on mobile, icon + text on desktop) -->
   @if (order()) {
-    <p-tag pageActions [severity]="getStatusSeverity(order()?.status || '')" [value]="getStatusLabel(order()?.status || '')">
-      <i class="pi mr-1"
+    <div pageActions class="topbar-badge" [ngClass]="order()?.status || ''">
+      <i class="pi"
          [ngClass]="{
            'pi-clock': order()?.status === 'pending',
            'pi-check-circle': order()?.status === 'confirmed',
@@ -28,7 +28,8 @@
            'pi-check-square': order()?.status === 'delivered',
            'pi-times-circle': order()?.status === 'cancelled'
          }"></i>
-    </p-tag>
+      <span class="hidden-mobile">{{ getStatusLabel(order()?.status || '') }}</span>
+    </div>
   }
 
   <!-- Main Content -->
@@ -36,121 +37,127 @@
 
   <!-- Loading state -->
   @if (loading()) {
-    <div class="flex align-items-center justify-content-center p-6">
-      <p-progressSpinner strokeWidth="4" ariaLabel="loading"></p-progressSpinner>
+    <div class="app-card">
+      <div class="loading-state">
+        <div class="loading-state__spinner">
+          <i class="pi pi-spin pi-spinner"></i>
+        </div>
+        <p class="loading-state__text">{{ 'orders.detail.loading_order' | translate }}</p>
+      </div>
     </div>
   }
 
   <!-- Error state -->
   @else if (error()) {
-    <p-card>
-      <div class="flex flex-column align-items-center justify-content-center p-5 text-center">
-        <i class="pi pi-exclamation-circle text-6xl text-red-500 mb-4"></i>
-        <h2 class="text-xl font-semibold mb-2">{{ 'orders.detail.failed_to_load_order' | translate }}</h2>
-        <p class="text-color-secondary mb-4">{{ 'orders.detail.load_error_message' | translate }}</p>
-        <p-button
-          [label]="'orders.detail.go_to_orders' | translate"
-          icon="pi pi-arrow-left"
-          routerLink="/orders">
-        </p-button>
+    <div class="app-card">
+      <div class="error-state">
+        <div class="error-state__icon">
+          <i class="pi pi-exclamation-circle"></i>
+        </div>
+        <h2 class="error-state__title">{{ 'orders.detail.failed_to_load_order' | translate }}</h2>
+        <p class="error-state__message">{{ 'orders.detail.load_error_message' | translate }}</p>
+        <button class="action-btn action-btn--primary" routerLink="/orders">
+          <i class="pi pi-arrow-left"></i>
+          {{ 'orders.detail.go_to_orders' | translate }}
+        </button>
       </div>
-    </p-card>
+    </div>
   }
 
   <!-- Order details -->
   @else if (order()) {
-    <div class="grid">
-      <!-- Order Items Card -->
-      <div class="col-12 lg:col-7">
-        <p-card>
-          <ng-template pTemplate="header">
-            <div class="flex align-items-center gap-2 p-3 pb-0">
-              <p-avatar icon="pi pi-list" shape="circle" styleClass="bg-primary"></p-avatar>
-              <span class="font-semibold text-lg">{{ 'orders.detail.order_items_title' | translate }}</span>
+    <div class="order-detail-content">
+      <!-- Main Grid -->
+      <div class="order-grid">
+        <!-- Order Items -->
+        <div class="order-items-card app-card">
+          <div class="app-card__header">
+            <div class="app-card__icon">
+              <i class="pi pi-list"></i>
             </div>
-          </ng-template>
+            <h2 class="app-card__title">{{ 'orders.detail.order_items_title' | translate }}</h2>
+          </div>
+          <div class="app-card__content">
+            <ul class="items-simple-list">
+              @for (item of order()?.items; track item.id) {
+                <li class="item-line">
+                  <div class="item-image" [class.clickable]="item.product_image_url" (click)="openImage(item.product_image_url || '')">
+                    @if (item.product_image_url) {
+                      <img [src]="item.product_image_url" [alt]="item.product_name">
+                    } @else {
+                      <i class="pi pi-box"></i>
+                    }
+                  </div>
+                  <span class="item-qty">{{ item.quantity }}x</span>
+                  <span class="item-name">{{ item.product_name }}</span>
+                  <span class="item-total">{{ item.unit_price * item.quantity | appCurrency }}</span>
+                </li>
+              }
+            </ul>
+            <div class="order-total">
+              <span class="total-label">{{ 'common.total' | translate }}</span>
+              <span class="total-amount">{{ totalAmount() | appCurrency }}</span>
+            </div>
+          </div>
+        </div>
 
-          <div class="flex flex-column">
-            @for (item of order()?.items; track item.id) {
-              <div class="flex align-items-center py-3 border-bottom-1 surface-border">
-                <p-avatar
-                  [image]="item.product_image_url || ''"
-                  [icon]="!item.product_image_url ? 'pi pi-box' : ''"
-                  shape="square"
-                  size="large"
-                  [style]="{'cursor': item.product_image_url ? 'pointer' : 'default'}"
-                  (click)="openImage(item.product_image_url || '')">
-                </p-avatar>
-                <span class="font-semibold text-primary ml-3" style="min-width: 40px">{{ item.quantity }}x</span>
-                <span class="flex-1 mx-2 white-space-nowrap overflow-hidden text-overflow-ellipsis">{{ item.product_name }}</span>
-                <span class="font-semibold text-primary">{{ item.unit_price * item.quantity | appCurrency }}</span>
+        <!-- Sidebar -->
+        <div class="order-sidebar">
+          <!-- Timeline -->
+          <div class="timeline-card app-card">
+            <div class="app-card__header">
+              <div class="app-card__icon">
+                <i class="pi pi-history"></i>
               </div>
-            }
-          </div>
-
-          <p-divider></p-divider>
-
-          <div class="flex justify-content-between align-items-center">
-            <span class="font-semibold text-lg">{{ 'common.total' | translate }}</span>
-            <span class="font-bold text-2xl text-primary">{{ totalAmount() | appCurrency }}</span>
-          </div>
-        </p-card>
-      </div>
-
-      <!-- Sidebar -->
-      <div class="col-12 lg:col-5 flex flex-column gap-3">
-        <!-- Timeline Card -->
-        <p-card>
-          <ng-template pTemplate="header">
-            <div class="flex align-items-center gap-2 p-3 pb-0">
-              <p-avatar icon="pi pi-history" shape="circle" styleClass="bg-primary"></p-avatar>
-              <span class="font-semibold text-lg">{{ 'orders.detail.order_timeline' | translate }}</span>
+              <h2 class="app-card__title">{{ 'orders.detail.order_timeline' | translate }}</h2>
             </div>
-          </ng-template>
-
-          <p-timeline [value]="orderStatuses()" align="left">
-            <ng-template pTemplate="content" let-status>
-              <div class="ml-3">
-                <div class="font-semibold">{{ status.status }}</div>
-                <div class="text-color-secondary text-sm">{{ status.date | appDate }}</div>
+            <div class="app-card__content">
+              <div class="timeline-wrapper">
+                <p-timeline [value]="orderStatuses()" align="left">
+                  <ng-template pTemplate="content" let-status>
+                    <div class="timeline-content">
+                      <div class="status-text">{{ status.status }}</div>
+                      <div class="status-date">{{ status.date | appDate }}</div>
+                    </div>
+                  </ng-template>
+                  <ng-template pTemplate="opposite" let-status>
+                    <!-- Empty -->
+                  </ng-template>
+                  <ng-template pTemplate="marker" let-status>
+                    <span class="timeline-marker" [style.background]="status.color">
+                      <i [class]="status.icon"></i>
+                    </span>
+                  </ng-template>
+                </p-timeline>
               </div>
-            </ng-template>
-            <ng-template pTemplate="marker" let-status>
-              <span class="flex align-items-center justify-content-center border-circle text-white w-2rem h-2rem" [style.background]="status.color">
-                <i [class]="status.icon" style="font-size: 0.875rem"></i>
-              </span>
-            </ng-template>
-          </p-timeline>
-        </p-card>
-
-        <!-- Actions Card -->
-        <p-card>
-          <ng-template pTemplate="header">
-            <div class="flex align-items-center gap-2 p-3 pb-0">
-              <p-avatar icon="pi pi-cog" shape="circle" styleClass="bg-primary"></p-avatar>
-              <span class="font-semibold text-lg">{{ 'orders.detail.order_actions_title' | translate }}</span>
             </div>
-          </ng-template>
-
-          <div class="flex flex-column gap-3">
-            @if (canCancelOrder()) {
-              <p-button
-                [label]="'orders.detail.cancel_order_button' | translate"
-                icon="pi pi-times"
-                severity="danger"
-                styleClass="w-full"
-                (click)="cancelOrder()">
-              </p-button>
-              <p class="text-xs text-color-secondary text-center m-0">{{ 'orders.detail.cancel_order_note' | translate }}</p>
-            }
-            <p-button
-              [label]="'orders.detail.contact_support' | translate"
-              icon="pi pi-comments"
-              severity="secondary"
-              styleClass="w-full">
-            </p-button>
           </div>
-        </p-card>
+
+          <!-- Actions -->
+          <div class="actions-card app-card">
+            <div class="app-card__header">
+              <div class="app-card__icon">
+                <i class="pi pi-cog"></i>
+              </div>
+              <h2 class="app-card__title">{{ 'orders.detail.order_actions_title' | translate }}</h2>
+            </div>
+            <div class="app-card__content">
+              <div class="action-buttons">
+                @if (canCancelOrder()) {
+                  <button class="action-btn action-btn--danger" (click)="cancelOrder()">
+                    <i class="pi pi-times"></i>
+                    {{ 'orders.detail.cancel_order_button' | translate }}
+                  </button>
+                  <p class="action-note">{{ 'orders.detail.cancel_order_note' | translate }}</p>
+                }
+                <button class="action-btn action-btn--secondary">
+                  <i class="pi pi-comments"></i>
+                  {{ 'orders.detail.contact_support' | translate }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   }
