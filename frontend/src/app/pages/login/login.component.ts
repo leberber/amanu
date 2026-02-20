@@ -14,6 +14,7 @@ import { AuthService } from '../../services/auth.service';
 import { UserRole } from '../../models/user.model';
 import { LanguageSelectorComponent } from '../../components/language-selector/language-selector.component';
 import { ToastMessageService } from '../../core/services/toast-message.service';
+import { STORAGE_KEYS } from '../../core/constants/app.constants';
 
 @Component({
   selector: 'app-login',
@@ -134,9 +135,9 @@ export class LoginComponent implements OnInit {
   }
 
   private checkSessionExpired(): void {
-    const sessionExpired = localStorage.getItem('session_expired');
+    const sessionExpired = localStorage.getItem(STORAGE_KEYS.SESSION_EXPIRED);
     if (sessionExpired === 'true') {
-      localStorage.removeItem('session_expired');
+      localStorage.removeItem(STORAGE_KEYS.SESSION_EXPIRED);
       setTimeout(() => {
         this.toast.showSessionExpired();
       }, 300);

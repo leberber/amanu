@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, tap, switchMap, map } from 'rxjs';
 import { ApiService } from './api.service';
 import { LoginRequest, LoginResponse, RegisterRequest, User, UserRole } from '../models/user.model';
+import { STORAGE_KEYS } from '../core/constants/app.constants';
 
 @Injectable({
   providedIn: 'root'
@@ -34,7 +35,7 @@ export class AuthService {
     
     return this.apiService.post<LoginResponse>('/auth/login', body.toString(), options).pipe(
       tap(response => {
-        localStorage.setItem('token', response.access_token);
+        localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, response.access_token);
         this.isLoggedInSubject.next(true); // Notify login state change
       }),
       // Chain the user loading after successful token acquisition
@@ -47,8 +48,8 @@ export class AuthService {
   }
   
   logout(): void {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    localStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
+    localStorage.removeItem(STORAGE_KEYS.USER_DATA);
     this.currentUserSubject.next(null);
     this.isLoggedInSubject.next(false); // Notify logout state change
   }
@@ -56,16 +57,16 @@ export class AuthService {
   loadCurrentUser(): Observable<User> {
     return this.apiService.get<User>('/users/me').pipe(
       tap(user => {
-        localStorage.setItem('user', JSON.stringify(user));
+        localStorage.setItem(STORAGE_KEYS.USER_DATA, JSON.stringify(user));
         this.currentUserSubject.next(user);
         this.isLoggedInSubject.next(true); // Ensure login state is true
       })
     );
   }
-  
+
   private loadStoredUser(): void {
-    const storedUser = localStorage.getItem('user');
-    const token = localStorage.getItem('token');
+    const storedUser = localStorage.getItem(STORAGE_KEYS.USER_DATA);
+    const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
     
     if (storedUser && token) {
       try {
@@ -80,7 +81,7 @@ export class AuthService {
   }
   
   get isLoggedIn(): boolean {
-    return !!localStorage.getItem('token');
+    return !!localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
   }
   
   get currentUserValue(): User | null {
@@ -89,7 +90,7 @@ export class AuthService {
   
   updateCurrentUser(user: User): void {
     if (user) {
-      localStorage.setItem('user', JSON.stringify(user));
+      localStorage.setItem(STORAGE_KEYS.USER_DATA, JSON.stringify(user));
       this.currentUserSubject.next(user);
     }
   }

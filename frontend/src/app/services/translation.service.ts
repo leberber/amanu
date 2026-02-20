@@ -2,6 +2,7 @@
 import { Injectable, signal, computed } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { BehaviorSubject } from 'rxjs';
+import { STORAGE_KEYS } from '../core/constants/app.constants';
 
 export interface Language {
   code: string;
@@ -62,7 +63,7 @@ export class TranslationService {
 
   private getSavedLanguage(): string {
     try {
-      return localStorage.getItem('selected-language') || this.defaultLanguage;
+      return localStorage.getItem(STORAGE_KEYS.LANGUAGE) || this.defaultLanguage;
     } catch (error) {
       console.warn('Could not access localStorage:', error);
       return this.defaultLanguage;
@@ -71,7 +72,7 @@ export class TranslationService {
 
   private saveLanguage(language: string): void {
     try {
-      localStorage.setItem('selected-language', language);
+      localStorage.setItem(STORAGE_KEYS.LANGUAGE, language);
     } catch (error) {
       console.warn('Could not save language to localStorage:', error);
     }

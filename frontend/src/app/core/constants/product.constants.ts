@@ -1,10 +1,10 @@
 // Product-related constants
+// Note: LOW_STOCK_THRESHOLD is defined in app.constants.ts PRODUCT object
 export const PRODUCT_CONSTANTS = {
   DEFAULT_QUANTITY: 1,
   MIN_QUANTITY: 1,
   MAX_QUANTITY: 100,
   QUANTITY_STEP: 1,
-  LOW_STOCK_THRESHOLD: 20,
   QUANTITY_INCREMENT: 5,
   
   // Grid display settings

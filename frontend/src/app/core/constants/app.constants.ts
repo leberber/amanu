@@ -132,12 +132,15 @@ export const BREAKPOINTS = {
 
 // Storage Keys
 export const STORAGE_KEYS = {
-  AUTH_TOKEN: 'auth_token',
+  AUTH_TOKEN: 'token',
   REFRESH_TOKEN: 'refresh_token',
-  USER_DATA: 'user_data',
-  LANGUAGE: 'app_language',
+  USER_DATA: 'user',
+  SESSION_EXPIRED: 'session_expired',
+  LANGUAGE: 'selected-language',
+  CURRENCY: 'selected-currency',
   THEME: 'app_theme',
-  CART: 'cart_data',
+  CART: 'fresh_produce_cart',
+  CART_PROMO: 'fresh_produce_promo',
   PREFERENCES: 'user_preferences'
 } as const;
 

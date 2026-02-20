@@ -5,6 +5,7 @@ import { catchError } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { ToastMessageService } from '../services/toast-message.service';
 import { AuthService } from '../../services/auth.service';
+import { STORAGE_KEYS } from '../constants/app.constants';
 
 /**
  * Interceptor for consistent API error handling
@@ -75,10 +76,10 @@ export class ApiErrorInterceptor implements HttpInterceptor {
   private handleUnauthorized(): void {
     // Clear auth state
     this.authService.logout();
-    
+
     // Set session expired flag
-    localStorage.setItem('session_expired', 'true');
-    
+    localStorage.setItem(STORAGE_KEYS.SESSION_EXPIRED, 'true');
+
     // Navigate to login with return URL
     this.router.navigate(['/login'], {
       queryParams: { returnUrl: this.router.url }

@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { STORAGE_KEYS } from '../core/constants/app.constants';
 
 @Injectable({
   providedIn: 'root'
@@ -14,7 +15,7 @@ export class ApiService {
 
   // Helper method to get auth headers
   private getHeaders(): HttpHeaders {
-    const token = localStorage.getItem('token'); // Changed from 'auth_token' to 'token'
+    const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
     let headers = new HttpHeaders({
       'Content-Type': 'application/json'
     });

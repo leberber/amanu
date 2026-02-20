@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
 import { Product, QuantityConfig } from '../models/product.model';
 import { AppliedPromotion } from '../models/promotion.model';
+import { STORAGE_KEYS } from '../core/constants/app.constants';
 
 export interface CartItem {
   id: string;
@@ -23,8 +24,8 @@ export interface CartItem {
   providedIn: 'root'
 })
 export class CartService {
-  private STORAGE_KEY = 'fresh_produce_cart';
-  private PROMO_STORAGE_KEY = 'fresh_produce_promo';
+  private readonly STORAGE_KEY = STORAGE_KEYS.CART;
+  private readonly PROMO_STORAGE_KEY = STORAGE_KEYS.CART_PROMO;
   private cartItemsSubject = new BehaviorSubject<CartItem[]>([]);
   private appliedPromotionSubject = new BehaviorSubject<AppliedPromotion | null>(null);
 
