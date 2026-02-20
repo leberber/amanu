@@ -1,13 +1,13 @@
 // src/app/app.component.ts
-import { Component, inject, OnInit, signal, computed, DestroyRef, HostListener } from '@angular/core';
+import { Component, inject, OnInit, signal, DestroyRef, HostListener } from '@angular/core';
 import { Router, RouterOutlet, NavigationEnd } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { filter } from 'rxjs';
 
 import { BottomNavigationComponent } from './components/bottom-navigation/bottom-navigation.component';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
-import { AuthService } from './services/auth.service';
 import { ROUTES } from './core/constants/routes.constants';
+import { BREAKPOINTS } from './core/constants/app.constants';
 
 @Component({
   selector: 'app-root',
@@ -21,11 +21,9 @@ import { ROUTES } from './core/constants/routes.constants';
   styleUrl: './app.component.scss'
 })
 export class AppComponent implements OnInit {
-  // Signals for reactive state
   showNavigation = signal(false);
-  isMobile = signal(window.innerWidth < 768);
+  isMobile = signal(window.innerWidth < BREAKPOINTS.MD);
 
-  private authService = inject(AuthService);
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
 
@@ -38,8 +36,8 @@ export class AppComponent implements OnInit {
   ];
 
   @HostListener('window:resize')
-  onResize() {
-    this.isMobile.set(window.innerWidth < 768);
+  onResize(): void {
+    this.isMobile.set(window.innerWidth < BREAKPOINTS.MD);
   }
 
   ngOnInit() {

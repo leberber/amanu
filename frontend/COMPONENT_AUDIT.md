@@ -26,7 +26,7 @@ For each component check:
 
 | Component | TS | HTML | SCSS | Signals | @if/@for | Status | Notes |
 |-----------|:--:|:----:|:----:|:-------:|:--------:|:------:|-------|
-| app.component | [ ] | [ ] | [ ] | [ ] | [ ] | Pending | |
+| app.component | [x] | [x] | [x] | [x] | [x] | Done | SCSS minimized (54→26 lines), uses PrimeFlex utilities, router-outlet pattern moved to global |
 
 ---
 
@@ -151,7 +151,7 @@ For each component check:
 
 | Category | Total | Reviewed | Remaining |
 |----------|:-----:|:--------:|:---------:|
-| App Root | 1 | 0 | 1 |
+| App Root | 1 | 1 | 0 |
 | Layout | 0 | 0 | 0 |
 | Shared | 12 | 0 | 12 |
 | Base | 1 | 0 | 1 |
@@ -162,7 +162,7 @@ For each component check:
 | Order Pages | 2 | 0 | 2 |
 | Admin Pages | 13 | 0 | 13 |
 | Other Pages | 1 | 0 | 1 |
-| **TOTAL** | **46** | **0** | **46** |
+| **TOTAL** | **46** | **1** | **45** |
 
 ---
 

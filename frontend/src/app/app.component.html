@@ -1,17 +1,16 @@
 <!-- src/app/app.component.html -->
-<div class="app-layout" [class.with-sidebar]="showNavigation() && !isMobile()" [class.with-bottom-nav]="showNavigation() && isMobile()">
+<div class="flex h-screen overflow-hidden"
+     [class.with-sidebar]="showNavigation() && !isMobile()"
+     [class.with-bottom-nav]="showNavigation() && isMobile()">
 
-  <!-- Sidebar - renders fixed on desktop, drawer on mobile -->
   @if (showNavigation()) {
     <app-sidebar />
   }
 
-  <!-- Main content area -->
-  <main class="app-main">
+  <main class="app-main flex-1 h-screen overflow-hidden flex flex-column">
     <router-outlet></router-outlet>
   </main>
 
-  <!-- Bottom navigation - Mobile only -->
   @if (showNavigation() && isMobile()) {
     <app-bottom-navigation />
   }
