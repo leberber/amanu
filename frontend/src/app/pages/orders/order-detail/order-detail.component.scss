@@ -1,52 +1,10 @@
 // =============================================================================
 // Order Detail Component Styles
 // =============================================================================
-// Uses global theme tokens and shared components from _theme.scss
-// Only component-specific styles are defined here
+// Uses global styles from _components.scss
+// - Topbar header: uses .topbar-header, .topbar-header__icon, etc.
+// - Status badge: uses .topbar-badge
 // =============================================================================
-
-// -----------------------------------------------------------------------------
-// Custom Header (in page-layout top bar)
-// -----------------------------------------------------------------------------
-.order-detail-header {
-  display: flex;
-  align-items: center;
-  gap: var(--space-md);
-  flex: 1;
-
-  &__icon {
-    width: var(--icon-md);
-    height: var(--icon-md);
-    background: var(--primary-gradient);
-    border-radius: var(--radius-md);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-
-    i {
-      color: white;
-      font-size: var(--font-size-lg);
-    }
-  }
-
-  &__info {
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-  }
-
-  &__title {
-    font-size: var(--font-size-lg);
-    font-weight: var(--font-weight-semibold);
-    color: var(--color-text-primary);
-  }
-
-  &__date {
-    font-size: var(--font-size-xs);
-    color: var(--color-text-secondary);
-  }
-}
 
 // -----------------------------------------------------------------------------
 // Content Wrapper

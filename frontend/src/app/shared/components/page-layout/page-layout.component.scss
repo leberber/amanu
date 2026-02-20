@@ -80,6 +80,9 @@ $bottom-nav-height: 70px;
     max-width: 60%;
     text-align: center;
     z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
   }
 
   // Page title
@@ -102,6 +105,16 @@ $bottom-nav-height: 70px;
     z-index: 2;
     min-width: 40px;
     justify-content: flex-end;
+
+    // Make status badge bigger in topbar
+    .status-badge {
+      padding: 0.5rem 1rem;
+      font-size: 0.85rem;
+
+      i {
+        font-size: 1.1rem;
+      }
+    }
   }
 }
 

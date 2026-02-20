@@ -105,6 +105,97 @@
   }
 }
 
+// =============================================================================
+// 1b. TOPBAR HEADER (for page-layout)
+// =============================================================================
+// Reusable header styles for pages using page-layout component
+// Used in: order-detail, cart, product-detail, etc.
+
+// Topbar header with icon and info
+.topbar-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+
+  &__icon {
+    width: 36px;
+    height: 36px;
+    background: var(--primary-gradient);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    i {
+      color: white;
+      font-size: 1rem;
+    }
+  }
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  &__title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__subtitle {
+    font-size: 0.75rem;
+    color: var(--text-color-secondary);
+  }
+}
+
+// Topbar status badge (bigger version for actions slot)
+.topbar-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+
+  i {
+    font-size: 1.1rem;
+  }
+
+  // Status variants
+  &.pending {
+    background: var(--color-pending-bg);
+    color: var(--color-pending);
+  }
+  &.confirmed {
+    background: var(--color-confirmed-bg);
+    color: var(--color-confirmed);
+  }
+  &.shipped {
+    background: var(--color-shipped-bg);
+    color: var(--color-shipped);
+  }
+  &.delivered {
+    background: var(--color-delivered-bg);
+    color: var(--color-delivered);
+  }
+  &.cancelled {
+    background: var(--color-cancelled-bg);
+    color: var(--color-cancelled);
+  }
+  &.active {
+    background: rgba(17, 153, 142, 0.15);
+    color: #11998e;
+  }
+}
+
 
 // =============================================================================
 // 2. GLASS CARDS
