@@ -8,6 +8,12 @@ import { of, forkJoin } from 'rxjs';
 
 import { ToastModule } from 'primeng/toast';
 import { TimelineModule } from 'primeng/timeline';
+import { CardModule } from 'primeng/card';
+import { ButtonModule } from 'primeng/button';
+import { AvatarModule } from 'primeng/avatar';
+import { DividerModule } from 'primeng/divider';
+import { TagModule } from 'primeng/tag';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { ROUTES } from '../../../core/constants/routes.constants';
@@ -40,6 +46,12 @@ interface OrderStatus {
     RouterLink,
     ToastModule,
     TimelineModule,
+    CardModule,
+    ButtonModule,
+    AvatarModule,
+    DividerModule,
+    TagModule,
+    ProgressSpinnerModule,
     TranslateModule,
     PageLayoutComponent,
     ImageLightboxComponent,
