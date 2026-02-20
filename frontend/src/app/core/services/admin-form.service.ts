@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastMessageService } from './toast-message.service';
+import { TranslationService } from '../../services/translation.service';
 import { ANIMATION, VALIDATION } from '../constants/app.constants';
 
 export interface FormSuccessConfig {
@@ -18,9 +19,7 @@ export interface FormErrorConfig {
 }
 
 export interface TranslationObject {
-  en: string;
-  fr: string;
-  ar: string;
+  [key: string]: string;
 }
 
 export interface TranslationFieldConfig {
@@ -43,10 +42,13 @@ export interface EntityWithTranslations {
 export class AdminFormService {
   private toast = inject(ToastMessageService);
   private translateService = inject(TranslateService);
+  private translationService = inject(TranslationService);
   private router = inject(Router);
   private fb = inject(FormBuilder);
 
-  private readonly LANGUAGES = ['en', 'fr', 'ar'];
+  private get LANGUAGES(): string[] {
+    return this.translationService.availableLanguages.map(lang => lang.code);
+  }
 
   /**
    * Handle form submission success with optional redirect
@@ -97,11 +99,11 @@ export class AdminFormService {
    * @returns Translation object
    */
   createTranslationObject(formValues: any, fieldName: string): TranslationObject {
-    return {
-      en: formValues[`${fieldName}_en`] || '',
-      fr: formValues[`${fieldName}_fr`] || '',
-      ar: formValues[`${fieldName}_ar`] || ''
-    };
+    const translations: TranslationObject = {};
+    this.LANGUAGES.forEach(lang => {
+      translations[lang] = formValues[`${fieldName}_${lang}`] || '';
+    });
+    return translations;
   }
 
   /**
@@ -146,14 +148,14 @@ export class AdminFormService {
    */
   resetFormWithDefaults(form: any, defaults: any = {}, translationFields: string[] = []): void {
     const resetValues: any = { ...defaults };
-    
+
     // Set empty strings for translation fields
     translationFields.forEach(fieldName => {
-      resetValues[`${fieldName}_en`] = '';
-      resetValues[`${fieldName}_fr`] = '';
-      resetValues[`${fieldName}_ar`] = '';
+      this.LANGUAGES.forEach(lang => {
+        resetValues[`${fieldName}_${lang}`] = '';
+      });
     });
-    
+
     form.reset(resetValues);
   }
 

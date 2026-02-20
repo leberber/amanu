@@ -161,7 +161,7 @@ def read_products(
         ]
         
         # Search in translations for the current language
-        if lang and lang in ['en', 'fr', 'ar']:
+        if lang and lang in TranslationService.SUPPORTED_LANGUAGES:
             # PostgreSQL JSON extraction: Search in specific language translations
             search_conditions.extend([
                 func.coalesce(
