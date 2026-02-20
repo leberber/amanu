@@ -51,6 +51,12 @@ html, body{
   --page-height: calc(100vh - var(--bottom-nav-height));
   --p-datatable-header-cell-selected-background: transparent !important;
   --p-datatable-header-cell-selected-color: inherit !important;
+
+  /* Brand colors */
+  --primary-color: #2E6CB7;
+  --primary-700: #0F3C82;
+  --primary-rgb: 46, 108, 183;
+  --primary-gradient: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-700) 100%);
 }
 
 @media (max-width: 767px) {

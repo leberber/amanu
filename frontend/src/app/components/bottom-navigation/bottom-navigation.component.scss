@@ -1,10 +1,12 @@
+// Bottom Navigation Component
+// Uses global .badge from _shared-components.scss
+
 .bottom-nav {
   position: fixed;
   bottom: 0;
-  left: 0;
-  right: 0;
-  background: var(--surface-card, white);
-  border-top: 1px solid var(--surface-border, #e0e0e0);
+  inset-inline: 0; // RTL support
+  background: var(--surface-card);
+  border-top: 1px solid var(--surface-border);
   display: flex;
   padding: 8px 8px calc(8px + env(safe-area-inset-bottom, 0px)) 8px;
   z-index: var(--z-bottom-nav, 1000);
@@ -15,23 +17,23 @@
     flex-direction: column;
     align-items: center;
     text-decoration: none;
-    color: var(--primary-600, rgba(15, 60, 130, 0.9));
+    color: var(--text-color-secondary);
     padding: 8px 4px;
-    border-radius: var(--border-radius, 12px);
+    border-radius: var(--border-radius);
     margin: 0 4px;
     transition: all 0.2s ease;
     cursor: pointer;
 
     i, span {
-      color: var(--primary-600, rgba(15, 60, 130, 0.9));
+      color: var(--text-color-secondary);
     }
 
     &.active {
-      color: var(--primary-700, #0F3C82);
-      font-weight: 700;
+      color: var(--primary-color);
+      font-weight: 600;
 
       i, span {
-        color: var(--primary-700, #0F3C82);
+        color: var(--primary-color);
       }
     }
   }
@@ -51,31 +53,22 @@
   position: absolute;
   top: 0;
   height: 3px;
-  background: var(--primary-700, #0F3C82);
+  background: var(--primary-color);
   transition: left 0.3s ease, width 0.3s ease;
   z-index: 1;
 }
 
 .cart-icon {
   position: relative;
+
+  // Badge positioning override for this context
+  .badge {
+    top: -8px;
+    inset-inline-end: -8px;
+  }
 }
 
-.badge {
-  position: absolute;
-  top: -8px;
-  inset-inline-end: -8px;
-  background: var(--red-500, red);
-  color: white !important;
-  border-radius: 50%;
-  width: 18px;
-  height: 18px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 10px;
-}
-
-// Hide on desktop
+// Hide on desktop (768px = BREAKPOINTS.MD)
 @media (min-width: 768px) {
   .bottom-nav {
     display: none;
@@ -84,18 +77,9 @@
 
 // Dark theme
 :host-context(.my-app-dark) .bottom-nav {
-  background: var(--surface-card, #1a1a1a);
-  border-top-color: var(--surface-border, #333);
-
-  a {
-    color: var(--primary-400, #5a8ac7);
-
-    &.active {
-      color: var(--primary-300, #7ba3d4);
-
-      i, span {
-        color: var(--primary-300, #7ba3d4);
-      }
+  a.active {
+    i, span {
+      color: var(--primary-400);
     }
   }
 }

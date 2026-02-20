@@ -70,7 +70,7 @@ For each component check:
 
 | Component | TS | HTML | SCSS | Signals | @if/@for | Status | Notes |
 |-----------|:--:|:----:|:----:|:-------:|:--------:|:------:|-------|
-| components/bottom-navigation | [ ] | [ ] | [ ] | [ ] | [ ] | Pending | |
+| components/bottom-navigation | [x] | [x] | [x] | [x] | [x] | Done | SCSS 102→85 lines, uses ROUTES, RTL inset-inline, global .badge |
 | components/language-selector | [ ] | [ ] | [ ] | [ ] | [ ] | Pending | |
 | components/sidebar | [x] | [x] | [x] | [x] | [x] | Done | SCSS 674→173 lines, uses ROUTES/BREAKPOINTS, RTL drawer, PrimeFlex utilities |
 
@@ -155,14 +155,14 @@ For each component check:
 | Layout | 0 | 0 | 0 |
 | Shared | 12 | 0 | 12 |
 | Base | 1 | 0 | 1 |
-| UI | 3 | 1 | 2 |
+| UI | 3 | 2 | 1 |
 | Auth Pages | 4 | 0 | 4 |
 | User Pages | 4 | 0 | 4 |
 | Product Pages | 5 | 0 | 5 |
 | Order Pages | 2 | 0 | 2 |
 | Admin Pages | 13 | 0 | 13 |
 | Other Pages | 1 | 0 | 1 |
-| **TOTAL** | **46** | **2** | **44** |
+| **TOTAL** | **46** | **3** | **43** |
 
 ---
 

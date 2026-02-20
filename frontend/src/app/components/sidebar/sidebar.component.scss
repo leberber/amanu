@@ -15,9 +15,15 @@
 
 // Nav item with icon - sidebar specific styling
 .nav-item {
+  margin: 0; // Prevent browser defaults
+
   &:hover {
     background: rgba(var(--primary-rgb, 46, 108, 183), 0.08);
     color: var(--primary-color);
+
+    .nav-icon i {
+      color: var(--primary-color);
+    }
   }
 
   &.active {
@@ -26,19 +32,26 @@
     font-weight: 600;
 
     .nav-icon {
-      background: var(--primary-gradient);
-      i { color: white; }
+      background: var(--primary-gradient, linear-gradient(135deg, #2E6CB7 0%, #0F3C82 100%));
+
+      i {
+        color: white !important;
+      }
     }
   }
 }
 
 .nav-icon {
   width: 36px;
-  height: 25px;
+  height: 36px;
   border-radius: 10px;
-  background: var(--surface-100);
+  background: var(--surface-100, #f1f5f9);
   position: relative;
-  i { color: var(--text-color-secondary); }
+
+  i {
+    font-size: 1rem;
+    color: var(--text-color-secondary, #64748b);
+  }
 }
 
 // ===================== MOBILE DRAWER =====================

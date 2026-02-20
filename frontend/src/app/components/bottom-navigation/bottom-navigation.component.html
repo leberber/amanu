@@ -3,14 +3,14 @@
   <div class="nav-indicator" [style.left.px]="indicatorLeft()" [style.width.px]="indicatorWidth()"></div>
 
   <!-- Products -->
-  <a #navItem routerLink="/products" routerLinkActive="active">
+  <a #navItem [routerLink]="routes.PRODUCTS" routerLinkActive="active">
     <i class="pi pi-shopping-bag"></i>
     <span>{{ 'common.products' | translate }}</span>
   </a>
 
   <!-- Cart (only for customers) -->
   @if (!isAdminOrStaff()) {
-    <a #navItem routerLink="/cart" routerLinkActive="active" class="cart-link">
+    <a #navItem [routerLink]="routes.CART" routerLinkActive="active" class="cart-link">
       <div class="cart-icon">
         <i class="pi pi-shopping-cart"></i>
         @if (cartCount() > 0) {
@@ -23,7 +23,7 @@
 
   <!-- Orders (only for logged in customers) -->
   @if (authService.isLoggedIn && !isAdminOrStaff()) {
-    <a #navItem routerLink="/orders" routerLinkActive="active">
+    <a #navItem [routerLink]="routes.ORDERS" routerLinkActive="active">
       <i class="pi pi-list"></i>
       <span>{{ 'header.orders' | translate }}</span>
     </a>
@@ -31,7 +31,7 @@
 
   <!-- Admin (for staff/admin) - links to admin dashboard -->
   @if (isAdminOrStaff()) {
-    <a #navItem routerLink="/admin" routerLinkActive="active">
+    <a #navItem [routerLink]="routes.ADMIN.DASHBOARD" routerLinkActive="active">
       <i class="pi pi-cog"></i>
       <span>{{ 'header.admin' | translate }}</span>
     </a>

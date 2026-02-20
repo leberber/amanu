@@ -6,6 +6,7 @@ import { filter } from 'rxjs/operators';
 import { AuthService } from '../../services/auth.service';
 import { CartService } from '../../services/cart.service';
 import { SidebarService } from '../../services/sidebar.service';
+import { ROUTES } from '../../core/constants/routes.constants';
 
 @Component({
   selector: 'app-bottom-navigation',
@@ -20,6 +21,9 @@ export class BottomNavigationComponent implements OnInit, AfterViewInit {
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
   private sidebarService = inject(SidebarService);
+
+  // Routes constant for template
+  readonly routes = ROUTES;
 
   // Signal-based view children
   navItems = viewChildren<ElementRef>('navItem');
