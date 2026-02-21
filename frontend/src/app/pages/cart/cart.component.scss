@@ -8,6 +8,12 @@
 // - .action-btn (--primary, --secondary, --success, --ghost, --danger, --sm, --lg)
 // - .icon-btn (--danger, --sm)
 // - .thumbnail
+// - .count-badge, .count-badge--absolute
+// - .total-display, .total-display--primary
+// - .price-badge
+// - .organic-badge
+// - .item-skeleton
+// - .delete-btn
 // Uses global styles from _skeleton.scss:
 // - .skeleton, .skeleton-text, .skeleton-image, .skeleton-avatar, .skeleton-row
 // =============================================================================
@@ -35,22 +41,6 @@
   .app-card__header {
     position: relative;
   }
-}
-
-.item-count-badge {
-  position: absolute;
-  right: var(--space-4);
-  min-width: var(--icon-md);
-  height: var(--icon-md);
-  padding: 0 var(--space-2);
-  border-radius: var(--radius-md);
-  background: var(--color-success);
-  color: var(--color-white);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-bold);
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 // -----------------------------------------------------------------------------
@@ -86,17 +76,6 @@
   border-radius: var(--radius-md);
 }
 
-.organic-badge {
-  background: var(--color-success);
-  color: var(--color-white);
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-bold);
-  padding: var(--space-1) var(--space-2);
-  border-radius: var(--radius-sm);
-  margin-left: var(--space-2);
-  text-transform: uppercase;
-}
-
 // -----------------------------------------------------------------------------
 // Cart Item Mobile
 // -----------------------------------------------------------------------------
@@ -115,17 +94,6 @@
     display: flex;
     align-items: center;
     gap: var(--space-3);
-
-    .icon-btn--danger {
-      width: 36px;
-      height: 36px;
-      background: none;
-
-      i {
-        color: #ef4444;
-        font-size: 1rem;
-      }
-    }
   }
 
   &__row2 {
@@ -145,10 +113,6 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-    }
-
-    .organic-badge {
-      flex-shrink: 0;
     }
   }
 
@@ -176,18 +140,6 @@
       }
     }
   }
-}
-
-.price-badge {
-  display: inline-block;
-  font-size: 11px;
-  font-weight: var(--font-weight-bold);
-  padding: 3px 6px;
-  background-color: #f1f5f9;
-  border-radius: 5px;
-  color: #1e293b;
-  text-align: center;
-  white-space: nowrap;
 }
 
 .cart-item-total {
@@ -259,8 +211,8 @@
   align-items: center;
   justify-content: space-between;
   padding: var(--space-3) var(--space-4);
-  background: rgba(var(--color-success-rgb), 0.08);
-  border: var(--border-width) solid rgba(var(--color-success-rgb), 0.25);
+  background: rgba(34, 197, 94, 0.08);
+  border: var(--border-width) solid rgba(34, 197, 94, 0.25);
   border-radius: var(--radius-md);
 }
 
@@ -270,20 +222,20 @@
   gap: var(--space-3);
 
   i {
-    color: var(--color-success);
+    color: #22c55e;
     font-size: var(--font-size-lg);
   }
 
   span {
     font-weight: var(--font-weight-semibold);
-    color: var(--color-success);
+    color: #22c55e;
   }
 }
 
 .promo-error {
   display: block;
   font-size: var(--font-size-sm);
-  color: var(--color-danger);
+  color: #ef4444;
   margin-top: var(--space-2);
   font-weight: var(--font-weight-medium);
 }
@@ -319,7 +271,7 @@
   color: var(--text-color);
 
   &--free {
-    color: var(--color-success);
+    color: #22c55e;
     font-weight: var(--font-weight-bold);
   }
 }
@@ -327,32 +279,7 @@
 .breakdown-row--discount {
   .breakdown-label,
   .breakdown-value {
-    color: var(--color-success);
-  }
-}
-
-// -----------------------------------------------------------------------------
-// Cart Total
-// -----------------------------------------------------------------------------
-.cart-total {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: var(--space-5);
-  background: var(--primary-color);
-  border-radius: var(--radius-lg);
-  margin-bottom: var(--space-5);
-
-  &__label {
-    font-size: var(--font-size-base);
-    font-weight: var(--font-weight-semibold);
-    color: rgba(255, 255, 255, 0.85);
-  }
-
-  &__amount {
-    font-size: var(--font-size-xl);
-    font-weight: var(--font-weight-bold);
-    color: var(--color-white);
+    color: #22c55e;
   }
 }
 
@@ -400,17 +327,5 @@
         border-bottom: none;
       }
     }
-  }
-}
-
-// -----------------------------------------------------------------------------
-// Skeleton
-// -----------------------------------------------------------------------------
-.cart-item-skeleton {
-  padding: var(--space-4) 0;
-  border-bottom: var(--border-width) solid var(--border-color-light);
-
-  &:last-child {
-    border-bottom: none;
   }
 }

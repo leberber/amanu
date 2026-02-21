@@ -1665,3 +1665,296 @@
     gap: var(--space-3);
   }
 }
+
+
+// =============================================================================
+// 20. COUNT BADGE
+// =============================================================================
+// Reusable count badge for item counts (cart, orders, etc.)
+
+.count-badge {
+  min-width: var(--icon-md);
+  height: var(--icon-md);
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  // Default success variant
+  background: #22c55e;
+  color: var(--color-white);
+
+  // Position variant (for card headers)
+  &--absolute {
+    position: absolute;
+    right: var(--space-4);
+  }
+
+  // Color variants
+  &--primary {
+    background: var(--primary-color);
+  }
+
+  &--warning {
+    background: #f97316;
+  }
+
+  &--danger {
+    background: #ef4444;
+  }
+}
+
+
+// =============================================================================
+// 21. TOTAL DISPLAY
+// =============================================================================
+// Reusable total section for cart, orders, checkout, etc.
+
+.total-display {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-5);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--space-5);
+
+  &__label {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+  }
+
+  &__amount {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+  }
+
+  // Primary variant (colored background)
+  &--primary {
+    background: var(--primary-color);
+
+    .total-display__label {
+      color: rgba(255, 255, 255, 0.85);
+    }
+
+    .total-display__amount {
+      color: var(--color-white);
+    }
+  }
+
+  // Subtle variant (gray background)
+  &--subtle {
+    background: var(--surface-100);
+    padding: var(--space-6);
+    margin-top: var(--space-5);
+
+    .total-display__label {
+      font-size: var(--font-size-md);
+      font-weight: var(--font-weight-medium);
+      color: var(--text-color-secondary);
+    }
+
+    .total-display__amount {
+      color: var(--text-color-strong);
+    }
+  }
+}
+
+
+// =============================================================================
+// 22. DATA TABLE
+// =============================================================================
+// Shared PrimeNG table overrides for consistent styling
+
+.data-table {
+  :host ::ng-deep,
+  ::ng-deep {
+    .p-datatable {
+      .p-datatable-header-cell {
+        background: var(--surface-50);
+        border: none;
+        padding: var(--space-4) var(--space-5);
+        font-size: var(--font-size-xs);
+        font-weight: var(--font-weight-bold);
+        color: var(--text-color-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      .p-datatable-tbody > tr {
+        background: transparent;
+        transition: background var(--transition-fast);
+
+        &:hover {
+          background: var(--surface-hover);
+        }
+
+        > td {
+          border: none;
+          border-bottom: var(--border-width) solid var(--border-color-light);
+          padding: var(--space-4) var(--space-5);
+          vertical-align: middle;
+        }
+
+        &:last-child > td {
+          border-bottom: none;
+        }
+      }
+    }
+  }
+}
+
+
+// =============================================================================
+// 23. PRICE BADGE
+// =============================================================================
+// Inline price badge for compact price display
+
+.price-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: var(--font-weight-bold);
+  padding: 3px 6px;
+  background-color: #f1f5f9;
+  border-radius: 5px;
+  color: #1e293b;
+  text-align: center;
+  white-space: nowrap;
+
+  .my-app-dark & {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: var(--text-color);
+  }
+}
+
+
+// =============================================================================
+// 24. ORGANIC BADGE
+// =============================================================================
+// Badge for organic products
+
+.organic-badge {
+  background: #22c55e;
+  color: var(--color-white);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  text-transform: uppercase;
+  flex-shrink: 0;
+
+  // Inline variant with margin
+  &--inline {
+    margin-left: var(--space-2);
+  }
+}
+
+
+// =============================================================================
+// 25. ITEM SKELETON
+// =============================================================================
+// Skeleton wrapper for list items
+
+.item-skeleton {
+  display: flex;
+  align-items: center;
+  padding: var(--space-4) 0;
+  gap: var(--space-3);
+  border-bottom: var(--border-width) solid var(--border-color-light);
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &__content {
+    flex: 1;
+  }
+}
+
+
+// =============================================================================
+// 26. VIEW BUTTON
+// =============================================================================
+// Outlined view/action button
+
+.view-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  border: var(--border-width) solid var(--primary-color);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--primary-color);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-decoration: none;
+
+  &:hover {
+    background: var(--primary-50, rgba(46, 108, 183, 0.1));
+  }
+
+  i {
+    font-size: var(--font-size-sm);
+  }
+}
+
+
+// =============================================================================
+// 27. ACTION LINK
+// =============================================================================
+// Link styled as action item (for sidebars, menus)
+
+.action-link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--surface-ground, var(--surface-100));
+  color: var(--text-color);
+  text-decoration: none;
+  transition: all var(--transition-fast);
+
+  &:hover {
+    background: var(--primary-50, rgba(46, 108, 183, 0.1));
+    color: var(--primary-color);
+  }
+
+  i {
+    font-size: var(--font-size-lg);
+    color: var(--primary-color);
+  }
+}
+
+
+// =============================================================================
+// 28. DELETE BUTTON (ICON ONLY)
+// =============================================================================
+// Red delete button for list items
+
+.delete-btn {
+  width: 36px;
+  height: 36px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+
+  i {
+    color: #ef4444;
+    font-size: 1rem;
+  }
+
+  &:hover {
+    background: rgba(239, 68, 68, 0.1);
+    border-radius: var(--radius-md);
+  }
+}

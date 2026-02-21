@@ -5,6 +5,11 @@
 // - .app-card, .app-card__header, .app-card__icon, .app-card__title, .app-card__content
 // - .stats-list, .stat-item, .stat-item__icon, .stat-item__content, .stat-item__value, .stat-item__label
 // - .stat-item__icon--primary, .stat-item__icon--success (variants)
+// - .count-badge (for order count)
+// - .view-btn (for table actions)
+// - .action-link (for sidebar links)
+// - .item-skeleton (for loading states)
+// - .status-badge (for order statuses)
 // Uses global styles from _skeleton.scss:
 // - .skeleton, .skeleton-text, .skeleton-avatar, .skeleton-circle, .skeleton-badge, .skeleton-button, .skeleton-row
 // =============================================================================
@@ -25,23 +30,6 @@
   @media (min-width: 768px) {
     grid-template-columns: 1fr 320px;
   }
-}
-
-// -----------------------------------------------------------------------------
-// Order Count Badge (in topbar)
-// -----------------------------------------------------------------------------
-.order-count-badge {
-  min-width: var(--icon-md);
-  height: var(--icon-md);
-  padding: 0 var(--space-2);
-  border-radius: var(--radius-md);
-  background: var(--success-color);
-  color: var(--color-white);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-bold);
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 // -----------------------------------------------------------------------------
@@ -144,65 +132,6 @@
   }
 }
 
-// Order item skeleton (mobile)
-.order-item-skeleton {
-  display: flex;
-  align-items: center;
-  padding: var(--space-3);
-  gap: var(--space-3);
-
-  &__content {
-    flex: 1;
-  }
-}
-
-// -----------------------------------------------------------------------------
-// Action Link
-// -----------------------------------------------------------------------------
-.action-link {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-3);
-  border-radius: var(--radius-md);
-  background: var(--surface-ground);
-  color: var(--text-color);
-  text-decoration: none;
-  transition: all var(--transition-fast);
-
-  &:hover {
-    background: var(--primary-50);
-    color: var(--primary-color);
-  }
-
-  i {
-    font-size: var(--font-size-lg);
-    color: var(--primary-color);
-  }
-}
-
-// -----------------------------------------------------------------------------
-// View Button (Table)
-// -----------------------------------------------------------------------------
-.view-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-2) var(--space-4);
-  border: var(--border-width) solid var(--primary-color);
-  border-radius: var(--radius-md);
-  background: transparent;
-  color: var(--primary-color);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-  cursor: pointer;
-  transition: all var(--transition-fast);
-
-  &:hover {
-    background: var(--primary-50);
-  }
-}
-
 // -----------------------------------------------------------------------------
 // Table Styles
 // -----------------------------------------------------------------------------
@@ -228,7 +157,7 @@
   color: var(--text-color-strong);
 }
 
-// Table overrides
+// Table overrides (same pattern as cart)
 :host ::ng-deep {
   .p-datatable {
     .p-datatable-header-cell {

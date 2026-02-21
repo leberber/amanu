@@ -8,6 +8,7 @@
 // - .action-btn, .action-btn--secondary, .action-btn--danger
 // - .thumbnail
 // - .items-simple-list, .item-line, .item-qty, .item-name, .item-total
+// - .total-display, .total-display--subtle
 // Uses global styles from _skeleton.scss:
 // - .skeleton, .skeleton-text, .skeleton-avatar, .skeleton-image, .skeleton-circle, .skeleton-row
 // =============================================================================
@@ -39,32 +40,6 @@
 .item-line {
   gap: var(--space-5);
   padding: var(--space-5) 0;
-}
-
-// -----------------------------------------------------------------------------
-// Order Total
-// -----------------------------------------------------------------------------
-.order-total {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: var(--space-6);
-  margin-top: var(--space-5);
-  background: var(--surface-100);
-  border-radius: var(--radius-lg);
-  flex-shrink: 0;
-
-  .total-label {
-    font-size: var(--font-size-md);
-    font-weight: var(--font-weight-medium);
-    color: var(--text-color-secondary);
-  }
-
-  .total-amount {
-    font-size: var(--font-size-xl);
-    font-weight: var(--font-weight-bold);
-    color: var(--text-color-strong);
-  }
 }
 
 // -----------------------------------------------------------------------------

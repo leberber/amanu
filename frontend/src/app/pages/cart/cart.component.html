@@ -32,7 +32,7 @@
           </div>
           <div class="app-card__content">
             @for (i of [1, 2, 3]; track i) {
-              <div class="skeleton-row cart-item-skeleton">
+              <div class="skeleton-row item-skeleton">
                 <div class="skeleton skeleton-image skeleton-image--sm"></div>
                 <div class="skeleton-row__content">
                   <div class="skeleton skeleton-text skeleton-text--w60 skeleton-mb"></div>
@@ -81,7 +81,7 @@
               <i class="pi pi-shopping-cart"></i>
             </div>
             <h2 class="app-card__title">{{ 'cart.your_items' | translate }}</h2>
-            <div class="item-count-badge">{{ cartItemCount() }}</div>
+            <div class="count-badge count-badge--absolute">{{ cartItemCount() }}</div>
           </div>
 
           <!-- Desktop View -->
@@ -279,9 +279,9 @@
             </div>
 
             <!-- Total -->
-            <div class="cart-total">
-              <span class="cart-total__label">{{ 'common.total' | translate }}</span>
-              <span class="cart-total__amount">{{ finalTotal() + shippingCost() | appCurrency }}</span>
+            <div class="total-display total-display--primary">
+              <span class="total-display__label">{{ 'common.total' | translate }}</span>
+              <span class="total-display__amount">{{ finalTotal() + shippingCost() | appCurrency }}</span>
             </div>
 
             <!-- Actions -->

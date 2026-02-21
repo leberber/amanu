@@ -6,7 +6,7 @@
 
   <!-- Order count badge -->
   @if (orders().length > 0 && !loading()) {
-    <div pageActions class="order-count-badge">
+    <div pageActions class="count-badge">
       {{ orders().length }}
     </div>
   }
@@ -44,9 +44,9 @@
           </div>
           <div class="app-card__content">
             @for (i of [1,2,3,4]; track i) {
-              <div class="order-item-skeleton">
+              <div class="item-skeleton">
                 <div class="skeleton skeleton-circle"></div>
-                <div class="order-item-skeleton__content">
+                <div class="item-skeleton__content">
                   <div class="skeleton skeleton-text skeleton-text--w70 skeleton-mb"></div>
                   <div class="skeleton skeleton-text skeleton-text--w50"></div>
                 </div>

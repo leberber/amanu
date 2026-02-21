@@ -57,7 +57,7 @@
                 </li>
               }
             </ul>
-            <div class="order-total">
+            <div class="total-display total-display--subtle">
               <div class="skeleton skeleton-text skeleton-text--w60"></div>
               <div class="skeleton skeleton-text skeleton-text--w100"></div>
             </div>
@@ -128,9 +128,9 @@
                 </li>
               }
             </ul>
-            <div class="order-total">
-              <span class="total-label">{{ 'common.total' | translate }}</span>
-              <span class="total-amount">{{ totalAmount() | appCurrency }}</span>
+            <div class="total-display total-display--subtle">
+              <span class="total-display__label">{{ 'common.total' | translate }}</span>
+              <span class="total-display__amount">{{ totalAmount() | appCurrency }}</span>
             </div>
           </div>
         </div>
