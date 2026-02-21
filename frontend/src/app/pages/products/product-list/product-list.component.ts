@@ -1,9 +1,9 @@
-import { Component, computed, effect, inject, OnInit, signal, OnDestroy, ViewChild, ElementRef, DestroyRef } from '@angular/core';
+import { Component, computed, effect, inject, OnInit, signal, OnDestroy, DestroyRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Observable, forkJoin, of, Subject } from 'rxjs';
-import { switchMap, tap, map, debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { Observable, forkJoin, of } from 'rxjs';
+import { switchMap, tap, map } from 'rxjs/operators';
 
 import { ToastModule } from 'primeng/toast';
 import { TagModule } from 'primeng/tag';
@@ -15,6 +15,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { CartService } from '../../../services/cart.service';
 import { ProductService } from '../../../services/product.service';
 import { TranslationService } from '../../../services/translation.service';
+import { SearchService } from '../../../services/search.service';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { UnitsService } from '../../../core/services/units.service';
 import { FlyToCartService } from '../../../core/services/fly-to-cart.service';
@@ -22,14 +23,15 @@ import { BrandService } from '../../../core/services/brand.service';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
 import { UserPreferencesService, ViewMode } from '../../../core/services/user-preferences.service';
 import { Product, Category, ProductFilter } from '../../../models/product.model';
-import { SEARCH } from '../../../core/constants/app.constants';
 import { getDefaultQuantity } from '../../../shared/utils/quantity.utils';
 import { Brand } from '../../../models/brand.model';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { ProductCardComponent, AddToCartEvent } from '../components/product-card/product-card.component';
-import { ProductToolbarComponent, SortOption } from '../components/product-toolbar/product-toolbar.component';
+
+export type SortOption = 'name_asc' | 'name_desc' | 'price_asc' | 'price_desc' | 'created_at_desc';
 import { ProductQuantitySelectorComponent } from '../../../shared/components/product-quantity-selector/product-quantity-selector.component';
 import { HorizontalFilterComponent } from '../../../shared/components/horizontal-filter/horizontal-filter.component';
+import { SearchInputComponent } from '../../../shared/components/search-input/search-input.component';
 import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
 import { UnitPipe } from '../../../shared/pipes/unit.pipe';
 
@@ -47,9 +49,9 @@ import { UnitPipe } from '../../../shared/pipes/unit.pipe';
     TranslateModule,
     EmptyStateComponent,
     ProductCardComponent,
-    ProductToolbarComponent,
     ProductQuantitySelectorComponent,
     HorizontalFilterComponent,
+    SearchInputComponent,
     CurrencyPipe,
     UnitPipe
   ],
@@ -69,6 +71,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
   protected unitsService = inject(UnitsService);
   private flyToCartService = inject(FlyToCartService);
   private preferencesService = inject(UserPreferencesService);
+  private searchService = inject(SearchService);
 
   // State signals
   products = signal<Product[]>([]);
@@ -81,8 +84,6 @@ export class ProductListComponent implements OnInit, OnDestroy {
   categoryBarExpanded = signal(true); // Category bar visibility
   filterMode = signal<'categories' | 'brands'>('categories'); // Toggle between categories and brands
   loading = signal(true);
-  searchQuery = signal('');
-  appliedSearchQuery = signal(''); // Actually applied search
   selectedSort = signal<SortOption>('name_asc'); // Always sort alphabetically
   // Layout is now managed by UserPreferencesService
   layout = computed(() => this.preferencesService.productViewMode());
@@ -98,21 +99,12 @@ export class ProductListComponent implements OnInit, OnDestroy {
   showMobileToolbar = signal(false);
   private lastScrollY = 0;
 
-  // Mobile search overlay
-  showMobileSearch = signal(false);
-  mobileSearchQuery = '';
-  @ViewChild('mobileSearchInput') mobileSearchInput?: ElementRef<HTMLInputElement>;
-
-  // Minimum search characters
-  readonly minSearchChars = SEARCH.MIN_SEARCH_LENGTH;
-
   private destroyRef = inject(DestroyRef);
-  private searchSubject = new Subject<string>();
 
   // Computed values
   activeFilterCount = computed(() => {
     const allCategoriesApplied = this.appliedCategories().length === this.categories().length;
-    const hasSearch = this.appliedSearchQuery().trim() !== '';
+    const hasSearch = this.searchService.hasActiveSearch();
     let count = 0;
     if (!allCategoriesApplied && this.appliedCategories().length > 0) count++;
     if (hasSearch) count++;
@@ -143,21 +135,13 @@ export class ProductListComponent implements OnInit, OnDestroy {
         this.loadBrands();
       });
 
-    // Set up search debounce with minimum character filter - automatically cleaned up on destroy
-    this.searchSubject.pipe(
-      takeUntilDestroyed(this.destroyRef),
-      debounceTime(SEARCH.DEBOUNCE_TIME),
-      distinctUntilChanged() // Only emit if value is different from previous
-    ).subscribe(searchQuery => {
-      const trimmed = searchQuery.trim();
-      // Only trigger search if query has minimum characters or is empty (to clear search)
-      if (trimmed.length >= this.minSearchChars || trimmed.length === 0) {
-        this.searchQuery.set(searchQuery);
-        this.appliedSearchQuery.set(searchQuery);
-        this.filters.update(f => ({ ...f, search: searchQuery }));
+    // Subscribe to search service
+    this.searchService.searchTriggered$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(query => {
+        this.filters.update(f => ({ ...f, search: query }));
         this.loadProducts().subscribe();
-      }
-    });
+      });
 
     // Set up scroll listener for mobile header (opposite of bottom nav)
     if (typeof window !== 'undefined') {
@@ -200,40 +184,6 @@ export class ProductListComponent implements OnInit, OnDestroy {
 
   toggleMobileToolbar(): void {
     this.showMobileToolbar.update(v => !v);
-  }
-
-  // Mobile search overlay methods
-  openMobileSearch(): void {
-    this.showMobileSearch.set(true);
-    this.mobileSearchQuery = this.searchQuery() || '';
-    // Focus input after animation
-    setTimeout(() => {
-      this.mobileSearchInput?.nativeElement?.focus();
-    }, 100);
-  }
-
-  closeMobileSearch(): void {
-    this.showMobileSearch.set(false);
-  }
-
-  submitMobileSearch(): void {
-    this.searchQuery.set(this.mobileSearchQuery);
-    this.appliedSearchQuery.set(this.mobileSearchQuery);
-    this.filters.update(f => ({ ...f, search: this.mobileSearchQuery }));
-    this.loadProducts().subscribe();
-    this.closeMobileSearch();
-  }
-
-  clearMobileSearch(): void {
-    this.mobileSearchQuery = '';
-    this.mobileSearchInput?.nativeElement?.focus();
-  }
-
-  onMobileSearchInput(event: Event): void {
-    const value = (event.target as HTMLInputElement).value;
-    this.mobileSearchQuery = value;
-    // Trigger debounced search
-    this.searchSubject.next(value);
   }
 
   toggleFilterMode(): void {
@@ -310,24 +260,13 @@ export class ProductListComponent implements OnInit, OnDestroy {
   applyFilters(): void {
     // Update applied filters
     this.appliedCategories.set([...this.selectedCategories()]);
-    this.appliedSearchQuery.set(this.searchQuery());
-    
+
     this.loading.set(true);
     this.loadProducts().subscribe();
   }
 
   handleFiltersApplied(): void {
     this.applyFilters();
-  }
-
-  onSearch(): void {
-    this.appliedSearchQuery.set(this.searchQuery());
-    this.filters.update(f => ({ ...f, search: this.searchQuery() }));
-    this.loadProducts().subscribe();
-  }
-
-  onSearchInput(query: string): void {
-    this.searchSubject.next(query);
   }
 
   clearFilters(): void {
@@ -346,15 +285,14 @@ export class ProductListComponent implements OnInit, OnDestroy {
     }
 
     this.activeBrandId.set(null);
-    this.searchQuery.set('');
-    this.appliedSearchQuery.set('');
+    this.searchService.clear();
     this.selectedSort.set('name_asc');
     this.loadProducts().subscribe();
   }
 
   hasActiveFilters(): boolean {
-    if (this.searchQuery().trim() !== '') return true;
-    
+    if (this.searchService.hasActiveSearch()) return true;
+
     const allCategories = this.categories();
     const selectedCategories = this.selectedCategories();
     return allCategories.length > 0 && selectedCategories.length !== allCategories.length;
@@ -428,7 +366,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
             }
             
             if (params['search']) {
-              this.searchQuery.set(params['search']);
+              this.searchService.setQuery(params['search']);
               this.filters.update(f => ({ ...f, search: params['search'] }));
             }
             

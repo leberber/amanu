@@ -5,19 +5,3 @@
 // Desktop/Mobile responsive toggle (can't do with Tailwind easily due to component encapsulation)
 .products-desktop { display: none; @media (min-width: 1024px) { display: flex; flex-direction: column; } }
 .products-mobile { @media (min-width: 1024px) { display: none; } }
-
-// Mobile fixed header (unique positioning)
-.mobile-sticky-header { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); }
-.mobile-header-spacer { height: 95px; }
-
-// Search layer toggle animation
-.filter-layer.hidden { opacity: 0; pointer-events: none; position: absolute; }
-.search-layer { position: absolute; inset: 0; opacity: 0; pointer-events: none; &.active { position: relative; opacity: 1; pointer-events: auto; } }
-
-// Search input (unique styling)
-.search-overlay-container { display: flex; align-items: center; gap: 0.75rem; padding: 1rem; padding-top: calc(1rem + env(safe-area-inset-top)); background: var(--surface-card); }
-.search-input-wrapper { flex: 1; position: relative; }
-.search-icon { position: absolute; left: 1rem; color: var(--primary-color); pointer-events: none; }
-.mobile-search-input { width: 100%; padding: 0.75rem 3rem; border: 2px solid var(--border-color); border-radius: 12px; font-size: 16px; &:focus { outline: none; border-color: var(--primary-color); } }
-.clear-search-btn { position: absolute; right: 0.5rem; top: 50%; transform: translateY(-50%); width: 28px; height: 28px; border: none; border-radius: 50%; background: var(--surface-100); cursor: pointer; }
-.close-search-btn { width: 40px; height: 40px; border: none; border-radius: 8px; background: var(--primary-color); color: white; cursor: pointer; }
