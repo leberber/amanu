@@ -1,122 +1,140 @@
 <!-- src/app/pages/account/account.component.html -->
-<div class="account-page">
-  <p-toast></p-toast>
-  <div class="account-content">
-    <!-- Back Button -->
-    <app-back-button route="/products" [circular]="true" [fixed]="true"></app-back-button>
+<app-page-layout
+  title="account.title"
+  [showBackButton]="true"
+  [backRoute]="ROUTES.PRODUCTS"
+  [fullscreen]="true">
 
-    <!-- Page Header with User Info -->
-    <div class="page-header">
-      <div class="icon-wrapper">
-        <div class="icon-bg"></div>
-        <div class="icon-circle">
-          {{ user?.full_name?.charAt(0)?.toUpperCase() || 'U' }}
-        </div>
-      </div>
-      <h1>{{ user?.full_name || 'User' }}</h1>
-      <p>{{ user?.email }}</p>
+  <!-- User info in top bar -->
+  <div pageActions class="topbar-user">
+    <div class="topbar-user__avatar">
+      {{ userInitial() }}
     </div>
+    <div class="topbar-user__info">
+      <span class="topbar-user__name">{{ user()?.full_name || 'User' }}</span>
+      <span class="topbar-user__email">{{ user()?.email }}</span>
+    </div>
+  </div>
 
-    <!-- Account Info Card -->
-    <div class="account-card info-card-wrapper">
-      <div class="info-items">
-        <!-- Role -->
-        <div class="info-strip-item">
-          <div class="strip-icon role">
+  <p-toast></p-toast>
+
+  <div class="detail-content">
+
+    <div class="account-grid">
+      <!-- Left Column: Account Info -->
+      <div class="account-column account-column--info">
+        <!-- Account Info Card -->
+        <div class="app-card account-info-card">
+        <div class="app-card__header">
+          <div class="app-card__icon">
             <i class="pi pi-id-card"></i>
           </div>
-          <div class="strip-content">
-            <span class="strip-label">{{ 'account.user_role' | translate }}</span>
-            <p-tag
-              [severity]="user?.role === 'admin' ? 'danger' : (user?.role === 'staff' ? 'warn' : 'info')"
-              [value]="'admin.users.roles.' + user?.role | translate">
-            </p-tag>
-          </div>
+          <h2 class="app-card__title">{{ 'account.account_info' | translate }}</h2>
         </div>
 
-        <!-- Member Since -->
-        <div class="info-strip-item">
-          <div class="strip-icon date">
-            <i class="pi pi-calendar"></i>
-          </div>
-          <div class="strip-content">
-            <span class="strip-label">{{ 'account.member_since' | translate }}</span>
-            <span class="strip-value">{{ user?.created_at ? (user!.created_at | appDate) : '-' }}</span>
-          </div>
-        </div>
+        <div class="app-card__content">
+          <div class="info-items">
+            <!-- Role -->
+            <div class="info-item">
+              <div class="info-item__icon info-item__icon--role">
+                <i class="pi pi-id-card"></i>
+              </div>
+              <div class="info-item__content">
+                <span class="info-item__label">{{ 'account.user_role' | translate }}</span>
+                <p-tag
+                  [severity]="userRoleSeverity()"
+                  [value]="'admin.users.roles.' + user()?.role | translate">
+                </p-tag>
+              </div>
+            </div>
 
-        <!-- Account Status -->
-        <div class="info-strip-item">
-          <div class="strip-icon status">
-            <i class="pi pi-check-circle"></i>
-          </div>
-          <div class="strip-content">
-            <span class="strip-label">{{ 'account.account_status' | translate }}</span>
-            <p-tag
-              [severity]="user?.is_active ? 'success' : 'danger'"
-              [value]="user?.is_active ? ('account.active' | translate) : ('account.inactive' | translate)"
-              [icon]="user?.is_active ? 'pi pi-check' : 'pi pi-times'">
-            </p-tag>
-          </div>
-        </div>
+            <!-- Member Since -->
+            <div class="info-item">
+              <div class="info-item__icon info-item__icon--date">
+                <i class="pi pi-calendar"></i>
+              </div>
+              <div class="info-item__content">
+                <span class="info-item__label">{{ 'account.member_since' | translate }}</span>
+                <span class="info-item__value">{{ user()?.created_at ? (user()!.created_at | appDate) : '-' }}</span>
+              </div>
+            </div>
 
-        <!-- Notifications -->
-        <div class="info-strip-item">
-          <div class="strip-icon notifications">
-            <i class="pi pi-bell"></i>
+            <!-- Account Status -->
+            <div class="info-item">
+              <div class="info-item__icon info-item__icon--status">
+                <i class="pi pi-check-circle"></i>
+              </div>
+              <div class="info-item__content">
+                <span class="info-item__label">{{ 'account.account_status' | translate }}</span>
+                <p-tag
+                  [severity]="user()?.is_active ? 'success' : 'danger'"
+                  [value]="user()?.is_active ? ('account.active' | translate) : ('account.inactive' | translate)"
+                  [icon]="user()?.is_active ? 'pi pi-check' : 'pi pi-times'">
+                </p-tag>
+              </div>
+            </div>
+
+            <!-- Notifications -->
+            <div class="info-item">
+              <div class="info-item__icon info-item__icon--notifications">
+                <i class="pi pi-bell"></i>
+              </div>
+              <div class="info-item__content">
+                <span class="info-item__label">{{ 'account.notifications' | translate }}</span>
+                <span class="info-item__hint">{{ 'account.notifications_hint' | translate }}</span>
+              </div>
+              <div class="info-item__action">
+                <p-toggleswitch
+                  [(ngModel)]="notificationsEnabled"
+                  (onChange)="toggleNotifications()"
+                  [disabled]="loadingNotifications()">
+                </p-toggleswitch>
+              </div>
+            </div>
           </div>
-          <div class="strip-content">
-            <span class="strip-label">{{ 'account.notifications' | translate }}</span>
-            <span class="strip-hint">{{ 'account.notifications_hint' | translate }}</span>
-          </div>
-          <div class="strip-action">
-            <p-toggleswitch
-              [(ngModel)]="notificationsEnabled"
-              (onChange)="toggleNotifications()"
-              [disabled]="loadingNotifications">
-            </p-toggleswitch>
-          </div>
+
+          <!-- Logout Button -->
+          <button class="logout-btn" (click)="logout()">
+            <i class="pi pi-sign-out"></i>
+            <span>{{ 'common.logout' | translate }}</span>
+          </button>
         </div>
       </div>
+      </div>
 
-      <!-- Logout Button -->
-      <button class="logout-btn" (click)="logout()">
-        <i class="pi pi-sign-out"></i>
-        <span>{{ 'common.logout' | translate }}</span>
-      </button>
-    </div>
-
-    <div class="cards-grid single-column">
-        <!-- Profile Information Card -->
-        <div class="account-card">
-          <div class="card-header">
-            <div class="header-icon profile">
-              <i class="pi pi-user"></i>
-            </div>
-            <div class="header-text">
-              <h2>{{ 'account.profile_information' | translate }}</h2>
-              <p>{{ 'account.profile_description' | translate }}</p>
-            </div>
+      <!-- Right Column: Forms -->
+      <div class="account-column account-column--forms">
+      <!-- Profile Information Card -->
+      <div class="app-card">
+        <div class="app-card__header">
+          <div class="app-card__icon app-card__icon--primary">
+            <i class="pi pi-user"></i>
           </div>
+          <div class="app-card__header-text">
+            <h2 class="app-card__title">{{ 'account.profile_information' | translate }}</h2>
+            <span class="app-card__subtitle">{{ 'account.profile_description' | translate }}</span>
+          </div>
+        </div>
 
+        <div class="app-card__content">
           <form [formGroup]="profileForm" (ngSubmit)="onUpdateProfile()">
             <div class="form-grid">
               <!-- Full Name -->
-              <div class="field-wrapper">
-                <div class="fancy-field"
-                     [class.focused]="focusedField === 'full_name'"
+              <div class="form-field">
+                <div class="field-box"
+                     [class.focused]="focusedField() === 'full_name'"
                      [class.filled]="profileForm.get('full_name')?.value">
-                  <div class="field-icon">
+                  <div class="field-box__icon">
                     <i class="pi pi-user"></i>
                   </div>
-                  <div class="field-content">
+                  <div class="field-box__content">
                     <label>{{ 'account.full_name' | translate }}</label>
                     <input
                       type="text"
                       formControlName="full_name"
                       [placeholder]="'account.full_name_placeholder' | translate"
-                      (focus)="focusedField = 'full_name'"
-                      (blur)="focusedField = ''">
+                      (focus)="setFocusedField('full_name')"
+                      (blur)="clearFocusedField()">
                   </div>
                 </div>
                 @if (getFieldError(profileForm, 'full_name', 'required')) {
@@ -128,112 +146,113 @@
               </div>
 
               <!-- Email (Disabled) -->
-              <div class="field-wrapper">
-                <div class="fancy-field disabled filled">
-                  <div class="field-icon">
+              <div class="form-field">
+                <div class="field-box disabled filled">
+                  <div class="field-box__icon">
                     <i class="pi pi-envelope"></i>
                   </div>
-                  <div class="field-content">
+                  <div class="field-box__content">
                     <label>{{ 'account.email' | translate }}</label>
                     <input
                       type="email"
                       formControlName="email"
                       [placeholder]="'account.email_placeholder' | translate">
                   </div>
-                  <div class="lock-badge" [pTooltip]="'account.email_cannot_change' | translate" tooltipPosition="top">
+                  <div class="field-box__lock" [pTooltip]="'account.email_cannot_change' | translate" tooltipPosition="top">
                     <i class="pi pi-lock"></i>
                   </div>
                 </div>
-                <small class="field-hint" style="margin-left: 0.5rem; display: block; margin-top: 0.25rem; font-size: 0.75rem; color: var(--text-color-secondary);">
-                  {{ 'account.email_hint' | translate }}
-                </small>
+                <small class="field-hint">{{ 'account.email_hint' | translate }}</small>
               </div>
 
               <!-- Phone -->
-              <div class="field-wrapper">
-                <div class="fancy-field"
-                     [class.focused]="focusedField === 'phone'"
+              <div class="form-field">
+                <div class="field-box"
+                     [class.focused]="focusedField() === 'phone'"
                      [class.filled]="profileForm.get('phone')?.value">
-                  <div class="field-icon">
+                  <div class="field-box__icon">
                     <i class="pi pi-phone"></i>
                   </div>
-                  <div class="field-content">
+                  <div class="field-box__content">
                     <label>{{ 'account.phone' | translate }}</label>
                     <input
                       type="tel"
                       formControlName="phone"
                       appPhoneFormat
                       [placeholder]="'account.phone_placeholder' | translate"
-                      (focus)="focusedField = 'phone'"
-                      (blur)="focusedField = ''">
+                      (focus)="setFocusedField('phone')"
+                      (blur)="clearFocusedField()">
                   </div>
                 </div>
               </div>
 
               <!-- Address -->
-              <div class="field-wrapper">
-                <div class="fancy-field"
-                     [class.focused]="focusedField === 'address'"
+              <div class="form-field">
+                <div class="field-box"
+                     [class.focused]="focusedField() === 'address'"
                      [class.filled]="profileForm.get('address')?.value">
-                  <div class="field-icon">
+                  <div class="field-box__icon">
                     <i class="pi pi-map-marker"></i>
                   </div>
-                  <div class="field-content">
+                  <div class="field-box__content">
                     <label>{{ 'account.address' | translate }}</label>
                     <input
                       type="text"
                       formControlName="address"
                       [placeholder]="'account.address_placeholder' | translate"
-                      (focus)="focusedField = 'address'"
-                      (blur)="focusedField = ''">
+                      (focus)="setFocusedField('address')"
+                      (blur)="clearFocusedField()">
                   </div>
                 </div>
               </div>
             </div>
 
             <div class="form-actions">
-              <button type="submit" class="fancy-btn" [disabled]="profileForm.invalid || loading">
-                <span *ngIf="!loading">{{ 'account.save_changes' | translate }}</span>
-                <div class="btn-icon" *ngIf="!loading">
+              <button type="submit" class="action-btn action-btn--success" [disabled]="profileForm.invalid || loading()">
+                @if (loading()) {
+                  <i class="pi pi-spin pi-spinner"></i>
+                } @else {
                   <i class="pi pi-check"></i>
-                </div>
-                <i *ngIf="loading" class="pi pi-spin pi-spinner"></i>
+                  <span>{{ 'account.save_changes' | translate }}</span>
+                }
               </button>
             </div>
           </form>
         </div>
+      </div>
 
-        <!-- Change Password Card -->
-        <div class="account-card">
-          <div class="card-header">
-            <div class="header-icon password">
-              <i class="pi pi-lock"></i>
-            </div>
-            <div class="header-text">
-              <h2>{{ 'account.change_password' | translate }}</h2>
-              <p>{{ 'account.password_description' | translate }}</p>
-            </div>
+      <!-- Change Password Card -->
+      <div class="app-card">
+        <div class="app-card__header">
+          <div class="app-card__icon app-card__icon--warning">
+            <i class="pi pi-lock"></i>
           </div>
+          <div class="app-card__header-text">
+            <h2 class="app-card__title">{{ 'account.change_password' | translate }}</h2>
+            <span class="app-card__subtitle">{{ 'account.password_description' | translate }}</span>
+          </div>
+        </div>
 
+        <div class="app-card__content">
           <form [formGroup]="passwordForm" (ngSubmit)="onChangePassword()">
             <div class="form-grid">
               <!-- Current Password -->
-              <div class="field-wrapper field-full">
-                <div class="fancy-field password-field"
-                     [class.focused]="focusedField === 'current_password'">
-                  <div class="field-icon">
+              <div class="form-field form-field--full">
+                <div class="field-box"
+                     [class.focused]="focusedField() === 'current_password'">
+                  <div class="field-box__icon">
                     <i class="pi pi-lock"></i>
                   </div>
-                  <div class="field-content">
+                  <div class="field-box__content field-box__content--password">
                     <label>{{ 'account.current_password' | translate }}</label>
                     <p-password
                       formControlName="current_password"
                       [placeholder]="'account.current_password_placeholder' | translate"
                       [toggleMask]="true"
                       [feedback]="false"
-                      styleClass="fancy-password"
-                      (onFocus)="focusedField = 'current_password'"
-                      (onBlur)="focusedField = ''">
+                      styleClass="field-password"
+                      (onFocus)="setFocusedField('current_password')"
+                      (onBlur)="clearFocusedField()">
                     </p-password>
                   </div>
                 </div>
@@ -243,22 +262,22 @@
               </div>
 
               <!-- New Password -->
-              <div class="field-wrapper">
-                <div class="fancy-field password-field"
-                     [class.focused]="focusedField === 'new_password'">
-                  <div class="field-icon">
+              <div class="form-field">
+                <div class="field-box"
+                     [class.focused]="focusedField() === 'new_password'">
+                  <div class="field-box__icon">
                     <i class="pi pi-lock"></i>
                   </div>
-                  <div class="field-content">
+                  <div class="field-box__content field-box__content--password">
                     <label>{{ 'account.new_password' | translate }}</label>
                     <p-password
                       formControlName="new_password"
                       [placeholder]="'account.new_password_placeholder' | translate"
                       [toggleMask]="true"
                       [feedback]="false"
-                      styleClass="fancy-password"
-                      (onFocus)="focusedField = 'new_password'"
-                      (onBlur)="focusedField = ''">
+                      styleClass="field-password"
+                      (onFocus)="setFocusedField('new_password')"
+                      (onBlur)="clearFocusedField()">
                     </p-password>
                   </div>
                 </div>
@@ -271,22 +290,22 @@
               </div>
 
               <!-- Confirm Password -->
-              <div class="field-wrapper">
-                <div class="fancy-field password-field"
-                     [class.focused]="focusedField === 'confirm_password'">
-                  <div class="field-icon">
+              <div class="form-field">
+                <div class="field-box"
+                     [class.focused]="focusedField() === 'confirm_password'">
+                  <div class="field-box__icon">
                     <i class="pi pi-lock"></i>
                   </div>
-                  <div class="field-content">
+                  <div class="field-box__content field-box__content--password">
                     <label>{{ 'account.confirm_password' | translate }}</label>
                     <p-password
                       formControlName="confirm_password"
                       [placeholder]="'account.confirm_password_placeholder' | translate"
                       [toggleMask]="true"
                       [feedback]="false"
-                      styleClass="fancy-password"
-                      (onFocus)="focusedField = 'confirm_password'"
-                      (onBlur)="focusedField = ''">
+                      styleClass="field-password"
+                      (onFocus)="setFocusedField('confirm_password')"
+                      (onBlur)="clearFocusedField()">
                     </p-password>
                   </div>
                 </div>
@@ -300,16 +319,20 @@
             </div>
 
             <div class="form-actions">
-              <button type="submit" class="fancy-btn warning" [disabled]="passwordForm.invalid || loadingPassword">
-                <span *ngIf="!loadingPassword">{{ 'account.change_password_button' | translate }}</span>
-                <div class="btn-icon" *ngIf="!loadingPassword">
+              <button type="submit" class="action-btn action-btn--warning" [disabled]="passwordForm.invalid || loadingPassword()">
+                @if (loadingPassword()) {
+                  <i class="pi pi-spin pi-spinner"></i>
+                } @else {
                   <i class="pi pi-key"></i>
-                </div>
-                <i *ngIf="loadingPassword" class="pi pi-spin pi-spinner"></i>
+                  <span>{{ 'account.change_password_button' | translate }}</span>
+                }
               </button>
             </div>
           </form>
         </div>
+      </div>
+      </div>
     </div>
   </div>
-</div>
+
+</app-page-layout>

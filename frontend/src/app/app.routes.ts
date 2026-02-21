@@ -132,10 +132,11 @@ export const routes: Routes = [
   },
   
   // User Routes
-  { 
-    path: 'account', 
+  {
+    path: 'account',
     loadComponent: () => import('./pages/account/account.component').then(m => m.AccountComponent),
-    canActivate: [authGuard]
+    canActivate: [authGuard],
+    data: { hideBottomNav: true }
   },
   {
     path: 'checkout',
