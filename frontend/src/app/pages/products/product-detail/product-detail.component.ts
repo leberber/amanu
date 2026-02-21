@@ -23,11 +23,13 @@ import { CurrencyService } from '../../../core/services/currency.service';
 import { UnitsService } from '../../../core/services/units.service';
 import { TranslationService } from '../../../services/translation.service';
 import { Product, Category } from '../../../models/product.model';
+import { Brand } from '../../../models/brand.model';
 import { PRODUCT } from '../../../core/constants/app.constants';
 import { ROUTES } from '../../../core/constants/routes.constants';
 import { getDefaultQuantity } from '../../../shared/utils/quantity.utils';
 import { FlyToCartService } from '../../../core/services/fly-to-cart.service';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
+import { BrandService } from '../../../core/services/brand.service';
 
 @Component({
   selector: 'app-product-detail',
@@ -56,6 +58,7 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   private unitsService = inject(UnitsService);
   private translationService = inject(TranslationService);
   private flyToCartService = inject(FlyToCartService);
+  private brandService = inject(BrandService);
   private destroyRef = inject(DestroyRef);
 
   // Constants
@@ -64,6 +67,7 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   // Signals
   product = signal<Product | null>(null);
   category = signal<Category | null>(null);
+  brand = signal<Brand | null>(null);
   relatedProducts = signal<Product[]>([]);
   loading = signal<boolean>(true);
   error = signal<boolean>(false);
@@ -199,7 +203,14 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
         this.productService.getCategory(product.category_id).subscribe(category => {
           this.category.set(category);
         });
-        
+
+        // Load brand
+        if (product.brand_id) {
+          this.brandService.getBrand(product.brand_id).subscribe(brand => {
+            this.brand.set(brand);
+          });
+        }
+
         // Load related products (same category, excluding current product)
         this.productService.getProductsByCategory(product.category_id).subscribe(products => {
           const related = products.filter(p => p.id !== product.id).slice(0, 4);

@@ -8,12 +8,9 @@
   <!-- Custom header when product is loaded -->
   @if (product()) {
     <div pageHeader class="topbar-header">
-      <div class="topbar-header__icon">
-        <i class="pi pi-box"></i>
-      </div>
       <div class="topbar-header__info">
         <span class="topbar-header__title">{{ product()?.name }}</span>
-        <span class="topbar-header__subtitle">{{ category()?.name || '' }}</span>
+        <span class="topbar-header__subtitle">{{ brand()?.name || '' }}</span>
       </div>
     </div>
   }
