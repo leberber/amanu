@@ -18,10 +18,12 @@ import { TranslationService } from '../../../services/translation.service';
 import { Order } from '../../../models/order.model';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
 import { PageLayoutComponent } from '../../../shared/components/page-layout/page-layout.component';
-import { ImageLightboxComponent } from '../../../shared/components/image-lightbox/image-lightbox.component';
+import { ImageLightboxComponent, LightboxDetails } from '../../../shared/components/image-lightbox/image-lightbox.component';
 import { ErrorStateComponent } from '../../../shared/components/error-state/error-state.component';
 import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
 import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
+import { CurrencyService } from '../../../core/services/currency.service';
+import { OrderItem } from '../../../models/order.model';
 
 interface TimelineStatus {
   status: string;
@@ -55,6 +57,7 @@ export class OrderDetailComponent implements OnInit {
   private translationService = inject(TranslationService);
   private toast = inject(ToastMessageService);
   private translateService = inject(TranslateService);
+  private currencyService = inject(CurrencyService);
   private destroyRef = inject(DestroyRef);
 
   readonly ROUTES = ROUTES;
@@ -63,7 +66,11 @@ export class OrderDetailComponent implements OnInit {
   loading = signal<boolean>(true);
   error = signal<boolean>(false);
   orderStatuses = signal<TimelineStatus[]>([]);
+
+  // Lightbox state
   selectedImage = signal<string | null>(null);
+  lightboxTitle = signal<string | null>(null);
+  lightboxDetails = signal<LightboxDetails[]>([]);
 
   // Computed values
   totalAmount = computed(() => this.order()?.total_amount || 0);
@@ -245,14 +252,34 @@ export class OrderDetailComponent implements OnInit {
     this.router.navigate([ROUTES.ORDERS]);
   }
 
-  openImage(imageUrl: string): void {
-    if (imageUrl) {
-      this.selectedImage.set(imageUrl);
+  openImage(item: OrderItem): void {
+    if (item.product_image_url) {
+      this.selectedImage.set(item.product_image_url);
+      this.lightboxTitle.set(item.product_name);
+
+      const details: LightboxDetails[] = [
+        {
+          label: this.translateService.instant('common.quantity'),
+          value: this.getCartonDisplay(item)
+        },
+        {
+          label: this.translateService.instant('common.price'),
+          value: this.currencyService.formatCurrency(item.unit_price)
+        },
+        {
+          label: this.translateService.instant('common.total'),
+          value: this.currencyService.formatCurrency(item.unit_price * item.quantity)
+        }
+      ];
+
+      this.lightboxDetails.set(details);
     }
   }
 
   closeImage(): void {
     this.selectedImage.set(null);
+    this.lightboxTitle.set(null);
+    this.lightboxDetails.set([]);
   }
 
   // Get formatted display (e.g., "1x10" for 1 unit containing 10 pieces)

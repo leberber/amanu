@@ -1,8 +1,29 @@
 @if (imageUrl(); as url) {
-  <div class="image-lightbox" (click)="onBackdropClick()">
-    <button class="lightbox-close" (click)="onClose()">
+  <div class="lightbox" (click)="onBackdropClick()">
+    <button class="lightbox__close" (click)="onClose()">
       <i class="pi pi-times"></i>
     </button>
-    <img [src]="url" [alt]="altText()" (click)="onImageClick($event)">
+
+    <div class="lightbox__content" (click)="onContentClick($event)">
+      <img [src]="url" [alt]="altText()" class="lightbox__image">
+
+      @if (title() || details().length > 0) {
+        <div class="lightbox__info">
+          @if (title()) {
+            <h3 class="lightbox__title">{{ title() }}</h3>
+          }
+          @if (details().length > 0) {
+            <div class="lightbox__details">
+              @for (detail of details(); track detail.label) {
+                <div class="lightbox__detail">
+                  <span class="lightbox__detail-label">{{ detail.label }}</span>
+                  <span class="lightbox__detail-value">{{ detail.value }}</span>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
   </div>
 }
