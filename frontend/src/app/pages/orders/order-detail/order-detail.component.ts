@@ -1,7 +1,7 @@
 // src/app/pages/orders/order-detail/order-detail.component.ts
 import { Component, OnInit, computed, inject, signal, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink, ActivatedRoute } from '@angular/router';
+import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { switchMap, catchError, map } from 'rxjs/operators';
 import { of, forkJoin } from 'rxjs';
@@ -11,6 +11,7 @@ import { TimelineModule } from 'primeng/timeline';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { ORDER_STATUS } from '../../../core/constants/app.constants';
+import { ROUTES } from '../../../core/constants/routes.constants';
 import { OrderService } from '../../../services/order.service';
 import { ProductService } from '../../../services/product.service';
 import { TranslationService } from '../../../services/translation.service';
@@ -18,6 +19,7 @@ import { Order } from '../../../models/order.model';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
 import { PageLayoutComponent } from '../../../shared/components/page-layout/page-layout.component';
 import { ImageLightboxComponent } from '../../../shared/components/image-lightbox/image-lightbox.component';
+import { ErrorStateComponent } from '../../../shared/components/error-state/error-state.component';
 import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
 import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
 
@@ -39,6 +41,7 @@ interface TimelineStatus {
     TranslateModule,
     PageLayoutComponent,
     ImageLightboxComponent,
+    ErrorStateComponent,
     CurrencyPipe,
     DateFormatPipe
   ],
@@ -47,12 +50,15 @@ interface TimelineStatus {
 })
 export class OrderDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
   private orderService = inject(OrderService);
   private productService = inject(ProductService);
   private translationService = inject(TranslationService);
   private toast = inject(ToastMessageService);
   private translateService = inject(TranslateService);
   private destroyRef = inject(DestroyRef);
+
+  readonly ROUTES = ROUTES;
 
   order = signal<Order | null>(null);
   loading = signal<boolean>(true);
@@ -232,13 +238,15 @@ export class OrderDetailComponent implements OnInit {
         this.toast.showSuccess('orders.detail.order_cancelled_success_message');
       },
       error: (error) => {
-        console.error('Error cancelling order:', error);
         this.toast.showApiError(error, 'orders.detail.cancel_error_message');
       }
     });
   }
 
-  // Image lightbox
+  goBack(): void {
+    this.router.navigate([ROUTES.ORDERS]);
+  }
+
   openImage(imageUrl: string): void {
     if (imageUrl) {
       this.selectedImage.set(imageUrl);
