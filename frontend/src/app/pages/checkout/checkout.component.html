@@ -83,10 +83,14 @@
             <ul class="items-simple-list">
               @for (item of cartItems(); track item.id) {
                 <li class="item-line">
-                  <span class="item-qty">
-                    {{ formatCartonCount(item) }}
-                    <span class="item-pc">{{ item.quantity_config?.quantities?.[0] || 10 }}pc</span>
-                  </span>
+                  <div class="thumbnail">
+                    @if (item.product_image) {
+                      <img [src]="item.product_image" [alt]="item.product_name" loading="lazy">
+                    } @else {
+                      <i class="pi pi-box"></i>
+                    }
+                  </div>
+                  <span class="item-qty">{{ formatCartonCount(item) }}</span>
                   <span class="item-name">{{ item.product_name }}</span>
                   <span class="item-total">{{ item.product_price * item.quantity | appCurrency }}</span>
                 </li>
