@@ -1,5 +1,5 @@
 // src/app/pages/orders/order-list/order-list.component.ts
-import { Component, OnInit, inject, signal, DestroyRef } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, DestroyRef } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
@@ -42,6 +42,11 @@ export class OrderListComponent implements OnInit {
   orders = signal<Order[]>([]);
   loading = signal(true);
   error = signal(false);
+
+  // Computed values
+  totalSpend = computed(() =>
+    this.orders().reduce((sum, order) => sum + order.total_amount, 0)
+  );
 
   // Route constants
   readonly ROUTES = ROUTES;

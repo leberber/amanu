@@ -185,8 +185,8 @@
           </div>
         </div>
 
-        <!-- Sidebar - Stats (Desktop only) -->
-        <div class="order-sidebar hidden md:block">
+        <!-- Sidebar - Stats -->
+        <div class="order-sidebar">
           <div class="stats-card app-card">
             <div class="app-card__header">
               <div class="app-card__icon">
@@ -203,6 +203,15 @@
                   <div class="stat-item__content">
                     <span class="stat-item__value">{{ orders().length }}</span>
                     <span class="stat-item__label">{{ 'orders.stats.total_orders' | translate }}</span>
+                  </div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-item__icon stat-item__icon--spend">
+                    <i class="pi pi-wallet"></i>
+                  </div>
+                  <div class="stat-item__content">
+                    <span class="stat-item__value">{{ totalSpend() | appCurrency }}</span>
+                    <span class="stat-item__label">{{ 'orders.stats.total_spend' | translate }}</span>
                   </div>
                 </div>
               </div>

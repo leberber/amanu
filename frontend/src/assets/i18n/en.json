@@ -435,7 +435,8 @@
     },
     "stats": {
       "title": "Statistics",
-      "total_orders": "Total Orders"
+      "total_orders": "Total Orders",
+      "total_spend": "Total Spend"
     },
     "actions": {
       "title": "Quick Actions",

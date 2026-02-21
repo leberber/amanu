@@ -168,6 +168,14 @@
       }
     }
 
+    &--spend {
+      background: var(--success-50);
+
+      i {
+        color: var(--success-color);
+      }
+    }
+
     i {
       font-size: var(--font-size-md);
     }

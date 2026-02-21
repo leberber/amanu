@@ -432,7 +432,8 @@
     },
     "stats": {
       "title": "Statistiques",
-      "total_orders": "Total Commandes"
+      "total_orders": "Total Commandes",
+      "total_spend": "Total Dépensé"
     },
     "actions": {
       "title": "Actions Rapides",
