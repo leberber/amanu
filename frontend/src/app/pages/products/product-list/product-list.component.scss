@@ -144,11 +144,21 @@ $bottom-nav-height: 70px;
 
 .product-list-item__cart-row {
   display: flex;
-  gap: var(--space-2);
+  width: 100%;
+  gap: var(--space-8);
   align-items: center;
-  margin-top: var(--space-2);
+  margin-top: var(--space-3);
+  padding: var(--space-2) 0;
+
+  .quantity-selector-btn {
+    flex: 1;
+    max-width: none;
+  }
 
   > button:last-child {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
     flex-shrink: 0;
     width: 2.5rem !important;
     height: 2.5rem !important;
