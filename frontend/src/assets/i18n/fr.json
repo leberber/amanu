@@ -165,7 +165,11 @@
         "most_customers_choose": "La plupart des clients choisissent ceci",
         "save_more_bulk": "Économisez plus en achetant en gros",
         "decrease_quantity": "Diminuer la quantité",
-        "increase_quantity": "Augmenter la quantité"
+        "increase_quantity": "Augmenter la quantité",
+        "box": "carton",
+        "boxes": "cartons",
+        "piece": "pièce",
+        "pieces": "pièces"
       }
     },
     "stock": {

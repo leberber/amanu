@@ -165,7 +165,11 @@
         "most_customers_choose": "معظم العملاء يختارون هذا",
         "save_more_bulk": "وفر أكثر عند الشراء بالجملة",
         "decrease_quantity": "تقليل الكمية",
-        "increase_quantity": "زيادة الكمية"
+        "increase_quantity": "زيادة الكمية",
+        "box": "كرتون",
+        "boxes": "كراتين",
+        "piece": "قطعة",
+        "pieces": "قطع"
       }
     },
     "stock": {
