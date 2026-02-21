@@ -13,23 +13,35 @@
 // Layout
 // -----------------------------------------------------------------------------
 .product-detail-content {
-  padding: var(--space-6);
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
+  padding: var(--space-4);
+  padding-bottom: var(--space-8);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+
+  @media (min-width: 768px) {
+    padding: var(--space-6);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
 }
 
 .product-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: var(--space-6);
-  flex: 1;
-  min-height: 0;
+  gap: var(--space-5);
+  width: 100%;
+  max-width: 100%;
 
   @media (min-width: 768px) {
     grid-template-columns: 1fr 1fr;
-    gap: var(--space-8);
+    gap: var(--space-6);
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
   }
 
   @media (min-width: 1024px) {
@@ -37,11 +49,35 @@
   }
 }
 
+.product-left-column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  min-width: 0; // Prevent flex item from overflowing
+
+  @media (min-width: 768px) {
+    align-self: start;
+  }
+}
+
 .product-sidebar {
   display: flex;
   flex-direction: column;
   gap: var(--space-5);
-  overflow-y: auto;
+  min-width: 0; // Prevent flex item from overflowing
+
+  @media (min-width: 768px) {
+    overflow-y: auto;
+    padding-right: var(--space-3);
+    padding-bottom: var(--space-6);
+    margin-bottom: var(--space-4);
+  }
+}
+
+// Ensure cards don't overflow
+.app-card {
+  max-width: 100%;
+  overflow: hidden;
 }
 
 // -----------------------------------------------------------------------------
@@ -122,7 +158,7 @@
   &__current {
     font-size: var(--font-size-2xl);
     font-weight: var(--font-weight-bold);
-    color: var(--primary-color);
+    color: var(--text-color-strong, var(--text-color));
 
     &--promo {
       color: var(--color-danger);
@@ -149,7 +185,7 @@
 .description-text {
   font-size: var(--font-size-base);
   line-height: var(--line-height-relaxed);
-  color: var(--text-color-secondary);
+  color: var(--text-color);
   margin: 0;
 }
 
@@ -295,6 +331,33 @@
   display: block;
 }
 
+// Override quantity selector pills to be more square
+::ng-deep .quantity-selector-container {
+  .quick-pill {
+    height: 2.75rem;
+    padding: 0.625rem 0.5rem;
+  }
+
+  .dropdown-container {
+    min-height: 2.75rem;
+  }
+
+  .compact-select {
+    height: 2.75rem !important;
+    min-height: 2.75rem !important;
+
+    &.p-select {
+      height: 2.75rem !important;
+      min-height: 2.75rem !important;
+    }
+  }
+}
+
+// Add to cart button with more vertical padding
+.cart-card .action-btn {
+  padding: 1.125rem 1.5rem;
+}
+
 // -----------------------------------------------------------------------------
 // Topbar Badge Variants
 // -----------------------------------------------------------------------------
@@ -323,15 +386,18 @@
 // -----------------------------------------------------------------------------
 // Responsive
 // -----------------------------------------------------------------------------
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .product-detail-content {
-    padding: var(--space-4);
     height: auto;
     overflow: visible;
   }
 
   .product-grid {
-    min-height: auto;
+    overflow: visible;
+  }
+
+  .product-sidebar {
+    padding-bottom: var(--space-8);
   }
 
   .product-image-container {
