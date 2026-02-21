@@ -111,17 +111,45 @@
 // Responsive
 // -----------------------------------------------------------------------------
 @media (max-width: 768px) {
+  // Fix: Prevent card from overflowing on iPhone
   .order-items-card {
     min-height: auto;
     overflow: visible;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+
+    .app-card__header {
+      padding: var(--space-4);
+    }
 
     .app-card__content {
       overflow: visible;
+      padding: var(--space-4);
     }
   }
 
   .thumbnail {
     width: var(--icon-md);
     height: var(--icon-md);
+  }
+
+  // Fix: Ensure items fit within available width
+  .item-line {
+    gap: var(--space-2);
+
+    .item-name {
+      flex: 1;
+      min-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .item-total {
+      flex-shrink: 0;
+      min-width: 20%; // Use percentage instead of fixed width
+      text-align: right;
+    }
   }
 }
