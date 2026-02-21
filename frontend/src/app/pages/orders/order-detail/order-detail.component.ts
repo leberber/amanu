@@ -1,7 +1,7 @@
 // src/app/pages/orders/order-detail/order-detail.component.ts
-import { Component, OnInit, OnDestroy, computed, inject, signal, DestroyRef } from '@angular/core';
+import { Component, OnInit, computed, inject, signal, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink, ActivatedRoute, Router } from '@angular/router';
+import { RouterLink, ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { switchMap, catchError, map } from 'rxjs/operators';
 import { of, forkJoin } from 'rxjs';
@@ -10,22 +10,18 @@ import { ToastModule } from 'primeng/toast';
 import { TimelineModule } from 'primeng/timeline';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
-import { ROUTES } from '../../../core/constants/routes.constants';
 import { ORDER_STATUS } from '../../../core/constants/app.constants';
 import { OrderService } from '../../../services/order.service';
 import { ProductService } from '../../../services/product.service';
 import { TranslationService } from '../../../services/translation.service';
-import { CurrencyService } from '../../../core/services/currency.service';
-import { DateService } from '../../../core/services/date.service';
-import { Order, OrderItem } from '../../../models/order.model';
-import { StatusSeverityService } from '../../../core/services/status-severity.service';
+import { Order } from '../../../models/order.model';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
 import { PageLayoutComponent } from '../../../shared/components/page-layout/page-layout.component';
 import { ImageLightboxComponent } from '../../../shared/components/image-lightbox/image-lightbox.component';
 import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
 import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
 
-interface OrderStatus {
+interface TimelineStatus {
   status: string;
   date: string;
   icon: string;
@@ -49,27 +45,20 @@ interface OrderStatus {
   templateUrl: './order-detail.component.html',
   styleUrl: './order-detail.component.scss'
 })
-export class OrderDetailComponent implements OnInit, OnDestroy {
-  // Dependency injection
+export class OrderDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
-  private router = inject(Router);
   private orderService = inject(OrderService);
   private productService = inject(ProductService);
   private translationService = inject(TranslationService);
   private toast = inject(ToastMessageService);
   private translateService = inject(TranslateService);
-  private currencyService = inject(CurrencyService);
-  private dateService = inject(DateService);
-  private statusSeverity = inject(StatusSeverityService);
+  private destroyRef = inject(DestroyRef);
 
-  // Signals
   order = signal<Order | null>(null);
   loading = signal<boolean>(true);
   error = signal<boolean>(false);
-  orderStatuses = signal<OrderStatus[]>([]);
+  orderStatuses = signal<TimelineStatus[]>([]);
   selectedImage = signal<string | null>(null);
-
-  private destroyRef = inject(DestroyRef);
 
   // Computed values
   totalAmount = computed(() => this.order()?.total_amount || 0);
@@ -126,19 +115,12 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
     });
   }
 
-  ngOnDestroy(): void {
-    // Subscriptions are automatically cleaned up by takeUntilDestroyed
-  }
-
-  // Load translated names for order items
   private loadTranslatedNames(): void {
     const currentOrder = this.order();
     if (!currentOrder || !currentOrder.items || currentOrder.items.length === 0) {
       return;
     }
 
-    const currentLanguage = this.translationService.getCurrentLanguage();
-    
     // Create observables to fetch each product with translations
     const productObservables = currentOrder.items.map(item =>
       this.productService.getProduct(item.product_id).pipe(
@@ -179,8 +161,7 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
   }
 
   generateOrderStatusTimeline(order: Order): void {
-    // Create timeline based on order status with translated labels
-    const statuses: OrderStatus[] = [
+    const statuses: TimelineStatus[] = [
       {
         status: this.translateService.instant('orders.detail.timeline.order_placed'),
         date: order.created_at,
@@ -233,10 +214,6 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
     this.orderStatuses.set(statuses);
   }
 
-  getStatusSeverity(status: string): "success" | "secondary" | "info" | "warn" | "danger" | "contrast" {
-    return this.statusSeverity.getOrderStatusSeverity(status);
-  }
-
   getStatusLabel(status: string): string {
     // Use translation service for status labels
     return this.translateService.instant(`orders.status.${status}`);
@@ -259,15 +236,6 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
         this.toast.showApiError(error, 'orders.detail.cancel_error_message');
       }
     });
-  }
-
-  backToOrders(): void {
-    this.router.navigate([ROUTES.ORDERS]);
-  }
-
-  // Format date using DateService
-  formatDate(dateString: string): string {
-    return this.dateService.formatDate(dateString);
   }
 
   // Image lightbox
