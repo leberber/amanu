@@ -137,10 +137,11 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/account/account.component').then(m => m.AccountComponent),
     canActivate: [authGuard]
   },
-  { 
-    path: 'checkout', 
+  {
+    path: 'checkout',
     loadComponent: () => import('./pages/checkout/checkout.component').then(m => m.CheckoutComponent),
-    canActivate: [authGuard]
+    canActivate: [authGuard],
+    data: { hideBottomNav: true }
   },
   { 
     path: 'orders', 
