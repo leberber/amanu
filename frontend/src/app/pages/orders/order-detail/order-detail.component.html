@@ -89,7 +89,7 @@
                       <i class="pi pi-box"></i>
                     }
                   </div>
-                  <span class="item-qty">{{ item.quantity }}x</span>
+                  <span class="item-qty">{{ getCartonDisplay(item) }}</span>
                   <span class="item-name">{{ item.product_name }}</span>
                   <span class="item-total">{{ item.unit_price * item.quantity | appCurrency }}</span>
                 </li>

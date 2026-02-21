@@ -280,4 +280,13 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
   closeImage(): void {
     this.selectedImage.set(null);
   }
+
+  // Get formatted display (e.g., "1x10" for 1 unit containing 10 pieces)
+  getCartonDisplay(item: { quantity: number; pieces_per_box?: number }): string {
+    if (item.pieces_per_box) {
+      return `${item.quantity}x${item.pieces_per_box}`;
+    }
+    // No pieces_per_box, just show quantity
+    return `${item.quantity}x`;
+  }
 }

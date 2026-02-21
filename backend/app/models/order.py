@@ -23,6 +23,7 @@ class OrderItemBase(SQLModel):
     product_id: int = Field(foreign_key="products.id")
     quantity: float = Field(gt=0)
     unit_price: float = Field(gt=0)
+    pieces_per_box: Optional[int] = Field(default=None)
 
 class OrderItem(OrderItemBase, table=True):
     """Database model for order items"""
@@ -106,6 +107,7 @@ class OrderItemRead(SQLModel):
     unit_price: float
     product_name: str
     product_unit: str
+    pieces_per_box: Optional[int] = None
 
 
 class PromotionInfo(SQLModel):
