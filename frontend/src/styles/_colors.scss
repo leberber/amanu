@@ -28,6 +28,13 @@
   --color-text-primary: #1a1a2e;
   --color-text-secondary: #64748b;
   --color-text-muted: #94a3b8;
+  --text-color-strong: #000000;
+  --color-white: #ffffff;
+
+  // ---------------------------------------------------------------------------
+  // Border Colors
+  // ---------------------------------------------------------------------------
+  --border-color-light: rgba(0, 0, 0, 0.06);
 
   // ---------------------------------------------------------------------------
   // Status Colors
@@ -71,6 +78,8 @@
   --color-text-primary: #f1f5f9;
   --color-text-secondary: #94a3b8;
   --color-text-muted: #64748b;
+  --text-color-strong: #ffffff;
+  --border-color-light: rgba(255, 255, 255, 0.06);
   --surface-card-rgb: 30, 30, 30;
   --surface-ground-rgb: 18, 18, 18;
   --surface-ground: #121212;

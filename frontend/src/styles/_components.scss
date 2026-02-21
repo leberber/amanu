@@ -1051,6 +1051,63 @@
   }
 }
 
+// =============================================================================
+// 12. THUMBNAIL
+// =============================================================================
+// Reusable thumbnail/image container for lists (cart items, order items, etc.)
+
+.thumbnail {
+  width: var(--icon-lg);
+  height: var(--icon-lg);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--surface-100);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  // Size variants
+  &--sm {
+    width: var(--icon-md);
+    height: var(--icon-md);
+  }
+
+  &--md {
+    width: var(--icon-lg);
+    height: var(--icon-lg);
+  }
+
+  &--lg {
+    width: var(--icon-xl);
+    height: var(--icon-xl);
+  }
+
+  // Clickable state (for lightbox)
+  &.clickable {
+    cursor: pointer;
+    transition: transform var(--transition-fast);
+
+    &:hover {
+      transform: scale(var(--scale-hover));
+    }
+  }
+
+  // Image fills container
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  // Fallback icon
+  i {
+    font-size: var(--font-size-lg);
+    color: var(--text-color-secondary);
+  }
+}
+
+
 // Icon button (sidebar)
 .icon-btn {
   width: var(--icon-md);

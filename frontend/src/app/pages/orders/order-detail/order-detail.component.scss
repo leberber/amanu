@@ -5,6 +5,8 @@
 // - .app-card, .app-card__header, .app-card__icon, .app-card__title, .app-card__content
 // - .topbar-header, .topbar-badge
 // - .action-btn, .action-btn--primary, .action-btn--secondary, .action-btn--danger
+// - .thumbnail, .thumbnail--sm, .thumbnail--md, .thumbnail--lg
+// Uses global styles from _skeleton.scss:
 // - .skeleton, .skeleton-text, .skeleton-avatar, .skeleton-image, .skeleton-circle, .skeleton-row
 // =============================================================================
 
@@ -77,49 +79,19 @@
   align-items: center;
   gap: var(--space-5);
   padding: var(--space-5) 0;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  border-bottom: var(--border-width) solid var(--border-color-light);
 
   &:last-child {
     border-bottom: none;
   }
 }
 
-.item-image {
-  width: var(--icon-lg);
-  height: var(--icon-lg);
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  background: var(--surface-100, #f7f9fa);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-
-  &.clickable {
-    cursor: pointer;
-    transition: transform var(--transition-fast);
-
-    &:hover {
-      transform: scale(1.05);
-    }
-  }
-
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  i {
-    font-size: var(--font-size-lg);
-    color: var(--text-color-secondary);
-  }
-}
+// .item-image → uses global .thumbnail class from _components.scss
 
 .item-qty {
   font-weight: var(--font-weight-semibold);
   color: var(--text-color);
-  min-width: 36px;
+  min-width: var(--icon-md);
 }
 
 .item-name {
@@ -132,7 +104,7 @@
 
 .item-total {
   font-weight: var(--font-weight-semibold);
-  color: #000;
+  color: var(--text-color-strong);
 }
 
 // -----------------------------------------------------------------------------
@@ -144,7 +116,7 @@
   align-items: center;
   padding: var(--space-6);
   margin-top: var(--space-5);
-  background: var(--surface-100, #f8fafc);
+  background: var(--surface-100);
   border-radius: var(--radius-lg);
   flex-shrink: 0; // Don't shrink - stay at bottom
 
@@ -157,7 +129,7 @@
   .total-amount {
     font-size: var(--font-size-xl);
     font-weight: var(--font-weight-bold);
-    color: #000;
+    color: var(--text-color-strong);
   }
 }
 
@@ -170,7 +142,7 @@
 
 ::ng-deep .p-timeline {
   .p-timeline-event {
-    min-height: 60px;
+    min-height: var(--icon-2xl);
   }
 
   .p-timeline-event-content {
@@ -178,7 +150,7 @@
   }
 
   .p-timeline-event-connector {
-    background: var(--surface-200, #e2e8f0);
+    background: var(--surface-200);
   }
 }
 
@@ -189,7 +161,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: var(--color-white);
 
   i {
     font-size: var(--font-size-sm);
@@ -257,7 +229,7 @@
     gap: var(--space-3);
   }
 
-  .item-image {
+  .thumbnail {
     width: var(--icon-md);
     height: var(--icon-md);
   }
