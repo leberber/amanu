@@ -23,8 +23,9 @@ $bottom-nav-height: 70px;
 }
 
 // Spacer to prevent content from going under fixed header
+// Height = icon (50px) + name (~14px) + padding (16px) + border (1px)
 .mobile-header-spacer {
-  height: 60px;
+  height: 95px;
 }
 
 // Mobile Search Overlay
