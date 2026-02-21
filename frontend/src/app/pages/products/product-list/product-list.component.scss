@@ -2,9 +2,15 @@
 
 :host { display: block; }
 
+// Bottom nav height
+$bottom-nav-height: 70px;
+
 // Desktop/Mobile responsive toggle (can't do with Tailwind easily due to component encapsulation)
 .products-desktop { display: none; @media (min-width: 1024px) { display: flex; flex-direction: column; } }
-.products-mobile { @media (min-width: 1024px) { display: none; } }
+.products-mobile {
+  padding-bottom: calc(#{$bottom-nav-height} + env(safe-area-inset-bottom, 0));
+  @media (min-width: 1024px) { display: none; }
+}
 
 // Mobile Header Container - Fixed at top
 .mobile-header {
