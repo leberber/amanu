@@ -1727,7 +1727,7 @@
 
     .item-total {
       flex-shrink: 0;
-      min-width: 20%;
+      min-width: 30%; // Space for 9-digit prices with currency
       text-align: right;
     }
   }
