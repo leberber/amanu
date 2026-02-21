@@ -2,7 +2,8 @@
 <app-page-layout
   [title]="order() ? '' : 'orders.detail.title'"
   [showBackButton]="true"
-  [backRoute]="ROUTES.ORDERS">
+  [backRoute]="ROUTES.ORDERS"
+  [fullscreen]="true">
 
   <!-- Custom header when order is loaded -->
   @if (order()) {
