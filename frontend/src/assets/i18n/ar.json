@@ -1270,7 +1270,10 @@
     "notifications_hint": "حالة الطلبات والعروض",
     "notifications_enabled": "تم تفعيل الإشعارات",
     "notifications_disabled": "تم تعطيل الإشعارات",
-    "notifications_error": "تعذر تفعيل الإشعارات. يرجى التحقق من إعدادات المتصفح."
+    "notifications_error": "تعذر تفعيل الإشعارات. يرجى التحقق من إعدادات المتصفح.",
+    "settings": "الإعدادات",
+    "product_display": "عرض المنتجات",
+    "product_display_hint": "اختر طريقة عرض المنتجات"
   },
   "units": {
     "kg": "كيلوغرام",

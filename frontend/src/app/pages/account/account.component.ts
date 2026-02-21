@@ -9,6 +9,7 @@ import { ToastModule } from 'primeng/toast';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import { ToggleSwitch } from 'primeng/toggleswitch';
+import { SelectButtonModule } from 'primeng/selectbutton';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { ROUTES } from '../../core/constants/routes.constants';
@@ -20,6 +21,7 @@ import { User } from '../../models/user.model';
 import { ValidationMessagesService } from '../../core/services/validation-messages.service';
 import { FormBuilderService } from '../../core/services/form-builder.service';
 import { ToastMessageService } from '../../core/services/toast-message.service';
+import { UserPreferencesService, ViewMode } from '../../core/services/user-preferences.service';
 import { PhoneFormatDirective } from '../../directives/phone-format.directive';
 import { PageLayoutComponent } from '../../shared/components/page-layout/page-layout.component';
 import { DateFormatPipe } from '../../shared/pipes/date-format.pipe';
@@ -37,6 +39,7 @@ import { DateFormatPipe } from '../../shared/pipes/date-format.pipe';
     TagModule,
     TooltipModule,
     ToggleSwitch,
+    SelectButtonModule,
     PhoneFormatDirective,
     PageLayoutComponent,
     DateFormatPipe
@@ -54,10 +57,20 @@ export class AccountComponent implements OnInit {
   private translateService = inject(TranslateService);
   private formValidation = inject(ValidationMessagesService);
   private pushService = inject(PushService);
+  private preferencesService = inject(UserPreferencesService);
   private destroyRef = inject(DestroyRef);
 
   // Constants
   readonly ROUTES = ROUTES;
+
+  // View mode options for product display
+  viewModeOptions = [
+    { label: 'Liste', value: 'list', icon: 'pi pi-list' },
+    { label: 'Grille', value: 'grid', icon: 'pi pi-th-large' }
+  ];
+
+  // Current view mode (bound to SelectButton)
+  productViewMode = computed(() => this.preferencesService.productViewMode());
 
   // Forms
   profileForm!: FormGroup;
@@ -215,5 +228,9 @@ export class AccountComponent implements OnInit {
 
   clearFocusedField(): void {
     this.focusedField.set('');
+  }
+
+  onViewModeChange(mode: ViewMode): void {
+    this.preferencesService.setProductViewMode(mode);
   }
 }

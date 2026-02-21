@@ -1275,7 +1275,10 @@
     "notifications_hint": "Statut de vos commandes et offres",
     "notifications_enabled": "Notifications activées",
     "notifications_disabled": "Notifications désactivées",
-    "notifications_error": "Impossible d'activer les notifications. Veuillez vérifier les paramètres de votre navigateur."
+    "notifications_error": "Impossible d'activer les notifications. Veuillez vérifier les paramètres de votre navigateur.",
+    "settings": "Paramètres",
+    "product_display": "Affichage des Produits",
+    "product_display_hint": "Choisissez comment afficher les produits"
   },
   "units": {
     "kg": "Kilogramme",
