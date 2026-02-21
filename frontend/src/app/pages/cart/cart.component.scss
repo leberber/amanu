@@ -144,27 +144,47 @@
   &__controls {
     display: flex;
     align-items: center;
-    gap: var(--space-3);
+    gap: 0;
+  }
+}
+
+// Override quantity selector spacing in mobile cart
+.cart-item-mobile__controls {
+  ::ng-deep {
+    .quantity-selector-container,
+    .dropdown-only {
+      width: auto;
+    }
+
+    .cart-quantity-selector {
+      gap: 0;
+
+      .quantity-display {
+        min-width: 40px;
+        font-size: 0.8rem;
+      }
+    }
   }
 }
 
 .price-badge {
   display: inline-block;
-  font-size: var(--font-size-xs);
+  font-size: 11px;
   font-weight: var(--font-weight-bold);
-  padding: 4px 8px;
+  padding: 3px 6px;
   background-color: #f1f5f9;
-  border-radius: 6px;
+  border-radius: 5px;
   color: #1e293b;
   text-align: center;
   white-space: nowrap;
 }
 
 .cart-item-total {
+  font-size: var(--font-size-sm);
   font-weight: var(--font-weight-bold);
   color: var(--text-color-strong);
   white-space: nowrap;
-  min-width: 90px;
+  min-width: 100px;
   text-align: right;
 }
 
