@@ -1,7 +1,7 @@
 // src/app/pages/orders/order-detail/order-detail.component.ts
 import { Component, OnInit, computed, inject, signal, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink, ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { switchMap, catchError, map } from 'rxjs/operators';
 import { of, forkJoin } from 'rxjs';
@@ -102,7 +102,7 @@ export class OrderDetailComponent implements OnInit {
         }
         
         return this.orderService.getOrderDetails(Number(orderId)).pipe(
-          catchError(error => {
+          catchError(() => {
             this.error.set(true);
             this.loading.set(false);
             this.toast.showError('orders.detail.load_error_message');
@@ -235,8 +235,8 @@ export class OrderDetailComponent implements OnInit {
         this.generateOrderStatusTimeline(updatedOrder);
         this.toast.showSuccess('orders.detail.order_cancelled_success_message');
       },
-      error: (error) => {
-        this.toast.showApiError(error, 'orders.detail.cancel_error_message');
+      error: (err) => {
+        this.toast.showApiError(err, 'orders.detail.cancel_error_message');
       }
     });
   }

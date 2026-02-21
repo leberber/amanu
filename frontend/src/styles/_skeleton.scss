@@ -1,0 +1,79 @@
+// =============================================================================
+// SKELETON LOADING
+// =============================================================================
+// Reusable skeleton loading styles for content placeholders
+// Used for loading states instead of spinners
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--surface-ground) 25%,
+    var(--surface-hover) 50%,
+    var(--surface-ground) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+  border-radius: var(--radius-sm);
+}
+
+@keyframes skeleton-loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.skeleton-text {
+  height: 1rem;
+
+  &--w40 { width: 40%; }
+  &--w50 { width: 50px; }
+  &--w60 { width: 60px; }
+  &--w70 { width: 70%; }
+  &--w80 { width: 80px; }
+  &--w100 { width: 100px; }
+  &--flex { flex: 1; }
+}
+
+.skeleton-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+}
+
+.skeleton-image {
+  border-radius: var(--radius-md);
+
+  &--sm {
+    width: 48px;
+    height: 48px;
+  }
+
+  &--md {
+    width: 64px;
+    height: 64px;
+  }
+
+  &--lg {
+    width: 96px;
+    height: 96px;
+  }
+}
+
+.skeleton-circle {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+}
+
+.skeleton-row {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+
+  &__content {
+    flex: 1;
+  }
+}
+
+.skeleton-mb {
+  margin-bottom: 0.5rem;
+}
