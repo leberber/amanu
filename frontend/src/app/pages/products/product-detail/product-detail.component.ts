@@ -225,4 +225,10 @@ export class ProductDetailComponent implements OnInit {
   goBack(): void {
     this.router.navigate([ROUTES.PRODUCTS]);
   }
+
+  // Handle image load error
+  onImageError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    img.src = 'assets/images/product-placeholder.jpg';
+  }
 }

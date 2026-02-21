@@ -97,7 +97,8 @@
             <div class="product-image-container">
               <img
                 [src]="product()?.image_url || 'assets/images/product-placeholder.jpg'"
-                [alt]="product()?.name">
+                [alt]="product()?.name"
+                (error)="onImageError($event)">
 
               <!-- Badges on image -->
               @if (hasPromotion()) {
