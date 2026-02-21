@@ -60,11 +60,13 @@ export class ProductCardComponent implements OnInit {
     event.stopPropagation();
     this.showQuantitySelector = true;
     document.body.style.overflow = 'hidden';
+    document.body.classList.add('quantity-overlay-open');
   }
 
   closeQuantitySelector(): void {
     this.showQuantitySelector = false;
     document.body.style.overflow = '';
+    document.body.classList.remove('quantity-overlay-open');
   }
 
   selectOption(option: BoxOption): void {

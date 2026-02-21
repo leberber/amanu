@@ -145,16 +145,18 @@ $bottom-nav-height: 70px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04),
               inset 0 1px 0 rgba(255, 255, 255, 0.8);
 
-  &:hover {
-    background: linear-gradient(145deg, #ffffff 0%, #f1f5f9 100%);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08),
-                inset 0 1px 0 rgba(255, 255, 255, 1);
-    transform: translateY(-1px);
-  }
+  @media (min-width: 1024px) {
+    &:hover {
+      background: linear-gradient(145deg, #ffffff 0%, #f1f5f9 100%);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08),
+                  inset 0 1px 0 rgba(255, 255, 255, 1);
+      transform: translateY(-1px);
+    }
 
-  &:active {
-    transform: translateY(0);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+    &:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+    }
   }
 
   &__text {
@@ -192,8 +194,11 @@ $bottom-nav-height: 70px;
 // =============================================================================
 .quantity-overlay {
   position: fixed;
-  inset: 0;
-  z-index: 10000;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 99999;
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -299,7 +304,7 @@ $bottom-nav-height: 70px;
   }
 
   &__footer {
-    padding: 1rem 1.5rem 1.5rem;
+    padding: 1rem 1.5rem calc(env(safe-area-inset-bottom, 0) + 1.5rem);
     background: linear-gradient(180deg, #fafbfc 0%, #ffffff 100%);
     border-top: 1px solid #f1f5f9;
   }
@@ -359,10 +364,12 @@ $bottom-nav-height: 70px;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
 
-  &:hover {
-    background: #f1f5f9;
-    border-color: rgba(46, 108, 183, 0.2);
-    transform: translateX(4px);
+  @media (min-width: 1024px) {
+    &:hover {
+      background: #f1f5f9;
+      border-color: rgba(46, 108, 183, 0.2);
+      transform: translateX(4px);
+    }
   }
 
   &--selected {

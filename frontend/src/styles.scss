@@ -502,3 +502,25 @@ router-outlet + * {
   .p-toast-message-content { padding: 0.875rem 1rem !important; }
   .p-toast-message::before { border-radius: 0 0 12px 12px !important; }
 }
+
+// ---------------------------------------------------------------------------
+// 11. Mobile Scrollbar Hide
+// ---------------------------------------------------------------------------
+@media (max-width: 1024px) {
+  * {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// 12. Hide Bottom Nav When Overlay Open
+// ---------------------------------------------------------------------------
+body.quantity-overlay-open {
+  .bottom-nav {
+    display: none !important;
+  }
+}

@@ -676,6 +676,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
     this.activeProduct = product;
     this.showQuantitySelector = true;
     document.body.style.overflow = 'hidden';
+    document.body.classList.add('quantity-overlay-open');
 
     // Initialize selection if not set
     if (!this.selectedBoxOptions[product.id]) {
@@ -690,6 +691,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
     this.showQuantitySelector = false;
     this.activeProduct = null;
     document.body.style.overflow = '';
+    document.body.classList.remove('quantity-overlay-open');
   }
 
   selectBoxOption(option: BoxOption): void {
