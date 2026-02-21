@@ -427,6 +427,17 @@
   "orders": {
     "title": "Mes Commandes",
     "loading": "Chargement de vos commandes...",
+    "list": {
+      "recent_orders": "Commandes Récentes"
+    },
+    "stats": {
+      "title": "Statistiques",
+      "total_orders": "Total Commandes"
+    },
+    "actions": {
+      "title": "Actions Rapides",
+      "browse_products": "Parcourir les Produits"
+    },
     "empty": {
       "title": "Aucune commande trouvée",
       "subtitle": "Vous n'avez pas encore passé de commandes.",
@@ -491,6 +502,7 @@
     },
     "errors": {
       "failed_to_load": "Échec du chargement de vos commandes",
+      "load_error_message": "Veuillez vérifier votre connexion et réessayer.",
       "order_not_found": "Commande introuvable"
     }
   },

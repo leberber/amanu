@@ -1,116 +1,232 @@
 <!-- src/app/pages/orders/order-list/order-list.component.html -->
-<div class="orders-page">
+<app-page-layout
+  title="orders.title"
+  [showBackButton]="true"
+  [backRoute]="ROUTES.ACCOUNT">
+
+  <!-- Order count badge -->
+  @if (orders().length > 0 && !loading()) {
+    <div pageActions class="order-count-badge">
+      {{ orders().length }}
+    </div>
+  }
+
   <p-toast></p-toast>
-  <div class="orders-content">
-    <!-- Loading state -->
-    @if (loading) {
-      <div class="loading-state">
-        <i class="pi pi-spin pi-spinner"></i>
-      </div>
-    } @else if (orders.length === 0) {
-      <!-- Empty State -->
-      <div class="empty-state">
-        <div class="empty-icon-wrapper">
-          <div class="empty-icon-bg"></div>
-          <div class="empty-icon-circle">
-            <i class="pi pi-inbox"></i>
+
+  <!-- Loading state - Skeleton -->
+  @if (loading()) {
+    <div class="order-list-content">
+      <div class="order-grid">
+        <!-- Desktop Table Skeleton -->
+        <div class="orders-table-card app-card hidden md:block">
+          <div class="app-card__header">
+            <div class="skeleton skeleton-avatar"></div>
+            <div class="skeleton skeleton-text skeleton-text--w40"></div>
+          </div>
+          <div class="app-card__content">
+            @for (i of [1,2,3,4,5]; track i) {
+              <div class="skeleton-row">
+                <div class="skeleton skeleton-text skeleton-text--w80"></div>
+                <div class="skeleton skeleton-text skeleton-text--w100"></div>
+                <div class="skeleton skeleton-badge"></div>
+                <div class="skeleton skeleton-text skeleton-text--w80"></div>
+                <div class="skeleton skeleton-button"></div>
+              </div>
+            }
           </div>
         </div>
-        <h2>{{ 'orders.empty.title' | translate }}</h2>
-        <p>{{ 'orders.empty.subtitle' | translate }}</p>
-        <a routerLink="/products" class="shop-btn">
-          <i class="pi pi-shopping-bag"></i>
-          <span>{{ 'orders.empty.browse_products' | translate }}</span>
-        </a>
-      </div>
-    } @else {
-      <!-- Orders Content -->
-      <div class="orders-card">
-        <!-- Back Button -->
-        <app-back-button route="/account" [circular]="true" [fixed]="true"></app-back-button>
 
-        <!-- Card Header -->
-        <div class="orders-card-header">
-          <div class="header-center">
-            <i class="pi pi-list"></i>
-            <span>{{ 'orders.title' | translate }}</span>
+        <!-- Mobile Card Skeleton -->
+        <div class="orders-mobile-card app-card block md:hidden">
+          <div class="app-card__header">
+            <div class="skeleton skeleton-avatar"></div>
+            <div class="skeleton skeleton-text skeleton-text--w40"></div>
           </div>
-          <div class="item-count-badge">{{ orders.length }}</div>
+          <div class="app-card__content">
+            @for (i of [1,2,3,4]; track i) {
+              <div class="order-item-skeleton">
+                <div class="skeleton skeleton-circle"></div>
+                <div class="order-item-skeleton__content">
+                  <div class="skeleton skeleton-text skeleton-text--w70 skeleton-mb"></div>
+                  <div class="skeleton skeleton-text skeleton-text--w50"></div>
+                </div>
+                <div class="skeleton skeleton-badge"></div>
+              </div>
+            }
+          </div>
         </div>
 
-        <!-- Desktop Table View -->
-        <div class="hidden md:block">
-          <p-table
-            [value]="orders"
-            [tableStyle]="{'min-width': '100%'}"
-            [paginator]="orders.length > 10"
-            [rows]="10"
-            [showCurrentPageReport]="true"
-            [rowsPerPageOptions]="[5, 10, 25]"
-            scrollHeight="65vh"
-            [scrollable]="true"
-            [currentPageReportTemplate]="'orders.table.pagination' | translate"
-          >
-            <ng-template pTemplate="header">
-              <tr>
-                <th>{{ 'orders.table.order_number' | translate }}</th>
-                <th>{{ 'orders.table.date' | translate }}</th>
-                <th>{{ 'orders.table.status' | translate }}</th>
-                <th>{{ 'orders.table.total' | translate }}</th>
-                <th style="width: 150px">{{ 'orders.table.actions' | translate }}</th>
-              </tr>
-            </ng-template>
-            <ng-template pTemplate="body" let-order>
-              <tr>
-                <td>{{order.id}}</td>
-                <td>{{ order.created_at | appDate }}</td>
-                <td>
-                  <p-tag [severity]="getStatusSeverity(order.status)" [value]="getStatusLabel(order.status)"></p-tag>
-                </td>
-                <td>{{order.total_amount | appCurrency}}</td>
-                <td>
-                  <button
-                    pButton
-                    type="button"
-                    [label]="'orders.table.view' | translate"
-                    icon="pi pi-eye"
-                    class="p-button-sm"
-                    (click)="viewOrderDetails(order.id)"
-                  ></button>
-                </td>
-              </tr>
-            </ng-template>
-          </p-table>
+        <!-- Sidebar Skeleton -->
+        <div class="order-sidebar hidden md:block">
+          <div class="app-card">
+            <div class="app-card__header">
+              <div class="skeleton skeleton-avatar"></div>
+              <div class="skeleton skeleton-text skeleton-text--w50"></div>
+            </div>
+            <div class="app-card__content">
+              @for (i of [1,2,3]; track i) {
+                <div class="skeleton-row">
+                  <div class="skeleton skeleton-circle"></div>
+                  <div class="skeleton-row__content">
+                    <div class="skeleton skeleton-text skeleton-text--w70 skeleton-mb"></div>
+                    <div class="skeleton skeleton-text skeleton-text--w50"></div>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Error state -->
+  @else if (error()) {
+    <app-error-state
+      title="orders.errors.failed_to_load"
+      message="orders.errors.load_error_message"
+      [showRetry]="true"
+      (retryClick)="loadOrders()">
+    </app-error-state>
+  }
+
+  <!-- Empty state -->
+  @else if (orders().length === 0) {
+    <app-empty-state
+      icon="pi-inbox"
+      title="orders.empty.title"
+      [description]="'orders.empty.subtitle'"
+      [actionLabel]="'orders.empty.browse_products'"
+      [actionLink]="ROUTES.PRODUCTS"
+      actionIcon="pi pi-shopping-bag">
+    </app-empty-state>
+  }
+
+  <!-- Orders content -->
+  @else {
+    <div class="order-list-content">
+      <div class="order-grid">
+        <!-- Orders Card -->
+        <div class="orders-card app-card">
+          <div class="app-card__header">
+            <div class="app-card__icon">
+              <i class="pi pi-list"></i>
+            </div>
+            <h2 class="app-card__title">{{ 'orders.list.recent_orders' | translate }}</h2>
+          </div>
+          <div class="app-card__content">
+            <!-- Desktop Table View -->
+            <div class="hidden md:block">
+              <p-table
+                [value]="orders()"
+                [tableStyle]="{'min-width': '100%'}"
+                [paginator]="orders().length > 10"
+                [rows]="10"
+                [showCurrentPageReport]="true"
+                [rowsPerPageOptions]="[5, 10, 25]"
+                scrollHeight="60vh"
+                [scrollable]="true"
+                [currentPageReportTemplate]="'orders.table.pagination' | translate">
+                <ng-template pTemplate="header">
+                  <tr>
+                    <th>{{ 'orders.table.order_number' | translate }}</th>
+                    <th>{{ 'orders.table.date' | translate }}</th>
+                    <th>{{ 'orders.table.status' | translate }}</th>
+                    <th>{{ 'orders.table.total' | translate }}</th>
+                    <th class="actions-column">{{ 'orders.table.actions' | translate }}</th>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-order>
+                  <tr class="order-row" (click)="viewOrderDetails(order.id)">
+                    <td class="order-number">{{ order.id }}</td>
+                    <td>{{ order.created_at | appDate }}</td>
+                    <td>
+                      <p-tag [severity]="getStatusSeverity(order.status)" [value]="getStatusLabel(order.status)"></p-tag>
+                    </td>
+                    <td class="order-amount">{{ order.total_amount | appCurrency }}</td>
+                    <td>
+                      <button class="view-btn" (click)="viewOrderDetails(order.id); $event.stopPropagation()">
+                        <i class="pi pi-eye"></i>
+                        <span>{{ 'orders.table.view' | translate }}</span>
+                      </button>
+                    </td>
+                  </tr>
+                </ng-template>
+              </p-table>
+            </div>
+
+            <!-- Mobile Card View -->
+            <ul class="order-list block md:hidden">
+              @for (order of orders(); track order.id) {
+                <li class="order-item" (click)="viewOrderDetails(order.id)">
+                  <div class="order-item__icon">
+                    <i class="pi pi-shopping-bag"></i>
+                  </div>
+                  <div class="order-item__content">
+                    <div class="order-item__header">
+                      <span class="order-item__number">{{ 'orders.table.order_number' | translate }}{{ order.id }}</span>
+                      <p-tag
+                        [severity]="getStatusSeverity(order.status)"
+                        [value]="getStatusLabel(order.status)"
+                        styleClass="order-item__tag">
+                      </p-tag>
+                    </div>
+                    <div class="order-item__footer">
+                      <span class="order-item__date">{{ order.created_at | appDate }}</span>
+                      <span class="order-item__total">{{ order.total_amount | appCurrency }}</span>
+                    </div>
+                  </div>
+                  <div class="order-item__chevron">
+                    <i class="pi pi-chevron-right"></i>
+                  </div>
+                </li>
+              }
+            </ul>
+          </div>
         </div>
 
-        <!-- Mobile Card View -->
-        <div class="block md:hidden">
-          @for (order of orders; track order.id) {
-            <div class="order-item" (click)="viewOrderDetails(order.id)">
-              <div class="order-icon">
-                <i class="pi pi-shopping-bag"></i>
+        <!-- Sidebar - Stats (Desktop only) -->
+        <div class="order-sidebar hidden md:block">
+          <div class="stats-card app-card">
+            <div class="app-card__header">
+              <div class="app-card__icon">
+                <i class="pi pi-chart-bar"></i>
               </div>
-              <div class="order-details">
-                <div class="order-header">
-                  <span class="order-number">{{ 'orders.table.order_number' | translate }} {{order.id}}</span>
-                  <p-tag
-                    [severity]="getStatusSeverity(order.status)"
-                    [value]="getStatusLabel(order.status)"
-                    styleClass="order-tag"
-                  ></p-tag>
+              <h2 class="app-card__title">{{ 'orders.stats.title' | translate }}</h2>
+            </div>
+            <div class="app-card__content">
+              <div class="stats-list">
+                <div class="stat-item">
+                  <div class="stat-item__icon stat-item__icon--total">
+                    <i class="pi pi-shopping-bag"></i>
+                  </div>
+                  <div class="stat-item__content">
+                    <span class="stat-item__value">{{ orders().length }}</span>
+                    <span class="stat-item__label">{{ 'orders.stats.total_orders' | translate }}</span>
+                  </div>
                 </div>
-                <div class="order-footer">
-                  <span class="order-date">{{ order.created_at | appDate }}</span>
-                  <span class="order-total">{{order.total_amount | appCurrency}}</span>
-                </div>
-              </div>
-              <div class="order-chevron">
-                <i class="pi pi-chevron-right"></i>
               </div>
             </div>
-          }
+          </div>
+
+          <!-- Quick Actions -->
+          <div class="actions-card app-card">
+            <div class="app-card__header">
+              <div class="app-card__icon">
+                <i class="pi pi-bolt"></i>
+              </div>
+              <h2 class="app-card__title">{{ 'orders.actions.title' | translate }}</h2>
+            </div>
+            <div class="app-card__content">
+              <a class="action-link" [routerLink]="ROUTES.PRODUCTS">
+                <i class="pi pi-shopping-cart"></i>
+                <span>{{ 'orders.actions.browse_products' | translate }}</span>
+              </a>
+            </div>
+          </div>
         </div>
       </div>
-    }
-  </div>
-</div>
+    </div>
+  }
+
+</app-page-layout>

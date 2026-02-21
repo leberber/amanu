@@ -1,23 +1,21 @@
 // src/app/pages/orders/order-list/order-list.component.ts
-import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RouterLink, Router } from '@angular/router';
+import { Component, OnInit, inject, signal, DestroyRef } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
 import { TableModule } from 'primeng/table';
 import { ToastModule } from 'primeng/toast';
 import { TagModule } from 'primeng/tag';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
-import { RouteHelpers } from '../../../core/constants/routes.constants';
+import { ROUTES, RouteHelpers } from '../../../core/constants/routes.constants';
 import { OrderService } from '../../../services/order.service';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
-import { CurrencyService } from '../../../core/services/currency.service';
-import { DateService } from '../../../core/services/date.service';
 import { Order } from '../../../models/order.model';
 import { StatusSeverityService } from '../../../core/services/status-severity.service';
-import { BackButtonComponent } from '../../../shared/components/back-button/back-button.component';
+import { PageLayoutComponent } from '../../../shared/components/page-layout/page-layout.component';
+import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
+import { ErrorStateComponent } from '../../../shared/components/error-state/error-state.component';
 import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
 import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
 
@@ -25,15 +23,14 @@ import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
   selector: 'app-order-list',
   standalone: true,
   imports: [
-    CommonModule,
     RouterLink,
-    ButtonModule,
-    CardModule,
     TableModule,
     ToastModule,
     TagModule,
     TranslateModule,
-    BackButtonComponent,
+    PageLayoutComponent,
+    EmptyStateComponent,
+    ErrorStateComponent,
     CurrencyPipe,
     DateFormatPipe
   ],
@@ -41,38 +38,46 @@ import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
   styleUrls: ['./order-list.component.scss']
 })
 export class OrderListComponent implements OnInit {
-  orders: Order[] = [];
-  loading = true;
+  // State signals
+  orders = signal<Order[]>([]);
+  loading = signal(true);
+  error = signal(false);
 
-  // Services injected using inject()
+  // Route constants
+  readonly ROUTES = ROUTES;
+
+  // Services
   private orderService = inject(OrderService);
   private router = inject(Router);
   private toast = inject(ToastMessageService);
   private translateService = inject(TranslateService);
-  private currencyService = inject(CurrencyService);
-  private dateService = inject(DateService);
   private statusSeverity = inject(StatusSeverityService);
+  private destroyRef = inject(DestroyRef);
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.loadOrders();
   }
 
-  loadOrders() {
-    this.loading = true;
-    this.orderService.getUserOrders().subscribe({
-      next: (orders) => {
-        this.orders = orders;
-        this.loading = false;
-      },
-      error: (error) => {
-        console.error('Error loading orders:', error);
-        this.loading = false;
-        this.toast.showError('orders.errors.failed_to_load');
-      }
-    });
+  loadOrders(): void {
+    this.loading.set(true);
+    this.error.set(false);
+
+    this.orderService.getUserOrders()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (orders) => {
+          this.orders.set(orders);
+          this.loading.set(false);
+        },
+        error: () => {
+          this.loading.set(false);
+          this.error.set(true);
+          this.toast.showError('orders.errors.failed_to_load');
+        }
+      });
   }
 
-  viewOrderDetails(orderId: number) {
+  viewOrderDetails(orderId: number): void {
     this.router.navigate([RouteHelpers.orderDetail(orderId)]);
   }
 
@@ -82,10 +87,5 @@ export class OrderListComponent implements OnInit {
 
   getStatusLabel(status: string): string {
     return this.translateService.instant(`orders.status.${status}`);
-  }
-
-  // Format date using DateService
-  formatDate(dateString: string): string {
-    return this.dateService.formatDate(dateString);
   }
 }
