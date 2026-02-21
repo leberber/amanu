@@ -56,11 +56,12 @@ $bottom-nav-height: 70px;
   padding: var(--space-8);
   padding-top: var(--space-10);
   max-width: 1400px;
-  margin: 0 auto;
+  margin: 0 3rem;
 
   @media (max-width: 768px) {
     padding: 0;
     padding-top: var(--space-3);
+    margin: 0 ;
   }
 }
 
