@@ -10,7 +10,6 @@ import { TagModule } from 'primeng/tag';
 import { ButtonModule } from 'primeng/button';
 import { OverlayBadgeModule } from 'primeng/overlaybadge';
 import { TooltipModule } from 'primeng/tooltip';
-import { SelectModule } from 'primeng/select';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { CartService } from '../../../services/cart.service';
@@ -53,7 +52,6 @@ import { UnitPipe } from '../../../shared/pipes/unit.pipe';
     ButtonModule,
     OverlayBadgeModule,
     TooltipModule,
-    SelectModule,
     TranslateModule,
     EmptyStateComponent,
     ProductCardComponent,
@@ -101,6 +99,10 @@ export class ProductListComponent implements OnInit, OnDestroy {
   });
   productQuantities: { [key: number]: number } = {};
   selectedBoxOptions: { [key: number]: BoxOption | null } = {};
+
+  // Quantity selector overlay
+  showQuantitySelector = false;
+  activeProduct: Product | null = null;
 
   // Mobile category bar - compact on scroll down, full on scroll up
   compactCategoryBar = false;
@@ -666,5 +668,41 @@ export class ProductListComponent implements OnInit, OnDestroy {
     }
 
     this.handleAddToCart(product, option.pieces);
+  }
+
+  // Quantity selector overlay methods
+  openQuantitySelector(product: Product, event: Event): void {
+    event.stopPropagation();
+    this.activeProduct = product;
+    this.showQuantitySelector = true;
+    document.body.style.overflow = 'hidden';
+
+    // Initialize selection if not set
+    if (!this.selectedBoxOptions[product.id]) {
+      const options = this.getBoxOptions(product);
+      if (options.length > 0) {
+        this.selectedBoxOptions[product.id] = options[0];
+      }
+    }
+  }
+
+  closeQuantitySelector(): void {
+    this.showQuantitySelector = false;
+    this.activeProduct = null;
+    document.body.style.overflow = '';
+  }
+
+  selectBoxOption(option: BoxOption): void {
+    if (this.activeProduct) {
+      this.selectedBoxOptions[this.activeProduct.id] = option;
+    }
+  }
+
+  confirmQuantitySelection(): void {
+    this.closeQuantitySelector();
+  }
+
+  getEffectivePrice(product: Product): number {
+    return product.promotion?.discounted_price || product.price;
   }
 }

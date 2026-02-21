@@ -39,14 +39,21 @@
     <!-- Actions -->
     <div class="product-card__actions">
       @if (!isOutOfStock && boxOptions.length > 0) {
-        <!-- Quantity Dropdown -->
-        <p-select
-          [options]="boxOptions"
-          [(ngModel)]="selectedOption"
-          optionLabel="label"
-          [placeholder]="'products.select_quantity' | translate"
-          styleClass="product-card__select">
-        </p-select>
+        <!-- Quantity Selector Button -->
+        <button
+          type="button"
+          class="quantity-selector-btn"
+          (click)="openQuantitySelector($event)">
+          <span class="quantity-selector-btn__text">
+            @if (selectedOption) {
+              <span class="quantity-selector-btn__boxes">{{ selectedOption.boxes }}x</span>
+              <span class="quantity-selector-btn__pieces">{{ selectedOption.pieces }} pc</span>
+            } @else {
+              <span>{{ 'products.select_quantity' | translate }}</span>
+            }
+          </span>
+          <i class="pi pi-chevron-down quantity-selector-btn__icon"></i>
+        </button>
 
         <!-- Add to Cart Button -->
         <button
@@ -78,3 +85,59 @@
     }
   </div>
 </div>
+
+<!-- Fullscreen Quantity Selector Overlay -->
+@if (showQuantitySelector) {
+  <div class="quantity-overlay" (click)="closeQuantitySelector()">
+    <div class="quantity-overlay__panel" (click)="$event.stopPropagation()">
+      <!-- Header -->
+      <div class="quantity-overlay__header">
+        <div class="quantity-overlay__product">
+          <img [src]="product.image_url || 'assets/images/product-placeholder.jpg'" [alt]="product.name">
+          <div class="quantity-overlay__product-info">
+            <h4>{{ product.name }}</h4>
+            <span class="quantity-overlay__price">{{ effectivePrice | appCurrency }} / {{ product.unit }}</span>
+          </div>
+        </div>
+        <button class="quantity-overlay__close" (click)="closeQuantitySelector()">
+          <i class="pi pi-times"></i>
+        </button>
+      </div>
+
+      <!-- Options -->
+      <div class="quantity-overlay__options">
+        @for (option of boxOptions; track option.boxes) {
+          <button
+            class="quantity-option"
+            [class.quantity-option--selected]="selectedOption?.boxes === option.boxes"
+            (click)="selectOption(option)">
+            <div class="quantity-option__boxes">
+              <span class="quantity-option__count">{{ option.boxes }}</span>
+              <span class="quantity-option__label">{{ option.boxes === 1 ? 'box' : 'boxes' }}</span>
+            </div>
+            <div class="quantity-option__details">
+              <span class="quantity-option__pieces">{{ option.pieces }} pieces</span>
+              <span class="quantity-option__price">{{ option.price | appCurrency }}</span>
+            </div>
+            @if (selectedOption?.boxes === option.boxes) {
+              <i class="pi pi-check quantity-option__check"></i>
+            }
+          </button>
+        }
+      </div>
+
+      <!-- Confirm Button -->
+      <div class="quantity-overlay__footer">
+        <button
+          class="quantity-overlay__confirm"
+          [disabled]="!selectedOption"
+          (click)="confirmSelection()">
+          <span>{{ 'common.confirm' | translate }}</span>
+          @if (selectedOption) {
+            <span class="quantity-overlay__confirm-price">{{ selectedOption.price | appCurrency }}</span>
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+}

@@ -1,12 +1,10 @@
 import { Component, EventEmitter, Input, Output, inject, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 
 // PrimeNG imports
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
-import { SelectModule } from 'primeng/select';
 
 import { Product } from '../../../../models/product.model';
 import { CurrencyService } from '../../../../core/services/currency.service';
@@ -31,11 +29,9 @@ export interface BoxOption {
   standalone: true,
   imports: [
     RouterLink,
-    FormsModule,
     TranslateModule,
     ButtonModule,
     TagModule,
-    SelectModule,
     CurrencyPipe
   ],
   templateUrl: './product-card.component.html',
@@ -50,6 +46,7 @@ export class ProductCardComponent implements OnInit {
   private flyToCartService = inject(FlyToCartService);
 
   selectedOption: BoxOption | null = null;
+  showQuantitySelector = false;
 
   ngOnInit() {
     // Select first option by default
@@ -57,6 +54,25 @@ export class ProductCardComponent implements OnInit {
     if (options.length > 0) {
       this.selectedOption = options[0];
     }
+  }
+
+  openQuantitySelector(event: Event): void {
+    event.stopPropagation();
+    this.showQuantitySelector = true;
+    document.body.style.overflow = 'hidden';
+  }
+
+  closeQuantitySelector(): void {
+    this.showQuantitySelector = false;
+    document.body.style.overflow = '';
+  }
+
+  selectOption(option: BoxOption): void {
+    this.selectedOption = option;
+  }
+
+  confirmSelection(): void {
+    this.closeQuantitySelector();
   }
 
   get isInCart(): boolean {
