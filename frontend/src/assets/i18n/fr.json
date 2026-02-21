@@ -169,6 +169,7 @@
       }
     },
     "stock": {
+      "title": "Disponibilité",
       "out_of_stock": "Rupture de Stock",
       "low_stock": "Plus que {count} en stock",
       "low_stock_title": "Stock Faible",
@@ -176,6 +177,9 @@
       "available": "disponible(s)",
       "unavailable_message": "Cet article n'est actuellement pas disponible",
       "items_left": "{{count}} restant(s)"
+    },
+    "detail": {
+      "title": "Détails du Produit"
     },
     "default_description": "Produits frais de haute qualité livrés à votre porte",
     "price_per": "par",

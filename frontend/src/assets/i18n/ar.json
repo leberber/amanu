@@ -169,6 +169,7 @@
       }
     },
     "stock": {
+      "title": "التوفر",
       "out_of_stock": "غير متوفر",
       "low_stock": "باقي {count} فقط في المخزون",
       "low_stock_title": "مخزون قليل",
@@ -176,6 +177,9 @@
       "available": "متاح",
       "unavailable_message": "هذا العنصر غير متوفر حالياً",
       "items_left": "باقي {{count}}"
+    },
+    "detail": {
+      "title": "تفاصيل المنتج"
     },
     "default_description": "منتجات طازجة عالية الجودة توصل إلى باب منزلك",
     "price_per": "لكل",

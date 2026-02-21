@@ -1,52 +1,44 @@
 // src/app/pages/products/product-detail/product-detail.component.ts
 import { Component, OnInit, OnDestroy, inject, signal, computed, DestroyRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { NgClass } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { switchMap, catchError } from 'rxjs/operators';
+import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 
 // PrimeNG imports
-import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
 import { ToastModule } from 'primeng/toast';
-import { TagModule } from 'primeng/tag';
-import { SelectModule } from 'primeng/select';
-import { ProductQuantitySelectorComponent } from '../../../shared/components/product-quantity-selector/product-quantity-selector.component';
-import { BackButtonComponent } from '../../../shared/components/back-button/back-button.component';
-import { BadgeModule } from 'primeng/badge';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+
+// Shared components
+import { ProductQuantitySelectorComponent } from '../../../shared/components/product-quantity-selector/product-quantity-selector.component';
+import { PageLayoutComponent } from '../../../shared/components/page-layout/page-layout.component';
+import { ErrorStateComponent } from '../../../shared/components/error-state/error-state.component';
+import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
 
 // Services and models
 import { ProductService } from '../../../services/product.service';
 import { CartService } from '../../../services/cart.service';
-import { AuthService } from '../../../services/auth.service';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { UnitsService } from '../../../core/services/units.service';
 import { TranslationService } from '../../../services/translation.service';
 import { Product, Category } from '../../../models/product.model';
 import { PRODUCT } from '../../../core/constants/app.constants';
+import { ROUTES } from '../../../core/constants/routes.constants';
 import { getDefaultQuantity } from '../../../shared/utils/quantity.utils';
 import { FlyToCartService } from '../../../core/services/fly-to-cart.service';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
-import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
 
 @Component({
   selector: 'app-product-detail',
   standalone: true,
   imports: [
-    CommonModule,
-    FormsModule,
-    ButtonModule,
-    CardModule,
+    NgClass,
     ToastModule,
-    TagModule,
-    SelectModule,
-    ProductQuantitySelectorComponent,
-    BackButtonComponent,
-    BadgeModule,
     TranslateModule,
+    ProductQuantitySelectorComponent,
+    PageLayoutComponent,
+    ErrorStateComponent,
     CurrencyPipe
   ],
   templateUrl: './product-detail.component.html',
@@ -63,9 +55,12 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   private currencyService = inject(CurrencyService);
   private unitsService = inject(UnitsService);
   private translationService = inject(TranslationService);
-  public authService = inject(AuthService);
   private flyToCartService = inject(FlyToCartService);
-  
+  private destroyRef = inject(DestroyRef);
+
+  // Constants
+  readonly ROUTES = ROUTES;
+
   // Signals
   product = signal<Product | null>(null);
   category = signal<Category | null>(null);
@@ -79,8 +74,6 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   // For related products quantities
   productQuantities: { [key: number]: number } = {};
 
-  private destroyRef = inject(DestroyRef);
-  
   // Computed values
   isOutOfStock = computed(() => {
     return this.product()?.stock_quantity === 0;
@@ -256,8 +249,7 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
         //   life: 3000
         // });
       },
-      error: (error) => {
-        console.error('Error adding to cart:', error);
+      error: () => {
         this.toast.showError('products.cart.error');
       }
     });
@@ -284,8 +276,7 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
       next: () => {
         // Animation handles the visual feedback
       },
-      error: (error) => {
-        console.error('Error adding to cart:', error);
+      error: () => {
         this.toast.showError('products.cart.error');
       }
     });
@@ -359,6 +350,11 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   // Get effective price for a product (discounted or original)
   getProductEffectivePrice(product: Product): number {
     return product.promotion ? product.promotion.discounted_price : product.price;
+  }
+
+  // Navigate back to products list
+  goBack(): void {
+    this.router.navigate([ROUTES.PRODUCTS]);
   }
 
   ngOnDestroy(): void {

@@ -169,6 +169,7 @@
       }
     },
     "stock": {
+      "title": "Stock Availability",
       "out_of_stock": "Out of Stock",
       "low_stock": "Only {count} left in stock",
       "low_stock_title": "Low Stock",
@@ -176,6 +177,9 @@
       "available": " available",
       "unavailable_message": "This item is currently unavailable",
       "items_left": "{{count}} left"
+    },
+    "detail": {
+      "title": "Product Details"
     },
     "default_description": "Fresh, high-quality produce delivered to your door",
     "price_per": "per",

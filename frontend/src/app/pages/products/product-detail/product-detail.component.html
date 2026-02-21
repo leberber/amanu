@@ -1,220 +1,249 @@
-<!-- Outer Container - Full height minus header -->
-<div class="outer-container">
-  <p-toast></p-toast>
-  <!-- Back Button -->
-  <app-back-button route="/products" [circular]="true" [fixed]="true"></app-back-button>
+<!-- src/app/pages/products/product-detail/product-detail.component.html -->
+<app-page-layout
+  [title]="product() ? '' : 'products.detail.title'"
+  [showBackButton]="true"
+  [backRoute]="ROUTES.PRODUCTS"
+  [fullscreen]="true">
 
-  <!-- Scrollable Product Content -->
-  <div class="product-content-container">
-    <!-- Loading state -->
-    @if (loading()) {
-      <ng-container *ngTemplateOutlet="loadingTemplate"></ng-container>
-    }
-    <!-- Error state -->
-    @else if (error()) {
-      <ng-container *ngTemplateOutlet="errorTemplate"></ng-container>
-    }
-    <!-- Product Detail -->
-    @else if (product()) {
-      <div class="product-card">
-        <ng-container *ngTemplateOutlet="productDetailTemplate"></ng-container>
+  <!-- Custom header when product is loaded -->
+  @if (product()) {
+    <div pageHeader class="topbar-header">
+      <div class="topbar-header__icon">
+        <i class="pi pi-box"></i>
       </div>
-    }
-  </div>
-</div>
-
-<!-- ===================== TEMPLATE DEFINITIONS ===================== -->
-
-<!-- Loading Template -->
-<ng-template #loadingTemplate>
-  <div class="product-card">
-    <div class="loading-container">
-      <div class="loading-spinner"></div>
-      <p>{{ 'common.loading' | translate }}</p>
-    </div>
-  </div>
-</ng-template>
-
-<!-- Error Template -->
-<ng-template #errorTemplate>
-  <div class="product-card">
-    <div class="error-container">
-      <div class="error-icon">
-        <i class="pi pi-exclamation-triangle"></i>
-      </div>
-      <h2>{{ 'products.empty.title' | translate }}</h2>
-      <p>{{ 'errors.not_found' | translate }}</p>
-      <app-back-button route="/products" [circular]="true" [fixed]="true"></app-back-button>
-    </div>
-  </div>
-</ng-template>
-
-<!-- Product Detail Template -->
-<ng-template #productDetailTemplate>
-  <div class="grid">
-    <!-- Product Image -->
-    <div class="col-12 lg:col-6">
-      <ng-container *ngTemplateOutlet="productImageTemplate"></ng-container>
-    </div>
-
-    <!-- Product Info -->
-    <div class="col-12 lg:col-6">
-      <div class="product-info">
-        <ng-container *ngTemplateOutlet="productHeaderTemplate"></ng-container>
-        <ng-container *ngTemplateOutlet="productDescriptionTemplate"></ng-container>
-        <ng-container *ngTemplateOutlet="stockInfoTemplate"></ng-container>
-        <ng-container *ngTemplateOutlet="addToCartTemplate"></ng-container>
-      </div>
-    </div>
-  </div>
-</ng-template>
-
-<!-- Product Image Template -->
-<ng-template #productImageTemplate>
-  <div class="product-image-container">
-    <img
-      [src]="product()?.image_url || 'assets/images/product-placeholder.jpg'"
-      [alt]="product()?.name">
-
-    <!-- Promotion Badge -->
-    @if (hasPromotion()) {
-      <span class="product-badge promotion">
-        <i class="pi pi-tag"></i>
-        {{ discountLabel() }}
-      </span>
-    }
-
-    @if (product()?.is_organic) {
-      <span class="product-badge organic">
-        <i class="pi pi-leaf"></i>
-        {{ 'products.product.organic' | translate }}
-      </span>
-    }
-
-    @if (isOutOfStock()) {
-      <span class="product-badge out-of-stock">
-        <i class="pi pi-times-circle"></i>
-        {{ 'products.stock.out_of_stock' | translate }}
-      </span>
-    } @else if (isLowStock()) {
-      <span class="product-badge low-stock">
-        <i class="pi pi-exclamation-triangle"></i>
-        {{ 'products.stock.low_stock_title' | translate }}
-      </span>
-    }
-  </div>
-</ng-template>
-
-<!-- Product Header Template -->
-<ng-template #productHeaderTemplate>
-  <div class="product-header">
-    <div class="flex justify-content-between align-items-start gap-3">
-      <div class="flex-grow-1">
-        <h1 class="product-title">{{ product()?.name }}</h1>
-        @if (product()?.is_organic) {
-          <p-tag
-            severity="success"
-            [value]="'products.product.organic' | translate"
-            icon="pi pi-leaf">
-          </p-tag>
-        }
-      </div>
-      <div class="text-right price-container">
-        @if (hasPromotion()) {
-          <div class="promo-price">{{ discountedPrice() | appCurrency }}</div>
-          <div class="original-price">{{ product()?.price | appCurrency }}</div>
-        } @else {
-          <div class="current-price">{{ product()?.price | appCurrency }}</div>
-        }
-        <div class="price-unit">{{ 'common.price' | translate }} {{ unitDisplay() }}</div>
-      </div>
-    </div>
-  </div>
-</ng-template>
-
-<!-- Product Description Template -->
-<ng-template #productDescriptionTemplate>
-  <div class="description-section">
-    <h3>
-      <i class="pi pi-info-circle"></i>
-      {{ 'common.description' | translate }}
-    </h3>
-    <p>{{ product()?.description }}</p>
-  </div>
-</ng-template>
-
-<!-- Stock Info Template -->
-<ng-template #stockInfoTemplate>
-  @if (isOutOfStock()) {
-    <div class="stock-info out-of-stock">
-      <div class="stock-icon">
-        <i class="pi pi-times-circle"></i>
-      </div>
-      <div class="stock-content">
-        <h4>{{ 'products.stock.out_of_stock' | translate }}</h4>
-        <p>{{ 'products.stock.unavailable_message' | translate }}</p>
-      </div>
-    </div>
-  } @else if (isLowStock()) {
-    <div class="stock-info low-stock">
-      <div class="stock-icon">
-        <i class="pi pi-exclamation-triangle"></i>
-      </div>
-      <div class="stock-content">
-        <h4>{{ 'products.stock.low_stock_title' | translate }}</h4>
-        <p>{{ 'products.stock.low_stock' | translate : lowStockParams() }} {{ unitDisplay() }}</p>
-      </div>
-    </div>
-  } @else {
-    <div class="stock-info in-stock">
-      <div class="stock-icon">
-        <i class="pi pi-check-circle"></i>
-      </div>
-      <div class="stock-content">
-        <h4>{{ 'products.stock.in_stock' | translate }}</h4>
-        <p>{{ product()?.stock_quantity }} {{ unitDisplay() }} {{ 'products.stock.available' | translate }}</p>
+      <div class="topbar-header__info">
+        <span class="topbar-header__title">{{ product()?.name }}</span>
+        <span class="topbar-header__subtitle">{{ category()?.name || '' }}</span>
       </div>
     </div>
   }
-</ng-template>
 
-<!-- Add to Cart Template -->
-<ng-template #addToCartTemplate>
-  <div class="add-to-cart-section">
-    <!-- Cart Status -->
-    @if (isInCart()) {
-      <div class="cart-status">
-        <i class="pi pi-check-circle"></i>
-        <span>{{ quantityInCart() }} {{ unitDisplay() }} {{ 'products.cart.in_cart' | translate }}</span>
-      </div>
-    }
-
-    <!-- Quantity Selector -->
-    <div class="mb-3">
-      <label class="quantity-label">{{ 'common.quantity' | translate }}</label>
-      <app-product-quantity-selector
-        [(value)]="selectedQuantity"
-        [unit]="product()?.unit"
-        [maxStock]="product()?.stock_quantity"
-        [quantityConfig]="product()?.quantity_config"
-        [disabled]="isOutOfStock()"
-        (valueChange)="selectedQuantity.set($event)">
-      </app-product-quantity-selector>
+  <!-- Stock badge as action -->
+  @if (product()) {
+    <div pageActions>
+      @if (hasPromotion()) {
+        <div class="topbar-badge topbar-badge--promo">
+          <i class="pi pi-tag"></i>
+          <span class="hidden-mobile">{{ discountLabel() }}</span>
+        </div>
+      } @else if (isOutOfStock()) {
+        <div class="topbar-badge topbar-badge--danger">
+          <i class="pi pi-times-circle"></i>
+          <span class="hidden-mobile">{{ 'products.stock.out_of_stock' | translate }}</span>
+        </div>
+      } @else if (isLowStock()) {
+        <div class="topbar-badge topbar-badge--warning">
+          <i class="pi pi-exclamation-triangle"></i>
+          <span class="hidden-mobile">{{ 'products.stock.low_stock_title' | translate }}</span>
+        </div>
+      } @else {
+        <div class="topbar-badge topbar-badge--success">
+          <i class="pi pi-check-circle"></i>
+          <span class="hidden-mobile">{{ 'products.stock.in_stock' | translate }}</span>
+        </div>
+      }
     </div>
+  }
 
-    <!-- Add to Cart Button -->
-    <button
-      class="add-to-cart-btn"
-      (click)="addToCart($event)"
-      [disabled]="isOutOfStock() || !selectedQuantity()">
-      <i [class]="isInCart() ? 'pi pi-plus' : 'pi pi-shopping-cart'"></i>
-      <span>
-        @if (isInCart()) {
-          {{ 'common.add' | translate }} +{{ selectedQuantity() }} ({{ quantityInCart() + selectedQuantity() }} {{ 'common.total' | translate }})
-        } @else {
-          {{ 'products.cart.add_to_cart' | translate }}
-        }
-      </span>
-    </button>
-  </div>
-</ng-template>
+  <!-- Main Content -->
+  <p-toast></p-toast>
+
+  <!-- Loading state - Skeleton -->
+  @if (loading()) {
+    <div class="product-detail-content">
+      <div class="product-grid">
+        <!-- Image skeleton -->
+        <div class="app-card product-image-card">
+          <div class="skeleton skeleton-image skeleton-image--lg"></div>
+        </div>
+        <!-- Info skeleton -->
+        <div class="product-sidebar">
+          <div class="app-card">
+            <div class="app-card__content">
+              <div class="skeleton skeleton-text skeleton-text--w70 skeleton-mb"></div>
+              <div class="skeleton skeleton-text skeleton-text--w50 skeleton-mb"></div>
+              <div class="skeleton skeleton-text skeleton-text--w100 skeleton-mb"></div>
+              <div class="skeleton skeleton-text skeleton-text--w100 skeleton-mb"></div>
+              <div class="skeleton skeleton-text skeleton-text--w80"></div>
+            </div>
+          </div>
+          <div class="app-card">
+            <div class="app-card__content">
+              <div class="skeleton skeleton-text skeleton-text--w40 skeleton-mb"></div>
+              <div class="skeleton skeleton-text skeleton-text--w100" style="height: 48px;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Error state -->
+  @else if (error()) {
+    <app-error-state
+      title="products.errors.failed_to_load"
+      message="errors.not_found"
+      [showRetry]="false"
+      [showGoBack]="true"
+      (goBackClick)="goBack()">
+    </app-error-state>
+  }
+
+  <!-- Product details -->
+  @else if (product()) {
+    <div class="product-detail-content">
+      <div class="product-grid">
+        <!-- Product Image -->
+        <div class="app-card product-image-card">
+          <div class="product-image-container">
+            <img
+              [src]="product()?.image_url || 'assets/images/product-placeholder.jpg'"
+              [alt]="product()?.name">
+
+            <!-- Badges on image -->
+            @if (hasPromotion()) {
+              <span class="image-badge image-badge--promo">
+                <i class="pi pi-tag"></i>
+                {{ discountLabel() }}
+              </span>
+            }
+            @if (product()?.is_organic) {
+              <span class="image-badge image-badge--organic">
+                <i class="pi pi-leaf"></i>
+                {{ 'products.product.organic' | translate }}
+              </span>
+            }
+          </div>
+        </div>
+
+        <!-- Product Info Sidebar -->
+        <div class="product-sidebar">
+          <!-- Price Card -->
+          <div class="app-card price-card">
+            <div class="app-card__header">
+              <div class="app-card__icon">
+                <i class="pi pi-wallet"></i>
+              </div>
+              <h2 class="app-card__title">{{ 'common.price' | translate }}</h2>
+            </div>
+            <div class="app-card__content">
+              <div class="price-display">
+                @if (hasPromotion()) {
+                  <div class="price-display__current price-display__current--promo">{{ discountedPrice() | appCurrency }}</div>
+                  <div class="price-display__original">{{ product()?.price | appCurrency }}</div>
+                } @else {
+                  <div class="price-display__current">{{ product()?.price | appCurrency }}</div>
+                }
+                <div class="price-display__unit">{{ 'common.price' | translate }} {{ unitDisplay() }}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Description Card -->
+          @if (product()?.description) {
+            <div class="app-card">
+              <div class="app-card__header">
+                <div class="app-card__icon">
+                  <i class="pi pi-info-circle"></i>
+                </div>
+                <h2 class="app-card__title">{{ 'common.description' | translate }}</h2>
+              </div>
+              <div class="app-card__content">
+                <p class="description-text">{{ product()?.description }}</p>
+              </div>
+            </div>
+          }
+
+          <!-- Stock Info Card -->
+          <div class="app-card stock-card">
+            <div class="app-card__header">
+              <div class="app-card__icon">
+                <i class="pi pi-warehouse"></i>
+              </div>
+              <h2 class="app-card__title">{{ 'products.stock.title' | translate }}</h2>
+            </div>
+            <div class="app-card__content">
+              @if (isOutOfStock()) {
+                <div class="stock-status stock-status--danger">
+                  <div class="stock-status__icon">
+                    <i class="pi pi-times-circle"></i>
+                  </div>
+                  <div class="stock-status__content">
+                    <h4>{{ 'products.stock.out_of_stock' | translate }}</h4>
+                    <p>{{ 'products.stock.unavailable_message' | translate }}</p>
+                  </div>
+                </div>
+              } @else if (isLowStock()) {
+                <div class="stock-status stock-status--warning">
+                  <div class="stock-status__icon">
+                    <i class="pi pi-exclamation-triangle"></i>
+                  </div>
+                  <div class="stock-status__content">
+                    <h4>{{ 'products.stock.low_stock_title' | translate }}</h4>
+                    <p>{{ 'products.stock.low_stock' | translate : lowStockParams() }} {{ unitDisplay() }}</p>
+                  </div>
+                </div>
+              } @else {
+                <div class="stock-status stock-status--success">
+                  <div class="stock-status__icon">
+                    <i class="pi pi-check-circle"></i>
+                  </div>
+                  <div class="stock-status__content">
+                    <h4>{{ 'products.stock.in_stock' | translate }}</h4>
+                    <p>{{ product()?.stock_quantity }} {{ unitDisplay() }} {{ 'products.stock.available' | translate }}</p>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Add to Cart Card -->
+          <div class="app-card cart-card">
+            <div class="app-card__header">
+              <div class="app-card__icon">
+                <i class="pi pi-shopping-cart"></i>
+              </div>
+              <h2 class="app-card__title">{{ 'products.cart.add_to_cart' | translate }}</h2>
+            </div>
+            <div class="app-card__content">
+              <!-- Cart Status -->
+              @if (isInCart()) {
+                <div class="cart-status">
+                  <i class="pi pi-check-circle"></i>
+                  <span>{{ quantityInCart() }} {{ unitDisplay() }} {{ 'products.cart.in_cart' | translate }}</span>
+                </div>
+              }
+
+              <!-- Quantity Selector -->
+              <div class="quantity-section">
+                <label class="quantity-label">{{ 'common.quantity' | translate }}</label>
+                <app-product-quantity-selector
+                  [(value)]="selectedQuantity"
+                  [unit]="product()?.unit"
+                  [maxStock]="product()?.stock_quantity"
+                  [quantityConfig]="product()?.quantity_config"
+                  [disabled]="isOutOfStock()"
+                  (valueChange)="selectedQuantity.set($event)">
+                </app-product-quantity-selector>
+              </div>
+
+              <!-- Add to Cart Button -->
+              <button
+                class="action-btn action-btn--primary"
+                (click)="addToCart($event)"
+                [disabled]="isOutOfStock() || !selectedQuantity()">
+                <i [class]="isInCart() ? 'pi pi-plus' : 'pi pi-shopping-cart'"></i>
+                @if (isInCart()) {
+                  {{ 'common.add' | translate }} +{{ selectedQuantity() }} ({{ quantityInCart() + selectedQuantity() }} {{ 'common.total' | translate }})
+                } @else {
+                  {{ 'products.cart.add_to_cart' | translate }}
+                }
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+</app-page-layout>
