@@ -45,30 +45,33 @@
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: 0;
 }
 
 // Order item card (mobile)
 .order-item {
   display: flex;
   align-items: center;
-  padding: var(--space-3);
-  gap: var(--space-3);
-  background: var(--surface-card);
-  border-radius: var(--radius-lg);
+  padding: var(--space-7) var(--space-2);
+  gap: var(--space-4);
+  background: transparent;
   cursor: pointer;
   transition: all var(--transition-fast);
+  border-bottom: var(--border-width) solid var(--border-color-light);
+
+  &:last-child {
+    border-bottom: none;
+  }
 
   &:hover {
-    box-shadow: var(--shadow-md);
-    transform: translateY(-1px);
+    background: var(--surface-hover);
   }
 
   &__icon {
     width: var(--icon-xl);
     height: var(--icon-xl);
     border-radius: var(--radius-md);
-    background: var(--primary-50);
+    background: var(--primary-100);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -93,8 +96,8 @@
   }
 
   &__number {
-    font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-medium);
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
     color: var(--text-color);
   }
 
@@ -105,14 +108,14 @@
   }
 
   &__date {
-    font-size: var(--font-size-xs);
+    font-size: var(--font-size-md);
     color: var(--text-color-secondary);
   }
 
   &__total {
-    font-size: var(--font-size-md);
+    font-size: var(--font-size-xl);
     font-weight: var(--font-weight-bold);
-    color: var(--primary-color);
+    color: var(--text-color-strong);
   }
 
   &__chevron {
@@ -210,23 +213,23 @@
   }
 }
 
-// View button (table)
+// View button (table) - light/secondary style
 .view-btn {
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
-  padding: var(--space-2) var(--space-3);
-  border: none;
+  padding: var(--space-2) var(--space-4);
+  border: var(--border-width) solid var(--primary-color);
   border-radius: var(--radius-md);
-  background: var(--primary-color);
-  color: var(--color-white);
+  background: transparent;
+  color: var(--primary-color);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
   cursor: pointer;
   transition: all var(--transition-fast);
 
   &:hover {
-    background: var(--primary-color-dark);
+    background: var(--primary-50);
   }
 }
 
@@ -250,7 +253,7 @@
 
 .order-amount {
   font-weight: var(--font-weight-bold);
-  color: var(--primary-color);
+  color: var(--text-color-strong);
 }
 
 // Table overrides
@@ -259,7 +262,7 @@
     .p-datatable-header-cell {
       background: var(--surface-ground);
       border: none;
-      padding: var(--space-3);
+      padding: var(--space-4) var(--space-5);
       font-size: var(--font-size-xs);
       font-weight: var(--font-weight-bold);
       color: var(--text-color-secondary);
@@ -273,7 +276,7 @@
       > td {
         border: none;
         border-bottom: var(--border-width) solid var(--border-color-light);
-        padding: var(--space-3);
+        padding: var(--space-4) var(--space-5);
         vertical-align: middle;
       }
 
