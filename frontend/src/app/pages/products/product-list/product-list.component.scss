@@ -1,18 +1,42 @@
-// Product List - Minimal SCSS (only what can't be done with Tailwind/global styles)
+// =============================================================================
+// PRODUCT LIST COMPONENT
+// =============================================================================
+// Minimal component-specific styles. Uses shared styles from:
+// - _components.scss (products-grid, product-list-item, etc.)
+// - _quantity-overlay.scss (quantity selector and overlay)
+// - _skeleton.scss (loading states)
+// =============================================================================
 
 :host { display: block; }
 
-// Bottom nav height
+// Bottom nav height for safe area calculations
 $bottom-nav-height: 70px;
 
-// Desktop/Mobile responsive toggle (can't do with Tailwind easily due to component encapsulation)
-.products-desktop { display: none; @media (min-width: 1024px) { display: flex; flex-direction: column; } }
-.products-mobile {
-  padding-bottom: calc(#{$bottom-nav-height} + env(safe-area-inset-bottom, 0));
-  @media (min-width: 1024px) { display: none; }
+// =============================================================================
+// 1. RESPONSIVE LAYOUT TOGGLE
+// =============================================================================
+// Desktop/Mobile visibility (can't do with Tailwind due to component encapsulation)
+
+.products-desktop {
+  display: none;
+  @media (min-width: 1024px) {
+    display: flex;
+    flex-direction: column;
+  }
 }
 
-// Mobile Header Container - Fixed at top
+.products-mobile {
+  padding-bottom: calc(#{$bottom-nav-height} + env(safe-area-inset-bottom, 0));
+  @media (min-width: 1024px) {
+    display: none;
+  }
+}
+
+
+// =============================================================================
+// 2. MOBILE HEADER (Fixed Position)
+// =============================================================================
+
 .mobile-header {
   position: fixed;
   top: 0;
@@ -22,17 +46,19 @@ $bottom-nav-height: 70px;
   background: var(--surface-card);
 }
 
-// Spacer to prevent content from going under fixed header
-// Height = icon (50px) + name (~14px) + padding (16px) + border (1px)
 .mobile-header-spacer {
-  height: 95px;
+  height: 95px; // icon (50px) + name (~14px) + padding (16px) + border (1px)
 }
 
-// Mobile Search Overlay
+
+// =============================================================================
+// 3. MOBILE SEARCH OVERLAY
+// =============================================================================
+
 .mobile-search-overlay {
   background: var(--surface-card);
-  padding: 0.75rem 1rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: var(--space-3) var(--space-4);
+  box-shadow: var(--shadow-md);
   animation: fadeIn 0.15s ease-out;
 }
 
@@ -44,12 +70,12 @@ $bottom-nav-height: 70px;
 .mobile-search-container {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--space-2);
   background: var(--surface-ground);
-  border-radius: 12px;
-  padding: 0.5rem 1rem;
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-4);
   border: 2px solid transparent;
-  transition: border-color 0.2s ease;
+  transition: border-color var(--transition-fast);
 
   &:focus-within {
     border-color: var(--primary-color);
@@ -70,7 +96,7 @@ $bottom-nav-height: 70px;
   font-size: 16px; // Prevents iOS zoom
   color: var(--text-color);
   outline: none;
-  padding: 0.5rem 0;
+  padding: var(--space-2) 0;
 
   &::placeholder {
     color: var(--text-color-secondary);
@@ -85,9 +111,9 @@ $bottom-nav-height: 70px;
   width: 32px;
   height: 32px;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--transition-fast);
   flex-shrink: 0;
 }
 
@@ -106,390 +132,36 @@ $bottom-nav-height: 70px;
   color: white;
 
   &:hover {
-    background: var(--primary-600);
+    opacity: 0.9;
   }
 }
 
-// Product List Item - Cart Row
+
+// =============================================================================
+// 4. PRODUCT LIST CART ROW
+// =============================================================================
+// Action row with quantity selector and add button
+
 .product-list-item__cart-row {
   display: flex;
-  gap: 0.5rem;
+  gap: var(--space-2);
   align-items: center;
-  margin-top: 0.5rem;
+  margin-top: var(--space-2);
 
   > button:last-child {
     flex-shrink: 0;
     width: 2.5rem !important;
     height: 2.5rem !important;
-    border-radius: 12px !important;
+    border-radius: var(--radius-md) !important;
   }
 }
 
-// =============================================================================
-// Quantity Selector Button - Modern Glassmorphism Style
-// =============================================================================
-.quantity-selector-btn {
-  flex: 1;
-  min-width: 0;
-  max-width: 200px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-  padding: 0.625rem 0.875rem;
-  background: linear-gradient(145deg, #f8fafc 0%, #e2e8f0 100%);
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  border-radius: 12px;
-  cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04),
-              inset 0 1px 0 rgba(255, 255, 255, 0.8);
-
-  @media (min-width: 1024px) {
-    &:hover {
-      background: linear-gradient(145deg, #ffffff 0%, #f1f5f9 100%);
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08),
-                  inset 0 1px 0 rgba(255, 255, 255, 1);
-      transform: translateY(-1px);
-    }
-
-    &:active {
-      transform: translateY(0);
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
-    }
-  }
-
-  &__text {
-    display: flex;
-    align-items: center;
-    gap: 0.375rem;
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: #1e293b;
-  }
-
-  &__boxes {
-    background: var(--primary-color);
-    color: white;
-    padding: 0.125rem 0.375rem;
-    border-radius: 6px;
-    font-size: 0.75rem;
-    font-weight: 700;
-  }
-
-  &__pieces {
-    color: #64748b;
-    font-weight: 500;
-  }
-
-  &__icon {
-    color: var(--primary-color);
-    font-size: 0.65rem;
-    transition: transform 0.2s ease;
-  }
-}
 
 // =============================================================================
-// Fullscreen Quantity Overlay
+// 5. MOBILE GRID VARIANT
 // =============================================================================
-.quantity-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 99999;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
-  animation: overlayFadeIn 0.3s ease;
 
-  @media (min-width: 768px) {
-    align-items: center;
-  }
-
-  &__panel {
-    width: 100%;
-    max-width: 480px;
-    max-height: 85vh;
-    background: white;
-    border-radius: 24px 24px 0 0;
-    box-shadow: 0 -10px 50px rgba(0, 0, 0, 0.25);
-    display: flex;
-    flex-direction: column;
-    animation: panelSlideUp 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-    overflow: hidden;
-
-    @media (min-width: 768px) {
-      border-radius: 24px;
-      max-height: 80vh;
-      animation: panelScaleIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-  }
-
-  &__header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1.25rem 1.5rem;
-    border-bottom: 1px solid #f1f5f9;
-    background: linear-gradient(180deg, #ffffff 0%, #fafbfc 100%);
-  }
-
-  &__product {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-
-    img {
-      width: 56px;
-      height: 56px;
-      object-fit: contain;
-      border-radius: 12px;
-      background: #f8fafc;
-      padding: 0.25rem;
-    }
-  }
-
-  &__product-info {
-    h4 {
-      margin: 0;
-      font-size: 1rem;
-      font-weight: 600;
-      color: #1e293b;
-      line-height: 1.3;
-    }
-  }
-
-  &__price {
-    display: block;
-    font-size: 0.875rem;
-    color: var(--primary-color);
-    font-weight: 600;
-    margin-top: 0.25rem;
-  }
-
-  &__close {
-    width: 40px;
-    height: 40px;
-    border: none;
-    background: #f1f5f9;
-    border-radius: 12px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
-
-    i {
-      font-size: 1rem;
-      color: #64748b;
-    }
-
-    &:hover {
-      background: #e2e8f0;
-      i { color: #1e293b; }
-    }
-  }
-
-  &__options {
-    flex: 1;
-    overflow-y: auto;
-    padding: 1rem 1.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.625rem;
-  }
-
-  &__footer {
-    padding: 1rem 1.5rem calc(env(safe-area-inset-bottom, 0) + 1.5rem);
-    background: linear-gradient(180deg, #fafbfc 0%, #ffffff 100%);
-    border-top: 1px solid #f1f5f9;
-  }
-
-  &__confirm {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.75rem;
-    padding: 1rem 1.5rem;
-    background: linear-gradient(135deg, var(--primary-color) 0%, #1a4f8b 100%);
-    border: none;
-    border-radius: 14px;
-    color: white;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.25s ease;
-    box-shadow: 0 4px 16px rgba(46, 108, 183, 0.3);
-
-    &:hover:not(:disabled) {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 24px rgba(46, 108, 183, 0.4);
-    }
-
-    &:active:not(:disabled) {
-      transform: translateY(0);
-    }
-
-    &:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
-    &-price {
-      background: rgba(255, 255, 255, 0.2);
-      padding: 0.25rem 0.75rem;
-      border-radius: 8px;
-      font-weight: 700;
-    }
-  }
-}
-
-// =============================================================================
-// Quantity Option Card
-// =============================================================================
-.quantity-option {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 1rem 1.25rem;
-  background: #f8fafc;
-  border: 2px solid transparent;
-  border-radius: 16px;
-  cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-
-  @media (min-width: 1024px) {
-    &:hover {
-      background: #f1f5f9;
-      border-color: rgba(46, 108, 183, 0.2);
-      transform: translateX(4px);
-    }
-  }
-
-  &--selected {
-    background: linear-gradient(135deg, rgba(46, 108, 183, 0.08) 0%, rgba(46, 108, 183, 0.04) 100%);
-    border-color: var(--primary-color);
-
-    .quantity-option__count {
-      background: var(--primary-color);
-      color: white;
-    }
-
-    .quantity-option__price {
-      color: var(--primary-color);
-    }
-  }
-
-  &__boxes {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-width: 50px;
-  }
-
-  &__count {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #1e293b;
-    background: #e2e8f0;
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
-  }
-
-  &__label {
-    font-size: 0.7rem;
-    color: #64748b;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-top: 0.25rem;
-    font-weight: 600;
-  }
-
-  &__details {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 0.125rem;
-  }
-
-  &__pieces {
-    font-size: 0.9rem;
-    font-weight: 500;
-    color: #475569;
-  }
-
-  &__price {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: #1e293b;
-    transition: color 0.2s ease;
-  }
-
-  &__check {
-    position: absolute;
-    right: 1rem;
-    width: 28px;
-    height: 28px;
-    background: var(--primary-color);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 0.75rem;
-    animation: checkPop 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-}
-
-// =============================================================================
-// Animations
-// =============================================================================
-@keyframes overlayFadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes panelSlideUp {
-  from {
-    opacity: 0;
-    transform: translateY(100%);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes panelScaleIn {
-  from {
-    opacity: 0;
-    transform: scale(0.9);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-@keyframes checkPop {
-  0% {
-    transform: scale(0);
-  }
-  50% {
-    transform: scale(1.2);
-  }
-  100% {
-    transform: scale(1);
-  }
+.products-grid--mobile {
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-2);
 }
