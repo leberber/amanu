@@ -7,12 +7,12 @@
 
   <!-- User info in top bar -->
   <div pageActions class="topbar-user">
-    <div class="topbar-user__avatar">
-      {{ userInitial() }}
-    </div>
     <div class="topbar-user__info">
       <span class="topbar-user__name">{{ user()?.full_name || 'User' }}</span>
       <span class="topbar-user__email">{{ user()?.email }}</span>
+    </div>
+    <div class="topbar-user__avatar">
+      {{ userInitial() }}
     </div>
   </div>
 
@@ -239,9 +239,10 @@
               <!-- Current Password -->
               <div class="form-field form-field--full">
                 <div class="field-box"
-                     [class.focused]="focusedField() === 'current_password'">
-                  <div class="field-box__icon">
-                    <i class="pi pi-lock"></i>
+                     [class.focused]="focusedField() === 'current_password'"
+                     [class.filled]="passwordForm.get('current_password')?.value">
+                  <div class="field-box__icon field-box__icon--shield">
+                    <i class="pi pi-shield"></i>
                   </div>
                   <div class="field-box__content field-box__content--password">
                     <label>{{ 'account.current_password' | translate }}</label>
@@ -264,9 +265,10 @@
               <!-- New Password -->
               <div class="form-field">
                 <div class="field-box"
-                     [class.focused]="focusedField() === 'new_password'">
-                  <div class="field-box__icon">
-                    <i class="pi pi-lock"></i>
+                     [class.focused]="focusedField() === 'new_password'"
+                     [class.filled]="passwordForm.get('new_password')?.value">
+                  <div class="field-box__icon field-box__icon--key">
+                    <i class="pi pi-key"></i>
                   </div>
                   <div class="field-box__content field-box__content--password">
                     <label>{{ 'account.new_password' | translate }}</label>
@@ -292,9 +294,10 @@
               <!-- Confirm Password -->
               <div class="form-field">
                 <div class="field-box"
-                     [class.focused]="focusedField() === 'confirm_password'">
-                  <div class="field-box__icon">
-                    <i class="pi pi-lock"></i>
+                     [class.focused]="focusedField() === 'confirm_password'"
+                     [class.filled]="passwordForm.get('confirm_password')?.value">
+                  <div class="field-box__icon field-box__icon--check">
+                    <i class="pi pi-check-circle"></i>
                   </div>
                   <div class="field-box__content field-box__content--password">
                     <label>{{ 'account.confirm_password' | translate }}</label>

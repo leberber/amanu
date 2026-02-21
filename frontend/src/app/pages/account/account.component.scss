@@ -10,26 +10,25 @@
 // =============================================================================
 
 // -----------------------------------------------------------------------------
+// Override detail-content for account page (enable scroll, reduce padding)
+// -----------------------------------------------------------------------------
+.detail-content {
+  overflow: visible !important;
+  height: auto !important;
+  padding: var(--space-4);
+
+  @media (min-width: 768px) {
+    padding: var(--space-5);
+  }
+}
+
+// -----------------------------------------------------------------------------
 // Topbar User Info
 // -----------------------------------------------------------------------------
 .topbar-user {
   display: flex;
   align-items: center;
   gap: var(--space-3);
-
-  &__avatar {
-    width: 36px;
-    height: 36px;
-    border-radius: var(--radius-full);
-    background: var(--primary-gradient);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: var(--font-size-base);
-    font-weight: var(--font-weight-bold);
-    color: var(--color-white);
-    flex-shrink: 0;
-  }
 
   &__info {
     display: flex;
@@ -42,25 +41,32 @@
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-semibold);
     color: var(--text-color);
-    line-height: 1.2;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 150px;
+    line-height: 1.3;
   }
 
   &__email {
     font-size: var(--font-size-xs);
     color: var(--text-color-secondary);
-    line-height: 1.2;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 150px;
+    line-height: 1.3;
+  }
+
+  &__avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-full);
+    background: var(--primary-gradient);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-white);
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(46, 108, 183, 0.3);
   }
 }
 
-// Hide email on very small screens
+// Hide info on very small screens
 @media (max-width: 400px) {
   .topbar-user__info {
     display: none;
@@ -79,6 +85,7 @@
 
   @media (min-width: 992px) {
     grid-template-columns: 1fr 1.5fr;
+    align-items: start;
   }
 }
 
@@ -87,18 +94,6 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-5);
-
-  &--info {
-    @media (min-width: 992px) {
-      position: sticky;
-      top: var(--space-5);
-      align-self: start;
-    }
-  }
-
-  &--forms {
-    // Forms column stacks vertically
-  }
 }
 
 // -----------------------------------------------------------------------------
@@ -266,7 +261,8 @@
     }
   }
 
-  &.filled .field-box__icon {
+  &.filled .field-box__icon,
+  &.has-value .field-box__icon {
     background: rgba(46, 108, 183, 0.1);
     i { color: var(--primary-color); }
   }
@@ -291,6 +287,22 @@
       font-size: var(--font-size-lg);
       color: var(--text-color-secondary);
       transition: color var(--transition-fast);
+    }
+
+    // Password field icon variants (colored backgrounds)
+    &--shield {
+      background: rgba(255, 152, 0, 0.1) !important;
+      i { color: #ff9800 !important; }
+    }
+
+    &--key {
+      background: rgba(76, 175, 80, 0.1) !important;
+      i { color: #4caf50 !important; }
+    }
+
+    &--check {
+      background: rgba(33, 150, 243, 0.1) !important;
+      i { color: #2196f3 !important; }
     }
   }
 
