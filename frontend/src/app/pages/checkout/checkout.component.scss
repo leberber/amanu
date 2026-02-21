@@ -11,6 +11,10 @@
 // - .items-simple-list, .item-line, .item-qty, .item-name, .item-total
 // - .order-breakdown, .order-breakdown__row, .order-breakdown__label, .order-breakdown__value
 // - .order-total, .order-total__label, .order-total__amount
+// - .shipping-fields, .shipping-field
+// - .field-icon, .field-icon--primary, .field-icon--success, .field-icon--warning
+// - .field-content, .field-label, .field-value
+// - @keyframes slideIn, .animate-slide-in
 // Uses global styles from _skeleton.scss:
 // - .skeleton, .skeleton-text, .skeleton-avatar, .skeleton-row
 // =============================================================================
@@ -23,6 +27,7 @@
   flex-direction: column;
   min-height: 0;
   overflow: hidden;
+  animation: slideIn 0.4s ease-out;
 
   .app-card__content {
     display: flex;
@@ -62,85 +67,6 @@
 }
 
 // -----------------------------------------------------------------------------
-// Shipping Fields
-// -----------------------------------------------------------------------------
-.shipping-fields {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-}
-
-.shipping-field {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-4);
-  padding: var(--space-4);
-  background: var(--surface-50);
-  border-radius: var(--radius-lg);
-  transition: background var(--transition-fast);
-
-  &:hover {
-    background: var(--surface-100);
-  }
-}
-
-.field-icon {
-  width: var(--icon-lg);
-  height: var(--icon-lg);
-  border-radius: var(--radius-md);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-
-  i {
-    font-size: var(--font-size-lg);
-    color: var(--color-white);
-  }
-
-  &--primary {
-    background: linear-gradient(135deg, #2E6CB7 0%, #0F3C82 100%);
-    box-shadow: 0 4px 12px rgba(46, 108, 183, 0.25);
-  }
-
-  &--success {
-    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
-    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.25);
-  }
-
-  &--warning {
-    background: linear-gradient(135deg, #fb923c 0%, #ea580c 100%);
-    box-shadow: 0 4px 12px rgba(251, 146, 60, 0.25);
-  }
-}
-
-.field-content {
-  flex: 1;
-  min-width: 0;
-}
-
-.field-label {
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-semibold);
-  color: var(--text-color-secondary);
-  margin-bottom: var(--space-1);
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-}
-
-.field-value {
-  font-size: var(--font-size-base);
-  font-weight: var(--font-weight-semibold);
-  color: var(--text-color);
-  line-height: 1.5;
-  word-break: break-word;
-
-  .address-line {
-    display: block;
-  }
-}
-
-// -----------------------------------------------------------------------------
 // Actions Card
 // -----------------------------------------------------------------------------
 .actions-card {
@@ -165,24 +91,6 @@
 }
 
 // -----------------------------------------------------------------------------
-// Animations
-// -----------------------------------------------------------------------------
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.order-summary-card {
-  animation: slideIn 0.4s ease-out;
-}
-
-// -----------------------------------------------------------------------------
 // Clickable thumbnails
 // -----------------------------------------------------------------------------
 .thumbnail.clickable {
@@ -198,20 +106,13 @@
 // -----------------------------------------------------------------------------
 // Responsive
 // -----------------------------------------------------------------------------
-// Note: Card padding and item-line styles are defined globally in _components.scss
 @media (max-width: 767px) {
   .order-summary-card {
     min-height: auto;
-    overflow: hidden; // Prevent content from pushing card wider
+    overflow: hidden;
 
     .app-card__content {
-      overflow: hidden; // Clip overflowing content
+      overflow: hidden;
     }
-  }
-
-  // Tighter spacing for shipping fields
-  .shipping-field {
-    padding: var(--space-3);
-    gap: var(--space-3);
   }
 }
