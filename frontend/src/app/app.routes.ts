@@ -150,7 +150,8 @@ export const routes: Routes = [
   {
     path: 'orders/:id',
     loadComponent: () => import('./pages/orders/order-detail/order-detail.component').then(m => m.OrderDetailComponent),
-    canActivate: [authGuard]
+    canActivate: [authGuard],
+    data: { hideBottomNav: true }
   },
 
   // Public Routes

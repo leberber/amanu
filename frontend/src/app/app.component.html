@@ -1,7 +1,7 @@
 <!-- src/app/app.component.html -->
 <div class="app-container flex h-screen overflow-hidden"
      [class.with-sidebar]="showNavigation() && !isMobile()"
-     [class.with-bottom-nav]="showNavigation() && isMobile()">
+     [class.with-bottom-nav]="showNavigation() && isMobile() && !hideBottomNav()">
 
   @if (showNavigation()) {
     <app-sidebar />
@@ -11,7 +11,7 @@
     <router-outlet></router-outlet>
   </main>
 
-  @if (showNavigation() && isMobile()) {
+  @if (showNavigation() && isMobile() && !hideBottomNav()) {
     <app-bottom-navigation />
   }
 

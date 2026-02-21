@@ -22,6 +22,7 @@ import { BREAKPOINTS } from './core/constants/app.constants';
 })
 export class AppComponent implements OnInit {
   showNavigation = signal(false);
+  hideBottomNav = signal(false);
   isMobile = signal(window.innerWidth < BREAKPOINTS.MD);
 
   private router = inject(Router);
@@ -47,10 +48,21 @@ export class AppComponent implements OnInit {
       takeUntilDestroyed(this.destroyRef)
     ).subscribe((event: NavigationEnd) => {
       this.updateNavigation(event.urlAfterRedirects || event.url);
+      this.updateRouteData();
     });
 
     // Check initial route
     this.updateNavigation(this.router.url);
+    this.updateRouteData();
+  }
+
+  private updateRouteData(): void {
+    // Get data from the deepest activated route snapshot
+    let route = this.router.routerState.root;
+    while (route.firstChild) {
+      route = route.firstChild;
+    }
+    this.hideBottomNav.set(route.snapshot.data['hideBottomNav'] === true);
   }
 
   private updateNavigation(url: string): void {
