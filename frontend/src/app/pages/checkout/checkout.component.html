@@ -21,7 +21,7 @@
   <!-- Loading state - Skeleton -->
   @if (loading()) {
     <div class="detail-content">
-      <div class="checkout-grid">
+      <div class="detail-grid detail-grid--orders">
         <!-- Order Summary Skeleton -->
         <div class="app-card">
           <div class="app-card__header">
@@ -40,22 +40,24 @@
             <div class="skeleton skeleton-text skeleton-text--w100" style="height: 56px; margin-top: 1rem;"></div>
           </div>
         </div>
-        <!-- Shipping Skeleton -->
-        <div class="app-card hidden md:block">
-          <div class="app-card__header">
-            <div class="skeleton skeleton-avatar"></div>
-            <div class="skeleton skeleton-text skeleton-text--w40"></div>
-          </div>
-          <div class="app-card__content">
-            @for (i of [1, 2, 3]; track i) {
-              <div class="skeleton-row">
-                <div class="skeleton skeleton-avatar"></div>
-                <div class="skeleton-row__content">
-                  <div class="skeleton skeleton-text skeleton-text--w30 skeleton-mb"></div>
-                  <div class="skeleton skeleton-text skeleton-text--w60"></div>
+        <!-- Sidebar Skeleton -->
+        <div class="detail-sidebar">
+          <div class="app-card">
+            <div class="app-card__header">
+              <div class="skeleton skeleton-avatar"></div>
+              <div class="skeleton skeleton-text skeleton-text--w40"></div>
+            </div>
+            <div class="app-card__content">
+              @for (i of [1, 2, 3]; track i) {
+                <div class="skeleton-row">
+                  <div class="skeleton skeleton-avatar"></div>
+                  <div class="skeleton-row__content">
+                    <div class="skeleton skeleton-text skeleton-text--w30 skeleton-mb"></div>
+                    <div class="skeleton skeleton-text skeleton-text--w60"></div>
+                  </div>
                 </div>
-              </div>
-            }
+              }
+            </div>
           </div>
         </div>
       </div>
@@ -65,19 +67,22 @@
   <!-- Checkout content -->
   @else {
     <div class="detail-content">
-      <div class="checkout-grid" [class.centered]="!accordionExpanded()">
-        <!-- Order Summary Card -->
+      <div class="detail-grid detail-grid--orders">
+        <!-- Order Summary Card (Main) -->
         <div class="app-card order-summary-card">
-          <div class="app-card__header app-card__header--compact">
+          <div class="app-card__header">
+            <div class="app-card__icon">
+              <i class="pi pi-shopping-bag"></i>
+            </div>
             <h2 class="app-card__title">{{ 'checkout.delivery_note' | translate }}</h2>
-            <div class="count-badge">{{ cartItemCount() }}</div>
+            <div class="count-badge count-badge--absolute">{{ cartItemCount() }}</div>
           </div>
 
           <div class="app-card__content">
-            <!-- Cart Items - Compact List -->
-            <ul class="items-simple-list items-simple-list--compact">
+            <!-- Cart Items List -->
+            <ul class="items-simple-list">
               @for (item of cartItems(); track item.id) {
-                <li class="item-line item-line--compact">
+                <li class="item-line">
                   <span class="item-qty">
                     {{ formatCartonCount(item) }}
                     <span class="item-pc">{{ item.quantity_config?.quantities?.[0] || 10 }}pc</span>
@@ -125,34 +130,12 @@
               <span class="order-total__label">{{ 'common.total' | translate }}</span>
               <span class="order-total__amount">{{ finalTotal() | appCurrency }}</span>
             </div>
-
-            <!-- Actions -->
-            <div class="checkout-actions">
-              <button
-                class="action-btn action-btn--success action-btn--lg"
-                [disabled]="checkoutForm.invalid || isSubmitting()"
-                (click)="placeOrder()">
-                @if (isSubmitting()) {
-                  <i class="pi pi-spin pi-spinner"></i>
-                  <span>{{ 'checkout.processing' | translate }}</span>
-                } @else {
-                  <i class="pi pi-check-circle"></i>
-                  <span>{{ 'checkout.place_order' | translate }}</span>
-                }
-              </button>
-
-              <button
-                class="action-btn action-btn--ghost"
-                (click)="toggleShippingAccordion()">
-                <i [class]="accordionExpanded() ? 'pi pi-eye-slash' : 'pi pi-truck'"></i>
-                <span>{{ accordionExpanded() ? ('checkout.hide_shipping_details' | translate) : ('checkout.view_shipping_details' | translate) }}</span>
-              </button>
-            </div>
           </div>
         </div>
 
-        <!-- Shipping Info Card -->
-        @if (accordionExpanded()) {
+        <!-- Sidebar -->
+        <div class="detail-sidebar">
+          <!-- Shipping Info Card -->
           <div class="app-card shipping-info-card">
             <div class="app-card__header">
               <div class="app-card__icon app-card__icon--success">
@@ -218,7 +201,34 @@
               </div>
             </div>
           </div>
-        }
+
+          <!-- Actions Card -->
+          <div class="app-card actions-card">
+            <div class="app-card__header">
+              <div class="app-card__icon">
+                <i class="pi pi-check-circle"></i>
+              </div>
+              <h2 class="app-card__title">{{ 'checkout.confirm_order' | translate }}</h2>
+            </div>
+            <div class="app-card__content">
+              <div class="action-buttons">
+                <button
+                  class="action-btn action-btn--success action-btn--lg"
+                  [disabled]="checkoutForm.invalid || isSubmitting()"
+                  (click)="placeOrder()">
+                  @if (isSubmitting()) {
+                    <i class="pi pi-spin pi-spinner"></i>
+                    <span>{{ 'checkout.processing' | translate }}</span>
+                  } @else {
+                    <i class="pi pi-check-circle"></i>
+                    <span>{{ 'checkout.place_order' | translate }}</span>
+                  }
+                </button>
+                <p class="action-note">{{ 'checkout.order_note' | translate }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   }

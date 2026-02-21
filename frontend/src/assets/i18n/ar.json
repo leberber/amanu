@@ -431,7 +431,9 @@
     "default_phone": "+966 50 123 4567",
     "default_address_line1": "شارع الملك فهد، حي العليا",
     "default_address_line2": "الرياض 12234",
-    "default_address_line3": "المملكة العربية السعودية"
+    "default_address_line3": "المملكة العربية السعودية",
+    "confirm_order": "تأكيد الطلب",
+    "order_note": "بوضع طلبك، فإنك توافق على الشروط والأحكام"
   },
   "orders": {
     "title": "طلباتي",

@@ -2,12 +2,12 @@
 // Checkout Component Styles
 // =============================================================================
 // Uses global styles from _components.scss:
-// - .detail-content (layout)
+// - .detail-content, .detail-grid, .detail-grid--orders, .detail-sidebar (layout)
 // - .app-card, .app-card__header, .app-card__icon, .app-card__title, .app-card__content
-// - .app-card__header--compact, .app-card__header-text, .app-card__subtitle
+// - .app-card__header-text, .app-card__subtitle, .app-card__icon--success
 // - .topbar-badge (--success)
-// - .count-badge
-// - .action-btn (--success, --ghost, --lg)
+// - .count-badge, .count-badge--absolute
+// - .action-btn (--success, --lg), .action-buttons, .action-note
 // - .items-simple-list, .item-line, .item-qty, .item-name, .item-total
 // - .order-breakdown, .order-breakdown__row, .order-breakdown__label, .order-breakdown__value
 // - .order-total, .order-total__label, .order-total__amount
@@ -16,49 +16,24 @@
 // =============================================================================
 
 // -----------------------------------------------------------------------------
-// Checkout Grid Layout
-// -----------------------------------------------------------------------------
-.checkout-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--space-4);
-
-  @media (min-width: 768px) {
-    grid-template-columns: 1fr 380px;
-    gap: var(--space-5);
-  }
-
-  &.centered {
-    @media (min-width: 768px) {
-      grid-template-columns: 1fr;
-      max-width: 500px;
-      margin: 0 auto;
-    }
-  }
-}
-
-// -----------------------------------------------------------------------------
-// Order Summary Card - Checkout specific overrides
+// Order Summary Card
 // -----------------------------------------------------------------------------
 .order-summary-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
   overflow: hidden;
-}
 
-// Compact items list for checkout
-.items-simple-list--compact {
-  background: var(--surface-50);
-  border-radius: var(--radius-lg);
-  padding: var(--space-1) 0;
-  margin-bottom: var(--space-4);
-}
+  .app-card__content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
 
-.item-line--compact {
-  padding: var(--space-2) var(--space-3);
-  gap: var(--space-2);
-  border-bottom: none;
-
-  &:hover {
-    background: var(--surface-100);
+  .app-card__header {
+    position: relative;
   }
 }
 
@@ -73,19 +48,9 @@
 }
 
 // -----------------------------------------------------------------------------
-// Checkout Actions
-// -----------------------------------------------------------------------------
-.checkout-actions {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-}
-
-// -----------------------------------------------------------------------------
 // Shipping Info Card
 // -----------------------------------------------------------------------------
 .shipping-info-card {
-  height: fit-content;
   animation: slideIn 0.4s ease-out 0.1s backwards;
 }
 
@@ -185,6 +150,13 @@
 }
 
 // -----------------------------------------------------------------------------
+// Actions Card
+// -----------------------------------------------------------------------------
+.actions-card {
+  animation: slideIn 0.4s ease-out 0.2s backwards;
+}
+
+// -----------------------------------------------------------------------------
 // Animations
 // -----------------------------------------------------------------------------
 @keyframes slideIn {
@@ -200,4 +172,18 @@
 
 .order-summary-card {
   animation: slideIn 0.4s ease-out;
+}
+
+// -----------------------------------------------------------------------------
+// Responsive
+// -----------------------------------------------------------------------------
+@media (max-width: 767px) {
+  .order-summary-card {
+    min-height: auto;
+    overflow: visible;
+
+    .app-card__content {
+      overflow: visible;
+    }
+  }
 }

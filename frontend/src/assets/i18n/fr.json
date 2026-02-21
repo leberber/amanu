@@ -426,7 +426,9 @@
     "default_phone": "+33 1 23 45 67 89",
     "default_address_line1": "123 Rue de la Paix, Apt 4B",
     "default_address_line2": "75001 Paris",
-    "default_address_line3": "France"
+    "default_address_line3": "France",
+    "confirm_order": "Confirmer la commande",
+    "order_note": "En passant votre commande, vous acceptez nos conditions générales"
   },
   "orders": {
     "title": "Mes Commandes",

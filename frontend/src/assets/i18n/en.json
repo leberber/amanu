@@ -429,7 +429,9 @@
     "default_phone": "+1 (555) 123-4567",
     "default_address_line1": "123 Main Street, Apt 4B",
     "default_address_line2": "New York, NY 10001",
-    "default_address_line3": "United States"
+    "default_address_line3": "United States",
+    "confirm_order": "Confirm Order",
+    "order_note": "By placing your order, you agree to our terms and conditions"
   },
   "orders": {
     "title": "My Orders",
