@@ -83,7 +83,7 @@
             <ul class="items-simple-list">
               @for (item of cartItems(); track item.id) {
                 <li class="item-line">
-                  <div class="thumbnail">
+                  <div class="thumbnail" [class.clickable]="item.product_image" (click)="openImage(item)">
                     @if (item.product_image) {
                       <img [src]="item.product_image" [alt]="item.product_name" loading="lazy">
                     } @else {
@@ -238,6 +238,16 @@
         </div>
       </div>
     </div>
+  }
+
+  <!-- Image Lightbox -->
+  @if (selectedImage()) {
+    <app-image-lightbox
+      [imageUrl]="selectedImage()!"
+      [title]="lightboxTitle()"
+      [details]="lightboxDetails()"
+      (close)="closeImage()">
+    </app-image-lightbox>
   }
 
 </app-page-layout>

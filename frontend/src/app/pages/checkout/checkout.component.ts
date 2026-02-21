@@ -19,8 +19,9 @@ import { AppliedPromotion } from '../../models/promotion.model';
 import { VALIDATION, UI_DELAY } from '../../core/constants/app.constants';
 import { ToastMessageService } from '../../core/services/toast-message.service';
 import { PageLayoutComponent } from '../../shared/components/page-layout/page-layout.component';
+import { ImageLightboxComponent, LightboxDetails } from '../../shared/components/image-lightbox/image-lightbox.component';
 import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
-import { getCartonCount, formatCartonCount as formatCarton } from '../../shared/utils/quantity.utils';
+import { getCartonCount, getCartonDisplay } from '../../shared/utils/quantity.utils';
 
 @Component({
   selector: 'app-checkout',
@@ -32,6 +33,7 @@ import { getCartonCount, formatCartonCount as formatCarton } from '../../shared/
     ToastModule,
     TranslateModule,
     PageLayoutComponent,
+    ImageLightboxComponent,
     CurrencyPipe
   ],
   templateUrl: './checkout.component.html',
@@ -64,6 +66,11 @@ export class CheckoutComponent implements OnInit {
   isSubmitting = signal(false);
   accordionExpanded = signal(false);
   appliedPromotion = signal<AppliedPromotion | null>(null);
+
+  // Lightbox signals
+  selectedImage = signal<string | null>(null);
+  lightboxTitle = signal<string | null>(null);
+  lightboxDetails = signal<LightboxDetails[]>([]);
 
   // Computed values
   cartItemCount = computed(() => this.cartItems().length);
@@ -192,8 +199,39 @@ export class CheckoutComponent implements OnInit {
     return getCartonCount(item.quantity, item.quantity_config);
   }
 
-  // Format carton count with leading zeros (e.g., "03x")
+  // Format carton display (e.g., "1x10" for 1 carton of 10 pieces)
   formatCartonCount(item: CartItem): string {
-    return formatCarton(item.quantity, item.quantity_config);
+    return getCartonDisplay(item.quantity, item.quantity_config);
+  }
+
+  // Image lightbox methods
+  openImage(item: CartItem): void {
+    if (item.product_image) {
+      this.selectedImage.set(item.product_image);
+      this.lightboxTitle.set(item.product_name);
+
+      const details: LightboxDetails[] = [
+        {
+          label: this.translateService.instant('common.quantity'),
+          value: this.formatCartonCount(item)
+        },
+        {
+          label: this.translateService.instant('common.price'),
+          value: this.currencyService.formatCurrency(item.product_price)
+        },
+        {
+          label: this.translateService.instant('common.total'),
+          value: this.currencyService.formatCurrency(item.product_price * item.quantity)
+        }
+      ];
+
+      this.lightboxDetails.set(details);
+    }
+  }
+
+  closeImage(): void {
+    this.selectedImage.set(null);
+    this.lightboxTitle.set(null);
+    this.lightboxDetails.set([]);
   }
 }

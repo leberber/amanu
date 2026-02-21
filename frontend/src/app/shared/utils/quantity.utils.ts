@@ -53,3 +53,22 @@ export function isListQuantityConfig(quantityConfig?: QuantityConfig): boolean {
     !!quantityConfig.quantities &&
     quantityConfig.quantities.length > 0;
 }
+
+/**
+ * Formats carton display for cart items (e.g., "8x10" for 8 cartons of 10 pieces).
+ * Cart items store total pieces, so we divide by base quantity to get carton count.
+ */
+export function getCartonDisplay(totalPieces: number, quantityConfig?: QuantityConfig): string {
+  const piecesPerBox = getBaseQuantity(quantityConfig);
+  const cartonCount = totalPieces / piecesPerBox;
+  return `${cartonCount}x${piecesPerBox}`;
+}
+
+/**
+ * Formats carton display for order items (e.g., "8x10" for 8 cartons of 10 pieces).
+ * Order items already store carton count in quantity field.
+ */
+export function getOrderCartonDisplay(cartonCount: number, piecesPerBox?: number): string {
+  const pieces = piecesPerBox || 10;
+  return `${cartonCount}x${pieces}`;
+}

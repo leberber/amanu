@@ -183,6 +183,19 @@
 }
 
 // -----------------------------------------------------------------------------
+// Clickable thumbnails
+// -----------------------------------------------------------------------------
+.thumbnail.clickable {
+  cursor: pointer;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+}
+
+// -----------------------------------------------------------------------------
 // Responsive
 // -----------------------------------------------------------------------------
 @media (max-width: 767px) {
@@ -192,6 +205,23 @@
 
     .app-card__content {
       overflow: visible;
+    }
+  }
+
+  // Truncate product name on mobile, reserve space for price (~9 chars)
+  .item-line {
+    .item-name {
+      flex: 1;
+      min-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .item-total {
+      flex-shrink: 0;
+      min-width: 5.5rem; // ~9 characters for price
+      text-align: right;
     }
   }
 }
