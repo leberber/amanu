@@ -1,29 +1,16 @@
 // src/app/pages/checkout/checkout.component.ts
-import { Component, OnInit, OnDestroy, inject, DestroyRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject, signal, computed, DestroyRef } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { AccordionModule } from 'primeng/accordion';
-import { ProgressBarModule } from 'primeng/progressbar';
-import { BadgeModule } from 'primeng/badge';
-import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
-import { InputTextModule } from 'primeng/inputtext';
-import { TextareaModule } from 'primeng/textarea';
 import { ToastModule } from 'primeng/toast';
-import { DividerModule } from 'primeng/divider';
-import { TableModule } from 'primeng/table';
-import { TagModule } from 'primeng/tag';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { BackButtonComponent } from '../../shared/components/back-button/back-button.component';
 
 import { ROUTES, RouteHelpers } from '../../core/constants/routes.constants';
 import { AuthService } from '../../services/auth.service';
 import { CartService, CartItem } from '../../services/cart.service';
 import { OrderService } from '../../services/order.service';
 import { CurrencyService } from '../../core/services/currency.service';
-import { UnitsService } from '../../core/services/units.service';
 import { TranslationService } from '../../services/translation.service';
 import { CartTranslationService } from '../../core/services/cart-translation.service';
 import { OrderCreate } from '../../models/order.model';
@@ -31,6 +18,7 @@ import { User } from '../../models/user.model';
 import { AppliedPromotion } from '../../models/promotion.model';
 import { VALIDATION, UI_DELAY } from '../../core/constants/app.constants';
 import { ToastMessageService } from '../../core/services/toast-message.service';
+import { PageLayoutComponent } from '../../shared/components/page-layout/page-layout.component';
 import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
 import { getCartonCount, formatCartonCount as formatCarton } from '../../shared/utils/quantity.utils';
 
@@ -38,37 +26,18 @@ import { getCartonCount, formatCartonCount as formatCarton } from '../../shared/
   selector: 'app-checkout',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    ButtonModule,
-    CardModule,
-    InputTextModule,
-    TextareaModule,
     ToastModule,
-    DividerModule,
-    TableModule,
-    AccordionModule,
-    ProgressBarModule,
-    BadgeModule,
-    TagModule,
     TranslateModule,
-    BackButtonComponent,
+    PageLayoutComponent,
     CurrencyPipe
   ],
-    templateUrl: './checkout.component.html',
+  templateUrl: './checkout.component.html',
   styleUrl: './checkout.component.scss'
 })
-export class CheckoutComponent implements OnInit, OnDestroy {
-  checkoutForm!: FormGroup;
-  cartItems: CartItem[] = [];
-  currentUser: User | null = null;
-  isSubmitting = false;
-  accordionExpanded = false;
-  appliedPromotion: AppliedPromotion | null = null;
-
-  private destroyRef = inject(DestroyRef);
-
+export class CheckoutComponent implements OnInit {
+  // Dependency injection
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private authService = inject(AuthService);
@@ -77,21 +46,39 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   private toast = inject(ToastMessageService);
   private translateService = inject(TranslateService);
   private currencyService = inject(CurrencyService);
-  private unitsService = inject(UnitsService);
   private translationService = inject(TranslationService);
   private cartTranslation = inject(CartTranslationService);
+  private destroyRef = inject(DestroyRef);
 
-  toggleShippingAccordion() {
-    this.accordionExpanded = !this.accordionExpanded;
-  }
+  // Constants
+  readonly ROUTES = ROUTES;
 
-  getFormCompletionPercentage() {
-    const controls = ['fullName', 'phone', 'address'];
-    const completed = controls.filter(control => 
-      this.checkoutForm.get(control)?.value?.trim()
-    ).length;
-    return Math.round((completed / controls.length) * 100);
-  }
+  // Form
+  checkoutForm!: FormGroup;
+
+  // Signals
+  loading = signal(true);
+  cartItems = signal<CartItem[]>([]);
+  currentUser = signal<User | null>(null);
+  isSubmitting = signal(false);
+  accordionExpanded = signal(false);
+  appliedPromotion = signal<AppliedPromotion | null>(null);
+
+  // Computed values
+  cartItemCount = computed(() => this.cartItems().length);
+
+  cartTotal = computed(() =>
+    this.cartItems().reduce((total, item) =>
+      total + (item.product_price * item.quantity), 0)
+  );
+
+  discountAmount = computed(() =>
+    this.appliedPromotion()?.discount_amount || 0
+  );
+
+  finalTotal = computed(() =>
+    Math.max(0, this.cartTotal() - this.discountAmount())
+  );
 
   ngOnInit() {
     this.checkoutForm = this.fb.group({
@@ -99,10 +86,11 @@ export class CheckoutComponent implements OnInit, OnDestroy {
       phone: ['', [Validators.required, Validators.pattern(VALIDATION.PHONE_PATTERN)]],
       address: ['', [Validators.required, Validators.minLength(VALIDATION.MIN_ADDRESS_LENGTH)]]
     });
-    
-    this.currentUser = this.authService.currentUserValue;
-    
-    if (!this.currentUser) {
+
+    const user = this.authService.currentUserValue;
+    this.currentUser.set(user);
+
+    if (!user) {
       this.toast.showError('checkout.auth_required_message');
       this.router.navigate([ROUTES.LOGIN], { queryParams: { returnUrl: ROUTES.CHECKOUT }});
       return;
@@ -110,7 +98,8 @@ export class CheckoutComponent implements OnInit, OnDestroy {
 
     // Get cart items
     this.cartService.getCartItems().subscribe(items => {
-      this.cartItems = items;
+      this.cartItems.set(items);
+      this.loading.set(false);
 
       if (items.length === 0) {
         this.toast.showInfo('checkout.empty_cart_message');
@@ -123,82 +112,64 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     });
 
     // Load applied promotion from cart
-    this.appliedPromotion = this.cartService.getAppliedPromotion();
+    this.appliedPromotion.set(this.cartService.getAppliedPromotion());
 
-    // Subscribe to language changes - automatically cleaned up on destroy
+    // Subscribe to language changes
     this.translationService.currentLanguage$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
         this.loadTranslatedNames();
       });
-    
+
     // Pre-fill form with user data
-    if (this.currentUser) {
+    if (user) {
       this.checkoutForm.patchValue({
-        fullName: this.currentUser.full_name,
-        phone: this.currentUser.phone || '',
-        address: this.currentUser.address || ''
+        fullName: user.full_name,
+        phone: user.phone || '',
+        address: user.address || ''
       });
     }
   }
 
-  ngOnDestroy() {
-    // Subscriptions are automatically cleaned up by takeUntilDestroyed
-  }
-
   private loadTranslatedNames(): void {
-    if (this.cartItems.length === 0) return;
+    const items = this.cartItems();
+    if (items.length === 0) return;
 
-    this.cartTranslation.loadTranslatedNames(this.cartItems).subscribe(updatedItems => {
-      this.cartItems = updatedItems;
+    this.cartTranslation.loadTranslatedNames(items).subscribe(updatedItems => {
+      this.cartItems.set(updatedItems);
     });
   }
-  
-  // Convenience getter for easy access to form fields
-  get f() { return this.checkoutForm.controls; }
 
-  getCartTotal(): number {
-    return this.cartItems.reduce((total, item) =>
-      total + (item.product_price * item.quantity), 0);
+  toggleShippingAccordion(): void {
+    this.accordionExpanded.update(v => !v);
   }
 
-  getDiscountAmount(): number {
-    return this.appliedPromotion?.discount_amount || 0;
-  }
-
-  getFinalTotal(): number {
-    return Math.max(0, this.getCartTotal() - this.getDiscountAmount());
-  }
-
-  placeOrder() {
+  placeOrder(): void {
     if (this.checkoutForm.invalid) {
-      // Mark all fields as touched to trigger validation messages
       this.checkoutForm.markAllAsTouched();
       return;
     }
-    
-    if (!this.currentUser) {
+
+    const user = this.currentUser();
+    if (!user) {
       this.toast.showError('checkout.auth_required_message');
       return;
     }
-    
-    this.isSubmitting = true;
-    
-    // Create order data
+
+    this.isSubmitting.set(true);
+
     const orderData: OrderCreate = {
-      user_id: this.currentUser.id,
+      user_id: user.id,
       shipping_address: this.checkoutForm.value.address,
       contact_phone: this.checkoutForm.value.phone,
-      items: this.orderService.cartItemsToOrderItems(this.cartItems),
-      promotion_code: this.appliedPromotion?.code
+      items: this.orderService.cartItemsToOrderItems(this.cartItems()),
+      promotion_code: this.appliedPromotion()?.code
     };
 
-    // Submit order
     this.orderService.createOrder(orderData).subscribe({
       next: (order) => {
         this.toast.showSuccess('checkout.order_placed_message', { orderNumber: order.id });
 
-        // Clear cart and promotion after successful order
         this.cartService.clearCartAndPromotion().subscribe(() => {
           setTimeout(() => {
             this.router.navigate([RouteHelpers.orderDetail(order.id)], {
@@ -209,7 +180,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
       },
       error: (error) => {
         console.error('Error creating order:', error);
-        this.isSubmitting = false;
+        this.isSubmitting.set(false);
         this.toast.showApiError(error, 'checkout.order_error_default');
       }
     });
