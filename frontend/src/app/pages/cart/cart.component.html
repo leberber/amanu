@@ -255,20 +255,29 @@
             </div>
 
             <!-- Price Breakdown -->
-            <div class="price-breakdown">
-              <div class="breakdown-row">
-                <span class="breakdown-label">{{ 'promotions.subtotal' | translate }}</span>
-                <span class="breakdown-value">{{ cartSubtotal() | appCurrency }}</span>
+            <div class="order-breakdown">
+              <div class="order-breakdown__row">
+                <div class="order-breakdown__label">
+                  <i class="pi pi-shopping-cart"></i>
+                  <span>{{ 'promotions.subtotal' | translate }}</span>
+                </div>
+                <span class="order-breakdown__value">{{ cartSubtotal() | appCurrency }}</span>
               </div>
               @if (appliedPromotion()) {
-                <div class="breakdown-row breakdown-row--discount">
-                  <span class="breakdown-label">{{ 'promotions.discount' | translate }}</span>
-                  <span class="breakdown-value">-{{ discountAmount() | appCurrency }}</span>
+                <div class="order-breakdown__row order-breakdown__row--discount">
+                  <div class="order-breakdown__label">
+                    <i class="pi pi-percentage"></i>
+                    <span>{{ 'promotions.discount' | translate }}</span>
+                  </div>
+                  <span class="order-breakdown__value">-{{ discountAmount() | appCurrency }}</span>
                 </div>
               }
-              <div class="breakdown-row">
-                <span class="breakdown-label">{{ 'cart.shipping' | translate }}</span>
-                <span class="breakdown-value" [ngClass]="{'breakdown-value--free': isShippingFree()}">
+              <div class="order-breakdown__row">
+                <div class="order-breakdown__label">
+                  <i class="pi pi-truck"></i>
+                  <span>{{ 'cart.shipping' | translate }}</span>
+                </div>
+                <span class="order-breakdown__value" [ngClass]="{'order-breakdown__value--free': isShippingFree()}">
                   @if (isShippingFree()) {
                     {{ 'cart.free' | translate }}
                   } @else {
@@ -279,9 +288,9 @@
             </div>
 
             <!-- Total -->
-            <div class="total-display total-display--primary">
-              <span class="total-display__label">{{ 'common.total' | translate }}</span>
-              <span class="total-display__amount">{{ finalTotal() + shippingCost() | appCurrency }}</span>
+            <div class="order-total">
+              <span class="order-total__label">{{ 'common.total' | translate }}</span>
+              <span class="order-total__amount">{{ finalTotal() + shippingCost() | appCurrency }}</span>
             </div>
 
             <!-- Actions -->

@@ -1958,3 +1958,123 @@
     border-radius: var(--radius-md);
   }
 }
+
+
+// =============================================================================
+// 29. ORDER BREAKDOWN
+// =============================================================================
+// Shared price breakdown and total styles for cart, checkout, order summary
+
+.order-breakdown {
+  background: var(--surface-50);
+  border-radius: 14px;
+  padding: 1rem;
+  margin-bottom: 1.25rem;
+
+  .my-app-dark & {
+    background: rgba(255, 255, 255, 0.05);
+  }
+}
+
+.order-breakdown__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.625rem 0;
+  border-bottom: 1px dashed var(--surface-200);
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.order-breakdown__label {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+
+  i {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: var(--surface-100);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    color: var(--text-color-secondary);
+  }
+
+  span {
+    font-size: 0.95rem;
+    color: var(--text-color-secondary);
+    font-weight: 500;
+  }
+}
+
+.order-breakdown__value {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-color);
+
+  &--free {
+    color: #16a34a;
+    font-weight: 700;
+  }
+}
+
+.order-breakdown__row--discount {
+  .order-breakdown__label {
+    i {
+      background: rgba(34, 197, 94, 0.1);
+      color: #16a34a;
+    }
+    span {
+      color: #16a34a;
+    }
+  }
+  .order-breakdown__value {
+    color: #16a34a;
+  }
+}
+
+
+// =============================================================================
+// 30. ORDER TOTAL
+// =============================================================================
+// Primary gradient total section for cart, checkout
+
+.order-total {
+  background: linear-gradient(135deg, #2E6CB7 0%, #0F3C82 100%);
+  border-radius: 14px;
+  padding: 1.125rem 1.25rem;
+  margin-bottom: 1.25rem;
+  box-shadow: 0 4px 16px rgba(46, 108, 183, 0.25);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.order-total__label {
+  font-size: 1rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.order-total__value {
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
+}
+
+.order-total__amount {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: white;
+}
+
+.order-total__currency {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.8);
+}

@@ -241,47 +241,8 @@
 }
 
 // -----------------------------------------------------------------------------
-// Price Breakdown
+// Price Breakdown - Uses global .order-breakdown styles from _components.scss
 // -----------------------------------------------------------------------------
-.price-breakdown {
-  margin-bottom: var(--space-5);
-}
-
-.breakdown-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: var(--space-3) 0;
-  border-bottom: var(--border-width) dashed var(--border-color-light);
-
-  &:last-child {
-    border-bottom: none;
-  }
-}
-
-.breakdown-label {
-  font-size: var(--font-size-base);
-  color: var(--text-color-secondary);
-  font-weight: var(--font-weight-medium);
-}
-
-.breakdown-value {
-  font-size: var(--font-size-base);
-  font-weight: var(--font-weight-semibold);
-  color: var(--text-color);
-
-  &--free {
-    color: #22c55e;
-    font-weight: var(--font-weight-bold);
-  }
-}
-
-.breakdown-row--discount {
-  .breakdown-label,
-  .breakdown-value {
-    color: #22c55e;
-  }
-}
 
 // -----------------------------------------------------------------------------
 // Cart Actions
