@@ -440,7 +440,44 @@
     }
   }
 
+  &--success {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    color: white;
+    box-shadow: 0 4px 16px rgba(34, 197, 94, 0.3);
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4);
+    }
+  }
+
+  &--ghost {
+    background: var(--surface-100);
+    color: var(--text-color-secondary);
+    &:hover {
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--color-danger);
+    }
+  }
+
   &--auto { width: auto; }
+
+  // Size variants
+  &--sm {
+    padding: var(--space-2) var(--space-4);
+    font-size: var(--font-size-sm);
+  }
+
+  &--lg {
+    padding: 1rem 2rem;
+    font-size: var(--font-size-lg);
+  }
+
+  // Disabled state
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+  }
 }
 
 
@@ -1108,32 +1145,65 @@
 }
 
 
-// Icon button (sidebar)
+// Icon button
 .icon-btn {
-  width: var(--icon-md);
-  height: var(--icon-md);
+  width: var(--icon-lg);
+  height: var(--icon-lg);
   border: none;
-  border-radius: var(--radius-sm);
-  background: var(--surface-100, #f1f5f9);
+  border-radius: var(--radius-md);
+  background: var(--surface-100);
   color: var(--text-color);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all var(--transition-base);
+  transition: all var(--transition-fast);
 
-  &:hover { background: var(--surface-200, #e2e8f0); }
-  i { font-size: 1rem; }
-
-  &-lg {
-    width: var(--icon-lg);
-    height: var(--icon-lg);
+  &:hover {
+    background: var(--surface-200);
   }
 
-  &-danger {
-    background: rgba(239, 68, 68, 0.1);
-    color: #ef4444;
-    &:hover { background: rgba(239, 68, 68, 0.2); }
+  i {
+    font-size: var(--font-size-base);
+  }
+
+  // Size variants
+  &--sm {
+    width: var(--icon-md);
+    height: var(--icon-md);
+    border-radius: var(--radius-sm);
+
+    i {
+      font-size: var(--font-size-sm);
+    }
+  }
+
+  &--lg {
+    width: var(--icon-xl);
+    height: var(--icon-xl);
+  }
+
+  // Color variants
+  &--danger {
+    background: rgba(var(--color-danger-rgb), 0.1);
+    color: var(--color-danger);
+    border: var(--border-width) solid rgba(var(--color-danger-rgb), 0.2);
+
+    &:hover {
+      background: var(--color-danger);
+      color: var(--color-white);
+      border-color: var(--color-danger);
+    }
+  }
+
+  &--primary {
+    background: rgba(var(--primary-color-rgb), 0.1);
+    color: var(--primary-color);
+
+    &:hover {
+      background: var(--primary-color);
+      color: var(--color-white);
+    }
   }
 }
 

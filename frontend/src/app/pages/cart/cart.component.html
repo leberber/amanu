@@ -1,51 +1,96 @@
 <!-- src/app/pages/cart/cart.component.html -->
-<div class="cart-page">
-  <p-toast></p-toast>
-  <div class="cart-content">
-    <!-- Loading State -->
-    @if (loading()) {
-      <div class="loading-state">
-        <i class="pi pi-spin pi-spinner"></i>
+<app-page-layout
+  title="cart.title"
+  [showBackButton]="true"
+  [backRoute]="ROUTES.PRODUCTS"
+  [fullscreen]="true">
+
+  <!-- Cart item count badge -->
+  @if (cartItemCount() > 0) {
+    <div pageActions>
+      <div class="topbar-badge topbar-badge--success">
+        <i class="pi pi-shopping-cart"></i>
+        <span>{{ cartItemCount() }}</span>
       </div>
-    } @else if (cartItemCount() === 0) {
-      <!-- Empty State -->
-      <div class="empty-state">
-        <div class="empty-icon-wrapper">
-          <div class="empty-icon-bg"></div>
-          <div class="empty-icon-circle">
-            <i class="pi pi-shopping-cart"></i>
+    </div>
+  }
+
+  <!-- Main Content -->
+  <p-toast></p-toast>
+
+  <!-- Loading state - Skeleton -->
+  @if (loading()) {
+    <div class="detail-content">
+      <div class="cart-grid">
+        <!-- Items skeleton -->
+        <div class="app-card cart-items-card">
+          <div class="app-card__header">
+            <div class="app-card__icon">
+              <i class="pi pi-shopping-cart"></i>
+            </div>
+            <h2 class="app-card__title">{{ 'cart.your_items' | translate }}</h2>
+          </div>
+          <div class="app-card__content">
+            @for (i of [1, 2, 3]; track i) {
+              <div class="skeleton-row cart-item-skeleton">
+                <div class="skeleton skeleton-image skeleton-image--sm"></div>
+                <div class="skeleton-row__content">
+                  <div class="skeleton skeleton-text skeleton-text--w60 skeleton-mb"></div>
+                  <div class="skeleton skeleton-text skeleton-text--w40"></div>
+                </div>
+                <div class="skeleton skeleton-text skeleton-text--w80"></div>
+              </div>
+            }
           </div>
         </div>
-        <h2>{{ 'cart.empty' | translate }}</h2>
-        <p>{{ 'cart.empty_message' | translate }}</p>
-        <a routerLink="/products" class="shop-btn">
-          <i class="pi pi-shopping-bag"></i>
-          <span>{{ 'cart.shop_now' | translate }}</span>
-        </a>
+        <!-- Summary skeleton -->
+        <div class="cart-summary-card app-card hidden md:block">
+          <div class="app-card__header">
+            <div class="skeleton skeleton-avatar"></div>
+            <div class="skeleton skeleton-text skeleton-text--w50"></div>
+          </div>
+          <div class="app-card__content">
+            <div class="skeleton skeleton-text skeleton-text--w100 skeleton-mb"></div>
+            <div class="skeleton skeleton-text skeleton-text--w80 skeleton-mb"></div>
+            <div class="skeleton skeleton-text skeleton-text--w100" style="height: 48px;"></div>
+          </div>
+        </div>
       </div>
-    } @else {
-      <!-- Back Button -->
-      <app-back-button route="/products" [circular]="true" [fixed]="true"></app-back-button>
+    </div>
+  }
 
-      <!-- Cart Content -->
+  <!-- Empty state -->
+  @else if (cartItemCount() === 0) {
+    <app-empty-state
+      icon="pi pi-shopping-cart"
+      title="cart.empty"
+      message="cart.empty_message"
+      actionLabel="cart.shop_now"
+      (action)="goToProducts()">
+    </app-empty-state>
+  }
+
+  <!-- Cart content -->
+  @else {
+    <div class="detail-content">
       <div class="cart-grid">
-        <!-- Cart Items -->
-        <div class="cart-items-card">
-          <!-- Card Header -->
-          <div class="cart-card-header">
-            <div class="header-center">
+        <!-- Cart Items Card -->
+        <div class="app-card cart-items-card">
+          <div class="app-card__header">
+            <div class="app-card__icon">
               <i class="pi pi-shopping-cart"></i>
-              <span>{{ 'cart.your_items' | translate }}</span>
             </div>
+            <h2 class="app-card__title">{{ 'cart.your_items' | translate }}</h2>
             <div class="item-count-badge">{{ cartItemCount() }}</div>
           </div>
+
           <!-- Desktop View -->
           <div class="hidden md:block">
             <p-table
               [value]="cartItems()"
               styleClass="p-datatable-sm"
               [scrollable]="true"
-              scrollHeight="70vh"
+              scrollHeight="60vh"
               [tableStyle]="{'min-width':'100%'}">
 
               <ng-template pTemplate="header">
@@ -61,14 +106,20 @@
               <ng-template pTemplate="body" let-item>
                 <tr>
                   <td>
-                    <div class="desktop-item">
-                      <div class="desktop-item-image" [class.clickable]="item.product_image" (click)="openImage(item.product_image)">
-                        <img
-                          [src]="item.product_image || 'assets/images/product-placeholder.jpg'"
-                          [alt]="item.product_name">
+                    <div class="cart-item-row">
+                      <div class="thumbnail" [class.clickable]="item.product_image" (click)="openImage(item.product_image)">
+                        @if (item.product_image) {
+                          <img
+                            [src]="item.product_image"
+                            [alt]="item.product_name"
+                            loading="lazy"
+                            (error)="onImageError($event)">
+                        } @else {
+                          <i class="pi pi-box"></i>
+                        }
                       </div>
-                      <div class="desktop-item-info">
-                        <p class="name">{{ item.product_name }}</p>
+                      <div class="cart-item-info">
+                        <p class="cart-item-name">{{ item.product_name }}</p>
                         @if (item.is_organic) {
                           <span class="organic-badge">{{ 'products.product.organic' | translate }}</span>
                         }
@@ -76,7 +127,7 @@
                     </div>
                   </td>
                   <td class="text-center">
-                    <span class="desktop-price">{{ item.product_price | appCurrency }}/{{ item.product_unit | appUnit }}</span>
+                    <span class="cart-item-price">{{ item.product_price | appCurrency }}/{{ item.product_unit | appUnit }}</span>
                   </td>
                   <td>
                     <div class="flex justify-content-center">
@@ -94,10 +145,10 @@
                     </div>
                   </td>
                   <td class="text-right">
-                    <span class="desktop-total">{{ item.product_price * item.quantity | appCurrency }}</span>
+                    <span class="cart-item-total">{{ item.product_price * item.quantity | appCurrency }}</span>
                   </td>
                   <td class="text-center">
-                    <button class="desktop-delete-btn" (click)="removeItem(item.id)" [pTooltip]="'cart.remove_item' | translate" tooltipPosition="left">
+                    <button class="icon-btn icon-btn--danger" (click)="removeItem(item.id)" [pTooltip]="'cart.remove_item' | translate" tooltipPosition="left">
                       <i class="pi pi-trash"></i>
                     </button>
                   </td>
@@ -107,41 +158,46 @@
           </div>
 
           <!-- Mobile View -->
-          <div class="block md:hidden">
+          <div class="app-card__content block md:hidden">
             @for (item of cartItems(); track item.id) {
-              <div class="cart-item">
-                <div class="item-image" [class.clickable]="item.product_image" (click)="openImage(item.product_image)">
-                  <img [src]="item.product_image || 'assets/images/product-placeholder.jpg'" [alt]="item.product_name">
+              <div class="cart-item-mobile">
+                <div class="thumbnail" [class.clickable]="item.product_image" (click)="openImage(item.product_image)">
+                  @if (item.product_image) {
+                    <img
+                      [src]="item.product_image"
+                      [alt]="item.product_name"
+                      loading="lazy"
+                      (error)="onImageError($event)">
+                  } @else {
+                    <i class="pi pi-box"></i>
+                  }
                 </div>
-                <div class="item-details">
-                  <div class="item-header">
-                    <div class="flex align-items-center overflow-hidden">
-                      <p class="item-name">{{ item.product_name }}</p>
+                <div class="cart-item-mobile__content">
+                  <div class="cart-item-mobile__header">
+                    <div class="cart-item-mobile__name-row">
+                      <p class="cart-item-name">{{ item.product_name }}</p>
                       @if (item.is_organic) {
                         <span class="organic-badge">O</span>
                       }
                     </div>
-                    <button class="delete-btn" (click)="removeItem(item.id)">
+                    <button class="icon-btn icon-btn--danger icon-btn--sm" (click)="removeItem(item.id)">
                       <i class="pi pi-trash"></i>
                     </button>
                   </div>
-                  <div class="item-row">
-                    <span class="item-price"><strong>{{ item.product_price | appCurrency }}</strong>/{{ item.product_unit | appUnit }}</span>
-                    <div class="item-quantity-wrapper">
-                      <div class="item-quantity" style="width: 120px;">
-                        <app-product-quantity-selector
-                          [value]="productQuantities[item.id]"
-                          [stockQuantity]="item.stock_quantity"
-                          [unit]="item.product_unit"
-                          [quantityConfig]="item.quantity_config"
-                          [disabled]="isOutOfStock(item)"
-                          [dropdownOnly]="true"
-                          (valueChange)="updateItemQuantity(item.id, $event)">
-                        </app-product-quantity-selector>
-                      </div>
-                      <div class="unit-hint">{{ getCartonCount(item) }} {{ 'cart.carton' | translate }}</div>
+                  <div class="cart-item-mobile__footer">
+                    <span class="cart-item-price">{{ item.product_price | appCurrency }}/{{ item.product_unit | appUnit }}</span>
+                    <div class="cart-item-mobile__qty">
+                      <app-product-quantity-selector
+                        [value]="productQuantities[item.id]"
+                        [stockQuantity]="item.stock_quantity"
+                        [unit]="item.product_unit"
+                        [quantityConfig]="item.quantity_config"
+                        [disabled]="isOutOfStock(item)"
+                        [dropdownOnly]="true"
+                        (valueChange)="updateItemQuantity(item.id, $event)">
+                      </app-product-quantity-selector>
                     </div>
-                    <span class="item-total"><strong>{{ formatPriceNumber(item.product_price * item.quantity) }}</strong><span class="currency">{{ getCurrencySymbol() }}</span></span>
+                    <span class="cart-item-total">{{ item.product_price * item.quantity | appCurrency }}</span>
                   </div>
                 </div>
               </div>
@@ -149,34 +205,30 @@
           </div>
         </div>
 
-        <!-- Order Summary -->
-        <div class="order-summary-card">
-          <!-- Summary Header -->
-          <div class="summary-header">
-            <div class="summary-icon">
+        <!-- Order Summary Card -->
+        <div class="app-card cart-summary-card">
+          <div class="app-card__header">
+            <div class="app-card__icon">
               <i class="pi pi-receipt"></i>
             </div>
-            <div class="summary-header-text">
-              <h3>{{ 'cart.order_summary' | translate }}</h3>
-              <span class="summary-subtitle">{{ cartItemCount() }} {{ 'cart.items_with_count' | translate }}</span>
-            </div>
+            <h2 class="app-card__title">{{ 'cart.order_summary' | translate }}</h2>
           </div>
 
-          <!-- Summary Body -->
-          <div class="summary-body">
+          <div class="app-card__content">
             <!-- Promo Code -->
             <div class="promo-section">
-              <span class="promo-label">{{ 'promotions.promo_code' | translate }}</span>
+              <label class="promo-label">{{ 'promotions.promo_code' | translate }}</label>
               @if (!appliedPromotion()) {
                 <div class="promo-input-group">
                   <input
                     type="text"
+                    class="promo-input"
                     [ngModel]="promoCode()"
                     (ngModelChange)="promoCode.set($event)"
                     [placeholder]="'promotions.enter_code' | translate"
                     [disabled]="promoLoading()">
                   <button
-                    class="promo-apply-btn"
+                    class="action-btn action-btn--primary action-btn--sm"
                     [disabled]="promoLoading() || !promoCode()"
                     (click)="applyPromoCode()">
                     @if (promoLoading()) {
@@ -195,7 +247,7 @@
                     <i class="pi pi-tag"></i>
                     <span>{{ appliedPromotion()?.code }}</span>
                   </div>
-                  <button class="promo-remove-btn" (click)="removePromoCode()">
+                  <button class="icon-btn icon-btn--danger icon-btn--sm" (click)="removePromoCode()">
                     <i class="pi pi-times"></i>
                   </button>
                 </div>
@@ -204,33 +256,19 @@
 
             <!-- Price Breakdown -->
             <div class="price-breakdown">
-              <!-- Subtotal -->
               <div class="breakdown-row">
-                <div class="breakdown-label">
-                  <i class="pi pi-shopping-bag"></i>
-                  <span>{{ 'promotions.subtotal' | translate }}</span>
-                </div>
+                <span class="breakdown-label">{{ 'promotions.subtotal' | translate }}</span>
                 <span class="breakdown-value">{{ cartSubtotal() | appCurrency }}</span>
               </div>
-
-              <!-- Discount -->
               @if (appliedPromotion()) {
-                <div class="breakdown-row discount">
-                  <div class="breakdown-label">
-                    <i class="pi pi-percentage"></i>
-                    <span>{{ 'promotions.discount' | translate }}</span>
-                  </div>
+                <div class="breakdown-row breakdown-row--discount">
+                  <span class="breakdown-label">{{ 'promotions.discount' | translate }}</span>
                   <span class="breakdown-value">-{{ discountAmount() | appCurrency }}</span>
                 </div>
               }
-
-              <!-- Shipping -->
               <div class="breakdown-row">
-                <div class="breakdown-label">
-                  <i class="pi pi-truck"></i>
-                  <span>{{ 'cart.shipping' | translate }}</span>
-                </div>
-                <span class="breakdown-value" [ngClass]="{'free': isShippingFree()}">
+                <span class="breakdown-label">{{ 'cart.shipping' | translate }}</span>
+                <span class="breakdown-value" [ngClass]="{'breakdown-value--free': isShippingFree()}">
                   @if (isShippingFree()) {
                     {{ 'cart.free' | translate }}
                   } @else {
@@ -241,27 +279,22 @@
             </div>
 
             <!-- Total -->
-            <div class="total-section">
-              <div class="total-row">
-                <span class="total-label">{{ 'common.total' | translate }}</span>
-                <div class="total-value">
-                  <span class="total-amount">{{ formatPriceNumber(finalTotal() + shippingCost()) }}</span>
-                  <span class="total-currency">{{ getCurrencySymbol() }}</span>
-                </div>
-              </div>
+            <div class="cart-total">
+              <span class="cart-total__label">{{ 'common.total' | translate }}</span>
+              <span class="cart-total__amount">{{ finalTotal() + shippingCost() | appCurrency }}</span>
             </div>
 
             <!-- Actions -->
-            <div class="summary-actions">
-              <button class="checkout-btn" (click)="proceedToCheckout()">
+            <div class="cart-actions">
+              <button class="action-btn action-btn--success action-btn--lg" (click)="proceedToCheckout()">
                 <span>{{ 'cart.checkout' | translate }}</span>
                 <i class="pi pi-arrow-right"></i>
               </button>
-              <a routerLink="/products" class="continue-btn">
+              <a [routerLink]="ROUTES.PRODUCTS" class="action-btn action-btn--secondary">
                 <i class="pi pi-shopping-bag"></i>
                 <span>{{ 'cart.continue_shopping' | translate }}</span>
               </a>
-              <button class="clear-btn" (click)="clearCart()">
+              <button class="action-btn action-btn--ghost" (click)="clearCart()">
                 <i class="pi pi-trash"></i>
                 <span>{{ 'cart.clear_cart' | translate }}</span>
               </button>
@@ -269,8 +302,8 @@
           </div>
         </div>
       </div>
-    }
-  </div>
+    </div>
+  }
 
   <!-- Image Lightbox -->
   <app-image-lightbox
@@ -278,4 +311,5 @@
     altText="Product image"
     (close)="closeImage()">
   </app-image-lightbox>
-</div>
+
+</app-page-layout>

@@ -484,19 +484,65 @@ loadProducts() {
 />
 ```
 
-Rules:
-- **Lazy loading**: All images below fold use `loading="lazy"`
-- **Placeholder**: Show placeholder while loading
-- **Error fallback**: Show default image on error
-- **Aspect ratio**: Maintain consistent aspect ratios
-- **WebP format**: Prefer WebP with fallback
+#### Lazy Loading (REQUIRED)
+
+**ALWAYS add `loading="lazy"` to images that are not immediately visible** (below the fold). This improves page load performance by deferring image loading until the user scrolls near them.
+
+```html
+<!-- BAD - loads all images immediately -->
+<img [src]="item.image_url" [alt]="item.name">
+
+<!-- GOOD - loads images only when needed -->
+<img [src]="item.image_url" [alt]="item.name" loading="lazy">
+```
+
+**When to use `loading="lazy"`:**
+| Use Case | Lazy Load? |
+|----------|------------|
+| Product list grid images | ✓ Yes |
+| Order item images in lists | ✓ Yes |
+| Cart item thumbnails | ✓ Yes |
+| Images in scrollable containers | ✓ Yes |
+| Hero/banner images (above fold) | ✗ No |
+| Single product detail image | ✗ No (main content) |
+
+**Benefits:**
+- Faster initial page load
+- Reduced bandwidth usage
+- Better performance on mobile/slow connections
+
+#### Error Handling (REQUIRED)
+
+**ALWAYS add error fallback for images.** If an image URL fails to load, show a placeholder instead of a broken image icon.
+
+```typescript
+// In component
+onImageError(event: Event): void {
+  const img = event.target as HTMLImageElement;
+  img.src = 'assets/images/product-placeholder.jpg';
+}
+```
+
+```html
+<!-- In template -->
+<img
+  [src]="product.image_url"
+  [alt]="product.name"
+  (error)="onImageError($event)">
+```
+
+#### Other Rules:
+- **Placeholder**: Show placeholder color while loading (`background: var(--surface-ground)`)
+- **Aspect ratio**: Maintain consistent aspect ratios to prevent layout shift
+- **Alt text**: Always provide meaningful alt text for accessibility
+- **WebP format**: Prefer WebP with fallback for better compression
 - **Responsive**: Use appropriate sizes for viewport
 
 ```scss
 .product-image {
   aspect-ratio: 1;
   object-fit: cover;
-  background: var(--surface-ground); // Placeholder color
+  background: var(--surface-ground); // Placeholder color while loading
 }
 ```
 
@@ -1364,6 +1410,11 @@ When reviewing each component, check:
 - [ ] Uses `@for` with `track` instead of `*ngFor` with `trackBy`
 - [ ] Uses `@switch` instead of `ngSwitch`
 - [ ] Uses `@empty` block for empty lists
+
+**Image Handling:**
+- [ ] Images in lists/grids use `loading="lazy"`
+- [ ] Images have `(error)` handler for fallback
+- [ ] Images have meaningful `[alt]` text
 
 ### SCSS (.scss)
 - [ ] Minimal custom CSS (prefer utility classes)

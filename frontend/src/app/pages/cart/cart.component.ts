@@ -1,17 +1,12 @@
 // src/app/pages/cart/cart.component.ts
-import { Component, OnInit, inject, signal, computed, OnDestroy, DestroyRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject, signal, computed, DestroyRef } from '@angular/core';
+import { NgClass } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { ToastModule } from 'primeng/toast';
-import { TagModule } from 'primeng/tag';
-import { DividerModule } from 'primeng/divider';
 import { TooltipModule } from 'primeng/tooltip';
-import { SelectModule } from 'primeng/select';
-import { InputTextModule } from 'primeng/inputtext';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { ROUTES } from '../../core/constants/routes.constants';
@@ -24,7 +19,8 @@ import { CartTranslationService } from '../../core/services/cart-translation.ser
 import { PromotionService } from '../../services/promotion.service';
 import { AppliedPromotion } from '../../models/promotion.model';
 import { ProductQuantitySelectorComponent } from '../../shared/components/product-quantity-selector/product-quantity-selector.component';
-import { BackButtonComponent } from '../../shared/components/back-button/back-button.component';
+import { PageLayoutComponent } from '../../shared/components/page-layout/page-layout.component';
+import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { ImageLightboxComponent } from '../../shared/components/image-lightbox/image-lightbox.component';
 import { ToastMessageService } from '../../core/services/toast-message.service';
 import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
@@ -35,28 +31,24 @@ import { getCartonCount as calcCartonCount, isListQuantityConfig } from '../../s
   selector: 'app-cart-page',
   standalone: true,
   imports: [
-    CommonModule,
+    NgClass,
     RouterLink,
     FormsModule,
-    ButtonModule,
     TableModule,
     ToastModule,
-    TagModule,
-    DividerModule,
     TooltipModule,
-    SelectModule,
-    InputTextModule,
     TranslateModule,
     ProductQuantitySelectorComponent,
-    BackButtonComponent,
+    PageLayoutComponent,
+    EmptyStateComponent,
     ImageLightboxComponent,
     CurrencyPipe,
     UnitPipe
   ],
-    templateUrl: './cart.component.html',
+  templateUrl: './cart.component.html',
   styleUrl: './cart.component.scss'
 })
-export class CartComponent implements OnInit, OnDestroy {
+export class CartComponent implements OnInit {
   // Dependency injection
   private cartService = inject(CartService);
   private authService = inject(AuthService);
@@ -68,10 +60,14 @@ export class CartComponent implements OnInit, OnDestroy {
   private translationService = inject(TranslationService);
   private promotionService = inject(PromotionService);
   private cartTranslation = inject(CartTranslationService);
+  private destroyRef = inject(DestroyRef);
+
+  // Constants
+  readonly ROUTES = ROUTES;
 
   // Signals
   cartItems = signal<CartItem[]>([]);
-  loading = signal(false);
+  loading = signal(true);
   selectedImage = signal<string | null>(null);
 
   // Promotion signals
@@ -82,16 +78,12 @@ export class CartComponent implements OnInit, OnDestroy {
 
   // For quantity selection
   productQuantities: { [key: string]: number } = {};
-  showQuantityGridForItem: string | null = null;
-  
+
   // Computed values
   cartSubtotal = computed(() => {
     return this.cartItems().reduce((total, item) =>
       total + (item.product_price * item.quantity), 0);
   });
-
-  // Alias for backward compatibility
-  cartTotal = this.cartSubtotal;
 
   discountAmount = computed(() => {
     const promo = this.appliedPromotion();
@@ -104,42 +96,29 @@ export class CartComponent implements OnInit, OnDestroy {
 
   cartItemCount = computed(() => this.cartItems().length);
 
-  // Shipping cost (can be modified based on business logic)
-  shippingCost = computed(() => {
-    return 0;
-  });
+  shippingCost = computed(() => 0);
 
   isShippingFree = computed(() => this.shippingCost() === 0);
-
-  // RTL detection
-  isRTL = computed(() => this.translationService.isRTL());
-
-  private destroyRef = inject(DestroyRef);
 
   ngOnInit() {
     this.loadCart();
 
-    // Track if this is the first load
     let isFirstLoad = true;
 
-    // Subscribe to cart changes - automatically cleaned up on destroy
+    // Subscribe to cart changes
     this.cartService.cartItems$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(items => {
         this.cartItems.set(items);
-        // Initialize quantities
         items.forEach(item => {
           this.productQuantities[item.id] = item.quantity;
         });
 
-        // Load translated names for cart items
-        // Only load on initial load, not on every update
         if (isFirstLoad && items.length > 0) {
           this.loadTranslatedNames();
           isFirstLoad = false;
         }
 
-        // Recalculate discount when cart changes
         const promo = this.appliedPromotion();
         if (promo && items.length > 0) {
           this.recalculateDiscount(promo.code);
@@ -148,7 +127,7 @@ export class CartComponent implements OnInit, OnDestroy {
         }
       });
 
-    // Subscribe to language changes - automatically cleaned up on destroy
+    // Subscribe to language changes
     this.translationService.currentLanguage$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
@@ -157,7 +136,7 @@ export class CartComponent implements OnInit, OnDestroy {
         }
       });
 
-    // Subscribe to saved promotion from cart service - automatically cleaned up on destroy
+    // Subscribe to saved promotion
     this.cartService.appliedPromotion$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(promo => {
@@ -166,10 +145,6 @@ export class CartComponent implements OnInit, OnDestroy {
           this.promoCode.set(promo.code);
         }
       });
-  }
-  
-  ngOnDestroy() {
-    // Subscriptions are automatically cleaned up by takeUntilDestroyed
   }
 
   private loadTranslatedNames(): void {
@@ -180,186 +155,102 @@ export class CartComponent implements OnInit, OnDestroy {
       this.cartItems.set(updatedItems);
     });
   }
-  
-  loadCart() {
+
+  loadCart(): void {
     this.loading.set(true);
-    
-    try {
-      this.cartService.getCartItems().subscribe(items => {
+
+    this.cartService.getCartItems().subscribe({
+      next: (items) => {
         this.cartItems.set(items);
-        // Initialize quantities
         items.forEach(item => {
           this.productQuantities[item.id] = item.quantity;
         });
         this.loading.set(false);
-        
-        // Load translated names after loading cart
+
         if (items.length > 0) {
           this.loadTranslatedNames();
         }
-      });
-    } catch (error) {
-      console.error('Error loading cart:', error);
-      this.toast.showError('cart.errors.failed_to_load');
-      this.loading.set(false);
-    }
+      },
+      error: () => {
+        this.toast.showError('cart.errors.failed_to_load');
+        this.loading.set(false);
+      }
+    });
   }
-  
-  increaseQuantity(item: CartItem) {
-    const maxStock = item.stock_quantity || 99;
-    if (item.quantity < maxStock) {
-      this.updateItemQuantity(item.id, item.quantity + 1);
-    }
-  }
-  
-  decreaseQuantity(item: CartItem) {
-    if (item.quantity > 1) {
-      this.updateItemQuantity(item.id, item.quantity - 1);
-    }
-  }
-  
-  updateItemQuantity(itemId: string, newQuantity: number) {
+
+  updateItemQuantity(itemId: string, newQuantity: number): void {
     const item = this.cartItems().find(i => i.id === itemId);
     if (!item) return;
+
     this.cartService.updateCartItem(itemId, newQuantity).subscribe({
       next: () => {
-        // Update the local quantity in productQuantities
         this.productQuantities[itemId] = newQuantity;
       },
-      error: (error) => {
-        console.error('Error updating quantity:', error);
-        
+      error: () => {
         this.toast.showError('cart.errors.update_failed');
-        
-        // Reset the select value to match the item's actual quantity
         this.productQuantities[itemId] = item.quantity;
       }
     });
   }
-  
-  removeItem(itemId: string) {
+
+  removeItem(itemId: string): void {
     this.cartService.removeCartItem(itemId).subscribe({
       next: () => {
-        // Clean up the quantities object
         delete this.productQuantities[itemId];
       },
-      error: (error) => {
-        console.error('Error removing item:', error);
-        
+      error: () => {
         this.toast.showError('cart.errors.remove_failed');
       }
     });
   }
-  
-  clearCart() {
+
+  clearCart(): void {
     this.cartService.clearCart().subscribe({
       next: () => {
-        // Clear the local cart items signal immediately
         this.cartItems.set([]);
-        // Reset quantities
         this.productQuantities = {};
         this.toast.showSuccess('cart.cart_cleared_message');
       },
-      error: (error) => {
-        console.error('Error clearing cart:', error);
+      error: () => {
         this.toast.showError('cart.errors.clear_failed');
       }
     });
   }
-  
+
   getUnitDisplay(unit: string): string {
     return this.unitsService.getUnitTranslated(unit, true);
   }
-  
-  getQuantityOptions(maxQuantity: number | undefined, itemId?: string): any[] {
-    // Find the item by id
-    const item = this.cartItems().find(i => i.id === itemId);
-    const unitDisplay = item ? this.getUnitDisplay(item.product_unit) : 'units';
-    
-    // Generate options with increments of 1 up to maxQuantity (or 99 if not specified)
-    const maxStock = maxQuantity || 99;
-    return Array.from({ length: Math.min(maxStock, 99) }, (_, i) => {
-      const value = i + 1; // Start from 1
-      return { 
-        label: `${value} ${unitDisplay}`, 
-        value 
-      };
-    });
-  }
-  
-  getSelectedQuantityLabel(itemId: string): string {
-    const quantity = this.productQuantities[itemId];
-    if (!quantity) return this.translateService.instant('products.product.qty');
-    
-    const item = this.cartItems().find(i => i.id === itemId);
-    if (!item) return `${quantity} units`;
-    
-    return `${quantity} ${this.getUnitDisplay(item.product_unit)}`;
-  }
-  
+
   isOutOfStock(item: CartItem): boolean {
     return item.stock_quantity !== undefined && item.stock_quantity <= 0;
   }
-  
-  // Quantity grid methods
-  getQuantityOptionsForItem(item: CartItem): number[] {
-    if (isListQuantityConfig(item.quantity_config)) {
-      // Return all available quantities from config
-      return item.quantity_config!.quantities!.filter(qty =>
-        !item.stock_quantity || qty <= item.stock_quantity
-      );
-    }
 
-    // Default: generate range from 1 to maxStock
-    const maxStock = item.stock_quantity || 99;
-    return Array.from({ length: Math.min(maxStock, 20) }, (_, i) => i + 1);
+  getCartonCount(item: CartItem): number {
+    return calcCartonCount(item.quantity, item.quantity_config);
   }
-  
-  selectQuantityForItem(itemId: string, quantity: number): void {
-    this.productQuantities[itemId] = quantity;
-  }
-  
-  updateQuantityAndCloseGrid(item: CartItem): void {
-    const newQuantity = this.productQuantities[item.id];
-    if (newQuantity !== item.quantity) {
-      this.updateItemQuantity(item.id, newQuantity);
-    }
-    this.showQuantityGridForItem = null;
-  }
-  
-  proceedToCheckout() {
+
+  proceedToCheckout(): void {
     if (this.cartItemCount() === 0) {
       this.toast.showInfo('cart.empty_checkout_message');
       return;
     }
 
     if (this.authService.isLoggedIn) {
-      // User is logged in, proceed to checkout
       this.router.navigate([ROUTES.CHECKOUT]);
     } else {
-      // User is not logged in, redirect to login with returnUrl
       this.toast.showInfo('cart.login_message');
-
-      // Save the return URL
       this.router.navigate([ROUTES.LOGIN], {
         queryParams: { returnUrl: ROUTES.CHECKOUT }
       });
     }
   }
 
-  // Get just the number part of the price
   formatPriceNumber(price: number): string {
     return Math.round(price).toString();
   }
 
-  // Get the currency symbol
   getCurrencySymbol(): string {
     return 'DA';
-  }
-
-  // Get carton count based on quantity config
-  getCartonCount(item: CartItem): number {
-    return calcCartonCount(item.quantity, item.quantity_config);
   }
 
   // Promotion methods
@@ -373,7 +264,6 @@ export class CartComponent implements OnInit, OnDestroy {
     this.promoLoading.set(true);
     this.promoError.set(null);
 
-    // Build cart items for discount calculation
     const cartItemsForDiscount = this.cartItems().map(item => ({
       product_id: item.product_id,
       quantity: item.quantity,
@@ -447,7 +337,6 @@ export class CartComponent implements OnInit, OnDestroy {
           this.appliedPromotion.set(appliedPromo);
           this.cartService.applyPromotion(appliedPromo);
         } else {
-          // Promotion no longer valid for current cart
           this.removePromoCode();
         }
       },
@@ -466,5 +355,16 @@ export class CartComponent implements OnInit, OnDestroy {
 
   closeImage(): void {
     this.selectedImage.set(null);
+  }
+
+  // Image error handling
+  onImageError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    img.src = 'assets/images/product-placeholder.jpg';
+  }
+
+  // Navigate to products
+  goToProducts(): void {
+    this.router.navigate([ROUTES.PRODUCTS]);
   }
 }

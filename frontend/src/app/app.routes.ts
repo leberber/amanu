@@ -29,7 +29,7 @@ export const routes: Routes = [
   { path: 'reset-password', component: ResetPasswordComponent },
   { path: 'products', component: ProductListComponent, canActivate: [authGuard] },
   { path: 'products/:id', component: ProductDetailComponent, canActivate: [authGuard], data: { hideBottomNav: true } },
-  { path: 'cart', component: CartComponent, canActivate: [authGuard] },
+  { path: 'cart', component: CartComponent, canActivate: [authGuard], data: { hideBottomNav: true } },
   
   // Admin Routes
   { 
