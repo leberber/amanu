@@ -86,12 +86,6 @@
   border-radius: var(--radius-md);
 }
 
-.cart-item-total {
-  font-size: var(--font-size-base);
-  font-weight: var(--font-weight-bold);
-  color: var(--text-color-strong);
-}
-
 .organic-badge {
   background: var(--color-success);
   color: var(--color-white);
@@ -108,56 +102,70 @@
 // -----------------------------------------------------------------------------
 .cart-item-mobile {
   display: flex;
-  align-items: flex-start;
-  gap: var(--space-4);
+  flex-direction: column;
+  gap: var(--space-3);
   padding: var(--space-4) 0;
   border-bottom: var(--border-width) solid var(--border-color-light);
 
   &:last-child {
     border-bottom: none;
   }
-}
 
-.cart-item-mobile__content {
-  flex: 1;
-  min-width: 0;
-}
-
-.cart-item-mobile__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: var(--space-3);
-}
-
-.cart-item-mobile__name-row {
-  display: flex;
-  align-items: center;
-  min-width: 0;
-  overflow: hidden;
-
-  .cart-item-name {
-    max-width: 160px;
+  &__row1 {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
   }
 
-  .organic-badge {
-    flex-shrink: 0;
+  &__row2 {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  &__name-row {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+
+    .cart-item-name {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .organic-badge {
+      flex-shrink: 0;
+    }
+  }
+
+  &__controls {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
   }
 }
 
-.cart-item-mobile__footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3);
-  background: var(--surface-50);
-  padding: var(--space-3);
-  border-radius: var(--radius-md);
+.price-badge {
+  display: inline-block;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  padding: 4px 8px;
+  background-color: #f1f5f9;
+  border-radius: 6px;
+  color: #1e293b;
+  text-align: center;
+  white-space: nowrap;
 }
 
-.cart-item-mobile__qty {
-  flex-shrink: 0;
-  width: 100px;
+.cart-item-total {
+  font-weight: var(--font-weight-bold);
+  color: var(--text-color-strong);
+  white-space: nowrap;
+  min-width: 90px;
+  text-align: right;
 }
 
 // -----------------------------------------------------------------------------

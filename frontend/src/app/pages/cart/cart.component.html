@@ -161,42 +161,42 @@
           <div class="app-card__content block md:hidden">
             @for (item of cartItems(); track item.id) {
               <div class="cart-item-mobile">
-                <div class="thumbnail" [class.clickable]="item.product_image" (click)="openImage(item)">
-                  @if (item.product_image) {
-                    <img
-                      [src]="item.product_image"
-                      [alt]="item.product_name"
-                      loading="lazy"
-                      (error)="onImageError($event)">
-                  } @else {
-                    <i class="pi pi-box"></i>
-                  }
-                </div>
-                <div class="cart-item-mobile__content">
-                  <div class="cart-item-mobile__header">
-                    <div class="cart-item-mobile__name-row">
-                      <p class="cart-item-name">{{ item.product_name }}</p>
-                      @if (item.is_organic) {
-                        <span class="organic-badge">O</span>
-                      }
-                    </div>
-                    <button class="icon-btn icon-btn--danger icon-btn--sm" (click)="removeItem(item.id)">
-                      <i class="pi pi-trash"></i>
-                    </button>
+                <!-- Row 1: Image + Name + Delete -->
+                <div class="cart-item-mobile__row1">
+                  <div class="thumbnail" [class.clickable]="item.product_image" (click)="openImage(item)">
+                    @if (item.product_image) {
+                      <img
+                        [src]="item.product_image"
+                        [alt]="item.product_name"
+                        loading="lazy"
+                        (error)="onImageError($event)">
+                    } @else {
+                      <i class="pi pi-box"></i>
+                    }
                   </div>
-                  <div class="cart-item-mobile__footer">
-                    <span class="cart-item-price">{{ item.product_price | appCurrency }}/{{ item.product_unit | appUnit }}</span>
-                    <div class="cart-item-mobile__qty">
-                      <app-product-quantity-selector
-                        [value]="productQuantities[item.id]"
-                        [stockQuantity]="item.stock_quantity"
-                        [unit]="item.product_unit"
-                        [quantityConfig]="item.quantity_config"
-                        [disabled]="isOutOfStock(item)"
-                        [dropdownOnly]="true"
-                        (valueChange)="updateItemQuantity(item.id, $event)">
-                      </app-product-quantity-selector>
-                    </div>
+                  <div class="cart-item-mobile__name-row">
+                    <p class="cart-item-name">{{ item.product_name }}</p>
+                    @if (item.is_organic) {
+                      <span class="organic-badge">O</span>
+                    }
+                  </div>
+                  <button class="icon-btn icon-btn--danger icon-btn--sm" (click)="removeItem(item.id)">
+                    <i class="pi pi-trash"></i>
+                  </button>
+                </div>
+                <!-- Row 2: Price badge | Qty controls + Total -->
+                <div class="cart-item-mobile__row2">
+                  <span class="price-badge">{{ item.product_price | appCurrency }}</span>
+                  <div class="cart-item-mobile__controls">
+                    <app-product-quantity-selector
+                      [value]="productQuantities[item.id]"
+                      [stockQuantity]="item.stock_quantity"
+                      [unit]="item.product_unit"
+                      [quantityConfig]="item.quantity_config"
+                      [disabled]="isOutOfStock(item)"
+                      [dropdownOnly]="true"
+                      (valueChange)="updateItemQuantity(item.id, $event)">
+                    </app-product-quantity-selector>
                     <span class="cart-item-total">{{ item.product_price * item.quantity | appCurrency }}</span>
                   </div>
                 </div>
