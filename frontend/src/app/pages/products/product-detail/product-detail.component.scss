@@ -2,83 +2,16 @@
 // Product Detail Component Styles
 // =============================================================================
 // Uses global styles from _components.scss:
+// - .detail-content, .detail-grid, .detail-main, .detail-sidebar (layout)
 // - .app-card, .app-card__header, .app-card__icon, .app-card__title, .app-card__content
-// - .topbar-header, .topbar-badge
+// - .topbar-header, .topbar-badge (--promo, --success, --warning, --danger)
+// - .info-box (--success, --warning, --danger) for stock status
+// - .price-display (--current, --original, --unit, --promo)
+// - .cart-status
 // - .action-btn, .action-btn--primary
 // Uses global styles from _skeleton.scss:
 // - .skeleton, .skeleton-text, .skeleton-image
 // =============================================================================
-
-// -----------------------------------------------------------------------------
-// Layout
-// -----------------------------------------------------------------------------
-.product-detail-content {
-  padding: var(--space-4);
-  padding-bottom: var(--space-4);
-  width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
-  overflow-x: hidden;
-
-  @media (min-width: 768px) {
-    padding: var(--space-6);
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
-}
-
-.product-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--space-5);
-  width: 100%;
-  max-width: 100%;
-
-  @media (min-width: 768px) {
-    grid-template-columns: 1fr 1fr;
-    gap: var(--space-6);
-    flex: 1;
-    min-height: 0;
-    overflow: hidden;
-  }
-
-  @media (min-width: 1024px) {
-    grid-template-columns: 1.2fr 1fr;
-  }
-}
-
-.product-left-column {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-5);
-  min-width: 0; // Prevent flex item from overflowing
-
-  @media (min-width: 768px) {
-    align-self: start;
-  }
-}
-
-.product-sidebar {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-5);
-  min-width: 0; // Prevent flex item from overflowing
-
-  @media (min-width: 768px) {
-    overflow-y: auto;
-    padding-right: var(--space-3);
-    padding-bottom: var(--space-6);
-    margin-bottom: var(--space-4);
-  }
-}
-
-// Ensure cards don't overflow
-.app-card {
-  max-width: 100%;
-  overflow: hidden;
-}
 
 // -----------------------------------------------------------------------------
 // Product Image Card
@@ -149,37 +82,6 @@
 }
 
 // -----------------------------------------------------------------------------
-// Price Display
-// -----------------------------------------------------------------------------
-.price-display {
-  text-align: center;
-  padding: var(--space-4) 0;
-
-  &__current {
-    font-size: var(--font-size-2xl);
-    font-weight: var(--font-weight-bold);
-    color: var(--text-color-strong, var(--text-color));
-
-    &--promo {
-      color: var(--color-danger);
-    }
-  }
-
-  &__original {
-    font-size: var(--font-size-md);
-    color: var(--text-color-secondary);
-    text-decoration: line-through;
-    margin-top: var(--space-1);
-  }
-
-  &__unit {
-    font-size: var(--font-size-sm);
-    color: var(--text-color-secondary);
-    margin-top: var(--space-2);
-  }
-}
-
-// -----------------------------------------------------------------------------
 // Description
 // -----------------------------------------------------------------------------
 .description-text {
@@ -190,135 +92,8 @@
 }
 
 // -----------------------------------------------------------------------------
-// Stock Status
+// Quantity Section
 // -----------------------------------------------------------------------------
-.stock-status {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-4);
-  padding: var(--space-5);
-  border-radius: var(--radius-md);
-
-  &__icon {
-    width: var(--icon-lg);
-    height: var(--icon-lg);
-    border-radius: var(--radius-md);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-
-    i {
-      font-size: var(--font-size-lg);
-    }
-  }
-
-  &__content {
-    h4 {
-      font-size: var(--font-size-base);
-      font-weight: var(--font-weight-semibold);
-      margin: 0 0 var(--space-1) 0;
-    }
-
-    p {
-      font-size: var(--font-size-sm);
-      margin: 0;
-      opacity: 0.9;
-    }
-  }
-
-  &--success {
-    background: rgba(var(--color-success-rgb, 34, 197, 94), 0.1);
-    border: var(--border-width) solid rgba(var(--color-success-rgb, 34, 197, 94), 0.2);
-
-    .stock-status__icon {
-      background: var(--color-success);
-      color: var(--color-white);
-    }
-
-    .stock-status__content {
-      h4 { color: var(--color-success-dark, #166534); }
-      p { color: var(--color-success, #22c55e); }
-    }
-  }
-
-  &--warning {
-    background: rgba(var(--color-warning-rgb, 249, 115, 22), 0.1);
-    border: var(--border-width) solid rgba(var(--color-warning-rgb, 249, 115, 22), 0.2);
-
-    .stock-status__icon {
-      background: var(--color-warning);
-      color: var(--color-white);
-    }
-
-    .stock-status__content {
-      h4 { color: var(--color-warning-dark, #9a3412); }
-      p { color: var(--color-warning, #f97316); }
-    }
-  }
-
-  &--danger {
-    background: rgba(var(--color-danger-rgb, 239, 68, 68), 0.1);
-    border: var(--border-width) solid rgba(var(--color-danger-rgb, 239, 68, 68), 0.2);
-
-    .stock-status__icon {
-      background: var(--color-danger);
-      color: var(--color-white);
-    }
-
-    .stock-status__content {
-      h4 { color: var(--color-danger-dark, #991b1b); }
-      p { color: var(--color-danger, #ef4444); }
-    }
-  }
-}
-
-// Dark theme stock status
-:host-context(.my-app-dark) .stock-status {
-  &--success .stock-status__content {
-    h4 { color: #4ade80; }
-    p { color: #86efac; }
-  }
-
-  &--warning .stock-status__content {
-    h4 { color: #fb923c; }
-    p { color: #fdba74; }
-  }
-
-  &--danger .stock-status__content {
-    h4 { color: #f87171; }
-    p { color: #fca5a5; }
-  }
-}
-
-// -----------------------------------------------------------------------------
-// Cart Section
-// -----------------------------------------------------------------------------
-.cart-status {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-4);
-  background: rgba(var(--color-success-rgb, 34, 197, 94), 0.1);
-  border-radius: var(--radius-md);
-  margin-bottom: var(--space-5);
-
-  i {
-    color: var(--color-success);
-    font-size: var(--font-size-lg);
-  }
-
-  span {
-    color: var(--color-success-dark, #166534);
-    font-weight: var(--font-weight-medium);
-    font-size: var(--font-size-base);
-  }
-}
-
-:host-context(.my-app-dark) .cart-status span {
-  color: #86efac;
-}
-
 .quantity-section {
   margin-bottom: var(--space-5);
 }
@@ -358,44 +133,15 @@
   padding: 1.125rem 1.5rem;
 }
 
-// -----------------------------------------------------------------------------
-// Topbar Badge Variants
-// -----------------------------------------------------------------------------
-.topbar-badge {
-  &--promo {
-    background: rgba(var(--color-danger-rgb, 239, 68, 68), 0.15);
-    color: var(--color-danger);
-  }
-
-  &--success {
-    background: rgba(var(--color-success-rgb, 34, 197, 94), 0.15);
-    color: var(--color-success);
-  }
-
-  &--warning {
-    background: rgba(var(--color-warning-rgb, 249, 115, 22), 0.15);
-    color: var(--color-warning);
-  }
-
-  &--danger {
-    background: rgba(var(--color-danger-rgb, 239, 68, 68), 0.15);
-    color: var(--color-danger);
-  }
+// Cart status spacing (additional to global)
+.cart-status {
+  margin-bottom: var(--space-5);
 }
 
 // -----------------------------------------------------------------------------
 // Responsive
 // -----------------------------------------------------------------------------
 @media (max-width: 767px) {
-  .product-detail-content {
-    height: auto;
-    overflow: visible;
-  }
-
-  .product-grid {
-    overflow: visible;
-  }
-
   .product-image-container {
     min-height: 200px;
     padding: var(--space-4);
@@ -403,9 +149,5 @@
     img {
       max-height: 250px;
     }
-  }
-
-  .price-display__current {
-    font-size: var(--font-size-xl);
   }
 }

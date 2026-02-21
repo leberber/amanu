@@ -38,8 +38,8 @@
 
   <!-- Loading state - Skeleton -->
   @if (loading()) {
-    <div class="order-detail-content">
-      <div class="order-grid">
+    <div class="detail-content">
+      <div class="detail-grid detail-grid--orders">
         <!-- Items skeleton -->
         <div class="app-card order-items-card">
           <div class="app-card__header">
@@ -64,7 +64,7 @@
           </div>
         </div>
         <!-- Sidebar skeleton -->
-        <div class="order-sidebar">
+        <div class="detail-sidebar">
           <div class="app-card">
             <div class="app-card__header">
               <div class="skeleton skeleton-avatar"></div>
@@ -100,9 +100,9 @@
 
   <!-- Order details -->
   @else if (order()) {
-    <div class="order-detail-content">
+    <div class="detail-content">
       <!-- Main Grid -->
-      <div class="order-grid">
+      <div class="detail-grid detail-grid--orders">
         <!-- Order Items -->
         <div class="order-items-card app-card">
           <div class="app-card__header">
@@ -136,7 +136,7 @@
         </div>
 
         <!-- Sidebar -->
-        <div class="order-sidebar">
+        <div class="detail-sidebar">
           <!-- Timeline -->
           <div class="timeline-card app-card">
             <div class="app-card__header">

@@ -1136,3 +1136,384 @@
     &:hover { background: rgba(239, 68, 68, 0.2); }
   }
 }
+
+
+// =============================================================================
+// 13. DETAIL PAGE LAYOUT
+// =============================================================================
+// Shared layout for detail pages (product-detail, order-detail)
+// Uses two-column grid with sidebar
+
+.detail-content {
+  padding: var(--space-5);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+
+  @media (min-width: 768px) {
+    padding: var(--space-6);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-5);
+  width: 100%;
+  max-width: 100%;
+
+  @media (min-width: 768px) {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-6);
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  @media (min-width: 1024px) {
+    grid-template-columns: 1.2fr 1fr;
+  }
+
+  // Variant for order-detail (wider main column)
+  &--orders {
+    @media (min-width: 768px) {
+      grid-template-columns: 1.5fr 1fr;
+    }
+  }
+}
+
+.detail-main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  min-width: 0;
+
+  @media (min-width: 768px) {
+    align-self: start;
+  }
+}
+
+.detail-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  min-width: 0;
+
+  @media (min-width: 768px) {
+    overflow-y: auto;
+    padding-right: var(--space-3);
+    padding-bottom: var(--space-6);
+  }
+}
+
+// Responsive overrides
+@media (max-width: 767px) {
+  .detail-content {
+    height: auto;
+    overflow: visible;
+  }
+
+  .detail-grid {
+    overflow: visible;
+  }
+}
+
+
+// =============================================================================
+// 14. TOPBAR BADGE VARIANTS
+// =============================================================================
+// Extended variants for topbar badges (promo, success, warning, danger)
+
+.topbar-badge {
+  &--promo {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+  }
+
+  &--success {
+    background: rgba(34, 197, 94, 0.15);
+    color: #22c55e;
+  }
+
+  &--warning {
+    background: rgba(249, 115, 22, 0.15);
+    color: #f97316;
+  }
+
+  &--danger {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+  }
+}
+
+
+// =============================================================================
+// 15. INFO BOX
+// =============================================================================
+// Status/info boxes with icon and content (stock status, alerts, etc.)
+
+.info-box {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  border-radius: var(--radius-md);
+
+  &__icon {
+    width: var(--icon-lg);
+    height: var(--icon-lg);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    i {
+      font-size: var(--font-size-lg);
+    }
+  }
+
+  &__content {
+    h4 {
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-semibold);
+      margin: 0 0 var(--space-1) 0;
+    }
+
+    p {
+      font-size: var(--font-size-sm);
+      margin: 0;
+      opacity: 0.9;
+    }
+  }
+
+  // Success variant
+  &--success {
+    background: rgba(34, 197, 94, 0.1);
+    border: var(--border-width) solid rgba(34, 197, 94, 0.2);
+
+    .info-box__icon {
+      background: #22c55e;
+      color: white;
+    }
+
+    .info-box__content {
+      h4 { color: #166534; }
+      p { color: #22c55e; }
+    }
+  }
+
+  // Warning variant
+  &--warning {
+    background: rgba(249, 115, 22, 0.1);
+    border: var(--border-width) solid rgba(249, 115, 22, 0.2);
+
+    .info-box__icon {
+      background: #f97316;
+      color: white;
+    }
+
+    .info-box__content {
+      h4 { color: #9a3412; }
+      p { color: #f97316; }
+    }
+  }
+
+  // Danger variant
+  &--danger {
+    background: rgba(239, 68, 68, 0.1);
+    border: var(--border-width) solid rgba(239, 68, 68, 0.2);
+
+    .info-box__icon {
+      background: #ef4444;
+      color: white;
+    }
+
+    .info-box__content {
+      h4 { color: #991b1b; }
+      p { color: #ef4444; }
+    }
+  }
+
+  // Info variant
+  &--info {
+    background: rgba(59, 130, 246, 0.1);
+    border: var(--border-width) solid rgba(59, 130, 246, 0.2);
+
+    .info-box__icon {
+      background: #3b82f6;
+      color: white;
+    }
+
+    .info-box__content {
+      h4 { color: #1e40af; }
+      p { color: #3b82f6; }
+    }
+  }
+}
+
+// Dark mode info-box
+.my-app-dark .info-box {
+  &--success .info-box__content {
+    h4 { color: #4ade80; }
+    p { color: #86efac; }
+  }
+
+  &--warning .info-box__content {
+    h4 { color: #fb923c; }
+    p { color: #fdba74; }
+  }
+
+  &--danger .info-box__content {
+    h4 { color: #f87171; }
+    p { color: #fca5a5; }
+  }
+
+  &--info .info-box__content {
+    h4 { color: #60a5fa; }
+    p { color: #93c5fd; }
+  }
+}
+
+
+// =============================================================================
+// 16. STATS
+// =============================================================================
+// Stats list and items for dashboards and summaries
+
+.stats-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+
+  &__icon {
+    width: var(--icon-lg);
+    height: var(--icon-lg);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    i {
+      font-size: var(--font-size-md);
+    }
+
+    // Variants
+    &--primary {
+      background: var(--primary-50, rgba(46, 108, 183, 0.1));
+      i { color: var(--primary-color); }
+    }
+
+    &--success {
+      background: var(--success-50, rgba(34, 197, 94, 0.1));
+      i { color: var(--success-color, #22c55e); }
+    }
+
+    &--warning {
+      background: var(--warning-50, rgba(249, 115, 22, 0.1));
+      i { color: var(--warning-color, #f97316); }
+    }
+
+    &--danger {
+      background: var(--danger-50, rgba(239, 68, 68, 0.1));
+      i { color: var(--danger-color, #ef4444); }
+    }
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__value {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--text-color);
+  }
+
+  &__label {
+    font-size: var(--font-size-sm);
+    color: var(--text-color-secondary);
+  }
+}
+
+
+// =============================================================================
+// 17. PRICE DISPLAY
+// =============================================================================
+// Reusable price display for product details, cart, etc.
+
+.price-display {
+  text-align: center;
+  padding: var(--space-4) 0;
+
+  &__current {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--text-color-strong, var(--text-color));
+
+    &--promo {
+      color: #ef4444;
+    }
+  }
+
+  &__original {
+    font-size: var(--font-size-md);
+    color: var(--text-color-secondary);
+    text-decoration: line-through;
+    margin-top: var(--space-1);
+  }
+
+  &__unit {
+    font-size: var(--font-size-sm);
+    color: var(--text-color-secondary);
+    margin-top: var(--space-2);
+  }
+
+  // Left-aligned variant
+  &--left {
+    text-align: left;
+    padding: 0;
+  }
+}
+
+
+// =============================================================================
+// 18. CART STATUS
+// =============================================================================
+// "In cart" status indicator
+
+.cart-status {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: rgba(34, 197, 94, 0.1);
+  border-radius: var(--radius-md);
+
+  i {
+    color: #22c55e;
+    font-size: var(--font-size-lg);
+  }
+
+  span {
+    color: #166534;
+    font-weight: var(--font-weight-medium);
+    font-size: var(--font-size-base);
+  }
+}
+
+.my-app-dark .cart-status span {
+  color: #86efac;
+}

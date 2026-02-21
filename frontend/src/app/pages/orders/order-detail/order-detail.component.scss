@@ -2,48 +2,22 @@
 // Order Detail Component Styles
 // =============================================================================
 // Uses global styles from _components.scss:
+// - .detail-content, .detail-grid, .detail-grid--orders, .detail-sidebar (layout)
 // - .app-card, .app-card__header, .app-card__icon, .app-card__title, .app-card__content
-// - .topbar-header, .topbar-badge
-// - .action-btn, .action-btn--primary, .action-btn--secondary, .action-btn--danger
-// - .thumbnail, .thumbnail--sm, .thumbnail--md, .thumbnail--lg
+// - .topbar-header, .topbar-badge (order statuses)
+// - .action-btn, .action-btn--secondary, .action-btn--danger
+// - .thumbnail
 // Uses global styles from _skeleton.scss:
 // - .skeleton, .skeleton-text, .skeleton-avatar, .skeleton-image, .skeleton-circle, .skeleton-row
 // =============================================================================
 
 // -----------------------------------------------------------------------------
-// Layout
+// Order Items Card
 // -----------------------------------------------------------------------------
-.order-detail-content {
-  padding: var(--space-6);
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden; // Prevent outer scroll, let items list scroll
-}
-
-.order-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--space-6);
-  flex: 1;
-  min-height: 0; // Important for nested flex scroll
-
-  @media (min-width: 768px) {
-    grid-template-columns: 1.5fr 1fr;
-    gap: var(--space-8);
-  }
-}
-
-// Card styling
-.app-card {
-  border-radius: var(--radius-sm);
-}
-
-// Left column - Order Items Card
 .order-items-card {
   display: flex;
   flex-direction: column;
-  min-height: 0; // Important for flex scroll
+  min-height: 0;
   overflow: hidden;
 
   .app-card__content {
@@ -55,11 +29,9 @@
   }
 }
 
-.order-sidebar {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-6);
-  overflow-y: auto;
+// Card border radius override
+.app-card {
+  border-radius: var(--radius-sm);
 }
 
 // -----------------------------------------------------------------------------
@@ -85,8 +57,6 @@
     border-bottom: none;
   }
 }
-
-// .item-image → uses global .thumbnail class from _components.scss
 
 .item-qty {
   font-weight: var(--font-weight-semibold);
@@ -118,7 +88,7 @@
   margin-top: var(--space-5);
   background: var(--surface-100);
   border-radius: var(--radius-lg);
-  flex-shrink: 0; // Don't shrink - stay at bottom
+  flex-shrink: 0;
 
   .total-label {
     font-size: var(--font-size-md);
@@ -202,16 +172,6 @@
 // Responsive
 // -----------------------------------------------------------------------------
 @media (max-width: 768px) {
-  .order-detail-content {
-    padding: var(--space-5);
-    height: auto; // Allow natural height on mobile
-    overflow: visible; // Allow normal scroll on mobile
-  }
-
-  .order-grid {
-    min-height: auto;
-  }
-
   .order-items-card {
     min-height: auto;
     overflow: visible;
@@ -222,7 +182,7 @@
   }
 
   .items-simple-list {
-    overflow: visible; // No scroll on mobile, let page scroll
+    overflow: visible;
   }
 
   .item-line {

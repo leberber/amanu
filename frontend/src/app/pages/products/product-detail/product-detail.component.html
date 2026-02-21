@@ -47,14 +47,14 @@
 
   <!-- Loading state - Skeleton -->
   @if (loading()) {
-    <div class="product-detail-content">
-      <div class="product-grid">
+    <div class="detail-content">
+      <div class="detail-grid">
         <!-- Image skeleton -->
         <div class="app-card product-image-card">
           <div class="skeleton skeleton-image skeleton-image--lg"></div>
         </div>
         <!-- Info skeleton -->
-        <div class="product-sidebar">
+        <div class="detail-sidebar">
           <div class="app-card">
             <div class="app-card__content">
               <div class="skeleton skeleton-text skeleton-text--w70 skeleton-mb"></div>
@@ -88,10 +88,10 @@
 
   <!-- Product details -->
   @else if (product()) {
-    <div class="product-detail-content">
-      <div class="product-grid">
+    <div class="detail-content">
+      <div class="detail-grid">
         <!-- Left Column: Image + Description -->
-        <div class="product-left-column">
+        <div class="detail-main">
           <!-- Product Image -->
           <div class="app-card product-image-card">
             <div class="product-image-container">
@@ -132,7 +132,7 @@
         </div>
 
         <!-- Product Info Sidebar -->
-        <div class="product-sidebar">
+        <div class="detail-sidebar">
           <!-- Price Card -->
           <div class="app-card price-card">
             <div class="app-card__header">
@@ -164,31 +164,31 @@
             </div>
             <div class="app-card__content">
               @if (isOutOfStock()) {
-                <div class="stock-status stock-status--danger">
-                  <div class="stock-status__icon">
+                <div class="info-box info-box--danger">
+                  <div class="info-box__icon">
                     <i class="pi pi-times-circle"></i>
                   </div>
-                  <div class="stock-status__content">
+                  <div class="info-box__content">
                     <h4>{{ 'products.stock.out_of_stock' | translate }}</h4>
                     <p>{{ 'products.stock.unavailable_message' | translate }}</p>
                   </div>
                 </div>
               } @else if (isLowStock()) {
-                <div class="stock-status stock-status--warning">
-                  <div class="stock-status__icon">
+                <div class="info-box info-box--warning">
+                  <div class="info-box__icon">
                     <i class="pi pi-exclamation-triangle"></i>
                   </div>
-                  <div class="stock-status__content">
+                  <div class="info-box__content">
                     <h4>{{ 'products.stock.low_stock_title' | translate }}</h4>
                     <p>{{ 'products.stock.low_stock' | translate : lowStockParams() }} {{ unitDisplay() }}</p>
                   </div>
                 </div>
               } @else {
-                <div class="stock-status stock-status--success">
-                  <div class="stock-status__icon">
+                <div class="info-box info-box--success">
+                  <div class="info-box__icon">
                     <i class="pi pi-check-circle"></i>
                   </div>
-                  <div class="stock-status__content">
+                  <div class="info-box__content">
                     <h4>{{ 'products.stock.in_stock' | translate }}</h4>
                     <p>{{ product()?.stock_quantity }} {{ unitDisplay() }} {{ 'products.stock.available' | translate }}</p>
                   </div>
