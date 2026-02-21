@@ -198,60 +198,18 @@
 // -----------------------------------------------------------------------------
 // Responsive
 // -----------------------------------------------------------------------------
+// Note: Card padding and item-line styles are defined globally in _components.scss
 @media (max-width: 767px) {
-  // Fix: Prevent card from overflowing on iPhone
-  // box-sizing ensures padding is included in width calculation
-  // max-width: 100% prevents card from exceeding viewport
   .order-summary-card {
     min-height: auto;
-    overflow: visible;
-    width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
-
-    // Fix: Reduce padding on mobile to give more space for content
-    .app-card__header {
-      padding: var(--space-4);
-    }
+    overflow: hidden; // Prevent content from pushing card wider
 
     .app-card__content {
-      overflow: visible;
-      padding: var(--space-4);
+      overflow: hidden; // Clip overflowing content
     }
   }
 
-  // Fix: Reduce gaps and ensure content fits within available width
-  .item-line {
-    gap: var(--space-2); // Smaller gap between elements
-
-    .item-name {
-      flex: 1;
-      min-width: 0; // Allows flex item to shrink below content size
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .item-total {
-      flex-shrink: 0; // Price never shrinks
-      min-width: 20%; // Use percentage instead of fixed width
-      text-align: right;
-    }
-  }
-
-  // Fix: Apply same padding reduction to sidebar cards
-  .shipping-info-card,
-  .actions-card {
-    .app-card__header {
-      padding: var(--space-4);
-    }
-
-    .app-card__content {
-      padding: var(--space-4);
-    }
-  }
-
-  // Fix: Tighter spacing for shipping fields on mobile
+  // Tighter spacing for shipping fields
   .shipping-field {
     padding: var(--space-3);
     gap: var(--space-3);

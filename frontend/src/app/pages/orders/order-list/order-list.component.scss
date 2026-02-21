@@ -17,8 +17,13 @@
 // -----------------------------------------------------------------------------
 // Content Layout
 // -----------------------------------------------------------------------------
+// Note: Uses same padding as global .detail-content for consistency
 .order-list-content {
-  padding: var(--space-3);
+  padding: var(--space-5);
+
+  @media (min-width: 768px) {
+    padding: var(--space-6);
+  }
 }
 
 // Two-column grid layout
@@ -191,8 +196,4 @@
 // -----------------------------------------------------------------------------
 // Responsive
 // -----------------------------------------------------------------------------
-@media (max-width: 767px) {
-  .order-list-content {
-    padding: var(--space-2);
-  }
-}
+// Note: Card padding is defined globally in _components.scss
