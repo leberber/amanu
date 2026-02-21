@@ -123,42 +123,30 @@
                   }
 
                   <!-- Actions -->
-                  @if (!isOutOfStock(product)) {
+                  @if (!isOutOfStock(product) && getBoxOptions(product).length > 0) {
                     <div class="product-list-item__actions">
-                      <app-product-quantity-selector
-                        [value]="getProductQuantity(product.id)"
-                        [unit]="product.unit"
-                        [stockQuantity]="product.stock_quantity"
-                        [quantityConfig]="product.quantity_config"
-                        [pricePerUnit]="product.price"
-                        [disabled]="!product.stock_quantity || product.stock_quantity === 0"
-                        [showStock]="false"
-                        (quantityChanged)="setProductQuantity(product.id, $event)"
-                        class="w-full">
-                      </app-product-quantity-selector>
-
-                      <div class="cart-status-row">
-                        @if (isProductInCart(product.id)) {
-                          <span class="cart-indicator cart-indicator--in">
-                            <i class="pi pi-check-circle"></i>
-                            {{ getCartQuantity(product.id) }} {{ 'products.cart.in_cart' | translate }}
-                            ({{ product.price * getCartQuantity(product.id) | appCurrency }})
-                          </span>
-                        } @else {
-                          <span class="cart-indicator">
-                            <i class="pi pi-shopping-cart"></i>
-                            {{ 'products.cart.not_in_cart' | translate }}
-                          </span>
-                        }
-
+                      @if (isProductInCart(product.id)) {
+                        <span class="cart-indicator cart-indicator--in">
+                          <i class="pi pi-check-circle"></i>
+                          {{ getCartQuantity(product.id) }} {{ 'products.cart.in_cart' | translate }}
+                        </span>
+                      }
+                      <div class="product-list-item__cart-row">
+                        <p-select
+                          [options]="getBoxOptions(product)"
+                          [ngModel]="getSelectedBoxOption(product.id)"
+                          (ngModelChange)="setSelectedBoxOption(product.id, $event)"
+                          optionLabel="label"
+                          [placeholder]="'products.select_quantity' | translate"
+                          styleClass="product-list-item__select">
+                        </p-select>
                         <button
                           pButton
                           type="button"
-                          [label]="('common.add' | translate) + ' (' + getProductQuantity(product.id) + ')'"
-                          icon="pi pi-shopping-cart"
-                          class="p-button-sm"
-                          [disabled]="!product.stock_quantity || product.stock_quantity === 0 || getProductQuantity(product.id) === 0 || getProductQuantity(product.id) > product.stock_quantity"
-                          (click)="quickAddToCart(product, $event)">
+                          icon="pi pi-cart-plus"
+                          class="p-button-primary"
+                          [disabled]="!getSelectedBoxOption(product.id)"
+                          (click)="addToCartFromList(product, $event)">
                         </button>
                       </div>
                     </div>
@@ -337,43 +325,31 @@
                   }
 
                   <!-- Mobile Actions -->
-                  @if (!isOutOfStock(product)) {
+                  @if (!isOutOfStock(product) && getBoxOptions(product).length > 0) {
                     <div class="product-list-item__actions">
-                      <app-product-quantity-selector
-                        [value]="getProductQuantity(product.id)"
-                        [unit]="product.unit"
-                        [stockQuantity]="product.stock_quantity"
-                        [quantityConfig]="product.quantity_config"
-                        [pricePerUnit]="product.price"
-                        [disabled]="!product.stock_quantity || product.stock_quantity === 0"
-                        [showStock]="false"
-                        (quantityChanged)="setProductQuantity(product.id, $event)"
-                        class="w-full">
-                      </app-product-quantity-selector>
-
-                      <div class="cart-status-row">
-                        @if (isProductInCart(product.id)) {
-                          <span class="cart-indicator cart-indicator--in">
-                            <i class="pi pi-check-circle"></i>
-                            {{ getCartQuantity(product.id) }} {{ 'products.cart.in_cart' | translate }}
-                          </span>
-                        } @else {
-                          <span class="cart-indicator">
-                            <i class="pi pi-shopping-cart"></i>
-                            {{ 'products.cart.not_in_cart' | translate }}
-                          </span>
-                        }
-
-                        <p-overlayBadge [value]="getProductQuantity(product.id).toString()" severity="success">
-                          <button
-                            pButton
-                            type="button"
-                            icon="pi pi-cart-plus"
-                            class="p-button-rounded" style="width: 2.5rem; height: 2.5rem;"
-                            [disabled]="!product.stock_quantity || product.stock_quantity === 0 || getProductQuantity(product.id) === 0 || getProductQuantity(product.id) > product.stock_quantity"
-                            (click)="quickAddToCart(product, $event)">
-                          </button>
-                        </p-overlayBadge>
+                      @if (isProductInCart(product.id)) {
+                        <span class="cart-indicator cart-indicator--in">
+                          <i class="pi pi-check-circle"></i>
+                          {{ getCartQuantity(product.id) }} {{ 'products.cart.in_cart' | translate }}
+                        </span>
+                      }
+                      <div class="product-list-item__cart-row">
+                        <p-select
+                          [options]="getBoxOptions(product)"
+                          [ngModel]="getSelectedBoxOption(product.id)"
+                          (ngModelChange)="setSelectedBoxOption(product.id, $event)"
+                          optionLabel="label"
+                          [placeholder]="'products.select_quantity' | translate"
+                          styleClass="product-list-item__select">
+                        </p-select>
+                        <button
+                          pButton
+                          type="button"
+                          icon="pi pi-cart-plus"
+                          class="p-button-primary"
+                          [disabled]="!getSelectedBoxOption(product.id)"
+                          (click)="addToCartFromList(product, $event)">
+                        </button>
                       </div>
                     </div>
                   } @else {

@@ -27,17 +27,8 @@ export interface Product {
     tempQuantity?: number;
     name_translations?: { [key: string]: string };
     description_translations?: { [key: string]: string };
-    quantity_config?: QuantityConfig;
+    pieces_per_box?: number;  // Number of pieces per box for dropdown selection
     promotion?: ProductPromotion;  // Active promotion applied to this product
-  }
-  
-  export interface QuantityConfig {
-    type: 'list' | 'range';
-    quantities?: number[];  // For 'list' type
-    min?: number;          // For 'range' type
-    max?: number;          // For 'range' type
-    step?: number;         // For 'range' type - increment value
-    pills?: number[];      // Custom quick select values for any type
   }
   
   // Category is re-exported from category.model.ts at the top of this file

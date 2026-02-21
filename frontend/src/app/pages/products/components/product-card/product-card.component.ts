@@ -1,41 +1,42 @@
 import { Component, EventEmitter, Input, Output, inject, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 
 // PrimeNG imports
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
-import { OverlayBadgeModule } from 'primeng/overlaybadge';
+import { SelectModule } from 'primeng/select';
 
 import { Product } from '../../../../models/product.model';
 import { CurrencyService } from '../../../../core/services/currency.service';
-import { UnitsService } from '../../../../core/services/units.service';
 import { FlyToCartService } from '../../../../core/services/fly-to-cart.service';
 import { CartService } from '../../../../services/cart.service';
-import { ProductQuantitySelectorComponent } from '../../../../shared/components/product-quantity-selector/product-quantity-selector.component';
 import { CurrencyPipe } from '../../../../shared/pipes/currency.pipe';
-import { UnitPipe } from '../../../../shared/pipes/unit.pipe';
-import { getDefaultQuantity } from '../../../../shared/utils/quantity.utils';
 
 export interface AddToCartEvent {
   product: Product;
   quantity: number;
 }
 
+export interface BoxOption {
+  boxes: number;
+  pieces: number;
+  price: number;
+  label: string;
+}
+
 @Component({
   selector: 'app-product-card',
   standalone: true,
   imports: [
-    CommonModule,
     RouterLink,
+    FormsModule,
     TranslateModule,
     ButtonModule,
     TagModule,
-    OverlayBadgeModule,
-    ProductQuantitySelectorComponent,
-    CurrencyPipe,
-    UnitPipe
+    SelectModule,
+    CurrencyPipe
   ],
   templateUrl: './product-card.component.html',
   styleUrl: './product-card.component.scss'
@@ -45,15 +46,17 @@ export class ProductCardComponent implements OnInit {
   @Output() addToCartEvent = new EventEmitter<AddToCartEvent>();
 
   private currencyService = inject(CurrencyService);
-  private unitsService = inject(UnitsService);
   private cartService = inject(CartService);
   private flyToCartService = inject(FlyToCartService);
 
-  selectedQuantity = 1;
-  
+  selectedOption: BoxOption | null = null;
+
   ngOnInit() {
-    // Initialize quantity based on product's quantity config
-    this.selectedQuantity = getDefaultQuantity(this.product?.quantity_config);
+    // Select first option by default
+    const options = this.boxOptions;
+    if (options.length > 0) {
+      this.selectedOption = options[0];
+    }
   }
 
   get isInCart(): boolean {
@@ -84,55 +87,52 @@ export class ProductCardComponent implements OnInit {
     return `-${this.currencyService.formatCurrency(this.product.promotion.discount_value)}`;
   }
 
-  get discountedPrice(): number {
+  get effectivePrice(): number {
     return this.product.promotion?.discounted_price || this.product.price;
   }
 
-  get effectivePrice(): number {
-    return this.hasPromotion ? this.discountedPrice : this.product.price;
+  get piecesPerBox(): number {
+    return this.product.pieces_per_box || 1;
   }
 
-  get boxQuantity(): number | null {
-    const config = this.product.quantity_config;
-    if (!config) return null;
+  get maxBoxes(): number {
+    if (this.piecesPerBox <= 0) return 0;
+    return Math.floor(this.product.stock_quantity / this.piecesPerBox);
+  }
 
-    // For list type, use first quantity
-    if (config.type === 'list' && config.quantities && config.quantities.length > 0) {
-      return config.quantities[0];
+  get boxOptions(): BoxOption[] {
+    const options: BoxOption[] = [];
+    const max = Math.min(this.maxBoxes, 10); // Limit to 10 options
+
+    for (let i = 1; i <= max; i++) {
+      const pieces = i * this.piecesPerBox;
+      const price = pieces * this.effectivePrice;
+      options.push({
+        boxes: i,
+        pieces,
+        price,
+        label: `${i} ${i === 1 ? 'box' : 'boxes'} • ${pieces} pc • ${this.currencyService.formatCurrency(price)}`
+      });
     }
 
-    // For range type, use min value
-    if (config.type === 'range' && config.min) {
-      return config.min;
-    }
-
-    return null;
+    return options;
   }
 
-  get boxPrice(): number | null {
-    if (this.boxQuantity) {
-      return this.effectivePrice * this.boxQuantity;
-    }
-    return null;
+  get selectedQuantity(): number {
+    return this.selectedOption?.pieces || this.piecesPerBox;
   }
-
-  
-
-
-  onQuantityChanged(quantity: number): void {
-    this.selectedQuantity = quantity;
-  }
-  
-
 
   addToCart(event: MouseEvent): void {
-    // Trigger fly-to-cart animation from the button
+    const option = this.selectedOption;
+    if (!option) return;
+
+    // Trigger fly-to-cart animation
     const button = event.currentTarget as HTMLElement;
     this.flyToCartService.animate(button, this.product.image_url);
 
     this.addToCartEvent.emit({
       product: this.product,
-      quantity: this.selectedQuantity
+      quantity: option.pieces
     });
   }
 }

@@ -109,3 +109,37 @@ $bottom-nav-height: 70px;
     background: var(--primary-600);
   }
 }
+
+// Product List Item - Cart Row
+.product-list-item__cart-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin-top: 0.5rem;
+
+  button {
+    flex-shrink: 0;
+    width: 2.5rem !important;
+    height: 2.5rem !important;
+  }
+}
+
+.product-list-item__select {
+  flex: 1;
+  min-width: 0;
+}
+
+// PrimeNG Select override for list view
+:host ::ng-deep {
+  .product-list-item__select {
+    .p-select {
+      width: 100%;
+      font-size: 0.85rem;
+
+      .p-select-label {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.85rem;
+      }
+    }
+  }
+}

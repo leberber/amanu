@@ -72,10 +72,6 @@ export class AdminAddProductComponent implements OnInit {
   // Dynamic brands
   brandOptions = signal<{ label: string; value: number }[]>([]);
 
-  // Quantity config
-  quantityConfigType = signal<'none' | 'list' | 'range'>('none');
-  listQuantities = signal<number[]>([]);
-  listPills = signal<number[]>([]);
   
   // Computed properties
   get pageTitle(): string {
@@ -112,12 +108,8 @@ export class AdminAddProductComponent implements OnInit {
       image_url: [''],
       is_organic: [false],
       is_active: [true],
-      // Quantity config fields
-      quantity_type: ['none'],
-      range_min: [1],
-      range_max: [100],
-      range_step: [1],
-      range_pills_input: ['']
+      // Box configuration
+      pieces_per_box: [null]
     });
 
     this.loadCategories();
@@ -206,29 +198,10 @@ export class AdminAddProductComponent implements OnInit {
           brand_id: product.brand_id || null,
           image_url: product.image_url || '',
           is_organic: product.is_organic,
-          is_active: product.is_active
+          is_active: product.is_active,
+          pieces_per_box: product.pieces_per_box || null
         });
-        
-        // Load quantity config if exists
-        if (product.quantity_config) {
-          const config = product.quantity_config;
-          if (config.type === 'list' && config.quantities) {
-            this.quantityConfigType.set('list');
-            this.listQuantities.set([...config.quantities]);
-            this.listPills.set(config.pills ? [...config.pills] : []);
-            this.productForm.patchValue({ quantity_type: 'list' });
-          } else if (config.type === 'range') {
-            this.quantityConfigType.set('range');
-            this.productForm.patchValue({
-              quantity_type: 'range',
-              range_min: config.min || 1,
-              range_max: config.max || 100,
-              range_step: config.step || 1,
-              range_pills_input: config.pills ? config.pills.join(', ') : ''
-            });
-          }
-        }
-        
+
         this.loading.set(false);
       },
       error: (error) => {
@@ -251,33 +224,8 @@ export class AdminAddProductComponent implements OnInit {
     }
 
     this.loading.set(true);
-    
+
     const formValues = this.productForm.value;
-    
-    // Build quantity config if needed
-    let quantityConfig = null;
-    if (formValues.quantity_type === 'list') {
-      const quantities = this.listQuantities();
-      const pills = this.listPills();
-      if (quantities.length > 0) {
-        quantityConfig = {
-          type: 'list',
-          quantities: quantities.sort((a, b) => a - b),
-          pills: pills.length > 0 ? pills.slice(0, 3) : undefined
-        };
-      }
-    } else if (formValues.quantity_type === 'range') {
-      const rangePills = formValues.range_pills_input ? 
-        formValues.range_pills_input.split(',').map((p: string) => parseFloat(p.trim())).filter((n: number) => !isNaN(n)) : 
-        [];
-      quantityConfig = {
-        type: 'range',
-        min: formValues.range_min,
-        max: formValues.range_max,
-        step: formValues.range_step,
-        pills: rangePills.length > 0 ? rangePills.slice(0, 3) : undefined
-      };
-    }
 
     // Use AdminFormService to build product data with translations
     const productData = this.adminFormService.buildFormDataWithTranslations(
@@ -292,7 +240,7 @@ export class AdminAddProductComponent implements OnInit {
         image_url: formValues.image_url || '',
         is_organic: formValues.is_organic,
         is_active: formValues.is_active,
-        quantity_config: quantityConfig
+        pieces_per_box: formValues.pieces_per_box || null
       }
     );
     
@@ -340,53 +288,6 @@ export class AdminAddProductComponent implements OnInit {
   // Get translated unit options
   getUnitOptions() {
     return this.unitsService.getUnitOptions(true);
-  }
-
-  // Quantity config methods
-  onQuantityTypeChange(type: string) {
-    this.quantityConfigType.set(type as 'none' | 'list' | 'range');
-    
-    // Reset related fields when type changes
-    if (type === 'none') {
-      this.listQuantities.set([]);
-      this.listPills.set([]);
-      this.productForm.patchValue({
-        range_min: 1,
-        range_max: 100,
-        range_step: 1,
-        range_pills_input: ''
-      });
-    }
-  }
-
-  addListQuantity(input: HTMLInputElement) {
-    const value = parseFloat(input.value);
-    if (!isNaN(value) && value > 0) {
-      const current = this.listQuantities();
-      if (!current.includes(value)) {
-        this.listQuantities.set([...current, value].sort((a, b) => a - b));
-      }
-      input.value = '';
-    }
-  }
-
-  removeListQuantity(value: number) {
-    this.listQuantities.set(this.listQuantities().filter(q => q !== value));
-  }
-
-  addListPill(input: HTMLInputElement) {
-    const value = parseFloat(input.value);
-    if (!isNaN(value) && value > 0) {
-      const current = this.listPills();
-      if (!current.includes(value) && current.length < 3) {
-        this.listPills.set([...current, value]);
-      }
-      input.value = '';
-    }
-  }
-
-  removeListPill(value: number) {
-    this.listPills.set(this.listPills().filter(p => p !== value));
   }
 
 }

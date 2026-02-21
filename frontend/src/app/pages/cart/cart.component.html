@@ -131,16 +131,24 @@
                   </td>
                   <td>
                     <div class="flex justify-content-center">
-                      <div style="width: 140px;">
-                        <app-product-quantity-selector
-                          [value]="productQuantities[item.id]"
-                          [stockQuantity]="item.stock_quantity"
-                          [unit]="item.product_unit"
-                          [quantityConfig]="item.quantity_config"
-                          [disabled]="isOutOfStock(item)"
-                          [dropdownOnly]="true"
-                          (valueChange)="updateItemQuantity(item.id, $event)">
-                        </app-product-quantity-selector>
+                      <div class="cart-quantity-controls">
+                        <button
+                          pButton
+                          type="button"
+                          icon="pi pi-minus"
+                          class="p-button-sm p-button-text p-button-rounded"
+                          [disabled]="productQuantities[item.id] <= 1 || isOutOfStock(item)"
+                          (click)="updateItemQuantity(item.id, productQuantities[item.id] - (item.pieces_per_box || 1))">
+                        </button>
+                        <span class="quantity-display">{{ productQuantities[item.id] }}</span>
+                        <button
+                          pButton
+                          type="button"
+                          icon="pi pi-plus"
+                          class="p-button-sm p-button-text p-button-rounded"
+                          [disabled]="isOutOfStock(item) || (item.stock_quantity && productQuantities[item.id] >= item.stock_quantity)"
+                          (click)="updateItemQuantity(item.id, productQuantities[item.id] + (item.pieces_per_box || 1))">
+                        </button>
                       </div>
                     </div>
                   </td>
@@ -188,15 +196,25 @@
                 <div class="cart-item-mobile__row2">
                   <span class="price-badge">{{ item.product_price | appCurrency }}</span>
                   <div class="cart-item-mobile__controls">
-                    <app-product-quantity-selector
-                      [value]="productQuantities[item.id]"
-                      [stockQuantity]="item.stock_quantity"
-                      [unit]="item.product_unit"
-                      [quantityConfig]="item.quantity_config"
-                      [disabled]="isOutOfStock(item)"
-                      [dropdownOnly]="true"
-                      (valueChange)="updateItemQuantity(item.id, $event)">
-                    </app-product-quantity-selector>
+                    <div class="cart-quantity-controls">
+                      <button
+                        pButton
+                        type="button"
+                        icon="pi pi-minus"
+                        class="p-button-sm p-button-text p-button-rounded"
+                        [disabled]="productQuantities[item.id] <= 1 || isOutOfStock(item)"
+                        (click)="updateItemQuantity(item.id, productQuantities[item.id] - (item.pieces_per_box || 1))">
+                      </button>
+                      <span class="quantity-display">{{ productQuantities[item.id] }}</span>
+                      <button
+                        pButton
+                        type="button"
+                        icon="pi pi-plus"
+                        class="p-button-sm p-button-text p-button-rounded"
+                        [disabled]="isOutOfStock(item) || (item.stock_quantity && productQuantities[item.id] >= item.stock_quantity)"
+                        (click)="updateItemQuantity(item.id, productQuantities[item.id] + (item.pieces_per_box || 1))">
+                      </button>
+                    </div>
                     <span class="cart-item-total">{{ item.product_price * item.quantity | appCurrency }}</span>
                   </div>
                 </div>

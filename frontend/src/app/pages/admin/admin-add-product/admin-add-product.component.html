@@ -329,143 +329,31 @@
           </div>
         </div>
 
-        <!-- Quantity Configuration Card -->
+        <!-- Box Configuration Card -->
         <div class="form-card">
           <div class="card-header">
             <div class="card-icon quantity">
-              <i class="pi pi-sliders-h"></i>
+              <i class="pi pi-box"></i>
             </div>
-            <h3>{{ 'admin.products.form.quantity_config' | translate }}</h3>
+            <h3>{{ 'admin.products.form.box_config' | translate }}</h3>
           </div>
           <div class="card-body">
-            <!-- Quantity Type -->
-            <div class="quantity-type-section">
-              <div class="section-label">
-                <i class="pi pi-sliders-h"></i>
-                <span>{{ 'admin.products.form.selection_type' | translate }}</span>
+            <!-- Pieces Per Box -->
+            <div class="inventory-field">
+              <div class="stock-icon">
+                <i class="pi pi-th-large"></i>
               </div>
-              <div class="quantity-type-field">
-                <div class="field-icon quantity-type">
-                  <i class="pi pi-list"></i>
-                </div>
-                <div class="field-content">
-                  <label>{{ 'admin.products.form.quantity_type' | translate }}</label>
-                  <p-select
-                    formControlName="quantity_type"
-                    [options]="[
-                      {label: 'None', value: 'none'},
-                      {label: 'List (Specific Quantities)', value: 'list'},
-                      {label: 'Range (Min/Max)', value: 'range'}
-                    ]"
-                    optionLabel="label"
-                    optionValue="value"
-                    (onChange)="onQuantityTypeChange($event.value)"
-                    styleClass="w-full"
-                  />
-                </div>
+              <div class="stock-content">
+                <label>{{ 'admin.products.form.pieces_per_box' | translate }}</label>
+                <p-inputNumber
+                  formControlName="pieces_per_box"
+                  [placeholder]="'admin.products.form.pieces_per_box_placeholder' | translate"
+                  [min]="1"
+                  styleClass="w-full"
+                />
+                <small class="field-hint">{{ 'admin.products.form.pieces_per_box_hint' | translate }}</small>
               </div>
             </div>
-
-            <!-- List Type Configuration -->
-            @if (quantityConfigType() === 'list') {
-              <div class="quantity-config-section">
-                <!-- List Quantities -->
-                <div class="form-field">
-                  <label>Available Quantities</label>
-                  <div class="chip-input">
-                    @for (qty of listQuantities(); track qty) {
-                      <p-chip
-                        [label]="qty.toString()"
-                        [removable]="true"
-                        (onRemove)="removeListQuantity(qty)"
-                      />
-                    }
-                  </div>
-                  <p-inputGroup>
-                    <input pInputText
-                      #listQtyInput
-                      type="number"
-                      placeholder="Add quantity (e.g., 12)"
-                      (keyup.enter)="addListQuantity(listQtyInput)"
-                    />
-                    <p-inputGroupAddon>
-                      <p-button icon="pi pi-plus"
-                        severity="secondary"
-                        [text]="true"
-                        (onClick)="addListQuantity(listQtyInput)">
-                      </p-button>
-                    </p-inputGroupAddon>
-                  </p-inputGroup>
-                </div>
-
-                <!-- Pills for List -->
-                <div class="form-field" style="margin-top: 1rem;">
-                  <label>Quick Select Pills (Max 3)</label>
-                  <div class="chip-input">
-                    @for (pill of listPills(); track pill) {
-                      <p-chip
-                        [label]="pill.toString()"
-                        [removable]="true"
-                        (onRemove)="removeListPill(pill)"
-                      />
-                    }
-                  </div>
-                  <p-inputGroup>
-                    <input pInputText
-                      #listPillInput
-                      type="number"
-                      placeholder="Add pill value"
-                      [disabled]="listPills().length >= 3"
-                      (keyup.enter)="addListPill(listPillInput)"
-                    />
-                    <p-inputGroupAddon>
-                      <p-button icon="pi pi-plus"
-                        severity="secondary"
-                        [text]="true"
-                        [disabled]="listPills().length >= 3"
-                        (onClick)="addListPill(listPillInput)">
-                      </p-button>
-                    </p-inputGroupAddon>
-                  </p-inputGroup>
-                </div>
-              </div>
-            }
-
-            <!-- Range Type Configuration -->
-            @if (quantityConfigType() === 'range') {
-              <div class="quantity-config-section">
-                <div class="field-row">
-                  <div class="form-field">
-                    <label>Minimum</label>
-                    <p-inputNumber formControlName="range_min"
-                      [min]="0.1"
-                      styleClass="w-full"
-                    />
-                  </div>
-                  <div class="form-field">
-                    <label>Maximum</label>
-                    <p-inputNumber formControlName="range_max"
-                      [min]="0.1"
-                      styleClass="w-full"
-                    />
-                  </div>
-                  <div class="form-field">
-                    <label>Step</label>
-                    <p-inputNumber formControlName="range_step"
-                      [min]="0.1"
-                      styleClass="w-full"
-                    />
-                  </div>
-                </div>
-                <div class="form-field" style="margin-top: 1rem;">
-                  <label>Pills (comma separated, max 3)</label>
-                  <input pInputText
-                    formControlName="range_pills_input"
-                    placeholder="e.g., 15, 40, 75"
-                  />
-                </div>
-              </div>
-            }
           </div>
         </div>
       </div>

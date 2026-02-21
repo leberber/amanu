@@ -1,7 +1,7 @@
 // src/app/services/cart.service.ts
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
-import { Product, QuantityConfig } from '../models/product.model';
+import { Product } from '../models/product.model';
 import { AppliedPromotion } from '../models/promotion.model';
 import { STORAGE_KEYS } from '../core/constants/app.constants';
 
@@ -15,7 +15,7 @@ export interface CartItem {
   is_organic?: boolean;
   quantity: number;
   stock_quantity?: number;  // To check stock level at checkout
-  quantity_config?: QuantityConfig;  // Product quantity configuration
+  pieces_per_box?: number;  // Number of pieces per box
   category_id?: number;  // For promotion scope calculation
   brand_id?: number;  // For promotion scope calculation
 }
@@ -37,7 +37,7 @@ export class CartService {
     this.loadCartFromStorage();
     this.loadPromotionFromStorage();
   }
-  
+
   private loadCartFromStorage(): void {
     const savedCart = localStorage.getItem(this.STORAGE_KEY);
     if (savedCart) {
@@ -79,7 +79,7 @@ export class CartService {
       localStorage.removeItem(this.PROMO_STORAGE_KEY);
     }
   }
-  
+
   getCartItems(): Observable<CartItem[]> {
     // Return the current cart items as an observable
     return of(this.cartItemsSubject.value);
@@ -93,38 +93,38 @@ export class CartService {
   isProductInCart(productId: number): boolean {
     return this.cartItemsSubject.value.some(item => item.product_id === productId);
   }
-  
+
   addToCart(product: Product, quantity: number): Observable<CartItem> {
     // Validate inputs
     if (!product || !product.id) {
       return throwError(() => new Error('Invalid product'));
     }
-    
+
     if (quantity < 1) {
       return throwError(() => new Error('Quantity must be at least 1'));
     }
-    
+
     // Check stock availability
     if (product.stock_quantity !== undefined && quantity > product.stock_quantity) {
       return throwError(() => new Error('Insufficient stock'));
     }
-    
+
     const currentCart = [...this.cartItemsSubject.value];
-    
+
     // Check if product already exists in cart
     const existingItemIndex = currentCart.findIndex(item => item.product_id === product.id);
-    
+
     let updatedItem: CartItem;
-    
+
     if (existingItemIndex !== -1) {
       // Update existing item quantity
       const newQuantity = currentCart[existingItemIndex].quantity + quantity;
-      
+
       // Check if new quantity exceeds stock
       if (product.stock_quantity !== undefined && newQuantity > product.stock_quantity) {
         return throwError(() => new Error('Adding this quantity would exceed available stock'));
       }
-      
+
       updatedItem = {
         ...currentCart[existingItemIndex],
         quantity: newQuantity
@@ -142,73 +142,73 @@ export class CartService {
         is_organic: product.is_organic,
         stock_quantity: product.stock_quantity,
         quantity: quantity,
-        quantity_config: product.quantity_config
+        pieces_per_box: product.pieces_per_box
       };
       currentCart.push(updatedItem);
     }
-    
+
     this.saveCartToStorage(currentCart);
-    
+
     // Return the added/updated item
     return of(updatedItem);
   }
-  
+
   updateCartItem(itemId: string, quantity: number): Observable<CartItem> {
     // Validate inputs
     if (!itemId) {
       return throwError(() => new Error('Invalid item ID'));
     }
-    
+
     if (quantity < 1) {
       return throwError(() => new Error('Quantity must be at least 1'));
     }
-    
+
     const currentCart = [...this.cartItemsSubject.value];
     const itemIndex = currentCart.findIndex(item => item.id === itemId);
-    
+
     if (itemIndex === -1) {
       return throwError(() => new Error('Item not found in cart'));
     }
-    
+
     // Check stock availability
     const item = currentCart[itemIndex];
     if (item.stock_quantity !== undefined && quantity > item.stock_quantity) {
       return throwError(() => new Error('Quantity exceeds available stock'));
     }
-    
+
     currentCart[itemIndex] = {
       ...currentCart[itemIndex],
       quantity
     };
-    
+
     this.saveCartToStorage(currentCart);
     return of(currentCart[itemIndex]);
   }
-  
+
   removeCartItem(itemId: string): Observable<void> {
     // Validate input
     if (!itemId) {
       return throwError(() => new Error('Invalid item ID'));
     }
-    
+
     const currentCart = this.cartItemsSubject.value;
     const itemExists = currentCart.some(item => item.id === itemId);
-    
+
     if (!itemExists) {
       return throwError(() => new Error('Item not found in cart'));
     }
-    
+
     const updatedCart = currentCart.filter(item => item.id !== itemId);
-    
+
     this.saveCartToStorage(updatedCart);
     return of(void 0);
   }
-  
+
   clearCart(): Observable<void> {
     this.saveCartToStorage([]);
     return of(void 0);
   }
-  
+
   get cartCount(): number {
     return this.cartItemsSubject.value.reduce((count, item) => count + item.quantity, 0);
   }

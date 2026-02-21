@@ -218,14 +218,25 @@
               <!-- Quantity Selector -->
               <div class="quantity-section">
                 <label class="quantity-label">{{ 'common.quantity' | translate }}</label>
-                <app-product-quantity-selector
-                  [(value)]="selectedQuantity"
-                  [unit]="product()?.unit"
-                  [maxStock]="product()?.stock_quantity"
-                  [quantityConfig]="product()?.quantity_config"
-                  [disabled]="isOutOfStock()"
-                  (valueChange)="selectedQuantity.set($event)">
-                </app-product-quantity-selector>
+                <div class="quantity-controls">
+                  <button
+                    pButton
+                    type="button"
+                    icon="pi pi-minus"
+                    class="p-button-outlined"
+                    [disabled]="isOutOfStock() || selectedQuantity() <= (product()?.pieces_per_box || 1)"
+                    (click)="selectedQuantity.set(selectedQuantity() - (product()?.pieces_per_box || 1))">
+                  </button>
+                  <span class="quantity-value">{{ selectedQuantity() }}</span>
+                  <button
+                    pButton
+                    type="button"
+                    icon="pi pi-plus"
+                    class="p-button-outlined"
+                    [disabled]="isOutOfStock() || (product()?.stock_quantity && selectedQuantity() >= product()!.stock_quantity)"
+                    (click)="selectedQuantity.set(selectedQuantity() + (product()?.pieces_per_box || 1))">
+                  </button>
+                </div>
               </div>
 
               <!-- Add to Cart Button -->

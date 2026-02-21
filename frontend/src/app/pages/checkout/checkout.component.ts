@@ -194,14 +194,14 @@ export class CheckoutComponent implements OnInit {
     });
   }
 
-  // Get carton count based on quantity config
+  // Get carton count based on pieces_per_box
   getCartonCount(item: CartItem): number {
-    return getCartonCount(item.quantity, item.quantity_config);
+    return getCartonCount(item.quantity, item.pieces_per_box);
   }
 
   // Format carton display (e.g., "1x10" for 1 carton of 10 pieces)
   formatCartonCount(item: CartItem): string {
-    return getCartonDisplay(item.quantity, item.quantity_config);
+    return getCartonDisplay(item.quantity, item.pieces_per_box);
   }
 
   // Image lightbox methods

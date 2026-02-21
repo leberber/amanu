@@ -7,10 +7,8 @@ import { of } from 'rxjs';
 
 // PrimeNG imports
 import { ToastModule } from 'primeng/toast';
+import { ButtonModule } from 'primeng/button';
 import { TranslateModule } from '@ngx-translate/core';
-
-// Shared components
-import { ProductQuantitySelectorComponent } from '../../../shared/components/product-quantity-selector/product-quantity-selector.component';
 import { PageLayoutComponent } from '../../../shared/components/page-layout/page-layout.component';
 import { ErrorStateComponent } from '../../../shared/components/error-state/error-state.component';
 import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
@@ -35,8 +33,8 @@ import { BrandService } from '../../../core/services/brand.service';
   standalone: true,
   imports: [
     ToastModule,
+    ButtonModule,
     TranslateModule,
-    ProductQuantitySelectorComponent,
     PageLayoutComponent,
     ErrorStateComponent,
     CurrencyPipe
@@ -186,8 +184,8 @@ export class ProductDetailComponent implements OnInit {
       if (product) {
         this.product.set(product);
 
-        // Initialize selectedQuantity based on product's quantity config
-        this.selectedQuantity.set(getDefaultQuantity(product.quantity_config));
+        // Initialize selectedQuantity based on product's pieces_per_box
+        this.selectedQuantity.set(getDefaultQuantity(product.pieces_per_box));
 
         // Load brand
         if (product.brand_id) {

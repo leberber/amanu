@@ -10,6 +10,7 @@ import { TagModule } from 'primeng/tag';
 import { ButtonModule } from 'primeng/button';
 import { OverlayBadgeModule } from 'primeng/overlaybadge';
 import { TooltipModule } from 'primeng/tooltip';
+import { SelectModule } from 'primeng/select';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { CartService } from '../../../services/cart.service';
@@ -23,13 +24,19 @@ import { BrandService } from '../../../core/services/brand.service';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
 import { UserPreferencesService, ViewMode } from '../../../core/services/user-preferences.service';
 import { Product, Category, ProductFilter } from '../../../models/product.model';
-import { getDefaultQuantity } from '../../../shared/utils/quantity.utils';
+import { getDefaultQuantity, getBaseQuantity } from '../../../shared/utils/quantity.utils';
 import { Brand } from '../../../models/brand.model';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { ProductCardComponent, AddToCartEvent } from '../components/product-card/product-card.component';
 
 export type SortOption = 'name_asc' | 'name_desc' | 'price_asc' | 'price_desc' | 'created_at_desc';
-import { ProductQuantitySelectorComponent } from '../../../shared/components/product-quantity-selector/product-quantity-selector.component';
+
+export interface BoxOption {
+  boxes: number;
+  pieces: number;
+  price: number;
+  label: string;
+}
 import { HorizontalFilterComponent } from '../../../shared/components/horizontal-filter/horizontal-filter.component';
 import { SearchInputComponent } from '../../../shared/components/search-input/search-input.component';
 import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
@@ -46,10 +53,10 @@ import { UnitPipe } from '../../../shared/pipes/unit.pipe';
     ButtonModule,
     OverlayBadgeModule,
     TooltipModule,
+    SelectModule,
     TranslateModule,
     EmptyStateComponent,
     ProductCardComponent,
-    ProductQuantitySelectorComponent,
     HorizontalFilterComponent,
     SearchInputComponent,
     CurrencyPipe,
@@ -93,6 +100,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
     sort_order: 'asc'
   });
   productQuantities: { [key: number]: number } = {};
+  selectedBoxOptions: { [key: number]: BoxOption | null } = {};
 
   // Mobile category bar - compact on scroll down, full on scroll up
   compactCategoryBar = false;
@@ -353,10 +361,10 @@ export class ProductListComponent implements OnInit, OnDestroy {
     if (this.productQuantities[productId]) {
       return this.productQuantities[productId];
     }
-    
-    // Find the product to get its config
+
+    // Find the product to get its pieces_per_box
     const product = this.products().find(p => p.id === productId);
-    return getDefaultQuantity(product?.quantity_config);
+    return getDefaultQuantity(product?.pieces_per_box);
   }
 
   setProductQuantity(productId: number, quantity: number): void {
@@ -435,7 +443,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
           this.products.set(products);
           products.forEach(p => {
             if (!this.productQuantities[p.id]) {
-              this.productQuantities[p.id] = getDefaultQuantity(p.quantity_config);
+              this.productQuantities[p.id] = getDefaultQuantity(p.pieces_per_box);
             }
           });
           this.loading.set(false);
@@ -462,8 +470,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
           this.products.set(products);
           products.forEach(p => {
             if (!this.productQuantities[p.id]) {
-              // For list type, set to first available option
-              this.productQuantities[p.id] = getDefaultQuantity(p.quantity_config);
+              this.productQuantities[p.id] = getDefaultQuantity(p.pieces_per_box);
             }
           });
           this.loading.set(false);
@@ -499,7 +506,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
         this.products.set(allProducts);
         allProducts.forEach(p => {
           if (!this.productQuantities[p.id]) {
-            this.productQuantities[p.id] = getDefaultQuantity(p.quantity_config);
+            this.productQuantities[p.id] = getDefaultQuantity(p.pieces_per_box);
           }
         });
         this.loading.set(false);
@@ -598,28 +605,66 @@ export class ProductListComponent implements OnInit, OnDestroy {
   }
 
   getBoxQuantity(product: Product): number | null {
-    const config = product.quantity_config;
-    if (!config) return null;
-
-    // For list type, use first quantity
-    if (config.type === 'list' && config.quantities && config.quantities.length > 0) {
-      return config.quantities[0];
-    }
-
-    // For range type, use min value
-    if (config.type === 'range' && config.min) {
-      return config.min;
-    }
-
-    return null;
+    return product.pieces_per_box || null;
   }
 
   getBoxPrice(product: Product): number | null {
-    const boxQty = this.getBoxQuantity(product);
+    const boxQty = product.pieces_per_box;
     if (boxQty) {
       const effectivePrice = product.promotion?.discounted_price || product.price;
       return effectivePrice * boxQty;
     }
     return null;
+  }
+
+  // Box options for list view dropdown
+  getBoxOptions(product: Product): BoxOption[] {
+    const options: BoxOption[] = [];
+    const piecesPerBox = product.pieces_per_box || 1;
+    const effectivePrice = product.promotion?.discounted_price || product.price;
+    const maxBoxes = Math.min(Math.floor(product.stock_quantity / piecesPerBox), 10);
+
+    for (let i = 1; i <= maxBoxes; i++) {
+      const pieces = i * piecesPerBox;
+      const price = pieces * effectivePrice;
+      options.push({
+        boxes: i,
+        pieces,
+        price,
+        label: `${i} ${i === 1 ? 'box' : 'boxes'} • ${pieces} pc • ${this.currencyService.formatCurrency(price)}`
+      });
+    }
+
+    return options;
+  }
+
+  getSelectedBoxOption(productId: number): BoxOption | null {
+    if (!this.selectedBoxOptions[productId]) {
+      const product = this.products().find(p => p.id === productId);
+      if (product) {
+        const options = this.getBoxOptions(product);
+        if (options.length > 0) {
+          this.selectedBoxOptions[productId] = options[0];
+        }
+      }
+    }
+    return this.selectedBoxOptions[productId] || null;
+  }
+
+  setSelectedBoxOption(productId: number, option: BoxOption): void {
+    this.selectedBoxOptions[productId] = option;
+  }
+
+  addToCartFromList(product: Product, event?: MouseEvent): void {
+    const option = this.selectedBoxOptions[product.id];
+    if (!option) return;
+
+    // Trigger fly-to-cart animation
+    if (event) {
+      const button = event.currentTarget as HTMLElement;
+      this.flyToCartService.animate(button, product.image_url);
+    }
+
+    this.handleAddToCart(product, option.pieces);
   }
 }

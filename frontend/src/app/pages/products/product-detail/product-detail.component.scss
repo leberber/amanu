@@ -106,25 +106,26 @@
   display: block;
 }
 
-// Override quantity selector pills to be more square
-::ng-deep .quantity-selector-container {
-  .quick-pill {
-    height: 2.75rem;
-    padding: 0.625rem 0.5rem;
+// Quantity controls
+.quantity-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+
+  .quantity-value {
+    min-width: 60px;
+    text-align: center;
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-bold);
+    color: var(--text-color);
+    padding: var(--space-2) var(--space-4);
+    background: var(--surface-50);
+    border-radius: var(--radius-md);
   }
 
-  .dropdown-container {
-    min-height: 2.75rem;
-  }
-
-  .compact-select {
-    height: 2.75rem !important;
-    min-height: 2.75rem !important;
-
-    &.p-select {
-      height: 2.75rem !important;
-      min-height: 2.75rem !important;
-    }
+  button {
+    width: 2.5rem !important;
+    height: 2.5rem !important;
   }
 }
 

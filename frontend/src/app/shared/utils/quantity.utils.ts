@@ -1,67 +1,49 @@
 /**
- * Utility functions for product quantity operations
+ * Utility functions for product quantity operations using pieces_per_box
  */
 
-import { QuantityConfig } from '../../models/product.model';
 import { PRODUCT } from '../../core/constants/app.constants';
 
 /**
- * Gets the default quantity for a product based on its quantity configuration.
- * For 'list' type configs, returns the first quantity in the list.
- * Otherwise returns the default product quantity.
+ * Gets the default quantity for a product.
+ * Returns pieces_per_box if available, otherwise default quantity.
  */
-export function getDefaultQuantity(quantityConfig?: QuantityConfig): number {
-  if (
-    quantityConfig?.type === 'list' &&
-    quantityConfig.quantities &&
-    quantityConfig.quantities.length > 0
-  ) {
-    return quantityConfig.quantities[0];
-  }
-  return PRODUCT.DEFAULT_QUANTITY;
+export function getDefaultQuantity(piecesPerBox?: number): number {
+  return piecesPerBox || PRODUCT.DEFAULT_QUANTITY;
 }
 
 /**
- * Gets the base quantity (first in list) for carton calculations.
+ * Gets the base quantity (pieces per box) for carton calculations.
  * Falls back to 10 if not configured.
  */
-export function getBaseQuantity(quantityConfig?: QuantityConfig): number {
-  return quantityConfig?.quantities?.[0] || 10;
+export function getBaseQuantity(piecesPerBox?: number): number {
+  return piecesPerBox || 10;
 }
 
 /**
- * Calculates the carton count based on total quantity and base quantity.
+ * Calculates the carton count based on total quantity and pieces per box.
  */
-export function getCartonCount(quantity: number, quantityConfig?: QuantityConfig): number {
-  const baseQty = getBaseQuantity(quantityConfig);
+export function getCartonCount(quantity: number, piecesPerBox?: number): number {
+  const baseQty = getBaseQuantity(piecesPerBox);
   return quantity / baseQty;
 }
 
 /**
  * Formats carton count with leading zeros (e.g., "03x")
  */
-export function formatCartonCount(quantity: number, quantityConfig?: QuantityConfig): string {
-  const count = getCartonCount(quantity, quantityConfig);
+export function formatCartonCount(quantity: number, piecesPerBox?: number): string {
+  const count = getCartonCount(quantity, piecesPerBox);
   return count.toString().padStart(2, '0') + 'x';
-}
-
-/**
- * Checks if a quantity config uses list-based selection
- */
-export function isListQuantityConfig(quantityConfig?: QuantityConfig): boolean {
-  return quantityConfig?.type === 'list' &&
-    !!quantityConfig.quantities &&
-    quantityConfig.quantities.length > 0;
 }
 
 /**
  * Formats carton display for cart items (e.g., "8x10" for 8 cartons of 10 pieces).
  * Cart items store total pieces, so we divide by base quantity to get carton count.
  */
-export function getCartonDisplay(totalPieces: number, quantityConfig?: QuantityConfig): string {
-  const piecesPerBox = getBaseQuantity(quantityConfig);
-  const cartonCount = totalPieces / piecesPerBox;
-  return `${cartonCount}x${piecesPerBox}`;
+export function getCartonDisplay(totalPieces: number, piecesPerBox?: number): string {
+  const ppb = getBaseQuantity(piecesPerBox);
+  const cartonCount = totalPieces / ppb;
+  return `${cartonCount}x${ppb}`;
 }
 
 /**

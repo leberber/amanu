@@ -7,6 +7,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TableModule } from 'primeng/table';
 import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
+import { ButtonModule } from 'primeng/button';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { ROUTES } from '../../core/constants/routes.constants';
@@ -18,14 +19,13 @@ import { TranslationService } from '../../services/translation.service';
 import { CartTranslationService } from '../../core/services/cart-translation.service';
 import { PromotionService } from '../../services/promotion.service';
 import { AppliedPromotion } from '../../models/promotion.model';
-import { ProductQuantitySelectorComponent } from '../../shared/components/product-quantity-selector/product-quantity-selector.component';
 import { PageLayoutComponent } from '../../shared/components/page-layout/page-layout.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { ImageLightboxComponent, LightboxDetails } from '../../shared/components/image-lightbox/image-lightbox.component';
 import { ToastMessageService } from '../../core/services/toast-message.service';
 import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
 import { UnitPipe } from '../../shared/pipes/unit.pipe';
-import { getCartonCount as calcCartonCount, isListQuantityConfig } from '../../shared/utils/quantity.utils';
+import { getCartonCount as calcCartonCount } from '../../shared/utils/quantity.utils';
 
 @Component({
   selector: 'app-cart-page',
@@ -38,7 +38,7 @@ import { getCartonCount as calcCartonCount, isListQuantityConfig } from '../../s
     ToastModule,
     TooltipModule,
     TranslateModule,
-    ProductQuantitySelectorComponent,
+    ButtonModule,
     PageLayoutComponent,
     EmptyStateComponent,
     ImageLightboxComponent,
@@ -228,7 +228,7 @@ export class CartComponent implements OnInit {
   }
 
   getCartonCount(item: CartItem): number {
-    return calcCartonCount(item.quantity, item.quantity_config);
+    return calcCartonCount(item.quantity, item.pieces_per_box);
   }
 
   proceedToCheckout(): void {

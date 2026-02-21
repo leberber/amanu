@@ -123,22 +123,27 @@
   }
 }
 
-// Override quantity selector spacing in mobile cart
-.cart-item-mobile__controls {
-  ::ng-deep {
-    .quantity-selector-container,
-    .dropdown-only {
-      width: auto;
-    }
+// Quantity controls
+.cart-quantity-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: var(--surface-50);
+  border-radius: var(--radius-md);
+  padding: var(--space-1);
 
-    .cart-quantity-selector {
-      gap: 0;
+  .quantity-display {
+    min-width: 50px;
+    text-align: center;
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-color);
+  }
 
-      .quantity-display {
-        min-width: 40px;
-        font-size: 0.8rem;
-      }
-    }
+  button {
+    width: 1.75rem !important;
+    height: 1.75rem !important;
+    padding: 0 !important;
   }
 }
 
