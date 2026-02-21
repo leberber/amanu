@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, OnInit, signal, OnDestroy, DestroyRef } from '@angular/core';
+import { Component, computed, effect, inject, OnInit, signal, OnDestroy, DestroyRef, ViewChild, ElementRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -71,7 +71,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
   protected unitsService = inject(UnitsService);
   private flyToCartService = inject(FlyToCartService);
   private preferencesService = inject(UserPreferencesService);
-  private searchService = inject(SearchService);
+  protected searchService = inject(SearchService);
 
   // State signals
   products = signal<Product[]>([]);
@@ -98,6 +98,10 @@ export class ProductListComponent implements OnInit, OnDestroy {
   compactCategoryBar = false;
   showMobileToolbar = signal(false);
   private lastScrollY = 0;
+
+  // Mobile search overlay
+  showMobileSearch = signal(false);
+  @ViewChild('mobileSearchInput') mobileSearchInput?: ElementRef<HTMLInputElement>;
 
   private destroyRef = inject(DestroyRef);
 
@@ -184,6 +188,33 @@ export class ProductListComponent implements OnInit, OnDestroy {
 
   toggleMobileToolbar(): void {
     this.showMobileToolbar.update(v => !v);
+  }
+
+  // Mobile search overlay methods
+  openMobileSearch(): void {
+    this.showMobileSearch.set(true);
+    setTimeout(() => {
+      this.mobileSearchInput?.nativeElement?.focus();
+    }, 100);
+  }
+
+  closeMobileSearch(): void {
+    this.showMobileSearch.set(false);
+  }
+
+  submitMobileSearch(): void {
+    this.searchService.search();
+    this.closeMobileSearch();
+  }
+
+  clearMobileSearch(): void {
+    this.searchService.clear();
+    this.mobileSearchInput?.nativeElement?.focus();
+  }
+
+  onMobileSearchInput(event: Event): void {
+    const value = (event.target as HTMLInputElement).value;
+    this.searchService.setQuery(value);
   }
 
   toggleFilterMode(): void {

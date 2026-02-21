@@ -5,3 +5,100 @@
 // Desktop/Mobile responsive toggle (can't do with Tailwind easily due to component encapsulation)
 .products-desktop { display: none; @media (min-width: 1024px) { display: flex; flex-direction: column; } }
 .products-mobile { @media (min-width: 1024px) { display: none; } }
+
+// Mobile Header Container - Fixed at top
+.mobile-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: var(--surface-card);
+}
+
+// Spacer to prevent content from going under fixed header
+.mobile-header-spacer {
+  height: 60px;
+}
+
+// Mobile Search Overlay
+.mobile-search-overlay {
+  background: var(--surface-card);
+  padding: 0.75rem 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  animation: fadeIn 0.15s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.mobile-search-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--surface-ground);
+  border-radius: 12px;
+  padding: 0.5rem 1rem;
+  border: 2px solid transparent;
+  transition: border-color 0.2s ease;
+
+  &:focus-within {
+    border-color: var(--primary-color);
+    background: var(--surface-card);
+  }
+}
+
+.mobile-search-icon {
+  color: var(--primary-color);
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.mobile-search-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 16px; // Prevents iOS zoom
+  color: var(--text-color);
+  outline: none;
+  padding: 0.5rem 0;
+
+  &::placeholder {
+    color: var(--text-color-secondary);
+  }
+}
+
+.mobile-search-clear,
+.mobile-search-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.mobile-search-clear {
+  background: var(--surface-200);
+  color: var(--text-color-secondary);
+
+  &:hover {
+    background: var(--surface-300);
+    color: var(--text-color);
+  }
+}
+
+.mobile-search-close {
+  background: var(--primary-color);
+  color: white;
+
+  &:hover {
+    background: var(--primary-600);
+  }
+}

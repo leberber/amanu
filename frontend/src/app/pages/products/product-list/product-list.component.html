@@ -184,22 +184,56 @@
 
   <!-- Mobile Layout -->
   <div class="products-mobile">
-    <!-- Filter Bar -->
-    <app-horizontal-filter
-      [items]="filterMode() === 'categories' ? categories() : brands()"
-      [activeItemId]="filterMode() === 'categories' ? activeCategoryId() : activeBrandId()"
-      [filterType]="filterMode()"
-      [showAllOption]="false"
-      [showSearchIcon]="false"
-      [showModeToggle]="true"
-      (itemSelected)="filterMode() === 'categories' ? selectCategoryFromBar($event) : selectBrand($event)"
-      (modeToggle)="toggleFilterMode()">
-    </app-horizontal-filter>
-
-    <!-- Mobile Search -->
-    <div class="px-3 py-2">
-      <app-search-input [compact]="true"></app-search-input>
+    <!-- Filter Bar / Search Overlay Container -->
+    <div class="mobile-header">
+      @if (showMobileSearch()) {
+        <!-- Mobile Search Overlay (replaces filter bar) -->
+        <div class="mobile-search-overlay">
+          <div class="mobile-search-container">
+            <i class="pi pi-search mobile-search-icon"></i>
+            <input
+              #mobileSearchInput
+              type="text"
+              [value]="searchService.query()"
+              (input)="onMobileSearchInput($event)"
+              (keyup.enter)="submitMobileSearch()"
+              [placeholder]="'products.search.placeholder' | translate"
+              class="mobile-search-input">
+            @if (searchService.query()) {
+              <button
+                type="button"
+                class="mobile-search-clear"
+                (click)="clearMobileSearch()">
+                <i class="pi pi-times"></i>
+              </button>
+            }
+            <button
+              type="button"
+              class="mobile-search-close"
+              (click)="closeMobileSearch()">
+              <i class="pi pi-check"></i>
+            </button>
+          </div>
+        </div>
+      } @else {
+        <!-- Filter Bar with Search Icon -->
+        <app-horizontal-filter
+          [items]="filterMode() === 'categories' ? categories() : brands()"
+          [activeItemId]="filterMode() === 'categories' ? activeCategoryId() : activeBrandId()"
+          [filterType]="filterMode()"
+          [showAllOption]="false"
+          [showSearchIcon]="true"
+          [isSearchActive]="showMobileSearch()"
+          [showModeToggle]="true"
+          (itemSelected)="filterMode() === 'categories' ? selectCategoryFromBar($event) : selectBrand($event)"
+          (searchToggle)="openMobileSearch()"
+          (modeToggle)="toggleFilterMode()">
+        </app-horizontal-filter>
+      }
     </div>
+
+    <!-- Spacer for fixed header -->
+    <div class="mobile-header-spacer"></div>
 
     <!-- Mobile Products Content -->
     <div class="p-2 md:p-4">
