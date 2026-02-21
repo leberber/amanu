@@ -1,6 +1,5 @@
 // src/app/pages/products/product-detail/product-detail.component.ts
-import { Component, OnInit, OnDestroy, inject, signal, computed, DestroyRef } from '@angular/core';
-import { NgClass } from '@angular/common';
+import { Component, OnInit, inject, signal, computed, DestroyRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { catchError } from 'rxjs/operators';
@@ -8,7 +7,7 @@ import { of } from 'rxjs';
 
 // PrimeNG imports
 import { ToastModule } from 'primeng/toast';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 
 // Shared components
 import { ProductQuantitySelectorComponent } from '../../../shared/components/product-quantity-selector/product-quantity-selector.component';
@@ -22,7 +21,7 @@ import { CartService } from '../../../services/cart.service';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { UnitsService } from '../../../core/services/units.service';
 import { TranslationService } from '../../../services/translation.service';
-import { Product, Category } from '../../../models/product.model';
+import { Product } from '../../../models/product.model';
 import { Brand } from '../../../models/brand.model';
 import { PRODUCT } from '../../../core/constants/app.constants';
 import { ROUTES } from '../../../core/constants/routes.constants';
@@ -35,7 +34,6 @@ import { BrandService } from '../../../core/services/brand.service';
   selector: 'app-product-detail',
   standalone: true,
   imports: [
-    NgClass,
     ToastModule,
     TranslateModule,
     ProductQuantitySelectorComponent,
@@ -46,14 +44,13 @@ import { BrandService } from '../../../core/services/brand.service';
   templateUrl: './product-detail.component.html',
   styleUrl: './product-detail.component.scss'
 })
-export class ProductDetailComponent implements OnInit, OnDestroy {
+export class ProductDetailComponent implements OnInit {
   // Dependency injection
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private productService = inject(ProductService);
   private cartService = inject(CartService);
   private toast = inject(ToastMessageService);
-  private translateService = inject(TranslateService);
   private currencyService = inject(CurrencyService);
   private unitsService = inject(UnitsService);
   private translationService = inject(TranslationService);
@@ -66,23 +63,18 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
 
   // Signals
   product = signal<Product | null>(null);
-  category = signal<Category | null>(null);
   brand = signal<Brand | null>(null);
-  relatedProducts = signal<Product[]>([]);
   loading = signal<boolean>(true);
   error = signal<boolean>(false);
   selectedQuantity = signal<number>(1);
   currentLanguage = signal<string>(this.translationService.getCurrentLanguage());
   cartVersion = signal<number>(0); // Triggers reactivity when cart changes
 
-  // For related products quantities
-  productQuantities: { [key: number]: number } = {};
-
   // Computed values
   isOutOfStock = computed(() => {
     return this.product()?.stock_quantity === 0;
   });
-  
+
   isLowStock = computed(() => {
     const product = this.product();
     return product ? (product.stock_quantity > 0 && product.stock_quantity < PRODUCT.LOW_STOCK_THRESHOLD) : false;
@@ -92,7 +84,7 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   lowStockParams = computed(() => {
     const currentProduct = this.product();
     if (!currentProduct) return { count: 0 };
-    
+
     return {
       count: currentProduct.stock_quantity
     };
@@ -104,7 +96,7 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
     const lang = this.currentLanguage(); // Make it reactive to language changes
     if (!currentProduct) return '';
 
-    return this.getUnitDisplay(currentProduct.unit);
+    return this.unitsService.getUnitDisplay(currentProduct.unit, true);
   });
 
   // Computed property to check if product is in cart
@@ -145,20 +137,15 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
     return currentProduct?.promotion?.discounted_price || currentProduct?.price || 0;
   });
 
-  // Computed property for effective price (discounted or original)
-  effectivePrice = computed(() => {
-    return this.hasPromotion() ? this.discountedPrice() : (this.product()?.price || 0);
-  });
-
   ngOnInit() {
-    // Subscribe to cart changes to update the button - automatically cleaned up on destroy
+    // Subscribe to cart changes to update the button
     this.cartService.cartItems$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
         this.cartVersion.update(v => v + 1);
       });
 
-    // Subscribe to language changes - automatically cleaned up on destroy
+    // Subscribe to language changes
     this.translationService.currentLanguage$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(lang => {
@@ -169,24 +156,27 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
           this.loadProduct(currentProduct.id);
         }
       });
-    
-    this.route.paramMap.subscribe(params => {
-      const productId = params.get('id');
-      if (!productId) {
-        this.error.set(true);
-        this.loading.set(false);
-      } else {
-        this.loadProduct(Number(productId));
-      }
-    });
+
+    // Subscribe to route params
+    this.route.paramMap
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(params => {
+        const productId = params.get('id');
+        if (!productId) {
+          this.error.set(true);
+          this.loading.set(false);
+        } else {
+          this.loadProduct(Number(productId));
+        }
+      });
   }
-  
+
   // Load product data
   private loadProduct(productId: number): void {
     this.loading.set(true);
-    
+
     this.productService.getProduct(productId).pipe(
-      catchError(error => {
+      catchError(() => {
         this.error.set(true);
         this.loading.set(false);
         this.toast.showError('products.errors.failed_to_load');
@@ -195,14 +185,9 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
     ).subscribe(product => {
       if (product) {
         this.product.set(product);
-        
+
         // Initialize selectedQuantity based on product's quantity config
         this.selectedQuantity.set(getDefaultQuantity(product.quantity_config));
-        
-        // Load category
-        this.productService.getCategory(product.category_id).subscribe(category => {
-          this.category.set(category);
-        });
 
         // Load brand
         if (product.brand_id) {
@@ -210,31 +195,13 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
             this.brand.set(brand);
           });
         }
-
-        // Load related products (same category, excluding current product)
-        this.productService.getProductsByCategory(product.category_id).subscribe(products => {
-          const related = products.filter(p => p.id !== product.id).slice(0, 4);
-          this.relatedProducts.set(related);
-          
-          // Initialize quantities for related products
-          this.initializeRelatedProductQuantities(related);
-        });
       }
-      
+
       this.loading.set(false);
     });
   }
-  
-  // Initialize quantity inputs for related products
-  private initializeRelatedProductQuantities(products: Product[]): void {
-    products.forEach(product => {
-      if (!this.productQuantities[product.id]) {
-        this.productQuantities[product.id] = getDefaultQuantity(product.quantity_config);
-      }
-    });
-  }
 
-  // Add to cart method for main product
+  // Add to cart method
   addToCart(event?: MouseEvent): void {
     const currentProduct = this.product();
     if (!currentProduct || this.isOutOfStock()) return;
@@ -248,127 +215,14 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
     const quantity = this.selectedQuantity();
 
     this.cartService.addToCart(currentProduct, quantity).subscribe({
-      next: () => {
-        // this.messageService.add({
-        //   severity: 'success',
-        //   summary: this.translateService.instant('products.cart.added_to_cart'),
-        //   detail: this.translateService.instant('products.cart.added_message', {
-        //     quantity: quantity,
-        //     unit: this.getUnitDisplay(currentProduct.unit),
-        //     name: currentProduct.name
-        //   }),
-        //   life: 3000
-        // });
-      },
       error: () => {
         this.toast.showError('products.cart.error');
       }
     });
-  }
-
-  // Quick add to cart for related products
-  addRelatedToCart(product: Product, event: Event): void {
-    if (event) {
-      event.preventDefault();
-      event.stopPropagation();
-
-      // Trigger fly-to-cart animation
-      const button = event.currentTarget as HTMLElement;
-      this.flyToCartService.animate(button, product.image_url);
-    }
-
-    if (product.stock_quantity === 0) {
-      return;
-    }
-
-    const quantity = this.productQuantities[product.id] || 1;
-
-    this.cartService.addToCart(product, quantity).subscribe({
-      next: () => {
-        // Animation handles the visual feedback
-      },
-      error: () => {
-        this.toast.showError('products.cart.error');
-      }
-    });
-  }
-
-  // Get the display label for the selected quantity
-  getSelectedQuantityLabel(productId: number): string {
-    const quantity = this.productQuantities[productId];
-    if (!quantity) return this.translateService.instant('products.product.select_quantity');
-    
-    const products = this.relatedProducts();
-    const product = products.find(p => p.id === productId);
-    if (!product) return `${quantity} units`;
-    
-    return `${quantity} ${this.getUnitDisplay(product.unit)}`;
-  }
-
-  // Helper function to get proper unit display
-  getUnitDisplay(unit: string): string {
-    return this.unitsService.getUnitDisplay(unit, true);
-  }
-  
-  // Check if a product is out of stock
-  isProductOutOfStock(product: Product): boolean {
-    return product.stock_quantity === 0;
-  }
-  
-  // Check if a product is low on stock
-  isProductLowStock(product: Product): boolean {
-    return product.stock_quantity > 0 && product.stock_quantity < PRODUCT.LOW_STOCK_THRESHOLD;
-  }
-  
-  // Get stock message for a specific product
-  getProductStockMessage(product: Product): string {
-    return this.isProductOutOfStock(product) 
-      ? this.translateService.instant('products.stock.out_of_stock')
-      : this.translateService.instant('products.stock.low_stock', { count: product.stock_quantity });
-  }
-  
-  // Get stock icon
-  getStockIcon(product: Product): string {
-    return this.isProductOutOfStock(product) 
-      ? 'pi pi-exclamation-circle' 
-      : 'pi pi-exclamation-triangle';
-  }
-  
-  // Get stock color class
-  getStockColorClass(product: Product): string {
-    return this.isProductOutOfStock(product) ? 'text-red-500' : 'text-orange-500';
-  }
-
-  // Check if a product has promotion
-  productHasPromotion(product: Product): boolean {
-    return product.promotion != null;
-  }
-
-  // Get discount label for a product
-  getProductDiscountLabel(product: Product): string {
-    if (!product.promotion) return '';
-    if (product.promotion.discount_type === 'percentage') {
-      return `-${product.promotion.discount_value}%`;
-    }
-    return `-${this.currencyService.formatCurrency(product.promotion.discount_value)}`;
-  }
-
-  // Get discounted price for a product
-  getProductDiscountedPrice(product: Product): number {
-    return product.promotion?.discounted_price || product.price;
-  }
-
-  // Get effective price for a product (discounted or original)
-  getProductEffectivePrice(product: Product): number {
-    return product.promotion ? product.promotion.discounted_price : product.price;
   }
 
   // Navigate back to products list
   goBack(): void {
     this.router.navigate([ROUTES.PRODUCTS]);
-  }
-
-  ngOnDestroy(): void {
-    // Subscriptions are automatically cleaned up by takeUntilDestroyed
   }
 }
