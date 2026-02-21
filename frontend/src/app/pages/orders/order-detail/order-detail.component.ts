@@ -1,6 +1,6 @@
 // src/app/pages/orders/order-detail/order-detail.component.ts
 import { Component, OnInit, computed, inject, signal, DestroyRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { switchMap, catchError, map } from 'rxjs/operators';
@@ -36,7 +36,7 @@ interface TimelineStatus {
   selector: 'app-order-detail',
   standalone: true,
   imports: [
-    CommonModule,
+    NgClass,
     ToastModule,
     TimelineModule,
     TranslateModule,
@@ -100,6 +100,7 @@ export class OrderDetailComponent implements OnInit {
     
     // Load order details
     this.route.paramMap.pipe(
+      takeUntilDestroyed(this.destroyRef),
       switchMap(params => {
         const orderId = params.get('id');
         if (!orderId) {
