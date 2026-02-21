@@ -1,407 +1,399 @@
-<!-- Product List Container -->
+<!-- Product List Component -->
 <div class="products-page">
   <p-toast></p-toast>
 
   <!-- Desktop Layout -->
-  <div class="hidden lg:flex w-full pt-2 pb-6">
-    <ng-container *ngTemplateOutlet="desktopLayout"></ng-container>
+  <div class="products-desktop pt-2 pb-6">
+    <!-- Filter Bar -->
+    <app-horizontal-filter
+      [items]="filterMode() === 'categories' ? categories() : brands()"
+      [activeItemId]="filterMode() === 'categories' ? activeCategoryId() : activeBrandId()"
+      [filterType]="filterMode()"
+      [showAllOption]="false"
+      [showSearchIcon]="true"
+      [isSearchActive]="showMobileSearch()"
+      [showModeToggle]="true"
+      (itemSelected)="filterMode() === 'categories' ? selectCategoryFromBar($event) : selectBrand($event)"
+      (searchToggle)="openMobileSearch()"
+      (modeToggle)="toggleFilterMode()">
+    </app-horizontal-filter>
+
+    <!-- Desktop Toolbar -->
+    <div class="m-1 px-2">
+      <app-product-toolbar
+        [(searchQuery)]="searchQuery"
+        (search)="onSearch()"
+        (searchInput)="onSearchInput($event)">
+      </app-product-toolbar>
+    </div>
+
+    <!-- Products Content -->
+    <div class="p-2 md:p-4">
+      @if (loading()) {
+        <!-- Skeleton Loading State -->
+        <div class="products-grid">
+          @for (i of [1, 2, 3, 4, 5, 6, 7, 8]; track i) {
+            <div class="product-card-skeleton">
+              <div class="skeleton skeleton-image"></div>
+              <div class="skeleton-content">
+                <div class="skeleton skeleton-text skeleton-text--w60"></div>
+                <div class="skeleton skeleton-text skeleton-text--w80"></div>
+                <div class="skeleton-row">
+                  <div class="skeleton skeleton-text skeleton-text--w40"></div>
+                  <div class="skeleton skeleton-button"></div>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      } @else if (products().length === 0) {
+        <!-- Empty State -->
+        <div class="flex justify-content-center align-items-center p-4" style="min-height: 60vh;">
+          <app-empty-state
+            icon="pi-search"
+            [title]="'products.empty.title' | translate"
+            [description]="'products.empty.subtitle' | translate">
+          </app-empty-state>
+        </div>
+      } @else {
+        <!-- Products Grid/List -->
+        @if (layout() === 'grid') {
+          <div class="products-grid">
+            @for (product of products(); track product.id) {
+              <app-product-card
+                [product]="product"
+                (addToCartEvent)="onAddToCart($event)"
+                class="product-card-wrapper">
+              </app-product-card>
+            }
+          </div>
+        } @else {
+          <div class="products-list">
+            @for (product of products(); track product.id) {
+              <div class="product-list-item">
+                <!-- Product Image -->
+                <a [routerLink]="['/products', product.id]" class="product-list-item__image">
+                  <img
+                    [src]="product.image_url || 'assets/images/product-placeholder.jpg'"
+                    [alt]="product.name"
+                    loading="lazy"
+                    (error)="$event.target.src = 'assets/images/product-placeholder.jpg'">
+                  @if (product.is_organic) {
+                    <span class="organic-badge">{{ 'products.tags.organic' | translate }}</span>
+                  }
+                </a>
+
+                <!-- Product Content -->
+                <div class="product-list-item__content">
+                  <h3 class="product-list-item__name">
+                    <a [routerLink]="['/products', product.id]">{{ product.name }}</a>
+                  </h3>
+
+                  <p class="product-list-item__description">
+                    {{ product.description || ('products.default_description' | translate) }}
+                  </p>
+
+                  <div class="product-list-item__price-row">
+                    <div class="product-list-item__price">
+                      <span class="price-current">{{ product.price | appCurrency }}</span>
+                      <span class="price-unit">/ {{ product.unit | appUnit }}</span>
+                    </div>
+
+                    <!-- Stock Status -->
+                    <div class="product-list-item__stock">
+                      @if (isOutOfStock(product)) {
+                        <span class="stock-badge stock-badge--out">
+                          <i class="pi pi-times-circle"></i>
+                          {{ 'products.stock.out_of_stock' | translate }}
+                        </span>
+                      } @else if (product.stock_quantity < 20) {
+                        <span class="stock-badge stock-badge--low">
+                          <i class="pi pi-exclamation-circle"></i>
+                          {{ product.stock_quantity }} {{ 'products.stock.left' | translate }}
+                        </span>
+                      } @else {
+                        <span class="stock-badge stock-badge--in">
+                          <i class="pi pi-check-circle"></i>
+                          {{ 'products.stock.in_stock' | translate }}
+                        </span>
+                      }
+                    </div>
+                  </div>
+
+                  @if (getBoxQuantity(product) && getBoxPrice(product)) {
+                    <div class="product-list-item__box-price">
+                      <span class="box-label">{{ 'products.box_price' | translate }}:</span>
+                      <span class="box-price">{{ getBoxPrice(product) | appCurrency }}</span>
+                      <span class="box-qty">({{ getBoxQuantity(product) }} {{ product.unit | appUnit }})</span>
+                    </div>
+                  }
+
+                  <!-- Actions -->
+                  @if (!isOutOfStock(product)) {
+                    <div class="product-list-item__actions">
+                      <app-product-quantity-selector
+                        [value]="getProductQuantity(product.id)"
+                        [unit]="product.unit"
+                        [stockQuantity]="product.stock_quantity"
+                        [quantityConfig]="product.quantity_config"
+                        [pricePerUnit]="product.price"
+                        [disabled]="!product.stock_quantity || product.stock_quantity === 0"
+                        [showStock]="false"
+                        (quantityChanged)="setProductQuantity(product.id, $event)"
+                        class="w-full">
+                      </app-product-quantity-selector>
+
+                      <div class="cart-status-row">
+                        @if (isProductInCart(product.id)) {
+                          <span class="cart-indicator cart-indicator--in">
+                            <i class="pi pi-check-circle"></i>
+                            {{ getCartQuantity(product.id) }} {{ 'products.cart.in_cart' | translate }}
+                            ({{ product.price * getCartQuantity(product.id) | appCurrency }})
+                          </span>
+                        } @else {
+                          <span class="cart-indicator">
+                            <i class="pi pi-shopping-cart"></i>
+                            {{ 'products.cart.not_in_cart' | translate }}
+                          </span>
+                        }
+
+                        <button
+                          pButton
+                          type="button"
+                          [label]="('common.add' | translate) + ' (' + getProductQuantity(product.id) + ')'"
+                          icon="pi pi-shopping-cart"
+                          class="p-button-sm"
+                          [disabled]="!product.stock_quantity || product.stock_quantity === 0 || getProductQuantity(product.id) === 0 || getProductQuantity(product.id) > product.stock_quantity"
+                          (click)="quickAddToCart(product, $event)">
+                        </button>
+                      </div>
+                    </div>
+                  } @else {
+                    <div class="product-list-item__actions">
+                      <button
+                        pButton
+                        [label]="'products.stock.out_of_stock' | translate"
+                        icon="pi pi-times"
+                        [disabled]="true"
+                        class="w-full p-button-secondary opacity-60">
+                      </button>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        }
+      }
+    </div>
   </div>
 
   <!-- Mobile Layout -->
-  <div class="flex lg:hidden w-full flex-column">
-    <ng-container *ngTemplateOutlet="mobileLayout"></ng-container>
-  </div>
+  <div class="products-mobile">
+    <!-- Fixed Mobile Header -->
+    <div class="mobile-sticky-header">
+      <!-- Filter Bar Layer -->
+      <div class="header-layer filter-layer" [class.hidden]="showMobileSearch()">
+        <app-horizontal-filter
+          [items]="filterMode() === 'categories' ? categories() : brands()"
+          [activeItemId]="filterMode() === 'categories' ? activeCategoryId() : activeBrandId()"
+          [filterType]="filterMode()"
+          [showAllOption]="false"
+          [showSearchIcon]="true"
+          [isSearchActive]="showMobileSearch()"
+          [showModeToggle]="true"
+          (itemSelected)="filterMode() === 'categories' ? selectCategoryFromBar($event) : selectBrand($event)"
+          (searchToggle)="openMobileSearch()"
+          (modeToggle)="toggleFilterMode()">
+        </app-horizontal-filter>
+      </div>
 
-</div>
-
-<!-- ===================== TEMPLATE DEFINITIONS ===================== -->
-
-<!-- Desktop Layout Template -->
-<ng-template #desktopLayout>
-  <!-- Main Content -->
-  <main class="flex-1 flex flex-column min-w-0">
-    <ng-container *ngTemplateOutlet="filterBar"></ng-container>
-    <ng-container *ngTemplateOutlet="toolbar"></ng-container>
-    <ng-container *ngTemplateOutlet="productsArea"></ng-container>
-  </main>
-</ng-template>
-
-<!-- Mobile Layout Template -->
-<ng-template #mobileLayout>
-  <!-- Fixed header - always visible -->
-  <div class="mobile-sticky-header">
-    <!-- Category/Brand Bar Layer -->
-    <div class="header-layer filter-layer" [class.hidden]="showMobileSearch()">
-      <ng-container *ngTemplateOutlet="filterBar"></ng-container>
-    </div>
-
-    <!-- Search Overlay Layer -->
-    <div class="header-layer search-layer" [class.active]="showMobileSearch()">
-      <div class="search-overlay-container">
-        <div class="search-input-wrapper">
-          <i class="pi pi-search search-icon"></i>
-          <input
-            #mobileSearchInput
-            type="text"
-            class="mobile-search-input"
-            [placeholder]="'products.search.placeholder' | translate"
-            [(ngModel)]="mobileSearchQuery"
-            (keyup.enter)="submitMobileSearch()"
-            (input)="onMobileSearchInput($event)">
-          <button
-            *ngIf="mobileSearchQuery"
-            class="clear-search-btn"
-            (click)="clearMobileSearch()">
-            <i class="pi pi-times"></i>
+      <!-- Search Overlay Layer -->
+      <div class="header-layer search-layer" [class.active]="showMobileSearch()">
+        <div class="search-overlay-container">
+          <div class="search-input-wrapper">
+            <i class="pi pi-search search-icon"></i>
+            <input
+              #mobileSearchInput
+              type="text"
+              class="mobile-search-input"
+              [placeholder]="'products.search.placeholder' | translate"
+              [(ngModel)]="mobileSearchQuery"
+              (keyup.enter)="submitMobileSearch()"
+              (input)="onMobileSearchInput($event)">
+            @if (mobileSearchQuery) {
+              <button class="clear-search-btn" (click)="clearMobileSearch()">
+                <i class="pi pi-times"></i>
+              </button>
+            }
+          </div>
+          <button class="close-search-btn" (click)="closeMobileSearch()">
+            <i class="pi pi-arrow-right"></i>
           </button>
         </div>
-        <button class="close-search-btn" (click)="closeMobileSearch()">
-          <i class="pi pi-arrow-right"></i>
-        </button>
       </div>
     </div>
-  </div>
-  <!-- Spacer for fixed header -->
-  <div class="mobile-header-spacer"></div>
-  <ng-container *ngTemplateOutlet="productsArea"></ng-container>
-</ng-template>
 
-<!-- Unified Filter Bar Template (Categories or Brands) -->
-<ng-template #filterBar>
-  <app-horizontal-filter
-    [items]="filterMode() === 'categories' ? categories() : brands()"
-    [activeItemId]="filterMode() === 'categories' ? activeCategoryId() : activeBrandId()"
-    [filterType]="filterMode()"
-    [showAllOption]="false"
-    [showSearchIcon]="true"
-    [isSearchActive]="showMobileSearch()"
-    [showModeToggle]="true"
-    (itemSelected)="filterMode() === 'categories' ? selectCategoryFromBar($event) : selectBrand($event)"
-    (searchToggle)="openMobileSearch()"
-    (modeToggle)="toggleFilterMode()">
-  </app-horizontal-filter>
-</ng-template>
+    <!-- Spacer for fixed header -->
+    <div class="mobile-header-spacer"></div>
 
-<!-- Toolbar Template -->
-<ng-template #toolbar>
-  <div class="m-1 border-round px-2">
-    <app-product-toolbar
-      [(searchQuery)]="searchQuery"
-      (search)="onSearch()"
-      (searchInput)="onSearchInput($event)">
-    </app-product-toolbar>
-  </div>
-</ng-template>
+    <!-- Mobile Products Content -->
+    <div class="p-2 md:p-4">
+      @if (loading()) {
+        <!-- Mobile Skeleton Loading -->
+        <div class="products-grid products-grid--mobile">
+          @for (i of [1, 2, 3, 4, 5, 6]; track i) {
+            <div class="product-card-skeleton">
+              <div class="skeleton skeleton-image"></div>
+              <div class="skeleton-content">
+                <div class="skeleton skeleton-text skeleton-text--w60"></div>
+                <div class="skeleton skeleton-text skeleton-text--w80"></div>
+                <div class="skeleton-row">
+                  <div class="skeleton skeleton-text skeleton-text--w40"></div>
+                  <div class="skeleton skeleton-button"></div>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      } @else if (products().length === 0) {
+        <!-- Empty State -->
+        <div class="flex justify-content-center align-items-center p-4" style="min-height: 60vh;">
+          <app-empty-state
+            icon="pi-search"
+            [title]="'products.empty.title' | translate"
+            [description]="'products.empty.subtitle' | translate">
+          </app-empty-state>
+        </div>
+      } @else {
+        <!-- Mobile Products -->
+        @if (layout() === 'grid') {
+          <div class="products-grid products-grid--mobile">
+            @for (product of products(); track product.id) {
+              <app-product-card
+                [product]="product"
+                (addToCartEvent)="onAddToCart($event)"
+                class="product-card-wrapper">
+              </app-product-card>
+            }
+          </div>
+        } @else {
+          <div class="products-list">
+            @for (product of products(); track product.id) {
+              <div class="product-list-item product-list-item--mobile">
+                <!-- Product Image -->
+                <a [routerLink]="['/products', product.id]" class="product-list-item__image">
+                  <img
+                    [src]="product.image_url || 'assets/images/product-placeholder.jpg'"
+                    [alt]="product.name"
+                    loading="lazy"
+                    (error)="$event.target.src = 'assets/images/product-placeholder.jpg'">
+                  @if (product.is_organic) {
+                    <span class="organic-badge">{{ 'products.tags.organic' | translate }}</span>
+                  }
+                </a>
 
-<!-- Products Area Template -->
-<ng-template #productsArea>
-  <div class="flex-1">
-    <ng-container *ngIf="loading(); else productsContent">
-      <app-loading-state></app-loading-state>
-    </ng-container>
-    
-    <ng-template #productsContent>
-      <ng-container *ngIf="products().length === 0; else productsList">
-        <ng-container *ngTemplateOutlet="emptyState"></ng-container>
-      </ng-container>
-      
-      <ng-template #productsList>
-        <ng-container *ngIf="layout() === 'grid'; else listView">
-          <ng-container *ngTemplateOutlet="gridView"></ng-container>
-        </ng-container>
-        
-        <ng-template #listView>
-          <ng-container *ngTemplateOutlet="listViewTemplate"></ng-container>
-        </ng-template>
-      </ng-template>
-    </ng-template>
-  </div>
-</ng-template>
+                <!-- Mobile Product Content -->
+                <div class="product-list-item__content">
+                  <h3 class="product-list-item__name">
+                    <a [routerLink]="['/products', product.id]">{{ product.name }}</a>
+                  </h3>
 
-<!-- Empty State Template -->
-<ng-template #emptyState>
-  <div class="empty-state-wrapper">
-    <app-empty-state
-      icon="pi-search"
-      [title]="'products.empty.title' | translate"
-      [description]="'products.empty.subtitle' | translate">
-    </app-empty-state>
-  </div>
-</ng-template>
+                  <p class="product-list-item__description">
+                    {{ product.description || ('products.default_description' | translate) }}
+                  </p>
 
-<!-- Grid View Template -->
-<ng-template #gridView>
-  <div class="grid">
-    <div *ngFor="let product of products(); trackBy: trackByProductId" 
-         class="col-12 md:col-6 lg:col-4 xl:col-4 xxl:col-3">
-      <app-product-card
-        [product]="product"
-        (addToCartEvent)="onAddToCart($event)"
-        class="block h-full">
-      </app-product-card>
+                  <div class="product-list-item__price-row">
+                    <div class="product-list-item__price">
+                      <span class="price-current">{{ product.price | appCurrency }}</span>
+                      <span class="price-unit">{{ product.unit | appUnit }}</span>
+                    </div>
+
+                    <!-- Stock Status -->
+                    <div class="product-list-item__stock">
+                      @if (isOutOfStock(product)) {
+                        <span class="stock-badge stock-badge--out">
+                          <i class="pi pi-times-circle"></i>
+                          {{ 'products.stock.out_of_stock' | translate }}
+                        </span>
+                      } @else if (product.stock_quantity < 20) {
+                        <span class="stock-badge stock-badge--low">
+                          <i class="pi pi-exclamation-circle"></i>
+                          {{ product.stock_quantity }} {{ 'products.stock.left' | translate }}
+                        </span>
+                      } @else {
+                        <span class="stock-badge stock-badge--in">
+                          <i class="pi pi-check-circle"></i>
+                          {{ 'products.stock.in_stock' | translate }}
+                        </span>
+                      }
+                    </div>
+                  </div>
+
+                  @if (getBoxQuantity(product) && getBoxPrice(product)) {
+                    <div class="product-list-item__box-price">
+                      <span class="box-label">{{ 'products.box_price' | translate }}:</span>
+                      <span class="box-price">{{ getBoxPrice(product) | appCurrency }}</span>
+                      <span class="box-qty">({{ getBoxQuantity(product) }} {{ product.unit | appUnit }})</span>
+                    </div>
+                  }
+
+                  <!-- Mobile Actions -->
+                  @if (!isOutOfStock(product)) {
+                    <div class="product-list-item__actions">
+                      <app-product-quantity-selector
+                        [value]="getProductQuantity(product.id)"
+                        [unit]="product.unit"
+                        [stockQuantity]="product.stock_quantity"
+                        [quantityConfig]="product.quantity_config"
+                        [pricePerUnit]="product.price"
+                        [disabled]="!product.stock_quantity || product.stock_quantity === 0"
+                        [showStock]="false"
+                        (quantityChanged)="setProductQuantity(product.id, $event)"
+                        class="w-full">
+                      </app-product-quantity-selector>
+
+                      <div class="cart-status-row">
+                        @if (isProductInCart(product.id)) {
+                          <span class="cart-indicator cart-indicator--in">
+                            <i class="pi pi-check-circle"></i>
+                            {{ getCartQuantity(product.id) }} {{ 'products.cart.in_cart' | translate }}
+                          </span>
+                        } @else {
+                          <span class="cart-indicator">
+                            <i class="pi pi-shopping-cart"></i>
+                            {{ 'products.cart.not_in_cart' | translate }}
+                          </span>
+                        }
+
+                        <p-overlayBadge [value]="getProductQuantity(product.id).toString()" severity="success">
+                          <button
+                            pButton
+                            type="button"
+                            icon="pi pi-cart-plus"
+                            class="p-button-rounded" style="width: 2.5rem; height: 2.5rem;"
+                            [disabled]="!product.stock_quantity || product.stock_quantity === 0 || getProductQuantity(product.id) === 0 || getProductQuantity(product.id) > product.stock_quantity"
+                            (click)="quickAddToCart(product, $event)">
+                          </button>
+                        </p-overlayBadge>
+                      </div>
+                    </div>
+                  } @else {
+                    <div class="product-list-item__actions">
+                      <button
+                        pButton
+                        [label]="'products.stock.out_of_stock' | translate"
+                        [disabled]="true"
+                        class="w-full p-button-secondary opacity-60">
+                      </button>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        }
+      }
     </div>
   </div>
-</ng-template>
-
-<!-- List View Template -->
-<ng-template #listViewTemplate>
-  <div class="flex flex-column gap-3">
-    <div *ngFor="let product of products(); trackBy: trackByProductId">
-      <ng-container *ngTemplateOutlet="productListItem; context: { product: product }"></ng-container>
-    </div>
-  </div>
-</ng-template>
-
-<!-- Product List Item Template -->
-<ng-template #productListItem let-product="product">
-  <div class="surface-card border-bottom-1 surface-border border-round-0">
-    <div class="flex">
-      <!-- Product Image - Compact -->
-      <div class="relative overflow-hidden w-5rem md:w-10rem h-5rem md:h-8rem flex-shrink-0 ">
-        <a [routerLink]="['/products', product.id]" class="block h-full">
-          <img
-            [src]="product.image_url || 'assets/images/product-placeholder.jpg'"
-            [alt]="product.name"
-            class="w-full h-full p-1"
-            style="object-fit: contain;">
-        </a>
-        <!-- Overlay badges - matching grid view -->
-        <div class="absolute top-0 left-0 w-full p-1 flex justify-content-between align-items-start">
-          <div class="flex align-items-start gap-1">
-            <ng-container *ngIf="product.is_organic">
-              <p-tag 
-                severity="success" 
-                [value]="'products.tags.organic' | translate" 
-                class="shadow-2 text-xs flex-shrink-0"
-                icon="pi pi-leaf"
-                class="w-auto">
-              </p-tag>
-            </ng-container>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Product Content - Compact -->
-      <div class="flex-1 p-1 md:px-3 md:py-0 flex flex-column overflow-hidden">
-        <!-- Mobile Layout -->
-        <div class="block md:hidden px-3 py-2">
-          <!-- Product name - Bigger and bolder -->
-          <h5 class="text-xl font-medium m-0 mb-2">
-            <a [routerLink]="['/products', product.id]" class="text-900 no-underline">
-              {{ product.name }}
-            </a>
-          </h5>
-          
-          <!-- Description - More readable -->
-          <div class="text-sm text-600 mb-3 line-clamp-1 line-height-2 opacity-90">
-            {{ product.description || ('products.default_description' | translate) }}
-          </div>
-          
-          <!-- Price and Stock - Cleaner layout -->
-          <div class="flex align-items-center justify-content-between mb-3">
-            <div>
-              <div class="flex align-items-baseline gap-2">
-                <span class="text-base font-semibold text-900">{{ product.price | appCurrency }}</span>
-                <span class="text-sm text-500">{{ product.unit | appUnit }}</span>
-              </div>
-              <div *ngIf="getBoxQuantity(product) && getBoxPrice(product)" class="flex align-items-center gap-2 mt-1">
-                <span class="text-xs text-600">{{ 'products.box_price' | translate }}:</span>
-                <span class="text-sm font-bold text-red-500">{{ getBoxPrice(product) | appCurrency }}</span>
-                <span class="text-xs text-500">({{ getBoxQuantity(product) }} {{ product.unit | appUnit }})</span>
-              </div>
-            </div>
-
-            <!-- Stock Status - Better visibility -->
-            <div>
-              <ng-container *ngIf="isOutOfStock(product)">
-                <span class="text-red-500 font-medium text-sm flex align-items-center">
-                  <i class="pi pi-times-circle mr-1 text-xs"></i>{{ 'products.stock.out_of_stock' | translate }}
-                </span>
-              </ng-container>
-              <ng-container *ngIf="!isOutOfStock(product) && product.stock_quantity < 20">
-                <span class="text-orange-500 font-medium text-sm flex align-items-center">
-                  <i class="pi pi-exclamation-circle mr-1 text-xs"></i>{{ product.stock_quantity }} left
-                </span>
-              </ng-container>
-              <ng-container *ngIf="!isOutOfStock(product) && product.stock_quantity >= 20">
-                <span class="text-green-500 font-medium text-sm flex align-items-center">
-                  <i class="pi pi-check-circle mr-1 text-xs"></i>{{ 'products.stock.in_stock' | translate }}
-                </span>
-              </ng-container>
-            </div>
-          </div>
-          
-          <!-- Quantity selector and add to cart -->
-          <ng-container *ngIf="!isOutOfStock(product)">
-            <div class="flex flex-column gap-3">
-              <div>
-                <app-product-quantity-selector
-                  [value]="getProductQuantity(product.id)"
-                  [unit]="product.unit"
-                  [stockQuantity]="product.stock_quantity"
-                  [quantityConfig]="product.quantity_config"
-                  [pricePerUnit]="product.price"
-                  [disabled]="!product.stock_quantity || product.stock_quantity === 0"
-                  [showStock]="false"
-                  (quantityChanged)="setProductQuantity(product.id, $event)"
-                  class="w-full">
-                </app-product-quantity-selector>
-              </div>
-              
-              <div class="flex align-items-center gap-2">
-                <div class="flex-1">
-                  <ng-container *ngIf="isProductInCart(product.id); else notInCartMobile">
-                    <span class="text-xs text-green-500">
-                      <i class="pi pi-check-circle mr-1 text-sm"></i>
-                      {{ getCartQuantity(product.id) }} {{ 'products.cart.in_cart' | translate }} ({{ product.price * getCartQuantity(product.id) | appCurrency }})
-                    </span>
-                  </ng-container>
-                  <ng-template #notInCartMobile>
-                    <span class="text-xs text-500">
-                      <i class="pi pi-shopping-cart mr-1 text-xs"></i>
-                      {{ 'products.cart.not_in_cart' | translate }}
-                    </span>
-                  </ng-template>
-                </div>
-                <!-- Mobile button - icon only with badge -->
-                <p-overlayBadge [value]="getProductQuantity(product.id).toString()" severity="success">
-                  <button
-                    pButton
-                    type="button"
-                    icon="pi pi-cart-plus"
-                    class="p-button-primary p-button-rounded"
-                    style="height: 2.5rem; width: 2.5rem;"
-                    [disabled]="!product.stock_quantity || product.stock_quantity === 0 || getProductQuantity(product.id) === 0 || getProductQuantity(product.id) > product.stock_quantity"
-                    (click)="quickAddToCart(product, $event)">
-                  </button>
-                </p-overlayBadge>
-              </div>
-            </div>
-          </ng-container>
-          
-          <!-- Out of stock state -->
-          <ng-container *ngIf="isOutOfStock(product)">
-            <div>
-              <button
-                pButton
-                [label]="'products.stock.out_of_stock' | translate"
-                [disabled]="true"
-                class="w-full p-button-secondary"
-                class="w-full p-button-secondary border-round-md font-semibold"
-                style="height: 2.5rem; font-size: 0.875rem;">
-              </button>
-            </div>
-          </ng-container>
-        </div>
-        
-        <!-- Desktop Layout -->
-        <div class="hidden md:block">
-          <!-- Header Section -->
-          <div class="mb-2">
-            <h4 class="text-xl font-medium m-0 mb-1 line-height-1">
-              <a [routerLink]="['/products', product.id]" 
-                 class="text-900 no-underline hover:text-primary transition-colors transition-duration-200">
-                {{ product.name }}
-              </a>
-            </h4>
-            
-            <!-- Price and Stock on same line -->
-            <div class="flex align-items-center justify-content-between">
-              <div>
-                <div class="flex align-items-baseline gap-1">
-                  <span class="text-base font-semibold text-900">{{ product.price | appCurrency }}</span>
-                  <span class="text-xs text-500">/ {{ product.unit | appUnit }}</span>
-                </div>
-                <div *ngIf="getBoxQuantity(product) && getBoxPrice(product)" class="flex align-items-center gap-2 mt-1">
-                  <span class="text-xs text-600">{{ 'products.box_price' | translate }}:</span>
-                  <span class="text-sm font-bold text-red-500">{{ getBoxPrice(product) | appCurrency }}</span>
-                  <span class="text-xs text-500">({{ getBoxQuantity(product) }} {{ product.unit | appUnit }})</span>
-                </div>
-              </div>
-
-              <!-- Stock Status - matching grid view style -->
-              <div>
-                <ng-container *ngIf="isOutOfStock(product)">
-                  <span class="text-red-500 font-medium text-sm">
-                    <i class="pi pi-times-circle mr-1"></i>{{ 'products.stock.out_of_stock' | translate }}
-                  </span>
-                </ng-container>
-                <ng-container *ngIf="!isOutOfStock(product) && product.stock_quantity < 20">
-                  <span class="text-orange-500 font-medium text-sm">
-                    <i class="pi pi-exclamation-circle mr-1"></i>{{ 'products.stock.items_left' | translate: {count: product.stock_quantity} }}
-                  </span>
-                </ng-container>
-                <ng-container *ngIf="!isOutOfStock(product) && product.stock_quantity >= 20">
-                  <span class="text-green-500 font-medium text-sm">
-                    <i class="pi pi-check-circle mr-1"></i>{{ 'products.stock.in_stock' | translate }}
-                  </span>
-                </ng-container>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Description -->
-          <p class="text-sm text-600 line-height-2 m-0 mb-2 overflow-hidden" style="max-height: 2.5rem;">
-            {{ product.description || ('products.default_description' | translate) }}
-          </p>
-          
-          <!-- Quantity Selector and Add to Cart -->
-          <div class="mt-auto">
-            <ng-container *ngIf="!isOutOfStock(product); else outOfStockButton">
-              <div class="flex align-items-center gap-2">
-                <app-product-quantity-selector
-                  [value]="getProductQuantity(product.id)"
-                  [unit]="product.unit"
-                  [stockQuantity]="product.stock_quantity"
-                  [quantityConfig]="product.quantity_config"
-                  [pricePerUnit]="product.price"
-                  [disabled]="!product.stock_quantity || product.stock_quantity === 0"
-                  [showStock]="false"
-                  (quantityChanged)="setProductQuantity(product.id, $event)"
-                  class="flex-1">
-                </app-product-quantity-selector>
-              </div>
-              
-              <div class="flex align-items-center gap-2 mt-2 py-2">
-                <div class="flex-1">
-                  <ng-container *ngIf="isProductInCart(product.id); else notInCartDesktop">
-                    <span class="text-sm text-green-500">
-                      <i class="pi pi-check-circle mr-1 text-sm"></i>
-                      {{ getCartQuantity(product.id) }} {{ 'products.cart.in_cart' | translate }} ({{ product.price * getCartQuantity(product.id) | appCurrency }})
-                    </span>
-                  </ng-container>
-                  <ng-template #notInCartDesktop>
-                    <span class="text-sm text-500">
-                      <i class="pi pi-shopping-cart mr-1 text-sm"></i>
-                      {{ 'products.cart.not_in_cart' | translate }}
-                    </span>
-                  </ng-template>
-                </div>
-                <button
-                  pButton
-                  type="button"
-                  [label]="('common.add' | translate) + ' (' + getProductQuantity(product.id) + ')'"
-                  icon="pi pi-shopping-cart"
-                  class="p-button-primary text-sm"
-                  style="min-width: 100px; width: 35%; height: 2.25rem; padding: 0 1rem;"
-                  [disabled]="!product.stock_quantity || product.stock_quantity === 0 || getProductQuantity(product.id) === 0 || getProductQuantity(product.id) > product.stock_quantity"
-                  (click)="quickAddToCart(product, $event)">
-                </button>
-              </div>
-            </ng-container>
-            
-            <ng-template #outOfStockButton>
-              <button
-                pButton
-                [label]="'products.stock.out_of_stock' | translate"
-                icon="pi pi-times"
-                [disabled]="true"
-                class="w-full p-button-secondary p-button-sm">
-              </button>
-            </ng-template>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</ng-template>
+</div>

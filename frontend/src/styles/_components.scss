@@ -2676,3 +2676,251 @@
 .animate-slide-in-delay-2 {
   animation: slideIn 0.4s ease-out 0.2s backwards;
 }
+
+
+// =============================================================================
+// 37. PRODUCTS GRID
+// =============================================================================
+// Responsive grid for product cards
+
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-3);
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-4);
+  }
+
+  @media (min-width: 1024px) {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.product-card-wrapper {
+  display: block;
+  height: 100%;
+}
+
+
+// =============================================================================
+// 38. PRODUCT LIST ITEM
+// =============================================================================
+// List view item for products
+
+.products-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.product-list-item {
+  display: flex;
+  background: var(--surface-card);
+  border-bottom: var(--border-width) solid var(--border-color-light);
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &--mobile {
+    .product-list-item__image {
+      width: 5rem;
+      height: 5rem;
+    }
+    .product-list-item__content {
+      padding: var(--space-2) var(--space-3);
+    }
+  }
+
+  &__image {
+    position: relative;
+    width: 10rem;
+    height: 8rem;
+    flex-shrink: 0;
+    overflow: hidden;
+
+    img {
+      width: 100%;
+      height: 100%;
+      padding: var(--space-1);
+      object-fit: contain;
+    }
+  }
+
+  &__content {
+    flex: 1;
+    padding: var(--space-2) var(--space-4);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-width: 0;
+  }
+
+  &__name {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-medium);
+    margin: 0 0 var(--space-2) 0;
+    line-height: 1.2;
+
+    a {
+      color: var(--text-color);
+      text-decoration: none;
+      transition: color var(--transition-fast);
+      &:hover { color: var(--primary-color); }
+    }
+  }
+
+  &__description {
+    font-size: var(--font-size-sm);
+    color: var(--text-color-secondary);
+    margin: 0 0 var(--space-3) 0;
+    line-height: 1.5;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+  }
+
+  &__price-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-3);
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  &__price {
+    .price-current {
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-semibold);
+      color: var(--text-color);
+    }
+    .price-unit {
+      font-size: var(--font-size-sm);
+      color: var(--text-color-secondary);
+    }
+  }
+
+  &__box-price {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-bottom: var(--space-3);
+    font-size: var(--font-size-xs);
+
+    .box-label { color: var(--text-color-secondary); }
+    .box-price { font-weight: var(--font-weight-bold); color: #ef4444; }
+    .box-qty { color: var(--text-color-secondary); }
+  }
+
+  &__actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    margin-top: auto;
+  }
+}
+
+
+// =============================================================================
+// 39. STOCK BADGES
+// =============================================================================
+// Status badges for stock availability
+
+.stock-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+
+  i { font-size: var(--font-size-xs); }
+
+  &--in { color: #22c55e; }
+  &--low { color: #f97316; }
+  &--out { color: #ef4444; }
+}
+
+
+// =============================================================================
+// 40. CART INDICATORS
+// =============================================================================
+// Cart status row and indicators
+
+.cart-status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--space-2) 0;
+}
+
+.cart-indicator {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--font-size-sm);
+  color: var(--text-color-secondary);
+
+  i { font-size: var(--font-size-sm); }
+  &--in { color: #22c55e; }
+}
+
+
+// =============================================================================
+// 41. PRODUCT CARD SKELETON
+// =============================================================================
+// Skeleton loading for product cards
+
+.product-card-skeleton {
+  background: var(--surface-card);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+
+  .skeleton-image {
+    aspect-ratio: 1;
+    width: 100%;
+  }
+
+  .skeleton-content {
+    padding: var(--space-3);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .skeleton-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: var(--space-2);
+  }
+}
+
+.skeleton-button {
+  height: 32px;
+  width: 80px;
+  border-radius: var(--radius-md);
+}
+
+
+// =============================================================================
+// 42. ORGANIC BADGE
+// =============================================================================
+// Badge for organic products
+
+.organic-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  background: rgba(34, 197, 94, 0.9);
+  color: white;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}

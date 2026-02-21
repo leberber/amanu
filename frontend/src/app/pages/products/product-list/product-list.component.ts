@@ -1,5 +1,4 @@
 import { Component, computed, effect, inject, OnInit, signal, OnDestroy, ViewChild, ElementRef, DestroyRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -26,7 +25,6 @@ import { Product, Category, ProductFilter } from '../../../models/product.model'
 import { SEARCH } from '../../../core/constants/app.constants';
 import { getDefaultQuantity } from '../../../shared/utils/quantity.utils';
 import { Brand } from '../../../models/brand.model';
-import { LoadingStateComponent } from '../../../shared/components/loading-state/loading-state.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { ProductCardComponent, AddToCartEvent } from '../components/product-card/product-card.component';
 import { ProductToolbarComponent, SortOption } from '../components/product-toolbar/product-toolbar.component';
@@ -39,7 +37,6 @@ import { UnitPipe } from '../../../shared/pipes/unit.pipe';
   selector: 'app-product-list',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     RouterLink,
     ToastModule,
@@ -48,7 +45,6 @@ import { UnitPipe } from '../../../shared/pipes/unit.pipe';
     OverlayBadgeModule,
     TooltipModule,
     TranslateModule,
-    LoadingStateComponent,
     EmptyStateComponent,
     ProductCardComponent,
     ProductToolbarComponent,
@@ -570,8 +566,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
       next: () => {
         // Animation handles the visual feedback
       },
-      error: (error: any) => {
-        console.error('Error adding to cart:', error);
+      error: () => {
         this.toast.showError('products.cart.error');
       }
     });
@@ -602,8 +597,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
       next: (brands) => {
         this.brands.set(brands);
       },
-      error: (error) => {
-        console.error('Error loading brands:', error);
+      error: () => {
         this.toast.showError('brands.error_loading');
       }
     });
