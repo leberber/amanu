@@ -7,6 +7,7 @@
 // - .topbar-header, .topbar-badge (order statuses)
 // - .action-btn, .action-btn--secondary, .action-btn--danger
 // - .thumbnail
+// - .items-simple-list, .item-line, .item-qty, .item-name, .item-total
 // Uses global styles from _skeleton.scss:
 // - .skeleton, .skeleton-text, .skeleton-avatar, .skeleton-image, .skeleton-circle, .skeleton-row
 // =============================================================================
@@ -34,47 +35,10 @@
   border-radius: var(--radius-sm);
 }
 
-// -----------------------------------------------------------------------------
-// Order Items List
-// -----------------------------------------------------------------------------
-.items-simple-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  flex: 1;
-  overflow-y: auto;
-  min-height: 0;
-}
-
+// Order-specific item-line overrides
 .item-line {
-  display: flex;
-  align-items: center;
   gap: var(--space-5);
   padding: var(--space-5) 0;
-  border-bottom: var(--border-width) solid var(--border-color-light);
-
-  &:last-child {
-    border-bottom: none;
-  }
-}
-
-.item-qty {
-  font-weight: var(--font-weight-semibold);
-  color: var(--text-color);
-  min-width: var(--icon-md);
-}
-
-.item-name {
-  flex: 1;
-  color: var(--text-color);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.item-total {
-  font-weight: var(--font-weight-semibold);
-  color: var(--text-color-strong);
 }
 
 // -----------------------------------------------------------------------------
@@ -181,22 +145,8 @@
     }
   }
 
-  .items-simple-list {
-    overflow: visible;
-  }
-
-  .item-line {
-    gap: var(--space-3);
-  }
-
   .thumbnail {
     width: var(--icon-md);
     height: var(--icon-md);
-  }
-
-  .item-qty,
-  .item-name,
-  .item-total {
-    font-size: var(--font-size-base);
   }
 }

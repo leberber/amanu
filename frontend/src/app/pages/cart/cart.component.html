@@ -107,7 +107,7 @@
                 <tr>
                   <td>
                     <div class="cart-item-row">
-                      <div class="thumbnail" [class.clickable]="item.product_image" (click)="openImage(item.product_image)">
+                      <div class="thumbnail" [class.clickable]="item.product_image" (click)="openImage(item)">
                         @if (item.product_image) {
                           <img
                             [src]="item.product_image"
@@ -161,7 +161,7 @@
           <div class="app-card__content block md:hidden">
             @for (item of cartItems(); track item.id) {
               <div class="cart-item-mobile">
-                <div class="thumbnail" [class.clickable]="item.product_image" (click)="openImage(item.product_image)">
+                <div class="thumbnail" [class.clickable]="item.product_image" (click)="openImage(item)">
                   @if (item.product_image) {
                     <img
                       [src]="item.product_image"
@@ -308,6 +308,8 @@
   <!-- Image Lightbox -->
   <app-image-lightbox
     [imageUrl]="selectedImage()"
+    [title]="lightboxTitle()"
+    [details]="lightboxDetails()"
     altText="Product image"
     (close)="closeImage()">
   </app-image-lightbox>

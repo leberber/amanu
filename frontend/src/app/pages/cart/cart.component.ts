@@ -21,7 +21,7 @@ import { AppliedPromotion } from '../../models/promotion.model';
 import { ProductQuantitySelectorComponent } from '../../shared/components/product-quantity-selector/product-quantity-selector.component';
 import { PageLayoutComponent } from '../../shared/components/page-layout/page-layout.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
-import { ImageLightboxComponent } from '../../shared/components/image-lightbox/image-lightbox.component';
+import { ImageLightboxComponent, LightboxDetails } from '../../shared/components/image-lightbox/image-lightbox.component';
 import { ToastMessageService } from '../../core/services/toast-message.service';
 import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
 import { UnitPipe } from '../../shared/pipes/unit.pipe';
@@ -69,6 +69,8 @@ export class CartComponent implements OnInit {
   cartItems = signal<CartItem[]>([]);
   loading = signal(true);
   selectedImage = signal<string | null>(null);
+  lightboxTitle = signal<string | null>(null);
+  lightboxDetails = signal<LightboxDetails[]>([]);
 
   // Promotion signals
   promoCode = signal('');
@@ -347,14 +349,34 @@ export class CartComponent implements OnInit {
   }
 
   // Image lightbox
-  openImage(imageUrl: string | undefined): void {
-    if (imageUrl) {
-      this.selectedImage.set(imageUrl);
+  openImage(item: CartItem): void {
+    if (item.product_image) {
+      this.selectedImage.set(item.product_image);
+      this.lightboxTitle.set(item.product_name);
+
+      const details: LightboxDetails[] = [
+        {
+          label: this.translateService.instant('common.quantity'),
+          value: `${item.quantity}`
+        },
+        {
+          label: this.translateService.instant('common.price'),
+          value: this.currencyService.formatCurrency(item.product_price)
+        },
+        {
+          label: this.translateService.instant('common.total'),
+          value: this.currencyService.formatCurrency(item.product_price * item.quantity)
+        }
+      ];
+
+      this.lightboxDetails.set(details);
     }
   }
 
   closeImage(): void {
     this.selectedImage.set(null);
+    this.lightboxTitle.set(null);
+    this.lightboxDetails.set([]);
   }
 
   // Image error handling

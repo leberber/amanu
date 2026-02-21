@@ -89,10 +89,7 @@
 .cart-item-total {
   font-size: var(--font-size-base);
   font-weight: var(--font-weight-bold);
-  color: var(--primary-color);
-  background: rgba(var(--primary-color-rgb), 0.08);
-  padding: var(--space-2) var(--space-3);
-  border-radius: var(--radius-md);
+  color: var(--text-color-strong);
 }
 
 .organic-badge {

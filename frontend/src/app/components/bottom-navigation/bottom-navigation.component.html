@@ -11,7 +11,7 @@
   <!-- Cart (only for customers) -->
   @if (!isAdminOrStaff()) {
     <a #navItem [routerLink]="routes.CART" routerLinkActive="active" class="cart-link">
-      <div class="cart-icon">
+      <div class="cart-icon" id="cart-icon-bottom">
         <i class="pi pi-shopping-cart"></i>
         @if (cartCount() > 0) {
           <span class="badge">{{ cartCount() > 99 ? '99+' : cartCount() }}</span>
