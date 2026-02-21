@@ -248,6 +248,14 @@
 
 .skeleton-text {
   height: 1rem;
+
+  &--w40 { width: 40%; }
+  &--w50 { width: 50px; }
+  &--w60 { width: 60px; }
+  &--w70 { width: 70%; }
+  &--w80 { width: 80px; }
+  &--w100 { width: 100px; }
+  &--flex { flex: 1; }
 }
 
 .skeleton-avatar {
@@ -258,6 +266,31 @@
 
 .skeleton-image {
   border-radius: var(--radius-md);
+
+  &--sm {
+    width: 48px;
+    height: 48px;
+  }
+}
+
+.skeleton-circle {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+}
+
+.skeleton-row {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+
+  &__content {
+    flex: 1;
+  }
+}
+
+.skeleton-mb {
+  margin-bottom: 0.5rem;
 }
 
 // -----------------------------------------------------------------------------

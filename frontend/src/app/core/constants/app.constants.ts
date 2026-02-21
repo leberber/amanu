@@ -178,6 +178,15 @@ export const PATTERNS = {
   URL: /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/
 } as const;
 
+// Timeline Colors (for order status timeline)
+export const TIMELINE_COLORS = {
+  PLACED: '#607D8B',
+  CONFIRMED: '#4CAF50',
+  SHIPPED: '#3F51B5',
+  DELIVERED: '#2E7D32',
+  CANCELLED: '#F44336'
+} as const;
+
 // Status Severity Mapping (for PrimeNG)
 export const STATUS_SEVERITY = {
   [ORDER_STATUS.PENDING]: 'warn',

@@ -10,7 +10,7 @@ import { ToastModule } from 'primeng/toast';
 import { TimelineModule } from 'primeng/timeline';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
-import { ORDER_STATUS } from '../../../core/constants/app.constants';
+import { ORDER_STATUS, TIMELINE_COLORS } from '../../../core/constants/app.constants';
 import { ROUTES } from '../../../core/constants/routes.constants';
 import { OrderService } from '../../../services/order.service';
 import { ProductService } from '../../../services/product.service';
@@ -35,7 +35,6 @@ interface TimelineStatus {
   standalone: true,
   imports: [
     CommonModule,
-    RouterLink,
     ToastModule,
     TimelineModule,
     TranslateModule,
@@ -72,11 +71,13 @@ export class OrderDetailComponent implements OnInit {
 
   ngOnInit(): void {
     // Check for success parameter
-    this.route.queryParams.subscribe(params => {
-      if (params['success'] === 'true') {
-        this.toast.showSuccess('orders.detail.order_placed_success_message');
-      }
-    });
+    this.route.queryParams
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(params => {
+        if (params['success'] === 'true') {
+          this.toast.showSuccess('orders.detail.order_placed_success_message');
+        }
+      });
     
     // Subscribe to language changes - automatically cleaned up on destroy
     this.translationService.currentLanguage$
@@ -135,14 +136,12 @@ export class OrderDetailComponent implements OnInit {
           translatedName: product.name,
           imageUrl: product.image_url || ''
         })),
-        catchError(error => {
-          console.error(`Error loading product ${item.product_id}:`, error);
-          return of({
+        catchError(() => of({
             orderItemId: item.id,
             translatedName: item.product_name,
             imageUrl: ''
-          });
-        })
+          })
+        )
       )
     );
 
@@ -172,18 +171,17 @@ export class OrderDetailComponent implements OnInit {
         status: this.translateService.instant('orders.detail.timeline.order_placed'),
         date: order.created_at,
         icon: 'pi pi-shopping-cart',
-        color: '#607D8B'
+        color: TIMELINE_COLORS.PLACED
       }
     ];
-    
-    // Add statuses based on current order status
+
     switch (order.status) {
       case ORDER_STATUS.CANCELLED:
         statuses.push({
           status: this.translateService.instant('orders.detail.timeline.order_cancelled'),
           date: order.updated_at || order.created_at,
           icon: 'pi pi-times',
-          color: '#F44336'
+          color: TIMELINE_COLORS.CANCELLED
         });
         break;
 
@@ -194,7 +192,7 @@ export class OrderDetailComponent implements OnInit {
           status: this.translateService.instant('orders.detail.timeline.order_confirmed'),
           date: order.updated_at || order.created_at,
           icon: 'pi pi-check-circle',
-          color: '#4CAF50'
+          color: TIMELINE_COLORS.CONFIRMED
         });
 
         if (order.status === ORDER_STATUS.SHIPPED || order.status === ORDER_STATUS.DELIVERED) {
@@ -202,7 +200,7 @@ export class OrderDetailComponent implements OnInit {
             status: this.translateService.instant('orders.detail.timeline.order_shipped'),
             date: order.updated_at || order.created_at,
             icon: 'pi pi-truck',
-            color: '#3F51B5'
+            color: TIMELINE_COLORS.SHIPPED
           });
 
           if (order.status === ORDER_STATUS.DELIVERED) {
@@ -210,13 +208,13 @@ export class OrderDetailComponent implements OnInit {
               status: this.translateService.instant('orders.detail.timeline.order_delivered'),
               date: order.updated_at || order.created_at,
               icon: 'pi pi-check-square',
-              color: '#2E7D32'
+              color: TIMELINE_COLORS.DELIVERED
             });
           }
         }
         break;
     }
-    
+
     this.orderStatuses.set(statuses);
   }
 
