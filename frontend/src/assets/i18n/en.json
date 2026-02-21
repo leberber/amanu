@@ -431,7 +431,8 @@
     "default_address_line2": "New York, NY 10001",
     "default_address_line3": "United States",
     "confirm_order": "Confirm Order",
-    "order_note": "By placing your order, you agree to our terms and conditions"
+    "order_note": "By ordering, you accept our",
+    "terms_link": "Terms & Conditions"
   },
   "orders": {
     "title": "My Orders",

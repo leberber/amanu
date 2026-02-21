@@ -154,6 +154,23 @@
 // -----------------------------------------------------------------------------
 .actions-card {
   animation: slideIn 0.4s ease-out 0.2s backwards;
+
+  .action-note {
+    font-size: 0.7rem;
+  }
+}
+
+// Terms link in action note
+.terms-link {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: var(--font-weight-medium);
+  transition: color var(--transition-fast);
+
+  &:hover {
+    color: var(--primary-color-dark, #1e4a82);
+    text-decoration: underline;
+  }
 }
 
 // -----------------------------------------------------------------------------

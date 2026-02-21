@@ -433,7 +433,8 @@
     "default_address_line2": "الرياض 12234",
     "default_address_line3": "المملكة العربية السعودية",
     "confirm_order": "تأكيد الطلب",
-    "order_note": "بوضع طلبك، فإنك توافق على الشروط والأحكام"
+    "order_note": "بالطلب، توافق على",
+    "terms_link": "الشروط والأحكام"
   },
   "orders": {
     "title": "طلباتي",

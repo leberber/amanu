@@ -428,7 +428,8 @@
     "default_address_line2": "75001 Paris",
     "default_address_line3": "France",
     "confirm_order": "Confirmer la commande",
-    "order_note": "En passant votre commande, vous acceptez nos conditions générales"
+    "order_note": "En commandant, vous acceptez nos",
+    "terms_link": "Conditions Générales"
   },
   "orders": {
     "title": "Mes Commandes",

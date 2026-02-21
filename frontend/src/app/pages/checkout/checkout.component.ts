@@ -1,7 +1,7 @@
 // src/app/pages/checkout/checkout.component.ts
 import { Component, OnInit, inject, signal, computed, DestroyRef } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ToastModule } from 'primeng/toast';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -28,6 +28,7 @@ import { getCartonCount, formatCartonCount as formatCarton } from '../../shared/
   imports: [
     FormsModule,
     ReactiveFormsModule,
+    RouterLink,
     ToastModule,
     TranslateModule,
     PageLayoutComponent,

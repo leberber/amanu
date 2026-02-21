@@ -224,7 +224,10 @@
                     <span>{{ 'checkout.place_order' | translate }}</span>
                   }
                 </button>
-                <p class="action-note">{{ 'checkout.order_note' | translate }}</p>
+                <p class="action-note">
+                  {{ 'checkout.order_note' | translate }}
+                  <a routerLink="/privacy-policy" class="terms-link">{{ 'checkout.terms_link' | translate }}</a>
+                </p>
               </div>
             </div>
           </div>
