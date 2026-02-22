@@ -413,7 +413,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
 
   // Get packaging type based on count (singular or plural)
   getPackagingTypeForCount(product: Product, count: number): string {
-    const type = product.packaging_type || 'CARTON';
+    const type = (product.packaging_type || 'carton').toLowerCase();
     const suffix = count === 1 ? '' : '_plural';
     return this.translateService.instant(`products.product.packaging_types.${type}${suffix}`);
   }

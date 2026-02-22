@@ -172,18 +172,18 @@
         "pieces": "pièces"
       },
       "packaging_types": {
-        "BOX": "boîte",
-        "BOX_plural": "boîtes",
-        "CARTON": "carton",
-        "CARTON_plural": "cartons",
-        "CRATE": "caisse",
-        "CRATE_plural": "caisses",
-        "PACK": "paquet",
-        "PACK_plural": "paquets",
-        "BAG": "sac",
-        "BAG_plural": "sacs",
-        "BUNDLE": "lot",
-        "BUNDLE_plural": "lots"
+        "box": "boîte",
+        "box_plural": "boîtes",
+        "carton": "carton",
+        "carton_plural": "cartons",
+        "crate": "caisse",
+        "crate_plural": "caisses",
+        "pack": "paquet",
+        "pack_plural": "paquets",
+        "bag": "sac",
+        "bag_plural": "sacs",
+        "bundle": "lot",
+        "bundle_plural": "lots"
       }
     },
     "stock": {

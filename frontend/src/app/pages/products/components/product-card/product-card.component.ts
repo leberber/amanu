@@ -115,7 +115,7 @@ export class ProductCardComponent {
 
   // Get packaging type based on count (singular or plural)
   getPackagingTypeForCount(count: number): string {
-    const type = this.product().packaging_type || 'CARTON';
+    const type = (this.product().packaging_type || 'carton').toLowerCase();
     const suffix = count === 1 ? '' : '_plural';
     return this.translateService.instant(`products.product.packaging_types.${type}${suffix}`);
   }

@@ -172,18 +172,18 @@
         "pieces": "قطع"
       },
       "packaging_types": {
-        "BOX": "صندوق",
-        "BOX_plural": "صناديق",
-        "CARTON": "كرتون",
-        "CARTON_plural": "كراتين",
-        "CRATE": "صندوق خشبي",
-        "CRATE_plural": "صناديق خشبية",
-        "PACK": "عبوة",
-        "PACK_plural": "عبوات",
-        "BAG": "كيس",
-        "BAG_plural": "أكياس",
-        "BUNDLE": "حزمة",
-        "BUNDLE_plural": "حزم"
+        "box": "صندوق",
+        "box_plural": "صناديق",
+        "carton": "كرتون",
+        "carton_plural": "كراتين",
+        "crate": "صندوق خشبي",
+        "crate_plural": "صناديق خشبية",
+        "pack": "عبوة",
+        "pack_plural": "عبوات",
+        "bag": "كيس",
+        "bag_plural": "أكياس",
+        "bundle": "حزمة",
+        "bundle_plural": "حزم"
       }
     },
     "stock": {

@@ -148,7 +148,7 @@ export class ProductDetailComponent implements OnInit {
   packagingType = computed(() => {
     this.currentLanguage(); // React to language changes
     const currentProduct = this.product();
-    const type = currentProduct?.packaging_type || 'CARTON';
+    const type = (currentProduct?.packaging_type || 'carton').toLowerCase();
     return this.translateService.instant(`products.product.packaging_types.${type}`);
   });
 
@@ -156,7 +156,7 @@ export class ProductDetailComponent implements OnInit {
   packagingTypePlural = computed(() => {
     this.currentLanguage(); // React to language changes
     const currentProduct = this.product();
-    const type = currentProduct?.packaging_type || 'CARTON';
+    const type = (currentProduct?.packaging_type || 'carton').toLowerCase();
     return this.translateService.instant(`products.product.packaging_types.${type}_plural`);
   });
 
