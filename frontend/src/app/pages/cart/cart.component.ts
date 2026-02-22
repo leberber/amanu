@@ -234,6 +234,13 @@ export class CartComponent implements OnInit {
     return calcCartonCount(item.quantity, item.pieces_per_box);
   }
 
+  // Get packaging type label based on count (singular or plural)
+  getPackagingTypeForCount(item: CartItem, count: number): string {
+    const type = (item.packaging_type || 'carton').toLowerCase();
+    const suffix = count === 1 ? '' : '_plural';
+    return this.translateService.instant(`products.product.packaging_types.${type}${suffix}`);
+  }
+
   proceedToCheckout(): void {
     if (this.cartItemCount() === 0) {
       this.toast.showInfo('cart.empty_checkout_message');

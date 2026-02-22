@@ -133,11 +133,22 @@
   padding: var(--space-1);
 
   .quantity-display {
-    min-width: 50px;
+    min-width: 70px;
     text-align: center;
-    font-size: var(--font-size-base);
-    font-weight: var(--font-weight-semibold);
-    color: var(--text-color);
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+
+    &__cartons {
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-bold);
+      color: var(--primary-color);
+    }
+
+    &__pieces {
+      font-size: var(--font-size-xs);
+      color: var(--text-color-secondary);
+    }
   }
 
   button {

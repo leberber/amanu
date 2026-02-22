@@ -16,6 +16,7 @@ export interface CartItem {
   quantity: number;
   stock_quantity?: number;  // To check stock level at checkout
   pieces_per_box?: number;  // Number of pieces per box
+  packaging_type?: string;  // Type of packaging (carton, box, pack, etc.)
   category_id?: number;  // For promotion scope calculation
   brand_id?: number;  // For promotion scope calculation
 }
@@ -150,7 +151,8 @@ export class CartService {
         is_organic: product.is_organic,
         stock_quantity: product.stock_quantity,
         quantity: quantity,
-        pieces_per_box: product.pieces_per_box
+        pieces_per_box: product.pieces_per_box,
+        packaging_type: product.packaging_type
       };
       currentCart.push(updatedItem);
     }
@@ -199,7 +201,8 @@ export class CartService {
         is_organic: product.is_organic,
         stock_quantity: product.stock_quantity,
         quantity: quantity,
-        pieces_per_box: product.pieces_per_box
+        pieces_per_box: product.pieces_per_box,
+        packaging_type: product.packaging_type
       };
       currentCart.push(updatedItem);
     }

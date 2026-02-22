@@ -140,7 +140,10 @@
                           [disabled]="productQuantities[item.id] <= 1 || isOutOfStock(item)"
                           (click)="updateItemQuantity(item.id, productQuantities[item.id] - (item.pieces_per_box || 1))">
                         </button>
-                        <span class="quantity-display">{{ productQuantities[item.id] }}</span>
+                        <div class="quantity-display">
+                          <span class="quantity-display__cartons">{{ getCartonCount(item) }} {{ getPackagingTypeForCount(item, getCartonCount(item)) }}</span>
+                          <span class="quantity-display__pieces">{{ productQuantities[item.id] }} {{ item.product_unit | appUnit }}</span>
+                        </div>
                         <button
                           pButton
                           type="button"
@@ -205,7 +208,10 @@
                         [disabled]="productQuantities[item.id] <= 1 || isOutOfStock(item)"
                         (click)="updateItemQuantity(item.id, productQuantities[item.id] - (item.pieces_per_box || 1))">
                       </button>
-                      <span class="quantity-display">{{ productQuantities[item.id] }}</span>
+                      <div class="quantity-display">
+                        <span class="quantity-display__cartons">{{ getCartonCount(item) }} {{ getPackagingTypeForCount(item, getCartonCount(item)) }}</span>
+                        <span class="quantity-display__pieces">{{ productQuantities[item.id] }} {{ item.product_unit | appUnit }}</span>
+                      </div>
                       <button
                         pButton
                         type="button"
