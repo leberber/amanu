@@ -151,16 +151,13 @@
   }
 }
 
-// -----------------------------------------------------------------------------
-// Password Override
-// -----------------------------------------------------------------------------
 :host ::ng-deep {
   .field-password {
     width: 100%;
 
     .p-password-input {
       width: 100%;
-      padding: 0;
+      padding: var(--space-2) 0;
       border: none;
       background: transparent;
       font-size: var(--font-size-base);
@@ -172,13 +169,14 @@
       }
 
       &::placeholder {
-        color: var(--text-color-muted);
+        color: var(--color-text-placeholder);
         font-weight: var(--font-weight-normal);
       }
     }
 
     .p-password-toggle-icon {
       color: var(--text-color-secondary);
+      font-size: 1.1rem;
     }
   }
 }
