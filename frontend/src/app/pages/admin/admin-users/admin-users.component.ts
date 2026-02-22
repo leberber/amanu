@@ -79,7 +79,6 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
   }
 
   private handleLoadError(error: any): void {
-    console.error('Error loading users:', error);
     this.loading = false;
 
     if (error.status === 403) {
@@ -223,8 +222,7 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
         this.baseToast.showSuccess('admin.users.messages.role_updated', { name: user.full_name });
         this.roleEdit.cancel();
       },
-      error: (error) => {
-        console.error('Error updating role:', error);
+      error: () => {
         this.baseToast.showError('admin.users.messages.update_failed_detail');
       }
     });
@@ -277,8 +275,7 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
         this.baseToast.showSuccess('admin.users.messages.status_updated', { name: user.full_name });
         this.statusEdit.cancel();
       },
-      error: (error) => {
-        console.error('Error updating status:', error);
+      error: () => {
         this.baseToast.showError('admin.users.messages.update_failed_detail');
       }
     });

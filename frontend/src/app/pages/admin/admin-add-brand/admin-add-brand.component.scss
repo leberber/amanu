@@ -9,7 +9,7 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
   position: relative;
   min-height: 100vh;
   overflow-y: auto;
-  background: white;
+  background: var(--surface-ground);
   padding-top: 70px; // Account for admin header
 }
 

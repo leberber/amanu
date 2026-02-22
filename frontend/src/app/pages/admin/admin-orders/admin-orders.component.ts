@@ -73,8 +73,7 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
         this.users = Array.isArray(usersResponse) ? usersResponse : usersResponse.users;
         this.loadAllOrders();
       },
-      error: (error) => {
-        console.error('Error loading users:', error);
+      error: () => {
         this.users = [];
         this.loadAllOrders();
       }
@@ -135,7 +134,6 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
         this.loading = false;
       },
       error: (error) => {
-        console.error('Error loading orders:', error);
         this.loading = false;
 
         if (error.status === 403) {
@@ -252,7 +250,6 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
             }
           },
           error: (error) => {
-            console.error('Error updating order status:', error);
             this.baseToast.showApiError(error, 'admin.orders.update_error');
           }
         });

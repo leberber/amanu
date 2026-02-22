@@ -8,7 +8,7 @@ $info-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
 .admin-dashboard {
   position: relative;
   min-height: 100vh;
-  background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+  background: var(--surface-ground);
   overflow-x: hidden;
 }
 

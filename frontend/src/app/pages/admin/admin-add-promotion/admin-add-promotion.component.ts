@@ -176,8 +176,8 @@ export class AdminAddPromotionComponent implements OnInit {
       next: (categories: Category[]) => {
         this.categories = categories;
       },
-      error: (error: any) => {
-        console.error('Error loading categories:', error);
+      error: () => {
+        // Categories load failed silently
       }
     });
   }
@@ -187,8 +187,8 @@ export class AdminAddPromotionComponent implements OnInit {
       next: (brands: Brand[]) => {
         this.brands = brands;
       },
-      error: (error: any) => {
-        console.error('Error loading brands:', error);
+      error: () => {
+        // Brands load failed silently
       }
     });
   }
@@ -198,8 +198,8 @@ export class AdminAddPromotionComponent implements OnInit {
       next: (products: any[]) => {
         this.products = products.map(p => ({ id: p.id, name: p.name }));
       },
-      error: (error: any) => {
-        console.error('Error loading products:', error);
+      error: () => {
+        // Products load failed silently
       }
     });
   }
@@ -249,8 +249,7 @@ export class AdminAddPromotionComponent implements OnInit {
 
         this.loading.set(false);
       },
-      error: (error) => {
-        console.error('Error loading promotion:', error);
+      error: () => {
         this.loading.set(false);
         this.toast.showError('admin.promotions.load_error');
         this.goBackToPromotionsList();
@@ -336,7 +335,6 @@ export class AdminAddPromotionComponent implements OnInit {
   }
 
   private handleError(operation: 'create' | 'update', error: any) {
-    console.error(`Error ${operation}ing promotion:`, error);
     const fallbackKey = operation === 'create' ? 'admin.promotions.create_failed' : 'admin.promotions.update_failed';
     this.toast.showApiError(error, fallbackKey);
   }

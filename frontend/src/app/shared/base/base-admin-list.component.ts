@@ -137,7 +137,6 @@ export abstract class BaseAdminListComponent {
         this.loading = false;
       },
       error: (error) => {
-        console.error('Error loading data:', error);
         this.loading = false;
         if (error.status === 403) {
           this.baseToast.showPermissionDenied();
@@ -161,7 +160,6 @@ export abstract class BaseAdminListComponent {
     loadFn().subscribe({
       next: onSuccess,
       error: (error) => {
-        console.error('Error loading data:', error);
         onError?.(error);
       }
     });
@@ -199,7 +197,6 @@ export abstract class BaseAdminListComponent {
         this.filterItems();
       },
       error: (error) => {
-        console.error('Error deleting item:', error);
         this.baseToast.showApiError(error, errorMessageKey);
       }
     });
@@ -262,7 +259,6 @@ export abstract class BaseAdminListComponent {
         onComplete?.();
       },
       error: (error) => {
-        console.error(`Error updating ${String(fieldName)}:`, error);
         this.baseToast.showError(errorMessageKey);
       }
     });

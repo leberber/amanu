@@ -146,8 +146,7 @@ export class AdminAddProductComponent implements OnInit {
         this.categoryOptions.set(options);
         this.categoriesLoading.set(false);
       },
-      error: (error) => {
-        console.error('Error loading categories:', error);
+      error: () => {
         this.categoriesLoading.set(false);
         this.toast.showError('products.filters.error');
       }
@@ -167,8 +166,7 @@ export class AdminAddProductComponent implements OnInit {
         this.brandOptions.set(options);
         this.brandsLoading.set(false);
       },
-      error: (error) => {
-        console.error('Error loading brands:', error);
+      error: () => {
         this.brandsLoading.set(false);
         this.toast.showError('admin.brands.load_error');
       }
@@ -204,8 +202,7 @@ export class AdminAddProductComponent implements OnInit {
 
         this.loading.set(false);
       },
-      error: (error) => {
-        console.error('Error loading product:', error);
+      error: () => {
         this.loading.set(false);
         this.toast.showError('products.filters.error');
         this.router.navigate([ROUTES.ADMIN.PRODUCTS]);

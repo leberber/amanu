@@ -7,7 +7,7 @@ $promo-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
 .promotions-page {
   position: relative;
   min-height: 100vh;
-  background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+  background: var(--surface-ground);
   overflow-x: hidden;
 }
 

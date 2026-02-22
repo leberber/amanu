@@ -83,8 +83,8 @@ export class AdminDashboardComponent implements OnInit {
           this.prepareChartData();
         }
       },
-      error: (error) => {
-        console.error('Error loading products:', error);
+      error: () => {
+        // Products load failed silently
       }
     });
     
@@ -97,8 +97,8 @@ export class AdminDashboardComponent implements OnInit {
           this.prepareChartData();
         }
       },
-      error: (error: any) => {
-        console.error('Error loading categories:', error);
+      error: () => {
+        // Categories load failed silently
       }
     });
   }
@@ -112,7 +112,6 @@ export class AdminDashboardComponent implements OnInit {
         this.prepareChartData();
       },
       error: (error) => {
-        console.error('Error loading dashboard stats:', error);
         this.loading = false;
 
         if (error.status === 403) {

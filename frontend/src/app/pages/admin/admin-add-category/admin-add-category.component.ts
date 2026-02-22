@@ -121,8 +121,7 @@ export class AdminAddCategoryComponent implements OnInit {
 
         this.loading.set(false);
       },
-      error: (error) => {
-        console.error('Error loading category:', error);
+      error: () => {
         this.loading.set(false);
         this.toast.showError('categories.load_error');
         this.goBackToCategoriesList();

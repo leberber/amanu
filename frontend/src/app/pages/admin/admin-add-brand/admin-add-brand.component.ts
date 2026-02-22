@@ -116,8 +116,7 @@ export class AdminAddBrandComponent implements OnInit {
 
         this.loading.set(false);
       },
-      error: (error) => {
-        console.error('Error loading brand:', error);
+      error: () => {
         this.loading.set(false);
         this.toast.showError('admin.brands.load_error');
         this.goBackToBrandsList();

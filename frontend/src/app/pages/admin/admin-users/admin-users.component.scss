@@ -8,7 +8,7 @@ $primary-color: #2E6CB7;
   position: relative;
   min-height: 100vh;
   overflow-y: auto;
-  background: white;
+  background: var(--surface-ground);
   padding-top: 70px;
 }
 

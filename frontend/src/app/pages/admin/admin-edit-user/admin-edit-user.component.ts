@@ -164,8 +164,7 @@ export class AdminEditUserComponent implements OnInit {
         });
         this.loading.set(false);
       },
-      error: (error) => {
-        console.error('Error loading user:', error);
+      error: () => {
         this.loading.set(false);
         this.toast.showError('admin.users.load_error');
         this.router.navigate([ROUTES.ADMIN.USERS]);
@@ -214,9 +213,8 @@ export class AdminEditUserComponent implements OnInit {
           this.router.navigate([ROUTES.ADMIN.USERS]);
         }, UI_DELAY.TOAST_BEFORE_NAVIGATE);
       },
-      error: (error) => {
+      error: () => {
         this.loading.set(false);
-        console.error('Error updating user:', error);
         this.toast.showError('admin.users.update_error');
       }
     });
