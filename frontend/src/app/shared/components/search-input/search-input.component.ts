@@ -1,4 +1,4 @@
-import { Component, inject, Input, Output, EventEmitter } from '@angular/core';
+import { Component, inject, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { InputTextModule } from 'primeng/inputtext';
@@ -25,7 +25,7 @@ import { SearchService } from '../../../services/search.service';
     ButtonModule
   ],
   template: `
-    <div class="search-input" [class.search-input--compact]="compact">
+    <div class="search-input" [class.search-input--compact]="compact()">
       <i class="pi pi-search search-input__icon"></i>
       <input
         pInputText
@@ -33,7 +33,7 @@ import { SearchService } from '../../../services/search.service';
         [ngModel]="searchService.query()"
         (ngModelChange)="onInputChange($event)"
         (keyup.enter)="onSearch()"
-        [placeholder]="placeholder | translate"
+        [placeholder]="placeholder() | translate"
         class="search-input__field">
       @if (searchService.isSearching()) {
         <i class="pi pi-spin pi-spinner search-input__loading"></i>
@@ -153,10 +153,10 @@ import { SearchService } from '../../../services/search.service';
 export class SearchInputComponent {
   protected searchService = inject(SearchService);
 
-  @Input() placeholder = 'products.search.placeholder';
-  @Input() compact = false;
-
-  @Output() searchTriggered = new EventEmitter<string>();
+  // Signal-based inputs/outputs
+  placeholder = input('products.search.placeholder');
+  compact = input(false);
+  searchTriggered = output<string>();
 
   onInputChange(value: string): void {
     this.searchService.setQuery(value);

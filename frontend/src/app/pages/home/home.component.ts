@@ -8,6 +8,7 @@ import { TranslateModule } from '@ngx-translate/core';
 
 import { ProductService } from '../../services/product.service';
 import { TranslationService } from '../../services/translation.service';
+import { ToastMessageService } from '../../core/services/toast-message.service';
 import { Category } from '../../models/product.model';
 
 @Component({
@@ -20,6 +21,7 @@ import { Category } from '../../models/product.model';
 export class HomeComponent implements OnInit, OnDestroy {
   private productService = inject(ProductService);
   private translationService = inject(TranslationService);
+  private toast = inject(ToastMessageService);
   
   categories = signal<Array<{
     id: number;
@@ -60,7 +62,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.categories.set(transformedCategories);
       },
       error: (error) => {
-        console.error('Error loading categories:', error);
+        this.toast.showApiError(error, 'errors.load_categories_failed');
       }
     });
   }

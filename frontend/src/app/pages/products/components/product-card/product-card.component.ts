@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, input, output, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -38,84 +38,93 @@ export interface BoxOption {
   styleUrl: './product-card.component.scss'
 })
 export class ProductCardComponent implements OnInit {
-  @Input() product!: Product;
-  @Output() addToCartEvent = new EventEmitter<AddToCartEvent>();
+  // Signal-based inputs/outputs
+  product = input.required<Product>();
+  addToCartEvent = output<AddToCartEvent>();
 
   private currencyService = inject(CurrencyService);
   private cartService = inject(CartService);
   private flyToCartService = inject(FlyToCartService);
 
-  selectedOption: BoxOption | null = null;
-  showQuantitySelector = false;
+  // State signals
+  selectedOption = signal<BoxOption | null>(null);
+  showQuantitySelector = signal(false);
 
   ngOnInit() {
     // Select first option by default
     const options = this.boxOptions;
     if (options.length > 0) {
-      this.selectedOption = options[0];
+      this.selectedOption.set(options[0]);
     }
   }
 
   openQuantitySelector(event: Event): void {
     event.stopPropagation();
-    this.showQuantitySelector = true;
+    this.showQuantitySelector.set(true);
     document.body.style.overflow = 'hidden';
     document.body.classList.add('quantity-overlay-open');
   }
 
   closeQuantitySelector(): void {
-    this.showQuantitySelector = false;
+    this.showQuantitySelector.set(false);
     document.body.style.overflow = '';
     document.body.classList.remove('quantity-overlay-open');
   }
 
   selectOption(option: BoxOption): void {
-    this.selectedOption = option;
+    this.selectedOption.set(option);
   }
 
   confirmSelection(): void {
     this.closeQuantitySelector();
   }
 
+  // Image error handler
+  onImageError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    img.src = 'assets/images/product-placeholder.jpg';
+  }
+
   get isInCart(): boolean {
-    return this.cartService.isProductInCart(this.product.id);
+    return this.cartService.isProductInCart(this.product().id);
   }
 
   get quantityInCart(): number {
-    return this.cartService.getProductQuantityInCart(this.product.id);
+    return this.cartService.getProductQuantityInCart(this.product().id);
   }
 
   get isOutOfStock(): boolean {
-    return this.product.stock_quantity === 0;
+    return this.product().stock_quantity === 0;
   }
 
   get isLowStock(): boolean {
-    return this.product.stock_quantity > 0 && this.product.stock_quantity < 20;
+    return this.product().stock_quantity > 0 && this.product().stock_quantity < 20;
   }
 
   get hasPromotion(): boolean {
-    return !!this.product.promotion;
+    return !!this.product().promotion;
   }
 
   get discountLabel(): string {
-    if (!this.product.promotion) return '';
-    if (this.product.promotion.discount_type === 'percentage') {
-      return `-${this.product.promotion.discount_value}%`;
+    const promotion = this.product().promotion;
+    if (!promotion) return '';
+    if (promotion.discount_type === 'percentage') {
+      return `-${promotion.discount_value}%`;
     }
-    return `-${this.currencyService.formatCurrency(this.product.promotion.discount_value)}`;
+    return `-${this.currencyService.formatCurrency(promotion.discount_value)}`;
   }
 
   get effectivePrice(): number {
-    return this.product.promotion?.discounted_price || this.product.price;
+    return this.product().promotion?.discounted_price || this.product().price;
   }
 
   get piecesPerBox(): number {
-    return this.product.pieces_per_box || 1;
+    return this.product().pieces_per_box || 1;
   }
 
   get maxBoxes(): number {
     if (this.piecesPerBox <= 0) return 0;
-    return Math.floor(this.product.stock_quantity / this.piecesPerBox);
+    return Math.floor(this.product().stock_quantity / this.piecesPerBox);
   }
 
   get boxOptions(): BoxOption[] {
@@ -137,19 +146,19 @@ export class ProductCardComponent implements OnInit {
   }
 
   get selectedQuantity(): number {
-    return this.selectedOption?.pieces || this.piecesPerBox;
+    return this.selectedOption()?.pieces || this.piecesPerBox;
   }
 
   addToCart(event: MouseEvent): void {
-    const option = this.selectedOption;
+    const option = this.selectedOption();
     if (!option) return;
 
     // Trigger fly-to-cart animation
     const button = event.currentTarget as HTMLElement;
-    this.flyToCartService.animate(button, this.product.image_url);
+    this.flyToCartService.animate(button, this.product().image_url);
 
     this.addToCartEvent.emit({
-      product: this.product,
+      product: this.product(),
       quantity: option.pieces
     });
   }

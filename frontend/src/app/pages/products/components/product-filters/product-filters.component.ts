@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, input, output, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -42,17 +42,17 @@ import { Category } from '../../../../models/product.model';
       <div class="px-4 py-3">
         <div class="flex align-items-center justify-content-between">
           <h3 class="m-0 text-lg font-semibold text-900">{{ 'products.filters.title' | translate }}</h3>
-          <ng-container *ngIf="selectedCount > 0 && selectedCount < categories.length">
-            <button 
-              pButton 
-              type="button" 
-              icon="pi pi-times" 
+          @if (selectedCount() > 0 && selectedCount() < categories().length) {
+            <button
+              pButton
+              type="button"
+              icon="pi pi-times"
               class="p-button-text p-button-rounded p-button-sm text-500"
               (click)="clearAll()"
               [pTooltip]="'products.filters.clear_all' | translate"
               tooltipPosition="left">
             </button>
-          </ng-container>
+          }
         </div>
       </div>
       <p-divider class="m-0"></p-divider>
@@ -71,19 +71,6 @@ import { Category } from '../../../../models/product.model';
               <ng-container *ngTemplateOutlet="categoriesContent"></ng-container>
             </p-accordion-content>
           </p-accordion-panel>
-
-          <!-- Future filter panels can be added here -->
-          <!-- Price Range Panel
-          <p-accordion-panel value="price">
-            <p-accordion-header>Price Range</p-accordion-header>
-            <p-accordion-content>Price slider component</p-accordion-content>
-          </p-accordion-panel> -->
-
-          <!-- Organic Only Panel
-          <p-accordion-panel value="organic">
-            <p-accordion-header>Organic</p-accordion-header>
-            <p-accordion-content>Organic checkbox</p-accordion-content>
-          </p-accordion-panel> -->
         </p-accordion>
       </div>
     </ng-template>
@@ -92,10 +79,10 @@ import { Category } from '../../../../models/product.model';
     <ng-template #filterActions>
       <p-divider class="m-0"></p-divider>
       <div class="p-3">
-        <button 
-          pButton 
-          [label]="applyButtonLabel | translate: {count: activeFilterCount}" 
-          icon="pi pi-check" 
+        <button
+          pButton
+          [label]="applyButtonLabel() | translate: {count: activeFilterCount()}"
+          icon="pi pi-check"
           class="w-full"
           (click)="applyFilters()">
         </button>
@@ -107,13 +94,13 @@ import { Category } from '../../../../models/product.model';
       <div class="flex align-items-center gap-2 w-full">
         <i class="pi pi-tags text-500"></i>
         <span class="font-medium">{{ 'products.filters.categories' | translate }}</span>
-        <ng-container *ngIf="selectedCount > 0 && selectedCount < categories.length">
-          <p-badge 
-            [value]="selectedCount + '/' + categories.length" 
-            severity="info" 
+        @if (selectedCount() > 0 && selectedCount() < categories().length) {
+          <p-badge
+            [value]="selectedCount() + '/' + categories().length"
+            severity="info"
             class="ml-auto mr-2">
           </p-badge>
-        </ng-container>
+        }
       </div>
     </ng-template>
 
@@ -122,64 +109,53 @@ import { Category } from '../../../../models/product.model';
       <div class="px-3 py-2">
         <!-- Quick Actions -->
         <div class="flex gap-2 mb-3">
-          <ng-container *ngIf="selectedCount !== categories.length">
-            <button 
-              pButton 
-              type="button" 
-              [label]="'Select All' | translate" 
+          @if (selectedCount() !== categories().length) {
+            <button
+              pButton
+              type="button"
+              [label]="'Select All' | translate"
               icon="pi pi-check-square"
               class="p-button-link p-button-sm text-xs flex-1"
               (click)="selectAll()">
             </button>
-          </ng-container>
-          <ng-container *ngIf="selectedCount > 0">
-            <button 
-              pButton 
-              type="button" 
-              [label]="'Clear Selection' | translate" 
+          }
+          @if (selectedCount() > 0) {
+            <button
+              pButton
+              type="button"
+              [label]="'Clear Selection' | translate"
               icon="pi pi-times"
               class="p-button-link p-button-sm text-xs text-orange-600 flex-1"
               (click)="clearAll()">
             </button>
-          </ng-container>
+          }
         </div>
-        
+
         <!-- Category List -->
-        <ng-container *ngTemplateOutlet="categoryList"></ng-container>
-      </div>
-    </ng-template>
-
-    <!-- Category List Template -->
-    <ng-template #categoryList>
-      <div class="flex flex-column gap-2">
-        <label *ngFor="let category of categories; trackBy: trackByCategoryId"
-          [for]="'cat-' + category.id"
-          class="category-item">
-          <ng-container *ngTemplateOutlet="categoryItem; context: { category: category }"></ng-container>
-        </label>
-      </div>
-    </ng-template>
-
-    <!-- Category Item Template -->
-    <ng-template #categoryItem let-category="category">
-      <div class="flex align-items-center gap-3 py-2 px-3 border-round cursor-pointer transition-all transition-duration-150">
-        <p-checkbox 
-          [binary]="true"
-          [ngModel]="isSelected(category)"
-          [inputId]="'cat-' + category.id"
-          (ngModelChange)="toggleCategory(category)"
-          styleClass="checkbox-sm">
-        </p-checkbox>
-        <div class="flex-1 flex align-items-center justify-content-between">
-          <span class="text-sm">{{ category.name }}</span>
-          <!-- Product count badge - shows how many products are in this category -->
-          <p-badge 
-            [value]="category.product_count?.toString() || '0'" 
-            [severity]="isSelected(category) ? 'info' : 'secondary'"
-            styleClass="badge-sm"
-            pTooltip="Products in this category"
-            tooltipPosition="left">
-          </p-badge>
+        <div class="flex flex-column gap-2">
+          @for (category of categories(); track category.id) {
+            <label [for]="'cat-' + category.id" class="category-item">
+              <div class="flex align-items-center gap-3 py-2 px-3 border-round cursor-pointer transition-all transition-duration-150">
+                <p-checkbox
+                  [binary]="true"
+                  [ngModel]="isSelected(category)"
+                  [inputId]="'cat-' + category.id"
+                  (ngModelChange)="toggleCategory(category)"
+                  styleClass="checkbox-sm">
+                </p-checkbox>
+                <div class="flex-1 flex align-items-center justify-content-between">
+                  <span class="text-sm">{{ category.name }}</span>
+                  <p-badge
+                    [value]="category.product_count?.toString() || '0'"
+                    [severity]="isSelected(category) ? 'info' : 'secondary'"
+                    styleClass="badge-sm"
+                    pTooltip="Products in this category"
+                    tooltipPosition="left">
+                  </p-badge>
+                </div>
+              </div>
+            </label>
+          }
         </div>
       </div>
     </ng-template>
@@ -311,62 +287,58 @@ import { Category } from '../../../../models/product.model';
   `]
 })
 export class ProductFiltersComponent {
-  @Input() categories: Category[] = [];
-  @Input() selectedCategories: Category[] = [];
-  @Output() categoriesChange = new EventEmitter<Category[]>();
-  @Output() filtersApplied = new EventEmitter<void>();
+  // Signal-based inputs/outputs
+  categories = input<Category[]>([]);
+  selectedCategories = input<Category[]>([]);
+  categoriesChange = output<Category[]>();
+  filtersApplied = output<void>();
 
-  get selectedCount(): number {
-    return this.selectedCategories.length;
-  }
+  // Computed values
+  selectedCount = computed(() => this.selectedCategories().length);
 
-  get activeFilterCount(): number {
+  activeFilterCount = computed(() => {
     // Count active filters - for now just categories, but can be expanded
     let count = 0;
-    
+
     // Categories filter (only count if not all selected)
-    if (this.selectedCategories.length > 0 && this.selectedCategories.length < this.categories.length) {
+    if (this.selectedCategories().length > 0 && this.selectedCategories().length < this.categories().length) {
       count++;
     }
-    
-    // Future filters can be added here:
-    // if (this.priceRangeActive) count++;
-    // if (this.organicOnly) count++;
-    
-    return count;
-  }
 
-  get applyButtonLabel(): string {
+    return count;
+  });
+
+  applyButtonLabel = computed(() => {
     // When all categories are selected (or none), show "Apply Filters"
-    if (this.selectedCategories.length === 0) {
+    if (this.selectedCategories().length === 0) {
       return 'products.filters.select_filters';
-    } else if (this.activeFilterCount === 0) {
+    } else if (this.activeFilterCount() === 0) {
       // All categories selected
       return 'products.filters.apply_filters';
-    } else if (this.activeFilterCount === 1) {
+    } else if (this.activeFilterCount() === 1) {
       return 'products.filters.apply_filters';
     } else {
       return 'products.filters.apply_filters_plural';
     }
-  }
+  });
 
   isSelected(category: Category): boolean {
-    return this.selectedCategories.some(c => c.id === category.id);
+    return this.selectedCategories().some(c => c.id === category.id);
   }
 
   toggleCategory(category: Category): void {
     let newSelection: Category[];
-    const index = this.selectedCategories.findIndex(c => c.id === category.id);
+    const index = this.selectedCategories().findIndex(c => c.id === category.id);
     if (index > -1) {
-      newSelection = this.selectedCategories.filter(c => c.id !== category.id);
+      newSelection = this.selectedCategories().filter(c => c.id !== category.id);
     } else {
-      newSelection = [...this.selectedCategories, category];
+      newSelection = [...this.selectedCategories(), category];
     }
     this.categoriesChange.emit(newSelection);
   }
 
   selectAll(): void {
-    this.categoriesChange.emit([...this.categories]);
+    this.categoriesChange.emit([...this.categories()]);
   }
 
   clearAll(): void {
@@ -376,10 +348,4 @@ export class ProductFiltersComponent {
   applyFilters(): void {
     this.filtersApplied.emit();
   }
-
-
-  trackByCategoryId(_index: number, category: Category): number {
-    return category.id;
-  }
-
 }

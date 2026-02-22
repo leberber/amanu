@@ -101,15 +101,15 @@ export class ProductListComponent implements OnInit, OnDestroy {
   productQuantities: { [key: number]: number } = {};
   selectedBoxOptions: { [key: number]: BoxOption | null } = {};
 
-  // Quantity selector overlay
-  showQuantitySelector = false;
-  activeProduct: Product | null = null;
+  // Quantity selector overlay - signals
+  showQuantitySelector = signal(false);
+  activeProduct = signal<Product | null>(null);
 
   // Animation key to trigger staggered animation on category change
   animationKey = signal(0);
 
   // Mobile category bar - compact on scroll down, full on scroll up
-  compactCategoryBar = false;
+  compactCategoryBar = signal(false);
   showMobileToolbar = signal(false);
   private lastScrollY = 0;
 
@@ -183,13 +183,13 @@ export class ProductListComponent implements OnInit, OnDestroy {
 
     if (currentScrollY <= 50) {
       // At the top - full size categories
-      this.compactCategoryBar = false;
+      this.compactCategoryBar.set(false);
     } else if (scrollDifference > 0) {
       // Scrolling down - compact categories to save space
-      this.compactCategoryBar = true;
+      this.compactCategoryBar.set(true);
     } else if (scrollDifference < 0) {
       // Scrolling up - expand categories
-      this.compactCategoryBar = false;
+      this.compactCategoryBar.set(false);
     }
 
     this.lastScrollY = currentScrollY;
@@ -700,8 +700,8 @@ export class ProductListComponent implements OnInit, OnDestroy {
   // Quantity selector overlay methods
   openQuantitySelector(product: Product, event: Event): void {
     event.stopPropagation();
-    this.activeProduct = product;
-    this.showQuantitySelector = true;
+    this.activeProduct.set(product);
+    this.showQuantitySelector.set(true);
     document.body.style.overflow = 'hidden';
     document.body.classList.add('quantity-overlay-open');
 
@@ -715,15 +715,16 @@ export class ProductListComponent implements OnInit, OnDestroy {
   }
 
   closeQuantitySelector(): void {
-    this.showQuantitySelector = false;
-    this.activeProduct = null;
+    this.showQuantitySelector.set(false);
+    this.activeProduct.set(null);
     document.body.style.overflow = '';
     document.body.classList.remove('quantity-overlay-open');
   }
 
   selectBoxOption(option: BoxOption): void {
-    if (this.activeProduct) {
-      this.selectedBoxOptions[this.activeProduct.id] = option;
+    const product = this.activeProduct();
+    if (product) {
+      this.selectedBoxOptions[product.id] = option;
     }
   }
 

@@ -387,16 +387,19 @@
 </div>
 
 <!-- Fullscreen Quantity Selector Overlay -->
-@if (showQuantitySelector && activeProduct) {
+@if (showQuantitySelector() && activeProduct(); as product) {
   <div class="quantity-overlay" (click)="closeQuantitySelector()">
     <div class="quantity-overlay__panel" (click)="$event.stopPropagation()">
       <!-- Header -->
       <div class="quantity-overlay__header">
         <div class="quantity-overlay__product">
-          <img [src]="activeProduct.image_url || 'assets/images/product-placeholder.jpg'" [alt]="activeProduct.name">
+          <img
+            [src]="product.image_url || 'assets/images/product-placeholder.jpg'"
+            [alt]="product.name"
+            (error)="$event.target.src = 'assets/images/product-placeholder.jpg'">
           <div class="quantity-overlay__product-info">
-            <h4>{{ activeProduct.name }}</h4>
-            <span class="quantity-overlay__price">{{ getEffectivePrice(activeProduct) | appCurrency }} / {{ activeProduct.unit }}</span>
+            <h4>{{ product.name }}</h4>
+            <span class="quantity-overlay__price">{{ getEffectivePrice(product) | appCurrency }} / {{ product.unit }}</span>
           </div>
         </div>
         <button class="quantity-overlay__close" (click)="closeQuantitySelector()">
@@ -406,10 +409,10 @@
 
       <!-- Options -->
       <div class="quantity-overlay__options">
-        @for (option of getBoxOptions(activeProduct); track option.boxes) {
+        @for (option of getBoxOptions(product); track option.boxes) {
           <button
             class="quantity-option"
-            [class.quantity-option--selected]="selectedBoxOptions[activeProduct.id]?.boxes === option.boxes"
+            [class.quantity-option--selected]="selectedBoxOptions[product.id]?.boxes === option.boxes"
             (click)="selectBoxOption(option)">
             <div class="quantity-option__boxes">
               <span class="quantity-option__count">{{ option.boxes }}</span>
@@ -419,7 +422,7 @@
               <span class="quantity-option__pieces">{{ option.pieces }} {{ (option.pieces === 1 ? 'products.product.quantity_selector.piece' : 'products.product.quantity_selector.pieces') | translate }}</span>
               <span class="quantity-option__price">{{ option.price | appCurrency }}</span>
             </div>
-            @if (selectedBoxOptions[activeProduct.id]?.boxes === option.boxes) {
+            @if (selectedBoxOptions[product.id]?.boxes === option.boxes) {
               <i class="pi pi-check quantity-option__check"></i>
             }
           </button>
@@ -430,10 +433,10 @@
       <div class="quantity-overlay__footer">
         <button
           class="quantity-overlay__confirm"
-          [disabled]="!selectedBoxOptions[activeProduct.id]"
+          [disabled]="!selectedBoxOptions[product.id]"
           (click)="confirmQuantitySelection()">
           <span>{{ 'common.confirm' | translate }}</span>
-          @if (selectedBoxOptions[activeProduct.id]; as option) {
+          @if (selectedBoxOptions[product.id]; as option) {
             <span class="quantity-overlay__confirm-price">{{ option.price | appCurrency }}</span>
           }
         </button>

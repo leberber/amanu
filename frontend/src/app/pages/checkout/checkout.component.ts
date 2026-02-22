@@ -187,7 +187,6 @@ export class CheckoutComponent implements OnInit {
         });
       },
       error: (error) => {
-        console.error('Error creating order:', error);
         this.isSubmitting.set(false);
         this.toast.showApiError(error, 'checkout.order_error_default');
       }
