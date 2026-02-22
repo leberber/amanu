@@ -10,6 +10,9 @@ export interface ProductPromotion {
   discounted_price: number;
 }
 
+// Packaging type for product containers (uppercase to match backend enum names)
+export type PackagingType = 'BOX' | 'CARTON' | 'CRATE' | 'PACK' | 'BAG' | 'BUNDLE';
+
 export interface Product {
     id: number;
     name: string;
@@ -28,6 +31,7 @@ export interface Product {
     name_translations?: { [key: string]: string };
     description_translations?: { [key: string]: string };
     pieces_per_box?: number;  // Number of pieces per box for dropdown selection
+    packaging_type?: PackagingType;  // Type of packaging (box, carton, crate, etc.)
     promotion?: ProductPromotion;  // Active promotion applied to this product
   }
   

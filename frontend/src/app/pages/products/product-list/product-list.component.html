@@ -159,7 +159,7 @@
                           (click)="openQuantitySelector(product, $event)">
                           <span class="quantity-selector-btn__text">
                             @if (getSelectedBoxOption(product.id); as option) {
-                              <span class="quantity-selector-btn__boxes">{{ option.boxes }} {{ (option.boxes === 1 ? 'products.product.quantity_selector.box' : 'products.product.quantity_selector.boxes') | translate }}</span>
+                              <span class="quantity-selector-btn__boxes">{{ option.boxes }} {{ getPackagingTypeForCount(product, option.boxes) }}</span>
                               <span class="quantity-selector-btn__pieces">{{ option.pieces }} {{ (option.pieces === 1 ? 'products.product.quantity_selector.piece' : 'products.product.quantity_selector.pieces') | translate }}</span>
                             } @else {
                               <span>{{ 'products.select_quantity' | translate }}</span>
@@ -397,7 +397,7 @@
                           (click)="openQuantitySelector(product, $event)">
                           <span class="quantity-selector-btn__text">
                             @if (getSelectedBoxOption(product.id); as option) {
-                              <span class="quantity-selector-btn__boxes">{{ option.boxes }} {{ (option.boxes === 1 ? 'products.product.quantity_selector.box' : 'products.product.quantity_selector.boxes') | translate }}</span>
+                              <span class="quantity-selector-btn__boxes">{{ option.boxes }} {{ getPackagingTypeForCount(product, option.boxes) }}</span>
                               <span class="quantity-selector-btn__pieces">{{ option.pieces }} {{ (option.pieces === 1 ? 'products.product.quantity_selector.piece' : 'products.product.quantity_selector.pieces') | translate }}</span>
                             } @else {
                               <span>{{ 'products.select_quantity' | translate }}</span>
@@ -468,7 +468,7 @@
             (click)="selectBoxOption(option)">
             <div class="quantity-option__boxes">
               <span class="quantity-option__count">{{ option.boxes }}</span>
-              <span class="quantity-option__label">{{ (option.boxes === 1 ? 'products.product.quantity_selector.box' : 'products.product.quantity_selector.boxes') | translate }}</span>
+              <span class="quantity-option__label">{{ getPackagingTypeForCount(product, option.boxes) }}</span>
             </div>
             <div class="quantity-option__details">
               <span class="quantity-option__pieces">{{ option.pieces }} {{ (option.pieces === 1 ? 'products.product.quantity_selector.piece' : 'products.product.quantity_selector.pieces') | translate }}</span>

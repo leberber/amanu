@@ -170,6 +170,20 @@
         "boxes": "كراتين",
         "piece": "قطعة",
         "pieces": "قطع"
+      },
+      "packaging_types": {
+        "BOX": "صندوق",
+        "BOX_plural": "صناديق",
+        "CARTON": "كرتون",
+        "CARTON_plural": "كراتين",
+        "CRATE": "صندوق خشبي",
+        "CRATE_plural": "صناديق خشبية",
+        "PACK": "عبوة",
+        "PACK_plural": "عبوات",
+        "BAG": "كيس",
+        "BAG_plural": "أكياس",
+        "BUNDLE": "حزمة",
+        "BUNDLE_plural": "حزم"
       }
     },
     "stock": {

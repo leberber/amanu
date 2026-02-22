@@ -195,7 +195,7 @@
                   </div>
                   <div class="info-box__content">
                     <h4>{{ 'products.stock.low_stock_title' | translate }}</h4>
-                    <p>{{ 'products.stock.low_stock' | translate : { count: stockInCartons() } }} {{ (stockInCartons() === 1 ? 'products.product.quantity_selector.box' : 'products.product.quantity_selector.boxes') | translate }}</p>
+                    <p>{{ 'products.stock.low_stock' | translate : { count: stockInCartons() } }} {{ getPackagingTypeForCount(stockInCartons()) }}</p>
                   </div>
                 </div>
               } @else {
@@ -205,7 +205,7 @@
                   </div>
                   <div class="info-box__content">
                     <h4>{{ 'products.stock.in_stock' | translate }}</h4>
-                    <p>{{ stockInCartons() }} {{ (stockInCartons() === 1 ? 'products.product.quantity_selector.box' : 'products.product.quantity_selector.boxes') | translate }} {{ 'products.stock.available' | translate }}</p>
+                    <p>{{ stockInCartons() }} {{ getPackagingTypeForCount(stockInCartons()) }} {{ 'products.stock.available' | translate }}</p>
                   </div>
                 </div>
               }
@@ -245,7 +245,7 @@
                     [class.quantity-display--in-cart]="quantityMatchesCart()"
                     [class.quantity-display--update]="isInCart() && !quantityMatchesCart()">
                     <span class="quantity-display__boxes">{{ selectedQuantity() / (product()?.pieces_per_box || 1) }}</span>
-                    <span class="quantity-display__label">{{ (selectedQuantity() / (product()?.pieces_per_box || 1) === 1 ? 'products.product.quantity_selector.box' : 'products.product.quantity_selector.boxes') | translate }}</span>
+                    <span class="quantity-display__label">{{ getPackagingTypeForCount(selectedQuantity() / (product()?.pieces_per_box || 1)) }}</span>
                   </div>
                   <button
                     pButton

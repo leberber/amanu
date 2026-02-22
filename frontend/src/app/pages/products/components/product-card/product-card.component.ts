@@ -1,6 +1,6 @@
 import { Component, inject, input, output, computed } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 // PrimeNG imports
 import { ButtonModule } from 'primeng/button';
@@ -67,6 +67,7 @@ export class ProductCardComponent {
   private currencyService = inject(CurrencyService);
   private cartService = inject(CartService);
   private flyToCartService = inject(FlyToCartService);
+  private translateService = inject(TranslateService);
 
   openQuantitySelector(event: Event): void {
     event.stopPropagation();
@@ -111,6 +112,13 @@ export class ProductCardComponent {
   boxOptions = computed(() => generateBoxOptions(this.product(), this.currencyService));
 
   selectedQuantity = computed(() => this.selectedBoxOption()?.pieces || this.piecesPerBox());
+
+  // Get packaging type based on count (singular or plural)
+  getPackagingTypeForCount(count: number): string {
+    const type = this.product().packaging_type || 'CARTON';
+    const suffix = count === 1 ? '' : '_plural';
+    return this.translateService.instant(`products.product.packaging_types.${type}${suffix}`);
+  }
 
   addToCart(event: MouseEvent): void {
     const option = this.selectedBoxOption();

@@ -18,6 +18,15 @@ class ProductUnit(str, Enum):
     POUND = "pound"
     BOX = "box"
 
+class PackagingType(str, Enum):
+    """Type of packaging/container for products"""
+    BOX = "box"
+    CARTON = "carton"
+    CRATE = "crate"
+    PACK = "pack"
+    BAG = "bag"
+    BUNDLE = "bundle"
+
 class ProductBase(SQLModel):
     """Base product model with common fields"""
     name: str = Field(min_length=1, max_length=100, index=True)
@@ -44,6 +53,9 @@ class ProductBase(SQLModel):
 
     # Pieces per box - used for dropdown quantity selection
     pieces_per_box: Optional[int] = Field(default=None, ge=1)
+
+    # Packaging type - box, carton, crate, etc.
+    packaging_type: Optional[PackagingType] = Field(default=PackagingType.CARTON)
 
 class Product(ProductBase, table=True):
     """Database model for products"""
@@ -88,6 +100,7 @@ class ProductUpdate(SQLModel):
     category_id: Optional[int] = Field(default=None)
     brand_id: Optional[int] = Field(default=None)
     pieces_per_box: Optional[int] = Field(default=None, ge=1)
+    packaging_type: Optional[PackagingType] = Field(default=None)
 
 class ProductPromotion(SQLModel):
     """Promotion info attached to a product"""

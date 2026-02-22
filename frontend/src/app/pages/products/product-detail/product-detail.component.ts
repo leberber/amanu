@@ -8,7 +8,7 @@ import { of } from 'rxjs';
 // PrimeNG imports
 import { ToastModule } from 'primeng/toast';
 import { ButtonModule } from 'primeng/button';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { PageLayoutComponent } from '../../../shared/components/page-layout/page-layout.component';
 import { ErrorStateComponent } from '../../../shared/components/error-state/error-state.component';
 import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
@@ -65,6 +65,7 @@ export class ProductDetailComponent implements OnInit {
   private flyToCartService = inject(FlyToCartService);
   private brandService = inject(BrandService);
   private destroyRef = inject(DestroyRef);
+  private translateService = inject(TranslateService);
 
   // Constants
   readonly ROUTES = ROUTES;
@@ -142,6 +143,27 @@ export class ProductDetailComponent implements OnInit {
     const piecesPerBox = currentProduct.pieces_per_box || 1;
     return Math.floor(currentProduct.stock_quantity / piecesPerBox);
   });
+
+  // Packaging type display (singular)
+  packagingType = computed(() => {
+    this.currentLanguage(); // React to language changes
+    const currentProduct = this.product();
+    const type = currentProduct?.packaging_type || 'CARTON';
+    return this.translateService.instant(`products.product.packaging_types.${type}`);
+  });
+
+  // Packaging type display (plural)
+  packagingTypePlural = computed(() => {
+    this.currentLanguage(); // React to language changes
+    const currentProduct = this.product();
+    const type = currentProduct?.packaging_type || 'CARTON';
+    return this.translateService.instant(`products.product.packaging_types.${type}_plural`);
+  });
+
+  // Get packaging type based on count (singular or plural)
+  getPackagingTypeForCount(count: number): string {
+    return count === 1 ? this.packagingType() : this.packagingTypePlural();
+  }
 
   ngOnInit() {
     // Subscribe to cart changes to update the button

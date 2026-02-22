@@ -43,3 +43,21 @@
                                                                                                                                          
   -- Update existing orders                                                                                                              
   UPDATE orders SET subtotal = total_amount WHERE subtotal IS NULL; 
+
+
+
+
+
+    ALTER TABLE products ADD COLUMN IF NOT EXISTS pieces_per_box INTEGER;                                                                                                           
+                                                                                                                                                                                  
+  -- 2. Remove pieces_per_box from order_items table (was added by mistake earlier)                                                                                               
+  ALTER TABLE order_items DROP COLUMN IF EXISTS pieces_per_box;                                                                                                                   
+                                                                                                                                                                                  
+  -- 3. Remove quantity_config from products table (no longer needed)                                                                                                             
+  ALTER TABLE products DROP COLUMN IF EXISTS quantity_config; 
+
+    -- Add packaging_type column to products table                                                                                                                                                              
+  ALTER TABLE products ADD COLUMN packaging_type VARCHAR(20) DEFAULT 'carton';                                                                                                                                
+                                                                                                                                                                                                              
+  -- Update existing products to have 'carton' as default (optional, since DEFAULT handles this)                                                                                                              
+  UPDATE products SET packaging_type = 'carton' WHERE packaging_type IS NULL;    

@@ -411,6 +411,13 @@ export class ProductListComponent implements OnInit, OnDestroy {
     return this.translateService.instant('products.stock.low_stock', { count: product.stock_quantity });
   }
 
+  // Get packaging type based on count (singular or plural)
+  getPackagingTypeForCount(product: Product, count: number): string {
+    const type = product.packaging_type || 'CARTON';
+    const suffix = count === 1 ? '' : '_plural';
+    return this.translateService.instant(`products.product.packaging_types.${type}${suffix}`);
+  }
+
   // Private methods
   private loadCategoriesAndProducts(): void {
     this.productService.getCategories(true).subscribe({

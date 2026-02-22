@@ -170,6 +170,20 @@
         "boxes": "boxes",
         "piece": "piece",
         "pieces": "pieces"
+      },
+      "packaging_types": {
+        "BOX": "box",
+        "BOX_plural": "boxes",
+        "CARTON": "carton",
+        "CARTON_plural": "cartons",
+        "CRATE": "crate",
+        "CRATE_plural": "crates",
+        "PACK": "pack",
+        "PACK_plural": "packs",
+        "BAG": "bag",
+        "BAG_plural": "bags",
+        "BUNDLE": "bundle",
+        "BUNDLE_plural": "bundles"
       }
     },
     "stock": {
