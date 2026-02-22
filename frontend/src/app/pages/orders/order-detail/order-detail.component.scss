@@ -6,7 +6,8 @@
 // - .app-card, .app-card__header, .app-card__icon, .app-card__title, .app-card__content
 // - .topbar-header, .topbar-badge (order statuses)
 // - .action-btn, .action-btn--secondary, .action-btn--danger
-// - .thumbnail
+// - .action-buttons, .action-note
+// - .thumbnail, .thumbnail.clickable
 // - .items-simple-list, .item-line, .item-qty, .item-name, .item-total
 // - .total-display, .total-display--subtle
 // Uses global styles from _skeleton.scss:
@@ -83,24 +84,9 @@
 }
 
 // -----------------------------------------------------------------------------
-// Actions
-// -----------------------------------------------------------------------------
-.action-buttons {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-5);
-}
-
-.action-note {
-  font-size: var(--font-size-xs);
-  color: var(--text-color-secondary);
-  text-align: center;
-  margin: 0;
-}
-
-// -----------------------------------------------------------------------------
 // Responsive
 // -----------------------------------------------------------------------------
+// Note: .action-buttons and .action-note are defined globally in _components.scss
 // Note: Card padding and item-line styles are defined globally in _components.scss
 @media (max-width: 768px) {
   .order-items-card {

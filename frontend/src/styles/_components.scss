@@ -1166,10 +1166,11 @@
   // Clickable state (for lightbox)
   &.clickable {
     cursor: pointer;
-    transition: transform var(--transition-fast);
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
 
     &:hover {
-      transform: scale(var(--scale-hover));
+      transform: scale(1.05);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
     }
   }
 
@@ -2649,7 +2650,26 @@
 
 
 // =============================================================================
-// 36. ANIMATIONS
+// 36. ACTION BUTTONS CONTAINER
+// =============================================================================
+// Container for action buttons (checkout, order-detail)
+
+.action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.action-note {
+  font-size: var(--font-size-xs);
+  color: var(--text-color-secondary);
+  text-align: center;
+  margin: 0;
+}
+
+
+// =============================================================================
+// 37. ANIMATIONS
 // =============================================================================
 // Shared animations for page transitions
 
@@ -2970,7 +2990,7 @@
   bottom: 0;
   inset-inline: 0;
   background: var(--surface-card);
-  border-top: 1px solid var(--surface-border);
+  border-top: 1px solid var(--border-color-light);
   display: flex;
   padding: var(--space-2) var(--space-2) calc(var(--space-2) + env(safe-area-inset-bottom, 0px));
   z-index: var(--z-bottom-nav, 1000);

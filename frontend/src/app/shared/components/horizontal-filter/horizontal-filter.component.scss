@@ -26,11 +26,6 @@
 
   position: relative;
   background: var(--surface-card);
-  border-bottom: 1px solid var(--surface-200);
-}
-
-:host-context(.my-app-dark) {
-  border-bottom-color: var(--surface-border);
 }
 
 
@@ -236,6 +231,7 @@
     gap: var(--item-gap-mobile);
     padding: var(--item-padding-mobile);
     padding-inline-end: 0;
+    border-bottom: 1px solid #f2efef;
 
     &.compact {
       column-gap: var(--item-gap-compact);

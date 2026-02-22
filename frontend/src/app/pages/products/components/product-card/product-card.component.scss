@@ -15,7 +15,7 @@
   height: 100%;
   background: var(--surface-card);
   border-radius: var(--radius-md);
-  border: var(--border-width) solid var(--surface-border);
+  border: var(--border-width) solid var(--border-color-light);
   overflow: hidden;
   transition: box-shadow var(--transition-fast), transform var(--transition-fast);
 

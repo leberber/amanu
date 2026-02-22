@@ -163,7 +163,9 @@
   color: var(--text-color-strong);
 }
 
-// Table overrides (same pattern as cart)
+// Table overrides
+// Note: Similar to global .data-table in _components.scss but with order-list-specific
+// header background (--surface-ground) and hover handled by .order-row instead
 :host ::ng-deep {
   .p-datatable {
     .p-datatable-header-cell {

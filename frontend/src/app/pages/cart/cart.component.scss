@@ -272,6 +272,8 @@
 // -----------------------------------------------------------------------------
 // Table Overrides
 // -----------------------------------------------------------------------------
+// Note: Similar to global .data-table in _components.scss but with cart-specific
+// header background (--surface-50) and row hover transitions
 :host ::ng-deep {
   .p-datatable {
     .p-datatable-header-cell {

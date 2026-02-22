@@ -14,6 +14,7 @@
 // - .shipping-fields, .shipping-field
 // - .field-icon, .field-icon--primary, .field-icon--success, .field-icon--warning
 // - .field-content, .field-label, .field-value
+// - .thumbnail.clickable (hover effects)
 // - @keyframes slideIn, .animate-slide-in
 // Uses global styles from _skeleton.scss:
 // - .skeleton, .skeleton-text, .skeleton-avatar, .skeleton-row
@@ -91,21 +92,9 @@
 }
 
 // -----------------------------------------------------------------------------
-// Clickable thumbnails
-// -----------------------------------------------------------------------------
-.thumbnail.clickable {
-  cursor: pointer;
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
-
-  &:hover {
-    transform: scale(1.05);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  }
-}
-
-// -----------------------------------------------------------------------------
 // Responsive
 // -----------------------------------------------------------------------------
+// Note: .thumbnail.clickable is defined globally in _components.scss
 @media (max-width: 767px) {
   .order-summary-card {
     min-height: auto;
