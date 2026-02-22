@@ -141,16 +141,22 @@
     border-radius: var(--radius-md) !important;
   }
 
-  // Cart status
+  // Cart status (always reserve space)
   &__cart-status {
     display: flex;
     align-items: center;
     gap: var(--space-1);
     font-size: var(--font-size-xs);
-    color: var(--green-500);
+    color: #22c55e;
+    min-height: 1.25rem;
+    visibility: hidden;
 
     i {
       font-size: var(--font-size-xs);
+    }
+
+    &--visible {
+      visibility: visible;
     }
   }
 
