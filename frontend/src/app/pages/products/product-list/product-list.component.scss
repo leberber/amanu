@@ -12,6 +12,50 @@
 $bottom-nav-height: 70px;
 
 // =============================================================================
+// DESKTOP TOOLBAR
+// =============================================================================
+
+.desktop-toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+}
+
+.desktop-search {
+  flex: 1;
+
+  ::ng-deep .search-input__field {
+    border: 1px solid #e0e0e0;
+    background: var(--surface-0);
+  }
+}
+
+.view-toggle-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border: 1px solid #e0e0e0;
+  border-radius: var(--radius-md);
+  background: var(--surface-0);
+  color: var(--text-color-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+
+  &:hover {
+    background: var(--surface-100);
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+  }
+
+  i {
+    font-size: 1.1rem;
+  }
+}
+
+// =============================================================================
 // RESPONSIVE LAYOUT
 // =============================================================================
 

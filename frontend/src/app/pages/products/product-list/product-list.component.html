@@ -16,9 +16,15 @@
       (modeToggle)="toggleFilterMode()">
     </app-horizontal-filter>
 
-    <!-- Desktop Search -->
-    <div class="px-4 py-2">
-      <app-search-input class="max-w-30rem"></app-search-input>
+    <!-- Desktop Search + View Toggle -->
+    <div class="desktop-toolbar">
+      <app-search-input class="desktop-search"></app-search-input>
+      <button
+        type="button"
+        class="view-toggle-btn"
+        (click)="toggleViewMode()">
+        <i [class]="layout() === 'grid' ? 'pi pi-list' : 'pi pi-th-large'"></i>
+      </button>
     </div>
 
     <!-- Products Content -->
