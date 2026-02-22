@@ -24,6 +24,7 @@ import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
 import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { OrderItem } from '../../../models/order.model';
+import { getOrderCartonDisplay } from '../../../shared/utils/quantity.utils';
 
 interface TimelineStatus {
   status: string;
@@ -285,10 +286,6 @@ export class OrderDetailComponent implements OnInit {
 
   // Get formatted display (e.g., "1x10" for 1 unit containing 10 pieces)
   getCartonDisplay(item: { quantity: number; pieces_per_box?: number }): string {
-    if (item.pieces_per_box) {
-      return `${item.quantity}x${item.pieces_per_box}`;
-    }
-    // No pieces_per_box, just show quantity
-    return `${item.quantity}x`;
+    return getOrderCartonDisplay(item.quantity, item.pieces_per_box);
   }
 }

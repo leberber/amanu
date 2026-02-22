@@ -9,6 +9,7 @@ import { TagModule } from 'primeng/tag';
 import { Product } from '../../../../models/product.model';
 import { CurrencyService } from '../../../../core/services/currency.service';
 import { FlyToCartService } from '../../../../core/services/fly-to-cart.service';
+import { OverlayService } from '../../../../core/services/overlay.service';
 import { CartService } from '../../../../services/cart.service';
 import { CurrencyPipe } from '../../../../shared/pipes/currency.pipe';
 import { ImageFallbackDirective } from '../../../../shared/directives/image-fallback.directive';
@@ -55,6 +56,7 @@ export class ProductCardComponent implements OnInit {
   private currencyService = inject(CurrencyService);
   private cartService = inject(CartService);
   private flyToCartService = inject(FlyToCartService);
+  private overlayService = inject(OverlayService);
 
   // State signals
   selectedOption = signal<BoxOption | null>(null);
@@ -71,14 +73,12 @@ export class ProductCardComponent implements OnInit {
   openQuantitySelector(event: Event): void {
     event.stopPropagation();
     this.showQuantitySelector.set(true);
-    document.body.style.overflow = 'hidden';
-    document.body.classList.add('quantity-overlay-open');
+    this.overlayService.open('quantity-overlay-open');
   }
 
   closeQuantitySelector(): void {
     this.showQuantitySelector.set(false);
-    document.body.style.overflow = '';
-    document.body.classList.remove('quantity-overlay-open');
+    this.overlayService.close('quantity-overlay-open');
   }
 
   selectOption(option: BoxOption): void {

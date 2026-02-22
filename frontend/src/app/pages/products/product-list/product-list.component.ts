@@ -22,6 +22,7 @@ import { FlyToCartService } from '../../../core/services/fly-to-cart.service';
 import { BrandService } from '../../../core/services/brand.service';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
 import { UserPreferencesService, ViewMode } from '../../../core/services/user-preferences.service';
+import { OverlayService } from '../../../core/services/overlay.service';
 import { Product, Category, ProductFilter } from '../../../models/product.model';
 import { getDefaultQuantity, getBaseQuantity } from '../../../shared/utils/quantity.utils';
 import { Brand } from '../../../models/brand.model';
@@ -74,6 +75,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
   private preferencesService = inject(UserPreferencesService);
   protected searchService = inject(SearchService);
   private elementRef = inject(ElementRef);
+  private overlayService = inject(OverlayService);
 
   // State signals
   products = signal<Product[]>([]);
@@ -681,8 +683,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
     event.stopPropagation();
     this.activeProduct.set(product);
     this.showQuantitySelector.set(true);
-    document.body.style.overflow = 'hidden';
-    document.body.classList.add('quantity-overlay-open');
+    this.overlayService.open('quantity-overlay-open');
 
     // Initialize selection if not set
     if (!this.selectedBoxOptions[product.id]) {
@@ -696,8 +697,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
   closeQuantitySelector(): void {
     this.showQuantitySelector.set(false);
     this.activeProduct.set(null);
-    document.body.style.overflow = '';
-    document.body.classList.remove('quantity-overlay-open');
+    this.overlayService.close('quantity-overlay-open');
   }
 
   selectBoxOption(option: BoxOption): void {
