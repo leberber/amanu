@@ -175,3 +175,25 @@ $bottom-nav-height: 70px;
   grid-template-columns: repeat(2, 1fr);
   gap: var(--space-2);
 }
+
+
+// =============================================================================
+// 6. STAGGERED ANIMATION
+// =============================================================================
+
+.product-card-animate,
+.product-item-animate {
+  animation: cardFadeIn 0.4s ease-out forwards;
+  opacity: 0;
+}
+
+@keyframes cardFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

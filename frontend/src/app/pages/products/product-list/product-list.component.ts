@@ -77,6 +77,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
   private flyToCartService = inject(FlyToCartService);
   private preferencesService = inject(UserPreferencesService);
   protected searchService = inject(SearchService);
+  private elementRef = inject(ElementRef);
 
   // State signals
   products = signal<Product[]>([]);
@@ -103,6 +104,9 @@ export class ProductListComponent implements OnInit, OnDestroy {
   // Quantity selector overlay
   showQuantitySelector = false;
   activeProduct: Product | null = null;
+
+  // Animation key to trigger staggered animation on category change
+  animationKey = signal(0);
 
   // Mobile category bar - compact on scroll down, full on scroll up
   compactCategoryBar = false;
@@ -271,8 +275,22 @@ export class ProductListComponent implements OnInit, OnDestroy {
       this.appliedCategories.set([category]);
     }
 
+    // Scroll to top and trigger animation
+    this.scrollToTop();
+    this.animationKey.update(k => k + 1);
+
     this.loading.set(true);
     this.loadProducts().subscribe();
+  }
+
+  // Scroll to top of product list
+  private scrollToTop(): void {
+    // Use setTimeout to ensure DOM has updated before scrolling
+    setTimeout(() => {
+      // The host element is the scroll container (via router-outlet + * { overflow-y: auto })
+      const hostElement = this.elementRef.nativeElement as HTMLElement;
+      hostElement.scrollTop = 0;
+    }, 0);
   }
 
   // Brand filter selection
@@ -286,6 +304,11 @@ export class ProductListComponent implements OnInit, OnDestroy {
       ...f,
       brand_id: brandId
     }));
+
+    // Scroll to top and trigger animation
+    this.scrollToTop();
+    this.animationKey.update(k => k + 1);
+
     this.loading.set(true);
     this.loadProducts().subscribe();
   }

@@ -52,19 +52,20 @@
       } @else {
         <!-- Products Grid/List -->
         @if (layout() === 'grid') {
-          <div class="products-grid">
-            @for (product of products(); track product.id) {
+          <div class="products-grid" [attr.data-animation-key]="animationKey()">
+            @for (product of products(); track product.id; let i = $index) {
               <app-product-card
                 [product]="product"
                 (addToCartEvent)="onAddToCart($event)"
-                class="product-card-wrapper">
+                class="product-card-wrapper product-card-animate"
+                [style.animation-delay]="(i * 50) + 'ms'">
               </app-product-card>
             }
           </div>
         } @else {
-          <div class="products-list">
-            @for (product of products(); track product.id) {
-              <div class="product-list-item">
+          <div class="products-list" [attr.data-animation-key]="animationKey()">
+            @for (product of products(); track product.id; let i = $index) {
+              <div class="product-list-item product-item-animate" [style.animation-delay]="(i * 50) + 'ms'">
                 <!-- Product Image -->
                 <a [routerLink]="['/products', product.id]" class="product-list-item__image">
                   <img
@@ -257,19 +258,20 @@
       } @else {
         <!-- Mobile Products -->
         @if (layout() === 'grid') {
-          <div class="products-grid products-grid--mobile">
-            @for (product of products(); track product.id) {
+          <div class="products-grid products-grid--mobile" [attr.data-animation-key]="animationKey()">
+            @for (product of products(); track product.id; let i = $index) {
               <app-product-card
                 [product]="product"
                 (addToCartEvent)="onAddToCart($event)"
-                class="product-card-wrapper">
+                class="product-card-wrapper product-card-animate"
+                [style.animation-delay]="(i * 50) + 'ms'">
               </app-product-card>
             }
           </div>
         } @else {
-          <div class="products-list">
-            @for (product of products(); track product.id) {
-              <div class="product-list-item product-list-item--mobile">
+          <div class="products-list" [attr.data-animation-key]="animationKey()">
+            @for (product of products(); track product.id; let i = $index) {
+              <div class="product-list-item product-list-item--mobile product-item-animate" [style.animation-delay]="(i * 50) + 'ms'">
                 <!-- Product Image -->
                 <a [routerLink]="['/products', product.id]" class="product-list-item__image">
                   <img
