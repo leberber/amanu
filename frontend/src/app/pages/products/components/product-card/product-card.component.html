@@ -44,10 +44,11 @@
         <button
           type="button"
           class="quantity-selector-btn quantity-selector-btn--compact"
+          [class.quantity-selector-btn--in-cart]="isInCart()"
           (click)="openQuantitySelector($event)">
           <span class="quantity-selector-btn__text">
             @if (selectedBoxOption()) {
-              <span>{{ selectedBoxOption()!.boxes }} {{ (selectedBoxOption()!.boxes === 1 ? 'products.product.quantity_selector.box' : 'products.product.quantity_selector.boxes') | translate }}</span>
+              <span class="quantity-selector-btn__boxes">{{ selectedBoxOption()!.boxes }} {{ (selectedBoxOption()!.boxes === 1 ? 'products.product.quantity_selector.box' : 'products.product.quantity_selector.boxes') | translate }}</span>
             } @else {
               <span>{{ 'products.select_quantity' | translate }}</span>
             }

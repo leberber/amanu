@@ -35,17 +35,17 @@
     align-items: center;
     gap: 0.5rem;
     font-size: 0.85rem;
-    font-weight: 600;
-    color: #1e293b;
+    font-weight: 400;
+    color: #000000;
   }
 
   &__boxes {
-    background: rgba(46, 108, 183, 0.12);
-    color: #2E6CB7;
+    background: var(--p-button-primary-background);
+    color: white;
     padding: 0.25rem 0.5rem;
     border-radius: 8px;
-    font-size: 1rem;
-    font-weight: 700;
+    font-size: 0.9rem;
+    font-weight: 500;
   }
 
   &__pieces {
@@ -69,6 +69,13 @@
 
     .quantity-selector-btn__text {
       font-size: 0.8rem;
+    }
+  }
+
+  // In cart state - green boxes badge
+  &--in-cart {
+    .quantity-selector-btn__boxes {
+      background: #22c55e;
     }
   }
 }

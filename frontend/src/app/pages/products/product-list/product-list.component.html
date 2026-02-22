@@ -136,6 +136,7 @@
                         <button
                           type="button"
                           class="quantity-selector-btn"
+                          [class.quantity-selector-btn--in-cart]="isProductInCart(product.id)"
                           (click)="openQuantitySelector(product, $event)">
                           <span class="quantity-selector-btn__text">
                             @if (getSelectedBoxOption(product.id); as option) {
@@ -352,6 +353,7 @@
                         <button
                           type="button"
                           class="quantity-selector-btn"
+                          [class.quantity-selector-btn--in-cart]="isProductInCart(product.id)"
                           (click)="openQuantitySelector(product, $event)">
                           <span class="quantity-selector-btn__text">
                             @if (getSelectedBoxOption(product.id); as option) {
