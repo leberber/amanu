@@ -80,10 +80,11 @@
 <!-- Mobile Drawer -->
 <p-drawer
   [(visible)]="mobileDrawerVisible"
-  [position]="drawerPosition()"
+  [fullScreen]="true"
   [showCloseIcon]="false"
-  [modal]="true"
-  styleClass="sidebar-drawer">
+  [modal]="false"
+  transitionOptions="200ms ease-out"
+  styleClass="fade-drawer">
 
   <ng-template pTemplate="headless">
     <div class="sidebar-mobile-container relative">

@@ -59,6 +59,9 @@ a {
 .p-timeline-event-opposite { flex: 0 !important; }
 .p-drawer { border: none !important; }
 
+// Fade drawer - override slide with opacity
+.fade-drawer.p-drawer { transform: none !important; }
+
 .cart-quantity-selector .p-select .p-select-label {
   text-overflow: clip !important;
   overflow: visible !important;

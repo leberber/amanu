@@ -85,49 +85,6 @@
 // Slide-out drawer for mobile viewport (< 768px)
 // Semi-transparent to show app-level decorative blobs
 
-// PrimeNG drawer overrides - Full screen with fade animation
-:host ::ng-deep .sidebar-drawer {
-  .p-drawer {
-    width: 100% !important;
-    max-width: 100% !important;
-    height: 100% !important;
-    box-shadow: none !important;
-    // Override slide animation with fade
-    animation: drawerFadeIn 0.3s ease-out !important;
-  }
-
-  .p-drawer-content {
-    padding: 0 !important;
-    background: transparent !important;
-  }
-
-  // Mask/backdrop fade
-  .p-overlay-mask {
-    animation: backdropFadeIn 0.3s ease-out !important;
-  }
-}
-
-// Fade in animation for drawer
-@keyframes drawerFadeIn {
-  from {
-    opacity: 0;
-    transform: scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-@keyframes backdropFadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
 // Main container - full screen with solid background
 .sidebar-mobile-container {
   height: 100%;
