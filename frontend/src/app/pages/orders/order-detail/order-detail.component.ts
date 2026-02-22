@@ -23,6 +23,7 @@ import { ImageLightboxComponent } from '../../../shared/components/image-lightbo
 import { ErrorStateComponent } from '../../../shared/components/error-state/error-state.component';
 import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
 import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
+import { StatusPipe } from '../../../shared/pipes/status.pipe';
 import { getOrderCartonDisplay } from '../../../shared/utils/quantity.utils';
 
 interface TimelineStatus {
@@ -44,7 +45,8 @@ interface TimelineStatus {
     ImageLightboxComponent,
     ErrorStateComponent,
     CurrencyPipe,
-    DateFormatPipe
+    DateFormatPipe,
+    StatusPipe
   ],
   templateUrl: './order-detail.component.html',
   styleUrl: './order-detail.component.scss'
@@ -219,11 +221,6 @@ export class OrderDetailComponent implements OnInit {
     }
 
     this.orderStatuses.set(statuses);
-  }
-
-  getStatusLabel(status: string): string {
-    // Use translation service for status labels
-    return this.translateService.instant(`orders.status.${status}`);
   }
 
   cancelOrder(): void {

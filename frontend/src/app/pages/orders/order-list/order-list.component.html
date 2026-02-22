@@ -141,7 +141,7 @@
                     <td class="order-number">{{ order.id }}</td>
                     <td>{{ order.created_at | appDate }}</td>
                     <td>
-                      <p-tag [severity]="getStatusSeverity(order.status)" [value]="getStatusLabel(order.status)"></p-tag>
+                      <p-tag [severity]="getStatusSeverity(order.status)" [value]="order.status | appStatus"></p-tag>
                     </td>
                     <td class="order-amount">{{ order.total_amount | appCurrency }}</td>
                     <td>
@@ -167,7 +167,7 @@
                       <span class="order-item__number">{{ 'orders.table.order_number' | translate }}{{ order.id }}</span>
                       <p-tag
                         [severity]="getStatusSeverity(order.status)"
-                        [value]="getStatusLabel(order.status)"
+                        [value]="order.status | appStatus"
                         styleClass="order-item__tag">
                       </p-tag>
                     </div>

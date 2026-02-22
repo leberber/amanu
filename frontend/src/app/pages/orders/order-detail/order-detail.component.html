@@ -29,7 +29,7 @@
            'pi-check-square': order()?.status === 'delivered',
            'pi-times-circle': order()?.status === 'cancelled'
          }"></i>
-      <span class="hidden-mobile">{{ getStatusLabel(order()?.status || '') }}</span>
+      <span class="hidden-mobile">{{ (order()?.status || '') | appStatus }}</span>
     </div>
   }
 

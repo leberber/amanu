@@ -6,7 +6,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TableModule } from 'primeng/table';
 import { ToastModule } from 'primeng/toast';
 import { TagModule } from 'primeng/tag';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 
 import { ROUTES, RouteHelpers } from '../../../core/constants/routes.constants';
 import { OrderService } from '../../../services/order.service';
@@ -18,6 +18,7 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
 import { ErrorStateComponent } from '../../../shared/components/error-state/error-state.component';
 import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
 import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
+import { StatusPipe } from '../../../shared/pipes/status.pipe';
 
 @Component({
   selector: 'app-order-list',
@@ -32,7 +33,8 @@ import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
     EmptyStateComponent,
     ErrorStateComponent,
     CurrencyPipe,
-    DateFormatPipe
+    DateFormatPipe,
+    StatusPipe
   ],
   templateUrl: './order-list.component.html',
   styleUrls: ['./order-list.component.scss']
@@ -55,7 +57,6 @@ export class OrderListComponent implements OnInit {
   private orderService = inject(OrderService);
   private router = inject(Router);
   private toast = inject(ToastMessageService);
-  private translateService = inject(TranslateService);
   private statusSeverity = inject(StatusSeverityService);
   private destroyRef = inject(DestroyRef);
 
@@ -90,7 +91,4 @@ export class OrderListComponent implements OnInit {
     return this.statusSeverity.getOrderStatusSeverity(status);
   }
 
-  getStatusLabel(status: string): string {
-    return this.translateService.instant(`orders.status.${status}`);
-  }
 }
