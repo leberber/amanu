@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, input, output, signal, computed } from '@angular/core';
+import { Component, inject, input, output, computed } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -9,7 +9,6 @@ import { TagModule } from 'primeng/tag';
 import { Product } from '../../../../models/product.model';
 import { CurrencyService } from '../../../../core/services/currency.service';
 import { FlyToCartService } from '../../../../core/services/fly-to-cart.service';
-import { OverlayService } from '../../../../core/services/overlay.service';
 import { CartService } from '../../../../services/cart.service';
 import { CurrencyPipe } from '../../../../shared/pipes/currency.pipe';
 import { ImageFallbackDirective } from '../../../../shared/directives/image-fallback.directive';
@@ -32,6 +31,11 @@ export interface AddToCartEvent {
   quantity: number;
 }
 
+export interface QuantitySelectorEvent {
+  product: Product;
+  event: Event;
+}
+
 export type { BoxOption };
 
 @Component({
@@ -48,45 +52,28 @@ export type { BoxOption };
   templateUrl: './product-card.component.html',
   styleUrl: './product-card.component.scss'
 })
-export class ProductCardComponent implements OnInit {
+export class ProductCardComponent {
   // Signal-based inputs/outputs
   product = input.required<Product>();
   addToCartEvent = output<AddToCartEvent>();
+  quantitySelectorEvent = output<QuantitySelectorEvent>();
+
+  // Input for selected option (managed by parent)
+  selectedBoxOption = input<BoxOption | null>(null);
+
+  // Input for highlight animation (triggered by parent after confirm)
+  highlightCart = input<boolean>(false);
 
   private currencyService = inject(CurrencyService);
   private cartService = inject(CartService);
   private flyToCartService = inject(FlyToCartService);
-  private overlayService = inject(OverlayService);
-
-  // State signals
-  selectedOption = signal<BoxOption | null>(null);
-  showQuantitySelector = signal(false);
-
-  ngOnInit() {
-    // Select first option by default
-    const options = this.boxOptions();
-    if (options.length > 0) {
-      this.selectedOption.set(options[0]);
-    }
-  }
 
   openQuantitySelector(event: Event): void {
     event.stopPropagation();
-    this.showQuantitySelector.set(true);
-    this.overlayService.open('quantity-overlay-open');
-  }
-
-  closeQuantitySelector(): void {
-    this.showQuantitySelector.set(false);
-    this.overlayService.close('quantity-overlay-open');
-  }
-
-  selectOption(option: BoxOption): void {
-    this.selectedOption.set(option);
-  }
-
-  confirmSelection(): void {
-    this.closeQuantitySelector();
+    this.quantitySelectorEvent.emit({
+      product: this.product(),
+      event
+    });
   }
 
   // Computed signals using shared utilities
@@ -108,10 +95,10 @@ export class ProductCardComponent implements OnInit {
 
   boxOptions = computed(() => generateBoxOptions(this.product(), this.currencyService));
 
-  selectedQuantity = computed(() => this.selectedOption()?.pieces || this.piecesPerBox());
+  selectedQuantity = computed(() => this.selectedBoxOption()?.pieces || this.piecesPerBox());
 
   addToCart(event: MouseEvent): void {
-    const option = this.selectedOption();
+    const option = this.selectedBoxOption();
     if (!option) return;
 
     // Trigger fly-to-cart animation

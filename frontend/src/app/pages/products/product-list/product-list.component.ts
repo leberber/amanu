@@ -27,7 +27,7 @@ import { Product, Category, ProductFilter } from '../../../models/product.model'
 import { getDefaultQuantity, getBaseQuantity } from '../../../shared/utils/quantity.utils';
 import { Brand } from '../../../models/brand.model';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
-import { ProductCardComponent, AddToCartEvent } from '../components/product-card/product-card.component';
+import { ProductCardComponent, AddToCartEvent, QuantitySelectorEvent } from '../components/product-card/product-card.component';
 import { isOutOfStock as checkOutOfStock } from '../../../shared/utils/stock.utils';
 import { getEffectivePrice as calcEffectivePrice } from '../../../shared/utils/discount.utils';
 import { generateBoxOptions, BoxOption } from '../../../shared/utils/box-options.utils';
@@ -102,6 +102,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
   // Quantity selector overlay - signals
   showQuantitySelector = signal(false);
   activeProduct = signal<Product | null>(null);
+  highlightedProductId = signal<number | null>(null);
 
   // Animation key to trigger staggered animation on category change
   animationKey = signal(0);
@@ -366,6 +367,10 @@ export class ProductListComponent implements OnInit, OnDestroy {
 
   onAddToCart(event: AddToCartEvent): void {
     this.handleAddToCart(event.product, event.quantity);
+  }
+
+  onQuantitySelectorOpen(event: QuantitySelectorEvent): void {
+    this.openQuantitySelector(event.product, event.event);
   }
 
   isOutOfStock(product: Product): boolean {
@@ -708,7 +713,15 @@ export class ProductListComponent implements OnInit, OnDestroy {
   }
 
   confirmQuantitySelection(): void {
+    const productId = this.activeProduct()?.id;
     this.closeQuantitySelector();
+    // Trigger highlight animation on cart button after overlay closes
+    if (productId) {
+      setTimeout(() => {
+        this.highlightedProductId.set(productId);
+        setTimeout(() => this.highlightedProductId.set(null), 800);
+      }, 100);
+    }
   }
 
   getEffectivePrice(product: Product): number {
