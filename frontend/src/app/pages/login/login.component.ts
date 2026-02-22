@@ -1,5 +1,5 @@
 // src/app/pages/login/login.component.ts
-import { Component, OnInit, inject, ElementRef } from '@angular/core';
+import { Component, OnInit, inject, ElementRef, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
@@ -7,7 +7,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { ToastModule } from 'primeng/toast';
 import { DialogModule } from 'primeng/dialog';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { finalize } from 'rxjs';
 
 import { AuthService } from '../../services/auth.service';
@@ -15,6 +15,7 @@ import { UserRole } from '../../models/user.model';
 import { LanguageSelectorComponent } from '../../components/language-selector/language-selector.component';
 import { ToastMessageService } from '../../core/services/toast-message.service';
 import { STORAGE_KEYS, ANIMATION, UI_DELAY } from '../../core/constants/app.constants';
+import { ROUTES, DefaultRedirects } from '../../core/constants/routes.constants';
 
 @Component({
   selector: 'app-login',
@@ -30,16 +31,16 @@ import { STORAGE_KEYS, ANIMATION, UI_DELAY } from '../../core/constants/app.cons
     TranslateModule,
     LanguageSelectorComponent
   ],
-    templateUrl: './login.component.html',
+  templateUrl: './login.component.html',
   styleUrl: './login.component.scss'
 })
 export class LoginComponent implements OnInit {
-  // State properties
+  // State signals
   loginForm!: FormGroup;
-  loading = false;
-  returnUrl: string = '/';
-  showInactiveModal = false;
-  focusedField = '';
+  loading = signal(false);
+  returnUrl = signal<string>(ROUTES.HOME);
+  showInactiveModal = signal(false);
+  focusedField = signal('');
 
   // Services
   private fb = inject(FormBuilder);
@@ -47,7 +48,6 @@ export class LoginComponent implements OnInit {
   router = inject(Router);
   private route = inject(ActivatedRoute);
   private toast = inject(ToastMessageService);
-  private translateService = inject(TranslateService);
   private elementRef = inject(ElementRef);
 
   // Lifecycle hooks
@@ -67,24 +67,24 @@ export class LoginComponent implements OnInit {
       return;
     }
 
-    this.loading = true;
+    this.loading.set(true);
     this.authService.login(this.loginForm.value)
       .pipe(
         finalize(() => {
-          setTimeout(() => this.loading = false, ANIMATION.VERY_SLOW);
+          setTimeout(() => this.loading.set(false), ANIMATION.VERY_SLOW);
         })
       )
       .subscribe({
         next: (user) => {
           this.toast.showSuccess('auth.login_success');
 
-          let targetUrl = this.returnUrl;
+          let targetUrl: string = this.returnUrl();
 
-          if (this.returnUrl === '/' && user.role === UserRole.STAFF) {
-            targetUrl = '/admin/orders';
+          if (this.returnUrl() === ROUTES.HOME && user.role === UserRole.STAFF) {
+            targetUrl = DefaultRedirects.STAFF_DEFAULT;
           }
-          else if (this.returnUrl === '/' && user.role === UserRole.ADMIN) {
-            targetUrl = '/admin';
+          else if (this.returnUrl() === ROUTES.HOME && user.role === UserRole.ADMIN) {
+            targetUrl = DefaultRedirects.ADMIN_DEFAULT;
           }
 
           setTimeout(() => {
@@ -95,7 +95,7 @@ export class LoginComponent implements OnInit {
           // Check if error is due to inactive account
           if (error.status === 400 && (error.error?.detail?.toLowerCase().includes('inactive'))) {
             // Show the inactive account modal
-            this.showInactiveModal = true;
+            this.showInactiveModal.set(true);
           } else {
             // Show regular error toast for other errors
             this.toast.showApiError(error, 'auth.login_failed');
@@ -106,11 +106,11 @@ export class LoginComponent implements OnInit {
 
   // Input focus handling
   onInputFocus(fieldName: string): void {
-    this.focusedField = fieldName;
+    this.focusedField.set(fieldName);
   }
 
   onInputBlur(): void {
-    this.focusedField = '';
+    this.focusedField.set('');
   }
 
   // Focus input when clicking anywhere on the field container
@@ -131,7 +131,7 @@ export class LoginComponent implements OnInit {
   }
 
   private checkReturnUrl(): void {
-    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
+    this.returnUrl.set(this.route.snapshot.queryParams['returnUrl'] || ROUTES.HOME);
   }
 
   private checkSessionExpired(): void {

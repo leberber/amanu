@@ -26,7 +26,7 @@
       <!-- Form -->
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
         <!-- Email Field -->
-        <div class="fancy-field" data-field="username" [class.focused]="focusedField === 'username'" [class.filled]="loginForm.get('username')?.value" (click)="focusField('username')">
+        <div class="fancy-field" data-field="username" [class.focused]="focusedField() === 'username'" [class.filled]="loginForm.get('username')?.value" (click)="focusField('username')">
           <div class="field-icon">
             <i class="pi pi-envelope"></i>
           </div>
@@ -45,7 +45,7 @@
         </div>
 
         <!-- Password Field -->
-        <div class="fancy-field password-field" data-field="password" [class.focused]="focusedField === 'password'" [class.filled]="loginForm.get('password')?.value" (click)="focusField('password')">
+        <div class="fancy-field password-field" data-field="password" [class.focused]="focusedField() === 'password'" [class.filled]="loginForm.get('password')?.value" (click)="focusField('password')">
           <div class="field-icon">
             <i class="pi pi-lock"></i>
           </div>
@@ -70,32 +70,27 @@
           </a>
         </div>
       </form>
-
-      <!-- Register Link -->
-      <div class="register-link">
-        <span>{{ 'auth.no_account' | translate }}</span>
-        <a routerLink="/register">
-          {{ 'auth.register_now' | translate }}
-          <i class="pi pi-arrow-right"></i>
-        </a>
-      </div>
     </div>
   </div>
 
   <!-- Fixed Footer Button -->
   <div class="fixed-footer">
-    <button class="fancy-btn" [disabled]="loginForm.invalid || loading" (click)="onSubmit()">
-      <span *ngIf="!loading">{{ 'auth.login' | translate }}</span>
-      <div class="btn-icon" *ngIf="!loading">
-        <i class="pi pi-sign-in"></i>
-      </div>
-      <i *ngIf="loading" class="pi pi-spin pi-spinner"></i>
+    <button class="fancy-btn" [disabled]="loginForm.invalid || loading()" (click)="onSubmit()">
+      @if (!loading()) {
+        <span>{{ 'auth.login' | translate }}</span>
+        <div class="btn-icon">
+          <i class="pi pi-sign-in"></i>
+        </div>
+      } @else {
+        <i class="pi pi-spin pi-spinner"></i>
+      }
     </button>
   </div>
 
   <!-- Inactive Account Modal -->
   <p-dialog
-    [(visible)]="showInactiveModal"
+    [visible]="showInactiveModal()"
+    (visibleChange)="showInactiveModal.set($event)"
     [modal]="true"
     [closable]="true"
     [closeOnEscape]="true"
@@ -144,7 +139,7 @@
       </div>
 
       <!-- Close Button -->
-      <button class="fancy-btn" (click)="showInactiveModal = false; router.navigate(['/'])">
+      <button class="fancy-btn" (click)="showInactiveModal.set(false); router.navigate(['/'])">
         <span>{{ 'common.close' | translate }}</span>
       </button>
     </div>

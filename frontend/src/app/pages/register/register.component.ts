@@ -1,5 +1,5 @@
 // src/app/pages/register/register.component.ts
-import { Component, inject, ViewChild, ElementRef, OnInit, OnDestroy, DestroyRef } from '@angular/core';
+import { Component, inject, ViewChild, ElementRef, OnInit, OnDestroy, DestroyRef, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Router, RouterLink } from '@angular/router';
@@ -9,7 +9,7 @@ import { ToastModule } from 'primeng/toast';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { SelectModule } from 'primeng/select';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { AuthService } from '../../services/auth.service';
 import { UserRole } from '../../models/user.model';
 import { MapPickerComponent, LocationData } from '../../shared/components/map-picker/map-picker.component';
@@ -18,6 +18,7 @@ import { FormBuilderService } from '../../core/services/form-builder.service';
 import { PhoneFormatDirective } from '../../directives/phone-format.directive';
 import { LanguageSelectorComponent } from '../../components/language-selector/language-selector.component';
 import { ToastMessageService } from '../../core/services/toast-message.service';
+import { ROUTES } from '../../core/constants/routes.constants';
 
 // Interfaces for wilaya data
 interface Commune {
@@ -59,10 +60,11 @@ interface WilayaData {
 export class RegisterComponent implements OnInit, OnDestroy {
   @ViewChild(MapPickerComponent) mapPicker!: MapPickerComponent;
 
-  loading = false;
-  activeStep = 0;
-  focusedField = '';
-  isInputFocused = false;
+  // State signals
+  loading = signal(false);
+  activeStep = signal(0);
+  focusedField = signal('');
+  isInputFocused = signal(false);
 
   // Form groups for each step
   personalInfoForm: FormGroup;
@@ -85,7 +87,6 @@ export class RegisterComponent implements OnInit, OnDestroy {
   private authService = inject(AuthService);
   private router = inject(Router);
   private toast = inject(ToastMessageService);
-  private translateService = inject(TranslateService);
   private fb = inject(FormBuilder);
   private elementRef = inject(ElementRef);
 
@@ -126,8 +127,8 @@ export class RegisterComponent implements OnInit, OnDestroy {
           value: w.wilaya
         }));
       },
-      error: (err) => {
-        console.error('Failed to load wilaya data:', err);
+      error: () => {
+        this.toast.showError('register.wilaya_load_failed');
       }
     });
   }
@@ -244,8 +245,8 @@ export class RegisterComponent implements OnInit, OnDestroy {
   private goToNextStepAfterLocation() {
     // Small delay for smoother transition
     setTimeout(() => {
-      if (this.activeStep === 2) {
-        this.activeStep = 3;
+      if (this.activeStep() === 2) {
+        this.activeStep.set(3);
         this.onStepChange();
       }
     }, 300);
@@ -322,9 +323,9 @@ export class RegisterComponent implements OnInit, OnDestroy {
     return !!(values.wilaya && values.daira && values.commune);
   }
 
-  // Check if current step is valid
-  get canProceedCurrentStep(): boolean {
-    switch (this.activeStep) {
+  // Computed signal for canProceedCurrentStep
+  canProceedCurrentStep = computed(() => {
+    switch (this.activeStep()) {
       case 0:
         return this.canProceedStep1();
       case 1:
@@ -336,7 +337,7 @@ export class RegisterComponent implements OnInit, OnDestroy {
       default:
         return true;
     }
-  }
+  });
 
   // Check if a specific step can be accessed (all previous steps must be valid)
   canAccessStep(step: number): boolean {
@@ -351,23 +352,23 @@ export class RegisterComponent implements OnInit, OnDestroy {
   goToStep(step: number) {
     // Only allow going to steps that are accessible (previous steps completed)
     // Or going back to previous steps
-    if (step <= this.activeStep || this.canAccessStep(step)) {
-      this.activeStep = step;
+    if (step <= this.activeStep() || this.canAccessStep(step)) {
+      this.activeStep.set(step);
       this.onStepChange();
     }
   }
 
   nextStep() {
     // Only proceed if current step is valid
-    if (this.activeStep < 4 && this.canProceedCurrentStep) {
-      this.activeStep++;
+    if (this.activeStep() < 4 && this.canProceedCurrentStep()) {
+      this.activeStep.update(v => v + 1);
       this.onStepChange();
     }
   }
 
   private onStepChange() {
     // Invalidate map size when entering map step
-    if (this.activeStep === 2 && this.mapPicker) {
+    if (this.activeStep() === 2 && this.mapPicker) {
       setTimeout(() => {
         // Map will show "Use My Location" button for user to click
       }, 300);
@@ -375,8 +376,8 @@ export class RegisterComponent implements OnInit, OnDestroy {
   }
 
   prevStep() {
-    if (this.activeStep > 0) {
-      this.activeStep--;
+    if (this.activeStep() > 0) {
+      this.activeStep.update(v => v - 1);
     }
   }
 
@@ -412,7 +413,7 @@ export class RegisterComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.loading = true;
+    this.loading.set(true);
 
     const storeDetails = this.storeDetailsForm.getRawValue();
     const registerData = {
@@ -435,42 +436,42 @@ export class RegisterComponent implements OnInit, OnDestroy {
         next: () => {
           this.toast.showSuccess('auth.register_success');
           setTimeout(() => {
-            this.router.navigate(['/login']);
+            this.router.navigate([ROUTES.LOGIN]);
           }, UI_DELAY.TOAST_BEFORE_NAVIGATE);
         },
         error: (error) => {
           this.toast.showApiError(error, 'auth.register_failed');
-          this.loading = false;
+          this.loading.set(false);
         }
       });
   }
 
-  // Password validation checks
-  get passwordHasMinLength(): boolean {
-    const password = this.passwordForm.get('password')?.value || '';
+  // Password validation checks using computed signals
+  passwordHasMinLength = computed(() => {
+    const password = this.passwordForm?.get('password')?.value || '';
     return password.length >= 8;
-  }
+  });
 
-  get passwordHasLetter(): boolean {
-    const password = this.passwordForm.get('password')?.value || '';
+  passwordHasLetter = computed(() => {
+    const password = this.passwordForm?.get('password')?.value || '';
     return /[a-zA-Z]/.test(password);
-  }
+  });
 
-  get passwordHasNumber(): boolean {
-    const password = this.passwordForm.get('password')?.value || '';
+  passwordHasNumber = computed(() => {
+    const password = this.passwordForm?.get('password')?.value || '';
     return /[0-9]/.test(password);
-  }
+  });
 
-  get passwordsMatch(): boolean {
-    const password = this.passwordForm.get('password')?.value || '';
-    const confirmPassword = this.passwordForm.get('confirmPassword')?.value || '';
+  passwordsMatch = computed(() => {
+    const password = this.passwordForm?.get('password')?.value || '';
+    const confirmPassword = this.passwordForm?.get('confirmPassword')?.value || '';
     return password.length > 0 && confirmPassword.length > 0 && password === confirmPassword;
-  }
+  });
 
   // Scroll input into view when focused
   onInputFocus(fieldName: string): void {
-    this.focusedField = fieldName;
-    this.isInputFocused = true;
+    this.focusedField.set(fieldName);
+    this.isInputFocused.set(true);
 
     // Scroll the focused input to top with offset
     setTimeout(() => {
@@ -492,11 +493,11 @@ export class RegisterComponent implements OnInit, OnDestroy {
   }
 
   onInputBlur(): void {
-    this.focusedField = '';
+    this.focusedField.set('');
     // Small delay to prevent flicker when switching between inputs
     setTimeout(() => {
-      if (!this.focusedField) {
-        this.isInputFocused = false;
+      if (!this.focusedField()) {
+        this.isInputFocused.set(false);
       }
     }, 100);
   }
