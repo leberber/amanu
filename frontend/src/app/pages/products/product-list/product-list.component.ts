@@ -165,7 +165,11 @@ export class ProductListComponent implements OnInit, OnDestroy {
       window.addEventListener('scroll', this.handleScroll, { passive: true });
     }
 
-    this.loadCategoriesAndProducts();
+    // Only call loadCategoriesAndProducts if language subscription hasn't already fired
+    // The BehaviorSubject emits immediately, so this is a fallback
+    if (this.categories().length === 0) {
+      this.loadCategoriesAndProducts();
+    }
   }
 
   ngOnDestroy(): void {
@@ -413,11 +417,9 @@ export class ProductListComponent implements OnInit, OnDestroy {
       next: (categories) => {
         this.categories.set(categories);
 
-        // Set first category as default if categories exist
-        if (categories.length > 0) {
-          this.activeCategoryId.set(categories[0].id);
-          this.selectedCategories.set([categories[0]]);
-          this.appliedCategories.set([categories[0]]);
+        // Set default category only on first load (no category selected yet)
+        if (!this.activeCategoryId() && !this.activeBrandId() && categories.length > 0) {
+          this.setDefaultCategory(categories);
         }
 
         // Load all products to calculate counts
@@ -425,26 +427,40 @@ export class ProductListComponent implements OnInit, OnDestroy {
 
         this.route.queryParams.pipe(
           tap(params => {
-            if (params['category']) {
-              const categoryId = Number(params['category']);
-              this.filters.update(f => ({ ...f, category_id: categoryId }));
+            // Handle URL params for direct navigation (bookmarks)
+            // Only apply if no selection has been made yet
+            if (!this.activeCategoryId() && !this.activeBrandId()) {
+              // Handle brand param (takes priority, switches to brands mode)
+              if (params['brand']) {
+                const brandId = Number(params['brand']);
+                this.filterMode.set('brands');
+                this.activeBrandId.set(brandId);
+                this.filters.update(f => ({ ...f, brand_id: brandId }));
+              }
+              // Handle category param
+              else if (params['category']) {
+                const categoryId = Number(params['category']);
+                this.filterMode.set('categories');
+                this.filters.update(f => ({ ...f, category_id: categoryId }));
 
-              const selectedCategory = this.categories().find(c => c.id === categoryId);
-              if (selectedCategory) {
-                this.activeCategoryId.set(categoryId);
-                this.selectedCategories.set([selectedCategory]);
+                const selectedCategory = this.categories().find(c => c.id === categoryId);
+                if (selectedCategory) {
+                  this.activeCategoryId.set(categoryId);
+                  this.selectedCategories.set([selectedCategory]);
+                  this.appliedCategories.set([selectedCategory]);
+                }
               }
             }
-            
+
             if (params['search']) {
               this.searchService.setQuery(params['search']);
               this.filters.update(f => ({ ...f, search: params['search'] }));
             }
-            
+
             if (params['layout'] && (params['layout'] === 'grid' || params['layout'] === 'list')) {
               this.preferencesService.setProductViewMode(params['layout'] as ViewMode);
             }
-            
+
             this.loading.set(true);
           }),
           switchMap(() => this.loadProducts())
@@ -455,6 +471,16 @@ export class ProductListComponent implements OnInit, OnDestroy {
         this.loading.set(false);
       }
     });
+  }
+
+  private setDefaultCategory(categories: Category[]): void {
+    if (categories.length > 0) {
+      const firstCategory = categories[0];
+      this.filterMode.set('categories');
+      this.activeCategoryId.set(firstCategory.id);
+      this.selectedCategories.set([firstCategory]);
+      this.appliedCategories.set([firstCategory]);
+    }
   }
 
   private loadProducts(): Observable<Product[]> {

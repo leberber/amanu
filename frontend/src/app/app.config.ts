@@ -1,7 +1,8 @@
 // src/app/app.config.ts
 import { ApplicationConfig, provideZoneChangeDetection, isDevMode, importProvidersFrom } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { provideRouter, RouteReuseStrategy } from '@angular/router';
 import { provideHttpClient, withInterceptors, HttpClient, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { CustomRouteReuseStrategy } from './core/strategies/custom-route-reuse.strategy';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { providePrimeNG } from 'primeng/config';
 import { MessageService } from 'primeng/api';
@@ -21,8 +22,9 @@ export function HttpLoaderFactory(http: HttpClient) {
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideZoneChangeDetection({ eventCoalescing: true }), 
+    provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
+    { provide: RouteReuseStrategy, useClass: CustomRouteReuseStrategy },
     provideHttpClient(withInterceptors([authInterceptor])),
     {
       provide: HTTP_INTERCEPTORS,
