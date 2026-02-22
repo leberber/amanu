@@ -24,7 +24,7 @@ import { ToastMessageService } from '../../../core/services/toast-message.servic
 import { UserPreferencesService, ViewMode } from '../../../core/services/user-preferences.service';
 import { OverlayService } from '../../../core/services/overlay.service';
 import { Product, Category, ProductFilter } from '../../../models/product.model';
-import { getDefaultQuantity, getBaseQuantity } from '../../../shared/utils/quantity.utils';
+import { getDefaultQuantity } from '../../../shared/utils/quantity.utils';
 import { Brand } from '../../../models/brand.model';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { ProductCardComponent, AddToCartEvent, QuantitySelectorEvent } from '../components/product-card/product-card.component';
