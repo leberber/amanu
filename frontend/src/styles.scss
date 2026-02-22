@@ -283,7 +283,11 @@ a {
 // ---------------------------------------------------------------------------
 // 7. Toast Styles
 // ---------------------------------------------------------------------------
-.p-toast { opacity: 1 !important; }
+.p-toast {
+  opacity: 1 !important;
+  z-index: 99999 !important;
+  position: fixed !important;
+}
 
 .p-toast-message {
   margin: 0 0 0.75rem 0 !important;
