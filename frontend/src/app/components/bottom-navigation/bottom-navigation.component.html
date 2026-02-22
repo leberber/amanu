@@ -1,17 +1,17 @@
 <div class="bottom-nav">
   <!-- Sliding Indicator -->
-  <div class="nav-indicator" [style.left.px]="indicatorLeft()" [style.width.px]="indicatorWidth()"></div>
+  <div class="bottom-nav__indicator" [style.left.px]="indicatorLeft()" [style.width.px]="indicatorWidth()"></div>
 
   <!-- Products -->
-  <a #navItem [routerLink]="routes.PRODUCTS" routerLinkActive="active">
+  <a #navItem class="bottom-nav__item" [routerLink]="routes.PRODUCTS" routerLinkActive="active">
     <i class="pi pi-shopping-bag"></i>
     <span>{{ 'common.products' | translate }}</span>
   </a>
 
   <!-- Cart (only for customers) -->
   @if (!isAdminOrStaff()) {
-    <a #navItem [routerLink]="routes.CART" routerLinkActive="active" class="cart-link">
-      <div class="cart-icon" id="cart-icon-bottom">
+    <a #navItem class="bottom-nav__item" [routerLink]="routes.CART" routerLinkActive="active">
+      <div class="bottom-nav__cart-icon" id="cart-icon-bottom">
         <i class="pi pi-shopping-cart"></i>
         @if (cartCount() > 0) {
           <span class="badge">{{ cartCount() > 99 ? '99+' : cartCount() }}</span>
@@ -23,22 +23,22 @@
 
   <!-- Orders (only for logged in customers) -->
   @if (authService.isLoggedIn && !isAdminOrStaff()) {
-    <a #navItem [routerLink]="routes.ORDERS" routerLinkActive="active">
-      <i class="pi pi-list"></i>
+    <a #navItem class="bottom-nav__item" [routerLink]="routes.ORDERS" routerLinkActive="active">
+      <i class="pi pi-receipt"></i>
       <span>{{ 'header.orders' | translate }}</span>
     </a>
   }
 
   <!-- Admin (for staff/admin) - links to admin dashboard -->
   @if (isAdminOrStaff()) {
-    <a #navItem [routerLink]="routes.ADMIN.DASHBOARD" routerLinkActive="active">
+    <a #navItem class="bottom-nav__item" [routerLink]="routes.ADMIN.DASHBOARD" routerLinkActive="active">
       <i class="pi pi-cog"></i>
       <span>{{ 'header.admin' | translate }}</span>
     </a>
   }
 
   <!-- Menu (opens sidebar via service) -->
-  <a #navItem (click)="openSidebar()" class="menu-link">
+  <a #navItem class="bottom-nav__item" (click)="openSidebar()">
     <i class="pi pi-bars"></i>
     <span>{{ 'common.menu' | translate }}</span>
   </a>

@@ -4,7 +4,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TranslateModule } from '@ngx-translate/core';
 import { filter } from 'rxjs/operators';
 import { AuthService } from '../../services/auth.service';
-import { CartService } from '../../services/cart.service';
+import { CartService, CartItem } from '../../services/cart.service';
 import { SidebarService } from '../../services/sidebar.service';
 import { ROUTES } from '../../core/constants/routes.constants';
 
@@ -29,7 +29,7 @@ export class BottomNavigationComponent implements OnInit, AfterViewInit {
   navItems = viewChildren<ElementRef>('navItem');
 
   // State signals
-  cartItems = signal<any[]>([]);
+  cartItems = signal<CartItem[]>([]);
   indicatorLeft = signal(0);
   indicatorWidth = signal(0);
 
