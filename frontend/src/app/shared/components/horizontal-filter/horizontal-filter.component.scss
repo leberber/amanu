@@ -1,4 +1,17 @@
-// CSS Custom Properties
+// =============================================================================
+// HORIZONTAL FILTER COMPONENT
+// =============================================================================
+// Horizontal scrollable filter bar for categories/brands selection.
+// Uses CSS custom properties for easy theming and responsive sizing.
+// =============================================================================
+
+:host { display: block; }
+
+
+// =============================================================================
+// 1. CSS CUSTOM PROPERTIES
+// =============================================================================
+
 :host {
   --item-icon-size: 45px;
   --item-icon-size-mobile: 38px;
@@ -11,18 +24,20 @@
   --item-padding-compact: 0.35rem 0.75rem;
   --transition-duration: 0.25s;
 
-  display: block;
   position: relative;
   background: var(--surface-card);
   border-bottom: 1px solid var(--surface-200);
 }
 
 :host-context(.my-app-dark) {
-  background: var(--surface-card);
   border-bottom-color: var(--surface-border);
 }
 
-// Main filter bar container
+
+// =============================================================================
+// 2. FILTER BAR CONTAINER
+// =============================================================================
+
 .filter-bar {
   display: flex;
   align-items: center;
@@ -43,18 +58,11 @@
   }
 }
 
-// Sliding indicator
-.filter-indicator {
-  position: absolute;
-  bottom: 0;
-  height: 3px;
-  background: var(--primary-color);
-  border-radius: 3px 3px 0 0;
-  transition: left 0.3s ease, width 0.3s ease;
-  z-index: 1;
-}
 
-// Filter item
+// =============================================================================
+// 3. FILTER ITEMS
+// =============================================================================
+
 .filter-item {
   display: flex;
   flex-direction: column;
@@ -70,48 +78,16 @@
     border-color: var(--primary-color);
   }
 
-  &.active {
-    .item-name {
-      color: var(--primary-color);
-      font-weight: 600;
-    }
-  }
-
-  // Mode toggle - Circular design with image
-  &.mode-toggle {
-    margin-top: 1rem;
-
-    .toggle-circle {
-      width: var(--item-icon-size);
-      height: var(--item-icon-size);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.3s ease;
-
-      .toggle-img {
-        width: 140%;
-        height: 140%;
-        object-fit: contain;
-      }
-    }
-
-    &:hover .toggle-circle {
-      transform: scale(1.05);
-    }
-
-    &:active .toggle-circle {
-      transform: scale(0.98);
-    }
+  &.active .item-name {
+    color: var(--primary-color);
+    font-weight: 600;
   }
 }
-
 
 .item-image-wrapper {
   position: relative;
 }
 
-// Item image (circular icon)
 .item-image {
   width: var(--item-icon-size);
   height: var(--item-icon-size);
@@ -132,7 +108,6 @@
   }
 }
 
-// Item name label (shown for both categories and brands)
 .item-name {
   font-size: 0.85rem !important;
   color: var(--text-color-secondary);
@@ -144,16 +119,47 @@
   line-height: 1.1;
   position: relative;
   z-index: 10;
-  margin-top: 0rem;
+  margin-top: 0;
   transition: opacity var(--transition-duration) ease-in-out;
 }
 
-// Hide item names for categories
-// .filter-bar[data-filter-type="categories"] .item-name:not(.toggle-label) {
-//   display: none;
-// }
 
-// Filter actions wrapper
+// =============================================================================
+// 4. MODE TOGGLE
+// =============================================================================
+
+.filter-item.mode-toggle {
+  margin-top: 1rem;
+
+  .toggle-circle {
+    width: var(--item-icon-size);
+    height: var(--item-icon-size);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+
+    .toggle-img {
+      width: 140%;
+      height: 140%;
+      object-fit: contain;
+    }
+  }
+
+  &:hover .toggle-circle {
+    transform: scale(1.05);
+  }
+
+  &:active .toggle-circle {
+    transform: scale(0.98);
+  }
+}
+
+
+// =============================================================================
+// 5. FILTER ACTIONS (Search Toggle)
+// =============================================================================
+
 .filter-actions {
   position: sticky;
   inset-inline-end: 0;
@@ -178,7 +184,6 @@
   }
 }
 
-// Search toggle button
 .search-toggle-btn {
   width: 32px;
   height: 32px;
@@ -211,7 +216,21 @@
   }
 }
 
-// Mobile adjustments
+.filter-indicator {
+  position: absolute;
+  bottom: 0;
+  height: 3px;
+  background: var(--primary-color);
+  border-radius: 3px 3px 0 0;
+  transition: left 0.3s ease, width 0.3s ease;
+  z-index: 1;
+}
+
+
+// =============================================================================
+// 6. RESPONSIVE ADJUSTMENTS
+// =============================================================================
+
 @media screen and (max-width: 768px) {
   .filter-bar {
     gap: var(--item-gap-mobile);
@@ -226,11 +245,9 @@
   .filter-item {
     min-width: 60px;
 
-    &.mode-toggle {
-      .toggle-circle {
-        width: var(--item-icon-size-mobile);
-        height: var(--item-icon-size-mobile);
-      }
+    &.mode-toggle .toggle-circle {
+      width: var(--item-icon-size-mobile);
+      height: var(--item-icon-size-mobile);
     }
   }
 
@@ -243,7 +260,6 @@
     font-size: 0.65rem;
     max-width: 60px;
   }
-
 }
 
 // Compact mode
@@ -256,11 +272,9 @@
     min-width: 0;
     gap: 0;
 
-    &.mode-toggle {
-      .toggle-circle {
-        width: var(--item-icon-size-compact);
-        height: var(--item-icon-size-compact);
-      }
+    &.mode-toggle .toggle-circle {
+      width: var(--item-icon-size-compact);
+      height: var(--item-icon-size-compact);
     }
   }
 
