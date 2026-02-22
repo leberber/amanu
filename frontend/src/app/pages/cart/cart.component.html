@@ -137,10 +137,11 @@
                           icon="pi pi-minus"
                           class="p-button-sm p-button-text p-button-rounded"
                           [disabled]="productQuantities[item.id] <= 1 || isOutOfStock(item)"
-                          (click)="updateItemQuantity(item.id, productQuantities[item.id] - (item.pieces_per_box || 1))">
+                          (click)="updateItemQuantity(item.id, productQuantities[item.id] - getQuantityStep(item))">
                         </button>
+                        @let cartonCount = getCartonCount(item);
                         <div class="quantity-display">
-                          <span class="quantity-display__cartons">{{ getCartonCount(item) }} {{ getPackagingTypeForCount(item, getCartonCount(item)) }}</span>
+                          <span class="quantity-display__cartons">{{ cartonCount }} {{ getPackagingTypeForCount(item, cartonCount) }}</span>
                           <span class="quantity-display__pieces">{{ productQuantities[item.id] }} {{ item.product_unit | appUnit }}</span>
                         </div>
                         <button
@@ -149,7 +150,7 @@
                           icon="pi pi-plus"
                           class="p-button-sm p-button-text p-button-rounded"
                           [disabled]="isOutOfStock(item) || (item.stock_quantity && productQuantities[item.id] >= item.stock_quantity)"
-                          (click)="updateItemQuantity(item.id, productQuantities[item.id] + (item.pieces_per_box || 1))">
+                          (click)="updateItemQuantity(item.id, productQuantities[item.id] + getQuantityStep(item))">
                         </button>
                       </div>
                     </div>
@@ -205,10 +206,11 @@
                         icon="pi pi-minus"
                         class="p-button-sm p-button-text p-button-rounded"
                         [disabled]="productQuantities[item.id] <= 1 || isOutOfStock(item)"
-                        (click)="updateItemQuantity(item.id, productQuantities[item.id] - (item.pieces_per_box || 1))">
+                        (click)="updateItemQuantity(item.id, productQuantities[item.id] - getQuantityStep(item))">
                       </button>
+                      @let mobileCartonCount = getCartonCount(item);
                       <div class="quantity-display">
-                        <span class="quantity-display__cartons">{{ getCartonCount(item) }} {{ getPackagingTypeForCount(item, getCartonCount(item)) }}</span>
+                        <span class="quantity-display__cartons">{{ mobileCartonCount }} {{ getPackagingTypeForCount(item, mobileCartonCount) }}</span>
                         <span class="quantity-display__pieces">{{ productQuantities[item.id] }} {{ item.product_unit | appUnit }}</span>
                       </div>
                       <button
@@ -217,7 +219,7 @@
                         icon="pi pi-plus"
                         class="p-button-sm p-button-text p-button-rounded"
                         [disabled]="isOutOfStock(item) || (item.stock_quantity && productQuantities[item.id] >= item.stock_quantity)"
-                        (click)="updateItemQuantity(item.id, productQuantities[item.id] + (item.pieces_per_box || 1))">
+                        (click)="updateItemQuantity(item.id, productQuantities[item.id] + getQuantityStep(item))">
                       </button>
                     </div>
                     <span class="cart-item-total">{{ item.product_price * item.quantity | appCurrency }}</span>
@@ -338,15 +340,16 @@
   }
 
   <!-- Image Lightbox -->
-  <app-image-lightbox
-    [imageUrl]="lightbox.selectedImage()"
-    [title]="lightbox.title()"
-    [details]="lightbox.details()"
-    [packagingType]="lightbox.packagingType()"
-    [piecesPerBox]="lightbox.piecesPerBox()"
-    [unit]="lightbox.unit()"
-    [cartonsCount]="lightbox.cartonsCount()"
-    altText="Product image"
-    (close)="closeImage()" />
+  @if (lightbox.isOpen()) {
+    <app-image-lightbox
+      [imageUrl]="lightbox.selectedImage()!"
+      [title]="lightbox.title()"
+      [details]="lightbox.details()"
+      [packagingType]="lightbox.packagingType()"
+      [piecesPerBox]="lightbox.piecesPerBox()"
+      [unit]="lightbox.unit()"
+      [cartonsCount]="lightbox.cartonsCount()"
+      (close)="closeImage()" />
+  }
 
 </app-page-layout>

@@ -227,6 +227,10 @@ export class CartComponent implements OnInit {
     return calcCartonCount(item.quantity, item.pieces_per_box);
   }
 
+  getQuantityStep(item: CartItem): number {
+    return item.pieces_per_box || 1;
+  }
+
   // Get packaging type label based on count (singular or plural)
   getPackagingTypeForCount(item: CartItem, count: number): string {
     const type = (item.packaging_type || 'carton').toLowerCase();
