@@ -15,15 +15,14 @@ import { ROUTES } from '../../../core/constants/routes.constants';
 import { OrderService } from '../../../services/order.service';
 import { ProductService } from '../../../services/product.service';
 import { TranslationService } from '../../../services/translation.service';
-import { Order } from '../../../models/order.model';
+import { LightboxService } from '../../../core/services/lightbox.service';
+import { Order, OrderItem } from '../../../models/order.model';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
 import { PageLayoutComponent } from '../../../shared/components/page-layout/page-layout.component';
-import { ImageLightboxComponent, LightboxDetails } from '../../../shared/components/image-lightbox/image-lightbox.component';
+import { ImageLightboxComponent } from '../../../shared/components/image-lightbox/image-lightbox.component';
 import { ErrorStateComponent } from '../../../shared/components/error-state/error-state.component';
 import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
 import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
-import { CurrencyService } from '../../../core/services/currency.service';
-import { OrderItem } from '../../../models/order.model';
 import { getOrderCartonDisplay } from '../../../shared/utils/quantity.utils';
 
 interface TimelineStatus {
@@ -58,8 +57,8 @@ export class OrderDetailComponent implements OnInit {
   private translationService = inject(TranslationService);
   private toast = inject(ToastMessageService);
   private translateService = inject(TranslateService);
-  private currencyService = inject(CurrencyService);
   private destroyRef = inject(DestroyRef);
+  readonly lightbox = inject(LightboxService);
 
   readonly ROUTES = ROUTES;
 
@@ -67,14 +66,6 @@ export class OrderDetailComponent implements OnInit {
   loading = signal<boolean>(true);
   error = signal<boolean>(false);
   orderStatuses = signal<TimelineStatus[]>([]);
-
-  // Lightbox state
-  selectedImage = signal<string | null>(null);
-  lightboxTitle = signal<string | null>(null);
-  lightboxDetails = signal<LightboxDetails[]>([]);
-  lightboxPiecesPerBox = signal<number | null>(null);
-  lightboxUnit = signal<string | null>(null);
-  lightboxCartonsCount = signal<number | null>(null);
 
   // Computed values
   totalAmount = computed(() => this.order()?.total_amount || 0);
@@ -258,40 +249,19 @@ export class OrderDetailComponent implements OnInit {
   }
 
   openImage(item: OrderItem): void {
-    if (item.product_image_url) {
-      this.selectedImage.set(item.product_image_url);
-      this.lightboxTitle.set(item.product_name);
-      this.lightboxPiecesPerBox.set(item.pieces_per_box || null);
-      this.lightboxUnit.set(item.product_unit || null);
-      // For order items, quantity IS the carton count
-      this.lightboxCartonsCount.set(item.quantity);
-
-      const details: LightboxDetails[] = [
-        {
-          label: this.translateService.instant('common.quantity'),
-          value: this.getCartonDisplay(item)
-        },
-        {
-          label: this.translateService.instant('common.price'),
-          value: this.currencyService.formatCurrency(item.unit_price)
-        },
-        {
-          label: this.translateService.instant('common.total'),
-          value: this.currencyService.formatCurrency(item.unit_price * item.quantity)
-        }
-      ];
-
-      this.lightboxDetails.set(details);
-    }
+    // For order items, pass isOrderItem=true since quantity IS the carton count
+    this.lightbox.openImage({
+      product_image_url: item.product_image_url,
+      product_name: item.product_name,
+      product_unit: item.product_unit,
+      unit_price: item.unit_price,
+      quantity: item.quantity,
+      pieces_per_box: item.pieces_per_box
+    }, true);
   }
 
   closeImage(): void {
-    this.selectedImage.set(null);
-    this.lightboxTitle.set(null);
-    this.lightboxDetails.set([]);
-    this.lightboxPiecesPerBox.set(null);
-    this.lightboxUnit.set(null);
-    this.lightboxCartonsCount.set(null);
+    this.lightbox.closeImage();
   }
 
   // Get formatted display (e.g., "1x10" for 1 unit containing 10 pieces)

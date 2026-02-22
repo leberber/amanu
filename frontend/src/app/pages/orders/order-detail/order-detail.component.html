@@ -197,14 +197,16 @@
   }
 
   <!-- Image Lightbox -->
-  <app-image-lightbox
-    [imageUrl]="selectedImage()"
-    [title]="lightboxTitle()"
-    [details]="lightboxDetails()"
-    [piecesPerBox]="lightboxPiecesPerBox()"
-    [unit]="lightboxUnit()"
-    [cartonsCount]="lightboxCartonsCount()"
-    altText="Product image"
-    (close)="closeImage()" />
+  @if (lightbox.isOpen()) {
+    <app-image-lightbox
+      [imageUrl]="lightbox.selectedImage()!"
+      [title]="lightbox.title()"
+      [details]="lightbox.details()"
+      [packagingType]="lightbox.packagingType()"
+      [piecesPerBox]="lightbox.piecesPerBox()"
+      [unit]="lightbox.unit()"
+      [cartonsCount]="lightbox.cartonsCount()"
+      (close)="closeImage()" />
+  }
 
 </app-page-layout>

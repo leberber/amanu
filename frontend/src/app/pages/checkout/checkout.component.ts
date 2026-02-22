@@ -4,22 +4,22 @@ import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } 
 import { Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ToastModule } from 'primeng/toast';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 
 import { ROUTES, RouteHelpers } from '../../core/constants/routes.constants';
 import { AuthService } from '../../services/auth.service';
 import { CartService, CartItem } from '../../services/cart.service';
 import { OrderService } from '../../services/order.service';
-import { CurrencyService } from '../../core/services/currency.service';
 import { TranslationService } from '../../services/translation.service';
 import { CartTranslationService } from '../../core/services/cart-translation.service';
+import { LightboxService } from '../../core/services/lightbox.service';
 import { OrderCreate } from '../../models/order.model';
 import { User } from '../../models/user.model';
 import { AppliedPromotion } from '../../models/promotion.model';
 import { VALIDATION, UI_DELAY } from '../../core/constants/app.constants';
 import { ToastMessageService } from '../../core/services/toast-message.service';
 import { PageLayoutComponent } from '../../shared/components/page-layout/page-layout.component';
-import { ImageLightboxComponent, LightboxDetails } from '../../shared/components/image-lightbox/image-lightbox.component';
+import { ImageLightboxComponent } from '../../shared/components/image-lightbox/image-lightbox.component';
 import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
 import { getCartonCount, getCartonDisplay } from '../../shared/utils/quantity.utils';
 
@@ -47,11 +47,10 @@ export class CheckoutComponent implements OnInit {
   private cartService = inject(CartService);
   private orderService = inject(OrderService);
   private toast = inject(ToastMessageService);
-  private translateService = inject(TranslateService);
-  private currencyService = inject(CurrencyService);
   private translationService = inject(TranslationService);
   private cartTranslation = inject(CartTranslationService);
   private destroyRef = inject(DestroyRef);
+  readonly lightbox = inject(LightboxService);
 
   // Constants
   readonly ROUTES = ROUTES;
@@ -66,15 +65,6 @@ export class CheckoutComponent implements OnInit {
   isSubmitting = signal(false);
   accordionExpanded = signal(false);
   appliedPromotion = signal<AppliedPromotion | null>(null);
-
-  // Lightbox signals
-  selectedImage = signal<string | null>(null);
-  lightboxTitle = signal<string | null>(null);
-  lightboxDetails = signal<LightboxDetails[]>([]);
-  lightboxPackagingType = signal<string | null>(null);
-  lightboxPiecesPerBox = signal<number | null>(null);
-  lightboxUnit = signal<string | null>(null);
-  lightboxCartonsCount = signal<number | null>(null);
 
   // Computed values
   cartItemCount = computed(() => this.cartItems().length);
@@ -209,40 +199,10 @@ export class CheckoutComponent implements OnInit {
 
   // Image lightbox methods
   openImage(item: CartItem): void {
-    if (item.product_image) {
-      this.selectedImage.set(item.product_image);
-      this.lightboxTitle.set(item.product_name);
-      this.lightboxPackagingType.set(item.packaging_type || null);
-      this.lightboxPiecesPerBox.set(item.pieces_per_box || null);
-      this.lightboxUnit.set(item.product_unit || null);
-      this.lightboxCartonsCount.set(this.getCartonCount(item));
-
-      const details: LightboxDetails[] = [
-        {
-          label: this.translateService.instant('common.quantity'),
-          value: this.formatCartonCount(item)
-        },
-        {
-          label: this.translateService.instant('common.price'),
-          value: this.currencyService.formatCurrency(item.product_price)
-        },
-        {
-          label: this.translateService.instant('common.total'),
-          value: this.currencyService.formatCurrency(item.product_price * item.quantity)
-        }
-      ];
-
-      this.lightboxDetails.set(details);
-    }
+    this.lightbox.openImage(item);
   }
 
   closeImage(): void {
-    this.selectedImage.set(null);
-    this.lightboxTitle.set(null);
-    this.lightboxDetails.set([]);
-    this.lightboxPackagingType.set(null);
-    this.lightboxPiecesPerBox.set(null);
-    this.lightboxUnit.set(null);
-    this.lightboxCartonsCount.set(null);
+    this.lightbox.closeImage();
   }
 }

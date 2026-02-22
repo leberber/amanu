@@ -241,15 +241,15 @@
   }
 
   <!-- Image Lightbox -->
-  @if (selectedImage()) {
+  @if (lightbox.isOpen()) {
     <app-image-lightbox
-      [imageUrl]="selectedImage()!"
-      [title]="lightboxTitle()"
-      [details]="lightboxDetails()"
-      [packagingType]="lightboxPackagingType()"
-      [piecesPerBox]="lightboxPiecesPerBox()"
-      [unit]="lightboxUnit()"
-      [cartonsCount]="lightboxCartonsCount()"
+      [imageUrl]="lightbox.selectedImage()!"
+      [title]="lightbox.title()"
+      [details]="lightbox.details()"
+      [packagingType]="lightbox.packagingType()"
+      [piecesPerBox]="lightbox.piecesPerBox()"
+      [unit]="lightbox.unit()"
+      [cartonsCount]="lightbox.cartonsCount()"
       (close)="closeImage()" />
   }
 
