@@ -1,13 +1,13 @@
 // CSS Custom Properties
 :host {
-  --item-icon-size: 50px;
-  --item-icon-size-mobile: 44px;
+  --item-icon-size: 45px;
+  --item-icon-size-mobile: 38px;
   --item-icon-size-compact: 28px;
   --item-gap: 1rem;
   --item-gap-mobile: 1.25rem;
   --item-gap-compact: 0.2rem;
-  --item-padding: 1rem 1rem 0.75rem;
-  --item-padding-mobile: 0.75rem 0.75rem 0.5rem;
+  --item-padding: 1.25rem 1rem 0.75rem;
+  --item-padding-mobile: 1rem 0.75rem 0.5rem;
   --item-padding-compact: 0.35rem 0.75rem;
   --transition-duration: 0.25s;
 
@@ -144,7 +144,7 @@
   line-height: 1.1;
   position: relative;
   z-index: 10;
-  margin-top: -0.5rem;
+  margin-top: 0rem;
   transition: opacity var(--transition-duration) ease-in-out;
 }
 
