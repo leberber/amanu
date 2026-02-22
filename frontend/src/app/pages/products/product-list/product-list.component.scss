@@ -1,7 +1,7 @@
 // =============================================================================
 // PRODUCT LIST COMPONENT
 // =============================================================================
-// Minimal component-specific styles. Uses shared styles from:
+// Uses shared styles from:
 // - _components.scss (products-grid, product-list-item, etc.)
 // - _quantity-overlay.scss (quantity selector and overlay)
 // - _skeleton.scss (loading states)
@@ -9,13 +9,11 @@
 
 :host { display: block; }
 
-// Bottom nav height for safe area calculations
 $bottom-nav-height: 70px;
 
 // =============================================================================
-// 1. RESPONSIVE LAYOUT TOGGLE
+// RESPONSIVE LAYOUT
 // =============================================================================
-// Desktop/Mobile visibility (can't do with Tailwind due to component encapsulation)
 
 .products-desktop {
   display: none;
@@ -32,9 +30,8 @@ $bottom-nav-height: 70px;
   }
 }
 
-
 // =============================================================================
-// 2. MOBILE HEADER (Fixed Position)
+// MOBILE HEADER
 // =============================================================================
 
 .mobile-header {
@@ -47,12 +44,11 @@ $bottom-nav-height: 70px;
 }
 
 .mobile-header-spacer {
-  height: 95px; // icon (50px) + name (~14px) + padding (16px) + border (1px)
+  height: 95px;
 }
 
-
 // =============================================================================
-// 3. MOBILE SEARCH OVERLAY
+// MOBILE SEARCH
 // =============================================================================
 
 .mobile-search-overlay {
@@ -101,7 +97,7 @@ $bottom-nav-height: 70px;
   flex: 1;
   border: none;
   background: transparent;
-  font-size: 16px; // Prevents iOS zoom
+  font-size: 16px;
   color: var(--text-color);
   outline: none;
   padding: var(--space-2) 0;
@@ -155,19 +151,24 @@ $bottom-nav-height: 70px;
   }
 }
 
-
 // =============================================================================
-// 4. PRODUCT LIST CART ROW
+// CART ROW & QUANTITY SELECTOR
 // =============================================================================
-// Action row with quantity selector and add button
 
 .product-list-item__cart-row {
   display: flex;
   width: 100%;
-  gap: var(--space-8);
-  align-items: center;
+  gap: var(--space-3);
+  align-items: flex-start;
   margin-top: var(--space-3);
   padding: var(--space-2) 0;
+
+  .quantity-selector-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
 
   .quantity-selector-btn {
     flex: 1;
@@ -182,12 +183,19 @@ $bottom-nav-height: 70px;
     width: 2.5rem !important;
     height: 2.5rem !important;
     border-radius: var(--radius-md) !important;
+    margin-top: 2px;
   }
 }
 
+.quantity-selector-hint {
+  font-size: var(--font-size-xs);
+  color: #64b5f6;
+  font-weight: var(--font-weight-normal);
+  padding-inline-start: var(--space-2);
+}
 
 // =============================================================================
-// 5. MOBILE GRID VARIANT
+// MOBILE GRID
 // =============================================================================
 
 .products-grid--mobile {
@@ -195,9 +203,8 @@ $bottom-nav-height: 70px;
   gap: var(--space-2);
 }
 
-
 // =============================================================================
-// 6. STAGGERED ANIMATION
+// ANIMATIONS
 // =============================================================================
 
 .product-card-animate,
@@ -217,12 +224,10 @@ $bottom-nav-height: 70px;
   }
 }
 
-
 // =============================================================================
-// 7. CART BUTTON STATES
+// CART BUTTON STATES
 // =============================================================================
 
-// In-cart state - green background (quantity matches cart)
 :host ::ng-deep .list-cart-btn--in-cart {
   background-color: #22c55e !important;
   border-color: #22c55e !important;
@@ -234,7 +239,6 @@ $bottom-nav-height: 70px;
   }
 }
 
-// Update state - orange/amber background (quantity differs from cart)
 :host ::ng-deep .list-cart-btn--update {
   background-color: #f59e0b !important;
   border-color: #f59e0b !important;
@@ -245,7 +249,6 @@ $bottom-nav-height: 70px;
   }
 }
 
-// Highlight animation on add
 :host ::ng-deep .list-cart-btn--highlight {
   animation: listCartButtonPulse 0.8s ease-out !important;
 }

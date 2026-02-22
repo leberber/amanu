@@ -11,6 +11,7 @@ import { CurrencyService } from '../../../../core/services/currency.service';
 import { FlyToCartService } from '../../../../core/services/fly-to-cart.service';
 import { CartService } from '../../../../services/cart.service';
 import { CurrencyPipe } from '../../../../shared/pipes/currency.pipe';
+import { UnitPipe } from '../../../../shared/pipes/unit.pipe';
 import { ImageFallbackDirective } from '../../../../shared/directives/image-fallback.directive';
 import {
   isOutOfStock as checkOutOfStock,
@@ -47,6 +48,7 @@ export type { BoxOption };
     ButtonModule,
     TagModule,
     CurrencyPipe,
+    UnitPipe,
     ImageFallbackDirective
   ],
   templateUrl: './product-card.component.html',

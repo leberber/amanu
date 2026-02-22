@@ -40,35 +40,45 @@
     <!-- Actions -->
     <div class="product-card__actions">
       @if (!isOutOfStock() && boxOptions().length > 0) {
-        <!-- Quantity Selector Button -->
-        <button
-          type="button"
-          class="quantity-selector-btn quantity-selector-btn--compact"
-          [class.quantity-selector-btn--in-cart]="quantityMatchesCart()"
-          [class.quantity-selector-btn--update]="isInCart() && !quantityMatchesCart()"
-          (click)="openQuantitySelector($event)">
-          <span class="quantity-selector-btn__text">
-            @if (selectedBoxOption()) {
-              <span class="quantity-selector-btn__boxes">{{ selectedBoxOption()!.boxes }} {{ getPackagingTypeForCount(selectedBoxOption()!.boxes) }}</span>
-            } @else {
-              <span>{{ 'products.select_quantity' | translate }}</span>
+        <div class="product-card__quantity-row">
+          <!-- Quantity Selector Button -->
+          <button
+            type="button"
+            class="quantity-selector-btn quantity-selector-btn--compact"
+            [class.quantity-selector-btn--in-cart]="quantityMatchesCart()"
+            [class.quantity-selector-btn--update]="isInCart() && !quantityMatchesCart()"
+            (click)="openQuantitySelector($event)">
+            <span class="quantity-selector-btn__text">
+              @if (selectedBoxOption()) {
+                <span class="quantity-selector-btn__boxes">{{ selectedBoxOption()!.boxes }} {{ getPackagingTypeForCount(selectedBoxOption()!.boxes) }}</span>
+              } @else {
+                <span>{{ 'products.select_quantity' | translate }}</span>
+              }
+            </span>
+            <i class="pi pi-chevron-down quantity-selector-btn__icon"></i>
+          </button>
+
+          <!-- Add to Cart Button -->
+          <button
+            pButton
+            type="button"
+            [icon]="quantityMatchesCart() ? 'pi pi-check' : (isInCart() ? 'pi pi-refresh' : 'pi pi-cart-plus')"
+            class="p-button-primary product-card__cart-btn"
+            [class.product-card__cart-btn--in-cart]="quantityMatchesCart()"
+            [class.product-card__cart-btn--update]="isInCart() && !quantityMatchesCart()"
+            [class.product-card__cart-btn--highlight]="highlightCart()"
+            [disabled]="!selectedBoxOption() || quantityMatchesCart()"
+            (click)="addToCart($event)">
+          </button>
+        </div>
+        @if (product().pieces_per_box) {
+          <span class="product-card__pieces-hint">
+            {{ product().pieces_per_box }} {{ product().unit | appUnit }} / {{ getPackagingTypeForCount(1) }}
+            @if (selectedBoxOption(); as option) {
+              <span class="product-card__pieces-hint__total">&nbsp;&nbsp;{{ option.price | appCurrency }}</span>
             }
           </span>
-          <i class="pi pi-chevron-down quantity-selector-btn__icon"></i>
-        </button>
-
-        <!-- Add to Cart Button -->
-        <button
-          pButton
-          type="button"
-          [icon]="quantityMatchesCart() ? 'pi pi-check' : (isInCart() ? 'pi pi-refresh' : 'pi pi-cart-plus')"
-          class="p-button-primary product-card__cart-btn"
-          [class.product-card__cart-btn--in-cart]="quantityMatchesCart()"
-          [class.product-card__cart-btn--update]="isInCart() && !quantityMatchesCart()"
-          [class.product-card__cart-btn--highlight]="highlightCart()"
-          [disabled]="!selectedBoxOption() || quantityMatchesCart()"
-          (click)="addToCart($event)">
-        </button>
+        }
       } @else {
         <!-- Out of Stock -->
         <span class="product-card__out-of-stock">

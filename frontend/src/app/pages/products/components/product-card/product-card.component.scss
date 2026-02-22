@@ -1,9 +1,7 @@
 // =============================================================================
 // PRODUCT CARD COMPONENT
 // =============================================================================
-// Clean and minimal product card styles.
-// Uses shared styles from:
-// - _quantity-overlay.scss (quantity selector and overlay)
+// Uses shared styles from _quantity-overlay.scss
 // =============================================================================
 
 :host {
@@ -21,7 +19,6 @@
   overflow: hidden;
   transition: box-shadow var(--transition-fast), transform var(--transition-fast);
 
-  // Hover only on desktop
   @media (min-width: 1024px) {
     &:hover {
       box-shadow: var(--shadow-md);
@@ -128,9 +125,25 @@
   // Actions
   &__actions {
     display: flex;
-    gap: var(--space-2);
+    flex-direction: column;
+    gap: var(--space-1);
     margin-top: auto;
     padding-top: var(--space-2);
+  }
+
+  // Quantity row
+  &__quantity-row {
+    display: flex;
+    gap: var(--space-2);
+    align-items: center;
+  }
+
+  // Pieces hint
+  &__pieces-hint {
+    font-size: var(--font-size-xs);
+    color: #64b5f6;
+    font-weight: var(--font-weight-normal);
+    padding-inline-start: var(--space-1);
   }
 
   // Cart button
@@ -142,7 +155,7 @@
     transition: background-color var(--transition-fast), border-color var(--transition-fast);
   }
 
-  // Cart status (always reserve space)
+  // Cart status
   &__cart-status {
     display: flex;
     align-items: center;
@@ -152,13 +165,9 @@
     min-height: 1.25rem;
     visibility: hidden;
 
-    i {
-      font-size: var(--font-size-xs);
-    }
+    i { font-size: var(--font-size-xs); }
 
-    &--visible {
-      visibility: visible;
-    }
+    &--visible { visibility: visible; }
   }
 
   // Out of stock
@@ -171,13 +180,14 @@
     color: #ef4444;
     white-space: nowrap;
 
-    i {
-      font-size: 0.7rem;
-    }
+    i { font-size: 0.7rem; }
   }
 }
 
-// Cart button in-cart state - green background (quantity matches cart)
+// =============================================================================
+// CART BUTTON STATES
+// =============================================================================
+
 :host ::ng-deep .product-card__cart-btn--in-cart {
   background-color: #22c55e !important;
   border-color: #22c55e !important;
@@ -189,7 +199,6 @@
   }
 }
 
-// Cart button update state - orange background (quantity differs from cart)
 :host ::ng-deep .product-card__cart-btn--update {
   background-color: #f59e0b !important;
   border-color: #f59e0b !important;
@@ -200,35 +209,29 @@
   }
 }
 
-// Cart button highlight - outside .product-card for proper ::ng-deep
 :host ::ng-deep .product-card__cart-btn--highlight {
   animation: cartButtonPulse 0.8s ease-out !important;
 }
 
-// Mobile adjustments
+// =============================================================================
+// MOBILE
+// =============================================================================
+
 @media (max-width: 768px) {
   .product-card {
     border-radius: var(--radius-sm);
 
-    &:hover {
-      transform: none;
-    }
-
-    &__content {
-      padding: var(--space-2);
-    }
-
-    &__name {
-      font-size: var(--font-size-sm);
-    }
-
-    &__price .price-current {
-      font-size: var(--font-size-sm);
-    }
+    &:hover { transform: none; }
+    &__content { padding: var(--space-2); }
+    &__name { font-size: var(--font-size-sm); }
+    &__price .price-current { font-size: var(--font-size-sm); }
   }
 }
 
-// Cart button highlight animation
+// =============================================================================
+// ANIMATIONS
+// =============================================================================
+
 @keyframes cartButtonPulse {
   0% {
     transform: scale(1);

@@ -133,14 +133,6 @@
                     </div>
                   </div>
 
-                  @if (getBoxQuantity(product) && getBoxPrice(product)) {
-                    <div class="product-list-item__box-price">
-                      <span class="box-label">{{ 'products.box_price' | translate }}:</span>
-                      <span class="box-price">{{ getBoxPrice(product) | appCurrency }}</span>
-                      <span class="box-qty">({{ getBoxQuantity(product) }} {{ product.unit | appUnit }})</span>
-                    </div>
-                  }
-
                   <!-- Actions -->
                   @if (!isOutOfStock(product) && getBoxOptions(product).length > 0) {
                     <div class="product-list-item__actions">
@@ -151,22 +143,32 @@
                         </span>
                       }
                       <div class="product-list-item__cart-row">
-                        <button
-                          type="button"
-                          class="quantity-selector-btn"
-                          [class.quantity-selector-btn--in-cart]="quantityMatchesCart(product.id)"
-                          [class.quantity-selector-btn--update]="isProductInCart(product.id) && !quantityMatchesCart(product.id)"
-                          (click)="openQuantitySelector(product, $event)">
-                          <span class="quantity-selector-btn__text">
-                            @if (getSelectedBoxOption(product.id); as option) {
-                              <span class="quantity-selector-btn__boxes">{{ option.boxes }} {{ getPackagingTypeForCount(product, option.boxes) }}</span>
-                              <span class="quantity-selector-btn__pieces">{{ option.pieces }} {{ (option.pieces === 1 ? 'products.product.quantity_selector.piece' : 'products.product.quantity_selector.pieces') | translate }}</span>
-                            } @else {
-                              <span>{{ 'products.select_quantity' | translate }}</span>
-                            }
-                          </span>
-                          <i class="pi pi-chevron-down quantity-selector-btn__icon"></i>
-                        </button>
+                        <div class="quantity-selector-wrapper">
+                          <button
+                            type="button"
+                            class="quantity-selector-btn"
+                            [class.quantity-selector-btn--in-cart]="quantityMatchesCart(product.id)"
+                            [class.quantity-selector-btn--update]="isProductInCart(product.id) && !quantityMatchesCart(product.id)"
+                            (click)="openQuantitySelector(product, $event)">
+                            <span class="quantity-selector-btn__text">
+                              @if (getSelectedBoxOption(product.id); as option) {
+                                <span class="quantity-selector-btn__boxes">{{ option.boxes }} {{ getPackagingTypeForCount(product, option.boxes) }}</span>
+                                <span class="quantity-selector-btn__pieces">{{ option.pieces }} {{ (option.pieces === 1 ? 'products.product.quantity_selector.piece' : 'products.product.quantity_selector.pieces') | translate }}</span>
+                              } @else {
+                                <span>{{ 'products.select_quantity' | translate }}</span>
+                              }
+                            </span>
+                            <i class="pi pi-chevron-down quantity-selector-btn__icon"></i>
+                          </button>
+                          @if (product.pieces_per_box) {
+                            <span class="quantity-selector-hint">
+                              {{ product.pieces_per_box }} {{ product.unit | appUnit }} / {{ getPackagingTypeForCount(product, 1) }}
+                              @if (getSelectedBoxOption(product.id); as option) {
+                                <span class="quantity-selector-hint__total">&nbsp;&nbsp;{{ option.price | appCurrency }}</span>
+                              }
+                            </span>
+                          }
+                        </div>
                         <button
                           pButton
                           type="button"
@@ -181,14 +183,11 @@
                       </div>
                     </div>
                   } @else {
-                    <div class="product-list-item__actions">
-                      <button
-                        pButton
-                        [label]="'products.stock.out_of_stock' | translate"
-                        icon="pi pi-times"
-                        [disabled]="true"
-                        class="w-full p-button-secondary opacity-60">
-                      </button>
+                    <div class="product-list-item__actions product-list-item__actions--disabled">
+                      <span class="stock-badge stock-badge--out">
+                        <i class="pi pi-times-circle"></i>
+                        {{ 'products.stock.out_of_stock' | translate }}
+                      </span>
                     </div>
                   }
                 </div>
@@ -347,7 +346,7 @@
                   <div class="product-list-item__price-row">
                     <div class="product-list-item__price">
                       <span class="price-current">{{ product.price | appCurrency }}</span>
-                      <span class="price-unit">{{ product.unit | appUnit }}</span>
+                      <span class="price-unit">/ {{ product.unit | appUnit }}</span>
                     </div>
 
                     <!-- Stock Status -->
@@ -371,14 +370,6 @@
                     </div>
                   </div>
 
-                  @if (getBoxQuantity(product) && getBoxPrice(product)) {
-                    <div class="product-list-item__box-price">
-                      <span class="box-label">{{ 'products.box_price' | translate }}:</span>
-                      <span class="box-price">{{ getBoxPrice(product) | appCurrency }}</span>
-                      <span class="box-qty">({{ getBoxQuantity(product) }} {{ product.unit | appUnit }})</span>
-                    </div>
-                  }
-
                   <!-- Mobile Actions -->
                   @if (!isOutOfStock(product) && getBoxOptions(product).length > 0) {
                     <div class="product-list-item__actions">
@@ -389,22 +380,32 @@
                         </span>
                       }
                       <div class="product-list-item__cart-row">
-                        <button
-                          type="button"
-                          class="quantity-selector-btn"
-                          [class.quantity-selector-btn--in-cart]="quantityMatchesCart(product.id)"
-                          [class.quantity-selector-btn--update]="isProductInCart(product.id) && !quantityMatchesCart(product.id)"
-                          (click)="openQuantitySelector(product, $event)">
-                          <span class="quantity-selector-btn__text">
-                            @if (getSelectedBoxOption(product.id); as option) {
-                              <span class="quantity-selector-btn__boxes">{{ option.boxes }} {{ getPackagingTypeForCount(product, option.boxes) }}</span>
-                              <span class="quantity-selector-btn__pieces">{{ option.pieces }} {{ (option.pieces === 1 ? 'products.product.quantity_selector.piece' : 'products.product.quantity_selector.pieces') | translate }}</span>
-                            } @else {
-                              <span>{{ 'products.select_quantity' | translate }}</span>
-                            }
-                          </span>
-                          <i class="pi pi-chevron-down quantity-selector-btn__icon"></i>
-                        </button>
+                        <div class="quantity-selector-wrapper">
+                          <button
+                            type="button"
+                            class="quantity-selector-btn"
+                            [class.quantity-selector-btn--in-cart]="quantityMatchesCart(product.id)"
+                            [class.quantity-selector-btn--update]="isProductInCart(product.id) && !quantityMatchesCart(product.id)"
+                            (click)="openQuantitySelector(product, $event)">
+                            <span class="quantity-selector-btn__text">
+                              @if (getSelectedBoxOption(product.id); as option) {
+                                <span class="quantity-selector-btn__boxes">{{ option.boxes }} {{ getPackagingTypeForCount(product, option.boxes) }}</span>
+                                <span class="quantity-selector-btn__pieces">{{ option.pieces }} {{ (option.pieces === 1 ? 'products.product.quantity_selector.piece' : 'products.product.quantity_selector.pieces') | translate }}</span>
+                              } @else {
+                                <span>{{ 'products.select_quantity' | translate }}</span>
+                              }
+                            </span>
+                            <i class="pi pi-chevron-down quantity-selector-btn__icon"></i>
+                          </button>
+                          @if (product.pieces_per_box) {
+                            <span class="quantity-selector-hint">
+                              {{ product.pieces_per_box }} {{ product.unit | appUnit }} / {{ getPackagingTypeForCount(product, 1) }}
+                              @if (getSelectedBoxOption(product.id); as option) {
+                                <span class="quantity-selector-hint__total">&nbsp;&nbsp;{{ option.price | appCurrency }}</span>
+                              }
+                            </span>
+                          }
+                        </div>
                         <button
                           pButton
                           type="button"
@@ -419,13 +420,11 @@
                       </div>
                     </div>
                   } @else {
-                    <div class="product-list-item__actions">
-                      <button
-                        pButton
-                        [label]="'products.stock.out_of_stock' | translate"
-                        [disabled]="true"
-                        class="w-full p-button-secondary opacity-60">
-                      </button>
+                    <div class="product-list-item__actions product-list-item__actions--disabled">
+                      <span class="stock-badge stock-badge--out">
+                        <i class="pi pi-times-circle"></i>
+                        {{ 'products.stock.out_of_stock' | translate }}
+                      </span>
                     </div>
                   }
                 </div>
