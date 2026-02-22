@@ -7,7 +7,7 @@
 .lightbox {
   position: fixed;
   inset: 0;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
   display: flex;
   align-items: center;
@@ -47,7 +47,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: var(--space-6);
+    gap: var(--space-5);
     max-width: 90%;
     max-height: 90vh;
     animation: scaleIn var(--transition-base);
@@ -56,7 +56,7 @@
   // Image
   &__image {
     max-width: 100%;
-    max-height: 60vh;
+    max-height: 55vh;
     border-radius: var(--radius-xl);
     box-shadow: var(--shadow-xl);
     object-fit: contain;
@@ -65,12 +65,12 @@
   // Info panel
   &__info {
     background: var(--surface-card);
-    border-radius: var(--radius-lg);
-    padding: var(--space-6);
+    border-radius: var(--radius-xl);
+    padding: var(--space-5);
     text-align: center;
-    min-width: 280px;
-    max-width: 400px;
-    box-shadow: var(--shadow-md);
+    min-width: 300px;
+    max-width: 420px;
+    box-shadow: var(--shadow-lg);
     border: var(--border-width) solid var(--border-color-light);
   }
 
@@ -79,16 +79,59 @@
     font-size: var(--font-size-xl);
     font-weight: var(--font-weight-bold);
     color: var(--text-color);
-    margin: 0 0 var(--space-5) 0;
+    margin: 0 0 var(--space-4) 0;
+    line-height: 1.3;
+  }
+
+  // Packaging section
+  &__packaging {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-6);
+    padding: var(--space-4) 0;
+    border-bottom: var(--border-width) solid var(--border-color-light);
+    margin-bottom: var(--space-4);
+  }
+
+  &__packaging-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-2);
+
+    i {
+      font-size: var(--font-size-xl);
+      color: var(--primary-color);
+      background: var(--primary-50);
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+
+  &__packaging-label {
+    font-size: var(--font-size-xs);
+    color: var(--text-color-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: var(--font-weight-medium);
+  }
+
+  &__packaging-value {
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-bold);
+    color: var(--text-color-strong);
   }
 
   // Details list
   &__details {
     display: flex;
     justify-content: center;
-    gap: var(--space-6);
-    border-top: var(--border-width) solid var(--border-color-light);
-    padding-top: var(--space-5);
+    flex-wrap: wrap;
+    gap: var(--space-5);
   }
 
   // Single detail
@@ -97,6 +140,7 @@
     flex-direction: column;
     align-items: center;
     gap: var(--space-1);
+    min-width: 70px;
   }
 
   &__detail-label {
@@ -133,6 +177,10 @@
 // Dark mode
 :host-context(.my-app-dark) .lightbox {
   background: rgba(26, 26, 46, 0.95);
+
+  &__packaging-item i {
+    background: rgba(var(--primary-color-rgb), 0.15);
+  }
 }
 
 // Mobile adjustments
@@ -148,12 +196,27 @@
     }
 
     &__image {
-      max-height: 50vh;
+      max-height: 45vh;
     }
 
     &__info {
       min-width: auto;
       width: 100%;
+      padding: var(--space-4);
+    }
+
+    &__title {
+      font-size: var(--font-size-lg);
+    }
+
+    &__packaging {
+      gap: var(--space-4);
+    }
+
+    &__packaging-item i {
+      width: 36px;
+      height: 36px;
+      font-size: var(--font-size-lg);
     }
 
     &__details {

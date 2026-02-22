@@ -343,8 +343,11 @@
     [imageUrl]="selectedImage()"
     [title]="lightboxTitle()"
     [details]="lightboxDetails()"
+    [packagingType]="lightboxPackagingType()"
+    [piecesPerBox]="lightboxPiecesPerBox()"
+    [unit]="lightboxUnit()"
+    [cartonsCount]="lightboxCartonsCount()"
     altText="Product image"
-    (close)="closeImage()">
-  </app-image-lightbox>
+    (close)="closeImage()" />
 
 </app-page-layout>

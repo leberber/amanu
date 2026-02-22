@@ -72,6 +72,9 @@ export class OrderDetailComponent implements OnInit {
   selectedImage = signal<string | null>(null);
   lightboxTitle = signal<string | null>(null);
   lightboxDetails = signal<LightboxDetails[]>([]);
+  lightboxPiecesPerBox = signal<number | null>(null);
+  lightboxUnit = signal<string | null>(null);
+  lightboxCartonsCount = signal<number | null>(null);
 
   // Computed values
   totalAmount = computed(() => this.order()?.total_amount || 0);
@@ -258,6 +261,10 @@ export class OrderDetailComponent implements OnInit {
     if (item.product_image_url) {
       this.selectedImage.set(item.product_image_url);
       this.lightboxTitle.set(item.product_name);
+      this.lightboxPiecesPerBox.set(item.pieces_per_box || null);
+      this.lightboxUnit.set(item.product_unit || null);
+      // For order items, quantity IS the carton count
+      this.lightboxCartonsCount.set(item.quantity);
 
       const details: LightboxDetails[] = [
         {
@@ -282,6 +289,9 @@ export class OrderDetailComponent implements OnInit {
     this.selectedImage.set(null);
     this.lightboxTitle.set(null);
     this.lightboxDetails.set([]);
+    this.lightboxPiecesPerBox.set(null);
+    this.lightboxUnit.set(null);
+    this.lightboxCartonsCount.set(null);
   }
 
   // Get formatted display (e.g., "1x10" for 1 unit containing 10 pieces)

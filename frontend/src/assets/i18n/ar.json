@@ -48,6 +48,33 @@
     "optional": "اختياري",
     "all": "الكل"
   },
+  "lightbox": {
+    "packaging_type": "التغليف",
+    "pieces_per_box": "لكل صندوق",
+    "cartons_count": "المحدد"
+  },
+  "units": {
+    "kg": "كيلوغرام",
+    "kg_short": "كغ",
+    "gram": "غرام",
+    "gram_short": "غ",
+    "piece": "قطعة",
+    "piece_short": "قطعة",
+    "bunch": "حزمة",
+    "bunch_short": "حزمة",
+    "dozen": "دزينة",
+    "dozen_short": "دز",
+    "pound": "رطل",
+    "pound_short": "رطل",
+    "liter": "لتر",
+    "liter_short": "ل",
+    "ml": "مليلتر",
+    "ml_short": "مل",
+    "box": "صندوق",
+    "box_short": "صندوق",
+    "pack": "علبة",
+    "pack_short": "علبة"
+  },
   "Select All": "تحديد الكل",
   "Clear": "مسح",
   "Clear Selection": "مسح التحديد",

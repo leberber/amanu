@@ -71,6 +71,10 @@ export class CheckoutComponent implements OnInit {
   selectedImage = signal<string | null>(null);
   lightboxTitle = signal<string | null>(null);
   lightboxDetails = signal<LightboxDetails[]>([]);
+  lightboxPackagingType = signal<string | null>(null);
+  lightboxPiecesPerBox = signal<number | null>(null);
+  lightboxUnit = signal<string | null>(null);
+  lightboxCartonsCount = signal<number | null>(null);
 
   // Computed values
   cartItemCount = computed(() => this.cartItems().length);
@@ -208,6 +212,10 @@ export class CheckoutComponent implements OnInit {
     if (item.product_image) {
       this.selectedImage.set(item.product_image);
       this.lightboxTitle.set(item.product_name);
+      this.lightboxPackagingType.set(item.packaging_type || null);
+      this.lightboxPiecesPerBox.set(item.pieces_per_box || null);
+      this.lightboxUnit.set(item.product_unit || null);
+      this.lightboxCartonsCount.set(this.getCartonCount(item));
 
       const details: LightboxDetails[] = [
         {
@@ -232,5 +240,9 @@ export class CheckoutComponent implements OnInit {
     this.selectedImage.set(null);
     this.lightboxTitle.set(null);
     this.lightboxDetails.set([]);
+    this.lightboxPackagingType.set(null);
+    this.lightboxPiecesPerBox.set(null);
+    this.lightboxUnit.set(null);
+    this.lightboxCartonsCount.set(null);
   }
 }

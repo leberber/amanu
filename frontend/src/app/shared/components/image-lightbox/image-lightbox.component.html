@@ -7,11 +7,40 @@
     <div class="lightbox__content" (click)="onContentClick($event)">
       <img [src]="url" [alt]="altText()" class="lightbox__image">
 
-      @if (title() || details().length > 0) {
+      @if (title() || packagingType() || piecesPerBox() || cartonsCount() !== null || details().length > 0) {
         <div class="lightbox__info">
           @if (title()) {
             <h3 class="lightbox__title">{{ title() }}</h3>
           }
+
+          <!-- Packaging Info Section -->
+          @if (packagingType() || piecesPerBox() || cartonsCount() !== null) {
+            <div class="lightbox__packaging">
+              @if (packagingType()) {
+                <div class="lightbox__packaging-item">
+                  <i class="pi pi-box"></i>
+                  <span class="lightbox__packaging-label">{{ 'lightbox.packaging_type' | translate }}</span>
+                  <span class="lightbox__packaging-value">{{ packagingTypeDisplay() }}</span>
+                </div>
+              }
+              @if (piecesPerBox()) {
+                <div class="lightbox__packaging-item">
+                  <i class="pi pi-th-large"></i>
+                  <span class="lightbox__packaging-label">{{ 'lightbox.pieces_per_box' | translate }}</span>
+                  <span class="lightbox__packaging-value">{{ piecesPerBoxDisplay() }}</span>
+                </div>
+              }
+              @if (cartonsCount() !== null) {
+                <div class="lightbox__packaging-item">
+                  <i class="pi pi-inbox"></i>
+                  <span class="lightbox__packaging-label">{{ 'lightbox.cartons_count' | translate }}</span>
+                  <span class="lightbox__packaging-value">{{ cartonsCountDisplay() }}</span>
+                </div>
+              }
+            </div>
+          }
+
+          <!-- Details Section -->
           @if (details().length > 0) {
             <div class="lightbox__details">
               @for (detail of details(); track detail.label) {

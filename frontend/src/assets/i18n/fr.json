@@ -48,6 +48,33 @@
     "optional": "Optionnel",
     "all": "Tous"
   },
+  "lightbox": {
+    "packaging_type": "Emballage",
+    "pieces_per_box": "Par Boîte",
+    "cartons_count": "Sélectionné"
+  },
+  "units": {
+    "kg": "Kilogramme",
+    "kg_short": "kg",
+    "gram": "Gramme",
+    "gram_short": "g",
+    "piece": "Pièce",
+    "piece_short": "pièce",
+    "bunch": "Botte",
+    "bunch_short": "botte",
+    "dozen": "Douzaine",
+    "dozen_short": "dz",
+    "pound": "Livre",
+    "pound_short": "lb",
+    "liter": "Litre",
+    "liter_short": "L",
+    "ml": "Millilitre",
+    "ml_short": "ml",
+    "box": "Boîte",
+    "box_short": "boîte",
+    "pack": "Paquet",
+    "pack_short": "paquet"
+  },
   "Select All": "Tout Sélectionner",
   "Clear": "Effacer",
   "Clear Selection": "Effacer la Sélection",

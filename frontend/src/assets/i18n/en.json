@@ -48,6 +48,33 @@
     "optional": "Optional",
     "all": "All"
   },
+  "lightbox": {
+    "packaging_type": "Packaging",
+    "pieces_per_box": "Per Box",
+    "cartons_count": "Selected"
+  },
+  "units": {
+    "kg": "Kilogram",
+    "kg_short": "kg",
+    "gram": "Gram",
+    "gram_short": "g",
+    "piece": "Piece",
+    "piece_short": "pc",
+    "bunch": "Bunch",
+    "bunch_short": "bunch",
+    "dozen": "Dozen",
+    "dozen_short": "dz",
+    "pound": "Pound",
+    "pound_short": "lb",
+    "liter": "Liter",
+    "liter_short": "L",
+    "ml": "Milliliter",
+    "ml_short": "ml",
+    "box": "Box",
+    "box_short": "box",
+    "pack": "Pack",
+    "pack_short": "pack"
+  },
   "Select All": "Select All",
   "Clear": "Clear",
   "Clear Selection": "Clear Selection",
