@@ -65,13 +65,10 @@
         </button>
       } @else {
         <!-- Out of Stock -->
-        <button
-          pButton
-          [label]="'products.stock.out_of_stock' | translate"
-          class="p-button-secondary w-full"
-          icon="pi pi-times"
-          [disabled]="true">
-        </button>
+        <span class="product-card__out-of-stock">
+          <i class="pi pi-times"></i>
+          {{ 'products.stock.out_of_stock' | translate }}
+        </span>
       }
     </div>
 

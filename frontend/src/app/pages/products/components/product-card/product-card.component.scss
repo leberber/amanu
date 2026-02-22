@@ -153,6 +153,21 @@
       font-size: var(--font-size-xs);
     }
   }
+
+  // Out of stock
+  &__out-of-stock {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #ef4444;
+    white-space: nowrap;
+
+    i {
+      font-size: 0.7rem;
+    }
+  }
 }
 
 // Mobile adjustments
