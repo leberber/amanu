@@ -154,7 +154,8 @@
                         <button
                           type="button"
                           class="quantity-selector-btn"
-                          [class.quantity-selector-btn--in-cart]="isProductInCart(product.id)"
+                          [class.quantity-selector-btn--in-cart]="quantityMatchesCart(product.id)"
+                          [class.quantity-selector-btn--update]="isProductInCart(product.id) && !quantityMatchesCart(product.id)"
                           (click)="openQuantitySelector(product, $event)">
                           <span class="quantity-selector-btn__text">
                             @if (getSelectedBoxOption(product.id); as option) {
@@ -169,11 +170,12 @@
                         <button
                           pButton
                           type="button"
-                          [icon]="isProductInCart(product.id) ? 'pi pi-check' : 'pi pi-cart-plus'"
+                          [icon]="quantityMatchesCart(product.id) ? 'pi pi-check' : (isProductInCart(product.id) ? 'pi pi-refresh' : 'pi pi-cart-plus')"
                           class="p-button-primary list-cart-btn"
-                          [class.list-cart-btn--in-cart]="isProductInCart(product.id)"
+                          [class.list-cart-btn--in-cart]="quantityMatchesCart(product.id)"
+                          [class.list-cart-btn--update]="isProductInCart(product.id) && !quantityMatchesCart(product.id)"
                           [class.list-cart-btn--highlight]="highlightedProductId() === product.id"
-                          [disabled]="!getSelectedBoxOption(product.id)"
+                          [disabled]="!getSelectedBoxOption(product.id) || quantityMatchesCart(product.id)"
                           (click)="addToCartFromList(product, $event)">
                         </button>
                       </div>
@@ -390,7 +392,8 @@
                         <button
                           type="button"
                           class="quantity-selector-btn"
-                          [class.quantity-selector-btn--in-cart]="isProductInCart(product.id)"
+                          [class.quantity-selector-btn--in-cart]="quantityMatchesCart(product.id)"
+                          [class.quantity-selector-btn--update]="isProductInCart(product.id) && !quantityMatchesCart(product.id)"
                           (click)="openQuantitySelector(product, $event)">
                           <span class="quantity-selector-btn__text">
                             @if (getSelectedBoxOption(product.id); as option) {
@@ -405,11 +408,12 @@
                         <button
                           pButton
                           type="button"
-                          [icon]="isProductInCart(product.id) ? 'pi pi-check' : 'pi pi-cart-plus'"
+                          [icon]="quantityMatchesCart(product.id) ? 'pi pi-check' : (isProductInCart(product.id) ? 'pi pi-refresh' : 'pi pi-cart-plus')"
                           class="p-button-primary list-cart-btn"
-                          [class.list-cart-btn--in-cart]="isProductInCart(product.id)"
+                          [class.list-cart-btn--in-cart]="quantityMatchesCart(product.id)"
+                          [class.list-cart-btn--update]="isProductInCart(product.id) && !quantityMatchesCart(product.id)"
                           [class.list-cart-btn--highlight]="highlightedProductId() === product.id"
-                          [disabled]="!getSelectedBoxOption(product.id)"
+                          [disabled]="!getSelectedBoxOption(product.id) || quantityMatchesCart(product.id)"
                           (click)="addToCartFromList(product, $event)">
                         </button>
                       </div>

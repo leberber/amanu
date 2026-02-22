@@ -89,6 +89,13 @@ export class ProductCardComponent {
     return item ? item.quantity : 0;
   });
 
+  // Check if selected quantity matches cart quantity
+  quantityMatchesCart = computed(() => {
+    const selected = this.selectedBoxOption();
+    const cartQty = this.quantityInCart();
+    return selected ? selected.pieces === cartQty : false;
+  });
+
   isOutOfStock = computed(() => checkOutOfStock(this.product()));
 
   isLowStock = computed(() => checkLowStock(this.product()));

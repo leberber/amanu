@@ -222,14 +222,26 @@ $bottom-nav-height: 70px;
 // 7. CART BUTTON STATES
 // =============================================================================
 
-// In-cart state - green background
+// In-cart state - green background (quantity matches cart)
 :host ::ng-deep .list-cart-btn--in-cart {
   background-color: #22c55e !important;
   border-color: #22c55e !important;
 
+  &:disabled {
+    opacity: 1 !important;
+    background-color: #22c55e !important;
+    border-color: #22c55e !important;
+  }
+}
+
+// Update state - orange/amber background (quantity differs from cart)
+:host ::ng-deep .list-cart-btn--update {
+  background-color: #f59e0b !important;
+  border-color: #f59e0b !important;
+
   &:hover {
-    background-color: #16a34a !important;
-    border-color: #16a34a !important;
+    background-color: #d97706 !important;
+    border-color: #d97706 !important;
   }
 }
 

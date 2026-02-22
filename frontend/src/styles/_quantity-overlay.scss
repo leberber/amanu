@@ -72,10 +72,17 @@
     }
   }
 
-  // In cart state - green boxes badge
+  // In cart state - green boxes badge (quantity matches cart)
   &--in-cart {
     .quantity-selector-btn__boxes {
       background: #22c55e;
+    }
+  }
+
+  // Update state - orange boxes badge (quantity differs from cart)
+  &--update {
+    .quantity-selector-btn__boxes {
+      background: #f59e0b;
     }
   }
 }

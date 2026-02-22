@@ -118,6 +118,13 @@ export class ProductDetailComponent implements OnInit {
     return this.cartService.getProductQuantityInCart(currentProduct.id);
   });
 
+  // Check if selected quantity matches cart quantity
+  quantityMatchesCart = computed(() => {
+    const cartQty = this.quantityInCart();
+    const selectedQty = this.selectedQuantity();
+    return cartQty > 0 && cartQty === selectedQty;
+  });
+
   // Computed properties using shared utilities
   hasPromotion = computed(() => checkHasPromotion(this.product()?.promotion));
 
@@ -205,7 +212,7 @@ export class ProductDetailComponent implements OnInit {
 
     const quantity = this.selectedQuantity();
 
-    this.cartService.addToCart(currentProduct, quantity).subscribe({
+    this.cartService.setCartQuantity(currentProduct, quantity).subscribe({
       error: () => {
         this.toast.showError('products.cart.error');
       }

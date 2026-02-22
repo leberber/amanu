@@ -134,6 +134,27 @@
   padding: 1.125rem 1.5rem;
 }
 
+// Cart button in-cart state - green background (quantity matches cart)
+.action-btn--in-cart {
+  background: #22c55e !important;
+  border-color: #22c55e !important;
+
+  &:disabled {
+    opacity: 1 !important;
+  }
+}
+
+// Cart button update state - orange background (quantity differs from cart)
+.action-btn--update {
+  background: #f59e0b !important;
+  border-color: #f59e0b !important;
+
+  &:hover:not(:disabled) {
+    background: #d97706 !important;
+    border-color: #d97706 !important;
+  }
+}
+
 // Cart status spacing (additional to global)
 .cart-status {
   margin-bottom: var(--space-5);

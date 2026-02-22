@@ -44,7 +44,8 @@
         <button
           type="button"
           class="quantity-selector-btn quantity-selector-btn--compact"
-          [class.quantity-selector-btn--in-cart]="isInCart()"
+          [class.quantity-selector-btn--in-cart]="quantityMatchesCart()"
+          [class.quantity-selector-btn--update]="isInCart() && !quantityMatchesCart()"
           (click)="openQuantitySelector($event)">
           <span class="quantity-selector-btn__text">
             @if (selectedBoxOption()) {
@@ -60,11 +61,12 @@
         <button
           pButton
           type="button"
-          [icon]="isInCart() ? 'pi pi-check' : 'pi pi-cart-plus'"
+          [icon]="quantityMatchesCart() ? 'pi pi-check' : (isInCart() ? 'pi pi-refresh' : 'pi pi-cart-plus')"
           class="p-button-primary product-card__cart-btn"
-          [class.product-card__cart-btn--in-cart]="isInCart()"
+          [class.product-card__cart-btn--in-cart]="quantityMatchesCart()"
+          [class.product-card__cart-btn--update]="isInCart() && !quantityMatchesCart()"
           [class.product-card__cart-btn--highlight]="highlightCart()"
-          [disabled]="!selectedBoxOption()"
+          [disabled]="!selectedBoxOption() || quantityMatchesCart()"
           (click)="addToCart($event)">
         </button>
       } @else {

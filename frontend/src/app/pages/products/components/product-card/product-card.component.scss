@@ -177,14 +177,26 @@
   }
 }
 
-// Cart button in-cart state - green background
+// Cart button in-cart state - green background (quantity matches cart)
 :host ::ng-deep .product-card__cart-btn--in-cart {
   background-color: #22c55e !important;
   border-color: #22c55e !important;
 
+  &:disabled {
+    opacity: 1 !important;
+    background-color: #22c55e !important;
+    border-color: #22c55e !important;
+  }
+}
+
+// Cart button update state - orange background (quantity differs from cart)
+:host ::ng-deep .product-card__cart-btn--update {
+  background-color: #f59e0b !important;
+  border-color: #f59e0b !important;
+
   &:hover {
-    background-color: #16a34a !important;
-    border-color: #16a34a !important;
+    background-color: #d97706 !important;
+    border-color: #d97706 !important;
   }
 }
 

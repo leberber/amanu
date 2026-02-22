@@ -256,11 +256,15 @@
               <!-- Add to Cart Button -->
               <button
                 class="action-btn action-btn--primary"
+                [class.action-btn--in-cart]="quantityMatchesCart()"
+                [class.action-btn--update]="isInCart() && !quantityMatchesCart()"
                 (click)="addToCart($event)"
-                [disabled]="isOutOfStock() || !selectedQuantity()">
-                <i [class]="isInCart() ? 'pi pi-plus' : 'pi pi-shopping-cart'"></i>
-                @if (isInCart()) {
-                  {{ 'common.add' | translate }} +{{ selectedQuantity() }} ({{ quantityInCart() + selectedQuantity() }} {{ 'common.total' | translate }})
+                [disabled]="isOutOfStock() || !selectedQuantity() || quantityMatchesCart()">
+                <i [class]="quantityMatchesCart() ? 'pi pi-check' : (isInCart() ? 'pi pi-refresh' : 'pi pi-shopping-cart')"></i>
+                @if (quantityMatchesCart()) {
+                  {{ selectedQuantity() }} {{ unitDisplay() }} {{ 'products.cart.in_cart' | translate }}
+                } @else if (isInCart()) {
+                  {{ 'products.cart.update_quantity' | translate }} ({{ selectedQuantity() }} {{ unitDisplay() }})
                 } @else {
                   {{ 'products.cart.add_to_cart' | translate }}
                 }

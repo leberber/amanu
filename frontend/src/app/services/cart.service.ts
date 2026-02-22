@@ -161,6 +161,53 @@ export class CartService {
     return of(updatedItem);
   }
 
+  // Set cart quantity (replaces existing quantity instead of adding)
+  setCartQuantity(product: Product, quantity: number): Observable<CartItem> {
+    if (!product || !product.id) {
+      return throwError(() => new Error('Invalid product'));
+    }
+
+    if (quantity < 1) {
+      return throwError(() => new Error('Quantity must be at least 1'));
+    }
+
+    if (product.stock_quantity !== undefined && quantity > product.stock_quantity) {
+      return throwError(() => new Error('Insufficient stock'));
+    }
+
+    const currentCart = [...this.cartItemsSubject.value];
+    const existingItemIndex = currentCart.findIndex(item => item.product_id === product.id);
+
+    let updatedItem: CartItem;
+
+    if (existingItemIndex !== -1) {
+      // Update existing item - SET quantity (not add)
+      updatedItem = {
+        ...currentCart[existingItemIndex],
+        quantity: quantity
+      };
+      currentCart[existingItemIndex] = updatedItem;
+    } else {
+      // Add new item
+      updatedItem = {
+        id: Date.now().toString(),
+        product_id: product.id,
+        product_name: product.name,
+        product_price: product.price,
+        product_unit: product.unit,
+        product_image: product.image_url,
+        is_organic: product.is_organic,
+        stock_quantity: product.stock_quantity,
+        quantity: quantity,
+        pieces_per_box: product.pieces_per_box
+      };
+      currentCart.push(updatedItem);
+    }
+
+    this.saveCartToStorage(currentCart);
+    return of(updatedItem);
+  }
+
   updateCartItem(itemId: string, quantity: number): Observable<CartItem> {
     // Validate inputs
     if (!itemId) {

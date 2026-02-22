@@ -596,7 +596,8 @@ export class ProductListComponent implements OnInit, OnDestroy {
   }
 
   private handleAddToCart(product: Product, quantity: number): void {
-    this.cartService.addToCart(product, quantity).subscribe({
+    // Use setCartQuantity to replace quantity (not add)
+    this.cartService.setCartQuantity(product, quantity).subscribe({
       next: () => {
         // Animation handles the visual feedback
       },
@@ -716,13 +717,30 @@ export class ProductListComponent implements OnInit, OnDestroy {
     this.showQuantitySelector.set(true);
     this.overlayService.open('quantity-overlay-open');
 
-    // Initialize selection if not set
-    if (!this.selectedBoxOptions[product.id]) {
-      const options = this.getBoxOptions(product);
-      if (options.length > 0) {
+    // Sync selection with cart quantity if product is in cart
+    const cartQuantity = this.getCartQuantity(product.id);
+    const options = this.getBoxOptions(product);
+
+    if (cartQuantity > 0) {
+      // Find matching box option for cart quantity
+      const matchingOption = options.find(opt => opt.pieces === cartQuantity);
+      if (matchingOption) {
+        this.selectedBoxOptions[product.id] = matchingOption;
+      } else if (options.length > 0) {
+        // Cart has custom quantity, default to first option
         this.selectedBoxOptions[product.id] = options[0];
       }
+    } else if (!this.selectedBoxOptions[product.id] && options.length > 0) {
+      // Not in cart, initialize to first option
+      this.selectedBoxOptions[product.id] = options[0];
     }
+  }
+
+  // Check if selected quantity matches cart quantity
+  quantityMatchesCart(productId: number): boolean {
+    const selectedOption = this.selectedBoxOptions[productId];
+    const cartQuantity = this.getCartQuantity(productId);
+    return selectedOption ? selectedOption.pieces === cartQuantity : false;
   }
 
   closeQuantitySelector(): void {
