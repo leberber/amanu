@@ -251,6 +251,16 @@ export class CartComponent implements OnInit {
   }
 
   // Promotion methods
+  private getCartItemsForDiscount() {
+    return this.cartItems().map(item => ({
+      product_id: item.product_id,
+      quantity: item.quantity,
+      unit_price: item.product_price,
+      category_id: item.category_id,
+      brand_id: item.brand_id
+    }));
+  }
+
   applyPromoCode(): void {
     const code = this.promoCode().trim();
     if (!code) {
@@ -261,17 +271,9 @@ export class CartComponent implements OnInit {
     this.promoLoading.set(true);
     this.promoError.set(null);
 
-    const cartItemsForDiscount = this.cartItems().map(item => ({
-      product_id: item.product_id,
-      quantity: item.quantity,
-      unit_price: item.product_price,
-      category_id: item.category_id,
-      brand_id: item.brand_id
-    }));
-
     this.promotionService.calculateDiscount({
       promotion_code: code,
-      cart_items: cartItemsForDiscount
+      cart_items: this.getCartItemsForDiscount()
     }).subscribe({
       next: (response) => {
         this.promoLoading.set(false);
@@ -312,17 +314,9 @@ export class CartComponent implements OnInit {
   }
 
   private recalculateDiscount(code: string): void {
-    const cartItemsForDiscount = this.cartItems().map(item => ({
-      product_id: item.product_id,
-      quantity: item.quantity,
-      unit_price: item.product_price,
-      category_id: item.category_id,
-      brand_id: item.brand_id
-    }));
-
     this.promotionService.calculateDiscount({
       promotion_code: code,
-      cart_items: cartItemsForDiscount
+      cart_items: this.getCartItemsForDiscount()
     }).subscribe({
       next: (response) => {
         if (response.promotion && response.discount_amount > 0) {
