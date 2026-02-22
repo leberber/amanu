@@ -113,7 +113,7 @@
                             [src]="item.product_image"
                             [alt]="item.product_name"
                             loading="lazy"
-                            (error)="onImageError($event)">
+                            appImageFallback>
                         } @else {
                           <i class="pi pi-box"></i>
                         }
@@ -177,7 +177,7 @@
                         [src]="item.product_image"
                         [alt]="item.product_name"
                         loading="lazy"
-                        (error)="onImageError($event)">
+                        appImageFallback>
                     } @else {
                       <i class="pi pi-box"></i>
                     }

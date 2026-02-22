@@ -96,9 +96,9 @@
           <div class="app-card product-image-card">
             <div class="product-image-container">
               <img
-                [src]="product()?.image_url || 'assets/images/product-placeholder.jpg'"
+                [src]="product()?.image_url"
                 [alt]="product()?.name"
-                (error)="onImageError($event)">
+                appImageFallback>
 
               <!-- Badges on image -->
               @if (hasPromotion()) {

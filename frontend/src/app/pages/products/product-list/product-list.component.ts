@@ -27,15 +27,11 @@ import { getDefaultQuantity, getBaseQuantity } from '../../../shared/utils/quant
 import { Brand } from '../../../models/brand.model';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { ProductCardComponent, AddToCartEvent } from '../components/product-card/product-card.component';
+import { isOutOfStock as checkOutOfStock } from '../../../shared/utils/stock.utils';
+import { getEffectivePrice as calcEffectivePrice } from '../../../shared/utils/discount.utils';
+import { generateBoxOptions, BoxOption } from '../../../shared/utils/box-options.utils';
 
 export type SortOption = 'name_asc' | 'name_desc' | 'price_asc' | 'price_desc' | 'created_at_desc';
-
-export interface BoxOption {
-  boxes: number;
-  pieces: number;
-  price: number;
-  label: string;
-}
 import { HorizontalFilterComponent } from '../../../shared/components/horizontal-filter/horizontal-filter.component';
 import { SearchInputComponent } from '../../../shared/components/search-input/search-input.component';
 import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
@@ -371,7 +367,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
   }
 
   isOutOfStock(product: Product): boolean {
-    return product.stock_quantity === 0;
+    return checkOutOfStock(product);
   }
 
 
@@ -640,31 +636,14 @@ export class ProductListComponent implements OnInit, OnDestroy {
   getBoxPrice(product: Product): number | null {
     const boxQty = product.pieces_per_box;
     if (boxQty) {
-      const effectivePrice = product.promotion?.discounted_price || product.price;
-      return effectivePrice * boxQty;
+      return calcEffectivePrice(product.price, product.promotion) * boxQty;
     }
     return null;
   }
 
-  // Box options for list view dropdown
+  // Box options for list view dropdown - uses shared utility
   getBoxOptions(product: Product): BoxOption[] {
-    const options: BoxOption[] = [];
-    const piecesPerBox = product.pieces_per_box || 1;
-    const effectivePrice = product.promotion?.discounted_price || product.price;
-    const maxBoxes = Math.min(Math.floor(product.stock_quantity / piecesPerBox), 10);
-
-    for (let i = 1; i <= maxBoxes; i++) {
-      const pieces = i * piecesPerBox;
-      const price = pieces * effectivePrice;
-      options.push({
-        boxes: i,
-        pieces,
-        price,
-        label: `${i} ${i === 1 ? 'box' : 'boxes'} • ${pieces} pc • ${this.currencyService.formatCurrency(price)}`
-      });
-    }
-
-    return options;
+    return generateBoxOptions(product, this.currencyService);
   }
 
   getSelectedBoxOption(productId: number): BoxOption | null {
@@ -733,6 +712,6 @@ export class ProductListComponent implements OnInit, OnDestroy {
   }
 
   getEffectivePrice(product: Product): number {
-    return product.promotion?.discounted_price || product.price;
+    return calcEffectivePrice(product.price, product.promotion);
   }
 }

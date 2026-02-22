@@ -21,12 +21,21 @@ import { UnitsService } from '../../../core/services/units.service';
 import { TranslationService } from '../../../services/translation.service';
 import { Product } from '../../../models/product.model';
 import { Brand } from '../../../models/brand.model';
-import { PRODUCT } from '../../../core/constants/app.constants';
 import { ROUTES } from '../../../core/constants/routes.constants';
 import { getDefaultQuantity } from '../../../shared/utils/quantity.utils';
 import { FlyToCartService } from '../../../core/services/fly-to-cart.service';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
 import { BrandService } from '../../../core/services/brand.service';
+import { ImageFallbackDirective } from '../../../shared/directives/image-fallback.directive';
+import {
+  isOutOfStock as checkOutOfStock,
+  isLowStock as checkLowStock
+} from '../../../shared/utils/stock.utils';
+import {
+  formatDiscountLabel,
+  getEffectivePrice,
+  hasPromotion as checkHasPromotion
+} from '../../../shared/utils/discount.utils';
 
 @Component({
   selector: 'app-product-detail',
@@ -37,7 +46,8 @@ import { BrandService } from '../../../core/services/brand.service';
     TranslateModule,
     PageLayoutComponent,
     ErrorStateComponent,
-    CurrencyPipe
+    CurrencyPipe,
+    ImageFallbackDirective
   ],
   templateUrl: './product-detail.component.html',
   styleUrl: './product-detail.component.scss'
@@ -68,15 +78,10 @@ export class ProductDetailComponent implements OnInit {
   currentLanguage = signal<string>(this.translationService.getCurrentLanguage());
   cartVersion = signal<number>(0); // Triggers reactivity when cart changes
 
-  // Computed values
-  isOutOfStock = computed(() => {
-    return this.product()?.stock_quantity === 0;
-  });
+  // Computed values using shared utilities
+  isOutOfStock = computed(() => checkOutOfStock(this.product()));
 
-  isLowStock = computed(() => {
-    const product = this.product();
-    return product ? (product.stock_quantity > 0 && product.stock_quantity < PRODUCT.LOW_STOCK_THRESHOLD) : false;
-  });
+  isLowStock = computed(() => checkLowStock(this.product()));
 
   // Computed property for low stock translation parameters
   lowStockParams = computed(() => {
@@ -113,26 +118,14 @@ export class ProductDetailComponent implements OnInit {
     return this.cartService.getProductQuantityInCart(currentProduct.id);
   });
 
-  // Computed property to check if product has promotion
-  hasPromotion = computed(() => {
-    const currentProduct = this.product();
-    return currentProduct?.promotion != null;
-  });
+  // Computed properties using shared utilities
+  hasPromotion = computed(() => checkHasPromotion(this.product()?.promotion));
 
-  // Computed property for discount label
-  discountLabel = computed(() => {
-    const currentProduct = this.product();
-    if (!currentProduct?.promotion) return '';
-    if (currentProduct.promotion.discount_type === 'percentage') {
-      return `-${currentProduct.promotion.discount_value}%`;
-    }
-    return `-${this.currencyService.formatCurrency(currentProduct.promotion.discount_value)}`;
-  });
+  discountLabel = computed(() => formatDiscountLabel(this.product()?.promotion, this.currencyService));
 
-  // Computed property for discounted price
   discountedPrice = computed(() => {
     const currentProduct = this.product();
-    return currentProduct?.promotion?.discounted_price || currentProduct?.price || 0;
+    return getEffectivePrice(currentProduct?.price || 0, currentProduct?.promotion);
   });
 
   ngOnInit() {
@@ -222,11 +215,5 @@ export class ProductDetailComponent implements OnInit {
   // Navigate back to products list
   goBack(): void {
     this.router.navigate([ROUTES.PRODUCTS]);
-  }
-
-  // Handle image load error
-  onImageError(event: Event): void {
-    const img = event.target as HTMLImageElement;
-    img.src = 'assets/images/product-placeholder.jpg';
   }
 }

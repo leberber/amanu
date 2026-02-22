@@ -45,7 +45,7 @@
                   [src]="category.image"
                   [alt]="category.name"
                   loading="lazy"
-                  (error)="onImageError($event)"
+                  appImageFallback="assets/images/category-placeholder.jpg"
                   class="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
                 />
                 <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
@@ -87,7 +87,7 @@
                   src="https://images.unsplash.com/photo-1619566636858-adf3ef46400b?auto=format&fit=crop&w=1470&q=80"
                   [alt]="'home.categories.fresh_fruits.name' | translate"
                   loading="lazy"
-                  (error)="onImageError($event)"
+                  appImageFallback="assets/images/category-placeholder.jpg"
                   class="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
                 />
                 <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
@@ -123,7 +123,7 @@
                   src="https://images.unsplash.com/photo-1518843875459-f738682238a6?auto=format&fit=crop&w=1442&q=80"
                   [alt]="'home.categories.fresh_vegetables.name' | translate"
                   loading="lazy"
-                  (error)="onImageError($event)"
+                  appImageFallback="assets/images/category-placeholder.jpg"
                   class="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
                 />
                 <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
@@ -159,7 +159,7 @@
                   src="https://images.unsplash.com/photo-1576675466969-38eeae4b41f6?auto=format&fit=crop&w=1442&q=80"
                   [alt]="'home.categories.organic_produce.name' | translate"
                   loading="lazy"
-                  (error)="onImageError($event)"
+                  appImageFallback="assets/images/category-placeholder.jpg"
                   class="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
                 />
                 <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>

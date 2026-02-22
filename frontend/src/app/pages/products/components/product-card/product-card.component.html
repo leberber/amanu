@@ -3,10 +3,10 @@
   <!-- Product Image -->
   <a [routerLink]="['/products', product().id]" class="product-card__image">
     <img
-      [src]="product().image_url || 'assets/images/product-placeholder.jpg'"
+      [src]="product().image_url"
       [alt]="product().name"
       loading="lazy"
-      (error)="onImageError($event)">
+      appImageFallback>
 
     <!-- Badges -->
     <div class="product-card__badges">
@@ -89,9 +89,9 @@
       <div class="quantity-overlay__header">
         <div class="quantity-overlay__product">
           <img
-            [src]="product().image_url || 'assets/images/product-placeholder.jpg'"
+            [src]="product().image_url"
             [alt]="product().name"
-            (error)="onImageError($event)">
+            appImageFallback>
           <div class="quantity-overlay__product-info">
             <h4>{{ product().name }}</h4>
             <span class="quantity-overlay__price">{{ effectivePrice() | appCurrency }} / {{ product().unit }}</span>

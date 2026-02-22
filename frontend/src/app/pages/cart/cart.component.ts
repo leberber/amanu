@@ -26,6 +26,8 @@ import { ToastMessageService } from '../../core/services/toast-message.service';
 import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
 import { UnitPipe } from '../../shared/pipes/unit.pipe';
 import { getCartonCount as calcCartonCount } from '../../shared/utils/quantity.utils';
+import { ImageFallbackDirective } from '../../shared/directives/image-fallback.directive';
+import { isOutOfStock as checkOutOfStock } from '../../shared/utils/stock.utils';
 
 @Component({
   selector: 'app-cart-page',
@@ -43,7 +45,8 @@ import { getCartonCount as calcCartonCount } from '../../shared/utils/quantity.u
     EmptyStateComponent,
     ImageLightboxComponent,
     CurrencyPipe,
-    UnitPipe
+    UnitPipe,
+    ImageFallbackDirective
   ],
   templateUrl: './cart.component.html',
   styleUrl: './cart.component.scss'
@@ -224,7 +227,7 @@ export class CartComponent implements OnInit {
   }
 
   isOutOfStock(item: CartItem): boolean {
-    return item.stock_quantity !== undefined && item.stock_quantity <= 0;
+    return checkOutOfStock(item);
   }
 
   getCartonCount(item: CartItem): number {
@@ -377,12 +380,6 @@ export class CartComponent implements OnInit {
     this.selectedImage.set(null);
     this.lightboxTitle.set(null);
     this.lightboxDetails.set([]);
-  }
-
-  // Image error handling
-  onImageError(event: Event): void {
-    const img = event.target as HTMLImageElement;
-    img.src = 'assets/images/product-placeholder.jpg';
   }
 
   // Navigate to products

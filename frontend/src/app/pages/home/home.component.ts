@@ -11,11 +11,12 @@ import { TranslationService } from '../../services/translation.service';
 import { ToastMessageService } from '../../core/services/toast-message.service';
 import { Category } from '../../models/product.model';
 import { ROUTES } from '../../core/constants/routes.constants';
+import { ImageFallbackDirective } from '../../shared/directives/image-fallback.directive';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [RouterLink, ButtonModule, CardModule, TranslateModule],
+  imports: [RouterLink, ButtonModule, CardModule, TranslateModule, ImageFallbackDirective],
   templateUrl: './home.component.html'
 
 })
@@ -69,10 +70,5 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.toast.showApiError(error, 'errors.load_categories_failed');
       }
     });
-  }
-
-  onImageError(event: Event): void {
-    const img = event.target as HTMLImageElement;
-    img.src = 'assets/images/category-placeholder.jpg';
   }
 }
