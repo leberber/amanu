@@ -135,6 +135,14 @@ export class ProductDetailComponent implements OnInit {
     return getEffectivePrice(currentProduct?.price || 0, currentProduct?.promotion);
   });
 
+  // Stock quantity in cartons
+  stockInCartons = computed(() => {
+    const currentProduct = this.product();
+    if (!currentProduct) return 0;
+    const piecesPerBox = currentProduct.pieces_per_box || 1;
+    return Math.floor(currentProduct.stock_quantity / piecesPerBox);
+  });
+
   ngOnInit() {
     // Subscribe to cart changes to update the button
     this.cartService.cartItems$
