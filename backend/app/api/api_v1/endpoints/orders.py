@@ -110,20 +110,8 @@ def create_order(
             "brand_id": product.brand_id
         })
 
-        # Get pieces_per_box from quantity_config if available
-        pieces_per_box = None
-        if product.quantity_config:
-            config = product.quantity_config
-            # For 'list' type, use first quantity
-            if config.get("quantities"):
-                quantities = config.get("quantities")
-                if quantities and len(quantities) > 0:
-                    pieces_per_box = int(quantities[0])
-            # For 'range' type, use min value
-            elif config.get("min"):
-                pieces_per_box = int(config.get("min"))
-
         # Create order item
+        pieces_per_box = None
         order_item = OrderItem(
             product_id=item.product_id,
             quantity=item.quantity,
