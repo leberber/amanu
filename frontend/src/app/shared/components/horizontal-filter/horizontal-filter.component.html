@@ -1,11 +1,9 @@
 <div class="filter-bar" [class.compact]="compact()" [attr.data-filter-type]="filterType()">
   <!-- Mode Toggle -->
   @if (showModeToggle()) {
-    <div
-      class="filter-item mode-toggle"
-      (click)="toggleMode()">
+    <div class="filter-item mode-toggle" (click)="toggleMode()">
       <div class="toggle-circle">
-        <img [src]="getToggleImage()" alt="" class="toggle-img">
+        <img [src]="toggleImage()" alt="" class="toggle-img">
       </div>
     </div>
   }
@@ -19,12 +17,10 @@
       (click)="selectItem(null)">
       <div class="item-image-wrapper">
         <div class="item-image all-option">
-          <i [class]="getIconClass()"></i>
+          <i [class]="iconClass()"></i>
         </div>
       </div>
-      @if (showItemName()) {
-        <span class="item-name">{{ allLabel() | translate }}</span>
-      }
+      <span class="item-name">{{ allLabel() | translate }}</span>
     </div>
   }
 
@@ -41,16 +37,14 @@
             [src]="imageUrl"
             [alt]="item.name"
             class="item-image"
-            [style.transform]="'scale(' + getScale() + ')'">
+            [style.transform]="'scale(' + imageScale() + ')'">
         } @else {
           <div class="item-image placeholder">
-            <i [class]="getIconClass()"></i>
+            <i [class]="iconClass()"></i>
           </div>
         }
       </div>
-      @if (showItemName()) {
-        <span class="item-name">{{ item.name }}</span>
-      }
+      <span class="item-name">{{ item.name }}</span>
     </div>
   }
 

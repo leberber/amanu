@@ -19,7 +19,9 @@ export type FilterType = 'categories' | 'brands';
   styleUrls: ['./horizontal-filter.component.scss']
 })
 export class HorizontalFilterComponent implements AfterViewInit {
-  // Inputs
+  // ==========================================================================
+  // INPUTS
+  // ==========================================================================
   items = input<FilterItem[]>([]);
   activeItemId = input<number | null>(null);
   filterType = input<FilterType>('categories');
@@ -30,19 +32,27 @@ export class HorizontalFilterComponent implements AfterViewInit {
   showModeToggle = input(true);
   compact = input(false);
 
-  // ViewChildren using signal-based query
-  filterItems = viewChildren<ElementRef>('filterItem');
-
-  // Outputs
+  // ==========================================================================
+  // OUTPUTS
+  // ==========================================================================
   itemSelected = output<number | null>();
   searchToggle = output<void>();
   modeToggle = output<void>();
 
-  // State signals
+  // ==========================================================================
+  // VIEW QUERIES
+  // ==========================================================================
+  filterItems = viewChildren<ElementRef>('filterItem');
+
+  // ==========================================================================
+  // STATE
+  // ==========================================================================
   indicatorLeft = signal(0);
   indicatorWidth = signal(0);
 
-  // Computed
+  // ==========================================================================
+  // COMPUTED
+  // ==========================================================================
   allLabel = computed(() => {
     const inputLabel = this.allLabelInput();
     if (inputLabel) return inputLabel;
@@ -51,8 +61,22 @@ export class HorizontalFilterComponent implements AfterViewInit {
       : 'products.filters.all_brands';
   });
 
+  toggleImage = computed(() =>
+    this.filterType() === 'categories' ? '/brands-icon.png' : '/categories-icon.png'
+  );
+
+  iconClass = computed(() =>
+    this.filterType() === 'categories' ? 'pi pi-th-large' : 'pi pi-building'
+  );
+
+  imageScale = computed(() =>
+    this.filterType() === 'categories' ? '1.4' : '1.7'
+  );
+
+  // ==========================================================================
+  // LIFECYCLE
+  // ==========================================================================
   constructor() {
-    // React to activeItemId changes
     effect(() => {
       this.activeItemId();
       setTimeout(() => this.updateIndicator(), 0);
@@ -63,26 +87,9 @@ export class HorizontalFilterComponent implements AfterViewInit {
     setTimeout(() => this.updateIndicator(), 0);
   }
 
-  updateIndicator(): void {
-    const items = this.filterItems();
-    const activeIndex = this.getActiveIndex();
-
-    if (activeIndex >= 0 && activeIndex < items.length) {
-      const activeElement = items[activeIndex].nativeElement;
-      this.indicatorLeft.set(activeElement.offsetLeft);
-      this.indicatorWidth.set(activeElement.offsetWidth);
-    }
-  }
-
-  getActiveIndex(): number {
-    if (this.activeItemId() === null) {
-      return this.showAllOption() ? 0 : -1;
-    }
-
-    const index = this.items().findIndex(item => item.id === this.activeItemId());
-    return this.showAllOption() ? index + 1 : index;
-  }
-
+  // ==========================================================================
+  // METHODS
+  // ==========================================================================
   selectItem(itemId: number | null): void {
     this.itemSelected.emit(itemId);
   }
@@ -95,20 +102,6 @@ export class HorizontalFilterComponent implements AfterViewInit {
     this.modeToggle.emit();
   }
 
-  getToggleIcon(): string {
-    return this.filterType() === 'categories' ? 'pi pi-building' : 'pi pi-th-large';
-  }
-
-  getToggleImage(): string {
-    return this.filterType() === 'categories' ? '/brands-icon.png' : '/categories-icon.png';
-  }
-
-  getToggleLabel(): string {
-    return this.filterType() === 'categories'
-      ? 'products.filters.show_brands'
-      : 'products.filters.show_categories';
-  }
-
   isActive(itemId: number | null): boolean {
     return this.activeItemId() === itemId;
   }
@@ -117,15 +110,26 @@ export class HorizontalFilterComponent implements AfterViewInit {
     return this.filterType() === 'categories' ? item.image_url : item.logo_url;
   }
 
-  getIconClass(): string {
-    return this.filterType() === 'categories' ? 'pi pi-th-large' : 'pi pi-building';
+  // ==========================================================================
+  // PRIVATE
+  // ==========================================================================
+  private updateIndicator(): void {
+    const items = this.filterItems();
+    const activeIndex = this.getActiveIndex();
+
+    if (activeIndex >= 0 && activeIndex < items.length) {
+      const activeElement = items[activeIndex].nativeElement;
+      this.indicatorLeft.set(activeElement.offsetLeft);
+      this.indicatorWidth.set(activeElement.offsetWidth);
+    }
   }
 
-  getScale(): string {
-    return this.filterType() === 'categories' ? '1.4' : '1.7';
-  }
+  private getActiveIndex(): number {
+    if (this.activeItemId() === null) {
+      return this.showAllOption() ? 0 : -1;
+    }
 
-  showItemName(): boolean {
-    return true;
+    const index = this.items().findIndex(item => item.id === this.activeItemId());
+    return this.showAllOption() ? index + 1 : index;
   }
 }
