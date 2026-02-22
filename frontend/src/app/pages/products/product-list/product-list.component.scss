@@ -57,7 +57,7 @@ $bottom-nav-height: 70px;
 
 .mobile-search-overlay {
   background: var(--surface-card);
-  padding: var(--space-3) var(--space-4);
+  padding: 20px 10px;
   box-shadow: var(--shadow-md);
   animation: fadeIn 0.15s ease-out;
 }
@@ -84,9 +84,17 @@ $bottom-nav-height: 70px;
 }
 
 .mobile-search-icon {
-  color: var(--primary-color);
-  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(46, 108, 183, 0.12);
+  color: #2E6CB7;
+  font-size: 0.9rem;
   flex-shrink: 0;
+  margin-inline-end: var(--space-2);
 }
 
 .mobile-search-input {
@@ -139,7 +147,7 @@ $bottom-nav-height: 70px;
 }
 
 .mobile-search-close {
-  background: var(--primary-color);
+  background: var(--p-button-primary-background);
   color: white;
 
   &:hover {
