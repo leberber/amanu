@@ -45,7 +45,7 @@
   overflow-x: auto;
   overflow-y: hidden;
   padding: var(--item-padding);
-  padding-right: 0;
+  padding-inline-end: 0;
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
@@ -235,7 +235,7 @@
   .filter-bar {
     gap: var(--item-gap-mobile);
     padding: var(--item-padding-mobile);
-    padding-right: 0;
+    padding-inline-end: 0;
 
     &.compact {
       column-gap: var(--item-gap-compact);
@@ -265,7 +265,7 @@
 // Compact mode
 .filter-bar.compact {
   padding: var(--item-padding-compact);
-  padding-right: 0;
+  padding-inline-end: 0;
   column-gap: var(--item-gap-compact);
 
   .filter-item {

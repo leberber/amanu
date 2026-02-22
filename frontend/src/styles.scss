@@ -526,3 +526,25 @@ body.quantity-overlay-open {
     display: none !important;
   }
 }
+
+// ---------------------------------------------------------------------------
+// 13. RTL Fixes
+// ---------------------------------------------------------------------------
+.mobile-search-overlay {
+  box-shadow: 4px 0 12px rgba(0, 0, 0, 0.08);
+}
+
+html[dir="rtl"] {
+  .mobile-search-overlay {
+    box-shadow: -4px 0 12px rgba(0, 0, 0, 0.08);
+  }
+
+  .filter-actions {
+    background: linear-gradient(to left, transparent, var(--surface-card) 40%);
+    padding-inline-end: 0;
+  }
+
+  .search-toggle-btn {
+    width: 50px;
+  }
+}
