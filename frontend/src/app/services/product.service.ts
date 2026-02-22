@@ -1,6 +1,6 @@
 // frontend/src/app/services/product.service.ts
 import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { ApiService } from './api.service';
 import { TranslationService } from './translation.service';
 import { Product, Category, ProductFilter } from '../models/product.model';
@@ -39,7 +39,9 @@ export class ProductService {
       });
     }
 
-    return this.apiService.get<Product[]>('/products', { params });
+    return this.apiService.get<Product[]>('/products', { params }).pipe(
+      map(products => products.sort((a, b) => a.name.localeCompare(b.name)))
+    );
   }
 
   // Include language parameter
@@ -56,7 +58,9 @@ export class ProductService {
       active_only: activeOnly,
       lang: this.translationService.getCurrentLanguage()
     };
-    return this.apiService.get<Product[]>(`/products/category/${categoryId}`, { params });
+    return this.apiService.get<Product[]>(`/products/category/${categoryId}`, { params }).pipe(
+      map(products => products.sort((a, b) => a.name.localeCompare(b.name)))
+    );
   }
 
   // Get products by brand
@@ -68,7 +72,9 @@ export class ProductService {
     if (!activeOnly) {
       params.active_only = false;
     }
-    return this.apiService.get<Product[]>('/products', { params });
+    return this.apiService.get<Product[]>('/products', { params }).pipe(
+      map(products => products.sort((a, b) => a.name.localeCompare(b.name)))
+    );
   }
 
   // Category methods with translation support
@@ -86,11 +92,13 @@ export class ProductService {
 
   // Include language parameter for categories
   getCategories(activeOnly = false): Observable<Category[]> {
-    const params = { 
+    const params = {
       active_only: activeOnly,
       lang: this.translationService.getCurrentLanguage() // Add current language
     };
-    return this.apiService.get<Category[]>('/categories', { params });
+    return this.apiService.get<Category[]>('/categories', { params }).pipe(
+      map(categories => categories.sort((a, b) => a.name.localeCompare(b.name)))
+    );
   }
 
   // Include language parameter

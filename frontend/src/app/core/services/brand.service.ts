@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, BehaviorSubject, tap } from 'rxjs';
+import { Observable, BehaviorSubject, tap, map } from 'rxjs';
 import { Brand, BrandCreate, BrandUpdate } from '../../models/brand.model';
 import { TranslateService } from '@ngx-translate/core';
 import { environment } from '../../../environments/environment';
@@ -27,6 +27,7 @@ export class BrandService {
       .set('lang', lang);
 
     return this.http.get<Brand[]>(this.apiUrl, { params }).pipe(
+      map(brands => brands.sort((a, b) => a.name.localeCompare(b.name))),
       tap(brands => this.brandsCache$.next(brands))
     );
   }
