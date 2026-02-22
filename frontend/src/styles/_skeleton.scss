@@ -7,9 +7,9 @@
 .skeleton {
   background: linear-gradient(
     90deg,
-    var(--surface-ground) 25%,
-    var(--surface-hover) 50%,
-    var(--surface-ground) 75%
+    #e5e7eb 25%,
+    #f3f4f6 50%,
+    #e5e7eb 75%
   );
   background-size: 200% 100%;
   animation: skeleton-loading 1.5s infinite;
@@ -55,6 +55,12 @@
   &--lg {
     width: 96px;
     height: 96px;
+  }
+
+  &--list {
+    width: 80px;
+    height: 80px;
+    flex-shrink: 0;
   }
 }
 
