@@ -10,6 +10,7 @@ import { ProductService } from '../../services/product.service';
 import { TranslationService } from '../../services/translation.service';
 import { ToastMessageService } from '../../core/services/toast-message.service';
 import { Category } from '../../models/product.model';
+import { ROUTES } from '../../core/constants/routes.constants';
 
 @Component({
   selector: 'app-home',
@@ -22,7 +23,10 @@ export class HomeComponent implements OnInit, OnDestroy {
   private productService = inject(ProductService);
   private translationService = inject(TranslationService);
   private toast = inject(ToastMessageService);
-  
+
+  // Constants
+  readonly ROUTES = ROUTES;
+
   categories = signal<Array<{
     id: number;
     name: string;
@@ -65,5 +69,10 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.toast.showApiError(error, 'errors.load_categories_failed');
       }
     });
+  }
+
+  onImageError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    img.src = 'assets/images/category-placeholder.jpg';
   }
 }

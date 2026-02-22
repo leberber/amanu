@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, input, output, signal } from '@angular/core';
+import { Component, inject, OnInit, input, output, signal, computed } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -52,7 +52,7 @@ export class ProductCardComponent implements OnInit {
 
   ngOnInit() {
     // Select first option by default
-    const options = this.boxOptions;
+    const options = this.boxOptions();
     if (options.length > 0) {
       this.selectedOption.set(options[0]);
     }
@@ -85,55 +85,42 @@ export class ProductCardComponent implements OnInit {
     img.src = 'assets/images/product-placeholder.jpg';
   }
 
-  get isInCart(): boolean {
-    return this.cartService.isProductInCart(this.product().id);
-  }
+  // Computed signals
+  isInCart = computed(() => this.cartService.isProductInCart(this.product().id));
 
-  get quantityInCart(): number {
-    return this.cartService.getProductQuantityInCart(this.product().id);
-  }
+  quantityInCart = computed(() => this.cartService.getProductQuantityInCart(this.product().id));
 
-  get isOutOfStock(): boolean {
-    return this.product().stock_quantity === 0;
-  }
+  isOutOfStock = computed(() => this.product().stock_quantity === 0);
 
-  get isLowStock(): boolean {
-    return this.product().stock_quantity > 0 && this.product().stock_quantity < 20;
-  }
+  isLowStock = computed(() => this.product().stock_quantity > 0 && this.product().stock_quantity < 20);
 
-  get hasPromotion(): boolean {
-    return !!this.product().promotion;
-  }
+  hasPromotion = computed(() => !!this.product().promotion);
 
-  get discountLabel(): string {
+  discountLabel = computed(() => {
     const promotion = this.product().promotion;
     if (!promotion) return '';
     if (promotion.discount_type === 'percentage') {
       return `-${promotion.discount_value}%`;
     }
     return `-${this.currencyService.formatCurrency(promotion.discount_value)}`;
-  }
+  });
 
-  get effectivePrice(): number {
-    return this.product().promotion?.discounted_price || this.product().price;
-  }
+  effectivePrice = computed(() => this.product().promotion?.discounted_price || this.product().price);
 
-  get piecesPerBox(): number {
-    return this.product().pieces_per_box || 1;
-  }
+  piecesPerBox = computed(() => this.product().pieces_per_box || 1);
 
-  get maxBoxes(): number {
-    if (this.piecesPerBox <= 0) return 0;
-    return Math.floor(this.product().stock_quantity / this.piecesPerBox);
-  }
+  maxBoxes = computed(() => {
+    if (this.piecesPerBox() <= 0) return 0;
+    return Math.floor(this.product().stock_quantity / this.piecesPerBox());
+  });
 
-  get boxOptions(): BoxOption[] {
+  boxOptions = computed(() => {
     const options: BoxOption[] = [];
-    const max = Math.min(this.maxBoxes, 10); // Limit to 10 options
+    const max = Math.min(this.maxBoxes(), 10); // Limit to 10 options
 
     for (let i = 1; i <= max; i++) {
-      const pieces = i * this.piecesPerBox;
-      const price = pieces * this.effectivePrice;
+      const pieces = i * this.piecesPerBox();
+      const price = pieces * this.effectivePrice();
       options.push({
         boxes: i,
         pieces,
@@ -143,11 +130,9 @@ export class ProductCardComponent implements OnInit {
     }
 
     return options;
-  }
+  });
 
-  get selectedQuantity(): number {
-    return this.selectedOption()?.pieces || this.piecesPerBox;
-  }
+  selectedQuantity = computed(() => this.selectedOption()?.pieces || this.piecesPerBox());
 
   addToCart(event: MouseEvent): void {
     const option = this.selectedOption();

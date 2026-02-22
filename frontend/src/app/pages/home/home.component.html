@@ -11,9 +11,9 @@
         <p class="text-xl md:text-2xl mb-8 opacity-90">
           {{ 'home.hero.subtitle' | translate }}
         </p>
-        <p-button 
+        <p-button
           [label]="'home.hero.shop_now' | translate"
-          routerLink="/products"
+          [routerLink]="ROUTES.PRODUCTS"
           size="large"
           styleClass="p-button-secondary p-button-lg"
           icon="pi pi-shopping-cart"
@@ -41,9 +41,11 @@
           >
             <ng-template pTemplate="header">
               <div class="relative overflow-hidden h-48">
-                <img 
-                  [src]="category.image" 
+                <img
+                  [src]="category.image"
                   [alt]="category.name"
+                  loading="lazy"
+                  (error)="onImageError($event)"
                   class="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
                 />
                 <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
@@ -74,21 +76,24 @@
         
         <!-- 🆕 Fallback: Show translated placeholders if no categories loaded -->
         @if (categories().length === 0) {
-          <p-card 
+          <p-card
             styleClass="overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 cursor-pointer h-full"
-            routerLink="/products?category=1"
+            [routerLink]="ROUTES.PRODUCTS"
+            [queryParams]="{category: 1}"
           >
             <ng-template pTemplate="header">
               <div class="relative overflow-hidden h-48">
-                <img 
-                  src="https://images.unsplash.com/photo-1619566636858-adf3ef46400b?auto=format&fit=crop&w=1470&q=80" 
+                <img
+                  src="https://images.unsplash.com/photo-1619566636858-adf3ef46400b?auto=format&fit=crop&w=1470&q=80"
                   [alt]="'home.categories.fresh_fruits.name' | translate"
+                  loading="lazy"
+                  (error)="onImageError($event)"
                   class="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
                 />
                 <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
               </div>
             </ng-template>
-            
+
             <div class="p-6">
               <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-3">
                 {{ 'home.categories.fresh_fruits.name' | translate }}
@@ -96,9 +101,10 @@
               <p class="text-gray-600 dark:text-gray-300 mb-4 line-height-3">
                 {{ 'home.categories.fresh_fruits.description' | translate }}
               </p>
-              <p-button 
+              <p-button
                 [label]="'home.categories.explore' | translate"
-                routerLink="/products?category=1"
+                [routerLink]="ROUTES.PRODUCTS"
+                [queryParams]="{category: 1}"
                 styleClass="p-button-outlined w-full"
                 icon="pi pi-arrow-right"
                 iconPos="right"
@@ -106,21 +112,24 @@
             </div>
           </p-card>
 
-          <p-card 
+          <p-card
             styleClass="overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 cursor-pointer h-full"
-            routerLink="/products?category=2"
+            [routerLink]="ROUTES.PRODUCTS"
+            [queryParams]="{category: 2}"
           >
             <ng-template pTemplate="header">
               <div class="relative overflow-hidden h-48">
-                <img 
-                  src="https://images.unsplash.com/photo-1518843875459-f738682238a6?auto=format&fit=crop&w=1442&q=80" 
+                <img
+                  src="https://images.unsplash.com/photo-1518843875459-f738682238a6?auto=format&fit=crop&w=1442&q=80"
                   [alt]="'home.categories.fresh_vegetables.name' | translate"
+                  loading="lazy"
+                  (error)="onImageError($event)"
                   class="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
                 />
                 <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
               </div>
             </ng-template>
-            
+
             <div class="p-6">
               <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-3">
                 {{ 'home.categories.fresh_vegetables.name' | translate }}
@@ -128,9 +137,10 @@
               <p class="text-gray-600 dark:text-gray-300 mb-4 line-height-3">
                 {{ 'home.categories.fresh_vegetables.description' | translate }}
               </p>
-              <p-button 
+              <p-button
                 [label]="'home.categories.explore' | translate"
-                routerLink="/products?category=2"
+                [routerLink]="ROUTES.PRODUCTS"
+                [queryParams]="{category: 2}"
                 styleClass="p-button-outlined w-full"
                 icon="pi pi-arrow-right"
                 iconPos="right"
@@ -138,21 +148,24 @@
             </div>
           </p-card>
 
-          <p-card 
+          <p-card
             styleClass="overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 cursor-pointer h-full"
-            routerLink="/products?category=3"
+            [routerLink]="ROUTES.PRODUCTS"
+            [queryParams]="{category: 3}"
           >
             <ng-template pTemplate="header">
               <div class="relative overflow-hidden h-48">
-                <img 
-                  src="https://images.unsplash.com/photo-1576675466969-38eeae4b41f6?auto=format&fit=crop&w=1442&q=80" 
+                <img
+                  src="https://images.unsplash.com/photo-1576675466969-38eeae4b41f6?auto=format&fit=crop&w=1442&q=80"
                   [alt]="'home.categories.organic_produce.name' | translate"
+                  loading="lazy"
+                  (error)="onImageError($event)"
                   class="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
                 />
                 <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
               </div>
             </ng-template>
-            
+
             <div class="p-6">
               <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-3">
                 {{ 'home.categories.organic_produce.name' | translate }}
@@ -160,9 +173,10 @@
               <p class="text-gray-600 dark:text-gray-300 mb-4 line-height-3">
                 {{ 'home.categories.organic_produce.description' | translate }}
               </p>
-              <p-button 
+              <p-button
                 [label]="'home.categories.explore' | translate"
-                routerLink="/products?category=3"
+                [routerLink]="ROUTES.PRODUCTS"
+                [queryParams]="{category: 3}"
                 styleClass="p-button-outlined w-full"
                 icon="pi pi-arrow-right"
                 iconPos="right"
