@@ -60,8 +60,9 @@
         <button
           pButton
           type="button"
-          icon="pi pi-cart-plus"
+          [icon]="isInCart() ? 'pi pi-check' : 'pi pi-cart-plus'"
           class="p-button-primary product-card__cart-btn"
+          [class.product-card__cart-btn--in-cart]="isInCart()"
           [class.product-card__cart-btn--highlight]="highlightCart()"
           [disabled]="!selectedBoxOption()"
           (click)="addToCart($event)">

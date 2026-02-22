@@ -139,6 +139,7 @@
     width: 2.5rem !important;
     height: 2.5rem !important;
     border-radius: var(--radius-md) !important;
+    transition: background-color var(--transition-fast), border-color var(--transition-fast);
   }
 
   // Cart status (always reserve space)
@@ -173,6 +174,17 @@
     i {
       font-size: 0.7rem;
     }
+  }
+}
+
+// Cart button in-cart state - green background
+:host ::ng-deep .product-card__cart-btn--in-cart {
+  background-color: #22c55e !important;
+  border-color: #22c55e !important;
+
+  &:hover {
+    background-color: #16a34a !important;
+    border-color: #16a34a !important;
   }
 }
 

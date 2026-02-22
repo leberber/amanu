@@ -1,5 +1,5 @@
 // src/app/services/cart.service.ts
-import { Injectable } from '@angular/core';
+import { Injectable, signal, computed } from '@angular/core';
 import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
 import { Product } from '../models/product.model';
 import { AppliedPromotion } from '../models/promotion.model';
@@ -32,6 +32,10 @@ export class CartService {
   public cartItems$ = this.cartItemsSubject.asObservable();
   public appliedPromotion$ = this.appliedPromotionSubject.asObservable();
 
+  // Signal-based cart items for reactive UI updates
+  private _cartItems = signal<CartItem[]>([]);
+  readonly cartItemsSignal = this._cartItems.asReadonly();
+
   constructor() {
     // Load cart and promotion from localStorage on service initialization
     this.loadCartFromStorage();
@@ -44,9 +48,11 @@ export class CartService {
       try {
         const cartItems: CartItem[] = JSON.parse(savedCart);
         this.cartItemsSubject.next(cartItems);
+        this._cartItems.set(cartItems);
       } catch (e) {
         console.error('Error parsing cart from localStorage:', e);
         this.cartItemsSubject.next([]);
+        this._cartItems.set([]);
       }
     }
   }
@@ -67,6 +73,8 @@ export class CartService {
   private saveCartToStorage(cartItems: CartItem[]): void {
     // Update the BehaviorSubject first for immediate UI update
     this.cartItemsSubject.next(cartItems);
+    // Update the signal for reactive UI
+    this._cartItems.set(cartItems);
     // Then save to localStorage
     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(cartItems));
   }

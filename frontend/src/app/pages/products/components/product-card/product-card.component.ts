@@ -77,9 +77,17 @@ export class ProductCardComponent {
   }
 
   // Computed signals using shared utilities
-  isInCart = computed(() => this.cartService.isProductInCart(this.product().id));
+  // Use cartItemsSignal to track cart changes reactively
+  isInCart = computed(() => {
+    const cartItems = this.cartService.cartItemsSignal();
+    return cartItems.some(item => item.product_id === this.product().id);
+  });
 
-  quantityInCart = computed(() => this.cartService.getProductQuantityInCart(this.product().id));
+  quantityInCart = computed(() => {
+    const cartItems = this.cartService.cartItemsSignal();
+    const item = cartItems.find(item => item.product_id === this.product().id);
+    return item ? item.quantity : 0;
+  });
 
   isOutOfStock = computed(() => checkOutOfStock(this.product()));
 
