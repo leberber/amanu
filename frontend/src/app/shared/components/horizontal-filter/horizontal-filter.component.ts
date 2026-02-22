@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, effect, computed, input, output, signal, viewChildren, ElementRef } from '@angular/core';
+import { Component, AfterViewInit, effect, computed, input, output, signal, viewChildren, ElementRef } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 
 export interface FilterItem {
@@ -18,7 +18,7 @@ export type FilterType = 'categories' | 'brands';
   templateUrl: './horizontal-filter.component.html',
   styleUrls: ['./horizontal-filter.component.scss']
 })
-export class HorizontalFilterComponent implements OnInit, AfterViewInit {
+export class HorizontalFilterComponent implements AfterViewInit {
   // Inputs
   items = input<FilterItem[]>([]);
   activeItemId = input<number | null>(null);
@@ -57,10 +57,6 @@ export class HorizontalFilterComponent implements OnInit, AfterViewInit {
       this.activeItemId();
       setTimeout(() => this.updateIndicator(), 0);
     });
-  }
-
-  ngOnInit(): void {
-    // Initialization handled by computed
   }
 
   ngAfterViewInit(): void {
