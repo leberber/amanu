@@ -219,9 +219,21 @@ $bottom-nav-height: 70px;
 
 
 // =============================================================================
-// 7. CART BUTTON HIGHLIGHT ANIMATION
+// 7. CART BUTTON STATES
 // =============================================================================
 
+// In-cart state - green background
+:host ::ng-deep .list-cart-btn--in-cart {
+  background-color: #22c55e !important;
+  border-color: #22c55e !important;
+
+  &:hover {
+    background-color: #16a34a !important;
+    border-color: #16a34a !important;
+  }
+}
+
+// Highlight animation on add
 :host ::ng-deep .list-cart-btn--highlight {
   animation: listCartButtonPulse 0.8s ease-out !important;
 }

@@ -169,8 +169,9 @@
                         <button
                           pButton
                           type="button"
-                          icon="pi pi-cart-plus"
+                          [icon]="isProductInCart(product.id) ? 'pi pi-check' : 'pi pi-cart-plus'"
                           class="p-button-primary list-cart-btn"
+                          [class.list-cart-btn--in-cart]="isProductInCart(product.id)"
                           [class.list-cart-btn--highlight]="highlightedProductId() === product.id"
                           [disabled]="!getSelectedBoxOption(product.id)"
                           (click)="addToCartFromList(product, $event)">
@@ -404,8 +405,9 @@
                         <button
                           pButton
                           type="button"
-                          icon="pi pi-cart-plus"
+                          [icon]="isProductInCart(product.id) ? 'pi pi-check' : 'pi pi-cart-plus'"
                           class="p-button-primary list-cart-btn"
+                          [class.list-cart-btn--in-cart]="isProductInCart(product.id)"
                           [class.list-cart-btn--highlight]="highlightedProductId() === product.id"
                           [disabled]="!getSelectedBoxOption(product.id)"
                           (click)="addToCartFromList(product, $event)">
