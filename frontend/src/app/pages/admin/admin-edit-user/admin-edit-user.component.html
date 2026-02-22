@@ -1,12 +1,19 @@
 <!-- src/app/pages/admin/admin-edit-user/admin-edit-user.component.html -->
-<div class="user-form-page">
+<div class="admin-page">
+  <!-- Background Decoration -->
+  <div class="bg-decoration">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
+
   <p-toast></p-toast>
-  <div class="page-content">
+  <div class="admin-content admin-content--narrow">
     <!-- Page Header -->
-    <div class="page-header">
+    <div class="admin-header">
       <div class="header-content">
         <div class="header-title">
-          <div class="icon-wrapper">
+          <div class="admin-icon-wrapper admin-icon-wrapper--square">
             <div class="icon-bg"></div>
             <div class="icon-circle">
               <i class="pi pi-user-edit"></i>
@@ -26,9 +33,9 @@
 
     <form [formGroup]="userForm" (ngSubmit)="onSubmit()">
       <!-- Cards Grid - 4 Cards Layout -->
-      <div class="cards-grid">
+      <div class="admin-cards-grid">
         <!-- Card 1: Personal Information -->
-        <div class="form-card">
+        <div class="admin-form-card">
           <div class="card-header">
             <div class="card-icon personal">
               <i class="pi pi-user"></i>
@@ -87,7 +94,7 @@
         </div>
 
         <!-- Card 2: Business Information -->
-        <div class="form-card">
+        <div class="admin-form-card">
           <div class="card-header">
             <div class="card-icon business">
               <i class="pi pi-building"></i>
@@ -128,7 +135,7 @@
         </div>
 
         <!-- Card 3: Location Information -->
-        <div class="form-card">
+        <div class="admin-form-card">
           <div class="card-header">
             <div class="card-icon location">
               <i class="pi pi-map-marker"></i>
@@ -190,7 +197,7 @@
         </div>
 
         <!-- Card 4: Account Settings -->
-        <div class="form-card">
+        <div class="admin-form-card">
           <div class="card-header">
             <div class="card-icon settings">
               <i class="pi pi-cog"></i>
@@ -244,7 +251,7 @@
       </div>
 
       <!-- Map Location Picker Card (Full Width Below) -->
-      <div class="form-card map-card">
+      <div class="admin-form-card map-card">
         <div class="card-header">
           <div class="card-icon map">
             <i class="pi pi-map"></i>
@@ -275,7 +282,7 @@
       </div>
 
       <!-- Form Actions -->
-      <div class="form-actions">
+      <div class="admin-form-actions">
         <button
           type="button"
           class="cancel-btn"
@@ -300,7 +307,7 @@
 
   <!-- Loading Overlay -->
   @if (loading()) {
-    <div class="loading-overlay">
+    <div class="admin-loading-overlay">
       <div class="loading-content">
         <i class="pi pi-spin pi-spinner"></i>
         <span>{{ 'common.loading' | translate }}</span>

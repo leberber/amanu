@@ -1,12 +1,19 @@
 <!-- src/app/pages/admin/admin-add-brand/admin-add-brand.component.html -->
-<div class="brand-form-page">
+<div class="admin-page">
+  <!-- Background Decoration -->
+  <div class="bg-decoration">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
+
   <p-toast></p-toast>
-  <div class="page-content">
+  <div class="admin-content admin-content--narrow">
     <!-- Page Header -->
-    <div class="page-header">
+    <div class="admin-header">
       <div class="header-content">
         <div class="header-title">
-          <div class="icon-wrapper">
+          <div class="admin-icon-wrapper admin-icon-wrapper--square">
             <div class="icon-bg"></div>
             <div class="icon-circle">
               <i class="pi pi-bookmark"></i>
@@ -26,9 +33,9 @@
 
     <form [formGroup]="brandForm" (ngSubmit)="onSubmit()">
       <!-- Cards Grid -->
-      <div class="cards-grid">
+      <div class="admin-cards-grid">
         <!-- Brand Names Card -->
-        <div class="form-card">
+        <div class="admin-form-card">
           <div class="card-header">
             <div class="card-icon globe">
               <i class="pi pi-globe"></i>
@@ -44,7 +51,7 @@
                   <strong>{{ 'admin.brands.form.english_name' | translate }}</strong>
                   <span class="required">*</span>
                 </div>
-                <div class="form-field">
+                <div class="admin-form-field">
                   <input
                     type="text"
                     formControlName="name_en"
@@ -64,7 +71,7 @@
                   <strong>{{ 'admin.brands.form.french_name' | translate }}</strong>
                   <span class="required">*</span>
                 </div>
-                <div class="form-field">
+                <div class="admin-form-field">
                   <input
                     type="text"
                     formControlName="name_fr"
@@ -84,7 +91,7 @@
                   <strong>{{ 'admin.brands.form.arabic_name' | translate }}</strong>
                   <span class="required">*</span>
                 </div>
-                <div class="form-field">
+                <div class="admin-form-field">
                   <input
                     type="text"
                     formControlName="name_ar"
@@ -121,7 +128,7 @@
         </div>
 
         <!-- Brand Descriptions Card -->
-        <div class="form-card">
+        <div class="admin-form-card">
           <div class="card-header">
             <div class="card-icon description">
               <i class="pi pi-file-edit"></i>
@@ -136,7 +143,7 @@
                 <div class="language-header">
                   <strong>{{ 'admin.brands.form.english_description' | translate }}</strong>
                 </div>
-                <div class="form-field">
+                <div class="admin-form-field">
                   <textarea
                     formControlName="description_en"
                     rows="2"
@@ -153,7 +160,7 @@
                 <div class="language-header">
                   <strong>{{ 'admin.brands.form.french_description' | translate }}</strong>
                 </div>
-                <div class="form-field">
+                <div class="admin-form-field">
                   <textarea
                     formControlName="description_fr"
                     rows="2"
@@ -170,7 +177,7 @@
                 <div class="language-header">
                   <strong>{{ 'admin.brands.form.arabic_description' | translate }}</strong>
                 </div>
-                <div class="form-field">
+                <div class="admin-form-field">
                   <textarea
                     formControlName="description_ar"
                     rows="2"
@@ -183,7 +190,7 @@
 
             <!-- Active Status -->
             <div class="settings-section">
-              <div class="checkbox-field">
+              <div class="admin-checkbox-field">
                 <p-checkbox
                   formControlName="is_active"
                   [binary]="true"
@@ -197,7 +204,7 @@
       </div>
 
       <!-- Form Actions -->
-      <div class="form-actions">
+      <div class="admin-form-actions">
         <button
           type="button"
           class="cancel-btn"
@@ -222,7 +229,7 @@
 
   <!-- Loading Overlay -->
   @if (loading() && isEditMode()) {
-    <div class="loading-overlay">
+    <div class="admin-loading-overlay">
       <div class="loading-content">
         <i class="pi pi-spin pi-spinner"></i>
         <span>{{ 'common.loading' | translate }}</span>

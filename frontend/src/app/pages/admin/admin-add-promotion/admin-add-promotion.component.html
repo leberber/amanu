@@ -1,12 +1,19 @@
 <!-- src/app/pages/admin/admin-add-promotion/admin-add-promotion.component.html -->
-<div class="promotion-form-page">
+<div class="admin-page">
+  <!-- Background Decoration -->
+  <div class="bg-decoration">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
+
   <p-toast></p-toast>
-  <div class="page-content">
+  <div class="admin-content admin-content--narrow">
     <!-- Page Header -->
-    <div class="page-header">
+    <div class="admin-header">
       <div class="header-content">
         <div class="header-title">
-          <div class="icon-wrapper">
+          <div class="admin-icon-wrapper admin-icon-wrapper--square">
             <div class="icon-bg"></div>
             <div class="icon-circle">
               <i class="pi pi-tag"></i>
@@ -26,9 +33,9 @@
 
     <form [formGroup]="promotionForm" (ngSubmit)="onSubmit()">
       <!-- Cards Grid -->
-      <div class="cards-grid">
+      <div class="admin-cards-grid">
         <!-- Basic Info Card -->
-        <div class="form-card">
+        <div class="admin-form-card">
           <div class="card-header">
             <div class="card-icon info">
               <i class="pi pi-info-circle"></i>
@@ -36,7 +43,7 @@
             <h3>{{ 'admin.promotions.form.basic_info' | translate }}</h3>
           </div>
           <div class="card-body">
-            <div class="form-field">
+            <div class="admin-form-field">
               <label for="name">
                 {{ 'admin.promotions.form.name' | translate }} <span class="required">*</span>
               </label>
@@ -50,7 +57,7 @@
               }
             </div>
 
-            <div class="form-field">
+            <div class="admin-form-field">
               <label for="code">
                 {{ 'admin.promotions.form.code' | translate }}
               </label>
@@ -62,7 +69,7 @@
               <span class="field-hint">{{ 'admin.promotions.form.code_hint' | translate }}</span>
             </div>
 
-            <div class="form-field">
+            <div class="admin-form-field">
               <label for="description">
                 {{ 'admin.promotions.form.description' | translate }}
               </label>
@@ -77,7 +84,7 @@
         </div>
 
         <!-- Discount Settings Card -->
-        <div class="form-card">
+        <div class="admin-form-card">
           <div class="card-header">
             <div class="card-icon discount">
               <i class="pi pi-percentage"></i>
@@ -85,7 +92,7 @@
             <h3>{{ 'admin.promotions.form.discount_settings' | translate }}</h3>
           </div>
           <div class="card-body">
-            <div class="form-field">
+            <div class="admin-form-field">
               <label for="discount_type">
                 {{ 'admin.promotions.form.discount_type' | translate }} <span class="required">*</span>
               </label>
@@ -98,7 +105,7 @@
               />
             </div>
 
-            <div class="form-field">
+            <div class="admin-form-field">
               <label for="discount_value">
                 {{ 'admin.promotions.form.discount_value' | translate }} <span class="required">*</span>
                 <span class="unit-hint">({{ isPercentageDiscount() ? '%' : 'DA' }})</span>
@@ -113,7 +120,7 @@
             </div>
 
             @if (isPercentageDiscount()) {
-              <div class="form-field">
+              <div class="admin-form-field">
                 <label for="max_discount">
                   {{ 'admin.promotions.form.max_discount' | translate }}
                 </label>
@@ -130,7 +137,7 @@
         </div>
 
         <!-- Scope Settings Card -->
-        <div class="form-card">
+        <div class="admin-form-card">
           <div class="card-header">
             <div class="card-icon scope">
               <i class="pi pi-sliders-h"></i>
@@ -138,7 +145,7 @@
             <h3>{{ 'admin.promotions.form.scope_settings' | translate }}</h3>
           </div>
           <div class="card-body">
-            <div class="form-field">
+            <div class="admin-form-field">
               <label for="scope">
                 {{ 'admin.promotions.form.scope' | translate }} <span class="required">*</span>
               </label>
@@ -152,7 +159,7 @@
             </div>
 
             @if (getCurrentScope() === 'category') {
-              <div class="form-field">
+              <div class="admin-form-field">
                 <label for="category_id">
                   {{ 'admin.promotions.form.category' | translate }} <span class="required">*</span>
                 </label>
@@ -169,7 +176,7 @@
             }
 
             @if (getCurrentScope() === 'brand') {
-              <div class="form-field">
+              <div class="admin-form-field">
                 <label for="brand_id">
                   {{ 'admin.promotions.form.brand' | translate }} <span class="required">*</span>
                 </label>
@@ -186,7 +193,7 @@
             }
 
             @if (getCurrentScope() === 'product') {
-              <div class="form-field">
+              <div class="admin-form-field">
                 <label for="product_id">
                   {{ 'admin.promotions.form.product' | translate }} <span class="required">*</span>
                 </label>
@@ -202,7 +209,7 @@
               </div>
             }
 
-            <div class="form-field">
+            <div class="admin-form-field">
               <label for="min_order_amount">
                 {{ 'admin.promotions.form.min_order_amount' | translate }}
               </label>
@@ -214,7 +221,7 @@
               />
             </div>
 
-            <div class="form-field">
+            <div class="admin-form-field">
               <label for="usage_limit">
                 {{ 'admin.promotions.form.usage_limit' | translate }}
               </label>
@@ -229,7 +236,7 @@
         </div>
 
         <!-- Validity Period Card -->
-        <div class="form-card">
+        <div class="admin-form-card">
           <div class="card-header">
             <div class="card-icon calendar">
               <i class="pi pi-calendar"></i>
@@ -237,7 +244,7 @@
             <h3>{{ 'admin.promotions.form.validity_period' | translate }}</h3>
           </div>
           <div class="card-body">
-            <div class="form-field">
+            <div class="admin-form-field">
               <label for="start_date">
                 {{ 'admin.promotions.form.start_date' | translate }} <span class="required">*</span>
               </label>
@@ -251,7 +258,7 @@
               />
             </div>
 
-            <div class="form-field">
+            <div class="admin-form-field">
               <label for="end_date">
                 {{ 'admin.promotions.form.end_date' | translate }} <span class="required">*</span>
               </label>
@@ -265,7 +272,7 @@
               />
             </div>
 
-            <div class="checkbox-field">
+            <div class="admin-checkbox-field">
               <p-checkbox
                 formControlName="is_active"
                 [binary]="true"
@@ -280,7 +287,7 @@
       </div>
 
       <!-- Form Actions -->
-      <div class="form-actions">
+      <div class="admin-form-actions">
         <button
           type="button"
           class="cancel-btn"
@@ -305,7 +312,7 @@
 
   <!-- Loading Overlay -->
   @if (loading() && isEditMode()) {
-    <div class="loading-overlay">
+    <div class="admin-loading-overlay">
       <div class="loading-content">
         <i class="pi pi-spin pi-spinner"></i>
         <span>{{ 'common.loading' | translate }}</span>

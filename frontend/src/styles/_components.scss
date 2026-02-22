@@ -3075,3 +3075,1388 @@
     color: var(--primary-400);
   }
 }
+
+
+// =============================================================================
+// 44. ADMIN PAGE LAYOUT
+// =============================================================================
+// Shared layout for all admin pages
+
+.admin-page {
+  position: relative;
+  min-height: 100vh;
+  background: var(--surface-ground);
+  overflow-x: hidden;
+}
+
+.admin-content {
+  position: relative;
+  z-index: 1;
+  padding: 1.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
+
+  &--narrow {
+    max-width: 1200px;
+  }
+
+  &--form {
+    max-width: 600px;
+  }
+}
+
+
+// =============================================================================
+// 45. ANIMATED BACKGROUND BLOBS
+// =============================================================================
+
+.bg-decoration {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.4;
+  animation: float 25s ease-in-out infinite;
+
+  &.blob-1 {
+    width: 400px;
+    height: 400px;
+    background: linear-gradient(135deg, rgba(46, 108, 183, 0.4) 0%, rgba(15, 60, 130, 0.4) 100%);
+    top: -100px;
+    right: -100px;
+    animation-delay: 0s;
+  }
+
+  &.blob-2 {
+    width: 350px;
+    height: 350px;
+    background: linear-gradient(135deg, rgba(17, 153, 142, 0.3) 0%, rgba(56, 239, 125, 0.3) 100%);
+    bottom: 20%;
+    left: -120px;
+    animation-delay: -8s;
+  }
+
+  &.blob-3 {
+    width: 300px;
+    height: 300px;
+    background: linear-gradient(135deg, rgba(255, 154, 158, 0.3) 0%, rgba(250, 208, 196, 0.3) 100%);
+    bottom: -80px;
+    right: 25%;
+    animation-delay: -16s;
+  }
+}
+
+@media (max-width: 480px) {
+  .blob {
+    opacity: 0.2;
+
+    &.blob-1 { width: 200px; height: 200px; }
+    &.blob-2 { width: 180px; height: 180px; }
+    &.blob-3 { width: 150px; height: 150px; }
+  }
+}
+
+
+// =============================================================================
+// 46. ADMIN HEADER
+// =============================================================================
+
+.admin-header {
+  margin-bottom: 2rem;
+
+  .header-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+  }
+
+  .header-title {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+  }
+
+  .title-text {
+    h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin: 0 0 0.25rem 0;
+      color: var(--text-color);
+      letter-spacing: -0.02em;
+    }
+
+    p {
+      margin: 0;
+      color: var(--text-color-secondary);
+      font-size: 0.9rem;
+    }
+  }
+
+  .back-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    color: #64748b;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+
+    &:hover {
+      background: #f8fafc;
+      border-color: #cbd5e1;
+      color: #475569;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    i {
+      font-size: 0.875rem;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .header-content {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .header-title {
+      flex-direction: column;
+      align-items: flex-start;
+      text-align: left;
+    }
+
+    .title-text h1 {
+      font-size: 1.5rem;
+    }
+  }
+}
+
+
+// =============================================================================
+// 47. ADMIN ICON WRAPPER (Animated)
+// =============================================================================
+
+.admin-icon-wrapper {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  flex-shrink: 0;
+
+  .icon-bg {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(46, 108, 183, 0.15) 0%, rgba(30, 79, 154, 0.15) 100%);
+    animation: pulse 3s ease-in-out infinite;
+  }
+
+  .icon-circle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: var(--primary-gradient);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 24px rgba(46, 108, 183, 0.35);
+
+    i {
+      font-size: 1.25rem;
+      color: white;
+    }
+  }
+
+  // Square variant for form pages
+  &--square {
+    width: 56px;
+    height: 56px;
+
+    .icon-bg {
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      transform: translate(-50%, -50%) rotate(-6deg);
+      opacity: 0.15;
+      animation: none;
+    }
+
+    .icon-circle {
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+
+      i {
+        font-size: 1.5rem;
+      }
+    }
+  }
+
+  @media (max-width: 480px) {
+    width: 50px;
+    height: 50px;
+
+    .icon-bg {
+      width: 50px;
+      height: 50px;
+    }
+
+    .icon-circle {
+      width: 38px;
+      height: 38px;
+
+      i {
+        font-size: 1rem;
+      }
+    }
+  }
+}
+
+
+// =============================================================================
+// 48. ADMIN CARDS
+// =============================================================================
+
+.admin-card {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 1.5rem;
+
+  &:hover {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    margin-bottom: 1.25rem;
+
+    .header-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: var(--primary-gradient);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      i {
+        font-size: 1rem;
+        color: white;
+      }
+
+      &.info { background: var(--info-gradient); }
+      &.purple { background: var(--purple-gradient); }
+      &.success { background: var(--success-gradient); }
+      &.warning { background: var(--orange-gradient); }
+      &.danger { background: var(--red-gradient); }
+    }
+
+    h3 {
+      margin: 0;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text-color);
+    }
+  }
+}
+
+
+// =============================================================================
+// 49. ADMIN FORM CARD
+// =============================================================================
+
+.admin-form-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  overflow: visible;
+  transition: box-shadow 0.2s ease;
+  display: flex;
+  flex-direction: column;
+
+  &:hover {
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    padding: 1.25rem 1.5rem;
+    background: #fafbfc;
+    border-bottom: 1px solid #f1f5f9;
+    border-radius: 16px 16px 0 0;
+
+    .card-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      i {
+        font-size: 1.125rem;
+      }
+
+      &.info {
+        background: rgba(59, 130, 246, 0.1);
+        color: #3b82f6;
+      }
+
+      &.discount {
+        background: rgba(102, 126, 234, 0.1);
+        color: #667eea;
+      }
+
+      &.scope {
+        background: rgba(139, 92, 246, 0.1);
+        color: #8b5cf6;
+      }
+
+      &.calendar {
+        background: rgba(17, 153, 142, 0.1);
+        color: #11998e;
+      }
+
+      &.image {
+        background: rgba(236, 72, 153, 0.1);
+        color: #ec4899;
+      }
+
+      &.primary {
+        background: rgba(46, 108, 183, 0.1);
+        color: #2E6CB7;
+      }
+
+      &.globe {
+        background: rgba(59, 130, 246, 0.1);
+        color: #3b82f6;
+      }
+
+      &.description {
+        background: rgba(249, 115, 22, 0.1);
+        color: #f97316;
+      }
+    }
+
+    h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #1e293b;
+      margin: 0;
+    }
+  }
+
+  .card-body {
+    padding: 1.5rem;
+    flex: 1;
+  }
+}
+
+
+// =============================================================================
+// 50. FANCY INPUT FIELD
+// =============================================================================
+
+.fancy-field {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.875rem;
+  padding: 1rem;
+  background: var(--surface-0);
+  border: 1px solid rgba(15, 60, 130, 0.15);
+  border-radius: 16px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &:hover {
+    border-color: rgba(15, 60, 130, 0.3);
+  }
+
+  &.focused {
+    border-color: #0F3C82;
+    box-shadow: 0 4px 16px rgba(15, 60, 130, 0.15);
+
+    .field-icon {
+      background: var(--primary-gradient);
+      i { color: white; }
+    }
+  }
+
+  &.filled .field-icon {
+    background: rgba(46, 108, 183, 0.1);
+    i { color: var(--primary-color); }
+  }
+
+  .field-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: var(--surface-100);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+
+    i {
+      font-size: 1.1rem;
+      color: var(--text-color-secondary);
+      transition: color 0.3s ease;
+    }
+  }
+
+  .field-content {
+    flex: 1;
+    min-width: 0;
+
+    label {
+      display: block;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--text-color-secondary);
+      margin-bottom: 0.25rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 0;
+      border: none;
+      background: transparent;
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--text-color);
+      font-family: inherit;
+      resize: none;
+
+      &:focus {
+        outline: none;
+      }
+
+      &::placeholder {
+        color: #adb3bd;
+        font-weight: 400;
+        font-size: 0.9rem;
+      }
+    }
+
+    textarea {
+      min-height: 80px;
+      line-height: 1.5;
+    }
+  }
+
+  &.textarea-field {
+    align-items: flex-start;
+
+    .field-icon {
+      margin-top: 0.25rem;
+    }
+  }
+}
+
+
+// =============================================================================
+// 51. ADMIN FORM FIELD (Standard)
+// =============================================================================
+
+.admin-form-field {
+  margin-bottom: 0.5rem;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  label {
+    display: block;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+
+    .required {
+      color: #ef4444;
+    }
+
+    .unit-hint {
+      color: #9ca3af;
+      font-weight: 400;
+      font-size: 0.85rem;
+    }
+  }
+
+  .field-hint {
+    font-size: 0.8rem;
+    color: #9ca3af;
+    margin-top: 0.375rem;
+  }
+
+  .field-error {
+    font-size: 0.8rem;
+    color: #ef4444;
+    margin-top: 0.375rem;
+  }
+
+  input[type="text"],
+  textarea {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+    background: white;
+
+    &:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(46, 108, 183, 0.1);
+    }
+
+    &::placeholder {
+      color: #9ca3af;
+      font-style: normal;
+      font-weight: 400;
+    }
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 80px;
+    font-family: inherit;
+  }
+}
+
+
+// =============================================================================
+// 52. ADMIN FORM GRIDS
+// =============================================================================
+
+.admin-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem;
+
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.admin-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem;
+  margin-bottom: 1.25rem;
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+// =============================================================================
+// 53. ADMIN FORM ACTIONS
+// =============================================================================
+
+.admin-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 1.5rem;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+
+  .cancel-btn {
+    padding: 0.75rem 1.5rem;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    color: #64748b;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover:not(:disabled) {
+      background: #f8fafc;
+      border-color: #cbd5e1;
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+
+  .submit-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: var(--primary-gradient);
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 15px rgba(46, 108, 183, 0.3);
+
+    &:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(46, 108, 183, 0.4);
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .spinner {
+      animation: spin 1s linear infinite;
+    }
+  }
+
+  @media (max-width: 480px) {
+    flex-direction: column;
+
+    .cancel-btn,
+    .submit-btn {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+}
+
+
+// =============================================================================
+// 54. ADMIN BUTTONS
+// =============================================================================
+
+// Primary send button
+.admin-send-btn {
+  width: 100%;
+  padding: 1rem 1.5rem;
+  margin-top: 0.5rem;
+  border: none;
+  border-radius: 16px;
+  background: var(--primary-gradient);
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 6px 20px rgba(46, 108, 183, 0.35);
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px rgba(46, 108, 183, 0.45);
+
+    .btn-icon {
+      transform: translateX(3px);
+    }
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .btn-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s ease;
+
+    i {
+      font-size: 0.9rem;
+    }
+  }
+}
+
+// Add button (green gradient)
+.admin-add-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.875rem 1.5rem;
+  background: var(--success-gradient);
+  border: none;
+  border-radius: 14px;
+  color: white;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 6px 20px rgba(17, 153, 142, 0.35);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px rgba(17, 153, 142, 0.45);
+  }
+
+  i {
+    font-size: 1rem;
+  }
+}
+
+
+// =============================================================================
+// 55. ADMIN LOADING STATES
+// =============================================================================
+
+.admin-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+}
+
+.admin-loading-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 2rem 3rem;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(20px);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+
+  .loading-spinner {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: var(--primary-gradient);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    i {
+      font-size: 1.5rem;
+      color: white;
+    }
+  }
+
+  span {
+    font-weight: 600;
+    color: var(--text-color);
+  }
+}
+
+// Full-page loading overlay
+.admin-loading-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+
+  .loading-content {
+    text-align: center;
+    background: white;
+    padding: 2rem 3rem;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+
+    i {
+      font-size: 2.5rem;
+      color: var(--primary-color);
+      margin-bottom: 0.75rem;
+    }
+
+    span {
+      display: block;
+      color: #64748b;
+      font-size: 1rem;
+      font-weight: 500;
+    }
+  }
+}
+
+
+// =============================================================================
+// 56. ADMIN ERROR STATES
+// =============================================================================
+
+.admin-error-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
+  border-radius: 20px;
+  text-align: center;
+  min-height: 40vh;
+
+  .error-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(235, 51, 73, 0.1) 0%, rgba(244, 92, 67, 0.1) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+
+    i {
+      font-size: 2rem;
+      color: #eb3349;
+    }
+  }
+
+  p {
+    font-size: 1.1rem;
+    color: var(--text-color-secondary);
+    margin: 0 0 1.5rem 0;
+  }
+
+  .retry-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.875rem 1.5rem;
+    background: var(--primary-gradient);
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 16px rgba(46, 108, 183, 0.3);
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(46, 108, 183, 0.4);
+    }
+  }
+}
+
+
+// =============================================================================
+// 57. ADMIN INFO CARD
+// =============================================================================
+
+.admin-info-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.25rem;
+  background: rgba(46, 108, 183, 0.08);
+  border-radius: 16px;
+  border: 1px solid rgba(46, 108, 183, 0.1);
+
+  .info-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: rgba(46, 108, 183, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    i {
+      font-size: 1rem;
+      color: var(--primary-color);
+    }
+  }
+
+  .info-content {
+    h4 {
+      margin: 0 0 0.25rem 0;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-color);
+    }
+
+    p {
+      margin: 0;
+      font-size: 0.85rem;
+      color: var(--text-color-secondary);
+      line-height: 1.5;
+    }
+  }
+}
+
+
+// =============================================================================
+// 58. ADMIN CHECKBOX FIELD
+// =============================================================================
+
+.admin-checkbox-field {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: #f8fafc;
+  border-radius: 12px;
+  margin-top: 1rem;
+
+  label {
+    margin: 0;
+    cursor: pointer;
+    font-weight: 500;
+    color: #374151;
+  }
+}
+
+
+// =============================================================================
+// 59. ADMIN LANGUAGE SECTIONS (Multi-language forms)
+// =============================================================================
+
+.language-section {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem;
+  background: #f8fafc;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+
+  &:last-of-type {
+    margin-bottom: 0;
+  }
+}
+
+.language-flag {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+  margin-top: 0.25rem;
+}
+
+.language-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.language-header {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-bottom: 0.5rem;
+
+  strong {
+    font-size: 0.9rem;
+    color: #374151;
+  }
+
+  .required {
+    color: #ef4444;
+  }
+}
+
+.image-section {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+.section-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+  color: #374151;
+
+  i {
+    color: var(--primary-color);
+  }
+}
+
+.image-field {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 1rem;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+
+  &:focus-within {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(46, 108, 183, 0.1);
+  }
+
+  .field-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    &.image {
+      background: rgba(236, 72, 153, 0.1);
+      color: #ec4899;
+    }
+
+    i {
+      font-size: 1rem;
+    }
+  }
+
+  .field-content {
+    flex: 1;
+    min-width: 0;
+
+    label {
+      display: block;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--text-color-secondary);
+      margin-bottom: 0.25rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    input {
+      width: 100%;
+      padding: 0;
+      border: none;
+      background: transparent;
+      font-size: 0.95rem;
+      color: var(--text-color);
+
+      &:focus {
+        outline: none;
+      }
+
+      &::placeholder {
+        color: #9ca3af;
+      }
+    }
+  }
+}
+
+.settings-section {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+
+// =============================================================================
+// 60. ADMIN STYLED FORM FIELDS (With icons)
+// =============================================================================
+
+.form-field-styled {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  transition: all 0.2s ease;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  &:focus-within {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(46, 108, 183, 0.1);
+  }
+
+  .field-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    i {
+      font-size: 1rem;
+      color: white;
+    }
+
+    // Default icon colors
+    &.name { background: var(--purple-gradient); }
+    &.email { background: var(--info-gradient); }
+    &.phone { background: var(--success-gradient); }
+    &.store { background: var(--orange-gradient); }
+    &.address { background: var(--pink-gradient); }
+    &.wilaya { background: var(--primary-gradient); }
+    &.daira { background: linear-gradient(135deg, #64748b 0%, #475569 100%); }
+    &.commune { background: var(--teal-gradient); }
+    &.password { background: var(--red-gradient); }
+    &.personal { background: var(--purple-gradient); }
+    &.business { background: var(--orange-gradient); }
+    &.location { background: var(--primary-gradient); }
+    &.settings { background: linear-gradient(135deg, #64748b 0%, #475569 100%); }
+    &.map { background: var(--success-gradient); }
+  }
+
+  .field-content {
+    flex: 1;
+    min-width: 0;
+
+    label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 0.5rem;
+
+      .required {
+        color: #ef4444;
+      }
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 0.5rem 0;
+      border: none;
+      background: transparent;
+      font-size: 0.95rem;
+      color: var(--text-color);
+
+      &:focus {
+        outline: none;
+      }
+
+      &::placeholder {
+        color: #9ca3af;
+      }
+    }
+
+    .field-error {
+      display: block;
+      font-size: 0.75rem;
+      color: #ef4444;
+      margin-top: 0.25rem;
+    }
+
+    .field-hint {
+      display: block;
+      font-size: 0.75rem;
+      color: #9ca3af;
+      margin-top: 0.25rem;
+    }
+  }
+}
+
+
+// =============================================================================
+// 61. ADMIN SEGMENT FIELDS
+// =============================================================================
+
+.segment-field {
+  margin-bottom: 1.5rem;
+
+  label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.75rem;
+
+    .required {
+      color: #ef4444;
+    }
+  }
+}
+
+
+// =============================================================================
+// 62. ADMIN MAP CARD
+// =============================================================================
+
+.map-card {
+  margin-top: 1.25rem;
+}
+
+.map-body {
+  position: relative;
+  min-height: 300px;
+}
+
+.map-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
+  background: #f8fafc;
+  border-radius: 12px;
+
+  i {
+    font-size: 2rem;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+  }
+
+  span {
+    color: #64748b;
+  }
+}
+
+.coordinates-display {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: rgba(46, 108, 183, 0.08);
+  border-radius: 8px;
+  margin-top: 1rem;
+
+  i {
+    color: var(--primary-color);
+  }
+
+  span {
+    font-family: monospace;
+    font-size: 0.85rem;
+    color: #374151;
+  }
+}
+
+
+// =============================================================================
+// 63. ADMIN PRIMENG OVERRIDES
+// =============================================================================
+
+.admin-page {
+  :host ::ng-deep,
+  ::ng-deep {
+    .p-select,
+    .p-inputnumber {
+      width: 100%;
+
+      .p-inputtext {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border-radius: 10px;
+        border: 1px solid #e2e8f0;
+
+        &:focus {
+          border-color: var(--primary-color);
+          box-shadow: 0 0 0 3px rgba(46, 108, 183, 0.1);
+        }
+      }
+    }
+
+    .p-datepicker-input-icon-container {
+      display: flex;
+      width: 100%;
+      position: relative;
+
+      input.p-inputtext {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        padding-right: 2.5rem;
+        border-radius: 10px;
+        border: 1px solid #e2e8f0;
+
+        &:focus {
+          border-color: var(--primary-color);
+          box-shadow: 0 0 0 3px rgba(46, 108, 183, 0.1);
+        }
+      }
+
+      .p-datepicker-input-icon {
+        position: absolute;
+        right: 0.75rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #9ca3af;
+        cursor: pointer;
+        pointer-events: auto;
+      }
+    }
+
+    .p-checkbox {
+      .p-checkbox-box {
+        border-radius: 6px;
+        border: 2px solid #e2e8f0;
+
+        &.p-highlight {
+          background: var(--primary-gradient);
+          border-color: transparent;
+        }
+      }
+    }
+
+    .p-select-panel {
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    }
+  }
+}
+
+
+// =============================================================================
+// 60. ADMIN RESPONSIVE
+// =============================================================================
+
+@media (max-width: 768px) {
+  .admin-content {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-content {
+    padding: 1rem;
+    padding-top: 90px;
+  }
+}

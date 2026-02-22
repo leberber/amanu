@@ -23,6 +23,18 @@
   --primary-gradient: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-700) 100%);
 
   // ---------------------------------------------------------------------------
+  // Additional Gradients (Admin & UI)
+  // ---------------------------------------------------------------------------
+  --success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  --warning-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  --info-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  --purple-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --orange-gradient: linear-gradient(135deg, #f7971e 0%, #ffd200 100%);
+  --pink-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+  --teal-gradient: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+  --red-gradient: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+
+  // ---------------------------------------------------------------------------
   // Text Colors
   // ---------------------------------------------------------------------------
   --color-text-primary: #1a1a2e;

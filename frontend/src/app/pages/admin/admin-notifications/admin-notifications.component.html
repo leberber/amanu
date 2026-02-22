@@ -1,30 +1,41 @@
 <!-- src/app/pages/admin/admin-notifications/admin-notifications.component.html -->
-<div class="notifications-page">
+<div class="admin-page">
+  <!-- Background Decoration -->
+  <div class="bg-decoration">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
+
   <p-toast></p-toast>
-  <div class="page-content">
+  <div class="admin-content admin-content--form">
     <!-- Page Header -->
-    <div class="page-header">
-      <button class="back-btn" (click)="goBack()">
-        <i class="pi pi-arrow-left"></i>
-      </button>
-      <div class="header-title">
-        <div class="icon-wrapper">
-          <div class="icon-bg"></div>
-          <div class="icon-circle">
-            <i class="pi pi-bell"></i>
+    <div class="admin-header">
+      <div class="header-content">
+        <button class="back-btn" (click)="goBack()">
+          <i class="pi pi-arrow-left"></i>
+        </button>
+        <div class="header-title">
+          <div class="admin-icon-wrapper">
+            <div class="icon-bg"></div>
+            <div class="icon-circle">
+              <i class="pi pi-bell"></i>
+            </div>
           </div>
-        </div>
-        <div class="title-text">
-          <h1>{{ 'admin.notifications.title' | translate }}</h1>
-          <p>{{ 'admin.notifications.subtitle' | translate }}</p>
+          <div class="title-text">
+            <h1>{{ 'admin.notifications.title' | translate }}</h1>
+            <p>{{ 'admin.notifications.subtitle' | translate }}</p>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- Notification Form Card -->
-    <div class="notification-card">
+    <div class="admin-card">
       <div class="card-header">
-        <i class="pi pi-send"></i>
+        <div class="header-icon">
+          <i class="pi pi-send"></i>
+        </div>
         <h3>{{ 'admin.notifications.send_push' | translate }}</h3>
       </div>
 
@@ -63,7 +74,7 @@
 
         <!-- Send Button -->
         <button
-          class="send-btn"
+          class="admin-send-btn"
           (click)="sendNotification()"
           [disabled]="sendingNotification || !notificationTitle.trim() || !notificationBody.trim()">
           <span>{{ 'admin.notifications.send_to_all' | translate }}</span>
@@ -75,7 +86,7 @@
     </div>
 
     <!-- Info Card -->
-    <div class="info-card">
+    <div class="admin-info-card">
       <div class="info-icon">
         <i class="pi pi-info-circle"></i>
       </div>
