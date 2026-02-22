@@ -84,6 +84,10 @@
 // -----------------------------------------------------------------------------
 // Description
 // -----------------------------------------------------------------------------
+.description-card .app-card__content {
+  padding: var(--space-4) var(--space-5);
+}
+
 .description-text {
   font-size: var(--font-size-base);
   line-height: var(--line-height-relaxed);
@@ -131,6 +135,7 @@
   padding: var(--space-2) var(--space-4);
   background: var(--primary-color);
   border-radius: var(--radius-md);
+  transition: background-color 0.2s ease;
 
   &__boxes {
     font-size: 1.75rem;
@@ -145,6 +150,16 @@
     text-transform: uppercase;
     letter-spacing: 0.03em;
     margin-top: var(--space-1);
+  }
+
+  // Green when quantity matches cart
+  &--in-cart {
+    background: #22c55e;
+  }
+
+  // Orange when quantity differs from cart
+  &--update {
+    background: #f59e0b;
   }
 }
 
