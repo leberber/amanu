@@ -485,9 +485,7 @@ a {
   color: var(--text-color-secondary);
 }
 
-// Hide decorations
-.bg-decoration,
-.blob,
+// Hide lightbox background
 .lightbox-bg { display: none !important; }
 
 // Router outlet
