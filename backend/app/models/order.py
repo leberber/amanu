@@ -30,7 +30,8 @@ class OrderItem(OrderItemBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     product_name: str
     product_unit: str
-    
+    pieces_per_box: Optional[int] = Field(default=None)
+
     # Relationships
     order: "Order" = Relationship(back_populates="items")
     product: "Product" = Relationship(back_populates="order_items")
@@ -106,6 +107,7 @@ class OrderItemRead(SQLModel):
     unit_price: float
     product_name: str
     product_unit: str
+    pieces_per_box: Optional[int] = None
 
 
 class PromotionInfo(SQLModel):

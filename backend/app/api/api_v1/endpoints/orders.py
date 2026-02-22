@@ -111,14 +111,13 @@ def create_order(
         })
 
         # Create order item
-        pieces_per_box = None
         order_item = OrderItem(
             product_id=item.product_id,
             quantity=item.quantity,
             unit_price=product.price,
             product_name=product.name,
             product_unit=product.unit,
-            pieces_per_box=pieces_per_box,
+            pieces_per_box=product.pieces_per_box,
             order_id=0  # Will be updated after order creation
         )
 
