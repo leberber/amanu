@@ -61,3 +61,5 @@
                                                                                                                                                                                                               
   -- Update existing products to have 'carton' as default (optional, since DEFAULT handles this)                                                                                                              
   UPDATE products SET packaging_type = 'carton' WHERE packaging_type IS NULL;    
+
+  ALTER TABLE order_items ADD COLUMN IF NOT EXISTS pieces_per_box INTEGER;
