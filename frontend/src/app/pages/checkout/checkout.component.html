@@ -85,7 +85,7 @@
                 <li class="item-line item-animate" [style.animation-delay]="(i * 50) + 'ms'">
                   <div class="thumbnail" [class.clickable]="item.product_image" (click)="openImage(item)">
                     @if (item.product_image) {
-                      <img [src]="item.product_image" [alt]="item.product_name" loading="lazy">
+                      <img [src]="item.product_image" [alt]="item.product_name" loading="lazy" appImageFallback>
                     } @else {
                       <i class="pi pi-box"></i>
                     }

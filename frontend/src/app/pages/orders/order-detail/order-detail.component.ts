@@ -24,6 +24,7 @@ import { ErrorStateComponent } from '../../../shared/components/error-state/erro
 import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
 import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
 import { StatusPipe } from '../../../shared/pipes/status.pipe';
+import { ImageFallbackDirective } from '../../../shared/directives/image-fallback.directive';
 import { getOrderCartonDisplay } from '../../../shared/utils/quantity.utils';
 
 interface TimelineStatus {
@@ -46,7 +47,8 @@ interface TimelineStatus {
     ErrorStateComponent,
     CurrencyPipe,
     DateFormatPipe,
-    StatusPipe
+    StatusPipe,
+    ImageFallbackDirective
   ],
   templateUrl: './order-detail.component.html',
   styleUrl: './order-detail.component.scss'

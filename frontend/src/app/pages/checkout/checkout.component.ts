@@ -21,7 +21,8 @@ import { ToastMessageService } from '../../core/services/toast-message.service';
 import { PageLayoutComponent } from '../../shared/components/page-layout/page-layout.component';
 import { ImageLightboxComponent } from '../../shared/components/image-lightbox/image-lightbox.component';
 import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
-import { getCartonCount, getCartonDisplay } from '../../shared/utils/quantity.utils';
+import { ImageFallbackDirective } from '../../shared/directives/image-fallback.directive';
+import { getCartonDisplay } from '../../shared/utils/quantity.utils';
 
 @Component({
   selector: 'app-checkout',
@@ -34,7 +35,8 @@ import { getCartonCount, getCartonDisplay } from '../../shared/utils/quantity.ut
     TranslateModule,
     PageLayoutComponent,
     ImageLightboxComponent,
-    CurrencyPipe
+    CurrencyPipe,
+    ImageFallbackDirective
   ],
   templateUrl: './checkout.component.html',
   styleUrl: './checkout.component.scss'
@@ -63,7 +65,6 @@ export class CheckoutComponent implements OnInit {
   cartItems = signal<CartItem[]>([]);
   currentUser = signal<User | null>(null);
   isSubmitting = signal(false);
-  accordionExpanded = signal(false);
   appliedPromotion = signal<AppliedPromotion | null>(null);
 
   // Computed values
@@ -142,10 +143,6 @@ export class CheckoutComponent implements OnInit {
     });
   }
 
-  toggleShippingAccordion(): void {
-    this.accordionExpanded.update(v => !v);
-  }
-
   placeOrder(): void {
     if (this.checkoutForm.invalid) {
       this.checkoutForm.markAllAsTouched();
@@ -185,11 +182,6 @@ export class CheckoutComponent implements OnInit {
         this.toast.showApiError(error, 'checkout.order_error_default');
       }
     });
-  }
-
-  // Get carton count based on pieces_per_box
-  getCartonCount(item: CartItem): number {
-    return getCartonCount(item.quantity, item.pieces_per_box);
   }
 
   // Format carton display (e.g., "1x10" for 1 carton of 10 pieces)

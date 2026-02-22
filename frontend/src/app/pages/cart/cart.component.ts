@@ -14,7 +14,6 @@ import { ROUTES } from '../../core/constants/routes.constants';
 import { CartService, CartItem } from '../../services/cart.service';
 import { AuthService } from '../../services/auth.service';
 import { CurrencyService } from '../../core/services/currency.service';
-import { UnitsService } from '../../core/services/units.service';
 import { LightboxService } from '../../core/services/lightbox.service';
 import { TranslationService } from '../../services/translation.service';
 import { CartTranslationService } from '../../core/services/cart-translation.service';
@@ -60,7 +59,6 @@ export class CartComponent implements OnInit {
   private router = inject(Router);
   private translateService = inject(TranslateService);
   private currencyService = inject(CurrencyService);
-  private unitsService = inject(UnitsService);
   private translationService = inject(TranslationService);
   private promotionService = inject(PromotionService);
   private cartTranslation = inject(CartTranslationService);
@@ -221,10 +219,6 @@ export class CartComponent implements OnInit {
     });
   }
 
-  getUnitDisplay(unit: string): string {
-    return this.unitsService.getUnitTranslated(unit, true);
-  }
-
   isOutOfStock(item: CartItem): boolean {
     return checkOutOfStock(item);
   }
@@ -254,14 +248,6 @@ export class CartComponent implements OnInit {
         queryParams: { returnUrl: ROUTES.CHECKOUT }
       });
     }
-  }
-
-  formatPriceNumber(price: number): string {
-    return Math.round(price).toString();
-  }
-
-  getCurrencySymbol(): string {
-    return 'DA';
   }
 
   // Promotion methods
