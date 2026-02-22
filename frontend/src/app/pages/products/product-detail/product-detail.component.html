@@ -237,19 +237,27 @@
                     pButton
                     type="button"
                     icon="pi pi-minus"
-                    class="p-button-outlined"
+                    class="p-button-outlined quantity-btn"
                     [disabled]="isOutOfStock() || selectedQuantity() <= (product()?.pieces_per_box || 1)"
                     (click)="selectedQuantity.set(selectedQuantity() - (product()?.pieces_per_box || 1))">
                   </button>
-                  <span class="quantity-value">{{ selectedQuantity() }}</span>
+                  <div class="quantity-display">
+                    <span class="quantity-display__boxes">{{ selectedQuantity() / (product()?.pieces_per_box || 1) }}</span>
+                    <span class="quantity-display__label">{{ (selectedQuantity() / (product()?.pieces_per_box || 1) === 1 ? 'products.product.quantity_selector.box' : 'products.product.quantity_selector.boxes') | translate }}</span>
+                  </div>
                   <button
                     pButton
                     type="button"
                     icon="pi pi-plus"
-                    class="p-button-outlined"
+                    class="p-button-outlined quantity-btn"
                     [disabled]="isOutOfStock() || (product()?.stock_quantity && selectedQuantity() >= product()!.stock_quantity)"
                     (click)="selectedQuantity.set(selectedQuantity() + (product()?.pieces_per_box || 1))">
                   </button>
+                </div>
+                <!-- Pieces info -->
+                <div class="quantity-pieces">
+                  <i class="pi pi-info-circle"></i>
+                  <span>{{ selectedQuantity() }} {{ unitDisplay() }}</span>
                 </div>
               </div>
 
@@ -264,7 +272,7 @@
                 @if (quantityMatchesCart()) {
                   {{ selectedQuantity() }} {{ unitDisplay() }} {{ 'products.cart.in_cart' | translate }}
                 } @else if (isInCart()) {
-                  {{ 'products.cart.update_quantity' | translate }} ({{ selectedQuantity() }} {{ unitDisplay() }})
+                  {{ 'cart.update_quantity' | translate }}
                 } @else {
                   {{ 'products.cart.add_to_cart' | translate }}
                 }
