@@ -201,6 +201,12 @@
             }
             <button
               type="button"
+              class="mobile-search-view-toggle"
+              (click)="toggleViewMode()">
+              <i [class]="layout() === 'grid' ? 'pi pi-list' : 'pi pi-th-large'"></i>
+            </button>
+            <button
+              type="button"
               class="mobile-search-close"
               (click)="closeMobileSearch()">
               <i class="pi pi-check"></i>

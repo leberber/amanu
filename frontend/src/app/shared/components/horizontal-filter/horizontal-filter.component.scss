@@ -1,20 +1,20 @@
 // CSS Custom Properties
 :host {
-  --item-icon-size: 60px;
-  --item-icon-size-mobile: 50px;
-  --item-icon-size-compact: 32px;
+  --item-icon-size: 50px;
+  --item-icon-size-mobile: 44px;
+  --item-icon-size-compact: 28px;
   --item-gap: 1rem;
   --item-gap-mobile: 1.25rem;
   --item-gap-compact: 0.2rem;
-  --item-padding: 0.75rem 1rem;
-  --item-padding-mobile: 0.5rem 0.75rem;
+  --item-padding: 1rem 1rem 0.75rem;
+  --item-padding-mobile: 0.75rem 0.75rem 0.5rem;
   --item-padding-compact: 0.35rem 0.75rem;
   --transition-duration: 0.25s;
 
   display: block;
   position: relative;
   background: var(--surface-card);
-  border-bottom: 1px solid var(--surface-border);
+  border-bottom: 1px solid var(--surface-200);
 }
 
 :host-context(.my-app-dark) {
@@ -153,74 +153,61 @@
 //   display: none;
 // }
 
-// Item count badge (only for categories)
-.item-count {
-  position: absolute;
-  bottom: 6px;
-  inset-inline-end: -4px;
-  background: var(--primary-color);
-  color: var(--primary-contrast-color);
-  font-size: 0.55rem;
-  font-weight: 600;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 5;
-  box-shadow: var(--shadow-sm);
-  transition: bottom var(--transition-duration) ease-in-out,
-              inset-inline-end var(--transition-duration) ease-in-out,
-              font-size var(--transition-duration) ease-in-out;
-}
-
-// Search toggle button
-.search-toggle-btn {
+// Filter actions wrapper
+.filter-actions {
   position: sticky;
   inset-inline-end: 0;
   margin-inline-start: auto;
-  margin-inline-end: 0;
-  margin-top: 0.5rem;
-  align-self: center;
-  width: calc(var(--item-icon-size) + 10px);
-  height: calc(var(--item-icon-size) + 10px);
-  min-width: calc(var(--item-icon-size) + 10px);
-  min-height: calc(var(--item-icon-size) + 10px);
-  border-radius: 50%;
-  background: var(--surface-card);
-  border: 2px solid var(--surface-border);
+  align-self: stretch;
+  margin-top: -1rem;
+  margin-bottom: -0.75rem;
   display: flex;
   align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  cursor: pointer;
+  padding-inline-start: 2rem;
+  padding-inline-end: var(--space-3);
+  background: linear-gradient(to right, transparent, var(--surface-card) 30%);
   z-index: 10;
-  box-shadow: -12px 0 16px 8px var(--surface-card),
-              -12px 10px 20px 10px var(--surface-card),
-              8px 0 16px 8px var(--surface-card);
-  transition: width var(--transition-duration) ease-in-out,
-              height var(--transition-duration) ease-in-out,
-              border-color 0.2s ease-in-out;
 
   @media (min-width: 1024px) {
     display: none;
   }
 
+  @media (max-width: 768px) {
+    margin-top: -0.75rem;
+    margin-bottom: -0.5rem;
+  }
+}
+
+// Search toggle button
+.search-toggle-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 0;
+  background: var(--surface-card);
+  border: 1px solid var(--surface-200);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
   i {
-    font-size: 1.5rem;
+    font-size: 1.1rem;
     color: var(--primary-color);
-    transition: font-size var(--transition-duration) ease-in-out;
   }
 
   &:hover {
-    border-color: var(--primary-color);
+    background: var(--surface-100);
   }
 
   &.active {
-    background: var(--surface-card);
+    background: var(--primary-color);
     border-color: var(--primary-color);
-    border-width: 3px;
+
+    i {
+      color: white;
+    }
   }
 }
 
@@ -257,18 +244,6 @@
     max-width: 60px;
   }
 
-  .search-toggle-btn {
-    width: var(--item-icon-size-mobile);
-    height: var(--item-icon-size-mobile);
-    min-width: var(--item-icon-size-mobile);
-    min-height: var(--item-icon-size-mobile);
-    inset-inline-end: 0;
-    margin-inline-end: 0.25rem;
-
-    i {
-      font-size: 1.25rem;
-    }
-  }
 }
 
 // Compact mode
@@ -304,28 +279,7 @@
     display: none;
   }
 
-  .item-count {
-    bottom: 4px;
-    inset-inline-end: -3px;
-    width: 16px;
-    height: 16px;
-    font-size: 0.5rem;
-  }
-
   .filter-item.active .item-image {
     border-width: 3px;
-  }
-
-  .search-toggle-btn {
-    width: var(--item-icon-size-compact);
-    height: var(--item-icon-size-compact);
-    min-width: var(--item-icon-size-compact);
-    min-height: var(--item-icon-size-compact);
-    inset-inline-end: 0;
-    margin-inline-end: 0.25rem;
-
-    i {
-      font-size: 0.875rem;
-    }
   }
 }

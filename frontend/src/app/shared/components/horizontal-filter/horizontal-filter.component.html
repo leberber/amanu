@@ -47,9 +47,6 @@
             <i [class]="getIconClass()"></i>
           </div>
         }
-        @if (item.product_count && filterType() === 'categories') {
-          <span class="item-count">{{ item.product_count }}</span>
-        }
       </div>
       @if (showItemName()) {
         <span class="item-name">{{ item.name }}</span>
@@ -64,13 +61,15 @@
     [style.width.px]="indicatorWidth()">
   </div>
 
-  <!-- Search Toggle Button -->
+  <!-- Search Toggle -->
   @if (showSearchIcon()) {
-    <div
-      class="search-toggle-btn"
-      [class.active]="isSearchActive()"
-      (click)="toggleSearch()">
-      <i class="pi pi-search"></i>
+    <div class="filter-actions">
+      <button
+        class="search-toggle-btn"
+        [class.active]="isSearchActive()"
+        (click)="toggleSearch()">
+        <i class="pi pi-search"></i>
+      </button>
     </div>
   }
 </div>

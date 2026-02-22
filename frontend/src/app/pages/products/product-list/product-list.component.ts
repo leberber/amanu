@@ -231,6 +231,10 @@ export class ProductListComponent implements OnInit, OnDestroy {
     this.searchService.setQuery(value);
   }
 
+  toggleViewMode(): void {
+    this.preferencesService.toggleProductViewMode();
+  }
+
   toggleFilterMode(): void {
     const newMode = this.filterMode() === 'categories' ? 'brands' : 'categories';
     this.filterMode.set(newMode);

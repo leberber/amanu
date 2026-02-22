@@ -74,7 +74,7 @@ $bottom-nav-height: 70px;
   background: var(--surface-ground);
   border-radius: var(--radius-md);
   padding: var(--space-2) var(--space-4);
-  border: 2px solid transparent;
+  border: 1px solid var(--surface-200);
   transition: border-color var(--transition-fast);
 
   &:focus-within {
@@ -99,12 +99,13 @@ $bottom-nav-height: 70px;
   padding: var(--space-2) 0;
 
   &::placeholder {
-    color: var(--text-color-secondary);
+    color: var(--color-text-placeholder);
   }
 }
 
 .mobile-search-clear,
-.mobile-search-close {
+.mobile-search-close,
+.mobile-search-view-toggle {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -123,6 +124,16 @@ $bottom-nav-height: 70px;
 
   &:hover {
     background: var(--surface-300);
+    color: var(--text-color);
+  }
+}
+
+.mobile-search-view-toggle {
+  background: var(--surface-100);
+  color: var(--text-color-secondary);
+
+  &:hover {
+    background: var(--surface-200);
     color: var(--text-color);
   }
 }
