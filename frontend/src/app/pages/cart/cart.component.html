@@ -167,8 +167,8 @@
 
           <!-- Mobile View -->
           <div class="app-card__content block md:hidden">
-            @for (item of cartItems(); track item.id) {
-              <div class="cart-item-mobile">
+            @for (item of cartItems(); track item.id; let i = $index) {
+              <div class="cart-item-mobile item-animate" [style.animation-delay]="(i * 50) + 'ms'">
                 <!-- Row 1: Image + Name + Delete -->
                 <div class="cart-item-mobile__row1">
                   <div class="thumbnail" [class.clickable]="item.product_image" (click)="openImage(item)">

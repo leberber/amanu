@@ -157,8 +157,8 @@
 
             <!-- Mobile Card View -->
             <ul class="order-list block md:hidden">
-              @for (order of orders(); track order.id) {
-                <li class="order-item" (click)="viewOrderDetails(order.id)">
+              @for (order of orders(); track order.id; let i = $index) {
+                <li class="order-item item-animate" [style.animation-delay]="(i * 50) + 'ms'" (click)="viewOrderDetails(order.id)">
                   <div class="order-item__icon">
                     <i class="pi pi-shopping-bag"></i>
                   </div>
