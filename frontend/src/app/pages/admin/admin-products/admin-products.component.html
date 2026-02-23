@@ -174,6 +174,7 @@
                 <th class="col-brand">{{ 'admin.products.table.brand' | translate }}</th>
                 <th class="col-price">{{ 'admin.products.table.price' | translate }}</th>
                 <th class="col-stock">{{ 'admin.products.table.stock' | translate }}</th>
+                <th class="col-stock-status">{{ 'admin.products.table.availability' | translate }}</th>
                 <th class="col-status">{{ 'admin.products.table.status' | translate }}</th>
                 <th class="col-actions">{{ 'admin.products.table.actions' | translate }}</th>
               </tr>
@@ -218,41 +219,51 @@
 
                   <!-- Price -->
                   <td class="col-price">
-                    <div *ngIf="!isEditingPrice(product.id)" class="price-display" (click)="startEditPrice(product)">
-                      <span class="price-value">{{ product.price | appCurrency }}</span>
-                      <span class="price-unit">{{ 'admin.products.per' | translate }} {{ product.unit | appUnit }}</span>
-                    </div>
-                    <div *ngIf="isEditingPrice(product.id)" class="price-edit">
-                      <input
-                        type="number"
-                        [(ngModel)]="priceEdit.value"
-                        (keydown.enter)="savePrice(product)"
-                        (keydown.escape)="cancelEditPrice()"
-                        autofocus>
-                      <button class="save-btn" (click)="savePrice(product)"><i class="pi pi-check"></i></button>
-                      <button class="cancel-btn" (click)="cancelEditPrice()"><i class="pi pi-times"></i></button>
-                    </div>
+                    @if (!isEditingPrice(product.id)) {
+                      <div class="price-display" (click)="startEditPrice(product)">
+                        <span class="price-value">{{ product.price | appCurrency }}</span>
+                      </div>
+                    } @else {
+                      <div class="price-edit">
+                        <input
+                          type="number"
+                          [(ngModel)]="priceEdit.value"
+                          (keydown.enter)="savePrice(product)"
+                          (keydown.escape)="cancelEditPrice()"
+                          autofocus>
+                        <button class="save-btn" (click)="savePrice(product)"><i class="pi pi-check"></i></button>
+                        <button class="cancel-btn" (click)="cancelEditPrice()"><i class="pi pi-times"></i></button>
+                      </div>
+                    }
                   </td>
 
-                  <!-- Stock -->
+                  <!-- Stock Quantity (Editable) -->
                   <td class="col-stock">
-                    <div *ngIf="!isEditingStock(product.id)" class="stock-display" (click)="startEditStock(product)">
-                      <span class="stock-badge" [class]="'stock-' + getStockSeverity(product.stock_quantity)">
-                        {{ getStockLabel(product.stock_quantity) }}
-                      </span>
-                      <span class="stock-qty">{{ product.stock_quantity }} {{ product.unit | appUnit }}</span>
-                    </div>
-                    <div *ngIf="isEditingStock(product.id)" class="stock-edit">
-                      <input
-                        type="number"
-                        [(ngModel)]="stockEdit.value"
-                        (keydown.enter)="saveStock(product)"
-                        (keydown.escape)="cancelEditStock()"
-                        min="0"
-                        autofocus>
-                      <button class="save-btn" (click)="saveStock(product)"><i class="pi pi-check"></i></button>
-                      <button class="cancel-btn" (click)="cancelEditStock()"><i class="pi pi-times"></i></button>
-                    </div>
+                    @if (!isEditingStock(product.id)) {
+                      <div class="stock-display" (click)="startEditStock(product)">
+                        <span class="stock-qty">{{ product.stock_quantity }}</span>
+                        <i class="pi pi-pencil edit-hint"></i>
+                      </div>
+                    } @else {
+                      <div class="stock-edit">
+                        <input
+                          type="number"
+                          [(ngModel)]="stockEdit.value"
+                          (keydown.enter)="saveStock(product)"
+                          (keydown.escape)="cancelEditStock()"
+                          min="0"
+                          autofocus>
+                        <button class="save-btn" (click)="saveStock(product)"><i class="pi pi-check"></i></button>
+                        <button class="cancel-btn" (click)="cancelEditStock()"><i class="pi pi-times"></i></button>
+                      </div>
+                    }
+                  </td>
+
+                  <!-- Stock Status Badge -->
+                  <td class="col-stock-status">
+                    <span class="stock-badge" [class]="'stock-' + getStockSeverity(product.stock_quantity)">
+                      {{ getStockLabel(product.stock_quantity) }}
+                    </span>
                   </td>
 
                   <!-- Status -->

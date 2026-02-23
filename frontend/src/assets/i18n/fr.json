@@ -970,6 +970,7 @@
         "brand": "Marque",
         "price": "Prix",
         "stock": "Stock",
+        "availability": "Disponibilité",
         "status": "Statut",
         "actions": "Actions"
       },

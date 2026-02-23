@@ -965,6 +965,7 @@
         "brand": "Brand",
         "price": "Price",
         "stock": "Stock",
+        "availability": "Availability",
         "status": "Status",
         "actions": "Actions"
       },
