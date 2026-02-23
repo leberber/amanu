@@ -102,8 +102,8 @@
   }
 
   &--neutral {
-    background: rgba(0, 0, 0, 0.04);
-    border-color: rgba(0, 0, 0, 0.08);
+    background: var(--overlay-subtle);
+    border-color: var(--overlay-medium);
 
     .info-box__icon i {
       color: var(--text-color-secondary);
@@ -131,7 +131,7 @@
   padding-left: var(--space-7);
   background: var(--color-white);
   border-radius: var(--radius-lg);
-  border: var(--border-width) solid rgba(0, 0, 0, 0.08);
+  border: var(--border-width) solid var(--overlay-medium);
   box-shadow: var(--shadow-xs);
 
   &::before {
@@ -282,7 +282,7 @@
 
 .note-box {
   padding: var(--space-5);
-  background: rgba(248, 250, 252, 0.8);
+  background: var(--surface-slate-50-solid);
   border-radius: var(--radius-md);
   border-left: 3px solid var(--primary-color);
 
@@ -320,7 +320,7 @@
   padding: var(--space-7);
   background: var(--color-white);
   border-radius: var(--radius-xl);
-  border: var(--border-width) solid rgba(0, 0, 0, 0.06);
+  border: var(--border-width) solid var(--border-color-light);
   transition: all var(--transition-smooth);
 
   &:hover {
@@ -370,7 +370,7 @@
   gap: var(--space-4);
   padding: var(--space-4) var(--space-5);
   border-radius: var(--radius-md);
-  background: rgba(0, 0, 0, 0.04);
+  background: var(--overlay-subtle);
 
   &__dot {
     width: 10px;
@@ -442,7 +442,7 @@
   position: relative;
   padding: var(--space-7);
   padding-left: var(--space-8);
-  background: rgba(248, 250, 252, 0.8);
+  background: var(--surface-slate-50-solid);
   border-radius: var(--radius-lg);
 
   &::before {
@@ -486,7 +486,7 @@
   padding: var(--space-6);
   background: var(--color-white);
   border-radius: var(--radius-lg);
-  border: var(--border-width) solid rgba(0, 0, 0, 0.08);
+  border: var(--border-width) solid var(--overlay-medium);
 
   &__header {
     display: flex;
@@ -494,7 +494,7 @@
     align-items: center;
     margin-bottom: var(--space-5);
     padding-bottom: var(--space-4);
-    border-bottom: var(--border-width) solid rgba(0, 0, 0, 0.06);
+    border-bottom: var(--border-width) solid var(--border-color-light);
   }
 
   &__title {
@@ -528,7 +528,7 @@
   &__footer {
     margin-top: var(--space-5);
     padding-top: var(--space-4);
-    border-top: var(--border-width) solid rgba(0, 0, 0, 0.06);
+    border-top: var(--border-width) solid var(--border-color-light);
     display: flex;
     justify-content: space-between;
     font-weight: var(--font-weight-semibold);
@@ -552,7 +552,7 @@
     width: var(--icon-3xl);
     height: var(--icon-3xl);
     border-radius: var(--radius-full);
-    background: rgba(0, 0, 0, 0.05);
+    background: var(--overlay-soft);
     display: flex;
     align-items: center;
     justify-content: center;

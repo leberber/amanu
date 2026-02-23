@@ -97,7 +97,7 @@
 
   &:hover:not(:disabled) {
     background: var(--surface-50);
-    border-color: rgba(0, 0, 0, 0.15);
+    border-color: var(--border-color-medium);
     box-shadow: var(--shadow-md);
   }
 }

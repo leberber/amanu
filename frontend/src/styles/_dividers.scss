@@ -29,11 +29,11 @@
   // Color Variants
   // ---------------------------------------------------------------------------
   &--dark {
-    background: rgba(0, 0, 0, 0.12);
+    background: var(--overlay-medium-dark);
   }
 
   &--light {
-    background: rgba(0, 0, 0, 0.03);
+    background: var(--overlay-softest);
   }
 
   &--primary {
@@ -50,12 +50,12 @@
   // ---------------------------------------------------------------------------
   &--dashed {
     height: 0;
-    border-top: var(--border-width) dashed rgba(0, 0, 0, 0.15);
+    border-top: var(--border-width) dashed var(--border-color-medium);
   }
 
   &--dotted {
     height: 0;
-    border-top: 2px dotted rgba(0, 0, 0, 0.1);
+    border-top: 2px dotted var(--overlay-hover);
   }
 
   // ---------------------------------------------------------------------------
@@ -179,7 +179,7 @@
     content: '';
     width: 60px;
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.1), transparent);
+    background: linear-gradient(90deg, transparent, var(--overlay-hover), transparent);
   }
 
   &__icon {
@@ -247,7 +247,7 @@
 
 .list-divider {
   height: 1px;
-  background: rgba(0, 0, 0, 0.04);
+  background: var(--overlay-subtle);
   margin: var(--space-3) 0;
 
   &--inset {

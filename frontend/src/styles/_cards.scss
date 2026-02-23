@@ -59,7 +59,7 @@
 
   &--flat {
     box-shadow: none;
-    border: var(--border-width) solid rgba(0, 0, 0, 0.08);
+    border: var(--border-width) solid var(--overlay-medium);
 
     &:hover {
       box-shadow: var(--shadow-md);
@@ -139,7 +139,7 @@
   gap: var(--space-5);
   padding: var(--space-6) var(--space-8);
   border-top: var(--border-width) solid var(--border-color-light);
-  background: rgba(248, 250, 252, 0.5);
+  background: var(--surface-slate-50);
 }
 
 

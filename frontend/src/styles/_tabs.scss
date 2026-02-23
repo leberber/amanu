@@ -24,7 +24,7 @@
   display: flex;
   gap: var(--space-1);
   padding: var(--space-3);
-  background: rgba(0, 0, 0, 0.03);
+  background: var(--overlay-subtle);
   border-radius: var(--radius-lg);
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
@@ -42,7 +42,7 @@
   &--underline {
     background: transparent;
     padding: 0;
-    border-bottom: var(--border-width) solid rgba(0, 0, 0, 0.08);
+    border-bottom: var(--border-width) solid var(--overlay-medium);
     border-radius: 0;
   }
 }
@@ -69,7 +69,7 @@
 
   &:hover:not(.active) {
     color: var(--text-color);
-    background: rgba(0, 0, 0, 0.04);
+    background: var(--overlay-subtle);
   }
 
   &.active {
@@ -84,7 +84,7 @@
 
   .count {
     padding: var(--space-1) var(--space-3);
-    background: rgba(0, 0, 0, 0.08);
+    background: var(--overlay-medium);
     border-radius: var(--radius-sm);
     font-size: var(--font-size-xs);
     font-weight: var(--font-weight-semibold);
@@ -125,7 +125,7 @@
       box-shadow: var(--shadow-primary);
 
       .count {
-        background: rgba(255, 255, 255, 0.25);
+        background: rgba(var(--color-white-rgb), 0.25);
         color: var(--color-white);
       }
     }
@@ -183,7 +183,7 @@
     transition: all var(--transition-smooth);
 
     &:hover:not(.active) {
-      background: rgba(0, 0, 0, 0.04);
+      background: var(--overlay-subtle);
     }
 
     &.active {
@@ -192,7 +192,7 @@
       box-shadow: var(--shadow-primary);
 
       .segment__count {
-        background: rgba(255, 255, 255, 0.25);
+        background: rgba(var(--color-white-rgb), 0.25);
         color: var(--color-white);
       }
     }
@@ -203,7 +203,7 @@
     border-radius: var(--radius-sm);
     font-size: var(--font-size-xs);
     font-weight: var(--font-weight-semibold);
-    background: rgba(0, 0, 0, 0.08);
+    background: var(--overlay-medium);
     color: var(--text-color-secondary);
 
     &--success {
@@ -227,7 +227,7 @@
   .p-tabview-nav {
     background: transparent;
     border: none;
-    border-bottom: var(--border-width) solid rgba(0, 0, 0, 0.08);
+    border-bottom: var(--border-width) solid var(--overlay-medium);
     gap: 0;
 
     li {
@@ -265,7 +265,7 @@
 // Boxed TabView variant
 .p-tabview.tabview-boxed {
   .p-tabview-nav {
-    background: rgba(0, 0, 0, 0.03);
+    background: var(--overlay-subtle);
     border-radius: var(--radius-lg);
     padding: var(--space-3);
     border: none;

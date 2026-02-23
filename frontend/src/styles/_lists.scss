@@ -33,7 +33,7 @@
   flex-direction: column;
   background: var(--color-white);
   border-radius: var(--radius-lg);
-  border: var(--border-width) solid rgba(0, 0, 0, 0.06);
+  border: var(--border-width) solid var(--border-color-light);
   overflow: hidden;
 
   &--flush {
@@ -57,7 +57,7 @@
   @extend %list-item-base;
   gap: var(--space-5);
   padding: var(--space-5) var(--space-6);
-  border-bottom: var(--border-width) solid rgba(0, 0, 0, 0.04);
+  border-bottom: var(--border-width) solid var(--overlay-subtle);
 
   &:last-child {
     border-bottom: none;
@@ -67,11 +67,11 @@
     cursor: pointer;
 
     &:hover {
-      background: rgba(0, 0, 0, 0.02);
+      background: var(--overlay-subtle);
     }
 
     &:active {
-      background: rgba(0, 0, 0, 0.04);
+      background: var(--overlay-subtle);
     }
   }
 
@@ -302,7 +302,7 @@
     gap: var(--space-5);
     padding: var(--space-5);
     background: var(--color-white);
-    border: var(--border-width) solid rgba(0, 0, 0, 0.08);
+    border: var(--border-width) solid var(--overlay-medium);
     border-radius: var(--radius-md);
     cursor: pointer;
 
@@ -320,7 +320,7 @@
     @extend %list-icon-base;
     width: 22px;
     height: 22px;
-    border: 2px solid rgba(0, 0, 0, 0.15);
+    border: 2px solid var(--border-color-medium);
     border-radius: var(--radius-full);
     transition: all var(--transition-fast);
 
@@ -401,7 +401,7 @@
       top: 0;
       bottom: 0;
       width: 2px;
-      background: rgba(0, 0, 0, 0.08);
+      background: var(--overlay-medium);
     }
 
     &::after {

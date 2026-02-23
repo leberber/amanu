@@ -149,7 +149,7 @@
 
   &--striped {
     tbody tr:nth-child(even) {
-      background: rgba(0, 0, 0, 0.02);
+      background: var(--overlay-subtle);
     }
   }
 }
@@ -225,7 +225,7 @@
     width: 24px;
     height: 24px;
     border: none;
-    background: rgba(0, 0, 0, 0.08);
+    background: var(--overlay-medium);
     border-radius: var(--radius-full);
     cursor: pointer;
     display: flex;

@@ -323,7 +323,7 @@
   padding: var(--space-8);
   background: var(--color-white);
   border-radius: var(--radius-2xl);
-  border: var(--border-width) solid rgba(0, 0, 0, 0.08);
+  border: var(--border-width) solid var(--overlay-medium);
   box-shadow: var(--shadow-md);
   transition: all var(--transition-smooth);
 
@@ -384,8 +384,8 @@
   &__price {
     text-align: center;
     padding: var(--space-7) 0;
-    border-top: var(--border-width) solid rgba(0, 0, 0, 0.06);
-    border-bottom: var(--border-width) solid rgba(0, 0, 0, 0.06);
+    border-top: var(--border-width) solid var(--border-color-light);
+    border-bottom: var(--border-width) solid var(--border-color-light);
   }
 
   &__amount {
@@ -459,12 +459,12 @@
 
     &--subtotal {
       padding-top: var(--space-4);
-      border-top: 1px dashed rgba(0, 0, 0, 0.1);
+      border-top: 1px dashed var(--overlay-hover);
     }
 
     &--total {
       padding-top: var(--space-4);
-      border-top: 2px solid rgba(0, 0, 0, 0.1);
+      border-top: 2px solid var(--overlay-hover);
       font-weight: var(--font-weight-bold);
       font-size: var(--font-size-lg);
     }
@@ -557,13 +557,13 @@
   align-items: center;
   gap: var(--space-2);
   padding: var(--space-2) var(--space-4);
-  background: rgba(0, 0, 0, 0.04);
+  background: var(--overlay-subtle);
   border-radius: var(--radius-sm);
   cursor: pointer;
   transition: all var(--transition-fast);
 
   &:hover {
-    background: rgba(0, 0, 0, 0.08);
+    background: var(--overlay-medium);
   }
 
   &__flag {

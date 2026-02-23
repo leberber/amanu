@@ -32,32 +32,41 @@
   // ---------------------------------------------------------------------------
   // Shadows (based on admin-categories)
   // ---------------------------------------------------------------------------
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.1);
-  --shadow-xl: 0 12px 32px rgba(0, 0, 0, 0.12);
+  --shadow-sm: 0 2px 8px var(--overlay-subtle);
+  --shadow-md: 0 4px 16px var(--overlay-light);
+  --shadow-lg: 0 8px 32px var(--overlay-hover);
+  --shadow-xl: 0 12px 32px var(--overlay-medium-dark);
 
   // Colored shadows
-  --shadow-primary: 0 4px 16px rgba(46, 108, 183, 0.3);
-  --shadow-primary-lg: 0 8px 24px rgba(46, 108, 183, 0.4);
-  --shadow-success: 0 4px 16px rgba(34, 197, 94, 0.3);
-  --shadow-success-lg: 0 6px 20px rgba(34, 197, 94, 0.4);
-  --shadow-warning: 0 4px 16px rgba(245, 158, 11, 0.3);
-  --shadow-warning-lg: 0 6px 20px rgba(245, 158, 11, 0.4);
-  --shadow-danger: 0 4px 16px rgba(239, 68, 68, 0.3);
-  --shadow-danger-lg: 0 8px 24px rgba(239, 68, 68, 0.4);
-  --shadow-add: 0 4px 16px rgba(17, 153, 142, 0.3);
-  --shadow-add-lg: 0 8px 24px rgba(17, 153, 142, 0.4);
+  --shadow-primary: 0 4px 16px rgba(var(--primary-rgb), 0.3);
+  --shadow-primary-lg: 0 8px 24px rgba(var(--primary-rgb), 0.4);
+  --shadow-success: 0 4px 16px rgba(var(--color-success-rgb), 0.3);
+  --shadow-success-lg: 0 6px 20px rgba(var(--color-success-rgb), 0.4);
+  --shadow-warning: 0 4px 16px rgba(var(--color-amber-rgb), 0.3);
+  --shadow-warning-lg: 0 6px 20px rgba(var(--color-amber-rgb), 0.4);
+  --shadow-danger: 0 4px 16px rgba(var(--color-error-rgb), 0.3);
+  --shadow-danger-lg: 0 8px 24px rgba(var(--color-error-rgb), 0.4);
+  --shadow-add: 0 4px 16px rgba(var(--color-teal-rgb), 0.3);
+  --shadow-add-lg: 0 8px 24px rgba(var(--color-teal-rgb), 0.4);
 
   // Focus shadow
-  --shadow-focus: 0 0 0 3px rgba(46, 108, 183, 0.1);
+  --shadow-focus: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
+
+  // ---------------------------------------------------------------------------
+  // Blur Effects
+  // ---------------------------------------------------------------------------
+  --blur-xs: blur(4px);
+  --blur-sm: blur(8px);
+  --blur-md: blur(12px);
+  --blur-lg: blur(16px);
+  --blur-xl: blur(20px);
 
   // ---------------------------------------------------------------------------
   // Glass Effect
   // ---------------------------------------------------------------------------
-  --glass-bg: rgba(255, 255, 255, 0.9);
-  --glass-border: 1px solid rgba(255, 255, 255, 0.5);
-  --glass-blur: blur(20px);
+  --glass-bg: rgba(var(--color-white-rgb), 0.9);
+  --glass-border: var(--border-width) solid rgba(var(--color-white-rgb), 0.5);
+  --glass-blur: var(--blur-xl);
 
   // ---------------------------------------------------------------------------
   // Transitions (based on admin-categories)

@@ -48,7 +48,7 @@
 
   &:hover {
     opacity: 1;
-    background: rgba(0, 0, 0, 0.1);
+    background: var(--hover-overlay);
   }
 }
 
@@ -362,7 +362,7 @@
     border-radius: var(--radius-sm);
 
     &:hover {
-      background: rgba(0, 0, 0, 0.1);
+      background: var(--hover-overlay);
     }
   }
 

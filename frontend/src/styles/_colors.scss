@@ -20,6 +20,7 @@
   --primary-700: #0F3C82;
   --primary-100: rgba(46, 108, 183, 0.1);
   --primary-rgb: 46, 108, 183;
+  --primary-dark-rgb: 15, 60, 130;
   --primary-gradient: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-700) 100%);
 
   // ---------------------------------------------------------------------------
@@ -103,6 +104,15 @@
   --color-teal-rgb: 17, 153, 142;
   --color-secondary: #64748b;
   --color-secondary-rgb: 100, 116, 139;
+  --color-indigo: #667eea;
+  --color-indigo-rgb: 102, 126, 234;
+  --color-amber: #f59e0b;
+  --color-amber-rgb: 245, 158, 11;
+  --color-slate-800: #1e293b;
+  --color-slate-800-rgb: 30, 41, 59;
+  --color-success-light-rgb: 56, 239, 125;
+  --color-pink-light-rgb: 255, 154, 158;
+  --color-peach-rgb: 250, 208, 196;
 
   // ---------------------------------------------------------------------------
   // Button Gradients
@@ -119,6 +129,43 @@
   --surface-ground-rgb: 255, 255, 255;
   --surface-ground: #ffffff;
   --surface-card: #ffffff;
+  --surface-slate-50: rgba(248, 250, 252, 0.5);
+  --surface-slate-50-solid: rgba(248, 250, 252, 0.8);
+  --color-slate-600: #475569;
+
+  // ---------------------------------------------------------------------------
+  // Component-Specific Colors & Sizes
+  // ---------------------------------------------------------------------------
+  --tooltip-bg: rgba(15, 23, 42, 0.95);
+  --tooltip-max-width: 300px;
+  --tooltip-arrow-size: 6px;
+  --segment-ios-bg: rgba(118, 118, 128, 0.12);
+  --discount-tag-fold-size: 3px;
+  --discount-tag-arrow-size: 13px;
+  --banner-decor-size: 200px;
+  --bundle-item-img-size: 36px;
+
+  // ---------------------------------------------------------------------------
+  // Overlay Colors
+  // ---------------------------------------------------------------------------
+  --overlay-softest: rgba(0, 0, 0, 0.03);
+  --overlay-subtle: rgba(0, 0, 0, 0.04);
+  --overlay-soft: rgba(0, 0, 0, 0.05);
+  --overlay-light: rgba(0, 0, 0, 0.06);
+  --overlay-medium: rgba(0, 0, 0, 0.08);
+  --overlay-hover: rgba(0, 0, 0, 0.1);
+  --overlay-medium-dark: rgba(0, 0, 0, 0.12);
+  --overlay-dark: rgba(0, 0, 0, 0.5);
+  --hover-overlay: rgba(0, 0, 0, 0.1);
+  --border-color-medium: rgba(0, 0, 0, 0.15);
+  --border-color-dark: rgba(0, 0, 0, 0.2);
+  --overlay-strong: rgba(0, 0, 0, 0.38);
+  --overlay-stronger: rgba(0, 0, 0, 0.4);
+
+  // ---------------------------------------------------------------------------
+  // RGB Values for White
+  // ---------------------------------------------------------------------------
+  --color-white-rgb: 255, 255, 255;
 }
 
 // ---------------------------------------------------------------------------

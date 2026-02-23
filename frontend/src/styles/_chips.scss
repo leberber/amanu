@@ -15,7 +15,7 @@
   align-items: center;
   gap: var(--space-2);
   padding: var(--space-2) var(--space-5);
-  background: rgba(0, 0, 0, 0.06);
+  background: var(--overlay-light);
   border-radius: var(--radius-pill);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
@@ -111,7 +111,7 @@
   // ---------------------------------------------------------------------------
   &--outlined {
     background: transparent;
-    border: var(--border-width) solid rgba(0, 0, 0, 0.15);
+    border: var(--border-width) solid var(--border-color-medium);
 
     &.chip--primary {
       border-color: var(--primary-color);
@@ -147,7 +147,7 @@
     width: 18px;
     height: 18px;
     border-radius: var(--radius-full);
-    background: rgba(0, 0, 0, 0.1);
+    background: var(--overlay-hover);
     border: none;
     cursor: pointer;
     transition: all var(--transition-fast);
@@ -159,7 +159,7 @@
     }
 
     &:hover {
-      background: rgba(0, 0, 0, 0.2);
+      background: var(--overlay-hover);
 
       i {
         color: var(--text-color);
@@ -216,7 +216,7 @@
   gap: var(--space-3);
   padding: var(--space-3) var(--space-5);
   background: var(--color-white);
-  border: var(--border-width) solid rgba(0, 0, 0, 0.1);
+  border: var(--border-width) solid var(--overlay-hover);
   border-radius: var(--radius-sm);
   min-height: var(--btn-height-lg);
   transition: all var(--transition-fast);
@@ -252,14 +252,14 @@
 .chip-selectable {
   @extend %chip-base;
   padding: var(--space-3) var(--space-6);
-  background: rgba(0, 0, 0, 0.04);
-  border: var(--border-width) solid rgba(0, 0, 0, 0.08);
+  background: var(--overlay-subtle);
+  border: var(--border-width) solid var(--overlay-medium);
   font-size: var(--font-size-base);
   cursor: pointer;
 
   &:hover {
-    background: rgba(0, 0, 0, 0.08);
-    border-color: rgba(0, 0, 0, 0.15);
+    background: var(--overlay-medium);
+    border-color: var(--border-color-medium);
   }
 
   &.selected {
@@ -295,7 +295,7 @@
     @extend %chip-base;
     padding: var(--space-3) var(--space-6);
     background: var(--color-white);
-    border: var(--border-width) solid rgba(0, 0, 0, 0.1);
+    border: var(--border-width) solid var(--overlay-hover);
     font-size: var(--font-size-base);
     color: var(--text-color-secondary);
     cursor: pointer;
@@ -327,7 +327,7 @@
   align-items: center;
   gap: var(--space-3);
   padding: var(--space-1) var(--space-5) var(--space-1) var(--space-1);
-  background: rgba(0, 0, 0, 0.06);
+  background: var(--overlay-light);
   border-radius: var(--radius-3xl);
 
   &__img {
@@ -367,7 +367,7 @@
   align-items: center;
   gap: var(--space-1);
   padding: var(--space-1) var(--space-3);
-  background: rgba(0, 0, 0, 0.06);
+  background: var(--overlay-light);
   border-radius: 4px;
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-semibold);
@@ -409,7 +409,7 @@
   &__tag {
     display: inline-block;
     padding: var(--space-1) var(--space-4);
-    background: rgba(248, 250, 252, 0.8);
+    background: var(--surface-slate-50-solid);
     border: var(--border-width) solid var(--border-color-light);
     border-radius: var(--radius-xs);
     font-size: var(--font-size-sm);
@@ -430,7 +430,7 @@
 // =============================================================================
 
 .p-chip {
-  background: rgba(0, 0, 0, 0.06);
+  background: var(--overlay-light);
   color: var(--text-color);
   border-radius: var(--radius-pill);
   padding: var(--space-2) var(--space-5);
@@ -453,7 +453,7 @@
     transition: background var(--transition-fast);
 
     &:hover {
-      background: rgba(0, 0, 0, 0.1);
+      background: var(--overlay-hover);
     }
   }
 

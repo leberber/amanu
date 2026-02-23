@@ -52,7 +52,17 @@
   height: var(--icon-2xl);
   border-radius: var(--radius-full);
   background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.15) 0%, rgba(var(--primary-rgb), 0.15) 100%);
-  animation: pulse 3s ease-in-out infinite;
+ .icon-bg {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: var(--icon-2xl);
+  height: var(--icon-2xl);
+  border-radius: var(--radius-full);
+  background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.15) 0%, rgba(var(--primary-rgb), 0.15) 100%);
+  animation: pulseCentered 3s ease-in-out infinite;
+}
 }
 
 .icon-circle {
@@ -3082,17 +3092,7 @@
   height: 60px;
   flex-shrink: 0;
 
-  .icon-bg {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, rgba(46, 108, 183, 0.15) 0%, rgba(30, 79, 154, 0.15) 100%);
-    animation: pulse 3s ease-in-out infinite;
-  }
+  
 
   .icon-circle {
     position: absolute;

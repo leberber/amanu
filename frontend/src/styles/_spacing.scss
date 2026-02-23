@@ -39,6 +39,7 @@
   // ---------------------------------------------------------------------------
   // Icon Sizes (based on admin-categories)
   // ---------------------------------------------------------------------------
+  --icon-2xs: 18px;      // Info tooltips, tiny icons
   --icon-xs: 24px;       // Small buttons
   --icon-sm: 32px;       // View toggle buttons
   --icon-md: 40px;       // Action buttons (edit, delete)
@@ -59,6 +60,28 @@
   // Card Sizes
   // ---------------------------------------------------------------------------
   --card-min-width: 300px;
+
+  // ---------------------------------------------------------------------------
+  // Progress & Spinner Sizes
+  // ---------------------------------------------------------------------------
+  --progress-height: 8px;
+  --progress-height-xs: 4px;
+  --progress-height-sm: 6px;
+  --progress-height-lg: 12px;
+  --progress-height-xl: 16px;
+  --spinner-size: 24px;
+  --spinner-size-xs: 14px;
+  --spinner-size-inline: 16px;
+  --spinner-border-width: 3px;
+  --spinner-border-width-sm: 2px;
+  --spinner-border-width-lg: 4px;
+  --spinner-border-width-xl: 5px;
+  --step-dot-size: 10px;
+  --step-connector-width: 20px;
+  --step-connector-height: 2px;
+  --pulse-dot-size: 8px;
+  --pulse-dot-size-sm: 6px;
+  --pulse-dot-size-lg: 12px;
 }
 
 // =============================================================================

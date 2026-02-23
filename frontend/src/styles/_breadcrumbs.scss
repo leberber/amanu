@@ -126,7 +126,7 @@
   .breadcrumb__item {
     a {
       padding: var(--space-2) var(--space-4);
-      background: rgba(0, 0, 0, 0.04);
+      background: var(--overlay-subtle);
       border-radius: var(--radius-xl);
 
       &:hover {
@@ -159,7 +159,7 @@
   padding: var(--space-4) var(--space-5);
   background: var(--color-white);
   border-radius: var(--radius-md);
-  border: var(--border-width) solid rgba(0, 0, 0, 0.06);
+  border: var(--border-width) solid var(--border-color-light);
   box-shadow: var(--shadow-xs);
 
   .breadcrumb {

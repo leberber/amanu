@@ -13,9 +13,9 @@
 %skeleton-base {
   background: linear-gradient(
     90deg,
-    #f2f3f6 25%,
-    #f3f4f6 50%,
-    #f2f3f6 75%
+    var(--surface-200) 25%,
+    var(--surface-100) 50%,
+    var(--surface-200) 75%
   );
   background-size: 200% 100%;
   animation: skeleton-loading 1.5s infinite;
@@ -294,7 +294,7 @@
   align-items: center;
   justify-content: space-between;
   padding: var(--space-5) var(--space-6);
-  border-top: var(--border-width) solid rgba(0, 0, 0, 0.06);
+  border-top: var(--border-width) solid var(--border-color-light);
 
   &--centered {
     justify-content: center;

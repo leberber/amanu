@@ -14,7 +14,7 @@
   width: 100%;
   padding: var(--space-4) var(--space-5);
   border-radius: var(--radius-md);
-  border: var(--border-width) solid rgba(0, 0, 0, 0.08);
+  border: var(--border-width) solid var(--overlay-medium);
   font-family: inherit;
   font-size: var(--font-size-md);
   background: var(--color-white);
@@ -27,7 +27,7 @@
   }
 
   &:hover:not(:focus) {
-    border-color: rgba(0, 0, 0, 0.15);
+    border-color: var(--border-color-medium);
   }
 
   &::placeholder {
@@ -35,7 +35,7 @@
   }
 
   &:disabled {
-    background: rgba(248, 250, 252, 0.8);
+    background: var(--surface-slate-50-solid);
     cursor: not-allowed;
     opacity: 0.7;
   }
@@ -70,7 +70,7 @@
   }
 
   &:hover {
-    border-color: rgba(0, 0, 0, 0.15);
+    border-color: var(--border-color-medium);
   }
 
   &.p-focus {
@@ -161,8 +161,8 @@
   }
 
   .p-inputgroup-addon {
-    background: rgba(248, 250, 252, 0.8);
-    border: var(--border-width) solid rgba(0, 0, 0, 0.08);
+    background: var(--surface-slate-50-solid);
+    border: var(--border-width) solid var(--overlay-medium);
     border-left: none;
     border-radius: 0 var(--radius-md) var(--radius-md) 0;
   }
@@ -250,8 +250,8 @@
 
 .form-section {
   padding: var(--space-6);
-  background: rgba(248, 250, 252, 0.8);
-  border: var(--border-width) solid rgba(0, 0, 0, 0.04);
+  background: var(--surface-slate-50-solid);
+  border: var(--border-width) solid var(--overlay-subtle);
   border-radius: var(--radius-lg);
   margin-bottom: var(--space-5);
   transition: all var(--transition-smooth);
@@ -273,7 +273,7 @@
     color: var(--text-color);
     margin-bottom: var(--space-5);
     padding-bottom: var(--space-4);
-    border-bottom: var(--border-width) solid rgba(0, 0, 0, 0.06);
+    border-bottom: var(--border-width) solid var(--border-color-light);
 
     i {
       color: var(--primary-color);
@@ -292,7 +292,7 @@
   gap: var(--space-4);
   padding-top: var(--space-5);
   margin-top: var(--space-5);
-  border-top: var(--border-width) solid rgba(0, 0, 0, 0.06);
+  border-top: var(--border-width) solid var(--border-color-light);
 
   &--centered {
     justify-content: center;
@@ -337,7 +337,7 @@
     border-radius: var(--radius-sm);
     font-size: var(--font-size-xs);
     font-weight: var(--font-weight-semibold);
-    background: rgba(0, 0, 0, 0.06);
+    background: var(--border-color-light);
     color: var(--text-color-secondary);
   }
 }
@@ -351,7 +351,7 @@
   min-width: 200px;
 
   &.p-select {
-    border: var(--border-width) solid rgba(0, 0, 0, 0.1);
+    border: var(--border-width) solid var(--overlay-hover);
     border-radius: var(--radius-md);
     background: var(--color-white);
     box-shadow: var(--shadow-xs);
@@ -395,7 +395,7 @@
   max-width: 400px;
   padding: var(--space-4) var(--space-5);
   background: var(--color-white);
-  border: var(--border-width) solid rgba(0, 0, 0, 0.08);
+  border: var(--border-width) solid var(--overlay-medium);
   border-radius: var(--radius-md);
   transition: all var(--transition-smooth);
 
@@ -426,7 +426,7 @@
     width: 24px;
     height: 24px;
     border: none;
-    background: rgba(0, 0, 0, 0.08);
+    background: var(--overlay-medium);
     border-radius: var(--radius-full);
     cursor: pointer;
     display: flex;
@@ -463,8 +463,8 @@
   align-items: center;
   gap: var(--space-4);
   padding: var(--space-5);
-  background: rgba(248, 250, 252, 0.8);
-  border: var(--border-width) solid rgba(0, 0, 0, 0.04);
+  background: var(--surface-slate-50-solid);
+  border: var(--border-width) solid var(--overlay-subtle);
   border-radius: var(--radius-md);
   cursor: pointer;
   transition: all var(--transition-fast);
@@ -491,8 +491,8 @@
   display: flex;
   align-items: flex-start;
   gap: var(--space-5);
-  background: rgba(248, 250, 252, 0.8);
-  border: var(--border-width) solid rgba(0, 0, 0, 0.04);
+  background: var(--surface-slate-50-solid);
+  border: var(--border-width) solid var(--overlay-subtle);
   border-radius: var(--radius-lg);
   padding: var(--space-5) var(--space-6);
   transition: all var(--transition-smooth);

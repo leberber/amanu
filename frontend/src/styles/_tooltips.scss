@@ -10,7 +10,7 @@
 // TOOLTIP VARIABLES
 // =============================================================================
 
-$tooltip-bg: rgba(15, 23, 42, 0.95);
+$tooltip-bg: var(--tooltip-bg);
 
 
 // =============================================================================
@@ -22,15 +22,15 @@ $tooltip-bg: rgba(15, 23, 42, 0.95);
 
   .p-tooltip-text {
     background: $tooltip-bg;
-    backdrop-filter: blur(8px);
+    backdrop-filter: var(--blur-sm);
     color: var(--color-white);
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-medium);
     padding: var(--space-3) var(--space-5);
     border-radius: var(--radius-sm);
     box-shadow: var(--shadow-md);
-    max-width: 300px;
-    line-height: 1.4;
+    max-width: var(--tooltip-max-width);
+    line-height: var(--line-height-snug);
   }
 
   .p-tooltip-arrow {
@@ -66,7 +66,7 @@ $tooltip-bg: rgba(15, 23, 42, 0.95);
   .p-tooltip-text {
     background: var(--color-white);
     color: var(--text-color);
-    border: var(--border-width) solid rgba(0, 0, 0, 0.08);
+    border: var(--border-width) solid var(--overlay-medium);
     box-shadow: var(--shadow-lg);
   }
 
@@ -139,11 +139,11 @@ $tooltip-bg: rgba(15, 23, 42, 0.95);
 
   &__content {
     position: absolute;
-    bottom: calc(100% + 8px);
+    bottom: calc(100% + var(--space-2));
     left: 50%;
     transform: translateX(-50%);
     background: $tooltip-bg;
-    backdrop-filter: blur(8px);
+    backdrop-filter: var(--blur-sm);
     color: var(--color-white);
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-medium);
@@ -161,7 +161,7 @@ $tooltip-bg: rgba(15, 23, 42, 0.95);
       top: 100%;
       left: 50%;
       transform: translateX(-50%);
-      border: 6px solid transparent;
+      border: var(--tooltip-arrow-size) solid transparent;
       border-top-color: $tooltip-bg;
     }
   }
@@ -176,7 +176,7 @@ $tooltip-bg: rgba(15, 23, 42, 0.95);
   // ---------------------------------------------------------------------------
   &--bottom .tooltip__content {
     bottom: auto;
-    top: calc(100% + 8px);
+    top: calc(100% + var(--space-2));
 
     &::after {
       top: auto;
@@ -190,7 +190,7 @@ $tooltip-bg: rgba(15, 23, 42, 0.95);
     bottom: auto;
     top: 50%;
     left: auto;
-    right: calc(100% + 8px);
+    right: calc(100% + var(--space-2));
     transform: translateY(-50%);
 
     &::after {
@@ -205,7 +205,7 @@ $tooltip-bg: rgba(15, 23, 42, 0.95);
   &--right .tooltip__content {
     bottom: auto;
     top: 50%;
-    left: calc(100% + 8px);
+    left: calc(100% + var(--space-2));
     transform: translateY(-50%);
 
     &::after {
@@ -228,10 +228,10 @@ $tooltip-bg: rgba(15, 23, 42, 0.95);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 18px;
-  height: 18px;
+  width: var(--icon-2xs);
+  height: var(--icon-2xs);
   border-radius: var(--radius-full);
-  background: rgba(0, 0, 0, 0.08);
+  background: var(--overlay-medium);
   cursor: help;
   transition: all var(--transition-fast);
 

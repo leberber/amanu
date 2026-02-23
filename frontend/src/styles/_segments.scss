@@ -21,7 +21,7 @@
 
   &:hover:not(.active):not(:disabled) {
     color: var(--text-color);
-    background: rgba(0, 0, 0, 0.04);
+    background: var(--overlay-subtle);
   }
 
   &.active {
@@ -43,7 +43,7 @@
 
 .segment-control {
   display: inline-flex;
-  background: rgba(0, 0, 0, 0.06);
+  background: var(--border-color-light);
   border-radius: var(--radius-sm);
   padding: var(--space-1);
 
@@ -125,7 +125,7 @@
       transition: all var(--transition-smooth);
 
       &:hover:not(.active):not(:disabled) {
-        background: rgba(0, 0, 0, 0.04);
+        background: var(--overlay-subtle);
       }
 
       &.active {
@@ -134,7 +134,7 @@
         box-shadow: var(--shadow-primary);
 
         .count {
-          background: rgba(255, 255, 255, 0.25);
+          background: rgba(var(--color-white-rgb), 0.25);
           color: var(--color-white);
         }
       }
@@ -145,7 +145,7 @@
       border-radius: var(--radius-sm);
       font-size: var(--font-size-xs);
       font-weight: var(--font-weight-semibold);
-      background: rgba(0, 0, 0, 0.08);
+      background: var(--overlay-medium);
       color: var(--text-color-secondary);
     }
   }
@@ -158,7 +158,7 @@
 
 .segment-ios {
   display: inline-flex;
-  background: rgba(118, 118, 128, 0.12);
+  background: var(--segment-ios-bg);
   border-radius: var(--radius-sm);
   padding: 2px;
 
@@ -193,7 +193,7 @@
 
 .segment-material {
   display: inline-flex;
-  border-bottom: 2px solid rgba(0, 0, 0, 0.08);
+  border-bottom: 2px solid var(--overlay-medium);
 
   &__item {
     @extend %segment-item-base;
@@ -241,13 +241,13 @@
   &__item {
     @extend %segment-item-base;
     padding: var(--space-3) var(--space-5);
-    background: rgba(0, 0, 0, 0.04);
+    background: var(--overlay-subtle);
     border: var(--border-width) solid transparent;
     border-radius: var(--radius-xl);
     font-size: var(--font-size-sm);
 
     &:hover:not(.active) {
-      background: rgba(0, 0, 0, 0.08);
+      background: var(--overlay-medium);
       color: var(--text-color);
     }
 
@@ -263,7 +263,7 @@
   &--outlined {
     .segment-pills__item {
       background: transparent;
-      border-color: rgba(0, 0, 0, 0.15);
+      border-color: var(--border-color-medium);
 
       &.active {
         background: rgba(var(--primary-rgb), 0.08);
@@ -281,7 +281,7 @@
 
 .segment-buttons {
   display: inline-flex;
-  border: var(--border-width) solid rgba(0, 0, 0, 0.15);
+  border: var(--border-width) solid var(--border-color-medium);
   border-radius: var(--radius-sm);
   overflow: hidden;
 
@@ -289,7 +289,7 @@
     @extend %segment-item-base;
     padding: var(--space-3) var(--space-5);
     background: var(--color-white);
-    border-right: var(--border-width) solid rgba(0, 0, 0, 0.15);
+    border-right: var(--border-width) solid var(--border-color-medium);
     font-size: var(--font-size-sm);
 
     &:last-child {
@@ -297,7 +297,7 @@
     }
 
     &:hover:not(.active) {
-      background: rgba(0, 0, 0, 0.04);
+      background: var(--overlay-subtle);
     }
 
     &.active {
@@ -313,7 +313,7 @@
 
     .segment-buttons__item {
       border-right: none;
-      border-bottom: var(--border-width) solid rgba(0, 0, 0, 0.15);
+      border-bottom: var(--border-width) solid var(--border-color-medium);
 
       &:last-child {
         border-bottom: none;
@@ -329,7 +329,7 @@
 
 .segment-icons {
   display: inline-flex;
-  background: rgba(0, 0, 0, 0.06);
+  background: var(--border-color-light);
   border-radius: var(--radius-sm);
   padding: var(--space-1);
 
@@ -383,7 +383,7 @@
 
 .view-mode {
   display: inline-flex;
-  background: rgba(0, 0, 0, 0.05);
+  background: var(--overlay-soft);
   border-radius: var(--radius-sm);
   padding: 3px;
 
@@ -422,7 +422,7 @@
     gap: var(--space-2);
     padding: var(--space-3) var(--space-5);
     background: var(--color-white);
-    border: var(--border-width) solid rgba(0, 0, 0, 0.1);
+    border: var(--border-width) solid var(--overlay-hover);
     border-radius: var(--radius-sm);
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-medium);
@@ -447,7 +447,7 @@
       min-width: 20px;
       height: 20px;
       padding: 0 6px;
-      background: rgba(0, 0, 0, 0.08);
+      background: var(--overlay-medium);
       border-radius: var(--radius-sm);
       font-size: var(--font-size-xs);
       font-weight: var(--font-weight-semibold);
@@ -490,7 +490,7 @@
       transform: translateY(-50%);
       width: 20px;
       height: 2px;
-      background: rgba(0, 0, 0, 0.1);
+      background: var(--overlay-hover);
     }
 
     &:last-child::after {
@@ -503,7 +503,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: rgba(0, 0, 0, 0.1);
+      background: var(--overlay-hover);
       border-radius: var(--radius-full);
       font-size: var(--font-size-xs);
       font-weight: var(--font-weight-semibold);
@@ -541,7 +541,7 @@
 
 .segment-toggle {
   display: inline-flex;
-  background: rgba(0, 0, 0, 0.06);
+  background: var(--border-color-light);
   border-radius: var(--radius-sm);
   padding: var(--space-1);
 
@@ -580,14 +580,14 @@
 .p-selectbutton {
   .p-button {
     background: var(--color-white);
-    border-color: rgba(0, 0, 0, 0.15);
+    border-color: var(--border-color-medium);
     color: var(--text-color);
     font-weight: var(--font-weight-medium);
     transition: all var(--transition-fast);
 
     &:hover {
-      background: rgba(0, 0, 0, 0.04);
-      border-color: rgba(0, 0, 0, 0.2);
+      background: var(--overlay-subtle);
+      border-color: var(--border-color-dark);
     }
 
     &.p-highlight {

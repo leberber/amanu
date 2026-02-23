@@ -13,7 +13,7 @@
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: var(--overlay-dark);
   backdrop-filter: blur(4px);
   z-index: var(--z-modal-backdrop);
   display: flex;
@@ -99,7 +99,7 @@
     width: 36px;
     height: 36px;
     border: none;
-    background: rgba(0, 0, 0, 0.05);
+    background: var(--overlay-subtle);
     border-radius: var(--radius-sm);
     cursor: pointer;
     display: flex;
@@ -156,7 +156,7 @@
   gap: var(--space-5);
   padding: var(--space-6) var(--space-8);
   border-top: var(--border-width) solid var(--border-color-light);
-  background: rgba(248, 250, 252, 0.5);
+  background: var(--surface-slate-50);
 
   &--centered {
     justify-content: center;
@@ -269,7 +269,7 @@
   .p-dialog-footer {
     padding: var(--space-6) var(--space-8);
     border-top: var(--border-width) solid var(--border-color-light);
-    background: rgba(248, 250, 252, 0.5);
+    background: var(--surface-slate-50);
   }
 }
 
@@ -306,7 +306,7 @@
   width: 400px;
   max-width: 100%;
   background: var(--color-white);
-  box-shadow: -10px 0 40px rgba(0, 0, 0, 0.1);
+  box-shadow: -10px 0 40px var(--overlay-hover);
   z-index: var(--z-modal);
   display: flex;
   flex-direction: column;
@@ -315,7 +315,7 @@
   &--left {
     right: auto;
     left: 0;
-    box-shadow: 10px 0 40px rgba(0, 0, 0, 0.1);
+    box-shadow: 10px 0 40px var(--overlay-hover);
     animation: drawerSlideInLeft var(--transition-smooth);
   }
 
