@@ -344,87 +344,7 @@
   &:hover { background: rgba(239, 68, 68, 0.2); }
 }
 
-// Legacy action-btn (keep for compatibility)
-.action-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-3);
-  padding: 0.875rem 1.5rem;
-  border-radius: var(--radius-md);
-  font-size: var(--font-size-md);
-  font-weight: var(--font-weight-semibold);
-  border: none;
-  cursor: pointer;
-  transition: all var(--transition-smooth);
-  width: 100%;
-  text-decoration: none;
-
-  &--primary {
-    background: var(--primary-gradient);
-    color: white;
-    box-shadow: var(--shadow-primary);
-    &:hover {
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-primary-lg);
-    }
-  }
-
-  &--secondary {
-    background: rgba(0, 0, 0, 0.06);
-    color: var(--text-color);
-    &:hover { background: rgba(0, 0, 0, 0.1); }
-  }
-
-  &--danger {
-    background: rgba(239, 68, 68, 0.1);
-    color: #ef4444;
-    border: 1px solid rgba(239, 68, 68, 0.2);
-    &:hover {
-      background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
-      color: white;
-    }
-  }
-
-  &--success {
-    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
-    color: white;
-    box-shadow: 0 4px 16px rgba(34, 197, 94, 0.3);
-    &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4);
-    }
-  }
-
-  &--ghost {
-    background: var(--surface-100);
-    color: var(--text-color-secondary);
-    &:hover {
-      background: rgba(239, 68, 68, 0.1);
-      color: var(--color-danger);
-    }
-  }
-
-  &--auto { width: auto; }
-
-  // Size variants
-  &--sm {
-    padding: var(--space-2) var(--space-4);
-    font-size: var(--font-size-sm);
-  }
-
-  &--lg {
-    padding: 1rem 2rem;
-    font-size: var(--font-size-lg);
-  }
-
-  // Disabled state
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none !important;
-  }
-}
+// Note: .form-action-btn moved to _buttons.scss
 
 
 // =============================================================================
@@ -2246,7 +2166,7 @@
   }
 
   .form-actions {
-    .action-btn {
+    .form-action-btn {
       width: 100%;
     }
   }

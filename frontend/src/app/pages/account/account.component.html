@@ -246,7 +246,7 @@
             </div>
 
             <div class="form-actions">
-              <button type="submit" class="action-btn action-btn--success" [disabled]="profileForm.invalid || loading()">
+              <button type="submit" class="form-action-btn form-action-btn--success" [disabled]="profileForm.invalid || loading()">
                 @if (loading()) {
                   <i class="pi pi-spin pi-spinner"></i>
                 } @else {
@@ -360,7 +360,7 @@
             </div>
 
             <div class="form-actions">
-              <button type="submit" class="action-btn action-btn--warning" [disabled]="passwordForm.invalid || loadingPassword()">
+              <button type="submit" class="form-action-btn form-action-btn--warning" [disabled]="passwordForm.invalid || loadingPassword()">
                 @if (loadingPassword()) {
                   <i class="pi pi-spin pi-spinner"></i>
                 } @else {

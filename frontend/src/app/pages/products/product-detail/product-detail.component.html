@@ -265,9 +265,9 @@
 
               <!-- Add to Cart Button -->
               <button
-                class="action-btn action-btn--primary"
-                [class.action-btn--in-cart]="quantityMatchesCart()"
-                [class.action-btn--update]="isInCart() && !quantityMatchesCart()"
+                class="form-action-btn form-action-btn--primary"
+                [class.form-action-btn--in-cart]="quantityMatchesCart()"
+                [class.form-action-btn--update]="isInCart() && !quantityMatchesCart()"
                 (click)="addToCart($event)"
                 [disabled]="isOutOfStock() || !selectedQuantity() || quantityMatchesCart()">
                 <i [class]="quantityMatchesCart() ? 'pi pi-check' : (isInCart() ? 'pi pi-refresh' : 'pi pi-shopping-cart')"></i>

@@ -220,46 +220,152 @@
 // Action Buttons (Table/Card actions)
 // -----------------------------------------------------------------------------
 .action-btn {
-  width: 36px;
-  height: 36px;
+  width: var(--btn-height-sm);
+  height: var(--btn-height-sm);
   border: none;
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s ease;
+  transition: all var(--transition-fast);
+  background: rgba(var(--primary-rgb), 0.1);
+  color: var(--primary-color);
 
   i {
-    font-size: 0.85rem;
+    font-size: 0.9rem;
   }
 
-  &.view {
-    background: rgba(46, 108, 183, 0.1);
+  &:hover {
+    background: rgba(var(--primary-rgb), 0.2);
+  }
+
+  &.view,
+  &.edit {
+    background: rgba(var(--primary-rgb), 0.1);
     color: var(--primary-color);
 
-    &:hover { background: rgba(46, 108, 183, 0.2); }
-  }
-
-  &.edit {
-    background: rgba(34, 197, 94, 0.1);
-    color: #16a34a;
-
-    &:hover { background: rgba(34, 197, 94, 0.2); }
+    &:hover {
+      background: rgba(var(--primary-rgb), 0.2);
+    }
   }
 
   &.delete {
-    background: rgba(239, 68, 68, 0.1);
-    color: #ef4444;
+    background: rgba(var(--color-error-rgb), 0.1);
+    color: var(--color-error);
 
-    &:hover { background: rgba(239, 68, 68, 0.2); }
+    &:hover {
+      background: rgba(var(--color-error-rgb), 0.2);
+    }
   }
 
   &.confirm {
-    background: rgba(17, 153, 142, 0.1);
-    color: #11998e;
+    background: rgba(var(--color-success-rgb), 0.1);
+    color: var(--color-success);
 
-    &:hover { background: rgba(17, 153, 142, 0.2); }
+    &:hover {
+      background: rgba(var(--color-success-rgb), 0.2);
+    }
+  }
+}
+
+// Action buttons container (for table cells, cards, etc.)
+.table-cell-actions {
+  display: flex;
+  gap: var(--space-3);
+}
+
+// -----------------------------------------------------------------------------
+// Form Action Button (Full-width buttons for forms/carts/checkout)
+// -----------------------------------------------------------------------------
+.form-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  padding: 0.875rem 1.5rem;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-smooth);
+  width: 100%;
+  text-decoration: none;
+
+  &--primary {
+    background: var(--primary-gradient);
+    color: white;
+    box-shadow: var(--shadow-primary);
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-primary-lg);
+    }
+  }
+
+  &--secondary {
+    background: rgba(0, 0, 0, 0.06);
+    color: var(--text-color);
+    &:hover { background: rgba(0, 0, 0, 0.1); }
+  }
+
+  &--danger {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    &:hover {
+      background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+      color: white;
+    }
+  }
+
+  &--success {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    color: white;
+    box-shadow: 0 4px 16px rgba(34, 197, 94, 0.3);
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4);
+    }
+  }
+
+  &--warning {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: white;
+    box-shadow: 0 4px 16px rgba(245, 158, 11, 0.3);
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+    }
+  }
+
+  &--ghost {
+    background: var(--surface-100);
+    color: var(--text-color-secondary);
+    &:hover {
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--color-danger);
+    }
+  }
+
+  &--auto { width: auto; }
+
+  // Size variants
+  &--sm {
+    padding: var(--space-2) var(--space-4);
+    font-size: var(--font-size-sm);
+  }
+
+  &--lg {
+    padding: 1rem 2rem;
+    font-size: var(--font-size-lg);
+  }
+
+  // Disabled state
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
   }
 }
 

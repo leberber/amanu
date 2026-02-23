@@ -303,58 +303,6 @@
 }
 
 // -----------------------------------------------------------------------------
-// Table Cell Actions (Row action buttons)
-// -----------------------------------------------------------------------------
-.table-cell-actions {
-  display: flex;
-  gap: var(--space-3);
-}
-
-.action-btn {
-  width: var(--btn-height-sm);
-  height: var(--btn-height-sm);
-  border: none;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all var(--transition-fast);
-  // Default: primary color
-  background: rgba(var(--primary-rgb), 0.1);
-  color: var(--primary-color);
-
-  i {
-    font-size: 0.9rem;
-  }
-
-  &:hover {
-    background: rgba(var(--primary-rgb), 0.2);
-  }
-
-  // View & Edit use primary (default)
-  &.view,
-  &.edit {
-    background: rgba(var(--primary-rgb), 0.1);
-    color: var(--primary-color);
-
-    &:hover {
-      background: rgba(var(--primary-rgb), 0.2);
-    }
-  }
-
-  // Delete is the only destructive action - uses error color
-  &.delete {
-    background: rgba(var(--color-error-rgb), 0.1);
-    color: var(--color-error);
-
-    &:hover {
-      background: rgba(var(--color-error-rgb), 0.2);
-    }
-  }
-}
-
-// -----------------------------------------------------------------------------
 // Status Toggle
 // -----------------------------------------------------------------------------
 .status-toggle {

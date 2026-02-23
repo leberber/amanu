@@ -8,7 +8,7 @@
 // - .info-box (--success, --warning, --danger) for stock status
 // - .price-display (--current, --original, --unit, --promo)
 // - .cart-status
-// - .action-btn, .action-btn--primary
+// - .form-action-btn, .form-action-btn--primary
 // Uses global styles from _skeleton.scss:
 // - .skeleton, .skeleton-text, .skeleton-image
 // =============================================================================
@@ -183,12 +183,12 @@
 }
 
 // Add to cart button with more vertical padding
-.cart-card .action-btn {
+.cart-card .form-action-btn {
   padding: 1.125rem 1.5rem;
 }
 
 // Cart button in-cart state - green background (quantity matches cart)
-.action-btn--in-cart {
+.form-action-btn--in-cart {
   background: #22c55e !important;
   border-color: #22c55e !important;
 
@@ -198,7 +198,7 @@
 }
 
 // Cart button update state - orange background (quantity differs from cart)
-.action-btn--update {
+.form-action-btn--update {
   background: #f59e0b !important;
   border-color: #f59e0b !important;
 
