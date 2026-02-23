@@ -972,6 +972,67 @@
   .refresh-btn {
     display: none;
   }
+
+  // Improved pagination on mobile
+  .table-footer {
+    padding: 0.5rem;
+    padding-bottom: calc(0.5rem + 70px + env(safe-area-inset-bottom, 0px));
+  }
+
+  :host ::ng-deep {
+    .p-paginator {
+      padding: 0.5rem;
+      gap: 0.25rem;
+      flex-wrap: wrap;
+      justify-content: center;
+
+      // Hide rows per page dropdown and label on mobile
+      .p-paginator-rpp-options,
+      .p-paginator-rpp-label,
+      .p-select,
+      .p-paginator-jtp-input,
+      p-select,
+      p-inputnumber {
+        display: none !important;
+      }
+
+      // Smaller page buttons
+      .p-paginator-element {
+        min-width: 32px !important;
+        height: 32px !important;
+        font-size: 0.8rem;
+      }
+
+      // Compact current page report
+      .p-paginator-current {
+        font-size: 0.75rem;
+        padding: 0 0.5rem;
+        order: -1;
+        width: 100%;
+        text-align: center;
+        margin-bottom: 0.25rem;
+      }
+
+      // Navigation buttons
+      .p-paginator-first,
+      .p-paginator-prev,
+      .p-paginator-next,
+      .p-paginator-last {
+        min-width: 32px !important;
+        height: 32px !important;
+      }
+
+      // Page numbers container
+      .p-paginator-pages {
+        gap: 0.25rem;
+
+        .p-paginator-page {
+          min-width: 32px !important;
+          height: 32px !important;
+        }
+      }
+    }
+  }
 }
 
 @media (max-width: 480px) {

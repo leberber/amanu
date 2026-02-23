@@ -78,6 +78,11 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
 
   // Lifecycle hooks
   ngOnInit() {
+    // Set rows to 20 on mobile
+    if (window.innerWidth <= 768) {
+      this.rows = 20;
+    }
+
     this.loadCategories();
     this.loadBrands();
     this.loadAllProducts();
