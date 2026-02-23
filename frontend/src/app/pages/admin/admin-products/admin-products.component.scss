@@ -221,6 +221,11 @@
   }
 }
 
+// Product name column - constrained width
+.col-name {
+  max-width: 200px;
+}
+
 // Product image
 .product-image {
   width: 50px;
@@ -248,16 +253,17 @@
 .product-info {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.2rem;
 
   .product-name {
     font-weight: 600;
     color: var(--text-color);
-    font-size: 0.95rem;
+    font-size: 0.85rem;
+    line-height: 1.3;
   }
 
   .product-desc {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     color: var(--text-color-secondary);
     display: -webkit-box;
     -webkit-line-clamp: 1;
@@ -311,28 +317,88 @@
   font-style: italic;
 }
 
-// Price Display & Edit
-.price-display {
+// Price column fixed width
+.col-price {
+  min-width: 190px;
+  width: 190px;
+}
+
+// Smaller columns
+.col-status {
+  width: 110px;
+}
+
+.col-brand {
+  width: 110px;
+}
+
+.col-category {
+  width: 120px;
+}
+
+// Price Card (display mode)
+.price-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--surface-ground, #f8f9fa);
+  border: 1px solid transparent;
+  border-radius: 10px;
   cursor: pointer;
-  padding: 0.5rem;
-  border-radius: 8px;
   transition: all 0.2s ease;
+  position: relative;
 
   &:hover {
-    background: rgba(46, 108, 183, 0.08);
+    background: white;
+    border-color: var(--primary-color);
+    box-shadow: 0 2px 8px rgba(46, 108, 183, 0.12);
+
+    .edit-icon {
+      opacity: 1;
+      transform: scale(1);
+    }
   }
 
   .price-value {
-    display: block;
-    font-weight: 600;
+    font-size: 1rem;
+    font-weight: 700;
     color: var(--text-color);
-    font-size: 0.95rem;
   }
 
   .price-unit {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     color: var(--text-color-secondary);
+    font-weight: 500;
   }
+
+  .edit-icon {
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%) scale(0.8);
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--primary-color);
+    color: white;
+    border-radius: 50%;
+    font-size: 0.6rem;
+    opacity: 0;
+    transition: all 0.2s ease;
+  }
+}
+
+// Price edit container
+.price-edit-container {
+  padding: 0.5rem;
+  background: white;
+  border: 1px solid var(--primary-color);
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(46, 108, 183, 0.15);
 }
 
 .price-edit, .stock-edit {
@@ -430,6 +496,13 @@
   }
 }
 
+// Price edit input override (bigger)
+.price-edit input {
+  width: 80px;
+  padding: 0.625rem 0.5rem;
+  font-size: 1rem;
+}
+
 // Stock edit container with conversion display
 .stock-edit-container {
   display: flex;
@@ -458,8 +531,8 @@
 
 // Stock column fixed width to prevent layout shift
 .col-stock {
-  min-width: 200px;
-  width: 200px;
+  min-width: 250px;
+  width: 250px;
 }
 
 // Stock Card (display mode)

@@ -212,6 +212,10 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
     return this.stockStatus.getStockLabel(stockQuantity);
   }
 
+  getUnitLabel(product: Product): string {
+    return this.unitsService.getUnitDisplay(product.unit, false);
+  }
+
   getPaginationTemplate(): string {
     const showing = this.translateService.instant('admin.products.showing');
     const of = this.translateService.instant('admin.products.of');

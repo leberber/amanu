@@ -219,19 +219,23 @@
                   <!-- Price -->
                   <td class="col-price">
                     @if (!isEditingPrice(product.id)) {
-                      <div class="price-display" (click)="startEditPrice(product)">
+                      <div class="price-card" (click)="startEditPrice(product)">
                         <span class="price-value">{{ product.price | appCurrency }}</span>
+                        <span class="price-unit">{{ getUnitLabel(product) }}</span>
+                        <i class="pi pi-pencil edit-icon"></i>
                       </div>
                     } @else {
-                      <div class="price-edit">
-                        <input
-                          type="number"
-                          [(ngModel)]="priceEdit.value"
-                          (keydown.enter)="savePrice(product)"
-                          (keydown.escape)="cancelEditPrice()"
-                          autofocus>
-                        <button class="save-btn" (click)="savePrice(product)"><i class="pi pi-check"></i></button>
-                        <button class="cancel-btn" (click)="cancelEditPrice()"><i class="pi pi-times"></i></button>
+                      <div class="price-edit-container">
+                        <div class="price-edit">
+                          <input
+                            type="number"
+                            [(ngModel)]="priceEdit.value"
+                            (keydown.enter)="savePrice(product)"
+                            (keydown.escape)="cancelEditPrice()"
+                            autofocus>
+                          <button class="save-btn" (click)="savePrice(product)"><i class="pi pi-check"></i></button>
+                          <button class="cancel-btn" (click)="cancelEditPrice()"><i class="pi pi-times"></i></button>
+                        </div>
                       </div>
                     }
                   </td>
