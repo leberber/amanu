@@ -183,8 +183,10 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
   toggleFullscreen() {
     this.isFullscreen = !this.isFullscreen;
     if (this.isFullscreen) {
+      document.body.classList.add('fullscreen-active');
       document.body.style.overflow = 'hidden';
     } else {
+      document.body.classList.remove('fullscreen-active');
       document.body.style.overflow = '';
     }
   }
