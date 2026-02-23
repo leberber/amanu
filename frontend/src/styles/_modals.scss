@@ -14,7 +14,7 @@
   position: fixed;
   inset: 0;
   background: var(--overlay-dark);
-  backdrop-filter: blur(4px);
+  backdrop-filter: var(--blur-xs);
   z-index: var(--z-modal-backdrop);
   display: flex;
   align-items: center;
@@ -33,7 +33,7 @@
   background: var(--color-white);
   border-radius: var(--radius-2xl);
   box-shadow: var(--shadow-xl);
-  max-width: 500px;
+  max-width: var(--modal-width);
   width: 100%;
   max-height: 90vh;
   overflow: hidden;
@@ -45,15 +45,15 @@
   // Size Variants
   // ---------------------------------------------------------------------------
   &--sm {
-    max-width: 400px;
+    max-width: var(--modal-width-sm);
   }
 
   &--lg {
-    max-width: 700px;
+    max-width: var(--modal-width-lg);
   }
 
   &--xl {
-    max-width: 900px;
+    max-width: var(--modal-width-xl);
   }
 
   &--fullscreen {
@@ -96,8 +96,8 @@
   }
 
   &-close {
-    width: 36px;
-    height: 36px;
+    width: var(--modal-close-size);
+    height: var(--modal-close-size);
     border: none;
     background: var(--overlay-subtle);
     border-radius: var(--radius-sm);
@@ -220,7 +220,7 @@
   &__message {
     color: var(--text-color-secondary);
     margin: 0;
-    line-height: 1.5;
+    line-height: var(--line-height-normal);
   }
 }
 
@@ -247,8 +247,8 @@
     }
 
     .p-dialog-header-close {
-      width: 36px;
-      height: 36px;
+      width: var(--modal-close-size);
+      height: var(--modal-close-size);
       border-radius: var(--radius-sm);
       transition: all var(--transition-fast);
 
@@ -274,7 +274,7 @@
 }
 
 .p-dialog-mask {
-  backdrop-filter: blur(4px);
+  backdrop-filter: var(--blur-xs);
 }
 
 
@@ -303,10 +303,10 @@
   top: 0;
   right: 0;
   height: 100vh;
-  width: 400px;
+  width: var(--drawer-width);
   max-width: 100%;
   background: var(--color-white);
-  box-shadow: -10px 0 40px var(--overlay-hover);
+  box-shadow: var(--drawer-shadow);
   z-index: var(--z-modal);
   display: flex;
   flex-direction: column;
@@ -315,16 +315,16 @@
   &--left {
     right: auto;
     left: 0;
-    box-shadow: 10px 0 40px var(--overlay-hover);
+    box-shadow: var(--drawer-shadow-left);
     animation: drawerSlideInLeft var(--transition-smooth);
   }
 
   &--lg {
-    width: 500px;
+    width: var(--drawer-width-lg);
   }
 
   &--xl {
-    width: 600px;
+    width: var(--drawer-width-xl);
   }
 }
 

@@ -54,7 +54,7 @@
       background: var(--primary-gradient);
 
       &::before {
-        transform: translateX(20px);
+        transform: translateX(var(--switch-thumb-size));
       }
     }
 
@@ -70,15 +70,15 @@
 
   &__slider {
     @extend %switch-slider-base;
-    width: 44px;
-    height: 24px;
+    width: var(--switch-width);
+    height: var(--switch-height);
     border-radius: var(--radius-xl);
 
     &::before {
-      top: 2px;
-      left: 2px;
-      width: 20px;
-      height: 20px;
+      top: var(--switch-thumb-offset);
+      left: var(--switch-thumb-offset);
+      width: var(--switch-thumb-size);
+      height: var(--switch-thumb-size);
     }
   }
 
@@ -94,33 +94,33 @@
   // ---------------------------------------------------------------------------
   &--sm {
     .switch__slider {
-      width: 36px;
-      height: 20px;
+      width: var(--switch-width-sm);
+      height: var(--switch-height-sm);
 
       &::before {
-        width: 16px;
-        height: 16px;
+        width: var(--switch-thumb-size-sm);
+        height: var(--switch-thumb-size-sm);
       }
     }
 
     .switch__input:checked + .switch__slider::before {
-      transform: translateX(16px);
+      transform: translateX(var(--switch-thumb-size-sm));
     }
   }
 
   &--lg {
     .switch__slider {
-      width: 52px;
-      height: 28px;
+      width: var(--switch-width-lg);
+      height: var(--switch-height-lg);
 
       &::before {
-        width: 24px;
-        height: 24px;
+        width: var(--switch-thumb-size-lg);
+        height: var(--switch-thumb-size-lg);
       }
     }
 
     .switch__input:checked + .switch__slider::before {
-      transform: translateX(24px);
+      transform: translateX(var(--switch-thumb-size-lg));
     }
   }
 
@@ -169,22 +169,22 @@
       }
 
       &::before {
-        transform: translateX(24px);
+        transform: translateX(var(--switch-thumb-size-lg));
       }
     }
   }
 
   &__slider {
     @extend %switch-slider-base;
-    width: 52px;
-    height: 28px;
+    width: var(--switch-width-lg);
+    height: var(--switch-height-lg);
     border-radius: var(--radius-xl);
 
     &::before {
-      top: 2px;
-      left: 2px;
-      width: 24px;
-      height: 24px;
+      top: var(--switch-thumb-offset);
+      left: var(--switch-thumb-offset);
+      width: var(--switch-thumb-size-lg);
+      height: var(--switch-thumb-size-lg);
       z-index: 2;
     }
   }
@@ -255,8 +255,8 @@
 
 .switch-ios {
   position: relative;
-  width: 51px;
-  height: 31px;
+  width: var(--switch-ios-width);
+  height: var(--switch-ios-height);
   cursor: pointer;
 
   &__input {
@@ -266,7 +266,7 @@
       background: var(--color-success);
 
       .switch-ios__thumb {
-        transform: translateX(20px);
+        transform: translateX(var(--switch-thumb-size));
       }
     }
   }
@@ -275,19 +275,19 @@
     position: absolute;
     inset: 0;
     background: var(--overlay-medium-dark);
-    border-radius: 31px;
+    border-radius: var(--switch-ios-height);
     transition: background var(--transition-smooth);
   }
 
   &__thumb {
     position: absolute;
-    top: 2px;
-    left: 2px;
-    width: 27px;
-    height: 27px;
+    top: var(--switch-thumb-offset);
+    left: var(--switch-thumb-offset);
+    width: var(--switch-ios-thumb-size);
+    height: var(--switch-ios-thumb-size);
     background: var(--color-white);
     border-radius: var(--radius-full);
-    box-shadow: 0 3px 8px var(--border-color-medium), var(--shadow-xs);
+    box-shadow: var(--shadow-sm);
     transition: transform var(--transition-smooth);
   }
 }
@@ -299,8 +299,8 @@
 
 .switch-material {
   position: relative;
-  width: 36px;
-  height: 14px;
+  width: var(--switch-material-width);
+  height: var(--switch-material-height);
   cursor: pointer;
 
   &__input {
@@ -310,14 +310,14 @@
       background: rgba(var(--primary-rgb), 0.5);
 
       .switch-material__thumb {
-        transform: translateX(18px);
+        transform: translateX(calc(var(--switch-material-width) / 2));
         background: var(--primary-color);
-        box-shadow: 0 2px 4px rgba(var(--primary-rgb), 0.4);
+        box-shadow: var(--shadow-sm);
       }
     }
 
     &:focus + .switch-material__track .switch-material__thumb {
-      box-shadow: 0 0 0 10px rgba(var(--primary-rgb), 0.1);
+      box-shadow: var(--shadow-focus);
     }
   }
 
@@ -331,10 +331,10 @@
 
   &__thumb {
     position: absolute;
-    top: -3px;
-    left: -2px;
-    width: 20px;
-    height: 20px;
+    top: var(--switch-material-thumb-offset);
+    left: calc(var(--switch-thumb-offset) * -1);
+    width: var(--switch-material-thumb-size);
+    height: var(--switch-material-thumb-size);
     background: var(--surface-100);
     border-radius: var(--radius-full);
     box-shadow: var(--shadow-sm);
@@ -466,18 +466,18 @@
 
 .switch-theme {
   position: relative;
-  width: 60px;
-  height: 30px;
+  width: var(--switch-theme-width);
+  height: var(--switch-theme-height);
   cursor: pointer;
 
   &__input {
     @extend %switch-input-hidden;
 
     &:checked + .switch-theme__track {
-      background: linear-gradient(135deg, #1e3a5f 0%, #0c1929 100%);
+      background: var(--switch-theme-night-gradient);
 
       .switch-theme__thumb {
-        transform: translateX(30px);
+        transform: translateX(var(--switch-theme-height));
         background: var(--color-warning);
       }
 
@@ -494,22 +494,22 @@
   &__track {
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, #87ceeb 0%, #ffd700 100%);
+    background: var(--switch-theme-day-gradient);
     border-radius: var(--radius-xl);
-    transition: all 0.4s ease;
+    transition: all var(--transition-slow);
     overflow: hidden;
   }
 
   &__thumb {
     position: absolute;
-    top: 3px;
-    left: 3px;
-    width: 24px;
-    height: 24px;
-    background: #fff9c4;
+    top: var(--switch-theme-thumb-offset);
+    left: var(--switch-theme-thumb-offset);
+    width: var(--switch-theme-thumb-size);
+    height: var(--switch-theme-thumb-size);
+    background: var(--switch-theme-thumb-day);
     border-radius: var(--radius-full);
     box-shadow: var(--shadow-sm);
-    transition: all 0.4s ease;
+    transition: all var(--transition-slow);
     z-index: 2;
   }
 
@@ -541,16 +541,16 @@
 
 .p-inputswitch {
   &.p-inputswitch-lg {
-    width: 52px;
-    height: 28px;
+    width: var(--switch-width-lg);
+    height: var(--switch-height-lg);
 
     .p-inputswitch-slider::before {
-      width: 24px;
-      height: 24px;
+      width: var(--switch-thumb-size-lg);
+      height: var(--switch-thumb-size-lg);
     }
 
     &.p-inputswitch-checked .p-inputswitch-slider::before {
-      transform: translateX(24px);
+      transform: translateX(var(--switch-thumb-size-lg));
     }
   }
 

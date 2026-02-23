@@ -292,10 +292,10 @@
 
   &__decoration {
     position: absolute;
-    bottom: -20px;
-    right: -20px;
-    width: 80px;
-    height: 80px;
+    bottom: calc(var(--space-7) * -1);
+    right: calc(var(--space-7) * -1);
+    width: var(--state-icon-md);
+    height: var(--state-icon-md);
     border-radius: var(--radius-full);
     opacity: 0.1;
     transition: transform var(--transition-base);

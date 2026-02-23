@@ -90,7 +90,7 @@
   .loading-spinner {
     width: var(--icon-3xl);
     height: var(--icon-3xl);
-    border: 4px solid rgba(var(--primary-rgb), 0.1);
+    border: var(--state-border-width) solid rgba(var(--primary-rgb), 0.1);
     border-top-color: var(--primary-color);
     border-radius: var(--radius-full);
     animation: spin 1s linear infinite;
@@ -114,8 +114,8 @@
 
   &__icon {
     @extend %state-icon;
-    width: 100px;
-    height: 100px;
+    width: var(--state-icon-lg);
+    height: var(--state-icon-lg);
     background: rgba(var(--primary-rgb), 0.1);
 
     i {
@@ -154,7 +154,7 @@
   &__description {
     color: var(--text-color-secondary);
     margin: 0 0 var(--space-7) 0;
-    max-width: 400px;
+    max-width: var(--state-max-width);
   }
 
   &--compact {
@@ -187,8 +187,8 @@
 
   &__icon {
     @extend %state-icon;
-    width: 80px;
-    height: 80px;
+    width: var(--state-icon-md);
+    height: var(--state-icon-md);
     background: rgba(var(--color-error-rgb), 0.1);
 
     i {
@@ -207,7 +207,7 @@
   &__description {
     color: var(--text-color-secondary);
     margin: 0 0 var(--space-7) 0;
-    max-width: 400px;
+    max-width: var(--state-max-width);
   }
 }
 
@@ -222,8 +222,8 @@
 
   &__icon {
     @extend %state-icon;
-    width: 80px;
-    height: 80px;
+    width: var(--state-icon-md);
+    height: var(--state-icon-md);
     background: rgba(var(--color-success-rgb), 0.1);
 
     i {
@@ -242,7 +242,7 @@
   &__description {
     color: var(--text-color-secondary);
     margin: 0 0 var(--space-7) 0;
-    max-width: 400px;
+    max-width: var(--state-max-width);
   }
 }
 

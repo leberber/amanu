@@ -93,9 +93,9 @@
 .p-checkbox {
   .p-checkbox-box {
     border-radius: var(--radius-sm);
-    border: 2px solid var(--border-color-light);
-    width: 22px;
-    height: 22px;
+    border: var(--divider-thick) solid var(--border-color-light);
+    width: var(--checkbox-size);
+    height: var(--checkbox-size);
     transition: all var(--transition-fast);
 
     &:hover {
@@ -117,9 +117,9 @@
 .p-radiobutton {
   .p-radiobutton-box {
     border-radius: var(--radius-full);
-    border: 2px solid var(--border-color-light);
-    width: 22px;
-    height: 22px;
+    border: var(--divider-thick) solid var(--border-color-light);
+    width: var(--checkbox-size);
+    height: var(--checkbox-size);
     transition: all var(--transition-fast);
 
     &:hover {
@@ -348,7 +348,7 @@
 // =============================================================================
 
 .filter-select {
-  min-width: 200px;
+  min-width: var(--banner-decor-size);
 
   &.p-select {
     border: var(--border-width) solid var(--overlay-hover);
@@ -392,7 +392,7 @@
   align-items: center;
   gap: var(--space-3);
   flex: 1;
-  max-width: 400px;
+  max-width: var(--state-max-width);
   padding: var(--space-4) var(--space-5);
   background: var(--color-white);
   border: var(--border-width) solid var(--overlay-medium);
@@ -423,8 +423,8 @@
   }
 
   .clear-btn {
-    width: 24px;
-    height: 24px;
+    width: var(--icon-xs);
+    height: var(--icon-xs);
     border: none;
     background: var(--overlay-medium);
     border-radius: var(--radius-full);

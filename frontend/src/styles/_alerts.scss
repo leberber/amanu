@@ -21,8 +21,8 @@
 
 %alert-icon {
   flex-shrink: 0;
-  width: 20px;
-  height: 20px;
+  width: var(--alert-icon-size);
+  height: var(--alert-icon-size);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -34,8 +34,8 @@
 
 %alert-close {
   flex-shrink: 0;
-  width: 24px;
-  height: 24px;
+  width: var(--icon-xs);
+  height: var(--icon-xs);
   border: none;
   background: transparent;
   border-radius: var(--radius-xs);
@@ -78,7 +78,7 @@
   &__message {
     font-size: var(--font-size-base);
     margin: 0;
-    line-height: 1.5;
+    line-height: var(--line-height-normal);
   }
 
   &__close {
@@ -187,7 +187,7 @@
       font-size: var(--font-size-base);
       color: var(--text-color-secondary);
       margin: 0;
-      line-height: 1.5;
+      line-height: var(--line-height-normal);
     }
   }
 
@@ -357,8 +357,8 @@
   }
 
   .p-message-close {
-    width: 28px;
-    height: 28px;
+    width: var(--alert-close-size);
+    height: var(--alert-close-size);
     border-radius: var(--radius-sm);
 
     &:hover {
@@ -399,7 +399,7 @@
 .callout {
   padding: var(--space-7);
   border-radius: var(--radius-md);
-  border-left: 4px solid;
+  border-left: var(--callout-border-width) solid;
 
   &__title {
     font-size: var(--font-size-lg);
@@ -409,7 +409,7 @@
 
   &__content {
     font-size: var(--font-size-md);
-    line-height: 1.6;
+    line-height: var(--line-height-relaxed);
 
     p {
       margin: 0;

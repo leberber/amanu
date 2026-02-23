@@ -141,8 +141,8 @@
   .tabs__item {
     border-radius: 0;
     padding: var(--space-5) var(--space-6);
-    margin-bottom: -1px;
-    border-bottom: 2px solid transparent;
+    margin-bottom: calc(var(--border-width) * -1);
+    border-bottom: var(--divider-thick) solid transparent;
 
     &.active {
       background: transparent;
@@ -234,8 +234,8 @@
       .p-tabview-nav-link {
         padding: var(--space-5) var(--space-7);
         border: none;
-        border-bottom: 2px solid transparent;
-        margin-bottom: -1px;
+        border-bottom: var(--divider-thick) solid transparent;
+        margin-bottom: calc(var(--border-width) * -1);
         background: transparent;
         color: var(--text-color-secondary);
         font-weight: var(--font-weight-medium);

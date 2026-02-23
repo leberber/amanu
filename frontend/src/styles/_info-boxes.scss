@@ -19,8 +19,8 @@
 
 %info-box-icon {
   flex-shrink: 0;
-  width: 24px;
-  height: 24px;
+  width: var(--icon-xs);
+  height: var(--icon-xs);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -140,7 +140,7 @@
     left: 0;
     top: 0;
     bottom: 0;
-    width: 4px;
+    width: var(--callout-border-width);
     background: var(--primary-gradient);
     border-radius: var(--radius-lg) 0 0 var(--radius-lg);
   }
@@ -198,8 +198,8 @@
   border: var(--border-width) solid rgba(var(--primary-rgb), 0.1);
 
   &__icon {
-    width: 48px;
-    height: 48px;
+    width: var(--icon-lg);
+    height: var(--icon-lg);
     border-radius: var(--radius-lg);
     background: var(--primary-gradient);
     display: flex;
@@ -284,7 +284,7 @@
   padding: var(--space-5);
   background: var(--surface-slate-50-solid);
   border-radius: var(--radius-md);
-  border-left: 3px solid var(--primary-color);
+  border-left: var(--note-border-width) solid var(--primary-color);
 
   &__text {
     font-size: var(--font-size-sm);
@@ -329,8 +329,8 @@
   }
 
   &__icon {
-    width: 52px;
-    height: 52px;
+    width: var(--feature-icon-size);
+    height: var(--feature-icon-size);
     border-radius: var(--radius-xl);
     background: rgba(var(--primary-rgb), 0.1);
     display: flex;
@@ -373,8 +373,8 @@
   background: var(--overlay-subtle);
 
   &__dot {
-    width: 10px;
-    height: 10px;
+    width: var(--step-dot-size);
+    height: var(--step-dot-size);
     border-radius: var(--radius-full);
     flex-shrink: 0;
   }
@@ -450,11 +450,11 @@
     position: absolute;
     top: var(--space-2);
     left: var(--space-4);
-    font-size: 3rem;
+    font-size: var(--font-size-6xl);
     font-family: Georgia, serif;
     color: var(--primary-color);
     opacity: 0.3;
-    line-height: 1;
+    line-height: var(--line-height-none);
   }
 
   &__text {
@@ -575,7 +575,7 @@
     font-size: var(--font-size-sm);
     color: var(--text-color-secondary);
     margin: 0;
-    max-width: 300px;
+    max-width: var(--card-min-width);
   }
 
   &__action {

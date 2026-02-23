@@ -58,7 +58,7 @@
   // Size Variants
   // ---------------------------------------------------------------------------
   &--sm {
-    padding: 3px;
+    padding: var(--segment-padding-sm);
     border-radius: var(--radius-sm);
 
     .segment-control__item {
@@ -69,7 +69,7 @@
   }
 
   &--lg {
-    padding: 5px;
+    padding: var(--segment-padding-lg);
     border-radius: var(--radius-md);
 
     .segment-control__item {
@@ -160,13 +160,13 @@
   display: inline-flex;
   background: var(--segment-ios-bg);
   border-radius: var(--radius-sm);
-  padding: 2px;
+  padding: var(--switch-thumb-offset);
 
   &__item {
     @extend %segment-item-base;
     position: relative;
     padding: var(--space-3) var(--space-5);
-    border-radius: 7px;
+    border-radius: var(--segment-ios-radius);
     font-size: var(--font-size-sm);
     z-index: 1;
 
@@ -177,9 +177,9 @@
 
   &__indicator {
     position: absolute;
-    height: calc(100% - 4px);
+    height: calc(100% - var(--segment-padding-md));
     background: var(--color-white);
-    border-radius: 7px;
+    border-radius: var(--segment-ios-radius);
     box-shadow: var(--shadow-xs);
     transition: all var(--transition-fast);
     z-index: 0;
@@ -193,7 +193,7 @@
 
 .segment-material {
   display: inline-flex;
-  border-bottom: 2px solid var(--overlay-medium);
+  border-bottom: var(--divider-thick) solid var(--overlay-medium);
 
   &__item {
     @extend %segment-item-base;
@@ -204,10 +204,10 @@
     &::after {
       content: '';
       position: absolute;
-      bottom: -2px;
+      bottom: calc(var(--divider-thick) * -1);
       left: 0;
       right: 0;
-      height: 2px;
+      height: var(--divider-thick);
       background: var(--primary-color);
       transform: scaleX(0);
       transition: transform var(--transition-fast);
@@ -348,7 +348,7 @@
   }
 
   &--sm {
-    padding: 3px;
+    padding: var(--segment-padding-sm);
 
     .segment-icons__item {
       width: var(--icon-sm);
@@ -362,7 +362,7 @@
   }
 
   &--lg {
-    padding: 5px;
+    padding: var(--segment-padding-lg);
 
     .segment-icons__item {
       width: var(--icon-lg);
@@ -385,7 +385,7 @@
   display: inline-flex;
   background: var(--overlay-soft);
   border-radius: var(--radius-sm);
-  padding: 3px;
+  padding: var(--segment-padding-sm);
 
   &__btn {
     @extend %segment-item-base;
@@ -444,9 +444,9 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      min-width: 20px;
-      height: 20px;
-      padding: 0 6px;
+      min-width: var(--segment-count-size);
+      height: var(--segment-count-size);
+      padding: 0 var(--space-2);
       background: var(--overlay-medium);
       border-radius: var(--radius-sm);
       font-size: var(--font-size-xs);
@@ -488,8 +488,8 @@
       right: 0;
       top: 50%;
       transform: translateY(-50%);
-      width: 20px;
-      height: 2px;
+      width: var(--step-connector-width);
+      height: var(--step-connector-height);
       background: var(--overlay-hover);
     }
 
@@ -498,8 +498,8 @@
     }
 
     &__number {
-      width: 24px;
-      height: 24px;
+      width: var(--icon-xs);
+      height: var(--icon-xs);
       display: flex;
       align-items: center;
       justify-content: center;

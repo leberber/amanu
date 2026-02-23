@@ -250,7 +250,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 36px;
+  min-width: var(--modal-close-size);
   padding: var(--space-1) var(--space-3);
   background: rgba(var(--primary-rgb), 0.1);
   color: var(--primary-color);
@@ -268,8 +268,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 20px;
-  height: 20px;
+  min-width: var(--segment-count-size);
+  height: var(--segment-count-size);
   padding: 0 var(--space-2);
   background: var(--primary-gradient);
   color: var(--color-white);

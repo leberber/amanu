@@ -154,8 +154,8 @@
 
 .list-avatar {
   @extend %list-icon-base;
-  width: 44px;
-  height: 44px;
+  width: var(--list-icon-md);
+  height: var(--list-icon-md);
   border-radius: var(--radius-md);
   background: var(--primary-gradient);
   color: var(--color-white);
@@ -184,8 +184,8 @@
   }
 
   &--lg {
-    width: 56px;
-    height: 56px;
+    width: var(--list-icon-lg);
+    height: var(--list-icon-lg);
     font-size: var(--font-size-xl);
     border-radius: var(--radius-lg);
   }
@@ -318,9 +318,9 @@
 
   &__check {
     @extend %list-icon-base;
-    width: 22px;
-    height: 22px;
-    border: 2px solid var(--border-color-medium);
+    width: var(--checkbox-size);
+    height: var(--checkbox-size);
+    border: var(--divider-thick) solid var(--border-color-medium);
     border-radius: var(--radius-full);
     transition: all var(--transition-fast);
 
@@ -359,8 +359,8 @@
 
     &::before {
       content: counter(list-counter);
-      width: 28px;
-      height: 28px;
+      width: var(--chip-icon-size);
+      height: var(--chip-icon-size);
       border-radius: var(--radius-sm);
       background: var(--primary-gradient);
       color: var(--color-white);
@@ -400,21 +400,21 @@
       left: 0;
       top: 0;
       bottom: 0;
-      width: 2px;
+      width: var(--step-connector-height);
       background: var(--overlay-medium);
     }
 
     &::after {
       content: '';
       position: absolute;
-      left: -4px;
-      top: 4px;
-      width: 10px;
-      height: 10px;
+      left: calc(var(--state-border-width) * -1);
+      top: var(--state-border-width);
+      width: var(--step-dot-size);
+      height: var(--step-dot-size);
       border-radius: var(--radius-full);
       background: var(--primary-color);
-      border: 2px solid var(--color-white);
-      box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.2);
+      border: var(--divider-thick) solid var(--color-white);
+      box-shadow: 0 0 0 var(--divider-thick) rgba(var(--primary-rgb), 0.2);
     }
 
     &:last-child {

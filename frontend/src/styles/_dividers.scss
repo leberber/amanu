@@ -11,7 +11,7 @@
 // =============================================================================
 
 .divider {
-  height: 1px;
+  height: var(--border-width);
   background: var(--border-color-light);
   margin: var(--space-6) 0;
   border: none;
@@ -41,7 +41,7 @@
   }
 
   &--gradient {
-    height: 2px;
+    height: var(--divider-thick);
     background: var(--primary-gradient);
   }
 
@@ -55,19 +55,19 @@
 
   &--dotted {
     height: 0;
-    border-top: 2px dotted var(--overlay-hover);
+    border-top: var(--divider-thick) dotted var(--overlay-hover);
   }
 
   // ---------------------------------------------------------------------------
   // Thickness
   // ---------------------------------------------------------------------------
   &--thick {
-    height: 2px;
+    height: var(--divider-thick);
   }
 
   &--thicker {
-    height: 4px;
-    border-radius: 2px;
+    height: var(--divider-thicker);
+    border-radius: var(--divider-thick);
   }
 }
 
@@ -77,9 +77,9 @@
 // =============================================================================
 
 .divider-vertical {
-  width: 1px;
+  width: var(--border-width);
   height: 100%;
-  min-height: 20px;
+  min-height: var(--step-connector-width);
   background: var(--border-color-light);
   margin: 0 var(--space-6);
 
@@ -102,7 +102,7 @@
   &::after {
     content: '';
     flex: 1;
-    height: 1px;
+    height: var(--border-width);
     background: var(--border-color-light);
   }
 
@@ -146,7 +146,7 @@
     top: 50%;
     left: 0;
     right: 0;
-    height: 1px;
+    height: var(--border-width);
     background: var(--border-color-light);
     transform: translateY(-50%);
   }
@@ -177,8 +177,8 @@
   &::before,
   &::after {
     content: '';
-    width: 60px;
-    height: 1px;
+    width: var(--divider-decorative-width);
+    height: var(--border-width);
     background: linear-gradient(90deg, transparent, var(--overlay-hover), transparent);
   }
 
@@ -205,7 +205,7 @@
 
 .divider-wave {
   position: relative;
-  height: 40px;
+  height: var(--icon-md);
   margin: 0;
   overflow: hidden;
 
@@ -246,7 +246,7 @@
 // =============================================================================
 
 .list-divider {
-  height: 1px;
+  height: var(--border-width);
   background: var(--overlay-subtle);
   margin: var(--space-3) 0;
 

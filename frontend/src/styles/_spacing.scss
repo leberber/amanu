@@ -82,6 +82,171 @@
   --pulse-dot-size: 8px;
   --pulse-dot-size-sm: 6px;
   --pulse-dot-size-lg: 12px;
+
+  // ---------------------------------------------------------------------------
+  // Divider Sizes
+  // ---------------------------------------------------------------------------
+  --divider-thick: 2px;
+  --divider-thicker: 4px;
+  --divider-decorative-width: 60px;
+
+  // ---------------------------------------------------------------------------
+  // Alert Sizes
+  // ---------------------------------------------------------------------------
+  --alert-icon-size: 20px;
+  --alert-close-size: 28px;
+  --callout-border-width: 4px;
+
+  // ---------------------------------------------------------------------------
+  // Modal & Drawer Sizes
+  // ---------------------------------------------------------------------------
+  --modal-width: 500px;
+  --modal-width-sm: 400px;
+  --modal-width-lg: 700px;
+  --modal-width-xl: 900px;
+  --modal-close-size: 36px;
+  --drawer-width: 400px;
+  --drawer-width-lg: 500px;
+  --drawer-width-xl: 600px;
+  --drawer-shadow: -10px 0 40px var(--overlay-hover);
+  --drawer-shadow-left: 10px 0 40px var(--overlay-hover);
+
+  // ---------------------------------------------------------------------------
+  // Info Box Sizes
+  // ---------------------------------------------------------------------------
+  --note-border-width: 3px;
+  --feature-icon-size: 52px;
+
+  // ---------------------------------------------------------------------------
+  // Switch Sizes
+  // ---------------------------------------------------------------------------
+  --switch-width: 44px;
+  --switch-height: 24px;
+  --switch-thumb-size: 20px;
+  --switch-thumb-offset: 2px;
+  --switch-width-sm: 36px;
+  --switch-height-sm: 20px;
+  --switch-thumb-size-sm: 16px;
+  --switch-width-lg: 52px;
+  --switch-height-lg: 28px;
+  --switch-thumb-size-lg: 24px;
+  --switch-ios-width: 51px;
+  --switch-ios-height: 31px;
+  --switch-ios-thumb-size: 27px;
+  --switch-material-width: 36px;
+  --switch-material-height: 14px;
+  --switch-material-thumb-size: 20px;
+  --switch-material-thumb-offset: -3px;
+  --switch-theme-width: 60px;
+  --switch-theme-height: 30px;
+  --switch-theme-thumb-size: 24px;
+  --switch-theme-thumb-offset: 3px;
+
+  // ---------------------------------------------------------------------------
+  // Avatar Sizes
+  // ---------------------------------------------------------------------------
+  --avatar-xs: 24px;
+  --avatar-sm: 32px;
+  --avatar-md: 40px;
+  --avatar-lg: 56px;
+  --avatar-xl: 96px;
+  --avatar-border-sm: 2px;
+  --avatar-border-lg: 3px;
+  --avatar-status-xs: 8px;
+  --avatar-status-sm: 10px;
+  --avatar-status-md: 12px;
+  --avatar-status-lg: 14px;
+  --avatar-status-xl: 16px;
+
+  // ---------------------------------------------------------------------------
+  // Checkbox/Radio Sizes
+  // ---------------------------------------------------------------------------
+  --checkbox-size: 22px;
+
+  // ---------------------------------------------------------------------------
+  // Skeleton Sizes
+  // ---------------------------------------------------------------------------
+  --skeleton-w-50: 50px;
+  --skeleton-w-60: 60px;
+  --skeleton-w-70: 70px;
+  --skeleton-w-80: 80px;
+  --skeleton-w-90: 90px;
+  --skeleton-w-100: 100px;
+  --skeleton-card-width: 300px;
+
+  // ---------------------------------------------------------------------------
+  // Chip Sizes
+  // ---------------------------------------------------------------------------
+  --chip-close-size: 18px;
+  --chip-icon-size: 28px;
+  --chip-min-width: 100px;
+
+  // ---------------------------------------------------------------------------
+  // Table Sizes
+  // ---------------------------------------------------------------------------
+  --table-action-size: 36px;
+  --table-image-sm: 48px;
+  --table-image-md: 64px;
+  --table-image-lg: 80px;
+  --table-cell-min-width: 220px;
+  --table-header-icon-size: 28px;
+  --table-toggle-width: 32px;
+  --table-toggle-height: 18px;
+  --table-toggle-thumb: 14px;
+  --table-max-width: 600px;
+  --table-column-sm: 60px;
+  --table-column-md: 80px;
+  --table-column-lg: 100px;
+
+  // ---------------------------------------------------------------------------
+  // List Sizes
+  // ---------------------------------------------------------------------------
+  --list-icon-md: 44px;
+  --list-icon-lg: 56px;
+
+  // ---------------------------------------------------------------------------
+  // States Sizes
+  // ---------------------------------------------------------------------------
+  --state-border-width: 4px;
+  --state-icon-md: 80px;
+  --state-icon-lg: 100px;
+  --state-max-width: 400px;
+
+  // ---------------------------------------------------------------------------
+  // Segment Sizes
+  // ---------------------------------------------------------------------------
+  --segment-padding-sm: 3px;
+  --segment-padding-md: 4px;
+  --segment-padding-lg: 5px;
+  --segment-ios-radius: 7px;
+  --segment-count-size: 20px;
+
+  // ---------------------------------------------------------------------------
+  // Auth Page Sizes
+  // ---------------------------------------------------------------------------
+  --auth-content-max-width: 440px;
+  --auth-footer-padding-bottom: 10px;
+  --auth-footer-max-width: 440px;
+  --auth-top-bar-max-width: 600px;
+  --auth-blob-blur: 60px;
+  --auth-blob-1-size: 300px;
+  --auth-blob-1-size-lg: 500px;
+  --auth-blob-1-offset: -100px;
+  --auth-blob-2-size: 250px;
+  --auth-blob-2-size-lg: 400px;
+  --auth-blob-2-offset: -80px;
+  --auth-blob-3-size: 200px;
+  --auth-blob-3-size-lg: 350px;
+  --auth-blob-3-offset: -50px;
+  --auth-icon-wrapper-size: 80px;
+  --auth-icon-wrapper-size-lg: 90px;
+  --auth-icon-wrapper-size-sm: 70px;
+  --auth-icon-circle-size: 60px;
+  --auth-icon-circle-size-lg: 68px;
+  --auth-icon-circle-size-sm: 52px;
+  --auth-field-icon-size: 48px;
+  --auth-field-icon-size-sm: 40px;
+  --auth-btn-icon-size: 28px;
 }
 
 // =============================================================================

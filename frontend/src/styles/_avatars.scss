@@ -44,8 +44,8 @@
   // Size Variants
   // ---------------------------------------------------------------------------
   &--xs {
-    width: 24px;
-    height: 24px;
+    width: var(--avatar-xs);
+    height: var(--avatar-xs);
     font-size: var(--font-size-xs);
   }
 
@@ -62,8 +62,8 @@
   }
 
   &--lg {
-    width: 56px;
-    height: 56px;
+    width: var(--avatar-lg);
+    height: var(--avatar-lg);
     font-size: var(--font-size-xl);
   }
 
@@ -74,8 +74,8 @@
   }
 
   &--2xl {
-    width: 96px;
-    height: 96px;
+    width: var(--avatar-xl);
+    height: var(--avatar-xl);
     font-size: var(--font-size-4xl);
   }
 
@@ -94,12 +94,12 @@
   // Border Variants
   // ---------------------------------------------------------------------------
   &--bordered {
-    border: 3px solid var(--color-white);
+    border: var(--avatar-border-lg) solid var(--color-white);
     box-shadow: var(--shadow-sm);
   }
 
   &--ring {
-    box-shadow: 0 0 0 3px var(--color-white), 0 0 0 5px var(--primary-color);
+    box-shadow: 0 0 0 var(--avatar-border-lg) var(--color-white), 0 0 0 var(--segment-padding-lg) var(--primary-color);
   }
 
   // ---------------------------------------------------------------------------
@@ -144,10 +144,10 @@
     position: absolute;
     bottom: 0;
     right: 0;
-    width: 12px;
-    height: 12px;
+    width: var(--avatar-status-md);
+    height: var(--avatar-status-md);
     border-radius: var(--radius-full);
-    border: 2px solid var(--color-white);
+    border: var(--avatar-border-sm) solid var(--color-white);
     background: var(--color-secondary);
 
     &--online {
@@ -170,28 +170,28 @@
   // Size adjustments for status badge
   .avatar--xs + .avatar-status__badge,
   &--xs .avatar-status__badge {
-    width: 8px;
-    height: 8px;
-    border-width: 1px;
+    width: var(--avatar-status-xs);
+    height: var(--avatar-status-xs);
+    border-width: var(--border-width);
   }
 
   .avatar--sm + .avatar-status__badge,
   &--sm .avatar-status__badge {
-    width: 10px;
-    height: 10px;
+    width: var(--avatar-status-sm);
+    height: var(--avatar-status-sm);
   }
 
   .avatar--lg + .avatar-status__badge,
   &--lg .avatar-status__badge {
-    width: 14px;
-    height: 14px;
+    width: var(--avatar-status-lg);
+    height: var(--avatar-status-lg);
   }
 
   .avatar--xl + .avatar-status__badge,
   &--xl .avatar-status__badge {
-    width: 16px;
-    height: 16px;
-    border-width: 3px;
+    width: var(--avatar-status-xl);
+    height: var(--avatar-status-xl);
+    border-width: var(--avatar-border-lg);
   }
 }
 
@@ -206,7 +206,7 @@
 
   .avatar {
     margin-left: calc(var(--space-4) * -1);
-    border: 2px solid var(--color-white);
+    border: var(--avatar-border-sm) solid var(--color-white);
     transition: all var(--transition-fast);
 
     &:first-child {
@@ -266,7 +266,7 @@
   font-weight: var(--font-weight-semibold);
   font-size: var(--font-size-sm);
   margin-left: calc(var(--space-4) * -1);
-  border: 2px solid var(--color-white);
+  border: var(--avatar-border-sm) solid var(--color-white);
 
   &--sm {
     min-width: var(--icon-sm);
@@ -275,8 +275,8 @@
   }
 
   &--lg {
-    min-width: 56px;
-    height: 56px;
+    min-width: var(--avatar-lg);
+    height: var(--avatar-lg);
     font-size: var(--font-size-base);
   }
 }
@@ -360,8 +360,8 @@
   }
 
   &--lg {
-    width: 56px;
-    height: 56px;
+    width: var(--avatar-lg);
+    height: var(--avatar-lg);
 
     i {
       font-size: var(--font-size-xl);
@@ -418,8 +418,8 @@
     position: absolute;
     top: -4px;
     right: -4px;
-    width: 20px;
-    height: 20px;
+    width: var(--segment-count-size);
+    height: var(--segment-count-size);
     border-radius: var(--radius-full);
     background: var(--primary-gradient);
     color: var(--color-white);
@@ -427,7 +427,7 @@
     align-items: center;
     justify-content: center;
     font-size: var(--font-size-xs);
-    border: 2px solid var(--color-white);
+    border: var(--avatar-border-sm) solid var(--color-white);
     box-shadow: var(--shadow-xs);
 
     i {
@@ -439,8 +439,8 @@
     position: absolute;
     top: -6px;
     right: -6px;
-    min-width: 20px;
-    height: 20px;
+    min-width: var(--segment-count-size);
+    height: var(--segment-count-size);
     padding: 0 5px;
     border-radius: var(--radius-sm);
     background: var(--color-error);
@@ -450,7 +450,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 2px solid var(--color-white);
+    border: var(--avatar-border-sm) solid var(--color-white);
   }
 }
 
@@ -547,8 +547,8 @@
   }
 
   &.p-avatar-lg {
-    width: 56px;
-    height: 56px;
+    width: var(--avatar-lg);
+    height: var(--avatar-lg);
     font-size: var(--font-size-xl);
   }
 
@@ -567,6 +567,6 @@
 
 .p-avatar-group {
   .p-avatar {
-    border: 2px solid var(--color-white);
+    border: var(--avatar-border-sm) solid var(--color-white);
   }
 }

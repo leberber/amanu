@@ -172,8 +172,8 @@
   }
 
   &--lg {
-    width: 52px;
-    height: 52px;
+    width: var(--feature-icon-size);
+    height: var(--feature-icon-size);
     border-radius: var(--radius-lg);
 
     i {
