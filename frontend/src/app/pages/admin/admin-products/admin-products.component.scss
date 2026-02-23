@@ -2,51 +2,15 @@
 // Admin Products Component Styles
 // =============================================================================
 // Component-specific overrides only. Uses global styles from:
-//   - _table.scss: table-container, table-thumbnail, table-item-info, etc.
-//   - _typography.scss: text-success, text-warning, text-error, text-muted
+//   - _table.scss: table-container, cell-edit, table-thumbnail, etc.
+//   - _badges.scss: pill, badge
+//   - _buttons.scss: btn-add, btn-primary, btn-secondary
+//   - _states.scss: empty-state
 //   - _segments.scss: segment-control
-//   - _badges.scss: badge
+//   - _skeleton.scss: skeleton loading
 // =============================================================================
 
 // Table height override for this page
 .table-container {
   --table-max-height: calc(100vh - 400px);
-}
-
-// Stock edit mode toggle (specific to this component)
-.stock-edit__prefix {
-  font-weight: 700;
-  color: var(--color-success);
-  font-size: 1.1rem;
-}
-
-.stock-edit__mode-toggle {
-  width: 28px;
-  height: 28px;
-  border: var(--border-width) solid rgba(var(--color-success-rgb), 0.3);
-  background: rgba(var(--color-success-rgb), 0.1);
-  border-radius: var(--radius-xs);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--color-success);
-  transition: all var(--transition-fast);
-
-  &.active {
-    background: var(--color-success);
-    color: var(--color-white);
-    border-color: var(--color-success);
-  }
-}
-
-.stock-conversion {
-  margin-top: var(--space-2);
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-
-  strong {
-    color: var(--color-success);
-    font-weight: 700;
-  }
 }

@@ -178,20 +178,20 @@
       </div>
     } @else if (products.length === 0) {
       <!-- Empty State -->
-      <div class="admin-empty-state">
-        <div class="empty-icon">
+      <div class="empty-state animate-item" style="--delay: 100ms;">
+        <div class="empty-state__icon">
           <i class="pi pi-box"></i>
         </div>
-        <h3>{{ hasActiveFilters() ? ('admin.products.empty.no_match' | translate) : ('admin.products.empty.no_products' | translate) }}</h3>
-        <p>{{ hasActiveFilters() ? ('admin.products.empty.try_adjusting' | translate) : ('admin.products.empty.get_started' | translate) }}</p>
+        <h3 class="empty-state__title">{{ hasActiveFilters() ? ('admin.products.empty.no_match' | translate) : ('admin.products.empty.no_products' | translate) }}</h3>
+        <p class="empty-state__description">{{ hasActiveFilters() ? ('admin.products.empty.try_adjusting' | translate) : ('admin.products.empty.get_started' | translate) }}</p>
         @if (hasActiveFilters()) {
-          <button class="btn btn--secondary" (click)="clearFilters()">
+          <button class="btn-secondary" (click)="clearFilters()">
             <i class="pi pi-filter-slash"></i>
             <span>{{ 'admin.products.clear_filters' | translate }}</span>
           </button>
         }
         @if (!hasActiveFilters()) {
-          <button class="btn btn--primary" (click)="createNewProduct()">
+          <button class="btn-primary" (click)="createNewProduct()">
             <i class="pi pi-plus"></i>
             <span>{{ 'admin.products.add_first_product' | translate }}</span>
           </button>
@@ -278,13 +278,13 @@
 
                   <!-- Category -->
                   <td class="col-category">
-                    <span class="category-pill">{{ getCategoryName(product.category_id) }}</span>
+                    <span class="pill primary">{{ getCategoryName(product.category_id) }}</span>
                   </td>
 
                   <!-- Brand -->
                   <td class="col-brand">
                     @if (product.brand_id) {
-                      <span class="brand-pill">{{ getBrandName(product.brand_id) }}</span>
+                      <span class="pill secondary">{{ getBrandName(product.brand_id) }}</span>
                     } @else {
                       <span class="text-muted">-</span>
                     }
@@ -338,7 +338,7 @@
                     } @else {
                       <div>
                         <div class="cell-edit">
-                          <span class="stock-edit__prefix">+</span>
+                          <span class="cell-edit__prefix">+</span>
                           <input
                             class="cell-edit__input cell-edit__input--sm"
                             type="number"
@@ -349,7 +349,7 @@
                             autofocus>
                           @if (hasMultiplePiecesPerBox(product)) {
                             <button
-                              class="stock-edit__mode-toggle"
+                              class="cell-edit__mode-toggle"
                               [class.active]="stockEditMode === 'cartons'"
                               (click)="toggleStockEditMode()"
                               [pTooltip]="(stockEditMode === 'cartons' ? 'admin.products.switch_to_units' : 'admin.products.switch_to_cartons') | translate">
@@ -363,7 +363,7 @@
                             <i class="pi pi-times"></i>
                           </button>
                         </div>
-                        <div class="stock-conversion">
+                        <div class="cell-edit__conversion">
                           @if (hasMultiplePiecesPerBox(product) && stockEditMode === 'cartons') {
                             <span>{{ product.stock_quantity }} + ({{ stockEdit.value }} × {{ product.pieces_per_box }}) = <strong>{{ getNewTotalStock() }}</strong></span>
                           } @else {

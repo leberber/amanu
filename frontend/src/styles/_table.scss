@@ -522,6 +522,46 @@
       }
     }
   }
+
+  // Prefix indicator (e.g., "+" for adding stock)
+  &__prefix {
+    font-weight: 700;
+    color: var(--color-success);
+    font-size: 1.1rem;
+  }
+
+  // Mode toggle button (e.g., switch between units/cartons)
+  &__mode-toggle {
+    width: 28px;
+    height: 28px;
+    border: var(--border-width) solid rgba(var(--color-success-rgb), 0.3);
+    background: rgba(var(--color-success-rgb), 0.1);
+    border-radius: var(--radius-xs);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-success);
+    transition: all var(--transition-fast);
+
+    &.active {
+      background: var(--color-success);
+      color: var(--color-white);
+      border-color: var(--color-success);
+    }
+  }
+
+  // Conversion info display
+  &__conversion {
+    margin-top: var(--space-2);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+
+    strong {
+      color: var(--color-success);
+      font-weight: 700;
+    }
+  }
 }
 
 // -----------------------------------------------------------------------------
