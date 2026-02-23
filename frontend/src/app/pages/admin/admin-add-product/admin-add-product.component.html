@@ -248,41 +248,8 @@
               <h3>{{ 'admin.products.form.pricing_inventory' | translate }}</h3>
             </div>
             <div class="card-body">
-              <!-- Price & Unit -->
-              <div class="pricing-row">
-                <div class="pricing-field price">
-                  <label>{{ 'admin.products.form.price' | translate }} <span class="required">*</span></label>
-                  <p-inputNumber
-                    formControlName="price"
-                    mode="currency"
-                    currency="EUR"
-                    locale="fr-FR"
-                    [placeholder]="'admin.products.form.price' | translate"
-                    styleClass="w-full"
-                  />
-                  @if (productForm.get('price')?.invalid && productForm.get('price')?.touched) {
-                    <span class="field-error">{{ 'admin.products.form.price_required' | translate }}</span>
-                  }
-                </div>
-                <div class="pricing-field unit">
-                  <label>{{ 'admin.products.form.unit' | translate }} <span class="required">*</span></label>
-                  <p-select
-                    formControlName="unit"
-                    [options]="getUnitOptions()"
-                    optionLabel="label"
-                    optionValue="value"
-                    [placeholder]="'admin.products.form.unit' | translate"
-                    styleClass="w-full"
-                    appendTo="body"
-                  />
-                  @if (productForm.get('unit')?.invalid && productForm.get('unit')?.touched) {
-                    <span class="field-error">{{ 'admin.products.form.unit_required' | translate }}</span>
-                  }
-                </div>
-              </div>
-
-              <!-- Category & Brand -->
-              <div class="classification-section">
+              <!-- Category & Brand (First) -->
+              <div class="classification-section" style="margin-top: 0; padding-top: 0; border-top: none;">
                 <div class="section-label">
                   <i class="pi pi-th-large"></i>
                   <span>{{ 'admin.products.form.classification' | translate }}</span>
@@ -330,6 +297,39 @@
                   </div>
                 </div>
               </div>
+
+              <!-- Price & Unit -->
+              <div class="pricing-row" style="margin-top: 1rem;">
+                <div class="pricing-field price">
+                  <label>{{ 'admin.products.form.price' | translate }} <span class="required">*</span></label>
+                  <p-inputNumber
+                    formControlName="price"
+                    mode="currency"
+                    currency="EUR"
+                    locale="fr-FR"
+                    [placeholder]="'admin.products.form.price' | translate"
+                    styleClass="w-full"
+                  />
+                  @if (productForm.get('price')?.invalid && productForm.get('price')?.touched) {
+                    <span class="field-error">{{ 'admin.products.form.price_required' | translate }}</span>
+                  }
+                </div>
+                <div class="pricing-field unit">
+                  <label>{{ 'admin.products.form.unit' | translate }} <span class="required">*</span></label>
+                  <p-select
+                    formControlName="unit"
+                    [options]="getUnitOptions()"
+                    optionLabel="label"
+                    optionValue="value"
+                    [placeholder]="'admin.products.form.unit' | translate"
+                    styleClass="w-full"
+                    appendTo="body"
+                  />
+                  @if (productForm.get('unit')?.invalid && productForm.get('unit')?.touched) {
+                    <span class="field-error">{{ 'admin.products.form.unit_required' | translate }}</span>
+                  }
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -344,6 +344,48 @@
               <h3>{{ 'admin.products.form.inventory' | translate }}</h3>
             </div>
             <div class="card-body">
+              <!-- Packaging Section (First - so user configures carton before entering stock) -->
+              <div class="classification-section" style="margin-top: 0; padding-top: 0; border-top: none;">
+                <div class="section-label">
+                  <i class="pi pi-box"></i>
+                  <span>{{ 'admin.products.form.box_config' | translate }}</span>
+                </div>
+                <div class="classification-row">
+                  <div class="classification-field">
+                    <div class="field-icon brand">
+                      <i class="pi pi-box"></i>
+                    </div>
+                    <div class="field-content">
+                      <label>{{ 'admin.products.form.packaging_type' | translate }}</label>
+                      <p-select
+                        formControlName="packaging_type"
+                        [options]="getPackagingTypeOptions()"
+                        optionLabel="label"
+                        optionValue="value"
+                        [placeholder]="'admin.products.form.packaging_type_placeholder' | translate"
+                        styleClass="w-full"
+                        [showClear]="true"
+                        appendTo="body"
+                      />
+                    </div>
+                  </div>
+                  <div class="classification-field">
+                    <div class="field-icon category">
+                      <i class="pi pi-th-large"></i>
+                    </div>
+                    <div class="field-content">
+                      <label>{{ 'admin.products.form.pieces_per_box' | translate }}</label>
+                      <p-inputNumber
+                        formControlName="pieces_per_box"
+                        [placeholder]="'admin.products.form.pieces_per_box_placeholder' | translate"
+                        [min]="1"
+                        styleClass="w-full"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               <!-- Stock Quantity -->
               <div class="inventory-field">
                 <div class="stock-icon">
@@ -384,48 +426,6 @@
                   @if (productForm.get('stock_quantity')?.invalid && productForm.get('stock_quantity')?.touched) {
                     <span class="field-error">{{ 'admin.products.form.stock_required' | translate }}</span>
                   }
-                </div>
-              </div>
-
-              <!-- Packaging Section -->
-              <div class="classification-section">
-                <div class="section-label">
-                  <i class="pi pi-box"></i>
-                  <span>{{ 'admin.products.form.box_config' | translate }}</span>
-                </div>
-                <div class="classification-row">
-                  <div class="classification-field">
-                    <div class="field-icon brand">
-                      <i class="pi pi-box"></i>
-                    </div>
-                    <div class="field-content">
-                      <label>{{ 'admin.products.form.packaging_type' | translate }}</label>
-                      <p-select
-                        formControlName="packaging_type"
-                        [options]="getPackagingTypeOptions()"
-                        optionLabel="label"
-                        optionValue="value"
-                        [placeholder]="'admin.products.form.packaging_type_placeholder' | translate"
-                        styleClass="w-full"
-                        [showClear]="true"
-                        appendTo="body"
-                      />
-                    </div>
-                  </div>
-                  <div class="classification-field">
-                    <div class="field-icon category">
-                      <i class="pi pi-th-large"></i>
-                    </div>
-                    <div class="field-content">
-                      <label>{{ 'admin.products.form.pieces_per_box' | translate }}</label>
-                      <p-inputNumber
-                        formControlName="pieces_per_box"
-                        [placeholder]="'admin.products.form.pieces_per_box_placeholder' | translate"
-                        [min]="1"
-                        styleClass="w-full"
-                      />
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>
