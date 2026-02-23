@@ -18,6 +18,22 @@
 .admin-table-wrapper {
   max-height: calc(100vh - 400px);
   overflow-y: auto;
+  overflow-x: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+
+  // Mobile: control scroll behavior
+  @media (max-width: 768px) {
+    // Use a wrapper approach - vertical scroll on wrapper, horizontal on inner
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    .admin-table {
+      display: block;
+      overflow-x: auto;
+      overscroll-behavior-x: contain;
+    }
+  }
 }
 
 .admin-table thead {
