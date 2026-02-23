@@ -62,6 +62,7 @@ export class AdminAddProductComponent implements OnInit {
   loading = signal(false);
   categoriesLoading = signal(false);
   brandsLoading = signal(false);
+  formInitialized = signal(false);
   productForm!: FormGroup;
 
   // Mode detection
@@ -124,6 +125,11 @@ export class AdminAddProductComponent implements OnInit {
     this.loadBrands();
     this.loadProductCount();
     this.detectMode();
+
+    // Initialize form with slight delay for skeleton animation
+    setTimeout(() => {
+      this.formInitialized.set(true);
+    }, 300);
   }
 
   detectMode() {

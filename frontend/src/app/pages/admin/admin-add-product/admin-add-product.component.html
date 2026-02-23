@@ -23,12 +23,38 @@
   <p-toast></p-toast>
 
   <div class="product-form-page">
+    <!-- Skeleton Loading State -->
+    @if (!formInitialized()) {
+      <div class="grid">
+        @for (i of [0, 1, 2, 3]; track i) {
+          <div class="col-12 lg:col-6 item-animate" [style.animation-delay]="(i * 50) + 'ms'">
+            <div class="form-card-skeleton">
+              <div class="form-card-skeleton__header">
+                <div class="form-card-skeleton__icon skeleton"></div>
+                <div class="form-card-skeleton__title skeleton skeleton-text skeleton-text--w70"></div>
+              </div>
+              <div class="form-card-skeleton__body">
+                @for (j of [0, 1, 2]; track j) {
+                  <div class="form-card-skeleton__field">
+                    <div class="form-card-skeleton__field-label skeleton skeleton-text skeleton-text--w40"></div>
+                    <div class="form-card-skeleton__field-input skeleton"></div>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Form Content -->
+    @if (formInitialized()) {
     <form [formGroup]="productForm" (ngSubmit)="onSubmit()">
       <!-- Cards Grid -->
       <div class="grid">
 
         <!-- Card 1: Product Identity (Names + Image) -->
-        <div class="col-12 lg:col-6">
+        <div class="col-12 lg:col-6 item-animate" [style.animation-delay]="'0ms'">
           <div class="form-card">
             <div class="card-header">
               <div class="card-icon globe">
@@ -123,7 +149,7 @@
         </div>
 
         <!-- Card 2: Product Details (Descriptions + Settings) -->
-        <div class="col-12 lg:col-6">
+        <div class="col-12 lg:col-6 item-animate" [style.animation-delay]="'100ms'">
           <div class="form-card">
             <div class="card-header">
               <div class="card-icon description">
@@ -213,7 +239,7 @@
         </div>
 
         <!-- Card 3: Pricing & Classification -->
-        <div class="col-12 lg:col-6">
+        <div class="col-12 lg:col-6 item-animate" [style.animation-delay]="'200ms'">
           <div class="form-card">
             <div class="card-header">
               <div class="card-icon pricing">
@@ -309,7 +335,7 @@
         </div>
 
         <!-- Card 4: Inventory & Packaging -->
-        <div class="col-12 lg:col-6">
+        <div class="col-12 lg:col-6 item-animate" [style.animation-delay]="'300ms'">
           <div class="form-card">
             <div class="card-header">
               <div class="card-icon quantity">
@@ -384,7 +410,7 @@
       </div>
 
       <!-- Form Actions -->
-      <div class="form-actions">
+      <div class="form-actions item-animate" [style.animation-delay]="'400ms'">
         <button
           type="button"
           class="cancel-btn"
@@ -405,6 +431,7 @@
         </button>
       </div>
     </form>
+    }
 
     <!-- Loading Overlay -->
     @if (loading() && isEditMode()) {
