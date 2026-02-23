@@ -1,242 +1,30 @@
 // src/app/pages/admin/admin-brands/admin-brands.component.scss
-// Uses global admin styles from _components.scss
-// Component-specific styles only
+// =============================================================================
+// Component-specific styles only.
+// Global styles used:
+//   - _admin-page.scss: admin-grid, admin-grid-card, admin-icon-btn,
+//                       admin-meta-pill, admin-meta-item, admin-loading-state
+//   - _components.scss: btn-add, btn-primary, btn-edit, btn-delete
+// =============================================================================
 
 $brand-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 
-// Add button (with success gradient)
-.add-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.875rem 1.5rem;
-  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-  border: none;
-  border-radius: 14px;
-  color: white;
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 6px 20px rgba(17, 153, 142, 0.35);
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 28px rgba(17, 153, 142, 0.45);
-  }
+// Brand-specific card image gradient (purple theme)
+.admin-grid-card__image {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
 
   i {
-    font-size: 0.9rem;
-  }
-}
-
-// Action button (refresh)
-.action-btn {
-  width: 44px;
-  height: 44px;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  background: var(--surface-0);
-  border-radius: 12px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s ease;
-
-  i {
-    font-size: 1rem;
-    color: var(--text-color-secondary);
-  }
-
-  &:hover {
-    background: rgba(102, 126, 234, 0.08);
-    border-color: rgba(102, 126, 234, 0.2);
-
-    i {
-      color: #667eea;
-    }
-  }
-}
-
-// Loading state
-.loading-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 4rem 2rem;
-  gap: 1rem;
-
-  i {
-    font-size: 2rem;
     color: #667eea;
   }
-
-  span {
-    color: var(--text-color-secondary);
-    font-weight: 500;
-  }
 }
 
-// Primary button (empty state)
-.primary-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.875rem 1.5rem;
-  border: none;
-  border-radius: 12px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  background: $brand-gradient;
-  color: white;
-  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-  }
+// Brand-specific meta pill (purple theme)
+.admin-meta-pill {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+  color: #667eea;
 }
 
-// Brands Grid
-.brands-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1.25rem;
-  padding: 1.25rem;
-}
-
-// Brand Card
-.brand-card {
-  background: white;
-  border-radius: 16px;
-  border: 1px solid rgba(0, 0, 0, 0.04);
-  overflow: hidden;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
-
-    .card-actions {
-      opacity: 1;
-    }
-  }
-
-  .card-header {
-    position: relative;
-    padding: 1.25rem;
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-  }
-
-  .brand-logo {
-    width: 64px;
-    height: 64px;
-    border-radius: 16px;
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-
-    img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    i {
-      font-size: 1.75rem;
-      color: #667eea;
-    }
-  }
-
-  .card-body {
-    padding: 0 1.25rem 1.25rem;
-  }
-
-  .brand-name {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: var(--text-color);
-    margin: 0 0 0.5rem 0;
-  }
-
-  .brand-description {
-    font-size: 0.85rem;
-    color: var(--text-color-secondary);
-    margin: 0 0 1rem 0;
-    line-height: 1.5;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-
-    &.empty {
-      font-style: italic;
-      color: #adb3bd;
-    }
-  }
-
-  .brand-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-    align-items: center;
-  }
-
-  .meta-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.375rem;
-    padding: 0.375rem 0.75rem;
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: #667eea;
-
-    i {
-      font-size: 0.75rem;
-    }
-  }
-
-  .meta-item {
-    display: flex;
-    align-items: center;
-    gap: 0.375rem;
-    font-size: 0.8rem;
-    color: var(--text-color-secondary);
-
-    i {
-      font-size: 0.85rem;
-      color: #667eea;
-    }
-  }
-
-  .card-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 0.5rem;
-    padding: 0 1.25rem 1.25rem;
-    opacity: 0.7;
-    transition: opacity 0.3s ease;
-  }
-}
-
-// Responsive
-@media (max-width: 768px) {
-  .add-btn {
-    width: 100%;
-    justify-content: center;
-  }
-
-  .brands-grid {
-    grid-template-columns: 1fr;
-    padding: 1rem;
-  }
+// Brand-specific meta item icon color
+.admin-meta-item i {
+  color: #667eea;
 }

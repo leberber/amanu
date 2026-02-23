@@ -1,82 +1,17 @@
 // src/app/pages/admin/admin-promotions/admin-promotions.component.scss
-// Uses global admin styles from _components.scss
-// Component-specific styles only
+// =============================================================================
+// Component-specific styles only.
+// Global styles used:
+//   - _admin-page.scss: admin-icon-btn, admin-status-badge, admin-info,
+//                       admin-loading-state
+//   - _components.scss: btn-add
+// =============================================================================
 
-// Add button (with success gradient)
-.add-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.875rem 1.5rem;
-  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-  border: none;
-  border-radius: 14px;
-  color: white;
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 6px 20px rgba(17, 153, 142, 0.35);
+// -----------------------------------------------------------------------------
+// Promotion-Specific Styles
+// -----------------------------------------------------------------------------
 
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 28px rgba(17, 153, 142, 0.45);
-  }
-
-  i {
-    font-size: 0.9rem;
-  }
-}
-
-// Action button (refresh)
-.action-btn {
-  width: 44px;
-  height: 44px;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  background: var(--surface-0);
-  border-radius: 12px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s ease;
-
-  i {
-    font-size: 1rem;
-    color: var(--text-color-secondary);
-  }
-
-  &:hover {
-    background: rgba(240, 147, 251, 0.08);
-    border-color: rgba(240, 147, 251, 0.2);
-
-    i {
-      color: #f093fb;
-    }
-  }
-}
-
-// Loading state
-.loading-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 4rem 2rem;
-  gap: 1rem;
-
-  i {
-    font-size: 2rem;
-    color: #f093fb;
-  }
-
-  span {
-    color: var(--text-color-secondary);
-    font-weight: 500;
-  }
-}
-
-// Promotion info
+// Promotion info display
 .promotion-info {
   display: flex;
   flex-direction: column;
@@ -94,7 +29,7 @@
   }
 }
 
-// Code badge
+// Code badge (monospace style)
 .code-badge {
   display: inline-block;
   padding: 0.375rem 0.75rem;
@@ -173,69 +108,9 @@
   color: #667eea;
 }
 
-// Status badge
-.status-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.375rem;
-  padding: 0.375rem 0.75rem;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 600;
-
-  &.status-active {
-    background: rgba(17, 153, 142, 0.15);
-    color: #11998e;
-  }
-
-  &.status-expired {
-    background: rgba(239, 68, 68, 0.15);
-    color: #ef4444;
-  }
-
-  &.status-scheduled {
-    background: rgba(245, 158, 11, 0.15);
-    color: #d97706;
-  }
-
-  &.status-inactive {
-    background: rgba(107, 114, 128, 0.15);
-    color: #6b7280;
-  }
-
-  i {
-    font-size: 0.7rem;
-  }
-}
-
-// Primary button (empty state)
-.primary-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.875rem 1.5rem;
-  border: none;
-  border-radius: 12px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-  color: white;
-  box-shadow: 0 4px 16px rgba(240, 147, 251, 0.3);
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(240, 147, 251, 0.4);
-  }
-}
-
-// Text alignment utility
-.text-center {
-  text-align: center;
-}
-
+// -----------------------------------------------------------------------------
 // Responsive
+// -----------------------------------------------------------------------------
 @media (max-width: 1024px) {
   .admin-table {
     th:nth-child(4),
@@ -246,11 +121,6 @@
 }
 
 @media (max-width: 768px) {
-  .add-btn {
-    width: 100%;
-    justify-content: center;
-  }
-
   .admin-table {
     th:nth-child(5),
     td:nth-child(5),

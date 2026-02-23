@@ -1,54 +1,19 @@
 // src/app/pages/admin/admin-users/admin-users.component.scss
-// Uses global admin styles from _components.scss
-// Component-specific styles only
+// =============================================================================
+// Component-specific styles only.
+// Global styles used:
+//   - _admin-page.scss: admin-icon-btn, admin-header-actions, admin-info,
+//                       admin-avatar, admin-id-badge, admin-date, admin-role-badge,
+//                       admin-status-badge, admin-editable, admin-inline-edit,
+//                       admin-save-btn, admin-cancel-btn, admin-loading-state
+//   - _components.scss: btn-primary
+// =============================================================================
 
-// Header actions
-.header-actions {
-  display: flex;
-  gap: 0.75rem;
-}
+// -----------------------------------------------------------------------------
+// User-Specific Styles
+// -----------------------------------------------------------------------------
 
-.action-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.25rem;
-  border-radius: 12px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border: none;
-
-  &.refresh {
-    background: white;
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    color: var(--text-color);
-
-    &:hover:not(:disabled) {
-      border-color: var(--primary-color);
-      color: var(--primary-color);
-    }
-
-    &:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-  }
-
-  &.export {
-    background: var(--primary-gradient);
-    color: white;
-    box-shadow: 0 4px 12px rgba(46, 108, 183, 0.3);
-
-    &:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 6px 16px rgba(46, 108, 183, 0.4);
-    }
-  }
-}
-
-// Clear button
+// Clear filters button
 .clear-btn {
   display: flex;
   align-items: center;
@@ -69,170 +34,14 @@
   }
 }
 
-// Loading state
-.loading-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 4rem 2rem;
-  gap: 1rem;
-
-  i {
-    font-size: 2rem;
-    color: var(--primary-color);
-  }
-
-  span {
-    color: var(--text-color-secondary);
-    font-weight: 500;
-  }
-}
-
-// ID badge
-.id-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 36px;
-  padding: 0.25rem 0.5rem;
-  background: rgba(46, 108, 183, 0.1);
-  color: var(--primary-color);
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 0.85rem;
-}
-
-// User info
-.user-info {
-  display: flex;
-  align-items: center;
-  gap: 0.875rem;
-}
-
-.user-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: var(--primary-gradient);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
-  font-size: 1rem;
-  flex-shrink: 0;
-}
-
-.user-details {
-  display: flex;
-  flex-direction: column;
-  gap: 0.125rem;
-
-  .user-name {
-    font-weight: 600;
-    color: var(--text-color);
-    font-size: 0.9rem;
-  }
-
-  .user-email {
-    font-size: 0.8rem;
-    color: var(--text-color-secondary);
-  }
-
-  .user-phone {
-    font-size: 0.75rem;
-    color: var(--text-color-secondary);
-  }
-}
-
-// Role display and edit
-.role-display {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  cursor: pointer;
-  padding: 0.25rem;
-  border-radius: 8px;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background: rgba(0, 0, 0, 0.04);
-
-    .edit-hint {
-      opacity: 1;
-    }
-  }
-
-  .edit-hint {
-    font-size: 0.7rem;
-    color: var(--text-color-secondary);
-    opacity: 0;
-    transition: opacity 0.2s ease;
-  }
-}
-
-.role-badge {
-  display: inline-flex;
-  padding: 0.375rem 0.75rem;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 600;
-
-  &[data-role="customer"] {
-    background: rgba(17, 153, 142, 0.15);
-    color: #11998e;
-  }
-
-  &[data-role="staff"] {
-    background: rgba(59, 130, 246, 0.15);
-    color: #3b82f6;
-  }
-
-  &[data-role="admin"] {
-    background: rgba(139, 92, 246, 0.15);
-    color: #8b5cf6;
-  }
-}
-
+// Role edit dropdown
 .role-edit {
   display: flex;
   align-items: center;
   gap: 0.5rem;
 }
 
-// Status display and edit
-.status-display {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  cursor: pointer;
-  padding: 0.25rem;
-  border-radius: 8px;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background: rgba(0, 0, 0, 0.04);
-
-    .edit-hint {
-      opacity: 1;
-    }
-  }
-
-  .edit-hint {
-    font-size: 0.7rem;
-    color: var(--text-color-secondary);
-    opacity: 0;
-    transition: opacity 0.2s ease;
-  }
-}
-
-.status-edit {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
+// Status toggle button
 .status-toggle {
   display: flex;
   align-items: center;
@@ -256,80 +65,17 @@
   }
 }
 
-// Save/Cancel buttons
-.save-btn, .cancel-btn {
-  width: 32px;
-  height: 32px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-
-  i {
-    font-size: 0.85rem;
-  }
-}
-
-.save-btn {
-  background: rgba(17, 153, 142, 0.15);
-  color: #11998e;
-
-  &:hover {
-    background: rgba(17, 153, 142, 0.25);
-  }
-}
-
-.cancel-btn {
-  background: rgba(239, 68, 68, 0.1);
-  color: #ef4444;
-
-  &:hover {
-    background: rgba(239, 68, 68, 0.2);
-  }
-}
-
-// Date text
-.date-text {
-  font-size: 0.85rem;
-  color: var(--text-color-secondary);
-}
-
-// Primary button (empty state)
-.primary-btn {
+// Status edit container
+.status-edit {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.875rem 1.5rem;
-  border: none;
-  border-radius: 12px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  background: var(--primary-gradient);
-  color: white;
-  box-shadow: 0 4px 16px rgba(46, 108, 183, 0.3);
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(46, 108, 183, 0.4);
-  }
 }
 
+// -----------------------------------------------------------------------------
 // Responsive
+// -----------------------------------------------------------------------------
 @media (max-width: 768px) {
-  .header-actions {
-    width: 100%;
-    flex-direction: column;
-  }
-
-  .action-btn {
-    justify-content: center;
-  }
-
   .admin-table {
     .col-date {
       display: none;
@@ -340,13 +86,6 @@
 @media (max-width: 480px) {
   .admin-table {
     .col-role {
-      display: none;
-    }
-  }
-
-  .user-details {
-    .user-email,
-    .user-phone {
       display: none;
     }
   }

@@ -51,7 +51,7 @@
           <span class="count inactive">{{ getInactiveCount() }}</span>
         </button>
       </div>
-      <button class="add-btn" (click)="createNewBrand()">
+      <button class="btn-add" (click)="createNewBrand()">
         <i class="pi pi-plus"></i>
         <span>{{ 'admin.brands.add_brand' | translate }}</span>
       </button>
@@ -73,7 +73,7 @@
         }
       </div>
       <div class="filter-actions">
-        <button class="action-btn" (click)="refreshBrandData()" [pTooltip]="'admin.brands.refresh' | translate">
+        <button class="admin-icon-btn" (click)="refreshBrandData()" [pTooltip]="'admin.brands.refresh' | translate">
           <i class="pi pi-refresh"></i>
         </button>
       </div>
@@ -82,7 +82,7 @@
     <!-- Brands Content Card -->
     <div class="admin-table-card">
       @if (loading) {
-        <div class="loading-state">
+        <div class="admin-loading-state">
           <i class="pi pi-spin pi-spinner"></i>
           <span>{{ 'common.loading' | translate }}</span>
         </div>
@@ -95,7 +95,7 @@
             </div>
             <h3>{{ 'admin.brands.no_brands_filtered' | translate }}</h3>
             <p>{{ 'admin.brands.try_different_search' | translate }}</p>
-            <button class="primary-btn" (click)="clearFilters()">
+            <button class="btn-primary" (click)="clearFilters()">
               <i class="pi pi-filter-slash"></i>
               {{ 'admin.brands.clear_filters' | translate }}
             </button>
@@ -105,18 +105,18 @@
             </div>
             <h3>{{ 'admin.brands.no_brands' | translate }}</h3>
             <p>{{ 'admin.brands.get_started' | translate }}</p>
-            <button class="primary-btn" (click)="createNewBrand()">
+            <button class="btn-primary" (click)="createNewBrand()">
               <i class="pi pi-plus"></i>
               {{ 'admin.brands.add_first_brand' | translate }}
             </button>
           }
         </div>
         <!-- Brands Grid -->
-        <div class="brands-grid">
+        <div class="admin-grid">
           @for (brand of paginatedBrands; track brand.id) {
-            <div class="brand-card">
-              <div class="card-header">
-                <div class="brand-logo">
+            <div class="admin-grid-card">
+              <div class="admin-grid-card__header">
+                <div class="admin-grid-card__image">
                   @if (brand.logo_url) {
                     <img [src]="brand.logo_url" [alt]="getBrandName(brand)">
                   } @else {
@@ -129,25 +129,25 @@
                   </span>
                 </div>
               </div>
-              <div class="card-body">
-                <h3 class="brand-name">{{ getBrandName(brand) }}</h3>
+              <div class="admin-grid-card__body">
+                <h3 class="admin-grid-card__title">{{ getBrandName(brand) }}</h3>
                 @if (getBrandDescription(brand)) {
-                  <p class="brand-description">{{ getBrandDescription(brand) }}</p>
+                  <p class="admin-grid-card__description">{{ getBrandDescription(brand) }}</p>
                 } @else {
-                  <p class="brand-description empty">{{ 'admin.brands.no_description' | translate }}</p>
+                  <p class="admin-grid-card__description admin-grid-card__description--empty">{{ 'admin.brands.no_description' | translate }}</p>
                 }
-                <div class="brand-meta">
-                  <div class="meta-pill">
+                <div class="admin-grid-card__meta">
+                  <div class="admin-meta-pill">
                     <i class="pi pi-box"></i>
                     <span>{{ getBrandProductCount(brand.id) }} {{ 'admin.brands.products_label' | translate }}</span>
                   </div>
-                  <div class="meta-item">
+                  <div class="admin-meta-item">
                     <i class="pi pi-calendar"></i>
                     <span>{{ brand.created_at | appDate }}</span>
                   </div>
                 </div>
               </div>
-              <div class="card-actions">
+              <div class="admin-grid-card__actions">
                 <button class="admin-action-btn edit" (click)="editBrand(brand)" [pTooltip]="'common.edit' | translate" tooltipPosition="top">
                   <i class="pi pi-pencil"></i>
                 </button>

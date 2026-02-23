@@ -51,7 +51,7 @@
           <span class="count inactive">{{ getInactiveCount() }}</span>
         </button>
       </div>
-      <button class="add-btn" (click)="createNewCategory()">
+      <button class="btn-add" (click)="createNewCategory()">
         <i class="pi pi-plus"></i>
         <span>{{ 'admin.categories.add_category' | translate }}</span>
       </button>
@@ -73,7 +73,7 @@
         }
       </div>
       <div class="filter-actions">
-        <button class="action-btn" (click)="refreshCategoryData()" [pTooltip]="'admin.categories.refresh' | translate">
+        <button class="admin-icon-btn" (click)="refreshCategoryData()" [pTooltip]="'admin.categories.refresh' | translate">
           <i class="pi pi-refresh"></i>
         </button>
       </div>
@@ -82,7 +82,7 @@
     <!-- Categories Content Card -->
     <div class="admin-table-card">
       @if (loading) {
-        <div class="loading-state">
+        <div class="admin-loading-state">
           <i class="pi pi-spin pi-spinner"></i>
           <span>{{ 'admin.categories.loading' | translate }}</span>
         </div>
@@ -95,7 +95,7 @@
             </div>
             <h3>{{ 'admin.categories.empty.no_match' | translate }}</h3>
             <p>{{ 'admin.categories.empty.try_adjusting' | translate }}</p>
-            <button class="primary-btn" (click)="clearFilters()">
+            <button class="btn-primary" (click)="clearFilters()">
               <i class="pi pi-filter-slash"></i>
               {{ 'admin.categories.clear_filters' | translate }}
             </button>
@@ -105,18 +105,18 @@
             </div>
             <h3>{{ 'admin.categories.empty.no_categories' | translate }}</h3>
             <p>{{ 'admin.categories.empty.get_started' | translate }}</p>
-            <button class="primary-btn" (click)="createNewCategory()">
+            <button class="btn-primary" (click)="createNewCategory()">
               <i class="pi pi-plus"></i>
               {{ 'admin.categories.add_first_category' | translate }}
             </button>
           }
         </div>
         <!-- Categories Grid -->
-        <div class="categories-grid">
+        <div class="admin-grid">
           @for (category of paginatedCategories; track category.id) {
-            <div class="category-card">
-              <div class="card-header">
-                <div class="category-image">
+            <div class="admin-grid-card">
+              <div class="admin-grid-card__header">
+                <div class="admin-grid-card__image">
                   @if (category.image_url) {
                     <img [src]="category.image_url" [alt]="getCategoryName(category)">
                   } @else {
@@ -129,25 +129,25 @@
                   </span>
                 </div>
               </div>
-              <div class="card-body">
-                <h3 class="category-name">{{ getCategoryName(category) }}</h3>
+              <div class="admin-grid-card__body">
+                <h3 class="admin-grid-card__title">{{ getCategoryName(category) }}</h3>
                 @if (getCategoryDescription(category)) {
-                  <p class="category-description">{{ getCategoryDescription(category) }}</p>
+                  <p class="admin-grid-card__description">{{ getCategoryDescription(category) }}</p>
                 } @else {
-                  <p class="category-description empty">{{ 'admin.categories.no_description' | translate }}</p>
+                  <p class="admin-grid-card__description admin-grid-card__description--empty">{{ 'admin.categories.no_description' | translate }}</p>
                 }
-                <div class="category-meta">
-                  <div class="meta-pill">
+                <div class="admin-grid-card__meta">
+                  <div class="admin-meta-pill">
                     <i class="pi pi-box"></i>
                     <span>{{ getCategoryProductCount(category.id) }} {{ 'admin.categories.products_label' | translate }}</span>
                   </div>
-                  <div class="meta-item">
+                  <div class="admin-meta-item">
                     <i class="pi pi-calendar"></i>
                     <span>{{ category.created_at | appDate }}</span>
                   </div>
                 </div>
               </div>
-              <div class="card-actions">
+              <div class="admin-grid-card__actions">
                 <button class="admin-action-btn edit" (click)="editCategory(category)" [pTooltip]="'admin.categories.actions.edit' | translate" tooltipPosition="top">
                   <i class="pi pi-pencil"></i>
                 </button>

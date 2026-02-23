@@ -1,159 +1,21 @@
 // src/app/pages/admin/admin-orders/admin-orders.component.scss
-// Uses global admin styles from _components.scss
-// Component-specific styles only
+// =============================================================================
+// Component-specific styles only.
+// Global styles used:
+//   - _admin-page.scss: admin-icon-btn, admin-status-badge, admin-info,
+//                       admin-date, admin-amount, admin-editable, admin-inline-edit
+//   - _components.scss: btn-primary (for export-btn)
+// =============================================================================
 
-// Export button
-.export-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.875rem 1.5rem;
-  background: var(--primary-gradient);
-  border: none;
-  border-radius: 14px;
-  color: white;
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 6px 20px rgba(46, 108, 183, 0.35);
+// -----------------------------------------------------------------------------
+// Order-Specific Styles
+// -----------------------------------------------------------------------------
 
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 28px rgba(46, 108, 183, 0.45);
-  }
-
-  i {
-    font-size: 0.9rem;
-  }
-}
-
-// Action button (refresh)
-.action-btn {
-  width: 44px;
-  height: 44px;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  background: var(--surface-0);
-  border-radius: 12px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s ease;
-
-  i {
-    font-size: 1rem;
-    color: var(--text-color-secondary);
-  }
-
-  &:hover {
-    background: rgba(46, 108, 183, 0.08);
-    border-color: rgba(46, 108, 183, 0.2);
-
-    i {
-      color: var(--primary-color);
-    }
-  }
-}
-
-// Order ID
+// Order ID styling
 .order-id {
   font-weight: 700;
   color: var(--primary-color);
   font-size: 0.95rem;
-}
-
-// Customer info
-.customer-info {
-  display: flex;
-  flex-direction: column;
-  gap: 0.125rem;
-
-  .customer-name {
-    font-weight: 600;
-    color: var(--text-color);
-    font-size: 0.9rem;
-  }
-
-  .customer-email {
-    font-size: 0.8rem;
-    color: var(--text-color-secondary);
-  }
-
-  .customer-phone {
-    font-size: 0.8rem;
-    color: var(--text-color-secondary);
-  }
-}
-
-// Date display
-.date-display {
-  font-size: 0.85rem;
-  color: var(--text-color);
-}
-
-// Total amount
-.total-amount {
-  font-weight: 700;
-  color: var(--text-color);
-  font-size: 1rem;
-}
-
-// Status badges with order-specific colors
-.admin-status-badge {
-  &.status-pending {
-    background: rgba(245, 158, 11, 0.15);
-    color: #d97706;
-  }
-
-  &.status-confirmed {
-    background: rgba(59, 130, 246, 0.15);
-    color: #3b82f6;
-  }
-
-  &.status-shipped {
-    background: rgba(139, 92, 246, 0.15);
-    color: #8b5cf6;
-  }
-
-  &.status-delivered {
-    background: rgba(17, 153, 142, 0.15);
-    color: #11998e;
-  }
-
-  &.status-cancelled {
-    background: rgba(239, 68, 68, 0.15);
-    color: #ef4444;
-  }
-}
-
-// Status display (editable)
-.status-display {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.25rem;
-  border-radius: 10px;
-  transition: all 0.2s ease;
-
-  &.editable {
-    cursor: pointer;
-
-    &:hover {
-      background: rgba(0, 0, 0, 0.04);
-
-      .edit-hint {
-        opacity: 1;
-      }
-    }
-  }
-
-  .edit-hint {
-    font-size: 0.7rem;
-    color: var(--text-color-secondary);
-    opacity: 0;
-    transition: opacity 0.2s ease;
-  }
 }
 
 // Status edit (inline dropdown)
@@ -225,61 +87,10 @@
   }
 }
 
-.cancel-edit-btn {
-  width: 32px;
-  height: 32px;
-  border: none;
-  border-radius: 8px;
-  background: rgba(0, 0, 0, 0.06);
-  color: var(--text-color-secondary);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background: rgba(239, 68, 68, 0.1);
-    color: #ef4444;
-  }
-
-  i {
-    font-size: 0.8rem;
-  }
-}
-
-// Secondary button (empty state)
-.secondary-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.875rem 1.5rem;
-  border: none;
-  border-radius: 12px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  background: rgba(0, 0, 0, 0.06);
-  color: var(--text-color);
-
-  &:hover {
-    background: rgba(0, 0, 0, 0.1);
-  }
-}
-
-// Text alignment utility
-.text-center {
-  text-align: center;
-}
-
+// -----------------------------------------------------------------------------
 // Responsive
+// -----------------------------------------------------------------------------
 @media (max-width: 768px) {
-  .export-btn {
-    width: 100%;
-    justify-content: center;
-  }
-
   .admin-table {
     th:nth-child(3),
     td:nth-child(3) {
