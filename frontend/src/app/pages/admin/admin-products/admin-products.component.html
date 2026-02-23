@@ -1,12 +1,19 @@
 <!-- src/app/pages/admin/admin-products/admin-products.component.html -->
-<div class="products-page">
+<div class="admin-page">
+  <!-- Background Decoration -->
+  <div class="bg-decoration">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
+
   <p-toast></p-toast>
   <p-confirmDialog></p-confirmDialog>
-  <div class="page-content">
+  <div class="admin-content">
     <!-- Page Header -->
-    <div class="page-header">
+    <div class="admin-list-header">
       <div class="header-title">
-        <div class="icon-wrapper">
+        <div class="admin-icon-wrapper">
           <div class="icon-bg"></div>
           <div class="icon-circle">
             <i class="pi pi-box"></i>
@@ -20,25 +27,25 @@
     </div>
 
     <!-- Status Segmented Control with Dropdowns and Add Button -->
-    <div class="segment-row">
+    <div class="admin-segment-row">
       <div class="filters-left">
-        <div class="status-segment">
+        <div class="admin-segment">
           <button
-            class="segment-btn"
+            class="admin-segment-btn"
             [class.active]="statusFilter === 'all'"
             (click)="onStatusFilterChange('all')">
             <span>{{ 'common.all' | translate }}</span>
             <span class="count">{{ allProducts.length }}</span>
           </button>
           <button
-            class="segment-btn"
+            class="admin-segment-btn"
             [class.active]="statusFilter === 'active'"
             (click)="onStatusFilterChange('active')">
             <span>{{ 'common.active' | translate }}</span>
             <span class="count active">{{ getActiveCount() }}</span>
           </button>
           <button
-            class="segment-btn"
+            class="admin-segment-btn"
             [class.active]="statusFilter === 'inactive'"
             (click)="onStatusFilterChange('inactive')">
             <span>{{ 'common.inactive' | translate }}</span>
@@ -104,35 +111,33 @@
     </div>
 
     <!-- Search Bar -->
-    <div class="filters-card">
-      <div class="filters-row">
-        <div class="search-box">
-          <i class="pi pi-search"></i>
-          <input
-            type="text"
-            [(ngModel)]="searchQuery"
-            (input)="onSearchInput()"
-            [placeholder]="'admin.products.search_placeholder' | translate">
-          <button *ngIf="searchQuery" class="clear-search" (click)="searchQuery = ''; filterItems()">
-            <i class="pi pi-times"></i>
-          </button>
-        </div>
-        <button class="action-btn refresh-btn" (click)="refreshProductData()" [pTooltip]="'admin.products.refresh' | translate">
-          <i class="pi pi-refresh"></i>
+    <div class="admin-filters-card">
+      <div class="admin-search-box">
+        <i class="pi pi-search"></i>
+        <input
+          type="text"
+          [(ngModel)]="searchQuery"
+          (input)="onSearchInput()"
+          [placeholder]="'admin.products.search_placeholder' | translate">
+        <button *ngIf="searchQuery" class="clear-search" (click)="searchQuery = ''; filterItems()">
+          <i class="pi pi-times"></i>
         </button>
-        @if (hasActiveFilters()) {
-          <button class="clear-filters-btn" (click)="clearFilters()">
-            <i class="pi pi-filter-slash"></i>
-            <span>{{ 'admin.products.clear_filters' | translate }}</span>
-          </button>
-        }
       </div>
+      <button class="action-btn refresh-btn" (click)="refreshProductData()" [pTooltip]="'admin.products.refresh' | translate">
+        <i class="pi pi-refresh"></i>
+      </button>
+      @if (hasActiveFilters()) {
+        <button class="clear-filters-btn" (click)="clearFilters()">
+          <i class="pi pi-filter-slash"></i>
+          <span>{{ 'admin.products.clear_filters' | translate }}</span>
+        </button>
+      }
     </div>
 
     <!-- Loading State -->
     @if (loading) {
-      <div class="loading-container">
-        <div class="loading-card">
+      <div class="admin-loading-container">
+        <div class="admin-loading-card">
           <div class="loading-spinner">
             <i class="pi pi-spin pi-spinner"></i>
           </div>
@@ -141,7 +146,7 @@
       </div>
     } @else if (products.length === 0) {
       <!-- Empty State -->
-      <div class="empty-state">
+      <div class="admin-empty-state">
         <div class="empty-icon">
           <i class="pi pi-box"></i>
         </div>
@@ -158,9 +163,9 @@
       </div>
     } @else {
       <!-- Products Table -->
-      <div class="table-card">
-        <div class="table-wrapper">
-          <table class="products-table">
+      <div class="admin-table-card">
+        <div class="admin-table-wrapper">
+          <table class="admin-table">
             <thead>
               <tr>
                 <th class="col-image"></th>
@@ -252,7 +257,7 @@
 
                   <!-- Status -->
                   <td class="col-status">
-                    <span class="status-badge" [class.active]="product.is_active" [class.inactive]="!product.is_active">
+                    <span class="admin-status-badge" [class.active]="product.is_active" [class.inactive]="!product.is_active">
                       <i [class]="product.is_active ? 'pi pi-check' : 'pi pi-times'"></i>
                       {{ product.is_active ? ('admin.products.status.active' | translate) : ('admin.products.status.inactive' | translate) }}
                     </span>
@@ -260,14 +265,14 @@
 
                   <!-- Actions -->
                   <td class="col-actions">
-                    <div class="action-buttons">
-                      <button class="view-btn" (click)="viewProduct(product)" [pTooltip]="'common.view' | translate">
+                    <div class="admin-table-actions">
+                      <button class="admin-action-btn view" (click)="viewProduct(product)" [pTooltip]="'common.view' | translate">
                         <i class="pi pi-eye"></i>
                       </button>
-                      <button class="edit-btn" (click)="editProduct(product)" [pTooltip]="'common.edit' | translate">
+                      <button class="admin-action-btn edit" (click)="editProduct(product)" [pTooltip]="'common.edit' | translate">
                         <i class="pi pi-pencil"></i>
                       </button>
-                      <button class="delete-btn" (click)="confirmDeleteProduct(product)" [pTooltip]="'common.delete' | translate">
+                      <button class="admin-action-btn delete" (click)="confirmDeleteProduct(product)" [pTooltip]="'common.delete' | translate">
                         <i class="pi pi-trash"></i>
                       </button>
                     </div>
@@ -280,7 +285,7 @@
       </div>
 
       <!-- Pagination -->
-      <div class="pagination-wrapper" *ngIf="products.length > rows">
+      <div class="admin-pagination" *ngIf="products.length > rows">
         <p-paginator
           [first]="first"
           [rows]="rows"
@@ -293,7 +298,7 @@
       </div>
 
       <!-- Results Count -->
-      <div class="results-info" *ngIf="products.length <= rows">
+      <div class="admin-results-info" *ngIf="products.length <= rows">
         <span>{{ 'admin.products.showing' | translate }} {{ products.length }} {{ 'admin.products.of' | translate }} {{ allProducts.length }} {{ 'admin.products.products' | translate }}</span>
       </div>
     }
