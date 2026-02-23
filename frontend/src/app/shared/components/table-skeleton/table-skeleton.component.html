@@ -1,0 +1,91 @@
+<div class="table-container skeleton-card animate-item" style="--delay: 100ms;">
+  <!-- Header -->
+  @if (showHeader()) {
+    <div class="table-header">
+      <div class="skeleton skeleton-search"></div>
+      <div class="skeleton-actions">
+        <div class="skeleton skeleton-btn"></div>
+        <div class="skeleton skeleton-btn"></div>
+      </div>
+    </div>
+  }
+
+  <!-- Table -->
+  <div class="table-wrapper">
+    <table class="table skeleton-table">
+      <thead>
+        <tr>
+          @for (col of columns(); track $index) {
+            <th [style.width]="col.width">
+              @if (getHeaderWidth(col)) {
+                <div class="skeleton skeleton-text" [style.width]="getHeaderWidth(col)"></div>
+              }
+            </th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of rowsArray; track row) {
+          <tr class="skeleton-row" [style.animation-delay]="(row * 50) + 'ms'">
+            @for (col of columns(); track $index) {
+              @switch (col.type) {
+                @case ('image') {
+                  <td class="col-image"><div class="skeleton skeleton-image"></div></td>
+                }
+                @case ('text') {
+                  <td><div class="skeleton skeleton-text skeleton-text--w80"></div></td>
+                }
+                @case ('text-multi') {
+                  <td class="col-name">
+                    <div class="skeleton-product-info">
+                      <div class="skeleton skeleton-text skeleton-text--w80"></div>
+                      <div class="skeleton skeleton-text skeleton-text--w50"></div>
+                    </div>
+                  </td>
+                }
+                @case ('pill') {
+                  <td><div class="skeleton skeleton-pill"></div></td>
+                }
+                @case ('pill-sm') {
+                  <td><div class="skeleton skeleton-pill skeleton-pill--sm"></div></td>
+                }
+                @case ('price') {
+                  <td class="col-price"><div class="skeleton skeleton-price"></div></td>
+                }
+                @case ('stock') {
+                  <td class="col-stock"><div class="skeleton skeleton-stock"></div></td>
+                }
+                @case ('toggle') {
+                  <td class="col-status"><div class="skeleton skeleton-toggle"></div></td>
+                }
+                @case ('actions') {
+                  <td class="col-actions">
+                    <div class="skeleton-actions-row">
+                      @for (i of actionsArray; track i) {
+                        <div class="skeleton skeleton-action-btn"></div>
+                      }
+                    </div>
+                  </td>
+                }
+              }
+            }
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Footer -->
+  @if (showFooter()) {
+    <div class="skeleton-footer">
+      <div class="skeleton skeleton-select"></div>
+      <div class="skeleton-pagination">
+        <div class="skeleton skeleton-page-btn"></div>
+        <div class="skeleton skeleton-page-btn"></div>
+        <div class="skeleton skeleton-page-btn"></div>
+        <div class="skeleton skeleton-page-btn"></div>
+      </div>
+      <div class="skeleton skeleton-text skeleton-text--w30"></div>
+    </div>
+  }
+</div>

@@ -6,7 +6,9 @@ import { BadgeModule } from 'primeng/badge';
 import { OverlayBadgeModule } from 'primeng/overlaybadge';
 import { TranslateService } from '@ngx-translate/core';
 
+import { delay } from 'rxjs'; // TODO: Remove - for testing skeleton
 import { ADMIN_LIST_IMPORTS, ADMIN_DIALOG_IMPORTS } from '../../../shared/imports/admin-shared.imports';
+import { TableSkeletonComponent, SkeletonColumn } from '../../../shared/components/table-skeleton/table-skeleton.component';
 import { onLanguageChange } from '../../../core/utils/language-change.util';
 import { ProductService } from '../../../services/product.service';
 import { BrandService } from '../../../core/services/brand.service';
@@ -31,7 +33,8 @@ import { ROUTES, RouteHelpers } from '../../../core/constants/routes.constants';
     CardModule,
     SelectModule,
     BadgeModule,
-    OverlayBadgeModule
+    OverlayBadgeModule,
+    TableSkeletonComponent
   ],
   providers: [ConfirmationService],
   templateUrl: './admin-products.component.html',
@@ -66,6 +69,18 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
 
   // Animation state
   tableInitialized = signal(false);
+
+  // Skeleton configuration
+  skeletonColumns: SkeletonColumn[] = [
+    { width: '5%', type: 'image' },
+    { width: '22%', type: 'text-multi', headerWidth: '100px' },
+    { width: '12%', type: 'pill', headerWidth: '70px' },
+    { width: '10%', type: 'pill-sm', headerWidth: '50px' },
+    { width: '12%', type: 'price', headerWidth: '50px' },
+    { width: '15%', type: 'stock', headerWidth: '50px' },
+    { width: '12%', type: 'toggle', headerWidth: '60px' },
+    { width: '12%', type: 'actions', headerWidth: '60px' }
+  ];
 
   // Services
   private productService = inject(ProductService);
@@ -390,19 +405,24 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
   }
 
   private loadAllProducts() {
-    this.loadData(
-      () => this.productService.getProducts({ active_only: false }),
-      (products) => {
+    // TODO: Remove delay(3000) - for testing skeleton only
+    this.loading = true;
+    this.productService.getProducts({ active_only: false }).pipe(
+      delay(3000)
+    ).subscribe({
+      next: (products) => {
         this.allProducts = products;
         this.products = products;
         this.updatePaginatedItems();
         this.buildCategoryOptions();
         this.buildBrandOptions();
-        // Trigger table animation after data loads
+        this.loading = false;
         setTimeout(() => this.tableInitialized.set(true), 100);
       },
-      'admin.products.load_error'
-    );
+      error: () => {
+        this.loading = false;
+      }
+    });
   }
 
   private buildCategoryOptions() {

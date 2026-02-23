@@ -116,66 +116,11 @@
 
     <!-- Loading State - Skeleton Table -->
     @if (loading) {
-      <div class="table-container skeleton-card animate-item" style="--delay: 100ms;">
-        <div class="table-header">
-          <div class="skeleton skeleton-search"></div>
-          <div class="skeleton-actions">
-            <div class="skeleton skeleton-btn"></div>
-            <div class="skeleton skeleton-btn"></div>
-          </div>
-        </div>
-        <div class="table-wrapper">
-          <table class="table skeleton-table">
-            <thead>
-              <tr>
-                <th style="width: 5%"><div class="skeleton skeleton-text skeleton-text--w50"></div></th>
-                <th style="width: 22%"><div class="skeleton skeleton-text skeleton-text--w60"></div></th>
-                <th style="width: 12%"><div class="skeleton skeleton-text skeleton-text--w50"></div></th>
-                <th style="width: 10%"><div class="skeleton skeleton-text skeleton-text--w40"></div></th>
-                <th style="width: 12%"><div class="skeleton skeleton-text skeleton-text--w30"></div></th>
-                <th style="width: 15%"><div class="skeleton skeleton-text skeleton-text--w30"></div></th>
-                <th style="width: 12%"><div class="skeleton skeleton-text skeleton-text--w40"></div></th>
-                <th style="width: 12%"><div class="skeleton skeleton-text skeleton-text--w30"></div></th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (i of [0, 1, 2, 3, 4, 5, 6, 7]; track i) {
-                <tr class="skeleton-row" [style.animation-delay]="(i * 50) + 'ms'">
-                  <td class="col-image"><div class="skeleton skeleton-image"></div></td>
-                  <td class="col-name">
-                    <div class="skeleton-product-info">
-                      <div class="skeleton skeleton-text skeleton-text--w80"></div>
-                      <div class="skeleton skeleton-text skeleton-text--w50"></div>
-                    </div>
-                  </td>
-                  <td class="col-category"><div class="skeleton skeleton-pill"></div></td>
-                  <td class="col-brand"><div class="skeleton skeleton-pill skeleton-pill--sm"></div></td>
-                  <td class="col-price"><div class="skeleton skeleton-price"></div></td>
-                  <td class="col-stock"><div class="skeleton skeleton-stock"></div></td>
-                  <td class="col-status"><div class="skeleton skeleton-toggle"></div></td>
-                  <td class="col-actions">
-                    <div class="skeleton-actions-row">
-                      <div class="skeleton skeleton-action-btn"></div>
-                      <div class="skeleton skeleton-action-btn"></div>
-                      <div class="skeleton skeleton-action-btn"></div>
-                    </div>
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        </div>
-        <div class="skeleton-footer">
-          <div class="skeleton skeleton-select"></div>
-          <div class="skeleton-pagination">
-            <div class="skeleton skeleton-page-btn"></div>
-            <div class="skeleton skeleton-page-btn"></div>
-            <div class="skeleton skeleton-page-btn"></div>
-            <div class="skeleton skeleton-page-btn"></div>
-          </div>
-          <div class="skeleton skeleton-text skeleton-text--w30"></div>
-        </div>
-      </div>
+      <app-table-skeleton
+        [columns]="skeletonColumns"
+        [rows]="8"
+        [actionCount]="3"
+      />
     } @else if (products.length === 0) {
       <!-- Empty State -->
       <div class="empty-state animate-item" style="--delay: 100ms;">
