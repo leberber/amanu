@@ -1,0 +1,471 @@
+// =============================================================================
+// SELECT
+// =============================================================================
+// PrimeNG p-select input styles and dropdown panels.
+// Uses variables from: _colors.scss, _spacing.scss, _effects.scss, _typography.scss
+// =============================================================================
+
+
+// =============================================================================
+// 1. BASE SELECT STYLES
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// Default Select Input
+// -----------------------------------------------------------------------------
+.p-select {
+  border: var(--border-width) solid var(--border-color-light);
+  border-radius: var(--radius-md);
+  background: var(--color-white);
+  transition: all var(--transition-fast);
+
+  &:hover {
+    border-color: rgba(var(--primary-rgb), 0.3);
+  }
+
+  &.p-focus,
+  &:focus {
+    border-color: var(--primary-color);
+    box-shadow: var(--shadow-focus);
+  }
+
+  .p-select-label {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-medium);
+    color: var(--text-color);
+  }
+
+  .p-select-dropdown {
+    color: var(--text-color-secondary);
+  }
+
+  .p-select-clear-icon {
+    color: var(--text-color-secondary);
+  }
+}
+
+
+// =============================================================================
+// 2. ADMIN FILTER SELECT
+// =============================================================================
+// Used in admin tables for filtering (categories, brands, stock status)
+
+.admin-filter-select {
+  width: 280px !important;
+  min-width: 280px !important;
+  max-width: 280px !important;
+  flex-shrink: 0;
+
+  &.p-select {
+    width: 280px !important;
+    border: var(--border-width) solid var(--border-color-light) !important;
+    border-radius: var(--radius-md) !important;
+    background: var(--color-white) !important;
+    box-shadow: var(--shadow-sm) !important;
+    padding: var(--space-5) var(--space-6) !important;
+    min-height: 48px !important;
+    height: 48px !important;
+
+    &:hover {
+      border-color: rgba(var(--primary-rgb), 0.3) !important;
+    }
+
+    &.p-focus,
+    &:focus {
+      border-color: var(--primary-color) !important;
+      box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.15) !important;
+    }
+
+    .p-select-label {
+      padding: 0 !important;
+      font-size: var(--font-size-md) !important;
+      font-weight: var(--font-weight-medium) !important;
+      color: var(--text-color) !important;
+    }
+
+    .p-select-dropdown {
+      color: var(--text-color-secondary) !important;
+    }
+
+    .p-select-clear-icon {
+      color: var(--text-color-secondary) !important;
+      margin-right: var(--space-3) !important;
+    }
+  }
+
+  @media (max-width: 1200px) {
+    width: 200px !important;
+    min-width: 200px !important;
+    max-width: 200px !important;
+  }
+
+  @media (max-width: 768px) {
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+  }
+}
+
+
+// =============================================================================
+// 3. SELECT DROPDOWN PANELS
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// Filter Select Panel (Admin)
+// -----------------------------------------------------------------------------
+.filter-select-panel {
+  z-index: 99999 !important;
+  border-radius: var(--radius-lg) !important;
+  box-shadow: var(--shadow-lg) !important;
+  border: var(--border-width) solid var(--border-color-light) !important;
+  padding: var(--space-3) !important;
+  overflow: hidden !important;
+
+  .p-select-list {
+    padding: 0 !important;
+  }
+
+  .p-select-option,
+  .p-listbox-option {
+    padding: var(--space-5) var(--space-6) !important;
+    border-radius: var(--radius-sm) !important;
+    margin: var(--space-1) !important;
+    font-size: var(--font-size-base) !important;
+    transition: all var(--transition-fast) !important;
+
+    &.p-highlight,
+    &[aria-selected="true"] {
+      background: var(--primary-gradient) !important;
+      color: var(--color-white) !important;
+    }
+
+    &:not(.p-highlight):hover {
+      background: rgba(var(--primary-rgb), 0.08) !important;
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Default Select Panel
+// -----------------------------------------------------------------------------
+.p-select-overlay,
+.p-select-panel {
+  z-index: 99999 !important;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  border: var(--border-width) solid var(--border-color-light);
+  padding: var(--space-3);
+  background: var(--color-white);
+  overflow: hidden;
+
+  .p-select-list {
+    padding: 0;
+  }
+
+  .p-select-option {
+    padding: var(--space-4) var(--space-5);
+    border-radius: var(--radius-sm);
+    margin: var(--space-1);
+    font-size: var(--font-size-base);
+    transition: all var(--transition-fast);
+
+    &.p-highlight {
+      background: var(--primary-gradient);
+      color: var(--color-white);
+    }
+
+    &:not(.p-highlight):hover {
+      background: rgba(var(--primary-rgb), 0.08);
+    }
+  }
+}
+
+
+// =============================================================================
+// 4. SELECT ITEM TEMPLATES
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// Select Item (Selected Value Display)
+// -----------------------------------------------------------------------------
+.select-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+
+  i {
+    color: var(--text-color-secondary);
+    font-size: var(--font-size-md);
+  }
+
+  span {
+    font-weight: var(--font-weight-medium);
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Select Option (Dropdown Item)
+// -----------------------------------------------------------------------------
+.select-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+
+  .option-count {
+    padding: var(--space-1) var(--space-4);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    background: var(--surface-100);
+    color: var(--text-color-secondary);
+  }
+}
+
+
+// =============================================================================
+// 5. LANGUAGE SELECT
+// =============================================================================
+
+.language-select {
+  .p-select {
+    border: none;
+    background: transparent;
+    min-width: 120px;
+
+    .p-select-label {
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-medium);
+    }
+  }
+}
+
+.language-panel {
+  z-index: 99999 !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow: var(--shadow-lg) !important;
+  background: var(--color-white) !important;
+  min-width: 150px !important;
+
+  .p-select-list,
+  .p-select-items {
+    background: var(--color-white) !important;
+  }
+
+  .p-select-option {
+    padding: var(--space-4) var(--space-5) !important;
+    font-size: var(--font-size-sm) !important;
+    color: var(--text-color) !important;
+    background: transparent !important;
+
+    &:hover {
+      background: rgba(var(--primary-rgb), 0.1) !important;
+    }
+
+    &.p-highlight {
+      background: var(--primary-color) !important;
+      color: var(--color-white) !important;
+    }
+  }
+}
+
+
+// =============================================================================
+// 6. CART QUANTITY SELECT
+// =============================================================================
+
+.cart-quantity-selector {
+  .p-select {
+    .p-select-label {
+      text-overflow: clip !important;
+      overflow: visible !important;
+      min-width: auto !important;
+    }
+  }
+}
+
+
+// =============================================================================
+// 7. MULTISELECT
+// =============================================================================
+
+.p-multiselect {
+  border: var(--border-width) solid var(--border-color-light);
+  border-radius: var(--radius-md);
+  background: var(--color-white);
+  transition: all var(--transition-fast);
+
+  &:hover {
+    border-color: rgba(var(--primary-rgb), 0.3);
+  }
+
+  &.p-focus {
+    border-color: var(--primary-color);
+    box-shadow: var(--shadow-focus);
+  }
+
+  .p-multiselect-label {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-medium);
+    color: var(--text-color);
+  }
+}
+
+.p-multiselect-overlay {
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  border: var(--border-width) solid var(--border-color-light);
+  padding: var(--space-3);
+
+  .p-multiselect-header {
+    padding: var(--space-4);
+    border-bottom: var(--border-width) solid var(--border-color-light);
+  }
+
+  .p-multiselect-option {
+    padding: var(--space-4) var(--space-5);
+    border-radius: var(--radius-sm);
+    margin: var(--space-1);
+    transition: all var(--transition-fast);
+
+    &.p-highlight {
+      background: rgba(var(--primary-rgb), 0.1);
+      color: var(--primary-color);
+    }
+
+    &:not(.p-highlight):hover {
+      background: rgba(var(--primary-rgb), 0.05);
+    }
+  }
+}
+
+
+// =============================================================================
+// 8. PRODUCT CARD SELECT
+// =============================================================================
+// Fancy select for product cards and list items
+
+.product-card__select,
+.product-list-item__select {
+  .p-select {
+    width: 100%;
+    border: none !important;
+    border-radius: var(--radius-md) !important;
+    background: linear-gradient(145deg, var(--surface-100) 0%, var(--surface-200) 100%) !important;
+    box-shadow: var(--shadow-sm),
+                inset 0 1px 0 rgba(255, 255, 255, 0.9),
+                inset 0 -1px 0 rgba(0, 0, 0, 0.05) !important;
+    transition: all var(--transition-smooth) !important;
+    overflow: hidden !important;
+
+    &:hover {
+      background: linear-gradient(145deg, var(--color-white) 0%, var(--surface-100) 100%) !important;
+      box-shadow: var(--shadow-md),
+                  inset 0 1px 0 rgba(255, 255, 255, 1),
+                  inset 0 -1px 0 rgba(0, 0, 0, 0.05) !important;
+      transform: translateY(-1px);
+    }
+
+    &.p-focus,
+    &.p-select-open {
+      box-shadow: var(--shadow-focus),
+                  var(--shadow-md) !important;
+      background: linear-gradient(145deg, var(--color-white) 0%, var(--surface-50) 100%) !important;
+    }
+
+    .p-select-label {
+      padding: var(--space-5) var(--space-6) !important;
+      font-size: var(--font-size-sm) !important;
+      font-weight: var(--font-weight-semibold) !important;
+      color: var(--color-text-primary) !important;
+      letter-spacing: -0.01em !important;
+
+      &.p-placeholder {
+        color: var(--text-color-secondary) !important;
+        font-weight: var(--font-weight-medium) !important;
+      }
+    }
+
+    .p-select-dropdown {
+      width: 2.5rem !important;
+      background: linear-gradient(180deg, rgba(var(--primary-rgb), 0.05) 0%, rgba(var(--primary-rgb), 0.1) 100%) !important;
+      border-left: var(--border-width) solid rgba(var(--primary-rgb), 0.1) !important;
+      border-radius: 0 var(--radius-md) var(--radius-md) 0 !important;
+      transition: all var(--transition-fast) !important;
+
+      .p-select-dropdown-icon,
+      .p-icon {
+        color: var(--primary-color) !important;
+        font-size: var(--font-size-xs) !important;
+        transition: transform var(--transition-smooth) !important;
+      }
+    }
+
+    &.p-select-open .p-select-dropdown {
+      background: linear-gradient(180deg, rgba(var(--primary-rgb), 0.1) 0%, rgba(var(--primary-rgb), 0.15) 100%) !important;
+
+      .p-select-dropdown-icon,
+      .p-icon {
+        transform: rotate(180deg) !important;
+      }
+    }
+  }
+}
+
+// Fancy Select Panel Animation
+@keyframes selectPanelIn {
+  0% {
+    opacity: 0;
+    transform: translateY(-12px) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+
+// =============================================================================
+// 9. AUTOCOMPLETE
+// =============================================================================
+
+.p-autocomplete-input {
+  border: var(--border-width) solid var(--border-color-light);
+  border-radius: var(--radius-md);
+  padding: var(--space-4) var(--space-5);
+  font-size: var(--font-size-base);
+  transition: all var(--transition-fast);
+
+  &:hover {
+    border-color: rgba(var(--primary-rgb), 0.3);
+  }
+
+  &:focus {
+    border-color: var(--primary-color);
+    box-shadow: var(--shadow-focus);
+  }
+}
+
+.p-autocomplete-overlay {
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  border: var(--border-width) solid var(--border-color-light);
+  padding: var(--space-3);
+
+  .p-autocomplete-option {
+    padding: var(--space-4) var(--space-5);
+    border-radius: var(--radius-sm);
+    margin: var(--space-1);
+    transition: all var(--transition-fast);
+
+    &.p-highlight {
+      background: var(--primary-gradient);
+      color: var(--color-white);
+    }
+
+    &:not(.p-highlight):hover {
+      background: rgba(var(--primary-rgb), 0.08);
+    }
+  }
+}

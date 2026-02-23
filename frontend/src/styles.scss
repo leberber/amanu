@@ -40,7 +40,8 @@
 @use './styles/modals' as *;
 @use './styles/tooltips' as *;
 @use './styles/tabs' as *;
-@use './styles/dropdowns' as *;
+@use './styles/menus' as *;
+@use './styles/select' as *;
 @use './styles/alerts' as *;
 @use './styles/toggles' as *;
 @use './styles/dividers' as *;
@@ -71,11 +72,7 @@
 @use './styles/admin/layout' as *;        // Admin structural layout
 @use './styles/frontend/layout' as *;     // Frontend structural layout
 
-// ---------------------------------------------------------------------------
-// 6. Legacy (to be refactored)
-// ---------------------------------------------------------------------------
-@use './styles/admin-forms' as *;
-@use './styles/admin-page' as *;
+
 
 // ---------------------------------------------------------------------------
 // 4. CSS Imports
@@ -133,44 +130,15 @@ body.fullscreen-active {
 // ---------------------------------------------------------------------------
 // 6. PrimeNG Overrides
 // ---------------------------------------------------------------------------
+// Note: Select styles moved to _select.scss
 
-// Filter Select Panels (for admin dropdowns)
-.filter-select-panel {
-  border-radius: 14px !important;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15) !important;
-  border: 1px solid rgba(0, 0, 0, 0.06) !important;
-  padding: 0.5rem !important;
-  overflow: hidden !important;
-
-  .p-select-list {
-    padding: 0 !important;
-  }
-
-  .p-select-option,
-  .p-listbox-option {
-    padding: 0.75rem 1rem !important;
-    border-radius: 10px !important;
-    margin: 0.25rem !important;
-    font-size: 0.9rem !important;
-    transition: all 0.2s ease !important;
-
-    &.p-highlight,
-    &[aria-selected="true"] {
-      background: linear-gradient(135deg, #2E6CB7 0%, #0F3C82 100%) !important;
-      color: white !important;
-    }
-
-    &:not(.p-highlight):hover {
-      background: rgba(46, 108, 183, 0.08) !important;
-    }
-  }
-}
 :root {
   --p-datatable-header-cell-selected-background: transparent !important;
   --p-datatable-header-cell-selected-color: inherit !important;
 }
 
 .p-timeline-event-opposite { flex: 0 !important; }
+
 .p-drawer {
   border: none !important;
   z-index: 9999 !important;
@@ -178,211 +146,6 @@ body.fullscreen-active {
 
 // Fade drawer - override slide with opacity
 .fade-drawer.p-drawer { transform: none !important; }
-
-.cart-quantity-selector .p-select .p-select-label {
-  text-overflow: clip !important;
-  overflow: visible !important;
-  min-width: auto !important;
-}
-
-// Select dropdown panels (default)
-.language-panel {
-  z-index: 99999 !important;
-  background: white !important;
-
-  .p-select-list,
-  .p-select-items,
-  .p-selectlist-list { background: white !important; }
-
-  .p-select-option,
-  .p-select-item,
-  .p-selectlist-option {
-    color: #333 !important;
-    background: transparent !important;
-    * { color: #333 !important; }
-    &:hover { background: rgba(46, 108, 183, 0.1) !important; }
-
-    &.p-highlight,
-    &.p-select-option-selected,
-    &.p-focus {
-      background: var(--primary-color) !important;
-      * { color: white !important; }
-    }
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Modern Fancy Product Dropdown Styles
-// ---------------------------------------------------------------------------
-.product-card__select,
-.product-list-item__select {
-  .p-select {
-    width: 100%;
-    border: none !important;
-    border-radius: 12px !important;
-    background: linear-gradient(145deg, #f8f9fa 0%, #e9ecef 100%) !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04),
-                inset 0 1px 0 rgba(255, 255, 255, 0.9),
-                inset 0 -1px 0 rgba(0, 0, 0, 0.05) !important;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    overflow: hidden !important;
-
-    &:hover {
-      background: linear-gradient(145deg, #ffffff 0%, #f1f3f4 100%) !important;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08),
-                  inset 0 1px 0 rgba(255, 255, 255, 1),
-                  inset 0 -1px 0 rgba(0, 0, 0, 0.05) !important;
-      transform: translateY(-1px);
-    }
-
-    &.p-focus,
-    &.p-select-open {
-      box-shadow: 0 0 0 3px rgba(46, 108, 183, 0.12),
-                  0 4px 20px rgba(0, 0, 0, 0.1) !important;
-      background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%) !important;
-    }
-
-    .p-select-label {
-      padding: 0.75rem 1rem !important;
-      font-size: 0.85rem !important;
-      font-weight: 600 !important;
-      color: #1a1a2e !important;
-      letter-spacing: -0.01em !important;
-
-      &.p-placeholder {
-        color: #6c757d !important;
-        font-weight: 500 !important;
-      }
-    }
-
-    .p-select-dropdown {
-      width: 2.5rem !important;
-      background: linear-gradient(180deg, rgba(46, 108, 183, 0.05) 0%, rgba(46, 108, 183, 0.1) 100%) !important;
-      border-left: 1px solid rgba(46, 108, 183, 0.1) !important;
-      border-radius: 0 12px 12px 0 !important;
-      transition: all 0.2s ease !important;
-
-      .p-select-dropdown-icon,
-      .p-icon {
-        color: var(--primary-color) !important;
-        font-size: 0.7rem !important;
-        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-      }
-    }
-
-    &.p-select-open .p-select-dropdown {
-      background: linear-gradient(180deg, rgba(46, 108, 183, 0.1) 0%, rgba(46, 108, 183, 0.15) 100%) !important;
-
-      .p-select-dropdown-icon,
-      .p-icon {
-        transform: rotate(180deg) !important;
-      }
-    }
-  }
-}
-
-// Fancy Dropdown Panel
-.p-select-overlay,
-.p-select-panel {
-  z-index: 99999 !important;
-  border: none !important;
-  border-radius: 16px !important;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15),
-              0 8px 25px rgba(0, 0, 0, 0.1),
-              0 0 0 1px rgba(0, 0, 0, 0.04) !important;
-  background: #ffffff !important;
-  backdrop-filter: blur(20px) !important;
-  overflow: hidden !important;
-  animation: fancyDropdownIn 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  padding: 0.5rem !important;
-
-  .p-select-header {
-    padding: 0.75rem 1rem !important;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.06) !important;
-  }
-
-  .p-select-list,
-  .p-select-items,
-  .p-selectlist-list {
-    padding: 0 !important;
-    background: transparent !important;
-  }
-
-  .p-select-option,
-  .p-select-item,
-  .p-selectlist-option {
-    padding: 0.875rem 1rem !important;
-    margin: 0.125rem 0 !important;
-    border-radius: 10px !important;
-    font-size: 0.875rem !important;
-    font-weight: 500 !important;
-    color: #374151 !important;
-    background: transparent !important;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    cursor: pointer !important;
-    position: relative !important;
-
-    * {
-      color: inherit !important;
-    }
-
-    &::before {
-      content: '' !important;
-      position: absolute !important;
-      left: 0 !important;
-      top: 50% !important;
-      transform: translateY(-50%) scaleY(0) !important;
-      width: 3px !important;
-      height: 60% !important;
-      background: var(--primary-color) !important;
-      border-radius: 0 4px 4px 0 !important;
-      transition: transform 0.2s ease !important;
-    }
-
-    &:hover {
-      background: linear-gradient(135deg, rgba(46, 108, 183, 0.08) 0%, rgba(46, 108, 183, 0.04) 100%) !important;
-      color: var(--primary-color) !important;
-      padding-left: 1.25rem !important;
-
-      * { color: var(--primary-color) !important; }
-
-      &::before {
-        transform: translateY(-50%) scaleY(1) !important;
-      }
-    }
-
-    &.p-highlight,
-    &.p-select-option-selected,
-    &.p-focus {
-      background: linear-gradient(135deg, var(--primary-color) 0%, #1a4f8b 100%) !important;
-      color: white !important;
-      font-weight: 600 !important;
-      box-shadow: 0 4px 12px rgba(46, 108, 183, 0.3) !important;
-
-      * { color: white !important; }
-
-      &::before {
-        display: none !important;
-      }
-
-      &:hover {
-        background: linear-gradient(135deg, #1a4f8b 0%, #0f3c82 100%) !important;
-        padding-left: 1rem !important;
-      }
-    }
-  }
-}
-
-@keyframes fancyDropdownIn {
-  0% {
-    opacity: 0;
-    transform: translateY(-12px) scale(0.95);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
 
 // Button sizes
 .p-button-lg { font-size: 1rem; font-weight: 600; }

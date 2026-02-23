@@ -63,7 +63,8 @@
           (onChange)="onCategoryChange($event)"
           [showClear]="categoryFilter !== null"
           styleClass="admin-filter-select"
-          panelStyleClass="filter-select-panel">
+          panelStyleClass="filter-select-panel"
+          appendTo="body">
           <ng-template pTemplate="selectedItem" let-selected>
             @if (selected) {
               <div class="select-item">
@@ -90,7 +91,8 @@
           (onChange)="onBrandChange($event)"
           [showClear]="brandFilter !== null"
           styleClass="admin-filter-select"
-          panelStyleClass="filter-select-panel">
+          panelStyleClass="filter-select-panel"
+          appendTo="body">
           <ng-template pTemplate="selectedItem" let-selected>
             @if (selected) {
               <div class="select-item">
