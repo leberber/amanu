@@ -70,14 +70,28 @@
   // ---------------------------------------------------------------------------
   // Semantic Colors
   // ---------------------------------------------------------------------------
-  --color-success: #10b981;
-  --color-success-rgb: 16, 185, 129;
+  --color-success: #22c55e;
+  --color-success-dark: #16a34a;
+  --color-success-rgb: 34, 197, 94;
   --color-warning: #f59e0b;
+  --color-warning-dark: #d97706;
   --color-warning-rgb: 245, 158, 11;
   --color-error: #ef4444;
+  --color-error-dark: #dc2626;
   --color-error-rgb: 239, 68, 68;
+  --color-danger: var(--color-error);
+  --color-danger-dark: var(--color-error-dark);
+  --color-danger-rgb: var(--color-error-rgb);
   --color-info: #3b82f6;
   --color-info-rgb: 59, 130, 246;
+
+  // ---------------------------------------------------------------------------
+  // Button Gradients
+  // ---------------------------------------------------------------------------
+  --btn-success-gradient: linear-gradient(135deg, var(--color-success) 0%, var(--color-success-dark) 100%);
+  --btn-warning-gradient: linear-gradient(135deg, var(--color-warning) 0%, var(--color-warning-dark) 100%);
+  --btn-danger-gradient: linear-gradient(135deg, var(--color-error) 0%, var(--color-error-dark) 100%);
+  --btn-add-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
 
   // ---------------------------------------------------------------------------
   // Surface Colors
