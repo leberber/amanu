@@ -1,12 +1,19 @@
 <!-- src/app/pages/admin/admin-categories/admin-categories.component.html -->
-<div class="categories-page">
+<div class="admin-page">
+  <!-- Background Decoration -->
+  <div class="bg-decoration">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
+
   <p-toast></p-toast>
   <p-confirmDialog></p-confirmDialog>
-  <div class="page-content">
+  <div class="admin-content">
     <!-- Page Header -->
-    <div class="page-header">
+    <div class="admin-list-header">
       <div class="header-title">
-        <div class="icon-wrapper">
+        <div class="admin-icon-wrapper">
           <div class="icon-bg"></div>
           <div class="icon-circle">
             <i class="pi pi-tags"></i>
@@ -20,29 +27,29 @@
     </div>
 
     <!-- Status Segmented Control with Add Button -->
-    <div class="segment-row">
-      <div class="status-segment">
-      <button
-        class="segment-btn"
-        [class.active]="statusFilter === 'all'"
-        (click)="onStatusFilterChange('all')">
-        <span>{{ 'common.all' | translate }}</span>
-        <span class="count">{{ allCategories.length }}</span>
-      </button>
-      <button
-        class="segment-btn"
-        [class.active]="statusFilter === 'active'"
-        (click)="onStatusFilterChange('active')">
-        <span>{{ 'common.active' | translate }}</span>
-        <span class="count active">{{ getActiveCount() }}</span>
-      </button>
-      <button
-        class="segment-btn"
-        [class.active]="statusFilter === 'inactive'"
-        (click)="onStatusFilterChange('inactive')">
-        <span>{{ 'common.inactive' | translate }}</span>
-        <span class="count inactive">{{ getInactiveCount() }}</span>
-      </button>
+    <div class="admin-segment-row">
+      <div class="admin-segment">
+        <button
+          class="admin-segment-btn"
+          [class.active]="statusFilter === 'all'"
+          (click)="onStatusFilterChange('all')">
+          <span>{{ 'common.all' | translate }}</span>
+          <span class="count">{{ allCategories.length }}</span>
+        </button>
+        <button
+          class="admin-segment-btn"
+          [class.active]="statusFilter === 'active'"
+          (click)="onStatusFilterChange('active')">
+          <span>{{ 'common.active' | translate }}</span>
+          <span class="count active">{{ getActiveCount() }}</span>
+        </button>
+        <button
+          class="admin-segment-btn"
+          [class.active]="statusFilter === 'inactive'"
+          (click)="onStatusFilterChange('inactive')">
+          <span>{{ 'common.inactive' | translate }}</span>
+          <span class="count inactive">{{ getInactiveCount() }}</span>
+        </button>
       </div>
       <button class="add-btn" (click)="createNewCategory()">
         <i class="pi pi-plus"></i>
@@ -51,17 +58,19 @@
     </div>
 
     <!-- Search & Filters Card -->
-    <div class="filters-card">
-      <div class="search-box">
+    <div class="admin-filters-card">
+      <div class="admin-search-box">
         <i class="pi pi-search"></i>
         <input
           type="text"
           [(ngModel)]="searchQuery"
           (input)="onSearchInput()"
           [placeholder]="'admin.categories.search_placeholder' | translate">
-        <button *ngIf="searchQuery" class="clear-search" (click)="searchQuery = ''; filterItems()">
-          <i class="pi pi-times"></i>
-        </button>
+        @if (searchQuery) {
+          <button class="clear-search" (click)="searchQuery = ''; filterItems()">
+            <i class="pi pi-times"></i>
+          </button>
+        }
       </div>
       <div class="filter-actions">
         <button class="action-btn" (click)="refreshCategoryData()" [pTooltip]="'admin.categories.refresh' | translate">
@@ -70,82 +79,91 @@
       </div>
     </div>
 
-    <!-- Loading State -->
-    @if (loading) {
-      <div class="loading-container">
-        <div class="loading-card">
-          <div class="loading-spinner">
-            <i class="pi pi-spin pi-spinner"></i>
-          </div>
+    <!-- Categories Content Card -->
+    <div class="admin-table-card">
+      @if (loading) {
+        <div class="loading-state">
+          <i class="pi pi-spin pi-spinner"></i>
           <span>{{ 'admin.categories.loading' | translate }}</span>
         </div>
-      </div>
-    } @else if (categories.length === 0) {
-      <!-- Empty State -->
-      <div class="empty-state">
-        <div class="empty-icon">
-          <i class="pi pi-folder-open"></i>
+      } @else if (categories.length === 0) {
+        <!-- Empty State -->
+        <div class="admin-empty-state">
+          @if (hasActiveFilters()) {
+            <div class="empty-icon filter">
+              <i class="pi pi-filter"></i>
+            </div>
+            <h3>{{ 'admin.categories.empty.no_match' | translate }}</h3>
+            <p>{{ 'admin.categories.empty.try_adjusting' | translate }}</p>
+            <button class="primary-btn" (click)="clearFilters()">
+              <i class="pi pi-filter-slash"></i>
+              {{ 'admin.categories.clear_filters' | translate }}
+            </button>
+          } @else {
+            <div class="empty-icon categories">
+              <i class="pi pi-folder-open"></i>
+            </div>
+            <h3>{{ 'admin.categories.empty.no_categories' | translate }}</h3>
+            <p>{{ 'admin.categories.empty.get_started' | translate }}</p>
+            <button class="primary-btn" (click)="createNewCategory()">
+              <i class="pi pi-plus"></i>
+              {{ 'admin.categories.add_first_category' | translate }}
+            </button>
+          }
         </div>
-        <h3>{{ hasActiveFilters() ? ('admin.categories.empty.no_match' | translate) : ('admin.categories.empty.no_categories' | translate) }}</h3>
-        <p>{{ hasActiveFilters() ? ('admin.categories.empty.try_adjusting' | translate) : ('admin.categories.empty.get_started' | translate) }}</p>
-        <button *ngIf="hasActiveFilters()" class="secondary-btn" (click)="clearFilters()">
-          <i class="pi pi-filter-slash"></i>
-          <span>{{ 'admin.categories.clear_filters' | translate }}</span>
-        </button>
-        <button *ngIf="!hasActiveFilters()" class="primary-btn" (click)="createNewCategory()">
-          <i class="pi pi-plus"></i>
-          <span>{{ 'admin.categories.add_first_category' | translate }}</span>
-        </button>
-      </div>
-    } @else {
-      <!-- Categories Grid -->
-      <div class="categories-grid">
-        @for (category of paginatedCategories; track category.id) {
-          <div class="category-card">
-            <div class="card-header">
-              <div class="category-image">
-                <img *ngIf="category.image_url" [src]="category.image_url" [alt]="getCategoryName(category)">
-                <i *ngIf="!category.image_url" class="pi pi-folder"></i>
-              </div>
-              <div class="category-status">
-                <span class="status-badge" [class.active]="category.is_active" [class.inactive]="!category.is_active">
-                  {{ category.is_active ? ('admin.categories.status.active' | translate) : ('admin.categories.status.inactive' | translate) }}
-                </span>
-              </div>
-            </div>
-            <div class="card-body">
-              <h3 class="category-name">{{ getCategoryName(category) }}</h3>
-              <p class="category-description" *ngIf="getCategoryDescription(category)">
-                {{ getCategoryDescription(category) }}
-              </p>
-              <p class="category-description empty" *ngIf="!getCategoryDescription(category)">
-                {{ 'admin.categories.no_description' | translate }}
-              </p>
-              <div class="category-meta">
-                <div class="meta-pill">
-                  <i class="pi pi-box"></i>
-                  <span>{{ getCategoryProductCount(category.id) }} {{ 'admin.categories.products_label' | translate }}</span>
+        <!-- Categories Grid -->
+        <div class="categories-grid">
+          @for (category of paginatedCategories; track category.id) {
+            <div class="category-card">
+              <div class="card-header">
+                <div class="category-image">
+                  @if (category.image_url) {
+                    <img [src]="category.image_url" [alt]="getCategoryName(category)">
+                  } @else {
+                    <i class="pi pi-folder"></i>
+                  }
                 </div>
-                <div class="meta-item">
-                  <i class="pi pi-calendar"></i>
-                  <span>{{ category.created_at | appDate }}</span>
+                <div class="category-status">
+                  <span class="admin-status-badge" [class.active]="category.is_active" [class.inactive]="!category.is_active">
+                    {{ category.is_active ? ('admin.categories.status.active' | translate) : ('admin.categories.status.inactive' | translate) }}
+                  </span>
                 </div>
               </div>
+              <div class="card-body">
+                <h3 class="category-name">{{ getCategoryName(category) }}</h3>
+                @if (getCategoryDescription(category)) {
+                  <p class="category-description">{{ getCategoryDescription(category) }}</p>
+                } @else {
+                  <p class="category-description empty">{{ 'admin.categories.no_description' | translate }}</p>
+                }
+                <div class="category-meta">
+                  <div class="meta-pill">
+                    <i class="pi pi-box"></i>
+                    <span>{{ getCategoryProductCount(category.id) }} {{ 'admin.categories.products_label' | translate }}</span>
+                  </div>
+                  <div class="meta-item">
+                    <i class="pi pi-calendar"></i>
+                    <span>{{ category.created_at | appDate }}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="card-actions">
+                <button class="admin-action-btn edit" (click)="editCategory(category)" [pTooltip]="'admin.categories.actions.edit' | translate" tooltipPosition="top">
+                  <i class="pi pi-pencil"></i>
+                </button>
+                <button class="admin-action-btn delete" (click)="confirmDeleteCategory(category)" [pTooltip]="'admin.categories.actions.delete' | translate" tooltipPosition="top">
+                  <i class="pi pi-trash"></i>
+                </button>
+              </div>
             </div>
-            <div class="card-actions">
-              <button class="edit-btn" (click)="editCategory(category)" [pTooltip]="'admin.categories.actions.edit' | translate">
-                <i class="pi pi-pencil"></i>
-              </button>
-              <button class="delete-btn" (click)="confirmDeleteCategory(category)" [pTooltip]="'admin.categories.actions.delete' | translate">
-                <i class="pi pi-trash"></i>
-              </button>
-            </div>
-          </div>
-        }
-      </div>
+          }
+        </div>
+      }
+    </div>
 
-      <!-- Pagination -->
-      <div class="pagination-wrapper" *ngIf="categories.length > rows">
+    <!-- Pagination -->
+    @if (categories.length > rows && !loading) {
+      <div class="admin-pagination">
         <p-paginator
           [first]="first"
           [rows]="rows"
@@ -156,9 +174,11 @@
           currentPageReportTemplate="{{ 'admin.categories.showing' | translate }} {first} - {last} {{ 'admin.categories.of' | translate }} {totalRecords}"
         ></p-paginator>
       </div>
+    }
 
-      <!-- Results Count (when no pagination needed) -->
-      <div class="results-info" *ngIf="categories.length <= rows">
+    <!-- Results Info -->
+    @if (categories.length > 0 && categories.length <= rows && !loading) {
+      <div class="admin-results-info">
         <span>{{ 'admin.categories.showing' | translate }} {{ categories.length }} {{ 'admin.categories.of' | translate }} {{ allCategories.length }} {{ 'admin.categories.categories' | translate }}</span>
       </div>
     }

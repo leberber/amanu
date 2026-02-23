@@ -1,12 +1,19 @@
 <!-- src/app/pages/admin/admin-brands/admin-brands.component.html -->
-<div class="brands-page">
+<div class="admin-page">
+  <!-- Background Decoration -->
+  <div class="bg-decoration">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
+
   <p-toast></p-toast>
   <p-confirmDialog></p-confirmDialog>
-  <div class="page-content">
+  <div class="admin-content">
     <!-- Page Header -->
-    <div class="page-header">
+    <div class="admin-list-header">
       <div class="header-title">
-        <div class="icon-wrapper">
+        <div class="admin-icon-wrapper">
           <div class="icon-bg"></div>
           <div class="icon-circle">
             <i class="pi pi-building"></i>
@@ -20,29 +27,29 @@
     </div>
 
     <!-- Status Segmented Control with Add Button -->
-    <div class="segment-row">
-      <div class="status-segment">
-      <button
-        class="segment-btn"
-        [class.active]="statusFilter === 'all'"
-        (click)="onStatusFilterChange('all')">
-        <span>{{ 'common.all' | translate }}</span>
-        <span class="count">{{ allBrands.length }}</span>
-      </button>
-      <button
-        class="segment-btn"
-        [class.active]="statusFilter === 'active'"
-        (click)="onStatusFilterChange('active')">
-        <span>{{ 'common.active' | translate }}</span>
-        <span class="count active">{{ getActiveCount() }}</span>
-      </button>
-      <button
-        class="segment-btn"
-        [class.active]="statusFilter === 'inactive'"
-        (click)="onStatusFilterChange('inactive')">
-        <span>{{ 'common.inactive' | translate }}</span>
-        <span class="count inactive">{{ getInactiveCount() }}</span>
-      </button>
+    <div class="admin-segment-row">
+      <div class="admin-segment">
+        <button
+          class="admin-segment-btn"
+          [class.active]="statusFilter === 'all'"
+          (click)="onStatusFilterChange('all')">
+          <span>{{ 'common.all' | translate }}</span>
+          <span class="count">{{ allBrands.length }}</span>
+        </button>
+        <button
+          class="admin-segment-btn"
+          [class.active]="statusFilter === 'active'"
+          (click)="onStatusFilterChange('active')">
+          <span>{{ 'common.active' | translate }}</span>
+          <span class="count active">{{ getActiveCount() }}</span>
+        </button>
+        <button
+          class="admin-segment-btn"
+          [class.active]="statusFilter === 'inactive'"
+          (click)="onStatusFilterChange('inactive')">
+          <span>{{ 'common.inactive' | translate }}</span>
+          <span class="count inactive">{{ getInactiveCount() }}</span>
+        </button>
       </div>
       <button class="add-btn" (click)="createNewBrand()">
         <i class="pi pi-plus"></i>
@@ -51,17 +58,19 @@
     </div>
 
     <!-- Search & Filters Card -->
-    <div class="filters-card">
-      <div class="search-box">
+    <div class="admin-filters-card">
+      <div class="admin-search-box">
         <i class="pi pi-search"></i>
         <input
           type="text"
           [(ngModel)]="searchQuery"
           (input)="onSearchInput()"
           [placeholder]="'admin.brands.search_placeholder' | translate">
-        <button *ngIf="searchQuery" class="clear-search" (click)="searchQuery = ''; filterItems()">
-          <i class="pi pi-times"></i>
-        </button>
+        @if (searchQuery) {
+          <button class="clear-search" (click)="searchQuery = ''; filterItems()">
+            <i class="pi pi-times"></i>
+          </button>
+        }
       </div>
       <div class="filter-actions">
         <button class="action-btn" (click)="refreshBrandData()" [pTooltip]="'admin.brands.refresh' | translate">
@@ -70,82 +79,91 @@
       </div>
     </div>
 
-    <!-- Loading State -->
-    @if (loading) {
-      <div class="loading-container">
-        <div class="loading-card">
-          <div class="loading-spinner">
-            <i class="pi pi-spin pi-spinner"></i>
-          </div>
+    <!-- Brands Content Card -->
+    <div class="admin-table-card">
+      @if (loading) {
+        <div class="loading-state">
+          <i class="pi pi-spin pi-spinner"></i>
           <span>{{ 'common.loading' | translate }}</span>
         </div>
-      </div>
-    } @else if (brands.length === 0) {
-      <!-- Empty State -->
-      <div class="empty-state">
-        <div class="empty-icon">
-          <i class="pi pi-building"></i>
+      } @else if (brands.length === 0) {
+        <!-- Empty State -->
+        <div class="admin-empty-state">
+          @if (hasActiveFilters()) {
+            <div class="empty-icon filter">
+              <i class="pi pi-filter"></i>
+            </div>
+            <h3>{{ 'admin.brands.no_brands_filtered' | translate }}</h3>
+            <p>{{ 'admin.brands.try_different_search' | translate }}</p>
+            <button class="primary-btn" (click)="clearFilters()">
+              <i class="pi pi-filter-slash"></i>
+              {{ 'admin.brands.clear_filters' | translate }}
+            </button>
+          } @else {
+            <div class="empty-icon brands">
+              <i class="pi pi-building"></i>
+            </div>
+            <h3>{{ 'admin.brands.no_brands' | translate }}</h3>
+            <p>{{ 'admin.brands.get_started' | translate }}</p>
+            <button class="primary-btn" (click)="createNewBrand()">
+              <i class="pi pi-plus"></i>
+              {{ 'admin.brands.add_first_brand' | translate }}
+            </button>
+          }
         </div>
-        <h3>{{ hasActiveFilters() ? ('admin.brands.no_brands_filtered' | translate) : ('admin.brands.no_brands' | translate) }}</h3>
-        <p>{{ hasActiveFilters() ? ('admin.brands.try_different_search' | translate) : ('admin.brands.get_started' | translate) }}</p>
-        <button *ngIf="hasActiveFilters()" class="secondary-btn" (click)="clearFilters()">
-          <i class="pi pi-filter-slash"></i>
-          <span>{{ 'admin.brands.clear_filters' | translate }}</span>
-        </button>
-        <button *ngIf="!hasActiveFilters()" class="primary-btn" (click)="createNewBrand()">
-          <i class="pi pi-plus"></i>
-          <span>{{ 'admin.brands.add_first_brand' | translate }}</span>
-        </button>
-      </div>
-    } @else {
-      <!-- Brands Grid -->
-      <div class="brands-grid">
-        @for (brand of paginatedBrands; track brand.id) {
-          <div class="brand-card">
-            <div class="card-header">
-              <div class="brand-logo">
-                <img *ngIf="brand.logo_url" [src]="brand.logo_url" [alt]="getBrandName(brand)">
-                <i *ngIf="!brand.logo_url" class="pi pi-building"></i>
-              </div>
-              <div class="brand-status">
-                <span class="status-badge" [class.active]="brand.is_active" [class.inactive]="!brand.is_active">
-                  {{ brand.is_active ? ('common.active' | translate) : ('common.inactive' | translate) }}
-                </span>
-              </div>
-            </div>
-            <div class="card-body">
-              <h3 class="brand-name">{{ getBrandName(brand) }}</h3>
-              <p class="brand-description" *ngIf="getBrandDescription(brand)">
-                {{ getBrandDescription(brand) }}
-              </p>
-              <p class="brand-description empty" *ngIf="!getBrandDescription(brand)">
-                {{ 'admin.brands.no_description' | translate }}
-              </p>
-              <div class="brand-meta">
-                <div class="meta-pill">
-                  <i class="pi pi-box"></i>
-                  <span>{{ getBrandProductCount(brand.id) }} {{ 'admin.brands.products_label' | translate }}</span>
+        <!-- Brands Grid -->
+        <div class="brands-grid">
+          @for (brand of paginatedBrands; track brand.id) {
+            <div class="brand-card">
+              <div class="card-header">
+                <div class="brand-logo">
+                  @if (brand.logo_url) {
+                    <img [src]="brand.logo_url" [alt]="getBrandName(brand)">
+                  } @else {
+                    <i class="pi pi-building"></i>
+                  }
                 </div>
-                <div class="meta-item">
-                  <i class="pi pi-calendar"></i>
-                  <span>{{ brand.created_at | appDate }}</span>
+                <div class="brand-status">
+                  <span class="admin-status-badge" [class.active]="brand.is_active" [class.inactive]="!brand.is_active">
+                    {{ brand.is_active ? ('common.active' | translate) : ('common.inactive' | translate) }}
+                  </span>
                 </div>
               </div>
+              <div class="card-body">
+                <h3 class="brand-name">{{ getBrandName(brand) }}</h3>
+                @if (getBrandDescription(brand)) {
+                  <p class="brand-description">{{ getBrandDescription(brand) }}</p>
+                } @else {
+                  <p class="brand-description empty">{{ 'admin.brands.no_description' | translate }}</p>
+                }
+                <div class="brand-meta">
+                  <div class="meta-pill">
+                    <i class="pi pi-box"></i>
+                    <span>{{ getBrandProductCount(brand.id) }} {{ 'admin.brands.products_label' | translate }}</span>
+                  </div>
+                  <div class="meta-item">
+                    <i class="pi pi-calendar"></i>
+                    <span>{{ brand.created_at | appDate }}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="card-actions">
+                <button class="admin-action-btn edit" (click)="editBrand(brand)" [pTooltip]="'common.edit' | translate" tooltipPosition="top">
+                  <i class="pi pi-pencil"></i>
+                </button>
+                <button class="admin-action-btn delete" (click)="confirmDeleteBrand(brand)" [pTooltip]="'common.delete' | translate" tooltipPosition="top">
+                  <i class="pi pi-trash"></i>
+                </button>
+              </div>
             </div>
-            <div class="card-actions">
-              <button class="edit-btn" (click)="editBrand(brand)" [pTooltip]="'common.edit' | translate">
-                <i class="pi pi-pencil"></i>
-              </button>
-              <button class="delete-btn" (click)="confirmDeleteBrand(brand)" [pTooltip]="'common.delete' | translate">
-                <i class="pi pi-trash"></i>
-              </button>
-            </div>
-          </div>
-        }
-      </div>
+          }
+        </div>
+      }
+    </div>
 
-      <!-- Pagination -->
-      <div class="pagination-wrapper" *ngIf="brands.length > rows">
+    <!-- Pagination -->
+    @if (brands.length > rows && !loading) {
+      <div class="admin-pagination">
         <p-paginator
           [first]="first"
           [rows]="rows"
@@ -156,9 +174,11 @@
           currentPageReportTemplate="{{ 'admin.brands.showing' | translate }} {first} - {last} {{ 'admin.brands.of' | translate }} {totalRecords}"
         ></p-paginator>
       </div>
+    }
 
-      <!-- Results Count (when no pagination needed) -->
-      <div class="results-info" *ngIf="brands.length <= rows">
+    <!-- Results Info -->
+    @if (brands.length > 0 && brands.length <= rows && !loading) {
+      <div class="admin-results-info">
         <span>{{ 'admin.brands.showing' | translate }} {{ brands.length }} {{ 'admin.brands.of' | translate }} {{ allBrands.length }} {{ 'admin.brands.brands' | translate }}</span>
       </div>
     }

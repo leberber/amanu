@@ -1,12 +1,19 @@
 <!-- src/app/pages/admin/admin-promotions/admin-promotions.component.html -->
-<div class="promotions-page">
+<div class="admin-page">
+  <!-- Background Decoration -->
+  <div class="bg-decoration">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
+
   <p-toast></p-toast>
   <p-confirmDialog></p-confirmDialog>
-  <div class="page-content">
+  <div class="admin-content">
     <!-- Page Header -->
-    <div class="page-header">
+    <div class="admin-list-header">
       <div class="header-title">
-        <div class="icon-wrapper">
+        <div class="admin-icon-wrapper">
           <div class="icon-bg"></div>
           <div class="icon-circle">
             <i class="pi pi-tag"></i>
@@ -20,31 +27,31 @@
     </div>
 
     <!-- Status Segmented Control with Add Button -->
-    <div class="segment-row">
-      <div class="status-segment">
+    <div class="admin-segment-row">
+      <div class="admin-segment">
         <button
-          class="segment-btn"
+          class="admin-segment-btn"
           [class.active]="statusFilter === 'all'"
           (click)="onStatusFilterChange('all')">
           <span>{{ 'common.all' | translate }}</span>
           <span class="count">{{ allPromotions.length }}</span>
         </button>
         <button
-          class="segment-btn"
+          class="admin-segment-btn"
           [class.active]="statusFilter === 'active'"
           (click)="onStatusFilterChange('active')">
           <span>{{ 'admin.promotions.status.active' | translate }}</span>
           <span class="count active">{{ getActiveCount() }}</span>
         </button>
         <button
-          class="segment-btn"
+          class="admin-segment-btn"
           [class.active]="statusFilter === 'expired'"
           (click)="onStatusFilterChange('expired')">
           <span>{{ 'admin.promotions.status.expired' | translate }}</span>
           <span class="count expired">{{ getExpiredCount() }}</span>
         </button>
         <button
-          class="segment-btn"
+          class="admin-segment-btn"
           [class.active]="statusFilter === 'scheduled'"
           (click)="onStatusFilterChange('scheduled')">
           <span>{{ 'admin.promotions.status.scheduled' | translate }}</span>
@@ -58,17 +65,19 @@
     </div>
 
     <!-- Filters Card -->
-    <div class="filters-card">
-      <div class="search-box">
+    <div class="admin-filters-card">
+      <div class="admin-search-box">
         <i class="pi pi-search"></i>
         <input
           type="text"
           [(ngModel)]="searchQuery"
           (input)="onSearchInput()"
           [placeholder]="'admin.promotions.search_placeholder' | translate">
-        <button *ngIf="searchQuery" class="clear-search" (click)="searchQuery = ''; filterItems()">
-          <i class="pi pi-times"></i>
-        </button>
+        @if (searchQuery) {
+          <button class="clear-search" (click)="searchQuery = ''; filterItems()">
+            <i class="pi pi-times"></i>
+          </button>
+        }
       </div>
       <div class="filter-actions">
         <button class="action-btn" (click)="refreshPromotionData()" [pTooltip]="'admin.promotions.refresh' | translate">
@@ -77,38 +86,42 @@
       </div>
     </div>
 
-    <!-- Loading State -->
-    @if (loading) {
-      <div class="loading-container">
-        <div class="loading-card">
-          <div class="loading-spinner">
-            <i class="pi pi-spin pi-spinner"></i>
-          </div>
+    <!-- Promotions Table Card -->
+    <div class="admin-table-card">
+      @if (loading) {
+        <div class="loading-state">
+          <i class="pi pi-spin pi-spinner"></i>
           <span>{{ 'admin.promotions.loading' | translate }}</span>
         </div>
-      </div>
-    } @else if (promotions.length === 0) {
-      <!-- Empty State -->
-      <div class="empty-state">
-        <div class="empty-icon">
-          <i class="pi pi-tag"></i>
+      } @else if (promotions.length === 0) {
+        <!-- Empty State -->
+        <div class="admin-empty-state">
+          @if (hasActiveFilters()) {
+            <div class="empty-icon filter">
+              <i class="pi pi-filter"></i>
+            </div>
+            <h3>{{ 'admin.promotions.empty.no_match' | translate }}</h3>
+            <p>{{ 'admin.promotions.empty.try_adjusting' | translate }}</p>
+            <button class="primary-btn" (click)="clearFilters()">
+              <i class="pi pi-filter-slash"></i>
+              {{ 'admin.promotions.clear_filters' | translate }}
+            </button>
+          } @else {
+            <div class="empty-icon promotions">
+              <i class="pi pi-tag"></i>
+            </div>
+            <h3>{{ 'admin.promotions.empty.no_promotions' | translate }}</h3>
+            <p>{{ 'admin.promotions.empty.get_started' | translate }}</p>
+            <button class="primary-btn" (click)="createNewPromotion()">
+              <i class="pi pi-plus"></i>
+              {{ 'admin.promotions.add_first_promotion' | translate }}
+            </button>
+          }
         </div>
-        <h3>{{ hasActiveFilters() ? ('admin.promotions.empty.no_match' | translate) : ('admin.promotions.empty.no_promotions' | translate) }}</h3>
-        <p>{{ hasActiveFilters() ? ('admin.promotions.empty.try_adjusting' | translate) : ('admin.promotions.empty.get_started' | translate) }}</p>
-        <button *ngIf="hasActiveFilters()" class="secondary-btn" (click)="clearFilters()">
-          <i class="pi pi-filter-slash"></i>
-          <span>{{ 'admin.promotions.clear_filters' | translate }}</span>
-        </button>
-        <button *ngIf="!hasActiveFilters()" class="primary-btn" (click)="createNewPromotion()">
-          <i class="pi pi-plus"></i>
-          <span>{{ 'admin.promotions.add_first_promotion' | translate }}</span>
-        </button>
-      </div>
-    } @else {
-      <!-- Promotions Table -->
-      <div class="table-card">
-        <div class="table-wrapper">
-          <table class="promotions-table">
+      } @else {
+        <!-- Promotions Table -->
+        <div class="admin-table-wrapper">
+          <table class="admin-table">
             <thead>
               <tr>
                 <th>{{ 'admin.promotions.table.name' | translate }}</th>
@@ -128,20 +141,21 @@
                   <td>
                     <div class="promotion-info">
                       <span class="promotion-name">{{ promotion.name }}</span>
-                      <span class="promotion-desc" *ngIf="promotion.description">
-                        {{ promotion.description | slice:0:50 }}{{ promotion.description.length > 50 ? '...' : '' }}
-                      </span>
+                      @if (promotion.description) {
+                        <span class="promotion-desc">
+                          {{ promotion.description | slice:0:50 }}{{ promotion.description.length > 50 ? '...' : '' }}
+                        </span>
+                      }
                     </div>
                   </td>
 
                   <!-- Code -->
                   <td class="text-center">
-                    <span *ngIf="promotion.code" class="code-badge">
-                      {{ promotion.code }}
-                    </span>
-                    <span *ngIf="!promotion.code" class="no-code">
-                      {{ 'admin.promotions.no_code' | translate }}
-                    </span>
+                    @if (promotion.code) {
+                      <span class="code-badge">{{ promotion.code }}</span>
+                    } @else {
+                      <span class="no-code">{{ 'admin.promotions.no_code' | translate }}</span>
+                    }
                   </td>
 
                   <!-- Discount -->
@@ -153,9 +167,7 @@
 
                   <!-- Scope -->
                   <td class="text-center">
-                    <span class="scope-badge">
-                      {{ getScopeDisplay(promotion) }}
-                    </span>
+                    <span class="scope-badge">{{ getScopeDisplay(promotion) }}</span>
                   </td>
 
                   <!-- Validity -->
@@ -182,11 +194,11 @@
 
                   <!-- Actions -->
                   <td class="text-center">
-                    <div class="action-buttons">
-                      <button class="edit-btn" (click)="editPromotion(promotion)" [pTooltip]="'admin.promotions.actions.edit' | translate">
+                    <div class="admin-table-actions">
+                      <button class="admin-action-btn edit" (click)="editPromotion(promotion)" [pTooltip]="'admin.promotions.actions.edit' | translate" tooltipPosition="top">
                         <i class="pi pi-pencil"></i>
                       </button>
-                      <button class="delete-btn" (click)="confirmDeletePromotion(promotion)" [pTooltip]="'admin.promotions.actions.delete' | translate">
+                      <button class="admin-action-btn delete" (click)="confirmDeletePromotion(promotion)" [pTooltip]="'admin.promotions.actions.delete' | translate" tooltipPosition="top">
                         <i class="pi pi-trash"></i>
                       </button>
                     </div>
@@ -196,10 +208,12 @@
             </tbody>
           </table>
         </div>
-      </div>
+      }
+    </div>
 
-      <!-- Pagination -->
-      <div class="pagination-wrapper" *ngIf="promotions.length > rows">
+    <!-- Pagination -->
+    @if (promotions.length > rows && !loading) {
+      <div class="admin-pagination">
         <p-paginator
           [first]="first"
           [rows]="rows"
@@ -210,9 +224,11 @@
           currentPageReportTemplate="{{ 'admin.promotions.showing' | translate }} {first} - {last} {{ 'admin.promotions.of' | translate }} {totalRecords}"
         ></p-paginator>
       </div>
+    }
 
-      <!-- Results Count -->
-      <div class="results-info" *ngIf="promotions.length <= rows">
+    <!-- Results Info -->
+    @if (promotions.length > 0 && promotions.length <= rows && !loading) {
+      <div class="admin-results-info">
         <span>{{ 'admin.promotions.showing' | translate }} {{ promotions.length }} {{ 'admin.promotions.of' | translate }} {{ allPromotions.length }} {{ 'admin.promotions.promotions' | translate }}</span>
       </div>
     }
