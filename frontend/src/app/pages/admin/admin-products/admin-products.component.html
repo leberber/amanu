@@ -174,7 +174,6 @@
                 <th class="col-brand">{{ 'admin.products.table.brand' | translate }}</th>
                 <th class="col-price">{{ 'admin.products.table.price' | translate }}</th>
                 <th class="col-stock">{{ 'admin.products.table.stock' | translate }}</th>
-                <th class="col-stock-status">{{ 'admin.products.table.availability' | translate }}</th>
                 <th class="col-status">{{ 'admin.products.table.status' | translate }}</th>
                 <th class="col-actions">{{ 'admin.products.table.actions' | translate }}</th>
               </tr>
@@ -237,16 +236,27 @@
                     }
                   </td>
 
-                  <!-- Stock Quantity (Editable) -->
+                  <!-- Stock Quantity (Editable - Add Stock) -->
                   <td class="col-stock">
                     @if (!isEditingStock(product.id)) {
                       <div class="stock-display" (click)="startEditStock(product)">
-                        <span class="stock-qty">{{ product.stock_quantity }}</span>
-                        <i class="pi pi-pencil edit-hint"></i>
+                        <div class="stock-info">
+                          @if (hasMultiplePiecesPerBox(product)) {
+                            <span class="stock-cartons" [class]="'stock-' + getStockSeverity(product.stock_quantity)">{{ getCartonCount(product) }} <i class="pi pi-box"></i></span>
+                            <span class="stock-units">{{ product.stock_quantity }} {{ 'admin.products.unit_label' | translate }}</span>
+                          } @else {
+                            <span class="stock-qty" [class]="'stock-' + getStockSeverity(product.stock_quantity)">{{ product.stock_quantity }}</span>
+                          }
+                        </div>
+                        <span class="stock-badge" [class]="'stock-' + getStockSeverity(product.stock_quantity)">
+                          {{ getStockLabel(product.stock_quantity) }}
+                        </span>
+                        <i class="pi pi-plus-circle edit-hint"></i>
                       </div>
                     } @else {
                       <div class="stock-edit-container">
                         <div class="stock-edit">
+                          <span class="add-prefix">+</span>
                           <input
                             type="number"
                             [(ngModel)]="stockEdit.value"
@@ -260,30 +270,21 @@
                               [class.active]="stockEditMode === 'cartons'"
                               (click)="toggleStockEditMode()"
                               [pTooltip]="(stockEditMode === 'cartons' ? 'admin.products.switch_to_units' : 'admin.products.switch_to_cartons') | translate">
-                              {{ stockEditMode === 'cartons' ? '📦' : '🔢' }}
+                              <i [class]="stockEditMode === 'cartons' ? 'pi pi-box' : 'pi pi-hashtag'"></i>
                             </button>
                           }
                           <button class="save-btn" (click)="saveStock(product)"><i class="pi pi-check"></i></button>
                           <button class="cancel-btn" (click)="cancelEditStock()"><i class="pi pi-times"></i></button>
                         </div>
-                        @if (hasMultiplePiecesPerBox(product)) {
-                          <div class="stock-conversion">
-                            @if (stockEditMode === 'cartons') {
-                              <span>{{ stockEdit.value }} × {{ product.pieces_per_box }} = <strong>{{ getStockInUnits() }}</strong> {{ 'admin.products.unit_label' | translate }}</span>
-                            } @else {
-                              <span>{{ stockEdit.value }} {{ 'admin.products.unit_label' | translate }}</span>
-                            }
-                          </div>
-                        }
+                        <div class="stock-conversion">
+                          @if (hasMultiplePiecesPerBox(product) && stockEditMode === 'cartons') {
+                            <span>{{ product.stock_quantity }} + ({{ stockEdit.value }} × {{ product.pieces_per_box }}) = <strong>{{ getNewTotalStock() }}</strong></span>
+                          } @else {
+                            <span>{{ product.stock_quantity }} + {{ getStockToAdd() }} = <strong>{{ getNewTotalStock() }}</strong></span>
+                          }
+                        </div>
                       </div>
                     }
-                  </td>
-
-                  <!-- Stock Status Badge -->
-                  <td class="col-stock-status">
-                    <span class="stock-badge" [class]="'stock-' + getStockSeverity(product.stock_quantity)">
-                      {{ getStockLabel(product.stock_quantity) }}
-                    </span>
                   </td>
 
                   <!-- Status -->

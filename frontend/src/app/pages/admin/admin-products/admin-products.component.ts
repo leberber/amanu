@@ -259,13 +259,11 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
     // Default to cartons mode if pieces_per_box > 1, otherwise units
     if (piecesPerBox > 1) {
       this.stockEditMode = 'cartons';
-      // Convert current stock to cartons (rounded down)
-      const cartons = Math.floor(product.stock_quantity / piecesPerBox);
-      this.stockEdit.start(product.id, cartons);
     } else {
       this.stockEditMode = 'units';
-      this.stockEdit.start(product.id, product.stock_quantity);
     }
+    // Start with 0 - user enters amount to ADD
+    this.stockEdit.start(product.id, 0);
   }
 
   cancelEditStock(): void {
@@ -290,7 +288,7 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
     }
   }
 
-  getStockInUnits(): number {
+  getStockToAdd(): number {
     if (!this.stockEditProduct) return 0;
     const piecesPerBox = this.stockEditProduct.pieces_per_box || 1;
 
@@ -300,21 +298,22 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
     return this.stockEdit.value;
   }
 
+  getNewTotalStock(): number {
+    if (!this.stockEditProduct) return 0;
+    return this.stockEditProduct.stock_quantity + this.getStockToAdd();
+  }
+
   saveStock(product: Product): void {
-    // Calculate actual units to save
-    const piecesPerBox = product.pieces_per_box || 1;
-    let newStock: number;
+    const stockToAdd = this.getStockToAdd();
 
-    if (this.stockEditMode === 'cartons') {
-      newStock = this.stockEdit.value * piecesPerBox;
-    } else {
-      newStock = this.stockEdit.value;
-    }
-
-    if (newStock === product.stock_quantity) {
+    // If nothing to add, just cancel
+    if (stockToAdd === 0) {
       this.cancelEditStock();
       return;
     }
+
+    // Calculate new total: existing + added
+    const newStock = product.stock_quantity + stockToAdd;
 
     this.handleInlineUpdate(
       () => this.productService.updateProduct(product.id, { stock_quantity: newStock }),
@@ -335,6 +334,11 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
 
   hasMultiplePiecesPerBox(product: Product): boolean {
     return (product.pieces_per_box || 1) > 1;
+  }
+
+  getCartonCount(product: Product): number {
+    const piecesPerBox = product.pieces_per_box || 1;
+    return Math.floor(product.stock_quantity / piecesPerBox);
   }
 
   // Private methods

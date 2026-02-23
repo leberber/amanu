@@ -340,8 +340,14 @@
   align-items: center;
   gap: 0.5rem;
 
+  .add-prefix {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #11998e;
+  }
+
   input {
-    width: 70px;
+    width: 60px;
     padding: 0.5rem;
     border: 1px solid rgba(46, 108, 183, 0.3);
     border-radius: 8px;
@@ -432,6 +438,12 @@
   }
 }
 
+// Stock column fixed width to prevent layout shift
+.col-stock {
+  min-width: 220px;
+  width: 220px;
+}
+
 // Stock Display (editable quantity)
 .stock-display {
   display: inline-flex;
@@ -450,27 +462,56 @@
     }
   }
 
-  .stock-qty {
+  .stock-info {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+  }
+
+  .stock-qty, .stock-cartons {
     font-size: 0.95rem;
     font-weight: 600;
     color: var(--text-color);
+
+    &.stock-success {
+      color: #11998e;
+    }
+
+    &.stock-warn {
+      color: #d97706;
+    }
+
+    &.stock-danger {
+      color: #ef4444;
+    }
+
+    &.stock-secondary {
+      color: var(--text-color-secondary);
+    }
+  }
+
+  .stock-units {
+    font-size: 0.75rem;
+    color: var(--text-color-secondary);
   }
 
   .edit-hint {
-    font-size: 0.7rem;
-    color: var(--text-color-secondary);
+    font-size: 0.75rem;
+    color: #11998e;
     opacity: 0;
     transition: opacity 0.2s ease;
+    margin-left: auto;
   }
 }
 
-// Stock Badge (availability status)
+// Stock Badge (availability status - compact for inline display)
 .stock-badge {
   display: inline-flex;
-  padding: 0.375rem 0.75rem;
-  border-radius: 20px;
-  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.7rem;
   font-weight: 600;
+  white-space: nowrap;
 
   &.stock-success {
     background: rgba(17, 153, 142, 0.15);
@@ -588,8 +629,7 @@
 
 @media (max-width: 480px) {
   .admin-table {
-    .col-stock,
-    .col-stock-status {
+    .col-stock {
       display: none;
     }
   }
