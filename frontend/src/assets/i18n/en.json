@@ -924,7 +924,7 @@
     },
     "products": {
       "title": "Product Management",
-      "subtitle": "Manage your store's product catalog",
+      "subtitle": "Manage the product catalog",
       "all_products": "All Products",
       "add_product": "Add New Product",
       "edit_product": "Edit Product",

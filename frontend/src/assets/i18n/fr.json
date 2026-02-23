@@ -925,7 +925,7 @@
     },
     "products": {
       "title": "Gestion des Produits",
-      "subtitle": "Gérez le catalogue de produits de votre boutique",
+      "subtitle": "Gérez le catalogue de produits",
       "all_products": "Tous les Produits",
       "add_product": "Ajouter Nouveau Produit",
       "edit_product": "Modifier Produit",
