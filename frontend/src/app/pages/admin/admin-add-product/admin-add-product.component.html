@@ -350,12 +350,37 @@
                   <i class="pi pi-warehouse"></i>
                 </div>
                 <div class="stock-content">
-                  <label>{{ 'admin.products.form.stock_quantity' | translate }} <span class="required">*</span></label>
-                  <p-inputNumber
-                    formControlName="stock_quantity"
-                    [placeholder]="'admin.products.form.stock_quantity' | translate"
-                    styleClass="w-full"
-                  />
+                  @if (hasMultiplePiecesPerBox()) {
+                    <!-- Cartons Input Mode -->
+                    <label>{{ 'admin.products.form.add_stock' | translate }} <span class="required">*</span></label>
+                    <div class="stock-cartons-input">
+                      <div class="stock-input-row">
+                        <p-inputNumber
+                          [ngModel]="cartonsInput()"
+                          (ngModelChange)="onCartonsInputChange($event)"
+                          [ngModelOptions]="{standalone: true}"
+                          [min]="0"
+                          styleClass="w-full"
+                        />
+                        <span class="stock-unit-label">{{ getPackagingTypeLabel() }}</span>
+                      </div>
+                      <div class="stock-conversion">
+                        <span class="conversion-formula">
+                          {{ originalStock() }} + ({{ cartonsInput() }} × {{ getPiecesPerBox() }}) = <strong>{{ getNewTotalStock() }}</strong>
+                        </span>
+                      </div>
+                    </div>
+                  } @else {
+                    <!-- Units Input Mode -->
+                    <label>{{ 'admin.products.form.stock_quantity' | translate }} <span class="required">*</span></label>
+                    <p-inputNumber
+                      formControlName="stock_quantity"
+                      [placeholder]="'admin.products.form.stock_quantity' | translate"
+                      [min]="0"
+                      styleClass="w-full"
+                    />
+                  }
+
                   @if (productForm.get('stock_quantity')?.invalid && productForm.get('stock_quantity')?.touched) {
                     <span class="field-error">{{ 'admin.products.form.stock_required' | translate }}</span>
                   }

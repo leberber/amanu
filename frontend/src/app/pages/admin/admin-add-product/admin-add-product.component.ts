@@ -1,6 +1,6 @@
 import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { ButtonModule } from 'primeng/button';
@@ -40,6 +40,7 @@ interface ProductWithTranslations extends Product {
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     ReactiveFormsModule,
     ButtonModule,
     InputTextModule,
@@ -79,7 +80,10 @@ export class AdminAddProductComponent implements OnInit {
   // Product count for badge
   productCount = signal(0);
 
-  
+  // Stock cartons input (amount to ADD, not total)
+  cartonsInput = signal<number>(0);
+  originalStock = signal<number>(0); // Current stock before adding
+
   // Computed properties
   get pageTitle(): string {
     return this.isEditMode() ? 'admin.products.edit_product' : 'admin.products.add_product';
@@ -125,6 +129,14 @@ export class AdminAddProductComponent implements OnInit {
     this.loadBrands();
     this.loadProductCount();
     this.detectMode();
+
+    // Watch pieces_per_box changes to update cartons input
+    this.productForm.get('pieces_per_box')?.valueChanges.subscribe(piecesPerBox => {
+      if (piecesPerBox && piecesPerBox > 1) {
+        const stockQuantity = this.productForm.get('stock_quantity')?.value || 0;
+        this.cartonsInput.set(Math.floor(stockQuantity / piecesPerBox));
+      }
+    });
 
     // Initialize form with slight delay for skeleton animation
     setTimeout(() => {
@@ -224,6 +236,11 @@ export class AdminAddProductComponent implements OnInit {
           packaging_type: product.packaging_type?.toUpperCase() || null
         });
 
+        // Store original stock for the formula display
+        this.originalStock.set(product.stock_quantity);
+        // Reset cartons input to 0 (user will add stock)
+        this.cartonsInput.set(0);
+
         this.loading.set(false);
       },
       error: () => {
@@ -315,6 +332,44 @@ export class AdminAddProductComponent implements OnInit {
   // Get packaging type options
   getPackagingTypeOptions() {
     return this.packagingTypeService.getPackagingTypeOptions(true);
+  }
+
+  // Check if pieces per box is configured
+  hasMultiplePiecesPerBox(): boolean {
+    const piecesPerBox = this.productForm.get('pieces_per_box')?.value;
+    return (piecesPerBox || 1) > 1;
+  }
+
+  // Get pieces per box value
+  getPiecesPerBox(): number {
+    return this.productForm.get('pieces_per_box')?.value || 1;
+  }
+
+  // Get packaging type label for display
+  getPackagingTypeLabel(): string {
+    const packagingType = this.productForm.get('packaging_type')?.value;
+    if (packagingType) {
+      return this.packagingTypeService.getPackagingTypeTranslated(packagingType);
+    }
+    return this.translateService.instant('products.product.packaging_types.box');
+  }
+
+  // Update stock quantity when cartons input changes
+  onCartonsInputChange(value: number): void {
+    this.cartonsInput.set(value || 0);
+    const piecesToAdd = (value || 0) * this.getPiecesPerBox();
+    const newTotal = this.originalStock() + piecesToAdd;
+    this.productForm.patchValue({ stock_quantity: newTotal });
+  }
+
+  // Get the pieces to add from cartons
+  getStockToAdd(): number {
+    return this.cartonsInput() * this.getPiecesPerBox();
+  }
+
+  // Get the new total stock
+  getNewTotalStock(): number {
+    return this.originalStock() + this.getStockToAdd();
   }
 
 }
