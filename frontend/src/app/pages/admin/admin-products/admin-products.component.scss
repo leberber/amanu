@@ -253,6 +253,71 @@
   }
 }
 
+// Status Toggle
+.status-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.75rem;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+
+  &:hover {
+    transform: scale(1.02);
+  }
+
+  .status-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    color: #ef4444;
+    transition: color 0.25s ease;
+  }
+
+  .toggle-track {
+    width: 32px;
+    height: 18px;
+    background: rgba(239, 68, 68, 0.3);
+    border-radius: 10px;
+    position: relative;
+    transition: background 0.25s ease;
+  }
+
+  .toggle-thumb {
+    width: 14px;
+    height: 14px;
+    background: white;
+    border-radius: 50%;
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    transition: transform 0.25s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  }
+
+  // Active state
+  &.active {
+    background: rgba(34, 197, 94, 0.1);
+    border-color: rgba(34, 197, 94, 0.25);
+
+    .status-label {
+      color: #16a34a;
+    }
+
+    .toggle-track {
+      background: #22c55e;
+    }
+
+    .toggle-thumb {
+      transform: translateX(14px);
+    }
+  }
+}
+
 // Add button
 .add-btn {
   display: flex;
@@ -411,7 +476,7 @@
 
 // Smaller columns
 .col-status {
-  width: 110px;
+  width: 130px;
 }
 
 .col-brand {

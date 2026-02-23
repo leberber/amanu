@@ -166,6 +166,21 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
     this.loadAllProducts();
   }
 
+  toggleProductStatus(product: Product) {
+    const newStatus = !product.is_active;
+    this.handleInlineUpdate(
+      () => this.productService.updateProduct(product.id, { is_active: newStatus }),
+      this.allProducts,
+      this.products,
+      product.id,
+      'is_active',
+      newStatus,
+      newStatus ? 'admin.products.status_activated' : 'admin.products.status_deactivated',
+      'admin.products.status_update_failed',
+      () => {}
+    );
+  }
+
   toggleFullscreen() {
     this.isFullscreen = !this.isFullscreen;
     if (this.isFullscreen) {

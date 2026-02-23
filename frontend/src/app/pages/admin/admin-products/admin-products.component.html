@@ -296,10 +296,14 @@
 
                   <!-- Status -->
                   <td class="col-status">
-                    <span class="admin-status-badge" [class.active]="product.is_active" [class.inactive]="!product.is_active">
-                      <i [class]="product.is_active ? 'pi pi-check' : 'pi pi-times'"></i>
-                      {{ product.is_active ? ('admin.products.status.active' | translate) : ('admin.products.status.inactive' | translate) }}
-                    </span>
+                    <div class="status-toggle" [class.active]="product.is_active" (click)="toggleProductStatus(product)">
+                      <span class="status-label">
+                        {{ product.is_active ? ('admin.products.status.active' | translate) : ('admin.products.status.inactive' | translate) }}
+                      </span>
+                      <div class="toggle-track">
+                        <div class="toggle-thumb"></div>
+                      </div>
+                    </div>
                   </td>
 
                   <!-- Actions -->
