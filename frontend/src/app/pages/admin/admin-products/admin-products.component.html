@@ -239,19 +239,20 @@
                   <!-- Stock Quantity (Editable - Add Stock) -->
                   <td class="col-stock">
                     @if (!isEditingStock(product.id)) {
-                      <div class="stock-display" (click)="startEditStock(product)">
-                        <div class="stock-info">
+                      <div class="stock-card" (click)="startEditStock(product)">
+                        <div class="stock-row">
                           @if (hasMultiplePiecesPerBox(product)) {
                             <span class="stock-cartons" [class]="'stock-' + getStockSeverity(product.stock_quantity)">{{ getCartonCount(product) }} <i class="pi pi-box"></i></span>
+                            <span class="stock-divider">·</span>
                             <span class="stock-units">{{ product.stock_quantity }} {{ 'admin.products.unit_label' | translate }}</span>
                           } @else {
                             <span class="stock-qty" [class]="'stock-' + getStockSeverity(product.stock_quantity)">{{ product.stock_quantity }}</span>
                           }
                         </div>
-                        <span class="stock-badge" [class]="'stock-' + getStockSeverity(product.stock_quantity)">
+                        <span class="stock-status" [class]="'status-' + getStockSeverity(product.stock_quantity)">
                           {{ getStockLabel(product.stock_quantity) }}
                         </span>
-                        <i class="pi pi-plus-circle edit-hint"></i>
+                        <i class="pi pi-plus edit-icon"></i>
                       </div>
                     } @else {
                       <div class="stock-edit-container">
