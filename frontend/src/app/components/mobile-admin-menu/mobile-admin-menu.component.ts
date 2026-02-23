@@ -106,6 +106,12 @@ import { ROUTES } from '../../core/constants/routes.constants';
   `,
   styles: [`
     :host ::ng-deep {
+      .p-dialog-mask {
+        background: rgba(255, 255, 255, 0.95) !important;
+        backdrop-filter: blur(20px) !important;
+        -webkit-backdrop-filter: blur(20px) !important;
+      }
+
       .p-dialog {
         margin: 0 !important;
         border-radius: 1.5rem 1.5rem 0 0;
