@@ -183,12 +183,18 @@
   color: var(--color-success);
 }
 
-.text-warning {
+.text-warning,
+.text-warn {
   color: var(--color-warning);
 }
 
-.text-error {
+.text-error,
+.text-danger {
   color: var(--color-error);
+}
+
+.text-info {
+  color: var(--color-info);
 }
 
 .text-muted {

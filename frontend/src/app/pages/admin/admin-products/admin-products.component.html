@@ -323,7 +323,7 @@
                             <span class="table-metric__value" [class]="'text-' + getStockSeverity(product.stock_quantity)">{{ product.stock_quantity }}</span>
                           }
                         </div>
-                        <span class="table-metric__label" [class]="'text-' + getStockSeverity(product.stock_quantity)">
+                        <span class="stock-pill" [class]="'stock-pill--' + getStockSeverity(product.stock_quantity)">
                           {{ getStockLabel(product.stock_quantity) }}
                         </span>
                         <i class="pi pi-plus editable-cell__icon"></i>
