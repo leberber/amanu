@@ -26,207 +26,203 @@
     <form [formGroup]="productForm" (ngSubmit)="onSubmit()">
       <!-- Cards Grid -->
       <div class="grid">
-        <!-- Product Names Card -->
+
+        <!-- Card 1: Product Identity (Names + Image) -->
         <div class="col-12 lg:col-6">
-        <div class="form-card">
-          <div class="card-header">
-            <div class="card-icon globe">
-              <i class="pi pi-globe"></i>
+          <div class="form-card">
+            <div class="card-header">
+              <div class="card-icon globe">
+                <i class="pi pi-globe"></i>
+              </div>
+              <h3>{{ 'admin.products.form.translations' | translate }}</h3>
             </div>
-            <h3>{{ 'admin.products.form.translations' | translate }}</h3>
-          </div>
-          <div class="card-body">
-            <!-- English Name -->
-            <div class="language-section">
-              <span class="language-flag">🇬🇧</span>
-              <div class="language-content">
-                <div class="language-header">
-                  <strong>{{ 'admin.products.form.english_name' | translate }}</strong>
-                  <span class="required">*</span>
-                </div>
-                <div class="form-field">
-                  <input
-                    type="text"
-                    formControlName="name_en"
-                    [placeholder]="'admin.products.form.english_name' | translate">
-                  @if (productForm.get('name_en')?.invalid && productForm.get('name_en')?.touched) {
-                    <span class="field-error">{{ 'admin.products.form.name_required' | translate }}</span>
-                  }
+            <div class="card-body">
+              <!-- English Name -->
+              <div class="language-section">
+                <span class="language-flag">🇬🇧</span>
+                <div class="language-content">
+                  <div class="language-header">
+                    <strong>{{ 'admin.products.form.english_name' | translate }}</strong>
+                    <span class="required">*</span>
+                  </div>
+                  <div class="form-field">
+                    <input
+                      type="text"
+                      formControlName="name_en"
+                      [placeholder]="'admin.products.form.english_name' | translate">
+                    @if (productForm.get('name_en')?.invalid && productForm.get('name_en')?.touched) {
+                      <span class="field-error">{{ 'admin.products.form.name_required' | translate }}</span>
+                    }
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <!-- French Name -->
-            <div class="language-section">
-              <span class="language-flag">🇫🇷</span>
-              <div class="language-content">
-                <div class="language-header">
-                  <strong>{{ 'admin.products.form.french_name' | translate }}</strong>
-                  <span class="required">*</span>
-                </div>
-                <div class="form-field">
-                  <input
-                    type="text"
-                    formControlName="name_fr"
-                    [placeholder]="'admin.products.form.french_name' | translate">
-                  @if (productForm.get('name_fr')?.invalid && productForm.get('name_fr')?.touched) {
-                    <span class="field-error">{{ 'admin.products.form.name_required' | translate }}</span>
-                  }
+              <!-- French Name -->
+              <div class="language-section">
+                <span class="language-flag">🇫🇷</span>
+                <div class="language-content">
+                  <div class="language-header">
+                    <strong>{{ 'admin.products.form.french_name' | translate }}</strong>
+                    <span class="required">*</span>
+                  </div>
+                  <div class="form-field">
+                    <input
+                      type="text"
+                      formControlName="name_fr"
+                      [placeholder]="'admin.products.form.french_name' | translate">
+                    @if (productForm.get('name_fr')?.invalid && productForm.get('name_fr')?.touched) {
+                      <span class="field-error">{{ 'admin.products.form.name_required' | translate }}</span>
+                    }
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <!-- Arabic Name -->
-            <div class="language-section">
-              <span class="language-flag">🇩🇿</span>
-              <div class="language-content">
-                <div class="language-header">
-                  <strong>{{ 'admin.products.form.arabic_name' | translate }}</strong>
-                  <span class="required">*</span>
-                </div>
-                <div class="form-field">
-                  <input
-                    type="text"
-                    formControlName="name_ar"
-                    dir="rtl"
-                    [placeholder]="'admin.products.form.arabic_name' | translate">
-                  @if (productForm.get('name_ar')?.invalid && productForm.get('name_ar')?.touched) {
-                    <span class="field-error">{{ 'admin.products.form.name_required' | translate }}</span>
-                  }
+              <!-- Arabic Name -->
+              <div class="language-section">
+                <span class="language-flag">🇩🇿</span>
+                <div class="language-content">
+                  <div class="language-header">
+                    <strong>{{ 'admin.products.form.arabic_name' | translate }}</strong>
+                    <span class="required">*</span>
+                  </div>
+                  <div class="form-field">
+                    <input
+                      type="text"
+                      formControlName="name_ar"
+                      dir="rtl"
+                      [placeholder]="'admin.products.form.arabic_name' | translate">
+                    @if (productForm.get('name_ar')?.invalid && productForm.get('name_ar')?.touched) {
+                      <span class="field-error">{{ 'admin.products.form.name_required' | translate }}</span>
+                    }
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <!-- Image URL -->
-            <div class="image-section">
-              <div class="section-label">
-                <i class="pi pi-image"></i>
-                <span>{{ 'admin.products.form.image' | translate }}</span>
-              </div>
-              <div class="image-field">
-                <div class="field-icon image">
-                  <i class="pi pi-link"></i>
+              <!-- Image URL -->
+              <div class="image-section">
+                <div class="section-label">
+                  <i class="pi pi-image"></i>
+                  <span>{{ 'admin.products.form.image' | translate }}</span>
                 </div>
-                <div class="field-content">
-                  <label>{{ 'admin.products.form.image_url' | translate }}</label>
-                  <input
-                    pInputText
-                    type="url"
-                    formControlName="image_url"
-                    [placeholder]="'admin.products.form.image_placeholder' | translate">
+                <div class="image-field">
+                  <div class="field-icon image">
+                    <i class="pi pi-link"></i>
+                  </div>
+                  <div class="field-content">
+                    <label>{{ 'admin.products.form.image_url' | translate }}</label>
+                    <input
+                      pInputText
+                      type="url"
+                      formControlName="image_url"
+                      [placeholder]="'admin.products.form.image_placeholder' | translate">
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-        </div>
 
-        <!-- Product Descriptions Card -->
+        <!-- Card 2: Product Details (Descriptions + Settings) -->
         <div class="col-12 lg:col-6">
-        <div class="form-card">
-          <div class="card-header">
-            <div class="card-icon description">
-              <i class="pi pi-file-edit"></i>
+          <div class="form-card">
+            <div class="card-header">
+              <div class="card-icon description">
+                <i class="pi pi-file-edit"></i>
+              </div>
+              <h3>{{ 'admin.products.form.descriptions' | translate }}</h3>
             </div>
-            <h3>{{ 'admin.products.form.descriptions' | translate }}</h3>
-          </div>
-          <div class="card-body">
-            <!-- English Description -->
-            <div class="language-section">
-              <span class="language-flag">🇬🇧</span>
-              <div class="language-content">
-                <div class="language-header">
-                  <strong>{{ 'admin.products.form.english_description' | translate }}</strong>
-                </div>
-                <div class="form-field">
-                  <textarea
-                    pInputTextarea
-                    formControlName="description_en"
-                    rows="2"
-                    [placeholder]="'admin.products.form.english_description' | translate"
-                  ></textarea>
+            <div class="card-body">
+              <!-- English Description -->
+              <div class="language-section">
+                <span class="language-flag">🇬🇧</span>
+                <div class="language-content">
+                  <div class="language-header">
+                    <strong>{{ 'admin.products.form.english_description' | translate }}</strong>
+                  </div>
+                  <div class="form-field">
+                    <textarea
+                      pInputTextarea
+                      formControlName="description_en"
+                      rows="2"
+                      [placeholder]="'admin.products.form.english_description' | translate"
+                    ></textarea>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <!-- French Description -->
-            <div class="language-section">
-              <span class="language-flag">🇫🇷</span>
-              <div class="language-content">
-                <div class="language-header">
-                  <strong>{{ 'admin.products.form.french_description' | translate }}</strong>
-                </div>
-                <div class="form-field">
-                  <textarea
-                    pInputTextarea
-                    formControlName="description_fr"
-                    rows="2"
-                    [placeholder]="'admin.products.form.french_description' | translate"
-                  ></textarea>
+              <!-- French Description -->
+              <div class="language-section">
+                <span class="language-flag">🇫🇷</span>
+                <div class="language-content">
+                  <div class="language-header">
+                    <strong>{{ 'admin.products.form.french_description' | translate }}</strong>
+                  </div>
+                  <div class="form-field">
+                    <textarea
+                      pInputTextarea
+                      formControlName="description_fr"
+                      rows="2"
+                      [placeholder]="'admin.products.form.french_description' | translate"
+                    ></textarea>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <!-- Arabic Description -->
-            <div class="language-section">
-              <span class="language-flag">🇩🇿</span>
-              <div class="language-content">
-                <div class="language-header">
-                  <strong>{{ 'admin.products.form.arabic_description' | translate }}</strong>
-                </div>
-                <div class="form-field">
-                  <textarea
-                    pInputTextarea
-                    formControlName="description_ar"
-                    rows="2"
-                    dir="rtl"
-                    [placeholder]="'admin.products.form.arabic_description' | translate"
-                  ></textarea>
+              <!-- Arabic Description -->
+              <div class="language-section">
+                <span class="language-flag">🇩🇿</span>
+                <div class="language-content">
+                  <div class="language-header">
+                    <strong>{{ 'admin.products.form.arabic_description' | translate }}</strong>
+                  </div>
+                  <div class="form-field">
+                    <textarea
+                      pInputTextarea
+                      formControlName="description_ar"
+                      rows="2"
+                      dir="rtl"
+                      [placeholder]="'admin.products.form.arabic_description' | translate"
+                    ></textarea>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <!-- Active Status -->
-            <div class="settings-section">
-              <div class="checkbox-row">
-                <div class="checkbox-field">
-                  <p-checkbox
-                    formControlName="is_organic"
-                    [binary]="true"
-                    inputId="is_organic"
-                  />
-                  <label for="is_organic">{{ 'admin.products.form.is_organic' | translate }}</label>
-                </div>
-                <div class="checkbox-field">
-                  <p-checkbox
-                    formControlName="is_active"
-                    [binary]="true"
-                    inputId="is_active"
-                  />
-                  <label for="is_active">{{ 'admin.products.form.is_active' | translate }}</label>
+              <!-- Settings -->
+              <div class="settings-section">
+                <div class="checkbox-row">
+                  <div class="checkbox-field">
+                    <p-checkbox
+                      formControlName="is_organic"
+                      [binary]="true"
+                      inputId="is_organic"
+                    />
+                    <label for="is_organic">{{ 'admin.products.form.is_organic' | translate }}</label>
+                  </div>
+                  <div class="checkbox-field">
+                    <p-checkbox
+                      formControlName="is_active"
+                      [binary]="true"
+                      inputId="is_active"
+                    />
+                    <label for="is_active">{{ 'admin.products.form.is_active' | translate }}</label>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-        </div>
 
-        <!-- Pricing & Inventory Card -->
+        <!-- Card 3: Pricing & Classification -->
         <div class="col-12 lg:col-6">
-        <div class="form-card">
-          <div class="card-header">
-            <div class="card-icon pricing">
-              <i class="pi pi-dollar"></i>
-            </div>
-            <h3>{{ 'admin.products.form.pricing_inventory' | translate }}</h3>
-          </div>
-          <div class="card-body">
-            <!-- Price & Unit Row -->
-            <div class="pricing-section">
-              <div class="section-label">
-                <i class="pi pi-tag"></i>
-                <span>{{ 'admin.products.form.pricing' | translate }}</span>
+          <div class="form-card">
+            <div class="card-header">
+              <div class="card-icon pricing">
+                <i class="pi pi-dollar"></i>
               </div>
+              <h3>{{ 'admin.products.form.pricing_inventory' | translate }}</h3>
+            </div>
+            <div class="card-body">
+              <!-- Price & Unit -->
               <div class="pricing-row">
                 <div class="pricing-field price">
                   <label>{{ 'admin.products.form.price' | translate }} <span class="required">*</span></label>
@@ -258,17 +254,74 @@
                   }
                 </div>
               </div>
-            </div>
 
-            <!-- Stock Section -->
-            <div class="inventory-section">
-              <div class="section-label">
-                <i class="pi pi-warehouse"></i>
-                <span>{{ 'admin.products.form.inventory' | translate }}</span>
+              <!-- Category & Brand -->
+              <div class="classification-section">
+                <div class="section-label">
+                  <i class="pi pi-th-large"></i>
+                  <span>{{ 'admin.products.form.classification' | translate }}</span>
+                </div>
+                <div class="classification-row">
+                  <div class="classification-field">
+                    <div class="field-icon category">
+                      <i class="pi pi-folder"></i>
+                    </div>
+                    <div class="field-content">
+                      <label>{{ 'admin.products.form.category' | translate }} <span class="required">*</span></label>
+                      <p-select
+                        formControlName="category_id"
+                        [options]="categoryOptions()"
+                        optionLabel="label"
+                        optionValue="value"
+                        [placeholder]="'admin.products.form.category' | translate"
+                        styleClass="w-full"
+                        [loading]="categoriesLoading()"
+                        appendTo="body"
+                      />
+                      @if (productForm.get('category_id')?.invalid && productForm.get('category_id')?.touched) {
+                        <span class="field-error">{{ 'admin.products.form.category_required' | translate }}</span>
+                      }
+                    </div>
+                  </div>
+                  <div class="classification-field">
+                    <div class="field-icon brand">
+                      <i class="pi pi-bookmark"></i>
+                    </div>
+                    <div class="field-content">
+                      <label>{{ 'admin.products.form.brand' | translate }}</label>
+                      <p-select
+                        formControlName="brand_id"
+                        [options]="brandOptions()"
+                        optionLabel="label"
+                        optionValue="value"
+                        [placeholder]="'admin.products.form.brand' | translate"
+                        styleClass="w-full"
+                        [loading]="brandsLoading()"
+                        [showClear]="true"
+                        appendTo="body"
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 4: Inventory & Packaging -->
+        <div class="col-12 lg:col-6">
+          <div class="form-card">
+            <div class="card-header">
+              <div class="card-icon quantity">
+                <i class="pi pi-box"></i>
+              </div>
+              <h3>{{ 'admin.products.form.inventory' | translate }}</h3>
+            </div>
+            <div class="card-body">
+              <!-- Stock Quantity -->
               <div class="inventory-field">
                 <div class="stock-icon">
-                  <i class="pi pi-box"></i>
+                  <i class="pi pi-warehouse"></i>
                 </div>
                 <div class="stock-content">
                   <label>{{ 'admin.products.form.stock_quantity' | translate }} <span class="required">*</span></label>
@@ -282,110 +335,52 @@
                   }
                 </div>
               </div>
-            </div>
 
-            <!-- Classification Section -->
-            <div class="classification-section">
-              <div class="section-label">
-                <i class="pi pi-th-large"></i>
-                <span>{{ 'admin.products.form.classification' | translate }}</span>
-              </div>
-              <div class="classification-row">
-                <div class="classification-field">
-                  <div class="field-icon category">
-                    <i class="pi pi-folder"></i>
-                  </div>
-                  <div class="field-content">
-                    <label>{{ 'admin.products.form.category' | translate }} <span class="required">*</span></label>
-                    <p-select
-                      formControlName="category_id"
-                      [options]="categoryOptions()"
-                      optionLabel="label"
-                      optionValue="value"
-                      [placeholder]="'admin.products.form.category' | translate"
-                      styleClass="w-full"
-                      [loading]="categoriesLoading()"
-                      appendTo="body"
-                    />
-                    @if (productForm.get('category_id')?.invalid && productForm.get('category_id')?.touched) {
-                      <span class="field-error">{{ 'admin.products.form.category_required' | translate }}</span>
-                    }
-                  </div>
+              <!-- Packaging Section -->
+              <div class="classification-section">
+                <div class="section-label">
+                  <i class="pi pi-box"></i>
+                  <span>{{ 'admin.products.form.box_config' | translate }}</span>
                 </div>
-                <div class="classification-field">
-                  <div class="field-icon brand">
-                    <i class="pi pi-bookmark"></i>
+                <div class="classification-row">
+                  <div class="classification-field">
+                    <div class="field-icon brand">
+                      <i class="pi pi-box"></i>
+                    </div>
+                    <div class="field-content">
+                      <label>{{ 'admin.products.form.packaging_type' | translate }}</label>
+                      <p-select
+                        formControlName="packaging_type"
+                        [options]="getPackagingTypeOptions()"
+                        optionLabel="label"
+                        optionValue="value"
+                        [placeholder]="'admin.products.form.packaging_type_placeholder' | translate"
+                        styleClass="w-full"
+                        [showClear]="true"
+                        appendTo="body"
+                      />
+                    </div>
                   </div>
-                  <div class="field-content">
-                    <label>{{ 'admin.products.form.brand' | translate }}</label>
-                    <p-select
-                      formControlName="brand_id"
-                      [options]="brandOptions()"
-                      optionLabel="label"
-                      optionValue="value"
-                      [placeholder]="'admin.products.form.brand' | translate"
-                      styleClass="w-full"
-                      [loading]="brandsLoading()"
-                      [showClear]="true"
-                      appendTo="body"
-                    />
+                  <div class="classification-field">
+                    <div class="field-icon category">
+                      <i class="pi pi-th-large"></i>
+                    </div>
+                    <div class="field-content">
+                      <label>{{ 'admin.products.form.pieces_per_box' | translate }}</label>
+                      <p-inputNumber
+                        formControlName="pieces_per_box"
+                        [placeholder]="'admin.products.form.pieces_per_box_placeholder' | translate"
+                        [min]="1"
+                        styleClass="w-full"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-        </div>
 
-        <!-- Box Configuration Card -->
-        <div class="col-12 lg:col-6">
-        <div class="form-card">
-          <div class="card-header">
-            <div class="card-icon quantity">
-              <i class="pi pi-box"></i>
-            </div>
-            <h3>{{ 'admin.products.form.box_config' | translate }}</h3>
-          </div>
-          <div class="card-body">
-            <!-- Packaging Type -->
-            <div class="classification-field">
-              <div class="field-icon brand">
-                <i class="pi pi-box"></i>
-              </div>
-              <div class="field-content">
-                <label>{{ 'admin.products.form.packaging_type' | translate }}</label>
-                <p-select
-                  formControlName="packaging_type"
-                  [options]="getPackagingTypeOptions()"
-                  optionLabel="label"
-                  optionValue="value"
-                  [placeholder]="'admin.products.form.packaging_type_placeholder' | translate"
-                  styleClass="w-full"
-                  [showClear]="true"
-                  appendTo="body"
-                />
-              </div>
-            </div>
-
-            <!-- Pieces Per Box -->
-            <div class="inventory-field">
-              <div class="stock-icon">
-                <i class="pi pi-th-large"></i>
-              </div>
-              <div class="stock-content">
-                <label>{{ 'admin.products.form.pieces_per_box' | translate }}</label>
-                <p-inputNumber
-                  formControlName="pieces_per_box"
-                  [placeholder]="'admin.products.form.pieces_per_box_placeholder' | translate"
-                  [min]="1"
-                  styleClass="w-full"
-                />
-                <small class="field-hint">{{ 'admin.products.form.pieces_per_box_hint' | translate }}</small>
-              </div>
-            </div>
-          </div>
-        </div>
-        </div>
       </div>
 
       <!-- Form Actions -->
