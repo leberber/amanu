@@ -1,11 +1,11 @@
 // =============================================================================
 // Admin Products Component Styles
 // =============================================================================
-// Component-specific layout only. Uses global styles:
-//   - _table.scss: editable-cell, cell-edit, status-toggle, table-row-animate
+// Component-specific overrides only. Uses global styles from:
+//   - _table.scss: table-container, table-thumbnail, table-item-info, etc.
+//   - _typography.scss: text-success, text-warning, text-error, text-muted
 //   - _segments.scss: segment-control
-//   - _badges.scss: badge--organic
-//   - _animations.scss: animate-item
+//   - _badges.scss: badge
 // =============================================================================
 
 // Table height override for this page
@@ -13,124 +13,7 @@
   --table-max-height: calc(100vh - 400px);
 }
 
-// Product thumbnail
-.product-image {
-  width: 48px;
-  height: 48px;
-  border-radius: var(--radius-sm);
-  overflow: hidden;
-  background: var(--surface-ground);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  i {
-    font-size: 1.25rem;
-    color: var(--text-color-secondary);
-  }
-}
-
-// Product info layout
-.product-info {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-}
-
-.product-name {
-  font-weight: 600;
-  color: var(--text-color);
-}
-
-.product-desc {
-  font-size: 0.8rem;
-  color: var(--text-color-secondary);
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  line-clamp: 1;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.product-badges {
-  display: flex;
-  gap: var(--space-2);
-  margin-top: var(--space-1);
-}
-
-// Stock display elements
-.stock-row {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  flex-wrap: wrap;
-}
-
-.stock-cartons {
-  font-weight: 700;
-  font-size: 1.1rem;
-  display: flex;
-  align-items: center;
-  gap: var(--space-1);
-
-  i {
-    font-size: 0.8rem;
-  }
-}
-
-.stock-divider {
-  color: var(--text-color-secondary);
-}
-
-.stock-units {
-  font-size: 0.8rem;
-  color: var(--text-color-secondary);
-}
-
-.stock-qty {
-  font-weight: 700;
-  font-size: 1.1rem;
-}
-
-.stock-status {
-  font-size: 0.7rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-}
-
-// Stock severity colors
-.stock-success {
-  color: var(--color-success);
-}
-
-.stock-warn {
-  color: var(--color-warning);
-}
-
-.stock-danger {
-  color: var(--color-error);
-}
-
-.status-success {
-  color: var(--color-success);
-}
-
-.status-warn {
-  color: var(--color-warning);
-}
-
-.status-danger {
-  color: var(--color-error);
-}
-
-// Stock edit specific
+// Stock edit mode toggle (specific to this component)
 .stock-edit__prefix {
   font-weight: 700;
   color: var(--color-success);
@@ -159,15 +42,11 @@
 
 .stock-conversion {
   margin-top: var(--space-2);
-  font-size: 0.8rem;
-  color: var(--text-color-secondary);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
 
   strong {
     color: var(--color-success);
     font-weight: 700;
   }
-}
-
-.no-brand {
-  color: var(--text-color-secondary);
 }

@@ -159,3 +159,23 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+// =============================================================================
+// Semantic Color Text Classes
+// =============================================================================
+
+.text-success {
+  color: var(--color-success);
+}
+
+.text-warning {
+  color: var(--color-warning);
+}
+
+.text-error {
+  color: var(--color-error);
+}
+
+.text-muted {
+  color: var(--color-text-secondary);
+}

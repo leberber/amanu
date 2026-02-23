@@ -249,7 +249,7 @@
                 <tr class="table-row-animate" [style.--row-delay]="(i * 40) + 'ms'">
                   <!-- Product Image -->
                   <td class="col-image">
-                    <div class="product-image">
+                    <div class="table-thumbnail">
                       @if (product.image_url) {
                         <img [src]="product.image_url" [alt]="getProductName(product)">
                       } @else {
@@ -260,13 +260,13 @@
 
                   <!-- Product Name -->
                   <td class="col-name">
-                    <div class="product-info">
-                      <span class="product-name">{{ getProductName(product) }}</span>
+                    <div class="table-item-info">
+                      <span class="table-item-name">{{ getProductName(product) }}</span>
                       @if (getProductDescription(product)) {
-                        <span class="product-desc">{{ getProductDescription(product) }}</span>
+                        <span class="table-item-desc">{{ getProductDescription(product) }}</span>
                       }
                       @if (product.is_organic) {
-                        <div class="product-badges">
+                        <div class="table-item-badges">
                           <span class="badge organic">
                             <i class="pi pi-check-circle"></i>
                             {{ 'admin.products.organic' | translate }}
@@ -286,7 +286,7 @@
                     @if (product.brand_id) {
                       <span class="brand-pill">{{ getBrandName(product.brand_id) }}</span>
                     } @else {
-                      <span class="no-brand">-</span>
+                      <span class="text-muted">-</span>
                     }
                   </td>
 
@@ -321,16 +321,16 @@
                   <td class="col-stock">
                     @if (!isEditingStock(product.id)) {
                       <div class="editable-cell editable-cell--success" (click)="startEditStock(product)">
-                        <div class="stock-row">
+                        <div class="table-metric__row">
                           @if (hasMultiplePiecesPerBox(product)) {
-                            <span class="stock-cartons" [class]="'stock-' + getStockSeverity(product.stock_quantity)">{{ getCartonCount(product) }} <i class="pi pi-box"></i></span>
-                            <span class="stock-divider">·</span>
-                            <span class="stock-units">{{ product.stock_quantity }} {{ 'admin.products.unit_label' | translate }}</span>
+                            <span class="table-metric__value" [class]="'text-' + getStockSeverity(product.stock_quantity)">{{ getCartonCount(product) }} <i class="pi pi-box"></i></span>
+                            <span class="table-metric__divider">·</span>
+                            <span class="table-metric__secondary">{{ product.stock_quantity }} {{ 'admin.products.unit_label' | translate }}</span>
                           } @else {
-                            <span class="stock-qty" [class]="'stock-' + getStockSeverity(product.stock_quantity)">{{ product.stock_quantity }}</span>
+                            <span class="table-metric__value" [class]="'text-' + getStockSeverity(product.stock_quantity)">{{ product.stock_quantity }}</span>
                           }
                         </div>
-                        <span class="stock-status" [class]="'status-' + getStockSeverity(product.stock_quantity)">
+                        <span class="table-metric__label" [class]="'text-' + getStockSeverity(product.stock_quantity)">
                           {{ getStockLabel(product.stock_quantity) }}
                         </span>
                         <i class="pi pi-plus editable-cell__icon"></i>
