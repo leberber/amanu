@@ -1213,3 +1213,28 @@
   }
 }
 
+.skeleton-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.skeleton-select {
+  width: 80px;
+  height: 36px;
+  border-radius: 8px;
+}
+
+.skeleton-pagination {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.skeleton-page-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+}
+
