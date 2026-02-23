@@ -869,10 +869,30 @@
     margin-bottom: 0.75rem;
 
     .header-title {
+      display: flex !important;
+      flex-direction: row !important;
+      align-items: center !important;
       gap: 0.75rem;
 
       .admin-icon-wrapper {
-        display: none;
+        display: block !important;
+        width: 40px !important;
+        height: 40px !important;
+        min-width: 40px;
+
+        .icon-bg {
+          width: 40px !important;
+          height: 40px !important;
+        }
+
+        .icon-circle {
+          width: 32px !important;
+          height: 32px !important;
+
+          i {
+            font-size: 1rem;
+          }
+        }
       }
 
       .title-text {
