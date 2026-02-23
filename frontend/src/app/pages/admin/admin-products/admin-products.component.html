@@ -163,7 +163,12 @@
       </div>
     } @else {
       <!-- Products Table -->
-      <div class="admin-table-card">
+      <div class="admin-table-card" [class.fullscreen]="isFullscreen">
+        <div class="table-header">
+          <button class="fullscreen-btn" (click)="toggleFullscreen()" [pTooltip]="(isFullscreen ? 'common.exit_fullscreen' : 'common.fullscreen') | translate">
+            <i [class]="isFullscreen ? 'pi pi-window-minimize' : 'pi pi-window-maximize'"></i>
+          </button>
+        </div>
         <div class="admin-table-wrapper">
           <table class="admin-table">
             <thead>

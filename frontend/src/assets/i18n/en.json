@@ -32,6 +32,8 @@
     "continue": "Continue",
     "confirm": "Confirm",
     "close": "Close",
+    "fullscreen": "Fullscreen",
+    "exit_fullscreen": "Exit Fullscreen",
     "yes": "Yes",
     "no": "No",
     "and": "and",

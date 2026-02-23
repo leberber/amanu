@@ -61,6 +61,9 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
   stockEditMode: 'cartons' | 'units' = 'cartons';
   stockEditProduct: Product | null = null;
 
+  // Fullscreen mode
+  isFullscreen = false;
+
   // Services
   private productService = inject(ProductService);
   private brandService = inject(BrandService);
@@ -175,6 +178,15 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
 
   refreshProductData() {
     this.loadAllProducts();
+  }
+
+  toggleFullscreen() {
+    this.isFullscreen = !this.isFullscreen;
+    if (this.isFullscreen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
   }
 
   getCategoryName(categoryId: number): string {
