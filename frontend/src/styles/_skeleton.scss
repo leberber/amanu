@@ -40,6 +40,8 @@
 }
 
 .skeleton-image {
+  width: 48px;
+  height: 48px;
   border-radius: var(--radius-md);
 
   &--sm {
@@ -148,10 +150,14 @@
   border-radius: var(--radius-sm);
 }
 
-.skeleton-row {
+.skeleton-table .skeleton-row {
+  display: table-row;
+  gap: unset;
+  margin-bottom: unset;
   animation: skeletonPulse 1.5s ease-in-out infinite;
 
   td {
+    display: table-cell;
     padding: 1rem 0.75rem;
   }
 }
@@ -200,8 +206,32 @@
 }
 
 .skeleton-table {
-  thead th {
-    padding: 1rem 0.75rem;
+  width: 100%;
+  table-layout: fixed;
+
+  thead {
+    display: table-header-group;
+
+    tr {
+      display: table-row;
+    }
+
+    th {
+      display: table-cell;
+      padding: 1rem 0.75rem;
+    }
+  }
+
+  tbody {
+    display: table-row-group;
+
+    tr {
+      display: table-row;
+    }
+
+    td {
+      display: table-cell;
+    }
   }
 }
 
