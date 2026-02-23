@@ -18,7 +18,7 @@ import { TranslationHelperService } from '../../../core/services/translation-hel
 import { UnitsService } from '../../../core/services/units.service';
 import { StockStatusService } from '../../../core/services/stock-status.service';
 import { ConfirmationDialogService } from '../../../core/services/confirmation-dialog.service';
-import { BaseAdminListComponent } from '../../../shared/base/base-admin-list.component';
+import { BaseAdminListComponent, ColumnOption } from '../../../shared/base/base-admin-list.component';
 import { InlineEditState } from '../../../shared/utils/inline-edit-state';
 import { Product } from '../../../models/product.model';
 import { Category } from '../../../models/category.model';
@@ -72,9 +72,8 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
   // Animation state
   tableInitialized = signal(false);
 
-  // Table options
-  rowsPerPageOptions = [10, 20, 25, 50];
-  columnOptions = [
+  // Column visibility options (override base class)
+  override columnOptions: ColumnOption[] = [
     { field: 'image', label: 'admin.products.table.image', visible: true },
     { field: 'name', label: 'admin.products.table.product_name', visible: true },
     { field: 'category', label: 'admin.products.table.category', visible: true },
@@ -228,24 +227,6 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
       document.body.classList.remove('fullscreen-active');
       document.body.style.overflow = '';
     }
-  }
-
-  setRowsPerPage(rows: number) {
-    this.rows = rows;
-    this.first = 0;
-    this.updatePaginatedItems();
-  }
-
-  toggleColumn(field: string) {
-    const col = this.columnOptions.find(c => c.field === field);
-    if (col) {
-      col.visible = !col.visible;
-    }
-  }
-
-  isColumnVisible(field: string): boolean {
-    const col = this.columnOptions.find(c => c.field === field);
-    return col ? col.visible : true;
   }
 
   getCategoryName(categoryId: number): string {

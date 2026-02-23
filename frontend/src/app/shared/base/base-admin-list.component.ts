@@ -8,6 +8,15 @@ import { ToastMessageService } from '../../core/services/toast-message.service';
 import { ROUTES } from '../../core/constants/routes.constants';
 
 /**
+ * Column option for table column visibility toggle
+ */
+export interface ColumnOption {
+  field: string;
+  label: string;
+  visible: boolean;
+}
+
+/**
  * Abstract base class for admin list components.
  * Provides common pagination, search debounce, date formatting, status filtering,
  * data loading, and CRUD operation helpers.
@@ -26,6 +35,10 @@ export abstract class BaseAdminListComponent {
   // Pagination state
   first = 0;
   rows = 10;
+  rowsPerPageOptions = [10, 20, 25, 50];
+
+  // Column visibility (override in child class with specific columns)
+  columnOptions: ColumnOption[] = [];
 
   // Status filter state (optional - use if component has status filtering)
   statusFilter: string = 'all';
@@ -43,6 +56,33 @@ export abstract class BaseAdminListComponent {
     this.first = event.first ?? 0;
     this.rows = event.rows ?? this.rows;
     this.updatePaginatedItems();
+  }
+
+  /**
+   * Set rows per page and reset pagination
+   */
+  setRowsPerPage(rows: number): void {
+    this.rows = rows;
+    this.first = 0;
+    this.updatePaginatedItems();
+  }
+
+  /**
+   * Toggle column visibility
+   */
+  toggleColumn(field: string): void {
+    const col = this.columnOptions.find(c => c.field === field);
+    if (col) {
+      col.visible = !col.visible;
+    }
+  }
+
+  /**
+   * Check if a column is visible
+   */
+  isColumnVisible(field: string): boolean {
+    const col = this.columnOptions.find(c => c.field === field);
+    return col ? col.visible : true;
   }
 
   /**
