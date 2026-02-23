@@ -47,11 +47,11 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
 
   // Category filter
   categoryFilter: number | null = null;
-  showCategoryDropdown = false;
+  categoryOptions: { label: string; value: number | null; count: number }[] = [];
 
   // Brand filter
   brandFilter: number | null = null;
-  showBrandDropdown = false;
+  brandOptions: { label: string; value: number | null; count: number }[] = [];
 
   // Inline editing state
   priceEdit = new InlineEditState<number>(0);
@@ -102,14 +102,7 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
   }
 
   // Category filter methods
-  toggleCategoryDropdown(): void {
-    this.showCategoryDropdown = !this.showCategoryDropdown;
-    this.showBrandDropdown = false; // Close other dropdown
-  }
-
-  selectCategory(categoryId: number | null): void {
-    this.categoryFilter = categoryId;
-    this.showCategoryDropdown = false;
+  onCategoryChange(event: any): void {
     this.first = 0;
     this.filterItems();
   }
@@ -119,14 +112,7 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
   }
 
   // Brand filter methods
-  toggleBrandDropdown(): void {
-    this.showBrandDropdown = !this.showBrandDropdown;
-    this.showCategoryDropdown = false; // Close other dropdown
-  }
-
-  selectBrand(brandId: number | null): void {
-    this.brandFilter = brandId;
-    this.showBrandDropdown = false;
+  onBrandChange(event: any): void {
     this.first = 0;
     this.filterItems();
   }
@@ -363,14 +349,20 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
   private loadCategories() {
     this.loadDataSilent(
       () => this.productService.getCategories(true),
-      (categories) => { this.categories = categories; }
+      (categories) => {
+        this.categories = categories;
+        this.buildCategoryOptions();
+      }
     );
   }
 
   private loadBrands() {
     this.loadDataSilent(
       () => this.brandService.getBrands(false),
-      (brands) => { this.brands = brands; }
+      (brands) => {
+        this.brands = brands;
+        this.buildBrandOptions();
+      }
     );
   }
 
@@ -381,9 +373,35 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
         this.allProducts = products;
         this.products = products;
         this.updatePaginatedItems();
+        this.buildCategoryOptions();
+        this.buildBrandOptions();
       },
       'admin.products.load_error'
     );
+  }
+
+  private buildCategoryOptions() {
+    const allLabel = this.translateService.instant('admin.products.filters.all_categories');
+    this.categoryOptions = [
+      { label: allLabel, value: null, count: this.allProducts.length },
+      ...this.categories.map(cat => ({
+        label: this.getCategoryName(cat.id),
+        value: cat.id,
+        count: this.getCategoryProductCount(cat.id)
+      }))
+    ];
+  }
+
+  private buildBrandOptions() {
+    const allLabel = this.translateService.instant('admin.products.filters.all_brands');
+    this.brandOptions = [
+      { label: allLabel, value: null, count: this.allProducts.length },
+      ...this.brands.map(brand => ({
+        label: brand.name,
+        value: brand.id,
+        count: this.getBrandProductCount(brand.id)
+      }))
+    ];
   }
 
   filterItems(): void {

@@ -79,6 +79,38 @@ body.fullscreen-active {
 // ---------------------------------------------------------------------------
 // 6. PrimeNG Overrides
 // ---------------------------------------------------------------------------
+
+// Filter Select Panels (for admin dropdowns)
+.filter-select-panel {
+  border-radius: 14px !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15) !important;
+  border: 1px solid rgba(0, 0, 0, 0.06) !important;
+  padding: 0.5rem !important;
+  overflow: hidden !important;
+
+  .p-select-list {
+    padding: 0 !important;
+  }
+
+  .p-select-option,
+  .p-listbox-option {
+    padding: 0.75rem 1rem !important;
+    border-radius: 10px !important;
+    margin: 0.25rem !important;
+    font-size: 0.9rem !important;
+    transition: all 0.2s ease !important;
+
+    &.p-highlight,
+    &[aria-selected="true"] {
+      background: linear-gradient(135deg, #2E6CB7 0%, #0F3C82 100%) !important;
+      color: white !important;
+    }
+
+    &:not(.p-highlight):hover {
+      background: rgba(46, 108, 183, 0.08) !important;
+    }
+  }
+}
 :root {
   --p-datatable-header-cell-selected-background: transparent !important;
   --p-datatable-header-cell-selected-color: inherit !important;

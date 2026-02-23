@@ -54,54 +54,54 @@
         </div>
 
         <!-- Category Dropdown -->
-        <div class="filter-dropdown" [class.active]="categoryFilter !== null">
-          <div class="dropdown-trigger" (click)="toggleCategoryDropdown()">
-            <i class="pi pi-th-large"></i>
-            <span class="dropdown-label">
-              {{ categoryFilter ? getCategoryName(categoryFilter) : ('admin.products.filters.all_categories' | translate) }}
-            </span>
-            <i class="pi pi-chevron-down dropdown-arrow"></i>
-          </div>
-          @if (showCategoryDropdown) {
-            <div class="dropdown-menu">
-              <div class="dropdown-item" [class.selected]="categoryFilter === null" (click)="selectCategory(null)">
-                <span>{{ 'admin.products.filters.all_categories' | translate }}</span>
-                <span class="item-count">{{ allProducts.length }}</span>
-              </div>
-              @for (category of categories; track category.id) {
-                <div class="dropdown-item" [class.selected]="categoryFilter === category.id" (click)="selectCategory(category.id)">
-                  <span>{{ getCategoryName(category.id) }}</span>
-                  <span class="item-count">{{ getCategoryProductCount(category.id) }}</span>
-                </div>
-              }
+        <p-select
+          [(ngModel)]="categoryFilter"
+          [options]="categoryOptions"
+          optionLabel="label"
+          optionValue="value"
+          [placeholder]="'admin.products.filters.all_categories' | translate"
+          (onChange)="onCategoryChange($event)"
+          [showClear]="categoryFilter !== null"
+          styleClass="filter-select"
+          panelStyleClass="filter-select-panel">
+          <ng-template pTemplate="selectedItem" let-selected>
+            <div class="select-item" *ngIf="selected">
+              <i class="pi pi-th-large"></i>
+              <span>{{ selected.label }}</span>
             </div>
-          }
-        </div>
+          </ng-template>
+          <ng-template pTemplate="item" let-option>
+            <div class="select-option">
+              <span>{{ option.label }}</span>
+              <span class="option-count">{{ option.count }}</span>
+            </div>
+          </ng-template>
+        </p-select>
 
         <!-- Brand Dropdown -->
-        <div class="filter-dropdown" [class.active]="brandFilter !== null">
-          <div class="dropdown-trigger" (click)="toggleBrandDropdown()">
-            <i class="pi pi-building"></i>
-            <span class="dropdown-label">
-              {{ brandFilter ? getBrandName(brandFilter) : ('admin.products.filters.all_brands' | translate) }}
-            </span>
-            <i class="pi pi-chevron-down dropdown-arrow"></i>
-          </div>
-          @if (showBrandDropdown) {
-            <div class="dropdown-menu">
-              <div class="dropdown-item" [class.selected]="brandFilter === null" (click)="selectBrand(null)">
-                <span>{{ 'admin.products.filters.all_brands' | translate }}</span>
-                <span class="item-count">{{ allProducts.length }}</span>
-              </div>
-              @for (brand of brands; track brand.id) {
-                <div class="dropdown-item" [class.selected]="brandFilter === brand.id" (click)="selectBrand(brand.id)">
-                  <span>{{ brand.name }}</span>
-                  <span class="item-count">{{ getBrandProductCount(brand.id) }}</span>
-                </div>
-              }
+        <p-select
+          [(ngModel)]="brandFilter"
+          [options]="brandOptions"
+          optionLabel="label"
+          optionValue="value"
+          [placeholder]="'admin.products.filters.all_brands' | translate"
+          (onChange)="onBrandChange($event)"
+          [showClear]="brandFilter !== null"
+          styleClass="filter-select"
+          panelStyleClass="filter-select-panel">
+          <ng-template pTemplate="selectedItem" let-selected>
+            <div class="select-item" *ngIf="selected">
+              <i class="pi pi-building"></i>
+              <span>{{ selected.label }}</span>
             </div>
-          }
-        </div>
+          </ng-template>
+          <ng-template pTemplate="item" let-option>
+            <div class="select-option">
+              <span>{{ option.label }}</span>
+              <span class="option-count">{{ option.count }}</span>
+            </div>
+          </ng-template>
+        </p-select>
       </div>
 
       <button class="add-btn" (click)="createNewProduct()">
