@@ -3,10 +3,19 @@
 // =============================================================================
 // Admin Add Product Component Styles
 // =============================================================================
-// Component-specific styles. Global styles in:
-// - _skeleton.scss for skeleton loading
-// - _effects.scss for animations (pulse, spin, float)
+// Component-specific styles only.
+// Global styles used:
+//   - _admin-page.scss: bg-decoration, admin-page, admin-content, admin-back-btn
+//   - _admin-forms.scss: PrimeNG input/select overrides
+//   - _components.scss: page-header, icon-wrapper, title-text, admin-loading-overlay
+//   - _skeleton.scss: Skeleton loading states
+//   - _effects.scss: Animations (pulse, spin, float)
 // =============================================================================
+
+// Theme colors
+$primary-gradient: linear-gradient(135deg, #2E6CB7 0%, #0F3C82 100%);
+$primary-color: #2E6CB7;
+$success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
 
 // -----------------------------------------------------------------------------
 // Form Card Skeleton (extends global skeleton)
@@ -91,7 +100,9 @@
   }
 }
 
+// -----------------------------------------------------------------------------
 // Custom Header in Page Layout
+// -----------------------------------------------------------------------------
 .custom-header {
   display: flex;
   align-items: center;
@@ -101,7 +112,7 @@
     width: 36px;
     height: 36px;
     border-radius: 10px;
-    background: linear-gradient(135deg, #2E6CB7 0%, #0F3C82 100%);
+    background: $primary-gradient;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -150,11 +161,9 @@
   }
 }
 
-// Theme colors
-$primary-gradient: linear-gradient(135deg, #2E6CB7 0%, #0F3C82 100%);
-$primary-color: #2E6CB7;
-$success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-
+// -----------------------------------------------------------------------------
+// Product Form Page Container
+// -----------------------------------------------------------------------------
 .product-form-page {
   position: relative;
   background: var(--surface-ground);
@@ -166,62 +175,12 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
   @media (max-width: 768px) {
     padding: 0.5rem;
 
-    // Force all elements to respect container width
     * {
       max-width: 100%;
       box-sizing: border-box;
     }
   }
 }
-
-// Animated Background Blobs
-.bg-decoration {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  overflow: hidden;
-  pointer-events: none;
-  z-index: 0;
-
-  .blob {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(60px);
-    opacity: 0.5;
-    animation: float 20s ease-in-out infinite;
-
-    &.blob-1 {
-      width: 300px;
-      height: 300px;
-      background: linear-gradient(135deg, rgba(46, 108, 183, 0.4) 0%, rgba(15, 60, 130, 0.4) 100%);
-      top: 7%;
-      right: -100px;
-      animation-delay: 0s;
-    }
-
-    &.blob-2 {
-      width: 250px;
-      height: 250px;
-      background: linear-gradient(135deg, rgba(17, 153, 142, 0.3) 0%, rgba(56, 239, 125, 0.3) 100%);
-      bottom: 15%;
-      left: -80px;
-      animation-delay: -7s;
-    }
-
-    &.blob-3 {
-      width: 200px;
-      height: 200px;
-      background: linear-gradient(135deg, rgba(255, 154, 158, 0.3) 0%, rgba(250, 208, 196, 0.3) 100%);
-      bottom: -50px;
-      right: 20%;
-      animation-delay: -14s;
-    }
-  }
-}
-
-// float animation is defined globally in _effects.scss
 
 // Page Content
 .page-content {
@@ -232,104 +191,6 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-}
-
-// Page Header
-.page-header {
-  margin-bottom: 1.5rem;
-
-  .header-content {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 1rem;
-  }
-
-  .header-title {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-  }
-
-  .icon-wrapper {
-    position: relative;
-    width: 56px;
-    height: 56px;
-
-    .icon-bg {
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(135deg, rgba(46, 108, 183, 0.15) 0%, rgba(15, 60, 130, 0.15) 100%);
-      border-radius: 50%;
-      animation: pulse 3s ease-in-out infinite;
-    }
-
-    .icon-circle {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 48px;
-      height: 48px;
-      background: $primary-gradient;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 8px 24px rgba(46, 108, 183, 0.35);
-
-      i {
-        font-size: 1.25rem;
-        color: white;
-      }
-    }
-  }
-
-  .title-text {
-    h1 {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: #1e293b;
-      margin: 0;
-      letter-spacing: -0.01em;
-    }
-
-    p {
-      color: #64748b;
-      margin: 0.25rem 0 0 0;
-      font-size: 0.875rem;
-    }
-  }
-
-  .back-btn {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.625rem 1.25rem;
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(0, 0, 0, 0.08);
-    border-radius: 12px;
-    color: #64748b;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-
-    &:hover {
-      background: white;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      transform: translateX(-2px);
-    }
-
-    i { font-size: 0.875rem; }
-  }
-}
-
-@keyframes pulse {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.1); opacity: 0.7; }
 }
 
 // PrimeFlex Grid overrides
@@ -345,7 +206,9 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
   }
 }
 
+// -----------------------------------------------------------------------------
 // Form Card
+// -----------------------------------------------------------------------------
 .form-card {
   background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(10px);
@@ -419,7 +282,9 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
   }
 }
 
+// -----------------------------------------------------------------------------
 // Language Section
+// -----------------------------------------------------------------------------
 .language-section {
   display: flex;
   align-items: center;
@@ -467,14 +332,18 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
   }
 }
 
+// -----------------------------------------------------------------------------
 // Settings Section
+// -----------------------------------------------------------------------------
 .settings-section {
   margin-top: 1.25rem;
   padding-top: 1.25rem;
   border-top: 1px solid rgba(0, 0, 0, 0.06);
 }
 
+// -----------------------------------------------------------------------------
 // Form Fields
+// -----------------------------------------------------------------------------
 .form-field {
   margin-bottom: 0.875rem;
   flex: 1;
@@ -620,7 +489,9 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
   margin-top: 1rem;
 }
 
+// -----------------------------------------------------------------------------
 // Pricing & Inventory Sections
+// -----------------------------------------------------------------------------
 .pricing-section,
 .inventory-section,
 .classification-section,
@@ -699,7 +570,9 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
   }
 }
 
+// -----------------------------------------------------------------------------
 // Inventory Section
+// -----------------------------------------------------------------------------
 .inventory-field {
   display: flex;
   align-items: center;
@@ -827,7 +700,9 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
   }
 }
 
+// -----------------------------------------------------------------------------
 // Classification Section
+// -----------------------------------------------------------------------------
 .classification-row {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -847,7 +722,7 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
   border-radius: 16px;
   padding: 1rem 1.25rem;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  min-width: 0; // Prevent grid item from expanding beyond column
+  min-width: 0;
 
   &:hover {
     border-color: rgba(46, 108, 183, 0.2);
@@ -1017,40 +892,9 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
 // PrimeNG input/select overrides are in global _admin-forms.scss
 // Form actions use global .admin-form-actions class
 
-// Loading overlay
-.loading-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(8px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 100;
-
-  .loading-content {
-    text-align: center;
-    background: white;
-    padding: 2.5rem 3.5rem;
-    border-radius: 24px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
-
-    i {
-      font-size: 2.5rem;
-      color: $primary-color;
-      margin-bottom: 1rem;
-    }
-
-    span {
-      display: block;
-      color: #64748b;
-      font-size: 1rem;
-      font-weight: 500;
-    }
-  }
-}
-
-// Responsive
+// -----------------------------------------------------------------------------
+// Responsive Styles
+// -----------------------------------------------------------------------------
 @media (max-width: 768px) {
   .product-form-page {
     padding: 0.5rem;
@@ -1158,7 +1002,7 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
     }
   }
 
-  // PrimeNG mobile overrides - force all inputs to fit
+  // PrimeNG mobile overrides
   :host ::ng-deep {
     .p-inputtext,
     .p-inputnumber,

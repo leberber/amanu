@@ -1,49 +1,13 @@
 // =============================================================================
 // Admin Products Component Styles
 // =============================================================================
-// Component-specific styles only. Global table styles are in _admin-table.scss
+// Component-specific styles only.
+// Global styles used:
+//   - _admin-table.scss: Table layout, actions, status toggle
+//   - _admin-forms.scss: Filter selects, inputs
+//   - _admin-page.scss: Pills, badges, filters-left
+//   - _components.scss: btn-add, admin-segment-*, admin-empty-state
 // =============================================================================
-
-// -----------------------------------------------------------------------------
-// Filter Layout
-// -----------------------------------------------------------------------------
-// Dropdown styles are in global _admin-forms.scss (.admin-filter-select)
-
-.filters-left {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  flex-wrap: nowrap;
-}
-
-// -----------------------------------------------------------------------------
-// Add Button
-// -----------------------------------------------------------------------------
-.add-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.875rem 1.5rem;
-  background: var(--success-gradient);
-  border: none;
-  border-radius: var(--radius-xl);
-  color: white;
-  font-weight: 600;
-  font-size: 0.95rem;
-  cursor: pointer;
-  transition: var(--transition-smooth);
-  box-shadow: var(--shadow-success);
-  white-space: nowrap;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-success-lg);
-  }
-
-  i {
-    font-size: 0.9rem;
-  }
-}
 
 // -----------------------------------------------------------------------------
 // Product Table Specific Styles
@@ -109,21 +73,6 @@
       }
     }
   }
-}
-
-.category-pill,
-.brand-pill {
-  padding: 0.35rem 0.75rem;
-  border-radius: 12px;
-  font-size: 0.8rem;
-  font-weight: 500;
-  background: rgba(46, 108, 183, 0.1);
-  color: var(--primary-color);
-}
-
-.brand-pill {
-  background: rgba(100, 116, 139, 0.1);
-  color: #64748b;
 }
 
 .no-brand {
@@ -356,73 +305,9 @@
 }
 
 // -----------------------------------------------------------------------------
-// Pagination Override
-// -----------------------------------------------------------------------------
-:host ::ng-deep {
-  .p-paginator {
-    padding: 0.5rem !important;
-    background: transparent !important;
-    border: none !important;
-    justify-content: center !important;
-    gap: 0.25rem !important;
-  }
-
-  .p-paginator-element {
-    min-width: 36px !important;
-    height: 36px !important;
-    border-radius: var(--radius-sm) !important;
-    border: 1px solid rgba(0, 0, 0, 0.08) !important;
-    background: white !important;
-    color: var(--text-color) !important;
-    transition: var(--transition-fast) !important;
-
-    &:hover:not(.p-disabled) {
-      background: rgba(46, 108, 183, 0.1) !important;
-      border-color: var(--primary-color) !important;
-      color: var(--primary-color) !important;
-    }
-
-    &.p-highlight {
-      background: var(--primary-color) !important;
-      border-color: var(--primary-color) !important;
-      color: white !important;
-    }
-  }
-
-  .p-paginator-current {
-    font-size: 0.85rem !important;
-    color: var(--text-color-secondary) !important;
-    margin: 0 0.5rem !important;
-  }
-
-  .p-paginator-rpp-options {
-    border-radius: var(--radius-sm) !important;
-    border: 1px solid rgba(0, 0, 0, 0.08) !important;
-    min-height: 36px !important;
-  }
-}
-
-// -----------------------------------------------------------------------------
 // Mobile Responsive
 // -----------------------------------------------------------------------------
-@media (max-width: 1200px) {
-  .filters-left {
-    flex-wrap: wrap;
-  }
-}
-
 @media (max-width: 768px) {
-  .filters-left {
-    width: 100%;
-    gap: 0.5rem;
-  }
-
-  .add-btn {
-    width: 100%;
-    justify-content: center;
-    margin-top: 0.5rem;
-  }
-
   .table-search {
     max-width: 100%;
   }
