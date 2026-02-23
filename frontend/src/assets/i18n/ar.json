@@ -1053,7 +1053,9 @@
         "packaging_type_placeholder": "التغليف",
         "pieces_per_box": "القطع لكل عبوة",
         "pieces_per_box_placeholder": "مثال: 12",
-        "pieces_per_box_hint": "عدد القطع الفردية في الكرتون الواحد"
+        "pieces_per_box_hint": "عدد القطع الفردية في الكرتون الواحد",
+        "configure_packaging_first": "قم بإعداد التغليف أولاً",
+        "configure_packaging_hint": "اختر نوع التغليف وعدد القطع للتفعيل"
       },
       "units": {
         "kg": "كيلوغرام (كغ)",

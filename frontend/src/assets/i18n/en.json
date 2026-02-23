@@ -1051,7 +1051,9 @@
         "packaging_type_placeholder": "Packaging",
         "pieces_per_box": "Pieces Per Package",
         "pieces_per_box_placeholder": "e.g., 12",
-        "pieces_per_box_hint": "Number of individual pieces in one box/carton"
+        "pieces_per_box_hint": "Number of individual pieces in one box/carton",
+        "configure_packaging_first": "Configure packaging first",
+        "configure_packaging_hint": "Select packaging type and pieces per package to enable"
       },
       "units": {
         "kg": "Kilogram",

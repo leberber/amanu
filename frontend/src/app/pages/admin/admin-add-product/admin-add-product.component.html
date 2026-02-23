@@ -387,13 +387,13 @@
               </div>
 
               <!-- Stock Quantity -->
-              <div class="inventory-field">
+              <div class="inventory-field" [class.disabled]="!isPackagingConfigured()">
                 <div class="stock-icon">
                   <i class="pi pi-warehouse"></i>
                 </div>
                 <div class="stock-content">
-                  @if (hasMultiplePiecesPerBox()) {
-                    <!-- Cartons Input Mode -->
+                  @if (isPackagingConfigured()) {
+                    <!-- Cartons Input Mode (enabled when packaging is configured) -->
                     <label>{{ 'admin.products.form.add_stock' | translate }} <span class="required">*</span></label>
                     <div class="stock-cartons-input">
                       <div class="stock-input-row">
@@ -413,14 +413,16 @@
                       </div>
                     </div>
                   } @else {
-                    <!-- Units Input Mode -->
+                    <!-- Disabled state - packaging not configured -->
                     <label>{{ 'admin.products.form.stock_quantity' | translate }} <span class="required">*</span></label>
                     <p-inputNumber
                       formControlName="stock_quantity"
-                      [placeholder]="'admin.products.form.stock_quantity' | translate"
+                      [placeholder]="'admin.products.form.configure_packaging_first' | translate"
                       [min]="0"
+                      [disabled]="true"
                       styleClass="w-full"
                     />
+                    <span class="field-hint">{{ 'admin.products.form.configure_packaging_hint' | translate }}</span>
                   }
 
                   @if (productForm.get('stock_quantity')?.invalid && productForm.get('stock_quantity')?.touched) {

@@ -1056,7 +1056,9 @@
         "packaging_type_placeholder": "Emballage",
         "pieces_per_box": "Pièces par Emballage",
         "pieces_per_box_placeholder": "ex: 12",
-        "pieces_per_box_hint": "Nombre de pièces individuelles dans un carton"
+        "pieces_per_box_hint": "Nombre de pièces individuelles dans un carton",
+        "configure_packaging_first": "Configurez l'emballage d'abord",
+        "configure_packaging_hint": "Sélectionnez le type d'emballage et le nombre de pièces pour activer"
       },
       "units": {
         "kg": "Kilogramme (Kg)",

@@ -334,6 +334,13 @@ export class AdminAddProductComponent implements OnInit {
     return this.packagingTypeService.getPackagingTypeOptions(true);
   }
 
+  // Check if packaging is fully configured (both type and pieces per box)
+  isPackagingConfigured(): boolean {
+    const packagingType = this.productForm.get('packaging_type')?.value;
+    const piecesPerBox = this.productForm.get('pieces_per_box')?.value;
+    return !!packagingType && piecesPerBox > 1;
+  }
+
   // Check if pieces per box is configured
   hasMultiplePiecesPerBox(): boolean {
     const piecesPerBox = this.productForm.get('pieces_per_box')?.value;
