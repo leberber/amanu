@@ -245,16 +245,36 @@
                         <i class="pi pi-pencil edit-hint"></i>
                       </div>
                     } @else {
-                      <div class="stock-edit">
-                        <input
-                          type="number"
-                          [(ngModel)]="stockEdit.value"
-                          (keydown.enter)="saveStock(product)"
-                          (keydown.escape)="cancelEditStock()"
-                          min="0"
-                          autofocus>
-                        <button class="save-btn" (click)="saveStock(product)"><i class="pi pi-check"></i></button>
-                        <button class="cancel-btn" (click)="cancelEditStock()"><i class="pi pi-times"></i></button>
+                      <div class="stock-edit-container">
+                        <div class="stock-edit">
+                          <input
+                            type="number"
+                            [(ngModel)]="stockEdit.value"
+                            (keydown.enter)="saveStock(product)"
+                            (keydown.escape)="cancelEditStock()"
+                            min="0"
+                            autofocus>
+                          @if (hasMultiplePiecesPerBox(product)) {
+                            <button
+                              class="mode-toggle"
+                              [class.active]="stockEditMode === 'cartons'"
+                              (click)="toggleStockEditMode()"
+                              [pTooltip]="(stockEditMode === 'cartons' ? 'admin.products.switch_to_units' : 'admin.products.switch_to_cartons') | translate">
+                              {{ stockEditMode === 'cartons' ? '📦' : '🔢' }}
+                            </button>
+                          }
+                          <button class="save-btn" (click)="saveStock(product)"><i class="pi pi-check"></i></button>
+                          <button class="cancel-btn" (click)="cancelEditStock()"><i class="pi pi-times"></i></button>
+                        </div>
+                        @if (hasMultiplePiecesPerBox(product)) {
+                          <div class="stock-conversion">
+                            @if (stockEditMode === 'cartons') {
+                              <span>{{ stockEdit.value }} × {{ product.pieces_per_box }} = <strong>{{ getStockInUnits() }}</strong> {{ 'admin.products.unit_label' | translate }}</span>
+                            } @else {
+                              <span>{{ stockEdit.value }} {{ 'admin.products.unit_label' | translate }}</span>
+                            }
+                          </div>
+                        }
                       </div>
                     }
                   </td>

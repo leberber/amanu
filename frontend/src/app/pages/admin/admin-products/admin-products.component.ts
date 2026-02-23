@@ -57,6 +57,10 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
   priceEdit = new InlineEditState<number>(0);
   stockEdit = new InlineEditState<number>(0);
 
+  // Stock edit mode (cartons or units)
+  stockEditMode: 'cartons' | 'units' = 'cartons';
+  stockEditProduct: Product | null = null;
+
   // Services
   private productService = inject(ProductService);
   private brandService = inject(BrandService);
@@ -249,20 +253,69 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
 
   // Inline stock editing methods
   startEditStock(product: Product): void {
-    this.stockEdit.start(product.id, product.stock_quantity);
+    this.stockEditProduct = product;
+    const piecesPerBox = product.pieces_per_box || 1;
+
+    // Default to cartons mode if pieces_per_box > 1, otherwise units
+    if (piecesPerBox > 1) {
+      this.stockEditMode = 'cartons';
+      // Convert current stock to cartons (rounded down)
+      const cartons = Math.floor(product.stock_quantity / piecesPerBox);
+      this.stockEdit.start(product.id, cartons);
+    } else {
+      this.stockEditMode = 'units';
+      this.stockEdit.start(product.id, product.stock_quantity);
+    }
   }
 
   cancelEditStock(): void {
     this.stockEdit.cancel();
+    this.stockEditProduct = null;
+  }
+
+  toggleStockEditMode(): void {
+    if (!this.stockEditProduct) return;
+
+    const piecesPerBox = this.stockEditProduct.pieces_per_box || 1;
+    const currentValue = this.stockEdit.value;
+
+    if (this.stockEditMode === 'cartons') {
+      // Switching to units: convert cartons to units
+      this.stockEditMode = 'units';
+      this.stockEdit.value = currentValue * piecesPerBox;
+    } else {
+      // Switching to cartons: convert units to cartons (rounded down)
+      this.stockEditMode = 'cartons';
+      this.stockEdit.value = Math.floor(currentValue / piecesPerBox);
+    }
+  }
+
+  getStockInUnits(): number {
+    if (!this.stockEditProduct) return 0;
+    const piecesPerBox = this.stockEditProduct.pieces_per_box || 1;
+
+    if (this.stockEditMode === 'cartons') {
+      return this.stockEdit.value * piecesPerBox;
+    }
+    return this.stockEdit.value;
   }
 
   saveStock(product: Product): void {
-    if (!this.stockEdit.hasChanged(product.stock_quantity)) {
-      this.stockEdit.cancel();
+    // Calculate actual units to save
+    const piecesPerBox = product.pieces_per_box || 1;
+    let newStock: number;
+
+    if (this.stockEditMode === 'cartons') {
+      newStock = this.stockEdit.value * piecesPerBox;
+    } else {
+      newStock = this.stockEdit.value;
+    }
+
+    if (newStock === product.stock_quantity) {
+      this.cancelEditStock();
       return;
     }
 
-    const newStock = this.stockEdit.value;
     this.handleInlineUpdate(
       () => this.productService.updateProduct(product.id, { stock_quantity: newStock }),
       this.allProducts,
@@ -272,12 +325,16 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
       newStock,
       'admin.products.stock_updated',
       'admin.products.stock_update_failed',
-      () => this.stockEdit.cancel()
+      () => this.cancelEditStock()
     );
   }
 
   isEditingStock(productId: number): boolean {
     return this.stockEdit.isEditing(productId);
+  }
+
+  hasMultiplePiecesPerBox(product: Product): boolean {
+    return (product.pieces_per_box || 1) > 1;
   }
 
   // Private methods
