@@ -54,9 +54,8 @@ a {
 body.fullscreen-active {
   overflow: hidden !important;
 
-  // Hide sidebar in fullscreen mode
-  .sidebar-desktop,
-  app-sidebar {
+  // Hide desktop sidebar in fullscreen mode (but keep mobile drawer accessible)
+  .sidebar-desktop {
     display: none !important;
   }
 
@@ -117,7 +116,10 @@ body.fullscreen-active {
 }
 
 .p-timeline-event-opposite { flex: 0 !important; }
-.p-drawer { border: none !important; }
+.p-drawer {
+  border: none !important;
+  z-index: 9999 !important;
+}
 
 // Fade drawer - override slide with opacity
 .fade-drawer.p-drawer { transform: none !important; }

@@ -29,9 +29,9 @@
     </a>
   }
 
-  <!-- Admin (for staff/admin) - links to admin dashboard -->
+  <!-- Admin (for staff/admin) - opens admin menu drawer -->
   @if (isAdminOrStaff()) {
-    <a #navItem class="bottom-nav__item" [routerLink]="routes.ADMIN.DASHBOARD" routerLinkActive="active">
+    <a #navItem class="bottom-nav__item" (click)="showAdminMenu()">
       <i class="pi pi-cog"></i>
       <span>{{ 'header.admin' | translate }}</span>
     </a>
@@ -43,3 +43,6 @@
     <span>{{ 'common.menu' | translate }}</span>
   </a>
 </div>
+
+<!-- Mobile Admin Menu -->
+<app-mobile-admin-menu #adminMenu></app-mobile-admin-menu>
