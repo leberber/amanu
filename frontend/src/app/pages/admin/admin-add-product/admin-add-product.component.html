@@ -1,29 +1,28 @@
 <!-- src/app/pages/admin/admin-add-product/admin-add-product.component.html -->
-<div class="product-form-page">
-  <p-toast></p-toast>
-  <div class="page-content">
-    <!-- Page Header -->
-    <div class="page-header">
-      <div class="header-content">
-        <div class="header-title">
-          <div class="icon-wrapper">
-            <div class="icon-bg"></div>
-            <div class="icon-circle">
-              <i class="pi pi-box"></i>
-            </div>
-          </div>
-          <div class="title-text">
-            <h1>{{ pageTitle | translate }}</h1>
-            <p>{{ isEditMode() ? ('admin.products.form.edit_subtitle' | translate) : ('admin.products.form.add_subtitle' | translate) }}</p>
-          </div>
-        </div>
-        <button class="back-btn" (click)="onCancel()">
-          <i class="pi pi-arrow-left"></i>
-          <span>{{ 'common.back' | translate }}</span>
-        </button>
-      </div>
-    </div>
+<app-page-layout
+  [showBackButton]="true"
+  [backRoute]="'/admin/products'"
+  [fullscreen]="true">
 
+  <!-- Custom Header -->
+  <div pageHeader class="custom-header">
+    <div class="header-icon">
+      <i class="pi pi-box"></i>
+    </div>
+    <div class="header-text">
+      <span class="header-title">{{ 'common.products' | translate }}</span>
+      <span class="header-subtitle">{{ isEditMode() ? ('common.edit' | translate) : ('common.add' | translate) }}</span>
+    </div>
+  </div>
+
+  <!-- Product Count Badge -->
+  <div pageActions class="product-count-badge">
+    <span class="count">{{ productCount() }}</span>
+  </div>
+
+  <p-toast></p-toast>
+
+  <div class="product-form-page">
     <form [formGroup]="productForm" (ngSubmit)="onSubmit()">
       <!-- Cards Grid -->
       <div class="cards-grid">
@@ -380,15 +379,15 @@
         </button>
       </div>
     </form>
-  </div>
 
-  <!-- Loading Overlay -->
-  @if (loading() && isEditMode()) {
-    <div class="loading-overlay">
-      <div class="loading-content">
-        <i class="pi pi-spin pi-spinner"></i>
-        <span>{{ 'common.loading' | translate }}</span>
+    <!-- Loading Overlay -->
+    @if (loading() && isEditMode()) {
+      <div class="loading-overlay">
+        <div class="loading-content">
+          <i class="pi pi-spin pi-spinner"></i>
+          <span>{{ 'common.loading' | translate }}</span>
+        </div>
       </div>
-    </div>
-  }
-</div>
+    }
+  </div>
+</app-page-layout>

@@ -1,5 +1,64 @@
 // src/app/pages/admin/admin-add-product/admin-add-product.component.scss
 
+// Custom Header in Page Layout
+.custom-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+
+  .header-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #2E6CB7 0%, #0F3C82 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(46, 108, 183, 0.3);
+
+    i {
+      font-size: 1rem;
+      color: white;
+    }
+  }
+
+  .header-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+
+    .header-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-color);
+    }
+
+    .header-subtitle {
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text-color-secondary);
+    }
+  }
+}
+
+// Product Count Badge
+.product-count-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none !important;
+  border: 1px solid rgba(46, 108, 183, 0.3);
+  border-radius: 8px;
+  padding: 0.375rem 0.75rem;
+
+  .count {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #2E6CB7;
+    background: none !important;
+  }
+}
+
 // Theme colors
 $primary-gradient: linear-gradient(135deg, #2E6CB7 0%, #0F3C82 100%);
 $primary-color: #2E6CB7;
@@ -7,10 +66,8 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
 
 .product-form-page {
   position: relative;
-  min-height: 100vh;
-  overflow-y: auto;
   background: var(--surface-ground);
-  padding-top: 70px;
+  padding: 1rem;
 }
 
 // Animated Background Blobs

@@ -26,6 +26,7 @@ import { ToastMessageService } from '../../../core/services/toast-message.servic
 import { ChipModule } from 'primeng/chip';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
+import { PageLayoutComponent } from '../../../shared/components/page-layout/page-layout.component';
 
 // Extended Product interface to include translations
 interface ProductWithTranslations extends Product {
@@ -50,7 +51,8 @@ interface ProductWithTranslations extends Product {
     TranslateModule,
     ChipModule,
     InputGroupModule,
-    InputGroupAddonModule
+    InputGroupAddonModule,
+    PageLayoutComponent
   ],
   templateUrl: './admin-add-product.component.html',
   styleUrl: './admin-add-product.component.scss'
@@ -71,6 +73,9 @@ export class AdminAddProductComponent implements OnInit {
 
   // Dynamic brands
   brandOptions = signal<{ label: string; value: number }[]>([]);
+
+  // Product count for badge
+  productCount = signal(0);
 
   
   // Computed properties
@@ -114,6 +119,7 @@ export class AdminAddProductComponent implements OnInit {
 
     this.loadCategories();
     this.loadBrands();
+    this.loadProductCount();
     this.detectMode();
   }
 
@@ -169,6 +175,14 @@ export class AdminAddProductComponent implements OnInit {
       error: () => {
         this.brandsLoading.set(false);
         this.toast.showError('admin.brands.load_error');
+      }
+    });
+  }
+
+  loadProductCount() {
+    this.productService.getProducts().subscribe({
+      next: (products: Product[]) => {
+        this.productCount.set(products.length);
       }
     });
   }
