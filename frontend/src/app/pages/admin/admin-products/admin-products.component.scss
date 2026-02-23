@@ -8,6 +8,11 @@
 //   - _animations.scss: animate-item
 // =============================================================================
 
+// Table height override for this page
+.table-container {
+  --table-max-height: calc(100vh - 400px);
+}
+
 // Product thumbnail
 .product-image {
   width: 48px;
@@ -135,18 +140,19 @@
 .stock-edit__mode-toggle {
   width: 28px;
   height: 28px;
-  border: 1px solid rgba(34, 197, 94, 0.3);
-  background: rgba(34, 197, 94, 0.1);
+  border: var(--border-width) solid rgba(var(--color-success-rgb), 0.3);
+  background: rgba(var(--color-success-rgb), 0.1);
   border-radius: var(--radius-xs);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--color-success);
+  transition: all var(--transition-fast);
 
   &.active {
     background: var(--color-success);
-    color: white;
+    color: var(--color-white);
     border-color: var(--color-success);
   }
 }

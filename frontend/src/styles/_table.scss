@@ -8,6 +8,9 @@
 // -----------------------------------------------------------------------------
 // Table Container
 // -----------------------------------------------------------------------------
+// Use --table-max-height on the component to customize scroll height
+// Example: style="--table-max-height: calc(100vh - 300px)"
+// -----------------------------------------------------------------------------
 .table-container {
   background: var(--surface-card);
   border-radius: var(--radius-xl);
@@ -16,7 +19,7 @@
 
   &.scrollable {
     .table-wrapper {
-      max-height: calc(100vh - 400px);
+      max-height: var(--table-max-height, 70vh);
       overflow-y: auto;
       overflow-x: auto;
       overscroll-behavior: contain;
@@ -44,7 +47,7 @@
 // Table Wrapper
 // -----------------------------------------------------------------------------
 .table-wrapper {
-  max-height: calc(100vh - 400px);
+  max-height: var(--table-max-height, 70vh);
   overflow-y: auto;
   overflow-x: auto;
   overscroll-behavior: contain;
