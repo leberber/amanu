@@ -110,30 +110,6 @@
       </button>
     </div>
 
-    <!-- Search Bar -->
-    <div class="admin-filters-card">
-      <div class="admin-search-box">
-        <i class="pi pi-search"></i>
-        <input
-          type="text"
-          [(ngModel)]="searchQuery"
-          (input)="onSearchInput()"
-          [placeholder]="'admin.products.search_placeholder' | translate">
-        <button *ngIf="searchQuery" class="clear-search" (click)="searchQuery = ''; filterItems()">
-          <i class="pi pi-times"></i>
-        </button>
-      </div>
-      <button class="action-btn refresh-btn" (click)="refreshProductData()" [pTooltip]="'admin.products.refresh' | translate">
-        <i class="pi pi-refresh"></i>
-      </button>
-      @if (hasActiveFilters()) {
-        <button class="clear-filters-btn" (click)="clearFilters()">
-          <i class="pi pi-filter-slash"></i>
-          <span>{{ 'admin.products.clear_filters' | translate }}</span>
-        </button>
-      }
-    </div>
-
     <!-- Loading State -->
     @if (loading) {
       <div class="admin-loading-container">
@@ -165,9 +141,30 @@
       <!-- Products Table -->
       <div class="admin-table-card" [class.fullscreen]="isFullscreen">
         <div class="table-header">
-          <button class="fullscreen-btn" (click)="toggleFullscreen()" [pTooltip]="(isFullscreen ? 'common.exit_fullscreen' : 'common.fullscreen') | translate">
-            <i [class]="isFullscreen ? 'pi pi-window-minimize' : 'pi pi-window-maximize'"></i>
-          </button>
+          <div class="table-search">
+            <i class="pi pi-search"></i>
+            <input
+              type="text"
+              [(ngModel)]="searchQuery"
+              (input)="onSearchInput()"
+              [placeholder]="'admin.products.search_placeholder' | translate">
+            <button *ngIf="searchQuery" class="clear-search" (click)="searchQuery = ''; filterItems()">
+              <i class="pi pi-times"></i>
+            </button>
+          </div>
+          <div class="table-actions">
+            @if (hasActiveFilters()) {
+              <button class="clear-filters-btn" (click)="clearFilters()" [pTooltip]="'admin.products.clear_filters' | translate">
+                <i class="pi pi-filter-slash"></i>
+              </button>
+            }
+            <button class="table-action-btn" (click)="refreshProductData()" [pTooltip]="'admin.products.refresh' | translate">
+              <i class="pi pi-refresh"></i>
+            </button>
+            <button class="table-action-btn" (click)="toggleFullscreen()" [pTooltip]="(isFullscreen ? 'common.exit_fullscreen' : 'common.fullscreen') | translate">
+              <i [class]="isFullscreen ? 'pi pi-window-minimize' : 'pi pi-window-maximize'"></i>
+            </button>
+          </div>
         </div>
         <div class="admin-table-wrapper">
           <table class="admin-table">
