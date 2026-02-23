@@ -1,16 +1,42 @@
 // =============================================================================
-// GLOBAL TABLE STYLES
+// TABLES
 // =============================================================================
-// Shared table styles used across admin and frontend.
-// Uses CSS variables from: _colors.scss, _spacing.scss, _effects.scss
+// Table layouts, cells, headers, footers, and data display components.
+// Uses variables from: _colors.scss, _spacing.scss, _effects.scss, _typography.scss
 // =============================================================================
 
-// -----------------------------------------------------------------------------
-// Table Container
-// -----------------------------------------------------------------------------
-// Use --table-max-height on the component to customize scroll height
-// Example: style="--table-max-height: calc(100vh - 300px)"
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// TABLE BASE PLACEHOLDERS
+// =============================================================================
+
+%table-cell-base {
+  padding: var(--space-6) var(--space-5);
+  vertical-align: middle;
+}
+
+%table-action-btn {
+  width: 36px;
+  height: 36px;
+  border: var(--border-width) solid var(--border-color-light);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+
+  i {
+    font-size: var(--font-size-base);
+    color: var(--text-color-secondary);
+  }
+}
+
+
+// =============================================================================
+// 1. TABLE CONTAINER
+// =============================================================================
+
 .table-container {
   background: var(--surface-card);
   border-radius: var(--radius-xl);
@@ -30,7 +56,7 @@
   &.fullscreen {
     position: fixed;
     inset: 0;
-    z-index: 1000;
+    z-index: var(--z-modal);
     border-radius: 0;
     display: flex;
     flex-direction: column;
@@ -43,9 +69,11 @@
   }
 }
 
-// -----------------------------------------------------------------------------
-// Table Wrapper
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 2. TABLE WRAPPER
+// =============================================================================
+
 .table-wrapper {
   max-height: var(--table-max-height, 70vh);
   overflow-y: auto;
@@ -65,9 +93,11 @@
   }
 }
 
-// -----------------------------------------------------------------------------
-// Table Base
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 3. TABLE BASE
+// =============================================================================
+
 .table {
   width: 100%;
   border-collapse: collapse;
@@ -79,22 +109,22 @@
     z-index: 10;
 
     th {
+      @extend %table-cell-base;
       background: var(--surface-card);
       box-shadow: 0 1px 0 var(--border-color-light);
-      padding: var(--space-6) var(--space-5);
       text-align: left;
-      font-weight: 600;
-      font-size: 0.8rem;
+      font-weight: var(--font-weight-semibold);
+      font-size: var(--font-size-sm);
       text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--color-text-secondary);
+      letter-spacing: var(--letter-spacing-wide);
+      color: var(--text-color-secondary);
       white-space: nowrap;
     }
   }
 
   tbody {
     tr {
-      border-bottom: 1px solid var(--border-color-light);
+      border-bottom: var(--border-width) solid var(--border-color-light);
       transition: background var(--transition-fast);
 
       &:hover {
@@ -103,12 +133,13 @@
     }
 
     td {
-      padding: var(--space-6) var(--space-5);
-      vertical-align: middle;
+      @extend %table-cell-base;
     }
   }
 
-  // Compact variant
+  // ---------------------------------------------------------------------------
+  // Table Variants
+  // ---------------------------------------------------------------------------
   &--compact {
     thead th,
     tbody td {
@@ -116,7 +147,6 @@
     }
   }
 
-  // Striped variant
   &--striped {
     tbody tr:nth-child(even) {
       background: rgba(0, 0, 0, 0.02);
@@ -124,9 +154,11 @@
   }
 }
 
-// -----------------------------------------------------------------------------
-// Table Header (Search + Actions bar)
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 4. TABLE HEADER (Search + Actions bar)
+// =============================================================================
+
 .table-header {
   display: flex;
   align-items: center;
@@ -136,16 +168,18 @@
   flex-wrap: wrap;
 }
 
-// -----------------------------------------------------------------------------
-// Table Search
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 5. TABLE SEARCH
+// =============================================================================
+
 .table-search {
   display: flex;
   align-items: center;
   gap: var(--space-4);
   flex: 1;
   max-width: 600px;
-  padding: var(--space-6) var(--space-7) 0.8rem var(--space-7);
+  padding: var(--space-6) var(--space-7) var(--space-4) var(--space-7);
   background: var(--surface-card);
   border: var(--border-width) solid var(--border-color-light);
   border-radius: var(--radius-pill);
@@ -168,7 +202,7 @@
     flex-shrink: 0;
 
     i {
-      font-size: 0.95rem;
+      font-size: var(--font-size-base);
       color: var(--primary-color);
     }
   }
@@ -177,13 +211,13 @@
     flex: 1;
     border: none;
     background: transparent;
-    font-size: 0.95rem;
-    color: var(--color-text-primary);
+    font-size: var(--font-size-base);
+    color: var(--text-color);
     outline: none;
     height: 24px;
 
     &::placeholder {
-      color: var(--color-text-muted);
+      color: var(--text-color-secondary);
     }
   }
 
@@ -200,8 +234,8 @@
     transition: all var(--transition-fast);
 
     i {
-      font-size: 0.7rem;
-      color: var(--color-text-secondary);
+      font-size: var(--font-size-xs);
+      color: var(--text-color-secondary);
     }
 
     &:hover {
@@ -218,9 +252,11 @@
   }
 }
 
-// -----------------------------------------------------------------------------
-// Table Actions
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 6. TABLE ACTIONS
+// =============================================================================
+
 .table-actions {
   display: flex;
   align-items: center;
@@ -228,21 +264,8 @@
 }
 
 .table-action-btn {
-  width: 36px;
-  height: 36px;
-  border: var(--border-width) solid var(--border-color-light);
+  @extend %table-action-btn;
   background: var(--surface-ground);
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all var(--transition-fast);
-
-  i {
-    font-size: 0.95rem;
-    color: var(--color-text-secondary);
-  }
 
   &:hover {
     background: rgba(var(--primary-rgb), 0.1);
@@ -255,19 +278,11 @@
 }
 
 .clear-filters-btn {
-  width: 36px;
-  height: 36px;
-  border: var(--border-width) solid rgba(var(--color-error-rgb), 0.3);
+  @extend %table-action-btn;
+  border-color: rgba(var(--color-error-rgb), 0.3);
   background: rgba(var(--color-error-rgb), 0.08);
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all var(--transition-fast);
 
   i {
-    font-size: 0.95rem;
     color: var(--color-error);
   }
 
@@ -277,39 +292,43 @@
   }
 }
 
-// -----------------------------------------------------------------------------
-// Table Footer
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 7. TABLE FOOTER
+// =============================================================================
+
 .table-footer {
   display: flex;
   align-items: center;
   justify-content: center;
   padding: var(--space-5) var(--space-6);
-  border-top: 1px solid var(--border-color-light);
+  border-top: var(--border-width) solid var(--border-color-light);
   background: var(--surface-card);
 
   .p-paginator {
     display: flex;
     align-items: center;
     flex-wrap: nowrap;
-    gap: 0.5rem;
+    gap: var(--space-2);
   }
 
   &.results-info {
     text-align: center;
-    font-size: 0.85rem;
-    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+    color: var(--text-color-secondary);
   }
 }
 
-// -----------------------------------------------------------------------------
-// Status Toggle
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 8. STATUS TOGGLE
+// =============================================================================
+
 .status-toggle {
   display: inline-flex;
   align-items: center;
   gap: var(--space-3);
-  padding: 0.4rem var(--space-5);
+  padding: var(--space-2) var(--space-5);
   border-radius: var(--radius-2xl);
   cursor: pointer;
   transition: all var(--transition-base);
@@ -321,10 +340,10 @@
   }
 
   &__label {
-    font-size: 0.75rem;
-    font-weight: 600;
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
     text-transform: uppercase;
-    letter-spacing: 0.3px;
+    letter-spacing: var(--letter-spacing-wide);
     color: var(--color-error);
     transition: color var(--transition-base);
   }
@@ -347,10 +366,9 @@
     top: 2px;
     left: 2px;
     transition: transform var(--transition-base);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    box-shadow: var(--shadow-xs);
   }
 
-  // Active state
   &--active {
     background: rgba(var(--color-success-rgb), 0.1);
     border-color: rgba(var(--color-success-rgb), 0.25);
@@ -369,9 +387,11 @@
   }
 }
 
-// -----------------------------------------------------------------------------
-// Editable Cell
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 9. EDITABLE CELL
+// =============================================================================
+
 .editable-cell {
   display: flex;
   flex-direction: column;
@@ -390,26 +410,25 @@
   }
 
   &__value {
-    font-weight: 700;
+    font-weight: var(--font-weight-bold);
     color: var(--primary-color);
   }
 
   &__label {
-    font-size: 0.75rem;
-    color: var(--color-text-secondary);
+    font-size: var(--font-size-xs);
+    color: var(--text-color-secondary);
   }
 
   &__icon {
     position: absolute;
-    top: 4px;
-    right: 4px;
-    font-size: 0.7rem;
+    top: var(--space-2);
+    right: var(--space-2);
+    font-size: var(--font-size-xs);
     color: var(--primary-color);
     opacity: 0;
     transition: opacity var(--transition-fast);
   }
 
-  // Color variant: success (for positive metrics like stock)
   &--success {
     &:hover {
       background: rgba(var(--color-success-rgb), 0.08);
@@ -422,9 +441,11 @@
   }
 }
 
-// -----------------------------------------------------------------------------
-// Cell Edit (Inline editing)
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 10. CELL EDIT (Inline editing)
+// =============================================================================
+
 .cell-edit {
   display: flex;
   gap: var(--space-1);
@@ -435,7 +456,7 @@
     padding: var(--space-3);
     border: var(--border-width) solid var(--primary-color);
     border-radius: var(--radius-xs);
-    font-size: 0.9rem;
+    font-size: var(--font-size-base);
     outline: none;
 
     &--sm {
@@ -459,7 +480,7 @@
     transition: all var(--transition-fast);
 
     i {
-      font-size: 0.8rem;
+      font-size: var(--font-size-sm);
     }
 
     &--save {
@@ -481,14 +502,12 @@
     }
   }
 
-  // Prefix indicator (e.g., "+" for adding stock)
   &__prefix {
-    font-weight: 700;
+    font-weight: var(--font-weight-bold);
     color: var(--color-success);
-    font-size: 1.1rem;
+    font-size: var(--font-size-lg);
   }
 
-  // Mode toggle button (e.g., switch between units/cartons)
   &__mode-toggle {
     width: 28px;
     height: 28px;
@@ -509,22 +528,23 @@
     }
   }
 
-  // Conversion info display
   &__conversion {
     margin-top: var(--space-2);
     font-size: var(--font-size-sm);
-    color: var(--color-text-secondary);
+    color: var(--text-color-secondary);
 
     strong {
       color: var(--color-success);
-      font-weight: 700;
+      font-weight: var(--font-weight-bold);
     }
   }
 }
 
-// -----------------------------------------------------------------------------
-// Row Animation
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 11. ROW ANIMATION
+// =============================================================================
+
 .table-row-animate {
   opacity: 0;
   animation: tableRowFadeIn 0.4s ease-out forwards;
@@ -542,9 +562,11 @@
   }
 }
 
-// -----------------------------------------------------------------------------
-// Table Thumbnail (Image cell)
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 12. TABLE THUMBNAIL
+// =============================================================================
+
 .table-thumbnail {
   width: 48px;
   height: 48px;
@@ -563,8 +585,8 @@
   }
 
   i {
-    font-size: 1.25rem;
-    color: var(--color-text-secondary);
+    font-size: var(--font-size-xl);
+    color: var(--text-color-secondary);
   }
 
   &--sm {
@@ -572,7 +594,7 @@
     height: 36px;
 
     i {
-      font-size: 1rem;
+      font-size: var(--font-size-md);
     }
   }
 
@@ -581,14 +603,16 @@
     height: 64px;
 
     i {
-      font-size: 1.5rem;
+      font-size: var(--font-size-2xl);
     }
   }
 }
 
-// -----------------------------------------------------------------------------
-// Table Item Info (Name + Description layout)
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 13. TABLE ITEM INFO
+// =============================================================================
+
 .table-item-info {
   display: flex;
   flex-direction: column;
@@ -596,13 +620,13 @@
 }
 
 .table-item-name {
-  font-weight: 600;
-  color: var(--color-text-primary);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-color);
 }
 
 .table-item-desc {
   font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
+  color: var(--text-color-secondary);
   display: -webkit-box;
   -webkit-line-clamp: 1;
   line-clamp: 1;
@@ -616,9 +640,11 @@
   margin-top: var(--space-1);
 }
 
-// -----------------------------------------------------------------------------
-// Table Metric Display (Stock, quantity, etc.)
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 14. TABLE METRIC DISPLAY
+// =============================================================================
+
 .table-metric {
   display: flex;
   flex-direction: column;
@@ -632,37 +658,39 @@
   }
 
   &__value {
-    font-weight: 700;
-    font-size: 1.1rem;
+    font-weight: var(--font-weight-bold);
+    font-size: var(--font-size-lg);
     display: flex;
     align-items: center;
     gap: var(--space-1);
 
     i {
-      font-size: 0.8rem;
+      font-size: var(--font-size-sm);
     }
   }
 
   &__divider {
-    color: var(--color-text-secondary);
+    color: var(--text-color-secondary);
   }
 
   &__secondary {
     font-size: var(--font-size-sm);
-    color: var(--color-text-secondary);
+    color: var(--text-color-secondary);
   }
 
   &__label {
-    font-size: 0.7rem;
-    font-weight: 600;
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
     text-transform: uppercase;
-    letter-spacing: 0.03em;
+    letter-spacing: var(--letter-spacing-wide);
   }
 }
 
-// -----------------------------------------------------------------------------
-// Table Options Menu (Popover)
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 15. TABLE OPTIONS MENU
+// =============================================================================
+
 .table-options-menu {
   min-width: 220px;
   padding: var(--space-4);
@@ -675,11 +703,11 @@
 }
 
 .table-options-label {
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
   text-transform: uppercase;
-  letter-spacing: 0.03em;
-  color: var(--color-text-secondary);
+  letter-spacing: var(--letter-spacing-wide);
+  color: var(--text-color-secondary);
 }
 
 .table-options-rows {
@@ -690,12 +718,12 @@
     min-width: 40px;
     height: 32px;
     padding: 0 var(--space-3);
-    border: 1px solid var(--border-color-light);
+    border: var(--border-width) solid var(--border-color-light);
     border-radius: var(--radius-sm);
     background: var(--surface-ground);
-    color: var(--color-text-primary);
-    font-size: 0.85rem;
-    font-weight: 500;
+    color: var(--text-color);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
     cursor: pointer;
     transition: all var(--transition-fast);
 
@@ -707,7 +735,7 @@
     &.active {
       background: var(--primary-color);
       border-color: var(--primary-color);
-      color: white;
+      color: var(--color-white);
     }
   }
 }
@@ -744,8 +772,8 @@
     }
 
     span {
-      font-size: 0.875rem;
-      color: var(--color-text-primary);
+      font-size: var(--font-size-base);
+      color: var(--text-color);
     }
   }
 }

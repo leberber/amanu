@@ -83,7 +83,26 @@
   --color-danger-dark: var(--color-error-dark);
   --color-danger-rgb: var(--color-error-rgb);
   --color-info: #3b82f6;
+  --color-info-dark: #2563eb;
   --color-info-rgb: 59, 130, 246;
+
+  // ---------------------------------------------------------------------------
+  // Extended Colors (for badges, chips, pills)
+  // ---------------------------------------------------------------------------
+  --color-purple: #8b5cf6;
+  --color-purple-dark: #7c3aed;
+  --color-purple-rgb: 139, 92, 246;
+  --color-pink: #ec4899;
+  --color-pink-dark: #db2777;
+  --color-pink-rgb: 236, 72, 153;
+  --color-orange: #f97316;
+  --color-orange-dark: #ea580c;
+  --color-orange-rgb: 249, 115, 22;
+  --color-teal: #11998e;
+  --color-teal-dark: #0d7d74;
+  --color-teal-rgb: 17, 153, 142;
+  --color-secondary: #64748b;
+  --color-secondary-rgb: 100, 116, 139;
 
   // ---------------------------------------------------------------------------
   // Button Gradients

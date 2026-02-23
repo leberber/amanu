@@ -1,10 +1,16 @@
 // =============================================================================
 // SKELETON LOADING
 // =============================================================================
-// Reusable skeleton loading styles for content placeholders
-// Used for loading states instead of spinners
+// Reusable skeleton loading styles for content placeholders.
+// Uses variables from: _colors.scss, _spacing.scss, _effects.scss, _typography.scss
+// =============================================================================
 
-.skeleton {
+
+// =============================================================================
+// SKELETON BASE PLACEHOLDER
+// =============================================================================
+
+%skeleton-base {
   background: linear-gradient(
     90deg,
     #f2f3f6 25%,
@@ -16,13 +22,28 @@
   border-radius: var(--radius-sm);
 }
 
+
+// =============================================================================
+// 1. BASIC SKELETON
+// =============================================================================
+
+.skeleton {
+  @extend %skeleton-base;
+}
+
 @keyframes skeleton-loading {
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
 }
 
+
+// =============================================================================
+// 2. SKELETON TEXT
+// =============================================================================
+
 .skeleton-text {
-  height: 1rem;
+  @extend %skeleton-base;
+  height: var(--font-size-base);
 
   &--w40 { width: 40%; }
   &--w50 { width: 50px; }
@@ -33,25 +54,37 @@
   &--flex { flex: 1; }
 }
 
+
+// =============================================================================
+// 3. SKELETON AVATAR
+// =============================================================================
+
 .skeleton-avatar {
-  width: 36px;
-  height: 36px;
+  @extend %skeleton-base;
+  width: var(--icon-md);
+  height: var(--icon-md);
   border-radius: var(--radius-md);
 }
 
+
+// =============================================================================
+// 4. SKELETON IMAGE
+// =============================================================================
+
 .skeleton-image {
-  width: 48px;
-  height: 48px;
+  @extend %skeleton-base;
+  width: var(--icon-lg);
+  height: var(--icon-lg);
   border-radius: var(--radius-md);
 
   &--sm {
-    width: 48px;
-    height: 48px;
+    width: var(--icon-lg);
+    height: var(--icon-lg);
   }
 
   &--md {
-    width: 64px;
-    height: 64px;
+    width: var(--icon-3xl);
+    height: var(--icon-3xl);
   }
 
   &--lg {
@@ -66,16 +99,27 @@
   }
 }
 
+
+// =============================================================================
+// 5. SKELETON CIRCLE
+// =============================================================================
+
 .skeleton-circle {
+  @extend %skeleton-base;
   width: 20px;
   height: 20px;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
 }
+
+
+// =============================================================================
+// 6. SKELETON ROW
+// =============================================================================
 
 .skeleton-row {
   display: flex;
-  gap: 1rem;
-  margin-bottom: 1rem;
+  gap: var(--space-5);
+  margin-bottom: var(--space-5);
 
   &__content {
     flex: 1;
@@ -83,15 +127,13 @@
 }
 
 .skeleton-mb {
-  margin-bottom: 0.5rem;
+  margin-bottom: var(--space-3);
 }
 
 
 // =============================================================================
-// ITEM RENDER ANIMATION
+// 7. ITEM RENDER ANIMATION
 // =============================================================================
-// Staggered fade-in animation for rendered items
-// Usage: Add .item-animate class and set animation-delay via [style.animation-delay]
 
 .item-animate {
   animation: itemFadeIn 0.4s ease-out forwards;
@@ -109,10 +151,10 @@
   }
 }
 
+
 // =============================================================================
-// TABLE SKELETON
+// 8. TABLE SKELETON
 // =============================================================================
-// Skeleton loading styles for admin tables
 
 @keyframes shimmer {
   0% { background-position: -200% 0; }
@@ -129,24 +171,26 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 1.25rem 1rem;
+    padding: var(--space-6) var(--space-5);
   }
 }
 
 .skeleton-search {
+  @extend %skeleton-base;
   width: 300px;
-  height: 48px;
-  border-radius: 26px;
+  height: var(--btn-height-lg);
+  border-radius: var(--radius-3xl);
 }
 
 .skeleton-actions {
   display: flex;
-  gap: 0.5rem;
+  gap: var(--space-3);
 }
 
 .skeleton-btn {
-  width: 36px;
-  height: 36px;
+  @extend %skeleton-base;
+  width: var(--icon-md);
+  height: var(--icon-md);
   border-radius: var(--radius-sm);
 }
 
@@ -158,50 +202,55 @@
 
   td {
     display: table-cell;
-    padding: 1rem 0.75rem;
+    padding: var(--space-5) var(--space-4);
   }
 }
 
 .skeleton-product-info {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--space-3);
 }
 
 .skeleton-pill {
+  @extend %skeleton-base;
   width: 80px;
   height: 28px;
-  border-radius: 14px;
+  border-radius: var(--radius-lg);
 
   &--sm { width: 60px; }
 }
 
 .skeleton-price {
+  @extend %skeleton-base;
   width: 70px;
-  height: 36px;
+  height: var(--icon-md);
   border-radius: var(--radius-sm);
 }
 
 .skeleton-stock {
+  @extend %skeleton-base;
   width: 90px;
   height: 50px;
   border-radius: var(--radius-md);
 }
 
 .skeleton-toggle {
+  @extend %skeleton-base;
   width: 80px;
   height: 30px;
-  border-radius: 15px;
+  border-radius: var(--radius-xl);
 }
 
 .skeleton-actions-row {
   display: flex;
-  gap: 0.5rem;
+  gap: var(--space-3);
 }
 
 .skeleton-action-btn {
-  width: 32px;
-  height: 32px;
+  @extend %skeleton-base;
+  width: var(--icon-sm);
+  height: var(--icon-sm);
   border-radius: var(--radius-sm);
 }
 
@@ -218,7 +267,7 @@
 
     th {
       display: table-cell;
-      padding: 1rem 0.75rem;
+      padding: var(--space-5) var(--space-4);
     }
   }
 
@@ -235,12 +284,17 @@
   }
 }
 
+
+// =============================================================================
+// 9. SKELETON FOOTER
+// =============================================================================
+
 .skeleton-footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1rem 1.25rem;
-  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  padding: var(--space-5) var(--space-6);
+  border-top: var(--border-width) solid rgba(0, 0, 0, 0.06);
 
   &--centered {
     justify-content: center;
@@ -248,18 +302,20 @@
 }
 
 .skeleton-select {
+  @extend %skeleton-base;
   width: 80px;
-  height: 36px;
+  height: var(--icon-md);
   border-radius: var(--radius-sm);
 }
 
 .skeleton-pagination {
   display: flex;
-  gap: 0.5rem;
+  gap: var(--space-3);
 }
 
 .skeleton-page-btn {
-  width: 36px;
-  height: 36px;
+  @extend %skeleton-base;
+  width: var(--icon-md);
+  height: var(--icon-md);
   border-radius: var(--radius-sm);
 }

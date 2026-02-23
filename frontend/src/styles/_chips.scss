@@ -1,129 +1,144 @@
 // =============================================================================
-// GLOBAL CHIP STYLES
+// CHIPS
 // =============================================================================
-// Chips, tags, and pill components
+// Chips, tags, and pill components for selections and filters.
+// Uses variables from: _colors.scss, _spacing.scss, _effects.scss, _typography.scss
 // =============================================================================
 
-// -----------------------------------------------------------------------------
-// Basic Chip
-// -----------------------------------------------------------------------------
-.chip {
+
+// =============================================================================
+// CHIP BASE PLACEHOLDER
+// =============================================================================
+
+%chip-base {
   display: inline-flex;
   align-items: center;
-  gap: 0.375rem;
-  padding: 0.375rem 0.75rem;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-5);
   background: rgba(0, 0, 0, 0.06);
-  border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 500;
+  border-radius: var(--radius-pill);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
   color: var(--text-color);
-  transition: all 0.2s ease;
+  transition: all var(--transition-fast);
 
   i {
-    font-size: 0.75rem;
+    font-size: var(--font-size-xs);
   }
+}
 
-  // Size variants
+
+// =============================================================================
+// 1. BASIC CHIP
+// =============================================================================
+
+.chip {
+  @extend %chip-base;
+
+  // ---------------------------------------------------------------------------
+  // Size Variants
+  // ---------------------------------------------------------------------------
   &--xs {
-    padding: 0.25rem 0.5rem;
-    font-size: 0.7rem;
-    gap: 0.25rem;
+    padding: var(--space-1) var(--space-3);
+    font-size: var(--font-size-xs);
+    gap: var(--space-1);
   }
 
   &--sm {
-    padding: 0.3rem 0.6rem;
-    font-size: 0.75rem;
+    padding: var(--space-2) var(--space-4);
+    font-size: var(--font-size-xs);
   }
 
   &--lg {
-    padding: 0.5rem 1rem;
-    font-size: 0.9rem;
+    padding: var(--space-3) var(--space-6);
+    font-size: var(--font-size-md);
   }
 
-  // Color variants
+  // ---------------------------------------------------------------------------
+  // Color Variants
+  // ---------------------------------------------------------------------------
   &--primary {
-    background: rgba(46, 108, 183, 0.1);
+    background: rgba(var(--primary-rgb), 0.1);
     color: var(--primary-color);
   }
 
   &--success {
-    background: rgba(34, 197, 94, 0.1);
-    color: #16a34a;
+    background: rgba(var(--color-success-rgb), 0.1);
+    color: var(--color-success-dark);
   }
 
   &--warning {
-    background: rgba(245, 158, 11, 0.1);
-    color: #d97706;
+    background: rgba(var(--color-warning-rgb), 0.1);
+    color: var(--color-warning-dark);
   }
 
   &--danger {
-    background: rgba(239, 68, 68, 0.1);
-    color: #dc2626;
+    background: rgba(var(--color-error-rgb), 0.1);
+    color: var(--color-error-dark);
   }
 
   &--info {
-    background: rgba(59, 130, 246, 0.1);
-    color: #2563eb;
+    background: rgba(var(--color-info-rgb), 0.1);
+    color: var(--color-info-dark);
   }
 
-  // Solid variants
+  // ---------------------------------------------------------------------------
+  // Solid Variants
+  // ---------------------------------------------------------------------------
   &--solid {
     background: var(--primary-gradient);
-    color: white;
+    color: var(--color-white);
 
     &.chip--success {
-      background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+      background: var(--btn-success-gradient);
     }
 
     &.chip--warning {
-      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      background: var(--btn-warning-gradient);
     }
 
     &.chip--danger {
-      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      background: var(--btn-danger-gradient);
     }
 
     &.chip--info {
-      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      background: linear-gradient(135deg, var(--color-info) 0%, var(--color-info-dark) 100%);
     }
   }
 
-  // Outlined variant
+  // ---------------------------------------------------------------------------
+  // Outlined Variant
+  // ---------------------------------------------------------------------------
   &--outlined {
     background: transparent;
-    border: 1px solid rgba(0, 0, 0, 0.15);
+    border: var(--border-width) solid rgba(0, 0, 0, 0.15);
 
     &.chip--primary {
       border-color: var(--primary-color);
     }
 
     &.chip--success {
-      border-color: #22c55e;
+      border-color: var(--color-success);
     }
 
     &.chip--warning {
-      border-color: #f59e0b;
+      border-color: var(--color-warning);
     }
 
     &.chip--danger {
-      border-color: #ef4444;
+      border-color: var(--color-error);
     }
   }
 }
 
-// -----------------------------------------------------------------------------
-// Closable Chip
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 2. CLOSABLE CHIP
+// =============================================================================
+
 .chip-closable {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.375rem;
-  padding: 0.375rem 0.5rem 0.375rem 0.75rem;
-  background: rgba(0, 0, 0, 0.06);
-  border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 500;
-  color: var(--text-color);
+  @extend %chip-base;
+  padding: var(--space-2) var(--space-3) var(--space-2) var(--space-5);
 
   &__close {
     display: flex;
@@ -131,11 +146,11 @@
     justify-content: center;
     width: 18px;
     height: 18px;
-    border-radius: 50%;
+    border-radius: var(--radius-full);
     background: rgba(0, 0, 0, 0.1);
     border: none;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all var(--transition-fast);
     padding: 0;
 
     i {
@@ -153,58 +168,62 @@
   }
 
   &--primary {
-    background: rgba(46, 108, 183, 0.1);
+    background: rgba(var(--primary-rgb), 0.1);
     color: var(--primary-color);
 
     .chip-closable__close {
-      background: rgba(46, 108, 183, 0.15);
+      background: rgba(var(--primary-rgb), 0.15);
 
       i {
         color: var(--primary-color);
       }
 
       &:hover {
-        background: rgba(46, 108, 183, 0.25);
+        background: rgba(var(--primary-rgb), 0.25);
       }
     }
   }
 }
 
-// -----------------------------------------------------------------------------
-// Chip Group
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 3. CHIP GROUP
+// =============================================================================
+
 .chip-group {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: var(--space-3);
 
   &--sm {
-    gap: 0.375rem;
+    gap: var(--space-2);
   }
 
   &--lg {
-    gap: 0.75rem;
+    gap: var(--space-5);
   }
 }
 
-// -----------------------------------------------------------------------------
-// Chip Input (for tag input fields)
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 4. CHIP INPUT
+// =============================================================================
+
 .chip-input {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.75rem;
-  background: white;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 10px;
-  min-height: 48px;
-  transition: all 0.2s ease;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-5);
+  background: var(--color-white);
+  border: var(--border-width) solid rgba(0, 0, 0, 0.1);
+  border-radius: var(--radius-sm);
+  min-height: var(--btn-height-lg);
+  transition: all var(--transition-fast);
 
   &:focus-within {
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(46, 108, 183, 0.1);
+    box-shadow: var(--shadow-focus);
   }
 
   &__field {
@@ -212,7 +231,7 @@
     min-width: 100px;
     border: none;
     outline: none;
-    font-size: 0.9rem;
+    font-size: var(--font-size-md);
     background: transparent;
 
     &::placeholder {
@@ -221,26 +240,22 @@
   }
 
   .chip-closable {
-    margin: 0.125rem 0;
+    margin: var(--space-1) 0;
   }
 }
 
-// -----------------------------------------------------------------------------
-// Selectable Chip
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 5. SELECTABLE CHIP
+// =============================================================================
+
 .chip-selectable {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.375rem;
-  padding: 0.5rem 1rem;
+  @extend %chip-base;
+  padding: var(--space-3) var(--space-6);
   background: rgba(0, 0, 0, 0.04);
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  border-radius: 20px;
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: var(--text-color);
+  border: var(--border-width) solid rgba(0, 0, 0, 0.08);
+  font-size: var(--font-size-base);
   cursor: pointer;
-  transition: all 0.2s ease;
 
   &:hover {
     background: rgba(0, 0, 0, 0.08);
@@ -248,14 +263,14 @@
   }
 
   &.selected {
-    background: rgba(46, 108, 183, 0.1);
+    background: rgba(var(--primary-rgb), 0.1);
     border-color: var(--primary-color);
     color: var(--primary-color);
 
     &::before {
       content: '\2713';
-      margin-right: 0.25rem;
-      font-size: 0.75rem;
+      margin-right: var(--space-1);
+      font-size: var(--font-size-xs);
     }
   }
 
@@ -266,30 +281,27 @@
   }
 }
 
-// -----------------------------------------------------------------------------
-// Filter Chips
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 6. FILTER CHIPS
+// =============================================================================
+
 .filter-chips {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: var(--space-3);
 
   &__chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.375rem;
-    padding: 0.5rem 1rem;
-    background: white;
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    border-radius: 20px;
-    font-size: 0.85rem;
-    font-weight: 500;
+    @extend %chip-base;
+    padding: var(--space-3) var(--space-6);
+    background: var(--color-white);
+    border: var(--border-width) solid rgba(0, 0, 0, 0.1);
+    font-size: var(--font-size-base);
     color: var(--text-color-secondary);
     cursor: pointer;
-    transition: all 0.2s ease;
 
     i {
-      font-size: 0.8rem;
+      font-size: var(--font-size-sm);
     }
 
     &:hover {
@@ -300,137 +312,145 @@
     &.active {
       background: var(--primary-gradient);
       border-color: transparent;
-      color: white;
+      color: var(--color-white);
     }
   }
 }
 
-// -----------------------------------------------------------------------------
-// Chip with Avatar
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 7. CHIP WITH AVATAR
+// =============================================================================
+
 .chip-avatar {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.25rem 0.75rem 0.25rem 0.25rem;
+  gap: var(--space-3);
+  padding: var(--space-1) var(--space-5) var(--space-1) var(--space-1);
   background: rgba(0, 0, 0, 0.06);
-  border-radius: 24px;
+  border-radius: var(--radius-3xl);
 
   &__img {
     width: 28px;
     height: 28px;
-    border-radius: 50%;
+    border-radius: var(--radius-full);
     object-fit: cover;
   }
 
   &__initials {
     width: 28px;
     height: 28px;
-    border-radius: 50%;
+    border-radius: var(--radius-full);
     background: var(--primary-gradient);
-    color: white;
-    font-size: 0.7rem;
-    font-weight: 600;
+    color: var(--color-white);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
     display: flex;
     align-items: center;
     justify-content: center;
   }
 
   &__name {
-    font-size: 0.85rem;
-    font-weight: 500;
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-medium);
     color: var(--text-color);
   }
 }
 
-// -----------------------------------------------------------------------------
-// Tag (Alternative styling)
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 8. TAG (Alternative Styling)
+// =============================================================================
+
 .tag {
   display: inline-flex;
   align-items: center;
-  gap: 0.25rem;
-  padding: 0.25rem 0.5rem;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-3);
   background: rgba(0, 0, 0, 0.06);
   border-radius: 4px;
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
   color: var(--text-color-secondary);
   text-transform: uppercase;
-  letter-spacing: 0.3px;
+  letter-spacing: var(--letter-spacing-wide);
 
   &--primary {
-    background: rgba(46, 108, 183, 0.1);
+    background: rgba(var(--primary-rgb), 0.1);
     color: var(--primary-color);
   }
 
   &--success {
-    background: rgba(34, 197, 94, 0.1);
-    color: #16a34a;
+    background: rgba(var(--color-success-rgb), 0.1);
+    color: var(--color-success-dark);
   }
 
   &--warning {
-    background: rgba(245, 158, 11, 0.1);
-    color: #d97706;
+    background: rgba(var(--color-warning-rgb), 0.1);
+    color: var(--color-warning-dark);
   }
 
   &--danger {
-    background: rgba(239, 68, 68, 0.1);
-    color: #dc2626;
+    background: rgba(var(--color-error-rgb), 0.1);
+    color: var(--color-error-dark);
   }
 }
 
-// -----------------------------------------------------------------------------
-// Keyword Tags
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 9. KEYWORD TAGS
+// =============================================================================
+
 .keyword-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.375rem;
+  gap: var(--space-2);
 
   &__tag {
     display: inline-block;
-    padding: 0.25rem 0.625rem;
+    padding: var(--space-1) var(--space-4);
     background: rgba(248, 250, 252, 0.8);
-    border: 1px solid rgba(0, 0, 0, 0.06);
-    border-radius: 6px;
-    font-size: 0.8rem;
+    border: var(--border-width) solid var(--border-color-light);
+    border-radius: var(--radius-xs);
+    font-size: var(--font-size-sm);
     color: var(--text-color-secondary);
-    transition: all 0.2s ease;
+    transition: all var(--transition-fast);
 
     &:hover {
-      background: rgba(46, 108, 183, 0.08);
-      border-color: rgba(46, 108, 183, 0.2);
+      background: rgba(var(--primary-rgb), 0.08);
+      border-color: rgba(var(--primary-rgb), 0.2);
       color: var(--primary-color);
     }
   }
 }
 
-// -----------------------------------------------------------------------------
-// PrimeNG Chip Override
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 10. PRIMENG CHIP OVERRIDE
+// =============================================================================
+
 .p-chip {
   background: rgba(0, 0, 0, 0.06);
   color: var(--text-color);
-  border-radius: 20px;
-  padding: 0.375rem 0.75rem;
-  font-size: 0.85rem;
-  font-weight: 500;
+  border-radius: var(--radius-pill);
+  padding: var(--space-2) var(--space-5);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
 
   .p-chip-text {
     line-height: 1.4;
   }
 
   .p-chip-icon {
-    font-size: 0.85rem;
-    margin-right: 0.375rem;
+    font-size: var(--font-size-base);
+    margin-right: var(--space-2);
   }
 
   .p-chip-remove-icon {
-    margin-left: 0.375rem;
-    font-size: 0.75rem;
-    border-radius: 50%;
-    transition: background 0.2s ease;
+    margin-left: var(--space-2);
+    font-size: var(--font-size-xs);
+    border-radius: var(--radius-full);
+    transition: background var(--transition-fast);
 
     &:hover {
       background: rgba(0, 0, 0, 0.1);
@@ -438,35 +458,35 @@
   }
 
   &.p-chip-primary {
-    background: rgba(46, 108, 183, 0.1);
+    background: rgba(var(--primary-rgb), 0.1);
     color: var(--primary-color);
   }
 }
 
 .p-chips {
   .p-chips-multiple-container {
-    padding: 0.375rem;
-    gap: 0.375rem;
-    border-radius: 10px;
+    padding: var(--space-2);
+    gap: var(--space-2);
+    border-radius: var(--radius-sm);
 
     &:focus-within {
       border-color: var(--primary-color);
-      box-shadow: 0 0 0 3px rgba(46, 108, 183, 0.1);
+      box-shadow: var(--shadow-focus);
     }
 
     .p-chips-token {
-      background: rgba(46, 108, 183, 0.1);
+      background: rgba(var(--primary-rgb), 0.1);
       color: var(--primary-color);
-      border-radius: 16px;
-      padding: 0.25rem 0.5rem 0.25rem 0.75rem;
+      border-radius: var(--radius-xl);
+      padding: var(--space-1) var(--space-3) var(--space-1) var(--space-5);
 
       .p-chips-token-icon {
-        font-size: 0.75rem;
+        font-size: var(--font-size-xs);
       }
     }
 
     .p-chips-input-token input {
-      font-size: 0.9rem;
+      font-size: var(--font-size-md);
     }
   }
 }

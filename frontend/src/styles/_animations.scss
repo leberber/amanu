@@ -1,12 +1,15 @@
 // =============================================================================
 // GLOBAL ANIMATIONS
 // =============================================================================
-// All keyframe animations and animation utility classes
+// All keyframe animations and animation utility classes.
+// Uses variables from: _effects.scss for timing values
 // =============================================================================
 
-// -----------------------------------------------------------------------------
-// Fade Animations
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 1. FADE ANIMATIONS
+// =============================================================================
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -34,9 +37,11 @@
   }
 }
 
-// -----------------------------------------------------------------------------
-// Slide Animations
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 2. SLIDE ANIMATIONS
+// =============================================================================
+
 @keyframes slideUp {
   from { transform: translateY(100%); }
   to { transform: translateY(0); }
@@ -69,9 +74,11 @@
   }
 }
 
-// -----------------------------------------------------------------------------
-// Scale Animations
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 3. SCALE ANIMATIONS
+// =============================================================================
+
 @keyframes scaleIn {
   from {
     opacity: 0;
@@ -95,9 +102,11 @@
   100% { transform: scale(1); }
 }
 
-// -----------------------------------------------------------------------------
-// Continuous Animations
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 4. CONTINUOUS ANIMATIONS
+// =============================================================================
+
 @keyframes spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
@@ -149,9 +158,11 @@
   }
 }
 
-// -----------------------------------------------------------------------------
-// Skeleton/Loading Animations
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 5. SKELETON/LOADING ANIMATIONS
+// =============================================================================
+
 @keyframes shimmer {
   100% { transform: translateX(100%); }
 }
@@ -166,9 +177,11 @@
   100% { background-position: -200% 0; }
 }
 
-// -----------------------------------------------------------------------------
-// Row/Item Animations
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 6. ROW/ITEM ANIMATIONS
+// =============================================================================
+
 @keyframes rowFadeIn {
   0% {
     opacity: 0;
@@ -191,9 +204,11 @@
   }
 }
 
-// -----------------------------------------------------------------------------
-// Overlay/Panel Animations
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 7. OVERLAY/PANEL ANIMATIONS
+// =============================================================================
+
 @keyframes overlayFadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -221,38 +236,47 @@
   }
 }
 
-// -----------------------------------------------------------------------------
-// Animation Utility Classes
-// -----------------------------------------------------------------------------
 
-// Fade animations
+// =============================================================================
+// 8. ANIMATION UTILITY CLASSES
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// Fade Animations
+// -----------------------------------------------------------------------------
 .animate-fade-in {
-  animation: fadeIn 0.3s ease-out forwards;
+  animation: fadeIn var(--duration-normal, 0.3s) ease-out forwards;
 }
 
 .animate-fade-slide-in {
-  animation: fadeSlideIn 0.3s ease-out forwards;
+  animation: fadeSlideIn var(--duration-normal, 0.3s) ease-out forwards;
 }
 
-// Slide animations
+// -----------------------------------------------------------------------------
+// Slide Animations
+// -----------------------------------------------------------------------------
 .animate-slide-in {
-  animation: slideIn 0.3s ease-out forwards;
+  animation: slideIn var(--duration-normal, 0.3s) ease-out forwards;
 }
 
 .animate-slide-up {
-  animation: slideUp 0.3s ease-out forwards;
+  animation: slideUp var(--duration-normal, 0.3s) ease-out forwards;
 }
 
-// Scale animations
+// -----------------------------------------------------------------------------
+// Scale Animations
+// -----------------------------------------------------------------------------
 .animate-scale-in {
-  animation: scaleIn 0.3s ease-out forwards;
+  animation: scaleIn var(--duration-normal, 0.3s) ease-out forwards;
 }
 
 .animate-pop {
-  animation: pop 0.3s ease-out;
+  animation: pop var(--duration-normal, 0.3s) ease-out;
 }
 
-// Continuous animations
+// -----------------------------------------------------------------------------
+// Continuous Animations
+// -----------------------------------------------------------------------------
 .animate-spin {
   animation: spin 1s linear infinite;
 }
@@ -269,40 +293,47 @@
   animation: bounce 1s ease-in-out infinite;
 }
 
-// Row animation with delay support
+// -----------------------------------------------------------------------------
+// Row/Item Animations with Delay Support
+// -----------------------------------------------------------------------------
 .animate-row {
   opacity: 0;
-  animation: rowFadeIn 0.4s ease-out forwards;
+  animation: rowFadeIn var(--duration-slow, 0.4s) ease-out forwards;
   animation-delay: var(--row-delay, 0ms);
 }
 
-// Item animation with delay support
 .animate-item {
   opacity: 0;
-  animation: itemFadeIn 0.4s ease-out forwards;
+  animation: itemFadeIn var(--duration-slow, 0.4s) ease-out forwards;
   animation-delay: var(--item-delay, 0ms);
 }
 
-// -----------------------------------------------------------------------------
-// Animation Delay Utilities
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 9. ANIMATION DELAY UTILITIES
+// =============================================================================
+
 .delay-100 { animation-delay: 100ms; }
 .delay-200 { animation-delay: 200ms; }
 .delay-300 { animation-delay: 300ms; }
 .delay-400 { animation-delay: 400ms; }
 .delay-500 { animation-delay: 500ms; }
 
-// -----------------------------------------------------------------------------
-// Animation Duration Utilities
-// -----------------------------------------------------------------------------
-.duration-fast { animation-duration: 0.15s; }
-.duration-normal { animation-duration: 0.3s; }
-.duration-slow { animation-duration: 0.5s; }
-.duration-slower { animation-duration: 0.8s; }
 
-// -----------------------------------------------------------------------------
-// Animation Fill Mode
-// -----------------------------------------------------------------------------
+// =============================================================================
+// 10. ANIMATION DURATION UTILITIES
+// =============================================================================
+
+.duration-fast { animation-duration: var(--duration-fast, 0.15s); }
+.duration-normal { animation-duration: var(--duration-normal, 0.3s); }
+.duration-slow { animation-duration: var(--duration-slow, 0.5s); }
+.duration-slower { animation-duration: var(--duration-slower, 0.8s); }
+
+
+// =============================================================================
+// 11. ANIMATION FILL MODE
+// =============================================================================
+
 .fill-forwards { animation-fill-mode: forwards; }
 .fill-backwards { animation-fill-mode: backwards; }
 .fill-both { animation-fill-mode: both; }

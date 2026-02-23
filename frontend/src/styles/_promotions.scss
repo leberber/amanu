@@ -1,98 +1,105 @@
 // =============================================================================
-// GLOBAL PROMOTION STYLES
+// PROMOTIONS
 // =============================================================================
-// Promotional badges, discount indicators, and sale displays
+// Promotional badges, discount indicators, sale displays, and countdown timers.
+// Uses variables from: _colors.scss, _spacing.scss, _effects.scss, _typography.scss
 // =============================================================================
 
-// -----------------------------------------------------------------------------
-// Promo Badge
-// -----------------------------------------------------------------------------
-.promo-badge {
+
+// =============================================================================
+// PROMO BASE PLACEHOLDERS
+// =============================================================================
+
+%promo-badge-base {
   display: inline-flex;
   align-items: center;
-  gap: 0.375rem;
-  padding: 0.375rem 0.75rem;
-  border-radius: 6px;
-  font-size: 0.75rem;
-  font-weight: 600;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
   text-transform: uppercase;
-  letter-spacing: 0.3px;
+  letter-spacing: var(--letter-spacing-wide);
 
   i {
-    font-size: 0.7rem;
+    font-size: var(--font-size-xs);
   }
+}
 
-  // Sale badge
+
+// =============================================================================
+// 1. PROMO BADGE
+// =============================================================================
+
+.promo-badge {
+  @extend %promo-badge-base;
+
   &--sale {
-    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-    color: white;
+    background: var(--btn-danger-gradient);
+    color: var(--color-white);
   }
 
-  // New badge
   &--new {
-    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
-    color: white;
+    background: var(--btn-success-gradient);
+    color: var(--color-white);
   }
 
-  // Hot badge
   &--hot {
-    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
-    color: white;
+    background: linear-gradient(135deg, var(--color-orange) 0%, var(--color-orange-dark) 100%);
+    color: var(--color-white);
   }
 
-  // Limited badge
   &--limited {
-    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
-    color: white;
+    background: linear-gradient(135deg, var(--color-purple) 0%, var(--color-purple-dark) 100%);
+    color: var(--color-white);
   }
 
-  // Exclusive badge
   &--exclusive {
-    background: linear-gradient(135deg, #eab308 0%, #ca8a04 100%);
-    color: white;
+    background: linear-gradient(135deg, var(--color-warning) 0%, var(--color-warning-dark) 100%);
+    color: var(--color-white);
   }
 
-  // Free shipping
   &--shipping {
-    background: rgba(46, 108, 183, 0.1);
+    background: rgba(var(--primary-rgb), 0.1);
     color: var(--primary-color);
   }
 
-  // Outline variant
   &--outline {
     background: transparent;
-    border: 1px solid currentColor;
+    border: var(--border-width) solid currentColor;
 
     &.promo-badge--sale {
-      color: #ef4444;
+      color: var(--color-error);
     }
 
     &.promo-badge--new {
-      color: #22c55e;
+      color: var(--color-success);
     }
   }
 }
 
-// -----------------------------------------------------------------------------
-// Discount Tag (Corner ribbon style)
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 2. DISCOUNT TAG (Corner ribbon)
+// =============================================================================
+
 .discount-tag {
   position: absolute;
   top: 12px;
   left: -6px;
-  padding: 0.375rem 0.75rem 0.375rem 0.5rem;
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-  color: white;
-  font-size: 0.75rem;
-  font-weight: 700;
-  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+  padding: var(--space-2) var(--space-4) var(--space-2) var(--space-2);
+  background: var(--btn-danger-gradient);
+  color: var(--color-white);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  box-shadow: 0 2px 8px rgba(var(--color-error-rgb), 0.3);
 
   &::before {
     content: '';
     position: absolute;
     left: 0;
     bottom: -6px;
-    border: 3px solid #b91c1c;
+    border: 3px solid var(--color-error-dark);
     border-left-color: transparent;
     border-bottom-color: transparent;
   }
@@ -104,19 +111,18 @@
     top: 0;
     bottom: 0;
     border: 13px solid transparent;
-    border-left-color: #dc2626;
+    border-left-color: var(--color-error);
   }
 
-  // Right position
   &--right {
     left: auto;
     right: -6px;
-    padding: 0.375rem 0.5rem 0.375rem 0.75rem;
+    padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4);
 
     &::before {
       left: auto;
       right: 0;
-      border-left-color: #b91c1c;
+      border-left-color: var(--color-error-dark);
       border-right-color: transparent;
     }
 
@@ -124,74 +130,77 @@
       right: auto;
       left: -8px;
       border-left-color: transparent;
-      border-right-color: #dc2626;
+      border-right-color: var(--color-error);
     }
   }
 }
 
-// -----------------------------------------------------------------------------
-// Promo Code Badge
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 3. PROMO CODE BADGE
+// =============================================================================
+
 .promo-code {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.875rem;
-  background: rgba(46, 108, 183, 0.08);
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  background: rgba(var(--primary-rgb), 0.08);
   border: 1px dashed var(--primary-color);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
 
   &__label {
-    font-size: 0.75rem;
+    font-size: var(--font-size-xs);
     color: var(--text-color-secondary);
-    font-weight: 500;
+    font-weight: var(--font-weight-medium);
   }
 
   &__value {
-    font-size: 0.9rem;
-    font-weight: 700;
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-bold);
     color: var(--primary-color);
     font-family: monospace;
     letter-spacing: 1px;
   }
 
   &__copy {
-    padding: 0.25rem;
+    padding: var(--space-1);
     background: transparent;
     border: none;
     cursor: pointer;
     color: var(--primary-color);
-    transition: all 0.2s ease;
+    transition: all var(--transition-fast);
 
     &:hover {
       color: var(--text-color);
     }
 
     i {
-      font-size: 0.85rem;
+      font-size: var(--font-size-sm);
     }
   }
 
-  // Success state (copied)
   &--copied {
-    border-color: #22c55e;
-    background: rgba(34, 197, 94, 0.08);
+    border-color: var(--color-success);
+    background: rgba(var(--color-success-rgb), 0.08);
 
     .promo-code__value {
-      color: #22c55e;
+      color: var(--color-success);
     }
   }
 }
 
-// -----------------------------------------------------------------------------
-// Sale Banner
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 4. SALE BANNER
+// =============================================================================
+
 .sale-banner {
   position: relative;
-  padding: 1.5rem 2rem;
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-  border-radius: 16px;
-  color: white;
+  padding: var(--space-7) var(--space-8);
+  background: var(--btn-danger-gradient);
+  border-radius: var(--radius-xl);
+  color: var(--color-white);
   overflow: hidden;
 
   &::before {
@@ -202,7 +211,7 @@
     width: 200px;
     height: 200px;
     background: rgba(255, 255, 255, 0.1);
-    border-radius: 50%;
+    border-radius: var(--radius-full);
   }
 
   &__content {
@@ -211,188 +220,190 @@
   }
 
   &__title {
-    font-size: 1.5rem;
-    font-weight: 800;
-    margin: 0 0 0.5rem 0;
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    margin: 0 0 var(--space-2) 0;
     text-transform: uppercase;
     letter-spacing: 1px;
   }
 
   &__subtitle {
-    font-size: 0.95rem;
+    font-size: var(--font-size-base);
     opacity: 0.9;
     margin: 0;
   }
 
   &__discount {
-    font-size: 3rem;
-    font-weight: 900;
+    font-size: var(--font-size-5xl);
+    font-weight: var(--font-weight-bold);
     line-height: 1;
-    margin-top: 0.5rem;
+    margin-top: var(--space-2);
   }
 
   &__code {
     display: inline-block;
-    margin-top: 1rem;
-    padding: 0.5rem 1rem;
+    margin-top: var(--space-5);
+    padding: var(--space-2) var(--space-5);
     background: rgba(255, 255, 255, 0.2);
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
     font-family: monospace;
-    font-size: 1rem;
-    font-weight: 700;
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-bold);
     letter-spacing: 2px;
   }
 
-  // Compact version
   &--compact {
-    padding: 1rem 1.5rem;
+    padding: var(--space-5) var(--space-7);
 
     .sale-banner__title {
-      font-size: 1.1rem;
+      font-size: var(--font-size-lg);
     }
 
     .sale-banner__discount {
-      font-size: 2rem;
+      font-size: var(--font-size-3xl);
     }
   }
 }
 
-// -----------------------------------------------------------------------------
-// Countdown Timer
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 5. PROMO COUNTDOWN TIMER
+// =============================================================================
+
 .promo-countdown {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--space-2);
 
   &__label {
-    font-size: 0.8rem;
+    font-size: var(--font-size-sm);
     color: var(--text-color-secondary);
-    font-weight: 500;
+    font-weight: var(--font-weight-medium);
   }
 
   &__timer {
     display: flex;
-    gap: 0.25rem;
+    gap: var(--space-1);
   }
 
   &__unit {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 0.5rem;
-    background: rgba(239, 68, 68, 0.1);
-    border-radius: 6px;
+    padding: var(--space-2);
+    background: rgba(var(--color-error-rgb), 0.1);
+    border-radius: var(--radius-sm);
     min-width: 40px;
 
     &-value {
-      font-size: 1rem;
-      font-weight: 700;
-      color: #ef4444;
+      font-size: var(--font-size-md);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-error);
       line-height: 1;
     }
 
     &-label {
-      font-size: 0.6rem;
+      font-size: var(--font-size-xs);
       color: var(--text-color-secondary);
       text-transform: uppercase;
-      margin-top: 0.25rem;
+      margin-top: var(--space-1);
     }
   }
 
   &__separator {
-    font-size: 1rem;
-    font-weight: 700;
-    color: #ef4444;
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-error);
     align-self: flex-start;
-    margin-top: 0.5rem;
+    margin-top: var(--space-2);
   }
 
-  // Compact
   &--compact {
     .promo-countdown__unit {
-      padding: 0.375rem;
+      padding: var(--space-2);
       min-width: 32px;
 
       &-value {
-        font-size: 0.85rem;
+        font-size: var(--font-size-sm);
       }
     }
   }
 }
 
-// -----------------------------------------------------------------------------
-// Promotion Card
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 6. PROMOTION CARD
+// =============================================================================
+
 .promo-card {
   position: relative;
-  padding: 1.5rem;
-  background: white;
-  border-radius: 14px;
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  padding: var(--space-7);
+  background: var(--color-white);
+  border-radius: var(--radius-xl);
+  border: var(--border-width) solid rgba(0, 0, 0, 0.06);
   overflow: hidden;
 
   &__badge {
     position: absolute;
     top: 0;
     right: 0;
-    padding: 0.5rem 1rem;
-    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-    color: white;
-    font-size: 0.8rem;
-    font-weight: 700;
-    border-radius: 0 14px 0 14px;
+    padding: var(--space-2) var(--space-5);
+    background: var(--btn-danger-gradient);
+    color: var(--color-white);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-bold);
+    border-radius: 0 var(--radius-xl) 0 var(--radius-xl);
   }
 
   &__icon {
     width: 48px;
     height: 48px;
-    border-radius: 12px;
-    background: rgba(239, 68, 68, 0.1);
+    border-radius: var(--radius-lg);
+    background: rgba(var(--color-error-rgb), 0.1);
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 1rem;
+    margin-bottom: var(--space-5);
 
     i {
-      font-size: 1.25rem;
-      color: #ef4444;
+      font-size: var(--font-size-xl);
+      color: var(--color-error);
     }
   }
 
   &__title {
-    font-size: 1.1rem;
-    font-weight: 600;
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
     color: var(--text-color);
-    margin: 0 0 0.5rem 0;
+    margin: 0 0 var(--space-2) 0;
   }
 
   &__description {
-    font-size: 0.85rem;
+    font-size: var(--font-size-sm);
     color: var(--text-color-secondary);
-    line-height: 1.5;
-    margin: 0 0 1rem 0;
+    line-height: var(--line-height-relaxed);
+    margin: 0 0 var(--space-5) 0;
   }
 
   &__details {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
+    gap: var(--space-2);
+    margin-bottom: var(--space-5);
   }
 
   &__detail {
     display: inline-flex;
     align-items: center;
-    gap: 0.375rem;
-    padding: 0.25rem 0.625rem;
+    gap: var(--space-2);
+    padding: var(--space-1) var(--space-3);
     background: rgba(0, 0, 0, 0.04);
-    border-radius: 6px;
-    font-size: 0.75rem;
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-xs);
     color: var(--text-color-secondary);
 
     i {
-      font-size: 0.7rem;
+      font-size: var(--font-size-xs);
     }
   }
 
@@ -400,12 +411,12 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-top: 1rem;
-    border-top: 1px solid rgba(0, 0, 0, 0.06);
+    padding-top: var(--space-5);
+    border-top: var(--border-width) solid rgba(0, 0, 0, 0.06);
   }
 
   &__validity {
-    font-size: 0.8rem;
+    font-size: var(--font-size-sm);
     color: var(--text-color-secondary);
 
     strong {
@@ -414,22 +425,24 @@
   }
 }
 
-// -----------------------------------------------------------------------------
-// Flash Sale
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 7. FLASH SALE
+// =============================================================================
+
 .flash-sale {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
-  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-  border-radius: 10px;
-  border: 1px solid rgba(245, 158, 11, 0.3);
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-5);
+  background: linear-gradient(135deg, rgba(var(--color-warning-rgb), 0.15) 0%, rgba(var(--color-warning-rgb), 0.25) 100%);
+  border-radius: var(--radius-md);
+  border: var(--border-width) solid rgba(var(--color-warning-rgb), 0.3);
 
   &__icon {
     i {
-      font-size: 1.25rem;
-      color: #f59e0b;
+      font-size: var(--font-size-xl);
+      color: var(--color-warning);
     }
   }
 
@@ -438,89 +451,93 @@
   }
 
   &__title {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: #92400e;
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-warning-dark);
     margin: 0;
   }
 
   &__text {
-    font-size: 0.8rem;
-    color: #a16207;
+    font-size: var(--font-size-sm);
+    color: var(--color-warning-dark);
     margin: 0;
   }
 
   &__timer {
-    font-size: 0.9rem;
-    font-weight: 700;
-    color: #92400e;
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-warning-dark);
     font-family: monospace;
   }
 }
 
-// -----------------------------------------------------------------------------
-// Promo Strip
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 8. PROMO STRIP
+// =============================================================================
+
 .promo-strip {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  padding: 0.625rem 1rem;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-5);
   background: var(--primary-gradient);
-  color: white;
-  font-size: 0.85rem;
-  font-weight: 500;
+  color: var(--color-white);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
 
   i {
-    font-size: 0.9rem;
+    font-size: var(--font-size-base);
   }
 
   a {
-    color: white;
+    color: var(--color-white);
     text-decoration: underline;
-    font-weight: 600;
+    font-weight: var(--font-weight-semibold);
   }
 
   &--warning {
-    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    background: var(--btn-warning-gradient);
   }
 
   &--danger {
-    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    background: var(--btn-danger-gradient);
   }
 
   &--success {
-    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    background: var(--btn-success-gradient);
   }
 }
 
-// -----------------------------------------------------------------------------
-// Limited Stock Warning
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 9. LIMITED STOCK WARNING
+// =============================================================================
+
 .limited-stock {
   display: inline-flex;
   align-items: center;
-  gap: 0.375rem;
-  padding: 0.375rem 0.625rem;
-  background: rgba(239, 68, 68, 0.1);
-  border-radius: 6px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: #ef4444;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: rgba(var(--color-error-rgb), 0.1);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-error);
 
   i {
-    font-size: 0.75rem;
-    animation: pulse 2s ease-in-out infinite;
+    font-size: var(--font-size-xs);
+    animation: limitedPulse 2s ease-in-out infinite;
   }
 
   &--warning {
-    background: rgba(245, 158, 11, 0.1);
-    color: #d97706;
+    background: rgba(var(--color-warning-rgb), 0.1);
+    color: var(--color-warning-dark);
   }
 }
 
-@keyframes pulse {
+@keyframes limitedPulse {
   0%, 100% {
     opacity: 1;
   }
@@ -529,28 +546,30 @@
   }
 }
 
-// -----------------------------------------------------------------------------
-// Bundle Deal
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 10. BUNDLE DEAL
+// =============================================================================
+
 .bundle-deal {
-  padding: 1rem;
-  background: linear-gradient(135deg, rgba(46, 108, 183, 0.08) 0%, rgba(46, 108, 183, 0.04) 100%);
-  border: 1px solid rgba(46, 108, 183, 0.15);
-  border-radius: 12px;
+  padding: var(--space-5);
+  background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.08) 0%, rgba(var(--primary-rgb), 0.04) 100%);
+  border: var(--border-width) solid rgba(var(--primary-rgb), 0.15);
+  border-radius: var(--radius-lg);
 
   &__header {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 0.75rem;
+    gap: var(--space-2);
+    margin-bottom: var(--space-4);
 
     i {
       color: var(--primary-color);
     }
 
     span {
-      font-size: 0.9rem;
-      font-weight: 600;
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-semibold);
       color: var(--primary-color);
     }
   }
@@ -558,19 +577,19 @@
   &__items {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 0.75rem;
+    gap: var(--space-2);
+    margin-bottom: var(--space-4);
   }
 
   &__item {
     width: 48px;
     height: 48px;
-    border-radius: 8px;
-    background: white;
+    border-radius: var(--radius-sm);
+    background: var(--color-white);
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid rgba(0, 0, 0, 0.08);
+    border: var(--border-width) solid rgba(0, 0, 0, 0.08);
 
     img {
       max-width: 36px;
@@ -581,22 +600,22 @@
 
   &__plus {
     color: var(--text-color-secondary);
-    font-size: 1rem;
+    font-size: var(--font-size-md);
   }
 
   &__price {
     display: flex;
     align-items: baseline;
-    gap: 0.5rem;
+    gap: var(--space-2);
 
     &-current {
-      font-size: 1.25rem;
-      font-weight: 700;
+      font-size: var(--font-size-xl);
+      font-weight: var(--font-weight-bold);
       color: var(--primary-color);
     }
 
     &-original {
-      font-size: 0.9rem;
+      font-size: var(--font-size-base);
       color: var(--text-color-secondary);
       text-decoration: line-through;
     }

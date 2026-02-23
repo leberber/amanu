@@ -1,25 +1,38 @@
 // =============================================================================
-// GLOBAL TOGGLE STYLES
+// TOGGLES
 // =============================================================================
-// Toggle switches, radio buttons, and checkbox styles
+// Toggle switches, radio buttons, and checkbox styles.
+// Uses variables from: _colors.scss, _spacing.scss, _effects.scss, _typography.scss
 // =============================================================================
 
-// -----------------------------------------------------------------------------
-// Toggle Switch
-// -----------------------------------------------------------------------------
-.toggle {
+
+// =============================================================================
+// TOGGLE BASE PLACEHOLDER
+// =============================================================================
+
+%toggle-base {
   display: inline-flex;
   align-items: center;
-  gap: 0.75rem;
   cursor: pointer;
+  transition: all var(--transition-smooth);
+}
+
+
+// =============================================================================
+// 1. TOGGLE SWITCH
+// =============================================================================
+
+.toggle {
+  @extend %toggle-base;
+  gap: var(--space-4);
 
   &__switch {
     position: relative;
     width: 44px;
     height: 24px;
     background: rgba(0, 0, 0, 0.15);
-    border-radius: 12px;
-    transition: all 0.3s ease;
+    border-radius: var(--radius-md);
+    transition: all var(--transition-smooth);
   }
 
   &__thumb {
@@ -28,19 +41,21 @@
     left: 2px;
     width: 20px;
     height: 20px;
-    background: white;
-    border-radius: 50%;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    transition: all 0.3s ease;
+    background: var(--color-white);
+    border-radius: var(--radius-full);
+    box-shadow: var(--shadow-sm);
+    transition: all var(--transition-smooth);
   }
 
   &__label {
-    font-size: 0.9rem;
-    font-weight: 500;
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-medium);
     color: var(--text-color);
   }
 
-  // Active state
+  // ---------------------------------------------------------------------------
+  // Active State
+  // ---------------------------------------------------------------------------
   &.active,
   &--active {
     .toggle__switch {
@@ -52,14 +67,18 @@
     }
   }
 
-  // Disabled state
+  // ---------------------------------------------------------------------------
+  // Disabled State
+  // ---------------------------------------------------------------------------
   &:disabled,
   &--disabled {
     opacity: 0.5;
     cursor: not-allowed;
   }
 
-  // Size variants
+  // ---------------------------------------------------------------------------
+  // Size Variants
+  // ---------------------------------------------------------------------------
   &--sm {
     .toggle__switch {
       width: 36px;
@@ -95,65 +114,66 @@
   }
 }
 
-// -----------------------------------------------------------------------------
-// Status Toggle (with label)
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 2. STATUS TOGGLE (with label)
+// =============================================================================
+
 .status-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.4rem 0.75rem;
-  border-radius: 20px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.2);
+  @extend %toggle-base;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-xl);
+  background: rgba(var(--color-error-rgb), 0.1);
+  border: var(--border-width) solid rgba(var(--color-error-rgb), 0.2);
 
   &:hover {
     transform: scale(1.02);
   }
 
   &__label {
-    font-size: 0.75rem;
-    font-weight: 600;
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
     text-transform: uppercase;
-    letter-spacing: 0.3px;
-    color: #ef4444;
-    transition: color 0.3s ease;
+    letter-spacing: var(--letter-spacing-wide);
+    color: var(--color-error);
+    transition: color var(--transition-smooth);
   }
 
   &__track {
     width: 32px;
     height: 18px;
-    background: rgba(239, 68, 68, 0.3);
-    border-radius: 10px;
+    background: rgba(var(--color-error-rgb), 0.3);
+    border-radius: var(--radius-sm);
     position: relative;
-    transition: background 0.3s ease;
+    transition: background var(--transition-smooth);
   }
 
   &__thumb {
     width: 14px;
     height: 14px;
-    background: white;
-    border-radius: 50%;
+    background: var(--color-white);
+    border-radius: var(--radius-full);
     position: absolute;
     top: 2px;
     left: 2px;
-    transition: transform 0.3s ease;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    transition: transform var(--transition-smooth);
+    box-shadow: var(--shadow-xs);
   }
 
-  // Active state
+  // ---------------------------------------------------------------------------
+  // Active State
+  // ---------------------------------------------------------------------------
   &--active {
-    background: rgba(34, 197, 94, 0.1);
-    border-color: rgba(34, 197, 94, 0.25);
+    background: rgba(var(--color-success-rgb), 0.1);
+    border-color: rgba(var(--color-success-rgb), 0.25);
 
     .status-toggle__label {
-      color: #16a34a;
+      color: var(--color-success-dark);
     }
 
     .status-toggle__track {
-      background: #22c55e;
+      background: var(--color-success);
     }
 
     .status-toggle__thumb {
@@ -162,26 +182,28 @@
   }
 }
 
-// -----------------------------------------------------------------------------
-// PrimeNG InputSwitch Override
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 3. PRIMENG INPUTSWITCH OVERRIDE
+// =============================================================================
+
 .p-inputswitch {
   width: 44px;
   height: 24px;
 
   .p-inputswitch-slider {
     background: rgba(0, 0, 0, 0.15);
-    border-radius: 12px;
-    transition: all 0.3s ease;
+    border-radius: var(--radius-md);
+    transition: all var(--transition-smooth);
 
     &::before {
       width: 20px;
       height: 20px;
       left: 2px;
       bottom: 2px;
-      border-radius: 50%;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-      transition: all 0.3s ease;
+      border-radius: var(--radius-full);
+      box-shadow: var(--shadow-sm);
+      transition: all var(--transition-smooth);
     }
   }
 
@@ -207,13 +229,15 @@
   }
 }
 
-// -----------------------------------------------------------------------------
-// Radio Button Group
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 4. RADIO BUTTON GROUP
+// =============================================================================
+
 .radio-group {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: var(--space-4);
 
   &--horizontal {
     flex-direction: row;
@@ -224,20 +248,20 @@
 .radio-item {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-5);
   background: rgba(248, 250, 252, 0.8);
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  border-radius: 12px;
+  border: var(--border-width) solid rgba(0, 0, 0, 0.06);
+  border-radius: var(--radius-md);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--transition-fast);
 
   &:hover {
-    border-color: rgba(46, 108, 183, 0.2);
+    border-color: rgba(var(--primary-rgb), 0.2);
   }
 
   &.selected {
-    background: rgba(46, 108, 183, 0.05);
+    background: rgba(var(--primary-rgb), 0.05);
     border-color: var(--primary-color);
   }
 
@@ -245,20 +269,20 @@
     width: 20px;
     height: 20px;
     border: 2px solid rgba(0, 0, 0, 0.2);
-    border-radius: 50%;
+    border-radius: var(--radius-full);
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.2s ease;
+    transition: all var(--transition-fast);
 
     &::after {
       content: '';
       width: 10px;
       height: 10px;
       background: var(--primary-gradient);
-      border-radius: 50%;
+      border-radius: var(--radius-full);
       transform: scale(0);
-      transition: transform 0.2s ease;
+      transition: transform var(--transition-fast);
     }
   }
 
@@ -274,50 +298,52 @@
     flex: 1;
 
     .label {
-      font-weight: 500;
+      font-weight: var(--font-weight-medium);
       color: var(--text-color);
-      font-size: 0.9rem;
+      font-size: var(--font-size-md);
     }
 
     .description {
-      font-size: 0.8rem;
+      font-size: var(--font-size-sm);
       color: var(--text-color-secondary);
-      margin-top: 0.125rem;
+      margin-top: var(--space-1);
     }
   }
 }
 
-// -----------------------------------------------------------------------------
-// Checkbox Group
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 5. CHECKBOX GROUP
+// =============================================================================
+
 .checkbox-group {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: var(--space-4);
 }
 
 .checkbox-item {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: var(--space-4);
   cursor: pointer;
 
   &__box {
     width: 22px;
     height: 22px;
     border: 2px solid rgba(0, 0, 0, 0.2);
-    border-radius: 6px;
+    border-radius: var(--radius-sm);
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.2s ease;
+    transition: all var(--transition-fast);
 
     i {
-      font-size: 0.75rem;
-      color: white;
+      font-size: var(--font-size-xs);
+      color: var(--color-white);
       opacity: 0;
       transform: scale(0);
-      transition: all 0.2s ease;
+      transition: all var(--transition-fast);
     }
   }
 
@@ -332,8 +358,8 @@
   }
 
   &__label {
-    font-size: 0.9rem;
-    font-weight: 500;
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-medium);
     color: var(--text-color);
   }
 
@@ -342,34 +368,36 @@
   }
 }
 
-// -----------------------------------------------------------------------------
-// Toggle Button Group
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 6. TOGGLE BUTTON GROUP
+// =============================================================================
+
 .toggle-buttons {
   display: inline-flex;
   background: rgba(0, 0, 0, 0.05);
-  border-radius: 10px;
-  padding: 0.25rem;
+  border-radius: var(--radius-sm);
+  padding: var(--space-1);
 
   &__btn {
-    padding: 0.5rem 1rem;
+    padding: var(--space-3) var(--space-5);
     background: transparent;
     border: none;
-    border-radius: 8px;
-    font-size: 0.85rem;
-    font-weight: 500;
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
     color: var(--text-color-secondary);
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all var(--transition-fast);
 
     &:hover:not(.active) {
       color: var(--text-color);
     }
 
     &.active {
-      background: white;
+      background: var(--color-white);
       color: var(--primary-color);
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      box-shadow: var(--shadow-xs);
     }
   }
 }

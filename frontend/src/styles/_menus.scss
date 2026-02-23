@@ -7,58 +7,19 @@
 
 
 // =============================================================================
-// 1. DROPDOWN CONTAINER
+// MENU BASE PLACEHOLDERS
 // =============================================================================
 
-.dropdown {
-  position: relative;
-  display: inline-flex;
-}
-
-
-// =============================================================================
-// 2. DROPDOWN MENU
-// =============================================================================
-
-.dropdown-menu {
-  position: absolute;
-  top: calc(100% + var(--space-3));
-  left: 0;
-  min-width: 200px;
+%menu-panel-base {
   background: var(--color-white);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
   border: var(--border-width) solid var(--border-color-light);
   padding: var(--space-3);
   z-index: var(--z-dropdown);
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(-10px);
-  transition: all var(--transition-fast);
-
-  &.open {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0);
-  }
-
-  &--right {
-    left: auto;
-    right: 0;
-  }
-
-  &--top {
-    top: auto;
-    bottom: calc(100% + var(--space-3));
-  }
 }
 
-
-// =============================================================================
-// 3. DROPDOWN ITEM
-// =============================================================================
-
-.dropdown-item {
+%menu-item-base {
   display: flex;
   align-items: center;
   gap: var(--space-5);
@@ -89,6 +50,58 @@
       color: var(--primary-color);
     }
   }
+}
+
+
+// =============================================================================
+// 1. DROPDOWN CONTAINER
+// =============================================================================
+
+.dropdown {
+  position: relative;
+  display: inline-flex;
+}
+
+
+// =============================================================================
+// 2. DROPDOWN MENU
+// =============================================================================
+
+.dropdown-menu {
+  @extend %menu-panel-base;
+  position: absolute;
+  top: calc(100% + var(--space-3));
+  left: 0;
+  min-width: 200px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: all var(--transition-fast);
+
+  &.open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  &--right {
+    left: auto;
+    right: 0;
+  }
+
+  &--top {
+    top: auto;
+    bottom: calc(100% + var(--space-3));
+  }
+}
+
+
+// =============================================================================
+// 3. DROPDOWN ITEM
+// =============================================================================
+
+.dropdown-item {
+  @extend %menu-item-base;
 
   &--danger {
     color: var(--color-error);
@@ -147,10 +160,7 @@
 // =============================================================================
 
 .p-menu {
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg);
-  border: var(--border-width) solid var(--border-color-light);
-  padding: var(--space-3);
+  @extend %menu-panel-base;
   min-width: 200px;
 
   .p-menu-list {
@@ -205,10 +215,7 @@
 // =============================================================================
 
 .p-contextmenu {
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg);
-  border: var(--border-width) solid var(--border-color-light);
-  padding: var(--space-3);
+  @extend %menu-panel-base;
 
   .p-menuitem {
     .p-menuitem-content {
@@ -228,16 +235,10 @@
 // =============================================================================
 
 .p-tieredmenu {
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg);
-  border: var(--border-width) solid var(--border-color-light);
-  padding: var(--space-3);
+  @extend %menu-panel-base;
 
   .p-submenu-list {
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-lg);
-    border: var(--border-width) solid var(--border-color-light);
-    padding: var(--space-3);
+    @extend %menu-panel-base;
   }
 }
 

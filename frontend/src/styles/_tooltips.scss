@@ -1,77 +1,93 @@
 // =============================================================================
-// GLOBAL TOOLTIP STYLES
+// TOOLTIPS
 // =============================================================================
-// Tooltip patterns and PrimeNG pTooltip overrides
+// Tooltip patterns and PrimeNG pTooltip overrides.
+// Uses variables from: _colors.scss, _spacing.scss, _effects.scss, _typography.scss
 // =============================================================================
 
-// -----------------------------------------------------------------------------
-// PrimeNG Tooltip Override
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// TOOLTIP VARIABLES
+// =============================================================================
+
+$tooltip-bg: rgba(15, 23, 42, 0.95);
+
+
+// =============================================================================
+// 1. PRIMENG TOOLTIP OVERRIDE
+// =============================================================================
+
 .p-tooltip {
   z-index: var(--z-tooltip) !important;
 
   .p-tooltip-text {
-    background: rgba(15, 23, 42, 0.95);
+    background: $tooltip-bg;
     backdrop-filter: blur(8px);
-    color: white;
-    font-size: 0.8rem;
-    font-weight: 500;
-    padding: 0.5rem 0.75rem;
-    border-radius: 8px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    color: var(--color-white);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    padding: var(--space-3) var(--space-5);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-md);
     max-width: 300px;
     line-height: 1.4;
   }
 
   .p-tooltip-arrow {
-    border-color: rgba(15, 23, 42, 0.95);
+    border-color: $tooltip-bg;
   }
 
-  // Position variants
+  // ---------------------------------------------------------------------------
+  // Position Variants
+  // ---------------------------------------------------------------------------
   &.p-tooltip-top .p-tooltip-arrow {
-    border-top-color: rgba(15, 23, 42, 0.95);
+    border-top-color: $tooltip-bg;
   }
 
   &.p-tooltip-bottom .p-tooltip-arrow {
-    border-bottom-color: rgba(15, 23, 42, 0.95);
+    border-bottom-color: $tooltip-bg;
   }
 
   &.p-tooltip-left .p-tooltip-arrow {
-    border-left-color: rgba(15, 23, 42, 0.95);
+    border-left-color: $tooltip-bg;
   }
 
   &.p-tooltip-right .p-tooltip-arrow {
-    border-right-color: rgba(15, 23, 42, 0.95);
+    border-right-color: $tooltip-bg;
   }
 }
 
-// -----------------------------------------------------------------------------
-// Light Tooltip Variant
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 2. LIGHT TOOLTIP VARIANT
+// =============================================================================
+
 .p-tooltip.tooltip-light {
   .p-tooltip-text {
-    background: white;
+    background: var(--color-white);
     color: var(--text-color);
-    border: 1px solid rgba(0, 0, 0, 0.08);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    border: var(--border-width) solid rgba(0, 0, 0, 0.08);
+    box-shadow: var(--shadow-lg);
   }
 
   .p-tooltip-arrow {
-    border-color: white;
+    border-color: var(--color-white);
   }
 
   &.p-tooltip-top .p-tooltip-arrow {
-    border-top-color: white;
+    border-top-color: var(--color-white);
   }
 
   &.p-tooltip-bottom .p-tooltip-arrow {
-    border-bottom-color: white;
+    border-bottom-color: var(--color-white);
   }
 }
 
-// -----------------------------------------------------------------------------
-// Colored Tooltip Variants
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 3. COLORED TOOLTIP VARIANTS
+// =============================================================================
+
 .p-tooltip.tooltip-primary {
   .p-tooltip-text {
     background: var(--primary-color);
@@ -84,37 +100,39 @@
 
 .p-tooltip.tooltip-success {
   .p-tooltip-text {
-    background: #22c55e;
+    background: var(--color-success);
   }
 
   &.p-tooltip-top .p-tooltip-arrow {
-    border-top-color: #22c55e;
+    border-top-color: var(--color-success);
   }
 }
 
 .p-tooltip.tooltip-warning {
   .p-tooltip-text {
-    background: #f59e0b;
+    background: var(--color-warning);
   }
 
   &.p-tooltip-top .p-tooltip-arrow {
-    border-top-color: #f59e0b;
+    border-top-color: var(--color-warning);
   }
 }
 
 .p-tooltip.tooltip-danger {
   .p-tooltip-text {
-    background: #ef4444;
+    background: var(--color-error);
   }
 
   &.p-tooltip-top .p-tooltip-arrow {
-    border-top-color: #ef4444;
+    border-top-color: var(--color-error);
   }
 }
 
-// -----------------------------------------------------------------------------
-// Custom Tooltip (CSS-only)
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 4. CUSTOM TOOLTIP (CSS-only)
+// =============================================================================
+
 .tooltip {
   position: relative;
   display: inline-flex;
@@ -124,17 +142,17 @@
     bottom: calc(100% + 8px);
     left: 50%;
     transform: translateX(-50%);
-    background: rgba(15, 23, 42, 0.95);
+    background: $tooltip-bg;
     backdrop-filter: blur(8px);
-    color: white;
-    font-size: 0.8rem;
-    font-weight: 500;
-    padding: 0.5rem 0.75rem;
-    border-radius: 8px;
+    color: var(--color-white);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    padding: var(--space-3) var(--space-5);
+    border-radius: var(--radius-sm);
     white-space: nowrap;
     opacity: 0;
     visibility: hidden;
-    transition: all 0.2s ease;
+    transition: all var(--transition-fast);
     z-index: var(--z-tooltip);
 
     &::after {
@@ -144,7 +162,7 @@
       left: 50%;
       transform: translateX(-50%);
       border: 6px solid transparent;
-      border-top-color: rgba(15, 23, 42, 0.95);
+      border-top-color: $tooltip-bg;
     }
   }
 
@@ -153,7 +171,9 @@
     visibility: visible;
   }
 
-  // Position variants
+  // ---------------------------------------------------------------------------
+  // Position Variants
+  // ---------------------------------------------------------------------------
   &--bottom .tooltip__content {
     bottom: auto;
     top: calc(100% + 8px);
@@ -162,7 +182,7 @@
       top: auto;
       bottom: 100%;
       border-top-color: transparent;
-      border-bottom-color: rgba(15, 23, 42, 0.95);
+      border-bottom-color: $tooltip-bg;
     }
   }
 
@@ -178,7 +198,7 @@
       left: 100%;
       transform: translateY(-50%);
       border-top-color: transparent;
-      border-left-color: rgba(15, 23, 42, 0.95);
+      border-left-color: $tooltip-bg;
     }
   }
 
@@ -194,32 +214,34 @@
       right: 100%;
       transform: translateY(-50%);
       border-top-color: transparent;
-      border-right-color: rgba(15, 23, 42, 0.95);
+      border-right-color: $tooltip-bg;
     }
   }
 }
 
-// -----------------------------------------------------------------------------
-// Info Tooltip (Icon + Tooltip)
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 5. INFO TOOLTIP (Icon + Tooltip)
+// =============================================================================
+
 .info-tooltip {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 18px;
   height: 18px;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   background: rgba(0, 0, 0, 0.08);
   cursor: help;
-  transition: all 0.2s ease;
+  transition: all var(--transition-fast);
 
   i {
-    font-size: 0.7rem;
+    font-size: var(--font-size-xs);
     color: var(--text-color-secondary);
   }
 
   &:hover {
-    background: rgba(46, 108, 183, 0.15);
+    background: rgba(var(--primary-rgb), 0.15);
 
     i {
       color: var(--primary-color);

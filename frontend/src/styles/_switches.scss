@@ -1,23 +1,54 @@
 // =============================================================================
-// GLOBAL SWITCH STYLES
+// SWITCHES
 // =============================================================================
-// Toggle switches, on/off controls, and switch variants
+// Toggle switches, on/off controls, and switch variants.
+// Uses variables from: _colors.scss, _spacing.scss, _effects.scss, _typography.scss
 // =============================================================================
 
-// -----------------------------------------------------------------------------
-// Basic Switch
-// -----------------------------------------------------------------------------
-.switch {
+
+// =============================================================================
+// SWITCH BASE PLACEHOLDERS
+// =============================================================================
+
+%switch-base {
   position: relative;
   display: inline-flex;
   align-items: center;
   cursor: pointer;
+}
+
+%switch-input-hidden {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+%switch-slider-base {
+  position: relative;
+  background: rgba(0, 0, 0, 0.15);
+  transition: all var(--transition-smooth);
+
+  &::before {
+    content: '';
+    position: absolute;
+    background: var(--color-white);
+    border-radius: var(--radius-full);
+    box-shadow: var(--shadow-sm);
+    transition: all var(--transition-smooth);
+  }
+}
+
+
+// =============================================================================
+// 1. BASIC SWITCH
+// =============================================================================
+
+.switch {
+  @extend %switch-base;
 
   &__input {
-    position: absolute;
-    opacity: 0;
-    width: 0;
-    height: 0;
+    @extend %switch-input-hidden;
 
     &:checked + .switch__slider {
       background: var(--primary-gradient);
@@ -28,7 +59,7 @@
     }
 
     &:focus + .switch__slider {
-      box-shadow: 0 0 0 3px rgba(46, 108, 183, 0.2);
+      box-shadow: var(--shadow-focus);
     }
 
     &:disabled + .switch__slider {
@@ -38,35 +69,29 @@
   }
 
   &__slider {
-    position: relative;
+    @extend %switch-slider-base;
     width: 44px;
     height: 24px;
-    background: rgba(0, 0, 0, 0.15);
-    border-radius: 24px;
-    transition: all 0.3s ease;
+    border-radius: var(--radius-xl);
 
     &::before {
-      content: '';
-      position: absolute;
       top: 2px;
       left: 2px;
       width: 20px;
       height: 20px;
-      background: white;
-      border-radius: 50%;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-      transition: all 0.3s ease;
     }
   }
 
   &__label {
-    margin-left: 0.75rem;
-    font-size: 0.9rem;
-    font-weight: 500;
+    margin-left: var(--space-4);
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-medium);
     color: var(--text-color);
   }
 
-  // Size variants
+  // ---------------------------------------------------------------------------
+  // Size Variants
+  // ---------------------------------------------------------------------------
   &--sm {
     .switch__slider {
       width: 36px;
@@ -99,40 +124,38 @@
     }
   }
 
-  // Color variants
+  // ---------------------------------------------------------------------------
+  // Color Variants
+  // ---------------------------------------------------------------------------
   &--success {
     .switch__input:checked + .switch__slider {
-      background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+      background: var(--btn-success-gradient);
     }
   }
 
   &--danger {
     .switch__input:checked + .switch__slider {
-      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      background: var(--btn-danger-gradient);
     }
   }
 
   &--warning {
     .switch__input:checked + .switch__slider {
-      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      background: var(--btn-warning-gradient);
     }
   }
 }
 
-// -----------------------------------------------------------------------------
-// Switch with Icons
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 2. SWITCH WITH ICONS
+// =============================================================================
+
 .switch-icons {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  cursor: pointer;
+  @extend %switch-base;
 
   &__input {
-    position: absolute;
-    opacity: 0;
-    width: 0;
-    height: 0;
+    @extend %switch-input-hidden;
 
     &:checked + .switch-icons__slider {
       background: var(--primary-gradient);
@@ -152,24 +175,16 @@
   }
 
   &__slider {
-    position: relative;
+    @extend %switch-slider-base;
     width: 52px;
     height: 28px;
-    background: rgba(0, 0, 0, 0.15);
-    border-radius: 28px;
-    transition: all 0.3s ease;
+    border-radius: var(--radius-xl);
 
     &::before {
-      content: '';
-      position: absolute;
       top: 2px;
       left: 2px;
       width: 24px;
       height: 24px;
-      background: white;
-      border-radius: 50%;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-      transition: all 0.3s ease;
       z-index: 2;
     }
   }
@@ -178,38 +193,40 @@
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    font-size: 0.75rem;
-    transition: opacity 0.3s ease;
+    font-size: var(--font-size-xs);
+    transition: opacity var(--transition-smooth);
     z-index: 1;
 
     &--on {
-      left: 8px;
-      color: white;
+      left: var(--space-3);
+      color: var(--color-white);
       opacity: 0;
     }
 
     &--off {
-      right: 8px;
+      right: var(--space-3);
       color: rgba(0, 0, 0, 0.4);
       opacity: 1;
     }
   }
 }
 
-// -----------------------------------------------------------------------------
-// Switch with Text Labels
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 3. SWITCH WITH TEXT LABELS
+// =============================================================================
+
 .switch-labeled {
   display: inline-flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: var(--space-4);
   cursor: pointer;
 
   &__off,
   &__on {
-    font-size: 0.85rem;
-    font-weight: 500;
-    transition: color 0.3s ease;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    transition: color var(--transition-smooth);
   }
 
   &__off {
@@ -231,9 +248,11 @@
   }
 }
 
-// -----------------------------------------------------------------------------
-// iOS Style Switch
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 4. iOS STYLE SWITCH
+// =============================================================================
+
 .switch-ios {
   position: relative;
   width: 51px;
@@ -241,13 +260,10 @@
   cursor: pointer;
 
   &__input {
-    position: absolute;
-    opacity: 0;
-    width: 0;
-    height: 0;
+    @extend %switch-input-hidden;
 
     &:checked + .switch-ios__track {
-      background: #34c759;
+      background: var(--color-success);
 
       .switch-ios__thumb {
         transform: translateX(20px);
@@ -258,9 +274,9 @@
   &__track {
     position: absolute;
     inset: 0;
-    background: #e9e9eb;
+    background: rgba(0, 0, 0, 0.12);
     border-radius: 31px;
-    transition: background 0.3s ease;
+    transition: background var(--transition-smooth);
   }
 
   &__thumb {
@@ -269,16 +285,18 @@
     left: 2px;
     width: 27px;
     height: 27px;
-    background: white;
-    border-radius: 50%;
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15), 0 1px 1px rgba(0, 0, 0, 0.16);
-    transition: transform 0.3s ease;
+    background: var(--color-white);
+    border-radius: var(--radius-full);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15), var(--shadow-xs);
+    transition: transform var(--transition-smooth);
   }
 }
 
-// -----------------------------------------------------------------------------
-// Material Style Switch
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 5. MATERIAL STYLE SWITCH
+// =============================================================================
+
 .switch-material {
   position: relative;
   width: 36px;
@@ -286,23 +304,20 @@
   cursor: pointer;
 
   &__input {
-    position: absolute;
-    opacity: 0;
-    width: 0;
-    height: 0;
+    @extend %switch-input-hidden;
 
     &:checked + .switch-material__track {
-      background: rgba(46, 108, 183, 0.5);
+      background: rgba(var(--primary-rgb), 0.5);
 
       .switch-material__thumb {
         transform: translateX(18px);
         background: var(--primary-color);
-        box-shadow: 0 2px 4px rgba(46, 108, 183, 0.4);
+        box-shadow: 0 2px 4px rgba(var(--primary-rgb), 0.4);
       }
     }
 
     &:focus + .switch-material__track .switch-material__thumb {
-      box-shadow: 0 0 0 10px rgba(46, 108, 183, 0.1);
+      box-shadow: 0 0 0 10px rgba(var(--primary-rgb), 0.1);
     }
   }
 
@@ -310,8 +325,8 @@
     position: absolute;
     inset: 0;
     background: rgba(0, 0, 0, 0.38);
-    border-radius: 14px;
-    transition: background 0.3s ease;
+    border-radius: var(--radius-md);
+    transition: background var(--transition-smooth);
   }
 
   &__thumb {
@@ -320,71 +335,75 @@
     left: -2px;
     width: 20px;
     height: 20px;
-    background: #fafafa;
-    border-radius: 50%;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    transition: all 0.3s ease;
+    background: var(--surface-100);
+    border-radius: var(--radius-full);
+    box-shadow: var(--shadow-sm);
+    transition: all var(--transition-smooth);
   }
 }
 
-// -----------------------------------------------------------------------------
-// Switch Card (Full width clickable)
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 6. SWITCH CARD
+// =============================================================================
+
 .switch-card {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1rem 1.25rem;
-  background: white;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  border-radius: 12px;
+  padding: var(--space-5) var(--space-6);
+  background: var(--color-white);
+  border: var(--border-width) solid rgba(0, 0, 0, 0.08);
+  border-radius: var(--radius-lg);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--transition-fast);
 
   &:hover {
-    border-color: rgba(46, 108, 183, 0.2);
+    border-color: rgba(var(--primary-rgb), 0.2);
     background: rgba(248, 250, 252, 0.8);
   }
 
   &__content {
     flex: 1;
     min-width: 0;
-    margin-right: 1rem;
+    margin-right: var(--space-5);
   }
 
   &__title {
-    font-weight: 600;
+    font-weight: var(--font-weight-semibold);
     color: var(--text-color);
-    font-size: 0.95rem;
+    font-size: var(--font-size-base);
     margin: 0;
   }
 
   &__description {
-    font-size: 0.8rem;
+    font-size: var(--font-size-sm);
     color: var(--text-color-secondary);
-    margin: 0.25rem 0 0 0;
+    margin: var(--space-1) 0 0 0;
   }
 
   &.active {
-    border-color: rgba(46, 108, 183, 0.3);
-    background: rgba(46, 108, 183, 0.04);
+    border-color: rgba(var(--primary-rgb), 0.3);
+    background: rgba(var(--primary-rgb), 0.04);
   }
 }
 
-// -----------------------------------------------------------------------------
-// Switch Group
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 7. SWITCH GROUP
+// =============================================================================
+
 .switch-group {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: var(--space-4);
 
   &__item {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0.75rem 0;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    padding: var(--space-4) 0;
+    border-bottom: var(--border-width) solid rgba(0, 0, 0, 0.06);
 
     &:last-child {
       border-bottom: none;
@@ -392,32 +411,31 @@
   }
 
   &__label {
-    font-size: 0.9rem;
+    font-size: var(--font-size-base);
     color: var(--text-color);
   }
 }
 
-// -----------------------------------------------------------------------------
-// Power Switch
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 8. POWER SWITCH
+// =============================================================================
+
 .power-switch {
   position: relative;
-  width: 64px;
-  height: 64px;
+  width: var(--icon-3xl);
+  height: var(--icon-3xl);
   cursor: pointer;
 
   &__input {
-    position: absolute;
-    opacity: 0;
-    width: 0;
-    height: 0;
+    @extend %switch-input-hidden;
 
     &:checked + .power-switch__button {
       background: var(--primary-gradient);
-      box-shadow: 0 4px 20px rgba(46, 108, 183, 0.4);
+      box-shadow: var(--shadow-primary);
 
       i {
-        color: white;
+        color: var(--color-white);
       }
     }
   }
@@ -425,25 +443,27 @@
   &__button {
     width: 100%;
     height: 100%;
-    border-radius: 50%;
+    border-radius: var(--radius-full);
     background: rgba(0, 0, 0, 0.08);
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.3s ease;
+    transition: all var(--transition-smooth);
     border: none;
 
     i {
-      font-size: 1.5rem;
+      font-size: var(--font-size-2xl);
       color: var(--text-color-secondary);
-      transition: color 0.3s ease;
+      transition: color var(--transition-smooth);
     }
   }
 }
 
-// -----------------------------------------------------------------------------
-// Day/Night Switch
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 9. DAY/NIGHT THEME SWITCH
+// =============================================================================
+
 .switch-theme {
   position: relative;
   width: 60px;
@@ -451,17 +471,14 @@
   cursor: pointer;
 
   &__input {
-    position: absolute;
-    opacity: 0;
-    width: 0;
-    height: 0;
+    @extend %switch-input-hidden;
 
     &:checked + .switch-theme__track {
       background: linear-gradient(135deg, #1e3a5f 0%, #0c1929 100%);
 
       .switch-theme__thumb {
         transform: translateX(30px);
-        background: #fcd34d;
+        background: var(--color-warning);
       }
 
       .switch-theme__icon--sun {
@@ -478,7 +495,7 @@
     position: absolute;
     inset: 0;
     background: linear-gradient(135deg, #87ceeb 0%, #ffd700 100%);
-    border-radius: 30px;
+    border-radius: var(--radius-xl);
     transition: all 0.4s ease;
     overflow: hidden;
   }
@@ -490,8 +507,8 @@
     width: 24px;
     height: 24px;
     background: #fff9c4;
-    border-radius: 50%;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    border-radius: var(--radius-full);
+    box-shadow: var(--shadow-sm);
     transition: all 0.4s ease;
     z-index: 2;
   }
@@ -500,26 +517,28 @@
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    font-size: 0.85rem;
-    transition: opacity 0.3s ease;
+    font-size: var(--font-size-sm);
+    transition: opacity var(--transition-smooth);
 
     &--sun {
-      right: 8px;
-      color: #f59e0b;
+      right: var(--space-3);
+      color: var(--color-warning);
       opacity: 1;
     }
 
     &--moon {
-      left: 8px;
-      color: #fcd34d;
+      left: var(--space-3);
+      color: var(--color-warning);
       opacity: 0;
     }
   }
 }
 
-// -----------------------------------------------------------------------------
-// PrimeNG InputSwitch Enhanced
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 10. PRIMENG INPUTSWITCH OVERRIDE
+// =============================================================================
+
 .p-inputswitch {
   &.p-inputswitch-lg {
     width: 52px;
@@ -537,13 +556,13 @@
 
   &.p-inputswitch-success {
     &.p-inputswitch-checked .p-inputswitch-slider {
-      background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+      background: var(--btn-success-gradient);
     }
   }
 
   &.p-inputswitch-danger {
     &.p-inputswitch-checked .p-inputswitch-slider {
-      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      background: var(--btn-danger-gradient);
     }
   }
 }

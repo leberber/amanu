@@ -1,154 +1,162 @@
 // =============================================================================
-// GLOBAL CARD STYLES
+// CARDS
 // =============================================================================
-// Shared card patterns used across admin and frontend
+// Card components for admin and frontend layouts.
+// Uses variables from: _colors.scss, _spacing.scss, _effects.scss, _typography.scss
 // =============================================================================
 
-// -----------------------------------------------------------------------------
-// Base Card
-// -----------------------------------------------------------------------------
-.card {
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(10px);
-  border-radius: 20px;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
-  border: 1px solid rgba(0, 0, 0, 0.04);
+
+// =============================================================================
+// CARD BASE PLACEHOLDER
+// =============================================================================
+
+%card-base {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-md);
+  border: var(--border-width) solid var(--border-color-light);
   overflow: hidden;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all var(--transition-smooth);
+}
 
+%card-hover {
   &:hover {
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-lg);
     transform: translateY(-2px);
   }
+}
+
+%card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+
+  i {
+    color: var(--color-white);
+  }
+
+  &--primary { background: var(--primary-gradient); }
+  &--success { background: var(--success-gradient); }
+  &--warning { background: var(--warning-gradient); }
+  &--info { background: var(--info-gradient); }
+  &--purple { background: var(--purple-gradient); }
+  &--pink { background: var(--pink-gradient); }
+  &--orange { background: var(--orange-gradient); }
+  &--teal { background: var(--teal-gradient); }
+  &--red { background: var(--red-gradient); }
+}
+
+
+// =============================================================================
+// 1. BASE CARD
+// =============================================================================
+
+.card {
+  @extend %card-base;
+  @extend %card-hover;
 
   &--flat {
     box-shadow: none;
-    border: 1px solid rgba(0, 0, 0, 0.08);
+    border: var(--border-width) solid rgba(0, 0, 0, 0.08);
 
     &:hover {
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+      box-shadow: var(--shadow-md);
     }
   }
 
   &--no-hover {
     &:hover {
       transform: none;
-      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+      box-shadow: var(--shadow-md);
     }
   }
 }
 
-// -----------------------------------------------------------------------------
-// Card Header
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 2. CARD HEADER
+// =============================================================================
+
 .card-header {
   display: flex;
   align-items: center;
-  gap: 0.875rem;
-  padding: 1.25rem 1.5rem;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+  gap: var(--space-5);
+  padding: var(--space-7) var(--space-8);
+  border-bottom: var(--border-width) solid var(--border-color-light);
 
   &__icon {
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    @extend %card-icon;
+    width: var(--icon-lg);
+    height: var(--icon-lg);
 
     i {
-      font-size: 1.25rem;
-      color: white;
-    }
-
-    &--primary {
-      background: var(--primary-gradient);
-    }
-
-    &--success {
-      background: var(--success-gradient);
-    }
-
-    &--warning {
-      background: var(--warning-gradient);
-    }
-
-    &--info {
-      background: var(--info-gradient);
-    }
-
-    &--purple {
-      background: var(--purple-gradient);
-    }
-
-    &--pink {
-      background: var(--pink-gradient);
-    }
-
-    &--orange {
-      background: var(--orange-gradient);
-    }
-
-    &--teal {
-      background: var(--teal-gradient);
+      font-size: var(--font-size-2xl);
     }
   }
 
   &__title {
-    font-size: 1.1rem;
-    font-weight: 600;
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-semibold);
     color: var(--text-color);
     margin: 0;
   }
 
   &__subtitle {
-    font-size: 0.85rem;
+    font-size: var(--font-size-base);
     color: var(--text-color-secondary);
-    margin: 0.25rem 0 0 0;
+    margin: var(--space-1) 0 0 0;
   }
 }
 
-// -----------------------------------------------------------------------------
-// Card Body
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 3. CARD BODY
+// =============================================================================
+
 .card-body {
-  padding: 1.5rem;
+  padding: var(--space-8);
 
   &--compact {
-    padding: 1rem;
+    padding: var(--space-6);
   }
 
   &--spacious {
-    padding: 2rem;
+    padding: var(--space-9);
   }
 }
 
-// -----------------------------------------------------------------------------
-// Card Footer
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 4. CARD FOOTER
+// =============================================================================
+
 .card-footer {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 0.75rem;
-  padding: 1rem 1.5rem;
-  border-top: 1px solid rgba(0, 0, 0, 0.04);
+  gap: var(--space-5);
+  padding: var(--space-6) var(--space-8);
+  border-top: var(--border-width) solid var(--border-color-light);
   background: rgba(248, 250, 252, 0.5);
 }
 
-// -----------------------------------------------------------------------------
-// Grid Card (for grid layouts)
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 5. GRID CARD
+// =============================================================================
+
 .grid-card {
-  background: white;
-  border-radius: 16px;
-  border: 1px solid rgba(0, 0, 0, 0.04);
+  background: var(--color-white);
+  border-radius: var(--radius-xl);
+  border: var(--border-width) solid var(--border-color-light);
   overflow: hidden;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all var(--transition-smooth);
 
   &:hover {
     transform: translateY(-4px);
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+    box-shadow: var(--shadow-xl);
 
     .grid-card__actions {
       opacity: 1;
@@ -157,17 +165,17 @@
 
   &__header {
     position: relative;
-    padding: 1.25rem;
+    padding: var(--space-7);
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
   }
 
   &__image {
-    width: 64px;
-    height: 64px;
-    border-radius: 16px;
-    background: linear-gradient(135deg, rgba(46, 108, 183, 0.1) 0%, rgba(15, 60, 130, 0.1) 100%);
+    width: var(--icon-3xl);
+    height: var(--icon-3xl);
+    border-radius: var(--radius-xl);
+    background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.1) 0%, rgba(var(--primary-rgb), 0.05) 100%);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -180,26 +188,26 @@
     }
 
     i {
-      font-size: 1.75rem;
+      font-size: var(--font-size-4xl);
       color: var(--primary-color);
     }
   }
 
   &__body {
-    padding: 0 1.25rem 1.25rem;
+    padding: 0 var(--space-7) var(--space-7);
   }
 
   &__title {
-    font-size: 1.1rem;
-    font-weight: 600;
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-semibold);
     color: var(--text-color);
-    margin: 0 0 0.5rem 0;
+    margin: 0 0 var(--space-3) 0;
   }
 
   &__description {
-    font-size: 0.85rem;
+    font-size: var(--font-size-base);
     color: var(--text-color-secondary);
-    margin: 0 0 1rem 0;
+    margin: 0 0 var(--space-6) 0;
     line-height: 1.5;
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -209,45 +217,42 @@
 
     &--empty {
       font-style: italic;
-      color: #adb3bd;
+      color: var(--color-text-muted);
     }
   }
 
   &__meta {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.75rem;
+    gap: var(--space-5);
     align-items: center;
   }
 
   &__actions {
     display: flex;
     justify-content: flex-end;
-    gap: 0.5rem;
-    padding: 0 1.25rem 1.25rem;
+    gap: var(--space-3);
+    padding: 0 var(--space-7) var(--space-7);
     opacity: 0.7;
-    transition: opacity 0.3s ease;
+    transition: opacity var(--transition-base);
   }
 }
 
-// -----------------------------------------------------------------------------
-// Stat Card
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 6. STAT CARD
+// =============================================================================
+
 .stat-card {
+  @extend %card-base;
   position: relative;
-  padding: 1.25rem;
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(20px);
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.5);
+  padding: var(--space-7);
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
 
   &:hover {
     transform: translateY(-4px);
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+    box-shadow: var(--shadow-xl);
 
     .stat-card__icon {
       transform: scale(1.1);
@@ -259,43 +264,29 @@
   }
 
   &__icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 1rem;
-    transition: transform 0.3s ease;
+    @extend %card-icon;
+    width: var(--icon-lg);
+    height: var(--icon-lg);
+    margin-bottom: var(--space-6);
+    transition: transform var(--transition-base);
 
     i {
-      font-size: 1.25rem;
-      color: white;
+      font-size: var(--font-size-2xl);
     }
-
-    &--primary { background: var(--primary-gradient); }
-    &--success { background: var(--success-gradient); }
-    &--warning { background: var(--warning-gradient); }
-    &--info { background: var(--info-gradient); }
-    &--purple { background: var(--purple-gradient); }
-    &--pink { background: var(--pink-gradient); }
-    &--teal { background: var(--teal-gradient); }
-    &--orange { background: var(--orange-gradient); }
-    &--red { background: var(--red-gradient); }
   }
 
   &__value {
     display: block;
-    font-size: 1.5rem;
-    font-weight: 700;
+    font-size: var(--font-size-3xl);
+    font-weight: var(--font-weight-bold);
     color: var(--text-color);
-    margin-bottom: 0.25rem;
+    margin-bottom: var(--space-1);
   }
 
   &__label {
     display: block;
-    font-size: 0.8rem;
-    font-weight: 500;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
     color: var(--text-color-secondary);
   }
 
@@ -305,9 +296,9 @@
     right: -20px;
     width: 80px;
     height: 80px;
-    border-radius: 50%;
+    border-radius: var(--radius-full);
     opacity: 0.1;
-    transition: transform 0.3s ease;
+    transition: transform var(--transition-base);
 
     &--primary { background: var(--primary-gradient); }
     &--success { background: var(--success-gradient); }
@@ -323,7 +314,7 @@
   @media (max-width: 480px) {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: var(--space-6);
 
     &__icon {
       margin-bottom: 0;
@@ -331,124 +322,102 @@
   }
 }
 
-// -----------------------------------------------------------------------------
-// Data Card (Charts, Tables container)
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 7. DATA CARD
+// =============================================================================
+
 .data-card {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(20px);
-  border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
-  overflow: hidden;
+  @extend %card-base;
 
   &--full-width {
     grid-column: 1 / -1;
   }
 
   &__header {
-    padding: 1.25rem 1.5rem;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-    background: white;
+    padding: var(--space-7) var(--space-8);
+    border-bottom: var(--border-width) solid var(--border-color-light);
+    background: var(--color-white);
     display: flex;
     align-items: center;
-    gap: 0.875rem;
+    gap: var(--space-5);
   }
 
   &__icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    @extend %card-icon;
+    width: var(--icon-md);
+    height: var(--icon-md);
 
     i {
-      font-size: 1rem;
-      color: white;
+      font-size: var(--font-size-md);
     }
-
-    &--primary { background: var(--primary-gradient); }
-    &--success { background: var(--success-gradient); }
-    &--warning { background: var(--warning-gradient); }
-    &--info { background: var(--info-gradient); }
-    &--purple { background: var(--purple-gradient); }
-    &--orange { background: var(--orange-gradient); }
   }
 
   &__title {
     margin: 0;
-    font-size: 1.1rem;
-    font-weight: 600;
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-semibold);
     color: var(--text-color);
   }
 
   &__body {
-    padding: 1.5rem;
+    padding: var(--space-8);
   }
 }
 
-// -----------------------------------------------------------------------------
-// Form Card
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 8. FORM CARD
+// =============================================================================
+
 .form-card {
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(10px);
-  border-radius: 20px;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
-  border: 1px solid rgba(0, 0, 0, 0.04);
+  @extend %card-base;
+  @extend %card-hover;
   overflow: visible;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   flex-direction: column;
   height: 100%;
-
-  &:hover {
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-    transform: translateY(-2px);
-  }
 
   &--full-width {
     grid-column: 1 / -1;
   }
 
   @media (max-width: 768px) {
-    border-radius: 14px;
+    border-radius: var(--radius-lg);
   }
 }
 
-// -----------------------------------------------------------------------------
-// Table Card (Container for tables)
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 9. TABLE CARD
+// =============================================================================
+
 .table-card {
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(20px);
-  border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
-  overflow: hidden;
+  @extend %card-base;
 }
 
-// -----------------------------------------------------------------------------
-// Grid Layouts
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 10. GRID LAYOUTS
+// =============================================================================
+
 .cards-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1.25rem;
-  padding: 1.25rem;
+  grid-template-columns: repeat(auto-fill, minmax(var(--card-min-width), 1fr));
+  gap: var(--space-7);
+  padding: var(--space-7);
 
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
-    padding: 1rem;
+    padding: var(--space-6);
   }
 }
 
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+  gap: var(--space-6);
+  margin-bottom: var(--space-8);
 
   @media (max-width: 768px) {
     grid-template-columns: repeat(2, 1fr);
@@ -462,8 +431,8 @@
 .data-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 1.5rem;
+  gap: var(--space-8);
+  margin-bottom: var(--space-8);
 
   @media (max-width: 768px) {
     grid-template-columns: 1fr;

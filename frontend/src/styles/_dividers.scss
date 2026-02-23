@@ -1,26 +1,33 @@
 // =============================================================================
-// GLOBAL DIVIDER STYLES
+// DIVIDERS
 // =============================================================================
-// Horizontal and vertical dividers/separators
+// Horizontal and vertical dividers/separators.
+// Uses variables from: _colors.scss, _spacing.scss, _effects.scss, _typography.scss
 // =============================================================================
 
-// -----------------------------------------------------------------------------
-// Basic Divider
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 1. BASIC DIVIDER
+// =============================================================================
+
 .divider {
   height: 1px;
-  background: rgba(0, 0, 0, 0.06);
-  margin: 1rem 0;
+  background: var(--border-color-light);
+  margin: var(--space-6) 0;
   border: none;
 
-  // Size variants
-  &--xs { margin: 0.5rem 0; }
-  &--sm { margin: 0.75rem 0; }
-  &--md { margin: 1rem 0; }
-  &--lg { margin: 1.5rem 0; }
-  &--xl { margin: 2rem 0; }
+  // ---------------------------------------------------------------------------
+  // Size Variants
+  // ---------------------------------------------------------------------------
+  &--xs { margin: var(--space-3) 0; }
+  &--sm { margin: var(--space-5) 0; }
+  &--md { margin: var(--space-6) 0; }
+  &--lg { margin: var(--space-8) 0; }
+  &--xl { margin: var(--space-9) 0; }
 
-  // Color variants
+  // ---------------------------------------------------------------------------
+  // Color Variants
+  // ---------------------------------------------------------------------------
   &--dark {
     background: rgba(0, 0, 0, 0.12);
   }
@@ -30,7 +37,7 @@
   }
 
   &--primary {
-    background: rgba(46, 108, 183, 0.2);
+    background: rgba(var(--primary-rgb), 0.2);
   }
 
   &--gradient {
@@ -38,10 +45,12 @@
     background: var(--primary-gradient);
   }
 
-  // Style variants
+  // ---------------------------------------------------------------------------
+  // Style Variants
+  // ---------------------------------------------------------------------------
   &--dashed {
     height: 0;
-    border-top: 1px dashed rgba(0, 0, 0, 0.15);
+    border-top: var(--border-width) dashed rgba(0, 0, 0, 0.15);
   }
 
   &--dotted {
@@ -49,7 +58,9 @@
     border-top: 2px dotted rgba(0, 0, 0, 0.1);
   }
 
+  // ---------------------------------------------------------------------------
   // Thickness
+  // ---------------------------------------------------------------------------
   &--thick {
     height: 2px;
   }
@@ -60,43 +71,47 @@
   }
 }
 
-// -----------------------------------------------------------------------------
-// Vertical Divider
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 2. VERTICAL DIVIDER
+// =============================================================================
+
 .divider-vertical {
   width: 1px;
   height: 100%;
   min-height: 20px;
-  background: rgba(0, 0, 0, 0.06);
-  margin: 0 1rem;
+  background: var(--border-color-light);
+  margin: 0 var(--space-6);
 
-  &--sm { margin: 0 0.5rem; }
-  &--lg { margin: 0 1.5rem; }
+  &--sm { margin: 0 var(--space-3); }
+  &--lg { margin: 0 var(--space-8); }
 }
 
-// -----------------------------------------------------------------------------
-// Divider with Text
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 3. DIVIDER WITH TEXT
+// =============================================================================
+
 .divider-text {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  margin: 1.5rem 0;
+  gap: var(--space-6);
+  margin: var(--space-8) 0;
 
   &::before,
   &::after {
     content: '';
     flex: 1;
     height: 1px;
-    background: rgba(0, 0, 0, 0.06);
+    background: var(--border-color-light);
   }
 
   &__content {
-    font-size: 0.8rem;
-    font-weight: 500;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
     color: var(--text-color-secondary);
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: var(--letter-spacing-wide);
     white-space: nowrap;
   }
 
@@ -105,22 +120,24 @@
     .divider-text__content {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: var(--space-3);
 
       i {
-        font-size: 0.9rem;
+        font-size: var(--font-size-md);
         color: var(--primary-color);
       }
     }
   }
 }
 
-// -----------------------------------------------------------------------------
-// Section Divider
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 4. SECTION DIVIDER
+// =============================================================================
+
 .section-divider {
   position: relative;
-  margin: 2rem 0;
+  margin: var(--space-9) 0;
   text-align: center;
 
   &::before {
@@ -130,30 +147,32 @@
     left: 0;
     right: 0;
     height: 1px;
-    background: rgba(0, 0, 0, 0.06);
+    background: var(--border-color-light);
     transform: translateY(-50%);
   }
 
   &__label {
     position: relative;
     display: inline-block;
-    padding: 0.5rem 1rem;
-    background: var(--surface-ground, white);
-    font-size: 0.85rem;
-    font-weight: 600;
+    padding: var(--space-3) var(--space-6);
+    background: var(--surface-ground);
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
     color: var(--text-color-secondary);
   }
 }
 
-// -----------------------------------------------------------------------------
-// Decorative Divider
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 5. DECORATIVE DIVIDER
+// =============================================================================
+
 .divider-decorative {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.75rem;
-  margin: 2rem 0;
+  gap: var(--space-5);
+  margin: var(--space-9) 0;
 
   &::before,
   &::after {
@@ -164,24 +183,26 @@
   }
 
   &__icon {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: rgba(46, 108, 183, 0.1);
+    width: var(--icon-sm);
+    height: var(--icon-sm);
+    border-radius: var(--radius-full);
+    background: rgba(var(--primary-rgb), 0.1);
     display: flex;
     align-items: center;
     justify-content: center;
 
     i {
-      font-size: 0.85rem;
+      font-size: var(--font-size-base);
       color: var(--primary-color);
     }
   }
 }
 
-// -----------------------------------------------------------------------------
-// Wave Divider (SVG-based)
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 6. WAVE DIVIDER (SVG-based)
+// =============================================================================
+
 .divider-wave {
   position: relative;
   height: 40px;
@@ -196,7 +217,7 @@
     height: 100%;
 
     path {
-      fill: var(--surface-ground, white);
+      fill: var(--surface-ground);
     }
   }
 
@@ -205,32 +226,36 @@
   }
 }
 
-// -----------------------------------------------------------------------------
-// Spacing Divider (No visible line, just space)
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 7. SPACER (No visible line)
+// =============================================================================
+
 .spacer {
-  &--xs { height: 0.5rem; }
-  &--sm { height: 1rem; }
-  &--md { height: 1.5rem; }
-  &--lg { height: 2rem; }
-  &--xl { height: 3rem; }
-  &--2xl { height: 4rem; }
+  &--xs { height: var(--space-3); }
+  &--sm { height: var(--space-6); }
+  &--md { height: var(--space-8); }
+  &--lg { height: var(--space-9); }
+  &--xl { height: var(--space-12); }
+  &--2xl { height: var(--space-16); }
 }
 
-// -----------------------------------------------------------------------------
-// List Item Divider
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 8. LIST DIVIDER
+// =============================================================================
+
 .list-divider {
   height: 1px;
   background: rgba(0, 0, 0, 0.04);
-  margin: 0.5rem 0;
+  margin: var(--space-3) 0;
 
   &--inset {
-    margin-left: 3rem;
+    margin-left: var(--space-12);
   }
 
   &--inset-both {
-    margin-left: 1rem;
-    margin-right: 1rem;
+    margin-left: var(--space-6);
+    margin-right: var(--space-6);
   }
 }

@@ -1,24 +1,24 @@
 // =============================================================================
-// GLOBAL AVATAR STYLES
+// AVATARS
 // =============================================================================
-// Avatar components, groups, status badges, and initials
+// Avatar components, groups, status badges, and initials.
+// Uses variables from: _colors.scss, _spacing.scss, _effects.scss, _typography.scss
 // =============================================================================
 
-// -----------------------------------------------------------------------------
-// Basic Avatar
-// -----------------------------------------------------------------------------
-.avatar {
+
+// =============================================================================
+// AVATAR BASE PLACEHOLDER
+// =============================================================================
+
+%avatar-base {
   position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   background: var(--primary-gradient);
-  color: white;
-  font-weight: 600;
-  font-size: 1rem;
+  color: var(--color-white);
+  font-weight: var(--font-weight-semibold);
   flex-shrink: 0;
   overflow: hidden;
 
@@ -27,82 +27,102 @@
     height: 100%;
     object-fit: cover;
   }
+}
 
-  // Size variants
+
+// =============================================================================
+// 1. BASIC AVATAR
+// =============================================================================
+
+.avatar {
+  @extend %avatar-base;
+  width: var(--icon-md);
+  height: var(--icon-md);
+  font-size: var(--font-size-base);
+
+  // ---------------------------------------------------------------------------
+  // Size Variants
+  // ---------------------------------------------------------------------------
   &--xs {
     width: 24px;
     height: 24px;
-    font-size: 0.65rem;
+    font-size: var(--font-size-xs);
   }
 
   &--sm {
-    width: 32px;
-    height: 32px;
-    font-size: 0.8rem;
+    width: var(--icon-sm);
+    height: var(--icon-sm);
+    font-size: var(--font-size-sm);
   }
 
   &--md {
-    width: 40px;
-    height: 40px;
-    font-size: 1rem;
+    width: var(--icon-md);
+    height: var(--icon-md);
+    font-size: var(--font-size-base);
   }
 
   &--lg {
     width: 56px;
     height: 56px;
-    font-size: 1.25rem;
+    font-size: var(--font-size-xl);
   }
 
   &--xl {
-    width: 72px;
-    height: 72px;
-    font-size: 1.5rem;
+    width: var(--icon-3xl);
+    height: var(--icon-3xl);
+    font-size: var(--font-size-2xl);
   }
 
   &--2xl {
     width: 96px;
     height: 96px;
-    font-size: 2rem;
+    font-size: var(--font-size-4xl);
   }
 
-  // Shape variants
+  // ---------------------------------------------------------------------------
+  // Shape Variants
+  // ---------------------------------------------------------------------------
   &--square {
-    border-radius: 12px;
+    border-radius: var(--radius-md);
   }
 
   &--rounded {
-    border-radius: 16px;
+    border-radius: var(--radius-xl);
   }
 
-  // Border variants
+  // ---------------------------------------------------------------------------
+  // Border Variants
+  // ---------------------------------------------------------------------------
   &--bordered {
-    border: 3px solid white;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: 3px solid var(--color-white);
+    box-shadow: var(--shadow-sm);
   }
 
   &--ring {
-    box-shadow: 0 0 0 3px white, 0 0 0 5px var(--primary-color);
+    box-shadow: 0 0 0 3px var(--color-white), 0 0 0 5px var(--primary-color);
   }
 
-  // Color variants
+  // ---------------------------------------------------------------------------
+  // Color Variants
+  // ---------------------------------------------------------------------------
   &--success {
-    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    background: var(--btn-success-gradient);
   }
 
   &--warning {
-    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    background: var(--btn-warning-gradient);
   }
 
   &--danger {
-    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    background: var(--btn-danger-gradient);
   }
 
   &--info {
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    background: linear-gradient(135deg, var(--color-info) 0%, var(--color-info-dark) 100%);
   }
 
   &--neutral {
-    background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+    background: linear-gradient(135deg, var(--color-secondary) 0%, #475569 100%);
   }
 
   &--light {
@@ -111,9 +131,11 @@
   }
 }
 
-// -----------------------------------------------------------------------------
-// Avatar with Status
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 2. AVATAR WITH STATUS
+// =============================================================================
+
 .avatar-status {
   position: relative;
   display: inline-block;
@@ -124,24 +146,24 @@
     right: 0;
     width: 12px;
     height: 12px;
-    border-radius: 50%;
-    border: 2px solid white;
-    background: #94a3b8;
+    border-radius: var(--radius-full);
+    border: 2px solid var(--color-white);
+    background: var(--color-secondary);
 
     &--online {
-      background: #22c55e;
+      background: var(--color-success);
     }
 
     &--offline {
-      background: #94a3b8;
+      background: var(--color-secondary);
     }
 
     &--busy {
-      background: #ef4444;
+      background: var(--color-error);
     }
 
     &--away {
-      background: #f59e0b;
+      background: var(--color-warning);
     }
   }
 
@@ -173,17 +195,19 @@
   }
 }
 
-// -----------------------------------------------------------------------------
-// Avatar Group (Stacked)
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 3. AVATAR GROUP (Stacked)
+// =============================================================================
+
 .avatar-group {
   display: flex;
   align-items: center;
 
   .avatar {
-    margin-left: -0.75rem;
-    border: 2px solid white;
-    transition: all 0.2s ease;
+    margin-left: calc(var(--space-4) * -1);
+    border: 2px solid var(--color-white);
+    transition: all var(--transition-fast);
 
     &:first-child {
       margin-left: 0;
@@ -198,14 +222,14 @@
   // Tighter spacing
   &--tight {
     .avatar {
-      margin-left: -1rem;
+      margin-left: calc(var(--space-5) * -1);
     }
   }
 
   // Loose spacing
   &--loose {
     .avatar {
-      margin-left: -0.5rem;
+      margin-left: calc(var(--space-3) * -1);
     }
   }
 
@@ -215,7 +239,7 @@
 
     .avatar {
       margin-left: 0;
-      margin-right: -0.75rem;
+      margin-right: calc(var(--space-4) * -1);
 
       &:first-child {
         margin-right: 0;
@@ -224,44 +248,48 @@
   }
 }
 
-// -----------------------------------------------------------------------------
-// Avatar Group Counter
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 4. AVATAR GROUP COUNTER
+// =============================================================================
+
 .avatar-group-counter {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 40px;
-  height: 40px;
-  padding: 0 0.5rem;
-  border-radius: 50%;
+  min-width: var(--icon-md);
+  height: var(--icon-md);
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-full);
   background: rgba(0, 0, 0, 0.08);
   color: var(--text-color);
-  font-weight: 600;
-  font-size: 0.85rem;
-  margin-left: -0.75rem;
-  border: 2px solid white;
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-sm);
+  margin-left: calc(var(--space-4) * -1);
+  border: 2px solid var(--color-white);
 
   &--sm {
-    min-width: 32px;
-    height: 32px;
-    font-size: 0.75rem;
+    min-width: var(--icon-sm);
+    height: var(--icon-sm);
+    font-size: var(--font-size-xs);
   }
 
   &--lg {
     min-width: 56px;
     height: 56px;
-    font-size: 1rem;
+    font-size: var(--font-size-base);
   }
 }
 
-// -----------------------------------------------------------------------------
-// Avatar with Name
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 5. AVATAR WITH NAME
+// =============================================================================
+
 .avatar-name {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: var(--space-4);
 
   &__info {
     display: flex;
@@ -270,16 +298,16 @@
   }
 
   &__title {
-    font-weight: 600;
+    font-weight: var(--font-weight-semibold);
     color: var(--text-color);
-    font-size: 0.95rem;
+    font-size: var(--font-size-md);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
 
   &__subtitle {
-    font-size: 0.8rem;
+    font-size: var(--font-size-sm);
     color: var(--text-color-secondary);
     white-space: nowrap;
     overflow: hidden;
@@ -306,29 +334,28 @@
   }
 }
 
-// -----------------------------------------------------------------------------
-// Avatar Placeholder (for loading)
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 6. AVATAR PLACEHOLDER (for loading)
+// =============================================================================
+
 .avatar-placeholder {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
+  @extend %avatar-base;
+  width: var(--icon-md);
+  height: var(--icon-md);
   background: rgba(0, 0, 0, 0.08);
 
   i {
-    font-size: 1rem;
+    font-size: var(--font-size-base);
     color: var(--text-color-secondary);
   }
 
   &--sm {
-    width: 32px;
-    height: 32px;
+    width: var(--icon-sm);
+    height: var(--icon-sm);
 
     i {
-      font-size: 0.85rem;
+      font-size: var(--font-size-sm);
     }
   }
 
@@ -337,14 +364,16 @@
     height: 56px;
 
     i {
-      font-size: 1.25rem;
+      font-size: var(--font-size-xl);
     }
   }
 }
 
-// -----------------------------------------------------------------------------
-// Avatar Upload
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 7. AVATAR UPLOAD
+// =============================================================================
+
 .avatar-upload {
   position: relative;
   display: inline-block;
@@ -361,13 +390,13 @@
     align-items: center;
     justify-content: center;
     background: rgba(0, 0, 0, 0.5);
-    border-radius: 50%;
+    border-radius: var(--radius-full);
     opacity: 0;
-    transition: opacity 0.2s ease;
+    transition: opacity var(--transition-fast);
 
     i {
-      color: white;
-      font-size: 1.25rem;
+      color: var(--color-white);
+      font-size: var(--font-size-xl);
     }
   }
 
@@ -376,9 +405,11 @@
   }
 }
 
-// -----------------------------------------------------------------------------
-// Avatar Badge (Icon/Number overlay)
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 8. AVATAR BADGE (Icon/Number overlay)
+// =============================================================================
+
 .avatar-badge {
   position: relative;
   display: inline-block;
@@ -389,15 +420,15 @@
     right: -4px;
     width: 20px;
     height: 20px;
-    border-radius: 50%;
+    border-radius: var(--radius-full);
     background: var(--primary-gradient);
-    color: white;
+    color: var(--color-white);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.65rem;
-    border: 2px solid white;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+    font-size: var(--font-size-xs);
+    border: 2px solid var(--color-white);
+    box-shadow: var(--shadow-xs);
 
     i {
       font-size: 0.6rem;
@@ -411,33 +442,35 @@
     min-width: 20px;
     height: 20px;
     padding: 0 5px;
-    border-radius: 10px;
-    background: #ef4444;
-    color: white;
-    font-size: 0.7rem;
-    font-weight: 600;
+    border-radius: var(--radius-sm);
+    background: var(--color-error);
+    color: var(--color-white);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 2px solid white;
+    border: 2px solid var(--color-white);
   }
 }
 
-// -----------------------------------------------------------------------------
-// Avatar Card
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 9. AVATAR CARD
+// =============================================================================
+
 .avatar-card {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  padding: 1rem;
-  background: white;
-  border-radius: 12px;
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  transition: all 0.2s ease;
+  gap: var(--space-5);
+  padding: var(--space-5);
+  background: var(--color-white);
+  border-radius: var(--radius-md);
+  border: var(--border-width) solid rgba(0, 0, 0, 0.06);
+  transition: all var(--transition-fast);
 
   &:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    box-shadow: var(--shadow-md);
   }
 
   &__content {
@@ -446,79 +479,83 @@
   }
 
   &__name {
-    font-weight: 600;
+    font-weight: var(--font-weight-semibold);
     color: var(--text-color);
-    font-size: 0.95rem;
+    font-size: var(--font-size-md);
     margin: 0;
   }
 
   &__role {
-    font-size: 0.8rem;
+    font-size: var(--font-size-sm);
     color: var(--text-color-secondary);
-    margin: 0.125rem 0 0 0;
+    margin: var(--space-1) 0 0 0;
   }
 
   &__meta {
-    font-size: 0.75rem;
+    font-size: var(--font-size-xs);
     color: var(--text-color-secondary);
-    margin-top: 0.25rem;
+    margin-top: var(--space-1);
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: var(--space-3);
   }
 
   &__actions {
     display: flex;
-    gap: 0.5rem;
+    gap: var(--space-3);
   }
 }
 
-// -----------------------------------------------------------------------------
-// Initials Generator Colors
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 10. INITIALS GENERATOR COLORS
+// =============================================================================
+
 .avatar-initials {
   &--a, &--f, &--k, &--p, &--u {
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    background: linear-gradient(135deg, var(--color-info) 0%, var(--color-info-dark) 100%);
   }
 
   &--b, &--g, &--l, &--q, &--v {
-    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    background: linear-gradient(135deg, var(--color-purple) 0%, var(--color-purple-dark) 100%);
   }
 
   &--c, &--h, &--m, &--r, &--w {
-    background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
+    background: linear-gradient(135deg, var(--color-pink) 0%, var(--color-pink-dark) 100%);
   }
 
   &--d, &--i, &--n, &--s, &--x {
-    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    background: linear-gradient(135deg, var(--color-warning) 0%, var(--color-warning-dark) 100%);
   }
 
   &--e, &--j, &--o, &--t, &--y, &--z {
-    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    background: linear-gradient(135deg, var(--color-success) 0%, var(--color-success-dark) 100%);
   }
 }
 
-// -----------------------------------------------------------------------------
-// PrimeNG Avatar Override
-// -----------------------------------------------------------------------------
+
+// =============================================================================
+// 11. PRIMENG AVATAR OVERRIDE
+// =============================================================================
+
 .p-avatar {
   background: var(--primary-gradient);
-  color: white;
+  color: var(--color-white);
 
   &.p-avatar-circle {
-    border-radius: 50%;
+    border-radius: var(--radius-full);
   }
 
   &.p-avatar-lg {
     width: 56px;
     height: 56px;
-    font-size: 1.25rem;
+    font-size: var(--font-size-xl);
   }
 
   &.p-avatar-xl {
-    width: 72px;
-    height: 72px;
-    font-size: 1.5rem;
+    width: var(--icon-3xl);
+    height: var(--icon-3xl);
+    font-size: var(--font-size-2xl);
   }
 
   img {
@@ -530,6 +567,6 @@
 
 .p-avatar-group {
   .p-avatar {
-    border: 2px solid white;
+    border: 2px solid var(--color-white);
   }
 }

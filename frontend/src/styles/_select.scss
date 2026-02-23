@@ -7,13 +7,10 @@
 
 
 // =============================================================================
-// 1. BASE SELECT STYLES
+// SELECT BASE PLACEHOLDERS
 // =============================================================================
 
-// -----------------------------------------------------------------------------
-// Default Select Input
-// -----------------------------------------------------------------------------
-.p-select {
+%select-base {
   border: var(--border-width) solid var(--border-color-light);
   border-radius: var(--radius-md);
   background: var(--color-white);
@@ -22,6 +19,42 @@
   &:hover {
     border-color: rgba(var(--primary-rgb), 0.3);
   }
+}
+
+%select-panel-base {
+  z-index: var(--z-tooltip) !important;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  border: var(--border-width) solid var(--border-color-light);
+  padding: var(--space-3);
+  background: var(--color-white);
+  overflow: hidden;
+}
+
+%select-option-base {
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-sm);
+  margin: var(--space-1);
+  font-size: var(--font-size-base);
+  transition: all var(--transition-fast);
+
+  &.p-highlight {
+    background: var(--primary-gradient);
+    color: var(--color-white);
+  }
+
+  &:not(.p-highlight):hover {
+    background: rgba(var(--primary-rgb), 0.08);
+  }
+}
+
+
+// =============================================================================
+// 1. BASE SELECT STYLES
+// =============================================================================
+
+.p-select {
+  @extend %select-base;
 
   &.p-focus,
   &:focus {
@@ -57,6 +90,7 @@
   flex-shrink: 0;
 
   &.p-select {
+    @extend %select-base;
     width: 280px !important;
     border: var(--border-width) solid var(--border-color-light) !important;
     border-radius: var(--radius-md) !important;
@@ -115,12 +149,7 @@
 // Filter Select Panel (Admin)
 // -----------------------------------------------------------------------------
 .filter-select-panel {
-  z-index: 99999 !important;
-  border-radius: var(--radius-lg) !important;
-  box-shadow: var(--shadow-lg) !important;
-  border: var(--border-width) solid var(--border-color-light) !important;
-  padding: var(--space-3) !important;
-  overflow: hidden !important;
+  @extend %select-panel-base;
 
   .p-select-list {
     padding: 0 !important;
@@ -151,33 +180,14 @@
 // -----------------------------------------------------------------------------
 .p-select-overlay,
 .p-select-panel {
-  z-index: 99999 !important;
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg);
-  border: var(--border-width) solid var(--border-color-light);
-  padding: var(--space-3);
-  background: var(--color-white);
-  overflow: hidden;
+  @extend %select-panel-base;
 
   .p-select-list {
     padding: 0;
   }
 
   .p-select-option {
-    padding: var(--space-4) var(--space-5);
-    border-radius: var(--radius-sm);
-    margin: var(--space-1);
-    font-size: var(--font-size-base);
-    transition: all var(--transition-fast);
-
-    &.p-highlight {
-      background: var(--primary-gradient);
-      color: var(--color-white);
-    }
-
-    &:not(.p-highlight):hover {
-      background: rgba(var(--primary-rgb), 0.08);
-    }
+    @extend %select-option-base;
   }
 }
 
@@ -242,10 +252,7 @@
 }
 
 .language-panel {
-  z-index: 99999 !important;
-  border-radius: var(--radius-md) !important;
-  box-shadow: var(--shadow-lg) !important;
-  background: var(--color-white) !important;
+  @extend %select-panel-base;
   min-width: 150px !important;
 
   .p-select-list,
@@ -291,14 +298,7 @@
 // =============================================================================
 
 .p-multiselect {
-  border: var(--border-width) solid var(--border-color-light);
-  border-radius: var(--radius-md);
-  background: var(--color-white);
-  transition: all var(--transition-fast);
-
-  &:hover {
-    border-color: rgba(var(--primary-rgb), 0.3);
-  }
+  @extend %select-base;
 
   &.p-focus {
     border-color: var(--primary-color);
@@ -313,10 +313,7 @@
 }
 
 .p-multiselect-overlay {
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg);
-  border: var(--border-width) solid var(--border-color-light);
-  padding: var(--space-3);
+  @extend %select-panel-base;
 
   .p-multiselect-header {
     padding: var(--space-4);
@@ -378,7 +375,7 @@
       padding: var(--space-5) var(--space-6) !important;
       font-size: var(--font-size-sm) !important;
       font-weight: var(--font-weight-semibold) !important;
-      color: var(--color-text-primary) !important;
+      color: var(--text-color) !important;
       letter-spacing: -0.01em !important;
 
       &.p-placeholder {
@@ -431,15 +428,9 @@
 // =============================================================================
 
 .p-autocomplete-input {
-  border: var(--border-width) solid var(--border-color-light);
-  border-radius: var(--radius-md);
+  @extend %select-base;
   padding: var(--space-4) var(--space-5);
   font-size: var(--font-size-base);
-  transition: all var(--transition-fast);
-
-  &:hover {
-    border-color: rgba(var(--primary-rgb), 0.3);
-  }
 
   &:focus {
     border-color: var(--primary-color);
@@ -448,24 +439,9 @@
 }
 
 .p-autocomplete-overlay {
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg);
-  border: var(--border-width) solid var(--border-color-light);
-  padding: var(--space-3);
+  @extend %select-panel-base;
 
   .p-autocomplete-option {
-    padding: var(--space-4) var(--space-5);
-    border-radius: var(--radius-sm);
-    margin: var(--space-1);
-    transition: all var(--transition-fast);
-
-    &.p-highlight {
-      background: var(--primary-gradient);
-      color: var(--color-white);
-    }
-
-    &:not(.p-highlight):hover {
-      background: rgba(var(--primary-rgb), 0.08);
-    }
+    @extend %select-option-base;
   }
 }
