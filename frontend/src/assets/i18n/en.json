@@ -964,11 +964,15 @@
       "organic": "Organic",
       "per": "per",
       "products": "products",
+      "table_options": "Table Options",
+      "rows_per_page": "Rows per page",
+      "visible_columns": "Visible Columns",
       "filters": {
         "all_categories": "All Categories",
         "all_brands": "All Brands"
       },
       "table": {
+        "image": "Image",
         "product_name": "Product Name",
         "category": "Category",
         "brand": "Brand",

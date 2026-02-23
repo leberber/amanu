@@ -966,11 +966,15 @@
       "organic": "عضوي",
       "per": "لكل",
       "products": "منتجات",
+      "table_options": "خيارات الجدول",
+      "rows_per_page": "صفوف في الصفحة",
+      "visible_columns": "الأعمدة المرئية",
       "filters": {
         "all_categories": "جميع الفئات",
         "all_brands": "جميع العلامات التجارية"
       },
       "table": {
+        "image": "الصورة",
         "product_name": "اسم المنتج",
         "category": "الفئة",
         "brand": "العلامة التجارية",

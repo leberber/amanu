@@ -173,70 +173,114 @@
             <button class="table-action-btn" (click)="toggleFullscreen()" [pTooltip]="(isFullscreen ? 'common.exit_fullscreen' : 'common.fullscreen') | translate">
               <i [class]="isFullscreen ? 'pi pi-window-minimize' : 'pi pi-window-maximize'"></i>
             </button>
+            <button class="table-action-btn" (click)="tableOptionsMenu.toggle($event)" [pTooltip]="'admin.products.table_options' | translate">
+              <i class="pi pi-ellipsis-v"></i>
+            </button>
+            <p-popover #tableOptionsMenu>
+              <div class="table-options-menu">
+                <div class="table-options-section">
+                  <span class="table-options-label">{{ 'admin.products.rows_per_page' | translate }}</span>
+                  <div class="table-options-rows">
+                    @for (option of rowsPerPageOptions; track option) {
+                      <button
+                        class="rows-option"
+                        [class.active]="rows === option"
+                        (click)="setRowsPerPage(option)">
+                        {{ option }}
+                      </button>
+                    }
+                  </div>
+                </div>
+                <div class="table-options-divider"></div>
+                <div class="table-options-section">
+                  <span class="table-options-label">{{ 'admin.products.visible_columns' | translate }}</span>
+                  <div class="table-options-columns">
+                    @for (col of columnOptions; track col.field) {
+                      <label class="column-toggle">
+                        <input
+                          type="checkbox"
+                          [checked]="col.visible"
+                          (change)="toggleColumn(col.field)">
+                        <span>{{ col.label | translate }}</span>
+                      </label>
+                    }
+                  </div>
+                </div>
+              </div>
+            </p-popover>
           </div>
         </div>
         <div class="table-wrapper">
           <table class="table">
             <thead>
               <tr>
-                <th style="width: 5%"></th>
-                <th style="width: 22%">{{ 'admin.products.table.product_name' | translate }}</th>
-                <th style="width: 12%">{{ 'admin.products.table.category' | translate }}</th>
-                <th style="width: 10%">{{ 'admin.products.table.brand' | translate }}</th>
-                <th style="width: 12%">{{ 'admin.products.table.price' | translate }}</th>
-                <th style="width: 15%">{{ 'admin.products.table.stock' | translate }}</th>
-                <th style="width: 12%">{{ 'admin.products.table.status' | translate }}</th>
-                <th style="width: 12%">{{ 'admin.products.table.actions' | translate }}</th>
+                @if (isColumnVisible('image')) { <th style="width: 5%"></th> }
+                @if (isColumnVisible('name')) { <th style="width: 22%">{{ 'admin.products.table.product_name' | translate }}</th> }
+                @if (isColumnVisible('category')) { <th style="width: 12%">{{ 'admin.products.table.category' | translate }}</th> }
+                @if (isColumnVisible('brand')) { <th style="width: 10%">{{ 'admin.products.table.brand' | translate }}</th> }
+                @if (isColumnVisible('price')) { <th style="width: 12%">{{ 'admin.products.table.price' | translate }}</th> }
+                @if (isColumnVisible('stock')) { <th style="width: 15%">{{ 'admin.products.table.stock' | translate }}</th> }
+                @if (isColumnVisible('status')) { <th style="width: 12%">{{ 'admin.products.table.status' | translate }}</th> }
+                @if (isColumnVisible('actions')) { <th style="width: 12%">{{ 'admin.products.table.actions' | translate }}</th> }
               </tr>
             </thead>
             <tbody>
               @for (product of paginatedProducts; track product.id; let i = $index) {
                 <tr class="table-row-animate" [style.--row-delay]="(i * 40) + 'ms'">
                   <!-- Product Image -->
-                  <td class="col-image">
-                    <div class="table-thumbnail">
-                      @if (product.image_url) {
-                        <img [src]="product.image_url" [alt]="getProductName(product)">
-                      } @else {
-                        <i class="pi pi-image"></i>
-                      }
-                    </div>
-                  </td>
+                  @if (isColumnVisible('image')) {
+                    <td class="col-image">
+                      <div class="table-thumbnail">
+                        @if (product.image_url) {
+                          <img [src]="product.image_url" [alt]="getProductName(product)">
+                        } @else {
+                          <i class="pi pi-image"></i>
+                        }
+                      </div>
+                    </td>
+                  }
 
                   <!-- Product Name -->
-                  <td class="col-name">
-                    <div class="table-item-info">
-                      <span class="table-item-name">{{ getProductName(product) }}</span>
-                      @if (getProductDescription(product)) {
-                        <span class="table-item-desc">{{ getProductDescription(product) }}</span>
-                      }
-                      @if (product.is_organic) {
-                        <div class="table-item-badges">
-                          <span class="badge organic">
-                            <i class="pi pi-check-circle"></i>
-                            {{ 'admin.products.organic' | translate }}
-                          </span>
-                        </div>
-                      }
-                    </div>
-                  </td>
+                  @if (isColumnVisible('name')) {
+                    <td class="col-name">
+                      <div class="table-item-info">
+                        <span class="table-item-name">{{ getProductName(product) }}</span>
+                        @if (getProductDescription(product)) {
+                          <span class="table-item-desc">{{ getProductDescription(product) }}</span>
+                        }
+                        @if (product.is_organic) {
+                          <div class="table-item-badges">
+                            <span class="badge organic">
+                              <i class="pi pi-check-circle"></i>
+                              {{ 'admin.products.organic' | translate }}
+                            </span>
+                          </div>
+                        }
+                      </div>
+                    </td>
+                  }
 
                   <!-- Category -->
-                  <td class="col-category">
-                    <span class="pill primary">{{ getCategoryName(product.category_id) }}</span>
-                  </td>
+                  @if (isColumnVisible('category')) {
+                    <td class="col-category">
+                      <span class="pill primary">{{ getCategoryName(product.category_id) }}</span>
+                    </td>
+                  }
 
                   <!-- Brand -->
-                  <td class="col-brand">
-                    @if (product.brand_id) {
-                      <span class="pill secondary">{{ getBrandName(product.brand_id) }}</span>
-                    } @else {
-                      <span class="text-muted">-</span>
-                    }
-                  </td>
+                  @if (isColumnVisible('brand')) {
+                    <td class="col-brand">
+                      @if (product.brand_id) {
+                        <span class="pill secondary">{{ getBrandName(product.brand_id) }}</span>
+                      } @else {
+                        <span class="text-muted">-</span>
+                      }
+                    </td>
+                  }
 
                   <!-- Price -->
-                  <td class="col-price">
+                  @if (isColumnVisible('price')) {
+                    <td class="col-price">
                     @if (!isEditingPrice(product.id)) {
                       <div class="editable-cell" (click)="startEditPrice(product)">
                         <span class="editable-cell__value">{{ product.price | appCurrency }}</span>
@@ -260,10 +304,12 @@
                         </button>
                       </div>
                     }
-                  </td>
+                    </td>
+                  }
 
                   <!-- Stock Quantity (Editable - Add Stock) -->
-                  <td class="col-stock">
+                  @if (isColumnVisible('stock')) {
+                    <td class="col-stock">
                     @if (!isEditingStock(product.id)) {
                       <div class="editable-cell editable-cell--success" (click)="startEditStock(product)">
                         <div class="table-metric__row">
@@ -317,34 +363,39 @@
                         </div>
                       </div>
                     }
-                  </td>
+                    </td>
+                  }
 
                   <!-- Status -->
-                  <td class="col-status">
-                    <div class="status-toggle" [class.status-toggle--active]="product.is_active" (click)="toggleProductStatus(product)">
-                      <span class="status-toggle__label">
-                        {{ product.is_active ? ('admin.products.status.active' | translate) : ('admin.products.status.inactive' | translate) }}
-                      </span>
-                      <div class="status-toggle__track">
-                        <div class="status-toggle__thumb"></div>
+                  @if (isColumnVisible('status')) {
+                    <td class="col-status">
+                      <div class="status-toggle" [class.status-toggle--active]="product.is_active" (click)="toggleProductStatus(product)">
+                        <span class="status-toggle__label">
+                          {{ product.is_active ? ('admin.products.status.active' | translate) : ('admin.products.status.inactive' | translate) }}
+                        </span>
+                        <div class="status-toggle__track">
+                          <div class="status-toggle__thumb"></div>
+                        </div>
                       </div>
-                    </div>
-                  </td>
+                    </td>
+                  }
 
                   <!-- Actions -->
-                  <td class="col-actions">
-                    <div class="table-cell-actions">
-                      <button class="action-btn view" (click)="viewProduct(product)" [pTooltip]="'common.view' | translate">
-                        <i class="pi pi-eye"></i>
-                      </button>
-                      <button class="action-btn edit" (click)="editProduct(product)" [pTooltip]="'common.edit' | translate">
-                        <i class="pi pi-pencil"></i>
-                      </button>
-                      <button class="action-btn delete" (click)="confirmDeleteProduct(product)" [pTooltip]="'common.delete' | translate">
-                        <i class="pi pi-trash"></i>
-                      </button>
-                    </div>
-                  </td>
+                  @if (isColumnVisible('actions')) {
+                    <td class="col-actions">
+                      <div class="table-cell-actions">
+                        <button class="action-btn view" (click)="viewProduct(product)" [pTooltip]="'common.view' | translate">
+                          <i class="pi pi-eye"></i>
+                        </button>
+                        <button class="action-btn edit" (click)="editProduct(product)" [pTooltip]="'common.edit' | translate">
+                          <i class="pi pi-pencil"></i>
+                        </button>
+                        <button class="action-btn delete" (click)="confirmDeleteProduct(product)" [pTooltip]="'common.delete' | translate">
+                          <i class="pi pi-trash"></i>
+                        </button>
+                      </div>
+                    </td>
+                  }
                 </tr>
               }
             </tbody>
@@ -358,7 +409,6 @@
               [first]="first"
               [rows]="rows"
               [totalRecords]="products.length"
-              [rowsPerPageOptions]="[10, 20, 25, 50]"
               (onPageChange)="onPageChange($event)"
               [showCurrentPageReport]="true"
               [currentPageReportTemplate]="getPaginationTemplate()"

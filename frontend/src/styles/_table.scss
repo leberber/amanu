@@ -281,9 +281,19 @@
 // Table Footer
 // -----------------------------------------------------------------------------
 .table-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: var(--space-5) var(--space-6);
   border-top: 1px solid var(--border-color-light);
   background: var(--surface-card);
+
+  .p-paginator {
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 0.5rem;
+  }
 
   &.results-info {
     text-align: center;
@@ -699,5 +709,95 @@
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.03em;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Table Options Menu (Popover)
+// -----------------------------------------------------------------------------
+.table-options-menu {
+  min-width: 220px;
+  padding: var(--space-4);
+}
+
+.table-options-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.table-options-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--color-text-secondary);
+}
+
+.table-options-rows {
+  display: flex;
+  gap: var(--space-2);
+
+  .rows-option {
+    min-width: 40px;
+    height: 32px;
+    padding: 0 var(--space-3);
+    border: 1px solid var(--border-color-light);
+    border-radius: var(--radius-sm);
+    background: var(--surface-ground);
+    color: var(--color-text-primary);
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+
+    &:hover {
+      border-color: var(--primary-color);
+      background: rgba(var(--primary-rgb), 0.05);
+    }
+
+    &.active {
+      background: var(--primary-color);
+      border-color: var(--primary-color);
+      color: white;
+    }
+  }
+}
+
+.table-options-divider {
+  height: 1px;
+  background: var(--border-color-light);
+  margin: var(--space-4) 0;
+}
+
+.table-options-columns {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+
+  .column-toggle {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background var(--transition-fast);
+
+    &:hover {
+      background: var(--surface-ground);
+    }
+
+    input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--primary-color);
+      cursor: pointer;
+    }
+
+    span {
+      font-size: 0.875rem;
+      color: var(--color-text-primary);
+    }
   }
 }

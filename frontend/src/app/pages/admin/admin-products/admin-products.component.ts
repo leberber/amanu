@@ -4,6 +4,7 @@ import { CardModule } from 'primeng/card';
 import { SelectModule } from 'primeng/select';
 import { BadgeModule } from 'primeng/badge';
 import { OverlayBadgeModule } from 'primeng/overlaybadge';
+import { PopoverModule } from 'primeng/popover';
 import { TranslateService } from '@ngx-translate/core';
 
 import { delay } from 'rxjs'; // TODO: Remove - for testing skeleton
@@ -34,6 +35,7 @@ import { ROUTES, RouteHelpers } from '../../../core/constants/routes.constants';
     SelectModule,
     BadgeModule,
     OverlayBadgeModule,
+    PopoverModule,
     TableSkeletonComponent
   ],
   providers: [ConfirmationService],
@@ -69,6 +71,19 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
 
   // Animation state
   tableInitialized = signal(false);
+
+  // Table options
+  rowsPerPageOptions = [10, 20, 25, 50];
+  columnOptions = [
+    { field: 'image', label: 'admin.products.table.image', visible: true },
+    { field: 'name', label: 'admin.products.table.product_name', visible: true },
+    { field: 'category', label: 'admin.products.table.category', visible: true },
+    { field: 'brand', label: 'admin.products.table.brand', visible: true },
+    { field: 'price', label: 'admin.products.table.price', visible: true },
+    { field: 'stock', label: 'admin.products.table.stock', visible: true },
+    { field: 'status', label: 'admin.products.table.status', visible: true },
+    { field: 'actions', label: 'admin.products.table.actions', visible: true }
+  ];
 
   // Skeleton configuration
   skeletonColumns: SkeletonColumn[] = [
@@ -213,6 +228,24 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
       document.body.classList.remove('fullscreen-active');
       document.body.style.overflow = '';
     }
+  }
+
+  setRowsPerPage(rows: number) {
+    this.rows = rows;
+    this.first = 0;
+    this.updatePaginatedItems();
+  }
+
+  toggleColumn(field: string) {
+    const col = this.columnOptions.find(c => c.field === field);
+    if (col) {
+      col.visible = !col.visible;
+    }
+  }
+
+  isColumnVisible(field: string): boolean {
+    const col = this.columnOptions.find(c => c.field === field);
+    return col ? col.visible : true;
   }
 
   getCategoryName(categoryId: number): string {

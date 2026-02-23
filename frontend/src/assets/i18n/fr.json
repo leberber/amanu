@@ -967,12 +967,16 @@
       "organic": "Bio",
       "per": "par",
       "products": "produits",
+      "table_options": "Options du Tableau",
+      "rows_per_page": "Lignes par page",
+      "visible_columns": "Colonnes Visibles",
       "filters": {
         "all_categories": "Toutes les Catégories",
         "all_brands": "Toutes les Marques"
       },
       "table": {
         "id": "ID",
+        "image": "Image",
         "name": "Nom",
         "product_name": "Nom du Produit",
         "category": "Catégorie",
