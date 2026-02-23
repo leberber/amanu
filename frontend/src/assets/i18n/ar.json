@@ -1050,8 +1050,8 @@
         "quantity_type": "نوع الكمية",
         "box_config": "إعدادات الكرتون",
         "packaging_type": "نوع التغليف",
-        "packaging_type_placeholder": "اختر نوع التغليف",
-        "pieces_per_box": "القطع لكل كرتون",
+        "packaging_type_placeholder": "التغليف",
+        "pieces_per_box": "القطع لكل عبوة",
         "pieces_per_box_placeholder": "مثال: 12",
         "pieces_per_box_hint": "عدد القطع الفردية في الكرتون الواحد"
       },

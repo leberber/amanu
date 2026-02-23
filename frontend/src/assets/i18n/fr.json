@@ -1053,8 +1053,8 @@
         "quantity_type": "Type de Quantité",
         "box_config": "Configuration du Carton",
         "packaging_type": "Type d'Emballage",
-        "packaging_type_placeholder": "Sélectionner le type d'emballage",
-        "pieces_per_box": "Pièces par Carton",
+        "packaging_type_placeholder": "Emballage",
+        "pieces_per_box": "Pièces par Emballage",
         "pieces_per_box_placeholder": "ex: 12",
         "pieces_per_box_hint": "Nombre de pièces individuelles dans un carton"
       },
