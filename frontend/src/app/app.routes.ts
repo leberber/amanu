@@ -48,17 +48,17 @@ export const routes: Routes = [
     component: AdminProductsComponent, 
     canActivate: [adminGuard] 
   },
-  { 
-    path: 'admin/products/add', 
-    component: AdminAddProductComponent, 
+  {
+    path: 'admin/products/add',
+    component: AdminAddProductComponent,
     canActivate: [adminGuard],
-    data: { mode: 'add' }
+    data: { mode: 'add', hideBottomNav: true }
   },
-  { 
-    path: 'admin/products/edit/:id', 
-    component: AdminAddProductComponent, 
+  {
+    path: 'admin/products/edit/:id',
+    component: AdminAddProductComponent,
     canActivate: [adminGuard],
-    data: { mode: 'edit' }
+    data: { mode: 'edit', hideBottomNav: true }
   },
   // FIXED: Only one category route using direct import
   { 
