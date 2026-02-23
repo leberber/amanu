@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, DestroyRef } from '@angular/core';
+import { Component, OnInit, inject, DestroyRef, signal } from '@angular/core';
 import { ConfirmationService } from 'primeng/api';
 import { CardModule } from 'primeng/card';
 import { SelectModule } from 'primeng/select';
@@ -63,6 +63,9 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
 
   // Fullscreen mode
   isFullscreen = false;
+
+  // Animation state
+  tableInitialized = signal(false);
 
   // Services
   private productService = inject(ProductService);
@@ -395,6 +398,8 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
         this.updatePaginatedItems();
         this.buildCategoryOptions();
         this.buildBrandOptions();
+        // Trigger table animation after data loads
+        setTimeout(() => this.tableInitialized.set(true), 100);
       },
       'admin.products.load_error'
     );

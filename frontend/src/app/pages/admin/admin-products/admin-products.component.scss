@@ -1034,3 +1034,182 @@
   }
 }
 
+// ============================================
+// Page Load Animations
+// ============================================
+
+// Animation keyframes
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes tableRowFadeIn {
+  0% {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes skeletonPulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+// Animate items on page load
+.animate-item {
+  opacity: 0;
+  animation: fadeSlideIn 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation-delay: var(--delay, 0ms);
+}
+
+// Table row animation
+.table-row-animate {
+  opacity: 0;
+  animation: tableRowFadeIn 0.4s ease-out forwards;
+  animation-delay: var(--row-delay, 0ms);
+}
+
+// ============================================
+// Skeleton Loading Styles
+// ============================================
+
+.skeleton-card {
+  .table-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem 1rem;
+  }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0.06) 25%,
+    rgba(0, 0, 0, 0.1) 50%,
+    rgba(0, 0, 0, 0.06) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 6px;
+}
+
+.skeleton-search {
+  width: 300px;
+  height: 48px;
+  border-radius: 26px;
+}
+
+.skeleton-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.skeleton-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+}
+
+.skeleton-text {
+  height: 14px;
+
+  &--w20 { width: 20%; }
+  &--w30 { width: 30%; }
+  &--w40 { width: 40%; }
+  &--w50 { width: 50%; }
+  &--w60 { width: 60%; }
+  &--w70 { width: 70%; }
+  &--w80 { width: 80%; }
+}
+
+.skeleton-row {
+  animation: skeletonPulse 1.5s ease-in-out infinite;
+  animation-delay: var(--delay, 0ms);
+
+  td {
+    padding: 1rem 0.75rem;
+  }
+}
+
+.skeleton-image {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+}
+
+.skeleton-product-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.skeleton-pill {
+  width: 80px;
+  height: 28px;
+  border-radius: 14px;
+
+  &--sm {
+    width: 60px;
+  }
+}
+
+.skeleton-price {
+  width: 70px;
+  height: 36px;
+  border-radius: 10px;
+}
+
+.skeleton-stock {
+  width: 90px;
+  height: 50px;
+  border-radius: 12px;
+}
+
+.skeleton-toggle {
+  width: 80px;
+  height: 30px;
+  border-radius: 15px;
+}
+
+.skeleton-actions-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.skeleton-action-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+}
+
+.skeleton-table {
+  thead th {
+    padding: 1rem 0.75rem;
+  }
+}
+

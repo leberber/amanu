@@ -1,5 +1,5 @@
 <!-- src/app/pages/admin/admin-products/admin-products.component.html -->
-<div class="admin-page">
+<div class="admin-page" [class.initialized]="tableInitialized()">
   <!-- Background Decoration -->
   <div class="bg-decoration">
     <div class="blob blob-1"></div>
@@ -11,7 +11,7 @@
   <p-confirmDialog></p-confirmDialog>
   <div class="admin-content">
     <!-- Page Header -->
-    <div class="admin-list-header">
+    <div class="admin-list-header animate-item" style="--delay: 0ms;">
       <div class="header-title">
         <div class="admin-icon-wrapper">
           <div class="icon-bg"></div>
@@ -27,7 +27,7 @@
     </div>
 
     <!-- Status Segmented Control with Dropdowns and Add Button -->
-    <div class="admin-segment-row">
+    <div class="admin-segment-row animate-item" style="--delay: 50ms;">
       <div class="filters-left">
         <div class="admin-segment">
           <button
@@ -110,14 +110,56 @@
       </button>
     </div>
 
-    <!-- Loading State -->
+    <!-- Loading State - Skeleton Table -->
     @if (loading) {
-      <div class="admin-loading-container">
-        <div class="admin-loading-card">
-          <div class="loading-spinner">
-            <i class="pi pi-spin pi-spinner"></i>
+      <div class="admin-table-card skeleton-card animate-item" style="--delay: 100ms;">
+        <div class="table-header">
+          <div class="skeleton skeleton-search"></div>
+          <div class="skeleton-actions">
+            <div class="skeleton skeleton-btn"></div>
+            <div class="skeleton skeleton-btn"></div>
           </div>
-          <span>{{ 'admin.products.loading' | translate }}</span>
+        </div>
+        <div class="admin-table-wrapper">
+          <table class="admin-table skeleton-table">
+            <thead>
+              <tr>
+                <th class="col-image"><div class="skeleton skeleton-text skeleton-text--w20"></div></th>
+                <th class="col-name"><div class="skeleton skeleton-text skeleton-text--w60"></div></th>
+                <th class="col-category"><div class="skeleton skeleton-text skeleton-text--w50"></div></th>
+                <th class="col-brand"><div class="skeleton skeleton-text skeleton-text--w40"></div></th>
+                <th class="col-price"><div class="skeleton skeleton-text skeleton-text--w30"></div></th>
+                <th class="col-stock"><div class="skeleton skeleton-text skeleton-text--w30"></div></th>
+                <th class="col-status"><div class="skeleton skeleton-text skeleton-text--w40"></div></th>
+                <th class="col-actions"><div class="skeleton skeleton-text skeleton-text--w30"></div></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (i of [0, 1, 2, 3, 4, 5, 6, 7]; track i) {
+                <tr class="skeleton-row" [style.animation-delay]="(i * 50) + 'ms'">
+                  <td class="col-image"><div class="skeleton skeleton-image"></div></td>
+                  <td class="col-name">
+                    <div class="skeleton-product-info">
+                      <div class="skeleton skeleton-text skeleton-text--w80"></div>
+                      <div class="skeleton skeleton-text skeleton-text--w50"></div>
+                    </div>
+                  </td>
+                  <td class="col-category"><div class="skeleton skeleton-pill"></div></td>
+                  <td class="col-brand"><div class="skeleton skeleton-pill skeleton-pill--sm"></div></td>
+                  <td class="col-price"><div class="skeleton skeleton-price"></div></td>
+                  <td class="col-stock"><div class="skeleton skeleton-stock"></div></td>
+                  <td class="col-status"><div class="skeleton skeleton-toggle"></div></td>
+                  <td class="col-actions">
+                    <div class="skeleton-actions-row">
+                      <div class="skeleton skeleton-action-btn"></div>
+                      <div class="skeleton skeleton-action-btn"></div>
+                      <div class="skeleton skeleton-action-btn"></div>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
         </div>
       </div>
     } @else if (products.length === 0) {
@@ -139,7 +181,7 @@
       </div>
     } @else {
       <!-- Products Table -->
-      <div class="admin-table-card" [class.fullscreen]="isFullscreen">
+      <div class="admin-table-card animate-item" [class.fullscreen]="isFullscreen" style="--delay: 100ms;">
         <div class="table-header">
           <div class="table-search">
             <div class="search-icon">
@@ -183,8 +225,8 @@
               </tr>
             </thead>
             <tbody>
-              @for (product of paginatedProducts; track product.id) {
-                <tr>
+              @for (product of paginatedProducts; track product.id; let i = $index) {
+                <tr class="table-row-animate" [style.--row-delay]="(i * 40) + 'ms'">
                   <!-- Product Image -->
                   <td class="col-image">
                     <div class="product-image">
