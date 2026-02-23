@@ -46,6 +46,16 @@
 @use './styles/dividers' as *;
 @use './styles/lists' as *;
 @use './styles/breadcrumbs' as *;
+@use './styles/progress' as *;
+@use './styles/steppers' as *;
+@use './styles/avatars' as *;
+@use './styles/chips' as *;
+@use './styles/stats' as *;
+@use './styles/info-boxes' as *;
+@use './styles/pricing' as *;
+@use './styles/promotions' as *;
+@use './styles/switches' as *;
+@use './styles/segments' as *;
 
 // ---------------------------------------------------------------------------
 // 4. Specialized Components

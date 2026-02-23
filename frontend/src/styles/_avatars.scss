@@ -1,0 +1,535 @@
+// =============================================================================
+// GLOBAL AVATAR STYLES
+// =============================================================================
+// Avatar components, groups, status badges, and initials
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// Basic Avatar
+// -----------------------------------------------------------------------------
+.avatar {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--primary-gradient);
+  color: white;
+  font-weight: 600;
+  font-size: 1rem;
+  flex-shrink: 0;
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  // Size variants
+  &--xs {
+    width: 24px;
+    height: 24px;
+    font-size: 0.65rem;
+  }
+
+  &--sm {
+    width: 32px;
+    height: 32px;
+    font-size: 0.8rem;
+  }
+
+  &--md {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
+
+  &--lg {
+    width: 56px;
+    height: 56px;
+    font-size: 1.25rem;
+  }
+
+  &--xl {
+    width: 72px;
+    height: 72px;
+    font-size: 1.5rem;
+  }
+
+  &--2xl {
+    width: 96px;
+    height: 96px;
+    font-size: 2rem;
+  }
+
+  // Shape variants
+  &--square {
+    border-radius: 12px;
+  }
+
+  &--rounded {
+    border-radius: 16px;
+  }
+
+  // Border variants
+  &--bordered {
+    border: 3px solid white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  &--ring {
+    box-shadow: 0 0 0 3px white, 0 0 0 5px var(--primary-color);
+  }
+
+  // Color variants
+  &--success {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  }
+
+  &--warning {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  }
+
+  &--danger {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  }
+
+  &--info {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  }
+
+  &--neutral {
+    background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+  }
+
+  &--light {
+    background: rgba(0, 0, 0, 0.08);
+    color: var(--text-color);
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Avatar with Status
+// -----------------------------------------------------------------------------
+.avatar-status {
+  position: relative;
+  display: inline-block;
+
+  &__badge {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid white;
+    background: #94a3b8;
+
+    &--online {
+      background: #22c55e;
+    }
+
+    &--offline {
+      background: #94a3b8;
+    }
+
+    &--busy {
+      background: #ef4444;
+    }
+
+    &--away {
+      background: #f59e0b;
+    }
+  }
+
+  // Size adjustments for status badge
+  .avatar--xs + .avatar-status__badge,
+  &--xs .avatar-status__badge {
+    width: 8px;
+    height: 8px;
+    border-width: 1px;
+  }
+
+  .avatar--sm + .avatar-status__badge,
+  &--sm .avatar-status__badge {
+    width: 10px;
+    height: 10px;
+  }
+
+  .avatar--lg + .avatar-status__badge,
+  &--lg .avatar-status__badge {
+    width: 14px;
+    height: 14px;
+  }
+
+  .avatar--xl + .avatar-status__badge,
+  &--xl .avatar-status__badge {
+    width: 16px;
+    height: 16px;
+    border-width: 3px;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Avatar Group (Stacked)
+// -----------------------------------------------------------------------------
+.avatar-group {
+  display: flex;
+  align-items: center;
+
+  .avatar {
+    margin-left: -0.75rem;
+    border: 2px solid white;
+    transition: all 0.2s ease;
+
+    &:first-child {
+      margin-left: 0;
+    }
+
+    &:hover {
+      transform: translateY(-2px);
+      z-index: 10;
+    }
+  }
+
+  // Tighter spacing
+  &--tight {
+    .avatar {
+      margin-left: -1rem;
+    }
+  }
+
+  // Loose spacing
+  &--loose {
+    .avatar {
+      margin-left: -0.5rem;
+    }
+  }
+
+  // Reverse stacking order
+  &--reverse {
+    flex-direction: row-reverse;
+
+    .avatar {
+      margin-left: 0;
+      margin-right: -0.75rem;
+
+      &:first-child {
+        margin-right: 0;
+      }
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Avatar Group Counter
+// -----------------------------------------------------------------------------
+.avatar-group-counter {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  height: 40px;
+  padding: 0 0.5rem;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.08);
+  color: var(--text-color);
+  font-weight: 600;
+  font-size: 0.85rem;
+  margin-left: -0.75rem;
+  border: 2px solid white;
+
+  &--sm {
+    min-width: 32px;
+    height: 32px;
+    font-size: 0.75rem;
+  }
+
+  &--lg {
+    min-width: 56px;
+    height: 56px;
+    font-size: 1rem;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Avatar with Name
+// -----------------------------------------------------------------------------
+.avatar-name {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  &__title {
+    font-weight: 600;
+    color: var(--text-color);
+    font-size: 0.95rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__subtitle {
+    font-size: 0.8rem;
+    color: var(--text-color-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  // Reversed layout
+  &--reverse {
+    flex-direction: row-reverse;
+
+    .avatar-name__info {
+      text-align: right;
+    }
+  }
+
+  // Centered layout
+  &--center {
+    flex-direction: column;
+    text-align: center;
+
+    .avatar-name__info {
+      align-items: center;
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Avatar Placeholder (for loading)
+// -----------------------------------------------------------------------------
+.avatar-placeholder {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.08);
+
+  i {
+    font-size: 1rem;
+    color: var(--text-color-secondary);
+  }
+
+  &--sm {
+    width: 32px;
+    height: 32px;
+
+    i {
+      font-size: 0.85rem;
+    }
+  }
+
+  &--lg {
+    width: 56px;
+    height: 56px;
+
+    i {
+      font-size: 1.25rem;
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Avatar Upload
+// -----------------------------------------------------------------------------
+.avatar-upload {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+
+  &:hover .avatar-upload__overlay {
+    opacity: 1;
+  }
+
+  &__overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 50%;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+
+    i {
+      color: white;
+      font-size: 1.25rem;
+    }
+  }
+
+  input[type="file"] {
+    display: none;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Avatar Badge (Icon/Number overlay)
+// -----------------------------------------------------------------------------
+.avatar-badge {
+  position: relative;
+  display: inline-block;
+
+  &__icon {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--primary-gradient);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.65rem;
+    border: 2px solid white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+
+    i {
+      font-size: 0.6rem;
+    }
+  }
+
+  &__count {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 5px;
+    border-radius: 10px;
+    background: #ef4444;
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid white;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Avatar Card
+// -----------------------------------------------------------------------------
+.avatar-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: white;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  transition: all 0.2s ease;
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+
+  &__content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__name {
+    font-weight: 600;
+    color: var(--text-color);
+    font-size: 0.95rem;
+    margin: 0;
+  }
+
+  &__role {
+    font-size: 0.8rem;
+    color: var(--text-color-secondary);
+    margin: 0.125rem 0 0 0;
+  }
+
+  &__meta {
+    font-size: 0.75rem;
+    color: var(--text-color-secondary);
+    margin-top: 0.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Initials Generator Colors
+// -----------------------------------------------------------------------------
+.avatar-initials {
+  &--a, &--f, &--k, &--p, &--u {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  }
+
+  &--b, &--g, &--l, &--q, &--v {
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  }
+
+  &--c, &--h, &--m, &--r, &--w {
+    background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
+  }
+
+  &--d, &--i, &--n, &--s, &--x {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  }
+
+  &--e, &--j, &--o, &--t, &--y, &--z {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  }
+}
+
+// -----------------------------------------------------------------------------
+// PrimeNG Avatar Override
+// -----------------------------------------------------------------------------
+.p-avatar {
+  background: var(--primary-gradient);
+  color: white;
+
+  &.p-avatar-circle {
+    border-radius: 50%;
+  }
+
+  &.p-avatar-lg {
+    width: 56px;
+    height: 56px;
+    font-size: 1.25rem;
+  }
+
+  &.p-avatar-xl {
+    width: 72px;
+    height: 72px;
+    font-size: 1.5rem;
+  }
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.p-avatar-group {
+  .p-avatar {
+    border: 2px solid white;
+  }
+}

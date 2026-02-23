@@ -1,0 +1,549 @@
+// =============================================================================
+// GLOBAL SWITCH STYLES
+// =============================================================================
+// Toggle switches, on/off controls, and switch variants
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// Basic Switch
+// -----------------------------------------------------------------------------
+.switch {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+
+  &__input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+
+    &:checked + .switch__slider {
+      background: var(--primary-gradient);
+
+      &::before {
+        transform: translateX(20px);
+      }
+    }
+
+    &:focus + .switch__slider {
+      box-shadow: 0 0 0 3px rgba(46, 108, 183, 0.2);
+    }
+
+    &:disabled + .switch__slider {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  &__slider {
+    position: relative;
+    width: 44px;
+    height: 24px;
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 24px;
+    transition: all 0.3s ease;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 20px;
+      height: 20px;
+      background: white;
+      border-radius: 50%;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      transition: all 0.3s ease;
+    }
+  }
+
+  &__label {
+    margin-left: 0.75rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-color);
+  }
+
+  // Size variants
+  &--sm {
+    .switch__slider {
+      width: 36px;
+      height: 20px;
+
+      &::before {
+        width: 16px;
+        height: 16px;
+      }
+    }
+
+    .switch__input:checked + .switch__slider::before {
+      transform: translateX(16px);
+    }
+  }
+
+  &--lg {
+    .switch__slider {
+      width: 52px;
+      height: 28px;
+
+      &::before {
+        width: 24px;
+        height: 24px;
+      }
+    }
+
+    .switch__input:checked + .switch__slider::before {
+      transform: translateX(24px);
+    }
+  }
+
+  // Color variants
+  &--success {
+    .switch__input:checked + .switch__slider {
+      background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    }
+  }
+
+  &--danger {
+    .switch__input:checked + .switch__slider {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    }
+  }
+
+  &--warning {
+    .switch__input:checked + .switch__slider {
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Switch with Icons
+// -----------------------------------------------------------------------------
+.switch-icons {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+
+  &__input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+
+    &:checked + .switch-icons__slider {
+      background: var(--primary-gradient);
+
+      .switch-icons__icon--on {
+        opacity: 1;
+      }
+
+      .switch-icons__icon--off {
+        opacity: 0;
+      }
+
+      &::before {
+        transform: translateX(24px);
+      }
+    }
+  }
+
+  &__slider {
+    position: relative;
+    width: 52px;
+    height: 28px;
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 28px;
+    transition: all 0.3s ease;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 24px;
+      height: 24px;
+      background: white;
+      border-radius: 50%;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      transition: all 0.3s ease;
+      z-index: 2;
+    }
+  }
+
+  &__icon {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.75rem;
+    transition: opacity 0.3s ease;
+    z-index: 1;
+
+    &--on {
+      left: 8px;
+      color: white;
+      opacity: 0;
+    }
+
+    &--off {
+      right: 8px;
+      color: rgba(0, 0, 0, 0.4);
+      opacity: 1;
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Switch with Text Labels
+// -----------------------------------------------------------------------------
+.switch-labeled {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+
+  &__off,
+  &__on {
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: color 0.3s ease;
+  }
+
+  &__off {
+    color: var(--text-color);
+  }
+
+  &__on {
+    color: var(--text-color-secondary);
+  }
+
+  &.active {
+    .switch-labeled__off {
+      color: var(--text-color-secondary);
+    }
+
+    .switch-labeled__on {
+      color: var(--primary-color);
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// iOS Style Switch
+// -----------------------------------------------------------------------------
+.switch-ios {
+  position: relative;
+  width: 51px;
+  height: 31px;
+  cursor: pointer;
+
+  &__input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+
+    &:checked + .switch-ios__track {
+      background: #34c759;
+
+      .switch-ios__thumb {
+        transform: translateX(20px);
+      }
+    }
+  }
+
+  &__track {
+    position: absolute;
+    inset: 0;
+    background: #e9e9eb;
+    border-radius: 31px;
+    transition: background 0.3s ease;
+  }
+
+  &__thumb {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 27px;
+    height: 27px;
+    background: white;
+    border-radius: 50%;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15), 0 1px 1px rgba(0, 0, 0, 0.16);
+    transition: transform 0.3s ease;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Material Style Switch
+// -----------------------------------------------------------------------------
+.switch-material {
+  position: relative;
+  width: 36px;
+  height: 14px;
+  cursor: pointer;
+
+  &__input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+
+    &:checked + .switch-material__track {
+      background: rgba(46, 108, 183, 0.5);
+
+      .switch-material__thumb {
+        transform: translateX(18px);
+        background: var(--primary-color);
+        box-shadow: 0 2px 4px rgba(46, 108, 183, 0.4);
+      }
+    }
+
+    &:focus + .switch-material__track .switch-material__thumb {
+      box-shadow: 0 0 0 10px rgba(46, 108, 183, 0.1);
+    }
+  }
+
+  &__track {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.38);
+    border-radius: 14px;
+    transition: background 0.3s ease;
+  }
+
+  &__thumb {
+    position: absolute;
+    top: -3px;
+    left: -2px;
+    width: 20px;
+    height: 20px;
+    background: #fafafa;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Switch Card (Full width clickable)
+// -----------------------------------------------------------------------------
+.switch-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  background: white;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: rgba(46, 108, 183, 0.2);
+    background: rgba(248, 250, 252, 0.8);
+  }
+
+  &__content {
+    flex: 1;
+    min-width: 0;
+    margin-right: 1rem;
+  }
+
+  &__title {
+    font-weight: 600;
+    color: var(--text-color);
+    font-size: 0.95rem;
+    margin: 0;
+  }
+
+  &__description {
+    font-size: 0.8rem;
+    color: var(--text-color-secondary);
+    margin: 0.25rem 0 0 0;
+  }
+
+  &.active {
+    border-color: rgba(46, 108, 183, 0.3);
+    background: rgba(46, 108, 183, 0.04);
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Switch Group
+// -----------------------------------------------------------------------------
+.switch-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+
+  &__item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  &__label {
+    font-size: 0.9rem;
+    color: var(--text-color);
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Power Switch
+// -----------------------------------------------------------------------------
+.power-switch {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  cursor: pointer;
+
+  &__input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+
+    &:checked + .power-switch__button {
+      background: var(--primary-gradient);
+      box-shadow: 0 4px 20px rgba(46, 108, 183, 0.4);
+
+      i {
+        color: white;
+      }
+    }
+  }
+
+  &__button {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    border: none;
+
+    i {
+      font-size: 1.5rem;
+      color: var(--text-color-secondary);
+      transition: color 0.3s ease;
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Day/Night Switch
+// -----------------------------------------------------------------------------
+.switch-theme {
+  position: relative;
+  width: 60px;
+  height: 30px;
+  cursor: pointer;
+
+  &__input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+
+    &:checked + .switch-theme__track {
+      background: linear-gradient(135deg, #1e3a5f 0%, #0c1929 100%);
+
+      .switch-theme__thumb {
+        transform: translateX(30px);
+        background: #fcd34d;
+      }
+
+      .switch-theme__icon--sun {
+        opacity: 0;
+      }
+
+      .switch-theme__icon--moon {
+        opacity: 1;
+      }
+    }
+  }
+
+  &__track {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, #87ceeb 0%, #ffd700 100%);
+    border-radius: 30px;
+    transition: all 0.4s ease;
+    overflow: hidden;
+  }
+
+  &__thumb {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 24px;
+    height: 24px;
+    background: #fff9c4;
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    transition: all 0.4s ease;
+    z-index: 2;
+  }
+
+  &__icon {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.85rem;
+    transition: opacity 0.3s ease;
+
+    &--sun {
+      right: 8px;
+      color: #f59e0b;
+      opacity: 1;
+    }
+
+    &--moon {
+      left: 8px;
+      color: #fcd34d;
+      opacity: 0;
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// PrimeNG InputSwitch Enhanced
+// -----------------------------------------------------------------------------
+.p-inputswitch {
+  &.p-inputswitch-lg {
+    width: 52px;
+    height: 28px;
+
+    .p-inputswitch-slider::before {
+      width: 24px;
+      height: 24px;
+    }
+
+    &.p-inputswitch-checked .p-inputswitch-slider::before {
+      transform: translateX(24px);
+    }
+  }
+
+  &.p-inputswitch-success {
+    &.p-inputswitch-checked .p-inputswitch-slider {
+      background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    }
+  }
+
+  &.p-inputswitch-danger {
+    &.p-inputswitch-checked .p-inputswitch-slider {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    }
+  }
+}
