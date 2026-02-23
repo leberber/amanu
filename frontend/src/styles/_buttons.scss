@@ -1,0 +1,366 @@
+// =============================================================================
+// GLOBAL BUTTONS
+// =============================================================================
+// Shared button styles used across admin and frontend
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// Add Button (Green Gradient)
+// -----------------------------------------------------------------------------
+.btn-add {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1.5rem;
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  border: none;
+  border-radius: 14px;
+  color: white;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 16px rgba(17, 153, 142, 0.3);
+  white-space: nowrap;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(17, 153, 142, 0.4);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  i {
+    font-size: 1rem;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Primary Button (Blue Gradient)
+// -----------------------------------------------------------------------------
+.btn-primary {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1.5rem;
+  background: var(--primary-gradient);
+  border: none;
+  border-radius: 14px;
+  color: white;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 16px rgba(46, 108, 183, 0.3);
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(46, 108, 183, 0.4);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  i {
+    font-size: 1rem;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Secondary Button (Outline)
+// -----------------------------------------------------------------------------
+.btn-secondary {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1.5rem;
+  background: white;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 14px;
+  color: var(--text-color);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover:not(:disabled) {
+    background: #f8fafc;
+    border-color: rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  i {
+    font-size: 1rem;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Danger Button (Red)
+// -----------------------------------------------------------------------------
+.btn-danger {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1.5rem;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  border: none;
+  border-radius: 14px;
+  color: white;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.3);
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(239, 68, 68, 0.4);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  i {
+    font-size: 1rem;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Icon Button (Square)
+// -----------------------------------------------------------------------------
+.btn-icon {
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: white;
+  border-radius: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+
+  i {
+    font-size: 1rem;
+    color: var(--text-color-secondary);
+  }
+
+  &:hover:not(:disabled) {
+    background: rgba(46, 108, 183, 0.08);
+    border-color: rgba(46, 108, 183, 0.2);
+
+    i {
+      color: var(--primary-color);
+    }
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  // Size variants
+  &--sm {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+
+    i { font-size: 0.875rem; }
+  }
+
+  &--lg {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+
+    i { font-size: 1.125rem; }
+  }
+
+  // Color variants
+  &--danger {
+    &:hover:not(:disabled) {
+      background: rgba(239, 68, 68, 0.1);
+      border-color: rgba(239, 68, 68, 0.3);
+
+      i { color: #ef4444; }
+    }
+  }
+
+  &--success {
+    &:hover:not(:disabled) {
+      background: rgba(34, 197, 94, 0.1);
+      border-color: rgba(34, 197, 94, 0.3);
+
+      i { color: #16a34a; }
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Action Buttons (Table/Card actions)
+// -----------------------------------------------------------------------------
+.action-btn {
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+
+  i {
+    font-size: 0.85rem;
+  }
+
+  &.view {
+    background: rgba(46, 108, 183, 0.1);
+    color: var(--primary-color);
+
+    &:hover { background: rgba(46, 108, 183, 0.2); }
+  }
+
+  &.edit {
+    background: rgba(34, 197, 94, 0.1);
+    color: #16a34a;
+
+    &:hover { background: rgba(34, 197, 94, 0.2); }
+  }
+
+  &.delete {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+
+    &:hover { background: rgba(239, 68, 68, 0.2); }
+  }
+
+  &.confirm {
+    background: rgba(17, 153, 142, 0.1);
+    color: #11998e;
+
+    &:hover { background: rgba(17, 153, 142, 0.2); }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Send Button (Forms)
+// -----------------------------------------------------------------------------
+.btn-send {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 1.5rem;
+  background: var(--primary-gradient);
+  border: none;
+  border-radius: 14px;
+  color: white;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 16px rgba(46, 108, 183, 0.3);
+  white-space: nowrap;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(46, 108, 183, 0.4);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  i {
+    font-size: 1rem;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// View All Button (Link style)
+// -----------------------------------------------------------------------------
+.btn-view-all {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.875rem;
+  margin-top: 1rem;
+  background: transparent;
+  border: 1px solid rgba(15, 60, 130, 0.15);
+  border-radius: 12px;
+  color: var(--primary-color);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: rgba(46, 108, 183, 0.05);
+    border-color: var(--primary-color);
+
+    i {
+      transform: translateX(4px);
+    }
+  }
+
+  i {
+    font-size: 0.85rem;
+    transition: transform 0.3s ease;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Back Button
+// -----------------------------------------------------------------------------
+.btn-back {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  color: var(--text-color-secondary);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+
+  &:hover {
+    background: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transform: translateX(-2px);
+  }
+
+  i {
+    font-size: 0.875rem;
+  }
+}

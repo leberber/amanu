@@ -1,0 +1,325 @@
+// =============================================================================
+// GLOBAL MODAL/DIALOG STYLES
+// =============================================================================
+// Modal, dialog, and overlay patterns
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// Modal Overlay/Backdrop
+// -----------------------------------------------------------------------------
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  z-index: var(--z-modal-backdrop);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  animation: overlayFadeIn 0.2s ease-out;
+}
+
+// -----------------------------------------------------------------------------
+// Modal Container
+// -----------------------------------------------------------------------------
+.modal {
+  position: relative;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  max-width: 500px;
+  width: 100%;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: modalSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &--sm {
+    max-width: 400px;
+  }
+
+  &--lg {
+    max-width: 700px;
+  }
+
+  &--xl {
+    max-width: 900px;
+  }
+
+  &--fullscreen {
+    max-width: none;
+    width: 100%;
+    height: 100%;
+    max-height: 100vh;
+    border-radius: 0;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Modal Header
+// -----------------------------------------------------------------------------
+.modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+
+  &-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+
+    i {
+      font-size: 1.25rem;
+      color: var(--primary-color);
+    }
+
+    h2 {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--text-color);
+      margin: 0;
+    }
+  }
+
+  &-close {
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+
+    i {
+      font-size: 0.875rem;
+      color: var(--text-color-secondary);
+    }
+
+    &:hover {
+      background: rgba(239, 68, 68, 0.1);
+
+      i {
+        color: #ef4444;
+      }
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Modal Body
+// -----------------------------------------------------------------------------
+.modal__body {
+  flex: 1;
+  padding: 1.5rem;
+  overflow-y: auto;
+
+  &--compact {
+    padding: 1rem;
+  }
+
+  &--centered {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Modal Footer
+// -----------------------------------------------------------------------------
+.modal__footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  background: rgba(248, 250, 252, 0.5);
+
+  &--centered {
+    justify-content: center;
+  }
+
+  &--spaced {
+    justify-content: space-between;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Confirmation Dialog
+// -----------------------------------------------------------------------------
+.confirm-dialog {
+  text-align: center;
+  padding: 1rem 0;
+
+  &__icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.25rem;
+
+    i {
+      font-size: 1.75rem;
+    }
+
+    &--warning {
+      background: rgba(245, 158, 11, 0.1);
+      i { color: #f59e0b; }
+    }
+
+    &--danger {
+      background: rgba(239, 68, 68, 0.1);
+      i { color: #ef4444; }
+    }
+
+    &--success {
+      background: rgba(34, 197, 94, 0.1);
+      i { color: #22c55e; }
+    }
+
+    &--info {
+      background: rgba(59, 130, 246, 0.1);
+      i { color: #3b82f6; }
+    }
+  }
+
+  &__title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-color);
+    margin: 0 0 0.5rem 0;
+  }
+
+  &__message {
+    color: var(--text-color-secondary);
+    margin: 0;
+    line-height: 1.5;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// PrimeNG Dialog Override
+// -----------------------------------------------------------------------------
+.p-dialog {
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  border: none;
+  overflow: hidden;
+
+  .p-dialog-header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    background: white;
+
+    .p-dialog-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--text-color);
+    }
+
+    .p-dialog-header-close {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background: rgba(239, 68, 68, 0.1);
+
+        .p-icon {
+          color: #ef4444;
+        }
+      }
+    }
+  }
+
+  .p-dialog-content {
+    padding: 1.5rem;
+  }
+
+  .p-dialog-footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+    background: rgba(248, 250, 252, 0.5);
+  }
+}
+
+.p-dialog-mask {
+  backdrop-filter: blur(4px);
+}
+
+// -----------------------------------------------------------------------------
+// Modal Animations
+// -----------------------------------------------------------------------------
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Drawer/Slide Panel
+// -----------------------------------------------------------------------------
+.drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100vh;
+  width: 400px;
+  max-width: 100%;
+  background: white;
+  box-shadow: -10px 0 40px rgba(0, 0, 0, 0.1);
+  z-index: var(--z-modal);
+  display: flex;
+  flex-direction: column;
+  animation: drawerSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &--left {
+    right: auto;
+    left: 0;
+    box-shadow: 10px 0 40px rgba(0, 0, 0, 0.1);
+    animation: drawerSlideInLeft 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  &--lg {
+    width: 500px;
+  }
+
+  &--xl {
+    width: 600px;
+  }
+}
+
+@keyframes drawerSlideIn {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes drawerSlideInLeft {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}

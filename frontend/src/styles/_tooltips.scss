@@ -1,0 +1,228 @@
+// =============================================================================
+// GLOBAL TOOLTIP STYLES
+// =============================================================================
+// Tooltip patterns and PrimeNG pTooltip overrides
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// PrimeNG Tooltip Override
+// -----------------------------------------------------------------------------
+.p-tooltip {
+  z-index: var(--z-tooltip) !important;
+
+  .p-tooltip-text {
+    background: rgba(15, 23, 42, 0.95);
+    backdrop-filter: blur(8px);
+    color: white;
+    font-size: 0.8rem;
+    font-weight: 500;
+    padding: 0.5rem 0.75rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    max-width: 300px;
+    line-height: 1.4;
+  }
+
+  .p-tooltip-arrow {
+    border-color: rgba(15, 23, 42, 0.95);
+  }
+
+  // Position variants
+  &.p-tooltip-top .p-tooltip-arrow {
+    border-top-color: rgba(15, 23, 42, 0.95);
+  }
+
+  &.p-tooltip-bottom .p-tooltip-arrow {
+    border-bottom-color: rgba(15, 23, 42, 0.95);
+  }
+
+  &.p-tooltip-left .p-tooltip-arrow {
+    border-left-color: rgba(15, 23, 42, 0.95);
+  }
+
+  &.p-tooltip-right .p-tooltip-arrow {
+    border-right-color: rgba(15, 23, 42, 0.95);
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Light Tooltip Variant
+// -----------------------------------------------------------------------------
+.p-tooltip.tooltip-light {
+  .p-tooltip-text {
+    background: white;
+    color: var(--text-color);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  }
+
+  .p-tooltip-arrow {
+    border-color: white;
+  }
+
+  &.p-tooltip-top .p-tooltip-arrow {
+    border-top-color: white;
+  }
+
+  &.p-tooltip-bottom .p-tooltip-arrow {
+    border-bottom-color: white;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Colored Tooltip Variants
+// -----------------------------------------------------------------------------
+.p-tooltip.tooltip-primary {
+  .p-tooltip-text {
+    background: var(--primary-color);
+  }
+
+  &.p-tooltip-top .p-tooltip-arrow {
+    border-top-color: var(--primary-color);
+  }
+}
+
+.p-tooltip.tooltip-success {
+  .p-tooltip-text {
+    background: #22c55e;
+  }
+
+  &.p-tooltip-top .p-tooltip-arrow {
+    border-top-color: #22c55e;
+  }
+}
+
+.p-tooltip.tooltip-warning {
+  .p-tooltip-text {
+    background: #f59e0b;
+  }
+
+  &.p-tooltip-top .p-tooltip-arrow {
+    border-top-color: #f59e0b;
+  }
+}
+
+.p-tooltip.tooltip-danger {
+  .p-tooltip-text {
+    background: #ef4444;
+  }
+
+  &.p-tooltip-top .p-tooltip-arrow {
+    border-top-color: #ef4444;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Custom Tooltip (CSS-only)
+// -----------------------------------------------------------------------------
+.tooltip {
+  position: relative;
+  display: inline-flex;
+
+  &__content {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(15, 23, 42, 0.95);
+    backdrop-filter: blur(8px);
+    color: white;
+    font-size: 0.8rem;
+    font-weight: 500;
+    padding: 0.5rem 0.75rem;
+    border-radius: 8px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+    z-index: var(--z-tooltip);
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 6px solid transparent;
+      border-top-color: rgba(15, 23, 42, 0.95);
+    }
+  }
+
+  &:hover .tooltip__content {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  // Position variants
+  &--bottom .tooltip__content {
+    bottom: auto;
+    top: calc(100% + 8px);
+
+    &::after {
+      top: auto;
+      bottom: 100%;
+      border-top-color: transparent;
+      border-bottom-color: rgba(15, 23, 42, 0.95);
+    }
+  }
+
+  &--left .tooltip__content {
+    bottom: auto;
+    top: 50%;
+    left: auto;
+    right: calc(100% + 8px);
+    transform: translateY(-50%);
+
+    &::after {
+      top: 50%;
+      left: 100%;
+      transform: translateY(-50%);
+      border-top-color: transparent;
+      border-left-color: rgba(15, 23, 42, 0.95);
+    }
+  }
+
+  &--right .tooltip__content {
+    bottom: auto;
+    top: 50%;
+    left: calc(100% + 8px);
+    transform: translateY(-50%);
+
+    &::after {
+      top: 50%;
+      left: auto;
+      right: 100%;
+      transform: translateY(-50%);
+      border-top-color: transparent;
+      border-right-color: rgba(15, 23, 42, 0.95);
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Info Tooltip (Icon + Tooltip)
+// -----------------------------------------------------------------------------
+.info-tooltip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.08);
+  cursor: help;
+  transition: all 0.2s ease;
+
+  i {
+    font-size: 0.7rem;
+    color: var(--text-color-secondary);
+  }
+
+  &:hover {
+    background: rgba(46, 108, 183, 0.15);
+
+    i {
+      color: var(--primary-color);
+    }
+  }
+}

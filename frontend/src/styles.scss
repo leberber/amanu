@@ -2,7 +2,14 @@
 // GLOBAL STYLES
 // =============================================================================
 // Main entry point for all styles.
-// Import order: tokens -> libraries -> components -> overrides
+//
+// Import Order:
+// 1. Design Tokens (CSS variables)
+// 2. External Libraries
+// 3. Global Components (shared across admin & frontend)
+// 4. Specialized Components
+// 5. Layout (structural positioning only)
+// 6. Legacy (to be refactored)
 // =============================================================================
 
 // ---------------------------------------------------------------------------
@@ -13,7 +20,6 @@
 @use './styles/typography' as *;
 @use './styles/spacing' as *;
 @use './styles/effects' as *;
-@use './styles/layout' as *;
 
 // ---------------------------------------------------------------------------
 // 2. External Libraries
@@ -21,11 +27,44 @@
 @use 'primeflex/primeflex' as *;
 
 // ---------------------------------------------------------------------------
-// 3. Components
+// 3. Global Components (shared across admin & frontend)
+// ---------------------------------------------------------------------------
+@use './styles/animations' as *;
+@use './styles/buttons' as *;
+@use './styles/badges' as *;
+@use './styles/cards' as *;
+@use './styles/states' as *;
+@use './styles/table' as *;
+@use './styles/inputs' as *;
+@use './styles/pagination' as *;
+@use './styles/modals' as *;
+@use './styles/tooltips' as *;
+@use './styles/tabs' as *;
+@use './styles/dropdowns' as *;
+@use './styles/alerts' as *;
+@use './styles/toggles' as *;
+@use './styles/dividers' as *;
+@use './styles/lists' as *;
+@use './styles/breadcrumbs' as *;
+
+// ---------------------------------------------------------------------------
+// 4. Specialized Components
 // ---------------------------------------------------------------------------
 @use './styles/components' as *;
 @use './styles/skeleton' as *;
 @use './styles/quantity-overlay' as *;
+
+// ---------------------------------------------------------------------------
+// 5. Layout (structural positioning only)
+// ---------------------------------------------------------------------------
+@use './styles/layout' as *;              // Global app shell
+@use './styles/admin/layout' as *;        // Admin structural layout
+@use './styles/admin/components' as *;    // Admin UI components
+@use './styles/frontend/layout' as *;     // Frontend structural layout
+
+// ---------------------------------------------------------------------------
+// 6. Legacy (to be refactored - contains some duplicates)
+// ---------------------------------------------------------------------------
 @use './styles/admin-table' as *;
 @use './styles/admin-forms' as *;
 @use './styles/admin-page' as *;

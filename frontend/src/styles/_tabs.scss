@@ -1,0 +1,272 @@
+// =============================================================================
+// GLOBAL TABS STYLES
+// =============================================================================
+// Tab controls, segments, and PrimeNG p-tabview overrides
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// Tab Container
+// -----------------------------------------------------------------------------
+.tabs {
+  display: flex;
+  flex-direction: column;
+}
+
+// -----------------------------------------------------------------------------
+// Tab List (Header)
+// -----------------------------------------------------------------------------
+.tabs__list {
+  display: flex;
+  gap: 0.25rem;
+  padding: 0.5rem;
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: 14px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  &--pills {
+    background: transparent;
+    padding: 0;
+    gap: 0.5rem;
+  }
+
+  &--underline {
+    background: transparent;
+    padding: 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 0;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Tab Item
+// -----------------------------------------------------------------------------
+.tabs__item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1rem;
+  background: transparent;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-color-secondary);
+  white-space: nowrap;
+  transition: all 0.2s ease;
+
+  &:hover:not(.active) {
+    color: var(--text-color);
+    background: rgba(0, 0, 0, 0.04);
+  }
+
+  &.active {
+    background: white;
+    color: var(--primary-color);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+
+  i {
+    font-size: 1rem;
+  }
+
+  .count {
+    padding: 0.125rem 0.5rem;
+    background: rgba(0, 0, 0, 0.08);
+    border-radius: 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  &.active .count {
+    background: rgba(46, 108, 183, 0.15);
+    color: var(--primary-color);
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Tab Panel (Content)
+// -----------------------------------------------------------------------------
+.tabs__panel {
+  padding: 1.5rem 0;
+
+  &--compact {
+    padding: 1rem 0;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Pill Tabs Variant
+// -----------------------------------------------------------------------------
+.tabs--pills {
+  .tabs__item {
+    border-radius: 20px;
+    padding: 0.5rem 1rem;
+
+    &.active {
+      background: var(--primary-gradient);
+      color: white;
+      box-shadow: 0 4px 12px rgba(46, 108, 183, 0.3);
+
+      .count {
+        background: rgba(255, 255, 255, 0.25);
+        color: white;
+      }
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Underline Tabs Variant
+// -----------------------------------------------------------------------------
+.tabs--underline {
+  .tabs__item {
+    border-radius: 0;
+    padding: 0.75rem 1rem;
+    margin-bottom: -1px;
+    border-bottom: 2px solid transparent;
+
+    &.active {
+      background: transparent;
+      color: var(--primary-color);
+      border-bottom-color: var(--primary-color);
+      box-shadow: none;
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Segment Control (Glass style)
+// -----------------------------------------------------------------------------
+.segment {
+  display: inline-flex;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(20px);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+
+  &__btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1rem;
+    background: transparent;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-color-secondary);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    &:hover:not(.active) {
+      background: rgba(0, 0, 0, 0.04);
+    }
+
+    &.active {
+      background: var(--primary-gradient);
+      color: white;
+      box-shadow: 0 4px 12px rgba(46, 108, 183, 0.3);
+
+      .segment__count {
+        background: rgba(255, 255, 255, 0.25);
+        color: white;
+      }
+    }
+  }
+
+  &__count {
+    padding: 0.125rem 0.5rem;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    background: rgba(0, 0, 0, 0.08);
+    color: var(--text-color-secondary);
+
+    &--success {
+      background: rgba(17, 153, 142, 0.15);
+      color: #11998e;
+    }
+
+    &--danger {
+      background: rgba(239, 68, 68, 0.15);
+      color: #ef4444;
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// PrimeNG TabView Override
+// -----------------------------------------------------------------------------
+.p-tabview {
+  .p-tabview-nav {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    gap: 0;
+
+    li {
+      .p-tabview-nav-link {
+        padding: 0.875rem 1.25rem;
+        border: none;
+        border-bottom: 2px solid transparent;
+        margin-bottom: -1px;
+        background: transparent;
+        color: var(--text-color-secondary);
+        font-weight: 500;
+        transition: all 0.2s ease;
+
+        &:hover:not(.p-highlight) {
+          background: transparent;
+          color: var(--text-color);
+        }
+      }
+
+      &.p-highlight .p-tabview-nav-link {
+        background: transparent;
+        color: var(--primary-color);
+        border-bottom-color: var(--primary-color);
+      }
+    }
+  }
+
+  .p-tabview-panels {
+    padding: 1.5rem 0;
+    background: transparent;
+    border: none;
+  }
+}
+
+// Boxed TabView variant
+.p-tabview.tabview-boxed {
+  .p-tabview-nav {
+    background: rgba(0, 0, 0, 0.03);
+    border-radius: 14px;
+    padding: 0.5rem;
+    border: none;
+    gap: 0.25rem;
+
+    li {
+      .p-tabview-nav-link {
+        border-radius: 10px;
+        border: none;
+        margin: 0;
+        padding: 0.625rem 1rem;
+      }
+
+      &.p-highlight .p-tabview-nav-link {
+        background: white;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        border: none;
+      }
+    }
+  }
+}
