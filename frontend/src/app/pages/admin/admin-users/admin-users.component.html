@@ -1,12 +1,19 @@
 <!-- src/app/pages/admin/admin-users/admin-users.component.html -->
-<div class="users-page">
+<div class="admin-page">
+  <!-- Background Decoration -->
+  <div class="bg-decoration">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
+
   <p-toast></p-toast>
   <p-confirmDialog></p-confirmDialog>
-  <div class="page-content">
+  <div class="admin-content">
     <!-- Page Header -->
-    <div class="page-header">
+    <div class="admin-list-header">
       <div class="header-title">
-        <div class="icon-wrapper">
+        <div class="admin-icon-wrapper">
           <div class="icon-bg"></div>
           <div class="icon-circle">
             <i class="pi pi-users"></i>
@@ -20,31 +27,31 @@
     </div>
 
     <!-- Role Segmented Control Row -->
-    <div class="segment-row">
-      <div class="role-segment">
+    <div class="admin-segment-row">
+      <div class="admin-segment">
         <button
-          class="segment-btn"
+          class="admin-segment-btn"
           [class.active]="roleFilter === 'all'"
           (click)="onRoleFilterChange('all')">
           <span>{{ 'common.all' | translate }}</span>
           <span class="count">{{ allUsers.length }}</span>
         </button>
         <button
-          class="segment-btn"
+          class="admin-segment-btn"
           [class.active]="roleFilter === 'customer'"
           (click)="onRoleFilterChange('customer')">
           <span>{{ 'admin.users.roles.customer' | translate }}</span>
           <span class="count customer">{{ getCustomerCount() }}</span>
         </button>
         <button
-          class="segment-btn"
+          class="admin-segment-btn"
           [class.active]="roleFilter === 'staff'"
           (click)="onRoleFilterChange('staff')">
           <span>{{ 'admin.users.roles.staff' | translate }}</span>
           <span class="count staff">{{ getStaffCount() }}</span>
         </button>
         <button
-          class="segment-btn"
+          class="admin-segment-btn"
           [class.active]="roleFilter === 'admin'"
           (click)="onRoleFilterChange('admin')">
           <span>{{ 'admin.users.roles.admin' | translate }}</span>
@@ -64,8 +71,8 @@
     </div>
 
     <!-- Filters Card -->
-    <div class="filters-card">
-      <div class="search-box">
+    <div class="admin-filters-card">
+      <div class="admin-search-box">
         <i class="pi pi-search"></i>
         <input
           type="text"
@@ -78,18 +85,16 @@
           </button>
         }
       </div>
-      <div class="filter-actions">
-        @if (hasActiveFilters()) {
-          <button class="clear-btn" (click)="clearFilters()">
-            <i class="pi pi-filter-slash"></i>
-            <span>{{ 'admin.users.clear_filters' | translate }}</span>
-          </button>
-        }
-      </div>
+      @if (hasActiveFilters()) {
+        <button class="clear-btn" (click)="clearFilters()">
+          <i class="pi pi-filter-slash"></i>
+          <span>{{ 'admin.users.clear_filters' | translate }}</span>
+        </button>
+      }
     </div>
 
     <!-- Users Table Card -->
-    <div class="table-card">
+    <div class="admin-table-card">
       @if (loading) {
         <div class="loading-state">
           <i class="pi pi-spin pi-spinner"></i>
@@ -97,8 +102,8 @@
         </div>
       } @else {
         @if (users.length > 0) {
-          <div class="table-container">
-            <table class="users-table">
+          <div class="admin-table-wrapper">
+            <table class="admin-table">
               <thead>
                 <tr>
                   <th class="col-id">{{ 'admin.users.table.id' | translate }}</th>
@@ -156,7 +161,7 @@
                     <td class="col-status">
                       @if (!isEditingStatus(user.id)) {
                         <div class="status-display" (click)="startEditStatus(user)">
-                          <span class="status-badge" [class.active]="user.is_active" [class.inactive]="!user.is_active">
+                          <span class="admin-status-badge" [class.active]="user.is_active" [class.inactive]="!user.is_active">
                             <i [class]="user.is_active ? 'pi pi-check-circle' : 'pi pi-times-circle'"></i>
                             {{ user.is_active ? ('admin.users.status.active' | translate) : ('admin.users.status.inactive' | translate) }}
                           </span>
@@ -181,11 +186,11 @@
                       <span class="date-text">{{ user.created_at | appDate }}</span>
                     </td>
                     <td class="col-actions">
-                      <div class="action-buttons">
-                        <button class="icon-btn edit" (click)="navigateToEditUser(user)" [pTooltip]="'admin.users.actions.view_edit' | translate" tooltipPosition="top">
+                      <div class="admin-table-actions">
+                        <button class="admin-action-btn edit" (click)="navigateToEditUser(user)" [pTooltip]="'admin.users.actions.view_edit' | translate" tooltipPosition="top">
                           <i class="pi pi-pencil"></i>
                         </button>
-                        <button class="icon-btn delete" (click)="confirmDeleteUser(user)" [pTooltip]="'admin.users.actions.delete' | translate" tooltipPosition="top">
+                        <button class="admin-action-btn delete" (click)="confirmDeleteUser(user)" [pTooltip]="'admin.users.actions.delete' | translate" tooltipPosition="top">
                           <i class="pi pi-trash"></i>
                         </button>
                       </div>
@@ -196,7 +201,7 @@
             </table>
           </div>
         } @else {
-          <div class="empty-state">
+          <div class="admin-empty-state">
             @if (hasActiveFilters()) {
               <div class="empty-icon filter">
                 <i class="pi pi-filter"></i>
@@ -221,7 +226,7 @@
 
     <!-- Pagination Info -->
     @if (users.length > 0 && !loading) {
-      <div class="pagination-info">
+      <div class="admin-results-info">
         <span>{{ 'admin.users.showing' | translate:{ shown: users.length, total: allUsers.length } }}</span>
       </div>
     }

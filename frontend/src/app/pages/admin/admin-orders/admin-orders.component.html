@@ -1,12 +1,19 @@
 <!-- src/app/pages/admin/admin-orders/admin-orders.component.html -->
-<div class="orders-page">
+<div class="admin-page">
+  <!-- Background Decoration -->
+  <div class="bg-decoration">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
+
   <p-toast></p-toast>
   <p-confirmDialog></p-confirmDialog>
-  <div class="page-content">
+  <div class="admin-content">
     <!-- Page Header -->
-    <div class="page-header">
+    <div class="admin-list-header">
       <div class="header-title">
-        <div class="icon-wrapper">
+        <div class="admin-icon-wrapper">
           <div class="icon-bg"></div>
           <div class="icon-circle">
             <i class="pi pi-shopping-cart"></i>
@@ -20,45 +27,45 @@
     </div>
 
     <!-- Status Segmented Control with Export Button -->
-    <div class="segment-row">
-      <div class="status-segment">
+    <div class="admin-segment-row">
+      <div class="admin-segment">
         <button
-          class="segment-btn"
+          class="admin-segment-btn"
           [class.active]="statusFilter === 'all'"
           (click)="onStatusFilterChange('all')">
           <span>{{ 'common.all' | translate }}</span>
           <span class="count">{{ allOrders.length }}</span>
         </button>
         <button
-          class="segment-btn"
+          class="admin-segment-btn"
           [class.active]="statusFilter === 'pending'"
           (click)="onStatusFilterChange('pending')">
           <span>{{ 'admin.orders.status.pending' | translate }}</span>
           <span class="count pending">{{ getPendingCount() }}</span>
         </button>
         <button
-          class="segment-btn"
+          class="admin-segment-btn"
           [class.active]="statusFilter === 'confirmed'"
           (click)="onStatusFilterChange('confirmed')">
           <span>{{ 'admin.orders.status.confirmed' | translate }}</span>
           <span class="count confirmed">{{ getConfirmedCount() }}</span>
         </button>
         <button
-          class="segment-btn"
+          class="admin-segment-btn"
           [class.active]="statusFilter === 'shipped'"
           (click)="onStatusFilterChange('shipped')">
           <span>{{ 'admin.orders.status.shipped' | translate }}</span>
           <span class="count shipped">{{ getShippedCount() }}</span>
         </button>
         <button
-          class="segment-btn"
+          class="admin-segment-btn"
           [class.active]="statusFilter === 'delivered'"
           (click)="onStatusFilterChange('delivered')">
           <span>{{ 'admin.orders.status.delivered' | translate }}</span>
           <span class="count delivered">{{ getDeliveredCount() }}</span>
         </button>
         <button
-          class="segment-btn"
+          class="admin-segment-btn"
           [class.active]="statusFilter === 'cancelled'"
           (click)="onStatusFilterChange('cancelled')">
           <span>{{ 'admin.orders.status.cancelled' | translate }}</span>
@@ -72,8 +79,8 @@
     </div>
 
     <!-- Filters Card -->
-    <div class="filters-card">
-      <div class="search-box">
+    <div class="admin-filters-card">
+      <div class="admin-search-box">
         <i class="pi pi-search"></i>
         <input
           type="text"
@@ -86,17 +93,15 @@
           </button>
         }
       </div>
-      <div class="filter-actions">
-        <button class="action-btn" (click)="refreshOrderData()" [pTooltip]="'admin.orders.refresh' | translate">
-          <i class="pi pi-refresh"></i>
-        </button>
-      </div>
+      <button class="action-btn" (click)="refreshOrderData()" [pTooltip]="'admin.orders.refresh' | translate">
+        <i class="pi pi-refresh"></i>
+      </button>
     </div>
 
     <!-- Loading State -->
     @if (loading) {
-      <div class="loading-container">
-        <div class="loading-card">
+      <div class="admin-loading-container">
+        <div class="admin-loading-card">
           <div class="loading-spinner">
             <i class="pi pi-spin pi-spinner"></i>
           </div>
@@ -105,7 +110,7 @@
       </div>
     } @else if (orders.length === 0) {
       <!-- Empty State -->
-      <div class="empty-state">
+      <div class="admin-empty-state">
         <div class="empty-icon">
           <i class="pi pi-shopping-cart"></i>
         </div>
@@ -120,9 +125,9 @@
       </div>
     } @else {
       <!-- Orders Table -->
-      <div class="table-card">
-        <div class="table-wrapper">
-          <table class="orders-table">
+      <div class="admin-table-card">
+        <div class="admin-table-wrapper">
+          <table class="admin-table">
             <thead>
               <tr>
                 <th>{{ 'admin.orders.table.order_id' | translate }}</th>
@@ -167,7 +172,7 @@
                       <div class="status-display"
                            [class.editable]="canEditStatus(order.status)"
                            (click)="startEditStatus(order)">
-                        <span class="status-badge" [class]="'status-' + order.status">
+                        <span class="admin-status-badge" [class]="'status-' + order.status">
                           <i [class]="getStatusIcon(order.status)"></i>
                           {{ 'admin.orders.status.' + order.status | translate }}
                         </span>
@@ -202,31 +207,31 @@
 
                   <!-- Actions -->
                   <td class="text-center">
-                    <div class="action-buttons">
-                      <button class="view-btn" (click)="openOrderDetails(order)" [pTooltip]="'admin.orders.view_details' | translate">
+                    <div class="admin-table-actions">
+                      <button class="admin-action-btn view" (click)="openOrderDetails(order)" [pTooltip]="'admin.orders.view_details' | translate">
                         <i class="pi pi-eye"></i>
                       </button>
 
                       @if (order.status === 'pending') {
-                        <button class="confirm-btn" (click)="updateOrderStatus(order.id, 'confirmed')" [pTooltip]="'admin.orders.confirm_order' | translate">
+                        <button class="admin-action-btn confirm" (click)="updateOrderStatus(order.id, 'confirmed')" [pTooltip]="'admin.orders.confirm_order' | translate">
                           <i class="pi pi-check"></i>
                         </button>
                       }
 
                       @if (order.status === 'confirmed') {
-                        <button class="ship-btn" (click)="updateOrderStatus(order.id, 'shipped')" [pTooltip]="'admin.orders.mark_shipped' | translate">
+                        <button class="admin-action-btn ship" (click)="updateOrderStatus(order.id, 'shipped')" [pTooltip]="'admin.orders.mark_shipped' | translate">
                           <i class="pi pi-send"></i>
                         </button>
                       }
 
                       @if (order.status === 'shipped') {
-                        <button class="deliver-btn" (click)="updateOrderStatus(order.id, 'delivered')" [pTooltip]="'admin.orders.mark_delivered' | translate">
+                        <button class="admin-action-btn confirm" (click)="updateOrderStatus(order.id, 'delivered')" [pTooltip]="'admin.orders.mark_delivered' | translate">
                           <i class="pi pi-check-circle"></i>
                         </button>
                       }
 
                       @if (order.status !== 'cancelled' && order.status !== 'delivered') {
-                        <button class="cancel-btn" (click)="updateOrderStatus(order.id, 'cancelled')" [pTooltip]="'admin.orders.cancel_order' | translate">
+                        <button class="admin-action-btn delete" (click)="updateOrderStatus(order.id, 'cancelled')" [pTooltip]="'admin.orders.cancel_order' | translate">
                           <i class="pi pi-times"></i>
                         </button>
                       }
@@ -241,7 +246,7 @@
 
       <!-- Pagination -->
       @if (orders.length > rows) {
-        <div class="pagination-wrapper">
+        <div class="admin-pagination">
           <p-paginator
             [first]="first"
             [rows]="rows"
@@ -256,7 +261,7 @@
 
       <!-- Results Count -->
       @if (orders.length <= rows) {
-        <div class="results-info">
+        <div class="admin-results-info">
           <span>{{ 'admin.orders.showing' | translate }} {{ orders.length }} {{ 'admin.orders.of' | translate }} {{ allOrders.length }} {{ 'admin.orders.orders' | translate }}</span>
         </div>
       }
