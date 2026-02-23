@@ -1042,7 +1042,13 @@
         "required_field": "Required field",
         "quantity_config": "Quantity Configuration",
         "selection_type": "Selection Type",
-        "quantity_type": "Quantity Type"
+        "quantity_type": "Quantity Type",
+        "box_config": "Box Configuration",
+        "packaging_type": "Packaging Type",
+        "packaging_type_placeholder": "Select packaging type",
+        "pieces_per_box": "Pieces Per Box",
+        "pieces_per_box_placeholder": "e.g., 12",
+        "pieces_per_box_hint": "Number of individual pieces in one box/carton"
       },
       "units": {
         "kg": "Kilogram",

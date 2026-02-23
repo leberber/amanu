@@ -21,6 +21,7 @@ import { BrandService } from '../../../core/services/brand.service';
 import { VALIDATION, PRODUCT } from '../../../core/constants/app.constants';
 import { ROUTES } from '../../../core/constants/routes.constants';
 import { UnitsService } from '../../../core/services/units.service';
+import { PackagingTypeService } from '../../../core/services/packaging-type.service';
 import { AdminFormService } from '../../../core/services/admin-form.service';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
 import { ChipModule } from 'primeng/chip';
@@ -95,6 +96,7 @@ export class AdminAddProductComponent implements OnInit {
   private router = inject(Router);
   private translateService = inject(TranslateService);
   private unitsService = inject(UnitsService);
+  private packagingTypeService = inject(PackagingTypeService);
   private adminFormService = inject(AdminFormService);
 
   ngOnInit() {
@@ -114,7 +116,8 @@ export class AdminAddProductComponent implements OnInit {
       is_organic: [false],
       is_active: [true],
       // Box configuration
-      pieces_per_box: [null]
+      pieces_per_box: [null],
+      packaging_type: [null]
     });
 
     this.loadCategories();
@@ -211,7 +214,8 @@ export class AdminAddProductComponent implements OnInit {
           image_url: product.image_url || '',
           is_organic: product.is_organic,
           is_active: product.is_active,
-          pieces_per_box: product.pieces_per_box || null
+          pieces_per_box: product.pieces_per_box || null,
+          packaging_type: product.packaging_type?.toUpperCase() || null
         });
 
         this.loading.set(false);
@@ -251,7 +255,8 @@ export class AdminAddProductComponent implements OnInit {
         image_url: formValues.image_url || '',
         is_organic: formValues.is_organic,
         is_active: formValues.is_active,
-        pieces_per_box: formValues.pieces_per_box || null
+        pieces_per_box: formValues.pieces_per_box || null,
+        packaging_type: formValues.packaging_type || null
       }
     );
     
@@ -299,6 +304,11 @@ export class AdminAddProductComponent implements OnInit {
   // Get translated unit options
   getUnitOptions() {
     return this.unitsService.getUnitOptions(true);
+  }
+
+  // Get packaging type options
+  getPackagingTypeOptions() {
+    return this.packagingTypeService.getPackagingTypeOptions(true);
   }
 
 }

@@ -1044,7 +1044,13 @@
         "required_field": "حقل مطلوب",
         "quantity_config": "إعدادات الكمية",
         "selection_type": "نوع الاختيار",
-        "quantity_type": "نوع الكمية"
+        "quantity_type": "نوع الكمية",
+        "box_config": "إعدادات الكرتون",
+        "packaging_type": "نوع التغليف",
+        "packaging_type_placeholder": "اختر نوع التغليف",
+        "pieces_per_box": "القطع لكل كرتون",
+        "pieces_per_box_placeholder": "مثال: 12",
+        "pieces_per_box_hint": "عدد القطع الفردية في الكرتون الواحد"
       },
       "units": {
         "kg": "كيلوغرام (كغ)",
