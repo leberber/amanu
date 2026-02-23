@@ -89,6 +89,52 @@
       }
     }
   }
+
+  // Glass-morphism variant (admin style)
+  &--glass {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(20px);
+    border-radius: 16px;
+    padding: 0.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+    gap: 0.5rem;
+    flex-wrap: wrap;
+
+    .segment-control__item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.625rem 1rem;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+      &:hover:not(.active):not(:disabled) {
+        background: rgba(0, 0, 0, 0.04);
+      }
+
+      &.active {
+        background: var(--primary-gradient);
+        color: white;
+        box-shadow: 0 4px 12px rgba(46, 108, 183, 0.3);
+
+        .count {
+          background: rgba(255, 255, 255, 0.25);
+          color: white;
+        }
+      }
+    }
+
+    .count {
+      padding: 0.125rem 0.5rem;
+      border-radius: 10px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: rgba(0, 0, 0, 0.08);
+      color: var(--text-color-secondary);
+    }
+  }
 }
 
 // -----------------------------------------------------------------------------

@@ -1,17 +1,14 @@
 // =============================================================================
 // Admin Products Component Styles
 // =============================================================================
-// Component-specific styles only.
-// Global styles used:
-//   - _admin-table.scss: Table layout, actions, status toggle
-//   - _admin-forms.scss: Filter selects, inputs
-//   - _admin-page.scss: Pills, badges, filters-left
-//   - _components.scss: btn-add, admin-segment-*, admin-empty-state
+// Component-specific layout only. Uses global styles:
+//   - _table.scss: editable-cell, cell-edit, status-toggle, table-row-animate
+//   - _segments.scss: segment-control
+//   - _badges.scss: badge--organic
+//   - _animations.scss: animate-item
 // =============================================================================
 
-// -----------------------------------------------------------------------------
-// Product Table Specific Styles
-// -----------------------------------------------------------------------------
+// Product thumbnail
 .product-image {
   width: 48px;
   height: 48px;
@@ -34,282 +31,137 @@
   }
 }
 
+// Product info layout
 .product-info {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: var(--space-1);
+}
 
-  .product-name {
-    font-weight: 600;
-    color: var(--text-color);
-  }
+.product-name {
+  font-weight: 600;
+  color: var(--text-color);
+}
 
-  .product-desc {
+.product-desc {
+  font-size: 0.8rem;
+  color: var(--text-color-secondary);
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.product-badges {
+  display: flex;
+  gap: var(--space-2);
+  margin-top: var(--space-1);
+}
+
+// Stock display elements
+.stock-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.stock-cartons {
+  font-weight: 700;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+
+  i {
     font-size: 0.8rem;
-    color: var(--text-color-secondary);
-    display: -webkit-box;
-    -webkit-line-clamp: 1;
-    line-clamp: 1;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
   }
+}
 
-  .product-badges {
-    display: flex;
-    gap: 0.5rem;
-    margin-top: 0.25rem;
+.stock-divider {
+  color: var(--text-color-secondary);
+}
 
-    .badge {
-      padding: 0.2rem 0.5rem;
-      border-radius: 8px;
-      font-size: 0.7rem;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 0.25rem;
+.stock-units {
+  font-size: 0.8rem;
+  color: var(--text-color-secondary);
+}
 
-      &.organic {
-        background: rgba(34, 197, 94, 0.1);
-        color: #16a34a;
-      }
-    }
+.stock-qty {
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.stock-status {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+// Stock severity colors
+.stock-success {
+  color: var(--color-success);
+}
+
+.stock-warn {
+  color: var(--color-warning);
+}
+
+.stock-danger {
+  color: var(--color-error);
+}
+
+.status-success {
+  color: var(--color-success);
+}
+
+.status-warn {
+  color: var(--color-warning);
+}
+
+.status-danger {
+  color: var(--color-error);
+}
+
+// Stock edit specific
+.stock-edit__prefix {
+  font-weight: 700;
+  color: var(--color-success);
+  font-size: 1.1rem;
+}
+
+.stock-edit__mode-toggle {
+  width: 28px;
+  height: 28px;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  background: rgba(34, 197, 94, 0.1);
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-success);
+
+  &.active {
+    background: var(--color-success);
+    color: white;
+    border-color: var(--color-success);
+  }
+}
+
+.stock-conversion {
+  margin-top: var(--space-2);
+  font-size: 0.8rem;
+  color: var(--text-color-secondary);
+
+  strong {
+    color: var(--color-success);
+    font-weight: 700;
   }
 }
 
 .no-brand {
   color: var(--text-color-secondary);
-}
-
-// -----------------------------------------------------------------------------
-// Price Card (Editable)
-// -----------------------------------------------------------------------------
-.price-card {
-  display: flex;
-  flex-direction: column;
-  padding: 0.5rem 0.75rem;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  transition: var(--transition-fast);
-  position: relative;
-
-  &:hover {
-    background: rgba(46, 108, 183, 0.08);
-    .edit-icon { opacity: 1; }
-  }
-
-  .price-value {
-    font-weight: 700;
-    color: var(--primary-color);
-  }
-
-  .price-unit {
-    font-size: 0.75rem;
-    color: var(--text-color-secondary);
-  }
-
-  .edit-icon {
-    position: absolute;
-    top: 4px;
-    right: 4px;
-    font-size: 0.7rem;
-    color: var(--primary-color);
-    opacity: 0;
-    transition: opacity var(--transition-fast);
-  }
-}
-
-.price-edit-container {
-  .price-edit {
-    display: flex;
-    gap: 0.25rem;
-
-    input {
-      width: 80px;
-      padding: 0.5rem;
-      border: 1px solid var(--primary-color);
-      border-radius: var(--radius-xs);
-      font-size: 0.9rem;
-      outline: none;
-    }
-
-    button {
-      width: 28px;
-      height: 28px;
-      border: none;
-      border-radius: var(--radius-xs);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      &.save-btn {
-        background: #22c55e;
-        color: white;
-      }
-
-      &.cancel-btn {
-        background: #ef4444;
-        color: white;
-      }
-    }
-  }
-}
-
-// -----------------------------------------------------------------------------
-// Stock Card (Editable)
-// -----------------------------------------------------------------------------
-.stock-card {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  padding: 0.5rem 0.75rem;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  transition: var(--transition-fast);
-  position: relative;
-
-  &:hover {
-    background: rgba(34, 197, 94, 0.08);
-    .edit-icon { opacity: 1; }
-  }
-
-  .stock-row {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-  }
-
-  .stock-cartons {
-    font-weight: 700;
-    font-size: 1.1rem;
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-
-    i { font-size: 0.8rem; }
-  }
-
-  .stock-divider {
-    color: var(--text-color-secondary);
-  }
-
-  .stock-units {
-    font-size: 0.8rem;
-    color: var(--text-color-secondary);
-  }
-
-  .stock-qty {
-    font-weight: 700;
-    font-size: 1.1rem;
-  }
-
-  .stock-status {
-    font-size: 0.7rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-  }
-
-  // Stock severity colors
-  .stock-success { color: #16a34a; }
-  .stock-warn { color: #f59e0b; }
-  .stock-danger { color: #ef4444; }
-
-  .status-success { color: #16a34a; }
-  .status-warn { color: #f59e0b; }
-  .status-danger { color: #ef4444; }
-
-  .edit-icon {
-    position: absolute;
-    top: 4px;
-    right: 4px;
-    font-size: 0.7rem;
-    color: #16a34a;
-    opacity: 0;
-    transition: opacity var(--transition-fast);
-  }
-}
-
-.stock-edit-container {
-  .stock-edit {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-
-    .add-prefix {
-      font-weight: 700;
-      color: #16a34a;
-      font-size: 1.1rem;
-    }
-
-    input {
-      width: 60px;
-      padding: 0.5rem;
-      border: 1px solid #22c55e;
-      border-radius: var(--radius-xs);
-      font-size: 0.9rem;
-      outline: none;
-    }
-
-    .mode-toggle {
-      width: 28px;
-      height: 28px;
-      border: 1px solid rgba(34, 197, 94, 0.3);
-      background: rgba(34, 197, 94, 0.1);
-      border-radius: var(--radius-xs);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #16a34a;
-
-      &.active {
-        background: #22c55e;
-        color: white;
-        border-color: #22c55e;
-      }
-    }
-
-    button {
-      width: 28px;
-      height: 28px;
-      border: none;
-      border-radius: var(--radius-xs);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      &.save-btn {
-        background: #22c55e;
-        color: white;
-      }
-
-      &.cancel-btn {
-        background: #ef4444;
-        color: white;
-      }
-    }
-  }
-
-  .stock-conversion {
-    margin-top: 0.5rem;
-    font-size: 0.8rem;
-    color: var(--text-color-secondary);
-
-    strong {
-      color: #16a34a;
-      font-weight: 700;
-    }
-  }
-}
-
-// -----------------------------------------------------------------------------
-// Mobile Responsive
-// -----------------------------------------------------------------------------
-@media (max-width: 768px) {
-  .table-search {
-    max-width: 100%;
-  }
 }
