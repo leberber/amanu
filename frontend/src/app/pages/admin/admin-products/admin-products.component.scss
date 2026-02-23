@@ -208,15 +208,13 @@
   display: flex;
   flex-direction: column;
   padding: 0.5rem 0.75rem;
-  background: rgba(46, 108, 183, 0.05);
-  border: 1px solid rgba(46, 108, 183, 0.1);
   border-radius: var(--radius-sm);
   cursor: pointer;
   transition: var(--transition-fast);
   position: relative;
 
   &:hover {
-    background: rgba(46, 108, 183, 0.1);
+    background: rgba(46, 108, 183, 0.08);
     .edit-icon { opacity: 1; }
   }
 
@@ -286,16 +284,13 @@
   flex-direction: column;
   gap: 0.25rem;
   padding: 0.5rem 0.75rem;
-  background: rgba(34, 197, 94, 0.05);
-  border: 1px solid rgba(34, 197, 94, 0.15);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
   cursor: pointer;
   transition: var(--transition-fast);
   position: relative;
-  min-width: 100px;
 
   &:hover {
-    background: rgba(34, 197, 94, 0.1);
+    background: rgba(34, 197, 94, 0.08);
     .edit-icon { opacity: 1; }
   }
 
