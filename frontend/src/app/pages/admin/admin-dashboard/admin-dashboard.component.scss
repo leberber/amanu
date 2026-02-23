@@ -1,8 +1,17 @@
 // src/app/pages/admin/admin-dashboard/admin-dashboard.component.scss
-// Dashboard-specific styles only
-// Global styles (bg-decoration, blob, admin-*, fancy-field, etc.) are in _components.scss
+// =============================================================================
+// Component-specific styles only.
+// Global styles used:
+//   - _admin-page.scss: admin-quick-actions, admin-quick-action-btn,
+//                       admin-stats-grid, admin-stat-card,
+//                       admin-data-section, admin-data-card,
+//                       admin-view-all-btn, admin-send-btn
+//   - _components.scss: bg-decoration, blob, fancy-field
+// =============================================================================
 
-// Quick Actions
+// -----------------------------------------------------------------------------
+// Quick Actions (uses global admin-quick-actions)
+// -----------------------------------------------------------------------------
 .quick-actions {
   display: flex;
   gap: 0.75rem;
@@ -61,7 +70,9 @@
   }
 }
 
-// Stats Grid
+// -----------------------------------------------------------------------------
+// Stats Grid (uses global admin-stats-grid)
+// -----------------------------------------------------------------------------
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -85,13 +96,8 @@
     transform: translateY(-4px);
     box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
 
-    .stat-icon {
-      transform: scale(1.1);
-    }
-
-    .stat-decoration {
-      transform: translate(10%, 10%) scale(1.2);
-    }
+    .stat-icon { transform: scale(1.1); }
+    .stat-decoration { transform: translate(10%, 10%) scale(1.2); }
   }
 
   .stat-icon {
@@ -104,10 +110,7 @@
     margin-bottom: 1rem;
     transition: transform 0.3s ease;
 
-    i {
-      font-size: 1.25rem;
-      color: white;
-    }
+    i { font-size: 1.25rem; color: white; }
   }
 
   .stat-info {
@@ -178,7 +181,9 @@
   }
 }
 
-// Notification form
+// -----------------------------------------------------------------------------
+// Notification Form
+// -----------------------------------------------------------------------------
 .notification-form {
   .form-row {
     display: flex;
@@ -188,7 +193,6 @@
   }
 }
 
-// Send button
 .send-btn {
   display: flex;
   align-items: center;
@@ -219,12 +223,12 @@
     cursor: not-allowed;
   }
 
-  i {
-    font-size: 1rem;
-  }
+  i { font-size: 1rem; }
 }
 
-// Data Section (Charts & Tables)
+// -----------------------------------------------------------------------------
+// Data Section (uses global admin-data-section)
+// -----------------------------------------------------------------------------
 .data-section {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
@@ -247,7 +251,6 @@
   .card-header {
     padding: 1.25rem 1.5rem;
     border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-    margin-bottom: 0;
     background: white;
     display: flex;
     align-items: center;
@@ -262,10 +265,7 @@
       align-items: center;
       justify-content: center;
 
-      i {
-        font-size: 1rem;
-        color: white;
-      }
+      i { font-size: 1rem; color: white; }
 
       &.chart { background: var(--purple-gradient); }
       &.orders { background: var(--info-gradient); }
@@ -285,7 +285,9 @@
   }
 }
 
-// Modern Table - with WHITE headers
+// -----------------------------------------------------------------------------
+// Modern Table
+// -----------------------------------------------------------------------------
 .modern-table {
   .table-header {
     display: grid;
@@ -362,9 +364,7 @@
     background: rgba(46, 108, 183, 0.05);
     border-color: var(--primary-color);
 
-    i {
-      transform: translateX(4px);
-    }
+    i { transform: translateX(4px); }
   }
 
   i {
@@ -373,14 +373,14 @@
   }
 }
 
+// -----------------------------------------------------------------------------
 // Responsive
+// -----------------------------------------------------------------------------
 @media (max-width: 768px) {
   .quick-actions {
     justify-content: center;
 
-    .action-btn span {
-      display: none;
-    }
+    .action-btn span { display: none; }
   }
 
   .stats-grid {
@@ -390,14 +390,8 @@
   .notification-form .form-row {
     flex-direction: column;
 
-    .fancy-field {
-      min-width: 100%;
-    }
-
-    .send-btn {
-      width: 100%;
-      justify-content: center;
-    }
+    .fancy-field { min-width: 100%; }
+    .send-btn { width: 100%; justify-content: center; }
   }
 
   .data-section {
@@ -418,9 +412,7 @@
         grid-template-columns: 1fr 80px 60px 80px;
       }
 
-      .category {
-        display: none;
-      }
+      .category { display: none; }
     }
   }
 }
@@ -435,12 +427,7 @@
     align-items: center;
     gap: 1rem;
 
-    .stat-icon {
-      margin-bottom: 0;
-    }
-
-    .stat-info {
-      flex: 1;
-    }
+    .stat-icon { margin-bottom: 0; }
+    .stat-info { flex: 1; }
   }
 }

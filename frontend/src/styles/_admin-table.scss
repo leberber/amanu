@@ -383,3 +383,306 @@
     transform: translateY(0);
   }
 }
+
+// -----------------------------------------------------------------------------
+// Table Thumbnail (Product/Item Image)
+// -----------------------------------------------------------------------------
+.admin-table-thumbnail {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--surface-ground);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  i {
+    font-size: 1.25rem;
+    color: var(--text-color-secondary);
+  }
+
+  // Size variants
+  &--sm {
+    width: 36px;
+    height: 36px;
+    i { font-size: 1rem; }
+  }
+
+  &--lg {
+    width: 64px;
+    height: 64px;
+    i { font-size: 1.5rem; }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Table Info (Name + Description + Badges)
+// -----------------------------------------------------------------------------
+.admin-table-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+
+  &__name {
+    font-weight: 600;
+    color: var(--text-color);
+  }
+
+  &__desc {
+    font-size: 0.8rem;
+    color: var(--text-color-secondary);
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  &__badges {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.25rem;
+  }
+
+  &__badge {
+    padding: 0.2rem 0.5rem;
+    border-radius: 8px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+
+    &--organic {
+      background: rgba(34, 197, 94, 0.1);
+      color: #16a34a;
+    }
+
+    &--featured {
+      background: rgba(245, 158, 11, 0.1);
+      color: #f59e0b;
+    }
+
+    &--new {
+      background: rgba(59, 130, 246, 0.1);
+      color: #3b82f6;
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Editable Cell (Hover to reveal edit, click to inline edit)
+// -----------------------------------------------------------------------------
+.admin-editable-cell {
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition-fast);
+  position: relative;
+
+  &:hover {
+    background: rgba(46, 108, 183, 0.08);
+
+    .admin-editable-cell__edit-icon {
+      opacity: 1;
+    }
+  }
+
+  &__value {
+    font-weight: 700;
+    color: var(--primary-color);
+  }
+
+  &__label {
+    font-size: 0.75rem;
+    color: var(--text-color-secondary);
+  }
+
+  &__edit-icon {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    font-size: 0.7rem;
+    color: var(--primary-color);
+    opacity: 0;
+    transition: opacity var(--transition-fast);
+  }
+
+  // Color variants
+  &--success {
+    &:hover {
+      background: rgba(34, 197, 94, 0.08);
+    }
+
+    .admin-editable-cell__value,
+    .admin-editable-cell__edit-icon {
+      color: #16a34a;
+    }
+  }
+
+  &--warning {
+    &:hover {
+      background: rgba(245, 158, 11, 0.08);
+    }
+
+    .admin-editable-cell__value,
+    .admin-editable-cell__edit-icon {
+      color: #f59e0b;
+    }
+  }
+
+  &--danger {
+    &:hover {
+      background: rgba(239, 68, 68, 0.08);
+    }
+
+    .admin-editable-cell__value,
+    .admin-editable-cell__edit-icon {
+      color: #ef4444;
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Cell Edit Container (Inline edit with save/cancel)
+// -----------------------------------------------------------------------------
+.admin-cell-edit {
+  display: flex;
+  gap: 0.25rem;
+  align-items: center;
+
+  &__prefix {
+    font-weight: 700;
+    font-size: 1.1rem;
+  }
+
+  &__input {
+    width: 80px;
+    padding: 0.5rem;
+    border: 1px solid var(--primary-color);
+    border-radius: var(--radius-xs);
+    font-size: 0.9rem;
+    outline: none;
+
+    &--sm {
+      width: 60px;
+    }
+
+    &--success {
+      border-color: #22c55e;
+    }
+  }
+
+  &__btn {
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: var(--radius-xs);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition-fast);
+
+    i { font-size: 0.8rem; }
+
+    &--save {
+      background: #22c55e;
+      color: white;
+
+      &:hover { background: #16a34a; }
+    }
+
+    &--cancel {
+      background: #ef4444;
+      color: white;
+
+      &:hover { background: #dc2626; }
+    }
+
+    &--toggle {
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      background: rgba(34, 197, 94, 0.1);
+      color: #16a34a;
+
+      &.active {
+        background: #22c55e;
+        color: white;
+        border-color: #22c55e;
+      }
+    }
+  }
+
+  &__helper {
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
+    color: var(--text-color-secondary);
+
+    strong {
+      color: #16a34a;
+      font-weight: 700;
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Stock Display (Cartons + Units)
+// -----------------------------------------------------------------------------
+.admin-stock-display {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+
+  &__row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  &__cartons {
+    font-weight: 700;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+
+    i { font-size: 0.8rem; }
+  }
+
+  &__divider {
+    color: var(--text-color-secondary);
+  }
+
+  &__units {
+    font-size: 0.8rem;
+    color: var(--text-color-secondary);
+  }
+
+  &__qty {
+    font-weight: 700;
+    font-size: 1.1rem;
+  }
+
+  &__status {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  // Severity colors
+  &--success { color: #16a34a; }
+  &--warning { color: #f59e0b; }
+  &--danger { color: #ef4444; }
+}
