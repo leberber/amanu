@@ -1,10 +1,11 @@
 // src/app/pages/admin/admin-users/admin-users.component.ts
-import { Component, OnInit, inject, DestroyRef } from '@angular/core';
+import { Component, OnInit, inject, DestroyRef, signal } from '@angular/core';
 import { ConfirmationService } from 'primeng/api';
 import { SelectModule } from 'primeng/select';
 import { TranslateService } from '@ngx-translate/core';
 
-import { ADMIN_CORE_IMPORTS, ADMIN_DIALOG_IMPORTS } from '../../../shared/imports/admin-shared.imports';
+import { ADMIN_LIST_IMPORTS, ADMIN_DIALOG_IMPORTS } from '../../../shared/imports/admin-shared.imports';
+import { TableSkeletonComponent, SkeletonColumn } from '../../../shared/components/table-skeleton/table-skeleton.component';
 import { ROUTES } from '../../../core/constants/routes.constants';
 import { USER_ROLES } from '../../../core/constants/app.constants';
 import { onLanguageChange } from '../../../core/utils/language-change.util';
@@ -20,10 +21,11 @@ import { StatusSeverityService } from '../../../core/services/status-severity.se
   selector: 'app-admin-users',
   standalone: true,
   imports: [
-    ...ADMIN_CORE_IMPORTS,
+    ...ADMIN_LIST_IMPORTS,
     ...ADMIN_DIALOG_IMPORTS,
     SelectModule,
-    DateFormatPipe
+    DateFormatPipe,
+    TableSkeletonComponent
   ],
   providers: [ConfirmationService],
   templateUrl: './admin-users.component.html',
@@ -34,6 +36,19 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
   allUsers: UserManage[] = [];
   users: UserManage[] = [];
   totalRecords = 0;
+
+  // Animation state
+  tableInitialized = signal(false);
+
+  // Skeleton configuration
+  skeletonColumns: SkeletonColumn[] = [
+    { width: '8%', type: 'pill-sm', headerWidth: '30px' },
+    { width: '30%', type: 'text-multi', headerWidth: '100px' },
+    { width: '15%', type: 'pill', headerWidth: '60px' },
+    { width: '15%', type: 'toggle', headerWidth: '60px' },
+    { width: '15%', type: 'text', headerWidth: '70px' },
+    { width: '17%', type: 'actions', headerWidth: '60px' }
+  ];
 
   // Role segment filter (different from status filter)
   roleFilter: 'all' | 'customer' | 'staff' | 'admin' = 'all';
@@ -73,6 +88,7 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
         this.allUsers = response.users || [];
         this.filterItems();
         this.loading = false;
+        setTimeout(() => this.tableInitialized.set(true), 100);
       },
       error: (error) => this.handleLoadError(error)
     });

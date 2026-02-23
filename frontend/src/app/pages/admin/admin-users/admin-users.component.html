@@ -1,5 +1,5 @@
 <!-- src/app/pages/admin/admin-users/admin-users.component.html -->
-<div class="admin-page">
+<div class="admin-page" [class.initialized]="tableInitialized()">
   <!-- Background Decoration -->
   <div class="bg-decoration">
     <div class="blob blob-1"></div>
@@ -11,7 +11,7 @@
   <p-confirmDialog></p-confirmDialog>
   <div class="admin-content">
     <!-- Page Header -->
-    <div class="admin-list-header">
+    <div class="admin-list-header animate-item" style="--delay: 0ms;">
       <div class="header-title">
         <div class="admin-icon-wrapper">
           <div class="icon-bg"></div>
@@ -27,124 +27,152 @@
     </div>
 
     <!-- Role Segmented Control Row -->
-    <div class="admin-segment-row">
-      <div class="admin-segment">
+    <div class="flex align-items-center justify-content-between gap-3 flex-wrap mb-4 animate-item" style="--delay: 50ms;">
+      <div class="segment-control segment-control--glass">
         <button
-          class="admin-segment-btn"
+          class="segment-control__item"
           [class.active]="roleFilter === 'all'"
           (click)="onRoleFilterChange('all')">
           <span>{{ 'common.all' | translate }}</span>
           <span class="count">{{ allUsers.length }}</span>
         </button>
         <button
-          class="admin-segment-btn"
+          class="segment-control__item"
           [class.active]="roleFilter === 'customer'"
           (click)="onRoleFilterChange('customer')">
           <span>{{ 'admin.users.roles.customer' | translate }}</span>
-          <span class="count customer">{{ getCustomerCount() }}</span>
+          <span class="count">{{ getCustomerCount() }}</span>
         </button>
         <button
-          class="admin-segment-btn"
+          class="segment-control__item"
           [class.active]="roleFilter === 'staff'"
           (click)="onRoleFilterChange('staff')">
           <span>{{ 'admin.users.roles.staff' | translate }}</span>
-          <span class="count staff">{{ getStaffCount() }}</span>
+          <span class="count">{{ getStaffCount() }}</span>
         </button>
         <button
-          class="admin-segment-btn"
+          class="segment-control__item"
           [class.active]="roleFilter === 'admin'"
           (click)="onRoleFilterChange('admin')">
           <span>{{ 'admin.users.roles.admin' | translate }}</span>
-          <span class="count admin">{{ getAdminCount() }}</span>
+          <span class="count">{{ getAdminCount() }}</span>
         </button>
       </div>
-      <div class="header-actions">
-        <button class="action-btn refresh" (click)="refreshUserData()" [disabled]="loading">
+      <div class="table-actions">
+        <button class="table-action-btn" (click)="refreshUserData()" [disabled]="loading" [pTooltip]="'admin.users.refresh' | translate">
           <i class="pi pi-refresh" [class.pi-spin]="loading"></i>
-          <span>{{ 'admin.users.refresh' | translate }}</span>
         </button>
-        <button class="action-btn export" (click)="exportUsers()">
+        <button class="table-action-btn" (click)="exportUsers()" [pTooltip]="'admin.users.export' | translate">
           <i class="pi pi-download"></i>
-          <span>{{ 'admin.users.export' | translate }}</span>
         </button>
       </div>
     </div>
 
-    <!-- Filters Card -->
-    <div class="admin-filters-card">
-      <div class="admin-search-box">
-        <i class="pi pi-search"></i>
-        <input
-          type="text"
-          [(ngModel)]="searchQuery"
-          (input)="onSearchInput()"
-          [placeholder]="'admin.users.search_placeholder' | translate">
-        @if (searchQuery) {
-          <button class="clear-search" (click)="searchQuery = ''; filterItems()">
-            <i class="pi pi-times"></i>
-          </button>
-        }
-      </div>
-      @if (hasActiveFilters()) {
-        <button class="clear-btn" (click)="clearFilters()">
-          <i class="pi pi-filter-slash"></i>
-          <span>{{ 'admin.users.clear_filters' | translate }}</span>
-        </button>
-      }
-    </div>
-
-    <!-- Users Table Card -->
-    <div class="table-container">
-      @if (loading) {
-        <div class="loading-state">
-          <i class="pi pi-spin pi-spinner"></i>
-          <span>{{ 'admin.users.loading' | translate }}</span>
+    <!-- Loading State - Skeleton Table -->
+    @if (loading) {
+      <app-table-skeleton
+        [columns]="skeletonColumns"
+        [rows]="6"
+        [actionCount]="2"
+      />
+    } @else if (users.length === 0 && !hasActiveFilters()) {
+      <!-- Empty State - No Users -->
+      <div class="empty-state animate-item" style="--delay: 100ms;">
+        <div class="empty-state__icon">
+          <i class="pi pi-users"></i>
         </div>
-      } @else {
-        @if (users.length > 0) {
+        <h3 class="empty-state__title">{{ 'admin.users.empty.no_users_title' | translate }}</h3>
+        <p class="empty-state__description">{{ 'admin.users.empty.no_users_description' | translate }}</p>
+      </div>
+    } @else {
+      <!-- Users Table -->
+      <div class="table-container animate-item" style="--delay: 100ms;">
+        <div class="table-header">
+          <div class="table-search">
+            <div class="search-icon">
+              <i class="pi pi-search"></i>
+            </div>
+            <input
+              type="text"
+              [(ngModel)]="searchQuery"
+              (input)="onSearchInput()"
+              [placeholder]="'admin.users.search_placeholder' | translate">
+            @if (searchQuery) {
+              <button class="clear-search" (click)="searchQuery = ''; filterItems()">
+                <i class="pi pi-times"></i>
+              </button>
+            }
+          </div>
+          <div class="table-actions">
+            @if (hasActiveFilters()) {
+              <button class="clear-filters-btn" (click)="clearFilters()" [pTooltip]="'admin.users.clear_filters' | translate">
+                <i class="pi pi-filter-slash"></i>
+              </button>
+            }
+          </div>
+        </div>
+
+        @if (users.length === 0) {
+          <!-- Empty State - No Match -->
+          <div class="empty-state">
+            <div class="empty-state__icon empty-state__icon--warning">
+              <i class="pi pi-filter"></i>
+            </div>
+            <h3 class="empty-state__title">{{ 'admin.users.empty.no_match_title' | translate }}</h3>
+            <p class="empty-state__description">{{ 'admin.users.empty.no_match_description' | translate }}</p>
+            <button class="btn-secondary" (click)="clearFilters()">
+              <i class="pi pi-filter-slash"></i>
+              {{ 'admin.users.clear_filters' | translate }}
+            </button>
+          </div>
+        } @else {
           <div class="table-wrapper">
             <table class="table">
               <thead>
                 <tr>
-                  <th class="col-id">{{ 'admin.users.table.id' | translate }}</th>
-                  <th class="col-user">{{ 'admin.users.table.user_details' | translate }}</th>
-                  <th class="col-role">{{ 'admin.users.table.role' | translate }}</th>
-                  <th class="col-status">{{ 'admin.users.table.status' | translate }}</th>
-                  <th class="col-date">{{ 'admin.users.table.created' | translate }}</th>
-                  <th class="col-actions">{{ 'admin.users.table.actions' | translate }}</th>
+                  <th style="width: 8%">{{ 'admin.users.table.id' | translate }}</th>
+                  <th style="width: 30%">{{ 'admin.users.table.user_details' | translate }}</th>
+                  <th style="width: 15%">{{ 'admin.users.table.role' | translate }}</th>
+                  <th style="width: 15%">{{ 'admin.users.table.status' | translate }}</th>
+                  <th style="width: 15%">{{ 'admin.users.table.created' | translate }}</th>
+                  <th style="width: 17%">{{ 'admin.users.table.actions' | translate }}</th>
                 </tr>
               </thead>
               <tbody>
-                @for (user of users; track user.id) {
-                  <tr>
-                    <td class="col-id">
+                @for (user of users; track user.id; let i = $index) {
+                  <tr class="table-row-animate" [style.--row-delay]="(i * 40) + 'ms'">
+                    <!-- ID -->
+                    <td>
                       <span class="id-badge">{{ user.id }}</span>
                     </td>
-                    <td class="col-user">
-                      <div class="user-info">
-                        <div class="user-avatar">
+
+                    <!-- User Details -->
+                    <td>
+                      <div class="user-cell">
+                        <div class="avatar">
                           {{ user.full_name.charAt(0).toUpperCase() }}
                         </div>
-                        <div class="user-details">
-                          <span class="user-name">{{ user.full_name }}</span>
-                          <span class="user-email">{{ user.email }}</span>
+                        <div class="info-display">
+                          <span class="info-display__name">{{ user.full_name }}</span>
+                          <span class="info-display__email">{{ user.email }}</span>
                           @if (user.phone) {
-                            <span class="user-phone">{{ user.phone }}</span>
+                            <span class="info-display__tertiary">{{ user.phone }}</span>
                           }
                         </div>
                       </div>
                     </td>
+
                     <!-- Role Column - Inline Editable -->
-                    <td class="col-role">
+                    <td>
                       @if (!isEditingRole(user.id)) {
-                        <div class="role-display" (click)="startEditRole(user)">
-                          <span class="role-badge" [attr.data-role]="user.role">
+                        <div class="editable-cell" (click)="startEditRole(user)">
+                          <span class="role-badge" [class]="user.role">
                             {{ getRoleLabel(user.role) }}
                           </span>
-                          <i class="pi pi-pencil edit-hint"></i>
+                          <i class="pi pi-pencil editable-cell__icon"></i>
                         </div>
                       } @else {
-                        <div class="role-edit">
+                        <div class="cell-edit">
                           <p-select
                             [(ngModel)]="roleEdit.value"
                             [options]="roleOptions"
@@ -152,40 +180,54 @@
                             optionValue="value"
                             [style]="{'width': '120px'}"
                           />
-                          <button class="save-btn" (click)="saveRole(user)"><i class="pi pi-check"></i></button>
-                          <button class="cancel-btn" (click)="cancelEditRole()"><i class="pi pi-times"></i></button>
+                          <button class="cell-edit__btn cell-edit__btn--save" (click)="saveRole(user)">
+                            <i class="pi pi-check"></i>
+                          </button>
+                          <button class="cell-edit__btn cell-edit__btn--cancel" (click)="cancelEditRole()">
+                            <i class="pi pi-times"></i>
+                          </button>
                         </div>
                       }
                     </td>
+
                     <!-- Status Column - Inline Editable -->
-                    <td class="col-status">
+                    <td>
                       @if (!isEditingStatus(user.id)) {
-                        <div class="status-display" (click)="startEditStatus(user)">
-                          <span class="admin-status-badge" [class.active]="user.is_active" [class.inactive]="!user.is_active">
-                            <i [class]="user.is_active ? 'pi pi-check-circle' : 'pi pi-times-circle'"></i>
+                        <div class="status-toggle" [class.status-toggle--active]="user.is_active" (click)="startEditStatus(user)">
+                          <span class="status-toggle__label">
                             {{ user.is_active ? ('admin.users.status.active' | translate) : ('admin.users.status.inactive' | translate) }}
                           </span>
-                          <i class="pi pi-pencil edit-hint"></i>
+                          <div class="status-toggle__track">
+                            <div class="status-toggle__thumb"></div>
+                          </div>
                         </div>
                       } @else {
-                        <div class="status-edit">
-                          <button
-                            class="status-toggle"
-                            [class.active]="statusEdit.value"
-                            [class.inactive]="!statusEdit.value"
-                            (click)="toggleEditingStatus()">
-                            <i [class]="statusEdit.value ? 'pi pi-check-circle' : 'pi pi-times-circle'"></i>
-                            {{ statusEdit.value ? ('admin.users.status.active' | translate) : ('admin.users.status.inactive' | translate) }}
+                        <div class="cell-edit">
+                          <div class="status-toggle" [class.status-toggle--active]="statusEdit.value" (click)="toggleEditingStatus()">
+                            <span class="status-toggle__label">
+                              {{ statusEdit.value ? ('admin.users.status.active' | translate) : ('admin.users.status.inactive' | translate) }}
+                            </span>
+                            <div class="status-toggle__track">
+                              <div class="status-toggle__thumb"></div>
+                            </div>
+                          </div>
+                          <button class="cell-edit__btn cell-edit__btn--save" (click)="saveStatus(user)">
+                            <i class="pi pi-check"></i>
                           </button>
-                          <button class="save-btn" (click)="saveStatus(user)"><i class="pi pi-check"></i></button>
-                          <button class="cancel-btn" (click)="cancelEditStatus()"><i class="pi pi-times"></i></button>
+                          <button class="cell-edit__btn cell-edit__btn--cancel" (click)="cancelEditStatus()">
+                            <i class="pi pi-times"></i>
+                          </button>
                         </div>
                       }
                     </td>
-                    <td class="col-date">
-                      <span class="date-text">{{ user.created_at | appDate }}</span>
+
+                    <!-- Created Date -->
+                    <td>
+                      <span class="date-display">{{ user.created_at | appDate }}</span>
                     </td>
-                    <td class="col-actions">
+
+                    <!-- Actions -->
+                    <td>
                       <div class="table-cell-actions">
                         <button class="action-btn edit" (click)="navigateToEditUser(user)" [pTooltip]="'admin.users.actions.view_edit' | translate" tooltipPosition="top">
                           <i class="pi pi-pencil"></i>
@@ -200,34 +242,12 @@
               </tbody>
             </table>
           </div>
-        } @else {
-          <div class="admin-empty-state">
-            @if (hasActiveFilters()) {
-              <div class="empty-icon filter">
-                <i class="pi pi-filter"></i>
-              </div>
-              <h3>{{ 'admin.users.empty.no_match_title' | translate }}</h3>
-              <p>{{ 'admin.users.empty.no_match_description' | translate }}</p>
-              <button class="primary-btn" (click)="clearFilters()">
-                <i class="pi pi-filter-slash"></i>
-                {{ 'admin.users.clear_filters' | translate }}
-              </button>
-            } @else {
-              <div class="empty-icon users">
-                <i class="pi pi-users"></i>
-              </div>
-              <h3>{{ 'admin.users.empty.no_users_title' | translate }}</h3>
-              <p>{{ 'admin.users.empty.no_users_description' | translate }}</p>
-            }
+
+          <!-- Results Info -->
+          <div class="table-footer results-info">
+            <span>{{ 'admin.users.showing' | translate:{ shown: users.length, total: allUsers.length } }}</span>
           </div>
         }
-      }
-    </div>
-
-    <!-- Pagination Info -->
-    @if (users.length > 0 && !loading) {
-      <div class="admin-results-info">
-        <span>{{ 'admin.users.showing' | translate:{ shown: users.length, total: allUsers.length } }}</span>
       </div>
     }
   </div>
