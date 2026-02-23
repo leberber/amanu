@@ -5,86 +5,15 @@
 // =============================================================================
 
 // -----------------------------------------------------------------------------
-// Filter Dropdowns (product-specific)
+// Filter Layout
 // -----------------------------------------------------------------------------
+// Dropdown styles are in global _admin-forms.scss (.admin-filter-select)
+
 .filters-left {
   display: flex;
   align-items: center;
   gap: 1rem;
   flex-wrap: nowrap;
-}
-
-// PrimeNG Select Filter Override
-:host ::ng-deep {
-  .filter-select {
-    width: 280px !important;
-    min-width: 280px !important;
-    max-width: 280px !important;
-    flex-shrink: 0;
-
-    &.p-select {
-      width: 280px !important;
-      border: 1px solid rgba(0, 0, 0, 0.1) !important;
-      border-radius: 12px !important;
-      background: white !important;
-      box-shadow: var(--shadow-sm) !important;
-      padding: 0.75rem 1rem !important;
-      min-height: 48px !important;
-      height: 48px !important;
-
-      &:hover {
-        border-color: rgba(46, 108, 183, 0.3) !important;
-      }
-
-      &.p-focus,
-      &:focus {
-        border-color: var(--primary-color) !important;
-        box-shadow: 0 4px 12px rgba(46, 108, 183, 0.15) !important;
-      }
-
-      .p-select-label {
-        padding: 0 !important;
-        font-size: 0.95rem !important;
-        font-weight: 500 !important;
-        color: var(--text-color) !important;
-      }
-
-      .p-select-dropdown {
-        color: var(--text-color-secondary) !important;
-      }
-
-      .p-select-clear-icon {
-        color: var(--text-color-secondary) !important;
-        margin-right: 0.5rem !important;
-      }
-    }
-  }
-}
-
-.select-item {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-
-  i {
-    color: var(--text-color-secondary);
-  }
-}
-
-.select-option {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-
-  .option-count {
-    padding: 0.2rem 0.6rem;
-    border-radius: 10px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    background: rgba(0, 0, 0, 0.06);
-    color: var(--text-color-secondary);
-  }
 }
 
 // -----------------------------------------------------------------------------
@@ -480,24 +409,12 @@
   .filters-left {
     flex-wrap: wrap;
   }
-
-  :host ::ng-deep .filter-select {
-    width: 200px !important;
-    min-width: 200px !important;
-    max-width: 200px !important;
-  }
 }
 
 @media (max-width: 768px) {
   .filters-left {
     width: 100%;
     gap: 0.5rem;
-  }
-
-  :host ::ng-deep .filter-select {
-    width: 100% !important;
-    min-width: 100% !important;
-    max-width: 100% !important;
   }
 
   .add-btn {

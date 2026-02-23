@@ -62,7 +62,7 @@
           [placeholder]="'admin.products.filters.all_categories' | translate"
           (onChange)="onCategoryChange($event)"
           [showClear]="categoryFilter !== null"
-          styleClass="filter-select"
+          styleClass="admin-filter-select"
           panelStyleClass="filter-select-panel">
           <ng-template pTemplate="selectedItem" let-selected>
             <div class="select-item" *ngIf="selected">
@@ -87,7 +87,7 @@
           [placeholder]="'admin.products.filters.all_brands' | translate"
           (onChange)="onBrandChange($event)"
           [showClear]="brandFilter !== null"
-          styleClass="filter-select"
+          styleClass="admin-filter-select"
           panelStyleClass="filter-select-panel">
           <ng-template pTemplate="selectedItem" let-selected>
             <div class="select-item" *ngIf="selected">
