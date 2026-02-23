@@ -80,7 +80,7 @@
     </div>
 
     <!-- Categories Content Card -->
-    <div class="admin-table-card">
+    <div class="table-container">
       @if (loading) {
         <div class="admin-loading-state">
           <i class="pi pi-spin pi-spinner"></i>
@@ -148,10 +148,10 @@
                 </div>
               </div>
               <div class="admin-grid-card__actions">
-                <button class="admin-action-btn edit" (click)="editCategory(category)" [pTooltip]="'admin.categories.actions.edit' | translate" tooltipPosition="top">
+                <button class="action-btn edit" (click)="editCategory(category)" [pTooltip]="'admin.categories.actions.edit' | translate" tooltipPosition="top">
                   <i class="pi pi-pencil"></i>
                 </button>
-                <button class="admin-action-btn delete" (click)="confirmDeleteCategory(category)" [pTooltip]="'admin.categories.actions.delete' | translate" tooltipPosition="top">
+                <button class="action-btn delete" (click)="confirmDeleteCategory(category)" [pTooltip]="'admin.categories.actions.delete' | translate" tooltipPosition="top">
                   <i class="pi pi-trash"></i>
                 </button>
               </div>

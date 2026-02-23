@@ -30,7 +30,7 @@
 // CARDS & GRIDS:
 //   .admin-grid              - Grid layout for cards
 //   .admin-grid-card         - Card with BEM structure (__header, __body, etc.)
-//   .admin-table-card        - Container for tables
+//   .table-container        - Container for tables
 //   .admin-data-section      - Grid for data cards
 //   .admin-data-card         - Data card with header/body
 //   .admin-stat-card         - Statistics card
@@ -1465,7 +1465,7 @@
 // -----------------------------------------------------------------------------
 // Admin Table Card
 // -----------------------------------------------------------------------------
-.admin-table-card {
+.table-container {
   background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(20px);
   border-radius: 20px;

@@ -94,7 +94,7 @@
     </div>
 
     <!-- Users Table Card -->
-    <div class="admin-table-card">
+    <div class="table-container">
       @if (loading) {
         <div class="loading-state">
           <i class="pi pi-spin pi-spinner"></i>
@@ -102,8 +102,8 @@
         </div>
       } @else {
         @if (users.length > 0) {
-          <div class="admin-table-wrapper">
-            <table class="admin-table">
+          <div class="table-wrapper">
+            <table class="table">
               <thead>
                 <tr>
                   <th class="col-id">{{ 'admin.users.table.id' | translate }}</th>
@@ -186,11 +186,11 @@
                       <span class="date-text">{{ user.created_at | appDate }}</span>
                     </td>
                     <td class="col-actions">
-                      <div class="admin-table-actions">
-                        <button class="admin-action-btn edit" (click)="navigateToEditUser(user)" [pTooltip]="'admin.users.actions.view_edit' | translate" tooltipPosition="top">
+                      <div class="table-cell-actions">
+                        <button class="action-btn edit" (click)="navigateToEditUser(user)" [pTooltip]="'admin.users.actions.view_edit' | translate" tooltipPosition="top">
                           <i class="pi pi-pencil"></i>
                         </button>
-                        <button class="admin-action-btn delete" (click)="confirmDeleteUser(user)" [pTooltip]="'admin.users.actions.delete' | translate" tooltipPosition="top">
+                        <button class="action-btn delete" (click)="confirmDeleteUser(user)" [pTooltip]="'admin.users.actions.delete' | translate" tooltipPosition="top">
                           <i class="pi pi-trash"></i>
                         </button>
                       </div>

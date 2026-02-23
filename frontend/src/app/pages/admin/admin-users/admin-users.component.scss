@@ -76,7 +76,7 @@
 // Responsive
 // -----------------------------------------------------------------------------
 @media (max-width: 768px) {
-  .admin-table {
+  .table {
     .col-date {
       display: none;
     }
@@ -84,7 +84,7 @@
 }
 
 @media (max-width: 480px) {
-  .admin-table {
+  .table {
     .col-role {
       display: none;
     }

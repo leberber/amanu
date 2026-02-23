@@ -116,7 +116,7 @@ body.fullscreen-active {
   }
 
   // Fullscreen table takes entire viewport
-  .admin-table-card.fullscreen {
+  .table-container.fullscreen {
     position: fixed !important;
     top: 0 !important;
     left: 0 !important;

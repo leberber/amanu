@@ -112,7 +112,7 @@
 // Responsive
 // -----------------------------------------------------------------------------
 @media (max-width: 1024px) {
-  .admin-table {
+  .table {
     th:nth-child(4),
     td:nth-child(4) {
       display: none; // Hide scope column
@@ -121,7 +121,7 @@
 }
 
 @media (max-width: 768px) {
-  .admin-table {
+  .table {
     th:nth-child(5),
     td:nth-child(5),
     th:nth-child(6),
@@ -132,7 +132,7 @@
 }
 
 @media (max-width: 480px) {
-  .admin-table {
+  .table {
     th:nth-child(3),
     td:nth-child(3) {
       display: none; // Hide discount column

@@ -87,7 +87,7 @@
     </div>
 
     <!-- Promotions Table Card -->
-    <div class="admin-table-card">
+    <div class="table-container">
       @if (loading) {
         <div class="loading-state">
           <i class="pi pi-spin pi-spinner"></i>
@@ -120,8 +120,8 @@
         </div>
       } @else {
         <!-- Promotions Table -->
-        <div class="admin-table-wrapper">
-          <table class="admin-table">
+        <div class="table-wrapper">
+          <table class="table">
             <thead>
               <tr>
                 <th>{{ 'admin.promotions.table.name' | translate }}</th>
@@ -194,11 +194,11 @@
 
                   <!-- Actions -->
                   <td class="text-center">
-                    <div class="admin-table-actions">
-                      <button class="admin-action-btn edit" (click)="editPromotion(promotion)" [pTooltip]="'admin.promotions.actions.edit' | translate" tooltipPosition="top">
+                    <div class="table-cell-actions">
+                      <button class="action-btn edit" (click)="editPromotion(promotion)" [pTooltip]="'admin.promotions.actions.edit' | translate" tooltipPosition="top">
                         <i class="pi pi-pencil"></i>
                       </button>
-                      <button class="admin-action-btn delete" (click)="confirmDeletePromotion(promotion)" [pTooltip]="'admin.promotions.actions.delete' | translate" tooltipPosition="top">
+                      <button class="action-btn delete" (click)="confirmDeletePromotion(promotion)" [pTooltip]="'admin.promotions.actions.delete' | translate" tooltipPosition="top">
                         <i class="pi pi-trash"></i>
                       </button>
                     </div>

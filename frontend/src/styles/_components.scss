@@ -4352,7 +4352,7 @@
 // =============================================================================
 
 // Table container card
-.admin-table-card {
+.table-container {
   background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(20px);
   border-radius: 20px;
@@ -4361,12 +4361,12 @@
   overflow: hidden;
 }
 
-.admin-table-wrapper {
+.table-wrapper {
   overflow-x: auto;
 }
 
 // Base admin table
-.admin-table {
+.table {
   width: 100%;
   border-collapse: collapse;
 
@@ -4460,7 +4460,7 @@
 }
 
 // Table action buttons container
-.admin-table-actions {
+.table-cell-actions {
   display: flex;
   justify-content: flex-end;
   gap: 0.5rem;

@@ -116,7 +116,7 @@
 
     <!-- Loading State - Skeleton Table -->
     @if (loading) {
-      <div class="admin-table-card skeleton-card animate-item" style="--delay: 100ms;">
+      <div class="table-container skeleton-card animate-item" style="--delay: 100ms;">
         <div class="table-header">
           <div class="skeleton skeleton-search"></div>
           <div class="skeleton-actions">
@@ -124,8 +124,8 @@
             <div class="skeleton skeleton-btn"></div>
           </div>
         </div>
-        <div class="admin-table-wrapper">
-          <table class="admin-table skeleton-table">
+        <div class="table-wrapper">
+          <table class="table skeleton-table">
             <thead>
               <tr>
                 <th style="width: 5%"><div class="skeleton skeleton-text skeleton-text--w50"></div></th>
@@ -199,7 +199,7 @@
       </div>
     } @else {
       <!-- Products Table -->
-      <div class="admin-table-card animate-item" [class.fullscreen]="isFullscreen" style="--delay: 100ms;">
+      <div class="table-container animate-item" [class.fullscreen]="isFullscreen" style="--delay: 100ms;">
         <div class="table-header">
           <div class="table-search">
             <div class="search-icon">
@@ -230,8 +230,8 @@
             </button>
           </div>
         </div>
-        <div class="admin-table-wrapper">
-          <table class="admin-table">
+        <div class="table-wrapper">
+          <table class="table">
             <thead>
               <tr>
                 <th style="width: 5%"></th>
@@ -388,14 +388,14 @@
 
                   <!-- Actions -->
                   <td class="col-actions">
-                    <div class="admin-table-actions">
-                      <button class="admin-action-btn view" (click)="viewProduct(product)" [pTooltip]="'common.view' | translate">
+                    <div class="table-cell-actions">
+                      <button class="action-btn view" (click)="viewProduct(product)" [pTooltip]="'common.view' | translate">
                         <i class="pi pi-eye"></i>
                       </button>
-                      <button class="admin-action-btn edit" (click)="editProduct(product)" [pTooltip]="'common.edit' | translate">
+                      <button class="action-btn edit" (click)="editProduct(product)" [pTooltip]="'common.edit' | translate">
                         <i class="pi pi-pencil"></i>
                       </button>
-                      <button class="admin-action-btn delete" (click)="confirmDeleteProduct(product)" [pTooltip]="'common.delete' | translate">
+                      <button class="action-btn delete" (click)="confirmDeleteProduct(product)" [pTooltip]="'common.delete' | translate">
                         <i class="pi pi-trash"></i>
                       </button>
                     </div>

@@ -125,9 +125,9 @@
       </div>
     } @else {
       <!-- Orders Table -->
-      <div class="admin-table-card">
-        <div class="admin-table-wrapper">
-          <table class="admin-table">
+      <div class="table-container">
+        <div class="table-wrapper">
+          <table class="table">
             <thead>
               <tr>
                 <th>{{ 'admin.orders.table.order_id' | translate }}</th>
@@ -207,31 +207,31 @@
 
                   <!-- Actions -->
                   <td class="text-center">
-                    <div class="admin-table-actions">
-                      <button class="admin-action-btn view" (click)="openOrderDetails(order)" [pTooltip]="'admin.orders.view_details' | translate">
+                    <div class="table-cell-actions">
+                      <button class="action-btn view" (click)="openOrderDetails(order)" [pTooltip]="'admin.orders.view_details' | translate">
                         <i class="pi pi-eye"></i>
                       </button>
 
                       @if (order.status === 'pending') {
-                        <button class="admin-action-btn confirm" (click)="updateOrderStatus(order.id, 'confirmed')" [pTooltip]="'admin.orders.confirm_order' | translate">
+                        <button class="action-btn confirm" (click)="updateOrderStatus(order.id, 'confirmed')" [pTooltip]="'admin.orders.confirm_order' | translate">
                           <i class="pi pi-check"></i>
                         </button>
                       }
 
                       @if (order.status === 'confirmed') {
-                        <button class="admin-action-btn ship" (click)="updateOrderStatus(order.id, 'shipped')" [pTooltip]="'admin.orders.mark_shipped' | translate">
+                        <button class="action-btn ship" (click)="updateOrderStatus(order.id, 'shipped')" [pTooltip]="'admin.orders.mark_shipped' | translate">
                           <i class="pi pi-send"></i>
                         </button>
                       }
 
                       @if (order.status === 'shipped') {
-                        <button class="admin-action-btn confirm" (click)="updateOrderStatus(order.id, 'delivered')" [pTooltip]="'admin.orders.mark_delivered' | translate">
+                        <button class="action-btn confirm" (click)="updateOrderStatus(order.id, 'delivered')" [pTooltip]="'admin.orders.mark_delivered' | translate">
                           <i class="pi pi-check-circle"></i>
                         </button>
                       }
 
                       @if (order.status !== 'cancelled' && order.status !== 'delivered') {
-                        <button class="admin-action-btn delete" (click)="updateOrderStatus(order.id, 'cancelled')" [pTooltip]="'admin.orders.cancel_order' | translate">
+                        <button class="action-btn delete" (click)="updateOrderStatus(order.id, 'cancelled')" [pTooltip]="'admin.orders.cancel_order' | translate">
                           <i class="pi pi-times"></i>
                         </button>
                       }
