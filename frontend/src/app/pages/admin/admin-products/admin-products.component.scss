@@ -16,7 +16,7 @@
 
 // Scrollable table with sticky header
 .admin-table-wrapper {
-  max-height: 60vh;
+  max-height: calc(100vh - 400px);
   overflow-y: auto;
 }
 
