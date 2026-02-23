@@ -68,6 +68,9 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
   position: relative;
   background: var(--surface-ground);
   padding: 1rem;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: scroll;
 }
 
 // Animated Background Blobs
