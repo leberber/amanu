@@ -241,6 +241,10 @@
   justify-content: space-between;
   padding: 1rem 1.25rem;
   border-top: 1px solid rgba(0, 0, 0, 0.06);
+
+  &--centered {
+    justify-content: center;
+  }
 }
 
 .skeleton-select {
