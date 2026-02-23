@@ -321,24 +321,24 @@
             </tbody>
           </table>
         </div>
-      </div>
 
-      <!-- Pagination -->
-      <div class="admin-pagination" *ngIf="products.length > rows">
-        <p-paginator
-          [first]="first"
-          [rows]="rows"
-          [totalRecords]="products.length"
-          [rowsPerPageOptions]="[10, 25, 50]"
-          (onPageChange)="onPageChange($event)"
-          [showCurrentPageReport]="true"
-          [currentPageReportTemplate]="getPaginationTemplate()"
-        ></p-paginator>
-      </div>
+        <!-- Pagination (inside card) -->
+        <div class="table-footer" *ngIf="products.length > rows">
+          <p-paginator
+            [first]="first"
+            [rows]="rows"
+            [totalRecords]="products.length"
+            [rowsPerPageOptions]="[10, 25, 50]"
+            (onPageChange)="onPageChange($event)"
+            [showCurrentPageReport]="true"
+            [currentPageReportTemplate]="getPaginationTemplate()"
+          ></p-paginator>
+        </div>
 
-      <!-- Results Count -->
-      <div class="admin-results-info" *ngIf="products.length <= rows">
-        <span>{{ 'admin.products.showing' | translate }} {{ products.length }} {{ 'admin.products.of' | translate }} {{ allProducts.length }} {{ 'admin.products.products' | translate }}</span>
+        <!-- Results Count -->
+        <div class="table-footer results-info" *ngIf="products.length <= rows">
+          <span>{{ 'admin.products.showing' | translate }} {{ products.length }} {{ 'admin.products.of' | translate }} {{ allProducts.length }} {{ 'admin.products.products' | translate }}</span>
+        </div>
       </div>
     }
   </div>

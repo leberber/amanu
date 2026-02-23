@@ -14,6 +14,36 @@
   }
 }
 
+// Scrollable table with sticky header
+.admin-table-wrapper {
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.admin-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+
+  th {
+    background: white;
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08);
+  }
+}
+
+// Table footer (pagination)
+.table-footer {
+  padding: 0.75rem 1rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  background: white;
+
+  &.results-info {
+    font-size: 0.85rem;
+    color: var(--text-color-secondary);
+    text-align: center;
+  }
+}
+
 .table-header {
   display: flex;
   align-items: center;
