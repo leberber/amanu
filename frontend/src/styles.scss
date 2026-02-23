@@ -59,6 +59,11 @@ body.fullscreen-active {
     display: none !important;
   }
 
+  // Hide bottom navigation in fullscreen mode
+  .bottom-nav {
+    display: none !important;
+  }
+
   // Fullscreen table takes entire viewport
   .admin-table-card.fullscreen {
     position: fixed !important;

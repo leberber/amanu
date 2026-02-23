@@ -976,7 +976,6 @@
   // Improved pagination on mobile
   .table-footer {
     padding: 0.5rem;
-    padding-bottom: calc(0.5rem + 70px + env(safe-area-inset-bottom, 0px));
   }
 
   :host ::ng-deep {
