@@ -48,7 +48,8 @@
     "on": "Activé",
     "off": "Désactivé",
     "optional": "Optionnel",
-    "all": "Tous"
+    "all": "Tous",
+    "next": "Suivant"
   },
   "lightbox": {
     "packaging_type": "Emballage",
@@ -722,6 +723,7 @@
         "body_fr": "Message (Français)",
         "body_ar": "Message (Arabe)",
         "deep_link": "URL du Lien Profond",
+        "deep_link_hint": "Exemple: /products/123 ou /promotions",
         "image_url": "URL de l'Image (optionnel)",
         "quick_emojis": "Emojis Rapides"
       },

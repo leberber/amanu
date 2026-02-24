@@ -48,7 +48,8 @@
     "on": "مفعّل",
     "off": "معطّل",
     "optional": "اختياري",
-    "all": "الكل"
+    "all": "الكل",
+    "next": "التالي"
   },
   "lightbox": {
     "packaging_type": "التغليف",
@@ -727,6 +728,7 @@
         "body_fr": "الرسالة (فرنسي)",
         "body_ar": "الرسالة (عربي)",
         "deep_link": "رابط عميق",
+        "deep_link_hint": "مثال: /products/123 أو /promotions",
         "image_url": "رابط الصورة (اختياري)",
         "quick_emojis": "رموز تعبيرية سريعة"
       },
