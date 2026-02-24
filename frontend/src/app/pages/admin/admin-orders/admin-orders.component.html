@@ -8,7 +8,6 @@
   </div>
 
   <p-toast></p-toast>
-  <p-confirmDialog></p-confirmDialog>
   <div class="admin-content">
     <!-- Page Header -->
     <div class="admin-list-header animate-item" style="--delay: 0ms;">
@@ -97,7 +96,7 @@
       </div>
     } @else {
       <!-- Orders Table -->
-      <div class="table-container animate-item" [class.fullscreen]="isFullscreen" style="--delay: 100ms;">
+      <div class="table-container animate-item" [class.fullscreen]="isFullscreen()" style="--delay: 100ms;">
         <div class="table-header">
           <div class="table-search">
             <div class="search-icon">
@@ -123,8 +122,8 @@
             <button class="table-action-btn refresh-btn" (click)="refreshOrderData()" [pTooltip]="'admin.orders.refresh' | translate">
               <i class="pi pi-refresh"></i>
             </button>
-            <button class="table-action-btn" (click)="toggleFullscreen()" [pTooltip]="(isFullscreen ? 'common.exit_fullscreen' : 'common.fullscreen') | translate">
-              <i [class]="isFullscreen ? 'pi pi-window-minimize' : 'pi pi-window-maximize'"></i>
+            <button class="table-action-btn" (click)="toggleFullscreen()" [pTooltip]="(isFullscreen() ? 'common.exit_fullscreen' : 'common.fullscreen') | translate">
+              <i [class]="isFullscreen() ? 'pi pi-window-minimize' : 'pi pi-window-maximize'"></i>
             </button>
             <button class="table-action-btn" (click)="tableOptionsMenu.toggle($event)" [pTooltip]="'admin.orders.table_options' | translate" tooltipPosition="left">
               <i class="pi pi-ellipsis-v"></i>
@@ -196,7 +195,7 @@
                     <!-- Order ID -->
                     @if (isColumnVisible('order_id')) {
                       <td>
-                        <span class="order-id">#{{ order.id }}</span>
+                        <span class="table-id">#{{ order.id }}</span>
                       </td>
                     }
 
@@ -259,8 +258,8 @@
                               }
                             </div>
                             <div class="status-edit-actions">
-                              @if (selectedNewStatus) {
-                                <button class="cell-edit__btn cell-edit__btn--confirm" [class.pulse]="pulseConfirm" (click)="confirmStatusChange()">
+                              @if (selectedNewStatus()) {
+                                <button class="cell-edit__btn cell-edit__btn--confirm" [class.pulse]="pulseConfirm()" (click)="confirmStatusChange()">
                                   <i class="pi pi-check"></i>
                                 </button>
                               }
@@ -335,7 +334,8 @@
 
   <!-- Order Details Dialog -->
   <p-dialog
-    [(visible)]="displayOrderDialog"
+    [visible]="displayOrderDialog()"
+    (visibleChange)="displayOrderDialog.set($event)"
     [style]="{width: '90%', maxWidth: '800px'}"
     header="{{ 'admin.orders.order_details' | translate }}"
     [modal]="true"
@@ -343,26 +343,26 @@
     [resizable]="false"
     styleClass="border-round-lg">
 
-    @if (selectedOrder) {
+    @if (selectedOrder(); as order) {
       <div class="grid">
         <div class="col-12 md:col-6">
-          <h3 class="text-lg font-medium">{{ 'admin.orders.order_number' | translate }} #{{selectedOrder.id}}</h3>
-          <p><strong>{{ 'admin.orders.customer' | translate }}:</strong> {{selectedOrder.user?.full_name || ('admin.orders.user_number' | translate) + selectedOrder.user_id}}</p>
-          <p><strong>{{ 'admin.orders.date' | translate }}:</strong> {{ selectedOrder.created_at | appDate }}</p>
-          <p><strong>{{ 'admin.orders.status' | translate }}:</strong> <p-tag [severity]="getStatusSeverity(selectedOrder.status)" [value]="'admin.orders.status.' + selectedOrder.status | translate"></p-tag></p>
-          <p><strong>{{ 'admin.orders.total' | translate }}:</strong> {{selectedOrder.total_amount | appCurrency}}</p>
+          <h3 class="text-lg font-medium">{{ 'admin.orders.order_number' | translate }} #{{ order.id }}</h3>
+          <p><strong>{{ 'admin.orders.customer' | translate }}:</strong> {{ order.user?.full_name || ('admin.orders.user_number' | translate) + order.user_id }}</p>
+          <p><strong>{{ 'admin.orders.date' | translate }}:</strong> {{ order.created_at | appDate }}</p>
+          <p><strong>{{ 'admin.orders.status' | translate }}:</strong> <p-tag [severity]="getStatusSeverity(order.status)" [value]="'admin.orders.status.' + order.status | translate"></p-tag></p>
+          <p><strong>{{ 'admin.orders.total' | translate }}:</strong> {{ order.total_amount | appCurrency }}</p>
         </div>
 
         <div class="col-12 md:col-6">
           <h3 class="text-lg font-medium">{{ 'admin.orders.shipping_info' | translate }}</h3>
-          <p><strong>{{ 'admin.orders.address' | translate }}:</strong> {{selectedOrder.shipping_address}}</p>
-          <p><strong>{{ 'admin.orders.phone' | translate }}:</strong> {{selectedOrder.contact_phone}}</p>
+          <p><strong>{{ 'admin.orders.address' | translate }}:</strong> {{ order.shipping_address }}</p>
+          <p><strong>{{ 'admin.orders.phone' | translate }}:</strong> {{ order.contact_phone }}</p>
         </div>
 
         <div class="col-12">
           <h3 class="text-lg font-medium mt-4">{{ 'admin.orders.order_items' | translate }}</h3>
 
-          <p-table [value]="selectedOrder.items || []" styleClass="p-datatable-sm" [tableStyle]="{'min-width': '100%'}">
+          <p-table [value]="order.items || []" styleClass="p-datatable-sm" [tableStyle]="{'min-width': '100%'}">
             <ng-template pTemplate="header">
               <tr>
                 <th>{{ 'admin.orders.table.product' | translate }}</th>
@@ -374,45 +374,25 @@
             </ng-template>
             <ng-template pTemplate="body" let-item>
               <tr>
-                <td>{{getProductName(item)}}</td>
-                <td>{{item.unit_price | appCurrency}}</td>
-                <td>{{item.quantity}}</td>
-                <td>{{item.product_unit | appUnit}}</td>
-                <td>{{item.unit_price * item.quantity | appCurrency}}</td>
+                <td>{{ getProductName(item) }}</td>
+                <td>{{ item.unit_price | appCurrency }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ item.product_unit | appUnit }}</td>
+                <td>{{ item.unit_price * item.quantity | appCurrency }}</td>
               </tr>
             </ng-template>
             <ng-template pTemplate="footer">
               <tr>
                 <td colspan="4" class="text-right font-bold">{{ 'admin.orders.total' | translate }}:</td>
-                <td class="font-bold">{{selectedOrder.total_amount | appCurrency}}</td>
+                <td class="font-bold">{{ order.total_amount | appCurrency }}</td>
               </tr>
             </ng-template>
           </p-table>
         </div>
       </div>
 
-      <div class="flex flex-wrap gap-2 justify-content-end mt-4">
-        <button pButton label="{{ 'common.close' | translate }}" icon="pi pi-times" class="p-button-text" (click)="displayOrderDialog = false"></button>
-
-        @if (selectedOrder.status === 'pending') {
-          <button pButton label="{{ 'admin.orders.confirm' | translate }}" icon="pi pi-check"
-                  (click)="updateOrderStatus(selectedOrder.id, 'confirmed'); displayOrderDialog = false"></button>
-        }
-
-        @if (selectedOrder.status === 'confirmed') {
-          <button pButton label="{{ 'admin.orders.mark_shipped' | translate }}" icon="pi pi-send"
-                  (click)="updateOrderStatus(selectedOrder.id, 'shipped'); displayOrderDialog = false"></button>
-        }
-
-        @if (selectedOrder.status === 'shipped') {
-          <button pButton label="{{ 'admin.orders.mark_delivered' | translate }}" icon="pi pi-check-circle"
-                  (click)="updateOrderStatus(selectedOrder.id, 'delivered'); displayOrderDialog = false"></button>
-        }
-
-        @if (selectedOrder.status !== 'cancelled' && selectedOrder.status !== 'delivered') {
-          <button pButton label="{{ 'admin.orders.cancel_order' | translate }}" icon="pi pi-times" class="p-button-danger"
-                  (click)="updateOrderStatus(selectedOrder.id, 'cancelled'); displayOrderDialog = false"></button>
-        }
+      <div class="flex justify-content-end mt-4">
+        <button pButton label="{{ 'common.close' | translate }}" icon="pi pi-times" class="p-button-text" (click)="closeOrderDialog()"></button>
       </div>
     }
   </p-dialog>

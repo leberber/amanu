@@ -1,7 +1,6 @@
 // src/app/pages/admin/admin-orders/admin-orders.component.ts
 import { Component, OnInit, inject, DestroyRef, signal, computed } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ConfirmationService } from 'primeng/api';
 import { PopoverModule } from 'primeng/popover';
 import { TranslateService } from '@ngx-translate/core';
 
@@ -27,8 +26,7 @@ import { BaseAdminListComponent, ColumnOption } from '../../../shared/base/base-
     PopoverModule,
     TableSkeletonComponent
   ],
-  providers: [ConfirmationService],
-  templateUrl: './admin-orders.component.html',
+    templateUrl: './admin-orders.component.html',
   styleUrl: './admin-orders.component.scss'
 })
 export class AdminOrdersComponent extends BaseAdminListComponent implements OnInit {
@@ -49,8 +47,15 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
   // Animation state
   tableInitialized = signal(false);
 
-  // Fullscreen mode
-  isFullscreen = false;
+  // UI state signals
+  isFullscreen = signal(false);
+  selectedOrder = signal<Order | null>(null);
+  displayOrderDialog = signal(false);
+
+  // Inline status editing signals
+  editingStatusOrderId = signal<number | null>(null);
+  selectedNewStatus = signal<string | null>(null);
+  pulseConfirm = signal(false);
 
   // Override status filter type for orders
   override statusFilter: string = 'all';
@@ -75,17 +80,8 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
     { field: 'actions', label: 'admin.orders.table.actions', visible: true }
   ];
 
-  selectedOrder: Order | null = null;
-  displayOrderDialog = false;
-
-  // Inline status editing
-  editingStatusOrderId: number | null = null;
-  selectedNewStatus: string | null = null;
-  pulseConfirm = false;
-
   // Services
   private adminService = inject(AdminService);
-  private confirmationService = inject(ConfirmationService);
   private translateService = inject(TranslateService);
   private productService = inject(ProductService);
   private translationHelper = inject(TranslationHelperService);
@@ -210,8 +206,8 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
   }
 
   toggleFullscreen(): void {
-    this.isFullscreen = !this.isFullscreen;
-    if (this.isFullscreen) {
+    this.isFullscreen.update(v => !v);
+    if (this.isFullscreen()) {
       document.body.classList.add('fullscreen-active');
       document.body.style.overflow = 'hidden';
     } else {
@@ -229,8 +225,12 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
   }
 
   openOrderDetails(order: Order) {
-    this.selectedOrder = order;
-    this.displayOrderDialog = true;
+    this.selectedOrder.set(order);
+    this.displayOrderDialog.set(true);
+  }
+
+  closeOrderDialog() {
+    this.displayOrderDialog.set(false);
   }
 
   getStatusSeverity(status: string): "success" | "secondary" | "info" | "warn" | "danger" | "contrast" {
@@ -277,8 +277,9 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
             status: this.translateService.instant('admin.orders.status.' + newStatus)
           });
 
-          if (this.selectedOrder && this.selectedOrder.id === orderId) {
-            this.selectedOrder = updatedOrder;
+          const currentSelected = this.selectedOrder();
+          if (currentSelected && currentSelected.id === orderId) {
+            this.selectedOrder.set(updatedOrder);
           }
         },
         error: (error) => {
@@ -291,22 +292,22 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
 
   startEditStatus(order: Order): void {
     if (this.getNextStatuses(order.status).length > 0) {
-      this.editingStatusOrderId = order.id;
-      this.selectedNewStatus = null;
+      this.editingStatusOrderId.set(order.id);
+      this.selectedNewStatus.set(null);
     }
   }
 
   cancelEditStatus(): void {
-    this.editingStatusOrderId = null;
-    this.selectedNewStatus = null;
+    this.editingStatusOrderId.set(null);
+    this.selectedNewStatus.set(null);
   }
 
   isEditingStatus(orderId: number): boolean {
-    return this.editingStatusOrderId === orderId;
+    return this.editingStatusOrderId() === orderId;
   }
 
   isStatusSelected(status: string): boolean {
-    return this.selectedNewStatus === status;
+    return this.selectedNewStatus() === status;
   }
 
   getNextStatuses(currentStatus: string): { value: string; label: string; icon: string }[] {
@@ -328,15 +329,15 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
   }
 
   selectNewStatus(newStatus: string): void {
-    this.selectedNewStatus = newStatus;
-    this.pulseConfirm = false;
-    setTimeout(() => this.pulseConfirm = true, 10);
+    this.selectedNewStatus.set(newStatus);
+    this.pulseConfirm.set(false);
+    setTimeout(() => this.pulseConfirm.set(true), 10);
   }
 
   confirmStatusChange(): void {
-    if (this.editingStatusOrderId && this.selectedNewStatus) {
-      const orderId = this.editingStatusOrderId;
-      const newStatus = this.selectedNewStatus;
+    const orderId = this.editingStatusOrderId();
+    const newStatus = this.selectedNewStatus();
+    if (orderId && newStatus) {
       this.cancelEditStatus();
       this.updateOrderStatus(orderId, newStatus);
     }

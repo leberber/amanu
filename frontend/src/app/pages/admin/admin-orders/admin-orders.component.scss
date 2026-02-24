@@ -2,18 +2,13 @@
 // Admin Orders Component Styles
 // =============================================================================
 // Component-specific overrides only. Uses global styles from:
-//   - _table.scss: table-container, table-cell-actions
+//   - _table.scss: table-container, table-cell-actions, table-id
 //   - _badges.scss: status-badge (pending, confirmed, shipped, delivered, cancelled)
 //   - _states.scss: empty-state, info-display, date-display, amount-display
 //   - _segments.scss: segment-control
-//   - _buttons.scss: btn-add, action-btn (view, confirm, ship, delete)
+//   - _buttons.scss: btn-add, action-btn (view, edit)
 // =============================================================================
 
 .table-container {
   --table-max-height: calc(100vh - 385px);
-}
-
-.order-id {
-  font-weight: var(--font-weight-bold);
-  color: var(--primary-color);
 }
