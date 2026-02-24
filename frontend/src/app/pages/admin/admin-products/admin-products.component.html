@@ -234,7 +234,8 @@
                     <td class="col-image">
                       <div class="table-thumbnail">
                         @if (product.image_url) {
-                          <img [src]="product.image_url" [alt]="getProductName(product)" loading="lazy">
+                          <img [src]="product.image_url" [alt]="getProductName(product)" loading="lazy" (error)="onImageError($event)">
+                          <i class="pi pi-image hidden"></i>
                         } @else {
                           <i class="pi pi-image"></i>
                         }
@@ -368,17 +369,36 @@
                     </td>
                   }
 
-                  <!-- Status -->
+                  <!-- Status Column - Inline Editable -->
                   @if (isColumnVisible('status')) {
                     <td class="col-status">
-                      <div class="status-toggle" [class.status-toggle--active]="product.is_active" (click)="toggleProductStatus(product)">
-                        <span class="status-toggle__label">
-                          {{ product.is_active ? ('admin.products.status.active' | translate) : ('admin.products.status.inactive' | translate) }}
-                        </span>
-                        <div class="status-toggle__track">
-                          <div class="status-toggle__thumb"></div>
+                      @if (!isEditingStatus(product.id)) {
+                        <div class="status-toggle" [class.status-toggle--active]="product.is_active" (click)="startEditStatus(product)">
+                          <span class="status-toggle__label">
+                            {{ product.is_active ? ('admin.products.status.active' | translate) : ('admin.products.status.inactive' | translate) }}
+                          </span>
+                          <div class="status-toggle__track">
+                            <div class="status-toggle__thumb"></div>
+                          </div>
                         </div>
-                      </div>
+                      } @else {
+                        <div class="cell-edit">
+                          <div class="status-toggle" [class.status-toggle--active]="statusEdit.value" (click)="toggleEditingStatus()">
+                            <span class="status-toggle__label">
+                              {{ statusEdit.value ? ('admin.products.status.active' | translate) : ('admin.products.status.inactive' | translate) }}
+                            </span>
+                            <div class="status-toggle__track">
+                              <div class="status-toggle__thumb"></div>
+                            </div>
+                          </div>
+                          <button class="cell-edit__btn cell-edit__btn--save" (click)="saveStatus(product)">
+                            <i class="pi pi-check"></i>
+                          </button>
+                          <button class="cell-edit__btn cell-edit__btn--cancel" (click)="cancelEditStatus()">
+                            <i class="pi pi-times"></i>
+                          </button>
+                        </div>
+                      }
                     </td>
                   }
 

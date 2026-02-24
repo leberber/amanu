@@ -1,13 +1,9 @@
 import { Component, OnInit, inject, DestroyRef, signal } from '@angular/core';
 import { ConfirmationService } from 'primeng/api';
-import { CardModule } from 'primeng/card';
 import { SelectModule } from 'primeng/select';
-import { BadgeModule } from 'primeng/badge';
-import { OverlayBadgeModule } from 'primeng/overlaybadge';
 import { PopoverModule } from 'primeng/popover';
 import { TranslateService } from '@ngx-translate/core';
 
-import { delay } from 'rxjs'; // TODO: Remove - for testing skeleton
 import { ADMIN_LIST_IMPORTS, ADMIN_DIALOG_IMPORTS } from '../../../shared/imports/admin-shared.imports';
 import { TableSkeletonComponent, SkeletonColumn } from '../../../shared/components/table-skeleton/table-skeleton.component';
 import { onLanguageChange } from '../../../core/utils/language-change.util';
@@ -31,10 +27,7 @@ import { ROUTES, RouteHelpers } from '../../../core/constants/routes.constants';
   imports: [
     ...ADMIN_LIST_IMPORTS,
     ...ADMIN_DIALOG_IMPORTS,
-    CardModule,
     SelectModule,
-    BadgeModule,
-    OverlayBadgeModule,
     PopoverModule,
     TableSkeletonComponent
   ],
@@ -61,6 +54,7 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
   // Inline editing state
   priceEdit = new InlineEditState<number>(0);
   stockEdit = new InlineEditState<number>(0);
+  statusEdit = new InlineEditState<boolean>(true);
 
   // Stock edit mode (cartons or units)
   stockEditMode: 'cartons' | 'units' = 'cartons';
@@ -203,8 +197,33 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
     this.loadAllProducts();
   }
 
-  toggleProductStatus(product: Product) {
-    const newStatus = !product.is_active;
+  // ===== INLINE STATUS EDITING =====
+
+  startEditStatus(product: Product): void {
+    this.priceEdit.cancel();
+    this.stockEdit.cancel();
+    this.statusEdit.start(product.id, product.is_active);
+  }
+
+  cancelEditStatus(): void {
+    this.statusEdit.cancel();
+  }
+
+  isEditingStatus(productId: number): boolean {
+    return this.statusEdit.isEditing(productId);
+  }
+
+  toggleEditingStatus(): void {
+    this.statusEdit.value = !this.statusEdit.value;
+  }
+
+  saveStatus(product: Product): void {
+    if (!this.statusEdit.hasChanged(product.is_active)) {
+      this.statusEdit.cancel();
+      return;
+    }
+
+    const newStatus = this.statusEdit.value;
     this.handleInlineUpdate(
       () => this.productService.updateProduct(product.id, { is_active: newStatus }),
       this.allProducts,
@@ -214,7 +233,7 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
       newStatus,
       newStatus ? 'admin.products.status_activated' : 'admin.products.status_deactivated',
       'admin.products.status_update_failed',
-      () => {}
+      () => this.statusEdit.cancel()
     );
   }
 
@@ -397,6 +416,12 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
     return Math.floor(product.stock_quantity / piecesPerBox);
   }
 
+  onImageError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    img.style.display = 'none';
+    img.parentElement?.querySelector('i')?.classList.remove('hidden');
+  }
+
   // Private methods
   private loadCategories() {
     this.loadDataSilent(
@@ -419,11 +444,8 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
   }
 
   private loadAllProducts() {
-    // TODO: Remove delay(3000) - for testing skeleton only
     this.loading = true;
-    this.productService.getProducts({ active_only: false }).pipe(
-      delay(3000)
-    ).subscribe({
+    this.productService.getProducts({ active_only: false }).subscribe({
       next: (products) => {
         this.allProducts = products;
         this.products = products;
