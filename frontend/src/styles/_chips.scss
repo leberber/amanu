@@ -541,3 +541,69 @@
     }
   }
 }
+
+
+// =============================================================================
+// 11. SUMMARY PILLS
+// =============================================================================
+// Colored pills for displaying summary info with color-mix theming.
+// Uses --pill-color CSS variable for dynamic theming.
+
+.summary-pill {
+  --pill-color: var(--primary-color);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  background: color-mix(in srgb, var(--pill-color) 10%, transparent);
+  border: var(--border-width) solid color-mix(in srgb, var(--pill-color) 20%, transparent);
+  border-radius: var(--radius-pill);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--pill-color);
+
+  i {
+    font-size: var(--font-size-sm);
+  }
+
+  &__img {
+    width: 20px;
+    height: 20px;
+    border-radius: var(--radius-sm);
+    object-fit: cover;
+  }
+
+  &__value {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+  }
+
+  &__label {
+    font-weight: var(--font-weight-regular);
+    opacity: 0.8;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Size Variants
+  // ---------------------------------------------------------------------------
+  &--large {
+    padding: var(--space-3) var(--space-5);
+    font-size: var(--font-size-base);
+    gap: var(--space-3);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Color Variants
+  // ---------------------------------------------------------------------------
+  &--primary { --pill-color: var(--primary-color); }
+  &--purple { --pill-color: var(--color-purple); }
+  &--info { --pill-color: var(--color-info); }
+  &--success { --pill-color: var(--color-success); }
+  &--warning { --pill-color: var(--color-warning); }
+
+  &--muted {
+    background: var(--surface-100);
+    border-color: var(--surface-border);
+    color: var(--text-color);
+  }
+}

@@ -815,3 +815,76 @@
     }
   }
 }
+
+
+// =============================================================================
+// 15. SECTION CARD
+// =============================================================================
+// Card with gradient icon header for form sections.
+
+.section-card {
+  background: var(--surface-0);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-lg);
+
+  &__icon {
+    width: var(--icon-xl);
+    height: var(--icon-xl);
+    border-radius: var(--radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    i {
+      color: var(--color-white);
+      font-size: var(--font-size-xl);
+    }
+
+    &--primary { background: var(--primary-gradient); }
+    &--purple { background: var(--purple-gradient); }
+    &--blue { background: var(--info-gradient); }
+    &--info { background: var(--info-gradient); }
+    &--success { background: var(--success-gradient); }
+    &--warning { background: var(--warning-gradient); }
+    &--pink { background: var(--pink-gradient); }
+  }
+}
+
+
+// =============================================================================
+// 16. OPTIONS CARD
+// =============================================================================
+// Card for options/settings with header and body sections.
+
+.options-card {
+  background: var(--surface-0);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+
+  &__header {
+    padding: var(--space-5);
+  }
+
+  &__body {
+    padding: 0 var(--space-5) var(--space-5);
+  }
+
+  &__title {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-color-secondary);
+    margin: 0 0 var(--space-4) 0;
+    text-transform: uppercase;
+    letter-spacing: var(--letter-spacing-wide);
+
+    i {
+      color: var(--primary-color);
+    }
+  }
+}

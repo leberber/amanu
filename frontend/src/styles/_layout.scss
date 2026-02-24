@@ -123,3 +123,23 @@
 @media (min-width: 768px) {
   .hidden-desktop { display: none !important; }
 }
+
+
+// ---------------------------------------------------------------------------
+// Grid Utilities
+// ---------------------------------------------------------------------------
+
+// Two-column equal grid with responsive stacking
+.grid-2-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-6);
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+
+  &--gap-sm { gap: var(--space-4); }
+  &--gap-lg { gap: var(--space-8); }
+  &--gap-xl { gap: var(--space-10); }
+}

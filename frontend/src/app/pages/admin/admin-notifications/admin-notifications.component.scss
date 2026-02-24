@@ -2,7 +2,8 @@
 // ADMIN NOTIFICATIONS - PAGE-SPECIFIC STYLES
 // =============================================================================
 // Minimal styles - uses global classes where possible.
-// Global: .admin-page, .admin-content, .form-wizard, .chip, .info-box, .admin-form-card
+// Global: .admin-page, .admin-content, .form-wizard, .chip, .info-box,
+//         .grid-2-col, .section-card, .options-card, .summary-pill
 // =============================================================================
 
 
@@ -28,6 +29,8 @@
   flex-direction: column;
   overflow: hidden;
   max-width: 100%;
+  width: 100%;
+  margin: 0;
 }
 
 .form-wizard {
@@ -54,54 +57,17 @@
 
 
 // =============================================================================
-// 2. TWO-COLUMN GRIDS
+// 2. GRID FLEX OVERRIDE
 // =============================================================================
+// Make grid fill available space in wizard body
 
 .grid-2-col {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-6);
   flex: 1;
-
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-  }
-
-  &--gap-lg {
-    gap: var(--space-8);
-  }
 }
 
 
 // =============================================================================
-// 3. SECTION CARD (with gradient icon header)
-// =============================================================================
-
-.section-card {
-  background: var(--surface-0);
-  border-radius: var(--radius-xl);
-  padding: var(--space-6);
-  box-shadow: var(--shadow-lg);
-
-  &__icon {
-    width: var(--icon-xl);
-    height: var(--icon-xl);
-    border-radius: var(--radius-lg);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-
-    i { color: var(--color-white); font-size: var(--font-size-xl); }
-    &--purple { background: var(--purple-gradient); }
-    &--blue { background: var(--info-gradient); }
-    &--success { background: var(--success-gradient); }
-  }
-}
-
-
-// =============================================================================
-// 4. PHONE PREVIEW LAYOUT
+// 3. PHONE PREVIEW LAYOUT
 // =============================================================================
 
 .preview-column {
@@ -121,82 +87,5 @@
       display: flex;
       flex-direction: column;
     }
-  }
-}
-
-
-// =============================================================================
-// 5. OPTIONS CARD (schedule, summary)
-// =============================================================================
-
-.options-card {
-  background: var(--surface-0);
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-lg);
-  overflow: hidden;
-
-  &__header { padding: var(--space-5); }
-  &__body { padding: 0 var(--space-5) var(--space-5); }
-
-  &__title {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-semibold);
-    color: var(--text-color-secondary);
-    margin: 0 0 var(--space-4) 0;
-    text-transform: uppercase;
-    letter-spacing: var(--letter-spacing-wide);
-
-    i { color: var(--primary-color); }
-  }
-}
-
-
-// =============================================================================
-// 6. SUMMARY PILLS (color-mix variant)
-// =============================================================================
-
-.summary-pill {
-  --pill-color: var(--primary-color);
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-2) var(--space-4);
-  background: color-mix(in srgb, var(--pill-color) 10%, transparent);
-  border: var(--border-width) solid color-mix(in srgb, var(--pill-color) 20%, transparent);
-  border-radius: var(--radius-pill);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-  color: var(--pill-color);
-
-  i { font-size: var(--font-size-sm); }
-
-  &__img {
-    width: 20px;
-    height: 20px;
-    border-radius: var(--radius-sm);
-    object-fit: cover;
-  }
-
-  &--large {
-    padding: var(--space-3) var(--space-5);
-    font-size: var(--font-size-base);
-    gap: var(--space-3);
-
-    .summary-pill__value { font-size: var(--font-size-xl); font-weight: var(--font-weight-bold); }
-    .summary-pill__label { font-weight: var(--font-weight-regular); opacity: 0.8; }
-  }
-
-  &--primary { --pill-color: var(--primary-color); }
-  &--purple { --pill-color: var(--color-purple); }
-  &--info { --pill-color: var(--color-info); }
-  &--success { --pill-color: var(--color-success); }
-
-  &--muted {
-    background: var(--surface-100);
-    border-color: var(--surface-border);
-    color: var(--text-color);
   }
 }
