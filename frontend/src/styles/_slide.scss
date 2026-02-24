@@ -1,76 +1,81 @@
 // =============================================================================
-// FLIP CARD ANIMATION
+// SLIDE-OVER PANEL
 // =============================================================================
-// 3D flip effect for transitioning between two views (e.g., table ↔ details)
-// Uses CSS 3D transforms for smooth, performant animations.
+// Smooth slide-over effect for transitioning between two views.
+// The detail panel slides over the content from the right.
 // =============================================================================
 
 
 // =============================================================================
-// 1. FLIP CONTAINER
+// 1. CONTAINER
 // =============================================================================
-// The outer container that sets up the 3D perspective.
 
-.flip-container {
-  perspective: 2000px;
+.slide-container {
   position: relative;
   width: 100%;
-}
-
-
-// =============================================================================
-// 2. FLIP CARD
-// =============================================================================
-// The card that actually rotates. Contains front and back faces.
-
-.flip-card {
-  position: relative;
-  width: 100%;
-  transform-style: preserve-3d;
-  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-
-  .flip-container.flipped & {
-    transform: rotateY(180deg);
-  }
-}
-
-
-// =============================================================================
-// 3. FLIP FACES (FRONT & BACK)
-// =============================================================================
-// Both faces are absolutely positioned and use backface-visibility
-// to hide when rotated away from the viewer.
-
-.flip-card__front,
-.flip-card__back {
-  width: 100%;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-}
-
-.flip-card__front {
-  position: relative;
-}
-
-.flip-card__back {
-  position: absolute;
-  top: 0;
-  left: 0;
-  transform: rotateY(180deg);
-  background: var(--surface-card);
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-sm);
-  min-height: 400px;
   overflow: hidden;
 }
 
 
 // =============================================================================
-// 4. FLIP BACK CONTENT
+// 2. WRAPPER
 // =============================================================================
-// Styles for the back face content area.
 
-.flip-back-header {
+.slide-card {
+  position: relative;
+  width: 100%;
+}
+
+
+// =============================================================================
+// 3. FRONT (MAIN CONTENT) & BACK (DETAIL PANEL)
+// =============================================================================
+
+.slide-card__front {
+  position: relative;
+  transition:
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+
+  .slide-container.open & {
+    transform: scale(0.95) translateX(-30px);
+    opacity: 0.3;
+    pointer-events: none;
+  }
+}
+
+.slide-card__back {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  min-height: 500px;
+  background: var(--surface-card);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xl);
+  overflow: hidden;
+
+  // Initial state: off-screen right
+  transform: translateX(100%);
+  opacity: 0;
+
+  transition:
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+
+  .slide-container.open & {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+
+// =============================================================================
+// 4. PANEL HEADER
+// =============================================================================
+
+.slide-panel-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -92,8 +97,8 @@
   }
 
   &__close {
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
     border: none;
     border-radius: var(--radius-full);
     background: var(--surface-hover);
@@ -102,31 +107,70 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all var(--transition-fast);
+    transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 
     i {
       font-size: var(--font-size-lg);
+      transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
     }
 
     &:hover {
-      background: var(--surface-200);
-      color: var(--text-color);
-      transform: rotate(90deg);
+      background: rgba(var(--color-error-rgb), 0.1);
+      color: var(--color-error);
+      transform: scale(1.1);
+
+      i {
+        transform: rotate(90deg);
+      }
+    }
+
+    &:active {
+      transform: scale(0.95);
     }
   }
 }
 
-.flip-back-content {
+
+// =============================================================================
+// 5. PANEL CONTENT
+// =============================================================================
+
+.slide-panel-content {
   padding: var(--space-6);
   max-height: calc(100vh - 400px);
   overflow-y: auto;
+
+  // Staggered entrance animation for content
+  .slide-container.open & {
+    .detail-section,
+    .detail-grid > * {
+      animation: slideContentIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+      opacity: 0;
+
+      @for $i from 1 through 6 {
+        &:nth-child(#{$i}) {
+          animation-delay: #{0.25 + ($i * 0.1)}s;
+        }
+      }
+    }
+  }
+}
+
+@keyframes slideContentIn {
+  from {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 
 // =============================================================================
-// 5. DETAIL SECTIONS
+// 6. DETAIL SECTIONS
 // =============================================================================
-// Reusable styles for detail content on the back face.
 
 .detail-grid {
   display: grid;
@@ -139,6 +183,13 @@
   background: var(--surface-ground);
   border-radius: var(--radius-lg);
   padding: var(--space-5);
+  border: 1px solid transparent;
+  transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+
+  &:hover {
+    border-color: var(--border-color-light);
+    box-shadow: var(--shadow-sm);
+  }
 
   &__title {
     font-size: var(--font-size-sm);
@@ -153,6 +204,7 @@
 
     i {
       font-size: var(--font-size-base);
+      color: var(--primary-color);
     }
   }
 }
@@ -188,9 +240,8 @@
 
 
 // =============================================================================
-// 6. ITEMS TABLE (BACK FACE)
+// 7. DETAIL ITEMS TABLE
 // =============================================================================
-// Compact table for displaying order items on the back face.
 
 .detail-items-table {
   width: 100%;

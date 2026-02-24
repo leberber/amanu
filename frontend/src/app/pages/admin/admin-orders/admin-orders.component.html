@@ -96,10 +96,10 @@
       </div>
     } @else {
       <!-- Flip Container for Table ↔ Details -->
-      <div class="flip-container animate-item" [class.flipped]="displayOrderDialog()" style="--delay: 100ms;">
-        <div class="flip-card">
+      <div class="slide-container animate-item" [class.open]="displayOrderDialog()" style="--delay: 100ms;">
+        <div class="slide-card">
           <!-- FRONT: Orders Table -->
-          <div class="flip-card__front">
+          <div class="slide-card__front">
             <div class="table-container" [class.fullscreen]="isFullscreen()">
               <div class="table-header">
                 <div class="table-search">
@@ -336,21 +336,21 @@
           </div>
 
           <!-- BACK: Order Details -->
-          <div class="flip-card__back">
+          <div class="slide-card__back">
             @if (selectedOrder(); as order) {
-              <div class="flip-back-header">
-                <div class="flip-back-header__title">
+              <div class="slide-panel-header">
+                <div class="slide-panel-header__title">
                   <span class="status-badge" [class]="order.status">
                     <i [class]="getStatusIcon(order.status)"></i>
                   </span>
                   <h2>{{ 'admin.orders.order_number' | translate }} #{{ order.id }}</h2>
                 </div>
-                <button class="flip-back-header__close" (click)="closeOrderDialog()">
+                <button class="slide-panel-header__close" (click)="closeOrderDialog()">
                   <i class="pi pi-times"></i>
                 </button>
               </div>
 
-              <div class="flip-back-content">
+              <div class="slide-panel-content">
                 <div class="detail-grid">
                   <!-- Customer Info -->
                   <div class="detail-section">
