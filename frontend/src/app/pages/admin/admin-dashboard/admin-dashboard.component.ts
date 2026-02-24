@@ -6,7 +6,6 @@ import { ChartModule } from 'primeng/chart';
 import { TranslateService } from '@ngx-translate/core';
 
 import { ADMIN_CORE_IMPORTS } from '../../../shared/imports/admin-shared.imports';
-import { TableSkeletonComponent, SkeletonColumn } from '../../../shared/components/table-skeleton/table-skeleton.component';
 import { ROUTES } from '../../../core/constants/routes.constants';
 import { onLanguageChange } from '../../../core/utils/language-change.util';
 import { AdminService } from '../../../services/admin.service';
@@ -23,8 +22,7 @@ import { CurrencyService } from '../../../core/services/currency.service';
   imports: [
     ...ADMIN_CORE_IMPORTS,
     RouterLink,
-    ChartModule,
-    TableSkeletonComponent
+    ChartModule
   ],
   templateUrl: './admin-dashboard.component.html',
   styleUrl: './admin-dashboard.component.scss'
@@ -51,14 +49,6 @@ export class AdminDashboardComponent implements OnInit {
 
   // Computed values
   hasStats = computed(() => this.stats() !== null);
-
-  // Skeleton configuration for top products table
-  skeletonColumns: SkeletonColumn[] = [
-    { width: '45%', type: 'text-multi', headerWidth: '80px' },
-    { width: '20%', type: 'pill', headerWidth: '70px' },
-    { width: '15%', type: 'pill-sm', headerWidth: '60px' },
-    { width: '20%', type: 'price', headerWidth: '70px' }
-  ];
 
   // Services
   private adminService = inject(AdminService);
