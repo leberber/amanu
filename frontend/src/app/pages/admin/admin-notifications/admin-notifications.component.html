@@ -240,22 +240,26 @@
                 </div>
               }
 
+              }
+
+            <!-- Step 3: Message Content -->
+            @if (currentStep() === 3) {
               <!-- Quick Templates -->
-              <div class="admin-form-field">
+              <div class="admin-form-field" style="margin-bottom: var(--space-5);">
                 <label>{{ 'admin.notifications.quick_templates' | translate }}</label>
                 <div class="chip-group">
                   @for (template of templates; track template.id) {
-                    <button class="chip chip--outlined" (click)="applyTemplate(template)">
+                    <button
+                      class="chip chip--outlined"
+                      [class.active]="selectedTemplateId() === template.id"
+                      (click)="applyTemplate(template)">
                       <i class="pi {{ template.icon }}"></i>
                       {{ template.name }}
                     </button>
                   }
                 </div>
               </div>
-            }
 
-            <!-- Step 3: Message Content -->
-            @if (currentStep() === 3) {
               <div class="form-grid">
                 <!-- Column 1: French Content (Primary) -->
                 <div>
@@ -298,6 +302,24 @@
                     @for (emoji of quickEmojis; track emoji) {
                       <button class="btn-icon btn-icon--sm" (click)="insertEmoji(emoji)">{{ emoji }}</button>
                     }
+                  </div>
+
+                  <!-- Deep Link -->
+                  <div class="form-field">
+                    <div class="field-box" [class.filled]="url()">
+                      <div class="field-box__icon field-box__icon--success">
+                        <i class="pi pi-link"></i>
+                      </div>
+                      <div class="field-box__content">
+                        <label>{{ 'admin.notifications.content.deep_link' | translate }}</label>
+                        <input
+                          type="text"
+                          [ngModel]="url()"
+                          (ngModelChange)="url.set($event)"
+                          placeholder="/products/123">
+                      </div>
+                    </div>
+                    <span class="field-hint">{{ 'admin.notifications.content.deep_link_hint' | translate }}</span>
                   </div>
                 </div>
 
@@ -373,24 +395,6 @@
                     </div>
                   </div>
                 </div>
-              </div>
-
-              <!-- Deep Link - Full Width -->
-              <div class="form-field" style="margin-top: var(--space-5);">
-                <div class="field-box" [class.filled]="url()">
-                  <div class="field-box__icon field-box__icon--success">
-                    <i class="pi pi-link"></i>
-                  </div>
-                  <div class="field-box__content">
-                    <label>{{ 'admin.notifications.content.deep_link' | translate }}</label>
-                    <input
-                      type="text"
-                      [ngModel]="url()"
-                      (ngModelChange)="url.set($event)"
-                      placeholder="/products/123">
-                  </div>
-                </div>
-                <span class="field-hint">{{ 'admin.notifications.content.deep_link_hint' | translate }}</span>
               </div>
             }
 

@@ -89,13 +89,14 @@
     color: var(--text-color-secondary);
     font-size: var(--font-size-base);
     border: 2px solid transparent;
+    cursor: pointer;
 
     i {
       font-size: var(--font-size-base);
     }
 
     .stepper-horizontal__step--active & {
-      background: var(--primary-gradient);
+      background: var(--primary-color);
       color: var(--color-white);
       box-shadow: var(--shadow-primary);
       transform: scale(1.1);

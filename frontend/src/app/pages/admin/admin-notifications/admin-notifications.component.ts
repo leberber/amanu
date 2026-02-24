@@ -64,6 +64,7 @@ export class AdminNotificationsComponent implements OnInit {
   selectedCity = signal<string | null>(null);
   notificationType = signal<NotificationType>('custom');
   selectedTargetId = signal<number | null>(null);
+  selectedTemplateId = signal<string | null>(null);
 
   // Content
   titleEn = signal('');
@@ -325,6 +326,7 @@ export class AdminNotificationsComponent implements OnInit {
   }
 
   applyTemplate(template: NotificationTemplate) {
+    this.selectedTemplateId.set(template.id);
     this.titleEn.set(template.title_en);
     this.titleFr.set(template.title_fr);
     this.titleAr.set(template.title_ar);

@@ -112,6 +112,18 @@
   &--outlined {
     background: transparent;
     border: var(--border-width) solid var(--border-color-medium);
+    cursor: pointer;
+
+    &:hover {
+      border-color: var(--primary-color);
+      color: var(--primary-color);
+    }
+
+    &.active {
+      background: rgba(var(--primary-rgb), 0.1);
+      border-color: var(--primary-color);
+      color: var(--primary-color);
+    }
 
     &.chip--primary {
       border-color: var(--primary-color);
