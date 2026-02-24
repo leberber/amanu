@@ -707,9 +707,9 @@
 
   &__screen {
     background: linear-gradient(180deg,
-      rgba(var(--color-indigo-rgb), 0.25) 0%,
-      rgba(var(--color-indigo-rgb), 0.1) 30%,
-      var(--surface-100) 60%);
+      rgba(var(--primary-rgb), 0.15) 0%,
+      rgba(var(--primary-rgb), 0.05) 30%,
+      var(--surface-50) 60%);
     border-radius: var(--radius-2xl);
     overflow: hidden;
     position: relative;
@@ -780,8 +780,9 @@
     border-radius: var(--radius-md);
     object-fit: contain;
     flex-shrink: 0;
-    background: var(--surface-100);
-    padding: var(--space-2);
+    background: var(--surface-0);
+    padding: var(--space-1);
+    box-shadow: var(--shadow-lg);
   }
 
   &__text {

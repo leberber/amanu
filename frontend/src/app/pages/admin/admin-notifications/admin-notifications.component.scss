@@ -1,9 +1,9 @@
 // =============================================================================
 // ADMIN NOTIFICATIONS - PAGE-SPECIFIC STYLES
 // =============================================================================
-// Minimal styles - uses global classes where possible.
-// Global: .admin-page, .admin-content, .form-wizard, .chip, .info-box,
-//         .grid-2-col, .section-card, .options-card, .summary-pill
+// Layout overrides for full-height wizard and phone preview.
+// Global: .admin-page, .admin-content, .form-wizard, .grid-2-col,
+//         .section-card, .options-card, .summary-pill
 // =============================================================================
 
 
@@ -55,19 +55,13 @@
   min-height: 0;
 }
 
-
-// =============================================================================
-// 2. GRID FLEX OVERRIDE
-// =============================================================================
-// Make grid fill available space in wizard body
-
 .grid-2-col {
   flex: 1;
 }
 
 
 // =============================================================================
-// 3. PHONE PREVIEW LAYOUT
+// 2. PHONE PREVIEW
 // =============================================================================
 
 .preview-column {
@@ -80,12 +74,101 @@
     display: flex;
     flex-direction: column;
     max-width: 300px;
+    background: linear-gradient(145deg, var(--surface-100) 0%, var(--surface-300) 100%);
+    border: 3px solid var(--surface-400);
+    border-radius: var(--radius-3xl);
+    padding: var(--space-3);
+    box-shadow: var(--shadow-2xl), inset 0 1px 0 rgba(255, 255, 255, 0.5);
 
-    &__screen,
+    &__screen {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: linear-gradient(180deg, rgba(var(--primary-rgb), 0.15) 0%, rgba(var(--primary-rgb), 0.05) 30%, var(--surface-50) 60%);
+      border-radius: var(--radius-2xl);
+      overflow: hidden;
+    }
+
+    &__status-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--space-4) var(--space-6) var(--space-2);
+      font-size: var(--font-size-xs);
+      font-weight: var(--font-weight-semibold);
+      color: var(--text-color);
+    }
+
+    &__icons {
+      display: flex;
+      gap: var(--space-2);
+      align-items: center;
+
+      i {
+        font-size: var(--font-size-xs);
+        opacity: 0.8;
+      }
+    }
+
     &__content {
       flex: 1;
       display: flex;
       flex-direction: column;
+      padding: var(--space-4);
+    }
+  }
+
+  .notification-preview {
+    background: rgba(255, 255, 255, 0.98);
+    border-radius: var(--radius-xl);
+    padding: var(--space-4);
+    box-shadow: var(--shadow-md);
+
+    &__main {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-3);
+    }
+
+    &__logo {
+      width: var(--icon-xl);
+      height: var(--icon-xl);
+      border-radius: var(--radius-md);
+      object-fit: contain;
+      flex-shrink: 0;
+      background: var(--surface-0);
+      padding: var(--space-1);
+      box-shadow: var(--shadow-lg);
+    }
+
+    &__text {
+      flex: 1;
+      min-width: 0;
+    }
+
+    &__title {
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-semibold);
+      color: var(--text-color);
+      margin-bottom: var(--space-1);
+    }
+
+    &__message {
+      font-size: var(--font-size-sm);
+      color: var(--text-color-secondary);
+      line-height: var(--line-height-relaxed);
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    &--empty {
+      .notification-preview__title,
+      .notification-preview__message {
+        color: var(--text-color-muted);
+        font-style: italic;
+      }
     }
   }
 }
