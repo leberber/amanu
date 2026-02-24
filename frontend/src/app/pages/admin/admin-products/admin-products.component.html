@@ -285,8 +285,8 @@
                     <td class="col-price">
                     @if (!isEditingPrice(product.id)) {
                       <div class="editable-cell" (click)="startEditPrice(product)">
-                        <span class="editable-cell__value">{{ product.price | appCurrency }}</span>
-                        <span class="editable-cell__label">{{ getUnitLabel(product) }}</span>
+                        <div class="editable-cell__value">{{ product.price | appCurrency }}</div>
+                        <div class="editable-cell__label">{{ getUnitLabel(product) }}</div>
                         <i class="pi pi-pencil editable-cell__icon"></i>
                       </div>
                     } @else {
