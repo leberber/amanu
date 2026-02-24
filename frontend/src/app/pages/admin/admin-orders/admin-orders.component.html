@@ -34,42 +34,42 @@
           [class.active]="statusFilter === 'all'"
           (click)="onStatusFilterChange('all')">
           <span>{{ 'common.all' | translate }}</span>
-          <span class="count">{{ allOrders.length }}</span>
+          <span class="count">{{ allOrders().length }}</span>
         </button>
         <button
           class="segment-control__item"
           [class.active]="statusFilter === 'pending'"
           (click)="onStatusFilterChange('pending')">
           <span>{{ 'admin.orders.status.pending' | translate }}</span>
-          <span class="count pending">{{ getPendingCount() }}</span>
+          <span class="count pending">{{ pendingCount() }}</span>
         </button>
         <button
           class="segment-control__item"
           [class.active]="statusFilter === 'confirmed'"
           (click)="onStatusFilterChange('confirmed')">
           <span>{{ 'admin.orders.status.confirmed' | translate }}</span>
-          <span class="count confirmed">{{ getConfirmedCount() }}</span>
+          <span class="count confirmed">{{ confirmedCount() }}</span>
         </button>
         <button
           class="segment-control__item"
           [class.active]="statusFilter === 'shipped'"
           (click)="onStatusFilterChange('shipped')">
           <span>{{ 'admin.orders.status.shipped' | translate }}</span>
-          <span class="count shipped">{{ getShippedCount() }}</span>
+          <span class="count shipped">{{ shippedCount() }}</span>
         </button>
         <button
           class="segment-control__item"
           [class.active]="statusFilter === 'delivered'"
           (click)="onStatusFilterChange('delivered')">
           <span>{{ 'admin.orders.status.delivered' | translate }}</span>
-          <span class="count delivered">{{ getDeliveredCount() }}</span>
+          <span class="count delivered">{{ deliveredCount() }}</span>
         </button>
         <button
           class="segment-control__item"
           [class.active]="statusFilter === 'cancelled'"
           (click)="onStatusFilterChange('cancelled')">
           <span>{{ 'admin.orders.status.cancelled' | translate }}</span>
-          <span class="count cancelled">{{ getCancelledCount() }}</span>
+          <span class="count cancelled">{{ cancelledCount() }}</span>
         </button>
       </div>
 
@@ -86,7 +86,7 @@
         [rows]="6"
         [actionCount]="3"
       />
-    } @else if (orders.length === 0 && !hasActiveFilters()) {
+    } @else if (orders().length === 0 && !hasActiveFilters()) {
       <!-- Empty State - No Orders -->
       <div class="empty-state animate-item" style="--delay: 100ms;">
         <div class="empty-state__icon">
@@ -164,7 +164,7 @@
           </div>
         </div>
 
-        @if (orders.length === 0) {
+        @if (orders().length === 0) {
           <!-- Empty State - No Match -->
           <div class="empty-state">
             <div class="empty-state__icon empty-state__icon--warning">
@@ -191,7 +191,7 @@
                 </tr>
               </thead>
               <tbody>
-                @for (order of paginatedOrders; track order.id; let i = $index) {
+                @for (order of paginatedOrders(); track order.id; let i = $index) {
                   <tr class="table-row-animate" [style.--row-delay]="(i * 40) + 'ms'">
                     <!-- Order ID -->
                     @if (isColumnVisible('order_id')) {
@@ -309,12 +309,12 @@
           </div>
 
           <!-- Pagination -->
-          @if (orders.length > rows) {
+          @if (orders().length > rows) {
             <div class="table-footer">
               <p-paginator
                 [first]="first"
                 [rows]="rows"
-                [totalRecords]="orders.length"
+                [totalRecords]="orders().length"
                 (onPageChange)="onPageChange($event)"
                 [showCurrentPageReport]="true"
                 currentPageReportTemplate="{{ 'admin.orders.showing' | translate }} {first} - {last} {{ 'admin.orders.of' | translate }} {totalRecords}"
@@ -323,9 +323,9 @@
           }
 
           <!-- Results Info -->
-          @if (orders.length <= rows) {
+          @if (orders().length <= rows) {
             <div class="table-footer results-info">
-              <span>{{ 'admin.orders.showing' | translate }} {{ orders.length }} {{ 'admin.orders.of' | translate }} {{ allOrders.length }} {{ 'admin.orders.orders' | translate }}</span>
+              <span>{{ 'admin.orders.showing' | translate }} {{ orders().length }} {{ 'admin.orders.of' | translate }} {{ allOrders().length }} {{ 'admin.orders.orders' | translate }}</span>
             </div>
           }
         }

@@ -1,5 +1,6 @@
 // src/app/pages/admin/admin-orders/admin-orders.component.ts
-import { Component, OnInit, inject, DestroyRef, signal } from '@angular/core';
+import { Component, OnInit, inject, DestroyRef, signal, computed } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ConfirmationService } from 'primeng/api';
 import { PopoverModule } from 'primeng/popover';
 import { TranslateService } from '@ngx-translate/core';
@@ -10,7 +11,8 @@ import { ROUTES } from '../../../core/constants/routes.constants';
 import { ORDER_STATUS } from '../../../core/constants/app.constants';
 import { onLanguageChange } from '../../../core/utils/language-change.util';
 import { AdminService } from '../../../services/admin.service';
-import { Order } from '../../../models/admin.model';
+import { Order, OrderItem, UserManage } from '../../../models/admin.model';
+import { Product } from '../../../models/product.model';
 import { ProductService } from '../../../services/product.service';
 import { TranslationHelperService } from '../../../core/services/translation-helper.service';
 import { StatusSeverityService } from '../../../core/services/status-severity.service';
@@ -30,11 +32,19 @@ import { BaseAdminListComponent, ColumnOption } from '../../../shared/base/base-
   styleUrl: './admin-orders.component.scss'
 })
 export class AdminOrdersComponent extends BaseAdminListComponent implements OnInit {
-  allOrders: Order[] = [];
-  orders: Order[] = [];
-  paginatedOrders: Order[] = [];
-  users: any[] = [];
-  products: any[] = [];
+  // Data signals
+  allOrders = signal<Order[]>([]);
+  orders = signal<Order[]>([]);
+  paginatedOrders = signal<Order[]>([]);
+  users = signal<UserManage[]>([]);
+  products = signal<Product[]>([]);
+
+  // Computed counts
+  pendingCount = computed(() => this.allOrders().filter(o => o.status === ORDER_STATUS.PENDING).length);
+  confirmedCount = computed(() => this.allOrders().filter(o => o.status === ORDER_STATUS.CONFIRMED).length);
+  shippedCount = computed(() => this.allOrders().filter(o => o.status === ORDER_STATUS.SHIPPED).length);
+  deliveredCount = computed(() => this.allOrders().filter(o => o.status === ORDER_STATUS.DELIVERED).length);
+  cancelledCount = computed(() => this.allOrders().filter(o => o.status === ORDER_STATUS.CANCELLED).length);
 
   // Animation state
   tableInitialized = signal(false);
@@ -89,59 +99,43 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
   }
 
   loadProducts() {
-    this.loadDataSilent(
-      () => this.productService.getProducts(),
-      (products) => { this.products = products || []; }
-    );
+    this.productService.getProducts()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (products) => this.products.set(products || []),
+        error: () => this.products.set([])
+      });
   }
 
   loadUsersAndOrders() {
     this.loading = true;
 
-    this.adminService.getAllUsers().subscribe({
-      next: (usersResponse) => {
-        this.users = Array.isArray(usersResponse) ? usersResponse : usersResponse.users;
-        this.loadAllOrders();
-      },
-      error: () => {
-        this.users = [];
-        this.loadAllOrders();
-      }
-    });
+    this.adminService.getAllUsers()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (usersResponse) => {
+          this.users.set(Array.isArray(usersResponse) ? usersResponse : usersResponse.users);
+          this.loadAllOrders();
+        },
+        error: () => {
+          this.users.set([]);
+          this.loadAllOrders();
+        }
+      });
   }
 
   getUserById(userId: number) {
-    return this.users.find(user => user.id === userId);
+    return this.users().find(user => user.id === userId);
   }
 
   hasActiveFilters(): boolean {
     return !!(this.searchQuery?.trim() || this.statusFilter !== 'all');
   }
 
-  getPendingCount(): number {
-    return this.getCountByPredicate(this.allOrders, o => o.status === ORDER_STATUS.PENDING);
-  }
-
-  getConfirmedCount(): number {
-    return this.getCountByPredicate(this.allOrders, o => o.status === ORDER_STATUS.CONFIRMED);
-  }
-
-  getShippedCount(): number {
-    return this.getCountByPredicate(this.allOrders, o => o.status === ORDER_STATUS.SHIPPED);
-  }
-
-  getDeliveredCount(): number {
-    return this.getCountByPredicate(this.allOrders, o => o.status === ORDER_STATUS.DELIVERED);
-  }
-
-  getCancelledCount(): number {
-    return this.getCountByPredicate(this.allOrders, o => o.status === ORDER_STATUS.CANCELLED);
-  }
-
   // === Abstract method implementations ===
 
   updatePaginatedItems(): void {
-    this.paginatedOrders = this.orders.slice(this.first, this.first + this.rows);
+    this.paginatedOrders.set(this.orders().slice(this.first, this.first + this.rows));
   }
 
   getSearchDebounceKey(): string {
@@ -151,37 +145,39 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
   // === Data loading ===
 
   loadAllOrders() {
-    this.adminService.getAllOrders('', 1, 1000).subscribe({
-      next: (response) => {
-        if (response && response.orders) {
-          this.allOrders = response.orders;
-          this.orders = response.orders;
-          this.updatePaginatedItems();
-        } else {
-          this.allOrders = [];
-          this.orders = [];
-        }
-        this.loading = false;
-        setTimeout(() => this.tableInitialized.set(true), 100);
-      },
-      error: (error) => {
-        this.loading = false;
+    this.adminService.getAllOrders('', 1, 1000)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          if (response && response.orders) {
+            this.allOrders.set(response.orders);
+            this.orders.set(response.orders);
+            this.updatePaginatedItems();
+          } else {
+            this.allOrders.set([]);
+            this.orders.set([]);
+          }
+          this.loading = false;
+          setTimeout(() => this.tableInitialized.set(true), 100);
+        },
+        error: (error) => {
+          this.loading = false;
 
-        if (error.status === 403) {
-          this.baseToast.showPermissionDenied();
-          this.baseRouter.navigate([ROUTES.HOME]);
-        } else {
-          this.baseToast.showError('admin.orders.load_error');
-        }
+          if (error.status === 403) {
+            this.baseToast.showPermissionDenied();
+            this.baseRouter.navigate([ROUTES.HOME]);
+          } else {
+            this.baseToast.showError('admin.orders.load_error');
+          }
 
-        this.allOrders = [];
-        this.orders = [];
-      }
-    });
+          this.allOrders.set([]);
+          this.orders.set([]);
+        }
+      });
   }
 
   filterItems(): void {
-    let filtered = [...this.allOrders];
+    let filtered = [...this.allOrders()];
 
     // Status filter (custom for orders: pending/confirmed/shipped/delivered/cancelled)
     if (this.statusFilter !== 'all') {
@@ -201,7 +197,7 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
       );
     }
 
-    this.orders = filtered;
+    this.orders.set(filtered);
     this.resetPagination();
     this.updatePaginatedItems();
   }
@@ -245,44 +241,50 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
     return this.statusSeverity.getOrderStatusIcon(status);
   }
 
-  getProductName(item: any): string {
-    if (item.name_translations || item.name) {
-      return this.translationHelper.getProductName(item);
-    }
-
-    if (item.product_id && this.products.length > 0) {
-      const fullProduct = this.products.find(p => p.id === item.product_id);
+  getProductName(item: OrderItem): string {
+    // Try to find the full product for translated name
+    const products = this.products();
+    if (item.product_id && products.length > 0) {
+      const fullProduct = products.find(p => p.id === item.product_id);
       if (fullProduct) {
         return this.translationHelper.getProductName(fullProduct);
       }
     }
 
-    return item.product_name || item.name;
+    // Fallback to stored product name
+    return item.product_name;
   }
 
   updateOrderStatus(orderId: number, newStatus: string) {
-    this.adminService.updateOrderStatus(orderId, newStatus).subscribe({
-      next: (updatedOrder) => {
-        const allIndex = this.allOrders.findIndex(o => o.id === orderId);
-        if (allIndex !== -1) {
-          this.allOrders[allIndex] = updatedOrder;
+    this.adminService.updateOrderStatus(orderId, newStatus)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (updatedOrder) => {
+          this.allOrders.update(orders => {
+            const index = orders.findIndex(o => o.id === orderId);
+            if (index !== -1) {
+              const updated = [...orders];
+              updated[index] = updatedOrder;
+              return updated;
+            }
+            return orders;
+          });
+
+          this.filterItems();
+
+          this.baseToast.showSuccess('admin.orders.status_update_message', {
+            orderId: orderId,
+            status: this.translateService.instant('admin.orders.status.' + newStatus)
+          });
+
+          if (this.selectedOrder && this.selectedOrder.id === orderId) {
+            this.selectedOrder = updatedOrder;
+          }
+        },
+        error: (error) => {
+          this.baseToast.showApiError(error, 'admin.orders.update_error');
         }
-
-        this.filterItems();
-
-        this.baseToast.showSuccess('admin.orders.status_update_message', {
-          orderId: orderId,
-          status: this.translateService.instant('admin.orders.status.' + newStatus)
-        });
-
-        if (this.selectedOrder && this.selectedOrder.id === orderId) {
-          this.selectedOrder = updatedOrder;
-        }
-      },
-      error: (error) => {
-        this.baseToast.showApiError(error, 'admin.orders.update_error');
-      }
-    });
+      });
   }
 
   // ===== INLINE STATUS EDITING =====
