@@ -147,7 +147,7 @@ export class AdminNotificationsComponent implements OnInit {
 
   // Computed
   canSend = computed(() => {
-    return this.titleEn().trim() && this.bodyEn().trim() && !this.sending();
+    return this.titleFr().trim() && this.bodyFr().trim() && !this.sending();
   });
 
   selectedSegmentInfo = computed(() => {
@@ -170,7 +170,7 @@ export class AdminNotificationsComponent implements OnInit {
     switch (step) {
       case 1: return this.selectedSegment() !== null;
       case 2: return this.notificationType() !== null;
-      case 3: return this.titleEn().trim() !== '' && this.bodyEn().trim() !== '';
+      case 3: return this.titleFr().trim() !== '' && this.bodyFr().trim() !== '';
       case 4: return true;
       default: return false;
     }

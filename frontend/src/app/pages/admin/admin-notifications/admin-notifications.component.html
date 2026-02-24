@@ -256,91 +256,141 @@
 
             <!-- Step 3: Message Content -->
             @if (currentStep() === 3) {
-              <div class="form-row" style="align-items: start;">
-                <!-- Column 1: English Content -->
+              <div class="form-grid">
+                <!-- Column 1: French Content (Primary) -->
                 <div>
+                  <!-- Title FR -->
                   <div class="form-field">
-                    <label>
-                      {{ 'admin.notifications.content.title_en' | translate }}
-                      <span class="required">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      [ngModel]="titleEn()"
-                      (ngModelChange)="titleEn.set($event)"
-                      placeholder="Notification title...">
+                    <div class="field-box" [class.filled]="titleFr()">
+                      <div class="field-box__icon field-box__icon--primary">
+                        <i class="pi pi-megaphone"></i>
+                      </div>
+                      <div class="field-box__content">
+                        <label>{{ 'admin.notifications.content.title_fr' | translate }} *</label>
+                        <input
+                          type="text"
+                          [ngModel]="titleFr()"
+                          (ngModelChange)="titleFr.set($event)"
+                          placeholder="Titre de la notification...">
+                      </div>
+                    </div>
                   </div>
 
+                  <!-- Body FR -->
                   <div class="form-field">
-                    <label>
-                      {{ 'admin.notifications.content.body_en' | translate }}
-                      <span class="required">*</span>
-                    </label>
-                    <textarea
-                      [ngModel]="bodyEn()"
-                      (ngModelChange)="bodyEn.set($event)"
-                      placeholder="Notification message..."
-                      rows="4"></textarea>
+                    <div class="field-box" [class.filled]="bodyFr()" style="align-items: flex-start;">
+                      <div class="field-box__icon field-box__icon--info">
+                        <i class="pi pi-align-left"></i>
+                      </div>
+                      <div class="field-box__content">
+                        <label>{{ 'admin.notifications.content.body_fr' | translate }} *</label>
+                        <textarea
+                          [ngModel]="bodyFr()"
+                          (ngModelChange)="bodyFr.set($event)"
+                          placeholder="Message de la notification..."
+                          rows="3"></textarea>
+                      </div>
+                    </div>
                   </div>
 
                   <!-- Quick Emojis -->
-                  <div class="chip-group chip-group--sm">
+                  <div class="chip-group chip-group--sm" style="margin-bottom: var(--space-5);">
                     @for (emoji of quickEmojis; track emoji) {
                       <button class="btn-icon btn-icon--sm" (click)="insertEmoji(emoji)">{{ emoji }}</button>
                     }
                   </div>
                 </div>
 
-                <!-- Column 2: Translations -->
+                <!-- Column 2: Translations (Optional) -->
                 <div>
+                  <!-- Title EN -->
                   <div class="form-field">
-                    <label>{{ 'admin.notifications.content.title_fr' | translate }}</label>
-                    <input
-                      type="text"
-                      [ngModel]="titleFr()"
-                      (ngModelChange)="titleFr.set($event)"
-                      placeholder="Titre en français...">
+                    <div class="field-box" [class.filled]="titleEn()">
+                      <div class="field-box__icon">
+                        <i class="pi pi-flag"></i>
+                      </div>
+                      <div class="field-box__content">
+                        <label>{{ 'admin.notifications.content.title_en' | translate }}</label>
+                        <input
+                          type="text"
+                          [ngModel]="titleEn()"
+                          (ngModelChange)="titleEn.set($event)"
+                          placeholder="Notification title...">
+                      </div>
+                    </div>
                   </div>
 
+                  <!-- Title AR -->
                   <div class="form-field">
-                    <label>{{ 'admin.notifications.content.title_ar' | translate }}</label>
-                    <input
-                      type="text"
-                      dir="rtl"
-                      [ngModel]="titleAr()"
-                      (ngModelChange)="titleAr.set($event)"
-                      placeholder="العنوان بالعربية...">
+                    <div class="field-box" [class.filled]="titleAr()">
+                      <div class="field-box__icon">
+                        <i class="pi pi-flag"></i>
+                      </div>
+                      <div class="field-box__content">
+                        <label>{{ 'admin.notifications.content.title_ar' | translate }}</label>
+                        <input
+                          type="text"
+                          dir="rtl"
+                          [ngModel]="titleAr()"
+                          (ngModelChange)="titleAr.set($event)"
+                          placeholder="العنوان بالعربية...">
+                      </div>
+                    </div>
                   </div>
 
+                  <!-- Body EN -->
                   <div class="form-field">
-                    <label>{{ 'admin.notifications.content.body_fr' | translate }}</label>
-                    <textarea
-                      [ngModel]="bodyFr()"
-                      (ngModelChange)="bodyFr.set($event)"
-                      placeholder="Message en français..."
-                      rows="2"></textarea>
+                    <div class="field-box" [class.filled]="bodyEn()" style="align-items: flex-start;">
+                      <div class="field-box__icon">
+                        <i class="pi pi-align-left"></i>
+                      </div>
+                      <div class="field-box__content">
+                        <label>{{ 'admin.notifications.content.body_en' | translate }}</label>
+                        <textarea
+                          [ngModel]="bodyEn()"
+                          (ngModelChange)="bodyEn.set($event)"
+                          placeholder="Notification message..."
+                          rows="2"></textarea>
+                      </div>
+                    </div>
                   </div>
 
+                  <!-- Body AR -->
                   <div class="form-field">
-                    <label>{{ 'admin.notifications.content.body_ar' | translate }}</label>
-                    <textarea
-                      dir="rtl"
-                      [ngModel]="bodyAr()"
-                      (ngModelChange)="bodyAr.set($event)"
-                      placeholder="الرسالة بالعربية..."
-                      rows="2"></textarea>
+                    <div class="field-box" [class.filled]="bodyAr()" style="align-items: flex-start;">
+                      <div class="field-box__icon">
+                        <i class="pi pi-align-left"></i>
+                      </div>
+                      <div class="field-box__content">
+                        <label>{{ 'admin.notifications.content.body_ar' | translate }}</label>
+                        <textarea
+                          dir="rtl"
+                          [ngModel]="bodyAr()"
+                          (ngModelChange)="bodyAr.set($event)"
+                          placeholder="الرسالة بالعربية..."
+                          rows="2"></textarea>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
 
+              <!-- Deep Link - Full Width -->
               <div class="form-field">
-                <label>{{ 'admin.notifications.content.deep_link' | translate }}</label>
-                <input
-                  type="text"
-                  [ngModel]="url()"
-                  (ngModelChange)="url.set($event)"
-                  placeholder="/products/123">
-                <span class="field-hint">{{ 'admin.notifications.content.deep_link' | translate }}</span>
+                <div class="field-box" [class.filled]="url()">
+                  <div class="field-box__icon field-box__icon--success">
+                    <i class="pi pi-link"></i>
+                  </div>
+                  <div class="field-box__content">
+                    <label>{{ 'admin.notifications.content.deep_link' | translate }}</label>
+                    <input
+                      type="text"
+                      [ngModel]="url()"
+                      (ngModelChange)="url.set($event)"
+                      placeholder="/products/123">
+                  </div>
+                </div>
+                <span class="field-hint">{{ 'admin.notifications.content.deep_link_hint' | translate }}</span>
               </div>
             }
 

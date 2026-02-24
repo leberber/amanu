@@ -587,3 +587,209 @@
     }
   }
 }
+
+
+// =============================================================================
+// 18. FIELD BOX (Styled input container with icon)
+// =============================================================================
+// A modern input field design with left icon, label, and input.
+// Supports focus, filled, and disabled states.
+// Used in account page, forms, etc.
+
+.field-box {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  background: var(--surface-0);
+  border: var(--border-width) solid var(--border-color-light);
+  border-radius: var(--radius-lg);
+  transition: all var(--transition-fast);
+
+  &:hover {
+    border-color: rgba(var(--primary-rgb), 0.3);
+  }
+
+  &.focused {
+    border-color: var(--primary-color);
+    box-shadow: 0 4px 16px rgba(var(--primary-rgb), 0.15);
+
+    .field-box__icon {
+      background: var(--primary-gradient);
+      i { color: var(--color-white); }
+    }
+  }
+
+  &.filled,
+  &.has-value {
+    .field-box__icon {
+      background: rgba(var(--primary-rgb), 0.1);
+      i { color: var(--primary-color); }
+    }
+  }
+
+  &.disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+
+  &__icon {
+    width: var(--icon-lg);
+    height: var(--icon-lg);
+    border-radius: var(--radius-md);
+    background: var(--surface-100);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all var(--transition-fast);
+
+    i {
+      font-size: var(--font-size-lg);
+      color: var(--text-color-secondary);
+      transition: color var(--transition-fast);
+    }
+
+    // Colored icon variants
+    &--primary {
+      background: rgba(var(--primary-rgb), 0.1) !important;
+      i { color: var(--primary-color) !important; }
+    }
+
+    &--shield,
+    &--warning {
+      background: rgba(var(--color-warning-rgb), 0.1) !important;
+      i { color: var(--color-warning) !important; }
+    }
+
+    &--key,
+    &--success {
+      background: rgba(var(--color-success-rgb), 0.1) !important;
+      i { color: var(--color-success) !important; }
+    }
+
+    &--check,
+    &--info {
+      background: rgba(var(--color-info-rgb), 0.1) !important;
+      i { color: var(--color-info) !important; }
+    }
+
+    &--danger {
+      background: rgba(var(--color-error-rgb), 0.1) !important;
+      i { color: var(--color-error) !important; }
+    }
+  }
+
+  &__content {
+    flex: 1;
+    min-width: 0;
+
+    label {
+      display: block;
+      font-size: var(--font-size-xs);
+      font-weight: var(--font-weight-semibold);
+      color: var(--text-color-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: var(--space-1);
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      padding: 0;
+      border: none;
+      background: transparent;
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-medium);
+      color: var(--text-color);
+
+      &:focus {
+        outline: none;
+      }
+
+      &::placeholder {
+        color: var(--text-color-muted);
+        font-weight: var(--font-weight-normal);
+      }
+
+      &:disabled {
+        color: var(--text-color-secondary);
+        cursor: not-allowed;
+      }
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 60px;
+    }
+
+    &--password {
+      overflow: hidden;
+    }
+  }
+
+  &__lock {
+    width: var(--icon-md);
+    height: var(--icon-md);
+    border-radius: var(--radius-sm);
+    background: var(--surface-100);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    i {
+      font-size: var(--font-size-sm);
+      color: var(--text-color-secondary);
+    }
+  }
+
+  // Responsive adjustments
+  @media (max-width: 767px) {
+    padding: var(--space-3);
+    gap: var(--space-3);
+
+    &__icon {
+      width: var(--icon-md);
+      height: var(--icon-md);
+    }
+  }
+}
+
+// Field error message
+.field-error {
+  display: block;
+  font-size: var(--font-size-sm);
+  color: var(--color-error);
+  margin-top: var(--space-2);
+  margin-left: var(--space-2);
+  font-weight: var(--font-weight-medium);
+}
+
+// Field hint text (below field-box)
+.field-hint {
+  display: block;
+  font-size: var(--font-size-xs);
+  color: var(--text-color-secondary);
+  margin-top: var(--space-1);
+  margin-left: var(--space-2);
+}
+
+
+// =============================================================================
+// 19. FORM GRID (2-column layout for form fields)
+// =============================================================================
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-5);
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.form-field--full {
+  grid-column: 1 / -1;
+}
