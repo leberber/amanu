@@ -43,7 +43,6 @@
             <span class="stat-card__value">{{ formatCurrency(stats()!.total_revenue) }}</span>
             <span class="stat-card__label">{{ 'admin.dashboard.total_revenue' | translate }}</span>
           </div>
-          <div class="stat-card__decoration stat-card__decoration--success"></div>
         </div>
 
         <div class="stat-card stat-card--compact" (click)="navigateToUsers()">
@@ -54,7 +53,6 @@
             <span class="stat-card__value">{{ stats()!.total_users }}</span>
             <span class="stat-card__label">{{ 'admin.dashboard.total_users' | translate }}</span>
           </div>
-          <div class="stat-card__decoration stat-card__decoration--purple"></div>
         </div>
 
         <div class="stat-card stat-card--compact" (click)="navigateToProducts()">
@@ -65,7 +63,6 @@
             <span class="stat-card__value">{{ stats()!.total_products }}</span>
             <span class="stat-card__label">{{ 'admin.dashboard.total_products' | translate }}</span>
           </div>
-          <div class="stat-card__decoration stat-card__decoration--warning"></div>
         </div>
 
         <div class="stat-card stat-card--compact" (click)="navigateToOrders()">
@@ -76,7 +73,6 @@
             <span class="stat-card__value">{{ stats()!.total_orders }}</span>
             <span class="stat-card__label">{{ 'admin.dashboard.total_orders' | translate }}</span>
           </div>
-          <div class="stat-card__decoration stat-card__decoration--primary"></div>
         </div>
 
         <div class="stat-card stat-card--compact" (click)="navigateToOrders()">
@@ -87,18 +83,16 @@
             <span class="stat-card__value">{{ stats()!.pending_orders }}</span>
             <span class="stat-card__label">{{ 'admin.dashboard.pending_orders' | translate }}</span>
           </div>
-          <div class="stat-card__decoration stat-card__decoration--orange"></div>
         </div>
 
         <div class="stat-card stat-card--compact" (click)="navigateToProducts()">
           <div class="stat-card__icon stat-card__icon--red">
-            <i class="pi pi-exclamation-triangle"></i>
+            <i class="pi pi-box"></i>
           </div>
           <div class="stat-card__content">
             <span class="stat-card__value">{{ stats()!.low_stock_products }}</span>
             <span class="stat-card__label">{{ 'admin.dashboard.low_stock_items' | translate }}</span>
           </div>
-          <div class="stat-card__decoration stat-card__decoration--red"></div>
         </div>
       </div>
 
