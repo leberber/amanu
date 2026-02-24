@@ -130,25 +130,25 @@
             <table class="table">
               <thead>
                 <tr>
-                  <th style="width: 8%">{{ 'admin.users.table.id' | translate }}</th>
+                  <th style="width: 8%" class="text-center">{{ 'admin.users.table.id' | translate }}</th>
                   <th style="width: 30%">{{ 'admin.users.table.user_details' | translate }}</th>
-                  <th style="width: 15%">{{ 'admin.users.table.role' | translate }}</th>
-                  <th style="width: 15%">{{ 'admin.users.table.status' | translate }}</th>
-                  <th style="width: 15%">{{ 'admin.users.table.created' | translate }}</th>
-                  <th style="width: 17%">{{ 'admin.users.table.actions' | translate }}</th>
+                  <th style="width: 15%" class="text-center">{{ 'admin.users.table.role' | translate }}</th>
+                  <th style="width: 15%" class="text-center">{{ 'admin.users.table.status' | translate }}</th>
+                  <th style="width: 15%" class="text-center">{{ 'admin.users.table.created' | translate }}</th>
+                  <th style="width: 17%" class="text-center">{{ 'admin.users.table.actions' | translate }}</th>
                 </tr>
               </thead>
               <tbody>
                 @for (user of users; track user.id; let i = $index) {
                   <tr class="table-row-animate" [style.--row-delay]="(i * 40) + 'ms'">
                     <!-- ID -->
-                    <td>
+                    <td class="text-center">
                       <span class="id-badge">{{ user.id }}</span>
                     </td>
 
                     <!-- User Details -->
                     <td>
-                      <div class="user-cell">
+                      <div class="flex align-items-center gap-3">
                         <div class="avatar">
                           {{ user.full_name.charAt(0).toUpperCase() }}
                         </div>
@@ -163,16 +163,16 @@
                     </td>
 
                     <!-- Role Column - Inline Editable -->
-                    <td>
+                    <td class="text-center">
                       @if (!isEditingRole(user.id)) {
                         <div class="editable-cell" (click)="startEditRole(user)">
-                          <span class="role-badge" [class]="user.role">
+                          <span class="role-badge" [ngClass]="user.role">
                             {{ getRoleLabel(user.role) }}
                           </span>
                           <i class="pi pi-pencil editable-cell__icon"></i>
                         </div>
                       } @else {
-                        <div class="cell-edit">
+                        <div class="cell-edit justify-content-center">
                           <p-select
                             [(ngModel)]="roleEdit.value"
                             [options]="roleOptions"
@@ -191,9 +191,9 @@
                     </td>
 
                     <!-- Status Column - Inline Editable -->
-                    <td>
+                    <td class="text-center">
                       @if (!isEditingStatus(user.id)) {
-                        <div class="status-toggle" [class.status-toggle--active]="user.is_active" (click)="startEditStatus(user)">
+                        <div class="status-toggle justify-content-center" [class.status-toggle--active]="user.is_active" (click)="startEditStatus(user)">
                           <span class="status-toggle__label">
                             {{ user.is_active ? ('admin.users.status.active' | translate) : ('admin.users.status.inactive' | translate) }}
                           </span>
@@ -202,7 +202,7 @@
                           </div>
                         </div>
                       } @else {
-                        <div class="cell-edit">
+                        <div class="cell-edit justify-content-center">
                           <div class="status-toggle" [class.status-toggle--active]="statusEdit.value" (click)="toggleEditingStatus()">
                             <span class="status-toggle__label">
                               {{ statusEdit.value ? ('admin.users.status.active' | translate) : ('admin.users.status.inactive' | translate) }}
@@ -222,13 +222,13 @@
                     </td>
 
                     <!-- Created Date -->
-                    <td>
+                    <td class="text-center">
                       <span class="date-display">{{ user.created_at | appDate }}</span>
                     </td>
 
                     <!-- Actions -->
-                    <td>
-                      <div class="table-cell-actions">
+                    <td class="text-center">
+                      <div class="table-cell-actions justify-content-center">
                         <button class="action-btn edit" (click)="navigateToEditUser(user)" [pTooltip]="'admin.users.actions.view_edit' | translate" tooltipPosition="top">
                           <i class="pi pi-pencil"></i>
                         </button>

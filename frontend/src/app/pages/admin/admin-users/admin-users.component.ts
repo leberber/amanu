@@ -4,6 +4,7 @@ import { ConfirmationService } from 'primeng/api';
 import { SelectModule } from 'primeng/select';
 import { TranslateService } from '@ngx-translate/core';
 
+import { delay } from 'rxjs'; // TODO: Remove - for testing skeleton
 import { ADMIN_LIST_IMPORTS, ADMIN_DIALOG_IMPORTS } from '../../../shared/imports/admin-shared.imports';
 import { TableSkeletonComponent, SkeletonColumn } from '../../../shared/components/table-skeleton/table-skeleton.component';
 import { ROUTES } from '../../../core/constants/routes.constants';
@@ -81,9 +82,12 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
   // ===== DATA LOADING =====
 
   loadAllUsers(): void {
+    // TODO: Remove delay(3000) - for testing skeleton only
     this.loading = true;
 
-    this.adminService.getAllUsers(1, 1000).subscribe({
+    this.adminService.getAllUsers(1, 1000).pipe(
+      delay(3000)
+    ).subscribe({
       next: (response: UsersResponse) => {
         this.allUsers = response.users || [];
         this.filterItems();
