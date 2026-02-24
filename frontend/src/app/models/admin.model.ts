@@ -19,6 +19,7 @@ export interface DashboardStats {
     total_quantity: number;
     total_sales: number;
     category: string;
+    image_url?: string;
   }
   
   export interface RecentOrder {

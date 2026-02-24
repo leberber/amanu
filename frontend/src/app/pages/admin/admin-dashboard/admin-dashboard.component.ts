@@ -2,15 +2,11 @@
 import { Component, OnInit, inject, DestroyRef, signal, computed } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink, Router } from '@angular/router';
-import { CardModule } from 'primeng/card';
-import { TableModule } from 'primeng/table';
 import { ChartModule } from 'primeng/chart';
-import { TagModule } from 'primeng/tag';
-import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { InputTextModule } from 'primeng/inputtext';
 import { TranslateService } from '@ngx-translate/core';
 
 import { ADMIN_CORE_IMPORTS } from '../../../shared/imports/admin-shared.imports';
+import { TableSkeletonComponent, SkeletonColumn } from '../../../shared/components/table-skeleton/table-skeleton.component';
 import { ROUTES } from '../../../core/constants/routes.constants';
 import { onLanguageChange } from '../../../core/utils/language-change.util';
 import { AdminService } from '../../../services/admin.service';
@@ -27,12 +23,8 @@ import { CurrencyService } from '../../../core/services/currency.service';
   imports: [
     ...ADMIN_CORE_IMPORTS,
     RouterLink,
-    CardModule,
-    TableModule,
     ChartModule,
-    TagModule,
-    ProgressSpinnerModule,
-    InputTextModule
+    TableSkeletonComponent
   ],
   templateUrl: './admin-dashboard.component.html',
   styleUrl: './admin-dashboard.component.scss'
@@ -45,6 +37,9 @@ export class AdminDashboardComponent implements OnInit {
   categories = signal<any[]>([]);
   brands = signal<any[]>([]);
 
+  // UI state signals
+  tableInitialized = signal(false);
+
   // Chart data signals
   categoryChartData = signal<any>(null);
   categoryChartOptions = signal<any>(null);
@@ -56,6 +51,14 @@ export class AdminDashboardComponent implements OnInit {
 
   // Computed values
   hasStats = computed(() => this.stats() !== null);
+
+  // Skeleton configuration for top products table
+  skeletonColumns: SkeletonColumn[] = [
+    { width: '45%', type: 'text-multi', headerWidth: '80px' },
+    { width: '20%', type: 'pill', headerWidth: '70px' },
+    { width: '15%', type: 'pill-sm', headerWidth: '60px' },
+    { width: '20%', type: 'price', headerWidth: '70px' }
+  ];
 
   // Services
   private adminService = inject(AdminService);
@@ -121,6 +124,7 @@ export class AdminDashboardComponent implements OnInit {
           this.stats.set(stats);
           this.loading.set(false);
           this.prepareChartData();
+          setTimeout(() => this.tableInitialized.set(true), 100);
         },
         error: (error) => {
           this.loading.set(false);
@@ -152,13 +156,15 @@ export class AdminDashboardComponent implements OnInit {
         label: this.translateService.instant('admin.dashboard.sales_by_category'),
         data: categorySales,
         backgroundColor: [
-          '#42A5F5', '#66BB6A', '#FFA726', '#26C6DA', '#7E57C2',
-          '#EC407A', '#AB47BC', '#5C6BC0', '#29B6F6', '#26A69A'
+          '#6366f1', '#8b5cf6', '#a855f7', '#d946ef', '#ec4899',
+          '#f43f5e', '#f97316', '#eab308', '#22c55e', '#14b8a6'
         ],
         hoverBackgroundColor: [
-          '#64B5F6', '#81C784', '#FFB74D', '#4DD0E1', '#9575CD',
-          '#F06292', '#BA68C8', '#7986CB', '#4FC3F7', '#4DB6AC'
-        ]
+          '#818cf8', '#a78bfa', '#c084fc', '#e879f9', '#f472b6',
+          '#fb7185', '#fb923c', '#facc15', '#4ade80', '#2dd4bf'
+        ],
+        borderWidth: 0,
+        hoverOffset: 8
       }]
     });
 
@@ -175,13 +181,15 @@ export class AdminDashboardComponent implements OnInit {
         label: this.translateService.instant('admin.dashboard.sales_by_brand'),
         data: brandSales,
         backgroundColor: [
-          '#7E57C2', '#EC407A', '#26C6DA', '#66BB6A', '#FFA726',
-          '#42A5F5', '#AB47BC', '#5C6BC0', '#29B6F6', '#26A69A'
+          '#0ea5e9', '#06b6d4', '#14b8a6', '#10b981', '#22c55e',
+          '#84cc16', '#eab308', '#f59e0b', '#f97316', '#ef4444'
         ],
         hoverBackgroundColor: [
-          '#9575CD', '#F06292', '#4DD0E1', '#81C784', '#FFB74D',
-          '#64B5F6', '#BA68C8', '#7986CB', '#4FC3F7', '#4DB6AC'
-        ]
+          '#38bdf8', '#22d3ee', '#2dd4bf', '#34d399', '#4ade80',
+          '#a3e635', '#facc15', '#fbbf24', '#fb923c', '#f87171'
+        ],
+        borderWidth: 0,
+        hoverOffset: 8
       }]
     });
 
@@ -190,23 +198,45 @@ export class AdminDashboardComponent implements OnInit {
 
   private getChartOptions(): any {
     return {
+      cutout: '55%',
+      radius: '85%',
+      responsive: true,
+      maintainAspectRatio: false,
       plugins: {
         legend: {
-          position: 'right',
+          position: 'bottom',
           labels: {
             usePointStyle: true,
-            padding: 15
+            pointStyle: 'circle',
+            padding: 20,
+            font: {
+              size: 12,
+              weight: '500'
+            }
           }
         },
         tooltip: {
+          backgroundColor: 'rgba(0, 0, 0, 0.8)',
+          titleFont: { size: 14, weight: 'bold' },
+          bodyFont: { size: 13 },
+          padding: 12,
+          cornerRadius: 8,
+          displayColors: true,
+          boxPadding: 6,
           callbacks: {
             label: (context: any) => {
               const label = context.label || '';
               const value = context.raw || 0;
-              return `${label}: ${this.currencyService.formatCurrency(value)}`;
+              const total = context.dataset.data.reduce((a: number, b: number) => a + b, 0);
+              const percentage = ((value / total) * 100).toFixed(1);
+              return `${label}: ${this.currencyService.formatCurrency(value)} (${percentage}%)`;
             }
           }
         }
+      },
+      animation: {
+        animateRotate: true,
+        animateScale: true
       },
       locale: this.translateService.currentLang === 'ar' ? 'ar-SA' : this.translateService.currentLang
     };

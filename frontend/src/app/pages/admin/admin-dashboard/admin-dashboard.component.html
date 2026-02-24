@@ -1,5 +1,5 @@
 <!-- src/app/pages/admin/admin-dashboard/admin-dashboard.component.html -->
-<div class="admin-page">
+<div class="admin-page" [class.initialized]="tableInitialized()">
   <!-- Background Decoration -->
   <div class="bg-decoration">
     <div class="blob blob-1"></div>
@@ -9,13 +9,12 @@
 
   <p-toast></p-toast>
   <div class="admin-content">
+    <!-- Loading State - Skeleton -->
     @if (loading()) {
-      <div class="loading-container">
-        <div class="loading-state">
-          <i class="pi pi-spin pi-spinner"></i>
-          <span>{{ 'common.loading' | translate }}</span>
-        </div>
-      </div>
+      <app-table-skeleton
+        [columns]="skeletonColumns"
+        [rows]="6"
+      />
     } @else if (stats()) {
       <!-- Dashboard Header -->
       <div class="admin-list-header animate-item" style="--delay: 0ms;">
@@ -36,61 +35,61 @@
       <!-- Compact KPI Row -->
       <div class="stats-grid stats-grid--compact animate-item" style="--delay: 50ms;">
         <div class="stat-card stat-card--compact" (click)="navigateToOrders()">
-          <div class="stat-card__icon stat-card__icon--success">
-            <i class="pi pi-dollar"></i>
-          </div>
           <div class="stat-card__content">
-            <span class="stat-card__value">{{ formatCurrency(stats()!.total_revenue) }}</span>
+            <span class="stat-card__value">
+              <span class="stat-card__icon stat-card__icon--success"><i class="pi pi-wallet"></i></span>
+              {{ formatCurrency(stats()!.total_revenue) }}
+            </span>
             <span class="stat-card__label">{{ 'admin.dashboard.total_revenue' | translate }}</span>
           </div>
         </div>
 
         <div class="stat-card stat-card--compact" (click)="navigateToUsers()">
-          <div class="stat-card__icon stat-card__icon--purple">
-            <i class="pi pi-users"></i>
-          </div>
           <div class="stat-card__content">
-            <span class="stat-card__value">{{ stats()!.total_users }}</span>
+            <span class="stat-card__value">
+              <span class="stat-card__icon stat-card__icon--purple"><i class="pi pi-users"></i></span>
+              {{ stats()!.total_users }}
+            </span>
             <span class="stat-card__label">{{ 'admin.dashboard.total_users' | translate }}</span>
           </div>
         </div>
 
         <div class="stat-card stat-card--compact" (click)="navigateToProducts()">
-          <div class="stat-card__icon stat-card__icon--warning">
-            <i class="pi pi-box"></i>
-          </div>
           <div class="stat-card__content">
-            <span class="stat-card__value">{{ stats()!.total_products }}</span>
+            <span class="stat-card__value">
+              <span class="stat-card__icon stat-card__icon--warning"><i class="pi pi-box"></i></span>
+              {{ stats()!.total_products }}
+            </span>
             <span class="stat-card__label">{{ 'admin.dashboard.total_products' | translate }}</span>
           </div>
         </div>
 
         <div class="stat-card stat-card--compact" (click)="navigateToOrders()">
-          <div class="stat-card__icon stat-card__icon--primary">
-            <i class="pi pi-shopping-cart"></i>
-          </div>
           <div class="stat-card__content">
-            <span class="stat-card__value">{{ stats()!.total_orders }}</span>
+            <span class="stat-card__value">
+              <span class="stat-card__icon stat-card__icon--primary"><i class="pi pi-shopping-cart"></i></span>
+              {{ stats()!.total_orders }}
+            </span>
             <span class="stat-card__label">{{ 'admin.dashboard.total_orders' | translate }}</span>
           </div>
         </div>
 
         <div class="stat-card stat-card--compact" (click)="navigateToOrders()">
-          <div class="stat-card__icon stat-card__icon--orange">
-            <i class="pi pi-clock"></i>
-          </div>
           <div class="stat-card__content">
-            <span class="stat-card__value">{{ stats()!.pending_orders }}</span>
+            <span class="stat-card__value">
+              <span class="stat-card__icon stat-card__icon--orange"><i class="pi pi-hourglass"></i></span>
+              {{ stats()!.pending_orders }}
+            </span>
             <span class="stat-card__label">{{ 'admin.dashboard.pending_orders' | translate }}</span>
           </div>
         </div>
 
         <div class="stat-card stat-card--compact" (click)="navigateToProducts()">
-          <div class="stat-card__icon stat-card__icon--red">
-            <i class="pi pi-box"></i>
-          </div>
           <div class="stat-card__content">
-            <span class="stat-card__value">{{ stats()!.low_stock_products }}</span>
+            <span class="stat-card__value">
+              <span class="stat-card__icon stat-card__icon--red"><i class="pi pi-exclamation-triangle"></i></span>
+              {{ stats()!.low_stock_products }}
+            </span>
             <span class="stat-card__label">{{ 'admin.dashboard.low_stock_items' | translate }}</span>
           </div>
         </div>
@@ -127,7 +126,7 @@
         <div class="tab-content">
           <!-- Analytics Tab -->
           @if (activeTab() === 'analytics') {
-            <div class="data-grid" style="height: 100%;">
+            <div class="data-grid">
               <!-- Sales by Category Chart -->
               <div class="data-card">
                 <div class="data-card__header">
@@ -138,7 +137,7 @@
                 </div>
                 <div class="data-card__body">
                   @if (categoryChartData()) {
-                    <p-chart type="pie" [data]="categoryChartData()" [options]="categoryChartOptions()"></p-chart>
+                    <p-chart type="doughnut" [data]="categoryChartData()" [options]="categoryChartOptions()"></p-chart>
                   } @else {
                     <div class="empty-state empty-state--compact">
                       <div class="empty-state__icon">
@@ -154,13 +153,13 @@
               <div class="data-card">
                 <div class="data-card__header">
                   <div class="data-card__icon data-card__icon--pink">
-                    <i class="pi pi-building"></i>
+                    <i class="pi pi-tag"></i>
                   </div>
                   <h3 class="data-card__title">{{ 'admin.dashboard.sales_by_brand' | translate }}</h3>
                 </div>
                 <div class="data-card__body">
                   @if (brandChartData()) {
-                    <p-chart type="pie" [data]="brandChartData()" [options]="brandChartOptions()"></p-chart>
+                    <p-chart type="doughnut" [data]="brandChartData()" [options]="brandChartOptions()"></p-chart>
                   } @else {
                     <div class="empty-state empty-state--compact">
                       <div class="empty-state__icon">
@@ -176,12 +175,12 @@
 
           <!-- Top Products Tab -->
           @if (activeTab() === 'top-products') {
-            <div class="table-wrapper" style="height: 100%;">
+            <div class="table-wrapper">
               <table class="table">
                 <thead>
                   <tr>
-                    <th style="width: 40%">{{ 'admin.dashboard.table.product' | translate }}</th>
-                    <th style="width: 25%">{{ 'admin.dashboard.table.category' | translate }}</th>
+                    <th style="width: 45%">{{ 'admin.dashboard.table.product' | translate }}</th>
+                    <th style="width: 20%">{{ 'admin.dashboard.table.category' | translate }}</th>
                     <th style="width: 15%" class="text-center">{{ 'admin.dashboard.table.quantity_sold' | translate }}</th>
                     <th style="width: 20%" class="text-center">{{ 'admin.dashboard.table.total_sales' | translate }}</th>
                   </tr>
@@ -190,7 +189,14 @@
                   @for (product of stats()!.top_selling_products; track product.product_id; let i = $index) {
                     <tr class="table-row-animate" [style.--row-delay]="(i * 40) + 'ms'" [routerLink]="['/admin/products', product.product_id]" style="cursor: pointer;">
                       <td>
-                        <span class="table-item-name">{{ getProductName(product) }}</span>
+                        <div class="table-item-with-image">
+                          <img
+                            [src]="product.image_url || 'assets/images/placeholder-product.png'"
+                            [alt]="getProductName(product)"
+                            class="table-item-image"
+                          />
+                          <span class="table-item-name">{{ getProductName(product) }}</span>
+                        </div>
                       </td>
                       <td>
                         <span class="pill secondary">{{ getCategoryName(product.category) }}</span>
@@ -202,8 +208,7 @@
                         <span class="amount-display amount-display--success">{{ formatCurrency(product.total_sales) }}</span>
                       </td>
                     </tr>
-                  }
-                  @empty {
+                  } @empty {
                     <tr>
                       <td colspan="4">
                         <div class="empty-state empty-state--compact">
@@ -233,11 +238,12 @@
         </div>
       </div>
     } @else {
-      <div class="error-state">
-        <div class="error-state__icon">
+      <!-- Error State -->
+      <div class="empty-state animate-item" style="--delay: 100ms;">
+        <div class="empty-state__icon empty-state__icon--danger">
           <i class="pi pi-exclamation-circle"></i>
         </div>
-        <h3 class="error-state__title">{{ 'admin.dashboard.error_loading' | translate }}</h3>
+        <h3 class="empty-state__title">{{ 'admin.dashboard.error_loading' | translate }}</h3>
         <button class="btn-primary" (click)="loadDashboardStats()">
           <i class="pi pi-refresh"></i>
           <span>{{ 'common.retry' | translate }}</span>

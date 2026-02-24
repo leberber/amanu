@@ -273,6 +273,16 @@
     i {
       font-size: var(--font-size-2xl);
     }
+
+    &--primary { background: var(--primary-gradient); }
+    &--success { background: var(--success-gradient); }
+    &--warning { background: var(--warning-gradient); }
+    &--info { background: var(--info-gradient); }
+    &--purple { background: var(--purple-gradient); }
+    &--pink { background: var(--pink-gradient); }
+    &--teal { background: var(--teal-gradient); }
+    &--orange { background: var(--orange-gradient); }
+    &--red { background: var(--red-gradient); }
   }
 
   &__value {
@@ -321,11 +331,8 @@
     }
   }
 
-  // Compact variant - inline layout with smaller elements
+  // Compact variant - icon and number aligned, label below
   &--compact {
-    display: flex;
-    align-items: center;
-    gap: var(--space-4);
     padding: var(--space-4) var(--space-5);
 
     &:hover {
@@ -333,37 +340,37 @@
       box-shadow: var(--shadow-md);
     }
 
+    .stat-card__content {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+    }
+
+    .stat-card__value {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      font-size: var(--font-size-xl);
+      font-weight: var(--font-weight-black);
+      margin-bottom: 0;
+      line-height: 1;
+    }
+
     .stat-card__icon {
-      width: 36px;
-      height: 36px;
+      width: 32px;
+      height: 32px;
       margin-bottom: 0;
       flex-shrink: 0;
 
       i {
-        font-size: var(--font-size-md);
+        font-size: var(--font-size-sm);
       }
-    }
-
-    .stat-card__content {
-      display: flex;
-      flex-direction: column;
-      min-width: 0;
-      flex: 1;
-    }
-
-    .stat-card__value {
-      font-size: var(--font-size-lg);
-      font-weight: var(--font-weight-extrabold);
-      margin-bottom: 0;
-      line-height: 1.2;
     }
 
     .stat-card__label {
       font-size: var(--font-size-xs);
       font-weight: var(--font-weight-semibold);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      color: var(--text-color-secondary);
     }
 
     .stat-card__decoration {

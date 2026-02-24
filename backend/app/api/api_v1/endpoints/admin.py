@@ -101,7 +101,8 @@ def get_dashboard_stats(
             "name": product_name,
             "total_quantity": total_quantity,
             "total_sales": total_sales,
-            "category": category_name
+            "category": category_name,
+            "image_url": product.image_url if product else None
         })
     
     # Get recent orders
