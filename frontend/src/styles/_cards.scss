@@ -408,6 +408,16 @@
     i {
       font-size: var(--font-size-md);
     }
+
+    &--primary { background: var(--primary-gradient); }
+    &--success { background: var(--success-gradient); }
+    &--warning { background: var(--warning-gradient); }
+    &--info { background: var(--info-gradient); }
+    &--purple { background: var(--purple-gradient); }
+    &--pink { background: var(--pink-gradient); }
+    &--teal { background: var(--teal-gradient); }
+    &--orange { background: var(--orange-gradient); }
+    &--red { background: var(--red-gradient); }
   }
 
   &__title {
