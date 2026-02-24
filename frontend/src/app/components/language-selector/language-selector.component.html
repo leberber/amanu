@@ -1,22 +1,14 @@
 <div class="language-selector">
-  <p-select
-    [options]="languages()"
-    [(ngModel)]="selectedLanguage"
-    [showClear]="false"
-    appendTo="body"
-    styleClass="language-dropdown"
-    (onChange)="onLanguageChange($event)">
-    <ng-template pTemplate="selectedItem">
-      <div class="language-option">
-        <span>{{ currentFlag() }}</span>
-        <span>{{ currentName() }}</span>
-      </div>
-    </ng-template>
-    <ng-template let-option pTemplate="option">
-      <div class="language-option">
-        <span>{{ option.flag }}</span>
-        <span>{{ option.name }}</span>
-      </div>
-    </ng-template>
-  </p-select>
+  <!-- Simple button list for better mobile compatibility -->
+  <div class="language-buttons">
+    @for (lang of languages(); track lang.code) {
+      <button
+        type="button"
+        class="language-btn"
+        [class.active]="selectedLanguage()?.code === lang.code"
+        (click)="selectLanguage(lang)">
+        <span class="language-btn__flag">{{ lang.flag }}</span>
+      </button>
+    }
+  </div>
 </div>

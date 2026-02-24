@@ -1,58 +1,43 @@
 .language-selector {
-  min-width: 140px;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.language-option {
+.language-buttons {
+  display: flex;
+  gap: 0.25rem;
+  background: var(--surface-100, #f1f5f9);
+  padding: 0.25rem;
+  border-radius: 2rem;
+}
+
+.language-btn {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-}
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: none;
+  background: transparent;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
 
-:host ::ng-deep .language-dropdown {
-  min-width: 140px;
-
-  .p-select {
-    border: none;
-    background: transparent;
-
-    &:focus {
-      box-shadow: none;
-    }
+  &__flag {
+    font-size: 1.25rem;
+    line-height: 1;
   }
 
-  .p-select-label {
-    padding: 0.5rem 0.75rem;
+  &:hover {
+    background: var(--surface-200, #e2e8f0);
   }
 
-  .p-select-dropdown {
-    width: 2.5rem;
-  }
-}
-
-:host ::ng-deep .p-select-overlay {
-  z-index: 99999 !important;
-  background: var(--surface-card, white) !important;
-
-  .p-select-list,
-  .p-select-items {
-    background: var(--surface-card, white) !important;
+  &:active {
+    transform: scale(0.95);
   }
 
-  .p-select-option,
-  .p-select-item {
-    color: var(--text-color) !important;
-
-    span {
-      color: var(--text-color) !important;
-    }
-
-    &.p-highlight,
-    &.p-select-option-selected {
-      background: var(--primary-color) !important;
-
-      span {
-        color: white !important;
-      }
-    }
+  &.active {
+    background: var(--surface-0, white);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   }
 }

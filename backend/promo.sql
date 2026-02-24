@@ -63,3 +63,5 @@
   UPDATE products SET packaging_type = 'carton' WHERE packaging_type IS NULL;    
 
   ALTER TABLE order_items ADD COLUMN IF NOT EXISTS pieces_per_box INTEGER;
+
+   ALTER TABLE push_subscriptions ADD COLUMN preferred_language VARCHAR(5) DEFAULT 'en'; 

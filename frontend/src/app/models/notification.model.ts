@@ -25,22 +25,16 @@ export interface CityStat {
 
 // Location hierarchy
 export interface Wilaya {
-  id: number;
   name: string;
-  code: string;
   user_count?: number;
 }
 
 export interface Daira {
-  id: number;
-  wilaya_id: number;
   name: string;
   user_count?: number;
 }
 
 export interface Commune {
-  id: number;
-  daira_id: number;
   name: string;
   user_count?: number;
 }

@@ -40,12 +40,12 @@ export class NotificationService {
     return this.api.get<Wilaya[]>('/push/wilayas');
   }
 
-  getDairas(wilayaId: number): Observable<Daira[]> {
-    return this.api.get<Daira[]>(`/push/dairas?wilaya_id=${wilayaId}`);
+  getDairas(wilaya: string): Observable<Daira[]> {
+    return this.api.get<Daira[]>(`/push/dairas?wilaya=${encodeURIComponent(wilaya)}`);
   }
 
-  getCommunes(dairaId: number): Observable<Commune[]> {
-    return this.api.get<Commune[]>(`/push/communes?daira_id=${dairaId}`);
+  getCommunes(daira: string): Observable<Commune[]> {
+    return this.api.get<Commune[]>(`/push/communes?daira=${encodeURIComponent(daira)}`);
   }
 
   getPreviewCount(segmentType: SegmentType, segmentValue?: string): Observable<{ count: number }> {

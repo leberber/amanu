@@ -68,9 +68,9 @@ export class AdminNotificationsComponent implements OnInit {
   // Form state
   selectedSegment = signal<SegmentType>('all');
   selectedCity = signal<string | null>(null);
-  selectedWilayaId = signal<number | null>(null);
-  selectedDairaId = signal<number | null>(null);
-  selectedCommuneId = signal<number | null>(null);
+  selectedWilaya = signal<string | null>(null);
+  selectedDaira = signal<string | null>(null);
+  selectedCommune = signal<string | null>(null);
   notificationType = signal<NotificationType>('custom');
   selectedTargetId = signal<number | null>(null);
   selectedTemplateId = signal<string | null>(null);
@@ -107,12 +107,13 @@ export class AdminNotificationsComponent implements OnInit {
   // Quick emojis
   quickEmojis = ['🔥', '🎉', '💰', '🛒', '✨', '🍎', '🥬', '⚡', '🆕', '💫'];
 
-  // Templates
-  templates: NotificationTemplate[] = [
+  // Templates with colors
+  templates = [
     {
       id: 'flash_sale',
       name: 'Flash Sale',
       icon: 'pi-bolt',
+      color: '#f59e0b',
       title_en: '⚡ Flash Sale!',
       title_fr: '⚡ Vente Flash!',
       title_ar: '⚡ تخفيضات سريعة!',
@@ -124,6 +125,7 @@ export class AdminNotificationsComponent implements OnInit {
       id: 'new_arrival',
       name: 'New Arrival',
       icon: 'pi-sparkles',
+      color: '#10b981',
       title_en: '🆕 New Arrival!',
       title_fr: '🆕 Nouvelle Arrivée!',
       title_ar: '🆕 وصل حديثاً!',
@@ -135,6 +137,7 @@ export class AdminNotificationsComponent implements OnInit {
       id: 'weekend_special',
       name: 'Weekend Special',
       icon: 'pi-calendar',
+      color: '#8b5cf6',
       title_en: '🎉 Weekend Special!',
       title_fr: '🎉 Spécial Week-end!',
       title_ar: '🎉 عرض نهاية الأسبوع!',
@@ -146,6 +149,7 @@ export class AdminNotificationsComponent implements OnInit {
       id: 'price_drop',
       name: 'Price Drop',
       icon: 'pi-arrow-down',
+      color: '#3b82f6',
       title_en: '💰 Price Drop!',
       title_fr: '💰 Baisse de Prix!',
       title_ar: '💰 انخفاض الأسعار!',
@@ -287,36 +291,36 @@ export class AdminNotificationsComponent implements OnInit {
     this.updateRecipientCount();
   }
 
-  onWilayaChange(wilayaId: number | null) {
-    this.selectedWilayaId.set(wilayaId);
-    this.selectedDairaId.set(null);
-    this.selectedCommuneId.set(null);
+  onWilayaChange(wilaya: string | null) {
+    this.selectedWilaya.set(wilaya);
+    this.selectedDaira.set(null);
+    this.selectedCommune.set(null);
     this.dairas.set([]);
     this.communes.set([]);
 
-    if (wilayaId) {
-      this.notificationService.getDairas(wilayaId)
+    if (wilaya) {
+      this.notificationService.getDairas(wilaya)
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe(dairas => this.dairas.set(dairas));
     }
     this.updateRecipientCount();
   }
 
-  onDairaChange(dairaId: number | null) {
-    this.selectedDairaId.set(dairaId);
-    this.selectedCommuneId.set(null);
+  onDairaChange(daira: string | null) {
+    this.selectedDaira.set(daira);
+    this.selectedCommune.set(null);
     this.communes.set([]);
 
-    if (dairaId) {
-      this.notificationService.getCommunes(dairaId)
+    if (daira) {
+      this.notificationService.getCommunes(daira)
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe(communes => this.communes.set(communes));
     }
     this.updateRecipientCount();
   }
 
-  onCommuneChange(communeId: number | null) {
-    this.selectedCommuneId.set(communeId);
+  onCommuneChange(commune: string | null) {
+    this.selectedCommune.set(commune);
     this.updateRecipientCount();
   }
 
@@ -530,6 +534,28 @@ export class AdminNotificationsComponent implements OnInit {
       case 'scheduled': return 'warning';
       case 'failed': return 'danger';
       default: return 'secondary';
+    }
+  }
+
+  getTypeColor(): string {
+    switch (this.notificationType()) {
+      case 'custom': return '#8b5cf6';
+      case 'promotion': return '#f59e0b';
+      case 'product': return '#10b981';
+      case 'category': return '#3b82f6';
+      case 'brand': return '#ec4899';
+      default: return '#8b5cf6';
+    }
+  }
+
+  getTypeIcon(): string {
+    switch (this.notificationType()) {
+      case 'custom': return 'pi-pencil';
+      case 'promotion': return 'pi-percentage';
+      case 'product': return 'pi-box';
+      case 'category': return 'pi-th-large';
+      case 'brand': return 'pi-bookmark';
+      default: return 'pi-bell';
     }
   }
 

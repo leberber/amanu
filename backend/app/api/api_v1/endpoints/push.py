@@ -356,6 +356,94 @@ def get_cities(
     return [CityStat(city=row[0], count=row[1]) for row in city_counts if row[0]]
 
 
+@router.get("/wilayas")
+def get_wilayas(
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_admin_user),
+):
+    """Get wilayas with user counts."""
+    # Get users with subscriptions
+    subscribed_users = session.exec(
+        select(PushSubscription.user_id).where(PushSubscription.user_id.is_not(None))
+    ).all()
+    subscribed_set = set(subscribed_users)
+
+    if not subscribed_set:
+        return []
+
+    # Get wilayas from users
+    wilaya_counts = session.exec(
+        select(User.wilaya, func.count(User.id).label("count"))
+        .where(User.id.in_(list(subscribed_set)), User.wilaya.is_not(None))
+        .group_by(User.wilaya)
+        .order_by(User.wilaya)
+    ).all()
+
+    return [{"name": row[0], "user_count": row[1]} for row in wilaya_counts if row[0]]
+
+
+@router.get("/dairas")
+def get_dairas(
+    wilaya: str = Query(..., description="Wilaya name"),
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_admin_user),
+):
+    """Get dairas for a wilaya with user counts."""
+    # Get users with subscriptions
+    subscribed_users = session.exec(
+        select(PushSubscription.user_id).where(PushSubscription.user_id.is_not(None))
+    ).all()
+    subscribed_set = set(subscribed_users)
+
+    if not subscribed_set:
+        return []
+
+    # Get dairas for the wilaya
+    daira_counts = session.exec(
+        select(User.daira, func.count(User.id).label("count"))
+        .where(
+            User.id.in_(list(subscribed_set)),
+            User.wilaya == wilaya,
+            User.daira.is_not(None)
+        )
+        .group_by(User.daira)
+        .order_by(User.daira)
+    ).all()
+
+    return [{"name": row[0], "user_count": row[1]} for row in daira_counts if row[0]]
+
+
+@router.get("/communes")
+def get_communes(
+    daira: str = Query(..., description="Daira name"),
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_admin_user),
+):
+    """Get communes for a daira with user counts."""
+    # Get users with subscriptions
+    subscribed_users = session.exec(
+        select(PushSubscription.user_id).where(PushSubscription.user_id.is_not(None))
+    ).all()
+    subscribed_set = set(subscribed_users)
+
+    if not subscribed_set:
+        return []
+
+    # Get communes for the daira
+    commune_counts = session.exec(
+        select(User.commune, func.count(User.id).label("count"))
+        .where(
+            User.id.in_(list(subscribed_set)),
+            User.daira == daira,
+            User.commune.is_not(None)
+        )
+        .group_by(User.commune)
+        .order_by(User.commune)
+    ).all()
+
+    return [{"name": row[0], "user_count": row[1]} for row in commune_counts if row[0]]
+
+
 @router.get("/preview-count")
 def preview_recipient_count(
     segment_type: SegmentType,

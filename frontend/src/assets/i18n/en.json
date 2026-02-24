@@ -686,8 +686,10 @@
       },
       "audience": {
         "title": "Target Audience",
-        "segment": "Segment",
+        "segment": "User Segment",
+        "segment_desc": "Target by purchase behavior",
         "location": "Location",
+        "location_desc": "Filter by geographic area",
         "select_segment": "Select Segment",
         "filter_by_city": "Filter by City",
         "select_city": "Select city...",
@@ -753,7 +755,7 @@
       },
       "preview": {
         "title": "Preview",
-        "app_name": "Elsuq",
+        "app_name": "AgroClik",
         "now": "now",
         "placeholder_title": "Your notification title",
         "placeholder_body": "Your notification message will appear here..."
@@ -788,7 +790,8 @@
       "tips": {
         "promotion_tip": "Promotion notifications have 2x higher click rates"
       },
-      "summary": "Ready to send"
+      "summary": "Summary",
+      "ready_to_send": "Ready to Send"
     },
     "dashboard": {
       "title": "Admin Dashboard",

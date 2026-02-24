@@ -688,8 +688,10 @@
       },
       "audience": {
         "title": "الجمهور المستهدف",
-        "segment": "الشريحة",
+        "segment": "شريحة المستخدمين",
+        "segment_desc": "استهدف حسب سلوك الشراء",
         "location": "الموقع",
+        "location_desc": "فلتر حسب المنطقة الجغرافية",
         "select_segment": "اختر الشريحة",
         "filter_by_city": "تصفية حسب المدينة",
         "select_city": "اختر مدينة...",
@@ -755,7 +757,7 @@
       },
       "preview": {
         "title": "معاينة",
-        "app_name": "السوق",
+        "app_name": "AgroClik",
         "now": "الآن",
         "placeholder_title": "عنوان الإشعار",
         "placeholder_body": "ستظهر رسالة الإشعار هنا..."
@@ -790,7 +792,8 @@
       "tips": {
         "promotion_tip": "إشعارات العروض لديها ضعف معدل النقرات"
       },
-      "summary": "جاهز للإرسال"
+      "summary": "ملخص",
+      "ready_to_send": "جاهز للإرسال"
     },
     "dashboard": {
       "title": "لوحة التحكم",

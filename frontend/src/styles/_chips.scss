@@ -110,17 +110,19 @@
   // Outlined Variant
   // ---------------------------------------------------------------------------
   &--outlined {
-    background: transparent;
+    background: rgba(var(--primary-rgb), 0.04);
     border: var(--border-width) solid var(--border-color-medium);
+    padding: var(--space-3) var(--space-5);
     cursor: pointer;
 
     &:hover {
+      background: rgba(var(--primary-rgb), 0.08);
       border-color: var(--primary-color);
       color: var(--primary-color);
     }
 
     &.active {
-      background: rgba(var(--primary-rgb), 0.1);
+      background: rgba(var(--primary-rgb), 0.12);
       border-color: var(--primary-color);
       color: var(--primary-color);
     }
@@ -295,7 +297,44 @@
 
 
 // =============================================================================
-// 6. FILTER CHIPS
+// 6. TEMPLATE CHIPS
+// =============================================================================
+// Colored badge chips for quick template selection.
+// Uses --chip-color CSS variable for dynamic theming.
+
+.template-chip {
+  --chip-color: var(--primary-color);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-5);
+  background: color-mix(in srgb, var(--chip-color) 10%, transparent);
+  border: var(--border-width) solid color-mix(in srgb, var(--chip-color) 25%, transparent);
+  border-radius: var(--radius-pill);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--chip-color);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+
+  i {
+    font-size: var(--font-size-sm);
+  }
+
+  &:hover {
+    background: color-mix(in srgb, var(--chip-color) 15%, transparent);
+    border-color: color-mix(in srgb, var(--chip-color) 40%, transparent);
+  }
+
+  &.active {
+    background: color-mix(in srgb, var(--chip-color) 20%, transparent);
+    border: 2px solid var(--chip-color);
+  }
+}
+
+
+// =============================================================================
+// 7. FILTER CHIPS
 // =============================================================================
 
 .filter-chips {

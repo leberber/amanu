@@ -25,8 +25,8 @@ class PushService:
         notification_data = {
             "title": title,
             "body": body,
-            "icon": "/icons/icon-192x192.png",
-            "badge": "/icons/icon-72x72.png",
+            "icon": "/icons/pwa-192x192.png",
+            "badge": "/icons/pwa-72x72.png",
             "data": {
                 "onActionClick": {
                     "default": {"operation": "navigateLastFocusedOrOpen", "url": url}
