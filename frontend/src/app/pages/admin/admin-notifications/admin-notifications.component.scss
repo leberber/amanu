@@ -1,13 +1,13 @@
 // =============================================================================
 // ADMIN NOTIFICATIONS - PAGE-SPECIFIC STYLES
 // =============================================================================
-// Layout overrides and unique components for notification composer.
-// Global styles used: .admin-page, .admin-content, .form-wizard (from globals)
+// Minimal styles - uses global classes where possible.
+// Global: .admin-page, .admin-content, .form-wizard, .chip, .info-box, .admin-form-card
 // =============================================================================
 
 
 // =============================================================================
-// 1. HOST & LAYOUT OVERRIDES
+// 1. PAGE LAYOUT OVERRIDES
 // =============================================================================
 
 :host {
@@ -15,7 +15,6 @@
   height: 100%;
 }
 
-// Override global .admin-page for full-height wizard layout
 .admin-page {
   height: 100vh;
   display: flex;
@@ -23,7 +22,6 @@
   overflow: hidden;
 }
 
-// Override global .admin-content for flex layout
 .admin-content {
   flex: 1;
   display: flex;
@@ -31,12 +29,6 @@
   overflow: hidden;
   max-width: 100%;
 }
-
-
-// =============================================================================
-// 2. FORM WIZARD OVERRIDES
-// =============================================================================
-// Extends global .form-wizard with flex layout for scrollable content
 
 .form-wizard {
   flex: 1;
@@ -54,10 +46,6 @@
   }
 }
 
-.type-cards + .target-selection-row {
-  flex: 1;
-}
-
 .table-container {
   flex: 1;
   overflow-y: auto;
@@ -66,10 +54,10 @@
 
 
 // =============================================================================
-// 3. AUDIENCE GRID (Step 1)
+// 2. TWO-COLUMN GRIDS
 // =============================================================================
 
-.audience-grid {
+.grid-2-col {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--space-6);
@@ -78,20 +66,22 @@
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
   }
+
+  &--gap-lg {
+    gap: var(--space-8);
+  }
 }
 
-.audience-section {
+
+// =============================================================================
+// 3. SECTION CARD (with gradient icon header)
+// =============================================================================
+
+.section-card {
   background: var(--surface-0);
   border-radius: var(--radius-xl);
   padding: var(--space-6);
   box-shadow: var(--shadow-lg);
-
-  &__header {
-    display: flex;
-    align-items: flex-start;
-    gap: var(--space-4);
-    margin-bottom: var(--space-5);
-  }
 
   &__icon {
     width: var(--icon-xl);
@@ -105,46 +95,20 @@
     i { color: var(--color-white); font-size: var(--font-size-xl); }
     &--purple { background: var(--purple-gradient); }
     &--blue { background: var(--info-gradient); }
-  }
-
-  &__title {
-    font-size: var(--font-size-lg);
-    font-weight: var(--font-weight-semibold);
-    color: var(--text-color);
-    margin: 0;
-  }
-
-  &__subtitle {
-    font-size: var(--font-size-sm);
-    color: var(--text-color-muted);
-    margin: var(--space-1) 0 0 0;
+    &--success { background: var(--success-gradient); }
   }
 }
 
 
 // =============================================================================
-// 4. PREVIEW & SEND GRID (Step 4)
+// 4. PHONE PREVIEW LAYOUT
 // =============================================================================
-
-.preview-send-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-8);
-  align-items: stretch;
-  flex: 1;
-  min-height: 0;
-
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-  }
-}
 
 .preview-column {
   display: flex;
   justify-content: center;
   align-items: stretch;
 
-  // Override global .phone-mockup for flex layout
   .phone-mockup {
     flex: 1;
     display: flex;
@@ -162,99 +126,17 @@
 
 
 // =============================================================================
-// 5. READY BADGE
+// 5. OPTIONS CARD (schedule, summary)
 // =============================================================================
 
-.ready-badge {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-4);
-  padding: var(--space-5);
-  background: linear-gradient(135deg, rgba(var(--color-success-rgb), 0.08) 0%, rgba(var(--color-success-rgb), 0.02) 100%);
-  border: var(--border-width) solid rgba(var(--color-success-rgb), 0.2);
-  border-radius: var(--radius-xl);
-  margin-bottom: var(--space-5);
-
-  &__icon {
-    width: var(--icon-lg);
-    height: var(--icon-lg);
-    border-radius: var(--radius-full);
-    background: var(--success-gradient);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    box-shadow: var(--shadow-md);
-
-    i { color: var(--color-white); font-size: var(--font-size-xl); }
-  }
-
-  &__content { flex: 1; min-width: 0; }
-
-  &__label {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-2);
-    font-size: var(--font-size-xs);
-    font-weight: var(--font-weight-semibold);
-    text-transform: uppercase;
-    letter-spacing: var(--letter-spacing-wide);
-    color: var(--color-success);
-    margin-bottom: var(--space-1);
-  }
-
-  &__title {
-    font-size: var(--font-size-lg);
-    font-weight: var(--font-weight-semibold);
-    color: var(--text-color);
-    margin: 0;
-    line-height: var(--line-height-relaxed);
-  }
-}
-
-
-// =============================================================================
-// 6. SCHEDULE CARD
-// =============================================================================
-
-.schedule-card {
+.options-card {
   background: var(--surface-0);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-lg);
   overflow: hidden;
 
   &__header { padding: var(--space-5); }
-
-  &__toggle {
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-
-    label {
-      display: flex;
-      align-items: center;
-      gap: var(--space-2);
-      font-weight: var(--font-weight-medium);
-      color: var(--text-color);
-      cursor: pointer;
-
-      i { color: var(--primary-color); }
-    }
-  }
-
   &__body { padding: 0 var(--space-5) var(--space-5); }
-}
-
-
-// =============================================================================
-// 7. SUMMARY SECTION & PILLS
-// =============================================================================
-
-.summary-section {
-  background: var(--surface-0);
-  border-radius: var(--radius-xl);
-  padding: var(--space-5);
-  box-shadow: var(--shadow-lg);
 
   &__title {
     display: flex;
@@ -267,15 +149,14 @@
     text-transform: uppercase;
     letter-spacing: var(--letter-spacing-wide);
 
-    i { font-size: var(--font-size-sm); color: var(--primary-color); }
-  }
-
-  &__pills {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-3);
+    i { color: var(--primary-color); }
   }
 }
+
+
+// =============================================================================
+// 6. SUMMARY PILLS (color-mix variant)
+// =============================================================================
 
 .summary-pill {
   --pill-color: var(--primary-color);
@@ -309,11 +190,11 @@
   }
 
   &--primary { --pill-color: var(--primary-color); }
-  &--segment { --pill-color: var(--color-purple); }
-  &--location { --pill-color: var(--color-info); }
+  &--purple { --pill-color: var(--color-purple); }
+  &--info { --pill-color: var(--color-info); }
+  &--success { --pill-color: var(--color-success); }
 
-  &--target {
-    --pill-color: var(--color-success);
+  &--muted {
     background: var(--surface-100);
     border-color: var(--surface-border);
     color: var(--text-color);

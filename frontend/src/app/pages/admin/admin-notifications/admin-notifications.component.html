@@ -51,10 +51,10 @@
 
         <!-- Body Skeleton - Audience Grid -->
         <div class="form-wizard__body">
-          <div class="audience-grid">
+          <div class="grid-2-col">
             <!-- Left Section Skeleton -->
-            <div class="audience-section">
-              <div class="audience-section__header">
+            <div class="section-card">
+              <div class="flex align-items-start gap-4 mb-5">
                 <div class="skeleton" style="width: 48px; height: 48px; border-radius: var(--radius-lg);"></div>
                 <div>
                   <div class="skeleton skeleton-text" style="width: 120px; height: 20px;"></div>
@@ -65,8 +65,8 @@
             </div>
 
             <!-- Right Section Skeleton -->
-            <div class="audience-section">
-              <div class="audience-section__header">
+            <div class="section-card">
+              <div class="flex align-items-start gap-4 mb-5">
                 <div class="skeleton" style="width: 48px; height: 48px; border-radius: var(--radius-lg);"></div>
                 <div>
                   <div class="skeleton skeleton-text" style="width: 100px; height: 20px;"></div>
@@ -158,16 +158,16 @@
           <div class="form-wizard__body">
             <!-- Step 1: Target Audience -->
             @if (currentStep() === 1) {
-              <div class="audience-grid">
+              <div class="grid-2-col">
                 <!-- Left: Segment Selection -->
-                <div class="audience-section">
-                  <div class="audience-section__header">
-                    <div class="audience-section__icon audience-section__icon--purple">
+                <div class="section-card">
+                  <div class="flex align-items-start gap-4 mb-5">
+                    <div class="section-card__icon section-card__icon--purple">
                       <i class="pi pi-users"></i>
                     </div>
                     <div>
-                      <h3 class="audience-section__title">{{ 'admin.notifications.audience.segment' | translate }}</h3>
-                      <p class="audience-section__subtitle">{{ 'admin.notifications.audience.segment_desc' | translate }}</p>
+                      <h3 class="text-lg font-semibold m-0">{{ 'admin.notifications.audience.segment' | translate }}</h3>
+                      <p class="text-sm text-color-secondary mt-1 mb-0">{{ 'admin.notifications.audience.segment_desc' | translate }}</p>
                     </div>
                   </div>
                   <div class="admin-form-field">
@@ -198,14 +198,14 @@
                 </div>
 
                 <!-- Right: Location Filter -->
-                <div class="audience-section">
-                  <div class="audience-section__header">
-                    <div class="audience-section__icon audience-section__icon--blue">
+                <div class="section-card">
+                  <div class="flex align-items-start gap-4 mb-5">
+                    <div class="section-card__icon section-card__icon--blue">
                       <i class="pi pi-map-marker"></i>
                     </div>
                     <div>
-                      <h3 class="audience-section__title">{{ 'admin.notifications.audience.location' | translate }}</h3>
-                      <p class="audience-section__subtitle">{{ 'admin.notifications.audience.location_desc' | translate }}</p>
+                      <h3 class="text-lg font-semibold m-0">{{ 'admin.notifications.audience.location' | translate }}</h3>
+                      <p class="text-sm text-color-secondary mt-1 mb-0">{{ 'admin.notifications.audience.location_desc' | translate }}</p>
                     </div>
                   </div>
                   <div class="flex flex-column gap-4">
@@ -571,24 +571,24 @@
 
             <!-- Step 4: Schedule & Send -->
             @if (currentStep() === 4) {
-              <div class="preview-send-grid">
+              <div class="grid-2-col grid-2-col--gap-lg">
                 <!-- Left: Send Options -->
                 <div class="flex flex-column gap-5">
                   <!-- Ready Badge -->
-                  <div class="ready-badge">
-                    <div class="ready-badge__icon">
+                  <div class="status-banner status-banner--success mb-5">
+                    <div class="status-banner__icon">
                       <i class="pi pi-check"></i>
                     </div>
-                    <div class="ready-badge__content">
-                      <span class="ready-badge__label">{{ 'admin.notifications.ready_to_send' | translate }}</span>
-                      <h3 class="ready-badge__title">{{ titleFr() || ('admin.notifications.preview.placeholder_title' | translate) }}</h3>
+                    <div class="status-banner__content">
+                      <span class="status-banner__label">{{ 'admin.notifications.ready_to_send' | translate }}</span>
+                      <h3 class="status-banner__title">{{ titleFr() || ('admin.notifications.preview.placeholder_title' | translate) }}</h3>
                     </div>
                   </div>
 
                   <!-- Schedule Option -->
-                  <div class="schedule-card">
-                    <div class="schedule-card__header">
-                      <div class="schedule-card__toggle">
+                  <div class="options-card">
+                    <div class="options-card__header">
+                      <div class="flex align-items-center gap-3">
                         <p-checkbox
                           [ngModel]="scheduleEnabled()"
                           (ngModelChange)="scheduleEnabled.set($event)"
@@ -603,7 +603,7 @@
                     </div>
 
                     @if (scheduleEnabled()) {
-                      <div class="schedule-card__body">
+                      <div class="options-card__body">
                         <p-datePicker
                           [ngModel]="scheduledDate()"
                           (ngModelChange)="scheduledDate.set($event)"
@@ -619,12 +619,12 @@
                   </div>
 
                   <!-- Summary Pills -->
-                  <div class="summary-section">
-                    <h4 class="summary-section__title">
+                  <div class="options-card p-5">
+                    <h4 class="options-card__title">
                       <i class="pi pi-info-circle"></i>
                       {{ 'admin.notifications.summary' | translate }}
                     </h4>
-                    <div class="summary-section__pills">
+                    <div class="flex flex-wrap gap-3">
                       <!-- User Count - Large Pill -->
                       <div class="summary-pill summary-pill--large summary-pill--primary">
                         <i class="pi pi-users"></i>
@@ -639,26 +639,26 @@
                       </div>
 
                       <!-- Segment -->
-                      <div class="summary-pill summary-pill--segment">
+                      <div class="summary-pill summary-pill--purple">
                         <i class="pi pi-filter"></i>
                         <span>{{ 'admin.notifications.segments.' + selectedSegment() | translate }}</span>
                       </div>
 
                       <!-- Location Pills -->
                       @if (selectedWilaya()) {
-                        <div class="summary-pill summary-pill--location">
+                        <div class="summary-pill summary-pill--info">
                           <i class="pi pi-map-marker"></i>
                           <span>{{ selectedWilaya() }}</span>
                         </div>
                       }
                       @if (selectedDaira()) {
-                        <div class="summary-pill summary-pill--location">
+                        <div class="summary-pill summary-pill--info">
                           <i class="pi pi-map"></i>
                           <span>{{ selectedDaira() }}</span>
                         </div>
                       }
                       @if (selectedCommune()) {
-                        <div class="summary-pill summary-pill--location">
+                        <div class="summary-pill summary-pill--info">
                           <i class="pi pi-building"></i>
                           <span>{{ selectedCommune() }}</span>
                         </div>
@@ -666,7 +666,7 @@
 
                       <!-- Target Item (if selected) -->
                       @if (selectedTargetItem()) {
-                        <div class="summary-pill summary-pill--target">
+                        <div class="summary-pill summary-pill--muted">
                           @if (previewImageUrl()) {
                             <img
                               [src]="previewImageUrl()"

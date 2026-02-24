@@ -582,3 +582,80 @@
     margin-top: var(--space-5);
   }
 }
+
+
+// =============================================================================
+// 11. STATUS BANNER
+// =============================================================================
+// Banner with gradient icon for status display (ready, pending, etc.)
+
+.status-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  border-radius: var(--radius-xl);
+
+  &__icon {
+    width: var(--icon-lg);
+    height: var(--icon-lg);
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: var(--shadow-md);
+
+    i { color: var(--color-white); font-size: var(--font-size-xl); }
+  }
+
+  &__content { flex: 1; min-width: 0; }
+
+  &__label {
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    text-transform: uppercase;
+    letter-spacing: var(--letter-spacing-wide);
+    margin-bottom: var(--space-1);
+  }
+
+  &__title {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-color);
+    margin: 0;
+  }
+
+  // Color Variants
+  &--success {
+    background: linear-gradient(135deg, rgba(var(--color-success-rgb), 0.08) 0%, rgba(var(--color-success-rgb), 0.02) 100%);
+    border: var(--border-width) solid rgba(var(--color-success-rgb), 0.2);
+
+    .status-banner__icon { background: var(--success-gradient); }
+    .status-banner__label { color: var(--color-success); }
+  }
+
+  &--warning {
+    background: linear-gradient(135deg, rgba(var(--color-warning-rgb), 0.08) 0%, rgba(var(--color-warning-rgb), 0.02) 100%);
+    border: var(--border-width) solid rgba(var(--color-warning-rgb), 0.2);
+
+    .status-banner__icon { background: var(--btn-warning-gradient); }
+    .status-banner__label { color: var(--color-warning-dark); }
+  }
+
+  &--danger {
+    background: linear-gradient(135deg, rgba(var(--color-error-rgb), 0.08) 0%, rgba(var(--color-error-rgb), 0.02) 100%);
+    border: var(--border-width) solid rgba(var(--color-error-rgb), 0.2);
+
+    .status-banner__icon { background: var(--btn-danger-gradient); }
+    .status-banner__label { color: var(--color-error); }
+  }
+
+  &--info {
+    background: linear-gradient(135deg, rgba(var(--color-info-rgb), 0.08) 0%, rgba(var(--color-info-rgb), 0.02) 100%);
+    border: var(--border-width) solid rgba(var(--color-info-rgb), 0.2);
+
+    .status-banner__icon { background: var(--info-gradient); }
+    .status-banner__label { color: var(--color-info); }
+  }
+}
