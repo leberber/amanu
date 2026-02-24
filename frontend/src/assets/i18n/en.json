@@ -921,7 +921,9 @@
       "confirm_delete_message": "Are you sure you want to delete user {{name}}?",
       "export_coming_soon": "Export functionality coming soon!",
       "load_error": "Failed to load users",
-      "permission_error": "You do not have permission to access this page"
+      "permission_error": "You do not have permission to access this page",
+      "table_options": "Table Options",
+      "visible_columns": "Visible Columns"
     },
     "products": {
       "title": "Product Management",

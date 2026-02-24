@@ -923,7 +923,9 @@
       "confirm_delete_message": "هل أنت متأكد من حذف المستخدم {{name}}؟",
       "export_coming_soon": "ميزة التصدير قادمة قريبًا!",
       "load_error": "فشل تحميل المستخدمين",
-      "permission_error": "ليس لديك صلاحية للوصول إلى هذه الصفحة"
+      "permission_error": "ليس لديك صلاحية للوصول إلى هذه الصفحة",
+      "table_options": "خيارات الجدول",
+      "visible_columns": "الأعمدة المرئية"
     },
     "products": {
       "title": "إدارة المنتجات",

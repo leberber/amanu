@@ -922,7 +922,9 @@
       "confirm_delete_message": "Êtes-vous sûr de vouloir supprimer l'utilisateur {{name}} ?",
       "export_coming_soon": "La fonctionnalité d'exportation arrive bientôt !",
       "load_error": "Échec du chargement des utilisateurs",
-      "permission_error": "Vous n'avez pas la permission d'accéder à cette page"
+      "permission_error": "Vous n'avez pas la permission d'accéder à cette page",
+      "table_options": "Options du Tableau",
+      "visible_columns": "Colonnes Visibles"
     },
     "products": {
       "title": "Gestion des Produits",
