@@ -1,24 +1,28 @@
 // src/app/pages/admin/admin-categories/admin-categories.component.ts
-import { Component, OnInit, inject, DestroyRef } from '@angular/core';
+import { Component, OnInit, inject, DestroyRef, signal } from '@angular/core';
 import { ConfirmationService } from 'primeng/api';
-import { CardModule } from 'primeng/card';
-
+import { PopoverModule } from 'primeng/popover';
 import { TranslateService } from '@ngx-translate/core';
-import { ADMIN_LIST_IMPORTS } from '../../../shared/imports/admin-shared.imports';
+
+import { ADMIN_LIST_IMPORTS, ADMIN_DIALOG_IMPORTS } from '../../../shared/imports/admin-shared.imports';
+import { InlineEditState } from '../../../shared/utils/inline-edit-state';
+import { TableSkeletonComponent, SkeletonColumn } from '../../../shared/components/table-skeleton/table-skeleton.component';
 import { ROUTES, RouteHelpers } from '../../../core/constants/routes.constants';
 import { onLanguageChange } from '../../../core/utils/language-change.util';
 import { ProductService } from '../../../services/product.service';
 import { TranslationHelperService } from '../../../core/services/translation-helper.service';
 import { Category } from '../../../models/category.model';
 import { ConfirmationDialogService } from '../../../core/services/confirmation-dialog.service';
-import { BaseAdminListComponent } from '../../../shared/base/base-admin-list.component';
+import { BaseAdminListComponent, ColumnOption } from '../../../shared/base/base-admin-list.component';
 
 @Component({
   selector: 'app-admin-categories',
   standalone: true,
   imports: [
     ...ADMIN_LIST_IMPORTS,
-    CardModule
+    ...ADMIN_DIALOG_IMPORTS,
+    PopoverModule,
+    TableSkeletonComponent
   ],
   providers: [ConfirmationService],
   templateUrl: './admin-categories.component.html',
@@ -29,11 +33,37 @@ export class AdminCategoriesComponent extends BaseAdminListComponent implements 
   categories: Category[] = [];
   paginatedCategories: Category[] = [];
 
-  // Override default rows
-  override rows = 12;
+  // Animation state
+  tableInitialized = signal(false);
+
+  // Fullscreen mode
+  isFullscreen = false;
+
+  // Skeleton configuration
+  skeletonColumns: SkeletonColumn[] = [
+    { width: '8%', type: 'image', headerWidth: '0' },
+    { width: '30%', type: 'text-multi', headerWidth: '100px' },
+    { width: '15%', type: 'pill', headerWidth: '80px' },
+    { width: '15%', type: 'toggle', headerWidth: '60px' },
+    { width: '15%', type: 'text', headerWidth: '70px' },
+    { width: '17%', type: 'actions', headerWidth: '60px' }
+  ];
+
+  // Column visibility options
+  override columnOptions: ColumnOption[] = [
+    { field: 'image', label: 'admin.categories.table.image', visible: true },
+    { field: 'name', label: 'admin.categories.table.name', visible: true },
+    { field: 'products', label: 'admin.categories.table.products', visible: true },
+    { field: 'status', label: 'admin.categories.table.status', visible: true },
+    { field: 'created', label: 'admin.categories.table.created', visible: true },
+    { field: 'actions', label: 'admin.categories.table.actions', visible: true }
+  ];
 
   // Store product counts for each category
   categoryProductCounts: { [categoryId: number]: number } = {};
+
+  // Inline editing state
+  statusEdit = new InlineEditState<boolean>(true);
 
   // Services
   private productService = inject(ProductService);
@@ -52,21 +82,24 @@ export class AdminCategoriesComponent extends BaseAdminListComponent implements 
     return !!(this.searchQuery?.trim()) || this.statusFilter !== 'all';
   }
 
-  // Load all categories once on page load
   loadAllCategories() {
-    this.loadData(
-      () => this.productService.getCategories(false), // false = include inactive
-      (categories) => {
+    this.loading = true;
+    this.productService.getCategories(false).subscribe({
+      next: (categories) => {
         this.allCategories = categories;
         this.categories = categories;
         this.loadProductCounts();
         this.updatePaginatedItems();
+        this.loading = false;
+        setTimeout(() => this.tableInitialized.set(true), 100);
       },
-      'admin.categories.load_error'
-    );
+      error: () => {
+        this.loading = false;
+        this.baseToast.showError('admin.categories.load_error');
+      }
+    });
   }
 
-  // Load product counts for all categories
   loadProductCounts() {
     this.allCategories.forEach(category => {
       this.loadDataSilent(
@@ -113,7 +146,17 @@ export class AdminCategoriesComponent extends BaseAdminListComponent implements 
     this.filterItems();
   }
 
-  // Navigation methods
+  toggleFullscreen(): void {
+    this.isFullscreen = !this.isFullscreen;
+    if (this.isFullscreen) {
+      document.body.classList.add('fullscreen-active');
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.classList.remove('fullscreen-active');
+      document.body.style.overflow = '';
+    }
+  }
+
   createNewCategory() {
     this.baseRouter.navigate([ROUTES.ADMIN.ADD_CATEGORY]);
   }
@@ -122,7 +165,6 @@ export class AdminCategoriesComponent extends BaseAdminListComponent implements 
     this.baseRouter.navigate([RouteHelpers.adminEditCategory(category.id)]);
   }
 
-  // Delete confirmation
   confirmDeleteCategory(category: Category) {
     this.confirmDialog.confirmDelete(
       this.confirmationService,
@@ -131,7 +173,6 @@ export class AdminCategoriesComponent extends BaseAdminListComponent implements 
     );
   }
 
-  // After delete, remove from local array and refresh filters
   deleteCategory(category: Category) {
     this.handleDelete(
       () => this.productService.deleteCategory(category.id),
@@ -143,13 +184,56 @@ export class AdminCategoriesComponent extends BaseAdminListComponent implements 
     );
   }
 
-  // Method to refresh data after adding/editing categories
   refreshCategoryData() {
     this.loadAllCategories();
   }
 
+  // ===== INLINE STATUS EDITING =====
+
+  startEditStatus(category: Category): void {
+    this.statusEdit.start(category.id, category.is_active);
+  }
+
+  cancelEditStatus(): void {
+    this.statusEdit.cancel();
+  }
+
+  isEditingStatus(categoryId: number): boolean {
+    return this.statusEdit.isEditing(categoryId);
+  }
+
+  toggleEditingStatus(): void {
+    this.statusEdit.value = !this.statusEdit.value;
+  }
+
+  saveStatus(category: Category): void {
+    if (!this.statusEdit.hasChanged(category.is_active)) {
+      this.statusEdit.cancel();
+      return;
+    }
+
+    const newStatus = this.statusEdit.value;
+
+    this.handleInlineUpdate(
+      () => this.productService.updateCategory(category.id, { is_active: newStatus }),
+      this.allCategories,
+      this.categories,
+      category.id,
+      'is_active',
+      newStatus,
+      newStatus ? 'admin.categories.status_activated' : 'admin.categories.status_deactivated',
+      'admin.categories.status_update_failed',
+      () => this.statusEdit.cancel()
+    );
+  }
+
+  onImageError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    img.style.display = 'none';
+    img.parentElement?.querySelector('i')?.classList.remove('hidden');
+  }
+
   getCategoryProductCount(categoryId: number): number {
-    // Return the actual count from our loaded data
     return this.categoryProductCounts[categoryId] || 0;
   }
 

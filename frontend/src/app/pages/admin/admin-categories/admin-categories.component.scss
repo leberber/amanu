@@ -1,13 +1,19 @@
-// src/app/pages/admin/admin-categories/admin-categories.component.scss
 // =============================================================================
-// Component-specific styles only.
-// Global styles used:
-//   - _admin-page.scss: admin-grid, admin-grid-card, admin-icon-btn,
-//                       admin-meta-pill, admin-meta-item, admin-loading-state
-//   - _components.scss: btn-add, btn-primary, btn-edit, btn-delete
+// Admin Categories Component Styles
+// =============================================================================
+// Component-specific overrides only. Uses global styles from:
+//   - _table.scss: table-container, table-thumbnail, etc.
+//   - _badges.scss: pill, status-badge
+//   - _states.scss: empty-state, info-display, date-display
+//   - _segments.scss: segment-control
+//   - _buttons.scss: btn-add, action-btn
 // =============================================================================
 
-// Category-specific card image gradient
-.admin-grid-card__image {
-  background: linear-gradient(135deg, rgba(46, 108, 183, 0.1) 0%, rgba(15, 60, 130, 0.1) 100%);
+.table-container {
+  --table-max-height: calc(100vh - 375px);
+}
+
+.table-thumbnail {
+  width: 60px;
+  height: 60px;
 }
