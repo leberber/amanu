@@ -2,7 +2,7 @@
 import { Component, OnInit, inject, signal, computed, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
-import { forkJoin } from 'rxjs';
+import { forkJoin, delay } from 'rxjs';
 
 import { ToastModule } from 'primeng/toast';
 import { SelectModule } from 'primeng/select';
@@ -239,7 +239,10 @@ export class AdminNotificationsComponent implements OnInit {
       categories: this.notificationService.getCategories(),
       brands: this.notificationService.getBrands()
     })
-    .pipe(takeUntilDestroyed(this.destroyRef))
+    .pipe(
+      delay(2000), // TODO: Remove - testing skeleton
+      takeUntilDestroyed(this.destroyRef)
+    )
     .subscribe({
       next: (data) => {
         this.segments.set(data.segments);
@@ -269,11 +272,7 @@ export class AdminNotificationsComponent implements OnInit {
     this.notificationService.getWilayas()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (wilayas) => {
-          console.log('Wilayas response:', wilayas);
-          this.wilayas.set(wilayas);
-        },
-        error: (err) => console.log('Wilayas error:', err)
+        next: (wilayas) => this.wilayas.set(wilayas)
       });
   }
 

@@ -11,6 +11,7 @@
   <div class="admin-content">
     <!-- Loading State - Skeleton -->
     @if (loading()) {
+      <!-- Header Skeleton -->
       <div class="admin-list-header animate-item" style="--item-delay: 0ms;">
         <div class="header-title">
           <div class="admin-icon-wrapper">
@@ -24,23 +25,67 @@
         </div>
       </div>
 
-      <div class="flex align-items-center justify-content-between gap-3 flex-wrap mb-4 animate-item" style="--item-delay: 50ms;">
-        <div class="skeleton" style="width: 250px; height: 44px; border-radius: var(--radius-xl);"></div>
+      <!-- Tabs Skeleton -->
+      <div class="flex align-items-center gap-3 mb-4 animate-item" style="--item-delay: 50ms;">
+        <div class="skeleton" style="width: 280px; height: 44px; border-radius: var(--radius-xl);"></div>
       </div>
 
-      <div class="admin-cards-grid animate-item" style="--item-delay: 100ms;">
-        @for (i of [1,2,3,4]; track i) {
-          <div class="admin-form-card">
-            <div class="card-header">
-              <div class="skeleton" style="width: 40px; height: 40px; border-radius: 10px;"></div>
-              <div class="skeleton skeleton-text" style="width: 140px; height: 20px;"></div>
+      <!-- Wizard Skeleton -->
+      <div class="form-wizard animate-item" style="--item-delay: 100ms;">
+        <!-- Stepper Skeleton -->
+        <div class="form-wizard__header">
+          <div class="stepper-horizontal">
+            @for (i of [1,2,3,4]; track i) {
+              <div class="stepper-horizontal__step">
+                <div class="stepper-horizontal__indicator">
+                  <div class="skeleton" style="width: 32px; height: 32px; border-radius: 50%;"></div>
+                  <div class="skeleton skeleton-text" style="width: 60px; height: 14px; margin-top: 8px;"></div>
+                </div>
+                @if (i < 4) {
+                  <div class="stepper-horizontal__connector"></div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Body Skeleton - Audience Grid -->
+        <div class="form-wizard__body">
+          <div class="audience-grid">
+            <!-- Left Section Skeleton -->
+            <div class="audience-section">
+              <div class="audience-section__header">
+                <div class="skeleton" style="width: 48px; height: 48px; border-radius: var(--radius-lg);"></div>
+                <div>
+                  <div class="skeleton skeleton-text" style="width: 120px; height: 20px;"></div>
+                  <div class="skeleton skeleton-text" style="width: 180px; height: 14px; margin-top: 8px;"></div>
+                </div>
+              </div>
+              <div class="skeleton" style="width: 100%; height: 48px; border-radius: var(--radius-md); margin-top: var(--space-4);"></div>
             </div>
-            <div class="card-body">
-              <div class="skeleton" style="width: 100%; height: 44px; border-radius: 8px; margin-bottom: 16px;"></div>
-              <div class="skeleton" style="width: 100%; height: 44px; border-radius: 8px;"></div>
+
+            <!-- Right Section Skeleton -->
+            <div class="audience-section">
+              <div class="audience-section__header">
+                <div class="skeleton" style="width: 48px; height: 48px; border-radius: var(--radius-lg);"></div>
+                <div>
+                  <div class="skeleton skeleton-text" style="width: 100px; height: 20px;"></div>
+                  <div class="skeleton skeleton-text" style="width: 160px; height: 14px; margin-top: 8px;"></div>
+                </div>
+              </div>
+              <div class="skeleton" style="width: 100%; height: 48px; border-radius: var(--radius-md); margin-top: var(--space-4);"></div>
+              <div class="skeleton" style="width: 100%; height: 48px; border-radius: var(--radius-md); margin-top: var(--space-4);"></div>
             </div>
           </div>
-        }
+        </div>
+
+        <!-- Footer Skeleton -->
+        <div class="form-wizard__footer">
+          <div class="skeleton" style="width: 120px; height: 32px; border-radius: var(--radius-pill);"></div>
+          <div class="step-nav">
+            <div class="skeleton" style="width: 100px; height: 44px; border-radius: var(--radius-md);"></div>
+          </div>
+        </div>
       </div>
     } @else {
       <!-- Page Header -->
