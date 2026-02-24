@@ -115,6 +115,20 @@
             <p-popover #tableOptionsMenu>
               <div class="table-options-menu">
                 <div class="table-options-section">
+                  <span class="table-options-label">{{ 'admin.brands.rows_per_page' | translate }}</span>
+                  <div class="table-options-rows">
+                    @for (option of rowsPerPageOptions; track option) {
+                      <button
+                        class="rows-option"
+                        [class.active]="rows === option"
+                        (click)="setRowsPerPage(option)">
+                        {{ option }}
+                      </button>
+                    }
+                  </div>
+                </div>
+                <div class="table-options-divider"></div>
+                <div class="table-options-section">
                   <span class="table-options-label">{{ 'admin.brands.visible_columns' | translate }}</span>
                   <div class="table-options-columns">
                     @for (col of columnOptions; track col.field) {
@@ -167,7 +181,8 @@
                       <td>
                         <div class="table-thumbnail">
                           @if (brand.logo_url) {
-                            <img [src]="brand.logo_url" [alt]="getBrandName(brand)" loading="lazy">
+                            <img [src]="brand.logo_url" [alt]="getBrandName(brand)" loading="lazy" (error)="onImageError($event)">
+                            <i class="pi pi-building hidden"></i>
                           } @else {
                             <i class="pi pi-building"></i>
                           }
@@ -181,7 +196,7 @@
                         <div class="info-display">
                           <span class="info-display__name">{{ getBrandName(brand) }}</span>
                           @if (getBrandDescription(brand)) {
-                            <span class="info-display__email">{{ getBrandDescription(brand) }}</span>
+                            <span class="info-display__secondary">{{ getBrandDescription(brand) }}</span>
                           }
                         </div>
                       </td>

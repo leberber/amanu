@@ -233,6 +233,12 @@ export class AdminBrandsComponent extends BaseAdminListComponent implements OnIn
     );
   }
 
+  onImageError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    img.style.display = 'none';
+    img.parentElement?.querySelector('i')?.classList.remove('hidden');
+  }
+
   getBrandName(brand: Brand): string {
     return this.translationHelper.getBrandName(brand);
   }

@@ -1223,6 +1223,7 @@
       "no_brands_filtered": "Aucune marque ne correspond à votre recherche",
       "products_label": "produits",
       "table_options": "Options du Tableau",
+      "rows_per_page": "Lignes par page",
       "visible_columns": "Colonnes Visibles",
       "table": {
         "logo": "Logo",
