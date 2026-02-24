@@ -147,6 +147,21 @@
       font-weight: var(--font-weight-semibold);
       background: var(--overlay-medium);
       color: var(--text-color-secondary);
+
+      &.active {
+        background: rgba(var(--color-success-rgb), 0.15);
+        color: var(--color-success);
+      }
+
+      &.inactive {
+        background: rgba(var(--color-error-rgb), 0.15);
+        color: var(--color-error);
+      }
+
+      &.scheduled {
+        background: rgba(var(--color-warning-rgb), 0.15);
+        color: var(--color-warning);
+      }
     }
   }
 }

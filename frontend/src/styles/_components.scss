@@ -420,6 +420,11 @@
     background: rgba(var(--color-error-rgb), 0.15);
     color: var(--color-error);
   }
+
+  &.scheduled {
+    background: rgba(var(--color-warning-rgb), 0.15);
+    color: var(--color-warning);
+  }
 }
 
 
