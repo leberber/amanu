@@ -12,7 +12,7 @@
     <!-- Loading State - Skeleton -->
     @if (loading()) {
       <!-- Header Skeleton -->
-      <div class="admin-list-header animate-item" style="--delay: 0ms;">
+      <div class="admin-list-header animate-item" style="--item-delay: 0ms;">
         <div class="header-title">
           <div class="admin-icon-wrapper">
             <div class="icon-bg"></div>
@@ -26,7 +26,7 @@
       </div>
 
       <!-- KPI Cards Skeleton -->
-      <div class="stats-grid stats-grid--compact animate-item" style="--delay: 50ms;">
+      <div class="stats-grid stats-grid--compact animate-item" style="--item-delay: 50ms;">
         @for (i of [1,2,3,4,5,6]; track i) {
           <div class="stat-card stat-card--compact">
             <div class="stat-card__content">
@@ -41,7 +41,7 @@
       </div>
 
       <!-- Tab Container Skeleton -->
-      <div class="table-container animate-item" style="--delay: 100ms;">
+      <div class="table-container animate-item" style="--item-delay: 100ms;">
         <div class="table-header">
           <div class="skeleton" style="width: 300px; height: 44px; border-radius: var(--radius-xl);"></div>
         </div>
@@ -70,7 +70,7 @@
       </div>
     } @else if (stats()) {
       <!-- Dashboard Header -->
-      <div class="admin-list-header animate-item" style="--delay: 0ms;">
+      <div class="admin-list-header animate-item" style="--item-delay: 0ms;">
         <div class="header-title">
           <div class="admin-icon-wrapper">
             <div class="icon-bg"></div>
@@ -86,8 +86,8 @@
       </div>
 
       <!-- Compact KPI Row -->
-      <div class="stats-grid stats-grid--compact animate-item" style="--delay: 50ms;">
-        <div class="stat-card stat-card--compact" (click)="navigateToOrders()">
+      <div class="stats-grid stats-grid--compact">
+        <div class="stat-card stat-card--compact animate-item" style="--item-delay: 50ms;" (click)="navigateToOrders()">
           <div class="stat-card__content">
             <span class="stat-card__value">
               <span class="stat-card__icon stat-card__icon--success"><i class="pi pi-wallet"></i></span>
@@ -97,7 +97,7 @@
           </div>
         </div>
 
-        <div class="stat-card stat-card--compact" (click)="navigateToUsers()">
+        <div class="stat-card stat-card--compact animate-item" style="--item-delay: 100ms;" (click)="navigateToUsers()">
           <div class="stat-card__content">
             <span class="stat-card__value">
               <span class="stat-card__icon stat-card__icon--purple"><i class="pi pi-users"></i></span>
@@ -107,7 +107,7 @@
           </div>
         </div>
 
-        <div class="stat-card stat-card--compact" (click)="navigateToProducts()">
+        <div class="stat-card stat-card--compact animate-item" style="--item-delay: 150ms;" (click)="navigateToProducts()">
           <div class="stat-card__content">
             <span class="stat-card__value">
               <span class="stat-card__icon stat-card__icon--warning"><i class="pi pi-box"></i></span>
@@ -117,7 +117,7 @@
           </div>
         </div>
 
-        <div class="stat-card stat-card--compact" (click)="navigateToOrders()">
+        <div class="stat-card stat-card--compact animate-item" style="--item-delay: 200ms;" (click)="navigateToOrders()">
           <div class="stat-card__content">
             <span class="stat-card__value">
               <span class="stat-card__icon stat-card__icon--primary"><i class="pi pi-shopping-cart"></i></span>
@@ -127,7 +127,7 @@
           </div>
         </div>
 
-        <div class="stat-card stat-card--compact" (click)="navigateToOrders()">
+        <div class="stat-card stat-card--compact animate-item" style="--item-delay: 250ms;" (click)="navigateToOrders()">
           <div class="stat-card__content">
             <span class="stat-card__value">
               <span class="stat-card__icon stat-card__icon--orange"><i class="pi pi-hourglass"></i></span>
@@ -137,7 +137,7 @@
           </div>
         </div>
 
-        <div class="stat-card stat-card--compact" (click)="navigateToProducts()">
+        <div class="stat-card stat-card--compact animate-item" style="--item-delay: 300ms;" (click)="navigateToProducts()">
           <div class="stat-card__content">
             <span class="stat-card__value">
               <span class="stat-card__icon stat-card__icon--red"><i class="pi pi-exclamation-triangle"></i></span>
@@ -149,7 +149,7 @@
       </div>
 
       <!-- Tabbed Content Section -->
-      <div class="table-container animate-item" style="--delay: 100ms;">
+      <div class="table-container animate-item" style="--item-delay: 350ms;">
         <div class="table-header">
           <div class="segment-control segment-control--glass">
             <button
@@ -181,7 +181,7 @@
           @if (activeTab() === 'analytics') {
             <div class="data-grid">
               <!-- Sales by Category Chart -->
-              <div class="data-card">
+              <div class="data-card animate-item" style="--item-delay: 400ms;">
                 <div class="data-card__header">
                   <div class="data-card__icon data-card__icon--purple">
                     <i class="pi pi-chart-pie"></i>
@@ -203,7 +203,7 @@
               </div>
 
               <!-- Sales by Brand Chart -->
-              <div class="data-card">
+              <div class="data-card animate-item" style="--item-delay: 500ms;">
                 <div class="data-card__header">
                   <div class="data-card__icon data-card__icon--pink">
                     <i class="pi pi-tag"></i>
@@ -228,7 +228,7 @@
 
           <!-- Top Products Tab -->
           @if (activeTab() === 'top-products') {
-            <div class="table-wrapper">
+            <div class="table-wrapper animate-item" style="--item-delay: 100ms;">
               <table class="table">
                 <thead>
                   <tr>
@@ -262,7 +262,7 @@
                       </td>
                     </tr>
                   } @empty {
-                    <tr>
+                    <tr class="animate-item" style="--item-delay: 100ms;">
                       <td colspan="4">
                         <div class="empty-state empty-state--compact">
                           <div class="empty-state__icon">
@@ -280,7 +280,7 @@
 
           <!-- Insights Tab (Empty) -->
           @if (activeTab() === 'insights') {
-            <div class="empty-state">
+            <div class="empty-state animate-item" style="--item-delay: 100ms;">
               <div class="empty-state__icon empty-state__icon--purple">
                 <i class="pi pi-lightbulb"></i>
               </div>
@@ -292,7 +292,7 @@
       </div>
     } @else {
       <!-- Error State -->
-      <div class="empty-state animate-item" style="--delay: 100ms;">
+      <div class="empty-state animate-item" style="--item-delay: 100ms;">
         <div class="empty-state__icon empty-state__icon--danger">
           <i class="pi pi-exclamation-circle"></i>
         </div>
