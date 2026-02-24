@@ -1,7 +1,7 @@
 // src/app/models/notification.model.ts
 
 // Segment types for targeting
-export type SegmentType = 'all' | 'inactive_30' | 'inactive_60' | 'vip' | 'new_users' | 'by_city';
+export type SegmentType = 'all' | 'inactive_30' | 'inactive_60' | 'vip' | 'new_users' | 'by_city' | 'by_wilaya' | 'by_daira' | 'by_commune';
 
 // Notification content types
 export type NotificationType = 'custom' | 'promotion' | 'product' | 'category' | 'brand';
@@ -21,6 +21,28 @@ export interface SegmentInfo {
 export interface CityStat {
   city: string;
   count: number;
+}
+
+// Location hierarchy
+export interface Wilaya {
+  id: number;
+  name: string;
+  code: string;
+  user_count?: number;
+}
+
+export interface Daira {
+  id: number;
+  wilaya_id: number;
+  name: string;
+  user_count?: number;
+}
+
+export interface Commune {
+  id: number;
+  daira_id: number;
+  name: string;
+  user_count?: number;
 }
 
 // Notification history record

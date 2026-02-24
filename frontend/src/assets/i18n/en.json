@@ -686,10 +686,18 @@
       },
       "audience": {
         "title": "Target Audience",
+        "segment": "Segment",
+        "location": "Location",
         "select_segment": "Select Segment",
         "filter_by_city": "Filter by City",
         "select_city": "Select city...",
         "all_cities": "All Cities",
+        "wilaya": "Wilaya",
+        "select_wilaya": "All wilayas...",
+        "daira": "Daïra",
+        "select_daira": "All daïras...",
+        "commune": "Commune",
+        "select_commune": "All communes...",
         "will_reach": "This notification will reach",
         "users": "users"
       },
@@ -711,14 +719,21 @@
         "title": "Notification Content",
         "type_label": "Type",
         "type_custom": "Custom",
+        "type_custom_desc": "Write your own message",
         "type_promotion": "Promotion",
+        "type_promotion_desc": "Link to an active offer",
         "type_product": "Product",
+        "type_product_desc": "Highlight a product",
         "type_category": "Category",
+        "type_category_desc": "Promote a category",
         "type_brand": "Brand",
+        "type_brand_desc": "Feature a brand",
         "select_promotion": "Select promotion...",
         "select_product": "Select product...",
         "select_category": "Select category...",
         "select_brand": "Select brand...",
+        "select_to_preview": "Select to preview",
+        "custom_next_step": "Click Next to write your custom message",
         "title_en": "Title (English)",
         "title_fr": "Title (French)",
         "title_ar": "Title (Arabic)",
@@ -769,7 +784,11 @@
         "scheduled_success": "Notification scheduled successfully",
         "sent_failed": "Failed to send notification",
         "load_error": "Failed to load notification data"
-      }
+      },
+      "tips": {
+        "promotion_tip": "Promotion notifications have 2x higher click rates"
+      },
+      "summary": "Ready to send"
     },
     "dashboard": {
       "title": "Admin Dashboard",

@@ -113,134 +113,260 @@
           <div class="form-wizard__body">
             <!-- Step 1: Target Audience -->
             @if (currentStep() === 1) {
-              <div class="admin-form-field">
-                <label>{{ 'admin.notifications.audience.select_segment' | translate }}</label>
-                <p-select
-                  [options]="segments()"
-                  [ngModel]="selectedSegment()"
-                  (ngModelChange)="onSegmentChange($event)"
-                  optionLabel="label"
-                  optionValue="segment_type"
-                  styleClass="w-full">
-                  <ng-template pTemplate="selectedItem" let-item>
-                    <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
-                      <span>{{ item.label }}</span>
-                      <span class="chip chip--xs chip--solid">{{ item.count }}</span>
+              <div class="audience-grid">
+                <!-- Left: Segment Selection -->
+                <div class="audience-section">
+                  <h3 class="audience-section__title">
+                    <i class="pi pi-users"></i>
+                    {{ 'admin.notifications.audience.segment' | translate }}
+                  </h3>
+                  <div class="admin-form-field">
+                    <p-select
+                      [options]="segments()"
+                      [ngModel]="selectedSegment()"
+                      (ngModelChange)="onSegmentChange($event)"
+                      optionLabel="label"
+                      optionValue="segment_type"
+                      styleClass="w-full">
+                      <ng-template pTemplate="selectedItem" let-item>
+                        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                          <span>{{ item.label }}</span>
+                          <span class="chip chip--xs chip--solid">{{ item.count }}</span>
+                        </div>
+                      </ng-template>
+                      <ng-template pTemplate="item" let-item>
+                        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                          <div>
+                            <span>{{ item.label }}</span>
+                            <small style="display: block; color: var(--text-color-secondary); font-size: 0.75rem;">{{ item.description }}</small>
+                          </div>
+                          <span class="chip chip--xs chip--solid">{{ item.count }}</span>
+                        </div>
+                      </ng-template>
+                    </p-select>
+                  </div>
+                </div>
+
+                <!-- Right: Location Filter -->
+                <div class="audience-section">
+                  <h3 class="audience-section__title">
+                    <i class="pi pi-map-marker"></i>
+                    {{ 'admin.notifications.audience.location' | translate }}
+                  </h3>
+                  <div class="location-filters">
+                    <!-- Wilaya -->
+                    <div class="admin-form-field">
+                      <label>{{ 'admin.notifications.audience.wilaya' | translate }}</label>
+                      <p-select
+                        [options]="wilayas()"
+                        [ngModel]="selectedWilayaId()"
+                        (ngModelChange)="onWilayaChange($event)"
+                        optionLabel="name"
+                        optionValue="id"
+                        [showClear]="true"
+                        [filter]="true"
+                        [placeholder]="'admin.notifications.audience.select_wilaya' | translate"
+                        styleClass="w-full">
+                        <ng-template pTemplate="item" let-item>
+                          <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                            <span>{{ item.name }}</span>
+                            @if (item.user_count) {
+                              <span class="chip chip--xs">{{ item.user_count }}</span>
+                            }
+                          </div>
+                        </ng-template>
+                      </p-select>
                     </div>
-                  </ng-template>
-                  <ng-template pTemplate="item" let-item>
-                    <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
-                      <div>
-                        <span>{{ item.label }}</span>
-                        <small style="display: block; color: var(--text-color-secondary); font-size: 0.75rem;">{{ item.description }}</small>
+
+                    <!-- Daïra -->
+                    @if (selectedWilayaId()) {
+                      <div class="admin-form-field">
+                        <label>{{ 'admin.notifications.audience.daira' | translate }}</label>
+                        <p-select
+                          [options]="dairas()"
+                          [ngModel]="selectedDairaId()"
+                          (ngModelChange)="onDairaChange($event)"
+                          optionLabel="name"
+                          optionValue="id"
+                          [showClear]="true"
+                          [filter]="true"
+                          [placeholder]="'admin.notifications.audience.select_daira' | translate"
+                          styleClass="w-full">
+                          <ng-template pTemplate="item" let-item>
+                            <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                              <span>{{ item.name }}</span>
+                              @if (item.user_count) {
+                                <span class="chip chip--xs">{{ item.user_count }}</span>
+                              }
+                            </div>
+                          </ng-template>
+                        </p-select>
                       </div>
-                      <span class="chip chip--xs chip--solid">{{ item.count }}</span>
-                    </div>
-                  </ng-template>
-                </p-select>
+                    }
+
+                    <!-- Commune -->
+                    @if (selectedDairaId()) {
+                      <div class="admin-form-field">
+                        <label>{{ 'admin.notifications.audience.commune' | translate }}</label>
+                        <p-select
+                          [options]="communes()"
+                          [ngModel]="selectedCommuneId()"
+                          (ngModelChange)="onCommuneChange($event)"
+                          optionLabel="name"
+                          optionValue="id"
+                          [showClear]="true"
+                          [filter]="true"
+                          [placeholder]="'admin.notifications.audience.select_commune' | translate"
+                          styleClass="w-full">
+                          <ng-template pTemplate="item" let-item>
+                            <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                              <span>{{ item.name }}</span>
+                              @if (item.user_count) {
+                                <span class="chip chip--xs">{{ item.user_count }}</span>
+                              }
+                            </div>
+                          </ng-template>
+                        </p-select>
+                      </div>
+                    }
+                  </div>
+                </div>
               </div>
 
-              @if (cities().length > 0) {
-                <div class="admin-form-field">
-                  <label>{{ 'admin.notifications.audience.filter_by_city' | translate }}</label>
-                  <p-select
-                    [options]="cities()"
-                    [ngModel]="selectedCity()"
-                    (ngModelChange)="onCityChange($event)"
-                    optionLabel="city"
-                    optionValue="city"
-                    [showClear]="true"
-                    [placeholder]="'admin.notifications.audience.select_city' | translate"
-                    styleClass="w-full">
-                    <ng-template pTemplate="item" let-item>
-                      <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
-                        <span>{{ item.city }}</span>
-                        <span class="chip chip--xs">{{ item.count }}</span>
-                      </div>
-                    </ng-template>
-                  </p-select>
-                </div>
-              }
-
-              <div class="info-box info-box--primary" style="margin-top: var(--space-6);">
-                <div class="info-box__icon">
+              <!-- Recipient Count -->
+              <div class="recipient-summary">
+                <div class="recipient-summary__icon">
                   <i class="pi pi-send"></i>
                 </div>
-                <div class="info-box__content">
-                  <p class="info-box__text">
-                    {{ 'admin.notifications.audience.will_reach' | translate }}
-                    <strong>{{ recipientCount() }}</strong>
-                    {{ 'admin.notifications.audience.users' | translate }}
-                  </p>
+                <div class="recipient-summary__content">
+                  <span class="recipient-summary__count">{{ recipientCount() }}</span>
+                  <span class="recipient-summary__label">{{ 'admin.notifications.audience.users' | translate }}</span>
                 </div>
               </div>
             }
 
             <!-- Step 2: Notification Type -->
             @if (currentStep() === 2) {
-              <div class="admin-form-field">
-                <label>{{ 'admin.notifications.content.type_label' | translate }}</label>
-                <div class="filter-chips">
-                  <button
-                    class="filter-chips__chip"
-                    [class.active]="notificationType() === 'custom'"
-                    (click)="onNotificationTypeChange('custom')">
+              <!-- Type Selection Cards -->
+              <div class="type-cards">
+                <button
+                  class="type-card"
+                  style="--card-color: #8b5cf6"
+                  [class.active]="notificationType() === 'custom'"
+                  (click)="onNotificationTypeChange('custom')">
+                  <div class="type-card__icon">
                     <i class="pi pi-pencil"></i>
-                    {{ 'admin.notifications.content.type_custom' | translate }}
-                  </button>
-                  <button
-                    class="filter-chips__chip"
-                    [class.active]="notificationType() === 'promotion'"
-                    (click)="onNotificationTypeChange('promotion')">
+                  </div>
+                  <span class="type-card__title">{{ 'admin.notifications.content.type_custom' | translate }}</span>
+                  <span class="type-card__desc">{{ 'admin.notifications.content.type_custom_desc' | translate }}</span>
+                </button>
+
+                <button
+                  class="type-card"
+                  style="--card-color: #f59e0b"
+                  [class.active]="notificationType() === 'promotion'"
+                  (click)="onNotificationTypeChange('promotion')">
+                  <div class="type-card__icon">
                     <i class="pi pi-percentage"></i>
-                    {{ 'admin.notifications.content.type_promotion' | translate }}
-                  </button>
-                  <button
-                    class="filter-chips__chip"
-                    [class.active]="notificationType() === 'product'"
-                    (click)="onNotificationTypeChange('product')">
+                  </div>
+                  <span class="type-card__title">{{ 'admin.notifications.content.type_promotion' | translate }}</span>
+                  <span class="type-card__desc">{{ 'admin.notifications.content.type_promotion_desc' | translate }}</span>
+                </button>
+
+                <button
+                  class="type-card"
+                  style="--card-color: #10b981"
+                  [class.active]="notificationType() === 'product'"
+                  (click)="onNotificationTypeChange('product')">
+                  <div class="type-card__icon">
                     <i class="pi pi-box"></i>
-                    {{ 'admin.notifications.content.type_product' | translate }}
-                  </button>
-                  <button
-                    class="filter-chips__chip"
-                    [class.active]="notificationType() === 'category'"
-                    (click)="onNotificationTypeChange('category')">
+                  </div>
+                  <span class="type-card__title">{{ 'admin.notifications.content.type_product' | translate }}</span>
+                  <span class="type-card__desc">{{ 'admin.notifications.content.type_product_desc' | translate }}</span>
+                </button>
+
+                <button
+                  class="type-card"
+                  style="--card-color: #3b82f6"
+                  [class.active]="notificationType() === 'category'"
+                  (click)="onNotificationTypeChange('category')">
+                  <div class="type-card__icon">
                     <i class="pi pi-th-large"></i>
-                    {{ 'admin.notifications.content.type_category' | translate }}
-                  </button>
-                  <button
-                    class="filter-chips__chip"
-                    [class.active]="notificationType() === 'brand'"
-                    (click)="onNotificationTypeChange('brand')">
+                  </div>
+                  <span class="type-card__title">{{ 'admin.notifications.content.type_category' | translate }}</span>
+                  <span class="type-card__desc">{{ 'admin.notifications.content.type_category_desc' | translate }}</span>
+                </button>
+
+                <button
+                  class="type-card"
+                  style="--card-color: #ec4899"
+                  [class.active]="notificationType() === 'brand'"
+                  (click)="onNotificationTypeChange('brand')">
+                  <div class="type-card__icon">
                     <i class="pi pi-bookmark"></i>
-                    {{ 'admin.notifications.content.type_brand' | translate }}
-                  </button>
-                </div>
+                  </div>
+                  <span class="type-card__title">{{ 'admin.notifications.content.type_brand' | translate }}</span>
+                  <span class="type-card__desc">{{ 'admin.notifications.content.type_brand_desc' | translate }}</span>
+                </button>
               </div>
 
-              @if (notificationType() !== 'custom' && currentTargetOptions().length > 0) {
-                <div class="admin-form-field">
-                  <label>{{ 'admin.notifications.content.select_' + notificationType() | translate }}</label>
-                  <p-select
-                    [options]="currentTargetOptions()"
-                    [ngModel]="selectedTargetId()"
-                    (ngModelChange)="onTargetSelect($event)"
-                    optionValue="id"
-                    [placeholder]="'admin.notifications.content.select_' + notificationType() | translate"
-                    styleClass="w-full"
-                    [filter]="true">
-                    <ng-template pTemplate="selectedItem" let-item>
-                      {{ getTargetName(item) }}
-                    </ng-template>
-                    <ng-template pTemplate="item" let-item>
-                      {{ getTargetName(item) }}
-                    </ng-template>
-                  </p-select>
+              <!-- Custom type message -->
+              @if (notificationType() === 'custom') {
+                <div class="info-box info-box--primary" style="margin-top: var(--space-6);">
+                  <div class="info-box__icon">
+                    <i class="pi pi-arrow-right"></i>
+                  </div>
+                  <div class="info-box__content">
+                    <p class="info-box__text">
+                      {{ 'admin.notifications.content.custom_next_step' | translate }}
+                    </p>
+                  </div>
                 </div>
               }
 
+              <!-- Target Selection (for non-custom types) -->
+              @if (notificationType() !== 'custom' && currentTargetOptions().length > 0) {
+                <div class="target-selection-row">
+                  <!-- Left: Dropdown -->
+                  <div class="admin-form-field">
+                    <label>{{ 'admin.notifications.content.select_' + notificationType() | translate }}</label>
+                    <p-select
+                      [options]="currentTargetOptions()"
+                      [ngModel]="selectedTargetId()"
+                      (ngModelChange)="onTargetSelect($event)"
+                      optionValue="id"
+                      [placeholder]="'admin.notifications.content.select_' + notificationType() | translate"
+                      styleClass="w-full"
+                      [filter]="true">
+                      <ng-template pTemplate="selectedItem" let-item>
+                        {{ getTargetName(item) }}
+                      </ng-template>
+                      <ng-template pTemplate="item" let-item>
+                        {{ getTargetName(item) }}
+                      </ng-template>
+                    </p-select>
+                  </div>
+
+                  <!-- Right: Preview Card -->
+                  <div class="target-preview-card">
+                    @if (selectedTargetItem()) {
+                      @if (previewImageUrl()) {
+                        <img [src]="previewImageUrl()" class="target-preview-card__image" alt="">
+                      }
+                      <div class="target-preview-card__info">
+                        <span class="target-preview-card__name">{{ getTargetName(selectedTargetItem()) }}</span>
+                        <span class="target-preview-card__type">{{ notificationType() | titlecase }}</span>
+                      </div>
+                    } @else {
+                      <div class="target-preview-card__placeholder">
+                        <i class="pi pi-image"></i>
+                        <span>{{ 'admin.notifications.content.select_to_preview' | translate }}</span>
+                      </div>
+                    }
+                  </div>
+                </div>
               }
+            }
 
             <!-- Step 3: Message Content -->
             @if (currentStep() === 3) {
@@ -400,47 +526,98 @@
 
             <!-- Step 4: Schedule & Send -->
             @if (currentStep() === 4) {
-              <div class="admin-checkbox-field">
-                <p-checkbox
-                  [ngModel]="scheduleEnabled()"
-                  (ngModelChange)="scheduleEnabled.set($event)"
-                  [binary]="true"
-                  inputId="schedule">
-                </p-checkbox>
-                <label for="schedule">
-                  {{ 'admin.notifications.schedule.schedule_for_later' | translate }}
-                </label>
-              </div>
-
-              @if (scheduleEnabled()) {
-                <div class="admin-form-field">
-                  <label>{{ 'admin.notifications.schedule.scheduled_date' | translate }}</label>
-                  <p-datePicker
-                    [ngModel]="scheduledDate()"
-                    (ngModelChange)="scheduledDate.set($event)"
-                    [showTime]="true"
-                    [showIcon]="true"
-                    [minDate]="minScheduleDate"
-                    dateFormat="dd/mm/yy"
-                    appendTo="body">
-                  </p-datePicker>
+              <div class="form-grid">
+                <!-- Column 1: Phone Preview -->
+                <div style="display: flex; justify-content: center;">
+                  <div class="phone-mockup">
+                    <div class="phone-mockup__screen">
+                      <div class="phone-mockup__status-bar">
+                        <span class="phone-mockup__time">9:41</span>
+                        <div class="phone-mockup__icons">
+                          <i class="pi pi-wifi"></i>
+                          <i class="pi pi-battery-full"></i>
+                        </div>
+                      </div>
+                      <div class="phone-mockup__content">
+                        <div
+                          class="notification-preview"
+                          [class.notification-preview--empty]="!titleFr()"
+                          [class.notification-preview--with-image]="previewImageUrl()">
+                          <div class="notification-preview__top">
+                            <div class="notification-preview__icon">
+                              @if (previewImageUrl()) {
+                                <img [src]="previewImageUrl()" alt="Preview">
+                              } @else {
+                                <i class="pi pi-shopping-bag"></i>
+                              }
+                            </div>
+                            <div class="notification-preview__body">
+                              <div class="notification-preview__header">
+                                <span class="notification-preview__app">{{ 'admin.notifications.preview.app_name' | translate }}</span>
+                                <span class="notification-preview__time">{{ 'admin.notifications.preview.now' | translate }}</span>
+                              </div>
+                              <div class="notification-preview__title">
+                                {{ titleFr() || ('admin.notifications.preview.placeholder_title' | translate) }}
+                              </div>
+                              <div class="notification-preview__message">
+                                {{ bodyFr() || ('admin.notifications.preview.placeholder_body' | translate) }}
+                              </div>
+                            </div>
+                          </div>
+                          @if (previewImageUrl()) {
+                            <img class="notification-preview__image" [src]="previewImageUrl()" alt="Preview">
+                          }
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              }
 
-              <!-- Summary before sending -->
-              <div class="info-box info-box--success" style="margin-top: var(--space-6);">
-                <div class="info-box__icon">
-                  <i class="pi pi-check-circle"></i>
-                </div>
-                <div class="info-box__content">
-                  <p class="info-box__title">{{ 'admin.notifications.summary' | translate }}</p>
-                  <p class="info-box__text">
-                    <strong>{{ recipientCount() }}</strong> {{ 'admin.notifications.audience.users' | translate }} •
-                    {{ notificationType() | titlecase }}
-                    @if (scheduleEnabled() && scheduledDate()) {
-                      • {{ formatDate(scheduledDate()!.toISOString()) }}
-                    }
-                  </p>
+                <!-- Column 2: Schedule & Summary -->
+                <div>
+                  <div class="admin-checkbox-field">
+                    <p-checkbox
+                      [ngModel]="scheduleEnabled()"
+                      (ngModelChange)="scheduleEnabled.set($event)"
+                      [binary]="true"
+                      inputId="schedule">
+                    </p-checkbox>
+                    <label for="schedule">
+                      {{ 'admin.notifications.schedule.schedule_for_later' | translate }}
+                    </label>
+                  </div>
+
+                  @if (scheduleEnabled()) {
+                    <div class="admin-form-field" style="margin-top: var(--space-4);">
+                      <label>{{ 'admin.notifications.schedule.scheduled_date' | translate }}</label>
+                      <p-datePicker
+                        [ngModel]="scheduledDate()"
+                        (ngModelChange)="scheduledDate.set($event)"
+                        [showTime]="true"
+                        [showIcon]="true"
+                        [minDate]="minScheduleDate"
+                        dateFormat="dd/mm/yy"
+                        appendTo="body">
+                      </p-datePicker>
+                    </div>
+                  }
+
+                  <!-- Summary before sending -->
+                  <div class="info-box info-box--success" style="margin-top: var(--space-6);">
+                    <div class="info-box__icon">
+                      <i class="pi pi-check-circle"></i>
+                    </div>
+                    <div class="info-box__content">
+                      <p class="info-box__title">{{ 'admin.notifications.summary' | translate }}</p>
+                      <p class="info-box__text">
+                        <strong>{{ recipientCount() }}</strong> {{ 'admin.notifications.audience.users' | translate }} •
+                        {{ notificationType() | titlecase }}
+                        @if (scheduleEnabled() && scheduledDate()) {
+                          • {{ formatDate(scheduledDate()!.toISOString()) }}
+                        }
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
             }

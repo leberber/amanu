@@ -26,7 +26,10 @@ import {
   BrandItem,
   NotificationType,
   SegmentType,
-  NotificationTemplate
+  NotificationTemplate,
+  Wilaya,
+  Daira,
+  Commune
 } from '../../../models/notification.model';
 
 @Component({
@@ -53,6 +56,9 @@ export class AdminNotificationsComponent implements OnInit {
   // Data
   segments = signal<SegmentInfo[]>([]);
   cities = signal<CityStat[]>([]);
+  wilayas = signal<Wilaya[]>([]);
+  dairas = signal<Daira[]>([]);
+  communes = signal<Commune[]>([]);
   history = signal<NotificationHistory[]>([]);
   promotions = signal<PromotionItem[]>([]);
   products = signal<ProductItem[]>([]);
@@ -62,6 +68,9 @@ export class AdminNotificationsComponent implements OnInit {
   // Form state
   selectedSegment = signal<SegmentType>('all');
   selectedCity = signal<string | null>(null);
+  selectedWilayaId = signal<number | null>(null);
+  selectedDairaId = signal<number | null>(null);
+  selectedCommuneId = signal<number | null>(null);
   notificationType = signal<NotificationType>('custom');
   selectedTargetId = signal<number | null>(null);
   selectedTemplateId = signal<string | null>(null);
@@ -165,6 +174,32 @@ export class AdminNotificationsComponent implements OnInit {
     }
   });
 
+  // Get selected target item with image
+  selectedTargetItem = computed(() => {
+    const targetId = this.selectedTargetId();
+    if (!targetId) return null;
+
+    const type = this.notificationType();
+    let items: any[] = [];
+    switch (type) {
+      case 'product': items = this.products(); break;
+      case 'category': items = this.categories(); break;
+      case 'brand': items = this.brands(); break;
+      case 'promotion': items = this.promotions(); break;
+    }
+    return items.find(item => item.id === targetId) || null;
+  });
+
+  // Get preview image URL
+  previewImageUrl = computed(() => {
+    const item = this.selectedTargetItem();
+    if (!item) return null;
+
+    const type = this.notificationType();
+    if (type === 'brand') return item.logo_url || null;
+    return item.image_url || null;
+  });
+
   // Check if user can proceed to next step
   canProceedToNext = computed(() => {
     const step = this.currentStep();
@@ -225,6 +260,17 @@ export class AdminNotificationsComponent implements OnInit {
         this.toast.showError('admin.notifications.load_error');
       }
     });
+
+    // Load wilayas separately (optional endpoint)
+    this.notificationService.getWilayas()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (wilayas) => {
+          console.log('Wilayas response:', wilayas);
+          this.wilayas.set(wilayas);
+        },
+        error: (err) => console.log('Wilayas error:', err)
+      });
   }
 
   onSegmentChange(segmentType: SegmentType) {
@@ -238,6 +284,39 @@ export class AdminNotificationsComponent implements OnInit {
     if (city) {
       this.selectedSegment.set('by_city');
     }
+    this.updateRecipientCount();
+  }
+
+  onWilayaChange(wilayaId: number | null) {
+    this.selectedWilayaId.set(wilayaId);
+    this.selectedDairaId.set(null);
+    this.selectedCommuneId.set(null);
+    this.dairas.set([]);
+    this.communes.set([]);
+
+    if (wilayaId) {
+      this.notificationService.getDairas(wilayaId)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(dairas => this.dairas.set(dairas));
+    }
+    this.updateRecipientCount();
+  }
+
+  onDairaChange(dairaId: number | null) {
+    this.selectedDairaId.set(dairaId);
+    this.selectedCommuneId.set(null);
+    this.communes.set([]);
+
+    if (dairaId) {
+      this.notificationService.getCommunes(dairaId)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(communes => this.communes.set(communes));
+    }
+    this.updateRecipientCount();
+  }
+
+  onCommuneChange(communeId: number | null) {
+    this.selectedCommuneId.set(communeId);
     this.updateRecipientCount();
   }
 
@@ -433,6 +512,11 @@ export class AdminNotificationsComponent implements OnInit {
   getTargetName(item: any): string {
     const lang = this.translateService.currentLang || 'en';
     return item[`name_${lang}`] || item.name_en;
+  }
+
+  getItemImage(item: any): string | null {
+    if (!item) return null;
+    return item.image_url || item.logo_url || null;
   }
 
   formatDate(dateStr: string): string {

@@ -688,10 +688,18 @@
       },
       "audience": {
         "title": "الجمهور المستهدف",
+        "segment": "الشريحة",
+        "location": "الموقع",
         "select_segment": "اختر الشريحة",
         "filter_by_city": "تصفية حسب المدينة",
         "select_city": "اختر مدينة...",
         "all_cities": "جميع المدن",
+        "wilaya": "الولاية",
+        "select_wilaya": "جميع الولايات...",
+        "daira": "الدائرة",
+        "select_daira": "جميع الدوائر...",
+        "commune": "البلدية",
+        "select_commune": "جميع البلديات...",
         "will_reach": "سيصل هذا الإشعار إلى",
         "users": "مستخدم"
       },
@@ -713,14 +721,21 @@
         "title": "محتوى الإشعار",
         "type_label": "النوع",
         "type_custom": "مخصص",
+        "type_custom_desc": "اكتب رسالتك الخاصة",
         "type_promotion": "عرض ترويجي",
+        "type_promotion_desc": "ربط بعرض نشط",
         "type_product": "منتج",
+        "type_product_desc": "إبراز منتج معين",
         "type_category": "فئة",
+        "type_category_desc": "الترويج لفئة",
         "type_brand": "علامة تجارية",
+        "type_brand_desc": "إبراز علامة تجارية",
         "select_promotion": "اختر عرضاً...",
         "select_product": "اختر منتجاً...",
         "select_category": "اختر فئة...",
         "select_brand": "اختر علامة تجارية...",
+        "select_to_preview": "اختر للمعاينة",
+        "custom_next_step": "انقر على التالي لكتابة رسالتك المخصصة",
         "title_en": "العنوان (إنجليزي)",
         "title_fr": "العنوان (فرنسي)",
         "title_ar": "العنوان (عربي)",
@@ -771,7 +786,11 @@
         "scheduled_success": "تمت جدولة الإشعار بنجاح",
         "sent_failed": "فشل إرسال الإشعار",
         "load_error": "فشل تحميل بيانات الإشعارات"
-      }
+      },
+      "tips": {
+        "promotion_tip": "إشعارات العروض لديها ضعف معدل النقرات"
+      },
+      "summary": "جاهز للإرسال"
     },
     "dashboard": {
       "title": "لوحة التحكم",

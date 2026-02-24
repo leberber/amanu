@@ -683,10 +683,18 @@
       },
       "audience": {
         "title": "Audience Cible",
+        "segment": "Segment",
+        "location": "Localisation",
         "select_segment": "Sélectionner le Segment",
         "filter_by_city": "Filtrer par Ville",
         "select_city": "Sélectionner une ville...",
         "all_cities": "Toutes les Villes",
+        "wilaya": "Wilaya",
+        "select_wilaya": "Toutes les wilayas...",
+        "daira": "Daïra",
+        "select_daira": "Toutes les daïras...",
+        "commune": "Commune",
+        "select_commune": "Toutes les communes...",
         "will_reach": "Cette notification atteindra",
         "users": "utilisateurs"
       },
@@ -708,14 +716,21 @@
         "title": "Contenu de la Notification",
         "type_label": "Type",
         "type_custom": "Personnalisé",
+        "type_custom_desc": "Rédigez votre propre message",
         "type_promotion": "Promotion",
+        "type_promotion_desc": "Lier à une offre active",
         "type_product": "Produit",
+        "type_product_desc": "Mettre en avant un produit",
         "type_category": "Catégorie",
+        "type_category_desc": "Promouvoir une catégorie",
         "type_brand": "Marque",
+        "type_brand_desc": "Mettre en avant une marque",
         "select_promotion": "Sélectionner une promotion...",
         "select_product": "Sélectionner un produit...",
         "select_category": "Sélectionner une catégorie...",
         "select_brand": "Sélectionner une marque...",
+        "select_to_preview": "Sélectionner pour aperçu",
+        "custom_next_step": "Cliquez sur Suivant pour rédiger votre message personnalisé",
         "title_en": "Titre (Anglais)",
         "title_fr": "Titre (Français)",
         "title_ar": "Titre (Arabe)",
@@ -766,7 +781,11 @@
         "scheduled_success": "Notification planifiée avec succès",
         "sent_failed": "Échec de l'envoi de la notification",
         "load_error": "Échec du chargement des données de notification"
-      }
+      },
+      "tips": {
+        "promotion_tip": "Les notifications de promotion ont 2x plus de clics"
+      },
+      "summary": "Prêt à envoyer"
     },
     "dashboard": {
       "title": "Tableau de Bord Admin",

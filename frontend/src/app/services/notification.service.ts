@@ -12,7 +12,10 @@ import {
   ProductItem,
   CategoryItem,
   BrandItem,
-  SegmentType
+  SegmentType,
+  Wilaya,
+  Daira,
+  Commune
 } from '../models/notification.model';
 
 @Injectable({
@@ -31,6 +34,18 @@ export class NotificationService {
 
   getCities(): Observable<CityStat[]> {
     return this.api.get<CityStat[]>('/push/cities');
+  }
+
+  getWilayas(): Observable<Wilaya[]> {
+    return this.api.get<Wilaya[]>('/push/wilayas');
+  }
+
+  getDairas(wilayaId: number): Observable<Daira[]> {
+    return this.api.get<Daira[]>(`/push/dairas?wilaya_id=${wilayaId}`);
+  }
+
+  getCommunes(dairaId: number): Observable<Commune[]> {
+    return this.api.get<Commune[]>(`/push/communes?daira_id=${dairaId}`);
   }
 
   getPreviewCount(segmentType: SegmentType, segmentValue?: string): Observable<{ count: number }> {
