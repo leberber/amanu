@@ -1,40 +1,42 @@
 // =============================================================================
-// ADMIN NOTIFICATIONS
+// ADMIN NOTIFICATIONS - PAGE-SPECIFIC STYLES
 // =============================================================================
-// Fixed layout with scrollable content for notification composer.
-// Uses variables from: _colors.scss, _spacing.scss, _effects.scss, _typography.scss
+// Layout overrides and unique components for notification composer.
+// Global styles used: .admin-page, .admin-content, .form-wizard (from globals)
 // =============================================================================
 
 
 // =============================================================================
-// 1. HOST & LAYOUT
+// 1. HOST & LAYOUT OVERRIDES
 // =============================================================================
 
 :host {
   display: block;
   height: 100%;
+}
 
-  .admin-page {
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
+// Override global .admin-page for full-height wizard layout
+.admin-page {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
 
-  .admin-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    width: 100%;
-    max-width: 100%;
-  }
+// Override global .admin-content for flex layout
+.admin-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  max-width: 100%;
 }
 
 
 // =============================================================================
-// 2. FORM WIZARD LAYOUT
+// 2. FORM WIZARD OVERRIDES
 // =============================================================================
+// Extends global .form-wizard with flex layout for scrollable content
 
 .form-wizard {
   flex: 1;
@@ -64,7 +66,7 @@
 
 
 // =============================================================================
-// 3. STEP 1 - AUDIENCE GRID
+// 3. AUDIENCE GRID (Step 1)
 // =============================================================================
 
 .audience-grid {
@@ -100,18 +102,9 @@
     justify-content: center;
     flex-shrink: 0;
 
-    i {
-      color: var(--color-white);
-      font-size: var(--font-size-xl);
-    }
-
-    &--purple {
-      background: var(--purple-gradient);
-    }
-
-    &--blue {
-      background: var(--info-gradient);
-    }
+    i { color: var(--color-white); font-size: var(--font-size-xl); }
+    &--purple { background: var(--purple-gradient); }
+    &--blue { background: var(--info-gradient); }
   }
 
   &__title {
@@ -128,15 +121,9 @@
   }
 }
 
-.location-filters {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-}
-
 
 // =============================================================================
-// 4. STEP 4 - PREVIEW & SEND GRID
+// 4. PREVIEW & SEND GRID (Step 4)
 // =============================================================================
 
 .preview-send-grid {
@@ -157,30 +144,20 @@
   justify-content: center;
   align-items: stretch;
 
+  // Override global .phone-mockup for flex layout
   .phone-mockup {
     flex: 1;
     display: flex;
     flex-direction: column;
     max-width: 300px;
 
-    &__screen {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-    }
-
+    &__screen,
     &__content {
       flex: 1;
       display: flex;
       flex-direction: column;
     }
   }
-}
-
-.send-options-column {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-5);
 }
 
 
@@ -209,16 +186,10 @@
     flex-shrink: 0;
     box-shadow: var(--shadow-md);
 
-    i {
-      color: var(--color-white);
-      font-size: var(--font-size-xl);
-    }
+    i { color: var(--color-white); font-size: var(--font-size-xl); }
   }
 
-  &__content {
-    flex: 1;
-    min-width: 0;
-  }
+  &__content { flex: 1; min-width: 0; }
 
   &__label {
     display: inline-flex;
@@ -252,9 +223,7 @@
   box-shadow: var(--shadow-lg);
   overflow: hidden;
 
-  &__header {
-    padding: var(--space-5);
-  }
+  &__header { padding: var(--space-5); }
 
   &__toggle {
     display: flex;
@@ -269,20 +238,16 @@
       color: var(--text-color);
       cursor: pointer;
 
-      i {
-        color: var(--primary-color);
-      }
+      i { color: var(--primary-color); }
     }
   }
 
-  &__body {
-    padding: 0 var(--space-5) var(--space-5);
-  }
+  &__body { padding: 0 var(--space-5) var(--space-5); }
 }
 
 
 // =============================================================================
-// 7. SUMMARY SECTION
+// 7. SUMMARY SECTION & PILLS
 // =============================================================================
 
 .summary-section {
@@ -302,10 +267,7 @@
     text-transform: uppercase;
     letter-spacing: var(--letter-spacing-wide);
 
-    i {
-      font-size: var(--font-size-sm);
-      color: var(--primary-color);
-    }
+    i { font-size: var(--font-size-sm); color: var(--primary-color); }
   }
 
   &__pills {
@@ -314,12 +276,6 @@
     gap: var(--space-3);
   }
 }
-
-
-// =============================================================================
-// 8. SUMMARY PILLS
-// =============================================================================
-// Uses --pill-color CSS variable for dynamic theming.
 
 .summary-pill {
   --pill-color: var(--primary-color);
@@ -334,9 +290,7 @@
   font-weight: var(--font-weight-medium);
   color: var(--pill-color);
 
-  i {
-    font-size: var(--font-size-sm);
-  }
+  i { font-size: var(--font-size-sm); }
 
   &__img {
     width: 20px;
@@ -350,28 +304,13 @@
     font-size: var(--font-size-base);
     gap: var(--space-3);
 
-    .summary-pill__value {
-      font-size: var(--font-size-xl);
-      font-weight: var(--font-weight-bold);
-    }
-
-    .summary-pill__label {
-      font-weight: var(--font-weight-regular);
-      opacity: 0.8;
-    }
+    .summary-pill__value { font-size: var(--font-size-xl); font-weight: var(--font-weight-bold); }
+    .summary-pill__label { font-weight: var(--font-weight-regular); opacity: 0.8; }
   }
 
-  &--primary {
-    --pill-color: var(--primary-color);
-  }
-
-  &--segment {
-    --pill-color: var(--color-purple);
-  }
-
-  &--location {
-    --pill-color: var(--color-info);
-  }
+  &--primary { --pill-color: var(--primary-color); }
+  &--segment { --pill-color: var(--color-purple); }
+  &--location { --pill-color: var(--color-info); }
 
   &--target {
     --pill-color: var(--color-success);

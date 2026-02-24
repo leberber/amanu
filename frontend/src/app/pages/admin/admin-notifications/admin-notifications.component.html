@@ -208,7 +208,7 @@
                       <p class="audience-section__subtitle">{{ 'admin.notifications.audience.location_desc' | translate }}</p>
                     </div>
                   </div>
-                  <div class="location-filters">
+                  <div class="flex flex-column gap-4">
                     <!-- Wilaya -->
                     <div class="admin-form-field">
                       <label>{{ 'admin.notifications.audience.wilaya' | translate }}</label>
@@ -573,7 +573,7 @@
             @if (currentStep() === 4) {
               <div class="preview-send-grid">
                 <!-- Left: Send Options -->
-                <div class="send-options-column">
+                <div class="flex flex-column gap-5">
                   <!-- Ready Badge -->
                   <div class="ready-badge">
                     <div class="ready-badge__icon">

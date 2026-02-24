@@ -699,10 +699,11 @@
 .phone-mockup {
   width: 280px;
   margin: 0 auto;
-  background: linear-gradient(145deg, var(--surface-50) 0%, var(--surface-200) 100%);
+  background: linear-gradient(145deg, var(--surface-100) 0%, var(--surface-300) 100%);
+  border: 3px solid var(--surface-400);
   border-radius: var(--radius-3xl);
   padding: var(--space-3);
-  box-shadow: var(--shadow-2xl);
+  box-shadow: var(--shadow-2xl), inset 0 1px 0 rgba(255,255,255,0.5);
 
   &__screen {
     background: linear-gradient(180deg,
