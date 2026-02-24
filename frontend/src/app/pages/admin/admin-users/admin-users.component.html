@@ -140,7 +140,7 @@
             <button class="table-action-btn" (click)="toggleFullscreen()" [pTooltip]="(isFullscreen ? 'common.exit_fullscreen' : 'common.fullscreen') | translate">
               <i [class]="isFullscreen ? 'pi pi-window-minimize' : 'pi pi-window-maximize'"></i>
             </button>
-            <button class="table-action-btn" (click)="tableOptionsMenu.toggle($event)" [pTooltip]="'admin.users.table_options' | translate">
+            <button class="table-action-btn" (click)="tableOptionsMenu.toggle($event)" [pTooltip]="'admin.users.table_options' | translate" tooltipPosition="left">
               <i class="pi pi-ellipsis-v"></i>
             </button>
             <p-popover #tableOptionsMenu>
@@ -196,7 +196,7 @@
                     <!-- ID -->
                     @if (isColumnVisible('id')) {
                       <td class="text-center">
-                        <span class="id-badge">{{ user.id }}</span>
+                        <span class="id-badge">{{ user.id | number }}</span>
                       </td>
                     }
 
@@ -211,7 +211,7 @@
                             <span class="info-display__name">{{ user.full_name }}</span>
                             <span class="info-display__email">{{ user.email }}</span>
                             @if (user.phone) {
-                              <span class="info-display__tertiary">{{ user.phone }}</span>
+                              <span class="info-display__tertiary">{{ user.phone | appPhone }}</span>
                             }
                           </div>
                         </div>
@@ -236,6 +236,7 @@
                               optionLabel="label"
                               optionValue="value"
                               [style]="{'width': '120px'}"
+                              appendTo="body"
                             />
                             <button class="cell-edit__btn cell-edit__btn--save" (click)="saveRole(user)">
                               <i class="pi pi-check"></i>
