@@ -1,21 +1,44 @@
 // =============================================================================
-// Admin Notifications Component
-// =============================================================================
-// Uses global styles from:
-//   - _components.scss: admin-cards-grid, admin-form-card, admin-form-field,
-//                       admin-form-row, admin-form-actions, admin-checkbox-field
-//   - _buttons.scss: type-selector, type-option, templates-grid, template-btn,
-//                    emoji-row, emoji-btn
-//   - _states.scss: recipient-preview, recipient-info, info-display, empty-state
-//   - _table.scss: table-container, table, table-wrapper
-//   - _badges.scss: status-badge, pill
-//   - _chips.scss: chip
-//   - _segments.scss: segment-control
+// Admin Notifications - Fixed layout with scrollable content
 // =============================================================================
 
-.scrollable-grid {
-  max-height: var(--grid-max-height, calc(100vh - 320px));
+:host {
+  display: block;
+  height: 100%;
+
+  .admin-page {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .admin-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
+.form-wizard {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
+
+  .form-wizard__body {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+  }
+}
+
+.table-container {
+  flex: 1;
   overflow-y: auto;
-  padding-right: var(--space-2);
-  border:2px solid red
+  min-height: 0;
 }
