@@ -1,28 +1,27 @@
 // src/app/pages/admin/admin-promotions/admin-promotions.component.ts
-import { Component, OnInit, inject, DestroyRef } from '@angular/core';
+import { Component, OnInit, inject, DestroyRef, signal } from '@angular/core';
 import { ConfirmationService } from 'primeng/api';
+import { PopoverModule } from 'primeng/popover';
 import { TranslateService } from '@ngx-translate/core';
 
-import { ADMIN_CORE_IMPORTS } from '../../../shared/imports/admin-shared.imports';
-import { PaginatorModule } from 'primeng/paginator';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
+import { ADMIN_LIST_IMPORTS, ADMIN_DIALOG_IMPORTS } from '../../../shared/imports/admin-shared.imports';
+import { TableSkeletonComponent, SkeletonColumn } from '../../../shared/components/table-skeleton/table-skeleton.component';
 import { ROUTES, RouteHelpers } from '../../../core/constants/routes.constants';
 import { onLanguageChange } from '../../../core/utils/language-change.util';
 import { PromotionService } from '../../../services/promotion.service';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { Promotion } from '../../../models/promotion.model';
 import { ConfirmationDialogService } from '../../../core/services/confirmation-dialog.service';
-import { BaseAdminListComponent } from '../../../shared/base/base-admin-list.component';
+import { BaseAdminListComponent, ColumnOption } from '../../../shared/base/base-admin-list.component';
 
 @Component({
   selector: 'app-admin-promotions',
   standalone: true,
   imports: [
-    ...ADMIN_CORE_IMPORTS,
-    PaginatorModule,
-    ConfirmDialogModule,
-    DateFormatPipe
+    ...ADMIN_LIST_IMPORTS,
+    ...ADMIN_DIALOG_IMPORTS,
+    PopoverModule,
+    TableSkeletonComponent
   ],
   providers: [ConfirmationService],
   templateUrl: './admin-promotions.component.html',
@@ -33,8 +32,38 @@ export class AdminPromotionsComponent extends BaseAdminListComponent implements 
   promotions: Promotion[] = [];
   paginatedPromotions: Promotion[] = [];
 
+  // Animation state
+  tableInitialized = signal(false);
+
+  // Fullscreen mode
+  isFullscreen = false;
+
   // Override status filter type for promotions (different from default active/inactive)
   override statusFilter: string = 'all';
+
+  // Skeleton configuration
+  skeletonColumns: SkeletonColumn[] = [
+    { width: '22%', type: 'text-multi', headerWidth: '80px' },
+    { width: '12%', type: 'pill', headerWidth: '60px' },
+    { width: '10%', type: 'pill', headerWidth: '70px' },
+    { width: '10%', type: 'pill', headerWidth: '60px' },
+    { width: '14%', type: 'text-multi', headerWidth: '70px' },
+    { width: '10%', type: 'pill', headerWidth: '60px' },
+    { width: '12%', type: 'pill', headerWidth: '60px' },
+    { width: '10%', type: 'actions', headerWidth: '60px' }
+  ];
+
+  // Column visibility options
+  override columnOptions: ColumnOption[] = [
+    { field: 'name', label: 'admin.promotions.table.name', visible: true },
+    { field: 'code', label: 'admin.promotions.table.code', visible: true },
+    { field: 'discount', label: 'admin.promotions.table.discount', visible: true },
+    { field: 'scope', label: 'admin.promotions.table.scope', visible: true },
+    { field: 'validity', label: 'admin.promotions.table.validity', visible: true },
+    { field: 'usage', label: 'admin.promotions.table.usage', visible: true },
+    { field: 'status', label: 'admin.promotions.table.status', visible: true },
+    { field: 'actions', label: 'admin.promotions.table.actions', visible: true }
+  ];
 
   // Services
   private promotionService = inject(PromotionService);
@@ -90,15 +119,20 @@ export class AdminPromotionsComponent extends BaseAdminListComponent implements 
   // === Data loading ===
 
   loadAllPromotions() {
-    this.loadData(
-      () => this.promotionService.getAllPromotions(),
-      (promotions) => {
+    this.loading = true;
+    this.promotionService.getAllPromotions().subscribe({
+      next: (promotions) => {
         this.allPromotions = promotions;
         this.promotions = promotions;
         this.updatePaginatedItems();
+        this.loading = false;
+        setTimeout(() => this.tableInitialized.set(true), 100);
       },
-      'admin.promotions.load_error'
-    );
+      error: () => {
+        this.loading = false;
+        this.baseToast.showError('admin.promotions.load_error');
+      }
+    });
   }
 
   filterItems(): void {
@@ -128,6 +162,17 @@ export class AdminPromotionsComponent extends BaseAdminListComponent implements 
     this.statusFilter = 'all';
     this.resetPagination();
     this.filterItems();
+  }
+
+  toggleFullscreen(): void {
+    this.isFullscreen = !this.isFullscreen;
+    if (this.isFullscreen) {
+      document.body.classList.add('fullscreen-active');
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.classList.remove('fullscreen-active');
+      document.body.style.overflow = '';
+    }
   }
 
   createNewPromotion() {
