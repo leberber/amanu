@@ -4,7 +4,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PopoverModule } from 'primeng/popover';
 import { TranslateService } from '@ngx-translate/core';
 
-import { ADMIN_LIST_IMPORTS, ADMIN_DIALOG_IMPORTS } from '../../../shared/imports/admin-shared.imports';
+import { ADMIN_LIST_IMPORTS } from '../../../shared/imports/admin-shared.imports';
 import { TableSkeletonComponent, SkeletonColumn } from '../../../shared/components/table-skeleton/table-skeleton.component';
 import { ROUTES } from '../../../core/constants/routes.constants';
 import { ORDER_STATUS } from '../../../core/constants/app.constants';
@@ -22,7 +22,6 @@ import { BaseAdminListComponent, ColumnOption } from '../../../shared/base/base-
   standalone: true,
   imports: [
     ...ADMIN_LIST_IMPORTS,
-    ...ADMIN_DIALOG_IMPORTS,
     PopoverModule,
     TableSkeletonComponent
   ],

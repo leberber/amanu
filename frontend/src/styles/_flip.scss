@@ -1,0 +1,239 @@
+// =============================================================================
+// FLIP CARD ANIMATION
+// =============================================================================
+// 3D flip effect for transitioning between two views (e.g., table ↔ details)
+// Uses CSS 3D transforms for smooth, performant animations.
+// =============================================================================
+
+
+// =============================================================================
+// 1. FLIP CONTAINER
+// =============================================================================
+// The outer container that sets up the 3D perspective.
+
+.flip-container {
+  perspective: 2000px;
+  position: relative;
+  width: 100%;
+}
+
+
+// =============================================================================
+// 2. FLIP CARD
+// =============================================================================
+// The card that actually rotates. Contains front and back faces.
+
+.flip-card {
+  position: relative;
+  width: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+
+  .flip-container.flipped & {
+    transform: rotateY(180deg);
+  }
+}
+
+
+// =============================================================================
+// 3. FLIP FACES (FRONT & BACK)
+// =============================================================================
+// Both faces are absolutely positioned and use backface-visibility
+// to hide when rotated away from the viewer.
+
+.flip-card__front,
+.flip-card__back {
+  width: 100%;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.flip-card__front {
+  position: relative;
+}
+
+.flip-card__back {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: rotateY(180deg);
+  background: var(--surface-card);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+  min-height: 400px;
+  overflow: hidden;
+}
+
+
+// =============================================================================
+// 4. FLIP BACK CONTENT
+// =============================================================================
+// Styles for the back face content area.
+
+.flip-back-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-6);
+  border-bottom: 1px solid var(--border-color-light);
+  background: var(--surface-ground);
+
+  &__title {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+
+    h2 {
+      font-size: var(--font-size-xl);
+      font-weight: var(--font-weight-bold);
+      color: var(--text-color);
+      margin: 0;
+    }
+  }
+
+  &__close {
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: var(--radius-full);
+    background: var(--surface-hover);
+    color: var(--text-color-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-fast);
+
+    i {
+      font-size: var(--font-size-lg);
+    }
+
+    &:hover {
+      background: var(--surface-200);
+      color: var(--text-color);
+      transform: rotate(90deg);
+    }
+  }
+}
+
+.flip-back-content {
+  padding: var(--space-6);
+  max-height: calc(100vh - 400px);
+  overflow-y: auto;
+}
+
+
+// =============================================================================
+// 5. DETAIL SECTIONS
+// =============================================================================
+// Reusable styles for detail content on the back face.
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-6);
+  margin-bottom: var(--space-6);
+}
+
+.detail-section {
+  background: var(--surface-ground);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+
+  &__title {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-color-secondary);
+    text-transform: uppercase;
+    letter-spacing: var(--letter-spacing-wide);
+    margin-bottom: var(--space-4);
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+
+    i {
+      font-size: var(--font-size-base);
+    }
+  }
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--border-color-light);
+
+  &:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  &:first-of-type {
+    padding-top: 0;
+  }
+
+  &__label {
+    font-size: var(--font-size-sm);
+    color: var(--text-color-secondary);
+  }
+
+  &__value {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-medium);
+    color: var(--text-color);
+    text-align: right;
+  }
+}
+
+
+// =============================================================================
+// 6. ITEMS TABLE (BACK FACE)
+// =============================================================================
+// Compact table for displaying order items on the back face.
+
+.detail-items-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: var(--space-4);
+
+  th {
+    text-align: left;
+    padding: var(--space-3) var(--space-4);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-color-secondary);
+    text-transform: uppercase;
+    letter-spacing: var(--letter-spacing-wide);
+    background: var(--surface-ground);
+    border-bottom: 1px solid var(--border-color-light);
+
+    &:last-child {
+      text-align: right;
+    }
+  }
+
+  td {
+    padding: var(--space-4);
+    font-size: var(--font-size-sm);
+    color: var(--text-color);
+    border-bottom: 1px solid var(--border-color-light);
+
+    &:last-child {
+      text-align: right;
+      font-weight: var(--font-weight-semibold);
+    }
+  }
+
+  tfoot td {
+    padding: var(--space-4);
+    font-weight: var(--font-weight-bold);
+    background: var(--surface-ground);
+    border-bottom: none;
+
+    &:last-child {
+      font-size: var(--font-size-lg);
+      color: var(--primary-color);
+    }
+  }
+}
