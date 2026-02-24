@@ -113,7 +113,7 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
     });
   }
 
-  private handleLoadError(error: any): void {
+  private handleLoadError(error: { status?: number }): void {
     this.loading = false;
 
     if (error.status === 403) {

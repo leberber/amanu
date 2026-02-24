@@ -139,7 +139,7 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
   }
 
   // Category filter methods
-  onCategoryChange(event: any): void {
+  onCategoryChange(): void {
     this.first = 0;
     this.filterItems();
   }
@@ -149,7 +149,7 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
   }
 
   // Brand filter methods
-  onBrandChange(event: any): void {
+  onBrandChange(): void {
     this.first = 0;
     this.filterItems();
   }

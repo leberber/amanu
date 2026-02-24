@@ -60,7 +60,7 @@
           optionLabel="label"
           optionValue="value"
           [placeholder]="'admin.products.filters.all_categories' | translate"
-          (onChange)="onCategoryChange($event)"
+          (onChange)="onCategoryChange()"
           [showClear]="categoryFilter !== null"
           styleClass="admin-filter-select"
           panelStyleClass="filter-select-panel"
@@ -88,7 +88,7 @@
           optionLabel="label"
           optionValue="value"
           [placeholder]="'admin.products.filters.all_brands' | translate"
-          (onChange)="onBrandChange($event)"
+          (onChange)="onBrandChange()"
           [showClear]="brandFilter !== null"
           styleClass="admin-filter-select"
           panelStyleClass="filter-select-panel"
@@ -234,7 +234,7 @@
                     <td class="col-image">
                       <div class="table-thumbnail">
                         @if (product.image_url) {
-                          <img [src]="product.image_url" [alt]="getProductName(product)">
+                          <img [src]="product.image_url" [alt]="getProductName(product)" loading="lazy">
                         } @else {
                           <i class="pi pi-image"></i>
                         }
