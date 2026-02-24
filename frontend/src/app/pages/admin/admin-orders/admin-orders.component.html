@@ -251,15 +251,23 @@
                                 <button
                                   class="status-option"
                                   [class]="status.value"
-                                  (click)="selectNewStatus(order.id, status.value)">
+                                  [class.selected]="isStatusSelected(status.value)"
+                                  (click)="selectNewStatus(status.value)">
                                   <i [class]="status.icon"></i>
                                   <span>{{ status.label }}</span>
                                 </button>
                               }
                             </div>
-                            <button class="cell-edit__btn cell-edit__btn--cancel" (click)="cancelEditStatus()">
-                              <i class="pi pi-times"></i>
-                            </button>
+                            <div class="status-edit-actions">
+                              @if (selectedNewStatus) {
+                                <button class="cell-edit__btn cell-edit__btn--confirm" (click)="confirmStatusChange()">
+                                  <i class="pi pi-check"></i>
+                                </button>
+                              }
+                              <button class="cell-edit__btn cell-edit__btn--cancel" (click)="cancelEditStatus()">
+                                <i class="pi pi-times"></i>
+                              </button>
+                            </div>
                           </div>
                         }
                       </td>

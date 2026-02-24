@@ -70,6 +70,7 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
 
   // Inline status editing
   editingStatusOrderId: number | null = null;
+  selectedNewStatus: string | null = null;
 
   // Services
   private adminService = inject(AdminService);
@@ -302,15 +303,21 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
   startEditStatus(order: Order): void {
     if (this.getNextStatuses(order.status).length > 0) {
       this.editingStatusOrderId = order.id;
+      this.selectedNewStatus = null;
     }
   }
 
   cancelEditStatus(): void {
     this.editingStatusOrderId = null;
+    this.selectedNewStatus = null;
   }
 
   isEditingStatus(orderId: number): boolean {
     return this.editingStatusOrderId === orderId;
+  }
+
+  isStatusSelected(status: string): boolean {
+    return this.selectedNewStatus === status;
   }
 
   getNextStatuses(currentStatus: string): { value: string; label: string; icon: string }[] {
@@ -331,9 +338,17 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
     }));
   }
 
-  selectNewStatus(orderId: number, newStatus: string): void {
-    this.cancelEditStatus();
-    this.updateOrderStatus(orderId, newStatus);
+  selectNewStatus(newStatus: string): void {
+    this.selectedNewStatus = newStatus;
+  }
+
+  confirmStatusChange(): void {
+    if (this.editingStatusOrderId && this.selectedNewStatus) {
+      const orderId = this.editingStatusOrderId;
+      const newStatus = this.selectedNewStatus;
+      this.cancelEditStatus();
+      this.updateOrderStatus(orderId, newStatus);
+    }
   }
 
   canEditStatus(status: string): boolean {
