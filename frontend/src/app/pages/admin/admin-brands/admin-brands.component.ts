@@ -5,6 +5,7 @@ import { PopoverModule } from 'primeng/popover';
 import { TranslateService } from '@ngx-translate/core';
 
 import { ADMIN_LIST_IMPORTS, ADMIN_DIALOG_IMPORTS } from '../../../shared/imports/admin-shared.imports';
+import { InlineEditState } from '../../../shared/utils/inline-edit-state';
 import { TableSkeletonComponent, SkeletonColumn } from '../../../shared/components/table-skeleton/table-skeleton.component';
 import { ROUTES, RouteHelpers } from '../../../core/constants/routes.constants';
 import { onLanguageChange } from '../../../core/utils/language-change.util';
@@ -61,6 +62,9 @@ export class AdminBrandsComponent extends BaseAdminListComponent implements OnIn
 
   // Product counts per brand
   brandProductCounts: { [brandId: number]: number } = {};
+
+  // Inline editing state
+  statusEdit = new InlineEditState<boolean>(true);
 
   // Services
   private brandService = inject(BrandService);
@@ -188,6 +192,45 @@ export class AdminBrandsComponent extends BaseAdminListComponent implements OnIn
 
   refreshBrandData() {
     this.loadAllBrands();
+  }
+
+  // ===== INLINE STATUS EDITING =====
+
+  startEditStatus(brand: Brand): void {
+    this.statusEdit.start(brand.id, brand.is_active);
+  }
+
+  cancelEditStatus(): void {
+    this.statusEdit.cancel();
+  }
+
+  isEditingStatus(brandId: number): boolean {
+    return this.statusEdit.isEditing(brandId);
+  }
+
+  toggleEditingStatus(): void {
+    this.statusEdit.value = !this.statusEdit.value;
+  }
+
+  saveStatus(brand: Brand): void {
+    if (!this.statusEdit.hasChanged(brand.is_active)) {
+      this.statusEdit.cancel();
+      return;
+    }
+
+    const newStatus = this.statusEdit.value;
+
+    this.handleInlineUpdate(
+      () => this.brandService.updateBrand(brand.id, { is_active: newStatus }),
+      this.allBrands,
+      this.brands,
+      brand.id,
+      'is_active',
+      newStatus,
+      newStatus ? 'admin.brands.status_activated' : 'admin.brands.status_deactivated',
+      'admin.brands.status_update_failed',
+      () => this.statusEdit.cancel()
+    );
   }
 
   getBrandName(brand: Brand): string {

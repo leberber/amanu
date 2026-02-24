@@ -197,12 +197,36 @@
                       </td>
                     }
 
-                    <!-- Status -->
+                    <!-- Status Column - Inline Editable -->
                     @if (isColumnVisible('status')) {
                       <td class="text-center">
-                        <span class="status-badge" [class.active]="brand.is_active" [class.inactive]="!brand.is_active">
-                          {{ brand.is_active ? ('common.active' | translate) : ('common.inactive' | translate) }}
-                        </span>
+                        @if (!isEditingStatus(brand.id)) {
+                          <div class="status-toggle justify-content-center" [class.status-toggle--active]="brand.is_active" (click)="startEditStatus(brand)">
+                            <span class="status-toggle__label">
+                              {{ brand.is_active ? ('common.active' | translate) : ('common.inactive' | translate) }}
+                            </span>
+                            <div class="status-toggle__track">
+                              <div class="status-toggle__thumb"></div>
+                            </div>
+                          </div>
+                        } @else {
+                          <div class="cell-edit justify-content-center">
+                            <div class="status-toggle" [class.status-toggle--active]="statusEdit.value" (click)="toggleEditingStatus()">
+                              <span class="status-toggle__label">
+                                {{ statusEdit.value ? ('common.active' | translate) : ('common.inactive' | translate) }}
+                              </span>
+                              <div class="status-toggle__track">
+                                <div class="status-toggle__thumb"></div>
+                              </div>
+                            </div>
+                            <button class="cell-edit__btn cell-edit__btn--save" (click)="saveStatus(brand)">
+                              <i class="pi pi-check"></i>
+                            </button>
+                            <button class="cell-edit__btn cell-edit__btn--cancel" (click)="cancelEditStatus()">
+                              <i class="pi pi-times"></i>
+                            </button>
+                          </div>
+                        }
                       </td>
                     }
 
