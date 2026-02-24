@@ -10,6 +10,7 @@ export interface DashboardStats {
     top_selling_products: TopSellingProduct[];
     recent_orders: RecentOrder[];
     sales_by_category: SalesByCategory[];
+    sales_by_brand: SalesByBrand[];
   }
   
   export interface TopSellingProduct {
@@ -33,7 +34,13 @@ export interface DashboardStats {
     name: string;
     total_sales: number;
   }
-  
+
+  export interface SalesByBrand {
+    brand_id: number;
+    name: string;
+    total_sales: number;
+  }
+
   export interface SalesReport {
     period: string;
     data: SalesData[];

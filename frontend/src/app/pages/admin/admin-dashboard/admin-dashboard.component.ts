@@ -1,5 +1,6 @@
 // src/app/pages/admin/admin-dashboard/admin-dashboard.component.ts
-import { Component, OnInit, inject, DestroyRef } from '@angular/core';
+import { Component, OnInit, inject, DestroyRef, signal, computed } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink, Router } from '@angular/router';
 import { CardModule } from 'primeng/card';
 import { TableModule } from 'primeng/table';
@@ -15,11 +16,10 @@ import { onLanguageChange } from '../../../core/utils/language-change.util';
 import { AdminService } from '../../../services/admin.service';
 import { DashboardStats } from '../../../models/admin.model';
 import { ProductService } from '../../../services/product.service';
-import { ApiService } from '../../../services/api.service';
-import { DateService } from '../../../core/services/date.service';
+import { BrandService } from '../../../core/services/brand.service';
 import { TranslationHelperService } from '../../../core/services/translation-helper.service';
-import { StatusSeverityService } from '../../../core/services/status-severity.service';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
+import { CurrencyService } from '../../../core/services/currency.service';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -38,118 +38,158 @@ import { ToastMessageService } from '../../../core/services/toast-message.servic
   styleUrl: './admin-dashboard.component.scss'
 })
 export class AdminDashboardComponent implements OnInit {
+  // Data signals
+  stats = signal<DashboardStats | null>(null);
+  loading = signal(true);
+  products = signal<any[]>([]);
+  categories = signal<any[]>([]);
+  brands = signal<any[]>([]);
 
-  // REMOVED: ViewChild references and modal methods
+  // Chart data signals
+  categoryChartData = signal<any>(null);
+  categoryChartOptions = signal<any>(null);
+  brandChartData = signal<any>(null);
+  brandChartOptions = signal<any>(null);
 
-  stats: DashboardStats | null = null;
-  loading = true;
-  salesChartData: any;
-  salesChartOptions: any;
-  categoryChartData: any;
-  categoryChartOptions: any;
-  products: any[] = [];
-  categories: any[] = [];
+  // Tab state
+  activeTab = signal<'analytics' | 'top-products' | 'insights'>('analytics');
 
-  // Notification
-  notificationTitle = '';
-  notificationBody = '';
-  sendingNotification = false;
+  // Computed values
+  hasStats = computed(() => this.stats() !== null);
 
-  // Services injected using inject()
+  // Services
   private adminService = inject(AdminService);
   private router = inject(Router);
   private toast = inject(ToastMessageService);
   private translateService = inject(TranslateService);
   private productService = inject(ProductService);
-  private dateService = inject(DateService);
+  private brandService = inject(BrandService);
   private translationHelper = inject(TranslationHelperService);
-  private statusSeverity = inject(StatusSeverityService);
-  private apiService = inject(ApiService);
+  private currencyService = inject(CurrencyService);
   private destroyRef = inject(DestroyRef);
 
   ngOnInit() {
     this.loadDashboardStats();
     this.loadProductsAndCategories();
+    this.loadBrands();
     onLanguageChange(this.translateService, this.destroyRef, () => this.prepareChartData());
   }
-  
+
   loadProductsAndCategories() {
-    // Load products to get translations
-    this.productService.getProducts().subscribe({
-      next: (products) => {
-        this.products = products || [];
-        // Re-prepare chart data after loading products
-        if (this.stats) {
-          this.prepareChartData();
+    this.productService.getProducts()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (products) => {
+          this.products.set(products || []);
+          if (this.stats()) {
+            this.prepareChartData();
+          }
         }
-      },
-      error: () => {
-        // Products load failed silently
-      }
-    });
-    
-    // Load categories to get translations
-    this.productService.getCategories().subscribe({
-      next: (categories: any) => {
-        this.categories = categories || [];
-        // Re-prepare chart data after loading categories
-        if (this.stats) {
-          this.prepareChartData();
+      });
+
+    this.productService.getCategories()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (categories: any) => {
+          this.categories.set(categories || []);
+          if (this.stats()) {
+            this.prepareChartData();
+          }
         }
-      },
-      error: () => {
-        // Categories load failed silently
-      }
-    });
+      });
+  }
+
+  loadBrands() {
+    this.brandService.getBrands()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (brands) => {
+          this.brands.set(brands || []);
+          if (this.stats()) {
+            this.prepareChartData();
+          }
+        }
+      });
   }
 
   loadDashboardStats() {
-    this.loading = true;
-    this.adminService.getDashboardStats().subscribe({
-      next: (stats) => {
-        this.stats = stats;
-        this.loading = false;
-        this.prepareChartData();
-      },
-      error: (error) => {
-        this.loading = false;
-
-        if (error.status === 403) {
-          this.toast.showPermissionDenied();
-          this.router.navigate([ROUTES.HOME]);
-        } else {
-          this.toast.showError('admin.dashboard.load_error');
+    this.loading.set(true);
+    this.adminService.getDashboardStats()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (stats) => {
+          this.stats.set(stats);
+          this.loading.set(false);
+          this.prepareChartData();
+        },
+        error: (error) => {
+          this.loading.set(false);
+          if (error.status === 403) {
+            this.toast.showPermissionDenied();
+            this.router.navigate([ROUTES.HOME]);
+          } else {
+            this.toast.showError('admin.dashboard.load_error');
+          }
         }
-      }
-    });
+      });
   }
 
   prepareChartData() {
-    if (!this.stats) return;
+    const currentStats = this.stats();
+    if (!currentStats) return;
 
-    // Sales by category chart
-    const categoryLabels = this.stats.sales_by_category.map(item => this.getCategoryName(item));
-    const categorySales = this.stats.sales_by_category.map(item => item.total_sales);
-    
-    this.categoryChartData = {
+    this.prepareCategoryChart(currentStats);
+    this.prepareBrandChart(currentStats);
+  }
+
+  private prepareCategoryChart(stats: DashboardStats) {
+    const categoryLabels = stats.sales_by_category.map(item => this.getCategoryName(item));
+    const categorySales = stats.sales_by_category.map(item => item.total_sales);
+
+    this.categoryChartData.set({
       labels: categoryLabels,
-      datasets: [
-        {
-          label: this.translateService.instant('admin.dashboard.sales_by_category'),
-          data: categorySales,
-          backgroundColor: [
-            '#42A5F5', '#66BB6A', '#FFA726', '#26C6DA', '#7E57C2', 
-            '#EC407A', '#AB47BC', '#5C6BC0', '#29B6F6', '#26A69A'
-          ],
-          hoverBackgroundColor: [
-            '#64B5F6', '#81C784', '#FFB74D', '#4DD0E1', '#9575CD', 
-            '#F06292', '#BA68C8', '#7986CB', '#4FC3F7', '#4DB6AC'
-          ]
-        }
-      ]
-    };
-    
-    this.categoryChartOptions = {
+      datasets: [{
+        label: this.translateService.instant('admin.dashboard.sales_by_category'),
+        data: categorySales,
+        backgroundColor: [
+          '#42A5F5', '#66BB6A', '#FFA726', '#26C6DA', '#7E57C2',
+          '#EC407A', '#AB47BC', '#5C6BC0', '#29B6F6', '#26A69A'
+        ],
+        hoverBackgroundColor: [
+          '#64B5F6', '#81C784', '#FFB74D', '#4DD0E1', '#9575CD',
+          '#F06292', '#BA68C8', '#7986CB', '#4FC3F7', '#4DB6AC'
+        ]
+      }]
+    });
+
+    this.categoryChartOptions.set(this.getChartOptions());
+  }
+
+  private prepareBrandChart(stats: DashboardStats) {
+    const brandLabels = stats.sales_by_brand.map(item => this.getBrandName(item));
+    const brandSales = stats.sales_by_brand.map(item => item.total_sales);
+
+    this.brandChartData.set({
+      labels: brandLabels,
+      datasets: [{
+        label: this.translateService.instant('admin.dashboard.sales_by_brand'),
+        data: brandSales,
+        backgroundColor: [
+          '#7E57C2', '#EC407A', '#26C6DA', '#66BB6A', '#FFA726',
+          '#42A5F5', '#AB47BC', '#5C6BC0', '#29B6F6', '#26A69A'
+        ],
+        hoverBackgroundColor: [
+          '#9575CD', '#F06292', '#4DD0E1', '#81C784', '#FFB74D',
+          '#64B5F6', '#BA68C8', '#7986CB', '#4FC3F7', '#4DB6AC'
+        ]
+      }]
+    });
+
+    this.brandChartOptions.set(this.getChartOptions());
+  }
+
+  private getChartOptions(): any {
+    return {
       plugins: {
         legend: {
           position: 'right',
@@ -163,8 +203,7 @@ export class AdminDashboardComponent implements OnInit {
             label: (context: any) => {
               const label = context.label || '';
               const value = context.raw || 0;
-              const currencySymbol = this.translateService.currentLang === 'ar' ? 'د.ج' : '$';
-              return `${label}: ${currencySymbol}${value.toFixed(2)}`;
+              return `${label}: ${this.currencyService.formatCurrency(value)}`;
             }
           }
         }
@@ -173,14 +212,7 @@ export class AdminDashboardComponent implements OnInit {
     };
   }
 
-  getStatusSeverity(status: string): "success" | "secondary" | "info" | "warn" | "danger" | "contrast" {
-    return this.statusSeverity.getOrderStatusSeverity(status);
-  }
-
-  formatDate(dateString: string): string {
-    return this.dateService.formatDate(dateString);
-  }
-
+  // Navigation methods
   navigateToOrders() {
     this.router.navigate([ROUTES.ADMIN.ORDERS]);
   }
@@ -193,14 +225,6 @@ export class AdminDashboardComponent implements OnInit {
     this.router.navigate([ROUTES.ADMIN.PRODUCTS]);
   }
 
-  navigateToAddProduct() {
-    this.router.navigate([ROUTES.ADMIN.ADD_PRODUCT]);
-  }
-
-  navigateToAddCategory() {
-    this.router.navigate([ROUTES.ADMIN.ADD_CATEGORY]);
-  }
-
   navigateToCategories() {
     this.router.navigate([ROUTES.ADMIN.CATEGORIES]);
   }
@@ -209,30 +233,31 @@ export class AdminDashboardComponent implements OnInit {
     this.router.navigate([ROUTES.ADMIN.BRANDS]);
   }
 
+  // Tab navigation
+  setActiveTab(tab: 'analytics' | 'top-products' | 'insights') {
+    this.activeTab.set(tab);
+  }
+
+  // Translation helpers
   getCategoryName(category: any): string {
-    // If it's already a category object with translations
     if (category.name_translations || category.name) {
       return this.translationHelper.getCategoryName(category);
     }
-    
-    // For sales by category, try to find the full category object
-    if (category.category_id && this.categories.length > 0) {
-      const fullCategory = this.categories.find(c => c.id === category.category_id);
+
+    if (category.category_id && this.categories().length > 0) {
+      const fullCategory = this.categories().find(c => c.id === category.category_id);
       if (fullCategory) {
         return this.translationHelper.getCategoryName(fullCategory);
       }
     }
-    
-    // For top selling products, category is just a string
+
     if (typeof category === 'string') {
-      if (this.categories.length > 0) {
-        // Try to find by name
-        const fullCategory = this.categories.find(c => c.name === category);
+      if (this.categories().length > 0) {
+        const fullCategory = this.categories().find(c => c.name === category);
         if (fullCategory) {
           return this.translationHelper.getCategoryName(fullCategory);
         }
-        // Try to match by name in any language
-        const matchingCategory = this.categories.find(c => {
+        const matchingCategory = this.categories().find(c => {
           if (c.name_translations) {
             return Object.values(c.name_translations).includes(category);
           }
@@ -242,53 +267,43 @@ export class AdminDashboardComponent implements OnInit {
           return this.translationHelper.getCategoryName(matchingCategory);
         }
       }
-      // Return the string as is if we can't find a match
       return category;
     }
-    
+
     return category.name || category;
   }
 
+  getBrandName(brand: any): string {
+    if (brand.name_translations || brand.name) {
+      return this.translationHelper.getBrandName(brand);
+    }
+
+    if (brand.brand_id && this.brands().length > 0) {
+      const fullBrand = this.brands().find(b => b.id === brand.brand_id);
+      if (fullBrand) {
+        return this.translationHelper.getBrandName(fullBrand);
+      }
+    }
+
+    return brand.name || brand;
+  }
+
   getProductName(product: any): string {
-    // If it's already a product object with translations
     if (product.name_translations || product.name) {
       return this.translationHelper.getProductName(product);
     }
-    
-    // For top selling products, try to find the full product object
-    if (product.product_id && this.products.length > 0) {
-      const fullProduct = this.products.find(p => p.id === product.product_id);
+
+    if (product.product_id && this.products().length > 0) {
+      const fullProduct = this.products().find(p => p.id === product.product_id);
       if (fullProduct) {
         return this.translationHelper.getProductName(fullProduct);
       }
     }
-    
-    // For top selling products, the name field might be used instead of product_name
+
     return product.product_name || product.name;
   }
 
-  sendNotification(): void {
-    if (!this.notificationTitle.trim() || !this.notificationBody.trim()) {
-      this.toast.showWarn('admin.dashboard.notification_empty');
-      return;
-    }
-
-    this.sendingNotification = true;
-    this.apiService.post<any>('/push/send', {
-      title: this.notificationTitle,
-      body: this.notificationBody,
-      url: '/'
-    }).subscribe({
-      next: (response) => {
-        this.sendingNotification = false;
-        this.notificationTitle = '';
-        this.notificationBody = '';
-        this.toast.showSuccess('admin.dashboard.notification_sent', { count: response.sent });
-      },
-      error: (error) => {
-        this.sendingNotification = false;
-        this.toast.showApiError(error, 'admin.dashboard.notification_failed');
-      }
-    });
+  formatCurrency(value: number): string {
+    return this.currencyService.formatCurrency(value);
   }
 }

@@ -9,6 +9,7 @@ from app.database import get_session
 from app.models.user import User, UserRole
 from app.models.product import Product
 from app.models.category import Category
+from app.models.brand import Brand
 from app.models.order import Order, OrderStatus, OrderItem
 from app.core.security import get_current_admin_user, get_current_staff_user
 
@@ -26,6 +27,7 @@ class DashboardStats(BaseModel):
     top_selling_products: List[Dict[str, Any]]
     recent_orders: List[Dict[str, Any]]
     sales_by_category: List[Dict[str, Any]]
+    sales_by_brand: List[Dict[str, Any]]
 
 class SalesReport(BaseModel):
     period: str
@@ -136,13 +138,39 @@ def get_dashboard_stats(
     for category_id, total_sales in sales_by_category_result:
         category = session.get(Category, category_id)
         category_name = category.name if category else "Unknown"
-        
+
         sales_by_category.append({
             "category_id": category_id,
             "name": category_name,
             "total_sales": total_sales
         })
-    
+
+    # Get sales by brand
+    sales_by_brand_query = select(
+        Product.brand_id,
+        func.sum(OrderItem.quantity * OrderItem.unit_price).label("total_sales")
+    ).join(OrderItem, Product.id == OrderItem.product_id).join(
+        Order, OrderItem.order_id == Order.id
+    ).where(
+        Order.status != OrderStatus.CANCELLED,
+        Product.brand_id.isnot(None)
+    ).group_by(
+        Product.brand_id
+    )
+
+    sales_by_brand = []
+    sales_by_brand_result = session.exec(sales_by_brand_query).all()
+
+    for brand_id, total_sales in sales_by_brand_result:
+        brand = session.get(Brand, brand_id)
+        brand_name = brand.name if brand else "Unknown"
+
+        sales_by_brand.append({
+            "brand_id": brand_id,
+            "name": brand_name,
+            "total_sales": total_sales
+        })
+
     return DashboardStats(
         total_users=total_users,
         total_products=total_products,
@@ -153,7 +181,8 @@ def get_dashboard_stats(
         low_stock_products=low_stock_products,
         top_selling_products=top_selling_products,
         recent_orders=recent_orders,
-        sales_by_category=sales_by_category
+        sales_by_category=sales_by_category,
+        sales_by_brand=sales_by_brand
     )
 
 @router.get("/sales-report", response_model=SalesReport)

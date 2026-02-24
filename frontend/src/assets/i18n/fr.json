@@ -698,6 +698,17 @@
       "pending_orders": "Commandes en Attente",
       "low_stock_items": "Articles en Rupture",
       "sales_by_category": "Ventes par Catégorie",
+      "sales_by_brand": "Ventes par Marque",
+      "no_brand_data": "Aucune donnée de vente par marque disponible",
+      "no_category_data": "Aucune donnée de vente par catégorie disponible",
+      "no_products_data": "Pas encore de produits les plus vendus",
+      "insights_coming_soon": "Insights à Venir",
+      "insights_description": "Des analyses avancées et des insights seront bientôt disponibles ici.",
+      "tabs": {
+        "analytics": "Analytique",
+        "top_products": "Top Produits",
+        "insights": "Insights"
+      },
       "recent_orders": "Commandes Récentes",
       "top_selling_products": "Produits les Plus Vendus",
       "load_error": "Échec du chargement des statistiques",

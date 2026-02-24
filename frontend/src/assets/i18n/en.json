@@ -701,6 +701,17 @@
       "pending_orders": "Pending Orders",
       "low_stock_items": "Low Stock Items",
       "sales_by_category": "Sales by Category",
+      "sales_by_brand": "Sales by Brand",
+      "no_brand_data": "No brand sales data available",
+      "no_category_data": "No category sales data available",
+      "no_products_data": "No top selling products yet",
+      "insights_coming_soon": "Insights Coming Soon",
+      "insights_description": "Advanced analytics and insights will be available here soon.",
+      "tabs": {
+        "analytics": "Analytics",
+        "top_products": "Top Products",
+        "insights": "Insights"
+      },
       "recent_orders": "Recent Orders",
       "top_selling_products": "Top Selling Products",
       "load_error": "Failed to load dashboard stats",

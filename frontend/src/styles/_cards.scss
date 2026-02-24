@@ -320,6 +320,57 @@
       margin-bottom: 0;
     }
   }
+
+  // Compact variant - inline layout with smaller elements
+  &--compact {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-4) var(--space-5);
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .stat-card__icon {
+      width: 40px;
+      height: 40px;
+      margin-bottom: 0;
+      flex-shrink: 0;
+
+      i {
+        font-size: var(--font-size-lg);
+      }
+    }
+
+    .stat-card__content {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .stat-card__value {
+      font-size: var(--font-size-xl);
+      margin-bottom: 0;
+      line-height: 1.2;
+    }
+
+    .stat-card__label {
+      font-size: var(--font-size-xs);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .stat-card__decoration {
+      width: 80px;
+      height: 80px;
+      bottom: -20px;
+      right: -20px;
+    }
+  }
 }
 
 
@@ -425,6 +476,21 @@
 
   @media (max-width: 480px) {
     grid-template-columns: 1fr;
+  }
+
+  // Compact variant - tighter grid for KPI rows
+  &--compact {
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: var(--space-4);
+    margin-bottom: var(--space-6);
+
+    @media (max-width: 768px) {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    @media (max-width: 576px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
   }
 }
 
