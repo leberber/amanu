@@ -179,16 +179,16 @@
                       optionValue="segment_type"
                       styleClass="w-full">
                       <ng-template pTemplate="selectedItem" let-item>
-                        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                        <div class="flex align-items-center justify-content-between w-full">
                           <span>{{ item.label }}</span>
                           <span class="chip chip--xs chip--solid">{{ item.count }}</span>
                         </div>
                       </ng-template>
                       <ng-template pTemplate="item" let-item>
-                        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                        <div class="flex align-items-center justify-content-between w-full">
                           <div>
                             <span>{{ item.label }}</span>
-                            <small style="display: block; color: var(--text-color-secondary); font-size: 0.75rem;">{{ item.description }}</small>
+                            <small class="block text-color-secondary text-xs">{{ item.description }}</small>
                           </div>
                           <span class="chip chip--xs chip--solid">{{ item.count }}</span>
                         </div>
@@ -223,7 +223,7 @@
                         [placeholder]="'admin.notifications.audience.select_wilaya' | translate"
                         styleClass="w-full">
                         <ng-template pTemplate="item" let-item>
-                          <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                          <div class="flex align-items-center justify-content-between w-full">
                             <span>{{ item.name }}</span>
                             @if (item.user_count) {
                               <span class="chip chip--xs">{{ item.user_count }}</span>
@@ -248,7 +248,7 @@
                           [placeholder]="'admin.notifications.audience.select_daira' | translate"
                           styleClass="w-full">
                           <ng-template pTemplate="item" let-item>
-                            <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                            <div class="flex align-items-center justify-content-between w-full">
                               <span>{{ item.name }}</span>
                               @if (item.user_count) {
                                 <span class="chip chip--xs">{{ item.user_count }}</span>
@@ -274,7 +274,7 @@
                           [placeholder]="'admin.notifications.audience.select_commune' | translate"
                           styleClass="w-full">
                           <ng-template pTemplate="item" let-item>
-                            <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                            <div class="flex align-items-center justify-content-between w-full">
                               <span>{{ item.name }}</span>
                               @if (item.user_count) {
                                 <span class="chip chip--xs">{{ item.user_count }}</span>
@@ -294,8 +294,7 @@
               <!-- Type Selection Cards -->
               <div class="type-cards">
                 <button
-                  class="type-card"
-                  style="--card-color: #8b5cf6"
+                  class="type-card type-card--purple"
                   [class.active]="notificationType() === 'custom'"
                   (click)="onNotificationTypeChange('custom')">
                   <div class="type-card__icon">
@@ -306,8 +305,7 @@
                 </button>
 
                 <button
-                  class="type-card"
-                  style="--card-color: #f59e0b"
+                  class="type-card type-card--warning"
                   [class.active]="notificationType() === 'promotion'"
                   (click)="onNotificationTypeChange('promotion')">
                   <div class="type-card__icon">
@@ -318,8 +316,7 @@
                 </button>
 
                 <button
-                  class="type-card"
-                  style="--card-color: #10b981"
+                  class="type-card type-card--success"
                   [class.active]="notificationType() === 'product'"
                   (click)="onNotificationTypeChange('product')">
                   <div class="type-card__icon">
@@ -330,8 +327,7 @@
                 </button>
 
                 <button
-                  class="type-card"
-                  style="--card-color: #3b82f6"
+                  class="type-card type-card--info"
                   [class.active]="notificationType() === 'category'"
                   (click)="onNotificationTypeChange('category')">
                   <div class="type-card__icon">
@@ -342,8 +338,7 @@
                 </button>
 
                 <button
-                  class="type-card"
-                  style="--card-color: #ec4899"
+                  class="type-card type-card--pink"
                   [class.active]="notificationType() === 'brand'"
                   (click)="onNotificationTypeChange('brand')">
                   <div class="type-card__icon">
@@ -356,7 +351,7 @@
 
               <!-- Custom type message -->
               @if (notificationType() === 'custom') {
-                <div class="info-box info-box--primary" style="margin-top: var(--space-6);">
+                <div class="info-box info-box--primary mt-6">
                   <div class="info-box__icon">
                     <i class="pi pi-arrow-right"></i>
                   </div>
@@ -395,7 +390,12 @@
                   <div class="target-preview-card">
                     @if (selectedTargetItem()) {
                       @if (previewImageUrl()) {
-                        <img [src]="previewImageUrl()" class="target-preview-card__image" alt="">
+                        <img
+                          [src]="previewImageUrl()"
+                          [alt]="getTargetName(selectedTargetItem())"
+                          class="target-preview-card__image"
+                          loading="lazy"
+                          (error)="onImageError($event)">
                       }
                       <div class="target-preview-card__info">
                         <span class="target-preview-card__name">{{ getTargetName(selectedTargetItem()) }}</span>
@@ -415,7 +415,7 @@
             <!-- Step 3: Message Content -->
             @if (currentStep() === 3) {
               <!-- Quick Templates -->
-              <div class="admin-form-field" style="margin-bottom: var(--space-5);">
+              <div class="admin-form-field mb-5">
                 <label>{{ 'admin.notifications.quick_templates' | translate }}</label>
                 <div class="chip-group">
                   @for (template of templates; track template.id) {
@@ -453,7 +453,7 @@
 
                   <!-- Body FR -->
                   <div class="form-field">
-                    <div class="field-box" [class.filled]="bodyFr()" style="align-items: flex-start;">
+                    <div class="field-box align-items-start" [class.filled]="bodyFr()">
                       <div class="field-box__icon field-box__icon--info">
                         <i class="pi pi-align-left"></i>
                       </div>
@@ -469,7 +469,7 @@
                   </div>
 
                   <!-- Quick Emojis -->
-                  <div class="chip-group chip-group--sm" style="margin-bottom: var(--space-5);">
+                  <div class="chip-group chip-group--sm mb-5">
                     @for (emoji of quickEmojis; track emoji) {
                       <button class="btn-icon btn-icon--sm" (click)="insertEmoji(emoji)">{{ emoji }}</button>
                     }
@@ -533,7 +533,7 @@
 
                   <!-- Body EN -->
                   <div class="form-field">
-                    <div class="field-box" [class.filled]="bodyEn()" style="align-items: flex-start;">
+                    <div class="field-box align-items-start" [class.filled]="bodyEn()">
                       <div class="field-box__icon">
                         <i class="pi pi-align-left"></i>
                       </div>
@@ -550,7 +550,7 @@
 
                   <!-- Body AR -->
                   <div class="form-field">
-                    <div class="field-box" [class.filled]="bodyAr()" style="align-items: flex-start;">
+                    <div class="field-box align-items-start" [class.filled]="bodyAr()">
                       <div class="field-box__icon">
                         <i class="pi pi-align-left"></i>
                       </div>
@@ -668,7 +668,12 @@
                       @if (selectedTargetItem()) {
                         <div class="summary-pill summary-pill--target">
                           @if (previewImageUrl()) {
-                            <img [src]="previewImageUrl()" class="summary-pill__img" alt="">
+                            <img
+                              [src]="previewImageUrl()"
+                              [alt]="getTargetName(selectedTargetItem())"
+                              class="summary-pill__img"
+                              loading="lazy"
+                              (error)="onImageError($event)">
                           }
                           <span>{{ getTargetName(selectedTargetItem()) }}</span>
                         </div>
@@ -694,7 +699,7 @@
                           [class.notification-preview--empty]="!titleFr()">
                           <!-- Main content: Logo + Title/Message -->
                           <div class="notification-preview__main">
-                            <img src="/logo.png" class="notification-preview__logo" alt="">
+                            <img src="/logo.png" class="notification-preview__logo" alt="AgroClik">
                             <div class="notification-preview__text">
                               <div class="notification-preview__title">
                                 {{ titleFr() || ('admin.notifications.preview.placeholder_title' | translate) }}
@@ -798,7 +803,7 @@
                     <td class="text-center">
                       <span class="chip chip--xs chip--primary">{{ item.sent_count }}</span>
                       @if (item.failed_count > 0) {
-                        <span class="chip chip--xs chip--danger" style="margin-left: 4px;">{{ item.failed_count }}</span>
+                        <span class="chip chip--xs chip--danger ml-1">{{ item.failed_count }}</span>
                       }
                     </td>
                     <td>

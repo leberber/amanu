@@ -601,6 +601,13 @@
     color: var(--text-color-muted);
     line-height: var(--line-height-relaxed);
   }
+
+  // Color Variants
+  &--purple { --card-color: var(--color-purple); }
+  &--warning { --card-color: var(--color-warning); }
+  &--success { --card-color: var(--color-success); }
+  &--info { --card-color: var(--color-info); }
+  &--pink { --card-color: var(--color-pink); }
 }
 
 
