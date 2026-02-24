@@ -1,10 +1,11 @@
 // src/app/pages/admin/admin-brands/admin-brands.component.ts
-import { Component, OnInit, inject, DestroyRef } from '@angular/core';
+import { Component, OnInit, inject, DestroyRef, signal } from '@angular/core';
 import { ConfirmationService } from 'primeng/api';
-import { CardModule } from 'primeng/card';
-
+import { PopoverModule } from 'primeng/popover';
 import { TranslateService } from '@ngx-translate/core';
-import { ADMIN_LIST_IMPORTS } from '../../../shared/imports/admin-shared.imports';
+
+import { ADMIN_LIST_IMPORTS, ADMIN_DIALOG_IMPORTS } from '../../../shared/imports/admin-shared.imports';
+import { TableSkeletonComponent, SkeletonColumn } from '../../../shared/components/table-skeleton/table-skeleton.component';
 import { ROUTES, RouteHelpers } from '../../../core/constants/routes.constants';
 import { onLanguageChange } from '../../../core/utils/language-change.util';
 import { BrandService } from '../../../core/services/brand.service';
@@ -12,14 +13,16 @@ import { ProductService } from '../../../services/product.service';
 import { TranslationHelperService } from '../../../core/services/translation-helper.service';
 import { Brand } from '../../../models/brand.model';
 import { ConfirmationDialogService } from '../../../core/services/confirmation-dialog.service';
-import { BaseAdminListComponent } from '../../../shared/base/base-admin-list.component';
+import { BaseAdminListComponent, ColumnOption } from '../../../shared/base/base-admin-list.component';
 
 @Component({
   selector: 'app-admin-brands',
   standalone: true,
   imports: [
     ...ADMIN_LIST_IMPORTS,
-    CardModule
+    ...ADMIN_DIALOG_IMPORTS,
+    PopoverModule,
+    TableSkeletonComponent
   ],
   providers: [ConfirmationService],
   templateUrl: './admin-brands.component.html',
@@ -30,8 +33,31 @@ export class AdminBrandsComponent extends BaseAdminListComponent implements OnIn
   brands: Brand[] = [];
   paginatedBrands: Brand[] = [];
 
-  // Override default rows
-  override rows = 12;
+  // Animation state
+  tableInitialized = signal(false);
+
+  // Fullscreen mode
+  isFullscreen = false;
+
+  // Skeleton configuration
+  skeletonColumns: SkeletonColumn[] = [
+    { width: '8%', type: 'image', headerWidth: '0' },
+    { width: '30%', type: 'text-multi', headerWidth: '100px' },
+    { width: '15%', type: 'pill', headerWidth: '80px' },
+    { width: '15%', type: 'toggle', headerWidth: '60px' },
+    { width: '15%', type: 'text', headerWidth: '70px' },
+    { width: '17%', type: 'actions', headerWidth: '60px' }
+  ];
+
+  // Column visibility options
+  override columnOptions: ColumnOption[] = [
+    { field: 'logo', label: 'admin.brands.table.logo', visible: true },
+    { field: 'name', label: 'admin.brands.table.name', visible: true },
+    { field: 'products', label: 'admin.brands.table.products', visible: true },
+    { field: 'status', label: 'admin.brands.table.status', visible: true },
+    { field: 'created', label: 'admin.brands.table.created', visible: true },
+    { field: 'actions', label: 'admin.brands.table.actions', visible: true }
+  ];
 
   // Product counts per brand
   brandProductCounts: { [brandId: number]: number } = {};
@@ -55,16 +81,21 @@ export class AdminBrandsComponent extends BaseAdminListComponent implements OnIn
   }
 
   loadAllBrands() {
-    this.loadData(
-      () => this.brandService.getBrands(false),
-      (brands) => {
+    this.loading = true;
+    this.brandService.getBrands(false).subscribe({
+      next: (brands) => {
         this.allBrands = brands;
         this.brands = brands;
         this.loadProductCounts();
         this.updatePaginatedItems();
+        this.loading = false;
+        setTimeout(() => this.tableInitialized.set(true), 100);
       },
-      'admin.brands.load_error'
-    );
+      error: () => {
+        this.loading = false;
+        this.baseToast.showError('admin.brands.load_error');
+      }
+    });
   }
 
   loadProductCounts() {
@@ -115,6 +146,17 @@ export class AdminBrandsComponent extends BaseAdminListComponent implements OnIn
     this.searchQuery = '';
     this.statusFilter = 'all';
     this.filterItems();
+  }
+
+  toggleFullscreen(): void {
+    this.isFullscreen = !this.isFullscreen;
+    if (this.isFullscreen) {
+      document.body.classList.add('fullscreen-active');
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.classList.remove('fullscreen-active');
+      document.body.style.overflow = '';
+    }
   }
 
   createNewBrand() {

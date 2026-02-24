@@ -1214,10 +1214,13 @@
       "no_brands": "لم يتم العثور على علامات تجارية",
       "no_brands_filtered": "لا توجد علامات تجارية تطابق بحثك",
       "products_label": "منتجات",
+      "table_options": "خيارات الجدول",
+      "visible_columns": "الأعمدة المرئية",
       "table": {
         "logo": "الشعار",
         "name": "اسم العلامة التجارية",
         "description": "الوصف",
+        "products": "المنتجات",
         "status": "الحالة",
         "created": "تاريخ الإنشاء",
         "actions": "الإجراءات"

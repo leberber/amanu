@@ -1220,10 +1220,13 @@
       "no_brands": "No brands found",
       "no_brands_filtered": "No brands match your search",
       "products_label": "products",
+      "table_options": "Table Options",
+      "visible_columns": "Visible Columns",
       "table": {
         "logo": "Logo",
         "name": "Brand Name",
         "description": "Description",
+        "products": "Products",
         "status": "Status",
         "created": "Created",
         "actions": "Actions"

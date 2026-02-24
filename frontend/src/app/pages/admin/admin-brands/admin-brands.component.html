@@ -1,5 +1,5 @@
 <!-- src/app/pages/admin/admin-brands/admin-brands.component.html -->
-<div class="admin-page">
+<div class="admin-page" [class.initialized]="tableInitialized()">
   <!-- Background Decoration -->
   <div class="bg-decoration">
     <div class="blob blob-1"></div>
@@ -11,7 +11,7 @@
   <p-confirmDialog></p-confirmDialog>
   <div class="admin-content">
     <!-- Page Header -->
-    <div class="admin-list-header">
+    <div class="admin-list-header animate-item" style="--delay: 0ms;">
       <div class="header-title">
         <div class="admin-icon-wrapper">
           <div class="icon-bg"></div>
@@ -27,159 +27,232 @@
     </div>
 
     <!-- Status Segmented Control with Add Button -->
-    <div class="admin-segment-row">
-      <div class="admin-segment">
+    <div class="flex align-items-center justify-content-between gap-3 flex-wrap mb-4 animate-item" style="--delay: 50ms;">
+      <div class="segment-control segment-control--glass">
         <button
-          class="admin-segment-btn"
+          class="segment-control__item"
           [class.active]="statusFilter === 'all'"
           (click)="onStatusFilterChange('all')">
           <span>{{ 'common.all' | translate }}</span>
           <span class="count">{{ allBrands.length }}</span>
         </button>
         <button
-          class="admin-segment-btn"
+          class="segment-control__item"
           [class.active]="statusFilter === 'active'"
           (click)="onStatusFilterChange('active')">
           <span>{{ 'common.active' | translate }}</span>
           <span class="count active">{{ getActiveCount() }}</span>
         </button>
         <button
-          class="admin-segment-btn"
+          class="segment-control__item"
           [class.active]="statusFilter === 'inactive'"
           (click)="onStatusFilterChange('inactive')">
           <span>{{ 'common.inactive' | translate }}</span>
           <span class="count inactive">{{ getInactiveCount() }}</span>
         </button>
       </div>
+
       <button class="btn-add" (click)="createNewBrand()">
         <i class="pi pi-plus"></i>
         <span>{{ 'admin.brands.add_brand' | translate }}</span>
       </button>
     </div>
 
-    <!-- Search & Filters Card -->
-    <div class="admin-filters-card">
-      <div class="admin-search-box">
-        <i class="pi pi-search"></i>
-        <input
-          type="text"
-          [(ngModel)]="searchQuery"
-          (input)="onSearchInput()"
-          [placeholder]="'admin.brands.search_placeholder' | translate">
-        @if (searchQuery) {
-          <button class="clear-search" (click)="searchQuery = ''; filterItems()">
-            <i class="pi pi-times"></i>
-          </button>
-        }
-      </div>
-      <div class="filter-actions">
-        <button class="admin-icon-btn" (click)="refreshBrandData()" [pTooltip]="'admin.brands.refresh' | translate">
-          <i class="pi pi-refresh"></i>
+    <!-- Loading State - Skeleton Table -->
+    @if (loading) {
+      <app-table-skeleton
+        [columns]="skeletonColumns"
+        [rows]="6"
+        [actionCount]="2"
+      />
+    } @else if (brands.length === 0 && !hasActiveFilters()) {
+      <!-- Empty State - No Brands -->
+      <div class="empty-state animate-item" style="--delay: 100ms;">
+        <div class="empty-state__icon">
+          <i class="pi pi-building"></i>
+        </div>
+        <h3 class="empty-state__title">{{ 'admin.brands.no_brands' | translate }}</h3>
+        <p class="empty-state__description">{{ 'admin.brands.get_started' | translate }}</p>
+        <button class="btn-primary" (click)="createNewBrand()">
+          <i class="pi pi-plus"></i>
+          {{ 'admin.brands.add_first_brand' | translate }}
         </button>
       </div>
-    </div>
-
-    <!-- Brands Content Card -->
-    <div class="table-container">
-      @if (loading) {
-        <div class="admin-loading-state">
-          <i class="pi pi-spin pi-spinner"></i>
-          <span>{{ 'common.loading' | translate }}</span>
+    } @else {
+      <!-- Brands Table -->
+      <div class="table-container animate-item" [class.fullscreen]="isFullscreen" style="--delay: 100ms;">
+        <div class="table-header">
+          <div class="table-search">
+            <div class="search-icon">
+              <i class="pi pi-search"></i>
+            </div>
+            <input
+              type="text"
+              [(ngModel)]="searchQuery"
+              (input)="onSearchInput()"
+              [placeholder]="'admin.brands.search_placeholder' | translate">
+            @if (searchQuery) {
+              <button class="clear-search" (click)="searchQuery = ''; filterItems()">
+                <i class="pi pi-times"></i>
+              </button>
+            }
+          </div>
+          <div class="table-actions">
+            @if (hasActiveFilters()) {
+              <button class="clear-filters-btn" (click)="clearFilters()" [pTooltip]="'admin.brands.clear_filters' | translate">
+                <i class="pi pi-filter-slash"></i>
+              </button>
+            }
+            <button class="table-action-btn refresh-btn" (click)="refreshBrandData()" [pTooltip]="'admin.brands.refresh' | translate">
+              <i class="pi pi-refresh"></i>
+            </button>
+            <button class="table-action-btn" (click)="toggleFullscreen()" [pTooltip]="(isFullscreen ? 'common.exit_fullscreen' : 'common.fullscreen') | translate">
+              <i [class]="isFullscreen ? 'pi pi-window-minimize' : 'pi pi-window-maximize'"></i>
+            </button>
+            <button class="table-action-btn" (click)="tableOptionsMenu.toggle($event)" [pTooltip]="'admin.brands.table_options' | translate" tooltipPosition="left">
+              <i class="pi pi-ellipsis-v"></i>
+            </button>
+            <p-popover #tableOptionsMenu>
+              <div class="table-options-menu">
+                <div class="table-options-section">
+                  <span class="table-options-label">{{ 'admin.brands.visible_columns' | translate }}</span>
+                  <div class="table-options-columns">
+                    @for (col of columnOptions; track col.field) {
+                      <label class="column-toggle">
+                        <input
+                          type="checkbox"
+                          [checked]="col.visible"
+                          (change)="toggleColumn(col.field)">
+                        <span>{{ col.label | translate }}</span>
+                      </label>
+                    }
+                  </div>
+                </div>
+              </div>
+            </p-popover>
+          </div>
         </div>
-      } @else if (brands.length === 0) {
-        <!-- Empty State -->
-        <div class="admin-empty-state">
-          @if (hasActiveFilters()) {
-            <div class="empty-icon filter">
+
+        @if (brands.length === 0) {
+          <!-- Empty State - No Match -->
+          <div class="empty-state">
+            <div class="empty-state__icon empty-state__icon--warning">
               <i class="pi pi-filter"></i>
             </div>
-            <h3>{{ 'admin.brands.no_brands_filtered' | translate }}</h3>
-            <p>{{ 'admin.brands.try_different_search' | translate }}</p>
-            <button class="btn-primary" (click)="clearFilters()">
+            <h3 class="empty-state__title">{{ 'admin.brands.no_brands_filtered' | translate }}</h3>
+            <p class="empty-state__description">{{ 'admin.brands.try_different_search' | translate }}</p>
+            <button class="btn-secondary" (click)="clearFilters()">
               <i class="pi pi-filter-slash"></i>
               {{ 'admin.brands.clear_filters' | translate }}
             </button>
-          } @else {
-            <div class="empty-icon brands">
-              <i class="pi pi-building"></i>
-            </div>
-            <h3>{{ 'admin.brands.no_brands' | translate }}</h3>
-            <p>{{ 'admin.brands.get_started' | translate }}</p>
-            <button class="btn-primary" (click)="createNewBrand()">
-              <i class="pi pi-plus"></i>
-              {{ 'admin.brands.add_first_brand' | translate }}
-            </button>
-          }
-        </div>
-        <!-- Brands Grid -->
-        <div class="admin-grid">
-          @for (brand of paginatedBrands; track brand.id) {
-            <div class="admin-grid-card">
-              <div class="admin-grid-card__header">
-                <div class="admin-grid-card__image">
-                  @if (brand.logo_url) {
-                    <img [src]="brand.logo_url" [alt]="getBrandName(brand)">
-                  } @else {
-                    <i class="pi pi-building"></i>
-                  }
-                </div>
-                <div class="brand-status">
-                  <span class="admin-status-badge" [class.active]="brand.is_active" [class.inactive]="!brand.is_active">
-                    {{ brand.is_active ? ('common.active' | translate) : ('common.inactive' | translate) }}
-                  </span>
-                </div>
-              </div>
-              <div class="admin-grid-card__body">
-                <h3 class="admin-grid-card__title">{{ getBrandName(brand) }}</h3>
-                @if (getBrandDescription(brand)) {
-                  <p class="admin-grid-card__description">{{ getBrandDescription(brand) }}</p>
-                } @else {
-                  <p class="admin-grid-card__description admin-grid-card__description--empty">{{ 'admin.brands.no_description' | translate }}</p>
+          </div>
+        } @else {
+          <div class="table-wrapper">
+            <table class="table">
+              <thead>
+                <tr>
+                  @if (isColumnVisible('logo')) { <th style="width: 8%"></th> }
+                  @if (isColumnVisible('name')) { <th style="width: 30%">{{ 'admin.brands.table.name' | translate }}</th> }
+                  @if (isColumnVisible('products')) { <th style="width: 15%" class="text-center">{{ 'admin.brands.table.products' | translate }}</th> }
+                  @if (isColumnVisible('status')) { <th style="width: 15%" class="text-center">{{ 'admin.brands.table.status' | translate }}</th> }
+                  @if (isColumnVisible('created')) { <th style="width: 15%" class="text-center">{{ 'admin.brands.table.created' | translate }}</th> }
+                  @if (isColumnVisible('actions')) { <th style="width: 17%" class="text-center">{{ 'admin.brands.table.actions' | translate }}</th> }
+                </tr>
+              </thead>
+              <tbody>
+                @for (brand of paginatedBrands; track brand.id; let i = $index) {
+                  <tr class="table-row-animate" [style.--row-delay]="(i * 40) + 'ms'">
+                    <!-- Logo -->
+                    @if (isColumnVisible('logo')) {
+                      <td>
+                        <div class="table-thumbnail">
+                          @if (brand.logo_url) {
+                            <img [src]="brand.logo_url" [alt]="getBrandName(brand)" loading="lazy">
+                          } @else {
+                            <i class="pi pi-building"></i>
+                          }
+                        </div>
+                      </td>
+                    }
+
+                    <!-- Brand Name & Description -->
+                    @if (isColumnVisible('name')) {
+                      <td>
+                        <div class="info-display">
+                          <span class="info-display__name">{{ getBrandName(brand) }}</span>
+                          @if (getBrandDescription(brand)) {
+                            <span class="info-display__email">{{ getBrandDescription(brand) }}</span>
+                          }
+                        </div>
+                      </td>
+                    }
+
+                    <!-- Product Count -->
+                    @if (isColumnVisible('products')) {
+                      <td class="text-center">
+                        <span class="pill purple">
+                          <i class="pi pi-box"></i>
+                          {{ getBrandProductCount(brand.id) }}
+                        </span>
+                      </td>
+                    }
+
+                    <!-- Status -->
+                    @if (isColumnVisible('status')) {
+                      <td class="text-center">
+                        <span class="status-badge" [class.active]="brand.is_active" [class.inactive]="!brand.is_active">
+                          {{ brand.is_active ? ('common.active' | translate) : ('common.inactive' | translate) }}
+                        </span>
+                      </td>
+                    }
+
+                    <!-- Created Date -->
+                    @if (isColumnVisible('created')) {
+                      <td class="text-center">
+                        <span class="date-display">{{ brand.created_at | appDate }}</span>
+                      </td>
+                    }
+
+                    <!-- Actions -->
+                    @if (isColumnVisible('actions')) {
+                      <td class="text-center">
+                        <div class="table-cell-actions justify-content-center">
+                          <button class="action-btn edit" (click)="editBrand(brand)" [pTooltip]="'common.edit' | translate" tooltipPosition="top">
+                            <i class="pi pi-pencil"></i>
+                          </button>
+                          <button class="action-btn delete" (click)="confirmDeleteBrand(brand)" [pTooltip]="'common.delete' | translate" tooltipPosition="top">
+                            <i class="pi pi-trash"></i>
+                          </button>
+                        </div>
+                      </td>
+                    }
+                  </tr>
                 }
-                <div class="admin-grid-card__meta">
-                  <div class="admin-meta-pill">
-                    <i class="pi pi-box"></i>
-                    <span>{{ getBrandProductCount(brand.id) }} {{ 'admin.brands.products_label' | translate }}</span>
-                  </div>
-                  <div class="admin-meta-item">
-                    <i class="pi pi-calendar"></i>
-                    <span>{{ brand.created_at | appDate }}</span>
-                  </div>
-                </div>
-              </div>
-              <div class="admin-grid-card__actions">
-                <button class="action-btn edit" (click)="editBrand(brand)" [pTooltip]="'common.edit' | translate" tooltipPosition="top">
-                  <i class="pi pi-pencil"></i>
-                </button>
-                <button class="action-btn delete" (click)="confirmDeleteBrand(brand)" [pTooltip]="'common.delete' | translate" tooltipPosition="top">
-                  <i class="pi pi-trash"></i>
-                </button>
-              </div>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pagination -->
+          @if (brands.length > rows) {
+            <div class="table-footer">
+              <p-paginator
+                [first]="first"
+                [rows]="rows"
+                [totalRecords]="brands.length"
+                (onPageChange)="onPageChange($event)"
+                [showCurrentPageReport]="true"
+                currentPageReportTemplate="{{ 'admin.brands.showing' | translate }} {first} - {last} {{ 'admin.brands.of' | translate }} {totalRecords}"
+              ></p-paginator>
             </div>
           }
-        </div>
-      }
-    </div>
 
-    <!-- Pagination -->
-    @if (brands.length > rows && !loading) {
-      <div class="admin-pagination">
-        <p-paginator
-          [first]="first"
-          [rows]="rows"
-          [totalRecords]="brands.length"
-          [rowsPerPageOptions]="[12, 24, 48]"
-          (onPageChange)="onPageChange($event)"
-          [showCurrentPageReport]="true"
-          currentPageReportTemplate="{{ 'admin.brands.showing' | translate }} {first} - {last} {{ 'admin.brands.of' | translate }} {totalRecords}"
-        ></p-paginator>
-      </div>
-    }
-
-    <!-- Results Info -->
-    @if (brands.length > 0 && brands.length <= rows && !loading) {
-      <div class="admin-results-info">
-        <span>{{ 'admin.brands.showing' | translate }} {{ brands.length }} {{ 'admin.brands.of' | translate }} {{ allBrands.length }} {{ 'admin.brands.brands' | translate }}</span>
+          <!-- Results Info -->
+          @if (brands.length <= rows) {
+            <div class="table-footer results-info">
+              <span>{{ 'admin.brands.showing' | translate }} {{ brands.length }} {{ 'admin.brands.of' | translate }} {{ allBrands.length }} {{ 'admin.brands.brands' | translate }}</span>
+            </div>
+          }
+        }
       </div>
     }
   </div>

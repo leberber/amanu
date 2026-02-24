@@ -1219,10 +1219,13 @@
       "no_brands": "Aucune marque trouvée",
       "no_brands_filtered": "Aucune marque ne correspond à votre recherche",
       "products_label": "produits",
+      "table_options": "Options du Tableau",
+      "visible_columns": "Colonnes Visibles",
       "table": {
         "logo": "Logo",
         "name": "Nom de la marque",
         "description": "Description",
+        "products": "Produits",
         "status": "Statut",
         "created": "Créé le",
         "actions": "Actions"
