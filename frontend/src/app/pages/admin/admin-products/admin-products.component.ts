@@ -1,4 +1,5 @@
-import { Component, OnInit, inject, DestroyRef, signal } from '@angular/core';
+import { Component, OnInit, inject, DestroyRef, signal, computed } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ConfirmationService } from 'primeng/api';
 import { SelectModule } from 'primeng/select';
 import { PopoverModule } from 'primeng/popover';
@@ -9,7 +10,6 @@ import { TableSkeletonComponent, SkeletonColumn } from '../../../shared/componen
 import { onLanguageChange } from '../../../core/utils/language-change.util';
 import { ProductService } from '../../../services/product.service';
 import { BrandService } from '../../../core/services/brand.service';
-import { CurrencyService } from '../../../core/services/currency.service';
 import { TranslationHelperService } from '../../../core/services/translation-helper.service';
 import { UnitsService } from '../../../core/services/units.service';
 import { StockStatusService } from '../../../core/services/stock-status.service';
@@ -36,20 +36,48 @@ import { ROUTES, RouteHelpers } from '../../../core/constants/routes.constants';
   styleUrl: './admin-products.component.scss'
 })
 export class AdminProductsComponent extends BaseAdminListComponent implements OnInit {
-  // State properties
-  allProducts: Product[] = [];
-  products: Product[] = [];
-  paginatedProducts: Product[] = [];
-  categories: Category[] = [];
-  brands: Brand[] = [];
+  // Data signals
+  allProducts = signal<Product[]>([]);
+  products = signal<Product[]>([]);
+  paginatedProducts = signal<Product[]>([]);
+  categories = signal<Category[]>([]);
+  brands = signal<Brand[]>([]);
 
   // Category filter
   categoryFilter: number | null = null;
-  categoryOptions: { label: string; value: number | null; count: number }[] = [];
 
   // Brand filter
   brandFilter: number | null = null;
-  brandOptions: { label: string; value: number | null; count: number }[] = [];
+
+  // Computed counts
+  activeCount = computed(() => this.allProducts().filter(p => p.is_active).length);
+  inactiveCount = computed(() => this.allProducts().filter(p => !p.is_active).length);
+
+  // Computed category options
+  categoryOptions = computed(() => {
+    const allLabel = this.translateService.instant('admin.products.filters.all_categories');
+    return [
+      { label: allLabel, value: null as number | null, count: this.allProducts().length },
+      ...this.categories().map(cat => ({
+        label: this.getCategoryName(cat.id),
+        value: cat.id as number | null,
+        count: this.allProducts().filter(p => p.category_id === cat.id).length
+      }))
+    ];
+  });
+
+  // Computed brand options
+  brandOptions = computed(() => {
+    const allLabel = this.translateService.instant('admin.products.filters.all_brands');
+    return [
+      { label: allLabel, value: null as number | null, count: this.allProducts().length },
+      ...this.brands().map(brand => ({
+        label: brand.name,
+        value: brand.id as number | null,
+        count: this.allProducts().filter(p => p.brand_id === brand.id).length
+      }))
+    ];
+  });
 
   // Inline editing state
   priceEdit = new InlineEditState<number>(0);
@@ -60,10 +88,8 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
   stockEditMode: 'cartons' | 'units' = 'cartons';
   stockEditProduct: Product | null = null;
 
-  // Fullscreen mode
-  isFullscreen = false;
-
-  // Animation state
+  // UI state signals
+  isFullscreen = signal(false);
   tableInitialized = signal(false);
 
   // Column visibility options (override base class)
@@ -94,7 +120,6 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
   private productService = inject(ProductService);
   private brandService = inject(BrandService);
   private translateService = inject(TranslateService);
-  private currencyService = inject(CurrencyService);
   private translationHelper = inject(TranslationHelperService);
   private unitsService = inject(UnitsService);
   private confirmationService = inject(ConfirmationService);
@@ -102,7 +127,6 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
   private stockStatus = inject(StockStatusService);
   private destroyRef = inject(DestroyRef);
 
-  // Lifecycle hooks
   ngOnInit() {
     this.loadCategories();
     this.loadBrands();
@@ -119,22 +143,10 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
     return !!(this.searchQuery?.trim() || this.categoryFilter || this.brandFilter || this.statusFilter !== 'all');
   }
 
-  getActiveCount(): number {
-    return this.getCountByPredicate(this.allProducts, p => p.is_active);
-  }
-
-  getInactiveCount(): number {
-    return this.getCountByPredicate(this.allProducts, p => !p.is_active);
-  }
-
   // Category filter methods
   onCategoryChange(): void {
     this.first = 0;
     this.filterItems();
-  }
-
-  getCategoryProductCount(categoryId: number): number {
-    return this.getCountByPredicate(this.allProducts, p => p.category_id === categoryId);
   }
 
   // Brand filter methods
@@ -143,14 +155,10 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
     this.filterItems();
   }
 
-  getBrandProductCount(brandId: number): number {
-    return this.getCountByPredicate(this.allProducts, p => p.brand_id === brandId);
-  }
-
   // === Abstract method implementations ===
 
   updatePaginatedItems(): void {
-    this.paginatedProducts = this.products.slice(this.first, this.first + this.rows);
+    this.paginatedProducts.set(this.products().slice(this.first, this.first + this.rows));
   }
 
   getSearchDebounceKey(): string {
@@ -219,22 +227,27 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
     }
 
     const newStatus = this.statusEdit.value;
-    this.handleInlineUpdate(
-      () => this.productService.updateProduct(product.id, { is_active: newStatus }),
-      this.allProducts,
-      this.products,
-      product.id,
-      'is_active',
-      newStatus,
-      newStatus ? 'admin.products.status_activated' : 'admin.products.status_deactivated',
-      'admin.products.status_update_failed',
-      () => this.statusEdit.cancel()
-    );
+    this.productService.updateProduct(product.id, { is_active: newStatus })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.allProducts.update(products =>
+            products.map(p => p.id === product.id ? { ...p, is_active: newStatus } : p)
+          );
+          this.filterItems();
+          this.statusEdit.cancel();
+          this.baseToast.showSuccess(newStatus ? 'admin.products.status_activated' : 'admin.products.status_deactivated');
+        },
+        error: (error) => {
+          this.statusEdit.cancel();
+          this.baseToast.showApiError(error, 'admin.products.status_update_failed');
+        }
+      });
   }
 
-  toggleFullscreen() {
-    this.isFullscreen = !this.isFullscreen;
-    if (this.isFullscreen) {
+  toggleFullscreen(): void {
+    this.isFullscreen.update(v => !v);
+    if (this.isFullscreen()) {
       document.body.classList.add('fullscreen-active');
       document.body.style.overflow = 'hidden';
     } else {
@@ -244,7 +257,7 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
   }
 
   getCategoryName(categoryId: number): string {
-    const category = this.categories.find(cat => cat.id === categoryId) as any;
+    const category = this.categories().find(cat => cat.id === categoryId);
     if (!category) {
       return this.translateService.instant('common.unknown');
     }
@@ -255,7 +268,7 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
     if (!brandId) {
       return '-';
     }
-    const brand = this.brands.find(b => b.id === brandId);
+    const brand = this.brands().find(b => b.id === brandId);
     if (!brand) {
       return this.translateService.instant('common.unknown');
     }
@@ -304,17 +317,22 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
     }
 
     const newPrice = this.priceEdit.value;
-    this.handleInlineUpdate(
-      () => this.productService.updateProduct(product.id, { price: newPrice }),
-      this.allProducts,
-      this.products,
-      product.id,
-      'price',
-      newPrice,
-      'admin.products.price_updated',
-      'admin.products.price_update_failed',
-      () => this.priceEdit.cancel()
-    );
+    this.productService.updateProduct(product.id, { price: newPrice })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.allProducts.update(products =>
+            products.map(p => p.id === product.id ? { ...p, price: newPrice } : p)
+          );
+          this.filterItems();
+          this.priceEdit.cancel();
+          this.baseToast.showSuccess('admin.products.price_updated');
+        },
+        error: (error) => {
+          this.priceEdit.cancel();
+          this.baseToast.showApiError(error, 'admin.products.price_update_failed');
+        }
+      });
   }
 
   isEditingPrice(productId: number): boolean {
@@ -385,17 +403,22 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
     // Calculate new total: existing + added
     const newStock = product.stock_quantity + stockToAdd;
 
-    this.handleInlineUpdate(
-      () => this.productService.updateProduct(product.id, { stock_quantity: newStock }),
-      this.allProducts,
-      this.products,
-      product.id,
-      'stock_quantity',
-      newStock,
-      'admin.products.stock_updated',
-      'admin.products.stock_update_failed',
-      () => this.cancelEditStock()
-    );
+    this.productService.updateProduct(product.id, { stock_quantity: newStock })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.allProducts.update(products =>
+            products.map(p => p.id === product.id ? { ...p, stock_quantity: newStock } : p)
+          );
+          this.filterItems();
+          this.cancelEditStock();
+          this.baseToast.showSuccess('admin.products.stock_updated');
+        },
+        error: (error) => {
+          this.cancelEditStock();
+          this.baseToast.showApiError(error, 'admin.products.stock_update_failed');
+        }
+      });
   }
 
   isEditingStock(productId: number): boolean {
@@ -418,71 +441,47 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
   }
 
   // Private methods
-  private loadCategories() {
-    this.loadDataSilent(
-      () => this.productService.getCategories(true),
-      (categories) => {
-        this.categories = categories;
-        this.buildCategoryOptions();
-      }
-    );
+  private loadCategories(): void {
+    this.productService.getCategories(true)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (categories) => this.categories.set(categories),
+        error: () => this.categories.set([])
+      });
   }
 
-  private loadBrands() {
-    this.loadDataSilent(
-      () => this.brandService.getBrands(false),
-      (brands) => {
-        this.brands = brands;
-        this.buildBrandOptions();
-      }
-    );
+  private loadBrands(): void {
+    this.brandService.getBrands(false)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (brands) => this.brands.set(brands),
+        error: () => this.brands.set([])
+      });
   }
 
-  private loadAllProducts() {
+  private loadAllProducts(): void {
     this.loading = true;
-    this.productService.getProducts({ active_only: false }).subscribe({
-      next: (products) => {
-        this.allProducts = products;
-        this.products = products;
-        this.updatePaginatedItems();
-        this.buildCategoryOptions();
-        this.buildBrandOptions();
-        this.loading = false;
-        setTimeout(() => this.tableInitialized.set(true), 100);
-      },
-      error: () => {
-        this.loading = false;
-      }
-    });
-  }
-
-  private buildCategoryOptions() {
-    const allLabel = this.translateService.instant('admin.products.filters.all_categories');
-    this.categoryOptions = [
-      { label: allLabel, value: null, count: this.allProducts.length },
-      ...this.categories.map(cat => ({
-        label: this.getCategoryName(cat.id),
-        value: cat.id,
-        count: this.getCategoryProductCount(cat.id)
-      }))
-    ];
-  }
-
-  private buildBrandOptions() {
-    const allLabel = this.translateService.instant('admin.products.filters.all_brands');
-    this.brandOptions = [
-      { label: allLabel, value: null, count: this.allProducts.length },
-      ...this.brands.map(brand => ({
-        label: brand.name,
-        value: brand.id,
-        count: this.getBrandProductCount(brand.id)
-      }))
-    ];
+    this.productService.getProducts({ active_only: false })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (products) => {
+          this.allProducts.set(products);
+          this.products.set(products);
+          this.updatePaginatedItems();
+          this.loading = false;
+          setTimeout(() => this.tableInitialized.set(true), 100);
+        },
+        error: () => {
+          this.allProducts.set([]);
+          this.products.set([]);
+          this.loading = false;
+        }
+      });
   }
 
   filterItems(): void {
     // Apply status filter using base class helper
-    let filtered = this.filterByActiveStatus(this.allProducts);
+    let filtered = this.filterByActiveStatus(this.allProducts());
 
     // Category filter
     if (this.categoryFilter) {
@@ -504,20 +503,24 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
       );
     }
 
-    this.products = filtered;
+    this.products.set(filtered);
     this.resetPagination();
     this.updatePaginatedItems();
   }
 
-  private deleteProduct(product: Product) {
-    this.handleDelete(
-      () => this.productService.deleteProduct(product.id),
-      this.allProducts,
-      product.id,
-      (updated) => { this.allProducts = updated; },
-      'admin.products.delete_success',
-      'admin.products.delete_failed'
-    );
+  private deleteProduct(product: Product): void {
+    this.productService.deleteProduct(product.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.allProducts.update(products => products.filter(p => p.id !== product.id));
+          this.filterItems();
+          this.baseToast.showSuccess('admin.products.delete_success');
+        },
+        error: (error) => {
+          this.baseToast.showApiError(error, 'admin.products.delete_failed');
+        }
+      });
   }
 
 }

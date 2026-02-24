@@ -35,28 +35,28 @@
             [class.active]="statusFilter === 'all'"
             (click)="onStatusFilterChange('all')">
             <span>{{ 'common.all' | translate }}</span>
-            <span class="count">{{ allProducts.length }}</span>
+            <span class="count">{{ allProducts().length }}</span>
           </button>
           <button
             class="segment-control__item"
             [class.active]="statusFilter === 'active'"
             (click)="onStatusFilterChange('active')">
             <span>{{ 'common.active' | translate }}</span>
-            <span class="count active">{{ getActiveCount() }}</span>
+            <span class="count active">{{ activeCount() }}</span>
           </button>
           <button
             class="segment-control__item"
             [class.active]="statusFilter === 'inactive'"
             (click)="onStatusFilterChange('inactive')">
             <span>{{ 'common.inactive' | translate }}</span>
-            <span class="count inactive">{{ getInactiveCount() }}</span>
+            <span class="count inactive">{{ inactiveCount() }}</span>
           </button>
         </div>
 
         <!-- Category Dropdown -->
         <p-select
           [(ngModel)]="categoryFilter"
-          [options]="categoryOptions"
+          [options]="categoryOptions()"
           optionLabel="label"
           optionValue="value"
           [placeholder]="'admin.products.filters.all_categories' | translate"
@@ -84,7 +84,7 @@
         <!-- Brand Dropdown -->
         <p-select
           [(ngModel)]="brandFilter"
-          [options]="brandOptions"
+          [options]="brandOptions()"
           optionLabel="label"
           optionValue="value"
           [placeholder]="'admin.products.filters.all_brands' | translate"
@@ -123,7 +123,7 @@
         [rows]="6"
         [actionCount]="3"
       />
-    } @else if (products.length === 0) {
+    } @else if (products().length === 0) {
       <!-- Empty State -->
       <div class="empty-state animate-item" style="--delay: 100ms;">
         <div class="empty-state__icon">
@@ -146,7 +146,7 @@
       </div>
     } @else {
       <!-- Products Table -->
-      <div class="table-container animate-item" [class.fullscreen]="isFullscreen" style="--delay: 100ms;">
+      <div class="table-container animate-item" [class.fullscreen]="isFullscreen()" style="--delay: 100ms;">
         <div class="table-header">
           <div class="table-search">
             <div class="search-icon">
@@ -172,8 +172,8 @@
             <button class="table-action-btn refresh-btn" (click)="refreshProductData()" [pTooltip]="'admin.products.refresh' | translate">
               <i class="pi pi-refresh"></i>
             </button>
-            <button class="table-action-btn" (click)="toggleFullscreen()" [pTooltip]="(isFullscreen ? 'common.exit_fullscreen' : 'common.fullscreen') | translate">
-              <i [class]="isFullscreen ? 'pi pi-window-minimize' : 'pi pi-window-maximize'"></i>
+            <button class="table-action-btn" (click)="toggleFullscreen()" [pTooltip]="(isFullscreen() ? 'common.exit_fullscreen' : 'common.fullscreen') | translate">
+              <i [class]="isFullscreen() ? 'pi pi-window-minimize' : 'pi pi-window-maximize'"></i>
             </button>
             <button class="table-action-btn" (click)="tableOptionsMenu.toggle($event)" [pTooltip]="'admin.products.table_options' | translate" tooltipPosition="left">
               <i class="pi pi-ellipsis-v"></i>
@@ -227,7 +227,7 @@
               </tr>
             </thead>
             <tbody>
-              @for (product of paginatedProducts; track product.id; let i = $index) {
+              @for (product of paginatedProducts(); track product.id; let i = $index) {
                 <tr class="table-row-animate" [style.--row-delay]="(i * 40) + 'ms'">
                   <!-- Product Image -->
                   @if (isColumnVisible('image')) {
@@ -425,12 +425,12 @@
         </div>
 
         <!-- Pagination (inside card) -->
-        @if (products.length > rows) {
+        @if (products().length > rows) {
           <div class="table-footer">
             <p-paginator
               [first]="first"
               [rows]="rows"
-              [totalRecords]="products.length"
+              [totalRecords]="products().length"
               (onPageChange)="onPageChange($event)"
               [showCurrentPageReport]="true"
               [currentPageReportTemplate]="getPaginationTemplate()"
@@ -439,9 +439,9 @@
         }
 
         <!-- Results Count -->
-        @if (products.length <= rows) {
+        @if (products().length <= rows) {
           <div class="table-footer results-info">
-            <span>{{ 'admin.products.showing' | translate }} {{ products.length }} {{ 'admin.products.of' | translate }} {{ allProducts.length }} {{ 'admin.products.products' | translate }}</span>
+            <span>{{ 'admin.products.showing' | translate }} {{ products().length }} {{ 'admin.products.of' | translate }} {{ allProducts().length }} {{ 'admin.products.products' | translate }}</span>
           </div>
         }
       </div>
