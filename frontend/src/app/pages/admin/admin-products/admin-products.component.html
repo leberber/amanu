@@ -175,7 +175,7 @@
             <button class="table-action-btn" (click)="toggleFullscreen()" [pTooltip]="(isFullscreen ? 'common.exit_fullscreen' : 'common.fullscreen') | translate">
               <i [class]="isFullscreen ? 'pi pi-window-minimize' : 'pi pi-window-maximize'"></i>
             </button>
-            <button class="table-action-btn" (click)="tableOptionsMenu.toggle($event)" [pTooltip]="'admin.products.table_options' | translate">
+            <button class="table-action-btn" (click)="tableOptionsMenu.toggle($event)" [pTooltip]="'admin.products.table_options' | translate" tooltipPosition="left">
               <i class="pi pi-ellipsis-v"></i>
             </button>
             <p-popover #tableOptionsMenu>
