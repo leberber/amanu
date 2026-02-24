@@ -1,5 +1,6 @@
 // src/app/pages/admin/admin-brands/admin-brands.component.ts
-import { Component, OnInit, inject, DestroyRef, signal } from '@angular/core';
+import { Component, OnInit, inject, DestroyRef, signal, computed } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ConfirmationService } from 'primeng/api';
 import { PopoverModule } from 'primeng/popover';
 import { TranslateService } from '@ngx-translate/core';
@@ -30,15 +31,21 @@ import { BaseAdminListComponent, ColumnOption } from '../../../shared/base/base-
   styleUrl: './admin-brands.component.scss'
 })
 export class AdminBrandsComponent extends BaseAdminListComponent implements OnInit {
-  allBrands: Brand[] = [];
-  brands: Brand[] = [];
-  paginatedBrands: Brand[] = [];
+  // Data signals
+  allBrands = signal<Brand[]>([]);
+  brands = signal<Brand[]>([]);
+  paginatedBrands = signal<Brand[]>([]);
 
-  // Animation state
+  // Product counts per brand
+  brandProductCounts = signal<{ [brandId: number]: number }>({});
+
+  // Computed counts
+  activeCount = computed(() => this.allBrands().filter(b => b.is_active).length);
+  inactiveCount = computed(() => this.allBrands().filter(b => !b.is_active).length);
+
+  // UI state signals
+  isFullscreen = signal(false);
   tableInitialized = signal(false);
-
-  // Fullscreen mode
-  isFullscreen = false;
 
   // Skeleton configuration
   skeletonColumns: SkeletonColumn[] = [
@@ -59,9 +66,6 @@ export class AdminBrandsComponent extends BaseAdminListComponent implements OnIn
     { field: 'created', label: 'admin.brands.table.created', visible: true },
     { field: 'actions', label: 'admin.brands.table.actions', visible: true }
   ];
-
-  // Product counts per brand
-  brandProductCounts: { [brandId: number]: number } = {};
 
   // Inline editing state
   statusEdit = new InlineEditState<boolean>(true);
@@ -84,31 +88,46 @@ export class AdminBrandsComponent extends BaseAdminListComponent implements OnIn
     return !!(this.searchQuery?.trim()) || this.statusFilter !== 'all';
   }
 
-  loadAllBrands() {
+  loadAllBrands(): void {
     this.loading = true;
-    this.brandService.getBrands(false).subscribe({
-      next: (brands) => {
-        this.allBrands = brands;
-        this.brands = brands;
-        this.loadProductCounts();
-        this.updatePaginatedItems();
-        this.loading = false;
-        setTimeout(() => this.tableInitialized.set(true), 100);
-      },
-      error: () => {
-        this.loading = false;
-        this.baseToast.showError('admin.brands.load_error');
-      }
-    });
+    this.brandService.getBrands(false)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (brands) => {
+          this.allBrands.set(brands);
+          this.brands.set(brands);
+          this.loadProductCounts();
+          this.updatePaginatedItems();
+          this.loading = false;
+          setTimeout(() => this.tableInitialized.set(true), 100);
+        },
+        error: () => {
+          this.allBrands.set([]);
+          this.brands.set([]);
+          this.loading = false;
+          this.baseToast.showError('admin.brands.load_error');
+        }
+      });
   }
 
-  loadProductCounts() {
-    this.allBrands.forEach(brand => {
-      this.loadDataSilent(
-        () => this.productService.getProductsByBrand(brand.id, false),
-        (products) => { this.brandProductCounts[brand.id] = products.length; },
-        () => { this.brandProductCounts[brand.id] = 0; }
-      );
+  loadProductCounts(): void {
+    this.allBrands().forEach(brand => {
+      this.productService.getProductsByBrand(brand.id, false)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (products) => {
+            this.brandProductCounts.update(counts => ({
+              ...counts,
+              [brand.id]: products.length
+            }));
+          },
+          error: () => {
+            this.brandProductCounts.update(counts => ({
+              ...counts,
+              [brand.id]: 0
+            }));
+          }
+        });
     });
   }
 
@@ -116,7 +135,7 @@ export class AdminBrandsComponent extends BaseAdminListComponent implements OnIn
 
   filterItems(): void {
     // Apply status filter using base class helper
-    let filtered = this.filterByActiveStatus(this.allBrands);
+    let filtered = this.filterByActiveStatus(this.allBrands());
 
     // Apply search filter
     if (this.hasSearchQuery()) {
@@ -127,13 +146,13 @@ export class AdminBrandsComponent extends BaseAdminListComponent implements OnIn
       );
     }
 
-    this.brands = filtered;
+    this.brands.set(filtered);
     this.resetPagination();
     this.updatePaginatedItems();
   }
 
   updatePaginatedItems(): void {
-    this.paginatedBrands = this.brands.slice(this.first, this.first + this.rows);
+    this.paginatedBrands.set(this.brands().slice(this.first, this.first + this.rows));
   }
 
   getSearchDebounceKey(): string {
@@ -143,7 +162,7 @@ export class AdminBrandsComponent extends BaseAdminListComponent implements OnIn
   // === Component-specific methods ===
 
   getBrandProductCount(brandId: number): number {
-    return this.brandProductCounts[brandId] || 0;
+    return this.brandProductCounts()[brandId] || 0;
   }
 
   override clearFilters() {
@@ -153,8 +172,8 @@ export class AdminBrandsComponent extends BaseAdminListComponent implements OnIn
   }
 
   toggleFullscreen(): void {
-    this.isFullscreen = !this.isFullscreen;
-    if (this.isFullscreen) {
+    this.isFullscreen.update(v => !v);
+    if (this.isFullscreen()) {
       document.body.classList.add('fullscreen-active');
       document.body.style.overflow = 'hidden';
     } else {
@@ -179,15 +198,19 @@ export class AdminBrandsComponent extends BaseAdminListComponent implements OnIn
     );
   }
 
-  deleteBrand(brand: Brand) {
-    this.handleDelete(
-      () => this.brandService.deleteBrand(brand.id),
-      this.allBrands,
-      brand.id,
-      (updated) => { this.allBrands = updated; },
-      'admin.brands.delete_success',
-      'admin.brands.delete_failed'
-    );
+  deleteBrand(brand: Brand): void {
+    this.brandService.deleteBrand(brand.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.allBrands.update(brands => brands.filter(b => b.id !== brand.id));
+          this.filterItems();
+          this.baseToast.showSuccess('admin.brands.delete_success');
+        },
+        error: (error) => {
+          this.baseToast.showApiError(error, 'admin.brands.delete_failed');
+        }
+      });
   }
 
   refreshBrandData() {
@@ -219,18 +242,22 @@ export class AdminBrandsComponent extends BaseAdminListComponent implements OnIn
     }
 
     const newStatus = this.statusEdit.value;
-
-    this.handleInlineUpdate(
-      () => this.brandService.updateBrand(brand.id, { is_active: newStatus }),
-      this.allBrands,
-      this.brands,
-      brand.id,
-      'is_active',
-      newStatus,
-      newStatus ? 'admin.brands.status_activated' : 'admin.brands.status_deactivated',
-      'admin.brands.status_update_failed',
-      () => this.statusEdit.cancel()
-    );
+    this.brandService.updateBrand(brand.id, { is_active: newStatus })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.allBrands.update(brands =>
+            brands.map(b => b.id === brand.id ? { ...b, is_active: newStatus } : b)
+          );
+          this.filterItems();
+          this.statusEdit.cancel();
+          this.baseToast.showSuccess(newStatus ? 'admin.brands.status_activated' : 'admin.brands.status_deactivated');
+        },
+        error: (error) => {
+          this.statusEdit.cancel();
+          this.baseToast.showApiError(error, 'admin.brands.status_update_failed');
+        }
+      });
   }
 
   onImageError(event: Event): void {
@@ -245,13 +272,5 @@ export class AdminBrandsComponent extends BaseAdminListComponent implements OnIn
 
   getBrandDescription(brand: Brand): string {
     return this.translationHelper.getBrandDescription(brand);
-  }
-
-  getActiveCount(): number {
-    return this.getCountByPredicate(this.allBrands, b => b.is_active);
-  }
-
-  getInactiveCount(): number {
-    return this.getCountByPredicate(this.allBrands, b => !b.is_active);
   }
 }

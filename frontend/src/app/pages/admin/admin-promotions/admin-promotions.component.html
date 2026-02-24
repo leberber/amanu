@@ -34,28 +34,28 @@
           [class.active]="statusFilter === 'all'"
           (click)="onStatusFilterChange('all')">
           <span>{{ 'common.all' | translate }}</span>
-          <span class="count">{{ allPromotions.length }}</span>
+          <span class="count">{{ allPromotions().length }}</span>
         </button>
         <button
           class="segment-control__item"
           [class.active]="statusFilter === 'active'"
           (click)="onStatusFilterChange('active')">
           <span>{{ 'admin.promotions.status.active' | translate }}</span>
-          <span class="count active">{{ getActiveCount() }}</span>
+          <span class="count active">{{ activeCount() }}</span>
         </button>
         <button
           class="segment-control__item"
           [class.active]="statusFilter === 'expired'"
           (click)="onStatusFilterChange('expired')">
           <span>{{ 'admin.promotions.status.expired' | translate }}</span>
-          <span class="count inactive">{{ getExpiredCount() }}</span>
+          <span class="count inactive">{{ expiredCount() }}</span>
         </button>
         <button
           class="segment-control__item"
           [class.active]="statusFilter === 'scheduled'"
           (click)="onStatusFilterChange('scheduled')">
           <span>{{ 'admin.promotions.status.scheduled' | translate }}</span>
-          <span class="count scheduled">{{ getScheduledCount() }}</span>
+          <span class="count scheduled">{{ scheduledCount() }}</span>
         </button>
       </div>
 
@@ -72,7 +72,7 @@
         [rows]="6"
         [actionCount]="2"
       />
-    } @else if (promotions.length === 0 && !hasActiveFilters()) {
+    } @else if (promotions().length === 0 && !hasActiveFilters()) {
       <!-- Empty State - No Promotions -->
       <div class="empty-state animate-item" style="--delay: 100ms;">
         <div class="empty-state__icon">
@@ -87,7 +87,7 @@
       </div>
     } @else {
       <!-- Promotions Table -->
-      <div class="table-container animate-item" [class.fullscreen]="isFullscreen" style="--delay: 100ms;">
+      <div class="table-container animate-item" [class.fullscreen]="isFullscreen()" style="--delay: 100ms;">
         <div class="table-header">
           <div class="table-search">
             <div class="search-icon">
@@ -113,8 +113,8 @@
             <button class="table-action-btn refresh-btn" (click)="refreshPromotionData()" [pTooltip]="'admin.promotions.refresh' | translate">
               <i class="pi pi-refresh"></i>
             </button>
-            <button class="table-action-btn" (click)="toggleFullscreen()" [pTooltip]="(isFullscreen ? 'common.exit_fullscreen' : 'common.fullscreen') | translate">
-              <i [class]="isFullscreen ? 'pi pi-window-minimize' : 'pi pi-window-maximize'"></i>
+            <button class="table-action-btn" (click)="toggleFullscreen()" [pTooltip]="(isFullscreen() ? 'common.exit_fullscreen' : 'common.fullscreen') | translate">
+              <i [class]="isFullscreen() ? 'pi pi-window-minimize' : 'pi pi-window-maximize'"></i>
             </button>
             <button class="table-action-btn" (click)="tableOptionsMenu.toggle($event)" [pTooltip]="'admin.promotions.table_options' | translate" tooltipPosition="left">
               <i class="pi pi-ellipsis-v"></i>
@@ -154,7 +154,7 @@
           </div>
         </div>
 
-        @if (promotions.length === 0) {
+        @if (promotions().length === 0) {
           <!-- Empty State - No Match -->
           <div class="empty-state">
             <div class="empty-state__icon empty-state__icon--warning">
@@ -183,7 +183,7 @@
                 </tr>
               </thead>
               <tbody>
-                @for (promotion of paginatedPromotions; track promotion.id; let i = $index) {
+                @for (promotion of paginatedPromotions(); track promotion.id; let i = $index) {
                   <tr class="table-row-animate" [style.--row-delay]="(i * 40) + 'ms'">
                     <!-- Name -->
                     @if (isColumnVisible('name')) {
@@ -273,12 +273,12 @@
           </div>
 
           <!-- Pagination -->
-          @if (promotions.length > rows) {
+          @if (promotions().length > rows) {
             <div class="table-footer">
               <p-paginator
                 [first]="first"
                 [rows]="rows"
-                [totalRecords]="promotions.length"
+                [totalRecords]="promotions().length"
                 (onPageChange)="onPageChange($event)"
                 [showCurrentPageReport]="true"
                 currentPageReportTemplate="{{ 'admin.promotions.showing' | translate }} {first} - {last} {{ 'admin.promotions.of' | translate }} {totalRecords}"
@@ -287,9 +287,9 @@
           }
 
           <!-- Results Info -->
-          @if (promotions.length <= rows) {
+          @if (promotions().length <= rows) {
             <div class="table-footer results-info">
-              <span>{{ 'admin.promotions.showing' | translate }} {{ promotions.length }} {{ 'admin.promotions.of' | translate }} {{ allPromotions.length }} {{ 'admin.promotions.promotions' | translate }}</span>
+              <span>{{ 'admin.promotions.showing' | translate }} {{ promotions().length }} {{ 'admin.promotions.of' | translate }} {{ allPromotions().length }} {{ 'admin.promotions.promotions' | translate }}</span>
             </div>
           }
         }

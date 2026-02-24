@@ -1,5 +1,6 @@
 // src/app/pages/admin/admin-promotions/admin-promotions.component.ts
-import { Component, OnInit, inject, DestroyRef, signal } from '@angular/core';
+import { Component, OnInit, inject, DestroyRef, signal, computed } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ConfirmationService } from 'primeng/api';
 import { PopoverModule } from 'primeng/popover';
 import { TranslateService } from '@ngx-translate/core';
@@ -28,18 +29,22 @@ import { BaseAdminListComponent, ColumnOption } from '../../../shared/base/base-
   styleUrl: './admin-promotions.component.scss'
 })
 export class AdminPromotionsComponent extends BaseAdminListComponent implements OnInit {
-  allPromotions: Promotion[] = [];
-  promotions: Promotion[] = [];
-  paginatedPromotions: Promotion[] = [];
+  // Data signals
+  allPromotions = signal<Promotion[]>([]);
+  promotions = signal<Promotion[]>([]);
+  paginatedPromotions = signal<Promotion[]>([]);
 
-  // Animation state
+  // UI state signals
+  isFullscreen = signal(false);
   tableInitialized = signal(false);
-
-  // Fullscreen mode
-  isFullscreen = false;
 
   // Override status filter type for promotions (different from default active/inactive)
   override statusFilter: string = 'all';
+
+  // Computed counts
+  activeCount = computed(() => this.allPromotions().filter(p => this.getPromotionStatus(p) === 'active').length);
+  expiredCount = computed(() => this.allPromotions().filter(p => this.getPromotionStatus(p) === 'expired').length);
+  scheduledCount = computed(() => this.allPromotions().filter(p => this.getPromotionStatus(p) === 'scheduled').length);
 
   // Skeleton configuration
   skeletonColumns: SkeletonColumn[] = [
@@ -82,18 +87,6 @@ export class AdminPromotionsComponent extends BaseAdminListComponent implements 
     return !!(this.searchQuery?.trim() || this.statusFilter !== 'all');
   }
 
-  getActiveCount(): number {
-    return this.getCountByPredicate(this.allPromotions, p => this.getPromotionStatus(p) === 'active');
-  }
-
-  getExpiredCount(): number {
-    return this.getCountByPredicate(this.allPromotions, p => this.getPromotionStatus(p) === 'expired');
-  }
-
-  getScheduledCount(): number {
-    return this.getCountByPredicate(this.allPromotions, p => this.getPromotionStatus(p) === 'scheduled');
-  }
-
   getPromotionStatus(promotion: Promotion): 'active' | 'expired' | 'scheduled' | 'inactive' {
     if (!promotion.is_active) return 'inactive';
 
@@ -109,7 +102,7 @@ export class AdminPromotionsComponent extends BaseAdminListComponent implements 
   // === Abstract method implementations ===
 
   updatePaginatedItems(): void {
-    this.paginatedPromotions = this.promotions.slice(this.first, this.first + this.rows);
+    this.paginatedPromotions.set(this.promotions().slice(this.first, this.first + this.rows));
   }
 
   getSearchDebounceKey(): string {
@@ -118,25 +111,29 @@ export class AdminPromotionsComponent extends BaseAdminListComponent implements 
 
   // === Data loading ===
 
-  loadAllPromotions() {
+  loadAllPromotions(): void {
     this.loading = true;
-    this.promotionService.getAllPromotions().subscribe({
-      next: (promotions) => {
-        this.allPromotions = promotions;
-        this.promotions = promotions;
-        this.updatePaginatedItems();
-        this.loading = false;
-        setTimeout(() => this.tableInitialized.set(true), 100);
-      },
-      error: () => {
-        this.loading = false;
-        this.baseToast.showError('admin.promotions.load_error');
-      }
-    });
+    this.promotionService.getAllPromotions()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (promotions) => {
+          this.allPromotions.set(promotions);
+          this.promotions.set(promotions);
+          this.updatePaginatedItems();
+          this.loading = false;
+          setTimeout(() => this.tableInitialized.set(true), 100);
+        },
+        error: () => {
+          this.allPromotions.set([]);
+          this.promotions.set([]);
+          this.loading = false;
+          this.baseToast.showError('admin.promotions.load_error');
+        }
+      });
   }
 
   filterItems(): void {
-    let filtered = [...this.allPromotions];
+    let filtered = [...this.allPromotions()];
 
     // Status filter (custom for promotions: active/expired/scheduled)
     if (this.statusFilter !== 'all') {
@@ -152,7 +149,7 @@ export class AdminPromotionsComponent extends BaseAdminListComponent implements 
       );
     }
 
-    this.promotions = filtered;
+    this.promotions.set(filtered);
     this.resetPagination();
     this.updatePaginatedItems();
   }
@@ -165,8 +162,8 @@ export class AdminPromotionsComponent extends BaseAdminListComponent implements 
   }
 
   toggleFullscreen(): void {
-    this.isFullscreen = !this.isFullscreen;
-    if (this.isFullscreen) {
+    this.isFullscreen.update(v => !v);
+    if (this.isFullscreen()) {
       document.body.classList.add('fullscreen-active');
       document.body.style.overflow = 'hidden';
     } else {
@@ -191,15 +188,19 @@ export class AdminPromotionsComponent extends BaseAdminListComponent implements 
     );
   }
 
-  deletePromotion(promotion: Promotion) {
-    this.handleDelete(
-      () => this.promotionService.deletePromotion(promotion.id),
-      this.allPromotions,
-      promotion.id,
-      (updated) => { this.allPromotions = updated; },
-      'admin.promotions.delete_success',
-      'admin.promotions.delete_failed'
-    );
+  deletePromotion(promotion: Promotion): void {
+    this.promotionService.deletePromotion(promotion.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.allPromotions.update(promos => promos.filter(p => p.id !== promotion.id));
+          this.filterItems();
+          this.baseToast.showSuccess('admin.promotions.delete_success');
+        },
+        error: (error) => {
+          this.baseToast.showApiError(error, 'admin.promotions.delete_failed');
+        }
+      });
   }
 
   refreshPromotionData() {

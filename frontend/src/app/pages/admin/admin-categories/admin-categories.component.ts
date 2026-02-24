@@ -1,5 +1,6 @@
 // src/app/pages/admin/admin-categories/admin-categories.component.ts
-import { Component, OnInit, inject, DestroyRef, signal } from '@angular/core';
+import { Component, OnInit, inject, DestroyRef, signal, computed } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ConfirmationService } from 'primeng/api';
 import { PopoverModule } from 'primeng/popover';
 import { TranslateService } from '@ngx-translate/core';
@@ -29,15 +30,21 @@ import { BaseAdminListComponent, ColumnOption } from '../../../shared/base/base-
   styleUrl: './admin-categories.component.scss'
 })
 export class AdminCategoriesComponent extends BaseAdminListComponent implements OnInit {
-  allCategories: Category[] = [];
-  categories: Category[] = [];
-  paginatedCategories: Category[] = [];
+  // Data signals
+  allCategories = signal<Category[]>([]);
+  categories = signal<Category[]>([]);
+  paginatedCategories = signal<Category[]>([]);
 
-  // Animation state
+  // Product counts per category
+  categoryProductCounts = signal<{ [categoryId: number]: number }>({});
+
+  // Computed counts
+  activeCount = computed(() => this.allCategories().filter(c => c.is_active).length);
+  inactiveCount = computed(() => this.allCategories().filter(c => !c.is_active).length);
+
+  // UI state signals
+  isFullscreen = signal(false);
   tableInitialized = signal(false);
-
-  // Fullscreen mode
-  isFullscreen = false;
 
   // Skeleton configuration
   skeletonColumns: SkeletonColumn[] = [
@@ -59,9 +66,6 @@ export class AdminCategoriesComponent extends BaseAdminListComponent implements 
     { field: 'actions', label: 'admin.categories.table.actions', visible: true }
   ];
 
-  // Store product counts for each category
-  categoryProductCounts: { [categoryId: number]: number } = {};
-
   // Inline editing state
   statusEdit = new InlineEditState<boolean>(true);
 
@@ -82,31 +86,46 @@ export class AdminCategoriesComponent extends BaseAdminListComponent implements 
     return !!(this.searchQuery?.trim()) || this.statusFilter !== 'all';
   }
 
-  loadAllCategories() {
+  loadAllCategories(): void {
     this.loading = true;
-    this.productService.getCategories(false).subscribe({
-      next: (categories) => {
-        this.allCategories = categories;
-        this.categories = categories;
-        this.loadProductCounts();
-        this.updatePaginatedItems();
-        this.loading = false;
-        setTimeout(() => this.tableInitialized.set(true), 100);
-      },
-      error: () => {
-        this.loading = false;
-        this.baseToast.showError('admin.categories.load_error');
-      }
-    });
+    this.productService.getCategories(false)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (categories) => {
+          this.allCategories.set(categories);
+          this.categories.set(categories);
+          this.loadProductCounts();
+          this.updatePaginatedItems();
+          this.loading = false;
+          setTimeout(() => this.tableInitialized.set(true), 100);
+        },
+        error: () => {
+          this.allCategories.set([]);
+          this.categories.set([]);
+          this.loading = false;
+          this.baseToast.showError('admin.categories.load_error');
+        }
+      });
   }
 
-  loadProductCounts() {
-    this.allCategories.forEach(category => {
-      this.loadDataSilent(
-        () => this.productService.getProductsByCategory(category.id, false),
-        (products) => { this.categoryProductCounts[category.id] = products.length; },
-        () => { this.categoryProductCounts[category.id] = 0; }
-      );
+  loadProductCounts(): void {
+    this.allCategories().forEach(category => {
+      this.productService.getProductsByCategory(category.id, false)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (products) => {
+            this.categoryProductCounts.update(counts => ({
+              ...counts,
+              [category.id]: products.length
+            }));
+          },
+          error: () => {
+            this.categoryProductCounts.update(counts => ({
+              ...counts,
+              [category.id]: 0
+            }));
+          }
+        });
     });
   }
 
@@ -114,7 +133,7 @@ export class AdminCategoriesComponent extends BaseAdminListComponent implements 
 
   filterItems(): void {
     // Apply status filter using base class helper
-    let filtered = this.filterByActiveStatus(this.allCategories);
+    let filtered = this.filterByActiveStatus(this.allCategories());
 
     // Apply search filter
     if (this.hasSearchQuery()) {
@@ -125,13 +144,13 @@ export class AdminCategoriesComponent extends BaseAdminListComponent implements 
       );
     }
 
-    this.categories = filtered;
+    this.categories.set(filtered);
     this.resetPagination();
     this.updatePaginatedItems();
   }
 
   updatePaginatedItems(): void {
-    this.paginatedCategories = this.categories.slice(this.first, this.first + this.rows);
+    this.paginatedCategories.set(this.categories().slice(this.first, this.first + this.rows));
   }
 
   getSearchDebounceKey(): string {
@@ -147,8 +166,8 @@ export class AdminCategoriesComponent extends BaseAdminListComponent implements 
   }
 
   toggleFullscreen(): void {
-    this.isFullscreen = !this.isFullscreen;
-    if (this.isFullscreen) {
+    this.isFullscreen.update(v => !v);
+    if (this.isFullscreen()) {
       document.body.classList.add('fullscreen-active');
       document.body.style.overflow = 'hidden';
     } else {
@@ -173,15 +192,19 @@ export class AdminCategoriesComponent extends BaseAdminListComponent implements 
     );
   }
 
-  deleteCategory(category: Category) {
-    this.handleDelete(
-      () => this.productService.deleteCategory(category.id),
-      this.allCategories,
-      category.id,
-      (updated) => { this.allCategories = updated; },
-      'admin.categories.delete_success',
-      'admin.categories.delete_failed'
-    );
+  deleteCategory(category: Category): void {
+    this.productService.deleteCategory(category.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.allCategories.update(cats => cats.filter(c => c.id !== category.id));
+          this.filterItems();
+          this.baseToast.showSuccess('admin.categories.delete_success');
+        },
+        error: (error) => {
+          this.baseToast.showApiError(error, 'admin.categories.delete_failed');
+        }
+      });
   }
 
   refreshCategoryData() {
@@ -213,18 +236,22 @@ export class AdminCategoriesComponent extends BaseAdminListComponent implements 
     }
 
     const newStatus = this.statusEdit.value;
-
-    this.handleInlineUpdate(
-      () => this.productService.updateCategory(category.id, { is_active: newStatus }),
-      this.allCategories,
-      this.categories,
-      category.id,
-      'is_active',
-      newStatus,
-      newStatus ? 'admin.categories.status_activated' : 'admin.categories.status_deactivated',
-      'admin.categories.status_update_failed',
-      () => this.statusEdit.cancel()
-    );
+    this.productService.updateCategory(category.id, { is_active: newStatus })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.allCategories.update(cats =>
+            cats.map(c => c.id === category.id ? { ...c, is_active: newStatus } : c)
+          );
+          this.filterItems();
+          this.statusEdit.cancel();
+          this.baseToast.showSuccess(newStatus ? 'admin.categories.status_activated' : 'admin.categories.status_deactivated');
+        },
+        error: (error) => {
+          this.statusEdit.cancel();
+          this.baseToast.showApiError(error, 'admin.categories.status_update_failed');
+        }
+      });
   }
 
   onImageError(event: Event): void {
@@ -234,7 +261,7 @@ export class AdminCategoriesComponent extends BaseAdminListComponent implements 
   }
 
   getCategoryProductCount(categoryId: number): number {
-    return this.categoryProductCounts[categoryId] || 0;
+    return this.categoryProductCounts()[categoryId] || 0;
   }
 
   getCategoryName(category: Category): string {
@@ -243,13 +270,5 @@ export class AdminCategoriesComponent extends BaseAdminListComponent implements 
 
   getCategoryDescription(category: Category): string {
     return this.translationHelper.getCategoryDescription(category);
-  }
-
-  getActiveCount(): number {
-    return this.getCountByPredicate(this.allCategories, c => c.is_active);
-  }
-
-  getInactiveCount(): number {
-    return this.getCountByPredicate(this.allCategories, c => !c.is_active);
   }
 }

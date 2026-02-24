@@ -34,21 +34,21 @@
           [class.active]="statusFilter === 'all'"
           (click)="onStatusFilterChange('all')">
           <span>{{ 'common.all' | translate }}</span>
-          <span class="count">{{ allBrands.length }}</span>
+          <span class="count">{{ allBrands().length }}</span>
         </button>
         <button
           class="segment-control__item"
           [class.active]="statusFilter === 'active'"
           (click)="onStatusFilterChange('active')">
           <span>{{ 'common.active' | translate }}</span>
-          <span class="count active">{{ getActiveCount() }}</span>
+          <span class="count active">{{ activeCount() }}</span>
         </button>
         <button
           class="segment-control__item"
           [class.active]="statusFilter === 'inactive'"
           (click)="onStatusFilterChange('inactive')">
           <span>{{ 'common.inactive' | translate }}</span>
-          <span class="count inactive">{{ getInactiveCount() }}</span>
+          <span class="count inactive">{{ inactiveCount() }}</span>
         </button>
       </div>
 
@@ -65,7 +65,7 @@
         [rows]="6"
         [actionCount]="2"
       />
-    } @else if (brands.length === 0 && !hasActiveFilters()) {
+    } @else if (brands().length === 0 && !hasActiveFilters()) {
       <!-- Empty State - No Brands -->
       <div class="empty-state animate-item" style="--delay: 100ms;">
         <div class="empty-state__icon">
@@ -80,7 +80,7 @@
       </div>
     } @else {
       <!-- Brands Table -->
-      <div class="table-container animate-item" [class.fullscreen]="isFullscreen" style="--delay: 100ms;">
+      <div class="table-container animate-item" [class.fullscreen]="isFullscreen()" style="--delay: 100ms;">
         <div class="table-header">
           <div class="table-search">
             <div class="search-icon">
@@ -106,8 +106,8 @@
             <button class="table-action-btn refresh-btn" (click)="refreshBrandData()" [pTooltip]="'admin.brands.refresh' | translate">
               <i class="pi pi-refresh"></i>
             </button>
-            <button class="table-action-btn" (click)="toggleFullscreen()" [pTooltip]="(isFullscreen ? 'common.exit_fullscreen' : 'common.fullscreen') | translate">
-              <i [class]="isFullscreen ? 'pi pi-window-minimize' : 'pi pi-window-maximize'"></i>
+            <button class="table-action-btn" (click)="toggleFullscreen()" [pTooltip]="(isFullscreen() ? 'common.exit_fullscreen' : 'common.fullscreen') | translate">
+              <i [class]="isFullscreen() ? 'pi pi-window-minimize' : 'pi pi-window-maximize'"></i>
             </button>
             <button class="table-action-btn" (click)="tableOptionsMenu.toggle($event)" [pTooltip]="'admin.brands.table_options' | translate" tooltipPosition="left">
               <i class="pi pi-ellipsis-v"></i>
@@ -147,7 +147,7 @@
           </div>
         </div>
 
-        @if (brands.length === 0) {
+        @if (brands().length === 0) {
           <!-- Empty State - No Match -->
           <div class="empty-state">
             <div class="empty-state__icon empty-state__icon--warning">
@@ -174,7 +174,7 @@
                 </tr>
               </thead>
               <tbody>
-                @for (brand of paginatedBrands; track brand.id; let i = $index) {
+                @for (brand of paginatedBrands(); track brand.id; let i = $index) {
                   <tr class="table-row-animate" [style.--row-delay]="(i * 40) + 'ms'">
                     <!-- Logo -->
                     @if (isColumnVisible('logo')) {
@@ -272,12 +272,12 @@
           </div>
 
           <!-- Pagination -->
-          @if (brands.length > rows) {
+          @if (brands().length > rows) {
             <div class="table-footer">
               <p-paginator
                 [first]="first"
                 [rows]="rows"
-                [totalRecords]="brands.length"
+                [totalRecords]="brands().length"
                 (onPageChange)="onPageChange($event)"
                 [showCurrentPageReport]="true"
                 currentPageReportTemplate="{{ 'admin.brands.showing' | translate }} {first} - {last} {{ 'admin.brands.of' | translate }} {totalRecords}"
@@ -286,9 +286,9 @@
           }
 
           <!-- Results Info -->
-          @if (brands.length <= rows) {
+          @if (brands().length <= rows) {
             <div class="table-footer results-info">
-              <span>{{ 'admin.brands.showing' | translate }} {{ brands.length }} {{ 'admin.brands.of' | translate }} {{ allBrands.length }} {{ 'admin.brands.brands' | translate }}</span>
+              <span>{{ 'admin.brands.showing' | translate }} {{ brands().length }} {{ 'admin.brands.of' | translate }} {{ allBrands().length }} {{ 'admin.brands.brands' | translate }}</span>
             </div>
           }
         }
