@@ -2,7 +2,7 @@
 import { Component, OnInit, inject, signal, computed, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
-import { forkJoin, delay } from 'rxjs';
+import { forkJoin } from 'rxjs';
 
 import { ToastModule } from 'primeng/toast';
 import { SelectModule } from 'primeng/select';
@@ -96,17 +96,15 @@ export class AdminNotificationsComponent implements OnInit {
 
   // Wizard/Carousel state
   currentStep = signal(1);
-  totalSteps = 5;
+  totalSteps = 4; // Step 5 is success (not shown in stepper)
   steps = [
     { step: 1, icon: 'pi-users', titleKey: 'admin.notifications.audience.title' },
     { step: 2, icon: 'pi-tag', titleKey: 'admin.notifications.content.type_label' },
     { step: 3, icon: 'pi-file-edit', titleKey: 'admin.notifications.content.title' },
-    { step: 4, icon: 'pi-clock', titleKey: 'admin.notifications.schedule.title' },
-    { step: 5, icon: 'pi-check-circle', titleKey: 'admin.notifications.success.title' }
+    { step: 4, icon: 'pi-clock', titleKey: 'admin.notifications.schedule.title' }
   ];
 
   // Success state
-  showSuccess = signal(false);
   sentResult = signal<{
     sent: number;
     failed: number;
@@ -252,10 +250,7 @@ export class AdminNotificationsComponent implements OnInit {
       categories: this.notificationService.getCategories(),
       brands: this.notificationService.getBrands()
     })
-    .pipe(
-      delay(2000), // TODO: Remove - testing skeleton
-      takeUntilDestroyed(this.destroyRef)
-    )
+    .pipe(takeUntilDestroyed(this.destroyRef))
     .subscribe({
       next: (data) => {
         this.segments.set(data.segments);
@@ -496,7 +491,6 @@ export class AdminNotificationsComponent implements OnInit {
             recipientCount: this.recipientCount()
           });
           // Go to success step
-          this.showSuccess.set(true);
           this.currentStep.set(5);
           this.loadData(); // Refresh history
         },
@@ -590,7 +584,6 @@ export class AdminNotificationsComponent implements OnInit {
   // Reset and start new notification
   startNewNotification() {
     this.clearContent();
-    this.showSuccess.set(false);
     this.sentResult.set(null);
     this.currentStep.set(1);
     this.selectedSegment.set('all');

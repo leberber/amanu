@@ -337,3 +337,41 @@
 .fill-forwards { animation-fill-mode: forwards; }
 .fill-backwards { animation-fill-mode: backwards; }
 .fill-both { animation-fill-mode: both; }
+
+
+// =============================================================================
+// 12. SUCCESS ANIMATIONS
+// =============================================================================
+
+@keyframes successPulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 8px 32px rgba(var(--color-success-rgb), 0.4);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 12px 48px rgba(var(--color-success-rgb), 0.5);
+  }
+}
+
+@keyframes successCheck {
+  0% {
+    transform: scale(0) rotate(-45deg);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2) rotate(0deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+.animate-success-pulse {
+  animation: successPulse 2s ease-in-out infinite;
+}
+
+.animate-success-check {
+  animation: successCheck 0.5s ease-out forwards;
+}

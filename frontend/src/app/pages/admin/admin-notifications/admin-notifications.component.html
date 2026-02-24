@@ -134,7 +134,7 @@
           @if (currentStep() < 5) {
             <div class="form-wizard__header">
               <div class="stepper-horizontal">
-                @for (step of steps.slice(0, 4); track step.step) {
+                @for (step of steps; track step.step) {
                   <div
                     class="stepper-horizontal__step"
                     [class.stepper-horizontal__step--active]="currentStep() === step.step"
@@ -721,90 +721,130 @@
 
             <!-- Step 5: Success -->
             @if (currentStep() === 5 && sentResult()) {
-              <div class="success-step">
-                <!-- Success Animation -->
-                <div class="success-step__animation">
-                  <div class="success-step__circle">
-                    <i class="pi pi-check"></i>
-                  </div>
-                </div>
-
-                <!-- Success Message -->
-                <div class="success-step__content">
-                  <h2 class="success-step__title">
-                    @if (sentResult()?.scheduled) {
-                      {{ 'admin.notifications.success.scheduled_title' | translate }}
-                    } @else {
-                      {{ 'admin.notifications.success.sent_title' | translate }}
-                    }
-                  </h2>
-                  <p class="success-step__subtitle">
-                    @if (sentResult()?.scheduled) {
-                      {{ 'admin.notifications.success.scheduled_subtitle' | translate }}
-                    } @else {
-                      {{ 'admin.notifications.success.sent_subtitle' | translate:{ count: sentResult()?.sent } }}
-                    }
-                  </p>
-                </div>
-
-                <!-- Notification Details Card -->
-                <div class="success-step__details">
-                  <div class="success-detail-card">
-                    <div class="success-detail-card__header">
-                      <i class="pi pi-bell"></i>
-                      <span>{{ 'admin.notifications.success.details' | translate }}</span>
+              <div class="grid-2-col grid-2-col--gap-lg">
+                <!-- Left: Success Info -->
+                <div class="flex flex-column gap-6">
+                  <!-- Success Banner -->
+                  <div class="success-banner">
+                    <div class="success-banner__icon">
+                      <i class="pi pi-check"></i>
                     </div>
-                    <div class="success-detail-card__body">
-                      <!-- Notification Content -->
-                      <div class="success-detail-item">
-                        <span class="success-detail-item__label">{{ 'admin.notifications.content.title_fr' | translate }}</span>
-                        <span class="success-detail-item__value">{{ sentResult()?.titleFr }}</span>
-                      </div>
-                      <div class="success-detail-item">
-                        <span class="success-detail-item__label">{{ 'admin.notifications.content.body_fr' | translate }}</span>
-                        <span class="success-detail-item__value">{{ sentResult()?.bodyFr }}</span>
-                      </div>
-
-                      <!-- Stats Row -->
-                      <div class="success-detail-stats">
-                        <div class="success-stat success-stat--primary">
-                          <i class="pi pi-users"></i>
-                          <span class="success-stat__value">{{ sentResult()?.recipientCount }}</span>
-                          <span class="success-stat__label">{{ 'admin.notifications.success.recipients' | translate }}</span>
-                        </div>
-                        <div class="success-stat success-stat--success">
-                          <i class="pi pi-check-circle"></i>
-                          <span class="success-stat__value">{{ sentResult()?.sent }}</span>
-                          <span class="success-stat__label">{{ 'admin.notifications.success.delivered' | translate }}</span>
-                        </div>
-                        @if (sentResult()?.failed && sentResult()!.failed > 0) {
-                          <div class="success-stat success-stat--danger">
-                            <i class="pi pi-times-circle"></i>
-                            <span class="success-stat__value">{{ sentResult()?.failed }}</span>
-                            <span class="success-stat__label">{{ 'admin.notifications.success.failed' | translate }}</span>
-                          </div>
+                    <div class="success-banner__content">
+                      <h2 class="success-banner__title">
+                        @if (sentResult()?.scheduled) {
+                          {{ 'admin.notifications.success.scheduled_title' | translate }}
+                        } @else {
+                          {{ 'admin.notifications.success.sent_title' | translate }}
                         }
+                      </h2>
+                      <p class="success-banner__subtitle">
+                        @if (sentResult()?.scheduled) {
+                          {{ 'admin.notifications.success.scheduled_subtitle' | translate }}
+                        } @else {
+                          {{ 'admin.notifications.success.sent_subtitle' | translate:{ count: sentResult()?.sent } }}
+                        }
+                      </p>
+                    </div>
+                  </div>
+
+                  <!-- Stats Cards -->
+                  <div class="stats-grid stats-grid--compact">
+                    <div class="stat-card stat-card--compact">
+                      <div class="stat-card__content">
+                        <div class="stat-card__value">
+                          <div class="stat-card__icon stat-card__icon--primary">
+                            <i class="pi pi-users"></i>
+                          </div>
+                          {{ sentResult()?.recipientCount }}
+                        </div>
+                        <span class="stat-card__label">{{ 'admin.notifications.success.recipients' | translate }}</span>
+                      </div>
+                    </div>
+                    <div class="stat-card stat-card--compact">
+                      <div class="stat-card__content">
+                        <div class="stat-card__value">
+                          <div class="stat-card__icon stat-card__icon--success">
+                            <i class="pi pi-send"></i>
+                          </div>
+                          {{ sentResult()?.sent }}
+                        </div>
+                        <span class="stat-card__label">{{ 'admin.notifications.success.delivered' | translate }}</span>
+                      </div>
+                    </div>
+                    @if (sentResult()?.failed && sentResult()!.failed > 0) {
+                      <div class="stat-card stat-card--compact">
+                        <div class="stat-card__content">
+                          <div class="stat-card__value">
+                            <div class="stat-card__icon stat-card__icon--red">
+                              <i class="pi pi-times"></i>
+                            </div>
+                            {{ sentResult()?.failed }}
+                          </div>
+                          <span class="stat-card__label">{{ 'admin.notifications.success.failed' | translate }}</span>
+                        </div>
+                      </div>
+                    }
+                  </div>
+
+                  <!-- Notification Summary -->
+                  <div class="options-card">
+                    <div class="options-card__header">
+                      <h4 class="options-card__title m-0">
+                        <i class="pi pi-bell"></i>
+                        {{ 'admin.notifications.success.details' | translate }}
+                      </h4>
+                    </div>
+                    <div class="options-card__body">
+                      <div class="flex flex-column gap-4">
+                        <div class="flex flex-column gap-1">
+                          <span class="text-xs text-color-secondary uppercase font-semibold">{{ 'admin.notifications.content.title_fr' | translate }}</span>
+                          <span class="text-base font-medium">{{ sentResult()?.titleFr }}</span>
+                        </div>
+                        <div class="flex flex-column gap-1">
+                          <span class="text-xs text-color-secondary uppercase font-semibold">{{ 'admin.notifications.content.body_fr' | translate }}</span>
+                          <span class="text-base text-color-secondary">{{ sentResult()?.bodyFr }}</span>
+                        </div>
                       </div>
                     </div>
                   </div>
+
+                  <!-- Action Buttons -->
+                  <div class="flex gap-4">
+                    <button type="button" class="btn-secondary flex-1" (click)="goToHistory()">
+                      <i class="pi pi-history"></i>
+                      {{ 'admin.notifications.success.view_history' | translate }}
+                    </button>
+                    <button type="button" class="btn-add flex-1" (click)="startNewNotification()">
+                      <i class="pi pi-plus"></i>
+                      {{ 'admin.notifications.success.send_another' | translate }}
+                    </button>
+                  </div>
                 </div>
 
-                <!-- Action Buttons -->
-                <div class="success-step__actions">
-                  <button
-                    type="button"
-                    class="btn btn--outline btn--lg"
-                    (click)="goToHistory()">
-                    <i class="pi pi-history"></i>
-                    {{ 'admin.notifications.success.view_history' | translate }}
-                  </button>
-                  <button
-                    type="button"
-                    class="btn btn--primary btn--lg"
-                    (click)="startNewNotification()">
-                    <i class="pi pi-plus"></i>
-                    {{ 'admin.notifications.success.send_another' | translate }}
-                  </button>
+                <!-- Right: Phone Preview -->
+                <div class="preview-column">
+                  <div class="phone-mockup">
+                    <div class="phone-mockup__screen">
+                      <div class="phone-mockup__status-bar">
+                        <span class="phone-mockup__time">9:41</span>
+                        <div class="phone-mockup__icons">
+                          <i class="pi pi-wifi"></i>
+                          <i class="pi pi-battery-full"></i>
+                        </div>
+                      </div>
+                      <div class="phone-mockup__content">
+                        <div class="notification-preview">
+                          <div class="notification-preview__main">
+                            <img src="/app-icon.png" class="notification-preview__logo" alt="Elsuq">
+                            <div class="notification-preview__text">
+                              <div class="notification-preview__title">{{ sentResult()?.titleFr }}</div>
+                              <div class="notification-preview__message">{{ sentResult()?.bodyFr }}</div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             }
