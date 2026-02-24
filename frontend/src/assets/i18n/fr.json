@@ -812,6 +812,7 @@
       "subtitle": "Gérer les utilisateurs du système et leurs permissions",
       "refresh": "Actualiser",
       "export": "Exporter",
+      "add_user": "Ajouter Utilisateur",
       "create_new": "Créer Nouvel Utilisateur",
       "create_user": "Créer Utilisateur",
       "search_placeholder": "Rechercher des utilisateurs...",

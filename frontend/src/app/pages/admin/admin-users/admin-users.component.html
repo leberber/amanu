@@ -26,46 +26,71 @@
       </div>
     </div>
 
-    <!-- Role Segmented Control Row -->
+    <!-- Segmented Controls Row -->
     <div class="flex align-items-center justify-content-between gap-3 flex-wrap mb-4 animate-item" style="--delay: 50ms;">
-      <div class="segment-control segment-control--glass">
-        <button
-          class="segment-control__item"
-          [class.active]="roleFilter === 'all'"
-          (click)="onRoleFilterChange('all')">
-          <span>{{ 'common.all' | translate }}</span>
-          <span class="count">{{ allUsers.length }}</span>
-        </button>
-        <button
-          class="segment-control__item"
-          [class.active]="roleFilter === 'customer'"
-          (click)="onRoleFilterChange('customer')">
-          <span>{{ 'admin.users.roles.customer' | translate }}</span>
-          <span class="count">{{ getCustomerCount() }}</span>
-        </button>
-        <button
-          class="segment-control__item"
-          [class.active]="roleFilter === 'staff'"
-          (click)="onRoleFilterChange('staff')">
-          <span>{{ 'admin.users.roles.staff' | translate }}</span>
-          <span class="count">{{ getStaffCount() }}</span>
-        </button>
-        <button
-          class="segment-control__item"
-          [class.active]="roleFilter === 'admin'"
-          (click)="onRoleFilterChange('admin')">
-          <span>{{ 'admin.users.roles.admin' | translate }}</span>
-          <span class="count">{{ getAdminCount() }}</span>
-        </button>
+      <div class="flex align-items-center gap-3 flex-wrap">
+        <!-- Role Segment Control -->
+        <div class="segment-control segment-control--glass">
+          <button
+            class="segment-control__item"
+            [class.active]="roleFilter === 'all'"
+            (click)="onRoleFilterChange('all')">
+            <span>{{ 'common.all' | translate }}</span>
+            <span class="count">{{ allUsers.length }}</span>
+          </button>
+          <button
+            class="segment-control__item"
+            [class.active]="roleFilter === 'customer'"
+            (click)="onRoleFilterChange('customer')">
+            <span>{{ 'admin.users.roles.customer' | translate }}</span>
+            <span class="count">{{ getCustomerCount() }}</span>
+          </button>
+          <button
+            class="segment-control__item"
+            [class.active]="roleFilter === 'staff'"
+            (click)="onRoleFilterChange('staff')">
+            <span>{{ 'admin.users.roles.staff' | translate }}</span>
+            <span class="count">{{ getStaffCount() }}</span>
+          </button>
+          <button
+            class="segment-control__item"
+            [class.active]="roleFilter === 'admin'"
+            (click)="onRoleFilterChange('admin')">
+            <span>{{ 'admin.users.roles.admin' | translate }}</span>
+            <span class="count">{{ getAdminCount() }}</span>
+          </button>
+        </div>
+
+        <!-- Status Segment Control -->
+        <div class="segment-control segment-control--glass">
+          <button
+            class="segment-control__item"
+            [class.active]="statusFilter === 'all'"
+            (click)="onStatusFilterChange('all')">
+            <span>{{ 'common.all' | translate }}</span>
+            <span class="count">{{ allUsers.length }}</span>
+          </button>
+          <button
+            class="segment-control__item"
+            [class.active]="statusFilter === 'active'"
+            (click)="onStatusFilterChange('active')">
+            <span>{{ 'common.active' | translate }}</span>
+            <span class="count active">{{ getActiveCount() }}</span>
+          </button>
+          <button
+            class="segment-control__item"
+            [class.active]="statusFilter === 'inactive'"
+            (click)="onStatusFilterChange('inactive')">
+            <span>{{ 'common.inactive' | translate }}</span>
+            <span class="count inactive">{{ getInactiveCount() }}</span>
+          </button>
+        </div>
       </div>
-      <div class="table-actions">
-        <button class="table-action-btn" (click)="refreshUserData()" [disabled]="loading" [pTooltip]="'admin.users.refresh' | translate">
-          <i class="pi pi-refresh" [class.pi-spin]="loading"></i>
-        </button>
-        <button class="table-action-btn" (click)="exportUsers()" [pTooltip]="'admin.users.export' | translate">
-          <i class="pi pi-download"></i>
-        </button>
-      </div>
+
+      <button class="btn-add" (click)="createNewUser()">
+        <i class="pi pi-plus"></i>
+        <span>{{ 'admin.users.add_user' | translate }}</span>
+      </button>
     </div>
 
     <!-- Loading State - Skeleton Table -->
@@ -86,7 +111,7 @@
       </div>
     } @else {
       <!-- Users Table -->
-      <div class="table-container animate-item" style="--delay: 100ms;">
+      <div class="table-container animate-item" [class.fullscreen]="isFullscreen" style="--delay: 100ms;">
         <div class="table-header">
           <div class="table-search">
             <div class="search-icon">
@@ -109,6 +134,33 @@
                 <i class="pi pi-filter-slash"></i>
               </button>
             }
+            <button class="table-action-btn refresh-btn" (click)="refreshUserData()" [pTooltip]="'admin.users.refresh' | translate">
+              <i class="pi pi-refresh"></i>
+            </button>
+            <button class="table-action-btn" (click)="toggleFullscreen()" [pTooltip]="(isFullscreen ? 'common.exit_fullscreen' : 'common.fullscreen') | translate">
+              <i [class]="isFullscreen ? 'pi pi-window-minimize' : 'pi pi-window-maximize'"></i>
+            </button>
+            <button class="table-action-btn" (click)="tableOptionsMenu.toggle($event)" [pTooltip]="'admin.users.table_options' | translate">
+              <i class="pi pi-ellipsis-v"></i>
+            </button>
+            <p-popover #tableOptionsMenu>
+              <div class="table-options-menu">
+                <div class="table-options-section">
+                  <span class="table-options-label">{{ 'admin.users.visible_columns' | translate }}</span>
+                  <div class="table-options-columns">
+                    @for (col of columnOptions; track col.field) {
+                      <label class="column-toggle">
+                        <input
+                          type="checkbox"
+                          [checked]="col.visible"
+                          (change)="toggleColumn(col.field)">
+                        <span>{{ col.label | translate }}</span>
+                      </label>
+                    }
+                  </div>
+                </div>
+              </div>
+            </p-popover>
           </div>
         </div>
 
@@ -130,113 +182,125 @@
             <table class="table">
               <thead>
                 <tr>
-                  <th style="width: 8%" class="text-center">{{ 'admin.users.table.id' | translate }}</th>
-                  <th style="width: 30%">{{ 'admin.users.table.user_details' | translate }}</th>
-                  <th style="width: 15%" class="text-center">{{ 'admin.users.table.role' | translate }}</th>
-                  <th style="width: 15%" class="text-center">{{ 'admin.users.table.status' | translate }}</th>
-                  <th style="width: 15%" class="text-center">{{ 'admin.users.table.created' | translate }}</th>
-                  <th style="width: 17%" class="text-center">{{ 'admin.users.table.actions' | translate }}</th>
+                  @if (isColumnVisible('id')) { <th style="width: 8%" class="text-center">{{ 'admin.users.table.id' | translate }}</th> }
+                  @if (isColumnVisible('details')) { <th style="width: 30%">{{ 'admin.users.table.user_details' | translate }}</th> }
+                  @if (isColumnVisible('role')) { <th style="width: 15%" class="text-center">{{ 'admin.users.table.role' | translate }}</th> }
+                  @if (isColumnVisible('status')) { <th style="width: 15%" class="text-center">{{ 'admin.users.table.status' | translate }}</th> }
+                  @if (isColumnVisible('created')) { <th style="width: 15%" class="text-center">{{ 'admin.users.table.created' | translate }}</th> }
+                  @if (isColumnVisible('actions')) { <th style="width: 17%" class="text-center">{{ 'admin.users.table.actions' | translate }}</th> }
                 </tr>
               </thead>
               <tbody>
                 @for (user of users; track user.id; let i = $index) {
                   <tr class="table-row-animate" [style.--row-delay]="(i * 40) + 'ms'">
                     <!-- ID -->
-                    <td class="text-center">
-                      <span class="id-badge">{{ user.id }}</span>
-                    </td>
+                    @if (isColumnVisible('id')) {
+                      <td class="text-center">
+                        <span class="id-badge">{{ user.id }}</span>
+                      </td>
+                    }
 
                     <!-- User Details -->
-                    <td>
-                      <div class="flex align-items-center gap-3">
-                        <div class="avatar">
-                          {{ user.full_name.charAt(0).toUpperCase() }}
-                        </div>
-                        <div class="info-display">
-                          <span class="info-display__name">{{ user.full_name }}</span>
-                          <span class="info-display__email">{{ user.email }}</span>
-                          @if (user.phone) {
-                            <span class="info-display__tertiary">{{ user.phone }}</span>
-                          }
-                        </div>
-                      </div>
-                    </td>
-
-                    <!-- Role Column - Inline Editable -->
-                    <td class="text-center">
-                      @if (!isEditingRole(user.id)) {
-                        <div class="editable-cell" (click)="startEditRole(user)">
-                          <span class="role-badge" [ngClass]="user.role">
-                            {{ getRoleLabel(user.role) }}
-                          </span>
-                          <i class="pi pi-pencil editable-cell__icon"></i>
-                        </div>
-                      } @else {
-                        <div class="cell-edit justify-content-center">
-                          <p-select
-                            [(ngModel)]="roleEdit.value"
-                            [options]="roleOptions"
-                            optionLabel="label"
-                            optionValue="value"
-                            [style]="{'width': '120px'}"
-                          />
-                          <button class="cell-edit__btn cell-edit__btn--save" (click)="saveRole(user)">
-                            <i class="pi pi-check"></i>
-                          </button>
-                          <button class="cell-edit__btn cell-edit__btn--cancel" (click)="cancelEditRole()">
-                            <i class="pi pi-times"></i>
-                          </button>
-                        </div>
-                      }
-                    </td>
-
-                    <!-- Status Column - Inline Editable -->
-                    <td class="text-center">
-                      @if (!isEditingStatus(user.id)) {
-                        <div class="status-toggle justify-content-center" [class.status-toggle--active]="user.is_active" (click)="startEditStatus(user)">
-                          <span class="status-toggle__label">
-                            {{ user.is_active ? ('admin.users.status.active' | translate) : ('admin.users.status.inactive' | translate) }}
-                          </span>
-                          <div class="status-toggle__track">
-                            <div class="status-toggle__thumb"></div>
+                    @if (isColumnVisible('details')) {
+                      <td>
+                        <div class="flex align-items-center gap-3">
+                          <div class="avatar">
+                            {{ user.full_name.charAt(0).toUpperCase() }}
+                          </div>
+                          <div class="info-display">
+                            <span class="info-display__name">{{ user.full_name }}</span>
+                            <span class="info-display__email">{{ user.email }}</span>
+                            @if (user.phone) {
+                              <span class="info-display__tertiary">{{ user.phone }}</span>
+                            }
                           </div>
                         </div>
-                      } @else {
-                        <div class="cell-edit justify-content-center">
-                          <div class="status-toggle" [class.status-toggle--active]="statusEdit.value" (click)="toggleEditingStatus()">
+                      </td>
+                    }
+
+                    <!-- Role Column - Inline Editable -->
+                    @if (isColumnVisible('role')) {
+                      <td class="text-center">
+                        @if (!isEditingRole(user.id)) {
+                          <div class="editable-cell" (click)="startEditRole(user)">
+                            <span class="role-badge" [ngClass]="user.role">
+                              {{ getRoleLabel(user.role) }}
+                            </span>
+                            <i class="pi pi-pencil editable-cell__icon"></i>
+                          </div>
+                        } @else {
+                          <div class="cell-edit justify-content-center">
+                            <p-select
+                              [(ngModel)]="roleEdit.value"
+                              [options]="roleOptions"
+                              optionLabel="label"
+                              optionValue="value"
+                              [style]="{'width': '120px'}"
+                            />
+                            <button class="cell-edit__btn cell-edit__btn--save" (click)="saveRole(user)">
+                              <i class="pi pi-check"></i>
+                            </button>
+                            <button class="cell-edit__btn cell-edit__btn--cancel" (click)="cancelEditRole()">
+                              <i class="pi pi-times"></i>
+                            </button>
+                          </div>
+                        }
+                      </td>
+                    }
+
+                    <!-- Status Column - Inline Editable -->
+                    @if (isColumnVisible('status')) {
+                      <td class="text-center">
+                        @if (!isEditingStatus(user.id)) {
+                          <div class="status-toggle justify-content-center" [class.status-toggle--active]="user.is_active" (click)="startEditStatus(user)">
                             <span class="status-toggle__label">
-                              {{ statusEdit.value ? ('admin.users.status.active' | translate) : ('admin.users.status.inactive' | translate) }}
+                              {{ user.is_active ? ('admin.users.status.active' | translate) : ('admin.users.status.inactive' | translate) }}
                             </span>
                             <div class="status-toggle__track">
                               <div class="status-toggle__thumb"></div>
                             </div>
                           </div>
-                          <button class="cell-edit__btn cell-edit__btn--save" (click)="saveStatus(user)">
-                            <i class="pi pi-check"></i>
-                          </button>
-                          <button class="cell-edit__btn cell-edit__btn--cancel" (click)="cancelEditStatus()">
-                            <i class="pi pi-times"></i>
-                          </button>
-                        </div>
-                      }
-                    </td>
+                        } @else {
+                          <div class="cell-edit justify-content-center">
+                            <div class="status-toggle" [class.status-toggle--active]="statusEdit.value" (click)="toggleEditingStatus()">
+                              <span class="status-toggle__label">
+                                {{ statusEdit.value ? ('admin.users.status.active' | translate) : ('admin.users.status.inactive' | translate) }}
+                              </span>
+                              <div class="status-toggle__track">
+                                <div class="status-toggle__thumb"></div>
+                              </div>
+                            </div>
+                            <button class="cell-edit__btn cell-edit__btn--save" (click)="saveStatus(user)">
+                              <i class="pi pi-check"></i>
+                            </button>
+                            <button class="cell-edit__btn cell-edit__btn--cancel" (click)="cancelEditStatus()">
+                              <i class="pi pi-times"></i>
+                            </button>
+                          </div>
+                        }
+                      </td>
+                    }
 
                     <!-- Created Date -->
-                    <td class="text-center">
-                      <span class="date-display">{{ user.created_at | appDate }}</span>
-                    </td>
+                    @if (isColumnVisible('created')) {
+                      <td class="text-center">
+                        <span class="date-display">{{ user.created_at | appDate }}</span>
+                      </td>
+                    }
 
                     <!-- Actions -->
-                    <td class="text-center">
-                      <div class="table-cell-actions justify-content-center">
-                        <button class="action-btn edit" (click)="navigateToEditUser(user)" [pTooltip]="'admin.users.actions.view_edit' | translate" tooltipPosition="top">
-                          <i class="pi pi-pencil"></i>
-                        </button>
-                        <button class="action-btn delete" (click)="confirmDeleteUser(user)" [pTooltip]="'admin.users.actions.delete' | translate" tooltipPosition="top">
-                          <i class="pi pi-trash"></i>
-                        </button>
-                      </div>
-                    </td>
+                    @if (isColumnVisible('actions')) {
+                      <td class="text-center">
+                        <div class="table-cell-actions justify-content-center">
+                          <button class="action-btn edit" (click)="navigateToEditUser(user)" [pTooltip]="'admin.users.actions.view_edit' | translate" tooltipPosition="top">
+                            <i class="pi pi-pencil"></i>
+                          </button>
+                          <button class="action-btn delete" (click)="confirmDeleteUser(user)" [pTooltip]="'admin.users.actions.delete' | translate" tooltipPosition="top">
+                            <i class="pi pi-trash"></i>
+                          </button>
+                        </div>
+                      </td>
+                    }
                   </tr>
                 }
               </tbody>

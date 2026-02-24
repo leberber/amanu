@@ -814,6 +814,7 @@
       "subtitle": "Manage system users and their permissions",
       "refresh": "Refresh",
       "export": "Export",
+      "add_user": "Add User",
       "create_new": "Create New User",
       "create_user": "Create User",
       "search_placeholder": "Search users...",

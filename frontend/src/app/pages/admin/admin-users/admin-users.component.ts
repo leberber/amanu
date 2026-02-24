@@ -2,6 +2,7 @@
 import { Component, OnInit, inject, DestroyRef, signal } from '@angular/core';
 import { ConfirmationService } from 'primeng/api';
 import { SelectModule } from 'primeng/select';
+import { PopoverModule } from 'primeng/popover';
 import { TranslateService } from '@ngx-translate/core';
 
 import { delay } from 'rxjs'; // TODO: Remove - for testing skeleton
@@ -12,7 +13,7 @@ import { USER_ROLES } from '../../../core/constants/app.constants';
 import { onLanguageChange } from '../../../core/utils/language-change.util';
 import { AdminService } from '../../../services/admin.service';
 import { UserManage, UsersResponse } from '../../../models/admin.model';
-import { BaseAdminListComponent } from '../../../shared/base/base-admin-list.component';
+import { BaseAdminListComponent, ColumnOption } from '../../../shared/base/base-admin-list.component';
 import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
 import { InlineEditState } from '../../../shared/utils/inline-edit-state';
 import { ConfirmationDialogService } from '../../../core/services/confirmation-dialog.service';
@@ -25,6 +26,7 @@ import { StatusSeverityService } from '../../../core/services/status-severity.se
     ...ADMIN_LIST_IMPORTS,
     ...ADMIN_DIALOG_IMPORTS,
     SelectModule,
+    PopoverModule,
     DateFormatPipe,
     TableSkeletonComponent
   ],
@@ -41,6 +43,9 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
   // Animation state
   tableInitialized = signal(false);
 
+  // Fullscreen mode
+  isFullscreen = false;
+
   // Skeleton configuration
   skeletonColumns: SkeletonColumn[] = [
     { width: '8%', type: 'pill-sm', headerWidth: '30px' },
@@ -49,6 +54,16 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
     { width: '15%', type: 'toggle', headerWidth: '60px' },
     { width: '15%', type: 'text', headerWidth: '70px' },
     { width: '17%', type: 'actions', headerWidth: '60px' }
+  ];
+
+  // Column visibility options
+  override columnOptions: ColumnOption[] = [
+    { field: 'id', label: 'admin.users.table.id', visible: true },
+    { field: 'details', label: 'admin.users.table.user_details', visible: true },
+    { field: 'role', label: 'admin.users.table.role', visible: true },
+    { field: 'status', label: 'admin.users.table.status', visible: true },
+    { field: 'created', label: 'admin.users.table.created', visible: true },
+    { field: 'actions', label: 'admin.users.table.actions', visible: true }
   ];
 
   // Role segment filter (different from status filter)
@@ -132,10 +147,20 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
     return this.getCountByPredicate(this.allUsers, u => u.role === USER_ROLES.ADMIN);
   }
 
+  // Status filter counts
+  getActiveCount(): number {
+    return this.getCountByPredicate(this.allUsers, u => u.is_active);
+  }
+
+  getInactiveCount(): number {
+    return this.getCountByPredicate(this.allUsers, u => !u.is_active);
+  }
+
   // === Abstract method implementations ===
 
   filterItems(): void {
-    let filtered = [...this.allUsers];
+    // Apply status filter (active/inactive) using base class helper
+    let filtered = this.filterByActiveStatus(this.allUsers);
 
     // Apply role filter from segment
     if (this.roleFilter !== 'all') {
@@ -167,16 +192,32 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
   // === Component-specific methods ===
 
   hasActiveFilters(): boolean {
-    return this.hasSearchQuery() || this.roleFilter !== 'all';
+    return this.hasSearchQuery() || this.roleFilter !== 'all' || this.statusFilter !== 'all';
   }
 
   override clearFilters(): void {
     this.searchQuery = '';
     this.roleFilter = 'all';
+    this.statusFilter = 'all';
     this.filterItems();
   }
 
+  toggleFullscreen(): void {
+    this.isFullscreen = !this.isFullscreen;
+    if (this.isFullscreen) {
+      document.body.classList.add('fullscreen-active');
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.classList.remove('fullscreen-active');
+      document.body.style.overflow = '';
+    }
+  }
+
   // ===== NAVIGATION =====
+
+  createNewUser(): void {
+    this.baseRouter.navigate([ROUTES.REGISTER]);
+  }
 
   navigateToEditUser(user: UserManage): void {
     this.baseRouter.navigate([ROUTES.ADMIN.USERS, user.id, 'edit']);
@@ -305,9 +346,5 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
 
   refreshUserData(): void {
     this.loadAllUsers();
-  }
-
-  exportUsers(): void {
-    this.baseToast.showInfo('admin.users.export_coming_soon');
   }
 }
