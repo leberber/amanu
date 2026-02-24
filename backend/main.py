@@ -14,6 +14,7 @@ from app.core.admin import create_admin_user
 from app.seed_data import seed_data
 from app.models.push_subscription import PushSubscription  # Register model for table creation
 from app.models.password_reset import PasswordResetToken  # Register model for table creation
+from app.models.notification_history import NotificationHistory  # Register model for table creation
 
 app = FastAPI(
     title=settings.PROJECT_NAME,

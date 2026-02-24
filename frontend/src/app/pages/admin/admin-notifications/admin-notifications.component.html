@@ -1,5 +1,5 @@
 <!-- src/app/pages/admin/admin-notifications/admin-notifications.component.html -->
-<div class="admin-page">
+<div class="admin-page" [class.initialized]="tableInitialized()">
   <!-- Background Decoration -->
   <div class="bg-decoration">
     <div class="blob blob-1"></div>
@@ -8,13 +8,43 @@
   </div>
 
   <p-toast></p-toast>
-  <div class="admin-content admin-content--form">
-    <!-- Page Header -->
-    <div class="admin-header">
-      <div class="header-content">
-        <button class="back-btn" (click)="goBack()">
-          <i class="pi pi-arrow-left"></i>
-        </button>
+  <div class="admin-content">
+    <!-- Loading State - Skeleton -->
+    @if (loading()) {
+      <div class="admin-list-header animate-item" style="--item-delay: 0ms;">
+        <div class="header-title">
+          <div class="admin-icon-wrapper">
+            <div class="icon-bg"></div>
+            <div class="icon-circle skeleton"></div>
+          </div>
+          <div class="title-text">
+            <div class="skeleton skeleton-text" style="width: 180px; height: 28px;"></div>
+            <div class="skeleton skeleton-text" style="width: 280px; height: 16px; margin-top: 8px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex align-items-center justify-content-between gap-3 flex-wrap mb-4 animate-item" style="--item-delay: 50ms;">
+        <div class="skeleton" style="width: 250px; height: 44px; border-radius: var(--radius-xl);"></div>
+      </div>
+
+      <div class="admin-cards-grid animate-item" style="--item-delay: 100ms;">
+        @for (i of [1,2,3,4]; track i) {
+          <div class="admin-form-card">
+            <div class="card-header">
+              <div class="skeleton" style="width: 40px; height: 40px; border-radius: 10px;"></div>
+              <div class="skeleton skeleton-text" style="width: 140px; height: 20px;"></div>
+            </div>
+            <div class="card-body">
+              <div class="skeleton" style="width: 100%; height: 44px; border-radius: 8px; margin-bottom: 16px;"></div>
+              <div class="skeleton" style="width: 100%; height: 44px; border-radius: 8px;"></div>
+            </div>
+          </div>
+        }
+      </div>
+    } @else {
+      <!-- Page Header -->
+      <div class="admin-list-header animate-item" style="--item-delay: 0ms;">
         <div class="header-title">
           <div class="admin-icon-wrapper">
             <div class="icon-bg"></div>
@@ -28,72 +58,451 @@
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Notification Form Card -->
-    <div class="admin-card">
-      <div class="card-header">
-        <div class="header-icon">
-          <i class="pi pi-send"></i>
+      <!-- Tabs -->
+      <div class="flex align-items-center justify-content-between gap-3 flex-wrap mb-4 animate-item" style="--item-delay: 50ms;">
+        <div class="segment-control segment-control--glass">
+          <button
+            class="segment-control__item"
+            [class.active]="activeTab() === 'compose'"
+            (click)="setActiveTab('compose')">
+            <i class="pi pi-pencil"></i>
+            <span>{{ 'admin.notifications.tabs.compose' | translate }}</span>
+          </button>
+          <button
+            class="segment-control__item"
+            [class.active]="activeTab() === 'history'"
+            (click)="setActiveTab('history')">
+            <i class="pi pi-history"></i>
+            <span>{{ 'admin.notifications.tabs.history' | translate }}</span>
+            @if (history().length > 0) {
+              <span class="count">{{ history().length }}</span>
+            }
+          </button>
         </div>
-        <h3>{{ 'admin.notifications.send_push' | translate }}</h3>
       </div>
 
-      <div class="notification-form">
-        <!-- Title Field -->
-        <div class="fancy-field" [class.focused]="titleFocused" [class.filled]="notificationTitle">
-          <div class="field-icon">
-            <i class="pi pi-bookmark"></i>
+      <!-- Compose Tab -->
+      @if (activeTab() === 'compose') {
+        <div class="form-wizard animate-item" style="--item-delay: 100ms;">
+          <!-- Wizard Header with Stepper -->
+          <div class="form-wizard__header">
+            <div class="stepper-horizontal">
+              @for (step of steps; track step.step) {
+                <div
+                  class="stepper-horizontal__step"
+                  [class.stepper-horizontal__step--active]="currentStep() === step.step"
+                  [class.stepper-horizontal__step--completed]="currentStep() > step.step">
+                  <div class="stepper-horizontal__indicator">
+                    <div class="stepper-horizontal__number" (click)="goToStep(step.step)">
+                      @if (currentStep() > step.step) {
+                        <i class="pi pi-check"></i>
+                      } @else {
+                        {{ step.step }}
+                      }
+                    </div>
+                    <span class="stepper-horizontal__label">{{ step.titleKey | translate }}</span>
+                  </div>
+                  <div class="stepper-horizontal__connector"></div>
+                </div>
+              }
+            </div>
           </div>
-          <div class="field-content">
-            <label>{{ 'admin.notifications.notification_title' | translate }}</label>
-            <input
-              type="text"
-              [(ngModel)]="notificationTitle"
-              (focus)="titleFocused = true"
-              (blur)="titleFocused = false"
-              [placeholder]="'admin.notifications.title_placeholder' | translate">
+
+          <!-- Wizard Body -->
+          <div class="form-wizard__body">
+            <!-- Step 1: Target Audience -->
+            @if (currentStep() === 1) {
+              <div class="admin-form-field">
+                <label>{{ 'admin.notifications.audience.select_segment' | translate }}</label>
+                <p-select
+                  [options]="segments()"
+                  [ngModel]="selectedSegment()"
+                  (ngModelChange)="onSegmentChange($event)"
+                  optionLabel="label"
+                  optionValue="segment_type"
+                  styleClass="w-full">
+                  <ng-template pTemplate="selectedItem" let-item>
+                    <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                      <span>{{ item.label }}</span>
+                      <span class="chip chip--xs chip--solid">{{ item.count }}</span>
+                    </div>
+                  </ng-template>
+                  <ng-template pTemplate="item" let-item>
+                    <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                      <div>
+                        <span>{{ item.label }}</span>
+                        <small style="display: block; color: var(--text-color-secondary); font-size: 0.75rem;">{{ item.description }}</small>
+                      </div>
+                      <span class="chip chip--xs chip--solid">{{ item.count }}</span>
+                    </div>
+                  </ng-template>
+                </p-select>
+              </div>
+
+              @if (cities().length > 0) {
+                <div class="admin-form-field">
+                  <label>{{ 'admin.notifications.audience.filter_by_city' | translate }}</label>
+                  <p-select
+                    [options]="cities()"
+                    [ngModel]="selectedCity()"
+                    (ngModelChange)="onCityChange($event)"
+                    optionLabel="city"
+                    optionValue="city"
+                    [showClear]="true"
+                    [placeholder]="'admin.notifications.audience.select_city' | translate"
+                    styleClass="w-full">
+                    <ng-template pTemplate="item" let-item>
+                      <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                        <span>{{ item.city }}</span>
+                        <span class="chip chip--xs">{{ item.count }}</span>
+                      </div>
+                    </ng-template>
+                  </p-select>
+                </div>
+              }
+
+              <div class="info-box info-box--primary" style="margin-top: var(--space-6);">
+                <div class="info-box__icon">
+                  <i class="pi pi-send"></i>
+                </div>
+                <div class="info-box__content">
+                  <p class="info-box__text">
+                    {{ 'admin.notifications.audience.will_reach' | translate }}
+                    <strong>{{ recipientCount() }}</strong>
+                    {{ 'admin.notifications.audience.users' | translate }}
+                  </p>
+                </div>
+              </div>
+            }
+
+            <!-- Step 2: Notification Type -->
+            @if (currentStep() === 2) {
+              <div class="admin-form-field">
+                <label>{{ 'admin.notifications.content.type_label' | translate }}</label>
+                <div class="filter-chips">
+                  <button
+                    class="filter-chips__chip"
+                    [class.active]="notificationType() === 'custom'"
+                    (click)="onNotificationTypeChange('custom')">
+                    <i class="pi pi-pencil"></i>
+                    {{ 'admin.notifications.content.type_custom' | translate }}
+                  </button>
+                  <button
+                    class="filter-chips__chip"
+                    [class.active]="notificationType() === 'promotion'"
+                    (click)="onNotificationTypeChange('promotion')">
+                    <i class="pi pi-percentage"></i>
+                    {{ 'admin.notifications.content.type_promotion' | translate }}
+                  </button>
+                  <button
+                    class="filter-chips__chip"
+                    [class.active]="notificationType() === 'product'"
+                    (click)="onNotificationTypeChange('product')">
+                    <i class="pi pi-box"></i>
+                    {{ 'admin.notifications.content.type_product' | translate }}
+                  </button>
+                  <button
+                    class="filter-chips__chip"
+                    [class.active]="notificationType() === 'category'"
+                    (click)="onNotificationTypeChange('category')">
+                    <i class="pi pi-th-large"></i>
+                    {{ 'admin.notifications.content.type_category' | translate }}
+                  </button>
+                  <button
+                    class="filter-chips__chip"
+                    [class.active]="notificationType() === 'brand'"
+                    (click)="onNotificationTypeChange('brand')">
+                    <i class="pi pi-bookmark"></i>
+                    {{ 'admin.notifications.content.type_brand' | translate }}
+                  </button>
+                </div>
+              </div>
+
+              @if (notificationType() !== 'custom' && currentTargetOptions().length > 0) {
+                <div class="admin-form-field">
+                  <label>{{ 'admin.notifications.content.select_' + notificationType() | translate }}</label>
+                  <p-select
+                    [options]="currentTargetOptions()"
+                    [ngModel]="selectedTargetId()"
+                    (ngModelChange)="onTargetSelect($event)"
+                    optionValue="id"
+                    [placeholder]="'admin.notifications.content.select_' + notificationType() | translate"
+                    styleClass="w-full"
+                    [filter]="true">
+                    <ng-template pTemplate="selectedItem" let-item>
+                      {{ getTargetName(item) }}
+                    </ng-template>
+                    <ng-template pTemplate="item" let-item>
+                      {{ getTargetName(item) }}
+                    </ng-template>
+                  </p-select>
+                </div>
+              }
+
+              <!-- Quick Templates -->
+              <div class="admin-form-field">
+                <label>{{ 'admin.notifications.quick_templates' | translate }}</label>
+                <div class="chip-group">
+                  @for (template of templates; track template.id) {
+                    <button class="chip chip--outlined" (click)="applyTemplate(template)">
+                      <i class="pi {{ template.icon }}"></i>
+                      {{ template.name }}
+                    </button>
+                  }
+                </div>
+              </div>
+            }
+
+            <!-- Step 3: Message Content -->
+            @if (currentStep() === 3) {
+              <div class="form-row" style="align-items: start;">
+                <!-- Column 1: English Content -->
+                <div>
+                  <div class="form-field">
+                    <label>
+                      {{ 'admin.notifications.content.title_en' | translate }}
+                      <span class="required">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      [ngModel]="titleEn()"
+                      (ngModelChange)="titleEn.set($event)"
+                      placeholder="Notification title...">
+                  </div>
+
+                  <div class="form-field">
+                    <label>
+                      {{ 'admin.notifications.content.body_en' | translate }}
+                      <span class="required">*</span>
+                    </label>
+                    <textarea
+                      [ngModel]="bodyEn()"
+                      (ngModelChange)="bodyEn.set($event)"
+                      placeholder="Notification message..."
+                      rows="4"></textarea>
+                  </div>
+
+                  <!-- Quick Emojis -->
+                  <div class="chip-group chip-group--sm">
+                    @for (emoji of quickEmojis; track emoji) {
+                      <button class="btn-icon btn-icon--sm" (click)="insertEmoji(emoji)">{{ emoji }}</button>
+                    }
+                  </div>
+                </div>
+
+                <!-- Column 2: Translations -->
+                <div>
+                  <div class="form-field">
+                    <label>{{ 'admin.notifications.content.title_fr' | translate }}</label>
+                    <input
+                      type="text"
+                      [ngModel]="titleFr()"
+                      (ngModelChange)="titleFr.set($event)"
+                      placeholder="Titre en français...">
+                  </div>
+
+                  <div class="form-field">
+                    <label>{{ 'admin.notifications.content.title_ar' | translate }}</label>
+                    <input
+                      type="text"
+                      dir="rtl"
+                      [ngModel]="titleAr()"
+                      (ngModelChange)="titleAr.set($event)"
+                      placeholder="العنوان بالعربية...">
+                  </div>
+
+                  <div class="form-field">
+                    <label>{{ 'admin.notifications.content.body_fr' | translate }}</label>
+                    <textarea
+                      [ngModel]="bodyFr()"
+                      (ngModelChange)="bodyFr.set($event)"
+                      placeholder="Message en français..."
+                      rows="2"></textarea>
+                  </div>
+
+                  <div class="form-field">
+                    <label>{{ 'admin.notifications.content.body_ar' | translate }}</label>
+                    <textarea
+                      dir="rtl"
+                      [ngModel]="bodyAr()"
+                      (ngModelChange)="bodyAr.set($event)"
+                      placeholder="الرسالة بالعربية..."
+                      rows="2"></textarea>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-field">
+                <label>{{ 'admin.notifications.content.deep_link' | translate }}</label>
+                <input
+                  type="text"
+                  [ngModel]="url()"
+                  (ngModelChange)="url.set($event)"
+                  placeholder="/products/123">
+                <span class="field-hint">{{ 'admin.notifications.content.deep_link' | translate }}</span>
+              </div>
+            }
+
+            <!-- Step 4: Schedule & Send -->
+            @if (currentStep() === 4) {
+              <div class="admin-checkbox-field">
+                <p-checkbox
+                  [ngModel]="scheduleEnabled()"
+                  (ngModelChange)="scheduleEnabled.set($event)"
+                  [binary]="true"
+                  inputId="schedule">
+                </p-checkbox>
+                <label for="schedule">
+                  {{ 'admin.notifications.schedule.schedule_for_later' | translate }}
+                </label>
+              </div>
+
+              @if (scheduleEnabled()) {
+                <div class="admin-form-field">
+                  <label>{{ 'admin.notifications.schedule.scheduled_date' | translate }}</label>
+                  <p-datePicker
+                    [ngModel]="scheduledDate()"
+                    (ngModelChange)="scheduledDate.set($event)"
+                    [showTime]="true"
+                    [showIcon]="true"
+                    [minDate]="minScheduleDate"
+                    dateFormat="dd/mm/yy"
+                    appendTo="body">
+                  </p-datePicker>
+                </div>
+              }
+
+              <!-- Summary before sending -->
+              <div class="info-box info-box--success" style="margin-top: var(--space-6);">
+                <div class="info-box__icon">
+                  <i class="pi pi-check-circle"></i>
+                </div>
+                <div class="info-box__content">
+                  <p class="info-box__title">{{ 'admin.notifications.summary' | translate }}</p>
+                  <p class="info-box__text">
+                    <strong>{{ recipientCount() }}</strong> {{ 'admin.notifications.audience.users' | translate }} •
+                    {{ notificationType() | titlecase }}
+                    @if (scheduleEnabled() && scheduledDate()) {
+                      • {{ formatDate(scheduledDate()!.toISOString()) }}
+                    }
+                  </p>
+                </div>
+              </div>
+            }
+          </div>
+
+          <!-- Wizard Footer -->
+          <div class="form-wizard__footer">
+            <span class="chip chip--primary">
+              <i class="pi pi-users"></i>
+              {{ recipientCount() }} {{ 'admin.notifications.audience.users' | translate }}
+            </span>
+
+            <div class="step-nav">
+              @if (currentStep() > 1) {
+                <button
+                  type="button"
+                  class="step-nav__btn step-nav__btn--prev"
+                  (click)="prevStep()">
+                  <i class="pi pi-arrow-left"></i>
+                  {{ 'common.back' | translate }}
+                </button>
+              }
+
+              @if (currentStep() < totalSteps) {
+                <button
+                  type="button"
+                  class="step-nav__btn step-nav__btn--next"
+                  [disabled]="!canProceedToNext()"
+                  (click)="nextStep()">
+                  {{ 'common.next' | translate }}
+                  <i class="pi pi-arrow-right"></i>
+                </button>
+              } @else {
+                <button
+                  type="submit"
+                  class="step-nav__btn step-nav__btn--finish"
+                  [disabled]="!canSend()"
+                  (click)="sendNotification()">
+                  @if (sending()) {
+                    <i class="pi pi-spin pi-spinner"></i>
+                    {{ 'admin.notifications.actions.sending' | translate }}
+                  } @else if (scheduleEnabled()) {
+                    <i class="pi pi-clock"></i>
+                    {{ 'admin.notifications.actions.schedule' | translate }}
+                  } @else {
+                    <i class="pi pi-send"></i>
+                    {{ 'admin.notifications.actions.send' | translate }}
+                  }
+                </button>
+              }
+            </div>
           </div>
         </div>
+      }
 
-        <!-- Body Field -->
-        <div class="fancy-field textarea-field" [class.focused]="bodyFocused" [class.filled]="notificationBody">
-          <div class="field-icon">
-            <i class="pi pi-align-left"></i>
-          </div>
-          <div class="field-content">
-            <label>{{ 'admin.notifications.notification_body' | translate }}</label>
-            <textarea
-              [(ngModel)]="notificationBody"
-              (focus)="bodyFocused = true"
-              (blur)="bodyFocused = false"
-              [placeholder]="'admin.notifications.body_placeholder' | translate"
-              rows="4"></textarea>
+      <!-- History Tab -->
+      @if (activeTab() === 'history') {
+        <div class="table-container animate-item" style="--item-delay: 100ms;">
+          <div class="table-wrapper">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th style="width: 15%">{{ 'admin.notifications.history.date' | translate }}</th>
+                  <th style="width: 35%">{{ 'admin.notifications.history.notification' | translate }}</th>
+                  <th style="width: 20%">{{ 'admin.notifications.history.segment' | translate }}</th>
+                  <th style="width: 10%" class="text-center">{{ 'admin.notifications.history.sent' | translate }}</th>
+                  <th style="width: 20%">{{ 'admin.notifications.history.status' | translate }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (item of history(); track item.id; let i = $index) {
+                  <tr class="table-row-animate" [style.--row-delay]="(i * 40) + 'ms'">
+                    <td>
+                      <span class="date-display">{{ formatDate(item.created_at) }}</span>
+                    </td>
+                    <td>
+                      <div class="info-display">
+                        <span class="info-display__name">{{ item.title_en }}</span>
+                        <span class="info-display__secondary">{{ item.body_en | slice:0:50 }}{{ item.body_en.length > 50 ? '...' : '' }}</span>
+                      </div>
+                    </td>
+                    <td>
+                      <span class="pill">{{ item.segment_type }}</span>
+                      @if (item.segment_value) {
+                        <span class="pill secondary">{{ item.segment_value }}</span>
+                      }
+                    </td>
+                    <td class="text-center">
+                      <span class="chip chip--xs chip--primary">{{ item.sent_count }}</span>
+                      @if (item.failed_count > 0) {
+                        <span class="chip chip--xs chip--danger" style="margin-left: 4px;">{{ item.failed_count }}</span>
+                      }
+                    </td>
+                    <td>
+                      <span class="status-badge status-badge--{{ getStatusClass(item.status) }}">
+                        {{ 'admin.notifications.status.' + item.status | translate }}
+                      </span>
+                    </td>
+                  </tr>
+                } @empty {
+                  <tr>
+                    <td colspan="5">
+                      <div class="empty-state empty-state--compact">
+                        <div class="empty-state__icon">
+                          <i class="pi pi-history"></i>
+                        </div>
+                        <h3 class="empty-state__title">{{ 'admin.notifications.history.no_history' | translate }}</h3>
+                      </div>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
           </div>
         </div>
-
-        <!-- Send Button -->
-        <button
-          class="admin-send-btn"
-          (click)="sendNotification()"
-          [disabled]="sendingNotification || !notificationTitle.trim() || !notificationBody.trim()">
-          <span>{{ 'admin.notifications.send_to_all' | translate }}</span>
-          <div class="btn-icon">
-            <i class="pi" [ngClass]="sendingNotification ? 'pi-spin pi-spinner' : 'pi-send'"></i>
-          </div>
-        </button>
-      </div>
-    </div>
-
-    <!-- Info Card -->
-    <div class="admin-info-card">
-      <div class="info-icon">
-        <i class="pi pi-info-circle"></i>
-      </div>
-      <div class="info-content">
-        <h4>{{ 'admin.notifications.info_title' | translate }}</h4>
-        <p>{{ 'admin.notifications.info_description' | translate }}</p>
-      </div>
-    </div>
+      }
+    }
   </div>
 </div>

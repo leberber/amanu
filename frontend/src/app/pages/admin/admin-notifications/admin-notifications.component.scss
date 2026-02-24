@@ -1,9 +1,20 @@
-// src/app/pages/admin/admin-notifications/admin-notifications.component.scss
-// Uses global styles from _components.scss
-// Only notification-specific styles here
+// =============================================================================
+// Admin Notifications Component
+// =============================================================================
+// Uses global styles from:
+//   - _components.scss: admin-cards-grid, admin-form-card, admin-form-field,
+//                       admin-form-row, admin-form-actions, admin-checkbox-field
+//   - _buttons.scss: type-selector, type-option, templates-grid, template-btn,
+//                    emoji-row, emoji-btn
+//   - _states.scss: recipient-preview, recipient-info, info-display, empty-state
+//   - _table.scss: table-container, table, table-wrapper
+//   - _badges.scss: status-badge, pill
+//   - _chips.scss: chip
+//   - _segments.scss: segment-control
+// =============================================================================
 
-.notification-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+.scrollable-grid {
+  max-height: var(--grid-max-height, calc(100vh - 320px));
+  overflow-y: auto;
+  padding-right: var(--space-2);
 }

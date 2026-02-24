@@ -672,19 +672,104 @@
       }
     },
     "notifications": {
-      "title": "الإشعارات",
-      "subtitle": "إرسال إشعارات فورية لجميع المستخدمين",
-      "send_push": "إرسال إشعار فوري",
-      "notification_title": "العنوان",
-      "title_placeholder": "أدخل عنوان الإشعار...",
-      "notification_body": "الرسالة",
-      "body_placeholder": "أدخل رسالتك هنا...",
-      "send_to_all": "إرسال لجميع المستخدمين",
-      "empty_fields": "يرجى ملء العنوان والرسالة",
-      "sent_success": "تم إرسال الإشعار إلى {{count}} مستخدم",
-      "sent_failed": "فشل إرسال الإشعار",
-      "info_title": "حول الإشعارات الفورية",
-      "info_description": "سيتم إرسال الإشعارات الفورية لجميع المستخدمين الذين فعّلوا الإشعارات على أجهزتهم."
+      "title": "منشئ الإشعارات",
+      "subtitle": "إنشاء وإرسال إشعارات موجهة",
+      "tabs": {
+        "compose": "إنشاء",
+        "history": "السجل"
+      },
+      "quick_templates": "قوالب سريعة",
+      "templates": {
+        "flash_sale": "تخفيض سريع",
+        "new_arrival": "وصل حديثاً",
+        "weekend_special": "عرض نهاية الأسبوع",
+        "price_drop": "انخفاض الأسعار"
+      },
+      "audience": {
+        "title": "الجمهور المستهدف",
+        "select_segment": "اختر الشريحة",
+        "filter_by_city": "تصفية حسب المدينة",
+        "select_city": "اختر مدينة...",
+        "all_cities": "جميع المدن",
+        "will_reach": "سيصل هذا الإشعار إلى",
+        "users": "مستخدم"
+      },
+      "segments": {
+        "all": "جميع المستخدمين",
+        "all_desc": "جميع المستخدمين المشتركين",
+        "inactive_30": "غير نشطين ٣٠+ يوم",
+        "inactive_30_desc": "مستخدمون لم يطلبوا منذ ٣٠+ يوم",
+        "inactive_60": "غير نشطين ٦٠+ يوم",
+        "inactive_60_desc": "مستخدمون لم يطلبوا منذ ٦٠+ يوم",
+        "vip": "عملاء VIP",
+        "vip_desc": "أكثر العملاء إنفاقاً",
+        "new_users": "مستخدمون جدد",
+        "new_users_desc": "مستخدمون انضموا في آخر ٧ أيام",
+        "by_city": "حسب المدينة",
+        "by_city_desc": "مستخدمون في مدينة معينة"
+      },
+      "content": {
+        "title": "محتوى الإشعار",
+        "type_label": "النوع",
+        "type_custom": "مخصص",
+        "type_promotion": "عرض ترويجي",
+        "type_product": "منتج",
+        "type_category": "فئة",
+        "type_brand": "علامة تجارية",
+        "select_promotion": "اختر عرضاً...",
+        "select_product": "اختر منتجاً...",
+        "select_category": "اختر فئة...",
+        "select_brand": "اختر علامة تجارية...",
+        "title_en": "العنوان (إنجليزي)",
+        "title_fr": "العنوان (فرنسي)",
+        "title_ar": "العنوان (عربي)",
+        "body_en": "الرسالة (إنجليزي)",
+        "body_fr": "الرسالة (فرنسي)",
+        "body_ar": "الرسالة (عربي)",
+        "deep_link": "رابط عميق",
+        "image_url": "رابط الصورة (اختياري)",
+        "quick_emojis": "رموز تعبيرية سريعة"
+      },
+      "schedule": {
+        "title": "الجدولة",
+        "send_now": "إرسال الآن",
+        "schedule_for_later": "جدولة لوقت لاحق",
+        "scheduled_date": "التاريخ والوقت المجدول"
+      },
+      "preview": {
+        "title": "معاينة",
+        "app_name": "السوق",
+        "now": "الآن",
+        "placeholder_title": "عنوان الإشعار",
+        "placeholder_body": "ستظهر رسالة الإشعار هنا..."
+      },
+      "actions": {
+        "send": "إرسال الإشعار",
+        "send_to": "إرسال إلى {{count}} مستخدم",
+        "schedule": "جدولة الإشعار",
+        "sending": "جاري الإرسال..."
+      },
+      "history": {
+        "title": "سجل الإشعارات",
+        "no_history": "لم يتم إرسال إشعارات بعد",
+        "date": "التاريخ",
+        "notification": "الإشعار",
+        "segment": "الشريحة",
+        "sent": "المُرسل",
+        "status": "الحالة"
+      },
+      "status": {
+        "sent": "مُرسل",
+        "scheduled": "مجدول",
+        "failed": "فشل",
+        "pending": "قيد الانتظار"
+      },
+      "messages": {
+        "sent_success": "تم إرسال الإشعار إلى {{count}} مستخدم",
+        "scheduled_success": "تمت جدولة الإشعار بنجاح",
+        "sent_failed": "فشل إرسال الإشعار",
+        "load_error": "فشل تحميل بيانات الإشعارات"
+      }
     },
     "dashboard": {
       "title": "لوحة التحكم",

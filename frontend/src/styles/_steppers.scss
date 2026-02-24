@@ -114,12 +114,13 @@
   }
 
   &__label {
-    margin-top: var(--space-4);
-    font-size: var(--font-size-sm);
+    margin-top: var(--space-3);
+    font-size: var(--font-size-xs);
     font-weight: var(--font-weight-medium);
     color: var(--text-color-secondary);
     text-align: center;
-    max-width: 100px;
+    max-width: 150px;
+    white-space: nowrap;
 
     .stepper-horizontal__step--active & {
       color: var(--primary-color);
@@ -136,7 +137,7 @@
     height: 2px;
     background: var(--overlay-hover);
     margin: 0 var(--space-3);
-    margin-bottom: var(--space-7);
+    margin-bottom: var(--space-5);
     transition: background var(--transition-smooth);
 
     .stepper-horizontal__step--completed & {
@@ -290,7 +291,7 @@
   overflow: hidden;
 
   &__header {
-    padding: var(--space-7) var(--space-8);
+    padding: var(--space-5) var(--space-8);
     background: var(--surface-slate-50-solid);
     border-bottom: var(--border-width) solid var(--border-color-light);
   }

@@ -1,7 +1,8 @@
 // src/app/services/push.service.ts
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { SwPush } from '@angular/service-worker';
 import { ApiService } from './api.service';
+import { TranslationService } from './translation.service';
 import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
@@ -11,10 +12,11 @@ export class PushService {
   private isSubscribed = new BehaviorSubject<boolean>(false);
   isSubscribed$ = this.isSubscribed.asObservable();
 
-  constructor(
-    private swPush: SwPush,
-    private api: ApiService
-  ) {
+  private swPush = inject(SwPush);
+  private api = inject(ApiService);
+  private translationService = inject(TranslationService);
+
+  constructor() {
     this.checkSubscription();
   }
 
@@ -38,8 +40,15 @@ export class PushService {
         serverPublicKey: publicKey
       });
 
-      // Send subscription to backend
-      await this.api.post('/push/subscribe', subscription.toJSON()).toPromise();
+      // Get current language preference
+      const language = this.translationService.getCurrentLanguage();
+
+      // Send subscription to backend with language
+      const subscriptionData = {
+        ...subscription.toJSON(),
+        language
+      };
+      await this.api.post('/push/subscribe', subscriptionData).toPromise();
 
       this.isSubscribed.next(true);
       return true;

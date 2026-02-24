@@ -670,19 +670,104 @@
       }
     },
     "notifications": {
-      "title": "Notifications",
-      "subtitle": "Send push notifications to all users",
-      "send_push": "Send Push Notification",
-      "notification_title": "Title",
-      "title_placeholder": "Enter notification title...",
-      "notification_body": "Message",
-      "body_placeholder": "Enter your message here...",
-      "send_to_all": "Send to All Users",
-      "empty_fields": "Please fill in both title and message",
-      "sent_success": "Notification sent to {{count}} users",
-      "sent_failed": "Failed to send notification",
-      "info_title": "About Push Notifications",
-      "info_description": "Push notifications will be sent to all users who have enabled notifications on their devices."
+      "title": "Notification Builder",
+      "subtitle": "Create and send targeted push notifications",
+      "tabs": {
+        "compose": "Compose",
+        "history": "History"
+      },
+      "quick_templates": "Quick Templates",
+      "templates": {
+        "flash_sale": "Flash Sale",
+        "new_arrival": "New Arrival",
+        "weekend_special": "Weekend Special",
+        "price_drop": "Price Drop"
+      },
+      "audience": {
+        "title": "Target Audience",
+        "select_segment": "Select Segment",
+        "filter_by_city": "Filter by City",
+        "select_city": "Select city...",
+        "all_cities": "All Cities",
+        "will_reach": "This notification will reach",
+        "users": "users"
+      },
+      "segments": {
+        "all": "All Users",
+        "all_desc": "All subscribed users",
+        "inactive_30": "Inactive 30+ Days",
+        "inactive_30_desc": "Users who haven't ordered in 30+ days",
+        "inactive_60": "Inactive 60+ Days",
+        "inactive_60_desc": "Users who haven't ordered in 60+ days",
+        "vip": "VIP Customers",
+        "vip_desc": "Top spending customers",
+        "new_users": "New Users",
+        "new_users_desc": "Users who joined in the last 7 days",
+        "by_city": "By City",
+        "by_city_desc": "Users in a specific city"
+      },
+      "content": {
+        "title": "Notification Content",
+        "type_label": "Type",
+        "type_custom": "Custom",
+        "type_promotion": "Promotion",
+        "type_product": "Product",
+        "type_category": "Category",
+        "type_brand": "Brand",
+        "select_promotion": "Select promotion...",
+        "select_product": "Select product...",
+        "select_category": "Select category...",
+        "select_brand": "Select brand...",
+        "title_en": "Title (English)",
+        "title_fr": "Title (French)",
+        "title_ar": "Title (Arabic)",
+        "body_en": "Message (English)",
+        "body_fr": "Message (French)",
+        "body_ar": "Message (Arabic)",
+        "deep_link": "Deep Link URL",
+        "image_url": "Image URL (optional)",
+        "quick_emojis": "Quick Emojis"
+      },
+      "schedule": {
+        "title": "Schedule",
+        "send_now": "Send Now",
+        "schedule_for_later": "Schedule for Later",
+        "scheduled_date": "Scheduled Date & Time"
+      },
+      "preview": {
+        "title": "Preview",
+        "app_name": "Elsuq",
+        "now": "now",
+        "placeholder_title": "Your notification title",
+        "placeholder_body": "Your notification message will appear here..."
+      },
+      "actions": {
+        "send": "Send Notification",
+        "send_to": "Send to {{count}} Users",
+        "schedule": "Schedule Notification",
+        "sending": "Sending..."
+      },
+      "history": {
+        "title": "Notification History",
+        "no_history": "No notifications sent yet",
+        "date": "Date",
+        "notification": "Notification",
+        "segment": "Segment",
+        "sent": "Sent",
+        "status": "Status"
+      },
+      "status": {
+        "sent": "Sent",
+        "scheduled": "Scheduled",
+        "failed": "Failed",
+        "pending": "Pending"
+      },
+      "messages": {
+        "sent_success": "Notification sent to {{count}} users",
+        "scheduled_success": "Notification scheduled successfully",
+        "sent_failed": "Failed to send notification",
+        "load_error": "Failed to load notification data"
+      }
     },
     "dashboard": {
       "title": "Admin Dashboard",

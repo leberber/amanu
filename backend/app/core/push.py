@@ -1,5 +1,6 @@
 # backend/app/core/push.py
 import json
+from typing import Optional
 from pywebpush import webpush, WebPushException
 from .config import settings
 
@@ -8,25 +9,36 @@ class PushService:
     """Service for sending web push notifications."""
 
     @classmethod
-    def send(cls, subscription: dict, title: str, body: str, url: str = "/") -> dict:
+    def send(
+        cls,
+        subscription: dict,
+        title: str,
+        body: str,
+        url: str = "/",
+        image_url: Optional[str] = None
+    ) -> dict:
         """Send push notification to a single subscription."""
         if not settings.VAPID_PRIVATE_KEY:
             return {"success": False, "error": "VAPID keys not configured"}
 
         # Angular service worker expects this format
-        payload = json.dumps({
-            "notification": {
-                "title": title,
-                "body": body,
-                "icon": "/icons/icon-192x192.png",
-                "badge": "/icons/icon-72x72.png",
-                "data": {
-                    "onActionClick": {
-                        "default": {"operation": "navigateLastFocusedOrOpen", "url": url}
-                    }
+        notification_data = {
+            "title": title,
+            "body": body,
+            "icon": "/icons/icon-192x192.png",
+            "badge": "/icons/icon-72x72.png",
+            "data": {
+                "onActionClick": {
+                    "default": {"operation": "navigateLastFocusedOrOpen", "url": url}
                 }
             }
-        })
+        }
+
+        # Add image if provided (supported on some platforms)
+        if image_url:
+            notification_data["image"] = image_url
+
+        payload = json.dumps({"notification": notification_data})
 
         try:
             webpush(

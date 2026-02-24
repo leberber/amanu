@@ -667,19 +667,104 @@
       }
     },
     "notifications": {
-      "title": "Notifications",
-      "subtitle": "Envoyer des notifications push à tous les utilisateurs",
-      "send_push": "Envoyer une Notification Push",
-      "notification_title": "Titre",
-      "title_placeholder": "Entrez le titre de la notification...",
-      "notification_body": "Message",
-      "body_placeholder": "Entrez votre message ici...",
-      "send_to_all": "Envoyer à Tous les Utilisateurs",
-      "empty_fields": "Veuillez remplir le titre et le message",
-      "sent_success": "Notification envoyée à {{count}} utilisateurs",
-      "sent_failed": "Échec de l'envoi de la notification",
-      "info_title": "À Propos des Notifications Push",
-      "info_description": "Les notifications push seront envoyées à tous les utilisateurs qui ont activé les notifications sur leurs appareils."
+      "title": "Créateur de Notifications",
+      "subtitle": "Créer et envoyer des notifications push ciblées",
+      "tabs": {
+        "compose": "Composer",
+        "history": "Historique"
+      },
+      "quick_templates": "Modèles Rapides",
+      "templates": {
+        "flash_sale": "Vente Flash",
+        "new_arrival": "Nouvelle Arrivée",
+        "weekend_special": "Spécial Week-end",
+        "price_drop": "Baisse de Prix"
+      },
+      "audience": {
+        "title": "Audience Cible",
+        "select_segment": "Sélectionner le Segment",
+        "filter_by_city": "Filtrer par Ville",
+        "select_city": "Sélectionner une ville...",
+        "all_cities": "Toutes les Villes",
+        "will_reach": "Cette notification atteindra",
+        "users": "utilisateurs"
+      },
+      "segments": {
+        "all": "Tous les Utilisateurs",
+        "all_desc": "Tous les utilisateurs abonnés",
+        "inactive_30": "Inactifs 30+ Jours",
+        "inactive_30_desc": "Utilisateurs sans commande depuis 30+ jours",
+        "inactive_60": "Inactifs 60+ Jours",
+        "inactive_60_desc": "Utilisateurs sans commande depuis 60+ jours",
+        "vip": "Clients VIP",
+        "vip_desc": "Meilleurs clients en termes de dépenses",
+        "new_users": "Nouveaux Utilisateurs",
+        "new_users_desc": "Utilisateurs inscrits ces 7 derniers jours",
+        "by_city": "Par Ville",
+        "by_city_desc": "Utilisateurs dans une ville spécifique"
+      },
+      "content": {
+        "title": "Contenu de la Notification",
+        "type_label": "Type",
+        "type_custom": "Personnalisé",
+        "type_promotion": "Promotion",
+        "type_product": "Produit",
+        "type_category": "Catégorie",
+        "type_brand": "Marque",
+        "select_promotion": "Sélectionner une promotion...",
+        "select_product": "Sélectionner un produit...",
+        "select_category": "Sélectionner une catégorie...",
+        "select_brand": "Sélectionner une marque...",
+        "title_en": "Titre (Anglais)",
+        "title_fr": "Titre (Français)",
+        "title_ar": "Titre (Arabe)",
+        "body_en": "Message (Anglais)",
+        "body_fr": "Message (Français)",
+        "body_ar": "Message (Arabe)",
+        "deep_link": "URL du Lien Profond",
+        "image_url": "URL de l'Image (optionnel)",
+        "quick_emojis": "Emojis Rapides"
+      },
+      "schedule": {
+        "title": "Planification",
+        "send_now": "Envoyer Maintenant",
+        "schedule_for_later": "Planifier pour Plus Tard",
+        "scheduled_date": "Date et Heure Planifiées"
+      },
+      "preview": {
+        "title": "Aperçu",
+        "app_name": "Elsuq",
+        "now": "maintenant",
+        "placeholder_title": "Titre de votre notification",
+        "placeholder_body": "Votre message de notification apparaîtra ici..."
+      },
+      "actions": {
+        "send": "Envoyer la Notification",
+        "send_to": "Envoyer à {{count}} Utilisateurs",
+        "schedule": "Planifier la Notification",
+        "sending": "Envoi en cours..."
+      },
+      "history": {
+        "title": "Historique des Notifications",
+        "no_history": "Aucune notification envoyée",
+        "date": "Date",
+        "notification": "Notification",
+        "segment": "Segment",
+        "sent": "Envoyé",
+        "status": "Statut"
+      },
+      "status": {
+        "sent": "Envoyé",
+        "scheduled": "Planifié",
+        "failed": "Échoué",
+        "pending": "En attente"
+      },
+      "messages": {
+        "sent_success": "Notification envoyée à {{count}} utilisateurs",
+        "scheduled_success": "Notification planifiée avec succès",
+        "sent_failed": "Échec de l'envoi de la notification",
+        "load_error": "Échec du chargement des données de notification"
+      }
     },
     "dashboard": {
       "title": "Tableau de Bord Admin",
