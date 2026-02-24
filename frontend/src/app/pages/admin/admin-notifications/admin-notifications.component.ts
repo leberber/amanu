@@ -96,13 +96,26 @@ export class AdminNotificationsComponent implements OnInit {
 
   // Wizard/Carousel state
   currentStep = signal(1);
-  totalSteps = 4;
+  totalSteps = 5;
   steps = [
     { step: 1, icon: 'pi-users', titleKey: 'admin.notifications.audience.title' },
     { step: 2, icon: 'pi-tag', titleKey: 'admin.notifications.content.type_label' },
     { step: 3, icon: 'pi-file-edit', titleKey: 'admin.notifications.content.title' },
-    { step: 4, icon: 'pi-clock', titleKey: 'admin.notifications.schedule.title' }
+    { step: 4, icon: 'pi-clock', titleKey: 'admin.notifications.schedule.title' },
+    { step: 5, icon: 'pi-check-circle', titleKey: 'admin.notifications.success.title' }
   ];
+
+  // Success state
+  showSuccess = signal(false);
+  sentResult = signal<{
+    sent: number;
+    failed: number;
+    scheduled: boolean;
+    titleFr: string;
+    bodyFr: string;
+    segment: string;
+    recipientCount: number;
+  } | null>(null);
 
   // Quick emojis
   quickEmojis = ['🔥', '🎉', '💰', '🛒', '✨', '🍎', '🥬', '⚡', '🆕', '💫'];
@@ -472,12 +485,19 @@ export class AdminNotificationsComponent implements OnInit {
       .subscribe({
         next: (response) => {
           this.sending.set(false);
-          if (response.scheduled) {
-            this.toast.showSuccess('admin.notifications.scheduled_success');
-          } else {
-            this.toast.showSuccess('admin.notifications.sent_success', { count: response.sent });
-          }
-          this.clearContent();
+          // Store result for success page
+          this.sentResult.set({
+            sent: response.sent || 0,
+            failed: response.failed || 0,
+            scheduled: response.scheduled || false,
+            titleFr: this.titleFr(),
+            bodyFr: this.bodyFr(),
+            segment: this.selectedSegment(),
+            recipientCount: this.recipientCount()
+          });
+          // Go to success step
+          this.showSuccess.set(true);
+          this.currentStep.set(5);
           this.loadData(); // Refresh history
         },
         error: (error) => {
@@ -565,5 +585,29 @@ export class AdminNotificationsComponent implements OnInit {
 
   goBack() {
     this.router.navigate([ROUTES.ADMIN.BASE]);
+  }
+
+  // Reset and start new notification
+  startNewNotification() {
+    this.clearContent();
+    this.showSuccess.set(false);
+    this.sentResult.set(null);
+    this.currentStep.set(1);
+    this.selectedSegment.set('all');
+    this.selectedCity.set(null);
+    this.selectedWilaya.set(null);
+    this.selectedDaira.set(null);
+    this.selectedCommune.set(null);
+    this.notificationType.set('custom');
+    this.selectedTargetId.set(null);
+    this.selectedTemplateId.set(null);
+    this.scheduleEnabled.set(false);
+    this.scheduledDate.set(null);
+  }
+
+  // Go to history tab from success page
+  goToHistory() {
+    this.startNewNotification();
+    this.setActiveTab('history');
   }
 }

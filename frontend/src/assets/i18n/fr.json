@@ -788,7 +788,20 @@
         "promotion_tip": "Les notifications de promotion ont 2x plus de clics"
       },
       "summary": "Résumé",
-      "ready_to_send": "Prêt à envoyer"
+      "ready_to_send": "Prêt à envoyer",
+      "success": {
+        "title": "Confirmation",
+        "sent_title": "Notification Envoyée !",
+        "sent_subtitle": "Votre notification a été envoyée à {{count}} utilisateurs",
+        "scheduled_title": "Notification Planifiée !",
+        "scheduled_subtitle": "Votre notification sera envoyée à l'heure prévue",
+        "details": "Détails de la notification",
+        "recipients": "Destinataires",
+        "delivered": "Envoyées",
+        "failed": "Échouées",
+        "view_history": "Voir l'historique",
+        "send_another": "Envoyer une autre"
+      }
     },
     "dashboard": {
       "title": "Tableau de Bord Admin",

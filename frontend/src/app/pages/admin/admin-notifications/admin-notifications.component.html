@@ -130,29 +130,31 @@
       <!-- Compose Tab -->
       @if (activeTab() === 'compose') {
         <div class="form-wizard animate-item" style="--item-delay: 100ms;">
-          <!-- Wizard Header with Stepper -->
-          <div class="form-wizard__header">
-            <div class="stepper-horizontal">
-              @for (step of steps; track step.step) {
-                <div
-                  class="stepper-horizontal__step"
-                  [class.stepper-horizontal__step--active]="currentStep() === step.step"
-                  [class.stepper-horizontal__step--completed]="currentStep() > step.step">
-                  <div class="stepper-horizontal__indicator">
-                    <div class="stepper-horizontal__number" (click)="goToStep(step.step)">
-                      @if (currentStep() > step.step) {
-                        <i class="pi pi-check"></i>
-                      } @else {
-                        {{ step.step }}
-                      }
+          <!-- Wizard Header with Stepper (hidden on success step) -->
+          @if (currentStep() < 5) {
+            <div class="form-wizard__header">
+              <div class="stepper-horizontal">
+                @for (step of steps.slice(0, 4); track step.step) {
+                  <div
+                    class="stepper-horizontal__step"
+                    [class.stepper-horizontal__step--active]="currentStep() === step.step"
+                    [class.stepper-horizontal__step--completed]="currentStep() > step.step">
+                    <div class="stepper-horizontal__indicator">
+                      <div class="stepper-horizontal__number" (click)="goToStep(step.step)">
+                        @if (currentStep() > step.step) {
+                          <i class="pi pi-check"></i>
+                        } @else {
+                          {{ step.step }}
+                        }
+                      </div>
+                      <span class="stepper-horizontal__label">{{ step.titleKey | translate }}</span>
                     </div>
-                    <span class="stepper-horizontal__label">{{ step.titleKey | translate }}</span>
+                    <div class="stepper-horizontal__connector"></div>
                   </div>
-                  <div class="stepper-horizontal__connector"></div>
-                </div>
-              }
+                }
+              </div>
             </div>
-          </div>
+          }
 
           <!-- Wizard Body -->
           <div class="form-wizard__body">
@@ -716,55 +718,147 @@
                 </div>
               </div>
             }
+
+            <!-- Step 5: Success -->
+            @if (currentStep() === 5 && sentResult()) {
+              <div class="success-step">
+                <!-- Success Animation -->
+                <div class="success-step__animation">
+                  <div class="success-step__circle">
+                    <i class="pi pi-check"></i>
+                  </div>
+                </div>
+
+                <!-- Success Message -->
+                <div class="success-step__content">
+                  <h2 class="success-step__title">
+                    @if (sentResult()?.scheduled) {
+                      {{ 'admin.notifications.success.scheduled_title' | translate }}
+                    } @else {
+                      {{ 'admin.notifications.success.sent_title' | translate }}
+                    }
+                  </h2>
+                  <p class="success-step__subtitle">
+                    @if (sentResult()?.scheduled) {
+                      {{ 'admin.notifications.success.scheduled_subtitle' | translate }}
+                    } @else {
+                      {{ 'admin.notifications.success.sent_subtitle' | translate:{ count: sentResult()?.sent } }}
+                    }
+                  </p>
+                </div>
+
+                <!-- Notification Details Card -->
+                <div class="success-step__details">
+                  <div class="success-detail-card">
+                    <div class="success-detail-card__header">
+                      <i class="pi pi-bell"></i>
+                      <span>{{ 'admin.notifications.success.details' | translate }}</span>
+                    </div>
+                    <div class="success-detail-card__body">
+                      <!-- Notification Content -->
+                      <div class="success-detail-item">
+                        <span class="success-detail-item__label">{{ 'admin.notifications.content.title_fr' | translate }}</span>
+                        <span class="success-detail-item__value">{{ sentResult()?.titleFr }}</span>
+                      </div>
+                      <div class="success-detail-item">
+                        <span class="success-detail-item__label">{{ 'admin.notifications.content.body_fr' | translate }}</span>
+                        <span class="success-detail-item__value">{{ sentResult()?.bodyFr }}</span>
+                      </div>
+
+                      <!-- Stats Row -->
+                      <div class="success-detail-stats">
+                        <div class="success-stat success-stat--primary">
+                          <i class="pi pi-users"></i>
+                          <span class="success-stat__value">{{ sentResult()?.recipientCount }}</span>
+                          <span class="success-stat__label">{{ 'admin.notifications.success.recipients' | translate }}</span>
+                        </div>
+                        <div class="success-stat success-stat--success">
+                          <i class="pi pi-check-circle"></i>
+                          <span class="success-stat__value">{{ sentResult()?.sent }}</span>
+                          <span class="success-stat__label">{{ 'admin.notifications.success.delivered' | translate }}</span>
+                        </div>
+                        @if (sentResult()?.failed && sentResult()!.failed > 0) {
+                          <div class="success-stat success-stat--danger">
+                            <i class="pi pi-times-circle"></i>
+                            <span class="success-stat__value">{{ sentResult()?.failed }}</span>
+                            <span class="success-stat__label">{{ 'admin.notifications.success.failed' | translate }}</span>
+                          </div>
+                        }
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="success-step__actions">
+                  <button
+                    type="button"
+                    class="btn btn--outline btn--lg"
+                    (click)="goToHistory()">
+                    <i class="pi pi-history"></i>
+                    {{ 'admin.notifications.success.view_history' | translate }}
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn--primary btn--lg"
+                    (click)="startNewNotification()">
+                    <i class="pi pi-plus"></i>
+                    {{ 'admin.notifications.success.send_another' | translate }}
+                  </button>
+                </div>
+              </div>
+            }
           </div>
 
-          <!-- Wizard Footer -->
-          <div class="form-wizard__footer">
-            <span class="chip chip--primary">
-              <i class="pi pi-users"></i>
-              {{ recipientCount() }} {{ 'admin.notifications.audience.users' | translate }}
-            </span>
+          <!-- Wizard Footer (hidden on success step) -->
+          @if (currentStep() < 5) {
+            <div class="form-wizard__footer">
+              <span class="chip chip--primary">
+                <i class="pi pi-users"></i>
+                {{ recipientCount() }} {{ 'admin.notifications.audience.users' | translate }}
+              </span>
 
-            <div class="step-nav">
-              @if (currentStep() > 1) {
-                <button
-                  type="button"
-                  class="step-nav__btn step-nav__btn--prev"
-                  (click)="prevStep()">
-                  <i class="pi pi-arrow-left"></i>
-                  {{ 'common.back' | translate }}
-                </button>
-              }
+              <div class="step-nav">
+                @if (currentStep() > 1) {
+                  <button
+                    type="button"
+                    class="step-nav__btn step-nav__btn--prev"
+                    (click)="prevStep()">
+                    <i class="pi pi-arrow-left"></i>
+                    {{ 'common.back' | translate }}
+                  </button>
+                }
 
-              @if (currentStep() < totalSteps) {
-                <button
-                  type="button"
-                  class="step-nav__btn step-nav__btn--next"
-                  [disabled]="!canProceedToNext()"
-                  (click)="nextStep()">
-                  {{ 'common.next' | translate }}
-                  <i class="pi pi-arrow-right"></i>
-                </button>
-              } @else {
-                <button
-                  type="submit"
-                  class="step-nav__btn step-nav__btn--finish"
-                  [disabled]="!canSend()"
-                  (click)="sendNotification()">
-                  @if (sending()) {
-                    <i class="pi pi-spin pi-spinner"></i>
-                    {{ 'admin.notifications.actions.sending' | translate }}
-                  } @else if (scheduleEnabled()) {
-                    <i class="pi pi-clock"></i>
-                    {{ 'admin.notifications.actions.schedule' | translate }}
-                  } @else {
-                    <i class="pi pi-send"></i>
-                    {{ 'admin.notifications.actions.send' | translate }}
-                  }
-                </button>
-              }
+                @if (currentStep() < 4) {
+                  <button
+                    type="button"
+                    class="step-nav__btn step-nav__btn--next"
+                    [disabled]="!canProceedToNext()"
+                    (click)="nextStep()">
+                    {{ 'common.next' | translate }}
+                    <i class="pi pi-arrow-right"></i>
+                  </button>
+                } @else if (currentStep() === 4) {
+                  <button
+                    type="submit"
+                    class="step-nav__btn step-nav__btn--finish"
+                    [disabled]="!canSend()"
+                    (click)="sendNotification()">
+                    @if (sending()) {
+                      <i class="pi pi-spin pi-spinner"></i>
+                      {{ 'admin.notifications.actions.sending' | translate }}
+                    } @else if (scheduleEnabled()) {
+                      <i class="pi pi-clock"></i>
+                      {{ 'admin.notifications.actions.schedule' | translate }}
+                    } @else {
+                      <i class="pi pi-send"></i>
+                      {{ 'admin.notifications.actions.send' | translate }}
+                    }
+                  </button>
+                }
+              </div>
             </div>
-          </div>
+          }
         </div>
       }
 

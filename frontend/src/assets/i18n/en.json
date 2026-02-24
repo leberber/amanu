@@ -791,7 +791,20 @@
         "promotion_tip": "Promotion notifications have 2x higher click rates"
       },
       "summary": "Summary",
-      "ready_to_send": "Ready to Send"
+      "ready_to_send": "Ready to Send",
+      "success": {
+        "title": "Confirmation",
+        "sent_title": "Notification Sent!",
+        "sent_subtitle": "Your notification has been sent to {{count}} users",
+        "scheduled_title": "Notification Scheduled!",
+        "scheduled_subtitle": "Your notification will be sent at the scheduled time",
+        "details": "Notification Details",
+        "recipients": "Recipients",
+        "delivered": "Delivered",
+        "failed": "Failed",
+        "view_history": "View History",
+        "send_another": "Send Another"
+      }
     },
     "dashboard": {
       "title": "Admin Dashboard",

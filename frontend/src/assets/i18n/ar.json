@@ -793,7 +793,20 @@
         "promotion_tip": "إشعارات العروض لديها ضعف معدل النقرات"
       },
       "summary": "ملخص",
-      "ready_to_send": "جاهز للإرسال"
+      "ready_to_send": "جاهز للإرسال",
+      "success": {
+        "title": "تأكيد",
+        "sent_title": "تم إرسال الإشعار!",
+        "sent_subtitle": "تم إرسال إشعارك إلى {{count}} مستخدم",
+        "scheduled_title": "تم جدولة الإشعار!",
+        "scheduled_subtitle": "سيتم إرسال إشعارك في الوقت المحدد",
+        "details": "تفاصيل الإشعار",
+        "recipients": "المستلمون",
+        "delivered": "تم التسليم",
+        "failed": "فشل",
+        "view_history": "عرض السجل",
+        "send_another": "إرسال آخر"
+      }
     },
     "dashboard": {
       "title": "لوحة التحكم",
