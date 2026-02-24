@@ -162,6 +162,32 @@
         background: rgba(var(--color-warning-rgb), 0.15);
         color: var(--color-warning);
       }
+
+      // Order status variants
+      &.pending {
+        background: rgba(var(--color-warning-rgb), 0.15);
+        color: var(--color-warning);
+      }
+
+      &.confirmed {
+        background: rgba(59, 130, 246, 0.15);
+        color: #3b82f6;
+      }
+
+      &.shipped {
+        background: rgba(139, 92, 246, 0.15);
+        color: #8b5cf6;
+      }
+
+      &.delivered {
+        background: rgba(var(--color-success-rgb), 0.15);
+        color: var(--color-success);
+      }
+
+      &.cancelled {
+        background: rgba(var(--color-error-rgb), 0.15);
+        color: var(--color-error);
+      }
     }
   }
 }

@@ -1,9 +1,11 @@
 // src/app/pages/admin/admin-orders/admin-orders.component.ts
-import { Component, OnInit, inject, DestroyRef } from '@angular/core';
+import { Component, OnInit, inject, DestroyRef, signal } from '@angular/core';
 import { ConfirmationService } from 'primeng/api';
+import { PopoverModule } from 'primeng/popover';
 import { TranslateService } from '@ngx-translate/core';
 
 import { ADMIN_LIST_IMPORTS, ADMIN_DIALOG_IMPORTS } from '../../../shared/imports/admin-shared.imports';
+import { TableSkeletonComponent, SkeletonColumn } from '../../../shared/components/table-skeleton/table-skeleton.component';
 import { ROUTES } from '../../../core/constants/routes.constants';
 import { ORDER_STATUS } from '../../../core/constants/app.constants';
 import { onLanguageChange } from '../../../core/utils/language-change.util';
@@ -11,16 +13,17 @@ import { AdminService } from '../../../services/admin.service';
 import { Order } from '../../../models/admin.model';
 import { ProductService } from '../../../services/product.service';
 import { TranslationHelperService } from '../../../core/services/translation-helper.service';
-import { UnitsService } from '../../../core/services/units.service';
 import { StatusSeverityService } from '../../../core/services/status-severity.service';
-import { BaseAdminListComponent } from '../../../shared/base/base-admin-list.component';
+import { BaseAdminListComponent, ColumnOption } from '../../../shared/base/base-admin-list.component';
 
 @Component({
   selector: 'app-admin-orders',
   standalone: true,
   imports: [
     ...ADMIN_LIST_IMPORTS,
-    ...ADMIN_DIALOG_IMPORTS
+    ...ADMIN_DIALOG_IMPORTS,
+    PopoverModule,
+    TableSkeletonComponent
   ],
   providers: [ConfirmationService],
   templateUrl: './admin-orders.component.html',
@@ -33,8 +36,34 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
   users: any[] = [];
   products: any[] = [];
 
+  // Animation state
+  tableInitialized = signal(false);
+
+  // Fullscreen mode
+  isFullscreen = false;
+
   // Override status filter type for orders
   override statusFilter: string = 'all';
+
+  // Skeleton configuration
+  skeletonColumns: SkeletonColumn[] = [
+    { width: '10%', type: 'text', headerWidth: '80px' },
+    { width: '25%', type: 'text-multi', headerWidth: '100px' },
+    { width: '15%', type: 'text', headerWidth: '60px' },
+    { width: '15%', type: 'pill', headerWidth: '60px' },
+    { width: '15%', type: 'text', headerWidth: '60px' },
+    { width: '20%', type: 'actions', headerWidth: '80px' }
+  ];
+
+  // Column visibility options
+  override columnOptions: ColumnOption[] = [
+    { field: 'order_id', label: 'admin.orders.table.order_id', visible: true },
+    { field: 'customer', label: 'admin.orders.table.customer', visible: true },
+    { field: 'date', label: 'admin.orders.table.date', visible: true },
+    { field: 'status', label: 'admin.orders.table.status', visible: true },
+    { field: 'total', label: 'admin.orders.table.total', visible: true },
+    { field: 'actions', label: 'admin.orders.table.actions', visible: true }
+  ];
 
   selectedOrder: Order | null = null;
   displayOrderDialog = false;
@@ -48,7 +77,6 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
   private translateService = inject(TranslateService);
   private productService = inject(ProductService);
   private translationHelper = inject(TranslationHelperService);
-  private unitsService = inject(UnitsService);
   private statusSeverity = inject(StatusSeverityService);
   private destroyRef = inject(DestroyRef);
 
@@ -132,6 +160,7 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
           this.orders = [];
         }
         this.loading = false;
+        setTimeout(() => this.tableInitialized.set(true), 100);
       },
       error: (error) => {
         this.loading = false;
@@ -180,6 +209,17 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
     this.statusFilter = 'all';
     this.resetPagination();
     this.filterItems();
+  }
+
+  toggleFullscreen(): void {
+    this.isFullscreen = !this.isFullscreen;
+    if (this.isFullscreen) {
+      document.body.classList.add('fullscreen-active');
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.classList.remove('fullscreen-active');
+      document.body.style.overflow = '';
+    }
   }
 
   refreshOrderData() {
@@ -260,7 +300,6 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
   // ===== INLINE STATUS EDITING =====
 
   startEditStatus(order: Order): void {
-    // Only allow editing if there are next statuses available
     if (this.getNextStatuses(order.status).length > 0) {
       this.editingStatusOrderId = order.id;
     }
@@ -275,7 +314,6 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
   }
 
   getNextStatuses(currentStatus: string): { value: string; label: string; icon: string }[] {
-    // Allow skipping steps - show all forward statuses
     const statusTransitions: Record<string, string[]> = {
       [ORDER_STATUS.PENDING]: [ORDER_STATUS.CONFIRMED, ORDER_STATUS.SHIPPED, ORDER_STATUS.DELIVERED, ORDER_STATUS.CANCELLED],
       [ORDER_STATUS.CONFIRMED]: [ORDER_STATUS.SHIPPED, ORDER_STATUS.DELIVERED, ORDER_STATUS.CANCELLED],

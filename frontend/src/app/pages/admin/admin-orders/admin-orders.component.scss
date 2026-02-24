@@ -1,109 +1,19 @@
-// src/app/pages/admin/admin-orders/admin-orders.component.scss
 // =============================================================================
-// Component-specific styles only.
-// Global styles used:
-//   - _admin-page.scss: admin-icon-btn, admin-status-badge, admin-info,
-//                       admin-date, admin-amount, admin-editable, admin-inline-edit
-//   - _components.scss: btn-primary (for export-btn)
+// Admin Orders Component Styles
+// =============================================================================
+// Component-specific overrides only. Uses global styles from:
+//   - _table.scss: table-container, table-cell-actions
+//   - _badges.scss: status-badge (pending, confirmed, shipped, delivered, cancelled)
+//   - _states.scss: empty-state, info-display, date-display, amount-display
+//   - _segments.scss: segment-control
+//   - _buttons.scss: btn-add, action-btn (view, confirm, ship, delete)
 // =============================================================================
 
-// -----------------------------------------------------------------------------
-// Order-Specific Styles
-// -----------------------------------------------------------------------------
+.table-container {
+  --table-max-height: calc(100vh - 375px);
+}
 
-// Order ID styling
 .order-id {
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   color: var(--primary-color);
-  font-size: 0.95rem;
-}
-
-// Status edit (inline dropdown)
-.status-edit {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: white;
-  border-radius: 12px;
-  padding: 0.5rem;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-}
-
-.status-options {
-  display: flex;
-  gap: 0.375rem;
-}
-
-.status-option {
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
-  padding: 0.5rem 0.75rem;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 0.8rem;
-  font-weight: 600;
-  transition: all 0.2s ease;
-
-  &.status-confirmed {
-    background: rgba(59, 130, 246, 0.15);
-    color: #3b82f6;
-
-    &:hover {
-      background: rgba(59, 130, 246, 0.25);
-    }
-  }
-
-  &.status-shipped {
-    background: rgba(139, 92, 246, 0.15);
-    color: #8b5cf6;
-
-    &:hover {
-      background: rgba(139, 92, 246, 0.25);
-    }
-  }
-
-  &.status-delivered {
-    background: rgba(17, 153, 142, 0.15);
-    color: #11998e;
-
-    &:hover {
-      background: rgba(17, 153, 142, 0.25);
-    }
-  }
-
-  &.status-cancelled {
-    background: rgba(239, 68, 68, 0.15);
-    color: #ef4444;
-
-    &:hover {
-      background: rgba(239, 68, 68, 0.25);
-    }
-  }
-
-  i {
-    font-size: 0.75rem;
-  }
-}
-
-// -----------------------------------------------------------------------------
-// Responsive
-// -----------------------------------------------------------------------------
-@media (max-width: 768px) {
-  .table {
-    th:nth-child(3),
-    td:nth-child(3) {
-      display: none;
-    }
-  }
-}
-
-@media (max-width: 480px) {
-  .table {
-    th:nth-child(2),
-    td:nth-child(2) {
-      display: none;
-    }
-  }
 }
