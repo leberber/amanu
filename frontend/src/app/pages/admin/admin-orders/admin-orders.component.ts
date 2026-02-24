@@ -71,6 +71,7 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
   // Inline status editing
   editingStatusOrderId: number | null = null;
   selectedNewStatus: string | null = null;
+  pulseConfirm = false;
 
   // Services
   private adminService = inject(AdminService);
@@ -260,40 +261,26 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
   }
 
   updateOrderStatus(orderId: number, newStatus: string) {
-    const statusText = this.translateService.instant('admin.orders.status.' + newStatus);
-    const message = this.translateService.instant('admin.orders.confirm_status_update', { status: statusText });
+    this.adminService.updateOrderStatus(orderId, newStatus).subscribe({
+      next: (updatedOrder) => {
+        const allIndex = this.allOrders.findIndex(o => o.id === orderId);
+        if (allIndex !== -1) {
+          this.allOrders[allIndex] = updatedOrder;
+        }
 
-    this.confirmationService.confirm({
-      message: message,
-      header: this.translateService.instant('common.warning'),
-      icon: 'pi pi-exclamation-triangle',
-      acceptButtonStyleClass: 'p-button-warning',
-      rejectButtonStyleClass: 'p-button-text',
-      acceptLabel: this.translateService.instant('common.proceed'),
-      rejectLabel: this.translateService.instant('common.cancel'),
-      accept: () => {
-        this.adminService.updateOrderStatus(orderId, newStatus).subscribe({
-          next: (updatedOrder) => {
-            const allIndex = this.allOrders.findIndex(o => o.id === orderId);
-            if (allIndex !== -1) {
-              this.allOrders[allIndex] = updatedOrder;
-            }
+        this.filterItems();
 
-            this.filterItems();
-
-            this.baseToast.showSuccess('admin.orders.status_update_message', {
-              orderId: orderId,
-              status: this.translateService.instant('admin.orders.status.' + newStatus)
-            });
-
-            if (this.selectedOrder && this.selectedOrder.id === orderId) {
-              this.selectedOrder = updatedOrder;
-            }
-          },
-          error: (error) => {
-            this.baseToast.showApiError(error, 'admin.orders.update_error');
-          }
+        this.baseToast.showSuccess('admin.orders.status_update_message', {
+          orderId: orderId,
+          status: this.translateService.instant('admin.orders.status.' + newStatus)
         });
+
+        if (this.selectedOrder && this.selectedOrder.id === orderId) {
+          this.selectedOrder = updatedOrder;
+        }
+      },
+      error: (error) => {
+        this.baseToast.showApiError(error, 'admin.orders.update_error');
       }
     });
   }
@@ -340,6 +327,8 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
 
   selectNewStatus(newStatus: string): void {
     this.selectedNewStatus = newStatus;
+    this.pulseConfirm = false;
+    setTimeout(() => this.pulseConfirm = true, 10);
   }
 
   confirmStatusChange(): void {

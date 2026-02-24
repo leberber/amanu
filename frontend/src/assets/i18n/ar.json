@@ -776,6 +776,7 @@
       "mark_shipped": "وضع علامة مرسل",
       "mark_delivered": "وضع علامة مسلم",
       "cancel_order": "إلغاء الطلب",
+      "change_status": "تغيير الحالة",
       "confirm": "تأكيد",
       "order_number": "الطلب",
       "customer": "العميل",

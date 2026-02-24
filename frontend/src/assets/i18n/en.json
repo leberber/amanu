@@ -774,6 +774,7 @@
       "mark_shipped": "Mark as Shipped",
       "mark_delivered": "Mark as Delivered",
       "cancel_order": "Cancel Order",
+      "change_status": "Change Status",
       "confirm": "Confirm",
       "order_number": "Order",
       "customer": "Customer",

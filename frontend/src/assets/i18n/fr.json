@@ -771,6 +771,7 @@
       "mark_shipped": "Marquer comme Expédiée",
       "mark_delivered": "Marquer comme Livrée",
       "cancel_order": "Annuler la Commande",
+      "change_status": "Changer le Statut",
       "confirm": "Confirmer",
       "order_number": "Commande",
       "customer": "Client",

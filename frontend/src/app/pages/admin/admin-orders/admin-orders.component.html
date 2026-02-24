@@ -260,7 +260,7 @@
                             </div>
                             <div class="status-edit-actions">
                               @if (selectedNewStatus) {
-                                <button class="cell-edit__btn cell-edit__btn--confirm" (click)="confirmStatusChange()">
+                                <button class="cell-edit__btn cell-edit__btn--confirm" [class.pulse]="pulseConfirm" (click)="confirmStatusChange()">
                                   <i class="pi pi-check"></i>
                                 </button>
                               }
@@ -288,29 +288,17 @@
                             <i class="pi pi-eye"></i>
                           </button>
 
-                          @if (order.status === 'pending') {
-                            <button class="action-btn confirm" (click)="updateOrderStatus(order.id, 'confirmed')" [pTooltip]="'admin.orders.confirm_order' | translate" tooltipPosition="top">
-                              <i class="pi pi-check"></i>
-                            </button>
-                          }
-
-                          @if (order.status === 'confirmed') {
-                            <button class="action-btn ship" (click)="updateOrderStatus(order.id, 'shipped')" [pTooltip]="'admin.orders.mark_shipped' | translate" tooltipPosition="top">
-                              <i class="pi pi-send"></i>
-                            </button>
-                          }
-
-                          @if (order.status === 'shipped') {
-                            <button class="action-btn confirm" (click)="updateOrderStatus(order.id, 'delivered')" [pTooltip]="'admin.orders.mark_delivered' | translate" tooltipPosition="top">
-                              <i class="pi pi-check-circle"></i>
-                            </button>
-                          }
-
-                          @if (order.status !== 'cancelled' && order.status !== 'delivered') {
-                            <button class="action-btn delete" (click)="updateOrderStatus(order.id, 'cancelled')" [pTooltip]="'admin.orders.cancel_order' | translate" tooltipPosition="top">
-                              <i class="pi pi-times"></i>
-                            </button>
-                          }
+                          <button
+                            class="action-btn edit"
+                            [class.disabled]="!canEditStatus(order.status)"
+                            [class.delivered]="order.status === 'delivered'"
+                            [class.cancelled]="order.status === 'cancelled'"
+                            [disabled]="!canEditStatus(order.status)"
+                            (click)="startEditStatus(order)"
+                            [pTooltip]="'admin.orders.change_status' | translate"
+                            tooltipPosition="top">
+                            <i class="pi pi-sync"></i>
+                          </button>
                         </div>
                       </td>
                     }
