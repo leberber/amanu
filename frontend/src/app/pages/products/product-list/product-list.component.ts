@@ -241,6 +241,11 @@ export class ProductListComponent implements OnInit, OnDestroy {
     this.searchService.setQuery(value);
   }
 
+  onSearchInput(event: Event): void {
+    const value = (event.target as HTMLInputElement).value;
+    this.searchService.setQuery(value);
+  }
+
   toggleViewMode(): void {
     this.preferencesService.toggleProductViewMode();
   }
