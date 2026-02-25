@@ -1495,29 +1495,7 @@
 
 
 // =============================================================================
-// 24. ORGANIC BADGE
-// =============================================================================
-// Badge for organic products
-
-.organic-badge {
-  background: var(--color-success);
-  color: var(--color-white);
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-bold);
-  padding: var(--space-1) var(--space-2);
-  border-radius: var(--radius-sm);
-  text-transform: uppercase;
-  flex-shrink: 0;
-
-  // Inline variant with margin
-  &--inline {
-    margin-left: var(--space-2);
-  }
-}
-
-
-// =============================================================================
-// 25. ITEM SKELETON
+// 24. ITEM SKELETON
 // =============================================================================
 // Skeleton wrapper for list items
 
@@ -2144,178 +2122,7 @@
 
 
 // =============================================================================
-// 38. PRODUCT LIST ITEM
-// =============================================================================
-// List view item for products
-
-.products-list {
-  display: flex;
-  flex-direction: column;
-}
-
-.product-list-item {
-  display: flex;
-  background: var(--surface-card);
-  border-bottom: var(--border-width) solid var(--border-color-light);
-  padding: var(--space-5) 0;
-
-  &:last-child {
-    border-bottom: none;
-  }
-
-  &--mobile {
-    .product-list-item__image {
-      width: 5rem;
-      height: 5rem;
-    }
-    .product-list-item__content {
-      padding: var(--space-2) var(--space-1) var(--space-2) var(--space-2);
-    }
-  }
-
-  &__image {
-    position: relative;
-    width: 5rem;
-    height: 5rem;
-    flex-shrink: 0;
-    overflow: hidden;
-
-    @media (min-width: 1024px) {
-      width: 10rem;
-      height: 8rem;
-    }
-
-    img {
-      width: 100%;
-      height: 100%;
-      padding: var(--space-1);
-      object-fit: contain;
-    }
-  }
-
-  &__content {
-    flex: 1;
-    padding: var(--space-2) var(--space-1) var(--space-2) var(--space-3);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    min-width: 0;
-  }
-
-  &__name {
-    font-size: var(--font-size-lg);
-    font-weight: var(--font-weight-medium);
-    margin: 0 0 var(--space-4) 0;
-    line-height: 1.2;
-
-    a {
-      color: var(--text-color);
-      text-decoration: none;
-      transition: color var(--transition-fast);
-      &:hover { color: var(--primary-color); }
-    }
-  }
-
-  &__description {
-    font-size: var(--font-size-sm);
-    color: var(--text-color-secondary);
-    margin: 0 0 var(--space-3) 0;
-    line-height: 1.5;
-    overflow: hidden;
-    display: -webkit-box;
-    -webkit-line-clamp: 1;
-    -webkit-box-orient: vertical;
-  }
-
-  &__price-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: var(--space-4);
-    flex-wrap: wrap;
-    gap: var(--space-2);
-  }
-
-  &__price {
-    .price-current {
-      font-size: var(--font-size-base);
-      font-weight: var(--font-weight-semibold);
-      color: var(--text-color);
-    }
-    .price-unit {
-      font-size: var(--font-size-sm);
-      color: var(--text-color-secondary);
-    }
-  }
-
-  &__box-price {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    margin-bottom: var(--space-3);
-    font-size: var(--font-size-xs);
-
-    .box-label { color: var(--text-color-secondary); }
-    .box-price { font-weight: var(--font-weight-bold); color: var(--color-error); }
-    .box-qty { color: var(--text-color-secondary); }
-  }
-
-  &__actions {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-3);
-    margin-top: auto;
-  }
-}
-
-
-// =============================================================================
-// 39. STOCK BADGES
-// =============================================================================
-// Status badges for stock availability
-
-.stock-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-
-  i { font-size: var(--font-size-xs); }
-
-  &--in { color: var(--color-success); }
-  &--low { color: var(--color-warning); }
-  &--out { color: var(--color-error); }
-}
-
-
-// =============================================================================
-// 40. CART INDICATORS
-// =============================================================================
-// Cart status row and indicators
-
-.cart-status-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-2);
-  padding: var(--space-2) 0;
-}
-
-.cart-indicator {
-  display: flex;
-  align-items: center;
-  gap: var(--space-1);
-  font-size: var(--font-size-sm);
-  color: var(--text-color-secondary);
-
-  i { font-size: var(--font-size-sm); }
-  &--in { color: var(--color-success); }
-}
-
-
-// =============================================================================
-// 41. PRODUCT CARD SKELETON
+// 38. PRODUCT CARD SKELETON
 // =============================================================================
 // Skeleton loading for product cards
 
@@ -2386,25 +2193,7 @@
 
 
 // =============================================================================
-// 42. ORGANIC BADGE
-// =============================================================================
-// Badge for organic products
-
-.organic-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-  padding: var(--space-1) var(--space-2);
-  background: rgba(34, 197, 94, 0.9);
-  color: var(--color-white);
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-semibold);
-  border-radius: var(--radius-sm);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-// =============================================================================
-// 43. BOTTOM NAVIGATION
+// 42. BOTTOM NAVIGATION
 // =============================================================================
 // Mobile-only bottom navigation bar with sliding indicator
 // Hidden on desktop (>= 768px) where sidebar is used instead

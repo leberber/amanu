@@ -115,24 +115,7 @@
 // -----------------------------------------------------------------------------
 // Frontend Grid Layouts (Structural)
 // -----------------------------------------------------------------------------
-.products-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: var(--space-3);
-  padding: var(--space-3);
 
-  @media (min-width: 768px) {
-    grid-template-columns: repeat(3, 1fr);
-    gap: var(--space-4);
-    padding: var(--space-4);
-  }
-
-  @media (min-width: 1024px) {
-    grid-template-columns: repeat(4, 1fr);
-    gap: var(--space-5);
-    padding: var(--space-5);
-  }
-}
 
 .categories-grid {
   display: grid;
@@ -222,3 +205,5 @@
     grid-template-columns: 1fr;
   }
 }
+
+
