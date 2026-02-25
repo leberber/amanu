@@ -1,13 +1,12 @@
-import { Component, OnInit, signal, inject, computed } from '@angular/core';
+import { Component, OnInit, signal, inject, computed, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { TextareaModule } from 'primeng/textarea';
 import { SelectModule } from 'primeng/select';
-import { CheckboxModule } from 'primeng/checkbox';
 import { ToastModule } from 'primeng/toast';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
@@ -36,12 +35,10 @@ interface ProductWithTranslations extends Product {
   imports: [
     FormsModule,
     ReactiveFormsModule,
-    ButtonModule,
     InputTextModule,
     InputNumberModule,
     TextareaModule,
     SelectModule,
-    CheckboxModule,
     ToastModule,
     TranslateModule,
     PageLayoutComponent
@@ -61,6 +58,7 @@ export class AdminAddProductComponent implements OnInit {
   private readonly unitsService = inject(UnitsService);
   private readonly packagingTypeService = inject(PackagingTypeService);
   private readonly adminFormService = inject(AdminFormService);
+  private readonly destroyRef = inject(DestroyRef);
 
   // Form
   productForm!: FormGroup;
@@ -84,12 +82,13 @@ export class AdminAddProductComponent implements OnInit {
   readonly categoryOptions = signal<{ label: string; value: number }[]>([]);
   readonly brandOptions = signal<{ label: string; value: number }[]>([]);
 
-  // Product count for badge
-  readonly productCount = signal(0);
-
   // Stock cartons input (amount to ADD, not total)
   readonly cartonsInput = signal<number>(0);
   readonly originalStock = signal<number>(0);
+
+  // Form field signals for computed properties
+  private readonly packagingTypeValue = signal<string | null>(null);
+  private readonly piecesPerBoxValue = signal<number | null>(null);
 
   // Computed properties
   readonly pageTitle = computed(() =>
@@ -107,6 +106,27 @@ export class AdminAddProductComponent implements OnInit {
   readonly mobileSubtitle = computed(() =>
     this.isEditMode() ? 'common.edit' : 'common.add'
   );
+
+  // Computed properties for template (performance optimization)
+  readonly unitOptions = computed(() => this.unitsService.getUnitOptions(true));
+  readonly packagingTypeOptions = computed(() => this.packagingTypeService.getPackagingTypeOptions(true));
+
+  readonly isPackagingConfigured = computed(() =>
+    !!this.packagingTypeValue() && (this.piecesPerBoxValue() ?? 0) > 1
+  );
+
+  readonly piecesPerBox = computed(() => this.piecesPerBoxValue() || 1);
+
+  readonly packagingTypeLabel = computed(() => {
+    const packagingType = this.packagingTypeValue();
+    return packagingType
+      ? this.packagingTypeService.getPackagingTypeTranslated(packagingType)
+      : this.translateService.instant('products.product.packaging_types.box');
+  });
+
+  readonly stockToAdd = computed(() => this.cartonsInput() * this.piecesPerBox());
+
+  readonly newTotalStock = computed(() => this.originalStock() + this.stockToAdd());
 
   // Routes for navigation
   readonly ROUTES = ROUTES;
@@ -134,16 +154,24 @@ export class AdminAddProductComponent implements OnInit {
 
     this.loadCategories();
     this.loadBrands();
-    this.loadProductCount();
     this.detectMode();
 
-    // Watch pieces_per_box changes to update cartons input
-    this.productForm.get('pieces_per_box')?.valueChanges.subscribe(piecesPerBox => {
-      if (piecesPerBox && piecesPerBox > 1) {
-        const stockQuantity = this.productForm.get('stock_quantity')?.value || 0;
-        this.cartonsInput.set(Math.floor(stockQuantity / piecesPerBox));
-      }
-    });
+    // Watch form field changes to update computed signals
+    this.productForm.get('pieces_per_box')?.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(piecesPerBox => {
+        this.piecesPerBoxValue.set(piecesPerBox);
+        if (piecesPerBox && piecesPerBox > 1) {
+          const stockQuantity = this.productForm.get('stock_quantity')?.value || 0;
+          this.cartonsInput.set(Math.floor(stockQuantity / piecesPerBox));
+        }
+      });
+
+    this.productForm.get('packaging_type')?.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(packagingType => {
+        this.packagingTypeValue.set(packagingType);
+      });
 
     // Initialize form after brief delay for skeleton animation
     setTimeout(() => this.formInitialized.set(true), 300);
@@ -155,91 +183,97 @@ export class AdminAddProductComponent implements OnInit {
       this.isEditMode.set(true);
     }
 
-    this.route.paramMap.subscribe(params => {
-      const id = params.get('id');
-      if (id) {
-        this.editProductId = parseInt(id, 10);
-        this.isEditMode.set(true);
-        this.loadProductForEdit();
-      }
-    });
+    this.route.paramMap
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(params => {
+        const id = params.get('id');
+        if (id) {
+          this.editProductId = parseInt(id, 10);
+          this.isEditMode.set(true);
+          this.loadProductForEdit();
+        }
+      });
   }
 
   private loadCategories(): void {
     this.categoriesLoading.set(true);
-    this.productService.getCategories(true).subscribe({
-      next: (categories: Category[]) => {
-        this.categoryOptions.set(categories.map(c => ({ label: c.name, value: c.id })));
-        this.categoriesLoading.set(false);
-      },
-      error: () => {
-        this.categoriesLoading.set(false);
-        this.toast.showError('products.filters.error');
-      }
-    });
+    this.productService.getCategories(true)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (categories: Category[]) => {
+          this.categoryOptions.set(categories.map(c => ({ label: c.name, value: c.id })));
+          this.categoriesLoading.set(false);
+        },
+        error: () => {
+          this.categoriesLoading.set(false);
+          this.toast.showError('products.filters.error');
+        }
+      });
   }
 
   private loadBrands(): void {
     this.brandsLoading.set(true);
-    this.brandService.getBrands(true).subscribe({
-      next: (brands: Brand[]) => {
-        this.brandOptions.set(brands.map(b => ({ label: b.name, value: b.id })));
-        this.brandsLoading.set(false);
-      },
-      error: () => {
-        this.brandsLoading.set(false);
-        this.toast.showError('admin.brands.load_error');
-      }
-    });
-  }
-
-  private loadProductCount(): void {
-    this.productService.getProducts().subscribe({
-      next: (products: Product[]) => this.productCount.set(products.length)
-    });
+    this.brandService.getBrands(true)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (brands: Brand[]) => {
+          this.brandOptions.set(brands.map(b => ({ label: b.name, value: b.id })));
+          this.brandsLoading.set(false);
+        },
+        error: () => {
+          this.brandsLoading.set(false);
+          this.toast.showError('admin.brands.load_error');
+        }
+      });
   }
 
   private loadProductForEdit(): void {
     if (!this.editProductId) return;
 
     this.loading.set(true);
-    
-    this.productService.getProduct(this.editProductId).subscribe({
-      next: (product: Product) => {
-        this.currentProduct = product as ProductWithTranslations;
-        
-        this.productForm.patchValue({
-          name_en: this.currentProduct.name_translations?.['en'] || product.name,
-          name_fr: this.currentProduct.name_translations?.['fr'] || product.name,
-          name_ar: this.currentProduct.name_translations?.['ar'] || product.name,
-          description_en: this.currentProduct.description_translations?.['en'] || product.description || '',
-          description_fr: this.currentProduct.description_translations?.['fr'] || product.description || '',
-          description_ar: this.currentProduct.description_translations?.['ar'] || product.description || '',
-          price: product.price,
-          unit: product.unit,
-          stock_quantity: product.stock_quantity,
-          category_id: product.category_id,
-          brand_id: product.brand_id || null,
-          image_url: product.image_url || '',
-          is_organic: product.is_organic,
-          is_active: product.is_active,
-          pieces_per_box: product.pieces_per_box || null,
-          packaging_type: product.packaging_type || null
-        });
 
-        // Store original stock for the formula display
-        this.originalStock.set(product.stock_quantity);
-        // Reset cartons input to 0 (user will add stock)
-        this.cartonsInput.set(0);
+    this.productService.getProduct(this.editProductId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (product: Product) => {
+          this.currentProduct = product as ProductWithTranslations;
 
-        this.loading.set(false);
-      },
-      error: () => {
-        this.loading.set(false);
-        this.toast.showError('products.filters.error');
-        this.router.navigate([ROUTES.ADMIN.PRODUCTS]);
-      }
-    });
+          this.productForm.patchValue({
+            name_en: this.currentProduct.name_translations?.['en'] || product.name,
+            name_fr: this.currentProduct.name_translations?.['fr'] || product.name,
+            name_ar: this.currentProduct.name_translations?.['ar'] || product.name,
+            description_en: this.currentProduct.description_translations?.['en'] || product.description || '',
+            description_fr: this.currentProduct.description_translations?.['fr'] || product.description || '',
+            description_ar: this.currentProduct.description_translations?.['ar'] || product.description || '',
+            price: product.price,
+            unit: product.unit,
+            stock_quantity: product.stock_quantity,
+            category_id: product.category_id,
+            brand_id: product.brand_id || null,
+            image_url: product.image_url || '',
+            is_organic: product.is_organic,
+            is_active: product.is_active,
+            pieces_per_box: product.pieces_per_box || null,
+            packaging_type: product.packaging_type || null
+          });
+
+          // Update signals for computed properties
+          this.packagingTypeValue.set(product.packaging_type || null);
+          this.piecesPerBoxValue.set(product.pieces_per_box || null);
+
+          // Store original stock for the formula display
+          this.originalStock.set(product.stock_quantity);
+          // Reset cartons input to 0 (user will add stock)
+          this.cartonsInput.set(0);
+
+          this.loading.set(false);
+        },
+        error: () => {
+          this.loading.set(false);
+          this.toast.showError('products.filters.error');
+          this.router.navigate([ROUTES.ADMIN.PRODUCTS]);
+        }
+      });
   }
 
   onCancel(): void {
@@ -333,43 +367,9 @@ export class AdminAddProductComponent implements OnInit {
     return step1Fields.every(field => this.productForm.get(field)?.valid);
   }
 
-  // Template helper methods
-  getUnitOptions(): { label: string; value: string }[] {
-    return this.unitsService.getUnitOptions(true);
-  }
-
-  getPackagingTypeOptions(): { label: string; value: string }[] {
-    return this.packagingTypeService.getPackagingTypeOptions(true);
-  }
-
-  isPackagingConfigured(): boolean {
-    const packagingType = this.productForm.get('packaging_type')?.value;
-    const piecesPerBox = this.productForm.get('pieces_per_box')?.value;
-    return !!packagingType && piecesPerBox > 1;
-  }
-
-  getPiecesPerBox(): number {
-    return this.productForm.get('pieces_per_box')?.value || 1;
-  }
-
-  getPackagingTypeLabel(): string {
-    const packagingType = this.productForm.get('packaging_type')?.value;
-    return packagingType
-      ? this.packagingTypeService.getPackagingTypeTranslated(packagingType)
-      : this.translateService.instant('products.product.packaging_types.box');
-  }
-
   onCartonsInputChange(value: number): void {
     this.cartonsInput.set(value || 0);
-    const piecesToAdd = (value || 0) * this.getPiecesPerBox();
+    const piecesToAdd = (value || 0) * this.piecesPerBox();
     this.productForm.patchValue({ stock_quantity: this.originalStock() + piecesToAdd });
-  }
-
-  getStockToAdd(): number {
-    return this.cartonsInput() * this.getPiecesPerBox();
-  }
-
-  getNewTotalStock(): number {
-    return this.originalStock() + this.getStockToAdd();
   }
 }

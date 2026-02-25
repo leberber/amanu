@@ -191,8 +191,8 @@
               <div class="col-12 lg:col-6 item-animate" [style.animation-delay]="'0ms'">
                 <div class="form-card">
                   <div class="card-header">
-                    <div class="card-header__icon" style="background: rgba(139, 92, 246, 0.1);">
-                      <i class="pi pi-dollar" style="color: #8b5cf6;"></i>
+                    <div class="card-header__icon" style="background: rgba(var(--purple-500-rgb, 139, 92, 246), 0.1);">
+                      <i class="pi pi-dollar" style="color: var(--purple-500);"></i>
                     </div>
                     <h3 class="card-header__title">{{ 'admin.products.form.pricing_inventory' | translate }}</h3>
                   </div>
@@ -252,7 +252,7 @@
                           </div>
                           <div class="field-box__content">
                             <label>{{ 'admin.products.form.unit' | translate }} <span class="required">*</span></label>
-                            <p-select formControlName="unit" [options]="getUnitOptions()" optionLabel="label" optionValue="value" [placeholder]="'admin.products.form.unit' | translate" styleClass="w-full" appendTo="body" />
+                            <p-select formControlName="unit" [options]="unitOptions()" optionLabel="label" optionValue="value" [placeholder]="'admin.products.form.unit' | translate" styleClass="w-full" appendTo="body" />
                           </div>
                         </div>
                         @if (productForm.get('unit')?.invalid && productForm.get('unit')?.touched) {
@@ -281,8 +281,8 @@
               <div class="col-12 lg:col-6 item-animate" [style.animation-delay]="'100ms'">
                 <div class="form-card">
                   <div class="card-header">
-                    <div class="card-header__icon" style="background: rgba(249, 115, 22, 0.1);">
-                      <i class="pi pi-box" style="color: #f97316;"></i>
+                    <div class="card-header__icon" style="background: rgba(var(--orange-500-rgb, 249, 115, 22), 0.1);">
+                      <i class="pi pi-box" style="color: var(--orange-500);"></i>
                     </div>
                     <h3 class="card-header__title">{{ 'admin.products.form.inventory' | translate }}</h3>
                   </div>
@@ -296,7 +296,7 @@
                           </div>
                           <div class="field-box__content">
                             <label>{{ 'admin.products.form.packaging_type' | translate }} <span class="required">*</span></label>
-                            <p-select formControlName="packaging_type" [options]="getPackagingTypeOptions()" optionLabel="label" optionValue="value" [placeholder]="'admin.products.form.packaging_type_placeholder' | translate" styleClass="w-full" appendTo="body" />
+                            <p-select formControlName="packaging_type" [options]="packagingTypeOptions()" optionLabel="label" optionValue="value" [placeholder]="'admin.products.form.packaging_type_placeholder' | translate" styleClass="w-full" appendTo="body" />
                           </div>
                         </div>
                       </div>
@@ -324,10 +324,10 @@
                             <label>{{ 'admin.products.form.add_stock' | translate }} <span class="required">*</span></label>
                             <div class="flex align-items-center gap-3">
                               <p-inputNumber [ngModel]="cartonsInput()" (ngModelChange)="onCartonsInputChange($event)" [ngModelOptions]="{standalone: true}" [min]="0" styleClass="w-full" />
-                              <span class="chip chip--success">{{ getPackagingTypeLabel() }}</span>
+                              <span class="chip chip--success">{{ packagingTypeLabel() }}</span>
                             </div>
                             <div class="text-sm text-color-secondary mt-2">
-                              {{ originalStock() }} + ({{ cartonsInput() }} × {{ getPiecesPerBox() }}) = <strong class="text-success">{{ getNewTotalStock() }}</strong>
+                              {{ originalStock() }} + ({{ cartonsInput() }} × {{ piecesPerBox() }}) = <strong class="text-success">{{ newTotalStock() }}</strong>
                             </div>
                           } @else {
                             <label>{{ 'admin.products.form.stock_quantity' | translate }} <span class="required">*</span></label>
@@ -343,7 +343,16 @@
 
                     <!-- Active Switch -->
                     <div class="active-switch-container mt-5">
-                      <div class="active-switch" [class.active-switch--on]="productForm.get('is_active')?.value" (click)="productForm.get('is_active')?.setValue(!productForm.get('is_active')?.value)">
+                      <div
+                        class="active-switch"
+                        [class.active-switch--on]="productForm.get('is_active')?.value"
+                        (click)="productForm.get('is_active')?.setValue(!productForm.get('is_active')?.value)"
+                        (keydown.enter)="productForm.get('is_active')?.setValue(!productForm.get('is_active')?.value)"
+                        (keydown.space)="productForm.get('is_active')?.setValue(!productForm.get('is_active')?.value); $event.preventDefault()"
+                        role="switch"
+                        [attr.aria-checked]="productForm.get('is_active')?.value"
+                        [attr.aria-label]="'admin.products.form.is_active' | translate"
+                        tabindex="0">
                         <div class="active-switch__track">
                           <div class="active-switch__thumb">
                             <i [class]="productForm.get('is_active')?.value ? 'pi pi-check' : 'pi pi-times'"></i>
