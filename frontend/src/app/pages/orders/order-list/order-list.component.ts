@@ -3,9 +3,11 @@ import { Component, OnInit, inject, signal, computed, DestroyRef } from '@angula
 import { Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { TableModule } from 'primeng/table';
 import { ToastModule } from 'primeng/toast';
 import { TagModule } from 'primeng/tag';
+import { PaginatorModule } from 'primeng/paginator';
+import { Popover } from 'primeng/popover';
+import { TooltipModule } from 'primeng/tooltip';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { ROUTES, RouteHelpers } from '../../../core/constants/routes.constants';
@@ -25,9 +27,11 @@ import { StatusPipe } from '../../../shared/pipes/status.pipe';
   standalone: true,
   imports: [
     RouterLink,
-    TableModule,
     ToastModule,
     TagModule,
+    PaginatorModule,
+    Popover,
+    TooltipModule,
     TranslateModule,
     PageLayoutComponent,
     EmptyStateComponent,
@@ -45,10 +49,41 @@ export class OrderListComponent implements OnInit {
   loading = signal(true);
   error = signal(false);
 
+  // Table state
+  isFullscreen = signal(false);
+  rows = signal(10);
+  first = signal(0);
+  readonly rowsPerPageOptions = [5, 10, 25];
+
+  // Time filter for mobile
+  timeFilter = signal<'all' | '7days' | '30days' | '90days'>('all');
+
   // Computed values
   totalSpend = computed(() =>
     this.orders().reduce((sum, order) => sum + order.total_amount, 0)
   );
+
+  // Filtered orders based on time filter (for mobile)
+  filteredOrders = computed(() => {
+    const filter = this.timeFilter();
+    const orders = this.orders();
+
+    if (filter === 'all') return orders;
+
+    const now = new Date();
+    const daysMap = { '7days': 7, '30days': 30, '90days': 90 };
+    const cutoffDate = new Date(now.getTime() - daysMap[filter] * 24 * 60 * 60 * 1000);
+
+    return orders.filter(order => new Date(order.created_at) >= cutoffDate);
+  });
+
+  // Paginated orders for table (respects time filter)
+  paginatedOrders = computed(() => {
+    const filtered = this.filteredOrders();
+    const start = this.first();
+    const end = start + this.rows();
+    return filtered.slice(start, end);
+  });
 
   // Page layout subtitle
   pageSubtitle = computed(() => {
@@ -100,4 +135,30 @@ export class OrderListComponent implements OnInit {
     return this.statusSeverity.getOrderStatusSeverity(status);
   }
 
+  // Table actions
+  toggleFullscreen(): void {
+    this.isFullscreen.update(v => !v);
+  }
+
+  setRowsPerPage(rows: number): void {
+    this.rows.set(rows);
+    this.first.set(0);
+  }
+
+  onPageChange(event: { first?: number; rows?: number }): void {
+    if (event.first !== undefined) this.first.set(event.first);
+    if (event.rows !== undefined) this.rows.set(event.rows);
+  }
+
+  getPaginationTemplate(): string {
+    const total = this.filteredOrders().length;
+    const first = this.first() + 1;
+    const last = Math.min(this.first() + this.rows(), total);
+    return `${first} - ${last} / ${total}`;
+  }
+
+  setTimeFilter(filter: 'all' | '7days' | '30days' | '90days'): void {
+    this.timeFilter.set(filter);
+    this.first.set(0); // Reset pagination when filter changes
+  }
 }

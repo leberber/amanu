@@ -41,6 +41,7 @@
     "close": "Fermer",
     "fullscreen": "Plein écran",
     "exit_fullscreen": "Quitter plein écran",
+    "refresh": "Actualiser",
     "yes": "Oui",
     "no": "Non",
     "and": "et",
@@ -515,7 +516,16 @@
       "total": "Total",
       "actions": "Actions",
       "view": "Voir",
-      "pagination": "Affichage de {first} à {last} sur {totalRecords} commandes"
+      "pagination": "Affichage de {first} à {last} sur {totalRecords} commandes",
+      "options": "Options du tableau",
+      "rows_per_page": "Lignes par page"
+    },
+    "filters": {
+      "all": "Tout",
+      "last_7_days": "7 jours",
+      "last_month": "30 jours",
+      "last_3_months": "90 jours",
+      "no_orders_in_period": "Aucune commande dans cette période"
     },
     "status": {
       "pending": "En attente",

@@ -41,6 +41,7 @@
     "close": "إغلاق",
     "fullscreen": "ملء الشاشة",
     "exit_fullscreen": "الخروج من ملء الشاشة",
+    "refresh": "تحديث",
     "yes": "نعم",
     "no": "لا",
     "and": "و",
@@ -520,7 +521,16 @@
       "total": "المجموع",
       "actions": "الإجراءات",
       "view": "عرض",
-      "pagination": "عرض {first} إلى {last} من {totalRecords} طلبات"
+      "pagination": "عرض {first} إلى {last} من {totalRecords} طلبات",
+      "options": "خيارات الجدول",
+      "rows_per_page": "صفوف في الصفحة"
+    },
+    "filters": {
+      "all": "الكل",
+      "last_7_days": "7 أيام",
+      "last_month": "30 يوم",
+      "last_3_months": "90 يوم",
+      "no_orders_in_period": "لا توجد طلبات في هذه الفترة"
     },
     "status": {
       "pending": "قيد الانتظار",

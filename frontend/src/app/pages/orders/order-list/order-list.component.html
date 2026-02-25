@@ -112,38 +112,84 @@
     <div class="order-list-content">
       <div class="order-grid">
         <!-- Orders Card -->
-        <div class="orders-card app-card">
-          <div class="app-card__header">
-            <div class="app-card__icon">
-              <i class="pi pi-list"></i>
+        <div class="table-container table-container--fullpage" [class.fullscreen]="isFullscreen()">
+          <!-- Table Header with Filter and Actions -->
+          <div class="table-header">
+            <!-- Time Filter Segment Control -->
+            <div class="segment-control segment-control--glass">
+              <button
+                class="segment-control__item"
+                [class.active]="timeFilter() === 'all'"
+                (click)="setTimeFilter('all')">
+                <span>{{ 'orders.filters.all' | translate }}</span>
+              </button>
+              <button
+                class="segment-control__item"
+                [class.active]="timeFilter() === '7days'"
+                (click)="setTimeFilter('7days')">
+                <span>{{ 'orders.filters.last_7_days' | translate }}</span>
+              </button>
+              <button
+                class="segment-control__item"
+                [class.active]="timeFilter() === '30days'"
+                (click)="setTimeFilter('30days')">
+                <span>{{ 'orders.filters.last_month' | translate }}</span>
+              </button>
+              <button
+                class="segment-control__item"
+                [class.active]="timeFilter() === '90days'"
+                (click)="setTimeFilter('90days')">
+                <span>{{ 'orders.filters.last_3_months' | translate }}</span>
+              </button>
             </div>
-            <h2 class="app-card__title">{{ 'orders.list.recent_orders' | translate }}</h2>
+
+            <!-- Table Actions (Desktop only) -->
+            <div class="table-actions hidden md:flex">
+              <button class="table-action-btn" (click)="loadOrders()" [pTooltip]="'common.refresh' | translate">
+                <i class="pi pi-refresh"></i>
+              </button>
+              <button class="table-action-btn" (click)="toggleFullscreen()" [pTooltip]="(isFullscreen() ? 'common.exit_fullscreen' : 'common.fullscreen') | translate">
+                <i [class]="isFullscreen() ? 'pi pi-window-minimize' : 'pi pi-window-maximize'"></i>
+              </button>
+              <button class="table-action-btn" (click)="tableOptionsMenu.toggle($event)" [pTooltip]="'orders.table.options' | translate" tooltipPosition="left">
+                <i class="pi pi-ellipsis-v"></i>
+              </button>
+              <p-popover #tableOptionsMenu>
+                <div class="table-options-menu">
+                  <div class="table-options-section">
+                    <span class="table-options-label">{{ 'orders.table.rows_per_page' | translate }}</span>
+                    <div class="table-options-rows">
+                      @for (option of rowsPerPageOptions; track option) {
+                        <button
+                          class="rows-option"
+                          [class.active]="rows() === option"
+                          (click)="setRowsPerPage(option)">
+                          {{ option }}
+                        </button>
+                      }
+                    </div>
+                  </div>
+                </div>
+              </p-popover>
+            </div>
           </div>
-          <div class="app-card__content">
-            <!-- Desktop Table View -->
-            <div class="hidden md:block">
-              <p-table
-                [value]="orders()"
-                [tableStyle]="{'min-width': '100%'}"
-                [paginator]="orders().length > 10"
-                [rows]="10"
-                [showCurrentPageReport]="true"
-                [rowsPerPageOptions]="[5, 10, 25]"
-                scrollHeight="60vh"
-                [scrollable]="true"
-                [currentPageReportTemplate]="'orders.table.pagination' | translate">
-                <ng-template pTemplate="header">
-                  <tr>
-                    <th>{{ 'orders.table.order_number' | translate }}</th>
-                    <th>{{ 'orders.table.date' | translate }}</th>
-                    <th>{{ 'orders.table.status' | translate }}</th>
-                    <th>{{ 'orders.table.total' | translate }}</th>
-                    <th class="actions-column">{{ 'orders.table.actions' | translate }}</th>
-                  </tr>
-                </ng-template>
-                <ng-template pTemplate="body" let-order>
+
+          <!-- Desktop Table View -->
+          <div class="table-wrapper hidden md:block">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>{{ 'orders.table.order_number' | translate }}</th>
+                  <th>{{ 'orders.table.date' | translate }}</th>
+                  <th>{{ 'orders.table.status' | translate }}</th>
+                  <th>{{ 'orders.table.total' | translate }}</th>
+                  <th class="actions-column">{{ 'orders.table.actions' | translate }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (order of paginatedOrders(); track order.id; let i = $index) {
                   <tr class="order-row" (click)="viewOrderDetails(order.id)">
-                    <td class="order-number">{{ order.id }}</td>
+                    <td class="order-number">#{{ order.id }}</td>
                     <td>{{ order.created_at | appDate }}</td>
                     <td>
                       <p-tag [severity]="getStatusSeverity(order.status)" [value]="order.status | appStatus"></p-tag>
@@ -156,13 +202,35 @@
                       </button>
                     </td>
                   </tr>
-                </ng-template>
-              </p-table>
-            </div>
+                }
+              </tbody>
+            </table>
+          </div>
 
-            <!-- Mobile Card View -->
-            <ul class="order-list block md:hidden">
-              @for (order of orders(); track order.id; let i = $index) {
+          <!-- Pagination (Desktop only) -->
+          @if (filteredOrders().length > rows()) {
+            <div class="table-footer hidden md:flex">
+              <p-paginator
+                [first]="first()"
+                [rows]="rows()"
+                [totalRecords]="filteredOrders().length"
+                (onPageChange)="onPageChange($event)"
+                [showCurrentPageReport]="true"
+                [currentPageReportTemplate]="getPaginationTemplate()">
+              </p-paginator>
+            </div>
+          }
+
+          <!-- Results Count (when no pagination needed, desktop only) -->
+          @if (filteredOrders().length <= rows()) {
+            <div class="table-footer results-info hidden md:flex">
+              <span>{{ filteredOrders().length }} {{ 'orders.stats.total_orders' | translate }}</span>
+            </div>
+          }
+
+          <!-- Mobile Card View -->
+          <ul class="order-list block md:hidden">
+              @for (order of filteredOrders(); track order.id; let i = $index) {
                 <li class="order-item item-animate" [style.animation-delay]="(i * 50) + 'ms'" (click)="viewOrderDetails(order.id)">
                   <div class="order-item__icon">
                     <i class="pi pi-shopping-bag"></i>
@@ -186,8 +254,13 @@
                   </div>
                 </li>
               }
+              @if (filteredOrders().length === 0) {
+                <li class="order-list__empty">
+                  <i class="pi pi-inbox"></i>
+                  <span>{{ 'orders.filters.no_orders_in_period' | translate }}</span>
+                </li>
+              }
             </ul>
-          </div>
         </div>
 
         <!-- Sidebar - Stats -->
