@@ -456,21 +456,22 @@
 // -----------------------------------------------------------------------------
 // Back Button
 // -----------------------------------------------------------------------------
-.btn-back {
+.btn-back,
+.back-btn {
   @extend %btn-base;
-  padding: var(--space-4) var(--space-7);
-  background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur);
+  padding: var(--space-3) var(--space-5);
+  background: var(--color-white);
   border: var(--border-width) solid var(--border-color-light);
   border-radius: var(--radius-md);
   color: var(--text-color-secondary);
   font-weight: var(--font-weight-medium);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-xs);
 
   &:hover {
-    background: var(--color-white);
-    box-shadow: var(--shadow-md);
-    transform: translateX(-2px);
+    background: var(--surface-50);
+    border-color: var(--border-color);
+    color: var(--text-color);
+    box-shadow: var(--shadow-sm);
   }
 
   i {

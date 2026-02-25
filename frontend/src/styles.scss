@@ -51,6 +51,7 @@
 @use './styles/progress' as *;
 @use './styles/steppers' as *;
 @use './styles/avatars' as *;
+@use './styles/icons' as *;
 @use './styles/chips' as *;
 @use './styles/stats' as *;
 @use './styles/info-boxes' as *;
@@ -65,6 +66,7 @@
 @use './styles/components' as *;
 @use './styles/skeleton' as *;
 @use './styles/quantity-overlay' as *;
+@use './styles/decoration' as *;
 
 // ---------------------------------------------------------------------------
 // 5. Layout (structural positioning only)

@@ -1,0 +1,136 @@
+// =============================================================================
+// ICONS
+// =============================================================================
+// Icon wrappers, decorative icon containers, and animated icon styles.
+// Uses variables from: _colors.scss, _spacing.scss, _effects.scss
+// =============================================================================
+
+
+// =============================================================================
+// 1. BASIC ICON WRAPPER
+// =============================================================================
+
+.icon-wrapper {
+  position: relative;
+  width: var(--icon-2xl);
+  height: var(--icon-2xl);
+  flex-shrink: 0;
+}
+
+
+// =============================================================================
+// 2. ICON BACKGROUND (Animated pulse)
+// =============================================================================
+
+.icon-bg {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: var(--icon-2xl);
+  height: var(--icon-2xl);
+  border-radius: var(--radius-full);
+  background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.15) 0%, rgba(var(--primary-rgb), 0.15) 100%);
+  animation: pulseCentered 3s ease-in-out infinite;
+}
+
+
+// =============================================================================
+// 3. ICON CIRCLE
+// =============================================================================
+
+.icon-circle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: var(--icon-xl);
+  height: var(--icon-xl);
+  border-radius: var(--radius-full);
+  background: var(--primary-gradient);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-primary);
+
+  i {
+    font-size: var(--font-size-2xl);
+    color: var(--color-white);
+  }
+}
+
+
+// =============================================================================
+// 4. ADMIN ICON WRAPPER (With animation)
+// =============================================================================
+
+.admin-icon-wrapper {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  flex-shrink: 0;
+
+  .icon-circle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 46px;
+    height: 46px;
+    border-radius: var(--radius-full);
+    background: var(--primary-gradient);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 24px rgba(46, 108, 183, 0.35);
+
+    i {
+      font-size: 1.25rem;
+      color: var(--color-white);
+    }
+  }
+
+  // Square variant for form pages
+  &--square {
+    width: 56px;
+    height: 56px;
+
+    .icon-bg {
+      width: 56px;
+      height: 56px;
+      border-radius: var(--radius-lg);
+      transform: translate(-50%, -50%) rotate(-6deg);
+      opacity: 0.15;
+      animation: none;
+    }
+
+    .icon-circle {
+      width: 56px;
+      height: 56px;
+      border-radius: var(--radius-lg);
+
+      i {
+        font-size: 1.5rem;
+      }
+    }
+  }
+
+  @media (max-width: 480px) {
+    width: 50px;
+    height: 50px;
+
+    .icon-bg {
+      width: 50px;
+      height: 50px;
+    }
+
+    .icon-circle {
+      width: 38px;
+      height: 38px;
+
+      i {
+        font-size: 1rem;
+      }
+    }
+  }
+}
