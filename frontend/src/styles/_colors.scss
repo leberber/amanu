@@ -38,12 +38,15 @@
   // ---------------------------------------------------------------------------
   // Text Colors
   // ---------------------------------------------------------------------------
-  --color-text-primary: #1a1a2e;
-  --color-text-secondary: #64748b;
-  --color-text-muted: #94a3b8;
-  --color-text-placeholder: #a8a8a8;
+  --text-color: #1a1a2e;
+  --text-color-secondary: #64748b;
   --text-color-muted: #94a3b8;
   --text-color-strong: #000000;
+  --text-color-placeholder: #a8a8a8;
+  --color-text-primary: var(--text-color);
+  --color-text-secondary: var(--text-color-secondary);
+  --color-text-muted: var(--text-color-muted);
+  --color-text-placeholder: var(--text-color-placeholder);
   --color-white: #ffffff;
 
   // ---------------------------------------------------------------------------
@@ -196,12 +199,11 @@
 // Dark Mode Overrides
 // ---------------------------------------------------------------------------
 .my-app-dark {
-  --color-text-primary: #f1f5f9;
-  --color-text-secondary: #94a3b8;
-  --color-text-muted: #64748b;
-  --color-text-placeholder: #6b6b6b;
+  --text-color: #f1f5f9;
+  --text-color-secondary: #94a3b8;
   --text-color-muted: #64748b;
   --text-color-strong: #ffffff;
+  --text-color-placeholder: #6b6b6b;
   --border-color-light: rgba(255, 255, 255, 0.06);
   --surface-card-rgb: 30, 30, 30;
   --surface-ground-rgb: 18, 18, 18;

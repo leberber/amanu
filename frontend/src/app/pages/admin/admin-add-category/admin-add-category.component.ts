@@ -9,7 +9,9 @@ import { ToastModule } from 'primeng/toast';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { ROUTES } from '../../../core/constants/routes.constants';
-import { VALIDATION } from '../../../core/constants/app.constants';
+import { ANIMATION, UI_DELAY, VALIDATION } from '../../../core/constants/app.constants';
+
+const TRANSLATION_FIELDS = ['name', 'description'] as const;
 import { ProductService } from '../../../services/product.service';
 import { Category } from '../../../models/category.model';
 import { AdminFormService } from '../../../core/services/admin-form.service';
@@ -49,7 +51,6 @@ export class AdminAddCategoryComponent implements OnInit {
   readonly formInitialized = signal(false);
   readonly isEditMode = signal(false);
   private readonly editCategoryId = signal<number | null>(null);
-  private readonly currentCategory = signal<CategoryWithTranslations | null>(null);
 
   readonly pageTitle = computed(() =>
     this.isEditMode() ? 'admin.categories.edit_category' : 'admin.categories.add_category'
@@ -79,7 +80,7 @@ export class AdminAddCategoryComponent implements OnInit {
     );
 
     this.detectMode();
-    setTimeout(() => this.formInitialized.set(true), 300);
+    setTimeout(() => this.formInitialized.set(true), ANIMATION.NORMAL);
   }
 
   private detectMode(): void {
@@ -111,12 +112,11 @@ export class AdminAddCategoryComponent implements OnInit {
       .subscribe({
         next: (category) => {
           const categoryWithTranslations = category as CategoryWithTranslations;
-          this.currentCategory.set(categoryWithTranslations);
 
           this.adminFormService.populateFormWithTranslations(
             this.categoryForm,
             categoryWithTranslations,
-            ['name', 'description'],
+            [...TRANSLATION_FIELDS],
             { image_url: category.image_url || '', is_active: category.is_active }
           );
 
@@ -141,7 +141,7 @@ export class AdminAddCategoryComponent implements OnInit {
     const formValues = this.categoryForm.value;
     const categoryData = this.adminFormService.buildFormDataWithTranslations(
       formValues,
-      ['name', 'description'],
+      [...TRANSLATION_FIELDS],
       { image_url: formValues.image_url || '', is_active: formValues.is_active }
     );
 
@@ -155,7 +155,7 @@ export class AdminAddCategoryComponent implements OnInit {
             this.adminFormService.handleSuccess({
               message: 'admin.categories.update_success',
               redirectUrl: ROUTES.ADMIN.CATEGORIES,
-              redirectDelay: 1500
+              redirectDelay: UI_DELAY.TOAST_BEFORE_NAVIGATE
             });
           },
           error: (error) => {
@@ -174,7 +174,7 @@ export class AdminAddCategoryComponent implements OnInit {
             this.adminFormService.handleSuccess({
               message: 'admin.categories.create_success',
               redirectUrl: ROUTES.ADMIN.CATEGORIES,
-              redirectDelay: 1500
+              redirectDelay: UI_DELAY.TOAST_BEFORE_NAVIGATE
             });
           },
           error: (error) => {
