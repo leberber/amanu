@@ -247,16 +247,30 @@
 
                     <!-- Price & Unit -->
                     <div class="form-row mt-4">
-                      <div class="admin-form-field">
-                        <label>{{ 'admin.products.form.price' | translate }} <span class="required">*</span></label>
-                        <p-inputNumber formControlName="price" mode="currency" currency="EUR" locale="fr-FR" [placeholder]="'admin.products.form.price' | translate" styleClass="w-full" />
+                      <div class="form-field">
+                        <div class="field-box" [class.filled]="productForm.get('price')?.value">
+                          <div class="field-box__icon field-box__icon--success">
+                            <i class="pi pi-dollar"></i>
+                          </div>
+                          <div class="field-box__content">
+                            <label>{{ 'admin.products.form.price' | translate }} <span class="required">*</span></label>
+                            <p-inputNumber formControlName="price" mode="currency" currency="EUR" locale="fr-FR" [placeholder]="'admin.products.form.price' | translate" styleClass="w-full" />
+                          </div>
+                        </div>
                         @if (productForm.get('price')?.invalid && productForm.get('price')?.touched) {
                           <span class="field-error">{{ 'admin.products.form.price_required' | translate }}</span>
                         }
                       </div>
-                      <div class="admin-form-field">
-                        <label>{{ 'admin.products.form.unit' | translate }} <span class="required">*</span></label>
-                        <p-select formControlName="unit" [options]="getUnitOptions()" optionLabel="label" optionValue="value" [placeholder]="'admin.products.form.unit' | translate" styleClass="w-full" appendTo="body" />
+                      <div class="form-field">
+                        <div class="field-box" [class.filled]="productForm.get('unit')?.value">
+                          <div class="field-box__icon field-box__icon--info">
+                            <i class="pi pi-tag"></i>
+                          </div>
+                          <div class="field-box__content">
+                            <label>{{ 'admin.products.form.unit' | translate }} <span class="required">*</span></label>
+                            <p-select formControlName="unit" [options]="getUnitOptions()" optionLabel="label" optionValue="value" [placeholder]="'admin.products.form.unit' | translate" styleClass="w-full" appendTo="body" />
+                          </div>
+                        </div>
                         @if (productForm.get('unit')?.invalid && productForm.get('unit')?.touched) {
                           <span class="field-error">{{ 'admin.products.form.unit_required' | translate }}</span>
                         }
