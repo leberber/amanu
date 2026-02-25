@@ -428,7 +428,8 @@ router-outlet + * {
 // ---------------------------------------------------------------------------
 // 12. Hide Bottom Nav When Overlay Open
 // ---------------------------------------------------------------------------
-body.quantity-overlay-open {
+body.quantity-overlay-open,
+body.mobile-search-open {
   .bottom-nav {
     display: none !important;
   }

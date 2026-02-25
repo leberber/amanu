@@ -120,11 +120,13 @@ export class ProductListComponent implements OnInit {
 
   openMobileSearch(): void {
     this.showMobileSearch.set(true);
+    this.overlayService.open('mobile-search-open');
     setTimeout(() => this.mobileSearchInput?.nativeElement?.focus(), UI.FOCUS_DELAY);
   }
 
   closeMobileSearch(): void {
     this.showMobileSearch.set(false);
+    this.overlayService.close('mobile-search-open');
   }
 
   submitMobileSearch(): void {

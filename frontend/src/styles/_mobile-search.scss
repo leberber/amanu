@@ -10,8 +10,9 @@
 // -----------------------------------------------------------------------------
 .mobile-search-overlay {
   background: var(--surface-card);
-  padding: 20px 10px;
+  padding: 16px;
   animation: mobileSearchSlideIn 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08);
 
   @media (min-width: 1024px) {
     display: none;
@@ -35,18 +36,20 @@
 .mobile-search-container {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
-  background: var(--surface-ground);
-  border-radius: var(--radius-md);
-  padding: var(--space-2) var(--space-4);
-  border: 1px solid var(--surface-200);
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  gap: var(--space-3);
+  background: var(--surface-card);
+  border-radius: var(--radius-lg);
+  padding: var(--space-3) var(--space-4);
+  border: 2px solid transparent;
+  transition: all 0.2s ease;
   animation: mobileSearchContainerIn 0.35s cubic-bezier(0.22, 1, 0.36, 1) 0.05s both;
+  box-shadow: 0 4px 16px rgba(var(--primary-rgb), 0.15),
+              0 0 0 4px rgba(var(--primary-rgb), 0.08);
 
   &:focus-within {
     border-color: var(--primary-color);
-    background: var(--surface-card);
-    box-shadow: 0 4px 20px rgba(var(--primary-rgb), 0.15);
+    box-shadow: 0 8px 32px rgba(var(--primary-rgb), 0.25),
+                0 0 0 4px rgba(var(--primary-rgb), 0.12);
   }
 }
 
