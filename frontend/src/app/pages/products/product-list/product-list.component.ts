@@ -7,8 +7,8 @@
 import { Component, computed, effect, inject, OnInit, signal, DestroyRef, ViewChild, ElementRef } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Observable, forkJoin, of } from 'rxjs';
-import { switchMap, tap, map } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import { switchMap, tap } from 'rxjs/operators';
 
 import { ToastModule } from 'primeng/toast';
 import { ButtonModule } from 'primeng/button';
@@ -76,7 +76,6 @@ export class ProductListComponent implements OnInit {
   products = signal<Product[]>([]);
   categories = signal<Category[]>([]);
   brands = signal<Brand[]>([]);
-  selectedCategories = signal<Category[]>([]);
   activeCategoryId = signal<number | null>(null);
   activeBrandId = signal<number | null>(null);
   filterMode = signal<'categories' | 'brands'>('categories');
@@ -190,14 +189,7 @@ export class ProductListComponent implements OnInit {
 
   selectCategoryFromBar(categoryId: number | null): void {
     if (categoryId === null) return;
-
     this.activeCategoryId.set(categoryId);
-
-    const category = this.categories().find(c => c.id === categoryId);
-    if (category) {
-      this.selectedCategories.set([category]);
-    }
-
     this.reloadWithAnimation();
   }
 
@@ -245,10 +237,7 @@ export class ProductListComponent implements OnInit {
     if (!this.selectedBoxOptions[productId]) {
       const product = this.products().find(p => p.id === productId);
       if (product) {
-        const options = this.getBoxOptions(product);
-        if (options.length > 0) {
-          this.selectedBoxOptions[productId] = options[0];
-        }
+        this.initializeBoxOption(product);
       }
     }
     return this.selectedBoxOptions[productId] || null;
@@ -271,18 +260,17 @@ export class ProductListComponent implements OnInit {
     this.activeProduct.set(product);
     this.showQuantitySelector.set(true);
     this.overlayService.open('quantity-overlay-open');
+    this.initializeBoxOption(product, this.getCartQuantity(product.id));
+  }
 
-    const cartQuantity = this.getCartQuantity(product.id);
+  private initializeBoxOption(product: Product, cartQuantity = 0): void {
     const options = this.getBoxOptions(product);
+    if (options.length === 0) return;
 
     if (cartQuantity > 0) {
       const matchingOption = options.find(opt => opt.pieces === cartQuantity);
-      if (matchingOption) {
-        this.selectedBoxOptions[product.id] = matchingOption;
-      } else if (options.length > 0) {
-        this.selectedBoxOptions[product.id] = options[0];
-      }
-    } else if (!this.selectedBoxOptions[product.id] && options.length > 0) {
+      this.selectedBoxOptions[product.id] = matchingOption || options[0];
+    } else if (!this.selectedBoxOptions[product.id]) {
       this.selectedBoxOptions[product.id] = options[0];
     }
   }
@@ -362,13 +350,7 @@ export class ProductListComponent implements OnInit {
               } else if (params['category']) {
                 const categoryId = Number(params['category']);
                 this.filterMode.set('categories');
-                this.filters.update(f => ({ ...f, category_id: categoryId }));
-
-                const selectedCategory = this.categories().find(c => c.id === categoryId);
-                if (selectedCategory) {
-                  this.activeCategoryId.set(categoryId);
-                  this.selectedCategories.set([selectedCategory]);
-                }
+                this.activeCategoryId.set(categoryId);
               }
             }
 
@@ -395,101 +377,37 @@ export class ProductListComponent implements OnInit {
 
   private setDefaultCategory(categories: Category[]): void {
     if (categories.length > 0) {
-      const firstCategory = categories[0];
       this.filterMode.set('categories');
-      this.activeCategoryId.set(firstCategory.id);
-      this.selectedCategories.set([firstCategory]);
+      this.activeCategoryId.set(categories[0].id);
     }
   }
 
   private loadProducts(): Observable<Product[]> {
-    const currentMode = this.filterMode();
+    const currentFilters = { ...this.filters() };
 
-    if (currentMode === 'brands') {
-      const currentFilters = { ...this.filters() };
+    if (this.filterMode() === 'brands') {
       if (this.activeBrandId()) {
         currentFilters.brand_id = this.activeBrandId()!;
       }
       delete currentFilters.category_id;
-
-      return this.productService.getProducts(currentFilters).pipe(
-        tap(products => {
-          this.products.set(products);
-          this.loading.set(false);
-        })
-      );
-    }
-
-    const selectedCats = this.selectedCategories();
-
-    if (selectedCats.length === 0) {
-      this.products.set([]);
-      this.loading.set(false);
-      return of([]);
-    }
-
-    if (selectedCats.length === 1) {
-      const currentFilters = { ...this.filters(), category_id: selectedCats[0].id };
+    } else {
+      const categoryId = this.activeCategoryId();
+      if (!categoryId) {
+        this.setProductsAndStopLoading([]);
+        return of([]);
+      }
+      currentFilters.category_id = categoryId;
       delete currentFilters.brand_id;
-
-      return this.productService.getProducts(currentFilters).pipe(
-        tap(products => {
-          this.products.set(products);
-          this.loading.set(false);
-        })
-      );
     }
 
-    this.loading.set(true);
-
-    const categoryObservables = selectedCats.map(category => {
-      const categoryFilter = { ...this.filters(), category_id: category.id };
-      delete categoryFilter.brand_id;
-      return this.productService.getProducts(categoryFilter);
-    });
-
-    return forkJoin(categoryObservables).pipe(
-      map(results => {
-        const allProducts: Product[] = [];
-        const productIds = new Set<number>();
-
-        results.forEach(categoryProducts => {
-          categoryProducts.forEach(product => {
-            if (!productIds.has(product.id)) {
-              productIds.add(product.id);
-              allProducts.push(product);
-            }
-          });
-        });
-
-        this.sortProducts(allProducts);
-        this.products.set(allProducts);
-        this.loading.set(false);
-        return allProducts;
-      })
+    return this.productService.getProducts(currentFilters).pipe(
+      tap(products => this.setProductsAndStopLoading(products))
     );
   }
 
-  private sortProducts(products: Product[]): void {
-    const [sortBy, sortOrder] = this.selectedSort().split('_');
-
-    products.sort((a, b) => {
-      let comparison = 0;
-
-      switch (sortBy) {
-        case 'name':
-          comparison = a.name.localeCompare(b.name);
-          break;
-        case 'price':
-          comparison = a.price - b.price;
-          break;
-        case 'created_at':
-          comparison = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
-          break;
-      }
-
-      return sortOrder === 'asc' ? comparison : -comparison;
-    });
+  private setProductsAndStopLoading(products: Product[]): void {
+    this.products.set(products);
+    this.loading.set(false);
   }
 
   private handleAddToCart(product: Product, quantity: number): void {
