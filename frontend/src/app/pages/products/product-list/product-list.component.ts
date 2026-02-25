@@ -27,13 +27,19 @@ import { OverlayService } from '../../../core/services/overlay.service';
 import { Product, Category, ProductFilter } from '../../../models/product.model';
 import { getDefaultQuantity } from '../../../shared/utils/quantity.utils';
 import { Brand } from '../../../models/brand.model';
-import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { ProductCardComponent, AddToCartEvent, QuantitySelectorEvent } from '../components/product-card/product-card.component';
 import { isOutOfStock as checkOutOfStock } from '../../../shared/utils/stock.utils';
 import { getEffectivePrice as calcEffectivePrice } from '../../../shared/utils/discount.utils';
 import { generateBoxOptions, BoxOption } from '../../../shared/utils/box-options.utils';
 
 export type SortOption = 'name_asc' | 'name_desc' | 'price_asc' | 'price_desc' | 'created_at_desc';
+
+// Constants
+const PLACEHOLDER_IMAGE = 'assets/images/product-placeholder.png';
+const LOW_STOCK_THRESHOLD = 20;
+const ANIMATION_DELAY_MS = 50;
+const SKELETON_GRID_COUNT = 8;
+const SKELETON_LIST_COUNT = 6;
 import { HorizontalFilterComponent } from '../../../shared/components/horizontal-filter/horizontal-filter.component';
 import { SearchInputComponent } from '../../../shared/components/search-input/search-input.component';
 import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
@@ -51,7 +57,6 @@ import { UnitPipe } from '../../../shared/pipes/unit.pipe';
     OverlayBadgeModule,
     TooltipModule,
     TranslateModule,
-    EmptyStateComponent,
     ProductCardComponent,
     HorizontalFilterComponent,
     SearchInputComponent,
@@ -776,5 +781,35 @@ export class ProductListComponent implements OnInit, OnDestroy {
 
   getEffectivePrice(product: Product): number {
     return calcEffectivePrice(product.price, product.promotion);
+  }
+
+  // Template constants
+  readonly placeholderImage = PLACEHOLDER_IMAGE;
+  readonly lowStockThreshold = LOW_STOCK_THRESHOLD;
+  readonly animationDelayMs = ANIMATION_DELAY_MS;
+  readonly skeletonGridItems = Array.from({ length: SKELETON_GRID_COUNT }, (_, i) => i + 1);
+  readonly skeletonListItems = Array.from({ length: SKELETON_LIST_COUNT }, (_, i) => i + 1);
+
+  // Template helpers
+  onImageError(event: Event): void {
+    (event.target as HTMLImageElement).src = PLACEHOLDER_IMAGE;
+  }
+
+  getProductImageUrl(product: Product): string {
+    return product.image_url || PLACEHOLDER_IMAGE;
+  }
+
+  getViewToggleIcon(): string {
+    return this.layout() === 'grid' ? 'pi pi-list' : 'pi pi-th-large';
+  }
+
+  getPiecesLabel(count: number): string {
+    return count === 1
+      ? 'products.product.quantity_selector.piece'
+      : 'products.product.quantity_selector.pieces';
+  }
+
+  isLowStock(product: Product): boolean {
+    return product.stock_quantity < LOW_STOCK_THRESHOLD;
   }
 }

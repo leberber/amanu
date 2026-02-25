@@ -29,7 +29,7 @@
             type="button"
             class="mobile-search-view-toggle"
             (click)="toggleViewMode()">
-            <i [class]="layout() === 'grid' ? 'pi pi-list' : 'pi pi-th-large'"></i>
+            <i [class]="getViewToggleIcon()"></i>
           </button>
           <button
             type="button"
@@ -64,7 +64,7 @@
         type="button"
         class="view-toggle-btn"
         (click)="toggleViewMode()">
-        <i [class]="layout() === 'grid' ? 'pi pi-list' : 'pi pi-th-large'"></i>
+        <i [class]="getViewToggleIcon()"></i>
       </button>
     </div>
   </div>
@@ -78,7 +78,7 @@
       <!-- Skeleton Loading -->
       @if (layout() === 'grid') {
         <div class="products-grid">
-          @for (i of [1, 2, 3, 4, 5, 6, 7, 8]; track i) {
+          @for (i of skeletonGridItems; track i) {
             <div class="product-card-skeleton">
               <div class="skeleton skeleton-image"></div>
               <div class="skeleton-content">
@@ -94,7 +94,7 @@
         </div>
       } @else {
         <div class="products-list">
-          @for (i of [1, 2, 3, 4, 5, 6]; track i) {
+          @for (i of skeletonListItems; track i) {
             <div class="product-list-item-skeleton">
               <div class="skeleton skeleton-image--list"></div>
               <div class="skeleton-content">
@@ -111,12 +111,12 @@
       }
     } @else if (products().length === 0) {
       <!-- Empty State -->
-      <div class="empty-state-container">
-        <app-empty-state
-          icon="pi-search"
-          [title]="'products.empty.title' | translate"
-          [description]="'products.empty.subtitle' | translate">
-        </app-empty-state>
+      <div class="empty-state">
+        <div class="empty-state__icon">
+          <i class="pi pi-search"></i>
+        </div>
+        <h3 class="empty-state__title">{{ 'products.empty.title' | translate }}</h3>
+        <p class="empty-state__description">{{ 'products.empty.subtitle' | translate }}</p>
       </div>
     } @else {
       <!-- Products Grid/List -->
@@ -130,21 +130,21 @@
               (addToCartEvent)="onAddToCart($event)"
               (quantitySelectorEvent)="onQuantitySelectorOpen($event)"
               class="product-card-wrapper product-card-animate"
-              [style.animation-delay]="(i * 50) + 'ms'">
+              [style.animation-delay]="(i * animationDelayMs) + 'ms'">
             </app-product-card>
           }
         </div>
       } @else {
         <div class="products-list" [attr.data-animation-key]="animationKey()">
           @for (product of products(); track product.id; let i = $index) {
-            <div class="product-list-item product-item-animate" [style.animation-delay]="(i * 50) + 'ms'">
+            <div class="product-list-item product-item-animate" [style.animation-delay]="(i * animationDelayMs) + 'ms'">
               <!-- Product Image -->
               <a [routerLink]="['/products', product.id]" class="product-list-item__image">
                 <img
-                  [src]="product.image_url || 'assets/images/product-placeholder.png'"
+                  [src]="getProductImageUrl(product)"
                   [alt]="product.name"
                   loading="lazy"
-                  (error)="$event.target.src = 'assets/images/product-placeholder.png'">
+                  (error)="onImageError($event)">
                 @if (product.is_organic) {
                   <span class="organic-badge">{{ 'products.tags.organic' | translate }}</span>
                 }
@@ -169,7 +169,7 @@
                         <i class="pi pi-times-circle"></i>
                         {{ 'products.stock.out_of_stock' | translate }}
                       </span>
-                    } @else if (product.stock_quantity < 20) {
+                    } @else if (isLowStock(product)) {
                       <span class="stock-badge stock-badge--low">
                         <i class="pi pi-exclamation-circle"></i>
                         {{ product.stock_quantity }} {{ 'products.stock.left' | translate }}
@@ -203,7 +203,7 @@
                           <span class="quantity-selector-btn__text">
                             @if (getSelectedBoxOption(product.id); as option) {
                               <span class="quantity-selector-btn__boxes">{{ option.boxes }} {{ getPackagingTypeForCount(product, option.boxes) }}</span>
-                              <span class="quantity-selector-btn__pieces">{{ option.pieces }} {{ (option.pieces === 1 ? 'products.product.quantity_selector.piece' : 'products.product.quantity_selector.pieces') | translate }}</span>
+                              <span class="quantity-selector-btn__pieces">{{ option.pieces }} {{ getPiecesLabel(option.pieces) | translate }}</span>
                             } @else {
                               <span>{{ 'products.select_quantity' | translate }}</span>
                             }
@@ -257,9 +257,9 @@
       <div class="quantity-overlay__header">
         <div class="quantity-overlay__product">
           <img
-            [src]="product.image_url || 'assets/images/product-placeholder.png'"
+            [src]="getProductImageUrl(product)"
             [alt]="product.name"
-            (error)="$event.target.src = 'assets/images/product-placeholder.png'">
+            (error)="onImageError($event)">
           <div class="quantity-overlay__product-info">
             <h4>{{ product.name }}</h4>
             <span class="quantity-overlay__price">{{ getEffectivePrice(product) | appCurrency }} / {{ product.unit }}</span>
@@ -282,7 +282,7 @@
               <span class="quantity-option__label">{{ getPackagingTypeForCount(product, option.boxes) }}</span>
             </div>
             <div class="quantity-option__details">
-              <span class="quantity-option__pieces">{{ option.pieces }} {{ (option.pieces === 1 ? 'products.product.quantity_selector.piece' : 'products.product.quantity_selector.pieces') | translate }}</span>
+              <span class="quantity-option__pieces">{{ option.pieces }} {{ getPiecesLabel(option.pieces) | translate }}</span>
               <span class="quantity-option__price">{{ option.price | appCurrency }}</span>
             </div>
             @if (selectedBoxOptions[product.id]?.boxes === option.boxes) {
