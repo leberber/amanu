@@ -1,19 +1,13 @@
 <!-- src/app/pages/cart/cart.component.html -->
 <app-page-layout
   title="cart.title"
+  [subtitle]="pageSubtitle()"
+  mobileTitle="cart.title"
+  [mobileSubtitle]="mobileSubtitle()"
+  icon="pi pi-shopping-cart"
   [showBackButton]="true"
   [backRoute]="ROUTES.PRODUCTS"
   [fullscreen]="true">
-
-  <!-- Cart item count badge -->
-  @if (cartItemCount() > 0) {
-    <div pageActions>
-      <div class="topbar-badge topbar-badge--success">
-        <i class="pi pi-shopping-cart"></i>
-        <span>{{ cartItemCount() }}</span>
-      </div>
-    </div>
-  }
 
   <!-- Main Content -->
   <p-toast></p-toast>

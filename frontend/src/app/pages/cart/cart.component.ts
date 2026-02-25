@@ -104,6 +104,17 @@ export class CartComponent implements OnInit {
 
   isShippingFree = computed(() => this.shippingCost() === 0);
 
+  // Page layout computed values
+  pageSubtitle = computed(() => {
+    const count = this.cartItemCount();
+    return count > 0 ? 'cart.item_count' : 'cart.empty';
+  });
+
+  mobileSubtitle = computed(() => {
+    const count = this.cartItemCount();
+    return count > 0 ? `${count}` : '';
+  });
+
   ngOnInit() {
     this.loadCart();
 
