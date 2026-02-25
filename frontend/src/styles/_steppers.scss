@@ -308,6 +308,25 @@
     justify-content: space-between;
     align-items: center;
   }
+
+  // Full-height modifier for page-level wizards
+  &--fullpage {
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100vh - 135px);
+
+    .form-wizard__body {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .form-wizard__footer {
+      flex-shrink: 0;
+    }
+  }
 }
 
 

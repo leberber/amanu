@@ -49,6 +49,7 @@
     "off": "Désactivé",
     "optional": "Optionnel",
     "all": "Tous",
+    "previous": "Précédent",
     "next": "Suivant"
   },
   "lightbox": {
@@ -1159,6 +1160,7 @@
         "step2_title": "Prix & Stock",
         "step1_subtitle": "Noms et descriptions du produit",
         "step2_subtitle": "Prix, stock et configuration",
+        "step": "Étape",
         "product_visible": "Le produit est visible dans la boutique",
         "product_hidden": "Le produit est masqué de la boutique",
         "brand_required": "La marque est requise",
