@@ -108,7 +108,7 @@ export class AdminAddProductComponent implements OnInit {
       unit: ['', Validators.required],
       stock_quantity: [0, [Validators.required, Validators.min(PRODUCT.MIN_STOCK)]],
       category_id: [null, Validators.required],
-      brand_id: [null],
+      brand_id: [null, Validators.required],
       image_url: [''],
       is_organic: [false],
       is_active: [true],

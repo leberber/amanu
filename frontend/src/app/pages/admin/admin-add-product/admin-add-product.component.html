@@ -210,10 +210,13 @@
                       <i class="pi pi-bookmark"></i>
                     </div>
                     <div class="field-box__content">
-                      <label>{{ 'admin.products.form.brand' | translate }}</label>
-                      <p-select formControlName="brand_id" [options]="brandOptions()" optionLabel="label" optionValue="value" [placeholder]="'admin.products.form.brand' | translate" styleClass="w-full" [loading]="brandsLoading()" [showClear]="true" appendTo="body" />
+                      <label>{{ 'admin.products.form.brand' | translate }} <span class="required">*</span></label>
+                      <p-select formControlName="brand_id" [options]="brandOptions()" optionLabel="label" optionValue="value" [placeholder]="'admin.products.form.brand' | translate" styleClass="w-full" [loading]="brandsLoading()" appendTo="body" />
                     </div>
                   </div>
+                  @if (productForm.get('brand_id')?.invalid && productForm.get('brand_id')?.touched) {
+                    <span class="field-error">{{ 'admin.products.form.brand_required' | translate }}</span>
+                  }
                 </div>
               </div>
 
