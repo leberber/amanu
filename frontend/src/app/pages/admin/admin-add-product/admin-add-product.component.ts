@@ -75,8 +75,8 @@ export class AdminAddProductComponent implements OnInit {
 
   // Mode detection
   readonly isEditMode = signal(false);
-  editProductId: number | null = null;
-  currentProduct: ProductWithTranslations | null = null;
+  private readonly editProductId = signal<number | null>(null);
+  private readonly currentProduct = signal<ProductWithTranslations | null>(null);
 
   // Options
   readonly categoryOptions = signal<{ label: string; value: number }[]>([]);
@@ -128,6 +128,17 @@ export class AdminAddProductComponent implements OnInit {
 
   readonly newTotalStock = computed(() => this.originalStock() + this.stockToAdd());
 
+  // Form field signals for step validation
+  private readonly nameEnValue = signal('');
+  private readonly nameFrValue = signal('');
+  private readonly nameArValue = signal('');
+
+  readonly isStep1Valid = computed(() =>
+    this.nameEnValue().length >= VALIDATION.MIN_NAME_LENGTH &&
+    this.nameFrValue().length >= VALIDATION.MIN_NAME_LENGTH &&
+    this.nameArValue().length >= VALIDATION.MIN_NAME_LENGTH
+  );
+
   // Routes for navigation
   readonly ROUTES = ROUTES;
 
@@ -173,6 +184,19 @@ export class AdminAddProductComponent implements OnInit {
         this.packagingTypeValue.set(packagingType);
       });
 
+    // Watch name fields for step validation
+    this.productForm.get('name_en')?.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(value => this.nameEnValue.set(value || ''));
+
+    this.productForm.get('name_fr')?.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(value => this.nameFrValue.set(value || ''));
+
+    this.productForm.get('name_ar')?.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(value => this.nameArValue.set(value || ''));
+
     // Initialize form after brief delay for skeleton animation
     setTimeout(() => this.formInitialized.set(true), 300);
   }
@@ -188,7 +212,7 @@ export class AdminAddProductComponent implements OnInit {
       .subscribe(params => {
         const id = params.get('id');
         if (id) {
-          this.editProductId = parseInt(id, 10);
+          this.editProductId.set(parseInt(id, 10));
           this.isEditMode.set(true);
           this.loadProductForEdit();
         }
@@ -228,23 +252,25 @@ export class AdminAddProductComponent implements OnInit {
   }
 
   private loadProductForEdit(): void {
-    if (!this.editProductId) return;
+    const productId = this.editProductId();
+    if (!productId) return;
 
     this.loading.set(true);
 
-    this.productService.getProduct(this.editProductId)
+    this.productService.getProduct(productId)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (product: Product) => {
-          this.currentProduct = product as ProductWithTranslations;
+          this.currentProduct.set(product as ProductWithTranslations);
+          const currentProd = this.currentProduct();
 
           this.productForm.patchValue({
-            name_en: this.currentProduct.name_translations?.['en'] || product.name,
-            name_fr: this.currentProduct.name_translations?.['fr'] || product.name,
-            name_ar: this.currentProduct.name_translations?.['ar'] || product.name,
-            description_en: this.currentProduct.description_translations?.['en'] || product.description || '',
-            description_fr: this.currentProduct.description_translations?.['fr'] || product.description || '',
-            description_ar: this.currentProduct.description_translations?.['ar'] || product.description || '',
+            name_en: currentProd?.name_translations?.['en'] || product.name,
+            name_fr: currentProd?.name_translations?.['fr'] || product.name,
+            name_ar: currentProd?.name_translations?.['ar'] || product.name,
+            description_en: currentProd?.description_translations?.['en'] || product.description || '',
+            description_fr: currentProd?.description_translations?.['fr'] || product.description || '',
+            description_ar: currentProd?.description_translations?.['ar'] || product.description || '',
             price: product.price,
             unit: product.unit,
             stock_quantity: product.stock_quantity,
@@ -260,6 +286,11 @@ export class AdminAddProductComponent implements OnInit {
           // Update signals for computed properties
           this.packagingTypeValue.set(product.packaging_type || null);
           this.piecesPerBoxValue.set(product.pieces_per_box || null);
+
+          // Update name signals for step validation
+          this.nameEnValue.set(currentProd?.name_translations?.['en'] || product.name);
+          this.nameFrValue.set(currentProd?.name_translations?.['fr'] || product.name);
+          this.nameArValue.set(currentProd?.name_translations?.['ar'] || product.name);
 
           // Store original stock for the formula display
           this.originalStock.set(product.stock_quantity);
@@ -308,44 +339,47 @@ export class AdminAddProductComponent implements OnInit {
       }
     );
     
-    if (this.isEditMode() && this.editProductId) {
+    const productId = this.editProductId();
+    if (this.isEditMode() && productId) {
       // UPDATE existing product
-      this.productService.updateProduct(this.editProductId, productData).subscribe({
-        next: () => {
-          this.loading.set(false);
-          
-          this.adminFormService.handleSuccess({
-            message: 'admin.products.update_success',
-            redirectUrl: ROUTES.ADMIN.PRODUCTS,
-            redirectDelay: 1500
-          });
-        },
-        error: (error) => {
-          this.loading.set(false);
-          this.adminFormService.handleError('update', error, {
-            updateMessage: 'admin.products.update_failed'
-          });
-        }
-      });
+      this.productService.updateProduct(productId, productData)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: () => {
+            this.loading.set(false);
+            this.adminFormService.handleSuccess({
+              message: 'admin.products.update_success',
+              redirectUrl: ROUTES.ADMIN.PRODUCTS,
+              redirectDelay: 1500
+            });
+          },
+          error: (error) => {
+            this.loading.set(false);
+            this.adminFormService.handleError('update', error, {
+              updateMessage: 'admin.products.update_failed'
+            });
+          }
+        });
     } else {
       // CREATE new product
-      this.productService.createProduct(productData).subscribe({
-        next: () => {
-          this.loading.set(false);
-          
-          this.adminFormService.handleSuccess({
-            message: 'admin.products.create_success',
-            redirectUrl: ROUTES.ADMIN.PRODUCTS,
-            redirectDelay: 1500
-          });
-        },
-        error: (error) => {
-          this.loading.set(false);
-          this.adminFormService.handleError('create', error, {
-            createMessage: 'admin.products.create_failed'
-          });
-        }
-      });
+      this.productService.createProduct(productData)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: () => {
+            this.loading.set(false);
+            this.adminFormService.handleSuccess({
+              message: 'admin.products.create_success',
+              redirectUrl: ROUTES.ADMIN.PRODUCTS,
+              redirectDelay: 1500
+            });
+          },
+          error: (error) => {
+            this.loading.set(false);
+            this.adminFormService.handleError('create', error, {
+              createMessage: 'admin.products.create_failed'
+            });
+          }
+        });
     }
   }
 
@@ -360,11 +394,6 @@ export class AdminAddProductComponent implements OnInit {
     if (this.currentStep() > 1) {
       this.currentStep.set(this.currentStep() - 1);
     }
-  }
-
-  isStep1Valid(): boolean {
-    const step1Fields = ['name_en', 'name_fr', 'name_ar'];
-    return step1Fields.every(field => this.productForm.get(field)?.valid);
   }
 
   onCartonsInputChange(value: number): void {

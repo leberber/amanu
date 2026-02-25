@@ -5,10 +5,12 @@
 //   - _cards.scss, _inputs.scss, _buttons.scss, _skeleton.scss, _states.scss
 // =============================================================================
 
-.grid > [class*="col-"] {
-  padding: var(--space-3);
+:host {
+  .form-wizard__body .grid > [class*="col-"] {
+    padding: var(--space-3);
 
-  @media (max-width: 768px) {
-    padding: var(--space-2);
+    @media (max-width: 768px) {
+      padding: var(--space-2);
+    }
   }
 }
