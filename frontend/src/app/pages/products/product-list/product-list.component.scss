@@ -1,10 +1,11 @@
 // =============================================================================
 // PRODUCT LIST COMPONENT
 // =============================================================================
-// Uses shared styles from:
-// - _components.scss (products-grid, product-list-item, etc.)
+// Uses global styles from:
+// - frontend/_layout.scss (products-grid, products-list)
 // - _quantity-overlay.scss (quantity selector and overlay)
-// - _skeleton.scss (loading states)
+// - _skeleton.scss (loading states, item-animate)
+// - _states.scss (empty-state)
 // =============================================================================
 
 :host { display: block; }
@@ -271,27 +272,6 @@ $bottom-nav-height: 70px;
 .products-grid--mobile {
   grid-template-columns: repeat(2, 1fr);
   gap: var(--space-2);
-}
-
-// =============================================================================
-// ANIMATIONS
-// =============================================================================
-
-.product-card-animate,
-.product-item-animate {
-  animation: cardFadeIn 0.4s ease-out forwards;
-  opacity: 0;
-}
-
-@keyframes cardFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
 }
 
 // =============================================================================

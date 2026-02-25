@@ -79,7 +79,7 @@
       @if (layout() === 'grid') {
         <div class="products-grid">
           @for (i of skeletonGridItems; track i) {
-            <div class="product-card-skeleton">
+            <div class="skeleton-product-card">
               <div class="skeleton skeleton-image"></div>
               <div class="skeleton-content">
                 <div class="skeleton skeleton-text skeleton-text--w60"></div>
@@ -95,7 +95,7 @@
       } @else {
         <div class="products-list">
           @for (i of skeletonListItems; track i) {
-            <div class="product-list-item-skeleton">
+            <div class="skeleton-product-list-item">
               <div class="skeleton skeleton-image--list"></div>
               <div class="skeleton-content">
                 <div class="skeleton skeleton-text skeleton-text--w70"></div>
@@ -129,7 +129,7 @@
               [highlightCart]="highlightedProductId() === product.id"
               (addToCartEvent)="onAddToCart($event)"
               (quantitySelectorEvent)="onQuantitySelectorOpen($event)"
-              class="product-card-wrapper product-card-animate"
+              class="product-card-wrapper item-animate"
               [style.animation-delay]="(i * animationDelayMs) + 'ms'">
             </app-product-card>
           }
@@ -137,7 +137,7 @@
       } @else {
         <div class="products-list" [attr.data-animation-key]="animationKey()">
           @for (product of products(); track product.id; let i = $index) {
-            <div class="product-list-item product-item-animate" [style.animation-delay]="(i * animationDelayMs) + 'ms'">
+            <div class="product-list-item item-animate" [style.animation-delay]="(i * animationDelayMs) + 'ms'">
               <!-- Product Image -->
               <a [routerLink]="['/products', product.id]" class="product-list-item__image">
                 <img
