@@ -10,71 +10,80 @@
   <!-- Order count badge (mobile only) -->
   @if (orders().length > 0 && !loading()) {
     <div pageActions class="md:hidden">
-      <div class="count-badge">
-        {{ orders().length }}
-      </div>
+      <div class="count-badge">{{ orders().length }}</div>
     </div>
   }
 
   <p-toast></p-toast>
 
-  <!-- Loading state - Skeleton -->
+  <!-- Loading State -->
   @if (loading()) {
     <div class="order-list-content">
       <div class="order-grid">
         <!-- Desktop Table Skeleton -->
-        <div class="orders-table-card app-card hidden md:block">
-          <div class="app-card__header">
-            <div class="skeleton skeleton-avatar"></div>
-            <div class="skeleton skeleton-text skeleton-text--w40"></div>
+        <div class="table-container hidden md:block">
+          <div class="table-header">
+            <div class="skeleton skeleton-search" style="width: 300px;"></div>
+            <div class="skeleton-actions">
+              <div class="skeleton skeleton-btn"></div>
+              <div class="skeleton skeleton-btn"></div>
+              <div class="skeleton skeleton-btn"></div>
+            </div>
           </div>
-          <div class="app-card__content">
-            @for (i of [1,2,3,4,5]; track i) {
-              <div class="skeleton-row">
-                <div class="skeleton skeleton-text skeleton-text--w80"></div>
-                <div class="skeleton skeleton-text skeleton-text--w100"></div>
-                <div class="skeleton skeleton-badge"></div>
-                <div class="skeleton skeleton-text skeleton-text--w80"></div>
-                <div class="skeleton skeleton-button"></div>
-              </div>
-            }
+          <div class="table-wrapper">
+            <table class="table skeleton-table">
+              <thead>
+                <tr>
+                  <th style="width: 15%;"><div class="skeleton skeleton-text" style="width: 60px;"></div></th>
+                  <th style="width: 25%;"><div class="skeleton skeleton-text" style="width: 50px;"></div></th>
+                  <th style="width: 20%;"><div class="skeleton skeleton-text" style="width: 50px;"></div></th>
+                  <th style="width: 20%;"><div class="skeleton skeleton-text" style="width: 50px;"></div></th>
+                  <th style="width: 20%;"><div class="skeleton skeleton-text" style="width: 60px;"></div></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (i of [1,2,3,4,5]; track i) {
+                  <tr class="skeleton-row">
+                    <td><div class="skeleton skeleton-text" style="width: 60px;"></div></td>
+                    <td><div class="skeleton skeleton-text" style="width: 100px;"></div></td>
+                    <td><div class="skeleton skeleton-pill"></div></td>
+                    <td><div class="skeleton skeleton-text" style="width: 80px;"></div></td>
+                    <td><div class="skeleton skeleton-button"></div></td>
+                  </tr>
+                }
+              </tbody>
+            </table>
           </div>
         </div>
 
-        <!-- Mobile Card Skeleton -->
-        <div class="orders-mobile-card app-card block md:hidden">
-          <div class="app-card__header">
-            <div class="skeleton skeleton-avatar"></div>
-            <div class="skeleton skeleton-text skeleton-text--w40"></div>
-          </div>
-          <div class="app-card__content">
-            @for (i of [1,2,3,4]; track i) {
-              <div class="item-skeleton">
-                <div class="skeleton skeleton-circle"></div>
-                <div class="item-skeleton__content">
-                  <div class="skeleton skeleton-text skeleton-text--w70 skeleton-mb"></div>
-                  <div class="skeleton skeleton-text skeleton-text--w50"></div>
-                </div>
-                <div class="skeleton skeleton-badge"></div>
+        <!-- Mobile List Skeleton -->
+        <div class="block md:hidden">
+          @for (i of [1,2,3,4]; track i) {
+            <div class="skeleton-row" style="padding: var(--space-4); border-bottom: 1px solid var(--border-color-light);">
+              <div class="skeleton skeleton-avatar" style="width: 48px; height: 48px;"></div>
+              <div style="flex: 1; display: flex; flex-direction: column; gap: var(--space-2);">
+                <div class="skeleton skeleton-text" style="width: 70%;"></div>
+                <div class="skeleton skeleton-text" style="width: 50%;"></div>
               </div>
-            }
-          </div>
+              <div class="skeleton skeleton-pill"></div>
+            </div>
+          }
         </div>
 
         <!-- Sidebar Skeleton -->
-        <div class="order-sidebar">
-          <div class="app-card">
-            <div class="app-card__header">
+        <div class="order-sidebar hidden md:flex">
+          <div class="card">
+            <div class="card-header">
               <div class="skeleton skeleton-avatar"></div>
-              <div class="skeleton skeleton-text skeleton-text--w50"></div>
+              <div class="skeleton skeleton-text" style="width: 80px;"></div>
             </div>
-            <div class="app-card__content">
-              @for (i of [1,2,3]; track i) {
+            <div class="card-body">
+              @for (i of [1,2]; track i) {
                 <div class="skeleton-row">
-                  <div class="skeleton skeleton-circle"></div>
-                  <div class="skeleton-row__content">
-                    <div class="skeleton skeleton-text skeleton-text--w70 skeleton-mb"></div>
-                    <div class="skeleton skeleton-text skeleton-text--w50"></div>
+                  <div class="skeleton skeleton-avatar" style="width: 40px; height: 40px;"></div>
+                  <div style="flex: 1; display: flex; flex-direction: column; gap: var(--space-2);">
+                    <div class="skeleton skeleton-text" style="width: 60px;"></div>
+                    <div class="skeleton skeleton-text" style="width: 80px;"></div>
                   </div>
                 </div>
               }
@@ -85,7 +94,7 @@
     </div>
   }
 
-  <!-- Error state -->
+  <!-- Error State -->
   @else if (error()) {
     <app-error-state
       title="orders.errors.failed_to_load"
@@ -95,7 +104,7 @@
     </app-error-state>
   }
 
-  <!-- Empty state -->
+  <!-- Empty State -->
   @else if (orders().length === 0) {
     <app-empty-state
       icon="pi-inbox"
@@ -107,12 +116,12 @@
     </app-empty-state>
   }
 
-  <!-- Orders content -->
+  <!-- Orders Content -->
   @else {
     <div class="order-list-content">
       <div class="order-grid">
-        <!-- Orders Card -->
-        <div class="table-container table-container--fullpage" [class.fullscreen]="isFullscreen()">
+        <!-- Table Container -->
+        <div class="table-container" [class.fullscreen]="isFullscreen()">
           <!-- Table Header with Filter and Actions -->
           <div class="table-header">
             <!-- Time Filter Segment Control -->
@@ -179,22 +188,20 @@
             <table class="table">
               <thead>
                 <tr>
-                  <th>{{ 'orders.table.order_number' | translate }}</th>
-                  <th>{{ 'orders.table.date' | translate }}</th>
-                  <th>{{ 'orders.table.status' | translate }}</th>
-                  <th>{{ 'orders.table.total' | translate }}</th>
-                  <th class="actions-column">{{ 'orders.table.actions' | translate }}</th>
+                  <th style="width: 15%;">{{ 'orders.table.order_number' | translate }}</th>
+                  <th style="width: 25%;">{{ 'orders.table.date' | translate }}</th>
+                  <th style="width: 20%;">{{ 'orders.table.status' | translate }}</th>
+                  <th style="width: 20%;">{{ 'orders.table.total' | translate }}</th>
+                  <th style="width: 20%;">{{ 'orders.table.actions' | translate }}</th>
                 </tr>
               </thead>
               <tbody>
                 @for (order of paginatedOrders(); track order.id; let i = $index) {
-                  <tr class="order-row" (click)="viewOrderDetails(order.id)">
-                    <td class="order-number">#{{ order.id }}</td>
-                    <td>{{ order.created_at | appDate }}</td>
-                    <td>
-                      <p-tag [severity]="getStatusSeverity(order.status)" [value]="order.status | appStatus"></p-tag>
-                    </td>
-                    <td class="order-amount">{{ order.total_amount | appCurrency }}</td>
+                  <tr class="table-row-animate" [style.--row-delay]="(i * 40) + 'ms'" (click)="viewOrderDetails(order.id)">
+                    <td><span class="table-id">#{{ order.id }}</span></td>
+                    <td><span class="date-display">{{ order.created_at | appDate }}</span></td>
+                    <td><p-tag [severity]="getStatusSeverity(order.status)" [value]="order.status | appStatus"></p-tag></td>
+                    <td><span class="amount-display amount-display--primary">{{ order.total_amount | appCurrency }}</span></td>
                     <td>
                       <button class="view-btn" (click)="viewOrderDetails(order.id); $event.stopPropagation()">
                         <i class="pi pi-eye"></i>
@@ -221,90 +228,75 @@
             </div>
           }
 
-          <!-- Results Count (when no pagination needed, desktop only) -->
+          <!-- Results Count (Desktop only, when no pagination) -->
           @if (filteredOrders().length <= rows()) {
             <div class="table-footer results-info hidden md:flex">
               <span>{{ filteredOrders().length }} {{ 'orders.stats.total_orders' | translate }}</span>
             </div>
           }
 
-          <!-- Mobile Card View -->
-          <ul class="order-list block md:hidden">
-              @for (order of filteredOrders(); track order.id; let i = $index) {
-                <li class="order-item item-animate" [style.animation-delay]="(i * 50) + 'ms'" (click)="viewOrderDetails(order.id)">
-                  <div class="order-item__icon">
-                    <i class="pi pi-shopping-bag"></i>
+          <!-- Mobile List View -->
+          <div class="order-list block md:hidden">
+            @for (order of filteredOrders(); track order.id; let i = $index) {
+              <div class="order-item item-animate" [style.animation-delay]="(i * 50) + 'ms'" (click)="viewOrderDetails(order.id)">
+                <div class="order-item__icon">
+                  <i class="pi pi-shopping-bag"></i>
+                </div>
+                <div class="order-item__content">
+                  <div class="order-item__header">
+                    <span class="order-item__number">{{ 'orders.table.order_number' | translate }}{{ order.id }}</span>
+                    <p-tag [severity]="getStatusSeverity(order.status)" [value]="order.status | appStatus"></p-tag>
                   </div>
-                  <div class="order-item__content">
-                    <div class="order-item__header">
-                      <span class="order-item__number">{{ 'orders.table.order_number' | translate }}{{ order.id }}</span>
-                      <p-tag
-                        [severity]="getStatusSeverity(order.status)"
-                        [value]="order.status | appStatus"
-                        styleClass="order-item__tag">
-                      </p-tag>
-                    </div>
-                    <div class="order-item__footer">
-                      <span class="order-item__date">{{ order.created_at | appDate }}</span>
-                      <span class="order-item__total">{{ order.total_amount | appCurrency }}</span>
-                    </div>
+                  <div class="order-item__footer">
+                    <span class="order-item__date">{{ order.created_at | appDate }}</span>
+                    <span class="order-item__total">{{ order.total_amount | appCurrency }}</span>
                   </div>
-                  <div class="order-item__chevron">
-                    <i class="pi pi-chevron-right"></i>
-                  </div>
-                </li>
-              }
-              @if (filteredOrders().length === 0) {
-                <li class="order-list__empty">
+                </div>
+                <div class="order-item__chevron">
+                  <i class="pi pi-chevron-right"></i>
+                </div>
+              </div>
+            }
+            @if (filteredOrders().length === 0) {
+              <div class="empty-state empty-state--compact">
+                <div class="empty-state__icon">
                   <i class="pi pi-inbox"></i>
-                  <span>{{ 'orders.filters.no_orders_in_period' | translate }}</span>
-                </li>
-              }
-            </ul>
+                </div>
+                <h3 class="empty-state__title">{{ 'orders.filters.no_orders_in_period' | translate }}</h3>
+              </div>
+            }
+          </div>
         </div>
 
-        <!-- Sidebar - Stats -->
-        <div class="order-sidebar">
-          <div class="stats-card app-card">
-            <div class="app-card__header">
-              <div class="app-card__icon">
-                <i class="pi pi-chart-bar"></i>
-              </div>
-              <h2 class="app-card__title">{{ 'orders.stats.title' | translate }}</h2>
+        <!-- Sidebar - Stats (Desktop only) -->
+        <div class="order-sidebar hidden md:flex">
+          <div class="stat-card">
+            <div class="stat-card__icon stat-card__icon--primary">
+              <i class="pi pi-shopping-bag"></i>
             </div>
-            <div class="app-card__content">
-              <div class="stats-list">
-                <div class="stat-item">
-                  <div class="stat-item__icon stat-item__icon--primary">
-                    <i class="pi pi-shopping-bag"></i>
-                  </div>
-                  <div class="stat-item__content">
-                    <span class="stat-item__value">{{ orders().length }}</span>
-                    <span class="stat-item__label">{{ 'orders.stats.total_orders' | translate }}</span>
-                  </div>
-                </div>
-                <div class="stat-item">
-                  <div class="stat-item__icon stat-item__icon--success">
-                    <i class="pi pi-wallet"></i>
-                  </div>
-                  <div class="stat-item__content">
-                    <span class="stat-item__value">{{ totalSpend() | appCurrency }}</span>
-                    <span class="stat-item__label">{{ 'orders.stats.total_spend' | translate }}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <span class="stat-card__value">{{ orders().length }}</span>
+            <span class="stat-card__label">{{ 'orders.stats.total_orders' | translate }}</span>
+            <div class="stat-card__decoration stat-card__decoration--primary"></div>
           </div>
 
-          <!-- Quick Actions -->
-          <div class="actions-card app-card">
-            <div class="app-card__header">
-              <div class="app-card__icon">
+          <div class="stat-card">
+            <div class="stat-card__icon stat-card__icon--success">
+              <i class="pi pi-wallet"></i>
+            </div>
+            <span class="stat-card__value">{{ totalSpend() | appCurrency }}</span>
+            <span class="stat-card__label">{{ 'orders.stats.total_spend' | translate }}</span>
+            <div class="stat-card__decoration stat-card__decoration--success"></div>
+          </div>
+
+          <!-- Quick Actions Card -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-header__icon card-header__icon--purple">
                 <i class="pi pi-bolt"></i>
               </div>
-              <h2 class="app-card__title">{{ 'orders.actions.title' | translate }}</h2>
+              <h2 class="card-header__title">{{ 'orders.actions.title' | translate }}</h2>
             </div>
-            <div class="app-card__content">
+            <div class="card-body card-body--compact">
               <a class="action-link" [routerLink]="ROUTES.PRODUCTS">
                 <i class="pi pi-shopping-cart"></i>
                 <span>{{ 'orders.actions.browse_products' | translate }}</span>
