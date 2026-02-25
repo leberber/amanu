@@ -574,7 +574,7 @@ export class AdminNotificationsComponent implements OnInit {
 
   onImageError(event: Event): void {
     const img = event.target as HTMLImageElement;
-    img.src = 'assets/images/product-placeholder.jpg';
+    img.src = 'assets/images/product-placeholder.png';
   }
 
   goBack() {

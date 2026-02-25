@@ -96,10 +96,10 @@
                 <!-- Product Image -->
                 <a [routerLink]="['/products', product.id]" class="product-list-item__image">
                   <img
-                    [src]="product.image_url || 'assets/images/product-placeholder.jpg'"
+                    [src]="product.image_url || 'assets/images/product-placeholder.png'"
                     [alt]="product.name"
                     loading="lazy"
-                    (error)="$event.target.src = 'assets/images/product-placeholder.jpg'">
+                    (error)="$event.target.src = 'assets/images/product-placeholder.png'">
                   @if (product.is_organic) {
                     <span class="organic-badge">{{ 'products.tags.organic' | translate }}</span>
                   }
@@ -333,10 +333,10 @@
                 <!-- Product Image -->
                 <a [routerLink]="['/products', product.id]" class="product-list-item__image">
                   <img
-                    [src]="product.image_url || 'assets/images/product-placeholder.jpg'"
+                    [src]="product.image_url || 'assets/images/product-placeholder.png'"
                     [alt]="product.name"
                     loading="lazy"
-                    (error)="$event.target.src = 'assets/images/product-placeholder.jpg'">
+                    (error)="$event.target.src = 'assets/images/product-placeholder.png'">
                   @if (product.is_organic) {
                     <span class="organic-badge">{{ 'products.tags.organic' | translate }}</span>
                   }
@@ -451,9 +451,9 @@
       <div class="quantity-overlay__header">
         <div class="quantity-overlay__product">
           <img
-            [src]="product.image_url || 'assets/images/product-placeholder.jpg'"
+            [src]="product.image_url || 'assets/images/product-placeholder.png'"
             [alt]="product.name"
-            (error)="$event.target.src = 'assets/images/product-placeholder.jpg'">
+            (error)="$event.target.src = 'assets/images/product-placeholder.png'">
           <div class="quantity-overlay__product-info">
             <h4>{{ product.name }}</h4>
             <span class="quantity-overlay__price">{{ getEffectivePrice(product) | appCurrency }} / {{ product.unit }}</span>

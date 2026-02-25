@@ -12,7 +12,7 @@ import { Directive, ElementRef, HostListener, input } from '@angular/core';
   standalone: true
 })
 export class ImageFallbackDirective {
-  private static readonly DEFAULT_PRODUCT_PLACEHOLDER = 'assets/images/product-placeholder.jpg';
+  private static readonly DEFAULT_PRODUCT_PLACEHOLDER = 'assets/images/product-placeholder.png';
   private hasErrored = false;
 
   /**
