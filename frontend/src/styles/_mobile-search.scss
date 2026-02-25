@@ -168,3 +168,10 @@
     opacity: 0.9;
   }
 }
+
+body.quantity-overlay-open,
+body.mobile-search-open {
+  .bottom-nav {
+    display: none !important;
+  }
+}
