@@ -1318,6 +1318,8 @@
         "image_help": "Optionnel : Fournissez une URL vers une image pour cette catégorie",
         "is_active": "Catégorie Active",
         "active_help": "Décochez pour masquer cette catégorie aux clients",
+        "category_visible": "La catégorie est visible dans la boutique",
+        "category_hidden": "La catégorie est masquée de la boutique",
         "submit_add": "Ajouter Catégorie",
         "submit_update": "Mettre à Jour Catégorie",
         "cancel": "Annuler",

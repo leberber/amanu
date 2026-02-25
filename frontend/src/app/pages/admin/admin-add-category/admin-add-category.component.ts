@@ -1,26 +1,21 @@
-// src/app/pages/admin/admin-add-category/admin-add-category.component.ts
-import { Component, OnInit, signal, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Component, OnInit, signal, inject, computed, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { ButtonModule } from 'primeng/button';
-import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
-import { CheckboxModule } from 'primeng/checkbox';
 import { ToastModule } from 'primeng/toast';
-import { CardModule } from 'primeng/card';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 
 import { ROUTES } from '../../../core/constants/routes.constants';
+import { VALIDATION } from '../../../core/constants/app.constants';
 import { ProductService } from '../../../services/product.service';
 import { Category } from '../../../models/category.model';
-import { VALIDATION } from '../../../core/constants/app.constants';
 import { AdminFormService } from '../../../core/services/admin-form.service';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
+import { PageLayoutComponent } from '../../../shared/components/page-layout/page-layout.component';
 
-// Extended Category interface to include translations
 interface CategoryWithTranslations extends Category {
   name_translations?: { [key: string]: string };
   description_translations?: { [key: string]: string };
@@ -30,49 +25,51 @@ interface CategoryWithTranslations extends Category {
   selector: 'app-admin-add-category',
   standalone: true,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
-    ButtonModule,
-    DialogModule,
     InputTextModule,
     TextareaModule,
-    CheckboxModule,
     ToastModule,
-    CardModule,
-    TranslateModule
+    TranslateModule,
+    PageLayoutComponent
   ],
   templateUrl: './admin-add-category.component.html',
   styleUrl: './admin-add-category.component.scss'
 })
 export class AdminAddCategoryComponent implements OnInit {
-  visible = signal(false);
-  loading = signal(false);
+  private readonly toast = inject(ToastMessageService);
+  private readonly productService = inject(ProductService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly adminFormService = inject(AdminFormService);
+  private readonly destroyRef = inject(DestroyRef);
+
   categoryForm!: FormGroup;
 
-  // Page-based properties
-  isEditMode = signal(false);
-  editCategoryId: number | null = null;
-  currentCategory: CategoryWithTranslations | null = null;
+  readonly loading = signal(false);
+  readonly formInitialized = signal(false);
+  readonly isEditMode = signal(false);
+  private readonly editCategoryId = signal<number | null>(null);
+  private readonly currentCategory = signal<CategoryWithTranslations | null>(null);
 
-  // Computed properties for page mode
-  get pageTitle(): string {
-    return this.isEditMode() ? 'admin.categories.edit_category' : 'admin.categories.add_category';
-  }
+  readonly pageTitle = computed(() =>
+    this.isEditMode() ? 'admin.categories.edit_category' : 'admin.categories.add_category'
+  );
 
-  get submitButtonLabel(): string {
-    return this.isEditMode() ? 'admin.categories.form.submit_update' : 'admin.categories.form.submit_add';
-  }
+  readonly pageSubtitle = computed(() =>
+    this.isEditMode() ? 'admin.categories.form.edit_subtitle' : 'admin.categories.form.add_subtitle'
+  );
 
-  private fb = inject(FormBuilder);
-  private toast = inject(ToastMessageService);
-  private productService = inject(ProductService);
-  private route = inject(ActivatedRoute);
-  private router = inject(Router);
-  private translateService = inject(TranslateService);
-  private adminFormService = inject(AdminFormService);
+  readonly mobileSubtitle = computed(() =>
+    this.isEditMode() ? 'common.edit' : 'common.add'
+  );
 
-  ngOnInit() {
-    // Use AdminFormService to build translation form
+  readonly submitButtonLabel = computed(() =>
+    this.isEditMode() ? 'admin.categories.form.submit_update' : 'admin.categories.form.submit_add'
+  );
+
+  readonly ROUTES = ROUTES;
+
+  ngOnInit(): void {
     this.categoryForm = this.adminFormService.buildTranslationFormGroup(
       [
         { name: 'name', required: true, minLength: VALIDATION.MIN_NAME_LENGTH },
@@ -82,81 +79,58 @@ export class AdminAddCategoryComponent implements OnInit {
     );
 
     this.detectMode();
+    setTimeout(() => this.formInitialized.set(true), 300);
   }
 
-  // Mode detection method
-  detectMode() {
+  private detectMode(): void {
     const routeData = this.route.snapshot.data;
     if (routeData['mode'] === 'edit') {
       this.isEditMode.set(true);
     }
 
-    this.route.paramMap.subscribe(params => {
-      const id = params.get('id');
-      if (id) {
-        this.editCategoryId = parseInt(id, 10);
-        this.isEditMode.set(true);
-        this.loadCategoryForEdit();
-      }
-    });
+    this.route.paramMap
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(params => {
+        const id = params.get('id');
+        if (id) {
+          this.editCategoryId.set(parseInt(id, 10));
+          this.isEditMode.set(true);
+          this.loadCategoryForEdit();
+        }
+      });
   }
 
-  // Load category for editing
-  loadCategoryForEdit() {
-    if (!this.editCategoryId) return;
+  private loadCategoryForEdit(): void {
+    const categoryId = this.editCategoryId();
+    if (!categoryId) return;
 
     this.loading.set(true);
 
-    this.productService.getCategory(this.editCategoryId).subscribe({
-      next: (category) => {
-        this.currentCategory = category as CategoryWithTranslations;
+    this.productService.getCategory(categoryId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (category) => {
+          const categoryWithTranslations = category as CategoryWithTranslations;
+          this.currentCategory.set(categoryWithTranslations);
 
-        // Use AdminFormService to populate form with translations
-        this.adminFormService.populateFormWithTranslations(
-          this.categoryForm,
-          this.currentCategory,
-          ['name', 'description'],
-          { image_url: category.image_url || '', is_active: category.is_active }
-        );
+          this.adminFormService.populateFormWithTranslations(
+            this.categoryForm,
+            categoryWithTranslations,
+            ['name', 'description'],
+            { image_url: category.image_url || '', is_active: category.is_active }
+          );
 
-        this.loading.set(false);
-      },
-      error: () => {
-        this.loading.set(false);
-        this.toast.showError('categories.load_error');
-        this.goBackToCategoriesList();
-      }
-    });
+          this.loading.set(false);
+        },
+        error: () => {
+          this.loading.set(false);
+          this.toast.showError('categories.load_error');
+          this.router.navigate([ROUTES.ADMIN.CATEGORIES]);
+        }
+      });
   }
 
-  // Original modal method for backward compatibility
-  show() {
-    this.visible.set(true);
-    const resetValues = this.adminFormService.getTranslationFormResetValues(
-      ['name', 'description'],
-      { image_url: '', is_active: true }
-    );
-    this.categoryForm.reset(resetValues);
-  }
-
-  // UPDATED: Cancel method that works for both modal and page
-  onCancel() {
-    if (!this.visible()) {
-      // Page mode - navigate back
-      this.goBackToCategoriesList();
-    } else {
-      // Modal mode - close modal
-      this.visible.set(false);
-      this.categoryForm.reset();
-    }
-  }
-
-  // Navigation method for page mode
-  goBackToCategoriesList() {
-    this.router.navigate([ROUTES.ADMIN.CATEGORIES]);
-  }
-
-  onSubmit() {
+  onSubmit(): void {
     if (this.categoryForm.invalid) {
       this.categoryForm.markAllAsTouched();
       return;
@@ -165,55 +139,51 @@ export class AdminAddCategoryComponent implements OnInit {
     this.loading.set(true);
 
     const formValues = this.categoryForm.value;
-
-    // Use AdminFormService to build category data with translations
     const categoryData = this.adminFormService.buildFormDataWithTranslations(
       formValues,
       ['name', 'description'],
       { image_url: formValues.image_url || '', is_active: formValues.is_active }
     );
 
-    const isUpdate = this.isEditMode() && this.editCategoryId;
-    const operation$ = isUpdate
-      ? this.productService.updateCategory(this.editCategoryId!, categoryData)
-      : this.productService.createCategory(categoryData);
-
-    operation$.subscribe({
-      next: () => {
-        this.loading.set(false);
-        this.handleSuccess(isUpdate ? 'update' : 'create');
-      },
-      error: (error) => {
-        this.loading.set(false);
-        this.handleError(isUpdate ? 'update' : 'create', error);
-      }
-    });
-  }
-
-  private handleSuccess(operation: 'create' | 'update') {
-    const messageKey = operation === 'create'
-      ? 'admin.categories.create_success'
-      : 'admin.categories.update_success';
-
-    if (this.visible()) {
-      // Modal mode - close modal and reset
-      this.toast.showSuccess(messageKey);
-      this.visible.set(false);
-      const resetValues = this.adminFormService.getTranslationFormResetValues(
-        ['name', 'description'],
-        { image_url: '', is_active: true }
-      );
-      this.categoryForm.reset(resetValues);
+    const categoryId = this.editCategoryId();
+    if (this.isEditMode() && categoryId) {
+      this.productService.updateCategory(categoryId, categoryData)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: () => {
+            this.loading.set(false);
+            this.adminFormService.handleSuccess({
+              message: 'admin.categories.update_success',
+              redirectUrl: ROUTES.ADMIN.CATEGORIES,
+              redirectDelay: 1500
+            });
+          },
+          error: (error) => {
+            this.loading.set(false);
+            this.adminFormService.handleError('update', error, {
+              updateMessage: 'admin.categories.update_failed'
+            });
+          }
+        });
     } else {
-      // Page mode - navigate back after delay
-      this.adminFormService.handleSuccessWithRedirect(messageKey, ROUTES.ADMIN.CATEGORIES);
+      this.productService.createCategory(categoryData)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: () => {
+            this.loading.set(false);
+            this.adminFormService.handleSuccess({
+              message: 'admin.categories.create_success',
+              redirectUrl: ROUTES.ADMIN.CATEGORIES,
+              redirectDelay: 1500
+            });
+          },
+          error: (error) => {
+            this.loading.set(false);
+            this.adminFormService.handleError('create', error, {
+              createMessage: 'admin.categories.create_failed'
+            });
+          }
+        });
     }
-  }
-
-  private handleError(operation: 'create' | 'update', error: any) {
-    this.adminFormService.handleError(operation, error, {
-      createMessage: 'admin.categories.create_failed',
-      updateMessage: 'admin.categories.update_failed'
-    });
   }
 }

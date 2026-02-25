@@ -1320,6 +1320,8 @@
         "image_help": "Optional: Provide a URL to an image for this category",
         "is_active": "Active Category",
         "active_help": "Uncheck to hide this category from customers",
+        "category_visible": "Category is visible in the store",
+        "category_hidden": "Category is hidden from the store",
         "submit_add": "Add Category",
         "submit_update": "Update Category",
         "cancel": "Cancel",
