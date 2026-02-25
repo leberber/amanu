@@ -267,6 +267,7 @@
   },
   "cart": {
     "title": "My Cart",
+    "list": "list",
     "your_items": "Your Items",
     "carton": "carton",
     "pieces": "pcs",

@@ -264,6 +264,7 @@
   },
   "cart": {
     "title": "Mon Panier",
+    "list": "liste",
     "your_items": "Vos Articles",
     "carton": "carton",
     "pieces": "pièces",
