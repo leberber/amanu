@@ -1150,6 +1150,13 @@
       "form": {
         "add_subtitle": "Create a new product for your store",
         "edit_subtitle": "Update this product's details",
+        "step1_title": "Descriptions",
+        "step2_title": "Price & Stock",
+        "step1_subtitle": "Product names and descriptions",
+        "step2_subtitle": "Pricing, stock and configuration",
+        "product_visible": "Product is visible in the store",
+        "product_hidden": "Product is hidden from the store",
+        "brand_required": "Brand is required",
         "basic_info": "Basic Information",
         "translations": "Translations",
         "descriptions": "Descriptions",

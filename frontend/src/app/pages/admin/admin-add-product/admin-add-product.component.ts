@@ -71,6 +71,10 @@ export class AdminAddProductComponent implements OnInit {
   readonly brandsLoading = signal(false);
   readonly formInitialized = signal(false);
 
+  // Step navigation
+  readonly currentStep = signal(1);
+  readonly totalSteps = 2;
+
   // Mode detection
   readonly isEditMode = signal(false);
   editProductId: number | null = null;
@@ -113,8 +117,8 @@ export class AdminAddProductComponent implements OnInit {
       is_organic: [false],
       is_active: [true],
       // Box configuration
-      pieces_per_box: [null],
-      packaging_type: [null]
+      pieces_per_box: [null, [Validators.required, Validators.min(1)]],
+      packaging_type: [null, Validators.required]
     });
 
     this.loadCategories();
@@ -298,6 +302,24 @@ export class AdminAddProductComponent implements OnInit {
         }
       });
     }
+  }
+
+  // Step navigation methods
+  nextStep(): void {
+    if (this.currentStep() < this.totalSteps) {
+      this.currentStep.set(this.currentStep() + 1);
+    }
+  }
+
+  prevStep(): void {
+    if (this.currentStep() > 1) {
+      this.currentStep.set(this.currentStep() - 1);
+    }
+  }
+
+  isStep1Valid(): boolean {
+    const step1Fields = ['name_en', 'name_fr', 'name_ar'];
+    return step1Fields.every(field => this.productForm.get(field)?.valid);
   }
 
   // Template helper methods

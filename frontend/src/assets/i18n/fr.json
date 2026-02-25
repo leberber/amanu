@@ -1155,6 +1155,13 @@
       "form": {
         "add_subtitle": "Créer un nouveau produit pour votre boutique",
         "edit_subtitle": "Modifier les détails de ce produit",
+        "step1_title": "Descriptions",
+        "step2_title": "Prix & Stock",
+        "step1_subtitle": "Noms et descriptions du produit",
+        "step2_subtitle": "Prix, stock et configuration",
+        "product_visible": "Le produit est visible dans la boutique",
+        "product_hidden": "Le produit est masqué de la boutique",
+        "brand_required": "La marque est requise",
         "basic_info": "Informations de Base",
         "translations": "Traductions",
         "descriptions": "Descriptions",

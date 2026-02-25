@@ -56,17 +56,15 @@
 .stepper-horizontal {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 0 var(--space-5);
+  justify-content: center;
+  gap: var(--space-4);
 
   &__step {
     display: flex;
     align-items: center;
-    flex: 1;
+    gap: var(--space-4);
 
     &:last-child {
-      flex: 0;
-
       .stepper-horizontal__connector {
         display: none;
       }
@@ -75,20 +73,20 @@
 
   &__indicator {
     display: flex;
-    flex-direction: column;
     align-items: center;
+    gap: var(--space-3);
     position: relative;
     z-index: 1;
   }
 
   &__number {
     @extend %stepper-number;
-    width: var(--icon-md);
-    height: var(--icon-md);
-    background: var(--overlay-medium);
+    width: 44px;
+    height: 44px;
+    background: var(--glass-bg);
     color: var(--text-color-secondary);
-    font-size: var(--font-size-base);
-    border: 2px solid transparent;
+    font-size: var(--font-size-lg);
+    border: 2px solid var(--border-color-medium);
     cursor: pointer;
 
     i {
@@ -96,8 +94,9 @@
     }
 
     .stepper-horizontal__step--active & {
-      background: var(--primary-color);
+      background: var(--primary-gradient);
       color: var(--color-white);
+      border-color: var(--primary-color);
       box-shadow: var(--shadow-primary);
       transform: scale(1.1);
     }
@@ -115,12 +114,9 @@
   }
 
   &__label {
-    margin-top: var(--space-3);
-    font-size: var(--font-size-xs);
+    font-size: var(--font-size-base);
     font-weight: var(--font-weight-medium);
     color: var(--text-color-secondary);
-    text-align: center;
-    max-width: 150px;
     white-space: nowrap;
 
     .stepper-horizontal__step--active & {
@@ -129,16 +125,19 @@
     }
 
     .stepper-horizontal__step--completed & {
-      color: var(--text-color);
+      color: var(--color-success);
+    }
+
+    @media (max-width: 576px) {
+      display: none;
     }
   }
 
   &__connector {
-    flex: 1;
-    height: 2px;
-    background: var(--overlay-hover);
-    margin: 0 var(--space-3);
-    margin-bottom: var(--space-5);
+    width: 50px;
+    height: 3px;
+    background: var(--border-color-medium);
+    border-radius: var(--radius-full);
     transition: background var(--transition-smooth);
 
     .stepper-horizontal__step--completed & {
