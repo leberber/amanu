@@ -101,13 +101,13 @@ export const routes: Routes = [
     path: 'admin/promotions/add',
     component: AdminAddPromotionComponent,
     canActivate: [adminGuard],
-    data: { mode: 'add' }
+    data: { mode: 'add', hideBottomNav: true }
   },
   {
     path: 'admin/promotions/edit/:id',
     component: AdminAddPromotionComponent,
     canActivate: [adminGuard],
-    data: { mode: 'edit' }
+    data: { mode: 'edit', hideBottomNav: true }
   },
   // Notifications Route
   {

@@ -25,6 +25,7 @@
     "description": "Description",
     "category": "Category",
     "brand": "Brand",
+    "promotion": "Promotion",
     "email": "Email",
     "password": "Password",
     "phone": "Phone",
@@ -637,6 +638,11 @@
       "form": {
         "add_subtitle": "Create a new promotional offer for your customers",
         "edit_subtitle": "Modify the details of this promotion",
+        "step": "Step",
+        "step1_title": "Details",
+        "step2_title": "Targeting",
+        "step1_subtitle": "Define the promotion name and discount",
+        "step2_subtitle": "Set the scope and schedule",
         "basic_info": "Basic Information",
         "discount_settings": "Discount Settings",
         "scope_settings": "Scope & Conditions",
@@ -668,7 +674,9 @@
         "start_date": "Start Date",
         "end_date": "End Date",
         "date_error": "End date must be after start date",
-        "is_active": "Promotion is active",
+        "is_active": "Active Promotion",
+        "promotion_visible": "Promotion is active and available",
+        "promotion_hidden": "Promotion is inactive",
         "submit_add": "Create Promotion",
         "submit_update": "Update Promotion"
       }

@@ -25,6 +25,7 @@
     "description": "Description",
     "category": "Catégorie",
     "brand": "Marque",
+    "promotion": "Promotion",
     "email": "Email",
     "password": "Mot de passe",
     "phone": "Téléphone",
@@ -634,6 +635,11 @@
       "form": {
         "add_subtitle": "Créer une nouvelle offre promotionnelle pour vos clients",
         "edit_subtitle": "Modifier les détails de cette promotion",
+        "step": "Étape",
+        "step1_title": "Détails",
+        "step2_title": "Ciblage",
+        "step1_subtitle": "Définir le nom et la réduction",
+        "step2_subtitle": "Définir la portée et le calendrier",
         "basic_info": "Informations de Base",
         "discount_settings": "Paramètres de Réduction",
         "scope_settings": "Portée et Conditions",
@@ -665,7 +671,9 @@
         "start_date": "Date de Début",
         "end_date": "Date de Fin",
         "date_error": "La date de fin doit être après la date de début",
-        "is_active": "La promotion est active",
+        "is_active": "Promotion Active",
+        "promotion_visible": "La promotion est active et disponible",
+        "promotion_hidden": "La promotion est inactive",
         "submit_add": "Créer la Promotion",
         "submit_update": "Mettre à Jour la Promotion"
       }

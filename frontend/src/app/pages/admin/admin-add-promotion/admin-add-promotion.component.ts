@@ -1,92 +1,131 @@
-// src/app/pages/admin/admin-add-promotion/admin-add-promotion.component.ts
-import { Component, OnInit, signal, inject, DestroyRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, signal, inject, computed, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
-import { TextareaModule } from 'primeng/textarea';
-import { CheckboxModule } from 'primeng/checkbox';
-import { ToastModule } from 'primeng/toast';
-import { CardModule } from 'primeng/card';
-import { SelectModule } from 'primeng/select';
 import { InputNumberModule } from 'primeng/inputnumber';
+import { TextareaModule } from 'primeng/textarea';
+import { SelectModule } from 'primeng/select';
 import { DatePickerModule } from 'primeng/datepicker';
-import { DividerModule } from 'primeng/divider';
+import { ToastModule } from 'primeng/toast';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { ROUTES } from '../../../core/constants/routes.constants';
-import { UI_DELAY } from '../../../core/constants/app.constants';
+import { ANIMATION, UI_DELAY } from '../../../core/constants/app.constants';
 import { onLanguageChange } from '../../../core/utils/language-change.util';
 import { PromotionService } from '../../../services/promotion.service';
 import { ProductService } from '../../../services/product.service';
 import { BrandService } from '../../../core/services/brand.service';
+import { AdminFormService } from '../../../core/services/admin-form.service';
+import { ToastMessageService } from '../../../core/services/toast-message.service';
+import { PageLayoutComponent } from '../../../shared/components/page-layout/page-layout.component';
 import { Promotion, PromotionCreate, PromotionUpdate } from '../../../models/promotion.model';
 import { Category } from '../../../models/category.model';
 import { Brand } from '../../../models/brand.model';
-import { ToastMessageService } from '../../../core/services/toast-message.service';
 
 interface SelectOption {
   label: string;
   value: string;
 }
 
+const DISCOUNT_TYPES = ['percentage', 'fixed_amount'] as const;
+const SCOPE_TYPES = ['global', 'category', 'brand', 'product'] as const;
+const DEFAULT_DISCOUNT_VALUE = 10;
+const MIN_DISCOUNT = 0.01;
+const MAX_PERCENTAGE = 100;
+const MAX_FIXED_AMOUNT = 999999;
+
 @Component({
   selector: 'app-admin-add-promotion',
   standalone: true,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
-    ButtonModule,
     InputTextModule,
-    TextareaModule,
-    CheckboxModule,
-    ToastModule,
-    CardModule,
-    SelectModule,
     InputNumberModule,
+    TextareaModule,
+    SelectModule,
     DatePickerModule,
-    DividerModule,
-    TranslateModule
+    ToastModule,
+    TranslateModule,
+    PageLayoutComponent
   ],
-    templateUrl: './admin-add-promotion.component.html',
+  templateUrl: './admin-add-promotion.component.html',
   styleUrl: './admin-add-promotion.component.scss'
 })
 export class AdminAddPromotionComponent implements OnInit {
-  loading = signal(false);
+  private readonly fb = inject(FormBuilder);
+  private readonly toast = inject(ToastMessageService);
+  private readonly promotionService = inject(PromotionService);
+  private readonly productService = inject(ProductService);
+  private readonly brandService = inject(BrandService);
+  private readonly adminFormService = inject(AdminFormService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly translateService = inject(TranslateService);
+  private readonly destroyRef = inject(DestroyRef);
+
   promotionForm!: FormGroup;
-  isEditMode = signal(false);
-  editPromotionId: number | null = null;
-  currentPromotion: Promotion | null = null;
 
-  // Dropdown options
-  discountTypeOptions: SelectOption[] = [];
-  scopeOptions: SelectOption[] = [];
-  categories: Category[] = [];
-  brands: Brand[] = [];
-  products: { id: number; name: string }[] = [];
+  readonly loading = signal(false);
+  readonly formInitialized = signal(false);
+  readonly isEditMode = signal(false);
+  readonly currentStep = signal(1);
+  readonly totalSteps = 2 as const;
+  private readonly editPromotionId = signal<number | null>(null);
 
-  get pageTitle(): string {
-    return this.isEditMode() ? 'admin.promotions.edit_promotion' : 'admin.promotions.add_promotion';
-  }
+  readonly discountTypeOptions = signal<SelectOption[]>([]);
+  readonly scopeOptions = signal<SelectOption[]>([]);
+  readonly categoryOptions = signal<{ label: string; value: number }[]>([]);
+  readonly brandOptions = signal<{ label: string; value: number }[]>([]);
+  readonly productOptions = signal<{ label: string; value: number }[]>([]);
 
-  get submitButtonLabel(): string {
-    return this.isEditMode() ? 'admin.promotions.form.submit_update' : 'admin.promotions.form.submit_add';
-  }
+  private readonly currentScope = signal<string>('global');
+  private readonly currentDiscountType = signal<string>('percentage');
+  private readonly nameValue = signal('');
+  private readonly discountValue = signal(DEFAULT_DISCOUNT_VALUE);
 
-  private fb = inject(FormBuilder);
-  private toast = inject(ToastMessageService);
-  private promotionService = inject(PromotionService);
-  private productService = inject(ProductService);
-  private brandService = inject(BrandService);
-  private route = inject(ActivatedRoute);
-  private router = inject(Router);
-  private translateService = inject(TranslateService);
-  private destroyRef = inject(DestroyRef);
+  readonly pageTitle = computed(() =>
+    this.isEditMode() ? 'admin.promotions.edit_promotion' : 'admin.promotions.add_promotion'
+  );
 
-  ngOnInit() {
+  readonly pageSubtitle = computed(() =>
+    this.currentStep() === 1
+      ? 'admin.promotions.form.step1_subtitle'
+      : 'admin.promotions.form.step2_subtitle'
+  );
+
+  readonly mobileSubtitle = computed(() =>
+    this.isEditMode() ? 'common.edit' : 'common.add'
+  );
+
+  readonly submitButtonLabel = computed(() =>
+    this.isEditMode() ? 'admin.promotions.form.submit_update' : 'admin.promotions.form.submit_add'
+  );
+
+  readonly isPercentageDiscount = computed(() =>
+    this.currentDiscountType() === 'percentage'
+  );
+
+  readonly maxDiscountValue = computed(() =>
+    this.isPercentageDiscount() ? MAX_PERCENTAGE : MAX_FIXED_AMOUNT
+  );
+
+  readonly discountSuffix = computed(() =>
+    this.isPercentageDiscount() ? '%' : ' DA'
+  );
+
+  readonly showCategorySelect = computed(() => this.currentScope() === 'category');
+  readonly showBrandSelect = computed(() => this.currentScope() === 'brand');
+  readonly showProductSelect = computed(() => this.currentScope() === 'product');
+
+  readonly isStep1Valid = computed(() =>
+    this.nameValue().length >= 2 && this.discountValue() >= MIN_DISCOUNT
+  );
+
+  readonly ROUTES = ROUTES;
+
+  ngOnInit(): void {
     this.initializeOptions();
     this.initializeForm();
     this.loadCategories();
@@ -94,23 +133,23 @@ export class AdminAddPromotionComponent implements OnInit {
     this.loadProducts();
     this.detectMode();
     onLanguageChange(this.translateService, this.destroyRef, () => this.initializeOptions());
+
+    setTimeout(() => this.formInitialized.set(true), ANIMATION.NORMAL);
   }
 
-  initializeOptions() {
-    this.discountTypeOptions = [
-      { label: this.translateService.instant('admin.promotions.discount_type.percentage'), value: 'percentage' },
-      { label: this.translateService.instant('admin.promotions.discount_type.fixed_amount'), value: 'fixed_amount' }
-    ];
+  private initializeOptions(): void {
+    this.discountTypeOptions.set(DISCOUNT_TYPES.map(type => ({
+      label: this.translateService.instant(`admin.promotions.discount_type.${type}`),
+      value: type
+    })));
 
-    this.scopeOptions = [
-      { label: this.translateService.instant('admin.promotions.scope.global'), value: 'global' },
-      { label: this.translateService.instant('admin.promotions.scope.category'), value: 'category' },
-      { label: this.translateService.instant('admin.promotions.scope.brand'), value: 'brand' },
-      { label: this.translateService.instant('admin.promotions.scope.product'), value: 'product' }
-    ];
+    this.scopeOptions.set(SCOPE_TYPES.map(scope => ({
+      label: this.translateService.instant(`admin.promotions.scope.${scope}`),
+      value: scope
+    })));
   }
 
-  initializeForm() {
+  private initializeForm(): void {
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
 
@@ -122,7 +161,7 @@ export class AdminAddPromotionComponent implements OnInit {
       description: [''],
       code: ['', [Validators.pattern(/^[A-Z0-9_-]+$/i)]],
       discount_type: ['percentage', Validators.required],
-      discount_value: [10, [Validators.required, Validators.min(0.01)]],
+      discount_value: [DEFAULT_DISCOUNT_VALUE, [Validators.required, Validators.min(MIN_DISCOUNT)]],
       scope: ['global', Validators.required],
       category_id: [null],
       brand_id: [null],
@@ -135,25 +174,35 @@ export class AdminAddPromotionComponent implements OnInit {
       is_active: [true]
     });
 
-    // Watch scope changes to validate related fields - properly cleaned up on destroy
     this.promotionForm.get('scope')?.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(scope => {
+        this.currentScope.set(scope);
         this.updateScopeValidation(scope);
       });
+
+    this.promotionForm.get('discount_type')?.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(type => this.currentDiscountType.set(type));
+
+    this.promotionForm.get('name')?.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(value => this.nameValue.set(value || ''));
+
+    this.promotionForm.get('discount_value')?.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(value => this.discountValue.set(value || 0));
   }
 
-  updateScopeValidation(scope: string) {
+  private updateScopeValidation(scope: string): void {
     const categoryControl = this.promotionForm.get('category_id');
     const brandControl = this.promotionForm.get('brand_id');
     const productControl = this.promotionForm.get('product_id');
 
-    // Clear all validators first
     categoryControl?.clearValidators();
     brandControl?.clearValidators();
     productControl?.clearValidators();
 
-    // Add required validator based on scope
     switch (scope) {
       case 'category':
         categoryControl?.setValidators([Validators.required]);
@@ -171,107 +220,100 @@ export class AdminAddPromotionComponent implements OnInit {
     productControl?.updateValueAndValidity();
   }
 
-  loadCategories() {
-    this.productService.getCategories(true).subscribe({
-      next: (categories: Category[]) => {
-        this.categories = categories;
-      },
-      error: () => {
-        // Categories load failed silently
-      }
-    });
+  private loadCategories(): void {
+    this.productService.getCategories(true)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (categories: Category[]) => {
+          this.categoryOptions.set(categories.map(c => ({ label: c.name, value: c.id })));
+        }
+      });
   }
 
-  loadBrands() {
-    this.brandService.getBrands(true).subscribe({
-      next: (brands: Brand[]) => {
-        this.brands = brands;
-      },
-      error: () => {
-        // Brands load failed silently
-      }
-    });
+  private loadBrands(): void {
+    this.brandService.getBrands(true)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (brands: Brand[]) => {
+          this.brandOptions.set(brands.map(b => ({ label: b.name, value: b.id })));
+        }
+      });
   }
 
-  loadProducts() {
-    this.productService.getProducts().subscribe({
-      next: (products: any[]) => {
-        this.products = products.map(p => ({ id: p.id, name: p.name }));
-      },
-      error: () => {
-        // Products load failed silently
-      }
-    });
+  private loadProducts(): void {
+    this.productService.getProducts()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (products: any[]) => {
+          this.productOptions.set(products.map(p => ({ label: p.name, value: p.id })));
+        }
+      });
   }
 
-  detectMode() {
+  private detectMode(): void {
     const routeData = this.route.snapshot.data;
     if (routeData['mode'] === 'edit') {
       this.isEditMode.set(true);
     }
 
-    this.route.paramMap.subscribe(params => {
-      const id = params.get('id');
-      if (id) {
-        this.editPromotionId = parseInt(id, 10);
-        this.isEditMode.set(true);
-        this.loadPromotionForEdit();
-      }
-    });
+    this.route.paramMap
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(params => {
+        const id = params.get('id');
+        if (id) {
+          this.editPromotionId.set(parseInt(id, 10));
+          this.isEditMode.set(true);
+          this.loadPromotionForEdit();
+        }
+      });
   }
 
-  loadPromotionForEdit() {
-    if (!this.editPromotionId) return;
+  private loadPromotionForEdit(): void {
+    const promotionId = this.editPromotionId();
+    if (!promotionId) return;
 
     this.loading.set(true);
 
-    this.promotionService.getPromotion(this.editPromotionId).subscribe({
-      next: (promotion) => {
-        this.currentPromotion = promotion;
+    this.promotionService.getPromotion(promotionId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (promotion: Promotion) => {
+          this.promotionForm.patchValue({
+            name: promotion.name,
+            description: promotion.description || '',
+            code: promotion.code || '',
+            discount_type: promotion.discount_type,
+            discount_value: promotion.discount_value,
+            scope: promotion.scope,
+            category_id: promotion.category_id,
+            brand_id: promotion.brand_id,
+            product_id: promotion.product_id,
+            min_order_amount: promotion.min_order_amount || 0,
+            max_discount: promotion.max_discount,
+            usage_limit: promotion.usage_limit,
+            start_date: new Date(promotion.start_date),
+            end_date: new Date(promotion.end_date),
+            is_active: promotion.is_active
+          });
 
-        this.promotionForm.patchValue({
-          name: promotion.name,
-          description: promotion.description || '',
-          code: promotion.code || '',
-          discount_type: promotion.discount_type,
-          discount_value: promotion.discount_value,
-          scope: promotion.scope,
-          category_id: promotion.category_id,
-          brand_id: promotion.brand_id,
-          product_id: promotion.product_id,
-          min_order_amount: promotion.min_order_amount || 0,
-          max_discount: promotion.max_discount,
-          usage_limit: promotion.usage_limit,
-          start_date: new Date(promotion.start_date),
-          end_date: new Date(promotion.end_date),
-          is_active: promotion.is_active
-        });
-
-        this.loading.set(false);
-      },
-      error: () => {
-        this.loading.set(false);
-        this.toast.showError('admin.promotions.load_error');
-        this.goBackToPromotionsList();
-      }
-    });
+          this.currentScope.set(promotion.scope);
+          this.currentDiscountType.set(promotion.discount_type);
+          this.loading.set(false);
+        },
+        error: () => {
+          this.loading.set(false);
+          this.toast.showError('admin.promotions.load_error');
+          this.router.navigate([ROUTES.ADMIN.PROMOTIONS]);
+        }
+      });
   }
 
-  onCancel() {
-    this.goBackToPromotionsList();
-  }
-
-  goBackToPromotionsList() {
-    this.router.navigate([ROUTES.ADMIN.PROMOTIONS]);
-  }
-
-  onSubmit() {
+  onSubmit(): void {
     if (this.promotionForm.invalid) {
       this.promotionForm.markAllAsTouched();
       return;
     }
 
-    // Validate dates
     const startDate = this.promotionForm.value.start_date;
     const endDate = this.promotionForm.value.end_date;
 
@@ -283,8 +325,6 @@ export class AdminAddPromotionComponent implements OnInit {
     this.loading.set(true);
 
     const formValues = this.promotionForm.value;
-
-    // Build promotion data
     const promotionData: PromotionCreate = {
       name: formValues.name,
       description: formValues.description || undefined,
@@ -303,49 +343,62 @@ export class AdminAddPromotionComponent implements OnInit {
       is_active: formValues.is_active
     };
 
-    if (this.isEditMode() && this.editPromotionId) {
-      this.promotionService.updatePromotion(this.editPromotionId, promotionData as PromotionUpdate).subscribe({
-        next: () => {
-          this.loading.set(false);
-          this.toast.showSuccess('admin.promotions.update_success');
-          setTimeout(() => {
-            this.goBackToPromotionsList();
-          }, UI_DELAY.TOAST_BEFORE_NAVIGATE);
-        },
-        error: (error) => {
-          this.loading.set(false);
-          this.handleError('update', error);
-        }
-      });
+    const promotionId = this.editPromotionId();
+    if (this.isEditMode() && promotionId) {
+      this.promotionService.updatePromotion(promotionId, promotionData as PromotionUpdate)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: () => {
+            this.loading.set(false);
+            this.adminFormService.handleSuccess({
+              message: 'admin.promotions.update_success',
+              redirectUrl: ROUTES.ADMIN.PROMOTIONS,
+              redirectDelay: UI_DELAY.TOAST_BEFORE_NAVIGATE
+            });
+          },
+          error: (error) => {
+            this.loading.set(false);
+            this.adminFormService.handleError('update', error, {
+              updateMessage: 'admin.promotions.update_failed'
+            });
+          }
+        });
     } else {
-      this.promotionService.createPromotion(promotionData).subscribe({
-        next: () => {
-          this.loading.set(false);
-          this.toast.showSuccess('admin.promotions.create_success');
-          setTimeout(() => {
-            this.goBackToPromotionsList();
-          }, UI_DELAY.TOAST_BEFORE_NAVIGATE);
-        },
-        error: (error) => {
-          this.loading.set(false);
-          this.handleError('create', error);
-        }
-      });
+      this.promotionService.createPromotion(promotionData)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: () => {
+            this.loading.set(false);
+            this.adminFormService.handleSuccess({
+              message: 'admin.promotions.create_success',
+              redirectUrl: ROUTES.ADMIN.PROMOTIONS,
+              redirectDelay: UI_DELAY.TOAST_BEFORE_NAVIGATE
+            });
+          },
+          error: (error) => {
+            this.loading.set(false);
+            this.adminFormService.handleError('create', error, {
+              createMessage: 'admin.promotions.create_failed'
+            });
+          }
+        });
     }
   }
 
-  private handleError(operation: 'create' | 'update', error: any) {
-    const fallbackKey = operation === 'create' ? 'admin.promotions.create_failed' : 'admin.promotions.update_failed';
-    this.toast.showApiError(error, fallbackKey);
+  toggleActive(): void {
+    const control = this.promotionForm.get('is_active');
+    control?.setValue(!control.value);
   }
 
-  // Helper to check if discount type is percentage
-  isPercentageDiscount(): boolean {
-    return this.promotionForm.get('discount_type')?.value === 'percentage';
+  nextStep(): void {
+    if (this.currentStep() < this.totalSteps) {
+      this.currentStep.set(this.currentStep() + 1);
+    }
   }
 
-  // Get current scope value
-  getCurrentScope(): string {
-    return this.promotionForm.get('scope')?.value || 'global';
+  prevStep(): void {
+    if (this.currentStep() > 1) {
+      this.currentStep.set(this.currentStep() - 1);
+    }
   }
 }

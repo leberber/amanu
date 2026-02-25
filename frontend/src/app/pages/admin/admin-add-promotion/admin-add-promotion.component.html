@@ -1,316 +1,385 @@
-<!-- src/app/pages/admin/admin-add-promotion/admin-add-promotion.component.html -->
-<div class="admin-page">
-  <!-- Background Decoration -->
-  <div class="bg-decoration">
-    <div class="blob blob-1"></div>
-    <div class="blob blob-2"></div>
-    <div class="blob blob-3"></div>
-  </div>
+<app-page-layout
+  [title]="pageTitle()"
+  [subtitle]="pageSubtitle()"
+  mobileTitle="common.promotion"
+  [mobileSubtitle]="mobileSubtitle()"
+  icon="pi pi-tag"
+  [showBackButton]="true"
+  [backRoute]="ROUTES.ADMIN.PROMOTIONS"
+  [fullscreen]="true">
 
   <p-toast></p-toast>
-  <div class="admin-content admin-content--narrow">
-    <!-- Page Header -->
-    <div class="admin-header">
-      <div class="header-content">
-        <div class="header-title">
-          <div class="admin-icon-wrapper admin-icon-wrapper--square">
-            <div class="icon-bg"></div>
-            <div class="icon-circle">
-              <i class="pi pi-tag"></i>
+
+  @if (!formInitialized()) {
+    <div class="mt-6">
+      <div class="grid">
+        @for (_ of [0, 1]; track $index) {
+          <div class="col-12 lg:col-6 item-animate" [style.animation-delay]="($index * 50) + 'ms'">
+            <div class="skeleton-card form-card">
+              <div class="card-header">
+                <div class="skeleton skeleton-avatar"></div>
+                <div class="skeleton skeleton-text skeleton-text--w70"></div>
+              </div>
+              <div class="card-body">
+                @for (_ of [0, 1, 2]; track $index) {
+                  <div class="field-box mb-4">
+                    <div class="skeleton skeleton-avatar"></div>
+                    <div class="flex-1">
+                      <div class="skeleton skeleton-text skeleton-text--w40 mb-2"></div>
+                      <div class="skeleton skeleton-input"></div>
+                    </div>
+                  </div>
+                }
+              </div>
             </div>
           </div>
-          <div class="title-text">
-            <h1>{{ pageTitle | translate }}</h1>
-            <p>{{ isEditMode() ? ('admin.promotions.form.edit_subtitle' | translate) : ('admin.promotions.form.add_subtitle' | translate) }}</p>
-          </div>
-        </div>
-        <button class="back-btn" (click)="onCancel()">
-          <i class="pi pi-arrow-left"></i>
-          <span>{{ 'common.back' | translate }}</span>
-        </button>
+        }
       </div>
     </div>
+  }
 
+  @if (formInitialized()) {
     <form [formGroup]="promotionForm" (ngSubmit)="onSubmit()">
-      <!-- Cards Grid -->
-      <div class="admin-cards-grid">
-        <!-- Basic Info Card -->
-        <div class="admin-form-card">
-          <div class="card-header">
-            <div class="card-icon info">
-              <i class="pi pi-info-circle"></i>
+      <div class="form-wizard form-wizard--fullpage">
+        <div class="form-wizard__header">
+          <div class="stepper-horizontal">
+            <div class="stepper-horizontal__step" [class.stepper-horizontal__step--active]="currentStep() === 1" [class.stepper-horizontal__step--completed]="currentStep() > 1">
+              <div class="stepper-horizontal__indicator">
+                <div class="stepper-horizontal__number">
+                  @if (currentStep() > 1) {
+                    <i class="pi pi-check"></i>
+                  } @else {
+                    1
+                  }
+                </div>
+                <span class="stepper-horizontal__label">{{ 'admin.promotions.form.step1_title' | translate }}</span>
+              </div>
+              <div class="stepper-horizontal__connector"></div>
             </div>
-            <h3>{{ 'admin.promotions.form.basic_info' | translate }}</h3>
-          </div>
-          <div class="card-body">
-            <div class="admin-form-field">
-              <label for="name">
-                {{ 'admin.promotions.form.name' | translate }} <span class="required">*</span>
-              </label>
-              <input
-                id="name"
-                type="text"
-                formControlName="name"
-                [placeholder]="'admin.promotions.form.name_placeholder' | translate">
-              @if (promotionForm.get('name')?.invalid && promotionForm.get('name')?.touched) {
-                <span class="field-error">{{ 'admin.promotions.form.name_required' | translate }}</span>
-              }
-            </div>
-
-            <div class="admin-form-field">
-              <label for="code">
-                {{ 'admin.promotions.form.code' | translate }}
-              </label>
-              <input
-                id="code"
-                type="text"
-                formControlName="code"
-                [placeholder]="'admin.promotions.form.code_placeholder' | translate">
-              <span class="field-hint">{{ 'admin.promotions.form.code_hint' | translate }}</span>
-            </div>
-
-            <div class="admin-form-field">
-              <label for="description">
-                {{ 'admin.promotions.form.description' | translate }}
-              </label>
-              <textarea
-                id="description"
-                formControlName="description"
-                rows="3"
-                [placeholder]="'admin.promotions.form.description_placeholder' | translate"
-              ></textarea>
+            <div class="stepper-horizontal__step" [class.stepper-horizontal__step--active]="currentStep() === 2">
+              <div class="stepper-horizontal__indicator">
+                <div class="stepper-horizontal__number">2</div>
+                <span class="stepper-horizontal__label">{{ 'admin.promotions.form.step2_title' | translate }}</span>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- Discount Settings Card -->
-        <div class="admin-form-card">
-          <div class="card-header">
-            <div class="card-icon discount">
-              <i class="pi pi-percentage"></i>
-            </div>
-            <h3>{{ 'admin.promotions.form.discount_settings' | translate }}</h3>
-          </div>
-          <div class="card-body">
-            <div class="admin-form-field">
-              <label for="discount_type">
-                {{ 'admin.promotions.form.discount_type' | translate }} <span class="required">*</span>
-              </label>
-              <p-select
-                id="discount_type"
-                formControlName="discount_type"
-                [options]="discountTypeOptions"
-                optionLabel="label"
-                optionValue="value"
-              />
-            </div>
+        <div class="form-wizard__body">
+          @if (currentStep() === 1) {
+            <div class="grid">
+              <div class="col-12 lg:col-6 item-animate">
+                <div class="form-card">
+                  <div class="card-header">
+                    <div class="card-header__icon card-header__icon--primary">
+                      <i class="pi pi-info-circle"></i>
+                    </div>
+                    <h3 class="card-header__title">{{ 'admin.promotions.form.basic_info' | translate }}</h3>
+                  </div>
+                  <div class="card-body">
+                    <div class="form-field">
+                      <div class="field-box" [class.filled]="promotionForm.get('name')?.value">
+                        <div class="field-box__icon field-box__icon--primary">
+                          <i class="pi pi-tag"></i>
+                        </div>
+                        <div class="field-box__content">
+                          <label>{{ 'admin.promotions.form.name' | translate }} <span class="required">*</span></label>
+                          <input type="text" formControlName="name" [placeholder]="'admin.promotions.form.name_placeholder' | translate">
+                        </div>
+                      </div>
+                      @if (promotionForm.get('name')?.invalid && promotionForm.get('name')?.touched) {
+                        <span class="field-error">{{ 'admin.promotions.form.name_required' | translate }}</span>
+                      }
+                    </div>
 
-            <div class="admin-form-field">
-              <label for="discount_value">
-                {{ 'admin.promotions.form.discount_value' | translate }} <span class="required">*</span>
-                <span class="unit-hint">({{ isPercentageDiscount() ? '%' : 'DA' }})</span>
-              </label>
-              <p-inputNumber
-                id="discount_value"
-                formControlName="discount_value"
-                [min]="0.01"
-                [max]="isPercentageDiscount() ? 100 : 999999"
-                [suffix]="isPercentageDiscount() ? '%' : ' DA'"
-              />
-            </div>
+                    <div class="form-field">
+                      <div class="field-box" [class.filled]="promotionForm.get('code')?.value">
+                        <div class="field-box__icon field-box__icon--warning">
+                          <i class="pi pi-ticket"></i>
+                        </div>
+                        <div class="field-box__content">
+                          <label>{{ 'admin.promotions.form.code' | translate }}</label>
+                          <input type="text" formControlName="code" [placeholder]="'admin.promotions.form.code_placeholder' | translate">
+                        </div>
+                      </div>
+                      <span class="field-hint">{{ 'admin.promotions.form.code_hint' | translate }}</span>
+                    </div>
 
-            @if (isPercentageDiscount()) {
-              <div class="admin-form-field">
-                <label for="max_discount">
-                  {{ 'admin.promotions.form.max_discount' | translate }}
-                </label>
-                <p-inputNumber
-                  id="max_discount"
-                  formControlName="max_discount"
-                  [min]="0"
-                  suffix=" DA"
-                />
-                <span class="field-hint">{{ 'admin.promotions.form.max_discount_hint' | translate }}</span>
+                    <div class="form-field">
+                      <div class="field-box align-items-start" [class.filled]="promotionForm.get('description')?.value">
+                        <div class="field-box__icon field-box__icon--info">
+                          <i class="pi pi-file-edit"></i>
+                        </div>
+                        <div class="field-box__content">
+                          <label>{{ 'admin.promotions.form.description' | translate }}</label>
+                          <textarea pInputTextarea formControlName="description" rows="3" [placeholder]="'admin.promotions.form.description_placeholder' | translate"></textarea>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
-            }
-          </div>
-        </div>
 
-        <!-- Scope Settings Card -->
-        <div class="admin-form-card">
-          <div class="card-header">
-            <div class="card-icon scope">
-              <i class="pi pi-sliders-h"></i>
-            </div>
-            <h3>{{ 'admin.promotions.form.scope_settings' | translate }}</h3>
-          </div>
-          <div class="card-body">
-            <div class="admin-form-field">
-              <label for="scope">
-                {{ 'admin.promotions.form.scope' | translate }} <span class="required">*</span>
-              </label>
-              <p-select
-                id="scope"
-                formControlName="scope"
-                [options]="scopeOptions"
-                optionLabel="label"
-                optionValue="value"
-              />
-            </div>
+              <div class="col-12 lg:col-6 item-animate" [style.animation-delay]="'50ms'">
+                <div class="form-card">
+                  <div class="card-header">
+                    <div class="card-header__icon card-header__icon--success">
+                      <i class="pi pi-percentage"></i>
+                    </div>
+                    <h3 class="card-header__title">{{ 'admin.promotions.form.discount_settings' | translate }}</h3>
+                  </div>
+                  <div class="card-body">
+                    <div class="form-field">
+                      <div class="field-box" [class.filled]="promotionForm.get('discount_type')?.value">
+                        <div class="field-box__icon field-box__icon--success">
+                          <i class="pi pi-sliders-h"></i>
+                        </div>
+                        <div class="field-box__content">
+                          <label>{{ 'admin.promotions.form.discount_type' | translate }} <span class="required">*</span></label>
+                          <p-select formControlName="discount_type" [options]="discountTypeOptions()" optionLabel="label" optionValue="value" styleClass="w-full" appendTo="body" />
+                        </div>
+                      </div>
+                    </div>
 
-            @if (getCurrentScope() === 'category') {
-              <div class="admin-form-field">
-                <label for="category_id">
-                  {{ 'admin.promotions.form.category' | translate }} <span class="required">*</span>
-                </label>
-                <p-select
-                  id="category_id"
-                  formControlName="category_id"
-                  [options]="categories"
-                  optionLabel="name"
-                  optionValue="id"
-                  [placeholder]="'admin.promotions.form.select_category' | translate"
-                  [filter]="true"
-                />
+                    <div class="form-field">
+                      <div class="field-box" [class.filled]="promotionForm.get('discount_value')?.value">
+                        <div class="field-box__icon field-box__icon--purple">
+                          <i class="pi pi-calculator"></i>
+                        </div>
+                        <div class="field-box__content">
+                          <label>{{ 'admin.promotions.form.discount_value' | translate }} <span class="required">*</span></label>
+                          <p-inputNumber formControlName="discount_value" [min]="0.01" [max]="maxDiscountValue()" [suffix]="discountSuffix()" styleClass="w-full" />
+                        </div>
+                      </div>
+                      @if (promotionForm.get('discount_value')?.invalid && promotionForm.get('discount_value')?.touched) {
+                        <span class="field-error">{{ 'admin.promotions.form.discount_value_required' | translate }}</span>
+                      }
+                    </div>
+
+                    @if (isPercentageDiscount()) {
+                      <div class="form-field">
+                        <div class="field-box" [class.filled]="promotionForm.get('max_discount')?.value">
+                          <div class="field-box__icon field-box__icon--orange">
+                            <i class="pi pi-bolt"></i>
+                          </div>
+                          <div class="field-box__content">
+                            <label>{{ 'admin.promotions.form.max_discount' | translate }}</label>
+                            <p-inputNumber formControlName="max_discount" [min]="0" suffix=" DA" styleClass="w-full" />
+                          </div>
+                        </div>
+                        <span class="field-hint">{{ 'admin.promotions.form.max_discount_hint' | translate }}</span>
+                      </div>
+                    }
+                  </div>
+                </div>
               </div>
-            }
-
-            @if (getCurrentScope() === 'brand') {
-              <div class="admin-form-field">
-                <label for="brand_id">
-                  {{ 'admin.promotions.form.brand' | translate }} <span class="required">*</span>
-                </label>
-                <p-select
-                  id="brand_id"
-                  formControlName="brand_id"
-                  [options]="brands"
-                  optionLabel="name"
-                  optionValue="id"
-                  [placeholder]="'admin.promotions.form.select_brand' | translate"
-                  [filter]="true"
-                />
-              </div>
-            }
-
-            @if (getCurrentScope() === 'product') {
-              <div class="admin-form-field">
-                <label for="product_id">
-                  {{ 'admin.promotions.form.product' | translate }} <span class="required">*</span>
-                </label>
-                <p-select
-                  id="product_id"
-                  formControlName="product_id"
-                  [options]="products"
-                  optionLabel="name"
-                  optionValue="id"
-                  [placeholder]="'admin.promotions.form.select_product' | translate"
-                  [filter]="true"
-                />
-              </div>
-            }
-
-            <div class="admin-form-field">
-              <label for="min_order_amount">
-                {{ 'admin.promotions.form.min_order_amount' | translate }}
-              </label>
-              <p-inputNumber
-                id="min_order_amount"
-                formControlName="min_order_amount"
-                [min]="0"
-                suffix=" DA"
-              />
             </div>
-
-            <div class="admin-form-field">
-              <label for="usage_limit">
-                {{ 'admin.promotions.form.usage_limit' | translate }}
-              </label>
-              <p-inputNumber
-                id="usage_limit"
-                formControlName="usage_limit"
-                [min]="1"
-              />
-              <span class="field-hint">{{ 'admin.promotions.form.usage_limit_hint' | translate }}</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Validity Period Card -->
-        <div class="admin-form-card">
-          <div class="card-header">
-            <div class="card-icon calendar">
-              <i class="pi pi-calendar"></i>
-            </div>
-            <h3>{{ 'admin.promotions.form.validity_period' | translate }}</h3>
-          </div>
-          <div class="card-body">
-            <div class="admin-form-field">
-              <label for="start_date">
-                {{ 'admin.promotions.form.start_date' | translate }} <span class="required">*</span>
-              </label>
-              <p-datepicker
-                id="start_date"
-                formControlName="start_date"
-                [showTime]="true"
-                [showIcon]="true"
-                dateFormat="dd/mm/yy"
-                appendTo="body"
-              />
-            </div>
-
-            <div class="admin-form-field">
-              <label for="end_date">
-                {{ 'admin.promotions.form.end_date' | translate }} <span class="required">*</span>
-              </label>
-              <p-datepicker
-                id="end_date"
-                formControlName="end_date"
-                [showTime]="true"
-                [showIcon]="true"
-                dateFormat="dd/mm/yy"
-                appendTo="body"
-              />
-            </div>
-
-            <div class="admin-checkbox-field">
-              <p-checkbox
-                formControlName="is_active"
-                [binary]="true"
-                inputId="is_active"
-              />
-              <label for="is_active">
-                {{ 'admin.promotions.form.is_active' | translate }}
-              </label>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Form Actions -->
-      <div class="admin-form-actions">
-        <button
-          type="button"
-          class="cancel-btn"
-          (click)="onCancel()"
-          [disabled]="loading()">
-          {{ 'common.cancel' | translate }}
-        </button>
-        <button
-          type="submit"
-          class="submit-btn"
-          [disabled]="promotionForm.invalid || loading()">
-          @if (loading()) {
-            <i class="pi pi-spin pi-spinner spinner"></i>
-          } @else {
-            <i class="pi pi-check"></i>
           }
-          <span>{{ submitButtonLabel | translate }}</span>
-        </button>
+
+          @if (currentStep() === 2) {
+            <div class="grid">
+              <div class="col-12 lg:col-6 item-animate">
+                <div class="form-card">
+                  <div class="card-header">
+                    <div class="card-header__icon card-header__icon--purple">
+                      <i class="pi pi-sitemap"></i>
+                    </div>
+                    <h3 class="card-header__title">{{ 'admin.promotions.form.scope_settings' | translate }}</h3>
+                  </div>
+                  <div class="card-body">
+                    <div class="form-field">
+                      <div class="field-box" [class.filled]="promotionForm.get('scope')?.value">
+                        <div class="field-box__icon field-box__icon--primary">
+                          <i class="pi pi-th-large"></i>
+                        </div>
+                        <div class="field-box__content">
+                          <label>{{ 'admin.promotions.form.scope' | translate }} <span class="required">*</span></label>
+                          <p-select formControlName="scope" [options]="scopeOptions()" optionLabel="label" optionValue="value" styleClass="w-full" appendTo="body" />
+                        </div>
+                      </div>
+                    </div>
+
+                    @if (showCategorySelect()) {
+                      <div class="form-field">
+                        <div class="field-box" [class.filled]="promotionForm.get('category_id')?.value">
+                          <div class="field-box__icon field-box__icon--warning">
+                            <i class="pi pi-folder"></i>
+                          </div>
+                          <div class="field-box__content">
+                            <label>{{ 'admin.promotions.form.category' | translate }} <span class="required">*</span></label>
+                            <p-select formControlName="category_id" [options]="categoryOptions()" optionLabel="label" optionValue="value" [placeholder]="'admin.promotions.form.select_category' | translate" [filter]="true" styleClass="w-full" appendTo="body" />
+                          </div>
+                        </div>
+                        @if (promotionForm.get('category_id')?.invalid && promotionForm.get('category_id')?.touched) {
+                          <span class="field-error">{{ 'admin.promotions.form.category_required' | translate }}</span>
+                        }
+                      </div>
+                    }
+
+                    @if (showBrandSelect()) {
+                      <div class="form-field">
+                        <div class="field-box" [class.filled]="promotionForm.get('brand_id')?.value">
+                          <div class="field-box__icon field-box__icon--warning">
+                            <i class="pi pi-bookmark"></i>
+                          </div>
+                          <div class="field-box__content">
+                            <label>{{ 'admin.promotions.form.brand' | translate }} <span class="required">*</span></label>
+                            <p-select formControlName="brand_id" [options]="brandOptions()" optionLabel="label" optionValue="value" [placeholder]="'admin.promotions.form.select_brand' | translate" [filter]="true" styleClass="w-full" appendTo="body" />
+                          </div>
+                        </div>
+                        @if (promotionForm.get('brand_id')?.invalid && promotionForm.get('brand_id')?.touched) {
+                          <span class="field-error">{{ 'admin.promotions.form.brand_required' | translate }}</span>
+                        }
+                      </div>
+                    }
+
+                    @if (showProductSelect()) {
+                      <div class="form-field">
+                        <div class="field-box" [class.filled]="promotionForm.get('product_id')?.value">
+                          <div class="field-box__icon field-box__icon--warning">
+                            <i class="pi pi-box"></i>
+                          </div>
+                          <div class="field-box__content">
+                            <label>{{ 'admin.promotions.form.product' | translate }} <span class="required">*</span></label>
+                            <p-select formControlName="product_id" [options]="productOptions()" optionLabel="label" optionValue="value" [placeholder]="'admin.promotions.form.select_product' | translate" [filter]="true" styleClass="w-full" appendTo="body" />
+                          </div>
+                        </div>
+                        @if (promotionForm.get('product_id')?.invalid && promotionForm.get('product_id')?.touched) {
+                          <span class="field-error">{{ 'admin.promotions.form.product_required' | translate }}</span>
+                        }
+                      </div>
+                    }
+
+                    <div class="form-field">
+                      <div class="field-box" [class.filled]="promotionForm.get('min_order_amount')?.value">
+                        <div class="field-box__icon field-box__icon--info">
+                          <i class="pi pi-shopping-cart"></i>
+                        </div>
+                        <div class="field-box__content">
+                          <label>{{ 'admin.promotions.form.min_order_amount' | translate }}</label>
+                          <p-inputNumber formControlName="min_order_amount" [min]="0" suffix=" DA" styleClass="w-full" />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="form-field">
+                      <div class="field-box" [class.filled]="promotionForm.get('usage_limit')?.value">
+                        <div class="field-box__icon field-box__icon--pink">
+                          <i class="pi pi-users"></i>
+                        </div>
+                        <div class="field-box__content">
+                          <label>{{ 'admin.promotions.form.usage_limit' | translate }}</label>
+                          <p-inputNumber formControlName="usage_limit" [min]="1" styleClass="w-full" />
+                        </div>
+                      </div>
+                      <span class="field-hint">{{ 'admin.promotions.form.usage_limit_hint' | translate }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-12 lg:col-6 item-animate" [style.animation-delay]="'50ms'">
+                <div class="form-card">
+                  <div class="card-header">
+                    <div class="card-header__icon card-header__icon--orange">
+                      <i class="pi pi-calendar"></i>
+                    </div>
+                    <h3 class="card-header__title">{{ 'admin.promotions.form.validity_period' | translate }}</h3>
+                  </div>
+                  <div class="card-body">
+                    <div class="form-field">
+                      <div class="field-box" [class.filled]="promotionForm.get('start_date')?.value">
+                        <div class="field-box__icon field-box__icon--success">
+                          <i class="pi pi-calendar-plus"></i>
+                        </div>
+                        <div class="field-box__content">
+                          <label>{{ 'admin.promotions.form.start_date' | translate }} <span class="required">*</span></label>
+                          <p-datepicker formControlName="start_date" [showTime]="true" [showIcon]="true" dateFormat="dd/mm/yy" appendTo="body" styleClass="w-full" />
+                        </div>
+                      </div>
+                      @if (promotionForm.get('start_date')?.invalid && promotionForm.get('start_date')?.touched) {
+                        <span class="field-error">{{ 'admin.promotions.form.start_date_required' | translate }}</span>
+                      }
+                    </div>
+
+                    <div class="form-field">
+                      <div class="field-box" [class.filled]="promotionForm.get('end_date')?.value">
+                        <div class="field-box__icon field-box__icon--danger">
+                          <i class="pi pi-calendar-minus"></i>
+                        </div>
+                        <div class="field-box__content">
+                          <label>{{ 'admin.promotions.form.end_date' | translate }} <span class="required">*</span></label>
+                          <p-datepicker formControlName="end_date" [showTime]="true" [showIcon]="true" dateFormat="dd/mm/yy" appendTo="body" styleClass="w-full" />
+                        </div>
+                      </div>
+                      @if (promotionForm.get('end_date')?.invalid && promotionForm.get('end_date')?.touched) {
+                        <span class="field-error">{{ 'admin.promotions.form.end_date_required' | translate }}</span>
+                      }
+                    </div>
+
+                    <div class="active-switch-container mt-5">
+                      <div
+                        class="active-switch"
+                        [class.active-switch--on]="promotionForm.get('is_active')?.value"
+                        (click)="toggleActive()"
+                        (keydown.enter)="toggleActive()"
+                        (keydown.space)="toggleActive(); $event.preventDefault()"
+                        role="switch"
+                        [attr.aria-checked]="promotionForm.get('is_active')?.value"
+                        [attr.aria-label]="'admin.promotions.form.is_active' | translate"
+                        tabindex="0">
+                        <div class="active-switch__track">
+                          <div class="active-switch__thumb">
+                            <i [class]="promotionForm.get('is_active')?.value ? 'pi pi-check' : 'pi pi-times'"></i>
+                          </div>
+                        </div>
+                        <div class="active-switch__label">
+                          <span class="active-switch__title">{{ 'admin.promotions.form.is_active' | translate }}</span>
+                          <span class="active-switch__description">{{ promotionForm.get('is_active')?.value ? ('admin.promotions.form.promotion_visible' | translate) : ('admin.promotions.form.promotion_hidden' | translate) }}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="form-wizard__footer">
+          <span class="chip chip--primary">
+            <i class="pi pi-tag"></i>
+            {{ 'admin.promotions.form.step' | translate }} {{ currentStep() }}/{{ totalSteps }}
+          </span>
+          <div class="step-nav">
+            @if (currentStep() > 1) {
+              <button type="button" class="step-nav__btn step-nav__btn--prev" (click)="prevStep()">
+                <i class="pi pi-arrow-left"></i>
+                <span>{{ 'common.previous' | translate }}</span>
+              </button>
+            }
+            @if (currentStep() < totalSteps) {
+              <button type="button" class="step-nav__btn step-nav__btn--next" (click)="nextStep()" [disabled]="!isStep1Valid()">
+                <span>{{ 'common.next' | translate }}</span>
+                <i class="pi pi-arrow-right"></i>
+              </button>
+            }
+            @if (currentStep() === totalSteps) {
+              <button type="submit" class="step-nav__btn step-nav__btn--finish" [disabled]="promotionForm.invalid || loading()">
+                @if (loading()) {
+                  <i class="pi pi-spin pi-spinner"></i>
+                } @else {
+                  <i class="pi pi-check"></i>
+                }
+                <span>{{ submitButtonLabel() | translate }}</span>
+              </button>
+            }
+          </div>
+        </div>
       </div>
     </form>
-  </div>
+  }
 
-  <!-- Loading Overlay -->
   @if (loading() && isEditMode()) {
     <div class="admin-loading-overlay">
       <div class="loading-content">
@@ -319,4 +388,5 @@
       </div>
     </div>
   }
-</div>
+
+</app-page-layout>
