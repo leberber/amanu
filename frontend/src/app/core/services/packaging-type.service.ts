@@ -1,8 +1,9 @@
 import { Injectable, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
+import { PACKAGING_TYPES, PackagingType } from '../constants/product.constants';
 
 export interface PackagingTypeConfig {
-  key: string;
+  key: PackagingType;
   display: string;
   translationKey: string;
 }
@@ -13,39 +14,14 @@ export interface PackagingTypeConfig {
 export class PackagingTypeService {
   private translateService = inject(TranslateService);
 
-  // Configurable packaging types registry (lowercase to match backend)
-  private packagingTypes: Map<string, PackagingTypeConfig> = new Map([
-    ['box', {
-      key: 'box',
-      display: 'Box',
-      translationKey: 'products.product.packaging_types.box'
-    }],
-    ['carton', {
-      key: 'carton',
-      display: 'Carton',
-      translationKey: 'products.product.packaging_types.carton'
-    }],
-    ['crate', {
-      key: 'crate',
-      display: 'Crate',
-      translationKey: 'products.product.packaging_types.crate'
-    }],
-    ['pack', {
-      key: 'pack',
-      display: 'Pack',
-      translationKey: 'products.product.packaging_types.pack'
-    }],
-    ['bag', {
-      key: 'bag',
-      display: 'Bag',
-      translationKey: 'products.product.packaging_types.bag'
-    }],
-    ['bundle', {
-      key: 'bundle',
-      display: 'Bundle',
-      translationKey: 'products.product.packaging_types.bundle'
-    }]
-  ]);
+  // Auto-generate config from constants
+  private packagingTypes = new Map<string, PackagingTypeConfig>(
+    PACKAGING_TYPES.map(key => [key, {
+      key,
+      display: key.charAt(0).toUpperCase() + key.slice(1),
+      translationKey: `products.product.packaging_types.${key}`
+    }])
+  );
 
   /**
    * Get translated packaging type name

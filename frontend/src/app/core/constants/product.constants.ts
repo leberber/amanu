@@ -20,13 +20,30 @@ export const PRODUCT_CONSTANTS = {
   DEFAULT_DESCRIPTION: 'Fresh, high-quality produce delivered daily from local farms.'
 } as const;
 
-export const PRODUCT_UNITS = {
-  KG: 'kg',
-  GRAM: 'gram',
-  PIECE: 'piece',
-  BUNCH: 'bunch',
-  DOZEN: 'dozen',
-  BOX: 'box'
-} as const;
+// Packaging types (lowercase to match backend enum)
+export const PACKAGING_TYPES = ['box', 'carton', 'crate', 'pack', 'bag', 'bundle'] as const;
+export type PackagingType = typeof PACKAGING_TYPES[number];
 
-export type ProductUnit = typeof PRODUCT_UNITS[keyof typeof PRODUCT_UNITS];
+// Unit configurations (lowercase keys to match backend enum)
+export interface UnitConfig {
+  key: string;
+  display: string;
+  displayShort: string;
+  factor?: number; // For conversion (e.g., pound to kg)
+}
+
+export const UNIT_CONFIGS: UnitConfig[] = [
+  { key: 'kg', display: 'Kilogram', displayShort: 'Kg' },
+  { key: 'gram', display: 'Gram', displayShort: 'g' },
+  { key: 'piece', display: 'Piece', displayShort: 'Piece' },
+  { key: 'bunch', display: 'Bunch', displayShort: 'Bunch' },
+  { key: 'dozen', display: 'Dozen', displayShort: 'Dozen' },
+  { key: 'pound', display: 'Pound', displayShort: 'lb', factor: 0.453592 },
+  { key: 'liter', display: 'Liter', displayShort: 'L' },
+  { key: 'ml', display: 'Milliliter', displayShort: 'ml' },
+  { key: 'box', display: 'Box', displayShort: 'Box' },
+  { key: 'pack', display: 'Pack', displayShort: 'Pack' }
+];
+
+export const PRODUCT_UNITS = UNIT_CONFIGS.map(u => u.key);
+export type ProductUnit = typeof UNIT_CONFIGS[number]['key'];

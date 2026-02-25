@@ -1,13 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-
-export interface UnitConfig {
-  key: string;
-  display: string;
-  displayShort: string;
-  translationKey: string;
-  factor?: number; // For conversion if needed
-}
+import { UNIT_CONFIGS, UnitConfig } from '../constants/product.constants';
 
 @Injectable({
   providedIn: 'root'
@@ -15,87 +8,23 @@ export interface UnitConfig {
 export class UnitsService {
   private translateService = inject(TranslateService);
 
-  // Configurable units registry
-  private units: Map<string, UnitConfig> = new Map([
-    ['kg', {
-      key: 'kg',
-      display: 'Kilogram',
-      displayShort: 'Kg',
-      translationKey: 'units.kg'
-    }],
-    ['gram', {
-      key: 'gram',
-      display: 'Gram',
-      displayShort: 'g',
-      translationKey: 'units.gram'
-    }],
-    ['piece', {
-      key: 'piece',
-      display: 'Piece',
-      displayShort: 'Piece',
-      translationKey: 'units.piece'
-    }],
-    ['bunch', {
-      key: 'bunch',
-      display: 'Bunch',
-      displayShort: 'Bunch',
-      translationKey: 'units.bunch'
-    }],
-    ['dozen', {
-      key: 'dozen',
-      display: 'Dozen',
-      displayShort: 'Dozen',
-      translationKey: 'units.dozen'
-    }],
-    ['pound', {
-      key: 'pound',
-      display: 'Pound',
-      displayShort: 'lb',
-      translationKey: 'units.pound',
-      factor: 0.453592 // to kg
-    }],
-    ['liter', {
-      key: 'liter',
-      display: 'Liter',
-      displayShort: 'L',
-      translationKey: 'units.liter'
-    }],
-    ['ml', {
-      key: 'ml',
-      display: 'Milliliter',
-      displayShort: 'ml',
-      translationKey: 'units.ml'
-    }],
-    ['box', {
-      key: 'box',
-      display: 'Box',
-      displayShort: 'Box',
-      translationKey: 'units.box'
-    }],
-    ['pack', {
-      key: 'pack',
-      display: 'Pack',
-      displayShort: 'Pack',
-      translationKey: 'units.pack'
-    }]
-  ]);
+  // Build Map from constants
+  private units = new Map<string, UnitConfig & { translationKey: string }>(
+    UNIT_CONFIGS.map(config => [config.key, {
+      ...config,
+      translationKey: `units.${config.key}`
+    }])
+  );
 
   /**
-   * Get display name for a unit (now returns translated version)
-   * @param unit - Unit key
-   * @param useShort - Whether to use short form
-   * @returns Translated display name
+   * Get display name for a unit (returns translated version)
    */
   getUnitDisplay(unit: string, useShort = true): string {
-    // Now delegates to getUnitTranslated for proper translation
     return this.getUnitTranslated(unit, useShort);
   }
 
   /**
    * Get translated unit name
-   * @param unit - Unit key
-   * @param useShort - Whether to use short form
-   * @returns Translated unit name
    */
   getUnitTranslated(unit: string, useShort = true): string {
     const unitConfig = this.units.get(unit?.toLowerCase());
@@ -110,7 +39,7 @@ export class UnitsService {
 
     const translated = this.translateService.instant(translationKey);
 
-    // If translation not found, fallback to unit config display value
+    // If translation not found, fallback to display value
     if (translated === translationKey) {
       return useShort ? unitConfig.displayShort : unitConfig.display;
     }
@@ -120,8 +49,6 @@ export class UnitsService {
 
   /**
    * Get translation key for a unit
-   * @param unit - Unit key
-   * @returns Translation key
    */
   getUnitTranslationKey(unit: string): string {
     const unitConfig = this.units.get(unit?.toLowerCase());
@@ -130,20 +57,17 @@ export class UnitsService {
 
   /**
    * Get all available units
-   * @returns Array of unit configurations
    */
   getAllUnits(): UnitConfig[] {
-    return Array.from(this.units.values());
+    return UNIT_CONFIGS;
   }
 
   /**
    * Get units for dropdown/select options
-   * @param translated - Whether to use translated names
-   * @returns Array of options
    */
   getUnitOptions(translated = false): Array<{label: string, value: string}> {
-    return this.getAllUnits().map(unit => ({
-      label: translated 
+    return UNIT_CONFIGS.map(unit => ({
+      label: translated
         ? this.getUnitTranslated(unit.key, false)
         : unit.display,
       value: unit.key
@@ -151,17 +75,7 @@ export class UnitsService {
   }
 
   /**
-   * Add a new unit to the registry
-   * @param unit - Unit configuration
-   */
-  addUnit(unit: UnitConfig): void {
-    this.units.set(unit.key.toLowerCase(), unit);
-  }
-
-  /**
    * Check if a unit exists
-   * @param unit - Unit key
-   * @returns boolean
    */
   hasUnit(unit: string): boolean {
     return this.units.has(unit?.toLowerCase());
@@ -169,10 +83,6 @@ export class UnitsService {
 
   /**
    * Convert between units (if conversion factor exists)
-   * @param value - Value to convert
-   * @param fromUnit - Source unit
-   * @param toUnit - Target unit
-   * @returns Converted value or null if conversion not possible
    */
   convertUnit(value: number, fromUnit: string, toUnit: string): number | null {
     const from = this.units.get(fromUnit?.toLowerCase());
@@ -182,7 +92,6 @@ export class UnitsService {
       return null;
     }
 
-    // Simple conversion logic - can be extended
     if (fromUnit === toUnit) {
       return value;
     }
@@ -198,10 +107,6 @@ export class UnitsService {
 
   /**
    * Format quantity with unit
-   * @param quantity - Quantity value
-   * @param unit - Unit key
-   * @param useShort - Whether to use short form
-   * @returns Formatted string
    */
   formatQuantityWithUnit(quantity: number, unit: string, useShort = true): string {
     const unitDisplay = this.getUnitDisplay(unit, useShort);
