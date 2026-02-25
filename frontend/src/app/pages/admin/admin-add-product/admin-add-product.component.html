@@ -24,7 +24,7 @@
         <div class="grid">
           @for (i of [0, 1]; track $index) {
             <div class="col-12 lg:col-6 item-animate" [style.animation-delay]="($index * 50) + 'ms'">
-              <div class="skeleton-card form-card" style="height: 400px;">
+              <div class="skeleton-card form-card">
                 <div class="card-header">
                   <div class="skeleton skeleton-avatar"></div>
                   <div class="skeleton skeleton-text skeleton-text--w70"></div>
@@ -35,7 +35,7 @@
                       <div class="skeleton skeleton-avatar"></div>
                       <div class="flex-1">
                         <div class="skeleton skeleton-text skeleton-text--w40 mb-2"></div>
-                        <div class="skeleton" style="height: 36px; border-radius: var(--radius-md);"></div>
+                        <div class="skeleton skeleton-input"></div>
                       </div>
                     </div>
                   }
@@ -82,11 +82,11 @@
           @if (currentStep() === 1) {
             <div class="grid">
               <!-- Card 1: Product Names -->
-              <div class="col-12 lg:col-6 item-animate" >
+              <div class="col-12 lg:col-6 item-animate">
                 <div class="form-card">
                   <div class="card-header">
-                    <div class="card-header__icon" style="background: rgba(var(--primary-rgb), 0.1);">
-                      <i class="pi pi-globe" style="color: var(--primary-color);"></i>
+                    <div class="card-header__icon card-header__icon--primary">
+                      <i class="pi pi-globe"></i>
                     </div>
                     <h3 class="card-header__title">{{ 'admin.products.form.translations' | translate }}</h3>
                   </div>
@@ -140,8 +140,8 @@
               <div class="col-12 lg:col-6 item-animate" [style.animation-delay]="'100ms'">
                 <div class="form-card">
                   <div class="card-header">
-                    <div class="card-header__icon" style="background: rgba(var(--color-success-rgb), 0.1);">
-                      <i class="pi pi-file-edit" style="color: var(--color-success);"></i>
+                    <div class="card-header__icon card-header__icon--success">
+                      <i class="pi pi-file-edit"></i>
                     </div>
                     <h3 class="card-header__title">{{ 'admin.products.form.descriptions' | translate }}</h3>
                   </div>
@@ -188,11 +188,11 @@
           @if (currentStep() === 2) {
             <div class="grid">
               <!-- Card 1: Pricing & Classification -->
-              <div class="col-12 lg:col-6 item-animate" >
+              <div class="col-12 lg:col-6 item-animate">
                 <div class="form-card">
                   <div class="card-header">
-                    <div class="card-header__icon" style="background: rgba(var(--purple-500-rgb, 139, 92, 246), 0.1);">
-                      <i class="pi pi-dollar" style="color: var(--purple-500);"></i>
+                    <div class="card-header__icon card-header__icon--purple">
+                      <i class="pi pi-dollar"></i>
                     </div>
                     <h3 class="card-header__title">{{ 'admin.products.form.pricing_inventory' | translate }}</h3>
                   </div>
@@ -281,8 +281,8 @@
               <div class="col-12 lg:col-6 item-animate" [style.animation-delay]="'100ms'">
                 <div class="form-card">
                   <div class="card-header">
-                    <div class="card-header__icon" style="background: rgba(var(--orange-500-rgb, 249, 115, 22), 0.1);">
-                      <i class="pi pi-box" style="color: var(--orange-500);"></i>
+                    <div class="card-header__icon card-header__icon--orange">
+                      <i class="pi pi-box"></i>
                     </div>
                     <h3 class="card-header__title">{{ 'admin.products.form.inventory' | translate }}</h3>
                   </div>
@@ -315,7 +315,7 @@
 
                     <!-- Stock Quantity -->
                     <div class="form-field mt-4">
-                      <div class="field-box" [class.filled]="isPackagingConfigured()" [class.disabled]="!isPackagingConfigured()" style="background: linear-gradient(135deg, rgba(var(--color-success-rgb), 0.05) 0%, rgba(var(--color-success-rgb), 0.02) 100%); border-color: rgba(var(--color-success-rgb), 0.15);">
+                      <div class="field-box field-box--stock" [class.filled]="isPackagingConfigured()" [class.disabled]="!isPackagingConfigured()">
                         <div class="field-box__icon field-box__icon--success">
                           <i class="pi pi-warehouse"></i>
                         </div>

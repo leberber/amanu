@@ -94,6 +94,42 @@
     i {
       font-size: var(--font-size-2xl);
     }
+
+    // Color variants
+    &--primary {
+      background: rgba(var(--primary-rgb), 0.1);
+      i { color: var(--primary-color); }
+    }
+
+    &--success {
+      background: rgba(var(--color-success-rgb), 0.1);
+      i { color: var(--color-success); }
+    }
+
+    &--warning {
+      background: rgba(var(--color-warning-rgb), 0.1);
+      i { color: var(--color-warning); }
+    }
+
+    &--info {
+      background: rgba(var(--color-info-rgb), 0.1);
+      i { color: var(--color-info); }
+    }
+
+    &--purple {
+      background: rgba(var(--purple-500-rgb, 139, 92, 246), 0.1);
+      i { color: var(--purple-500, #8b5cf6); }
+    }
+
+    &--orange {
+      background: rgba(var(--orange-500-rgb, 249, 115, 22), 0.1);
+      i { color: var(--orange-500, #f97316); }
+    }
+
+    &--pink {
+      background: rgba(var(--pink-500-rgb, 236, 72, 153), 0.1);
+      i { color: var(--pink-500, #ec4899); }
+    }
   }
 
   &__title {

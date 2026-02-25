@@ -125,12 +125,19 @@
 }
 
 .skeleton-card {
+  height: 400px;
+
   .table-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 1.25rem 1rem;
   }
+}
+
+.skeleton-input {
+  height: 36px;
+  border-radius: var(--radius-md);
 }
 
 .skeleton-search {

@@ -12,8 +12,6 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { ProductService } from '../../../services/product.service';
 import { Product } from '../../../models/product.model';
-import { Category } from '../../../models/category.model';
-import { Brand } from '../../../models/brand.model';
 import { BrandService } from '../../../core/services/brand.service';
 import { VALIDATION, PRODUCT } from '../../../core/constants/app.constants';
 import { ROUTES } from '../../../core/constants/routes.constants';
@@ -71,7 +69,7 @@ export class AdminAddProductComponent implements OnInit {
 
   // Step navigation
   readonly currentStep = signal(1);
-  readonly totalSteps = 2;
+  readonly totalSteps = 2 as const;
 
   // Mode detection
   readonly isEditMode = signal(false);
@@ -224,7 +222,7 @@ export class AdminAddProductComponent implements OnInit {
     this.productService.getCategories(true)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (categories: Category[]) => {
+        next: (categories) => {
           this.categoryOptions.set(categories.map(c => ({ label: c.name, value: c.id })));
           this.categoriesLoading.set(false);
         },
@@ -240,7 +238,7 @@ export class AdminAddProductComponent implements OnInit {
     this.brandService.getBrands(true)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (brands: Brand[]) => {
+        next: (brands) => {
           this.brandOptions.set(brands.map(b => ({ label: b.name, value: b.id })));
           this.brandsLoading.set(false);
         },
@@ -305,10 +303,6 @@ export class AdminAddProductComponent implements OnInit {
           this.router.navigate([ROUTES.ADMIN.PRODUCTS]);
         }
       });
-  }
-
-  onCancel(): void {
-    this.router.navigate([ROUTES.ADMIN.PRODUCTS]);
   }
 
   onSubmit(): void {

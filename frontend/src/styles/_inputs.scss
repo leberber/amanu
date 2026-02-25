@@ -633,6 +633,12 @@
     cursor: not-allowed;
   }
 
+  // Stock field variant with success gradient
+  &--stock {
+    background: linear-gradient(135deg, rgba(var(--color-success-rgb), 0.05) 0%, rgba(var(--color-success-rgb), 0.02) 100%);
+    border-color: rgba(var(--color-success-rgb), 0.15);
+  }
+
   &__icon {
     width: var(--icon-lg);
     height: var(--icon-lg);
@@ -677,6 +683,11 @@
     &--danger {
       background: rgba(var(--color-error-rgb), 0.1) !important;
       i { color: var(--color-error) !important; }
+    }
+
+    &--pink {
+      background: rgba(var(--pink-500-rgb, 236, 72, 153), 0.1) !important;
+      i { color: var(--pink-500, #ec4899) !important; }
     }
   }
 
