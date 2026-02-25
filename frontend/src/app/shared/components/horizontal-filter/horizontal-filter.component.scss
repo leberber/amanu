@@ -180,11 +180,11 @@
 }
 
 .search-toggle-btn {
-  width: 32px;
-  height: 32px;
+  width: 38px;
+  height: 38px;
   border-radius: 0;
   background: var(--surface-card);
-  border: 1px solid var(--surface-200);
+  border: none;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -193,8 +193,9 @@
   transition: all 0.2s ease;
 
   i {
-    font-size: 1.1rem;
-    color: var(--primary-color);
+    font-size: 1.4rem;
+    color: var(--text-color);
+    -webkit-text-stroke: 0.5px var(--text-color);
   }
 
   &:hover {
@@ -207,6 +208,7 @@
 
     i {
       color: white;
+      -webkit-text-stroke: 0.5px white;
     }
   }
 }
