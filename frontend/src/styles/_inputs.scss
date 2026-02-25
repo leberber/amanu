@@ -700,6 +700,8 @@
       padding: 0;
       border: none;
       background: transparent;
+      // box-shadow: none;
+      padding: 3px 8px; 
       font-family: inherit;
       font-size: var(--font-size-base);
       font-weight: var(--font-weight-medium);
@@ -717,6 +719,7 @@
       &:disabled {
         color: var(--text-color-secondary);
         cursor: not-allowed;
+        padding: 3px 8px;
       }
     }
 
