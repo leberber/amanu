@@ -2175,10 +2175,15 @@
 
   &__image {
     position: relative;
-    width: 10rem;
-    height: 8rem;
+    width: 5rem;
+    height: 5rem;
     flex-shrink: 0;
     overflow: hidden;
+
+    @media (min-width: 1024px) {
+      width: 10rem;
+      height: 8rem;
+    }
 
     img {
       width: 100%;

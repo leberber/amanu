@@ -2,21 +2,62 @@
 <div class="products-page">
   <p-toast></p-toast>
 
-  <!-- Desktop Layout -->
-  <div class="products-desktop pt-2 pb-6">
-    <!-- Filter Bar -->
+  <!-- Header: Filter Bar + Search -->
+  <div class="products-header">
+    <!-- Mobile Search Overlay (mobile only, when search is active) -->
+    @if (showMobileSearch()) {
+      <div class="mobile-search-overlay">
+        <div class="mobile-search-container">
+          <i class="pi pi-search mobile-search-icon"></i>
+          <input
+            #mobileSearchInput
+            type="text"
+            [value]="searchService.query()"
+            (input)="onMobileSearchInput($event)"
+            (keyup.enter)="submitMobileSearch()"
+            [placeholder]="'products.search.placeholder' | translate"
+            class="mobile-search-input">
+          @if (searchService.query()) {
+            <button
+              type="button"
+              class="mobile-search-clear"
+              (click)="clearMobileSearch()">
+              <i class="pi pi-times"></i>
+            </button>
+          }
+          <button
+            type="button"
+            class="mobile-search-view-toggle"
+            (click)="toggleViewMode()">
+            <i [class]="layout() === 'grid' ? 'pi pi-list' : 'pi pi-th-large'"></i>
+          </button>
+          <button
+            type="button"
+            class="mobile-search-close"
+            (click)="closeMobileSearch()">
+            <i class="pi pi-check"></i>
+          </button>
+        </div>
+      </div>
+    }
+
+    <!-- Filter Bar (hidden on mobile when search overlay is active) -->
     <app-horizontal-filter
+      class="filter-bar"
+      [class.filter-bar--hidden]="showMobileSearch()"
       [items]="filterMode() === 'categories' ? categories() : brands()"
       [activeItemId]="filterMode() === 'categories' ? activeCategoryId() : activeBrandId()"
       [filterType]="filterMode()"
       [showAllOption]="false"
-      [showSearchIcon]="false"
+      [showSearchIcon]="true"
+      [isSearchActive]="showMobileSearch()"
       [showModeToggle]="true"
       (itemSelected)="filterMode() === 'categories' ? selectCategoryFromBar($event) : selectBrand($event)"
+      (searchToggle)="openMobileSearch()"
       (modeToggle)="toggleFilterMode()">
     </app-horizontal-filter>
 
-    <!-- Desktop Search + View Toggle -->
+    <!-- Desktop Toolbar (desktop only) -->
     <div class="desktop-toolbar">
       <app-search-input class="desktop-search"></app-search-input>
       <button
@@ -26,420 +67,185 @@
         <i [class]="layout() === 'grid' ? 'pi pi-list' : 'pi pi-th-large'"></i>
       </button>
     </div>
-
-    <!-- Products Content -->
-    <div class="p-2 md:p-4">
-      @if (loading()) {
-        <!-- Skeleton Loading State -->
-        @if (layout() === 'grid') {
-          <div class="products-grid">
-            @for (i of [1, 2, 3, 4, 5, 6, 7, 8]; track i) {
-              <div class="product-card-skeleton">
-                <div class="skeleton skeleton-image"></div>
-                <div class="skeleton-content">
-                  <div class="skeleton skeleton-text skeleton-text--w60"></div>
-                  <div class="skeleton skeleton-text skeleton-text--w80"></div>
-                  <div class="skeleton-row">
-                    <div class="skeleton skeleton-text skeleton-text--w40"></div>
-                    <div class="skeleton skeleton-button"></div>
-                  </div>
-                </div>
-              </div>
-            }
-          </div>
-        } @else {
-          <div class="products-list">
-            @for (i of [1, 2, 3, 4, 5, 6]; track i) {
-              <div class="product-list-item-skeleton">
-                <div class="skeleton skeleton-image--list"></div>
-                <div class="skeleton-content">
-                  <div class="skeleton skeleton-text skeleton-text--w70"></div>
-                  <div class="skeleton skeleton-text skeleton-text--w40"></div>
-                  <div class="skeleton-row">
-                    <div class="skeleton skeleton-text skeleton-text--flex"></div>
-                    <div class="skeleton skeleton-button"></div>
-                  </div>
-                </div>
-              </div>
-            }
-          </div>
-        }
-      } @else if (products().length === 0) {
-        <!-- Empty State -->
-        <div class="flex justify-content-center align-items-center p-4" style="min-height: 60vh;">
-          <app-empty-state
-            icon="pi-search"
-            [title]="'products.empty.title' | translate"
-            [description]="'products.empty.subtitle' | translate">
-          </app-empty-state>
-        </div>
-      } @else {
-        <!-- Products Grid/List -->
-        @if (layout() === 'grid') {
-          <div class="products-grid" [attr.data-animation-key]="animationKey()">
-            @for (product of products(); track product.id; let i = $index) {
-              <app-product-card
-                [product]="product"
-                [selectedBoxOption]="getSelectedBoxOption(product.id)"
-                [highlightCart]="highlightedProductId() === product.id"
-                (addToCartEvent)="onAddToCart($event)"
-                (quantitySelectorEvent)="onQuantitySelectorOpen($event)"
-                class="product-card-wrapper product-card-animate"
-                [style.animation-delay]="(i * 50) + 'ms'">
-              </app-product-card>
-            }
-          </div>
-        } @else {
-          <div class="products-list" [attr.data-animation-key]="animationKey()">
-            @for (product of products(); track product.id; let i = $index) {
-              <div class="product-list-item product-item-animate" [style.animation-delay]="(i * 50) + 'ms'">
-                <!-- Product Image -->
-                <a [routerLink]="['/products', product.id]" class="product-list-item__image">
-                  <img
-                    [src]="product.image_url || 'assets/images/product-placeholder.png'"
-                    [alt]="product.name"
-                    loading="lazy"
-                    (error)="$event.target.src = 'assets/images/product-placeholder.png'">
-                  @if (product.is_organic) {
-                    <span class="organic-badge">{{ 'products.tags.organic' | translate }}</span>
-                  }
-                </a>
-
-                <!-- Product Content -->
-                <div class="product-list-item__content">
-                  <h3 class="product-list-item__name">
-                    <a [routerLink]="['/products', product.id]">{{ product.name }}</a>
-                  </h3>
-
-
-                  <div class="product-list-item__price-row">
-                    <div class="product-list-item__price">
-                      <span class="price-current">{{ product.price | appCurrency }}</span>
-                      <span class="price-unit">/ {{ product.unit | appUnit }}</span>
-                    </div>
-
-                    <!-- Stock Status -->
-                    <div class="product-list-item__stock">
-                      @if (isOutOfStock(product)) {
-                        <span class="stock-badge stock-badge--out">
-                          <i class="pi pi-times-circle"></i>
-                          {{ 'products.stock.out_of_stock' | translate }}
-                        </span>
-                      } @else if (product.stock_quantity < 20) {
-                        <span class="stock-badge stock-badge--low">
-                          <i class="pi pi-exclamation-circle"></i>
-                          {{ product.stock_quantity }} {{ 'products.stock.left' | translate }}
-                        </span>
-                      } @else {
-                        <span class="stock-badge stock-badge--in">
-                          <i class="pi pi-check-circle"></i>
-                          {{ 'products.stock.in_stock' | translate }}
-                        </span>
-                      }
-                    </div>
-                  </div>
-
-                  <!-- Actions -->
-                  @if (!isOutOfStock(product) && getBoxOptions(product).length > 0) {
-                    <div class="product-list-item__actions">
-                      @if (isProductInCart(product.id)) {
-                        <span class="cart-indicator cart-indicator--in">
-                          <i class="pi pi-check-circle"></i>
-                          {{ getCartQuantity(product.id) }} {{ 'products.cart.in_cart' | translate }}
-                        </span>
-                      }
-                      <div class="product-list-item__cart-row">
-                        <div class="quantity-selector-wrapper">
-                          <button
-                            type="button"
-                            class="quantity-selector-btn"
-                            [class.quantity-selector-btn--in-cart]="quantityMatchesCart(product.id)"
-                            [class.quantity-selector-btn--update]="isProductInCart(product.id) && !quantityMatchesCart(product.id)"
-                            (click)="openQuantitySelector(product, $event)">
-                            <span class="quantity-selector-btn__text">
-                              @if (getSelectedBoxOption(product.id); as option) {
-                                <span class="quantity-selector-btn__boxes">{{ option.boxes }} {{ getPackagingTypeForCount(product, option.boxes) }}</span>
-                                <span class="quantity-selector-btn__pieces">{{ option.pieces }} {{ (option.pieces === 1 ? 'products.product.quantity_selector.piece' : 'products.product.quantity_selector.pieces') | translate }}</span>
-                              } @else {
-                                <span>{{ 'products.select_quantity' | translate }}</span>
-                              }
-                            </span>
-                            <i class="pi pi-chevron-down quantity-selector-btn__icon"></i>
-                          </button>
-                          @if (product.pieces_per_box) {
-                            <span class="quantity-selector-hint">
-                              {{ product.pieces_per_box }} {{ product.unit | appUnit }} / {{ getPackagingTypeForCount(product, 1) }}
-                              @if (getSelectedBoxOption(product.id); as option) {
-                                <span class="quantity-selector-hint__total">&nbsp;&nbsp;{{ option.price | appCurrency }}</span>
-                              }
-                            </span>
-                          }
-                        </div>
-                        <button
-                          pButton
-                          type="button"
-                          [icon]="quantityMatchesCart(product.id) ? 'pi pi-check' : (isProductInCart(product.id) ? 'pi pi-refresh' : 'pi pi-cart-plus')"
-                          class="p-button-primary list-cart-btn"
-                          [class.list-cart-btn--in-cart]="quantityMatchesCart(product.id)"
-                          [class.list-cart-btn--update]="isProductInCart(product.id) && !quantityMatchesCart(product.id)"
-                          [class.list-cart-btn--highlight]="highlightedProductId() === product.id"
-                          [disabled]="!getSelectedBoxOption(product.id) || quantityMatchesCart(product.id)"
-                          (click)="addToCartFromList(product, $event)">
-                        </button>
-                      </div>
-                    </div>
-                  } @else {
-                    <div class="product-list-item__actions product-list-item__actions--disabled">
-                      <span class="stock-badge stock-badge--out">
-                        <i class="pi pi-times-circle"></i>
-                        {{ 'products.stock.out_of_stock' | translate }}
-                      </span>
-                    </div>
-                  }
-                </div>
-              </div>
-            }
-          </div>
-        }
-      }
-    </div>
   </div>
 
-  <!-- Mobile Layout -->
-  <div class="products-mobile">
-    <!-- Filter Bar / Search Overlay Container -->
-    <div class="mobile-header">
-      @if (showMobileSearch()) {
-        <!-- Mobile Search Overlay (replaces filter bar) -->
-        <div class="mobile-search-overlay">
-          <div class="mobile-search-container">
-            <i class="pi pi-search mobile-search-icon"></i>
-            <input
-              #mobileSearchInput
-              type="text"
-              [value]="searchService.query()"
-              (input)="onMobileSearchInput($event)"
-              (keyup.enter)="submitMobileSearch()"
-              [placeholder]="'products.search.placeholder' | translate"
-              class="mobile-search-input">
-            @if (searchService.query()) {
-              <button
-                type="button"
-                class="mobile-search-clear"
-                (click)="clearMobileSearch()">
-                <i class="pi pi-times"></i>
-              </button>
-            }
-            <button
-              type="button"
-              class="mobile-search-view-toggle"
-              (click)="toggleViewMode()">
-              <i [class]="layout() === 'grid' ? 'pi pi-list' : 'pi pi-th-large'"></i>
-            </button>
-            <button
-              type="button"
-              class="mobile-search-close"
-              (click)="closeMobileSearch()">
-              <i class="pi pi-check"></i>
-            </button>
-          </div>
-        </div>
-      } @else {
-        <!-- Filter Bar with Search Icon -->
-        <app-horizontal-filter
-          [items]="filterMode() === 'categories' ? categories() : brands()"
-          [activeItemId]="filterMode() === 'categories' ? activeCategoryId() : activeBrandId()"
-          [filterType]="filterMode()"
-          [showAllOption]="false"
-          [showSearchIcon]="true"
-          [isSearchActive]="showMobileSearch()"
-          [showModeToggle]="true"
-          (itemSelected)="filterMode() === 'categories' ? selectCategoryFromBar($event) : selectBrand($event)"
-          (searchToggle)="openMobileSearch()"
-          (modeToggle)="toggleFilterMode()">
-        </app-horizontal-filter>
-      }
-    </div>
+  <!-- Spacer for fixed header (mobile only) -->
+  <div class="mobile-header-spacer"></div>
 
-    <!-- Spacer for fixed header -->
-    <div class="mobile-header-spacer"></div>
-
-    <!-- Mobile Products Content -->
-    <div class="p-2 md:p-4">
-      @if (loading()) {
-        <!-- Mobile Skeleton Loading -->
-        @if (layout() === 'grid') {
-          <div class="products-grid products-grid--mobile">
-            @for (i of [1, 2, 3, 4, 5, 6]; track i) {
-              <div class="product-card-skeleton">
-                <div class="skeleton skeleton-image"></div>
-                <div class="skeleton-content">
-                  <div class="skeleton skeleton-text skeleton-text--w60"></div>
-                  <div class="skeleton skeleton-text skeleton-text--w80"></div>
-                  <div class="skeleton-row">
-                    <div class="skeleton skeleton-text skeleton-text--w40"></div>
-                    <div class="skeleton skeleton-button"></div>
-                  </div>
-                </div>
-              </div>
-            }
-          </div>
-        } @else {
-          <div class="products-list">
-            @for (i of [1, 2, 3, 4, 5]; track i) {
-              <div class="product-list-item-skeleton">
-                <div class="skeleton skeleton-image--list"></div>
-                <div class="skeleton-content">
-                  <div class="skeleton skeleton-text skeleton-text--w70"></div>
+  <!-- Products Content -->
+  <div class="products-content">
+    @if (loading()) {
+      <!-- Skeleton Loading -->
+      @if (layout() === 'grid') {
+        <div class="products-grid">
+          @for (i of [1, 2, 3, 4, 5, 6, 7, 8]; track i) {
+            <div class="product-card-skeleton">
+              <div class="skeleton skeleton-image"></div>
+              <div class="skeleton-content">
+                <div class="skeleton skeleton-text skeleton-text--w60"></div>
+                <div class="skeleton skeleton-text skeleton-text--w80"></div>
+                <div class="skeleton-row">
                   <div class="skeleton skeleton-text skeleton-text--w40"></div>
-                  <div class="skeleton-row">
-                    <div class="skeleton skeleton-text skeleton-text--flex"></div>
-                    <div class="skeleton skeleton-button"></div>
-                  </div>
+                  <div class="skeleton skeleton-button"></div>
                 </div>
               </div>
-            }
-          </div>
-        }
-      } @else if (products().length === 0) {
-        <!-- Empty State -->
-        <div class="flex justify-content-center align-items-center p-4" style="min-height: 60vh;">
-          <app-empty-state
-            icon="pi-search"
-            [title]="'products.empty.title' | translate"
-            [description]="'products.empty.subtitle' | translate">
-          </app-empty-state>
+            </div>
+          }
         </div>
       } @else {
-        <!-- Mobile Products -->
-        @if (layout() === 'grid') {
-          <div class="products-grid products-grid--mobile" [attr.data-animation-key]="animationKey()">
-            @for (product of products(); track product.id; let i = $index) {
-              <app-product-card
-                [product]="product"
-                [selectedBoxOption]="getSelectedBoxOption(product.id)"
-                [highlightCart]="highlightedProductId() === product.id"
-                (addToCartEvent)="onAddToCart($event)"
-                (quantitySelectorEvent)="onQuantitySelectorOpen($event)"
-                class="product-card-wrapper product-card-animate"
-                [style.animation-delay]="(i * 50) + 'ms'">
-              </app-product-card>
-            }
-          </div>
-        } @else {
-          <div class="products-list" [attr.data-animation-key]="animationKey()">
-            @for (product of products(); track product.id; let i = $index) {
-              <div class="product-list-item product-list-item--mobile product-item-animate" [style.animation-delay]="(i * 50) + 'ms'">
-                <!-- Product Image -->
-                <a [routerLink]="['/products', product.id]" class="product-list-item__image">
-                  <img
-                    [src]="product.image_url || 'assets/images/product-placeholder.png'"
-                    [alt]="product.name"
-                    loading="lazy"
-                    (error)="$event.target.src = 'assets/images/product-placeholder.png'">
-                  @if (product.is_organic) {
-                    <span class="organic-badge">{{ 'products.tags.organic' | translate }}</span>
-                  }
-                </a>
+        <div class="products-list">
+          @for (i of [1, 2, 3, 4, 5, 6]; track i) {
+            <div class="product-list-item-skeleton">
+              <div class="skeleton skeleton-image--list"></div>
+              <div class="skeleton-content">
+                <div class="skeleton skeleton-text skeleton-text--w70"></div>
+                <div class="skeleton skeleton-text skeleton-text--w40"></div>
+                <div class="skeleton-row">
+                  <div class="skeleton skeleton-text skeleton-text--flex"></div>
+                  <div class="skeleton skeleton-button"></div>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    } @else if (products().length === 0) {
+      <!-- Empty State -->
+      <div class="empty-state-container">
+        <app-empty-state
+          icon="pi-search"
+          [title]="'products.empty.title' | translate"
+          [description]="'products.empty.subtitle' | translate">
+        </app-empty-state>
+      </div>
+    } @else {
+      <!-- Products Grid/List -->
+      @if (layout() === 'grid') {
+        <div class="products-grid" [attr.data-animation-key]="animationKey()">
+          @for (product of products(); track product.id; let i = $index) {
+            <app-product-card
+              [product]="product"
+              [selectedBoxOption]="getSelectedBoxOption(product.id)"
+              [highlightCart]="highlightedProductId() === product.id"
+              (addToCartEvent)="onAddToCart($event)"
+              (quantitySelectorEvent)="onQuantitySelectorOpen($event)"
+              class="product-card-wrapper product-card-animate"
+              [style.animation-delay]="(i * 50) + 'ms'">
+            </app-product-card>
+          }
+        </div>
+      } @else {
+        <div class="products-list" [attr.data-animation-key]="animationKey()">
+          @for (product of products(); track product.id; let i = $index) {
+            <div class="product-list-item product-item-animate" [style.animation-delay]="(i * 50) + 'ms'">
+              <!-- Product Image -->
+              <a [routerLink]="['/products', product.id]" class="product-list-item__image">
+                <img
+                  [src]="product.image_url || 'assets/images/product-placeholder.png'"
+                  [alt]="product.name"
+                  loading="lazy"
+                  (error)="$event.target.src = 'assets/images/product-placeholder.png'">
+                @if (product.is_organic) {
+                  <span class="organic-badge">{{ 'products.tags.organic' | translate }}</span>
+                }
+              </a>
 
-                <!-- Mobile Product Content -->
-                <div class="product-list-item__content">
-                  <h3 class="product-list-item__name">
-                    <a [routerLink]="['/products', product.id]">{{ product.name }}</a>
-                  </h3>
+              <!-- Product Content -->
+              <div class="product-list-item__content">
+                <h3 class="product-list-item__name">
+                  <a [routerLink]="['/products', product.id]">{{ product.name }}</a>
+                </h3>
 
-
-                  <div class="product-list-item__price-row">
-                    <div class="product-list-item__price">
-                      <span class="price-current">{{ product.price | appCurrency }}</span>
-                      <span class="price-unit">/ {{ product.unit | appUnit }}</span>
-                    </div>
-
-                    <!-- Stock Status -->
-                    <div class="product-list-item__stock">
-                      @if (isOutOfStock(product)) {
-                        <span class="stock-badge stock-badge--out">
-                          <i class="pi pi-times-circle"></i>
-                          {{ 'products.stock.out_of_stock' | translate }}
-                        </span>
-                      } @else if (product.stock_quantity < 20) {
-                        <span class="stock-badge stock-badge--low">
-                          <i class="pi pi-exclamation-circle"></i>
-                          {{ product.stock_quantity }} {{ 'products.stock.left' | translate }}
-                        </span>
-                      } @else {
-                        <span class="stock-badge stock-badge--in">
-                          <i class="pi pi-check-circle"></i>
-                          {{ 'products.stock.in_stock' | translate }}
-                        </span>
-                      }
-                    </div>
+                <div class="product-list-item__price-row">
+                  <div class="product-list-item__price">
+                    <span class="price-current">{{ product.price | appCurrency }}</span>
+                    <span class="price-unit">/ {{ product.unit | appUnit }}</span>
                   </div>
 
-                  <!-- Mobile Actions -->
-                  @if (!isOutOfStock(product) && getBoxOptions(product).length > 0) {
-                    <div class="product-list-item__actions">
-                      @if (isProductInCart(product.id)) {
-                        <span class="cart-indicator cart-indicator--in">
-                          <i class="pi pi-check-circle"></i>
-                          {{ getCartQuantity(product.id) }} {{ 'products.cart.in_cart' | translate }}
-                        </span>
-                      }
-                      <div class="product-list-item__cart-row">
-                        <div class="quantity-selector-wrapper">
-                          <button
-                            type="button"
-                            class="quantity-selector-btn"
-                            [class.quantity-selector-btn--in-cart]="quantityMatchesCart(product.id)"
-                            [class.quantity-selector-btn--update]="isProductInCart(product.id) && !quantityMatchesCart(product.id)"
-                            (click)="openQuantitySelector(product, $event)">
-                            <span class="quantity-selector-btn__text">
-                              @if (getSelectedBoxOption(product.id); as option) {
-                                <span class="quantity-selector-btn__boxes">{{ option.boxes }} {{ getPackagingTypeForCount(product, option.boxes) }}</span>
-                                <span class="quantity-selector-btn__pieces">{{ option.pieces }} {{ (option.pieces === 1 ? 'products.product.quantity_selector.piece' : 'products.product.quantity_selector.pieces') | translate }}</span>
-                              } @else {
-                                <span>{{ 'products.select_quantity' | translate }}</span>
-                              }
-                            </span>
-                            <i class="pi pi-chevron-down quantity-selector-btn__icon"></i>
-                          </button>
-                          @if (product.pieces_per_box) {
-                            <span class="quantity-selector-hint">
-                              {{ product.pieces_per_box }} {{ product.unit | appUnit }} / {{ getPackagingTypeForCount(product, 1) }}
-                              @if (getSelectedBoxOption(product.id); as option) {
-                                <span class="quantity-selector-hint__total">&nbsp;&nbsp;{{ option.price | appCurrency }}</span>
-                              }
-                            </span>
-                          }
-                        </div>
-                        <button
-                          pButton
-                          type="button"
-                          [icon]="quantityMatchesCart(product.id) ? 'pi pi-check' : (isProductInCart(product.id) ? 'pi pi-refresh' : 'pi pi-cart-plus')"
-                          class="p-button-primary list-cart-btn"
-                          [class.list-cart-btn--in-cart]="quantityMatchesCart(product.id)"
-                          [class.list-cart-btn--update]="isProductInCart(product.id) && !quantityMatchesCart(product.id)"
-                          [class.list-cart-btn--highlight]="highlightedProductId() === product.id"
-                          [disabled]="!getSelectedBoxOption(product.id) || quantityMatchesCart(product.id)"
-                          (click)="addToCartFromList(product, $event)">
-                        </button>
-                      </div>
-                    </div>
-                  } @else {
-                    <div class="product-list-item__actions product-list-item__actions--disabled">
+                  <!-- Stock Status -->
+                  <div class="product-list-item__stock">
+                    @if (isOutOfStock(product)) {
                       <span class="stock-badge stock-badge--out">
                         <i class="pi pi-times-circle"></i>
                         {{ 'products.stock.out_of_stock' | translate }}
                       </span>
-                    </div>
-                  }
+                    } @else if (product.stock_quantity < 20) {
+                      <span class="stock-badge stock-badge--low">
+                        <i class="pi pi-exclamation-circle"></i>
+                        {{ product.stock_quantity }} {{ 'products.stock.left' | translate }}
+                      </span>
+                    } @else {
+                      <span class="stock-badge stock-badge--in">
+                        <i class="pi pi-check-circle"></i>
+                        {{ 'products.stock.in_stock' | translate }}
+                      </span>
+                    }
+                  </div>
                 </div>
+
+                <!-- Actions -->
+                @if (!isOutOfStock(product) && getBoxOptions(product).length > 0) {
+                  <div class="product-list-item__actions">
+                    @if (isProductInCart(product.id)) {
+                      <span class="cart-indicator cart-indicator--in">
+                        <i class="pi pi-check-circle"></i>
+                        {{ getCartQuantity(product.id) }} {{ 'products.cart.in_cart' | translate }}
+                      </span>
+                    }
+                    <div class="product-list-item__cart-row">
+                      <div class="quantity-selector-wrapper">
+                        <button
+                          type="button"
+                          class="quantity-selector-btn"
+                          [class.quantity-selector-btn--in-cart]="quantityMatchesCart(product.id)"
+                          [class.quantity-selector-btn--update]="isProductInCart(product.id) && !quantityMatchesCart(product.id)"
+                          (click)="openQuantitySelector(product, $event)">
+                          <span class="quantity-selector-btn__text">
+                            @if (getSelectedBoxOption(product.id); as option) {
+                              <span class="quantity-selector-btn__boxes">{{ option.boxes }} {{ getPackagingTypeForCount(product, option.boxes) }}</span>
+                              <span class="quantity-selector-btn__pieces">{{ option.pieces }} {{ (option.pieces === 1 ? 'products.product.quantity_selector.piece' : 'products.product.quantity_selector.pieces') | translate }}</span>
+                            } @else {
+                              <span>{{ 'products.select_quantity' | translate }}</span>
+                            }
+                          </span>
+                          <i class="pi pi-chevron-down quantity-selector-btn__icon"></i>
+                        </button>
+                        @if (product.pieces_per_box) {
+                          <span class="quantity-selector-hint">
+                            {{ product.pieces_per_box }} {{ product.unit | appUnit }} / {{ getPackagingTypeForCount(product, 1) }}
+                            @if (getSelectedBoxOption(product.id); as option) {
+                              <span class="quantity-selector-hint__total">&nbsp;&nbsp;{{ option.price | appCurrency }}</span>
+                            }
+                          </span>
+                        }
+                      </div>
+                      <button
+                        pButton
+                        type="button"
+                        [icon]="quantityMatchesCart(product.id) ? 'pi pi-check' : (isProductInCart(product.id) ? 'pi pi-refresh' : 'pi pi-cart-plus')"
+                        class="p-button-primary list-cart-btn"
+                        [class.list-cart-btn--in-cart]="quantityMatchesCart(product.id)"
+                        [class.list-cart-btn--update]="isProductInCart(product.id) && !quantityMatchesCart(product.id)"
+                        [class.list-cart-btn--highlight]="highlightedProductId() === product.id"
+                        [disabled]="!getSelectedBoxOption(product.id) || quantityMatchesCart(product.id)"
+                        (click)="addToCartFromList(product, $event)">
+                      </button>
+                    </div>
+                  </div>
+                } @else {
+                  <div class="product-list-item__actions product-list-item__actions--disabled">
+                    <span class="stock-badge stock-badge--out">
+                      <i class="pi pi-times-circle"></i>
+                      {{ 'products.stock.out_of_stock' | translate }}
+                    </span>
+                  </div>
+                }
               </div>
-            }
-          </div>
-        }
+            </div>
+          }
+        </div>
       }
-    </div>
+    }
   </div>
 </div>
 

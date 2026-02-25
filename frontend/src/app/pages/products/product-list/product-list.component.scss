@@ -12,14 +12,42 @@
 $bottom-nav-height: 70px;
 
 // =============================================================================
-// DESKTOP TOOLBAR
+// PRODUCTS HEADER (Responsive)
+// =============================================================================
+
+.products-header {
+  background: var(--surface-card);
+
+  // Mobile: fixed at top
+  @media (max-width: 1023px) {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+  }
+}
+
+// Filter bar - hidden on mobile when search overlay is active
+.filter-bar--hidden {
+  @media (max-width: 1023px) {
+    display: none;
+  }
+}
+
+// =============================================================================
+// DESKTOP TOOLBAR (hidden on mobile)
 // =============================================================================
 
 .desktop-toolbar {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-3) var(--space-4);
+  display: none;
+
+  @media (min-width: 1024px) {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+  }
 }
 
 .desktop-search {
@@ -56,39 +84,40 @@ $bottom-nav-height: 70px;
 }
 
 // =============================================================================
-// RESPONSIVE LAYOUT
+// MOBILE HEADER SPACER (hidden on desktop)
 // =============================================================================
 
-.products-desktop {
-  display: none;
-  @media (min-width: 1024px) {
-    display: flex;
-    flex-direction: column;
-  }
-}
+.mobile-header-spacer {
+  height: 95px;
 
-.products-mobile {
-  padding-bottom: calc(#{$bottom-nav-height} + env(safe-area-inset-bottom, 0));
   @media (min-width: 1024px) {
     display: none;
   }
 }
 
 // =============================================================================
-// MOBILE HEADER
+// PRODUCTS CONTENT
 // =============================================================================
 
-.mobile-header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 100;
-  background: var(--surface-card);
+.products-content {
+  padding: var(--space-2);
+
+  @media (min-width: 768px) {
+    padding: var(--space-4);
+  }
+
+  // Mobile: add bottom padding for bottom nav
+  @media (max-width: 1023px) {
+    padding-bottom: calc(#{$bottom-nav-height} + env(safe-area-inset-bottom, 0) + var(--space-4));
+  }
 }
 
-.mobile-header-spacer {
-  height: 95px;
+.empty-state-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: var(--space-4);
+  min-height: 60vh;
 }
 
 // =============================================================================
@@ -99,6 +128,11 @@ $bottom-nav-height: 70px;
   background: var(--surface-card);
   padding: 20px 10px;
   animation: fadeIn 0.15s ease-out;
+
+  // Hidden on desktop (safety, also conditionally rendered)
+  @media (min-width: 1024px) {
+    display: none;
+  }
 }
 
 @keyframes fadeIn {
