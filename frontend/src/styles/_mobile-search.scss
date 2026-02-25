@@ -1,0 +1,167 @@
+// =============================================================================
+// MOBILE SEARCH
+// =============================================================================
+// Mobile search overlay and input components.
+// Reusable across any page with mobile search functionality.
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// Mobile Search Overlay
+// -----------------------------------------------------------------------------
+.mobile-search-overlay {
+  background: var(--surface-card);
+  padding: 20px 10px;
+  animation: mobileSearchSlideIn 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+
+  @media (min-width: 1024px) {
+    display: none;
+  }
+}
+
+@keyframes mobileSearchSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Mobile Search Container
+// -----------------------------------------------------------------------------
+.mobile-search-container {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: var(--surface-ground);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--surface-200);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  animation: mobileSearchContainerIn 0.35s cubic-bezier(0.22, 1, 0.36, 1) 0.05s both;
+
+  &:focus-within {
+    border-color: var(--primary-color);
+    background: var(--surface-card);
+    box-shadow: 0 4px 20px rgba(var(--primary-rgb), 0.15);
+  }
+}
+
+@keyframes mobileSearchContainerIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateX(0);
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Mobile Search Icon
+// -----------------------------------------------------------------------------
+.mobile-search-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(var(--primary-rgb), 0.12);
+  color: var(--primary-color);
+  font-size: 0.9rem;
+  flex-shrink: 0;
+  margin-inline-end: var(--space-2);
+  animation: mobileSearchIconPulse 0.4s cubic-bezier(0.22, 1, 0.36, 1) 0.15s both;
+}
+
+@keyframes mobileSearchIconPulse {
+  from {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Mobile Search Input
+// -----------------------------------------------------------------------------
+.mobile-search-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 16px;
+  color: var(--text-color);
+  outline: none;
+  padding: var(--space-2) 0;
+
+  &::placeholder {
+    color: var(--text-color-secondary);
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Mobile Search Buttons (Base)
+// -----------------------------------------------------------------------------
+.mobile-search-clear,
+.mobile-search-close,
+.mobile-search-view-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+}
+
+// -----------------------------------------------------------------------------
+// Mobile Search Clear Button
+// -----------------------------------------------------------------------------
+.mobile-search-clear {
+  background: var(--surface-200);
+  color: var(--text-color-secondary);
+
+  &:hover {
+    background: var(--surface-300);
+    color: var(--text-color);
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Mobile Search View Toggle Button
+// -----------------------------------------------------------------------------
+.mobile-search-view-toggle {
+  background: var(--surface-100);
+  color: var(--text-color-secondary);
+
+  &:hover {
+    background: var(--surface-200);
+    color: var(--text-color);
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Mobile Search Close Button
+// -----------------------------------------------------------------------------
+.mobile-search-close {
+  background: var(--primary-color);
+  color: white;
+
+  &:hover {
+    opacity: 0.9;
+  }
+}

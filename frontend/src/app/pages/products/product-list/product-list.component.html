@@ -3,7 +3,7 @@
   <p-toast></p-toast>
 
   <!-- Header: Filter Bar + Search -->
-  <div class="products-header">
+  <div class="page-header--sticky">
     <!-- Mobile Search Overlay (mobile only, when search is active) -->
     @if (showMobileSearch()) {
       <div class="mobile-search-overlay">
@@ -58,7 +58,7 @@
     </app-horizontal-filter>
 
     <!-- Desktop Toolbar (desktop only) -->
-    <div class="desktop-toolbar">
+    <div class="page-toolbar">
       <app-search-input class="desktop-search"></app-search-input>
       <button
         type="button"
@@ -70,11 +70,11 @@
   </div>
 
   <!-- Products Content -->
-  <div class="products-content">
+  <div class="page-content--with-bottom-nav">
     @if (loading()) {
       <!-- Skeleton Loading -->
       @if (layout() === 'grid') {
-        <div class="products-grid">
+        <div class="item-grid">
           @for (i of skeletonGridItems; track i) {
             <div class="skeleton-product-card">
               <div class="skeleton skeleton-image"></div>
@@ -90,7 +90,7 @@
           }
         </div>
       } @else {
-        <div class="products-list">
+        <div class="item-list">
           @for (i of skeletonListItems; track i) {
             <div class="skeleton-product-list-item">
               <div class="skeleton skeleton-image--list"></div>
@@ -118,7 +118,7 @@
     } @else {
       <!-- Products Grid/List -->
       @if (layout() === 'grid') {
-        <div class="products-grid" [attr.data-animation-key]="animationKey()">
+        <div class="item-grid" [attr.data-animation-key]="animationKey()">
           @for (product of products(); track product.id; let i = $index) {
             <app-product-card
               [product]="product"
@@ -132,11 +132,11 @@
           }
         </div>
       } @else {
-        <div class="products-list" [attr.data-animation-key]="animationKey()">
+        <div class="item-list" [attr.data-animation-key]="animationKey()">
           @for (product of products(); track product.id; let i = $index) {
-            <div class="product-list-item item-animate" [style.animation-delay]="(i * animationDelayMs) + 'ms'">
+            <div class="media-item item-animate" [style.animation-delay]="(i * animationDelayMs) + 'ms'">
               <!-- Product Image -->
-              <a [routerLink]="['/products', product.id]" class="product-list-item__image">
+              <a [routerLink]="['/products', product.id]" class="media-item__media">
                 <img
                   [src]="getProductImageUrl(product)"
                   [alt]="product.name"
@@ -148,19 +148,19 @@
               </a>
 
               <!-- Product Content -->
-              <div class="product-list-item__content">
-                <h3 class="product-list-item__name">
+              <div class="media-item__content">
+                <h3 class="media-item__title">
                   <a [routerLink]="['/products', product.id]">{{ product.name }}</a>
                 </h3>
 
-                <div class="product-list-item__price-row">
-                  <div class="product-list-item__price">
+                <div class="media-item__meta">
+                  <div class="media-item__price">
                     <span class="price-current">{{ product.price | appCurrency }}</span>
                     <span class="price-unit">/ {{ product.unit | appUnit }}</span>
                   </div>
 
                   <!-- Stock Status -->
-                  <div class="product-list-item__stock">
+                  <div>
                     @if (isOutOfStock(product)) {
                       <span class="stock-badge stock-badge--out">
                         <i class="pi pi-times-circle"></i>
@@ -182,14 +182,14 @@
 
                 <!-- Actions -->
                 @if (!isOutOfStock(product) && getBoxOptions(product).length > 0) {
-                  <div class="product-list-item__actions">
+                  <div class="media-item__actions">
                     @if (isProductInCart(product.id)) {
                       <span class="cart-indicator cart-indicator--in">
                         <i class="pi pi-check-circle"></i>
                         {{ getCartQuantity(product.id) }} {{ 'products.cart.in_cart' | translate }}
                       </span>
                     }
-                    <div class="product-list-item__cart-row">
+                    <div class="cart-row">
                       <div class="quantity-selector-wrapper">
                         <button
                           type="button"
@@ -230,7 +230,7 @@
                     </div>
                   </div>
                 } @else {
-                  <div class="product-list-item__actions product-list-item__actions--disabled">
+                  <div class="media-item__actions media-item__actions--disabled">
                     <span class="stock-badge stock-badge--out">
                       <i class="pi pi-times-circle"></i>
                       {{ 'products.stock.out_of_stock' | translate }}
