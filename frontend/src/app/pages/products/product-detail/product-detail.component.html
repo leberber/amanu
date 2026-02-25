@@ -15,28 +15,24 @@
     </div>
   }
 
-  <!-- Stock badge as action -->
+  <!-- Stock badge as action (mobile only) -->
   @if (product()) {
-    <div pageActions>
+    <div pageActions class="md:hidden">
       @if (hasPromotion()) {
         <div class="topbar-badge topbar-badge--promo">
           <i class="pi pi-tag"></i>
-          <span class="hidden-mobile">{{ discountLabel() }}</span>
         </div>
       } @else if (isOutOfStock()) {
         <div class="topbar-badge topbar-badge--danger">
           <i class="pi pi-times-circle"></i>
-          <span class="hidden-mobile">{{ 'products.stock.out_of_stock' | translate }}</span>
         </div>
       } @else if (isLowStock()) {
         <div class="topbar-badge topbar-badge--warning">
           <i class="pi pi-exclamation-triangle"></i>
-          <span class="hidden-mobile">{{ 'products.stock.low_stock_title' | translate }}</span>
         </div>
       } @else {
         <div class="topbar-badge topbar-badge--success">
           <i class="pi pi-check-circle"></i>
-          <span class="hidden-mobile">{{ 'products.stock.in_stock' | translate }}</span>
         </div>
       }
     </div>
