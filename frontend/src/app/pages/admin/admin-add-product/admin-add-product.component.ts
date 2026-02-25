@@ -1,5 +1,4 @@
-import { Component, OnInit, signal, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, signal, inject, computed } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -10,7 +9,6 @@ import { TextareaModule } from 'primeng/textarea';
 import { SelectModule } from 'primeng/select';
 import { CheckboxModule } from 'primeng/checkbox';
 import { ToastModule } from 'primeng/toast';
-import { CardModule } from 'primeng/card';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { ProductService } from '../../../services/product.service';
@@ -24,9 +22,6 @@ import { UnitsService } from '../../../core/services/units.service';
 import { PackagingTypeService } from '../../../core/services/packaging-type.service';
 import { AdminFormService } from '../../../core/services/admin-form.service';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
-import { ChipModule } from 'primeng/chip';
-import { InputGroupModule } from 'primeng/inputgroup';
-import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { PageLayoutComponent } from '../../../shared/components/page-layout/page-layout.component';
 
 // Extended Product interface to include translations
@@ -39,7 +34,6 @@ interface ProductWithTranslations extends Product {
   selector: 'app-admin-add-product',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     ReactiveFormsModule,
     ButtonModule,
@@ -49,62 +43,60 @@ interface ProductWithTranslations extends Product {
     SelectModule,
     CheckboxModule,
     ToastModule,
-    CardModule,
     TranslateModule,
-    ChipModule,
-    InputGroupModule,
-    InputGroupAddonModule,
     PageLayoutComponent
   ],
   templateUrl: './admin-add-product.component.html',
   styleUrl: './admin-add-product.component.scss'
 })
 export class AdminAddProductComponent implements OnInit {
-  loading = signal(false);
-  categoriesLoading = signal(false);
-  brandsLoading = signal(false);
-  formInitialized = signal(false);
+  // Injected services
+  private readonly fb = inject(FormBuilder);
+  private readonly toast = inject(ToastMessageService);
+  private readonly productService = inject(ProductService);
+  private readonly brandService = inject(BrandService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly translateService = inject(TranslateService);
+  private readonly unitsService = inject(UnitsService);
+  private readonly packagingTypeService = inject(PackagingTypeService);
+  private readonly adminFormService = inject(AdminFormService);
+
+  // Form
   productForm!: FormGroup;
 
+  // Loading states
+  readonly loading = signal(false);
+  readonly categoriesLoading = signal(false);
+  readonly brandsLoading = signal(false);
+  readonly formInitialized = signal(false);
+
   // Mode detection
-  isEditMode = signal(false);
+  readonly isEditMode = signal(false);
   editProductId: number | null = null;
   currentProduct: ProductWithTranslations | null = null;
 
-  // Dynamic categories
-  categoryOptions = signal<{ label: string; value: number }[]>([]);
-
-  // Dynamic brands
-  brandOptions = signal<{ label: string; value: number }[]>([]);
+  // Options
+  readonly categoryOptions = signal<{ label: string; value: number }[]>([]);
+  readonly brandOptions = signal<{ label: string; value: number }[]>([]);
 
   // Product count for badge
-  productCount = signal(0);
+  readonly productCount = signal(0);
 
   // Stock cartons input (amount to ADD, not total)
-  cartonsInput = signal<number>(0);
-  originalStock = signal<number>(0); // Current stock before adding
+  readonly cartonsInput = signal<number>(0);
+  readonly originalStock = signal<number>(0);
 
   // Computed properties
-  get pageTitle(): string {
-    return this.isEditMode() ? 'admin.products.edit_product' : 'admin.products.add_product';
-  }
+  readonly pageTitle = computed(() =>
+    this.isEditMode() ? 'admin.products.edit_product' : 'admin.products.add_product'
+  );
 
-  get submitButtonLabel(): string {
-    return this.isEditMode() ? 'admin.products.form.submit_update' : 'admin.products.form.submit_add';
-  }
+  readonly submitButtonLabel = computed(() =>
+    this.isEditMode() ? 'admin.products.form.submit_update' : 'admin.products.form.submit_add'
+  );
 
-  private fb = inject(FormBuilder);
-  private toast = inject(ToastMessageService);
-  private productService = inject(ProductService);
-  private brandService = inject(BrandService);
-  private route = inject(ActivatedRoute);
-  private router = inject(Router);
-  private translateService = inject(TranslateService);
-  private unitsService = inject(UnitsService);
-  private packagingTypeService = inject(PackagingTypeService);
-  private adminFormService = inject(AdminFormService);
-
-  ngOnInit() {
+  ngOnInit(): void {
     this.productForm = this.fb.group({
       name_en: ['', [Validators.required, Validators.minLength(VALIDATION.MIN_NAME_LENGTH)]],
       name_fr: ['', [Validators.required, Validators.minLength(VALIDATION.MIN_NAME_LENGTH)]],
@@ -138,13 +130,11 @@ export class AdminAddProductComponent implements OnInit {
       }
     });
 
-    // Initialize form with slight delay for skeleton animation
-    setTimeout(() => {
-      this.formInitialized.set(true);
-    }, 300);
+    // Initialize form after brief delay for skeleton animation
+    setTimeout(() => this.formInitialized.set(true), 300);
   }
 
-  detectMode() {
+  private detectMode(): void {
     const routeData = this.route.snapshot.data;
     if (routeData['mode'] === 'edit') {
       this.isEditMode.set(true);
@@ -160,17 +150,11 @@ export class AdminAddProductComponent implements OnInit {
     });
   }
 
-  loadCategories() {
+  private loadCategories(): void {
     this.categoriesLoading.set(true);
-
     this.productService.getCategories(true).subscribe({
       next: (categories: Category[]) => {
-        const options = categories.map(category => ({
-          label: category.name,
-          value: category.id
-        }));
-
-        this.categoryOptions.set(options);
+        this.categoryOptions.set(categories.map(c => ({ label: c.name, value: c.id })));
         this.categoriesLoading.set(false);
       },
       error: () => {
@@ -180,17 +164,11 @@ export class AdminAddProductComponent implements OnInit {
     });
   }
 
-  loadBrands() {
+  private loadBrands(): void {
     this.brandsLoading.set(true);
-
     this.brandService.getBrands(true).subscribe({
       next: (brands: Brand[]) => {
-        const options = brands.map(brand => ({
-          label: brand.name,
-          value: brand.id
-        }));
-
-        this.brandOptions.set(options);
+        this.brandOptions.set(brands.map(b => ({ label: b.name, value: b.id })));
         this.brandsLoading.set(false);
       },
       error: () => {
@@ -200,15 +178,13 @@ export class AdminAddProductComponent implements OnInit {
     });
   }
 
-  loadProductCount() {
+  private loadProductCount(): void {
     this.productService.getProducts().subscribe({
-      next: (products: Product[]) => {
-        this.productCount.set(products.length);
-      }
+      next: (products: Product[]) => this.productCount.set(products.length)
     });
   }
 
-  loadProductForEdit() {
+  private loadProductForEdit(): void {
     if (!this.editProductId) return;
 
     this.loading.set(true);
@@ -251,11 +227,11 @@ export class AdminAddProductComponent implements OnInit {
     });
   }
 
-  onCancel() {
+  onCancel(): void {
     this.router.navigate([ROUTES.ADMIN.PRODUCTS]);
   }
 
-  onSubmit() {
+  onSubmit(): void {
     if (this.productForm.invalid) {
       this.productForm.markAllAsTouched();
       return;
@@ -324,59 +300,43 @@ export class AdminAddProductComponent implements OnInit {
     }
   }
 
-  // Get translated unit options
-  getUnitOptions() {
+  // Template helper methods
+  getUnitOptions(): { label: string; value: string }[] {
     return this.unitsService.getUnitOptions(true);
   }
 
-  // Get packaging type options
-  getPackagingTypeOptions() {
+  getPackagingTypeOptions(): { label: string; value: string }[] {
     return this.packagingTypeService.getPackagingTypeOptions(true);
   }
 
-  // Check if packaging is fully configured (both type and pieces per box)
   isPackagingConfigured(): boolean {
     const packagingType = this.productForm.get('packaging_type')?.value;
     const piecesPerBox = this.productForm.get('pieces_per_box')?.value;
     return !!packagingType && piecesPerBox > 1;
   }
 
-  // Check if pieces per box is configured
-  hasMultiplePiecesPerBox(): boolean {
-    const piecesPerBox = this.productForm.get('pieces_per_box')?.value;
-    return (piecesPerBox || 1) > 1;
-  }
-
-  // Get pieces per box value
   getPiecesPerBox(): number {
     return this.productForm.get('pieces_per_box')?.value || 1;
   }
 
-  // Get packaging type label for display
   getPackagingTypeLabel(): string {
     const packagingType = this.productForm.get('packaging_type')?.value;
-    if (packagingType) {
-      return this.packagingTypeService.getPackagingTypeTranslated(packagingType);
-    }
-    return this.translateService.instant('products.product.packaging_types.box');
+    return packagingType
+      ? this.packagingTypeService.getPackagingTypeTranslated(packagingType)
+      : this.translateService.instant('products.product.packaging_types.box');
   }
 
-  // Update stock quantity when cartons input changes
   onCartonsInputChange(value: number): void {
     this.cartonsInput.set(value || 0);
     const piecesToAdd = (value || 0) * this.getPiecesPerBox();
-    const newTotal = this.originalStock() + piecesToAdd;
-    this.productForm.patchValue({ stock_quantity: newTotal });
+    this.productForm.patchValue({ stock_quantity: this.originalStock() + piecesToAdd });
   }
 
-  // Get the pieces to add from cartons
   getStockToAdd(): number {
     return this.cartonsInput() * this.getPiecesPerBox();
   }
 
-  // Get the new total stock
   getNewTotalStock(): number {
     return this.originalStock() + this.getStockToAdd();
   }
-
 }
