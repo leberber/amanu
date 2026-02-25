@@ -34,4 +34,7 @@ export class PageLayoutComponent {
 
   // Optional: add border around content area
   contentBorder = input(false);
+
+  // Optional: hide icon on mobile and center text
+  hideMobileIcon = input(false);
 }

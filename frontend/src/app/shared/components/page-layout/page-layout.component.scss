@@ -304,3 +304,20 @@ $bottom-nav-height: 70px;
     }
   }
 }
+
+// -----------------------------------------------------------------------------
+// Hide Mobile Icon Modifier
+// -----------------------------------------------------------------------------
+// Hides the icon on mobile and centers the title/subtitle text
+.page-layout--hide-mobile-icon {
+  @media (max-width: 767px) {
+    .page-topbar__icon--small {
+      display: none !important;
+    }
+
+    .page-topbar__mobile-text {
+      align-items: center !important;
+      text-align: center !important;
+    }
+  }
+}
