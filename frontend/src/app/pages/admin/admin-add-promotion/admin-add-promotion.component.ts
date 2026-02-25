@@ -40,6 +40,8 @@ const MIN_USAGE_LIMIT = 1;
 const MAX_PERCENTAGE = 100;
 const MAX_FIXED_AMOUNT = 999999;
 const CARD_ANIMATION_DELAY = 50;
+const CURRENCY_SUFFIX = ' DA';
+const DATE_FORMAT = 'dd/mm/yy';
 
 @Component({
   selector: 'app-admin-add-promotion',
@@ -85,8 +87,8 @@ export class AdminAddPromotionComponent implements OnInit {
   readonly brandOptions = signal<{ label: string; value: number }[]>([]);
   readonly productOptions = signal<{ label: string; value: number }[]>([]);
 
-  private readonly currentScope = signal<string>('global');
-  private readonly currentDiscountType = signal<string>('percentage');
+  private readonly currentScope = signal<string>(DEFAULT_SCOPE);
+  private readonly currentDiscountType = signal<string>(DEFAULT_DISCOUNT_TYPE);
   private readonly nameValue = signal('');
   private readonly discountValue = signal(DEFAULT_DISCOUNT_VALUE);
 
@@ -117,7 +119,7 @@ export class AdminAddPromotionComponent implements OnInit {
   );
 
   readonly discountSuffix = computed(() =>
-    this.isPercentageDiscount() ? '%' : ' DA'
+    this.isPercentageDiscount() ? '%' : CURRENCY_SUFFIX
   );
 
   readonly showCategorySelect = computed(() => this.currentScope() === 'category');
@@ -132,6 +134,8 @@ export class AdminAddPromotionComponent implements OnInit {
   readonly MIN_DISCOUNT = MIN_DISCOUNT;
   readonly MIN_USAGE_LIMIT = MIN_USAGE_LIMIT;
   readonly CARD_ANIMATION_DELAY = CARD_ANIMATION_DELAY;
+  readonly CURRENCY_SUFFIX = CURRENCY_SUFFIX;
+  readonly DATE_FORMAT = DATE_FORMAT;
 
   ngOnInit(): void {
     this.initializeOptions();

@@ -14,7 +14,7 @@
     <div class="mt-6">
       <div class="grid">
         @for (_ of [0, 1]; track $index) {
-          <div class="col-12 lg:col-6 item-animate" [style.animation-delay]="($index * 50) + 'ms'">
+          <div class="col-12 lg:col-6 item-animate" [style.animation-delay]="($index * CARD_ANIMATION_DELAY) + 'ms'">
             <div class="skeleton-card form-card">
               <div class="card-header">
                 <div class="skeleton skeleton-avatar"></div>
@@ -164,7 +164,7 @@
                           </div>
                           <div class="field-box__content">
                             <label>{{ 'admin.promotions.form.max_discount' | translate }}</label>
-                            <p-inputNumber formControlName="max_discount" [min]="0" suffix=" DA" styleClass="w-full" />
+                            <p-inputNumber formControlName="max_discount" [min]="0" [suffix]="CURRENCY_SUFFIX" styleClass="w-full" />
                           </div>
                         </div>
                         <span class="field-hint">{{ 'admin.promotions.form.max_discount_hint' | translate }}</span>
@@ -257,7 +257,7 @@
                         </div>
                         <div class="field-box__content">
                           <label>{{ 'admin.promotions.form.min_order_amount' | translate }}</label>
-                          <p-inputNumber formControlName="min_order_amount" [min]="0" suffix=" DA" styleClass="w-full" />
+                          <p-inputNumber formControlName="min_order_amount" [min]="0" [suffix]="CURRENCY_SUFFIX" styleClass="w-full" />
                         </div>
                       </div>
                     </div>
@@ -294,7 +294,7 @@
                         </div>
                         <div class="field-box__content">
                           <label>{{ 'admin.promotions.form.start_date' | translate }} <span class="required">*</span></label>
-                          <p-datepicker formControlName="start_date" [showTime]="true" [showIcon]="true" dateFormat="dd/mm/yy" appendTo="body" styleClass="w-full" />
+                          <p-datepicker formControlName="start_date" [showTime]="true" [showIcon]="true" [dateFormat]="DATE_FORMAT" appendTo="body" styleClass="w-full" />
                         </div>
                       </div>
                       @if (promotionForm.get('start_date')?.invalid && promotionForm.get('start_date')?.touched) {
@@ -309,7 +309,7 @@
                         </div>
                         <div class="field-box__content">
                           <label>{{ 'admin.promotions.form.end_date' | translate }} <span class="required">*</span></label>
-                          <p-datepicker formControlName="end_date" [showTime]="true" [showIcon]="true" dateFormat="dd/mm/yy" appendTo="body" styleClass="w-full" />
+                          <p-datepicker formControlName="end_date" [showTime]="true" [showIcon]="true" [dateFormat]="DATE_FORMAT" appendTo="body" styleClass="w-full" />
                         </div>
                       </div>
                       @if (promotionForm.get('end_date')?.invalid && promotionForm.get('end_date')?.touched) {
