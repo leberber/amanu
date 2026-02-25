@@ -1,13 +1,16 @@
 <!-- src/app/pages/orders/order-list/order-list.component.html -->
 <app-page-layout
   title="orders.title"
+  icon="pi pi-list"
   [showBackButton]="true"
   [backRoute]="ROUTES.PRODUCTS">
 
-  <!-- Order count badge -->
+  <!-- Order count badge (mobile only) -->
   @if (orders().length > 0 && !loading()) {
-    <div pageActions class="count-badge">
-      {{ orders().length }}
+    <div pageActions class="md:hidden">
+      <div class="count-badge">
+        {{ orders().length }}
+      </div>
     </div>
   }
 

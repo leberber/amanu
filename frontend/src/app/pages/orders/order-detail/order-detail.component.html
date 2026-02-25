@@ -1,35 +1,27 @@
 <!-- src/app/pages/orders/order-detail/order-detail.component.html -->
 <app-page-layout
-  [title]="order() ? '' : 'orders.detail.title'"
+  title="orders.detail.title"
+  [subtitle]="pageSubtitle()"
+  [mobileTitle]="mobilePageTitle()"
+  [mobileSubtitle]="mobileSubtitle()"
+  icon="pi pi-shopping-bag"
   [showBackButton]="true"
   [backRoute]="ROUTES.ORDERS"
   [fullscreen]="true">
 
-  <!-- Custom header when order is loaded -->
+  <!-- Status badge (mobile only) -->
   @if (order()) {
-    <div pageHeader class="topbar-header">
-      <div class="topbar-header__icon">
-        <i class="pi pi-shopping-bag"></i>
+    <div pageActions class="md:hidden">
+      <div class="topbar-badge" [ngClass]="order()?.status || ''">
+        <i class="pi"
+           [ngClass]="{
+             'pi-clock': order()?.status === 'pending',
+             'pi-check-circle': order()?.status === 'confirmed',
+             'pi-truck': order()?.status === 'shipped',
+             'pi-check-square': order()?.status === 'delivered',
+             'pi-times-circle': order()?.status === 'cancelled'
+           }"></i>
       </div>
-      <div class="topbar-header__info">
-        <span class="topbar-header__title">{{ 'orders.table.order_number' | translate }}{{ order()?.id }}</span>
-        <span class="topbar-header__subtitle">{{ order()?.created_at ? (order()!.created_at | appDate) : '-' }}</span>
-      </div>
-    </div>
-  }
-
-  <!-- Status badge as action (icon only on mobile, icon + text on desktop) -->
-  @if (order()) {
-    <div pageActions class="topbar-badge" [ngClass]="order()?.status || ''">
-      <i class="pi"
-         [ngClass]="{
-           'pi-clock': order()?.status === 'pending',
-           'pi-check-circle': order()?.status === 'confirmed',
-           'pi-truck': order()?.status === 'shipped',
-           'pi-check-square': order()?.status === 'delivered',
-           'pi-times-circle': order()?.status === 'cancelled'
-         }"></i>
-      <span class="hidden-mobile">{{ (order()?.status || '') | appStatus }}</span>
     </div>
   }
 

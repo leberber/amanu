@@ -1,6 +1,20 @@
 // =============================================================================
 // Product Detail Component Styles
 // =============================================================================
+// Mobile: Hide icon and center title/subtitle
+@media (max-width: 767px) {
+  :host ::ng-deep {
+    .page-topbar__icon--small {
+      display: none !important;
+    }
+
+    .page-topbar__mobile-text {
+      align-items: center !important;
+      text-align: center !important;
+    }
+  }
+}
+
 // Uses global styles from _components.scss:
 // - .detail-content, .detail-grid, .detail-main, .detail-sidebar (layout)
 // - .app-card, .app-card__header, .app-card__icon, .app-card__title, .app-card__content

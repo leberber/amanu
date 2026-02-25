@@ -158,6 +158,12 @@ export class ProductDetailComponent implements OnInit {
     return this.packagingTypeService.getPackagingTypeTranslated(this.product()?.packaging_type || 'carton', true);
   });
 
+  // Page layout computed values
+  pageTitle = computed(() => this.product()?.name || '');
+  pageSubtitle = computed(() => this.brand()?.name || '');
+  mobilePageTitle = computed(() => this.product()?.name || '');
+  mobileSubtitle = computed(() => this.brand()?.name || '');
+
   getPackagingTypeForCount(count: number): string {
     return this.packagingTypeService.getPackagingTypeForCount(this.product()?.packaging_type || 'carton', count);
   }

@@ -16,6 +16,7 @@ import { OrderService } from '../../../services/order.service';
 import { ProductService } from '../../../services/product.service';
 import { TranslationService } from '../../../services/translation.service';
 import { LightboxService } from '../../../core/services/lightbox.service';
+import { DateService } from '../../../core/services/date.service';
 import { Order, OrderItem } from '../../../models/order.model';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
 import { PageLayoutComponent } from '../../../shared/components/page-layout/page-layout.component';
@@ -63,6 +64,7 @@ export class OrderDetailComponent implements OnInit {
   private translateService = inject(TranslateService);
   private destroyRef = inject(DestroyRef);
   readonly lightbox = inject(LightboxService);
+  private dateService = inject(DateService);
 
   readonly ROUTES = ROUTES;
 
@@ -74,6 +76,13 @@ export class OrderDetailComponent implements OnInit {
   // Computed values
   totalAmount = computed(() => this.order()?.total_amount || 0);
   canCancelOrder = computed(() => this.order()?.status === ORDER_STATUS.PENDING);
+
+  // Page layout computed values
+  private orderDate = computed(() => this.order()?.created_at ? this.dateService.formatDateOnly(this.order()!.created_at) : '');
+
+  pageSubtitle = computed(() => this.order() ? `#${this.order()!.id} - ${this.orderDate()}` : '');
+  mobilePageTitle = computed(() => this.order() ? `${this.translateService.instant('common.order')} #${this.order()!.id}` : '');
+  mobileSubtitle = computed(() => this.orderDate());
 
   ngOnInit(): void {
     // Check for success parameter

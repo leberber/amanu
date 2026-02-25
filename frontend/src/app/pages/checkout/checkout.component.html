@@ -1,13 +1,14 @@
 <!-- src/app/pages/checkout/checkout.component.html -->
 <app-page-layout
   title="checkout.title"
+  icon="pi pi-credit-card"
   [showBackButton]="true"
   [backRoute]="ROUTES.CART"
   [fullscreen]="true">
 
-  <!-- Cart item count badge -->
+  <!-- Cart item count badge (mobile only) -->
   @if (cartItemCount() > 0) {
-    <div pageActions>
+    <div pageActions class="md:hidden">
       <div class="topbar-badge topbar-badge--success">
         <i class="pi pi-shopping-cart"></i>
         <span>{{ cartItemCount() }}</span>
