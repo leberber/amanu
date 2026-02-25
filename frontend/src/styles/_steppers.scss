@@ -289,11 +289,13 @@
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-md);
   overflow: hidden;
+  margin: 0 var(--space-4);
 
   &__header {
     padding: var(--space-5) var(--space-8);
-    background: var(--surface-slate-50-solid);
-    border-bottom: var(--border-width) solid var(--border-color-light);
+    background: var(--color-white);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   }
 
   &__body {
@@ -302,8 +304,9 @@
 
   &__footer {
     padding: var(--space-7) var(--space-8);
-    background: var(--surface-slate-50);
-    border-top: var(--border-width) solid var(--border-color-light);
+    background: var(--color-white);
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.04);
     display: flex;
     justify-content: space-between;
     align-items: center;
