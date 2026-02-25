@@ -1,4 +1,3 @@
-<!-- src/app/pages/admin/admin-add-product/admin-add-product.component.html -->
 <app-page-layout
   [title]="pageTitle()"
   [subtitle]="pageSubtitle()"
@@ -9,16 +8,7 @@
   [backRoute]="ROUTES.ADMIN.PRODUCTS"
   [fullscreen]="true">
 
-  <!-- Background Decoration -->
-  <div class="bg-decoration">
-    <div class="blob blob-1"></div>
-    <div class="blob blob-2"></div>
-    <div class="blob blob-3"></div>
-  </div>
-
   <p-toast></p-toast>
-
-    <!-- Skeleton Loading State -->
     @if (!formInitialized()) {
       <div class="mt-6">
         <div class="grid">
@@ -47,11 +37,9 @@
       </div>
     }
 
-    <!-- Form Content -->
     @if (formInitialized()) {
     <form [formGroup]="productForm" (ngSubmit)="onSubmit()">
       <div class="form-wizard form-wizard--fullpage">
-        <!-- Form Wizard Header with Stepper -->
         <div class="form-wizard__header">
           <div class="stepper-horizontal">
             <div class="stepper-horizontal__step" [class.stepper-horizontal__step--active]="currentStep() === 1" [class.stepper-horizontal__step--completed]="currentStep() > 1">
@@ -76,12 +64,9 @@
           </div>
         </div>
 
-        <!-- Form Wizard Body -->
         <div class="form-wizard__body">
-          <!-- Step 1: Descriptions et Traductions -->
           @if (currentStep() === 1) {
             <div class="grid">
-              <!-- Card 1: Product Names -->
               <div class="col-12 lg:col-6 item-animate">
                 <div class="form-card">
                   <div class="card-header">
@@ -91,7 +76,6 @@
                     <h3 class="card-header__title">{{ 'admin.products.form.translations' | translate }}</h3>
                   </div>
                   <div class="card-body">
-                    <!-- English Name -->
                     <div class="form-field">
                       <div class="field-box" [class.filled]="productForm.get('name_en')?.value">
                         <div class="field-box__icon field-box__icon--primary">🇬🇧</div>
@@ -105,7 +89,6 @@
                       }
                     </div>
 
-                    <!-- French Name -->
                     <div class="form-field">
                       <div class="field-box" [class.filled]="productForm.get('name_fr')?.value">
                         <div class="field-box__icon field-box__icon--primary">🇫🇷</div>
@@ -119,7 +102,6 @@
                       }
                     </div>
 
-                    <!-- Arabic Name -->
                     <div class="form-field">
                       <div class="field-box" [class.filled]="productForm.get('name_ar')?.value">
                         <div class="field-box__icon field-box__icon--primary">🇩🇿</div>
@@ -136,7 +118,6 @@
                 </div>
               </div>
 
-              <!-- Card 2: Descriptions -->
               <div class="col-12 lg:col-6 item-animate" [style.animation-delay]="'100ms'">
                 <div class="form-card">
                   <div class="card-header">
@@ -146,7 +127,6 @@
                     <h3 class="card-header__title">{{ 'admin.products.form.descriptions' | translate }}</h3>
                   </div>
                   <div class="card-body">
-                    <!-- English Description -->
                     <div class="form-field">
                       <div class="field-box align-items-start" [class.filled]="productForm.get('description_en')?.value">
                         <div class="field-box__icon field-box__icon--info">🇬🇧</div>
@@ -157,7 +137,6 @@
                       </div>
                     </div>
 
-                    <!-- French Description -->
                     <div class="form-field">
                       <div class="field-box align-items-start" [class.filled]="productForm.get('description_fr')?.value">
                         <div class="field-box__icon field-box__icon--info">🇫🇷</div>
@@ -168,7 +147,6 @@
                       </div>
                     </div>
 
-                    <!-- Arabic Description -->
                     <div class="form-field">
                       <div class="field-box align-items-start" [class.filled]="productForm.get('description_ar')?.value">
                         <div class="field-box__icon field-box__icon--info">🇩🇿</div>
@@ -184,10 +162,8 @@
             </div>
           }
 
-          <!-- Step 2: Prix et Inventaire -->
           @if (currentStep() === 2) {
             <div class="grid">
-              <!-- Card 1: Pricing & Classification -->
               <div class="col-12 lg:col-6 item-animate">
                 <div class="form-card">
                   <div class="card-header">
@@ -197,7 +173,6 @@
                     <h3 class="card-header__title">{{ 'admin.products.form.pricing_inventory' | translate }}</h3>
                   </div>
                   <div class="card-body">
-                    <!-- Category & Brand -->
                     <div class="form-row">
                       <div class="form-field">
                         <div class="field-box" [class.filled]="productForm.get('category_id')?.value">
@@ -229,7 +204,6 @@
                       </div>
                     </div>
 
-                    <!-- Price & Unit -->
                     <div class="form-row mt-4">
                       <div class="form-field">
                         <div class="field-box" [class.filled]="productForm.get('price')?.value">
@@ -261,7 +235,6 @@
                       </div>
                     </div>
 
-                    <!-- Image URL -->
                     <div class="form-field mt-4">
                       <div class="field-box" [class.filled]="productForm.get('image_url')?.value">
                         <div class="field-box__icon field-box__icon--pink">
@@ -277,7 +250,6 @@
                 </div>
               </div>
 
-              <!-- Card 2: Inventory & Packaging -->
               <div class="col-12 lg:col-6 item-animate" [style.animation-delay]="'100ms'">
                 <div class="form-card">
                   <div class="card-header">
@@ -287,7 +259,6 @@
                     <h3 class="card-header__title">{{ 'admin.products.form.inventory' | translate }}</h3>
                   </div>
                   <div class="card-body">
-                    <!-- Packaging Section -->
                     <div class="form-row">
                       <div class="form-field">
                         <div class="field-box" [class.filled]="productForm.get('packaging_type')?.value">
@@ -313,7 +284,6 @@
                       </div>
                     </div>
 
-                    <!-- Stock Quantity -->
                     <div class="form-field mt-4">
                       <div class="field-box field-box--stock" [class.filled]="isPackagingConfigured()" [class.disabled]="!isPackagingConfigured()">
                         <div class="field-box__icon field-box__icon--success">
@@ -341,7 +311,6 @@
                       }
                     </div>
 
-                    <!-- Active Switch -->
                     <div class="active-switch-container mt-5">
                       <div
                         class="active-switch"
@@ -371,7 +340,6 @@
           }
         </div>
 
-        <!-- Form Wizard Footer with Navigation -->
         <div class="form-wizard__footer">
           <span class="chip chip--primary">
             <i class="pi pi-box"></i>
@@ -406,7 +374,6 @@
     </form>
     }
 
-  <!-- Loading Overlay -->
   @if (loading() && isEditMode()) {
     <div class="admin-loading-overlay">
       <div class="loading-content">

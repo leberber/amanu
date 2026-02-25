@@ -21,7 +21,6 @@ import { AdminFormService } from '../../../core/services/admin-form.service';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
 import { PageLayoutComponent } from '../../../shared/components/page-layout/page-layout.component';
 
-// Extended Product interface to include translations
 interface ProductWithTranslations extends Product {
   name_translations?: { [key: string]: string };
   description_translations?: { [key: string]: string };
@@ -45,7 +44,6 @@ interface ProductWithTranslations extends Product {
   styleUrl: './admin-add-product.component.scss'
 })
 export class AdminAddProductComponent implements OnInit {
-  // Injected services
   private readonly fb = inject(FormBuilder);
   private readonly toast = inject(ToastMessageService);
   private readonly productService = inject(ProductService);
@@ -58,37 +56,24 @@ export class AdminAddProductComponent implements OnInit {
   private readonly adminFormService = inject(AdminFormService);
   private readonly destroyRef = inject(DestroyRef);
 
-  // Form
   productForm!: FormGroup;
 
-  // Loading states
   readonly loading = signal(false);
   readonly categoriesLoading = signal(false);
   readonly brandsLoading = signal(false);
   readonly formInitialized = signal(false);
-
-  // Step navigation
   readonly currentStep = signal(1);
   readonly totalSteps = 2 as const;
-
-  // Mode detection
   readonly isEditMode = signal(false);
   private readonly editProductId = signal<number | null>(null);
   private readonly currentProduct = signal<ProductWithTranslations | null>(null);
-
-  // Options
   readonly categoryOptions = signal<{ label: string; value: number }[]>([]);
   readonly brandOptions = signal<{ label: string; value: number }[]>([]);
-
-  // Stock cartons input (amount to ADD, not total)
   readonly cartonsInput = signal<number>(0);
   readonly originalStock = signal<number>(0);
-
-  // Form field signals for computed properties
   private readonly packagingTypeValue = signal<string | null>(null);
   private readonly piecesPerBoxValue = signal<number | null>(null);
 
-  // Computed properties
   readonly pageTitle = computed(() =>
     this.isEditMode() ? 'admin.products.edit_product' : 'admin.products.add_product'
   );
@@ -105,7 +90,6 @@ export class AdminAddProductComponent implements OnInit {
     this.isEditMode() ? 'common.edit' : 'common.add'
   );
 
-  // Computed properties for template (performance optimization)
   readonly unitOptions = computed(() => this.unitsService.getUnitOptions(true));
   readonly packagingTypeOptions = computed(() => this.packagingTypeService.getPackagingTypeOptions(true));
 
@@ -126,7 +110,6 @@ export class AdminAddProductComponent implements OnInit {
 
   readonly newTotalStock = computed(() => this.originalStock() + this.stockToAdd());
 
-  // Form field signals for step validation
   private readonly nameEnValue = signal('');
   private readonly nameFrValue = signal('');
   private readonly nameArValue = signal('');
@@ -137,7 +120,6 @@ export class AdminAddProductComponent implements OnInit {
     this.nameArValue().length >= VALIDATION.MIN_NAME_LENGTH
   );
 
-  // Routes for navigation
   readonly ROUTES = ROUTES;
 
   ngOnInit(): void {
@@ -156,7 +138,6 @@ export class AdminAddProductComponent implements OnInit {
       image_url: [''],
       is_organic: [false],
       is_active: [true],
-      // Box configuration
       pieces_per_box: [null, [Validators.required, Validators.min(1)]],
       packaging_type: [null, Validators.required]
     });
@@ -165,7 +146,6 @@ export class AdminAddProductComponent implements OnInit {
     this.loadBrands();
     this.detectMode();
 
-    // Watch form field changes to update computed signals
     this.productForm.get('pieces_per_box')?.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(piecesPerBox => {
@@ -182,7 +162,6 @@ export class AdminAddProductComponent implements OnInit {
         this.packagingTypeValue.set(packagingType);
       });
 
-    // Watch name fields for step validation
     this.productForm.get('name_en')?.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(value => this.nameEnValue.set(value || ''));
@@ -195,7 +174,6 @@ export class AdminAddProductComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(value => this.nameArValue.set(value || ''));
 
-    // Initialize form after brief delay for skeleton animation
     setTimeout(() => this.formInitialized.set(true), 300);
   }
 
@@ -281,18 +259,12 @@ export class AdminAddProductComponent implements OnInit {
             packaging_type: product.packaging_type || null
           });
 
-          // Update signals for computed properties
           this.packagingTypeValue.set(product.packaging_type || null);
           this.piecesPerBoxValue.set(product.pieces_per_box || null);
-
-          // Update name signals for step validation
           this.nameEnValue.set(currentProd?.name_translations?.['en'] || product.name);
           this.nameFrValue.set(currentProd?.name_translations?.['fr'] || product.name);
           this.nameArValue.set(currentProd?.name_translations?.['ar'] || product.name);
-
-          // Store original stock for the formula display
           this.originalStock.set(product.stock_quantity);
-          // Reset cartons input to 0 (user will add stock)
           this.cartonsInput.set(0);
 
           this.loading.set(false);
@@ -314,8 +286,6 @@ export class AdminAddProductComponent implements OnInit {
     this.loading.set(true);
 
     const formValues = this.productForm.value;
-
-    // Use AdminFormService to build product data with translations
     const productData = this.adminFormService.buildFormDataWithTranslations(
       formValues,
       ['name', 'description'],
@@ -332,10 +302,9 @@ export class AdminAddProductComponent implements OnInit {
         packaging_type: formValues.packaging_type || null
       }
     );
-    
+
     const productId = this.editProductId();
     if (this.isEditMode() && productId) {
-      // UPDATE existing product
       this.productService.updateProduct(productId, productData)
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
@@ -355,7 +324,6 @@ export class AdminAddProductComponent implements OnInit {
           }
         });
     } else {
-      // CREATE new product
       this.productService.createProduct(productData)
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
@@ -377,7 +345,6 @@ export class AdminAddProductComponent implements OnInit {
     }
   }
 
-  // Step navigation methods
   nextStep(): void {
     if (this.currentStep() < this.totalSteps) {
       this.currentStep.set(this.currentStep() + 1);
