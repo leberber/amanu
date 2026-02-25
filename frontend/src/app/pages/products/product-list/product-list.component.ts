@@ -301,9 +301,9 @@ export class ProductListComponent implements OnInit {
     return product.image_url || DEFAULTS.PLACEHOLDER_IMAGE;
   }
 
-  getViewToggleIcon(): string {
-    return this.layout() === 'grid' ? 'pi pi-list' : 'pi pi-th-large';
-  }
+  viewToggleIcon = computed(() =>
+    this.layout() === 'grid' ? 'pi pi-list' : 'pi pi-th-large'
+  );
 
   getPiecesLabel(count: number): string {
     return count === 1
