@@ -149,9 +149,9 @@
                     <div
                       class="active-switch"
                       [class.active-switch--on]="categoryForm.get('is_active')?.value"
-                      (click)="categoryForm.get('is_active')?.setValue(!categoryForm.get('is_active')?.value)"
-                      (keydown.enter)="categoryForm.get('is_active')?.setValue(!categoryForm.get('is_active')?.value)"
-                      (keydown.space)="categoryForm.get('is_active')?.setValue(!categoryForm.get('is_active')?.value); $event.preventDefault()"
+                      (click)="toggleActive()"
+                      (keydown.enter)="toggleActive()"
+                      (keydown.space)="toggleActive(); $event.preventDefault()"
                       role="switch"
                       [attr.aria-checked]="categoryForm.get('is_active')?.value"
                       [attr.aria-label]="'admin.categories.form.is_active' | translate"
