@@ -1427,6 +1427,8 @@
         "logo_help": "Optional: Provide a URL to a logo image for this brand",
         "is_active": "Active Brand",
         "active_help": "Uncheck to hide this brand from the brand filter",
+        "brand_visible": "Brand is visible in the store",
+        "brand_hidden": "Brand is hidden from the store",
         "submit_add": "Add Brand",
         "submit_update": "Update Brand",
         "cancel": "Cancel",

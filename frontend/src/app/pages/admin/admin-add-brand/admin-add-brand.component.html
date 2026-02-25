@@ -1,233 +1,198 @@
-<!-- src/app/pages/admin/admin-add-brand/admin-add-brand.component.html -->
-<div class="admin-page">
-  <!-- Background Decoration -->
-  <div class="bg-decoration">
-    <div class="blob blob-1"></div>
-    <div class="blob blob-2"></div>
-    <div class="blob blob-3"></div>
-  </div>
+<app-page-layout
+  [title]="pageTitle()"
+  [subtitle]="pageSubtitle()"
+  mobileTitle="common.brand"
+  [mobileSubtitle]="mobileSubtitle()"
+  icon="pi pi-bookmark"
+  [showBackButton]="true"
+  [backRoute]="ROUTES.ADMIN.BRANDS"
+  [fullscreen]="true">
 
   <p-toast></p-toast>
-  <div class="admin-content admin-content--narrow">
-    <!-- Page Header -->
-    <div class="admin-header">
-      <div class="header-content">
-        <div class="header-title">
-          <div class="admin-icon-wrapper admin-icon-wrapper--square">
-            <div class="icon-bg"></div>
-            <div class="icon-circle">
-              <i class="pi pi-bookmark"></i>
+
+  @if (!formInitialized()) {
+    <div class="mt-6">
+      <div class="grid">
+        @for (_ of [0, 1]; track $index) {
+          <div class="col-12 lg:col-6 item-animate" [style.animation-delay]="($index * 50) + 'ms'">
+            <div class="skeleton-card form-card">
+              <div class="card-header">
+                <div class="skeleton skeleton-avatar"></div>
+                <div class="skeleton skeleton-text skeleton-text--w70"></div>
+              </div>
+              <div class="card-body">
+                @for (_ of [0, 1, 2]; track $index) {
+                  <div class="field-box mb-4">
+                    <div class="skeleton skeleton-avatar"></div>
+                    <div class="flex-1">
+                      <div class="skeleton skeleton-text skeleton-text--w40 mb-2"></div>
+                      <div class="skeleton skeleton-input"></div>
+                    </div>
+                  </div>
+                }
+              </div>
             </div>
           </div>
-          <div class="title-text">
-            <h1>{{ pageTitle | translate }}</h1>
-            <p>{{ isEditMode() ? ('admin.brands.form.edit_subtitle' | translate) : ('admin.brands.form.add_subtitle' | translate) }}</p>
-          </div>
-        </div>
-        <button class="back-btn" (click)="onCancel()">
-          <i class="pi pi-arrow-left"></i>
-          <span>{{ 'common.back' | translate }}</span>
-        </button>
+        }
       </div>
     </div>
+  }
 
+  @if (formInitialized()) {
     <form [formGroup]="brandForm" (ngSubmit)="onSubmit()">
-      <!-- Cards Grid -->
-      <div class="admin-cards-grid">
-        <!-- Brand Names Card -->
-        <div class="admin-form-card">
-          <div class="card-header">
-            <div class="card-icon globe">
-              <i class="pi pi-globe"></i>
-            </div>
-            <h3>{{ 'admin.brands.form.translations' | translate }}</h3>
-          </div>
-          <div class="card-body">
-            <!-- English Name -->
-            <div class="language-section">
-              <span class="language-flag">🇬🇧</span>
-              <div class="language-content">
-                <div class="language-header">
-                  <strong>{{ 'admin.brands.form.english_name' | translate }}</strong>
-                  <span class="required">*</span>
+      <div class="form-wizard form-wizard--fullpage">
+        <div class="form-wizard__body">
+          <div class="grid">
+            <div class="col-12 lg:col-6 item-animate">
+              <div class="form-card">
+                <div class="card-header">
+                  <div class="card-header__icon card-header__icon--primary">
+                    <i class="pi pi-globe"></i>
+                  </div>
+                  <h3 class="card-header__title">{{ 'admin.brands.form.translations' | translate }}</h3>
                 </div>
-                <div class="admin-form-field">
-                  <input
-                    type="text"
-                    formControlName="name_en"
-                    [placeholder]="'admin.brands.form.english_name' | translate">
-                  @if (brandForm.get('name_en')?.invalid && brandForm.get('name_en')?.touched) {
-                    <span class="field-error">{{ 'admin.brands.form.name_required' | translate }}</span>
-                  }
+                <div class="card-body">
+                  <div class="form-field">
+                    <div class="field-box" [class.filled]="brandForm.get('name_en')?.value">
+                      <div class="field-box__icon field-box__icon--primary">🇬🇧</div>
+                      <div class="field-box__content">
+                        <label>{{ 'admin.brands.form.english_name' | translate }} <span class="required">*</span></label>
+                        <input type="text" formControlName="name_en" [placeholder]="'admin.brands.form.english_name' | translate">
+                      </div>
+                    </div>
+                    @if (brandForm.get('name_en')?.invalid && brandForm.get('name_en')?.touched) {
+                      <span class="field-error">{{ 'admin.brands.form.name_required' | translate }}</span>
+                    }
+                  </div>
+
+                  <div class="form-field">
+                    <div class="field-box" [class.filled]="brandForm.get('name_fr')?.value">
+                      <div class="field-box__icon field-box__icon--primary">🇫🇷</div>
+                      <div class="field-box__content">
+                        <label>{{ 'admin.brands.form.french_name' | translate }} <span class="required">*</span></label>
+                        <input type="text" formControlName="name_fr" [placeholder]="'admin.brands.form.french_name' | translate">
+                      </div>
+                    </div>
+                    @if (brandForm.get('name_fr')?.invalid && brandForm.get('name_fr')?.touched) {
+                      <span class="field-error">{{ 'admin.brands.form.name_required' | translate }}</span>
+                    }
+                  </div>
+
+                  <div class="form-field">
+                    <div class="field-box" [class.filled]="brandForm.get('name_ar')?.value">
+                      <div class="field-box__icon field-box__icon--primary">🇩🇿</div>
+                      <div class="field-box__content">
+                        <label>{{ 'admin.brands.form.arabic_name' | translate }} <span class="required">*</span></label>
+                        <input type="text" formControlName="name_ar" dir="rtl" [placeholder]="'admin.brands.form.arabic_name' | translate">
+                      </div>
+                    </div>
+                    @if (brandForm.get('name_ar')?.invalid && brandForm.get('name_ar')?.touched) {
+                      <span class="field-error">{{ 'admin.brands.form.name_required' | translate }}</span>
+                    }
+                  </div>
+
+                  <div class="form-field">
+                    <div class="field-box" [class.filled]="brandForm.get('logo_url')?.value">
+                      <div class="field-box__icon field-box__icon--pink">
+                        <i class="pi pi-image"></i>
+                      </div>
+                      <div class="field-box__content">
+                        <label>{{ 'admin.brands.form.logo_url' | translate }}</label>
+                        <input pInputText type="url" formControlName="logo_url" [placeholder]="'admin.brands.form.logo_placeholder' | translate">
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <!-- French Name -->
-            <div class="language-section">
-              <span class="language-flag">🇫🇷</span>
-              <div class="language-content">
-                <div class="language-header">
-                  <strong>{{ 'admin.brands.form.french_name' | translate }}</strong>
-                  <span class="required">*</span>
+            <div class="col-12 lg:col-6 item-animate" [style.animation-delay]="'100ms'">
+              <div class="form-card">
+                <div class="card-header">
+                  <div class="card-header__icon card-header__icon--success">
+                    <i class="pi pi-file-edit"></i>
+                  </div>
+                  <h3 class="card-header__title">{{ 'admin.brands.form.descriptions' | translate }}</h3>
                 </div>
-                <div class="admin-form-field">
-                  <input
-                    type="text"
-                    formControlName="name_fr"
-                    [placeholder]="'admin.brands.form.french_name' | translate">
-                  @if (brandForm.get('name_fr')?.invalid && brandForm.get('name_fr')?.touched) {
-                    <span class="field-error">{{ 'admin.brands.form.name_required' | translate }}</span>
-                  }
-                </div>
-              </div>
-            </div>
+                <div class="card-body">
+                  <div class="form-field">
+                    <div class="field-box align-items-start" [class.filled]="brandForm.get('description_en')?.value">
+                      <div class="field-box__icon field-box__icon--info">🇬🇧</div>
+                      <div class="field-box__content">
+                        <label>{{ 'admin.brands.form.english_description' | translate }}</label>
+                        <textarea pInputTextarea formControlName="description_en" rows="2" [placeholder]="'admin.brands.form.english_description' | translate"></textarea>
+                      </div>
+                    </div>
+                  </div>
 
-            <!-- Arabic Name -->
-            <div class="language-section">
-              <span class="language-flag">🇩🇿</span>
-              <div class="language-content">
-                <div class="language-header">
-                  <strong>{{ 'admin.brands.form.arabic_name' | translate }}</strong>
-                  <span class="required">*</span>
-                </div>
-                <div class="admin-form-field">
-                  <input
-                    type="text"
-                    formControlName="name_ar"
-                    dir="rtl"
-                    [placeholder]="'admin.brands.form.arabic_name' | translate">
-                  @if (brandForm.get('name_ar')?.invalid && brandForm.get('name_ar')?.touched) {
-                    <span class="field-error">{{ 'admin.brands.form.name_required' | translate }}</span>
-                  }
-                </div>
-              </div>
-            </div>
+                  <div class="form-field">
+                    <div class="field-box align-items-start" [class.filled]="brandForm.get('description_fr')?.value">
+                      <div class="field-box__icon field-box__icon--info">🇫🇷</div>
+                      <div class="field-box__content">
+                        <label>{{ 'admin.brands.form.french_description' | translate }}</label>
+                        <textarea pInputTextarea formControlName="description_fr" rows="2" [placeholder]="'admin.brands.form.french_description' | translate"></textarea>
+                      </div>
+                    </div>
+                  </div>
 
-            <!-- Logo URL -->
-            <div class="image-section">
-              <div class="section-label">
-                <i class="pi pi-image"></i>
-                <span>{{ 'admin.brands.form.logo' | translate }}</span>
-              </div>
-              <div class="image-field">
-                <div class="field-icon image">
-                  <i class="pi pi-link"></i>
-                </div>
-                <div class="field-content">
-                  <label>{{ 'admin.brands.form.logo_url' | translate }}</label>
-                  <input
-                    pInputText
-                    type="url"
-                    formControlName="logo_url"
-                    [placeholder]="'admin.brands.form.logo_placeholder' | translate">
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+                  <div class="form-field">
+                    <div class="field-box align-items-start" [class.filled]="brandForm.get('description_ar')?.value">
+                      <div class="field-box__icon field-box__icon--info">🇩🇿</div>
+                      <div class="field-box__content">
+                        <label>{{ 'admin.brands.form.arabic_description' | translate }}</label>
+                        <textarea pInputTextarea formControlName="description_ar" rows="2" dir="rtl" [placeholder]="'admin.brands.form.arabic_description' | translate"></textarea>
+                      </div>
+                    </div>
+                  </div>
 
-        <!-- Brand Descriptions Card -->
-        <div class="admin-form-card">
-          <div class="card-header">
-            <div class="card-icon description">
-              <i class="pi pi-file-edit"></i>
-            </div>
-            <h3>{{ 'admin.brands.form.descriptions' | translate }}</h3>
-          </div>
-          <div class="card-body">
-            <!-- English Description -->
-            <div class="language-section">
-              <span class="language-flag">🇬🇧</span>
-              <div class="language-content">
-                <div class="language-header">
-                  <strong>{{ 'admin.brands.form.english_description' | translate }}</strong>
+                  <div class="active-switch-container mt-5">
+                    <div
+                      class="active-switch"
+                      [class.active-switch--on]="brandForm.get('is_active')?.value"
+                      (click)="toggleActive()"
+                      (keydown.enter)="toggleActive()"
+                      (keydown.space)="toggleActive(); $event.preventDefault()"
+                      role="switch"
+                      [attr.aria-checked]="brandForm.get('is_active')?.value"
+                      [attr.aria-label]="'admin.brands.form.is_active' | translate"
+                      tabindex="0">
+                      <div class="active-switch__track">
+                        <div class="active-switch__thumb">
+                          <i [class]="brandForm.get('is_active')?.value ? 'pi pi-check' : 'pi pi-times'"></i>
+                        </div>
+                      </div>
+                      <div class="active-switch__label">
+                        <span class="active-switch__title">{{ 'admin.brands.form.is_active' | translate }}</span>
+                        <span class="active-switch__description">{{ brandForm.get('is_active')?.value ? ('admin.brands.form.brand_visible' | translate) : ('admin.brands.form.brand_hidden' | translate) }}</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div class="admin-form-field">
-                  <textarea
-                    formControlName="description_en"
-                    rows="2"
-                    [placeholder]="'admin.brands.form.english_description' | translate"
-                  ></textarea>
-                </div>
-              </div>
-            </div>
-
-            <!-- French Description -->
-            <div class="language-section">
-              <span class="language-flag">🇫🇷</span>
-              <div class="language-content">
-                <div class="language-header">
-                  <strong>{{ 'admin.brands.form.french_description' | translate }}</strong>
-                </div>
-                <div class="admin-form-field">
-                  <textarea
-                    formControlName="description_fr"
-                    rows="2"
-                    [placeholder]="'admin.brands.form.french_description' | translate"
-                  ></textarea>
-                </div>
-              </div>
-            </div>
-
-            <!-- Arabic Description -->
-            <div class="language-section">
-              <span class="language-flag">🇩🇿</span>
-              <div class="language-content">
-                <div class="language-header">
-                  <strong>{{ 'admin.brands.form.arabic_description' | translate }}</strong>
-                </div>
-                <div class="admin-form-field">
-                  <textarea
-                    formControlName="description_ar"
-                    rows="2"
-                    dir="rtl"
-                    [placeholder]="'admin.brands.form.arabic_description' | translate"
-                  ></textarea>
-                </div>
-              </div>
-            </div>
-
-            <!-- Active Status -->
-            <div class="settings-section">
-              <div class="admin-checkbox-field">
-                <p-checkbox
-                  formControlName="is_active"
-                  [binary]="true"
-                  inputId="is_active"
-                />
-                <label for="is_active">{{ 'admin.brands.form.is_active' | translate }}</label>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Form Actions -->
-      <div class="admin-form-actions">
-        <button
-          type="button"
-          class="cancel-btn"
-          (click)="onCancel()"
-          [disabled]="loading()">
-          {{ 'common.cancel' | translate }}
-        </button>
-        <button
-          type="submit"
-          class="submit-btn"
-          [disabled]="brandForm.invalid || loading()">
-          @if (loading()) {
-            <i class="pi pi-spin pi-spinner spinner"></i>
-          } @else {
-            <i class="pi pi-check"></i>
-          }
-          <span>{{ submitButtonLabel | translate }}</span>
-        </button>
+        <div class="form-wizard__footer">
+          <span class="chip chip--primary">
+            <i class="pi pi-bookmark"></i>
+            {{ 'common.brand' | translate }}
+          </span>
+          <div class="step-nav">
+            <button type="submit" class="step-nav__btn step-nav__btn--finish" [disabled]="brandForm.invalid || loading()">
+              @if (loading()) {
+                <i class="pi pi-spin pi-spinner"></i>
+              } @else {
+                <i class="pi pi-check"></i>
+              }
+              <span>{{ submitButtonLabel() | translate }}</span>
+            </button>
+          </div>
+        </div>
       </div>
     </form>
-  </div>
+  }
 
-  <!-- Loading Overlay -->
   @if (loading() && isEditMode()) {
     <div class="admin-loading-overlay">
       <div class="loading-content">
@@ -236,4 +201,5 @@
       </div>
     </div>
   }
-</div>
+
+</app-page-layout>

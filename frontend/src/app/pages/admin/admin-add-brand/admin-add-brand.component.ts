@@ -1,24 +1,22 @@
-// src/app/pages/admin/admin-add-brand/admin-add-brand.component.ts
-import { Component, OnInit, signal, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Component, OnInit, signal, inject, computed, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { ButtonModule } from 'primeng/button';
-import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
-import { CheckboxModule } from 'primeng/checkbox';
 import { ToastModule } from 'primeng/toast';
-import { CardModule } from 'primeng/card';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 
 import { ROUTES } from '../../../core/constants/routes.constants';
+import { ANIMATION, UI_DELAY, VALIDATION } from '../../../core/constants/app.constants';
 import { BrandService } from '../../../core/services/brand.service';
 import { Brand } from '../../../models/brand.model';
-import { VALIDATION } from '../../../core/constants/app.constants';
 import { AdminFormService } from '../../../core/services/admin-form.service';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
+import { PageLayoutComponent } from '../../../shared/components/page-layout/page-layout.component';
+
+const TRANSLATION_FIELDS = ['name', 'description'] as const;
 
 interface BrandWithTranslations extends Brand {
   name_translations?: { [key: string]: string };
@@ -29,47 +27,55 @@ interface BrandWithTranslations extends Brand {
   selector: 'app-admin-add-brand',
   standalone: true,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
-    ButtonModule,
-    DialogModule,
     InputTextModule,
     TextareaModule,
-    CheckboxModule,
     ToastModule,
-    CardModule,
-    TranslateModule
+    TranslateModule,
+    PageLayoutComponent
   ],
-    templateUrl: './admin-add-brand.component.html',
+  templateUrl: './admin-add-brand.component.html',
   styleUrl: './admin-add-brand.component.scss'
 })
 export class AdminAddBrandComponent implements OnInit {
-  visible = signal(false);
-  loading = signal(false);
+  private readonly toast = inject(ToastMessageService);
+  private readonly brandService = inject(BrandService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly adminFormService = inject(AdminFormService);
+  private readonly destroyRef = inject(DestroyRef);
+
   brandForm!: FormGroup;
 
-  isEditMode = signal(false);
-  editBrandId: number | null = null;
-  currentBrand: BrandWithTranslations | null = null;
+  readonly loading = signal(false);
+  readonly formInitialized = signal(false);
+  readonly isEditMode = signal(false);
+  private readonly editBrandId = signal<number | null>(null);
 
-  get pageTitle(): string {
-    return this.isEditMode() ? 'admin.brands.edit_brand' : 'admin.brands.add_brand';
+  readonly pageTitle = computed(() =>
+    this.isEditMode() ? 'admin.brands.edit_brand' : 'admin.brands.add_brand'
+  );
+
+  readonly pageSubtitle = computed(() =>
+    this.isEditMode() ? 'admin.brands.form.edit_subtitle' : 'admin.brands.form.add_subtitle'
+  );
+
+  readonly mobileSubtitle = computed(() =>
+    this.isEditMode() ? 'common.edit' : 'common.add'
+  );
+
+  readonly submitButtonLabel = computed(() =>
+    this.isEditMode() ? 'admin.brands.form.submit_update' : 'admin.brands.form.submit_add'
+  );
+
+  readonly ROUTES = ROUTES;
+
+  toggleActive(): void {
+    const control = this.brandForm.get('is_active');
+    control?.setValue(!control.value);
   }
 
-  get submitButtonLabel(): string {
-    return this.isEditMode() ? 'admin.brands.form.submit_update' : 'admin.brands.form.submit_add';
-  }
-
-  private fb = inject(FormBuilder);
-  private toast = inject(ToastMessageService);
-  private brandService = inject(BrandService);
-  private route = inject(ActivatedRoute);
-  private router = inject(Router);
-  private translateService = inject(TranslateService);
-  private adminFormService = inject(AdminFormService);
-
-  ngOnInit() {
-    // Use AdminFormService to build translation form
+  ngOnInit(): void {
     this.brandForm = this.adminFormService.buildTranslationFormGroup(
       [
         { name: 'name', required: true, minLength: VALIDATION.MIN_NAME_LENGTH },
@@ -79,74 +85,57 @@ export class AdminAddBrandComponent implements OnInit {
     );
 
     this.detectMode();
+    setTimeout(() => this.formInitialized.set(true), ANIMATION.NORMAL);
   }
 
-  detectMode() {
+  private detectMode(): void {
     const routeData = this.route.snapshot.data;
     if (routeData['mode'] === 'edit') {
       this.isEditMode.set(true);
     }
 
-    this.route.paramMap.subscribe(params => {
-      const id = params.get('id');
-      if (id) {
-        this.editBrandId = parseInt(id, 10);
-        this.isEditMode.set(true);
-        this.loadBrandForEdit();
-      }
-    });
+    this.route.paramMap
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(params => {
+        const id = params.get('id');
+        if (id) {
+          this.editBrandId.set(parseInt(id, 10));
+          this.isEditMode.set(true);
+          this.loadBrandForEdit();
+        }
+      });
   }
 
-  loadBrandForEdit() {
-    if (!this.editBrandId) return;
+  private loadBrandForEdit(): void {
+    const brandId = this.editBrandId();
+    if (!brandId) return;
 
     this.loading.set(true);
 
-    this.brandService.getBrand(this.editBrandId).subscribe({
-      next: (brand) => {
-        this.currentBrand = brand as BrandWithTranslations;
+    this.brandService.getBrand(brandId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (brand) => {
+          const brandWithTranslations = brand as BrandWithTranslations;
 
-        // Use AdminFormService to populate form with translations
-        this.adminFormService.populateFormWithTranslations(
-          this.brandForm,
-          this.currentBrand,
-          ['name', 'description'],
-          { logo_url: brand.logo_url || '', is_active: brand.is_active }
-        );
+          this.adminFormService.populateFormWithTranslations(
+            this.brandForm,
+            brandWithTranslations,
+            [...TRANSLATION_FIELDS],
+            { logo_url: brand.logo_url || '', is_active: brand.is_active }
+          );
 
-        this.loading.set(false);
-      },
-      error: () => {
-        this.loading.set(false);
-        this.toast.showError('admin.brands.load_error');
-        this.goBackToBrandsList();
-      }
-    });
+          this.loading.set(false);
+        },
+        error: () => {
+          this.loading.set(false);
+          this.toast.showError('brands.load_error');
+          this.router.navigate([ROUTES.ADMIN.BRANDS]);
+        }
+      });
   }
 
-  show() {
-    this.visible.set(true);
-    const resetValues = this.adminFormService.getTranslationFormResetValues(
-      ['name', 'description'],
-      { logo_url: '', is_active: true }
-    );
-    this.brandForm.reset(resetValues);
-  }
-
-  onCancel() {
-    if (!this.visible()) {
-      this.goBackToBrandsList();
-    } else {
-      this.visible.set(false);
-      this.brandForm.reset();
-    }
-  }
-
-  goBackToBrandsList() {
-    this.router.navigate([ROUTES.ADMIN.BRANDS]);
-  }
-
-  onSubmit() {
+  onSubmit(): void {
     if (this.brandForm.invalid) {
       this.brandForm.markAllAsTouched();
       return;
@@ -155,54 +144,51 @@ export class AdminAddBrandComponent implements OnInit {
     this.loading.set(true);
 
     const formValues = this.brandForm.value;
-
     const brandData = this.adminFormService.buildFormDataWithTranslations(
       formValues,
-      ['name', 'description'],
-      { logo_url: formValues.logo_url || null, is_active: formValues.is_active }
+      [...TRANSLATION_FIELDS],
+      { logo_url: formValues.logo_url || '', is_active: formValues.is_active }
     );
 
-    const isUpdate = this.isEditMode() && this.editBrandId;
-    const operation$ = isUpdate
-      ? this.brandService.updateBrand(this.editBrandId!, brandData)
-      : this.brandService.createBrand(brandData);
-
-    operation$.subscribe({
-      next: () => {
-        this.loading.set(false);
-        this.handleSuccess(isUpdate ? 'update' : 'create');
-      },
-      error: (error) => {
-        this.loading.set(false);
-        this.handleError(isUpdate ? 'update' : 'create', error);
-      }
-    });
-  }
-
-  private handleSuccess(operation: 'create' | 'update') {
-    const messageKey = operation === 'create'
-      ? 'admin.brands.create_success'
-      : 'admin.brands.update_success';
-
-    if (this.visible()) {
-      // Modal mode - close modal and reset
-      this.toast.showSuccess(messageKey);
-      this.visible.set(false);
-      const resetValues = this.adminFormService.getTranslationFormResetValues(
-        ['name', 'description'],
-        { logo_url: '', is_active: true }
-      );
-      this.brandForm.reset(resetValues);
+    const brandId = this.editBrandId();
+    if (this.isEditMode() && brandId) {
+      this.brandService.updateBrand(brandId, brandData)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: () => {
+            this.loading.set(false);
+            this.adminFormService.handleSuccess({
+              message: 'admin.brands.update_success',
+              redirectUrl: ROUTES.ADMIN.BRANDS,
+              redirectDelay: UI_DELAY.TOAST_BEFORE_NAVIGATE
+            });
+          },
+          error: (error) => {
+            this.loading.set(false);
+            this.adminFormService.handleError('update', error, {
+              updateMessage: 'admin.brands.update_failed'
+            });
+          }
+        });
     } else {
-      // Page mode - navigate back after delay
-      this.adminFormService.handleSuccessWithRedirect(messageKey, ROUTES.ADMIN.BRANDS);
+      this.brandService.createBrand(brandData)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: () => {
+            this.loading.set(false);
+            this.adminFormService.handleSuccess({
+              message: 'admin.brands.create_success',
+              redirectUrl: ROUTES.ADMIN.BRANDS,
+              redirectDelay: UI_DELAY.TOAST_BEFORE_NAVIGATE
+            });
+          },
+          error: (error) => {
+            this.loading.set(false);
+            this.adminFormService.handleError('create', error, {
+              createMessage: 'admin.brands.create_failed'
+            });
+          }
+        });
     }
-  }
-
-  private handleError(operation: 'create' | 'update', error: any) {
-    this.adminFormService.handleError(operation, error, {
-      createMessage: 'admin.brands.create_failed',
-      updateMessage: 'admin.brands.update_failed'
-    });
   }
 }

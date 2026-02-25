@@ -1425,6 +1425,8 @@
         "logo_help": "Facultatif : Fournissez une URL vers une image de logo pour cette marque",
         "is_active": "Marque active",
         "active_help": "Décochez pour masquer cette marque du filtre de marque",
+        "brand_visible": "La marque est visible dans la boutique",
+        "brand_hidden": "La marque est masquée de la boutique",
         "submit_add": "Ajouter la marque",
         "submit_update": "Mettre à jour la marque",
         "cancel": "Annuler",
