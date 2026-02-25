@@ -1,5 +1,10 @@
+/**
+ * @fileoverview Product List Component
+ * @description Displays products in grid or list view with filtering by category or brand,
+ * search functionality, and quantity selection overlay for adding items to cart.
+ */
+
 import { Component, computed, effect, inject, OnInit, signal, DestroyRef, ViewChild, ElementRef } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Observable, forkJoin, of } from 'rxjs';
@@ -21,7 +26,6 @@ import { ToastMessageService } from '../../../core/services/toast-message.servic
 import { UserPreferencesService, ViewMode } from '../../../core/services/user-preferences.service';
 import { OverlayService } from '../../../core/services/overlay.service';
 import { Product, Category, ProductFilter } from '../../../models/product.model';
-import { getDefaultQuantity } from '../../../shared/utils/quantity.utils';
 import { Brand } from '../../../models/brand.model';
 import { ProductCardComponent, AddToCartEvent, QuantitySelectorEvent } from '../components/product-card/product-card.component';
 import { isOutOfStock as checkOutOfStock, isLowStock as checkLowStock } from '../../../shared/utils/stock.utils';
@@ -39,7 +43,6 @@ export type SortOption = 'name_asc' | 'name_desc' | 'price_asc' | 'price_desc' |
   selector: 'app-product-list',
   standalone: true,
   imports: [
-    FormsModule,
     RouterLink,
     ToastModule,
     ButtonModule,
@@ -54,7 +57,7 @@ export type SortOption = 'name_asc' | 'name_desc' | 'price_asc' | 'price_desc' |
   styleUrls: ['./product-list.component.scss']
 })
 export class ProductListComponent implements OnInit {
-  // Services
+
   private route = inject(ActivatedRoute);
   private productService = inject(ProductService);
   private brandService = inject(BrandService);
@@ -68,54 +71,38 @@ export class ProductListComponent implements OnInit {
   protected searchService = inject(SearchService);
   private elementRef = inject(ElementRef);
   private overlayService = inject(OverlayService);
+  private destroyRef = inject(DestroyRef);
 
-  // State signals
   products = signal<Product[]>([]);
   categories = signal<Category[]>([]);
   brands = signal<Brand[]>([]);
   selectedCategories = signal<Category[]>([]);
-  appliedCategories = signal<Category[]>([]); // Actually applied filters
-  activeCategoryId = signal<number | null>(null); // For category bar - null means "All"
-  activeBrandId = signal<number | null>(null); // For brand filter - null means "All Brands"
-  filterMode = signal<'categories' | 'brands'>('categories'); // Toggle between categories and brands
+  activeCategoryId = signal<number | null>(null);
+  activeBrandId = signal<number | null>(null);
+  filterMode = signal<'categories' | 'brands'>('categories');
   loading = signal(true);
-  selectedSort = signal<SortOption>('name_asc'); // Always sort alphabetically
-  // Layout is now managed by UserPreferencesService
+  selectedSort = signal<SortOption>('name_asc');
   layout = computed(() => this.preferencesService.productViewMode());
   filters = signal<ProductFilter>({
     active_only: true,
     sort_by: 'name',
     sort_order: 'asc'
   });
-  productQuantities: { [key: number]: number } = {};
-  selectedBoxOptions: { [key: number]: BoxOption | null } = {};
 
-  // Quantity selector overlay - signals
+  selectedBoxOptions: { [key: number]: BoxOption | null } = {};
   showQuantitySelector = signal(false);
   activeProduct = signal<Product | null>(null);
   highlightedProductId = signal<number | null>(null);
-
-  // Animation key to trigger staggered animation on category change
   animationKey = signal(0);
-
-  // Mobile search overlay
   showMobileSearch = signal(false);
+
   @ViewChild('mobileSearchInput') mobileSearchInput?: ElementRef<HTMLInputElement>;
 
-  private destroyRef = inject(DestroyRef);
-
-  // Computed values
-  activeFilterCount = computed(() => {
-    const allCategoriesApplied = this.appliedCategories().length === this.categories().length;
-    const hasSearch = this.searchService.hasActiveSearch();
-    let count = 0;
-    if (!allCategoriesApplied && this.appliedCategories().length > 0) count++;
-    if (hasSearch) count++;
-    return count;
-  });
+  readonly animationDelayMs = ANIMATION.STAGGER_DELAY;
+  readonly skeletonGridItems = Array.from({ length: UI.SKELETON_GRID_COUNT }, (_, i) => i + 1);
+  readonly skeletonListItems = Array.from({ length: UI.SKELETON_LIST_COUNT }, (_, i) => i + 1);
 
   constructor() {
-    // React to sort changes
     effect(() => {
       const sortValue = this.selectedSort();
       if (!sortValue) return;
@@ -130,7 +117,6 @@ export class ProductListComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Subscribe to language changes - automatically cleaned up on destroy
     this.translationService.currentLanguage$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
@@ -138,7 +124,6 @@ export class ProductListComponent implements OnInit {
         this.loadBrands();
       });
 
-    // Subscribe to search service
     this.searchService.searchTriggered$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(query => {
@@ -146,19 +131,14 @@ export class ProductListComponent implements OnInit {
         this.loadProducts().subscribe();
       });
 
-    // Only call loadCategoriesAndProducts if language subscription hasn't already fired
-    // The BehaviorSubject emits immediately, so this is a fallback
     if (this.categories().length === 0) {
       this.loadCategoriesAndProducts();
     }
   }
 
-  // Mobile search overlay methods
   openMobileSearch(): void {
     this.showMobileSearch.set(true);
-    setTimeout(() => {
-      this.mobileSearchInput?.nativeElement?.focus();
-    }, UI.FOCUS_DELAY);
+    setTimeout(() => this.mobileSearchInput?.nativeElement?.focus(), UI.FOCUS_DELAY);
   }
 
   closeMobileSearch(): void {
@@ -188,109 +168,45 @@ export class ProductListComponent implements OnInit {
     const newMode = this.filterMode() === 'categories' ? 'brands' : 'categories';
     this.filterMode.set(newMode);
 
-    // Clear the OTHER mode's filter when switching
     if (newMode === 'categories') {
-      // Switching TO categories - clear brand filter
       this.filters.update(f => {
         const { brand_id, ...rest } = f;
         return rest;
       });
     } else {
-      // Switching TO brands - clear category filter and auto-select first brand if none selected
       this.filters.update(f => {
         const { category_id, ...rest } = f;
         return rest;
       });
 
-      // Auto-select first brand if no brand is currently selected
       if (!this.activeBrandId() && this.brands().length > 0) {
         this.activeBrandId.set(this.brands()[0].id);
       }
     }
 
-    // Reload products with the cleared filter
     this.loading.set(true);
     this.loadProducts().subscribe();
   }
 
-  // Category bar selection
   selectCategoryFromBar(categoryId: number | null): void {
-    if (categoryId === null) {
-      return; // No "All" option anymore
-    }
+    if (categoryId === null) return;
 
     this.activeCategoryId.set(categoryId);
 
-    // Single category selected
     const category = this.categories().find(c => c.id === categoryId);
     if (category) {
       this.selectedCategories.set([category]);
-      this.appliedCategories.set([category]);
     }
 
     this.reloadWithAnimation();
   }
 
-  // Scroll to top of product list
-  private scrollToTop(): void {
-    // Use setTimeout to ensure DOM has updated before scrolling
-    setTimeout(() => {
-      // The host element is the scroll container (via router-outlet + * { overflow-y: auto })
-      const hostElement = this.elementRef.nativeElement as HTMLElement;
-      hostElement.scrollTop = 0;
-    }, 0);
-  }
-
-  // Brand filter selection
   selectBrand(brandId: number | null): void {
-    if (brandId === null) {
-      return; // No "All" option anymore
-    }
+    if (brandId === null) return;
 
     this.activeBrandId.set(brandId);
-    this.filters.update(f => ({
-      ...f,
-      brand_id: brandId
-    }));
-
+    this.filters.update(f => ({ ...f, brand_id: brandId }));
     this.reloadWithAnimation();
-  }
-
-  applyFilters(): void {
-    // Update applied filters
-    this.appliedCategories.set([...this.selectedCategories()]);
-
-    this.loading.set(true);
-    this.loadProducts().subscribe();
-  }
-
-  clearFilters(): void {
-    this.filters.set({
-      active_only: true,
-      sort_by: 'name',
-      sort_order: 'asc'
-    });
-
-    // Set first category as default
-    const categories = this.categories();
-    if (categories.length > 0) {
-      this.activeCategoryId.set(categories[0].id);
-      this.selectedCategories.set([categories[0]]);
-      this.appliedCategories.set([categories[0]]);
-    }
-
-    this.activeBrandId.set(null);
-    this.searchService.clear();
-    this.selectedSort.set('name_asc');
-    this.loadProducts().subscribe();
-  }
-
-  hasActiveFilters(): boolean {
-    if (this.searchService.hasActiveSearch()) return true;
-
-    const allCategories = this.categories();
-    const selectedCategories = this.selectedCategories();
-    return allCategories.length > 0 && selectedCategories.length !== allCategories.length;
   }
 
   onAddToCart(event: AddToCartEvent): void {
@@ -305,38 +221,145 @@ export class ProductListComponent implements OnInit {
     return checkOutOfStock(product);
   }
 
+  isLowStock(product: Product): boolean {
+    return checkLowStock(product);
+  }
+
   getPackagingTypeForCount(product: Product, count: number): string {
     return this.packagingTypeService.getPackagingTypeForCount(product.packaging_type || 'carton', count);
   }
 
-  // Private methods
+  isProductInCart(productId: number): boolean {
+    return this.cartService.isProductInCart(productId);
+  }
+
+  getCartQuantity(productId: number): number {
+    return this.cartService.getProductQuantityInCart(productId);
+  }
+
+  getBoxOptions(product: Product): BoxOption[] {
+    return generateBoxOptions(product, this.currencyService);
+  }
+
+  getSelectedBoxOption(productId: number): BoxOption | null {
+    if (!this.selectedBoxOptions[productId]) {
+      const product = this.products().find(p => p.id === productId);
+      if (product) {
+        const options = this.getBoxOptions(product);
+        if (options.length > 0) {
+          this.selectedBoxOptions[productId] = options[0];
+        }
+      }
+    }
+    return this.selectedBoxOptions[productId] || null;
+  }
+
+  addToCartFromList(product: Product, event?: MouseEvent): void {
+    const option = this.selectedBoxOptions[product.id];
+    if (!option) return;
+
+    if (event) {
+      const button = event.currentTarget as HTMLElement;
+      this.flyToCartService.animate(button, product.image_url);
+    }
+
+    this.handleAddToCart(product, option.pieces);
+  }
+
+  openQuantitySelector(product: Product, event: Event): void {
+    event.stopPropagation();
+    this.activeProduct.set(product);
+    this.showQuantitySelector.set(true);
+    this.overlayService.open('quantity-overlay-open');
+
+    const cartQuantity = this.getCartQuantity(product.id);
+    const options = this.getBoxOptions(product);
+
+    if (cartQuantity > 0) {
+      const matchingOption = options.find(opt => opt.pieces === cartQuantity);
+      if (matchingOption) {
+        this.selectedBoxOptions[product.id] = matchingOption;
+      } else if (options.length > 0) {
+        this.selectedBoxOptions[product.id] = options[0];
+      }
+    } else if (!this.selectedBoxOptions[product.id] && options.length > 0) {
+      this.selectedBoxOptions[product.id] = options[0];
+    }
+  }
+
+  quantityMatchesCart(productId: number): boolean {
+    const selectedOption = this.selectedBoxOptions[productId];
+    const cartQuantity = this.getCartQuantity(productId);
+    return selectedOption ? selectedOption.pieces === cartQuantity : false;
+  }
+
+  closeQuantitySelector(): void {
+    this.showQuantitySelector.set(false);
+    this.activeProduct.set(null);
+    this.overlayService.close('quantity-overlay-open');
+  }
+
+  selectBoxOption(option: BoxOption): void {
+    const product = this.activeProduct();
+    if (product) {
+      this.selectedBoxOptions[product.id] = option;
+    }
+  }
+
+  confirmQuantitySelection(): void {
+    const productId = this.activeProduct()?.id;
+    this.closeQuantitySelector();
+
+    if (productId) {
+      setTimeout(() => {
+        this.highlightedProductId.set(productId);
+        setTimeout(() => this.highlightedProductId.set(null), ANIMATION.HIGHLIGHT_DURATION);
+      }, ANIMATION.HIGHLIGHT_DELAY);
+    }
+  }
+
+  getEffectivePrice(product: Product): number {
+    return calcEffectivePrice(product.price, product.promotion);
+  }
+
+  onImageError(event: Event): void {
+    (event.target as HTMLImageElement).src = DEFAULTS.PLACEHOLDER_IMAGE;
+  }
+
+  getProductImageUrl(product: Product): string {
+    return product.image_url || DEFAULTS.PLACEHOLDER_IMAGE;
+  }
+
+  getViewToggleIcon(): string {
+    return this.layout() === 'grid' ? 'pi pi-list' : 'pi pi-th-large';
+  }
+
+  getPiecesLabel(count: number): string {
+    return count === 1
+      ? 'products.product.quantity_selector.piece'
+      : 'products.product.quantity_selector.pieces';
+  }
+
   private loadCategoriesAndProducts(): void {
     this.productService.getCategories(true).subscribe({
       next: (categories) => {
         this.categories.set(categories);
 
-        // Set default category only on first load (no category selected yet)
         if (!this.activeCategoryId() && !this.activeBrandId() && categories.length > 0) {
           this.setDefaultCategory(categories);
         }
 
-        // Load all products to calculate counts
         this.updateCategoryCounts();
 
         this.route.queryParams.pipe(
           tap(params => {
-            // Handle URL params for direct navigation (bookmarks)
-            // Only apply if no selection has been made yet
             if (!this.activeCategoryId() && !this.activeBrandId()) {
-              // Handle brand param (takes priority, switches to brands mode)
               if (params['brand']) {
                 const brandId = Number(params['brand']);
                 this.filterMode.set('brands');
                 this.activeBrandId.set(brandId);
                 this.filters.update(f => ({ ...f, brand_id: brandId }));
-              }
-              // Handle category param
-              else if (params['category']) {
+              } else if (params['category']) {
                 const categoryId = Number(params['category']);
                 this.filterMode.set('categories');
                 this.filters.update(f => ({ ...f, category_id: categoryId }));
@@ -345,7 +368,6 @@ export class ProductListComponent implements OnInit {
                 if (selectedCategory) {
                   this.activeCategoryId.set(categoryId);
                   this.selectedCategories.set([selectedCategory]);
-                  this.appliedCategories.set([selectedCategory]);
                 }
               }
             }
@@ -377,33 +399,27 @@ export class ProductListComponent implements OnInit {
       this.filterMode.set('categories');
       this.activeCategoryId.set(firstCategory.id);
       this.selectedCategories.set([firstCategory]);
-      this.appliedCategories.set([firstCategory]);
     }
   }
 
   private loadProducts(): Observable<Product[]> {
     const currentMode = this.filterMode();
 
-    // In brands mode, use brand filter only (ignore category selection)
     if (currentMode === 'brands') {
       const currentFilters = { ...this.filters() };
-      // Ensure brand_id is set if we have an active brand
       if (this.activeBrandId()) {
         currentFilters.brand_id = this.activeBrandId()!;
       }
-      // Remove category_id since we're in brands mode
       delete currentFilters.category_id;
 
       return this.productService.getProducts(currentFilters).pipe(
         tap(products => {
           this.products.set(products);
-          this.initializeProductQuantities(products);
           this.loading.set(false);
         })
       );
     }
 
-    // In categories mode, use category filter only (ignore brand selection)
     const selectedCats = this.selectedCategories();
 
     if (selectedCats.length === 0) {
@@ -414,24 +430,20 @@ export class ProductListComponent implements OnInit {
 
     if (selectedCats.length === 1) {
       const currentFilters = { ...this.filters(), category_id: selectedCats[0].id };
-      // Remove brand_id since we're in categories mode
       delete currentFilters.brand_id;
 
       return this.productService.getProducts(currentFilters).pipe(
         tap(products => {
           this.products.set(products);
-          this.initializeProductQuantities(products);
           this.loading.set(false);
         })
       );
     }
 
-    // Multiple categories
     this.loading.set(true);
 
     const categoryObservables = selectedCats.map(category => {
       const categoryFilter = { ...this.filters(), category_id: category.id };
-      // Remove brand_id since we're in categories mode
       delete categoryFilter.brand_id;
       return this.productService.getProducts(categoryFilter);
     });
@@ -452,7 +464,6 @@ export class ProductListComponent implements OnInit {
 
         this.sortProducts(allProducts);
         this.products.set(allProducts);
-        this.initializeProductQuantities(allProducts);
         this.loading.set(false);
         return allProducts;
       })
@@ -461,10 +472,10 @@ export class ProductListComponent implements OnInit {
 
   private sortProducts(products: Product[]): void {
     const [sortBy, sortOrder] = this.selectedSort().split('_');
-    
+
     products.sort((a, b) => {
       let comparison = 0;
-      
+
       switch (sortBy) {
         case 'name':
           comparison = a.name.localeCompare(b.name);
@@ -476,7 +487,7 @@ export class ProductListComponent implements OnInit {
           comparison = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
           break;
       }
-      
+
       return sortOrder === 'asc' ? comparison : -comparison;
     });
   }
@@ -487,16 +498,6 @@ export class ProductListComponent implements OnInit {
     });
   }
 
-  /** Initialize default quantities for products that don't have one set */
-  private initializeProductQuantities(products: Product[]): void {
-    products.forEach(p => {
-      if (!this.productQuantities[p.id]) {
-        this.productQuantities[p.id] = getDefaultQuantity(p.pieces_per_box);
-      }
-    });
-  }
-
-  /** Common handler for filter selection: scroll, animate, and reload */
   private reloadWithAnimation(): void {
     this.scrollToTop();
     this.animationKey.update(k => k + 1);
@@ -504,9 +505,14 @@ export class ProductListComponent implements OnInit {
     this.loadProducts().subscribe();
   }
 
-  // Update category counts based on loaded products
+  private scrollToTop(): void {
+    setTimeout(() => {
+      const hostElement = this.elementRef.nativeElement as HTMLElement;
+      hostElement.scrollTop = 0;
+    }, 0);
+  }
+
   private updateCategoryCounts(): void {
-    // Load all products without filters to get total counts
     this.productService.getProducts({ active_only: true }).subscribe({
       next: (allProducts) => {
         const categories = this.categories();
@@ -518,145 +524,10 @@ export class ProductListComponent implements OnInit {
     });
   }
 
-  // Load brands
   private loadBrands(): void {
     this.brandService.getBrands(true).subscribe({
-      next: (brands) => {
-        this.brands.set(brands);
-      },
-      error: () => {
-        this.toast.showError('brands.error_loading');
-      }
+      next: (brands) => this.brands.set(brands),
+      error: () => this.toast.showError('brands.error_loading')
     });
-  }
-
-  isProductInCart(productId: number): boolean {
-    return this.cartService.isProductInCart(productId);
-  }
-
-  getCartQuantity(productId: number): number {
-    return this.cartService.getProductQuantityInCart(productId);
-  }
-
-  // Box options for list view dropdown - uses shared utility
-  getBoxOptions(product: Product): BoxOption[] {
-    return generateBoxOptions(product, this.currencyService);
-  }
-
-  getSelectedBoxOption(productId: number): BoxOption | null {
-    if (!this.selectedBoxOptions[productId]) {
-      const product = this.products().find(p => p.id === productId);
-      if (product) {
-        const options = this.getBoxOptions(product);
-        if (options.length > 0) {
-          this.selectedBoxOptions[productId] = options[0];
-        }
-      }
-    }
-    return this.selectedBoxOptions[productId] || null;
-  }
-
-  addToCartFromList(product: Product, event?: MouseEvent): void {
-    const option = this.selectedBoxOptions[product.id];
-    if (!option) return;
-
-    // Trigger fly-to-cart animation
-    if (event) {
-      const button = event.currentTarget as HTMLElement;
-      this.flyToCartService.animate(button, product.image_url);
-    }
-
-    this.handleAddToCart(product, option.pieces);
-  }
-
-  // Quantity selector overlay methods
-  openQuantitySelector(product: Product, event: Event): void {
-    event.stopPropagation();
-    this.activeProduct.set(product);
-    this.showQuantitySelector.set(true);
-    this.overlayService.open('quantity-overlay-open');
-
-    // Sync selection with cart quantity if product is in cart
-    const cartQuantity = this.getCartQuantity(product.id);
-    const options = this.getBoxOptions(product);
-
-    if (cartQuantity > 0) {
-      // Find matching box option for cart quantity
-      const matchingOption = options.find(opt => opt.pieces === cartQuantity);
-      if (matchingOption) {
-        this.selectedBoxOptions[product.id] = matchingOption;
-      } else if (options.length > 0) {
-        // Cart has custom quantity, default to first option
-        this.selectedBoxOptions[product.id] = options[0];
-      }
-    } else if (!this.selectedBoxOptions[product.id] && options.length > 0) {
-      // Not in cart, initialize to first option
-      this.selectedBoxOptions[product.id] = options[0];
-    }
-  }
-
-  // Check if selected quantity matches cart quantity
-  quantityMatchesCart(productId: number): boolean {
-    const selectedOption = this.selectedBoxOptions[productId];
-    const cartQuantity = this.getCartQuantity(productId);
-    return selectedOption ? selectedOption.pieces === cartQuantity : false;
-  }
-
-  closeQuantitySelector(): void {
-    this.showQuantitySelector.set(false);
-    this.activeProduct.set(null);
-    this.overlayService.close('quantity-overlay-open');
-  }
-
-  selectBoxOption(option: BoxOption): void {
-    const product = this.activeProduct();
-    if (product) {
-      this.selectedBoxOptions[product.id] = option;
-    }
-  }
-
-  confirmQuantitySelection(): void {
-    const productId = this.activeProduct()?.id;
-    this.closeQuantitySelector();
-    // Trigger highlight animation on cart button after overlay closes
-    if (productId) {
-      setTimeout(() => {
-        this.highlightedProductId.set(productId);
-        setTimeout(() => this.highlightedProductId.set(null), ANIMATION.HIGHLIGHT_DURATION);
-      }, ANIMATION.HIGHLIGHT_DELAY);
-    }
-  }
-
-  getEffectivePrice(product: Product): number {
-    return calcEffectivePrice(product.price, product.promotion);
-  }
-
-  // Template constants
-  readonly placeholderImage = DEFAULTS.PLACEHOLDER_IMAGE;
-  readonly animationDelayMs = ANIMATION.STAGGER_DELAY;
-  readonly skeletonGridItems = Array.from({ length: UI.SKELETON_GRID_COUNT }, (_, i) => i + 1);
-  readonly skeletonListItems = Array.from({ length: UI.SKELETON_LIST_COUNT }, (_, i) => i + 1);
-
-  // Template helpers
-  onImageError(event: Event): void {
-    (event.target as HTMLImageElement).src = DEFAULTS.PLACEHOLDER_IMAGE;
-  }
-
-  getProductImageUrl(product: Product): string {
-    return product.image_url || DEFAULTS.PLACEHOLDER_IMAGE;
-  }
-
-  getViewToggleIcon(): string {
-    return this.layout() === 'grid' ? 'pi pi-list' : 'pi pi-th-large';
-  }
-
-  getPiecesLabel(count: number): string {
-    return count === 1
-      ? 'products.product.quantity_selector.piece'
-      : 'products.product.quantity_selector.pieces';
-  }
-
-  isLowStock(product: Product): boolean {
-    return checkLowStock(product);
   }
 }
