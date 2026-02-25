@@ -117,13 +117,24 @@ export const ANIMATION = {
   FAST: 200,
   NORMAL: 300,
   SLOW: 500,
-  VERY_SLOW: 1000
+  VERY_SLOW: 1000,
+  STAGGER_DELAY: 50,
+  HIGHLIGHT_DELAY: 100,
+  HIGHLIGHT_DURATION: 800
 } as const;
 
 // UI Delays (milliseconds) - for user feedback before navigation
 export const UI_DELAY = {
   TOAST_BEFORE_NAVIGATE: 1500,  // Time for user to read success toast
   TOAST_BEFORE_REDIRECT: 2000   // Longer delay for important messages
+} as const;
+
+// UI Constants
+export const UI = {
+  SKELETON_GRID_COUNT: 8,
+  SKELETON_LIST_COUNT: 6,
+  SCROLL_THRESHOLD: 50,
+  FOCUS_DELAY: 100
 } as const;
 
 // Layout Breakpoints (pixels)
@@ -165,7 +176,8 @@ export const DEFAULTS = {
   LANGUAGE: 'en',
   CURRENCY: 'DZD',
   THEME: 'light',
-  PAGE_TITLE: 'AgroClik - Wholesale Food Platform'
+  PAGE_TITLE: 'AgroClik - Wholesale Food Platform',
+  PLACEHOLDER_IMAGE: 'assets/images/product-placeholder.png'
 } as const;
 
 // Regex Patterns

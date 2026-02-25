@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, OnInit, signal, OnDestroy, DestroyRef, ViewChild, ElementRef } from '@angular/core';
+import { Component, computed, effect, inject, OnInit, signal, DestroyRef, ViewChild, ElementRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -6,18 +6,14 @@ import { Observable, forkJoin, of } from 'rxjs';
 import { switchMap, tap, map } from 'rxjs/operators';
 
 import { ToastModule } from 'primeng/toast';
-import { TagModule } from 'primeng/tag';
 import { ButtonModule } from 'primeng/button';
-import { OverlayBadgeModule } from 'primeng/overlaybadge';
-import { TooltipModule } from 'primeng/tooltip';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 
 import { CartService } from '../../../services/cart.service';
 import { ProductService } from '../../../services/product.service';
 import { TranslationService } from '../../../services/translation.service';
 import { SearchService } from '../../../services/search.service';
 import { CurrencyService } from '../../../core/services/currency.service';
-import { UnitsService } from '../../../core/services/units.service';
 import { PackagingTypeService } from '../../../core/services/packaging-type.service';
 import { FlyToCartService } from '../../../core/services/fly-to-cart.service';
 import { BrandService } from '../../../core/services/brand.service';
@@ -28,22 +24,16 @@ import { Product, Category, ProductFilter } from '../../../models/product.model'
 import { getDefaultQuantity } from '../../../shared/utils/quantity.utils';
 import { Brand } from '../../../models/brand.model';
 import { ProductCardComponent, AddToCartEvent, QuantitySelectorEvent } from '../components/product-card/product-card.component';
-import { isOutOfStock as checkOutOfStock } from '../../../shared/utils/stock.utils';
+import { isOutOfStock as checkOutOfStock, isLowStock as checkLowStock } from '../../../shared/utils/stock.utils';
 import { getEffectivePrice as calcEffectivePrice } from '../../../shared/utils/discount.utils';
 import { generateBoxOptions, BoxOption } from '../../../shared/utils/box-options.utils';
-
-export type SortOption = 'name_asc' | 'name_desc' | 'price_asc' | 'price_desc' | 'created_at_desc';
-
-// Constants
-const PLACEHOLDER_IMAGE = 'assets/images/product-placeholder.png';
-const LOW_STOCK_THRESHOLD = 20;
-const ANIMATION_DELAY_MS = 50;
-const SKELETON_GRID_COUNT = 8;
-const SKELETON_LIST_COUNT = 6;
+import { DEFAULTS, ANIMATION, UI } from '../../../core/constants/app.constants';
 import { HorizontalFilterComponent } from '../../../shared/components/horizontal-filter/horizontal-filter.component';
 import { SearchInputComponent } from '../../../shared/components/search-input/search-input.component';
 import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
 import { UnitPipe } from '../../../shared/pipes/unit.pipe';
+
+export type SortOption = 'name_asc' | 'name_desc' | 'price_asc' | 'price_desc' | 'created_at_desc';
 
 @Component({
   selector: 'app-product-list',
@@ -52,10 +42,7 @@ import { UnitPipe } from '../../../shared/pipes/unit.pipe';
     FormsModule,
     RouterLink,
     ToastModule,
-    TagModule,
     ButtonModule,
-    OverlayBadgeModule,
-    TooltipModule,
     TranslateModule,
     ProductCardComponent,
     HorizontalFilterComponent,
@@ -66,17 +53,15 @@ import { UnitPipe } from '../../../shared/pipes/unit.pipe';
   templateUrl: './product-list.component.html',
   styleUrls: ['./product-list.component.scss']
 })
-export class ProductListComponent implements OnInit, OnDestroy {
+export class ProductListComponent implements OnInit {
   // Services
   private route = inject(ActivatedRoute);
   private productService = inject(ProductService);
   private brandService = inject(BrandService);
   private cartService = inject(CartService);
   private toast = inject(ToastMessageService);
-  private translateService = inject(TranslateService);
   private translationService = inject(TranslationService);
   protected currencyService = inject(CurrencyService);
-  protected unitsService = inject(UnitsService);
   private packagingTypeService = inject(PackagingTypeService);
   private flyToCartService = inject(FlyToCartService);
   private preferencesService = inject(UserPreferencesService);
@@ -92,7 +77,6 @@ export class ProductListComponent implements OnInit, OnDestroy {
   appliedCategories = signal<Category[]>([]); // Actually applied filters
   activeCategoryId = signal<number | null>(null); // For category bar - null means "All"
   activeBrandId = signal<number | null>(null); // For brand filter - null means "All Brands"
-  categoryBarExpanded = signal(true); // Category bar visibility
   filterMode = signal<'categories' | 'brands'>('categories'); // Toggle between categories and brands
   loading = signal(true);
   selectedSort = signal<SortOption>('name_asc'); // Always sort alphabetically
@@ -113,11 +97,6 @@ export class ProductListComponent implements OnInit, OnDestroy {
 
   // Animation key to trigger staggered animation on category change
   animationKey = signal(0);
-
-  // Mobile category bar - compact on scroll down, full on scroll up
-  compactCategoryBar = signal(false);
-  showMobileToolbar = signal(false);
-  private lastScrollY = 0;
 
   // Mobile search overlay
   showMobileSearch = signal(false);
@@ -167,11 +146,6 @@ export class ProductListComponent implements OnInit, OnDestroy {
         this.loadProducts().subscribe();
       });
 
-    // Set up scroll listener for mobile header (opposite of bottom nav)
-    if (typeof window !== 'undefined') {
-      window.addEventListener('scroll', this.handleScroll, { passive: true });
-    }
-
     // Only call loadCategoriesAndProducts if language subscription hasn't already fired
     // The BehaviorSubject emits immediately, so this is a fallback
     if (this.categories().length === 0) {
@@ -179,47 +153,12 @@ export class ProductListComponent implements OnInit, OnDestroy {
     }
   }
 
-  ngOnDestroy(): void {
-    // Subscriptions are automatically cleaned up by takeUntilDestroyed
-    if (typeof window !== 'undefined') {
-      window.removeEventListener('scroll', this.handleScroll);
-    }
-  }
-
-  // Scroll handler for mobile header - compact categories on scroll down, full on scroll up
-  private handleScroll = (): void => {
-    const currentScrollY = window.scrollY;
-    const scrollDifference = currentScrollY - this.lastScrollY;
-
-    if (currentScrollY <= 50) {
-      // At the top - full size categories
-      this.compactCategoryBar.set(false);
-    } else if (scrollDifference > 0) {
-      // Scrolling down - compact categories to save space
-      this.compactCategoryBar.set(true);
-    } else if (scrollDifference < 0) {
-      // Scrolling up - expand categories
-      this.compactCategoryBar.set(false);
-    }
-
-    this.lastScrollY = currentScrollY;
-  };
-
-  // Public methods for template
-  onCategoriesChange(categories: Category[]): void {
-    this.selectedCategories.set(categories);
-  }
-
-  toggleMobileToolbar(): void {
-    this.showMobileToolbar.update(v => !v);
-  }
-
   // Mobile search overlay methods
   openMobileSearch(): void {
     this.showMobileSearch.set(true);
     setTimeout(() => {
       this.mobileSearchInput?.nativeElement?.focus();
-    }, 100);
+    }, UI.FOCUS_DELAY);
   }
 
   closeMobileSearch(): void {
@@ -234,11 +173,6 @@ export class ProductListComponent implements OnInit, OnDestroy {
   clearMobileSearch(): void {
     this.searchService.clear();
     this.mobileSearchInput?.nativeElement?.focus();
-  }
-
-  onMobileSearchInput(event: Event): void {
-    const value = (event.target as HTMLInputElement).value;
-    this.searchService.setQuery(value);
   }
 
   onSearchInput(event: Event): void {
@@ -294,12 +228,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
       this.appliedCategories.set([category]);
     }
 
-    // Scroll to top and trigger animation
-    this.scrollToTop();
-    this.animationKey.update(k => k + 1);
-
-    this.loading.set(true);
-    this.loadProducts().subscribe();
+    this.reloadWithAnimation();
   }
 
   // Scroll to top of product list
@@ -324,20 +253,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
       brand_id: brandId
     }));
 
-    // Scroll to top and trigger animation
-    this.scrollToTop();
-    this.animationKey.update(k => k + 1);
-
-    this.loading.set(true);
-    this.loadProducts().subscribe();
-  }
-
-  isCategoryActive(categoryId: number | null): boolean {
-    return this.activeCategoryId() === categoryId;
-  }
-
-  toggleCategoryBar(): void {
-    this.categoryBarExpanded.update(v => !v);
+    this.reloadWithAnimation();
   }
 
   applyFilters(): void {
@@ -346,10 +262,6 @@ export class ProductListComponent implements OnInit, OnDestroy {
 
     this.loading.set(true);
     this.loadProducts().subscribe();
-  }
-
-  handleFiltersApplied(): void {
-    this.applyFilters();
   }
 
   clearFilters(): void {
@@ -391,36 +303,6 @@ export class ProductListComponent implements OnInit, OnDestroy {
 
   isOutOfStock(product: Product): boolean {
     return checkOutOfStock(product);
-  }
-
-
-  quickAddToCart(product: Product, event?: MouseEvent): void {
-    // Trigger fly-to-cart animation
-    if (event) {
-      const button = event.currentTarget as HTMLElement;
-      this.flyToCartService.animate(button, product.image_url);
-    }
-
-    const quantity = this.productQuantities[product.id] || 1;
-    this.handleAddToCart(product, quantity);
-  }
-
-  getProductQuantity(productId: number): number {
-    if (this.productQuantities[productId]) {
-      return this.productQuantities[productId];
-    }
-
-    // Find the product to get its pieces_per_box
-    const product = this.products().find(p => p.id === productId);
-    return getDefaultQuantity(product?.pieces_per_box);
-  }
-
-  setProductQuantity(productId: number, quantity: number): void {
-    this.productQuantities[productId] = quantity;
-  }
-
-  getLowStockMessage(product: Product): string {
-    return this.translateService.instant('products.stock.low_stock', { count: product.stock_quantity });
   }
 
   getPackagingTypeForCount(product: Product, count: number): string {
@@ -515,11 +397,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
       return this.productService.getProducts(currentFilters).pipe(
         tap(products => {
           this.products.set(products);
-          products.forEach(p => {
-            if (!this.productQuantities[p.id]) {
-              this.productQuantities[p.id] = getDefaultQuantity(p.pieces_per_box);
-            }
-          });
+          this.initializeProductQuantities(products);
           this.loading.set(false);
         })
       );
@@ -542,11 +420,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
       return this.productService.getProducts(currentFilters).pipe(
         tap(products => {
           this.products.set(products);
-          products.forEach(p => {
-            if (!this.productQuantities[p.id]) {
-              this.productQuantities[p.id] = getDefaultQuantity(p.pieces_per_box);
-            }
-          });
+          this.initializeProductQuantities(products);
           this.loading.set(false);
         })
       );
@@ -578,11 +452,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
 
         this.sortProducts(allProducts);
         this.products.set(allProducts);
-        allProducts.forEach(p => {
-          if (!this.productQuantities[p.id]) {
-            this.productQuantities[p.id] = getDefaultQuantity(p.pieces_per_box);
-          }
-        });
+        this.initializeProductQuantities(allProducts);
         this.loading.set(false);
         return allProducts;
       })
@@ -612,20 +482,26 @@ export class ProductListComponent implements OnInit, OnDestroy {
   }
 
   private handleAddToCart(product: Product, quantity: number): void {
-    // Use setCartQuantity to replace quantity (not add)
     this.cartService.setCartQuantity(product, quantity).subscribe({
-      next: () => {
-        // Animation handles the visual feedback
-      },
-      error: () => {
-        this.toast.showError('products.cart.error');
+      error: () => this.toast.showError('products.cart.error')
+    });
+  }
+
+  /** Initialize default quantities for products that don't have one set */
+  private initializeProductQuantities(products: Product[]): void {
+    products.forEach(p => {
+      if (!this.productQuantities[p.id]) {
+        this.productQuantities[p.id] = getDefaultQuantity(p.pieces_per_box);
       }
     });
   }
 
-  // Track by function for better performance
-  trackByProductId(_index: number, product: Product): number {
-    return product.id;
+  /** Common handler for filter selection: scroll, animate, and reload */
+  private reloadWithAnimation(): void {
+    this.scrollToTop();
+    this.animationKey.update(k => k + 1);
+    this.loading.set(true);
+    this.loadProducts().subscribe();
   }
 
   // Update category counts based on loaded products
@@ -654,41 +530,12 @@ export class ProductListComponent implements OnInit, OnDestroy {
     });
   }
 
-  increaseQuantity(productId: number): void {
-    const currentQty = this.getProductQuantity(productId);
-    const product = this.products().find(p => p.id === productId);
-    
-    if (product && currentQty < product.stock_quantity) {
-      this.setProductQuantity(productId, currentQty + 1);
-    }
-  }
-
-  decreaseQuantity(productId: number): void {
-    const currentQty = this.getProductQuantity(productId);
-    
-    if (currentQty > 1) {
-      this.setProductQuantity(productId, currentQty - 1);
-    }
-  }
-
   isProductInCart(productId: number): boolean {
     return this.cartService.isProductInCart(productId);
   }
 
   getCartQuantity(productId: number): number {
     return this.cartService.getProductQuantityInCart(productId);
-  }
-
-  getBoxQuantity(product: Product): number | null {
-    return product.pieces_per_box || null;
-  }
-
-  getBoxPrice(product: Product): number | null {
-    const boxQty = product.pieces_per_box;
-    if (boxQty) {
-      return calcEffectivePrice(product.price, product.promotion) * boxQty;
-    }
-    return null;
   }
 
   // Box options for list view dropdown - uses shared utility
@@ -707,10 +554,6 @@ export class ProductListComponent implements OnInit, OnDestroy {
       }
     }
     return this.selectedBoxOptions[productId] || null;
-  }
-
-  setSelectedBoxOption(productId: number, option: BoxOption): void {
-    this.selectedBoxOptions[productId] = option;
   }
 
   addToCartFromList(product: Product, event?: MouseEvent): void {
@@ -779,8 +622,8 @@ export class ProductListComponent implements OnInit, OnDestroy {
     if (productId) {
       setTimeout(() => {
         this.highlightedProductId.set(productId);
-        setTimeout(() => this.highlightedProductId.set(null), 800);
-      }, 100);
+        setTimeout(() => this.highlightedProductId.set(null), ANIMATION.HIGHLIGHT_DURATION);
+      }, ANIMATION.HIGHLIGHT_DELAY);
     }
   }
 
@@ -789,19 +632,18 @@ export class ProductListComponent implements OnInit, OnDestroy {
   }
 
   // Template constants
-  readonly placeholderImage = PLACEHOLDER_IMAGE;
-  readonly lowStockThreshold = LOW_STOCK_THRESHOLD;
-  readonly animationDelayMs = ANIMATION_DELAY_MS;
-  readonly skeletonGridItems = Array.from({ length: SKELETON_GRID_COUNT }, (_, i) => i + 1);
-  readonly skeletonListItems = Array.from({ length: SKELETON_LIST_COUNT }, (_, i) => i + 1);
+  readonly placeholderImage = DEFAULTS.PLACEHOLDER_IMAGE;
+  readonly animationDelayMs = ANIMATION.STAGGER_DELAY;
+  readonly skeletonGridItems = Array.from({ length: UI.SKELETON_GRID_COUNT }, (_, i) => i + 1);
+  readonly skeletonListItems = Array.from({ length: UI.SKELETON_LIST_COUNT }, (_, i) => i + 1);
 
   // Template helpers
   onImageError(event: Event): void {
-    (event.target as HTMLImageElement).src = PLACEHOLDER_IMAGE;
+    (event.target as HTMLImageElement).src = DEFAULTS.PLACEHOLDER_IMAGE;
   }
 
   getProductImageUrl(product: Product): string {
-    return product.image_url || PLACEHOLDER_IMAGE;
+    return product.image_url || DEFAULTS.PLACEHOLDER_IMAGE;
   }
 
   getViewToggleIcon(): string {
@@ -815,6 +657,6 @@ export class ProductListComponent implements OnInit, OnDestroy {
   }
 
   isLowStock(product: Product): boolean {
-    return product.stock_quantity < LOW_STOCK_THRESHOLD;
+    return checkLowStock(product);
   }
 }

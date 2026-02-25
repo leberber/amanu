@@ -13,7 +13,7 @@
             #mobileSearchInput
             type="text"
             [value]="searchService.query()"
-            (input)="onMobileSearchInput($event)"
+            (input)="onSearchInput($event)"
             (keyup.enter)="submitMobileSearch()"
             [placeholder]="'products.search.placeholder' | translate"
             class="mobile-search-input">
@@ -259,7 +259,7 @@
             (error)="onImageError($event)">
           <div class="quantity-overlay__product-info">
             <h4>{{ product.name }}</h4>
-            <span class="quantity-overlay__price">{{ getEffectivePrice(product) | appCurrency }} / {{ product.unit }}</span>
+            <span class="quantity-overlay__price">{{ getEffectivePrice(product) | appCurrency }} / {{ product.unit | appUnit }}</span>
           </div>
         </div>
         <button class="quantity-overlay__close" (click)="closeQuantitySelector()">
