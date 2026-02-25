@@ -24,6 +24,7 @@
     "name": "Nom",
     "description": "Description",
     "category": "Catégorie",
+    "brand": "Marque",
     "email": "Email",
     "password": "Mot de passe",
     "phone": "Téléphone",

@@ -65,13 +65,13 @@ export const routes: Routes = [
     path: 'admin/categories/add', 
     component: AdminAddCategoryComponent,
     canActivate: [adminGuard],
-    data: { mode: 'add' }
+    data: { mode: 'add', hideBottomNav: true }
   },
   {
     path: 'admin/categories/edit/:id',
     component: AdminAddCategoryComponent,
     canActivate: [adminGuard],
-    data: { mode: 'edit' }
+    data: { mode: 'edit', hideBottomNav: true }
   },
   // Brands Routes
   {
@@ -83,13 +83,13 @@ export const routes: Routes = [
     path: 'admin/brands/add',
     component: AdminAddBrandComponent,
     canActivate: [adminGuard],
-    data: { mode: 'add' }
+    data: { mode: 'add', hideBottomNav: true }
   },
   {
     path: 'admin/brands/edit/:id',
     component: AdminAddBrandComponent,
     canActivate: [adminGuard],
-    data: { mode: 'edit' }
+    data: { mode: 'edit', hideBottomNav: true }
   },
   // Promotions Routes
   {
