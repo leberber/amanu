@@ -326,6 +326,33 @@
     .form-wizard__footer {
       flex-shrink: 0;
     }
+
+    // Mobile: sticky header/footer with scrollable content
+    @media (max-width: 768px) {
+      min-height: auto;
+      height: calc(100vh - 64px); // Account for topbar
+      height: calc(100dvh - 64px);
+      border-radius: 0;
+      display: flex;
+      flex-direction: column;
+
+      .form-wizard__header {
+        flex-shrink: 0;
+      }
+
+      .form-wizard__body {
+        flex: 1;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        justify-content: flex-start;
+        padding-top: var(--space-4);
+      }
+
+      .form-wizard__footer {
+        flex-shrink: 0;
+        padding-bottom: calc(var(--space-5) + env(safe-area-inset-bottom, 0));
+      }
+    }
   }
 }
 
@@ -571,29 +598,29 @@
 
 @media (max-width: 768px) {
   .stepper-horizontal {
-    flex-direction: column;
-    gap: var(--space-5);
+    gap: var(--space-3);
 
     &__step {
-      width: 100%;
-      flex-direction: row;
+      gap: var(--space-3);
+    }
+
+    &__number {
+      width: 36px;
+      height: 36px;
+      font-size: var(--font-size-base);
+
+      .stepper-horizontal__step--active & {
+        transform: scale(1.05);
+      }
     }
 
     &__connector {
-      width: 2px;
-      height: 20px;
-      margin: var(--space-3) 0;
-      flex: none;
-    }
-
-    &__indicator {
-      flex-direction: row;
-      gap: var(--space-5);
+      width: 24px;
+      height: 2px;
     }
 
     &__label {
-      margin-top: 0;
-      text-align: left;
+      display: none;
     }
   }
 
@@ -602,6 +629,10 @@
     &__body,
     &__footer {
       padding: var(--space-5);
+    }
+
+    &__header {
+      padding: var(--space-4);
     }
   }
 }
