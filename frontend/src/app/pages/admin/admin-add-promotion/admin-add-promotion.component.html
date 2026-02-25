@@ -120,7 +120,7 @@
                 </div>
               </div>
 
-              <div class="col-12 lg:col-6 item-animate" [style.animation-delay]="'50ms'">
+              <div class="col-12 lg:col-6 item-animate" [style.animation-delay]="CARD_ANIMATION_DELAY + 'ms'">
                 <div class="form-card">
                   <div class="card-header">
                     <div class="card-header__icon card-header__icon--success">
@@ -148,7 +148,7 @@
                         </div>
                         <div class="field-box__content">
                           <label>{{ 'admin.promotions.form.discount_value' | translate }} <span class="required">*</span></label>
-                          <p-inputNumber formControlName="discount_value" [min]="0.01" [max]="maxDiscountValue()" [suffix]="discountSuffix()" styleClass="w-full" />
+                          <p-inputNumber formControlName="discount_value" [min]="MIN_DISCOUNT" [max]="maxDiscountValue()" [suffix]="discountSuffix()" styleClass="w-full" />
                         </div>
                       </div>
                       @if (promotionForm.get('discount_value')?.invalid && promotionForm.get('discount_value')?.touched) {
@@ -269,7 +269,7 @@
                         </div>
                         <div class="field-box__content">
                           <label>{{ 'admin.promotions.form.usage_limit' | translate }}</label>
-                          <p-inputNumber formControlName="usage_limit" [min]="1" styleClass="w-full" />
+                          <p-inputNumber formControlName="usage_limit" [min]="MIN_USAGE_LIMIT" styleClass="w-full" />
                         </div>
                       </div>
                       <span class="field-hint">{{ 'admin.promotions.form.usage_limit_hint' | translate }}</span>
@@ -278,7 +278,7 @@
                 </div>
               </div>
 
-              <div class="col-12 lg:col-6 item-animate" [style.animation-delay]="'50ms'">
+              <div class="col-12 lg:col-6 item-animate" [style.animation-delay]="CARD_ANIMATION_DELAY + 'ms'">
                 <div class="form-card">
                   <div class="card-header">
                     <div class="card-header__icon card-header__icon--orange">

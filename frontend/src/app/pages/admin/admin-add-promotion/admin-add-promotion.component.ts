@@ -12,7 +12,7 @@ import { ToastModule } from 'primeng/toast';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { ROUTES } from '../../../core/constants/routes.constants';
-import { ANIMATION, UI_DELAY } from '../../../core/constants/app.constants';
+import { ANIMATION, UI_DELAY, VALIDATION } from '../../../core/constants/app.constants';
 import { onLanguageChange } from '../../../core/utils/language-change.util';
 import { PromotionService } from '../../../services/promotion.service';
 import { ProductService } from '../../../services/product.service';
@@ -21,6 +21,7 @@ import { AdminFormService } from '../../../core/services/admin-form.service';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
 import { PageLayoutComponent } from '../../../shared/components/page-layout/page-layout.component';
 import { Promotion, PromotionCreate, PromotionUpdate } from '../../../models/promotion.model';
+import { Product } from '../../../models/product.model';
 import { Category } from '../../../models/category.model';
 import { Brand } from '../../../models/brand.model';
 
@@ -31,10 +32,14 @@ interface SelectOption {
 
 const DISCOUNT_TYPES = ['percentage', 'fixed_amount'] as const;
 const SCOPE_TYPES = ['global', 'category', 'brand', 'product'] as const;
+const DEFAULT_DISCOUNT_TYPE = DISCOUNT_TYPES[0];
+const DEFAULT_SCOPE = SCOPE_TYPES[0];
 const DEFAULT_DISCOUNT_VALUE = 10;
 const MIN_DISCOUNT = 0.01;
+const MIN_USAGE_LIMIT = 1;
 const MAX_PERCENTAGE = 100;
 const MAX_FIXED_AMOUNT = 999999;
+const CARD_ANIMATION_DELAY = 50;
 
 @Component({
   selector: 'app-admin-add-promotion',
@@ -120,10 +125,13 @@ export class AdminAddPromotionComponent implements OnInit {
   readonly showProductSelect = computed(() => this.currentScope() === 'product');
 
   readonly isStep1Valid = computed(() =>
-    this.nameValue().length >= 2 && this.discountValue() >= MIN_DISCOUNT
+    this.nameValue().length >= VALIDATION.MIN_NAME_LENGTH && this.discountValue() >= MIN_DISCOUNT
   );
 
   readonly ROUTES = ROUTES;
+  readonly MIN_DISCOUNT = MIN_DISCOUNT;
+  readonly MIN_USAGE_LIMIT = MIN_USAGE_LIMIT;
+  readonly CARD_ANIMATION_DELAY = CARD_ANIMATION_DELAY;
 
   ngOnInit(): void {
     this.initializeOptions();
@@ -157,12 +165,12 @@ export class AdminAddPromotionComponent implements OnInit {
     nextMonth.setMonth(nextMonth.getMonth() + 1);
 
     this.promotionForm = this.fb.group({
-      name: ['', [Validators.required, Validators.minLength(2)]],
+      name: ['', [Validators.required, Validators.minLength(VALIDATION.MIN_NAME_LENGTH)]],
       description: [''],
       code: ['', [Validators.pattern(/^[A-Z0-9_-]+$/i)]],
-      discount_type: ['percentage', Validators.required],
+      discount_type: [DEFAULT_DISCOUNT_TYPE, Validators.required],
       discount_value: [DEFAULT_DISCOUNT_VALUE, [Validators.required, Validators.min(MIN_DISCOUNT)]],
-      scope: ['global', Validators.required],
+      scope: [DEFAULT_SCOPE, Validators.required],
       category_id: [null],
       brand_id: [null],
       product_id: [null],
@@ -244,7 +252,7 @@ export class AdminAddPromotionComponent implements OnInit {
     this.productService.getProducts()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (products: any[]) => {
+        next: (products: Product[]) => {
           this.productOptions.set(products.map(p => ({ label: p.name, value: p.id })));
         }
       });
@@ -298,6 +306,8 @@ export class AdminAddPromotionComponent implements OnInit {
 
           this.currentScope.set(promotion.scope);
           this.currentDiscountType.set(promotion.discount_type);
+          this.nameValue.set(promotion.name);
+          this.discountValue.set(promotion.discount_value);
           this.loading.set(false);
         },
         error: () => {
