@@ -13,7 +13,7 @@
   @if (!formInitialized()) {
     <div class="mt-6">
       <div class="grid">
-        @for (i of [0, 1]; track $index) {
+        @for (_ of [0, 1]; track $index) {
           <div class="col-12 lg:col-6 item-animate" [style.animation-delay]="($index * 50) + 'ms'">
             <div class="skeleton-card form-card">
               <div class="card-header">
@@ -21,7 +21,7 @@
                 <div class="skeleton skeleton-text skeleton-text--w70"></div>
               </div>
               <div class="card-body">
-                @for (j of [0, 1, 2]; track $index) {
+                @for (_ of [0, 1, 2]; track $index) {
                   <div class="field-box mb-4">
                     <div class="skeleton skeleton-avatar"></div>
                     <div class="flex-1">
