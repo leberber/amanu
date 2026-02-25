@@ -1,6 +1,20 @@
 // =============================================================================
 // Account Component Styles
 // =============================================================================
+// Mobile: Hide icon and center title
+@media (max-width: 767px) {
+  :host ::ng-deep {
+    .page-topbar__icon--small {
+      display: none !important;
+    }
+
+    .page-topbar__mobile-text {
+      align-items: center !important;
+      text-align: center !important;
+    }
+  }
+}
+
 // Uses global styles from:
 // _components.scss:
 //   - .detail-content (layout)
@@ -34,54 +48,20 @@
 }
 
 // -----------------------------------------------------------------------------
-// Topbar User Info
+// Topbar Avatar (mobile only)
 // -----------------------------------------------------------------------------
-.topbar-user {
+.topbar-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-full);
+  background: var(--primary-gradient);
   display: flex;
   align-items: center;
-  gap: var(--space-3);
-
-  &__info {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    min-width: 0;
-  }
-
-  &__name {
-    font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-semibold);
-    color: var(--text-color);
-    line-height: 1.3;
-  }
-
-  &__email {
-    font-size: var(--font-size-xs);
-    color: var(--text-color-secondary);
-    line-height: 1.3;
-  }
-
-  &__avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: var(--radius-full);
-    background: var(--primary-gradient);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: var(--font-size-lg);
-    font-weight: var(--font-weight-bold);
-    color: var(--color-white);
-    flex-shrink: 0;
-    box-shadow: 0 2px 8px rgba(46, 108, 183, 0.3);
-  }
-}
-
-// Hide info on very small screens
-@media (max-width: 400px) {
-  .topbar-user__info {
-    display: none;
-  }
+  justify-content: center;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-white);
+  box-shadow: 0 2px 8px rgba(46, 108, 183, 0.3);
 }
 
 // -----------------------------------------------------------------------------

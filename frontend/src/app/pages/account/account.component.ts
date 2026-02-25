@@ -90,6 +90,9 @@ export class AccountComponent implements OnInit {
     return name?.charAt(0)?.toUpperCase() || 'U';
   });
 
+  // Page layout subtitle
+  pageSubtitle = computed(() => this.user()?.full_name || '');
+
   userRoleSeverity = computed(() => {
     const role = this.user()?.role;
     if (role === 'admin') return 'danger';

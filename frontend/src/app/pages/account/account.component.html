@@ -1,17 +1,16 @@
 <!-- src/app/pages/account/account.component.html -->
 <app-page-layout
   title="account.title"
+  [subtitle]="pageSubtitle()"
+  [mobileSubtitle]="pageSubtitle()"
+  icon="pi pi-user"
   [showBackButton]="true"
   [backRoute]="ROUTES.PRODUCTS"
   [fullscreen]="true">
 
-  <!-- User info in top bar -->
-  <div pageActions class="topbar-user">
-    <div class="topbar-user__info">
-      <span class="topbar-user__name">{{ user()?.full_name || 'User' }}</span>
-      <span class="topbar-user__email">{{ user()?.email }}</span>
-    </div>
-    <div class="topbar-user__avatar">
+  <!-- User avatar in top bar (mobile only) -->
+  <div pageActions class="md:hidden">
+    <div class="topbar-avatar">
       {{ userInitial() }}
     </div>
   </div>
