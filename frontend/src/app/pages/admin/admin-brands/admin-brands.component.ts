@@ -94,8 +94,12 @@ export class AdminBrandsComponent extends BaseAdminListComponent implements OnIn
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (brands) => {
-          this.allBrands.set(brands);
-          this.brands.set(brands);
+          // Sort by created_at descending (newest first)
+          const sorted = [...brands].sort((a, b) =>
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+          );
+          this.allBrands.set(sorted);
+          this.brands.set(sorted);
           this.loadProductCounts();
           this.updatePaginatedItems();
           this.loading = false;

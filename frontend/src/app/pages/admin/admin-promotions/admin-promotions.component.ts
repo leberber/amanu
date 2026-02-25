@@ -117,8 +117,12 @@ export class AdminPromotionsComponent extends BaseAdminListComponent implements 
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (promotions) => {
-          this.allPromotions.set(promotions);
-          this.promotions.set(promotions);
+          // Sort by created_at descending (newest first)
+          const sorted = [...promotions].sort((a, b) =>
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+          );
+          this.allPromotions.set(sorted);
+          this.promotions.set(sorted);
           this.updatePaginatedItems();
           this.loading = false;
           setTimeout(() => this.tableInitialized.set(true), 100);

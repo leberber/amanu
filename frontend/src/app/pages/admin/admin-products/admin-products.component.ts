@@ -465,8 +465,12 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (products) => {
-          this.allProducts.set(products);
-          this.products.set(products);
+          // Sort by created_at descending (newest first)
+          const sorted = [...products].sort((a, b) =>
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+          );
+          this.allProducts.set(sorted);
+          this.products.set(sorted);
           this.updatePaginatedItems();
           this.loading = false;
           setTimeout(() => this.tableInitialized.set(true), 100);

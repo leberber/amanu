@@ -779,6 +779,12 @@
   margin-left: var(--space-2);
 }
 
+// Required field indicator (red asterisk)
+.required {
+  color: var(--color-error);
+  font-weight: var(--font-weight-bold);
+}
+
 
 // =============================================================================
 // 19. FORM GRID (2-column layout for form fields)

@@ -71,7 +71,7 @@
                 <div class="field-box" [class.filled]="productForm.get('name_en')?.value">
                   <div class="field-box__icon field-box__icon--primary">🇬🇧</div>
                   <div class="field-box__content">
-                    <label>{{ 'admin.products.form.english_name' | translate }} *</label>
+                    <label>{{ 'admin.products.form.english_name' | translate }} <span class="required">*</span></label>
                     <input type="text" formControlName="name_en" [placeholder]="'admin.products.form.english_name' | translate">
                   </div>
                 </div>
@@ -85,7 +85,7 @@
                 <div class="field-box" [class.filled]="productForm.get('name_fr')?.value">
                   <div class="field-box__icon field-box__icon--primary">🇫🇷</div>
                   <div class="field-box__content">
-                    <label>{{ 'admin.products.form.french_name' | translate }} *</label>
+                    <label>{{ 'admin.products.form.french_name' | translate }} <span class="required">*</span></label>
                     <input type="text" formControlName="name_fr" [placeholder]="'admin.products.form.french_name' | translate">
                   </div>
                 </div>
@@ -99,7 +99,7 @@
                 <div class="field-box" [class.filled]="productForm.get('name_ar')?.value">
                   <div class="field-box__icon field-box__icon--primary">🇩🇿</div>
                   <div class="field-box__content">
-                    <label>{{ 'admin.products.form.arabic_name' | translate }} *</label>
+                    <label>{{ 'admin.products.form.arabic_name' | translate }} <span class="required">*</span></label>
                     <input type="text" formControlName="name_ar" dir="rtl" [placeholder]="'admin.products.form.arabic_name' | translate">
                   </div>
                 </div>
@@ -170,10 +170,6 @@
               <!-- Settings -->
               <div class="form-row mt-5 pt-5" style="border-top: var(--border-width) solid var(--border-color-light);">
                 <div class="checkbox-field">
-                  <p-checkbox formControlName="is_organic" [binary]="true" inputId="is_organic" />
-                  <label for="is_organic">{{ 'admin.products.form.is_organic' | translate }}</label>
-                </div>
-                <div class="checkbox-field">
                   <p-checkbox formControlName="is_active" [binary]="true" inputId="is_active" />
                   <label for="is_active">{{ 'admin.products.form.is_active' | translate }}</label>
                 </div>
@@ -200,7 +196,7 @@
                       <i class="pi pi-folder"></i>
                     </div>
                     <div class="field-box__content">
-                      <label>{{ 'admin.products.form.category' | translate }} *</label>
+                      <label>{{ 'admin.products.form.category' | translate }} <span class="required">*</span></label>
                       <p-select formControlName="category_id" [options]="categoryOptions()" optionLabel="label" optionValue="value" [placeholder]="'admin.products.form.category' | translate" styleClass="w-full" [loading]="categoriesLoading()" appendTo="body" />
                     </div>
                   </div>
@@ -224,14 +220,14 @@
               <!-- Price & Unit -->
               <div class="form-row mt-4">
                 <div class="admin-form-field">
-                  <label>{{ 'admin.products.form.price' | translate }} *</label>
+                  <label>{{ 'admin.products.form.price' | translate }} <span class="required">*</span></label>
                   <p-inputNumber formControlName="price" mode="currency" currency="EUR" locale="fr-FR" [placeholder]="'admin.products.form.price' | translate" styleClass="w-full" />
                   @if (productForm.get('price')?.invalid && productForm.get('price')?.touched) {
                     <span class="field-error">{{ 'admin.products.form.price_required' | translate }}</span>
                   }
                 </div>
                 <div class="admin-form-field">
-                  <label>{{ 'admin.products.form.unit' | translate }} *</label>
+                  <label>{{ 'admin.products.form.unit' | translate }} <span class="required">*</span></label>
                   <p-select formControlName="unit" [options]="getUnitOptions()" optionLabel="label" optionValue="value" [placeholder]="'admin.products.form.unit' | translate" styleClass="w-full" appendTo="body" />
                   @if (productForm.get('unit')?.invalid && productForm.get('unit')?.touched) {
                     <span class="field-error">{{ 'admin.products.form.unit_required' | translate }}</span>
@@ -286,7 +282,7 @@
                   </div>
                   <div class="field-box__content">
                     @if (isPackagingConfigured()) {
-                      <label>{{ 'admin.products.form.add_stock' | translate }} *</label>
+                      <label>{{ 'admin.products.form.add_stock' | translate }} <span class="required">*</span></label>
                       <div class="flex align-items-center gap-3">
                         <p-inputNumber [ngModel]="cartonsInput()" (ngModelChange)="onCartonsInputChange($event)" [ngModelOptions]="{standalone: true}" [min]="0" styleClass="w-full" />
                         <span class="chip chip--success">{{ getPackagingTypeLabel() }}</span>
@@ -295,7 +291,7 @@
                         {{ originalStock() }} + ({{ cartonsInput() }} × {{ getPiecesPerBox() }}) = <strong class="text-success">{{ getNewTotalStock() }}</strong>
                       </div>
                     } @else {
-                      <label>{{ 'admin.products.form.stock_quantity' | translate }} *</label>
+                      <label>{{ 'admin.products.form.stock_quantity' | translate }} <span class="required">*</span></label>
                       <p-inputNumber formControlName="stock_quantity" [placeholder]="'admin.products.form.configure_packaging_first' | translate" [min]="0" [disabled]="true" styleClass="w-full" />
                       <span class="field-hint">{{ 'admin.products.form.configure_packaging_hint' | translate }}</span>
                     }

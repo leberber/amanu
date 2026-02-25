@@ -99,7 +99,11 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
     this.loading = true;
     this.adminService.getAllUsers(1, 1000).subscribe({
       next: (response: UsersResponse) => {
-        this.allUsers = response.users || [];
+        const users = response.users || [];
+        // Sort by created_at descending (newest first)
+        this.allUsers = users.sort((a, b) =>
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        );
         this.filterItems();
         this.loading = false;
         setTimeout(() => this.tableInitialized.set(true), 100);

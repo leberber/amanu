@@ -92,8 +92,12 @@ export class AdminCategoriesComponent extends BaseAdminListComponent implements 
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (categories) => {
-          this.allCategories.set(categories);
-          this.categories.set(categories);
+          // Sort by created_at descending (newest first)
+          const sorted = [...categories].sort((a, b) =>
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+          );
+          this.allCategories.set(sorted);
+          this.categories.set(sorted);
           this.loadProductCounts();
           this.updatePaginatedItems();
           this.loading = false;
