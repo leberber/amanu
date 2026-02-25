@@ -13,6 +13,18 @@ export class PageLayoutComponent {
   // Page title - displayed in top bar (optional if using pageHeader slot)
   title = input<string>('');
 
+  // Subtitle - displayed below title on desktop
+  subtitle = input<string>('');
+
+  // Mobile short title (e.g., 'Produit' instead of 'Ajouter Nouveau Produit')
+  mobileTitle = input<string>('');
+
+  // Mobile short subtitle (e.g., 'ajouter')
+  mobileSubtitle = input<string>('');
+
+  // Icon class for desktop header (e.g., 'pi pi-box')
+  icon = input<string>('');
+
   // Back button configuration
   showBackButton = input(true);
   backRoute = input('/');

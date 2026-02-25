@@ -1,5 +1,14 @@
 <!-- src/app/pages/admin/admin-add-product/admin-add-product.component.html -->
-<div class="admin-page">
+<app-page-layout
+  [title]="pageTitle()"
+  [subtitle]="pageSubtitle()"
+  mobileTitle="common.product"
+  [mobileSubtitle]="mobileSubtitle()"
+  icon="pi pi-box"
+  [showBackButton]="true"
+  [backRoute]="ROUTES.ADMIN.PRODUCTS"
+  [fullscreen]="true">
+
   <!-- Background Decoration -->
   <div class="bg-decoration">
     <div class="blob blob-1"></div>
@@ -8,31 +17,6 @@
   </div>
 
   <p-toast></p-toast>
-
-  <div class="admin-content">
-    <!-- Page Header -->
-    <div class="admin-header">
-      <div class="header-content">
-        <div class="header-title">
-          <div class="admin-icon-wrapper admin-icon-wrapper--square">
-            <div class="icon-bg"></div>
-            <div class="icon-circle">
-              <i class="pi pi-box"></i>
-            </div>
-          </div>
-          <div class="title-text">
-            <h1>{{ pageTitle() | translate }}</h1>
-            <p>{{ currentStep() === 1 ? ('admin.products.form.step1_subtitle' | translate) : ('admin.products.form.step2_subtitle' | translate) }}</p>
-          </div>
-        </div>
-        <div class="flex align-items-center gap-3">
-          <button class="back-btn" (click)="onCancel()">
-            <i class="pi pi-arrow-left"></i>
-            <span>{{ 'common.back' | translate }}</span>
-          </button>
-        </div>
-      </div>
-    </div>
 
     <!-- Skeleton Loading State -->
     @if (!formInitialized()) {
@@ -413,14 +397,14 @@
     </form>
     }
 
-    <!-- Loading Overlay -->
-    @if (loading() && isEditMode()) {
-      <div class="admin-loading-overlay">
-        <div class="loading-content">
-          <i class="pi pi-spin pi-spinner"></i>
-          <span>{{ 'common.loading' | translate }}</span>
-        </div>
+  <!-- Loading Overlay -->
+  @if (loading() && isEditMode()) {
+    <div class="admin-loading-overlay">
+      <div class="loading-content">
+        <i class="pi pi-spin pi-spinner"></i>
+        <span>{{ 'common.loading' | translate }}</span>
       </div>
-    }
-  </div>
-</div>
+    </div>
+  }
+
+</app-page-layout>

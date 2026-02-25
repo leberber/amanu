@@ -100,6 +100,17 @@ export class AdminAddProductComponent implements OnInit {
     this.isEditMode() ? 'admin.products.form.submit_update' : 'admin.products.form.submit_add'
   );
 
+  readonly pageSubtitle = computed(() =>
+    this.currentStep() === 1 ? 'admin.products.form.step1_subtitle' : 'admin.products.form.step2_subtitle'
+  );
+
+  readonly mobileSubtitle = computed(() =>
+    this.isEditMode() ? 'common.edit' : 'common.add'
+  );
+
+  // Routes for navigation
+  readonly ROUTES = ROUTES;
+
   ngOnInit(): void {
     this.productForm = this.fb.group({
       name_en: ['', [Validators.required, Validators.minLength(VALIDATION.MIN_NAME_LENGTH)]],

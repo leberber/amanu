@@ -19,6 +19,7 @@
 // BEM Structure:
 // - .page-layout            : Main container (full viewport)
 // - .page-layout--fullscreen: Modifier for fullscreen pages (no bottom nav)
+// - .page-layout--enhanced  : Modifier for desktop enhanced layout (with icon)
 // - .page-topbar            : Fixed top bar
 // - .page-topbar__back      : Back button container
 // - .page-topbar__title     : Page title
@@ -28,6 +29,7 @@
 
 // Height variables
 $topbar-height: 64px;
+$topbar-height-enhanced: 80px;
 $bottom-nav-height: 70px;
 
 // -----------------------------------------------------------------------------
@@ -60,7 +62,7 @@ $bottom-nav-height: 70px;
   @media (max-width: 768px) {
     padding: 0;
     padding-top: var(--space-3);
-    margin: 0 ;
+    margin: 0;
   }
 }
 
@@ -78,14 +80,17 @@ $bottom-nav-height: 70px;
   position: relative;
   z-index: 10;
 
-  // Left section (back button)
+  // Left section (back button on mobile, icon+title on desktop)
   &__left {
     flex-shrink: 0;
     z-index: 2;
     min-width: 40px;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
   }
 
-  // Center section - absolutely positioned for true centering
+  // Center section - absolutely positioned for true centering (mobile only)
   &__center {
     position: absolute;
     left: 50%;
@@ -110,6 +115,75 @@ $bottom-nav-height: 70px;
     text-overflow: ellipsis;
   }
 
+  // Subtitle (desktop enhanced)
+  &__subtitle {
+    margin: 0.25rem 0 0 0;
+    font-size: 0.875rem;
+    color: var(--text-color-secondary);
+  }
+
+  // Title group (icon + text) - hidden on mobile
+  &__title-group {
+    display: none;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  // Icon wrapper (desktop enhanced)
+  &__icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: var(--primary-gradient);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(46, 108, 183, 0.25);
+    flex-shrink: 0;
+
+    i {
+      font-size: 1.25rem;
+      color: var(--color-white);
+    }
+
+    // Smaller icon for mobile center
+    &--small {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+
+      i {
+        font-size: 1rem;
+      }
+    }
+  }
+
+  // Mobile text group (in center)
+  &__mobile-text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    line-height: 1.2;
+  }
+
+  &__mobile-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-color);
+  }
+
+  &__mobile-subtitle {
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: var(--text-color-secondary);
+  }
+
+  // Text container
+  &__text {
+    display: flex;
+    flex-direction: column;
+  }
+
   // Right section (actions)
   &__right {
     display: flex;
@@ -129,6 +203,11 @@ $bottom-nav-height: 70px;
         font-size: 1.1rem;
       }
     }
+  }
+
+  // Desktop back button - hidden on mobile
+  &__back-desktop {
+    display: none;
   }
 }
 
@@ -171,6 +250,45 @@ $bottom-nav-height: 70px;
 
     &__title {
       font-size: 1.25rem;
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Enhanced Layout (Desktop with icon)
+// -----------------------------------------------------------------------------
+@media (min-width: 768px) {
+  .page-layout--enhanced {
+    .page-topbar {
+      min-height: $topbar-height-enhanced;
+      padding: 1rem 2rem;
+
+      // Hide mobile back button
+      &__back {
+        display: none;
+      }
+
+      // Hide centered title (now in title-group)
+      &__center {
+        display: none;
+      }
+
+      // Show title group
+      &__title-group {
+        display: flex;
+      }
+
+      // Enhanced title styling
+      &__title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+      }
+
+      // Show desktop back button
+      &__back-desktop {
+        display: flex;
+      }
     }
   }
 }

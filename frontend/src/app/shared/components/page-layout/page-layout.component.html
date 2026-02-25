@@ -1,9 +1,9 @@
 <!-- Page Layout - Consistent structure for all pages -->
-<div class="page-layout" [class.page-layout--fullscreen]="fullscreen()">
+<div class="page-layout" [class.page-layout--fullscreen]="fullscreen()" [class.page-layout--enhanced]="icon()">
 
   <!-- Top Bar - Back button and page title -->
   <header class="page-topbar">
-    <!-- Left: Back button -->
+    <!-- Left: Back button (mobile) / Icon + Title (desktop with icon) -->
     <div class="page-topbar__left">
       @if (showBackButton()) {
         <app-back-button
@@ -13,19 +13,55 @@
           class="page-topbar__back">
         </app-back-button>
       }
+
+      <!-- Desktop enhanced: Icon + Title group -->
+      @if (icon()) {
+        <div class="page-topbar__title-group">
+          <div class="page-topbar__icon">
+            <i [class]="icon()"></i>
+          </div>
+          <div class="page-topbar__text">
+            @if (title()) {
+              <h1 class="page-topbar__title">{{ title() | translate }}</h1>
+            }
+            @if (subtitle()) {
+              <p class="page-topbar__subtitle">{{ subtitle() | translate }}</p>
+            }
+          </div>
+        </div>
+      }
     </div>
 
-    <!-- Center: Title (absolutely centered) -->
+    <!-- Center: Title (mobile only, absolutely centered) -->
     <div class="page-topbar__center">
       <ng-content select="[pageHeader]"></ng-content>
-      @if (title()) {
+      @if (icon()) {
+        <!-- Mobile: icon + short title + short subtitle -->
+        <div class="page-topbar__icon page-topbar__icon--small">
+          <i [class]="icon()"></i>
+        </div>
+        <div class="page-topbar__mobile-text">
+          <span class="page-topbar__mobile-title">{{ (mobileTitle() || title()) | translate }}</span>
+          @if (mobileSubtitle()) {
+            <span class="page-topbar__mobile-subtitle">{{ mobileSubtitle() | translate }}</span>
+          }
+        </div>
+      } @else if (title()) {
         <h1 class="page-topbar__title">{{ title() | translate }}</h1>
       }
     </div>
 
-    <!-- Right: Actions -->
+    <!-- Right: Actions / Back button (desktop with icon) -->
     <div class="page-topbar__right">
       <ng-content select="[pageActions]"></ng-content>
+      @if (showBackButton() && icon()) {
+        <app-back-button
+          [route]="backRoute()"
+          [showLabel]="true"
+          [circular]="false"
+          class="page-topbar__back-desktop">
+        </app-back-button>
+      }
     </div>
   </header>
 
