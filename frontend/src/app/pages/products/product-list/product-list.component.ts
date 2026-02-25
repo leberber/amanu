@@ -4,7 +4,7 @@
  * search functionality, and quantity selection overlay for adding items to cart.
  */
 
-import { Component, computed, effect, inject, OnInit, signal, DestroyRef, ViewChild, ElementRef } from '@angular/core';
+import { Component, computed, inject, OnInit, signal, DestroyRef, ViewChild, ElementRef } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Observable, of } from 'rxjs';
@@ -36,8 +36,6 @@ import { HorizontalFilterComponent } from '../../../shared/components/horizontal
 import { SearchInputComponent } from '../../../shared/components/search-input/search-input.component';
 import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
 import { UnitPipe } from '../../../shared/pipes/unit.pipe';
-
-export type SortOption = 'name_asc' | 'name_desc' | 'price_asc' | 'price_desc' | 'created_at_desc';
 
 @Component({
   selector: 'app-product-list',
@@ -80,7 +78,6 @@ export class ProductListComponent implements OnInit {
   activeBrandId = signal<number | null>(null);
   filterMode = signal<'categories' | 'brands'>('categories');
   loading = signal(true);
-  selectedSort = signal<SortOption>('name_asc');
   layout = computed(() => this.preferencesService.productViewMode());
   filters = signal<ProductFilter>({
     active_only: true,
@@ -100,20 +97,6 @@ export class ProductListComponent implements OnInit {
   readonly animationDelayMs = ANIMATION.STAGGER_DELAY;
   readonly skeletonGridItems = Array.from({ length: UI.SKELETON_GRID_COUNT }, (_, i) => i + 1);
   readonly skeletonListItems = Array.from({ length: UI.SKELETON_LIST_COUNT }, (_, i) => i + 1);
-
-  constructor() {
-    effect(() => {
-      const sortValue = this.selectedSort();
-      if (!sortValue) return;
-
-      const [sortBy, sortOrder] = sortValue.split('_') as [string, string];
-      this.filters.update(f => ({
-        ...f,
-        sort_by: sortBy as 'name' | 'price' | 'created_at',
-        sort_order: sortOrder as 'asc' | 'desc'
-      }));
-    });
-  }
 
   ngOnInit(): void {
     this.translationService.currentLanguage$
