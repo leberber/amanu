@@ -6,7 +6,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TableModule } from 'primeng/table';
 import { ToastModule } from 'primeng/toast';
 import { TagModule } from 'primeng/tag';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { ROUTES, RouteHelpers } from '../../../core/constants/routes.constants';
 import { OrderService } from '../../../services/order.service';
@@ -50,6 +50,14 @@ export class OrderListComponent implements OnInit {
     this.orders().reduce((sum, order) => sum + order.total_amount, 0)
   );
 
+  // Page layout subtitle
+  pageSubtitle = computed(() => {
+    const count = this.orders().length;
+    if (count === 0) return '';
+    const orderWord = this.translateService.instant(count === 1 ? 'common.order' : 'common.orders');
+    return `${count} ${orderWord}`;
+  });
+
   // Route constants
   readonly ROUTES = ROUTES;
 
@@ -58,6 +66,7 @@ export class OrderListComponent implements OnInit {
   private router = inject(Router);
   private toast = inject(ToastMessageService);
   private statusSeverity = inject(StatusSeverityService);
+  private translateService = inject(TranslateService);
   private destroyRef = inject(DestroyRef);
 
   ngOnInit(): void {

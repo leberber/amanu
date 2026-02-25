@@ -100,6 +100,14 @@ export class CartComponent implements OnInit {
 
   cartItemCount = computed(() => this.cartItems().length);
 
+  // Page layout subtitle
+  pageSubtitle = computed(() => {
+    const count = this.cartItemCount();
+    if (count === 0) return '';
+    const itemWord = this.translateService.instant(count === 1 ? 'common.item' : 'common.items');
+    return `${count} ${itemWord}`;
+  });
+
   shippingCost = computed(() => 0);
 
   isShippingFree = computed(() => this.shippingCost() === 0);
