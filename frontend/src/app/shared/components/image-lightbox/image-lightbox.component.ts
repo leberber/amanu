@@ -1,6 +1,7 @@
 import { Component, inject, input, output, computed } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { UnitsService } from '../../../core/services/units.service';
+import { PackagingTypeService } from '../../../core/services/packaging-type.service';
 
 export interface LightboxDetails {
   label: string;
@@ -17,6 +18,7 @@ export interface LightboxDetails {
 export class ImageLightboxComponent {
   private translateService = inject(TranslateService);
   private unitsService = inject(UnitsService);
+  private packagingTypeService = inject(PackagingTypeService);
 
   // Inputs
   imageUrl = input<string | null>(null);
@@ -38,8 +40,7 @@ export class ImageLightboxComponent {
   packagingTypeDisplay = computed(() => {
     const type = this.packagingType();
     if (!type) return null;
-    const key = `products.product.packaging_types.${type.toLowerCase()}`;
-    return this.translateService.instant(key);
+    return this.packagingTypeService.getPackagingTypeTranslated(type);
   });
 
   // Computed - pieces per box display
@@ -61,9 +62,7 @@ export class ImageLightboxComponent {
     if (count === null || count === undefined) return null;
 
     const type = this.packagingType() || 'carton';
-    const suffix = count === 1 ? '' : '_plural';
-    const key = `products.product.packaging_types.${type.toLowerCase()}${suffix}`;
-    const typeDisplay = this.translateService.instant(key);
+    const typeDisplay = this.packagingTypeService.getPackagingTypeForCount(type, count);
     return `${count} ${typeDisplay}`;
   });
 

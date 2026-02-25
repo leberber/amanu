@@ -18,6 +18,7 @@ import { TranslationService } from '../../../services/translation.service';
 import { SearchService } from '../../../services/search.service';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { UnitsService } from '../../../core/services/units.service';
+import { PackagingTypeService } from '../../../core/services/packaging-type.service';
 import { FlyToCartService } from '../../../core/services/fly-to-cart.service';
 import { BrandService } from '../../../core/services/brand.service';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
@@ -71,6 +72,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
   private translationService = inject(TranslationService);
   protected currencyService = inject(CurrencyService);
   protected unitsService = inject(UnitsService);
+  private packagingTypeService = inject(PackagingTypeService);
   private flyToCartService = inject(FlyToCartService);
   private preferencesService = inject(UserPreferencesService);
   protected searchService = inject(SearchService);
@@ -411,11 +413,8 @@ export class ProductListComponent implements OnInit, OnDestroy {
     return this.translateService.instant('products.stock.low_stock', { count: product.stock_quantity });
   }
 
-  // Get packaging type based on count (singular or plural)
   getPackagingTypeForCount(product: Product, count: number): string {
-    const type = (product.packaging_type || 'carton').toLowerCase();
-    const suffix = count === 1 ? '' : '_plural';
-    return this.translateService.instant(`products.product.packaging_types.${type}${suffix}`);
+    return this.packagingTypeService.getPackagingTypeForCount(product.packaging_type || 'carton', count);
   }
 
   // Private methods

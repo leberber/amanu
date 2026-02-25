@@ -8,6 +8,7 @@ import { TagModule } from 'primeng/tag';
 
 import { Product } from '../../../../models/product.model';
 import { CurrencyService } from '../../../../core/services/currency.service';
+import { PackagingTypeService } from '../../../../core/services/packaging-type.service';
 import { FlyToCartService } from '../../../../core/services/fly-to-cart.service';
 import { CartService } from '../../../../services/cart.service';
 import { CurrencyPipe } from '../../../../shared/pipes/currency.pipe';
@@ -70,6 +71,7 @@ export class ProductCardComponent {
   private cartService = inject(CartService);
   private flyToCartService = inject(FlyToCartService);
   private translateService = inject(TranslateService);
+  private packagingTypeService = inject(PackagingTypeService);
 
   openQuantitySelector(event: Event): void {
     event.stopPropagation();
@@ -115,11 +117,8 @@ export class ProductCardComponent {
 
   selectedQuantity = computed(() => this.selectedBoxOption()?.pieces || this.piecesPerBox());
 
-  // Get packaging type based on count (singular or plural)
   getPackagingTypeForCount(count: number): string {
-    const type = (this.product().packaging_type || 'carton').toLowerCase();
-    const suffix = count === 1 ? '' : '_plural';
-    return this.translateService.instant(`products.product.packaging_types.${type}${suffix}`);
+    return this.packagingTypeService.getPackagingTypeForCount(this.product().packaging_type || 'carton', count);
   }
 
   addToCart(event: MouseEvent): void {

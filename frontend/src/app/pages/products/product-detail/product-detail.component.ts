@@ -18,6 +18,7 @@ import { ProductService } from '../../../services/product.service';
 import { CartService } from '../../../services/cart.service';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { UnitsService } from '../../../core/services/units.service';
+import { PackagingTypeService } from '../../../core/services/packaging-type.service';
 import { TranslationService } from '../../../services/translation.service';
 import { Product } from '../../../models/product.model';
 import { Brand } from '../../../models/brand.model';
@@ -66,6 +67,7 @@ export class ProductDetailComponent implements OnInit {
   private brandService = inject(BrandService);
   private destroyRef = inject(DestroyRef);
   private translateService = inject(TranslateService);
+  private packagingTypeService = inject(PackagingTypeService);
 
   // Constants
   readonly ROUTES = ROUTES;
@@ -147,22 +149,17 @@ export class ProductDetailComponent implements OnInit {
   // Packaging type display (singular)
   packagingType = computed(() => {
     this.currentLanguage(); // React to language changes
-    const currentProduct = this.product();
-    const type = (currentProduct?.packaging_type || 'carton').toLowerCase();
-    return this.translateService.instant(`products.product.packaging_types.${type}`);
+    return this.packagingTypeService.getPackagingTypeTranslated(this.product()?.packaging_type || 'carton');
   });
 
   // Packaging type display (plural)
   packagingTypePlural = computed(() => {
     this.currentLanguage(); // React to language changes
-    const currentProduct = this.product();
-    const type = (currentProduct?.packaging_type || 'carton').toLowerCase();
-    return this.translateService.instant(`products.product.packaging_types.${type}_plural`);
+    return this.packagingTypeService.getPackagingTypeTranslated(this.product()?.packaging_type || 'carton', true);
   });
 
-  // Get packaging type based on count (singular or plural)
   getPackagingTypeForCount(count: number): string {
-    return count === 1 ? this.packagingType() : this.packagingTypePlural();
+    return this.packagingTypeService.getPackagingTypeForCount(this.product()?.packaging_type || 'carton', count);
   }
 
   ngOnInit() {

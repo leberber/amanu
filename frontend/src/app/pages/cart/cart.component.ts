@@ -23,6 +23,7 @@ import { PageLayoutComponent } from '../../shared/components/page-layout/page-la
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { ImageLightboxComponent } from '../../shared/components/image-lightbox/image-lightbox.component';
 import { ToastMessageService } from '../../core/services/toast-message.service';
+import { PackagingTypeService } from '../../core/services/packaging-type.service';
 import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
 import { UnitPipe } from '../../shared/pipes/unit.pipe';
 import { getCartonCount as calcCartonCount } from '../../shared/utils/quantity.utils';
@@ -58,6 +59,7 @@ export class CartComponent implements OnInit {
   private toast = inject(ToastMessageService);
   private router = inject(Router);
   private translateService = inject(TranslateService);
+  private packagingTypeService = inject(PackagingTypeService);
   private currencyService = inject(CurrencyService);
   private translationService = inject(TranslationService);
   private promotionService = inject(PromotionService);
@@ -231,11 +233,8 @@ export class CartComponent implements OnInit {
     return item.pieces_per_box || 1;
   }
 
-  // Get packaging type label based on count (singular or plural)
   getPackagingTypeForCount(item: CartItem, count: number): string {
-    const type = (item.packaging_type || 'carton').toLowerCase();
-    const suffix = count === 1 ? '' : '_plural';
-    return this.translateService.instant(`products.product.packaging_types.${type}${suffix}`);
+    return this.packagingTypeService.getPackagingTypeForCount(item.packaging_type || 'carton', count);
   }
 
   proceedToCheckout(): void {

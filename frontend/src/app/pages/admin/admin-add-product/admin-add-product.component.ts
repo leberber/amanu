@@ -209,7 +209,7 @@ export class AdminAddProductComponent implements OnInit {
           is_organic: product.is_organic,
           is_active: product.is_active,
           pieces_per_box: product.pieces_per_box || null,
-          packaging_type: product.packaging_type?.toUpperCase() || null
+          packaging_type: product.packaging_type || null
         });
 
         // Store original stock for the formula display

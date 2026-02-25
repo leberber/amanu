@@ -13,35 +13,35 @@ export interface PackagingTypeConfig {
 export class PackagingTypeService {
   private translateService = inject(TranslateService);
 
-  // Configurable packaging types registry
+  // Configurable packaging types registry (lowercase to match backend)
   private packagingTypes: Map<string, PackagingTypeConfig> = new Map([
-    ['BOX', {
-      key: 'BOX',
+    ['box', {
+      key: 'box',
       display: 'Box',
       translationKey: 'products.product.packaging_types.box'
     }],
-    ['CARTON', {
-      key: 'CARTON',
+    ['carton', {
+      key: 'carton',
       display: 'Carton',
       translationKey: 'products.product.packaging_types.carton'
     }],
-    ['CRATE', {
-      key: 'CRATE',
+    ['crate', {
+      key: 'crate',
       display: 'Crate',
       translationKey: 'products.product.packaging_types.crate'
     }],
-    ['PACK', {
-      key: 'PACK',
+    ['pack', {
+      key: 'pack',
       display: 'Pack',
       translationKey: 'products.product.packaging_types.pack'
     }],
-    ['BAG', {
-      key: 'BAG',
+    ['bag', {
+      key: 'bag',
       display: 'Bag',
       translationKey: 'products.product.packaging_types.bag'
     }],
-    ['BUNDLE', {
-      key: 'BUNDLE',
+    ['bundle', {
+      key: 'bundle',
       display: 'Bundle',
       translationKey: 'products.product.packaging_types.bundle'
     }]
@@ -50,23 +50,37 @@ export class PackagingTypeService {
   /**
    * Get translated packaging type name
    * @param type - Packaging type key
+   * @param plural - Whether to use plural form
    * @returns Translated name
    */
-  getPackagingTypeTranslated(type: string): string {
-    const config = this.packagingTypes.get(type?.toUpperCase());
+  getPackagingTypeTranslated(type: string, plural = false): string {
+    const config = this.packagingTypes.get(type?.toLowerCase());
 
     if (!config) {
       return type || '';
     }
 
-    const translated = this.translateService.instant(config.translationKey);
+    const translationKey = plural
+      ? `${config.translationKey}_plural`
+      : config.translationKey;
+    const translated = this.translateService.instant(translationKey);
 
     // If translation not found, fallback to display value
-    if (translated === config.translationKey) {
+    if (translated === translationKey) {
       return config.display;
     }
 
     return translated;
+  }
+
+  /**
+   * Get packaging type label based on count (singular or plural)
+   * @param type - Packaging type key
+   * @param count - Quantity to determine singular/plural
+   * @returns Translated name in correct form
+   */
+  getPackagingTypeForCount(type: string, count: number): string {
+    return this.getPackagingTypeTranslated(type, count !== 1);
   }
 
   /**
@@ -97,6 +111,6 @@ export class PackagingTypeService {
    * @returns boolean
    */
   hasPackagingType(type: string): boolean {
-    return this.packagingTypes.has(type?.toUpperCase());
+    return this.packagingTypes.has(type?.toLowerCase());
   }
 }

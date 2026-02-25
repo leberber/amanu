@@ -94,8 +94,27 @@ export class ToastMessageService {
    * @param fallbackKey - Fallback translation key
    */
   showApiError(error: any, fallbackKey: string): void {
-    const detail = error.error?.detail || this.translateService.instant(fallbackKey);
-    this.showError(detail);
+    let detail: string;
+    const errorDetail = error.error?.detail;
+
+    if (typeof errorDetail === 'string') {
+      // Direct string message from API
+      detail = errorDetail;
+    } else if (Array.isArray(errorDetail) && errorDetail.length > 0) {
+      // FastAPI validation errors (422) - extract first error message
+      detail = errorDetail[0]?.msg || this.translateService.instant(fallbackKey);
+    } else {
+      // Fallback to translation key
+      detail = this.translateService.instant(fallbackKey);
+    }
+
+    // Show error with the extracted message (don't translate again if it's already a message)
+    this.messageService.add({
+      severity: 'error',
+      summary: this.translateService.instant('common.error'),
+      detail: detail,
+      life: this.DEFAULT_LIFE + 1000
+    });
   }
 
   /**
