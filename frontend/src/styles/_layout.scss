@@ -219,6 +219,124 @@
   gap: var(--space-4);
 }
 
+
+// ---------------------------------------------------------------------------
+// Sidebar
+// ---------------------------------------------------------------------------
+// Fixed sidebar for desktop viewport.
+
+.sidebar {
+  width: var(--sidebar-width);
+  height: 100vh;
+  background: var(--surface-card);
+  position: fixed;
+  inset-inline-start: 0;
+  top: 0;
+  z-index: var(--z-fixed);
+  border-inline-end: 1px solid rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar__content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: var(--space-3);
+  overflow-y: auto;
+}
+
+.sidebar__logo {
+  padding: var(--space-3);
+  margin-bottom: var(--space-4);
+  border-bottom: var(--border-width) solid var(--border-color-light);
+
+  img {
+    max-width: 10rem;
+    height: auto;
+  }
+}
+
+.sidebar__nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.sidebar__section {
+  margin-top: var(--space-4);
+  padding-top: var(--space-3);
+  border-top: var(--border-width) solid var(--border-color-light);
+}
+
+.sidebar__bottom {
+  margin-top: auto;
+  padding-top: var(--space-3);
+  border-top: var(--border-width) solid var(--border-color-light);
+}
+
+
+// ---------------------------------------------------------------------------
+// Mobile Drawer
+// ---------------------------------------------------------------------------
+// Slide-out drawer for mobile viewport.
+
+.drawer-container {
+  height: 100%;
+  background: var(--surface-card);
+  overflow: hidden;
+  position: relative;
+}
+
+.drawer-content {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  padding: var(--space-4);
+  padding-top: calc(var(--space-4) + env(safe-area-inset-top));
+  padding-bottom: calc(var(--space-4) + env(safe-area-inset-bottom));
+  max-width: 500px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-4);
+  padding-bottom: var(--space-3);
+  border-bottom: var(--border-width) solid var(--border-color-light);
+}
+
+.drawer-header__logo {
+  height: 2rem;
+  width: auto;
+}
+
+.drawer-header__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.drawer-body {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.drawer-footer {
+  margin-top: auto;
+  padding-top: var(--space-3);
+  border-top: var(--border-width) solid var(--border-color-light);
+}
+
+// Dark mode override
+.my-app-dark .drawer-container {
+  background: var(--surface-card);
+}
+
 .page-content {
   padding: var(--space-5);
 

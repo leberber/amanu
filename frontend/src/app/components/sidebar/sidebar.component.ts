@@ -62,10 +62,6 @@ export class SidebarComponent implements OnInit {
   });
   currentViewMode = computed(() => this.preferencesService.productViewMode());
 
-  // RTL support
-  isRtl = signal(document.documentElement.dir === 'rtl');
-  drawerPosition = computed(() => this.isRtl() ? 'right' : 'left');
-
   // Route constants for template
   readonly routes = ROUTES;
 
@@ -86,10 +82,9 @@ export class SidebarComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.buildNavItems());
 
-    // Rebuild nav on language change and update RTL
+    // Rebuild nav on language change
     onLanguageChange(this.translateService, this.destroyRef, () => {
       this.buildNavItems();
-      this.isRtl.set(document.documentElement.dir === 'rtl');
     });
 
     // Close drawer on navigation

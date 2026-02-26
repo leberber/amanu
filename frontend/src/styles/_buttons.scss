@@ -589,3 +589,172 @@
     border-color: transparent;
   }
 }
+
+
+// =============================================================================
+// 7. NAVIGATION LINK
+// =============================================================================
+// Clickable navigation links for sidebars and menus.
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  color: var(--text-color);
+  font-weight: var(--font-weight-medium);
+  transition: all var(--transition-fast);
+  margin: 0;
+
+  &:hover {
+    background: rgba(var(--primary-rgb), 0.08);
+    color: var(--primary-color);
+
+    .nav-link__icon i {
+      color: var(--primary-color);
+    }
+  }
+
+  &.active {
+    background: rgba(var(--primary-rgb), 0.12);
+    color: var(--primary-color);
+    font-weight: var(--font-weight-semibold);
+
+    .nav-link__icon {
+      background: var(--primary-gradient);
+
+      i {
+        color: var(--color-white) !important;
+      }
+    }
+  }
+}
+
+.nav-link__icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  background: var(--surface-100);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  flex-shrink: 0;
+
+  i {
+    font-size: var(--font-size-base);
+    color: var(--text-color-secondary);
+  }
+
+  &--sm {
+    width: 32px;
+    height: 32px;
+  }
+
+  &--lg {
+    width: 42px;
+    height: 42px;
+    border-radius: var(--radius-lg);
+  }
+}
+
+.nav-link__label {
+  flex: 1;
+}
+
+.nav-link__arrow {
+  opacity: 0.5;
+  font-size: var(--font-size-sm);
+  color: var(--text-color-secondary);
+  transition: all var(--transition-fast);
+}
+
+// Mobile variant - card style with glass effect
+.nav-link--mobile {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  border-radius: var(--radius-2xl);
+  border: var(--glass-border);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: var(--space-2);
+
+  .nav-link__icon {
+    width: 42px;
+    height: 42px;
+    border-radius: var(--radius-lg);
+    background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.1), rgba(var(--primary-rgb), 0.08));
+
+    i {
+      color: var(--primary-color);
+      font-size: var(--font-size-lg);
+    }
+  }
+
+  &:hover,
+  &.active {
+    background: var(--color-white);
+    border-color: rgba(var(--primary-rgb), 0.15);
+    box-shadow: var(--shadow-md);
+
+    .nav-link__icon {
+      background: var(--primary-gradient);
+
+      i {
+        color: var(--color-white);
+      }
+    }
+
+    .nav-link__arrow {
+      opacity: 1;
+      color: var(--primary-color);
+    }
+  }
+}
+
+// Dark mode override
+.my-app-dark .nav-link--mobile {
+  background: var(--surface-100);
+}
+
+
+// =============================================================================
+// 8. VIEW TOGGLE
+// =============================================================================
+// Toggle buttons for switching between list/grid views.
+
+.view-toggle {
+  display: flex;
+  background: var(--surface-100);
+  border-radius: var(--radius-md);
+  padding: 3px;
+
+  &__option {
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--text-color-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-fast);
+
+    &:hover:not(.active) {
+      background: var(--surface-200);
+    }
+
+    &.active {
+      background: var(--color-white);
+      color: var(--primary-color);
+      box-shadow: var(--shadow-sm);
+    }
+
+    i {
+      font-size: var(--font-size-base);
+    }
+  }
+}
