@@ -149,6 +149,27 @@
     opacity: 0.1;
     pointer-events: none;
   }
+
+  // Compact variant for dashboard KPI row
+  &--compact {
+    cursor: pointer;
+
+    .stat-card__value {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      font-size: var(--font-size-lg);
+    }
+
+    .stat-card__icon {
+      width: 36px;
+      height: 36px;
+
+      i {
+        font-size: var(--font-size-lg);
+      }
+    }
+  }
 }
 
 

@@ -297,22 +297,24 @@
 
         <!-- Sidebar - Stats (Desktop only) -->
         <div class="page-sidebar hidden md:flex">
-          <div class="stat-card">
-            <div class="stat-card__icon stat-card__icon--primary">
-              <i class="pi pi-shopping-bag"></i>
+          <div class="stat-card stat-card--compact">
+            <div class="stat-card__content">
+              <span class="stat-card__value">
+                <span class="stat-card__icon stat-card__icon--primary"><i class="pi pi-shopping-bag"></i></span>
+                {{ orders().length }}
+              </span>
+              <span class="stat-card__label">{{ 'orders.stats.total_orders' | translate }}</span>
             </div>
-            <span class="stat-card__value">{{ orders().length }}</span>
-            <span class="stat-card__label">{{ 'orders.stats.total_orders' | translate }}</span>
-            <div class="stat-card__decoration stat-card__decoration--primary"></div>
           </div>
 
-          <div class="stat-card">
-            <div class="stat-card__icon stat-card__icon--success">
-              <i class="pi pi-wallet"></i>
+          <div class="stat-card stat-card--compact">
+            <div class="stat-card__content">
+              <span class="stat-card__value">
+                <span class="stat-card__icon stat-card__icon--success"><i class="pi pi-wallet"></i></span>
+                {{ totalSpend() | appCurrency }}
+              </span>
+              <span class="stat-card__label">{{ 'orders.stats.total_spend' | translate }}</span>
             </div>
-            <span class="stat-card__value">{{ totalSpend() | appCurrency }}</span>
-            <span class="stat-card__label">{{ 'orders.stats.total_spend' | translate }}</span>
-            <div class="stat-card__decoration stat-card__decoration--success"></div>
           </div>
 
           <!-- Quick Actions Card -->
