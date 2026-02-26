@@ -2,7 +2,6 @@ import { Component, OnInit, inject, signal, computed, DestroyRef, effect } from 
 import { RouterLink, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { TableModule } from 'primeng/table';
 import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
 import { ButtonModule } from 'primeng/button';
@@ -37,7 +36,6 @@ const SKELETON_COUNT = 3;
   imports: [
     RouterLink,
     FormsModule,
-    TableModule,
     ToastModule,
     TooltipModule,
     TranslateModule,

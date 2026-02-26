@@ -773,6 +773,10 @@
     color: var(--text-color-secondary);
   }
 
+  &.clickable {
+    cursor: pointer;
+  }
+
   &--sm {
     width: 36px;
     height: 36px;
@@ -1068,6 +1072,15 @@
     display: flex;
     align-items: center;
     gap: var(--space-3);
+  }
+
+  &__total {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-bold);
+    color: var(--text-color);
+    white-space: nowrap;
+    min-width: 100px;
+    text-align: right;
   }
 }
 

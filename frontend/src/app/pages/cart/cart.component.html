@@ -75,7 +75,7 @@
         <div class="table-container scrollable">
           <div class="table-header">
             <div class="table-header__title">
-              <div class="card-header__icon card-header__icon--primary">
+              <div class="card-header__icon app-card__icon">
                 <i class="pi pi-shopping-cart"></i>
               </div>
               <span>{{ 'cart.your_items' | translate }}</span>
@@ -179,15 +179,15 @@
             @for (item of cartItems(); track item.id; let i = $index) {
               <div class="cart-item-mobile" [style.animation-delay]="(i * ANIMATION_DELAY) + 'ms'">
                 <div class="cart-item-mobile__row1">
-                  <div class="thumbnail" [class.clickable]="item.product_image" (click)="openImage(item)">
+                  <div class="cart-thumbnail" [class.clickable]="item.product_image" (click)="openImage(item)">
                     @if (item.product_image) {
                       <img [src]="item.product_image" [alt]="item.product_name" loading="lazy" appImageFallback>
                     } @else {
                       <i class="pi pi-box"></i>
                     }
                   </div>
-                  <div class="cart-item-mobile__name-row">
-                    <p class="cart-item-name">{{ item.product_name }}</p>
+                  <div class="cart-item-mobile__name">
+                    <span class="cart-item-mobile__title">{{ item.product_name }}</span>
                     @if (item.is_organic) {
                       <span class="badge organic">O</span>
                     }
@@ -222,7 +222,7 @@
                         (click)="updateItemQuantity(item.id, productQuantities[item.id] + getQuantityStep(item))">
                       </button>
                     </div>
-                    <span class="cart-item-total">{{ item.product_price * item.quantity | appCurrency }}</span>
+                    <span class="cart-item-mobile__total">{{ item.product_price * item.quantity | appCurrency }}</span>
                   </div>
                 </div>
               </div>
