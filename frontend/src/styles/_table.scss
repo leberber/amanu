@@ -609,7 +609,128 @@
 
 
 // =============================================================================
-// 12. ROW ANIMATION
+// 12. STATUS CELL (Order status inline editing)
+// =============================================================================
+
+.status-cell {
+  position: relative;
+}
+
+.status-display {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  cursor: default;
+
+  &.editable {
+    cursor: pointer;
+
+    &:hover .edit-hint {
+      opacity: 1;
+    }
+  }
+
+  &.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  .edit-hint {
+    font-size: var(--font-size-xs);
+    color: var(--text-color-secondary);
+    opacity: 0;
+    transition: opacity var(--transition-fast);
+  }
+}
+
+.status-edit {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: var(--surface-card);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  box-shadow: var(--shadow-lg);
+  white-space: nowrap;
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  margin-left: -35px;
+  z-index: 10;
+}
+
+.status-options {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.status-option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  transition: all var(--transition-fast);
+
+  i {
+    font-size: var(--font-size-xs);
+  }
+
+  &.confirmed {
+    background: rgba(59, 130, 246, 0.15);
+    color: #3b82f6;
+
+    &:hover {
+      background: rgba(59, 130, 246, 0.25);
+    }
+  }
+
+  &.shipped {
+    background: rgba(139, 92, 246, 0.15);
+    color: #8b5cf6;
+
+    &:hover {
+      background: rgba(139, 92, 246, 0.25);
+    }
+  }
+
+  &.delivered {
+    background: rgba(var(--color-success-rgb), 0.15);
+    color: var(--color-success);
+
+    &:hover {
+      background: rgba(var(--color-success-rgb), 0.25);
+    }
+  }
+
+  &.cancelled {
+    background: rgba(var(--color-error-rgb), 0.15);
+    color: var(--color-error);
+
+    &:hover {
+      background: rgba(var(--color-error-rgb), 0.25);
+    }
+  }
+
+  &.selected {
+    box-shadow: 0 0 0 2px currentColor;
+  }
+}
+
+.status-edit-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+
+// =============================================================================
+// 13. ROW ANIMATION
 // =============================================================================
 
 .table-row-animate {
