@@ -71,7 +71,7 @@
         <div class="form-wizard__body">
           <div class="grid-2-col">
             <!-- Left Section Skeleton -->
-            <div class="section-card">
+            <div class="card p-5">
               <div class="flex align-items-start gap-4 mb-5">
                 <div
                   class="skeleton"
@@ -104,7 +104,7 @@
             </div>
 
             <!-- Right Section Skeleton -->
-            <div class="section-card">
+            <div class="card p-5">
               <div class="flex align-items-start gap-4 mb-5">
                 <div
                   class="skeleton"
@@ -259,10 +259,10 @@
             @if (currentStep() === 1) {
               <div class="grid-2-col">
                 <!-- Left: Segment Selection -->
-                <div class="section-card">
+                <div class="card p-5">
                   <div class="flex align-items-start gap-4 mb-5">
-                    <div class="section-card__icon section-card__icon--purple">
-                      <i class="pi pi-users"></i>
+                    <div class="flex align-items-center justify-content-center w-3rem h-3rem border-round-lg flex-shrink-0" style="background: var(--purple-gradient);">
+                      <i class="pi pi-users text-xl text-white"></i>
                     </div>
                     <div>
                       <h3 class="text-lg font-semibold m-0">
@@ -315,10 +315,10 @@
                 </div>
 
                 <!-- Right: Location Filter -->
-                <div class="section-card">
+                <div class="card p-5">
                   <div class="flex align-items-start gap-4 mb-5">
-                    <div class="section-card__icon section-card__icon--blue">
-                      <i class="pi pi-map-marker"></i>
+                    <div class="flex align-items-center justify-content-center w-3rem h-3rem border-round-lg flex-shrink-0" style="background: var(--info-gradient);">
+                      <i class="pi pi-map-marker text-xl text-white"></i>
                     </div>
                     <div>
                       <h3 class="text-lg font-semibold m-0">
@@ -843,8 +843,8 @@
                   </div>
 
                   <!-- Schedule Option -->
-                  <div class="options-card">
-                    <div class="options-card__header">
+                  <div class="card card--no-hover">
+                    <div class="p-4">
                       <div class="flex align-items-center gap-3">
                         <p-checkbox
                           [ngModel]="scheduleEnabled()"
@@ -864,7 +864,7 @@
                     </div>
 
                     @if (scheduleEnabled()) {
-                      <div class="options-card__body">
+                      <div class="px-4 pb-4">
                         <p-datePicker
                           [ngModel]="scheduledDate()"
                           (ngModelChange)="scheduledDate.set($event)"
@@ -881,9 +881,9 @@
                   </div>
 
                   <!-- Summary Pills -->
-                  <div class="options-card p-5">
-                    <h4 class="options-card__title">
-                      <i class="pi pi-info-circle"></i>
+                  <div class="card card--no-hover p-5">
+                    <h4 class="flex align-items-center gap-2 text-sm font-semibold text-color-secondary uppercase m-0 mb-4" style="letter-spacing: 0.05em;">
+                      <i class="pi pi-info-circle text-primary"></i>
                       {{ "admin.notifications.summary" | translate }}
                     </h4>
                     <div class="flex flex-wrap gap-3">
@@ -1093,14 +1093,14 @@
                   </div>
 
                   <!-- Notification Summary -->
-                  <div class="options-card">
-                    <div class="options-card__header">
-                      <h4 class="options-card__title m-0">
-                        <i class="pi pi-bell"></i>
+                  <div class="card card--no-hover">
+                    <div class="p-4">
+                      <h4 class="flex align-items-center gap-2 text-sm font-semibold text-color-secondary uppercase m-0" style="letter-spacing: 0.05em;">
+                        <i class="pi pi-bell text-primary"></i>
                         {{ "admin.notifications.success.details" | translate }}
                       </h4>
                     </div>
-                    <div class="options-card__body">
+                    <div class="px-4 pb-4">
                       <div class="flex flex-column gap-4">
                         <div class="flex flex-column gap-1">
                           <span

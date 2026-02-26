@@ -55,9 +55,9 @@
 
         <!-- User Section -->
         @if (isLoggedIn()) {
-          <div class="user-card">
+          <div class="flex align-items-center gap-3 p-3 surface-100 border-round-xl">
             <div class="user-avatar">{{ userInitials() }}</div>
-            <span class="user-card__name">{{ currentUser()?.full_name }}</span>
+            <span class="font-semibold">{{ currentUser()?.full_name }}</span>
             <button class="icon-btn icon-btn-danger" (click)="logout()">
               <i class="pi pi-sign-out"></i>
             </button>
@@ -169,11 +169,11 @@
         <!-- User Section -->
         <div class="drawer-footer">
           @if (isLoggedIn()) {
-            <div class="user-card mb-3">
+            <div class="flex align-items-center gap-3 p-3 surface-100 border-round-xl mb-3">
               <div class="user-avatar">{{ userInitials() }}</div>
-              <div class="user-card__info">
-                <span class="user-card__name">{{ currentUser()?.full_name }}</span>
-                <span class="user-card__email">{{ currentUser()?.email }}</span>
+              <div class="flex flex-column flex-1" style="min-width: 0;">
+                <span class="font-semibold">{{ currentUser()?.full_name }}</span>
+                <span class="text-sm text-color-secondary">{{ currentUser()?.email }}</span>
               </div>
             </div>
             <button class="auth-btn auth-btn-danger w-full" (click)="logout()">
@@ -181,13 +181,13 @@
               <span>{{ 'common.logout' | translate }}</span>
             </button>
           } @else {
-            <div class="login-card">
-              <div class="login-card__icon">
-                <i class="pi pi-user"></i>
+            <div class="card text-center p-4">
+              <div class="flex align-items-center justify-content-center w-4rem h-4rem border-round-full mx-auto mb-3" style="background: var(--primary-gradient); box-shadow: 0 6px 20px rgba(var(--primary-rgb), 0.3);">
+                <i class="pi pi-user text-xl text-white"></i>
               </div>
-              <h3 class="login-card__title">{{ 'auth.welcome' | translate }}</h3>
-              <p class="login-card__text">{{ 'auth.signInMessage' | translate }}</p>
-              <div class="login-card__actions">
+              <h3 class="text-lg font-semibold m-0 mb-1">{{ 'auth.welcome' | translate }}</h3>
+              <p class="text-sm text-color-secondary m-0 mb-3">{{ 'auth.signInMessage' | translate }}</p>
+              <div class="flex flex-column gap-2">
                 <a [routerLink]="routes.LOGIN" class="auth-btn auth-btn-primary w-full" (click)="closeMobileDrawer()">
                   <span>{{ 'common.login' | translate }}</span>
                   <i class="pi pi-sign-in"></i>
