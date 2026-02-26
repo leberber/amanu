@@ -195,9 +195,25 @@
       grid-template-columns: 320px 1fr;
     }
   }
+
+  // Account/profile style: sidebar left, wider main right
+  &--account {
+    @media (min-width: 992px) {
+      grid-template-columns: 1fr 1.5fr;
+      gap: var(--space-5);
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+  }
 }
 
 .page-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.page-main {
   display: flex;
   flex-direction: column;
   gap: var(--space-4);

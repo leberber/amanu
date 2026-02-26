@@ -1533,7 +1533,11 @@
     "notifications_error": "تعذر تفعيل الإشعارات. يرجى التحقق من إعدادات المتصفح.",
     "settings": "الإعدادات",
     "product_display": "عرض المنتجات",
-    "product_display_hint": "اختر طريقة عرض المنتجات"
+    "product_display_hint": "اختر طريقة عرض المنتجات",
+    "view_mode": {
+      "list": "قائمة",
+      "grid": "شبكة"
+    }
   },
   "units": {
     "kg": "كيلوغرام",

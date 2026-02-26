@@ -548,3 +548,23 @@
     font-size: var(--font-size-base);
   }
 }
+
+
+// =============================================================================
+// 18. TOPBAR AVATAR
+// =============================================================================
+// User avatar badge for mobile topbar.
+
+.topbar-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-full);
+  background: var(--primary-gradient);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-white);
+  box-shadow: 0 2px 8px rgba(46, 108, 183, 0.3);
+}

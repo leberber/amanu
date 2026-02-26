@@ -1547,7 +1547,11 @@
     "notifications_error": "Could not enable notifications. Please check your browser settings.",
     "settings": "Settings",
     "product_display": "Product Display",
-    "product_display_hint": "Choose how to display products"
+    "product_display_hint": "Choose how to display products",
+    "view_mode": {
+      "list": "List",
+      "grid": "Grid"
+    }
   },
   "settings": {
     "title": "Settings",

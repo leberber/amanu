@@ -2,86 +2,16 @@
 // Account Component Styles
 // =============================================================================
 // Uses global styles from:
-// _components.scss:
-//   - .detail-content (layout)
-//   - .app-card, .app-card__header, .app-card__icon, .app-card__title, .app-card__content
-//   - .app-card__header-text, .app-card__subtitle
-//   - .app-card__icon--primary, .app-card__icon--warning
-//   - .info-items, .info-item, .info-item__icon, .info-item__content, .info-item__label, .info-item__value
-//   - .settings-items, .settings-item, .settings-item__icon, .settings-item__content, .settings-item__label
-//   - .logout-btn
-//   - @keyframes slideIn, .animate-slide-in
-// _inputs.scss:
-//   - .field-box, .field-box__icon, .field-box__content, .field-box__lock
-//   - .field-error, .field-hint
-//   - .form-grid, .form-field, .form-field--full
-//   - .form-actions
-// _buttons.scss:
-//   - .form-action-btn, .form-action-btn--success, .form-action-btn--warning
+// - _layout.scss: page-content, page-grid, page-sidebar, page-main
+// - _cards.scss: card, card-header, card-header__icon, card-header__title, card-body
+// - _lists.scss: info-items, info-item, settings-items, settings-item
+// - _badges.scss: topbar-avatar
+// - _inputs.scss: field-box, field-error, field-hint, form-grid, form-field, form-actions
+// - _buttons.scss: form-action-btn, logout-btn
 // =============================================================================
 
 // -----------------------------------------------------------------------------
-// Override detail-content for account page (enable scroll, reduce padding)
-// -----------------------------------------------------------------------------
-.detail-content {
-  overflow: visible !important;
-  height: auto !important;
-  padding: var(--space-4);
-
-  @media (min-width: 768px) {
-    padding: var(--space-5);
-  }
-}
-
-// -----------------------------------------------------------------------------
-// Topbar Avatar (mobile only)
-// -----------------------------------------------------------------------------
-.topbar-avatar {
-  width: 36px;
-  height: 36px;
-  border-radius: var(--radius-full);
-  background: var(--primary-gradient);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: var(--font-size-base);
-  font-weight: var(--font-weight-bold);
-  color: var(--color-white);
-  box-shadow: 0 2px 8px rgba(46, 108, 183, 0.3);
-}
-
-// -----------------------------------------------------------------------------
-// Account Grid
-// -----------------------------------------------------------------------------
-.account-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--space-5);
-  max-width: 1200px;
-  margin: 0 auto;
-
-  @media (min-width: 992px) {
-    grid-template-columns: 1fr 1.5fr;
-    align-items: start;
-  }
-}
-
-// Account Columns
-.account-column {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-5);
-}
-
-// -----------------------------------------------------------------------------
-// Account Info Card Animation
-// -----------------------------------------------------------------------------
-.account-info-card {
-  animation: slideIn 0.4s ease-out;
-}
-
-// -----------------------------------------------------------------------------
-// View Mode Toggle (SelectButton override)
+// PrimeNG View Mode Toggle (SelectButton override)
 // -----------------------------------------------------------------------------
 :host ::ng-deep {
   .view-mode-toggle {
@@ -121,6 +51,9 @@
   }
 }
 
+// -----------------------------------------------------------------------------
+// PrimeNG Password Field Override
+// -----------------------------------------------------------------------------
 :host ::ng-deep {
   .field-password {
     width: 100%;
@@ -152,7 +85,7 @@
 }
 
 // -----------------------------------------------------------------------------
-// Tag Override
+// PrimeNG Tag Override
 // -----------------------------------------------------------------------------
 :host ::ng-deep {
   .p-tag {
@@ -160,20 +93,5 @@
     font-weight: var(--font-weight-semibold);
     padding: var(--space-1) var(--space-3);
     border-radius: var(--radius-md);
-  }
-}
-
-// -----------------------------------------------------------------------------
-// Apply animation to cards
-// -----------------------------------------------------------------------------
-.app-card {
-  animation: slideIn 0.4s ease-out backwards;
-
-  &:nth-child(2) {
-    animation-delay: 0.1s;
-  }
-
-  &:nth-child(3) {
-    animation-delay: 0.2s;
   }
 }

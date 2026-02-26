@@ -565,3 +565,27 @@
     box-shadow: 0 0 0 0 rgba(var(--color-success-rgb, 34, 197, 94), 0);
   }
 }
+
+
+// =============================================================================
+// 6. LOGOUT BUTTON
+// =============================================================================
+
+.logout-btn {
+  @extend %btn-base;
+  width: 100%;
+  padding: var(--space-4) var(--space-6);
+  margin-top: var(--space-6);
+  background: rgba(var(--color-error-rgb), 0.1);
+  color: var(--color-error);
+  border: var(--border-width) solid rgba(var(--color-error-rgb), 0.2);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+
+  &:hover:not(:disabled) {
+    background: var(--btn-danger-gradient);
+    color: var(--color-white);
+    border-color: transparent;
+  }
+}

@@ -9,7 +9,7 @@ import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import { ToggleSwitch } from 'primeng/toggleswitch';
 import { SelectButtonModule } from 'primeng/selectbutton';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 
 import { ROUTES } from '../../core/constants/routes.constants';
 import { VALIDATION } from '../../core/constants/app.constants';
@@ -53,7 +53,6 @@ export class AccountComponent implements OnInit {
   private authService = inject(AuthService);
   private userService = inject(UserService);
   private toast = inject(ToastMessageService);
-  private translateService = inject(TranslateService);
   private formValidation = inject(ValidationMessagesService);
   private pushService = inject(PushService);
   private preferencesService = inject(UserPreferencesService);
@@ -64,8 +63,8 @@ export class AccountComponent implements OnInit {
 
   // View mode options for product display
   viewModeOptions = [
-    { label: 'Liste', value: 'list', icon: 'pi pi-list' },
-    { label: 'Grille', value: 'grid', icon: 'pi pi-th-large' }
+    { label: 'account.view_mode.list', value: 'list', icon: 'pi pi-list' },
+    { label: 'account.view_mode.grid', value: 'grid', icon: 'pi pi-th-large' }
   ];
 
   // Current view mode (bound to SelectButton)

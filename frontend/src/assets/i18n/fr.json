@@ -1545,7 +1545,11 @@
     "notifications_error": "Impossible d'activer les notifications. Veuillez vérifier les paramètres de votre navigateur.",
     "settings": "Paramètres",
     "product_display": "Affichage des Produits",
-    "product_display_hint": "Choisissez comment afficher les produits"
+    "product_display_hint": "Choisissez comment afficher les produits",
+    "view_mode": {
+      "list": "Liste",
+      "grid": "Grille"
+    }
   },
   "units": {
     "kg": "Kilogramme",

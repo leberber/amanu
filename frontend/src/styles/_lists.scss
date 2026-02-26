@@ -853,7 +853,155 @@
 
 
 // =============================================================================
-// 14. PRICE DISPLAY
+// 14. INFO ITEMS
+// =============================================================================
+// Vertical list of info items with icon, content, and optional action.
+// Used in account page, user profile, settings panels.
+
+.info-items {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4) 0;
+  border-bottom: var(--border-width) solid var(--border-color-light);
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &__icon {
+    width: var(--icon-lg);
+    height: var(--icon-lg);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    i {
+      font-size: var(--font-size-lg);
+    }
+
+    &--role {
+      background: rgba(var(--color-purple-rgb), 0.1);
+      i { color: var(--color-purple); }
+    }
+
+    &--date {
+      background: rgba(var(--color-info-rgb), 0.1);
+      i { color: var(--color-info); }
+    }
+
+    &--status {
+      background: rgba(var(--color-success-rgb), 0.1);
+      i { color: var(--color-success); }
+    }
+
+    &--notifications {
+      background: rgba(var(--color-warning-rgb), 0.1);
+      i { color: var(--color-warning); }
+    }
+  }
+
+  &__content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    min-width: 0;
+  }
+
+  &__label {
+    font-size: var(--font-size-sm);
+    color: var(--text-color-secondary);
+    font-weight: var(--font-weight-medium);
+  }
+
+  &__value {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-color);
+  }
+
+  &__hint {
+    font-size: var(--font-size-xs);
+    color: var(--text-color-secondary);
+  }
+
+  &__action {
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+}
+
+
+// =============================================================================
+// 15. SETTINGS ITEMS
+// =============================================================================
+// Settings list with icon, content, and toggle/action.
+
+.settings-items {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.settings-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4) 0;
+
+  &__icon {
+    width: var(--icon-lg);
+    height: var(--icon-lg);
+    border-radius: var(--radius-md);
+    background: rgba(var(--primary-rgb), 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    i {
+      font-size: var(--font-size-lg);
+      color: var(--primary-color);
+    }
+  }
+
+  &__content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    min-width: 0;
+  }
+
+  &__label {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-medium);
+    color: var(--text-color);
+  }
+
+  &__hint {
+    font-size: var(--font-size-xs);
+    color: var(--text-color-secondary);
+  }
+
+  &__action {
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+}
+
+
+// =============================================================================
+// 16. PRICE DISPLAY
 // =============================================================================
 // Price display for product detail, cart items, etc.
 
