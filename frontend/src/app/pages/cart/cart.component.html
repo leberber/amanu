@@ -75,10 +75,12 @@
         <div class="table-container">
           <div class="table-header">
             <div class="table-header__title">
-              <i class="pi pi-shopping-cart"></i>
+              <div class="card-header__icon card-header__icon--primary">
+                <i class="pi pi-shopping-cart"></i>
+              </div>
               <span>{{ 'cart.your_items' | translate }}</span>
-              <span class="count-badge">{{ cartItemCount() }}</span>
             </div>
+            <span class="count-badge count-badge--light">{{ cartItemCount() }}</span>
           </div>
 
           <!-- Desktop Table -->
@@ -86,7 +88,7 @@
             <p-table
               [value]="cartItems()"
               [scrollable]="true"
-              scrollHeight="60vh"
+              scrollHeight="flex"
               [tableStyle]="{'min-width':'100%'}">
 
               <ng-template pTemplate="header">
