@@ -18,7 +18,6 @@ import { VALIDATION, UI_DELAY } from '../../core/constants/app.constants';
 import { ToastMessageService } from '../../core/services/toast-message.service';
 import { PageLayoutComponent } from '../../shared/components/page-layout/page-layout.component';
 import { ImageLightboxComponent } from '../../shared/components/image-lightbox/image-lightbox.component';
-import { ErrorStateComponent } from '../../shared/components/error-state/error-state.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
 import { ImageFallbackDirective } from '../../shared/directives/image-fallback.directive';
@@ -34,7 +33,6 @@ import { getCartonDisplay } from '../../shared/utils/quantity.utils';
     TranslateModule,
     PageLayoutComponent,
     ImageLightboxComponent,
-    ErrorStateComponent,
     EmptyStateComponent,
     CurrencyPipe,
     ImageFallbackDirective
@@ -58,7 +56,6 @@ export class CheckoutComponent implements OnInit {
   // Constants
   readonly ROUTES = ROUTES;
   readonly SKELETON_ITEMS = [1, 2, 3];
-  readonly SKELETON_SIDEBAR_ITEMS = [1, 2, 3];
 
   // Form
   checkoutForm!: FormGroup;
@@ -68,7 +65,6 @@ export class CheckoutComponent implements OnInit {
   currentUser = signal<User | null>(null);
   isSubmitting = signal(false);
   loading = signal(true);
-  error = signal(false);
 
   // Computed from service
   cartItemCount = computed(() => this.cartItems().length);
@@ -76,6 +72,11 @@ export class CheckoutComponent implements OnInit {
   discountAmount = this.cartService.discountAmount;
   finalTotal = this.cartService.finalTotal;
   appliedPromotion = this.cartService.appliedPromotion;
+
+  // Computed form values for template
+  fullName = computed(() => this.checkoutForm?.get('fullName')?.value || '');
+  phone = computed(() => this.checkoutForm?.get('phone')?.value || '');
+  address = computed(() => this.checkoutForm?.get('address')?.value || '');
 
   ngOnInit(): void {
     this.initForm();
@@ -129,16 +130,6 @@ export class CheckoutComponent implements OnInit {
 
   closeImage(): void {
     this.lightbox.closeImage();
-  }
-
-  retryLoad(): void {
-    this.error.set(false);
-    this.loading.set(true);
-    this.loadCartItems();
-  }
-
-  goBack(): void {
-    this.router.navigate([ROUTES.CART]);
   }
 
   // Private methods
