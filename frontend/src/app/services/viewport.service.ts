@@ -1,4 +1,3 @@
-// src/app/services/viewport.service.ts
 import { Injectable, OnDestroy } from '@angular/core';
 
 @Injectable({
@@ -53,7 +52,7 @@ export class ViewportService implements OnDestroy {
         clearTimeout(scrollTimeout);
       }
 
-      // Only scroll when keyboard opens (viewport height decreases significantly)
+  
       const viewportHeight = viewport.height;
       const windowHeight = window.innerHeight;
 

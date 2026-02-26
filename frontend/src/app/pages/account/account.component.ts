@@ -1,4 +1,3 @@
-// src/app/pages/account/account.component.ts
 import { Component, OnInit, inject, signal, computed, DestroyRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';

@@ -1,16 +1,7 @@
-// src/app/shared/pipes/date-format.pipe.ts
 import { Pipe, PipeTransform, inject } from '@angular/core';
 import { DateService } from '../../core/services/date.service';
 
-/**
- * Pipe to format dates using DateService.
- *
- * Usage:
- * {{ dateString | appDate }}              -> 'DD/MM/YYYY HH:MM' (default)
- * {{ dateString | appDate:'dateOnly' }}   -> 'DD/MM/YYYY'
- * {{ dateString | appDate:'timeOnly' }}   -> 'HH:MM'
- * {{ dateString | appDate:'relative' }}   -> '2 hours ago'
- */
+
 @Pipe({
   name: 'appDate',
   standalone: true

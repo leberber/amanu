@@ -1,4 +1,3 @@
-// src/app/pages/orders/order-list/order-list.component.ts
 import { Component, OnInit, inject, signal, computed, DestroyRef } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';

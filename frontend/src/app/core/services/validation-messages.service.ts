@@ -3,22 +3,12 @@ import { AbstractControl, FormGroup } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { VALIDATION } from '../constants/app.constants';
 
-/**
- * Service to centralize form validation error messages
- * Provides consistent validation feedback across the application
- */
 @Injectable({
   providedIn: 'root'
 })
 export class ValidationMessagesService {
   private translateService = inject(TranslateService);
 
-  /**
-   * Get validation error message for a form control
-   * @param control - Form control to check
-   * @param fieldName - Field name for display
-   * @returns Error message or empty string
-   */
   getErrorMessage(control: AbstractControl | null, fieldName: string): string {
     if (!control || !control.errors || !control.touched) {
       return '';
@@ -80,12 +70,6 @@ export class ValidationMessagesService {
     return this.translateService.instant('validation.invalid', { field: fieldLabel });
   }
 
-  /**
-   * Get all error messages for a form control
-   * @param control - Form control to check
-   * @param fieldName - Field name for display
-   * @returns Array of error messages
-   */
   getAllErrorMessages(control: AbstractControl | null, fieldName: string): string[] {
     if (!control || !control.errors || !control.touched) {
       return [];
@@ -105,13 +89,6 @@ export class ValidationMessagesService {
     return messages;
   }
 
-  /**
-   * Get error message by error type
-   * @param errorType - Type of validation error
-   * @param errorValue - Error value/details
-   * @param fieldLabel - Translated field label
-   * @returns Error message
-   */
   private getErrorMessageByType(errorType: string, errorValue: any, fieldLabel: string): string {
     switch (errorType) {
       case 'required':
@@ -145,32 +122,15 @@ export class ValidationMessagesService {
     }
   }
 
-  /**
-   * Check if control has specific error
-   * @param control - Form control to check
-   * @param errorType - Error type to check for
-   * @returns True if control has the specified error
-   */
   hasError(control: AbstractControl | null, errorType: string): boolean {
     return !!(control && control.errors && control.errors[errorType] && control.touched);
   }
 
-  /**
-   * Check if a form field has a specific error and has been touched
-   * @param form - FormGroup instance
-   * @param fieldName - Name of the field
-   * @param errorType - Type of error to check for
-   * @returns boolean indicating if the error exists and field is touched
-   */
   hasFieldError(form: FormGroup, fieldName: string, errorType: string): boolean {
     const field = form.get(fieldName);
     return !!(field?.hasError(errorType) && field?.touched);
   }
 
-  /**
-   * Get password strength requirements message
-   * @returns Password requirements text
-   */
   getPasswordRequirements(): string {
     return this.translateService.instant('validation.password_requirements', {
       min: VALIDATION.MIN_PASSWORD_LENGTH

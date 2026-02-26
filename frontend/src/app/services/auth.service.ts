@@ -1,4 +1,3 @@
-// src/app/services/auth.service.ts - Fix login flow
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, tap, switchMap, map } from 'rxjs';
 import { ApiService } from './api.service';

@@ -1,4 +1,3 @@
-// src/app/app.component.ts
 import { Component, inject, OnInit, signal, DestroyRef, HostListener } from '@angular/core';
 import { Router, RouterOutlet, NavigationEnd } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -57,7 +56,7 @@ export class AppComponent implements OnInit {
   }
 
   private updateRouteData(): void {
-    // Get data from the deepest activated route snapshot
+
     let route = this.router.routerState.root;
     while (route.firstChild) {
       route = route.firstChild;
@@ -67,7 +66,7 @@ export class AppComponent implements OnInit {
 
   private updateNavigation(url: string): void {
     const isPublicRoute = this.publicRoutes.some(route => url.startsWith(route));
-    // Show navigation when not on public routes (for both auth and non-auth users)
+    
     this.showNavigation.set(!isPublicRoute);
   }
 }

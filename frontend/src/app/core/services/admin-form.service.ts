@@ -50,15 +50,11 @@ export class AdminFormService {
     return this.translationService.availableLanguages.map(lang => lang.code);
   }
 
-  /**
-   * Handle form submission success with optional redirect
-   * @param config - Success configuration
-   */
   handleSuccess(config: FormSuccessConfig): void {
     // Show success message
     this.toast.showSuccess(config.message);
 
-    // Handle redirect if specified
+
     if (config.redirectUrl) {
       const delay = config.redirectDelay ?? ANIMATION.VERY_SLOW;
       setTimeout(() => {
@@ -67,12 +63,6 @@ export class AdminFormService {
     }
   }
 
-  /**
-   * Handle form submission error
-   * @param operation - Operation type ('create' or 'update')
-   * @param error - Error object
-   * @param config - Error configuration
-   */
   handleError(operation: 'create' | 'update', error: any, config?: FormErrorConfig): void {
     console.error(`Error ${operation}ing:`, error);
 
@@ -92,12 +82,6 @@ export class AdminFormService {
     this.toast.showApiError(error, fallbackKey);
   }
 
-  /**
-   * Create a translation object from form values
-   * @param formValues - Form values containing language fields
-   * @param fieldName - Base field name (e.g., 'name', 'description')
-   * @returns Translation object
-   */
   createTranslationObject(formValues: any, fieldName: string): TranslationObject {
     const translations: TranslationObject = {};
     this.LANGUAGES.forEach(lang => {
@@ -106,13 +90,6 @@ export class AdminFormService {
     return translations;
   }
 
-  /**
-   * Build form data with translation objects
-   * @param formValues - Raw form values
-   * @param translationFields - Array of field names that need translation objects
-   * @param additionalData - Additional data to merge
-   * @returns Formatted data object
-   */
   buildFormDataWithTranslations(
     formValues: any, 
     translationFields: string[], 
@@ -120,9 +97,8 @@ export class AdminFormService {
   ): any {
     const data: any = { ...additionalData };
     
-    // Process translation fields
     translationFields.forEach(fieldName => {
-      // Use English as primary field value
+
       data[fieldName] = formValues[`${fieldName}_en`] || '';
       
       // Create translation object
@@ -131,7 +107,7 @@ export class AdminFormService {
     
     // Copy non-translation fields
     Object.keys(formValues).forEach(key => {
-      // Skip if it's a translation field (ends with _en, _fr, _ar)
+      
       if (!key.match(/_(?:en|fr|ar)$/)) {
         data[key] = formValues[key];
       }
@@ -140,12 +116,6 @@ export class AdminFormService {
     return data;
   }
 
-  /**
-   * Reset form with default values
-   * @param form - Form to reset
-   * @param defaults - Default values
-   * @param translationFields - Fields that need translation defaults
-   */
   resetFormWithDefaults(form: any, defaults: any = {}, translationFields: string[] = []): void {
     const resetValues: any = { ...defaults };
 
@@ -159,11 +129,6 @@ export class AdminFormService {
     form.reset(resetValues);
   }
 
-  /**
-   * Extract validation errors from form
-   * @param form - Form with errors
-   * @returns Object with field names and error messages
-   */
   getFormValidationErrors(form: any): Record<string, string[]> {
     const errors: Record<string, string[]> = {};
     
@@ -217,10 +182,6 @@ export class AdminFormService {
     return errors;
   }
 
-  /**
-   * Show form validation errors
-   * @param form - Form with validation errors
-   */
   showFormValidationErrors(form: any): void {
     const errors = this.getFormValidationErrors(form);
 
@@ -229,25 +190,7 @@ export class AdminFormService {
     }
   }
 
-  // ===== TRANSLATION FORM BUILDERS =====
-
-  /**
-   * Build a form group with multi-language translation fields.
-   * Creates fields like name_en, name_fr, name_ar for each translation field.
-   *
-   * @param translationFields - Array of field configs for translation fields
-   * @param additionalFields - Additional non-translation fields to add
-   * @returns FormGroup with all fields
-   *
-   * @example
-   * this.form = this.adminFormService.buildTranslationFormGroup(
-   *   [
-   *     { name: 'name', required: true, minLength: 2 },
-   *     { name: 'description', required: false }
-   *   ],
-   *   { image_url: [''], is_active: [true] }
-   * );
-   */
+  // Translation form builders
   buildTranslationFormGroup(
     translationFields: TranslationFieldConfig[],
     additionalFields: { [key: string]: any } = {}
@@ -276,23 +219,6 @@ export class AdminFormService {
     return this.fb.group(formConfig);
   }
 
-  /**
-   * Populate form with entity data including translations.
-   * Handles both entities with translation objects and legacy entities.
-   *
-   * @param form - FormGroup to populate
-   * @param entity - Entity with possible translations
-   * @param translationFields - Fields that have translations (e.g., ['name', 'description'])
-   * @param additionalMappings - Additional field mappings
-   *
-   * @example
-   * this.adminFormService.populateFormWithTranslations(
-   *   this.categoryForm,
-   *   category,
-   *   ['name', 'description'],
-   *   { image_url: category.image_url || '', is_active: category.is_active }
-   * );
-   */
   populateFormWithTranslations(
     form: FormGroup,
     entity: EntityWithTranslations,
@@ -320,13 +246,6 @@ export class AdminFormService {
     form.patchValue(patchValues);
   }
 
-  /**
-   * Get reset values for a translation form.
-   *
-   * @param translationFields - Fields that have translations
-   * @param additionalDefaults - Additional default values
-   * @returns Object with reset values
-   */
   getTranslationFormResetValues(
     translationFields: string[],
     additionalDefaults: { [key: string]: any } = {}
@@ -342,14 +261,6 @@ export class AdminFormService {
     return { ...resetValues, ...additionalDefaults };
   }
 
-  /**
-   * Standard navigation after successful form submission.
-   * Shows success message and navigates to specified URL.
-   *
-   * @param successMessage - Translation key for success message
-   * @param redirectUrl - URL to navigate to
-   * @param delay - Delay before navigation (default: 1500ms)
-   */
   handleSuccessWithRedirect(
     successMessage: string,
     redirectUrl: string,

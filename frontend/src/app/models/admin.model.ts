@@ -1,4 +1,3 @@
-// src/app/models/admin.model.ts
 export interface DashboardStats {
     total_users: number;
     total_products: number;

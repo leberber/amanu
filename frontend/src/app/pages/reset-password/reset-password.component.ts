@@ -1,4 +1,3 @@
-// src/app/pages/reset-password/reset-password.component.ts
 import { Component, OnInit, inject, ElementRef, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';

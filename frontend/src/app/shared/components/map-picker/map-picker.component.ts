@@ -1,4 +1,3 @@
-// src/app/shared/components/map-picker/map-picker.component.ts
 import { Component, AfterViewInit, OnDestroy, inject, input, output, signal } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import * as L from 'leaflet';

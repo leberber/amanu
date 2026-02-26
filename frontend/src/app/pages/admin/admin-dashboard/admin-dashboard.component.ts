@@ -1,4 +1,3 @@
-// src/app/pages/admin/admin-dashboard/admin-dashboard.component.ts
 import { Component, OnInit, inject, DestroyRef, signal, computed } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink, Router } from '@angular/router';

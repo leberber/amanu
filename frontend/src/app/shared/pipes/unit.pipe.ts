@@ -1,4 +1,3 @@
-// src/app/shared/pipes/unit.pipe.ts
 import { Pipe, PipeTransform, inject } from '@angular/core';
 import { UnitsService } from '../../core/services/units.service';
 

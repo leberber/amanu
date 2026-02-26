@@ -1,5 +1,3 @@
-// src/app/models/notification.model.ts
-
 // Segment types for targeting
 export type SegmentType = 'all' | 'inactive_30' | 'inactive_60' | 'vip' | 'new_users' | 'by_city' | 'by_wilaya' | 'by_daira' | 'by_commune';
 

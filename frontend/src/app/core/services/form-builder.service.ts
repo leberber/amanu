@@ -2,21 +2,12 @@ import { Injectable, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { VALIDATION, USER_ROLES } from '../constants/app.constants';
 
-/**
- * Service to create common form patterns
- * Reduces duplication in form creation across components
- */
 @Injectable({
   providedIn: 'root'
 })
 export class FormBuilderService {
   private fb = inject(FormBuilder);
 
-  /**
-   * Create user form with common fields
-   * @param options - Configuration options for the form
-   * @returns FormGroup with user fields
-   */
   createUserForm(options?: {
     includePassword?: boolean;
     includeRole?: boolean;
@@ -51,10 +42,6 @@ export class FormBuilderService {
     return form;
   }
 
-  /**
-   * Create product form with translations
-   * @returns FormGroup with product fields
-   */
   createProductForm(): FormGroup {
     return this.fb.group({
       // Translation fields (all required)
@@ -80,10 +67,6 @@ export class FormBuilderService {
     });
   }
 
-  /**
-   * Create category form with translations
-   * @returns FormGroup with category fields
-   */
   createCategoryForm(): FormGroup {
     return this.fb.group({
       // Translation fields (all required for names)
@@ -101,10 +84,6 @@ export class FormBuilderService {
     });
   }
 
-  /**
-   * Create address form
-   * @returns FormGroup with address fields
-   */
   createAddressForm(): FormGroup {
     return this.fb.group({
       fullName: ['', Validators.required],
@@ -113,10 +92,6 @@ export class FormBuilderService {
     });
   }
 
-  /**
-   * Create login form
-   * @returns FormGroup with login fields
-   */
   createLoginForm(): FormGroup {
     return this.fb.group({
       username: ['', [Validators.required, Validators.email]],
@@ -125,10 +100,6 @@ export class FormBuilderService {
     });
   }
 
-  /**
-   * Create password change form with confirmation
-   * @returns FormGroup with password fields
-   */
   createPasswordForm(): FormGroup {
     return this.fb.group({
       currentPassword: ['', Validators.required],
@@ -137,12 +108,6 @@ export class FormBuilderService {
     }, { validators: this.passwordMatchValidator });
   }
 
-  /**
-   * Get validators for a field based on requirements
-   * @param fieldName - Name of the field
-   * @param requiredFields - Array of required field names
-   * @returns Array of validators
-   */
   private getValidators(fieldName: string, requiredFields: string[]): any[] {
     const validators: any[] = [];
     
@@ -168,28 +133,10 @@ export class FormBuilderService {
     return validators;
   }
 
-  /**
-   * Validator to check if passwords match (internal use)
-   */
   private passwordMatchValidator(control: AbstractControl): ValidationErrors | null {
     return FormBuilderService.createPasswordMatchValidator('newPassword', 'confirmPassword')(control);
   }
 
-  /**
-   * Create a password match validator with configurable field names.
-   * Use this static method to create validators for any password/confirm password field pair.
-   *
-   * @param passwordField - Name of the password field
-   * @param confirmField - Name of the confirm password field
-   * @returns Validator function
-   *
-   * @example
-   * // In component:
-   * this.form = this.fb.group({
-   *   password: ['', Validators.required],
-   *   confirmPassword: ['', Validators.required]
-   * }, { validators: FormBuilderService.createPasswordMatchValidator('password', 'confirmPassword') });
-   */
   static createPasswordMatchValidator(
     passwordField: string,
     confirmField: string

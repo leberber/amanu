@@ -1,4 +1,3 @@
-// src/app/services/notification.service.ts
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
@@ -24,10 +23,7 @@ import {
 export class NotificationService {
   private api = inject(ApiService);
 
-  // ==========================================================================
-  // SEGMENTS & TARGETING
-  // ==========================================================================
-
+  // Segments & targeting
   getSegments(): Observable<SegmentInfo[]> {
     return this.api.get<SegmentInfo[]>('/push/segments');
   }
@@ -56,18 +52,12 @@ export class NotificationService {
     return this.api.get<{ count: number }>(url);
   }
 
-  // ==========================================================================
-  // SEND NOTIFICATIONS
-  // ==========================================================================
-
+  // Send notifications
   sendTargetedNotification(request: TargetedNotificationRequest): Observable<SendNotificationResponse> {
     return this.api.post<SendNotificationResponse>('/push/send-targeted', request);
   }
 
-  // ==========================================================================
-  // HISTORY
-  // ==========================================================================
-
+  // History
   getHistory(skip = 0, limit = 20): Observable<NotificationHistory[]> {
     return this.api.get<NotificationHistory[]>(`/push/history?skip=${skip}&limit=${limit}`);
   }
@@ -76,10 +66,7 @@ export class NotificationService {
     return this.api.get<NotificationHistory>(`/push/history/${id}`);
   }
 
-  // ==========================================================================
-  // BUILDER DATA
-  // ==========================================================================
-
+  // Builder data
   getPromotions(): Observable<PromotionItem[]> {
     return this.api.get<PromotionItem[]>('/push/promotions-list');
   }

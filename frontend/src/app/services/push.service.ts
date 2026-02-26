@@ -1,4 +1,3 @@
-// src/app/services/push.service.ts
 import { Injectable, inject } from '@angular/core';
 import { SwPush } from '@angular/service-worker';
 import { ApiService } from './api.service';

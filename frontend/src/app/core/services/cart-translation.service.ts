@@ -1,24 +1,16 @@
-// src/app/core/services/cart-translation.service.ts
 import { Injectable, inject } from '@angular/core';
 import { Observable, forkJoin, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { ProductService } from '../../services/product.service';
 
-/**
- * Service to handle loading translated product names for cart items.
- * Consolidates duplicate loadTranslatedNames() logic from cart and checkout.
- */
+
 @Injectable({
   providedIn: 'root'
 })
 export class CartTranslationService {
   private productService = inject(ProductService);
 
-  /**
-   * Load translated names for cart items
-   * @param items - Array of items with product_id and product_name
-   * @returns Observable of items with translated product names
-   */
+
   loadTranslatedNames<T extends { id: string | number; product_id: number; product_name: string }>(
     items: T[]
   ): Observable<T[]> {

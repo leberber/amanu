@@ -3,15 +3,6 @@ import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { SEARCH } from '../core/constants/app.constants';
 
-/**
- * SearchService - Centralized search state management
- *
- * Provides:
- * - Reactive search query state (signals)
- * - Debounced search with configurable delay
- * - Minimum character validation
- * - Search events for consumers to subscribe
- */
 @Injectable({
   providedIn: 'root'
 })
@@ -59,18 +50,12 @@ export class SearchService {
     });
   }
 
-  /**
-   * Update query with debounced search trigger
-   */
   setQuery(query: string): void {
     this._query.set(query);
     this._isSearching.set(true);
     this.searchSubject.next(query);
   }
 
-  /**
-   * Immediately trigger search (e.g., on Enter key)
-   */
   search(): void {
     const query = this._query();
     const trimmed = query.trim();
@@ -82,9 +67,6 @@ export class SearchService {
     this._isSearching.set(false);
   }
 
-  /**
-   * Clear search
-   */
   clear(): void {
     this._query.set('');
     this._appliedQuery.set('');
@@ -92,9 +74,6 @@ export class SearchService {
     this._searchTriggered.next('');
   }
 
-  /**
-   * Reset service state (useful when navigating away)
-   */
   reset(): void {
     this._query.set('');
     this._appliedQuery.set('');

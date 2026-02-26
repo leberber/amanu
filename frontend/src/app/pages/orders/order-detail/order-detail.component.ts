@@ -1,4 +1,3 @@
-// src/app/pages/orders/order-detail/order-detail.component.ts
 import { Component, OnInit, computed, inject, signal, DestroyRef } from '@angular/core';
 import { NgClass } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';

@@ -1,4 +1,3 @@
-// src/app/pages/register/register.component.ts
 import { Component, inject, ViewChild, ElementRef, OnInit, OnDestroy, DestroyRef, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
