@@ -310,37 +310,7 @@
 
 
 // =============================================================================
-// 9. ANIMATION DELAY UTILITIES
-// =============================================================================
-
-.delay-100 { animation-delay: 100ms; }
-.delay-200 { animation-delay: 200ms; }
-.delay-300 { animation-delay: 300ms; }
-.delay-400 { animation-delay: 400ms; }
-.delay-500 { animation-delay: 500ms; }
-
-
-// =============================================================================
-// 10. ANIMATION DURATION UTILITIES
-// =============================================================================
-
-.duration-fast { animation-duration: var(--duration-fast, 0.15s); }
-.duration-normal { animation-duration: var(--duration-normal, 0.3s); }
-.duration-slow { animation-duration: var(--duration-slow, 0.5s); }
-.duration-slower { animation-duration: var(--duration-slower, 0.8s); }
-
-
-// =============================================================================
-// 11. ANIMATION FILL MODE
-// =============================================================================
-
-.fill-forwards { animation-fill-mode: forwards; }
-.fill-backwards { animation-fill-mode: backwards; }
-.fill-both { animation-fill-mode: both; }
-
-
-// =============================================================================
-// 12. SUCCESS ANIMATIONS
+// 9. SUCCESS ANIMATIONS
 // =============================================================================
 
 @keyframes successPulse {

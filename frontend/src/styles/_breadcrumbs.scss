@@ -107,12 +107,6 @@
       font-size: var(--font-size-md);
     }
   }
-
-  .breadcrumb__home {
-    i {
-      font-size: var(--font-size-base);
-    }
-  }
 }
 
 
@@ -256,14 +250,3 @@
 }
 
 
-// =============================================================================
-// 10. PAGE HEADER WITH BREADCRUMB
-// =============================================================================
-
-.page-header-breadcrumb {
-  margin-bottom: var(--space-5);
-
-  .breadcrumb {
-    font-size: var(--font-size-sm);
-  }
-}
