@@ -108,198 +108,190 @@ amanu/
 
 **When creating or modifying Angular components, follow these rules strictly:**
 
-### 1. Use Global SCSS Classes
+### Styling Architecture: PrimeNG + Tailwind
 
-Before writing any component-specific styles, check these global files in `frontend/src/styles/`:
+This project uses **two complementary styling systems**:
 
-| Need | Use Global File |
-|------|-----------------|
-| Buttons | `_buttons.scss` → `.btn`, `.btn--primary`, `.btn--icon` |
-| Badges/Labels | `_badges.scss` → `.badge`, `.badge--success` |
-| Cards | `_cards.scss` → `.card`, `.card__header`, `.card__body` |
-| Forms/Inputs | `_inputs.scss` → `.form-field`, `.input-group` |
-| Tables | `_table.scss` → `.admin-table`, `.table-actions` |
-| Progress/Loading | `_progress.scss` → `.progress`, `.spinner`, `.pulse-loader` |
-| Steppers/Wizards | `_steppers.scss` → `.stepper-horizontal`, `.step-nav` |
-| Avatars | `_avatars.scss` → `.avatar`, `.avatar--lg`, `.avatar-group` |
-| Chips/Tags | `_chips.scss` → `.chip`, `.chip-closable`, `.tag` |
-| Stats/Metrics | `_stats.scss` → `.stat-card`, `.metric-card`, `.widget` |
-| Info Boxes | `_info-boxes.scss` → `.info-box`, `.callout`, `.tip-box` |
-| Pricing | `_pricing.scss` → `.price`, `.price-compare`, `.discount-badge` |
-| Promotions | `_promotions.scss` → `.promo-badge`, `.promo-code`, `.sale-banner` |
-| Switches | `_switches.scss` → `.switch`, `.switch-ios`, `.switch-card` |
-| Segments | `_segments.scss` → `.segment-control`, `.segment-pills`, `.view-mode` |
-| Toggles | `_toggles.scss` → `.toggle`, `.status-toggle`, `.radio-item` |
-| Lists | `_lists.scss` → `.list-group`, `.list-item`, `.action-list` |
-| Modals | `_modals.scss` → `.modal`, `.confirm-dialog` |
-| Alerts | `_alerts.scss` → `.alert`, `.alert--success`, `.banner-alert` |
-| Tabs | `_tabs.scss` → `.tabs`, `.tab-item` |
-| Dropdowns | `_dropdowns.scss` → `.dropdown-menu`, `.dropdown-item` |
-| Tooltips | `_tooltips.scss` → `.tooltip` |
-| Dividers | `_dividers.scss` → `.divider`, `.divider-text` |
-| Breadcrumbs | `_breadcrumbs.scss` → `.breadcrumb`, `.breadcrumb-back` |
-| Pagination | `_pagination.scss` → `.pagination` |
-| States | `_states.scss` → `.loading-state`, `.empty-state`, `.error-state` |
-| Animations | `_animations.scss` → `@keyframes`, `.animate-fade-in` |
+| System | Purpose | Examples |
+|--------|---------|----------|
+| **PrimeNG** | Complex UI components | `p-button`, `p-table`, `p-dialog`, `p-dropdown`, `p-tag` |
+| **Tailwind** | Layout, spacing, colors, typography | `flex`, `gap-4`, `p-6`, `text-xl`, `bg-white`, `rounded-xl` |
 
-### 2. Use CSS Variables Only (No Hardcoded Values)
+**DO NOT create custom SCSS component classes.** Use PrimeNG components + Tailwind utilities instead.
+
+For detailed migration patterns and examples, see: `frontend/docs/CSS_MIGRATION_PLAN.md`
+
+### 1. Use PrimeNG Components for Complex UI
+
+```html
+<!-- Buttons -->
+<p-button label="Save" />
+<p-button label="Cancel" severity="secondary" />
+<p-button label="Delete" severity="danger" />
+<p-button label="Add" icon="pi pi-plus" severity="success" />
+
+<!-- Badges/Tags -->
+<p-tag value="Active" severity="success" />
+<p-tag value="Pending" severity="warning" [rounded]="true" />
+
+<!-- Tables -->
+<p-table [value]="items" styleClass="p-datatable-sm" [paginator]="true" [rows]="10">
+  <ng-template pTemplate="header">...</ng-template>
+  <ng-template pTemplate="body" let-item>...</ng-template>
+</p-table>
+
+<!-- Dialogs -->
+<p-dialog header="Confirm" [(visible)]="showDialog">...</p-dialog>
+
+<!-- Inputs -->
+<input pInputText type="text" class="w-full" />
+<p-dropdown [options]="items" [(ngModel)]="selected" />
+```
+
+### 2. Use Tailwind for Layout and Styling
+
+```html
+<!-- Layout -->
+<div class="flex items-center justify-between gap-4">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+<!-- Spacing -->
+<div class="p-6 m-4 gap-4">
+
+<!-- Colors -->
+<div class="bg-white text-gray-900 border-gray-200">
+<div class="bg-blue-500 text-white">
+
+<!-- Typography -->
+<h1 class="text-2xl font-bold">
+<p class="text-sm text-gray-500">
+
+<!-- Borders & Shadows -->
+<div class="rounded-xl border border-gray-200 shadow-md">
+
+<!-- Transitions -->
+<div class="transition-all hover:-translate-y-1 hover:shadow-lg">
+```
+
+### 3. Card Patterns (PrimeNG + Tailwind)
+
+**Simple Card (Tailwind only):**
+```html
+<div class="bg-white rounded-2xl shadow-md border border-gray-200 overflow-hidden">
+  <div class="flex items-center gap-4 p-6 border-b border-gray-200">
+    <div class="w-11 h-11 rounded-lg bg-blue-500/10 flex items-center justify-center">
+      <i class="pi pi-shopping-cart text-blue-500 text-xl"></i>
+    </div>
+    <h3 class="text-xl font-semibold">Order Summary</h3>
+  </div>
+  <div class="p-6">
+    Content here
+  </div>
+</div>
+```
+
+**With PrimeNG p-card:**
+```html
+<p-card styleClass="shadow-md">
+  <ng-template pTemplate="header">
+    <div class="flex items-center gap-4 p-6 border-b border-gray-200">
+      <div class="w-11 h-11 rounded-lg bg-blue-500/10 flex items-center justify-center">
+        <i class="pi pi-shopping-cart text-blue-500 text-xl"></i>
+      </div>
+      <h3 class="text-xl font-semibold m-0">Order Summary</h3>
+    </div>
+  </ng-template>
+  <div class="p-6">Content here</div>
+</p-card>
+```
+
+### 4. Stat Card Pattern
+
+```html
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+  <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 cursor-pointer
+              hover:-translate-y-0.5 hover:shadow-md transition-all">
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 rounded-lg bg-blue-500 flex items-center justify-center">
+        <i class="pi pi-users text-white text-sm"></i>
+      </div>
+      <span class="text-xl font-bold">{{ totalUsers }}</span>
+    </div>
+    <span class="text-xs text-gray-500 font-semibold mt-2 block">Total Users</span>
+  </div>
+</div>
+```
+
+### 5. Form Pattern
+
+```html
+<div class="flex flex-col gap-2">
+  <label class="text-sm font-medium text-gray-700">Email</label>
+  <input pInputText type="email" class="w-full" />
+  <small class="text-red-500">Invalid email</small>
+</div>
+```
+
+### 6. Custom SCSS Rules
+
+Custom SCSS files should ONLY contain:
+- **CSS Variables** (`_variables.scss`) - Design tokens
+- **PrimeNG Overrides** (`_primeng-overrides.scss`) - Theme customizations
+- **Base styles** (`_base.scss`) - html, body, scrollbars, fonts
 
 ```scss
-// WRONG - Hardcoded values
-.my-component {
-  color: #333;
-  background: #2E6CB7;
-  padding: 16px;
-  border-radius: 12px;
-}
-
-// CORRECT - Use variables
-.my-component {
-  color: var(--text-color);
-  background: var(--primary-color);
-  padding: var(--space-4);
+// ALLOWED - PrimeNG override
+.p-button {
   border-radius: var(--radius-lg);
 }
-```
 
-**Available Variables:**
-
-```scss
-// Colors
---primary-color, --primary-gradient
---text-color, --text-color-secondary
---surface-card, --surface-ground, --surface-100, --surface-200
-
-// Spacing (use for padding, margin, gap)
---space-1 (0.25rem), --space-2 (0.5rem), --space-3 (0.75rem)
---space-4 (1rem), --space-5 (1.25rem), --space-6 (1.5rem)
-
-// Border Radius
---radius-sm (6px), --radius-md (8px), --radius-lg (12px), --radius-xl (16px)
-
-// Typography
---font-size-xs, --font-size-sm, --font-size-base, --font-size-lg
---font-weight-medium (500), --font-weight-semibold (600), --font-weight-bold (700)
-
-// Shadows
---shadow-sm, --shadow-md, --shadow-lg
-
-// Transitions
---transition-fast, --transition-normal
-```
-
-### 3. Component SCSS Should Be Minimal
-
-Component-specific styles should ONLY contain:
-- **Layout/positioning** specific to this component
-- **Unique structural rules** that don't exist globally
-- **Component-specific overrides** (rare)
-
-```scss
-// GOOD - Minimal component styles
-.order-summary {
-  display: grid;
-  grid-template-columns: 1fr 300px;
-  gap: var(--space-4);
-
-  &__sidebar {
-    position: sticky;
-    top: var(--space-4);
-  }
+// ALLOWED - CSS variable definition
+:root {
+  --primary-color: #2563eb;
 }
 
-// BAD - Recreating global styles
-.order-summary {
-  .card {
-    background: white;           // Already in _cards.scss
-    border-radius: 12px;         // Already in _cards.scss
-    padding: 1.5rem;             // Already in _cards.scss
-  }
+// NOT ALLOWED - Custom component class (use Tailwind instead)
+.my-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
 }
 ```
 
-### 4. HTML Should Use Global Classes
+### 7. Tailwind Quick Reference
 
-```html
-<!-- WRONG - Custom classes for everything -->
-<div class="order-card">
-  <div class="order-header">
-    <span class="order-status-badge">Pending</span>
-  </div>
-  <button class="order-action-btn">View</button>
-</div>
+**Spacing:**
+| Class | Value |
+|-------|-------|
+| `gap-1`, `p-1` | 0.25rem (4px) |
+| `gap-2`, `p-2` | 0.5rem (8px) |
+| `gap-4`, `p-4` | 1rem (16px) |
+| `gap-6`, `p-6` | 1.5rem (24px) |
 
-<!-- CORRECT - Use global classes -->
-<div class="card">
-  <div class="card__header">
-    <span class="badge badge--warning">Pending</span>
-  </div>
-  <button class="btn btn--primary btn--sm">View</button>
-</div>
-```
+**Colors:**
+| Class | Use for |
+|-------|---------|
+| `bg-white` | Card backgrounds |
+| `bg-gray-50` | Subtle backgrounds |
+| `text-gray-500` | Secondary text |
+| `text-gray-900` | Primary text |
+| `border-gray-200` | Borders |
+| `bg-blue-500` | Primary actions |
+| `bg-green-500` | Success |
+| `bg-red-500` | Danger |
 
-### 5. Common Patterns
+**Typography:**
+| Class | Use for |
+|-------|---------|
+| `text-xs` | Badges, labels |
+| `text-sm` | Secondary text |
+| `text-base` | Body text |
+| `text-xl` | Card titles |
+| `text-2xl` | Section headers |
+| `font-semibold` | 600 weight |
+| `font-bold` | 700 weight |
 
-**Stat/Metric Display:**
-```html
-<div class="stat-card">
-  <div class="stat-card__icon stat-card__icon--primary">
-    <i class="pi pi-shopping-cart"></i>
-  </div>
-  <div class="stat-card__content">
-    <p class="stat-card__label">Total Orders</p>
-    <h3 class="stat-card__value">1,234</h3>
-  </div>
-</div>
-```
-
-**Price Display:**
-```html
-<div class="price-compare">
-  <span class="price-compare__current">$29.99</span>
-  <span class="price-compare__original">$49.99</span>
-  <span class="discount-badge">-40%</span>
-</div>
-```
-
-**Segment Control:**
-```html
-<div class="segment-control">
-  <button class="segment-control__item active">All</button>
-  <button class="segment-control__item">Pending</button>
-  <button class="segment-control__item">Completed</button>
-</div>
-```
-
-**Switch/Toggle:**
-```html
-<label class="switch">
-  <input type="checkbox" class="switch__input">
-  <span class="switch__slider"></span>
-  <span class="switch__label">Enable notifications</span>
-</label>
-```
-
-**Info Box:**
-```html
-<div class="info-box info-box--warning">
-  <div class="info-box__icon"><i class="pi pi-exclamation-triangle"></i></div>
-  <div class="info-box__content">
-    <p class="info-box__text">This action cannot be undone.</p>
-  </div>
-</div>
-```
-
-**Avatar Group:**
-```html
-<div class="avatar-group">
-  <div class="avatar avatar--sm">JD</div>
-  <div class="avatar avatar--sm">MK</div>
-  <div class="avatar-group-counter">+3</div>
-</div>
-```
-
-### 6. Page Animations (Required)
+### 8. Page Animations (Required)
 
 Every page/component must have entry animations for a native app feel:
 
@@ -332,7 +324,7 @@ import { trigger, transition, style, animate } from '@angular/animations';
 - **Modals**: Slide up from bottom (250ms)
 - **Keep subtle**: 150-250ms duration max
 
-### 7. Skeleton Loading (Required)
+### 9. Skeleton Loading (Required)
 
 **ALWAYS use skeleton loaders instead of spinners.** Every page that loads data must show skeletons.
 
@@ -377,7 +369,7 @@ import { trigger, transition, style, animate } from '@angular/animations';
 - Show same number of skeleton items as expected
 - Minimum 300ms display to avoid flicker
 
-### 8. TypeScript Requirements
+### 10. TypeScript Requirements
 
 ```typescript
 // Use inject() not constructor injection
@@ -418,7 +410,7 @@ localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);  // Not 'auth_token'
 - Remove unused imports
 - All components must be standalone
 
-### 9. HTML Template Requirements
+### 11. HTML Template Requirements
 
 ```html
 <!-- Use new control flow syntax -->
@@ -435,8 +427,8 @@ localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);  // Not 'auth_token'
 }
 
 @switch (status()) {
-  @case ('pending') { <span class="badge badge--warning">Pending</span> }
-  @case ('completed') { <span class="badge badge--success">Done</span> }
+  @case ('pending') { <p-tag value="Pending" severity="warning" /> }
+  @case ('completed') { <p-tag value="Done" severity="success" /> }
 }
 
 <!-- Use pipes for formatting -->
@@ -461,7 +453,7 @@ onImageError(event: Event): void {
 }
 ```
 
-### 10. Complete Component Checklist
+### 12. Complete Component Checklist
 
 **TypeScript (.ts):**
 - [ ] Uses `signal()` for component state
@@ -481,13 +473,13 @@ onImageError(event: Event): void {
 - [ ] Has empty state
 - [ ] Uses pipes (dateFormat, currency, translate)
 - [ ] Images have `loading="lazy"` and `(error)` handler
-- [ ] Uses global BEM classes from SCSS files
+- [ ] Uses PrimeNG components + Tailwind utilities (not custom classes)
 
-**SCSS (.scss):**
-- [ ] No hardcoded colors/spacing/radius
-- [ ] Uses CSS variables only
-- [ ] Only contains layout/positioning
-- [ ] Uses global component classes
+**Styling:**
+- [ ] Uses PrimeNG components for complex UI (buttons, tables, dialogs)
+- [ ] Uses Tailwind utilities for layout, spacing, colors
+- [ ] No custom SCSS component classes
+- [ ] Component SCSS only for unique layout needs (rare)
 
 **UX:**
 - [ ] Has page entry animation
