@@ -119,11 +119,67 @@
   <!-- Orders Content -->
   @else {
     <div class="order-list-content">
+      <!-- Mobile Stats (visible only on mobile) -->
+      <div class="stats-grid stats-grid--compact md:hidden">
+        <div class="stat-card stat-card--compact">
+          <div class="stat-card__content">
+            <span class="stat-card__value">
+              <div class="stat-card__icon stat-card__icon--primary">
+                <i class="pi pi-shopping-bag"></i>
+              </div>
+              {{ orders().length }}
+            </span>
+            <span class="stat-card__label">{{ 'orders.stats.total_orders' | translate }}</span>
+          </div>
+        </div>
+        <div class="stat-card stat-card--compact">
+          <div class="stat-card__content">
+            <span class="stat-card__value">
+              <div class="stat-card__icon stat-card__icon--success">
+                <i class="pi pi-wallet"></i>
+              </div>
+              {{ totalSpend() | appCurrency }}
+            </span>
+            <span class="stat-card__label">{{ 'orders.stats.total_spend' | translate }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mobile Sticky Segment Control -->
+      <div class="mobile-filter-sticky md:hidden">
+        <div class="segment-control segment-control--glass">
+          <button
+            class="segment-control__item"
+            [class.active]="timeFilter() === 'all'"
+            (click)="setTimeFilter('all')">
+            <span>{{ 'orders.filters.all' | translate }}</span>
+          </button>
+          <button
+            class="segment-control__item"
+            [class.active]="timeFilter() === '7days'"
+            (click)="setTimeFilter('7days')">
+            <span>{{ 'orders.filters.last_7_days' | translate }}</span>
+          </button>
+          <button
+            class="segment-control__item"
+            [class.active]="timeFilter() === '30days'"
+            (click)="setTimeFilter('30days')">
+            <span>{{ 'orders.filters.last_month' | translate }}</span>
+          </button>
+          <button
+            class="segment-control__item"
+            [class.active]="timeFilter() === '90days'"
+            (click)="setTimeFilter('90days')">
+            <span>{{ 'orders.filters.last_3_months' | translate }}</span>
+          </button>
+        </div>
+      </div>
+
       <div class="order-grid">
         <!-- Table Container -->
-        <div class="table-container" [class.fullscreen]="isFullscreen()">
-          <!-- Table Header with Filter and Actions -->
-          <div class="table-header">
+        <div class="table-container scrollable" [class.fullscreen]="isFullscreen()">
+          <!-- Table Header (Desktop only) -->
+          <div class="table-header hidden md:flex">
             <!-- Time Filter Segment Control -->
             <div class="segment-control segment-control--glass">
               <button
@@ -152,8 +208,8 @@
               </button>
             </div>
 
-            <!-- Table Actions (Desktop only) -->
-            <div class="table-actions hidden md:flex">
+            <!-- Table Actions -->
+            <div class="table-actions">
               <button class="table-action-btn" (click)="loadOrders()" [pTooltip]="'common.refresh' | translate">
                 <i class="pi pi-refresh"></i>
               </button>
@@ -203,10 +259,12 @@
                     <td><p-tag [severity]="getStatusSeverity(order.status)" [value]="order.status | appStatus"></p-tag></td>
                     <td><span class="amount-display amount-display--primary">{{ order.total_amount | appCurrency }}</span></td>
                     <td>
-                      <button class="view-btn" (click)="viewOrderDetails(order.id); $event.stopPropagation()">
-                        <i class="pi pi-eye"></i>
-                        <span>{{ 'orders.table.view' | translate }}</span>
-                      </button>
+                      <div class="table-cell-actions" style="justify-content: center;">
+                        <button class="action-btn view" (click)="viewOrderDetails(order.id); $event.stopPropagation()">
+                          <i class="pi pi-eye"></i>
+                          <span>{{ 'orders.table.view' | translate }}</span>
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 }

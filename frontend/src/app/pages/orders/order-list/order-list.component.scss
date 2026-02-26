@@ -11,6 +11,11 @@
 // - _components.scss: view-btn, action-link, count-badge
 // =============================================================================
 
+// Table height override for this page
+.table-container {
+  --table-max-height: calc(100vh - 320px);
+}
+
 // -----------------------------------------------------------------------------
 // Page Layout (component-specific grid layout)
 // -----------------------------------------------------------------------------
@@ -125,22 +130,48 @@
 }
 
 // -----------------------------------------------------------------------------
-// Segment Control Overrides (for this page layout)
+// Action Button with Text (for view button)
 // -----------------------------------------------------------------------------
-.table-header {
+.action-btn.view {
+  width: auto;
+  padding: var(--space-2) var(--space-4);
+  gap: var(--space-2);
+
+  span {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Mobile Sticky Filter
+// -----------------------------------------------------------------------------
+.mobile-filter-sticky {
+  position: sticky;
+  top: -10px;
+  z-index: 20;
+  background: var(--surface-card);
+  padding: var(--space-3) var(--space-4);
+  margin: 0 calc(var(--space-5) * -1);
+  margin-top: calc(var(--space-4) * -1);
+  margin-bottom: var(--space-4);
+
   .segment-control {
     width: 100%;
 
-    @media (min-width: 768px) {
-      width: auto;
-    }
-
     .segment-control__item {
       flex: 1;
+    }
+  }
+}
 
-      @media (min-width: 768px) {
-        flex: none;
-      }
+// -----------------------------------------------------------------------------
+// Segment Control Overrides (for desktop table header)
+// -----------------------------------------------------------------------------
+.table-header {
+  .segment-control {
+    .segment-control__item {
+      flex: none;
     }
   }
 }
