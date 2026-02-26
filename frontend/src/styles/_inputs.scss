@@ -245,153 +245,7 @@
 
 
 // =============================================================================
-// 9. FORM SECTION
-// =============================================================================
-
-.form-section {
-  padding: var(--space-6);
-  background: var(--surface-slate-50-solid);
-  border: var(--border-width) solid var(--overlay-subtle);
-  border-radius: var(--radius-lg);
-  margin-bottom: var(--space-5);
-  transition: all var(--transition-smooth);
-
-  &:last-child {
-    margin-bottom: 0;
-  }
-
-  &:hover {
-    border-color: rgba(var(--primary-rgb), 0.15);
-  }
-
-  &__title {
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-    font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-semibold);
-    color: var(--text-color);
-    margin-bottom: var(--space-5);
-    padding-bottom: var(--space-4);
-    border-bottom: var(--border-width) solid var(--border-color-light);
-
-    i {
-      color: var(--primary-color);
-    }
-  }
-}
-
-
-// =============================================================================
-// 10. FORM ACTIONS
-// =============================================================================
-
-.form-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: var(--space-4);
-  padding-top: var(--space-5);
-  margin-top: var(--space-5);
-  border-top: var(--border-width) solid var(--border-color-light);
-
-  &--centered {
-    justify-content: center;
-  }
-
-  &--spaced {
-    justify-content: space-between;
-  }
-
-  &--stacked {
-    flex-direction: column;
-    border-top: none;
-    padding-top: 0;
-    margin-top: var(--space-4);
-  }
-
-  @media (max-width: 480px) {
-    flex-direction: column;
-
-    button {
-      width: 100%;
-    }
-  }
-}
-
-
-// =============================================================================
-// 11. SELECT ITEM TEMPLATE
-// =============================================================================
-
-.select-item {
-  display: flex;
-  align-items: center;
-  gap: var(--space-4);
-
-  i {
-    color: var(--text-color-secondary);
-  }
-}
-
-.select-option {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-
-  .option-count {
-    padding: var(--space-1) var(--space-3);
-    border-radius: var(--radius-sm);
-    font-size: var(--font-size-xs);
-    font-weight: var(--font-weight-semibold);
-    background: var(--border-color-light);
-    color: var(--text-color-secondary);
-  }
-}
-
-
-// =============================================================================
-// 12. FILTER SELECT (Table filters)
-// =============================================================================
-
-.filter-select {
-  min-width: var(--banner-decor-size);
-
-  &.p-select {
-    border: var(--border-width) solid var(--overlay-hover);
-    border-radius: var(--radius-md);
-    background: var(--color-white);
-    box-shadow: var(--shadow-xs);
-    padding: var(--space-4) var(--space-5);
-    min-height: var(--btn-height-lg);
-    height: var(--btn-height-lg);
-
-    &:hover {
-      border-color: rgba(var(--primary-rgb), 0.3);
-    }
-
-    &.p-focus {
-      border-color: var(--primary-color);
-      box-shadow: var(--shadow-md);
-    }
-
-    .p-select-label {
-      padding: 0;
-      font-size: var(--font-size-md);
-      font-weight: var(--font-weight-medium);
-      color: var(--text-color);
-    }
-  }
-
-  @media (max-width: 768px) {
-    width: 100%;
-    min-width: 100%;
-  }
-}
-
-
-// =============================================================================
-// 13. SEARCH INPUT
+// 9. SEARCH INPUT
 // =============================================================================
 
 .search-input {
@@ -553,142 +407,7 @@
 
 
 // =============================================================================
-// 14. CHECKBOX FIELD
-// =============================================================================
-
-.checkbox-field {
-  display: flex;
-  align-items: center;
-  gap: var(--space-4);
-  padding: var(--space-5);
-  background: var(--surface-slate-50-solid);
-  border: var(--border-width) solid var(--overlay-subtle);
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  transition: all var(--transition-fast);
-
-  &:hover {
-    border-color: rgba(var(--primary-rgb), 0.2);
-  }
-
-  label {
-    margin: 0;
-    cursor: pointer;
-    font-weight: var(--font-weight-medium);
-    color: var(--text-color);
-    font-size: var(--font-size-md);
-  }
-}
-
-
-// =============================================================================
-// 15. FIELD WITH ICON
-// =============================================================================
-
-.field-with-icon {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-5);
-  background: var(--surface-slate-50-solid);
-  border: var(--border-width) solid var(--overlay-subtle);
-  border-radius: var(--radius-lg);
-  padding: var(--space-5) var(--space-6);
-  transition: all var(--transition-smooth);
-
-  &:hover {
-    border-color: rgba(var(--primary-rgb), 0.2);
-    box-shadow: var(--shadow-sm);
-  }
-
-  &__icon {
-    width: var(--icon-md);
-    height: var(--icon-md);
-    border-radius: var(--radius-sm);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-
-    i {
-      font-size: var(--font-size-base);
-    }
-
-    &--primary {
-      background: rgba(var(--primary-rgb), 0.1);
-      i { color: var(--primary-color); }
-    }
-
-    &--success {
-      background: rgba(var(--color-success-rgb), 0.1);
-      i { color: var(--color-success-dark); }
-    }
-
-    &--warning {
-      background: rgba(var(--color-warning-rgb), 0.1);
-      i { color: var(--color-warning); }
-    }
-
-    &--danger {
-      background: rgba(var(--color-error-rgb), 0.1);
-      i { color: var(--color-error); }
-    }
-  }
-
-  &__content {
-    flex: 1;
-    min-width: 0;
-  }
-}
-
-
-// =============================================================================
-// 16. INPUT SIZES
-// =============================================================================
-
-.input-sm {
-  &.p-inputtext {
-    padding: var(--space-3) var(--space-4);
-    font-size: var(--font-size-sm);
-    border-radius: var(--radius-sm);
-  }
-}
-
-.input-lg {
-  &.p-inputtext {
-    padding: var(--space-5) var(--space-6);
-    font-size: var(--font-size-base);
-    border-radius: var(--radius-lg);
-  }
-}
-
-
-// =============================================================================
-// 17. INPUT STATES
-// =============================================================================
-
-.input-error {
-  &.p-inputtext {
-    border-color: var(--color-error);
-
-    &:focus {
-      box-shadow: 0 0 0 3px rgba(var(--color-error-rgb), 0.1);
-    }
-  }
-}
-
-.input-success {
-  &.p-inputtext {
-    border-color: var(--color-success);
-
-    &:focus {
-      box-shadow: 0 0 0 3px rgba(var(--color-success-rgb), 0.1);
-    }
-  }
-}
-
-
-// =============================================================================
-// 18. FIELD BOX (Styled input container with icon)
+// 10. FIELD BOX (Styled input container with icon)
 // =============================================================================
 // A modern input field design with left icon, label, and input.
 // Supports focus, filled, and disabled states.
@@ -809,8 +528,7 @@
       padding: 0;
       border: none;
       background: transparent;
-      // box-shadow: none;
-      padding: 3px 8px; 
+      padding: 3px 8px;
       font-family: inherit;
       font-size: var(--font-size-base);
       font-weight: var(--font-weight-medium);
@@ -920,16 +638,6 @@
   }
 }
 
-// Address placeholder (multi-line address display)
-.address-placeholder {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-  font-size: var(--font-size-sm);
-  color: var(--text-color-muted);
-  font-style: italic;
-}
-
 // Required field indicator (red asterisk)
 .required {
   color: var(--color-error);
@@ -938,7 +646,7 @@
 
 
 // =============================================================================
-// 19. FORM GRID (2-column layout for form fields)
+// 11. FORM GRID (2-column layout for form fields)
 // =============================================================================
 
 .form-grid {
@@ -957,22 +665,9 @@
 
 
 // =============================================================================
-// 20. QUANTITY SELECTOR
+// 12. QUANTITY CONTROLS
 // =============================================================================
 // Quantity input with +/- buttons for product pages, cart, etc.
-
-.quantity-selector {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-}
-
-.quantity-label {
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
-  color: var(--text-color);
-  text-align: center;
-}
 
 .quantity-controls {
   display: flex;

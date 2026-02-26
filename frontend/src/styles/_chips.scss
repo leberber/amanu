@@ -44,16 +44,6 @@
     gap: var(--space-1);
   }
 
-  &--sm {
-    padding: var(--space-2) var(--space-4);
-    font-size: var(--font-size-xs);
-  }
-
-  &--lg {
-    padding: var(--space-3) var(--space-6);
-    font-size: var(--font-size-md);
-  }
-
   // ---------------------------------------------------------------------------
   // Color Variants
   // ---------------------------------------------------------------------------
@@ -67,21 +57,6 @@
     color: var(--color-success-dark);
   }
 
-  &--warning {
-    background: rgba(var(--color-warning-rgb), 0.1);
-    color: var(--color-warning-dark);
-  }
-
-  &--danger {
-    background: rgba(var(--color-error-rgb), 0.1);
-    color: var(--color-error-dark);
-  }
-
-  &--info {
-    background: rgba(var(--color-info-rgb), 0.1);
-    color: var(--color-info-dark);
-  }
-
   // ---------------------------------------------------------------------------
   // Solid Variants
   // ---------------------------------------------------------------------------
@@ -92,212 +67,12 @@
     &.chip--success {
       background: var(--btn-success-gradient);
     }
-
-    &.chip--warning {
-      background: var(--btn-warning-gradient);
-    }
-
-    &.chip--danger {
-      background: var(--btn-danger-gradient);
-    }
-
-    &.chip--info {
-      background: linear-gradient(135deg, var(--color-info) 0%, var(--color-info-dark) 100%);
-    }
-  }
-
-  // ---------------------------------------------------------------------------
-  // Outlined Variant
-  // ---------------------------------------------------------------------------
-  &--outlined {
-    background: rgba(var(--primary-rgb), 0.04);
-    border: var(--border-width) solid var(--border-color-medium);
-    padding: var(--space-3) var(--space-5);
-    cursor: pointer;
-
-    &:hover {
-      background: rgba(var(--primary-rgb), 0.08);
-      border-color: var(--primary-color);
-      color: var(--primary-color);
-    }
-
-    &.active {
-      background: rgba(var(--primary-rgb), 0.12);
-      border-color: var(--primary-color);
-      color: var(--primary-color);
-    }
-
-    &.chip--primary {
-      border-color: var(--primary-color);
-    }
-
-    &.chip--success {
-      border-color: var(--color-success);
-    }
-
-    &.chip--warning {
-      border-color: var(--color-warning);
-    }
-
-    &.chip--danger {
-      border-color: var(--color-error);
-    }
   }
 }
 
 
 // =============================================================================
-// 2. CLOSABLE CHIP
-// =============================================================================
-
-.chip-closable {
-  @extend %chip-base;
-  padding: var(--space-2) var(--space-3) var(--space-2) var(--space-5);
-
-  &__close {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: var(--chip-close-size);
-    height: var(--chip-close-size);
-    border-radius: var(--radius-full);
-    background: var(--overlay-hover);
-    border: none;
-    cursor: pointer;
-    transition: all var(--transition-fast);
-    padding: 0;
-
-    i {
-      font-size: 0.6rem;
-      color: var(--text-color-secondary);
-    }
-
-    &:hover {
-      background: var(--overlay-hover);
-
-      i {
-        color: var(--text-color);
-      }
-    }
-  }
-
-  &--primary {
-    background: rgba(var(--primary-rgb), 0.1);
-    color: var(--primary-color);
-
-    .chip-closable__close {
-      background: rgba(var(--primary-rgb), 0.15);
-
-      i {
-        color: var(--primary-color);
-      }
-
-      &:hover {
-        background: rgba(var(--primary-rgb), 0.25);
-      }
-    }
-  }
-}
-
-
-// =============================================================================
-// 3. CHIP GROUP
-// =============================================================================
-
-.chip-group {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-3);
-
-  &--sm {
-    gap: var(--space-2);
-  }
-
-  &--lg {
-    gap: var(--space-5);
-  }
-}
-
-
-// =============================================================================
-// 4. CHIP INPUT
-// =============================================================================
-
-.chip-input {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-3) var(--space-5);
-  background: var(--color-white);
-  border: var(--border-width) solid var(--overlay-hover);
-  border-radius: var(--radius-sm);
-  min-height: var(--btn-height-lg);
-  transition: all var(--transition-fast);
-
-  &:focus-within {
-    border-color: var(--primary-color);
-    box-shadow: var(--shadow-focus);
-  }
-
-  &__field {
-    flex: 1;
-    min-width: var(--chip-min-width);
-    border: none;
-    outline: none;
-    font-size: var(--font-size-md);
-    background: transparent;
-
-    &::placeholder {
-      color: var(--text-color-secondary);
-    }
-  }
-
-  .chip-closable {
-    margin: var(--space-1) 0;
-  }
-}
-
-
-// =============================================================================
-// 5. SELECTABLE CHIP
-// =============================================================================
-
-.chip-selectable {
-  @extend %chip-base;
-  padding: var(--space-3) var(--space-6);
-  background: var(--overlay-subtle);
-  border: var(--border-width) solid var(--overlay-medium);
-  font-size: var(--font-size-base);
-  cursor: pointer;
-
-  &:hover {
-    background: var(--overlay-medium);
-    border-color: var(--border-color-medium);
-  }
-
-  &.selected {
-    background: rgba(var(--primary-rgb), 0.1);
-    border-color: var(--primary-color);
-    color: var(--primary-color);
-
-    &::before {
-      content: '\2713';
-      margin-right: var(--space-1);
-      font-size: var(--font-size-xs);
-    }
-  }
-
-  &:disabled,
-  &--disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-}
-
-
-// =============================================================================
-// 6. TEMPLATE CHIPS
+// 2. TEMPLATE CHIPS
 // =============================================================================
 // Colored badge chips for quick template selection.
 // Uses --chip-color CSS variable for dynamic theming.
@@ -334,150 +109,7 @@
 
 
 // =============================================================================
-// 7. FILTER CHIPS
-// =============================================================================
-
-.filter-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-3);
-
-  &__chip {
-    @extend %chip-base;
-    padding: var(--space-3) var(--space-6);
-    background: var(--color-white);
-    border: var(--border-width) solid var(--overlay-hover);
-    font-size: var(--font-size-base);
-    color: var(--text-color-secondary);
-    cursor: pointer;
-
-    i {
-      font-size: var(--font-size-sm);
-    }
-
-    &:hover {
-      border-color: var(--primary-color);
-      color: var(--primary-color);
-    }
-
-    &.active {
-      background: var(--primary-gradient);
-      border-color: transparent;
-      color: var(--color-white);
-    }
-  }
-}
-
-
-// =============================================================================
-// 7. CHIP WITH AVATAR
-// =============================================================================
-
-.chip-avatar {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-1) var(--space-5) var(--space-1) var(--space-1);
-  background: var(--overlay-light);
-  border-radius: var(--radius-3xl);
-
-  &__img {
-    width: var(--chip-icon-size);
-    height: var(--chip-icon-size);
-    border-radius: var(--radius-full);
-    object-fit: cover;
-  }
-
-  &__initials {
-    width: var(--chip-icon-size);
-    height: var(--chip-icon-size);
-    border-radius: var(--radius-full);
-    background: var(--primary-gradient);
-    color: var(--color-white);
-    font-size: var(--font-size-xs);
-    font-weight: var(--font-weight-semibold);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  &__name {
-    font-size: var(--font-size-base);
-    font-weight: var(--font-weight-medium);
-    color: var(--text-color);
-  }
-}
-
-
-// =============================================================================
-// 8. TAG (Alternative Styling)
-// =============================================================================
-
-.tag {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-  padding: var(--space-1) var(--space-3);
-  background: var(--overlay-light);
-  border-radius: var(--radius-xs);
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-semibold);
-  color: var(--text-color-secondary);
-  text-transform: uppercase;
-  letter-spacing: var(--letter-spacing-wide);
-
-  &--primary {
-    background: rgba(var(--primary-rgb), 0.1);
-    color: var(--primary-color);
-  }
-
-  &--success {
-    background: rgba(var(--color-success-rgb), 0.1);
-    color: var(--color-success-dark);
-  }
-
-  &--warning {
-    background: rgba(var(--color-warning-rgb), 0.1);
-    color: var(--color-warning-dark);
-  }
-
-  &--danger {
-    background: rgba(var(--color-error-rgb), 0.1);
-    color: var(--color-error-dark);
-  }
-}
-
-
-// =============================================================================
-// 9. KEYWORD TAGS
-// =============================================================================
-
-.keyword-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-
-  &__tag {
-    display: inline-block;
-    padding: var(--space-1) var(--space-4);
-    background: var(--surface-slate-50-solid);
-    border: var(--border-width) solid var(--border-color-light);
-    border-radius: var(--radius-xs);
-    font-size: var(--font-size-sm);
-    color: var(--text-color-secondary);
-    transition: all var(--transition-fast);
-
-    &:hover {
-      background: rgba(var(--primary-rgb), 0.08);
-      border-color: rgba(var(--primary-rgb), 0.2);
-      color: var(--primary-color);
-    }
-  }
-}
-
-
-// =============================================================================
-// 10. PRIMENG CHIP OVERRIDE
+// 3. PRIMENG CHIP OVERRIDE
 // =============================================================================
 
 .p-chip {
@@ -544,7 +176,7 @@
 
 
 // =============================================================================
-// 11. SUMMARY PILLS
+// 4. SUMMARY PILLS
 // =============================================================================
 // Colored pills for displaying summary info with color-mix theming.
 // Uses --pill-color CSS variable for dynamic theming.
