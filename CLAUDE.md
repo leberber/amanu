@@ -44,8 +44,8 @@ The deployment script:
 
 ### Frontend (Angular)
 - **Version**: Angular 20 with standalone components
-- **UI Library**: PrimeNG components
-- **Styling**: TailwindCSS
+- **UI Library**: PrimeNG components + utilities
+- **Styling**: PrimeNG first, custom SCSS for brand styling only
 - **State Management**: Services with BehaviorSubjects
 - **i18n**: @ngx-translate for English, French, and Arabic
 - **PWA**: Progressive Web App with service worker
@@ -108,18 +108,19 @@ amanu/
 
 **When creating or modifying Angular components, follow these rules strictly:**
 
-### Styling Architecture: PrimeNG + Tailwind
+### Styling Architecture: PrimeNG First
 
-This project uses **two complementary styling systems**:
+This project uses a **PrimeNG-first** approach for styling:
 
-| System | Purpose | Examples |
-|--------|---------|----------|
-| **PrimeNG** | Complex UI components | `p-button`, `p-table`, `p-dialog`, `p-dropdown`, `p-tag` |
-| **Tailwind** | Layout, spacing, colors, typography | `flex`, `gap-4`, `p-6`, `text-xl`, `bg-white`, `rounded-xl` |
+| Priority | System | Use For | Examples |
+|----------|--------|---------|----------|
+| **1st** | PrimeNG Components | Complex UI | `p-button`, `p-table`, `p-card`, `p-dialog`, `p-tag` |
+| **2nd** | PrimeNG Utilities | Layout, spacing | `flex`, `gap-3`, `p-4`, `align-items-center` |
+| **3rd** | Custom SCSS | Brand styling only | Gradients, custom effects, PrimeNG overrides |
 
-**DO NOT create custom SCSS component classes.** Use PrimeNG components + Tailwind utilities instead.
+**DO NOT create new custom SCSS classes.** Use PrimeNG components + utilities first.
 
-For detailed migration patterns and examples, see: `frontend/docs/CSS_MIGRATION_PLAN.md`
+For detailed migration patterns, see: `frontend/docs/CSS_MIGRATION_PLAN.md`
 
 ### 1. Use PrimeNG Components for Complex UI
 
@@ -148,148 +149,116 @@ For detailed migration patterns and examples, see: `frontend/docs/CSS_MIGRATION_
 <p-dropdown [options]="items" [(ngModel)]="selected" />
 ```
 
-### 2. Use Tailwind for Layout and Styling
+### 2. Use PrimeNG Utilities for Layout
 
 ```html
-<!-- Layout -->
-<div class="flex items-center justify-between gap-4">
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+<!-- Flexbox -->
+<div class="flex align-items-center justify-content-between gap-3">
+<div class="flex flex-column gap-2">
+<div class="flex-1">  <!-- flex-grow -->
+
+<!-- Grid -->
+<div class="grid">
+  <div class="col-12 md:col-6 lg:col-4">...</div>
+</div>
 
 <!-- Spacing -->
-<div class="p-6 m-4 gap-4">
+<div class="p-3 m-2 mb-4 gap-3">
 
-<!-- Colors -->
-<div class="bg-white text-gray-900 border-gray-200">
-<div class="bg-blue-500 text-white">
-
-<!-- Typography -->
-<h1 class="text-2xl font-bold">
-<p class="text-sm text-gray-500">
+<!-- Colors & Surfaces -->
+<div class="surface-card border-round shadow-2">
+<span class="text-primary font-semibold">
+<span class="text-secondary text-sm">
 
 <!-- Borders & Shadows -->
-<div class="rounded-xl border border-gray-200 shadow-md">
-
-<!-- Transitions -->
-<div class="transition-all hover:-translate-y-1 hover:shadow-lg">
+<div class="border-1 border-round-lg shadow-1">
 ```
 
-### 3. Card Patterns (PrimeNG + Tailwind)
+### 3. PrimeNG Utilities Quick Reference
 
-**Simple Card (Tailwind only):**
-```html
-<div class="bg-white rounded-2xl shadow-md border border-gray-200 overflow-hidden">
-  <div class="flex items-center gap-4 p-6 border-b border-gray-200">
-    <div class="w-11 h-11 rounded-lg bg-blue-500/10 flex items-center justify-center">
-      <i class="pi pi-shopping-cart text-blue-500 text-xl"></i>
-    </div>
-    <h3 class="text-xl font-semibold">Order Summary</h3>
-  </div>
-  <div class="p-6">
-    Content here
-  </div>
-</div>
-```
+**Spacing:**
+| Class | Value |
+|-------|-------|
+| `p-1`, `m-1`, `gap-1` | 0.25rem |
+| `p-2`, `m-2`, `gap-2` | 0.5rem |
+| `p-3`, `m-3`, `gap-3` | 1rem |
+| `p-4`, `m-4`, `gap-4` | 1.5rem |
+| `p-5`, `m-5`, `gap-5` | 2rem |
+| `px-3`, `py-2` | Horizontal/vertical |
+| `mt-3`, `mb-2` | Single side |
 
-**With PrimeNG p-card:**
-```html
-<p-card styleClass="shadow-md">
-  <ng-template pTemplate="header">
-    <div class="flex items-center gap-4 p-6 border-b border-gray-200">
-      <div class="w-11 h-11 rounded-lg bg-blue-500/10 flex items-center justify-center">
-        <i class="pi pi-shopping-cart text-blue-500 text-xl"></i>
-      </div>
-      <h3 class="text-xl font-semibold m-0">Order Summary</h3>
-    </div>
-  </ng-template>
-  <div class="p-6">Content here</div>
-</p-card>
-```
+**Surfaces & Colors:**
+| Class | Use for |
+|-------|---------|
+| `surface-ground` | Page background |
+| `surface-card` | Card background |
+| `surface-border` | Border color |
+| `text-primary` | Primary color text |
+| `text-secondary` | Secondary text |
+| `bg-primary` | Primary background |
 
-### 4. Stat Card Pattern
+**Typography:**
+| Class | Use for |
+|-------|---------|
+| `text-sm` | Small text |
+| `text-lg` | Large text |
+| `text-xl` | Extra large |
+| `font-semibold` | 600 weight |
+| `font-bold` | 700 weight |
 
-```html
-<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-  <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 cursor-pointer
-              hover:-translate-y-0.5 hover:shadow-md transition-all">
-    <div class="flex items-center gap-3">
-      <div class="w-8 h-8 rounded-lg bg-blue-500 flex items-center justify-center">
-        <i class="pi pi-users text-white text-sm"></i>
-      </div>
-      <span class="text-xl font-bold">{{ totalUsers }}</span>
-    </div>
-    <span class="text-xs text-gray-500 font-semibold mt-2 block">Total Users</span>
-  </div>
-</div>
-```
+**Layout:**
+| Class | Use for |
+|-------|---------|
+| `flex` | Flexbox container |
+| `flex-column` | Column direction |
+| `align-items-center` | Vertical center |
+| `justify-content-between` | Space between |
+| `gap-3` | Gap between items |
+| `flex-1` | Flex grow |
 
-### 5. Form Pattern
+### 4. Custom SCSS (Only When Needed)
 
-```html
-<div class="flex flex-col gap-2">
-  <label class="text-sm font-medium text-gray-700">Email</label>
-  <input pInputText type="email" class="w-full" />
-  <small class="text-red-500">Invalid email</small>
-</div>
-```
-
-### 6. Custom SCSS Rules
-
-Custom SCSS files should ONLY contain:
+Custom SCSS should ONLY contain:
 - **CSS Variables** (`_variables.scss`) - Design tokens
 - **PrimeNG Overrides** (`_primeng-overrides.scss`) - Theme customizations
-- **Base styles** (`_base.scss`) - html, body, scrollbars, fonts
+- **Gradients** (`_gradients.scss`) - PrimeNG doesn't have gradient utilities
+- **Custom animations** - Brand-specific effects
 
 ```scss
+// ALLOWED - Gradient (PrimeNG doesn't have)
+.card__icon--primary {
+  background: var(--primary-gradient);
+}
+
 // ALLOWED - PrimeNG override
 .p-button {
   border-radius: var(--radius-lg);
 }
 
-// ALLOWED - CSS variable definition
+// ALLOWED - CSS variable
 :root {
-  --primary-color: #2563eb;
+  --primary-gradient: linear-gradient(135deg, #3b82f6, #1d4ed8);
 }
 
-// NOT ALLOWED - Custom component class (use Tailwind instead)
-.my-card {
-  background: white;
-  padding: 1.5rem;
-  border-radius: 12px;
+// NOT ALLOWED - Layout class (use PrimeNG utilities)
+.my-flex-container {
+  display: flex;
+  gap: 1rem;
 }
 ```
 
-### 7. Tailwind Quick Reference
+### 5. Existing Custom Classes (Legacy)
 
-**Spacing:**
-| Class | Value |
-|-------|-------|
-| `gap-1`, `p-1` | 0.25rem (4px) |
-| `gap-2`, `p-2` | 0.5rem (8px) |
-| `gap-4`, `p-4` | 1rem (16px) |
-| `gap-6`, `p-6` | 1.5rem (24px) |
+Some existing components use custom SCSS classes. When modifying these:
+- **Keep working classes** - Don't break existing UI
+- **Don't add new custom classes** - Use PrimeNG instead
+- **Gradually migrate** - Replace with PrimeNG when touching that code
 
-**Colors:**
-| Class | Use for |
-|-------|---------|
-| `bg-white` | Card backgrounds |
-| `bg-gray-50` | Subtle backgrounds |
-| `text-gray-500` | Secondary text |
-| `text-gray-900` | Primary text |
-| `border-gray-200` | Borders |
-| `bg-blue-500` | Primary actions |
-| `bg-green-500` | Success |
-| `bg-red-500` | Danger |
-
-**Typography:**
-| Class | Use for |
-|-------|---------|
-| `text-xs` | Badges, labels |
-| `text-sm` | Secondary text |
-| `text-base` | Body text |
-| `text-xl` | Card titles |
-| `text-2xl` | Section headers |
-| `font-semibold` | 600 weight |
-| `font-bold` | 700 weight |
+Common existing classes:
+- `.card`, `.card__header`, `.card__body` - Card structure
+- `.card__icon--primary/success/etc` - Icon gradient backgrounds
+- `.nav-link`, `.nav-link--mobile` - Navigation items
+- `.settings-item` - Settings row items
 
 ### 8. Page Animations (Required)
 
@@ -473,13 +442,13 @@ onImageError(event: Event): void {
 - [ ] Has empty state
 - [ ] Uses pipes (dateFormat, currency, translate)
 - [ ] Images have `loading="lazy"` and `(error)` handler
-- [ ] Uses PrimeNG components + Tailwind utilities (not custom classes)
+- [ ] Uses PrimeNG components + utilities (not new custom classes)
 
 **Styling:**
-- [ ] Uses PrimeNG components for complex UI (buttons, tables, dialogs)
-- [ ] Uses Tailwind utilities for layout, spacing, colors
-- [ ] No custom SCSS component classes
-- [ ] Component SCSS only for unique layout needs (rare)
+- [ ] Uses PrimeNG components for complex UI (buttons, tables, dialogs, tags)
+- [ ] Uses PrimeNG utilities for layout, spacing (`flex`, `gap-3`, `p-4`)
+- [ ] No new custom SCSS classes created
+- [ ] Custom SCSS only for gradients/effects PrimeNG can't handle
 
 **UX:**
 - [ ] Has page entry animation

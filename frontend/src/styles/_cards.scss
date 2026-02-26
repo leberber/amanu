@@ -1,8 +1,8 @@
 // =============================================================================
-// CARDS - Reusable Card System
+// CARDS
 // =============================================================================
-// One flexible card component that replaces all specific card types.
-// Compose with: .card + .card__header + .card__body + .card__icon
+// Reusable card styles. Uses PrimeNG utilities for layout where possible.
+// Custom styles only for gradients and effects PrimeNG doesn't provide.
 // =============================================================================
 
 
@@ -14,44 +14,15 @@
   &--primary { background: var(--primary-gradient); }
   &--success { background: var(--success-gradient); }
   &--warning { background: var(--warning-gradient); }
-  &--info { background: var(--info-gradient); }
   &--purple { background: var(--purple-gradient); }
   &--pink { background: var(--pink-gradient); }
-  &--teal { background: var(--teal-gradient); }
   &--orange { background: var(--orange-gradient); }
   &--red { background: var(--red-gradient); }
 }
 
-@mixin icon-subtle-variants {
-  &--primary-subtle {
-    background: rgba(var(--primary-rgb), 0.1);
-    i { color: var(--primary-color); }
-  }
-  &--success-subtle {
-    background: rgba(var(--color-success-rgb), 0.1);
-    i { color: var(--color-success); }
-  }
-  &--warning-subtle {
-    background: rgba(var(--color-warning-rgb), 0.1);
-    i { color: var(--color-warning); }
-  }
-  &--info-subtle {
-    background: rgba(var(--color-info-rgb), 0.1);
-    i { color: var(--color-info); }
-  }
-  &--purple-subtle {
-    background: rgba(139, 92, 246, 0.1);
-    i { color: #8b5cf6; }
-  }
-  &--orange-subtle {
-    background: rgba(249, 115, 22, 0.1);
-    i { color: #f97316; }
-  }
-}
-
 
 // =============================================================================
-// 1. BASE CARD
+// BASE CARD
 // =============================================================================
 
 .card {
@@ -63,42 +34,19 @@
   overflow: hidden;
   transition: all var(--transition-smooth);
 
-  // Interactive card with hover effect
-  &--interactive {
-    cursor: pointer;
-
-    &:hover {
-      box-shadow: var(--shadow-lg);
-      transform: translateY(-2px);
-    }
-  }
-
-  // No hover effect
   &--no-hover:hover {
     transform: none;
     box-shadow: var(--shadow-md);
   }
 
-  // Flat style (less elevation)
-  &--flat {
-    box-shadow: var(--shadow-sm);
-    background: var(--surface-0);
-  }
-
-  // Full width in grid
-  &--full-width {
-    grid-column: 1 / -1;
-  }
-
-  // Allow overflow (for dropdowns, etc.)
-  &--overflow {
-    overflow: visible;
+  &--compact {
+    padding: var(--space-4) var(--space-5);
   }
 }
 
 
 // =============================================================================
-// 2. CARD HEADER
+// CARD HEADER
 // =============================================================================
 
 .card__header {
@@ -107,73 +55,32 @@
   gap: var(--space-5);
   padding: var(--space-7) var(--space-8);
   border-bottom: var(--border-width) solid var(--border-color-light);
-
-  &--compact {
-    padding: var(--space-5) var(--space-6);
-  }
-
-  &--no-border {
-    border-bottom: none;
-  }
 }
 
-.card__header-text {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-width: 0;
-}
+
+// =============================================================================
+// CARD TITLE
+// =============================================================================
 
 .card__title {
   font-size: var(--font-size-xl);
   font-weight: var(--font-weight-semibold);
   color: var(--text-color);
   margin: 0;
-
-  &--sm { font-size: var(--font-size-lg); }
-  &--lg { font-size: var(--font-size-2xl); }
-}
-
-.card__subtitle {
-  font-size: var(--font-size-base);
-  color: var(--text-color-secondary);
-  margin: var(--space-1) 0 0 0;
 }
 
 
 // =============================================================================
-// 3. CARD BODY
+// CARD BODY
 // =============================================================================
 
 .card__body {
   padding: var(--space-8);
-
-  &--compact { padding: var(--space-6); }
-  &--spacious { padding: var(--space-9); }
-  &--flush { padding: 0; }
 }
 
 
 // =============================================================================
-// 4. CARD FOOTER
-// =============================================================================
-
-.card__footer {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: var(--space-5);
-  padding: var(--space-6) var(--space-8);
-  border-top: var(--border-width) solid var(--border-color-light);
-  background: var(--surface-slate-50);
-
-  &--centered { justify-content: center; }
-  &--between { justify-content: space-between; }
-}
-
-
-// =============================================================================
-// 5. CARD ICON
+// CARD ICON
 // =============================================================================
 
 .card__icon {
@@ -186,36 +93,12 @@
 
   i { color: var(--color-white); }
 
-  // Sizes
-  &--sm {
-    width: var(--icon-md);
-    height: var(--icon-md);
-    i { font-size: var(--font-size-md); }
-  }
-
-  &--md {
-    width: var(--icon-lg);
-    height: var(--icon-lg);
-    i { font-size: var(--font-size-xl); }
-  }
-
-  &--lg {
-    width: var(--icon-xl);
-    height: var(--icon-xl);
-    border-radius: var(--radius-lg);
-    i { font-size: var(--font-size-2xl); }
-  }
-
-  // Gradient backgrounds
   @include icon-gradient-variants;
-
-  // Subtle backgrounds (icon color visible)
-  @include icon-subtle-variants;
 }
 
 
 // =============================================================================
-// 6. CARD IMAGE
+// CARD IMAGE
 // =============================================================================
 
 .card__image {
@@ -231,79 +114,12 @@
     max-height: 300px;
     object-fit: contain;
   }
-
-  &--cover img {
-    object-fit: cover;
-    height: 100%;
-  }
-
-  &--padded {
-    padding: var(--space-6);
-    border-radius: var(--radius-lg);
-  }
 }
 
 
 // =============================================================================
-// 7. STAT CARD (Specialized)
+// STAT CARD ELEMENTS
 // =============================================================================
-// For dashboard statistics - extends base card
-
-.card--stat {
-  position: relative;
-  padding: var(--space-7);
-  cursor: pointer;
-
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-xl);
-
-    .card__icon { transform: scale(1.1); }
-    .card__decoration { transform: translate(10%, 10%) scale(1.2); }
-  }
-
-  .card__icon {
-    margin-bottom: var(--space-6);
-  }
-
-  // Compact variant
-  &.card--compact {
-    padding: var(--space-4) var(--space-5);
-
-    &:hover {
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-md);
-    }
-
-    .card__icon {
-      width: 32px;
-      height: 32px;
-      margin-bottom: 0;
-      i { font-size: var(--font-size-sm); }
-    }
-
-    .card__value {
-      font-size: var(--font-size-xl);
-      display: flex;
-      align-items: center;
-      gap: var(--space-3);
-    }
-
-    .card__label {
-      font-size: var(--font-size-xs);
-    }
-
-    .card__decoration { display: none; }
-  }
-
-  @media (max-width: 480px) {
-    display: flex;
-    align-items: center;
-    gap: var(--space-6);
-
-    .card__icon { margin-bottom: 0; }
-  }
-}
 
 .card__value {
   display: block;
@@ -337,42 +153,7 @@
 
 
 // =============================================================================
-// 8. GRID LAYOUTS
-// =============================================================================
-
-.card-grid {
-  display: grid;
-  gap: var(--space-6);
-
-  &--stats {
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    margin-bottom: var(--space-8);
-
-    @media (max-width: 768px) { grid-template-columns: repeat(2, 1fr); }
-    @media (max-width: 480px) { grid-template-columns: 1fr; }
-  }
-
-  &--stats-compact {
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    gap: var(--space-4);
-    margin-bottom: var(--space-6);
-
-    @media (max-width: 768px) { grid-template-columns: repeat(3, 1fr); }
-    @media (max-width: 576px) { grid-template-columns: repeat(2, 1fr); }
-  }
-
-  &--data {
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-    gap: var(--space-8);
-    margin-bottom: var(--space-8);
-
-    @media (max-width: 768px) { grid-template-columns: 1fr; }
-  }
-}
-
-
-// =============================================================================
-// 9. SETTINGS ITEM (Inline card variant)
+// SETTINGS ITEM
 // =============================================================================
 
 .settings-item {
