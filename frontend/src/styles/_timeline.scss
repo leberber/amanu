@@ -1,0 +1,72 @@
+// =============================================================================
+// TIMELINE
+// =============================================================================
+// PrimeNG Timeline overrides and custom timeline styles.
+// Uses variables from: _colors.scss, _spacing.scss, _typography.scss
+// =============================================================================
+
+
+// =============================================================================
+// 1. TIMELINE WRAPPER
+// =============================================================================
+
+.timeline-wrapper {
+  padding: var(--space-3) 0;
+}
+
+
+// =============================================================================
+// 2. PRIMENG TIMELINE OVERRIDES
+// =============================================================================
+
+::ng-deep .p-timeline {
+  .p-timeline-event {
+    min-height: var(--icon-2xl);
+  }
+
+  .p-timeline-event-content {
+    padding: 0 0 var(--space-6) var(--space-5);
+  }
+
+  .p-timeline-event-connector {
+    background: var(--surface-200);
+  }
+}
+
+
+// =============================================================================
+// 3. TIMELINE MARKER
+// =============================================================================
+
+.timeline-marker {
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-white);
+
+  i {
+    font-size: var(--font-size-sm);
+  }
+}
+
+
+// =============================================================================
+// 4. TIMELINE CONTENT
+// =============================================================================
+
+.timeline-content {
+  &__status {
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-medium);
+    color: var(--text-color);
+    margin-bottom: var(--space-1);
+  }
+
+  &__date {
+    font-size: var(--font-size-sm);
+    color: var(--text-color-secondary);
+  }
+}
