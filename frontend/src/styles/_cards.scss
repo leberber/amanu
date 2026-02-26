@@ -7,6 +7,23 @@
 
 
 // =============================================================================
+// ICON GRADIENT MIXIN
+// =============================================================================
+
+@mixin icon-gradient-variants {
+  &--primary { background: var(--primary-gradient); }
+  &--success { background: var(--success-gradient); }
+  &--warning { background: var(--warning-gradient); }
+  &--info { background: var(--info-gradient); }
+  &--purple { background: var(--purple-gradient); }
+  &--pink { background: var(--pink-gradient); }
+  &--teal { background: var(--teal-gradient); }
+  &--orange { background: var(--orange-gradient); }
+  &--red { background: var(--red-gradient); }
+}
+
+
+// =============================================================================
 // CARD BASE PLACEHOLDER
 // =============================================================================
 
@@ -37,15 +54,7 @@
     color: var(--color-white);
   }
 
-  &--primary { background: var(--primary-gradient); }
-  &--success { background: var(--success-gradient); }
-  &--warning { background: var(--warning-gradient); }
-  &--info { background: var(--info-gradient); }
-  &--purple { background: var(--purple-gradient); }
-  &--pink { background: var(--pink-gradient); }
-  &--orange { background: var(--orange-gradient); }
-  &--teal { background: var(--teal-gradient); }
-  &--red { background: var(--red-gradient); }
+  @include icon-gradient-variants;
 }
 
 
@@ -172,118 +181,7 @@
 
 
 // =============================================================================
-// 4. CARD FOOTER
-// =============================================================================
-
-.card-footer {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: var(--space-5);
-  padding: var(--space-6) var(--space-8);
-  border-top: var(--border-width) solid var(--border-color-light);
-  background: var(--surface-slate-50);
-}
-
-
-// =============================================================================
-// 5. GRID CARD
-// =============================================================================
-
-.grid-card {
-  background: var(--color-white);
-  border-radius: var(--radius-xl);
-  border: var(--border-width) solid var(--border-color-light);
-  overflow: hidden;
-  transition: all var(--transition-smooth);
-
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-xl);
-
-    .grid-card__actions {
-      opacity: 1;
-    }
-  }
-
-  &__header {
-    position: relative;
-    padding: var(--space-7);
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-  }
-
-  &__image {
-    width: var(--icon-3xl);
-    height: var(--icon-3xl);
-    border-radius: var(--radius-xl);
-    background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.1) 0%, rgba(var(--primary-rgb), 0.05) 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-
-    img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    i {
-      font-size: var(--font-size-4xl);
-      color: var(--primary-color);
-    }
-  }
-
-  &__body {
-    padding: 0 var(--space-7) var(--space-7);
-  }
-
-  &__title {
-    font-size: var(--font-size-xl);
-    font-weight: var(--font-weight-semibold);
-    color: var(--text-color);
-    margin: 0 0 var(--space-3) 0;
-  }
-
-  &__description {
-    font-size: var(--font-size-base);
-    color: var(--text-color-secondary);
-    margin: 0 0 var(--space-6) 0;
-    line-height: 1.5;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-
-    &--empty {
-      font-style: italic;
-      color: var(--color-text-muted);
-    }
-  }
-
-  &__meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-5);
-    align-items: center;
-  }
-
-  &__actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: var(--space-3);
-    padding: 0 var(--space-7) var(--space-7);
-    opacity: 0.7;
-    transition: opacity var(--transition-base);
-  }
-}
-
-
-// =============================================================================
-// 6. STAT CARD
+// 4. STAT CARD
 // =============================================================================
 
 .stat-card {
@@ -316,16 +214,6 @@
     i {
       font-size: var(--font-size-2xl);
     }
-
-    &--primary { background: var(--primary-gradient); }
-    &--success { background: var(--success-gradient); }
-    &--warning { background: var(--warning-gradient); }
-    &--info { background: var(--info-gradient); }
-    &--purple { background: var(--purple-gradient); }
-    &--pink { background: var(--pink-gradient); }
-    &--teal { background: var(--teal-gradient); }
-    &--orange { background: var(--orange-gradient); }
-    &--red { background: var(--red-gradient); }
   }
 
   &__value {
@@ -353,15 +241,7 @@
     opacity: 0.1;
     transition: transform var(--transition-base);
 
-    &--primary { background: var(--primary-gradient); }
-    &--success { background: var(--success-gradient); }
-    &--warning { background: var(--warning-gradient); }
-    &--info { background: var(--info-gradient); }
-    &--purple { background: var(--purple-gradient); }
-    &--pink { background: var(--pink-gradient); }
-    &--teal { background: var(--teal-gradient); }
-    &--orange { background: var(--orange-gradient); }
-    &--red { background: var(--red-gradient); }
+    @include icon-gradient-variants;
   }
 
   @media (max-width: 480px) {
@@ -424,60 +304,7 @@
 
 
 // =============================================================================
-// 7. DATA CARD
-// =============================================================================
-
-.data-card {
-  @extend %card-base;
-
-  &--full-width {
-    grid-column: 1 / -1;
-  }
-
-  &__header {
-    padding: var(--space-7) var(--space-8);
-    border-bottom: var(--border-width) solid var(--border-color-light);
-    background: var(--color-white);
-    display: flex;
-    align-items: center;
-    gap: var(--space-5);
-  }
-
-  &__icon {
-    @extend %card-icon;
-    width: var(--icon-md);
-    height: var(--icon-md);
-
-    i {
-      font-size: var(--font-size-md);
-    }
-
-    &--primary { background: var(--primary-gradient); }
-    &--success { background: var(--success-gradient); }
-    &--warning { background: var(--warning-gradient); }
-    &--info { background: var(--info-gradient); }
-    &--purple { background: var(--purple-gradient); }
-    &--pink { background: var(--pink-gradient); }
-    &--teal { background: var(--teal-gradient); }
-    &--orange { background: var(--orange-gradient); }
-    &--red { background: var(--red-gradient); }
-  }
-
-  &__title {
-    margin: 0;
-    font-size: var(--font-size-xl);
-    font-weight: var(--font-weight-semibold);
-    color: var(--text-color);
-  }
-
-  &__body {
-    padding: var(--space-8);
-  }
-}
-
-
-// =============================================================================
-// 8. FORM CARD
+// 5. FORM CARD
 // =============================================================================
 
 .form-card {
@@ -499,16 +326,7 @@
 
 
 // =============================================================================
-// 9. TABLE CARD
-// =============================================================================
-
-.table-card {
-  @extend %card-base;
-}
-
-
-// =============================================================================
-// 10. GRID LAYOUTS
+// 7. GRID LAYOUTS
 // =============================================================================
 
 .cards-grid {
@@ -566,7 +384,7 @@
 
 
 // =============================================================================
-// 11. TYPE SELECTION CARDS
+// 8. TYPE SELECTION CARDS
 // =============================================================================
 // Selectable cards for choosing notification type, category, etc.
 // Uses --card-color CSS variable for dynamic theming.
@@ -655,7 +473,7 @@
 
 
 // =============================================================================
-// 12. TARGET SELECTION
+// 9. TARGET SELECTION
 // =============================================================================
 // Row layout for selecting targets with preview card.
 
@@ -873,26 +691,17 @@
   box-shadow: var(--shadow-lg);
 
   &__icon {
+    @extend %card-icon;
     width: var(--icon-xl);
     height: var(--icon-xl);
     border-radius: var(--radius-lg);
-    display: flex;
-    align-items: center;
-    justify-content: center;
     flex-shrink: 0;
 
     i {
-      color: var(--color-white);
       font-size: var(--font-size-xl);
     }
 
-    &--primary { background: var(--primary-gradient); }
-    &--purple { background: var(--purple-gradient); }
     &--blue { background: var(--info-gradient); }
-    &--info { background: var(--info-gradient); }
-    &--success { background: var(--success-gradient); }
-    &--warning { background: var(--warning-gradient); }
-    &--pink { background: var(--pink-gradient); }
   }
 }
 

@@ -47,21 +47,21 @@
         </div>
         <div class="tab-content">
           <div class="data-grid">
-            <div class="data-card">
-              <div class="data-card__header">
+            <div class="card card--no-hover">
+              <div class="card-header">
                 <div class="skeleton" style="width: 32px; height: 32px; border-radius: var(--radius-md);"></div>
                 <div class="skeleton skeleton-text" style="width: 140px; height: 20px;"></div>
               </div>
-              <div class="data-card__body">
+              <div class="card-body">
                 <div class="skeleton" style="width: 200px; height: 200px; border-radius: 50%;"></div>
               </div>
             </div>
-            <div class="data-card">
-              <div class="data-card__header">
+            <div class="card card--no-hover">
+              <div class="card-header">
                 <div class="skeleton" style="width: 32px; height: 32px; border-radius: var(--radius-md);"></div>
                 <div class="skeleton skeleton-text" style="width: 140px; height: 20px;"></div>
               </div>
-              <div class="data-card__body">
+              <div class="card-body">
                 <div class="skeleton" style="width: 200px; height: 200px; border-radius: 50%;"></div>
               </div>
             </div>
@@ -181,14 +181,14 @@
           @if (activeTab() === 'analytics') {
             <div class="data-grid">
               <!-- Sales by Category Chart -->
-              <div class="data-card animate-item" style="--item-delay: 400ms;">
-                <div class="data-card__header">
-                  <div class="data-card__icon data-card__icon--purple">
+              <div class="card card--no-hover animate-item" style="--item-delay: 400ms;">
+                <div class="card-header">
+                  <div class="card-header__icon card-header__icon--purple">
                     <i class="pi pi-chart-pie"></i>
                   </div>
-                  <h3 class="data-card__title">{{ 'admin.dashboard.sales_by_category' | translate }}</h3>
+                  <h3 class="card-header__title">{{ 'admin.dashboard.sales_by_category' | translate }}</h3>
                 </div>
-                <div class="data-card__body">
+                <div class="card-body">
                   @if (categoryChartData()) {
                     <p-chart type="doughnut" [data]="categoryChartData()" [options]="categoryChartOptions()"></p-chart>
                   } @else {
@@ -203,14 +203,14 @@
               </div>
 
               <!-- Sales by Brand Chart -->
-              <div class="data-card animate-item" style="--item-delay: 500ms;">
-                <div class="data-card__header">
-                  <div class="data-card__icon data-card__icon--pink">
+              <div class="card card--no-hover animate-item" style="--item-delay: 500ms;">
+                <div class="card-header">
+                  <div class="card-header__icon card-header__icon--pink">
                     <i class="pi pi-tag"></i>
                   </div>
-                  <h3 class="data-card__title">{{ 'admin.dashboard.sales_by_brand' | translate }}</h3>
+                  <h3 class="card-header__title">{{ 'admin.dashboard.sales_by_brand' | translate }}</h3>
                 </div>
-                <div class="data-card__body">
+                <div class="card-body">
                   @if (brandChartData()) {
                     <p-chart type="doughnut" [data]="brandChartData()" [options]="brandChartOptions()"></p-chart>
                   } @else {
