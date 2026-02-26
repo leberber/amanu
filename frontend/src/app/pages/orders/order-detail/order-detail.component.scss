@@ -1,41 +1,58 @@
 // =============================================================================
 // Order Detail Component Styles
 // =============================================================================
-// Uses global styles from _components.scss:
-// - .detail-content, .detail-grid, .detail-grid--orders, .detail-sidebar (layout)
-// - .app-card, .app-card__header, .app-card__icon, .app-card__title, .app-card__content
-// - .topbar-header, .topbar-badge (order statuses)
-// - .form-action-btn, .form-action-btn--secondary, .form-action-btn--danger
-// - .action-buttons, .action-note
-// - .thumbnail, .thumbnail.clickable
-// - .items-simple-list, .item-line, .item-qty, .item-name, .item-total
-// - .total-display, .total-display--subtle
-// Uses global styles from _skeleton.scss:
-// - .skeleton, .skeleton-text, .skeleton-avatar, .skeleton-image, .skeleton-circle, .skeleton-row
+// Uses global styles from:
+// - _layout.scss: page-content, page-grid, page-sidebar
+// - _cards.scss: card, card-header, card-header__icon, card-header__title, card-body
+// - _lists.scss: items-simple-list, item-line, item-qty, item-name, item-total, thumbnail, list-footer
+// - _buttons.scss: form-actions, form-action-btn
+// - _badges.scss: topbar-badge, meta-item
+// - _skeleton.scss: skeleton classes
 // =============================================================================
 
 // -----------------------------------------------------------------------------
-// Order Items Card
+// Order Items Card (scrollable)
 // -----------------------------------------------------------------------------
 .order-items-card {
   display: flex;
   flex-direction: column;
-  min-height: 0;
-  overflow: hidden;
+  height: calc(100vh - 170px);
 
-  .app-card__content {
+  .card-body {
+    flex: 1;
+    overflow-y: auto;
     display: flex;
     flex-direction: column;
+  }
+
+  .items-simple-list {
     flex: 1;
-    min-height: 0;
-    overflow: hidden;
+    overflow-y: auto;
+  }
+
+  .list-footer {
+    flex-shrink: 0;
   }
 }
 
-// Note: Using global .app-card and .item-line styles from _components.scss
+@media (max-width: 768px) {
+  .order-items-card {
+    height: auto;
+    max-height: none;
+  }
+}
 
 // -----------------------------------------------------------------------------
-// Timeline
+// Form hint (small note text)
+// -----------------------------------------------------------------------------
+.form-hint {
+  font-size: var(--font-size-xs);
+  color: var(--text-color-secondary);
+  margin-top: var(--space-3);
+}
+
+// -----------------------------------------------------------------------------
+// Timeline (PrimeNG override)
 // -----------------------------------------------------------------------------
 .timeline-wrapper {
   padding: var(--space-3) 0;
@@ -70,36 +87,15 @@
 }
 
 .timeline-content {
-  .status-text {
+  &__status {
     font-size: var(--font-size-md);
     font-weight: var(--font-weight-medium);
     color: var(--text-color);
     margin-bottom: var(--space-1);
   }
 
-  .status-date {
+  &__date {
     font-size: var(--font-size-sm);
     color: var(--text-color-secondary);
-  }
-}
-
-// -----------------------------------------------------------------------------
-// Responsive
-// -----------------------------------------------------------------------------
-// Note: .action-buttons and .action-note are defined globally in _components.scss
-// Note: Card padding and item-line styles are defined globally in _components.scss
-@media (max-width: 768px) {
-  .order-items-card {
-    min-height: auto;
-    overflow: hidden; // Prevent content from pushing card wider
-
-    .app-card__content {
-      overflow: hidden; // Clip overflowing content
-    }
-  }
-
-  .thumbnail {
-    width: var(--icon-md);
-    height: var(--icon-md);
   }
 }

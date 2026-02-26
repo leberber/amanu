@@ -670,3 +670,102 @@
     }
   }
 }
+
+
+// =============================================================================
+// 11. ITEMS SIMPLE LIST
+// =============================================================================
+// Simple horizontal item rows used in order details, receipts, etc.
+
+.items-simple-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.item-line {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-5);
+  border-bottom: var(--border-width) solid var(--border-color-light);
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.thumbnail {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--surface-ground);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  i {
+    font-size: var(--font-size-xl);
+    color: var(--text-color-secondary);
+  }
+
+  &.clickable {
+    cursor: pointer;
+  }
+}
+
+.item-qty {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--primary-color);
+  white-space: nowrap;
+  min-width: 50px;
+}
+
+.item-name {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-color);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.item-total {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-color);
+  white-space: nowrap;
+  min-width: 80px;
+  text-align: right;
+}
+
+
+// =============================================================================
+// 12. LIST FOOTER (same as cart tfoot)
+// =============================================================================
+
+.list-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-6) var(--space-5);
+  background: var(--surface-ground);
+  border-top: var(--border-width) solid var(--border-color-light);
+
+  &__total {
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: var(--primary-color);
+  }
+}
