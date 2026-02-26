@@ -6,9 +6,10 @@
 //   table-action-btn, table-options-menu, table-id, table-row-animate
 // - _cards.scss: card, card-header, card-body, stat-card
 // - _states.scss: empty-state, date-display, amount-display
-// - _segments.scss: segment-control, segment-control--glass
+// - _segments.scss: segment-control, segment-control--glass, segment-control--sliding
 // - _skeleton.scss: skeleton, skeleton-*, item-animate
-// - _components.scss: view-btn, action-link, count-badge
+// - _badges.scss: count-badge
+// - _components.scss: action-link
 // =============================================================================
 
 // Table height override for this page
@@ -158,20 +159,5 @@
 
   .segment-control {
     width: 100%;
-
-    .segment-control__item {
-      flex: 1;
-    }
-  }
-}
-
-// -----------------------------------------------------------------------------
-// Segment Control Overrides (for desktop table header)
-// -----------------------------------------------------------------------------
-.table-header {
-  .segment-control {
-    .segment-control__item {
-      flex: none;
-    }
   }
 }

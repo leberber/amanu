@@ -55,7 +55,7 @@ export class OrderListComponent implements OnInit {
   first = signal(0);
   readonly rowsPerPageOptions = [5, 10, 25];
 
-  // Time filter for mobile
+  // Time filter
   timeFilter = signal<'all' | '7days' | '30days' | '90days'>('all');
 
   // Computed values
@@ -159,6 +159,6 @@ export class OrderListComponent implements OnInit {
 
   setTimeFilter(filter: 'all' | '7days' | '30days' | '90days'): void {
     this.timeFilter.set(filter);
-    this.first.set(0); // Reset pagination when filter changes
+    this.first.set(0);
   }
 }

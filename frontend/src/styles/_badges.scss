@@ -288,6 +288,12 @@
   &.warning {
     background: var(--btn-warning-gradient);
   }
+
+  // Light variant (subtle background)
+  &--light {
+    background: rgba(var(--primary-rgb), 0.12);
+    color: var(--primary-color);
+  }
 }
 
 

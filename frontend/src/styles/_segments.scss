@@ -18,6 +18,13 @@
   color: var(--text-color-secondary);
   transition: all var(--transition-fast);
   white-space: nowrap;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+
+  &:focus,
+  &:focus-visible {
+    outline: none;
+  }
 
   &:hover:not(.active):not(:disabled) {
     color: var(--text-color);
@@ -114,6 +121,7 @@
     box-shadow: var(--shadow-md);
     gap: var(--space-3);
     flex-wrap: wrap;
+    position: relative;
 
     .segment-control__item {
       display: flex;
@@ -122,7 +130,19 @@
       padding: var(--space-4) var(--space-5);
       border-radius: var(--radius-md);
       font-size: var(--font-size-md);
-      transition: all var(--transition-smooth);
+      transition: color 0.2s ease-out;
+      position: relative;
+      z-index: 2;
+      outline: none;
+      -webkit-tap-highlight-color: transparent;
+
+      &:focus {
+        outline: none;
+      }
+
+      &:focus-visible {
+        outline: none;
+      }
 
       &:hover:not(.active):not(:disabled) {
         background: var(--overlay-subtle);
@@ -136,6 +156,48 @@
         .count {
           background: rgba(var(--color-white-rgb), 0.25);
           color: var(--color-white);
+        }
+      }
+    }
+
+    // Sliding variant - pure CSS using :has()
+    &.segment-control--sliding {
+      --segment-count: 4;
+      --active-index: 0;
+
+      // Detect which item is active (accounting for slider being first child)
+      &:has(.segment-control__item:nth-child(2).active) { --active-index: 0; }
+      &:has(.segment-control__item:nth-child(3).active) { --active-index: 1; }
+      &:has(.segment-control__item:nth-child(4).active) { --active-index: 2; }
+      &:has(.segment-control__item:nth-child(5).active) { --active-index: 3; }
+
+      .segment-control__slider {
+        position: absolute;
+        top: var(--space-3);
+        height: calc(100% - var(--space-3) * 2);
+        width: calc((100% - var(--space-3) * 2) / var(--segment-count));
+        left: calc(var(--space-3) + var(--active-index) * ((100% - var(--space-3) * 2) / var(--segment-count)));
+        background: var(--primary-gradient);
+        border-radius: var(--radius-md);
+        box-shadow: var(--shadow-primary);
+        transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 1;
+        pointer-events: none;
+      }
+
+      .segment-control__item {
+        flex: 1;
+        justify-content: center;
+        background: transparent;
+
+        &.active {
+          background: transparent;
+          color: var(--color-white);
+          box-shadow: none;
+        }
+
+        &:hover:not(.active):not(:disabled) {
+          background: transparent;
         }
       }
     }

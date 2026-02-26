@@ -10,7 +10,7 @@
   <!-- Order count badge (mobile only) -->
   @if (orders().length > 0 && !loading()) {
     <div pageActions class="md:hidden">
-      <div class="count-badge">{{ orders().length }}</div>
+      <div class="count-badge count-badge--light">{{ orders().length }}</div>
     </div>
   }
 
@@ -147,7 +147,8 @@
 
       <!-- Mobile Sticky Segment Control -->
       <div class="mobile-filter-sticky md:hidden">
-        <div class="segment-control segment-control--glass">
+        <div class="segment-control segment-control--glass segment-control--sliding">
+          <span class="segment-control__slider"></span>
           <button
             class="segment-control__item"
             [class.active]="timeFilter() === 'all'"
@@ -181,7 +182,8 @@
           <!-- Table Header (Desktop only) -->
           <div class="table-header hidden md:flex">
             <!-- Time Filter Segment Control -->
-            <div class="segment-control segment-control--glass">
+            <div class="segment-control segment-control--glass segment-control--sliding">
+              <span class="segment-control__slider"></span>
               <button
                 class="segment-control__item"
                 [class.active]="timeFilter() === 'all'"
