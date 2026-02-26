@@ -10,9 +10,21 @@ export interface TimelineStatus {
   color: string;
 }
 
+const STATUS_ICONS: Record<string, string> = {
+  [ORDER_STATUS.PENDING]: 'pi-clock',
+  [ORDER_STATUS.CONFIRMED]: 'pi-check-circle',
+  [ORDER_STATUS.SHIPPED]: 'pi-truck',
+  [ORDER_STATUS.DELIVERED]: 'pi-check-square',
+  [ORDER_STATUS.CANCELLED]: 'pi-times-circle'
+};
+
 @Injectable({ providedIn: 'root' })
 export class OrderTimelineService {
   private translateService = inject(TranslateService);
+
+  getStatusIcon(status?: string): string {
+    return status ? STATUS_ICONS[status] || 'pi-shopping-bag' : 'pi-shopping-bag';
+  }
 
   generateTimeline(order: Order): TimelineStatus[] {
     const statuses: TimelineStatus[] = [

@@ -13,14 +13,7 @@
   @if (order()) {
     <div pageActions class="md:hidden">
       <div class="topbar-badge" [ngClass]="order()?.status || ''">
-        <i class="pi"
-           [ngClass]="{
-             'pi-clock': order()?.status === 'pending',
-             'pi-check-circle': order()?.status === 'confirmed',
-             'pi-truck': order()?.status === 'shipped',
-             'pi-check-square': order()?.status === 'delivered',
-             'pi-times-circle': order()?.status === 'cancelled'
-           }"></i>
+        <i class="pi" [ngClass]="timelineService.getStatusIcon(order()?.status)"></i>
       </div>
     </div>
   }

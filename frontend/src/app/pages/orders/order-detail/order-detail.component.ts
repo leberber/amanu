@@ -55,7 +55,7 @@ export class OrderDetailComponent implements OnInit {
   private translateService = inject(TranslateService);
   private destroyRef = inject(DestroyRef);
   private dateService = inject(DateService);
-  private timelineService = inject(OrderTimelineService);
+  readonly timelineService = inject(OrderTimelineService);
   private orderTranslation = inject(OrderTranslationService);
   readonly lightbox = inject(LightboxService);
 
