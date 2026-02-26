@@ -72,7 +72,7 @@
     <div class="page-content">
       <div class="page-grid">
         <!-- Cart Items -->
-        <div class="table-container">
+        <div class="table-container scrollable">
           <div class="table-header">
             <div class="table-header__title">
               <div class="card-header__icon card-header__icon--primary">
@@ -84,14 +84,9 @@
           </div>
 
           <!-- Desktop Table -->
-          <div class="hidden md:block">
-            <p-table
-              [value]="cartItems()"
-              [scrollable]="true"
-              scrollHeight="flex"
-              [tableStyle]="{'min-width':'100%'}">
-
-              <ng-template pTemplate="header">
+          <div class="table-wrapper hidden md:block">
+            <table class="table">
+              <thead>
                 <tr>
                   <th style="width: 40%">{{ 'cart.table.product' | translate }}</th>
                   <th style="width: 15%" class="text-center">{{ 'common.price' | translate }}</th>
@@ -99,70 +94,82 @@
                   <th style="width: 15%" class="text-right">{{ 'common.total' | translate }}</th>
                   <th style="width: 10%" class="text-center"></th>
                 </tr>
-              </ng-template>
-
-              <ng-template pTemplate="body" let-item>
-                <tr>
-                  <td>
-                    <div class="table-item-with-image">
-                      <div class="table-thumbnail" [class.clickable]="item.product_image" (click)="openImage(item)">
-                        @if (item.product_image) {
-                          <img [src]="item.product_image" [alt]="item.product_name" loading="lazy" appImageFallback>
-                        } @else {
-                          <i class="pi pi-box"></i>
-                        }
-                      </div>
-                      <div class="table-item-info">
-                        <span class="table-item-name">{{ item.product_name }}</span>
-                        @if (item.is_organic) {
-                          <div class="table-item-badges">
-                            <span class="badge organic">{{ 'products.product.organic' | translate }}</span>
-                          </div>
-                        }
-                      </div>
-                    </div>
-                  </td>
-                  <td class="text-center">
-                    <span class="text-secondary">{{ item.product_price | appCurrency }}/{{ item.product_unit | appUnit }}</span>
-                  </td>
-                  <td>
-                    <div class="flex justify-content-center">
-                      <div class="quantity-controls">
-                        <button
-                          pButton
-                          type="button"
-                          icon="pi pi-minus"
-                          class="p-button-sm p-button-text p-button-rounded"
-                          [disabled]="productQuantities[item.id] <= 1 || isOutOfStock(item)"
-                          (click)="updateItemQuantity(item.id, productQuantities[item.id] - getQuantityStep(item))">
-                        </button>
-                        @let cartonCount = getCartonCount(item);
-                        <div class="quantity-display">
-                          <span class="quantity-display__primary">{{ cartonCount }} {{ getPackagingTypeForCount(item, cartonCount) }}</span>
-                          <span class="quantity-display__secondary">{{ productQuantities[item.id] }} {{ item.product_unit | appUnit }}</span>
+              </thead>
+              <tbody>
+                @for (item of cartItems(); track item.id; let i = $index) {
+                  <tr class="table-row-animate" [style.--row-delay]="(i * ANIMATION_DELAY) + 'ms'">
+                    <td>
+                      <div class="table-item-with-image">
+                        <div class="table-thumbnail" [class.clickable]="item.product_image" (click)="openImage(item)">
+                          @if (item.product_image) {
+                            <img [src]="item.product_image" [alt]="item.product_name" loading="lazy" appImageFallback>
+                          } @else {
+                            <i class="pi pi-box"></i>
+                          }
                         </div>
-                        <button
-                          pButton
-                          type="button"
-                          icon="pi pi-plus"
-                          class="p-button-sm p-button-text p-button-rounded"
-                          [disabled]="isOutOfStock(item) || (item.stock_quantity && productQuantities[item.id] >= item.stock_quantity)"
-                          (click)="updateItemQuantity(item.id, productQuantities[item.id] + getQuantityStep(item))">
-                        </button>
+                        <div class="table-item-info">
+                          <span class="table-item-name">{{ item.product_name }}</span>
+                          @if (item.is_organic) {
+                            <div class="table-item-badges">
+                              <span class="badge organic">{{ 'products.product.organic' | translate }}</span>
+                            </div>
+                          }
+                        </div>
                       </div>
-                    </div>
+                    </td>
+                    <td class="text-center">
+                      <span class="text-secondary">{{ item.product_price | appCurrency }}/{{ item.product_unit | appUnit }}</span>
+                    </td>
+                    <td>
+                      <div class="flex justify-content-center">
+                        <div class="quantity-controls">
+                          <button
+                            pButton
+                            type="button"
+                            icon="pi pi-minus"
+                            class="p-button-sm p-button-text p-button-rounded"
+                            [disabled]="productQuantities[item.id] <= 1 || isOutOfStock(item)"
+                            (click)="updateItemQuantity(item.id, productQuantities[item.id] - getQuantityStep(item))">
+                          </button>
+                          @let cartonCount = getCartonCount(item);
+                          <div class="quantity-display">
+                            <span class="quantity-display__primary">{{ cartonCount }} {{ getPackagingTypeForCount(item, cartonCount) }}</span>
+                            <span class="quantity-display__secondary">{{ productQuantities[item.id] }} {{ item.product_unit | appUnit }}</span>
+                          </div>
+                          <button
+                            pButton
+                            type="button"
+                            icon="pi pi-plus"
+                            class="p-button-sm p-button-text p-button-rounded"
+                            [disabled]="isOutOfStock(item) || (item.stock_quantity && productQuantities[item.id] >= item.stock_quantity)"
+                            (click)="updateItemQuantity(item.id, productQuantities[item.id] + getQuantityStep(item))">
+                          </button>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="text-right">
+                      <span class="text-bold text-primary">{{ item.product_price * item.quantity | appCurrency }}</span>
+                    </td>
+                    <td class="text-center">
+                      <button class="icon-btn icon-btn--danger" (click)="removeItem(item.id)" [pTooltip]="'cart.remove_item' | translate" tooltipPosition="left">
+                        <i class="pi pi-trash"></i>
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td colspan="3">
+                    <span class="text-secondary">{{ cartItemCount() }} {{ (cartItemCount() === 1 ? 'common.item' : 'common.items') | translate }}</span>
                   </td>
                   <td class="text-right">
-                    <span class="text-bold text-primary">{{ item.product_price * item.quantity | appCurrency }}</span>
+                    <span class="text-bold">{{ 'promotions.subtotal' | translate }}: {{ cartSubtotal() | appCurrency }}</span>
                   </td>
-                  <td class="text-center">
-                    <button class="icon-btn icon-btn--danger" (click)="removeItem(item.id)" [pTooltip]="'cart.remove_item' | translate" tooltipPosition="left">
-                      <i class="pi pi-trash"></i>
-                    </button>
-                  </td>
+                  <td></td>
                 </tr>
-              </ng-template>
-            </p-table>
+              </tfoot>
+            </table>
           </div>
 
           <!-- Mobile List -->

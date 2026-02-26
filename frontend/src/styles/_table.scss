@@ -137,6 +137,15 @@
     }
   }
 
+  tfoot {
+    td {
+      @extend %table-cell-base;
+      background: var(--surface-ground);
+      font-size: var(--font-size-sm);
+      border-top: var(--border-width) solid var(--border-color-light);
+    }
+  }
+
   // ---------------------------------------------------------------------------
   // Table Variants
   // ---------------------------------------------------------------------------
