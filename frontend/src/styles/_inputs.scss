@@ -886,6 +886,48 @@
   color: var(--text-color-secondary);
   margin-top: var(--space-1);
   margin-left: var(--space-2);
+
+  &__link {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: var(--font-weight-medium);
+    transition: color var(--transition-fast);
+
+    &:hover {
+      color: var(--primary-color-dark, #1e4a82);
+      text-decoration: underline;
+    }
+  }
+}
+
+// Form hint (for action notes)
+.form-hint {
+  font-size: var(--font-size-xs);
+  color: var(--text-color-secondary);
+  margin-top: var(--space-3);
+  text-align: center;
+
+  &__link {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: var(--font-weight-medium);
+    transition: color var(--transition-fast);
+
+    &:hover {
+      color: var(--primary-color-dark, #1e4a82);
+      text-decoration: underline;
+    }
+  }
+}
+
+// Address placeholder (multi-line address display)
+.address-placeholder {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: var(--font-size-sm);
+  color: var(--text-color-muted);
+  font-style: italic;
 }
 
 // Required field indicator (red asterisk)

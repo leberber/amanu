@@ -1,107 +1,43 @@
 // =============================================================================
 // Checkout Component Styles
 // =============================================================================
-// Uses global styles from _components.scss:
-// - .detail-content, .detail-grid, .detail-grid--orders, .detail-sidebar (layout)
-// - .app-card, .app-card__header, .app-card__icon, .app-card__title, .app-card__content
-// - .app-card__header-text, .app-card__subtitle, .app-card__icon--success
-// - .topbar-badge (--success)
-// - .count-badge, .count-badge--absolute
-// - .form-action-btn (--success, --lg), .action-buttons, .action-note
-// - .items-simple-list, .item-line, .item-qty, .item-name, .item-total
-// - .order-breakdown, .order-breakdown__row, .order-breakdown__label, .order-breakdown__value
-// - .order-total, .order-total__label, .order-total__amount
-// - .shipping-fields, .shipping-field
-// - .field-icon, .field-icon--primary, .field-icon--success, .field-icon--warning
-// - .field-content, .field-label, .field-value
-// - .thumbnail.clickable (hover effects)
-// - @keyframes slideIn, .animate-slide-in
-// Uses global styles from _skeleton.scss:
-// - .skeleton, .skeleton-text, .skeleton-avatar, .skeleton-row
+// Uses global styles from:
+// - _layout.scss: page-content, page-grid, page-sidebar
+// - _cards.scss: card, card-header, card-header__icon, card-header__title, card-body
+// - _lists.scss: items-simple-list, item-line, list-footer, order-breakdown
+// - _inputs.scss: field-box, form-field, form-hint
+// - _buttons.scss: form-actions, form-action-btn
+// - _badges.scss: topbar-badge, valid-badge
+// - _skeleton.scss: skeleton classes
 // =============================================================================
 
 // -----------------------------------------------------------------------------
-// Order Summary Card
+// Checkout Summary Card (scrollable on desktop)
 // -----------------------------------------------------------------------------
-.order-summary-card {
+.checkout-summary-card {
   display: flex;
   flex-direction: column;
-  min-height: 0;
-  overflow: hidden;
-  animation: slideIn 0.4s ease-out;
+  max-height: calc(100vh - 170px);
 
-  .app-card__content {
+  .card-body {
+    flex: 1;
+    overflow-y: auto;
     display: flex;
     flex-direction: column;
+  }
+
+  .items-simple-list {
     flex: 1;
-    min-height: 0;
-    overflow: hidden;
+    overflow-y: auto;
   }
 
-  .app-card__header {
-    position: relative;
-  }
-}
-
-
-// -----------------------------------------------------------------------------
-// Shipping Info Card
-// -----------------------------------------------------------------------------
-.shipping-info-card {
-  animation: slideIn 0.4s ease-out 0.1s backwards;
-}
-
-.valid-badge {
-  margin-left: auto;
-  width: var(--icon-md);
-  height: var(--icon-md);
-  border-radius: var(--radius-full);
-  background: rgba(34, 197, 94, 0.1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  i {
-    font-size: var(--font-size-base);
-    color: #16a34a;
+  .list-footer {
+    flex-shrink: 0;
   }
 }
 
-// -----------------------------------------------------------------------------
-// Actions Card
-// -----------------------------------------------------------------------------
-.actions-card {
-  animation: slideIn 0.4s ease-out 0.2s backwards;
-
-  .action-note {
-    font-size: 0.7rem;
-  }
-}
-
-// Terms link in action note
-.terms-link {
-  color: var(--primary-color);
-  text-decoration: none;
-  font-weight: var(--font-weight-medium);
-  transition: color var(--transition-fast);
-
-  &:hover {
-    color: var(--primary-color-dark, #1e4a82);
-    text-decoration: underline;
-  }
-}
-
-// -----------------------------------------------------------------------------
-// Responsive
-// -----------------------------------------------------------------------------
-// Note: .thumbnail.clickable is defined globally in _components.scss
-@media (max-width: 767px) {
-  .order-summary-card {
-    min-height: auto;
-    overflow: hidden;
-
-    .app-card__content {
-      overflow: hidden;
-    }
+@media (max-width: 768px) {
+  .checkout-summary-card {
+    max-height: none;
   }
 }

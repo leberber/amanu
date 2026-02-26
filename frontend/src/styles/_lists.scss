@@ -763,9 +763,90 @@
   background: var(--surface-ground);
   border-top: var(--border-width) solid var(--border-color-light);
 
+  &__label {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-color-secondary);
+  }
+
   &__total {
     font-weight: 700;
     font-size: 1.25rem;
     color: var(--primary-color);
+  }
+}
+
+
+// =============================================================================
+// 13. ORDER BREAKDOWN
+// =============================================================================
+// Price breakdown section for cart, checkout, order details.
+
+.order-breakdown {
+  background: var(--surface-50);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  margin: var(--space-4) 0;
+
+  &__row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-3) 0;
+    border-bottom: 1px dashed var(--surface-200);
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    &--discount {
+      .order-breakdown__label {
+        i {
+          background: rgba(var(--color-success-rgb), 0.1);
+          color: var(--color-success-dark);
+        }
+        span {
+          color: var(--color-success-dark);
+        }
+      }
+      .order-breakdown__value {
+        color: var(--color-success-dark);
+      }
+    }
+  }
+
+  &__label {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+
+    i {
+      width: var(--icon-sm);
+      height: var(--icon-sm);
+      border-radius: var(--radius-sm);
+      background: var(--surface-100);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--font-size-xs);
+      color: var(--text-color-secondary);
+    }
+
+    span {
+      font-size: var(--font-size-sm);
+      color: var(--text-color-secondary);
+      font-weight: var(--font-weight-medium);
+    }
+  }
+
+  &__value {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-color);
+
+    &--free {
+      color: var(--color-success-dark);
+      font-weight: var(--font-weight-bold);
+    }
   }
 }

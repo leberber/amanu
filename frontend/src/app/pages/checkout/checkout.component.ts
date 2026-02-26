@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, signal, computed, DestroyRef } from '@angular/core';
-import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ToastModule } from 'primeng/toast';
@@ -18,6 +18,8 @@ import { VALIDATION, UI_DELAY } from '../../core/constants/app.constants';
 import { ToastMessageService } from '../../core/services/toast-message.service';
 import { PageLayoutComponent } from '../../shared/components/page-layout/page-layout.component';
 import { ImageLightboxComponent } from '../../shared/components/image-lightbox/image-lightbox.component';
+import { ErrorStateComponent } from '../../shared/components/error-state/error-state.component';
+import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
 import { ImageFallbackDirective } from '../../shared/directives/image-fallback.directive';
 import { getCartonDisplay } from '../../shared/utils/quantity.utils';
@@ -26,13 +28,14 @@ import { getCartonDisplay } from '../../shared/utils/quantity.utils';
   selector: 'app-checkout',
   standalone: true,
   imports: [
-    FormsModule,
     ReactiveFormsModule,
     RouterLink,
     ToastModule,
     TranslateModule,
     PageLayoutComponent,
     ImageLightboxComponent,
+    ErrorStateComponent,
+    EmptyStateComponent,
     CurrencyPipe,
     ImageFallbackDirective
   ],
@@ -40,6 +43,7 @@ import { getCartonDisplay } from '../../shared/utils/quantity.utils';
   styleUrl: './checkout.component.scss'
 })
 export class CheckoutComponent implements OnInit {
+  // Services
   readonly lightbox = inject(LightboxService);
   private fb = inject(FormBuilder);
   private router = inject(Router);
@@ -51,14 +55,20 @@ export class CheckoutComponent implements OnInit {
   private cartTranslation = inject(CartTranslationService);
   private destroyRef = inject(DestroyRef);
 
+  // Constants
   readonly ROUTES = ROUTES;
+  readonly SKELETON_ITEMS = [1, 2, 3];
+  readonly SKELETON_SIDEBAR_ITEMS = [1, 2, 3];
 
+  // Form
   checkoutForm!: FormGroup;
 
   // State
   cartItems = signal<CartItem[]>([]);
   currentUser = signal<User | null>(null);
   isSubmitting = signal(false);
+  loading = signal(true);
+  error = signal(false);
 
   // Computed from service
   cartItemCount = computed(() => this.cartItems().length);
@@ -69,22 +79,7 @@ export class CheckoutComponent implements OnInit {
 
   ngOnInit(): void {
     this.initForm();
-
-    const user = this.authService.currentUserValue;
-    this.currentUser.set(user);
-
-    if (!user) {
-      this.toast.showError('checkout.auth_required_message');
-      this.router.navigate([ROUTES.LOGIN], { queryParams: { returnUrl: ROUTES.CHECKOUT } });
-      return;
-    }
-
-    this.prefillForm(user);
-    this.loadCartItems();
-
-    this.translationService.currentLanguage$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.loadTranslatedNames());
+    this.checkAuthentication();
   }
 
   placeOrder(): void {
@@ -117,9 +112,9 @@ export class CheckoutComponent implements OnInit {
           this.router.navigate([RouteHelpers.orderDetail(order.id)], { queryParams: { success: 'true' } });
         }, UI_DELAY.TOAST_BEFORE_NAVIGATE);
       },
-      error: (error) => {
+      error: (err) => {
         this.isSubmitting.set(false);
-        this.toast.showApiError(error, 'checkout.order_error_default');
+        this.toast.showApiError(err, 'checkout.order_error_default');
       }
     });
   }
@@ -136,13 +131,38 @@ export class CheckoutComponent implements OnInit {
     this.lightbox.closeImage();
   }
 
-  // Private
+  retryLoad(): void {
+    this.error.set(false);
+    this.loading.set(true);
+    this.loadCartItems();
+  }
+
+  goBack(): void {
+    this.router.navigate([ROUTES.CART]);
+  }
+
+  // Private methods
   private initForm(): void {
     this.checkoutForm = this.fb.group({
       fullName: ['', Validators.required],
       phone: ['', [Validators.required, Validators.pattern(VALIDATION.PHONE_PATTERN)]],
       address: ['', [Validators.required, Validators.minLength(VALIDATION.MIN_ADDRESS_LENGTH)]]
     });
+  }
+
+  private checkAuthentication(): void {
+    const user = this.authService.currentUserValue;
+    this.currentUser.set(user);
+
+    if (!user) {
+      this.toast.showError('checkout.auth_required_message');
+      this.router.navigate([ROUTES.LOGIN], { queryParams: { returnUrl: ROUTES.CHECKOUT } });
+      return;
+    }
+
+    this.prefillForm(user);
+    this.loadCartItems();
+    this.subscribeToLanguageChanges();
   }
 
   private prefillForm(user: User): void {
@@ -156,14 +176,19 @@ export class CheckoutComponent implements OnInit {
   private loadCartItems(): void {
     const items = this.cartService.items();
     this.cartItems.set(items);
+    this.loading.set(false);
 
     if (items.length === 0) {
-      this.toast.showInfo('checkout.empty_cart_message');
-      this.router.navigate([ROUTES.PRODUCTS]);
       return;
     }
 
     this.loadTranslatedNames();
+  }
+
+  private subscribeToLanguageChanges(): void {
+    this.translationService.currentLanguage$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.loadTranslatedNames());
   }
 
   private loadTranslatedNames(): void {

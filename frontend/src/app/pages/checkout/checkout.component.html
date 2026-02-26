@@ -17,168 +17,256 @@
 
   <p-toast></p-toast>
 
-  <div class="detail-content">
-    <div class="detail-grid detail-grid--orders">
-      <!-- Order Summary Card -->
-      <div class="app-card order-summary-card">
-        <div class="app-card__header">
-          <div class="app-card__icon">
-            <i class="pi pi-shopping-bag"></i>
+  <!-- Loading State -->
+  @if (loading()) {
+    <div class="page-content">
+      <div class="page-grid">
+        <!-- Order Summary Skeleton -->
+        <div class="card">
+          <div class="card-header">
+            <div class="skeleton skeleton-avatar"></div>
+            <div class="skeleton skeleton-text" style="width: 150px;"></div>
           </div>
-          <h2 class="app-card__title">{{ 'checkout.delivery_note' | translate }}</h2>
-          <div class="count-badge count-badge--absolute">{{ cartItemCount() }}</div>
+          <div class="card-body">
+            @for (i of SKELETON_ITEMS; track i) {
+              <div class="skeleton-row">
+                <div class="skeleton skeleton-image skeleton-image--sm"></div>
+                <div class="skeleton skeleton-text" style="width: 50px;"></div>
+                <div class="skeleton skeleton-text" style="flex: 1;"></div>
+                <div class="skeleton skeleton-text" style="width: 80px;"></div>
+              </div>
+            }
+            <div class="skeleton-row" style="margin-top: var(--space-4);">
+              <div class="skeleton skeleton-text" style="width: 100px;"></div>
+              <div class="skeleton skeleton-text" style="width: 80px; margin-left: auto;"></div>
+            </div>
+          </div>
         </div>
 
-        <div class="app-card__content">
-          <ul class="items-simple-list">
-            @for (item of cartItems(); track item.id; let i = $index) {
-              <li class="item-line item-animate" [style.animation-delay]="(i * 50) + 'ms'">
-                <div class="thumbnail" [class.clickable]="item.product_image" (click)="openImage(item)">
-                  @if (item.product_image) {
-                    <img [src]="item.product_image" [alt]="item.product_name" loading="lazy" appImageFallback>
-                  } @else {
-                    <i class="pi pi-box"></i>
-                  }
-                </div>
-                <span class="item-qty">{{ formatCartonCount(item) }}</span>
-                <span class="item-name">{{ item.product_name }}</span>
-                <span class="item-total">{{ item.product_price * item.quantity | appCurrency }}</span>
-              </li>
-            }
-          </ul>
-
-          <div class="order-breakdown">
-            <div class="order-breakdown__row">
-              <div class="order-breakdown__label">
-                <i class="pi pi-shopping-bag"></i>
-                <span>{{ 'checkout.subtotal' | translate }}</span>
-              </div>
-              <span class="order-breakdown__value">{{ cartTotal() | appCurrency }}</span>
+        <!-- Sidebar Skeleton -->
+        <div class="page-sidebar">
+          <div class="card">
+            <div class="card-header">
+              <div class="skeleton skeleton-avatar"></div>
+              <div class="skeleton skeleton-text" style="width: 120px;"></div>
             </div>
-
-            @if (appliedPromotion()) {
-              <div class="order-breakdown__row order-breakdown__row--discount">
-                <div class="order-breakdown__label">
-                  <i class="pi pi-tag"></i>
-                  <span>{{ 'promotions.discount' | translate }} ({{ appliedPromotion()?.code }})</span>
+            <div class="card-body">
+              @for (i of SKELETON_SIDEBAR_ITEMS; track i) {
+                <div class="skeleton-row">
+                  <div class="skeleton skeleton-avatar"></div>
+                  <div style="flex: 1; display: flex; flex-direction: column; gap: var(--space-2);">
+                    <div class="skeleton skeleton-text" style="width: 60px;"></div>
+                    <div class="skeleton skeleton-text" style="width: 100%;"></div>
+                  </div>
                 </div>
-                <span class="order-breakdown__value">-{{ discountAmount() | appCurrency }}</span>
-              </div>
-            }
-
-            <div class="order-breakdown__row">
-              <div class="order-breakdown__label">
-                <i class="pi pi-truck"></i>
-                <span>{{ 'checkout.shipping' | translate }}</span>
-              </div>
-              <span class="order-breakdown__value order-breakdown__value--free">{{ 'checkout.free' | translate }}</span>
+              }
             </div>
           </div>
-
-          <div class="order-total">
-            <span class="order-total__label">{{ 'common.total' | translate }}</span>
-            <span class="order-total__amount">{{ finalTotal() | appCurrency }}</span>
+          <div class="card">
+            <div class="card-header">
+              <div class="skeleton skeleton-avatar"></div>
+              <div class="skeleton skeleton-text" style="width: 100px;"></div>
+            </div>
+            <div class="card-body">
+              <div class="skeleton skeleton-button" style="width: 100%; height: 48px;"></div>
+            </div>
           </div>
         </div>
       </div>
+    </div>
+  }
 
-      <!-- Sidebar -->
-      <div class="detail-sidebar">
-        <div class="app-card shipping-info-card">
-          <div class="app-card__header">
-            <div class="app-card__icon app-card__icon--success">
-              <i class="pi pi-truck"></i>
+  <!-- Error State -->
+  @else if (error()) {
+    <app-error-state
+      title="checkout.error.title"
+      message="checkout.error.message"
+      [showRetry]="true"
+      [showGoBack]="true"
+      (retryClick)="retryLoad()"
+      (goBackClick)="goBack()">
+    </app-error-state>
+  }
+
+  <!-- Empty State -->
+  @else if (cartItems().length === 0) {
+    <app-empty-state
+      icon="pi-shopping-cart"
+      title="checkout.empty.title"
+      [description]="'checkout.empty.subtitle'"
+      [actionLabel]="'checkout.empty.browse_products'"
+      [actionLink]="ROUTES.PRODUCTS"
+      actionIcon="pi pi-shopping-bag">
+    </app-empty-state>
+  }
+
+  <!-- Checkout Content -->
+  @else {
+    <div class="page-content">
+      <div class="page-grid">
+        <!-- Order Summary Card -->
+        <div class="card card--no-hover checkout-summary-card">
+          <div class="card-header">
+            <div class="card-header__icon card-header__icon--primary">
+              <i class="pi pi-shopping-bag"></i>
             </div>
-            <div class="app-card__header-text">
-              <h2 class="app-card__title">{{ 'checkout.shipping_info' | translate }}</h2>
-              <span class="app-card__subtitle">{{ 'checkout.delivery_details' | translate }}</span>
-            </div>
-            @if (checkoutForm.valid) {
-              <div class="valid-badge">
-                <i class="pi pi-check"></i>
-              </div>
-            }
+            <h2 class="card-header__title">{{ 'checkout.delivery_note' | translate }}</h2>
           </div>
 
-          <div class="app-card__content">
-            <div class="shipping-fields">
-              <div class="shipping-field">
-                <div class="field-icon field-icon--primary">
-                  <i class="pi pi-user"></i>
-                </div>
-                <div class="field-content">
-                  <label class="field-label">{{ 'auth.full_name' | translate }}</label>
-                  <div class="field-value">
-                    {{ checkoutForm.get('fullName')?.value || ('checkout.default_name' | translate) }}
-                  </div>
-                </div>
-              </div>
-
-              <div class="shipping-field">
-                <div class="field-icon field-icon--success">
-                  <i class="pi pi-phone"></i>
-                </div>
-                <div class="field-content">
-                  <label class="field-label">{{ 'common.phone' | translate }}</label>
-                  <div class="field-value">
-                    {{ checkoutForm.get('phone')?.value || ('checkout.default_phone' | translate) }}
-                  </div>
-                </div>
-              </div>
-
-              <div class="shipping-field">
-                <div class="field-icon field-icon--warning">
-                  <i class="pi pi-map-marker"></i>
-                </div>
-                <div class="field-content">
-                  <label class="field-label">{{ 'checkout.shipping_address' | translate }}</label>
-                  <div class="field-value">
-                    @if (checkoutForm.get('address')?.value) {
-                      {{ checkoutForm.get('address')?.value }}
+          <div class="card-body card-body--compact">
+            <ul class="items-simple-list">
+              @for (item of cartItems(); track item.id; let i = $index) {
+                <li class="item-line item-animate" [style.animation-delay]="(i * 50) + 'ms'">
+                  <div class="thumbnail" [class.clickable]="item.product_image" (click)="openImage(item)">
+                    @if (item.product_image) {
+                      <img [src]="item.product_image" [alt]="item.product_name" loading="lazy" appImageFallback>
                     } @else {
-                      <span class="address-line">{{ 'checkout.default_address_line1' | translate }}</span>
-                      <span class="address-line">{{ 'checkout.default_address_line2' | translate }}</span>
-                      <span class="address-line">{{ 'checkout.default_address_line3' | translate }}</span>
+                      <i class="pi pi-box"></i>
+                    }
+                  </div>
+                  <span class="item-qty">{{ formatCartonCount(item) }}</span>
+                  <span class="item-name">{{ item.product_name }}</span>
+                  <span class="item-total">{{ item.product_price * item.quantity | appCurrency }}</span>
+                </li>
+              }
+            </ul>
+
+            <div class="order-breakdown">
+              <div class="order-breakdown__row">
+                <div class="order-breakdown__label">
+                  <i class="pi pi-shopping-bag"></i>
+                  <span>{{ 'checkout.subtotal' | translate }}</span>
+                </div>
+                <span class="order-breakdown__value">{{ cartTotal() | appCurrency }}</span>
+              </div>
+
+              @if (appliedPromotion()) {
+                <div class="order-breakdown__row order-breakdown__row--discount">
+                  <div class="order-breakdown__label">
+                    <i class="pi pi-tag"></i>
+                    <span>{{ 'promotions.discount' | translate }} ({{ appliedPromotion()?.code }})</span>
+                  </div>
+                  <span class="order-breakdown__value">-{{ discountAmount() | appCurrency }}</span>
+                </div>
+              }
+
+              <div class="order-breakdown__row">
+                <div class="order-breakdown__label">
+                  <i class="pi pi-truck"></i>
+                  <span>{{ 'checkout.shipping' | translate }}</span>
+                </div>
+                <span class="order-breakdown__value order-breakdown__value--free">{{ 'checkout.free' | translate }}</span>
+              </div>
+            </div>
+
+            <div class="list-footer">
+              <span class="list-footer__label">{{ 'common.total' | translate }}</span>
+              <span class="list-footer__total">{{ finalTotal() | appCurrency }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="page-sidebar">
+          <!-- Shipping Info Card -->
+          <div class="card card--no-hover">
+            <div class="card-header">
+              <div class="card-header__icon card-header__icon--success">
+                <i class="pi pi-truck"></i>
+              </div>
+              <div class="card-header__text">
+                <h2 class="card-header__title">{{ 'checkout.shipping_info' | translate }}</h2>
+                <span class="card-header__subtitle">{{ 'checkout.delivery_details' | translate }}</span>
+              </div>
+              @if (checkoutForm.valid) {
+                <div class="valid-badge">
+                  <i class="pi pi-check"></i>
+                </div>
+              }
+            </div>
+
+            <div class="card-body card-body--compact">
+              <div class="form-field">
+                <div class="field-box filled disabled">
+                  <div class="field-box__icon field-box__icon--primary">
+                    <i class="pi pi-user"></i>
+                  </div>
+                  <div class="field-box__content">
+                    <label>{{ 'auth.full_name' | translate }}</label>
+                    <input type="text" [value]="checkoutForm.get('fullName')?.value || ('checkout.default_name' | translate)" disabled>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-field">
+                <div class="field-box filled disabled">
+                  <div class="field-box__icon field-box__icon--success">
+                    <i class="pi pi-phone"></i>
+                  </div>
+                  <div class="field-box__content">
+                    <label>{{ 'common.phone' | translate }}</label>
+                    <input type="text" [value]="checkoutForm.get('phone')?.value || ('checkout.default_phone' | translate)" disabled>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-field">
+                <div class="field-box filled disabled">
+                  <div class="field-box__icon field-box__icon--warning">
+                    <i class="pi pi-map-marker"></i>
+                  </div>
+                  <div class="field-box__content">
+                    <label>{{ 'checkout.shipping_address' | translate }}</label>
+                    @if (checkoutForm.get('address')?.value) {
+                      <input type="text" [value]="checkoutForm.get('address')?.value" disabled>
+                    } @else {
+                      <div class="address-placeholder">
+                        <span>{{ 'checkout.default_address_line1' | translate }}</span>
+                        <span>{{ 'checkout.default_address_line2' | translate }}</span>
+                        <span>{{ 'checkout.default_address_line3' | translate }}</span>
+                      </div>
                     }
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <div class="app-card actions-card">
-          <div class="app-card__header">
-            <div class="app-card__icon">
-              <i class="pi pi-check-circle"></i>
+          <!-- Actions Card -->
+          <div class="card card--no-hover">
+            <div class="card-header">
+              <div class="card-header__icon card-header__icon--purple">
+                <i class="pi pi-check-circle"></i>
+              </div>
+              <h2 class="card-header__title">{{ 'checkout.confirm_order' | translate }}</h2>
             </div>
-            <h2 class="app-card__title">{{ 'checkout.confirm_order' | translate }}</h2>
-          </div>
-          <div class="app-card__content">
-            <div class="action-buttons">
-              <button
-                class="form-action-btn form-action-btn--success action-btn--lg"
-                [disabled]="checkoutForm.invalid || isSubmitting()"
-                (click)="placeOrder()">
-                @if (isSubmitting()) {
-                  <i class="pi pi-spin pi-spinner"></i>
-                  <span>{{ 'checkout.processing' | translate }}</span>
-                } @else {
-                  <i class="pi pi-check-circle"></i>
-                  <span>{{ 'checkout.place_order' | translate }}</span>
-                }
-              </button>
-              <p class="action-note">
-                {{ 'checkout.order_note' | translate }}
-                <a routerLink="/privacy-policy" class="terms-link">{{ 'checkout.terms_link' | translate }}</a>
-              </p>
+            <div class="card-body card-body--compact">
+              <div class="form-actions form-actions--stacked">
+                <button
+                  class="form-action-btn form-action-btn--success"
+                  [disabled]="checkoutForm.invalid || isSubmitting()"
+                  (click)="placeOrder()">
+                  @if (isSubmitting()) {
+                    <i class="pi pi-spin pi-spinner"></i>
+                    <span>{{ 'checkout.processing' | translate }}</span>
+                  } @else {
+                    <i class="pi pi-check-circle"></i>
+                    <span>{{ 'checkout.place_order' | translate }}</span>
+                  }
+                </button>
+                <p class="form-hint">
+                  {{ 'checkout.order_note' | translate }}
+                  <a routerLink="/privacy-policy" class="form-hint__link">{{ 'checkout.terms_link' | translate }}</a>
+                </p>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
+  }
 
+  <!-- Image Lightbox -->
   @if (lightbox.isOpen()) {
     <app-image-lightbox
       [imageUrl]="lightbox.selectedImage()!"
