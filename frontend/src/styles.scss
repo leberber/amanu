@@ -2,18 +2,10 @@
 // GLOBAL STYLES
 // =============================================================================
 // Main entry point for all styles.
-//
-// Import Order:
-// 1. Design Tokens (CSS variables)
-// 2. External Libraries
-// 3. Global Components (shared across admin & frontend)
-// 4. Specialized Components
-// 5. Layout (structural positioning only)
-// 6. Legacy (to be refactored)
 // =============================================================================
 
 // ---------------------------------------------------------------------------
-// 1. Design Tokens (must come first)
+// 1. Design Tokens
 // ---------------------------------------------------------------------------
 @use './styles/fonts' as *;
 @use './styles/colors' as *;
@@ -27,7 +19,7 @@
 @use 'primeflex/primeflex' as *;
 
 // ---------------------------------------------------------------------------
-// 3. Global Components (shared across admin & frontend)
+// 3. Global Components
 // ---------------------------------------------------------------------------
 @use './styles/animations' as *;
 @use './styles/buttons' as *;
@@ -64,65 +56,45 @@
 // ---------------------------------------------------------------------------
 // 4. Specialized Components
 // ---------------------------------------------------------------------------
-
 @use './styles/skeleton' as *;
 @use './styles/quantity-overlay' as *;
 @use './styles/decoration' as *;
 @use './styles/mobile-search' as *;
 
 // ---------------------------------------------------------------------------
-// 5. Layout (structural positioning only)
+// 5. Layout
 // ---------------------------------------------------------------------------
-@use './styles/layout' as *;              // Global app shell
-@use './styles/admin/layout' as *;        // Admin structural layout
-@use './styles/frontend/layout' as *;     // Frontend structural layout
-
-
+@use './styles/layout' as *;
+@use './styles/admin/layout' as *;
+@use './styles/frontend/layout' as *;
 
 // ---------------------------------------------------------------------------
-// 4. CSS Imports
+// 6. CSS Imports (after all @use statements)
 // ---------------------------------------------------------------------------
 @import 'primeicons/primeicons.css';
 
 // ---------------------------------------------------------------------------
-// 5. Base Resets
+// 7. Base Resets
 // ---------------------------------------------------------------------------
 html, body {
   padding: 0 !important;
   margin: 0 !important;
 }
 
-a {
-  color: inherit !important;
-  text-decoration: none !important;
-  &:hover, &:visited, &:active { color: inherit !important; }
-}
-
 .grid { margin: 0 !important; }
 
 // ---------------------------------------------------------------------------
-// 6. PrimeNG Overrides
+// 8. PrimeNG Overrides
 // ---------------------------------------------------------------------------
-// Note: Select styles moved to _select.scss
-
 :root {
   --p-datatable-header-cell-selected-background: transparent !important;
   --p-datatable-header-cell-selected-color: inherit !important;
 }
 
 .p-timeline-event-opposite { flex: 0 !important; }
-
-.p-drawer {
-  border: none !important;
-  z-index: 9999 !important;
-}
-
-// Fade drawer - override slide with opacity
+.p-drawer { border: none !important; z-index: 9999 !important; }
 .fade-drawer.p-drawer { transform: none !important; }
-
-// Button sizes
 .p-button-lg { font-size: 1rem; font-weight: 600; }
-
 .p-button-sm.p-button-rounded {
   width: 2rem !important;
   height: 2rem !important;
@@ -130,16 +102,14 @@ a {
   .p-button-icon { font-size: 0.875rem; }
 }
 
-
 // ---------------------------------------------------------------------------
-// 7. Utility Classes
+// 9. Utilities
 // ---------------------------------------------------------------------------
 .h-screen { height: 100vh; }
 .object-cover, .obj-cover { object-fit: cover; }
 .text-color { color: var(--text-color); }
 .p-error { color: rgb(240, 52, 52); }
 
-// Input icon
 .input-icon {
   position: absolute;
   z-index: 1;
@@ -149,10 +119,6 @@ a {
   color: var(--text-color-secondary);
 }
 
-// Hide lightbox background
-.lightbox-bg { display: none !important; }
-
-// Router outlet
 router-outlet + * {
   flex: 1;
   overflow-y: auto;
@@ -160,36 +126,12 @@ router-outlet + * {
 }
 
 // ---------------------------------------------------------------------------
-// 8. Mobile Scrollbar Hide
+// 10. Mobile
 // ---------------------------------------------------------------------------
 @media (max-width: 1024px) {
   * {
     -ms-overflow-style: none;
     scrollbar-width: none;
-    &::-webkit-scrollbar {
-      display: none;
-    }
-  }
-}
-
-// ---------------------------------------------------------------------------
-// 9. RTL Fixes
-// ---------------------------------------------------------------------------
-.mobile-search-overlay {
-  box-shadow: 4px 0 12px rgba(0, 0, 0, 0.08);
-}
-
-html[dir="rtl"] {
-  .mobile-search-overlay {
-    box-shadow: -4px 0 12px rgba(0, 0, 0, 0.08);
-  }
-
-  .filter-actions {
-    background: linear-gradient(to left, transparent, var(--surface-card) 40%);
-    padding-inline-end: 0;
-  }
-
-  .search-toggle-btn {
-    width: 50px;
+    &::-webkit-scrollbar { display: none; }
   }
 }

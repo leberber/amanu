@@ -19,134 +19,9 @@
   border: var(--border-width) solid;
 }
 
-%alert-icon {
-  flex-shrink: 0;
-  width: var(--alert-icon-size);
-  height: var(--alert-icon-size);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  i {
-    font-size: var(--font-size-md);
-  }
-}
-
-%alert-close {
-  flex-shrink: 0;
-  width: var(--icon-xs);
-  height: var(--icon-xs);
-  border: none;
-  background: transparent;
-  border-radius: var(--radius-xs);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0.5;
-  transition: all var(--transition-fast);
-
-  &:hover {
-    opacity: 1;
-    background: var(--hover-overlay);
-  }
-}
-
 
 // =============================================================================
-// 1. ALERT
-// =============================================================================
-
-.alert {
-  @extend %alert-base;
-
-  &__icon {
-    @extend %alert-icon;
-  }
-
-  &__content {
-    flex: 1;
-    min-width: 0;
-  }
-
-  &__title {
-    font-weight: var(--font-weight-semibold);
-    font-size: var(--font-size-md);
-    margin: 0 0 var(--space-1) 0;
-  }
-
-  &__message {
-    font-size: var(--font-size-base);
-    margin: 0;
-    line-height: var(--line-height-normal);
-  }
-
-  &__close {
-    @extend %alert-close;
-  }
-
-  // ---------------------------------------------------------------------------
-  // Color Variants
-  // ---------------------------------------------------------------------------
-  &--info {
-    background: rgba(var(--color-info-rgb), 0.1);
-    border-color: rgba(var(--color-info-rgb), 0.2);
-    color: var(--color-info-dark);
-
-    .alert__icon i {
-      color: var(--color-info);
-    }
-  }
-
-  &--success {
-    background: rgba(var(--color-success-rgb), 0.1);
-    border-color: rgba(var(--color-success-rgb), 0.2);
-    color: var(--color-success-dark);
-
-    .alert__icon i {
-      color: var(--color-success);
-    }
-  }
-
-  &--warning {
-    background: rgba(var(--color-warning-rgb), 0.1);
-    border-color: rgba(var(--color-warning-rgb), 0.2);
-    color: var(--color-warning-dark);
-
-    .alert__icon i {
-      color: var(--color-warning);
-    }
-  }
-
-  &--danger {
-    background: rgba(var(--color-error-rgb), 0.1);
-    border-color: rgba(var(--color-error-rgb), 0.2);
-    color: var(--color-error-dark);
-
-    .alert__icon i {
-      color: var(--color-error);
-    }
-  }
-
-  // ---------------------------------------------------------------------------
-  // Size Variants
-  // ---------------------------------------------------------------------------
-  &--compact {
-    padding: var(--space-5) var(--space-6);
-
-    .alert__title {
-      font-size: var(--font-size-base);
-    }
-
-    .alert__message {
-      font-size: var(--font-size-sm);
-    }
-  }
-}
-
-
-// =============================================================================
-// 2. INFO BOX
+// 1. INFO BOX
 // =============================================================================
 
 .info-box {
@@ -194,6 +69,19 @@
   // ---------------------------------------------------------------------------
   // Color Variants
   // ---------------------------------------------------------------------------
+  &--primary {
+    background: rgba(var(--primary-rgb), 0.05);
+    border-color: rgba(var(--primary-rgb), 0.1);
+
+    .info-box__icon {
+      background: rgba(var(--primary-rgb), 0.15);
+
+      i {
+        color: var(--primary-color);
+      }
+    }
+  }
+
   &--success {
     background: rgba(var(--color-success-rgb), 0.05);
     border-color: rgba(var(--color-success-rgb), 0.1);
@@ -236,106 +124,7 @@
 
 
 // =============================================================================
-// 3. BANNER ALERT
-// =============================================================================
-
-.banner-alert {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-5);
-  padding: var(--space-5) var(--space-6);
-  background: var(--primary-gradient);
-  color: var(--color-white);
-  font-size: var(--font-size-md);
-  font-weight: var(--font-weight-medium);
-
-  i {
-    font-size: var(--font-size-md);
-  }
-
-  a {
-    color: var(--color-white);
-    text-decoration: underline;
-    font-weight: var(--font-weight-semibold);
-
-    &:hover {
-      text-decoration: none;
-    }
-  }
-
-  &__close {
-    margin-left: auto;
-    background: transparent;
-    border: none;
-    color: var(--color-white);
-    opacity: 0.7;
-    cursor: pointer;
-    padding: var(--space-1);
-
-    &:hover {
-      opacity: 1;
-    }
-  }
-
-  // ---------------------------------------------------------------------------
-  // Color Variants
-  // ---------------------------------------------------------------------------
-  &--warning {
-    background: var(--btn-warning-gradient);
-  }
-
-  &--danger {
-    background: var(--btn-danger-gradient);
-  }
-
-  &--success {
-    background: var(--btn-success-gradient);
-  }
-}
-
-
-// =============================================================================
-// 4. INLINE NOTIFICATION
-// =============================================================================
-
-.inline-notification {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-2) var(--space-5);
-  border-radius: var(--radius-sm);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-
-  i {
-    font-size: var(--font-size-base);
-  }
-
-  &--info {
-    background: rgba(var(--color-info-rgb), 0.1);
-    color: var(--color-info);
-  }
-
-  &--success {
-    background: rgba(var(--color-success-rgb), 0.1);
-    color: var(--color-success);
-  }
-
-  &--warning {
-    background: rgba(var(--color-warning-rgb), 0.1);
-    color: var(--color-warning);
-  }
-
-  &--danger {
-    background: rgba(var(--color-error-rgb), 0.1);
-    color: var(--color-error);
-  }
-}
-
-
-// =============================================================================
-// 5. PRIMENG MESSAGE OVERRIDE
+// 2. PRIMENG MESSAGE OVERRIDE
 // =============================================================================
 
 .p-message {
@@ -393,57 +182,7 @@
 
 
 // =============================================================================
-// 6. CALLOUT
-// =============================================================================
-
-.callout {
-  padding: var(--space-7);
-  border-radius: var(--radius-md);
-  border-left: var(--callout-border-width) solid;
-
-  &__title {
-    font-size: var(--font-size-lg);
-    font-weight: var(--font-weight-semibold);
-    margin: 0 0 var(--space-3) 0;
-  }
-
-  &__content {
-    font-size: var(--font-size-md);
-    line-height: var(--line-height-relaxed);
-
-    p {
-      margin: 0;
-    }
-
-    p + p {
-      margin-top: var(--space-3);
-    }
-  }
-
-  &--info {
-    background: rgba(var(--color-info-rgb), 0.05);
-    border-color: var(--color-info);
-  }
-
-  &--tip {
-    background: rgba(var(--color-success-rgb), 0.05);
-    border-color: var(--color-success);
-  }
-
-  &--warning {
-    background: rgba(var(--color-warning-rgb), 0.05);
-    border-color: var(--color-warning);
-  }
-
-  &--danger {
-    background: rgba(var(--color-error-rgb), 0.05);
-    border-color: var(--color-error);
-  }
-}
-
-
-// =============================================================================
-// PRIMENG TOAST
+// 3. PRIMENG TOAST
 // =============================================================================
 
 .p-toast {
