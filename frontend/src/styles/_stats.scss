@@ -152,40 +152,7 @@
 
 
 // =============================================================================
-// 2. COMPACT STAT
-// =============================================================================
-
-.stat-compact {
-  @extend %stat-card-base;
-  display: flex;
-  flex-direction: column;
-  padding: var(--space-5);
-
-  &__label {
-    font-size: var(--font-size-xs);
-    font-weight: var(--font-weight-medium);
-    color: var(--text-color-secondary);
-    margin: 0 0 var(--space-2) 0;
-  }
-
-  &__value {
-    font-size: var(--font-size-2xl);
-    font-weight: var(--font-weight-bold);
-    color: var(--text-color);
-    line-height: 1;
-  }
-
-  &__footer {
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-    margin-top: var(--space-3);
-  }
-}
-
-
-// =============================================================================
-// 3. STAT WITH PROGRESS
+// 2. STAT WITH PROGRESS
 // =============================================================================
 
 .stat-progress {
@@ -237,7 +204,7 @@
 
 
 // =============================================================================
-// 4. STAT GRID
+// 3. STAT GRID
 // =============================================================================
 
 .stat-grid {
@@ -275,7 +242,7 @@
 
 
 // =============================================================================
-// 5. INLINE STAT
+// 4. INLINE STAT
 // =============================================================================
 
 .stat-inline {
@@ -312,220 +279,7 @@
 
 
 // =============================================================================
-// 6. METRIC CARD (Large)
-// =============================================================================
-
-.metric-card {
-  @extend %stat-card-base;
-  padding: var(--space-7);
-  box-shadow: var(--shadow-md);
-
-  &__header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: var(--space-5);
-  }
-
-  &__title {
-    font-size: var(--font-size-md);
-    font-weight: var(--font-weight-semibold);
-    color: var(--text-color);
-    margin: 0;
-  }
-
-  &__action {
-    font-size: var(--font-size-sm);
-    color: var(--primary-color);
-    text-decoration: none;
-    font-weight: var(--font-weight-medium);
-
-    &:hover {
-      text-decoration: underline;
-    }
-  }
-
-  &__value {
-    font-size: var(--font-size-5xl);
-    font-weight: var(--font-weight-bold);
-    color: var(--text-color);
-    line-height: 1;
-    margin-bottom: var(--space-3);
-  }
-
-  &__subtitle {
-    font-size: var(--font-size-sm);
-    color: var(--text-color-secondary);
-  }
-
-  &__trend {
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-    margin-top: var(--space-5);
-    padding-top: var(--space-5);
-    border-top: var(--border-width) solid var(--border-color-light);
-  }
-
-  &__trend-value {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-1);
-    padding: var(--space-1) var(--space-3);
-    border-radius: var(--radius-xs);
-    font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-semibold);
-
-    &--up {
-      background: rgba(var(--color-success-rgb), 0.1);
-      color: var(--color-success);
-    }
-
-    &--down {
-      background: rgba(var(--color-error-rgb), 0.1);
-      color: var(--color-error);
-    }
-  }
-
-  &__trend-label {
-    font-size: var(--font-size-sm);
-    color: var(--text-color-secondary);
-  }
-}
-
-
-// =============================================================================
-// 7. NUMBER DISPLAY
-// =============================================================================
-
-.number-display {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-
-  &__value {
-    font-size: var(--font-size-5xl);
-    font-weight: var(--font-weight-bold);
-    background: var(--primary-gradient);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    line-height: 1;
-  }
-
-  &__label {
-    font-size: var(--font-size-md);
-    font-weight: var(--font-weight-medium);
-    color: var(--text-color-secondary);
-    margin-top: var(--space-3);
-  }
-
-  &--sm {
-    .number-display__value {
-      font-size: var(--font-size-4xl);
-    }
-
-    .number-display__label {
-      font-size: var(--font-size-sm);
-    }
-  }
-
-  &--lg {
-    .number-display__value {
-      font-size: 4rem;
-    }
-  }
-}
-
-
-// =============================================================================
-// 8. COMPARISON STAT
-// =============================================================================
-
-.stat-comparison {
-  @extend %stat-card-base;
-  display: flex;
-  align-items: stretch;
-  gap: var(--space-5);
-  padding: var(--space-6);
-
-  &__item {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    text-align: center;
-
-    &:not(:last-child) {
-      padding-right: var(--space-5);
-      border-right: var(--border-width) solid var(--overlay-medium);
-    }
-  }
-
-  &__label {
-    font-size: var(--font-size-xs);
-    font-weight: var(--font-weight-medium);
-    color: var(--text-color-secondary);
-    text-transform: uppercase;
-    letter-spacing: var(--letter-spacing-wide);
-    margin-bottom: var(--space-3);
-  }
-
-  &__value {
-    font-size: var(--font-size-2xl);
-    font-weight: var(--font-weight-bold);
-    color: var(--text-color);
-  }
-
-  &__vs {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: var(--icon-sm);
-    height: var(--icon-sm);
-    border-radius: var(--radius-full);
-    background: var(--overlay-subtle);
-    font-size: var(--font-size-xs);
-    font-weight: var(--font-weight-semibold);
-    color: var(--text-color-secondary);
-    align-self: center;
-  }
-}
-
-
-// =============================================================================
-// 9. STAT LIST
-// =============================================================================
-
-.stat-list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-
-  &__item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: var(--space-4) var(--space-5);
-    background: var(--surface-slate-50-solid);
-    border-radius: var(--radius-sm);
-  }
-
-  &__label {
-    font-size: var(--font-size-sm);
-    color: var(--text-color-secondary);
-  }
-
-  &__value {
-    font-size: var(--font-size-md);
-    font-weight: var(--font-weight-semibold);
-    color: var(--text-color);
-  }
-}
-
-
-// =============================================================================
-// 10. DASHBOARD WIDGET
+// 5. DASHBOARD WIDGET
 // =============================================================================
 
 .widget {
@@ -567,54 +321,5 @@
     padding: var(--space-5) var(--space-6);
     background: var(--surface-slate-50);
     border-top: var(--border-width) solid var(--border-color-light);
-  }
-}
-
-
-// =============================================================================
-// 11. QUICK STATS ROW
-// =============================================================================
-
-.quick-stats {
-  display: flex;
-  gap: var(--space-5);
-  padding: var(--space-5);
-  background: var(--surface-slate-50-solid);
-  border-radius: var(--radius-md);
-
-  &__item {
-    flex: 1;
-    text-align: center;
-    padding: var(--space-4);
-
-    &:not(:last-child) {
-      border-right: var(--border-width) solid var(--overlay-medium);
-    }
-  }
-
-  &__icon {
-    @extend %stat-icon-base;
-    width: var(--icon-md);
-    height: var(--icon-md);
-    border-radius: var(--radius-sm);
-    background: var(--primary-gradient);
-    display: inline-flex;
-    margin-bottom: var(--space-3);
-
-    i {
-      font-size: var(--font-size-base);
-    }
-  }
-
-  &__value {
-    font-size: var(--font-size-xl);
-    font-weight: var(--font-weight-bold);
-    color: var(--text-color);
-    display: block;
-  }
-
-  &__label {
-    font-size: var(--font-size-xs);
-    color: var(--text-color-secondary);
   }
 }

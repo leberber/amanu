@@ -210,40 +210,7 @@
 
 
 // =============================================================================
-// 5. META PILL (Count/Info Display)
-// =============================================================================
-
-.meta-pill {
-  @extend %badge-base;
-  background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.15) 0%, rgba(var(--primary-rgb), 0.1) 100%);
-  color: var(--primary-color);
-
-  i {
-    font-size: var(--font-size-xs);
-  }
-}
-
-
-// =============================================================================
-// 6. META ITEM (Icon + Text)
-// =============================================================================
-
-.meta-item {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  font-size: var(--font-size-sm);
-  color: var(--text-color-secondary);
-
-  i {
-    font-size: var(--font-size-base);
-    color: var(--primary-color);
-  }
-}
-
-
-// =============================================================================
-// 7. ID BADGE
+// 5. ID BADGE
 // =============================================================================
 
 .id-badge {

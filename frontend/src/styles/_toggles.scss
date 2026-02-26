@@ -1,7 +1,7 @@
 // =============================================================================
 // TOGGLES
 // =============================================================================
-// Toggle switches, radio buttons, and checkbox styles.
+// Toggle switches and PrimeNG overrides.
 // Uses variables from: _colors.scss, _spacing.scss, _effects.scss, _typography.scss
 // =============================================================================
 
@@ -19,104 +19,7 @@
 
 
 // =============================================================================
-// 1. TOGGLE SWITCH
-// =============================================================================
-
-.toggle {
-  @extend %toggle-base;
-  gap: var(--space-4);
-
-  &__switch {
-    position: relative;
-    width: 44px;
-    height: 24px;
-    background: var(--border-color-medium);
-    border-radius: var(--radius-md);
-    transition: all var(--transition-smooth);
-  }
-
-  &__thumb {
-    position: absolute;
-    top: 2px;
-    left: 2px;
-    width: 20px;
-    height: 20px;
-    background: var(--color-white);
-    border-radius: var(--radius-full);
-    box-shadow: var(--shadow-sm);
-    transition: all var(--transition-smooth);
-  }
-
-  &__label {
-    font-size: var(--font-size-md);
-    font-weight: var(--font-weight-medium);
-    color: var(--text-color);
-  }
-
-  // ---------------------------------------------------------------------------
-  // Active State
-  // ---------------------------------------------------------------------------
-  &.active,
-  &--active {
-    .toggle__switch {
-      background: var(--primary-gradient);
-    }
-
-    .toggle__thumb {
-      left: 22px;
-    }
-  }
-
-  // ---------------------------------------------------------------------------
-  // Disabled State
-  // ---------------------------------------------------------------------------
-  &:disabled,
-  &--disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  // ---------------------------------------------------------------------------
-  // Size Variants
-  // ---------------------------------------------------------------------------
-  &--sm {
-    .toggle__switch {
-      width: 36px;
-      height: 20px;
-    }
-
-    .toggle__thumb {
-      width: 16px;
-      height: 16px;
-    }
-
-    &.active .toggle__thumb,
-    &--active .toggle__thumb {
-      left: 18px;
-    }
-  }
-
-  &--lg {
-    .toggle__switch {
-      width: 52px;
-      height: 28px;
-    }
-
-    .toggle__thumb {
-      width: 24px;
-      height: 24px;
-    }
-
-    &.active .toggle__thumb,
-    &--active .toggle__thumb {
-      left: 26px;
-    }
-  }
-}
-
-
-// =============================================================================
-// 2. STATUS TOGGLE (with label)
+// 1. STATUS TOGGLE (with label)
 // =============================================================================
 
 .status-toggle {
@@ -161,9 +64,7 @@
     box-shadow: var(--shadow-xs);
   }
 
-  // ---------------------------------------------------------------------------
   // Active State
-  // ---------------------------------------------------------------------------
   &--active {
     background: rgba(var(--color-success-rgb), 0.1);
     border-color: rgba(var(--color-success-rgb), 0.25);
@@ -184,7 +85,7 @@
 
 
 // =============================================================================
-// 3. PRIMENG INPUTSWITCH OVERRIDE
+// 2. PRIMENG INPUTSWITCH OVERRIDE
 // =============================================================================
 
 .p-inputswitch {
@@ -225,179 +126,6 @@
     &.p-inputswitch-checked .p-inputswitch-slider {
       background: var(--primary-gradient);
       filter: brightness(1.1);
-    }
-  }
-}
-
-
-// =============================================================================
-// 4. RADIO BUTTON GROUP
-// =============================================================================
-
-.radio-group {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-
-  &--horizontal {
-    flex-direction: row;
-    flex-wrap: wrap;
-  }
-}
-
-.radio-item {
-  display: flex;
-  align-items: center;
-  gap: var(--space-4);
-  padding: var(--space-4) var(--space-5);
-  background: var(--surface-slate-50-solid);
-  border: var(--border-width) solid var(--border-color-light);
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  transition: all var(--transition-fast);
-
-  &:hover {
-    border-color: rgba(var(--primary-rgb), 0.2);
-  }
-
-  &.selected {
-    background: rgba(var(--primary-rgb), 0.05);
-    border-color: var(--primary-color);
-  }
-
-  &__radio {
-    width: 20px;
-    height: 20px;
-    border: 2px solid var(--border-color-dark);
-    border-radius: var(--radius-full);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all var(--transition-fast);
-
-    &::after {
-      content: '';
-      width: 10px;
-      height: 10px;
-      background: var(--primary-gradient);
-      border-radius: var(--radius-full);
-      transform: scale(0);
-      transition: transform var(--transition-fast);
-    }
-  }
-
-  &.selected .radio-item__radio {
-    border-color: var(--primary-color);
-
-    &::after {
-      transform: scale(1);
-    }
-  }
-
-  &__content {
-    flex: 1;
-
-    .label {
-      font-weight: var(--font-weight-medium);
-      color: var(--text-color);
-      font-size: var(--font-size-md);
-    }
-
-    .description {
-      font-size: var(--font-size-sm);
-      color: var(--text-color-secondary);
-      margin-top: var(--space-1);
-    }
-  }
-}
-
-
-// =============================================================================
-// 5. CHECKBOX GROUP
-// =============================================================================
-
-.checkbox-group {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-}
-
-.checkbox-item {
-  display: flex;
-  align-items: center;
-  gap: var(--space-4);
-  cursor: pointer;
-
-  &__box {
-    width: 22px;
-    height: 22px;
-    border: 2px solid var(--border-color-dark);
-    border-radius: var(--radius-sm);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all var(--transition-fast);
-
-    i {
-      font-size: var(--font-size-xs);
-      color: var(--color-white);
-      opacity: 0;
-      transform: scale(0);
-      transition: all var(--transition-fast);
-    }
-  }
-
-  &.checked .checkbox-item__box {
-    background: var(--primary-gradient);
-    border-color: transparent;
-
-    i {
-      opacity: 1;
-      transform: scale(1);
-    }
-  }
-
-  &__label {
-    font-size: var(--font-size-md);
-    font-weight: var(--font-weight-medium);
-    color: var(--text-color);
-  }
-
-  &:hover .checkbox-item__box {
-    border-color: var(--primary-color);
-  }
-}
-
-
-// =============================================================================
-// 6. TOGGLE BUTTON GROUP
-// =============================================================================
-
-.toggle-buttons {
-  display: inline-flex;
-  background: var(--overlay-soft);
-  border-radius: var(--radius-sm);
-  padding: var(--space-1);
-
-  &__btn {
-    padding: var(--space-3) var(--space-5);
-    background: transparent;
-    border: none;
-    border-radius: var(--radius-sm);
-    font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-medium);
-    color: var(--text-color-secondary);
-    cursor: pointer;
-    transition: all var(--transition-fast);
-
-    &:hover:not(.active) {
-      color: var(--text-color);
-    }
-
-    &.active {
-      background: var(--color-white);
-      color: var(--primary-color);
-      box-shadow: var(--shadow-xs);
     }
   }
 }

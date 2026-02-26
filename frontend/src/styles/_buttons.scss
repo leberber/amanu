@@ -102,26 +102,6 @@
   }
 }
 
-// -----------------------------------------------------------------------------
-// Danger Button (Red Gradient)
-// -----------------------------------------------------------------------------
-.btn-danger {
-  @extend %btn-base;
-  padding: var(--space-5) var(--space-8);
-  background: var(--btn-danger-gradient);
-  border-radius: var(--radius-lg);
-  color: var(--color-white);
-  font-size: var(--font-size-md);
-  font-weight: var(--font-weight-semibold);
-  box-shadow: var(--shadow-danger);
-
-  &:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-danger-lg);
-  }
-}
-
-
 // =============================================================================
 // 2. ICON BUTTONS
 // =============================================================================
@@ -250,43 +230,6 @@
     }
   }
 
-  &.confirm {
-    background: rgba(var(--color-success-rgb), 0.1);
-    color: var(--color-success);
-
-    &:hover {
-      background: rgba(var(--color-success-rgb), 0.2);
-    }
-  }
-
-  &.ship {
-    background: rgba(139, 92, 246, 0.1);
-    color: #8b5cf6;
-
-    &:hover {
-      background: rgba(139, 92, 246, 0.2);
-    }
-  }
-
-  &.disabled {
-    cursor: not-allowed;
-    opacity: 0.6;
-
-    &:hover {
-      transform: none;
-    }
-
-    &.delivered {
-      background: rgba(var(--color-success-rgb), 0.1);
-      color: var(--color-success);
-    }
-
-    &.cancelled {
-      background: rgba(var(--color-error-rgb), 0.1);
-      color: var(--color-error);
-    }
-  }
-
   // With text label variant
   &--with-text {
     width: auto;
@@ -385,17 +328,7 @@
     }
   }
 
-  // Width variants
-  &--auto {
-    width: auto;
-  }
-
   // Size variants
-  &--sm {
-    padding: var(--space-2) var(--space-4);
-    font-size: var(--font-size-sm);
-  }
-
   &--lg {
     padding: var(--space-6) var(--space-9);
     font-size: var(--font-size-lg);
@@ -413,62 +346,8 @@
 // =============================================================================
 
 // -----------------------------------------------------------------------------
-// Send Button (Forms)
-// -----------------------------------------------------------------------------
-.btn-send {
-  @extend %btn-base;
-  padding: var(--space-6) var(--space-8);
-  background: var(--primary-gradient);
-  border-radius: var(--radius-lg);
-  color: var(--color-white);
-  font-size: var(--font-size-base);
-  font-weight: var(--font-weight-semibold);
-  box-shadow: var(--shadow-primary);
-
-  &:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-primary-lg);
-  }
-
-  &:active:not(:disabled) {
-    transform: scale(0.98);
-  }
-}
-
-// -----------------------------------------------------------------------------
-// View All Button (Link Style)
-// -----------------------------------------------------------------------------
-.btn-view-all {
-  @extend %btn-base;
-  width: 100%;
-  padding: var(--space-5);
-  margin-top: var(--space-6);
-  background: transparent;
-  border: var(--border-width) solid rgba(var(--primary-rgb), 0.15);
-  border-radius: var(--radius-md);
-  color: var(--primary-color);
-  font-size: var(--font-size-base);
-  font-weight: var(--font-weight-semibold);
-
-  &:hover {
-    background: rgba(var(--primary-rgb), 0.05);
-    border-color: var(--primary-color);
-
-    i {
-      transform: translateX(4px);
-    }
-  }
-
-  i {
-    font-size: var(--font-size-sm);
-    transition: transform var(--transition-base);
-  }
-}
-
-// -----------------------------------------------------------------------------
 // Back Button
 // -----------------------------------------------------------------------------
-.btn-back,
 .back-btn {
   @extend %btn-base;
   padding: var(--space-3) var(--space-5);

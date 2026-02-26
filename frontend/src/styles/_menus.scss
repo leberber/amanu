@@ -1,7 +1,7 @@
 // =============================================================================
 // MENUS
 // =============================================================================
-// Dropdown menus, context menus, action menus, and PrimeNG menu overrides.
+// PrimeNG menu overrides.
 // Uses variables from: _colors.scss, _spacing.scss, _effects.scss, _typography.scss
 // =============================================================================
 
@@ -19,144 +19,9 @@
   z-index: var(--z-dropdown);
 }
 
-%menu-item-base {
-  display: flex;
-  align-items: center;
-  gap: var(--space-5);
-  padding: var(--space-5) var(--space-6);
-  border-radius: var(--radius-sm);
-  color: var(--text-color);
-  font-size: var(--font-size-base);
-  font-weight: var(--font-weight-medium);
-  cursor: pointer;
-  transition: all var(--transition-fast);
-  border: none;
-  background: transparent;
-  width: 100%;
-  text-align: left;
-
-  i {
-    font-size: var(--font-size-md);
-    color: var(--text-color-secondary);
-    width: 1.25rem;
-    text-align: center;
-  }
-
-  &:hover {
-    background: rgba(var(--primary-rgb), 0.08);
-    color: var(--primary-color);
-
-    i {
-      color: var(--primary-color);
-    }
-  }
-}
-
 
 // =============================================================================
-// 1. DROPDOWN CONTAINER
-// =============================================================================
-
-.dropdown {
-  position: relative;
-  display: inline-flex;
-}
-
-
-// =============================================================================
-// 2. DROPDOWN MENU
-// =============================================================================
-
-.dropdown-menu {
-  @extend %menu-panel-base;
-  position: absolute;
-  top: calc(100% + var(--space-3));
-  left: 0;
-  min-width: 200px;
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(-10px);
-  transition: all var(--transition-fast);
-
-  &.open {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0);
-  }
-
-  &--right {
-    left: auto;
-    right: 0;
-  }
-
-  &--top {
-    top: auto;
-    bottom: calc(100% + var(--space-3));
-  }
-}
-
-
-// =============================================================================
-// 3. DROPDOWN ITEM
-// =============================================================================
-
-.dropdown-item {
-  @extend %menu-item-base;
-
-  &--danger {
-    color: var(--color-error);
-
-    i {
-      color: var(--color-error);
-    }
-
-    &:hover {
-      background: rgba(var(--color-error-rgb), 0.1);
-    }
-  }
-
-  &--success {
-    color: var(--color-success);
-
-    i {
-      color: var(--color-success);
-    }
-
-    &:hover {
-      background: rgba(var(--color-success-rgb), 0.1);
-    }
-  }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    pointer-events: none;
-  }
-}
-
-
-// =============================================================================
-// 4. DROPDOWN DIVIDER & HEADER
-// =============================================================================
-
-.dropdown-divider {
-  height: 1px;
-  background: var(--border-color-light);
-  margin: var(--space-3) 0;
-}
-
-.dropdown-header {
-  padding: var(--space-5) var(--space-6);
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-semibold);
-  color: var(--text-color-secondary);
-  text-transform: uppercase;
-  letter-spacing: var(--letter-spacing-wide);
-}
-
-
-// =============================================================================
-// 5. PRIMENG MENU
+// 1. PRIMENG MENU
 // =============================================================================
 
 .p-menu {
@@ -211,7 +76,7 @@
 
 
 // =============================================================================
-// 6. CONTEXT MENU
+// 2. CONTEXT MENU
 // =============================================================================
 
 .p-contextmenu {
@@ -231,7 +96,7 @@
 
 
 // =============================================================================
-// 7. TIERED MENU / SUBMENU
+// 3. TIERED MENU / SUBMENU
 // =============================================================================
 
 .p-tieredmenu {
@@ -239,94 +104,5 @@
 
   .p-submenu-list {
     @extend %menu-panel-base;
-  }
-}
-
-
-// =============================================================================
-// 8. ACTION MENU (Three Dots)
-// =============================================================================
-
-.action-menu {
-  &__trigger {
-    width: var(--btn-height-sm);
-    height: var(--btn-height-sm);
-    border: none;
-    background: transparent;
-    border-radius: var(--radius-sm);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all var(--transition-fast);
-
-    i {
-      font-size: var(--font-size-md);
-      color: var(--text-color-secondary);
-    }
-
-    &:hover {
-      background: var(--surface-100);
-
-      i {
-        color: var(--text-color);
-      }
-    }
-  }
-}
-
-
-// =============================================================================
-// 9. MEGA MENU
-// =============================================================================
-
-.mega-menu {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  width: 100%;
-  background: var(--color-white);
-  border-radius: 0 0 var(--radius-2xl) var(--radius-2xl);
-  box-shadow: var(--shadow-xl);
-  padding: var(--space-8);
-  z-index: var(--z-dropdown);
-
-  &__grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: var(--space-8);
-
-    @media (max-width: 1024px) {
-      grid-template-columns: repeat(2, 1fr);
-    }
-
-    @media (max-width: 640px) {
-      grid-template-columns: 1fr;
-    }
-  }
-
-  &__section {
-    h4 {
-      font-size: var(--font-size-sm);
-      font-weight: var(--font-weight-semibold);
-      color: var(--text-color);
-      margin: 0 0 var(--space-5) 0;
-      padding-bottom: var(--space-3);
-      border-bottom: var(--border-width) solid var(--border-color-light);
-    }
-  }
-
-  &__link {
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-    padding: var(--space-3) 0;
-    color: var(--text-color-secondary);
-    font-size: var(--font-size-base);
-    transition: all var(--transition-fast);
-
-    &:hover {
-      color: var(--primary-color);
-    }
   }
 }

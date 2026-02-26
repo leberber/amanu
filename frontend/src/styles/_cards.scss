@@ -57,15 +57,6 @@
   @extend %card-base;
   @extend %card-hover;
 
-  &--flat {
-    box-shadow: none;
-    border: var(--border-width) solid var(--overlay-medium);
-
-    &:hover {
-      box-shadow: var(--shadow-md);
-    }
-  }
-
   &--no-hover {
     &:hover {
       transform: none;
@@ -164,126 +155,11 @@
   &--compact {
     padding: var(--space-6);
   }
-
-  &--spacious {
-    padding: var(--space-9);
-  }
 }
 
 
 // =============================================================================
-// 4. CARD FOOTER
-// =============================================================================
-
-.card-footer {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: var(--space-5);
-  padding: var(--space-6) var(--space-8);
-  border-top: var(--border-width) solid var(--border-color-light);
-  background: var(--surface-slate-50);
-}
-
-
-// =============================================================================
-// 5. GRID CARD
-// =============================================================================
-
-.grid-card {
-  background: var(--color-white);
-  border-radius: var(--radius-xl);
-  border: var(--border-width) solid var(--border-color-light);
-  overflow: hidden;
-  transition: all var(--transition-smooth);
-
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-xl);
-
-    .grid-card__actions {
-      opacity: 1;
-    }
-  }
-
-  &__header {
-    position: relative;
-    padding: var(--space-7);
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-  }
-
-  &__image {
-    width: var(--icon-3xl);
-    height: var(--icon-3xl);
-    border-radius: var(--radius-xl);
-    background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.1) 0%, rgba(var(--primary-rgb), 0.05) 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-
-    img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    i {
-      font-size: var(--font-size-4xl);
-      color: var(--primary-color);
-    }
-  }
-
-  &__body {
-    padding: 0 var(--space-7) var(--space-7);
-  }
-
-  &__title {
-    font-size: var(--font-size-xl);
-    font-weight: var(--font-weight-semibold);
-    color: var(--text-color);
-    margin: 0 0 var(--space-3) 0;
-  }
-
-  &__description {
-    font-size: var(--font-size-base);
-    color: var(--text-color-secondary);
-    margin: 0 0 var(--space-6) 0;
-    line-height: 1.5;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-
-    &--empty {
-      font-style: italic;
-      color: var(--color-text-muted);
-    }
-  }
-
-  &__meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-5);
-    align-items: center;
-  }
-
-  &__actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: var(--space-3);
-    padding: 0 var(--space-7) var(--space-7);
-    opacity: 0.7;
-    transition: opacity var(--transition-base);
-  }
-}
-
-
-// =============================================================================
-// 6. STAT CARD
+// 4. STAT CARD
 // =============================================================================
 
 .stat-card {
@@ -499,29 +375,8 @@
 
 
 // =============================================================================
-// 9. TABLE CARD
+// 7. GRID LAYOUTS
 // =============================================================================
-
-.table-card {
-  @extend %card-base;
-}
-
-
-// =============================================================================
-// 10. GRID LAYOUTS
-// =============================================================================
-
-.cards-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(var(--card-min-width), 1fr));
-  gap: var(--space-7);
-  padding: var(--space-7);
-
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-    padding: var(--space-6);
-  }
-}
 
 .stats-grid {
   display: grid;
