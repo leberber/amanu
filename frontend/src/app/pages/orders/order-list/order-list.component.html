@@ -18,8 +18,8 @@
 
   <!-- Loading State -->
   @if (loading()) {
-    <div class="order-list-content">
-      <div class="order-grid">
+    <div class="page-content">
+      <div class="page-grid">
         <!-- Desktop Table Skeleton -->
         <div class="table-container hidden md:block">
           <div class="table-header">
@@ -42,7 +42,7 @@
                 </tr>
               </thead>
               <tbody>
-                @for (i of [1,2,3,4,5]; track i) {
+                @for (i of SKELETON_ROWS; track i) {
                   <tr class="skeleton-row">
                     <td><div class="skeleton skeleton-text" style="width: 60px;"></div></td>
                     <td><div class="skeleton skeleton-text" style="width: 100px;"></div></td>
@@ -58,7 +58,7 @@
 
         <!-- Mobile List Skeleton -->
         <div class="block md:hidden">
-          @for (i of [1,2,3,4]; track i) {
+          @for (i of SKELETON_MOBILE_ROWS; track i) {
             <div class="skeleton-row" style="padding: var(--space-4); border-bottom: 1px solid var(--border-color-light);">
               <div class="skeleton skeleton-avatar" style="width: 48px; height: 48px;"></div>
               <div style="flex: 1; display: flex; flex-direction: column; gap: var(--space-2);">
@@ -71,14 +71,14 @@
         </div>
 
         <!-- Sidebar Skeleton -->
-        <div class="order-sidebar hidden md:flex">
+        <div class="page-sidebar hidden md:flex">
           <div class="card">
             <div class="card-header">
               <div class="skeleton skeleton-avatar"></div>
               <div class="skeleton skeleton-text" style="width: 80px;"></div>
             </div>
             <div class="card-body">
-              @for (i of [1,2]; track i) {
+              @for (i of SKELETON_SIDEBAR_ITEMS; track i) {
                 <div class="skeleton-row">
                   <div class="skeleton skeleton-avatar" style="width: 40px; height: 40px;"></div>
                   <div style="flex: 1; display: flex; flex-direction: column; gap: var(--space-2);">
@@ -118,8 +118,8 @@
 
   <!-- Orders Content -->
   @else {
-    <div class="order-list-content">
-      <!-- Mobile Stats (visible only on mobile) -->
+    <div class="page-content">
+      <!-- Mobile Stats -->
       <div class="stats-grid stats-grid--compact md:hidden">
         <div class="stat-card stat-card--compact">
           <div class="stat-card__content">
@@ -146,37 +146,21 @@
       </div>
 
       <!-- Mobile Sticky Segment Control -->
-      <div class="mobile-filter-sticky md:hidden">
+      <div class="sticky-filter sticky-filter--bleed sticky-filter--overlap md:hidden">
         <div class="segment-control segment-control--glass segment-control--sliding">
           <span class="segment-control__slider"></span>
-          <button
-            class="segment-control__item"
-            [class.active]="timeFilter() === 'all'"
-            (click)="setTimeFilter('all')">
-            <span>{{ 'orders.filters.all' | translate }}</span>
-          </button>
-          <button
-            class="segment-control__item"
-            [class.active]="timeFilter() === '7days'"
-            (click)="setTimeFilter('7days')">
-            <span>{{ 'orders.filters.last_7_days' | translate }}</span>
-          </button>
-          <button
-            class="segment-control__item"
-            [class.active]="timeFilter() === '30days'"
-            (click)="setTimeFilter('30days')">
-            <span>{{ 'orders.filters.last_month' | translate }}</span>
-          </button>
-          <button
-            class="segment-control__item"
-            [class.active]="timeFilter() === '90days'"
-            (click)="setTimeFilter('90days')">
-            <span>{{ 'orders.filters.last_3_months' | translate }}</span>
-          </button>
+          @for (filter of TIME_FILTERS; track filter.value) {
+            <button
+              class="segment-control__item"
+              [class.active]="timeFilter() === filter.value"
+              (click)="setTimeFilter(filter.value)">
+              <span>{{ filter.label | translate }}</span>
+            </button>
+          }
         </div>
       </div>
 
-      <div class="order-grid">
+      <div class="page-grid">
         <!-- Table Container -->
         <div class="table-container scrollable" [class.fullscreen]="isFullscreen()">
           <!-- Table Header (Desktop only) -->
@@ -184,30 +168,14 @@
             <!-- Time Filter Segment Control -->
             <div class="segment-control segment-control--glass segment-control--sliding">
               <span class="segment-control__slider"></span>
-              <button
-                class="segment-control__item"
-                [class.active]="timeFilter() === 'all'"
-                (click)="setTimeFilter('all')">
-                <span>{{ 'orders.filters.all' | translate }}</span>
-              </button>
-              <button
-                class="segment-control__item"
-                [class.active]="timeFilter() === '7days'"
-                (click)="setTimeFilter('7days')">
-                <span>{{ 'orders.filters.last_7_days' | translate }}</span>
-              </button>
-              <button
-                class="segment-control__item"
-                [class.active]="timeFilter() === '30days'"
-                (click)="setTimeFilter('30days')">
-                <span>{{ 'orders.filters.last_month' | translate }}</span>
-              </button>
-              <button
-                class="segment-control__item"
-                [class.active]="timeFilter() === '90days'"
-                (click)="setTimeFilter('90days')">
-                <span>{{ 'orders.filters.last_3_months' | translate }}</span>
-              </button>
+              @for (filter of TIME_FILTERS; track filter.value) {
+                <button
+                  class="segment-control__item"
+                  [class.active]="timeFilter() === filter.value"
+                  (click)="setTimeFilter(filter.value)">
+                  <span>{{ filter.label | translate }}</span>
+                </button>
+              }
             </div>
 
             <!-- Table Actions -->
@@ -226,7 +194,7 @@
                   <div class="table-options-section">
                     <span class="table-options-label">{{ 'orders.table.rows_per_page' | translate }}</span>
                     <div class="table-options-rows">
-                      @for (option of rowsPerPageOptions; track option) {
+                      @for (option of ROWS_PER_PAGE_OPTIONS; track option) {
                         <button
                           class="rows-option"
                           [class.active]="rows() === option"
@@ -255,14 +223,14 @@
               </thead>
               <tbody>
                 @for (order of paginatedOrders(); track order.id; let i = $index) {
-                  <tr class="table-row-animate" [style.--row-delay]="(i * 40) + 'ms'" (click)="viewOrderDetails(order.id)">
+                  <tr class="table-row-animate" [style.--row-delay]="(i * ROW_ANIMATION_DELAY) + 'ms'" (click)="viewOrderDetails(order.id)">
                     <td><span class="table-id">#{{ order.id }}</span></td>
                     <td><span class="date-display">{{ order.created_at | appDate }}</span></td>
                     <td><p-tag [severity]="getStatusSeverity(order.status)" [value]="order.status | appStatus"></p-tag></td>
                     <td><span class="amount-display amount-display--primary">{{ order.total_amount | appCurrency }}</span></td>
                     <td>
                       <div class="table-cell-actions" style="justify-content: center;">
-                        <button class="action-btn view" (click)="viewOrderDetails(order.id); $event.stopPropagation()">
+                        <button class="action-btn action-btn--with-text view" (click)="viewOrderDetails(order.id); $event.stopPropagation()">
                           <i class="pi pi-eye"></i>
                           <span>{{ 'orders.table.view' | translate }}</span>
                         </button>
@@ -296,23 +264,23 @@
           }
 
           <!-- Mobile List View -->
-          <div class="order-list block md:hidden">
+          <div class="list-group list-group--flush block md:hidden">
             @for (order of filteredOrders(); track order.id; let i = $index) {
-              <div class="order-item item-animate" [style.animation-delay]="(i * 50) + 'ms'" (click)="viewOrderDetails(order.id)">
+              <div class="order-item item-animate" [style.animation-delay]="(i * MOBILE_ANIMATION_DELAY) + 'ms'" (click)="viewOrderDetails(order.id)">
                 <div class="order-item__icon">
                   <i class="pi pi-shopping-bag"></i>
                 </div>
                 <div class="order-item__content">
                   <div class="order-item__header">
-                    <span class="order-item__number">{{ 'orders.table.order_number' | translate }}{{ order.id }}</span>
+                    <span class="order-item__title">{{ 'orders.table.order_number' | translate }}{{ order.id }}</span>
                     <p-tag [severity]="getStatusSeverity(order.status)" [value]="order.status | appStatus"></p-tag>
                   </div>
                   <div class="order-item__footer">
                     <span class="order-item__date">{{ order.created_at | appDate }}</span>
-                    <span class="order-item__total">{{ order.total_amount | appCurrency }}</span>
+                    <span class="order-item__amount">{{ order.total_amount | appCurrency }}</span>
                   </div>
                 </div>
-                <div class="order-item__chevron">
+                <div class="order-item__arrow">
                   <i class="pi pi-chevron-right"></i>
                 </div>
               </div>
@@ -329,7 +297,7 @@
         </div>
 
         <!-- Sidebar - Stats (Desktop only) -->
-        <div class="order-sidebar hidden md:flex">
+        <div class="page-sidebar hidden md:flex">
           <div class="stat-card">
             <div class="stat-card__icon stat-card__icon--primary">
               <i class="pi pi-shopping-bag"></i>

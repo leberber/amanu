@@ -143,3 +143,70 @@
   &--gap-lg { gap: var(--space-8); }
   &--gap-xl { gap: var(--space-10); }
 }
+
+
+// ---------------------------------------------------------------------------
+// Sticky Filter Container
+// ---------------------------------------------------------------------------
+// Mobile-friendly sticky filter bar that sticks to top of scrollable content.
+
+.sticky-filter {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+  background: var(--surface-card);
+  padding: var(--space-3) var(--space-4);
+
+  // Offset margins for full-bleed on padded parents
+  &--bleed {
+    margin: 0 calc(var(--space-5) * -1);
+    margin-top: calc(var(--space-4) * -1);
+    margin-bottom: var(--space-4);
+  }
+
+  // Slight negative top for overlap effect
+  &--overlap {
+    top: -10px;
+  }
+
+  // Full-width child elements
+  .segment-control {
+    width: 100%;
+  }
+}
+
+
+// ---------------------------------------------------------------------------
+// Page Content Grid
+// ---------------------------------------------------------------------------
+// Common page layout with main content and sidebar.
+
+.page-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+
+  @media (min-width: 768px) {
+    grid-template-columns: 1fr 320px;
+  }
+
+  &--reverse {
+    @media (min-width: 768px) {
+      grid-template-columns: 320px 1fr;
+    }
+  }
+}
+
+.page-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.page-content {
+  padding: var(--space-5);
+
+  @media (min-width: 768px) {
+    padding: var(--space-6);
+  }
+}

@@ -1,163 +1,23 @@
 // =============================================================================
-// Order List Component Styles
+// ORDER LIST COMPONENT
 // =============================================================================
 // Uses global styles from:
-// - _table.scss: table-container, table-header, table-wrapper, table, table-footer,
-//   table-action-btn, table-options-menu, table-id, table-row-animate
-// - _cards.scss: card, card-header, card-body, stat-card
-// - _states.scss: empty-state, date-display, amount-display
-// - _segments.scss: segment-control, segment-control--glass, segment-control--sliding
-// - _skeleton.scss: skeleton, skeleton-*, item-animate
-// - _badges.scss: count-badge
-// - _components.scss: action-link
+// - _layout.scss (page-content, page-grid, page-sidebar, sticky-filter)
+// - _table.scss (table-container, table-header, table-wrapper, table, table-footer,
+//   table-action-btn, table-options-menu, table-id, table-row-animate)
+// - _cards.scss (card, card-header, card-body, stat-card)
+// - _lists.scss (order-item)
+// - _states.scss (empty-state, date-display, amount-display)
+// - _segments.scss (segment-control, segment-control--glass, segment-control--sliding)
+// - _skeleton.scss (skeleton, skeleton-*, item-animate)
+// - _badges.scss (count-badge, count-badge--light)
+// - _buttons.scss (action-btn, action-btn--with-text)
+// - _components.scss (action-link)
 // =============================================================================
+
+:host { display: block; }
 
 // Table height override for this page
 .table-container {
   --table-max-height: calc(100vh - 320px);
-}
-
-// -----------------------------------------------------------------------------
-// Page Layout (component-specific grid layout)
-// -----------------------------------------------------------------------------
-.order-list-content {
-  padding: var(--space-5);
-
-  @media (min-width: 768px) {
-    padding: var(--space-6);
-  }
-}
-
-.order-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--space-4);
-
-  @media (min-width: 768px) {
-    grid-template-columns: 1fr 320px;
-  }
-}
-
-.order-sidebar {
-  flex-direction: column;
-  gap: var(--space-4);
-}
-
-// -----------------------------------------------------------------------------
-// Mobile Order List (component-specific mobile view)
-// -----------------------------------------------------------------------------
-.order-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.order-item {
-  display: flex;
-  align-items: center;
-  padding: var(--space-4) var(--space-2);
-  gap: var(--space-4);
-  cursor: pointer;
-  transition: background var(--transition-fast);
-  border-bottom: var(--border-width) solid var(--border-color-light);
-
-  &:last-child {
-    border-bottom: none;
-  }
-
-  &:hover {
-    background: var(--surface-hover);
-  }
-
-  &__icon {
-    width: var(--icon-xl);
-    height: var(--icon-xl);
-    border-radius: var(--radius-md);
-    background: rgba(var(--primary-rgb), 0.1);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-
-    i {
-      font-size: var(--font-size-lg);
-      color: var(--primary-color);
-    }
-  }
-
-  &__content {
-    flex: 1;
-    min-width: 0;
-  }
-
-  &__header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: var(--space-2);
-  }
-
-  &__number {
-    font-size: var(--font-size-base);
-    font-weight: var(--font-weight-semibold);
-    color: var(--text-color);
-  }
-
-  &__footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  &__date {
-    font-size: var(--font-size-sm);
-    color: var(--text-color-secondary);
-  }
-
-  &__total {
-    font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-semibold);
-    color: var(--primary-color);
-  }
-
-  &__chevron {
-    flex-shrink: 0;
-
-    i {
-      font-size: var(--font-size-sm);
-      color: var(--text-color-secondary);
-    }
-  }
-}
-
-// -----------------------------------------------------------------------------
-// Action Button with Text (for view button)
-// -----------------------------------------------------------------------------
-.action-btn.view {
-  width: auto;
-  padding: var(--space-2) var(--space-4);
-  gap: var(--space-2);
-
-  span {
-    font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-medium);
-  }
-}
-
-// -----------------------------------------------------------------------------
-// Mobile Sticky Filter
-// -----------------------------------------------------------------------------
-.mobile-filter-sticky {
-  position: sticky;
-  top: -10px;
-  z-index: 20;
-  background: var(--surface-card);
-  padding: var(--space-3) var(--space-4);
-  margin: 0 calc(var(--space-5) * -1);
-  margin-top: calc(var(--space-4) * -1);
-  margin-bottom: var(--space-4);
-
-  .segment-control {
-    width: 100%;
-  }
 }

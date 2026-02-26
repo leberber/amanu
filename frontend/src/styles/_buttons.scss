@@ -286,6 +286,18 @@
       color: var(--color-error);
     }
   }
+
+  // With text label variant
+  &--with-text {
+    width: auto;
+    padding: var(--space-2) var(--space-4);
+    gap: var(--space-2);
+
+    span {
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-medium);
+    }
+  }
 }
 
 // Action buttons container

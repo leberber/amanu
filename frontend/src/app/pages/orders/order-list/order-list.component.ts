@@ -44,6 +44,20 @@ import { StatusPipe } from '../../../shared/pipes/status.pipe';
   styleUrls: ['./order-list.component.scss']
 })
 export class OrderListComponent implements OnInit {
+  // Constants
+  readonly SKELETON_ROWS = [1, 2, 3, 4, 5];
+  readonly SKELETON_MOBILE_ROWS = [1, 2, 3, 4, 5, 6];
+  readonly SKELETON_SIDEBAR_ITEMS = [1, 2, 3];
+  readonly ROWS_PER_PAGE_OPTIONS = [5, 10, 25];
+  readonly ROW_ANIMATION_DELAY = 30;
+  readonly MOBILE_ANIMATION_DELAY = 50;
+  readonly TIME_FILTERS = [
+    { value: 'all' as const, label: 'orders.filters.all' },
+    { value: '7days' as const, label: 'orders.filters.last_7_days' },
+    { value: '30days' as const, label: 'orders.filters.last_month' },
+    { value: '90days' as const, label: 'orders.filters.last_3_months' }
+  ];
+
   // State signals
   orders = signal<Order[]>([]);
   loading = signal(true);
@@ -53,7 +67,6 @@ export class OrderListComponent implements OnInit {
   isFullscreen = signal(false);
   rows = signal(10);
   first = signal(0);
-  readonly rowsPerPageOptions = [5, 10, 25];
 
   // Time filter
   timeFilter = signal<'all' | '7days' | '30days' | '90days'>('all');
