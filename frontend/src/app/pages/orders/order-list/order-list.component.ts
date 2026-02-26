@@ -49,8 +49,7 @@ export class OrderListComponent implements OnInit {
   readonly SKELETON_MOBILE_ROWS = Array.from({ length: UI.SKELETON_MOBILE_ROWS }, (_, i) => i);
   readonly SKELETON_SIDEBAR_ITEMS = Array.from({ length: UI.SKELETON_SIDEBAR_ITEMS }, (_, i) => i);
   readonly ROWS_PER_PAGE_OPTIONS = [5, 10, 25];
-  readonly ROW_ANIMATION_DELAY = ANIMATION.STAGGER_DELAY;
-  readonly MOBILE_ANIMATION_DELAY = ANIMATION.STAGGER_DELAY;
+  readonly ANIMATION_DELAY = ANIMATION.STAGGER_DELAY;
   readonly TIME_FILTERS = [
     { value: 'all' as const, label: 'orders.filters.all' },
     { value: '7days' as const, label: 'orders.filters.last_7_days' },
