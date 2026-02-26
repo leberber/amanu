@@ -80,11 +80,10 @@
               </div>
               <span>{{ 'cart.your_items' | translate }}</span>
             </div>
-            <span class="count-badge count-badge--light">{{ cartItemCount() }}</span>
           </div>
 
           <!-- Desktop Table -->
-          <div class="table-wrapper hidden md:block">
+          <div class="table-wrapper hidden md:block" style="overflow-x: auto;">
             <table class="table">
               <thead>
                 <tr>
@@ -161,10 +160,13 @@
               <tfoot>
                 <tr>
                   <td colspan="3">
-                    <span class="text-secondary">{{ cartItemCount() }} {{ (cartItemCount() === 1 ? 'common.item' : 'common.items') | translate }}</span>
+                    <div class="meta-item">
+                      <i class="pi pi-box"></i>
+                      <span>{{ cartItemCount() }} {{ (cartItemCount() === 1 ? 'common.item' : 'common.items') | translate }}</span>
+                    </div>
                   </td>
-                  <td class="text-right">
-                    <span class="text-bold">{{ 'promotions.subtotal' | translate }}: {{ cartSubtotal() | appCurrency }}</span>
+                  <td style="text-align: right;">
+                    <span style="font-weight: 700; font-size: 1.25rem; color: var(--primary-color);">{{ cartSubtotal() | appCurrency }}</span>
                   </td>
                   <td></td>
                 </tr>
@@ -173,19 +175,19 @@
           </div>
 
           <!-- Mobile List -->
-          <div class="list-group block md:hidden">
+          <div class="cart-mobile-list block md:hidden">
             @for (item of cartItems(); track item.id; let i = $index) {
-              <div class="list-item list-item--interactive" [style.animation-delay]="(i * ANIMATION_DELAY) + 'ms'">
-                <div class="list-item__row">
-                  <div class="table-thumbnail table-thumbnail--sm" [class.clickable]="item.product_image" (click)="openImage(item)">
+              <div class="cart-item-mobile" [style.animation-delay]="(i * ANIMATION_DELAY) + 'ms'">
+                <div class="cart-item-mobile__row1">
+                  <div class="thumbnail" [class.clickable]="item.product_image" (click)="openImage(item)">
                     @if (item.product_image) {
                       <img [src]="item.product_image" [alt]="item.product_name" loading="lazy" appImageFallback>
                     } @else {
                       <i class="pi pi-box"></i>
                     }
                   </div>
-                  <div class="list-item__content">
-                    <span class="list-item__title">{{ item.product_name }}</span>
+                  <div class="cart-item-mobile__name-row">
+                    <p class="cart-item-name">{{ item.product_name }}</p>
                     @if (item.is_organic) {
                       <span class="badge organic">O</span>
                     }
@@ -194,10 +196,10 @@
                     <i class="pi pi-trash"></i>
                   </button>
                 </div>
-                <div class="list-item__row list-item__row--between">
+                <div class="cart-item-mobile__row2">
                   <span class="pill primary">{{ item.product_price | appCurrency }}</span>
-                  <div class="list-item__actions">
-                    <div class="quantity-controls quantity-controls--sm">
+                  <div class="cart-item-mobile__controls">
+                    <div class="cart-quantity-controls">
                       <button
                         pButton
                         type="button"
@@ -207,9 +209,9 @@
                         (click)="updateItemQuantity(item.id, productQuantities[item.id] - getQuantityStep(item))">
                       </button>
                       @let mobileCartonCount = getCartonCount(item);
-                      <div class="quantity-display quantity-display--sm">
-                        <span class="quantity-display__primary">{{ mobileCartonCount }} {{ getPackagingTypeForCount(item, mobileCartonCount) }}</span>
-                        <span class="quantity-display__secondary">{{ productQuantities[item.id] }} {{ item.product_unit | appUnit }}</span>
+                      <div class="quantity-display">
+                        <span class="quantity-display__cartons">{{ mobileCartonCount }} {{ getPackagingTypeForCount(item, mobileCartonCount) }}</span>
+                        <span class="quantity-display__pieces">{{ productQuantities[item.id] }} {{ item.product_unit | appUnit }}</span>
                       </div>
                       <button
                         pButton
@@ -220,7 +222,7 @@
                         (click)="updateItemQuantity(item.id, productQuantities[item.id] + getQuantityStep(item))">
                       </button>
                     </div>
-                    <span class="text-bold text-primary">{{ item.product_price * item.quantity | appCurrency }}</span>
+                    <span class="cart-item-total">{{ item.product_price * item.quantity | appCurrency }}</span>
                   </div>
                 </div>
               </div>
@@ -325,15 +327,15 @@
 
               <!-- Actions -->
               <div class="form-actions form-actions--stacked">
-                <button class="form-action-btn form-action-btn--success" (click)="proceedToCheckout()">
+                <button class="form-action-btn form-action-btn--success form-action-btn--lg" (click)="proceedToCheckout()">
                   <span>{{ 'cart.checkout' | translate }}</span>
                   <i class="pi pi-arrow-right"></i>
                 </button>
-                <a [routerLink]="ROUTES.PRODUCTS" class="form-action-btn form-action-btn--secondary">
+                <a [routerLink]="ROUTES.PRODUCTS" class="form-action-btn form-action-btn--secondary form-action-btn--lg">
                   <i class="pi pi-shopping-bag"></i>
                   <span>{{ 'cart.continue_shopping' | translate }}</span>
                 </a>
-                <button class="form-action-btn form-action-btn--ghost" (click)="clearCart()">
+                <button class="form-action-btn form-action-btn--ghost form-action-btn--lg" (click)="clearCart()">
                   <i class="pi pi-trash"></i>
                   <span>{{ 'cart.clear_cart' | translate }}</span>
                 </button>

@@ -138,12 +138,18 @@
   }
 
   tfoot {
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+
     td {
       @extend %table-cell-base;
       background: var(--surface-ground);
       font-size: var(--font-size-sm);
       border-top: var(--border-width) solid var(--border-color-light);
     }
+
+
   }
 
   // ---------------------------------------------------------------------------
