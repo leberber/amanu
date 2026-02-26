@@ -3,7 +3,7 @@
 // =============================================================================
 // Uses global styles from:
 // - _layout.scss: page-content, page-grid, page-sidebar, page-main
-// - _cards.scss: card, card-header, card-header__icon, card-body, card--image, card__image-container
+// - _cards.scss: card, card-header, card-header__icon, card-body, card--image
 // - _badges.scss: topbar-badge, image-badge, cart-status
 // - _inputs.scss: quantity-selector, quantity-controls, quantity-display, quantity-info
 // - _lists.scss: price-display
@@ -12,4 +12,4 @@
 // - _skeleton.scss: skeleton classes
 // =============================================================================
 
-// No component-specific styles needed - all styles are global
+// No component-specific styles needed - all styles use global classes and PrimeFlex utilities

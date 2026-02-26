@@ -12,34 +12,52 @@
     <!-- Loading State - Skeleton -->
     @if (loading()) {
       <!-- Header Skeleton -->
-      <div class="admin-list-header animate-item" style="--item-delay: 0ms;">
+      <div class="admin-list-header animate-item" style="--item-delay: 0ms">
         <div class="header-title">
           <div class="admin-icon-wrapper">
             <div class="icon-bg"></div>
             <div class="icon-circle skeleton"></div>
           </div>
           <div class="title-text">
-            <div class="skeleton skeleton-text" style="width: 180px; height: 28px;"></div>
-            <div class="skeleton skeleton-text" style="width: 280px; height: 16px; margin-top: 8px;"></div>
+            <div
+              class="skeleton skeleton-text"
+              style="width: 180px; height: 28px"
+            ></div>
+            <div
+              class="skeleton skeleton-text"
+              style="width: 280px; height: 16px; margin-top: 8px"
+            ></div>
           </div>
         </div>
       </div>
 
       <!-- Tabs Skeleton -->
-      <div class="flex align-items-center gap-3 mb-4 animate-item" style="--item-delay: 50ms;">
-        <div class="skeleton" style="width: 280px; height: 44px; border-radius: var(--radius-xl);"></div>
+      <div
+        class="flex align-items-center gap-3 mb-4 animate-item"
+        style="--item-delay: 50ms"
+      >
+        <div
+          class="skeleton"
+          style="width: 280px; height: 44px; border-radius: var(--radius-xl)"
+        ></div>
       </div>
 
       <!-- Wizard Skeleton -->
-      <div class="form-wizard animate-item" style="--item-delay: 100ms;">
+      <div class="form-wizard animate-item" style="--item-delay: 100ms">
         <!-- Stepper Skeleton -->
         <div class="form-wizard__header">
           <div class="stepper-horizontal">
-            @for (i of [1,2,3,4]; track i) {
+            @for (i of [1, 2, 3, 4]; track i) {
               <div class="stepper-horizontal__step">
                 <div class="stepper-horizontal__indicator">
-                  <div class="skeleton" style="width: 32px; height: 32px; border-radius: 50%;"></div>
-                  <div class="skeleton skeleton-text" style="width: 60px; height: 14px; margin-top: 8px;"></div>
+                  <div
+                    class="skeleton"
+                    style="width: 32px; height: 32px; border-radius: 50%"
+                  ></div>
+                  <div
+                    class="skeleton skeleton-text"
+                    style="width: 60px; height: 14px; margin-top: 8px"
+                  ></div>
                 </div>
                 @if (i < 4) {
                   <div class="stepper-horizontal__connector"></div>
@@ -55,41 +73,105 @@
             <!-- Left Section Skeleton -->
             <div class="section-card">
               <div class="flex align-items-start gap-4 mb-5">
-                <div class="skeleton" style="width: 48px; height: 48px; border-radius: var(--radius-lg);"></div>
+                <div
+                  class="skeleton"
+                  style="
+                    width: 48px;
+                    height: 48px;
+                    border-radius: var(--radius-lg);
+                  "
+                ></div>
                 <div>
-                  <div class="skeleton skeleton-text" style="width: 120px; height: 20px;"></div>
-                  <div class="skeleton skeleton-text" style="width: 180px; height: 14px; margin-top: 8px;"></div>
+                  <div
+                    class="skeleton skeleton-text"
+                    style="width: 120px; height: 20px"
+                  ></div>
+                  <div
+                    class="skeleton skeleton-text"
+                    style="width: 180px; height: 14px; margin-top: 8px"
+                  ></div>
                 </div>
               </div>
-              <div class="skeleton" style="width: 100%; height: 48px; border-radius: var(--radius-md); margin-top: var(--space-4);"></div>
+              <div
+                class="skeleton"
+                style="
+                  width: 100%;
+                  height: 48px;
+                  border-radius: var(--radius-md);
+                  margin-top: var(--space-4);
+                "
+              ></div>
             </div>
 
             <!-- Right Section Skeleton -->
             <div class="section-card">
               <div class="flex align-items-start gap-4 mb-5">
-                <div class="skeleton" style="width: 48px; height: 48px; border-radius: var(--radius-lg);"></div>
+                <div
+                  class="skeleton"
+                  style="
+                    width: 48px;
+                    height: 48px;
+                    border-radius: var(--radius-lg);
+                  "
+                ></div>
                 <div>
-                  <div class="skeleton skeleton-text" style="width: 100px; height: 20px;"></div>
-                  <div class="skeleton skeleton-text" style="width: 160px; height: 14px; margin-top: 8px;"></div>
+                  <div
+                    class="skeleton skeleton-text"
+                    style="width: 100px; height: 20px"
+                  ></div>
+                  <div
+                    class="skeleton skeleton-text"
+                    style="width: 160px; height: 14px; margin-top: 8px"
+                  ></div>
                 </div>
               </div>
-              <div class="skeleton" style="width: 100%; height: 48px; border-radius: var(--radius-md); margin-top: var(--space-4);"></div>
-              <div class="skeleton" style="width: 100%; height: 48px; border-radius: var(--radius-md); margin-top: var(--space-4);"></div>
+              <div
+                class="skeleton"
+                style="
+                  width: 100%;
+                  height: 48px;
+                  border-radius: var(--radius-md);
+                  margin-top: var(--space-4);
+                "
+              ></div>
+              <div
+                class="skeleton"
+                style="
+                  width: 100%;
+                  height: 48px;
+                  border-radius: var(--radius-md);
+                  margin-top: var(--space-4);
+                "
+              ></div>
             </div>
           </div>
         </div>
 
         <!-- Footer Skeleton -->
         <div class="form-wizard__footer">
-          <div class="skeleton" style="width: 120px; height: 32px; border-radius: var(--radius-pill);"></div>
+          <div
+            class="skeleton"
+            style="
+              width: 120px;
+              height: 32px;
+              border-radius: var(--radius-pill);
+            "
+          ></div>
           <div class="step-nav">
-            <div class="skeleton" style="width: 100px; height: 44px; border-radius: var(--radius-md);"></div>
+            <div
+              class="skeleton"
+              style="
+                width: 100px;
+                height: 44px;
+                border-radius: var(--radius-md);
+              "
+            ></div>
           </div>
         </div>
       </div>
     } @else {
       <!-- Page Header -->
-      <div class="admin-list-header animate-item" style="--item-delay: 0ms;">
+      <div class="admin-list-header animate-item" style="--item-delay: 0ms">
         <div class="header-title">
           <div class="admin-icon-wrapper">
             <div class="icon-bg"></div>
@@ -98,28 +180,33 @@
             </div>
           </div>
           <div class="title-text">
-            <h1>{{ 'admin.notifications.title' | translate }}</h1>
-            <p>{{ 'admin.notifications.subtitle' | translate }}</p>
+            <h1>{{ "admin.notifications.title" | translate }}</h1>
+            <p>{{ "admin.notifications.subtitle" | translate }}</p>
           </div>
         </div>
       </div>
 
       <!-- Tabs -->
-      <div class="flex align-items-center justify-content-between gap-3 flex-wrap mb-4 animate-item" style="--item-delay: 50ms;">
+      <div
+        class="flex align-items-center justify-content-between gap-3 flex-wrap mb-4 animate-item"
+        style="--item-delay: 50ms"
+      >
         <div class="segment-control segment-control--glass">
           <button
             class="segment-control__item"
             [class.active]="activeTab() === 'compose'"
-            (click)="setActiveTab('compose')">
+            (click)="setActiveTab('compose')"
+          >
             <i class="pi pi-pencil"></i>
-            <span>{{ 'admin.notifications.tabs.compose' | translate }}</span>
+            <span>{{ "admin.notifications.tabs.compose" | translate }}</span>
           </button>
           <button
             class="segment-control__item"
             [class.active]="activeTab() === 'history'"
-            (click)="setActiveTab('history')">
+            (click)="setActiveTab('history')"
+          >
             <i class="pi pi-history"></i>
-            <span>{{ 'admin.notifications.tabs.history' | translate }}</span>
+            <span>{{ "admin.notifications.tabs.history" | translate }}</span>
             @if (history().length > 0) {
               <span class="count">{{ history().length }}</span>
             }
@@ -128,8 +215,8 @@
       </div>
 
       <!-- Compose Tab -->
-      @if (activeTab() === 'compose') {
-        <div class="form-wizard animate-item" style="--item-delay: 100ms;">
+      @if (activeTab() === "compose") {
+        <div class="form-wizard animate-item" style="--item-delay: 100ms">
           <!-- Wizard Header with Stepper (hidden on success step) -->
           @if (currentStep() < 5) {
             <div class="form-wizard__header">
@@ -137,17 +224,27 @@
                 @for (step of steps; track step.step) {
                   <div
                     class="stepper-horizontal__step"
-                    [class.stepper-horizontal__step--active]="currentStep() === step.step"
-                    [class.stepper-horizontal__step--completed]="currentStep() > step.step">
+                    [class.stepper-horizontal__step--active]="
+                      currentStep() === step.step
+                    "
+                    [class.stepper-horizontal__step--completed]="
+                      currentStep() > step.step
+                    "
+                  >
                     <div class="stepper-horizontal__indicator">
-                      <div class="stepper-horizontal__number" (click)="goToStep(step.step)">
+                      <div
+                        class="stepper-horizontal__number"
+                        (click)="goToStep(step.step)"
+                      >
                         @if (currentStep() > step.step) {
                           <i class="pi pi-check"></i>
                         } @else {
                           {{ step.step }}
                         }
                       </div>
-                      <span class="stepper-horizontal__label">{{ step.titleKey | translate }}</span>
+                      <span class="stepper-horizontal__label">{{
+                        step.titleKey | translate
+                      }}</span>
                     </div>
                     <div class="stepper-horizontal__connector"></div>
                   </div>
@@ -168,8 +265,15 @@
                       <i class="pi pi-users"></i>
                     </div>
                     <div>
-                      <h3 class="text-lg font-semibold m-0">{{ 'admin.notifications.audience.segment' | translate }}</h3>
-                      <p class="text-sm text-color-secondary mt-1 mb-0">{{ 'admin.notifications.audience.segment_desc' | translate }}</p>
+                      <h3 class="text-lg font-semibold m-0">
+                        {{ "admin.notifications.audience.segment" | translate }}
+                      </h3>
+                      <p class="text-sm text-color-secondary mt-1 mb-0">
+                        {{
+                          "admin.notifications.audience.segment_desc"
+                            | translate
+                        }}
+                      </p>
                     </div>
                   </div>
                   <div class="admin-form-field">
@@ -179,20 +283,31 @@
                       (ngModelChange)="onSegmentChange($event)"
                       optionLabel="label"
                       optionValue="segment_type"
-                      styleClass="w-full">
+                      styleClass="w-full"
+                    >
                       <ng-template pTemplate="selectedItem" let-item>
-                        <div class="flex align-items-center justify-content-between w-full">
+                        <div
+                          class="flex align-items-center justify-content-between w-full"
+                        >
                           <span>{{ item.label }}</span>
-                          <span class="chip chip--xs chip--solid">{{ item.count }}</span>
+                          <span class="chip chip--xs chip--solid">{{
+                            item.count
+                          }}</span>
                         </div>
                       </ng-template>
                       <ng-template pTemplate="item" let-item>
-                        <div class="flex align-items-center justify-content-between w-full">
+                        <div
+                          class="flex align-items-center justify-content-between w-full"
+                        >
                           <div>
                             <span>{{ item.label }}</span>
-                            <small class="block text-color-secondary text-xs">{{ item.description }}</small>
+                            <small class="block text-color-secondary text-xs">{{
+                              item.description
+                            }}</small>
                           </div>
-                          <span class="chip chip--xs chip--solid">{{ item.count }}</span>
+                          <span class="chip chip--xs chip--solid">{{
+                            item.count
+                          }}</span>
                         </div>
                       </ng-template>
                     </p-select>
@@ -206,14 +321,25 @@
                       <i class="pi pi-map-marker"></i>
                     </div>
                     <div>
-                      <h3 class="text-lg font-semibold m-0">{{ 'admin.notifications.audience.location' | translate }}</h3>
-                      <p class="text-sm text-color-secondary mt-1 mb-0">{{ 'admin.notifications.audience.location_desc' | translate }}</p>
+                      <h3 class="text-lg font-semibold m-0">
+                        {{
+                          "admin.notifications.audience.location" | translate
+                        }}
+                      </h3>
+                      <p class="text-sm text-color-secondary mt-1 mb-0">
+                        {{
+                          "admin.notifications.audience.location_desc"
+                            | translate
+                        }}
+                      </p>
                     </div>
                   </div>
                   <div class="flex flex-column gap-4">
                     <!-- Wilaya -->
                     <div class="admin-form-field">
-                      <label>{{ 'admin.notifications.audience.wilaya' | translate }}</label>
+                      <label>{{
+                        "admin.notifications.audience.wilaya" | translate
+                      }}</label>
                       <p-select
                         [options]="wilayas()"
                         [ngModel]="selectedWilaya()"
@@ -222,13 +348,21 @@
                         optionValue="name"
                         [showClear]="true"
                         [filter]="true"
-                        [placeholder]="'admin.notifications.audience.select_wilaya' | translate"
-                        styleClass="w-full">
+                        [placeholder]="
+                          'admin.notifications.audience.select_wilaya'
+                            | translate
+                        "
+                        styleClass="w-full"
+                      >
                         <ng-template pTemplate="item" let-item>
-                          <div class="flex align-items-center justify-content-between w-full">
+                          <div
+                            class="flex align-items-center justify-content-between w-full"
+                          >
                             <span>{{ item.name }}</span>
                             @if (item.user_count) {
-                              <span class="chip chip--xs">{{ item.user_count }}</span>
+                              <span class="chip chip--xs">{{
+                                item.user_count
+                              }}</span>
                             }
                           </div>
                         </ng-template>
@@ -238,7 +372,9 @@
                     <!-- Daïra -->
                     @if (selectedWilaya()) {
                       <div class="admin-form-field">
-                        <label>{{ 'admin.notifications.audience.daira' | translate }}</label>
+                        <label>{{
+                          "admin.notifications.audience.daira" | translate
+                        }}</label>
                         <p-select
                           [options]="dairas()"
                           [ngModel]="selectedDaira()"
@@ -247,13 +383,21 @@
                           optionValue="name"
                           [showClear]="true"
                           [filter]="true"
-                          [placeholder]="'admin.notifications.audience.select_daira' | translate"
-                          styleClass="w-full">
+                          [placeholder]="
+                            'admin.notifications.audience.select_daira'
+                              | translate
+                          "
+                          styleClass="w-full"
+                        >
                           <ng-template pTemplate="item" let-item>
-                            <div class="flex align-items-center justify-content-between w-full">
+                            <div
+                              class="flex align-items-center justify-content-between w-full"
+                            >
                               <span>{{ item.name }}</span>
                               @if (item.user_count) {
-                                <span class="chip chip--xs">{{ item.user_count }}</span>
+                                <span class="chip chip--xs">{{
+                                  item.user_count
+                                }}</span>
                               }
                             </div>
                           </ng-template>
@@ -264,7 +408,9 @@
                     <!-- Commune -->
                     @if (selectedDaira()) {
                       <div class="admin-form-field">
-                        <label>{{ 'admin.notifications.audience.commune' | translate }}</label>
+                        <label>{{
+                          "admin.notifications.audience.commune" | translate
+                        }}</label>
                         <p-select
                           [options]="communes()"
                           [ngModel]="selectedCommune()"
@@ -273,13 +419,21 @@
                           optionValue="name"
                           [showClear]="true"
                           [filter]="true"
-                          [placeholder]="'admin.notifications.audience.select_commune' | translate"
-                          styleClass="w-full">
+                          [placeholder]="
+                            'admin.notifications.audience.select_commune'
+                              | translate
+                          "
+                          styleClass="w-full"
+                        >
                           <ng-template pTemplate="item" let-item>
-                            <div class="flex align-items-center justify-content-between w-full">
+                            <div
+                              class="flex align-items-center justify-content-between w-full"
+                            >
                               <span>{{ item.name }}</span>
                               @if (item.user_count) {
-                                <span class="chip chip--xs">{{ item.user_count }}</span>
+                                <span class="chip chip--xs">{{
+                                  item.user_count
+                                }}</span>
                               }
                             </div>
                           </ng-template>
@@ -298,87 +452,126 @@
                 <button
                   class="type-card type-card--purple"
                   [class.active]="notificationType() === 'custom'"
-                  (click)="onNotificationTypeChange('custom')">
+                  (click)="onNotificationTypeChange('custom')"
+                >
                   <div class="type-card__icon">
                     <i class="pi pi-pencil"></i>
                   </div>
-                  <span class="type-card__title">{{ 'admin.notifications.content.type_custom' | translate }}</span>
-                  <span class="type-card__desc">{{ 'admin.notifications.content.type_custom_desc' | translate }}</span>
+                  <span class="type-card__title">{{
+                    "admin.notifications.content.type_custom" | translate
+                  }}</span>
+                  <span class="type-card__desc">{{
+                    "admin.notifications.content.type_custom_desc" | translate
+                  }}</span>
                 </button>
 
                 <button
                   class="type-card type-card--warning"
                   [class.active]="notificationType() === 'promotion'"
-                  (click)="onNotificationTypeChange('promotion')">
+                  (click)="onNotificationTypeChange('promotion')"
+                >
                   <div class="type-card__icon">
                     <i class="pi pi-percentage"></i>
                   </div>
-                  <span class="type-card__title">{{ 'admin.notifications.content.type_promotion' | translate }}</span>
-                  <span class="type-card__desc">{{ 'admin.notifications.content.type_promotion_desc' | translate }}</span>
+                  <span class="type-card__title">{{
+                    "admin.notifications.content.type_promotion" | translate
+                  }}</span>
+                  <span class="type-card__desc">{{
+                    "admin.notifications.content.type_promotion_desc"
+                      | translate
+                  }}</span>
                 </button>
 
                 <button
                   class="type-card type-card--success"
                   [class.active]="notificationType() === 'product'"
-                  (click)="onNotificationTypeChange('product')">
+                  (click)="onNotificationTypeChange('product')"
+                >
                   <div class="type-card__icon">
                     <i class="pi pi-box"></i>
                   </div>
-                  <span class="type-card__title">{{ 'admin.notifications.content.type_product' | translate }}</span>
-                  <span class="type-card__desc">{{ 'admin.notifications.content.type_product_desc' | translate }}</span>
+                  <span class="type-card__title">{{
+                    "admin.notifications.content.type_product" | translate
+                  }}</span>
+                  <span class="type-card__desc">{{
+                    "admin.notifications.content.type_product_desc" | translate
+                  }}</span>
                 </button>
 
                 <button
                   class="type-card type-card--info"
                   [class.active]="notificationType() === 'category'"
-                  (click)="onNotificationTypeChange('category')">
+                  (click)="onNotificationTypeChange('category')"
+                >
                   <div class="type-card__icon">
                     <i class="pi pi-th-large"></i>
                   </div>
-                  <span class="type-card__title">{{ 'admin.notifications.content.type_category' | translate }}</span>
-                  <span class="type-card__desc">{{ 'admin.notifications.content.type_category_desc' | translate }}</span>
+                  <span class="type-card__title">{{
+                    "admin.notifications.content.type_category" | translate
+                  }}</span>
+                  <span class="type-card__desc">{{
+                    "admin.notifications.content.type_category_desc" | translate
+                  }}</span>
                 </button>
 
                 <button
                   class="type-card type-card--pink"
                   [class.active]="notificationType() === 'brand'"
-                  (click)="onNotificationTypeChange('brand')">
+                  (click)="onNotificationTypeChange('brand')"
+                >
                   <div class="type-card__icon">
                     <i class="pi pi-bookmark"></i>
                   </div>
-                  <span class="type-card__title">{{ 'admin.notifications.content.type_brand' | translate }}</span>
-                  <span class="type-card__desc">{{ 'admin.notifications.content.type_brand_desc' | translate }}</span>
+                  <span class="type-card__title">{{
+                    "admin.notifications.content.type_brand" | translate
+                  }}</span>
+                  <span class="type-card__desc">{{
+                    "admin.notifications.content.type_brand_desc" | translate
+                  }}</span>
                 </button>
               </div>
 
               <!-- Custom type message -->
-              @if (notificationType() === 'custom') {
+              @if (notificationType() === "custom") {
                 <div class="info-box info-box--primary mt-6">
                   <div class="info-box__icon">
                     <i class="pi pi-arrow-right"></i>
                   </div>
                   <div class="info-box__content">
                     <p class="info-box__text">
-                      {{ 'admin.notifications.content.custom_next_step' | translate }}
+                      {{
+                        "admin.notifications.content.custom_next_step"
+                          | translate
+                      }}
                     </p>
                   </div>
                 </div>
               }
 
               <!-- Target Selection (for non-custom types) -->
-              @if (notificationType() !== 'custom' && currentTargetOptions().length > 0) {
+              @if (
+                notificationType() !== "custom" &&
+                currentTargetOptions().length > 0
+              ) {
                 <div class="target-selection-row">
                   <!-- Left: Dropdown -->
                   <div class="admin-form-field">
-                    <label>{{ 'admin.notifications.content.select_' + notificationType() | translate }}</label>
+                    <label>{{
+                      "admin.notifications.content.select_" + notificationType()
+                        | translate
+                    }}</label>
                     <p-select
                       [options]="currentTargetOptions()"
                       [ngModel]="selectedTargetId()"
                       (ngModelChange)="onTargetSelect($event)"
                       optionValue="id"
-                      [placeholder]="'admin.notifications.content.select_' + notificationType() | translate"
+                      [placeholder]="
+                        'admin.notifications.content.select_' +
+                          notificationType() | translate
+                      "
                       styleClass="w-full"
-                      [filter]="true">
+                      [filter]="true"
+                    >
                       <ng-template pTemplate="selectedItem" let-item>
                         {{ getTargetName(item) }}
                       </ng-template>
@@ -397,16 +590,24 @@
                           [alt]="getTargetName(selectedTargetItem())"
                           class="target-preview-card__image"
                           loading="lazy"
-                          (error)="onImageError($event)">
+                          (error)="onImageError($event)"
+                        />
                       }
                       <div class="target-preview-card__info">
-                        <span class="target-preview-card__name">{{ getTargetName(selectedTargetItem()) }}</span>
-                        <span class="target-preview-card__type">{{ notificationType() | titlecase }}</span>
+                        <span class="target-preview-card__name">{{
+                          getTargetName(selectedTargetItem())
+                        }}</span>
+                        <span class="target-preview-card__type">{{
+                          notificationType() | titlecase
+                        }}</span>
                       </div>
                     } @else {
                       <div class="target-preview-card__placeholder">
                         <i class="pi pi-image"></i>
-                        <span>{{ 'admin.notifications.content.select_to_preview' | translate }}</span>
+                        <span>{{
+                          "admin.notifications.content.select_to_preview"
+                            | translate
+                        }}</span>
                       </div>
                     }
                   </div>
@@ -418,14 +619,17 @@
             @if (currentStep() === 3) {
               <!-- Quick Templates -->
               <div class="admin-form-field mb-5">
-                <label>{{ 'admin.notifications.quick_templates' | translate }}</label>
+                <label>{{
+                  "admin.notifications.quick_templates" | translate
+                }}</label>
                 <div class="chip-group">
                   @for (template of templates; track template.id) {
                     <button
                       class="template-chip"
                       [class.active]="selectedTemplateId() === template.id"
                       [style.--chip-color]="template.color"
-                      (click)="applyTemplate(template)">
+                      (click)="applyTemplate(template)"
+                    >
                       <i class="pi {{ template.icon }}"></i>
                       {{ template.name }}
                     </button>
@@ -443,29 +647,44 @@
                         <i class="pi pi-megaphone"></i>
                       </div>
                       <div class="field-box__content">
-                        <label>{{ 'admin.notifications.content.title_fr' | translate }} *</label>
+                        <label
+                          >{{
+                            "admin.notifications.content.title_fr" | translate
+                          }}
+                          *</label
+                        >
                         <input
                           type="text"
                           [ngModel]="titleFr()"
                           (ngModelChange)="titleFr.set($event)"
-                          placeholder="Titre de la notification...">
+                          placeholder="Titre de la notification..."
+                        />
                       </div>
                     </div>
                   </div>
 
                   <!-- Body FR -->
                   <div class="form-field">
-                    <div class="field-box align-items-start" [class.filled]="bodyFr()">
+                    <div
+                      class="field-box align-items-start"
+                      [class.filled]="bodyFr()"
+                    >
                       <div class="field-box__icon field-box__icon--info">
                         <i class="pi pi-align-left"></i>
                       </div>
                       <div class="field-box__content">
-                        <label>{{ 'admin.notifications.content.body_fr' | translate }} *</label>
+                        <label
+                          >{{
+                            "admin.notifications.content.body_fr" | translate
+                          }}
+                          *</label
+                        >
                         <textarea
                           [ngModel]="bodyFr()"
                           (ngModelChange)="bodyFr.set($event)"
                           placeholder="Message de la notification..."
-                          rows="3"></textarea>
+                          rows="3"
+                        ></textarea>
                       </div>
                     </div>
                   </div>
@@ -473,7 +692,12 @@
                   <!-- Quick Emojis -->
                   <div class="chip-group chip-group--sm mb-5">
                     @for (emoji of quickEmojis; track emoji) {
-                      <button class="btn-icon btn-icon--sm" (click)="insertEmoji(emoji)">{{ emoji }}</button>
+                      <button
+                        class="btn-icon btn-icon--sm"
+                        (click)="insertEmoji(emoji)"
+                      >
+                        {{ emoji }}
+                      </button>
                     }
                   </div>
 
@@ -484,15 +708,20 @@
                         <i class="pi pi-link"></i>
                       </div>
                       <div class="field-box__content">
-                        <label>{{ 'admin.notifications.content.deep_link' | translate }}</label>
+                        <label>{{
+                          "admin.notifications.content.deep_link" | translate
+                        }}</label>
                         <input
                           type="text"
                           [ngModel]="url()"
                           (ngModelChange)="url.set($event)"
-                          placeholder="/products/123">
+                          placeholder="/products/123"
+                        />
                       </div>
                     </div>
-                    <span class="field-hint">{{ 'admin.notifications.content.deep_link_hint' | translate }}</span>
+                    <span class="field-hint">{{
+                      "admin.notifications.content.deep_link_hint" | translate
+                    }}</span>
                   </div>
                 </div>
 
@@ -505,12 +734,15 @@
                         <i class="pi pi-flag"></i>
                       </div>
                       <div class="field-box__content">
-                        <label>{{ 'admin.notifications.content.title_en' | translate }}</label>
+                        <label>{{
+                          "admin.notifications.content.title_en" | translate
+                        }}</label>
                         <input
                           type="text"
                           [ngModel]="titleEn()"
                           (ngModelChange)="titleEn.set($event)"
-                          placeholder="Notification title...">
+                          placeholder="Notification title..."
+                        />
                       </div>
                     </div>
                   </div>
@@ -522,48 +754,63 @@
                         <i class="pi pi-flag"></i>
                       </div>
                       <div class="field-box__content">
-                        <label>{{ 'admin.notifications.content.title_ar' | translate }}</label>
+                        <label>{{
+                          "admin.notifications.content.title_ar" | translate
+                        }}</label>
                         <input
                           type="text"
                           dir="rtl"
                           [ngModel]="titleAr()"
                           (ngModelChange)="titleAr.set($event)"
-                          placeholder="العنوان بالعربية...">
+                          placeholder="العنوان بالعربية..."
+                        />
                       </div>
                     </div>
                   </div>
 
                   <!-- Body EN -->
                   <div class="form-field">
-                    <div class="field-box align-items-start" [class.filled]="bodyEn()">
+                    <div
+                      class="field-box align-items-start"
+                      [class.filled]="bodyEn()"
+                    >
                       <div class="field-box__icon">
                         <i class="pi pi-align-left"></i>
                       </div>
                       <div class="field-box__content">
-                        <label>{{ 'admin.notifications.content.body_en' | translate }}</label>
+                        <label>{{
+                          "admin.notifications.content.body_en" | translate
+                        }}</label>
                         <textarea
                           [ngModel]="bodyEn()"
                           (ngModelChange)="bodyEn.set($event)"
                           placeholder="Notification message..."
-                          rows="2"></textarea>
+                          rows="2"
+                        ></textarea>
                       </div>
                     </div>
                   </div>
 
                   <!-- Body AR -->
                   <div class="form-field">
-                    <div class="field-box align-items-start" [class.filled]="bodyAr()">
+                    <div
+                      class="field-box align-items-start"
+                      [class.filled]="bodyAr()"
+                    >
                       <div class="field-box__icon">
                         <i class="pi pi-align-left"></i>
                       </div>
                       <div class="field-box__content">
-                        <label>{{ 'admin.notifications.content.body_ar' | translate }}</label>
+                        <label>{{
+                          "admin.notifications.content.body_ar" | translate
+                        }}</label>
                         <textarea
                           dir="rtl"
                           [ngModel]="bodyAr()"
                           (ngModelChange)="bodyAr.set($event)"
                           placeholder="الرسالة بالعربية..."
-                          rows="2"></textarea>
+                          rows="2"
+                        ></textarea>
                       </div>
                     </div>
                   </div>
@@ -582,8 +829,16 @@
                       <i class="pi pi-check"></i>
                     </div>
                     <div class="status-banner__content">
-                      <span class="status-banner__label">{{ 'admin.notifications.ready_to_send' | translate }}</span>
-                      <h3 class="status-banner__title">{{ titleFr() || ('admin.notifications.preview.placeholder_title' | translate) }}</h3>
+                      <span class="status-banner__label">{{
+                        "admin.notifications.ready_to_send" | translate
+                      }}</span>
+                      <h3 class="status-banner__title">
+                        {{
+                          titleFr() ||
+                            ("admin.notifications.preview.placeholder_title"
+                              | translate)
+                        }}
+                      </h3>
                     </div>
                   </div>
 
@@ -595,11 +850,15 @@
                           [ngModel]="scheduleEnabled()"
                           (ngModelChange)="scheduleEnabled.set($event)"
                           [binary]="true"
-                          inputId="schedule">
+                          inputId="schedule"
+                        >
                         </p-checkbox>
                         <label for="schedule">
                           <i class="pi pi-clock"></i>
-                          {{ 'admin.notifications.schedule.schedule_for_later' | translate }}
+                          {{
+                            "admin.notifications.schedule.schedule_for_later"
+                              | translate
+                          }}
                         </label>
                       </div>
                     </div>
@@ -614,7 +873,8 @@
                           [minDate]="minScheduleDate"
                           dateFormat="dd/mm/yy"
                           styleClass="w-full"
-                          appendTo="body">
+                          appendTo="body"
+                        >
                         </p-datePicker>
                       </div>
                     }
@@ -624,26 +884,41 @@
                   <div class="options-card p-5">
                     <h4 class="options-card__title">
                       <i class="pi pi-info-circle"></i>
-                      {{ 'admin.notifications.summary' | translate }}
+                      {{ "admin.notifications.summary" | translate }}
                     </h4>
                     <div class="flex flex-wrap gap-3">
                       <!-- User Count - Large Pill -->
-                      <div class="summary-pill summary-pill--large summary-pill--primary">
+                      <div
+                        class="summary-pill summary-pill--large summary-pill--primary"
+                      >
                         <i class="pi pi-users"></i>
-                        <span class="summary-pill__value">{{ recipientCount() }}</span>
-                        <span class="summary-pill__label">{{ 'admin.notifications.audience.users' | translate }}</span>
+                        <span class="summary-pill__value">{{
+                          recipientCount()
+                        }}</span>
+                        <span class="summary-pill__label">{{
+                          "admin.notifications.audience.users" | translate
+                        }}</span>
                       </div>
 
                       <!-- Notification Type -->
-                      <div class="summary-pill" [style.--pill-color]="getTypeColor()">
+                      <div
+                        class="summary-pill"
+                        [style.--pill-color]="getTypeColor()"
+                      >
                         <i class="pi" [class]="getTypeIcon()"></i>
-                        <span>{{ 'admin.notifications.content.type_' + notificationType() | translate }}</span>
+                        <span>{{
+                          "admin.notifications.content.type_" +
+                            notificationType() | translate
+                        }}</span>
                       </div>
 
                       <!-- Segment -->
                       <div class="summary-pill summary-pill--purple">
                         <i class="pi pi-filter"></i>
-                        <span>{{ 'admin.notifications.segments.' + selectedSegment() | translate }}</span>
+                        <span>{{
+                          "admin.notifications.segments." + selectedSegment()
+                            | translate
+                        }}</span>
                       </div>
 
                       <!-- Location Pills -->
@@ -675,7 +950,8 @@
                               [alt]="getTargetName(selectedTargetItem())"
                               class="summary-pill__img"
                               loading="lazy"
-                              (error)="onImageError($event)">
+                              (error)="onImageError($event)"
+                            />
                           }
                           <span>{{ getTargetName(selectedTargetItem()) }}</span>
                         </div>
@@ -698,16 +974,29 @@
                       <div class="phone-mockup__content">
                         <div
                           class="notification-preview"
-                          [class.notification-preview--empty]="!titleFr()">
+                          [class.notification-preview--empty]="!titleFr()"
+                        >
                           <!-- Main content: Logo + Title/Message -->
                           <div class="notification-preview__main">
-                            <img src="/app-icon.png" class="notification-preview__logo" alt="Elsuq">
+                            <img
+                              src="/app-icon.png"
+                              class="notification-preview__logo"
+                              alt="Elsuq"
+                            />
                             <div class="notification-preview__text">
                               <div class="notification-preview__title">
-                                {{ titleFr() || ('admin.notifications.preview.placeholder_title' | translate) }}
+                                {{
+                                  titleFr() ||
+                                    ("admin.notifications.preview.placeholder_title"
+                                      | translate)
+                                }}
                               </div>
                               <div class="notification-preview__message">
-                                {{ bodyFr() || ('admin.notifications.preview.placeholder_body' | translate) }}
+                                {{
+                                  bodyFr() ||
+                                    ("admin.notifications.preview.placeholder_body"
+                                      | translate)
+                                }}
                               </div>
                             </div>
                           </div>
@@ -732,16 +1021,27 @@
                     <div class="success-banner__content">
                       <h2 class="success-banner__title">
                         @if (sentResult()?.scheduled) {
-                          {{ 'admin.notifications.success.scheduled_title' | translate }}
+                          {{
+                            "admin.notifications.success.scheduled_title"
+                              | translate
+                          }}
                         } @else {
-                          {{ 'admin.notifications.success.sent_title' | translate }}
+                          {{
+                            "admin.notifications.success.sent_title" | translate
+                          }}
                         }
                       </h2>
                       <p class="success-banner__subtitle">
                         @if (sentResult()?.scheduled) {
-                          {{ 'admin.notifications.success.scheduled_subtitle' | translate }}
+                          {{
+                            "admin.notifications.success.scheduled_subtitle"
+                              | translate
+                          }}
                         } @else {
-                          {{ 'admin.notifications.success.sent_subtitle' | translate:{ count: sentResult()?.sent } }}
+                          {{
+                            "admin.notifications.success.sent_subtitle"
+                              | translate: { count: sentResult()?.sent }
+                          }}
                         }
                       </p>
                     </div>
@@ -757,7 +1057,9 @@
                           </div>
                           {{ sentResult()?.recipientCount }}
                         </div>
-                        <span class="stat-card__label">{{ 'admin.notifications.success.recipients' | translate }}</span>
+                        <span class="stat-card__label">{{
+                          "admin.notifications.success.recipients" | translate
+                        }}</span>
                       </div>
                     </div>
                     <div class="stat-card stat-card--compact">
@@ -768,7 +1070,9 @@
                           </div>
                           {{ sentResult()?.sent }}
                         </div>
-                        <span class="stat-card__label">{{ 'admin.notifications.success.delivered' | translate }}</span>
+                        <span class="stat-card__label">{{
+                          "admin.notifications.success.delivered" | translate
+                        }}</span>
                       </div>
                     </div>
                     @if (sentResult()?.failed && sentResult()!.failed > 0) {
@@ -780,7 +1084,9 @@
                             </div>
                             {{ sentResult()?.failed }}
                           </div>
-                          <span class="stat-card__label">{{ 'admin.notifications.success.failed' | translate }}</span>
+                          <span class="stat-card__label">{{
+                            "admin.notifications.success.failed" | translate
+                          }}</span>
                         </div>
                       </div>
                     }
@@ -791,18 +1097,32 @@
                     <div class="options-card__header">
                       <h4 class="options-card__title m-0">
                         <i class="pi pi-bell"></i>
-                        {{ 'admin.notifications.success.details' | translate }}
+                        {{ "admin.notifications.success.details" | translate }}
                       </h4>
                     </div>
                     <div class="options-card__body">
                       <div class="flex flex-column gap-4">
                         <div class="flex flex-column gap-1">
-                          <span class="text-xs text-color-secondary uppercase font-semibold">{{ 'admin.notifications.content.title_fr' | translate }}</span>
-                          <span class="text-base font-medium">{{ sentResult()?.titleFr }}</span>
+                          <span
+                            class="text-xs text-color-secondary uppercase font-semibold"
+                            >{{
+                              "admin.notifications.content.title_fr" | translate
+                            }}</span
+                          >
+                          <span class="text-base font-medium">{{
+                            sentResult()?.titleFr
+                          }}</span>
                         </div>
                         <div class="flex flex-column gap-1">
-                          <span class="text-xs text-color-secondary uppercase font-semibold">{{ 'admin.notifications.content.body_fr' | translate }}</span>
-                          <span class="text-base text-color-secondary">{{ sentResult()?.bodyFr }}</span>
+                          <span
+                            class="text-xs text-color-secondary uppercase font-semibold"
+                            >{{
+                              "admin.notifications.content.body_fr" | translate
+                            }}</span
+                          >
+                          <span class="text-base text-color-secondary">{{
+                            sentResult()?.bodyFr
+                          }}</span>
                         </div>
                       </div>
                     </div>
@@ -810,13 +1130,25 @@
 
                   <!-- Action Buttons -->
                   <div class="flex gap-4">
-                    <button type="button" class="btn-secondary flex-1" (click)="goToHistory()">
+                    <button
+                      type="button"
+                      class="btn-secondary flex-1"
+                      (click)="goToHistory()"
+                    >
                       <i class="pi pi-history"></i>
-                      {{ 'admin.notifications.success.view_history' | translate }}
+                      {{
+                        "admin.notifications.success.view_history" | translate
+                      }}
                     </button>
-                    <button type="button" class="btn-add flex-1" (click)="startNewNotification()">
+                    <button
+                      type="button"
+                      class="btn-add flex-1"
+                      (click)="startNewNotification()"
+                    >
                       <i class="pi pi-plus"></i>
-                      {{ 'admin.notifications.success.send_another' | translate }}
+                      {{
+                        "admin.notifications.success.send_another" | translate
+                      }}
                     </button>
                   </div>
                 </div>
@@ -835,10 +1167,18 @@
                       <div class="phone-mockup__content">
                         <div class="notification-preview">
                           <div class="notification-preview__main">
-                            <img src="/app-icon.png" class="notification-preview__logo" alt="Elsuq">
+                            <img
+                              src="/app-icon.png"
+                              class="notification-preview__logo"
+                              alt="Elsuq"
+                            />
                             <div class="notification-preview__text">
-                              <div class="notification-preview__title">{{ sentResult()?.titleFr }}</div>
-                              <div class="notification-preview__message">{{ sentResult()?.bodyFr }}</div>
+                              <div class="notification-preview__title">
+                                {{ sentResult()?.titleFr }}
+                              </div>
+                              <div class="notification-preview__message">
+                                {{ sentResult()?.bodyFr }}
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -855,7 +1195,8 @@
             <div class="form-wizard__footer">
               <span class="chip chip--primary">
                 <i class="pi pi-users"></i>
-                {{ recipientCount() }} {{ 'admin.notifications.audience.users' | translate }}
+                {{ recipientCount() }}
+                {{ "admin.notifications.audience.users" | translate }}
               </span>
 
               <div class="step-nav">
@@ -863,9 +1204,10 @@
                   <button
                     type="button"
                     class="step-nav__btn step-nav__btn--prev"
-                    (click)="prevStep()">
+                    (click)="prevStep()"
+                  >
                     <i class="pi pi-arrow-left"></i>
-                    {{ 'common.back' | translate }}
+                    {{ "common.back" | translate }}
                   </button>
                 }
 
@@ -874,8 +1216,9 @@
                     type="button"
                     class="step-nav__btn step-nav__btn--next"
                     [disabled]="!canProceedToNext()"
-                    (click)="nextStep()">
-                    {{ 'common.next' | translate }}
+                    (click)="nextStep()"
+                  >
+                    {{ "common.next" | translate }}
                     <i class="pi pi-arrow-right"></i>
                   </button>
                 } @else if (currentStep() === 4) {
@@ -883,16 +1226,17 @@
                     type="submit"
                     class="step-nav__btn step-nav__btn--finish"
                     [disabled]="!canSend()"
-                    (click)="sendNotification()">
+                    (click)="sendNotification()"
+                  >
                     @if (sending()) {
                       <i class="pi pi-spin pi-spinner"></i>
-                      {{ 'admin.notifications.actions.sending' | translate }}
+                      {{ "admin.notifications.actions.sending" | translate }}
                     } @else if (scheduleEnabled()) {
                       <i class="pi pi-clock"></i>
-                      {{ 'admin.notifications.actions.schedule' | translate }}
+                      {{ "admin.notifications.actions.schedule" | translate }}
                     } @else {
                       <i class="pi pi-send"></i>
-                      {{ 'admin.notifications.actions.send' | translate }}
+                      {{ "admin.notifications.actions.send" | translate }}
                     }
                   </button>
                 }
@@ -903,46 +1247,79 @@
       }
 
       <!-- History Tab -->
-      @if (activeTab() === 'history') {
-        <div class="table-container animate-item" style="--item-delay: 100ms;">
+      @if (activeTab() === "history") {
+        <div class="table-container animate-item" style="--item-delay: 100ms">
           <div class="table-wrapper">
             <table class="table">
               <thead>
                 <tr>
-                  <th style="width: 15%">{{ 'admin.notifications.history.date' | translate }}</th>
-                  <th style="width: 35%">{{ 'admin.notifications.history.notification' | translate }}</th>
-                  <th style="width: 20%">{{ 'admin.notifications.history.segment' | translate }}</th>
-                  <th style="width: 10%" class="text-center">{{ 'admin.notifications.history.sent' | translate }}</th>
-                  <th style="width: 20%">{{ 'admin.notifications.history.status' | translate }}</th>
+                  <th style="width: 15%">
+                    {{ "admin.notifications.history.date" | translate }}
+                  </th>
+                  <th style="width: 35%">
+                    {{ "admin.notifications.history.notification" | translate }}
+                  </th>
+                  <th style="width: 20%">
+                    {{ "admin.notifications.history.segment" | translate }}
+                  </th>
+                  <th style="width: 10%" class="text-center">
+                    {{ "admin.notifications.history.sent" | translate }}
+                  </th>
+                  <th style="width: 20%">
+                    {{ "admin.notifications.history.status" | translate }}
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 @for (item of history(); track item.id; let i = $index) {
-                  <tr class="table-row-animate" [style.--row-delay]="(i * 40) + 'ms'">
+                  <tr
+                    class="table-row-animate"
+                    [style.--row-delay]="i * 40 + 'ms'"
+                  >
                     <td>
-                      <span class="date-display">{{ formatDate(item.created_at) }}</span>
+                      <span class="date-display">{{
+                        formatDate(item.created_at)
+                      }}</span>
                     </td>
                     <td>
                       <div class="info-display">
-                        <span class="info-display__name">{{ item.title_en }}</span>
-                        <span class="info-display__secondary">{{ item.body_en | slice:0:50 }}{{ item.body_en.length > 50 ? '...' : '' }}</span>
+                        <span class="info-display__name">{{
+                          item.title_en
+                        }}</span>
+                        <span class="info-display__secondary"
+                          >{{ item.body_en | slice: 0 : 50
+                          }}{{ item.body_en.length > 50 ? "..." : "" }}</span
+                        >
                       </div>
                     </td>
                     <td>
                       <span class="pill">{{ item.segment_type }}</span>
                       @if (item.segment_value) {
-                        <span class="pill secondary">{{ item.segment_value }}</span>
+                        <span class="pill secondary">{{
+                          item.segment_value
+                        }}</span>
                       }
                     </td>
                     <td class="text-center">
-                      <span class="chip chip--xs chip--primary">{{ item.sent_count }}</span>
+                      <span class="chip chip--xs chip--primary">{{
+                        item.sent_count
+                      }}</span>
                       @if (item.failed_count > 0) {
-                        <span class="chip chip--xs chip--danger ml-1">{{ item.failed_count }}</span>
+                        <span class="chip chip--xs chip--danger ml-1">{{
+                          item.failed_count
+                        }}</span>
                       }
                     </td>
                     <td>
-                      <span class="status-badge status-badge--{{ getStatusClass(item.status) }}">
-                        {{ 'admin.notifications.status.' + item.status | translate }}
+                      <span
+                        class="status-badge status-badge--{{
+                          getStatusClass(item.status)
+                        }}"
+                      >
+                        {{
+                          "admin.notifications.status." + item.status
+                            | translate
+                        }}
                       </span>
                     </td>
                   </tr>
@@ -953,7 +1330,11 @@
                         <div class="empty-state__icon">
                           <i class="pi pi-history"></i>
                         </div>
-                        <h3 class="empty-state__title">{{ 'admin.notifications.history.no_history' | translate }}</h3>
+                        <h3 class="empty-state__title">
+                          {{
+                            "admin.notifications.history.no_history" | translate
+                          }}
+                        </h3>
                       </div>
                     </td>
                   </tr>
