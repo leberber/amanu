@@ -2,8 +2,21 @@
 // BADGES
 // =============================================================================
 // Badges, pills, status indicators, and meta displays.
+// Uses mixins from: _mixins.scss
 // Uses variables from: _colors.scss, _spacing.scss, _effects.scss, _typography.scss
 // =============================================================================
+
+@use 'mixins' as *;
+
+
+// =============================================================================
+// COLOR VARIANT MIXIN (Local helper)
+// =============================================================================
+
+@mixin badge-color($color-var, $rgb-var, $opacity: 0.15) {
+  background: rgba(var($rgb-var), $opacity);
+  color: var($color-var);
+}
 
 
 // =============================================================================
@@ -20,6 +33,15 @@
   font-weight: var(--font-weight-semibold);
 }
 
+%badge-small {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+}
+
 
 // =============================================================================
 // 1. STATUS BADGE
@@ -28,64 +50,40 @@
 .status-badge {
   @extend %badge-base;
 
-  i {
-    font-size: var(--font-size-xs);
-  }
+  i { font-size: var(--font-size-xs); }
 
-  // ---------------------------------------------------------------------------
-  // Active/Success States
-  // ---------------------------------------------------------------------------
+  // Success States
   &.active,
   &.delivered,
   &.success {
-    background: rgba(var(--color-teal-rgb), 0.15);
-    color: var(--color-teal);
+    @include badge-color(--color-teal, --color-teal-rgb);
   }
 
-  // ---------------------------------------------------------------------------
-  // Inactive/Error States
-  // ---------------------------------------------------------------------------
+  // Error States
   &.inactive,
   &.cancelled,
-  &.error {
-    background: rgba(var(--color-error-rgb), 0.15);
-    color: var(--color-error);
+  &.error,
+  &.expired {
+    @include badge-color(--color-error, --color-error-rgb);
   }
 
-  // ---------------------------------------------------------------------------
-  // Pending/Warning States
-  // ---------------------------------------------------------------------------
+  // Warning States
   &.pending,
   &.scheduled,
   &.warning {
-    background: rgba(var(--color-warning-rgb), 0.15);
-    color: var(--color-warning-dark);
+    @include badge-color(--color-warning-dark, --color-warning-rgb);
   }
 
-  // ---------------------------------------------------------------------------
   // Info States
-  // ---------------------------------------------------------------------------
   &.confirmed,
   &.info {
-    background: rgba(var(--color-info-rgb), 0.15);
-    color: var(--color-info);
+    @include badge-color(--color-info, --color-info-rgb);
   }
 
-  // ---------------------------------------------------------------------------
-  // Shipped/Purple States
-  // ---------------------------------------------------------------------------
+  // Purple States
   &.shipped,
   &.processing {
-    background: rgba(var(--color-purple-rgb), 0.15);
-    color: var(--color-purple);
-  }
-
-  // ---------------------------------------------------------------------------
-  // Expired
-  // ---------------------------------------------------------------------------
-  &.expired {
-    background: rgba(var(--color-error-rgb), 0.15);
-    color: var(--color-error);
+    @include badge-color(--color-purple, --color-purple-rgb);
   }
 }
 
@@ -97,20 +95,9 @@
 .role-badge {
   @extend %badge-base;
 
-  &.customer {
-    background: rgba(var(--color-teal-rgb), 0.15);
-    color: var(--color-teal);
-  }
-
-  &.staff {
-    background: rgba(var(--color-info-rgb), 0.15);
-    color: var(--color-info);
-  }
-
-  &.admin {
-    background: rgba(var(--color-purple-rgb), 0.15);
-    color: var(--color-purple);
-  }
+  &.customer { @include badge-color(--color-teal, --color-teal-rgb); }
+  &.staff    { @include badge-color(--color-info, --color-info-rgb); }
+  &.admin    { @include badge-color(--color-purple, --color-purple-rgb); }
 }
 
 
@@ -119,53 +106,22 @@
 // =============================================================================
 
 .pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
   padding: var(--space-2) var(--space-5);
   border-radius: var(--radius-md);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
 
-  &.primary {
-    background: rgba(var(--primary-rgb), 0.1);
-    color: var(--primary-color);
-  }
-
-  &.secondary {
-    background: rgba(var(--color-secondary-rgb), 0.1);
-    color: var(--color-secondary);
-  }
-
-  &.success {
-    background: rgba(var(--color-success-rgb), 0.1);
-    color: var(--color-success-dark);
-  }
-
-  &.warning {
-    background: rgba(var(--color-warning-rgb), 0.1);
-    color: var(--color-warning);
-  }
-
-  &.danger {
-    background: rgba(var(--color-error-rgb), 0.1);
-    color: var(--color-error);
-  }
-
-  &.purple {
-    background: rgba(var(--color-purple-rgb), 0.1);
-    color: var(--color-purple);
-  }
-
-  &.pink {
-    background: rgba(var(--color-pink-rgb), 0.1);
-    color: var(--color-pink);
-  }
-
-  &.teal {
-    background: rgba(var(--color-teal-rgb), 0.1);
-    color: var(--color-teal);
-  }
+  &.primary   { @include badge-color(--primary-color, --primary-rgb, 0.1); }
+  &.secondary { @include badge-color(--color-secondary, --color-secondary-rgb, 0.1); }
+  &.success   { @include badge-color(--color-success-dark, --color-success-rgb, 0.1); }
+  &.warning   { @include badge-color(--color-warning, --color-warning-rgb, 0.1); }
+  &.danger    { @include badge-color(--color-error, --color-error-rgb, 0.1); }
+  &.purple    { @include badge-color(--color-purple, --color-purple-rgb, 0.1); }
+  &.pink      { @include badge-color(--color-pink, --color-pink-rgb, 0.1); }
+  &.teal      { @include badge-color(--color-teal, --color-teal-rgb, 0.1); }
 }
 
 
@@ -174,38 +130,14 @@
 // =============================================================================
 
 .badge {
-  padding: var(--space-1) var(--space-3);
+  @extend %badge-small;
   border-radius: var(--radius-sm);
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-semibold);
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
 
-  &.organic {
-    background: rgba(var(--color-success-rgb), 0.1);
-    color: var(--color-success-dark);
-  }
-
-  &.featured {
-    background: rgba(var(--color-purple-rgb), 0.1);
-    color: var(--color-purple);
-  }
-
-  &.new {
-    background: rgba(var(--color-info-rgb), 0.1);
-    color: var(--color-info);
-  }
-
-  &.sale {
-    background: rgba(var(--color-error-rgb), 0.1);
-    color: var(--color-error);
-  }
-
-  &.hot {
-    background: rgba(var(--color-orange-rgb), 0.1);
-    color: var(--color-orange);
-  }
+  &.organic  { @include badge-color(--color-success-dark, --color-success-rgb, 0.1); }
+  &.featured { @include badge-color(--color-purple, --color-purple-rgb, 0.1); }
+  &.new      { @include badge-color(--color-info, --color-info-rgb, 0.1); }
+  &.sale     { @include badge-color(--color-error, --color-error-rgb, 0.1); }
+  &.hot      { @include badge-color(--color-orange, --color-orange-rgb, 0.1); }
 }
 
 
@@ -214,13 +146,10 @@
 // =============================================================================
 
 .id-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  @include flex-center;
   min-width: var(--modal-close-size);
   padding: var(--space-1) var(--space-3);
-  background: rgba(var(--primary-rgb), 0.1);
-  color: var(--primary-color);
+  @include badge-color(--primary-color, --primary-rgb, 0.1);
   border-radius: var(--radius-sm);
   font-weight: var(--font-weight-semibold);
   font-size: var(--font-size-base);
@@ -228,13 +157,11 @@
 
 
 // =============================================================================
-// 8. COUNT BADGE (Notification Style)
+// 6. COUNT BADGE (Notification Style)
 // =============================================================================
 
 .count-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  @include flex-center;
   min-width: var(--segment-count-size);
   height: var(--segment-count-size);
   padding: 0 var(--space-2);
@@ -244,75 +171,40 @@
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-bold);
 
-  &.success {
-    background: var(--success-gradient);
-  }
+  &.success { background: var(--success-gradient); }
+  &.danger  { background: var(--btn-danger-gradient); }
+  &.warning { background: var(--btn-warning-gradient); }
 
-  &.danger {
-    background: var(--btn-danger-gradient);
-  }
-
-  &.warning {
-    background: var(--btn-warning-gradient);
-  }
-
-  // Light variant (subtle background)
   &--light {
-    background: rgba(var(--primary-rgb), 0.12);
-    color: var(--primary-color);
+    @include badge-color(--primary-color, --primary-rgb, 0.12);
   }
 }
 
 
 // =============================================================================
-// 9. STOCK PILL
+// 7. STOCK PILL
 // =============================================================================
 
 .stock-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-  padding: var(--space-1) var(--space-3);
+  @extend %badge-small;
   border-radius: var(--radius-pill);
   font-size: 0.65rem;
-  font-weight: var(--font-weight-semibold);
   text-transform: uppercase;
   letter-spacing: var(--letter-spacing-wide);
 
-  i {
-    font-size: var(--font-size-xs);
-  }
+  i { font-size: var(--font-size-xs); }
 
-  // In Stock - Green
-  &--success {
-    background: rgba(var(--color-success-rgb), 0.12);
-    color: var(--color-success-dark);
-  }
-
-  // Medium Stock - Blue
-  &--info {
-    background: rgba(var(--color-info-rgb), 0.12);
-    color: var(--color-info);
-  }
-
-  // Low Stock - Warning/Amber
+  &--success { @include badge-color(--color-success-dark, --color-success-rgb, 0.12); }
+  &--info    { @include badge-color(--color-info, --color-info-rgb, 0.12); }
   &--warn,
-  &--warning {
-    background: rgba(var(--color-warning-rgb), 0.12);
-    color: var(--color-warning-dark);
-  }
-
-  // Out of Stock - Red
+  &--warning { @include badge-color(--color-warning-dark, --color-warning-rgb, 0.12); }
   &--danger,
-  &--error {
-    background: rgba(var(--color-error-rgb), 0.12);
-    color: var(--color-error);
-  }
+  &--error   { @include badge-color(--color-error, --color-error-rgb, 0.12); }
 }
 
 
 // =============================================================================
-// 10. DISCOUNT BADGE
+// 8. DISCOUNT BADGE
 // =============================================================================
 
 .discount-badge {
@@ -322,20 +214,13 @@
   font-size: var(--font-size-base);
   font-weight: var(--font-weight-semibold);
 
-  &.percentage {
-    background: rgba(var(--color-info-rgb), 0.15);
-    color: var(--color-info);
-  }
-
-  &.fixed-amount {
-    background: rgba(var(--color-teal-rgb), 0.15);
-    color: var(--color-teal);
-  }
+  &.percentage   { @include badge-color(--color-info, --color-info-rgb); }
+  &.fixed-amount { @include badge-color(--color-teal, --color-teal-rgb); }
 }
 
 
 // =============================================================================
-// 10. CODE BADGE (Promo Codes)
+// 9. CODE BADGE (Promo Codes)
 // =============================================================================
 
 .code-badge {
@@ -352,9 +237,8 @@
 
 
 // =============================================================================
-// 11. STOCK BADGE (Inline Stock Status)
+// 10. STOCK BADGE (Inline Stock Status)
 // =============================================================================
-// Simple inline badge for stock availability
 
 .stock-badge {
   display: inline-flex;
@@ -363,28 +247,17 @@
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
 
-  i {
-    font-size: var(--font-size-xs);
-  }
+  i { font-size: var(--font-size-xs); }
 
-  &--in {
-    color: var(--color-success);
-  }
-
-  &--low {
-    color: var(--color-warning);
-  }
-
-  &--out {
-    color: var(--color-error);
-  }
+  &--in  { color: var(--color-success); }
+  &--low { color: var(--color-warning); }
+  &--out { color: var(--color-error); }
 }
 
 
 // =============================================================================
-// 12. CART INDICATOR
+// 11. CART INDICATOR
 // =============================================================================
-// Shows cart status for product items
 
 .cart-indicator {
   display: flex;
@@ -393,20 +266,15 @@
   font-size: var(--font-size-sm);
   color: var(--text-color-secondary);
 
-  i {
-    font-size: var(--font-size-sm);
-  }
+  i { font-size: var(--font-size-sm); }
 
-  &--in {
-    color: var(--color-success);
-  }
+  &--in { color: var(--color-success); }
 }
 
 
 // =============================================================================
-// 13. ORGANIC BADGE (Product Tag)
+// 12. ORGANIC BADGE (Product Tag)
 // =============================================================================
-// Positioned badge for organic products
 
 .organic-badge {
   position: absolute;
@@ -424,13 +292,11 @@
 
 
 // =============================================================================
-// 14. PROMO APPLIED (Applied Promo Code Display)
+// 13. PROMO APPLIED (Applied Promo Code Display)
 // =============================================================================
 
 .promo-applied {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  @include flex-between;
   padding: var(--space-3) var(--space-4);
   background: rgba(var(--color-success-rgb), 0.08);
   border: var(--border-width) solid rgba(var(--color-success-rgb), 0.25);
@@ -439,29 +305,23 @@
 
 
 // =============================================================================
-// 15. VALID BADGE (Form Validation Indicator)
+// 14. VALID BADGE (Form Validation Indicator)
 // =============================================================================
 
 .valid-badge {
+  @include flex-center;
+  @include icon-size(--icon-md);
   margin-left: auto;
-  width: var(--icon-md);
-  height: var(--icon-md);
   border-radius: var(--radius-full);
-  background: rgba(var(--color-success-rgb), 0.1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  @include badge-color(--color-success, --color-success-rgb, 0.1);
   flex-shrink: 0;
 
-  i {
-    font-size: var(--font-size-base);
-    color: var(--color-success);
-  }
+  i { font-size: var(--font-size-base); }
 }
 
 
 // =============================================================================
-// 16. IMAGE BADGE (Positioned on Product Images)
+// 15. IMAGE BADGE (Positioned on Product Images)
 // =============================================================================
 
 .image-badge {
@@ -476,9 +336,7 @@
   gap: var(--space-2);
   box-shadow: var(--shadow-md);
 
-  i {
-    font-size: var(--font-size-sm);
-  }
+  i { font-size: var(--font-size-sm); }
 
   &--promo {
     bottom: var(--space-4);
@@ -497,7 +355,7 @@
 
 
 // =============================================================================
-// 17. CART STATUS INDICATOR
+// 16. CART STATUS INDICATOR
 // =============================================================================
 
 .cart-status {
@@ -505,31 +363,24 @@
   align-items: center;
   gap: var(--space-2);
   padding: var(--space-3) var(--space-4);
-  background: rgba(var(--color-success-rgb), 0.1);
+  @include badge-color(--color-success, --color-success-rgb, 0.1);
   border-radius: var(--radius-md);
-  color: var(--color-success);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
 
-  i {
-    font-size: var(--font-size-base);
-  }
+  i { font-size: var(--font-size-base); }
 }
 
 
 // =============================================================================
-// 18. TOPBAR AVATAR
+// 17. TOPBAR AVATAR
 // =============================================================================
-// User avatar badge for mobile topbar.
 
 .topbar-avatar {
-  width: 36px;
-  height: 36px;
+  @include flex-center;
+  @include square(36px);
   border-radius: var(--radius-full);
   background: var(--primary-gradient);
-  display: flex;
-  align-items: center;
-  justify-content: center;
   font-size: var(--font-size-base);
   font-weight: var(--font-weight-bold);
   color: var(--color-white);

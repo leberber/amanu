@@ -2,8 +2,11 @@
 // STATS
 // =============================================================================
 // Statistics cards, metrics displays, and dashboard widgets.
+// Uses mixins from: _mixins.scss
 // Uses variables from: _colors.scss, _spacing.scss, _effects.scss, _typography.scss
 // =============================================================================
+
+@use 'mixins' as *;
 
 
 // =============================================================================
@@ -21,9 +24,7 @@
 }
 
 %stat-icon-base {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  @include flex-center;
   flex-shrink: 0;
 
   i {
@@ -38,7 +39,7 @@
 
 .stat-card {
   @extend %stat-card-base;
-  display: flex;
+  @include flex-start;
   align-items: flex-start;
   gap: var(--space-5);
   padding: var(--space-6);
@@ -110,7 +111,7 @@
     align-items: center;
     gap: var(--space-1);
     margin-top: var(--space-3);
-    font-size: var(--font-size-sm);
+    @include text-secondary;
     font-weight: var(--font-weight-semibold);
 
     i {
@@ -160,8 +161,7 @@
   padding: var(--space-6);
 
   &__header {
-    display: flex;
-    justify-content: space-between;
+    @include flex-between;
     align-items: flex-start;
     margin-bottom: var(--space-5);
   }
@@ -194,8 +194,7 @@
   }
 
   &__footer {
-    display: flex;
-    justify-content: space-between;
+    @include flex-between;
     margin-top: var(--space-3);
     font-size: var(--font-size-xs);
     color: var(--text-color-secondary);
@@ -246,8 +245,7 @@
 // =============================================================================
 
 .stat-inline {
-  display: flex;
-  align-items: center;
+  @include flex-start;
   gap: var(--space-7);
   padding: var(--space-5) var(--space-6);
   background: var(--surface-slate-50-solid);
@@ -287,9 +285,7 @@
   box-shadow: var(--shadow-sm);
 
   &__header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    @include flex-between;
     padding: var(--space-5) var(--space-6);
     border-bottom: var(--border-width) solid var(--border-color-light);
   }

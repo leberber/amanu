@@ -2,18 +2,41 @@
 // BUTTONS
 // =============================================================================
 // All button styles: primary, secondary, danger, icon, action, form buttons.
+// Uses mixins from: _mixins.scss
 // Uses variables from: _colors.scss, _spacing.scss, _effects.scss, _typography.scss
 // =============================================================================
 
+@use 'mixins' as *;
+
+
 // =============================================================================
-// BASE BUTTON MIXIN
+// LOCAL MIXINS
 // =============================================================================
-// Common properties shared across all button types
+
+// Hover lift effect for buttons
+@mixin btn-hover-lift($shadow-lg) {
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: $shadow-lg;
+  }
+}
+
+// Button color variant with background and hover
+@mixin btn-color-hover($color-var, $rgb-var) {
+  &:hover:not(:disabled) {
+    background: rgba(var($rgb-var), 0.1);
+    border-color: rgba(var($rgb-var), 0.3);
+    i { color: var($color-var); }
+  }
+}
+
+
+// =============================================================================
+// BASE BUTTON PLACEHOLDER
+// =============================================================================
 
 %btn-base {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  @include flex-center;
   gap: var(--space-3);
   border: none;
   cursor: pointer;
@@ -26,9 +49,14 @@
     cursor: not-allowed;
   }
 
-  i {
-    font-size: var(--font-size-md);
-  }
+  i { font-size: var(--font-size-md); }
+}
+
+%btn-standard {
+  padding: var(--space-5) var(--space-8);
+  border-radius: var(--radius-lg);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
 }
 
 
@@ -36,64 +64,36 @@
 // 1. PRIMARY BUTTONS
 // =============================================================================
 
-// -----------------------------------------------------------------------------
-// Add Button (Green/Teal Gradient)
-// -----------------------------------------------------------------------------
 .btn-add {
   @extend %btn-base;
-  padding: var(--space-5) var(--space-8);
+  @extend %btn-standard;
   background: var(--btn-add-gradient);
-  border-radius: var(--radius-lg);
   color: var(--color-white);
-  font-size: var(--font-size-md);
-  font-weight: var(--font-weight-semibold);
   box-shadow: var(--shadow-add);
 
-  &:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-add-lg);
-  }
+  @include btn-hover-lift(var(--shadow-add-lg));
 
-  &:active:not(:disabled) {
-    transform: scale(0.98);
-  }
+  &:active:not(:disabled) { transform: scale(0.98); }
 }
 
-// -----------------------------------------------------------------------------
-// Primary Button (Blue Gradient)
-// -----------------------------------------------------------------------------
 .btn-primary {
   @extend %btn-base;
-  padding: var(--space-5) var(--space-8);
+  @extend %btn-standard;
   background: var(--primary-gradient);
-  border-radius: var(--radius-lg);
   color: var(--color-white);
-  font-size: var(--font-size-md);
-  font-weight: var(--font-weight-semibold);
   box-shadow: var(--shadow-primary);
 
-  &:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-primary-lg);
-  }
+  @include btn-hover-lift(var(--shadow-primary-lg));
 
-  &:active:not(:disabled) {
-    transform: scale(0.98);
-  }
+  &:active:not(:disabled) { transform: scale(0.98); }
 }
 
-// -----------------------------------------------------------------------------
-// Secondary Button (Outline)
-// -----------------------------------------------------------------------------
 .btn-secondary {
   @extend %btn-base;
-  padding: var(--space-5) var(--space-8);
+  @extend %btn-standard;
   background: var(--color-white);
-  border: var(--border-width) solid var(--border-color-light);
-  border-radius: var(--radius-lg);
+  @include border-light;
   color: var(--text-color);
-  font-size: var(--font-size-md);
-  font-weight: var(--font-weight-semibold);
 
   &:hover:not(:disabled) {
     background: var(--surface-50);
@@ -102,23 +102,18 @@
   }
 }
 
+
 // =============================================================================
 // 2. ICON BUTTONS
 // =============================================================================
 
-// -----------------------------------------------------------------------------
-// Icon Button (Square)
-// -----------------------------------------------------------------------------
 .btn-icon {
-  width: var(--btn-height-lg);
-  height: var(--btn-height-lg);
-  border: var(--border-width) solid var(--border-color-light);
+  @include flex-center;
+  @include square(var(--btn-height-lg));
+  @include border-light;
   background: var(--color-white);
   border-radius: var(--radius-md);
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   transition: all var(--transition-base);
 
   i {
@@ -129,10 +124,7 @@
   &:hover:not(:disabled) {
     background: rgba(var(--primary-rgb), 0.08);
     border-color: rgba(var(--primary-rgb), 0.2);
-
-    i {
-      color: var(--primary-color);
-    }
+    i { color: var(--primary-color); }
   }
 
   &:disabled {
@@ -142,47 +134,20 @@
 
   // Size variants
   &--sm {
-    width: var(--btn-height-sm);
-    height: var(--btn-height-sm);
+    @include square(var(--btn-height-sm));
     border-radius: var(--radius-sm);
-
-    i {
-      font-size: var(--font-size-sm);
-    }
+    i { font-size: var(--font-size-sm); }
   }
 
   &--lg {
-    width: var(--feature-icon-size);
-    height: var(--feature-icon-size);
+    @include square(var(--feature-icon-size));
     border-radius: var(--radius-lg);
-
-    i {
-      font-size: var(--font-size-lg);
-    }
+    i { font-size: var(--font-size-lg); }
   }
 
   // Color variants
-  &--danger {
-    &:hover:not(:disabled) {
-      background: rgba(var(--color-error-rgb), 0.1);
-      border-color: rgba(var(--color-error-rgb), 0.3);
-
-      i {
-        color: var(--color-error);
-      }
-    }
-  }
-
-  &--success {
-    &:hover:not(:disabled) {
-      background: rgba(var(--color-success-rgb), 0.1);
-      border-color: rgba(var(--color-success-rgb), 0.3);
-
-      i {
-        color: var(--color-success);
-      }
-    }
-  }
+  &--danger  { @include btn-color-hover(--color-error, --color-error-rgb); }
+  &--success { @include btn-color-hover(--color-success, --color-success-rgb); }
 }
 
 
@@ -191,46 +156,32 @@
 // =============================================================================
 
 .action-btn {
-  width: var(--btn-height-sm);
-  height: var(--btn-height-sm);
+  @include flex-center;
+  @include square(var(--btn-height-sm));
   border: none;
   border-radius: var(--radius-sm);
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   transition: all var(--transition-fast);
   background: rgba(var(--primary-rgb), 0.1);
   color: var(--primary-color);
 
-  i {
-    font-size: var(--font-size-base);
-  }
+  i { font-size: var(--font-size-base); }
 
-  &:hover {
-    background: rgba(var(--primary-rgb), 0.2);
-  }
+  &:hover { background: rgba(var(--primary-rgb), 0.2); }
 
   &.view,
   &.edit {
     background: rgba(var(--primary-rgb), 0.1);
     color: var(--primary-color);
-
-    &:hover {
-      background: rgba(var(--primary-rgb), 0.2);
-    }
+    &:hover { background: rgba(var(--primary-rgb), 0.2); }
   }
 
   &.delete {
     background: rgba(var(--color-error-rgb), 0.1);
     color: var(--color-error);
-
-    &:hover {
-      background: rgba(var(--color-error-rgb), 0.2);
-    }
+    &:hover { background: rgba(var(--color-error-rgb), 0.2); }
   }
 
-  // With text label variant
   &--with-text {
     width: auto;
     padding: var(--space-2) var(--space-4);
@@ -243,7 +194,6 @@
   }
 }
 
-// Action buttons container
 .table-cell-actions {
   display: flex;
   gap: var(--space-3);
@@ -253,7 +203,6 @@
 // =============================================================================
 // 4. FORM ACTION BUTTONS
 // =============================================================================
-// Full-width buttons for forms, carts, checkout, etc.
 
 .form-action-btn {
   @extend %btn-base;
@@ -263,47 +212,31 @@
   font-weight: var(--font-weight-semibold);
   width: 100%;
 
-  // Color variants
   &--primary {
     background: var(--primary-gradient);
     color: var(--color-white);
     box-shadow: var(--shadow-primary);
-
-    &:hover:not(:disabled) {
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-primary-lg);
-    }
+    @include btn-hover-lift(var(--shadow-primary-lg));
   }
 
   &--secondary {
     background: var(--surface-100);
     color: var(--text-color);
-
-    &:hover:not(:disabled) {
-      background: var(--surface-200);
-    }
+    &:hover:not(:disabled) { background: var(--surface-200); }
   }
 
   &--success {
     background: var(--btn-success-gradient);
     color: var(--color-white);
     box-shadow: var(--shadow-success);
-
-    &:hover:not(:disabled) {
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-success-lg);
-    }
+    @include btn-hover-lift(var(--shadow-success-lg));
   }
 
   &--warning {
     background: var(--btn-warning-gradient);
     color: var(--color-white);
     box-shadow: var(--shadow-warning);
-
-    &:hover:not(:disabled) {
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-warning-lg);
-    }
+    @include btn-hover-lift(var(--shadow-warning-lg));
   }
 
   &--danger {
@@ -328,16 +261,12 @@
     }
   }
 
-  // Size variants
   &--lg {
     padding: var(--space-6) var(--space-9);
     font-size: var(--font-size-lg);
   }
 
-  // Disabled state
-  &:disabled {
-    transform: none !important;
-  }
+  &:disabled { transform: none !important; }
 }
 
 
@@ -345,14 +274,11 @@
 // 5. UTILITY BUTTONS
 // =============================================================================
 
-// -----------------------------------------------------------------------------
-// Back Button
-// -----------------------------------------------------------------------------
 .back-btn {
   @extend %btn-base;
   padding: var(--space-3) var(--space-5);
   background: var(--color-white);
-  border: var(--border-width) solid var(--border-color-light);
+  @include border-light;
   border-radius: var(--radius-md);
   color: var(--text-color-secondary);
   font-weight: var(--font-weight-medium);
@@ -365,21 +291,13 @@
     box-shadow: var(--shadow-sm);
   }
 
-  i {
-    font-size: var(--font-size-sm);
-  }
+  i { font-size: var(--font-size-sm); }
 }
 
-// -----------------------------------------------------------------------------
-// View Toggle Button
-// -----------------------------------------------------------------------------
 .view-toggle-btn {
+  @include flex-center;
+  @include square(42px);
   margin-inline-start: auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 42px;
-  height: 42px;
   border: 1px solid var(--border-color-light);
   border-radius: var(--radius-md);
   background: var(--surface-0);
@@ -393,14 +311,10 @@
     border-color: var(--primary-color);
   }
 
-  i {
-    font-size: 1.1rem;
-  }
+  i { font-size: 1.1rem; }
 }
 
-// -----------------------------------------------------------------------------
-// List Cart Button States
-// -----------------------------------------------------------------------------
+// Cart button states
 .list-cart-btn--in-cart {
   background-color: var(--color-success) !important;
   border-color: var(--color-success) !important;
@@ -473,7 +387,6 @@
 // =============================================================================
 // 7. NAVIGATION LINK
 // =============================================================================
-// Clickable navigation links for sidebars and menus.
 
 .nav-link {
   display: flex;
@@ -491,9 +404,7 @@
     background: rgba(var(--primary-rgb), 0.08);
     color: var(--primary-color);
 
-    .nav-link__icon i {
-      color: var(--primary-color);
-    }
+    .nav-link__icon i { color: var(--primary-color); }
   }
 
   &.active {
@@ -503,22 +414,16 @@
 
     .nav-link__icon {
       background: var(--primary-gradient);
-
-      i {
-        color: var(--color-white) !important;
-      }
+      i { color: var(--color-white) !important; }
     }
   }
 }
 
 .nav-link__icon {
-  width: 36px;
-  height: 36px;
+  @include flex-center;
+  @include square(36px);
   border-radius: var(--radius-md);
   background: var(--surface-100);
-  display: flex;
-  align-items: center;
-  justify-content: center;
   position: relative;
   flex-shrink: 0;
 
@@ -527,21 +432,14 @@
     color: var(--text-color-secondary);
   }
 
-  &--sm {
-    width: 32px;
-    height: 32px;
-  }
-
+  &--sm { @include square(32px); }
   &--lg {
-    width: 42px;
-    height: 42px;
+    @include square(42px);
     border-radius: var(--radius-lg);
   }
 }
 
-.nav-link__label {
-  flex: 1;
-}
+.nav-link__label { flex: 1; }
 
 .nav-link__arrow {
   opacity: 0.5;
@@ -550,7 +448,7 @@
   transition: all var(--transition-fast);
 }
 
-// Mobile variant - card style with glass effect
+// Mobile variant
 .nav-link--mobile {
   background: var(--glass-bg);
   backdrop-filter: var(--glass-blur);
@@ -560,8 +458,7 @@
   margin-bottom: var(--space-2);
 
   .nav-link__icon {
-    width: 42px;
-    height: 42px;
+    @include square(42px);
     border-radius: var(--radius-lg);
     background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.1), rgba(var(--primary-rgb), 0.08));
 
@@ -579,10 +476,7 @@
 
     .nav-link__icon {
       background: var(--primary-gradient);
-
-      i {
-        color: var(--color-white);
-      }
+      i { color: var(--color-white); }
     }
 
     .nav-link__arrow {
@@ -592,7 +486,6 @@
   }
 }
 
-// Dark mode override
 .my-app-dark .nav-link--mobile {
   background: var(--surface-100);
 }
@@ -601,7 +494,6 @@
 // =============================================================================
 // 8. VIEW TOGGLE
 // =============================================================================
-// Toggle buttons for switching between list/grid views.
 
 .view-toggle {
   display: flex;
@@ -610,21 +502,16 @@
   padding: 3px;
 
   &__option {
-    width: 32px;
-    height: 32px;
+    @include flex-center;
+    @include square(32px);
     border: none;
     border-radius: var(--radius-sm);
     background: transparent;
     color: var(--text-color-secondary);
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     transition: all var(--transition-fast);
 
-    &:hover:not(.active) {
-      background: var(--surface-200);
-    }
+    &:hover:not(.active) { background: var(--surface-200); }
 
     &.active {
       background: var(--color-white);
@@ -632,8 +519,6 @@
       box-shadow: var(--shadow-sm);
     }
 
-    i {
-      font-size: var(--font-size-base);
-    }
+    i { font-size: var(--font-size-base); }
   }
 }

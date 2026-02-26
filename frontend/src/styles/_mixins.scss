@@ -1,0 +1,246 @@
+// =============================================================================
+// MIXINS - Shared patterns to reduce duplication
+// =============================================================================
+// Import this file in components that need reusable patterns.
+// =============================================================================
+
+
+// =============================================================================
+// 1. FLEXBOX UTILITIES
+// =============================================================================
+
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin flex-center-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@mixin flex-start {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+
+// =============================================================================
+// 2. SIZING UTILITIES
+// =============================================================================
+
+@mixin square($size) {
+  width: $size;
+  height: $size;
+}
+
+@mixin icon-size($size-var) {
+  width: var($size-var);
+  height: var($size-var);
+}
+
+// Common icon sizes
+@mixin icon-sm { @include icon-size(--icon-sm); }
+@mixin icon-md { @include icon-size(--icon-md); }
+@mixin icon-lg { @include icon-size(--icon-lg); }
+@mixin icon-xl { @include icon-size(--icon-xl); }
+
+
+// =============================================================================
+// 3. COLOR VARIANT MIXINS
+// =============================================================================
+
+// For badges, pills, tags with colored backgrounds
+@mixin color-variant($color-var, $rgb-var, $opacity: 0.1) {
+  background: rgba(var($rgb-var), $opacity);
+  color: var($color-var);
+}
+
+// Primary variants
+@mixin variant-primary($opacity: 0.1) {
+  @include color-variant(--primary-color, --primary-rgb, $opacity);
+}
+
+@mixin variant-success($opacity: 0.1) {
+  @include color-variant(--color-success, --color-success-rgb, $opacity);
+}
+
+@mixin variant-warning($opacity: 0.1) {
+  @include color-variant(--color-warning, --color-warning-rgb, $opacity);
+}
+
+@mixin variant-danger($opacity: 0.1) {
+  @include color-variant(--color-danger, --color-danger-rgb, $opacity);
+}
+
+@mixin variant-info($opacity: 0.1) {
+  @include color-variant(--color-info, --color-info-rgb, $opacity);
+}
+
+@mixin variant-purple($opacity: 0.1) {
+  background: rgba(var(--purple-500-rgb, 139, 92, 246), $opacity);
+  color: var(--purple-500, #8b5cf6);
+}
+
+@mixin variant-orange($opacity: 0.1) {
+  background: rgba(var(--orange-500-rgb, 249, 115, 22), $opacity);
+  color: var(--orange-500, #f97316);
+}
+
+@mixin variant-pink($opacity: 0.1) {
+  background: rgba(var(--pink-500-rgb, 236, 72, 153), $opacity);
+  color: var(--pink-500, #ec4899);
+}
+
+
+// =============================================================================
+// 4. BORDER UTILITIES
+// =============================================================================
+
+@mixin border-light {
+  border: var(--border-width) solid var(--border-color-light);
+}
+
+@mixin border-medium {
+  border: var(--border-width) solid var(--overlay-medium);
+}
+
+
+// =============================================================================
+// 5. HOVER EFFECTS
+// =============================================================================
+
+@mixin hover-lift($shadow: var(--shadow-lg)) {
+  transition: transform var(--transition-smooth), box-shadow var(--transition-smooth);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $shadow;
+  }
+}
+
+@mixin hover-lift-sm {
+  @include hover-lift(var(--shadow-md));
+}
+
+@mixin hover-scale($scale: 1.05) {
+  transition: transform var(--transition-fast);
+
+  &:hover {
+    transform: scale($scale);
+  }
+}
+
+
+// =============================================================================
+// 6. TEXT UTILITIES
+// =============================================================================
+
+@mixin text-secondary {
+  color: var(--text-color-secondary);
+  font-size: var(--font-size-sm);
+}
+
+@mixin text-muted {
+  color: var(--text-color-muted);
+  font-size: var(--font-size-xs);
+}
+
+@mixin text-truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@mixin text-clamp($lines: 2) {
+  display: -webkit-box;
+  -webkit-line-clamp: $lines;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+
+// =============================================================================
+// 7. ICON ELEMENT STYLING
+// =============================================================================
+
+@mixin icon-white {
+  i {
+    color: var(--color-white);
+  }
+}
+
+@mixin icon-primary {
+  i {
+    color: var(--primary-color);
+  }
+}
+
+@mixin icon-gradient-bg {
+  background: var(--primary-gradient);
+  @include icon-white;
+}
+
+
+// =============================================================================
+// 8. CARD/CONTAINER BASE PATTERNS
+// =============================================================================
+
+@mixin glass-container {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-md);
+  @include border-light;
+}
+
+@mixin surface-container {
+  background: var(--surface-card);
+  border-radius: var(--radius-xl);
+  @include border-light;
+}
+
+
+// =============================================================================
+// 9. FORM FIELD ICON CONTAINER
+// =============================================================================
+
+@mixin field-icon-container($size: --icon-lg) {
+  @include flex-center;
+  @include icon-size($size);
+  border-radius: var(--radius-md);
+  flex-shrink: 0;
+}
+
+
+// =============================================================================
+// 10. RESPONSIVE HELPERS
+// =============================================================================
+
+@mixin mobile-only {
+  @media (max-width: 768px) {
+    @content;
+  }
+}
+
+@mixin desktop-only {
+  @media (min-width: 769px) {
+    @content;
+  }
+}
+
+@mixin tablet-up {
+  @media (min-width: 576px) {
+    @content;
+  }
+}

@@ -2,9 +2,11 @@
 // CARDS - Single Source of Truth
 // =============================================================================
 // All generic card components for admin and frontend layouts.
+// Uses mixins from: _mixins.scss
 // Uses variables from: _colors.scss, _spacing.scss, _effects.scss, _typography.scss
 //
 // Component-specific cards NOT included here (intentionally):
+// - stat-card: Dashboard statistics cards (_stats.scss)
 // - product-card: Standalone product display component with specialized behavior
 //   (product-card.component.scss)
 // - contact-card: Auth-flow specific for login inactive modal
@@ -13,39 +15,32 @@
 //   (register.component.scss)
 // =============================================================================
 
+@use 'mixins' as *;
+
+
 // =============================================================================
-// ICON GRADIENT MIXIN
+// LOCAL MIXINS
 // =============================================================================
 
-@mixin icon-gradient-variants {
-  &--primary {
-    background: var(--primary-gradient);
-  }
-  &--success {
-    background: var(--success-gradient);
-  }
-  &--warning {
-    background: var(--warning-gradient);
-  }
-  &--info {
-    background: var(--info-gradient);
-  }
-  &--purple {
-    background: var(--purple-gradient);
-  }
-  &--pink {
-    background: var(--pink-gradient);
-  }
-  &--teal {
-    background: var(--teal-gradient);
-  }
-  &--orange {
-    background: var(--orange-gradient);
-  }
-  &--red {
-    background: var(--red-gradient);
-  }
+// Icon color variant with background
+@mixin icon-color-variant($color-var, $rgb-var) {
+  background: rgba(var($rgb-var), 0.1);
+  i { color: var($color-var); }
 }
+
+// Icon gradient variants for decorative elements
+@mixin icon-gradient-variants {
+  &--primary { background: var(--primary-gradient); }
+  &--success { background: var(--success-gradient); }
+  &--warning { background: var(--warning-gradient); }
+  &--info    { background: var(--info-gradient); }
+  &--purple  { background: var(--purple-gradient); }
+  &--pink    { background: var(--pink-gradient); }
+  &--teal    { background: var(--teal-gradient); }
+  &--orange  { background: var(--orange-gradient); }
+  &--red     { background: var(--red-gradient); }
+}
+
 
 // =============================================================================
 // CARD BASE PLACEHOLDER
@@ -56,7 +51,7 @@
   backdrop-filter: var(--glass-blur);
   border-radius: var(--radius-2xl);
   box-shadow: var(--shadow-md);
-  border: var(--border-width) solid var(--border-color-light);
+  @include border-light;
   overflow: hidden;
   transition: all var(--transition-smooth);
 }
@@ -69,17 +64,14 @@
 }
 
 %card-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  @include flex-center;
   border-radius: var(--radius-md);
 
-  i {
-    color: var(--color-white);
-  }
+  i { color: var(--color-white); }
 
   @include icon-gradient-variants;
 }
+
 
 // =============================================================================
 // 1. BASE CARD
@@ -91,7 +83,7 @@
 
   &--flat {
     box-shadow: none;
-    border: var(--border-width) solid var(--overlay-medium);
+    @include border-medium;
 
     &:hover {
       box-shadow: var(--shadow-md);
@@ -105,7 +97,6 @@
     }
   }
 
-  // Scrollable card with fixed height
   &--scrollable {
     display: flex;
     flex-direction: column;
@@ -118,11 +109,12 @@
       flex-direction: column;
     }
 
-    @media (max-width: 768px) {
+    @include mobile-only {
       max-height: none;
     }
   }
 }
+
 
 // =============================================================================
 // 2. CARD HEADER
@@ -137,68 +129,27 @@
 
   &__icon {
     @extend %card-icon;
-    width: var(--icon-lg);
-    height: var(--icon-lg);
+    @include icon-size(--icon-lg);
 
-    i {
-      font-size: var(--font-size-2xl);
-    }
+    i { font-size: var(--font-size-2xl); }
 
     // Color variants
-    &--primary {
-      background: rgba(var(--primary-rgb), 0.1);
-      i {
-        color: var(--primary-color);
-      }
-    }
-
-    &--success {
-      background: rgba(var(--color-success-rgb), 0.1);
-      i {
-        color: var(--color-success);
-      }
-    }
-
-    &--warning {
-      background: rgba(var(--color-warning-rgb), 0.1);
-      i {
-        color: var(--color-warning);
-      }
-    }
-
-    &--info {
-      background: rgba(var(--color-info-rgb), 0.1);
-      i {
-        color: var(--color-info);
-      }
-    }
-
-    &--purple {
+    &--primary { @include icon-color-variant(--primary-color, --primary-rgb); }
+    &--success { @include icon-color-variant(--color-success, --color-success-rgb); }
+    &--warning { @include icon-color-variant(--color-warning, --color-warning-rgb); }
+    &--info    { @include icon-color-variant(--color-info, --color-info-rgb); }
+    &--danger  { @include icon-color-variant(--color-danger, --color-danger-rgb); }
+    &--purple  {
       background: rgba(var(--purple-500-rgb, 139, 92, 246), 0.1);
-      i {
-        color: var(--purple-500, #8b5cf6);
-      }
+      i { color: var(--purple-500, #8b5cf6); }
     }
-
-    &--orange {
+    &--orange  {
       background: rgba(var(--orange-500-rgb, 249, 115, 22), 0.1);
-      i {
-        color: var(--orange-500, #f97316);
-      }
+      i { color: var(--orange-500, #f97316); }
     }
-
-    &--pink {
+    &--pink    {
       background: rgba(var(--pink-500-rgb, 236, 72, 153), 0.1);
-      i {
-        color: var(--pink-500, #ec4899);
-      }
-    }
-
-    &--danger {
-      background: rgba(var(--color-danger-rgb), 0.1);
-      i {
-        color: var(--color-danger);
-      }
+      i { color: var(--pink-500, #ec4899); }
     }
   }
 
@@ -223,6 +174,7 @@
   }
 }
 
+
 // =============================================================================
 // 3. CARD BODY
 // =============================================================================
@@ -230,139 +182,13 @@
 .card-body {
   padding: var(--space-8);
 
-  &--compact {
-    padding: var(--space-6);
-  }
-
-  &--spacious {
-    padding: var(--space-9);
-  }
+  &--compact  { padding: var(--space-6); }
+  &--spacious { padding: var(--space-9); }
 }
 
-// =============================================================================
-// 4. STAT CARD
-// =============================================================================
-
-.stat-card {
-  @extend %card-base;
-  position: relative;
-  padding: var(--space-7);
-  cursor: pointer;
-  overflow: hidden;
-
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-xl);
-
-    .stat-card__icon {
-      transform: scale(1.1);
-    }
-
-    .stat-card__decoration {
-      transform: translate(10%, 10%) scale(1.2);
-    }
-  }
-
-  &__icon {
-    @extend %card-icon;
-    width: var(--icon-lg);
-    height: var(--icon-lg);
-    margin-bottom: var(--space-6);
-    transition: transform var(--transition-base);
-
-    i {
-      font-size: var(--font-size-2xl);
-    }
-  }
-
-  &__value {
-    display: block;
-    font-size: var(--font-size-3xl);
-    font-weight: var(--font-weight-bold);
-    color: var(--text-color);
-    margin-bottom: var(--space-1);
-  }
-
-  &__label {
-    display: block;
-    font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-medium);
-    color: var(--text-color-secondary);
-  }
-
-  &__decoration {
-    position: absolute;
-    bottom: calc(var(--space-7) * -1);
-    right: calc(var(--space-7) * -1);
-    width: var(--state-icon-md);
-    height: var(--state-icon-md);
-    border-radius: var(--radius-full);
-    opacity: 0.1;
-    transition: transform var(--transition-base);
-
-    @include icon-gradient-variants;
-  }
-
-  @media (max-width: 480px) {
-    display: flex;
-    align-items: center;
-    gap: var(--space-6);
-
-    &__icon {
-      margin-bottom: 0;
-    }
-  }
-
-  // Compact variant - icon and number aligned, label below
-  &--compact {
-    padding: var(--space-4) var(--space-5);
-
-    &:hover {
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-md);
-    }
-
-    .stat-card__content {
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-2);
-    }
-
-    .stat-card__value {
-      display: flex;
-      align-items: center;
-      gap: var(--space-3);
-      font-size: var(--font-size-xl);
-      font-weight: var(--font-weight-black);
-      margin-bottom: 0;
-      line-height: 1;
-    }
-
-    .stat-card__icon {
-      width: 32px;
-      height: 32px;
-      margin-bottom: 0;
-      flex-shrink: 0;
-
-      i {
-        font-size: var(--font-size-sm);
-      }
-    }
-
-    .stat-card__label {
-      font-size: var(--font-size-xs);
-      font-weight: var(--font-weight-semibold);
-      color: var(--text-color-secondary);
-    }
-
-    .stat-card__decoration {
-      display: none;
-    }
-  }
-}
 
 // =============================================================================
-// 5. FORM CARD
+// 4. FORM CARD
 // =============================================================================
 
 .form-card {
@@ -373,17 +199,16 @@
   flex-direction: column;
   height: 100%;
 
-  &--full-width {
-    grid-column: 1 / -1;
-  }
+  &--full-width { grid-column: 1 / -1; }
 
-  @media (max-width: 768px) {
+  @include mobile-only {
     border-radius: var(--radius-lg);
   }
 }
 
+
 // =============================================================================
-// 6. IMAGE CARD
+// 5. IMAGE CARD
 // =============================================================================
 
 .card--image {
@@ -391,11 +216,10 @@
   overflow: hidden;
 }
 
+
 // =============================================================================
-// 7. SELECT CARDS
+// 6. SELECT CARDS
 // =============================================================================
-// Selectable cards for choosing options (notification type, category, etc.)
-// Uses --card-color CSS variable for dynamic theming.
 
 .select-cards {
   display: grid;
@@ -409,9 +233,8 @@
 
 .select-card {
   --card-color: var(--primary-color);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+
+  @include flex-center-column;
   gap: var(--space-3);
   padding: var(--space-5);
   background: var(--surface-0);
@@ -432,25 +255,17 @@
 
     .select-card__icon {
       background: var(--card-color);
-
-      i {
-        color: var(--color-white);
-      }
+      i { color: var(--color-white); }
     }
 
-    .select-card__title {
-      color: var(--card-color);
-    }
+    .select-card__title { color: var(--card-color); }
   }
 
   &__icon {
-    width: var(--icon-xl);
-    height: var(--icon-xl);
+    @include flex-center;
+    @include icon-size(--icon-xl);
     border-radius: var(--radius-lg);
     background: var(--surface-100);
-    display: flex;
-    align-items: center;
-    justify-content: center;
     transition: all var(--transition-fast);
 
     i {
@@ -472,19 +287,9 @@
   }
 
   // Color Variants
-  &--purple {
-    --card-color: var(--color-purple);
-  }
-  &--warning {
-    --card-color: var(--color-warning);
-  }
-  &--success {
-    --card-color: var(--color-success);
-  }
-  &--info {
-    --card-color: var(--color-info);
-  }
-  &--pink {
-    --card-color: var(--color-pink);
-  }
+  &--purple  { --card-color: var(--color-purple); }
+  &--warning { --card-color: var(--color-warning); }
+  &--success { --card-color: var(--color-success); }
+  &--info    { --card-color: var(--color-info); }
+  &--pink    { --card-color: var(--color-pink); }
 }
