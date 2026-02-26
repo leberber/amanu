@@ -1,16 +1,12 @@
+
+@use '../../../../styles/states' as states;
+
 .empty-state {
-  text-align: center;
-  padding: 2.5rem 2rem;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  border-radius: var(--border-radius-xl, 24px);
-  border: 1px solid var(--border-color-light);
-  max-width: 420px;
-  margin: 2rem auto;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  @include states.state-card(var(--border-color-light), rgba(0, 0, 0, 0.08));
   position: relative;
   overflow: hidden;
 
+  // Decorative gradients
   &::before {
     content: '';
     position: absolute;
@@ -95,29 +91,12 @@ p {
 }
 
 .action-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.875rem 1.5rem;
-  border: none;
-  border-radius: var(--border-radius, 12px);
-  background: var(--primary-gradient, linear-gradient(135deg, var(--primary-color) 0%, var(--primary-700) 100%));
-  color: white !important;
-  font-size: 0.9rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  @include states.state-action-btn;
+  @include states.state-action-btn--primary;
   box-shadow: 0 6px 20px rgba(var(--primary-rgb, 46, 108, 183), 0.3);
-  text-decoration: none;
   position: relative;
 
-  span,
-  i {
-    color: white !important;
-  }
-
   &:hover {
-    transform: translateY(-2px);
     box-shadow: 0 8px 25px rgba(var(--primary-rgb, 46, 108, 183), 0.4);
   }
 

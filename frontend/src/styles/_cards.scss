@@ -1,8 +1,16 @@
 // =============================================================================
-// CARDS
+// CARDS - Single Source of Truth
 // =============================================================================
-// Card components for admin and frontend layouts.
+// All generic card components for admin and frontend layouts.
 // Uses variables from: _colors.scss, _spacing.scss, _effects.scss, _typography.scss
+//
+// Component-specific cards NOT included here (intentionally):
+// - product-card: Standalone product display component with specialized behavior
+//   (product-card.component.scss)
+// - contact-card: Auth-flow specific for login inactive modal
+//   (login.component.scss)
+// - summary-card: Auth-flow specific for registration summary
+//   (register.component.scss)
 // =============================================================================
 
 // =============================================================================
@@ -94,6 +102,24 @@
     &:hover {
       transform: none;
       box-shadow: var(--shadow-md);
+    }
+  }
+
+  // Scrollable card with fixed height
+  &--scrollable {
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100vh - 170px);
+
+    .card-body {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    @media (max-width: 768px) {
+      max-height: none;
     }
   }
 }

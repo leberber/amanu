@@ -28,6 +28,98 @@
 
 
 // =============================================================================
+// STATE CARD MIXIN (Glass morphism container)
+// =============================================================================
+
+@mixin state-card($border-color: var(--border-color-light), $shadow-color: rgba(0, 0, 0, 0.08)) {
+  text-align: center;
+  padding: 2.5rem 2rem;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: var(--border-radius-xl, 24px);
+  border: 1px solid $border-color;
+  max-width: 420px;
+  margin: 2rem auto;
+  box-shadow: 0 8px 32px $shadow-color;
+}
+
+
+
+
+// =============================================================================
+// STATE ACTION BUTTON MIXINS
+// =============================================================================
+
+@mixin state-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  border: none;
+  border-radius: var(--border-radius, 12px);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  text-decoration: none;
+
+  i {
+    font-size: 0.875rem;
+  }
+}
+
+@mixin state-action-btn--primary {
+  background: var(--primary-gradient, linear-gradient(135deg, var(--primary-color) 0%, var(--primary-700) 100%));
+  color: white;
+  box-shadow: 0 4px 15px rgba(var(--primary-rgb, 46, 108, 183), 0.3);
+
+  span, i {
+    color: white !important;
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(var(--primary-rgb, 46, 108, 183), 0.4);
+  }
+}
+
+@mixin state-action-btn--secondary {
+  background: var(--surface-100);
+  color: var(--text-color);
+  border: 1px solid var(--border-color-light);
+
+  &:hover {
+    background: var(--surface-200);
+    transform: translateY(-2px);
+  }
+}
+
+
+// =============================================================================
+// STATE ACTION BUTTONS (CSS Classes)
+// =============================================================================
+
+.state-actions {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.state-action-btn {
+  @include state-action-btn;
+
+  &--primary {
+    @include state-action-btn--primary;
+  }
+
+  &--secondary {
+    @include state-action-btn--secondary;
+  }
+}
+
+
+// =============================================================================
 // 1. LOADING CONTAINER (Full section)
 // =============================================================================
 

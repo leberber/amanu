@@ -1,16 +1,4 @@
-// =============================================================================
-// Admin Products Component Styles
-// =============================================================================
-// Component-specific overrides only. Uses global styles from:
-//   - _table.scss: table-container, cell-edit, table-thumbnail, etc.
-//   - _badges.scss: pill, badge
-//   - _buttons.scss: btn-add, btn-primary, btn-secondary
-//   - _states.scss: empty-state
-//   - _segments.scss: segment-control
-//   - _skeleton.scss: skeleton loading
-// =============================================================================
 
-// Table height override for this page
 .table-container {
   --table-max-height: calc(100vh - 390px);
 }

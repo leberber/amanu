@@ -1,13 +1,3 @@
-// =============================================================================
-// Admin Categories Component Styles
-// =============================================================================
-// Component-specific overrides only. Uses global styles from:
-//   - _table.scss: table-container, table-thumbnail, etc.
-//   - _badges.scss: pill, status-badge
-//   - _states.scss: empty-state, info-display, date-display
-//   - _segments.scss: segment-control
-//   - _buttons.scss: btn-add, action-btn
-// =============================================================================
 
 .table-container {
   --table-max-height: calc(100vh - 375px);
