@@ -32,7 +32,7 @@
           </div>
           <div class="card-body">
             <ul class="items-simple-list">
-              @for (i of [1,2,3]; track i) {
+              @for (i of SKELETON_ITEMS; track i) {
                 <li class="item-line">
                   <div class="skeleton skeleton-image skeleton-image--sm"></div>
                   <div class="skeleton skeleton-text" style="width: 50px;"></div>
@@ -52,7 +52,7 @@
               <div class="skeleton skeleton-text" style="width: 100px;"></div>
             </div>
             <div class="card-body">
-              @for (i of [1,2]; track i) {
+              @for (i of SKELETON_TIMELINE; track i) {
                 <div class="skeleton-row">
                   <div class="skeleton skeleton-circle"></div>
                   <div class="skeleton-row__content">

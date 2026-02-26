@@ -61,6 +61,8 @@ export class OrderDetailComponent implements OnInit {
 
   // Constants
   readonly ROUTES = ROUTES;
+  readonly SKELETON_ITEMS = [1, 2, 3];
+  readonly SKELETON_TIMELINE = [1, 2];
 
   // State
   order = signal<Order | null>(null);

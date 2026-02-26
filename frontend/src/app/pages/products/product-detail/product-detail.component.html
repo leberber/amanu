@@ -1,4 +1,3 @@
-<!-- src/app/pages/products/product-detail/product-detail.component.html -->
 <app-page-layout
   [title]="pageTitle()"
   [subtitle]="pageSubtitle()"
@@ -33,46 +32,49 @@
     </div>
   }
 
-  <!-- Main Content -->
   <p-toast></p-toast>
 
-  <!-- Loading state - Skeleton -->
+  <!-- Loading State -->
   @if (loading()) {
-    <div class="detail-content">
-      <div class="detail-grid">
+    <div class="page-content">
+      <div class="page-grid">
         <!-- Image skeleton -->
-        <div class="app-card product-image-card">
+        <div class="card card--image">
           <div class="skeleton skeleton-image skeleton-image--lg"></div>
         </div>
-        <!-- Info skeleton -->
-        <div class="detail-sidebar">
-          <div class="app-card">
-            <div class="app-card__content">
+
+        <!-- Sidebar skeleton -->
+        <div class="page-sidebar">
+          <div class="card">
+            <div class="card-header">
+              <div class="skeleton skeleton-avatar"></div>
+              <div class="skeleton skeleton-text" style="width: 100px;"></div>
+            </div>
+            <div class="card-body">
               <div class="skeleton skeleton-text skeleton-text--w70 skeleton-mb"></div>
+              <div class="skeleton skeleton-text skeleton-text--w50"></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="skeleton skeleton-avatar"></div>
+              <div class="skeleton skeleton-text" style="width: 80px;"></div>
+            </div>
+            <div class="card-body">
+              <div class="skeleton skeleton-text skeleton-text--w100" style="height: 60px;"></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="skeleton skeleton-avatar"></div>
+              <div class="skeleton skeleton-text" style="width: 120px;"></div>
+            </div>
+            <div class="card-body">
               <div class="skeleton skeleton-text skeleton-text--w50 skeleton-mb"></div>
-              <div class="skeleton skeleton-text skeleton-text--w100 skeleton-mb"></div>
-              <div class="skeleton skeleton-text skeleton-text--w100 skeleton-mb"></div>
-              <div class="skeleton skeleton-text skeleton-text--w80"></div>
-            </div>
-          </div>
-          <div class="app-card">
-            <div class="app-card__content">
-              <div class="skeleton skeleton-text skeleton-text--w40 skeleton-mb"></div>
-              <div class="skeleton skeleton-text skeleton-text--w100" style="height: 48px;"></div>
-            </div>
-          </div>
-          <div class="app-card">
-            <div class="app-card__content">
-              <div class="skeleton skeleton-text skeleton-text--w50 skeleton-mb"></div>
-              <div class="skeleton skeleton-text skeleton-text--w100 skeleton-mb" style="height: 40px;"></div>
-              <div class="skeleton skeleton-text skeleton-text--w100" style="height: 48px;"></div>
-            </div>
-          </div>
-          <div class="app-card">
-            <div class="app-card__content">
-              <div class="skeleton skeleton-text skeleton-text--w60 skeleton-mb"></div>
-              <div class="skeleton skeleton-text skeleton-text--w80 skeleton-mb"></div>
-              <div class="skeleton skeleton-text skeleton-text--w100" style="height: 48px;"></div>
+              <div class="skeleton skeleton-text skeleton-text--w100 skeleton-mb" style="height: 60px;"></div>
+              <div class="skeleton skeleton-button" style="width: 100%; height: 48px;"></div>
             </div>
           </div>
         </div>
@@ -80,7 +82,7 @@
     </div>
   }
 
-  <!-- Error state -->
+  <!-- Error State -->
   @else if (error()) {
     <app-error-state
       title="products.errors.failed_to_load"
@@ -91,15 +93,15 @@
     </app-error-state>
   }
 
-  <!-- Product details -->
+  <!-- Product Details -->
   @else if (product()) {
-    <div class="detail-content">
-      <div class="detail-grid">
+    <div class="page-content">
+      <div class="page-grid">
         <!-- Left Column: Image + Description -->
-        <div class="detail-main">
+        <div class="page-main">
           <!-- Product Image -->
-          <div class="app-card product-image-card">
-            <div class="product-image-container">
+          <div class="card card--no-hover card--image">
+            <div class="card__image-container">
               <img
                 [src]="product()?.image_url"
                 [alt]="product()?.name"
@@ -123,31 +125,31 @@
 
           <!-- Description Card -->
           @if (product()?.description) {
-            <div class="app-card description-card">
-              <div class="app-card__header">
-                <div class="app-card__icon">
+            <div class="card card--no-hover">
+              <div class="card-header">
+                <div class="card-header__icon card-header__icon--info">
                   <i class="pi pi-info-circle"></i>
                 </div>
-                <h2 class="app-card__title">{{ 'common.description' | translate }}</h2>
+                <h2 class="card-header__title">{{ 'common.description' | translate }}</h2>
               </div>
-              <div class="app-card__content">
-                <p class="description-text">{{ product()?.description }}</p>
+              <div class="card-body">
+                <p class="text-base text-secondary">{{ product()?.description }}</p>
               </div>
             </div>
           }
         </div>
 
         <!-- Product Info Sidebar -->
-        <div class="detail-sidebar">
+        <div class="page-sidebar">
           <!-- Price Card -->
-          <div class="app-card price-card">
-            <div class="app-card__header">
-              <div class="app-card__icon">
+          <div class="card card--no-hover">
+            <div class="card-header">
+              <div class="card-header__icon card-header__icon--primary">
                 <i class="pi pi-wallet"></i>
               </div>
-              <h2 class="app-card__title">{{ 'common.price' | translate }}</h2>
+              <h2 class="card-header__title">{{ 'common.price' | translate }}</h2>
             </div>
-            <div class="app-card__content">
+            <div class="card-body">
               <div class="price-display">
                 @if (hasPromotion()) {
                   <div class="price-display__current price-display__current--promo">{{ discountedPrice() | appCurrency }}</div>
@@ -161,22 +163,22 @@
           </div>
 
           <!-- Stock Info Card -->
-          <div class="app-card stock-card">
-            <div class="app-card__header">
-              <div class="app-card__icon">
+          <div class="card card--no-hover">
+            <div class="card-header">
+              <div class="card-header__icon card-header__icon--warning">
                 <i class="pi pi-warehouse"></i>
               </div>
-              <h2 class="app-card__title">{{ 'products.stock.title' | translate }}</h2>
+              <h2 class="card-header__title">{{ 'products.stock.title' | translate }}</h2>
             </div>
-            <div class="app-card__content">
+            <div class="card-body">
               @if (isOutOfStock()) {
                 <div class="info-box info-box--danger">
                   <div class="info-box__icon">
                     <i class="pi pi-times-circle"></i>
                   </div>
                   <div class="info-box__content">
-                    <h4>{{ 'products.stock.out_of_stock' | translate }}</h4>
-                    <p>{{ 'products.stock.unavailable_message' | translate }}</p>
+                    <h4 class="info-box__title">{{ 'products.stock.out_of_stock' | translate }}</h4>
+                    <p class="info-box__text">{{ 'products.stock.unavailable_message' | translate }}</p>
                   </div>
                 </div>
               } @else if (isLowStock()) {
@@ -185,8 +187,8 @@
                     <i class="pi pi-exclamation-triangle"></i>
                   </div>
                   <div class="info-box__content">
-                    <h4>{{ 'products.stock.low_stock_title' | translate }}</h4>
-                    <p>{{ 'products.stock.low_stock' | translate : { count: stockInCartons() } }} {{ getPackagingTypeForCount(stockInCartons()) }}</p>
+                    <h4 class="info-box__title">{{ 'products.stock.low_stock_title' | translate }}</h4>
+                    <p class="info-box__text">{{ 'products.stock.low_stock' | translate : { count: stockInCartons() } }} {{ getPackagingTypeForCount(stockInCartons()) }}</p>
                   </div>
                 </div>
               } @else {
@@ -195,8 +197,8 @@
                     <i class="pi pi-check-circle"></i>
                   </div>
                   <div class="info-box__content">
-                    <h4>{{ 'products.stock.in_stock' | translate }}</h4>
-                    <p>{{ stockInCartons() }} {{ getPackagingTypeForCount(stockInCartons()) }} {{ 'products.stock.available' | translate }}</p>
+                    <h4 class="info-box__title">{{ 'products.stock.in_stock' | translate }}</h4>
+                    <p class="info-box__text">{{ stockInCartons() }} {{ getPackagingTypeForCount(stockInCartons()) }} {{ 'products.stock.available' | translate }}</p>
                   </div>
                 </div>
               }
@@ -204,14 +206,14 @@
           </div>
 
           <!-- Add to Cart Card -->
-          <div class="app-card cart-card">
-            <div class="app-card__header">
-              <div class="app-card__icon">
+          <div class="card card--no-hover">
+            <div class="card-header">
+              <div class="card-header__icon card-header__icon--success">
                 <i class="pi pi-shopping-cart"></i>
               </div>
-              <h2 class="app-card__title">{{ 'products.cart.add_to_cart' | translate }}</h2>
+              <h2 class="card-header__title">{{ 'products.cart.add_to_cart' | translate }}</h2>
             </div>
-            <div class="app-card__content">
+            <div class="card-body">
               <!-- Cart Status -->
               @if (isInCart()) {
                 <div class="cart-status">
@@ -221,7 +223,7 @@
               }
 
               <!-- Quantity Selector -->
-              <div class="quantity-section">
+              <div class="quantity-selector">
                 <label class="quantity-label">{{ 'common.quantity' | translate }}</label>
                 <div class="quantity-controls">
                   <button
@@ -230,12 +232,12 @@
                     icon="pi pi-minus"
                     class="p-button-outlined quantity-btn"
                     [disabled]="isOutOfStock() || selectedQuantity() <= (product()?.pieces_per_box || 1)"
-                    (click)="selectedQuantity.set(selectedQuantity() - (product()?.pieces_per_box || 1))">
+                    (click)="decrementQuantity()">
                   </button>
                   <div class="quantity-display"
                     [class.quantity-display--in-cart]="quantityMatchesCart()"
                     [class.quantity-display--update]="isInCart() && !quantityMatchesCart()">
-                    <span class="quantity-display__boxes">{{ selectedQuantity() / (product()?.pieces_per_box || 1) }}</span>
+                    <span class="quantity-display__value">{{ selectedQuantity() / (product()?.pieces_per_box || 1) }}</span>
                     <span class="quantity-display__label">{{ getPackagingTypeForCount(selectedQuantity() / (product()?.pieces_per_box || 1)) }}</span>
                   </div>
                   <button
@@ -244,11 +246,11 @@
                     icon="pi pi-plus"
                     class="p-button-outlined quantity-btn"
                     [disabled]="isOutOfStock() || (product()?.stock_quantity && selectedQuantity() >= product()!.stock_quantity)"
-                    (click)="selectedQuantity.set(selectedQuantity() + (product()?.pieces_per_box || 1))">
+                    (click)="incrementQuantity()">
                   </button>
                 </div>
                 <!-- Pieces info -->
-                <div class="quantity-pieces">
+                <div class="quantity-info">
                   <i class="pi pi-info-circle"></i>
                   <span>{{ selectedQuantity() }} {{ unitDisplay() }}</span>
                 </div>
@@ -257,8 +259,8 @@
               <!-- Add to Cart Button -->
               <button
                 class="form-action-btn form-action-btn--primary"
-                [class.form-action-btn--in-cart]="quantityMatchesCart()"
-                [class.form-action-btn--update]="isInCart() && !quantityMatchesCart()"
+                [class.form-action-btn--success]="quantityMatchesCart()"
+                [class.form-action-btn--warning]="isInCart() && !quantityMatchesCart()"
                 (click)="addToCart($event)"
                 [disabled]="isOutOfStock() || !selectedQuantity() || quantityMatchesCart()">
                 <i [class]="quantityMatchesCart() ? 'pi pi-check' : (isInCart() ? 'pi pi-refresh' : 'pi pi-shopping-cart')"></i>

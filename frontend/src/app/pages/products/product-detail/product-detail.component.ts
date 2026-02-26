@@ -5,7 +5,7 @@ import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { ToastModule } from 'primeng/toast';
 import { ButtonModule } from 'primeng/button';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 
 import { PageLayoutComponent } from '../../../shared/components/page-layout/page-layout.component';
 import { ErrorStateComponent } from '../../../shared/components/error-state/error-state.component';
@@ -43,6 +43,7 @@ import { formatDiscountLabel, getEffectivePrice, hasPromotion as checkHasPromoti
   styleUrl: './product-detail.component.scss'
 })
 export class ProductDetailComponent implements OnInit {
+  // Services
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private productService = inject(ProductService);
@@ -54,9 +55,9 @@ export class ProductDetailComponent implements OnInit {
   private flyToCartService = inject(FlyToCartService);
   private brandService = inject(BrandService);
   private destroyRef = inject(DestroyRef);
-  private translateService = inject(TranslateService);
   private packagingTypeService = inject(PackagingTypeService);
 
+  // Constants
   readonly ROUTES = ROUTES;
 
   // State
@@ -65,12 +66,11 @@ export class ProductDetailComponent implements OnInit {
   loading = signal(true);
   error = signal(false);
   selectedQuantity = signal(1);
-  currentLanguage = signal(this.translationService.getCurrentLanguage());
+  private currentLanguage = signal(this.translationService.getCurrentLanguage());
 
   // Computed - stock
   isOutOfStock = computed(() => checkOutOfStock(this.product()));
   isLowStock = computed(() => checkLowStock(this.product()));
-  lowStockParams = computed(() => ({ count: this.product()?.stock_quantity ?? 0 }));
   stockInCartons = computed(() => {
     const p = this.product();
     if (!p) return 0;
@@ -82,16 +82,6 @@ export class ProductDetailComponent implements OnInit {
     this.currentLanguage();
     const p = this.product();
     return p ? this.unitsService.getUnitDisplay(p.unit, true) : '';
-  });
-
-  packagingType = computed(() => {
-    this.currentLanguage();
-    return this.packagingTypeService.getPackagingTypeTranslated(this.product()?.packaging_type || 'carton');
-  });
-
-  packagingTypePlural = computed(() => {
-    this.currentLanguage();
-    return this.packagingTypeService.getPackagingTypeTranslated(this.product()?.packaging_type || 'carton', true);
   });
 
   // Computed - cart
@@ -127,29 +117,31 @@ export class ProductDetailComponent implements OnInit {
   mobileSubtitle = computed(() => this.brand()?.name || '');
 
   ngOnInit(): void {
-    this.translationService.currentLanguage$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(lang => {
-        this.currentLanguage.set(lang);
-        const p = this.product();
-        if (p) this.loadProduct(p.id);
-      });
-
-    this.route.paramMap
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(params => {
-        const id = params.get('id');
-        if (!id) {
-          this.error.set(true);
-          this.loading.set(false);
-        } else {
-          this.loadProduct(Number(id));
-        }
-      });
+    this.subscribeToLanguageChanges();
+    this.subscribeToRouteChanges();
   }
 
   getPackagingTypeForCount(count: number): string {
     return this.packagingTypeService.getPackagingTypeForCount(this.product()?.packaging_type || 'carton', count);
+  }
+
+  incrementQuantity(): void {
+    const p = this.product();
+    if (!p) return;
+    const step = p.pieces_per_box || 1;
+    const maxQty = p.stock_quantity || Infinity;
+    if (this.selectedQuantity() + step <= maxQty) {
+      this.selectedQuantity.set(this.selectedQuantity() + step);
+    }
+  }
+
+  decrementQuantity(): void {
+    const p = this.product();
+    if (!p) return;
+    const step = p.pieces_per_box || 1;
+    if (this.selectedQuantity() > step) {
+      this.selectedQuantity.set(this.selectedQuantity() - step);
+    }
   }
 
   addToCart(event?: MouseEvent): void {
@@ -169,7 +161,31 @@ export class ProductDetailComponent implements OnInit {
     this.router.navigate([ROUTES.PRODUCTS]);
   }
 
-  // Private
+  // Private methods
+  private subscribeToLanguageChanges(): void {
+    this.translationService.currentLanguage$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(lang => {
+        this.currentLanguage.set(lang);
+        const p = this.product();
+        if (p) this.loadProduct(p.id);
+      });
+  }
+
+  private subscribeToRouteChanges(): void {
+    this.route.paramMap
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(params => {
+        const id = params.get('id');
+        if (!id) {
+          this.error.set(true);
+          this.loading.set(false);
+        } else {
+          this.loadProduct(Number(id));
+        }
+      });
+  }
+
   private loadProduct(productId: number): void {
     this.loading.set(true);
 

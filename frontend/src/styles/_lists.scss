@@ -850,3 +850,38 @@
     }
   }
 }
+
+
+// =============================================================================
+// 14. PRICE DISPLAY
+// =============================================================================
+// Price display for product detail, cart items, etc.
+
+.price-display {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+
+  &__current {
+    font-size: 2rem;
+    font-weight: var(--font-weight-bold);
+    color: var(--primary-color);
+    line-height: 1.2;
+
+    &--promo {
+      color: var(--color-error);
+    }
+  }
+
+  &__original {
+    font-size: var(--font-size-lg);
+    color: var(--text-color-secondary);
+    text-decoration: line-through;
+  }
+
+  &__unit {
+    font-size: var(--font-size-sm);
+    color: var(--text-color-secondary);
+    margin-top: var(--space-1);
+  }
+}
