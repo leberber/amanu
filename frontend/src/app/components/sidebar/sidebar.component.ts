@@ -45,9 +45,11 @@ export class SidebarComponent implements OnInit {
   // State (drawer visibility comes from service)
   mobileDrawerVisible = this.sidebarService.drawerVisible;
   isMobile = signal(window.innerWidth < BREAKPOINTS.MD);
-  cartCount = signal(0);
   navItems = signal<NavItem[]>([]);
   adminNavItems = signal<NavItem[]>([]);
+
+  // Cart count from service signal
+  cartCount = computed(() => this.cartService.items().length);
 
   // Computed
   isAdmin = computed(() => this.authService.isAdmin());
@@ -78,11 +80,6 @@ export class SidebarComponent implements OnInit {
 
   ngOnInit() {
     this.buildNavItems();
-
-    // Subscribe to cart changes
-    this.cartService.cartItems$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(items => this.cartCount.set(items?.length || 0));
 
     // Subscribe to auth changes to rebuild nav
     this.authService.currentUser$

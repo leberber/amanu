@@ -82,14 +82,14 @@ export class ProductCardComponent {
   }
 
   // Computed signals using shared utilities
-  // Use cartItemsSignal to track cart changes reactively
+  // Use items to track cart changes reactively
   isInCart = computed(() => {
-    const cartItems = this.cartService.cartItemsSignal();
+    const cartItems = this.cartService.items();
     return cartItems.some(item => item.product_id === this.product().id);
   });
 
   quantityInCart = computed(() => {
-    const cartItems = this.cartService.cartItemsSignal();
+    const cartItems = this.cartService.items();
     const item = cartItems.find(item => item.product_id === this.product().id);
     return item ? item.quantity : 0;
   });

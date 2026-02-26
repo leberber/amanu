@@ -226,7 +226,7 @@
                   <tr class="table-row-animate" [style.--row-delay]="(i * ROW_ANIMATION_DELAY) + 'ms'" (click)="viewOrderDetails(order.id)">
                     <td><span class="table-id">#{{ order.id }}</span></td>
                     <td><span class="date-display">{{ order.created_at | appDate }}</span></td>
-                    <td><p-tag [severity]="getStatusSeverity(order.status)" [value]="order.status | appStatus"></p-tag></td>
+                    <td><p-tag [severity]="statusSeverity.getOrderStatusSeverity(order.status)" [value]="order.status | appStatus"></p-tag></td>
                     <td><span class="amount-display amount-display--primary">{{ order.total_amount | appCurrency }}</span></td>
                     <td>
                       <div class="table-cell-actions" style="justify-content: center;">
@@ -273,7 +273,7 @@
                 <div class="order-item__content">
                   <div class="order-item__header">
                     <span class="order-item__title">{{ 'orders.table.order_number' | translate }}{{ order.id }}</span>
-                    <p-tag [severity]="getStatusSeverity(order.status)" [value]="order.status | appStatus"></p-tag>
+                    <p-tag [severity]="statusSeverity.getOrderStatusSeverity(order.status)" [value]="order.status | appStatus"></p-tag>
                   </div>
                   <div class="order-item__footer">
                     <span class="order-item__date">{{ order.created_at | appDate }}</span>

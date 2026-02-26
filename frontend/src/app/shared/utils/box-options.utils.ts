@@ -1,4 +1,5 @@
 import { CurrencyService } from '../../core/services/currency.service';
+import { PRODUCT } from '../../core/constants/app.constants';
 
 /**
  * Box options utility functions to avoid repeated logic across components
@@ -33,7 +34,7 @@ function getEffectivePrice(product: BoxProduct): number {
  * Get pieces per box with default fallback
  */
 function getPiecesPerBox(product: BoxProduct): number {
-  return product.pieces_per_box || 1;
+  return product.pieces_per_box || PRODUCT.DEFAULT_QUANTITY;
 }
 
 /**
@@ -72,9 +73,6 @@ export function generateBoxOptions(
   return options;
 }
 
-/**
- * Get default quantity for a product (pieces in first box)
- */
-export function getDefaultQuantity(piecesPerBox: number | undefined): number {
-  return piecesPerBox || 1;
-}
+// getDefaultQuantity is imported from quantity.utils.ts
+// Re-export for backwards compatibility
+export { getDefaultQuantity } from './quantity.utils';

@@ -79,7 +79,6 @@ export class ProductDetailComponent implements OnInit {
   error = signal<boolean>(false);
   selectedQuantity = signal<number>(1);
   currentLanguage = signal<string>(this.translationService.getCurrentLanguage());
-  cartVersion = signal<number>(0); // Triggers reactivity when cart changes
 
   // Computed values using shared utilities
   isOutOfStock = computed(() => checkOutOfStock(this.product()));
@@ -107,7 +106,7 @@ export class ProductDetailComponent implements OnInit {
 
   // Computed property to check if product is in cart
   isInCart = computed(() => {
-    this.cartVersion(); // Subscribe to cart changes
+    this.cartService.items(); // Track cart changes via signal
     const currentProduct = this.product();
     if (!currentProduct) return false;
     return this.cartService.isProductInCart(currentProduct.id);
@@ -115,7 +114,7 @@ export class ProductDetailComponent implements OnInit {
 
   // Computed property to get quantity in cart
   quantityInCart = computed(() => {
-    this.cartVersion(); // Subscribe to cart changes
+    this.cartService.items(); // Track cart changes via signal
     const currentProduct = this.product();
     if (!currentProduct) return 0;
     return this.cartService.getProductQuantityInCart(currentProduct.id);
@@ -169,13 +168,6 @@ export class ProductDetailComponent implements OnInit {
   }
 
   ngOnInit() {
-    // Subscribe to cart changes to update the button
-    this.cartService.cartItems$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => {
-        this.cartVersion.update(v => v + 1);
-      });
-
     // Subscribe to language changes
     this.translationService.currentLanguage$
       .pipe(takeUntilDestroyed(this.destroyRef))

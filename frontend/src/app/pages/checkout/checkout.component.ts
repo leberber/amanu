@@ -15,7 +15,6 @@ import { CartTranslationService } from '../../core/services/cart-translation.ser
 import { LightboxService } from '../../core/services/lightbox.service';
 import { OrderCreate } from '../../models/order.model';
 import { User } from '../../models/user.model';
-import { AppliedPromotion } from '../../models/promotion.model';
 import { VALIDATION, UI_DELAY } from '../../core/constants/app.constants';
 import { ToastMessageService } from '../../core/services/toast-message.service';
 import { PageLayoutComponent } from '../../shared/components/page-layout/page-layout.component';
@@ -65,23 +64,13 @@ export class CheckoutComponent implements OnInit {
   cartItems = signal<CartItem[]>([]);
   currentUser = signal<User | null>(null);
   isSubmitting = signal(false);
-  appliedPromotion = signal<AppliedPromotion | null>(null);
 
-  // Computed values
+  // Use service signals for computed values
   cartItemCount = computed(() => this.cartItems().length);
-
-  cartTotal = computed(() =>
-    this.cartItems().reduce((total, item) =>
-      total + (item.product_price * item.quantity), 0)
-  );
-
-  discountAmount = computed(() =>
-    this.appliedPromotion()?.discount_amount || 0
-  );
-
-  finalTotal = computed(() =>
-    Math.max(0, this.cartTotal() - this.discountAmount())
-  );
+  cartTotal = this.cartService.subtotal;
+  discountAmount = this.cartService.discountAmount;
+  finalTotal = this.cartService.finalTotal;
+  appliedPromotion = this.cartService.appliedPromotion;
 
   ngOnInit() {
     this.checkoutForm = this.fb.group({
@@ -113,9 +102,6 @@ export class CheckoutComponent implements OnInit {
       // Load translated names after loading cart items
       this.loadTranslatedNames();
     });
-
-    // Load applied promotion from cart
-    this.appliedPromotion.set(this.cartService.getAppliedPromotion());
 
     // Subscribe to language changes
     this.translationService.currentLanguage$

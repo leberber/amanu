@@ -1,6 +1,6 @@
 // src/app/services/cart.service.ts
 import { Injectable, signal, computed } from '@angular/core';
-import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 import { Product } from '../models/product.model';
 import { AppliedPromotion } from '../models/promotion.model';
 import { STORAGE_KEYS } from '../core/constants/app.constants';
@@ -14,11 +14,11 @@ export interface CartItem {
   product_image?: string;
   is_organic?: boolean;
   quantity: number;
-  stock_quantity?: number;  // To check stock level at checkout
-  pieces_per_box?: number;  // Number of pieces per box
-  packaging_type?: string;  // Type of packaging (carton, box, pack, etc.)
-  category_id?: number;  // For promotion scope calculation
-  brand_id?: number;  // For promotion scope calculation
+  stock_quantity?: number;
+  pieces_per_box?: number;
+  packaging_type?: string;
+  category_id?: number;
+  brand_id?: number;
 }
 
 @Injectable({
@@ -27,18 +27,35 @@ export interface CartItem {
 export class CartService {
   private readonly STORAGE_KEY = STORAGE_KEYS.CART;
   private readonly PROMO_STORAGE_KEY = STORAGE_KEYS.CART_PROMO;
-  private cartItemsSubject = new BehaviorSubject<CartItem[]>([]);
-  private appliedPromotionSubject = new BehaviorSubject<AppliedPromotion | null>(null);
 
-  public cartItems$ = this.cartItemsSubject.asObservable();
-  public appliedPromotion$ = this.appliedPromotionSubject.asObservable();
+  // Primary state - signals
+  private _items = signal<CartItem[]>([]);
+  private _appliedPromotion = signal<AppliedPromotion | null>(null);
 
-  // Signal-based cart items for reactive UI updates
-  private _cartItems = signal<CartItem[]>([]);
-  readonly cartItemsSignal = this._cartItems.asReadonly();
+  // Public readonly signals for components to use directly
+  readonly items = this._items.asReadonly();
+  readonly appliedPromotion = this._appliedPromotion.asReadonly();
+
+  // Computed signals for derived values
+  readonly itemCount = computed(() => this._items().length);
+
+  readonly totalQuantity = computed(() =>
+    this._items().reduce((count, item) => count + item.quantity, 0)
+  );
+
+  readonly subtotal = computed(() =>
+    this._items().reduce((total, item) => total + (item.product_price * item.quantity), 0)
+  );
+
+  readonly discountAmount = computed(() =>
+    this._appliedPromotion()?.discount_amount || 0
+  );
+
+  readonly finalTotal = computed(() =>
+    Math.max(0, this.subtotal() - this.discountAmount())
+  );
 
   constructor() {
-    // Load cart and promotion from localStorage on service initialization
     this.loadCartFromStorage();
     this.loadPromotionFromStorage();
   }
@@ -48,12 +65,10 @@ export class CartService {
     if (savedCart) {
       try {
         const cartItems: CartItem[] = JSON.parse(savedCart);
-        this.cartItemsSubject.next(cartItems);
-        this._cartItems.set(cartItems);
+        this._items.set(cartItems);
       } catch (e) {
         console.error('Error parsing cart from localStorage:', e);
-        this.cartItemsSubject.next([]);
-        this._cartItems.set([]);
+        this._items.set([]);
       }
     }
   }
@@ -63,25 +78,21 @@ export class CartService {
     if (savedPromo) {
       try {
         const promotion: AppliedPromotion = JSON.parse(savedPromo);
-        this.appliedPromotionSubject.next(promotion);
+        this._appliedPromotion.set(promotion);
       } catch (e) {
         console.error('Error parsing promotion from localStorage:', e);
-        this.appliedPromotionSubject.next(null);
+        this._appliedPromotion.set(null);
       }
     }
   }
 
   private saveCartToStorage(cartItems: CartItem[]): void {
-    // Update the BehaviorSubject first for immediate UI update
-    this.cartItemsSubject.next(cartItems);
-    // Update the signal for reactive UI
-    this._cartItems.set(cartItems);
-    // Then save to localStorage
+    this._items.set(cartItems);
     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(cartItems));
   }
 
   private savePromotionToStorage(promotion: AppliedPromotion | null): void {
-    this.appliedPromotionSubject.next(promotion);
+    this._appliedPromotion.set(promotion);
     if (promotion) {
       localStorage.setItem(this.PROMO_STORAGE_KEY, JSON.stringify(promotion));
     } else {
@@ -89,22 +100,26 @@ export class CartService {
     }
   }
 
+  // Helper to update items in cart
+  updateItems(updater: (items: CartItem[]) => CartItem[]): void {
+    const updated = updater([...this._items()]);
+    this.saveCartToStorage(updated);
+  }
+
   getCartItems(): Observable<CartItem[]> {
-    // Return the current cart items as an observable
-    return of(this.cartItemsSubject.value);
+    return of(this._items());
   }
 
   getProductQuantityInCart(productId: number): number {
-    const item = this.cartItemsSubject.value.find(item => item.product_id === productId);
+    const item = this._items().find(item => item.product_id === productId);
     return item ? item.quantity : 0;
   }
 
   isProductInCart(productId: number): boolean {
-    return this.cartItemsSubject.value.some(item => item.product_id === productId);
+    return this._items().some(item => item.product_id === productId);
   }
 
   addToCart(product: Product, quantity: number): Observable<CartItem> {
-    // Validate inputs
     if (!product || !product.id) {
       return throwError(() => new Error('Invalid product'));
     }
@@ -113,23 +128,18 @@ export class CartService {
       return throwError(() => new Error('Quantity must be at least 1'));
     }
 
-    // Check stock availability
     if (product.stock_quantity !== undefined && quantity > product.stock_quantity) {
       return throwError(() => new Error('Insufficient stock'));
     }
 
-    const currentCart = [...this.cartItemsSubject.value];
-
-    // Check if product already exists in cart
+    const currentCart = [...this._items()];
     const existingItemIndex = currentCart.findIndex(item => item.product_id === product.id);
 
     let updatedItem: CartItem;
 
     if (existingItemIndex !== -1) {
-      // Update existing item quantity
       const newQuantity = currentCart[existingItemIndex].quantity + quantity;
 
-      // Check if new quantity exceeds stock
       if (product.stock_quantity !== undefined && newQuantity > product.stock_quantity) {
         return throwError(() => new Error('Adding this quantity would exceed available stock'));
       }
@@ -140,9 +150,8 @@ export class CartService {
       };
       currentCart[existingItemIndex] = updatedItem;
     } else {
-      // Add new item
       updatedItem = {
-        id: Date.now().toString(), // Generate a unique ID based on timestamp
+        id: Date.now().toString(),
         product_id: product.id,
         product_name: product.name,
         product_price: product.price,
@@ -158,12 +167,9 @@ export class CartService {
     }
 
     this.saveCartToStorage(currentCart);
-
-    // Return the added/updated item
     return of(updatedItem);
   }
 
-  // Set cart quantity (replaces existing quantity instead of adding)
   setCartQuantity(product: Product, quantity: number): Observable<CartItem> {
     if (!product || !product.id) {
       return throwError(() => new Error('Invalid product'));
@@ -177,20 +183,18 @@ export class CartService {
       return throwError(() => new Error('Insufficient stock'));
     }
 
-    const currentCart = [...this.cartItemsSubject.value];
+    const currentCart = [...this._items()];
     const existingItemIndex = currentCart.findIndex(item => item.product_id === product.id);
 
     let updatedItem: CartItem;
 
     if (existingItemIndex !== -1) {
-      // Update existing item - SET quantity (not add)
       updatedItem = {
         ...currentCart[existingItemIndex],
         quantity: quantity
       };
       currentCart[existingItemIndex] = updatedItem;
     } else {
-      // Add new item
       updatedItem = {
         id: Date.now().toString(),
         product_id: product.id,
@@ -212,7 +216,6 @@ export class CartService {
   }
 
   updateCartItem(itemId: string, quantity: number): Observable<CartItem> {
-    // Validate inputs
     if (!itemId) {
       return throwError(() => new Error('Invalid item ID'));
     }
@@ -221,14 +224,13 @@ export class CartService {
       return throwError(() => new Error('Quantity must be at least 1'));
     }
 
-    const currentCart = [...this.cartItemsSubject.value];
+    const currentCart = [...this._items()];
     const itemIndex = currentCart.findIndex(item => item.id === itemId);
 
     if (itemIndex === -1) {
       return throwError(() => new Error('Item not found in cart'));
     }
 
-    // Check stock availability
     const item = currentCart[itemIndex];
     if (item.stock_quantity !== undefined && quantity > item.stock_quantity) {
       return throwError(() => new Error('Quantity exceeds available stock'));
@@ -244,12 +246,11 @@ export class CartService {
   }
 
   removeCartItem(itemId: string): Observable<void> {
-    // Validate input
     if (!itemId) {
       return throwError(() => new Error('Invalid item ID'));
     }
 
-    const currentCart = this.cartItemsSubject.value;
+    const currentCart = this._items();
     const itemExists = currentCart.some(item => item.id === itemId);
 
     if (!itemExists) {
@@ -257,7 +258,6 @@ export class CartService {
     }
 
     const updatedCart = currentCart.filter(item => item.id !== itemId);
-
     this.saveCartToStorage(updatedCart);
     return of(void 0);
   }
@@ -267,13 +267,13 @@ export class CartService {
     return of(void 0);
   }
 
+  // Legacy getters for backward compatibility
   get cartCount(): number {
-    return this.cartItemsSubject.value.reduce((count, item) => count + item.quantity, 0);
+    return this.totalQuantity();
   }
 
   get cartTotal(): number {
-    return this.cartItemsSubject.value.reduce((total, item) =>
-      total + (item.product_price * item.quantity), 0);
+    return this.subtotal();
   }
 
   // Promotion methods
@@ -286,19 +286,9 @@ export class CartService {
   }
 
   getAppliedPromotion(): AppliedPromotion | null {
-    return this.appliedPromotionSubject.value;
+    return this._appliedPromotion();
   }
 
-  get discountAmount(): number {
-    const promo = this.appliedPromotionSubject.value;
-    return promo ? promo.discount_amount : 0;
-  }
-
-  get finalTotal(): number {
-    return Math.max(0, this.cartTotal - this.discountAmount);
-  }
-
-  // Override clearCart to also clear promotion
   clearCartAndPromotion(): Observable<void> {
     this.saveCartToStorage([]);
     this.savePromotionToStorage(null);

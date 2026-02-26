@@ -4,7 +4,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TranslateModule } from '@ngx-translate/core';
 import { filter } from 'rxjs/operators';
 import { AuthService } from '../../services/auth.service';
-import { CartService, CartItem } from '../../services/cart.service';
+import { CartService } from '../../services/cart.service';
 import { SidebarService } from '../../services/sidebar.service';
 import { MobileAdminMenuComponent } from '../mobile-admin-menu/mobile-admin-menu.component';
 import { ROUTES } from '../../core/constants/routes.constants';
@@ -31,12 +31,11 @@ export class BottomNavigationComponent implements OnInit, AfterViewInit {
   adminMenu = viewChild<MobileAdminMenuComponent>('adminMenu');
 
   // State signals
-  cartItems = signal<CartItem[]>([]);
   indicatorLeft = signal(0);
   indicatorWidth = signal(0);
 
-  // Computed values
-  cartCount = computed(() => this.cartItems().length);
+  // Computed values - use service signal directly
+  cartCount = computed(() => this.cartService.items().length);
   isAdminOrStaff = computed(() => this.authService.isAdminOrStaff());
 
   openSidebar(): void {
@@ -48,10 +47,6 @@ export class BottomNavigationComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit() {
-    this.cartService.cartItems$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(items => this.cartItems.set(items || []));
-
     this.router.events
       .pipe(
         filter(event => event instanceof NavigationEnd),

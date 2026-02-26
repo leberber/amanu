@@ -11,6 +11,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { ROUTES, RouteHelpers } from '../../../core/constants/routes.constants';
+import { UI, ANIMATION } from '../../../core/constants/app.constants';
 import { OrderService } from '../../../services/order.service';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
 import { Order } from '../../../models/order.model';
@@ -44,13 +45,13 @@ import { StatusPipe } from '../../../shared/pipes/status.pipe';
   styleUrls: ['./order-list.component.scss']
 })
 export class OrderListComponent implements OnInit {
-  // Constants
-  readonly SKELETON_ROWS = [1, 2, 3, 4, 5];
-  readonly SKELETON_MOBILE_ROWS = [1, 2, 3, 4, 5, 6];
-  readonly SKELETON_SIDEBAR_ITEMS = [1, 2, 3];
+  // Constants from centralized config
+  readonly SKELETON_ROWS = Array.from({ length: UI.SKELETON_TABLE_ROWS }, (_, i) => i);
+  readonly SKELETON_MOBILE_ROWS = Array.from({ length: UI.SKELETON_MOBILE_ROWS }, (_, i) => i);
+  readonly SKELETON_SIDEBAR_ITEMS = Array.from({ length: UI.SKELETON_SIDEBAR_ITEMS }, (_, i) => i);
   readonly ROWS_PER_PAGE_OPTIONS = [5, 10, 25];
-  readonly ROW_ANIMATION_DELAY = 30;
-  readonly MOBILE_ANIMATION_DELAY = 50;
+  readonly ROW_ANIMATION_DELAY = ANIMATION.STAGGER_DELAY;
+  readonly MOBILE_ANIMATION_DELAY = ANIMATION.STAGGER_DELAY;
   readonly TIME_FILTERS = [
     { value: 'all' as const, label: 'orders.filters.all' },
     { value: '7days' as const, label: 'orders.filters.last_7_days' },
@@ -113,7 +114,7 @@ export class OrderListComponent implements OnInit {
   private orderService = inject(OrderService);
   private router = inject(Router);
   private toast = inject(ToastMessageService);
-  private statusSeverity = inject(StatusSeverityService);
+  readonly statusSeverity = inject(StatusSeverityService); // Public for template access
   private translateService = inject(TranslateService);
   private destroyRef = inject(DestroyRef);
 
@@ -142,10 +143,6 @@ export class OrderListComponent implements OnInit {
 
   viewOrderDetails(orderId: number): void {
     this.router.navigate([RouteHelpers.orderDetail(orderId)]);
-  }
-
-  getStatusSeverity(status: string): "success" | "secondary" | "info" | "warn" | "danger" | "contrast" {
-    return this.statusSeverity.getOrderStatusSeverity(status);
   }
 
   // Table actions

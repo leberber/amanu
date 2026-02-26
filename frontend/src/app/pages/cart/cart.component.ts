@@ -1,5 +1,5 @@
 // src/app/pages/cart/cart.component.ts
-import { Component, OnInit, inject, signal, computed, DestroyRef } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, DestroyRef, effect } from '@angular/core';
 import { NgClass } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -54,7 +54,7 @@ import { isOutOfStock as checkOutOfStock } from '../../shared/utils/stock.utils'
 })
 export class CartComponent implements OnInit {
   // Dependency injection
-  private cartService = inject(CartService);
+  readonly cartService = inject(CartService);
   private authService = inject(AuthService);
   private toast = inject(ToastMessageService);
   private router = inject(Router);
@@ -70,33 +70,23 @@ export class CartComponent implements OnInit {
   // Constants
   readonly ROUTES = ROUTES;
 
-  // Signals
+  // Local state for display (with translated names)
   cartItems = signal<CartItem[]>([]);
   loading = signal(true);
 
-  // Promotion signals
+  // Promotion UI state
   promoCode = signal('');
   promoLoading = signal(false);
   promoError = signal<string | null>(null);
-  appliedPromotion = signal<AppliedPromotion | null>(null);
 
   // For quantity selection
   productQuantities: { [key: string]: number } = {};
 
-  // Computed values
-  cartSubtotal = computed(() => {
-    return this.cartItems().reduce((total, item) =>
-      total + (item.product_price * item.quantity), 0);
-  });
-
-  discountAmount = computed(() => {
-    const promo = this.appliedPromotion();
-    return promo ? promo.discount_amount : 0;
-  });
-
-  finalTotal = computed(() => {
-    return Math.max(0, this.cartSubtotal() - this.discountAmount());
-  });
+  // Use service signals for computed values
+  cartSubtotal = this.cartService.subtotal;
+  discountAmount = this.cartService.discountAmount;
+  finalTotal = this.cartService.finalTotal;
+  appliedPromotion = this.cartService.appliedPromotion;
 
   cartItemCount = computed(() => this.cartItems().length);
 
@@ -109,35 +99,45 @@ export class CartComponent implements OnInit {
   });
 
   shippingCost = computed(() => 0);
-
   isShippingFree = computed(() => this.shippingCost() === 0);
+
+  // Track if first load for translations
+  private isFirstLoad = true;
+
+  constructor() {
+    // React to cart items changes from service
+    effect(() => {
+      const items = this.cartService.items();
+      this.cartItems.set(items);
+      items.forEach(item => {
+        this.productQuantities[item.id] = item.quantity;
+      });
+
+      if (this.isFirstLoad && items.length > 0) {
+        this.loadTranslatedNames();
+        this.isFirstLoad = false;
+      }
+
+      // Handle promotion recalculation
+      const promo = this.cartService.appliedPromotion();
+      if (promo && items.length > 0) {
+        this.recalculateDiscount(promo.code);
+      } else if (items.length === 0 && promo) {
+        this.removePromoCode();
+      }
+    });
+
+    // Sync promo code input with service
+    effect(() => {
+      const promo = this.cartService.appliedPromotion();
+      if (promo) {
+        this.promoCode.set(promo.code);
+      }
+    });
+  }
 
   ngOnInit() {
     this.loadCart();
-
-    let isFirstLoad = true;
-
-    // Subscribe to cart changes
-    this.cartService.cartItems$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(items => {
-        this.cartItems.set(items);
-        items.forEach(item => {
-          this.productQuantities[item.id] = item.quantity;
-        });
-
-        if (isFirstLoad && items.length > 0) {
-          this.loadTranslatedNames();
-          isFirstLoad = false;
-        }
-
-        const promo = this.appliedPromotion();
-        if (promo && items.length > 0) {
-          this.recalculateDiscount(promo.code);
-        } else if (items.length === 0) {
-          this.removePromoCode();
-        }
-      });
 
     // Subscribe to language changes
     this.translationService.currentLanguage$
@@ -145,16 +145,6 @@ export class CartComponent implements OnInit {
       .subscribe(() => {
         if (this.cartItems().length > 0) {
           this.loadTranslatedNames();
-        }
-      });
-
-    // Subscribe to saved promotion
-    this.cartService.appliedPromotion$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(promo => {
-        this.appliedPromotion.set(promo);
-        if (promo) {
-          this.promoCode.set(promo.code);
         }
       });
   }
@@ -219,7 +209,6 @@ export class CartComponent implements OnInit {
   clearCart(): void {
     this.cartService.clearCart().subscribe({
       next: () => {
-        this.cartItems.set([]);
         this.productQuantities = {};
         this.toast.showSuccess('cart.cart_cleared_message');
       },
@@ -263,7 +252,7 @@ export class CartComponent implements OnInit {
 
   // Promotion methods
   private getCartItemsForDiscount() {
-    return this.cartItems().map(item => ({
+    return this.cartService.items().map(item => ({
       product_id: item.product_id,
       quantity: item.quantity,
       unit_price: item.product_price,
@@ -300,7 +289,6 @@ export class CartComponent implements OnInit {
             promotion: response.promotion,
             discount_amount: response.discount_amount
           };
-          this.appliedPromotion.set(appliedPromo);
           this.cartService.applyPromotion(appliedPromo);
 
           this.toast.showSuccess('promotions.discount_applied', {
@@ -318,7 +306,6 @@ export class CartComponent implements OnInit {
   }
 
   removePromoCode(): void {
-    this.appliedPromotion.set(null);
     this.promoCode.set('');
     this.promoError.set(null);
     this.cartService.removePromotion();
@@ -336,7 +323,6 @@ export class CartComponent implements OnInit {
             promotion: response.promotion,
             discount_amount: response.discount_amount
           };
-          this.appliedPromotion.set(appliedPromo);
           this.cartService.applyPromotion(appliedPromo);
         } else {
           this.removePromoCode();
