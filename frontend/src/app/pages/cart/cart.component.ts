@@ -1,4 +1,3 @@
-// src/app/pages/cart/cart.component.ts
 import { Component, OnInit, inject, signal, computed, DestroyRef, effect } from '@angular/core';
 import { NgClass } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
@@ -53,8 +52,8 @@ import { isOutOfStock as checkOutOfStock } from '../../shared/utils/stock.utils'
   styleUrl: './cart.component.scss'
 })
 export class CartComponent implements OnInit {
-  // Dependency injection
   readonly cartService = inject(CartService);
+  readonly lightbox = inject(LightboxService);
   private authService = inject(AuthService);
   private toast = inject(ToastMessageService);
   private router = inject(Router);
@@ -65,173 +64,97 @@ export class CartComponent implements OnInit {
   private promotionService = inject(PromotionService);
   private cartTranslation = inject(CartTranslationService);
   private destroyRef = inject(DestroyRef);
-  readonly lightbox = inject(LightboxService);
 
-  // Constants
   readonly ROUTES = ROUTES;
 
-  // Local state for display (with translated names)
+  // State
   cartItems = signal<CartItem[]>([]);
-  loading = signal(true);
-
-  // Promotion UI state
+  loading = signal(false);
+  productQuantities: Record<string, number> = {};
   promoCode = signal('');
   promoLoading = signal(false);
   promoError = signal<string | null>(null);
 
-  // For quantity selection
-  productQuantities: { [key: string]: number } = {};
-
-  // Use service signals for computed values
+  // Computed from service
   cartSubtotal = this.cartService.subtotal;
   discountAmount = this.cartService.discountAmount;
   finalTotal = this.cartService.finalTotal;
   appliedPromotion = this.cartService.appliedPromotion;
-
   cartItemCount = computed(() => this.cartItems().length);
-
-  // Page layout subtitle
-  pageSubtitle = computed(() => {
-    const count = this.cartItemCount();
-    if (count === 0) return '';
-    const itemWord = this.translateService.instant(count === 1 ? 'common.item' : 'common.items');
-    return `${count} ${itemWord}`;
-  });
-
   shippingCost = computed(() => 0);
   isShippingFree = computed(() => this.shippingCost() === 0);
 
-  // Track if first load for translations
+  pageSubtitle = computed(() => {
+    const count = this.cartItemCount();
+    if (count === 0) return '';
+    const key = count === 1 ? 'common.item' : 'common.items';
+    return `${count} ${this.translateService.instant(key)}`;
+  });
+
+  // Track previous total quantity to detect actual cart changes
+  private prevTotalQuantity = 0;
   private isFirstLoad = true;
 
   constructor() {
-    // React to cart items changes from service
+    // Sync local state with cart service
     effect(() => {
       const items = this.cartService.items();
       this.cartItems.set(items);
-      items.forEach(item => {
-        this.productQuantities[item.id] = item.quantity;
-      });
+      this.syncQuantities(items);
 
       if (this.isFirstLoad && items.length > 0) {
         this.loadTranslatedNames();
         this.isFirstLoad = false;
       }
 
-      // Handle promotion recalculation
-      const promo = this.cartService.appliedPromotion();
-      if (promo && items.length > 0) {
-        this.recalculateDiscount(promo.code);
-      } else if (items.length === 0 && promo) {
-        this.removePromoCode();
+      // Only recalculate promotion when quantities actually change
+      const totalQty = items.reduce((sum, i) => sum + i.quantity, 0);
+      if (totalQty !== this.prevTotalQuantity) {
+        this.prevTotalQuantity = totalQty;
+        this.handlePromotionChange(items);
       }
     });
 
-    // Sync promo code input with service
+    // Sync promo code input with applied promotion
     effect(() => {
       const promo = this.cartService.appliedPromotion();
-      if (promo) {
-        this.promoCode.set(promo.code);
-      }
+      if (promo) this.promoCode.set(promo.code);
     });
   }
 
-  ngOnInit() {
-    this.loadCart();
-
-    // Subscribe to language changes
+  ngOnInit(): void {
+    this.loadTranslatedNames();
     this.translationService.currentLanguage$
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => {
-        if (this.cartItems().length > 0) {
-          this.loadTranslatedNames();
-        }
-      });
+      .subscribe(() => this.loadTranslatedNames());
   }
 
-  private loadTranslatedNames(): void {
-    const currentItems = this.cartItems();
-    if (currentItems.length === 0) return;
-
-    this.cartTranslation.loadTranslatedNames(currentItems).subscribe(updatedItems => {
-      this.cartItems.set(updatedItems);
-    });
-  }
-
-  loadCart(): void {
-    this.loading.set(true);
-
-    this.cartService.getCartItems().subscribe({
-      next: (items) => {
-        this.cartItems.set(items);
-        items.forEach(item => {
-          this.productQuantities[item.id] = item.quantity;
-        });
-        this.loading.set(false);
-
-        if (items.length > 0) {
-          this.loadTranslatedNames();
-        }
-      },
-      error: () => {
-        this.toast.showError('cart.errors.failed_to_load');
-        this.loading.set(false);
-      }
-    });
-  }
-
+  // Cart operations
   updateItemQuantity(itemId: string, newQuantity: number): void {
     const item = this.cartItems().find(i => i.id === itemId);
     if (!item) return;
 
-    this.cartService.updateCartItem(itemId, newQuantity).subscribe({
-      next: () => {
-        this.productQuantities[itemId] = newQuantity;
-      },
-      error: () => {
-        this.toast.showError('cart.errors.update_failed');
-        this.productQuantities[itemId] = item.quantity;
-      }
-    });
+    const updated = this.cartService.updateItem(itemId, newQuantity);
+    if (updated) {
+      this.productQuantities[itemId] = newQuantity;
+    } else {
+      this.toast.showError('cart.errors.update_failed');
+      this.productQuantities[itemId] = item.quantity;
+    }
   }
 
   removeItem(itemId: string): void {
-    this.cartService.removeCartItem(itemId).subscribe({
-      next: () => {
-        delete this.productQuantities[itemId];
-      },
-      error: () => {
-        this.toast.showError('cart.errors.remove_failed');
-      }
-    });
+    if (this.cartService.removeItem(itemId)) {
+      delete this.productQuantities[itemId];
+    } else {
+      this.toast.showError('cart.errors.remove_failed');
+    }
   }
 
   clearCart(): void {
-    this.cartService.clearCart().subscribe({
-      next: () => {
-        this.productQuantities = {};
-        this.toast.showSuccess('cart.cart_cleared_message');
-      },
-      error: () => {
-        this.toast.showError('cart.errors.clear_failed');
-      }
-    });
-  }
-
-  isOutOfStock(item: CartItem): boolean {
-    return checkOutOfStock(item);
-  }
-
-  getCartonCount(item: CartItem): number {
-    return calcCartonCount(item.quantity, item.pieces_per_box);
-  }
-
-  getQuantityStep(item: CartItem): number {
-    return item.pieces_per_box || 1;
-  }
-
-  getPackagingTypeForCount(item: CartItem, count: number): string {
-    return this.packagingTypeService.getPackagingTypeForCount(item.packaging_type || 'carton', count);
+    this.cartService.clear();
+    this.productQuantities = {};
+    this.toast.showSuccess('cart.cart_cleared_message');
   }
 
   proceedToCheckout(): void {
@@ -244,23 +167,15 @@ export class CartComponent implements OnInit {
       this.router.navigate([ROUTES.CHECKOUT]);
     } else {
       this.toast.showInfo('cart.login_message');
-      this.router.navigate([ROUTES.LOGIN], {
-        queryParams: { returnUrl: ROUTES.CHECKOUT }
-      });
+      this.router.navigate([ROUTES.LOGIN], { queryParams: { returnUrl: ROUTES.CHECKOUT } });
     }
   }
 
-  // Promotion methods
-  private getCartItemsForDiscount() {
-    return this.cartService.items().map(item => ({
-      product_id: item.product_id,
-      quantity: item.quantity,
-      unit_price: item.product_price,
-      category_id: item.category_id,
-      brand_id: item.brand_id
-    }));
+  goToProducts(): void {
+    this.router.navigate([ROUTES.PRODUCTS]);
   }
 
+  // Promotion operations
   applyPromoCode(): void {
     const code = this.promoCode().trim();
     if (!code) {
@@ -277,20 +192,16 @@ export class CartComponent implements OnInit {
     }).subscribe({
       next: (response) => {
         this.promoLoading.set(false);
-
         if (response.error) {
           this.promoError.set(response.error);
           return;
         }
-
         if (response.promotion && response.discount_amount > 0) {
-          const appliedPromo: AppliedPromotion = {
-            code: code,
+          this.cartService.applyPromotion({
+            code,
             promotion: response.promotion,
             discount_amount: response.discount_amount
-          };
-          this.cartService.applyPromotion(appliedPromo);
-
+          });
           this.toast.showSuccess('promotions.discount_applied', {
             amount: this.currencyService.formatCurrency(response.discount_amount)
           });
@@ -298,9 +209,9 @@ export class CartComponent implements OnInit {
           this.promoError.set(this.translateService.instant('promotions.no_discount'));
         }
       },
-      error: (error) => {
+      error: (err) => {
         this.promoLoading.set(false);
-        this.promoError.set(error?.error?.detail || this.translateService.instant('promotions.invalid_code'));
+        this.promoError.set(err?.error?.detail || this.translateService.instant('promotions.invalid_code'));
       }
     });
   }
@@ -311,30 +222,24 @@ export class CartComponent implements OnInit {
     this.cartService.removePromotion();
   }
 
-  private recalculateDiscount(code: string): void {
-    this.promotionService.calculateDiscount({
-      promotion_code: code,
-      cart_items: this.getCartItemsForDiscount()
-    }).subscribe({
-      next: (response) => {
-        if (response.promotion && response.discount_amount > 0) {
-          const appliedPromo: AppliedPromotion = {
-            code: code,
-            promotion: response.promotion,
-            discount_amount: response.discount_amount
-          };
-          this.cartService.applyPromotion(appliedPromo);
-        } else {
-          this.removePromoCode();
-        }
-      },
-      error: () => {
-        this.removePromoCode();
-      }
-    });
+  // Item utilities
+  isOutOfStock(item: CartItem): boolean {
+    return checkOutOfStock(item);
   }
 
-  // Image lightbox
+  getCartonCount(item: CartItem): number {
+    return calcCartonCount(item.quantity, item.pieces_per_box);
+  }
+
+  getQuantityStep(item: CartItem): number {
+    return item.pieces_per_box || 1;
+  }
+
+  getPackagingTypeForCount(item: CartItem, count: number): string {
+    return this.packagingTypeService.getPackagingTypeForCount(item.packaging_type || 'carton', count);
+  }
+
+  // Lightbox
   openImage(item: CartItem): void {
     this.lightbox.openImage(item);
   }
@@ -343,8 +248,53 @@ export class CartComponent implements OnInit {
     this.lightbox.closeImage();
   }
 
-  // Navigate to products
-  goToProducts(): void {
-    this.router.navigate([ROUTES.PRODUCTS]);
+  // Private
+  private syncQuantities(items: CartItem[]): void {
+    items.forEach(item => this.productQuantities[item.id] = item.quantity);
+  }
+
+  private loadTranslatedNames(): void {
+    const items = this.cartItems();
+    if (items.length === 0) return;
+    this.cartTranslation.loadTranslatedNames(items).subscribe(updated => this.cartItems.set(updated));
+  }
+
+  private getCartItemsForDiscount() {
+    return this.cartService.items().map(item => ({
+      product_id: item.product_id,
+      quantity: item.quantity,
+      unit_price: item.product_price,
+      category_id: item.category_id,
+      brand_id: item.brand_id
+    }));
+  }
+
+  private handlePromotionChange(items: CartItem[]): void {
+    const promo = this.cartService.appliedPromotion();
+    if (items.length === 0 && promo) {
+      this.removePromoCode();
+    } else if (promo && items.length > 0) {
+      this.recalculateDiscount(promo.code);
+    }
+  }
+
+  private recalculateDiscount(code: string): void {
+    this.promotionService.calculateDiscount({
+      promotion_code: code,
+      cart_items: this.getCartItemsForDiscount()
+    }).subscribe({
+      next: (response) => {
+        if (response.promotion && response.discount_amount > 0) {
+          this.cartService.applyPromotion({
+            code,
+            promotion: response.promotion,
+            discount_amount: response.discount_amount
+          });
+        } else {
+          this.removePromoCode();
+        }
+      },
+      error: () => this.removePromoCode()
+    });
   }
 }

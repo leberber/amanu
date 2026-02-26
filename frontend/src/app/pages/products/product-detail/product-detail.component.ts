@@ -104,20 +104,18 @@ export class ProductDetailComponent implements OnInit {
     return this.unitsService.getUnitDisplay(currentProduct.unit, true);
   });
 
-  // Computed property to check if product is in cart
   isInCart = computed(() => {
-    this.cartService.items(); // Track cart changes via signal
+    this.cartService.items();
     const currentProduct = this.product();
     if (!currentProduct) return false;
-    return this.cartService.isProductInCart(currentProduct.id);
+    return this.cartService.isInCart(currentProduct.id);
   });
 
-  // Computed property to get quantity in cart
   quantityInCart = computed(() => {
-    this.cartService.items(); // Track cart changes via signal
+    this.cartService.items();
     const currentProduct = this.product();
     if (!currentProduct) return 0;
-    return this.cartService.getProductQuantityInCart(currentProduct.id);
+    return this.cartService.getQuantity(currentProduct.id);
   });
 
   // Check if selected quantity matches cart quantity
@@ -236,12 +234,11 @@ export class ProductDetailComponent implements OnInit {
     }
 
     const quantity = this.selectedQuantity();
+    const result = this.cartService.setQuantity(currentProduct, quantity);
 
-    this.cartService.setCartQuantity(currentProduct, quantity).subscribe({
-      error: () => {
-        this.toast.showError('products.cart.error');
-      }
-    });
+    if (!result) {
+      this.toast.showError('products.cart.error');
+    }
   }
 
   // Navigate back to products list

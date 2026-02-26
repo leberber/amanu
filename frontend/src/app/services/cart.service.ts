@@ -1,6 +1,4 @@
-// src/app/services/cart.service.ts
 import { Injectable, signal, computed } from '@angular/core';
-import { Observable, of, throwError } from 'rxjs';
 import { Product } from '../models/product.model';
 import { AppliedPromotion } from '../models/promotion.model';
 import { STORAGE_KEYS } from '../core/constants/app.constants';
@@ -21,277 +19,176 @@ export interface CartItem {
   brand_id?: number;
 }
 
-@Injectable({
-  providedIn: 'root'
-})
+/**
+ * Manages shopping cart state with localStorage persistence.
+ * All operations are synchronous - state updates trigger signal reactivity.
+ */
+@Injectable({ providedIn: 'root' })
 export class CartService {
-  private readonly STORAGE_KEY = STORAGE_KEYS.CART;
-  private readonly PROMO_STORAGE_KEY = STORAGE_KEYS.CART_PROMO;
+  // State
+  private readonly _items = signal<CartItem[]>([]);
+  private readonly _promotion = signal<AppliedPromotion | null>(null);
 
-  // Primary state - signals
-  private _items = signal<CartItem[]>([]);
-  private _appliedPromotion = signal<AppliedPromotion | null>(null);
-
-  // Public readonly signals for components to use directly
+  // Public signals
   readonly items = this._items.asReadonly();
-  readonly appliedPromotion = this._appliedPromotion.asReadonly();
+  readonly appliedPromotion = this._promotion.asReadonly();
 
-  // Computed signals for derived values
+  // Computed
   readonly itemCount = computed(() => this._items().length);
-
-  readonly totalQuantity = computed(() =>
-    this._items().reduce((count, item) => count + item.quantity, 0)
-  );
-
-  readonly subtotal = computed(() =>
-    this._items().reduce((total, item) => total + (item.product_price * item.quantity), 0)
-  );
-
-  readonly discountAmount = computed(() =>
-    this._appliedPromotion()?.discount_amount || 0
-  );
-
-  readonly finalTotal = computed(() =>
-    Math.max(0, this.subtotal() - this.discountAmount())
-  );
+  readonly totalQuantity = computed(() => this._items().reduce((sum, item) => sum + item.quantity, 0));
+  readonly subtotal = computed(() => this._items().reduce((sum, item) => sum + item.product_price * item.quantity, 0));
+  readonly discountAmount = computed(() => this._promotion()?.discount_amount ?? 0);
+  readonly finalTotal = computed(() => Math.max(0, this.subtotal() - this.discountAmount()));
 
   constructor() {
-    this.loadCartFromStorage();
-    this.loadPromotionFromStorage();
+    this.loadFromStorage();
   }
 
-  private loadCartFromStorage(): void {
-    const savedCart = localStorage.getItem(this.STORAGE_KEY);
-    if (savedCart) {
-      try {
-        const cartItems: CartItem[] = JSON.parse(savedCart);
-        this._items.set(cartItems);
-      } catch (e) {
-        console.error('Error parsing cart from localStorage:', e);
-        this._items.set([]);
-      }
-    }
-  }
-
-  private loadPromotionFromStorage(): void {
-    const savedPromo = localStorage.getItem(this.PROMO_STORAGE_KEY);
-    if (savedPromo) {
-      try {
-        const promotion: AppliedPromotion = JSON.parse(savedPromo);
-        this._appliedPromotion.set(promotion);
-      } catch (e) {
-        console.error('Error parsing promotion from localStorage:', e);
-        this._appliedPromotion.set(null);
-      }
-    }
-  }
-
-  private saveCartToStorage(cartItems: CartItem[]): void {
-    this._items.set(cartItems);
-    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(cartItems));
-  }
-
-  private savePromotionToStorage(promotion: AppliedPromotion | null): void {
-    this._appliedPromotion.set(promotion);
-    if (promotion) {
-      localStorage.setItem(this.PROMO_STORAGE_KEY, JSON.stringify(promotion));
-    } else {
-      localStorage.removeItem(this.PROMO_STORAGE_KEY);
-    }
-  }
-
-  // Helper to update items in cart
-  updateItems(updater: (items: CartItem[]) => CartItem[]): void {
-    const updated = updater([...this._items()]);
-    this.saveCartToStorage(updated);
-  }
-
-  getCartItems(): Observable<CartItem[]> {
-    return of(this._items());
-  }
-
-  getProductQuantityInCart(productId: number): number {
-    const item = this._items().find(item => item.product_id === productId);
-    return item ? item.quantity : 0;
-  }
-
-  isProductInCart(productId: number): boolean {
+  // Queries
+  isInCart(productId: number): boolean {
     return this._items().some(item => item.product_id === productId);
   }
 
-  addToCart(product: Product, quantity: number): Observable<CartItem> {
-    if (!product || !product.id) {
-      return throwError(() => new Error('Invalid product'));
-    }
+  getQuantity(productId: number): number {
+    return this._items().find(item => item.product_id === productId)?.quantity ?? 0;
+  }
 
-    if (quantity < 1) {
-      return throwError(() => new Error('Quantity must be at least 1'));
-    }
+  // Cart mutations
+  addToCart(product: Product, quantity: number): CartItem | null {
+    if (!product?.id || quantity < 1) return null;
+    if (product.stock_quantity !== undefined && quantity > product.stock_quantity) return null;
 
-    if (product.stock_quantity !== undefined && quantity > product.stock_quantity) {
-      return throwError(() => new Error('Insufficient stock'));
-    }
+    const items = [...this._items()];
+    const existingIndex = items.findIndex(item => item.product_id === product.id);
 
-    const currentCart = [...this._items()];
-    const existingItemIndex = currentCart.findIndex(item => item.product_id === product.id);
+    let cartItem: CartItem;
 
-    let updatedItem: CartItem;
-
-    if (existingItemIndex !== -1) {
-      const newQuantity = currentCart[existingItemIndex].quantity + quantity;
-
-      if (product.stock_quantity !== undefined && newQuantity > product.stock_quantity) {
-        return throwError(() => new Error('Adding this quantity would exceed available stock'));
-      }
-
-      updatedItem = {
-        ...currentCart[existingItemIndex],
-        quantity: newQuantity
-      };
-      currentCart[existingItemIndex] = updatedItem;
+    if (existingIndex !== -1) {
+      const newQuantity = items[existingIndex].quantity + quantity;
+      if (product.stock_quantity !== undefined && newQuantity > product.stock_quantity) return null;
+      cartItem = { ...items[existingIndex], quantity: newQuantity };
+      items[existingIndex] = cartItem;
     } else {
-      updatedItem = {
-        id: Date.now().toString(),
-        product_id: product.id,
-        product_name: product.name,
-        product_price: product.price,
-        product_unit: product.unit,
-        product_image: product.image_url,
-        is_organic: product.is_organic,
-        stock_quantity: product.stock_quantity,
-        quantity: quantity,
-        pieces_per_box: product.pieces_per_box,
-        packaging_type: product.packaging_type
-      };
-      currentCart.push(updatedItem);
+      cartItem = this.createCartItem(product, quantity);
+      items.push(cartItem);
     }
 
-    this.saveCartToStorage(currentCart);
-    return of(updatedItem);
+    this._items.set(items);
+    this.persist();
+    return cartItem;
   }
 
-  setCartQuantity(product: Product, quantity: number): Observable<CartItem> {
-    if (!product || !product.id) {
-      return throwError(() => new Error('Invalid product'));
-    }
+  setQuantity(product: Product, quantity: number): CartItem | null {
+    if (!product?.id || quantity < 1) return null;
+    if (product.stock_quantity !== undefined && quantity > product.stock_quantity) return null;
 
-    if (quantity < 1) {
-      return throwError(() => new Error('Quantity must be at least 1'));
-    }
+    const items = [...this._items()];
+    const existingIndex = items.findIndex(item => item.product_id === product.id);
 
-    if (product.stock_quantity !== undefined && quantity > product.stock_quantity) {
-      return throwError(() => new Error('Insufficient stock'));
-    }
+    let cartItem: CartItem;
 
-    const currentCart = [...this._items()];
-    const existingItemIndex = currentCart.findIndex(item => item.product_id === product.id);
-
-    let updatedItem: CartItem;
-
-    if (existingItemIndex !== -1) {
-      updatedItem = {
-        ...currentCart[existingItemIndex],
-        quantity: quantity
-      };
-      currentCart[existingItemIndex] = updatedItem;
+    if (existingIndex !== -1) {
+      cartItem = { ...items[existingIndex], quantity };
+      items[existingIndex] = cartItem;
     } else {
-      updatedItem = {
-        id: Date.now().toString(),
-        product_id: product.id,
-        product_name: product.name,
-        product_price: product.price,
-        product_unit: product.unit,
-        product_image: product.image_url,
-        is_organic: product.is_organic,
-        stock_quantity: product.stock_quantity,
-        quantity: quantity,
-        pieces_per_box: product.pieces_per_box,
-        packaging_type: product.packaging_type
-      };
-      currentCart.push(updatedItem);
+      cartItem = this.createCartItem(product, quantity);
+      items.push(cartItem);
     }
 
-    this.saveCartToStorage(currentCart);
-    return of(updatedItem);
+    this._items.set(items);
+    this.persist();
+    return cartItem;
   }
 
-  updateCartItem(itemId: string, quantity: number): Observable<CartItem> {
-    if (!itemId) {
-      return throwError(() => new Error('Invalid item ID'));
-    }
+  updateItem(itemId: string, quantity: number): CartItem | null {
+    if (!itemId || quantity < 1) return null;
 
-    if (quantity < 1) {
-      return throwError(() => new Error('Quantity must be at least 1'));
-    }
+    const items = [...this._items()];
+    const index = items.findIndex(item => item.id === itemId);
+    if (index === -1) return null;
 
-    const currentCart = [...this._items()];
-    const itemIndex = currentCart.findIndex(item => item.id === itemId);
+    const item = items[index];
+    if (item.stock_quantity !== undefined && quantity > item.stock_quantity) return null;
 
-    if (itemIndex === -1) {
-      return throwError(() => new Error('Item not found in cart'));
-    }
-
-    const item = currentCart[itemIndex];
-    if (item.stock_quantity !== undefined && quantity > item.stock_quantity) {
-      return throwError(() => new Error('Quantity exceeds available stock'));
-    }
-
-    currentCart[itemIndex] = {
-      ...currentCart[itemIndex],
-      quantity
-    };
-
-    this.saveCartToStorage(currentCart);
-    return of(currentCart[itemIndex]);
+    items[index] = { ...item, quantity };
+    this._items.set(items);
+    this.persist();
+    return items[index];
   }
 
-  removeCartItem(itemId: string): Observable<void> {
-    if (!itemId) {
-      return throwError(() => new Error('Invalid item ID'));
-    }
+  removeItem(itemId: string): boolean {
+    if (!itemId) return false;
+    const items = this._items();
+    if (!items.some(item => item.id === itemId)) return false;
 
-    const currentCart = this._items();
-    const itemExists = currentCart.some(item => item.id === itemId);
-
-    if (!itemExists) {
-      return throwError(() => new Error('Item not found in cart'));
-    }
-
-    const updatedCart = currentCart.filter(item => item.id !== itemId);
-    this.saveCartToStorage(updatedCart);
-    return of(void 0);
+    this._items.set(items.filter(item => item.id !== itemId));
+    this.persist();
+    return true;
   }
 
-  clearCart(): Observable<void> {
-    this.saveCartToStorage([]);
-    return of(void 0);
+  clear(): void {
+    this._items.set([]);
+    this.persist();
   }
 
-  // Legacy getters for backward compatibility
-  get cartCount(): number {
-    return this.totalQuantity();
+  clearAll(): void {
+    this._items.set([]);
+    this._promotion.set(null);
+    this.persist();
   }
 
-  get cartTotal(): number {
-    return this.subtotal();
-  }
-
-  // Promotion methods
-  applyPromotion(appliedPromotion: AppliedPromotion): void {
-    this.savePromotionToStorage(appliedPromotion);
+  // Promotion mutations
+  applyPromotion(promotion: AppliedPromotion): void {
+    this._promotion.set(promotion);
+    this.persist();
   }
 
   removePromotion(): void {
-    this.savePromotionToStorage(null);
+    this._promotion.set(null);
+    this.persist();
   }
 
-  getAppliedPromotion(): AppliedPromotion | null {
-    return this._appliedPromotion();
+  // Private
+  private loadFromStorage(): void {
+    const cartData = localStorage.getItem(STORAGE_KEYS.CART);
+    const promoData = localStorage.getItem(STORAGE_KEYS.CART_PROMO);
+
+    if (cartData) {
+      try { this._items.set(JSON.parse(cartData)); }
+      catch { this._items.set([]); }
+    }
+
+    if (promoData) {
+      try { this._promotion.set(JSON.parse(promoData)); }
+      catch { this._promotion.set(null); }
+    }
   }
 
-  clearCartAndPromotion(): Observable<void> {
-    this.saveCartToStorage([]);
-    this.savePromotionToStorage(null);
-    return of(void 0);
+  private persist(): void {
+    localStorage.setItem(STORAGE_KEYS.CART, JSON.stringify(this._items()));
+    const promo = this._promotion();
+    if (promo) {
+      localStorage.setItem(STORAGE_KEYS.CART_PROMO, JSON.stringify(promo));
+    } else {
+      localStorage.removeItem(STORAGE_KEYS.CART_PROMO);
+    }
+  }
+
+  private createCartItem(product: Product, quantity: number): CartItem {
+    return {
+      id: Date.now().toString(),
+      product_id: product.id,
+      product_name: product.name,
+      product_price: product.price,
+      product_unit: product.unit,
+      product_image: product.image_url,
+      is_organic: product.is_organic,
+      stock_quantity: product.stock_quantity,
+      pieces_per_box: product.pieces_per_box,
+      packaging_type: product.packaging_type,
+      category_id: product.category_id,
+      brand_id: product.brand_id,
+      quantity
+    };
   }
 }

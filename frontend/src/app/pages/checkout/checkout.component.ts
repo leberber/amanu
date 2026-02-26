@@ -1,4 +1,3 @@
-// src/app/pages/checkout/checkout.component.ts
 import { Component, OnInit, inject, signal, computed, DestroyRef } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -41,7 +40,7 @@ import { getCartonDisplay } from '../../shared/utils/quantity.utils';
   styleUrl: './checkout.component.scss'
 })
 export class CheckoutComponent implements OnInit {
-  // Dependency injection
+  readonly lightbox = inject(LightboxService);
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private authService = inject(AuthService);
@@ -51,82 +50,41 @@ export class CheckoutComponent implements OnInit {
   private translationService = inject(TranslationService);
   private cartTranslation = inject(CartTranslationService);
   private destroyRef = inject(DestroyRef);
-  readonly lightbox = inject(LightboxService);
 
-  // Constants
   readonly ROUTES = ROUTES;
 
-  // Form
   checkoutForm!: FormGroup;
 
-  // Signals
-  loading = signal(true);
+  // State
   cartItems = signal<CartItem[]>([]);
   currentUser = signal<User | null>(null);
   isSubmitting = signal(false);
 
-  // Use service signals for computed values
+  // Computed from service
   cartItemCount = computed(() => this.cartItems().length);
   cartTotal = this.cartService.subtotal;
   discountAmount = this.cartService.discountAmount;
   finalTotal = this.cartService.finalTotal;
   appliedPromotion = this.cartService.appliedPromotion;
 
-  ngOnInit() {
-    this.checkoutForm = this.fb.group({
-      fullName: ['', Validators.required],
-      phone: ['', [Validators.required, Validators.pattern(VALIDATION.PHONE_PATTERN)]],
-      address: ['', [Validators.required, Validators.minLength(VALIDATION.MIN_ADDRESS_LENGTH)]]
-    });
+  ngOnInit(): void {
+    this.initForm();
 
     const user = this.authService.currentUserValue;
     this.currentUser.set(user);
 
     if (!user) {
       this.toast.showError('checkout.auth_required_message');
-      this.router.navigate([ROUTES.LOGIN], { queryParams: { returnUrl: ROUTES.CHECKOUT }});
+      this.router.navigate([ROUTES.LOGIN], { queryParams: { returnUrl: ROUTES.CHECKOUT } });
       return;
     }
 
-    // Get cart items
-    this.cartService.getCartItems().subscribe(items => {
-      this.cartItems.set(items);
-      this.loading.set(false);
+    this.prefillForm(user);
+    this.loadCartItems();
 
-      if (items.length === 0) {
-        this.toast.showInfo('checkout.empty_cart_message');
-        this.router.navigate([ROUTES.PRODUCTS]);
-        return;
-      }
-
-      // Load translated names after loading cart items
-      this.loadTranslatedNames();
-    });
-
-    // Subscribe to language changes
     this.translationService.currentLanguage$
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => {
-        this.loadTranslatedNames();
-      });
-
-    // Pre-fill form with user data
-    if (user) {
-      this.checkoutForm.patchValue({
-        fullName: user.full_name,
-        phone: user.phone || '',
-        address: user.address || ''
-      });
-    }
-  }
-
-  private loadTranslatedNames(): void {
-    const items = this.cartItems();
-    if (items.length === 0) return;
-
-    this.cartTranslation.loadTranslatedNames(items).subscribe(updatedItems => {
-      this.cartItems.set(updatedItems);
-    });
+      .subscribe(() => this.loadTranslatedNames());
   }
 
   placeOrder(): void {
@@ -154,14 +112,10 @@ export class CheckoutComponent implements OnInit {
     this.orderService.createOrder(orderData).subscribe({
       next: (order) => {
         this.toast.showSuccess('checkout.order_placed_message', { orderNumber: order.id });
-
-        this.cartService.clearCartAndPromotion().subscribe(() => {
-          setTimeout(() => {
-            this.router.navigate([RouteHelpers.orderDetail(order.id)], {
-              queryParams: { success: 'true' }
-            });
-          }, UI_DELAY.TOAST_BEFORE_NAVIGATE);
-        });
+        this.cartService.clearAll();
+        setTimeout(() => {
+          this.router.navigate([RouteHelpers.orderDetail(order.id)], { queryParams: { success: 'true' } });
+        }, UI_DELAY.TOAST_BEFORE_NAVIGATE);
       },
       error: (error) => {
         this.isSubmitting.set(false);
@@ -170,17 +124,51 @@ export class CheckoutComponent implements OnInit {
     });
   }
 
-  // Format carton display (e.g., "1x10" for 1 carton of 10 pieces)
   formatCartonCount(item: CartItem): string {
     return getCartonDisplay(item.quantity, item.pieces_per_box);
   }
 
-  // Image lightbox methods
   openImage(item: CartItem): void {
     this.lightbox.openImage(item);
   }
 
   closeImage(): void {
     this.lightbox.closeImage();
+  }
+
+  // Private
+  private initForm(): void {
+    this.checkoutForm = this.fb.group({
+      fullName: ['', Validators.required],
+      phone: ['', [Validators.required, Validators.pattern(VALIDATION.PHONE_PATTERN)]],
+      address: ['', [Validators.required, Validators.minLength(VALIDATION.MIN_ADDRESS_LENGTH)]]
+    });
+  }
+
+  private prefillForm(user: User): void {
+    this.checkoutForm.patchValue({
+      fullName: user.full_name,
+      phone: user.phone || '',
+      address: user.address || ''
+    });
+  }
+
+  private loadCartItems(): void {
+    const items = this.cartService.items();
+    this.cartItems.set(items);
+
+    if (items.length === 0) {
+      this.toast.showInfo('checkout.empty_cart_message');
+      this.router.navigate([ROUTES.PRODUCTS]);
+      return;
+    }
+
+    this.loadTranslatedNames();
+  }
+
+  private loadTranslatedNames(): void {
+    const items = this.cartItems();
+    if (items.length === 0) return;
+    this.cartTranslation.loadTranslatedNames(items).subscribe(updated => this.cartItems.set(updated));
   }
 }

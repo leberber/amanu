@@ -207,11 +207,11 @@ export class ProductListComponent implements OnInit {
   }
 
   isProductInCart(productId: number): boolean {
-    return this.cartService.isProductInCart(productId);
+    return this.cartService.isInCart(productId);
   }
 
   getCartQuantity(productId: number): number {
-    return this.cartService.getProductQuantityInCart(productId);
+    return this.cartService.getQuantity(productId);
   }
 
   getBoxOptions(product: Product): BoxOption[] {
@@ -396,9 +396,10 @@ export class ProductListComponent implements OnInit {
   }
 
   private handleAddToCart(product: Product, quantity: number): void {
-    this.cartService.setCartQuantity(product, quantity).subscribe({
-      error: () => this.toast.showError('products.cart.error')
-    });
+    const result = this.cartService.setQuantity(product, quantity);
+    if (!result) {
+      this.toast.showError('products.cart.error');
+    }
   }
 
   private reloadWithAnimation(): void {
