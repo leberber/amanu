@@ -454,3 +454,18 @@
   text-transform: uppercase;
   letter-spacing: var(--letter-spacing-wide);
 }
+
+
+// =============================================================================
+// 14. PROMO APPLIED (Applied Promo Code Display)
+// =============================================================================
+
+.promo-applied {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-4);
+  background: rgba(var(--color-success-rgb), 0.08);
+  border: var(--border-width) solid rgba(var(--color-success-rgb), 0.25);
+  border-radius: var(--radius-md);
+}

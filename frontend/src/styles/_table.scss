@@ -971,3 +971,152 @@
   font-weight: var(--font-weight-bold);
   color: var(--primary-color);
 }
+
+
+// =============================================================================
+// 18. TABLE HEADER TITLE
+// =============================================================================
+
+.table-header__title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-color);
+
+  i {
+    color: var(--primary-color);
+  }
+}
+
+
+// =============================================================================
+// 19. LIST GROUP (Mobile List Container)
+// =============================================================================
+
+.list-group {
+  padding: var(--space-4);
+
+  &--flush {
+    padding: 0;
+  }
+}
+
+
+// =============================================================================
+// 20. LIST ITEM (Mobile List Row)
+// =============================================================================
+
+.list-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4) 0;
+  border-bottom: var(--border-width) solid var(--border-color-light);
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &--interactive {
+    animation: listItemFadeIn 0.3s ease-out forwards;
+    opacity: 0;
+  }
+
+  &__row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+
+    &--between {
+      justify-content: space-between;
+    }
+  }
+
+  &__content {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  &__title {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+}
+
+@keyframes listItemFadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+// =============================================================================
+// 21. QUANTITY CONTROLS
+// =============================================================================
+
+.quantity-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: var(--surface-50);
+  border-radius: var(--radius-md);
+  padding: var(--space-1);
+
+  &--sm {
+    padding: var(--space-1);
+    gap: var(--space-1);
+
+    .quantity-display {
+      min-width: 60px;
+    }
+  }
+
+  button {
+    width: 1.75rem !important;
+    height: 1.75rem !important;
+    padding: 0 !important;
+  }
+}
+
+.quantity-display {
+  min-width: 70px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+
+  &--sm {
+    min-width: 60px;
+  }
+
+  &__primary {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-bold);
+    color: var(--primary-color);
+  }
+
+  &__secondary {
+    font-size: var(--font-size-xs);
+    color: var(--text-color-secondary);
+  }
+}

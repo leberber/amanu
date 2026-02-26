@@ -1,4 +1,3 @@
-<!-- src/app/pages/cart/cart.component.html -->
 <app-page-layout
   title="cart.title"
   [subtitle]="pageSubtitle()"
@@ -17,51 +16,47 @@
     </div>
   }
 
-  <!-- Main Content -->
   <p-toast></p-toast>
 
-  <!-- Loading state - Skeleton -->
+  <!-- Loading State -->
   @if (loading()) {
-    <div class="detail-content">
-      <div class="cart-grid">
-        <!-- Items skeleton -->
-        <div class="app-card cart-items-card">
-          <div class="app-card__header">
-            <div class="app-card__icon">
-              <i class="pi pi-shopping-cart"></i>
-            </div>
-            <h2 class="app-card__title">{{ 'cart.your_items' | translate }}</h2>
+    <div class="page-content">
+      <div class="page-grid">
+        <div class="table-container">
+          <div class="table-header">
+            <div class="skeleton skeleton-text" style="width: 150px; height: 24px;"></div>
           </div>
-          <div class="app-card__content">
-            @for (i of [1, 2, 3]; track i) {
-              <div class="skeleton-row item-skeleton">
-                <div class="skeleton skeleton-image skeleton-image--sm"></div>
-                <div class="skeleton-row__content">
-                  <div class="skeleton skeleton-text skeleton-text--w60 skeleton-mb"></div>
+          <div class="list-group">
+            @for (i of SKELETON_ITEMS; track i) {
+              <div class="list-item">
+                <div class="skeleton skeleton-image skeleton-image--md"></div>
+                <div class="list-item__content">
+                  <div class="skeleton skeleton-text skeleton-text--w60"></div>
                   <div class="skeleton skeleton-text skeleton-text--w40"></div>
                 </div>
-                <div class="skeleton skeleton-text skeleton-text--w80"></div>
+                <div class="skeleton skeleton-text" style="width: 60px;"></div>
               </div>
             }
           </div>
         </div>
-        <!-- Summary skeleton -->
-        <div class="cart-summary-card app-card">
-          <div class="app-card__header">
-            <div class="skeleton skeleton-avatar"></div>
-            <div class="skeleton skeleton-text skeleton-text--w50"></div>
-          </div>
-          <div class="app-card__content">
-            <div class="skeleton skeleton-text skeleton-text--w100 skeleton-mb"></div>
-            <div class="skeleton skeleton-text skeleton-text--w80 skeleton-mb"></div>
-            <div class="skeleton skeleton-text skeleton-text--w100" style="height: 48px;"></div>
+        <div class="page-sidebar">
+          <div class="card">
+            <div class="card-header">
+              <div class="skeleton skeleton-avatar"></div>
+              <div class="skeleton skeleton-text skeleton-text--w50"></div>
+            </div>
+            <div class="card-body">
+              <div class="skeleton skeleton-text skeleton-text--w100 skeleton-mb"></div>
+              <div class="skeleton skeleton-text skeleton-text--w80 skeleton-mb"></div>
+              <div class="skeleton skeleton-text skeleton-text--w100" style="height: 48px;"></div>
+            </div>
           </div>
         </div>
       </div>
     </div>
   }
 
-  <!-- Empty state -->
+  <!-- Empty State -->
   @else if (cartItemCount() === 0) {
     <app-empty-state
       icon="pi pi-shopping-cart"
@@ -72,21 +67,21 @@
     </app-empty-state>
   }
 
-  <!-- Cart content -->
+  <!-- Cart Content -->
   @else {
-    <div class="detail-content">
-      <div class="cart-grid">
-        <!-- Cart Items Card -->
-        <div class="app-card cart-items-card">
-          <div class="app-card__header">
-            <div class="app-card__icon">
+    <div class="page-content">
+      <div class="page-grid">
+        <!-- Cart Items -->
+        <div class="table-container">
+          <div class="table-header">
+            <div class="table-header__title">
               <i class="pi pi-shopping-cart"></i>
+              <span>{{ 'cart.your_items' | translate }}</span>
+              <span class="count-badge">{{ cartItemCount() }}</span>
             </div>
-            <h2 class="app-card__title">{{ 'cart.your_items' | translate }}</h2>
-            <div class="count-badge count-badge--absolute">{{ cartItemCount() }}</div>
           </div>
 
-          <!-- Desktop View -->
+          <!-- Desktop Table -->
           <div class="hidden md:block">
             <p-table
               [value]="cartItems()"
@@ -107,32 +102,30 @@
               <ng-template pTemplate="body" let-item>
                 <tr>
                   <td>
-                    <div class="cart-item-row">
-                      <div class="thumbnail" [class.clickable]="item.product_image" (click)="openImage(item)">
+                    <div class="table-item-with-image">
+                      <div class="table-thumbnail" [class.clickable]="item.product_image" (click)="openImage(item)">
                         @if (item.product_image) {
-                          <img
-                            [src]="item.product_image"
-                            [alt]="item.product_name"
-                            loading="lazy"
-                            appImageFallback>
+                          <img [src]="item.product_image" [alt]="item.product_name" loading="lazy" appImageFallback>
                         } @else {
                           <i class="pi pi-box"></i>
                         }
                       </div>
-                      <div class="cart-item-info">
-                        <p class="cart-item-name">{{ item.product_name }}</p>
+                      <div class="table-item-info">
+                        <span class="table-item-name">{{ item.product_name }}</span>
                         @if (item.is_organic) {
-                          <span class="organic-badge">{{ 'products.product.organic' | translate }}</span>
+                          <div class="table-item-badges">
+                            <span class="badge organic">{{ 'products.product.organic' | translate }}</span>
+                          </div>
                         }
                       </div>
                     </div>
                   </td>
                   <td class="text-center">
-                    <span class="cart-item-price">{{ item.product_price | appCurrency }}/{{ item.product_unit | appUnit }}</span>
+                    <span class="text-secondary">{{ item.product_price | appCurrency }}/{{ item.product_unit | appUnit }}</span>
                   </td>
                   <td>
                     <div class="flex justify-content-center">
-                      <div class="cart-quantity-controls">
+                      <div class="quantity-controls">
                         <button
                           pButton
                           type="button"
@@ -143,8 +136,8 @@
                         </button>
                         @let cartonCount = getCartonCount(item);
                         <div class="quantity-display">
-                          <span class="quantity-display__cartons">{{ cartonCount }} {{ getPackagingTypeForCount(item, cartonCount) }}</span>
-                          <span class="quantity-display__pieces">{{ productQuantities[item.id] }} {{ item.product_unit | appUnit }}</span>
+                          <span class="quantity-display__primary">{{ cartonCount }} {{ getPackagingTypeForCount(item, cartonCount) }}</span>
+                          <span class="quantity-display__secondary">{{ productQuantities[item.id] }} {{ item.product_unit | appUnit }}</span>
                         </div>
                         <button
                           pButton
@@ -158,7 +151,7 @@
                     </div>
                   </td>
                   <td class="text-right">
-                    <span class="cart-item-total">{{ item.product_price * item.quantity | appCurrency }}</span>
+                    <span class="text-bold text-primary">{{ item.product_price * item.quantity | appCurrency }}</span>
                   </td>
                   <td class="text-center">
                     <button class="icon-btn icon-btn--danger" (click)="removeItem(item.id)" [pTooltip]="'cart.remove_item' | translate" tooltipPosition="left">
@@ -170,38 +163,32 @@
             </p-table>
           </div>
 
-          <!-- Mobile View -->
-          <div class="app-card__content block md:hidden">
+          <!-- Mobile List -->
+          <div class="list-group block md:hidden">
             @for (item of cartItems(); track item.id; let i = $index) {
-              <div class="cart-item-mobile item-animate" [style.animation-delay]="(i * 50) + 'ms'">
-                <!-- Row 1: Image + Name + Delete -->
-                <div class="cart-item-mobile__row1">
-                  <div class="thumbnail" [class.clickable]="item.product_image" (click)="openImage(item)">
+              <div class="list-item list-item--interactive" [style.animation-delay]="(i * ANIMATION_DELAY) + 'ms'">
+                <div class="list-item__row">
+                  <div class="table-thumbnail table-thumbnail--sm" [class.clickable]="item.product_image" (click)="openImage(item)">
                     @if (item.product_image) {
-                      <img
-                        [src]="item.product_image"
-                        [alt]="item.product_name"
-                        loading="lazy"
-                        appImageFallback>
+                      <img [src]="item.product_image" [alt]="item.product_name" loading="lazy" appImageFallback>
                     } @else {
                       <i class="pi pi-box"></i>
                     }
                   </div>
-                  <div class="cart-item-mobile__name-row">
-                    <p class="cart-item-name">{{ item.product_name }}</p>
+                  <div class="list-item__content">
+                    <span class="list-item__title">{{ item.product_name }}</span>
                     @if (item.is_organic) {
-                      <span class="organic-badge">O</span>
+                      <span class="badge organic">O</span>
                     }
                   </div>
                   <button class="icon-btn icon-btn--danger icon-btn--sm" (click)="removeItem(item.id)">
                     <i class="pi pi-trash"></i>
                   </button>
                 </div>
-                <!-- Row 2: Price badge | Qty controls + Total -->
-                <div class="cart-item-mobile__row2">
-                  <span class="price-badge">{{ item.product_price | appCurrency }}</span>
-                  <div class="cart-item-mobile__controls">
-                    <div class="cart-quantity-controls">
+                <div class="list-item__row list-item__row--between">
+                  <span class="pill primary">{{ item.product_price | appCurrency }}</span>
+                  <div class="list-item__actions">
+                    <div class="quantity-controls quantity-controls--sm">
                       <button
                         pButton
                         type="button"
@@ -211,9 +198,9 @@
                         (click)="updateItemQuantity(item.id, productQuantities[item.id] - getQuantityStep(item))">
                       </button>
                       @let mobileCartonCount = getCartonCount(item);
-                      <div class="quantity-display">
-                        <span class="quantity-display__cartons">{{ mobileCartonCount }} {{ getPackagingTypeForCount(item, mobileCartonCount) }}</span>
-                        <span class="quantity-display__pieces">{{ productQuantities[item.id] }} {{ item.product_unit | appUnit }}</span>
+                      <div class="quantity-display quantity-display--sm">
+                        <span class="quantity-display__primary">{{ mobileCartonCount }} {{ getPackagingTypeForCount(item, mobileCartonCount) }}</span>
+                        <span class="quantity-display__secondary">{{ productQuantities[item.id] }} {{ item.product_unit | appUnit }}</span>
                       </div>
                       <button
                         pButton
@@ -224,7 +211,7 @@
                         (click)="updateItemQuantity(item.id, productQuantities[item.id] + getQuantityStep(item))">
                       </button>
                     </div>
-                    <span class="cart-item-total">{{ item.product_price * item.quantity | appCurrency }}</span>
+                    <span class="text-bold text-primary">{{ item.product_price * item.quantity | appCurrency }}</span>
                   </div>
                 </div>
               </div>
@@ -232,108 +219,116 @@
           </div>
         </div>
 
-        <!-- Order Summary Card -->
-        <div class="app-card cart-summary-card">
-          <div class="app-card__header">
-            <div class="app-card__icon">
-              <i class="pi pi-receipt"></i>
-            </div>
-            <h2 class="app-card__title">{{ 'cart.order_summary' | translate }}</h2>
-          </div>
-
-          <div class="app-card__content">
-            <!-- Promo Code -->
-            <div class="promo-section">
-              <label class="promo-label">{{ 'promotions.promo_code' | translate }}</label>
-              @if (!appliedPromotion()) {
-                <div class="promo-input-group">
-                  <input
-                    type="text"
-                    class="promo-input"
-                    [ngModel]="promoCode()"
-                    (ngModelChange)="promoCode.set($event)"
-                    [placeholder]="'promotions.enter_code' | translate"
-                    [disabled]="promoLoading()">
-                  <button
-                    class="form-action-btn form-action-btn--primary action-btn--sm"
-                    [disabled]="promoLoading() || !promoCode()"
-                    (click)="applyPromoCode()">
-                    @if (promoLoading()) {
-                      <i class="pi pi-spin pi-spinner"></i>
-                    } @else {
-                      {{ 'promotions.apply' | translate }}
-                    }
-                  </button>
-                </div>
-                @if (promoError()) {
-                  <small class="promo-error">{{ promoError() }}</small>
-                }
-              } @else {
-                <div class="promo-applied">
-                  <div class="promo-code-display">
-                    <i class="pi pi-tag"></i>
-                    <span>{{ appliedPromotion()?.code }}</span>
-                  </div>
-                  <button class="icon-btn icon-btn--danger icon-btn--sm" (click)="removePromoCode()">
-                    <i class="pi pi-times"></i>
-                  </button>
-                </div>
-              }
-            </div>
-
-            <!-- Price Breakdown -->
-            <div class="order-breakdown">
-              <div class="order-breakdown__row">
-                <div class="order-breakdown__label">
-                  <i class="pi pi-shopping-cart"></i>
-                  <span>{{ 'promotions.subtotal' | translate }}</span>
-                </div>
-                <span class="order-breakdown__value">{{ cartSubtotal() | appCurrency }}</span>
+        <!-- Order Summary -->
+        <div class="page-sidebar">
+          <div class="card card--no-hover">
+            <div class="card-header">
+              <div class="card-header__icon card-header__icon--success">
+                <i class="pi pi-receipt"></i>
               </div>
-              @if (appliedPromotion()) {
-                <div class="order-breakdown__row order-breakdown__row--discount">
-                  <div class="order-breakdown__label">
-                    <i class="pi pi-percentage"></i>
-                    <span>{{ 'promotions.discount' | translate }}</span>
+              <h2 class="card-header__title">{{ 'cart.order_summary' | translate }}</h2>
+            </div>
+
+            <div class="card-body">
+              <!-- Promo Code -->
+              <div class="form-field">
+                <label class="form-field__label">{{ 'promotions.promo_code' | translate }}</label>
+                @if (!appliedPromotion()) {
+                  <div class="field-box" [class.focused]="promoInputFocused()" [class.filled]="promoCode()">
+                    <div class="field-box__icon field-box__icon--success">
+                      <i class="pi pi-tag"></i>
+                    </div>
+                    <div class="field-box__content">
+                      <input
+                        type="text"
+                        [ngModel]="promoCode()"
+                        (ngModelChange)="promoCode.set($event)"
+                        [placeholder]="'promotions.enter_code' | translate"
+                        [disabled]="promoLoading()"
+                        (focus)="promoInputFocused.set(true)"
+                        (blur)="promoInputFocused.set(false)">
+                    </div>
+                    <button
+                      class="btn-icon btn-icon--sm"
+                      [disabled]="promoLoading() || !promoCode()"
+                      (click)="applyPromoCode()">
+                      @if (promoLoading()) {
+                        <i class="pi pi-spin pi-spinner"></i>
+                      } @else {
+                        <i class="pi pi-arrow-right"></i>
+                      }
+                    </button>
                   </div>
-                  <span class="order-breakdown__value">-{{ discountAmount() | appCurrency }}</span>
-                </div>
-              }
-              <div class="order-breakdown__row">
-                <div class="order-breakdown__label">
-                  <i class="pi pi-truck"></i>
-                  <span>{{ 'cart.shipping' | translate }}</span>
-                </div>
-                <span class="order-breakdown__value" [ngClass]="{'order-breakdown__value--free': isShippingFree()}">
-                  @if (isShippingFree()) {
-                    {{ 'cart.free' | translate }}
-                  } @else {
-                    {{ shippingCost() | appCurrency }}
+                  @if (promoError()) {
+                    <span class="field-error">{{ promoError() }}</span>
                   }
-                </span>
+                } @else {
+                  <div class="promo-applied">
+                    <span class="code-badge">
+                      <i class="pi pi-tag"></i>
+                      {{ appliedPromotion()?.code }}
+                    </span>
+                    <button class="icon-btn icon-btn--danger icon-btn--sm" (click)="removePromoCode()">
+                      <i class="pi pi-times"></i>
+                    </button>
+                  </div>
+                }
               </div>
-            </div>
 
-            <!-- Total -->
-            <div class="order-total">
-              <span class="order-total__label">{{ 'common.total' | translate }}</span>
-              <span class="order-total__amount">{{ finalTotal() + shippingCost() | appCurrency }}</span>
-            </div>
+              <!-- Price Breakdown -->
+              <div class="order-breakdown">
+                <div class="order-breakdown__row">
+                  <div class="order-breakdown__label">
+                    <i class="pi pi-shopping-cart"></i>
+                    <span>{{ 'promotions.subtotal' | translate }}</span>
+                  </div>
+                  <span class="order-breakdown__value">{{ cartSubtotal() | appCurrency }}</span>
+                </div>
+                @if (appliedPromotion()) {
+                  <div class="order-breakdown__row order-breakdown__row--discount">
+                    <div class="order-breakdown__label">
+                      <i class="pi pi-percentage"></i>
+                      <span>{{ 'promotions.discount' | translate }}</span>
+                    </div>
+                    <span class="order-breakdown__value">-{{ discountAmount() | appCurrency }}</span>
+                  </div>
+                }
+                <div class="order-breakdown__row">
+                  <div class="order-breakdown__label">
+                    <i class="pi pi-truck"></i>
+                    <span>{{ 'cart.shipping' | translate }}</span>
+                  </div>
+                  <span class="order-breakdown__value" [class.order-breakdown__value--free]="isShippingFree()">
+                    @if (isShippingFree()) {
+                      {{ 'cart.free' | translate }}
+                    } @else {
+                      {{ shippingCost() | appCurrency }}
+                    }
+                  </span>
+                </div>
+              </div>
 
-            <!-- Actions -->
-            <div class="cart-actions">
-              <button class="form-action-btn form-action-btn--success action-btn--lg" (click)="proceedToCheckout()">
-                <span>{{ 'cart.checkout' | translate }}</span>
-                <i class="pi pi-arrow-right"></i>
-              </button>
-              <a [routerLink]="ROUTES.PRODUCTS" class="form-action-btn form-action-btn--secondary">
-                <i class="pi pi-shopping-bag"></i>
-                <span>{{ 'cart.continue_shopping' | translate }}</span>
-              </a>
-              <button class="form-action-btn form-action-btn--ghost" (click)="clearCart()">
-                <i class="pi pi-trash"></i>
-                <span>{{ 'cart.clear_cart' | translate }}</span>
-              </button>
+              <!-- Total -->
+              <div class="order-total">
+                <span class="order-total__label">{{ 'common.total' | translate }}</span>
+                <span class="order-total__amount">{{ finalTotal() + shippingCost() | appCurrency }}</span>
+              </div>
+
+              <!-- Actions -->
+              <div class="form-actions form-actions--stacked">
+                <button class="form-action-btn form-action-btn--success" (click)="proceedToCheckout()">
+                  <span>{{ 'cart.checkout' | translate }}</span>
+                  <i class="pi pi-arrow-right"></i>
+                </button>
+                <a [routerLink]="ROUTES.PRODUCTS" class="form-action-btn form-action-btn--secondary">
+                  <i class="pi pi-shopping-bag"></i>
+                  <span>{{ 'cart.continue_shopping' | translate }}</span>
+                </a>
+                <button class="form-action-btn form-action-btn--ghost" (click)="clearCart()">
+                  <i class="pi pi-trash"></i>
+                  <span>{{ 'cart.clear_cart' | translate }}</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>

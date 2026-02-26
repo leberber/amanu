@@ -1,5 +1,4 @@
 import { Component, OnInit, inject, signal, computed, DestroyRef, effect } from '@angular/core';
-import { NgClass } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -17,7 +16,6 @@ import { LightboxService } from '../../core/services/lightbox.service';
 import { TranslationService } from '../../services/translation.service';
 import { CartTranslationService } from '../../core/services/cart-translation.service';
 import { PromotionService } from '../../services/promotion.service';
-import { AppliedPromotion } from '../../models/promotion.model';
 import { PageLayoutComponent } from '../../shared/components/page-layout/page-layout.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { ImageLightboxComponent } from '../../shared/components/image-lightbox/image-lightbox.component';
@@ -29,11 +27,14 @@ import { getCartonCount as calcCartonCount } from '../../shared/utils/quantity.u
 import { ImageFallbackDirective } from '../../shared/directives/image-fallback.directive';
 import { isOutOfStock as checkOutOfStock } from '../../shared/utils/stock.utils';
 
+// Constants
+const ANIMATION_DELAY_MS = 50;
+const SKELETON_COUNT = 3;
+
 @Component({
   selector: 'app-cart-page',
   standalone: true,
   imports: [
-    NgClass,
     RouterLink,
     FormsModule,
     TableModule,
@@ -52,6 +53,7 @@ import { isOutOfStock as checkOutOfStock } from '../../shared/utils/stock.utils'
   styleUrl: './cart.component.scss'
 })
 export class CartComponent implements OnInit {
+  // Services
   readonly cartService = inject(CartService);
   readonly lightbox = inject(LightboxService);
   private authService = inject(AuthService);
@@ -65,7 +67,10 @@ export class CartComponent implements OnInit {
   private cartTranslation = inject(CartTranslationService);
   private destroyRef = inject(DestroyRef);
 
+  // Constants
   readonly ROUTES = ROUTES;
+  readonly ANIMATION_DELAY = ANIMATION_DELAY_MS;
+  readonly SKELETON_ITEMS = Array.from({ length: SKELETON_COUNT }, (_, i) => i);
 
   // State
   cartItems = signal<CartItem[]>([]);
@@ -74,8 +79,9 @@ export class CartComponent implements OnInit {
   promoCode = signal('');
   promoLoading = signal(false);
   promoError = signal<string | null>(null);
+  promoInputFocused = signal(false);
 
-  // Computed from service
+  // Computed
   cartSubtotal = this.cartService.subtotal;
   discountAmount = this.cartService.discountAmount;
   finalTotal = this.cartService.finalTotal;
@@ -91,12 +97,11 @@ export class CartComponent implements OnInit {
     return `${count} ${this.translateService.instant(key)}`;
   });
 
-  // Track previous total quantity to detect actual cart changes
+  // Private
   private prevTotalQuantity = 0;
   private isFirstLoad = true;
 
   constructor() {
-    // Sync local state with cart service
     effect(() => {
       const items = this.cartService.items();
       this.cartItems.set(items);
@@ -107,7 +112,6 @@ export class CartComponent implements OnInit {
         this.isFirstLoad = false;
       }
 
-      // Only recalculate promotion when quantities actually change
       const totalQty = items.reduce((sum, i) => sum + i.quantity, 0);
       if (totalQty !== this.prevTotalQuantity) {
         this.prevTotalQuantity = totalQty;
@@ -115,7 +119,6 @@ export class CartComponent implements OnInit {
       }
     });
 
-    // Sync promo code input with applied promotion
     effect(() => {
       const promo = this.cartService.appliedPromotion();
       if (promo) this.promoCode.set(promo.code);
