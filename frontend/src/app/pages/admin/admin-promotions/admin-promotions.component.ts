@@ -1,4 +1,3 @@
-// src/app/pages/admin/admin-promotions/admin-promotions.component.ts
 import { Component, OnInit, inject, DestroyRef, signal, computed } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ConfirmationService } from 'primeng/api';
@@ -99,8 +98,7 @@ export class AdminPromotionsComponent extends BaseAdminListComponent implements 
     return 'active';
   }
 
-  // === Abstract method implementations ===
-
+  // Abstract method implementations
   updatePaginatedItems(): void {
     this.paginatedPromotions.set(this.promotions().slice(this.first, this.first + this.rows));
   }
@@ -109,8 +107,7 @@ export class AdminPromotionsComponent extends BaseAdminListComponent implements 
     return 'promotions-search';
   }
 
-  // === Data loading ===
-
+  // Data loading
   loadAllPromotions(): void {
     this.loading = true;
     this.promotionService.getAllPromotions()

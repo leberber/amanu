@@ -19,9 +19,7 @@ export type FilterType = 'categories' | 'brands';
   styleUrls: ['./horizontal-filter.component.scss']
 })
 export class HorizontalFilterComponent implements AfterViewInit {
-  // ==========================================================================
-  // INPUTS
-  // ==========================================================================
+  // Inputs
   items = input<FilterItem[]>([]);
   activeItemId = input<number | null>(null);
   filterType = input<FilterType>('categories');
@@ -32,27 +30,19 @@ export class HorizontalFilterComponent implements AfterViewInit {
   showModeToggle = input(true);
   compact = input(false);
 
-  // ==========================================================================
-  // OUTPUTS
-  // ==========================================================================
+  // Outputs
   itemSelected = output<number | null>();
   searchToggle = output<void>();
   modeToggle = output<void>();
 
-  // ==========================================================================
-  // VIEW QUERIES
-  // ==========================================================================
+  // View queries
   filterItems = viewChildren<ElementRef>('filterItem');
 
-  // ==========================================================================
-  // STATE
-  // ==========================================================================
+  // State
   indicatorLeft = signal(0);
   indicatorWidth = signal(0);
 
-  // ==========================================================================
-  // COMPUTED
-  // ==========================================================================
+  // Computed
   allLabel = computed(() => {
     const inputLabel = this.allLabelInput();
     if (inputLabel) return inputLabel;
@@ -73,9 +63,6 @@ export class HorizontalFilterComponent implements AfterViewInit {
     this.filterType() === 'categories' ? '1.4' : '1.7'
   );
 
-  // ==========================================================================
-  // LIFECYCLE
-  // ==========================================================================
   constructor() {
     effect(() => {
       this.activeItemId();
@@ -87,9 +74,7 @@ export class HorizontalFilterComponent implements AfterViewInit {
     setTimeout(() => this.updateIndicator(), 0);
   }
 
-  // ==========================================================================
-  // METHODS
-  // ==========================================================================
+  // Methods
   selectItem(itemId: number | null): void {
     this.itemSelected.emit(itemId);
   }
@@ -110,9 +95,7 @@ export class HorizontalFilterComponent implements AfterViewInit {
     return this.filterType() === 'categories' ? item.image_url : item.logo_url;
   }
 
-  // ==========================================================================
-  // PRIVATE
-  // ==========================================================================
+  // Private
   private updateIndicator(): void {
     const items = this.filterItems();
     const activeIndex = this.getActiveIndex();

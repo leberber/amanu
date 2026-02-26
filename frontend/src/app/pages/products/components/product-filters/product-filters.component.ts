@@ -2,8 +2,6 @@ import { Component, input, output, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-
-// PrimeNG imports
 import { AccordionModule } from 'primeng/accordion';
 import { CheckboxModule } from 'primeng/checkbox';
 import { ButtonModule } from 'primeng/button';
@@ -28,16 +26,12 @@ import { Category } from '../../../../models/product.model';
     TooltipModule
   ],
   template: `
-    <!-- Filters Container -->
     <div class="h-full flex flex-column bg-white">
       <ng-container *ngTemplateOutlet="filterHeader"></ng-container>
       <ng-container *ngTemplateOutlet="filterContent"></ng-container>
       <ng-container *ngTemplateOutlet="filterActions"></ng-container>
     </div>
 
-    <!-- ===================== TEMPLATE DEFINITIONS ===================== -->
-
-    <!-- Filter Header Template -->
     <ng-template #filterHeader>
       <div class="px-4 py-3">
         <div class="flex align-items-center justify-content-between">
@@ -58,11 +52,9 @@ import { Category } from '../../../../models/product.model';
       <p-divider class="m-0"></p-divider>
     </ng-template>
 
-    <!-- Filter Content Template -->
     <ng-template #filterContent>
       <div class="flex-1 overflow-y-auto">
         <p-accordion [value]="['categories']" [multiple]="true" styleClass="filter-accordion">
-          <!-- Categories Filter Panel -->
           <p-accordion-panel value="categories">
             <p-accordion-header>
               <ng-container *ngTemplateOutlet="categoriesHeader"></ng-container>
@@ -75,7 +67,6 @@ import { Category } from '../../../../models/product.model';
       </div>
     </ng-template>
 
-    <!-- Filter Actions Template -->
     <ng-template #filterActions>
       <p-divider class="m-0"></p-divider>
       <div class="p-3">
@@ -89,7 +80,6 @@ import { Category } from '../../../../models/product.model';
       </div>
     </ng-template>
 
-    <!-- Categories Header Template -->
     <ng-template #categoriesHeader>
       <div class="flex align-items-center gap-2 w-full">
         <i class="pi pi-tags text-500"></i>
@@ -104,10 +94,8 @@ import { Category } from '../../../../models/product.model';
       </div>
     </ng-template>
 
-    <!-- Categories Content Template -->
     <ng-template #categoriesContent>
       <div class="px-3 py-2">
-        <!-- Quick Actions -->
         <div class="flex gap-2 mb-3">
           @if (selectedCount() !== categories().length) {
             <button
@@ -131,7 +119,6 @@ import { Category } from '../../../../models/product.model';
           }
         </div>
 
-        <!-- Category List -->
         <div class="flex flex-column gap-2">
           @for (category of categories(); track category.id) {
             <label [for]="'cat-' + category.id" class="category-item">
@@ -287,7 +274,7 @@ import { Category } from '../../../../models/product.model';
   `]
 })
 export class ProductFiltersComponent {
-  // Signal-based inputs/outputs
+  // Inputs/Outputs
   categories = input<Category[]>([]);
   selectedCategories = input<Category[]>([]);
   categoriesChange = output<Category[]>();

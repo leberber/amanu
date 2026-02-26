@@ -155,8 +155,7 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
     this.filterItems();
   }
 
-  // === Abstract method implementations ===
-
+  // Abstract method implementations
   updatePaginatedItems(): void {
     this.paginatedProducts.set(this.products().slice(this.first, this.first + this.rows));
   }
@@ -165,8 +164,7 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
     return 'products-search';
   }
 
-  // === Component-specific methods ===
-
+  // Component-specific methods
   override clearFilters() {
     this.searchQuery = '';
     this.categoryFilter = null;
@@ -200,8 +198,7 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
     this.loadAllProducts();
   }
 
-  // ===== INLINE STATUS EDITING =====
-
+  // Inline status editing
   startEditStatus(product: Product): void {
     this.priceEdit.cancel();
     this.stockEdit.cancel();

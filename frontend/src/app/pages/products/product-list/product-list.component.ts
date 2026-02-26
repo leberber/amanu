@@ -1,9 +1,3 @@
-/**
- * @fileoverview Product List Component
- * @description Displays products in grid or list view with filtering by category or brand,
- * search functionality, and quantity selection overlay for adding items to cart.
- */
-
 import { Component, computed, inject, OnInit, signal, DestroyRef, ViewChild, ElementRef } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';

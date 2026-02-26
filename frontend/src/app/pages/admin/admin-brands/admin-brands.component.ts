@@ -1,4 +1,3 @@
-// src/app/pages/admin/admin-brands/admin-brands.component.ts
 import { Component, OnInit, inject, DestroyRef, signal, computed } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ConfirmationService } from 'primeng/api';
@@ -135,8 +134,7 @@ export class AdminBrandsComponent extends BaseAdminListComponent implements OnIn
     });
   }
 
-  // === Abstract method implementations ===
-
+  // Abstract method implementations
   filterItems(): void {
     // Apply status filter using base class helper
     let filtered = this.filterByActiveStatus(this.allBrands());
@@ -163,8 +161,7 @@ export class AdminBrandsComponent extends BaseAdminListComponent implements OnIn
     return 'brands-search';
   }
 
-  // === Component-specific methods ===
-
+  // Component-specific methods
   getBrandProductCount(brandId: number): number {
     return this.brandProductCounts()[brandId] || 0;
   }
@@ -221,8 +218,7 @@ export class AdminBrandsComponent extends BaseAdminListComponent implements OnIn
     this.loadAllBrands();
   }
 
-  // ===== INLINE STATUS EDITING =====
-
+  // Inline status editing
   startEditStatus(brand: Brand): void {
     this.statusEdit.start(brand.id, brand.is_active);
   }

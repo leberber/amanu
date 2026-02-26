@@ -1,4 +1,3 @@
-// src/app/pages/admin/admin-orders/admin-orders.component.ts
 import { Component, OnInit, inject, DestroyRef, signal, computed } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PopoverModule } from 'primeng/popover';
@@ -127,8 +126,7 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
     return !!(this.searchQuery?.trim() || this.statusFilter !== 'all');
   }
 
-  // === Abstract method implementations ===
-
+  // Abstract method implementations
   updatePaginatedItems(): void {
     this.paginatedOrders.set(this.orders().slice(this.first, this.first + this.rows));
   }
@@ -137,8 +135,7 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
     return 'orders-search';
   }
 
-  // === Data loading ===
-
+  // Data loading
   loadAllOrders() {
     this.adminService.getAllOrders('', 1, 1000)
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -287,8 +284,7 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
       });
   }
 
-  // ===== INLINE STATUS EDITING =====
-
+  // Inline status editing
   startEditStatus(order: Order): void {
     if (this.getNextStatuses(order.status).length > 0) {
       this.editingStatusOrderId.set(order.id);

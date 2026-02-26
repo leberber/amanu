@@ -1,19 +1,15 @@
-// src/app/pages/products/product-detail/product-detail.component.ts
 import { Component, OnInit, inject, signal, computed, DestroyRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
-
-// PrimeNG imports
 import { ToastModule } from 'primeng/toast';
 import { ButtonModule } from 'primeng/button';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+
 import { PageLayoutComponent } from '../../../shared/components/page-layout/page-layout.component';
 import { ErrorStateComponent } from '../../../shared/components/error-state/error-state.component';
 import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
-
-// Services and models
 import { ProductService } from '../../../services/product.service';
 import { CartService } from '../../../services/cart.service';
 import { CurrencyService } from '../../../core/services/currency.service';
@@ -28,15 +24,8 @@ import { FlyToCartService } from '../../../core/services/fly-to-cart.service';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
 import { BrandService } from '../../../core/services/brand.service';
 import { ImageFallbackDirective } from '../../../shared/directives/image-fallback.directive';
-import {
-  isOutOfStock as checkOutOfStock,
-  isLowStock as checkLowStock
-} from '../../../shared/utils/stock.utils';
-import {
-  formatDiscountLabel,
-  getEffectivePrice,
-  hasPromotion as checkHasPromotion
-} from '../../../shared/utils/discount.utils';
+import { isOutOfStock as checkOutOfStock, isLowStock as checkLowStock } from '../../../shared/utils/stock.utils';
+import { formatDiscountLabel, getEffectivePrice, hasPromotion as checkHasPromotion } from '../../../shared/utils/discount.utils';
 
 @Component({
   selector: 'app-product-detail',
@@ -54,7 +43,6 @@ import {
   styleUrl: './product-detail.component.scss'
 })
 export class ProductDetailComponent implements OnInit {
-  // Dependency injection
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private productService = inject(ProductService);
@@ -69,130 +57,119 @@ export class ProductDetailComponent implements OnInit {
   private translateService = inject(TranslateService);
   private packagingTypeService = inject(PackagingTypeService);
 
-  // Constants
   readonly ROUTES = ROUTES;
 
-  // Signals
+  // State
   product = signal<Product | null>(null);
   brand = signal<Brand | null>(null);
-  loading = signal<boolean>(true);
-  error = signal<boolean>(false);
-  selectedQuantity = signal<number>(1);
-  currentLanguage = signal<string>(this.translationService.getCurrentLanguage());
+  loading = signal(true);
+  error = signal(false);
+  selectedQuantity = signal(1);
+  currentLanguage = signal(this.translationService.getCurrentLanguage());
 
-  // Computed values using shared utilities
+  // Computed - stock
   isOutOfStock = computed(() => checkOutOfStock(this.product()));
-
   isLowStock = computed(() => checkLowStock(this.product()));
-
-  // Computed property for low stock translation parameters
-  lowStockParams = computed(() => {
-    const currentProduct = this.product();
-    if (!currentProduct) return { count: 0 };
-
-    return {
-      count: currentProduct.stock_quantity
-    };
+  lowStockParams = computed(() => ({ count: this.product()?.stock_quantity ?? 0 }));
+  stockInCartons = computed(() => {
+    const p = this.product();
+    if (!p) return 0;
+    return Math.floor(p.stock_quantity / (p.pieces_per_box || 1));
   });
 
-  // Computed property for unit display
+  // Computed - display
   unitDisplay = computed(() => {
-    const currentProduct = this.product();
-    const lang = this.currentLanguage(); // Make it reactive to language changes
-    if (!currentProduct) return '';
-
-    return this.unitsService.getUnitDisplay(currentProduct.unit, true);
+    this.currentLanguage();
+    const p = this.product();
+    return p ? this.unitsService.getUnitDisplay(p.unit, true) : '';
   });
 
+  packagingType = computed(() => {
+    this.currentLanguage();
+    return this.packagingTypeService.getPackagingTypeTranslated(this.product()?.packaging_type || 'carton');
+  });
+
+  packagingTypePlural = computed(() => {
+    this.currentLanguage();
+    return this.packagingTypeService.getPackagingTypeTranslated(this.product()?.packaging_type || 'carton', true);
+  });
+
+  // Computed - cart
   isInCart = computed(() => {
     this.cartService.items();
-    const currentProduct = this.product();
-    if (!currentProduct) return false;
-    return this.cartService.isInCart(currentProduct.id);
+    const p = this.product();
+    return p ? this.cartService.isInCart(p.id) : false;
   });
 
   quantityInCart = computed(() => {
     this.cartService.items();
-    const currentProduct = this.product();
-    if (!currentProduct) return 0;
-    return this.cartService.getQuantity(currentProduct.id);
+    const p = this.product();
+    return p ? this.cartService.getQuantity(p.id) : 0;
   });
 
-  // Check if selected quantity matches cart quantity
   quantityMatchesCart = computed(() => {
     const cartQty = this.quantityInCart();
-    const selectedQty = this.selectedQuantity();
-    return cartQty > 0 && cartQty === selectedQty;
+    return cartQty > 0 && cartQty === this.selectedQuantity();
   });
 
-  // Computed properties using shared utilities
+  // Computed - promotion
   hasPromotion = computed(() => checkHasPromotion(this.product()?.promotion));
-
   discountLabel = computed(() => formatDiscountLabel(this.product()?.promotion, this.currencyService));
-
   discountedPrice = computed(() => {
-    const currentProduct = this.product();
-    return getEffectivePrice(currentProduct?.price || 0, currentProduct?.promotion);
+    const p = this.product();
+    return getEffectivePrice(p?.price || 0, p?.promotion);
   });
 
-  // Stock quantity in cartons
-  stockInCartons = computed(() => {
-    const currentProduct = this.product();
-    if (!currentProduct) return 0;
-    const piecesPerBox = currentProduct.pieces_per_box || 1;
-    return Math.floor(currentProduct.stock_quantity / piecesPerBox);
-  });
-
-  // Packaging type display (singular)
-  packagingType = computed(() => {
-    this.currentLanguage(); // React to language changes
-    return this.packagingTypeService.getPackagingTypeTranslated(this.product()?.packaging_type || 'carton');
-  });
-
-  // Packaging type display (plural)
-  packagingTypePlural = computed(() => {
-    this.currentLanguage(); // React to language changes
-    return this.packagingTypeService.getPackagingTypeTranslated(this.product()?.packaging_type || 'carton', true);
-  });
-
-  // Page layout computed values
+  // Computed - page layout
   pageTitle = computed(() => this.product()?.name || '');
   pageSubtitle = computed(() => this.brand()?.name || '');
   mobilePageTitle = computed(() => this.product()?.name || '');
   mobileSubtitle = computed(() => this.brand()?.name || '');
 
-  getPackagingTypeForCount(count: number): string {
-    return this.packagingTypeService.getPackagingTypeForCount(this.product()?.packaging_type || 'carton', count);
-  }
-
-  ngOnInit() {
-    // Subscribe to language changes
+  ngOnInit(): void {
     this.translationService.currentLanguage$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(lang => {
         this.currentLanguage.set(lang);
-        // Reload product data when language changes
-        const currentProduct = this.product();
-        if (currentProduct) {
-          this.loadProduct(currentProduct.id);
-        }
+        const p = this.product();
+        if (p) this.loadProduct(p.id);
       });
 
-    // Subscribe to route params
     this.route.paramMap
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(params => {
-        const productId = params.get('id');
-        if (!productId) {
+        const id = params.get('id');
+        if (!id) {
           this.error.set(true);
           this.loading.set(false);
         } else {
-          this.loadProduct(Number(productId));
+          this.loadProduct(Number(id));
         }
       });
   }
 
-  // Load product data
+  getPackagingTypeForCount(count: number): string {
+    return this.packagingTypeService.getPackagingTypeForCount(this.product()?.packaging_type || 'carton', count);
+  }
+
+  addToCart(event?: MouseEvent): void {
+    const p = this.product();
+    if (!p || this.isOutOfStock()) return;
+
+    if (event) {
+      this.flyToCartService.animate(event.currentTarget as HTMLElement, p.image_url);
+    }
+
+    if (!this.cartService.setQuantity(p, this.selectedQuantity())) {
+      this.toast.showError('products.cart.error');
+    }
+  }
+
+  goBack(): void {
+    this.router.navigate([ROUTES.PRODUCTS]);
+  }
+
+  // Private
   private loadProduct(productId: number): void {
     this.loading.set(true);
 
@@ -206,43 +183,13 @@ export class ProductDetailComponent implements OnInit {
     ).subscribe(product => {
       if (product) {
         this.product.set(product);
-
-        // Initialize selectedQuantity based on product's pieces_per_box
         this.selectedQuantity.set(getDefaultQuantity(product.pieces_per_box));
 
-        // Load brand
         if (product.brand_id) {
-          this.brandService.getBrand(product.brand_id).subscribe(brand => {
-            this.brand.set(brand);
-          });
+          this.brandService.getBrand(product.brand_id).subscribe(brand => this.brand.set(brand));
         }
       }
-
       this.loading.set(false);
     });
-  }
-
-  // Add to cart method
-  addToCart(event?: MouseEvent): void {
-    const currentProduct = this.product();
-    if (!currentProduct || this.isOutOfStock()) return;
-
-    // Trigger fly-to-cart animation
-    if (event) {
-      const button = event.currentTarget as HTMLElement;
-      this.flyToCartService.animate(button, currentProduct.image_url);
-    }
-
-    const quantity = this.selectedQuantity();
-    const result = this.cartService.setQuantity(currentProduct, quantity);
-
-    if (!result) {
-      this.toast.showError('products.cart.error');
-    }
-  }
-
-  // Navigate back to products list
-  goBack(): void {
-    this.router.navigate([ROUTES.PRODUCTS]);
   }
 }

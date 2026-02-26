@@ -1,4 +1,3 @@
-// src/app/pages/admin/admin-categories/admin-categories.component.ts
 import { Component, OnInit, inject, DestroyRef, signal, computed } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ConfirmationService } from 'primeng/api';
@@ -133,8 +132,7 @@ export class AdminCategoriesComponent extends BaseAdminListComponent implements 
     });
   }
 
-  // === Abstract method implementations ===
-
+  // Abstract method implementations
   filterItems(): void {
     // Apply status filter using base class helper
     let filtered = this.filterByActiveStatus(this.allCategories());
@@ -161,8 +159,7 @@ export class AdminCategoriesComponent extends BaseAdminListComponent implements 
     return 'categories-search';
   }
 
-  // === Component-specific methods ===
-
+  // Component-specific methods
   override clearFilters() {
     this.searchQuery = '';
     this.statusFilter = 'all';
@@ -215,8 +212,7 @@ export class AdminCategoriesComponent extends BaseAdminListComponent implements 
     this.loadAllCategories();
   }
 
-  // ===== INLINE STATUS EDITING =====
-
+  // Inline status editing
   startEditStatus(category: Category): void {
     this.statusEdit.start(category.id, category.is_active);
   }

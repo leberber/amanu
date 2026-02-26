@@ -1,8 +1,6 @@
 import { Component, inject, input, output, computed } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-
-// PrimeNG imports
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 
@@ -56,15 +54,11 @@ export type { BoxOption };
   styleUrl: './product-card.component.scss'
 })
 export class ProductCardComponent {
-  // Signal-based inputs/outputs
+  // Inputs/Outputs
   product = input.required<Product>();
   addToCartEvent = output<AddToCartEvent>();
   quantitySelectorEvent = output<QuantitySelectorEvent>();
-
-  // Input for selected option (managed by parent)
   selectedBoxOption = input<BoxOption | null>(null);
-
-  // Input for highlight animation (triggered by parent after confirm)
   highlightCart = input<boolean>(false);
 
   private currencyService = inject(CurrencyService);
@@ -73,16 +67,7 @@ export class ProductCardComponent {
   private translateService = inject(TranslateService);
   private packagingTypeService = inject(PackagingTypeService);
 
-  openQuantitySelector(event: Event): void {
-    event.stopPropagation();
-    this.quantitySelectorEvent.emit({
-      product: this.product(),
-      event
-    });
-  }
-
-  // Computed signals using shared utilities
-  // Use items to track cart changes reactively
+  // Computed - cart
   isInCart = computed(() => {
     const cartItems = this.cartService.items();
     return cartItems.some(item => item.product_id === this.product().id);
@@ -94,28 +79,33 @@ export class ProductCardComponent {
     return item ? item.quantity : 0;
   });
 
-  // Check if selected quantity matches cart quantity
   quantityMatchesCart = computed(() => {
     const selected = this.selectedBoxOption();
     const cartQty = this.quantityInCart();
     return selected ? selected.pieces === cartQty : false;
   });
 
+  // Computed - stock
   isOutOfStock = computed(() => checkOutOfStock(this.product()));
-
   isLowStock = computed(() => checkLowStock(this.product()));
 
+  // Computed - promotion
   hasPromotion = computed(() => checkHasPromotion(this.product().promotion));
-
   discountLabel = computed(() => formatDiscountLabel(this.product().promotion, this.currencyService));
-
   effectivePrice = computed(() => getEffectivePrice(this.product().price, this.product().promotion));
 
+  // Computed - packaging
   piecesPerBox = computed(() => this.product().pieces_per_box || 1);
-
   boxOptions = computed(() => generateBoxOptions(this.product(), this.currencyService));
-
   selectedQuantity = computed(() => this.selectedBoxOption()?.pieces || this.piecesPerBox());
+
+  openQuantitySelector(event: Event): void {
+    event.stopPropagation();
+    this.quantitySelectorEvent.emit({
+      product: this.product(),
+      event
+    });
+  }
 
   getPackagingTypeForCount(count: number): string {
     return this.packagingTypeService.getPackagingTypeForCount(this.product().packaging_type || 'carton', count);
@@ -125,7 +115,6 @@ export class ProductCardComponent {
     const option = this.selectedBoxOption();
     if (!option) return;
 
-    // Trigger fly-to-cart animation
     const button = event.currentTarget as HTMLElement;
     this.flyToCartService.animate(button, this.product().image_url);
 

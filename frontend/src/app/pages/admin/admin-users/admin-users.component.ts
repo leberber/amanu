@@ -1,4 +1,3 @@
-// src/app/pages/admin/admin-users/admin-users.component.ts
 import { Component, OnInit, inject, DestroyRef, signal } from '@angular/core';
 import { ConfirmationService } from 'primeng/api';
 import { SelectModule } from 'primeng/select';
@@ -93,8 +92,7 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
     this.roleOptions = this.statusService.getRoleOptions();
   }
 
-  // ===== DATA LOADING =====
-
+  // Data loading
   loadAllUsers(): void {
     this.loading = true;
     this.adminService.getAllUsers(1, 1000).subscribe({
@@ -127,8 +125,7 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
     this.totalRecords = 0;
   }
 
-  // ===== ROLE SEGMENT FILTER =====
-
+  // Role segment filter
   onRoleFilterChange(role: 'all' | 'customer' | 'staff' | 'admin'): void {
     this.roleFilter = role;
     this.filterItems();
@@ -155,8 +152,7 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
     return this.getCountByPredicate(this.allUsers, u => !u.is_active);
   }
 
-  // === Abstract method implementations ===
-
+  // Abstract method implementations
   filterItems(): void {
     // Apply status filter (active/inactive) using base class helper
     let filtered = this.filterByActiveStatus(this.allUsers);
@@ -188,8 +184,7 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
     return 'users-search';
   }
 
-  // === Component-specific methods ===
-
+  // Component-specific methods
   hasActiveFilters(): boolean {
     return this.hasSearchQuery() || this.roleFilter !== 'all' || this.statusFilter !== 'all';
   }
@@ -212,8 +207,7 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
     }
   }
 
-  // ===== NAVIGATION =====
-
+  // Navigation
   createNewUser(): void {
     this.baseRouter.navigate([ROUTES.REGISTER]);
   }
@@ -222,8 +216,7 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
     this.baseRouter.navigate([ROUTES.ADMIN.USERS, user.id, 'edit']);
   }
 
-  // ===== USER DELETION =====
-
+  // User deletion
   confirmDeleteUser(user: UserManage): void {
     this.confirmDialog.confirmDelete(
       this.confirmationService,
@@ -243,8 +236,7 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
     );
   }
 
-  // ===== INLINE ROLE EDITING =====
-
+  // Inline role editing
   startEditRole(user: UserManage): void {
     this.statusEdit.cancel(); // Cancel any status edit
     this.roleEdit.start(user.id, user.role);
@@ -292,8 +284,7 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
     return this.translateService.instant(`admin.users.roles.${role}`);
   }
 
-  // ===== INLINE STATUS EDITING =====
-
+  // Inline status editing
   startEditStatus(user: UserManage): void {
     this.roleEdit.cancel(); // Cancel any role edit
     this.statusEdit.start(user.id, user.is_active);
@@ -341,8 +332,7 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
     });
   }
 
-  // ===== UI UTILITIES =====
-
+  // UI utilities
   refreshUserData(): void {
     this.loadAllUsers();
   }
