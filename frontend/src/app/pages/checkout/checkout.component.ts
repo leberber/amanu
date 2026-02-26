@@ -55,7 +55,6 @@ export class CheckoutComponent implements OnInit {
 
   // Constants
   readonly ROUTES = ROUTES;
-  readonly SKELETON_ITEMS = [1, 2, 3];
 
   // Form
   checkoutForm!: FormGroup;
@@ -64,7 +63,11 @@ export class CheckoutComponent implements OnInit {
   cartItems = signal<CartItem[]>([]);
   currentUser = signal<User | null>(null);
   isSubmitting = signal(false);
-  loading = signal(true);
+
+  // Form value signals (updated when form is prefilled)
+  fullName = signal('');
+  phone = signal('');
+  address = signal('');
 
   // Computed from service
   cartItemCount = computed(() => this.cartItems().length);
@@ -72,11 +75,6 @@ export class CheckoutComponent implements OnInit {
   discountAmount = this.cartService.discountAmount;
   finalTotal = this.cartService.finalTotal;
   appliedPromotion = this.cartService.appliedPromotion;
-
-  // Computed form values for template
-  fullName = computed(() => this.checkoutForm?.get('fullName')?.value || '');
-  phone = computed(() => this.checkoutForm?.get('phone')?.value || '');
-  address = computed(() => this.checkoutForm?.get('address')?.value || '');
 
   ngOnInit(): void {
     this.initForm();
@@ -157,23 +155,25 @@ export class CheckoutComponent implements OnInit {
   }
 
   private prefillForm(user: User): void {
-    this.checkoutForm.patchValue({
-      fullName: user.full_name,
-      phone: user.phone || '',
-      address: user.address || ''
-    });
+    const fullName = user.full_name || '';
+    const phone = user.phone || '';
+    const address = user.address || '';
+
+    this.checkoutForm.patchValue({ fullName, phone, address });
+
+    // Update signals for template binding
+    this.fullName.set(fullName);
+    this.phone.set(phone);
+    this.address.set(address);
   }
 
   private loadCartItems(): void {
     const items = this.cartService.items();
     this.cartItems.set(items);
-    this.loading.set(false);
 
-    if (items.length === 0) {
-      return;
+    if (items.length > 0) {
+      this.loadTranslatedNames();
     }
-
-    this.loadTranslatedNames();
   }
 
   private subscribeToLanguageChanges(): void {
