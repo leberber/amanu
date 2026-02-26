@@ -82,6 +82,14 @@
     &--purple {
       background: linear-gradient(135deg, var(--color-purple) 0%, var(--color-purple-dark) 100%);
     }
+
+    &--orange {
+      background: linear-gradient(135deg, var(--color-orange) 0%, var(--color-orange-dark) 100%);
+    }
+
+    &--red {
+      background: var(--btn-danger-gradient);
+    }
   }
 
   &__content {
