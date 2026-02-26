@@ -582,29 +582,30 @@
                   </div>
 
                   <!-- Right: Preview Card -->
-                  <div class="target-preview-card">
+                  <div class="surface-50 border-2 border-dashed border-round-lg p-4 flex flex-column align-items-center justify-content-center gap-3 h-full" style="border-color: var(--border-color-light);">
                     @if (selectedTargetItem()) {
                       @if (previewImageUrl()) {
                         <img
                           [src]="previewImageUrl()"
                           [alt]="getTargetName(selectedTargetItem())"
-                          class="target-preview-card__image"
+                          class="w-full border-round-lg"
+                          style="max-width: 200px; aspect-ratio: 1; object-fit: cover;"
                           loading="lazy"
                           (error)="onImageError($event)"
                         />
                       }
-                      <div class="target-preview-card__info">
-                        <span class="target-preview-card__name">{{
+                      <div class="flex flex-column align-items-center gap-1 text-center">
+                        <span class="font-semibold">{{
                           getTargetName(selectedTargetItem())
                         }}</span>
-                        <span class="target-preview-card__type">{{
+                        <span class="text-xs text-color-muted uppercase">{{
                           notificationType() | titlecase
                         }}</span>
                       </div>
                     } @else {
-                      <div class="target-preview-card__placeholder">
-                        <i class="pi pi-image"></i>
-                        <span>{{
+                      <div class="flex flex-column align-items-center justify-content-center gap-2 text-color-muted">
+                        <i class="pi pi-image text-3xl"></i>
+                        <span class="text-sm">{{
                           "admin.notifications.content.select_to_preview"
                             | translate
                         }}</span>

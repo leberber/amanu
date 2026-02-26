@@ -33,15 +33,16 @@
 
     <form [formGroup]="userForm" (ngSubmit)="onSubmit()">
       <!-- Cards Grid - 4 Cards Layout -->
-      <div class="admin-cards-grid">
+      <div class="grid">
         <!-- Card 1: Personal Information -->
-        <div class="admin-form-card">
-          <div class="card-header">
-            <div class="card-icon personal">
-              <i class="pi pi-user"></i>
+        <div class="col-12 md:col-6 lg:col-6">
+          <div class="form-card">
+            <div class="card-header">
+              <div class="card-header__icon card-header__icon--primary">
+                <i class="pi pi-user"></i>
+              </div>
+              <h3 class="card-header__title">{{ 'admin.users.form.personal_info' | translate }}</h3>
             </div>
-            <h3>{{ 'admin.users.form.personal_info' | translate }}</h3>
-          </div>
           <div class="card-body">
             <!-- Full Name -->
             <div class="form-field-styled">
@@ -90,17 +91,19 @@
                   [placeholder]="'admin.users.form.phone' | translate">
               </div>
             </div>
+            </div>
           </div>
         </div>
 
         <!-- Card 2: Business Information -->
-        <div class="admin-form-card">
-          <div class="card-header">
-            <div class="card-icon business">
-              <i class="pi pi-building"></i>
+        <div class="col-12 md:col-6 lg:col-6">
+          <div class="form-card">
+            <div class="card-header">
+              <div class="card-header__icon card-header__icon--success">
+                <i class="pi pi-building"></i>
+              </div>
+              <h3 class="card-header__title">{{ 'admin.users.form.business' | translate }}</h3>
             </div>
-            <h3>{{ 'admin.users.form.business' | translate }}</h3>
-          </div>
           <div class="card-body">
             <!-- Store Name -->
             <div class="form-field-styled">
@@ -131,17 +134,19 @@
                   [placeholder]="'admin.users.form.address' | translate">
               </div>
             </div>
+            </div>
           </div>
         </div>
 
         <!-- Card 3: Location Information -->
-        <div class="admin-form-card">
-          <div class="card-header">
-            <div class="card-icon location">
-              <i class="pi pi-map-marker"></i>
+        <div class="col-12 md:col-6 lg:col-6">
+          <div class="form-card">
+            <div class="card-header">
+              <div class="card-header__icon card-header__icon--info">
+                <i class="pi pi-map-marker"></i>
+              </div>
+              <h3 class="card-header__title">{{ 'admin.users.form.location_info' | translate }}</h3>
             </div>
-            <h3>{{ 'admin.users.form.location_info' | translate }}</h3>
-          </div>
           <div class="card-body">
             <!-- Wilaya -->
             <div class="form-field-styled">
@@ -193,17 +198,19 @@
                   [placeholder]="'admin.users.form.commune' | translate">
               </div>
             </div>
+            </div>
           </div>
         </div>
 
         <!-- Card 4: Account Settings -->
-        <div class="admin-form-card">
-          <div class="card-header">
-            <div class="card-icon settings">
-              <i class="pi pi-cog"></i>
+        <div class="col-12 md:col-6 lg:col-6">
+          <div class="form-card">
+            <div class="card-header">
+              <div class="card-header__icon card-header__icon--purple">
+                <i class="pi pi-cog"></i>
+              </div>
+              <h3 class="card-header__title">{{ 'admin.users.form.account_settings' | translate }}</h3>
             </div>
-            <h3>{{ 'admin.users.form.account_settings' | translate }}</h3>
-          </div>
           <div class="card-body">
             <!-- Role Segment Control -->
             <div class="segment-field">
@@ -246,19 +253,20 @@
                 <small class="field-hint">{{ 'admin.users.form.password_hint' | translate }}</small>
               </div>
             </div>
+            </div>
           </div>
         </div>
       </div>
 
       <!-- Map Location Picker Card (Full Width Below) -->
-      <div class="admin-form-card map-card">
+      <div class="form-card mt-4">
         <div class="card-header">
-          <div class="card-icon map">
+          <div class="card-header__icon card-header__icon--warning">
             <i class="pi pi-map"></i>
           </div>
-          <h3>{{ 'admin.users.form.delivery_location' | translate }}</h3>
+          <h3 class="card-header__title">{{ 'admin.users.form.delivery_location' | translate }}</h3>
         </div>
-        <div class="card-body map-body">
+        <div class="card-body" style="min-height: 400px;">
           @if (!loading()) {
             <app-map-picker
               [initialLatitude]="initialLatitude"
