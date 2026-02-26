@@ -167,6 +167,13 @@
         color: var(--pink-500, #ec4899);
       }
     }
+
+    &--danger {
+      background: rgba(var(--color-danger-rgb), 0.1);
+      i {
+        color: var(--color-danger);
+      }
+    }
   }
 
   &__title {
@@ -350,69 +357,21 @@
 }
 
 // =============================================================================
-// 7. GRID LAYOUTS
+// 6. IMAGE CARD
 // =============================================================================
 
-.cards-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(var(--card-min-width), 1fr));
-  gap: var(--space-7);
-  padding: var(--space-7);
-
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-    padding: var(--space-6);
-  }
-}
-
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: var(--space-6);
-  margin-bottom: var(--space-8);
-
-  @media (max-width: 768px) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  @media (max-width: 480px) {
-    grid-template-columns: 1fr;
-  }
-
-  // Compact variant - tighter grid for KPI rows
-  &--compact {
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    gap: var(--space-4);
-    margin-bottom: var(--space-6);
-
-    @media (max-width: 768px) {
-      grid-template-columns: repeat(3, 1fr);
-    }
-
-    @media (max-width: 576px) {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-}
-
-.data-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-  gap: var(--space-8);
-  margin-bottom: var(--space-8);
-
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-  }
+.card--image {
+  padding: 0;
+  overflow: hidden;
 }
 
 // =============================================================================
-// 8. TYPE SELECTION CARDS
+// 7. SELECT CARDS
 // =============================================================================
-// Selectable cards for choosing notification type, category, etc.
+// Selectable cards for choosing options (notification type, category, etc.)
 // Uses --card-color CSS variable for dynamic theming.
 
-.type-cards {
+.select-cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   gap: var(--space-4);
@@ -422,7 +381,7 @@
   }
 }
 
-.type-card {
+.select-card {
   --card-color: var(--primary-color);
   display: flex;
   flex-direction: column;
@@ -445,7 +404,7 @@
     border-color: var(--card-color);
     background: color-mix(in srgb, var(--card-color) 5%, transparent);
 
-    .type-card__icon {
+    .select-card__icon {
       background: var(--card-color);
 
       i {
@@ -453,7 +412,7 @@
       }
     }
 
-    .type-card__title {
+    .select-card__title {
       color: var(--card-color);
     }
   }

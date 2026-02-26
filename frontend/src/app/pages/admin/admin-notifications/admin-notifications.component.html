@@ -448,84 +448,84 @@
             <!-- Step 2: Notification Type -->
             @if (currentStep() === 2) {
               <!-- Type Selection Cards -->
-              <div class="type-cards">
+              <div class="select-cards">
                 <button
-                  class="type-card type-card--purple"
+                  class="select-card select-card--purple"
                   [class.active]="notificationType() === 'custom'"
                   (click)="onNotificationTypeChange('custom')"
                 >
-                  <div class="type-card__icon">
+                  <div class="select-card__icon">
                     <i class="pi pi-pencil"></i>
                   </div>
-                  <span class="type-card__title">{{
+                  <span class="select-card__title">{{
                     "admin.notifications.content.type_custom" | translate
                   }}</span>
-                  <span class="type-card__desc">{{
+                  <span class="select-card__desc">{{
                     "admin.notifications.content.type_custom_desc" | translate
                   }}</span>
                 </button>
 
                 <button
-                  class="type-card type-card--warning"
+                  class="select-card select-card--warning"
                   [class.active]="notificationType() === 'promotion'"
                   (click)="onNotificationTypeChange('promotion')"
                 >
-                  <div class="type-card__icon">
+                  <div class="select-card__icon">
                     <i class="pi pi-percentage"></i>
                   </div>
-                  <span class="type-card__title">{{
+                  <span class="select-card__title">{{
                     "admin.notifications.content.type_promotion" | translate
                   }}</span>
-                  <span class="type-card__desc">{{
+                  <span class="select-card__desc">{{
                     "admin.notifications.content.type_promotion_desc"
                       | translate
                   }}</span>
                 </button>
 
                 <button
-                  class="type-card type-card--success"
+                  class="select-card select-card--success"
                   [class.active]="notificationType() === 'product'"
                   (click)="onNotificationTypeChange('product')"
                 >
-                  <div class="type-card__icon">
+                  <div class="select-card__icon">
                     <i class="pi pi-box"></i>
                   </div>
-                  <span class="type-card__title">{{
+                  <span class="select-card__title">{{
                     "admin.notifications.content.type_product" | translate
                   }}</span>
-                  <span class="type-card__desc">{{
+                  <span class="select-card__desc">{{
                     "admin.notifications.content.type_product_desc" | translate
                   }}</span>
                 </button>
 
                 <button
-                  class="type-card type-card--info"
+                  class="select-card select-card--info"
                   [class.active]="notificationType() === 'category'"
                   (click)="onNotificationTypeChange('category')"
                 >
-                  <div class="type-card__icon">
+                  <div class="select-card__icon">
                     <i class="pi pi-th-large"></i>
                   </div>
-                  <span class="type-card__title">{{
+                  <span class="select-card__title">{{
                     "admin.notifications.content.type_category" | translate
                   }}</span>
-                  <span class="type-card__desc">{{
+                  <span class="select-card__desc">{{
                     "admin.notifications.content.type_category_desc" | translate
                   }}</span>
                 </button>
 
                 <button
-                  class="type-card type-card--pink"
+                  class="select-card select-card--pink"
                   [class.active]="notificationType() === 'brand'"
                   (click)="onNotificationTypeChange('brand')"
                 >
-                  <div class="type-card__icon">
+                  <div class="select-card__icon">
                     <i class="pi pi-bookmark"></i>
                   </div>
-                  <span class="type-card__title">{{
+                  <span class="select-card__title">{{
                     "admin.notifications.content.type_brand" | translate
                   }}</span>
-                  <span class="type-card__desc">{{
+                  <span class="select-card__desc">{{
                     "admin.notifications.content.type_brand_desc" | translate
                   }}</span>
                 </button>
