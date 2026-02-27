@@ -32,6 +32,7 @@
     "category": "Category",
     "brand": "Brand",
     "promotion": "Promotion",
+    "user": "User",
     "email": "Email",
     "password": "Password",
     "phone": "Phone",
@@ -1071,7 +1072,7 @@
         "password_placeholder": "Leave blank to keep current password",
         "password_hint": "Leave empty to keep the current password",
         "is_active": "User is active",
-        "submit_update": "Update User",
+        "submit_update": "Update",
         "active_user": "Active User",
         "errors": {
           "full_name_required": "Full name is required",

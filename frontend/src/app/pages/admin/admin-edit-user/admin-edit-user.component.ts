@@ -43,6 +43,7 @@ export class AdminEditUserComponent implements OnInit {
   readonly currentStep = signal(1);
   readonly totalSteps = 3;
   readonly ROUTES = ROUTES;
+  readonly userName = signal('');
 
   userForm!: FormGroup;
   userId: number | null = null;
@@ -140,6 +141,7 @@ export class AdminEditUserComponent implements OnInit {
     this.adminService.getUserById(this.userId).subscribe({
       next: (user: UserManage) => {
         this.currentUser = user;
+        this.userName.set(user.full_name);
 
         // Set initial map coordinates if available
         if (user.latitude && user.longitude) {

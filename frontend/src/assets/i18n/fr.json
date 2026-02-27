@@ -32,6 +32,7 @@
     "category": "Catégorie",
     "brand": "Marque",
     "promotion": "Promotion",
+    "user": "Utilisateur",
     "email": "Email",
     "password": "Mot de passe",
     "phone": "Téléphone",
@@ -1072,7 +1073,7 @@
         "password_placeholder": "Laisser vide pour conserver le mot de passe actuel",
         "password_hint": "Laissez vide pour garder le mot de passe actuel",
         "is_active": "L'utilisateur est actif",
-        "submit_update": "Mettre à Jour l'Utilisateur",
+        "submit_update": "Mettre à Jour",
         "active_user": "Utilisateur Actif",
         "errors": {
           "full_name_required": "Le nom complet est requis",
