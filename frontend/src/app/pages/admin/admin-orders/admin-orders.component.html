@@ -348,36 +348,34 @@
             </div>
 
             <div class="slide-panel-content">
-              <div class="detail-grid">
+              <!-- Info Cards Grid -->
+              <div class="stat-grid stat-grid--3">
                 <!-- Customer Info -->
-                <div class="detail-section">
-                  <div class="detail-section__title">
+                <div class="stat-card">
+                  <div class="stat-card__icon stat-card__icon--primary">
                     <i class="pi pi-user"></i>
-                    {{ 'admin.orders.customer' | translate }}
                   </div>
-                  <div class="detail-row">
-                    <span class="detail-row__label">{{ 'admin.orders.table.customer' | translate }}</span>
-                    <span class="detail-row__value">{{ order.user?.full_name || ('admin.orders.user_number' | translate) + order.user_id }}</span>
-                  </div>
-                  <div class="detail-row">
-                    <span class="detail-row__label">{{ 'admin.orders.phone' | translate }}</span>
-                    <span class="detail-row__value">{{ order.contact_phone }}</span>
+                  <div class="stat-card__content">
+                    <p class="stat-card__label">{{ 'admin.orders.customer' | translate }}</p>
+                    <p class="stat-card__value" style="font-size: var(--font-size-lg);">{{ order.user?.full_name || ('admin.orders.user_number' | translate) + order.user_id }}</p>
+                    @if (order.contact_phone) {
+                      <span class="stat-card__change stat-card__change--neutral">
+                        <i class="pi pi-phone"></i>
+                        {{ order.contact_phone | appPhone }}
+                      </span>
+                    }
                   </div>
                 </div>
 
                 <!-- Order Info -->
-                <div class="detail-section">
-                  <div class="detail-section__title">
-                    <i class="pi pi-shopping-cart"></i>
-                    {{ 'admin.orders.order_details' | translate }}
+                <div class="stat-card">
+                  <div class="stat-card__icon stat-card__icon--info">
+                    <i class="pi pi-calendar"></i>
                   </div>
-                  <div class="detail-row">
-                    <span class="detail-row__label">{{ 'admin.orders.date' | translate }}</span>
-                    <span class="detail-row__value">{{ order.created_at | appDate }}</span>
-                  </div>
-                  <div class="detail-row">
-                    <span class="detail-row__label">{{ 'admin.orders.table.status' | translate }}</span>
-                    <span class="detail-row__value">
+                  <div class="stat-card__content">
+                    <p class="stat-card__label">{{ 'admin.orders.date' | translate }}</p>
+                    <p class="stat-card__value" style="font-size: var(--font-size-lg);">{{ order.created_at | appDate }}</p>
+                    <span class="stat-card__change stat-card__change--neutral">
                       <span class="status-badge" [class]="order.status">
                         <i [class]="getStatusIcon(order.status)"></i>
                         {{ 'admin.orders.status.' + order.status | translate }}
@@ -387,50 +385,46 @@
                 </div>
 
                 <!-- Shipping Info -->
-                <div class="detail-section">
-                  <div class="detail-section__title">
+                <div class="stat-card">
+                  <div class="stat-card__icon stat-card__icon--success">
                     <i class="pi pi-map-marker"></i>
-                    {{ 'admin.orders.shipping_info' | translate }}
                   </div>
-                  <div class="detail-row">
-                    <span class="detail-row__label">{{ 'admin.orders.address' | translate }}</span>
-                    <span class="detail-row__value">{{ order.shipping_address }}</span>
+                  <div class="stat-card__content">
+                    <p class="stat-card__label">{{ 'admin.orders.shipping_info' | translate }}</p>
+                    <p class="stat-card__value" style="font-size: var(--font-size-base); line-height: 1.4;">{{ order.shipping_address }}</p>
                   </div>
                 </div>
               </div>
 
-              <!-- Order Items -->
-              <div class="detail-section">
-                <div class="detail-section__title">
-                  <i class="pi pi-list"></i>
-                  {{ 'admin.orders.order_items' | translate }}
+              <!-- Order Items Card -->
+              <div class="card card--no-hover" style="margin-top: var(--space-5);">
+                <div class="card-header">
+                  <div class="card-header__icon card-header__icon--primary">
+                    <i class="pi pi-list"></i>
+                  </div>
+                  <div class="card-header__text">
+                    <h2 class="card-header__title">{{ 'admin.orders.order_items' | translate }}</h2>
+                    <p class="card-header__subtitle">{{ (order.items?.length || 0) }} {{ ((order.items?.length || 0) === 1 ? 'common.item' : 'common.items') | translate }}</p>
+                  </div>
                 </div>
-                <table class="detail-items-table">
-                  <thead>
-                    <tr>
-                      <th>{{ 'admin.orders.table.product' | translate }}</th>
-                      <th>{{ 'admin.orders.table.quantity' | translate }}</th>
-                      <th>{{ 'admin.orders.table.unit_price' | translate }}</th>
-                      <th>{{ 'admin.orders.table.total' | translate }}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
+                <div class="card-body" style="padding: 0;">
+                  <ul class="items-simple-list">
                     @for (item of order.items || []; track item.id) {
-                      <tr>
-                        <td>{{ getProductName(item) }}</td>
-                        <td>{{ item.quantity }} {{ item.product_unit | appUnit }}</td>
-                        <td>{{ item.unit_price | appCurrency }}</td>
-                        <td>{{ item.unit_price * item.quantity | appCurrency }}</td>
-                      </tr>
+                      <li class="item-line">
+                        <div class="thumbnail">
+                          <i class="pi pi-box"></i>
+                        </div>
+                        <span class="item-qty">{{ item.quantity }} {{ item.product_unit | appUnit }}</span>
+                        <span class="item-name">{{ getProductName(item) }}</span>
+                        <span class="item-total">{{ item.unit_price * item.quantity | appCurrency }}</span>
+                      </li>
                     }
-                  </tbody>
-                  <tfoot>
-                    <tr>
-                      <td colspan="3">{{ 'admin.orders.total' | translate }}</td>
-                      <td>{{ order.total_amount | appCurrency }}</td>
-                    </tr>
-                  </tfoot>
-                </table>
+                  </ul>
+                  <div class="list-footer">
+                    <span class="list-footer__label">{{ 'admin.orders.total' | translate }}</span>
+                    <span class="list-footer__total">{{ order.total_amount | appCurrency }}</span>
+                  </div>
+                </div>
               </div>
             </div>
           }
