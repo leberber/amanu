@@ -204,14 +204,14 @@
           <table class="table">
             <thead>
               <tr>
-                @if (isColumnVisible('image')) { <th style="width: 5%"></th> }
-                @if (isColumnVisible('name')) { <th style="width: 20%">{{ 'admin.products.table.product_name' | translate }}</th> }
-                @if (isColumnVisible('category')) { <th style="width: 15%">{{ 'admin.products.table.category' | translate }}</th> }
-                @if (isColumnVisible('brand')) { <th style="width: 10%">{{ 'admin.products.table.brand' | translate }}</th> }
-                @if (isColumnVisible('price')) { <th style="width: 12%">{{ 'admin.products.table.price' | translate }}</th> }
-                @if (isColumnVisible('stock')) { <th style="width: 15%">{{ 'admin.products.table.stock' | translate }}</th> }
-                @if (isColumnVisible('status')) { <th style="width: 15%">{{ 'admin.products.table.status' | translate }}</th> }
-                @if (isColumnVisible('actions')) { <th style="width: 20%">{{ 'admin.products.table.actions' | translate }}</th> }
+                @if (isColumnVisible('image')) { <th style="width: 8%"></th> }
+                @if (isColumnVisible('name')) { <th style="width: 22%">{{ 'admin.products.table.product_name' | translate }}</th> }
+                @if (isColumnVisible('category')) { <th style="width: 12%" class="text-center">{{ 'admin.products.table.category' | translate }}</th> }
+                @if (isColumnVisible('brand')) { <th style="width: 10%" class="text-center">{{ 'admin.products.table.brand' | translate }}</th> }
+                @if (isColumnVisible('price')) { <th style="width: 10%" class="text-center">{{ 'admin.products.table.price' | translate }}</th> }
+                @if (isColumnVisible('stock')) { <th style="width: 14%" class="text-center">{{ 'admin.products.table.stock' | translate }}</th> }
+                @if (isColumnVisible('status')) { <th style="width: 12%" class="text-center">{{ 'admin.products.table.status' | translate }}</th> }
+                @if (isColumnVisible('actions')) { <th style="width: 12%" class="text-center">{{ 'admin.products.table.actions' | translate }}</th> }
               </tr>
             </thead>
             <tbody>
@@ -219,7 +219,7 @@
                 <tr class="table-row-animate" [style.--row-delay]="(i * 40) + 'ms'">
                   <!-- Product Image -->
                   @if (isColumnVisible('image')) {
-                    <td class="col-image">
+                    <td>
                       <div class="table-thumbnail">
                         @if (product.image_url) {
                           <img [src]="product.image_url" [alt]="getProductName(product)" loading="lazy" (error)="onImageError($event)">
@@ -233,19 +233,17 @@
 
                   <!-- Product Name -->
                   @if (isColumnVisible('name')) {
-                    <td class="col-name">
-                      <div class="table-item-info">
-                        <span class="table-item-name">{{ getProductName(product) }}</span>
+                    <td>
+                      <div class="info-display">
+                        <span class="info-display__name">{{ getProductName(product) }}</span>
                         @if (getProductDescription(product)) {
-                          <span class="table-item-desc">{{ getProductDescription(product) }}</span>
+                          <span class="info-display__secondary">{{ getProductDescription(product) }}</span>
                         }
                         @if (product.is_organic) {
-                          <div class="table-item-badges">
-                            <span class="badge organic">
-                              <i class="pi pi-check-circle"></i>
-                              {{ 'admin.products.organic' | translate }}
-                            </span>
-                          </div>
+                          <span class="badge organic">
+                            <i class="pi pi-check-circle"></i>
+                            {{ 'admin.products.organic' | translate }}
+                          </span>
                         }
                       </div>
                     </td>
@@ -253,14 +251,14 @@
 
                   <!-- Category -->
                   @if (isColumnVisible('category')) {
-                    <td class="col-category">
+                    <td class="text-center">
                       <span class="pill primary">{{ getCategoryName(product.category_id) }}</span>
                     </td>
                   }
 
                   <!-- Brand -->
                   @if (isColumnVisible('brand')) {
-                    <td class="col-brand">
+                    <td class="text-center">
                       @if (product.brand_id) {
                         <span class="pill purple">{{ getBrandName(product.brand_id) }}</span>
                       } @else {
@@ -271,7 +269,7 @@
 
                   <!-- Price -->
                   @if (isColumnVisible('price')) {
-                    <td class="col-price">
+                    <td class="text-center">
                     @if (!isEditingPrice(product.id)) {
                       <div class="editable-cell" (click)="startEditPrice(product)">
                         <div class="editable-cell__value">{{ product.price | appCurrency }}</div>
@@ -279,7 +277,7 @@
                         <i class="pi pi-pencil editable-cell__icon"></i>
                       </div>
                     } @else {
-                      <div class="cell-edit">
+                      <div class="cell-edit justify-content-center">
                         <input
                           class="cell-edit__input"
                           type="number"
@@ -299,7 +297,7 @@
 
                   <!-- Stock Quantity (Editable - Add Stock) -->
                   @if (isColumnVisible('stock')) {
-                    <td class="col-stock">
+                    <td class="text-center">
                     @if (!isEditingStock(product.id)) {
                       <div class="editable-cell editable-cell--success" (click)="startEditStock(product)">
                         <div class="table-metric__row">
@@ -318,7 +316,7 @@
                       </div>
                     } @else {
                       <div>
-                        <div class="cell-edit">
+                        <div class="cell-edit justify-content-center">
                           <span class="cell-edit__prefix">+</span>
                           <input
                             class="cell-edit__input cell-edit__input--sm"
@@ -357,9 +355,9 @@
 
                   <!-- Status Column - Inline Editable -->
                   @if (isColumnVisible('status')) {
-                    <td class="col-status">
+                    <td class="text-center">
                       @if (!isEditingStatus(product.id)) {
-                        <div class="status-toggle" [class.status-toggle--active]="product.is_active" (click)="startEditStatus(product)">
+                        <div class="status-toggle justify-content-center" [class.status-toggle--active]="product.is_active" (click)="startEditStatus(product)">
                           <span class="status-toggle__label">
                             {{ product.is_active ? ('admin.products.status.active' | translate) : ('admin.products.status.inactive' | translate) }}
                           </span>
@@ -368,7 +366,7 @@
                           </div>
                         </div>
                       } @else {
-                        <div class="cell-edit">
+                        <div class="cell-edit justify-content-center">
                           <div class="status-toggle" [class.status-toggle--active]="statusEdit.value" (click)="toggleEditingStatus()">
                             <span class="status-toggle__label">
                               {{ statusEdit.value ? ('admin.products.status.active' | translate) : ('admin.products.status.inactive' | translate) }}
@@ -390,15 +388,15 @@
 
                   <!-- Actions -->
                   @if (isColumnVisible('actions')) {
-                    <td class="col-actions">
-                      <div class="table-cell-actions">
-                        <button class="action-btn view" (click)="viewProduct(product)" [pTooltip]="'common.view' | translate">
+                    <td class="text-center">
+                      <div class="table-cell-actions justify-content-center">
+                        <button class="action-btn view" (click)="viewProduct(product)" [pTooltip]="'common.view' | translate" tooltipPosition="top">
                           <i class="pi pi-eye"></i>
                         </button>
-                        <button class="action-btn edit" (click)="editProduct(product)" [pTooltip]="'common.edit' | translate">
+                        <button class="action-btn edit" (click)="editProduct(product)" [pTooltip]="'common.edit' | translate" tooltipPosition="top">
                           <i class="pi pi-pencil"></i>
                         </button>
-                        <button class="action-btn delete" (click)="confirmDeleteProduct(product)" [pTooltip]="'common.delete' | translate">
+                        <button class="action-btn delete" (click)="confirmDeleteProduct(product)" [pTooltip]="'common.delete' | translate" tooltipPosition="top">
                           <i class="pi pi-trash"></i>
                         </button>
                       </div>
