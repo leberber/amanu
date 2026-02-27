@@ -137,29 +137,38 @@
 
     <!-- Status Change Actions -->
     @if (canEditStatus(order.status)) {
-      <div class="status-change-card animate-item" style="--item-delay: 350ms;">
-        <div class="status-change-card__header">
-          <i class="pi pi-sync"></i>
-          <span>{{ 'admin.orders.change_status' | translate }}</span>
+      <div class="widget animate-item" style="--item-delay: 350ms;">
+        <div class="widget__header">
+          <h3 class="widget__title">
+            <i class="pi pi-sync"></i>
+            {{ 'admin.orders.change_status' | translate }}
+          </h3>
         </div>
-        <div class="status-change-card__options">
-          @for (status of getNextStatuses(order.status); track status.value) {
-            <button
-              class="status-option-card"
-              [class]="status.value"
-              [class.selected]="selectedNewStatus() === status.value"
-              (click)="selectStatus(status.value)">
-              <i [class]="status.icon"></i>
-              <span>{{ status.label }}</span>
+        <div class="widget__body">
+          <div class="select-cards">
+            @for (status of getNextStatuses(order.status); track status.value) {
+              <button
+                class="select-card"
+                [class.select-card--info]="status.value === 'confirmed'"
+                [class.select-card--purple]="status.value === 'shipped'"
+                [class.select-card--success]="status.value === 'delivered'"
+                [class.select-card--danger]="status.value === 'cancelled'"
+                [class.active]="selectedNewStatus() === status.value"
+                (click)="selectStatus(status.value)">
+                <div class="select-card__icon">
+                  <i [class]="status.icon"></i>
+                </div>
+                <span class="select-card__title">{{ status.label }}</span>
+              </button>
+            }
+          </div>
+          @if (selectedNewStatus()) {
+            <button class="status-confirm-btn" (click)="confirmStatusChange()">
+              <i class="pi pi-check"></i>
+              <span>{{ 'common.confirm' | translate }}</span>
             </button>
           }
         </div>
-        @if (selectedNewStatus()) {
-          <button class="status-confirm-btn" (click)="confirmStatusChange()">
-            <i class="pi pi-check"></i>
-            <span>{{ 'common.confirm' | translate }}</span>
-          </button>
-        }
       </div>
     }
 
