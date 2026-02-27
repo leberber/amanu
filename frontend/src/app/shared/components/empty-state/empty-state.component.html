@@ -1,32 +1,29 @@
-<div class="empty-state">
-  <div class="empty-icon-wrapper">
-    <div class="empty-icon-bg"></div>
-    <div class="empty-icon-circle">
-      <i [class]="'pi ' + icon()"></i>
-    </div>
+<div class="empty-state" [class.empty-state--compact]="compact()">
+  <div [class]="iconClass()">
+    <i [class]="'pi ' + icon()"></i>
   </div>
 
-  <h2>{{ title() | translate }}</h2>
+  <h3 class="empty-state__title">{{ title() | translate }}</h3>
 
   @if (description(); as desc) {
-    <p>{{ desc | translate }}</p>
+    <p class="empty-state__description">{{ desc | translate }}</p>
   }
 
-  <!-- Action button with router link -->
   @if (actionLabel(); as label) {
-    @if (actionLink()) {
-      <a [routerLink]="actionLink()" class="action-btn">
-        <i [class]="actionIcon()"></i>
-        <span>{{ label | translate }}</span>
-      </a>
-    } @else {
-      <button (click)="onActionClick()" class="action-btn">
-        <i [class]="actionIcon()"></i>
-        <span>{{ label | translate }}</span>
-      </button>
-    }
+    <div class="state-actions">
+      @if (actionLink()) {
+        <a [routerLink]="actionLink()" class="state-action-btn state-action-btn--primary">
+          <i [class]="actionIcon()"></i>
+          <span>{{ label | translate }}</span>
+        </a>
+      } @else {
+        <button (click)="onActionClick()" class="state-action-btn state-action-btn--primary">
+          <i [class]="actionIcon()"></i>
+          <span>{{ label | translate }}</span>
+        </button>
+      }
+    </div>
   }
 
-  <!-- Custom action via content projection -->
-  <ng-content></ng-content>
+  <ng-content />
 </div>

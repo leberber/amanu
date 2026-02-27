@@ -1,6 +1,8 @@
-import { Component, input, output } from '@angular/core';
+import { Component, input, output, computed } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { RouterLink } from '@angular/router';
+
+type IconVariant = 'primary' | 'warning' | 'success' | 'danger' | 'purple';
 
 @Component({
   selector: 'app-empty-state',
@@ -10,16 +12,21 @@ import { RouterLink } from '@angular/router';
   styleUrl: './empty-state.component.scss'
 })
 export class EmptyStateComponent {
-  // Signal inputs
   icon = input('pi-inbox');
+  iconVariant = input<IconVariant>('primary');
   title = input('common.no_data');
   description = input<string | undefined>();
   actionLabel = input<string | undefined>();
   actionLink = input<string | any[] | undefined>();
   actionIcon = input('pi pi-plus');
+  compact = input(false);
 
-  // Signal output
   actionClick = output<void>();
+
+  iconClass = computed(() => {
+    const variant = this.iconVariant();
+    return variant === 'primary' ? 'empty-state__icon' : `empty-state__icon empty-state__icon--${variant}`;
+  });
 
   onActionClick(): void {
     this.actionClick.emit();

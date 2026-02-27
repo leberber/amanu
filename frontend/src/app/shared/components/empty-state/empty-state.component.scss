@@ -1,106 +1,14 @@
-
-@use '../../../../styles/states' as states;
-
-.empty-state {
-  @include states.state-card(var(--border-color-light), rgba(0, 0, 0, 0.08));
-  position: relative;
-  overflow: hidden;
-
-  // Decorative gradients
-  &::before {
-    content: '';
-    position: absolute;
-    top: -50px;
-    right: -50px;
-    width: 200px;
-    height: 200px;
-    background: radial-gradient(circle, rgba(var(--primary-rgb, 46, 108, 183), 0.08) 0%, transparent 70%);
-    pointer-events: none;
-  }
-
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: -30px;
-    left: -30px;
-    width: 150px;
-    height: 150px;
-    background: radial-gradient(circle, rgba(34, 197, 94, 0.06) 0%, transparent 70%);
-    pointer-events: none;
-  }
-}
-
-.empty-icon-wrapper {
-  position: relative;
-  width: 100px;
-  height: 100px;
-  margin: 0 auto 1.5rem;
-}
-
-.empty-icon-bg {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, rgba(var(--primary-rgb, 46, 108, 183), 0.15) 0%, rgba(var(--primary-rgb, 46, 108, 183), 0.2) 100%);
-  animation: pulse 3s ease-in-out infinite;
-}
-
-.empty-icon-circle {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 70px;
-  height: 70px;
-  border-radius: 50%;
-  background: var(--primary-gradient, linear-gradient(135deg, var(--primary-color) 0%, var(--primary-700) 100%));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 10px 35px rgba(var(--primary-rgb, 46, 108, 183), 0.4);
-
-  i {
-    font-size: 1.75rem;
-    color: white;
-  }
-}
-
-@keyframes pulse {
-  0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-  50% { transform: translate(-50%, -50%) scale(1.15); opacity: 0.7; }
-}
-
-h2 {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--text-color);
-  margin: 0 0 0.5rem 0;
-  position: relative;
-}
-
-p {
-  color: var(--text-color-secondary);
-  margin: 0 0 1.5rem 0;
-  font-size: 0.9rem;
-  line-height: 1.5;
-  position: relative;
-}
-
-.action-btn {
-  @include states.state-action-btn;
-  @include states.state-action-btn--primary;
-  box-shadow: 0 6px 20px rgba(var(--primary-rgb, 46, 108, 183), 0.3);
-  position: relative;
-
-  &:hover {
-    box-shadow: 0 8px 25px rgba(var(--primary-rgb, 46, 108, 183), 0.4);
-  }
-
-  i {
-    font-size: 0.9rem;
-  }
-}
+// =============================================================================
+// EMPTY STATE COMPONENT
+// =============================================================================
+// Uses global styles from: _states.scss
+// All styling is defined in the global _states.scss file.
+// This component uses the following global classes:
+// - .empty-state
+// - .empty-state--compact
+// - .empty-state__icon (with --warning, --success, --danger, --purple variants)
+// - .empty-state__title
+// - .empty-state__description
+// - .state-actions
+// - .state-action-btn, .state-action-btn--primary
+// =============================================================================
