@@ -5,6 +5,7 @@ import { ChartModule } from 'primeng/chart';
 import { TranslateService } from '@ngx-translate/core';
 
 import { ADMIN_CORE_IMPORTS } from '../../../shared/imports/admin-shared.imports';
+import { AgroclikPageContainerComponent } from '../../../shared/components/agroclik-page-container/agroclik-page-container.component';
 import { ROUTES } from '../../../core/constants/routes.constants';
 import { onLanguageChange } from '../../../core/utils/language-change.util';
 import { AdminService } from '../../../services/admin.service';
@@ -21,7 +22,8 @@ import { CurrencyService } from '../../../core/services/currency.service';
   imports: [
     ...ADMIN_CORE_IMPORTS,
     RouterLink,
-    ChartModule
+    ChartModule,
+    AgroclikPageContainerComponent
   ],
   templateUrl: './admin-dashboard.component.html',
   styleUrl: './admin-dashboard.component.scss'

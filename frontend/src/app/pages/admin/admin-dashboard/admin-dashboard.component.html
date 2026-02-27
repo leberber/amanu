@@ -1,156 +1,125 @@
 <!-- src/app/pages/admin/admin-dashboard/admin-dashboard.component.html -->
-<div class="admin-page" [class.initialized]="tableInitialized()">
-  <!-- Background Decoration -->
-  <div class="bg-decoration">
-    <div class="blob blob-1"></div>
-    <div class="blob blob-2"></div>
-    <div class="blob blob-3"></div>
-  </div>
-
+<app-agroclik-page-container>
   <p-toast></p-toast>
-  <div class="admin-content">
-    <!-- Loading State - Skeleton -->
-    @if (loading()) {
-      <!-- Header Skeleton -->
-      <div class="admin-list-header animate-item" style="--item-delay: 0ms;">
-        <div class="header-title">
-          <div class="admin-icon-wrapper">
-            <div class="icon-bg"></div>
-            <div class="icon-circle skeleton"></div>
-          </div>
-          <div class="title-text">
-            <div class="skeleton skeleton-text" style="width: 180px; height: 28px;"></div>
-            <div class="skeleton skeleton-text" style="width: 240px; height: 16px; margin-top: 8px;"></div>
-          </div>
-        </div>
-      </div>
 
-      <!-- KPI Cards Skeleton -->
-      <div class="stats-grid stats-grid--compact animate-item" style="--item-delay: 50ms;">
-        @for (i of [1,2,3,4,5,6]; track i) {
-          <div class="stat-card stat-card--compact">
-            <div class="stat-card__content">
-              <span class="stat-card__value">
-                <span class="skeleton" style="width: 32px; height: 32px; border-radius: var(--radius-md);"></span>
-                <span class="skeleton skeleton-text" style="width: 60px; height: 24px;"></span>
-              </span>
-              <span class="skeleton skeleton-text" style="width: 80px; height: 12px; margin-top: 8px;"></span>
+  <!-- Top Section: Header + KPI Cards + Tabs -->
+  <div pageTop [class.initialized]="tableInitialized()">
+      @if (loading()) {
+        <!-- Header Skeleton -->
+        <div class="admin-list-header animate-item" style="--item-delay: 0ms;">
+          <div class="header-title">
+            <div class="admin-icon-wrapper">
+              <div class="icon-bg"></div>
+              <div class="icon-circle skeleton"></div>
+            </div>
+            <div class="title-text">
+              <div class="skeleton skeleton-text" style="width: 180px; height: 28px;"></div>
+              <div class="skeleton skeleton-text" style="width: 240px; height: 16px; margin-top: 8px;"></div>
             </div>
           </div>
-        }
-      </div>
+        </div>
 
-      <!-- Tab Container Skeleton -->
-      <div class="table-container animate-item" style="--item-delay: 100ms;">
-        <div class="table-header">
+        <!-- KPI Cards Skeleton -->
+        <div class="stats-grid stats-grid--compact animate-item" style="--item-delay: 50ms;">
+          @for (i of [1,2,3,4,5,6]; track i) {
+            <div class="stat-card stat-card--compact">
+              <div class="stat-card__content">
+                <span class="stat-card__value">
+                  <span class="skeleton" style="width: 32px; height: 32px; border-radius: var(--radius-md);"></span>
+                  <span class="skeleton skeleton-text" style="width: 60px; height: 24px;"></span>
+                </span>
+                <span class="skeleton skeleton-text" style="width: 80px; height: 12px; margin-top: 8px;"></span>
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- Tabs Skeleton -->
+        <div class="dashboard-tabs animate-item" style="--item-delay: 100ms;">
           <div class="skeleton" style="width: 300px; height: 44px; border-radius: var(--radius-xl);"></div>
         </div>
-        <div class="tab-content">
-          <div class="data-grid">
-            <div class="card card--no-hover">
-              <div class="card-header">
-                <div class="skeleton" style="width: 32px; height: 32px; border-radius: var(--radius-md);"></div>
-                <div class="skeleton skeleton-text" style="width: 140px; height: 20px;"></div>
-              </div>
-              <div class="card-body">
-                <div class="skeleton" style="width: 200px; height: 200px; border-radius: 50%;"></div>
+      } @else if (stats()) {
+        <!-- Dashboard Header -->
+        <div class="admin-list-header animate-item" style="--item-delay: 0ms;">
+          <div class="header-title">
+            <div class="admin-icon-wrapper">
+              <div class="icon-bg"></div>
+              <div class="icon-circle">
+                <i class="pi pi-chart-bar"></i>
               </div>
             </div>
-            <div class="card card--no-hover">
-              <div class="card-header">
-                <div class="skeleton" style="width: 32px; height: 32px; border-radius: var(--radius-md);"></div>
-                <div class="skeleton skeleton-text" style="width: 140px; height: 20px;"></div>
-              </div>
-              <div class="card-body">
-                <div class="skeleton" style="width: 200px; height: 200px; border-radius: 50%;"></div>
-              </div>
+            <div class="title-text">
+              <h1>{{ 'admin.dashboard.title' | translate }}</h1>
+              <p>{{ 'admin.dashboard.welcome_message' | translate }}</p>
             </div>
           </div>
         </div>
-      </div>
-    } @else if (stats()) {
-      <!-- Dashboard Header -->
-      <div class="admin-list-header animate-item" style="--item-delay: 0ms;">
-        <div class="header-title">
-          <div class="admin-icon-wrapper">
-            <div class="icon-bg"></div>
-            <div class="icon-circle">
-              <i class="pi pi-chart-bar"></i>
+
+        <!-- Compact KPI Row -->
+        <div class="stats-grid stats-grid--compact">
+          <div class="stat-card stat-card--compact animate-item" style="--item-delay: 50ms;" (click)="navigateToOrders()">
+            <div class="stat-card__content">
+              <span class="stat-card__value">
+                <span class="stat-card__icon stat-card__icon--success"><i class="pi pi-wallet"></i></span>
+                {{ formatCurrency(stats()!.total_revenue) }}
+              </span>
+              <span class="stat-card__label">{{ 'admin.dashboard.total_revenue' | translate }}</span>
             </div>
           </div>
-          <div class="title-text">
-            <h1>{{ 'admin.dashboard.title' | translate }}</h1>
-            <p>{{ 'admin.dashboard.welcome_message' | translate }}</p>
-          </div>
-        </div>
-      </div>
 
-      <!-- Compact KPI Row -->
-      <div class="stats-grid stats-grid--compact">
-        <div class="stat-card stat-card--compact animate-item" style="--item-delay: 50ms;" (click)="navigateToOrders()">
-          <div class="stat-card__content">
-            <span class="stat-card__value">
-              <span class="stat-card__icon stat-card__icon--success"><i class="pi pi-wallet"></i></span>
-              {{ formatCurrency(stats()!.total_revenue) }}
-            </span>
-            <span class="stat-card__label">{{ 'admin.dashboard.total_revenue' | translate }}</span>
+          <div class="stat-card stat-card--compact animate-item" style="--item-delay: 100ms;" (click)="navigateToUsers()">
+            <div class="stat-card__content">
+              <span class="stat-card__value">
+                <span class="stat-card__icon stat-card__icon--purple"><i class="pi pi-users"></i></span>
+                {{ stats()!.total_users }}
+              </span>
+              <span class="stat-card__label">{{ 'admin.dashboard.total_users' | translate }}</span>
+            </div>
           </div>
-        </div>
 
-        <div class="stat-card stat-card--compact animate-item" style="--item-delay: 100ms;" (click)="navigateToUsers()">
-          <div class="stat-card__content">
-            <span class="stat-card__value">
-              <span class="stat-card__icon stat-card__icon--purple"><i class="pi pi-users"></i></span>
-              {{ stats()!.total_users }}
-            </span>
-            <span class="stat-card__label">{{ 'admin.dashboard.total_users' | translate }}</span>
+          <div class="stat-card stat-card--compact animate-item" style="--item-delay: 150ms;" (click)="navigateToProducts()">
+            <div class="stat-card__content">
+              <span class="stat-card__value">
+                <span class="stat-card__icon stat-card__icon--warning"><i class="pi pi-box"></i></span>
+                {{ stats()!.total_products }}
+              </span>
+              <span class="stat-card__label">{{ 'admin.dashboard.total_products' | translate }}</span>
+            </div>
           </div>
-        </div>
 
-        <div class="stat-card stat-card--compact animate-item" style="--item-delay: 150ms;" (click)="navigateToProducts()">
-          <div class="stat-card__content">
-            <span class="stat-card__value">
-              <span class="stat-card__icon stat-card__icon--warning"><i class="pi pi-box"></i></span>
-              {{ stats()!.total_products }}
-            </span>
-            <span class="stat-card__label">{{ 'admin.dashboard.total_products' | translate }}</span>
+          <div class="stat-card stat-card--compact animate-item" style="--item-delay: 200ms;" (click)="navigateToOrders()">
+            <div class="stat-card__content">
+              <span class="stat-card__value">
+                <span class="stat-card__icon stat-card__icon--primary"><i class="pi pi-shopping-cart"></i></span>
+                {{ stats()!.total_orders }}
+              </span>
+              <span class="stat-card__label">{{ 'admin.dashboard.total_orders' | translate }}</span>
+            </div>
           </div>
-        </div>
 
-        <div class="stat-card stat-card--compact animate-item" style="--item-delay: 200ms;" (click)="navigateToOrders()">
-          <div class="stat-card__content">
-            <span class="stat-card__value">
-              <span class="stat-card__icon stat-card__icon--primary"><i class="pi pi-shopping-cart"></i></span>
-              {{ stats()!.total_orders }}
-            </span>
-            <span class="stat-card__label">{{ 'admin.dashboard.total_orders' | translate }}</span>
+          <div class="stat-card stat-card--compact animate-item" style="--item-delay: 250ms;" (click)="navigateToOrders()">
+            <div class="stat-card__content">
+              <span class="stat-card__value">
+                <span class="stat-card__icon stat-card__icon--orange"><i class="pi pi-hourglass"></i></span>
+                {{ stats()!.pending_orders }}
+              </span>
+              <span class="stat-card__label">{{ 'admin.dashboard.pending_orders' | translate }}</span>
+            </div>
           </div>
-        </div>
 
-        <div class="stat-card stat-card--compact animate-item" style="--item-delay: 250ms;" (click)="navigateToOrders()">
-          <div class="stat-card__content">
-            <span class="stat-card__value">
-              <span class="stat-card__icon stat-card__icon--orange"><i class="pi pi-hourglass"></i></span>
-              {{ stats()!.pending_orders }}
-            </span>
-            <span class="stat-card__label">{{ 'admin.dashboard.pending_orders' | translate }}</span>
+          <div class="stat-card stat-card--compact animate-item" style="--item-delay: 300ms;" (click)="navigateToProducts()">
+            <div class="stat-card__content">
+              <span class="stat-card__value">
+                <span class="stat-card__icon stat-card__icon--red"><i class="pi pi-exclamation-triangle"></i></span>
+                {{ stats()!.low_stock_products }}
+              </span>
+              <span class="stat-card__label">{{ 'admin.dashboard.low_stock_items' | translate }}</span>
+            </div>
           </div>
         </div>
 
-        <div class="stat-card stat-card--compact animate-item" style="--item-delay: 300ms;" (click)="navigateToProducts()">
-          <div class="stat-card__content">
-            <span class="stat-card__value">
-              <span class="stat-card__icon stat-card__icon--red"><i class="pi pi-exclamation-triangle"></i></span>
-              {{ stats()!.low_stock_products }}
-            </span>
-            <span class="stat-card__label">{{ 'admin.dashboard.low_stock_items' | translate }}</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Tabbed Content Section -->
-      <div class="table-container animate-item" style="--item-delay: 350ms;">
-        <div class="table-header">
+        <!-- Tab Buttons (Fixed) -->
+        <div class="dashboard-tabs animate-item" style="--item-delay: 350ms;">
           <div class="segment-control segment-control--glass">
             <button
               class="segment-control__item"
@@ -175,133 +144,150 @@
             </button>
           </div>
         </div>
+      } @else {
+        <!-- Error State -->
+        <div class="empty-state animate-item" style="--item-delay: 100ms;">
+          <div class="empty-state__icon empty-state__icon--danger">
+            <i class="pi pi-exclamation-circle"></i>
+          </div>
+          <h3 class="empty-state__title">{{ 'admin.dashboard.error_loading' | translate }}</h3>
+          <button class="btn-primary" (click)="loadDashboardStats()">
+            <i class="pi pi-refresh"></i>
+            <span>{{ 'common.retry' | translate }}</span>
+          </button>
+        </div>
+      }
+  </div>
 
-        <div class="tab-content">
-          <!-- Analytics Tab -->
-          @if (activeTab() === 'analytics') {
-            <div class="data-grid">
-              <!-- Sales by Category Chart -->
-              <div class="card card--no-hover animate-item" style="--item-delay: 400ms;">
-                <div class="card-header">
-                  <div class="card-header__icon card-header__icon--purple">
+  <!-- Main Section: Tab Content (scrolls here) -->
+  <div pageMain>
+    @if (loading()) {
+      <!-- Content Skeleton -->
+      <div class="charts-grid">
+        @for (i of [1, 2]; track i) {
+          <div class="card card--no-hover">
+            <div class="card-header">
+              <div class="skeleton" style="width: 32px; height: 32px; border-radius: var(--radius-md);"></div>
+              <div class="skeleton skeleton-text" style="width: 140px; height: 20px;"></div>
+            </div>
+            <div class="card-body">
+              <div class="skeleton" style="width: 200px; height: 200px; border-radius: 50%; margin: 0 auto;"></div>
+            </div>
+          </div>
+        }
+      </div>
+    } @else if (stats()) {
+      <!-- Analytics Tab -->
+      @if (activeTab() === 'analytics') {
+        <div class="charts-grid">
+          <!-- Sales by Category Chart -->
+          <div class="card card--no-hover animate-item" style="--item-delay: 400ms;">
+            <div class="card-header">
+              <div class="card-header__icon card-header__icon--purple">
+                <i class="pi pi-chart-pie"></i>
+              </div>
+              <h3 class="card-header__title">{{ 'admin.dashboard.sales_by_category' | translate }}</h3>
+            </div>
+            <div class="card-body chart-body">
+              @if (categoryChartData()) {
+                <p-chart type="doughnut" [data]="categoryChartData()" [options]="categoryChartOptions()"></p-chart>
+              } @else {
+                <div class="empty-state empty-state--compact">
+                  <div class="empty-state__icon">
                     <i class="pi pi-chart-pie"></i>
                   </div>
-                  <h3 class="card-header__title">{{ 'admin.dashboard.sales_by_category' | translate }}</h3>
+                  <h3 class="empty-state__title">{{ 'admin.dashboard.no_category_data' | translate }}</h3>
                 </div>
-                <div class="card-body">
-                  @if (categoryChartData()) {
-                    <p-chart type="doughnut" [data]="categoryChartData()" [options]="categoryChartOptions()"></p-chart>
-                  } @else {
-                    <div class="empty-state empty-state--compact">
-                      <div class="empty-state__icon">
-                        <i class="pi pi-chart-pie"></i>
-                      </div>
-                      <h3 class="empty-state__title">{{ 'admin.dashboard.no_category_data' | translate }}</h3>
-                    </div>
-                  }
-                </div>
-              </div>
+              }
+            </div>
+          </div>
 
-              <!-- Sales by Brand Chart -->
-              <div class="card card--no-hover animate-item" style="--item-delay: 500ms;">
-                <div class="card-header">
-                  <div class="card-header__icon card-header__icon--pink">
-                    <i class="pi pi-tag"></i>
+          <!-- Sales by Brand Chart -->
+          <div class="card card--no-hover animate-item" style="--item-delay: 500ms;">
+            <div class="card-header">
+              <div class="card-header__icon card-header__icon--pink">
+                <i class="pi pi-tag"></i>
+              </div>
+              <h3 class="card-header__title">{{ 'admin.dashboard.sales_by_brand' | translate }}</h3>
+            </div>
+            <div class="card-body chart-body">
+              @if (brandChartData()) {
+                <p-chart type="doughnut" [data]="brandChartData()" [options]="brandChartOptions()"></p-chart>
+              } @else {
+                <div class="empty-state empty-state--compact">
+                  <div class="empty-state__icon">
+                    <i class="pi pi-chart-pie"></i>
                   </div>
-                  <h3 class="card-header__title">{{ 'admin.dashboard.sales_by_brand' | translate }}</h3>
+                  <h3 class="empty-state__title">{{ 'admin.dashboard.no_brand_data' | translate }}</h3>
                 </div>
-                <div class="card-body">
-                  @if (brandChartData()) {
-                    <p-chart type="doughnut" [data]="brandChartData()" [options]="brandChartOptions()"></p-chart>
-                  } @else {
+              }
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Top Products Tab -->
+      @if (activeTab() === 'top-products') {
+        <div class="table-wrapper animate-item" style="--item-delay: 100ms;">
+          <table class="table">
+            <thead>
+              <tr>
+                <th style="width: 45%">{{ 'admin.dashboard.table.product' | translate }}</th>
+                <th style="width: 20%">{{ 'admin.dashboard.table.category' | translate }}</th>
+                <th style="width: 15%" class="text-center">{{ 'admin.dashboard.table.quantity_sold' | translate }}</th>
+                <th style="width: 20%" class="text-center">{{ 'admin.dashboard.table.total_sales' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (product of stats()!.top_selling_products; track product.product_id; let i = $index) {
+                <tr class="table-row-animate" [style.--row-delay]="(i * 40) + 'ms'" [routerLink]="['/admin/products', product.product_id]" style="cursor: pointer;">
+                  <td>
+                    <div class="table-item-with-image">
+                      <img
+                        [src]="product.image_url || 'assets/images/placeholder-product.png'"
+                        [alt]="getProductName(product)"
+                        class="table-item-image"
+                      />
+                      <span class="table-item-name">{{ getProductName(product) }}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="pill secondary">{{ getCategoryName(product.category) }}</span>
+                  </td>
+                  <td class="text-center">
+                    <span class="pill purple">{{ product.total_quantity }}</span>
+                  </td>
+                  <td class="text-center">
+                    <span class="amount-display amount-display--success">{{ formatCurrency(product.total_sales) }}</span>
+                  </td>
+                </tr>
+              } @empty {
+                <tr class="animate-item" style="--item-delay: 100ms;">
+                  <td colspan="4">
                     <div class="empty-state empty-state--compact">
                       <div class="empty-state__icon">
-                        <i class="pi pi-chart-pie"></i>
+                        <i class="pi pi-star"></i>
                       </div>
-                      <h3 class="empty-state__title">{{ 'admin.dashboard.no_brand_data' | translate }}</h3>
+                      <h3 class="empty-state__title">{{ 'admin.dashboard.no_products_data' | translate }}</h3>
                     </div>
-                  }
-                </div>
-              </div>
-            </div>
-          }
-
-          <!-- Top Products Tab -->
-          @if (activeTab() === 'top-products') {
-            <div class="table-wrapper animate-item" style="--item-delay: 100ms;">
-              <table class="table">
-                <thead>
-                  <tr>
-                    <th style="width: 45%">{{ 'admin.dashboard.table.product' | translate }}</th>
-                    <th style="width: 20%">{{ 'admin.dashboard.table.category' | translate }}</th>
-                    <th style="width: 15%" class="text-center">{{ 'admin.dashboard.table.quantity_sold' | translate }}</th>
-                    <th style="width: 20%" class="text-center">{{ 'admin.dashboard.table.total_sales' | translate }}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  @for (product of stats()!.top_selling_products; track product.product_id; let i = $index) {
-                    <tr class="table-row-animate" [style.--row-delay]="(i * 40) + 'ms'" [routerLink]="['/admin/products', product.product_id]" style="cursor: pointer;">
-                      <td>
-                        <div class="table-item-with-image">
-                          <img
-                            [src]="product.image_url || 'assets/images/placeholder-product.png'"
-                            [alt]="getProductName(product)"
-                            class="table-item-image"
-                          />
-                          <span class="table-item-name">{{ getProductName(product) }}</span>
-                        </div>
-                      </td>
-                      <td>
-                        <span class="pill secondary">{{ getCategoryName(product.category) }}</span>
-                      </td>
-                      <td class="text-center">
-                        <span class="pill purple">{{ product.total_quantity }}</span>
-                      </td>
-                      <td class="text-center">
-                        <span class="amount-display amount-display--success">{{ formatCurrency(product.total_sales) }}</span>
-                      </td>
-                    </tr>
-                  } @empty {
-                    <tr class="animate-item" style="--item-delay: 100ms;">
-                      <td colspan="4">
-                        <div class="empty-state empty-state--compact">
-                          <div class="empty-state__icon">
-                            <i class="pi pi-star"></i>
-                          </div>
-                          <h3 class="empty-state__title">{{ 'admin.dashboard.no_products_data' | translate }}</h3>
-                        </div>
-                      </td>
-                    </tr>
-                  }
-                </tbody>
-              </table>
-            </div>
-          }
-
-          <!-- Insights Tab (Empty) -->
-          @if (activeTab() === 'insights') {
-            <div class="empty-state animate-item" style="--item-delay: 100ms;">
-              <div class="empty-state__icon empty-state__icon--purple">
-                <i class="pi pi-lightbulb"></i>
-              </div>
-              <h3 class="empty-state__title">{{ 'admin.dashboard.insights_coming_soon' | translate }}</h3>
-              <p class="empty-state__description">{{ 'admin.dashboard.insights_description' | translate }}</p>
-            </div>
-          }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
         </div>
-      </div>
-    } @else {
-      <!-- Error State -->
-      <div class="empty-state animate-item" style="--item-delay: 100ms;">
-        <div class="empty-state__icon empty-state__icon--danger">
-          <i class="pi pi-exclamation-circle"></i>
+      }
+
+      <!-- Insights Tab (Empty) -->
+      @if (activeTab() === 'insights') {
+        <div class="empty-state animate-item" style="--item-delay: 100ms;">
+          <div class="empty-state__icon empty-state__icon--purple">
+            <i class="pi pi-lightbulb"></i>
+          </div>
+          <h3 class="empty-state__title">{{ 'admin.dashboard.insights_coming_soon' | translate }}</h3>
+          <p class="empty-state__description">{{ 'admin.dashboard.insights_description' | translate }}</p>
         </div>
-        <h3 class="empty-state__title">{{ 'admin.dashboard.error_loading' | translate }}</h3>
-        <button class="btn-primary" (click)="loadDashboardStats()">
-          <i class="pi pi-refresh"></i>
-          <span>{{ 'common.retry' | translate }}</span>
-        </button>
-      </div>
+      }
     }
   </div>
-</div>
+</app-agroclik-page-container>

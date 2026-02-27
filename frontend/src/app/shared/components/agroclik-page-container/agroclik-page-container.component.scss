@@ -1,0 +1,93 @@
+// =============================================================================
+// Agroclik Page Container Component
+// =============================================================================
+// Reusable page layout component for consistent structure across admin and
+// frontend pages. Provides fixed header/footer with scrollable content area.
+//
+// Mobile Behavior:
+// - Full page scroll (header scrolls with content)
+// - Bottom padding accounts for mobile bottom navigation
+// - Smooth scroll with touch momentum
+//
+// Desktop Behavior (768px+):
+// - Fixed header (pageTop) stays visible
+// - Scrollable main content area with custom scrollbar
+// - Footer auto-hides when empty
+//
+// Structure:
+// ┌─────────────────────────┐
+// │   pageTop               │  ← Header, KPIs, tabs (fixed on desktop)
+// ├─────────────────────────┤
+// │                         │
+// │   pageMain              │  ← Scrollable content area
+// │   (fills remaining)     │
+// │                         │
+// ├─────────────────────────┤
+// │   pageFooter            │  ← Optional footer (auto-hides if empty)
+// └─────────────────────────┘
+//
+// Usage:
+// <app-agroclik-page-container>
+//   <div pageTop>Header content here</div>
+//   <div pageMain>Scrollable content here</div>
+//   <div pageFooter>Optional footer</div>
+// </app-agroclik-page-container>
+//
+// CSS Custom Properties:
+// - --page-padding: Responsive padding (space-4 mobile, space-6 desktop)
+// - --bottom-nav-height: Height of bottom navigation (set at app level)
+// =============================================================================
+
+:host {
+  --page-padding: var(--space-4);
+
+  display: block;
+  height: 100%;
+  overflow-y: auto;
+  background: var(--surface-ground);
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: calc(var(--bottom-nav-height, 0px) + env(safe-area-inset-bottom, 0px));
+
+  @media (min-width: 768px) {
+    --page-padding: var(--space-6);
+
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding-bottom: 0;
+  }
+}
+
+.page-top,
+.page-main,
+.page-footer {
+  padding: var(--page-padding);
+}
+
+.page-main {
+  @media (min-width: 768px) {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    &::-webkit-scrollbar-thumb {
+      background: var(--surface-300);
+      border-radius: 3px;
+      &:hover {
+        background: var(--surface-400);
+      }
+    }
+  }
+}
+
+.page-footer:empty {
+  display: none;
+  padding: 0;
+}
