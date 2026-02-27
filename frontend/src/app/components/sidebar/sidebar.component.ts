@@ -107,6 +107,12 @@ export class SidebarComponent implements OnInit {
         route: ROUTES.PRODUCTS
       },
       {
+        label: this.translateService.instant('promotions_page.title'),
+        icon: 'pi pi-percentage',
+        route: ROUTES.PROMOTIONS,
+        authRequired: true
+      },
+      {
         label: this.translateService.instant('common.cart'),
         icon: 'pi pi-shopping-cart',
         route: ROUTES.CART,
@@ -118,6 +124,18 @@ export class SidebarComponent implements OnInit {
         route: ROUTES.ORDERS,
         authRequired: true,
         hideForAdmin: true
+      },
+      {
+        label: this.translateService.instant('notifications_page.title'),
+        icon: 'pi pi-bell',
+        route: ROUTES.NOTIFICATIONS,
+        authRequired: true
+      },
+      {
+        label: this.translateService.instant('settings.title'),
+        icon: 'pi pi-cog',
+        route: ROUTES.SETTINGS,
+        authRequired: true
       },
       {
         label: this.translateService.instant('account.title'),

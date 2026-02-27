@@ -15,10 +15,19 @@ export const ROUTES = {
   CART: '/cart',
   CHECKOUT: '/checkout',
 
+  // Info pages
+  ABOUT: '/about',
+  CONTACT: '/contact',
+  TERMS: '/terms',
+  PRIVACY: '/privacy-policy',
+
   // User routes
   ACCOUNT: '/account',
   ORDERS: '/orders',
   ORDER_DETAIL: '/orders/:id',
+  PROMOTIONS: '/promotions',
+  SETTINGS: '/settings',
+  NOTIFICATIONS: '/notifications',
   
   // Admin routes
   ADMIN: {

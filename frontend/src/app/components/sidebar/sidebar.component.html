@@ -14,23 +14,7 @@
 
       <!-- Scrollable Navigation Area -->
       <div class="sidebar__scrollable">
-        <!-- Main Navigation -->
-        <nav class="sidebar__nav">
-          @for (item of getVisibleNavItems(); track item.route) {
-            <a [routerLink]="item.route" routerLinkActive="active" class="nav-link"
-               [pTooltip]="collapsed() ? item.label : undefined" tooltipPosition="right">
-              <div class="nav-link__icon">
-                <i [class]="item.icon"></i>
-                @if (item.route === routes.CART && cartCount() > 0) {
-                  <span class="badge">{{ cartCount() > 99 ? '99+' : cartCount() }}</span>
-                }
-              </div>
-              <span class="nav-link__label">{{ item.label }}</span>
-            </a>
-          }
-        </nav>
-
-        <!-- Admin Section -->
+        <!-- Admin Section (Top) -->
         @if (isAdminOrStaff()) {
           <div class="sidebar__section">
             <div class="section-header">
@@ -52,6 +36,68 @@
             </nav>
           </div>
         }
+
+        <!-- Customer Navigation (Bottom) -->
+        <div class="sidebar__section">
+          @if (isAdminOrStaff()) {
+            <div class="section-header">
+              <i class="pi pi-shopping-bag"></i>
+              <span>{{ 'common.store' | translate }}</span>
+            </div>
+          }
+          <nav class="sidebar__nav">
+            @for (item of getVisibleNavItems(); track item.route) {
+              <a [routerLink]="item.route" routerLinkActive="active" class="nav-link"
+                 [pTooltip]="collapsed() ? item.label : undefined" tooltipPosition="right">
+                <div class="nav-link__icon">
+                  <i [class]="item.icon"></i>
+                  @if (item.route === routes.CART && cartCount() > 0) {
+                    <span class="badge">{{ cartCount() > 99 ? '99+' : cartCount() }}</span>
+                  }
+                </div>
+                <span class="nav-link__label">{{ item.label }}</span>
+              </a>
+            }
+          </nav>
+        </div>
+
+        <!-- Info Section -->
+        <div class="sidebar__section">
+          <div class="section-header">
+            <i class="pi pi-info-circle"></i>
+            <span>{{ 'about.info' | translate }}</span>
+          </div>
+          <nav class="sidebar__nav">
+            <a [routerLink]="routes.ABOUT" routerLinkActive="active" class="nav-link"
+               [pTooltip]="collapsed() ? ('about.title' | translate) : undefined" tooltipPosition="right">
+              <div class="nav-link__icon nav-link__icon--sm">
+                <i class="pi pi-building"></i>
+              </div>
+              <span class="nav-link__label">{{ 'about.title' | translate }}</span>
+            </a>
+            <a [routerLink]="routes.CONTACT" routerLinkActive="active" class="nav-link"
+               [pTooltip]="collapsed() ? ('contact.title' | translate) : undefined" tooltipPosition="right">
+              <div class="nav-link__icon nav-link__icon--sm">
+                <i class="pi pi-envelope"></i>
+              </div>
+              <span class="nav-link__label">{{ 'contact.title' | translate }}</span>
+            </a>
+            <a [routerLink]="routes.TERMS" routerLinkActive="active" class="nav-link"
+               [pTooltip]="collapsed() ? ('terms.title' | translate) : undefined" tooltipPosition="right">
+              <div class="nav-link__icon nav-link__icon--sm">
+                <i class="pi pi-file"></i>
+              </div>
+              <span class="nav-link__label">{{ 'terms.title' | translate }}</span>
+            </a>
+            <a [routerLink]="routes.PRIVACY" routerLinkActive="active" class="nav-link"
+               [pTooltip]="collapsed() ? ('auth.privacy_policy' | translate) : undefined" tooltipPosition="right">
+              <div class="nav-link__icon nav-link__icon--sm">
+                <i class="pi pi-shield"></i>
+              </div>
+              <span class="nav-link__label">{{ 'auth.privacy_policy' | translate }}</span>
+            </a>
+          </nav>
+        </div>
       </div>
 
       <!-- Fixed Bottom Section -->
@@ -118,24 +164,7 @@
 
         <!-- Scrollable Content -->
         <div class="drawer-body">
-          <!-- Main Navigation -->
-          <div class="mb-4">
-            @for (item of getVisibleNavItems(); track item.route) {
-              <a [routerLink]="item.route" routerLinkActive="active" (click)="closeMobileDrawer()"
-                 class="nav-link nav-link--mobile">
-                <div class="nav-link__icon nav-link__icon--lg">
-                  <i [class]="item.icon"></i>
-                  @if (item.route === routes.CART && cartCount() > 0) {
-                    <span class="badge">{{ cartCount() > 99 ? '99+' : cartCount() }}</span>
-                  }
-                </div>
-                <span class="nav-link__label">{{ item.label }}</span>
-                <i class="pi pi-chevron-right nav-link__arrow"></i>
-              </a>
-            }
-          </div>
-
-          <!-- Admin Section -->
+          <!-- Admin Section (Top) -->
           @if (isAdminOrStaff()) {
             <div class="mb-4">
               <div class="section-header">
@@ -156,6 +185,29 @@
               }
             </div>
           }
+
+          <!-- Customer Navigation -->
+          <div class="mb-4">
+            @if (isAdminOrStaff()) {
+              <div class="section-header">
+                <i class="pi pi-shopping-bag"></i>
+                <span>{{ 'common.store' | translate }}</span>
+              </div>
+            }
+            @for (item of getVisibleNavItems(); track item.route) {
+              <a [routerLink]="item.route" routerLinkActive="active" (click)="closeMobileDrawer()"
+                 class="nav-link nav-link--mobile">
+                <div class="nav-link__icon nav-link__icon--lg">
+                  <i [class]="item.icon"></i>
+                  @if (item.route === routes.CART && cartCount() > 0) {
+                    <span class="badge">{{ cartCount() > 99 ? '99+' : cartCount() }}</span>
+                  }
+                </div>
+                <span class="nav-link__label">{{ item.label }}</span>
+                <i class="pi pi-chevron-right nav-link__arrow"></i>
+              </a>
+            }
+          </div>
 
           <!-- Settings Section -->
           <div class="mb-4">
@@ -181,6 +233,46 @@
                 </button>
               </div>
             </div>
+          </div>
+
+          <!-- Info Links Section -->
+          <div class="mb-4">
+            <div class="section-header">
+              <i class="pi pi-info-circle"></i>
+              <span>{{ 'about.info' | translate }}</span>
+            </div>
+            <a [routerLink]="routes.ABOUT" (click)="closeMobileDrawer()"
+               class="nav-link nav-link--mobile">
+              <div class="nav-link__icon nav-link__icon--lg">
+                <i class="pi pi-building"></i>
+              </div>
+              <span class="nav-link__label">{{ 'about.title' | translate }}</span>
+              <i class="pi pi-chevron-right nav-link__arrow"></i>
+            </a>
+            <a [routerLink]="routes.CONTACT" (click)="closeMobileDrawer()"
+               class="nav-link nav-link--mobile">
+              <div class="nav-link__icon nav-link__icon--lg">
+                <i class="pi pi-envelope"></i>
+              </div>
+              <span class="nav-link__label">{{ 'contact.title' | translate }}</span>
+              <i class="pi pi-chevron-right nav-link__arrow"></i>
+            </a>
+            <a [routerLink]="routes.TERMS" (click)="closeMobileDrawer()"
+               class="nav-link nav-link--mobile">
+              <div class="nav-link__icon nav-link__icon--lg">
+                <i class="pi pi-file"></i>
+              </div>
+              <span class="nav-link__label">{{ 'terms.title' | translate }}</span>
+              <i class="pi pi-chevron-right nav-link__arrow"></i>
+            </a>
+            <a [routerLink]="routes.PRIVACY" (click)="closeMobileDrawer()"
+               class="nav-link nav-link--mobile">
+              <div class="nav-link__icon nav-link__icon--lg">
+                <i class="pi pi-shield"></i>
+              </div>
+              <span class="nav-link__label">{{ 'auth.privacy_policy' | translate }}</span>
+              <i class="pi pi-chevron-right nav-link__arrow"></i>
+            </a>
           </div>
         </div>
 

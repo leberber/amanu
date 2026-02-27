@@ -1,0 +1,37 @@
+<app-page-layout
+  title="notifications_page.title"
+  subtitle="notifications_page.subtitle"
+  icon="pi pi-bell"
+  [showBackButton]="true"
+  [backRoute]="routes.PRODUCTS"
+  [fullscreen]="true">
+
+  <div class="notifications-list">
+    @for (notif of notifications(); track notif.id) {
+      <div class="notification-card" [class.notification-card--unread]="!notif.read">
+        <div class="notification-card__icon notification-card__icon--{{ notif.type }}">
+          <i [class]="getNotificationIcon(notif.type)"></i>
+        </div>
+        <div class="notification-card__content">
+          <h4 class="notification-card__title">{{ notif.title }}</h4>
+          <p class="notification-card__message">{{ notif.message }}</p>
+          <span class="notification-card__date">
+            <i class="pi pi-clock"></i>
+            {{ notif.date | date:'dd/MM/yyyy HH:mm' }}
+          </span>
+        </div>
+        @if (!notif.read) {
+          <div class="notification-card__badge"></div>
+        }
+      </div>
+    } @empty {
+      <app-empty-state
+        icon="pi-bell-slash"
+        title="notifications_page.empty_title"
+        description="notifications_page.empty_message"
+        actionLabel="notifications_page.browse_products"
+        [actionLink]="routes.PRODUCTS"
+        actionIcon="pi pi-shopping-bag" />
+    }
+  </div>
+</app-page-layout>

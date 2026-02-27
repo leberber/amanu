@@ -1,0 +1,44 @@
+<app-page-layout
+  title="terms.title"
+  icon="pi pi-file"
+  [showBackButton]="true"
+  [backRoute]="routes.PRODUCTS"
+  [fullscreen]="true">
+
+  <div class="terms-content">
+    <div class="card card--no-hover">
+      <div class="card-body">
+        <div class="terms-meta">
+          <i class="pi pi-calendar"></i>
+          <strong>{{ 'terms.effective_date' | translate }}:</strong>
+          <span>01/01/2026</span>
+        </div>
+
+        <p class="terms-intro">{{ 'terms.intro' | translate }}</p>
+
+        <div class="terms-sections">
+          @for (section of sections; track section.number) {
+            <section class="terms-section">
+              <h2 class="terms-section__title">
+                <span class="terms-section__number">{{ section.number }}</span>
+                {{ section.titleKey | translate }}
+              </h2>
+              <p class="terms-section__text">{{ section.textKey | translate }}</p>
+            </section>
+          }
+
+          <section class="terms-section">
+            <h2 class="terms-section__title">
+              <span class="terms-section__number">10</span>
+              {{ 'terms.contact_title' | translate }}
+            </h2>
+            <p class="terms-section__text">
+              {{ 'terms.contact_text' | translate }}
+              <a href="mailto:support@elsuq.com" class="terms-link">support&#64;elsuq.com</a>
+            </p>
+          </section>
+        </div>
+      </div>
+    </div>
+  </div>
+</app-page-layout>

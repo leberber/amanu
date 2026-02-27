@@ -1,0 +1,102 @@
+<app-page-layout
+  title="promotions_page.title"
+  subtitle="promotions_page.subtitle"
+  icon="pi pi-percentage"
+  [showBackButton]="true"
+  [backRoute]="routes.PRODUCTS"
+  [fullscreen]="true">
+
+  @if (loading()) {
+    <div class="grid">
+      @for (i of [1, 2, 3, 4]; track i) {
+        <div class="col-12 md:col-6">
+          <div class="card card--no-hover">
+            <div class="card-body">
+              <p-skeleton height="3rem" styleClass="mb-4" />
+              <p-skeleton height="1.5rem" styleClass="mb-3" />
+              <p-skeleton height="1rem" width="80%" />
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  } @else if (error()) {
+    <app-empty-state
+      icon="pi-exclamation-triangle"
+      title="common.error"
+      description="promotions_page.error_message"
+      actionLabel="common.refresh"
+      actionIcon="pi pi-refresh"
+      (actionClick)="loadPromotions()" />
+  } @else {
+    <div class="grid">
+      @for (promo of promotions(); track promo.id) {
+        <div class="col-12 md:col-6">
+          <div class="promo-card">
+            <div class="promo-card__header">
+              <div class="promo-card__discount">
+                @if (promo.discount_type === 'percentage') {
+                  <span class="promo-card__discount-value">{{ promo.discount_value }}%</span>
+                } @else {
+                  <span class="promo-card__discount-value">{{ promo.discount_value | currency:'MAD':'symbol':'1.0-0' }}</span>
+                }
+                <span class="promo-card__discount-label">{{ 'promotions_page.off' | translate }}</span>
+              </div>
+              @if (promo.code) {
+                <div class="promo-card__code">
+                  <span class="promo-card__code-label">{{ 'promotions_page.code' | translate }}</span>
+                  <span class="promo-card__code-value">{{ promo.code }}</span>
+                </div>
+              }
+            </div>
+
+            <div class="promo-card__body">
+              <h3 class="promo-card__title">{{ promo.name }}</h3>
+              @if (promo.description) {
+                <p class="promo-card__description">{{ promo.description }}</p>
+              }
+
+              <div class="promo-card__details">
+                @if (promo.min_order_amount > 0) {
+                  <div class="promo-card__detail">
+                    <i class="pi pi-shopping-cart"></i>
+                    <span>{{ 'promotions_page.min_order' | translate }}: {{ promo.min_order_amount | currency:'MAD':'symbol':'1.0-0' }}</span>
+                  </div>
+                }
+                @if (promo.max_discount) {
+                  <div class="promo-card__detail">
+                    <i class="pi pi-wallet"></i>
+                    <span>{{ 'promotions_page.max_discount' | translate }}: {{ promo.max_discount | currency:'MAD':'symbol':'1.0-0' }}</span>
+                  </div>
+                }
+                <div class="promo-card__detail">
+                  <i class="pi pi-calendar"></i>
+                  <span>{{ 'promotions_page.valid_until' | translate }}: {{ promo.end_date | date:'dd/MM/yyyy' }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="promo-card__footer">
+              <p-tag
+                [value]="getScopeLabel(promo.scope) | translate"
+                [severity]="getScopeSeverity(promo.scope)" />
+              @if (getDaysRemaining(promo.end_date) <= 3) {
+                <p-tag [value]="'promotions_page.ending_soon' | translate" severity="danger" />
+              }
+            </div>
+          </div>
+        </div>
+      } @empty {
+        <div class="col-12">
+          <app-empty-state
+            icon="pi-tag"
+            title="promotions_page.empty_title"
+            description="promotions_page.empty_message"
+            actionLabel="promotions_page.browse_products"
+            [actionLink]="routes.PRODUCTS"
+            actionIcon="pi pi-shopping-bag" />
+        </div>
+      }
+    </div>
+  }
+</app-page-layout>

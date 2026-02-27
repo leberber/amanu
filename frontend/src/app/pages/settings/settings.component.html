@@ -1,0 +1,108 @@
+<app-page-layout
+  title="settings.title"
+  subtitle="settings.subtitle"
+  icon="pi pi-cog"
+  [showBackButton]="true"
+  [backRoute]="routes.PRODUCTS"
+  [fullscreen]="true">
+
+  <!-- Settings Cards -->
+  <div class="settings-grid">
+
+    <!-- Language Setting -->
+    <div class="card card--no-hover">
+      <div class="card-header">
+        <div class="card-header__icon card-header__icon--primary">
+          <i class="pi pi-globe"></i>
+        </div>
+        <div class="card-header__text">
+          <h2 class="card-header__title">{{ 'settings.language' | translate }}</h2>
+          <p class="card-header__subtitle">{{ 'settings.language_desc' | translate }}</p>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="language-selector">
+          @for (lang of languages; track lang.code) {
+            <button
+              class="select-card"
+              [class.active]="currentLanguage() === lang.code"
+              (click)="setLanguage(lang.code)">
+              <span class="select-card__flag">{{ lang.flag }}</span>
+              <span class="select-card__title">{{ lang.name }}</span>
+              @if (currentLanguage() === lang.code) {
+                <i class="pi pi-check select-card__check"></i>
+              }
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- View Mode Setting -->
+    <div class="card card--no-hover">
+      <div class="card-header">
+        <div class="card-header__icon card-header__icon--info">
+          <i class="pi pi-eye"></i>
+        </div>
+        <div class="card-header__text">
+          <h2 class="card-header__title">{{ 'settings.view_mode' | translate }}</h2>
+          <p class="card-header__subtitle">{{ 'settings.view_mode_desc' | translate }}</p>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="view-selector">
+          <button
+            class="select-card select-card--large"
+            [class.active]="currentViewMode() === 'list'"
+            (click)="setViewMode('list')">
+            <div class="select-card__icon">
+              <i class="pi pi-list"></i>
+            </div>
+            <span class="select-card__title">{{ 'settings.list_view' | translate }}</span>
+          </button>
+          <button
+            class="select-card select-card--large"
+            [class.active]="currentViewMode() === 'grid'"
+            (click)="setViewMode('grid')">
+            <div class="select-card__icon">
+              <i class="pi pi-th-large"></i>
+            </div>
+            <span class="select-card__title">{{ 'settings.grid_view' | translate }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- App Info -->
+    <div class="card card--no-hover">
+      <div class="card-header">
+        <div class="card-header__icon card-header__icon--secondary">
+          <i class="pi pi-info-circle"></i>
+        </div>
+        <div class="card-header__text">
+          <h2 class="card-header__title">{{ 'settings.app_info' | translate }}</h2>
+          <p class="card-header__subtitle">{{ 'settings.app_info_desc' | translate }}</p>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="info-list">
+          <div class="info-row">
+            <span class="info-row__label">
+              <i class="pi pi-tag"></i>
+              {{ 'settings.version' | translate }}
+            </span>
+            <span class="info-row__value">1.0.0</span>
+          </div>
+          <div class="info-row">
+            <span class="info-row__label">
+              <i class="pi pi-code"></i>
+              {{ 'settings.build' | translate }}
+            </span>
+            <span class="info-row__value">2026.02</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</app-page-layout>

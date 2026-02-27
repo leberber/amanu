@@ -1,0 +1,136 @@
+<app-page-layout
+  title="contact.title"
+  subtitle="contact.subtitle"
+  icon="pi pi-envelope"
+  [showBackButton]="true"
+  [backRoute]="routes.PRODUCTS"
+  [fullscreen]="true">
+
+  <div class="contact-grid">
+    <!-- Contact Form -->
+    <div class="contact-form-section">
+      <div class="card card--no-hover">
+        <div class="card-header">
+          <div class="card-header__icon card-header__icon--primary">
+            <i class="pi pi-send"></i>
+          </div>
+          <div class="card-header__text">
+            <h2 class="card-header__title">{{ 'contact.form_title' | translate }}</h2>
+          </div>
+        </div>
+        <div class="card-body">
+          <form (ngSubmit)="onSubmit()" class="contact-form">
+            <div class="form-field">
+              <label for="name" class="form-field__label">{{ 'contact.name' | translate }}</label>
+              <input
+                pInputText
+                id="name"
+                [(ngModel)]="formData.name"
+                name="name"
+                class="w-full"
+                [placeholder]="'contact.name_placeholder' | translate"
+                required
+              />
+            </div>
+
+            <div class="form-field">
+              <label for="email" class="form-field__label">{{ 'contact.email' | translate }}</label>
+              <input
+                pInputText
+                id="email"
+                type="email"
+                [(ngModel)]="formData.email"
+                name="email"
+                class="w-full"
+                [placeholder]="'contact.email_placeholder' | translate"
+                required
+              />
+            </div>
+
+            <div class="form-field">
+              <label for="subject" class="form-field__label">{{ 'contact.subject' | translate }}</label>
+              <input
+                pInputText
+                id="subject"
+                [(ngModel)]="formData.subject"
+                name="subject"
+                class="w-full"
+                [placeholder]="'contact.subject_placeholder' | translate"
+                required
+              />
+            </div>
+
+            <div class="form-field">
+              <label for="message" class="form-field__label">{{ 'contact.message' | translate }}</label>
+              <textarea
+                pTextarea
+                id="message"
+                [(ngModel)]="formData.message"
+                name="message"
+                rows="5"
+                class="w-full"
+                [placeholder]="'contact.message_placeholder' | translate"
+                required
+              ></textarea>
+            </div>
+
+            <p-button
+              type="submit"
+              [label]="'contact.send' | translate"
+              icon="pi pi-send"
+              [loading]="sending()"
+              styleClass="w-full"
+            ></p-button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contact Info -->
+    <div class="contact-info-section">
+      <!-- Email Card -->
+      <div class="contact-card">
+        <div class="contact-card__icon contact-card__icon--primary">
+          <i class="pi pi-envelope"></i>
+        </div>
+        <div class="contact-card__content">
+          <h3 class="contact-card__title">{{ 'contact.email_us' | translate }}</h3>
+          <a href="mailto:support@elsuq.com" class="contact-card__link">support&#64;elsuq.com</a>
+        </div>
+      </div>
+
+      <!-- Phone Card -->
+      <div class="contact-card">
+        <div class="contact-card__icon contact-card__icon--success">
+          <i class="pi pi-phone"></i>
+        </div>
+        <div class="contact-card__content">
+          <h3 class="contact-card__title">{{ 'contact.call_us' | translate }}</h3>
+          <a href="tel:+212500000000" class="contact-card__link">+212 5 00 00 00 00</a>
+        </div>
+      </div>
+
+      <!-- WhatsApp Card -->
+      <div class="contact-card">
+        <div class="contact-card__icon contact-card__icon--whatsapp">
+          <i class="pi pi-whatsapp"></i>
+        </div>
+        <div class="contact-card__content">
+          <h3 class="contact-card__title">{{ 'contact.whatsapp' | translate }}</h3>
+          <a href="https://wa.me/212500000000" target="_blank" class="contact-card__link">+212 5 00 00 00 00</a>
+        </div>
+      </div>
+
+      <!-- Hours Card -->
+      <div class="contact-card">
+        <div class="contact-card__icon contact-card__icon--warning">
+          <i class="pi pi-clock"></i>
+        </div>
+        <div class="contact-card__content">
+          <h3 class="contact-card__title">{{ 'contact.hours' | translate }}</h3>
+          <p class="contact-card__text">{{ 'contact.hours_value' | translate }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</app-page-layout>

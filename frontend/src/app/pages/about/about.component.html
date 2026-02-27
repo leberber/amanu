@@ -1,0 +1,102 @@
+<app-page-layout
+  title="about.title"
+  subtitle="about.subtitle"
+  icon="pi pi-building"
+  [showBackButton]="true"
+  [backRoute]="routes.PRODUCTS"
+  [fullscreen]="true">
+
+  <!-- Content -->
+  <div class="about-content">
+
+    <!-- Mission Section -->
+    <div class="card card--no-hover">
+      <div class="card-header">
+        <div class="card-header__icon card-header__icon--primary">
+          <i class="pi pi-star"></i>
+        </div>
+        <div class="card-header__text">
+          <h2 class="card-header__title">{{ 'about.mission_title' | translate }}</h2>
+        </div>
+      </div>
+      <div class="card-body">
+        <p class="about-text">{{ 'about.mission_text' | translate }}</p>
+      </div>
+    </div>
+
+    <!-- What We Offer Section -->
+    <div class="card card--no-hover">
+      <div class="card-header">
+        <div class="card-header__icon card-header__icon--success">
+          <i class="pi pi-check-circle"></i>
+        </div>
+        <div class="card-header__text">
+          <h2 class="card-header__title">{{ 'about.offer_title' | translate }}</h2>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="feature-grid">
+          <div class="feature-card">
+            <div class="feature-card__icon feature-card__icon--primary">
+              <i class="pi pi-truck"></i>
+            </div>
+            <h3 class="feature-card__title">{{ 'about.feature_delivery' | translate }}</h3>
+            <p class="feature-card__text">{{ 'about.feature_delivery_desc' | translate }}</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-card__icon feature-card__icon--success">
+              <i class="pi pi-verified"></i>
+            </div>
+            <h3 class="feature-card__title">{{ 'about.feature_quality' | translate }}</h3>
+            <p class="feature-card__text">{{ 'about.feature_quality_desc' | translate }}</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-card__icon feature-card__icon--warning">
+              <i class="pi pi-wallet"></i>
+            </div>
+            <h3 class="feature-card__title">{{ 'about.feature_prices' | translate }}</h3>
+            <p class="feature-card__text">{{ 'about.feature_prices_desc' | translate }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Company Info -->
+    <div class="card card--no-hover">
+      <div class="card-header">
+        <div class="card-header__icon card-header__icon--info">
+          <i class="pi pi-info-circle"></i>
+        </div>
+        <div class="card-header__text">
+          <h2 class="card-header__title">{{ 'about.company_title' | translate }}</h2>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="info-list">
+          <div class="info-row">
+            <span class="info-row__label">
+              <i class="pi pi-building"></i>
+              {{ 'about.company_name' | translate }}
+            </span>
+            <span class="info-row__value">Elsuq</span>
+          </div>
+          <div class="info-row">
+            <span class="info-row__label">
+              <i class="pi pi-calendar"></i>
+              {{ 'about.founded' | translate }}
+            </span>
+            <span class="info-row__value">2024</span>
+          </div>
+          <div class="info-row">
+            <span class="info-row__label">
+              <i class="pi pi-map-marker"></i>
+              {{ 'about.location' | translate }}
+            </span>
+            <span class="info-row__value">Morocco</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</app-page-layout>
