@@ -7,7 +7,7 @@ from sqlmodel import Session, select
 from app.database import get_session
 from app.models.order import (
     Order, OrderCreate, OrderUpdate, OrderRead, OrderItem,
-    OrderStatus, OrderWithItems, PromotionInfo
+    OrderStatus, OrderWithItems, PromotionInfo, UserInfo
 )
 from app.models.product import Product
 from app.models.promotion import Promotion, PromotionUsage, PromotionScope
@@ -200,7 +200,6 @@ def create_order(
 
     return order
 
-# The rest of the file remains unchanged
 @router.get("", response_model=List[OrderRead])
 def read_user_orders(
     skip: int = Query(0, ge=0),
@@ -209,26 +208,28 @@ def read_user_orders(
     session: Session = Depends(get_session),
 ) -> Any:
     """
-    Get current user's orders.
+    Get current user's orders with user info.
     """
     # Regular users can only see their own orders
     if current_user.role == UserRole.CUSTOMER:
         orders = session.exec(
             select(Order)
             .where(Order.user_id == current_user.id)
+            .options(joinedload(Order.user))
             .offset(skip)
             .limit(limit)
             .order_by(Order.created_at.desc())
-        ).all()
+        ).unique().all()
     # Staff and admins can see all orders
     else:
         orders = session.exec(
             select(Order)
+            .options(joinedload(Order.user))
             .offset(skip)
             .limit(limit)
             .order_by(Order.created_at.desc())
-        ).all()
-    
+        ).unique().all()
+
     return orders
 
 @router.get("/{order_id}", response_model=OrderWithItems)

@@ -201,14 +201,14 @@
                       <td>
                         <div class="flex align-items-center gap-3">
                           <div class="avatar">
-                            {{ (getUserById(order.user_id)?.full_name || order.user?.full_name || '?').charAt(0).toUpperCase() }}
+                            {{ (order.user?.full_name || '?').charAt(0).toUpperCase() }}
                           </div>
                           <div class="info-display">
                             <span class="info-display__name">
-                              {{ getUserById(order.user_id)?.full_name || order.user?.full_name || ('admin.orders.user_id' | translate) + ': ' + order.user_id }}
+                              {{ order.user?.full_name || ('admin.orders.user_id' | translate) + ': ' + order.user_id }}
                             </span>
                             <span class="info-display__email">
-                              {{ getUserById(order.user_id)?.email || order.user?.email || ('admin.orders.no_email' | translate) }}
+                              {{ order.user?.email || ('admin.orders.no_email' | translate) }}
                             </span>
                             @if (order.contact_phone) {
                               <span class="info-display__tertiary">{{ order.contact_phone | appPhone }}</span>

@@ -10,10 +10,7 @@ import { ROUTES } from '../../../core/constants/routes.constants';
 import { ORDER_STATUS } from '../../../core/constants/app.constants';
 import { onLanguageChange } from '../../../core/utils/language-change.util';
 import { AdminService } from '../../../services/admin.service';
-import { Order, OrderItem, UserManage } from '../../../models/admin.model';
-import { Product } from '../../../models/product.model';
-import { ProductService } from '../../../services/product.service';
-import { TranslationHelperService } from '../../../core/services/translation-helper.service';
+import { Order, OrderItem } from '../../../models/admin.model';
 import { StatusSeverityService } from '../../../core/services/status-severity.service';
 import { BaseAdminListComponent, ColumnOption } from '../../../shared/base/base-admin-list.component';
 
@@ -34,8 +31,6 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
   allOrders = signal<Order[]>([]);
   orders = signal<Order[]>([]);
   paginatedOrders = signal<Order[]>([]);
-  users = signal<UserManage[]>([]);
-  products = signal<Product[]>([]);
 
   // Computed counts
   pendingCount = computed(() => this.allOrders().filter(o => o.status === ORDER_STATUS.PENDING).length);
@@ -83,45 +78,13 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
   // Services
   private adminService = inject(AdminService);
   private translateService = inject(TranslateService);
-  private productService = inject(ProductService);
-  private translationHelper = inject(TranslationHelperService);
   private statusSeverity = inject(StatusSeverityService);
   private destroyRef = inject(DestroyRef);
 
   ngOnInit() {
-    this.loadUsersAndOrders();
-    this.loadProducts();
-    onLanguageChange(this.translateService, this.destroyRef, () => this.filterItems());
-  }
-
-  loadProducts() {
-    this.productService.getProducts()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (products) => this.products.set(products || []),
-        error: () => this.products.set([])
-      });
-  }
-
-  loadUsersAndOrders() {
     this.loading = true;
-
-    this.adminService.getAllUsers(1, 1000)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (usersResponse) => {
-          this.users.set(usersResponse?.users || []);
-          this.loadAllOrders();
-        },
-        error: () => {
-          this.users.set([]);
-          this.loadAllOrders();
-        }
-      });
-  }
-
-  getUserById(userId: number) {
-    return this.users().find(user => user.id === userId);
+    this.loadAllOrders();
+    onLanguageChange(this.translateService, this.destroyRef, () => this.filterItems());
   }
 
   hasActiveFilters(): boolean {
@@ -240,16 +203,6 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
   }
 
   getProductName(item: OrderItem): string {
-    // Try to find the full product for translated name
-    const products = this.products();
-    if (item.product_id && products.length > 0) {
-      const fullProduct = products.find(p => p.id === item.product_id);
-      if (fullProduct) {
-        return this.translationHelper.getProductName(fullProduct);
-      }
-    }
-
-    // Fallback to stored product name
     return item.product_name;
   }
 

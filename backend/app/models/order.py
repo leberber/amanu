@@ -87,6 +87,14 @@ class OrderUpdate(SQLModel):
     shipping_address: Optional[str] = None
     contact_phone: Optional[str] = None
 
+class UserInfo(SQLModel):
+    """Minimal user info for order display"""
+    id: int
+    full_name: str
+    email: str
+
+    model_config = {"from_attributes": True}
+
 class OrderRead(OrderBase):
     """Model for reading orders"""
     id: int
@@ -95,6 +103,9 @@ class OrderRead(OrderBase):
     subtotal: Optional[float] = None
     discount_amount: float = 0
     promotion_id: Optional[int] = None
+    user: Optional[UserInfo] = None
+
+    model_config = {"from_attributes": True}
 
 
 # Create a new Pydantic model that explicitly includes items
