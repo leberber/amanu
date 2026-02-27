@@ -106,11 +106,11 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
   loadUsersAndOrders() {
     this.loading = true;
 
-    this.adminService.getAllUsers()
+    this.adminService.getAllUsers(1, 1000)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (usersResponse) => {
-          this.users.set(Array.isArray(usersResponse) ? usersResponse : usersResponse.users);
+          this.users.set(usersResponse?.users || []);
           this.loadAllOrders();
         },
         error: () => {
