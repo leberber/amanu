@@ -1,17 +1,12 @@
 <!-- src/app/pages/admin/admin-products/admin-products.component.html -->
-<div class="admin-page" [class.initialized]="tableInitialized()">
-  <!-- Background Decoration -->
-  <div class="bg-decoration">
-    <div class="blob blob-1"></div>
-    <div class="blob blob-2"></div>
-    <div class="blob blob-3"></div>
-  </div>
-
+<app-agroclik-page-container>
   <p-toast></p-toast>
   <p-confirmDialog></p-confirmDialog>
-  <div class="admin-content">
+
+  <!-- Top Section: Header + Filters -->
+  <div pageTop [class.initialized]="tableInitialized()">
     <!-- Page Header -->
-    <div class="admin-list-header animate-item" style="--delay: 0ms;">
+    <div class="admin-list-header animate-item" style="--item-delay: 0ms;">
       <div class="header-title">
         <div class="admin-icon-wrapper">
           <div class="icon-bg"></div>
@@ -27,7 +22,7 @@
     </div>
 
     <!-- Status Segmented Control with Dropdowns and Add Button -->
-    <div class="flex align-items-center justify-content-between gap-3 flex-wrap lg:flex-nowrap mt-3 mb-4 animate-item" style="--delay: 50ms;">
+    <div class="flex align-items-center justify-content-between gap-3 flex-wrap lg:flex-nowrap mt-3 mb-4 animate-item" style="--item-delay: 50ms;">
       <div class="flex align-items-center gap-3 flex-wrap lg:flex-nowrap">
         <div class="segment-control segment-control--glass flex-shrink-0">
           <button
@@ -115,7 +110,10 @@
         <span>{{ 'admin.products.add_product' | translate }}</span>
       </button>
     </div>
+  </div>
 
+  <!-- Main Section: Table -->
+  <div pageMain>
     <!-- Loading State - Skeleton Table -->
     @if (loading) {
       <app-table-skeleton
@@ -125,7 +123,7 @@
       />
     } @else if (products().length === 0) {
       <!-- Empty State -->
-      <div class="empty-state animate-item" style="--delay: 100ms;">
+      <div class="empty-state animate-item" style="--item-delay: 100ms;">
         <div class="empty-state__icon">
           <i class="pi pi-box"></i>
         </div>
@@ -146,7 +144,7 @@
       </div>
     } @else {
       <!-- Products Table -->
-      <div class="table-container animate-item" [class.fullscreen]="isFullscreen()" style="--delay: 100ms;">
+      <div class="table-container animate-item" [class.fullscreen]="isFullscreen()" style="--item-delay: 100ms;">
         <div class="table-header">
           <app-table-search
             [(query)]="searchQuery"
@@ -435,4 +433,4 @@
       </div>
     }
   </div>
-</div>
+</app-agroclik-page-container>
