@@ -62,8 +62,8 @@
           [placeholder]="'admin.products.filters.all_categories' | translate"
           (onChange)="onCategoryChange()"
           [showClear]="categoryFilter !== null"
-          styleClass="admin-filter-select"
-          panelStyleClass="filter-select-panel"
+          styleClass="filter-select--glass"
+          panelStyleClass="filter-select-panel--glass"
           appendTo="body">
           <ng-template pTemplate="selectedItem" let-selected>
             @if (selected) {
@@ -90,8 +90,8 @@
           [placeholder]="'admin.products.filters.all_brands' | translate"
           (onChange)="onBrandChange()"
           [showClear]="brandFilter !== null"
-          styleClass="admin-filter-select"
-          panelStyleClass="filter-select-panel"
+          styleClass="filter-select--glass"
+          panelStyleClass="filter-select-panel--glass"
           appendTo="body">
           <ng-template pTemplate="selectedItem" let-selected>
             @if (selected) {

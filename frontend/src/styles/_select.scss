@@ -264,3 +264,123 @@
     @extend %select-option-base;
   }
 }
+
+
+// =============================================================================
+// 8. FILTER SELECT (Glass-morphism style for admin filters)
+// =============================================================================
+
+.p-select.filter-select--glass {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  border: var(--glass-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
+  min-width: 260px;
+  height: 52px;
+  transition: all var(--transition-fast);
+
+  @media (max-width: 767px) {
+    width: 100%;
+    min-width: 100%;
+  }
+
+  .p-select-label {
+    padding: var(--space-4) var(--space-6);
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-medium);
+    color: var(--text-color);
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+
+    i {
+      color: var(--primary-color);
+      font-size: var(--font-size-lg);
+    }
+  }
+
+  .p-select-dropdown {
+    background: transparent;
+    color: var(--text-color-secondary);
+    border-left: none;
+    padding-right: var(--space-5);
+    width: 40px;
+
+    .p-select-dropdown-icon {
+      font-size: var(--font-size-sm);
+    }
+  }
+
+  .p-select-clear-icon {
+    color: var(--text-color-secondary);
+    margin-right: var(--space-2);
+    font-size: var(--font-size-sm);
+
+    &:hover {
+      color: var(--color-error);
+    }
+  }
+
+  &:hover {
+    border-color: rgba(var(--primary-rgb), 0.3);
+    box-shadow: var(--shadow-lg);
+  }
+
+  &.p-focus,
+  &:focus-within {
+    border-color: var(--primary-color);
+    box-shadow: 0 4px 20px rgba(var(--primary-rgb), 0.2);
+  }
+
+  // Selected state (has value)
+  &.p-filled {
+    background: var(--color-white);
+
+    .p-select-label {
+      color: var(--primary-color);
+      font-weight: var(--font-weight-semibold);
+    }
+  }
+}
+
+// Filter select panel (dropdown options)
+.filter-select-panel--glass {
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
+  border: var(--border-width) solid var(--border-color-light);
+  overflow: hidden;
+  min-width: 240px !important;
+
+  .p-select-header {
+    padding: var(--space-4);
+    border-bottom: var(--border-width) solid var(--border-color-light);
+  }
+
+  .p-select-list {
+    padding: var(--space-3);
+  }
+
+  .p-select-option {
+    padding: var(--space-4) var(--space-5);
+    border-radius: var(--radius-md);
+    margin: var(--space-1) 0;
+    font-size: var(--font-size-base);
+    transition: all var(--transition-fast);
+
+    &:hover {
+      background: rgba(var(--primary-rgb), 0.08);
+    }
+
+    &.p-select-option-selected,
+    &.p-highlight {
+      background: var(--primary-gradient);
+      color: var(--color-white);
+
+      .select-option .option-count {
+        background: rgba(var(--color-white-rgb), 0.25);
+        color: var(--color-white);
+      }
+    }
+  }
+}
