@@ -1,37 +1,51 @@
-<app-page-layout
-  title="notifications_page.title"
-  subtitle="notifications_page.subtitle"
-  icon="pi pi-bell"
-  [showBackButton]="true"
-  [backRoute]="routes.PRODUCTS"
-  [fullscreen]="true">
-
-  <div class="notifications-list">
-    @for (notif of notifications(); track notif.id) {
-      <div class="notification-card" [class.notification-card--unread]="!notif.read">
-        <div class="notification-card__icon notification-card__icon--{{ notif.type }}">
-          <i [class]="getNotificationIcon(notif.type)"></i>
+<app-agroclik-page-container>
+  <!-- Page Header -->
+  <div pageTop>
+    <div class="admin-list-header animate-item" style="--item-delay: 0ms;">
+      <div class="header-title">
+        <div class="admin-icon-wrapper">
+          <div class="icon-bg"></div>
+          <div class="icon-circle">
+            <i class="pi pi-bell"></i>
+          </div>
         </div>
-        <div class="notification-card__content">
-          <h4 class="notification-card__title">{{ notif.title }}</h4>
-          <p class="notification-card__message">{{ notif.message }}</p>
-          <span class="notification-card__date">
-            <i class="pi pi-clock"></i>
-            {{ notif.date | date:'dd/MM/yyyy HH:mm' }}
-          </span>
+        <div class="title-text">
+          <h1>{{ 'notifications_page.title' | translate }}</h1>
+          <p>{{ 'notifications_page.subtitle' | translate }}</p>
         </div>
-        @if (!notif.read) {
-          <div class="notification-card__badge"></div>
-        }
       </div>
-    } @empty {
-      <app-empty-state
-        icon="pi-bell-slash"
-        title="notifications_page.empty_title"
-        description="notifications_page.empty_message"
-        actionLabel="notifications_page.browse_products"
-        [actionLink]="routes.PRODUCTS"
-        actionIcon="pi pi-shopping-bag" />
-    }
+    </div>
   </div>
-</app-page-layout>
+
+  <!-- Main Content -->
+  <div pageMain>
+    <div class="notifications-list">
+      @for (notif of notifications(); track notif.id) {
+        <div class="notification-card animate-item" [class.notification-card--unread]="!notif.read" [style.--item-delay]="($index * 50) + 'ms'">
+          <div class="notification-card__icon notification-card__icon--{{ notif.type }}">
+            <i [class]="getNotificationIcon(notif.type)"></i>
+          </div>
+          <div class="notification-card__content">
+            <h4 class="notification-card__title">{{ notif.title }}</h4>
+            <p class="notification-card__message">{{ notif.message }}</p>
+            <span class="notification-card__date">
+              <i class="pi pi-clock"></i>
+              {{ notif.date | date:'dd/MM/yyyy HH:mm' }}
+            </span>
+          </div>
+          @if (!notif.read) {
+            <div class="notification-card__badge"></div>
+          }
+        </div>
+      } @empty {
+        <app-empty-state
+          icon="pi-bell-slash"
+          title="notifications_page.empty_title"
+          description="notifications_page.empty_message"
+          actionLabel="notifications_page.browse_products"
+          [actionLink]="routes.PRODUCTS"
+          actionIcon="pi pi-shopping-bag" />
+      }
+    </div>
+  </div>
+</app-agroclik-page-container>
