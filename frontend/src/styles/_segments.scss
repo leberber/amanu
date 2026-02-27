@@ -70,11 +70,12 @@
     border: var(--glass-border);
     box-shadow: var(--shadow-md);
     gap: var(--space-3);
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     position: relative;
 
     @media (max-width: 767px) {
       width: 100%;
+      flex-wrap: wrap;
       justify-content: center;
     }
 

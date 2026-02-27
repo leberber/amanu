@@ -435,13 +435,13 @@
 // =============================================================================
 
 .editable-cell {
-  // display: flex;
   flex-direction: column;
   padding: var(--space-3) var(--space-5);
   border-radius: var(--radius-xs);
   cursor: pointer;
   transition: all var(--transition-fast);
   position: relative;
+  width: 100px;
 
   &:hover {
     background: rgba(var(--primary-rgb), 0.08);
