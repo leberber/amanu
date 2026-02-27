@@ -60,16 +60,24 @@ export class AdminPromotionsComponent extends BaseAdminListComponent implements 
   ];
 
   // Column visibility options
-  override columnOptions: ColumnOption[] = [
-    { field: 'name', label: 'admin.promotions.table.name', visible: true },
-    { field: 'code', label: 'admin.promotions.table.code', visible: true },
-    { field: 'discount', label: 'admin.promotions.table.discount', visible: true },
-    { field: 'scope', label: 'admin.promotions.table.scope', visible: true },
-    { field: 'validity', label: 'admin.promotions.table.validity', visible: true },
-    { field: 'usage', label: 'admin.promotions.table.usage', visible: true },
-    { field: 'status', label: 'admin.promotions.table.status', visible: true },
-    { field: 'actions', label: 'admin.promotions.table.actions', visible: true }
-  ];
+  // MOBILE COLUMN VISIBILITY: On mobile, only show essential columns (name, discount, status)
+  // Other columns can be toggled back from table options menu
+  override columnOptions: ColumnOption[] = this.getInitialColumnOptions();
+
+  private getInitialColumnOptions(): ColumnOption[] {
+    const isMobile = window.innerWidth <= 768;
+
+    return [
+      { field: 'name', label: 'admin.promotions.table.name', visible: true },
+      { field: 'code', label: 'admin.promotions.table.code', visible: !isMobile },
+      { field: 'discount', label: 'admin.promotions.table.discount', visible: true },
+      { field: 'scope', label: 'admin.promotions.table.scope', visible: !isMobile },
+      { field: 'validity', label: 'admin.promotions.table.validity', visible: !isMobile },
+      { field: 'usage', label: 'admin.promotions.table.usage', visible: !isMobile },
+      { field: 'status', label: 'admin.promotions.table.status', visible: true },
+      { field: 'actions', label: 'admin.promotions.table.actions', visible: !isMobile }
+    ];
+  }
 
   // Services
   private promotionService = inject(PromotionService);

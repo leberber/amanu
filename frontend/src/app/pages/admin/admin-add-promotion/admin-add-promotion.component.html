@@ -1,7 +1,7 @@
 <app-page-layout
   [title]="pageTitle()"
   [subtitle]="pageSubtitle()"
-  mobileTitle="common.promotion"
+  [mobileTitle]="mobileTitle() || 'common.promotion'"
   [mobileSubtitle]="mobileSubtitle()"
   icon="pi pi-tag"
   [hideMobileIcon]="true"

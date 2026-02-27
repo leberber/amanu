@@ -1,4 +1,27 @@
+// =============================================================================
+// Admin Promotions Component Styles
+// =============================================================================
 
 .table-container {
   --table-max-height: calc(100vh - 375px);
+}
+
+// =============================================================================
+// MOBILE TABLE OPTIMIZATIONS
+// =============================================================================
+
+@media (max-width: 768px) {
+  ::ng-deep .info-display {
+    min-width: 80px !important;
+    max-width: 140px !important;
+
+    &__secondary {
+      display: none !important;
+    }
+
+    &__name {
+      white-space: normal !important;
+      word-break: break-word;
+    }
+  }
 }

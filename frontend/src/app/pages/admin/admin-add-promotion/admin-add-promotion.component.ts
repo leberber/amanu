@@ -106,6 +106,10 @@ export class AdminAddPromotionComponent implements OnInit {
     this.isEditMode() ? 'common.edit' : 'common.add'
   );
 
+  readonly mobileTitle = computed(() =>
+    this.isEditMode() && this.nameValue() ? this.nameValue() : ''
+  );
+
   readonly submitButtonLabel = computed(() =>
     this.isEditMode() ? 'admin.promotions.form.submit_update' : 'admin.promotions.form.submit_add'
   );
