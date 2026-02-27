@@ -67,9 +67,11 @@
 .page-main {
   padding: var(--page-padding);
   padding-top: var(--space-3);
+  padding-bottom: var(--space-6);
 
   @media (min-width: 768px) {
     padding-top: var(--space-4);
+    padding-bottom: var(--page-padding);
     flex: 1;
     overflow-y: auto;
     min-height: 0;
