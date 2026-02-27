@@ -165,7 +165,131 @@
 
 
 // =============================================================================
-// 3. PRIMENG STEPS OVERRIDE
+// 3. HORIZONTAL STEPPER (Custom)
+// =============================================================================
+
+.stepper-horizontal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+
+  &__step {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    max-width: 280px;
+
+    &:last-child {
+      flex: 0 0 auto;
+
+      .stepper-horizontal__connector {
+        display: none;
+      }
+    }
+
+    // Active state
+    &--active {
+      .stepper-horizontal__number {
+        background: var(--primary-gradient);
+        color: var(--color-white);
+        box-shadow: var(--shadow-primary);
+      }
+
+      .stepper-horizontal__label {
+        color: var(--primary-color);
+        font-weight: var(--font-weight-semibold);
+      }
+    }
+
+    // Completed state
+    &--completed {
+      .stepper-horizontal__number {
+        background: var(--color-success);
+        color: var(--color-white);
+      }
+
+      .stepper-horizontal__connector {
+        background: var(--color-success);
+      }
+
+      .stepper-horizontal__label {
+        color: var(--text-color);
+      }
+    }
+  }
+
+  &__indicator {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    white-space: nowrap;
+  }
+
+  &__number {
+    @extend %stepper-number;
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    background: var(--overlay-medium);
+    color: var(--text-color-secondary);
+    font-size: var(--font-size-sm);
+
+    i {
+      font-size: var(--font-size-sm);
+    }
+  }
+
+  &__label {
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-medium);
+    color: var(--text-color-secondary);
+    transition: all var(--transition-fast);
+  }
+
+  &__connector {
+    flex: 1;
+    height: 2px;
+    background: var(--overlay-hover);
+    margin: 0 var(--space-4);
+    min-width: 40px;
+    transition: background var(--transition-smooth);
+  }
+}
+
+// Mobile adjustments for horizontal stepper
+@media (max-width: 768px) {
+  .stepper-horizontal {
+    justify-content: center;
+    gap: var(--space-3);
+
+    &__step {
+      flex: 0 0 auto;
+      max-width: none;
+    }
+
+    &__number {
+      width: 32px;
+      height: 32px;
+      min-width: 32px;
+      font-size: var(--font-size-xs);
+    }
+
+    &__label {
+      display: none;
+    }
+
+    &__connector {
+      min-width: 40px;
+      max-width: 60px;
+      margin: 0 var(--space-2);
+    }
+  }
+}
+
+
+// =============================================================================
+// 4. PRIMENG STEPS OVERRIDE
 // =============================================================================
 
 .p-steps {
@@ -217,11 +341,13 @@
 
 
 // =============================================================================
-// 4. RESPONSIVE ADJUSTMENTS
+// 5. RESPONSIVE ADJUSTMENTS
 // =============================================================================
 
 @media (max-width: 768px) {
   .form-wizard {
+    margin: 0;
+
     &__header,
     &__body,
     &__footer {
