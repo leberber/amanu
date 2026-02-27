@@ -13,6 +13,7 @@
     "register": "إنشاء حساب",
     "logout": "تسجيل الخروج",
     "search": "البحث",
+    "search_simple": "بحث",
     "loading": "جاري التحميل...",
     "error": "خطأ",
     "success": "نجح",

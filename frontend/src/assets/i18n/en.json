@@ -13,6 +13,7 @@
     "register": "Register",
     "logout": "Logout",
     "search": "Search",
+    "search_simple": "Search",
     "loading": "Loading...",
     "error": "Error",
     "success": "Success",

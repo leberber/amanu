@@ -89,21 +89,11 @@
     } @else {
       <div class="table-container animate-item" [class.fullscreen]="isFullscreen()" style="--item-delay: 100ms;">
         <div class="table-header">
-          <div class="table-search">
-            <div class="search-icon">
-              <i class="pi pi-search"></i>
-            </div>
-            <input
-              type="text"
-              [(ngModel)]="searchQuery"
-              (input)="onSearchInput()"
-              [placeholder]="'admin.orders.search_placeholder' | translate">
-            @if (searchQuery) {
-              <button class="clear-search" (click)="searchQuery = ''; filterItems()">
-                <i class="pi pi-times"></i>
-              </button>
-            }
-          </div>
+          <app-table-search
+            [(query)]="searchQuery"
+            (search)="onSearchInput()"
+            (clear)="filterItems()"
+          />
           <div class="table-actions">
             @if (hasActiveFilters()) {
               <button class="clear-filters-btn" (click)="clearFilters()" [pTooltip]="'admin.orders.clear_filters' | translate">
