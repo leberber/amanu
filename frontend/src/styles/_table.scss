@@ -43,6 +43,10 @@
   box-shadow: var(--shadow-sm);
   overflow: hidden;
 
+  @media (max-width: 768px) {
+    overflow: visible;
+  }
+
   &.scrollable {
     .table-wrapper {
       max-height: var(--table-max-height, 70vh);
@@ -82,8 +86,10 @@
   -webkit-overflow-scrolling: touch;
 
   @media (max-width: 768px) {
-    overflow-y: auto;
-    overflow-x: hidden;
+    // On mobile, let the page scroll naturally so footer is reachable
+    max-height: none;
+    overflow-y: visible;
+    overflow-x: auto;
 
     .table {
       display: block;

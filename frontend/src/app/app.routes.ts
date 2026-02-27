@@ -120,6 +120,12 @@ export const routes: Routes = [
     canActivate: [adminGuard]
   },
   {
+    path: 'admin/orders/:id',
+    loadComponent: () => import('./pages/admin/admin-order-detail/admin-order-detail.component').then(m => m.AdminOrderDetailComponent),
+    canActivate: [adminGuard],
+    data: { hideBottomNav: true }
+  },
+  {
     path: 'admin/users',
     loadComponent: () => import('./pages/admin/admin-users/admin-users.component').then(m => m.AdminUsersComponent),
     canActivate: [adminOnlyGuard]

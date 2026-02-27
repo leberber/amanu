@@ -46,6 +46,7 @@ export const ROUTES = {
     ADD_PROMOTION: '/admin/promotions/add',
     EDIT_PROMOTION: '/admin/promotions/edit/:id',
     ORDERS: '/admin/orders',
+    ORDER_DETAIL: '/admin/orders/:id',
     USERS: '/admin/users',
     ADD_USER: '/admin/users/add',
     EDIT_USER: '/admin/users/edit/:id',

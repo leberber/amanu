@@ -67,7 +67,10 @@ export interface DashboardStats {
     status: string;
     shipping_address: string;
     contact_phone: string;
+    subtotal?: number;
+    discount_amount?: number;
     total_amount: number;
+    promotion_id?: number;
     created_at: string;
     updated_at?: string;
     items?: OrderItem[];

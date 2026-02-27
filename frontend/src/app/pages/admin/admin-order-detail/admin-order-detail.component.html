@@ -1,0 +1,218 @@
+<app-page-layout
+  [title]="pageTitle()"
+  [subtitle]="pageSubtitle()"
+  [mobileTitle]="pageTitle()"
+  icon="pi pi-file-edit"
+  [showBackButton]="true"
+  [backRoute]="ROUTES.ADMIN.ORDERS"
+  [hideMobileIcon]="true">
+
+  <!-- Mobile: Items count badge -->
+  @if (order(); as o) {
+    <span pageActions class="items-badge">
+      {{ o.items?.length || 0 }} {{ ((o.items?.length || 0) === 1 ? 'common.item' : 'common.items') | translate }}
+    </span>
+  }
+
+  <p-toast></p-toast>
+
+  @if (loading()) {
+    <!-- Skeleton Loading -->
+    <div class="order-detail-skeleton">
+      <!-- Stats Skeleton -->
+      <div class="stats-grid stats-grid--compact mb-4">
+        @for (i of [1,2,3,4,5,6]; track i) {
+          <div class="stat-card stat-card--compact">
+            <div class="stat-card__content">
+              <span class="stat-card__value">
+                <span class="skeleton" style="width: 36px; height: 36px; border-radius: var(--radius-md);"></span>
+                <span class="skeleton skeleton-text" style="width: 80px; height: 20px;"></span>
+              </span>
+              <span class="skeleton skeleton-text" style="width: 60px; height: 12px; margin-top: 8px;"></span>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Items Skeleton -->
+      <div class="table-container">
+        <div class="table-header">
+          <div class="skeleton skeleton-text" style="width: 150px; height: 24px;"></div>
+        </div>
+        <div class="order-items-list">
+          @for (i of [1,2,3]; track i) {
+            <div class="order-item-card">
+              <div class="skeleton" style="width: 44px; height: 44px; border-radius: var(--radius-md);"></div>
+              <div class="order-item-card__info">
+                <div class="skeleton skeleton-text" style="width: 120px; height: 16px;"></div>
+                <div class="skeleton skeleton-text" style="width: 80px; height: 12px; margin-top: 4px;"></div>
+              </div>
+              <div class="skeleton skeleton-text" style="width: 60px; height: 16px;"></div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (!loading() && order(); as order) {
+    <!-- Order Info Cards -->
+    <div class="stats-grid stats-grid--compact">
+      <!-- Order Status -->
+      <div class="stat-card stat-card--compact status-card animate-item" [class]="'status-card--' + order.status" style="--item-delay: 50ms;">
+        <div class="stat-card__content">
+          <span class="stat-card__value">
+            <span class="stat-card__icon" [ngClass]="{
+              'stat-card__icon--warning': order.status === 'pending',
+              'stat-card__icon--info': order.status === 'confirmed',
+              'stat-card__icon--primary': order.status === 'shipped',
+              'stat-card__icon--success': order.status === 'delivered',
+              'stat-card__icon--red': order.status === 'cancelled'
+            }">
+              <i [class]="getStatusIcon(order.status)"></i>
+            </span>
+            {{ 'admin.orders.status.' + order.status | translate }}
+          </span>
+          <span class="stat-card__label">{{ 'admin.orders.table.status' | translate }}</span>
+        </div>
+      </div>
+
+      <!-- Total Amount -->
+      <div class="stat-card stat-card--compact animate-item" style="--item-delay: 100ms;">
+        <div class="stat-card__content">
+          <span class="stat-card__value">
+            <span class="stat-card__icon stat-card__icon--success"><i class="pi pi-wallet"></i></span>
+            {{ order.total_amount | appCurrency }}
+          </span>
+          <span class="stat-card__label">{{ 'admin.orders.total' | translate }}</span>
+        </div>
+      </div>
+
+      <!-- Items Count -->
+      <div class="stat-card stat-card--compact animate-item" style="--item-delay: 150ms;">
+        <div class="stat-card__content">
+          <span class="stat-card__value">
+            <span class="stat-card__icon stat-card__icon--purple"><i class="pi pi-box"></i></span>
+            {{ order.items?.length || 0 }}
+          </span>
+          <span class="stat-card__label">{{ (order.items?.length || 0) === 1 ? ('common.item' | translate) : ('common.items' | translate) }}</span>
+        </div>
+      </div>
+
+      <!-- Customer -->
+      <div class="stat-card stat-card--compact animate-item" style="--item-delay: 200ms;">
+        <div class="stat-card__content">
+          <span class="stat-card__value">
+            <span class="stat-card__icon stat-card__icon--primary"><i class="pi pi-user"></i></span>
+            {{ order.user?.full_name || ('admin.orders.user_number' | translate) + order.user_id }}
+          </span>
+          <span class="stat-card__label">{{ 'admin.orders.customer' | translate }}</span>
+        </div>
+      </div>
+
+      <!-- Phone -->
+      @if (order.contact_phone) {
+        <div class="stat-card stat-card--compact animate-item" style="--item-delay: 250ms;">
+          <div class="stat-card__content">
+            <span class="stat-card__value">
+              <span class="stat-card__icon stat-card__icon--orange"><i class="pi pi-phone"></i></span>
+              {{ order.contact_phone | appPhone }}
+            </span>
+            <span class="stat-card__label">{{ 'admin.orders.phone' | translate }}</span>
+          </div>
+        </div>
+      }
+
+      <!-- Shipping Address -->
+      <div class="stat-card stat-card--compact animate-item" style="--item-delay: 300ms;">
+        <div class="stat-card__content">
+          <span class="stat-card__value stat-card__value--address">
+            <span class="stat-card__icon stat-card__icon--info"><i class="pi pi-map-marker"></i></span>
+            {{ order.shipping_address }}
+          </span>
+          <span class="stat-card__label">{{ 'admin.orders.address' | translate }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Status Change Actions -->
+    @if (canEditStatus(order.status)) {
+      <div class="status-change-card animate-item" style="--item-delay: 350ms;">
+        <div class="status-change-card__header">
+          <i class="pi pi-sync"></i>
+          <span>{{ 'admin.orders.change_status' | translate }}</span>
+        </div>
+        <div class="status-change-card__options">
+          @for (status of getNextStatuses(order.status); track status.value) {
+            <button
+              class="status-option-card"
+              [class]="status.value"
+              [class.selected]="selectedNewStatus() === status.value"
+              (click)="selectStatus(status.value)">
+              <i [class]="status.icon"></i>
+              <span>{{ status.label }}</span>
+            </button>
+          }
+        </div>
+        @if (selectedNewStatus()) {
+          <button class="status-confirm-btn" (click)="confirmStatusChange()">
+            <i class="pi pi-check"></i>
+            <span>{{ 'common.confirm' | translate }}</span>
+          </button>
+        }
+      </div>
+    }
+
+    <!-- Order Items -->
+    <div class="table-container animate-item" style="--item-delay: 400ms;">
+      <div class="table-header">
+        <div class="flex align-items-center gap-3">
+          <div class="card-header__icon card-header__icon--primary">
+            <i class="pi pi-list"></i>
+          </div>
+          <div>
+            <h3 class="m-0 font-semibold">{{ 'admin.orders.order_items' | translate }}</h3>
+            <span class="text-sm text-secondary">{{ (order.items?.length || 0) }} {{ ((order.items?.length || 0) === 1 ? 'common.item' : 'common.items') | translate }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="order-items-list">
+        @for (item of order.items || []; track item.id; let i = $index) {
+          <div class="order-item-card item-animate" [style.animation-delay]="(i * 50) + 'ms'">
+            <div class="order-item-card__icon">
+              <i class="pi pi-box"></i>
+            </div>
+            <div class="order-item-card__info">
+              <span class="order-item-card__name">{{ item.product_name }}</span>
+              <span class="order-item-card__qty">{{ item.quantity }} {{ item.product_unit | appUnit }} × {{ item.unit_price | appCurrency }}</span>
+            </div>
+            <span class="order-item-card__total">{{ item.unit_price * item.quantity | appCurrency }}</span>
+          </div>
+        }
+      </div>
+
+      <!-- Total Footer -->
+      <div class="order-total-footer">
+        <div class="order-total-footer__row">
+          <span class="order-total-footer__label">{{ 'admin.orders.subtotal' | translate }}</span>
+          <span class="order-total-footer__value">{{ order.subtotal || order.total_amount | appCurrency }}</span>
+        </div>
+        @if (order.discount_amount && order.discount_amount > 0) {
+          <div class="order-total-footer__row order-total-footer__row--discount">
+            <span class="order-total-footer__label">
+              <i class="pi pi-tag"></i>
+              {{ 'admin.orders.discount' | translate }}
+            </span>
+            <span class="order-total-footer__value">-{{ order.discount_amount | appCurrency }}</span>
+          </div>
+        }
+        <div class="order-total-footer__row order-total-footer__row--total">
+          <span class="order-total-footer__label">{{ 'admin.orders.total' | translate }}</span>
+          <span class="order-total-footer__value">{{ order.total_amount | appCurrency }}</span>
+        </div>
+      </div>
+    </div>
+
+    }
+</app-page-layout>

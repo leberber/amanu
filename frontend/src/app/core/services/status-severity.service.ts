@@ -47,6 +47,28 @@ export class StatusSeverityService {
     }
   }
 
+  getNextOrderStatuses(currentStatus: string): { value: string; label: string; icon: string }[] {
+    const statusTransitions: Record<string, string[]> = {
+      [ORDER_STATUS.PENDING]: [ORDER_STATUS.CONFIRMED, ORDER_STATUS.SHIPPED, ORDER_STATUS.DELIVERED, ORDER_STATUS.CANCELLED],
+      [ORDER_STATUS.CONFIRMED]: [ORDER_STATUS.SHIPPED, ORDER_STATUS.DELIVERED, ORDER_STATUS.CANCELLED],
+      [ORDER_STATUS.SHIPPED]: [ORDER_STATUS.DELIVERED, ORDER_STATUS.CANCELLED],
+      [ORDER_STATUS.DELIVERED]: [],
+      [ORDER_STATUS.CANCELLED]: []
+    };
+
+    const nextStatuses = statusTransitions[currentStatus] || [];
+
+    return nextStatuses.map(status => ({
+      value: status,
+      label: this.translateService.instant('admin.orders.status.' + status),
+      icon: this.getOrderStatusIcon(status)
+    }));
+  }
+
+  canEditOrderStatus(status: string): boolean {
+    return this.getNextOrderStatuses(status).length > 0;
+  }
+
   getBooleanSeverity(isActive: boolean): "success" | "danger" {
     return isActive ? 'success' : 'danger';
   }

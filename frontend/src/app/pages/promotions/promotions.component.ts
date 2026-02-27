@@ -1,6 +1,5 @@
 import { Component, inject, signal, OnInit, DestroyRef } from '@angular/core';
 import { CurrencyPipe, DatePipe } from '@angular/common';
-import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TagModule } from 'primeng/tag';
@@ -17,7 +16,6 @@ import { EmptyStateComponent } from '../../shared/components/empty-state/empty-s
   imports: [
     CurrencyPipe,
     DatePipe,
-    RouterLink,
     TranslateModule,
     TagModule,
     SkeletonModule,

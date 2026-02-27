@@ -10,7 +10,7 @@ import { ROUTES } from '../../../core/constants/routes.constants';
 import { ORDER_STATUS } from '../../../core/constants/app.constants';
 import { onLanguageChange } from '../../../core/utils/language-change.util';
 import { AdminService } from '../../../services/admin.service';
-import { Order, OrderItem } from '../../../models/admin.model';
+import { Order } from '../../../models/admin.model';
 import { StatusSeverityService } from '../../../core/services/status-severity.service';
 import { BaseAdminListComponent, ColumnOption } from '../../../shared/base/base-admin-list.component';
 
@@ -23,7 +23,7 @@ import { BaseAdminListComponent, ColumnOption } from '../../../shared/base/base-
     TableSkeletonComponent,
     AgroclikPageContainerComponent
   ],
-    templateUrl: './admin-orders.component.html',
+  templateUrl: './admin-orders.component.html',
   styleUrl: './admin-orders.component.scss'
 })
 export class AdminOrdersComponent extends BaseAdminListComponent implements OnInit {
@@ -44,8 +44,15 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
 
   // UI state signals
   isFullscreen = signal(false);
-  selectedOrder = signal<Order | null>(null);
-  displayOrderDialog = signal(false);
+  isMobile = signal(false);
+
+  // Mobile load more
+  mobileVisibleCount = signal(10);
+  mobileOrders = computed(() => this.orders().slice(0, this.mobileVisibleCount()));
+  hasMoreOrders = computed(() => this.mobileVisibleCount() < this.orders().length);
+
+  // Display orders - uses mobile list on mobile, paginated on desktop
+  displayOrders = computed(() => this.isMobile() ? this.mobileOrders() : this.paginatedOrders());
 
   // Inline status editing signals
   editingStatusOrderId = signal<number | null>(null);
@@ -65,26 +72,39 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
     { width: '20%', type: 'actions', headerWidth: '80px' }
   ];
 
-  // Column visibility options
-  override columnOptions: ColumnOption[] = [
-    { field: 'order_id', label: 'admin.orders.table.order_id', visible: true },
-    { field: 'customer', label: 'admin.orders.table.customer', visible: true },
-    { field: 'date', label: 'admin.orders.table.date', visible: true },
-    { field: 'status', label: 'admin.orders.table.status', visible: true },
-    { field: 'total', label: 'admin.orders.table.total', visible: true },
-    { field: 'actions', label: 'admin.orders.table.actions', visible: true }
-  ];
+  // Column visibility options - with mobile defaults
+  override columnOptions: ColumnOption[] = this.getInitialColumnOptions();
 
   // Services
-  private adminService = inject(AdminService);
-  private translateService = inject(TranslateService);
-  private statusSeverity = inject(StatusSeverityService);
-  private destroyRef = inject(DestroyRef);
+  private readonly adminService = inject(AdminService);
+  private readonly translateService = inject(TranslateService);
+  private readonly statusSeverity = inject(StatusSeverityService);
+  private readonly destroyRef = inject(DestroyRef);
+
+  private getInitialColumnOptions(): ColumnOption[] {
+    const isMobile = window.innerWidth <= 768;
+    const mobileHidden = ['order_id', 'date', 'actions'];
+
+    return [
+      { field: 'order_id', label: 'admin.orders.table.order_id', visible: !isMobile },
+      { field: 'customer', label: 'admin.orders.table.customer', visible: true },
+      { field: 'date', label: 'admin.orders.table.date', visible: !isMobile },
+      { field: 'status', label: 'admin.orders.table.status', visible: true },
+      { field: 'total', label: 'admin.orders.table.total', visible: true },
+      { field: 'actions', label: 'admin.orders.table.actions', visible: !isMobile || !mobileHidden.includes('actions') }
+    ];
+  }
 
   ngOnInit() {
     this.loading = true;
+    this.checkMobile();
     this.loadAllOrders();
     onLanguageChange(this.translateService, this.destroyRef, () => this.filterItems());
+    window.addEventListener('resize', this.checkMobile.bind(this));
+  }
+
+  private checkMobile(): void {
+    this.isMobile.set(window.innerWidth <= 768);
   }
 
   hasActiveFilters(): boolean {
@@ -101,32 +121,26 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
   }
 
   // Data loading
-  loadAllOrders() {
+  loadAllOrders(): void {
     this.adminService.getAllOrders('', 1, 1000)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
-          if (response && response.orders) {
-            this.allOrders.set(response.orders);
-            this.orders.set(response.orders);
-            this.updatePaginatedItems();
-          } else {
-            this.allOrders.set([]);
-            this.orders.set([]);
-          }
+          const orders = response?.orders || [];
+          this.allOrders.set(orders);
+          this.orders.set(orders);
+          this.updatePaginatedItems();
           this.loading = false;
           setTimeout(() => this.tableInitialized.set(true), 100);
         },
         error: (error) => {
           this.loading = false;
-
           if (error.status === 403) {
             this.baseToast.showPermissionDenied();
             this.baseRouter.navigate([ROUTES.HOME]);
           } else {
             this.baseToast.showError('admin.orders.load_error');
           }
-
           this.allOrders.set([]);
           this.orders.set([]);
         }
@@ -136,12 +150,10 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
   filterItems(): void {
     let filtered = [...this.allOrders()];
 
-    // Status filter (custom for orders: pending/confirmed/shipped/delivered/cancelled)
     if (this.statusFilter !== 'all') {
       filtered = filtered.filter(order => order.status === this.statusFilter);
     }
 
-    // Search filter
     if (this.hasSearchQuery()) {
       const search = this.searchQuery.toLowerCase();
       filtered = filtered.filter(order =>
@@ -157,9 +169,10 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
     this.orders.set(filtered);
     this.resetPagination();
     this.updatePaginatedItems();
+    this.mobileVisibleCount.set(10);
   }
 
-  override clearFilters() {
+  override clearFilters(): void {
     this.searchQuery = '';
     this.statusFilter = 'all';
     this.resetPagination();
@@ -168,99 +181,36 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
 
   toggleFullscreen(): void {
     this.isFullscreen.update(v => !v);
-    if (this.isFullscreen()) {
-      document.body.classList.add('fullscreen-active');
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.classList.remove('fullscreen-active');
-      document.body.style.overflow = '';
-    }
+    document.body.classList.toggle('fullscreen-active', this.isFullscreen());
+    document.body.style.overflow = this.isFullscreen() ? 'hidden' : '';
   }
 
-  refreshOrderData() {
-    this.loadAllOrders();
+  loadMoreOrders(): void {
+    this.mobileVisibleCount.update(count => count + 10);
   }
 
-  exportOrders() {
-    this.baseToast.showInfo('admin.orders.export_coming_soon');
-  }
-
-  openOrderDetails(order: Order) {
-    // Exit fullscreen mode if active
+  openOrderDetails(order: Order): void {
     if (this.isFullscreen()) {
       this.toggleFullscreen();
     }
-
-    // Fetch order with items from the API
-    this.adminService.getOrderById(order.id)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (fullOrder) => {
-          this.selectedOrder.set(fullOrder);
-          this.displayOrderDialog.set(true);
-        },
-        error: (error) => {
-          this.baseToast.showApiError(error, 'admin.orders.load_error');
-        }
-      });
-  }
-
-  closeOrderDialog() {
-    this.displayOrderDialog.set(false);
-  }
-
-  getStatusSeverity(status: string): "success" | "secondary" | "info" | "warn" | "danger" | "contrast" {
-    return this.statusSeverity.getOrderStatusSeverity(status);
+    this.baseRouter.navigate(['/admin/orders', order.id]);
   }
 
   getStatusIcon(status: string): string {
     return this.statusSeverity.getOrderStatusIcon(status);
   }
 
-  getProductName(item: OrderItem): string {
-    return item.product_name;
+  // Status editing - delegate to service
+  getNextStatuses(currentStatus: string): { value: string; label: string; icon: string }[] {
+    return this.statusSeverity.getNextOrderStatuses(currentStatus);
   }
 
-  updateOrderStatus(orderId: number, newStatus: string) {
-    this.adminService.updateOrderStatus(orderId, newStatus)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (updatedOrder) => {
-          this.allOrders.update(orders => {
-            const index = orders.findIndex(o => o.id === orderId);
-            if (index !== -1) {
-              const updated = [...orders];
-              updated[index] = updatedOrder;
-              return updated;
-            }
-            return orders;
-          });
-
-          this.filterItems();
-
-          this.baseToast.showSuccess('admin.orders.status_update_message', {
-            orderId: orderId,
-            status: this.translateService.instant('admin.orders.status.' + newStatus)
-          });
-
-          const currentSelected = this.selectedOrder();
-          if (currentSelected && currentSelected.id === orderId) {
-            // Preserve items when updating status (API response doesn't include items)
-            this.selectedOrder.set({
-              ...updatedOrder,
-              items: currentSelected.items
-            });
-          }
-        },
-        error: (error) => {
-          this.baseToast.showApiError(error, 'admin.orders.update_error');
-        }
-      });
+  canEditStatus(status: string): boolean {
+    return this.statusSeverity.canEditOrderStatus(status);
   }
 
-  // Inline status editing
   startEditStatus(order: Order): void {
-    if (this.getNextStatuses(order.status).length > 0) {
+    if (this.canEditStatus(order.status)) {
       this.editingStatusOrderId.set(order.id);
       this.selectedNewStatus.set(null);
     }
@@ -279,24 +229,6 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
     return this.selectedNewStatus() === status;
   }
 
-  getNextStatuses(currentStatus: string): { value: string; label: string; icon: string }[] {
-    const statusTransitions: Record<string, string[]> = {
-      [ORDER_STATUS.PENDING]: [ORDER_STATUS.CONFIRMED, ORDER_STATUS.SHIPPED, ORDER_STATUS.DELIVERED, ORDER_STATUS.CANCELLED],
-      [ORDER_STATUS.CONFIRMED]: [ORDER_STATUS.SHIPPED, ORDER_STATUS.DELIVERED, ORDER_STATUS.CANCELLED],
-      [ORDER_STATUS.SHIPPED]: [ORDER_STATUS.DELIVERED, ORDER_STATUS.CANCELLED],
-      [ORDER_STATUS.DELIVERED]: [],
-      [ORDER_STATUS.CANCELLED]: []
-    };
-
-    const nextStatuses = statusTransitions[currentStatus] || [];
-
-    return nextStatuses.map(status => ({
-      value: status,
-      label: this.translateService.instant('admin.orders.status.' + status),
-      icon: this.getStatusIcon(status)
-    }));
-  }
-
   selectNewStatus(newStatus: string): void {
     this.selectedNewStatus.set(newStatus);
     this.pulseConfirm.set(false);
@@ -312,7 +244,29 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
     }
   }
 
-  canEditStatus(status: string): boolean {
-    return this.getNextStatuses(status).length > 0;
+  private updateOrderStatus(orderId: number, newStatus: string): void {
+    this.adminService.updateOrderStatus(orderId, newStatus)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (updatedOrder) => {
+          this.allOrders.update(orders => {
+            const index = orders.findIndex(o => o.id === orderId);
+            if (index !== -1) {
+              const updated = [...orders];
+              updated[index] = updatedOrder;
+              return updated;
+            }
+            return orders;
+          });
+          this.filterItems();
+          this.baseToast.showSuccess('admin.orders.status_update_message', {
+            orderId: orderId,
+            status: this.translateService.instant('admin.orders.status.' + newStatus)
+          });
+        },
+        error: (error) => {
+          this.baseToast.showApiError(error, 'admin.orders.update_error');
+        }
+      });
   }
 }

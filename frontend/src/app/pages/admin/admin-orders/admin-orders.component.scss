@@ -1,445 +1,75 @@
+// Reduce segment margin on mobile
+.segment-wrapper {
+  @media (max-width: 768px) {
+    margin-bottom: var(--space-2) !important;
+  }
+}
+
 .table-container {
   --table-max-height: calc(100vh - 390px);
 }
 
-// Light icon variants for stat cards
-.stat-card__icon--primary-light {
-  background: rgba(var(--primary-color-rgb), 0.2);
-  color: #1e40af;
-}
-
-.stat-card__icon--success-light {
-  background: rgba(var(--color-success-rgb), 0.2);
-  color: #166534;
-}
-
-.stat-card__icon--warning-light {
-  background: rgba(var(--color-warning-rgb), 0.25);
-  color: #92400e;
-}
-
-.stat-card__icon--info-light {
-  background: rgba(var(--color-info-rgb), 0.2);
-  color: #075985;
-}
-
-.stat-card__icon--danger-light {
-  background: rgba(var(--color-error-rgb), 0.2);
-  color: #991b1b;
-}
-
-// Status card with colored background
-.status-card {
-  &--pending {
-    background: rgba(var(--color-warning-rgb), 0.08);
-    border-color: rgba(var(--color-warning-rgb), 0.2);
-  }
-
-  &--confirmed {
-    background: rgba(var(--color-info-rgb), 0.08);
-    border-color: rgba(var(--color-info-rgb), 0.2);
-  }
-
-  &--shipped {
-    background: rgba(var(--primary-color-rgb), 0.08);
-    border-color: rgba(var(--primary-color-rgb), 0.2);
-  }
-
-  &--delivered {
-    background: rgba(var(--color-success-rgb), 0.08);
-    border-color: rgba(var(--color-success-rgb), 0.2);
-  }
-
-  &--cancelled {
-    background: rgba(var(--color-error-rgb), 0.08);
-    border-color: rgba(var(--color-error-rgb), 0.2);
-  }
-}
-
-// Header view container needs relative positioning for absolute children
-[pageTop] {
-  position: relative;
-}
-
-// Header view transitions
-.header-view {
-  opacity: 1;
-  transform: translateY(0);
-  transition: opacity 0.3s ease, transform 0.3s ease, visibility 0s linear 0s;
-
-  // Disable animate-item when inside this container (handled by parent transition)
-  .animate-item {
-    animation: none !important;
-    opacity: 1 !important;
-  }
-
-  &.hidden {
-    opacity: 0;
-    transform: translateY(-10px);
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    pointer-events: none;
-    visibility: hidden;
-    transition: opacity 0.3s ease, transform 0.3s ease, visibility 0s linear 0.3s;
-  }
-}
-
-// Mobile detail header (mimics page-layout topbar)
-.detail-topbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  min-height: 64px;
-  padding: 0.75rem 1rem;
-  background: var(--surface-card);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  margin: -1rem -1rem 1rem -1rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-
-  &__back {
-    width: 40px;
-    height: 40px;
-    border: none;
-    border-radius: 50%;
-    background: var(--primary-100, rgba(46, 108, 183, 0.1));
-    color: var(--primary-700, #0F3C82);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
-    flex-shrink: 0;
-
-    i {
-      font-size: 1rem;
-    }
-
-    &:hover {
-      background: var(--primary-color);
-      color: white;
-    }
-
-    &:active {
-      transform: scale(0.95);
-    }
-  }
-
-  &__center {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-  }
-
-  &__text {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    line-height: 1.2;
-    text-align: center;
-  }
-
-  &__title {
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--text-color);
-  }
-
-  &__subtitle {
-    font-size: 0.75rem;
-    font-weight: 400;
-    color: var(--text-color-secondary);
-  }
-
-  &__right {
-    flex-shrink: 0;
-
-    .status-badge--sm {
-      padding: 0.35rem 0.6rem;
-      font-size: 0.7rem;
-
-      i {
-        font-size: 0.75rem;
-      }
-    }
-  }
-
-  // Hide on desktop
-  @media (min-width: 768px) {
-    display: none;
-  }
-}
-
-// Desktop header - hide on mobile
-.detail-desktop-header {
-  display: none;
-
-  @media (min-width: 768px) {
-    display: flex;
-  }
-}
-
-// Back button matching app-back-button style (desktop)
-.back-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.25rem;
-  border: none;
-  border-radius: 12px;
-  background: var(--primary-100, rgba(46, 108, 183, 0.1));
-  color: var(--primary-700, #0F3C82);
-  font-weight: 500;
-  font-size: 0.875rem;
+// Clickable table rows
+.clickable-row {
   cursor: pointer;
-  text-decoration: none;
-  transition: all 0.2s ease;
-  flex-shrink: 0;
 
   &:hover {
-    background: var(--primary-color);
-    color: white;
-  }
-
-  &:active {
-    transform: scale(0.95);
+    background: var(--surface-hover);
   }
 }
 
-// Adjust header-title to allow back button
-.admin-list-header {
-  .header-title {
-    flex: 1;
+// Mobile/Desktop visibility
+.desktop-only {
+  display: flex;
+
+  @media (max-width: 768px) {
+    display: none !important;
   }
 }
 
-// Item animation
-.item-animate {
-  opacity: 0;
-  animation: itemFadeIn 0.3s ease forwards;
-}
+.mobile-only {
+  display: none;
 
-@keyframes itemFadeIn {
-  from {
-    opacity: 0;
-    transform: translateX(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
+  @media (max-width: 768px) {
+    display: flex !important;
   }
 }
 
-// Override slide behavior: fade out instead of slide out on exit
-.slide-card__back {
-  // On exit: fade out in place (no slide)
-  transform: translateX(0) !important;
-  transition: opacity 0.3s ease !important;
-  pointer-events: none; // Don't block clicks when hidden
-
-  // Hide content initially
-  .table-container {
-    opacity: 0;
-  }
-
-  .slide-container.open & {
-    pointer-events: auto; // Allow clicks when open
-    // On enter: slide in from right
-    animation: slideInFromRight 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-
-    // Fade in the table content after panel slides in
-    .table-container {
-      animation: contentFadeIn 0.4s ease 0.3s forwards;
-    }
-  }
+// Mobile load more
+.mobile-results-info {
+  font-size: var(--font-size-sm);
+  color: var(--text-color-secondary);
 }
 
-@keyframes slideInFromRight {
-  from {
-    transform: translateX(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
-
-@keyframes contentFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-// Status actions bar - always visible above items
-.status-actions-bar {
+.load-more-btn {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-4);
-  background: var(--surface-ground);
-  border-bottom: 1px solid var(--border-color-light);
-  flex-wrap: wrap;
-
-  &__label {
-    font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-medium);
-    color: var(--text-color-secondary);
-    white-space: nowrap;
-  }
-
-  &__options {
-    display: flex;
-    gap: var(--space-2);
-    flex-wrap: wrap;
-  }
-
-  // Desktop variant - shown in header area
-  &--desktop {
-    display: flex;
-    background: var(--surface-card);
-    border-radius: var(--radius-lg);
-    border: 1px solid var(--border-color-light);
-    margin-bottom: var(--space-4);
-  }
-}
-
-// Status action buttons
-.status-action-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.5rem 0.85rem;
-  border: 2px solid transparent;
+  justify-content: center;
+  gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  margin-top: var(--space-3);
+  border: 1px dashed var(--border-color);
   border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--primary-color);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
   cursor: pointer;
   transition: all 0.2s ease;
-  background: var(--surface-hover);
-  color: var(--text-color);
-
-  i {
-    font-size: 0.85rem;
-  }
 
   &:hover {
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-sm);
+    background: rgba(var(--primary-rgb), 0.05);
+    border-color: var(--primary-color);
   }
 
   &:active {
-    transform: translateY(0);
-  }
-
-  // Status colors
-  &.confirmed {
-    background: rgba(var(--color-info-rgb), 0.1);
-    color: var(--color-info);
-
-    &:hover, &.selected {
-      background: var(--color-info);
-      color: white;
-    }
-
-    &.selected {
-      border-color: var(--color-info);
-      box-shadow: 0 0 0 3px rgba(var(--color-info-rgb), 0.2);
-    }
-  }
-
-  &.shipped {
-    background: rgba(var(--primary-color-rgb), 0.1);
-    color: var(--primary-color);
-
-    &:hover, &.selected {
-      background: var(--primary-color);
-      color: white;
-    }
-
-    &.selected {
-      border-color: var(--primary-color);
-      box-shadow: 0 0 0 3px rgba(var(--primary-color-rgb), 0.2);
-    }
-  }
-
-  &.delivered {
-    background: rgba(var(--color-success-rgb), 0.1);
-    color: var(--color-success);
-
-    &:hover, &.selected {
-      background: var(--color-success);
-      color: white;
-    }
-
-    &.selected {
-      border-color: var(--color-success);
-      box-shadow: 0 0 0 3px rgba(var(--color-success-rgb), 0.2);
-    }
-  }
-
-  &.cancelled {
-    background: rgba(var(--color-error-rgb), 0.1);
-    color: var(--color-error);
-
-    &:hover, &.selected {
-      background: var(--color-error);
-      color: white;
-    }
-
-    &.selected {
-      border-color: var(--color-error);
-      box-shadow: 0 0 0 3px rgba(var(--color-error-rgb), 0.2);
-    }
+    transform: scale(0.98);
   }
 }
 
-// Confirm button
-.status-confirm-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: var(--radius-md);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
-  cursor: pointer;
-  background: var(--color-success);
-  color: white;
-  transition: all 0.2s ease;
-  animation: pulseIn 0.3s ease;
-
-  &:hover {
-    background: var(--color-success-dark, #16a34a);
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-md);
-  }
-
-  &:active {
-    transform: translateY(0);
-  }
-}
-
-@keyframes pulseIn {
-  0% {
-    opacity: 0;
-    transform: scale(0.9);
-  }
-  50% {
-    transform: scale(1.05);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
+.table-footer.mobile-only {
+  flex-direction: column;
+  align-items: stretch;
+  padding: var(--space-3) var(--space-4);
 }
