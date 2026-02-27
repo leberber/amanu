@@ -163,7 +163,7 @@
               </thead>
               <tbody>
                 @for (category of paginatedCategories(); track category.id; let i = $index) {
-                  <tr class="table-row-animate" [style.--row-delay]="(i * 40) + 'ms'">
+                  <tr class="table-row-animate clickable-row" [style.--row-delay]="(i * 40) + 'ms'" (click)="editCategory(category)">
                     <!-- Image -->
                     @if (isColumnVisible('image')) {
                       <td>
@@ -202,7 +202,7 @@
 
                     <!-- Status Column - Inline Editable -->
                     @if (isColumnVisible('status')) {
-                      <td class="text-center">
+                      <td class="text-center" (click)="$event.stopPropagation()">
                         @if (!isEditingStatus(category.id)) {
                           <div class="status-toggle justify-content-center" [class.status-toggle--active]="category.is_active" (click)="startEditStatus(category)">
                             <span class="status-toggle__label">
@@ -242,7 +242,7 @@
 
                     <!-- Actions -->
                     @if (isColumnVisible('actions')) {
-                      <td class="text-center">
+                      <td class="text-center" (click)="$event.stopPropagation()">
                         <div class="table-cell-actions justify-content-center">
                           <button class="action-btn edit" (click)="editCategory(category)" [pTooltip]="'common.edit' | translate" tooltipPosition="top">
                             <i class="pi pi-pencil"></i>

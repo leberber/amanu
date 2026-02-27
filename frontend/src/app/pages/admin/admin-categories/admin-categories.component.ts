@@ -58,14 +58,22 @@ export class AdminCategoriesComponent extends BaseAdminListComponent implements 
   ];
 
   // Column visibility options
-  override columnOptions: ColumnOption[] = [
-    { field: 'image', label: 'admin.categories.table.image', visible: true },
-    { field: 'name', label: 'admin.categories.table.name', visible: true },
-    { field: 'products', label: 'admin.categories.table.products', visible: true },
-    { field: 'status', label: 'admin.categories.table.status', visible: true },
-    { field: 'created', label: 'admin.categories.table.created', visible: true },
-    { field: 'actions', label: 'admin.categories.table.actions', visible: true }
-  ];
+  // MOBILE COLUMN VISIBILITY: On mobile, only show essential columns (name, products, status)
+  // Other columns can be toggled back from table options menu
+  override columnOptions: ColumnOption[] = this.getInitialColumnOptions();
+
+  private getInitialColumnOptions(): ColumnOption[] {
+    const isMobile = window.innerWidth <= 768;
+
+    return [
+      { field: 'image', label: 'admin.categories.table.image', visible: !isMobile },
+      { field: 'name', label: 'admin.categories.table.name', visible: true },
+      { field: 'products', label: 'admin.categories.table.products', visible: true },
+      { field: 'status', label: 'admin.categories.table.status', visible: true },
+      { field: 'created', label: 'admin.categories.table.created', visible: !isMobile },
+      { field: 'actions', label: 'admin.categories.table.actions', visible: !isMobile }
+    ];
+  }
 
   // Inline editing state
   statusEdit = new InlineEditState<boolean>(true);
