@@ -1120,11 +1120,14 @@
 body.fullscreen-active {
   overflow: hidden !important;
 
-  .sidebar-desktop {
+  .sidebar,
+  .sidebar-desktop,
+  app-sidebar {
     display: none !important;
   }
 
-  .bottom-nav {
+  .bottom-nav,
+  app-bottom-navigation {
     display: none !important;
   }
 
@@ -1139,7 +1142,7 @@ body.fullscreen-active {
     z-index: 999999 !important;
     margin: 0 !important;
     border-radius: 0 !important;
-    background: white !important;
+    background: var(--surface-ground) !important;
   }
 }
 

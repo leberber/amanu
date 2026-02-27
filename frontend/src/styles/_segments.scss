@@ -73,6 +73,11 @@
     flex-wrap: wrap;
     position: relative;
 
+    @media (max-width: 767px) {
+      width: 100%;
+      justify-content: center;
+    }
+
     .segment-control__item {
       display: flex;
       align-items: center;
