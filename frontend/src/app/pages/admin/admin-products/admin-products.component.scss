@@ -1,12 +1,30 @@
-
 .table-container {
   --table-max-height: calc(100vh - 390px);
 }
 
-// Smaller product name column on mobile
+// =============================================================================
+// MOBILE TABLE OPTIMIZATIONS
+// =============================================================================
+// On mobile, simplify the info-display column:
+// - Constrain width
+// - Hide description
+// - Allow name to wrap
+//
+// To apply to other components, copy this block and adjust min/max-width as needed.
+// =============================================================================
+
 @media (max-width: 768px) {
   ::ng-deep .info-display {
     min-width: 80px !important;
     max-width: 100px !important;
+
+    &__secondary {
+      display: none !important;
+    }
+
+    &__name {
+      white-space: normal !important;
+      word-break: break-word;
+    }
   }
 }

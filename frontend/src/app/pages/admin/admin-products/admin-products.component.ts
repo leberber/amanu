@@ -94,16 +94,21 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
   isFullscreen = signal(false);
   tableInitialized = signal(false);
 
-  // Column visibility options - with mobile defaults
+  // ---------------------------------------------------------------------------
+  // MOBILE COLUMN VISIBILITY
+  // ---------------------------------------------------------------------------
+  // Sets default column visibility based on screen size.
+  // - Desktop: all columns visible
+  // - Mobile: only essential columns (set visible: true)
+  // Users can toggle columns via table options menu.
+  // ---------------------------------------------------------------------------
   override columnOptions: ColumnOption[] = this.getInitialColumnOptions();
 
   private getInitialColumnOptions(): ColumnOption[] {
     const isMobile = window.innerWidth <= 768;
-    // On mobile, only show: name, price, stock
-    const mobileHidden = ['image', 'category', 'brand', 'status', 'actions'];
 
     return [
-      { field: 'image', label: 'admin.products.table.image', visible: !isMobile || !mobileHidden.includes('image') },
+      { field: 'image', label: 'admin.products.table.image', visible: !isMobile },
       { field: 'name', label: 'admin.products.table.product_name', visible: true },
       { field: 'category', label: 'admin.products.table.category', visible: !isMobile },
       { field: 'brand', label: 'admin.products.table.brand', visible: !isMobile },
