@@ -161,6 +161,17 @@
       box-shadow: none !important;
     }
   }
+
+  // Mobile: compact buttons
+  @media (max-width: 768px) {
+    gap: var(--space-3);
+
+    &__btn {
+      padding: var(--space-3) var(--space-5);
+      font-size: var(--font-size-sm);
+      gap: var(--space-2);
+    }
+  }
 }
 
 
@@ -356,6 +367,16 @@
 
     &__header {
       padding: var(--space-4);
+    }
+
+    &__footer {
+      // Hide step indicator chip on mobile
+      > .chip {
+        display: none;
+      }
+
+      // Center the navigation buttons
+      justify-content: center;
     }
   }
 }
