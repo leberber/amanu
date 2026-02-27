@@ -1041,7 +1041,12 @@
       "edit_user": "تعديل المستخدم",
       "edit_subtitle": "تحديث معلومات وإعدادات حساب المستخدم",
       "form": {
+        "step": "الخطوة",
+        "step1_title": "المعلومات",
+        "step2_title": "الموقع",
+        "step3_title": "الخريطة",
         "personal_info": "المعلومات الشخصية",
+        "store_details": "تفاصيل المتجر",
         "location_info": "معلومات الموقع",
         "account_settings": "إعدادات الحساب",
         "identity": "الهوية",

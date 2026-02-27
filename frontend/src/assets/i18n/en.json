@@ -1039,7 +1039,12 @@
       "edit_user": "Edit User",
       "edit_subtitle": "Update user account information and settings",
       "form": {
+        "step": "Step",
+        "step1_title": "Information",
+        "step2_title": "Location",
+        "step3_title": "Map",
         "personal_info": "Personal Information",
+        "store_details": "Store Details",
         "location_info": "Location Information",
         "account_settings": "Account Settings",
         "identity": "Identity",

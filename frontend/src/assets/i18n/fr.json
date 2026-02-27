@@ -1040,7 +1040,12 @@
       "edit_user": "Modifier l'Utilisateur",
       "edit_subtitle": "Mettre à jour les informations et paramètres du compte utilisateur",
       "form": {
+        "step": "Étape",
+        "step1_title": "Informations",
+        "step2_title": "Localisation",
+        "step3_title": "Carte",
         "personal_info": "Informations Personnelles",
+        "store_details": "Détails du Magasin",
         "location_info": "Informations de Localisation",
         "account_settings": "Paramètres du Compte",
         "identity": "Identité",

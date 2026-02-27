@@ -40,7 +40,10 @@ export class AdminEditUserComponent implements OnInit {
   readonly loading = signal(false);
   readonly submitting = signal(false);
   readonly formInitialized = signal(false);
+  readonly currentStep = signal(1);
+  readonly totalSteps = 3;
   readonly ROUTES = ROUTES;
+
   userForm!: FormGroup;
   userId: number | null = null;
   currentUser: UserManage | null = null;
@@ -171,6 +174,35 @@ export class AdminEditUserComponent implements OnInit {
 
   onCancel() {
     this.router.navigate([ROUTES.ADMIN.USERS]);
+  }
+
+  // Step navigation
+  nextStep(): void {
+    if (this.currentStep() < this.totalSteps && this.isCurrentStepValid()) {
+      this.currentStep.update(s => s + 1);
+    }
+  }
+
+  prevStep(): void {
+    if (this.currentStep() > 1) {
+      this.currentStep.update(s => s - 1);
+    }
+  }
+
+  isCurrentStepValid(): boolean {
+    switch (this.currentStep()) {
+      case 1:
+        // Step 1: Full name is required
+        return this.userForm.get('full_name')?.valid ?? false;
+      case 2:
+        // Step 2: Role is required
+        return this.userForm.get('role')?.valid ?? false;
+      case 3:
+        // Step 3: Map - no required fields
+        return true;
+      default:
+        return true;
+    }
   }
 
   onSubmit() {

@@ -133,7 +133,8 @@ export const routes: Routes = [
   {
     path: 'admin/users/:id/edit',
     loadComponent: () => import('./pages/admin/admin-edit-user/admin-edit-user.component').then(m => m.AdminEditUserComponent),
-    canActivate: [adminOnlyGuard]
+    canActivate: [adminOnlyGuard],
+    data: { hideBottomNav: true }
   },
   
   // User Routes

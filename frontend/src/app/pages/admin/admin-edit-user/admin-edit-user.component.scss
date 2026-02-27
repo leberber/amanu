@@ -6,6 +6,7 @@
 //   - _layout.scss: page-layout
 // =============================================================================
 
+
 .coordinates-display {
   display: flex;
   align-items: center;
@@ -18,6 +19,20 @@
 
   i {
     color: var(--primary-color);
+  }
+}
+
+// Map - fill remaining viewport space
+// 100vh minus: page header + wizard header + card header + wizard footer + padding
+app-map-picker {
+  display: block;
+
+  ::ng-deep .map-picker {
+    height: calc(100vh - 470px) !important;
+
+    @media (max-width: 768px) {
+      height: calc(100vh - 300px) !important;
+    }
   }
 }
 
