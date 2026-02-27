@@ -186,6 +186,11 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
   }
 
   openOrderDetails(order: Order) {
+    // Exit fullscreen mode if active
+    if (this.isFullscreen()) {
+      this.toggleFullscreen();
+    }
+
     // Fetch order with items from the API
     this.adminService.getOrderById(order.id)
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -240,7 +245,11 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
 
           const currentSelected = this.selectedOrder();
           if (currentSelected && currentSelected.id === orderId) {
-            this.selectedOrder.set(updatedOrder);
+            // Preserve items when updating status (API response doesn't include items)
+            this.selectedOrder.set({
+              ...updatedOrder,
+              items: currentSelected.items
+            });
           }
         },
         error: (error) => {
