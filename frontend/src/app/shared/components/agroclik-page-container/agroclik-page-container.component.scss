@@ -40,6 +40,7 @@
 
 :host {
   --page-padding: var(--space-4);
+  --page-max-width: 1500px;
 
   display: block;
   height: 100%;
@@ -57,6 +58,14 @@
     overflow: hidden;
     padding-bottom: 0;
   }
+}
+
+.page-top,
+.page-main {
+  width: 100%;
+  max-width: var(--page-max-width);
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .page-top {
