@@ -1158,7 +1158,7 @@
         "id": "ID",
         "image": "Image",
         "name": "Nom",
-        "product_name": "Nom du Produit",
+        "product_name": "Produit",
         "category": "Catégorie",
         "brand": "Marque",
         "price": "Prix",

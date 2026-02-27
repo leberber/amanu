@@ -2,3 +2,11 @@
 .table-container {
   --table-max-height: calc(100vh - 390px);
 }
+
+// Smaller product name column on mobile
+@media (max-width: 768px) {
+  ::ng-deep .info-display {
+    min-width: 80px !important;
+    max-width: 100px !important;
+  }
+}

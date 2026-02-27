@@ -94,17 +94,25 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
   isFullscreen = signal(false);
   tableInitialized = signal(false);
 
-  // Column visibility options (override base class)
-  override columnOptions: ColumnOption[] = [
-    { field: 'image', label: 'admin.products.table.image', visible: true },
-    { field: 'name', label: 'admin.products.table.product_name', visible: true },
-    { field: 'category', label: 'admin.products.table.category', visible: true },
-    { field: 'brand', label: 'admin.products.table.brand', visible: true },
-    { field: 'price', label: 'admin.products.table.price', visible: true },
-    { field: 'stock', label: 'admin.products.table.stock', visible: true },
-    { field: 'status', label: 'admin.products.table.status', visible: true },
-    { field: 'actions', label: 'admin.products.table.actions', visible: true }
-  ];
+  // Column visibility options - with mobile defaults
+  override columnOptions: ColumnOption[] = this.getInitialColumnOptions();
+
+  private getInitialColumnOptions(): ColumnOption[] {
+    const isMobile = window.innerWidth <= 768;
+    // On mobile, only show: name, price, stock
+    const mobileHidden = ['image', 'category', 'brand', 'status', 'actions'];
+
+    return [
+      { field: 'image', label: 'admin.products.table.image', visible: !isMobile || !mobileHidden.includes('image') },
+      { field: 'name', label: 'admin.products.table.product_name', visible: true },
+      { field: 'category', label: 'admin.products.table.category', visible: !isMobile },
+      { field: 'brand', label: 'admin.products.table.brand', visible: !isMobile },
+      { field: 'price', label: 'admin.products.table.price', visible: true },
+      { field: 'stock', label: 'admin.products.table.stock', visible: true },
+      { field: 'status', label: 'admin.products.table.status', visible: !isMobile },
+      { field: 'actions', label: 'admin.products.table.actions', visible: !isMobile }
+    ];
+  }
 
   // Skeleton configuration
   skeletonColumns: SkeletonColumn[] = [
