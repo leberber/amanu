@@ -171,7 +171,7 @@
               <thead>
                 <tr>
                   @if (isColumnVisible('id')) { <th style="width: 8%" class="text-center">{{ 'admin.users.table.id' | translate }}</th> }
-                  @if (isColumnVisible('details')) { <th style="width: 30%">{{ 'admin.users.table.user_details' | translate }}</th> }
+                  @if (isColumnVisible('details')) { <th style="width: 30%">{{ 'admin.users.table.user' | translate }}</th> }
                   @if (isColumnVisible('role')) { <th style="width: 15%" class="text-center">{{ 'admin.users.table.role' | translate }}</th> }
                   @if (isColumnVisible('status')) { <th style="width: 15%" class="text-center">{{ 'admin.users.table.status' | translate }}</th> }
                   @if (isColumnVisible('created')) { <th style="width: 15%" class="text-center">{{ 'admin.users.table.created' | translate }}</th> }
@@ -180,7 +180,7 @@
               </thead>
               <tbody>
                 @for (user of users; track user.id; let i = $index) {
-                  <tr class="table-row-animate" [style.--row-delay]="(i * 40) + 'ms'">
+                  <tr class="table-row-animate clickable-row" [style.--row-delay]="(i * 40) + 'ms'" (click)="navigateToEditUser(user)">
                     <!-- ID -->
                     @if (isColumnVisible('id')) {
                       <td class="text-center">
@@ -203,7 +203,7 @@
 
                     <!-- Role Column - Inline Editable -->
                     @if (isColumnVisible('role')) {
-                      <td class="text-center">
+                      <td class="text-center" (click)="$event.stopPropagation()">
                         @if (!isEditingRole(user.id)) {
                           <div class="editable-cell" (click)="startEditRole(user)">
                             <span class="role-badge" [ngClass]="user.role">
@@ -234,7 +234,7 @@
 
                     <!-- Status Column - Inline Editable -->
                     @if (isColumnVisible('status')) {
-                      <td class="text-center">
+                      <td class="text-center" (click)="$event.stopPropagation()">
                         @if (!isEditingStatus(user.id)) {
                           <div class="status-toggle justify-content-center" [class.status-toggle--active]="user.is_active" (click)="startEditStatus(user)">
                             <span class="status-toggle__label">
@@ -274,7 +274,7 @@
 
                     <!-- Actions -->
                     @if (isColumnVisible('actions')) {
-                      <td class="text-center">
+                      <td class="text-center" (click)="$event.stopPropagation()">
                         <div class="table-cell-actions justify-content-center">
                           <button class="action-btn edit" (click)="navigateToEditUser(user)" [pTooltip]="'admin.users.actions.view_edit' | translate" tooltipPosition="top">
                             <i class="pi pi-pencil"></i>

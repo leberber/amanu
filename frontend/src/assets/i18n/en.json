@@ -1009,6 +1009,7 @@
       "loading": "Loading users...",
       "table": {
         "id": "ID",
+        "user": "User",
         "user_details": "User Details",
         "role": "Role",
         "status": "Status",

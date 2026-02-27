@@ -3,13 +3,9 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
-import { TextareaModule } from 'primeng/textarea';
 import { SelectModule } from 'primeng/select';
-import { SelectButtonModule } from 'primeng/selectbutton';
 import { ToastModule } from 'primeng/toast';
-import { CardModule } from 'primeng/card';
 import { PasswordModule } from 'primeng/password';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
@@ -21,6 +17,7 @@ import { VALIDATION, USER_ROLES, UI_DELAY } from '../../../core/constants/app.co
 import { ROUTES } from '../../../core/constants/routes.constants';
 import { StatusSeverityService } from '../../../core/services/status-severity.service';
 import { MapPickerComponent, LocationData } from '../../../shared/components/map-picker/map-picker.component';
+import { PageLayoutComponent } from '../../../shared/components/page-layout/page-layout.component';
 
 @Component({
   selector: 'app-admin-edit-user',
@@ -28,22 +25,22 @@ import { MapPickerComponent, LocationData } from '../../../shared/components/map
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    ButtonModule,
     InputTextModule,
-    TextareaModule,
     SelectModule,
-    SelectButtonModule,
     ToastModule,
-    CardModule,
     PasswordModule,
     TranslateModule,
-    MapPickerComponent
+    MapPickerComponent,
+    PageLayoutComponent
   ],
   templateUrl: './admin-edit-user.component.html',
   styleUrl: './admin-edit-user.component.scss'
 })
 export class AdminEditUserComponent implements OnInit {
-  loading = signal(false);
+  readonly loading = signal(false);
+  readonly submitting = signal(false);
+  readonly formInitialized = signal(false);
+  readonly ROUTES = ROUTES;
   userForm!: FormGroup;
   userId: number | null = null;
   currentUser: UserManage | null = null;
@@ -162,6 +159,7 @@ export class AdminEditUserComponent implements OnInit {
           is_active: user.is_active
         });
         this.loading.set(false);
+        setTimeout(() => this.formInitialized.set(true), 100);
       },
       error: () => {
         this.loading.set(false);
@@ -181,7 +179,7 @@ export class AdminEditUserComponent implements OnInit {
       return;
     }
 
-    this.loading.set(true);
+    this.submitting.set(true);
     const formValues = this.userForm.getRawValue();
 
     // Build update data
@@ -206,14 +204,14 @@ export class AdminEditUserComponent implements OnInit {
 
     this.adminService.updateUser(this.userId, updateData).subscribe({
       next: () => {
-        this.loading.set(false);
+        this.submitting.set(false);
         this.toast.showSuccess('admin.users.update_success');
         setTimeout(() => {
           this.router.navigate([ROUTES.ADMIN.USERS]);
         }, UI_DELAY.TOAST_BEFORE_NAVIGATE);
       },
       error: () => {
-        this.loading.set(false);
+        this.submitting.set(false);
         this.toast.showError('admin.users.update_error');
       }
     });

@@ -1010,6 +1010,7 @@
         "name": "Nom",
         "email": "Email",
         "joined": "Inscrit le",
+        "user": "Utilisateur",
         "user_details": "Détails de l'Utilisateur",
         "role": "Rôle",
         "status": "Statut",

@@ -57,14 +57,22 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
   ];
 
   // Column visibility options
-  override columnOptions: ColumnOption[] = [
-    { field: 'id', label: 'admin.users.table.id', visible: true },
-    { field: 'details', label: 'admin.users.table.user_details', visible: true },
-    { field: 'role', label: 'admin.users.table.role', visible: true },
-    { field: 'status', label: 'admin.users.table.status', visible: true },
-    { field: 'created', label: 'admin.users.table.created', visible: true },
-    { field: 'actions', label: 'admin.users.table.actions', visible: true }
-  ];
+  // MOBILE COLUMN VISIBILITY: On mobile, only show essential columns (user, role, status)
+  // Other columns can be toggled back from table options menu
+  override columnOptions: ColumnOption[] = this.getInitialColumnOptions();
+
+  private getInitialColumnOptions(): ColumnOption[] {
+    const isMobile = window.innerWidth <= 768;
+
+    return [
+      { field: 'id', label: 'admin.users.table.id', visible: !isMobile },
+      { field: 'details', label: 'admin.users.table.user', visible: true },
+      { field: 'role', label: 'admin.users.table.role', visible: true },
+      { field: 'status', label: 'admin.users.table.status', visible: true },
+      { field: 'created', label: 'admin.users.table.created', visible: !isMobile },
+      { field: 'actions', label: 'admin.users.table.actions', visible: !isMobile }
+    ];
+  }
 
   // Role segment filter (different from status filter)
   roleFilter: 'all' | 'customer' | 'staff' | 'admin' = 'all';

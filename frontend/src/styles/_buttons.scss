@@ -277,7 +277,69 @@
 
 
 // =============================================================================
-// 5. UTILITY BUTTONS
+// 5. FORM ACTIONS CONTAINER
+// =============================================================================
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-6);
+  background: var(--color-white);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--surface-200);
+
+  &__btn {
+    @extend %btn-base;
+    padding: var(--space-4) var(--space-7);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-semibold);
+
+    &--cancel {
+      background: var(--surface-100);
+      color: var(--text-color-secondary);
+
+      &:hover:not(:disabled) {
+        background: var(--surface-200);
+        color: var(--text-color);
+      }
+    }
+
+    &--submit {
+      background: var(--btn-success-gradient);
+      color: var(--color-white);
+      box-shadow: var(--shadow-success);
+
+      &:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-success-lg);
+      }
+    }
+
+    &:disabled {
+      transform: none !important;
+      box-shadow: none !important;
+    }
+  }
+
+  @media (max-width: 768px) {
+    flex-direction: column-reverse;
+    gap: var(--space-3);
+    padding: var(--space-4);
+
+    &__btn {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+}
+
+
+// =============================================================================
+// 6. UTILITY BUTTONS
 // =============================================================================
 
 .back-btn {
@@ -367,7 +429,7 @@
 
 
 // =============================================================================
-// 6. LOGOUT BUTTON
+// 7. LOGOUT BUTTON
 // =============================================================================
 
 .logout-btn {
@@ -391,7 +453,7 @@
 
 
 // =============================================================================
-// 7. NAVIGATION LINK
+// 8. NAVIGATION LINK
 // =============================================================================
 
 .nav-link {
@@ -579,7 +641,7 @@
 
 
 // =============================================================================
-// 8. VIEW TOGGLE
+// 9. VIEW TOGGLE
 // =============================================================================
 
 .view-toggle {

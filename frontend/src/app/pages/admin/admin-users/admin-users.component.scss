@@ -13,3 +13,29 @@
   --table-max-height: calc(100vh - 375px);
 }
 
+// =============================================================================
+// MOBILE TABLE OPTIMIZATIONS
+// =============================================================================
+// On mobile, simplify the info-display column:
+// - Constrain width
+// - Hide email/phone
+// - Allow name to wrap
+// =============================================================================
+
+@media (max-width: 768px) {
+  ::ng-deep .info-display {
+    min-width: 80px !important;
+    max-width: 120px !important;
+
+    &__email,
+    &__tertiary {
+      display: none !important;
+    }
+
+    &__name {
+      white-space: normal !important;
+      word-break: break-word;
+    }
+  }
+}
+

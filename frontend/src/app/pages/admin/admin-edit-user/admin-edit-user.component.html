@@ -1,41 +1,49 @@
-<!-- src/app/pages/admin/admin-edit-user/admin-edit-user.component.html -->
-<div class="admin-page">
-  <!-- Background Decoration -->
-  <div class="bg-decoration">
-    <div class="blob blob-1"></div>
-    <div class="blob blob-2"></div>
-    <div class="blob blob-3"></div>
-  </div>
+<app-page-layout
+  [title]="'admin.users.edit_user'"
+  [subtitle]="'admin.users.edit_subtitle'"
+  mobileTitle="common.user"
+  mobileSubtitle="common.edit"
+  icon="pi pi-user-edit"
+  [hideMobileIcon]="true"
+  [showBackButton]="true"
+  [backRoute]="ROUTES.ADMIN.USERS"
+  [fullscreen]="true">
 
   <p-toast></p-toast>
-  <div class="admin-content admin-content--narrow">
-    <!-- Page Header -->
-    <div class="admin-header">
-      <div class="header-content">
-        <div class="header-title">
-          <div class="admin-icon-wrapper admin-icon-wrapper--square">
-            <div class="icon-bg"></div>
-            <div class="icon-circle">
-              <i class="pi pi-user-edit"></i>
+
+  @if (loading() && !formInitialized()) {
+    <div class="mt-6">
+      <div class="grid">
+        @for (i of [0, 1, 2, 3]; track $index) {
+          <div class="col-12 lg:col-6 item-animate" [style.animation-delay]="($index * 50) + 'ms'">
+            <div class="skeleton-card form-card">
+              <div class="card-header">
+                <div class="skeleton skeleton-avatar"></div>
+                <div class="skeleton skeleton-text skeleton-text--w70"></div>
+              </div>
+              <div class="card-body">
+                @for (j of [0, 1, 2]; track $index) {
+                  <div class="field-box mb-4">
+                    <div class="skeleton skeleton-avatar"></div>
+                    <div class="flex-1">
+                      <div class="skeleton skeleton-text skeleton-text--w40 mb-2"></div>
+                      <div class="skeleton skeleton-input"></div>
+                    </div>
+                  </div>
+                }
+              </div>
             </div>
           </div>
-          <div class="title-text">
-            <h1>{{ 'admin.users.edit_user' | translate }}</h1>
-            <p>{{ 'admin.users.edit_subtitle' | translate }}</p>
-          </div>
-        </div>
-        <button class="back-btn" (click)="onCancel()">
-          <i class="pi pi-arrow-left"></i>
-          <span>{{ 'common.back' | translate }}</span>
-        </button>
+        }
       </div>
     </div>
+  }
 
+  @if (formInitialized()) {
     <form [formGroup]="userForm" (ngSubmit)="onSubmit()">
-      <!-- Cards Grid - 4 Cards Layout -->
       <div class="grid">
         <!-- Card 1: Personal Information -->
-        <div class="col-12 md:col-6 lg:col-6">
+        <div class="col-12 lg:col-6 item-animate">
           <div class="form-card">
             <div class="card-header">
               <div class="card-header__icon card-header__icon--primary">
@@ -43,60 +51,54 @@
               </div>
               <h3 class="card-header__title">{{ 'admin.users.form.personal_info' | translate }}</h3>
             </div>
-          <div class="card-body">
-            <!-- Full Name -->
-            <div class="form-field-styled">
-              <div class="field-icon name">
-                <i class="pi pi-user"></i>
-              </div>
-              <div class="field-content">
-                <label>{{ 'admin.users.form.full_name' | translate }} <span class="required">*</span></label>
-                <input
-                  pInputText
-                  type="text"
-                  formControlName="full_name"
-                  [placeholder]="'admin.users.form.full_name' | translate">
+            <div class="card-body">
+              <!-- Full Name -->
+              <div class="form-field">
+                <div class="field-box" [class.filled]="userForm.get('full_name')?.value">
+                  <div class="field-box__icon field-box__icon--primary">
+                    <i class="pi pi-user"></i>
+                  </div>
+                  <div class="field-box__content">
+                    <label>{{ 'admin.users.form.full_name' | translate }} <span class="required">*</span></label>
+                    <input pInputText type="text" formControlName="full_name" [placeholder]="'admin.users.form.full_name' | translate">
+                  </div>
+                </div>
                 @if (userForm.get('full_name')?.invalid && userForm.get('full_name')?.touched) {
                   <span class="field-error">{{ 'admin.users.form.name_required' | translate }}</span>
                 }
               </div>
-            </div>
 
-            <!-- Email -->
-            <div class="form-field-styled">
-              <div class="field-icon email">
-                <i class="pi pi-envelope"></i>
+              <!-- Email -->
+              <div class="form-field">
+                <div class="field-box filled disabled">
+                  <div class="field-box__icon field-box__icon--info">
+                    <i class="pi pi-envelope"></i>
+                  </div>
+                  <div class="field-box__content">
+                    <label>{{ 'admin.users.form.email' | translate }}</label>
+                    <input pInputText type="email" formControlName="email" [placeholder]="'admin.users.form.email' | translate">
+                  </div>
+                </div>
               </div>
-              <div class="field-content">
-                <label>{{ 'admin.users.form.email' | translate }}</label>
-                <input
-                  pInputText
-                  type="email"
-                  formControlName="email"
-                  [placeholder]="'admin.users.form.email' | translate">
-              </div>
-            </div>
 
-            <!-- Phone -->
-            <div class="form-field-styled">
-              <div class="field-icon phone">
-                <i class="pi pi-phone"></i>
+              <!-- Phone -->
+              <div class="form-field">
+                <div class="field-box" [class.filled]="userForm.get('phone')?.value">
+                  <div class="field-box__icon field-box__icon--success">
+                    <i class="pi pi-phone"></i>
+                  </div>
+                  <div class="field-box__content">
+                    <label>{{ 'admin.users.form.phone' | translate }}</label>
+                    <input pInputText type="tel" formControlName="phone" [placeholder]="'admin.users.form.phone' | translate">
+                  </div>
+                </div>
               </div>
-              <div class="field-content">
-                <label>{{ 'admin.users.form.phone' | translate }}</label>
-                <input
-                  pInputText
-                  type="tel"
-                  formControlName="phone"
-                  [placeholder]="'admin.users.form.phone' | translate">
-              </div>
-            </div>
             </div>
           </div>
         </div>
 
         <!-- Card 2: Business Information -->
-        <div class="col-12 md:col-6 lg:col-6">
+        <div class="col-12 lg:col-6 item-animate" [style.animation-delay]="'50ms'">
           <div class="form-card">
             <div class="card-header">
               <div class="card-header__icon card-header__icon--success">
@@ -104,42 +106,38 @@
               </div>
               <h3 class="card-header__title">{{ 'admin.users.form.business' | translate }}</h3>
             </div>
-          <div class="card-body">
-            <!-- Store Name -->
-            <div class="form-field-styled">
-              <div class="field-icon store">
-                <i class="pi pi-shop"></i>
+            <div class="card-body">
+              <!-- Store Name -->
+              <div class="form-field">
+                <div class="field-box" [class.filled]="userForm.get('store_name')?.value">
+                  <div class="field-box__icon field-box__icon--warning">
+                    <i class="pi pi-shop"></i>
+                  </div>
+                  <div class="field-box__content">
+                    <label>{{ 'admin.users.form.store_name' | translate }}</label>
+                    <input pInputText type="text" formControlName="store_name" [placeholder]="'admin.users.form.store_name' | translate">
+                  </div>
+                </div>
               </div>
-              <div class="field-content">
-                <label>{{ 'admin.users.form.store_name' | translate }}</label>
-                <input
-                  pInputText
-                  type="text"
-                  formControlName="store_name"
-                  [placeholder]="'admin.users.form.store_name' | translate">
-              </div>
-            </div>
 
-            <!-- Address -->
-            <div class="form-field-styled">
-              <div class="field-icon address">
-                <i class="pi pi-home"></i>
+              <!-- Address -->
+              <div class="form-field">
+                <div class="field-box" [class.filled]="userForm.get('address')?.value">
+                  <div class="field-box__icon field-box__icon--info">
+                    <i class="pi pi-home"></i>
+                  </div>
+                  <div class="field-box__content">
+                    <label>{{ 'admin.users.form.address' | translate }}</label>
+                    <input pInputText type="text" formControlName="address" [placeholder]="'admin.users.form.address' | translate">
+                  </div>
+                </div>
               </div>
-              <div class="field-content">
-                <label>{{ 'admin.users.form.address' | translate }}</label>
-                <input
-                  pInputText
-                  type="text"
-                  formControlName="address"
-                  [placeholder]="'admin.users.form.address' | translate">
-              </div>
-            </div>
             </div>
           </div>
         </div>
 
         <!-- Card 3: Location Information -->
-        <div class="col-12 md:col-6 lg:col-6">
+        <div class="col-12 lg:col-6 item-animate" [style.animation-delay]="'100ms'">
           <div class="form-card">
             <div class="card-header">
               <div class="card-header__icon card-header__icon--info">
@@ -147,63 +145,62 @@
               </div>
               <h3 class="card-header__title">{{ 'admin.users.form.location_info' | translate }}</h3>
             </div>
-          <div class="card-body">
-            <!-- Wilaya -->
-            <div class="form-field-styled">
-              <div class="field-icon wilaya">
-                <i class="pi pi-map-marker"></i>
+            <div class="card-body">
+              <!-- Wilaya -->
+              <div class="form-field">
+                <div class="field-box" [class.filled]="userForm.get('wilaya')?.value">
+                  <div class="field-box__icon field-box__icon--primary">
+                    <i class="pi pi-map-marker"></i>
+                  </div>
+                  <div class="field-box__content">
+                    <label>{{ 'admin.users.form.wilaya' | translate }}</label>
+                    <p-select
+                      formControlName="wilaya"
+                      [options]="wilayaOptions()"
+                      optionLabel="label"
+                      optionValue="value"
+                      [placeholder]="'admin.users.form.wilaya' | translate"
+                      [filter]="true"
+                      filterPlaceholder="Search..."
+                      [showClear]="true"
+                      styleClass="w-full"
+                      appendTo="body"
+                    />
+                  </div>
+                </div>
               </div>
-              <div class="field-content">
-                <label>{{ 'admin.users.form.wilaya' | translate }}</label>
-                <p-select
-                  formControlName="wilaya"
-                  [options]="wilayaOptions()"
-                  optionLabel="label"
-                  optionValue="value"
-                  [placeholder]="'admin.users.form.wilaya' | translate"
-                  [filter]="true"
-                  filterPlaceholder="Search..."
-                  [showClear]="true"
-                  styleClass="w-full"
-                />
-              </div>
-            </div>
 
-            <!-- Daira -->
-            <div class="form-field-styled">
-              <div class="field-icon daira">
-                <i class="pi pi-map"></i>
+              <!-- Daira -->
+              <div class="form-field">
+                <div class="field-box" [class.filled]="userForm.get('daira')?.value">
+                  <div class="field-box__icon field-box__icon--success">
+                    <i class="pi pi-map"></i>
+                  </div>
+                  <div class="field-box__content">
+                    <label>{{ 'admin.users.form.daira' | translate }}</label>
+                    <input pInputText type="text" formControlName="daira" [placeholder]="'admin.users.form.daira' | translate">
+                  </div>
+                </div>
               </div>
-              <div class="field-content">
-                <label>{{ 'admin.users.form.daira' | translate }}</label>
-                <input
-                  pInputText
-                  type="text"
-                  formControlName="daira"
-                  [placeholder]="'admin.users.form.daira' | translate">
-              </div>
-            </div>
 
-            <!-- Commune -->
-            <div class="form-field-styled">
-              <div class="field-icon commune">
-                <i class="pi pi-flag"></i>
+              <!-- Commune -->
+              <div class="form-field">
+                <div class="field-box" [class.filled]="userForm.get('commune')?.value">
+                  <div class="field-box__icon field-box__icon--warning">
+                    <i class="pi pi-flag"></i>
+                  </div>
+                  <div class="field-box__content">
+                    <label>{{ 'admin.users.form.commune' | translate }}</label>
+                    <input pInputText type="text" formControlName="commune" [placeholder]="'admin.users.form.commune' | translate">
+                  </div>
+                </div>
               </div>
-              <div class="field-content">
-                <label>{{ 'admin.users.form.commune' | translate }}</label>
-                <input
-                  pInputText
-                  type="text"
-                  formControlName="commune"
-                  [placeholder]="'admin.users.form.commune' | translate">
-              </div>
-            </div>
             </div>
           </div>
         </div>
 
         <!-- Card 4: Account Settings -->
-        <div class="col-12 md:col-6 lg:col-6">
+        <div class="col-12 lg:col-6 item-animate" [style.animation-delay]="'150ms'">
           <div class="form-card">
             <div class="card-header">
               <div class="card-header__icon card-header__icon--purple">
@@ -211,99 +208,109 @@
               </div>
               <h3 class="card-header__title">{{ 'admin.users.form.account_settings' | translate }}</h3>
             </div>
-          <div class="card-body">
-            <!-- Role Segment Control -->
-            <div class="segment-field">
-              <label>{{ 'admin.users.form.role' | translate }} <span class="required">*</span></label>
-              <p-selectButton
-                formControlName="role"
-                [options]="roleOptions()"
-                optionLabel="label"
-                optionValue="value"
-                styleClass="role-segment"
-              />
-            </div>
-
-            <!-- Status Segment Control -->
-            <div class="segment-field">
-              <label>{{ 'admin.users.form.status' | translate }}</label>
-              <p-selectButton
-                formControlName="is_active"
-                [options]="statusOptions()"
-                optionLabel="label"
-                optionValue="value"
-                styleClass="status-segment"
-              />
-            </div>
-
-            <!-- Password -->
-            <div class="form-field-styled">
-              <div class="field-icon password">
-                <i class="pi pi-key"></i>
+            <div class="card-body">
+              <!-- Role -->
+              <div class="form-field">
+                <div class="field-box" [class.filled]="userForm.get('role')?.value">
+                  <div class="field-box__icon field-box__icon--primary">
+                    <i class="pi pi-id-card"></i>
+                  </div>
+                  <div class="field-box__content">
+                    <label>{{ 'admin.users.form.role' | translate }} <span class="required">*</span></label>
+                    <p-select
+                      formControlName="role"
+                      [options]="roleOptions()"
+                      optionLabel="label"
+                      optionValue="value"
+                      styleClass="w-full"
+                      appendTo="body"
+                    />
+                  </div>
+                </div>
               </div>
-              <div class="field-content">
-                <label>{{ 'admin.users.form.password_edit' | translate }}</label>
-                <p-password
-                  formControlName="password"
-                  [placeholder]="'admin.users.form.password_placeholder' | translate"
-                  [toggleMask]="true"
-                  [feedback]="true"
-                  styleClass="w-full"
-                />
-                <small class="field-hint">{{ 'admin.users.form.password_hint' | translate }}</small>
+
+              <!-- Status Toggle -->
+              <div class="active-switch-container mt-4">
+                <div
+                  class="active-switch"
+                  [class.active-switch--on]="userForm.get('is_active')?.value"
+                  (click)="userForm.get('is_active')?.setValue(!userForm.get('is_active')?.value)"
+                  (keydown.enter)="userForm.get('is_active')?.setValue(!userForm.get('is_active')?.value)"
+                  (keydown.space)="userForm.get('is_active')?.setValue(!userForm.get('is_active')?.value); $event.preventDefault()"
+                  role="switch"
+                  [attr.aria-checked]="userForm.get('is_active')?.value"
+                  [attr.aria-label]="'admin.users.form.status' | translate"
+                  tabindex="0">
+                  <div class="active-switch__track">
+                    <div class="active-switch__thumb">
+                      <i [class]="userForm.get('is_active')?.value ? 'pi pi-check' : 'pi pi-times'"></i>
+                    </div>
+                  </div>
+                  <div class="active-switch__label">
+                    <span class="active-switch__title">{{ 'admin.users.form.status' | translate }}</span>
+                    <span class="active-switch__description">{{ userForm.get('is_active')?.value ? ('admin.users.status.active' | translate) : ('admin.users.status.inactive' | translate) }}</span>
+                  </div>
+                </div>
               </div>
-            </div>
+
+              <!-- Password -->
+              <div class="form-field mt-4">
+                <div class="field-box" [class.filled]="userForm.get('password')?.value">
+                  <div class="field-box__icon field-box__icon--warning">
+                    <i class="pi pi-key"></i>
+                  </div>
+                  <div class="field-box__content">
+                    <label>{{ 'admin.users.form.password_edit' | translate }}</label>
+                    <p-password
+                      formControlName="password"
+                      [placeholder]="'admin.users.form.password_placeholder' | translate"
+                      [toggleMask]="true"
+                      [feedback]="true"
+                      styleClass="w-full"
+                    />
+                    <small class="field-hint">{{ 'admin.users.form.password_hint' | translate }}</small>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Map Location Picker Card (Full Width Below) -->
-      <div class="form-card mt-4">
-        <div class="card-header">
-          <div class="card-header__icon card-header__icon--warning">
-            <i class="pi pi-map"></i>
+        <!-- Map Location Picker Card (Full Width) -->
+        <div class="col-12 item-animate" [style.animation-delay]="'200ms'">
+          <div class="form-card">
+            <div class="card-header">
+              <div class="card-header__icon card-header__icon--orange">
+                <i class="pi pi-map"></i>
+              </div>
+              <h3 class="card-header__title">{{ 'admin.users.form.delivery_location' | translate }}</h3>
+            </div>
+            <div class="card-body" style="min-height: 400px;">
+              <app-map-picker
+                [initialLatitude]="initialLatitude"
+                [initialLongitude]="initialLongitude"
+                (locationSelected)="onLocationSelected($event)"
+                (locationError)="onLocationError($event)"
+              ></app-map-picker>
+              @if (userForm.get('latitude')?.value && userForm.get('longitude')?.value) {
+                <div class="coordinates-display mt-3">
+                  <i class="pi pi-map-marker"></i>
+                  <span>{{ userForm.get('latitude')?.value | number:'1.6-6' }}, {{ userForm.get('longitude')?.value | number:'1.6-6' }}</span>
+                </div>
+              }
+            </div>
           </div>
-          <h3 class="card-header__title">{{ 'admin.users.form.delivery_location' | translate }}</h3>
-        </div>
-        <div class="card-body" style="min-height: 400px;">
-          @if (!loading()) {
-            <app-map-picker
-              [initialLatitude]="initialLatitude"
-              [initialLongitude]="initialLongitude"
-              (locationSelected)="onLocationSelected($event)"
-              (locationError)="onLocationError($event)"
-            ></app-map-picker>
-          } @else {
-            <div class="map-loading">
-              <i class="pi pi-spin pi-spinner"></i>
-              <span>{{ 'common.loading' | translate }}</span>
-            </div>
-          }
-          @if (userForm.get('latitude')?.value && userForm.get('longitude')?.value) {
-            <div class="coordinates-display">
-              <i class="pi pi-map-marker"></i>
-              <span>{{ userForm.get('latitude')?.value | number:'1.6-6' }}, {{ userForm.get('longitude')?.value | number:'1.6-6' }}</span>
-            </div>
-          }
         </div>
       </div>
 
       <!-- Form Actions -->
-      <div class="admin-form-actions">
-        <button
-          type="button"
-          class="cancel-btn"
-          (click)="onCancel()"
-          [disabled]="loading()">
+      <div class="form-actions mt-5">
+        <button type="button" class="form-actions__btn form-actions__btn--cancel" (click)="onCancel()" [disabled]="submitting()">
           {{ 'common.cancel' | translate }}
         </button>
-        <button
-          type="submit"
-          class="submit-btn"
-          [disabled]="userForm.invalid || loading()">
-          @if (loading()) {
-            <i class="pi pi-spin pi-spinner spinner"></i>
+        <button type="submit" class="form-actions__btn form-actions__btn--submit" [disabled]="userForm.invalid || submitting()">
+          @if (submitting()) {
+            <i class="pi pi-spin pi-spinner"></i>
           } @else {
             <i class="pi pi-check"></i>
           }
@@ -311,15 +318,6 @@
         </button>
       </div>
     </form>
-  </div>
-
-  <!-- Loading Overlay -->
-  @if (loading()) {
-    <div class="admin-loading-overlay">
-      <div class="loading-content">
-        <i class="pi pi-spin pi-spinner"></i>
-        <span>{{ 'common.loading' | translate }}</span>
-      </div>
-    </div>
   }
-</div>
+
+</app-page-layout>

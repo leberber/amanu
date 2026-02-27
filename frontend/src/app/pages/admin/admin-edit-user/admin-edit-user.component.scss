@@ -1,0 +1,31 @@
+// =============================================================================
+// Admin Edit User Component Styles
+// =============================================================================
+// Component-specific overrides only. Uses global styles from:
+//   - _forms.scss: form-card, field-box, form-field, form-actions
+//   - _layout.scss: page-layout
+// =============================================================================
+
+.coordinates-display {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  background: var(--surface-100);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  color: var(--text-color-secondary);
+
+  i {
+    color: var(--primary-color);
+  }
+}
+
+// Grid padding adjustments
+.grid > [class*="col-"] {
+  padding: var(--space-3);
+
+  @media (max-width: 768px) {
+    padding: var(--space-2);
+  }
+}
