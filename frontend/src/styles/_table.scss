@@ -108,6 +108,17 @@
         min-width: 120px;
         max-width: 180px;
       }
+
+      // Allow stock pill to wrap
+      .stock-pill {
+        white-space: normal;
+        max-width: 80px;
+        text-align: center;
+      }
+
+      .editable-cell {
+        min-width: 90px;
+      }
     }
   }
 }
