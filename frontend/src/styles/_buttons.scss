@@ -70,10 +70,16 @@
   background: var(--btn-add-gradient);
   color: var(--color-white);
   box-shadow: var(--shadow-add);
+  padding: var(--space-6) var(--space-8);
 
   @include btn-hover-lift(var(--shadow-add-lg));
 
   &:active:not(:disabled) { transform: scale(0.98); }
+
+  @media (max-width: 767px) {
+    width: 100%;
+    justify-content: center;
+  }
 }
 
 .btn-primary {
