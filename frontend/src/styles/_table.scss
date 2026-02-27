@@ -92,9 +92,22 @@
     overflow-x: auto;
 
     .table {
-      min-width: 900px;
       overflow-x: auto;
       overscroll-behavior-x: contain;
+      table-layout: auto;
+
+      th,
+      td {
+        width: auto !important;
+        white-space: nowrap;
+      }
+
+      // Allow wrapping for description/details columns
+      .info-display {
+        white-space: normal;
+        min-width: 120px;
+        max-width: 180px;
+      }
     }
   }
 }
