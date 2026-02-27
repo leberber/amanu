@@ -6,6 +6,7 @@ import { TranslateService } from '@ngx-translate/core';
 
 import { ADMIN_LIST_IMPORTS, ADMIN_DIALOG_IMPORTS } from '../../../shared/imports/admin-shared.imports';
 import { TableSkeletonComponent, SkeletonColumn } from '../../../shared/components/table-skeleton/table-skeleton.component';
+import { AgroclikPageContainerComponent } from '../../../shared/components/agroclik-page-container/agroclik-page-container.component';
 import { ROUTES } from '../../../core/constants/routes.constants';
 import { USER_ROLES } from '../../../core/constants/app.constants';
 import { onLanguageChange } from '../../../core/utils/language-change.util';
@@ -26,7 +27,8 @@ import { StatusSeverityService } from '../../../core/services/status-severity.se
     SelectModule,
     PopoverModule,
     DateFormatPipe,
-    TableSkeletonComponent
+    TableSkeletonComponent,
+    AgroclikPageContainerComponent
   ],
   providers: [ConfirmationService],
   templateUrl: './admin-users.component.html',
