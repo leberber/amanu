@@ -92,7 +92,7 @@
     overflow-x: auto;
 
     .table {
-      display: block;
+      min-width: 900px;
       overflow-x: auto;
       overscroll-behavior-x: contain;
     }

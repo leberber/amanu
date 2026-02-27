@@ -1307,8 +1307,8 @@
       "table": {
         "image": "Image",
         "id": "ID",
-        "name": "Nom de la Catégorie",
-        "category_name": "Nom de la Catégorie",
+        "name": "Catégorie",
+        "category_name": "Catégorie",
         "description": "Description",
         "products": "Produits",
         "status": "Statut",
