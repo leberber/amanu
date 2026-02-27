@@ -92,8 +92,12 @@
         <p class="empty-state__description">{{ 'admin.orders.orders_will_appear' | translate }}</p>
       </div>
     } @else {
-      <!-- Orders Table -->
-      <div class="table-container animate-item" [class.fullscreen]="isFullscreen()" style="--item-delay: 100ms;">
+      <!-- Slide Container for Table + Details Panel -->
+      <div class="slide-container" [class.open]="displayOrderDialog()">
+        <div class="slide-card">
+          <!-- Front: Orders Table -->
+          <div class="slide-card__front">
+            <div class="table-container animate-item" [class.fullscreen]="isFullscreen()" style="--item-delay: 100ms;">
         <div class="table-header">
           <div class="table-search">
             <div class="search-icon">
@@ -325,11 +329,11 @@
             </div>
           }
         }
-      </div>
+            </div>
+          </div>
 
-      <!-- Order Details Panel -->
-      @if (displayOrderDialog()) {
-        <div class="order-details-panel">
+          <!-- Back: Order Details Panel -->
+          <div class="slide-card__back">
           @if (selectedOrder(); as order) {
             <div class="slide-panel-header">
               <div class="slide-panel-header__title">
@@ -372,7 +376,7 @@
                     <span class="detail-row__value">{{ order.created_at | appDate }}</span>
                   </div>
                   <div class="detail-row">
-                    <span class="detail-row__label">{{ 'admin.orders.status' | translate }}</span>
+                    <span class="detail-row__label">{{ 'admin.orders.table.status' | translate }}</span>
                     <span class="detail-row__value">
                       <span class="status-badge" [class]="order.status">
                         <i [class]="getStatusIcon(order.status)"></i>
@@ -431,7 +435,8 @@
             </div>
           }
         </div>
-      }
+        </div>
+      </div>
     }
   </div>
 </app-agroclik-page-container>

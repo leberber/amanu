@@ -186,8 +186,18 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
   }
 
   openOrderDetails(order: Order) {
-    this.selectedOrder.set(order);
-    this.displayOrderDialog.set(true);
+    // Fetch order with items from the API
+    this.adminService.getOrderById(order.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (fullOrder) => {
+          this.selectedOrder.set(fullOrder);
+          this.displayOrderDialog.set(true);
+        },
+        error: (error) => {
+          this.baseToast.showApiError(error, 'admin.orders.load_error');
+        }
+      });
   }
 
   closeOrderDialog() {
