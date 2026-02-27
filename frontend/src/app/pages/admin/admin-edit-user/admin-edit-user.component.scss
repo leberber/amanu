@@ -7,31 +7,97 @@
 // =============================================================================
 
 
-.coordinates-display {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-3);
-  background: var(--surface-100);
-  border-radius: var(--radius-md);
-  font-size: var(--font-size-sm);
-  color: var(--text-color-secondary);
+// Override wizard body when map step is shown - don't center, let map fill space
+::ng-deep .form-wizard__body:has(.map-step) {
+  justify-content: flex-start !important;
+  padding: 0 !important;
+}
 
-  i {
-    color: var(--primary-color);
+// Map step - fills the wizard body completely
+.map-step {
+  flex: 1;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+
+  app-map-picker {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+
+    ::ng-deep .map-picker {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      height: auto !important;
+      min-height: 0;
+
+      .map-container {
+        flex: 1;
+        min-height: 300px;
+        border-radius: 0;
+        border: none;
+      }
+
+      .instructions {
+        flex-shrink: 0;
+        padding: var(--space-4);
+        background: var(--surface-50);
+        border-top: 1px solid var(--surface-200);
+        margin: 0;
+        text-align: center;
+
+        p {
+          margin: 0;
+        }
+      }
+
+      .address-display {
+        flex-shrink: 0;
+        padding: var(--space-3) var(--space-4);
+        background: var(--surface-50);
+        border-top: 1px solid var(--surface-200);
+        margin: 0;
+      }
+    }
+  }
+
+  .coordinates-display {
+    position: absolute;
+    bottom: 80px; // Above the instructions area
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-4);
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: var(--radius-lg);
+    font-size: var(--font-size-sm);
+    color: var(--text-color-secondary);
+    box-shadow: var(--shadow-md);
+
+    i {
+      color: var(--primary-color);
+    }
+
+    @media (max-width: 768px) {
+      bottom: 70px;
+      padding: var(--space-2) var(--space-3);
+      font-size: var(--font-size-xs);
+    }
   }
 }
 
-// Map - fill remaining viewport space
-// 100vh minus: page header + wizard header + card header + wizard footer + padding
-app-map-picker {
-  display: block;
-
-  ::ng-deep .map-picker {
-    height: calc(100vh - 470px) !important;
-
-    @media (max-width: 768px) {
-      height: calc(100vh - 300px) !important;
+// Mobile: reduce map min-height
+@media (max-width: 768px) {
+  .map-step {
+    app-map-picker ::ng-deep .map-picker .map-container {
+      min-height: 200px;
     }
   }
 }
