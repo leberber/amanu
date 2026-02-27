@@ -5,6 +5,7 @@ import { filter } from 'rxjs';
 
 import { BottomNavigationComponent } from './components/bottom-navigation/bottom-navigation.component';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
+import { SidebarService } from './services/sidebar.service';
 import { ROUTES } from './core/constants/routes.constants';
 import { BREAKPOINTS } from './core/constants/app.constants';
 
@@ -26,6 +27,10 @@ export class AppComponent implements OnInit {
 
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
+  private sidebarService = inject(SidebarService);
+
+  // Expose sidebar collapsed state for template
+  sidebarCollapsed = this.sidebarService.collapsed;
 
   // Routes where navigation should be hidden (auth pages)
   private readonly publicRoutes = [

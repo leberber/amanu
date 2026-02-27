@@ -4,8 +4,11 @@ import { Injectable, signal } from '@angular/core';
   providedIn: 'root'
 })
 export class SidebarService {
-  // State
+  // Mobile drawer state
   drawerVisible = signal(false);
+
+  // Desktop collapsed state
+  collapsed = signal(false);
 
   openDrawer(): void {
     this.drawerVisible.set(true);
@@ -17,5 +20,13 @@ export class SidebarService {
 
   toggleDrawer(): void {
     this.drawerVisible.update(v => !v);
+  }
+
+  toggleCollapsed(): void {
+    this.collapsed.update(v => !v);
+  }
+
+  setCollapsed(value: boolean): void {
+    this.collapsed.set(value);
   }
 }

@@ -58,7 +58,9 @@
     "optional": "اختياري",
     "all": "الكل",
     "previous": "السابق",
-    "next": "التالي"
+    "next": "التالي",
+    "expand": "توسيع",
+    "collapse": "طي"
   },
   "lightbox": {
     "packaging_type": "التغليف",

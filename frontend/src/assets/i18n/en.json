@@ -58,7 +58,9 @@
     "optional": "Optional",
     "all": "All",
     "previous": "Previous",
-    "next": "Next"
+    "next": "Next",
+    "expand": "Expand",
+    "collapse": "Collapse"
   },
   "lightbox": {
     "packaging_type": "Packaging",

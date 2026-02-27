@@ -3,6 +3,7 @@ import { Router, RouterLink, RouterLinkActive, NavigationEnd } from '@angular/ro
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DrawerModule } from 'primeng/drawer';
+import { TooltipModule } from 'primeng/tooltip';
 import { filter } from 'rxjs/operators';
 
 import { AuthService } from '../../services/auth.service';
@@ -28,7 +29,7 @@ interface NavItem {
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive, TranslateModule, DrawerModule, LanguageSelectorComponent],
+  imports: [RouterLink, RouterLinkActive, TranslateModule, DrawerModule, TooltipModule, LanguageSelectorComponent],
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.scss'
 })
@@ -44,6 +45,7 @@ export class SidebarComponent implements OnInit {
 
   // State (drawer visibility comes from service)
   mobileDrawerVisible = this.sidebarService.drawerVisible;
+  collapsed = this.sidebarService.collapsed;
   isMobile = signal(window.innerWidth < BREAKPOINTS.MD);
   navItems = signal<NavItem[]>([]);
   adminNavItems = signal<NavItem[]>([]);
@@ -206,6 +208,11 @@ export class SidebarComponent implements OnInit {
 
   toggleMobileDrawer() {
     this.sidebarService.toggleDrawer();
+  }
+
+  // Desktop collapse controls
+  toggleCollapsed() {
+    this.sidebarService.toggleCollapsed();
   }
 
   // Actions

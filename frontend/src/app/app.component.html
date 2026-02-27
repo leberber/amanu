@@ -1,6 +1,7 @@
 <!-- src/app/app.component.html -->
 <div class="app-container flex h-screen overflow-hidden"
      [class.with-sidebar]="showNavigation() && !isMobile()"
+     [class.with-sidebar-collapsed]="showNavigation() && !isMobile() && sidebarCollapsed()"
      [class.with-bottom-nav]="showNavigation() && isMobile() && !hideBottomNav()">
 
   @if (showNavigation()) {

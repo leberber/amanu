@@ -51,6 +51,12 @@
   // Desktop with sidebar - offset by sidebar width
   .with-sidebar & {
     margin-inline-start: var(--sidebar-width);
+    transition: margin-inline-start 0.25s ease;
+  }
+
+  // Desktop with collapsed sidebar
+  .with-sidebar-collapsed & {
+    margin-inline-start: var(--sidebar-collapsed-width);
   }
 }
 
