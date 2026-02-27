@@ -1091,3 +1091,13 @@ body.fullscreen-active {
     background: white !important;
   }
 }
+
+// =============================================================================
+// PAGINATION MOBILE
+// =============================================================================
+
+@media (max-width: 767px) {
+  .p-paginator-current {
+    display: none;
+  }
+}

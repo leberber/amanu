@@ -59,14 +59,17 @@
   }
 }
 
-.page-top,
-.page-main,
-.page-footer {
+.page-top {
   padding: var(--page-padding);
+  padding-bottom: 0;
 }
 
 .page-main {
+  padding: var(--page-padding);
+  padding-top: var(--space-3);
+
   @media (min-width: 768px) {
+    padding-top: var(--space-4);
     flex: 1;
     overflow-y: auto;
     min-height: 0;
@@ -85,6 +88,10 @@
       }
     }
   }
+}
+
+.page-footer {
+  padding: var(--page-padding);
 }
 
 .page-footer:empty {

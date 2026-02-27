@@ -5,6 +5,7 @@ import { TranslateService } from '@ngx-translate/core';
 
 import { ADMIN_LIST_IMPORTS } from '../../../shared/imports/admin-shared.imports';
 import { TableSkeletonComponent, SkeletonColumn } from '../../../shared/components/table-skeleton/table-skeleton.component';
+import { AgroclikPageContainerComponent } from '../../../shared/components/agroclik-page-container/agroclik-page-container.component';
 import { ROUTES } from '../../../core/constants/routes.constants';
 import { ORDER_STATUS } from '../../../core/constants/app.constants';
 import { onLanguageChange } from '../../../core/utils/language-change.util';
@@ -22,7 +23,8 @@ import { BaseAdminListComponent, ColumnOption } from '../../../shared/base/base-
   imports: [
     ...ADMIN_LIST_IMPORTS,
     PopoverModule,
-    TableSkeletonComponent
+    TableSkeletonComponent,
+    AgroclikPageContainerComponent
   ],
     templateUrl: './admin-orders.component.html',
   styleUrl: './admin-orders.component.scss'
