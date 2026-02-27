@@ -7,6 +7,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { ADMIN_LIST_IMPORTS, ADMIN_DIALOG_IMPORTS } from '../../../shared/imports/admin-shared.imports';
 import { InlineEditState } from '../../../shared/utils/inline-edit-state';
 import { TableSkeletonComponent, SkeletonColumn } from '../../../shared/components/table-skeleton/table-skeleton.component';
+import { AgroclikPageContainerComponent } from '../../../shared/components/agroclik-page-container/agroclik-page-container.component';
 import { ROUTES, RouteHelpers } from '../../../core/constants/routes.constants';
 import { onLanguageChange } from '../../../core/utils/language-change.util';
 import { BrandService } from '../../../core/services/brand.service';
@@ -23,7 +24,8 @@ import { BaseAdminListComponent, ColumnOption } from '../../../shared/base/base-
     ...ADMIN_LIST_IMPORTS,
     ...ADMIN_DIALOG_IMPORTS,
     PopoverModule,
-    TableSkeletonComponent
+    TableSkeletonComponent,
+    AgroclikPageContainerComponent
   ],
   providers: [ConfirmationService],
   templateUrl: './admin-brands.component.html',
