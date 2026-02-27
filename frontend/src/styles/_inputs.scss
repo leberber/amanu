@@ -328,7 +328,9 @@
     padding: var(--space-3) var(--space-4);
     border-radius: var(--radius-pill);
     box-shadow: var(--shadow-sm);
-    max-width: 100%;
+    width: 800px;
+    flex: none;
+    margin-top: var(--space-4);
 
     &:focus-within {
       box-shadow: 0 6px 24px rgba(var(--primary-rgb), 0.15);
