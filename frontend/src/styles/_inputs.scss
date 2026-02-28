@@ -689,28 +689,26 @@
   flex-direction: column;
   align-items: center;
   min-width: 80px;
-  padding: var(--space-2) var(--space-4);
-  background: var(--primary-color);
-  border-radius: var(--radius-md);
-  transition: background-color var(--transition-fast);
 
   &__value {
     font-size: 1.75rem;
     font-weight: var(--font-weight-bold);
-    color: var(--color-white);
+    color: var(--text-color);
     line-height: 1;
   }
 
   &__label {
     font-size: var(--font-size-xs);
-    color: rgba(255, 255, 255, 0.85);
+    color: var(--text-color-secondary);
     text-transform: uppercase;
     letter-spacing: 0.03em;
     margin-top: var(--space-1);
   }
 
   &--in-cart {
-    background: var(--color-success);
+    .quantity-display__value {
+      color: var(--color-success);
+    }
   }
 
   &--update {
