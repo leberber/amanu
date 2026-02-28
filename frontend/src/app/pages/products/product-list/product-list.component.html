@@ -134,111 +134,15 @@
       } @else {
         <div class="item-list" [attr.data-animation-key]="animationKey()">
           @for (product of products(); track product.id; let i = $index) {
-            <div class="media-item item-animate" [style.animation-delay]="(i * animationDelayMs) + 'ms'">
-              <!-- Product Image -->
-              <a [routerLink]="['/products', product.id]" class="media-item__media">
-                <img
-                  [src]="getProductImageUrl(product)"
-                  [alt]="product.name"
-                  loading="lazy"
-                  (error)="onImageError($event)">
-                @if (product.is_organic) {
-                  <span class="organic-badge">{{ 'products.tags.organic' | translate }}</span>
-                }
-              </a>
-
-              <!-- Product Content -->
-              <div class="media-item__content">
-                <h3 class="media-item__title">
-                  <a [routerLink]="['/products', product.id]">{{ product.name }}</a>
-                </h3>
-
-                <div class="media-item__meta">
-                  <div class="media-item__price">
-                    <span class="price-current">{{ product.price | appCurrency }}</span>
-                    <span class="price-unit">/ {{ product.unit | appUnit }}</span>
-                  </div>
-
-                  <!-- Stock Status -->
-                  <div>
-                    @if (isOutOfStock(product)) {
-                      <span class="stock-badge stock-badge--out">
-                        <i class="pi pi-times-circle"></i>
-                        {{ 'products.stock.out_of_stock' | translate }}
-                      </span>
-                    } @else if (isLowStock(product)) {
-                      <span class="stock-badge stock-badge--low">
-                        <i class="pi pi-exclamation-circle"></i>
-                        {{ product.stock_quantity }} {{ 'products.stock.left' | translate }}
-                      </span>
-                    } @else {
-                      <span class="stock-badge stock-badge--in">
-                        <i class="pi pi-check-circle"></i>
-                        {{ 'products.stock.in_stock' | translate }}
-                      </span>
-                    }
-                  </div>
-                </div>
-
-                <!-- Actions -->
-                @if (!isOutOfStock(product) && getBoxOptions(product).length > 0) {
-                  <div class="media-item__actions">
-                    @if (isProductInCart(product.id)) {
-                      <span class="cart-indicator cart-indicator--in">
-                        <i class="pi pi-check-circle"></i>
-                        {{ getCartQuantity(product.id) }} {{ 'products.cart.in_cart' | translate }}
-                      </span>
-                    }
-                    <div class="cart-row">
-                      <div class="quantity-selector-wrapper">
-                        <button
-                          type="button"
-                          class="quantity-selector-btn"
-                          [class.quantity-selector-btn--in-cart]="quantityMatchesCart(product.id)"
-                          [class.quantity-selector-btn--update]="isProductInCart(product.id) && !quantityMatchesCart(product.id)"
-                          (click)="openQuantitySelector(product, $event)">
-                          <span class="quantity-selector-btn__text">
-                            @if (getSelectedBoxOption(product.id); as option) {
-                              <span class="quantity-selector-btn__boxes">{{ option.boxes }} {{ getPackagingTypeForCount(product, option.boxes) }}</span>
-                              <span class="quantity-selector-btn__pieces">{{ option.pieces }} {{ getPiecesLabel(option.pieces) | translate }}</span>
-                            } @else {
-                              <span>{{ 'products.select_quantity' | translate }}</span>
-                            }
-                          </span>
-                          <i class="pi pi-chevron-down quantity-selector-btn__icon"></i>
-                        </button>
-                        @if (product.pieces_per_box) {
-                          <span class="quantity-selector-hint">
-                            {{ product.pieces_per_box }} {{ product.unit | appUnit }} / {{ getPackagingTypeForCount(product, 1) }}
-                            @if (getSelectedBoxOption(product.id); as option) {
-                              <span class="quantity-selector-hint__total">&nbsp;&nbsp;{{ option.price | appCurrency }}</span>
-                            }
-                          </span>
-                        }
-                      </div>
-                      <button
-                        pButton
-                        type="button"
-                        [icon]="quantityMatchesCart(product.id) ? 'pi pi-check' : (isProductInCart(product.id) ? 'pi pi-refresh' : 'pi pi-cart-plus')"
-                        class="p-button-primary list-cart-btn"
-                        [class.list-cart-btn--in-cart]="quantityMatchesCart(product.id)"
-                        [class.list-cart-btn--update]="isProductInCart(product.id) && !quantityMatchesCart(product.id)"
-                        [class.list-cart-btn--highlight]="highlightedProductId() === product.id"
-                        [disabled]="!getSelectedBoxOption(product.id) || quantityMatchesCart(product.id)"
-                        (click)="addToCartFromList(product, $event)">
-                      </button>
-                    </div>
-                  </div>
-                } @else {
-                  <div class="media-item__actions media-item__actions--disabled">
-                    <span class="stock-badge stock-badge--out">
-                      <i class="pi pi-times-circle"></i>
-                      {{ 'products.stock.out_of_stock' | translate }}
-                    </span>
-                  </div>
-                }
-              </div>
-            </div>
+            <app-product-list-item
+              [product]="product"
+              [selectedBoxOption]="getSelectedBoxOption(product.id)"
+              [highlightCart]="highlightedProductId() === product.id"
+              (addToCartEvent)="onAddToCart($event)"
+              (quantitySelectorEvent)="onQuantitySelectorOpen($event)"
+              class="item-animate"
+              [style.animation-delay]="(i * animationDelayMs) + 'ms'">
+            </app-product-list-item>
           }
         </div>
       }

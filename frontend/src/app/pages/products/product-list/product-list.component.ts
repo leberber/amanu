@@ -22,6 +22,7 @@ import { OverlayService } from '../../../core/services/overlay.service';
 import { Product, Category, ProductFilter } from '../../../models/product.model';
 import { Brand } from '../../../models/brand.model';
 import { ProductCardComponent, AddToCartEvent, QuantitySelectorEvent } from '../components/product-card/product-card.component';
+import { ProductListItemComponent } from '../components/product-list-item/product-list-item.component';
 import { isOutOfStock as checkOutOfStock, isLowStock as checkLowStock } from '../../../shared/utils/stock.utils';
 import { getEffectivePrice as calcEffectivePrice } from '../../../shared/utils/discount.utils';
 import { generateBoxOptions, BoxOption } from '../../../shared/utils/box-options.utils';
@@ -40,6 +41,7 @@ import { UnitPipe } from '../../../shared/pipes/unit.pipe';
     ButtonModule,
     TranslateModule,
     ProductCardComponent,
+    ProductListItemComponent,
     HorizontalFilterComponent,
     SearchInputComponent,
     CurrencyPipe,

@@ -91,7 +91,7 @@
     <!-- Cart Status (always reserve space) -->
     <div class="product-card__cart-status" [class.product-card__cart-status--visible]="isInCart()">
       <i class="pi pi-check-circle"></i>
-      <span>{{ quantityInCart() }} {{ 'products.cart.in_cart' | translate }}</span>
+      <span>{{ boxesInCart() }} {{ cartPackagingLabel() }} {{ 'products.cart.in_cart' | translate }}</span>
     </div>
   </div>
 </div>

@@ -2,7 +2,6 @@ import { Component, inject, input, output, computed } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ButtonModule } from 'primeng/button';
-import { TagModule } from 'primeng/tag';
 
 import { Product } from '../../../../models/product.model';
 import { CurrencyService } from '../../../../core/services/currency.service';
@@ -11,15 +10,12 @@ import { FlyToCartService } from '../../../../core/services/fly-to-cart.service'
 import { CartService } from '../../../../services/cart.service';
 import { CurrencyPipe } from '../../../../shared/pipes/currency.pipe';
 import { UnitPipe } from '../../../../shared/pipes/unit.pipe';
-import { ImageFallbackDirective } from '../../../../shared/directives/image-fallback.directive';
 import {
   isOutOfStock as checkOutOfStock,
   isLowStock as checkLowStock
 } from '../../../../shared/utils/stock.utils';
 import {
-  formatDiscountLabel,
-  getEffectivePrice,
-  hasPromotion as checkHasPromotion
+  getEffectivePrice
 } from '../../../../shared/utils/discount.utils';
 import {
   generateBoxOptions,
@@ -36,31 +32,30 @@ export interface QuantitySelectorEvent {
   event: Event;
 }
 
-export type { BoxOption };
-
 @Component({
-  selector: 'app-product-card',
+  selector: 'app-product-list-item',
   standalone: true,
   imports: [
     RouterLink,
     TranslateModule,
     ButtonModule,
-    TagModule,
     CurrencyPipe,
-    UnitPipe,
-    ImageFallbackDirective
+    UnitPipe
   ],
-  templateUrl: './product-card.component.html',
-  styleUrl: './product-card.component.scss'
+  templateUrl: './product-list-item.component.html',
+  styleUrl: './product-list-item.component.scss'
 })
-export class ProductCardComponent {
-  // Inputs/Outputs
+export class ProductListItemComponent {
+  // Inputs
   product = input.required<Product>();
-  addToCartEvent = output<AddToCartEvent>();
-  quantitySelectorEvent = output<QuantitySelectorEvent>();
   selectedBoxOption = input<BoxOption | null>(null);
   highlightCart = input<boolean>(false);
 
+  // Outputs
+  addToCartEvent = output<AddToCartEvent>();
+  quantitySelectorEvent = output<QuantitySelectorEvent>();
+
+  // Services
   private currencyService = inject(CurrencyService);
   private cartService = inject(CartService);
   private flyToCartService = inject(FlyToCartService);
@@ -100,16 +95,14 @@ export class ProductCardComponent {
   isOutOfStock = computed(() => checkOutOfStock(this.product()));
   isLowStock = computed(() => checkLowStock(this.product()));
 
-  // Computed - promotion
-  hasPromotion = computed(() => checkHasPromotion(this.product().promotion));
-  discountLabel = computed(() => formatDiscountLabel(this.product().promotion, this.currencyService));
+  // Computed - price
   effectivePrice = computed(() => getEffectivePrice(this.product().price, this.product().promotion));
 
   // Computed - packaging
   piecesPerBox = computed(() => this.product().pieces_per_box || 1);
   boxOptions = computed(() => generateBoxOptions(this.product(), this.currencyService));
-  selectedQuantity = computed(() => this.selectedBoxOption()?.pieces || this.piecesPerBox());
 
+  // Methods
   openQuantitySelector(event: Event): void {
     event.stopPropagation();
     this.quantitySelectorEvent.emit({
@@ -120,6 +113,10 @@ export class ProductCardComponent {
 
   getPackagingTypeForCount(count: number): string {
     return this.packagingTypeService.getPackagingTypeForCount(this.product().packaging_type || 'carton', count);
+  }
+
+  getPiecesLabel(count: number): string {
+    return count === 1 ? 'products.product.quantity_selector.piece' : 'products.product.quantity_selector.pieces';
   }
 
   addToCart(event: MouseEvent): void {
@@ -133,5 +130,16 @@ export class ProductCardComponent {
       product: this.product(),
       quantity: option.pieces
     });
+  }
+
+  onImageError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    img.src = 'assets/images/placeholder.jpg';
+  }
+
+  getCartButtonIcon(): string {
+    if (this.quantityMatchesCart()) return 'pi pi-check';
+    if (this.isInCart()) return 'pi pi-refresh';
+    return 'pi pi-cart-plus';
   }
 }
