@@ -31,6 +31,7 @@
 $topbar-height: 64px;
 $topbar-height-enhanced: 80px;
 $bottom-nav-height: 70px;
+$sticky-footer-height: 60px;
 
 // -----------------------------------------------------------------------------
 // Main Container
@@ -242,9 +243,9 @@ $bottom-nav-height: 70px;
   // Account for bottom navigation
   padding-bottom: calc(#{$bottom-nav-height} + env(safe-area-inset-bottom, 0));
 
-  // Fullscreen mode - no bottom nav, just safe area
+  // Fullscreen mode - account for sticky footer
   .page-layout--fullscreen & {
-    padding-bottom: env(safe-area-inset-bottom, 0) !important;
+    padding-bottom: $sticky-footer-height !important;
   }
 
   // Bordered variant
