@@ -7,6 +7,7 @@ import { trigger, transition, style, animate, query, group } from '@angular/anim
 import { BottomNavigationComponent } from './components/bottom-navigation/bottom-navigation.component';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { SidebarService } from './services/sidebar.service';
+import { NavigationService } from './core/services/navigation.service';
 import { ROUTES } from './core/constants/routes.constants';
 import { BREAKPOINTS } from './core/constants/app.constants';
 
@@ -86,6 +87,7 @@ export class AppComponent implements OnInit {
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
   private sidebarService = inject(SidebarService);
+  private navigationService = inject(NavigationService);
 
   // Expose sidebar collapsed state for template
   sidebarCollapsed = this.sidebarService.collapsed;
@@ -114,10 +116,21 @@ export class AppComponent implements OnInit {
       takeUntilDestroyed(this.destroyRef)
     ).subscribe((event: NavigationStart) => {
       this.navCounter++;
-      // navigationTrigger is 'popstate' for browser back/forward, 'imperative' for programmatic nav
-      const direction = event.navigationTrigger === 'popstate' ? 'backward' : 'forward';
+
+      // Priority: 1) NavigationService explicit direction, 2) popstate detection, 3) default forward
+      let direction: 'forward' | 'backward';
+      console.log('[NAV-CHECK] svc.direction:', this.navigationService.direction, 'trigger:', event.navigationTrigger);
+      if (this.navigationService.direction) {
+        direction = this.navigationService.direction;
+        this.navigationService.clearDirection();
+      } else if (event.navigationTrigger === 'popstate') {
+        direction = 'backward';
+      } else {
+        direction = 'forward';
+      }
+
       this.navigationDirection = `${direction}-${this.navCounter}`;
-      console.log('[NAV]', direction, 'trigger:', event.navigationTrigger, 'to:', event.url);
+      console.log('[NAV]', direction, 'to:', event.url);
     });
 
     // Listen to route changes
@@ -155,8 +168,4 @@ export class AppComponent implements OnInit {
     return this.navigationDirection;
   }
 
-  // Allow programmatic back navigation with correct animation
-  navigateBack(): void {
-    window.history.back(); // Will trigger popstate, which sets backward direction automatically
-  }
 }

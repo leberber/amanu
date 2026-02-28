@@ -1,5 +1,5 @@
-<a
-  [routerLink]="route()"
+<button
+  type="button"
   class="back-btn"
   [class.circular]="circular()"
   [class.fixed]="fixed()"
@@ -8,4 +8,4 @@
   @if (showLabel() && !circular()) {
     <span>{{ label() | translate }}</span>
   }
-</a>
+</button>
