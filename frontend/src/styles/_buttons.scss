@@ -382,6 +382,15 @@
   i { font-size: 1.1rem; }
 }
 
+// List view cart button
+.list-cart-btn {
+  flex-shrink: 0;
+  margin-left: auto;
+  width: 2.3rem !important;
+  height: 2.3rem !important;
+  border-radius: var(--radius-md) !important;
+}
+
 // Cart button states
 .list-cart-btn--in-cart {
   background-color: var(--color-success) !important;
