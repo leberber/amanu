@@ -19,21 +19,17 @@
   display: flex;
   align-items: center;
   gap: var(--space-3);
-  padding: var(--space-4);
-  background: var(--surface-card);
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--border-color-light);
+  padding: var(--space-4) 0;
+  background: transparent;
+  border-bottom: 1px solid var(--border-color-light);
   transition: all var(--transition-fast);
+
+  &:last-child {
+    border-bottom: none;
+  }
 
   &.clickable {
     cursor: pointer;
-  }
-
-  @media (hover: hover) {
-    &:hover {
-      border-color: var(--primary-color);
-      box-shadow: var(--shadow-sm);
-    }
   }
 
   &__icon {
