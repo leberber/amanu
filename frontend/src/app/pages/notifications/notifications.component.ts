@@ -2,7 +2,7 @@ import { Component, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { ROUTES } from '../../core/constants/routes.constants';
-import { AgroclikPageContainerComponent } from '../../shared/components/agroclik-page-container/agroclik-page-container.component';
+import { PageLayoutComponent } from '../../shared/components/page-layout/page-layout.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 
 interface UserNotification {
@@ -18,7 +18,7 @@ interface UserNotification {
 @Component({
   selector: 'app-notifications',
   standalone: true,
-  imports: [DatePipe, TranslateModule, AgroclikPageContainerComponent, EmptyStateComponent],
+  imports: [DatePipe, TranslateModule, PageLayoutComponent, EmptyStateComponent],
   templateUrl: './notifications.component.html',
   styleUrl: './notifications.component.scss'
 })
