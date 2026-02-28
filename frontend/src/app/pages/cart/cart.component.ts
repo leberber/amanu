@@ -18,6 +18,7 @@ import { PromotionService } from '../../services/promotion.service';
 import { PageLayoutComponent } from '../../shared/components/page-layout/page-layout.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { ImageLightboxComponent } from '../../shared/components/image-lightbox/image-lightbox.component';
+import { StickyFooterComponent } from '../../shared/components/sticky-footer/sticky-footer.component';
 import { ToastMessageService } from '../../core/services/toast-message.service';
 import { PackagingTypeService } from '../../core/services/packaging-type.service';
 import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
@@ -43,6 +44,7 @@ const SKELETON_COUNT = 3;
     PageLayoutComponent,
     EmptyStateComponent,
     ImageLightboxComponent,
+    StickyFooterComponent,
     CurrencyPipe,
     UnitPipe,
     ImageFallbackDirective

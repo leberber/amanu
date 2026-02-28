@@ -1,0 +1,18 @@
+<div class="sticky-footer">
+  @if (showAmount()) {
+    <div class="sticky-footer__total">
+      <span class="sticky-footer__label">{{ label() | translate }}</span>
+      <span class="sticky-footer__amount">{{ amount() | appCurrency }}</span>
+    </div>
+  }
+  <button
+    class="sticky-footer__button"
+    [class.sticky-footer__button--disabled]="disabled()"
+    [disabled]="disabled()"
+    (click)="onButtonClick()">
+    <span>{{ buttonLabel() | translate }}</span>
+    @if (buttonIcon()) {
+      <i [class]="buttonIcon()"></i>
+    }
+  </button>
+</div>

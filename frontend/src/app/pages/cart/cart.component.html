@@ -347,16 +347,10 @@
 
   <!-- Mobile Sticky Footer -->
   @if (cartItemCount() > 0) {
-    <div class="cart-mobile-footer md:hidden">
-      <div class="cart-mobile-footer__total">
-        <span class="cart-mobile-footer__label">{{ 'common.total' | translate }}</span>
-        <span class="cart-mobile-footer__amount">{{ finalTotal() | appCurrency }}</span>
-      </div>
-      <button class="cart-mobile-footer__checkout" (click)="proceedToCheckout()">
-        <span>{{ 'cart.checkout' | translate }}</span>
-        <i class="pi pi-arrow-right"></i>
-      </button>
-    </div>
+    <app-sticky-footer
+      [amount]="finalTotal()"
+      buttonLabel="cart.checkout"
+      (buttonClick)="proceedToCheckout()" />
   }
 
   <!-- Image Lightbox -->
