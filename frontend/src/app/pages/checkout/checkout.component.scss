@@ -1,1 +1,320 @@
-// Component-specific styles (order item styles moved to global _lists.scss)
+// Checkout Page - Clean, Professional Design
+
+.checkout-content {
+  padding: var(--space-4);
+  padding-bottom: 100px; // Account for sticky footer
+}
+
+.checkout-section {
+  margin-bottom: var(--space-5);
+
+  &__header {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+  }
+
+  &__icon {
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    i {
+      font-size: 1.25rem;
+      color: white;
+    }
+
+    &--primary {
+      background: var(--primary-gradient);
+    }
+  }
+
+  &__text {
+    flex: 1;
+  }
+
+  &__title {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-color);
+    margin: 0 0 var(--space-1);
+  }
+
+  &__subtitle {
+    font-size: var(--font-size-sm);
+    color: var(--text-color-secondary);
+    margin: 0;
+  }
+}
+
+// Info Card (Address, Phone, Name)
+.info-card {
+  background: var(--surface-card);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.info-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--border-color-light);
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &__icon {
+    width: 36px;
+    height: 36px;
+    background: var(--surface-100);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    i {
+      font-size: 1rem;
+      color: var(--text-color-secondary);
+    }
+  }
+
+  &__content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__label {
+    display: block;
+    font-size: var(--font-size-xs);
+    color: var(--text-color-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: var(--space-1);
+  }
+
+  &__value {
+    display: block;
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-medium);
+    color: var(--text-color);
+  }
+}
+
+// Total Card
+.total-card {
+  background: var(--surface-card);
+  border-radius: var(--radius-xl);
+  padding: var(--space-5);
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-3);
+  }
+
+  &__label {
+    font-size: var(--font-size-sm);
+    color: var(--text-color-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  &__promo {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding: var(--space-1) var(--space-2);
+    background: var(--success-50, #f0fdf4);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    color: var(--success-color, #22c55e);
+
+    i {
+      font-size: 0.75rem;
+    }
+  }
+
+  &__amount {
+    font-size: 2.5rem;
+    font-weight: var(--font-weight-bold);
+    color: var(--text-color);
+    line-height: 1.2;
+    margin-bottom: var(--space-2);
+  }
+
+  &__breakdown {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+    font-size: var(--font-size-sm);
+    color: var(--text-color-secondary);
+  }
+
+  &__discount {
+    color: var(--success-color, #22c55e);
+    font-weight: var(--font-weight-semibold);
+  }
+}
+
+// Review Toggle Button
+.review-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4);
+  background: var(--surface-card);
+  border: none;
+  border-radius: var(--radius-xl);
+  cursor: pointer;
+  transition: background 0.2s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+
+  &:active {
+    background: var(--surface-100);
+  }
+
+  &__left {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  &__icon {
+    width: 36px;
+    height: 36px;
+    background: var(--surface-100);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    i {
+      font-size: 1rem;
+      color: var(--text-color-secondary);
+    }
+  }
+
+  &__text {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-medium);
+    color: var(--text-color);
+  }
+
+  > i {
+    font-size: 1rem;
+    color: var(--text-color-secondary);
+    transition: transform 0.25s;
+  }
+}
+
+// Order Details (Expandable)
+.order-details {
+  margin-top: var(--space-3);
+  background: var(--surface-card);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.order-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--border-color-light);
+  cursor: pointer;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:active {
+    background: var(--surface-50);
+  }
+
+  &__image {
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: var(--surface-100);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    i {
+      font-size: 1.25rem;
+      color: var(--text-color-secondary);
+    }
+  }
+
+  &__info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__name {
+    display: block;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--text-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__qty {
+    display: block;
+    font-size: var(--font-size-xs);
+    color: var(--text-color-secondary);
+    margin-top: 2px;
+  }
+
+  &__price {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-color);
+    white-space: nowrap;
+  }
+}
+
+// Terms Text
+.checkout-terms {
+  font-size: var(--font-size-xs);
+  color: var(--text-color-secondary);
+  text-align: center;
+  margin: var(--space-4) 0 0;
+  line-height: 1.5;
+
+  a {
+    color: var(--primary-color);
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}

@@ -1,4 +1,5 @@
 import { Component, OnInit, inject, signal, computed, DestroyRef } from '@angular/core';
+import { trigger, transition, style, animate, state } from '@angular/animations';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -19,6 +20,7 @@ import { ToastMessageService } from '../../core/services/toast-message.service';
 import { PageLayoutComponent } from '../../shared/components/page-layout/page-layout.component';
 import { ImageLightboxComponent } from '../../shared/components/image-lightbox/image-lightbox.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
+import { StickyFooterComponent } from '../../shared/components/sticky-footer/sticky-footer.component';
 import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
 import { ImageFallbackDirective } from '../../shared/directives/image-fallback.directive';
 import { getCartonDisplay } from '../../shared/utils/quantity.utils';
@@ -34,11 +36,19 @@ import { getCartonDisplay } from '../../shared/utils/quantity.utils';
     PageLayoutComponent,
     ImageLightboxComponent,
     EmptyStateComponent,
+    StickyFooterComponent,
     CurrencyPipe,
     ImageFallbackDirective
   ],
   templateUrl: './checkout.component.html',
-  styleUrl: './checkout.component.scss'
+  styleUrl: './checkout.component.scss',
+  animations: [
+    trigger('expandCollapse', [
+      state('collapsed', style({ height: '0', opacity: '0', overflow: 'hidden' })),
+      state('expanded', style({ height: '*', opacity: '1' })),
+      transition('collapsed <=> expanded', animate('250ms ease-in-out'))
+    ])
+  ]
 })
 export class CheckoutComponent implements OnInit {
   // Services
@@ -63,6 +73,7 @@ export class CheckoutComponent implements OnInit {
   cartItems = signal<CartItem[]>([]);
   currentUser = signal<User | null>(null);
   isSubmitting = signal(false);
+  showOrderDetails = signal(false);
 
   // Form value signals (updated when form is prefilled)
   fullName = signal('');
@@ -120,6 +131,10 @@ export class CheckoutComponent implements OnInit {
 
   formatCartonCount(item: CartItem): string {
     return getCartonDisplay(item.quantity, item.pieces_per_box);
+  }
+
+  toggleOrderDetails(): void {
+    this.showOrderDetails.update(v => !v);
   }
 
   openImage(item: CartItem): void {
