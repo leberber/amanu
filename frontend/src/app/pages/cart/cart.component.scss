@@ -96,9 +96,10 @@
   }
 }
 
-// Price pill - remove background, add left padding
+// Price pill - remove background, dark text
 .pill.primary {
   background: transparent !important;
+  color: var(--text-color) !important;
   padding: 0;
   padding-left: var(--space-2);
 }

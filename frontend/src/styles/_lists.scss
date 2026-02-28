@@ -499,7 +499,7 @@
   &__amount {
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-semibold);
-    color: var(--primary-color);
+    color: var(--text-color);
   }
 
   &__arrow {
@@ -612,8 +612,8 @@
 
   &__total {
     font-weight: 700;
-    font-size: 1.25rem;
-    color: var(--primary-color);
+    font-size: var(--font-size-xl);
+    color: var(--text-color);
   }
 }
 
@@ -712,7 +712,7 @@
   &__amount {
     font-size: 1.5rem;
     font-weight: 700;
-    color: var(--primary-color);
+    color: var(--text-color);
     letter-spacing: -0.02em;
   }
 }
@@ -830,7 +830,7 @@
   &__current {
     font-size: 2rem;
     font-weight: var(--font-weight-bold);
-    color: var(--primary-color);
+    color: var(--text-color);
     line-height: 1.2;
 
     &--promo {
@@ -933,7 +933,7 @@
   &__total {
     font-size: var(--font-size-base);
     font-weight: var(--font-weight-bold);
-    color: var(--primary-color);
+    color: var(--text-color);
     white-space: nowrap;
   }
 
@@ -987,7 +987,7 @@
   &__value {
     font-size: var(--font-size-3xl);
     font-weight: var(--font-weight-bold);
-    color: var(--primary-color);
+    color: var(--text-color);
     letter-spacing: -0.02em;
   }
 }

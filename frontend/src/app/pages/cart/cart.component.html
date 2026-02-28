@@ -145,7 +145,7 @@
                       </div>
                     </td>
                     <td class="text-right">
-                      <span class="text-bold text-primary">{{ item.product_price * item.quantity | appCurrency }}</span>
+                      <span class="text-bold">{{ item.product_price * item.quantity | appCurrency }}</span>
                     </td>
                     <td class="text-center">
                       <button class="icon-btn icon-btn--danger" (click)="removeItem(item.id)" [pTooltip]="'cart.remove_item' | translate" tooltipPosition="left">
