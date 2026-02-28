@@ -25,22 +25,21 @@
     <div class="page-content">
       <div class="page-grid">
         <!-- Items skeleton -->
-        <div class="card">
-          <div class="card-header">
-            <div class="skeleton skeleton-avatar"></div>
-            <div class="skeleton skeleton-text" style="width: 120px;"></div>
+        <div class="table-container">
+          <div class="table-header">
+            <div class="skeleton skeleton-text" style="width: 150px; height: 24px;"></div>
           </div>
-          <div class="card-body">
-            <ul class="items-simple-list">
-              @for (i of SKELETON_ITEMS; track i) {
-                <li class="item-line">
-                  <div class="skeleton skeleton-image skeleton-image--sm"></div>
-                  <div class="skeleton skeleton-text" style="width: 50px;"></div>
-                  <div class="skeleton skeleton-text" style="flex: 1;"></div>
-                  <div class="skeleton skeleton-text" style="width: 80px;"></div>
-                </li>
-              }
-            </ul>
+          <div class="order-items-list">
+            @for (i of SKELETON_ITEMS; track i) {
+              <div class="order-item-card">
+                <div class="skeleton" style="width: 44px; height: 44px; border-radius: var(--radius-md);"></div>
+                <div class="order-item-card__info">
+                  <div class="skeleton skeleton-text" style="width: 120px; height: 16px;"></div>
+                  <div class="skeleton skeleton-text" style="width: 80px; height: 12px; margin-top: 4px;"></div>
+                </div>
+                <div class="skeleton skeleton-text" style="width: 60px; height: 16px;"></div>
+              </div>
+            }
           </div>
         </div>
 
@@ -84,36 +83,43 @@
     <div class="page-content">
       <div class="page-grid">
         <!-- Order Items -->
-        <div class="card card--scrollable">
-          <div class="card-header">
-            <div class="card-header__icon card-header__icon--primary">
-              <i class="pi pi-list"></i>
-            </div>
-            <h2 class="card-header__title">{{ 'orders.detail.order_items_title' | translate }}</h2>
-          </div>
-          <div class="card-body card-body--compact">
-            <ul class="items-simple-list">
-              @for (item of order()?.items; track item.id; let i = $index) {
-                <li class="item-line item-animate" [style.animation-delay]="(i * 50) + 'ms'">
-                  <div class="thumbnail" [class.clickable]="item.product_image_url" (click)="openImage(item)">
-                    @if (item.product_image_url) {
-                      <img [src]="item.product_image_url" [alt]="item.product_name" loading="lazy" appImageFallback>
-                    } @else {
-                      <i class="pi pi-box"></i>
-                    }
-                  </div>
-                  <span class="item-qty">{{ getCartonDisplay(item) }}</span>
-                  <span class="item-name">{{ item.product_name }}</span>
-                  <span class="item-total">{{ item.unit_price * item.quantity | appCurrency }}</span>
-                </li>
-              }
-            </ul>
-            <div class="list-footer">
-              <div class="meta-item">
-                <i class="pi pi-box"></i>
-                <span>{{ order()?.items?.length }} {{ (order()?.items?.length === 1 ? 'common.item' : 'common.items') | translate }}</span>
+        <div class="table-container">
+          <div class="table-header">
+            <div class="flex align-items-center gap-3">
+              <div class="card-header__icon card-header__icon--primary">
+                <i class="pi pi-list"></i>
               </div>
-              <span class="list-footer__total">{{ totalAmount() | appCurrency }}</span>
+              <div class="flex flex-column">
+                <span class="font-semibold">{{ 'orders.detail.order_items_title' | translate }}</span>
+                <span class="text-sm text-secondary">{{ order()?.items?.length }} {{ (order()?.items?.length === 1 ? 'common.item' : 'common.items') | translate }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="order-items-list">
+            @for (item of order()?.items; track item.id; let i = $index) {
+              <div class="order-item-card item-animate" [style.animation-delay]="(i * 50) + 'ms'" [class.clickable]="item.product_image_url" (click)="openImage(item)">
+                <div class="order-item-card__icon">
+                  @if (item.product_image_url) {
+                    <img [src]="item.product_image_url" [alt]="item.product_name" loading="lazy" appImageFallback>
+                  } @else {
+                    <i class="pi pi-box"></i>
+                  }
+                </div>
+                <div class="order-item-card__info">
+                  <span class="order-item-card__name">{{ item.product_name }}</span>
+                  <span class="order-item-card__qty">{{ getCartonDisplay(item) }} × {{ item.unit_price | appCurrency }}</span>
+                </div>
+                <span class="order-item-card__total">{{ item.unit_price * item.quantity | appCurrency }}</span>
+              </div>
+            }
+          </div>
+
+          <!-- Total Footer -->
+          <div class="order-total-footer">
+            <div class="order-total-footer__row order-total-footer__row--total">
+              <span class="order-total-footer__label">{{ 'common.total' | translate }}</span>
+              <span class="order-total-footer__value">{{ totalAmount() | appCurrency }}</span>
             </div>
           </div>
         </div>
@@ -126,7 +132,7 @@
               <div class="card-header__icon card-header__icon--purple">
                 <i class="pi pi-history"></i>
               </div>
-              <h2 class="card-header__title">{{ 'orders.detail.order_timeline' | translate }}</h2>
+              <span class="font-semibold">{{ 'orders.detail.order_timeline' | translate }}</span>
             </div>
             <div class="card-body card-body--compact">
               <div class="timeline-wrapper">
@@ -156,7 +162,7 @@
               <div class="card-header__icon card-header__icon--info">
                 <i class="pi pi-cog"></i>
               </div>
-              <h2 class="card-header__title">{{ 'orders.detail.order_actions_title' | translate }}</h2>
+              <span class="font-semibold">{{ 'orders.detail.order_actions_title' | translate }}</span>
             </div>
             <div class="card-body card-body--compact">
               <div class="form-actions form-actions--stacked">
