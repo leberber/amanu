@@ -29,6 +29,12 @@ export const routes: Routes = [
   { path: 'products', component: ProductListComponent, canActivate: [authGuard] },
   { path: 'products/:id', component: ProductDetailComponent, canActivate: [authGuard], data: { hideBottomNav: true } },
   { path: 'cart', component: CartComponent, canActivate: [authGuard], data: { hideBottomNav: true } },
+  {
+    path: 'order-summary',
+    loadComponent: () => import('./pages/order-summary/order-summary.component').then(m => m.OrderSummaryComponent),
+    canActivate: [authGuard],
+    data: { hideBottomNav: true }
+  },
   
   // Admin Routes
   { 

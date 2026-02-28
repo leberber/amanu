@@ -1,5 +1,4 @@
 import { Component, OnInit, inject, signal, computed, DestroyRef, effect } from '@angular/core';
-import { trigger, transition, style, animate } from '@angular/animations';
 import { RouterLink, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -51,18 +50,7 @@ const SKELETON_COUNT = 3;
     ImageFallbackDirective
   ],
   templateUrl: './cart.component.html',
-  styleUrl: './cart.component.scss',
-  animations: [
-    trigger('slideIn', [
-      transition(':enter', [
-        style({ transform: 'translateX(100%)' }),
-        animate('300ms ease-out', style({ transform: 'translateX(0)' }))
-      ]),
-      transition(':leave', [
-        animate('250ms ease-in', style({ transform: 'translateX(100%)' }))
-      ])
-    ])
-  ]
+  styleUrl: './cart.component.scss'
 })
 export class CartComponent implements OnInit {
   // Services
@@ -92,7 +80,6 @@ export class CartComponent implements OnInit {
   promoLoading = signal(false);
   promoError = signal<string | null>(null);
   promoInputFocused = signal(false);
-  showOrderSummary = signal(false);
   // Computed
   cartSubtotal = this.cartService.subtotal;
   discountAmount = this.cartService.discountAmount;
@@ -190,13 +177,9 @@ export class CartComponent implements OnInit {
     this.router.navigate([ROUTES.PRODUCTS]);
   }
 
-  // Order Summary
+  // Order Summary - Navigate to separate page
   openOrderSummary(): void {
-    this.showOrderSummary.set(true);
-  }
-
-  closeOrderSummary(): void {
-    this.showOrderSummary.set(false);
+    this.router.navigate([ROUTES.ORDER_SUMMARY]);
   }
 
   // Promotion operations
