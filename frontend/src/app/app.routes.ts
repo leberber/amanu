@@ -169,11 +169,13 @@ export const routes: Routes = [
   },
   {
     path: 'terms',
-    loadComponent: () => import('./pages/terms/terms.component').then(m => m.TermsComponent)
+    loadComponent: () => import('./pages/terms/terms.component').then(m => m.TermsComponent),
+    data: { hideBottomNav: true }
   },
   {
     path: 'about',
-    loadComponent: () => import('./pages/about/about.component').then(m => m.AboutComponent)
+    loadComponent: () => import('./pages/about/about.component').then(m => m.AboutComponent),
+    data: { hideBottomNav: true }
   },
   {
     path: 'contact',
@@ -182,17 +184,20 @@ export const routes: Routes = [
   {
     path: 'promotions',
     loadComponent: () => import('./pages/promotions/promotions.component').then(m => m.PromotionsComponent),
-    canActivate: [authGuard]
+    canActivate: [authGuard],
+    data: { hideBottomNav: true }
   },
   {
     path: 'settings',
     loadComponent: () => import('./pages/settings/settings.component').then(m => m.SettingsComponent),
-    canActivate: [authGuard]
+    canActivate: [authGuard],
+    data: { hideBottomNav: true }
   },
   {
     path: 'notifications',
     loadComponent: () => import('./pages/notifications/notifications.component').then(m => m.NotificationsComponent),
-    canActivate: [authGuard]
+    canActivate: [authGuard],
+    data: { hideBottomNav: true }
   },
 
   { path: '**', redirectTo: '' }
