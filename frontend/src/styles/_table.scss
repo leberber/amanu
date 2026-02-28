@@ -38,9 +38,11 @@
 // =============================================================================
 
 .table-container {
-  background: var(--surface-card);
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-sm);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-md);
+  border: var(--border-width) solid var(--border-color-light);
   overflow: hidden;
 
   @media (max-width: 768px) {

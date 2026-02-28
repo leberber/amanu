@@ -127,11 +127,22 @@
   padding: var(--space-7) var(--space-8);
   border-bottom: var(--border-width) solid var(--border-color-light);
 
+  @media (max-width: 767px) {
+    gap: var(--space-4);
+    padding: var(--space-5) var(--space-6);
+  }
+
   &__icon {
     @extend %card-icon;
     @include icon-size(--icon-lg);
 
     i { font-size: var(--font-size-2xl); }
+
+    @media (max-width: 767px) {
+      width: var(--icon-md);
+      height: var(--icon-md);
+      i { font-size: var(--font-size-xl); }
+    }
 
     // Color variants
     &--primary { @include icon-color-variant(--primary-color, --primary-rgb); }
@@ -158,6 +169,10 @@
     font-weight: var(--font-weight-semibold);
     color: var(--text-color);
     margin: 0;
+
+    @media (max-width: 767px) {
+      font-size: var(--font-size-lg);
+    }
   }
 
   &__subtitle {
