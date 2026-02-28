@@ -24,7 +24,6 @@ export class BackButtonComponent {
 
   handleClick(event: Event): void {
     event.preventDefault();
-    console.log('[BACK-BTN] clicked, route:', this.route());
 
     if (this.customHandler()) {
       this.buttonClick.emit();

@@ -22,13 +22,10 @@ export class NavigationService {
    */
   back(fallbackRoute?: string): void {
     this.direction = 'backward';
-    console.log('[NAV-SVC] back() called, direction set to:', this.direction);
 
     if (window.history.length > 1) {
-      console.log('[NAV-SVC] using location.back()');
       this.location.back();
     } else if (fallbackRoute) {
-      console.log('[NAV-SVC] using router.navigate to:', fallbackRoute);
       this.router.navigate([fallbackRoute]);
     }
   }

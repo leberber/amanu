@@ -119,7 +119,6 @@ export class AppComponent implements OnInit {
 
       // Priority: 1) NavigationService explicit direction, 2) popstate detection, 3) default forward
       let direction: 'forward' | 'backward';
-      console.log('[NAV-CHECK] svc.direction:', this.navigationService.direction, 'trigger:', event.navigationTrigger);
       if (this.navigationService.direction) {
         direction = this.navigationService.direction;
         this.navigationService.clearDirection();
@@ -130,7 +129,6 @@ export class AppComponent implements OnInit {
       }
 
       this.navigationDirection = `${direction}-${this.navCounter}`;
-      console.log('[NAV]', direction, 'to:', event.url);
     });
 
     // Listen to route changes
@@ -164,7 +162,6 @@ export class AppComponent implements OnInit {
 
   // Get animation direction for route transitions
   getRouteAnimationData(): string {
-    console.log('[ANIM] state:', this.navigationDirection);
     return this.navigationDirection;
   }
 
