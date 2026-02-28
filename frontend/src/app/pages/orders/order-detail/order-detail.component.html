@@ -85,14 +85,12 @@
         <!-- Order Items -->
         <div class="table-container">
           <div class="table-header">
-            <div class="flex align-items-center gap-3">
-              <div class="card-header__icon card-header__icon--primary">
-                <i class="pi pi-list"></i>
-              </div>
-              <div class="flex flex-column">
-                <span class="font-semibold">{{ 'orders.detail.order_items_title' | translate }}</span>
-                <span class="text-sm text-secondary">{{ order()?.items?.length }} {{ (order()?.items?.length === 1 ? 'common.item' : 'common.items') | translate }}</span>
-              </div>
+            <div class="card-header__icon card-header__icon--primary">
+              <i class="pi pi-list"></i>
+            </div>
+            <div class="card-header__text">
+              <h2 class="card-header__title">{{ 'orders.detail.order_items_title' | translate }}</h2>
+              <span class="card-header__subtitle">{{ order()?.items?.length }} {{ (order()?.items?.length === 1 ? 'common.item' : 'common.items') | translate }}</span>
             </div>
           </div>
 
@@ -132,7 +130,7 @@
               <div class="card-header__icon card-header__icon--purple">
                 <i class="pi pi-history"></i>
               </div>
-              <span class="font-semibold">{{ 'orders.detail.order_timeline' | translate }}</span>
+              <h2 class="card-header__title">{{ 'orders.detail.order_timeline' | translate }}</h2>
             </div>
             <div class="card-body card-body--compact">
               <div class="timeline-wrapper">
@@ -162,7 +160,7 @@
               <div class="card-header__icon card-header__icon--info">
                 <i class="pi pi-cog"></i>
               </div>
-              <span class="font-semibold">{{ 'orders.detail.order_actions_title' | translate }}</span>
+              <h2 class="card-header__title">{{ 'orders.detail.order_actions_title' | translate }}</h2>
             </div>
             <div class="card-body card-body--compact">
               <div class="form-actions form-actions--stacked">

@@ -91,7 +91,7 @@
   }
 
   i {
-    font-size: 1.25rem;
+    font-size: var(--font-size-xl);
     color: var(--text-color-secondary);
   }
 }
@@ -126,7 +126,7 @@
     text-align: center;
     display: flex;
     flex-direction: column;
-    gap: 0.125rem;
+    gap: var(--space-1);
 
     &__cartons {
       font-size: var(--font-size-sm);

@@ -165,8 +165,8 @@
                       <span>{{ cartItemCount() }} {{ (cartItemCount() === 1 ? 'common.item' : 'common.items') | translate }}</span>
                     </div>
                   </td>
-                  <td style="text-align: right;">
-                    <span style="font-weight: 700; font-size: 1.25rem; color: var(--primary-color);">{{ cartSubtotal() | appCurrency }}</span>
+                  <td class="text-right">
+                    <span class="list-footer__total">{{ cartSubtotal() | appCurrency }}</span>
                   </td>
                   <td></td>
                 </tr>
