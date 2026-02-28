@@ -76,7 +76,10 @@ $bottom-nav-height: 70px;
   min-height: $topbar-height;
   padding: 0.75rem 1rem;
   padding-top: calc(0.75rem + env(safe-area-inset-top, 0));
-  background: var(--surface-card, white);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
   position: relative;
   z-index: 10;
 
@@ -325,5 +328,15 @@ $bottom-nav-height: 70px;
       align-items: center !important;
       text-align: center !important;
     }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Dark Mode Support
+// -----------------------------------------------------------------------------
+:root.my-app-dark {
+  .page-topbar {
+    background: rgba(30, 30, 30, 0.95);
+    border-bottom-color: rgba(255, 255, 255, 0.08);
   }
 }

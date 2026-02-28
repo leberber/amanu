@@ -1,43 +1,142 @@
-// Back Button - Minimal styles
+// =============================================================================
+// Back Button Component
+// =============================================================================
+// A professional, theme-aware back button for mobile and desktop.
+// Supports circular, fixed, and standard variants.
+// =============================================================================
+
 .back-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  padding: 0.9rem 0.9rem;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
   border: none;
-  border-radius: 12px;
-  background: var(--primary-100, rgba(46, 108, 183, 0.1));
-  color: var(--primary-700, #0F3C82);
+  border-radius: var(--radius-lg);
+  background: rgba(var(--primary-color-rgb, 59, 130, 246), 0.08);
+  color: var(--primary-color);
   font-weight: 500;
-  font-size: 0.875rem;
+  font-size: var(--font-size-sm);
   cursor: pointer;
   text-decoration: none;
-  transition: all 0.2s ease;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  -webkit-tap-highlight-color: transparent;
+
+  i {
+    font-size: 1rem;
+    transition: transform 0.25s ease;
+  }
 
   &:hover {
-    background: var(--primary-color);
-    color: white;
+    background: rgba(var(--primary-color-rgb, 59, 130, 246), 0.15);
+
+    i {
+      transform: translateX(-2px);
+    }
   }
 
-  // Circular variant
+  &:active {
+    transform: scale(0.97);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Circular variant - for mobile headers
+  // ---------------------------------------------------------------------------
   &.circular {
-    width: 45px;
-    height: 45px;
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
     padding: 0;
-    border-radius: 50%;
-    background: var(--primary-100, rgba(46, 108, 183, 0.1));
-    color: white;
+    border-radius: var(--radius-full);
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: var(--text-color);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(0, 0, 0, 0.06);
 
-    &:hover { transform: scale(1.05); }
-    &:active { transform: scale(0.95); }
+    i {
+      font-size: 1.1rem;
+      color: var(--text-color);
+    }
+
+    &:hover {
+      background: rgba(255, 255, 255, 1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+
+      i {
+        transform: translateX(-2px);
+        color: var(--primary-color);
+      }
+    }
+
+    &:active {
+      transform: scale(0.92);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+    }
   }
 
-  // Fixed position
+  // ---------------------------------------------------------------------------
+  // Fixed position variant
+  // ---------------------------------------------------------------------------
   &.fixed {
     position: fixed;
-    top: 1rem;
-    inset-inline-start: 1rem;
-    z-index: 100;
+    top: calc(var(--space-4) + env(safe-area-inset-top, 0px));
+    inset-inline-start: var(--space-4);
+    z-index: var(--z-fixed, 100);
+  }
+}
+
+// =============================================================================
+// Dark Mode Support
+// =============================================================================
+
+:root.my-app-dark {
+  .back-btn {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--primary-400);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    &.circular {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.1);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+
+      i {
+        color: var(--text-color);
+      }
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.15);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+
+        i {
+          color: var(--primary-400);
+        }
+      }
+    }
+  }
+}
+
+// =============================================================================
+// RTL Support
+// =============================================================================
+
+[dir="rtl"] {
+  .back-btn {
+    i {
+      transform: scaleX(-1);
+    }
+
+    &:hover i {
+      transform: scaleX(-1) translateX(-2px);
+    }
+
+    &.circular:hover i {
+      transform: scaleX(-1) translateX(-2px);
+    }
   }
 }
