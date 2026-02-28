@@ -31,14 +31,6 @@ export class NavigationService {
   }
 
   /**
-   * Navigate backward to a specific route (slide from left)
-   */
-  backTo(route: string): void {
-    this.direction = 'backward';
-    this.router.navigate([route]);
-  }
-
-  /**
    * Clear direction after animation completes
    */
   clearDirection(): void {

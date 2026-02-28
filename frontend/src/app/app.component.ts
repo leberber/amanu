@@ -146,7 +146,6 @@ export class AppComponent implements OnInit {
   }
 
   private updateRouteData(): void {
-
     let route = this.router.routerState.root;
     while (route.firstChild) {
       route = route.firstChild;
@@ -164,5 +163,4 @@ export class AppComponent implements OnInit {
   getRouteAnimationData(): string {
     return this.navigationDirection;
   }
-
 }

@@ -18,7 +18,6 @@ export class BackButtonComponent {
   showLabel = input(true);
   circular = input(false);
   fixed = input(false);
-  useHistory = input(true);
   customHandler = input(false);
   buttonClick = output<void>();
 
