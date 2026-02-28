@@ -96,10 +96,17 @@
   }
 }
 
-// Price pill - remove background
+// Price pill - remove background, add left padding
 .pill.primary {
   background: transparent !important;
   padding: 0;
+  padding-left: var(--space-2);
+}
+
+// Checkout button - extra vertical padding
+.form-action-btn--success {
+  padding-top: var(--space-5) !important;
+  padding-bottom: var(--space-5) !important;
 }
 
 // Delete button - red icon
