@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, signal, DestroyRef, HostListener } from '@angular/core';
-import { Router, RouterOutlet, NavigationEnd, ChildrenOutletContexts } from '@angular/router';
+import { Router, RouterOutlet, NavigationEnd, ChildrenOutletContexts, NavigationStart } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { filter } from 'rxjs';
 import { trigger, transition, style, animate, query, group } from '@angular/animations';
@@ -10,40 +10,60 @@ import { SidebarService } from './services/sidebar.service';
 import { ROUTES } from './core/constants/routes.constants';
 import { BREAKPOINTS } from './core/constants/app.constants';
 
-// Route animation - full slide from right
-const slideAnimation = trigger('routeAnimation', [
-  transition('* <=> *', [
-    // Set up initial styles
-    query(':enter, :leave', [
-      style({
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%'
-      })
-    ], { optional: true }),
+// Base styles for route animations
+const baseStyles = [
+  query(':enter, :leave', [
+    style({
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%'
+    })
+  ], { optional: true })
+];
 
-    // Animate entering and leaving views together
-    group([
-      query(':leave', [
-        animate('300ms ease-in-out', style({
-          opacity: 0,
-          transform: 'translateX(-100%)'
-        }))
-      ], { optional: true }),
-      query(':enter', [
-        style({
-          opacity: 0,
-          transform: 'translateX(100%)'
-        }),
-        animate('300ms ease-in-out', style({
-          opacity: 1,
-          transform: 'translateX(0)'
-        }))
-      ], { optional: true })
-    ])
+// Forward animation - slide in from right
+const slideForward = [
+  ...baseStyles,
+  group([
+    query(':leave', [
+      animate('300ms ease-in-out', style({
+        transform: 'translateX(-100%)'
+      }))
+    ], { optional: true }),
+    query(':enter', [
+      style({ transform: 'translateX(100%)' }),
+      animate('300ms ease-in-out', style({
+        transform: 'translateX(0)'
+      }))
+    ], { optional: true })
   ])
+];
+
+// Backward animation - slide in from left
+const slideBackward = [
+  ...baseStyles,
+  group([
+    query(':leave', [
+      animate('300ms ease-in-out', style({
+        transform: 'translateX(100%)'
+      }))
+    ], { optional: true }),
+    query(':enter', [
+      style({ transform: 'translateX(-100%)' }),
+      animate('300ms ease-in-out', style({
+        transform: 'translateX(0)'
+      }))
+    ], { optional: true })
+  ])
+];
+
+// Route animation with direction support
+const slideAnimation = trigger('routeAnimation', [
+  transition('* => forward', slideForward),
+  transition('* => backward', slideBackward),
+  transition('* <=> *', slideForward) // Default to forward
 ]);
 
 @Component({
@@ -71,6 +91,10 @@ export class AppComponent implements OnInit {
   // Expose sidebar collapsed state for template
   sidebarCollapsed = this.sidebarService.collapsed;
 
+  // Track navigation direction for animations
+  private navigationDirection: 'forward' | 'backward' = 'forward';
+  private isPopState = false;
+
   // Routes where navigation should be hidden (auth pages)
   private readonly publicRoutes = [
     ROUTES.LOGIN,
@@ -85,6 +109,25 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
+    // Listen for browser back/forward button
+    window.addEventListener('popstate', () => {
+      this.isPopState = true;
+    });
+
+    // Listen to navigation start to detect direction
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationStart),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe((event: NavigationStart) => {
+      // popstate means browser back/forward button
+      if (this.isPopState) {
+        this.navigationDirection = 'backward';
+        this.isPopState = false;
+      } else {
+        this.navigationDirection = 'forward';
+      }
+    });
+
     // Listen to route changes
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd),
@@ -114,9 +157,14 @@ export class AppComponent implements OnInit {
     this.showNavigation.set(!isPublicRoute);
   }
 
-  // Get unique route path for animation trigger
+  // Get animation direction for route transitions
   getRouteAnimationData(): string {
-    const context = this.contexts.getContext('primary');
-    return context?.route?.snapshot?.url.toString() || '';
+    return this.navigationDirection;
+  }
+
+  // Allow programmatic back navigation with correct animation
+  navigateBack(): void {
+    this.navigationDirection = 'backward';
+    window.history.back();
   }
 }

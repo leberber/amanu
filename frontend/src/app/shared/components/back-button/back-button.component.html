@@ -1,4 +1,9 @@
-<a [routerLink]="route()" class="back-btn" [class.circular]="circular()" [class.fixed]="fixed()">
+<a
+  [routerLink]="route()"
+  class="back-btn"
+  [class.circular]="circular()"
+  [class.fixed]="fixed()"
+  (click)="handleClick($event)">
   <i class="pi pi-arrow-left"></i>
   @if (showLabel() && !circular()) {
     <span>{{ label() | translate }}</span>
