@@ -182,10 +182,8 @@
               <span class="quantity-option__count">{{ option.boxes }}</span>
               <span class="quantity-option__label">{{ getPackagingTypeForCount(product, option.boxes) }}</span>
             </div>
-            <div class="quantity-option__details">
-              <span class="quantity-option__pieces">{{ option.pieces }} {{ getPiecesLabel(option.pieces) | translate }}</span>
-              <span class="quantity-option__price">{{ option.price | appCurrency }}</span>
-            </div>
+            <span class="quantity-option__price">{{ option.price | appCurrency }}</span>
+            <span class="quantity-option__pieces">{{ option.pieces }} {{ getPiecesLabel(option.pieces) | translate }}</span>
             @if (selectedBoxOptions[product.id]?.boxes === option.boxes) {
               <i class="pi pi-check quantity-option__check"></i>
             }
