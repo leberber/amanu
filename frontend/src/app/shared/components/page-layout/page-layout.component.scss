@@ -59,9 +59,10 @@ $bottom-nav-height: 70px;
   max-width: 1400px;
   margin: 0 1rem;
 
-  @media (max-width: 768px) {
+  @media (max-width: 767px) {
     padding: 0;
-    padding-top: var(--space-3);
+    // Account for fixed header height + safe area
+    padding-top: calc(#{$topbar-height} + env(safe-area-inset-top, 0) + var(--space-3));
     margin: 0;
   }
 }
@@ -82,6 +83,15 @@ $bottom-nav-height: 70px;
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
   position: relative;
   z-index: 10;
+
+  // Fixed header on mobile to prevent scroll issues
+  @media (max-width: 767px) {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+  }
 
   // Left section (back button on mobile, icon+title on desktop)
   &__left {
@@ -228,6 +238,7 @@ $bottom-nav-height: 70px;
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
+  overscroll-behavior: none;
   // Account for bottom navigation
   padding-bottom: calc(#{$bottom-nav-height} + env(safe-area-inset-bottom, 0));
 

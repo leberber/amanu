@@ -78,7 +78,6 @@ export class CartComponent implements OnInit {
   promoLoading = signal(false);
   promoError = signal<string | null>(null);
   promoInputFocused = signal(false);
-
   // Computed
   cartSubtotal = this.cartService.subtotal;
   discountAmount = this.cartService.discountAmount;
