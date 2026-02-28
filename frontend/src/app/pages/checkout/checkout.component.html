@@ -43,22 +43,24 @@
           </div>
 
           <div class="card-body card-body--compact">
-            <ul class="items-simple-list">
+            <div class="order-items-list">
               @for (item of cartItems(); track item.id; let i = $index) {
-                <li class="item-line item-animate" [style.animation-delay]="(i * 50) + 'ms'">
-                  <div class="thumbnail" [class.clickable]="item.product_image" (click)="openImage(item)">
+                <div class="order-item-card item-animate" [style.animation-delay]="(i * 50) + 'ms'" [class.clickable]="item.product_image" (click)="openImage(item)">
+                  <div class="order-item-card__icon">
                     @if (item.product_image) {
                       <img [src]="item.product_image" [alt]="item.product_name" loading="lazy" appImageFallback>
                     } @else {
                       <i class="pi pi-box"></i>
                     }
                   </div>
-                  <span class="item-qty">{{ formatCartonCount(item) }}</span>
-                  <span class="item-name">{{ item.product_name }}</span>
-                  <span class="item-total">{{ item.product_price * item.quantity | appCurrency }}</span>
-                </li>
+                  <div class="order-item-card__info">
+                    <span class="order-item-card__name">{{ item.product_name }}</span>
+                    <span class="order-item-card__qty">{{ formatCartonCount(item) }} × {{ item.product_price | appCurrency }}</span>
+                  </div>
+                  <span class="order-item-card__total">{{ item.product_price * item.quantity | appCurrency }}</span>
+                </div>
               }
-            </ul>
+            </div>
 
             <div class="order-breakdown">
               <div class="order-breakdown__row">
@@ -88,9 +90,11 @@
               </div>
             </div>
 
-            <div class="list-footer">
-              <span class="list-footer__label">{{ 'common.total' | translate }}</span>
-              <span class="list-footer__total">{{ finalTotal() | appCurrency }}</span>
+            <div class="order-total-footer">
+              <div class="order-total-footer__row order-total-footer__row--total">
+                <span class="order-total-footer__label">{{ 'common.total' | translate }}</span>
+                <span class="order-total-footer__value">{{ finalTotal() | appCurrency }}</span>
+              </div>
             </div>
           </div>
         </div>
