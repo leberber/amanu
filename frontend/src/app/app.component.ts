@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, signal, DestroyRef, HostListener } from '@angular/core';
-import { Router, RouterOutlet, NavigationEnd, ChildrenOutletContexts, NavigationStart } from '@angular/router';
+import { Router, RouterOutlet, NavigationEnd, NavigationStart } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { filter } from 'rxjs';
 import { trigger, transition, style, animate, query, group } from '@angular/animations';
@@ -59,10 +59,10 @@ const slideBackward = [
   ])
 ];
 
-// Route animation with direction support
+// Route animation with direction support (using predicates to match 'forward-N' or 'backward-N')
 const slideAnimation = trigger('routeAnimation', [
-  transition('* => forward', slideForward),
-  transition('* => backward', slideBackward),
+  transition((from, to) => to?.toString().startsWith('backward'), slideBackward),
+  transition((from, to) => to?.toString().startsWith('forward'), slideForward),
   transition('* <=> *', slideForward) // Default to forward
 ]);
 
@@ -86,14 +86,13 @@ export class AppComponent implements OnInit {
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
   private sidebarService = inject(SidebarService);
-  private contexts = inject(ChildrenOutletContexts);
 
   // Expose sidebar collapsed state for template
   sidebarCollapsed = this.sidebarService.collapsed;
 
   // Track navigation direction for animations
-  private navigationDirection: 'forward' | 'backward' = 'forward';
-  private isPopState = false;
+  private navigationDirection = 'forward-0';
+  private navCounter = 0;
 
   // Routes where navigation should be hidden (auth pages)
   private readonly publicRoutes = [
@@ -109,23 +108,16 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
-    // Listen for browser back/forward button
-    window.addEventListener('popstate', () => {
-      this.isPopState = true;
-    });
-
     // Listen to navigation start to detect direction
     this.router.events.pipe(
       filter(event => event instanceof NavigationStart),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe((event: NavigationStart) => {
-      // popstate means browser back/forward button
-      if (this.isPopState) {
-        this.navigationDirection = 'backward';
-        this.isPopState = false;
-      } else {
-        this.navigationDirection = 'forward';
-      }
+      this.navCounter++;
+      // navigationTrigger is 'popstate' for browser back/forward, 'imperative' for programmatic nav
+      const direction = event.navigationTrigger === 'popstate' ? 'backward' : 'forward';
+      this.navigationDirection = `${direction}-${this.navCounter}`;
+      console.log('[NAV]', direction, 'trigger:', event.navigationTrigger, 'to:', event.url);
     });
 
     // Listen to route changes
@@ -159,12 +151,12 @@ export class AppComponent implements OnInit {
 
   // Get animation direction for route transitions
   getRouteAnimationData(): string {
+    console.log('[ANIM] state:', this.navigationDirection);
     return this.navigationDirection;
   }
 
   // Allow programmatic back navigation with correct animation
   navigateBack(): void {
-    this.navigationDirection = 'backward';
-    window.history.back();
+    window.history.back(); // Will trigger popstate, which sets backward direction automatically
   }
 }

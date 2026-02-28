@@ -1,5 +1,5 @@
 import { ApplicationConfig, provideZoneChangeDetection, isDevMode, importProvidersFrom } from '@angular/core';
-import { provideRouter, RouteReuseStrategy } from '@angular/router';
+import { provideRouter, RouteReuseStrategy, withPreloading, PreloadAllModules } from '@angular/router';
 import { provideHttpClient, withInterceptors, HttpClient, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { CustomRouteReuseStrategy } from './core/strategies/custom-route-reuse.strategy';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
@@ -22,7 +22,7 @@ export function HttpLoaderFactory(http: HttpClient) {
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
-    provideRouter(routes),
+    provideRouter(routes, withPreloading(PreloadAllModules)),
     { provide: RouteReuseStrategy, useClass: CustomRouteReuseStrategy },
     provideHttpClient(withInterceptors([authInterceptor])),
     {
