@@ -2,8 +2,8 @@
 <div class="register-carousel" [class.register-carousel--ready]="pageReady()">
   <p-toast></p-toast>
 
-  <!-- Progress Bar Fixed at Top (hidden on steps 0, 1, map step, last step, or when input focused) -->
-  <div class="progress-header" [class.hidden]="activeStep() === 0 || activeStep() === 1 || activeStep() === 2 || activeStep() === 4 || isInputFocused()">
+  <!-- Progress Bar Fixed at Top (hidden on steps 0-3, last step, or when input focused) -->
+  <div class="progress-header" [class.hidden]="activeStep() <= 3 || activeStep() === 4 || isInputFocused()">
     <div class="progress-content">
       @if (activeStep() > 0) {
         <button class="back-nav" (click)="prevStep()">
@@ -232,28 +232,28 @@
         </div>
       </div>
 
-      <!-- Step 4: Store Details -->
-      <div class="carousel-slide">
-        <div class="slide-content">
-          <div class="slide-header" [class.hidden]="isInputFocused()">
-            <div class="icon-wrapper">
-              <div class="icon-bg"></div>
-              <div class="icon-circle">
-                <i class="pi pi-building"></i>
-              </div>
-            </div>
+      <!-- Step 4: Store Details (Modern style) -->
+      <div class="carousel-slide carousel-slide--modern">
+        <!-- Back Button -->
+        <button class="register-back" (click)="prevStep()">
+          <i class="pi pi-arrow-left"></i>
+        </button>
+
+        <div class="register-step">
+          <!-- Header -->
+          <div class="register-header" [class.hidden]="isInputFocused()">
             <h1>{{ 'register.step4_store_title' | translate }}</h1>
             <p>{{ 'register.step4_store_subtitle' | translate }}</p>
           </div>
 
-          <form [formGroup]="storeDetailsForm" class="slide-form">
+          <!-- Form -->
+          <form [formGroup]="storeDetailsForm" class="register-form">
             <!-- Store Name (Optional) -->
-            <div class="fancy-field" data-field="store_name" [class.focused]="focusedField() === 'store_name'" [class.filled]="storeDetailsForm.get('store_name')?.value" (click)="focusField('store_name')">
-              <div class="field-icon">
-                <i class="pi pi-building"></i>
-              </div>
-              <div class="field-content">
-                <label>{{ 'register.store_name' | translate }} <span class="optional">({{ 'common.optional' | translate }})</span></label>
+            <div class="register-field">
+              <label class="register-field__label">{{ 'register.store_name' | translate }} <span class="register-field__optional">({{ 'common.optional' | translate }})</span></label>
+              <div class="register-input"
+                   [class.register-input--focused]="focusedField() === 'store_name'"
+                   [class.register-input--filled]="storeDetailsForm.get('store_name')?.value">
                 <input
                   type="text"
                   formControlName="store_name"
@@ -264,12 +264,11 @@
             </div>
 
             <!-- Wilaya Dropdown -->
-            <div class="fancy-field dropdown-field" data-field="wilaya" [class.focused]="focusedField() === 'wilaya'" [class.filled]="storeDetailsForm.get('wilaya')?.value" (click)="focusField('wilaya')">
-              <div class="field-icon">
-                <i class="pi pi-map"></i>
-              </div>
-              <div class="field-content">
-                <label>{{ 'register.wilaya' | translate }}</label>
+            <div class="register-field">
+              <label class="register-field__label">{{ 'register.wilaya' | translate }}</label>
+              <div class="register-select"
+                   [class.register-select--focused]="focusedField() === 'wilaya'"
+                   [class.register-select--filled]="storeDetailsForm.get('wilaya')?.value">
                 <p-select
                   formControlName="wilaya"
                   [options]="wilayas"
@@ -284,12 +283,11 @@
             </div>
 
             <!-- Daira Dropdown -->
-            <div class="fancy-field dropdown-field" data-field="daira" [class.focused]="focusedField() === 'daira'" [class.filled]="storeDetailsForm.get('daira')?.value" (click)="focusField('daira')">
-              <div class="field-icon">
-                <i class="pi pi-compass"></i>
-              </div>
-              <div class="field-content">
-                <label>{{ 'register.daira' | translate }}</label>
+            <div class="register-field">
+              <label class="register-field__label">{{ 'register.daira' | translate }}</label>
+              <div class="register-select"
+                   [class.register-select--focused]="focusedField() === 'daira'"
+                   [class.register-select--filled]="storeDetailsForm.get('daira')?.value">
                 <p-select
                   formControlName="daira"
                   [options]="dairas"
@@ -304,12 +302,11 @@
             </div>
 
             <!-- Commune Dropdown -->
-            <div class="fancy-field dropdown-field" data-field="commune" [class.focused]="focusedField() === 'commune'" [class.filled]="storeDetailsForm.get('commune')?.value" (click)="focusField('commune')">
-              <div class="field-icon">
-                <i class="pi pi-home"></i>
-              </div>
-              <div class="field-content">
-                <label>{{ 'register.commune' | translate }}</label>
+            <div class="register-field">
+              <label class="register-field__label">{{ 'register.commune' | translate }}</label>
+              <div class="register-select"
+                   [class.register-select--focused]="focusedField() === 'commune'"
+                   [class.register-select--filled]="storeDetailsForm.get('commune')?.value">
                 <p-select
                   formControlName="commune"
                   [options]="communes"
@@ -322,6 +319,15 @@
                 </p-select>
               </div>
             </div>
+
+            <!-- Continue Button -->
+            <button
+              type="button"
+              class="register-btn"
+              [disabled]="!canProceedCurrentStep()"
+              (click)="nextStep()">
+              <span>{{ 'common.continue' | translate }}</span>
+            </button>
           </form>
         </div>
       </div>
@@ -423,26 +429,14 @@
   </div>
 
   <!-- Fixed Footer - Outside Carousel (hidden on steps 0, 1 which have inline buttons) -->
-  <div class="fixed-footer" [class.hidden]="activeStep() === 0 || activeStep() === 1">
-    <!-- Continue button for steps 2, 3 -->
-    @if (activeStep() > 1 && activeStep() < 4) {
-      <button class="register-btn register-btn--no-shadow" [disabled]="!canProceedCurrentStep()" (click)="nextStep()">
-        <span>{{ 'common.continue' | translate }}</span>
-      </button>
-    }
-
-    <!-- Register button for step 4 (confirmation) -->
-    @if (activeStep() === 4) {
-      <button class="fancy-btn submit" [disabled]="loading()" (click)="onRegister()">
-        @if (!loading()) {
-          <span>{{ 'auth.register' | translate }}</span>
-          <div class="btn-icon">
-            <i class="pi pi-check"></i>
-          </div>
-        } @else {
-          <i class="pi pi-spin pi-spinner"></i>
-        }
-      </button>
-    }
+  <!-- Fixed Footer - Only for step 4 (confirmation) -->
+  <div class="fixed-footer" [class.hidden]="activeStep() !== 4">
+    <button class="register-btn" [disabled]="loading()" (click)="onRegister()">
+      @if (!loading()) {
+        <span>{{ 'auth.register' | translate }}</span>
+      } @else {
+        <i class="pi pi-spin pi-spinner"></i>
+      }
+    </button>
   </div>
 </div>

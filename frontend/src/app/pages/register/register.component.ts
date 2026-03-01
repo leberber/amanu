@@ -162,11 +162,38 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
           label: w.wilaya,
           value: w.wilaya
         }));
+
+        // Set test defaults after data loads
+        this.setTestLocationDefaults();
       },
       error: () => {
         this.toast.showError('register.wilaya_load_failed');
       }
     });
+  }
+
+  private setTestLocationDefaults(): void {
+    // Set default wilaya (triggers daira options via valueChanges subscription)
+    const defaultWilaya = this.wilayas[0]?.value;
+    if (defaultWilaya) {
+      this.storeDetailsForm.patchValue({ wilaya: defaultWilaya });
+
+      // Wait for dairas to populate, then set default daira
+      setTimeout(() => {
+        const defaultDaira = this.dairas[0]?.value;
+        if (defaultDaira) {
+          this.storeDetailsForm.patchValue({ daira: defaultDaira });
+
+          // Wait for communes to populate, then set default commune
+          setTimeout(() => {
+            const defaultCommune = this.communes[0]?.value;
+            if (defaultCommune) {
+              this.storeDetailsForm.patchValue({ commune: defaultCommune });
+            }
+          }, 50);
+        }
+      }, 50);
+    }
   }
 
   private setupFormSubscriptions() {

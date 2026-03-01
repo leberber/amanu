@@ -25,10 +25,10 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
 
 // Register page layout (matches login page)
 .register-page {
-  @include auth.auth-page-modern;
   min-height: 100%;
   height: 100%;
   padding-bottom: 100px; // Space for fixed footer
+  @include auth.auth-page-modern;
 }
 
 // Animated logo (starts centered, moves to top)
@@ -79,6 +79,85 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
 
     &:hover:not(:disabled) {
       box-shadow: none;
+    }
+  }
+}
+
+// Field wrapper with label
+.register-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+
+  &__label {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--text-color-secondary);
+    padding-left: var(--space-4);
+  }
+
+  &__optional {
+    font-weight: var(--font-weight-normal);
+    color: var(--text-color-secondary);
+    opacity: 0.7;
+  }
+}
+
+// Select dropdown - pill style
+.register-select {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 52px;
+  background: var(--surface-card);
+  border: 1px solid var(--surface-200);
+  border-radius: 26px;
+  padding: 0 var(--space-5);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    border-color: var(--surface-300);
+  }
+
+  &--focused {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
+  }
+
+  p-select,
+  .p-select {
+    width: 100%;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+
+    .p-select-label {
+      padding: 0 !important;
+      font-size: 16px;
+      font-weight: var(--font-weight-medium);
+      color: var(--text-color);
+
+      &.p-placeholder {
+        color: var(--text-color-secondary);
+        font-weight: var(--font-weight-normal);
+      }
+    }
+
+    .p-select-trigger {
+      width: auto;
+      color: var(--text-color-secondary);
+    }
+  }
+}
+
+// Dark mode for select
+:host-context(.my-app-dark) {
+  .register-select {
+    background: var(--surface-card);
+    border-color: var(--surface-300);
+
+    &:hover {
+      border-color: var(--surface-400);
     }
   }
 }
