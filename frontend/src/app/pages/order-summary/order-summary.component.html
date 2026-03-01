@@ -70,6 +70,10 @@
           <span>-{{ discountAmount() | appCurrency }}</span>
         </div>
       }
+      <div class="promo-summary__row">
+        <span>{{ 'cart.shipping' | translate }}</span>
+        <span class="promo-summary__free">{{ 'cart.free' | translate }}</span>
+      </div>
       <div class="promo-summary__row promo-summary__row--total">
         <span>{{ 'common.total' | translate }}</span>
         <span>{{ finalTotal() | appCurrency }}</span>
