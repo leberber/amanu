@@ -50,8 +50,14 @@
                 <i class="pi pi-map-marker"></i>
               </div>
               <div class="info-item__content">
-                <span class="info-item__label">{{ 'checkout.location' | translate }}</span>
-                <span class="info-item__value">{{ commune() || '-' }}, {{ daira() || '-' }}</span>
+                <span class="info-item__label">{{ 'about.location' | translate }}</span>
+                <span class="info-item__value">
+                  @if (commune()) {
+                    {{ commune() }}, {{ daira() }}
+                  } @else {
+                    {{ daira() }}
+                  }
+                </span>
               </div>
             </div>
 
@@ -95,7 +101,6 @@
               <i class="pi pi-shopping-bag"></i>
             </div>
             <span class="items-toggle__text">{{ 'checkout.review_order' | translate }}</span>
-            <span class="items-toggle__count">{{ cartItemCount() }}</span>
           </div>
           <i class="pi" [class.pi-chevron-down]="!showOrderDetails()" [class.pi-chevron-up]="showOrderDetails()"></i>
         </button>
@@ -120,11 +125,6 @@
         </div>
       </div>
 
-      <!-- Terms Note -->
-      <p class="checkout-terms">
-        {{ 'checkout.order_note' | translate }}
-        <a routerLink="/privacy-policy">{{ 'checkout.terms_link' | translate }}</a>
-      </p>
     </div>
 
     <!-- Sticky Footer -->
@@ -137,7 +137,12 @@
       [showShadow]="false"
       [fullWidthButton]="true"
       paddingBottom="30px"
-      (buttonClick)="placeOrder()" />
+      (buttonClick)="placeOrder()">
+      <p class="checkout-terms">
+        {{ 'checkout.order_note' | translate }}
+        <a routerLink="/privacy-policy">{{ 'checkout.terms_link' | translate }}</a>
+      </p>
+    </app-sticky-footer>
   }
 
   <!-- Image Lightbox -->
