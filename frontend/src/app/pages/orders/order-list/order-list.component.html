@@ -9,7 +9,10 @@
   <!-- Order count badge (mobile only) -->
   @if (orders().length > 0 && !loading()) {
     <div pageActions class="md:hidden">
-      <div class="count-badge count-badge--light">{{ orders().length }}</div>
+      <div class="topbar-badge topbar-badge--success">
+        <i class="pi pi-shopping-bag"></i>
+        <span>{{ orders().length }}</span>
+      </div>
     </div>
   }
 

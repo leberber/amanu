@@ -9,11 +9,12 @@
   [backRoute]="ROUTES.ORDERS"
   [fullscreen]="true">
 
-  <!-- Status badge (mobile only) -->
+  <!-- Item count badge (mobile only) -->
   @if (order()) {
     <div pageActions class="md:hidden">
-      <div class="topbar-badge" [ngClass]="order()?.status || ''">
+      <div class="topbar-badge" [ngClass]="'topbar-badge--' + order()?.status">
         <i class="pi" [ngClass]="timelineService.getStatusIcon(order()?.status)"></i>
+        <span>{{ order()?.items?.length }}</span>
       </div>
     </div>
   }
