@@ -136,3 +136,12 @@ router-outlet + * {
     &::-webkit-scrollbar { display: none; }
   }
 }
+
+// ---------------------------------------------------------------------------
+// 11. Prevent iOS auto-zoom on input focus
+// ---------------------------------------------------------------------------
+@media screen and (max-width: 768px) {
+  input, textarea, select {
+    font-size: 16px !important;
+  }
+}
