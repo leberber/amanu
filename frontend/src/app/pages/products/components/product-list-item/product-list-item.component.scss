@@ -1,16 +1,16 @@
 :host {
   display: block;
+  border-bottom: 1px solid var(--border-color-light);
+
+  &:last-child {
+    border-bottom: none;
+  }
 }
 
 .product-list-item {
   display: flex;
   background: var(--surface-card);
-  border-bottom: var(--border-width) solid var(--border-color-light);
   padding: var(--space-5) 0;
-
-  &:last-child {
-    border-bottom: none;
-  }
 
   // Media (image container)
   &__media {
