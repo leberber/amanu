@@ -374,26 +374,34 @@
     border-top: 1px solid var(--surface-100);
   }
 
-  &__logout {
-    width: 100%;
+  // User section at bottom (logged in)
+  &__user {
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: var(--space-2);
-    padding: var(--space-3) var(--space-4);
-    background: rgba(239, 68, 68, 0.1);
-    color: #ef4444;
-    border: none;
-    border-radius: var(--radius-lg);
-    font-size: var(--font-size-base);
-    font-weight: var(--font-weight-medium);
-    cursor: pointer;
-    transition: all 0.2s ease;
+    gap: var(--space-3);
+  }
 
-    &:active {
-      background: rgba(239, 68, 68, 0.15);
-      transform: scale(0.98);
-    }
+  &__user-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__user-name {
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-color);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__user-email {
+    font-size: var(--font-size-sm);
+    color: var(--text-color-secondary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   // Auth Section (Login + Register)

@@ -171,20 +171,6 @@
 
       <!-- Scrollable Content -->
       <div class="mobile-menu__body">
-        <!-- User Card (Top) - Only for logged in users -->
-        @if (isLoggedIn()) {
-          <div class="mobile-menu__user-card">
-            <div class="mobile-menu__avatar">{{ userInitials() }}</div>
-            <div class="mobile-menu__user-info">
-              <span class="mobile-menu__user-name">{{ currentUser()?.full_name }}</span>
-              <span class="mobile-menu__user-email">{{ currentUser()?.email }}</span>
-            </div>
-            <a [routerLink]="routes.ACCOUNT" (click)="closeMobileDrawer()" class="mobile-menu__user-action">
-              <i class="pi pi-chevron-right"></i>
-            </a>
-          </div>
-        }
-
         <!-- Admin Section -->
         @if (isAdminOrStaff()) {
           <div class="mobile-menu__section">
@@ -295,10 +281,16 @@
       <!-- Footer -->
       <div class="mobile-menu__footer">
         @if (isLoggedIn()) {
-          <button class="mobile-menu__logout" (click)="logout()">
-            <i class="pi pi-sign-out"></i>
-            <span>{{ 'common.logout' | translate }}</span>
-          </button>
+          <div class="mobile-menu__user">
+            <div class="user-avatar">{{ userInitials() }}</div>
+            <div class="mobile-menu__user-info">
+              <span class="mobile-menu__user-name">{{ currentUser()?.full_name }}</span>
+              <span class="mobile-menu__user-email">{{ currentUser()?.email }}</span>
+            </div>
+            <button class="icon-btn icon-btn-danger" (click)="logout()">
+              <i class="pi pi-sign-out"></i>
+            </button>
+          </div>
         } @else {
           <div class="mobile-menu__auth">
             <a [routerLink]="routes.LOGIN" (click)="closeMobileDrawer()" class="mobile-menu__auth-btn mobile-menu__auth-btn--primary">
