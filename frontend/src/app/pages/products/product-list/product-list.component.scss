@@ -1,6 +1,12 @@
 :host {
+  --filter-header-height: 85px;
+
   display: block;
   height: 100%;
+
+  @media (min-width: 768px) {
+    --filter-header-height: 120px;
+  }
 }
 
 .products-page {
@@ -10,10 +16,30 @@
   overflow: hidden;
 }
 
+.page-header--sticky {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: var(--surface-ground);
+
+  @media (min-width: 768px) {
+    left: var(--sidebar-width);
+  }
+}
+
+:host-context(.with-sidebar-collapsed) .page-header--sticky {
+  @media (min-width: 768px) {
+    left: var(--sidebar-collapsed-width);
+  }
+}
+
 .page-content--with-bottom-nav {
   flex: 1;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+  padding-top: var(--filter-header-height);
 }
 
 // Hide filter bar on mobile when search overlay is active
