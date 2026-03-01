@@ -135,6 +135,10 @@
       buttonLabel="checkout.place_order"
       buttonIcon="pi pi-check"
       [disabled]="checkoutForm.invalid || isSubmitting()"
+      [showBorder]="false"
+      [showShadow]="false"
+      [fullWidthButton]="true"
+      paddingBottom="30px"
       (buttonClick)="placeOrder()" />
   }
 

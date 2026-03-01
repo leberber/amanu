@@ -20,6 +20,7 @@ export class StickyFooterComponent {
   showBorder = input<boolean>(true);
   showShadow = input<boolean>(true);
   paddingBottom = input<string | undefined>(undefined);
+  fullWidthButton = input<boolean>(false);
 
   // Outputs
   buttonClick = output<void>();

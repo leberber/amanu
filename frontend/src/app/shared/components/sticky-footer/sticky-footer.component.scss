@@ -27,6 +27,18 @@
     box-shadow: none;
   }
 
+  &--full-width {
+    justify-content: center;
+    padding-top: var(--space-5);
+    padding-bottom: var(--space-5);
+
+    .sticky-footer__button {
+      flex: 1;
+      padding: var(--space-5) var(--space-6);
+      font-size: var(--font-size-lg);
+    }
+  }
+
   &__total {
     display: flex;
     flex-direction: column;
