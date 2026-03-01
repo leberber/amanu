@@ -17,6 +17,9 @@ export class StickyFooterComponent {
   buttonIcon = input<string>('pi pi-arrow-right');
   showAmount = input<boolean>(true);
   disabled = input<boolean>(false);
+  showBorder = input<boolean>(true);
+  showShadow = input<boolean>(true);
+  paddingBottom = input<string | undefined>(undefined);
 
   // Outputs
   buttonClick = output<void>();

@@ -1,4 +1,4 @@
-<div class="sticky-footer">
+<div class="sticky-footer" [class.sticky-footer--no-border]="!showBorder()" [class.sticky-footer--no-shadow]="!showShadow()" [style.padding-bottom]="paddingBottom()">
   @if (showAmount()) {
     <div class="sticky-footer__total">
       <span class="sticky-footer__label">{{ label() | translate }}</span>
