@@ -6,7 +6,6 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ToastModule } from 'primeng/toast';
 import { InputTextModule } from 'primeng/inputtext';
-import { PasswordModule } from 'primeng/password';
 import { SelectModule } from 'primeng/select';
 import { TranslateModule } from '@ngx-translate/core';
 import { AuthService } from '../../services/auth.service';
@@ -44,7 +43,6 @@ interface WilayaData {
     ReactiveFormsModule,
     ToastModule,
     InputTextModule,
-    PasswordModule,
     SelectModule,
     RouterLink,
     TranslateModule,
@@ -63,6 +61,8 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
   focusedField = signal('');
   isInputFocused = signal(false);
   pageReady = signal(false);
+  showPassword = signal(false);
+  showConfirmPassword = signal(false);
 
   // Form validity signals (synced via statusChanges)
   personalInfoValid = signal(false);
@@ -95,17 +95,17 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
   private elementRef = inject(ElementRef);
 
   constructor() {
-    // Step 1: Personal Info
+    // Step 1: Personal Info (with test defaults for development)
     this.personalInfoForm = this.fb.group({
-      full_name: ['', [Validators.required, Validators.minLength(VALIDATION.MIN_NAME_LENGTH)]],
-      email: ['', [Validators.required, Validators.email]],
-      phone: ['', [Validators.required]]
+      full_name: ['Test User', [Validators.required, Validators.minLength(VALIDATION.MIN_NAME_LENGTH)]],
+      email: ['test@example.com', [Validators.required, Validators.email]],
+      phone: ['0555 12 34 56', [Validators.required]]
     });
 
-    // Step 2: Password
+    // Step 2: Password (with test defaults for development)
     this.passwordForm = this.fb.group({
-      password: ['', [Validators.required, Validators.minLength(VALIDATION.MIN_PASSWORD_LENGTH)]],
-      confirmPassword: ['', [Validators.required]]
+      password: ['Test1234', [Validators.required, Validators.minLength(VALIDATION.MIN_PASSWORD_LENGTH)]],
+      confirmPassword: ['Test1234', [Validators.required]]
     }, { validators: FormBuilderService.createPasswordMatchValidator('password', 'confirmPassword') });
 
     // Step 4: Store Details (after map)
@@ -121,6 +121,10 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
     this.loadWilayaData();
     this.setupFormSubscriptions();
     this.setupFormValiditySignals();
+
+    // Set initial validity for pre-filled forms
+    this.personalInfoValid.set(this.personalInfoForm.valid);
+    this.passwordFormValid.set(this.passwordForm.valid);
   }
 
   ngAfterViewInit() {
@@ -533,6 +537,14 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
         this.isInputFocused.set(false);
       }
     }, 100);
+  }
+
+  togglePassword(): void {
+    this.showPassword.update(v => !v);
+  }
+
+  toggleConfirmPassword(): void {
+    this.showConfirmPassword.update(v => !v);
   }
 
   // Focus input when clicking anywhere on the field container

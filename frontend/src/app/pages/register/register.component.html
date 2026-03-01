@@ -2,8 +2,8 @@
 <div class="register-carousel" [class.register-carousel--ready]="pageReady()">
   <p-toast></p-toast>
 
-  <!-- Progress Bar Fixed at Top (hidden on step 0, map step, last step, or when input focused) -->
-  <div class="progress-header" [class.hidden]="activeStep() === 0 || activeStep() === 2 || activeStep() === 4 || isInputFocused()">
+  <!-- Progress Bar Fixed at Top (hidden on steps 0, 1, map step, last step, or when input focused) -->
+  <div class="progress-header" [class.hidden]="activeStep() === 0 || activeStep() === 1 || activeStep() === 2 || activeStep() === 4 || isInputFocused()">
     <div class="progress-content">
       @if (activeStep() > 0) {
         <button class="back-nav" (click)="prevStep()">
@@ -113,76 +113,82 @@
         </div>
       </div>
 
-      <!-- Step 2: Password -->
-      <div class="carousel-slide">
-        <div class="slide-content">
-          <div class="slide-header" [class.hidden]="isInputFocused()">
-            <div class="icon-wrapper">
-              <div class="icon-bg"></div>
-              <div class="icon-circle">
-                <i class="pi pi-lock"></i>
-              </div>
-            </div>
+      <!-- Step 2: Password (Modern style) -->
+      <div class="carousel-slide carousel-slide--modern">
+        <!-- Back Button -->
+        <button class="register-back" (click)="prevStep()">
+          <i class="pi pi-arrow-left"></i>
+        </button>
+
+        <div class="register-step">
+          <!-- Header -->
+          <div class="register-header" [class.hidden]="isInputFocused()">
             <h1>{{ 'register.step2_title' | translate }}</h1>
             <p>{{ 'auth.password_minlength' | translate }}</p>
           </div>
 
-          <form [formGroup]="passwordForm" class="slide-form">
-            <div class="fancy-field password-field" data-field="password" [class.focused]="focusedField() === 'password'" (click)="focusField('password')">
-              <div class="field-icon">
-                <i class="pi pi-lock"></i>
-              </div>
-              <div class="field-content">
-                <label>{{ 'common.password' | translate }}</label>
-                <p-password
-                  formControlName="password"
-                  [placeholder]="'auth.password_placeholder' | translate"
-                  [toggleMask]="true"
-                  [feedback]="false"
-                  styleClass="fancy-password"
-                  (onFocus)="onInputFocus('password')"
-                  (onBlur)="onInputBlur()">
-                </p-password>
-              </div>
+          <!-- Form -->
+          <form [formGroup]="passwordForm" class="register-form">
+            <!-- Password Field -->
+            <div class="register-input"
+                 [class.register-input--focused]="focusedField() === 'password'"
+                 [class.register-input--filled]="passwordForm.get('password')?.value">
+              <input
+                [type]="showPassword() ? 'text' : 'password'"
+                formControlName="password"
+                autocomplete="new-password"
+                [placeholder]="'auth.password_placeholder' | translate"
+                (focus)="onInputFocus('password')"
+                (blur)="onInputBlur()">
+              <button type="button" class="register-input__toggle" (click)="togglePassword()" tabindex="-1">
+                <i class="pi" [class.pi-eye]="!showPassword()" [class.pi-eye-slash]="showPassword()"></i>
+              </button>
             </div>
 
-            <div class="fancy-field password-field" data-field="confirmPassword" [class.focused]="focusedField() === 'confirmPassword'" (click)="focusField('confirmPassword')">
-              <div class="field-icon">
-                <i class="pi pi-lock"></i>
-              </div>
-              <div class="field-content">
-                <label>{{ 'register.confirm_password' | translate }}</label>
-                <p-password
-                  formControlName="confirmPassword"
-                  [placeholder]="'register.confirm_password_placeholder' | translate"
-                  [toggleMask]="true"
-                  [feedback]="false"
-                  styleClass="fancy-password"
-                  (onFocus)="onInputFocus('confirmPassword')"
-                  (onBlur)="onInputBlur()">
-                </p-password>
-              </div>
+            <!-- Confirm Password Field -->
+            <div class="register-input"
+                 [class.register-input--focused]="focusedField() === 'confirmPassword'"
+                 [class.register-input--filled]="passwordForm.get('confirmPassword')?.value">
+              <input
+                [type]="showConfirmPassword() ? 'text' : 'password'"
+                formControlName="confirmPassword"
+                autocomplete="new-password"
+                [placeholder]="'register.confirm_password_placeholder' | translate"
+                (focus)="onInputFocus('confirmPassword')"
+                (blur)="onInputBlur()">
+              <button type="button" class="register-input__toggle" (click)="toggleConfirmPassword()" tabindex="-1">
+                <i class="pi" [class.pi-eye]="!showConfirmPassword()" [class.pi-eye-slash]="showConfirmPassword()"></i>
+              </button>
             </div>
 
             <!-- Password Requirements -->
-            <div class="password-requirements">
-              <div class="requirement" [class.satisfied]="passwordHasMinLength()">
+            <div class="register-requirements">
+              <div class="register-requirements__item" [class.register-requirements__item--met]="passwordHasMinLength()">
                 <i class="pi" [ngClass]="passwordHasMinLength() ? 'pi-check-circle' : 'pi-circle'"></i>
                 <span>{{ 'register.password_min_chars' | translate }}</span>
               </div>
-              <div class="requirement" [class.satisfied]="passwordHasLetter()">
+              <div class="register-requirements__item" [class.register-requirements__item--met]="passwordHasLetter()">
                 <i class="pi" [ngClass]="passwordHasLetter() ? 'pi-check-circle' : 'pi-circle'"></i>
                 <span>{{ 'register.password_has_letter' | translate }}</span>
               </div>
-              <div class="requirement" [class.satisfied]="passwordHasNumber()">
+              <div class="register-requirements__item" [class.register-requirements__item--met]="passwordHasNumber()">
                 <i class="pi" [ngClass]="passwordHasNumber() ? 'pi-check-circle' : 'pi-circle'"></i>
                 <span>{{ 'register.password_has_number' | translate }}</span>
               </div>
-              <div class="requirement" [class.satisfied]="passwordsMatch()">
+              <div class="register-requirements__item" [class.register-requirements__item--met]="passwordsMatch()">
                 <i class="pi" [ngClass]="passwordsMatch() ? 'pi-check-circle' : 'pi-circle'"></i>
                 <span>{{ 'register.passwords_must_match' | translate }}</span>
               </div>
             </div>
+
+            <!-- Continue Button -->
+            <button
+              type="button"
+              class="register-btn"
+              [disabled]="!canProceedCurrentStep()"
+              (click)="nextStep()">
+              <span>{{ 'common.continue' | translate }}</span>
+            </button>
           </form>
         </div>
       </div>
@@ -425,10 +431,10 @@
     </div>
   </div>
 
-  <!-- Fixed Footer - Outside Carousel (hidden on step 0 which has inline button) -->
-  <div class="fixed-footer" [class.hidden]="activeStep() === 0">
-    <!-- Continue button for steps 1, 2, 3 -->
-    @if (activeStep() > 0 && activeStep() < 4) {
+  <!-- Fixed Footer - Outside Carousel (hidden on steps 0, 1 which have inline buttons) -->
+  <div class="fixed-footer" [class.hidden]="activeStep() === 0 || activeStep() === 1">
+    <!-- Continue button for steps 2, 3 -->
+    @if (activeStep() > 1 && activeStep() < 4) {
       <button class="fancy-btn" [disabled]="!canProceedCurrentStep()" (click)="nextStep()">
         <span>{{ 'common.continue' | translate }}</span>
         <div class="btn-icon">

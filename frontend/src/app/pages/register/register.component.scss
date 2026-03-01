@@ -15,10 +15,12 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
 // 1b. MODERN STEP STYLES (Step 1 - Personal Info with animated logo)
 // =============================================================================
 
-// Step 0 slide - full height without carousel padding
-.carousel-slide--step0 {
+// Modern slides - full height without carousel padding
+.carousel-slide--step0,
+.carousel-slide--modern {
   padding: 0 !important;
-  overflow: hidden !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch;
 }
 
 // Register page layout (matches login page)
@@ -71,6 +73,62 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
 
 .register-btn {
   @include auth.auth-btn-pill;
+}
+
+// Back button for modern steps
+.register-back {
+  @include auth.auth-back-btn;
+}
+
+// Step container (for steps without animated logo)
+.register-step {
+  width: 100%;
+  max-width: 360px;
+  margin: 0 auto;
+  padding: var(--space-6);
+  padding-top: var(--space-10);
+  padding-bottom: 100px;
+
+  @media (min-width: 768px) {
+    padding-top: var(--space-12);
+  }
+}
+
+// Password requirements (modern style)
+.register-requirements {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface-card);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--surface-200);
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    font-size: var(--font-size-sm);
+    color: var(--color-error);
+    transition: all 0.2s ease;
+
+    i {
+      font-size: var(--font-size-sm);
+      transition: all 0.2s ease;
+    }
+
+    span {
+      font-weight: var(--font-weight-medium);
+    }
+
+    &--met {
+      color: var(--color-success);
+
+      i {
+        color: var(--color-success);
+      }
+    }
+  }
 }
 
 .register-links {
