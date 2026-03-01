@@ -471,6 +471,8 @@
     "phone_required": "Le numéro de téléphone est requis",
     "phone_invalid": "Veuillez entrer un numéro de téléphone valide",
     "shipping_address": "Adresse de Livraison",
+    "daira": "Daïra",
+    "commune": "Commune",
     "address_placeholder": "Entrez votre adresse complète de livraison",
     "address_required": "L'adresse de livraison est requise",
     "address_minlength": "L'adresse de livraison est trop courte",

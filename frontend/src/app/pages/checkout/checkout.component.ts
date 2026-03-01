@@ -22,6 +22,7 @@ import { ImageLightboxComponent } from '../../shared/components/image-lightbox/i
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { StickyFooterComponent } from '../../shared/components/sticky-footer/sticky-footer.component';
 import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
+import { PhoneFormatPipe } from '../../shared/pipes/phone-format.pipe';
 import { ImageFallbackDirective } from '../../shared/directives/image-fallback.directive';
 import { getCartonDisplay } from '../../shared/utils/quantity.utils';
 
@@ -38,6 +39,7 @@ import { getCartonDisplay } from '../../shared/utils/quantity.utils';
     EmptyStateComponent,
     StickyFooterComponent,
     CurrencyPipe,
+    PhoneFormatPipe,
     ImageFallbackDirective
   ],
   templateUrl: './checkout.component.html',

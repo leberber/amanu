@@ -474,6 +474,8 @@
     "phone_required": "Phone number is required",
     "phone_invalid": "Please enter a valid phone number",
     "shipping_address": "Shipping Address",
+    "daira": "Daira",
+    "commune": "Commune",
     "address_placeholder": "Enter your complete shipping address",
     "address_required": "Shipping address is required",
     "address_minlength": "Shipping address is too short",

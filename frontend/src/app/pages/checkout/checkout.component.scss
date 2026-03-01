@@ -38,13 +38,24 @@
 
     i {
       font-size: 1rem;
-      color: white;
     }
 
-    &--success { background: var(--success-gradient); }
-    &--warning { background: var(--warning-gradient); }
-    &--info { background: var(--info-gradient); }
-    &--primary { background: var(--primary-gradient); }
+    &--success {
+      background: rgba(34, 197, 94, 0.1);
+      i { color: #22c55e; }
+    }
+    &--warning {
+      background: rgba(245, 158, 11, 0.1);
+      i { color: #f59e0b; }
+    }
+    &--info {
+      background: rgba(59, 130, 246, 0.1);
+      i { color: #3b82f6; }
+    }
+    &--primary {
+      background: rgba(59, 130, 246, 0.1);
+      i { color: #3b82f6; }
+    }
   }
 
   &__content {

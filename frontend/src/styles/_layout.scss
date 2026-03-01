@@ -139,18 +139,7 @@
 // ---------------------------------------------------------------------------
 // Mobile-friendly sticky filter bar that sticks to top of scrollable content.
 
-.sticky-filter {
-  position: sticky;
-  top: 0;
-  z-index: var(--z-sticky);
-  background: var(--surface-card);
-  padding: var(--space-3) var(--space-4);
 
-  // Full-width child elements
-  .segment-control {
-    width: 100%;
-  }
-}
 
 
 // ---------------------------------------------------------------------------
@@ -694,8 +683,9 @@
   cursor: pointer;
   min-height: 56px;
 
-  // Subtle tap highlight
+  // Touch optimization for iOS
   -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 
   &::before {
     content: '';
@@ -704,6 +694,7 @@
     background: transparent;
     border-radius: var(--radius-lg);
     transition: background 0.25s ease;
+    pointer-events: none;
   }
 
   i {
@@ -726,19 +717,24 @@
     z-index: 1;
   }
 
-  // Hover state
-  &:not(.active):hover {
-    &::before {
-      background: rgba(0, 0, 0, 0.04);
+  // Hover state - only on devices with true hover (desktop)
+  @media (hover: hover) {
+    &:not(.active):hover {
+      &::before {
+        background: rgba(0, 0, 0, 0.04);
+      }
+    }
+  }
+
+  // Tap/click animation
+  &:active {
+    i {
+      animation: tap-bounce 0.3s ease-out;
     }
   }
 
   // Active state
   &.active {
-    &::before {
-      background: rgba(var(--primary-color-rgb, 59, 130, 246), 0.1);
-    }
-
     i {
       color: var(--primary-color);
       transform: translateY(-1px);
@@ -758,6 +754,13 @@
   100% { transform: scale(1) translateY(-1px); }
 }
 
+// Tap bounce animation
+@keyframes tap-bounce {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.25); }
+  100% { transform: scale(1); }
+}
+
 // Sliding indicator - pill style at top
 .bottom-nav__indicator {
   position: absolute;
@@ -767,6 +770,7 @@
   border-radius: 0 0 var(--radius-full) var(--radius-full);
   transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 1;
+  pointer-events: none;
 }
 
 // Cart icon with badge
@@ -785,8 +789,9 @@
     padding: 0 5px;
     font-size: 10px;
     font-weight: 600;
-    line-height: 18px;
-    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     background: var(--color-danger, #ef4444);
     color: white;
     border-radius: var(--radius-full);

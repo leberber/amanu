@@ -21,3 +21,15 @@
 .table-container {
   --table-max-height: calc(100vh - 320px);
 }
+.sticky-filter {
+  position: sticky;
+  top: -8px;
+  z-index: var(--z-sticky);
+  background: var(--surface-card);
+  padding: var(--space-3) var(--space-4);
+
+  // Full-width child elements
+  .segment-control {
+    width: 100%;
+  }
+}

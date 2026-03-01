@@ -476,6 +476,8 @@
     "phone_required": "رقم الهاتف مطلوب",
     "phone_invalid": "رقم الهاتف غير صحيح",
     "shipping_address": "عنوان الشحن",
+    "daira": "الدائرة",
+    "commune": "البلدية",
     "address_placeholder": "أدخل عنوانك الكامل للشحن",
     "address_required": "عنوان الشحن مطلوب",
     "address_minlength": "عنوان الشحن قصير جداً",

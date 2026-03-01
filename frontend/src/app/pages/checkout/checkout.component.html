@@ -36,12 +36,12 @@
         <div class="card-body card-body--compact">
           <div class="info-grid">
             <div class="info-item">
-              <div class="info-item__icon info-item__icon--success">
-                <i class="pi pi-phone"></i>
+              <div class="info-item__icon info-item__icon--warning">
+                <i class="pi pi-map-marker"></i>
               </div>
               <div class="info-item__content">
-                <span class="info-item__label">{{ 'common.phone' | translate }}</span>
-                <span class="info-item__value">{{ phone() || '-' }}</span>
+                <span class="info-item__label">{{ 'checkout.daira' | translate }}</span>
+                <span class="info-item__value">{{ daira() || '-' }}</span>
               </div>
             </div>
 
@@ -50,14 +50,8 @@
                 <i class="pi pi-map-marker"></i>
               </div>
               <div class="info-item__content">
-                <span class="info-item__label">{{ 'about.location' | translate }}</span>
-                <span class="info-item__value">
-                  @if (commune()) {
-                    {{ commune() }}, {{ daira() }}
-                  } @else {
-                    {{ daira() }}
-                  }
-                </span>
+                <span class="info-item__label">{{ 'checkout.commune' | translate }}</span>
+                <span class="info-item__value">{{ commune() || '-' }}</span>
               </div>
             </div>
 
@@ -68,6 +62,16 @@
               <div class="info-item__content">
                 <span class="info-item__label">{{ 'checkout.shipping_address' | translate }}</span>
                 <span class="info-item__value">{{ address() || '-' }}</span>
+              </div>
+            </div>
+
+            <div class="info-item info-item--full">
+              <div class="info-item__icon info-item__icon--success">
+                <i class="pi pi-phone"></i>
+              </div>
+              <div class="info-item__content">
+                <span class="info-item__label">{{ 'common.phone' | translate }}</span>
+                <span class="info-item__value">{{ (phone() | appPhone) || '-' }}</span>
               </div>
             </div>
           </div>
