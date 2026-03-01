@@ -1,14 +1,13 @@
-import { Component, OnInit, inject, ElementRef, signal } from '@angular/core';
+import { Component, OnInit, AfterViewInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
-import { InputTextModule } from 'primeng/inputtext';
+import { Router, RouterLink } from '@angular/router';
 import { ToastModule } from 'primeng/toast';
 import { TranslateModule } from '@ngx-translate/core';
 import { finalize } from 'rxjs';
 
 import { AuthService } from '../../services/auth.service';
-import { BackButtonComponent } from '../../shared/components/back-button/back-button.component';
+import { LanguageSelectorComponent } from '../../components/language-selector/language-selector.component';
 import { ToastMessageService } from '../../core/services/toast-message.service';
 import { ANIMATION, UI_DELAY } from '../../core/constants/app.constants';
 import { ROUTES } from '../../core/constants/routes.constants';
@@ -19,27 +18,34 @@ import { ROUTES } from '../../core/constants/routes.constants';
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    InputTextModule,
     ToastModule,
+    RouterLink,
     TranslateModule,
-    BackButtonComponent
+    LanguageSelectorComponent
   ],
   templateUrl: './forgot-password.component.html',
   styleUrl: './forgot-password.component.scss'
 })
-export class ForgotPasswordComponent implements OnInit {
+export class ForgotPasswordComponent implements OnInit, AfterViewInit {
   forgotPasswordForm!: FormGroup;
   loading = signal(false);
   focusedField = signal('');
+  pageReady = signal(false);
 
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private router = inject(Router);
   private toast = inject(ToastMessageService);
-  private elementRef = inject(ElementRef);
 
   ngOnInit() {
     this.initializeForm();
+  }
+
+  ngAfterViewInit() {
+    // Trigger animation sequence - logo stays centered for 1 second
+    setTimeout(() => {
+      this.pageReady.set(true);
+    }, 1000);
   }
 
   get f() { return this.forgotPasswordForm.controls; }
@@ -82,14 +88,6 @@ export class ForgotPasswordComponent implements OnInit {
 
   onInputBlur(): void {
     this.focusedField.set('');
-  }
-
-  focusField(fieldName: string): void {
-    const selector = `[data-field="${fieldName}"] input`;
-    const input = this.elementRef.nativeElement.querySelector(selector) as HTMLInputElement;
-    if (input) {
-      input.focus();
-    }
   }
 
   private initializeForm(): void {

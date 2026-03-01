@@ -8,6 +8,262 @@
 
 
 // =============================================================================
+// MODERN AUTH PAGE STYLES (Login-style design)
+// =============================================================================
+
+@mixin auth-page-modern {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: var(--surface-ground);
+  padding: var(--space-6);
+  padding-bottom: var(--space-8);
+  overflow-y: auto;
+
+  @media (min-width: 768px) {
+    justify-content: center;
+    padding: var(--space-8);
+  }
+}
+
+@mixin auth-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 30vh;
+  margin-bottom: var(--space-6);
+  transition: margin-top 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: scale(1.8);
+
+  img {
+    height: 52px;
+    width: auto;
+
+    @media (min-width: 768px) {
+      height: 60px;
+    }
+  }
+
+  &--ready {
+    margin-top: 0;
+    transform: scale(1);
+  }
+}
+
+@mixin auth-content-modern {
+  width: 100%;
+  max-width: 360px;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s ease 0.3s, transform 0.5s ease 0.3s;
+
+  &--ready {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@mixin auth-header-modern {
+  text-align: center;
+  margin-bottom: var(--space-6);
+
+  h1 {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--text-color);
+    margin: 0 0 var(--space-1) 0;
+  }
+
+  p {
+    font-size: var(--font-size-sm);
+    color: var(--text-color-secondary);
+    margin: 0;
+  }
+}
+
+@mixin auth-form-modern {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+@mixin auth-input-pill {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 52px;
+  background: var(--surface-card);
+  border: 1px solid var(--surface-200);
+  border-radius: 26px;
+  padding: 0 var(--space-5);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    border-color: var(--surface-300);
+  }
+
+  &--focused {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
+  }
+
+  input {
+    flex: 1;
+    height: 100%;
+    border: none;
+    background: transparent;
+    font-size: 16px;
+    font-weight: var(--font-weight-medium);
+    color: var(--text-color);
+    padding: 0;
+
+    &:focus {
+      outline: none;
+    }
+
+    &::placeholder {
+      color: var(--text-color-secondary);
+      font-weight: var(--font-weight-normal);
+    }
+  }
+
+  &__toggle {
+    width: 40px;
+    height: 40px;
+    margin-right: calc(var(--space-2) * -1);
+    border: none;
+    background: transparent;
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s ease;
+
+    i {
+      font-size: 1.1rem;
+      color: var(--text-color-secondary);
+    }
+
+    &:active {
+      background: var(--surface-100);
+    }
+  }
+}
+
+@mixin auth-btn-pill {
+  width: 100%;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  background: var(--primary-gradient);
+  color: var(--color-white);
+  border: none;
+  border-radius: 26px;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.25);
+  margin-top: var(--space-2);
+
+  &:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  &--secondary {
+    background: var(--surface-100);
+    color: var(--text-color);
+    box-shadow: none;
+
+    &:active:not(:disabled) {
+      background: var(--surface-200);
+    }
+  }
+}
+
+@mixin auth-links-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 var(--space-2);
+
+  a {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--primary-color);
+    text-decoration: none;
+
+    &:active {
+      opacity: 0.7;
+    }
+  }
+}
+
+@mixin auth-back-btn {
+  position: absolute;
+  top: var(--space-4);
+  left: var(--space-4);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  background: var(--surface-card);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  color: var(--text-color);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  z-index: 10;
+
+  &:hover {
+    background: var(--surface-100);
+    transform: translateX(-2px);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  i {
+    font-size: 1.1rem;
+  }
+}
+
+@mixin auth-lang-selector {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--space-6);
+}
+
+// Dark mode support for modern auth
+@mixin auth-dark-mode {
+  :host-context(.my-app-dark) {
+    .auth-input {
+      background: var(--surface-card);
+      border-color: var(--surface-300);
+
+      &:hover {
+        border-color: var(--surface-400);
+      }
+    }
+  }
+}
+
+
+// =============================================================================
 // 1. PAGE LAYOUT MIXINS
 // =============================================================================
 

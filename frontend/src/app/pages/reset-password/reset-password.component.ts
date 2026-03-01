@@ -1,15 +1,13 @@
-import { Component, OnInit, inject, ElementRef, signal, computed } from '@angular/core';
+import { Component, OnInit, AfterViewInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, ActivatedRoute } from '@angular/router';
-import { InputTextModule } from 'primeng/inputtext';
-import { PasswordModule } from 'primeng/password';
+import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { ToastModule } from 'primeng/toast';
 import { TranslateModule } from '@ngx-translate/core';
 import { finalize } from 'rxjs';
 
 import { AuthService } from '../../services/auth.service';
-import { BackButtonComponent } from '../../shared/components/back-button/back-button.component';
+import { LanguageSelectorComponent } from '../../components/language-selector/language-selector.component';
 import { ToastMessageService } from '../../core/services/toast-message.service';
 import { FormBuilderService } from '../../core/services/form-builder.service';
 import { ANIMATION, UI_DELAY } from '../../core/constants/app.constants';
@@ -21,31 +19,39 @@ import { ROUTES } from '../../core/constants/routes.constants';
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    InputTextModule,
-    PasswordModule,
     ToastModule,
+    RouterLink,
     TranslateModule,
-    BackButtonComponent
+    LanguageSelectorComponent
   ],
   templateUrl: './reset-password.component.html',
   styleUrl: './reset-password.component.scss'
 })
-export class ResetPasswordComponent implements OnInit {
+export class ResetPasswordComponent implements OnInit, AfterViewInit {
   resetPasswordForm!: FormGroup;
   loading = signal(false);
   focusedField = signal('');
   email = signal('');
+  pageReady = signal(false);
+  showPassword = signal(false);
+  showConfirmPassword = signal(false);
 
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private toast = inject(ToastMessageService);
-  private elementRef = inject(ElementRef);
 
   ngOnInit() {
     this.email.set(this.route.snapshot.queryParams['email'] || '');
     this.initializeForm();
+  }
+
+  ngAfterViewInit() {
+    // Trigger animation sequence - logo stays centered for 1 second
+    setTimeout(() => {
+      this.pageReady.set(true);
+    }, 1000);
   }
 
   get f() { return this.resetPasswordForm.controls; }
@@ -101,12 +107,12 @@ export class ResetPasswordComponent implements OnInit {
     this.focusedField.set('');
   }
 
-  focusField(fieldName: string): void {
-    const selector = `[data-field="${fieldName}"] input, [data-field="${fieldName}"] .p-password-input`;
-    const input = this.elementRef.nativeElement.querySelector(selector) as HTMLInputElement;
-    if (input) {
-      input.focus();
-    }
+  togglePassword(): void {
+    this.showPassword.update(v => !v);
+  }
+
+  toggleConfirmPassword(): void {
+    this.showConfirmPassword.update(v => !v);
   }
 
   private initializeForm(): void {
