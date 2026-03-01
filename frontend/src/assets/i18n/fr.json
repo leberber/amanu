@@ -48,6 +48,8 @@
     "refresh": "Actualiser",
     "yes": "Oui",
     "no": "Non",
+    "active": "Actif",
+    "inactive": "En attente",
     "and": "et",
     "or": "ou",
     "unknown": "Inconnu",

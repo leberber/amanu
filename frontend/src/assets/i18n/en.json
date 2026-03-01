@@ -48,6 +48,8 @@
     "refresh": "Refresh",
     "yes": "Yes",
     "no": "No",
+    "active": "Active",
+    "inactive": "Pending approval",
     "and": "and",
     "or": "or",
     "unknown": "Unknown",

@@ -285,7 +285,11 @@
             <div class="user-avatar">{{ userInitials() }}</div>
             <div class="mobile-menu__user-info">
               <span class="mobile-menu__user-name">{{ currentUser()?.full_name }}</span>
-              <span class="mobile-menu__user-email">{{ currentUser()?.email }}</span>
+              @if (currentUser()?.is_active) {
+                <span class="mobile-menu__user-status mobile-menu__user-status--active">{{ 'common.active' | translate }}</span>
+              } @else {
+                <span class="mobile-menu__user-status mobile-menu__user-status--inactive">{{ 'common.inactive' | translate }}</span>
+              }
             </div>
             <button class="icon-btn icon-btn-danger" (click)="logout()">
               <i class="pi pi-sign-out"></i>

@@ -396,12 +396,17 @@
     white-space: nowrap;
   }
 
-  &__user-email {
-    font-size: var(--font-size-sm);
-    color: var(--text-color-secondary);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+  &__user-status {
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+
+    &--active {
+      color: var(--color-success);
+    }
+
+    &--inactive {
+      color: var(--color-warning);
+    }
   }
 
   // Auth Section (Login + Register)
