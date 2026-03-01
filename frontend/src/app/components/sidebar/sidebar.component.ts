@@ -47,6 +47,7 @@ export class SidebarComponent implements OnInit {
   mobileDrawerVisible = this.sidebarService.drawerVisible;
   collapsed = this.sidebarService.collapsed;
   isMobile = signal(window.innerWidth < BREAKPOINTS.MD);
+  isLoggedIn = signal(this.authService.isLoggedIn);
   navItems = signal<NavItem[]>([]);
   adminNavItems = signal<NavItem[]>([]);
 
@@ -56,7 +57,6 @@ export class SidebarComponent implements OnInit {
   // Computed
   isAdmin = computed(() => this.authService.isAdmin());
   isAdminOrStaff = computed(() => this.authService.isAdminOrStaff());
-  isLoggedIn = computed(() => this.authService.isLoggedIn);
   currentUser = computed(() => this.authService.currentUserValue);
   userInitials = computed(() => {
     const name = this.currentUser()?.full_name || 'U';
@@ -78,6 +78,11 @@ export class SidebarComponent implements OnInit {
 
   ngOnInit() {
     this.buildNavItems();
+
+    // Subscribe to login state changes
+    this.authService.isLoggedIn$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(loggedIn => this.isLoggedIn.set(loggedIn));
 
     // Subscribe to auth changes to rebuild nav
     this.authService.currentUser$
