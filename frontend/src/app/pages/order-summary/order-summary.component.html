@@ -59,22 +59,36 @@
     </div>
 
     <!-- Order Summary -->
-    <div class="promo-summary">
-      <div class="promo-summary__row">
-        <span>{{ 'promotions.subtotal' | translate }}</span>
-        <span>{{ cartSubtotal() | appCurrency }}</span>
-      </div>
-      @if (appliedPromotion()) {
-        <div class="promo-summary__row promo-summary__row--discount">
-          <span>{{ 'promotions.discount' | translate }}</span>
-          <span>-{{ discountAmount() | appCurrency }}</span>
+    <div class="summary-card">
+      <h2 class="summary-header">{{ 'cart.order_summary' | translate }}</h2>
+
+      <div class="order-breakdown">
+        <div class="order-breakdown__row">
+          <div class="order-breakdown__label">
+            <i class="pi pi-shopping-cart"></i>
+            <span>{{ 'promotions.subtotal' | translate }}</span>
+          </div>
+          <span class="order-breakdown__value">{{ cartSubtotal() | appCurrency }}</span>
         </div>
-      }
-      <div class="promo-summary__row">
-        <span>{{ 'cart.shipping' | translate }}</span>
-        <span class="promo-summary__free">{{ 'cart.free' | translate }}</span>
+        @if (appliedPromotion()) {
+          <div class="order-breakdown__row order-breakdown__row--discount">
+            <div class="order-breakdown__label">
+              <i class="pi pi-percentage"></i>
+              <span>{{ 'promotions.discount' | translate }}</span>
+            </div>
+            <span class="order-breakdown__value">-{{ discountAmount() | appCurrency }}</span>
+          </div>
+        }
+        <div class="order-breakdown__row">
+          <div class="order-breakdown__label">
+            <i class="pi pi-truck"></i>
+            <span>{{ 'cart.shipping' | translate }}</span>
+          </div>
+          <span class="order-breakdown__value order-breakdown__value--free">{{ 'cart.free' | translate }}</span>
+        </div>
       </div>
-      <div class="promo-summary__row promo-summary__row--total">
+
+      <div class="summary-total">
         <span>{{ 'common.total' | translate }}</span>
         <span>{{ finalTotal() | appCurrency }}</span>
       </div>
