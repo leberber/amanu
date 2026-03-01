@@ -147,169 +147,161 @@
   styleClass="fade-drawer">
 
   <ng-template pTemplate="headless">
-    <div class="drawer-container">
-      <div class="drawer-content">
-        <!-- Header -->
-        <div class="drawer-header">
-          <a [routerLink]="routes.PRODUCTS" (click)="closeMobileDrawer()">
-            <img src="/logo.png" alt="Logo" class="drawer-header__logo">
-          </a>
-          <div class="drawer-header__actions">
-            <app-language-selector></app-language-selector>
-            <button class="icon-btn icon-btn--lg" (click)="closeMobileDrawer()">
-              <i class="pi pi-times"></i>
-            </button>
-          </div>
-        </div>
+    <div class="mobile-menu">
+      <!-- Header -->
+      <div class="mobile-menu__header">
+        <a [routerLink]="routes.PRODUCTS" (click)="closeMobileDrawer()" class="mobile-menu__logo">
+          <img src="/logo.png" alt="Logo">
+        </a>
+        <button class="mobile-menu__close" (click)="closeMobileDrawer()">
+          <i class="pi pi-times"></i>
+        </button>
+      </div>
 
-        <!-- Scrollable Content -->
-        <div class="drawer-body">
-          <!-- Admin Section (Top) -->
-          @if (isAdminOrStaff()) {
-            <div class="mb-4">
-              <div class="section-header">
-                <i class="pi pi-cog"></i>
-                <span>{{ 'header.admin' | translate }}</span>
-              </div>
-              @for (item of getVisibleAdminItems(); track item.route) {
+      <!-- Scrollable Content -->
+      <div class="mobile-menu__body">
+        <!-- User Card (Top) -->
+        @if (isLoggedIn()) {
+          <div class="mobile-menu__user-card">
+            <div class="mobile-menu__avatar">{{ userInitials() }}</div>
+            <div class="mobile-menu__user-info">
+              <span class="mobile-menu__user-name">{{ currentUser()?.full_name }}</span>
+              <span class="mobile-menu__user-email">{{ currentUser()?.email }}</span>
+            </div>
+            <a [routerLink]="routes.ACCOUNT" (click)="closeMobileDrawer()" class="mobile-menu__user-action">
+              <i class="pi pi-chevron-right"></i>
+            </a>
+          </div>
+        } @else {
+          <div class="mobile-menu__guest-card">
+            <div class="mobile-menu__guest-icon">
+              <i class="pi pi-user"></i>
+            </div>
+            <div class="mobile-menu__guest-content">
+              <span class="mobile-menu__guest-title">{{ 'auth.welcome' | translate }}</span>
+              <span class="mobile-menu__guest-subtitle">{{ 'auth.signInMessage' | translate }}</span>
+            </div>
+            <a [routerLink]="routes.LOGIN" (click)="closeMobileDrawer()" class="mobile-menu__guest-btn">
+              {{ 'common.login' | translate }}
+            </a>
+          </div>
+        }
+
+        <!-- Admin Section -->
+        @if (isAdminOrStaff()) {
+          <div class="mobile-menu__section">
+            <div class="mobile-menu__section-title">{{ 'header.admin' | translate }}</div>
+            <div class="mobile-menu__card">
+              @for (item of getVisibleAdminItems(); track item.route; let last = $last) {
                 <a [routerLink]="item.route" routerLinkActive="active"
                    [routerLinkActiveOptions]="{exact: item.route === routes.ADMIN.DASHBOARD}"
                    (click)="closeMobileDrawer()"
-                   class="nav-link nav-link--mobile">
-                  <div class="nav-link__icon nav-link__icon--lg">
+                   class="mobile-menu__item" [class.mobile-menu__item--last]="last">
+                  <div class="mobile-menu__item-icon mobile-menu__item-icon--admin">
                     <i [class]="item.icon"></i>
                   </div>
-                  <span class="nav-link__label">{{ item.label }}</span>
-                  <i class="pi pi-chevron-right nav-link__arrow"></i>
+                  <span class="mobile-menu__item-label">{{ item.label }}</span>
+                  <i class="pi pi-chevron-right mobile-menu__item-arrow"></i>
                 </a>
               }
             </div>
-          }
+          </div>
+        }
 
-          <!-- Customer Navigation -->
-          <div class="mb-4">
-            @if (isAdminOrStaff()) {
-              <div class="section-header">
-                <i class="pi pi-shopping-bag"></i>
-                <span>{{ 'common.store' | translate }}</span>
-              </div>
-            }
-            @for (item of getVisibleNavItems(); track item.route) {
+        <!-- Main Navigation -->
+        <div class="mobile-menu__section">
+          @if (isAdminOrStaff()) {
+            <div class="mobile-menu__section-title">{{ 'common.store' | translate }}</div>
+          }
+          <div class="mobile-menu__card">
+            @for (item of getVisibleNavItems(); track item.route; let last = $last) {
               <a [routerLink]="item.route" routerLinkActive="active" (click)="closeMobileDrawer()"
-                 class="nav-link nav-link--mobile">
-                <div class="nav-link__icon nav-link__icon--lg">
+                 class="mobile-menu__item" [class.mobile-menu__item--last]="last">
+                <div class="mobile-menu__item-icon">
                   <i [class]="item.icon"></i>
-                  @if (item.route === routes.CART && cartCount() > 0) {
-                    <span class="badge">{{ cartCount() > 99 ? '99+' : cartCount() }}</span>
-                  }
                 </div>
-                <span class="nav-link__label">{{ item.label }}</span>
-                <i class="pi pi-chevron-right nav-link__arrow"></i>
+                <span class="mobile-menu__item-label">{{ item.label }}</span>
+                @if (item.route === routes.CART && cartCount() > 0) {
+                  <span class="mobile-menu__badge">{{ cartCount() > 99 ? '99+' : cartCount() }}</span>
+                }
+                <i class="pi pi-chevron-right mobile-menu__item-arrow"></i>
               </a>
             }
           </div>
+        </div>
 
-          <!-- Settings Section -->
-          <div class="mb-4">
-            <div class="section-header">
-              <i class="pi pi-sliders-h"></i>
-              <span>{{ 'settings.title' | translate }}</span>
-            </div>
-            <div class="settings-item">
-              <div class="settings-item__label">
-                <i class="pi pi-eye"></i>
-                <span>{{ 'settings.view_mode' | translate }}</span>
+        <!-- Preferences -->
+        <div class="mobile-menu__section">
+          <div class="mobile-menu__section-title">{{ 'settings.preferences' | translate }}</div>
+          <div class="mobile-menu__card">
+            <div class="mobile-menu__item mobile-menu__item--no-hover">
+              <div class="mobile-menu__item-icon">
+                <i class="pi pi-globe"></i>
               </div>
-              <div class="view-toggle">
-                <button class="view-toggle__option"
-                        [class.active]="currentViewMode() === 'list'"
-                        (click)="toggleViewMode()">
+              <span class="mobile-menu__item-label">{{ 'settings.language' | translate }}</span>
+              <app-language-selector></app-language-selector>
+            </div>
+            <div class="mobile-menu__item mobile-menu__item--last mobile-menu__item--no-hover">
+              <div class="mobile-menu__item-icon">
+                <i class="pi pi-th-large"></i>
+              </div>
+              <span class="mobile-menu__item-label">{{ 'settings.view_mode' | translate }}</span>
+              <div class="mobile-menu__view-toggle">
+                <button [class.active]="currentViewMode() === 'list'" (click)="toggleViewMode()">
                   <i class="pi pi-list"></i>
                 </button>
-                <button class="view-toggle__option"
-                        [class.active]="currentViewMode() === 'grid'"
-                        (click)="toggleViewMode()">
+                <button [class.active]="currentViewMode() === 'grid'" (click)="toggleViewMode()">
                   <i class="pi pi-th-large"></i>
                 </button>
               </div>
             </div>
           </div>
+        </div>
 
-          <!-- Info Links Section -->
-          <div class="mb-4">
-            <div class="section-header">
-              <i class="pi pi-info-circle"></i>
-              <span>{{ 'about.info' | translate }}</span>
-            </div>
-            <a [routerLink]="routes.ABOUT" (click)="closeMobileDrawer()"
-               class="nav-link nav-link--mobile">
-              <div class="nav-link__icon nav-link__icon--lg">
+        <!-- Info Links -->
+        <div class="mobile-menu__section">
+          <div class="mobile-menu__section-title">{{ 'about.info' | translate }}</div>
+          <div class="mobile-menu__card">
+            <a [routerLink]="routes.ABOUT" (click)="closeMobileDrawer()" class="mobile-menu__item">
+              <div class="mobile-menu__item-icon mobile-menu__item-icon--muted">
                 <i class="pi pi-building"></i>
               </div>
-              <span class="nav-link__label">{{ 'about.title' | translate }}</span>
-              <i class="pi pi-chevron-right nav-link__arrow"></i>
+              <span class="mobile-menu__item-label">{{ 'about.title' | translate }}</span>
+              <i class="pi pi-chevron-right mobile-menu__item-arrow"></i>
             </a>
-            <a [routerLink]="routes.CONTACT" (click)="closeMobileDrawer()"
-               class="nav-link nav-link--mobile">
-              <div class="nav-link__icon nav-link__icon--lg">
+            <a [routerLink]="routes.CONTACT" (click)="closeMobileDrawer()" class="mobile-menu__item">
+              <div class="mobile-menu__item-icon mobile-menu__item-icon--muted">
                 <i class="pi pi-envelope"></i>
               </div>
-              <span class="nav-link__label">{{ 'contact.title' | translate }}</span>
-              <i class="pi pi-chevron-right nav-link__arrow"></i>
+              <span class="mobile-menu__item-label">{{ 'contact.title' | translate }}</span>
+              <i class="pi pi-chevron-right mobile-menu__item-arrow"></i>
             </a>
-            <a [routerLink]="routes.TERMS" (click)="closeMobileDrawer()"
-               class="nav-link nav-link--mobile">
-              <div class="nav-link__icon nav-link__icon--lg">
+            <a [routerLink]="routes.TERMS" (click)="closeMobileDrawer()" class="mobile-menu__item">
+              <div class="mobile-menu__item-icon mobile-menu__item-icon--muted">
                 <i class="pi pi-file"></i>
               </div>
-              <span class="nav-link__label">{{ 'terms.title' | translate }}</span>
-              <i class="pi pi-chevron-right nav-link__arrow"></i>
+              <span class="mobile-menu__item-label">{{ 'terms.title' | translate }}</span>
+              <i class="pi pi-chevron-right mobile-menu__item-arrow"></i>
             </a>
-            <a [routerLink]="routes.PRIVACY" (click)="closeMobileDrawer()"
-               class="nav-link nav-link--mobile">
-              <div class="nav-link__icon nav-link__icon--lg">
+            <a [routerLink]="routes.PRIVACY" (click)="closeMobileDrawer()" class="mobile-menu__item mobile-menu__item--last">
+              <div class="mobile-menu__item-icon mobile-menu__item-icon--muted">
                 <i class="pi pi-shield"></i>
               </div>
-              <span class="nav-link__label">{{ 'auth.privacy_policy' | translate }}</span>
-              <i class="pi pi-chevron-right nav-link__arrow"></i>
+              <span class="mobile-menu__item-label">{{ 'auth.privacy_policy' | translate }}</span>
+              <i class="pi pi-chevron-right mobile-menu__item-arrow"></i>
             </a>
           </div>
         </div>
+      </div>
 
-        <!-- User Section -->
-        <div class="drawer-footer">
-          @if (isLoggedIn()) {
-            <div class="flex align-items-center gap-3 p-3 surface-100 border-round-xl mb-3">
-              <div class="user-avatar">{{ userInitials() }}</div>
-              <div class="flex flex-column flex-1" style="min-width: 0;">
-                <span class="font-semibold">{{ currentUser()?.full_name }}</span>
-                <span class="text-sm text-color-secondary">{{ currentUser()?.email }}</span>
-              </div>
-            </div>
-            <button class="auth-btn auth-btn-danger w-full" (click)="logout()">
-              <i class="pi pi-sign-out"></i>
-              <span>{{ 'common.logout' | translate }}</span>
-            </button>
-          } @else {
-            <div class="card text-center p-4">
-              <div class="flex align-items-center justify-content-center w-4rem h-4rem border-round-full mx-auto mb-3" style="background: var(--primary-gradient); box-shadow: 0 6px 20px rgba(var(--primary-rgb), 0.3);">
-                <i class="pi pi-user text-xl text-white"></i>
-              </div>
-              <h3 class="text-lg font-semibold m-0 mb-1">{{ 'auth.welcome' | translate }}</h3>
-              <p class="text-sm text-color-secondary m-0 mb-3">{{ 'auth.signInMessage' | translate }}</p>
-              <div class="flex flex-column gap-2">
-                <a [routerLink]="routes.LOGIN" class="auth-btn auth-btn-primary w-full" (click)="closeMobileDrawer()">
-                  <span>{{ 'common.login' | translate }}</span>
-                  <i class="pi pi-sign-in"></i>
-                </a>
-                <a [routerLink]="routes.REGISTER" class="auth-btn auth-btn-outlined w-full" (click)="closeMobileDrawer()">
-                  <i class="pi pi-user-plus"></i>
-                  <span>{{ 'common.register' | translate }}</span>
-                </a>
-              </div>
-            </div>
-          }
-        </div>
+      <!-- Footer -->
+      <div class="mobile-menu__footer">
+        @if (isLoggedIn()) {
+          <button class="mobile-menu__logout" (click)="logout()">
+            <i class="pi pi-sign-out"></i>
+            <span>{{ 'common.logout' | translate }}</span>
+          </button>
+        }
       </div>
     </div>
   </ng-template>

@@ -1602,7 +1602,8 @@
   "settings": {
     "title": "Paramètres",
     "subtitle": "Personnalisez votre expérience",
-    "view_mode": "Affichage des produits",
+    "preferences": "Préférences",
+    "view_mode": "Affichage",
     "view_mode_desc": "Choisissez comment afficher les produits",
     "view_grid": "Grille",
     "view_list": "Liste",

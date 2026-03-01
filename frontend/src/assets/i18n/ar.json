@@ -1590,7 +1590,8 @@
   "settings": {
     "title": "الإعدادات",
     "subtitle": "خصص تجربة التطبيق",
-    "view_mode": "عرض المنتجات",
+    "preferences": "التفضيلات",
+    "view_mode": "العرض",
     "view_mode_desc": "اختر طريقة عرض المنتجات",
     "view_grid": "شبكة",
     "view_list": "قائمة",

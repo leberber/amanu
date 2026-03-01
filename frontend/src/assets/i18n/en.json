@@ -1582,7 +1582,8 @@
   "settings": {
     "title": "Settings",
     "subtitle": "Customize your app experience",
-    "view_mode": "Product Display",
+    "preferences": "Preferences",
+    "view_mode": "Display",
     "view_mode_desc": "Choose how products are displayed",
     "view_grid": "Grid",
     "view_list": "List",
