@@ -191,6 +191,8 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
             const defaultCommune = this.communes[0]?.value;
             if (defaultCommune) {
               this.storeDetailsForm.patchValue({ commune: defaultCommune });
+              // Update validity signal after all defaults are set
+              this.storeDetailsValid.set(this.canProceedStep4());
             }
           }, 50);
         }
@@ -309,6 +311,9 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private goToNextStepAfterLocation() {
+    // Update validity signal after location auto-fill
+    this.storeDetailsValid.set(this.canProceedStep4());
+
     // Small delay for smoother transition
     setTimeout(() => {
       if (this.activeStep() === 2) {

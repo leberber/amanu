@@ -18,6 +18,7 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
 // Modern slides - full height without carousel padding
 .carousel-slide--step0,
 .carousel-slide--modern {
+  position: relative;
   padding: 0 !important;
   overflow-y: auto !important;
   -webkit-overflow-scrolling: touch;
@@ -570,6 +571,11 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
     padding: 1rem;
     padding-bottom: 100px;
   }
+
+  // Add top padding when inside modern slide (has back button)
+  .carousel-slide--modern & {
+    padding-top: var(--space-12);
+  }
 }
 
 
@@ -793,20 +799,21 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
   .map-back-btn {
     width: 44px;
     height: 44px;
-    border-radius: 12px;
+    border-radius: 50%;
     border: none;
-    background: rgba(255, 255, 255, 0.9);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    background: var(--surface-card);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     color: var(--text-color);
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
 
     &:hover {
-      transform: scale(1.05);
+      background: var(--surface-100);
+      transform: translateX(-2px);
     }
 
     &:active {
@@ -814,7 +821,7 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
     }
 
     i {
-      font-size: 1rem;
+      font-size: 1.1rem;
     }
   }
 
