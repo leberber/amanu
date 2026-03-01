@@ -8,7 +8,6 @@ import { finalize } from 'rxjs';
 
 import { AuthService } from '../../services/auth.service';
 import { UserRole } from '../../models/user.model';
-import { LanguageSelectorComponent } from '../../components/language-selector/language-selector.component';
 import { ToastMessageService } from '../../core/services/toast-message.service';
 import { STORAGE_KEYS, ANIMATION, UI_DELAY } from '../../core/constants/app.constants';
 import { ROUTES, DefaultRedirects } from '../../core/constants/routes.constants';
@@ -21,8 +20,7 @@ import { ROUTES, DefaultRedirects } from '../../core/constants/routes.constants'
     ReactiveFormsModule,
     ToastModule,
     RouterLink,
-    TranslateModule,
-    LanguageSelectorComponent
+    TranslateModule
   ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss'
