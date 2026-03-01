@@ -59,11 +59,12 @@
   <!-- Empty State -->
   @else if (cartItemCount() === 0) {
     <app-empty-state
-      icon="pi pi-shopping-cart"
+      icon="pi-shopping-cart"
       title="cart.empty"
-      message="cart.empty_message"
+      [description]="'cart.empty_message'"
       actionLabel="cart.shop_now"
-      (action)="goToProducts()">
+      [actionLink]="ROUTES.PRODUCTS"
+      actionIcon="pi pi-shopping-bag">
     </app-empty-state>
   }
 
