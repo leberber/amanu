@@ -65,6 +65,12 @@ export class RegisterComponent implements OnInit, OnDestroy {
   focusedField = signal('');
   isInputFocused = signal(false);
 
+  // Form validity signals (synced via statusChanges)
+  personalInfoValid = signal(false);
+  passwordFormValid = signal(false);
+  storeDetailsValid = signal(false);
+  locationSelected = signal(false);
+
   // Form groups for each step
   personalInfoForm: FormGroup;
   passwordForm: FormGroup;
@@ -115,6 +121,27 @@ export class RegisterComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.loadWilayaData();
     this.setupFormSubscriptions();
+    this.setupFormValiditySignals();
+  }
+
+  private setupFormValiditySignals(): void {
+    // Sync form validity to signals via statusChanges
+    this.personalInfoForm.statusChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.personalInfoValid.set(this.personalInfoForm.valid));
+
+    this.passwordForm.statusChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.passwordFormValid.set(this.passwordForm.valid));
+
+    this.storeDetailsForm.statusChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.storeDetailsValid.set(this.canProceedStep4()));
+
+    // Also update on value changes for store details (since disabled fields don't trigger status)
+    this.storeDetailsForm.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.storeDetailsValid.set(this.canProceedStep4()));
   }
 
   private loadWilayaData() {
@@ -192,6 +219,7 @@ export class RegisterComponent implements OnInit, OnDestroy {
 
   onLocationSelected(location: LocationData) {
     this.locationData = location;
+    this.locationSelected.set(true);
 
     // Auto-populate store details from geocoder data and then move to next step
     this.autoPopulateStoreDetails(location);
@@ -313,7 +341,7 @@ export class RegisterComponent implements OnInit, OnDestroy {
   }
 
   canProceedStep3(): boolean {
-    return !!this.locationData;
+    return this.locationSelected();
   }
 
   canProceedStep4(): boolean {
@@ -322,17 +350,17 @@ export class RegisterComponent implements OnInit, OnDestroy {
     return !!(values.wilaya && values.daira && values.commune);
   }
 
-  // Computed signal for canProceedCurrentStep
+  // Computed signal for canProceedCurrentStep (uses validity signals)
   canProceedCurrentStep = computed(() => {
     switch (this.activeStep()) {
       case 0:
-        return this.canProceedStep1();
+        return this.personalInfoValid();
       case 1:
-        return this.canProceedStep2();
+        return this.passwordFormValid();
       case 2:
-        return this.canProceedStep3();
+        return this.locationSelected();
       case 3:
-        return this.canProceedStep4();
+        return this.storeDetailsValid();
       default:
         return true;
     }
