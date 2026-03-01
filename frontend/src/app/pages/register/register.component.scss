@@ -232,7 +232,33 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
 // 4. FIXED FOOTER
 // =============================================================================
 
-.fixed-footer { @include auth.fixed-footer; }
+.fixed-footer {
+  @include auth.fixed-footer;
+  background: transparent;
+
+  .register-btn {
+    box-shadow: none;
+
+    &:hover:not(:disabled) {
+      box-shadow: none;
+    }
+  }
+}
+
+// Leaflet controls positioning
+:host ::ng-deep {
+  // Zoom controls stay up
+  .leaflet-bottom {
+    bottom: 75px;
+  }
+
+  // Attribution at very bottom
+  .leaflet-control-attribution {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+  }
+}
 
 
 // =============================================================================
@@ -793,6 +819,17 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
       font-weight: 600;
       margin: 0;
       color: var(--text-color);
+    }
+
+    .map-address {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text-color);
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      line-height: 1.3;
     }
   }
 }

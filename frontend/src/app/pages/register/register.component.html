@@ -222,19 +222,13 @@
               <div class="title-icon">
                 <i class="pi pi-map-marker"></i>
               </div>
-              <h2>{{ 'register.step3_title' | translate }}</h2>
+              @if (locationData?.address) {
+                <span class="map-address">{{ locationData?.address }}</span>
+              } @else {
+                <h2>{{ 'register.step3_title' | translate }}</h2>
+              }
             </div>
           </div>
-
-          <!-- Overlay Footer with Location Preview -->
-          @if (locationData?.address) {
-            <div class="map-overlay-footer">
-              <div class="location-preview">
-                <i class="pi pi-map-marker"></i>
-                <span>{{ locationData?.address }}</span>
-              </div>
-            </div>
-          }
         </div>
       </div>
 
