@@ -72,40 +72,4 @@
     </div>
   </div>
 
-  <!-- Inactive Account Modal -->
-  <p-dialog
-    [visible]="showInactiveModal()"
-    (visibleChange)="showInactiveModal.set($event)"
-    [modal]="true"
-    [closable]="true"
-    [closeOnEscape]="true"
-    [draggable]="false"
-    [resizable]="false"
-    [showHeader]="false"
-    [style]="{width: '90vw', maxWidth: '400px'}"
-    styleClass="login-dialog">
-    <div class="login-modal">
-      <div class="login-modal__icon">
-        <i class="pi pi-clock"></i>
-      </div>
-      <h2>{{ 'auth.account_inactive_title' | translate }}</h2>
-      <p>{{ 'auth.account_pending_review' | translate }}</p>
-
-      <div class="login-modal__contact">
-        <span>{{ 'auth.contact_us' | translate }}</span>
-        <a href="tel:+213781091476" class="login-modal__phone">
-          <i class="pi pi-phone"></i>
-          <span>0781 09 14 76</span>
-        </a>
-        <a href="tel:+213551271008" class="login-modal__phone">
-          <i class="pi pi-phone"></i>
-          <span>0551 27 10 08</span>
-        </a>
-      </div>
-
-      <button class="login-btn login-btn--secondary" (click)="showInactiveModal.set(false); router.navigate(['/'])">
-        {{ 'common.close' | translate }}
-      </button>
-    </div>
-  </p-dialog>
 </div>

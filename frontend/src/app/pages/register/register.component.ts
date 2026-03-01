@@ -498,16 +498,18 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
     this.authService.register(registerData)
       .subscribe({
         next: () => {
-          this.toast.showSuccess('auth.register_success');
-          setTimeout(() => {
-            this.router.navigate([ROUTES.LOGIN]);
-          }, UI_DELAY.TOAST_BEFORE_NAVIGATE);
+          this.loading.set(false);
+          this.activeStep.set(5); // Navigate to success screen
         },
         error: (error) => {
           this.toast.showApiError(error, 'auth.register_failed');
           this.loading.set(false);
         }
       });
+  }
+
+  goToLogin(): void {
+    this.router.navigate([ROUTES.LOGIN]);
   }
 
   // Password validation checks using computed signals

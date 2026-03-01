@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { ToastModule } from 'primeng/toast';
-import { DialogModule } from 'primeng/dialog';
 import { TranslateModule } from '@ngx-translate/core';
 import { finalize } from 'rxjs';
 
@@ -22,7 +21,6 @@ import { ROUTES, DefaultRedirects } from '../../core/constants/routes.constants'
     ReactiveFormsModule,
     ToastModule,
     RouterLink,
-    DialogModule,
     TranslateModule,
     LanguageSelectorComponent
   ],
@@ -37,7 +35,6 @@ export class LoginComponent implements OnInit, AfterViewInit {
   loginForm!: FormGroup;
   loading = signal(false);
   returnUrl = signal<string>(ROUTES.HOME);
-  showInactiveModal = signal(false);
   focusedField = signal('');
   showPassword = signal(false);
   pageReady = signal(false);
@@ -103,14 +100,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
           }, UI_DELAY.TOAST_BEFORE_NAVIGATE);
         },
         error: (error) => {
-          // Check if error is due to inactive account
-          if (error.status === 400 && (error.error?.detail?.toLowerCase().includes('inactive'))) {
-            // Show the inactive account modal
-            this.showInactiveModal.set(true);
-          } else {
-            // Show regular error toast for other errors
-            this.toast.showApiError(error, 'auth.login_failed');
-          }
+          this.toast.showApiError(error, 'auth.login_failed');
         }
       });
   }
