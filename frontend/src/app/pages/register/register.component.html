@@ -356,9 +356,7 @@
                 <span class="card-label">{{ 'auth.full_name' | translate }}</span>
                 <span class="card-value">{{ personalInfoForm.value.full_name }}</span>
               </div>
-              <div class="card-action">
-                <i class="pi pi-pencil"></i>
-              </div>
+              <i class="pi pi-chevron-right card-arrow"></i>
             </div>
 
             <div class="summary-card" (click)="goToStep(0)">
@@ -369,9 +367,7 @@
                 <span class="card-label">{{ 'common.email' | translate }}</span>
                 <span class="card-value">{{ personalInfoForm.value.email }}</span>
               </div>
-              <div class="card-action">
-                <i class="pi pi-pencil"></i>
-              </div>
+              <i class="pi pi-chevron-right card-arrow"></i>
             </div>
 
             <div class="summary-card" (click)="goToStep(0)">
@@ -382,9 +378,7 @@
                 <span class="card-label">{{ 'common.phone' | translate }}</span>
                 <span class="card-value">{{ personalInfoForm.value.phone }}</span>
               </div>
-              <div class="card-action">
-                <i class="pi pi-pencil"></i>
-              </div>
+              <i class="pi pi-chevron-right card-arrow"></i>
             </div>
 
             <div class="summary-card location" (click)="goToStep(2)">
@@ -395,9 +389,7 @@
                 <span class="card-label">{{ 'register.delivery_location' | translate }}</span>
                 <span class="card-value">{{ locationData?.address || ('register.location_selected' | translate) }}</span>
               </div>
-              <div class="card-action">
-                <i class="pi pi-pencil"></i>
-              </div>
+              <i class="pi pi-chevron-right card-arrow"></i>
             </div>
 
             <div class="summary-card" (click)="goToStep(3)">
@@ -408,9 +400,7 @@
                 <span class="card-label">{{ 'register.store_details' | translate }}</span>
                 <span class="card-value">{{ storeDetailsForm.value.commune }}, {{ storeDetailsForm.value.daira }}</span>
               </div>
-              <div class="card-action">
-                <i class="pi pi-pencil"></i>
-              </div>
+              <i class="pi pi-chevron-right card-arrow"></i>
             </div>
           </div>
 
