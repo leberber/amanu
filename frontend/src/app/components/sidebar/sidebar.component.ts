@@ -109,8 +109,7 @@ export class SidebarComponent implements OnInit {
       {
         label: this.translateService.instant('promotions_page.title'),
         icon: 'pi pi-percentage',
-        route: ROUTES.PROMOTIONS,
-        authRequired: true
+        route: ROUTES.PROMOTIONS
       },
       {
         label: this.translateService.instant('common.cart'),

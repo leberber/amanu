@@ -20,19 +20,19 @@ import { AdminPromotionsComponent } from './pages/admin/admin-promotions/admin-p
 import { AdminAddPromotionComponent } from './pages/admin/admin-add-promotion/admin-add-promotion.component';
 
 export const routes: Routes = [
-  { path: '', component: ProductListComponent, canActivate: [authGuard] },
-  { path: 'home', component: HomeComponent, canActivate: [authGuard] },
+  // Public Routes - No auth required
+  { path: '', component: ProductListComponent },
+  { path: 'home', component: HomeComponent },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
   { path: 'forgot-password', component: ForgotPasswordComponent },
   { path: 'reset-password', component: ResetPasswordComponent },
-  { path: 'products', component: ProductListComponent, canActivate: [authGuard] },
-  { path: 'products/:id', component: ProductDetailComponent, canActivate: [authGuard], data: { hideBottomNav: true } },
-  { path: 'cart', component: CartComponent, canActivate: [authGuard], data: { hideBottomNav: true } },
+  { path: 'products', component: ProductListComponent },
+  { path: 'products/:id', component: ProductDetailComponent, data: { hideBottomNav: true } },
+  { path: 'cart', component: CartComponent, data: { hideBottomNav: true } },
   {
     path: 'order-summary',
     loadComponent: () => import('./pages/order-summary/order-summary.component').then(m => m.OrderSummaryComponent),
-    canActivate: [authGuard],
     data: { hideBottomNav: true }
   },
   
@@ -190,7 +190,6 @@ export const routes: Routes = [
   {
     path: 'promotions',
     loadComponent: () => import('./pages/promotions/promotions.component').then(m => m.PromotionsComponent),
-    canActivate: [authGuard],
     data: { hideBottomNav: true }
   },
   {
