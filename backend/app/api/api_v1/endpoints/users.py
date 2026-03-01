@@ -8,6 +8,7 @@ from pydantic import BaseModel
 from app.database import get_session
 from app.models.user import User, UserUpdate, UserRead, UserRole
 from app.core.security import (
+    get_current_user,
     get_current_active_user,
     get_current_admin_user,
     get_password_hash,
@@ -22,7 +23,7 @@ class UsersResponse(BaseModel):
 
 @router.get("/me", response_model=UserRead)
 def read_user_me(
-    current_user: User = Depends(get_current_active_user),
+    current_user: User = Depends(get_current_user),
 ) -> Any:
     """
     Get current user.

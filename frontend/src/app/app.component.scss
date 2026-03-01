@@ -90,3 +90,40 @@ app-sidebar {
   position: relative;
   z-index: 100;
 }
+
+// =============================================================================
+// INACTIVE ACCOUNT LIGHTBOX
+// =============================================================================
+
+.inactive-lightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.95);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: fadeIn var(--transition-fast);
+  overflow: hidden;
+  padding: var(--space-6);
+
+  &__content {
+    width: 100%;
+    max-width: 400px;
+    background: var(--surface-card);
+    border-radius: var(--radius-xl);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+

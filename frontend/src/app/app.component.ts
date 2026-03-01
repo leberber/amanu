@@ -4,10 +4,13 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { filter } from 'rxjs';
 import { trigger, transition, style, animate, query, group } from '@angular/animations';
 
+import { TranslateModule } from '@ngx-translate/core';
 import { BottomNavigationComponent } from './components/bottom-navigation/bottom-navigation.component';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
+import { InactiveUserMessageComponent } from './components/inactive-user-message/inactive-user-message.component';
 import { SidebarService } from './services/sidebar.service';
 import { NavigationService } from './core/services/navigation.service';
+import { AuthService } from './services/auth.service';
 import { ROUTES } from './core/constants/routes.constants';
 import { BREAKPOINTS } from './core/constants/app.constants';
 
@@ -72,8 +75,10 @@ const slideAnimation = trigger('routeAnimation', [
   standalone: true,
   imports: [
     RouterOutlet,
+    TranslateModule,
     BottomNavigationComponent,
-    SidebarComponent
+    SidebarComponent,
+    InactiveUserMessageComponent
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
@@ -83,11 +88,13 @@ export class AppComponent implements OnInit {
   showNavigation = signal(false);
   hideBottomNav = signal(false);
   isMobile = signal(window.innerWidth < BREAKPOINTS.MD);
+  showInactiveModal = false;
 
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
   private sidebarService = inject(SidebarService);
   private navigationService = inject(NavigationService);
+  private authService = inject(AuthService);
 
   // Expose sidebar collapsed state for template
   sidebarCollapsed = this.sidebarService.collapsed;
@@ -143,6 +150,15 @@ export class AppComponent implements OnInit {
     // Check initial route
     this.updateNavigation(this.router.url);
     this.updateRouteData();
+
+    // Watch for user changes to show inactive modal
+    this.authService.currentUser$.pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(user => {
+      if (user && !user.is_active) {
+        this.showInactiveModal = true;
+      }
+    });
   }
 
   private updateRouteData(): void {

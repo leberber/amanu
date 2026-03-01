@@ -1,0 +1,43 @@
+<div class="inactive-message">
+  @if (buttonType() === 'understood') {
+    <button class="inactive-message__close" (click)="onButtonClick()">
+      <i class="pi pi-times"></i>
+    </button>
+  }
+  <div class="inactive-message__icon">
+    <i class="pi pi-clock"></i>
+  </div>
+  <h2>{{ 'register.step6_title' | translate }}</h2>
+  <p>{{ 'register.account_pending_review' | translate }}</p>
+  <p class="inactive-message__browse-hint">{{ 'auth.can_browse_not_order' | translate }}</p>
+
+  <div class="inactive-message__contact">
+    <span>{{ 'auth.contact_us' | translate }}</span>
+    <a href="tel:+213781091476" class="inactive-message__phone">
+      <div class="inactive-message__phone-icon">
+        <i class="pi pi-phone"></i>
+      </div>
+      <div class="inactive-message__phone-info">
+        <span class="inactive-message__phone-number">0781 09 14 76</span>
+        <small class="inactive-message__phone-hint">{{ 'auth.tap_to_call' | translate }}</small>
+      </div>
+    </a>
+    <a href="tel:+213551271008" class="inactive-message__phone">
+      <div class="inactive-message__phone-icon">
+        <i class="pi pi-phone"></i>
+      </div>
+      <div class="inactive-message__phone-info">
+        <span class="inactive-message__phone-number">0551 27 10 08</span>
+        <small class="inactive-message__phone-hint">{{ 'auth.tap_to_call' | translate }}</small>
+      </div>
+    </a>
+  </div>
+
+  <button class="inactive-message__btn" (click)="onButtonClick()">
+    @if (buttonType() === 'login') {
+      {{ 'register.go_to_login' | translate }}
+    } @else {
+      {{ 'common.understood' | translate }}
+    }
+  </button>
+</div>

@@ -16,6 +16,7 @@ import { FormBuilderService } from '../../core/services/form-builder.service';
 import { PhoneFormatDirective } from '../../directives/phone-format.directive';
 import { ToastMessageService } from '../../core/services/toast-message.service';
 import { ROUTES } from '../../core/constants/routes.constants';
+import { InactiveUserMessageComponent } from '../../components/inactive-user-message/inactive-user-message.component';
 
 // Interfaces for wilaya data
 interface Commune {
@@ -47,7 +48,8 @@ interface WilayaData {
     RouterLink,
     TranslateModule,
     MapPickerComponent,
-    PhoneFormatDirective
+    PhoneFormatDirective,
+    InactiveUserMessageComponent
   ],
     templateUrl: './register.component.html',
   styleUrl: './register.component.scss'
