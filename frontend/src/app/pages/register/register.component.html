@@ -216,10 +216,7 @@
                         (click)="goToStep(step)"></span>
                 }
               </div>
-              <a routerLink="/login" class="map-login-link">
-                <span>{{ 'auth.login' | translate }}</span>
-                <i class="pi pi-arrow-right"></i>
-              </a>
+              <div class="map-spacer"></div>
             </div>
             <div class="map-title-card">
               <div class="title-icon">
@@ -435,11 +432,8 @@
   <div class="fixed-footer" [class.hidden]="activeStep() === 0 || activeStep() === 1">
     <!-- Continue button for steps 2, 3 -->
     @if (activeStep() > 1 && activeStep() < 4) {
-      <button class="fancy-btn" [disabled]="!canProceedCurrentStep()" (click)="nextStep()">
+      <button class="register-btn register-btn--no-shadow" [disabled]="!canProceedCurrentStep()" (click)="nextStep()">
         <span>{{ 'common.continue' | translate }}</span>
-        <div class="btn-icon">
-          <i class="pi pi-arrow-right"></i>
-        </div>
       </button>
     }
 
