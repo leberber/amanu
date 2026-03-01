@@ -12,6 +12,104 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
 
 
 // =============================================================================
+// 1b. MODERN STEP STYLES (Step 1 - Personal Info with animated logo)
+// =============================================================================
+
+// Step 0 slide - full height without carousel padding
+.carousel-slide--step0 {
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+
+// Register page layout (matches login page)
+.register-page {
+  @include auth.auth-page-modern;
+  min-height: 100%;
+  height: 100%;
+  padding-bottom: 100px; // Space for fixed footer
+}
+
+// Animated logo (starts centered, moves to top)
+.register-logo {
+  @include auth.auth-logo;
+
+  .register-page--ready & {
+    margin-top: 0;
+    transform: scale(1);
+  }
+}
+
+// Content container (fades in after logo animation)
+.register-content {
+  @include auth.auth-content-modern;
+
+  .register-page--ready & {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.register-header {
+  @include auth.auth-header-modern;
+
+  &.hidden {
+    opacity: 0;
+    visibility: hidden;
+    height: 0;
+    margin: 0;
+    overflow: hidden;
+  }
+}
+
+.register-form {
+  @include auth.auth-form-modern;
+}
+
+.register-input {
+  @include auth.auth-input-pill;
+}
+
+.register-btn {
+  @include auth.auth-btn-pill;
+}
+
+.register-links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+  font-size: var(--font-size-sm);
+
+  span {
+    color: var(--text-color-secondary);
+  }
+
+  a {
+    color: var(--primary-color);
+    font-weight: var(--font-weight-semibold);
+    text-decoration: none;
+
+    &:active {
+      opacity: 0.7;
+    }
+  }
+}
+
+// Dark mode for modern inputs
+:host-context(.my-app-dark) {
+  .register-input {
+    background: var(--surface-card);
+    border-color: var(--surface-300);
+
+    &:hover {
+      border-color: var(--surface-400);
+    }
+  }
+}
+
+
+// =============================================================================
 // 2. ICON WRAPPER
 // =============================================================================
 

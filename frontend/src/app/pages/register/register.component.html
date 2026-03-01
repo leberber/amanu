@@ -1,8 +1,9 @@
 <!-- src/app/pages/register/register.component.html -->
-<div class="register-carousel">
+<div class="register-carousel" [class.register-carousel--ready]="pageReady()">
   <p-toast></p-toast>
-  <!-- Progress Bar Fixed at Top (hidden on map step, last step, or when input focused) -->
-  <div class="progress-header" [class.hidden]="activeStep() === 2 || activeStep() === 4 || isInputFocused()">
+
+  <!-- Progress Bar Fixed at Top (hidden on step 0, map step, last step, or when input focused) -->
+  <div class="progress-header" [class.hidden]="activeStep() === 0 || activeStep() === 2 || activeStep() === 4 || isInputFocused()">
     <div class="progress-content">
       @if (activeStep() > 0) {
         <button class="back-nav" (click)="prevStep()">
@@ -20,9 +21,6 @@
           }
         </div>
       </div>
-      @if (activeStep() === 0) {
-        <app-language-selector></app-language-selector>
-      }
     </div>
   </div>
 
@@ -30,27 +28,28 @@
   <div class="carousel-container">
     <div class="carousel-track" [style.transform]="'translateX(-' + (activeStep() * 100) + '%)'">
 
-      <!-- Step 1: Personal Info -->
-      <div class="carousel-slide">
-        <div class="slide-content">
-          <div class="slide-header" [class.hidden]="isInputFocused()">
-            <div class="icon-wrapper">
-              <div class="icon-bg"></div>
-              <div class="icon-circle">
-                <i class="pi pi-user"></i>
-              </div>
-            </div>
-            <h1>{{ 'register.step1_title' | translate }}</h1>
-            <p>{{ 'auth.register_subtitle' | translate }}</p>
+      <!-- Step 1: Personal Info (Modern animated style like login) -->
+      <div class="carousel-slide carousel-slide--step0">
+        <div class="register-page" [class.register-page--ready]="pageReady()">
+          <!-- Animated Logo -->
+          <div class="register-logo">
+            <img src="/logo.png" alt="Logo">
           </div>
 
-          <form [formGroup]="personalInfoForm" class="slide-form">
-            <div class="fancy-field" data-field="full_name" [class.focused]="focusedField() === 'full_name'" [class.filled]="personalInfoForm.get('full_name')?.value" (click)="focusField('full_name')">
-              <div class="field-icon">
-                <i class="pi pi-user"></i>
-              </div>
-              <div class="field-content">
-                <label>{{ 'auth.full_name' | translate }}</label>
+          <!-- Content (fades in after logo animation) -->
+          <div class="register-content">
+            <!-- Header -->
+            <div class="register-header" [class.hidden]="isInputFocused()">
+              <h1>{{ 'register.step1_title' | translate }}</h1>
+              <p>{{ 'auth.register_subtitle' | translate }}</p>
+            </div>
+
+            <!-- Form -->
+            <form [formGroup]="personalInfoForm" class="register-form">
+              <!-- Full Name Field -->
+              <div class="register-input"
+                   [class.register-input--focused]="focusedField() === 'full_name'"
+                   [class.register-input--filled]="personalInfoForm.get('full_name')?.value">
                 <input
                   #fullNameInput
                   type="text"
@@ -61,17 +60,15 @@
                   (focus)="onInputFocus('full_name')"
                   (blur)="onInputBlur()">
               </div>
-            </div>
 
-            <div class="fancy-field" data-field="email" [class.focused]="focusedField() === 'email'" [class.filled]="personalInfoForm.get('email')?.value" (click)="focusField('email')">
-              <div class="field-icon">
-                <i class="pi pi-envelope"></i>
-              </div>
-              <div class="field-content">
-                <label>{{ 'common.email' | translate }}</label>
+              <!-- Email Field -->
+              <div class="register-input"
+                   [class.register-input--focused]="focusedField() === 'email'"
+                   [class.register-input--filled]="personalInfoForm.get('email')?.value">
                 <input
                   #emailInput
                   type="email"
+                  inputmode="email"
                   name="email"
                   formControlName="email"
                   autocomplete="email"
@@ -79,17 +76,15 @@
                   (focus)="onInputFocus('email')"
                   (blur)="onInputBlur()">
               </div>
-            </div>
 
-            <div class="fancy-field" data-field="phone" [class.focused]="focusedField() === 'phone'" [class.filled]="personalInfoForm.get('phone')?.value" (click)="focusField('phone')">
-              <div class="field-icon">
-                <i class="pi pi-phone"></i>
-              </div>
-              <div class="field-content">
-                <label>{{ 'common.phone' | translate }}</label>
+              <!-- Phone Field -->
+              <div class="register-input"
+                   [class.register-input--focused]="focusedField() === 'phone'"
+                   [class.register-input--filled]="personalInfoForm.get('phone')?.value">
                 <input
                   #phoneInput
                   type="tel"
+                  inputmode="tel"
                   name="phone"
                   formControlName="phone"
                   autocomplete="tel"
@@ -98,13 +93,22 @@
                   (focus)="onInputFocus('phone')"
                   (blur)="onInputBlur()">
               </div>
-            </div>
-          </form>
 
-          <!-- Login Link -->
-          <div class="auth-link-container">
-            <span>{{ 'auth.already_have_account' | translate }}</span>
-            <a routerLink="/login">{{ 'auth.login_now' | translate }}</a>
+              <!-- Login Link -->
+              <div class="register-links">
+                <span>{{ 'auth.already_have_account' | translate }}</span>
+                <a routerLink="/login">{{ 'auth.login_now' | translate }}</a>
+              </div>
+
+              <!-- Continue Button (inline like login) -->
+              <button
+                type="button"
+                class="register-btn"
+                [disabled]="!canProceedCurrentStep()"
+                (click)="nextStep()">
+                <span>{{ 'common.continue' | translate }}</span>
+              </button>
+            </form>
           </div>
         </div>
       </div>
@@ -421,10 +425,10 @@
     </div>
   </div>
 
-  <!-- Fixed Footer - Outside Carousel -->
-  <div class="fixed-footer">
-    <!-- Continue button for steps 0, 1, 2, 3 -->
-    @if (activeStep() < 4) {
+  <!-- Fixed Footer - Outside Carousel (hidden on step 0 which has inline button) -->
+  <div class="fixed-footer" [class.hidden]="activeStep() === 0">
+    <!-- Continue button for steps 1, 2, 3 -->
+    @if (activeStep() > 0 && activeStep() < 4) {
       <button class="fancy-btn" [disabled]="!canProceedCurrentStep()" (click)="nextStep()">
         <span>{{ 'common.continue' | translate }}</span>
         <div class="btn-icon">

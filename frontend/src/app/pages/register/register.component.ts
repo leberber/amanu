@@ -1,4 +1,4 @@
-import { Component, inject, ViewChild, ElementRef, OnInit, OnDestroy, DestroyRef, signal, computed } from '@angular/core';
+import { Component, inject, ViewChild, ElementRef, OnInit, OnDestroy, AfterViewInit, DestroyRef, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Router, RouterLink } from '@angular/router';
@@ -15,7 +15,6 @@ import { MapPickerComponent, LocationData } from '../../shared/components/map-pi
 import { VALIDATION, UI_DELAY } from '../../core/constants/app.constants';
 import { FormBuilderService } from '../../core/services/form-builder.service';
 import { PhoneFormatDirective } from '../../directives/phone-format.directive';
-import { LanguageSelectorComponent } from '../../components/language-selector/language-selector.component';
 import { ToastMessageService } from '../../core/services/toast-message.service';
 import { ROUTES } from '../../core/constants/routes.constants';
 
@@ -50,13 +49,12 @@ interface WilayaData {
     RouterLink,
     TranslateModule,
     MapPickerComponent,
-    PhoneFormatDirective,
-    LanguageSelectorComponent
+    PhoneFormatDirective
   ],
     templateUrl: './register.component.html',
   styleUrl: './register.component.scss'
 })
-export class RegisterComponent implements OnInit, OnDestroy {
+export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild(MapPickerComponent) mapPicker!: MapPickerComponent;
 
   // State signals
@@ -64,6 +62,7 @@ export class RegisterComponent implements OnInit, OnDestroy {
   activeStep = signal(0);
   focusedField = signal('');
   isInputFocused = signal(false);
+  pageReady = signal(false);
 
   // Form validity signals (synced via statusChanges)
   personalInfoValid = signal(false);
@@ -122,6 +121,13 @@ export class RegisterComponent implements OnInit, OnDestroy {
     this.loadWilayaData();
     this.setupFormSubscriptions();
     this.setupFormValiditySignals();
+  }
+
+  ngAfterViewInit() {
+    // Trigger animation sequence - logo starts centered then moves to top
+    setTimeout(() => {
+      this.pageReady.set(true);
+    }, 1000);
   }
 
   private setupFormValiditySignals(): void {
