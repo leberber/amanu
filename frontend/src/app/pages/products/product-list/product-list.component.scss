@@ -1,12 +1,6 @@
 :host {
-  --filter-header-height: 85px;
-
   display: block;
   height: 100%;
-
-  @media (min-width: 768px) {
-    --filter-header-height: 120px;
-  }
 }
 
 .products-page {
@@ -39,7 +33,11 @@
   flex: 1;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  padding-top: var(--filter-header-height);
+  padding-top: 85px;
+
+  @media (min-width: 768px) {
+    padding-top: 175px;
+  }
 }
 
 // Hide filter bar on mobile when search overlay is active
