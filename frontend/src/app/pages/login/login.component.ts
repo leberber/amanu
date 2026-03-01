@@ -58,14 +58,14 @@ export class LoginComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    // Trigger animation sequence
+    // Trigger animation sequence - logo stays centered for 1 second
     setTimeout(() => {
       this.pageReady.set(true);
       // Auto-focus email input after animation
       setTimeout(() => {
         this.usernameInput()?.nativeElement.focus();
       }, 600);
-    }, 100);
+    }, 1000);
   }
 
   // Getters
