@@ -79,6 +79,8 @@ export class CheckoutComponent implements OnInit {
   fullName = signal('');
   phone = signal('');
   address = signal('');
+  commune = signal('');
+  daira = signal('');
 
   // Computed from service
   cartItemCount = computed(() => this.cartItems().length);
@@ -173,6 +175,8 @@ export class CheckoutComponent implements OnInit {
     const fullName = user.full_name || '';
     const phone = user.phone || '';
     const address = user.address || '';
+    const commune = user.commune || '';
+    const daira = user.daira || '';
 
     this.checkoutForm.patchValue({ fullName, phone, address });
 
@@ -180,6 +184,8 @@ export class CheckoutComponent implements OnInit {
     this.fullName.set(fullName);
     this.phone.set(phone);
     this.address.set(address);
+    this.commune.set(commune);
+    this.daira.set(daira);
   }
 
   private loadCartItems(): void {

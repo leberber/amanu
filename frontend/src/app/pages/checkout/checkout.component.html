@@ -23,104 +23,102 @@
   <!-- Checkout Content -->
   @else {
     <div class="checkout-content">
-      <!-- Delivery Info Section -->
-      <section class="checkout-section">
-        <div class="checkout-section__header">
-          <div class="checkout-section__icon checkout-section__icon--primary">
+      <!-- Delivery Card -->
+      <div class="card card--no-hover">
+        <div class="card-header">
+          <div class="card-header__icon card-header__icon--primary">
             <i class="pi pi-truck"></i>
           </div>
-          <div class="checkout-section__text">
-            <h2 class="checkout-section__title">{{ 'checkout.delivery_info' | translate }}</h2>
-            <p class="checkout-section__subtitle">{{ 'checkout.delivery_details' | translate }}</p>
+          <div class="card-header__text">
+            <h2 class="card-header__title">{{ 'checkout.delivery_info' | translate }}</h2>
           </div>
         </div>
+        <div class="card-body card-body--compact">
+          <div class="info-grid">
+            <div class="info-item">
+              <div class="info-item__icon info-item__icon--success">
+                <i class="pi pi-phone"></i>
+              </div>
+              <div class="info-item__content">
+                <span class="info-item__label">{{ 'common.phone' | translate }}</span>
+                <span class="info-item__value">{{ phone() || '-' }}</span>
+              </div>
+            </div>
 
-        <div class="info-card">
-          <div class="info-row">
-            <div class="info-row__icon">
-              <i class="pi pi-user"></i>
+            <div class="info-item">
+              <div class="info-item__icon info-item__icon--warning">
+                <i class="pi pi-map-marker"></i>
+              </div>
+              <div class="info-item__content">
+                <span class="info-item__label">{{ 'checkout.location' | translate }}</span>
+                <span class="info-item__value">{{ commune() || '-' }}, {{ daira() || '-' }}</span>
+              </div>
             </div>
-            <div class="info-row__content">
-              <span class="info-row__label">{{ 'auth.full_name' | translate }}</span>
-              <span class="info-row__value">{{ fullName() || ('checkout.default_name' | translate) }}</span>
-            </div>
-          </div>
 
-          <div class="info-row">
-            <div class="info-row__icon">
-              <i class="pi pi-phone"></i>
-            </div>
-            <div class="info-row__content">
-              <span class="info-row__label">{{ 'common.phone' | translate }}</span>
-              <span class="info-row__value">{{ phone() || ('checkout.default_phone' | translate) }}</span>
-            </div>
-          </div>
-
-          <div class="info-row">
-            <div class="info-row__icon">
-              <i class="pi pi-map-marker"></i>
-            </div>
-            <div class="info-row__content">
-              <span class="info-row__label">{{ 'checkout.shipping_address' | translate }}</span>
-              <span class="info-row__value">{{ address() || ('checkout.default_address' | translate) }}</span>
+            <div class="info-item info-item--full">
+              <div class="info-item__icon info-item__icon--info">
+                <i class="pi pi-home"></i>
+              </div>
+              <div class="info-item__content">
+                <span class="info-item__label">{{ 'checkout.shipping_address' | translate }}</span>
+                <span class="info-item__value">{{ address() || '-' }}</span>
+              </div>
             </div>
           </div>
         </div>
-      </section>
+      </div>
 
-      <!-- Order Total Section -->
-      <section class="checkout-section">
-        <div class="total-card">
-          <div class="total-card__header">
-            <span class="total-card__label">{{ 'common.total' | translate }}</span>
+      <!-- Total Card -->
+      <div class="card card--no-hover total-card">
+        <div class="card-body">
+          <div class="total-display">
+            <span class="total-display__label">{{ 'common.total' | translate }}</span>
+            <span class="total-display__amount">{{ finalTotal() | appCurrency }}</span>
+          </div>
+          <div class="total-meta">
+            <span>{{ cartItemCount() }} {{ (cartItemCount() === 1 ? 'common.item' : 'common.items') | translate }}</span>
             @if (appliedPromotion()) {
-              <span class="total-card__promo">
+              <span class="promo-tag">
                 <i class="pi pi-tag"></i>
-                {{ appliedPromotion()?.code }}
+                {{ appliedPromotion()?.code }} (-{{ discountAmount() | appCurrency }})
               </span>
             }
           </div>
-          <div class="total-card__amount">{{ finalTotal() | appCurrency }}</div>
-          <div class="total-card__breakdown">
-            <span>{{ cartItemCount() }} {{ (cartItemCount() === 1 ? 'common.item' : 'common.items') | translate }}</span>
-            @if (appliedPromotion()) {
-              <span class="total-card__discount">-{{ discountAmount() | appCurrency }}</span>
-            }
-          </div>
         </div>
-      </section>
+      </div>
 
-      <!-- Order Review Section -->
-      <section class="checkout-section">
-        <button class="review-toggle" (click)="toggleOrderDetails()">
-          <div class="review-toggle__left">
-            <div class="review-toggle__icon">
-              <i class="pi pi-list"></i>
+      <!-- Items Card -->
+      <div class="card card--no-hover">
+        <button class="items-toggle" (click)="toggleOrderDetails()">
+          <div class="items-toggle__left">
+            <div class="card-header__icon card-header__icon--purple">
+              <i class="pi pi-shopping-bag"></i>
             </div>
-            <span class="review-toggle__text">{{ 'checkout.review_order' | translate }}</span>
+            <span class="items-toggle__text">{{ 'checkout.review_order' | translate }}</span>
+            <span class="items-toggle__count">{{ cartItemCount() }}</span>
           </div>
           <i class="pi" [class.pi-chevron-down]="!showOrderDetails()" [class.pi-chevron-up]="showOrderDetails()"></i>
         </button>
 
-        <div [@expandCollapse]="showOrderDetails() ? 'expanded' : 'collapsed'" class="order-details">
+        <div [@expandCollapse]="showOrderDetails() ? 'expanded' : 'collapsed'" class="items-list">
           @for (item of cartItems(); track item.id) {
-            <div class="order-item" (click)="openImage(item)">
-              <div class="order-item__image">
+            <div class="item-row" (click)="openImage(item)">
+              <div class="item-row__image">
                 @if (item.product_image) {
                   <img [src]="item.product_image" [alt]="item.product_name" loading="lazy" appImageFallback>
                 } @else {
                   <i class="pi pi-box"></i>
                 }
               </div>
-              <div class="order-item__info">
-                <span class="order-item__name">{{ item.product_name }}</span>
-                <span class="order-item__qty">{{ formatCartonCount(item) }}</span>
+              <div class="item-row__info">
+                <span class="item-row__name">{{ item.product_name }}</span>
+                <span class="item-row__qty">{{ formatCartonCount(item) }}</span>
               </div>
-              <span class="order-item__price">{{ item.product_price * item.quantity | appCurrency }}</span>
+              <span class="item-row__price">{{ item.product_price * item.quantity | appCurrency }}</span>
             </div>
           }
         </div>
-      </section>
+      </div>
 
       <!-- Terms Note -->
       <p class="checkout-terms">
