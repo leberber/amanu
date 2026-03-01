@@ -669,7 +669,7 @@
   display: flex;
   align-items: center;
   justify-content: space-around;
-  padding: var(--space-2) var(--space-3) calc(var(--space-2) + env(safe-area-inset-bottom, 0px));
+  padding: var(--space-2) var(--space-3) calc(var(--space-4) + env(safe-area-inset-bottom, 0px));
   z-index: var(--z-bottom-nav, 1000);
 
   // Hide on desktop
