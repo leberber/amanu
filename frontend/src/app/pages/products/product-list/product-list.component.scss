@@ -1,5 +1,20 @@
+:host {
+  display: block;
+  height: 100%;
+}
 
-:host { display: block; }
+.products-page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.page-content--with-bottom-nav {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
 
 // Hide filter bar on mobile when search overlay is active
 .filter-bar--hidden {

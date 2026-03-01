@@ -251,8 +251,9 @@
   font-size: var(--font-size-xs);
   color: var(--text-color-secondary);
   text-align: center;
-  margin: var(--space-3) 0 0 0;
+  margin-bottom: -5px;
   line-height: 1.6;
+  margin-top: -5px;
   width: 100%;
 
   a {
