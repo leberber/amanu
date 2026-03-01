@@ -1,229 +1,360 @@
-
-@use '../../../styles/auth' as auth;
-
-
 // =============================================================================
-// 1. PAGE LAYOUT
+// LOGIN PAGE - Modern Animated Design
 // =============================================================================
 
-.login-page { @include auth.auth-page; }
-.login-container { @include auth.auth-container; }
-.login-content { @include auth.auth-content; }
-.login-header { @include auth.auth-header; }
-.login-form { @include auth.auth-form; }
-
-
-// =============================================================================
-// 2. ICON WRAPPER
-// =============================================================================
-
-.icon-wrapper { @include auth.icon-wrapper; }
-.icon-bg { @include auth.icon-bg; }
-.icon-circle { @include auth.icon-circle; }
-
-
-// =============================================================================
-// 3. FORM ELEMENTS
-// =============================================================================
-
-.fancy-field { @include auth.fancy-field; }
-.field-error { @include auth.field-error; }
-.fancy-btn { @include auth.fancy-btn; }
-
-@include auth.fancy-password-override;
-
-
-// =============================================================================
-// 4. FIXED FOOTER
-// =============================================================================
-
-.fixed-footer { @include auth.fixed-footer; }
-
-
-// =============================================================================
-// 5. TOP BAR & LINKS
-// =============================================================================
-
-.top-bar { @include auth.auth-top-bar; }
-.register-link { @include auth.auth-link-section; }
-
-
-// =============================================================================
-// 6. ANIMATED BACKGROUND
-// =============================================================================
-
-.bg-decoration { @include auth.bg-decoration; }
-.blob {
-  @include auth.blob;
-  &.blob-1 { @include auth.blob-1; }
-  &.blob-2 { @include auth.blob-2; }
-  &.blob-3 { @include auth.blob-3; }
-}
-
-
-// =============================================================================
-// 7. FORGOT PASSWORD LINK
-// =============================================================================
-
-.forgot-password {
-  text-align: right;
-  margin-top: 0.25rem;
-
-  a {
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: var(--primary-color);
-    text-decoration: none;
-    transition: color 0.3s ease;
-
-    &:hover {
-      color: #0F3C82;
-      text-decoration: underline;
-    }
-  }
-}
-
-
-// =============================================================================
-// 8. INACTIVE ACCOUNT MODAL
-// =============================================================================
-
-:host ::ng-deep .inactive-account-dialog {
-  .p-dialog-content {
-    padding: 0;
-    border-radius: 24px;
-    overflow: hidden;
-  }
-
-  .p-dialog {
-    border-radius: 24px;
-    overflow: hidden;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-  }
-}
-
-.inactive-modal-content {
-  text-align: center;
-  padding: 2rem 1.5rem;
-  background: linear-gradient(180deg, rgba(255, 152, 0, 0.05) 0%, white 30%);
-
-  h2 {
-    font-size: 1.5rem;
-    font-weight: 700;
-    margin: 0 0 0.75rem 0;
-    color: var(--text-color);
-  }
-
-  .inactive-message {
-    margin: 0 0 1.5rem 0;
-    font-size: 0.95rem;
-    color: var(--text-color-secondary);
-    line-height: 1.5;
-  }
-
-  .fancy-btn {
-    margin-top: 1.5rem;
-  }
-}
-
-.inactive-icon-wrapper { @include auth.icon-wrapper; }
-.inactive-icon-bg {
-  @include auth.icon-bg;
-  @include auth.icon-bg-warning;
-}
-.inactive-icon-circle {
-  @include auth.icon-circle;
-  @include auth.icon-circle-warning;
-}
-
-
-// =============================================================================
-// 9. CONTACT SECTION (Modal)
-// =============================================================================
-
-.contact-section {
-  background: var(--surface-50);
-  border-radius: 16px;
-  padding: 1.25rem;
-  margin-top: 0.5rem;
-
-  .contact-label {
-    margin: 0 0 1rem 0;
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: var(--text-color-secondary);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-}
-
-.contact-cards {
+.login-page {
+  min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  align-items: center;
+  background: var(--surface-ground);
+  padding: var(--space-6);
+  padding-bottom: var(--space-8);
+  overflow-y: auto;
+
+  @media (min-width: 768px) {
+    justify-content: center;
+    padding: var(--space-8);
+  }
 }
 
-.contact-card {
+// =============================================================================
+// LOGO - Animated from center to top
+// =============================================================================
+
+.login-logo {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  padding: 1rem;
-  background: white;
-  border: 1px solid var(--surface-200);
-  border-radius: 12px;
-  text-decoration: none;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  justify-content: center;
+  margin-top: 30vh;
+  margin-bottom: var(--space-6);
+  transition: margin-top 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 
-  &:hover {
-    border-color: var(--primary-color);
-    box-shadow: 0 4px 12px rgba(46, 108, 183, 0.15);
-    transform: translateY(-2px);
+  img {
+    height: 52px;
+    width: auto;
 
-    .contact-icon {
-      background: var(--primary-gradient);
-      i { color: white; }
+    @media (min-width: 768px) {
+      height: 60px;
     }
   }
 
-  &:active {
+  .login-page--ready & {
+    margin-top: 0;
+  }
+}
+
+// =============================================================================
+// CONTENT - Fades in after logo moves
+// =============================================================================
+
+.login-content {
+  width: 100%;
+  max-width: 360px;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s ease 0.3s, transform 0.5s ease 0.3s;
+
+  .login-page--ready & {
+    opacity: 1;
     transform: translateY(0);
   }
+}
 
-  .contact-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
-    background: linear-gradient(135deg, rgba(46, 108, 183, 0.1) 0%, rgba(15, 60, 130, 0.1) 100%);
+// =============================================================================
+// HEADER
+// =============================================================================
+
+.login-header {
+  text-align: center;
+  margin-bottom: var(--space-6);
+
+  h1 {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--text-color);
+    margin: 0 0 var(--space-1) 0;
+  }
+
+  p {
+    font-size: var(--font-size-sm);
+    color: var(--text-color-secondary);
+    margin: 0;
+  }
+}
+
+// =============================================================================
+// FORM
+// =============================================================================
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+// =============================================================================
+// INPUT - Pill style like DeepSeek
+// =============================================================================
+
+.login-input {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 52px;
+  background: var(--surface-card);
+  border: 1px solid var(--surface-200);
+  border-radius: 26px;
+  padding: 0 var(--space-5);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    border-color: var(--surface-300);
+  }
+
+  &--focused {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
+  }
+
+  input {
+    flex: 1;
+    height: 100%;
+    border: none;
+    background: transparent;
+    font-size: 16px;
+    font-weight: var(--font-weight-medium);
+    color: var(--text-color);
+    padding: 0;
+
+    &:focus {
+      outline: none;
+    }
+
+    &::placeholder {
+      color: var(--text-color-secondary);
+      font-weight: var(--font-weight-normal);
+    }
+  }
+
+  &__toggle {
+    width: 40px;
+    height: 40px;
+    margin-right: calc(var(--space-2) * -1);
+    border: none;
+    background: transparent;
+    border-radius: var(--radius-full);
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-shrink: 0;
-    transition: all 0.3s ease;
+    cursor: pointer;
+    transition: background 0.2s ease;
 
     i {
-      font-size: 1.25rem;
-      color: var(--primary-color);
-      transition: color 0.3s ease;
+      font-size: 1.1rem;
+      color: var(--text-color-secondary);
+    }
+
+    &:active {
+      background: var(--surface-100);
+    }
+  }
+}
+
+// =============================================================================
+// LINKS ROW
+// =============================================================================
+
+.login-links {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 var(--space-2);
+
+  a {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--primary-color);
+    text-decoration: none;
+
+    &:active {
+      opacity: 0.7;
+    }
+  }
+}
+
+// =============================================================================
+// BUTTON
+// =============================================================================
+
+.login-btn {
+  width: 100%;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  background: var(--primary-gradient);
+  color: var(--color-white);
+  border: none;
+  border-radius: 26px;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.25);
+  margin-top: var(--space-2);
+
+  &:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  &--secondary {
+    background: var(--surface-100);
+    color: var(--text-color);
+    box-shadow: none;
+
+    &:active:not(:disabled) {
+      background: var(--surface-200);
+    }
+  }
+}
+
+// =============================================================================
+// LANGUAGE SELECTOR
+// =============================================================================
+
+.login-lang {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--space-6);
+}
+
+// =============================================================================
+// DIALOG
+// =============================================================================
+
+:host ::ng-deep .login-dialog {
+  .p-dialog {
+    border-radius: var(--radius-2xl);
+    overflow: hidden;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  }
+
+  .p-dialog-content {
+    padding: 0;
+    border-radius: var(--radius-2xl);
+  }
+}
+
+.login-modal {
+  padding: var(--space-6);
+  text-align: center;
+
+  &__icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto var(--space-5);
+    border-radius: var(--radius-full);
+    background: linear-gradient(135deg, rgba(var(--color-warning-rgb), 0.15), rgba(var(--color-warning-rgb), 0.05));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    i {
+      font-size: 1.75rem;
+      color: var(--color-warning);
     }
   }
 
-  .contact-info {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.125rem;
+  h2 {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--text-color);
+    margin: 0 0 var(--space-2) 0;
+  }
 
-    .contact-number {
-      font-size: 1.125rem;
-      font-weight: 700;
+  > p {
+    font-size: var(--font-size-sm);
+    color: var(--text-color-secondary);
+    margin: 0 0 var(--space-5) 0;
+    line-height: 1.5;
+  }
+
+  &__contact {
+    background: var(--surface-50);
+    border-radius: var(--radius-xl);
+    padding: var(--space-4);
+    margin-bottom: var(--space-5);
+
+    > span {
+      display: block;
+      font-size: var(--font-size-xs);
+      font-weight: var(--font-weight-semibold);
+      color: var(--text-color-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: var(--space-3);
+    }
+  }
+
+  &__phone {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    background: var(--surface-card);
+    border: 1px solid var(--surface-200);
+    border-radius: var(--radius-lg);
+    text-decoration: none;
+    margin-bottom: var(--space-2);
+    transition: all 0.2s ease;
+
+    &:last-of-type {
+      margin-bottom: 0;
+    }
+
+    &:active {
+      background: var(--surface-100);
+    }
+
+    i {
+      font-size: 1rem;
+      color: var(--primary-color);
+    }
+
+    span {
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-semibold);
       color: var(--text-color);
       letter-spacing: 0.02em;
     }
+  }
+}
 
-    .contact-action {
-      font-size: 0.75rem;
-      color: var(--primary-color);
-      font-weight: 500;
+// =============================================================================
+// DARK MODE
+// =============================================================================
+
+:host-context(.my-app-dark) {
+  .login-input {
+    background: var(--surface-card);
+    border-color: var(--surface-300);
+
+    &:hover {
+      border-color: var(--surface-400);
     }
+  }
+
+  .login-modal__phone {
+    background: var(--surface-100);
+    border-color: var(--surface-300);
   }
 }

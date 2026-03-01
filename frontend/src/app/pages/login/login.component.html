@@ -1,90 +1,74 @@
-<!-- src/app/pages/login/login.component.html -->
-<div class="login-page">
+<div class="login-page" [class.login-page--ready]="pageReady()">
   <p-toast></p-toast>
-  <!-- Top Bar with Language Selector -->
-  <div class="top-bar">
-    <div class="top-bar-content">
-      <app-language-selector></app-language-selector>
-    </div>
+
+  <!-- Logo (animated) -->
+  <div class="login-logo">
+    <img src="/logo.png" alt="Logo">
   </div>
 
-  <!-- Main Content -->
-  <div class="login-container">
-    <div class="login-content">
-      <!-- Header -->
-      <div class="login-header">
-        <div class="icon-wrapper">
-          <div class="icon-bg"></div>
-          <div class="icon-circle">
-            <i class="pi pi-sign-in"></i>
-          </div>
-        </div>
-        <h1>{{ 'auth.login_title' | translate }}</h1>
-        <p>{{ 'auth.login_subtitle' | translate }}</p>
+  <!-- Form Container (fades in) -->
+  <div class="login-content">
+    <!-- Header -->
+    <div class="login-header">
+      <h1>{{ 'auth.login_title' | translate }}</h1>
+      <p>{{ 'auth.login_subtitle' | translate }}</p>
+    </div>
+
+    <!-- Form -->
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+      <!-- Email Field -->
+      <div class="login-input" [class.login-input--focused]="focusedField() === 'username'" [class.login-input--filled]="loginForm.get('username')?.value">
+        <input
+          #usernameInput
+          type="email"
+          inputmode="email"
+          enterkeyhint="next"
+          formControlName="username"
+          autocomplete="email"
+          [placeholder]="'auth.email_placeholder' | translate"
+          (focus)="onInputFocus('username')"
+          (blur)="onInputBlur()">
       </div>
 
-      <!-- Form -->
-      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
-        <!-- Email Field -->
-        <div class="fancy-field" data-field="username" [class.focused]="focusedField() === 'username'" [class.filled]="loginForm.get('username')?.value" (click)="focusField('username')">
-          <div class="field-icon">
-            <i class="pi pi-envelope"></i>
-          </div>
-          <div class="field-content">
-            <label>{{ 'common.email' | translate }}</label>
-            <input
-              #usernameInput
-              type="email"
-              name="email"
-              formControlName="username"
-              autocomplete="email"
-              [placeholder]="'auth.email_placeholder' | translate"
-              (focus)="onInputFocus('username')"
-              (blur)="onInputBlur()">
-          </div>
-        </div>
+      <!-- Password Field -->
+      <div class="login-input" [class.login-input--focused]="focusedField() === 'password'" [class.login-input--filled]="loginForm.get('password')?.value">
+        <input
+          [type]="showPassword() ? 'text' : 'password'"
+          enterkeyhint="done"
+          formControlName="password"
+          autocomplete="current-password"
+          [placeholder]="'auth.password_placeholder' | translate"
+          (focus)="onInputFocus('password')"
+          (blur)="onInputBlur()"
+          (keydown.enter)="onSubmit()">
+        <button type="button" class="login-input__toggle" (click)="togglePassword()" tabindex="-1">
+          <i class="pi" [class.pi-eye]="!showPassword()" [class.pi-eye-slash]="showPassword()"></i>
+        </button>
+      </div>
 
-        <!-- Password Field -->
-        <div class="fancy-field password-field" data-field="password" [class.focused]="focusedField() === 'password'" [class.filled]="loginForm.get('password')?.value" (click)="focusField('password')">
-          <div class="field-icon">
-            <i class="pi pi-lock"></i>
-          </div>
-          <div class="field-content">
-            <label>{{ 'common.password' | translate }}</label>
-            <p-password
-              formControlName="password"
-              [placeholder]="'auth.password_placeholder' | translate"
-              [toggleMask]="true"
-              [feedback]="false"
-              styleClass="fancy-password"
-              (onFocus)="onInputFocus('password')"
-              (onBlur)="onInputBlur()">
-            </p-password>
-          </div>
-        </div>
+      <!-- Links Row -->
+      <div class="login-links">
+        <a routerLink="/forgot-password">{{ 'auth.forgot_password' | translate }}</a>
+        <a routerLink="/register">{{ 'common.register' | translate }}</a>
+      </div>
 
-        <!-- Forgot Password Link -->
-        <div class="forgot-password">
-          <a routerLink="/forgot-password">
-            {{ 'auth.forgot_password' | translate }}
-          </a>
-        </div>
-      </form>
+      <!-- Submit Button -->
+      <button
+        type="submit"
+        class="login-btn"
+        [disabled]="loginForm.invalid || loading()">
+        @if (!loading()) {
+          <span>{{ 'auth.login' | translate }}</span>
+        } @else {
+          <i class="pi pi-spin pi-spinner"></i>
+        }
+      </button>
+    </form>
+
+    <!-- Language Selector -->
+    <div class="login-lang">
+      <app-language-selector></app-language-selector>
     </div>
-  </div>
-
-  <!-- Fixed Footer Button -->
-  <div class="fixed-footer">
-    <button class="fancy-btn" [disabled]="loginForm.invalid || loading()" (click)="onSubmit()">
-      @if (!loading()) {
-        <span>{{ 'auth.login' | translate }}</span>
-        <div class="btn-icon">
-          <i class="pi pi-sign-in"></i>
-        </div>
-      } @else {
-        <i class="pi pi-spin pi-spinner"></i>
-      }
-    </button>
   </div>
 
   <!-- Inactive Account Modal -->
@@ -97,50 +81,29 @@
     [draggable]="false"
     [resizable]="false"
     [showHeader]="false"
-    [style]="{width: '90vw', maxWidth: '420px'}"
-    styleClass="inactive-account-dialog"
-  >
-    <div class="inactive-modal-content">
-      <!-- Icon -->
-      <div class="inactive-icon-wrapper">
-        <div class="inactive-icon-bg"></div>
-        <div class="inactive-icon-circle">
-          <i class="pi pi-clock"></i>
-        </div>
+    [style]="{width: '90vw', maxWidth: '400px'}"
+    styleClass="login-dialog">
+    <div class="login-modal">
+      <div class="login-modal__icon">
+        <i class="pi pi-clock"></i>
       </div>
-
-      <!-- Title & Message -->
       <h2>{{ 'auth.account_inactive_title' | translate }}</h2>
-      <p class="inactive-message">{{ 'auth.account_pending_review' | translate }}</p>
+      <p>{{ 'auth.account_pending_review' | translate }}</p>
 
-      <!-- Contact Section -->
-      <div class="contact-section">
-        <p class="contact-label">{{ 'auth.contact_us' | translate }}</p>
-        <div class="contact-cards">
-          <a href="tel:+213781091476" class="contact-card">
-            <div class="contact-icon">
-              <i class="pi pi-phone"></i>
-            </div>
-            <div class="contact-info">
-              <span class="contact-number">0781 09 14 76</span>
-              <span class="contact-action">{{ 'auth.tap_to_call' | translate }}</span>
-            </div>
-          </a>
-          <a href="tel:+213551271008" class="contact-card">
-            <div class="contact-icon">
-              <i class="pi pi-phone"></i>
-            </div>
-            <div class="contact-info">
-              <span class="contact-number">0551 27 10 08</span>
-              <span class="contact-action">{{ 'auth.tap_to_call' | translate }}</span>
-            </div>
-          </a>
-        </div>
+      <div class="login-modal__contact">
+        <span>{{ 'auth.contact_us' | translate }}</span>
+        <a href="tel:+213781091476" class="login-modal__phone">
+          <i class="pi pi-phone"></i>
+          <span>0781 09 14 76</span>
+        </a>
+        <a href="tel:+213551271008" class="login-modal__phone">
+          <i class="pi pi-phone"></i>
+          <span>0551 27 10 08</span>
+        </a>
       </div>
 
-      <!-- Close Button -->
-      <button class="fancy-btn" (click)="showInactiveModal.set(false); router.navigate(['/'])">
-        <span>{{ 'common.close' | translate }}</span>
+      <button class="login-btn login-btn--secondary" (click)="showInactiveModal.set(false); router.navigate(['/'])">
+        {{ 'common.close' | translate }}
       </button>
     </div>
   </p-dialog>

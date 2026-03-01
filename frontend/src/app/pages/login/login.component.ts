@@ -1,9 +1,7 @@
-import { Component, OnInit, inject, ElementRef, signal } from '@angular/core';
+import { Component, OnInit, AfterViewInit, inject, ElementRef, signal, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
-import { InputTextModule } from 'primeng/inputtext';
-import { PasswordModule } from 'primeng/password';
 import { ToastModule } from 'primeng/toast';
 import { DialogModule } from 'primeng/dialog';
 import { TranslateModule } from '@ngx-translate/core';
@@ -22,8 +20,6 @@ import { ROUTES, DefaultRedirects } from '../../core/constants/routes.constants'
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    InputTextModule,
-    PasswordModule,
     ToastModule,
     RouterLink,
     DialogModule,
@@ -33,13 +29,18 @@ import { ROUTES, DefaultRedirects } from '../../core/constants/routes.constants'
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss'
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent implements OnInit, AfterViewInit {
+  // ViewChild
+  usernameInput = viewChild<ElementRef<HTMLInputElement>>('usernameInput');
+
   // State signals
   loginForm!: FormGroup;
   loading = signal(false);
   returnUrl = signal<string>(ROUTES.HOME);
   showInactiveModal = signal(false);
   focusedField = signal('');
+  showPassword = signal(false);
+  pageReady = signal(false);
 
   // Services
   private fb = inject(FormBuilder);
@@ -54,6 +55,17 @@ export class LoginComponent implements OnInit {
     this.initializeForm();
     this.checkReturnUrl();
     this.checkSessionExpired();
+  }
+
+  ngAfterViewInit() {
+    // Trigger animation sequence
+    setTimeout(() => {
+      this.pageReady.set(true);
+      // Auto-focus email input after animation
+      setTimeout(() => {
+        this.usernameInput()?.nativeElement.focus();
+      }, 600);
+    }, 100);
   }
 
   // Getters
@@ -112,13 +124,8 @@ export class LoginComponent implements OnInit {
     this.focusedField.set('');
   }
 
-  // Focus input when clicking anywhere on the field container
-  focusField(fieldName: string): void {
-    const selector = `[data-field="${fieldName}"] input, [data-field="${fieldName}"] .p-password-input`;
-    const input = this.elementRef.nativeElement.querySelector(selector) as HTMLInputElement;
-    if (input) {
-      input.focus();
-    }
+  togglePassword(): void {
+    this.showPassword.update(v => !v);
   }
 
   // Private methods
