@@ -227,14 +227,18 @@
               </div>
               <div class="map-spacer"></div>
             </div>
-            <div class="map-title-card">
-              <div class="title-icon">
+          </div>
+
+          <!-- Address Card at Bottom -->
+          <div class="map-address-footer">
+            <div class="map-address-card">
+              <div class="map-address-icon">
                 <i class="pi pi-map-marker"></i>
               </div>
               @if (locationData?.address) {
-                <span class="map-address">{{ locationData?.address }}</span>
+                <span class="map-address-text">{{ locationData?.address }}</span>
               } @else {
-                <h2>{{ 'register.step3_title' | translate }}</h2>
+                <span class="map-address-text">{{ 'register.step3_title' | translate }}</span>
               }
             </div>
           </div>
