@@ -344,39 +344,29 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
                     this.storeDetailsForm.patchValue({ commune: matchedCommune }, { emitEvent: false });
                   }
                 }
-                // Move to next step after populating
-                this.goToNextStepAfterLocation();
+                // Update validity after populating (no auto-advance)
+                this.storeDetailsValid.set(this.canProceedStep4());
               }, 150);
             } else {
-              // No daira match, still move to next step
-              this.goToNextStepAfterLocation();
+              this.storeDetailsValid.set(this.canProceedStep4());
             }
           } else {
-            // No daira to match, still move to next step
-            this.goToNextStepAfterLocation();
+            this.storeDetailsValid.set(this.canProceedStep4());
           }
         }, 150);
       } else {
-        // No wilaya match, still move to next step
-        this.goToNextStepAfterLocation();
+        this.storeDetailsValid.set(this.canProceedStep4());
       }
     } else {
-      // No wilaya data, still move to next step
-      this.goToNextStepAfterLocation();
+      this.storeDetailsValid.set(this.canProceedStep4());
     }
   }
 
-  private goToNextStepAfterLocation() {
-    // Update validity signal after location auto-fill
-    this.storeDetailsValid.set(this.canProceedStep4());
-
-    // Small delay for smoother transition
-    setTimeout(() => {
-      if (this.activeStep() === 3) {
-        this.activeStep.set(4);
-        this.onStepChange();
-      }
-    }, 300);
+  confirmLocation(): void {
+    if (this.activeStep() === 3 && this.locationSelected()) {
+      this.activeStep.set(4);
+      this.onStepChange();
+    }
   }
 
   private findMatchingOption(options: { label: string; value: string }[], searchValue: string): string | null {

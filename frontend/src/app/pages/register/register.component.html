@@ -334,6 +334,11 @@
                 <span class="map-address-text">{{ 'register.step3_title' | translate }}</span>
               }
             </div>
+            @if (locationSelected()) {
+              <button class="register-btn" (click)="confirmLocation()">
+                <span>{{ 'register.confirm_location' | translate }}</span>
+              </button>
+            }
           </div>
         </div>
       </div>
