@@ -813,11 +813,8 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
         next: (updatedUser) => {
           this.loading.set(false);
           this.authService.updateCurrentUser(updatedUser);
-          this.toast.showSuccess('account.profile_updated');
-          // Navigate to home after successful profile completion
-          setTimeout(() => {
-            this.router.navigate([ROUTES.HOME]);
-          }, UI_DELAY.TOAST_BEFORE_NAVIGATE);
+          // Show the inactive user screen (same as normal registration)
+          this.activeStep.set(6);
         },
         error: (error) => {
           this.loading.set(false);
