@@ -121,7 +121,7 @@ export interface LocationData {
 
     .locate-btn {
       position: absolute;
-      bottom: 85px;
+      bottom: 82px;
       right: 1rem;
       width: 48px;
       height: 48px;
@@ -136,7 +136,7 @@ export interface LocationData {
       display: flex;
       align-items: center;
       justify-content: center;
-      z-index: 999;
+      z-index: 999999;
       transition: all 0.3s ease;
 
       &:hover:not(:disabled) {
@@ -449,10 +449,6 @@ export class MapPickerComponent implements AfterViewInit, OnDestroy {
     this.map = L.map(this.mapId(), {
       zoomControl: false
     }).setView([lat, lng], this.defaultZoom);
-
-    L.control.zoom({
-      position: 'bottomleft'
-    }).addTo(this.map);
 
     L.tileLayer('https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
       maxZoom: 24,
