@@ -65,6 +65,7 @@
     "all": "All",
     "previous": "Previous",
     "next": "Next",
+    "skip": "Skip",
     "expand": "Expand",
     "collapse": "Collapse",
     "store": "Store"
@@ -1646,7 +1647,7 @@
     "subtitle": "Learn more about AgroClik",
     "info": "Information",
     "mission_title": "Our Mission",
-    "mission_text": "AgroClik is dedicated to connecting businesses with the freshest wholesale produce. We partner with local farmers to bring high-quality fruits and vegetables directly to your business, ensuring freshness, competitive prices, and reliable delivery.",
+    "mission_text": "AgroClik supplies store owners with wholesale stock. Order through the app, and we deliver to your doorstep or you can pick up. Competitive prices, reliable service.",
     "offer_title": "What We Offer",
     "feature_delivery": "Fast Delivery",
     "feature_delivery_desc": "Same-day and next-day delivery options to keep your business stocked.",
@@ -1687,7 +1688,7 @@
     "acceptance_title": "Acceptance of Terms",
     "acceptance_text": "By accessing or using AgroClik, you agree to be bound by these Terms. If you do not agree, please do not use our services.",
     "services_title": "Our Services",
-    "services_text": "AgroClik provides a wholesale marketplace connecting businesses with fresh produce suppliers. We facilitate ordering, payment processing, and delivery coordination.",
+    "services_text": "AgroClik is your wholesale supplier. Order through the app, we handle payment processing, and deliver to you or prepare for pickup.",
     "account_title": "Account Responsibilities",
     "account_text": "You are responsible for maintaining the confidentiality of your account credentials and for all activities under your account. You must provide accurate information during registration.",
     "orders_title": "Orders & Pricing",
@@ -1704,5 +1705,14 @@
     "changes_text": "We may update these terms from time to time. Continued use of our platform after changes constitutes acceptance of the new terms.",
     "contact_title": "Contact",
     "contact_text": "For questions about these terms, please contact us at"
+  },
+  "onboarding": {
+    "slide1_title": "Welcome to AgroClik",
+    "slide1_desc": "Supply your store with wholesale stock. Order quality products in bulk at competitive prices.",
+    "slide2_title": "Delivery or Pickup",
+    "slide2_desc": "We deliver to your doorstep, or you can pick up your order at your convenience.",
+    "slide3_title": "Need Help?",
+    "slide3_desc": "Our team is here to assist you. Contact us anytime for support with your orders.",
+    "get_started": "Get Started"
   }
 }

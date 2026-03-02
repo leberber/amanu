@@ -9,7 +9,7 @@ load_dotenv()
 
 class Settings(BaseSettings):
     API_V1_STR: str = "/api/v1"
-    PROJECT_NAME: str = "Fresh Produce E-commerce API"
+    PROJECT_NAME: str = "AgroClik API"
     
     # BACKEND_CORS_ORIGINS is a comma-separated list of origins
     # e.g: "http://localhost,http://localhost:4200,http://localhost:3000"

@@ -19,7 +19,7 @@ from app.models.email_verification import EmailVerificationToken  # Register mod
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
-    description="API for an e-commerce platform selling fruits and vegetables",
+    description="API for AgroClik - wholesale supplier platform. Store owners order, we deliver or they pick up.",
     version="1.0.0",
     openapi_url=f"{settings.API_V1_STR}/openapi.json",
 )

@@ -65,6 +65,7 @@
     "all": "Tous",
     "previous": "Précédent",
     "next": "Suivant",
+    "skip": "Passer",
     "expand": "Agrandir",
     "collapse": "Réduire",
     "store": "Boutique"
@@ -1666,7 +1667,7 @@
     "subtitle": "En savoir plus sur AgroClik",
     "info": "Informations",
     "mission_title": "Notre Mission",
-    "mission_text": "AgroClik est dédié à connecter les entreprises avec les produits frais en gros. Nous travaillons avec des agriculteurs locaux pour apporter des fruits et légumes de haute qualité directement à votre entreprise, assurant fraîcheur, prix compétitifs et livraison fiable.",
+    "mission_text": "AgroClik approvisionne les commerçants en stock de gros. Commandez via l'application, nous livrons à votre porte ou vous pouvez récupérer. Prix compétitifs, service fiable.",
     "offer_title": "Ce Que Nous Offrons",
     "feature_delivery": "Livraison Rapide",
     "feature_delivery_desc": "Options de livraison le jour même et le lendemain pour maintenir votre stock.",
@@ -1724,5 +1725,14 @@
     "changes_text": "Nous pouvons mettre à jour ces conditions de temps en temps. L'utilisation continue de notre plateforme après les modifications constitue l'acceptation des nouvelles conditions.",
     "contact_title": "Contact",
     "contact_text": "Pour toute question concernant ces conditions, veuillez nous contacter à"
+  },
+  "onboarding": {
+    "slide1_title": "Bienvenue sur AgroClik",
+    "slide1_desc": "Approvisionnez votre commerce en stock de gros. Commandez des produits de qualité à prix compétitifs.",
+    "slide2_title": "Livraison ou Retrait",
+    "slide2_desc": "Nous livrons à votre porte, ou vous pouvez récupérer votre commande selon votre convenance.",
+    "slide3_title": "Besoin d'Aide ?",
+    "slide3_desc": "Notre équipe est là pour vous aider. Contactez-nous à tout moment pour vos commandes.",
+    "get_started": "Commencer"
   }
 }

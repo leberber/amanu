@@ -1,0 +1,59 @@
+@if (show()) {
+  <div class="onboarding" [class.onboarding--exiting]="exiting()">
+    <div class="onboarding__container">
+      <!-- Skip button -->
+      <button class="onboarding__skip" (click)="skip()">
+        {{ 'common.skip' | translate }}
+      </button>
+
+      <!-- Slides -->
+      <div class="onboarding__slides">
+        @for (slide of slides; track slide.titleKey; let i = $index) {
+          <div
+            class="onboarding__slide"
+            [class.onboarding__slide--active]="currentSlide() === i"
+            [class.onboarding__slide--prev]="currentSlide() > i"
+            [class.onboarding__slide--next]="currentSlide() < i">
+            <div class="onboarding__icon">
+              <i class="pi {{ slide.icon }}"></i>
+            </div>
+            <h2 class="onboarding__title">{{ slide.titleKey | translate }}</h2>
+            <p class="onboarding__description">{{ slide.descriptionKey | translate }}</p>
+          </div>
+        }
+      </div>
+
+      <!-- Dots indicator -->
+      <div class="onboarding__dots">
+        @for (slide of slides; track slide.titleKey; let i = $index) {
+          <button
+            class="onboarding__dot"
+            [class.onboarding__dot--active]="currentSlide() === i"
+            (click)="goToSlide(i)">
+          </button>
+        }
+      </div>
+
+      <!-- Navigation buttons -->
+      <div class="onboarding__nav">
+        @if (currentSlide() > 0) {
+          <button class="onboarding__btn onboarding__btn--secondary" (click)="prevSlide()">
+            <i class="pi pi-arrow-left"></i>
+            {{ 'common.back' | translate }}
+          </button>
+        } @else {
+          <div></div>
+        }
+
+        <button class="onboarding__btn onboarding__btn--primary" (click)="nextSlide()">
+          @if (currentSlide() === slides.length - 1) {
+            {{ 'onboarding.get_started' | translate }}
+          } @else {
+            {{ 'common.next' | translate }}
+            <i class="pi pi-arrow-right"></i>
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+}

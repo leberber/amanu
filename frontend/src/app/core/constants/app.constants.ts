@@ -162,7 +162,8 @@ export const STORAGE_KEYS = {
   THEME: 'app_theme',
   CART: 'fresh_produce_cart',
   CART_PROMO: 'fresh_produce_promo',
-  PREFERENCES: 'user_preferences'
+  PREFERENCES: 'user_preferences',
+  HAS_SEEN_ONBOARDING: 'has_seen_onboarding'
 } as const;
 
 // Error Codes

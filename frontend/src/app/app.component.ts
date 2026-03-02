@@ -8,6 +8,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { BottomNavigationComponent } from './components/bottom-navigation/bottom-navigation.component';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { InactiveUserMessageComponent } from './components/inactive-user-message/inactive-user-message.component';
+import { OnboardingComponent } from './components/onboarding/onboarding.component';
 import { SidebarService } from './services/sidebar.service';
 import { NavigationService } from './core/services/navigation.service';
 import { AuthService } from './services/auth.service';
@@ -78,7 +79,8 @@ const slideAnimation = trigger('routeAnimation', [
     TranslateModule,
     BottomNavigationComponent,
     SidebarComponent,
-    InactiveUserMessageComponent
+    InactiveUserMessageComponent,
+    OnboardingComponent
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',

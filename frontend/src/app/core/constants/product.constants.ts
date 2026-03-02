@@ -17,7 +17,7 @@ export const PRODUCT_CONSTANTS = {
   
   // Placeholder values
   PLACEHOLDER_IMAGE: 'assets/images/product-placeholder.jpg',
-  DEFAULT_DESCRIPTION: 'Fresh, high-quality produce delivered daily from local farms.'
+  DEFAULT_DESCRIPTION: 'Quality wholesale products for your business.'
 } as const;
 
 // Packaging types (lowercase to match backend enum)
