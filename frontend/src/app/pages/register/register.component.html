@@ -140,6 +140,20 @@
                   <span>{{ 'common.continue' | translate }}</span>
                 }
               </button>
+
+              <!-- Google Sign-Up Button (only show for normal registration, not Google flow) -->
+              @if (!fromGoogle()) {
+                <div class="register-divider">
+                  <span>{{ 'common.or' | translate }}</span>
+                </div>
+                <div class="register-google">
+                  <app-google-signin-button
+                    #googleButton
+                    buttonText="signup_with"
+                    (credentialReceived)="onGoogleCredential($event)"
+                  />
+                </div>
+              }
             </form>
           </div>
         </div>

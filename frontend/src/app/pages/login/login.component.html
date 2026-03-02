@@ -72,12 +72,11 @@
 
       <!-- Google Sign-In Button -->
       <div class="login-google">
-        <div id="google-signin-btn" class="google-btn-container"></div>
-        @if (googleLoading()) {
-          <div class="google-loading">
-            <i class="pi pi-spin pi-spinner"></i>
-          </div>
-        }
+        <app-google-signin-button
+          #googleButton
+          buttonText="signin_with"
+          (credentialReceived)="onGoogleCredential($event)"
+        />
       </div>
     </form>
   </div>

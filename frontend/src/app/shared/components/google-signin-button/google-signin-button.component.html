@@ -1,0 +1,8 @@
+<div class="google-signin">
+  <div [id]="getButtonId()" class="google-btn-container"></div>
+  @if (loading()) {
+    <div class="google-loading">
+      <i class="pi pi-spin pi-spinner"></i>
+    </div>
+  }
+</div>

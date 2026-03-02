@@ -281,6 +281,36 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
   }
 }
 
+// =============================================================================
+// DIVIDER & GOOGLE SIGN-IN
+// =============================================================================
+
+.register-divider {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin: var(--space-5) 0;
+
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--surface-200);
+  }
+
+  span {
+    font-size: var(--font-size-sm);
+    color: var(--text-color-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+}
+
+.register-google {
+  width: 100%;
+}
+
 // Dark mode for modern inputs
 :host-context(.my-app-dark) {
   .register-input {

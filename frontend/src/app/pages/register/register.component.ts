@@ -1,4 +1,4 @@
-import { Component, inject, ViewChild, ElementRef, OnInit, OnDestroy, AfterViewInit, DestroyRef, signal, computed } from '@angular/core';
+import { Component, inject, ViewChild, ElementRef, OnInit, OnDestroy, AfterViewInit, DestroyRef, signal, computed, viewChild, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
@@ -18,6 +18,8 @@ import { PhoneFormatDirective } from '../../directives/phone-format.directive';
 import { ToastMessageService } from '../../core/services/toast-message.service';
 import { ROUTES } from '../../core/constants/routes.constants';
 import { InactiveUserMessageComponent } from '../../components/inactive-user-message/inactive-user-message.component';
+import { GoogleSignInButtonComponent } from '../../shared/components/google-signin-button/google-signin-button.component';
+import { finalize } from 'rxjs';
 
 // Interfaces for wilaya data
 interface Commune {
@@ -50,13 +52,15 @@ interface WilayaData {
     TranslateModule,
     MapPickerComponent,
     PhoneFormatDirective,
-    InactiveUserMessageComponent
+    InactiveUserMessageComponent,
+    GoogleSignInButtonComponent
   ],
     templateUrl: './register.component.html',
   styleUrl: './register.component.scss'
 })
 export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild(MapPickerComponent) mapPicker!: MapPickerComponent;
+  googleButton = viewChild<GoogleSignInButtonComponent>('googleButton');
 
   // State signals
   loading = signal(false);
@@ -104,6 +108,7 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private http = inject(HttpClient);
   private destroyRef = inject(DestroyRef);
+  private ngZone = inject(NgZone);
 
   // Services
   private authService = inject(AuthService);
@@ -187,6 +192,29 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
     setTimeout(() => {
       this.pageReady.set(true);
     }, 1000);
+  }
+
+  onGoogleCredential(credential: string): void {
+    this.ngZone.run(() => {
+      this.googleButton()?.setLoading(true);
+      this.authService.googleAuth(credential)
+        .pipe(finalize(() => this.googleButton()?.setLoading(false)))
+        .subscribe({
+          next: (authResponse) => {
+            if (authResponse.is_new_user || !authResponse.profile_complete) {
+              // New user - stay on registration to complete profile
+              this.initGoogleFlow();
+            } else {
+              // Existing user with complete profile - go to home
+              this.toast.showSuccess('auth.login_success');
+              this.router.navigate(['/']);
+            }
+          },
+          error: (error) => {
+            this.toast.showApiError(error, 'auth.login_failed');
+          }
+        });
+    });
   }
 
   private setupFormValiditySignals(): void {

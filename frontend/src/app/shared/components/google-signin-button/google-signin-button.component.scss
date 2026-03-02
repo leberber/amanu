@@ -1,0 +1,38 @@
+.google-signin {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+
+  .google-btn-container {
+    width: 100%;
+
+    // Style Google's iframe button container
+    > div {
+      width: 100% !important;
+    }
+
+    iframe {
+      width: 100% !important;
+      min-width: 100% !important;
+    }
+  }
+
+  .google-loading {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(var(--surface-card-rgb, 255, 255, 255), 0.9);
+    border-radius: var(--radius-pill);
+
+    i {
+      font-size: 1.25rem;
+      color: var(--primary-color);
+    }
+  }
+}
