@@ -121,7 +121,7 @@ export interface LocationData {
 
     .locate-btn {
       position: absolute;
-      bottom: 140px;
+      bottom: 85px;
       right: 1rem;
       width: 48px;
       height: 48px;

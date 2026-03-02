@@ -364,18 +364,15 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
   }
 }
 
-// Leaflet controls positioning
-:host ::ng-deep {
-  // Zoom controls stay up
-  .leaflet-bottom {
-    bottom: 75px;
-  }
+// Leaflet controls - scoped to map slide only
+.fullscreen-map-slide {
+  ::ng-deep {
+    .leaflet-bottom {
+    }
 
-  // Attribution at very bottom
-  .leaflet-control-attribution {
-    position: fixed;
-    bottom: 0;
-    right: 0;
+    .leaflet-control-attribution {
+      display: none;
+    }
   }
 }
 
