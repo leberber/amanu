@@ -560,7 +560,8 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
   padding-bottom: 60px;
   background: transparent;
 
-  &:nth-child(3) {
+  // Map slide (4th slide, index 3)
+  &:nth-child(4) {
     padding: 0;
     overflow: hidden;
   }
@@ -1068,7 +1069,151 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
 
 
 // =============================================================================
-// 14. SUMMARY CARDS
+// 14. EMAIL VERIFICATION
+// =============================================================================
+
+.verification-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: var(--primary-gradient);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto var(--space-5);
+  box-shadow: 0 8px 24px rgba(46, 108, 183, 0.3);
+
+  i {
+    font-size: 2rem;
+    color: white;
+  }
+}
+
+.verification-email {
+  display: block;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--primary-color);
+  margin-top: var(--space-2);
+}
+
+.verification-code-container {
+  margin: var(--space-6) 0;
+}
+
+.code-inputs {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-2);
+
+  @media (max-width: 380px) {
+    gap: var(--space-1);
+  }
+}
+
+.code-input {
+  input {
+    width: 48px;
+    height: 56px;
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: var(--font-weight-bold);
+    border: 2px solid var(--surface-200);
+    border-radius: var(--radius-lg);
+    background: var(--surface-card);
+    color: var(--text-color);
+    transition: all 0.2s ease;
+    caret-color: var(--primary-color);
+
+    @media (max-width: 380px) {
+      width: 42px;
+      height: 50px;
+      font-size: 1.25rem;
+    }
+
+    &:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.15);
+    }
+
+    &.filled {
+      border-color: var(--primary-color);
+      background: rgba(var(--primary-rgb), 0.05);
+    }
+
+    &.error {
+      border-color: var(--color-error);
+      animation: shake 0.4s ease;
+    }
+  }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-4px); }
+  40%, 80% { transform: translateX(4px); }
+}
+
+.verification-error {
+  display: block;
+  text-align: center;
+  color: var(--color-error);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  margin-top: var(--space-3);
+}
+
+.verification-resend {
+  text-align: center;
+  margin-bottom: var(--space-5);
+
+  .resend-countdown {
+    font-size: var(--font-size-sm);
+    color: var(--text-color-secondary);
+  }
+
+  .resend-btn {
+    background: none;
+    border: none;
+    color: var(--primary-color);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    cursor: pointer;
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-md);
+    transition: all 0.2s ease;
+
+    &:hover:not(:disabled) {
+      background: rgba(var(--primary-rgb), 0.1);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+}
+
+// Dark mode for verification inputs
+:host-context(.my-app-dark) {
+  .code-input input {
+    background: var(--surface-card);
+    border-color: var(--surface-300);
+
+    &:focus {
+      border-color: var(--primary-color);
+    }
+
+    &.filled {
+      background: rgba(var(--primary-rgb), 0.1);
+    }
+  }
+}
+
+
+// =============================================================================
+// 15. SUMMARY CARDS (was 14)
 // =============================================================================
 
 .summary-cards {

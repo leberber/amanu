@@ -193,4 +193,26 @@ export class AuthService {
       new_password: newPassword
     });
   }
+
+  /**
+   * Send email verification code for registration
+   * @param email - User email
+   * @returns Observable with message
+   */
+  sendVerificationCode(email: string): Observable<{ message: string }> {
+    return this.apiService.post<{ message: string }>('/auth/send-verification-code', { email });
+  }
+
+  /**
+   * Verify email with code during registration
+   * @param email - User email
+   * @param code - 6-digit verification code
+   * @returns Observable with verification result
+   */
+  verifyEmail(email: string, code: string): Observable<{ message: string; verified: boolean }> {
+    return this.apiService.post<{ message: string; verified: boolean }>('/auth/verify-email', {
+      email,
+      code
+    });
+  }
 }

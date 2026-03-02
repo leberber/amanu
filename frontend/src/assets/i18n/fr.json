@@ -388,7 +388,16 @@
     "password_min_chars": "Au moins 8 caractères",
     "password_has_letter": "Contient des lettres",
     "password_has_number": "Contient des chiffres",
-    "passwords_must_match": "Les mots de passe correspondent"
+    "passwords_must_match": "Les mots de passe correspondent",
+    "verify_email_title": "Vérifiez votre email",
+    "verify_email_subtitle": "Nous avons envoyé un code à 6 chiffres à",
+    "verify_code": "Vérifier",
+    "resend_code": "Renvoyer le code",
+    "resend_code_in": "Renvoyer dans",
+    "verification_code_resent": "Code de vérification renvoyé",
+    "verification_send_failed": "Échec de l'envoi du code",
+    "verification_failed": "Échec de la vérification",
+    "verify_email_first": "Veuillez d'abord vérifier votre email"
   },
   "auth": {
     "login_title": "Connexion",

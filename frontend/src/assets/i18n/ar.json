@@ -393,7 +393,16 @@
     "password_min_chars": "٨ أحرف على الأقل",
     "password_has_letter": "يحتوي على حروف",
     "password_has_number": "يحتوي على أرقام",
-    "passwords_must_match": "كلمات المرور متطابقة"
+    "passwords_must_match": "كلمات المرور متطابقة",
+    "verify_email_title": "تحقق من بريدك الإلكتروني",
+    "verify_email_subtitle": "أرسلنا رمزًا مكونًا من 6 أرقام إلى",
+    "verify_code": "تحقق",
+    "resend_code": "إعادة إرسال الرمز",
+    "resend_code_in": "إعادة الإرسال في",
+    "verification_code_resent": "تم إعادة إرسال رمز التحقق",
+    "verification_send_failed": "فشل إرسال رمز التحقق",
+    "verification_failed": "فشل التحقق",
+    "verify_email_first": "يرجى التحقق من بريدك الإلكتروني أولاً"
   },
   "auth": {
     "login_title": "تسجيل الدخول",

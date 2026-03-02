@@ -72,6 +72,15 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
   storeDetailsValid = signal(false);
   locationSelected = signal(false);
 
+  // Email verification state
+  verificationCode = signal('');
+  verificationSent = signal(false);
+  verificationLoading = signal(false);
+  emailVerified = signal(false);
+  verificationError = signal('');
+  resendCountdown = signal(0);
+  private resendTimer: ReturnType<typeof setInterval> | null = null;
+
   // Server-side field errors
   serverErrors = signal<{ [key: string]: string }>({});
 
@@ -259,6 +268,9 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
 
   ngOnDestroy(): void {
     // Subscriptions are automatically cleaned up by takeUntilDestroyed
+    if (this.resendTimer) {
+      clearInterval(this.resendTimer);
+    }
   }
 
   onLocationSelected(location: LocationData) {
@@ -319,8 +331,8 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
 
     // Small delay for smoother transition
     setTimeout(() => {
-      if (this.activeStep() === 2) {
-        this.activeStep.set(3);
+      if (this.activeStep() === 3) {
+        this.activeStep.set(4);
         this.onStepChange();
       }
     }, 300);
@@ -378,9 +390,172 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
     this.toast.showWarn(messageKey);
   }
 
-  // Step navigation
-  canProceedStep1(): boolean {
+  // Email verification methods
+  sendVerificationCode(): void {
+    const email = this.personalInfoForm.value.email;
+    if (!email) return;
+
+    this.verificationLoading.set(true);
+    this.verificationError.set('');
+    this.serverErrors.set({});
+
+    this.authService.sendVerificationCode(email)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.verificationLoading.set(false);
+          this.verificationSent.set(true);
+          this.startResendCountdown();
+          this.activeStep.set(1); // Move to verification step
+        },
+        error: (error) => {
+          this.verificationLoading.set(false);
+          const errorDetail = error.error?.detail;
+          if (typeof errorDetail === 'string') {
+            // Show email-related errors on step 0
+            this.serverErrors.set({ email: errorDetail });
+          } else {
+            this.toast.showApiError(error, 'register.verification_send_failed');
+          }
+        }
+      });
+  }
+
+  resendVerificationCode(): void {
+    if (this.resendCountdown() > 0) return;
+
+    const email = this.personalInfoForm.value.email;
+    if (!email) return;
+
+    this.verificationLoading.set(true);
+    this.verificationError.set('');
+
+    this.authService.sendVerificationCode(email)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.verificationLoading.set(false);
+          this.startResendCountdown();
+          this.toast.showSuccess('register.verification_code_resent');
+        },
+        error: (error) => {
+          this.verificationLoading.set(false);
+          this.toast.showApiError(error, 'register.verification_send_failed');
+        }
+      });
+  }
+
+  private startResendCountdown(): void {
+    this.resendCountdown.set(60);
+    if (this.resendTimer) {
+      clearInterval(this.resendTimer);
+    }
+    this.resendTimer = setInterval(() => {
+      if (this.resendCountdown() > 0) {
+        this.resendCountdown.update(v => v - 1);
+      } else if (this.resendTimer) {
+        clearInterval(this.resendTimer);
+        this.resendTimer = null;
+      }
+    }, 1000);
+  }
+
+  verifyEmailCode(): void {
+    const email = this.personalInfoForm.value.email;
+    const code = this.verificationCode();
+
+    if (!email || code.length !== 6) return;
+
+    this.verificationLoading.set(true);
+    this.verificationError.set('');
+
+    this.authService.verifyEmail(email, code)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          this.verificationLoading.set(false);
+          if (response.verified) {
+            this.emailVerified.set(true);
+            this.activeStep.set(2); // Move to password step
+          }
+        },
+        error: (error) => {
+          this.verificationLoading.set(false);
+          const errorDetail = error.error?.detail;
+          if (typeof errorDetail === 'string') {
+            this.verificationError.set(errorDetail);
+          } else {
+            this.toast.showApiError(error, 'register.verification_failed');
+          }
+        }
+      });
+  }
+
+  onCodeInput(event: Event, index: number): void {
+    const input = event.target as HTMLInputElement;
+    const value = input.value.replace(/[^0-9]/g, '');
+    input.value = value;
+
+    // Update the verification code
+    const currentCode = this.verificationCode().split('');
+    while (currentCode.length < 6) currentCode.push('');
+    currentCode[index] = value;
+    this.verificationCode.set(currentCode.join(''));
+    this.verificationError.set('');
+
+    // Auto-focus next input
+    if (value && index < 5) {
+      const nextInput = this.elementRef.nativeElement.querySelector(
+        `.code-input:nth-child(${index + 2}) input`
+      ) as HTMLInputElement;
+      if (nextInput) nextInput.focus();
+    }
+  }
+
+  onCodeKeydown(event: KeyboardEvent, index: number): void {
+    const input = event.target as HTMLInputElement;
+
+    if (event.key === 'Backspace' && !input.value && index > 0) {
+      const prevInput = this.elementRef.nativeElement.querySelector(
+        `.code-input:nth-child(${index}) input`
+      ) as HTMLInputElement;
+      if (prevInput) {
+        prevInput.focus();
+        prevInput.value = '';
+        const currentCode = this.verificationCode().split('');
+        currentCode[index - 1] = '';
+        this.verificationCode.set(currentCode.join(''));
+      }
+    }
+  }
+
+  onCodePaste(event: ClipboardEvent): void {
+    event.preventDefault();
+    const pastedData = event.clipboardData?.getData('text') || '';
+    const digits = pastedData.replace(/[^0-9]/g, '').slice(0, 6);
+
+    if (digits) {
+      this.verificationCode.set(digits.padEnd(6, ''));
+
+      // Fill all inputs
+      const inputs = this.elementRef.nativeElement.querySelectorAll('.code-input input');
+      inputs.forEach((input: HTMLInputElement, i: number) => {
+        input.value = digits[i] || '';
+      });
+
+      // Focus appropriate input
+      const focusIndex = Math.min(digits.length, 5);
+      (inputs[focusIndex] as HTMLInputElement)?.focus();
+    }
+  }
+
+  // Step navigation (Step indices: 0=Personal, 1=Verification, 2=Password, 3=Map, 4=Store, 5=Confirmation, 6=Success)
+  canProceedStep0(): boolean {
     return this.personalInfoForm.valid;
+  }
+
+  canProceedStep1(): boolean {
+    return this.emailVerified();
   }
 
   canProceedStep2(): boolean {
@@ -403,10 +578,12 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
       case 0:
         return this.personalInfoValid();
       case 1:
-        return this.passwordFormValid();
+        return this.emailVerified();
       case 2:
-        return this.locationSelected();
+        return this.passwordFormValid();
       case 3:
+        return this.locationSelected();
+      case 4:
         return this.storeDetailsValid();
       default:
         return true;
@@ -416,10 +593,11 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
   // Check if a specific step can be accessed (all previous steps must be valid)
   canAccessStep(step: number): boolean {
     if (step === 0) return true;
-    if (step === 1) return this.canProceedStep1();
-    if (step === 2) return this.canProceedStep1() && this.canProceedStep2();
-    if (step === 3) return this.canProceedStep1() && this.canProceedStep2() && this.canProceedStep3();
-    if (step === 4) return this.canProceedStep1() && this.canProceedStep2() && this.canProceedStep3() && this.canProceedStep4();
+    if (step === 1) return this.canProceedStep0();
+    if (step === 2) return this.canProceedStep0() && this.canProceedStep1();
+    if (step === 3) return this.canProceedStep0() && this.canProceedStep1() && this.canProceedStep2();
+    if (step === 4) return this.canProceedStep0() && this.canProceedStep1() && this.canProceedStep2() && this.canProceedStep3();
+    if (step === 5) return this.canProceedStep0() && this.canProceedStep1() && this.canProceedStep2() && this.canProceedStep3() && this.canProceedStep4();
     return false;
   }
 
@@ -434,15 +612,20 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
 
   nextStep() {
     // Only proceed if current step is valid
-    if (this.activeStep() < 4 && this.canProceedCurrentStep()) {
+    if (this.activeStep() < 5 && this.canProceedCurrentStep()) {
+      // Step 0 -> 1: Send verification code
+      if (this.activeStep() === 0) {
+        this.sendVerificationCode();
+        return;
+      }
       this.activeStep.update(v => v + 1);
       this.onStepChange();
     }
   }
 
   private onStepChange() {
-    // Invalidate map size when entering map step
-    if (this.activeStep() === 2 && this.mapPicker) {
+    // Invalidate map size when entering map step (step 3)
+    if (this.activeStep() === 3 && this.mapPicker) {
       setTimeout(() => {
         // Map will show "Use My Location" button for user to click
       }, 300);
@@ -463,27 +646,33 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
     this.storeDetailsForm.markAllAsTouched();
 
     // Check if all steps are valid
-    if (!this.canProceedStep1()) {
+    if (!this.canProceedStep0()) {
       this.toast.showWarn('register.complete_personal_info');
       this.goToStep(0);
       return;
     }
 
+    if (!this.canProceedStep1()) {
+      this.toast.showWarn('register.verify_email_first');
+      this.goToStep(1);
+      return;
+    }
+
     if (!this.canProceedStep2()) {
       this.toast.showWarn('register.complete_password');
-      this.goToStep(1);
+      this.goToStep(2);
       return;
     }
 
     if (!this.canProceedStep3()) {
       this.toast.showWarn('register.select_location');
-      this.goToStep(2);
+      this.goToStep(3);
       return;
     }
 
     if (!this.canProceedStep4()) {
       this.toast.showWarn('register.complete_store_details');
-      this.goToStep(3);
+      this.goToStep(4);
       return;
     }
 
@@ -509,7 +698,7 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
       .subscribe({
         next: () => {
           this.loading.set(false);
-          this.activeStep.set(5); // Navigate to success screen
+          this.activeStep.set(6); // Navigate to success screen
         },
         error: (error) => {
           this.loading.set(false);
@@ -548,10 +737,10 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
       return;
     }
 
-    // Check for password-related errors (slide 1)
+    // Check for password-related errors (slide 2)
     if (errorMessage.includes('password')) {
       this.serverErrors.set({ password: originalMessage });
-      this.goToStep(1);
+      this.goToStep(2);
       return;
     }
 

@@ -16,7 +16,8 @@ from app.core.security import (
 from app.core.config import settings
 from app.models.user import User, UserCreate, UserRead
 from app.models.password_reset import PasswordResetToken, ForgotPasswordRequest, ResetPasswordRequest
-from app.services.email import send_password_reset_email
+from app.models.email_verification import EmailVerificationToken, SendVerificationCodeRequest, VerifyEmailRequest
+from app.services.email import send_password_reset_email, send_email_verification_email
 
 router = APIRouter()
 
@@ -178,3 +179,97 @@ def reset_password(
     session.commit()
 
     return {"message": "Password has been reset successfully"}
+
+
+def generate_verification_code() -> str:
+    """Generate a 6-digit verification code"""
+    return ''.join(random.choices(string.digits, k=6))
+
+
+@router.post("/send-verification-code", response_model=dict)
+async def send_verification_code(
+    request: SendVerificationCodeRequest,
+    background_tasks: BackgroundTasks,
+    session: Session = Depends(get_session),
+) -> Any:
+    """
+    Send email verification code - used during registration
+    """
+    # Check if email is already registered
+    existing_user = session.exec(select(User).where(User.email == request.email)).first()
+    if existing_user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="This email is already registered",
+        )
+
+    # Invalidate any existing verification tokens for this email
+    existing_tokens = session.exec(
+        select(EmailVerificationToken).where(
+            EmailVerificationToken.email == request.email,
+            EmailVerificationToken.used == False
+        )
+    ).all()
+
+    for token in existing_tokens:
+        token.used = True
+        session.add(token)
+
+    # Generate new verification code
+    code = generate_verification_code()
+    expires_at = datetime.utcnow() + timedelta(minutes=15)
+
+    # Save to database
+    verification_token = EmailVerificationToken(
+        email=request.email,
+        code=code,
+        expires_at=expires_at,
+    )
+    session.add(verification_token)
+    session.commit()
+
+    # Send email in background
+    background_tasks.add_task(send_email_verification_email, request.email, code)
+
+    return {"message": "Verification code sent to your email"}
+
+
+@router.post("/verify-email", response_model=dict)
+def verify_email(
+    request: VerifyEmailRequest,
+    session: Session = Depends(get_session),
+) -> Any:
+    """
+    Verify email with code - used during registration
+    """
+    # Find valid verification token
+    verification_token = session.exec(
+        select(EmailVerificationToken).where(
+            EmailVerificationToken.email == request.email,
+            EmailVerificationToken.code == request.code,
+            EmailVerificationToken.used == False,
+        )
+    ).first()
+
+    if not verification_token:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid verification code",
+        )
+
+    # Check if expired
+    if datetime.utcnow() > verification_token.expires_at:
+        verification_token.used = True
+        session.add(verification_token)
+        session.commit()
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Verification code has expired",
+        )
+
+    # Mark token as used
+    verification_token.used = True
+    session.add(verification_token)
+    session.commit()
+
+    return {"message": "Email verified successfully", "verified": True}

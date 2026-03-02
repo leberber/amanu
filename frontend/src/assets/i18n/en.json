@@ -391,7 +391,16 @@
     "password_min_chars": "At least 8 characters",
     "password_has_letter": "Contains letters",
     "password_has_number": "Contains numbers",
-    "passwords_must_match": "Passwords match"
+    "passwords_must_match": "Passwords match",
+    "verify_email_title": "Verify Your Email",
+    "verify_email_subtitle": "We sent a 6-digit code to",
+    "verify_code": "Verify",
+    "resend_code": "Resend Code",
+    "resend_code_in": "Resend code in",
+    "verification_code_resent": "Verification code resent",
+    "verification_send_failed": "Failed to send verification code",
+    "verification_failed": "Verification failed",
+    "verify_email_first": "Please verify your email first"
   },
   "auth": {
     "login_title": "Login",
