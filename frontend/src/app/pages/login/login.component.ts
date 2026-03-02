@@ -115,11 +115,9 @@ export class LoginComponent implements OnInit, AfterViewInit {
           .subscribe({
             next: (authResponse) => {
               if (authResponse.is_new_user || !authResponse.profile_complete) {
-                // New user or incomplete profile - redirect to register at step 4
-                this.toast.showSuccess('auth.login_success');
-                setTimeout(() => {
-                  this.router.navigate([ROUTES.REGISTER], { queryParams: { fromGoogle: 'true' } });
-                }, UI_DELAY.TOAST_BEFORE_NAVIGATE);
+                // New user or incomplete profile - redirect to complete registration
+                // No success toast here - user still needs to complete their profile
+                this.router.navigate([ROUTES.REGISTER], { queryParams: { fromGoogle: 'true' } });
               } else {
                 // Existing user with complete profile
                 this.toast.showSuccess('auth.login_success');
