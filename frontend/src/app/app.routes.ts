@@ -204,6 +204,12 @@ export const routes: Routes = [
     canActivate: [authGuard],
     data: { hideBottomNav: true }
   },
+  {
+    path: 'complete-profile',
+    loadComponent: () => import('./pages/complete-profile/complete-profile.component').then(m => m.CompleteProfileComponent),
+    canActivate: [authGuard],
+    data: { hideBottomNav: true }
+  },
 
   { path: '**', redirectTo: '' }
 ];

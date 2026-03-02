@@ -29,6 +29,7 @@ export const ROUTES = {
   PROMOTIONS: '/promotions',
   SETTINGS: '/settings',
   NOTIFICATIONS: '/notifications',
+  COMPLETE_PROFILE: '/complete-profile',
   
   // Admin routes
   ADMIN: {

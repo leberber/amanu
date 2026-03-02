@@ -65,3 +65,8 @@
   ALTER TABLE order_items ADD COLUMN IF NOT EXISTS pieces_per_box INTEGER;
 
    ALTER TABLE push_subscriptions ADD COLUMN preferred_language VARCHAR(5) DEFAULT 'en'; 
+
+   ALTER TABLE users ADD COLUMN auth_provider VARCHAR(20) DEFAULT 'email' NOT NULL;                                                                                       
+  ALTER TABLE users ADD COLUMN profile_picture VARCHAR(500);                                                                                                             
+  ALTER TABLE users ADD COLUMN google_id VARCHAR(100);                                                                                                                   
+  ALTER TABLE users ALTER COLUMN hashed_password DROP NOT NULL;

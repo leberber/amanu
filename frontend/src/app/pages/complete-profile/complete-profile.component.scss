@@ -1,0 +1,334 @@
+// =============================================================================
+// COMPLETE PROFILE PAGE
+// =============================================================================
+
+.profile-page {
+  min-height: 100vh;
+  padding: var(--space-6) var(--space-4);
+  background: var(--surface-ground);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+
+  &--ready {
+    opacity: 1;
+  }
+}
+
+// =============================================================================
+// HEADER
+// =============================================================================
+
+.profile-header {
+  text-align: center;
+  margin-bottom: var(--space-6);
+
+  &__avatar {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto var(--space-4);
+    border-radius: 50%;
+    background: var(--primary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    i {
+      font-size: 2rem;
+      color: white;
+    }
+  }
+
+  h1 {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--text-color);
+    margin: 0 0 var(--space-2);
+  }
+
+  p {
+    font-size: var(--font-size-sm);
+    color: var(--text-color-secondary);
+    margin: 0;
+  }
+}
+
+// =============================================================================
+// STEPS INDICATOR
+// =============================================================================
+
+.profile-steps {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
+
+  &__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-2);
+
+    .step-number {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--surface-200);
+      color: var(--text-color-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: var(--font-weight-semibold);
+      font-size: var(--font-size-sm);
+      transition: all 0.2s ease;
+    }
+
+    .step-label {
+      font-size: var(--font-size-xs);
+      color: var(--text-color-secondary);
+    }
+
+    &.active .step-number {
+      background: var(--primary-color);
+      color: white;
+    }
+
+    &.completed .step-number {
+      background: var(--color-success);
+      color: white;
+    }
+  }
+
+  &__line {
+    width: 40px;
+    height: 2px;
+    background: var(--surface-200);
+    transition: background 0.2s ease;
+
+    &.completed {
+      background: var(--color-success);
+    }
+  }
+}
+
+// =============================================================================
+// FORM
+// =============================================================================
+
+.profile-form {
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.profile-section {
+  background: var(--surface-card);
+  border-radius: var(--radius-xl);
+  padding: var(--space-5);
+
+  h3 {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-color);
+    margin: 0 0 var(--space-4);
+  }
+}
+
+.profile-hint {
+  font-size: var(--font-size-sm);
+  color: var(--text-color-secondary);
+  margin-bottom: var(--space-4);
+}
+
+// =============================================================================
+// INPUT
+// =============================================================================
+
+.profile-input {
+  margin-bottom: var(--space-4);
+
+  label {
+    display: block;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--text-color);
+    margin-bottom: var(--space-2);
+  }
+
+  input,
+  select {
+    width: 100%;
+    height: 48px;
+    padding: 0 var(--space-4);
+    border: 1px solid var(--surface-200);
+    border-radius: var(--radius-lg);
+    background: var(--surface-card);
+    color: var(--text-color);
+    font-size: var(--font-size-base);
+    transition: border-color 0.2s ease;
+
+    &:focus {
+      outline: none;
+      border-color: var(--primary-color);
+    }
+
+    &::placeholder {
+      color: var(--text-color-secondary);
+    }
+  }
+
+  select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236c757d' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+  }
+
+  .error {
+    display: block;
+    font-size: var(--font-size-xs);
+    color: var(--color-error);
+    margin-top: var(--space-1);
+  }
+}
+
+// =============================================================================
+// MAP
+// =============================================================================
+
+.profile-map-container {
+  position: relative;
+  margin-bottom: var(--space-4);
+}
+
+.profile-map {
+  height: 250px;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--surface-200);
+}
+
+.profile-location-btn {
+  position: absolute;
+  bottom: var(--space-3);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  background: white;
+  border: 1px solid var(--surface-200);
+  border-radius: var(--radius-pill);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--primary-color);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+  &:active {
+    transform: translateX(-50%) scale(0.98);
+  }
+}
+
+.profile-location-info {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  background: rgba(var(--color-success-rgb), 0.1);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--space-3);
+
+  i {
+    color: var(--color-success);
+  }
+
+  span {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-success);
+  }
+}
+
+.profile-address {
+  font-size: var(--font-size-sm);
+  color: var(--text-color-secondary);
+  padding: var(--space-3);
+  background: var(--surface-100);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--space-4);
+}
+
+// =============================================================================
+// BUTTONS
+// =============================================================================
+
+.profile-buttons {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.profile-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  height: 48px;
+  border-radius: var(--radius-pill);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+
+  &--primary {
+    background: var(--primary-color);
+    color: white;
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    &:not(:disabled):active {
+      transform: scale(0.98);
+    }
+  }
+
+  &--secondary {
+    background: var(--surface-100);
+    color: var(--text-color);
+
+    &:active {
+      background: var(--surface-200);
+    }
+  }
+}
+
+// =============================================================================
+// DARK MODE
+// =============================================================================
+
+:host-context(.my-app-dark) {
+  .profile-input {
+    input,
+    select {
+      background: var(--surface-card);
+      border-color: var(--surface-300);
+    }
+  }
+
+  .profile-location-btn {
+    background: var(--surface-card);
+    border-color: var(--surface-300);
+  }
+}

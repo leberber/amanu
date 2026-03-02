@@ -33,7 +33,7 @@ def read_user_me(
 @router.patch("/me", response_model=UserRead)
 def update_user_me(
     user_in: UserUpdate,
-    current_user: User = Depends(get_current_active_user),
+    current_user: User = Depends(get_current_user),  # Allow inactive users to complete their profile
     session: Session = Depends(get_session),
 ) -> Any:
     """

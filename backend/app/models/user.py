@@ -1,4 +1,5 @@
 from sqlmodel import SQLModel, Field, Relationship
+from sqlalchemy import String
 from typing import Optional, List, TYPE_CHECKING
 from datetime import datetime, timezone
 from enum import Enum
@@ -15,6 +16,12 @@ class UserRole(str, Enum):
     STAFF = "staff"
     ADMIN = "admin"
 
+
+class AuthProvider(str, Enum):
+    """Authentication provider enumeration"""
+    EMAIL = "email"
+    GOOGLE = "google"
+
 class UserBase(SQLModel):
     """Base user model with common fields"""
     email: EmailStr = Field(index=True)
@@ -29,12 +36,15 @@ class UserBase(SQLModel):
     commune: Optional[str] = Field(default=None, max_length=50)
     role: UserRole = Field(default=UserRole.CUSTOMER)
     is_active: bool = Field(default=True)
+    auth_provider: AuthProvider = Field(default=AuthProvider.EMAIL, sa_type=String(20))
+    profile_picture: Optional[str] = Field(default=None, max_length=500)
 
 class User(UserBase, table=True):
     """Database model for users"""
     __tablename__ = "users"
     id: Optional[int] = Field(default=None, primary_key=True)
-    hashed_password: str
+    hashed_password: Optional[str] = Field(default=None)  # Optional for OAuth users
+    google_id: Optional[str] = Field(default=None, max_length=100, index=True)  # Google OAuth ID
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: Optional[datetime] = Field(default=None)
     

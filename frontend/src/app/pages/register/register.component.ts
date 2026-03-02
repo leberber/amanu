@@ -1,7 +1,7 @@
 import { Component, inject, ViewChild, ElementRef, OnInit, OnDestroy, AfterViewInit, DestroyRef, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ToastModule } from 'primeng/toast';
@@ -9,7 +9,8 @@ import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 import { TranslateModule } from '@ngx-translate/core';
 import { AuthService } from '../../services/auth.service';
-import { UserRole } from '../../models/user.model';
+import { UserService } from '../../services/user.service';
+import { UserRole, AuthProvider } from '../../models/user.model';
 import { MapPickerComponent, LocationData } from '../../shared/components/map-picker/map-picker.component';
 import { VALIDATION, UI_DELAY } from '../../core/constants/app.constants';
 import { FormBuilderService } from '../../core/services/form-builder.service';
@@ -98,12 +99,17 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
   dairas: { label: string; value: string }[] = [];
   communes: { label: string; value: string }[] = [];
 
+  // Google OAuth flow
+  fromGoogle = signal(false);
+
   private http = inject(HttpClient);
   private destroyRef = inject(DestroyRef);
 
   // Services
   private authService = inject(AuthService);
+  private userService = inject(UserService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private toast = inject(ToastMessageService);
   private fb = inject(FormBuilder);
   private elementRef = inject(ElementRef);
@@ -124,6 +130,7 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
 
     // Step 4: Store Details (after map)
     this.storeDetailsForm = this.fb.group({
+      phone: [''], // Required for Google users, will be validated conditionally
       store_name: [''],
       wilaya: ['', Validators.required],
       daira: [{ value: '', disabled: true }, Validators.required],
@@ -136,9 +143,43 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
     this.setupFormSubscriptions();
     this.setupFormValiditySignals();
 
-    // Set initial validity for pre-filled forms
-    this.personalInfoValid.set(this.personalInfoForm.valid);
-    this.passwordFormValid.set(this.passwordForm.valid);
+    // Check for Google OAuth flow
+    const isFromGoogle = this.route.snapshot.queryParams['fromGoogle'] === 'true';
+    if (isFromGoogle) {
+      this.initGoogleFlow();
+    } else {
+      // Set initial validity for pre-filled forms (development defaults)
+      this.personalInfoValid.set(this.personalInfoForm.valid);
+      this.passwordFormValid.set(this.passwordForm.valid);
+    }
+  }
+
+  private initGoogleFlow(): void {
+    const user = this.authService.currentUserValue;
+    if (!user || user.auth_provider !== AuthProvider.GOOGLE) {
+      // Not a Google user or not logged in, redirect to login
+      this.router.navigate([ROUTES.LOGIN]);
+      return;
+    }
+
+    this.fromGoogle.set(true);
+
+    // Pre-fill personal info from Google user data
+    // Name is editable, email is read-only, phone is empty for user to enter
+    this.personalInfoForm.patchValue({
+      full_name: user.full_name || '',
+      email: user.email || '',
+      phone: '' // User must enter phone
+    });
+
+    // Mark email as verified (Google handles this)
+    this.emailVerified.set(true);
+    this.verificationSent.set(true);
+    // Mark password as valid (not needed for OAuth users)
+    this.passwordFormValid.set(true);
+
+    // Start at step 0 (personal info) - user needs to enter phone
+    this.activeStep.set(0);
   }
 
   ngAfterViewInit() {
@@ -592,6 +633,17 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
 
   // Check if a specific step can be accessed (all previous steps must be valid)
   canAccessStep(step: number): boolean {
+    // Google flow: step 0 -> skip 1,2 -> steps 3,4,5
+    if (this.fromGoogle()) {
+      if (step === 0) return true;
+      if (step === 1 || step === 2) return false; // Skip verification and password
+      if (step === 3) return this.canProceedStep0();
+      if (step === 4) return this.canProceedStep0() && this.canProceedStep3();
+      if (step === 5) return this.canProceedStep0() && this.canProceedStep3() && this.canProceedStep4();
+      return false;
+    }
+
+    // Normal registration flow
     if (step === 0) return true;
     if (step === 1) return this.canProceedStep0();
     if (step === 2) return this.canProceedStep0() && this.canProceedStep1();
@@ -613,7 +665,14 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
   nextStep() {
     // Only proceed if current step is valid
     if (this.activeStep() < 5 && this.canProceedCurrentStep()) {
-      // Step 0 -> 1: Send verification code
+      // Google flow: Step 0 -> 3 (skip verification and password)
+      if (this.fromGoogle() && this.activeStep() === 0) {
+        this.activeStep.set(3);
+        this.onStepChange();
+        return;
+      }
+
+      // Normal flow: Step 0 -> 1: Send verification code
       if (this.activeStep() === 0) {
         this.sendVerificationCode();
         return;
@@ -633,17 +692,43 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   prevStep() {
-    if (this.activeStep() > 0) {
-      this.activeStep.update(v => v - 1);
+    if (this.activeStep() === 0) return;
+
+    // Google flow: from step 3 go back to step 0 (skip 1,2)
+    if (this.fromGoogle() && this.activeStep() === 3) {
+      this.activeStep.set(0);
+      return;
     }
+
+    this.activeStep.update(v => v - 1);
   }
 
   // Final submission
   onRegister() {
     // Mark all fields as touched to show validation errors
+    this.storeDetailsForm.markAllAsTouched();
+
+    // Google flow: only validate steps 3-4
+    if (this.fromGoogle()) {
+      if (!this.canProceedStep3()) {
+        this.toast.showWarn('register.select_location');
+        this.goToStep(3);
+        return;
+      }
+
+      if (!this.canProceedStep4()) {
+        this.toast.showWarn('register.complete_store_details');
+        this.goToStep(4);
+        return;
+      }
+
+      this.submitGoogleProfileUpdate();
+      return;
+    }
+
+    // Normal registration flow
     this.personalInfoForm.markAllAsTouched();
     this.passwordForm.markAllAsTouched();
-    this.storeDetailsForm.markAllAsTouched();
 
     // Check if all steps are valid
     if (!this.canProceedStep0()) {
@@ -703,6 +788,40 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
         error: (error) => {
           this.loading.set(false);
           this.handleServerError(error);
+        }
+      });
+  }
+
+  private submitGoogleProfileUpdate(): void {
+    this.loading.set(true);
+
+    const storeDetails = this.storeDetailsForm.getRawValue();
+    const profileData = {
+      full_name: this.personalInfoForm.value.full_name,
+      phone: this.personalInfoForm.value.phone,
+      address: this.locationData?.address || '',
+      latitude: this.locationData?.latitude,
+      longitude: this.locationData?.longitude,
+      store_name: storeDetails.store_name || null,
+      wilaya: storeDetails.wilaya,
+      daira: storeDetails.daira,
+      commune: storeDetails.commune
+    };
+
+    this.userService.updateProfile(profileData)
+      .subscribe({
+        next: (updatedUser) => {
+          this.loading.set(false);
+          this.authService.updateCurrentUser(updatedUser);
+          this.toast.showSuccess('account.profile_updated');
+          // Navigate to home after successful profile completion
+          setTimeout(() => {
+            this.router.navigate([ROUTES.HOME]);
+          }, UI_DELAY.TOAST_BEFORE_NAVIGATE);
+        },
+        error: (error) => {
+          this.loading.set(false);
+          this.toast.showApiError(error, 'account.profile_update_failed');
         }
       });
   }

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, tap, switchMap, map } from 'rxjs';
+import { BehaviorSubject, Observable, tap, switchMap, map, of } from 'rxjs';
 import { ApiService } from './api.service';
-import { LoginRequest, LoginResponse, RegisterRequest, User, UserRole } from '../models/user.model';
+import { LoginRequest, LoginResponse, RegisterRequest, User, UserRole, GoogleAuthRequest, GoogleAuthResponse } from '../models/user.model';
 import { STORAGE_KEYS } from '../core/constants/app.constants';
 
 @Injectable({
@@ -214,5 +214,36 @@ export class AuthService {
       email,
       code
     });
+  }
+
+  /**
+   * Authenticate with Google OAuth
+   * @param credential - Google ID token
+   * @returns Observable with Google auth response
+   */
+  googleAuth(credential: string): Observable<GoogleAuthResponse> {
+    return this.apiService.post<GoogleAuthResponse>('/auth/google', { credential }).pipe(
+      tap(response => {
+        localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, response.access_token);
+        localStorage.setItem(STORAGE_KEYS.USER_DATA, JSON.stringify(response.user));
+        this.currentUserSubject.next(response.user);
+        this.isLoggedInSubject.next(true);
+      })
+    );
+  }
+
+  /**
+   * Check if current user's profile is complete (has location info)
+   * @returns boolean
+   */
+  isProfileComplete(): boolean {
+    const user = this.currentUserValue;
+    return !!(
+      user?.phone &&
+      user?.latitude &&
+      user?.longitude &&
+      user?.wilaya &&
+      user?.commune
+    );
   }
 }

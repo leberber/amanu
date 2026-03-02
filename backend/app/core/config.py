@@ -52,4 +52,7 @@ class Settings(BaseSettings):
     # Password reset settings
     PASSWORD_RESET_EXPIRE_MINUTES: int = 15
 
+    # Google OAuth settings
+    GOOGLE_CLIENT_ID: str = os.getenv("GOOGLE_CLIENT_ID", "")
+
 settings = Settings()

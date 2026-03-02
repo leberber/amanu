@@ -12,12 +12,24 @@
       }
       <div class="progress-info">
         <div class="step-dots">
-          @for (step of [0,1,2,3,4,5]; track step) {
-            <span class="dot"
-                  [class.active]="activeStep() === step"
-                  [class.completed]="activeStep() > step"
-                  [class.accessible]="canAccessStep(step) || step <= activeStep()"
-                  (click)="goToStep(step)"></span>
+          @if (fromGoogle()) {
+            <!-- Google flow: show steps 0, 3, 4, 5 (skip verification and password) -->
+            @for (step of [0,3,4,5]; track step) {
+              <span class="dot"
+                    [class.active]="activeStep() === step"
+                    [class.completed]="activeStep() > step || (step === 0 && activeStep() >= 3)"
+                    [class.accessible]="canAccessStep(step) || step <= activeStep() || (step === 0 && activeStep() >= 3)"
+                    (click)="goToStep(step)"></span>
+            }
+          } @else {
+            <!-- Normal flow: show all steps -->
+            @for (step of [0,1,2,3,4,5]; track step) {
+              <span class="dot"
+                    [class.active]="activeStep() === step"
+                    [class.completed]="activeStep() > step"
+                    [class.accessible]="canAccessStep(step) || step <= activeStep()"
+                    (click)="goToStep(step)"></span>
+            }
           }
         </div>
       </div>
@@ -66,7 +78,8 @@
                 <div class="register-input"
                      [class.register-input--focused]="focusedField() === 'email'"
                      [class.register-input--filled]="personalInfoForm.get('email')?.value"
-                     [class.register-input--error]="serverErrors()['email']">
+                     [class.register-input--error]="serverErrors()['email']"
+                     [class.register-input--readonly]="fromGoogle()">
                   <input
                     #emailInput
                     type="email"
@@ -75,6 +88,7 @@
                     formControlName="email"
                     autocomplete="email"
                     [placeholder]="'auth.email_placeholder' | translate"
+                    [readonly]="fromGoogle()"
                     (focus)="onInputFocus('email')"
                     (blur)="onInputBlur()"
                     (input)="clearServerError('email')">
@@ -284,12 +298,24 @@
                 <i class="pi pi-arrow-left"></i>
               </button>
               <div class="map-step-dots">
-                @for (step of [0,1,2,3,4,5]; track step) {
-                  <span class="dot"
-                        [class.active]="activeStep() === step"
-                        [class.completed]="activeStep() > step"
-                        [class.accessible]="canAccessStep(step) || step <= activeStep()"
-                        (click)="goToStep(step)"></span>
+                @if (fromGoogle()) {
+                  <!-- Google flow: show steps 0, 3, 4, 5 -->
+                  @for (step of [0,3,4,5]; track step) {
+                    <span class="dot"
+                          [class.active]="activeStep() === step"
+                          [class.completed]="activeStep() > step || (step === 0 && activeStep() >= 3)"
+                          [class.accessible]="canAccessStep(step) || step <= activeStep() || (step === 0 && activeStep() >= 3)"
+                          (click)="goToStep(step)"></span>
+                  }
+                } @else {
+                  <!-- Normal flow: show all steps -->
+                  @for (step of [0,1,2,3,4,5]; track step) {
+                    <span class="dot"
+                          [class.active]="activeStep() === step"
+                          [class.completed]="activeStep() > step"
+                          [class.accessible]="canAccessStep(step) || step <= activeStep()"
+                          (click)="goToStep(step)"></span>
+                  }
                 }
               </div>
               <div class="map-spacer"></div>
@@ -423,38 +449,74 @@
           </div>
 
           <div class="summary-cards">
-            <div class="summary-card" (click)="goToStep(0)">
-              <div class="card-icon">
-                <i class="pi pi-user"></i>
+            @if (!fromGoogle()) {
+              <!-- Normal registration: show editable personal info -->
+              <div class="summary-card" (click)="goToStep(0)">
+                <div class="card-icon">
+                  <i class="pi pi-user"></i>
+                </div>
+                <div class="card-info">
+                  <span class="card-label">{{ 'auth.full_name' | translate }}</span>
+                  <span class="card-value">{{ personalInfoForm.value.full_name }}</span>
+                </div>
+                <i class="pi pi-chevron-right card-arrow"></i>
               </div>
-              <div class="card-info">
-                <span class="card-label">{{ 'auth.full_name' | translate }}</span>
-                <span class="card-value">{{ personalInfoForm.value.full_name }}</span>
-              </div>
-              <i class="pi pi-chevron-right card-arrow"></i>
-            </div>
 
-            <div class="summary-card" (click)="goToStep(0)">
-              <div class="card-icon">
-                <i class="pi pi-envelope"></i>
+              <div class="summary-card" (click)="goToStep(0)">
+                <div class="card-icon">
+                  <i class="pi pi-envelope"></i>
+                </div>
+                <div class="card-info">
+                  <span class="card-label">{{ 'common.email' | translate }}</span>
+                  <span class="card-value">{{ personalInfoForm.value.email }}</span>
+                </div>
+                <i class="pi pi-chevron-right card-arrow"></i>
               </div>
-              <div class="card-info">
-                <span class="card-label">{{ 'common.email' | translate }}</span>
-                <span class="card-value">{{ personalInfoForm.value.email }}</span>
-              </div>
-              <i class="pi pi-chevron-right card-arrow"></i>
-            </div>
 
-            <div class="summary-card" (click)="goToStep(0)">
-              <div class="card-icon">
-                <i class="pi pi-phone"></i>
+              <div class="summary-card" (click)="goToStep(0)">
+                <div class="card-icon">
+                  <i class="pi pi-phone"></i>
+                </div>
+                <div class="card-info">
+                  <span class="card-label">{{ 'common.phone' | translate }}</span>
+                  <span class="card-value">{{ personalInfoForm.value.phone }}</span>
+                </div>
+                <i class="pi pi-chevron-right card-arrow"></i>
               </div>
-              <div class="card-info">
-                <span class="card-label">{{ 'common.phone' | translate }}</span>
-                <span class="card-value">{{ personalInfoForm.value.phone }}</span>
+            } @else {
+              <!-- Google flow: show Google profile info (name/phone editable via step 0) -->
+              <div class="summary-card" (click)="goToStep(0)">
+                <div class="card-icon">
+                  <i class="pi pi-user"></i>
+                </div>
+                <div class="card-info">
+                  <span class="card-label">{{ 'auth.full_name' | translate }}</span>
+                  <span class="card-value">{{ personalInfoForm.value.full_name }}</span>
+                </div>
+                <i class="pi pi-chevron-right card-arrow"></i>
               </div>
-              <i class="pi pi-chevron-right card-arrow"></i>
-            </div>
+
+              <div class="summary-card">
+                <div class="card-icon">
+                  <i class="pi pi-envelope"></i>
+                </div>
+                <div class="card-info">
+                  <span class="card-label">{{ 'common.email' | translate }}</span>
+                  <span class="card-value">{{ personalInfoForm.value.email }}</span>
+                </div>
+              </div>
+
+              <div class="summary-card" (click)="goToStep(0)">
+                <div class="card-icon">
+                  <i class="pi pi-phone"></i>
+                </div>
+                <div class="card-info">
+                  <span class="card-label">{{ 'common.phone' | translate }}</span>
+                  <span class="card-value">{{ personalInfoForm.value.phone }}</span>
+                </div>
+                <i class="pi pi-chevron-right card-arrow"></i>
+              </div>
+            }
 
             <div class="summary-card location" (click)="goToStep(3)">
               <div class="card-icon">
@@ -507,7 +569,7 @@
   <div class="fixed-footer" [class.hidden]="activeStep() !== 5">
     <button class="register-btn" [disabled]="loading()" (click)="onRegister()">
       @if (!loading()) {
-        <span>{{ 'auth.register' | translate }}</span>
+        <span>{{ fromGoogle() ? ('common.save' | translate) : ('auth.register' | translate) }}</span>
       } @else {
         <i class="pi pi-spin pi-spinner"></i>
       }

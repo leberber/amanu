@@ -4,9 +4,15 @@ import { ApiService } from './api.service';
 import { User } from '../models/user.model';
 
 interface UpdateProfileData {
-  full_name: string;
+  full_name?: string;
   phone?: string;
   address?: string;
+  latitude?: number;
+  longitude?: number;
+  store_name?: string | null;
+  wilaya?: string;
+  daira?: string;
+  commune?: string;
 }
 
 interface ChangePasswordData {

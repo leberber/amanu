@@ -1,0 +1,154 @@
+<div class="profile-page" [class.profile-page--ready]="pageReady()">
+  <p-toast></p-toast>
+
+  <!-- Header -->
+  <div class="profile-header">
+    <div class="profile-header__avatar">
+      @if (user?.profile_picture) {
+        <img [src]="user?.profile_picture" [alt]="user?.full_name">
+      } @else {
+        <i class="pi pi-user"></i>
+      }
+    </div>
+    <h1>{{ 'register.step5_title' | translate }}</h1>
+    <p>{{ 'register.step5_subtitle' | translate }}</p>
+  </div>
+
+  <!-- Steps Indicator -->
+  <div class="profile-steps">
+    <div class="profile-steps__item" [class.active]="currentStep() >= 1" [class.completed]="currentStep() > 1">
+      <span class="step-number">1</span>
+      <span class="step-label">{{ 'register.step4_label' | translate }}</span>
+    </div>
+    <div class="profile-steps__line" [class.completed]="currentStep() > 1"></div>
+    <div class="profile-steps__item" [class.active]="currentStep() >= 2">
+      <span class="step-number">2</span>
+      <span class="step-label">{{ 'register.step3_label' | translate }}</span>
+    </div>
+  </div>
+
+  <!-- Form -->
+  <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="profile-form">
+
+    <!-- Step 1: Business Info -->
+    @if (currentStep() === 1) {
+      <div class="profile-section">
+        <h3>{{ 'register.store_details' | translate }}</h3>
+
+        <!-- Phone -->
+        <div class="profile-input">
+          <label>{{ 'common.phone' | translate }} *</label>
+          <input
+            type="tel"
+            formControlName="phone"
+            [placeholder]="'auth.phone_placeholder' | translate"
+            inputmode="tel">
+          @if (profileForm.get('phone')?.touched && profileForm.get('phone')?.errors) {
+            <span class="error">{{ 'auth.phone_invalid' | translate }}</span>
+          }
+        </div>
+
+        <!-- Store Name -->
+        <div class="profile-input">
+          <label>{{ 'register.store_name' | translate }} *</label>
+          <input
+            type="text"
+            formControlName="store_name"
+            [placeholder]="'register.store_name_placeholder' | translate">
+        </div>
+
+        <!-- Wilaya -->
+        <div class="profile-input">
+          <label>{{ 'register.wilaya' | translate }} *</label>
+          <select formControlName="wilaya" (change)="onWilayaChange($event)">
+            <option value="">{{ 'register.select_wilaya' | translate }}</option>
+            @for (wilaya of wilayas; track wilaya.value) {
+              <option [value]="wilaya.value">{{ wilaya.label }}</option>
+            }
+          </select>
+        </div>
+
+        <!-- Daira -->
+        @if (dairas.length > 0) {
+          <div class="profile-input">
+            <label>{{ 'register.daira' | translate }}</label>
+            <select formControlName="daira" (change)="onDairaChange($event)">
+              <option value="">{{ 'register.select_daira' | translate }}</option>
+              @for (daira of dairas; track daira.value) {
+                <option [value]="daira.value">{{ daira.label }}</option>
+              }
+            </select>
+          </div>
+        }
+
+        <!-- Commune -->
+        @if (communes.length > 0) {
+          <div class="profile-input">
+            <label>{{ 'register.commune' | translate }} *</label>
+            <select formControlName="commune">
+              <option value="">{{ 'register.select_commune' | translate }}</option>
+              @for (commune of communes; track commune.value) {
+                <option [value]="commune.value">{{ commune.label }}</option>
+              }
+            </select>
+          </div>
+        }
+
+        <button type="button" class="profile-btn profile-btn--primary" (click)="nextStep()">
+          {{ 'common.next' | translate }}
+          <i class="pi pi-arrow-right"></i>
+        </button>
+      </div>
+    }
+
+    <!-- Step 2: Location -->
+    @if (currentStep() === 2) {
+      <div class="profile-section">
+        <h3>{{ 'register.delivery_location' | translate }}</h3>
+        <p class="profile-hint">{{ 'register.tap_map_instruction' | translate }}</p>
+
+        <!-- Map -->
+        <div class="profile-map-container">
+          <div id="profile-map" class="profile-map"></div>
+
+          <!-- Use My Location Button -->
+          <button type="button" class="profile-location-btn" (click)="useMyLocation()">
+            <i class="pi pi-map-marker"></i>
+            {{ 'register.use_my_location' | translate }}
+          </button>
+        </div>
+
+        <!-- Selected Location Display -->
+        @if (selectedLocation()) {
+          <div class="profile-location-info">
+            <i class="pi pi-check-circle"></i>
+            <span>{{ 'register.location_selected' | translate }}</span>
+          </div>
+          @if (locationAddress()) {
+            <div class="profile-address">
+              {{ locationAddress() }}
+            </div>
+          }
+        }
+
+        <!-- Buttons -->
+        <div class="profile-buttons">
+          <button type="button" class="profile-btn profile-btn--secondary" (click)="prevStep()">
+            <i class="pi pi-arrow-left"></i>
+            {{ 'common.back' | translate }}
+          </button>
+          <button
+            type="submit"
+            class="profile-btn profile-btn--primary"
+            [disabled]="!selectedLocation() || loading()">
+            @if (!loading()) {
+              {{ 'common.save' | translate }}
+            } @else {
+              <i class="pi pi-spin pi-spinner"></i>
+            }
+          </button>
+        </div>
+      </div>
+    }
+  </form>
+</div>

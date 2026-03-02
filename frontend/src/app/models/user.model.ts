@@ -6,6 +6,12 @@ export type UserRole = typeof USER_ROLES[keyof typeof USER_ROLES];
 
 export const UserRole = USER_ROLES;
 
+// Auth provider enum
+export enum AuthProvider {
+  EMAIL = 'email',
+  GOOGLE = 'google'
+}
+
 export interface User {
   id: number;
   email: string;
@@ -20,6 +26,8 @@ export interface User {
   commune?: string;
   role: UserRole;
   is_active: boolean;
+  auth_provider: AuthProvider;
+  profile_picture?: string;
   created_at: string;
   updated_at?: string;
 }
@@ -43,4 +51,17 @@ export interface RegisterRequest {
   latitude?: number;
   longitude?: number;
   role?: UserRole;
+}
+
+// Google OAuth types
+export interface GoogleAuthRequest {
+  credential: string;
+}
+
+export interface GoogleAuthResponse {
+  access_token: string;
+  token_type: string;
+  user: User;
+  is_new_user: boolean;
+  profile_complete: boolean;
 }

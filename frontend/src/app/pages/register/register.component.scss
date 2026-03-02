@@ -78,6 +78,20 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
       border-color: var(--color-error) !important;
     }
   }
+
+  &--readonly {
+    background: var(--surface-100);
+    cursor: not-allowed;
+
+    input {
+      cursor: not-allowed;
+      color: var(--text-color-secondary);
+    }
+
+    &:hover {
+      border-color: var(--surface-200);
+    }
+  }
 }
 
 .register-field-wrapper {

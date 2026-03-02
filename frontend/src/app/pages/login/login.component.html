@@ -64,6 +64,21 @@
           <i class="pi pi-spin pi-spinner"></i>
         }
       </button>
+
+      <!-- Divider -->
+      <div class="login-divider">
+        <span>{{ 'common.or' | translate }}</span>
+      </div>
+
+      <!-- Google Sign-In Button -->
+      <div class="login-google">
+        <div id="google-signin-btn" class="google-btn-container"></div>
+        @if (googleLoading()) {
+          <div class="google-loading">
+            <i class="pi pi-spin pi-spinner"></i>
+          </div>
+        }
+      </div>
     </form>
   </div>
 

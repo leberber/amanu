@@ -151,11 +151,14 @@ export class AppComponent implements OnInit {
     this.updateNavigation(this.router.url);
     this.updateRouteData();
 
-    // Watch for user changes to show inactive modal
+    // Watch for user changes to show inactive modal (but not on public routes like register)
     this.authService.currentUser$.pipe(
       takeUntilDestroyed(this.destroyRef)
     ).subscribe(user => {
-      if (user && !user.is_active) {
+      const currentUrl = this.router.url;
+      const isOnPublicRoute = this.publicRoutes.some(route => currentUrl.startsWith(route));
+
+      if (user && !user.is_active && !isOnPublicRoute) {
         this.showInactiveModal = true;
       }
     });

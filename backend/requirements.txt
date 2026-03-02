@@ -12,3 +12,5 @@ email-validator
 bcrypt==4.0.1
 pywebpush
 fastapi-mail
+google-auth
+httpx

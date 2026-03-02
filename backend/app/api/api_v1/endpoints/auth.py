@@ -1,11 +1,14 @@
 from datetime import datetime, timedelta, timezone
-from typing import Any
+from typing import Any, Optional
 import random
 import string
 
 from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlmodel import Session, select
+from pydantic import BaseModel, EmailStr
+from google.oauth2 import id_token
+from google.auth.transport import requests as google_requests
 
 from app.database import get_session
 from app.core.security import (
@@ -14,10 +17,24 @@ from app.core.security import (
     verify_password,
 )
 from app.core.config import settings
-from app.models.user import User, UserCreate, UserRead
+from app.models.user import User, UserCreate, UserRead, AuthProvider
 from app.models.password_reset import PasswordResetToken, ForgotPasswordRequest, ResetPasswordRequest
 from app.models.email_verification import EmailVerificationToken, SendVerificationCodeRequest, VerifyEmailRequest
 from app.services.email import send_password_reset_email, send_email_verification_email
+
+
+class GoogleAuthRequest(BaseModel):
+    """Request model for Google OAuth"""
+    credential: str  # The ID token from Google Sign-In
+
+
+class GoogleAuthResponse(BaseModel):
+    """Response model for Google OAuth"""
+    access_token: str
+    token_type: str = "bearer"
+    user: UserRead
+    is_new_user: bool
+    profile_complete: bool
 
 router = APIRouter()
 
@@ -30,7 +47,21 @@ def login_access_token(
     OAuth2 compatible token login, get an access token for future requests
     """
     user = session.exec(select(User).where(User.email == form_data.username)).first()
-    if not user or not verify_password(form_data.password, user.hashed_password):
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect email or password",
+        )
+
+    # Check if user signed up with Google (no password)
+    if user.auth_provider == AuthProvider.GOOGLE and not user.hashed_password:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="This account uses Google Sign-In. Please sign in with Google.",
+        )
+
+    if not verify_password(form_data.password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password",
@@ -273,3 +304,97 @@ def verify_email(
     session.commit()
 
     return {"message": "Email verified successfully", "verified": True}
+
+
+def is_profile_complete(user: User) -> bool:
+    """Check if user has completed their profile (has location info)"""
+    return bool(
+        user.phone and
+        user.latitude and
+        user.longitude and
+        user.wilaya and
+        user.commune
+    )
+
+
+@router.post("/google", response_model=GoogleAuthResponse)
+def google_auth(
+    request: GoogleAuthRequest,
+    session: Session = Depends(get_session),
+) -> Any:
+    """
+    Authenticate with Google OAuth.
+    - Verifies the Google ID token
+    - Creates a new user if not exists
+    - Returns JWT token and user info
+    """
+    try:
+        # Verify the Google ID token
+        idinfo = id_token.verify_oauth2_token(
+            request.credential,
+            google_requests.Request(),
+            settings.GOOGLE_CLIENT_ID
+        )
+
+        # Get user info from the token
+        google_id = idinfo['sub']
+        email = idinfo['email']
+        full_name = idinfo.get('name', email.split('@')[0])
+        profile_picture = idinfo.get('picture')
+
+        # Check if user exists by google_id or email
+        user = session.exec(
+            select(User).where(
+                (User.google_id == google_id) | (User.email == email)
+            )
+        ).first()
+
+        is_new_user = False
+
+        if user:
+            # Existing user - update Google info if needed
+            if not user.google_id:
+                user.google_id = google_id
+                user.auth_provider = AuthProvider.GOOGLE
+            if profile_picture and not user.profile_picture:
+                user.profile_picture = profile_picture
+            user.updated_at = datetime.utcnow()
+            session.add(user)
+            session.commit()
+            session.refresh(user)
+        else:
+            # New user - create account
+            is_new_user = True
+            user = User(
+                email=email,
+                full_name=full_name,
+                google_id=google_id,
+                profile_picture=profile_picture,
+                auth_provider=AuthProvider.GOOGLE,
+                hashed_password=None,  # No password for Google users
+                is_active=False,  # Pending admin approval like regular users
+            )
+            session.add(user)
+            session.commit()
+            session.refresh(user)
+
+        # Create access token
+        access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+        access_token = create_access_token(
+            user.email, expires_delta=access_token_expires
+        )
+
+        return GoogleAuthResponse(
+            access_token=access_token,
+            token_type="bearer",
+            user=UserRead.model_validate(user),
+            is_new_user=is_new_user,
+            profile_complete=is_profile_complete(user)
+        )
+
+    except ValueError as e:
+        # Invalid token
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=f"Invalid Google token: {str(e)}",
+        )
