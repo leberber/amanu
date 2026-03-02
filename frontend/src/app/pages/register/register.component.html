@@ -2,8 +2,8 @@
 <div class="register-carousel" [class.register-carousel--ready]="pageReady()">
   <p-toast></p-toast>
 
-  <!-- Progress Bar Fixed at Top (hidden on steps 0, 3=map, or when input focused) -->
-  <div class="progress-header" [class.hidden]="activeStep() === 0 || activeStep() === 3 || isInputFocused()">
+  <!-- Progress Bar Fixed at Top (hidden on steps 0, 3=map, 6=success, or when input focused) -->
+  <div class="progress-header" [class.hidden]="activeStep() === 0 || activeStep() === 3 || activeStep() === 6 || isInputFocused()">
     <div class="progress-content">
       @if (activeStep() > 0) {
         <button class="back-nav" (click)="prevStep()">
