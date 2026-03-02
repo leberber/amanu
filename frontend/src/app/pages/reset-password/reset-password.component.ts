@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, inject, signal, computed, DestroyRef } from '@angular/core';
+import { Component, OnInit, AfterViewInit, inject, signal, computed, DestroyRef, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
@@ -39,7 +39,11 @@ export class ResetPasswordComponent implements OnInit, AfterViewInit {
   passwordValue = signal('');
   confirmPasswordValue = signal('');
 
+  // Verification code signal
+  verificationCode = signal('');
+
   private fb = inject(FormBuilder);
+  private elementRef = inject(ElementRef);
   private authService = inject(AuthService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
@@ -129,6 +133,69 @@ export class ResetPasswordComponent implements OnInit, AfterViewInit {
 
   toggleConfirmPassword(): void {
     this.showConfirmPassword.update(v => !v);
+  }
+
+  // Code input handlers
+  onCodeInput(event: Event, index: number): void {
+    const input = event.target as HTMLInputElement;
+    const value = input.value.replace(/[^0-9]/g, '');
+    input.value = value;
+
+    // Update the verification code
+    const currentCode = this.verificationCode().split('');
+    while (currentCode.length < 6) currentCode.push('');
+    currentCode[index] = value;
+    const newCode = currentCode.join('');
+    this.verificationCode.set(newCode);
+    this.resetPasswordForm.patchValue({ code: newCode });
+
+    // Auto-focus next input
+    if (value && index < 5) {
+      const nextInput = this.elementRef.nativeElement.querySelector(
+        `.code-input:nth-child(${index + 2}) input`
+      ) as HTMLInputElement;
+      if (nextInput) nextInput.focus();
+    }
+  }
+
+  onCodeKeydown(event: KeyboardEvent, index: number): void {
+    const input = event.target as HTMLInputElement;
+
+    if (event.key === 'Backspace' && !input.value && index > 0) {
+      const prevInput = this.elementRef.nativeElement.querySelector(
+        `.code-input:nth-child(${index}) input`
+      ) as HTMLInputElement;
+      if (prevInput) {
+        prevInput.focus();
+        prevInput.value = '';
+        const currentCode = this.verificationCode().split('');
+        currentCode[index - 1] = '';
+        const newCode = currentCode.join('');
+        this.verificationCode.set(newCode);
+        this.resetPasswordForm.patchValue({ code: newCode });
+      }
+    }
+  }
+
+  onCodePaste(event: ClipboardEvent): void {
+    event.preventDefault();
+    const pastedData = event.clipboardData?.getData('text') || '';
+    const digits = pastedData.replace(/[^0-9]/g, '').slice(0, 6);
+
+    if (digits) {
+      this.verificationCode.set(digits.padEnd(6, ''));
+      this.resetPasswordForm.patchValue({ code: digits });
+
+      // Fill all inputs
+      const inputs = this.elementRef.nativeElement.querySelectorAll('.code-input input');
+      inputs.forEach((input: HTMLInputElement, i: number) => {
+        input.value = digits[i] || '';
+      });
+
+      // Focus appropriate input
+      const focusIndex = Math.min(digits.length, 5);
+      (inputs[focusIndex] as HTMLInputElement)?.focus();
+    }
   }
 
   private initializeForm(): void {
