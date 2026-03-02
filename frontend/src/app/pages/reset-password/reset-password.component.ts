@@ -1,13 +1,13 @@
-import { Component, OnInit, AfterViewInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, AfterViewInit, inject, signal, computed, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { ToastModule } from 'primeng/toast';
 import { TranslateModule } from '@ngx-translate/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
 
 import { AuthService } from '../../services/auth.service';
-import { LanguageSelectorComponent } from '../../components/language-selector/language-selector.component';
 import { ToastMessageService } from '../../core/services/toast-message.service';
 import { FormBuilderService } from '../../core/services/form-builder.service';
 import { ANIMATION, UI_DELAY } from '../../core/constants/app.constants';
@@ -21,8 +21,7 @@ import { ROUTES } from '../../core/constants/routes.constants';
     ReactiveFormsModule,
     ToastModule,
     RouterLink,
-    TranslateModule,
-    LanguageSelectorComponent
+    TranslateModule
   ],
   templateUrl: './reset-password.component.html',
   styleUrl: './reset-password.component.scss'
@@ -36,15 +35,21 @@ export class ResetPasswordComponent implements OnInit, AfterViewInit {
   showPassword = signal(false);
   showConfirmPassword = signal(false);
 
+  // Password value signals for reactive validation display
+  passwordValue = signal('');
+  confirmPasswordValue = signal('');
+
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private toast = inject(ToastMessageService);
+  private destroyRef = inject(DestroyRef);
 
   ngOnInit() {
     this.email.set(this.route.snapshot.queryParams['email'] || '');
     this.initializeForm();
+    this.setupPasswordTracking();
   }
 
   ngAfterViewInit() {
@@ -56,15 +61,26 @@ export class ResetPasswordComponent implements OnInit, AfterViewInit {
 
   get f() { return this.resetPasswordForm.controls; }
 
-  // Password validation checks using computed
+  // Track password changes to update signals
+  private setupPasswordTracking(): void {
+    this.resetPasswordForm.get('password')?.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(value => this.passwordValue.set(value || ''));
+
+    this.resetPasswordForm.get('confirmPassword')?.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(value => this.confirmPasswordValue.set(value || ''));
+  }
+
+  // Password validation checks using computed (now reactive)
   passwordChecks = computed(() => {
-    const password = this.resetPasswordForm?.get('password')?.value || '';
-    const confirmPassword = this.resetPasswordForm?.get('confirmPassword')?.value || '';
+    const password = this.passwordValue();
+    const confirmPassword = this.confirmPasswordValue();
     return {
       minLength: password.length >= 8,
       hasLetter: /[a-zA-Z]/.test(password),
       hasNumber: /\d/.test(password),
-      passwordsMatch: password && password === confirmPassword
+      passwordsMatch: password.length > 0 && password === confirmPassword
     };
   });
 
