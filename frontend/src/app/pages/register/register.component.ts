@@ -800,8 +800,21 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
     this.authService.register(registerData)
       .subscribe({
         next: () => {
-          this.loading.set(false);
-          this.activeStep.set(6); // Navigate to success screen
+          // Auto-login after successful registration
+          this.authService.login({
+            username: this.personalInfoForm.value.email,
+            password: this.passwordForm.value.password
+          }).subscribe({
+            next: () => {
+              this.loading.set(false);
+              this.activeStep.set(6); // Show success screen
+            },
+            error: () => {
+              // Login failed, still show success screen
+              this.loading.set(false);
+              this.activeStep.set(6);
+            }
+          });
         },
         error: (error) => {
           this.loading.set(false);
@@ -831,7 +844,7 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
         next: (updatedUser) => {
           this.loading.set(false);
           this.authService.updateCurrentUser(updatedUser);
-          // Show the inactive user screen (same as normal registration)
+          // Show success screen (user is already logged in)
           this.activeStep.set(6);
         },
         error: (error) => {
@@ -891,9 +904,8 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-  goToLogin(): void {
-    const email = this.personalInfoForm.value.email;
-    this.router.navigate([ROUTES.LOGIN], email ? { queryParams: { email } } : {});
+  goToHome(): void {
+    this.router.navigate(['/']);
   }
 
   // Password validation checks using computed signals
