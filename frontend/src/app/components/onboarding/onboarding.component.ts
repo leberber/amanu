@@ -122,6 +122,7 @@ export class OnboardingComponent implements OnInit {
   }
 
   complete(): void {
+    if (this.exiting()) return; // Prevent double calls
     this.exiting.set(true);
     setTimeout(() => {
       localStorage.setItem(STORAGE_KEYS.HAS_SEEN_ONBOARDING, 'true');

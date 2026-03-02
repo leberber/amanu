@@ -50,7 +50,10 @@
 
       <!-- Get Started button (last slide only) -->
       @if (currentSlide() === slides.length - 1) {
-        <button class="onboarding__start-btn" (click)="complete()">
+        <button
+          class="onboarding__start-btn"
+          (click)="complete()"
+          (touchend)="$event.stopPropagation()">
           {{ 'onboarding.get_started' | translate }}
         </button>
       }
