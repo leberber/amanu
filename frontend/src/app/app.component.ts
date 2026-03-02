@@ -90,6 +90,10 @@ export class AppComponent implements OnInit {
   isMobile = signal(window.innerWidth < BREAKPOINTS.MD);
   showInactiveModal = false;
 
+  // Splash screen state
+  showSplash = signal(true);
+  splashExiting = signal(false);
+
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
   private sidebarService = inject(SidebarService);
@@ -117,6 +121,9 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
+    // Splash screen animation sequence
+    this.initSplashScreen();
+
     // Listen to navigation start to detect direction
     this.router.events.pipe(
       filter(event => event instanceof NavigationStart),
@@ -181,5 +188,17 @@ export class AppComponent implements OnInit {
   // Get animation direction for route transitions
   getRouteAnimationData(): string {
     return this.navigationDirection;
+  }
+
+  // Initialize splash screen animation
+  private initSplashScreen(): void {
+    // Logo appears and holds for 800ms, then exit animation starts
+    setTimeout(() => {
+      this.splashExiting.set(true);
+      // Remove splash after exit animation completes (400ms)
+      setTimeout(() => {
+        this.showSplash.set(false);
+      }, 400);
+    }, 800);
   }
 }

@@ -9,6 +9,77 @@
 }
 
 // =============================================================================
+// SPLASH SCREEN
+// =============================================================================
+// Native app-like splash screen with logo animation
+
+.splash {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface-ground);
+
+  &__logo {
+    animation: splashLogoEnter 0.4s ease-out forwards;
+
+    img {
+      width: 120px;
+      height: auto;
+    }
+  }
+
+  // Exit animation state
+  &--exiting {
+    animation: splashFadeOut 0.4s ease-in forwards;
+
+    .splash__logo {
+      animation: splashLogoExit 0.4s ease-in forwards;
+    }
+  }
+}
+
+// Logo entrance animation - scale up with slight bounce
+@keyframes splashLogoEnter {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+// Logo exit animation - slide up and fade
+@keyframes splashLogoExit {
+  0% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.95) translateY(-30px);
+  }
+}
+
+// Splash background fade out
+@keyframes splashFadeOut {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+// =============================================================================
 // APP CONTAINER
 // =============================================================================
 // Main container with decorative background blobs
