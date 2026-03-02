@@ -1,54 +1,72 @@
+// =============================================================================
+// ONBOARDING - Clean Swipeable Experience
+// =============================================================================
+
 .onboarding {
   position: fixed;
   inset: 0;
   z-index: 10001;
-  background: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
-  animation: onboardingFadeIn 0.3s ease-out;
+  overflow: hidden;
 
-  &--exiting {
-    animation: onboardingFadeOut 0.3s ease-out forwards;
+  // --- WHITE BACKGROUND ---
+  &__bg {
+    position: absolute;
+    inset: 0;
+    background: #ffffff;
   }
 
+  // --- MAIN CONTAINER ---
   &__container {
+    position: relative;
+    z-index: 1;
     width: 100%;
     max-width: 400px;
     padding: var(--space-6);
+    padding-top: calc(var(--space-6) + env(safe-area-inset-top, 0px));
     display: flex;
     flex-direction: column;
     align-items: center;
-    min-height: 100%;
+    min-height: 100dvh;
     justify-content: center;
+    animation: onboardingFadeIn 0.5s ease-out forwards;
   }
 
+  // --- SKIP BUTTON ---
   &__skip {
     position: absolute;
     top: calc(var(--space-4) + env(safe-area-inset-top, 0px));
     right: var(--space-4);
-    background: none;
+    background: transparent;
     border: none;
     color: var(--text-color-secondary);
     font-size: 0.95rem;
+    font-weight: 500;
     cursor: pointer;
     padding: var(--space-2) var(--space-3);
-    border-radius: var(--radius-md);
     transition: all 0.2s ease;
 
     &:hover {
-      background: var(--surface-100);
       color: var(--text-color);
+    }
+
+    &:active {
+      transform: scale(0.95);
     }
   }
 
+  // --- SLIDES CONTAINER ---
   &__slides {
     position: relative;
     width: 100%;
-    height: 320px;
+    height: 420px;
     overflow: hidden;
+    touch-action: pan-y pinch-zoom;
   }
 
+  // --- INDIVIDUAL SLIDE ---
   &__slide {
     position: absolute;
     inset: 0;
@@ -61,10 +79,24 @@
     opacity: 0;
     transform: translateX(100%);
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
 
     &--active {
       opacity: 1;
       transform: translateX(0);
+      pointer-events: auto;
+
+      .onboarding__icon-wrapper {
+        animation: onboardingIconIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+      }
+
+      .onboarding__title {
+        animation: onboardingTextIn 0.4s ease-out 0.1s backwards;
+      }
+
+      .onboarding__description {
+        animation: onboardingTextIn 0.4s ease-out 0.2s backwards;
+      }
     }
 
     &--prev {
@@ -78,28 +110,44 @@
     }
   }
 
-  &__icon {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    background: var(--primary-50);
+  // --- ICON ---
+  &__icon-wrapper {
+    position: relative;
+    width: 140px;
+    height: 140px;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: var(--space-5);
+    margin-bottom: var(--space-6);
+  }
+
+  &__icon {
+    width: 120px;
+    height: 120px;
+    border-radius: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.2);
 
     i {
-      font-size: 2.5rem;
-      color: var(--primary-color);
+      font-size: 3rem;
+      color: white;
     }
   }
 
+  // --- TEXT ---
+  &__text {
+    max-width: 300px;
+  }
+
   &__title {
-    font-size: 1.5rem;
+    font-size: 1.6rem;
     font-weight: 700;
     color: var(--text-color);
     margin: 0 0 var(--space-3);
     line-height: 1.3;
+    letter-spacing: -0.02em;
   }
 
   &__description {
@@ -107,76 +155,71 @@
     color: var(--text-color-secondary);
     margin: 0;
     line-height: 1.6;
-    max-width: 300px;
   }
 
+  // --- DOTS ---
   &__dots {
     display: flex;
+    justify-content: center;
     gap: var(--space-2);
-    margin: var(--space-5) 0;
+    margin-top: var(--space-5);
   }
 
   &__dot {
-    width: 10px;
-    height: 10px;
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
     border: none;
-    background: var(--surface-200);
+    background: rgba(0, 0, 0, 0.15);
     cursor: pointer;
     padding: 0;
     transition: all 0.3s ease;
 
     &--active {
+      width: 24px;
+      border-radius: 4px;
       background: var(--primary-color);
-      width: 28px;
-      border-radius: 5px;
     }
 
     &:hover:not(&--active) {
-      background: var(--surface-300);
+      background: rgba(0, 0, 0, 0.25);
     }
   }
 
-  &__nav {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    gap: var(--space-3);
-    margin-top: var(--space-4);
-  }
-
-  &__btn {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    padding: var(--space-3) var(--space-5);
-    border-radius: var(--radius-lg);
-    font-size: 1rem;
+  // --- GET STARTED BUTTON ---
+  &__start-btn {
+    margin-top: var(--space-6);
+    padding: var(--space-4) var(--space-6);
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-600));
+    color: white;
+    border: none;
+    border-radius: 100px;
+    font-size: 1.1rem;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s ease;
-    border: none;
+    box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: onboardingButtonIn 0.4s ease-out backwards;
 
-    &--primary {
-      background: var(--primary-color);
-      color: white;
-
-      &:hover {
-        background: var(--primary-600);
-      }
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 40px rgba(59, 130, 246, 0.4);
     }
 
-    &--secondary {
-      background: var(--surface-100);
-      color: var(--text-color);
-
-      &:hover {
-        background: var(--surface-200);
-      }
+    &:active {
+      transform: translateY(0) scale(0.98);
     }
   }
+
+  // --- EXIT STATE ---
+  &--exiting {
+    animation: onboardingFadeOut 0.3s ease-out forwards;
+  }
 }
+
+// =============================================================================
+// KEYFRAME ANIMATIONS
+// =============================================================================
 
 @keyframes onboardingFadeIn {
   from {
@@ -188,10 +231,71 @@
 }
 
 @keyframes onboardingFadeOut {
-  from {
-    opacity: 1;
-  }
   to {
     opacity: 0;
+  }
+}
+
+@keyframes onboardingIconIn {
+  from {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes onboardingTextIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes onboardingButtonIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// =============================================================================
+// RESPONSIVE
+// =============================================================================
+
+@media (max-width: 380px) {
+  .onboarding {
+    &__title {
+      font-size: 1.4rem;
+    }
+
+    &__description {
+      font-size: 0.95rem;
+    }
+
+    &__icon {
+      width: 100px;
+      height: 100px;
+      border-radius: 28px;
+
+      i {
+        font-size: 2.5rem;
+      }
+    }
+
+    &__icon-wrapper {
+      width: 120px;
+      height: 120px;
+    }
   }
 }

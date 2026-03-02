@@ -1728,11 +1728,17 @@
   },
   "onboarding": {
     "slide1_title": "Bienvenue sur AgroClik",
-    "slide1_desc": "Approvisionnez votre commerce en stock de gros. Commandez des produits de qualité à prix compétitifs.",
-    "slide2_title": "Livraison ou Retrait",
-    "slide2_desc": "Nous livrons à votre porte, ou vous pouvez récupérer votre commande selon votre convenance.",
-    "slide3_title": "Besoin d'Aide ?",
-    "slide3_desc": "Notre équipe est là pour vous aider. Contactez-nous à tout moment pour vos commandes.",
+    "slide1_desc": "Votre fournisseur grossiste. Parcourez les produits et approvisionnez votre commerce à prix compétitifs.",
+    "slide2_title": "Ajouter au Panier",
+    "slide2_desc": "Sélectionnez les produits, choisissez les quantités et ajoutez-les au panier en un clic.",
+    "slide3_title": "Livraison ou Retrait",
+    "slide3_desc": "Choisissez comment recevoir votre commande : livrée ou prête à récupérer.",
+    "slide4_title": "Passer Commande",
+    "slide4_desc": "Vérifiez votre panier, confirmez les détails et passez commande en quelques secondes.",
+    "slide5_title": "Suivre Votre Commande",
+    "slide5_desc": "Soyez notifié quand votre commande est confirmée, expédiée et livrée.",
+    "slide6_title": "Historique des Commandes",
+    "slide6_desc": "Consultez toutes vos commandes passées et recommandez facilement vos produits favoris.",
     "get_started": "Commencer"
   }
 }
