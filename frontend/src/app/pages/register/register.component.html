@@ -62,36 +62,50 @@
               </div>
 
               <!-- Email Field -->
-              <div class="register-input"
-                   [class.register-input--focused]="focusedField() === 'email'"
-                   [class.register-input--filled]="personalInfoForm.get('email')?.value">
-                <input
-                  #emailInput
-                  type="email"
-                  inputmode="email"
-                  name="email"
-                  formControlName="email"
-                  autocomplete="email"
-                  [placeholder]="'auth.email_placeholder' | translate"
-                  (focus)="onInputFocus('email')"
-                  (blur)="onInputBlur()">
+              <div class="register-field-wrapper">
+                <div class="register-input"
+                     [class.register-input--focused]="focusedField() === 'email'"
+                     [class.register-input--filled]="personalInfoForm.get('email')?.value"
+                     [class.register-input--error]="serverErrors()['email']">
+                  <input
+                    #emailInput
+                    type="email"
+                    inputmode="email"
+                    name="email"
+                    formControlName="email"
+                    autocomplete="email"
+                    [placeholder]="'auth.email_placeholder' | translate"
+                    (focus)="onInputFocus('email')"
+                    (blur)="onInputBlur()"
+                    (input)="clearServerError('email')">
+                </div>
+                @if (serverErrors()['email']) {
+                  <small class="register-error">{{ serverErrors()['email'] }}</small>
+                }
               </div>
 
               <!-- Phone Field -->
-              <div class="register-input"
-                   [class.register-input--focused]="focusedField() === 'phone'"
-                   [class.register-input--filled]="personalInfoForm.get('phone')?.value">
-                <input
-                  #phoneInput
-                  type="tel"
-                  inputmode="tel"
-                  name="phone"
-                  formControlName="phone"
-                  autocomplete="tel"
-                  appPhoneFormat
-                  [placeholder]="'auth.phone_placeholder' | translate"
-                  (focus)="onInputFocus('phone')"
-                  (blur)="onInputBlur()">
+              <div class="register-field-wrapper">
+                <div class="register-input"
+                     [class.register-input--focused]="focusedField() === 'phone'"
+                     [class.register-input--filled]="personalInfoForm.get('phone')?.value"
+                     [class.register-input--error]="serverErrors()['phone']">
+                  <input
+                    #phoneInput
+                    type="tel"
+                    inputmode="tel"
+                    name="phone"
+                    formControlName="phone"
+                    autocomplete="tel"
+                    appPhoneFormat
+                    [placeholder]="'auth.phone_placeholder' | translate"
+                    (focus)="onInputFocus('phone')"
+                    (blur)="onInputBlur()"
+                    (input)="clearServerError('phone')">
+                </div>
+                @if (serverErrors()['phone']) {
+                  <small class="register-error">{{ serverErrors()['phone'] }}</small>
+                }
               </div>
 
               <!-- Login Link -->

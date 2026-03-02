@@ -72,6 +72,9 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
   storeDetailsValid = signal(false);
   locationSelected = signal(false);
 
+  // Server-side field errors
+  serverErrors = signal<{ [key: string]: string }>({});
+
   // Form groups for each step
   personalInfoForm: FormGroup;
   passwordForm: FormGroup;
@@ -509,10 +512,60 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
           this.activeStep.set(5); // Navigate to success screen
         },
         error: (error) => {
-          this.toast.showApiError(error, 'auth.register_failed');
           this.loading.set(false);
+          this.handleServerError(error);
         }
       });
+  }
+
+  private handleServerError(error: any): void {
+    const errorDetail = error.error?.detail;
+    let errorMessage = '';
+    let originalMessage = '';
+
+    if (typeof errorDetail === 'string') {
+      errorMessage = errorDetail.toLowerCase();
+      originalMessage = errorDetail;
+    } else if (Array.isArray(errorDetail) && errorDetail.length > 0) {
+      errorMessage = (errorDetail[0]?.msg || '').toLowerCase();
+      originalMessage = errorDetail[0]?.msg || '';
+    }
+
+    // Clear previous server errors
+    this.serverErrors.set({});
+
+    // Check for email-related errors (slide 0)
+    if (errorMessage.includes('email')) {
+      this.serverErrors.set({ email: originalMessage });
+      this.goToStep(0);
+      return;
+    }
+
+    // Check for phone-related errors (slide 0)
+    if (errorMessage.includes('phone')) {
+      this.serverErrors.set({ phone: originalMessage });
+      this.goToStep(0);
+      return;
+    }
+
+    // Check for password-related errors (slide 1)
+    if (errorMessage.includes('password')) {
+      this.serverErrors.set({ password: originalMessage });
+      this.goToStep(1);
+      return;
+    }
+
+    // Fallback: show toast for unhandled errors
+    this.toast.showApiError(error, 'auth.register_failed');
+  }
+
+  clearServerError(field: string): void {
+    const current = this.serverErrors();
+    if (current[field]) {
+      const updated = { ...current };
+      delete updated[field];
+      this.serverErrors.set(updated);
+    }
   }
 
   goToLogin(): void {
