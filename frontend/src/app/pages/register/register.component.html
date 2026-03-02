@@ -3,7 +3,7 @@
   <p-toast></p-toast>
 
   <!-- Progress Bar Fixed at Top (hidden on steps 0-3, last step, or when input focused) -->
-  <div class="progress-header" [class.hidden]="activeStep() <= 3 || activeStep() === 4 || isInputFocused()">
+  <div class="progress-header" [class.hidden]="activeStep() === 0 || activeStep() === 2 || isInputFocused()">
     <div class="progress-content">
       @if (activeStep() > 0) {
         <button class="back-nav" (click)="prevStep()">
@@ -129,11 +129,6 @@
 
       <!-- Step 2: Password (Modern style) -->
       <div class="carousel-slide carousel-slide--modern">
-        <!-- Back Button -->
-        <button class="register-back" (click)="prevStep()">
-          <i class="pi pi-arrow-left"></i>
-        </button>
-
         <div class="register-step">
           <!-- Header -->
           <div class="register-header" [class.hidden]="isInputFocused()">
@@ -248,11 +243,6 @@
 
       <!-- Step 4: Store Details (Modern style) -->
       <div class="carousel-slide carousel-slide--modern">
-        <!-- Back Button -->
-        <button class="register-back" (click)="prevStep()">
-          <i class="pi pi-arrow-left"></i>
-        </button>
-
         <div class="register-step">
           <!-- Header -->
           <div class="register-header" [class.hidden]="isInputFocused()">
@@ -348,11 +338,6 @@
 
       <!-- Step 5: Confirmation -->
       <div class="carousel-slide carousel-slide--modern">
-        <!-- Back Button -->
-        <button class="register-back" (click)="prevStep()">
-          <i class="pi pi-arrow-left"></i>
-        </button>
-
         <div class="slide-content">
           <div class="slide-header">
             <div class="icon-wrapper success">

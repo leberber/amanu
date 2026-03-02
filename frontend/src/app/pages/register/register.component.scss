@@ -199,11 +199,11 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
   max-width: 360px;
   margin: 0 auto;
   padding: var(--space-6);
-  padding-top: var(--space-10);
+  padding-top: 80px;
   padding-bottom: 100px;
 
   @media (min-width: 768px) {
-    padding-top: var(--space-12);
+    padding-top: 90px;
   }
 }
 
@@ -593,9 +593,9 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
     padding-bottom: 100px;
   }
 
-  // Add top padding when inside modern slide (has back button)
+  // Add top padding when inside modern slide (has progress header)
   .carousel-slide--modern & {
-    padding-top: var(--space-12);
+    padding-top: 80px;
   }
 }
 
