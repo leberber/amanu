@@ -11,7 +11,7 @@
 // =============================================================================
 // SPLASH SCREEN
 // =============================================================================
-// Native app-like splash screen with logo animation
+// Clean splash screen with logo
 
 .splash {
   position: fixed;
@@ -20,36 +20,68 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--surface-ground);
+  background: #ffffff;
+  overflow: hidden;
 
+  // Expanding ring
+  &__ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 2px solid var(--primary-300);
+    transform: translate(-50%, -50%);
+    animation: splashRing 2s ease-out infinite;
+  }
+
+  // Logo container
   &__logo {
-    animation: splashLogoEnter 0.4s ease-out forwards;
+    position: relative;
+    z-index: 10;
+    animation: splashLogoEnter 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 
     img {
-      width: 120px;
+      width: 110px;
       height: auto;
     }
   }
 
-  // Exit animation state
+  // Exit state
   &--exiting {
-    animation: splashFadeOut 0.4s ease-in forwards;
-
     .splash__logo {
-      animation: splashLogoExit 0.4s ease-in forwards;
+      animation: splashLogoExit 0.5s cubic-bezier(0.4, 0, 1, 1) forwards !important;
+    }
+
+    .splash__ring {
+      opacity: 0;
+      transition: opacity 0.2s ease-out;
     }
   }
 }
 
-// Logo entrance animation - scale up with slight bounce
+// --- SPLASH KEYFRAMES ---
+
+@keyframes splashRing {
+  0% {
+    opacity: 0.5;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(2.5);
+  }
+}
+
 @keyframes splashLogoEnter {
   0% {
     opacity: 0;
-    transform: scale(0.8);
+    transform: scale(0.5);
   }
-  60% {
+  70% {
     opacity: 1;
-    transform: scale(1.05);
+    transform: scale(1.08);
   }
   100% {
     opacity: 1;
@@ -57,25 +89,14 @@
   }
 }
 
-// Logo exit animation - slide up and fade
 @keyframes splashLogoExit {
   0% {
     opacity: 1;
-    transform: scale(1) translateY(0);
+    transform: translateY(0);
   }
   100% {
     opacity: 0;
-    transform: scale(0.95) translateY(-30px);
-  }
-}
-
-// Splash background fade out
-@keyframes splashFadeOut {
-  0% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
+    transform: translateY(-100vh);
   }
 }
 
@@ -186,15 +207,6 @@ app-sidebar {
     background: var(--surface-card);
     border-radius: var(--radius-xl);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  }
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
   }
 }
 

@@ -1,6 +1,10 @@
 <!-- Splash Screen -->
 @if (showSplash()) {
   <div class="splash" [class.splash--exiting]="splashExiting()">
+    <!-- Expanding ring -->
+    <div class="splash__ring"></div>
+
+    <!-- Logo -->
     <div class="splash__logo">
       <img src="/logo.png" alt="Logo">
     </div>

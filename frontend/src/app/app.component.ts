@@ -192,13 +192,13 @@ export class AppComponent implements OnInit {
 
   // Initialize splash screen animation
   private initSplashScreen(): void {
-    // Logo appears and holds for 800ms, then exit animation starts
+    // Logo appears and holds for 1.2s, then exit animation starts
     setTimeout(() => {
       this.splashExiting.set(true);
-      // Remove splash after exit animation completes (400ms)
+      // Remove splash after exit animation completes (500ms)
       setTimeout(() => {
         this.showSplash.set(false);
-      }, 400);
-    }, 800);
+      }, 500);
+    }, 1200);
   }
 }
