@@ -892,7 +892,8 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   goToLogin(): void {
-    this.router.navigate([ROUTES.LOGIN]);
+    const email = this.personalInfoForm.value.email;
+    this.router.navigate([ROUTES.LOGIN], email ? { queryParams: { email } } : {});
   }
 
   // Password validation checks using computed signals

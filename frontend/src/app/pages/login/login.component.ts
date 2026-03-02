@@ -152,6 +152,12 @@ export class LoginComponent implements OnInit {
 
   private checkReturnUrl(): void {
     this.returnUrl.set(this.route.snapshot.queryParams['returnUrl'] || ROUTES.HOME);
+
+    // Pre-fill email if passed from registration
+    const email = this.route.snapshot.queryParams['email'];
+    if (email) {
+      this.loginForm.patchValue({ username: email });
+    }
   }
 
   private checkSessionExpired(): void {
