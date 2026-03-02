@@ -1,9 +1,9 @@
 {
   "name": "AgroClik - Restock with a Click",
   "short_name": "AgroClik",
-  "description": "Wholesale agro-alimentaire platform for store owners. Order fresh produce in bulk with delivery or pickup options.",
+  "description": "Approvisionnez votre commerce avec Agroclik — stock en gros, livré ou à récupérer.",
   "theme_color": "#ffffff",
-  "background_color": "#fafafa",
+  "background_color": "#ffffff",
   "display": "standalone",
   "orientation": "portrait",
   "scope": "/",
