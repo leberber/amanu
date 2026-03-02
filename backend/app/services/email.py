@@ -64,7 +64,7 @@ async def send_password_reset_email(email: str, code: str) -> bool:
                 <!-- Footer -->
                 <div style="text-align: center; margin-top: 24px;">
                     <p style="color: #999; font-size: 12px; margin: 0;">
-                        &copy; 2025 Elsuq. All rights reserved.
+                        &copy; 2025 AgroClik. All rights reserved.
                     </p>
                 </div>
             </div>
@@ -73,7 +73,7 @@ async def send_password_reset_email(email: str, code: str) -> bool:
         """
 
         message = MessageSchema(
-            subject="Password Reset Code - Elsuq",
+            subject="Password Reset Code - AgroClik",
             recipients=[email],
             body=html_content,
             subtype=MessageType.html,
@@ -112,7 +112,7 @@ async def send_email_verification_email(email: str, code: str) -> bool:
 
                     <!-- Content -->
                     <p style="color: #666; font-size: 16px; line-height: 1.6; margin-bottom: 24px; text-align: center;">
-                        Welcome to Elsuq! Please use the code below to verify your email address.
+                        Welcome to AgroClik! Please use the code below to verify your email address.
                     </p>
 
                     <!-- Code Box -->
@@ -133,7 +133,7 @@ async def send_email_verification_email(email: str, code: str) -> bool:
                 <!-- Footer -->
                 <div style="text-align: center; margin-top: 24px;">
                     <p style="color: #999; font-size: 12px; margin: 0;">
-                        &copy; 2025 Elsuq. All rights reserved.
+                        &copy; 2025 AgroClik. All rights reserved.
                     </p>
                 </div>
             </div>
@@ -142,7 +142,7 @@ async def send_email_verification_email(email: str, code: str) -> bool:
         """
 
         message = MessageSchema(
-            subject="Verify Your Email - Elsuq",
+            subject="Verify Your Email - AgroClik",
             recipients=[email],
             body=html_content,
             subtype=MessageType.html,

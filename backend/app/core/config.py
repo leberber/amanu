@@ -47,7 +47,7 @@ class Settings(BaseSettings):
     MAIL_FROM: str = os.getenv("MAIL_FROM", "")
     MAIL_SERVER: str = os.getenv("MAIL_SERVER", "smtp.gmail.com")
     MAIL_PORT: int = int(os.getenv("MAIL_PORT", "587"))
-    MAIL_FROM_NAME: str = os.getenv("MAIL_FROM_NAME", "Elsuq")
+    MAIL_FROM_NAME: str = os.getenv("MAIL_FROM_NAME", "AgroClik")
 
     # Password reset settings
     PASSWORD_RESET_EXPIRE_MINUTES: int = 15
