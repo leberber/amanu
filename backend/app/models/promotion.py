@@ -190,6 +190,10 @@ class PromotionRead(PromotionBase):
     created_by: Optional[int] = None
     created_at: datetime
     updated_at: Optional[datetime] = None
+    # Entity names for display
+    category_name: Optional[str] = None
+    brand_name: Optional[str] = None
+    product_name: Optional[str] = None
 
 
 class PromotionValidation(SQLModel):

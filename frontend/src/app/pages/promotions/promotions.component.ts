@@ -1,5 +1,5 @@
 import { Component, inject, signal, OnInit, DestroyRef } from '@angular/core';
-import { CurrencyPipe, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TagModule } from 'primeng/tag';
@@ -9,6 +9,7 @@ import { Promotion } from '../../models/promotion.model';
 import { ROUTES } from '../../core/constants/routes.constants';
 import { PageLayoutComponent } from '../../shared/components/page-layout/page-layout.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
+import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
 
 @Component({
   selector: 'app-promotions',

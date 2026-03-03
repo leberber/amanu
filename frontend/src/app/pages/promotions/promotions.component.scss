@@ -97,39 +97,66 @@
 
 // Big discount display
 .banner__discount {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px;
   margin-bottom: 12px;
 }
 
 .banner__discount-value {
-  font-size: 64px;
+  font-size: 48px;
   font-weight: 900;
   line-height: 1;
   text-shadow: 0 4px 20px rgba(0,0,0,0.3);
 
   @media (min-width: 400px) {
-    font-size: 72px;
+    font-size: 56px;
   }
 }
 
 .banner__discount-text {
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 700;
   opacity: 0.9;
-  margin-left: 8px;
 }
 
-// Name and scope
+// Name
 .banner__name {
   font-size: 20px;
   font-weight: 700;
-  margin: 0 0 4px 0;
+  margin: 0 0 6px 0;
   text-shadow: 0 2px 8px rgba(0,0,0,0.2);
 }
 
-.banner__scope {
+// Entity tag (top right)
+.banner__entity-tag {
+  padding: 8px 16px;
+  background: #fff;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #667eea;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+
+  .banner--hot & {
+    color: #f5576c;
+  }
+
+  .banner--fresh & {
+    color: #00c6fb;
+  }
+
+  .banner--gold & {
+    color: #f7971e;
+  }
+}
+
+.banner__desc {
   font-size: 14px;
   opacity: 0.85;
   margin: 0 0 16px 0;
+  line-height: 1.4;
 }
 
 // Info chips

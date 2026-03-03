@@ -47,17 +47,25 @@
           <div class="banner__bg"></div>
           <div class="banner__content">
 
-            <!-- Top badges -->
+            <!-- Top row: scope badge + entity name -->
             <div class="banner__top">
               <span class="banner__badge">
                 @switch (promo.scope) {
                   @case ('global') { {{ 'promotions_page.scope.global' | translate }} }
-                  @case ('category') { {{ promo.category_name || ('promotions_page.scope.category' | translate) }} }
-                  @case ('brand') { {{ promo.brand_name || ('promotions_page.scope.brand' | translate) }} }
-                  @case ('product') { {{ promo.product_name || ('promotions_page.scope.product' | translate) }} }
+                  @case ('category') { {{ 'promotions_page.scope.category' | translate }} }
+                  @case ('brand') { {{ 'promotions_page.scope.brand' | translate }} }
+                  @case ('product') { {{ 'promotions_page.scope.product' | translate }} }
                 }
               </span>
-              @if (getDaysRemaining(promo.end_date) <= 3) {
+              @if (promo.scope !== 'global') {
+                <span class="banner__entity-tag">
+                  @switch (promo.scope) {
+                    @case ('category') { {{ promo.category_name }} }
+                    @case ('brand') { {{ promo.brand_name }} }
+                    @case ('product') { {{ promo.product_name }} }
+                  }
+                </span>
+              } @else if (getDaysRemaining(promo.end_date) <= 3) {
                 <span class="banner__timer">
                   <i class="pi pi-clock"></i>
                   {{ getDaysRemaining(promo.end_date) }}{{ 'promotions_page.days_left' | translate }}
@@ -69,17 +77,17 @@
             <div class="banner__discount">
               @if (promo.discount_type === 'percentage') {
                 <span class="banner__discount-value">{{ promo.discount_value }}%</span>
+                <span class="banner__discount-text">{{ 'promotions_page.off' | translate }}</span>
               } @else {
-                <span class="banner__discount-value">{{ promo.discount_value }}</span>
-                <span class="banner__discount-text">DA</span>
+                <span class="banner__discount-value">{{ promo.discount_value | appCurrency }}</span>
+                <span class="banner__discount-text">{{ 'promotions_page.off' | translate }}</span>
               }
-              <span class="banner__discount-text">{{ 'promotions_page.off' | translate }}</span>
             </div>
 
             <!-- Name -->
             <h3 class="banner__name">{{ promo.name }}</h3>
             @if (promo.description) {
-              <p class="banner__scope">{{ promo.description }}</p>
+              <p class="banner__desc">{{ promo.description }}</p>
             }
 
             <!-- Info chips -->
@@ -87,13 +95,13 @@
               @if (promo.min_order_amount > 0) {
                 <span class="chip">
                   <i class="pi pi-shopping-cart"></i>
-                  {{ 'promotions_page.min_order' | translate }}: {{ promo.min_order_amount | currency:'DZD':'symbol':'1.0-0' }}
+                  {{ 'promotions_page.min_order' | translate }}: {{ promo.min_order_amount | appCurrency }}
                 </span>
               }
               @if (promo.max_discount) {
                 <span class="chip">
                   <i class="pi pi-wallet"></i>
-                  Max: {{ promo.max_discount | currency:'DZD':'symbol':'1.0-0' }}
+                  Max: {{ promo.max_discount | appCurrency }}
                 </span>
               }
               @if (promo.usage_limit) {
@@ -108,7 +116,7 @@
             @if (promo.code) {
               <div class="banner__code-section">
                 <div class="banner__code-info">
-                  <span class="label">{{ 'promotions_page.promo_code' | translate }}</span>
+                  <span class="label">{{ 'promotions.promo_code' | translate }}</span>
                   <span class="code">{{ promo.code }}</span>
                 </div>
                 <button class="banner__copy-btn" (click)="copyCode(promo.code)">

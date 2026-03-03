@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlmodel import Session, select
+from sqlalchemy.orm import selectinload
 from typing import Any, List, Optional
 from datetime import datetime, timezone
 
@@ -16,11 +17,44 @@ from app.models.promotion import (
     PromotionScope,
 )
 from app.models.product import Product
+from app.models.category import Category
+from app.models.brand import Brand
 from app.models.user import User
 from app.core.security import get_current_staff_user, get_current_active_user
 from app.core.translation import TranslationService
 
 router = APIRouter()
+
+
+def promotion_to_read(promotion: Promotion) -> PromotionRead:
+    """Convert Promotion to PromotionRead with entity names from relationships"""
+    return PromotionRead(
+        id=promotion.id,
+        name=promotion.name,
+        description=promotion.description,
+        code=promotion.code,
+        name_translations=promotion.name_translations,
+        description_translations=promotion.description_translations,
+        discount_type=promotion.discount_type,
+        discount_value=promotion.discount_value,
+        scope=promotion.scope,
+        category_id=promotion.category_id,
+        brand_id=promotion.brand_id,
+        product_id=promotion.product_id,
+        min_order_amount=promotion.min_order_amount,
+        max_discount=promotion.max_discount,
+        usage_limit=promotion.usage_limit,
+        usage_count=promotion.usage_count,
+        start_date=promotion.start_date,
+        end_date=promotion.end_date,
+        is_active=promotion.is_active,
+        created_by=promotion.created_by,
+        created_at=promotion.created_at,
+        updated_at=promotion.updated_at,
+        category_name=promotion.category.name if promotion.category else None,
+        brand_name=promotion.brand.name if promotion.brand else None,
+        product_name=promotion.product.name if promotion.product else None,
+    )
 
 
 def get_promotion_status(promotion: Promotion) -> str:
@@ -75,11 +109,20 @@ def read_active_promotions(
     Retrieve currently active promotions (public).
     """
     now = datetime.now(timezone.utc)
-    query = select(Promotion).where(
-        Promotion.is_active == True,
-        Promotion.start_date <= now,
-        Promotion.end_date >= now
-    ).order_by(Promotion.discount_value.desc())
+    query = (
+        select(Promotion)
+        .options(
+            selectinload(Promotion.category),
+            selectinload(Promotion.brand),
+            selectinload(Promotion.product),
+        )
+        .where(
+            Promotion.is_active == True,
+            Promotion.start_date <= now,
+            Promotion.end_date >= now
+        )
+        .order_by(Promotion.created_at.desc())
+    )
 
     promotions = session.exec(query).all()
 
@@ -89,11 +132,13 @@ def read_active_promotions(
         if p.usage_limit is None or p.usage_count < p.usage_limit
     ]
 
-    # Apply translations
+    # Convert to PromotionRead with entity names and apply translations
+    result = []
     for promotion in active_promotions:
         TranslationService.apply_translations_to_model(promotion, lang)
+        result.append(promotion_to_read(promotion))
 
-    return active_promotions
+    return result
 
 
 @router.get("/code/{code}", response_model=PromotionValidation)
