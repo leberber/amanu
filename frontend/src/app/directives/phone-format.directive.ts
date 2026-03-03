@@ -1,5 +1,6 @@
 import { Directive, ElementRef, HostListener, forwardRef } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
+import { VALIDATION } from '../core/constants/validation.constants';
 
 @Directive({
   selector: '[appPhoneFormat]',
@@ -50,9 +51,9 @@ export class PhoneFormatDirective implements ControlValueAccessor {
       event.preventDefault();
     }
 
-    // Block if already at max length (10 digits)
+    // Block if already at max length
     const currentValue = this.el.nativeElement.value.replace(/\s/g, '');
-    if (currentValue.length >= 10 && !['Backspace', 'Delete'].includes(event.key)) {
+    if (currentValue.length >= VALIDATION.MIN_PHONE_LENGTH && !['Backspace', 'Delete'].includes(event.key)) {
       event.preventDefault();
     }
   }
@@ -61,8 +62,8 @@ export class PhoneFormatDirective implements ControlValueAccessor {
     // Remove all non-digits
     const digits = value.replace(/\D/g, '');
 
-    // Limit to 10 digits
-    const limited = digits.slice(0, 10);
+    // Limit to max phone digits
+    const limited = digits.slice(0, VALIDATION.MIN_PHONE_LENGTH);
 
     // Format as 0xxx xx xx xx
     if (limited.length <= 4) {

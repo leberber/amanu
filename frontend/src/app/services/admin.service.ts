@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
+import { PAGINATION } from '../core/constants/pagination.constants';
 
 import { map } from 'rxjs/operators';
 
@@ -45,7 +46,7 @@ export class AdminService {
   }
 
   // Orders management
-  getAllOrders(status?: string, page: number = 1, pageSize: number = 10): Observable<OrdersResponse> {
+  getAllOrders(status?: string, page: number = 1, pageSize: number = PAGINATION.DEFAULT_PAGE_SIZE): Observable<OrdersResponse> {
     let params: any = { skip: (page - 1) * pageSize, limit: pageSize };
     
     if (status) {
@@ -74,7 +75,7 @@ export class AdminService {
   }
 
   // Users management - UPDATED to use new response format
-  getAllUsers(page: number = 1, pageSize: number = 10): Observable<UsersResponse> {
+  getAllUsers(page: number = 1, pageSize: number = PAGINATION.DEFAULT_PAGE_SIZE): Observable<UsersResponse> {
     return this.apiService.get<UsersResponse>('/users', { 
       params: { skip: (page - 1) * pageSize, limit: pageSize }
     });

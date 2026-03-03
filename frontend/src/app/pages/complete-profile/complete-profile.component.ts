@@ -11,6 +11,7 @@ import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
 import { ToastMessageService } from '../../core/services/toast-message.service';
 import { ROUTES } from '../../core/constants/routes.constants';
+import { UI } from '../../core/constants/ui.constants';
 
 // Interfaces for wilaya data
 interface Commune {
@@ -155,7 +156,7 @@ export class CompleteProfileComponent implements OnInit, AfterViewInit {
 
       if (step1Valid) {
         this.currentStep.set(2);
-        setTimeout(() => this.initMap(), 100);
+        setTimeout(() => this.initMap(), UI.TABLE_INIT_DELAY);
       } else {
         this.profileForm.get('phone')?.markAsTouched();
         this.profileForm.get('store_name')?.markAsTouched();
@@ -187,7 +188,7 @@ export class CompleteProfileComponent implements OnInit, AfterViewInit {
       this.setLocation(e.latlng.lat, e.latlng.lng);
     });
 
-    setTimeout(() => this.map.invalidateSize(), 100);
+    setTimeout(() => this.map.invalidateSize(), UI.TABLE_INIT_DELAY);
   }
 
   private setLocation(lat: number, lng: number): void {

@@ -5,6 +5,8 @@ import { DateService } from '../../core/services/date.service';
 import { SearchDebounceService } from '../../core/services/search-debounce.service';
 import { ToastMessageService } from '../../core/services/toast-message.service';
 import { ROUTES } from '../../core/constants/routes.constants';
+import { UI } from '../../core/constants/ui.constants';
+import { PAGINATION } from '../../core/constants/pagination.constants';
 import { InlineEditState } from '../utils/inline-edit-state';
 
 export interface ColumnOption {
@@ -25,8 +27,8 @@ export abstract class BaseAdminListComponent {
 
   // Pagination state
   first = 0;
-  rows = 10;
-  rowsPerPageOptions = [10, 20, 25, 50];
+  rows = PAGINATION.DEFAULT_PAGE_SIZE;
+  rowsPerPageOptions = [...PAGINATION.ADMIN_PAGE_SIZE_OPTIONS];
 
   // Column visibility (override in child class with specific columns)
   columnOptions: ColumnOption[] = [];
@@ -92,7 +94,7 @@ export abstract class BaseAdminListComponent {
 
   // Mark table as initialized after data loads (for animations)
   protected markTableInitialized(): void {
-    setTimeout(() => this.tableInitialized.set(true), 100);
+    setTimeout(() => this.tableInitialized.set(true), UI.TABLE_INIT_DELAY);
   }
 
   protected resetPagination(): void {

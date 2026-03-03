@@ -15,7 +15,7 @@ import { UserManage } from '../../../models/admin.model';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
 import { VALIDATION } from '../../../core/constants/validation.constants';
 import { USER_ROLES } from '../../../core/constants/user.constants';
-import { UI_DELAY } from '../../../core/constants/ui.constants';
+import { UI_DELAY, UI } from '../../../core/constants/ui.constants';
 import { ROUTES } from '../../../core/constants/routes.constants';
 import { StatusSeverityService } from '../../../core/services/status-severity.service';
 import { MapPickerComponent, LocationData } from '../../../shared/components/map-picker/map-picker.component';
@@ -166,7 +166,7 @@ export class AdminEditUserComponent implements OnInit {
           is_active: user.is_active
         });
         this.loading.set(false);
-        setTimeout(() => this.formInitialized.set(true), 100);
+        setTimeout(() => this.formInitialized.set(true), UI.TABLE_INIT_DELAY);
       },
       error: () => {
         this.loading.set(false);

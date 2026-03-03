@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
+import { PAGINATION } from '../core/constants/pagination.constants';
 import {
   SegmentInfo,
   CityStat,
@@ -58,7 +59,7 @@ export class NotificationService {
   }
 
   // History
-  getHistory(skip = 0, limit = 20): Observable<NotificationHistory[]> {
+  getHistory(skip = 0, limit = PAGINATION.DEFAULT_NOTIFICATION_LIMIT): Observable<NotificationHistory[]> {
     return this.api.get<NotificationHistory[]>(`/push/history?skip=${skip}&limit=${limit}`);
   }
 

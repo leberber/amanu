@@ -1,6 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { Observable, tap, catchError, of } from 'rxjs';
 import { ApiService } from './api.service';
+import { PAGINATION } from '../core/constants/pagination.constants';
 import { UserNotification, UnreadCountResponse } from '../models/user-notification.model';
 import { TranslationService } from './translation.service';
 
@@ -17,7 +18,7 @@ export class UserNotificationService {
   /**
    * Get current user's notifications
    */
-  getNotifications(skip = 0, limit = 20, unreadOnly = false): Observable<UserNotification[]> {
+  getNotifications(skip = 0, limit = PAGINATION.DEFAULT_NOTIFICATION_LIMIT, unreadOnly = false): Observable<UserNotification[]> {
     const lang = this.translationService.getCurrentLanguage();
     let url = `/notifications?skip=${skip}&limit=${limit}&lang=${lang}`;
     if (unreadOnly) {

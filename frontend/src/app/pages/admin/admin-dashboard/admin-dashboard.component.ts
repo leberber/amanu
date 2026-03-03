@@ -7,6 +7,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { ADMIN_CORE_IMPORTS } from '../../../shared/imports/admin-shared.imports';
 import { AgroclikPageContainerComponent } from '../../../shared/components/agroclik-page-container/agroclik-page-container.component';
 import { ROUTES } from '../../../core/constants/routes.constants';
+import { UI } from '../../../core/constants/ui.constants';
 import { onLanguageChange } from '../../../core/utils/language-change.util';
 import { AdminService } from '../../../services/admin.service';
 import { DashboardStats } from '../../../models/admin.model';
@@ -115,7 +116,7 @@ export class AdminDashboardComponent implements OnInit {
           this.stats.set(stats);
           this.loading.set(false);
           this.prepareChartData();
-          setTimeout(() => this.tableInitialized.set(true), 100);
+          setTimeout(() => this.tableInitialized.set(true), UI.TABLE_INIT_DELAY);
         },
         error: (error) => {
           this.loading.set(false);

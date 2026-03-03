@@ -16,6 +16,7 @@ import { BrandService } from '../../../core/services/brand.service';
 import { VALIDATION } from '../../../core/constants/validation.constants';
 import { PRODUCT } from '../../../core/constants/product.constants';
 import { ROUTES } from '../../../core/constants/routes.constants';
+import { ANIMATION } from '../../../core/constants/ui.constants';
 import { detectEditMode } from '../../../core/utils/edit-mode.util';
 import { UnitsService } from '../../../core/services/units.service';
 import { PackagingTypeService } from '../../../core/services/packaging-type.service';
@@ -182,7 +183,7 @@ export class AdminAddProductComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(value => this.nameArValue.set(value || ''));
 
-    setTimeout(() => this.formInitialized.set(true), 300);
+    setTimeout(() => this.formInitialized.set(true), ANIMATION.NORMAL);
   }
 
   private loadCategories(): void {

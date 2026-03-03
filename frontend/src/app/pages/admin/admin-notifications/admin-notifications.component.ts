@@ -13,6 +13,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ADMIN_CORE_IMPORTS } from '../../../shared/imports/admin-shared.imports';
 import { ImageFallbackDirective } from '../../../shared/directives/image-fallback.directive';
 import { ROUTES } from '../../../core/constants/routes.constants';
+import { UI } from '../../../core/constants/ui.constants';
 import { NotificationService } from '../../../services/notification.service';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
 import {
@@ -269,7 +270,7 @@ export class AdminNotificationsComponent implements OnInit {
         }
 
         this.loading.set(false);
-        setTimeout(() => this.tableInitialized.set(true), 100);
+        setTimeout(() => this.tableInitialized.set(true), UI.TABLE_INIT_DELAY);
       },
       error: () => {
         this.loading.set(false);
