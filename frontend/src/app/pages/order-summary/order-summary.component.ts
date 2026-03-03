@@ -108,7 +108,7 @@ export class OrderSummaryComponent {
 
     this.promotionService.calculateDiscount({
       promotion_code: code,
-      cart_items: this.getCartItemsForDiscount()
+      cart_items: this.cartService.getItemsForDiscount()
     }).subscribe({
       next: (response) => {
         this.promoLoading.set(false);
@@ -157,13 +157,4 @@ export class OrderSummaryComponent {
     }
   }
 
-  private getCartItemsForDiscount() {
-    return this.cartService.items().map(item => ({
-      product_id: item.product_id,
-      quantity: item.quantity,
-      unit_price: item.product_price,
-      category_id: item.category_id,
-      brand_id: item.brand_id
-    }));
-  }
 }

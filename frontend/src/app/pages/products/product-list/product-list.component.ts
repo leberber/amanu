@@ -1,5 +1,5 @@
 import { Component, computed, inject, OnInit, signal, DestroyRef, ViewChild, ElementRef } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Observable, of } from 'rxjs';
 import { switchMap, tap } from 'rxjs/operators';
@@ -38,7 +38,6 @@ import { ImageFallbackDirective } from '../../../shared/directives/image-fallbac
   selector: 'app-product-list',
   standalone: true,
   imports: [
-    RouterLink,
     ToastModule,
     ButtonModule,
     TranslateModule,

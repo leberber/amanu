@@ -22,6 +22,22 @@ export type DiscountType = typeof DISCOUNT_TYPES[number];
 export const SCOPE_TYPES = ['global', 'category', 'brand', 'product'] as const;
 export type ScopeType = typeof SCOPE_TYPES[number];
 
+// Scope display labels (translation keys)
+export const SCOPE_LABELS: Record<ScopeType, string> = {
+  global: 'promotions_page.scope.global',
+  category: 'promotions_page.scope.category',
+  brand: 'promotions_page.scope.brand',
+  product: 'promotions_page.scope.product'
+};
+
+// Scope tag severities for PrimeNG Tag component
+export const SCOPE_SEVERITIES: Record<ScopeType, 'success' | 'info' | 'warn' | 'secondary'> = {
+  global: 'success',
+  category: 'info',
+  brand: 'warn',
+  product: 'secondary'
+};
+
 // Promotion Form Defaults and Limits
 // Note: Using explicit number types for values that may be assigned to signals
 export const PROMOTION_DEFAULTS = {

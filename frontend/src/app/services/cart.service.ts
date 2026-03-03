@@ -55,6 +55,16 @@ export class CartService {
     return this._items().find(item => item.product_id === productId)?.quantity ?? 0;
   }
 
+  getItemsForDiscount() {
+    return this._items().map(item => ({
+      product_id: item.product_id,
+      quantity: item.quantity,
+      unit_price: item.product_price,
+      category_id: item.category_id,
+      brand_id: item.brand_id
+    }));
+  }
+
   // Cart mutations
   addToCart(product: Product, quantity: number): CartItem | null {
     if (!product?.id || quantity < 1) return null;

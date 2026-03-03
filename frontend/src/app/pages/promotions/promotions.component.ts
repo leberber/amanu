@@ -7,6 +7,7 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { PromotionService } from '../../services/promotion.service';
 import { Promotion } from '../../models/promotion.model';
 import { ROUTES } from '../../core/constants/routes.constants';
+import { SCOPE_LABELS, SCOPE_SEVERITIES, ScopeType } from '../../core/constants/promotion.constants';
 import { PageLayoutComponent } from '../../shared/components/page-layout/page-layout.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
@@ -58,23 +59,11 @@ export class PromotionsComponent implements OnInit {
   }
 
   getScopeLabel(scope: string): string {
-    const labels: Record<string, string> = {
-      'global': 'promotions_page.scope.global',
-      'category': 'promotions_page.scope.category',
-      'brand': 'promotions_page.scope.brand',
-      'product': 'promotions_page.scope.product'
-    };
-    return labels[scope] || scope;
+    return SCOPE_LABELS[scope as ScopeType] || scope;
   }
 
   getScopeSeverity(scope: string): 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast' | undefined {
-    const severities: Record<string, 'success' | 'info' | 'warn' | 'secondary'> = {
-      'global': 'success',
-      'category': 'info',
-      'brand': 'warn',
-      'product': 'secondary'
-    };
-    return severities[scope];
+    return SCOPE_SEVERITIES[scope as ScopeType];
   }
 
   getDaysRemaining(endDate: string): number {

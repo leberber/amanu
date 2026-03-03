@@ -1,5 +1,5 @@
 // frontend/src/app/pages/home/home.component.ts
-import { Component, inject, OnInit, OnDestroy, signal, DestroyRef } from '@angular/core';
+import { Component, inject, OnInit, signal, DestroyRef } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ButtonModule } from 'primeng/button';
@@ -20,7 +20,7 @@ import { ImageFallbackDirective } from '../../shared/directives/image-fallback.d
   templateUrl: './home.component.html'
 
 })
-export class HomeComponent implements OnInit, OnDestroy {
+export class HomeComponent implements OnInit {
   private productService = inject(ProductService);
   private translationService = inject(TranslationService);
   private toast = inject(ToastMessageService);
@@ -49,9 +49,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.loadCategories();
   }
 
-  ngOnDestroy(): void {
-    // Subscriptions are automatically cleaned up by takeUntilDestroyed
-  }
 
   private loadCategories(): void {
     this.productService.getCategories(true).subscribe({
