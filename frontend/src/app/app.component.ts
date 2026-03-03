@@ -7,11 +7,9 @@ import { trigger, transition, style, animate, query, group } from '@angular/anim
 import { TranslateModule } from '@ngx-translate/core';
 import { BottomNavigationComponent } from './components/bottom-navigation/bottom-navigation.component';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
-import { InactiveUserMessageComponent } from './components/inactive-user-message/inactive-user-message.component';
 import { OnboardingComponent } from './components/onboarding/onboarding.component';
 import { SidebarService } from './services/sidebar.service';
 import { NavigationService } from './core/services/navigation.service';
-import { AuthService } from './services/auth.service';
 import { ROUTES } from './core/constants/routes.constants';
 import { BREAKPOINTS, STORAGE_KEYS } from './core/constants/app.constants';
 
@@ -79,7 +77,6 @@ const slideAnimation = trigger('routeAnimation', [
     TranslateModule,
     BottomNavigationComponent,
     SidebarComponent,
-    InactiveUserMessageComponent,
     OnboardingComponent
   ],
   templateUrl: './app.component.html',
@@ -90,7 +87,6 @@ export class AppComponent implements OnInit {
   showNavigation = signal(false);
   hideBottomNav = signal(false);
   isMobile = signal(window.innerWidth < BREAKPOINTS.MD);
-  showInactiveModal = false;
 
   // Splash screen state - hide initially if onboarding will show
   private hasSeenOnboarding = localStorage.getItem(STORAGE_KEYS.HAS_SEEN_ONBOARDING) === 'true';
@@ -101,7 +97,6 @@ export class AppComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
   private sidebarService = inject(SidebarService);
   private navigationService = inject(NavigationService);
-  private authService = inject(AuthService);
 
   // Expose sidebar collapsed state for template
   sidebarCollapsed = this.sidebarService.collapsed;
@@ -162,18 +157,6 @@ export class AppComponent implements OnInit {
     // Check initial route
     this.updateNavigation(this.router.url);
     this.updateRouteData();
-
-    // Watch for user changes to show inactive modal (but not on public routes like register)
-    this.authService.currentUser$.pipe(
-      takeUntilDestroyed(this.destroyRef)
-    ).subscribe(user => {
-      const currentUrl = this.router.url;
-      const isOnPublicRoute = this.publicRoutes.some(route => currentUrl.startsWith(route));
-
-      if (user && !user.is_active && !isOnPublicRoute) {
-        this.showInactiveModal = true;
-      }
-    });
   }
 
   private updateRouteData(): void {

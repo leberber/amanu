@@ -36,14 +36,3 @@
 
 </div>
 
-<!-- Inactive Account Modal -->
-@if (showInactiveModal) {
-  <div class="inactive-lightbox" (click)="showInactiveModal = false">
-    <div class="inactive-lightbox__content" (click)="$event.stopPropagation()">
-      <app-inactive-user-message
-        buttonType="understood"
-        (buttonClick)="showInactiveModal = false"
-      />
-    </div>
-  </div>
-}

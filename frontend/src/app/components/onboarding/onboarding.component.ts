@@ -82,10 +82,7 @@ export class OnboardingComponent implements OnInit {
   ];
 
   ngOnInit(): void {
-    // TODO: Remove this line after testing - always show for testing
-    this.show.set(true);
-    return;
-
+    // Show onboarding only on first app visit (device-based)
     const hasSeenOnboarding = localStorage.getItem(STORAGE_KEYS.HAS_SEEN_ONBOARDING);
     if (!hasSeenOnboarding) {
       this.show.set(true);
