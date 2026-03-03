@@ -13,7 +13,7 @@ import { SidebarService } from './services/sidebar.service';
 import { NavigationService } from './core/services/navigation.service';
 import { AuthService } from './services/auth.service';
 import { ROUTES } from './core/constants/routes.constants';
-import { BREAKPOINTS } from './core/constants/app.constants';
+import { BREAKPOINTS, STORAGE_KEYS } from './core/constants/app.constants';
 
 // Base styles for route animations
 const baseStyles = [
@@ -92,8 +92,9 @@ export class AppComponent implements OnInit {
   isMobile = signal(window.innerWidth < BREAKPOINTS.MD);
   showInactiveModal = false;
 
-  // Splash screen state
-  showSplash = signal(true);
+  // Splash screen state - hide initially if onboarding will show
+  private hasSeenOnboarding = localStorage.getItem(STORAGE_KEYS.HAS_SEEN_ONBOARDING) === 'true';
+  showSplash = signal(this.hasSeenOnboarding);
   splashExiting = signal(false);
 
   private router = inject(Router);
@@ -123,8 +124,10 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
-    // Splash screen animation sequence
-    this.initSplashScreen();
+    // Splash screen animation sequence (only if not showing onboarding)
+    if (this.hasSeenOnboarding) {
+      this.initSplashScreen();
+    }
 
     // Listen to navigation start to detect direction
     this.router.events.pipe(
@@ -202,5 +205,12 @@ export class AppComponent implements OnInit {
         this.showSplash.set(false);
       }, 500);
     }, 1200);
+  }
+
+  // Called when onboarding completes - show splash then app
+  onOnboardingComplete(): void {
+    this.showSplash.set(true);
+    this.splashExiting.set(false);
+    this.initSplashScreen();
   }
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { STORAGE_KEYS } from '../../core/constants/app.constants';
@@ -21,6 +21,9 @@ export class OnboardingComponent implements OnInit {
   show = signal(false);
   currentSlide = signal(0);
   exiting = signal(false);
+
+  // Emit when completing - parent should show splash first
+  completed = output<void>();
 
   private touchStartX = 0;
   private touchEndX = 0;
@@ -124,9 +127,11 @@ export class OnboardingComponent implements OnInit {
   complete(): void {
     if (this.exiting()) return; // Prevent double calls
     this.exiting.set(true);
+    localStorage.setItem(STORAGE_KEYS.HAS_SEEN_ONBOARDING, 'true');
+    // Emit first so parent can show splash, then hide after small delay
+    this.completed.emit();
     setTimeout(() => {
-      localStorage.setItem(STORAGE_KEYS.HAS_SEEN_ONBOARDING, 'true');
       this.show.set(false);
-    }, 300);
+    }, 100);
   }
 }

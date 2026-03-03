@@ -12,7 +12,7 @@
 }
 
 <!-- Onboarding (first-time users only) -->
-<app-onboarding />
+<app-onboarding (completed)="onOnboardingComplete()" />
 
 <!-- src/app/app.component.html -->
 <div class="app-container flex h-screen overflow-hidden"
