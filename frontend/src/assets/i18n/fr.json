@@ -1728,9 +1728,11 @@
   },
   "onboarding": {
     "slide1_title": "Bienvenue sur AgroClik",
-    "slide1_desc": "Votre fournisseur grossiste. Parcourez les produits et approvisionnez votre commerce à prix compétitifs.",
+    "slide1_desc": "Votre fournisseur grossiste. Parcourez les produits et approvisionnez votre commerce en un click.",
     "slide2_title": "Ajouter au Panier",
     "slide2_desc": "Sélectionnez les produits, choisissez les quantités et ajoutez-les au panier en un clic.",
+    "slide_filter_title": "Chercher par Catégorie ou Marque",
+    "slide_filter_desc": "Filtrez facilement les produits par catégorie ou marque pour trouver ce dont vous avez besoin.",
     "slide3_title": "Livraison ou Retrait",
     "slide3_desc": "Choisissez comment recevoir votre commande : livrée ou prête à récupérer.",
     "slide4_title": "Passer Commande",

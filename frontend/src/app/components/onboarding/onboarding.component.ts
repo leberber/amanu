@@ -8,6 +8,7 @@ interface OnboardingSlide {
   titleKey: string;
   descriptionKey: string;
   color: string;
+  type?: 'default' | 'filter'; // Special slide types
 }
 
 @Component({
@@ -28,12 +29,25 @@ export class OnboardingComponent implements OnInit {
   private touchStartX = 0;
   private touchEndX = 0;
 
+  // Brand/category icons for filter slide
+  filterImages = [
+    { url: '/categories-icon.png', labelKey: 'common.category' },
+    { url: '/brands-icon.png', labelKey: 'common.brand' }
+  ];
+
   slides: OnboardingSlide[] = [
     {
       icon: 'pi-shopping-cart',
       titleKey: 'onboarding.slide1_title',
       descriptionKey: 'onboarding.slide1_desc',
       color: 'linear-gradient(135deg, #3b82f6, #1d4ed8)'
+    },
+    {
+      icon: 'pi-filter',
+      titleKey: 'onboarding.slide_filter_title',
+      descriptionKey: 'onboarding.slide_filter_desc',
+      color: 'linear-gradient(135deg, #14b8a6, #0d9488)',
+      type: 'filter'
     },
     {
       icon: 'pi-plus-circle',

@@ -21,18 +21,36 @@
             [class.onboarding__slide--prev]="currentSlide() > i"
             [class.onboarding__slide--next]="currentSlide() < i">
 
-            <!-- Icon -->
-            <div class="onboarding__icon-wrapper">
-              <div class="onboarding__icon" [style.background]="slide.color">
-                <i class="pi {{ slide.icon }}"></i>
+            @if (slide.type === 'filter') {
+              <!-- Filter slide with images -->
+              <div class="onboarding__filter-grid onboarding__filter-grid--two">
+                @for (img of filterImages; track img.labelKey) {
+                  <div class="onboarding__filter-item">
+                    <img [src]="img.url" [alt]="img.labelKey | translate" loading="lazy">
+                    <span>{{ img.labelKey | translate }}</span>
+                  </div>
+                }
               </div>
-            </div>
 
-            <!-- Text -->
-            <div class="onboarding__text">
-              <h2 class="onboarding__title">{{ slide.titleKey | translate }}</h2>
-              <p class="onboarding__description">{{ slide.descriptionKey | translate }}</p>
-            </div>
+              <!-- Text -->
+              <div class="onboarding__text">
+                <h2 class="onboarding__title">{{ slide.titleKey | translate }}</h2>
+                <p class="onboarding__description">{{ slide.descriptionKey | translate }}</p>
+              </div>
+            } @else {
+              <!-- Default slide with icon -->
+              <div class="onboarding__icon-wrapper">
+                <div class="onboarding__icon" [style.background]="slide.color">
+                  <i class="pi {{ slide.icon }}"></i>
+                </div>
+              </div>
+
+              <!-- Text -->
+              <div class="onboarding__text">
+                <h2 class="onboarding__title">{{ slide.titleKey | translate }}</h2>
+                <p class="onboarding__description">{{ slide.descriptionKey | translate }}</p>
+              </div>
+            }
           </div>
         }
       </div>
