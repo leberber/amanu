@@ -29,33 +29,24 @@ class PackagingType(str, Enum):
 
 class ProductBase(SQLModel):
     """Base product model with common fields"""
+    # Core
     name: str = Field(min_length=1, max_length=100, index=True)
-    description: Optional[str] = Field(default=None)
-    
-    # Translation fields - store translations as JSON
-    name_translations: Optional[Dict[str, str]] = Field(
-        default_factory=dict, 
-        sa_column=Column(JSON)
-    )
-    description_translations: Optional[Dict[str, str]] = Field(
-        default_factory=dict, 
-        sa_column=Column(JSON)
-    )
-    
     price: float = Field(gt=0)
     unit: ProductUnit
+    pieces_per_box: Optional[int] = Field(default=None, ge=1)
+    packaging_type: Optional[PackagingType] = Field(default=PackagingType.CARTON)
+    # Inventory
     stock_quantity: int = Field(ge=0)
-    image_url: Optional[str] = Field(default=None, max_length=255)
-    is_organic: bool = Field(default=False)
     is_active: bool = Field(default=True)
+    # Relations
     category_id: int = Field(foreign_key="categories.id")
     brand_id: Optional[int] = Field(default=None, foreign_key="brands.id")
-
-    # Pieces per box - used for dropdown quantity selection
-    pieces_per_box: Optional[int] = Field(default=None, ge=1)
-
-    # Packaging type - box, carton, crate, etc.
-    packaging_type: Optional[PackagingType] = Field(default=PackagingType.CARTON)
+    # Details
+    description: Optional[str] = Field(default=None)
+    name_translations: Optional[Dict[str, str]] = Field(default_factory=dict, sa_column=Column(JSON))
+    description_translations: Optional[Dict[str, str]] = Field(default_factory=dict, sa_column=Column(JSON))
+    is_organic: bool = Field(default=False)
+    image_url: Optional[str] = Field(default=None, max_length=255)
 
 class Product(ProductBase, table=True):
     """Database model for products"""
@@ -87,20 +78,24 @@ class ProductCreate(ProductBase):
 
 class ProductUpdate(SQLModel):
     """Model for updating products"""
+    # Core
     name: Optional[str] = Field(default=None, min_length=1, max_length=100)
+    price: Optional[float] = Field(default=None, gt=0)
+    unit: Optional[ProductUnit] = None
+    pieces_per_box: Optional[int] = Field(default=None, ge=1)
+    packaging_type: Optional[PackagingType] = Field(default=None)
+    # Inventory
+    stock_quantity: Optional[int] = Field(default=None, ge=0)
+    is_active: Optional[bool] = Field(default=None)
+    # Relations
+    category_id: Optional[int] = Field(default=None)
+    brand_id: Optional[int] = Field(default=None)
+    # Details
     description: Optional[str] = Field(default=None)
     name_translations: Optional[Dict[str, str]] = Field(default=None)
     description_translations: Optional[Dict[str, str]] = Field(default=None)
-    price: Optional[float] = Field(default=None, gt=0)
-    unit: Optional[ProductUnit] = None
-    stock_quantity: Optional[int] = Field(default=None, ge=0)
-    image_url: Optional[str] = Field(default=None, max_length=255)
     is_organic: Optional[bool] = Field(default=None)
-    is_active: Optional[bool] = Field(default=None)
-    category_id: Optional[int] = Field(default=None)
-    brand_id: Optional[int] = Field(default=None)
-    pieces_per_box: Optional[int] = Field(default=None, ge=1)
-    packaging_type: Optional[PackagingType] = Field(default=None)
+    image_url: Optional[str] = Field(default=None, max_length=255)
 
 class ProductPromotion(SQLModel):
     """Promotion info attached to a product"""
