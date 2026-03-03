@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastModule } from 'primeng/toast';
+import { DialogModule } from 'primeng/dialog';
 
 import { ROUTES } from '../../core/constants/routes.constants';
 import { CartService } from '../../services/cart.service';
@@ -14,6 +15,8 @@ import { PageLayoutComponent } from '../../shared/components/page-layout/page-la
 import { StickyFooterComponent } from '../../shared/components/sticky-footer/sticky-footer.component';
 import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
 
+export type DeliveryMethod = 'delivery' | 'pickup';
+
 @Component({
   selector: 'app-order-summary',
   standalone: true,
@@ -21,6 +24,7 @@ import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
     FormsModule,
     TranslateModule,
     ToastModule,
+    DialogModule,
     PageLayoutComponent,
     StickyFooterComponent,
     CurrencyPipe
@@ -40,20 +44,32 @@ export class OrderSummaryComponent {
 
   // Constants
   readonly ROUTES = ROUTES;
+  readonly DELIVERY_COST = 500;
 
   // State
+  deliveryMethod = signal<DeliveryMethod>('delivery');
+  showPromoDialog = signal(false);
   promoCode = signal('');
   promoLoading = signal(false);
   promoError = signal<string | null>(null);
-  promoInputFocused = signal(false);
 
   // Computed from CartService
   cartItems = this.cartService.items;
   cartSubtotal = this.cartService.subtotal;
   discountAmount = this.cartService.discountAmount;
-  finalTotal = this.cartService.finalTotal;
   appliedPromotion = this.cartService.appliedPromotion;
   cartItemCount = computed(() => this.cartItems().length);
+
+  // Computed delivery cost
+  deliveryCost = computed(() => this.deliveryMethod() === 'delivery' ? this.DELIVERY_COST : 0);
+
+  // Computed final total including delivery
+  finalTotal = computed(() => {
+    const subtotal = this.cartSubtotal();
+    const discount = this.discountAmount();
+    const delivery = this.deliveryCost();
+    return subtotal - discount + delivery;
+  });
 
   constructor() {
     // Sync promo code from cart service
@@ -61,6 +77,21 @@ export class OrderSummaryComponent {
     if (promo) {
       this.promoCode.set(promo.code);
     }
+  }
+
+  // Delivery method
+  setDeliveryMethod(method: DeliveryMethod): void {
+    this.deliveryMethod.set(method);
+  }
+
+  // Promo dialog
+  openPromoDialog(): void {
+    this.promoError.set(null);
+    this.showPromoDialog.set(true);
+  }
+
+  closePromoDialog(): void {
+    this.showPromoDialog.set(false);
   }
 
   // Promo operations
@@ -90,6 +121,7 @@ export class OrderSummaryComponent {
             promotion: response.promotion,
             discount_amount: response.discount_amount
           });
+          this.showPromoDialog.set(false);
           this.toast.showSuccess('promotions.discount_applied', {
             amount: this.currencyService.formatCurrency(response.discount_amount)
           });

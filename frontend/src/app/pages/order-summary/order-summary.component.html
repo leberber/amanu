@@ -1,6 +1,6 @@
 <app-page-layout
-  title="promotions.promo_code"
-  icon="pi pi-tag"
+  title="cart.order_summary"
+  icon="pi pi-receipt"
   [hideMobileIcon]="true"
   [showBackButton]="true"
   [backRoute]="ROUTES.CART"
@@ -9,54 +9,49 @@
   <p-toast></p-toast>
 
   <div class="order-summary-content">
-    <!-- Promo Code Card -->
-    <div class="card card--no-hover promo-card">
-      <div class="promo-section">
-        <div class="card-header__icon card-header__icon--purple promo-section__icon">
-          <i class="pi pi-tag"></i>
+    <!-- Delivery Method Selection -->
+    <div class="card card--no-hover">
+      <div class="card-header">
+        <div class="card-header__text">
+          <h2 class="card-header__title">{{ 'order_summary.delivery_method' | translate }}</h2>
         </div>
-        <h2 class="promo-section__title">{{ 'promotions.have_code' | translate }}</h2>
-        <p class="promo-section__subtitle">{{ 'promotions.enter_code_desc' | translate }}</p>
-
-        @if (!appliedPromotion()) {
-          <div class="promo-input-group">
-            <input
-              type="text"
-              class="promo-input"
-              [ngModel]="promoCode()"
-              (ngModelChange)="promoCode.set($event)"
-              [placeholder]="'promotions.enter_code' | translate"
-              [disabled]="promoLoading()"
-              (focus)="promoInputFocused.set(true)"
-              (blur)="promoInputFocused.set(false)">
-            <button
-              class="promo-apply-btn"
-              [disabled]="promoLoading() || !promoCode()"
-              (click)="applyPromoCode()">
-              @if (promoLoading()) {
-                <i class="pi pi-spin pi-spinner"></i>
-              } @else {
-                {{ 'promotions.apply' | translate }}
-              }
-            </button>
-          </div>
-          @if (promoError()) {
-            <span class="promo-error">{{ promoError() }}</span>
-          }
-        } @else {
-          <div class="promo-applied-card">
-            <div class="promo-applied-card__info">
-              <i class="pi pi-check-circle"></i>
-              <div>
-                <span class="promo-applied-card__code">{{ appliedPromotion()?.code }}</span>
-                <span class="promo-applied-card__savings">-{{ discountAmount() | appCurrency }}</span>
-              </div>
+      </div>
+      <div class="card-body card-body--compact">
+        <div class="delivery-options">
+          <button
+            class="delivery-option"
+            [class.delivery-option--selected]="deliveryMethod() === 'delivery'"
+            (click)="setDeliveryMethod('delivery')">
+            <div class="delivery-option__radio">
+              <div class="delivery-option__radio-inner"></div>
             </div>
-            <button class="promo-applied-card__remove" (click)="removePromoCode()">
-              <i class="pi pi-times"></i>
-            </button>
-          </div>
-        }
+            <div class="delivery-option__icon delivery-option__icon--delivery">
+              <i class="pi pi-truck"></i>
+            </div>
+            <div class="delivery-option__content">
+              <span class="delivery-option__label">{{ 'order_summary.delivery' | translate }}</span>
+              <span class="delivery-option__desc">{{ 'order_summary.delivery_desc' | translate }}</span>
+            </div>
+            <span class="delivery-option__price">{{ DELIVERY_COST | appCurrency }}</span>
+          </button>
+
+          <button
+            class="delivery-option"
+            [class.delivery-option--selected]="deliveryMethod() === 'pickup'"
+            (click)="setDeliveryMethod('pickup')">
+            <div class="delivery-option__radio">
+              <div class="delivery-option__radio-inner"></div>
+            </div>
+            <div class="delivery-option__icon delivery-option__icon--pickup">
+              <i class="pi pi-map-marker"></i>
+            </div>
+            <div class="delivery-option__content">
+              <span class="delivery-option__label">{{ 'order_summary.pickup' | translate }}</span>
+              <span class="delivery-option__desc">{{ 'order_summary.pickup_desc' | translate }}</span>
+            </div>
+            <span class="delivery-option__price delivery-option__price--free">{{ 'cart.free' | translate }}</span>
+          </button>
+        </div>
       </div>
     </div>
 
@@ -64,41 +59,62 @@
     <div class="card card--no-hover">
       <div class="card-header">
         <div class="card-header__text">
-          <h2 class="card-header__title">{{ 'cart.order_summary' | translate }}</h2>
+          <h2 class="card-header__title">{{ 'order_summary.summary' | translate }}</h2>
         </div>
       </div>
       <div class="card-body card-body--compact">
         <div class="breakdown-list">
+          <!-- Subtotal -->
           <div class="breakdown-row">
-            <div class="breakdown-row__left">
-              <div class="info-item__icon info-item__icon--success">
-                <i class="pi pi-shopping-cart"></i>
-              </div>
-              <span class="breakdown-row__label">{{ 'promotions.subtotal' | translate }}</span>
-            </div>
+            <span class="breakdown-row__label">{{ 'promotions.subtotal' | translate }}</span>
             <span class="breakdown-row__value">{{ cartSubtotal() | appCurrency }}</span>
           </div>
 
+          <!-- Delivery Cost -->
+          <div class="breakdown-row">
+            <span class="breakdown-row__label">
+              @if (deliveryMethod() === 'delivery') {
+                {{ 'order_summary.delivery' | translate }}
+              } @else {
+                {{ 'order_summary.pickup' | translate }}
+              }
+            </span>
+            <span class="breakdown-row__value" [class.breakdown-row__value--free]="deliveryCost() === 0">
+              @if (deliveryCost() === 0) {
+                {{ 'cart.free' | translate }}
+              } @else {
+                {{ deliveryCost() | appCurrency }}
+              }
+            </span>
+          </div>
+
+          <!-- Discount (if applied) -->
           @if (appliedPromotion()) {
             <div class="breakdown-row">
-              <div class="breakdown-row__left">
-                <div class="info-item__icon info-item__icon--purple">
-                  <i class="pi pi-percentage"></i>
-                </div>
-                <span class="breakdown-row__label">{{ 'promotions.discount' | translate }}</span>
-              </div>
+              <span class="breakdown-row__label">{{ 'promotions.discount' | translate }}</span>
               <span class="breakdown-row__value breakdown-row__value--discount">-{{ discountAmount() | appCurrency }}</span>
             </div>
           }
 
-          <div class="breakdown-row">
-            <div class="breakdown-row__left">
-              <div class="info-item__icon info-item__icon--warning">
-                <i class="pi pi-truck"></i>
+          <!-- Promo Code Button -->
+          <div class="promo-row">
+            @if (appliedPromotion()) {
+              <div class="promo-applied">
+                <div class="promo-applied__info">
+                  <i class="pi pi-check-circle"></i>
+                  <span class="promo-applied__code">{{ appliedPromotion()?.code }}</span>
+                </div>
+                <button class="promo-applied__remove" (click)="removePromoCode()">
+                  <i class="pi pi-times"></i>
+                </button>
               </div>
-              <span class="breakdown-row__label">{{ 'cart.shipping' | translate }}</span>
-            </div>
-            <span class="breakdown-row__value breakdown-row__value--free">{{ 'cart.free' | translate }}</span>
+            } @else {
+              <button class="promo-btn" (click)="openPromoDialog()">
+                <i class="pi pi-tag"></i>
+                <span>{{ 'order_summary.add_promo' | translate }}</span>
+                <i class="pi pi-chevron-right"></i>
+              </button>
+            }
           </div>
         </div>
       </div>
@@ -113,12 +129,6 @@
         </div>
         <div class="total-meta">
           <span>{{ cartItemCount() }} {{ (cartItemCount() === 1 ? 'common.item' : 'common.items') | translate }}</span>
-          @if (appliedPromotion()) {
-            <span class="promo-tag">
-              <i class="pi pi-tag"></i>
-              {{ appliedPromotion()?.code }}
-            </span>
-          }
         </div>
       </div>
     </div>
@@ -135,3 +145,56 @@
     (buttonClick)="proceedToCheckout()" />
 
 </app-page-layout>
+
+<!-- Promo Code Dialog -->
+<p-dialog
+  [(visible)]="showPromoDialog"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [closable]="true"
+  [showHeader]="false"
+  styleClass="promo-dialog"
+  [style]="{ width: '90vw', maxWidth: '400px' }">
+
+  <div class="promo-dialog-content">
+    <div class="promo-dialog__header">
+      <div class="promo-dialog__icon">
+        <i class="pi pi-tag"></i>
+      </div>
+      <h3 class="promo-dialog__title">{{ 'promotions.have_code' | translate }}</h3>
+      <p class="promo-dialog__subtitle">{{ 'promotions.enter_code_desc' | translate }}</p>
+    </div>
+
+    <div class="promo-dialog__body">
+      <input
+        type="text"
+        class="promo-input"
+        [ngModel]="promoCode()"
+        (ngModelChange)="promoCode.set($event)"
+        [placeholder]="'promotions.enter_code' | translate"
+        [disabled]="promoLoading()"
+        (keyup.enter)="applyPromoCode()">
+
+      @if (promoError()) {
+        <span class="promo-error">{{ promoError() }}</span>
+      }
+    </div>
+
+    <div class="promo-dialog__actions">
+      <button class="promo-dialog__btn promo-dialog__btn--cancel" (click)="closePromoDialog()">
+        {{ 'common.cancel' | translate }}
+      </button>
+      <button
+        class="promo-dialog__btn promo-dialog__btn--apply"
+        [disabled]="promoLoading() || !promoCode()"
+        (click)="applyPromoCode()">
+        @if (promoLoading()) {
+          <i class="pi pi-spin pi-spinner"></i>
+        } @else {
+          {{ 'promotions.apply' | translate }}
+        }
+      </button>
+    </div>
+  </div>
+</p-dialog>

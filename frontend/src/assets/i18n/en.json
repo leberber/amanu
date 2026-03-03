@@ -339,6 +339,15 @@
     "sale": "SALE",
     "off": "OFF"
   },
+  "order_summary": {
+    "delivery_method": "Delivery Method",
+    "delivery": "Delivery",
+    "delivery_desc": "We deliver to your address",
+    "pickup": "Pickup",
+    "pickup_desc": "Pick up at our location",
+    "summary": "Summary",
+    "add_promo": "Add promo code"
+  },
   "register": {
     "step1_label": "Info",
     "step2_label": "Password",

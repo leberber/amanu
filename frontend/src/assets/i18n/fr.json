@@ -336,6 +336,15 @@
     "sale": "PROMO",
     "off": "DE RÉDUCTION"
   },
+  "order_summary": {
+    "delivery_method": "Mode de livraison",
+    "delivery": "Livraison",
+    "delivery_desc": "Nous livrons à votre adresse",
+    "pickup": "Retrait",
+    "pickup_desc": "Récupérez à notre point de retrait",
+    "summary": "Récapitulatif",
+    "add_promo": "Ajouter un code promo"
+  },
   "register": {
     "step1_label": "Info",
     "step2_label": "Mot de passe",

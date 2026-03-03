@@ -337,6 +337,15 @@
     "sale": "خصم",
     "off": "تخفيض"
   },
+  "order_summary": {
+    "delivery_method": "طريقة التوصيل",
+    "delivery": "توصيل",
+    "delivery_desc": "نوصل إلى عنوانك",
+    "pickup": "استلام",
+    "pickup_desc": "استلم من موقعنا",
+    "summary": "الملخص",
+    "add_promo": "أضف كود خصم"
+  },
   "register": {
     "step1_label": "المعلومات",
     "step2_label": "كلمة المرور",
