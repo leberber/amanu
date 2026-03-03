@@ -6,7 +6,7 @@
       [src]="product().image_url"
       [alt]="product().name"
       loading="lazy"
-      (error)="onImageError($event)">
+      appImageFallback>
     @if (product().is_organic) {
       <span class="organic-badge">{{ 'products.tags.organic' | translate }}</span>
     }

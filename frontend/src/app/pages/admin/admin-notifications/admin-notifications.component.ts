@@ -11,6 +11,7 @@ import { TextareaModule } from 'primeng/textarea';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { ADMIN_CORE_IMPORTS } from '../../../shared/imports/admin-shared.imports';
+import { ImageFallbackDirective } from '../../../shared/directives/image-fallback.directive';
 import { ROUTES } from '../../../core/constants/routes.constants';
 import { NotificationService } from '../../../services/notification.service';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
@@ -41,7 +42,8 @@ import {
     DatePickerModule,
     CheckboxModule,
     TextareaModule,
-    TranslateModule
+    TranslateModule,
+    ImageFallbackDirective
   ],
   templateUrl: './admin-notifications.component.html',
   styleUrl: './admin-notifications.component.scss'
@@ -569,11 +571,6 @@ export class AdminNotificationsComponent implements OnInit {
       case 'brand': return 'pi-bookmark';
       default: return 'pi-bell';
     }
-  }
-
-  onImageError(event: Event): void {
-    const img = event.target as HTMLImageElement;
-    img.src = 'assets/images/product-placeholder.png';
   }
 
   goBack() {

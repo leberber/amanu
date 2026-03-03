@@ -169,7 +169,7 @@
                       <td>
                         <div class="table-thumbnail">
                           @if (brand.logo_url) {
-                            <img [src]="brand.logo_url" [alt]="getBrandName(brand)" loading="lazy" (error)="onImageError($event)">
+                            <img [src]="brand.logo_url" [alt]="getBrandName(brand)" loading="lazy" appImageFallback [hideOnError]="true">
                             <i class="pi pi-building hidden"></i>
                           } @else {
                             <i class="pi pi-building"></i>

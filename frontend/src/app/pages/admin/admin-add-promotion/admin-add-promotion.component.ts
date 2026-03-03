@@ -15,6 +15,7 @@ import { ROUTES } from '../../../core/constants/routes.constants';
 import { ANIMATION, UI_DELAY } from '../../../core/constants/ui.constants';
 import { VALIDATION } from '../../../core/constants/validation.constants';
 import { onLanguageChange } from '../../../core/utils/language-change.util';
+import { detectEditMode } from '../../../core/utils/edit-mode.util';
 import { PromotionService } from '../../../services/promotion.service';
 import { ProductService } from '../../../services/product.service';
 import { BrandService } from '../../../core/services/brand.service';
@@ -148,7 +149,13 @@ export class AdminAddPromotionComponent implements OnInit {
     this.loadCategories();
     this.loadBrands();
     this.loadProducts();
-    this.detectMode();
+    detectEditMode(
+      this.route,
+      this.destroyRef,
+      this.isEditMode,
+      this.editPromotionId,
+      () => this.loadPromotionForEdit()
+    );
     onLanguageChange(this.translateService, this.destroyRef, () => this.initializeOptions());
 
     setTimeout(() => this.formInitialized.set(true), ANIMATION.NORMAL);
@@ -263,24 +270,6 @@ export class AdminAddPromotionComponent implements OnInit {
       .subscribe({
         next: (products: Product[]) => {
           this.productOptions.set(products.map(p => ({ label: p.name, value: p.id })));
-        }
-      });
-  }
-
-  private detectMode(): void {
-    const routeData = this.route.snapshot.data;
-    if (routeData['mode'] === 'edit') {
-      this.isEditMode.set(true);
-    }
-
-    this.route.paramMap
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(params => {
-        const id = params.get('id');
-        if (id) {
-          this.editPromotionId.set(parseInt(id, 10));
-          this.isEditMode.set(true);
-          this.loadPromotionForEdit();
         }
       });
   }

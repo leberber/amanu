@@ -9,6 +9,7 @@ import { ToastModule } from 'primeng/toast';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { ROUTES } from '../../../core/constants/routes.constants';
+import { detectEditMode } from '../../../core/utils/edit-mode.util';
 import { ANIMATION, UI_DELAY } from '../../../core/constants/ui.constants';
 import { VALIDATION } from '../../../core/constants/validation.constants';
 import { BrandService } from '../../../core/services/brand.service';
@@ -85,26 +86,14 @@ export class AdminAddBrandComponent implements OnInit {
       { logo_url: [''], is_active: [true] }
     );
 
-    this.detectMode();
+    detectEditMode(
+      this.route,
+      this.destroyRef,
+      this.isEditMode,
+      this.editBrandId,
+      () => this.loadBrandForEdit()
+    );
     setTimeout(() => this.formInitialized.set(true), ANIMATION.NORMAL);
-  }
-
-  private detectMode(): void {
-    const routeData = this.route.snapshot.data;
-    if (routeData['mode'] === 'edit') {
-      this.isEditMode.set(true);
-    }
-
-    this.route.paramMap
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(params => {
-        const id = params.get('id');
-        if (id) {
-          this.editBrandId.set(parseInt(id, 10));
-          this.isEditMode.set(true);
-          this.loadBrandForEdit();
-        }
-      });
   }
 
   private loadBrandForEdit(): void {

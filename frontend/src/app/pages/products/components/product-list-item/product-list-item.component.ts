@@ -22,6 +22,7 @@ import {
   BoxOption
 } from '../../../../shared/utils/box-options.utils';
 import { DEFAULTS } from '../../../../core/constants/app.constants';
+import { ImageFallbackDirective } from '../../../../shared/directives/image-fallback.directive';
 
 export interface AddToCartEvent {
   product: Product;
@@ -41,7 +42,8 @@ export interface QuantitySelectorEvent {
     TranslateModule,
     ButtonModule,
     CurrencyPipe,
-    UnitPipe
+    UnitPipe,
+    ImageFallbackDirective
   ],
   templateUrl: './product-list-item.component.html',
   styleUrl: './product-list-item.component.scss'
@@ -131,11 +133,6 @@ export class ProductListItemComponent {
       product: this.product(),
       quantity: option.pieces
     });
-  }
-
-  onImageError(event: Event): void {
-    const img = event.target as HTMLImageElement;
-    img.src = DEFAULTS.PLACEHOLDER_IMAGE;
   }
 
   getCartButtonIcon(): string {

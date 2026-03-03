@@ -189,70 +189,46 @@ export class AdminCategoriesComponent extends BaseAdminListComponent implements 
   }
 
   deleteCategory(category: Category): void {
-    this.productService.deleteCategory(category.id)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => {
-          this.allCategories.update(cats => cats.filter(c => c.id !== category.id));
-          this.filterItems();
-          this.baseToast.showSuccess('admin.categories.delete_success');
-        },
-        error: (error) => {
-          this.baseToast.showApiError(error, 'admin.categories.delete_failed');
-        }
-      });
+    this.handleDeleteWithSignal(
+      () => this.productService.deleteCategory(category.id),
+      this.allCategories,
+      category.id,
+      'admin.categories.delete_success',
+      'admin.categories.delete_failed'
+    );
   }
 
   refreshCategoryData() {
     this.loadAllCategories();
   }
 
-  // Inline status editing
+  // Inline status editing (using base class helpers)
   startEditStatus(category: Category): void {
-    this.statusEdit.start(category.id, category.is_active);
+    this.startStatusEdit(this.statusEdit, category);
   }
 
   cancelEditStatus(): void {
-    this.statusEdit.cancel();
+    this.cancelStatusEdit(this.statusEdit);
   }
 
   isEditingStatus(categoryId: number): boolean {
-    return this.statusEdit.isEditing(categoryId);
+    return this.isEditingStatusFor(this.statusEdit, categoryId);
   }
 
   toggleEditingStatus(): void {
-    this.statusEdit.value = !this.statusEdit.value;
+    this.toggleStatusEditValue(this.statusEdit);
   }
 
   saveStatus(category: Category): void {
-    if (!this.statusEdit.hasChanged(category.is_active)) {
-      this.statusEdit.cancel();
-      return;
-    }
-
-    const newStatus = this.statusEdit.value;
-    this.productService.updateCategory(category.id, { is_active: newStatus })
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => {
-          this.allCategories.update(cats =>
-            cats.map(c => c.id === category.id ? { ...c, is_active: newStatus } : c)
-          );
-          this.filterItems();
-          this.statusEdit.cancel();
-          this.baseToast.showSuccess(newStatus ? 'admin.categories.status_activated' : 'admin.categories.status_deactivated');
-        },
-        error: (error) => {
-          this.statusEdit.cancel();
-          this.baseToast.showApiError(error, 'admin.categories.status_update_failed');
-        }
-      });
-  }
-
-  onImageError(event: Event): void {
-    const img = event.target as HTMLImageElement;
-    img.style.display = 'none';
-    img.parentElement?.querySelector('i')?.classList.remove('hidden');
+    this.saveStatusChange(
+      this.statusEdit,
+      category,
+      (id, data) => this.productService.updateCategory(id, data),
+      this.allCategories,
+      'admin.categories.status_activated',
+      'admin.categories.status_deactivated',
+      'admin.categories.status_update_failed'
+    );
   }
 
   getCategoryProductCount(categoryId: number): number {

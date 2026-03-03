@@ -195,70 +195,46 @@ export class AdminBrandsComponent extends BaseAdminListComponent implements OnIn
   }
 
   deleteBrand(brand: Brand): void {
-    this.brandService.deleteBrand(brand.id)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => {
-          this.allBrands.update(brands => brands.filter(b => b.id !== brand.id));
-          this.filterItems();
-          this.baseToast.showSuccess('admin.brands.delete_success');
-        },
-        error: (error) => {
-          this.baseToast.showApiError(error, 'admin.brands.delete_failed');
-        }
-      });
+    this.handleDeleteWithSignal(
+      () => this.brandService.deleteBrand(brand.id),
+      this.allBrands,
+      brand.id,
+      'admin.brands.delete_success',
+      'admin.brands.delete_failed'
+    );
   }
 
   refreshBrandData() {
     this.loadAllBrands();
   }
 
-  // Inline status editing
+  // Inline status editing (using base class helpers)
   startEditStatus(brand: Brand): void {
-    this.statusEdit.start(brand.id, brand.is_active);
+    this.startStatusEdit(this.statusEdit, brand);
   }
 
   cancelEditStatus(): void {
-    this.statusEdit.cancel();
+    this.cancelStatusEdit(this.statusEdit);
   }
 
   isEditingStatus(brandId: number): boolean {
-    return this.statusEdit.isEditing(brandId);
+    return this.isEditingStatusFor(this.statusEdit, brandId);
   }
 
   toggleEditingStatus(): void {
-    this.statusEdit.value = !this.statusEdit.value;
+    this.toggleStatusEditValue(this.statusEdit);
   }
 
   saveStatus(brand: Brand): void {
-    if (!this.statusEdit.hasChanged(brand.is_active)) {
-      this.statusEdit.cancel();
-      return;
-    }
-
-    const newStatus = this.statusEdit.value;
-    this.brandService.updateBrand(brand.id, { is_active: newStatus })
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => {
-          this.allBrands.update(brands =>
-            brands.map(b => b.id === brand.id ? { ...b, is_active: newStatus } : b)
-          );
-          this.filterItems();
-          this.statusEdit.cancel();
-          this.baseToast.showSuccess(newStatus ? 'admin.brands.status_activated' : 'admin.brands.status_deactivated');
-        },
-        error: (error) => {
-          this.statusEdit.cancel();
-          this.baseToast.showApiError(error, 'admin.brands.status_update_failed');
-        }
-      });
-  }
-
-  onImageError(event: Event): void {
-    const img = event.target as HTMLImageElement;
-    img.style.display = 'none';
-    img.parentElement?.querySelector('i')?.classList.remove('hidden');
+    this.saveStatusChange(
+      this.statusEdit,
+      brand,
+      (id, data) => this.brandService.updateBrand(id, data),
+      this.allBrands,
+      'admin.brands.status_activated',
+      'admin.brands.status_deactivated',
+      'admin.brands.status_update_failed'
+    );
   }
 
   getBrandName(brand: Brand): string {

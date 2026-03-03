@@ -160,7 +160,7 @@
           <img
             [src]="getProductImageUrl(product)"
             [alt]="product.name"
-            (error)="onImageError($event)">
+            appImageFallback>
           <div class="quantity-overlay__product-info">
             <h4>{{ product.name }}</h4>
             <span class="quantity-overlay__price">{{ getEffectivePrice(product) | appCurrency }} / {{ product.unit | appUnit }}</span>

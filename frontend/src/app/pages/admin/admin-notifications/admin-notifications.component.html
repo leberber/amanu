@@ -591,7 +591,7 @@
                           class="w-full border-round-lg"
                           style="max-width: 200px; aspect-ratio: 1; object-fit: cover;"
                           loading="lazy"
-                          (error)="onImageError($event)"
+                          appImageFallback
                         />
                       }
                       <div class="flex flex-column align-items-center gap-1 text-center">
@@ -951,7 +951,7 @@
                               [alt]="getTargetName(selectedTargetItem())"
                               class="summary-pill__img"
                               loading="lazy"
-                              (error)="onImageError($event)"
+                              appImageFallback
                             />
                           }
                           <span>{{ getTargetName(selectedTargetItem()) }}</span>

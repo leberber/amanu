@@ -32,6 +32,7 @@ import { HorizontalFilterComponent } from '../../../shared/components/horizontal
 import { SearchInputComponent } from '../../../shared/components/search-input/search-input.component';
 import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
 import { UnitPipe } from '../../../shared/pipes/unit.pipe';
+import { ImageFallbackDirective } from '../../../shared/directives/image-fallback.directive';
 
 @Component({
   selector: 'app-product-list',
@@ -46,7 +47,8 @@ import { UnitPipe } from '../../../shared/pipes/unit.pipe';
     HorizontalFilterComponent,
     SearchInputComponent,
     CurrencyPipe,
-    UnitPipe
+    UnitPipe,
+    ImageFallbackDirective
   ],
   templateUrl: './product-list.component.html',
   styleUrls: ['./product-list.component.scss']
@@ -290,10 +292,6 @@ export class ProductListComponent implements OnInit {
 
   getEffectivePrice(product: Product): number {
     return calcEffectivePrice(product.price, product.promotion);
-  }
-
-  onImageError(event: Event): void {
-    (event.target as HTMLImageElement).src = DEFAULTS.PLACEHOLDER_IMAGE;
   }
 
   getProductImageUrl(product: Product): string {

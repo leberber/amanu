@@ -169,7 +169,7 @@
                       <td>
                         <div class="table-thumbnail">
                           @if (category.image_url) {
-                            <img [src]="category.image_url" [alt]="getCategoryName(category)" loading="lazy" (error)="onImageError($event)">
+                            <img [src]="category.image_url" [alt]="getCategoryName(category)" loading="lazy" appImageFallback [hideOnError]="true">
                             <i class="pi pi-tags hidden"></i>
                           } @else {
                             <i class="pi pi-tags"></i>

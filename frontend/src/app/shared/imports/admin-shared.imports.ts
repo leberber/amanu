@@ -54,6 +54,7 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { TableSearchComponent } from '../components/table-search/table-search.component';
+import { ImageFallbackDirective } from '../directives/image-fallback.directive';
 
 export const ADMIN_LIST_IMPORTS = [
   ...ADMIN_CORE_IMPORTS,
@@ -69,7 +70,8 @@ export const ADMIN_LIST_IMPORTS = [
   CurrencyPipe,
   UnitPipe,
   DateFormatPipe,
-  PhoneFormatPipe
+  PhoneFormatPipe,
+  ImageFallbackDirective
 ] as const;
 
 /**

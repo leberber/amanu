@@ -222,7 +222,7 @@
                     <td>
                       <div class="table-thumbnail">
                         @if (product.image_url) {
-                          <img [src]="product.image_url" [alt]="getProductName(product)" loading="lazy" (error)="onImageError($event)">
+                          <img [src]="product.image_url" [alt]="getProductName(product)" loading="lazy" appImageFallback [hideOnError]="true">
                           <i class="pi pi-image hidden"></i>
                         } @else {
                           <i class="pi pi-image"></i>

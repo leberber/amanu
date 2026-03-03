@@ -16,6 +16,7 @@ import { BrandService } from '../../../core/services/brand.service';
 import { VALIDATION } from '../../../core/constants/validation.constants';
 import { PRODUCT } from '../../../core/constants/product.constants';
 import { ROUTES } from '../../../core/constants/routes.constants';
+import { detectEditMode } from '../../../core/utils/edit-mode.util';
 import { UnitsService } from '../../../core/services/units.service';
 import { PackagingTypeService } from '../../../core/services/packaging-type.service';
 import { AdminFormService } from '../../../core/services/admin-form.service';
@@ -145,7 +146,13 @@ export class AdminAddProductComponent implements OnInit {
 
     this.loadCategories();
     this.loadBrands();
-    this.detectMode();
+    detectEditMode(
+      this.route,
+      this.destroyRef,
+      this.isEditMode,
+      this.editProductId,
+      () => this.loadProductForEdit()
+    );
 
     this.productForm.get('pieces_per_box')?.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -176,24 +183,6 @@ export class AdminAddProductComponent implements OnInit {
       .subscribe(value => this.nameArValue.set(value || ''));
 
     setTimeout(() => this.formInitialized.set(true), 300);
-  }
-
-  private detectMode(): void {
-    const routeData = this.route.snapshot.data;
-    if (routeData['mode'] === 'edit') {
-      this.isEditMode.set(true);
-    }
-
-    this.route.paramMap
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(params => {
-        const id = params.get('id');
-        if (id) {
-          this.editProductId.set(parseInt(id, 10));
-          this.isEditMode.set(true);
-          this.loadProductForEdit();
-        }
-      });
   }
 
   private loadCategories(): void {

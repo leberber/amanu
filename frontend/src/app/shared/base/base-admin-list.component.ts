@@ -1,10 +1,11 @@
-import { inject, Directive, signal } from '@angular/core';
+import { inject, Directive, signal, WritableSignal } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { DateService } from '../../core/services/date.service';
 import { SearchDebounceService } from '../../core/services/search-debounce.service';
 import { ToastMessageService } from '../../core/services/toast-message.service';
 import { ROUTES } from '../../core/constants/routes.constants';
+import { InlineEditState } from '../utils/inline-edit-state';
 
 export interface ColumnOption {
   field: string;
@@ -129,6 +130,72 @@ export abstract class BaseAdminListComponent {
     );
   }
 
+  // =============================================================================
+  // Inline Status Edit Helpers
+  // =============================================================================
+  // These methods provide common status editing operations. Child components
+  // should have a `statusEdit = new InlineEditState<boolean>(true)` property.
+
+  protected startStatusEdit<T extends { id: number; is_active: boolean }>(
+    statusEdit: InlineEditState<boolean>,
+    item: T
+  ): void {
+    statusEdit.start(item.id, item.is_active);
+  }
+
+  protected isEditingStatusFor(statusEdit: InlineEditState<boolean>, itemId: number): boolean {
+    return statusEdit.isEditing(itemId);
+  }
+
+  protected toggleStatusEditValue(statusEdit: InlineEditState<boolean>): void {
+    statusEdit.value = !statusEdit.value;
+  }
+
+  protected cancelStatusEdit(statusEdit: InlineEditState<boolean>): void {
+    statusEdit.cancel();
+  }
+
+  /**
+   * Save status change for an item. Updates the signal array and shows toast.
+   * @param statusEdit The InlineEditState for status
+   * @param item The item being updated
+   * @param updateFn Function to call the update API
+   * @param allItemsSignal The signal containing all items
+   * @param activatedKey Translation key for activated message
+   * @param deactivatedKey Translation key for deactivated message
+   * @param errorKey Translation key for error message
+   */
+  protected saveStatusChange<T extends { id: number; is_active: boolean }>(
+    statusEdit: InlineEditState<boolean>,
+    item: T,
+    updateFn: (id: number, data: { is_active: boolean }) => Observable<any>,
+    allItemsSignal: WritableSignal<T[]>,
+    activatedKey: string,
+    deactivatedKey: string,
+    errorKey: string
+  ): void {
+    if (!statusEdit.hasChanged(item.is_active)) {
+      statusEdit.cancel();
+      return;
+    }
+
+    const newStatus = statusEdit.value;
+    updateFn(item.id, { is_active: newStatus }).subscribe({
+      next: () => {
+        allItemsSignal.update(items =>
+          items.map(i => i.id === item.id ? { ...i, is_active: newStatus } : i)
+        );
+        this.filterItems();
+        statusEdit.cancel();
+        this.baseToast.showSuccess(newStatus ? activatedKey : deactivatedKey);
+      },
+      error: (error) => {
+        statusEdit.cancel();
+        this.baseToast.showApiError(error, errorKey);
+      }
+    });
+  }
+
   // Data loading helpers
   protected loadData<T>(
     loadFn: () => Observable<T>,
@@ -166,7 +233,7 @@ export abstract class BaseAdminListComponent {
     });
   }
 
-  // Delete operation helpers
+  // Delete operation helpers (for plain arrays)
   protected handleDelete<T extends { id: number }>(
     deleteFn: () => Observable<any>,
     allItems: T[],
@@ -181,6 +248,33 @@ export abstract class BaseAdminListComponent {
         const updatedItems = allItems.filter(item => item.id !== itemId);
         updateArray(updatedItems);
         this.filterItems();
+      },
+      error: (error) => {
+        this.baseToast.showApiError(error, errorMessageKey);
+      }
+    });
+  }
+
+  /**
+   * Delete an item and update the signal array.
+   * @param deleteFn Function to call the delete API
+   * @param allItemsSignal The signal containing all items
+   * @param itemId The ID of the item to delete
+   * @param successMessageKey Translation key for success message
+   * @param errorMessageKey Translation key for error message
+   */
+  protected handleDeleteWithSignal<T extends { id: number }>(
+    deleteFn: () => Observable<any>,
+    allItemsSignal: WritableSignal<T[]>,
+    itemId: number,
+    successMessageKey: string,
+    errorMessageKey: string
+  ): void {
+    deleteFn().subscribe({
+      next: () => {
+        allItemsSignal.update(items => items.filter(item => item.id !== itemId));
+        this.filterItems();
+        this.baseToast.showSuccess(successMessageKey);
       },
       error: (error) => {
         this.baseToast.showApiError(error, errorMessageKey);
