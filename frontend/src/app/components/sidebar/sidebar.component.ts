@@ -14,6 +14,7 @@ import { LanguageSelectorComponent } from '../language-selector/language-selecto
 import { UserPreferencesService } from '../../core/services/user-preferences.service';
 import { onLanguageChange } from '../../core/utils/language-change.util';
 import { ROUTES } from '../../core/constants/routes.constants';
+import { ADMIN_NAV_ITEMS } from '../../core/constants/navigation.constants';
 import { BreakpointService } from '../../core/services/breakpoint.service';
 import { getInitials } from '../../core/utils/format.util';
 
@@ -65,7 +66,7 @@ export class SidebarComponent implements OnInit {
   adminNavItems = signal<NavItem[]>([]);
 
   // Cart count from service signal
-  cartCount = computed(() => this.cartService.items().length);
+  cartCount = this.cartService.itemCount;
 
   // Notification unread count from service signal
   notificationCount = computed(() => this.notificationService.unreadCount());
@@ -159,57 +160,16 @@ export class SidebarComponent implements OnInit {
       }
     ]);
 
-    // Admin navigation items
-    this.adminNavItems.set([
-      {
-        label: this.translateService.instant('admin.navigation.dashboard'),
-        icon: 'pi pi-chart-bar',
-        route: ROUTES.ADMIN.DASHBOARD,
-        adminOnly: true
-      },
-      {
-        label: this.translateService.instant('admin.navigation.orders'),
-        icon: 'pi pi-list',
-        route: ROUTES.ADMIN.ORDERS,
-        staffOnly: true
-      },
-      {
-        label: this.translateService.instant('admin.navigation.products'),
-        icon: 'pi pi-tag',
-        route: ROUTES.ADMIN.PRODUCTS,
-        staffOnly: true
-      },
-      {
-        label: this.translateService.instant('admin.navigation.categories'),
-        icon: 'pi pi-tags',
-        route: ROUTES.ADMIN.CATEGORIES,
-        staffOnly: true
-      },
-      {
-        label: this.translateService.instant('admin.navigation.brands'),
-        icon: 'pi pi-building',
-        route: ROUTES.ADMIN.BRANDS,
-        staffOnly: true
-      },
-      {
-        label: this.translateService.instant('admin.navigation.promotions'),
-        icon: 'pi pi-percentage',
-        route: ROUTES.ADMIN.PROMOTIONS,
-        staffOnly: true
-      },
-      {
-        label: this.translateService.instant('admin.navigation.users'),
-        icon: 'pi pi-users',
-        route: ROUTES.ADMIN.USERS,
-        adminOnly: true
-      },
-      {
-        label: this.translateService.instant('admin.navigation.notifications'),
-        icon: 'pi pi-bell',
-        route: ROUTES.ADMIN.NOTIFICATIONS,
-        adminOnly: true
-      }
-    ]);
+    // Admin navigation items - derived from centralized config
+    this.adminNavItems.set(
+      ADMIN_NAV_ITEMS.map(item => ({
+        label: this.translateService.instant(item.labelKey),
+        icon: item.icon,
+        route: item.route,
+        adminOnly: item.adminOnly,
+        staffOnly: item.staffOnly
+      }))
+    );
   }
 
   // Filter nav items based on user role
@@ -230,16 +190,8 @@ export class SidebarComponent implements OnInit {
   }
 
   // Mobile drawer controls (via service)
-  openMobileDrawer() {
-    this.sidebarService.openDrawer();
-  }
-
   closeMobileDrawer() {
     this.sidebarService.closeDrawer();
-  }
-
-  toggleMobileDrawer() {
-    this.sidebarService.toggleDrawer();
   }
 
   // Desktop collapse controls

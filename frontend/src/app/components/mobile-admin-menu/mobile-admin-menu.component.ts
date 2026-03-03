@@ -1,16 +1,15 @@
-import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, inject, computed } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
 import { TranslateModule } from '@ngx-translate/core';
 import { AuthService } from '../../services/auth.service';
-import { ROUTES } from '../../core/constants/routes.constants';
+import { ADMIN_NAV_ITEMS } from '../../core/constants/navigation.constants';
 
 @Component({
   selector: 'app-mobile-admin-menu',
   standalone: true,
-  imports: [CommonModule, RouterLink, DialogModule, ButtonModule, TranslateModule],
+  imports: [RouterLink, DialogModule, ButtonModule, TranslateModule],
   template: `
     <p-dialog
       [(visible)]="visible"
@@ -34,72 +33,14 @@ import { ROUTES } from '../../core/constants/routes.constants';
         </div>
 
         <div class="menu-grid">
-          <!-- Dashboard (Admin only) -->
-          <a *ngIf="isAdmin()"
-             [routerLink]="routes.ADMIN.DASHBOARD"
-             (click)="hide()"
-             class="menu-item">
-            <i class="pi pi-chart-bar"></i>
-            <span>{{ 'admin.navigation.dashboard' | translate }}</span>
-          </a>
-
-          <!-- Orders -->
-          <a [routerLink]="routes.ADMIN.ORDERS"
-             (click)="hide()"
-             class="menu-item">
-            <i class="pi pi-list"></i>
-            <span>{{ 'admin.navigation.orders' | translate }}</span>
-          </a>
-
-          <!-- Products -->
-          <a [routerLink]="routes.ADMIN.PRODUCTS"
-             (click)="hide()"
-             class="menu-item">
-            <i class="pi pi-tag"></i>
-            <span>{{ 'admin.navigation.products' | translate }}</span>
-          </a>
-
-          <!-- Categories -->
-          <a [routerLink]="routes.ADMIN.CATEGORIES"
-             (click)="hide()"
-             class="menu-item">
-            <i class="pi pi-tags"></i>
-            <span>{{ 'admin.navigation.categories' | translate }}</span>
-          </a>
-
-          <!-- Brands -->
-          <a [routerLink]="routes.ADMIN.BRANDS"
-             (click)="hide()"
-             class="menu-item">
-            <i class="pi pi-building"></i>
-            <span>{{ 'admin.navigation.brands' | translate }}</span>
-          </a>
-
-          <!-- Promotions -->
-          <a [routerLink]="routes.ADMIN.PROMOTIONS"
-             (click)="hide()"
-             class="menu-item">
-            <i class="pi pi-percentage"></i>
-            <span>{{ 'admin.navigation.promotions' | translate }}</span>
-          </a>
-
-          <!-- Users (Admin only) -->
-          <a *ngIf="isAdmin()"
-             [routerLink]="routes.ADMIN.USERS"
-             (click)="hide()"
-             class="menu-item">
-            <i class="pi pi-users"></i>
-            <span>{{ 'admin.navigation.users' | translate }}</span>
-          </a>
-
-          <!-- Notifications (Admin only) -->
-          <a *ngIf="isAdmin()"
-             [routerLink]="routes.ADMIN.NOTIFICATIONS"
-             (click)="hide()"
-             class="menu-item">
-            <i class="pi pi-bell"></i>
-            <span>{{ 'admin.navigation.notifications' | translate }}</span>
-          </a>
+          @for (item of visibleItems(); track item.route) {
+            <a [routerLink]="item.route"
+               (click)="hide()"
+               class="menu-item">
+              <i [class]="item.icon"></i>
+              <span>{{ item.labelKey | translate }}</span>
+            </a>
+          }
         </div>
       </div>
     </p-dialog>
@@ -173,7 +114,18 @@ import { ROUTES } from '../../core/constants/routes.constants';
 export class MobileAdminMenuComponent {
   private authService = inject(AuthService);
   visible = false;
-  readonly routes = ROUTES;
+
+  // Filter nav items based on role
+  visibleItems = computed(() => {
+    const isAdmin = this.authService.isAdmin();
+    const isAdminOrStaff = this.authService.isAdminOrStaff();
+
+    return ADMIN_NAV_ITEMS.filter(item => {
+      if (item.adminOnly && !isAdmin) return false;
+      if (item.staffOnly && !isAdminOrStaff) return false;
+      return true;
+    });
+  });
 
   show() {
     this.visible = true;
@@ -181,9 +133,5 @@ export class MobileAdminMenuComponent {
 
   hide() {
     this.visible = false;
-  }
-
-  isAdmin(): boolean {
-    return this.authService.isAdmin();
   }
 }

@@ -1,8 +1,7 @@
 import { Component, OnInit, signal, output, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { StorageService } from '../../core/services/storage.service';
-import { UI } from '../../core/constants/ui.constants';
+import { UI, GESTURE } from '../../core/constants/ui.constants';
 
 interface OnboardingSlide {
   icon: string;
@@ -15,7 +14,7 @@ interface OnboardingSlide {
 @Component({
   selector: 'app-onboarding',
   standalone: true,
-  imports: [CommonModule, TranslateModule],
+  imports: [TranslateModule],
   templateUrl: './onboarding.component.html',
   styleUrl: './onboarding.component.scss'
 })
@@ -123,10 +122,9 @@ export class OnboardingComponent implements OnInit {
   }
 
   private handleSwipe(): void {
-    const swipeThreshold = 50;
     const diff = this.touchStartX - this.touchEndX;
 
-    if (Math.abs(diff) > swipeThreshold) {
+    if (Math.abs(diff) > GESTURE.SWIPE_THRESHOLD) {
       if (diff > 0) {
         // Swipe left - next slide
         this.nextSlide();

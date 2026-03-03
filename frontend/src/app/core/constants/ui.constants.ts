@@ -68,6 +68,11 @@ export const TIME_FILTER_DAYS: Record<string, number> = {
   '90days': 90
 };
 
+// Gesture/Touch Constants
+export const GESTURE = {
+  SWIPE_THRESHOLD: 50  // Minimum pixels for swipe detection
+} as const;
+
 // File Upload
 export const FILE_UPLOAD = {
   MAX_FILE_SIZE: 10 * 1024 * 1024, // 10MB

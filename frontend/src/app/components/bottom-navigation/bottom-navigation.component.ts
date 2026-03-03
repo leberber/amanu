@@ -35,8 +35,8 @@ export class BottomNavigationComponent implements OnInit, AfterViewInit {
   indicatorWidth = signal(0);
   currentUrl = signal(this.router.url);
 
-  // Computed values - use service signal directly
-  cartCount = computed(() => this.cartService.items().length);
+  // Computed values - use service signals directly
+  cartCount = this.cartService.itemCount;
   isAdminOrStaff = computed(() => this.authService.isAdminOrStaff());
 
   // Products should be active on home page too
