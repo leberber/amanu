@@ -1,0 +1,54 @@
+<app-page-layout
+  title="privacy.title"
+  icon="pi pi-shield"
+  [hideMobileIcon]="true"
+  [showBackButton]="true"
+  [backRoute]="routes.PRODUCTS"
+  [fullscreen]="true">
+
+  <div class="privacy-content">
+    <div class="card card--no-hover">
+      <div class="card-body">
+        <div class="privacy-meta">
+          <i class="pi pi-calendar"></i>
+          <strong>{{ 'privacy.effective_date' | translate }}:</strong>
+          <span>30/01/2026</span>
+        </div>
+
+        <p class="privacy-intro">{{ 'privacy.intro' | translate }}</p>
+
+        <div class="privacy-sections">
+          @for (section of sections; track section.number) {
+            <section class="privacy-section">
+              <h2 class="privacy-section__title">
+                <span class="privacy-section__number">{{ section.number }}</span>
+                {{ section.titleKey | translate }}
+              </h2>
+              <p class="privacy-section__text">{{ section.textKey | translate }}</p>
+              @if (section.hasList) {
+                <ul class="privacy-section__list">
+                  <li>{{ 'privacy.service_providers_item1' | translate }}</li>
+                  <li>{{ 'privacy.service_providers_item2' | translate }}</li>
+                  <li>{{ 'privacy.service_providers_item3' | translate }}</li>
+                  <li>{{ 'privacy.service_providers_item4' | translate }}</li>
+                </ul>
+                <p class="privacy-section__text">{{ 'privacy.service_providers_note' | translate }}</p>
+              }
+            </section>
+          }
+
+          <section class="privacy-section">
+            <h2 class="privacy-section__title">
+              <span class="privacy-section__number">9</span>
+              {{ 'privacy.contact_title' | translate }}
+            </h2>
+            <p class="privacy-section__text">
+              {{ 'privacy.contact_text' | translate }}
+              <a href="mailto:support@elsuq.com" class="privacy-link">support&#64;elsuq.com</a>
+            </p>
+          </section>
+        </div>
+      </div>
+    </div>
+  </div>
+</app-page-layout>
