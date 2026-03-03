@@ -3,12 +3,15 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
+import { trigger, transition, style, animate } from '@angular/animations';
 import { ToastModule } from 'primeng/toast';
 import { ButtonModule } from 'primeng/button';
+import { TagModule } from 'primeng/tag';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { PageLayoutComponent } from '../../../shared/components/page-layout/page-layout.component';
 import { ErrorStateComponent } from '../../../shared/components/error-state/error-state.component';
+import { ImageLightboxComponent } from '../../../shared/components/image-lightbox/image-lightbox.component';
 import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
 import { ProductService } from '../../../services/product.service';
 import { CartService } from '../../../services/cart.service';
@@ -33,14 +36,30 @@ import { formatDiscountLabel, getEffectivePrice, hasPromotion as checkHasPromoti
   imports: [
     ToastModule,
     ButtonModule,
+    TagModule,
     TranslateModule,
     PageLayoutComponent,
     ErrorStateComponent,
+    ImageLightboxComponent,
     CurrencyPipe,
     ImageFallbackDirective
   ],
   templateUrl: './product-detail.component.html',
-  styleUrl: './product-detail.component.scss'
+  styleUrl: './product-detail.component.scss',
+  animations: [
+    trigger('fadeIn', [
+      transition(':enter', [
+        style({ opacity: 0 }),
+        animate('300ms ease-out', style({ opacity: 1 }))
+      ])
+    ]),
+    trigger('slideUp', [
+      transition(':enter', [
+        style({ opacity: 0, transform: 'translateY(20px)' }),
+        animate('300ms ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
+      ])
+    ])
+  ]
 })
 export class ProductDetailComponent implements OnInit {
   // Services
@@ -66,6 +85,7 @@ export class ProductDetailComponent implements OnInit {
   loading = signal(true);
   error = signal(false);
   selectedQuantity = signal(1);
+  showLightbox = signal(false);
   private currentLanguage = signal(this.translationService.getCurrentLanguage());
 
   // Computed - stock
@@ -108,6 +128,19 @@ export class ProductDetailComponent implements OnInit {
   discountedPrice = computed(() => {
     const p = this.product();
     return getEffectivePrice(p?.price || 0, p?.promotion);
+  });
+  savingsAmount = computed(() => {
+    const p = this.product();
+    if (!p || !this.hasPromotion()) return 0;
+    return p.price - this.discountedPrice();
+  });
+
+  // Computed - stock percentage
+  stockPercentage = computed(() => {
+    const p = this.product();
+    if (!p || !p.stock_quantity) return 0;
+    const maxStock = (p.pieces_per_box || 1) * 20; // Assume 20 boxes is "full"
+    return Math.min((p.stock_quantity / maxStock) * 100, 100);
   });
 
   // Computed - page layout
@@ -161,6 +194,16 @@ export class ProductDetailComponent implements OnInit {
     this.router.navigate([ROUTES.PRODUCTS]);
   }
 
+  openLightbox(): void {
+    if (this.product()?.image_url) {
+      this.showLightbox.set(true);
+    }
+  }
+
+  closeLightbox(): void {
+    this.showLightbox.set(false);
+  }
+
   // Private methods
   private subscribeToLanguageChanges(): void {
     this.translationService.currentLanguage$
@@ -201,6 +244,7 @@ export class ProductDetailComponent implements OnInit {
         this.product.set(product);
         this.selectedQuantity.set(getDefaultQuantity(product.pieces_per_box));
 
+        // Load brand
         if (product.brand_id) {
           this.brandService.getBrand(product.brand_id).subscribe(brand => this.brand.set(brand));
         }

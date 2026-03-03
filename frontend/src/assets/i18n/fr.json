@@ -25,6 +25,7 @@
     "view": "Voir",
     "load_more": "Charger plus",
     "price": "Prix",
+    "per": "par",
     "quantity": "Quantité",
     "total": "Total",
     "name": "Nom",
@@ -272,6 +273,9 @@
       "added_to_cart": "Ajouté au Panier",
       "added_message": "{quantity} {unit} de {name} ajouté à votre panier",
       "error": "Échec de l'ajout au panier"
+    },
+    "promotion": {
+      "you_save": "Vous économisez"
     },
     "tags": {
       "organic": "Bio"

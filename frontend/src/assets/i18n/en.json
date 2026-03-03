@@ -25,6 +25,7 @@
     "view": "View",
     "load_more": "Load more",
     "price": "Price",
+    "per": "per",
     "quantity": "Quantity",
     "total": "Total",
     "name": "Name",
@@ -269,6 +270,9 @@
       "added_to_cart": "Added to Cart",
       "added_message": "{quantity} {unit} of {name} added to your cart",
       "error": "Failed to add item to cart"
+    },
+    "promotion": {
+      "you_save": "You save"
     },
     "errors": {
       "failed_to_load": "Failed to load product"

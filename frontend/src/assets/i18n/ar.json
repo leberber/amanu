@@ -25,6 +25,7 @@
     "view": "عرض",
     "load_more": "تحميل المزيد",
     "price": "السعر",
+    "per": "لكل",
     "quantity": "الكمية",
     "total": "المجموع",
     "name": "الاسم",
@@ -272,6 +273,9 @@
       "added_to_cart": "تمت الإضافة للسلة",
       "added_message": "تمت إضافة {quantity} {unit} من {name} إلى سلتك",
       "error": "فشل في إضافة العنصر للسلة"
+    },
+    "promotion": {
+      "you_save": "توفر"
     },
     "tags": {
       "organic": "عضوي"
