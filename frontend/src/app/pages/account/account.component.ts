@@ -1,6 +1,5 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { ToastModule } from 'primeng/toast';
@@ -41,7 +40,6 @@ import { DateFormatPipe } from '../../shared/pipes/date-format.pipe';
 export class AccountComponent implements OnInit {
   // Dependency injection
   private fb = inject(FormBuilder);
-  private router = inject(Router);
   private authService = inject(AuthService);
   private userService = inject(UserService);
   private toast = inject(ToastMessageService);
@@ -58,16 +56,19 @@ export class AccountComponent implements OnInit {
   user = signal<User | null>(null);
   loading = signal(false);
   loadingPassword = signal(false);
-  focusedField = signal('');
+  avatarError = signal(false);
 
-  // Computed values
-  userInitial = computed(() => {
-    const name = this.user()?.full_name;
-    return name?.charAt(0)?.toUpperCase() || 'U';
+  // Computed values - Get up to 2 initials from the name
+  userInitials = computed(() => {
+    const name = this.user()?.full_name?.trim();
+    if (!name) return 'U';
+
+    const parts = name.split(/\s+/).filter(p => p.length > 0);
+    if (parts.length >= 2) {
+      return (parts[0].charAt(0) + parts[1].charAt(0)).toUpperCase();
+    }
+    return name.substring(0, 2).toUpperCase();
   });
-
-  // Page layout subtitle
-  pageSubtitle = computed(() => this.user()?.full_name || '');
 
   userRoleSeverity = computed(() => {
     const role = this.user()?.role;
@@ -87,7 +88,8 @@ export class AccountComponent implements OnInit {
       full_name: ['', [Validators.required, Validators.minLength(VALIDATION.MIN_NAME_LENGTH)]],
       email: [{ value: '', disabled: true }],
       phone: [''],
-      address: ['']
+      address: [''],
+      store_name: ['']
     });
   }
 
@@ -108,7 +110,8 @@ export class AccountComponent implements OnInit {
         full_name: currentUser.full_name,
         email: currentUser.email,
         phone: currentUser.phone || '',
-        address: currentUser.address || ''
+        address: currentUser.address || '',
+        store_name: currentUser.store_name || ''
       });
     }
   }
@@ -123,7 +126,8 @@ export class AccountComponent implements OnInit {
     const updateData = {
       full_name: this.profileForm.get('full_name')?.value,
       phone: this.profileForm.get('phone')?.value,
-      address: this.profileForm.get('address')?.value
+      address: this.profileForm.get('address')?.value,
+      store_name: this.profileForm.get('store_name')?.value
     };
 
     this.userService.updateProfile(updateData).subscribe({
@@ -169,16 +173,10 @@ export class AccountComponent implements OnInit {
     return this.formValidation.hasFieldError(form, fieldName, errorType);
   }
 
-  logout(): void {
-    this.authService.logout();
-    this.router.navigate([ROUTES.HOME]);
-  }
-
-  setFocusedField(field: string): void {
-    this.focusedField.set(field);
-  }
-
-  clearFocusedField(): void {
-    this.focusedField.set('');
+  onAvatarError(event: Event): void {
+    // Hide the image and show initials instead
+    const img = event.target as HTMLImageElement;
+    img.style.display = 'none';
+    this.avatarError.set(true);
   }
 }
