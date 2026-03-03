@@ -533,7 +533,7 @@ export class MapPickerComponent implements AfterViewInit, OnDestroy {
 
     // Add accuracy circle (light blue area)
     this.userLocationAccuracy = L.circle([lat, lng], {
-      radius: Math.min(accuracy, 100), // Cap at 100m for visual clarity
+      radius: Math.min(accuracy, MAP_DEFAULTS.MAX_ACCURACY_RADIUS), // Cap for visual clarity
       color: '#4285F4',
       fillColor: '#4285F4',
       fillOpacity: 0.15,

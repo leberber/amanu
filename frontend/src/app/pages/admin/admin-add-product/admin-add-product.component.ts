@@ -16,7 +16,7 @@ import { BrandService } from '../../../core/services/brand.service';
 import { VALIDATION } from '../../../core/constants/validation.constants';
 import { PRODUCT } from '../../../core/constants/product.constants';
 import { ROUTES } from '../../../core/constants/routes.constants';
-import { ANIMATION } from '../../../core/constants/ui.constants';
+import { ANIMATION, UI_DELAY } from '../../../core/constants/ui.constants';
 import { detectEditMode } from '../../../core/utils/edit-mode.util';
 import { UnitsService } from '../../../core/services/units.service';
 import { PackagingTypeService } from '../../../core/services/packaging-type.service';
@@ -304,7 +304,7 @@ export class AdminAddProductComponent implements OnInit {
             this.adminFormService.handleSuccess({
               message: 'admin.products.update_success',
               redirectUrl: ROUTES.ADMIN.PRODUCTS,
-              redirectDelay: 1500
+              redirectDelay: UI_DELAY.TOAST_BEFORE_NAVIGATE
             });
           },
           error: (error) => {
@@ -323,7 +323,7 @@ export class AdminAddProductComponent implements OnInit {
             this.adminFormService.handleSuccess({
               message: 'admin.products.create_success',
               redirectUrl: ROUTES.ADMIN.PRODUCTS,
-              redirectDelay: 1500
+              redirectDelay: UI_DELAY.TOAST_BEFORE_NAVIGATE
             });
           },
           error: (error) => {

@@ -10,7 +10,8 @@ import { TooltipModule } from 'primeng/tooltip';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { ROUTES, RouteHelpers } from '../../../core/constants/routes.constants';
-import { UI, ANIMATION } from '../../../core/constants/ui.constants';
+import { UI, ANIMATION, TIME_FILTER_DAYS } from '../../../core/constants/ui.constants';
+import { PAGINATION } from '../../../core/constants';
 import { OrderService } from '../../../services/order.service';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
 import { Order } from '../../../models/order.model';
@@ -48,7 +49,7 @@ export class OrderListComponent implements OnInit {
   readonly SKELETON_ROWS = Array.from({ length: UI.SKELETON_TABLE_ROWS }, (_, i) => i);
   readonly SKELETON_MOBILE_ROWS = Array.from({ length: UI.SKELETON_MOBILE_ROWS }, (_, i) => i);
   readonly SKELETON_SIDEBAR_ITEMS = Array.from({ length: UI.SKELETON_SIDEBAR_ITEMS }, (_, i) => i);
-  readonly ROWS_PER_PAGE_OPTIONS = [5, 10, 25];
+  readonly ROWS_PER_PAGE_OPTIONS = PAGINATION.USER_PAGE_SIZE_OPTIONS;
   readonly ANIMATION_DELAY = ANIMATION.STAGGER_DELAY;
   readonly TIME_FILTERS = [
     { value: 'all' as const, label: 'orders.filters.all' },
@@ -83,8 +84,8 @@ export class OrderListComponent implements OnInit {
     if (filter === 'all') return orders;
 
     const now = new Date();
-    const daysMap = { '7days': 7, '30days': 30, '90days': 90 };
-    const cutoffDate = new Date(now.getTime() - daysMap[filter] * 24 * 60 * 60 * 1000);
+    const days = TIME_FILTER_DAYS[filter];
+    const cutoffDate = new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
 
     return orders.filter(order => new Date(order.created_at) >= cutoffDate);
   });

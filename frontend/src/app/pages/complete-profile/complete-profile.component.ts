@@ -11,7 +11,7 @@ import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
 import { ToastMessageService } from '../../core/services/toast-message.service';
 import { ROUTES } from '../../core/constants/routes.constants';
-import { UI } from '../../core/constants/ui.constants';
+import { UI, ANIMATION } from '../../core/constants/ui.constants';
 import { VALIDATION } from '../../core/constants/validation.constants';
 import { MAP_DEFAULTS, LEAFLET_TILES } from '../../core/constants/map.constants';
 
@@ -256,7 +256,7 @@ export class CompleteProfileComponent implements OnInit, AfterViewInit {
           this.toast.showSuccess('account.profile_updated');
           setTimeout(() => {
             this.router.navigate([ROUTES.HOME]);
-          }, 1000);
+          }, ANIMATION.VERY_SLOW);
         },
         error: (error) => {
           this.toast.showApiError(error, 'account.profile_update_failed');
