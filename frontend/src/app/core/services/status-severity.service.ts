@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { USER_ROLES, ORDER_STATUS, PROMOTION_STATUS, PAYMENT_STATUS } from '../constants/app.constants';
+import { USER_ROLES, ORDER_STATUS, ORDER_STATUS_CONFIG, PROMOTION_STATUS, PAYMENT_STATUS } from '../constants/app.constants';
 
 @Injectable({
   providedIn: 'root'
@@ -26,25 +26,18 @@ export class StatusSeverityService {
   }
 
   getOrderStatusSeverity(status: string): "success" | "secondary" | "info" | "warn" | "danger" | "contrast" {
-    switch (status) {
-      case ORDER_STATUS.PENDING: return 'warn';
-      case ORDER_STATUS.CONFIRMED: return 'info';
-      case ORDER_STATUS.SHIPPED: return 'info';
-      case ORDER_STATUS.DELIVERED: return 'success';
-      case ORDER_STATUS.CANCELLED: return 'danger';
-      default: return 'secondary';
-    }
+    const config = ORDER_STATUS_CONFIG[status as keyof typeof ORDER_STATUS_CONFIG];
+    return config?.severity || 'secondary';
   }
 
   getOrderStatusIcon(status: string): string {
-    switch (status) {
-      case ORDER_STATUS.PENDING: return 'pi pi-clock';
-      case ORDER_STATUS.CONFIRMED: return 'pi pi-check';
-      case ORDER_STATUS.SHIPPED: return 'pi pi-send';
-      case ORDER_STATUS.DELIVERED: return 'pi pi-check-circle';
-      case ORDER_STATUS.CANCELLED: return 'pi pi-times';
-      default: return 'pi pi-info-circle';
-    }
+    const config = ORDER_STATUS_CONFIG[status as keyof typeof ORDER_STATUS_CONFIG];
+    return config?.icon || 'pi pi-info-circle';
+  }
+
+  getOrderStatusColor(status: string): string {
+    const config = ORDER_STATUS_CONFIG[status as keyof typeof ORDER_STATUS_CONFIG];
+    return config?.color || '#607D8B';
   }
 
   getNextOrderStatuses(currentStatus: string): { value: string; label: string; icon: string }[] {

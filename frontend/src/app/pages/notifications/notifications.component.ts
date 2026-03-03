@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ROUTES } from '../../core/constants/routes.constants';
+import { NOTIFICATION_TYPE_CONFIG } from '../../core/constants/app.constants';
 import { PageLayoutComponent } from '../../shared/components/page-layout/page-layout.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { UserNotificationService } from '../../services/user-notification.service';
@@ -50,16 +51,8 @@ export class NotificationsComponent implements OnInit {
   }
 
   getNotificationIcon(type: string): string {
-    const icons: Record<string, string> = {
-      'order_confirmed': 'pi pi-check-circle',
-      'order_shipped': 'pi pi-truck',
-      'order_delivered': 'pi pi-box',
-      'order_cancelled': 'pi pi-times-circle',
-      'payment_received': 'pi pi-wallet',
-      'promotion': 'pi pi-percentage',
-      'system': 'pi pi-info-circle'
-    };
-    return icons[type] || 'pi pi-bell';
+    const config = NOTIFICATION_TYPE_CONFIG[type as keyof typeof NOTIFICATION_TYPE_CONFIG];
+    return config?.icon || 'pi pi-bell';
   }
 
   onNotificationClick(notification: UserNotification): void {

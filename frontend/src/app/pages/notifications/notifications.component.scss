@@ -89,35 +89,37 @@
     font-size: 18px;
   }
 
-  // Type-specific colors
+  // Order status notification colors - using centralized colors from _colors.scss
+  // Same colors as status badges and timeline for consistency
   &--order_confirmed {
-    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
-    color: #059669;
+    background: var(--color-confirmed-bg);
+    color: var(--color-confirmed);
   }
 
   &--order_shipped {
-    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-    color: #2563eb;
+    background: var(--color-shipped-bg);
+    color: var(--color-shipped);
   }
 
   &--order_delivered {
-    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
-    color: #059669;
+    background: var(--color-delivered-bg);
+    color: var(--color-delivered);
   }
 
   &--order_cancelled {
-    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
-    color: #dc2626;
+    background: var(--color-cancelled-bg);
+    color: var(--color-cancelled);
   }
 
+  // Other notification types
   &--payment_received {
-    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(217, 119, 6, 0.1) 100%);
     color: #d97706;
   }
 
   &--promotion {
-    background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
-    color: #9333ea;
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(124, 58, 237, 0.1) 100%);
+    color: #8b5cf6;
   }
 
   &--system {

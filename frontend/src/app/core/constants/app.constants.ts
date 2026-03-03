@@ -50,6 +50,75 @@ export const ORDER_STATUS = {
   CANCELLED: 'cancelled'
 } as const;
 
+// Centralized Order Status Configuration
+// Use this everywhere for consistent icons, colors, and severities
+// Colors match CSS variables in _colors.scss: --color-pending, --color-confirmed, etc.
+export const ORDER_STATUS_CONFIG = {
+  [ORDER_STATUS.PENDING]: {
+    icon: 'pi pi-clock',
+    iconClass: 'pi-clock',
+    severity: 'warn' as const,
+    color: '#f57c00'  // Orange - matches --color-pending
+  },
+  [ORDER_STATUS.CONFIRMED]: {
+    icon: 'pi pi-check-circle',
+    iconClass: 'pi-check-circle',
+    severity: 'info' as const,
+    color: '#1976d2'  // Blue - matches --color-confirmed
+  },
+  [ORDER_STATUS.SHIPPED]: {
+    icon: 'pi pi-truck',
+    iconClass: 'pi-truck',
+    severity: 'info' as const,
+    color: '#512da8'  // Purple - matches --color-shipped
+  },
+  [ORDER_STATUS.DELIVERED]: {
+    icon: 'pi pi-check-square',
+    iconClass: 'pi-check-square',
+    severity: 'success' as const,
+    color: '#2e7d32'  // Dark green - matches --color-delivered
+  },
+  [ORDER_STATUS.CANCELLED]: {
+    icon: 'pi pi-times-circle',
+    iconClass: 'pi-times-circle',
+    severity: 'danger' as const,
+    color: '#d32f2f'  // Red - matches --color-cancelled
+  }
+} as const;
+
+// Notification Type Configuration
+// Used for user notification icons and colors
+export const NOTIFICATION_TYPE_CONFIG = {
+  order_confirmed: {
+    icon: 'pi pi-check-circle',
+    severity: 'info' as const
+  },
+  order_shipped: {
+    icon: 'pi pi-truck',
+    severity: 'info' as const
+  },
+  order_delivered: {
+    icon: 'pi pi-check-square',
+    severity: 'success' as const
+  },
+  order_cancelled: {
+    icon: 'pi pi-times-circle',
+    severity: 'danger' as const
+  },
+  payment_received: {
+    icon: 'pi pi-wallet',
+    severity: 'success' as const
+  },
+  promotion: {
+    icon: 'pi pi-percentage',
+    severity: 'warn' as const
+  },
+  system: {
+    icon: 'pi pi-info-circle',
+    severity: 'secondary' as const
+  }
+} as const;
+
 // User Roles
 export const USER_ROLES = {
   CUSTOMER: 'customer',
@@ -196,21 +265,24 @@ export const PATTERNS = {
 } as const;
 
 // Timeline Colors (for order status timeline)
+// Now derived from ORDER_STATUS_CONFIG for consistency
 export const TIMELINE_COLORS = {
-  PLACED: '#607D8B',
-  CONFIRMED: '#4CAF50',
-  SHIPPED: '#3F51B5',
-  DELIVERED: '#2E7D32',
-  CANCELLED: '#F44336'
+  PLACED: '#607D8B',  // Initial order placed - gray
+  PENDING: ORDER_STATUS_CONFIG[ORDER_STATUS.PENDING].color,
+  CONFIRMED: ORDER_STATUS_CONFIG[ORDER_STATUS.CONFIRMED].color,
+  SHIPPED: ORDER_STATUS_CONFIG[ORDER_STATUS.SHIPPED].color,
+  DELIVERED: ORDER_STATUS_CONFIG[ORDER_STATUS.DELIVERED].color,
+  CANCELLED: ORDER_STATUS_CONFIG[ORDER_STATUS.CANCELLED].color
 } as const;
 
 // Status Severity Mapping (for PrimeNG)
+// Now derived from ORDER_STATUS_CONFIG for consistency
 export const STATUS_SEVERITY = {
-  [ORDER_STATUS.PENDING]: 'warn',
-  [ORDER_STATUS.CONFIRMED]: 'info',
-  [ORDER_STATUS.SHIPPED]: 'info',
-  [ORDER_STATUS.DELIVERED]: 'success',
-  [ORDER_STATUS.CANCELLED]: 'danger'
+  [ORDER_STATUS.PENDING]: ORDER_STATUS_CONFIG[ORDER_STATUS.PENDING].severity,
+  [ORDER_STATUS.CONFIRMED]: ORDER_STATUS_CONFIG[ORDER_STATUS.CONFIRMED].severity,
+  [ORDER_STATUS.SHIPPED]: ORDER_STATUS_CONFIG[ORDER_STATUS.SHIPPED].severity,
+  [ORDER_STATUS.DELIVERED]: ORDER_STATUS_CONFIG[ORDER_STATUS.DELIVERED].severity,
+  [ORDER_STATUS.CANCELLED]: ORDER_STATUS_CONFIG[ORDER_STATUS.CANCELLED].severity
 } as const;
 
 // Stock Status
