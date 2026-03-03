@@ -96,13 +96,12 @@
     </div>
   }
 
-  <!-- Error State -->
+  <!-- Error State (Inactive User) -->
   @else if (error()) {
     <app-error-state
-      title="orders.errors.failed_to_load"
-      message="orders.errors.load_error_message"
-      [showRetry]="true"
-      (retryClick)="loadOrders()">
+      title="register.step6_title"
+      message="register.account_pending_review"
+      [showRetry]="false">
     </app-error-state>
   }
 

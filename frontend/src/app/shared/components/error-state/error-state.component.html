@@ -1,24 +1,21 @@
-<div class="error-state">
-  <div class="error-icon-wrapper">
-    <div class="error-icon-bg"></div>
-    <div class="error-icon-circle">
-      <i class="pi pi-exclamation-triangle"></i>
-    </div>
+<div class="empty-state">
+  <div class="empty-state__icon empty-state__icon--danger">
+    <i class="pi pi-exclamation-triangle"></i>
   </div>
 
-  <h3>{{ title() | translate }}</h3>
-  <p>{{ message() | translate }}</p>
+  <h3 class="empty-state__title">{{ title() | translate }}</h3>
+  <p class="empty-state__description">{{ message() | translate }}</p>
 
   @if (showRetry() || showGoBack()) {
-    <div class="error-actions">
+    <div class="state-actions">
       @if (showRetry()) {
-        <button (click)="onRetry()" class="action-btn primary">
+        <button (click)="onRetry()" class="state-action-btn state-action-btn--primary">
           <i class="pi pi-refresh"></i>
           <span>{{ 'common.try_again' | translate }}</span>
         </button>
       }
       @if (showGoBack()) {
-        <button (click)="onGoBack()" class="action-btn secondary">
+        <button (click)="onGoBack()" class="state-action-btn state-action-btn--secondary">
           <i class="pi pi-arrow-left"></i>
           <span>{{ 'common.go_back' | translate }}</span>
         </button>

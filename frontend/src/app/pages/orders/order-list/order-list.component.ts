@@ -134,7 +134,6 @@ export class OrderListComponent implements OnInit {
         error: () => {
           this.loading.set(false);
           this.error.set(true);
-          this.toast.showError('orders.errors.failed_to_load');
         }
       });
   }

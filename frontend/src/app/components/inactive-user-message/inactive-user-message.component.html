@@ -33,17 +33,19 @@
     </a>
   </div>
 
-  <button class="inactive-message__btn" (click)="onButtonClick()">
-    @switch (buttonType()) {
-      @case ('login') {
-        {{ 'register.go_to_login' | translate }}
+  @if (buttonType() !== 'none') {
+    <button class="inactive-message__btn" (click)="onButtonClick()">
+      @switch (buttonType()) {
+        @case ('login') {
+          {{ 'register.go_to_login' | translate }}
+        }
+        @case ('home') {
+          {{ 'common.continue' | translate }}
+        }
+        @default {
+          {{ 'common.understood' | translate }}
+        }
       }
-      @case ('home') {
-        {{ 'common.continue' | translate }}
-      }
-      @default {
-        {{ 'common.understood' | translate }}
-      }
-    }
-  </button>
+    </button>
+  }
 </div>

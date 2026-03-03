@@ -9,8 +9,8 @@ import { TranslateModule } from '@ngx-translate/core';
   styleUrl: './inactive-user-message.component.scss'
 })
 export class InactiveUserMessageComponent {
-  // Which button to show: 'login', 'understood', or 'home'
-  buttonType = input<'login' | 'understood' | 'home'>('understood');
+  // Which button to show: 'login', 'understood', 'home', or 'none' to hide
+  buttonType = input<'login' | 'understood' | 'home' | 'none'>('understood');
 
   // Emit when button is clicked
   buttonClick = output<void>();

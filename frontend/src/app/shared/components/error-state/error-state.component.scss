@@ -1,103 +1,28 @@
 // =============================================================================
-// Error State Component
+// ERROR STATE COMPONENT
 // =============================================================================
-// Uses global mixins from _states.scss:
-// - state-card: Glass morphism container
-// - state-action-btn: Action button base styles
+// Uses global styles from: _states.scss
+// All styling is defined in the global _states.scss file.
+// This component uses the following global classes:
+// - .empty-state
+// - .empty-state__icon (with --danger variant)
+// - .empty-state__title
+// - .empty-state__description
+// - .state-actions
+// - .state-action-btn, .state-action-btn--primary, .state-action-btn--secondary
 // =============================================================================
-
-@use '../../../../styles/states' as states;
-
-.error-state {
-  @include states.state-card(var(--red-200, #fecaca), rgba(239, 68, 68, 0.1));
-}
-
-.error-icon-wrapper {
-  position: relative;
-  width: 100px;
-  height: 100px;
-  margin: 0 auto 1.5rem;
-}
-
-.error-icon-bg {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(220, 38, 38, 0.2) 100%);
-  animation: pulse 3s ease-in-out infinite;
-}
-
-.error-icon-circle {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 70px;
-  height: 70px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--red-500, #ef4444) 0%, var(--red-600, #dc2626) 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 10px 35px rgba(239, 68, 68, 0.4);
-
-  i {
-    font-size: 1.75rem;
-    color: white;
-  }
-}
-
-@keyframes pulse {
-  0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-  50% { transform: translate(-50%, -50%) scale(1.15); opacity: 0.7; }
-}
-
-h3 {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: var(--text-color);
-  margin: 0 0 0.5rem 0;
-}
-
-p {
-  color: var(--text-color-secondary);
-  margin: 0 0 1.5rem 0;
-  font-size: 0.9rem;
-  line-height: 1.5;
-}
-
-.error-actions {
-  display: flex;
-  justify-content: center;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-}
-
-.action-btn {
-  @include states.state-action-btn;
-
-  &.primary {
-    @include states.state-action-btn--primary;
-  }
-
-  &.secondary {
-    @include states.state-action-btn--secondary;
-  }
-}
 
 .error-details {
-  margin-top: 1.5rem;
+  margin-top: var(--space-6);
   text-align: left;
+  width: 100%;
+  max-width: var(--state-max-width);
 
   summary {
     cursor: pointer;
     color: var(--text-color-secondary);
-    font-size: 0.875rem;
-    padding: 0.5rem;
+    font-size: var(--font-size-sm);
+    padding: var(--space-2);
 
     &:hover {
       color: var(--text-color);
@@ -105,11 +30,11 @@ p {
   }
 
   pre {
-    margin-top: 0.75rem;
-    padding: 1rem;
+    margin-top: var(--space-3);
+    padding: var(--space-4);
     background: var(--surface-100);
-    border-radius: var(--border-radius, 8px);
-    font-size: 0.75rem;
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-xs);
     overflow-x: auto;
     white-space: pre-wrap;
     word-break: break-word;

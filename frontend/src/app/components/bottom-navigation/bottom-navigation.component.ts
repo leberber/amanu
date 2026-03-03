@@ -33,10 +33,17 @@ export class BottomNavigationComponent implements OnInit, AfterViewInit {
   // State signals
   indicatorLeft = signal(0);
   indicatorWidth = signal(0);
+  currentUrl = signal(this.router.url);
 
   // Computed values - use service signal directly
   cartCount = computed(() => this.cartService.items().length);
   isAdminOrStaff = computed(() => this.authService.isAdminOrStaff());
+
+  // Products should be active on home page too
+  isProductsActive = computed(() => {
+    const url = this.currentUrl();
+    return url === '/' || url === ROUTES.HOME || url.startsWith(ROUTES.PRODUCTS);
+  });
 
   openSidebar(): void {
     this.sidebarService.openDrawer();
@@ -52,7 +59,10 @@ export class BottomNavigationComponent implements OnInit, AfterViewInit {
         filter(event => event instanceof NavigationEnd),
         takeUntilDestroyed(this.destroyRef)
       )
-      .subscribe(() => setTimeout(() => this.updateIndicator(), 0));
+      .subscribe((event: NavigationEnd) => {
+        this.currentUrl.set(event.urlAfterRedirects || event.url);
+        setTimeout(() => this.updateIndicator(), 0);
+      });
   }
 
   ngAfterViewInit() {

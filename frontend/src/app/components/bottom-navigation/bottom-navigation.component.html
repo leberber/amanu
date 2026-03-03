@@ -2,8 +2,8 @@
   <!-- Sliding Indicator -->
   <div class="bottom-nav__indicator" [style.left.px]="indicatorLeft()" [style.width.px]="indicatorWidth()"></div>
 
-  <!-- Products -->
-  <a #navItem class="bottom-nav__item" [routerLink]="routes.PRODUCTS" routerLinkActive="active">
+  <!-- Products (also active on home page) -->
+  <a #navItem class="bottom-nav__item" [routerLink]="routes.PRODUCTS" [class.active]="isProductsActive()">
     <i class="pi pi-shopping-bag"></i>
     <span>{{ 'common.products' | translate }}</span>
   </a>
