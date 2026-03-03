@@ -26,7 +26,7 @@
               <div class="onboarding__filter-grid onboarding__filter-grid--two">
                 @for (img of filterImages; track img.labelKey) {
                   <div class="onboarding__filter-item">
-                    <img [src]="img.url" [alt]="img.labelKey | translate" loading="lazy">
+                    <img [src]="img.url" [alt]="img.labelKey | translate" loading="lazy" (error)="$event.target.style.display='none'">
                     <span>{{ img.labelKey | translate }}</span>
                   </div>
                 }

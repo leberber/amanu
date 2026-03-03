@@ -5,7 +5,7 @@
       <!-- Logo + Collapse Toggle -->
       <div class="sidebar__logo">
         <a [routerLink]="routes.PRODUCTS" class="sidebar__logo-link">
-          <img src="/logo.png" alt="Logo" class="sidebar__logo-img">
+          <img src="/logo.png" alt="Logo" class="sidebar__logo-img" loading="lazy" (error)="$event.target.style.display='none'">
         </a>
         <button class="sidebar__collapse-btn" (click)="toggleCollapsed()" [pTooltip]="collapsed() ? ('common.expand' | translate) : ('common.collapse' | translate)" tooltipPosition="right">
           <i class="pi" [class.pi-angle-left]="!collapsed()" [class.pi-angle-right]="collapsed()"></i>
@@ -22,7 +22,7 @@
               <span>{{ 'header.admin' | translate }}</span>
             </div>
             <nav class="sidebar__nav">
-              @for (item of getVisibleAdminItems(); track item.route) {
+              @for (item of visibleAdminItems(); track item.route) {
                 <a [routerLink]="item.route" routerLinkActive="active"
                    [routerLinkActiveOptions]="{exact: item.route === routes.ADMIN.DASHBOARD}"
                    class="nav-link"
@@ -46,7 +46,7 @@
             </div>
           }
           <nav class="sidebar__nav">
-            @for (item of getVisibleNavItems(); track item.route) {
+            @for (item of visibleNavItems(); track item.route) {
               <a [routerLink]="item.route" routerLinkActive="active" class="nav-link"
                  [pTooltip]="collapsed() ? item.label : undefined" tooltipPosition="right">
                 <div class="nav-link__icon">
@@ -165,7 +165,7 @@
       <!-- Header -->
       <div class="mobile-menu__header">
         <a [routerLink]="routes.PRODUCTS" (click)="closeMobileDrawer()" class="mobile-menu__logo">
-          <img src="/logo.png" alt="Logo">
+          <img src="/logo.png" alt="Logo" loading="lazy" (error)="$event.target.style.display='none'">
         </a>
         <button class="mobile-menu__close" (click)="closeMobileDrawer()">
           <i class="pi pi-times"></i>
@@ -179,7 +179,7 @@
           <div class="mobile-menu__section">
             <div class="mobile-menu__section-title">{{ 'header.admin' | translate }}</div>
             <div class="mobile-menu__card">
-              @for (item of getVisibleAdminItems(); track item.route; let last = $last) {
+              @for (item of visibleAdminItems(); track item.route; let last = $last) {
                 <a [routerLink]="item.route" routerLinkActive="active"
                    [routerLinkActiveOptions]="{exact: item.route === routes.ADMIN.DASHBOARD}"
                    (click)="closeMobileDrawer()"
@@ -201,7 +201,7 @@
             <div class="mobile-menu__section-title">{{ 'common.store' | translate }}</div>
           }
           <div class="mobile-menu__card">
-            @for (item of getVisibleNavItems(); track item.route; let last = $last) {
+            @for (item of visibleNavItems(); track item.route; let last = $last) {
               <a [routerLink]="item.route" routerLinkActive="active" (click)="closeMobileDrawer()"
                  class="mobile-menu__item" [class.mobile-menu__item--last]="last">
                 <div class="mobile-menu__item-icon">

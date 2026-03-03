@@ -65,11 +65,9 @@ export class SidebarComponent implements OnInit {
   navItems = signal<NavItem[]>([]);
   adminNavItems = signal<NavItem[]>([]);
 
-  // Cart count from service signal
+  // Use service signals directly
   cartCount = this.cartService.itemCount;
-
-  // Notification unread count from service signal
-  notificationCount = computed(() => this.notificationService.unreadCount());
+  notificationCount = this.notificationService.unreadCount;
 
   // Computed
   isAdmin = computed(() => this.authService.isAdmin());
@@ -172,22 +170,22 @@ export class SidebarComponent implements OnInit {
     );
   }
 
-  // Filter nav items based on user role
-  getVisibleNavItems(): NavItem[] {
+  // Filter nav items based on user role (computed for efficiency)
+  visibleNavItems = computed(() => {
     return this.navItems().filter(item => {
       if (item.authRequired && !this.isLoggedIn()) return false;
       if (item.hideForAdmin && this.isAdminOrStaff()) return false;
       return true;
     });
-  }
+  });
 
-  getVisibleAdminItems(): NavItem[] {
+  visibleAdminItems = computed(() => {
     return this.adminNavItems().filter(item => {
       if (item.adminOnly && !this.isAdmin()) return false;
       if (item.staffOnly && !this.isAdminOrStaff()) return false;
       return true;
     });
-  }
+  });
 
   // Mobile drawer controls (via service)
   closeMobileDrawer() {
