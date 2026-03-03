@@ -15,7 +15,7 @@
     <div class="mt-6">
       <div class="grid">
         @for (_ of [0, 1]; track $index) {
-          <div class="col-12 lg:col-6 item-animate" [style.animation-delay]="($index * CARD_ANIMATION_DELAY) + 'ms'">
+          <div class="col-12 lg:col-6 item-animate" [style.animation-delay]="($index * ANIMATION.STAGGER_DELAY) + 'ms'">
             <div class="skeleton-card form-card">
               <div class="card-header">
                 <div class="skeleton skeleton-avatar"></div>
@@ -121,7 +121,7 @@
                 </div>
               </div>
 
-              <div class="col-12 lg:col-6 item-animate" [style.animation-delay]="CARD_ANIMATION_DELAY + 'ms'">
+              <div class="col-12 lg:col-6 item-animate" [style.animation-delay]="ANIMATION.STAGGER_DELAY + 'ms'">
                 <div class="form-card">
                   <div class="card-header">
                     <div class="card-header__icon card-header__icon--success">
@@ -165,7 +165,7 @@
                           </div>
                           <div class="field-box__content">
                             <label>{{ 'admin.promotions.form.max_discount' | translate }}</label>
-                            <p-inputNumber formControlName="max_discount" [min]="0" [suffix]="CURRENCY_SUFFIX" styleClass="w-full" />
+                            <p-inputNumber formControlName="max_discount" [min]="0" [suffix]="currencySuffix()" styleClass="w-full" />
                           </div>
                         </div>
                         <span class="field-hint">{{ 'admin.promotions.form.max_discount_hint' | translate }}</span>
@@ -258,7 +258,7 @@
                         </div>
                         <div class="field-box__content">
                           <label>{{ 'admin.promotions.form.min_order_amount' | translate }}</label>
-                          <p-inputNumber formControlName="min_order_amount" [min]="0" [suffix]="CURRENCY_SUFFIX" styleClass="w-full" />
+                          <p-inputNumber formControlName="min_order_amount" [min]="0" [suffix]="currencySuffix()" styleClass="w-full" />
                         </div>
                       </div>
                     </div>
@@ -279,7 +279,7 @@
                 </div>
               </div>
 
-              <div class="col-12 lg:col-6 item-animate" [style.animation-delay]="CARD_ANIMATION_DELAY + 'ms'">
+              <div class="col-12 lg:col-6 item-animate" [style.animation-delay]="ANIMATION.STAGGER_DELAY + 'ms'">
                 <div class="form-card">
                   <div class="card-header">
                     <div class="card-header__icon card-header__icon--orange">

@@ -22,6 +22,7 @@ import { ProductService } from '../../../services/product.service';
 import { BrandService } from '../../../core/services/brand.service';
 import { AdminFormService } from '../../../core/services/admin-form.service';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
+import { CurrencyService } from '../../../core/services/currency.service';
 import { PageLayoutComponent } from '../../../shared/components/page-layout/page-layout.component';
 import { Promotion, PromotionCreate, PromotionUpdate } from '../../../models/promotion.model';
 import { Product } from '../../../models/product.model';
@@ -32,10 +33,6 @@ interface SelectOption {
   label: string;
   value: string;
 }
-
-// Local UI constants (component-specific)
-const CARD_ANIMATION_DELAY = ANIMATION.STAGGER_DELAY;
-const CURRENCY_SUFFIX = ' DA';
 
 @Component({
   selector: 'app-admin-add-promotion',
@@ -65,6 +62,7 @@ export class AdminAddPromotionComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly translateService = inject(TranslateService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly currencyService = inject(CurrencyService);
 
   promotionForm!: FormGroup;
 
@@ -117,7 +115,7 @@ export class AdminAddPromotionComponent implements OnInit {
   );
 
   readonly discountSuffix = computed(() =>
-    this.isPercentageDiscount() ? '%' : CURRENCY_SUFFIX
+    this.isPercentageDiscount() ? '%' : ` ${this.currencyService.getCurrencySymbol()}`
   );
 
   readonly showCategorySelect = computed(() => this.currentScope() === 'category');
@@ -129,11 +127,13 @@ export class AdminAddPromotionComponent implements OnInit {
   );
 
   readonly ROUTES = ROUTES;
+  readonly ANIMATION = ANIMATION;
   readonly MIN_DISCOUNT = PROMOTION_DEFAULTS.MIN_DISCOUNT;
   readonly MIN_USAGE_LIMIT = PROMOTION_DEFAULTS.MIN_USAGE_LIMIT;
-  readonly CARD_ANIMATION_DELAY = CARD_ANIMATION_DELAY;
-  readonly CURRENCY_SUFFIX = CURRENCY_SUFFIX;
   readonly DATE_FORMAT = DATETIME.PRIMENG_DATE_FORMAT;
+
+  // Currency suffix for input fields (computed to support language changes)
+  readonly currencySuffix = computed(() => ` ${this.currencyService.getCurrencySymbol()}`);
 
   ngOnInit(): void {
     this.initializeOptions();
