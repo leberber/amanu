@@ -1,7 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { Observable, tap, catchError, of } from 'rxjs';
 import { ApiService } from './api.service';
-import { PAGINATION } from '../core/constants/pagination.constants';
+import { PAGINATION } from '../core/constants';
 import { UserNotification, UnreadCountResponse } from '../models/user-notification.model';
 import { TranslationService } from './translation.service';
 

@@ -37,8 +37,34 @@ export const DATETIME = {
   DEFAULT_DATE_FORMAT: 'DD/MM/YYYY',
   DEFAULT_TIME_FORMAT: 'HH:mm',
   DEFAULT_DATETIME_FORMAT: 'DD/MM/YYYY HH:mm',
+  PRIMENG_DATE_FORMAT: 'dd/mm/yy',
   LOCALE: 'en-US'
 } as const;
+
+// Time Conversion Constants (for date calculations)
+export const TIME = {
+  MS_PER_SECOND: 1000,
+  SECONDS_PER_MINUTE: 60,
+  MINUTES_PER_HOUR: 60,
+  HOURS_PER_DAY: 24,
+  MS_PER_MINUTE: 60 * 1000,
+  MS_PER_HOUR: 60 * 60 * 1000,
+  MS_PER_DAY: 24 * 60 * 60 * 1000
+} as const;
+
+// Time Filter Options (for order/history filtering)
+export const TIME_FILTERS = {
+  ALL: 'all',
+  LAST_7_DAYS: '7days',
+  LAST_30_DAYS: '30days',
+  LAST_90_DAYS: '90days'
+} as const;
+
+export const TIME_FILTER_DAYS: Record<string, number> = {
+  '7days': 7,
+  '30days': 30,
+  '90days': 90
+};
 
 // File Upload
 export const FILE_UPLOAD = {

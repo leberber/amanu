@@ -1,6 +1,7 @@
 import { Directive, ElementRef, HostListener, forwardRef } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 import { VALIDATION } from '../core/constants/validation.constants';
+import { formatPhoneNumber } from '../core/utils/format.util';
 
 @Directive({
   selector: '[appPhoneFormat]',
@@ -59,22 +60,7 @@ export class PhoneFormatDirective implements ControlValueAccessor {
   }
 
   private formatPhone(value: string): string {
-    // Remove all non-digits
-    const digits = value.replace(/\D/g, '');
-
-    // Limit to max phone digits
-    const limited = digits.slice(0, VALIDATION.MIN_PHONE_LENGTH);
-
-    // Format as 0xxx xx xx xx
-    if (limited.length <= 4) {
-      return limited;
-    } else if (limited.length <= 6) {
-      return `${limited.slice(0, 4)} ${limited.slice(4)}`;
-    } else if (limited.length <= 8) {
-      return `${limited.slice(0, 4)} ${limited.slice(4, 6)} ${limited.slice(6)}`;
-    } else {
-      return `${limited.slice(0, 4)} ${limited.slice(4, 6)} ${limited.slice(6, 8)} ${limited.slice(8)}`;
-    }
+    return formatPhoneNumber(value, VALIDATION.MIN_PHONE_LENGTH);
   }
 
   // ControlValueAccessor implementation

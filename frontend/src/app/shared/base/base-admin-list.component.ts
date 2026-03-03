@@ -6,7 +6,7 @@ import { SearchDebounceService } from '../../core/services/search-debounce.servi
 import { ToastMessageService } from '../../core/services/toast-message.service';
 import { ROUTES } from '../../core/constants/routes.constants';
 import { UI } from '../../core/constants/ui.constants';
-import { PAGINATION } from '../../core/constants/pagination.constants';
+import { PAGINATION } from '../../core/constants';
 import { InlineEditState } from '../utils/inline-edit-state';
 
 export interface ColumnOption {

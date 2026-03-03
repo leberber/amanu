@@ -37,14 +37,18 @@ export const BREAKPOINTS = {
   XXL: 1400
 } as const;
 
-// Pagination
+// Pagination (consolidated from pagination.constants.ts)
+// Note: Not using 'as const' to allow numeric values to be assignable
 export const PAGINATION = {
-  DEFAULT_PAGE_SIZE: 20,
-  DEFAULT_PAGE: 1,
-  PAGE_SIZE_OPTIONS: [10, 20, 50, 100],
-  ADMIN_PAGE_SIZE_OPTIONS: [10, 25, 50],
-  MAX_PAGE_SIZE: 100
-} as const;
+  DEFAULT_PAGE_SIZE: 10 as number,
+  DEFAULT_PAGE: 1 as number,
+  DEFAULT_NOTIFICATION_LIMIT: 20 as number,
+  PAGE_SIZE_OPTIONS: [10, 20, 50, 100] as number[],
+  ADMIN_PAGE_SIZE_OPTIONS: [10, 20, 25, 50] as number[],
+  USER_PAGE_SIZE_OPTIONS: [5, 10, 25] as number[],
+  MAX_PAGE_SIZE: 100 as number,
+  FETCH_ALL_LIMIT: 1000 as number  // Used when fetching all items without pagination
+};
 
 // Search and Filter
 export const SEARCH = {

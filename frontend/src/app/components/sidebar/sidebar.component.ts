@@ -15,6 +15,7 @@ import { UserPreferencesService } from '../../core/services/user-preferences.ser
 import { onLanguageChange } from '../../core/utils/language-change.util';
 import { ROUTES } from '../../core/constants/routes.constants';
 import { BreakpointService } from '../../core/services/breakpoint.service';
+import { getInitials } from '../../core/utils/format.util';
 
 interface NavItem {
   label: string;
@@ -73,10 +74,7 @@ export class SidebarComponent implements OnInit {
   isAdmin = computed(() => this.authService.isAdmin());
   isAdminOrStaff = computed(() => this.authService.isAdminOrStaff());
   currentUser = computed(() => this.authService.currentUserValue);
-  userInitials = computed(() => {
-    const name = this.currentUser()?.full_name || 'U';
-    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
-  });
+  userInitials = computed(() => getInitials(this.currentUser()?.full_name));
   currentViewMode = computed(() => this.preferencesService.productViewMode());
 
   // Route constants for template

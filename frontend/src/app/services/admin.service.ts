@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
-import { PAGINATION } from '../core/constants/pagination.constants';
+import { PAGINATION } from '../core/constants';
 
 import { map } from 'rxjs/operators';
 

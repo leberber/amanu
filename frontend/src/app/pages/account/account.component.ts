@@ -10,6 +10,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { ROUTES } from '../../core/constants/routes.constants';
 import { VALIDATION } from '../../core/constants/validation.constants';
 import { USER_ROLES } from '../../core/constants/user.constants';
+import { getInitials } from '../../core/utils/format.util';
 import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
 import { User } from '../../models/user.model';
@@ -60,16 +61,7 @@ export class AccountComponent implements OnInit {
   avatarError = signal(false);
 
   // Computed values - Get up to 2 initials from the name
-  userInitials = computed(() => {
-    const name = this.user()?.full_name?.trim();
-    if (!name) return 'U';
-
-    const parts = name.split(/\s+/).filter(p => p.length > 0);
-    if (parts.length >= 2) {
-      return (parts[0].charAt(0) + parts[1].charAt(0)).toUpperCase();
-    }
-    return name.substring(0, 2).toUpperCase();
-  });
+  userInitials = computed(() => getInitials(this.user()?.full_name));
 
   userRoleSeverity = computed(() => {
     const role = this.user()?.role;

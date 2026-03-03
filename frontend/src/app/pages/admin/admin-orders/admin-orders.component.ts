@@ -8,7 +8,7 @@ import { TableSkeletonComponent, SkeletonColumn } from '../../../shared/componen
 import { AgroclikPageContainerComponent } from '../../../shared/components/agroclik-page-container/agroclik-page-container.component';
 import { ROUTES, RouteHelpers } from '../../../core/constants/routes.constants';
 import { ORDER_STATUS } from '../../../core/constants/order.constants';
-import { PAGINATION } from '../../../core/constants/pagination.constants';
+import { PAGINATION } from '../../../core/constants';
 import { BreakpointService } from '../../../core/services/breakpoint.service';
 import { onLanguageChange } from '../../../core/utils/language-change.util';
 import { AdminService } from '../../../services/admin.service';
@@ -115,7 +115,7 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
 
   // Data loading
   loadAllOrders(): void {
-    this.adminService.getAllOrders('', 1, 1000)
+    this.adminService.getAllOrders('', 1, PAGINATION.FETCH_ALL_LIMIT)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
