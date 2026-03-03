@@ -1649,7 +1649,9 @@
     "subtitle": "Restez informé de vos commandes et offres",
     "empty_title": "Aucune notification",
     "empty_message": "Vous verrez ici les mises à jour de commandes, promotions et alertes importantes",
-    "browse_products": "Parcourir les Produits"
+    "error_message": "Impossible de charger les notifications. Veuillez réessayer.",
+    "browse_products": "Parcourir les Produits",
+    "mark_all_read": "Tout marquer comme lu"
   },
   "promotions_page": {
     "title": "Offres en Cours",

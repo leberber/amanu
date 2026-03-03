@@ -14,6 +14,7 @@ from app.models.promotion import Promotion, PromotionUsage, PromotionScope
 from app.core.security import get_current_active_user, get_current_staff_user
 from app.models.user import User, UserRole
 from app.api.utils.common import format_price
+from app.core.notification_service import NotificationService
 
 router = APIRouter()
 
@@ -335,15 +336,30 @@ def update_order(
         # Staff and admins can update all fields
         update_data = order_in.model_dump(exclude_unset=True)
     
+    # Track if status changed
+    old_status = order.status
+
     # Apply updates
     for field, value in update_data.items():
         setattr(order, field, value)
-    
+
     order.updated_at = datetime.now(timezone.utc)
-    
+
     session.add(order)
     session.commit()
     session.refresh(order)
-    
+
+    # Send notification if status changed
+    if "status" in update_data and update_data["status"] != old_status:
+        new_status = update_data["status"]
+        if new_status in [OrderStatus.CONFIRMED, OrderStatus.SHIPPED, OrderStatus.DELIVERED, OrderStatus.CANCELLED]:
+            NotificationService.notify_order_status(
+                session=session,
+                user_id=order.user_id,
+                order_id=order.id,
+                status=new_status.value,
+            )
+            session.commit()
+
     # Include order items in response
     return order

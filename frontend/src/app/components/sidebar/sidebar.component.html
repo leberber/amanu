@@ -54,6 +54,9 @@
                   @if (item.route === routes.CART && cartCount() > 0) {
                     <span class="badge">{{ cartCount() > 99 ? '99+' : cartCount() }}</span>
                   }
+                  @if (item.route === routes.NOTIFICATIONS && notificationCount() > 0) {
+                    <span class="badge">{{ notificationCount() > 99 ? '99+' : notificationCount() }}</span>
+                  }
                 </div>
                 <span class="nav-link__label">{{ item.label }}</span>
               </a>
@@ -207,6 +210,9 @@
                 <span class="mobile-menu__item-label">{{ item.label }}</span>
                 @if (item.route === routes.CART && cartCount() > 0) {
                   <span class="mobile-menu__badge">{{ cartCount() > 99 ? '99+' : cartCount() }}</span>
+                }
+                @if (item.route === routes.NOTIFICATIONS && notificationCount() > 0) {
+                  <span class="mobile-menu__badge">{{ notificationCount() > 99 ? '99+' : notificationCount() }}</span>
                 }
                 <i class="pi pi-chevron-right mobile-menu__item-arrow"></i>
               </a>

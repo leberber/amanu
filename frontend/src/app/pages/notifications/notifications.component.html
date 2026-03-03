@@ -1,31 +1,47 @@
 <app-page-layout
   title="notifications_page.title"
-  subtitle="notifications_page.subtitle"
   icon="pi pi-bell"
   [hideMobileIcon]="true"
   [showBackButton]="true"
   [backRoute]="routes.PRODUCTS"
   [fullscreen]="true">
 
-  <div class="notifications-list">
-    @for (notif of notifications(); track notif.id) {
-      <div class="notification-card" [class.notification-card--unread]="!notif.read">
-        <div class="notification-card__icon notification-card__icon--{{ notif.type }}">
-          <i [class]="getNotificationIcon(notif.type)"></i>
-        </div>
-        <div class="notification-card__content">
-          <h4 class="notification-card__title">{{ notif.title }}</h4>
-          <p class="notification-card__message">{{ notif.message }}</p>
-          <span class="notification-card__date">
-            <i class="pi pi-clock"></i>
-            {{ notif.date | date:'dd/MM/yyyy HH:mm' }}
-          </span>
-        </div>
-        @if (!notif.read) {
-          <div class="notification-card__badge"></div>
+  <!-- Header action -->
+  <ng-container pageActions>
+    @if (notifications().length > 0) {
+      <button class="mark-all-btn" (click)="markAllAsRead()">
+        <i class="pi pi-check-double"></i>
+        {{ 'notifications_page.mark_all_read' | translate }}
+      </button>
+    }
+  </ng-container>
+
+  <div class="notifications-container">
+    @if (loading()) {
+      <div class="notifications-list">
+        @for (i of [1, 2, 3, 4, 5]; track i) {
+          <div class="notification-card notification-card--skeleton">
+            <div class="notification-card__icon">
+              <div class="skeleton skeleton-icon"></div>
+            </div>
+            <div class="notification-card__content">
+              <div class="skeleton" style="width: 60%; height: 18px; margin-bottom: 8px;"></div>
+              <div class="skeleton" style="width: 90%; height: 14px; margin-bottom: 8px;"></div>
+              <div class="skeleton" style="width: 100px; height: 12px;"></div>
+            </div>
+          </div>
         }
       </div>
-    } @empty {
+    } @else if (error()) {
+      <app-empty-state
+        icon="pi-exclamation-triangle"
+        iconVariant="danger"
+        title="common.error"
+        description="notifications_page.error_message"
+        actionLabel="common.refresh"
+        actionIcon="pi pi-refresh"
+        (actionClick)="loadNotifications()" />
+    } @else if (notifications().length === 0) {
       <app-empty-state
         icon="pi-bell-slash"
         title="notifications_page.empty_title"
@@ -33,6 +49,35 @@
         actionLabel="notifications_page.browse_products"
         [actionLink]="routes.PRODUCTS"
         actionIcon="pi pi-shopping-bag" />
+    } @else {
+      <div class="notifications-list">
+        @for (notif of notifications(); track notif.id) {
+          <div
+            class="notification-card"
+            [class.notification-card--unread]="!notif.is_read"
+            (click)="onNotificationClick(notif)">
+            <div class="notification-card__icon notification-card__icon--{{ notif.type }}">
+              <i [class]="getNotificationIcon(notif.type)"></i>
+            </div>
+            <div class="notification-card__content">
+              <h4 class="notification-card__title">{{ notif.title }}</h4>
+              <p class="notification-card__message">{{ notif.message }}</p>
+              <span class="notification-card__date">
+                <i class="pi pi-clock"></i>
+                {{ notif.created_at | date:'dd/MM/yyyy HH:mm' }}
+              </span>
+            </div>
+            @if (!notif.is_read) {
+              <div class="notification-card__badge"></div>
+            }
+            @if (notif.url) {
+              <div class="notification-card__arrow">
+                <i class="pi pi-chevron-right"></i>
+              </div>
+            }
+          </div>
+        }
+      </div>
     }
   </div>
 </app-page-layout>

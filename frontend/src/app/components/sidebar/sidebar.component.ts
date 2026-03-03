@@ -9,6 +9,7 @@ import { filter } from 'rxjs/operators';
 import { AuthService } from '../../services/auth.service';
 import { CartService } from '../../services/cart.service';
 import { SidebarService } from '../../services/sidebar.service';
+import { UserNotificationService } from '../../services/user-notification.service';
 import { LanguageSelectorComponent } from '../language-selector/language-selector.component';
 import { UserPreferencesService } from '../../core/services/user-preferences.service';
 import { onLanguageChange } from '../../core/utils/language-change.util';
@@ -42,6 +43,7 @@ export class SidebarComponent implements OnInit {
   private translateService = inject(TranslateService);
   private preferencesService = inject(UserPreferencesService);
   private sidebarService = inject(SidebarService);
+  private notificationService = inject(UserNotificationService);
 
   // State (drawer visibility comes from service)
   mobileDrawerVisible = this.sidebarService.drawerVisible;
@@ -53,6 +55,9 @@ export class SidebarComponent implements OnInit {
 
   // Cart count from service signal
   cartCount = computed(() => this.cartService.items().length);
+
+  // Notification unread count from service signal
+  notificationCount = computed(() => this.notificationService.unreadCount());
 
   // Computed
   isAdmin = computed(() => this.authService.isAdmin());
@@ -82,7 +87,13 @@ export class SidebarComponent implements OnInit {
     // Subscribe to login state changes
     this.authService.isLoggedIn$
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(loggedIn => this.isLoggedIn.set(loggedIn));
+      .subscribe(loggedIn => {
+        this.isLoggedIn.set(loggedIn);
+        // Refresh notification count when user logs in
+        if (loggedIn) {
+          this.notificationService.refreshUnreadCount();
+        }
+      });
 
     // Subscribe to auth changes to rebuild nav
     this.authService.currentUser$

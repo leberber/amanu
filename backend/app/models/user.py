@@ -7,8 +7,7 @@ from pydantic import EmailStr
 
 if TYPE_CHECKING:
     from app.models.order import Order
-    # Remove this import
-    # from app.models.cart import CartItem
+    from app.models.user_notification import UserNotification
 
 class UserRole(str, Enum):
     """User role enumeration"""
@@ -50,8 +49,7 @@ class User(UserBase, table=True):
     
     # Relationships
     orders: List["Order"] = Relationship(back_populates="user", sa_relationship_kwargs={"cascade": "all, delete-orphan"})
-    # Remove this relationship
-    # cart_items: List["CartItem"] = Relationship(back_populates="user", sa_relationship_kwargs={"cascade": "all, delete-orphan"})
+    notifications: List["UserNotification"] = Relationship(sa_relationship_kwargs={"cascade": "all, delete-orphan", "foreign_keys": "[UserNotification.user_id]"})
 
 class UserCreate(UserBase):
     """Model for creating a new user"""
