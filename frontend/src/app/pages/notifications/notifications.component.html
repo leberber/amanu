@@ -6,16 +6,6 @@
   [backRoute]="routes.PRODUCTS"
   [fullscreen]="true">
 
-  <!-- Header action -->
-  <ng-container pageActions>
-    @if (notifications().length > 0) {
-      <button class="mark-all-btn" (click)="markAllAsRead()">
-        <i class="pi pi-check-double"></i>
-        {{ 'notifications_page.mark_all_read' | translate }}
-      </button>
-    }
-  </ng-container>
-
   <div class="notifications-container">
     @if (loading()) {
       <div class="notifications-list">
@@ -63,18 +53,21 @@
               <h4 class="notification-card__title">{{ notif.title }}</h4>
               <p class="notification-card__message">{{ notif.message }}</p>
               <span class="notification-card__date">
-                <i class="pi pi-clock"></i>
                 {{ notif.created_at | date:'dd/MM/yyyy HH:mm' }}
               </span>
             </div>
-            @if (!notif.is_read) {
-              <div class="notification-card__badge"></div>
-            }
-            @if (notif.url) {
-              <div class="notification-card__arrow">
-                <i class="pi pi-chevron-right"></i>
-              </div>
-            }
+            <div class="notification-card__actions">
+              <button
+                class="notification-card__delete"
+                (click)="onDeleteClick($event, notif)"
+                [attr.aria-label]="'common.delete' | translate">
+                <i class="pi pi-times"></i>
+              </button>
+              <span class="notification-card__status" [class.notification-card__status--read]="notif.is_read">
+                <i class="pi pi-check"></i>
+                <i class="pi pi-check"></i>
+              </span>
+            </div>
           </div>
         }
       </div>

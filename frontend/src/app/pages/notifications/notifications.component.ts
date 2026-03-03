@@ -75,11 +75,15 @@ export class NotificationsComponent implements OnInit {
     }
   }
 
-  markAllAsRead(): void {
-    this.notificationService.markAllAsRead()
+  onDeleteClick(event: Event, notification: UserNotification): void {
+    // Prevent triggering the card click
+    event.stopPropagation();
+
+    this.notificationService.deleteNotification(notification.id)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
-        const updated = this.notifications().map(n => ({ ...n, is_read: true }));
+        // Remove from local state
+        const updated = this.notifications().filter(n => n.id !== notification.id);
         this.notifications.set(updated);
       });
   }

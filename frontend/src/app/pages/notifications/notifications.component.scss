@@ -17,30 +17,6 @@
   gap: 12px;
 }
 
-// Mark all button
-.mark-all-btn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
-  border: none;
-  border-radius: 20px;
-  background: transparent;
-  color: var(--primary-color, #6366f1);
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s;
-
-  &:hover {
-    background: rgba(99, 102, 241, 0.1);
-  }
-
-  i {
-    font-size: 14px;
-  }
-}
-
 // =============================================================================
 // NOTIFICATION CARD
 // =============================================================================
@@ -63,7 +39,6 @@
 
   &--unread {
     background: linear-gradient(135deg, #f8faff 0%, #f0f4ff 100%);
-    border-left: 4px solid var(--primary-color, #6366f1);
   }
 
   &--skeleton {
@@ -157,36 +132,66 @@
 }
 
 .notification-card__date {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
   font-size: 11px;
   color: #9ca3af;
+}
+
+// Actions column (X button + checkmarks)
+.notification-card__actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  align-self: stretch;
+  flex-shrink: 0;
+  margin-left: 8px;
+  padding: 2px 0;
+}
+
+// Delete button
+.notification-card__delete {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: #ef4444;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    background: rgba(239, 68, 68, 0.1);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
 
   i {
-    font-size: 10px;
+    font-size: 18px;
   }
 }
 
-.notification-card__badge {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--primary-color, #6366f1);
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
-}
-
-.notification-card__arrow {
-  display: flex;
+// WhatsApp-style double checkmarks
+.notification-card__status {
+  display: inline-flex;
   align-items: center;
-  color: #d1d5db;
-  margin-left: 8px;
 
   i {
     font-size: 14px;
+    color: #9ca3af; // Gray for unread
+
+    &:last-child {
+      margin-left: -7px; // Overlap for double-check effect
+    }
+  }
+
+  // Blue checkmarks when read
+  &--read i {
+    color: #3b82f6; // Blue
   }
 }
 
