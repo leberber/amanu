@@ -1,0 +1,137 @@
+// =============================================================================
+// Settings Page Styles
+// =============================================================================
+// Clean, professional settings page similar to mobile sidebar menu
+// =============================================================================
+
+.settings-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  max-width: 600px;
+  margin: 0 auto;
+  padding: var(--space-4);
+}
+
+// -----------------------------------------------------------------------------
+// Section
+// -----------------------------------------------------------------------------
+.settings-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+
+  &__title {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-color-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0 var(--space-2);
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Card Container
+// -----------------------------------------------------------------------------
+.settings-card {
+  background: var(--surface-card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+// -----------------------------------------------------------------------------
+// Settings Item (row)
+// -----------------------------------------------------------------------------
+.settings-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--surface-border);
+
+  &--last {
+    border-bottom: none;
+  }
+
+  &__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: rgba(var(--primary-rgb), 0.1);
+    border-radius: var(--radius-md);
+    color: var(--primary-color);
+    flex-shrink: 0;
+
+    i {
+      font-size: 1.1rem;
+    }
+
+    &--muted {
+      background: var(--surface-100);
+      color: var(--text-color-secondary);
+    }
+  }
+
+  &__content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__label {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-medium);
+    color: var(--text-color);
+  }
+
+  &__action {
+    flex-shrink: 0;
+  }
+
+  &__value {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-color-secondary);
+  }
+}
+
+// -----------------------------------------------------------------------------
+// View Toggle (from global _buttons.scss, but ensure local styles match)
+// -----------------------------------------------------------------------------
+.view-toggle {
+  display: flex;
+  background: var(--surface-100);
+  border-radius: var(--radius-md);
+  padding: 3px;
+
+  &__option {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--text-color-secondary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover:not(.active) {
+      background: var(--surface-200);
+    }
+
+    &.active {
+      background: var(--color-white);
+      color: var(--primary-color);
+      box-shadow: var(--shadow-sm);
+    }
+
+    i {
+      font-size: 1rem;
+    }
+  }
+}

@@ -1,26 +1,21 @@
-import { Component, OnInit, inject, signal, computed, DestroyRef } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { ToastModule } from 'primeng/toast';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
-import { ToggleSwitch } from 'primeng/toggleswitch';
-import { SelectButtonModule } from 'primeng/selectbutton';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { ROUTES } from '../../core/constants/routes.constants';
 import { VALIDATION } from '../../core/constants/app.constants';
 import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
-import { PushService } from '../../services/push.service';
 import { User } from '../../models/user.model';
 import { ValidationMessagesService } from '../../core/services/validation-messages.service';
 import { FormBuilderService } from '../../core/services/form-builder.service';
 import { ToastMessageService } from '../../core/services/toast-message.service';
-import { UserPreferencesService, ViewMode } from '../../core/services/user-preferences.service';
 import { PhoneFormatDirective } from '../../directives/phone-format.directive';
 import { PageLayoutComponent } from '../../shared/components/page-layout/page-layout.component';
 import { DateFormatPipe } from '../../shared/pipes/date-format.pipe';
@@ -30,15 +25,12 @@ import { DateFormatPipe } from '../../shared/pipes/date-format.pipe';
   standalone: true,
   imports: [
     ReactiveFormsModule,
-    FormsModule,
     InputTextModule,
     PasswordModule,
     ToastModule,
     TranslateModule,
     TagModule,
     TooltipModule,
-    ToggleSwitch,
-    SelectButtonModule,
     PhoneFormatDirective,
     PageLayoutComponent,
     DateFormatPipe
@@ -54,21 +46,9 @@ export class AccountComponent implements OnInit {
   private userService = inject(UserService);
   private toast = inject(ToastMessageService);
   private formValidation = inject(ValidationMessagesService);
-  private pushService = inject(PushService);
-  private preferencesService = inject(UserPreferencesService);
-  private destroyRef = inject(DestroyRef);
 
   // Constants
   readonly ROUTES = ROUTES;
-
-  // View mode options for product display
-  viewModeOptions = [
-    { label: 'account.view_mode.list', value: 'list', icon: 'pi pi-list' },
-    { label: 'account.view_mode.grid', value: 'grid', icon: 'pi pi-th-large' }
-  ];
-
-  // Current view mode (bound to SelectButton)
-  productViewMode = computed(() => this.preferencesService.productViewMode());
 
   // Forms
   profileForm!: FormGroup;
@@ -78,8 +58,6 @@ export class AccountComponent implements OnInit {
   user = signal<User | null>(null);
   loading = signal(false);
   loadingPassword = signal(false);
-  notificationsEnabled = signal(false);
-  loadingNotifications = signal(false);
   focusedField = signal('');
 
   // Computed values
@@ -102,13 +80,6 @@ export class AccountComponent implements OnInit {
     this.profileForm = this.createProfileForm();
     this.passwordForm = this.createPasswordForm();
     this.loadUserData();
-
-    // Subscribe to push notification status
-    this.pushService.isSubscribed$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(isSubscribed => {
-        this.notificationsEnabled.set(isSubscribed);
-      });
   }
 
   private createProfileForm(): FormGroup {
@@ -203,35 +174,11 @@ export class AccountComponent implements OnInit {
     this.router.navigate([ROUTES.HOME]);
   }
 
-  async toggleNotifications(): Promise<void> {
-    this.loadingNotifications.set(true);
-    try {
-      if (this.notificationsEnabled()) {
-        const success = await this.pushService.subscribe();
-        if (success) {
-          this.toast.showSuccess('account.notifications_enabled');
-        } else {
-          this.notificationsEnabled.set(false);
-          this.toast.showError('account.notifications_error');
-        }
-      } else {
-        await this.pushService.unsubscribe();
-        this.toast.showInfo('account.notifications_disabled');
-      }
-    } finally {
-      this.loadingNotifications.set(false);
-    }
-  }
-
   setFocusedField(field: string): void {
     this.focusedField.set(field);
   }
 
   clearFocusedField(): void {
     this.focusedField.set('');
-  }
-
-  onViewModeChange(mode: ViewMode): void {
-    this.preferencesService.setProductViewMode(mode);
   }
 }

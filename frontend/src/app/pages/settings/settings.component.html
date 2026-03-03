@@ -7,103 +7,92 @@
   [backRoute]="routes.PRODUCTS"
   [fullscreen]="true">
 
-  <!-- Settings Cards -->
-  <div class="settings-grid">
-
-    <!-- Language Setting -->
-    <div class="card card--no-hover">
-      <div class="card-header">
-        <div class="card-header__icon card-header__icon--primary">
-          <i class="pi pi-globe"></i>
-        </div>
-        <div class="card-header__text">
-          <h2 class="card-header__title">{{ 'settings.language' | translate }}</h2>
-          <p class="card-header__subtitle">{{ 'settings.language_desc' | translate }}</p>
-        </div>
-      </div>
-      <div class="card-body">
-        <div class="language-selector">
-          @for (lang of languages; track lang.code) {
-            <button
-              class="select-card"
-              [class.active]="currentLanguage() === lang.code"
-              (click)="setLanguage(lang.code)">
-              <span class="select-card__flag">{{ lang.flag }}</span>
-              <span class="select-card__title">{{ lang.name }}</span>
-              @if (currentLanguage() === lang.code) {
-                <i class="pi pi-check select-card__check"></i>
-              }
-            </button>
-          }
-        </div>
-      </div>
-    </div>
-
-    <!-- View Mode Setting -->
-    <div class="card card--no-hover">
-      <div class="card-header">
-        <div class="card-header__icon card-header__icon--info">
-          <i class="pi pi-eye"></i>
-        </div>
-        <div class="card-header__text">
-          <h2 class="card-header__title">{{ 'settings.view_mode' | translate }}</h2>
-          <p class="card-header__subtitle">{{ 'settings.view_mode_desc' | translate }}</p>
-        </div>
-      </div>
-      <div class="card-body">
-        <div class="view-selector">
-          <button
-            class="select-card select-card--large"
-            [class.active]="currentViewMode() === 'list'"
-            (click)="setViewMode('list')">
-            <div class="select-card__icon">
-              <i class="pi pi-list"></i>
-            </div>
-            <span class="select-card__title">{{ 'settings.list_view' | translate }}</span>
-          </button>
-          <button
-            class="select-card select-card--large"
-            [class.active]="currentViewMode() === 'grid'"
-            (click)="setViewMode('grid')">
-            <div class="select-card__icon">
-              <i class="pi pi-th-large"></i>
-            </div>
-            <span class="select-card__title">{{ 'settings.grid_view' | translate }}</span>
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- App Info -->
-    <div class="card card--no-hover">
-      <div class="card-header">
-        <div class="card-header__icon card-header__icon--secondary">
-          <i class="pi pi-info-circle"></i>
-        </div>
-        <div class="card-header__text">
-          <h2 class="card-header__title">{{ 'settings.app_info' | translate }}</h2>
-          <p class="card-header__subtitle">{{ 'settings.app_info_desc' | translate }}</p>
-        </div>
-      </div>
-      <div class="card-body">
-        <div class="info-list">
-          <div class="info-row">
-            <span class="info-row__label">
-              <i class="pi pi-tag"></i>
-              {{ 'settings.version' | translate }}
-            </span>
-            <span class="info-row__value">1.0.0</span>
+  <div class="settings-page">
+    <!-- Preferences Section -->
+    <div class="settings-section">
+      <div class="settings-section__title">{{ 'settings.preferences' | translate }}</div>
+      <div class="settings-card">
+        <!-- Language -->
+        <div class="settings-item">
+          <div class="settings-item__icon">
+            <i class="pi pi-globe"></i>
           </div>
-          <div class="info-row">
-            <span class="info-row__label">
-              <i class="pi pi-code"></i>
-              {{ 'settings.build' | translate }}
-            </span>
-            <span class="info-row__value">2026.02</span>
+          <div class="settings-item__content">
+            <span class="settings-item__label">{{ 'settings.language' | translate }}</span>
+          </div>
+          <div class="settings-item__action">
+            <app-language-selector></app-language-selector>
+          </div>
+        </div>
+
+        <!-- View Mode -->
+        <div class="settings-item">
+          <div class="settings-item__icon">
+            <i class="pi pi-th-large"></i>
+          </div>
+          <div class="settings-item__content">
+            <span class="settings-item__label">{{ 'settings.view_mode' | translate }}</span>
+          </div>
+          <div class="settings-item__action">
+            <div class="view-toggle">
+              <button
+                class="view-toggle__option"
+                [class.active]="currentViewMode() === 'list'"
+                (click)="setViewMode('list')">
+                <i class="pi pi-list"></i>
+              </button>
+              <button
+                class="view-toggle__option"
+                [class.active]="currentViewMode() === 'grid'"
+                (click)="setViewMode('grid')">
+                <i class="pi pi-th-large"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Push Notifications -->
+        <div class="settings-item settings-item--last">
+          <div class="settings-item__icon">
+            <i class="pi pi-bell"></i>
+          </div>
+          <div class="settings-item__content">
+            <span class="settings-item__label">{{ 'settings.push_notifications' | translate }}</span>
+          </div>
+          <div class="settings-item__action">
+            <p-toggleswitch
+              [ngModel]="notificationsEnabled()"
+              (onChange)="toggleNotifications()"
+              [disabled]="loadingNotifications()">
+            </p-toggleswitch>
           </div>
         </div>
       </div>
     </div>
 
+    <!-- App Info Section -->
+    <div class="settings-section">
+      <div class="settings-section__title">{{ 'settings.app_info' | translate }}</div>
+      <div class="settings-card">
+        <div class="settings-item">
+          <div class="settings-item__icon settings-item__icon--muted">
+            <i class="pi pi-tag"></i>
+          </div>
+          <div class="settings-item__content">
+            <span class="settings-item__label">{{ 'settings.version' | translate }}</span>
+          </div>
+          <div class="settings-item__value">1.0.0</div>
+        </div>
+        <div class="settings-item settings-item--last">
+          <div class="settings-item__icon settings-item__icon--muted">
+            <i class="pi pi-code"></i>
+          </div>
+          <div class="settings-item__content">
+            <span class="settings-item__label">{{ 'settings.build' | translate }}</span>
+          </div>
+          <div class="settings-item__value">2026.03</div>
+        </div>
+      </div>
+    </div>
   </div>
 </app-page-layout>

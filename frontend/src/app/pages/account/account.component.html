@@ -73,23 +73,6 @@
                 </div>
               </div>
 
-              <!-- Notifications -->
-              <div class="info-item">
-                <div class="info-item__icon info-item__icon--notifications">
-                  <i class="pi pi-bell"></i>
-                </div>
-                <div class="info-item__content">
-                  <span class="info-item__label">{{ 'account.notifications' | translate }}</span>
-                  <span class="info-item__hint">{{ 'account.notifications_hint' | translate }}</span>
-                </div>
-                <div class="info-item__action">
-                  <p-toggleswitch
-                    [ngModel]="notificationsEnabled()"
-                    (onChange)="toggleNotifications()"
-                    [disabled]="loadingNotifications()">
-                  </p-toggleswitch>
-                </div>
-              </div>
             </div>
 
             <!-- Logout Button -->
@@ -100,43 +83,6 @@
           </div>
         </div>
 
-        <!-- User Settings Card -->
-        <div class="card card--no-hover">
-          <div class="card-header">
-            <div class="card-header__icon card-header__icon--primary">
-              <i class="pi pi-cog"></i>
-            </div>
-            <h2 class="card-header__title">{{ 'account.settings' | translate }}</h2>
-          </div>
-
-          <div class="card-body">
-            <div class="settings-items">
-              <!-- Product Display Mode -->
-              <div class="settings-item">
-                <div class="settings-item__icon">
-                  <i class="pi pi-th-large"></i>
-                </div>
-                <div class="settings-item__content">
-                  <span class="settings-item__label">{{ 'account.product_display' | translate }}</span>
-                  <span class="settings-item__hint">{{ 'account.product_display_hint' | translate }}</span>
-                </div>
-                <div class="settings-item__action">
-                  <p-selectButton
-                    [options]="viewModeOptions"
-                    [ngModel]="productViewMode()"
-                    (ngModelChange)="onViewModeChange($event)"
-                    optionLabel="label"
-                    optionValue="value"
-                    styleClass="view-mode-toggle">
-                    <ng-template pTemplate="item" let-item>
-                      <i [class]="item.icon"></i>
-                    </ng-template>
-                  </p-selectButton>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
 
       <!-- Right Column: Forms -->
