@@ -10,8 +10,8 @@ import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { OnboardingComponent } from './components/onboarding/onboarding.component';
 import { SidebarService } from './services/sidebar.service';
 import { NavigationService } from './core/services/navigation.service';
+import { StorageService } from './core/services/storage.service';
 import { ROUTES } from './core/constants/routes.constants';
-import { STORAGE_KEYS } from './core/constants/app.constants';
 import { BreakpointService } from './core/services/breakpoint.service';
 
 // Base styles for route animations
@@ -85,19 +85,20 @@ const slideAnimation = trigger('routeAnimation', [
   animations: [slideAnimation]
 })
 export class AppComponent implements OnInit {
+  private readonly storage = inject(StorageService);
+  private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly sidebarService = inject(SidebarService);
+  private readonly navigationService = inject(NavigationService);
+  private readonly breakpoint = inject(BreakpointService);
+
   showNavigation = signal(false);
   hideBottomNav = signal(false);
 
   // Splash screen state - hide initially if onboarding will show
-  private hasSeenOnboarding = localStorage.getItem(STORAGE_KEYS.HAS_SEEN_ONBOARDING) === 'true';
+  private hasSeenOnboarding = this.storage.hasSeenOnboarding();
   showSplash = signal(this.hasSeenOnboarding);
   splashExiting = signal(false);
-
-  private router = inject(Router);
-  private destroyRef = inject(DestroyRef);
-  private sidebarService = inject(SidebarService);
-  private navigationService = inject(NavigationService);
-  private breakpoint = inject(BreakpointService);
 
   // Expose breakpoint service for template
   isMobile = this.breakpoint.isMobile;

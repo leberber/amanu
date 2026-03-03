@@ -1,21 +1,24 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject, Observable, tap, switchMap, map, of } from 'rxjs';
 import { ApiService } from './api.service';
 import { LoginRequest, LoginResponse, RegisterRequest, User, UserRole, GoogleAuthRequest, GoogleAuthResponse } from '../models/user.model';
-import { STORAGE_KEYS } from '../core/constants/app.constants';
+import { StorageService } from '../core/services/storage.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
+  private readonly apiService = inject(ApiService);
+  private readonly storage = inject(StorageService);
+
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
-  
+
   // Add login state observable
   private isLoggedInSubject = new BehaviorSubject<boolean>(this.isLoggedIn);
   public isLoggedIn$ = this.isLoggedInSubject.asObservable();
-  
-  constructor(private apiService: ApiService) {
+
+  constructor() {
     this.loadStoredUser();
   }
   
@@ -34,7 +37,7 @@ export class AuthService {
     
     return this.apiService.post<LoginResponse>('/auth/login', body.toString(), options).pipe(
       tap(response => {
-        localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, response.access_token);
+        this.storage.setAuthToken(response.access_token);
         this.isLoggedInSubject.next(true); // Notify login state change
       }),
       // Chain the user loading after successful token acquisition
@@ -47,8 +50,7 @@ export class AuthService {
   }
   
   logout(): void {
-    localStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
-    localStorage.removeItem(STORAGE_KEYS.USER_DATA);
+    this.storage.clearAuthData();
     this.currentUserSubject.next(null);
     this.isLoggedInSubject.next(false); // Notify logout state change
   }
@@ -56,7 +58,7 @@ export class AuthService {
   loadCurrentUser(): Observable<User> {
     return this.apiService.get<User>('/users/me').pipe(
       tap(user => {
-        localStorage.setItem(STORAGE_KEYS.USER_DATA, JSON.stringify(user));
+        this.storage.setUser(user);
         this.currentUserSubject.next(user);
         this.isLoggedInSubject.next(true); // Ensure login state is true
       })
@@ -64,23 +66,17 @@ export class AuthService {
   }
 
   private loadStoredUser(): void {
-    const storedUser = localStorage.getItem(STORAGE_KEYS.USER_DATA);
-    const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
-    
-    if (storedUser && token) {
-      try {
-        const user = JSON.parse(storedUser);
-        this.currentUserSubject.next(user);
-        this.isLoggedInSubject.next(true); // Set login state to true
-      } catch (e) {
-        console.error('Error parsing stored user:', e);
-        this.logout(); // Clear invalid data
-      }
+    const user = this.storage.getUser<User>();
+    const token = this.storage.getAuthToken();
+
+    if (user && token) {
+      this.currentUserSubject.next(user);
+      this.isLoggedInSubject.next(true); // Set login state to true
     }
   }
   
   get isLoggedIn(): boolean {
-    return !!localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
+    return !!this.storage.getAuthToken();
   }
   
   get currentUserValue(): User | null {
@@ -89,7 +85,7 @@ export class AuthService {
   
   updateCurrentUser(user: User): void {
     if (user) {
-      localStorage.setItem(STORAGE_KEYS.USER_DATA, JSON.stringify(user));
+      this.storage.setUser(user);
       this.currentUserSubject.next(user);
     }
   }
@@ -224,8 +220,8 @@ export class AuthService {
   googleAuth(credential: string): Observable<GoogleAuthResponse> {
     return this.apiService.post<GoogleAuthResponse>('/auth/google', { credential }).pipe(
       tap(response => {
-        localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, response.access_token);
-        localStorage.setItem(STORAGE_KEYS.USER_DATA, JSON.stringify(response.user));
+        this.storage.setAuthToken(response.access_token);
+        this.storage.setUser(response.user);
         this.currentUserSubject.next(response.user);
         this.isLoggedInSubject.next(true);
       })

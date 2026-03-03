@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, DestroyRef, signal } from '@angular/core';
+import { Component, OnInit, inject, DestroyRef } from '@angular/core';
 import { ConfirmationService } from 'primeng/api';
 import { SelectModule } from 'primeng/select';
 import { PopoverModule } from 'primeng/popover';
@@ -41,12 +41,6 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
   users: UserManage[] = [];
   totalRecords = 0;
 
-  // Animation state
-  tableInitialized = signal(false);
-
-  // Fullscreen mode
-  isFullscreen = false;
-
   // Skeleton configuration
   skeletonColumns: SkeletonColumn[] = [
     { width: '8%', type: 'pill-sm', headerWidth: '30px' },
@@ -57,10 +51,10 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
     { width: '17%', type: 'actions', headerWidth: '60px' }
   ];
 
-  // Column visibility options
+  // Column visibility options (initialized in ngOnInit)
   // MOBILE COLUMN VISIBILITY: On mobile, only show essential columns (user, role, status)
   // Other columns can be toggled back from table options menu
-  override columnOptions: ColumnOption[] = this.getInitialColumnOptions();
+  override columnOptions: ColumnOption[] = [];
 
   private getInitialColumnOptions(): ColumnOption[] {
     const isMobile = this.breakpoint.isMobile();
@@ -117,7 +111,7 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
         );
         this.filterItems();
         this.loading = false;
-        setTimeout(() => this.tableInitialized.set(true), 100);
+        this.markTableInitialized();
       },
       error: (error) => this.handleLoadError(error)
     });
@@ -207,17 +201,6 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
     this.roleFilter = 'all';
     this.statusFilter = 'all';
     this.filterItems();
-  }
-
-  toggleFullscreen(): void {
-    this.isFullscreen = !this.isFullscreen;
-    if (this.isFullscreen) {
-      document.body.classList.add('fullscreen-active');
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.classList.remove('fullscreen-active');
-      document.body.style.overflow = '';
-    }
   }
 
   // Navigation

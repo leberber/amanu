@@ -40,12 +40,6 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
   deliveredCount = computed(() => this.allOrders().filter(o => o.status === ORDER_STATUS.DELIVERED).length);
   cancelledCount = computed(() => this.allOrders().filter(o => o.status === ORDER_STATUS.CANCELLED).length);
 
-  // Animation state
-  tableInitialized = signal(false);
-
-  // UI state signals
-  isFullscreen = signal(false);
-
   // Mobile load more
   mobileVisibleCount = signal(10);
   mobileOrders = computed(() => this.orders().slice(0, this.mobileVisibleCount()));
@@ -72,8 +66,8 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
     { width: '20%', type: 'actions', headerWidth: '80px' }
   ];
 
-  // Column visibility options - with mobile defaults
-  override columnOptions: ColumnOption[] = this.getInitialColumnOptions();
+  // Column visibility options - with mobile defaults (initialized in ngOnInit)
+  override columnOptions: ColumnOption[] = [];
 
   // Services
   private readonly adminService = inject(AdminService);
@@ -129,7 +123,7 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
           this.orders.set(orders);
           this.updatePaginatedItems();
           this.loading = false;
-          setTimeout(() => this.tableInitialized.set(true), 100);
+          this.markTableInitialized();
         },
         error: (error) => {
           this.loading = false;
@@ -175,12 +169,6 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
     this.statusFilter = 'all';
     this.resetPagination();
     this.filterItems();
-  }
-
-  toggleFullscreen(): void {
-    this.isFullscreen.update(v => !v);
-    document.body.classList.toggle('fullscreen-active', this.isFullscreen());
-    document.body.style.overflow = this.isFullscreen() ? 'hidden' : '';
   }
 
   loadMoreOrders(): void {

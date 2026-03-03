@@ -1,7 +1,7 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, inject } from '@angular/core';
 import { Product } from '../models/product.model';
 import { AppliedPromotion } from '../models/promotion.model';
-import { STORAGE_KEYS } from '../core/constants/app.constants';
+import { StorageService } from '../core/services/storage.service';
 
 export interface CartItem {
   id: string;
@@ -25,6 +25,8 @@ export interface CartItem {
  */
 @Injectable({ providedIn: 'root' })
 export class CartService {
+  private readonly storage = inject(StorageService);
+
   // State
   private readonly _items = signal<CartItem[]>([]);
   private readonly _promotion = signal<AppliedPromotion | null>(null);
@@ -150,28 +152,13 @@ export class CartService {
 
   // Private
   private loadFromStorage(): void {
-    const cartData = localStorage.getItem(STORAGE_KEYS.CART);
-    const promoData = localStorage.getItem(STORAGE_KEYS.CART_PROMO);
-
-    if (cartData) {
-      try { this._items.set(JSON.parse(cartData)); }
-      catch { this._items.set([]); }
-    }
-
-    if (promoData) {
-      try { this._promotion.set(JSON.parse(promoData)); }
-      catch { this._promotion.set(null); }
-    }
+    this._items.set(this.storage.getCart<CartItem>());
+    this._promotion.set(this.storage.getCartPromo<AppliedPromotion>());
   }
 
   private persist(): void {
-    localStorage.setItem(STORAGE_KEYS.CART, JSON.stringify(this._items()));
-    const promo = this._promotion();
-    if (promo) {
-      localStorage.setItem(STORAGE_KEYS.CART_PROMO, JSON.stringify(promo));
-    } else {
-      localStorage.removeItem(STORAGE_KEYS.CART_PROMO);
-    }
+    this.storage.setCart(this._items());
+    this.storage.setCartPromo(this._promotion());
   }
 
   private createCartItem(product: Product, quantity: number): CartItem {

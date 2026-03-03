@@ -1,6 +1,6 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { STORAGE_KEYS } from '../constants/app.constants';
+import { StorageService } from './storage.service';
 
 export interface CurrencyConfig {
   code: string;
@@ -17,7 +17,8 @@ export interface CurrencyConfig {
   providedIn: 'root'
 })
 export class CurrencyService {
-  private translateService = inject(TranslateService);
+  private readonly translateService = inject(TranslateService);
+  private readonly storage = inject(StorageService);
   
   // Available currencies
   private readonly currencies: Record<string, CurrencyConfig> = {
@@ -67,13 +68,9 @@ export class CurrencyService {
    * Load saved currency from localStorage
    */
   private loadSavedCurrency(): void {
-    try {
-      const savedCurrency = localStorage.getItem(STORAGE_KEYS.CURRENCY);
-      if (savedCurrency && this.currencies[savedCurrency]) {
-        this.currentCurrencyCode.set(savedCurrency);
-      }
-    } catch (error) {
-      console.warn('Could not load saved currency:', error);
+    const savedCurrency = this.storage.getCurrency();
+    if (savedCurrency && this.currencies[savedCurrency]) {
+      this.currentCurrencyCode.set(savedCurrency);
     }
   }
 
@@ -81,11 +78,7 @@ export class CurrencyService {
    * Save currency to localStorage
    */
   private saveCurrency(currencyCode: string): void {
-    try {
-      localStorage.setItem(STORAGE_KEYS.CURRENCY, currencyCode);
-    } catch (error) {
-      console.warn('Could not save currency:', error);
-    }
+    this.storage.setCurrency(currencyCode);
   }
 
   /**

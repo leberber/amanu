@@ -1,5 +1,6 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, inject } from '@angular/core';
 import { STORAGE_KEYS, BREAKPOINTS } from '../constants/app.constants';
+import { StorageService } from './storage.service';
 
 export type ViewMode = 'grid' | 'list';
 
@@ -18,6 +19,7 @@ const DEFAULT_PREFERENCES: UserPreferences = {
   providedIn: 'root'
 })
 export class UserPreferencesService {
+  private readonly storage = inject(StorageService);
   private preferences = signal<UserPreferences>(this.loadPreferences());
 
   // Expose individual preferences as computed signals for easy access
@@ -28,7 +30,7 @@ export class UserPreferencesService {
 
   constructor() {
     // Set default based on screen size if no saved preference
-    if (!localStorage.getItem(STORAGE_KEYS.PREFERENCES)) {
+    if (!this.storage.has(STORAGE_KEYS.PREFERENCES)) {
       const isMobile = typeof window !== 'undefined' && window.innerWidth < BREAKPOINTS.MD;
       this.setProductViewMode(isMobile ? 'list' : 'grid');
     }
@@ -57,23 +59,11 @@ export class UserPreferencesService {
   }
 
   private loadPreferences(): UserPreferences {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEYS.PREFERENCES);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        return { ...DEFAULT_PREFERENCES, ...parsed };
-      }
-    } catch (e) {
-      console.error('Error loading preferences:', e);
-    }
-    return { ...DEFAULT_PREFERENCES };
+    const stored = this.storage.getJson<Partial<UserPreferences>>(STORAGE_KEYS.PREFERENCES, {});
+    return { ...DEFAULT_PREFERENCES, ...stored };
   }
 
   private savePreferences(): void {
-    try {
-      localStorage.setItem(STORAGE_KEYS.PREFERENCES, JSON.stringify(this.preferences()));
-    } catch (e) {
-      console.error('Error saving preferences:', e);
-    }
+    this.storage.setJson(STORAGE_KEYS.PREFERENCES, this.preferences());
   }
 }

@@ -1,4 +1,4 @@
-import { inject, Directive } from '@angular/core';
+import { inject, Directive, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { DateService } from '../../core/services/date.service';
@@ -17,6 +17,10 @@ export abstract class BaseAdminListComponent {
   // Common state
   loading = true;
   searchQuery = '';
+
+  // UI state signals (common to all admin lists)
+  isFullscreen = signal(false);
+  tableInitialized = signal(false);
 
   // Pagination state
   first = 0;
@@ -73,6 +77,23 @@ export abstract class BaseAdminListComponent {
     return this.dateService.formatDate(dateString);
   }
 
+  // Fullscreen toggle (common to all admin lists)
+  toggleFullscreen(): void {
+    this.isFullscreen.update(v => !v);
+    if (this.isFullscreen()) {
+      document.body.classList.add('fullscreen-active');
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.classList.remove('fullscreen-active');
+      document.body.style.overflow = '';
+    }
+  }
+
+  // Mark table as initialized after data loads (for animations)
+  protected markTableInitialized(): void {
+    setTimeout(() => this.tableInitialized.set(true), 100);
+  }
+
   protected resetPagination(): void {
     this.first = 0;
   }
@@ -99,6 +120,13 @@ export abstract class BaseAdminListComponent {
       return items.filter(item => !item.is_active);
     }
     return items;
+  }
+
+  // Sort items by created_at descending (newest first)
+  protected sortByCreatedAt<T extends { created_at: string }>(items: T[]): T[] {
+    return [...items].sort((a, b) =>
+      new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    );
   }
 
   // Data loading helpers

@@ -1,7 +1,7 @@
-import { Component, OnInit, signal, output } from '@angular/core';
+import { Component, OnInit, signal, output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
-import { STORAGE_KEYS } from '../../core/constants/app.constants';
+import { StorageService } from '../../core/services/storage.service';
 
 interface OnboardingSlide {
   icon: string;
@@ -19,6 +19,8 @@ interface OnboardingSlide {
   styleUrl: './onboarding.component.scss'
 })
 export class OnboardingComponent implements OnInit {
+  private readonly storage = inject(StorageService);
+
   show = signal(false);
   currentSlide = signal(0);
   exiting = signal(false);
@@ -83,8 +85,7 @@ export class OnboardingComponent implements OnInit {
 
   ngOnInit(): void {
     // Show onboarding only on first app visit (device-based)
-    const hasSeenOnboarding = localStorage.getItem(STORAGE_KEYS.HAS_SEEN_ONBOARDING);
-    if (!hasSeenOnboarding) {
+    if (!this.storage.hasSeenOnboarding()) {
       this.show.set(true);
     }
   }
@@ -138,7 +139,7 @@ export class OnboardingComponent implements OnInit {
   complete(): void {
     if (this.exiting()) return; // Prevent double calls
     this.exiting.set(true);
-    localStorage.setItem(STORAGE_KEYS.HAS_SEEN_ONBOARDING, 'true');
+    this.storage.markOnboardingSeen();
     // Emit first so parent can show splash, then hide after small delay
     this.completed.emit();
     setTimeout(() => {

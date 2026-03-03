@@ -3,19 +3,20 @@ import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 import { AuthService } from '../services/auth.service';
-import { STORAGE_KEYS } from '../core/constants/app.constants';
+import { StorageService } from '../core/services/storage.service';
 import { ROUTES } from '../core/constants/routes.constants';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
   const router = inject(Router);
+  const storage = inject(StorageService);
 
   // Skip auth endpoints
   if (req.url.includes('/auth/login')) {
     return next(req);
   }
 
-  const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
+  const token = storage.getAuthToken();
 
   if (token) {
     const cloned = req.clone({
@@ -26,24 +27,23 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     return next(cloned).pipe(
       catchError((error) => {
         if (error instanceof HttpErrorResponse && error.status === 401) {
+          // Store the session expired message flag
+          storage.setSessionExpired();
 
-          // Store the session expired message flag in localStorage
-          localStorage.setItem(STORAGE_KEYS.SESSION_EXPIRED, 'true');
-          
           // Log out and clear data
           authService.logout();
-          
+
           // Navigate to login with return URL
           router.navigate([ROUTES.LOGIN], {
             queryParams: { returnUrl: router.url }
           });
-          
+
           return throwError(() => new Error('Session expired. Please log in again.'));
         }
         return throwError(() => error);
       })
     );
   }
-  
+
   return next(req);
 };

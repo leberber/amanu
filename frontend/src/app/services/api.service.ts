@@ -1,73 +1,51 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { STORAGE_KEYS } from '../core/constants/app.constants';
+import { StorageService } from '../core/services/storage.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ApiService {
-  private baseUrl = environment.apiUrl;
+  private readonly baseUrl = environment.apiUrl;
+  private readonly http = inject(HttpClient);
+  private readonly storage = inject(StorageService);
 
-  constructor(private http: HttpClient) {}
+  // Build full URL for endpoint
+  private buildUrl(endpoint: string): string {
+    return `${this.baseUrl}${endpoint}`;
+  }
 
-  // Helper method to get auth headers
-  private getHeaders(): HttpHeaders {
-    const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
-    let headers = new HttpHeaders({
-      'Content-Type': 'application/json'
-    });
-    
+  // Build request options with auth headers
+  private buildOptions(options: object = {}): object {
+    const token = this.storage.getAuthToken();
+    let headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+
     if (token) {
       headers = headers.set('Authorization', `Bearer ${token}`);
     }
-    
-    return headers;
+
+    return { headers, ...options };
   }
 
   get<T>(endpoint: string, options = {}): Observable<T> {
-    const url = `${this.baseUrl}${endpoint}`;
-    const requestOptions = {
-      headers: this.getHeaders(),
-      ...options
-    };
-    return this.http.get<T>(url, requestOptions);
+    return this.http.get<T>(this.buildUrl(endpoint), this.buildOptions(options));
   }
 
-  post<T>(endpoint: string, data: any, options = {}): Observable<T> {
-    const url = `${this.baseUrl}${endpoint}`;
-    const requestOptions = {
-      headers: this.getHeaders(),
-      ...options
-    };
-    return this.http.post<T>(url, data, requestOptions);
+  post<T>(endpoint: string, data: unknown, options = {}): Observable<T> {
+    return this.http.post<T>(this.buildUrl(endpoint), data, this.buildOptions(options));
   }
 
-  put<T>(endpoint: string, data: any, options = {}): Observable<T> {
-    const url = `${this.baseUrl}${endpoint}`;
-    const requestOptions = {
-      headers: this.getHeaders(),
-      ...options
-    };
-    return this.http.put<T>(url, data, requestOptions);
+  put<T>(endpoint: string, data: unknown, options = {}): Observable<T> {
+    return this.http.put<T>(this.buildUrl(endpoint), data, this.buildOptions(options));
   }
 
-  patch<T>(endpoint: string, data: any, options = {}): Observable<T> {
-    const url = `${this.baseUrl}${endpoint}`;
-    const requestOptions = {
-      headers: this.getHeaders(),
-      ...options
-    };
-    return this.http.patch<T>(url, data, requestOptions);
+  patch<T>(endpoint: string, data: unknown, options = {}): Observable<T> {
+    return this.http.patch<T>(this.buildUrl(endpoint), data, this.buildOptions(options));
   }
 
   delete<T>(endpoint: string, options = {}): Observable<T> {
-    const url = `${this.baseUrl}${endpoint}`;
-    const requestOptions = {
-      headers: this.getHeaders(),
-      ...options
-    };
-    return this.http.delete<T>(url, requestOptions);
+    return this.http.delete<T>(this.buildUrl(endpoint), this.buildOptions(options));
   }
 }

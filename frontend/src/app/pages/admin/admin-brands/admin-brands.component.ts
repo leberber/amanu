@@ -45,10 +45,6 @@ export class AdminBrandsComponent extends BaseAdminListComponent implements OnIn
   activeCount = computed(() => this.allBrands().filter(b => b.is_active).length);
   inactiveCount = computed(() => this.allBrands().filter(b => !b.is_active).length);
 
-  // UI state signals
-  isFullscreen = signal(false);
-  tableInitialized = signal(false);
-
   // Skeleton configuration
   skeletonColumns: SkeletonColumn[] = [
     { width: '8%', type: 'image', headerWidth: '0' },
@@ -62,7 +58,7 @@ export class AdminBrandsComponent extends BaseAdminListComponent implements OnIn
   // Column visibility options
   // MOBILE COLUMN VISIBILITY: On mobile, only show essential columns (name, products, status)
   // Other columns can be toggled back from table options menu
-  override columnOptions: ColumnOption[] = this.getInitialColumnOptions();
+  override columnOptions: ColumnOption[] = [];
 
   private getInitialColumnOptions(): ColumnOption[] {
     const isMobile = this.breakpoint.isMobile();
@@ -106,16 +102,13 @@ export class AdminBrandsComponent extends BaseAdminListComponent implements OnIn
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (brands) => {
-          // Sort by created_at descending (newest first)
-          const sorted = [...brands].sort((a, b) =>
-            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-          );
+          const sorted = this.sortByCreatedAt(brands);
           this.allBrands.set(sorted);
           this.brands.set(sorted);
           this.loadProductCounts();
           this.updatePaginatedItems();
           this.loading = false;
-          setTimeout(() => this.tableInitialized.set(true), 100);
+          this.markTableInitialized();
         },
         error: () => {
           this.allBrands.set([]);
@@ -183,17 +176,6 @@ export class AdminBrandsComponent extends BaseAdminListComponent implements OnIn
     this.searchQuery = '';
     this.statusFilter = 'all';
     this.filterItems();
-  }
-
-  toggleFullscreen(): void {
-    this.isFullscreen.update(v => !v);
-    if (this.isFullscreen()) {
-      document.body.classList.add('fullscreen-active');
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.classList.remove('fullscreen-active');
-      document.body.style.overflow = '';
-    }
   }
 
   createNewBrand() {

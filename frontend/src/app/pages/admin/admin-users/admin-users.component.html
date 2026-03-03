@@ -109,7 +109,7 @@
       </div>
     } @else {
       <!-- Users Table -->
-      <div class="table-container animate-item" [class.fullscreen]="isFullscreen" style="--item-delay: 100ms;">
+      <div class="table-container animate-item" [class.fullscreen]="isFullscreen()" style="--item-delay: 100ms;">
         <div class="table-header">
           <app-table-search
             [(query)]="searchQuery"
@@ -125,8 +125,8 @@
             <button class="table-action-btn refresh-btn" (click)="refreshUserData()" [pTooltip]="'admin.users.refresh' | translate">
               <i class="pi pi-refresh"></i>
             </button>
-            <button class="table-action-btn" (click)="toggleFullscreen()" [pTooltip]="(isFullscreen ? 'common.exit_fullscreen' : 'common.fullscreen') | translate">
-              <i [class]="isFullscreen ? 'pi pi-window-minimize' : 'pi pi-window-maximize'"></i>
+            <button class="table-action-btn" (click)="toggleFullscreen()" [pTooltip]="(isFullscreen() ? 'common.exit_fullscreen' : 'common.fullscreen') | translate">
+              <i [class]="isFullscreen() ? 'pi pi-window-minimize' : 'pi pi-window-maximize'"></i>
             </button>
             <button class="table-action-btn" (click)="tableOptionsMenu.toggle($event)" [pTooltip]="'admin.users.table_options' | translate" tooltipPosition="left">
               <i class="pi pi-ellipsis-v"></i>

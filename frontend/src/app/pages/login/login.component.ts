@@ -9,7 +9,7 @@ import { finalize } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 import { UserRole } from '../../models/user.model';
 import { ToastMessageService } from '../../core/services/toast-message.service';
-import { STORAGE_KEYS } from '../../core/constants/app.constants';
+import { StorageService } from '../../core/services/storage.service';
 import { ANIMATION, UI_DELAY } from '../../core/constants/ui.constants';
 import { ROUTES, DefaultRedirects } from '../../core/constants/routes.constants';
 import { GoogleSignInButtonComponent } from '../../shared/components/google-signin-button/google-signin-button.component';
@@ -47,6 +47,7 @@ export class LoginComponent implements OnInit {
   router = inject(Router);
   private route = inject(ActivatedRoute);
   private toast = inject(ToastMessageService);
+  private storage = inject(StorageService);
   private ngZone = inject(NgZone);
 
   // Lifecycle hooks
@@ -162,9 +163,8 @@ export class LoginComponent implements OnInit {
   }
 
   private checkSessionExpired(): void {
-    const sessionExpired = localStorage.getItem(STORAGE_KEYS.SESSION_EXPIRED);
-    if (sessionExpired === 'true') {
-      localStorage.removeItem(STORAGE_KEYS.SESSION_EXPIRED);
+    if (this.storage.isSessionExpired()) {
+      this.storage.clearSessionExpired();
       setTimeout(() => {
         this.toast.showSessionExpired();
       }, 300);

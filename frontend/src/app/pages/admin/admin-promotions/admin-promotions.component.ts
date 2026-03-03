@@ -36,10 +36,6 @@ export class AdminPromotionsComponent extends BaseAdminListComponent implements 
   promotions = signal<Promotion[]>([]);
   paginatedPromotions = signal<Promotion[]>([]);
 
-  // UI state signals
-  isFullscreen = signal(false);
-  tableInitialized = signal(false);
-
   // Override status filter type for promotions (different from default active/inactive)
   override statusFilter: string = 'all';
 
@@ -60,10 +56,10 @@ export class AdminPromotionsComponent extends BaseAdminListComponent implements 
     { width: '10%', type: 'actions', headerWidth: '60px' }
   ];
 
-  // Column visibility options
+  // Column visibility options (initialized in ngOnInit)
   // MOBILE COLUMN VISIBILITY: On mobile, only show essential columns (name, discount, status)
   // Other columns can be toggled back from table options menu
-  override columnOptions: ColumnOption[] = this.getInitialColumnOptions();
+  override columnOptions: ColumnOption[] = [];
 
   private getInitialColumnOptions(): ColumnOption[] {
     const isMobile = this.breakpoint.isMobile();
@@ -127,15 +123,12 @@ export class AdminPromotionsComponent extends BaseAdminListComponent implements 
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (promotions) => {
-          // Sort by created_at descending (newest first)
-          const sorted = [...promotions].sort((a, b) =>
-            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-          );
+          const sorted = this.sortByCreatedAt(promotions);
           this.allPromotions.set(sorted);
           this.promotions.set(sorted);
           this.updatePaginatedItems();
           this.loading = false;
-          setTimeout(() => this.tableInitialized.set(true), 100);
+          this.markTableInitialized();
         },
         error: () => {
           this.allPromotions.set([]);
@@ -173,17 +166,6 @@ export class AdminPromotionsComponent extends BaseAdminListComponent implements 
     this.statusFilter = 'all';
     this.resetPagination();
     this.filterItems();
-  }
-
-  toggleFullscreen(): void {
-    this.isFullscreen.update(v => !v);
-    if (this.isFullscreen()) {
-      document.body.classList.add('fullscreen-active');
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.classList.remove('fullscreen-active');
-      document.body.style.overflow = '';
-    }
   }
 
   createNewPromotion() {

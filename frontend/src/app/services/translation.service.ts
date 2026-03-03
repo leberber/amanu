@@ -1,7 +1,7 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { BehaviorSubject } from 'rxjs';
-import { STORAGE_KEYS } from '../core/constants/app.constants';
+import { StorageService } from '../core/services/storage.service';
 
 export interface Language {
   code: string;
@@ -14,6 +14,8 @@ export interface Language {
   providedIn: 'root'
 })
 export class TranslationService {
+  private readonly storage = inject(StorageService);
+
   // Available languages
   public readonly availableLanguages: Language[] = [
     { code: 'fr', name: 'Français', flag: '🇫🇷', rtl: false },
@@ -61,20 +63,11 @@ export class TranslationService {
   }
 
   private getSavedLanguage(): string {
-    try {
-      return localStorage.getItem(STORAGE_KEYS.LANGUAGE) || this.defaultLanguage;
-    } catch (error) {
-      console.warn('Could not access localStorage:', error);
-      return this.defaultLanguage;
-    }
+    return this.storage.getLanguage() || this.defaultLanguage;
   }
 
   private saveLanguage(language: string): void {
-    try {
-      localStorage.setItem(STORAGE_KEYS.LANGUAGE, language);
-    } catch (error) {
-      console.warn('Could not save language to localStorage:', error);
-    }
+    this.storage.setLanguage(language);
   }
 
   private isLanguageSupported(language: string): boolean {

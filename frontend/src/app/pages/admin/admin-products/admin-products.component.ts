@@ -91,10 +91,6 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
   stockEditMode: 'cartons' | 'units' = 'cartons';
   stockEditProduct: Product | null = null;
 
-  // UI state signals
-  isFullscreen = signal(false);
-  tableInitialized = signal(false);
-
   // ---------------------------------------------------------------------------
   // MOBILE COLUMN VISIBILITY
   // ---------------------------------------------------------------------------
@@ -103,7 +99,7 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
   // - Mobile: only essential columns (set visible: true)
   // Users can toggle columns via table options menu.
   // ---------------------------------------------------------------------------
-  override columnOptions: ColumnOption[] = this.getInitialColumnOptions();
+  override columnOptions: ColumnOption[] = [];
 
   private getInitialColumnOptions(): ColumnOption[] {
     const isMobile = this.breakpoint.isMobile();
@@ -258,17 +254,6 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
           this.baseToast.showApiError(error, 'admin.products.status_update_failed');
         }
       });
-  }
-
-  toggleFullscreen(): void {
-    this.isFullscreen.update(v => !v);
-    if (this.isFullscreen()) {
-      document.body.classList.add('fullscreen-active');
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.classList.remove('fullscreen-active');
-      document.body.style.overflow = '';
-    }
   }
 
   getCategoryName(categoryId: number): string {
@@ -480,15 +465,12 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (products) => {
-          // Sort by created_at descending (newest first)
-          const sorted = [...products].sort((a, b) =>
-            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-          );
+          const sorted = this.sortByCreatedAt(products);
           this.allProducts.set(sorted);
           this.products.set(sorted);
           this.updatePaginatedItems();
           this.loading = false;
-          setTimeout(() => this.tableInitialized.set(true), 100);
+          this.markTableInitialized();
         },
         error: () => {
           this.allProducts.set([]);

@@ -5,7 +5,7 @@ import { catchError } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { ToastMessageService } from '../services/toast-message.service';
 import { AuthService } from '../../services/auth.service';
-import { STORAGE_KEYS } from '../constants/app.constants';
+import { StorageService } from '../services/storage.service';
 import { ROUTES } from '../constants/routes.constants';
 
 /**
@@ -17,6 +17,7 @@ export class ApiErrorInterceptor implements HttpInterceptor {
   private router = inject(Router);
   private toastService = inject(ToastMessageService);
   private authService = inject(AuthService);
+  private storage = inject(StorageService);
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     return next.handle(req).pipe(
@@ -79,7 +80,7 @@ export class ApiErrorInterceptor implements HttpInterceptor {
     this.authService.logout();
 
     // Set session expired flag
-    localStorage.setItem(STORAGE_KEYS.SESSION_EXPIRED, 'true');
+    this.storage.setSessionExpired();
 
     // Navigate to login with return URL
     this.router.navigate([ROUTES.LOGIN], {
