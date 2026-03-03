@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { AbstractControl, FormGroup } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
-import { VALIDATION } from '../constants/app.constants';
+import { VALIDATION } from '../constants/validation.constants';
 
 @Injectable({
   providedIn: 'root'

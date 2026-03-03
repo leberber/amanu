@@ -12,7 +12,8 @@ import { ToastModule } from 'primeng/toast';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { ROUTES } from '../../../core/constants/routes.constants';
-import { ANIMATION, UI_DELAY, VALIDATION } from '../../../core/constants/app.constants';
+import { ANIMATION, UI_DELAY } from '../../../core/constants/ui.constants';
+import { VALIDATION } from '../../../core/constants/validation.constants';
 import { onLanguageChange } from '../../../core/utils/language-change.util';
 import { PromotionService } from '../../../services/promotion.service';
 import { ProductService } from '../../../services/product.service';

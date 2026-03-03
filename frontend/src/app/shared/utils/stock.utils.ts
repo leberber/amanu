@@ -1,4 +1,4 @@
-import { PRODUCT } from '../../core/constants/app.constants';
+import { PRODUCT } from '../../core/constants/product.constants';
 
 /**
  * Stock utility functions to avoid repeated logic across components

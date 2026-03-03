@@ -10,7 +10,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { ROUTES, RouteHelpers } from '../../../core/constants/routes.constants';
-import { UI, ANIMATION } from '../../../core/constants/app.constants';
+import { UI, ANIMATION } from '../../../core/constants/ui.constants';
 import { OrderService } from '../../../services/order.service';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
 import { Order } from '../../../models/order.model';

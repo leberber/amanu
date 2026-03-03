@@ -26,7 +26,8 @@ import { ProductListItemComponent } from '../components/product-list-item/produc
 import { isOutOfStock as checkOutOfStock, isLowStock as checkLowStock } from '../../../shared/utils/stock.utils';
 import { getEffectivePrice as calcEffectivePrice } from '../../../shared/utils/discount.utils';
 import { generateBoxOptions, BoxOption } from '../../../shared/utils/box-options.utils';
-import { DEFAULTS, ANIMATION, UI } from '../../../core/constants/app.constants';
+import { DEFAULTS } from '../../../core/constants/app.constants';
+import { ANIMATION, UI } from '../../../core/constants/ui.constants';
 import { HorizontalFilterComponent } from '../../../shared/components/horizontal-filter/horizontal-filter.component';
 import { SearchInputComponent } from '../../../shared/components/search-input/search-input.component';
 import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';

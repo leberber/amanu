@@ -9,7 +9,7 @@ import { ToastModule } from 'primeng/toast';
 import { TimelineModule } from 'primeng/timeline';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
-import { ORDER_STATUS } from '../../../core/constants/app.constants';
+import { ORDER_STATUS } from '../../../core/constants/order.constants';
 import { ROUTES } from '../../../core/constants/routes.constants';
 import { OrderService } from '../../../services/order.service';
 import { TranslationService } from '../../../services/translation.service';

@@ -9,7 +9,8 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { onLanguageChange } from '../../../core/utils/language-change.util';
 import { ValidationMessagesService } from '../../../core/services/validation-messages.service';
 import { StatusSeverityService } from '../../../core/services/status-severity.service';
-import { VALIDATION, USER_ROLES } from '../../../core/constants/app.constants';
+import { VALIDATION } from '../../../core/constants/validation.constants';
+import { USER_ROLES } from '../../../core/constants/user.constants';
 
 export interface UserFormData {
   full_name: string;

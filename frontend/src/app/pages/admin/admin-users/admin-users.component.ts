@@ -8,7 +8,8 @@ import { ADMIN_LIST_IMPORTS, ADMIN_DIALOG_IMPORTS } from '../../../shared/import
 import { TableSkeletonComponent, SkeletonColumn } from '../../../shared/components/table-skeleton/table-skeleton.component';
 import { AgroclikPageContainerComponent } from '../../../shared/components/agroclik-page-container/agroclik-page-container.component';
 import { ROUTES } from '../../../core/constants/routes.constants';
-import { USER_ROLES, BREAKPOINTS } from '../../../core/constants/app.constants';
+import { BREAKPOINTS } from '../../../core/constants/app.constants';
+import { USER_ROLES } from '../../../core/constants/user.constants';
 import { onLanguageChange } from '../../../core/utils/language-change.util';
 import { AdminService } from '../../../services/admin.service';
 import { UserManage, UsersResponse } from '../../../models/admin.model';

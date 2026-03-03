@@ -1,6 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { USER_ROLES, ORDER_STATUS, ORDER_STATUS_CONFIG, PROMOTION_STATUS, PAYMENT_STATUS } from '../constants/app.constants';
+import { USER_ROLES } from '../constants/user.constants';
+import { ORDER_STATUS, ORDER_STATUS_CONFIG, PAYMENT_STATUS } from '../constants/order.constants';
+import { PROMOTION_STATUS } from '../constants/promotion.constants';
 
 @Injectable({
   providedIn: 'root'

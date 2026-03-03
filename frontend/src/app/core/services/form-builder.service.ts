@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
-import { VALIDATION, USER_ROLES } from '../constants/app.constants';
+import { VALIDATION } from '../constants/validation.constants';
+import { USER_ROLES } from '../constants/user.constants';
 
 @Injectable({
   providedIn: 'root'

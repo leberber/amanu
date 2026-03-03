@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { ORDER_STATUS, ORDER_STATUS_CONFIG, TIMELINE_COLORS } from '../constants/app.constants';
+import { ORDER_STATUS, ORDER_STATUS_CONFIG, TIMELINE_COLORS } from '../constants/order.constants';
 import { Order } from '../../models/order.model';
 
 export interface TimelineStatus {

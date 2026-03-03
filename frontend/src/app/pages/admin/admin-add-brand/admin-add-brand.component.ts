@@ -9,7 +9,8 @@ import { ToastModule } from 'primeng/toast';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { ROUTES } from '../../../core/constants/routes.constants';
-import { ANIMATION, UI_DELAY, VALIDATION } from '../../../core/constants/app.constants';
+import { ANIMATION, UI_DELAY } from '../../../core/constants/ui.constants';
+import { VALIDATION } from '../../../core/constants/validation.constants';
 import { BrandService } from '../../../core/services/brand.service';
 import { Brand } from '../../../models/brand.model';
 import { AdminFormService } from '../../../core/services/admin-form.service';

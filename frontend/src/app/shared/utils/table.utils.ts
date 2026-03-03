@@ -4,7 +4,7 @@
  */
 
 import { WritableSignal } from '@angular/core';
-import { UI } from '../../core/constants/app.constants';
+import { UI } from '../../core/constants/ui.constants';
 
 /**
  * Toggle fullscreen mode for table view.

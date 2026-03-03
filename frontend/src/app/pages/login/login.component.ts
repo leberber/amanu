@@ -9,7 +9,8 @@ import { finalize } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 import { UserRole } from '../../models/user.model';
 import { ToastMessageService } from '../../core/services/toast-message.service';
-import { STORAGE_KEYS, ANIMATION, UI_DELAY } from '../../core/constants/app.constants';
+import { STORAGE_KEYS } from '../../core/constants/app.constants';
+import { ANIMATION, UI_DELAY } from '../../core/constants/ui.constants';
 import { ROUTES, DefaultRedirects } from '../../core/constants/routes.constants';
 import { GoogleSignInButtonComponent } from '../../shared/components/google-signin-button/google-signin-button.component';
 

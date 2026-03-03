@@ -8,7 +8,8 @@ import { TooltipModule } from 'primeng/tooltip';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { ROUTES } from '../../core/constants/routes.constants';
-import { VALIDATION, USER_ROLES } from '../../core/constants/app.constants';
+import { VALIDATION } from '../../core/constants/validation.constants';
+import { USER_ROLES } from '../../core/constants/user.constants';
 import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
 import { User } from '../../models/user.model';

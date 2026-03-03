@@ -1,5 +1,5 @@
 import { CurrencyService } from '../../core/services/currency.service';
-import { PRODUCT } from '../../core/constants/app.constants';
+import { PRODUCT } from '../../core/constants/product.constants';
 
 /**
  * Box options utility functions to avoid repeated logic across components

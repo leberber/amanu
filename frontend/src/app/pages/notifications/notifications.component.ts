@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ROUTES } from '../../core/constants/routes.constants';
-import { NOTIFICATION_TYPE_CONFIG } from '../../core/constants/app.constants';
+import { NOTIFICATION_TYPE_CONFIG } from '../../core/constants/notification.constants';
 import { PageLayoutComponent } from '../../shared/components/page-layout/page-layout.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { UserNotificationService } from '../../services/user-notification.service';

@@ -1,6 +1,41 @@
-// Product-related constants
-// Core product values are now centralized in app.constants.ts PRODUCT object
-// This file only exports unit/packaging configurations used by services
+/**
+ * Product-related constants
+ * Contains product constraints, stock status, units, and packaging types
+ */
+
+// Product Constraints
+export const PRODUCT = {
+  MIN_PRICE: 0,
+  MAX_PRICE: 999999.99,
+  MIN_STOCK: 0,
+  MAX_STOCK: 999999,
+  MIN_QUANTITY: 1,
+  MAX_QUANTITY: 100,
+  DEFAULT_QUANTITY: 1,
+  QUANTITY_STEP: 1,
+  QUANTITY_INCREMENT: 5,
+  LOW_STOCK_THRESHOLD: 10,
+  MEDIUM_STOCK_THRESHOLD: 50,
+  OUT_OF_STOCK_THRESHOLD: 0,
+  IMAGE_MAX_SIZE: 5 * 1024 * 1024, // 5MB
+  IMAGE_ALLOWED_TYPES: ['image/jpeg', 'image/png', 'image/webp'],
+  // Grid display settings
+  GRID_MAX_HEIGHT: 300,
+  GRID_MIN_COLUMN_WIDTH: 60,
+  // Content limits
+  MAX_DESCRIPTION_LENGTH: 200,
+  DEFAULT_DESCRIPTION: 'Quality wholesale products for your business.'
+} as const;
+
+// Stock Status
+export const STOCK_STATUS = {
+  IN_STOCK: 'in_stock',
+  LOW_STOCK: 'low_stock',
+  OUT_OF_STOCK: 'out_of_stock'
+} as const;
+
+// Type for stock status
+export type StockStatusType = typeof STOCK_STATUS[keyof typeof STOCK_STATUS];
 
 // Packaging types (lowercase to match backend enum)
 export const PACKAGING_TYPES = ['box', 'carton', 'crate', 'pack', 'bag', 'bundle'] as const;

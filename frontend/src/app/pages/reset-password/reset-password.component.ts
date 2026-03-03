@@ -10,7 +10,7 @@ import { finalize } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 import { ToastMessageService } from '../../core/services/toast-message.service';
 import { FormBuilderService } from '../../core/services/form-builder.service';
-import { ANIMATION, UI_DELAY } from '../../core/constants/app.constants';
+import { ANIMATION, UI_DELAY } from '../../core/constants/ui.constants';
 import { ROUTES } from '../../core/constants/routes.constants';
 
 @Component({

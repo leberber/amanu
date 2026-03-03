@@ -1,4 +1,4 @@
-import { ORDER_STATUS } from '../core/constants/app.constants';
+import { ORDER_STATUS } from '../core/constants/order.constants';
 
 // Derive OrderStatus type from ORDER_STATUS constant
 export type OrderStatus = typeof ORDER_STATUS[keyof typeof ORDER_STATUS];

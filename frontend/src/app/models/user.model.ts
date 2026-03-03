@@ -1,4 +1,4 @@
-import { USER_ROLES } from '../core/constants/app.constants';
+import { USER_ROLES } from '../core/constants/user.constants';
 
 // Derive UserRole type from USER_ROLES constant - single source of truth
 export type UserRole = typeof USER_ROLES[keyof typeof USER_ROLES];

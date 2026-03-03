@@ -15,7 +15,8 @@ import { CartTranslationService } from '../../core/services/cart-translation.ser
 import { LightboxService } from '../../core/services/lightbox.service';
 import { OrderCreate } from '../../models/order.model';
 import { User } from '../../models/user.model';
-import { VALIDATION, UI_DELAY } from '../../core/constants/app.constants';
+import { VALIDATION } from '../../core/constants/validation.constants';
+import { UI_DELAY } from '../../core/constants/ui.constants';
 import { ToastMessageService } from '../../core/services/toast-message.service';
 import { PageLayoutComponent } from '../../shared/components/page-layout/page-layout.component';
 import { ImageLightboxComponent } from '../../shared/components/image-lightbox/image-lightbox.component';

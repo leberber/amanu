@@ -2,7 +2,7 @@
  * Utility functions for product quantity operations using pieces_per_box
  */
 
-import { PRODUCT } from '../../core/constants/app.constants';
+import { PRODUCT } from '../../core/constants/product.constants';
 
 /**
  * Gets the default quantity for a product.

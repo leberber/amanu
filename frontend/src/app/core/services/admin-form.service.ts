@@ -4,7 +4,8 @@ import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastMessageService } from './toast-message.service';
 import { TranslationService } from '../../services/translation.service';
-import { ANIMATION, VALIDATION } from '../constants/app.constants';
+import { ANIMATION } from '../constants/ui.constants';
+import { VALIDATION } from '../constants/validation.constants';
 
 export interface FormSuccessConfig {
   message: string;

@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { PRODUCT } from '../constants/app.constants';
+import { PRODUCT } from '../constants/product.constants';
 
 /**
  * Simple service to centralize stock status logic

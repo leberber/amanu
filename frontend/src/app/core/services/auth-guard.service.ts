@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { Router, CanActivateFn, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { ToastMessageService } from './toast-message.service';
-import { USER_ROLES } from '../constants/app.constants';
+import { USER_ROLES } from '../constants/user.constants';
 import { ROUTES } from '../constants/routes.constants';
 
 /**

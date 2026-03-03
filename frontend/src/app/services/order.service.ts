@@ -4,7 +4,7 @@ import { tap, map } from 'rxjs/operators';
 import { ApiService } from './api.service';
 import { CartItem } from './cart.service';
 import { OrderCreate, OrderCreateItem, Order, OrderItem } from '../models/order.model';
-import { ORDER_STATUS } from '../core/constants/app.constants';
+import { ORDER_STATUS } from '../core/constants/order.constants';
 
 @Injectable({
   providedIn: 'root'
