@@ -24,7 +24,7 @@ Paste the following and update with your actual production values:
 
 ```env
 # Production Database (AWS RDS)
-DATABASE_URL=postgresql://elsuq:ValidPass2025@elsuq.c94sm0q46x5u.us-east-2.rds.amazonaws.com:5432/elsuq
+DATABASE_URL=postgresql://USER:PASSWORD@YOUR_RDS_ENDPOINT:5432/DATABASE_NAME
 
 # Production Secret Key (Generate a secure random key)
 SECRET_KEY=your-production-secret-key-here
