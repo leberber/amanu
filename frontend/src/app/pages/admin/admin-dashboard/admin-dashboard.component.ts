@@ -6,16 +6,87 @@ import { TranslateService } from '@ngx-translate/core';
 
 import { ADMIN_CORE_IMPORTS } from '../../../shared/imports/admin-shared.imports';
 import { AgroclikPageContainerComponent } from '../../../shared/components/agroclik-page-container/agroclik-page-container.component';
-import { ROUTES } from '../../../core/constants/routes.constants';
+import { ROUTES, RouteHelpers } from '../../../core/constants/routes.constants';
 import { UI } from '../../../core/constants/ui.constants';
 import { onLanguageChange } from '../../../core/utils/language-change.util';
 import { AdminService } from '../../../services/admin.service';
-import { DashboardStats } from '../../../models/admin.model';
+import { DashboardStats, SalesByCategory, SalesByBrand, TopSellingProduct } from '../../../models/admin.model';
 import { ProductService } from '../../../services/product.service';
 import { BrandService } from '../../../core/services/brand.service';
+import { Product, Category } from '../../../models/product.model';
+import { Brand } from '../../../models/brand.model';
 import { TranslationHelperService } from '../../../core/services/translation-helper.service';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
 import { CurrencyService } from '../../../core/services/currency.service';
+import { ImageFallbackDirective } from '../../../shared/directives/image-fallback.directive';
+
+// Chart.js compatible types
+interface ChartData {
+  labels: string[];
+  datasets: {
+    label: string;
+    data: number[];
+    backgroundColor: string[];
+    hoverBackgroundColor: string[];
+    borderWidth: number;
+    hoverOffset: number;
+  }[];
+}
+
+interface ChartOptions {
+  cutout: string;
+  radius: string;
+  responsive: boolean;
+  maintainAspectRatio: boolean;
+  plugins: {
+    legend: {
+      position: string;
+      labels: {
+        usePointStyle: boolean;
+        pointStyle: string;
+        padding: number;
+        font: {
+          size: number;
+          weight: string;
+        };
+      };
+    };
+    tooltip: {
+      backgroundColor: string;
+      titleFont: { size: number; weight: string };
+      bodyFont: { size: number };
+      padding: number;
+      cornerRadius: number;
+      displayColors: boolean;
+      boxPadding: number;
+      callbacks: {
+        label: (context: TooltipContext) => string;
+      };
+    };
+  };
+  animation: {
+    animateRotate: boolean;
+    animateScale: boolean;
+  };
+  locale: string;
+}
+
+interface TooltipContext {
+  label: string;
+  raw: number;
+  dataset: { data: number[] };
+}
+
+// Translatable entity interface for helper functions
+interface TranslatableEntity {
+  id?: number;
+  name?: string;
+  name_translations?: { [key: string]: string };
+  category_id?: number;
+  brand_id?: number;
+  product_id?: number;
+  product_name?: string;
+}
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -24,7 +95,8 @@ import { CurrencyService } from '../../../core/services/currency.service';
     ...ADMIN_CORE_IMPORTS,
     RouterLink,
     ChartModule,
-    AgroclikPageContainerComponent
+    AgroclikPageContainerComponent,
+    ImageFallbackDirective
   ],
   templateUrl: './admin-dashboard.component.html',
   styleUrl: './admin-dashboard.component.scss'
@@ -33,24 +105,27 @@ export class AdminDashboardComponent implements OnInit {
   // Data signals
   stats = signal<DashboardStats | null>(null);
   loading = signal(true);
-  products = signal<any[]>([]);
-  categories = signal<any[]>([]);
-  brands = signal<any[]>([]);
+  products = signal<Product[]>([]);
+  categories = signal<Category[]>([]);
+  brands = signal<Brand[]>([]);
 
   // UI state signals
   tableInitialized = signal(false);
 
   // Chart data signals
-  categoryChartData = signal<any>(null);
-  categoryChartOptions = signal<any>(null);
-  brandChartData = signal<any>(null);
-  brandChartOptions = signal<any>(null);
+  categoryChartData = signal<ChartData | null>(null);
+  categoryChartOptions = signal<ChartOptions | null>(null);
+  brandChartData = signal<ChartData | null>(null);
+  brandChartOptions = signal<ChartOptions | null>(null);
 
   // Tab state
   activeTab = signal<'analytics' | 'top-products' | 'insights'>('analytics');
 
   // Computed values
   hasStats = computed(() => this.stats() !== null);
+
+  // Route helpers
+  readonly RouteHelpers = RouteHelpers;
 
   // Services
   private adminService = inject(AdminService);
@@ -85,7 +160,7 @@ export class AdminDashboardComponent implements OnInit {
     this.productService.getCategories()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (categories: any) => {
+        next: (categories: Category[]) => {
           this.categories.set(categories || []);
           if (this.stats()) {
             this.prepareChartData();
@@ -188,7 +263,7 @@ export class AdminDashboardComponent implements OnInit {
     this.brandChartOptions.set(this.getChartOptions());
   }
 
-  private getChartOptions(): any {
+  private getChartOptions(): ChartOptions {
     return {
       cutout: '55%',
       radius: '85%',
@@ -216,7 +291,7 @@ export class AdminDashboardComponent implements OnInit {
           displayColors: true,
           boxPadding: 6,
           callbacks: {
-            label: (context: any) => {
+            label: (context: TooltipContext) => {
               const label = context.label || '';
               const value = context.raw || 0;
               const total = context.dataset.data.reduce((a: number, b: number) => a + b, 0);
@@ -260,19 +335,8 @@ export class AdminDashboardComponent implements OnInit {
     this.activeTab.set(tab);
   }
 
-  // Translation helpers
-  getCategoryName(category: any): string {
-    if (category.name_translations || category.name) {
-      return this.translationHelper.getCategoryName(category);
-    }
-
-    if (category.category_id && this.categories().length > 0) {
-      const fullCategory = this.categories().find(c => c.id === category.category_id);
-      if (fullCategory) {
-        return this.translationHelper.getCategoryName(fullCategory);
-      }
-    }
-
+  // Translation helpers - handle various entity shapes from dashboard stats
+  getCategoryName(category: TranslatableEntity | string): string {
     if (typeof category === 'string') {
       if (this.categories().length > 0) {
         const fullCategory = this.categories().find(c => c.name === category);
@@ -292,12 +356,23 @@ export class AdminDashboardComponent implements OnInit {
       return category;
     }
 
-    return category.name || category;
+    if (category.name_translations || category.name) {
+      return this.translationHelper.getCategoryName(category as Category);
+    }
+
+    if (category.category_id && this.categories().length > 0) {
+      const fullCategory = this.categories().find(c => c.id === category.category_id);
+      if (fullCategory) {
+        return this.translationHelper.getCategoryName(fullCategory);
+      }
+    }
+
+    return category.name || '';
   }
 
-  getBrandName(brand: any): string {
+  getBrandName(brand: TranslatableEntity): string {
     if (brand.name_translations || brand.name) {
-      return this.translationHelper.getBrandName(brand);
+      return this.translationHelper.getBrandName(brand as Brand);
     }
 
     if (brand.brand_id && this.brands().length > 0) {
@@ -307,12 +382,12 @@ export class AdminDashboardComponent implements OnInit {
       }
     }
 
-    return brand.name || brand;
+    return brand.name || '';
   }
 
-  getProductName(product: any): string {
-    if (product.name_translations || product.name) {
-      return this.translationHelper.getProductName(product);
+  getProductName(product: TranslatableEntity): string {
+    if (product.name_translations || (product.name && !product.product_id)) {
+      return this.translationHelper.getProductName(product as Product);
     }
 
     if (product.product_id && this.products().length > 0) {
@@ -322,7 +397,7 @@ export class AdminDashboardComponent implements OnInit {
       }
     }
 
-    return product.product_name || product.name;
+    return product.product_name || product.name || '';
   }
 
   formatCurrency(value: number): string {

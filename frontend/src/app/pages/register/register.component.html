@@ -125,7 +125,7 @@
               <!-- Login Link -->
               <div class="register-links">
                 <span>{{ 'auth.already_have_account' | translate }}</span>
-                <a routerLink="/login">{{ 'auth.login_now' | translate }}</a>
+                <a [routerLink]="ROUTES.LOGIN">{{ 'auth.login_now' | translate }}</a>
               </div>
 
               <!-- Continue Button (inline like login) -->

@@ -240,13 +240,15 @@
             </thead>
             <tbody>
               @for (product of stats()!.top_selling_products; track product.product_id; let i = $index) {
-                <tr class="table-row-animate" [style.--row-delay]="(i * 40) + 'ms'" [routerLink]="['/admin/products', product.product_id]" style="cursor: pointer;">
+                <tr class="table-row-animate" [style.--row-delay]="(i * 40) + 'ms'" [routerLink]="RouteHelpers.adminEditProduct(product.product_id)" style="cursor: pointer;">
                   <td>
                     <div class="table-item-with-image">
                       <img
                         [src]="product.image_url || 'assets/images/placeholder-product.png'"
                         [alt]="getProductName(product)"
                         class="table-item-image"
+                        loading="lazy"
+                        appImageFallback
                       />
                       <span class="table-item-name">{{ getProductName(product) }}</span>
                     </div>

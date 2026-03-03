@@ -107,6 +107,9 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
   // Google OAuth flow
   fromGoogle = signal(false);
 
+  // Constants
+  readonly ROUTES = ROUTES;
+
   private http = inject(HttpClient);
   private destroyRef = inject(DestroyRef);
   private ngZone = inject(NgZone);
@@ -208,7 +211,7 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
             } else {
               // Existing user with complete profile - go to home
               this.toast.showSuccess('auth.login_success');
-              this.router.navigate(['/']);
+              this.router.navigate([ROUTES.HOME]);
             }
           },
           error: (error) => {
@@ -855,7 +858,7 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
       });
   }
 
-  private handleServerError(error: any): void {
+  private handleServerError(error: { error?: { detail?: string | { msg?: string }[] } }): void {
     const errorDetail = error.error?.detail;
     let errorMessage = '';
     let originalMessage = '';
@@ -906,7 +909,7 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   goToHome(): void {
-    this.router.navigate(['/']);
+    this.router.navigate([ROUTES.HOME]);
   }
 
   // Password validation checks using computed signals

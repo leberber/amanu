@@ -7,7 +7,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { finalize } from 'rxjs';
 
 import { AuthService } from '../../services/auth.service';
-import { UserRole } from '../../models/user.model';
+import { User, UserRole } from '../../models/user.model';
 import { ToastMessageService } from '../../core/services/toast-message.service';
 import { StorageService } from '../../core/services/storage.service';
 import { ANIMATION, UI_DELAY, UI } from '../../core/constants/ui.constants';
@@ -40,6 +40,9 @@ export class LoginComponent implements OnInit {
   focusedField = signal('');
   showPassword = signal(false);
   pageReady = signal(false);
+
+  // Constants
+  readonly ROUTES = ROUTES;
 
   // Services
   private fb = inject(FormBuilder);
@@ -89,7 +92,7 @@ export class LoginComponent implements OnInit {
     });
   }
 
-  private handleSuccessfulLogin(user: any): void {
+  private handleSuccessfulLogin(user: User): void {
     let targetUrl: string = this.returnUrl();
 
     if (this.returnUrl() === ROUTES.HOME && user.role === UserRole.STAFF) {

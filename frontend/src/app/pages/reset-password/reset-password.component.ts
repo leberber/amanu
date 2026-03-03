@@ -43,6 +43,10 @@ export class ResetPasswordComponent implements OnInit, AfterViewInit {
   // Verification code signal
   verificationCode = signal('');
 
+  // Constants
+  readonly ROUTES = ROUTES;
+
+  // Services
   private fb = inject(FormBuilder);
   private elementRef = inject(ElementRef);
   private authService = inject(AuthService);

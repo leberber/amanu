@@ -5,6 +5,7 @@ import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 
 import { Product } from '../../../../models/product.model';
+import { RouteHelpers } from '../../../../core/constants/routes.constants';
 import { CurrencyService } from '../../../../core/services/currency.service';
 import { PackagingTypeService } from '../../../../core/services/packaging-type.service';
 import { FlyToCartService } from '../../../../core/services/fly-to-cart.service';
@@ -95,6 +96,9 @@ export class ProductCardComponent {
     const cartQty = this.quantityInCart();
     return selected ? selected.pieces === cartQty : false;
   });
+
+  // Computed - route
+  productDetailLink = computed(() => RouteHelpers.productDetail(this.product().id));
 
   // Computed - stock
   isOutOfStock = computed(() => checkOutOfStock(this.product()));

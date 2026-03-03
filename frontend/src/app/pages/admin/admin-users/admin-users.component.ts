@@ -1,4 +1,5 @@
 import { Component, OnInit, inject, DestroyRef } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { ConfirmationService } from 'primeng/api';
 import { SelectModule } from 'primeng/select';
 import { PopoverModule } from 'primeng/popover';
@@ -114,7 +115,7 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
     });
   }
 
-  private handleLoadError(error: any): void {
+  private handleLoadError(error: HttpErrorResponse): void {
     this.loading = false;
 
     if (error.status === 403) {

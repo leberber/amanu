@@ -32,6 +32,10 @@ export class ForgotPasswordComponent implements OnInit, AfterViewInit {
   focusedField = signal('');
   pageReady = signal(false);
 
+  // Constants
+  readonly ROUTES = ROUTES;
+
+  // Services
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private router = inject(Router);

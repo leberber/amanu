@@ -49,8 +49,8 @@
 
       <!-- Links Row -->
       <div class="login-links">
-        <a routerLink="/forgot-password">{{ 'auth.forgot_password' | translate }}</a>
-        <a routerLink="/register">{{ 'common.register' | translate }}</a>
+        <a [routerLink]="ROUTES.FORGOT_PASSWORD">{{ 'auth.forgot_password' | translate }}</a>
+        <a [routerLink]="ROUTES.REGISTER">{{ 'common.register' | translate }}</a>
       </div>
 
       <!-- Submit Button -->

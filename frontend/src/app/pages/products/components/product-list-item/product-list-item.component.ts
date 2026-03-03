@@ -4,6 +4,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ButtonModule } from 'primeng/button';
 
 import { Product } from '../../../../models/product.model';
+import { RouteHelpers } from '../../../../core/constants/routes.constants';
 import { CurrencyService } from '../../../../core/services/currency.service';
 import { PackagingTypeService } from '../../../../core/services/packaging-type.service';
 import { FlyToCartService } from '../../../../core/services/fly-to-cart.service';
@@ -64,6 +65,9 @@ export class ProductListItemComponent {
   private flyToCartService = inject(FlyToCartService);
   private translateService = inject(TranslateService);
   private packagingTypeService = inject(PackagingTypeService);
+
+  // Computed - route
+  productDetailLink = computed(() => RouteHelpers.productDetail(this.product().id));
 
   // Computed - cart
   isInCart = computed(() => {

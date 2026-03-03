@@ -1,7 +1,7 @@
 <!-- Product List Item -->
 <div class="product-list-item">
   <!-- Product Image -->
-  <a [routerLink]="['/products', product().id]" class="product-list-item__media">
+  <a [routerLink]="productDetailLink()" class="product-list-item__media">
     <img
       [src]="product().image_url"
       [alt]="product().name"
@@ -15,7 +15,7 @@
   <!-- Product Content -->
   <div class="product-list-item__content">
     <h3 class="product-list-item__title">
-      <a [routerLink]="['/products', product().id]">{{ product().name }}</a>
+      <a [routerLink]="productDetailLink()">{{ product().name }}</a>
     </h3>
 
     <div class="product-list-item__meta">

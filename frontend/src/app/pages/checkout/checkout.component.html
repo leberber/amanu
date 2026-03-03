@@ -143,7 +143,7 @@
       (buttonClick)="placeOrder()">
       <p class="checkout-terms">
         {{ 'checkout.order_note' | translate }}
-        <a routerLink="/privacy-policy">{{ 'checkout.terms_link' | translate }}</a>
+        <a [routerLink]="ROUTES.PRIVACY">{{ 'checkout.terms_link' | translate }}</a>
       </p>
     </app-sticky-footer>
   }
