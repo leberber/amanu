@@ -14,6 +14,9 @@ export interface Promotion {
   category_id?: number;
   brand_id?: number;
   product_id?: number;
+  category_name?: string;
+  brand_name?: string;
+  product_name?: string;
   min_order_amount: number;
   max_discount?: number;
   usage_limit?: number;

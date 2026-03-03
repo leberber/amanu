@@ -1664,6 +1664,9 @@
     "max_discount": "Réduction max.",
     "valid_until": "Valable jusqu'au",
     "ending_soon": "Se termine bientôt",
+    "active": "Actif",
+    "auto_applied": "Appliqué automatiquement",
+    "days_left": "j restants",
     "scope": {
       "global": "Tous les produits",
       "category": "Catégorie",

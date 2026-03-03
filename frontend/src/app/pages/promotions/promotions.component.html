@@ -1,105 +1,145 @@
 <app-page-layout
   title="promotions_page.title"
-  subtitle="promotions_page.subtitle"
   icon="pi pi-percentage"
   [hideMobileIcon]="true"
   [showBackButton]="true"
   [backRoute]="routes.PRODUCTS"
   [fullscreen]="true">
 
-  @if (loading()) {
-    <div class="grid">
-      @for (i of [1, 2, 3, 4]; track i) {
-        <div class="col-12 md:col-6">
-          <div class="card card--no-hover">
-            <div class="card-body">
-              <p-skeleton height="3rem" styleClass="mb-4" />
-              <p-skeleton height="1.5rem" styleClass="mb-3" />
-              <p-skeleton height="1rem" width="80%" />
+  <div class="promos">
+    @if (loading()) {
+      @for (i of [1, 2, 3]; track i) {
+        <div class="banner banner--skeleton">
+          <div class="banner__content">
+            <div class="skeleton" style="width: 100px; height: 32px; margin-bottom: 16px;"></div>
+            <div class="skeleton" style="width: 150px; height: 64px; margin-bottom: 16px;"></div>
+            <div class="skeleton" style="width: 200px; height: 24px; margin-bottom: 8px;"></div>
+            <div class="skeleton" style="width: 150px; height: 18px; margin-bottom: 20px;"></div>
+            <div style="display: flex; gap: 8px; margin-bottom: 20px;">
+              <div class="skeleton" style="width: 100px; height: 36px; border-radius: 20px;"></div>
+              <div class="skeleton" style="width: 120px; height: 36px; border-radius: 20px;"></div>
             </div>
+            <div class="skeleton" style="width: 100%; height: 60px; border-radius: 16px;"></div>
           </div>
         </div>
       }
-    </div>
-  } @else if (error()) {
-    <app-empty-state
-      icon="pi-exclamation-triangle"
-      iconVariant="danger"
-      title="common.error"
-      description="promotions_page.error_message"
-      actionLabel="common.refresh"
-      actionIcon="pi pi-refresh"
-      (actionClick)="loadPromotions()" />
-  } @else {
-    <div class="grid">
-      @for (promo of promotions(); track promo.id) {
-        <div class="col-12 md:col-6">
-          <div class="promo-card">
-            <div class="promo-card__header">
-              <div class="promo-card__discount">
-                @if (promo.discount_type === 'percentage') {
-                  <span class="promo-card__discount-value">{{ promo.discount_value }}%</span>
-                } @else {
-                  <span class="promo-card__discount-value">{{ promo.discount_value | currency:'MAD':'symbol':'1.0-0' }}</span>
-                }
-                <span class="promo-card__discount-label">{{ 'promotions_page.off' | translate }}</span>
-              </div>
-              @if (promo.code) {
-                <div class="promo-card__code">
-                  <span class="promo-card__code-label">{{ 'promotions_page.code' | translate }}</span>
-                  <span class="promo-card__code-value">{{ promo.code }}</span>
-                </div>
-              }
-            </div>
+    } @else if (error()) {
+      <app-empty-state
+        icon="pi-exclamation-triangle"
+        iconVariant="danger"
+        title="common.error"
+        description="promotions_page.error_message"
+        actionLabel="common.refresh"
+        actionIcon="pi pi-refresh"
+        (actionClick)="loadPromotions()" />
+    } @else if (promotions().length === 0) {
+      <app-empty-state
+        icon="pi-tag"
+        iconVariant="purple"
+        title="promotions_page.empty_title"
+        description="promotions_page.empty_message"
+        actionLabel="promotions_page.browse_products"
+        [actionLink]="routes.PRODUCTS"
+        actionIcon="pi pi-shopping-bag" />
+    } @else {
+      @for (promo of promotions(); track promo.id; let i = $index) {
+        <div class="banner" [class.banner--hot]="getDaysRemaining(promo.end_date) <= 3" [class.banner--fresh]="i % 3 === 1" [class.banner--gold]="i % 3 === 2">
+          <div class="banner__bg"></div>
+          <div class="banner__content">
 
-            <div class="promo-card__body">
-              <h3 class="promo-card__title">{{ promo.name }}</h3>
-              @if (promo.description) {
-                <p class="promo-card__description">{{ promo.description }}</p>
-              }
-
-              <div class="promo-card__details">
-                @if (promo.min_order_amount > 0) {
-                  <div class="promo-card__detail">
-                    <i class="pi pi-shopping-cart"></i>
-                    <span>{{ 'promotions_page.min_order' | translate }}: {{ promo.min_order_amount | currency:'MAD':'symbol':'1.0-0' }}</span>
-                  </div>
+            <!-- Top badges -->
+            <div class="banner__top">
+              <span class="banner__badge">
+                @switch (promo.scope) {
+                  @case ('global') { {{ 'promotions_page.scope.global' | translate }} }
+                  @case ('category') { {{ promo.category_name || ('promotions_page.scope.category' | translate) }} }
+                  @case ('brand') { {{ promo.brand_name || ('promotions_page.scope.brand' | translate) }} }
+                  @case ('product') { {{ promo.product_name || ('promotions_page.scope.product' | translate) }} }
                 }
-                @if (promo.max_discount) {
-                  <div class="promo-card__detail">
-                    <i class="pi pi-wallet"></i>
-                    <span>{{ 'promotions_page.max_discount' | translate }}: {{ promo.max_discount | currency:'MAD':'symbol':'1.0-0' }}</span>
-                  </div>
-                }
-                <div class="promo-card__detail">
-                  <i class="pi pi-calendar"></i>
-                  <span>{{ 'promotions_page.valid_until' | translate }}: {{ promo.end_date | date:'dd/MM/yyyy' }}</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="promo-card__footer">
-              <p-tag
-                [value]="getScopeLabel(promo.scope) | translate"
-                [severity]="getScopeSeverity(promo.scope)" />
+              </span>
               @if (getDaysRemaining(promo.end_date) <= 3) {
-                <p-tag [value]="'promotions_page.ending_soon' | translate" severity="danger" />
+                <span class="banner__timer">
+                  <i class="pi pi-clock"></i>
+                  {{ getDaysRemaining(promo.end_date) }}{{ 'promotions_page.days_left' | translate }}
+                </span>
               }
             </div>
+
+            <!-- Big discount -->
+            <div class="banner__discount">
+              @if (promo.discount_type === 'percentage') {
+                <span class="banner__discount-value">{{ promo.discount_value }}%</span>
+              } @else {
+                <span class="banner__discount-value">{{ promo.discount_value }}</span>
+                <span class="banner__discount-text">DA</span>
+              }
+              <span class="banner__discount-text">{{ 'promotions_page.off' | translate }}</span>
+            </div>
+
+            <!-- Name -->
+            <h3 class="banner__name">{{ promo.name }}</h3>
+            @if (promo.description) {
+              <p class="banner__scope">{{ promo.description }}</p>
+            }
+
+            <!-- Info chips -->
+            <div class="banner__chips">
+              @if (promo.min_order_amount > 0) {
+                <span class="chip">
+                  <i class="pi pi-shopping-cart"></i>
+                  {{ 'promotions_page.min_order' | translate }}: {{ promo.min_order_amount | currency:'DZD':'symbol':'1.0-0' }}
+                </span>
+              }
+              @if (promo.max_discount) {
+                <span class="chip">
+                  <i class="pi pi-wallet"></i>
+                  Max: {{ promo.max_discount | currency:'DZD':'symbol':'1.0-0' }}
+                </span>
+              }
+              @if (promo.usage_limit) {
+                <span class="chip">
+                  <i class="pi pi-users"></i>
+                  {{ promo.usage_count }}/{{ promo.usage_limit }}
+                </span>
+              }
+            </div>
+
+            <!-- Code or Auto -->
+            @if (promo.code) {
+              <div class="banner__code-section">
+                <div class="banner__code-info">
+                  <span class="label">{{ 'promotions_page.promo_code' | translate }}</span>
+                  <span class="code">{{ promo.code }}</span>
+                </div>
+                <button class="banner__copy-btn" (click)="copyCode(promo.code)">
+                  <i class="pi pi-copy"></i>
+                </button>
+              </div>
+            } @else {
+              <div class="banner__auto">
+                <i class="pi pi-check-circle"></i>
+                {{ 'promotions_page.auto_applied' | translate }}
+              </div>
+            }
+
+            <!-- Footer -->
+            <div class="banner__footer">
+              <span>
+                <i class="pi pi-calendar"></i>
+                {{ promo.end_date | date:'dd/MM/yyyy' }}
+              </span>
+              <span class="banner__status">
+                @if (getDaysRemaining(promo.end_date) <= 3) {
+                  {{ 'promotions_page.ending_soon' | translate }}
+                } @else {
+                  {{ 'promotions_page.active' | translate }}
+                }
+              </span>
+            </div>
+
           </div>
         </div>
-      } @empty {
-        <div class="col-12">
-          <app-empty-state
-            icon="pi-tag"
-            iconVariant="purple"
-            title="promotions_page.empty_title"
-            description="promotions_page.empty_message"
-            actionLabel="promotions_page.browse_products"
-            [actionLink]="routes.PRODUCTS"
-            actionIcon="pi pi-shopping-bag" />
-        </div>
       }
-    </div>
-  }
+    }
+  </div>
 </app-page-layout>

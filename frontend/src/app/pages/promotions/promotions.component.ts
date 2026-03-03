@@ -82,4 +82,8 @@ export class PromotionsComponent implements OnInit {
     const diff = end.getTime() - now.getTime();
     return Math.ceil(diff / (1000 * 60 * 60 * 24));
   }
+
+  copyCode(code: string): void {
+    navigator.clipboard.writeText(code);
+  }
 }

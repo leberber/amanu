@@ -1652,6 +1652,9 @@
     "max_discount": "الحد الأقصى للخصم",
     "valid_until": "صالح حتى",
     "ending_soon": "ينتهي قريباً",
+    "active": "نشط",
+    "auto_applied": "يُطبق تلقائياً",
+    "days_left": " يوم متبقي",
     "scope": {
       "global": "جميع المنتجات",
       "category": "الفئة",
