@@ -6,6 +6,7 @@ import { TextareaModule } from 'primeng/textarea';
 import { ButtonModule } from 'primeng/button';
 import { ToastMessageService } from '../../core/services/toast-message.service';
 import { ROUTES } from '../../core/constants/routes.constants';
+import { UI_DELAY } from '../../core/constants/ui.constants';
 import { PageLayoutComponent } from '../../shared/components/page-layout/page-layout.component';
 
 interface ContactFormData {
@@ -54,7 +55,7 @@ export class ContactComponent {
       this.toast.showSuccess('contact.success_title', 'contact.success_message');
       this.resetForm();
       this.sending.set(false);
-    }, 1500);
+    }, UI_DELAY.TOAST_BEFORE_NAVIGATE);
   }
 
   private resetForm(): void {

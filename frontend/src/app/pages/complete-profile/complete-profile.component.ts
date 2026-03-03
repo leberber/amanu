@@ -12,6 +12,7 @@ import { UserService } from '../../services/user.service';
 import { ToastMessageService } from '../../core/services/toast-message.service';
 import { ROUTES } from '../../core/constants/routes.constants';
 import { UI } from '../../core/constants/ui.constants';
+import { VALIDATION } from '../../core/constants/validation.constants';
 
 // Interfaces for wilaya data
 interface Commune {
@@ -86,7 +87,7 @@ export class CompleteProfileComponent implements OnInit, AfterViewInit {
 
     this.profileForm = this.fb.group({
       phone: [user?.phone || '', [Validators.required, Validators.pattern(/^0[567]\d{8}$/)]],
-      store_name: [user?.store_name || '', [Validators.required, Validators.minLength(2)]],
+      store_name: [user?.store_name || '', [Validators.required, Validators.minLength(VALIDATION.MIN_NAME_LENGTH)]],
       wilaya: [user?.wilaya || '', Validators.required],
       daira: [user?.daira || ''],
       commune: [user?.commune || '', Validators.required],

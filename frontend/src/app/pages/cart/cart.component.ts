@@ -8,6 +8,7 @@ import { ButtonModule } from 'primeng/button';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { ROUTES } from '../../core/constants/routes.constants';
+import { ANIMATION } from '../../core/constants/ui.constants';
 import { CartService, CartItem } from '../../services/cart.service';
 import { AuthService } from '../../services/auth.service';
 import { CurrencyService } from '../../core/services/currency.service';
@@ -28,7 +29,7 @@ import { ImageFallbackDirective } from '../../shared/directives/image-fallback.d
 import { isOutOfStock as checkOutOfStock } from '../../shared/utils/stock.utils';
 
 // Constants
-const ANIMATION_DELAY_MS = 50;
+const ANIMATION_DELAY_MS = ANIMATION.STAGGER_DELAY;
 const SKELETON_COUNT = 3;
 
 @Component({

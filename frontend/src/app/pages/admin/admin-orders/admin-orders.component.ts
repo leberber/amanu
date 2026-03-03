@@ -8,6 +8,7 @@ import { TableSkeletonComponent, SkeletonColumn } from '../../../shared/componen
 import { AgroclikPageContainerComponent } from '../../../shared/components/agroclik-page-container/agroclik-page-container.component';
 import { ROUTES, RouteHelpers } from '../../../core/constants/routes.constants';
 import { ORDER_STATUS } from '../../../core/constants/order.constants';
+import { PAGINATION } from '../../../core/constants/pagination.constants';
 import { BreakpointService } from '../../../core/services/breakpoint.service';
 import { onLanguageChange } from '../../../core/utils/language-change.util';
 import { AdminService } from '../../../services/admin.service';
@@ -161,7 +162,7 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
     this.orders.set(filtered);
     this.resetPagination();
     this.updatePaginatedItems();
-    this.mobileVisibleCount.set(10);
+    this.mobileVisibleCount.set(PAGINATION.DEFAULT_PAGE_SIZE);
   }
 
   override clearFilters(): void {
@@ -172,7 +173,7 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
   }
 
   loadMoreOrders(): void {
-    this.mobileVisibleCount.update(count => count + 10);
+    this.mobileVisibleCount.update(count => count + PAGINATION.DEFAULT_PAGE_SIZE);
   }
 
   openOrderDetails(order: Order): void {

@@ -45,7 +45,7 @@ export class ForgotPasswordComponent implements OnInit, AfterViewInit {
     // Trigger animation sequence - logo stays centered for 1 second
     setTimeout(() => {
       this.pageReady.set(true);
-    }, 1000);
+    }, ANIMATION.VERY_SLOW);
   }
 
   get f() { return this.forgotPasswordForm.controls; }

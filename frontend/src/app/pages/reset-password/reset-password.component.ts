@@ -12,6 +12,7 @@ import { ToastMessageService } from '../../core/services/toast-message.service';
 import { FormBuilderService } from '../../core/services/form-builder.service';
 import { ANIMATION, UI_DELAY } from '../../core/constants/ui.constants';
 import { ROUTES } from '../../core/constants/routes.constants';
+import { VALIDATION } from '../../core/constants/validation.constants';
 
 @Component({
   selector: 'app-reset-password',
@@ -60,7 +61,7 @@ export class ResetPasswordComponent implements OnInit, AfterViewInit {
     // Trigger animation sequence - logo stays centered for 1 second
     setTimeout(() => {
       this.pageReady.set(true);
-    }, 1000);
+    }, ANIMATION.VERY_SLOW);
   }
 
   get f() { return this.resetPasswordForm.controls; }
@@ -81,7 +82,7 @@ export class ResetPasswordComponent implements OnInit, AfterViewInit {
     const password = this.passwordValue();
     const confirmPassword = this.confirmPasswordValue();
     return {
-      minLength: password.length >= 8,
+      minLength: password.length >= VALIDATION.MIN_PASSWORD_LENGTH,
       hasLetter: /[a-zA-Z]/.test(password),
       hasNumber: /\d/.test(password),
       passwordsMatch: password.length > 0 && password === confirmPassword
@@ -201,7 +202,7 @@ export class ResetPasswordComponent implements OnInit, AfterViewInit {
   private initializeForm(): void {
     this.resetPasswordForm = this.fb.group({
       code: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(6), Validators.pattern(/^\d{6}$/)]],
-      password: ['', [Validators.required, Validators.minLength(8)]],
+      password: ['', [Validators.required, Validators.minLength(VALIDATION.MIN_PASSWORD_LENGTH)]],
       confirmPassword: ['', [Validators.required]]
     }, {
       validators: FormBuilderService.createPasswordMatchValidator('password', 'confirmPassword')

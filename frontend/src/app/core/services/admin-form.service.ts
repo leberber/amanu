@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastMessageService } from './toast-message.service';
 import { TranslationService } from '../../services/translation.service';
-import { ANIMATION } from '../constants/ui.constants';
+import { ANIMATION, UI_DELAY } from '../constants/ui.constants';
 import { VALIDATION } from '../constants/validation.constants';
 
 export interface FormSuccessConfig {
@@ -265,7 +265,7 @@ export class AdminFormService {
   handleSuccessWithRedirect(
     successMessage: string,
     redirectUrl: string,
-    delay: number = 1500
+    delay: number = UI_DELAY.TOAST_BEFORE_NAVIGATE
   ): void {
     this.toast.showSuccess(successMessage);
     setTimeout(() => {

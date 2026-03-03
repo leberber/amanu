@@ -13,7 +13,7 @@ import { UserService } from '../../services/user.service';
 import { UserRole, AuthProvider } from '../../models/user.model';
 import { MapPickerComponent, LocationData } from '../../shared/components/map-picker/map-picker.component';
 import { VALIDATION } from '../../core/constants/validation.constants';
-import { UI_DELAY } from '../../core/constants/ui.constants';
+import { UI_DELAY, ANIMATION, UI } from '../../core/constants/ui.constants';
 import { FormBuilderService } from '../../core/services/form-builder.service';
 import { PhoneFormatDirective } from '../../directives/phone-format.directive';
 import { ToastMessageService } from '../../core/services/toast-message.service';
@@ -192,7 +192,7 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
     // Trigger animation sequence - logo starts centered then moves to top
     setTimeout(() => {
       this.pageReady.set(true);
-    }, 1000);
+    }, ANIMATION.VERY_SLOW);
   }
 
   onGoogleCredential(credential: string): void {
@@ -276,9 +276,9 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
               // Update validity signal after all defaults are set
               this.storeDetailsValid.set(this.canProceedStep4());
             }
-          }, 50);
+          }, ANIMATION.STAGGER_DELAY);
         }
-      }, 50);
+      }, ANIMATION.STAGGER_DELAY);
     }
   }
 
@@ -706,7 +706,7 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
     if (this.activeStep() === 3 && this.mapPicker) {
       setTimeout(() => {
         // Map will show "Use My Location" button for user to click
-      }, 300);
+      }, ANIMATION.NORMAL);
     }
   }
 
@@ -952,7 +952,7 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
           slideContent.scrollTo({ top: relativeTop - 20, behavior: 'smooth' });
         }
       }
-    }, 300); // Delay to let keyboard open first
+    }, ANIMATION.NORMAL); // Delay to let keyboard open first
   }
 
   onInputBlur(): void {
@@ -962,7 +962,7 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
       if (!this.focusedField()) {
         this.isInputFocused.set(false);
       }
-    }, 100);
+    }, UI.FOCUS_DELAY);
   }
 
   togglePassword(): void {

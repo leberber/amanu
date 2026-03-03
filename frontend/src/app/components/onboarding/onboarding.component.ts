@@ -2,6 +2,7 @@ import { Component, OnInit, signal, output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { StorageService } from '../../core/services/storage.service';
+import { UI } from '../../core/constants/ui.constants';
 
 interface OnboardingSlide {
   icon: string;
@@ -144,6 +145,6 @@ export class OnboardingComponent implements OnInit {
     this.completed.emit();
     setTimeout(() => {
       this.show.set(false);
-    }, 100);
+    }, UI.FOCUS_DELAY);
   }
 }

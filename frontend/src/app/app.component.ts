@@ -12,6 +12,7 @@ import { SidebarService } from './services/sidebar.service';
 import { NavigationService } from './core/services/navigation.service';
 import { StorageService } from './core/services/storage.service';
 import { ROUTES } from './core/constants/routes.constants';
+import { ANIMATION } from './core/constants/ui.constants';
 import { BreakpointService } from './core/services/breakpoint.service';
 
 // Base styles for route animations
@@ -183,10 +184,10 @@ export class AppComponent implements OnInit {
     // Logo appears and holds for 1.2s, then exit animation starts
     setTimeout(() => {
       this.splashExiting.set(true);
-      // Remove splash after exit animation completes (500ms)
+      // Remove splash after exit animation completes
       setTimeout(() => {
         this.showSplash.set(false);
-      }, 500);
+      }, ANIMATION.SLOW);
     }, 1200);
   }
 

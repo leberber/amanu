@@ -1,4 +1,5 @@
 import { Injectable, OnDestroy } from '@angular/core';
+import { ANIMATION } from '../core/constants/ui.constants';
 
 @Injectable({
   providedIn: 'root'
@@ -41,9 +42,9 @@ export class ViewportService implements OnDestroy {
         return;
       }
 
-      // Check if user has scrolled recently (within last 1 second)
+      // Check if user has scrolled recently
       const timeSinceLastScroll = Date.now() - lastScrollTime;
-      if (timeSinceLastScroll < 1000) {
+      if (timeSinceLastScroll < ANIMATION.VERY_SLOW) {
         return; // Don't auto-scroll if user was recently scrolling
       }
 
@@ -59,13 +60,13 @@ export class ViewportService implements OnDestroy {
       if (viewportHeight < windowHeight * 0.75) { // Keyboard is likely open
         scrollTimeout = setTimeout(() => {
           // Double-check user hasn't started scrolling
-          if (Date.now() - lastScrollTime > 500) {
+          if (Date.now() - lastScrollTime > ANIMATION.SLOW) {
             activeElement.scrollIntoView({ 
               behavior: 'smooth', 
               block: 'center' 
             });
           }
-        }, 200);
+        }, ANIMATION.FAST);
       }
     };
 

@@ -10,7 +10,7 @@ import { AuthService } from '../../services/auth.service';
 import { UserRole } from '../../models/user.model';
 import { ToastMessageService } from '../../core/services/toast-message.service';
 import { StorageService } from '../../core/services/storage.service';
-import { ANIMATION, UI_DELAY } from '../../core/constants/ui.constants';
+import { ANIMATION, UI_DELAY, UI } from '../../core/constants/ui.constants';
 import { ROUTES, DefaultRedirects } from '../../core/constants/routes.constants';
 import { GoogleSignInButtonComponent } from '../../shared/components/google-signin-button/google-signin-button.component';
 
@@ -62,8 +62,8 @@ export class LoginComponent implements OnInit {
       // Auto-focus email input after animation
       setTimeout(() => {
         this.usernameInput()?.nativeElement.focus();
-      }, 600);
-    }, 1000);
+      }, ANIMATION.SLOW + UI.FOCUS_DELAY);
+    }, ANIMATION.VERY_SLOW);
   }
 
   onGoogleCredential(credential: string): void {
@@ -167,7 +167,7 @@ export class LoginComponent implements OnInit {
       this.storage.clearSessionExpired();
       setTimeout(() => {
         this.toast.showSessionExpired();
-      }, 300);
+      }, ANIMATION.NORMAL);
     }
   }
 }
