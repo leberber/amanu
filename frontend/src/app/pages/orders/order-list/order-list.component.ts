@@ -10,7 +10,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { ROUTES, RouteHelpers } from '../../../core/constants/routes.constants';
-import { UI, ANIMATION, TIME_FILTER_DAYS } from '../../../core/constants/ui.constants';
+import { UI, ANIMATION, TIME_FILTER_DAYS, TIME_FILTER_OPTIONS } from '../../../core/constants/ui.constants';
 import { PAGINATION } from '../../../core/constants';
 import { OrderService } from '../../../services/order.service';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
@@ -51,12 +51,7 @@ export class OrderListComponent implements OnInit {
   readonly SKELETON_SIDEBAR_ITEMS = Array.from({ length: UI.SKELETON_SIDEBAR_ITEMS }, (_, i) => i);
   readonly ROWS_PER_PAGE_OPTIONS = PAGINATION.USER_PAGE_SIZE_OPTIONS;
   readonly ANIMATION_DELAY = ANIMATION.STAGGER_DELAY;
-  readonly TIME_FILTERS = [
-    { value: 'all' as const, label: 'orders.filters.all' },
-    { value: '7days' as const, label: 'orders.filters.last_7_days' },
-    { value: '30days' as const, label: 'orders.filters.last_month' },
-    { value: '90days' as const, label: 'orders.filters.last_3_months' }
-  ];
+  readonly TIME_FILTERS = TIME_FILTER_OPTIONS;
 
   // State signals
   orders = signal<Order[]>([]);

@@ -5,6 +5,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TagModule } from 'primeng/tag';
 import { SkeletonModule } from 'primeng/skeleton';
 import { PromotionService } from '../../services/promotion.service';
+import { DateService } from '../../core/services/date.service';
 import { Promotion } from '../../models/promotion.model';
 import { ROUTES } from '../../core/constants/routes.constants';
 import { SCOPE_LABELS, SCOPE_SEVERITIES, ScopeType } from '../../core/constants/promotion.constants';
@@ -29,6 +30,7 @@ import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
 })
 export class PromotionsComponent implements OnInit {
   private promotionService = inject(PromotionService);
+  private dateService = inject(DateService);
   private destroyRef = inject(DestroyRef);
 
   readonly routes = ROUTES;
@@ -67,10 +69,7 @@ export class PromotionsComponent implements OnInit {
   }
 
   getDaysRemaining(endDate: string): number {
-    const end = new Date(endDate);
-    const now = new Date();
-    const diff = end.getTime() - now.getTime();
-    return Math.ceil(diff / (1000 * 60 * 60 * 24));
+    return this.dateService.getDaysRemaining(endDate);
   }
 
   copyCode(code: string): void {

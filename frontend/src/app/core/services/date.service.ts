@@ -125,4 +125,16 @@ export class DateService {
     const date = dateInput instanceof Date ? dateInput : new Date(dateInput);
     return date < new Date();
   }
+
+  /**
+   * Get days remaining until a future date
+   * @param dateInput - Date string or Date object
+   * @returns Number of days remaining (can be negative if date is past)
+   */
+  getDaysRemaining(dateInput: string | Date): number {
+    const date = dateInput instanceof Date ? dateInput : new Date(dateInput);
+    const now = new Date();
+    const diffMs = date.getTime() - now.getTime();
+    return Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+  }
 }

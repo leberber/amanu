@@ -41,6 +41,7 @@ export class CartService {
   readonly subtotal = computed(() => this._items().reduce((sum, item) => sum + item.product_price * item.quantity, 0));
   readonly discountAmount = computed(() => this._promotion()?.discount_amount ?? 0);
   readonly finalTotal = computed(() => Math.max(0, this.subtotal() - this.discountAmount()));
+  readonly canCheckout = computed(() => this._items().length > 0);
 
   constructor() {
     this.loadFromStorage();

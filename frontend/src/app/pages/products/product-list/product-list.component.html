@@ -160,6 +160,7 @@
           <img
             [src]="getProductImageUrl(product)"
             [alt]="product.name"
+            loading="lazy"
             appImageFallback>
           <div class="quantity-overlay__product-info">
             <h4>{{ product.name }}</h4>

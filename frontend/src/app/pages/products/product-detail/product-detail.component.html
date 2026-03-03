@@ -105,6 +105,7 @@
               <img
                 [src]="product()?.image_url"
                 [alt]="product()?.name"
+                loading="lazy"
                 appImageFallback
                 class="w-full border-round"
                 style="max-height: 300px; object-fit: contain;">

@@ -68,6 +68,14 @@ export const TIME_FILTER_DAYS: Record<string, number> = {
   '90days': 90
 };
 
+// Time filter options for dropdowns/segment controls
+export const TIME_FILTER_OPTIONS = [
+  { value: 'all' as const, label: 'orders.filters.all' },
+  { value: '7days' as const, label: 'orders.filters.last_7_days' },
+  { value: '30days' as const, label: 'orders.filters.last_month' },
+  { value: '90days' as const, label: 'orders.filters.last_3_months' }
+] as const;
+
 // Gesture/Touch Constants
 export const GESTURE = {
   SWIPE_THRESHOLD: 50  // Minimum pixels for swipe detection
