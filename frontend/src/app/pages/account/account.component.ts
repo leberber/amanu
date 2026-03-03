@@ -8,7 +8,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { ROUTES } from '../../core/constants/routes.constants';
-import { VALIDATION } from '../../core/constants/app.constants';
+import { VALIDATION, USER_ROLES } from '../../core/constants/app.constants';
 import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
 import { User } from '../../models/user.model';
@@ -72,8 +72,8 @@ export class AccountComponent implements OnInit {
 
   userRoleSeverity = computed(() => {
     const role = this.user()?.role;
-    if (role === 'admin') return 'danger';
-    if (role === 'staff') return 'warn';
+    if (role === USER_ROLES.ADMIN) return 'danger';
+    if (role === USER_ROLES.STAFF) return 'warn';
     return 'info';
   });
 

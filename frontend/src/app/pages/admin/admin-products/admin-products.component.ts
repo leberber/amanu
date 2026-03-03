@@ -21,6 +21,7 @@ import { Product } from '../../../models/product.model';
 import { Category } from '../../../models/category.model';
 import { Brand } from '../../../models/brand.model';
 import { ROUTES, RouteHelpers } from '../../../core/constants/routes.constants';
+import { BREAKPOINTS } from '../../../core/constants/app.constants';
 
 @Component({
   selector: 'app-admin-products',
@@ -105,7 +106,7 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
   override columnOptions: ColumnOption[] = this.getInitialColumnOptions();
 
   private getInitialColumnOptions(): ColumnOption[] {
-    const isMobile = window.innerWidth <= 768;
+    const isMobile = window.innerWidth <= BREAKPOINTS.MD;
 
     return [
       { field: 'image', label: 'admin.products.table.image', visible: !isMobile },

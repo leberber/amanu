@@ -1,24 +1,6 @@
 // Product-related constants
-// Note: LOW_STOCK_THRESHOLD is defined in app.constants.ts PRODUCT object
-export const PRODUCT_CONSTANTS = {
-  DEFAULT_QUANTITY: 1,
-  MIN_QUANTITY: 1,
-  MAX_QUANTITY: 100,
-  QUANTITY_STEP: 1,
-  QUANTITY_INCREMENT: 5,
-  
-  // Grid display settings
-  GRID_MAX_HEIGHT: 300,
-  GRID_MIN_COLUMN_WIDTH: 60,
-  
-  // Limits
-  MAX_DESCRIPTION_LENGTH: 200,
-  MAX_NAME_LENGTH: 100,
-  
-  // Placeholder values
-  PLACEHOLDER_IMAGE: 'assets/images/product-placeholder.jpg',
-  DEFAULT_DESCRIPTION: 'Quality wholesale products for your business.'
-} as const;
+// Core product values are now centralized in app.constants.ts PRODUCT object
+// This file only exports unit/packaging configurations used by services
 
 // Packaging types (lowercase to match backend enum)
 export const PACKAGING_TYPES = ['box', 'carton', 'crate', 'pack', 'bag', 'bundle'] as const;

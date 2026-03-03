@@ -8,7 +8,7 @@ import { ADMIN_LIST_IMPORTS, ADMIN_DIALOG_IMPORTS } from '../../../shared/import
 import { TableSkeletonComponent, SkeletonColumn } from '../../../shared/components/table-skeleton/table-skeleton.component';
 import { AgroclikPageContainerComponent } from '../../../shared/components/agroclik-page-container/agroclik-page-container.component';
 import { ROUTES } from '../../../core/constants/routes.constants';
-import { USER_ROLES } from '../../../core/constants/app.constants';
+import { USER_ROLES, BREAKPOINTS } from '../../../core/constants/app.constants';
 import { onLanguageChange } from '../../../core/utils/language-change.util';
 import { AdminService } from '../../../services/admin.service';
 import { UserManage, UsersResponse } from '../../../models/admin.model';
@@ -62,7 +62,7 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
   override columnOptions: ColumnOption[] = this.getInitialColumnOptions();
 
   private getInitialColumnOptions(): ColumnOption[] {
-    const isMobile = window.innerWidth <= 768;
+    const isMobile = window.innerWidth <= BREAKPOINTS.MD;
 
     return [
       { field: 'id', label: 'admin.users.table.id', visible: !isMobile },

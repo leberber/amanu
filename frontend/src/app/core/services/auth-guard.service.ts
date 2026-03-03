@@ -3,6 +3,7 @@ import { Router, CanActivateFn, ActivatedRouteSnapshot, RouterStateSnapshot } fr
 import { AuthService } from '../../services/auth.service';
 import { ToastMessageService } from './toast-message.service';
 import { USER_ROLES } from '../constants/app.constants';
+import { ROUTES } from '../constants/routes.constants';
 
 /**
  * Service to centralize authentication and role checking logic
@@ -29,7 +30,7 @@ export class AuthGuardService {
     }
     
     // Navigate to login with return URL
-    this.router.navigate(['/login'], {
+    this.router.navigate([ROUTES.LOGIN], {
       queryParams: { returnUrl: returnUrl || this.router.url }
     });
     return false;
@@ -88,7 +89,7 @@ export const adminGuard: CanActivateFn = (route: ActivatedRouteSnapshot, state: 
   
   if (!authGuardService.isAdmin()) {
     toastService.showPermissionDenied();
-    inject(Router).navigate(['/']);
+    inject(Router).navigate([ROUTES.HOME]);
     return false;
   }
   
@@ -108,7 +109,7 @@ export const staffGuard: CanActivateFn = (route: ActivatedRouteSnapshot, state: 
   
   if (!authGuardService.isStaffOrAdmin()) {
     toastService.showPermissionDenied();
-    inject(Router).navigate(['/']);
+    inject(Router).navigate([ROUTES.HOME]);
     return false;
   }
   
@@ -124,7 +125,7 @@ export const guestGuard: CanActivateFn = (route: ActivatedRouteSnapshot, state: 
   
   if (authService.currentUserValue) {
     // User is already authenticated, redirect to home
-    router.navigate(['/']);
+    router.navigate([ROUTES.HOME]);
     return false;
   }
   

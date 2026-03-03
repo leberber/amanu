@@ -62,6 +62,7 @@ export const ROUTES = {
 export const RouteHelpers = {
   productDetail: (id: number | string) => `/products/${id}`,
   orderDetail: (id: number | string) => `/orders/${id}`,
+  adminOrderDetail: (id: number | string) => `/admin/orders/${id}`,
   adminEditProduct: (id: number | string) => `/admin/products/edit/${id}`,
   adminEditCategory: (id: number | string) => `/admin/categories/edit/${id}`,
   adminEditBrand: (id: number | string) => `/admin/brands/edit/${id}`,

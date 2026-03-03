@@ -6,6 +6,7 @@ import { Router } from '@angular/router';
 import { ToastMessageService } from '../services/toast-message.service';
 import { AuthService } from '../../services/auth.service';
 import { STORAGE_KEYS } from '../constants/app.constants';
+import { ROUTES } from '../constants/routes.constants';
 
 /**
  * Interceptor for consistent API error handling
@@ -81,7 +82,7 @@ export class ApiErrorInterceptor implements HttpInterceptor {
     localStorage.setItem(STORAGE_KEYS.SESSION_EXPIRED, 'true');
 
     // Navigate to login with return URL
-    this.router.navigate(['/login'], {
+    this.router.navigate([ROUTES.LOGIN], {
       queryParams: { returnUrl: this.router.url }
     });
   }

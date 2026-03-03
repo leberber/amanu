@@ -9,6 +9,7 @@ import { InlineEditState } from '../../../shared/utils/inline-edit-state';
 import { TableSkeletonComponent, SkeletonColumn } from '../../../shared/components/table-skeleton/table-skeleton.component';
 import { AgroclikPageContainerComponent } from '../../../shared/components/agroclik-page-container/agroclik-page-container.component';
 import { ROUTES, RouteHelpers } from '../../../core/constants/routes.constants';
+import { BREAKPOINTS } from '../../../core/constants/app.constants';
 import { onLanguageChange } from '../../../core/utils/language-change.util';
 import { BrandService } from '../../../core/services/brand.service';
 import { ProductService } from '../../../services/product.service';
@@ -64,7 +65,7 @@ export class AdminBrandsComponent extends BaseAdminListComponent implements OnIn
   override columnOptions: ColumnOption[] = this.getInitialColumnOptions();
 
   private getInitialColumnOptions(): ColumnOption[] {
-    const isMobile = window.innerWidth <= 768;
+    const isMobile = window.innerWidth <= BREAKPOINTS.MD;
 
     return [
       { field: 'logo', label: 'admin.brands.table.logo', visible: !isMobile },

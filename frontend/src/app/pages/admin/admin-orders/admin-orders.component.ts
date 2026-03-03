@@ -6,8 +6,8 @@ import { TranslateService } from '@ngx-translate/core';
 import { ADMIN_LIST_IMPORTS } from '../../../shared/imports/admin-shared.imports';
 import { TableSkeletonComponent, SkeletonColumn } from '../../../shared/components/table-skeleton/table-skeleton.component';
 import { AgroclikPageContainerComponent } from '../../../shared/components/agroclik-page-container/agroclik-page-container.component';
-import { ROUTES } from '../../../core/constants/routes.constants';
-import { ORDER_STATUS } from '../../../core/constants/app.constants';
+import { ROUTES, RouteHelpers } from '../../../core/constants/routes.constants';
+import { ORDER_STATUS, BREAKPOINTS } from '../../../core/constants/app.constants';
 import { onLanguageChange } from '../../../core/utils/language-change.util';
 import { AdminService } from '../../../services/admin.service';
 import { Order } from '../../../models/admin.model';
@@ -82,7 +82,7 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
   private readonly destroyRef = inject(DestroyRef);
 
   private getInitialColumnOptions(): ColumnOption[] {
-    const isMobile = window.innerWidth <= 768;
+    const isMobile = window.innerWidth <= BREAKPOINTS.MD;
     const mobileHidden = ['order_id', 'date', 'actions'];
 
     return [
@@ -104,7 +104,7 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
   }
 
   private checkMobile(): void {
-    this.isMobile.set(window.innerWidth <= 768);
+    this.isMobile.set(window.innerWidth <= BREAKPOINTS.MD);
   }
 
   hasActiveFilters(): boolean {
@@ -193,7 +193,7 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
     if (this.isFullscreen()) {
       this.toggleFullscreen();
     }
-    this.baseRouter.navigate(['/admin/orders', order.id]);
+    this.baseRouter.navigate([RouteHelpers.adminOrderDetail(order.id)]);
   }
 
   getStatusIcon(status: string): string {

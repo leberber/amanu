@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { STORAGE_KEYS } from '../core/constants/app.constants';
+import { ROUTES } from '../core/constants/routes.constants';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
@@ -33,7 +34,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
           authService.logout();
           
           // Navigate to login with return URL
-          router.navigate(['/login'], { 
+          router.navigate([ROUTES.LOGIN], {
             queryParams: { returnUrl: router.url }
           });
           
