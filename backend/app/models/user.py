@@ -1,6 +1,6 @@
 from sqlmodel import SQLModel, Field, Relationship
-from sqlalchemy import String
-from typing import Optional, List, TYPE_CHECKING
+from sqlalchemy import String, JSON
+from typing import Optional, List, Dict, Any, TYPE_CHECKING
 from datetime import datetime, timezone
 from enum import Enum
 from pydantic import EmailStr
@@ -23,18 +23,21 @@ class AuthProvider(str, Enum):
 
 class UserBase(SQLModel):
     """Base user model with common fields"""
+    # Core identity
     email: EmailStr = Field(index=True)
     full_name: str = Field(min_length=1, max_length=100)
     phone: Optional[str] = Field(default=None, max_length=20)
-    address: Optional[str] = Field(default=None, max_length=200)
-    latitude: Optional[float] = Field(default=None)
-    longitude: Optional[float] = Field(default=None)
     store_name: Optional[str] = Field(default=None, max_length=100)
+    role: UserRole = Field(default=UserRole.CUSTOMER)
+    is_active: bool = Field(default=True)
+    # Location
+    address: Optional[str] = Field(default=None, max_length=200)
     wilaya: Optional[str] = Field(default=None, max_length=50)
     daira: Optional[str] = Field(default=None, max_length=50)
     commune: Optional[str] = Field(default=None, max_length=50)
-    role: UserRole = Field(default=UserRole.CUSTOMER)
-    is_active: bool = Field(default=True)
+    latitude: Optional[float] = Field(default=None)
+    longitude: Optional[float] = Field(default=None)
+    # Auth
     auth_provider: AuthProvider = Field(default=AuthProvider.EMAIL, sa_type=String(20))
     profile_picture: Optional[str] = Field(default=None, max_length=500)
 
@@ -42,8 +45,9 @@ class User(UserBase, table=True):
     """Database model for users"""
     __tablename__ = "users"
     id: Optional[int] = Field(default=None, primary_key=True)
-    hashed_password: Optional[str] = Field(default=None)  # Optional for OAuth users
-    google_id: Optional[str] = Field(default=None, max_length=100, index=True)  # Google OAuth ID
+    hashed_password: Optional[str] = Field(default=None)
+    google_id: Optional[str] = Field(default=None, max_length=100, index=True)
+    user_preferences: Optional[Dict[str, Any]] = Field(default=None, sa_type=JSON)
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: Optional[datetime] = Field(default=None)
     
@@ -57,21 +61,27 @@ class UserCreate(UserBase):
 
 class UserUpdate(SQLModel):
     """Model for updating users"""
+    # Core identity
     full_name: Optional[str] = Field(default=None, min_length=1, max_length=100)
     phone: Optional[str] = Field(default=None, max_length=20)
-    address: Optional[str] = Field(default=None, max_length=200)
-    latitude: Optional[float] = Field(default=None)
-    longitude: Optional[float] = Field(default=None)
     store_name: Optional[str] = Field(default=None, max_length=100)
+    is_active: Optional[bool] = Field(default=None)
+    role: Optional[UserRole] = Field(default=None)
+    # Location
+    address: Optional[str] = Field(default=None, max_length=200)
     wilaya: Optional[str] = Field(default=None, max_length=50)
     daira: Optional[str] = Field(default=None, max_length=50)
     commune: Optional[str] = Field(default=None, max_length=50)
+    latitude: Optional[float] = Field(default=None)
+    longitude: Optional[float] = Field(default=None)
+    # Auth
     password: Optional[str] = Field(default=None, min_length=8, max_length=100)
-    is_active: Optional[bool] = Field(default=None)
-    role: Optional[UserRole] = Field(default=None)
+    # Preferences
+    user_preferences: Optional[Dict[str, Any]] = Field(default=None)
 
 class UserRead(UserBase):
     """Model for reading users"""
     id: int
+    user_preferences: Optional[Dict[str, Any]] = None
     created_at: datetime
     updated_at: Optional[datetime] = None
