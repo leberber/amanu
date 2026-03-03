@@ -95,7 +95,7 @@
               </thead>
               <tbody>
                 @for (item of cartItems(); track item.id; let i = $index) {
-                  <tr class="table-row-animate" [style.--row-delay]="(i * ANIMATION_DELAY) + 'ms'">
+                  <tr class="table-row-animate" [style.--row-delay]="(i * ANIMATION.STAGGER_DELAY) + 'ms'">
                     <td>
                       <div class="table-item-with-image">
                         <div class="table-thumbnail" [class.clickable]="item.product_image" (click)="openImage(item)">
@@ -176,7 +176,7 @@
           <!-- Mobile List -->
           <div class="cart-mobile-list block md:hidden">
             @for (item of cartItems(); track item.id; let i = $index) {
-              <div class="cart-item-mobile" [style.animation-delay]="(i * ANIMATION_DELAY) + 'ms'">
+              <div class="cart-item-mobile" [style.animation-delay]="(i * ANIMATION.STAGGER_DELAY) + 'ms'">
                 <div class="cart-item-mobile__row1">
                   <div class="cart-thumbnail" [class.clickable]="item.product_image" (click)="openImage(item)">
                     @if (item.product_image) {

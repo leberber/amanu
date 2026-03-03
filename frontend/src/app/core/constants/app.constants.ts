@@ -56,3 +56,8 @@ export const SEARCH = {
   MIN_SEARCH_LENGTH: 2,
   MAX_SEARCH_LENGTH: 100
 } as const;
+
+// Admin Form Translation Fields
+// Fields that support multi-language translations in admin forms
+export const TRANSLATION_FIELDS = ['name', 'description'] as const;
+export type TranslationField = typeof TRANSLATION_FIELDS[number];

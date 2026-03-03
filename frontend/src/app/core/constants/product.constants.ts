@@ -24,7 +24,9 @@ export const PRODUCT = {
   GRID_MIN_COLUMN_WIDTH: 60,
   // Content limits
   MAX_DESCRIPTION_LENGTH: 200,
-  DEFAULT_DESCRIPTION: 'Quality wholesale products for your business.'
+  DEFAULT_DESCRIPTION: 'Quality wholesale products for your business.',
+  // Box/carton options
+  MAX_BOX_OPTIONS: 10  // Maximum number of box quantity options to show
 } as const;
 
 // Stock Status

@@ -9,6 +9,7 @@ import { ToastModule } from 'primeng/toast';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { ROUTES } from '../../../core/constants/routes.constants';
+import { TRANSLATION_FIELDS } from '../../../core/constants/app.constants';
 import { detectEditMode } from '../../../core/utils/edit-mode.util';
 import { ANIMATION, UI_DELAY } from '../../../core/constants/ui.constants';
 import { VALIDATION } from '../../../core/constants/validation.constants';
@@ -17,8 +18,6 @@ import { Category } from '../../../models/category.model';
 import { AdminFormService } from '../../../core/services/admin-form.service';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
 import { PageLayoutComponent } from '../../../shared/components/page-layout/page-layout.component';
-
-const TRANSLATION_FIELDS = ['name', 'description'] as const;
 
 interface CategoryWithTranslations extends Category {
   name_translations?: { [key: string]: string };

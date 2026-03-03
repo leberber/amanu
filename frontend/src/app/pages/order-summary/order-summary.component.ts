@@ -6,6 +6,7 @@ import { ToastModule } from 'primeng/toast';
 import { DialogModule } from 'primeng/dialog';
 
 import { ROUTES } from '../../core/constants/routes.constants';
+import { SHIPPING } from '../../core/constants/order.constants';
 import { CartService } from '../../services/cart.service';
 import { AuthService } from '../../services/auth.service';
 import { CurrencyService } from '../../core/services/currency.service';
@@ -44,7 +45,7 @@ export class OrderSummaryComponent {
 
   // Constants
   readonly ROUTES = ROUTES;
-  readonly DELIVERY_COST = 500;
+  readonly SHIPPING = SHIPPING;
 
   // State
   deliveryMethod = signal<DeliveryMethod>('delivery');
@@ -61,7 +62,7 @@ export class OrderSummaryComponent {
   cartItemCount = computed(() => this.cartItems().length);
 
   // Computed delivery cost
-  deliveryCost = computed(() => this.deliveryMethod() === 'delivery' ? this.DELIVERY_COST : 0);
+  deliveryCost = computed(() => this.deliveryMethod() === 'delivery' ? SHIPPING.STANDARD_COST : 0);
 
   // Computed final total including delivery
   finalTotal = computed(() => {

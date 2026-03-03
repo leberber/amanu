@@ -8,7 +8,7 @@ import { ButtonModule } from 'primeng/button';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { ROUTES } from '../../core/constants/routes.constants';
-import { ANIMATION } from '../../core/constants/ui.constants';
+import { ANIMATION, UI } from '../../core/constants/ui.constants';
 import { CartService, CartItem } from '../../services/cart.service';
 import { AuthService } from '../../services/auth.service';
 import { CurrencyService } from '../../core/services/currency.service';
@@ -28,9 +28,6 @@ import { getCartonCount as calcCartonCount } from '../../shared/utils/quantity.u
 import { ImageFallbackDirective } from '../../shared/directives/image-fallback.directive';
 import { isOutOfStock as checkOutOfStock } from '../../shared/utils/stock.utils';
 
-// Constants
-const ANIMATION_DELAY_MS = ANIMATION.STAGGER_DELAY;
-const SKELETON_COUNT = 3;
 
 @Component({
   selector: 'app-cart-page',
@@ -70,8 +67,8 @@ export class CartComponent implements OnInit {
 
   // Constants
   readonly ROUTES = ROUTES;
-  readonly ANIMATION_DELAY = ANIMATION_DELAY_MS;
-  readonly SKELETON_ITEMS = Array.from({ length: SKELETON_COUNT }, (_, i) => i);
+  readonly ANIMATION = ANIMATION;
+  readonly SKELETON_ITEMS = Array.from({ length: UI.SKELETON_CART_ITEMS }, (_, i) => i);
 
   // State
   cartItems = signal<CartItem[]>([]);

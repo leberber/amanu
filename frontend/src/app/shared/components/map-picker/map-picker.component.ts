@@ -2,6 +2,7 @@ import { Component, AfterViewInit, OnDestroy, inject, input, output, signal } fr
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import * as L from 'leaflet';
 import { environment } from '../../../../environments/environment';
+import { MAP_DEFAULTS, LEAFLET_ICON, LEAFLET_TILES, LEAFLET_ASSETS } from '../../../core/constants/map.constants';
 
 export interface LocationData {
   latitude: number;
@@ -409,10 +410,10 @@ export class MapPickerComponent implements AfterViewInit, OnDestroy {
   locationRequested = signal(false);
   cardDismissed = signal(false);
 
-  // Default center (Algeria - Bordj Bou Arréridj)
-  private defaultLat = 36.5554;
-  private defaultLng = 4.0844;
-  private defaultZoom = 15;
+  // Default center (uses constants from map.constants.ts)
+  private defaultLat = MAP_DEFAULTS.LATITUDE;
+  private defaultLng = MAP_DEFAULTS.LONGITUDE;
+  private defaultZoom = MAP_DEFAULTS.ZOOM;
 
   ngAfterViewInit(): void {
     setTimeout(() => {
@@ -430,19 +431,15 @@ export class MapPickerComponent implements AfterViewInit, OnDestroy {
     const lat = this.initialLatitude() || this.defaultLat;
     const lng = this.initialLongitude() || this.defaultLng;
 
-    const iconRetinaUrl = 'assets/leaflet/marker-icon-2x.png';
-    const iconUrl = 'assets/leaflet/marker-icon.png';
-    const shadowUrl = 'assets/leaflet/marker-shadow.png';
-
     const defaultIcon = L.icon({
-      iconRetinaUrl,
-      iconUrl,
-      shadowUrl,
-      iconSize: [25, 41],
-      iconAnchor: [12, 41],
-      popupAnchor: [1, -34],
-      tooltipAnchor: [16, -28],
-      shadowSize: [41, 41]
+      iconRetinaUrl: LEAFLET_ASSETS.MARKER_ICON_RETINA,
+      iconUrl: LEAFLET_ASSETS.MARKER_ICON,
+      shadowUrl: LEAFLET_ASSETS.MARKER_SHADOW,
+      iconSize: LEAFLET_ICON.SIZE,
+      iconAnchor: LEAFLET_ICON.ANCHOR,
+      popupAnchor: LEAFLET_ICON.POPUP_ANCHOR,
+      tooltipAnchor: LEAFLET_ICON.TOOLTIP_ANCHOR,
+      shadowSize: LEAFLET_ICON.SHADOW_SIZE
     });
     L.Marker.prototype.options.icon = defaultIcon;
 
@@ -450,10 +447,10 @@ export class MapPickerComponent implements AfterViewInit, OnDestroy {
       zoomControl: false
     }).setView([lat, lng], this.defaultZoom);
 
-    L.tileLayer('https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
-      maxZoom: 24,
-      subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
-      attribution: '&copy; Google Maps'
+    L.tileLayer(LEAFLET_TILES.GOOGLE.URL, {
+      maxZoom: LEAFLET_TILES.GOOGLE.MAX_ZOOM,
+      subdomains: LEAFLET_TILES.GOOGLE.SUBDOMAINS,
+      attribution: LEAFLET_TILES.GOOGLE.ATTRIBUTION
     }).addTo(this.map);
 
     this.map.on('click', (e: L.LeafletMouseEvent) => {

@@ -13,6 +13,7 @@ import { ToastMessageService } from '../../core/services/toast-message.service';
 import { ROUTES } from '../../core/constants/routes.constants';
 import { UI } from '../../core/constants/ui.constants';
 import { VALIDATION } from '../../core/constants/validation.constants';
+import { MAP_DEFAULTS, LEAFLET_TILES } from '../../core/constants/map.constants';
 
 // Interfaces for wilaya data
 interface Commune {
@@ -176,13 +177,13 @@ export class CompleteProfileComponent implements OnInit, AfterViewInit {
   private initMap(): void {
     if (this.map) return;
 
-    const defaultLat = 36.7;
-    const defaultLng = 4.0;
+    this.map = L.map('profile-map').setView(
+      [MAP_DEFAULTS.LATITUDE, MAP_DEFAULTS.LONGITUDE],
+      MAP_DEFAULTS.OVERVIEW_ZOOM
+    );
 
-    this.map = L.map('profile-map').setView([defaultLat, defaultLng], 10);
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap'
+    L.tileLayer(LEAFLET_TILES.OSM.URL, {
+      attribution: LEAFLET_TILES.OSM.ATTRIBUTION
     }).addTo(this.map);
 
     this.map.on('click', (e: any) => {

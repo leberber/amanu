@@ -21,8 +21,6 @@ export interface BoxProduct {
   } | null;
 }
 
-const MAX_BOX_OPTIONS = 10;
-
 /**
  * Get the effective price for a product (with or without promotion)
  */
@@ -57,7 +55,7 @@ export function generateBoxOptions(
   const piecesPerBox = getPiecesPerBox(product);
   const effectivePrice = getEffectivePrice(product);
   const maxBoxes = getMaxBoxes(product);
-  const max = Math.min(maxBoxes, MAX_BOX_OPTIONS);
+  const max = Math.min(maxBoxes, PRODUCT.MAX_BOX_OPTIONS);
 
   for (let i = 1; i <= max; i++) {
     const pieces = i * piecesPerBox;
