@@ -43,3 +43,6 @@ logs/
 .DS_Store
 Thumbs.db
 .vercel
+
+# Database import scripts with credentials
+file_upload/import_to_db.py
