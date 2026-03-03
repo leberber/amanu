@@ -48,12 +48,8 @@
     min-width: 40px;
     padding: 0;
     border-radius: var(--radius-full);
-    background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    background: transparent;
     color: var(--text-color);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    border: 1px solid rgba(0, 0, 0, 0.06);
 
     i {
       font-size: 1.1rem;
@@ -61,8 +57,7 @@
     }
 
     &:hover {
-      background: rgba(255, 255, 255, 1);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+      background: rgba(var(--primary-rgb), 0.08);
 
       i {
         transform: translateX(-2px);
@@ -72,7 +67,6 @@
 
     &:active {
       transform: scale(0.92);
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
     }
   }
 
@@ -101,17 +95,14 @@
     }
 
     &.circular {
-      background: rgba(255, 255, 255, 0.1);
-      border-color: rgba(255, 255, 255, 0.1);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      background: transparent;
 
       i {
         color: var(--text-color);
       }
 
       &:hover {
-        background: rgba(255, 255, 255, 0.15);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+        background: rgba(255, 255, 255, 0.1);
 
         i {
           color: var(--primary-400);
