@@ -360,6 +360,7 @@ def update_order(
                 status=new_status.value,
             )
             session.commit()
+            session.refresh(order)
 
     # Include order items in response
     return order
