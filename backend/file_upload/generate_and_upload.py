@@ -35,7 +35,7 @@ import argparse
 import boto3
 
 # S3 Configuration
-S3_BUCKET = "agroclik"
+S3_BUCKET = "agroclik-eu"
 S3_REGION = "eu-west-3"
 
 # Stock multiplier (stock_quantity = pieces_per_box * STOCK_MULTIPLIER)
