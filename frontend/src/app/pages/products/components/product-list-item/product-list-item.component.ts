@@ -21,6 +21,7 @@ import {
   generateBoxOptions,
   BoxOption
 } from '../../../../shared/utils/box-options.utils';
+import { DEFAULTS } from '../../../../core/constants/app.constants';
 
 export interface AddToCartEvent {
   product: Product;
@@ -134,7 +135,7 @@ export class ProductListItemComponent {
 
   onImageError(event: Event): void {
     const img = event.target as HTMLImageElement;
-    img.src = 'assets/images/placeholder.jpg';
+    img.src = DEFAULTS.PLACEHOLDER_IMAGE;
   }
 
   getCartButtonIcon(): string {

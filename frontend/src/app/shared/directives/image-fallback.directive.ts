@@ -1,31 +1,49 @@
-import { Directive, ElementRef, HostListener, input } from '@angular/core';
+import { Directive, ElementRef, HostListener, input, inject } from '@angular/core';
+import { DEFAULTS } from '../../core/constants/app.constants';
 
 /**
- * Directive to handle image loading errors with fallback
+ * Directive for consistent image error handling.
+ * Shows a fallback image or hides the image and shows an icon.
  *
  * Usage:
- * <img [src]="imageUrl" appImageFallback>
- * <img [src]="imageUrl" appImageFallback="assets/images/custom-placeholder.jpg">
+ *   <!-- Replace with fallback image -->
+ *   <img [src]="product.image" appImageFallback>
+ *
+ *   <!-- Custom fallback image -->
+ *   <img [src]="product.image" appImageFallback="assets/images/custom.png">
+ *
+ *   <!-- Hide image and show sibling icon (for admin tables) -->
+ *   <img [src]="product.image" appImageFallback [hideOnError]="true">
  */
 @Directive({
   selector: 'img[appImageFallback]',
   standalone: true
 })
 export class ImageFallbackDirective {
-  private static readonly DEFAULT_PRODUCT_PLACEHOLDER = 'assets/images/product-placeholder.png';
+  private el = inject(ElementRef<HTMLImageElement>);
   private hasErrored = false;
 
-  /**
-   * Custom fallback image path. Defaults to product placeholder.
-   */
-  appImageFallback = input<string>(ImageFallbackDirective.DEFAULT_PRODUCT_PLACEHOLDER);
+  /** Fallback image URL. Defaults to product placeholder from constants. */
+  appImageFallback = input<string>(DEFAULTS.PLACEHOLDER_IMAGE);
 
-  constructor(private el: ElementRef<HTMLImageElement>) {}
+  /** If true, hides image and shows sibling icon instead of replacing src */
+  hideOnError = input<boolean>(false);
 
   @HostListener('error')
   onError(): void {
+    // Prevent infinite loop if fallback also fails
     if (this.hasErrored) return;
     this.hasErrored = true;
-    this.el.nativeElement.src = this.appImageFallback();
+
+    const img = this.el.nativeElement;
+
+    if (this.hideOnError()) {
+      // Hide image and show sibling icon (used in admin tables)
+      img.style.display = 'none';
+      img.parentElement?.querySelector('i')?.classList.remove('hidden');
+    } else {
+      // Replace with fallback image
+      img.src = this.appImageFallback();
+    }
   }
 }

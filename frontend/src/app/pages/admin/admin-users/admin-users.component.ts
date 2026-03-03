@@ -8,7 +8,7 @@ import { ADMIN_LIST_IMPORTS, ADMIN_DIALOG_IMPORTS } from '../../../shared/import
 import { TableSkeletonComponent, SkeletonColumn } from '../../../shared/components/table-skeleton/table-skeleton.component';
 import { AgroclikPageContainerComponent } from '../../../shared/components/agroclik-page-container/agroclik-page-container.component';
 import { ROUTES } from '../../../core/constants/routes.constants';
-import { BREAKPOINTS } from '../../../core/constants/app.constants';
+import { BreakpointService } from '../../../core/services/breakpoint.service';
 import { USER_ROLES } from '../../../core/constants/user.constants';
 import { onLanguageChange } from '../../../core/utils/language-change.util';
 import { AdminService } from '../../../services/admin.service';
@@ -63,7 +63,7 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
   override columnOptions: ColumnOption[] = this.getInitialColumnOptions();
 
   private getInitialColumnOptions(): ColumnOption[] {
-    const isMobile = window.innerWidth <= BREAKPOINTS.MD;
+    const isMobile = this.breakpoint.isMobile();
 
     return [
       { field: 'id', label: 'admin.users.table.id', visible: !isMobile },
@@ -92,8 +92,10 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
   private confirmDialog = inject(ConfirmationDialogService);
   private statusService = inject(StatusSeverityService);
   private destroyRef = inject(DestroyRef);
+  private readonly breakpoint = inject(BreakpointService);
 
   ngOnInit(): void {
+    this.columnOptions = this.getInitialColumnOptions();
     this.initializeOptions();
     this.loadAllUsers();
     onLanguageChange(this.translateService, this.destroyRef, () => this.initializeOptions());

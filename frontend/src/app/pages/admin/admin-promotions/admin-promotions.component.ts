@@ -8,7 +8,7 @@ import { ADMIN_LIST_IMPORTS, ADMIN_DIALOG_IMPORTS } from '../../../shared/import
 import { TableSkeletonComponent, SkeletonColumn } from '../../../shared/components/table-skeleton/table-skeleton.component';
 import { AgroclikPageContainerComponent } from '../../../shared/components/agroclik-page-container/agroclik-page-container.component';
 import { ROUTES, RouteHelpers } from '../../../core/constants/routes.constants';
-import { BREAKPOINTS } from '../../../core/constants/app.constants';
+import { BreakpointService } from '../../../core/services/breakpoint.service';
 import { onLanguageChange } from '../../../core/utils/language-change.util';
 import { PromotionService } from '../../../services/promotion.service';
 import { CurrencyService } from '../../../core/services/currency.service';
@@ -66,7 +66,7 @@ export class AdminPromotionsComponent extends BaseAdminListComponent implements 
   override columnOptions: ColumnOption[] = this.getInitialColumnOptions();
 
   private getInitialColumnOptions(): ColumnOption[] {
-    const isMobile = window.innerWidth <= BREAKPOINTS.MD;
+    const isMobile = this.breakpoint.isMobile();
 
     return [
       { field: 'name', label: 'admin.promotions.table.name', visible: true },
@@ -87,8 +87,10 @@ export class AdminPromotionsComponent extends BaseAdminListComponent implements 
   private translateService = inject(TranslateService);
   private currencyService = inject(CurrencyService);
   private destroyRef = inject(DestroyRef);
+  private readonly breakpoint = inject(BreakpointService);
 
   ngOnInit() {
+    this.columnOptions = this.getInitialColumnOptions();
     this.loadAllPromotions();
     onLanguageChange(this.translateService, this.destroyRef, () => this.filterItems());
   }

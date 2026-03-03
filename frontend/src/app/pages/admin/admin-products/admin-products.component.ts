@@ -21,7 +21,7 @@ import { Product } from '../../../models/product.model';
 import { Category } from '../../../models/category.model';
 import { Brand } from '../../../models/brand.model';
 import { ROUTES, RouteHelpers } from '../../../core/constants/routes.constants';
-import { BREAKPOINTS } from '../../../core/constants/app.constants';
+import { BreakpointService } from '../../../core/services/breakpoint.service';
 
 @Component({
   selector: 'app-admin-products',
@@ -106,7 +106,7 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
   override columnOptions: ColumnOption[] = this.getInitialColumnOptions();
 
   private getInitialColumnOptions(): ColumnOption[] {
-    const isMobile = window.innerWidth <= BREAKPOINTS.MD;
+    const isMobile = this.breakpoint.isMobile();
 
     return [
       { field: 'image', label: 'admin.products.table.image', visible: !isMobile },
@@ -142,8 +142,10 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
   private confirmDialog = inject(ConfirmationDialogService);
   private stockStatus = inject(StockStatusService);
   private destroyRef = inject(DestroyRef);
+  private readonly breakpoint = inject(BreakpointService);
 
   ngOnInit() {
+    this.columnOptions = this.getInitialColumnOptions();
     this.loadCategories();
     this.loadBrands();
     this.loadAllProducts();

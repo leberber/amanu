@@ -7,8 +7,8 @@ import { ADMIN_LIST_IMPORTS } from '../../../shared/imports/admin-shared.imports
 import { TableSkeletonComponent, SkeletonColumn } from '../../../shared/components/table-skeleton/table-skeleton.component';
 import { AgroclikPageContainerComponent } from '../../../shared/components/agroclik-page-container/agroclik-page-container.component';
 import { ROUTES, RouteHelpers } from '../../../core/constants/routes.constants';
-import { BREAKPOINTS } from '../../../core/constants/app.constants';
 import { ORDER_STATUS } from '../../../core/constants/order.constants';
+import { BreakpointService } from '../../../core/services/breakpoint.service';
 import { onLanguageChange } from '../../../core/utils/language-change.util';
 import { AdminService } from '../../../services/admin.service';
 import { Order } from '../../../models/admin.model';
@@ -45,7 +45,6 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
 
   // UI state signals
   isFullscreen = signal(false);
-  isMobile = signal(false);
 
   // Mobile load more
   mobileVisibleCount = signal(10);
@@ -81,10 +80,13 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
   private readonly translateService = inject(TranslateService);
   private readonly statusSeverity = inject(StatusSeverityService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly breakpoint = inject(BreakpointService);
+
+  // Expose breakpoint signal for template and computed properties
+  isMobile = this.breakpoint.isMobile;
 
   private getInitialColumnOptions(): ColumnOption[] {
-    const isMobile = window.innerWidth <= BREAKPOINTS.MD;
-    const mobileHidden = ['order_id', 'date', 'actions'];
+    const isMobile = this.breakpoint.isMobile();
 
     return [
       { field: 'order_id', label: 'admin.orders.table.order_id', visible: !isMobile },
@@ -92,20 +94,15 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
       { field: 'date', label: 'admin.orders.table.date', visible: !isMobile },
       { field: 'status', label: 'admin.orders.table.status', visible: true },
       { field: 'total', label: 'admin.orders.table.total', visible: true },
-      { field: 'actions', label: 'admin.orders.table.actions', visible: !isMobile || !mobileHidden.includes('actions') }
+      { field: 'actions', label: 'admin.orders.table.actions', visible: !isMobile }
     ];
   }
 
   ngOnInit() {
     this.loading = true;
-    this.checkMobile();
+    this.columnOptions = this.getInitialColumnOptions();
     this.loadAllOrders();
     onLanguageChange(this.translateService, this.destroyRef, () => this.filterItems());
-    window.addEventListener('resize', this.checkMobile.bind(this));
-  }
-
-  private checkMobile(): void {
-    this.isMobile.set(window.innerWidth <= BREAKPOINTS.MD);
   }
 
   hasActiveFilters(): boolean {

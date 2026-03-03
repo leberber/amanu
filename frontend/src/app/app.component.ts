@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, DestroyRef, HostListener } from '@angular/core';
+import { Component, inject, OnInit, signal, DestroyRef } from '@angular/core';
 import { Router, RouterOutlet, NavigationEnd, NavigationStart } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { filter } from 'rxjs';
@@ -11,7 +11,8 @@ import { OnboardingComponent } from './components/onboarding/onboarding.componen
 import { SidebarService } from './services/sidebar.service';
 import { NavigationService } from './core/services/navigation.service';
 import { ROUTES } from './core/constants/routes.constants';
-import { BREAKPOINTS, STORAGE_KEYS } from './core/constants/app.constants';
+import { STORAGE_KEYS } from './core/constants/app.constants';
+import { BreakpointService } from './core/services/breakpoint.service';
 
 // Base styles for route animations
 const baseStyles = [
@@ -86,7 +87,6 @@ const slideAnimation = trigger('routeAnimation', [
 export class AppComponent implements OnInit {
   showNavigation = signal(false);
   hideBottomNav = signal(false);
-  isMobile = signal(window.innerWidth < BREAKPOINTS.MD);
 
   // Splash screen state - hide initially if onboarding will show
   private hasSeenOnboarding = localStorage.getItem(STORAGE_KEYS.HAS_SEEN_ONBOARDING) === 'true';
@@ -97,6 +97,10 @@ export class AppComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
   private sidebarService = inject(SidebarService);
   private navigationService = inject(NavigationService);
+  private breakpoint = inject(BreakpointService);
+
+  // Expose breakpoint service for template
+  isMobile = this.breakpoint.isMobile;
 
   // Expose sidebar collapsed state for template
   sidebarCollapsed = this.sidebarService.collapsed;
@@ -112,11 +116,6 @@ export class AppComponent implements OnInit {
     ROUTES.FORGOT_PASSWORD,
     ROUTES.RESET_PASSWORD
   ];
-
-  @HostListener('window:resize')
-  onResize(): void {
-    this.isMobile.set(window.innerWidth < BREAKPOINTS.MD);
-  }
 
   ngOnInit() {
     // Splash screen animation sequence (only if not showing onboarding)

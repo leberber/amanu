@@ -9,7 +9,7 @@ import { InlineEditState } from '../../../shared/utils/inline-edit-state';
 import { TableSkeletonComponent, SkeletonColumn } from '../../../shared/components/table-skeleton/table-skeleton.component';
 import { AgroclikPageContainerComponent } from '../../../shared/components/agroclik-page-container/agroclik-page-container.component';
 import { ROUTES, RouteHelpers } from '../../../core/constants/routes.constants';
-import { BREAKPOINTS } from '../../../core/constants/app.constants';
+import { BreakpointService } from '../../../core/services/breakpoint.service';
 import { onLanguageChange } from '../../../core/utils/language-change.util';
 import { BrandService } from '../../../core/services/brand.service';
 import { ProductService } from '../../../services/product.service';
@@ -65,7 +65,7 @@ export class AdminBrandsComponent extends BaseAdminListComponent implements OnIn
   override columnOptions: ColumnOption[] = this.getInitialColumnOptions();
 
   private getInitialColumnOptions(): ColumnOption[] {
-    const isMobile = window.innerWidth <= BREAKPOINTS.MD;
+    const isMobile = this.breakpoint.isMobile();
 
     return [
       { field: 'logo', label: 'admin.brands.table.logo', visible: !isMobile },
@@ -88,8 +88,10 @@ export class AdminBrandsComponent extends BaseAdminListComponent implements OnIn
   private translationHelper = inject(TranslationHelperService);
   private translateService = inject(TranslateService);
   private destroyRef = inject(DestroyRef);
+  private readonly breakpoint = inject(BreakpointService);
 
   ngOnInit() {
+    this.columnOptions = this.getInitialColumnOptions();
     this.loadAllBrands();
     onLanguageChange(this.translateService, this.destroyRef, () => this.filterItems());
   }
