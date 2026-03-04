@@ -1120,6 +1120,9 @@
         "password_edit": "كلمة المرور الجديدة",
         "password_placeholder": "اتركها فارغة للاحتفاظ بكلمة المرور الحالية",
         "password_hint": "اتركها فارغة للاحتفاظ بكلمة المرور الحالية",
+        "groups": "مجموعات المستخدمين",
+        "groups_placeholder": "اختر المجموعات",
+        "groups_hint": "تعيين المستخدم إلى مجموعات للإشعارات والعروض المستهدفة",
         "is_active": "المستخدم نشط",
         "submit_update": "تحديث",
         "active_user": "مستخدم نشط",
@@ -1148,13 +1151,57 @@
         "deletion_failed": "فشل الحذف",
         "deletion_failed_detail": "فشل حذف المستخدم",
         "role_updated": "تم تحديث الدور لـ {{name}}",
-        "status_updated": "تم تحديث الحالة لـ {{name}}"
+        "status_updated": "تم تحديث الحالة لـ {{name}}",
+        "groups_update_error": "تم تحديث المستخدم لكن فشل تحديث المجموعات"
       },
+      "update_success": "تم تحديث المستخدم بنجاح",
+      "update_error": "فشل تحديث المستخدم",
       "confirm_delete_header": "تأكيد الحذف",
       "confirm_delete_message": "هل أنت متأكد من حذف المستخدم {{name}}؟",
       "export_coming_soon": "ميزة التصدير قادمة قريبًا!",
       "load_error": "فشل تحميل المستخدمين",
       "permission_error": "ليس لديك صلاحية للوصول إلى هذه الصفحة",
+      "table_options": "خيارات الجدول",
+      "visible_columns": "الأعمدة المرئية"
+    },
+    "user_groups": {
+      "title": "مجموعات المستخدمين",
+      "subtitle": "إدارة مجموعات المستخدمين للإشعارات والعروض المستهدفة",
+      "add_group": "إضافة مجموعة",
+      "edit_group": "تعديل المجموعة",
+      "showing": "عرض {{shown}} من {{total}} مجموعة",
+      "table": {
+        "color": "اللون",
+        "name": "الاسم",
+        "description": "الوصف",
+        "users": "المستخدمون",
+        "status": "الحالة",
+        "actions": "الإجراءات"
+      },
+      "form": {
+        "name": "اسم المجموعة",
+        "name_placeholder": "مثال: عملاء VIP",
+        "description": "الوصف",
+        "description_placeholder": "وصف مختصر لهذه المجموعة",
+        "color": "اللون"
+      },
+      "empty": {
+        "no_groups_title": "لا توجد مجموعات",
+        "no_groups_description": "أنشئ مجموعات لتصنيف المستخدمين للإشعارات والعروض المستهدفة",
+        "no_match_title": "لم يتم العثور على مجموعات",
+        "no_match_description": "حاول تعديل البحث أو الفلاتر"
+      },
+      "load_error": "فشل تحميل مجموعات المستخدمين",
+      "create_success": "تم إنشاء مجموعة المستخدمين بنجاح",
+      "create_error": "فشل إنشاء مجموعة المستخدمين",
+      "update_success": "تم تحديث مجموعة المستخدمين بنجاح",
+      "update_error": "فشل تحديث مجموعة المستخدمين",
+      "delete_success": "تم حذف مجموعة المستخدمين بنجاح",
+      "delete_error": "فشل حذف مجموعة المستخدمين",
+      "status_activated": "تم تفعيل مجموعة المستخدمين",
+      "status_deactivated": "تم إلغاء تفعيل مجموعة المستخدمين",
+      "status_update_failed": "فشل تحديث حالة المجموعة",
+      "clear_filters": "مسح الفلاتر",
       "table_options": "خيارات الجدول",
       "visible_columns": "الأعمدة المرئية"
     },

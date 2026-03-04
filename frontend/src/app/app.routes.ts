@@ -142,7 +142,13 @@ export const routes: Routes = [
     canActivate: [adminOnlyGuard],
     data: { hideBottomNav: true }
   },
-  
+  // User Groups Route
+  {
+    path: 'admin/user-groups',
+    loadComponent: () => import('./pages/admin/admin-user-groups/admin-user-groups.component').then(m => m.AdminUserGroupsComponent),
+    canActivate: [adminGuard]
+  },
+
   // User Routes
   {
     path: 'account',

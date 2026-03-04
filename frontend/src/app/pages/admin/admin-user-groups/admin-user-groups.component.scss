@@ -1,0 +1,141 @@
+// =============================================================================
+// Admin User Groups Component Styles
+// =============================================================================
+
+.table-container {
+  --table-max-height: calc(100vh - 375px);
+}
+
+// Color dot indicator
+.color-dot {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+// Group name styling
+.group-name {
+  font-weight: 500;
+  color: var(--text-color);
+}
+
+.group-description {
+  color: var(--text-color-secondary);
+  font-size: 0.875rem;
+}
+
+// User count badge
+.user-count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: 12px;
+  background: var(--surface-hover);
+  color: var(--text-color);
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+// Dialog styles
+.dialog-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 0.5rem 0;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-color);
+
+    .required {
+      color: var(--red-500);
+    }
+  }
+}
+
+.color-picker-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.color-preview {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  border: 1px solid var(--surface-border);
+}
+
+.color-value {
+  font-family: monospace;
+  font-size: 0.875rem;
+  color: var(--text-color-secondary);
+}
+
+// Dialog footer buttons
+::ng-deep .group-dialog {
+  .p-dialog-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    padding: 1rem 1.5rem;
+    border-top: 1px solid var(--surface-border);
+  }
+}
+
+.btn-primary,
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.btn-primary {
+  background: var(--primary-color);
+  color: white;
+
+  &:hover:not(:disabled) {
+    background: var(--primary-700);
+  }
+}
+
+.btn-secondary {
+  background: var(--surface-hover);
+  color: var(--text-color);
+
+  &:hover:not(:disabled) {
+    background: var(--surface-200);
+  }
+}
+
+// Mobile optimizations
+@media (max-width: 768px) {
+  .group-description {
+    display: none;
+  }
+}

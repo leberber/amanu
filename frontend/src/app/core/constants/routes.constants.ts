@@ -52,6 +52,7 @@ export const ROUTES = {
     USERS: '/admin/users',
     ADD_USER: '/admin/users/add',
     EDIT_USER: '/admin/users/edit/:id',
+    USER_GROUPS: '/admin/user-groups',
     NOTIFICATIONS: '/admin/notifications'
   }
 } as const;

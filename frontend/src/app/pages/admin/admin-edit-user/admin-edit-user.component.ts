@@ -1,10 +1,12 @@
 import { Component, OnInit, signal, inject, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
+import { MultiSelectModule } from 'primeng/multiselect';
 import { ToastModule } from 'primeng/toast';
 import { PasswordModule } from 'primeng/password';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -18,6 +20,8 @@ import { USER_ROLES } from '../../../core/constants/user.constants';
 import { UI_DELAY, UI } from '../../../core/constants/ui.constants';
 import { ROUTES } from '../../../core/constants/routes.constants';
 import { StatusSeverityService } from '../../../core/services/status-severity.service';
+import { UserGroupService } from '../../../core/services/user-group.service';
+import { UserGroup } from '../../../models/user-group.model';
 import { MapPickerComponent, LocationData } from '../../../shared/components/map-picker/map-picker.component';
 import { PageLayoutComponent } from '../../../shared/components/page-layout/page-layout.component';
 
@@ -27,8 +31,10 @@ import { PageLayoutComponent } from '../../../shared/components/page-layout/page
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    FormsModule,
     InputTextModule,
     SelectModule,
+    MultiSelectModule,
     ToastModule,
     PasswordModule,
     TranslateModule,
@@ -58,13 +64,16 @@ export class AdminEditUserComponent implements OnInit {
   // Role options
   roleOptions = signal<{ label: string; value: string }[]>([]);
 
-  // Status options
-  statusOptions = signal<{ label: string; value: boolean }[]>([]);
 
   // Wilaya options (Algeria regions)
   wilayaOptions = signal<{ label: string; value: string }[]>([]);
 
+  // Group options
+  groupOptions = signal<{ label: string; value: number; color: string }[]>([]);
+  selectedGroupIds = signal<number[]>([]);
+
   private fb = inject(FormBuilder);
+  private userGroupService = inject(UserGroupService);
   private toast = inject(ToastMessageService);
   private adminService = inject(AdminService);
   private route = inject(ActivatedRoute);
@@ -76,12 +85,11 @@ export class AdminEditUserComponent implements OnInit {
   ngOnInit() {
     this.initForm();
     this.loadRoleOptions();
-    this.loadStatusOptions();
     this.loadWilayaOptions();
+    this.loadGroups();
     this.loadUser();
     onLanguageChange(this.translateService, this.destroyRef, () => {
       this.loadRoleOptions();
-      this.loadStatusOptions();
     });
   }
 
@@ -107,12 +115,6 @@ export class AdminEditUserComponent implements OnInit {
     this.roleOptions.set(this.statusService.getRoleOptions());
   }
 
-  private loadStatusOptions() {
-    this.statusOptions.set([
-      { label: this.translateService.instant('admin.users.status.active'), value: true },
-      { label: this.translateService.instant('admin.users.status.inactive'), value: false }
-    ]);
-  }
 
   private loadWilayaOptions() {
     // Algeria's 58 wilayas
@@ -128,6 +130,25 @@ export class AdminEditUserComponent implements OnInit {
     ];
 
     this.wilayaOptions.set(wilayas.map(w => ({ label: w, value: w })));
+  }
+
+  private loadGroups() {
+    this.userGroupService.getGroups(true)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (groups: UserGroup[]) => {
+          this.groupOptions.set(
+            groups.map(g => ({
+              label: g.name,
+              value: g.id,
+              color: g.color || '#3b82f6'
+            }))
+          );
+        },
+        error: () => {
+          // Groups are optional, silently fail
+        }
+      });
   }
 
   private loadUser() {
@@ -165,6 +186,12 @@ export class AdminEditUserComponent implements OnInit {
           role: user.role,
           is_active: user.is_active
         });
+
+        // Set selected groups
+        if (user.groups && user.groups.length > 0) {
+          this.selectedGroupIds.set(user.groups.map(g => g.id));
+        }
+
         this.loading.set(false);
         setTimeout(() => this.formInitialized.set(true), UI.TABLE_INIT_DELAY);
       },
@@ -240,17 +267,34 @@ export class AdminEditUserComponent implements OnInit {
 
     this.adminService.updateUser(this.userId, updateData).subscribe({
       next: () => {
-        this.submitting.set(false);
-        this.toast.showSuccess('admin.users.update_success');
-        setTimeout(() => {
-          this.router.navigate([ROUTES.ADMIN.USERS]);
-        }, UI_DELAY.TOAST_BEFORE_NAVIGATE);
+        // Update user groups
+        this.userGroupService.updateUserGroups(this.userId!, this.selectedGroupIds()).subscribe({
+          next: () => {
+            this.submitting.set(false);
+            this.toast.showSuccess('admin.users.update_success');
+            setTimeout(() => {
+              this.router.navigate([ROUTES.ADMIN.USERS]);
+            }, UI_DELAY.TOAST_BEFORE_NAVIGATE);
+          },
+          error: () => {
+            // User was updated but groups failed
+            this.submitting.set(false);
+            this.toast.showWarn('admin.users.groups_update_error');
+            setTimeout(() => {
+              this.router.navigate([ROUTES.ADMIN.USERS]);
+            }, UI_DELAY.TOAST_BEFORE_NAVIGATE);
+          }
+        });
       },
       error: () => {
         this.submitting.set(false);
         this.toast.showError('admin.users.update_error');
       }
     });
+  }
+
+  onGroupsChange(groupIds: number[]): void {
+    this.selectedGroupIds.set(groupIds);
   }
 
   onLocationSelected(location: LocationData): void {

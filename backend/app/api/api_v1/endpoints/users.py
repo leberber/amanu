@@ -6,7 +6,8 @@ from sqlmodel import Session, select, func
 from pydantic import BaseModel
 
 from app.database import get_session
-from app.models.user import User, UserUpdate, UserRead, UserRole
+from app.models.user import User, UserUpdate, UserRead, UserRole, UserGroupsUpdate, UserGroupBasic
+from app.models.user_group import UserGroup, UserGroupLink
 from app.core.security import (
     get_current_user,
     get_current_active_user,
@@ -64,6 +65,19 @@ def update_user_me(
     session.refresh(current_user)
     return current_user
 
+def get_user_groups_for_user(user_id: int, session: Session) -> List[UserGroupBasic]:
+    """Helper function to get groups for a user."""
+    links = session.exec(
+        select(UserGroupLink).where(UserGroupLink.user_id == user_id)
+    ).all()
+    groups = []
+    for link in links:
+        group = session.get(UserGroup, link.group_id)
+        if group:
+            groups.append(UserGroupBasic(id=group.id, name=group.name, color=group.color))
+    return groups
+
+
 @router.get("", response_model=UsersResponse)
 def read_users(
     skip: int = Query(0, ge=0),
@@ -76,12 +90,19 @@ def read_users(
     """
     # Get total count
     total = session.exec(select(func.count()).select_from(User)).first()
-    
+
     # Get users with pagination
     users = session.exec(select(User).offset(skip).limit(limit)).all()
-    
+
+    # Add groups to each user
+    users_with_groups = []
+    for user in users:
+        user_dict = UserRead.model_validate(user).model_dump()
+        user_dict["groups"] = get_user_groups_for_user(user.id, session)
+        users_with_groups.append(UserRead(**user_dict))
+
     # Return structured response
-    return UsersResponse(users=users, total=total)
+    return UsersResponse(users=users_with_groups, total=total)
 
 @router.get("/{user_id}", response_model=UserRead)
 def read_user_by_id(
@@ -98,15 +119,19 @@ def read_user_by_id(
             status_code=404,
             detail="User not found",
         )
-    
+
     # Only admin can view other users
     if user.id != current_user.id and current_user.role != UserRole.ADMIN:
         raise HTTPException(
             status_code=403,
             detail="Access denied",
         )
-    
-    return user
+
+    # Add groups to user response
+    user_dict = UserRead.model_validate(user).model_dump()
+    user_dict["groups"] = get_user_groups_for_user(user.id, session)
+
+    return UserRead(**user_dict)
 
 @router.patch("/{user_id}", response_model=UserRead)
 def update_user(
@@ -169,3 +194,75 @@ def delete_user(
     session.delete(user)
     session.commit()
     return None
+
+
+@router.get("/{user_id}/groups", response_model=List[UserGroupBasic])
+def get_user_groups(
+    user_id: int,
+    current_user: User = Depends(get_current_admin_user),
+    session: Session = Depends(get_session),
+) -> Any:
+    """
+    Get groups for a specific user (admin only).
+    """
+    user = session.get(User, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    # Get user's groups via the link table
+    links = session.exec(
+        select(UserGroupLink).where(UserGroupLink.user_id == user_id)
+    ).all()
+
+    groups = []
+    for link in links:
+        group = session.get(UserGroup, link.group_id)
+        if group:
+            groups.append(UserGroupBasic(id=group.id, name=group.name, color=group.color))
+
+    return groups
+
+
+@router.put("/{user_id}/groups", response_model=List[UserGroupBasic])
+def update_user_groups(
+    user_id: int,
+    groups_in: UserGroupsUpdate,
+    current_user: User = Depends(get_current_admin_user),
+    session: Session = Depends(get_session),
+) -> Any:
+    """
+    Update groups for a specific user (admin only).
+    This replaces all existing group assignments.
+    """
+    user = session.get(User, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    # Validate all group IDs exist
+    for group_id in groups_in.group_ids:
+        group = session.get(UserGroup, group_id)
+        if not group:
+            raise HTTPException(status_code=400, detail=f"Group with ID {group_id} not found")
+
+    # Remove all existing group links for this user
+    existing_links = session.exec(
+        select(UserGroupLink).where(UserGroupLink.user_id == user_id)
+    ).all()
+    for link in existing_links:
+        session.delete(link)
+
+    # Add new group links
+    for group_id in groups_in.group_ids:
+        link = UserGroupLink(user_id=user_id, group_id=group_id)
+        session.add(link)
+
+    session.commit()
+
+    # Return updated groups
+    groups = []
+    for group_id in groups_in.group_ids:
+        group = session.get(UserGroup, group_id)
+        if group:
+            groups.append(UserGroupBasic(id=group.id, name=group.name, color=group.color))
+
+    return groups

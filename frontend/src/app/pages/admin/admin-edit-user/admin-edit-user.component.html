@@ -284,6 +284,34 @@
                       </div>
                     </div>
 
+                    <!-- User Groups -->
+                    @if (groupOptions().length > 0) {
+                      <div class="form-field">
+                        <div class="field-box" [class.filled]="selectedGroupIds().length > 0">
+                          <div class="field-box__icon field-box__icon--info">
+                            <i class="pi pi-users"></i>
+                          </div>
+                          <div class="field-box__content">
+                            <label>{{ 'admin.users.form.groups' | translate }}</label>
+                            <p-multiselect
+                              [options]="groupOptions()"
+                              [ngModel]="selectedGroupIds()"
+                              (ngModelChange)="onGroupsChange($event)"
+                              [ngModelOptions]="{standalone: true}"
+                              optionLabel="label"
+                              optionValue="value"
+                              [placeholder]="'admin.users.form.groups_placeholder' | translate"
+                              [showClear]="true"
+                              display="chip"
+                              styleClass="w-full"
+                              appendTo="body"
+                            />
+                            <small class="field-hint">{{ 'admin.users.form.groups_hint' | translate }}</small>
+                          </div>
+                        </div>
+                      </div>
+                    }
+
                     <!-- Status Toggle -->
                     <div class="active-switch-container mt-4">
                       <div

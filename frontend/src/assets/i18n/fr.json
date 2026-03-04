@@ -1119,6 +1119,9 @@
         "password_edit": "Nouveau Mot de Passe",
         "password_placeholder": "Laisser vide pour conserver le mot de passe actuel",
         "password_hint": "Laissez vide pour garder le mot de passe actuel",
+        "groups": "Groupes d'Utilisateurs",
+        "groups_placeholder": "Sélectionner des groupes",
+        "groups_hint": "Assigner l'utilisateur à des groupes pour les notifications et promotions ciblées",
         "is_active": "L'utilisateur est actif",
         "submit_update": "Mettre à Jour",
         "active_user": "Utilisateur Actif",
@@ -1147,13 +1150,57 @@
         "deletion_failed": "Échec de la Suppression",
         "deletion_failed_detail": "Échec de la suppression de l'utilisateur",
         "role_updated": "Rôle mis à jour pour {{name}}",
-        "status_updated": "Statut mis à jour pour {{name}}"
+        "status_updated": "Statut mis à jour pour {{name}}",
+        "groups_update_error": "Utilisateur mis à jour mais échec de la mise à jour des groupes"
       },
+      "update_success": "Utilisateur mis à jour avec succès",
+      "update_error": "Échec de la mise à jour de l'utilisateur",
       "confirm_delete_header": "Confirmer la Suppression",
       "confirm_delete_message": "Êtes-vous sûr de vouloir supprimer l'utilisateur {{name}} ?",
       "export_coming_soon": "La fonctionnalité d'exportation arrive bientôt !",
       "load_error": "Échec du chargement des utilisateurs",
       "permission_error": "Vous n'avez pas la permission d'accéder à cette page",
+      "table_options": "Options du Tableau",
+      "visible_columns": "Colonnes Visibles"
+    },
+    "user_groups": {
+      "title": "Groupes d'Utilisateurs",
+      "subtitle": "Gérer les groupes d'utilisateurs pour les notifications et promotions ciblées",
+      "add_group": "Ajouter un Groupe",
+      "edit_group": "Modifier le Groupe",
+      "showing": "Affichage de {{shown}} sur {{total}} groupes",
+      "table": {
+        "color": "Couleur",
+        "name": "Nom",
+        "description": "Description",
+        "users": "Utilisateurs",
+        "status": "Statut",
+        "actions": "Actions"
+      },
+      "form": {
+        "name": "Nom du Groupe",
+        "name_placeholder": "ex. Clients VIP",
+        "description": "Description",
+        "description_placeholder": "Brève description de ce groupe",
+        "color": "Couleur"
+      },
+      "empty": {
+        "no_groups_title": "Aucun Groupe",
+        "no_groups_description": "Créez des groupes pour segmenter vos utilisateurs pour les notifications et promotions ciblées",
+        "no_match_title": "Aucun Groupe Trouvé",
+        "no_match_description": "Essayez d'ajuster votre recherche ou vos filtres"
+      },
+      "load_error": "Échec du chargement des groupes d'utilisateurs",
+      "create_success": "Groupe d'utilisateurs créé avec succès",
+      "create_error": "Échec de la création du groupe d'utilisateurs",
+      "update_success": "Groupe d'utilisateurs mis à jour avec succès",
+      "update_error": "Échec de la mise à jour du groupe d'utilisateurs",
+      "delete_success": "Groupe d'utilisateurs supprimé avec succès",
+      "delete_error": "Échec de la suppression du groupe d'utilisateurs",
+      "status_activated": "Groupe d'utilisateurs activé",
+      "status_deactivated": "Groupe d'utilisateurs désactivé",
+      "status_update_failed": "Échec de la mise à jour du statut du groupe",
+      "clear_filters": "Effacer les Filtres",
       "table_options": "Options du Tableau",
       "visible_columns": "Colonnes Visibles"
     },

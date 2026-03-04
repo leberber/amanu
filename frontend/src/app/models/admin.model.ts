@@ -1,3 +1,5 @@
+import { UserGroupBasic } from './user-group.model';
+
 export interface DashboardStats {
     total_users: number;
     total_products: number;
@@ -105,6 +107,7 @@ export interface DashboardStats {
     is_active: boolean;
     created_at: string;
     updated_at?: string;
+    groups?: UserGroupBasic[];
   }
 
   // Consistent response models

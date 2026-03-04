@@ -1,11 +1,12 @@
 from fastapi import APIRouter
 
-from app.api.api_v1.endpoints import auth, users, categories, brands, products, orders, admin, promotions, push, user_notifications
+from app.api.api_v1.endpoints import auth, users, categories, brands, products, orders, admin, promotions, push, user_notifications, user_groups
 
 api_router = APIRouter()
 
 api_router.include_router(auth.router, prefix="/auth", tags=["Authentication"])
 api_router.include_router(users.router, prefix="/users", tags=["Users"])
+api_router.include_router(user_groups.router, prefix="/user-groups", tags=["User Groups"])
 api_router.include_router(categories.router, prefix="/categories", tags=["Categories"])
 api_router.include_router(brands.router, prefix="/brands", tags=["Brands"])
 api_router.include_router(products.router, prefix="/products", tags=["Products"])

@@ -37,5 +37,31 @@
       word-break: break-word;
     }
   }
+
+  .user-groups-badges {
+    display: none !important;
+  }
+}
+
+// =============================================================================
+// USER GROUP BADGES
+// =============================================================================
+
+.user-groups-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-top: 0.25rem;
+}
+
+.group-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  line-height: 1.4;
+  white-space: nowrap;
 }
 

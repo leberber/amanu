@@ -1118,6 +1118,9 @@
         "password_edit": "New Password",
         "password_placeholder": "Leave blank to keep current password",
         "password_hint": "Leave empty to keep the current password",
+        "groups": "User Groups",
+        "groups_placeholder": "Select groups",
+        "groups_hint": "Assign user to groups for targeted notifications and promotions",
         "is_active": "User is active",
         "submit_update": "Update",
         "active_user": "Active User",
@@ -1146,13 +1149,57 @@
         "deletion_failed": "Deletion Failed",
         "deletion_failed_detail": "Failed to delete user",
         "role_updated": "Role updated for {{name}}",
-        "status_updated": "Status updated for {{name}}"
+        "status_updated": "Status updated for {{name}}",
+        "groups_update_error": "User updated but failed to update groups"
       },
+      "update_success": "User updated successfully",
+      "update_error": "Failed to update user",
       "confirm_delete_header": "Confirm Deletion",
       "confirm_delete_message": "Are you sure you want to delete user {{name}}?",
       "export_coming_soon": "Export functionality coming soon!",
       "load_error": "Failed to load users",
       "permission_error": "You do not have permission to access this page",
+      "table_options": "Table Options",
+      "visible_columns": "Visible Columns"
+    },
+    "user_groups": {
+      "title": "User Groups",
+      "subtitle": "Manage user groups for targeted notifications and promotions",
+      "add_group": "Add Group",
+      "edit_group": "Edit Group",
+      "showing": "Showing {{shown}} of {{total}} groups",
+      "table": {
+        "color": "Color",
+        "name": "Name",
+        "description": "Description",
+        "users": "Users",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "form": {
+        "name": "Group Name",
+        "name_placeholder": "e.g. VIP Customers",
+        "description": "Description",
+        "description_placeholder": "Brief description of this group",
+        "color": "Color"
+      },
+      "empty": {
+        "no_groups_title": "No User Groups",
+        "no_groups_description": "Create groups to segment your users for targeted notifications and promotions",
+        "no_match_title": "No Groups Found",
+        "no_match_description": "Try adjusting your search or filters"
+      },
+      "load_error": "Failed to load user groups",
+      "create_success": "User group created successfully",
+      "create_error": "Failed to create user group",
+      "update_success": "User group updated successfully",
+      "update_error": "Failed to update user group",
+      "delete_success": "User group deleted successfully",
+      "delete_error": "Failed to delete user group",
+      "status_activated": "User group activated",
+      "status_deactivated": "User group deactivated",
+      "status_update_failed": "Failed to update user group status",
+      "clear_filters": "Clear Filters",
       "table_options": "Table Options",
       "visible_columns": "Visible Columns"
     },

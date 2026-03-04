@@ -196,6 +196,15 @@
                           @if (user.phone) {
                             <span class="info-display__tertiary">{{ user.phone | appPhone }}</span>
                           }
+                          @if (user.groups && user.groups.length > 0) {
+                            <div class="user-groups-badges mt-1">
+                              @for (group of user.groups; track group.id) {
+                                <span class="group-badge" [style.background-color]="group.color || '#3b82f6'" [style.color]="'white'">
+                                  {{ group.name }}
+                                </span>
+                              }
+                            </div>
+                          }
                         </div>
                       </td>
                     }

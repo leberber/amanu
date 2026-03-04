@@ -5,9 +5,13 @@ from datetime import datetime, timezone
 from enum import Enum
 from pydantic import EmailStr
 
+# Import UserGroupLink at runtime (no circular dependency - it doesn't import User)
+from app.models.user_group import UserGroupLink
+
 if TYPE_CHECKING:
     from app.models.order import Order
     from app.models.user_notification import UserNotification
+    from app.models.user_group import UserGroup
 
 class UserRole(str, Enum):
     """User role enumeration"""
@@ -54,6 +58,7 @@ class User(UserBase, table=True):
     # Relationships
     orders: List["Order"] = Relationship(back_populates="user", sa_relationship_kwargs={"cascade": "all, delete-orphan"})
     notifications: List["UserNotification"] = Relationship(sa_relationship_kwargs={"cascade": "all, delete-orphan", "foreign_keys": "[UserNotification.user_id]"})
+    groups: List["UserGroup"] = Relationship(back_populates="users", link_model=UserGroupLink)
 
 class UserCreate(UserBase):
     """Model for creating a new user"""
@@ -79,9 +84,22 @@ class UserUpdate(SQLModel):
     # Preferences
     user_preferences: Optional[Dict[str, Any]] = Field(default=None)
 
+class UserGroupBasic(SQLModel):
+    """Basic group info for embedding in user responses"""
+    id: int
+    name: str
+    color: Optional[str] = None
+
+
 class UserRead(UserBase):
     """Model for reading users"""
     id: int
     user_preferences: Optional[Dict[str, Any]] = None
     created_at: datetime
     updated_at: Optional[datetime] = None
+    groups: List[UserGroupBasic] = []
+
+
+class UserGroupsUpdate(SQLModel):
+    """Model for updating user's groups"""
+    group_ids: List[int] = []
