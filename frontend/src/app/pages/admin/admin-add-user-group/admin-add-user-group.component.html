@@ -1,0 +1,212 @@
+<app-page-layout
+  [title]="pageTitle()"
+  [subtitle]="pageSubtitle()"
+  mobileTitle="admin.user_groups.group"
+  [mobileSubtitle]="mobileSubtitle()"
+  icon="pi pi-users"
+  [hideMobileIcon]="true"
+  [showBackButton]="true"
+  [backRoute]="ROUTES.ADMIN.USER_GROUPS"
+  [fullscreen]="true">
+
+  @if (!formInitialized()) {
+    <div class="mt-6">
+      <div class="grid">
+        @for (_ of [0, 1]; track $index) {
+          <div class="col-12 lg:col-6 item-animate" [style.animation-delay]="($index * 50) + 'ms'">
+            <div class="skeleton-card form-card">
+              <div class="card-header">
+                <div class="skeleton skeleton-avatar"></div>
+                <div class="skeleton skeleton-text skeleton-text--w70"></div>
+              </div>
+              <div class="card-body">
+                @for (_ of [0, 1, 2]; track $index) {
+                  <div class="field-box mb-4">
+                    <div class="skeleton skeleton-avatar"></div>
+                    <div class="flex-1">
+                      <div class="skeleton skeleton-text skeleton-text--w40 mb-2"></div>
+                      <div class="skeleton skeleton-input"></div>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  @if (formInitialized()) {
+    <form [formGroup]="groupForm" (ngSubmit)="onSubmit()">
+      <div class="form-wizard form-wizard--fullpage">
+        <div class="form-wizard__body">
+          <div class="grid">
+            <!-- Left Column: Names -->
+            <div class="col-12 lg:col-6 item-animate">
+              <div class="form-card">
+                <div class="card-header">
+                  <div class="card-header__icon card-header__icon--primary">
+                    <i class="pi pi-globe"></i>
+                  </div>
+                  <h3 class="card-header__title">{{ 'admin.user_groups.form.translations' | translate }}</h3>
+                </div>
+                <div class="card-body">
+                  <!-- English Name -->
+                  <div class="form-field">
+                    <div class="field-box" [class.filled]="groupForm.get('name_en')?.value">
+                      <div class="field-box__icon field-box__icon--primary">🇬🇧</div>
+                      <div class="field-box__content">
+                        <label>{{ 'admin.user_groups.form.english_name' | translate }} <span class="required">*</span></label>
+                        <input type="text" formControlName="name_en" [placeholder]="'admin.user_groups.form.english_name_placeholder' | translate">
+                      </div>
+                    </div>
+                    @if (groupForm.get('name_en')?.invalid && groupForm.get('name_en')?.touched) {
+                      <span class="field-error">{{ 'admin.user_groups.form.name_required' | translate }}</span>
+                    }
+                  </div>
+
+                  <!-- French Name -->
+                  <div class="form-field">
+                    <div class="field-box" [class.filled]="groupForm.get('name_fr')?.value">
+                      <div class="field-box__icon field-box__icon--primary">🇫🇷</div>
+                      <div class="field-box__content">
+                        <label>{{ 'admin.user_groups.form.french_name' | translate }}</label>
+                        <input type="text" formControlName="name_fr" [placeholder]="'admin.user_groups.form.french_name_placeholder' | translate">
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Arabic Name -->
+                  <div class="form-field">
+                    <div class="field-box" [class.filled]="groupForm.get('name_ar')?.value">
+                      <div class="field-box__icon field-box__icon--primary">🇩🇿</div>
+                      <div class="field-box__content">
+                        <label>{{ 'admin.user_groups.form.arabic_name' | translate }}</label>
+                        <input type="text" formControlName="name_ar" dir="rtl" [placeholder]="'admin.user_groups.form.arabic_name_placeholder' | translate">
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Color Picker -->
+                  <div class="form-field">
+                    <div class="field-box" [class.filled]="groupForm.get('color')?.value">
+                      <div class="field-box__icon field-box__icon--pink">
+                        <i class="pi pi-palette"></i>
+                      </div>
+                      <div class="field-box__content">
+                        <label>{{ 'admin.user_groups.form.color' | translate }}</label>
+                        <div class="color-picker-field">
+                          <p-colorPicker formControlName="color" appendTo="body" />
+                          <span class="color-preview" [style.background-color]="groupForm.get('color')?.value"></span>
+                          <span class="color-value">{{ groupForm.get('color')?.value }}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Column: Descriptions -->
+            <div class="col-12 lg:col-6 item-animate" [style.animation-delay]="'100ms'">
+              <div class="form-card">
+                <div class="card-header">
+                  <div class="card-header__icon card-header__icon--success">
+                    <i class="pi pi-file-edit"></i>
+                  </div>
+                  <h3 class="card-header__title">{{ 'admin.user_groups.form.descriptions' | translate }}</h3>
+                </div>
+                <div class="card-body">
+                  <!-- English Description -->
+                  <div class="form-field">
+                    <div class="field-box align-items-start" [class.filled]="groupForm.get('description_en')?.value">
+                      <div class="field-box__icon field-box__icon--info">🇬🇧</div>
+                      <div class="field-box__content">
+                        <label>{{ 'admin.user_groups.form.english_description' | translate }}</label>
+                        <textarea pInputTextarea formControlName="description_en" rows="2" [placeholder]="'admin.user_groups.form.english_description_placeholder' | translate"></textarea>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- French Description -->
+                  <div class="form-field">
+                    <div class="field-box align-items-start" [class.filled]="groupForm.get('description_fr')?.value">
+                      <div class="field-box__icon field-box__icon--info">🇫🇷</div>
+                      <div class="field-box__content">
+                        <label>{{ 'admin.user_groups.form.french_description' | translate }}</label>
+                        <textarea pInputTextarea formControlName="description_fr" rows="2" [placeholder]="'admin.user_groups.form.french_description_placeholder' | translate"></textarea>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Arabic Description -->
+                  <div class="form-field">
+                    <div class="field-box align-items-start" [class.filled]="groupForm.get('description_ar')?.value">
+                      <div class="field-box__icon field-box__icon--info">🇩🇿</div>
+                      <div class="field-box__content">
+                        <label>{{ 'admin.user_groups.form.arabic_description' | translate }}</label>
+                        <textarea pInputTextarea formControlName="description_ar" rows="2" dir="rtl" [placeholder]="'admin.user_groups.form.arabic_description_placeholder' | translate"></textarea>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Active Toggle -->
+                  <div class="active-switch-container mt-5">
+                    <div
+                      class="active-switch"
+                      [class.active-switch--on]="groupForm.get('is_active')?.value"
+                      (click)="toggleActive()"
+                      (keydown.enter)="toggleActive()"
+                      (keydown.space)="toggleActive(); $event.preventDefault()"
+                      role="switch"
+                      [attr.aria-checked]="groupForm.get('is_active')?.value"
+                      [attr.aria-label]="'admin.user_groups.form.is_active' | translate"
+                      tabindex="0">
+                      <div class="active-switch__track">
+                        <div class="active-switch__thumb">
+                          <i [class]="groupForm.get('is_active')?.value ? 'pi pi-check' : 'pi pi-times'"></i>
+                        </div>
+                      </div>
+                      <div class="active-switch__label">
+                        <span class="active-switch__title">{{ 'admin.user_groups.form.is_active' | translate }}</span>
+                        <span class="active-switch__description">{{ groupForm.get('is_active')?.value ? ('admin.user_groups.form.group_visible' | translate) : ('admin.user_groups.form.group_hidden' | translate) }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-wizard__footer">
+          <span class="chip chip--primary">
+            <i class="pi pi-users"></i>
+            {{ 'admin.user_groups.group' | translate }}
+          </span>
+          <div class="step-nav">
+            <button type="submit" class="step-nav__btn step-nav__btn--finish" [disabled]="groupForm.invalid || loading()">
+              @if (loading()) {
+                <i class="pi pi-spin pi-spinner"></i>
+              } @else {
+                <i class="pi pi-check"></i>
+              }
+              <span>{{ submitButtonLabel() | translate }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </form>
+  }
+
+  @if (loading() && isEditMode()) {
+    <div class="admin-loading-overlay">
+      <div class="loading-content">
+        <i class="pi pi-spin pi-spinner"></i>
+        <span>{{ 'common.loading' | translate }}</span>
+      </div>
+    </div>
+  }
+
+</app-page-layout>

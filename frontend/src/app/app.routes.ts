@@ -142,11 +142,23 @@ export const routes: Routes = [
     canActivate: [adminOnlyGuard],
     data: { hideBottomNav: true }
   },
-  // User Groups Route
+  // User Groups Routes
   {
     path: 'admin/user-groups',
     loadComponent: () => import('./pages/admin/admin-user-groups/admin-user-groups.component').then(m => m.AdminUserGroupsComponent),
     canActivate: [adminGuard]
+  },
+  {
+    path: 'admin/user-groups/add',
+    loadComponent: () => import('./pages/admin/admin-add-user-group/admin-add-user-group.component').then(m => m.AdminAddUserGroupComponent),
+    canActivate: [adminGuard],
+    data: { mode: 'add', hideBottomNav: true }
+  },
+  {
+    path: 'admin/user-groups/edit/:id',
+    loadComponent: () => import('./pages/admin/admin-add-user-group/admin-add-user-group.component').then(m => m.AdminAddUserGroupComponent),
+    canActivate: [adminGuard],
+    data: { mode: 'edit', hideBottomNav: true }
   },
 
   // User Routes

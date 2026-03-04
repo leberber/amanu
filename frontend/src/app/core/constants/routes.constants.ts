@@ -53,6 +53,8 @@ export const ROUTES = {
     ADD_USER: '/admin/users/add',
     EDIT_USER: '/admin/users/edit/:id',
     USER_GROUPS: '/admin/user-groups',
+    ADD_USER_GROUP: '/admin/user-groups/add',
+    EDIT_USER_GROUP: '/admin/user-groups/edit/:id',
     NOTIFICATIONS: '/admin/notifications'
   }
 } as const;
@@ -68,7 +70,8 @@ export const RouteHelpers = {
   adminEditCategory: (id: number | string) => `/admin/categories/edit/${id}`,
   adminEditBrand: (id: number | string) => `/admin/brands/edit/${id}`,
   adminEditPromotion: (id: number | string) => `/admin/promotions/edit/${id}`,
-  adminEditUser: (id: number | string) => `/admin/users/${id}/edit`
+  adminEditUser: (id: number | string) => `/admin/users/${id}/edit`,
+  adminEditUserGroup: (id: number | string) => `/admin/user-groups/edit/${id}`
 };
 
 /**

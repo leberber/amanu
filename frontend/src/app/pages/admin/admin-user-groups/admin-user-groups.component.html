@@ -48,7 +48,7 @@
         </div>
       </div>
 
-      <button class="btn-add" (click)="openAddDialog()">
+      <button class="btn-add" (click)="navigateToAdd()">
         <i class="pi pi-plus"></i>
         <span>{{ 'admin.user_groups.add_group' | translate }}</span>
       </button>
@@ -72,7 +72,7 @@
         </div>
         <h3 class="empty-state__title">{{ 'admin.user_groups.empty.no_groups_title' | translate }}</h3>
         <p class="empty-state__description">{{ 'admin.user_groups.empty.no_groups_description' | translate }}</p>
-        <button class="btn-add" (click)="openAddDialog()">
+        <button class="btn-add" (click)="navigateToAdd()">
           <i class="pi pi-plus"></i>
           {{ 'admin.user_groups.add_group' | translate }}
         </button>
@@ -216,7 +216,7 @@
                     @if (isColumnVisible('actions')) {
                       <td class="text-center">
                         <div class="table-cell-actions justify-content-center">
-                          <button class="action-btn edit" (click)="openEditDialog(group)" [pTooltip]="'common.edit' | translate" tooltipPosition="top">
+                          <button class="action-btn edit" (click)="navigateToEdit(group)" [pTooltip]="'common.edit' | translate" tooltipPosition="top">
                             <i class="pi pi-pencil"></i>
                           </button>
                           <button class="action-btn delete" (click)="confirmDeleteGroup(group)" [pTooltip]="'common.delete' | translate" tooltipPosition="top">
@@ -240,131 +240,3 @@
     }
   </div>
 </app-agroclik-page-container>
-
-<!-- Add Group Dialog -->
-<p-dialog
-  [(visible)]="showAddDialog"
-  [header]="'admin.user_groups.add_group' | translate"
-  [modal]="true"
-  [closable]="true"
-  [draggable]="false"
-  [resizable]="false"
-  styleClass="group-dialog"
-  [style]="{ width: '500px' }">
-  <div class="dialog-content">
-    <div class="form-field">
-      <label>{{ 'admin.user_groups.form.name' | translate }} <span class="required">*</span></label>
-      <input pInputText type="text" [(ngModel)]="newGroupName" [placeholder]="'admin.user_groups.form.name_placeholder' | translate" class="w-full">
-    </div>
-
-    <div class="form-field">
-      <label>{{ 'admin.user_groups.form.name_fr' | translate }}</label>
-      <input pInputText type="text" [(ngModel)]="newGroupNameFr" [placeholder]="'admin.user_groups.form.name_fr_placeholder' | translate" class="w-full">
-    </div>
-
-    <div class="form-field">
-      <label>{{ 'admin.user_groups.form.name_ar' | translate }}</label>
-      <input pInputText type="text" [(ngModel)]="newGroupNameAr" [placeholder]="'admin.user_groups.form.name_ar_placeholder' | translate" class="w-full" dir="rtl">
-    </div>
-
-    <div class="form-field">
-      <label>{{ 'admin.user_groups.form.description' | translate }}</label>
-      <input pInputText type="text" [(ngModel)]="newGroupDescription" [placeholder]="'admin.user_groups.form.description_placeholder' | translate" class="w-full">
-    </div>
-
-    <div class="form-field">
-      <label>{{ 'admin.user_groups.form.description_fr' | translate }}</label>
-      <input pInputText type="text" [(ngModel)]="newGroupDescriptionFr" [placeholder]="'admin.user_groups.form.description_fr_placeholder' | translate" class="w-full">
-    </div>
-
-    <div class="form-field">
-      <label>{{ 'admin.user_groups.form.description_ar' | translate }}</label>
-      <input pInputText type="text" [(ngModel)]="newGroupDescriptionAr" [placeholder]="'admin.user_groups.form.description_ar_placeholder' | translate" class="w-full" dir="rtl">
-    </div>
-
-    <div class="form-field">
-      <label>{{ 'admin.user_groups.form.color' | translate }}</label>
-      <div class="color-picker-row">
-        <p-colorPicker [(ngModel)]="newGroupColor" appendTo="body" />
-        <span class="color-preview" [style.background-color]="newGroupColor"></span>
-        <span class="color-value">{{ newGroupColor }}</span>
-      </div>
-    </div>
-  </div>
-
-  <ng-template pTemplate="footer">
-    <button class="btn-secondary" (click)="closeAddDialog()">
-      {{ 'common.cancel' | translate }}
-    </button>
-    <button class="btn-primary" (click)="saveNewGroup()" [disabled]="!newGroupName.trim() || savingGroup()">
-      @if (savingGroup()) {
-        <i class="pi pi-spin pi-spinner"></i>
-      }
-      {{ 'common.save' | translate }}
-    </button>
-  </ng-template>
-</p-dialog>
-
-<!-- Edit Group Dialog -->
-<p-dialog
-  [(visible)]="showEditDialog"
-  [header]="'admin.user_groups.edit_group' | translate"
-  [modal]="true"
-  [closable]="true"
-  [draggable]="false"
-  [resizable]="false"
-  styleClass="group-dialog"
-  [style]="{ width: '500px' }">
-  <div class="dialog-content">
-    <div class="form-field">
-      <label>{{ 'admin.user_groups.form.name' | translate }} <span class="required">*</span></label>
-      <input pInputText type="text" [(ngModel)]="editGroupName" [placeholder]="'admin.user_groups.form.name_placeholder' | translate" class="w-full">
-    </div>
-
-    <div class="form-field">
-      <label>{{ 'admin.user_groups.form.name_fr' | translate }}</label>
-      <input pInputText type="text" [(ngModel)]="editGroupNameFr" [placeholder]="'admin.user_groups.form.name_fr_placeholder' | translate" class="w-full">
-    </div>
-
-    <div class="form-field">
-      <label>{{ 'admin.user_groups.form.name_ar' | translate }}</label>
-      <input pInputText type="text" [(ngModel)]="editGroupNameAr" [placeholder]="'admin.user_groups.form.name_ar_placeholder' | translate" class="w-full" dir="rtl">
-    </div>
-
-    <div class="form-field">
-      <label>{{ 'admin.user_groups.form.description' | translate }}</label>
-      <input pInputText type="text" [(ngModel)]="editGroupDescription" [placeholder]="'admin.user_groups.form.description_placeholder' | translate" class="w-full">
-    </div>
-
-    <div class="form-field">
-      <label>{{ 'admin.user_groups.form.description_fr' | translate }}</label>
-      <input pInputText type="text" [(ngModel)]="editGroupDescriptionFr" [placeholder]="'admin.user_groups.form.description_fr_placeholder' | translate" class="w-full">
-    </div>
-
-    <div class="form-field">
-      <label>{{ 'admin.user_groups.form.description_ar' | translate }}</label>
-      <input pInputText type="text" [(ngModel)]="editGroupDescriptionAr" [placeholder]="'admin.user_groups.form.description_ar_placeholder' | translate" class="w-full" dir="rtl">
-    </div>
-
-    <div class="form-field">
-      <label>{{ 'admin.user_groups.form.color' | translate }}</label>
-      <div class="color-picker-row">
-        <p-colorPicker [(ngModel)]="editGroupColor" appendTo="body" />
-        <span class="color-preview" [style.background-color]="editGroupColor"></span>
-        <span class="color-value">{{ editGroupColor }}</span>
-      </div>
-    </div>
-  </div>
-
-  <ng-template pTemplate="footer">
-    <button class="btn-secondary" (click)="closeEditDialog()">
-      {{ 'common.cancel' | translate }}
-    </button>
-    <button class="btn-primary" (click)="saveEditGroup()" [disabled]="!editGroupName.trim() || savingGroup()">
-      @if (savingGroup()) {
-        <i class="pi pi-spin pi-spinner"></i>
-      }
-      {{ 'common.save' | translate }}
-    </button>
-  </ng-template>
-</p-dialog>
