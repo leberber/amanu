@@ -3,6 +3,14 @@ import { SwPush } from '@angular/service-worker';
 import { ApiService } from './api.service';
 import { TranslationService } from './translation.service';
 import { BehaviorSubject } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
+
+export type PushSubscribeResult = {
+  success: true;
+} | {
+  success: false;
+  error: 'service_worker_disabled' | 'permission_denied' | 'vapid_error' | 'subscription_error' | 'server_error';
+};
 
 @Injectable({
   providedIn: 'root'
@@ -20,24 +28,43 @@ export class PushService {
   }
 
   private checkSubscription(): void {
-    this.swPush.subscription.subscribe(sub => {
-      this.isSubscribed.next(sub !== null);
-    });
+    if (this.swPush.isEnabled) {
+      this.swPush.subscription.subscribe(sub => {
+        this.isSubscribed.next(sub !== null);
+      });
+    }
   }
 
-  async subscribe(): Promise<boolean> {
+  async subscribe(): Promise<PushSubscribeResult> {
+    // Check if service worker is enabled
     if (!this.swPush.isEnabled) {
-      return false;
+      return { success: false, error: 'service_worker_disabled' };
     }
 
     try {
       // Get VAPID public key from backend
-      const { publicKey } = await this.api.get<{ publicKey: string }>('/push/vapid-public-key').toPromise() as { publicKey: string };
+      let publicKey: string;
+      try {
+        const response = await firstValueFrom(this.api.get<{ publicKey: string }>('/push/vapid-public-key'));
+        publicKey = response.publicKey;
+      } catch {
+        return { success: false, error: 'vapid_error' };
+      }
 
-      // Subscribe to push notifications
-      const subscription = await this.swPush.requestSubscription({
-        serverPublicKey: publicKey
-      });
+      // Subscribe to push notifications (this triggers browser permission prompt)
+      let subscription;
+      try {
+        subscription = await this.swPush.requestSubscription({
+          serverPublicKey: publicKey
+        });
+      } catch (err: unknown) {
+        // User denied permission or other browser error
+        const errorMessage = err instanceof Error ? err.message : String(err);
+        if (errorMessage.includes('permission') || errorMessage.includes('denied')) {
+          return { success: false, error: 'permission_denied' };
+        }
+        return { success: false, error: 'subscription_error' };
+      }
 
       // Get current language preference
       const language = this.translationService.getCurrentLanguage();
@@ -47,27 +74,30 @@ export class PushService {
         ...subscription.toJSON(),
         language
       };
-      await this.api.post('/push/subscribe', subscriptionData).toPromise();
+
+      try {
+        await firstValueFrom(this.api.post('/push/subscribe', subscriptionData));
+      } catch {
+        return { success: false, error: 'server_error' };
+      }
 
       this.isSubscribed.next(true);
-      return true;
-    } catch (error) {
-      console.error('Failed to subscribe:', error);
-      return false;
+      return { success: true };
+    } catch {
+      return { success: false, error: 'subscription_error' };
     }
   }
 
   async unsubscribe(): Promise<boolean> {
     try {
-      const subscription = await this.swPush.subscription.toPromise();
+      const subscription = await firstValueFrom(this.swPush.subscription);
       if (subscription) {
         await subscription.unsubscribe();
-        await this.api.delete(`/push/unsubscribe?endpoint=${encodeURIComponent(subscription.endpoint)}`).toPromise();
+        await firstValueFrom(this.api.delete(`/push/unsubscribe?endpoint=${encodeURIComponent(subscription.endpoint)}`));
       }
       this.isSubscribed.next(false);
       return true;
-    } catch (error) {
-      console.error('Failed to unsubscribe:', error);
+    } catch {
       return false;
     }
   }

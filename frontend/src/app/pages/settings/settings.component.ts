@@ -45,13 +45,29 @@ export class SettingsComponent implements OnInit {
   async toggleNotifications(): Promise<void> {
     this.loadingNotifications.set(true);
     try {
-      if (this.notificationsEnabled()) {
-        const success = await this.pushService.subscribe();
-        if (success) {
+      // When onChange fires, notificationsEnabled() still has the OLD value
+      // So if it's currently false, user wants to enable → subscribe
+      // If it's currently true, user wants to disable → unsubscribe
+      if (!this.notificationsEnabled()) {
+        const result = await this.pushService.subscribe();
+        if (result.success) {
           this.toast.showSuccess('settings.notifications_enabled');
         } else {
-          this.notificationsEnabled.set(false);
-          this.toast.showError('settings.notifications_error');
+          // Show specific error message based on error type
+          switch (result.error) {
+            case 'service_worker_disabled':
+              this.toast.showError('settings.notifications_not_supported');
+              break;
+            case 'permission_denied':
+              this.toast.showError('settings.notifications_permission_denied');
+              break;
+            case 'vapid_error':
+            case 'server_error':
+              this.toast.showError('settings.notifications_server_error');
+              break;
+            default:
+              this.toast.showError('settings.notifications_error');
+          }
         }
       } else {
         await this.pushService.unsubscribe();
