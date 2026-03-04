@@ -230,36 +230,35 @@
         </div>
 
         <!-- Order Summary (Desktop only) -->
-        <div class="page-sidebar hidden md:block">
-          <div class="card card--no-hover">
-            <div class="card-header">
-              <div class="card-header__icon card-header__icon--success">
+        <div class="order-summary-sidebar">
+          <div class="summary-card">
+            <div class="summary-card__header">
+              <div class="summary-card__icon">
                 <i class="pi pi-receipt"></i>
               </div>
-              <h2 class="card-header__title">{{ 'cart.order_summary' | translate }}</h2>
+              <h2 class="summary-card__title">{{ 'cart.order_summary' | translate }}</h2>
             </div>
 
-            <div class="card-body">
+            <div class="summary-card__body">
               <!-- Promo Code -->
-              <div class="form-field">
-                <label class="form-field__label">{{ 'promotions.promo_code' | translate }}</label>
+              <div class="promo-section">
+                <label class="promo-section__label">{{ 'promotions.promo_code' | translate }}</label>
                 @if (!appliedPromotion()) {
-                  <div class="field-box" [class.focused]="promoInputFocused()" [class.filled]="promoCode()">
-                    <div class="field-box__icon field-box__icon--success">
+                  <div class="promo-input" [class.promo-input--focused]="promoInputFocused()">
+                    <div class="promo-input__icon">
                       <i class="pi pi-tag"></i>
                     </div>
-                    <div class="field-box__content">
-                      <input
-                        type="text"
-                        [ngModel]="promoCode()"
-                        (ngModelChange)="promoCode.set($event)"
-                        [placeholder]="'promotions.enter_code' | translate"
-                        [disabled]="promoLoading()"
-                        (focus)="promoInputFocused.set(true)"
-                        (blur)="promoInputFocused.set(false)">
-                    </div>
+                    <input
+                      type="text"
+                      class="promo-input__field"
+                      [ngModel]="promoCode()"
+                      (ngModelChange)="promoCode.set($event)"
+                      [placeholder]="'promotions.enter_code' | translate"
+                      [disabled]="promoLoading()"
+                      (focus)="promoInputFocused.set(true)"
+                      (blur)="promoInputFocused.set(false)">
                     <button
-                      class="btn-icon btn-icon--sm"
+                      class="promo-input__btn"
                       [disabled]="promoLoading() || !promoCode()"
                       (click)="applyPromoCode()">
                       @if (promoLoading()) {
@@ -270,15 +269,15 @@
                     </button>
                   </div>
                   @if (promoError()) {
-                    <span class="field-error">{{ promoError() }}</span>
+                    <span class="promo-error">{{ promoError() }}</span>
                   }
                 } @else {
                   <div class="promo-applied">
-                    <span class="code-badge">
+                    <span class="promo-applied__badge">
                       <i class="pi pi-tag"></i>
                       {{ appliedPromotion()?.code }}
                     </span>
-                    <button class="icon-btn icon-btn--danger icon-btn--sm" (click)="removePromoCode()">
+                    <button class="promo-applied__remove" (click)="removePromoCode()">
                       <i class="pi pi-times"></i>
                     </button>
                   </div>
@@ -286,29 +285,29 @@
               </div>
 
               <!-- Price Breakdown -->
-              <div class="order-breakdown">
-                <div class="order-breakdown__row">
-                  <div class="order-breakdown__label">
+              <div class="price-breakdown">
+                <div class="price-row">
+                  <span class="price-row__label">
                     <i class="pi pi-shopping-cart"></i>
-                    <span>{{ 'promotions.subtotal' | translate }}</span>
-                  </div>
-                  <span class="order-breakdown__value">{{ cartSubtotal() | appCurrency }}</span>
+                    {{ 'promotions.subtotal' | translate }}
+                  </span>
+                  <span class="price-row__value">{{ cartSubtotal() | appCurrency }}</span>
                 </div>
                 @if (appliedPromotion()) {
-                  <div class="order-breakdown__row order-breakdown__row--discount">
-                    <div class="order-breakdown__label">
+                  <div class="price-row price-row--discount">
+                    <span class="price-row__label">
                       <i class="pi pi-percentage"></i>
-                      <span>{{ 'promotions.discount' | translate }}</span>
-                    </div>
-                    <span class="order-breakdown__value">-{{ discountAmount() | appCurrency }}</span>
+                      {{ 'promotions.discount' | translate }}
+                    </span>
+                    <span class="price-row__value">-{{ discountAmount() | appCurrency }}</span>
                   </div>
                 }
-                <div class="order-breakdown__row">
-                  <div class="order-breakdown__label">
+                <div class="price-row">
+                  <span class="price-row__label">
                     <i class="pi pi-truck"></i>
-                    <span>{{ 'cart.shipping' | translate }}</span>
-                  </div>
-                  <span class="order-breakdown__value" [class.order-breakdown__value--free]="isShippingFree()">
+                    {{ 'cart.shipping' | translate }}
+                  </span>
+                  <span class="price-row__value" [class.price-row__value--free]="isShippingFree()">
                     @if (isShippingFree()) {
                       {{ 'cart.free' | translate }}
                     } @else {
@@ -319,22 +318,22 @@
               </div>
 
               <!-- Total -->
-              <div class="order-total">
-                <span class="order-total__label">{{ 'common.total' | translate }}</span>
-                <span class="order-total__amount">{{ finalTotal() + shippingCost() | appCurrency }}</span>
+              <div class="total-row">
+                <span class="total-row__label">{{ 'common.total' | translate }}</span>
+                <span class="total-row__amount">{{ finalTotal() + shippingCost() | appCurrency }}</span>
               </div>
 
               <!-- Actions -->
-              <div class="form-actions form-actions--stacked">
-                <button class="form-action-btn form-action-btn--success form-action-btn--lg" (click)="proceedToCheckout()">
+              <div class="summary-actions">
+                <button class="checkout-btn" (click)="proceedToCheckout()">
                   <span>{{ 'cart.checkout' | translate }}</span>
                   <i class="pi pi-arrow-right"></i>
                 </button>
-                <a [routerLink]="ROUTES.PRODUCTS" class="form-action-btn form-action-btn--secondary form-action-btn--lg">
+                <a [routerLink]="ROUTES.PRODUCTS" class="continue-btn">
                   <i class="pi pi-shopping-bag"></i>
                   <span>{{ 'cart.continue_shopping' | translate }}</span>
                 </a>
-                <button class="form-action-btn form-action-btn--ghost form-action-btn--lg" (click)="clearCart()">
+                <button class="clear-btn" (click)="clearCart()">
                   <i class="pi pi-trash"></i>
                   <span>{{ 'cart.clear_cart' | translate }}</span>
                 </button>
