@@ -4,6 +4,11 @@
     <div class="onboarding__bg"></div>
 
     <div class="onboarding__container">
+      <!-- Language selector (top left) -->
+      <div class="onboarding__lang">
+        <app-language-selector></app-language-selector>
+      </div>
+
       <!-- Skip button -->
       <button class="onboarding__skip" (click)="skip()">
         {{ 'common.skip' | translate }}
@@ -21,7 +26,23 @@
             [class.onboarding__slide--prev]="currentSlide() > i"
             [class.onboarding__slide--next]="currentSlide() < i">
 
-            @if (slide.type === 'filter') {
+            @if (slide.type === 'welcome') {
+              <!-- Welcome slide with logo -->
+              <div class="onboarding__logo-wrapper">
+                <img src="/logo.png" alt="AgroClik" class="onboarding__logo" />
+              </div>
+
+              <!-- Text -->
+              <div class="onboarding__text">
+                <h2 class="onboarding__title">
+                  {{ 'onboarding.welcome_to' | translate }}
+                  <span class="onboarding__brand">
+                    <span class="onboarding__brand-agro">Agro</span><span class="onboarding__brand-clik">Clik</span>
+                  </span>
+                </h2>
+                <p class="onboarding__description">{{ slide.descriptionKey | translate }}</p>
+              </div>
+            } @else if (slide.type === 'filter') {
               <!-- Filter slide with images -->
               <div class="onboarding__filter-grid onboarding__filter-grid--two">
                 @for (img of filterImages; track img.labelKey) {

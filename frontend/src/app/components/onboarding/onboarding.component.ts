@@ -2,19 +2,20 @@ import { Component, OnInit, signal, output, inject } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { StorageService } from '../../core/services/storage.service';
 import { UI, GESTURE } from '../../core/constants/ui.constants';
+import { LanguageSelectorComponent } from '../language-selector/language-selector.component';
 
 interface OnboardingSlide {
-  icon: string;
+  icon?: string;
   titleKey: string;
   descriptionKey: string;
   color: string;
-  type?: 'default' | 'filter'; // Special slide types
+  type?: 'default' | 'filter' | 'welcome'; // Special slide types
 }
 
 @Component({
   selector: 'app-onboarding',
   standalone: true,
-  imports: [TranslateModule],
+  imports: [TranslateModule, LanguageSelectorComponent],
   templateUrl: './onboarding.component.html',
   styleUrl: './onboarding.component.scss'
 })
@@ -39,10 +40,10 @@ export class OnboardingComponent implements OnInit {
 
   slides: OnboardingSlide[] = [
     {
-      icon: 'pi-shopping-cart',
       titleKey: 'onboarding.slide1_title',
       descriptionKey: 'onboarding.slide1_desc',
-      color: 'linear-gradient(135deg, #3b82f6, #1d4ed8)'
+      color: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+      type: 'welcome'
     },
     {
       icon: 'pi-filter',
@@ -52,7 +53,7 @@ export class OnboardingComponent implements OnInit {
       type: 'filter'
     },
     {
-      icon: 'pi-plus-circle',
+      icon: 'pi-cart-plus',
       titleKey: 'onboarding.slide2_title',
       descriptionKey: 'onboarding.slide2_desc',
       color: 'linear-gradient(135deg, #10b981, #059669)'
