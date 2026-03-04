@@ -165,7 +165,7 @@
               <h2 class="card-header__title">{{ 'orders.detail.order_actions_title' | translate }}</h2>
             </div>
             <div class="card-body card-body--compact">
-              <div class="form-actions form-actions--stacked">
+              <div style="display: flex; flex-direction: column; gap: 12px; padding-bottom: 12px;">
                 @if (canCancelOrder()) {
                   <button class="form-action-btn form-action-btn--danger" (click)="cancelOrder()">
                     <i class="pi pi-times"></i>
