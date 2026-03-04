@@ -14,9 +14,9 @@
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
   z-index: 1001;
 
-  // Hide on desktop
+  // Adjust for sidebar on desktop
   @media (min-width: 768px) {
-    display: none;
+    left: var(--sidebar-width, 240px);
   }
 
   &--no-border {

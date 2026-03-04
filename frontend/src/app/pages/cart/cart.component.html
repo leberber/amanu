@@ -156,20 +156,6 @@
                   </tr>
                 }
               </tbody>
-              <tfoot>
-                <tr>
-                  <td colspan="3">
-                    <div class="meta-item">
-                      <i class="pi pi-box"></i>
-                      <span>{{ cartItemCount() }} {{ (cartItemCount() === 1 ? 'common.item' : 'common.items') | translate }}</span>
-                    </div>
-                  </td>
-                  <td class="text-right">
-                    <span class="list-footer__total">{{ cartSubtotal() | appCurrency }}</span>
-                  </td>
-                  <td></td>
-                </tr>
-              </tfoot>
             </table>
           </div>
 
@@ -229,126 +215,14 @@
           </div>
         </div>
 
-        <!-- Order Summary (Desktop only) -->
-        <div class="order-summary-sidebar">
-          <div class="summary-card">
-            <div class="summary-card__header">
-              <div class="summary-card__icon">
-                <i class="pi pi-receipt"></i>
-              </div>
-              <h2 class="summary-card__title">{{ 'cart.order_summary' | translate }}</h2>
-            </div>
-
-            <div class="summary-card__body">
-              <!-- Promo Code -->
-              <div class="promo-section">
-                <label class="promo-section__label">{{ 'promotions.promo_code' | translate }}</label>
-                @if (!appliedPromotion()) {
-                  <div class="promo-input" [class.promo-input--focused]="promoInputFocused()">
-                    <div class="promo-input__icon">
-                      <i class="pi pi-tag"></i>
-                    </div>
-                    <input
-                      type="text"
-                      class="promo-input__field"
-                      [ngModel]="promoCode()"
-                      (ngModelChange)="promoCode.set($event)"
-                      [placeholder]="'promotions.enter_code' | translate"
-                      [disabled]="promoLoading()"
-                      (focus)="promoInputFocused.set(true)"
-                      (blur)="promoInputFocused.set(false)">
-                    <button
-                      class="promo-input__btn"
-                      [disabled]="promoLoading() || !promoCode()"
-                      (click)="applyPromoCode()">
-                      @if (promoLoading()) {
-                        <i class="pi pi-spin pi-spinner"></i>
-                      } @else {
-                        <i class="pi pi-arrow-right"></i>
-                      }
-                    </button>
-                  </div>
-                  @if (promoError()) {
-                    <span class="promo-error">{{ promoError() }}</span>
-                  }
-                } @else {
-                  <div class="promo-applied">
-                    <span class="promo-applied__badge">
-                      <i class="pi pi-tag"></i>
-                      {{ appliedPromotion()?.code }}
-                    </span>
-                    <button class="promo-applied__remove" (click)="removePromoCode()">
-                      <i class="pi pi-times"></i>
-                    </button>
-                  </div>
-                }
-              </div>
-
-              <!-- Price Breakdown -->
-              <div class="price-breakdown">
-                <div class="price-row">
-                  <span class="price-row__label">
-                    <i class="pi pi-shopping-cart"></i>
-                    {{ 'promotions.subtotal' | translate }}
-                  </span>
-                  <span class="price-row__value">{{ cartSubtotal() | appCurrency }}</span>
-                </div>
-                @if (appliedPromotion()) {
-                  <div class="price-row price-row--discount">
-                    <span class="price-row__label">
-                      <i class="pi pi-percentage"></i>
-                      {{ 'promotions.discount' | translate }}
-                    </span>
-                    <span class="price-row__value">-{{ discountAmount() | appCurrency }}</span>
-                  </div>
-                }
-                <div class="price-row">
-                  <span class="price-row__label">
-                    <i class="pi pi-truck"></i>
-                    {{ 'cart.shipping' | translate }}
-                  </span>
-                  <span class="price-row__value" [class.price-row__value--free]="isShippingFree()">
-                    @if (isShippingFree()) {
-                      {{ 'cart.free' | translate }}
-                    } @else {
-                      {{ shippingCost() | appCurrency }}
-                    }
-                  </span>
-                </div>
-              </div>
-
-              <!-- Total -->
-              <div class="total-row">
-                <span class="total-row__label">{{ 'common.total' | translate }}</span>
-                <span class="total-row__amount">{{ finalTotal() + shippingCost() | appCurrency }}</span>
-              </div>
-
-              <!-- Actions -->
-              <div class="summary-actions">
-                <button class="checkout-btn" (click)="proceedToCheckout()">
-                  <span>{{ 'cart.checkout' | translate }}</span>
-                  <i class="pi pi-arrow-right"></i>
-                </button>
-                <a [routerLink]="ROUTES.PRODUCTS" class="continue-btn">
-                  <i class="pi pi-shopping-bag"></i>
-                  <span>{{ 'cart.continue_shopping' | translate }}</span>
-                </a>
-                <button class="clear-btn" (click)="clearCart()">
-                  <i class="pi pi-trash"></i>
-                  <span>{{ 'cart.clear_cart' | translate }}</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   }
 
-  <!-- Mobile Sticky Footer -->
+  <!-- Sticky Footer (All screens) -->
   @if (cartItemCount() > 0) {
     <app-sticky-footer
-      [amount]="finalTotal()"
+      [amount]="cartSubtotal()"
       buttonLabel="cart.continue"
       (buttonClick)="openOrderSummary()" />
   }

@@ -11,7 +11,6 @@ import { ROUTES } from '../../core/constants/routes.constants';
 import { ANIMATION, UI } from '../../core/constants/ui.constants';
 import { CartService, CartItem } from '../../services/cart.service';
 import { AuthService } from '../../services/auth.service';
-import { CurrencyService } from '../../core/services/currency.service';
 import { LightboxService } from '../../core/services/lightbox.service';
 import { TranslationService } from '../../services/translation.service';
 import { CartTranslationService } from '../../core/services/cart-translation.service';
@@ -59,7 +58,6 @@ export class CartComponent implements OnInit {
   private router = inject(Router);
   private translateService = inject(TranslateService);
   private packagingTypeService = inject(PackagingTypeService);
-  private currencyService = inject(CurrencyService);
   private translationService = inject(TranslationService);
   private promotionService = inject(PromotionService);
   private cartTranslation = inject(CartTranslationService);
@@ -74,18 +72,11 @@ export class CartComponent implements OnInit {
   cartItems = signal<CartItem[]>([]);
   loading = signal(false);
   productQuantities: Record<string, number> = {};
-  promoCode = signal('');
-  promoLoading = signal(false);
-  promoError = signal<string | null>(null);
-  promoInputFocused = signal(false);
+
   // Computed
   cartSubtotal = this.cartService.subtotal;
-  discountAmount = this.cartService.discountAmount;
-  finalTotal = this.cartService.finalTotal;
   appliedPromotion = this.cartService.appliedPromotion;
   cartItemCount = computed(() => this.cartItems().length);
-  shippingCost = computed(() => 0);
-  isShippingFree = computed(() => this.shippingCost() === 0);
 
   pageSubtitle = computed(() => {
     const count = this.cartItemCount();
@@ -116,10 +107,6 @@ export class CartComponent implements OnInit {
       }
     });
 
-    effect(() => {
-      const promo = this.cartService.appliedPromotion();
-      if (promo) this.promoCode.set(promo.code);
-    });
   }
 
   ngOnInit(): void {
@@ -180,53 +167,6 @@ export class CartComponent implements OnInit {
     this.router.navigate([ROUTES.ORDER_SUMMARY]);
   }
 
-  // Promotion operations
-  applyPromoCode(): void {
-    const code = this.promoCode().trim();
-    if (!code) {
-      this.promoError.set(this.translateService.instant('promotions.enter_code'));
-      return;
-    }
-
-    this.promoLoading.set(true);
-    this.promoError.set(null);
-
-    this.promotionService.calculateDiscount({
-      promotion_code: code,
-      cart_items: this.cartService.getItemsForDiscount()
-    }).subscribe({
-      next: (response) => {
-        this.promoLoading.set(false);
-        if (response.error) {
-          this.promoError.set(response.error);
-          return;
-        }
-        if (response.promotion && response.discount_amount > 0) {
-          this.cartService.applyPromotion({
-            code,
-            promotion: response.promotion,
-            discount_amount: response.discount_amount
-          });
-          this.toast.showSuccess('promotions.discount_applied', {
-            amount: this.currencyService.formatCurrency(response.discount_amount)
-          });
-        } else {
-          this.promoError.set(this.translateService.instant('promotions.no_discount'));
-        }
-      },
-      error: (err) => {
-        this.promoLoading.set(false);
-        this.promoError.set(err?.error?.detail || this.translateService.instant('promotions.invalid_code'));
-      }
-    });
-  }
-
-  removePromoCode(): void {
-    this.promoCode.set('');
-    this.promoError.set(null);
-    this.cartService.removePromotion();
-  }
-
   // Item utilities
   isOutOfStock(item: CartItem): boolean {
     return checkOutOfStock(item);
@@ -267,7 +207,7 @@ export class CartComponent implements OnInit {
   private handlePromotionChange(items: CartItem[]): void {
     const promo = this.cartService.appliedPromotion();
     if (items.length === 0 && promo) {
-      this.removePromoCode();
+      this.cartService.removePromotion();
     } else if (promo && items.length > 0) {
       this.recalculateDiscount(promo.code);
     }
@@ -286,10 +226,10 @@ export class CartComponent implements OnInit {
             discount_amount: response.discount_amount
           });
         } else {
-          this.removePromoCode();
+          this.cartService.removePromotion();
         }
       },
-      error: () => this.removePromoCode()
+      error: () => this.cartService.removePromotion()
     });
   }
 }
