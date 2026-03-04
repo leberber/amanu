@@ -76,7 +76,11 @@ export class AdminUserGroupsComponent extends BaseAdminListComponent implements 
   // Add group dialog
   showAddDialog = signal(false);
   newGroupName = '';
+  newGroupNameFr = '';
+  newGroupNameAr = '';
   newGroupDescription = '';
+  newGroupDescriptionFr = '';
+  newGroupDescriptionAr = '';
   newGroupColor = '#3b82f6';
   savingGroup = signal(false);
 
@@ -84,7 +88,11 @@ export class AdminUserGroupsComponent extends BaseAdminListComponent implements 
   showEditDialog = signal(false);
   editingGroup = signal<UserGroup | null>(null);
   editGroupName = '';
+  editGroupNameFr = '';
+  editGroupNameAr = '';
   editGroupDescription = '';
+  editGroupDescriptionFr = '';
+  editGroupDescriptionAr = '';
   editGroupColor = '#3b82f6';
 
   // Services
@@ -158,7 +166,11 @@ export class AdminUserGroupsComponent extends BaseAdminListComponent implements 
   // Dialog methods
   openAddDialog(): void {
     this.newGroupName = '';
+    this.newGroupNameFr = '';
+    this.newGroupNameAr = '';
     this.newGroupDescription = '';
+    this.newGroupDescriptionFr = '';
+    this.newGroupDescriptionAr = '';
     this.newGroupColor = '#3b82f6';
     this.showAddDialog.set(true);
   }
@@ -171,9 +183,30 @@ export class AdminUserGroupsComponent extends BaseAdminListComponent implements 
     if (!this.newGroupName.trim()) return;
 
     this.savingGroup.set(true);
+
+    // Build name translations object
+    const nameTranslations: Record<string, string> = {};
+    if (this.newGroupNameFr.trim()) {
+      nameTranslations['fr'] = this.newGroupNameFr.trim();
+    }
+    if (this.newGroupNameAr.trim()) {
+      nameTranslations['ar'] = this.newGroupNameAr.trim();
+    }
+
+    // Build description translations object
+    const descriptionTranslations: Record<string, string> = {};
+    if (this.newGroupDescriptionFr.trim()) {
+      descriptionTranslations['fr'] = this.newGroupDescriptionFr.trim();
+    }
+    if (this.newGroupDescriptionAr.trim()) {
+      descriptionTranslations['ar'] = this.newGroupDescriptionAr.trim();
+    }
+
     const newGroup: UserGroupCreate = {
       name: this.newGroupName.trim(),
       description: this.newGroupDescription.trim() || undefined,
+      name_translations: Object.keys(nameTranslations).length > 0 ? nameTranslations : undefined,
+      description_translations: Object.keys(descriptionTranslations).length > 0 ? descriptionTranslations : undefined,
       color: this.newGroupColor,
       is_active: true
     };
@@ -198,7 +231,11 @@ export class AdminUserGroupsComponent extends BaseAdminListComponent implements 
   openEditDialog(group: UserGroup): void {
     this.editingGroup.set(group);
     this.editGroupName = group.name;
+    this.editGroupNameFr = group.name_translations?.['fr'] || '';
+    this.editGroupNameAr = group.name_translations?.['ar'] || '';
     this.editGroupDescription = group.description || '';
+    this.editGroupDescriptionFr = group.description_translations?.['fr'] || '';
+    this.editGroupDescriptionAr = group.description_translations?.['ar'] || '';
     this.editGroupColor = group.color || '#3b82f6';
     this.showEditDialog.set(true);
   }
@@ -213,9 +250,30 @@ export class AdminUserGroupsComponent extends BaseAdminListComponent implements 
     if (!group || !this.editGroupName.trim()) return;
 
     this.savingGroup.set(true);
+
+    // Build name translations object
+    const nameTranslations: Record<string, string> = {};
+    if (this.editGroupNameFr.trim()) {
+      nameTranslations['fr'] = this.editGroupNameFr.trim();
+    }
+    if (this.editGroupNameAr.trim()) {
+      nameTranslations['ar'] = this.editGroupNameAr.trim();
+    }
+
+    // Build description translations object
+    const descriptionTranslations: Record<string, string> = {};
+    if (this.editGroupDescriptionFr.trim()) {
+      descriptionTranslations['fr'] = this.editGroupDescriptionFr.trim();
+    }
+    if (this.editGroupDescriptionAr.trim()) {
+      descriptionTranslations['ar'] = this.editGroupDescriptionAr.trim();
+    }
+
     const updateData: UserGroupUpdate = {
       name: this.editGroupName.trim(),
       description: this.editGroupDescription.trim() || undefined,
+      name_translations: nameTranslations,
+      description_translations: descriptionTranslations,
       color: this.editGroupColor
     };
 

@@ -250,7 +250,7 @@
   [draggable]="false"
   [resizable]="false"
   styleClass="group-dialog"
-  [style]="{ width: '400px' }">
+  [style]="{ width: '500px' }">
   <div class="dialog-content">
     <div class="form-field">
       <label>{{ 'admin.user_groups.form.name' | translate }} <span class="required">*</span></label>
@@ -258,8 +258,28 @@
     </div>
 
     <div class="form-field">
+      <label>{{ 'admin.user_groups.form.name_fr' | translate }}</label>
+      <input pInputText type="text" [(ngModel)]="newGroupNameFr" [placeholder]="'admin.user_groups.form.name_fr_placeholder' | translate" class="w-full">
+    </div>
+
+    <div class="form-field">
+      <label>{{ 'admin.user_groups.form.name_ar' | translate }}</label>
+      <input pInputText type="text" [(ngModel)]="newGroupNameAr" [placeholder]="'admin.user_groups.form.name_ar_placeholder' | translate" class="w-full" dir="rtl">
+    </div>
+
+    <div class="form-field">
       <label>{{ 'admin.user_groups.form.description' | translate }}</label>
       <input pInputText type="text" [(ngModel)]="newGroupDescription" [placeholder]="'admin.user_groups.form.description_placeholder' | translate" class="w-full">
+    </div>
+
+    <div class="form-field">
+      <label>{{ 'admin.user_groups.form.description_fr' | translate }}</label>
+      <input pInputText type="text" [(ngModel)]="newGroupDescriptionFr" [placeholder]="'admin.user_groups.form.description_fr_placeholder' | translate" class="w-full">
+    </div>
+
+    <div class="form-field">
+      <label>{{ 'admin.user_groups.form.description_ar' | translate }}</label>
+      <input pInputText type="text" [(ngModel)]="newGroupDescriptionAr" [placeholder]="'admin.user_groups.form.description_ar_placeholder' | translate" class="w-full" dir="rtl">
     </div>
 
     <div class="form-field">
@@ -294,7 +314,7 @@
   [draggable]="false"
   [resizable]="false"
   styleClass="group-dialog"
-  [style]="{ width: '400px' }">
+  [style]="{ width: '500px' }">
   <div class="dialog-content">
     <div class="form-field">
       <label>{{ 'admin.user_groups.form.name' | translate }} <span class="required">*</span></label>
@@ -302,8 +322,28 @@
     </div>
 
     <div class="form-field">
+      <label>{{ 'admin.user_groups.form.name_fr' | translate }}</label>
+      <input pInputText type="text" [(ngModel)]="editGroupNameFr" [placeholder]="'admin.user_groups.form.name_fr_placeholder' | translate" class="w-full">
+    </div>
+
+    <div class="form-field">
+      <label>{{ 'admin.user_groups.form.name_ar' | translate }}</label>
+      <input pInputText type="text" [(ngModel)]="editGroupNameAr" [placeholder]="'admin.user_groups.form.name_ar_placeholder' | translate" class="w-full" dir="rtl">
+    </div>
+
+    <div class="form-field">
       <label>{{ 'admin.user_groups.form.description' | translate }}</label>
       <input pInputText type="text" [(ngModel)]="editGroupDescription" [placeholder]="'admin.user_groups.form.description_placeholder' | translate" class="w-full">
+    </div>
+
+    <div class="form-field">
+      <label>{{ 'admin.user_groups.form.description_fr' | translate }}</label>
+      <input pInputText type="text" [(ngModel)]="editGroupDescriptionFr" [placeholder]="'admin.user_groups.form.description_fr_placeholder' | translate" class="w-full">
+    </div>
+
+    <div class="form-field">
+      <label>{{ 'admin.user_groups.form.description_ar' | translate }}</label>
+      <input pInputText type="text" [(ngModel)]="editGroupDescriptionAr" [placeholder]="'admin.user_groups.form.description_ar_placeholder' | translate" class="w-full" dir="rtl">
     </div>
 
     <div class="form-field">

@@ -1177,10 +1177,18 @@
         "actions": "Actions"
       },
       "form": {
-        "name": "Group Name",
+        "name": "Group Name (English)",
         "name_placeholder": "e.g. VIP Customers",
-        "description": "Description",
+        "name_fr": "Name (French)",
+        "name_fr_placeholder": "e.g. Clients VIP",
+        "name_ar": "Name (Arabic)",
+        "name_ar_placeholder": "e.g. عملاء VIP",
+        "description": "Description (English)",
         "description_placeholder": "Brief description of this group",
+        "description_fr": "Description (French)",
+        "description_fr_placeholder": "Brève description de ce groupe",
+        "description_ar": "Description (Arabic)",
+        "description_ar_placeholder": "وصف مختصر لهذه المجموعة",
         "color": "Color"
       },
       "empty": {

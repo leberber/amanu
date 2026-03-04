@@ -1179,10 +1179,18 @@
         "actions": "الإجراءات"
       },
       "form": {
-        "name": "اسم المجموعة",
-        "name_placeholder": "مثال: عملاء VIP",
-        "description": "الوصف",
-        "description_placeholder": "وصف مختصر لهذه المجموعة",
+        "name": "اسم المجموعة (الإنجليزية)",
+        "name_placeholder": "مثال: VIP Customers",
+        "name_fr": "الاسم (الفرنسية)",
+        "name_fr_placeholder": "مثال: Clients VIP",
+        "name_ar": "الاسم (العربية)",
+        "name_ar_placeholder": "مثال: عملاء VIP",
+        "description": "الوصف (الإنجليزية)",
+        "description_placeholder": "Brief description of this group",
+        "description_fr": "الوصف (الفرنسية)",
+        "description_fr_placeholder": "Brève description de ce groupe",
+        "description_ar": "الوصف (العربية)",
+        "description_ar_placeholder": "وصف مختصر لهذه المجموعة",
         "color": "اللون"
       },
       "empty": {
