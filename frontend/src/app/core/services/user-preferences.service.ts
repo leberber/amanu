@@ -1,5 +1,5 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
-import { STORAGE_KEYS, BREAKPOINTS } from '../constants/app.constants';
+import { STORAGE_KEYS, DEFAULTS } from '../constants/app.constants';
 import { StorageService } from './storage.service';
 
 export type ViewMode = 'grid' | 'list';
@@ -12,7 +12,7 @@ export interface UserPreferences {
 }
 
 const DEFAULT_PREFERENCES: UserPreferences = {
-  productViewMode: 'list'
+  productViewMode: DEFAULTS.VIEW_MODE
 };
 
 @Injectable({
@@ -29,10 +29,9 @@ export class UserPreferencesService {
   readonly allPreferences = computed(() => this.preferences());
 
   constructor() {
-    // Set default based on screen size if no saved preference
+    // Set default view mode if no saved preference
     if (!this.storage.has(STORAGE_KEYS.PREFERENCES)) {
-      const isMobile = typeof window !== 'undefined' && window.innerWidth < BREAKPOINTS.MD;
-      this.setProductViewMode(isMobile ? 'list' : 'grid');
+      this.setProductViewMode(DEFAULTS.VIEW_MODE);
     }
   }
 

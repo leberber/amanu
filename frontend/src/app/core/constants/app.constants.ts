@@ -8,6 +8,7 @@ export const DEFAULTS = {
   LANGUAGE: 'en',
   CURRENCY: 'DZD',
   THEME: 'light',
+  VIEW_MODE: 'grid' as const,
   PAGE_TITLE: 'AgroClik - Wholesale Food Platform',
   PLACEHOLDER_IMAGE: 'assets/images/product-placeholder.png'
 } as const;
