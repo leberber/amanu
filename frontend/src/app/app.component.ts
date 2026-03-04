@@ -5,8 +5,8 @@ import { filter } from 'rxjs';
 import { trigger, transition, style, animate, query, group } from '@angular/animations';
 
 import { TranslateModule } from '@ngx-translate/core';
-import { ToastModule } from 'primeng/toast';
 import { BottomNavigationComponent } from './components/bottom-navigation/bottom-navigation.component';
+import { ToastComponent } from './shared/components/toast/toast.component';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { OnboardingComponent } from './components/onboarding/onboarding.component';
 import { SidebarService } from './services/sidebar.service';
@@ -78,10 +78,10 @@ const slideAnimation = trigger('routeAnimation', [
   imports: [
     RouterOutlet,
     TranslateModule,
-    ToastModule,
     BottomNavigationComponent,
     SidebarComponent,
-    OnboardingComponent
+    OnboardingComponent,
+    ToastComponent
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',

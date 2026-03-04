@@ -52,7 +52,7 @@ export class ContactComponent {
     this.sending.set(true);
 
     setTimeout(() => {
-      this.toast.showSuccess('contact.success_title', 'contact.success_message');
+      this.toast.showCustom('success', 'contact.success_title', 'contact.success_message');
       this.resetForm();
       this.sending.set(false);
     }, UI_DELAY.TOAST_BEFORE_NAVIGATE);
