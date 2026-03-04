@@ -1,6 +1,5 @@
 import { Component, OnInit, inject, signal, computed, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
 
 import { ToastModule } from 'primeng/toast';
@@ -13,7 +12,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { ADMIN_CORE_IMPORTS } from '../../../shared/imports/admin-shared.imports';
 import { ImageFallbackDirective } from '../../../shared/directives/image-fallback.directive';
-import { ROUTES } from '../../../core/constants/routes.constants';
+import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
 import { UI } from '../../../core/constants/ui.constants';
 import { NotificationService } from '../../../services/notification.service';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
@@ -21,7 +20,6 @@ import { UserGroupService } from '../../../core/services/user-group.service';
 import { UserGroup } from '../../../models/user-group.model';
 import {
   SegmentInfo,
-  CityStat,
   NotificationHistory,
   TargetedNotificationRequest,
   PromotionItem,
@@ -48,7 +46,8 @@ import {
     CheckboxModule,
     TextareaModule,
     TranslateModule,
-    ImageFallbackDirective
+    ImageFallbackDirective,
+    DateFormatPipe
   ],
   templateUrl: './admin-notifications.component.html',
   styleUrl: './admin-notifications.component.scss'
@@ -61,7 +60,6 @@ export class AdminNotificationsComponent implements OnInit {
 
   // Data
   segments = signal<SegmentInfo[]>([]);
-  cities = signal<CityStat[]>([]);
   wilayas = signal<Wilaya[]>([]);
   dairas = signal<Daira[]>([]);
   communes = signal<Commune[]>([]);
@@ -74,7 +72,6 @@ export class AdminNotificationsComponent implements OnInit {
 
   // Form state
   selectedSegment = signal<SegmentType>('all');
-  selectedCity = signal<string | null>(null);
   selectedWilaya = signal<string | null>(null);
   selectedDaira = signal<string | null>(null);
   selectedCommune = signal<string | null>(null);
@@ -201,16 +198,7 @@ export class AdminNotificationsComponent implements OnInit {
   selectedTargetItem = computed(() => {
     const targetId = this.selectedTargetId();
     if (!targetId) return null;
-
-    const type = this.notificationType();
-    let items: any[] = [];
-    switch (type) {
-      case 'product': items = this.products(); break;
-      case 'category': items = this.categories(); break;
-      case 'brand': items = this.brands(); break;
-      case 'promotion': items = this.promotions(); break;
-    }
-    return items.find(item => item.id === targetId) || null;
+    return this.currentTargetOptions().find(item => item.id === targetId) || null;
   });
 
   // Get preview image URL
@@ -219,8 +207,9 @@ export class AdminNotificationsComponent implements OnInit {
     if (!item) return null;
 
     const type = this.notificationType();
-    if (type === 'brand') return item.logo_url || null;
-    return item.image_url || null;
+    if (type === 'brand' && 'logo_url' in item) return item.logo_url || null;
+    if ('image_url' in item) return item.image_url || null;
+    return null;
   });
 
   // Get selected user groups as full objects
@@ -243,7 +232,6 @@ export class AdminNotificationsComponent implements OnInit {
   });
 
   // Services
-  private router = inject(Router);
   private toast = inject(ToastMessageService);
   private translateService = inject(TranslateService);
   private notificationService = inject(NotificationService);
@@ -259,7 +247,6 @@ export class AdminNotificationsComponent implements OnInit {
 
     forkJoin({
       segments: this.notificationService.getSegments(),
-      cities: this.notificationService.getCities(),
       history: this.notificationService.getHistory(),
       promotions: this.notificationService.getPromotions(),
       products: this.notificationService.getProducts(),
@@ -271,7 +258,6 @@ export class AdminNotificationsComponent implements OnInit {
     .subscribe({
       next: (data) => {
         this.segments.set(data.segments);
-        this.cities.set(data.cities);
         this.history.set(data.history);
         this.promotions.set(data.promotions);
         this.products.set(data.products);
@@ -304,15 +290,6 @@ export class AdminNotificationsComponent implements OnInit {
 
   onSegmentChange(segmentType: SegmentType) {
     this.selectedSegment.set(segmentType);
-    this.selectedCity.set(null);
-    this.updateRecipientCount();
-  }
-
-  onCityChange(city: string | null) {
-    this.selectedCity.set(city);
-    if (city) {
-      this.selectedSegment.set('by_city');
-    }
     this.updateRecipientCount();
   }
 
@@ -371,7 +348,6 @@ export class AdminNotificationsComponent implements OnInit {
 
   autoGenerateContent(targetId: number) {
     const type = this.notificationType();
-    const lang = this.translateService.currentLang || 'en';
 
     switch (type) {
       case 'promotion': {
@@ -466,9 +442,8 @@ export class AdminNotificationsComponent implements OnInit {
 
   updateRecipientCount() {
     const segment = this.selectedSegment();
-    const city = this.selectedCity();
 
-    this.notificationService.getPreviewCount(segment, city || undefined)
+    this.notificationService.getPreviewCount(segment)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (result) => this.recipientCount.set(result.count)
@@ -490,7 +465,7 @@ export class AdminNotificationsComponent implements OnInit {
       url: this.url() || '/',
       image_url: this.imageUrl() || undefined,
       segment_type: this.selectedSegment(),
-      segment_value: this.selectedCity() || undefined,
+      segment_value: this.selectedCommune() || this.selectedDaira() || this.selectedWilaya() || undefined,
       notification_type: this.notificationType(),
       target_id: this.selectedTargetId() || undefined,
       scheduled_at: this.scheduleEnabled() && this.scheduledDate()
@@ -557,20 +532,6 @@ export class AdminNotificationsComponent implements OnInit {
     return item[`name_${lang}`] || item.name_en;
   }
 
-  getItemImage(item: any): string | null {
-    if (!item) return null;
-    return item.image_url || item.logo_url || null;
-  }
-
-  getGroupById(groupId: number): UserGroup | undefined {
-    return this.userGroups().find(g => g.id === groupId);
-  }
-
-  formatDate(dateStr: string): string {
-    const date = new Date(dateStr);
-    return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
-  }
-
   getStatusClass(status: string): string {
     switch (status) {
       case 'sent': return 'success';
@@ -602,17 +563,11 @@ export class AdminNotificationsComponent implements OnInit {
     }
   }
 
-  goBack() {
-    this.router.navigate([ROUTES.ADMIN.BASE]);
-  }
-
-  // Reset and start new notification
   startNewNotification() {
     this.clearContent();
     this.sentResult.set(null);
     this.currentStep.set(1);
     this.selectedSegment.set('all');
-    this.selectedCity.set(null);
     this.selectedWilaya.set(null);
     this.selectedDaira.set(null);
     this.selectedCommune.set(null);

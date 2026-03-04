@@ -1310,9 +1310,7 @@
                     [style.--row-delay]="i * 40 + 'ms'"
                   >
                     <td>
-                      <span class="date-display">{{
-                        formatDate(item.created_at)
-                      }}</span>
+                      <span class="date-display">{{ item.created_at | appDate }}</span>
                     </td>
                     <td>
                       <div class="info-display">
