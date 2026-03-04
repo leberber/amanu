@@ -20,6 +20,7 @@ from app.models.notification_history import (
     NotificationType,
     NotificationStatus
 )
+from app.models.user_group import UserGroup, UserGroupLink
 from app.core.security import get_current_active_user, get_current_admin_user
 from app.core.push import PushService
 from app.core.config import settings
@@ -53,6 +54,7 @@ class TargetedNotificationRequest(BaseModel):
     # Targeting
     segment_type: SegmentType = SegmentType.ALL
     segment_value: Optional[str] = None  # e.g., city name
+    user_group_ids: Optional[List[int]] = None  # Filter by user groups
 
     # Type reference (for auto-generation)
     notification_type: NotificationType = NotificationType.CUSTOM
@@ -196,6 +198,24 @@ def get_subscriptions_by_user_ids(
     return list(session.exec(
         select(PushSubscription).where(PushSubscription.user_id.in_(user_ids))
     ).all())
+
+
+def get_user_ids_by_groups(
+    session: Session,
+    group_ids: List[int]
+) -> List[int]:
+    """Get list of user IDs belonging to specified groups."""
+    if not group_ids:
+        return []
+
+    # Query the UserGroupLink table
+    user_ids = session.exec(
+        select(UserGroupLink.user_id)
+        .where(UserGroupLink.group_id.in_(group_ids))
+        .distinct()
+    ).all()
+
+    return list(user_ids)
 
 
 def get_all_subscriptions(session: Session) -> List[PushSubscription]:
@@ -504,16 +524,27 @@ def send_targeted_notification(
     current_user: User = Depends(get_current_admin_user),
 ):
     """Send targeted push notification with multi-language support."""
-    # Get subscriptions based on segment
+    # Get user IDs based on segment
     if notification.segment_type == SegmentType.ALL:
-        subscriptions = get_all_subscriptions(session)
+        # Get all user IDs with subscriptions
+        all_user_ids = session.exec(
+            select(PushSubscription.user_id).where(PushSubscription.user_id.is_not(None))
+        ).all()
+        user_ids = list(set(all_user_ids))
     else:
         user_ids = get_user_ids_by_segment(
             session,
             notification.segment_type,
             notification.segment_value
         )
-        subscriptions = get_subscriptions_by_user_ids(session, user_ids)
+
+    # Filter by user groups if specified
+    if notification.user_group_ids:
+        group_user_ids = set(get_user_ids_by_groups(session, notification.user_group_ids))
+        user_ids = [uid for uid in user_ids if uid in group_user_ids]
+
+    # Get subscriptions for filtered user IDs
+    subscriptions = get_subscriptions_by_user_ids(session, user_ids)
 
     if not subscriptions:
         raise HTTPException(status_code=400, detail="No subscribers match the criteria")

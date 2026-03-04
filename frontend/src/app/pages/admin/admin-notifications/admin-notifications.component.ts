@@ -5,6 +5,7 @@ import { forkJoin } from 'rxjs';
 
 import { ToastModule } from 'primeng/toast';
 import { SelectModule } from 'primeng/select';
+import { MultiSelectModule } from 'primeng/multiselect';
 import { DatePickerModule } from 'primeng/datepicker';
 import { CheckboxModule } from 'primeng/checkbox';
 import { TextareaModule } from 'primeng/textarea';
@@ -16,6 +17,8 @@ import { ROUTES } from '../../../core/constants/routes.constants';
 import { UI } from '../../../core/constants/ui.constants';
 import { NotificationService } from '../../../services/notification.service';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
+import { UserGroupService } from '../../../core/services/user-group.service';
+import { UserGroup } from '../../../models/user-group.model';
 import {
   SegmentInfo,
   CityStat,
@@ -40,6 +43,7 @@ import {
     ...ADMIN_CORE_IMPORTS,
     ToastModule,
     SelectModule,
+    MultiSelectModule,
     DatePickerModule,
     CheckboxModule,
     TextareaModule,
@@ -66,6 +70,7 @@ export class AdminNotificationsComponent implements OnInit {
   products = signal<ProductItem[]>([]);
   categories = signal<CategoryItem[]>([]);
   brands = signal<BrandItem[]>([]);
+  userGroups = signal<UserGroup[]>([]);
 
   // Form state
   selectedSegment = signal<SegmentType>('all');
@@ -73,6 +78,7 @@ export class AdminNotificationsComponent implements OnInit {
   selectedWilaya = signal<string | null>(null);
   selectedDaira = signal<string | null>(null);
   selectedCommune = signal<string | null>(null);
+  selectedUserGroupIds = signal<number[]>([]);
   notificationType = signal<NotificationType>('custom');
   selectedTargetId = signal<number | null>(null);
   selectedTemplateId = signal<string | null>(null);
@@ -217,6 +223,13 @@ export class AdminNotificationsComponent implements OnInit {
     return item.image_url || null;
   });
 
+  // Get selected user groups as full objects
+  selectedUserGroups = computed(() => {
+    const ids = this.selectedUserGroupIds();
+    if (!ids.length) return [];
+    return this.userGroups().filter(g => ids.includes(g.id));
+  });
+
   // Check if user can proceed to next step
   canProceedToNext = computed(() => {
     const step = this.currentStep();
@@ -234,6 +247,7 @@ export class AdminNotificationsComponent implements OnInit {
   private toast = inject(ToastMessageService);
   private translateService = inject(TranslateService);
   private notificationService = inject(NotificationService);
+  private userGroupService = inject(UserGroupService);
   private destroyRef = inject(DestroyRef);
 
   ngOnInit() {
@@ -250,7 +264,8 @@ export class AdminNotificationsComponent implements OnInit {
       promotions: this.notificationService.getPromotions(),
       products: this.notificationService.getProducts(),
       categories: this.notificationService.getCategories(),
-      brands: this.notificationService.getBrands()
+      brands: this.notificationService.getBrands(),
+      userGroups: this.userGroupService.getGroups(true)
     })
     .pipe(takeUntilDestroyed(this.destroyRef))
     .subscribe({
@@ -262,6 +277,7 @@ export class AdminNotificationsComponent implements OnInit {
         this.products.set(data.products);
         this.categories.set(data.categories);
         this.brands.set(data.brands);
+        this.userGroups.set(data.userGroups);
 
         // Set initial recipient count
         const allSegment = data.segments.find(s => s.segment_type === 'all');
@@ -330,6 +346,11 @@ export class AdminNotificationsComponent implements OnInit {
 
   onCommuneChange(commune: string | null) {
     this.selectedCommune.set(commune);
+    this.updateRecipientCount();
+  }
+
+  onUserGroupsChange(groupIds: number[]) {
+    this.selectedUserGroupIds.set(groupIds);
     this.updateRecipientCount();
   }
 
@@ -474,6 +495,9 @@ export class AdminNotificationsComponent implements OnInit {
       target_id: this.selectedTargetId() || undefined,
       scheduled_at: this.scheduleEnabled() && this.scheduledDate()
         ? this.scheduledDate()!.toISOString()
+        : undefined,
+      user_group_ids: this.selectedUserGroupIds().length > 0
+        ? this.selectedUserGroupIds()
         : undefined
     };
 
@@ -538,6 +562,10 @@ export class AdminNotificationsComponent implements OnInit {
     return item.image_url || item.logo_url || null;
   }
 
+  getGroupById(groupId: number): UserGroup | undefined {
+    return this.userGroups().find(g => g.id === groupId);
+  }
+
   formatDate(dateStr: string): string {
     const date = new Date(dateStr);
     return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
@@ -588,6 +616,7 @@ export class AdminNotificationsComponent implements OnInit {
     this.selectedWilaya.set(null);
     this.selectedDaira.set(null);
     this.selectedCommune.set(null);
+    this.selectedUserGroupIds.set([]);
     this.notificationType.set('custom');
     this.selectedTargetId.set(null);
     this.selectedTemplateId.set(null);

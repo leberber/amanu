@@ -283,34 +283,60 @@
                       optionLabel="label"
                       optionValue="segment_type"
                       styleClass="w-full"
+                      appendTo="body"
                     >
                       <ng-template pTemplate="selectedItem" let-item>
-                        <div
-                          class="flex align-items-center justify-content-between w-full"
-                        >
+                        <div class="flex align-items-center justify-content-between w-full">
                           <span>{{ item.label }}</span>
-                          <span class="chip chip--xs chip--solid">{{
-                            item.count
-                          }}</span>
+                          <span class="chip chip--xs chip--solid">{{ item.count }}</span>
                         </div>
                       </ng-template>
                       <ng-template pTemplate="item" let-item>
-                        <div
-                          class="flex align-items-center justify-content-between w-full"
-                        >
+                        <div class="flex align-items-center justify-content-between w-full">
                           <div>
                             <span>{{ item.label }}</span>
-                            <small class="block text-color-secondary text-xs">{{
-                              item.description
-                            }}</small>
+                            <small class="block text-color-secondary text-xs">{{ item.description }}</small>
                           </div>
-                          <span class="chip chip--xs chip--solid">{{
-                            item.count
-                          }}</span>
+                          <span class="chip chip--xs chip--solid">{{ item.count }}</span>
                         </div>
                       </ng-template>
                     </p-select>
                   </div>
+
+                  <!-- User Groups Selection -->
+                  @if (userGroups().length > 0) {
+                    <div class="admin-form-field mt-4">
+                      <label>{{ "admin.notifications.audience.user_groups" | translate }}</label>
+                      <p-multiSelect
+                        [options]="userGroups()"
+                        [ngModel]="selectedUserGroupIds()"
+                        (ngModelChange)="onUserGroupsChange($event)"
+                        optionLabel="name"
+                        optionValue="id"
+                        [placeholder]="'admin.notifications.audience.select_user_groups' | translate"
+                        [showClear]="true"
+                        [filter]="true"
+                        styleClass="w-full"
+                        appendTo="body"
+                      >
+                        <ng-template pTemplate="item" let-group>
+                          <div class="flex align-items-center justify-content-between w-full">
+                            <div class="flex align-items-center gap-2">
+                              <span
+                                class="w-1rem h-1rem border-circle flex-shrink-0"
+                                [style.background-color]="group.color || '#3b82f6'"
+                              ></span>
+                              <span>{{ group.name }}</span>
+                            </div>
+                            @if (group.user_count !== undefined) {
+                              <span class="chip chip--xs chip--solid">{{ group.user_count }}</span>
+                            }
+                          </div>
+                        </ng-template>
+                      </p-multiSelect>
+                      <span class="field-hint">{{ "admin.notifications.audience.user_groups_hint" | translate }}</span>
+                    </div>
+                  }
                 </div>
 
                 <!-- Right: Location Filter -->
@@ -336,9 +362,7 @@
                   <div class="flex flex-column gap-4">
                     <!-- Wilaya -->
                     <div class="admin-form-field">
-                      <label>{{
-                        "admin.notifications.audience.wilaya" | translate
-                      }}</label>
+                      <label>{{ "admin.notifications.audience.wilaya" | translate }}</label>
                       <p-select
                         [options]="wilayas()"
                         [ngModel]="selectedWilaya()"
@@ -347,21 +371,23 @@
                         optionValue="name"
                         [showClear]="true"
                         [filter]="true"
-                        [placeholder]="
-                          'admin.notifications.audience.select_wilaya'
-                            | translate
-                        "
+                        [placeholder]="'admin.notifications.audience.select_wilaya' | translate"
                         styleClass="w-full"
+                        appendTo="body"
                       >
-                        <ng-template pTemplate="item" let-item>
-                          <div
-                            class="flex align-items-center justify-content-between w-full"
-                          >
+                        <ng-template pTemplate="selectedItem" let-item>
+                          <div class="flex align-items-center justify-content-between w-full">
                             <span>{{ item.name }}</span>
                             @if (item.user_count) {
-                              <span class="chip chip--xs">{{
-                                item.user_count
-                              }}</span>
+                              <span class="chip chip--xs chip--solid">{{ item.user_count }}</span>
+                            }
+                          </div>
+                        </ng-template>
+                        <ng-template pTemplate="item" let-item>
+                          <div class="flex align-items-center justify-content-between w-full">
+                            <span>{{ item.name }}</span>
+                            @if (item.user_count) {
+                              <span class="chip chip--xs chip--solid">{{ item.user_count }}</span>
                             }
                           </div>
                         </ng-template>
@@ -371,9 +397,7 @@
                     <!-- Daïra -->
                     @if (selectedWilaya()) {
                       <div class="admin-form-field">
-                        <label>{{
-                          "admin.notifications.audience.daira" | translate
-                        }}</label>
+                        <label>{{ "admin.notifications.audience.daira" | translate }}</label>
                         <p-select
                           [options]="dairas()"
                           [ngModel]="selectedDaira()"
@@ -382,21 +406,23 @@
                           optionValue="name"
                           [showClear]="true"
                           [filter]="true"
-                          [placeholder]="
-                            'admin.notifications.audience.select_daira'
-                              | translate
-                          "
+                          [placeholder]="'admin.notifications.audience.select_daira' | translate"
                           styleClass="w-full"
+                          appendTo="body"
                         >
-                          <ng-template pTemplate="item" let-item>
-                            <div
-                              class="flex align-items-center justify-content-between w-full"
-                            >
+                          <ng-template pTemplate="selectedItem" let-item>
+                            <div class="flex align-items-center justify-content-between w-full">
                               <span>{{ item.name }}</span>
                               @if (item.user_count) {
-                                <span class="chip chip--xs">{{
-                                  item.user_count
-                                }}</span>
+                                <span class="chip chip--xs chip--solid">{{ item.user_count }}</span>
+                              }
+                            </div>
+                          </ng-template>
+                          <ng-template pTemplate="item" let-item>
+                            <div class="flex align-items-center justify-content-between w-full">
+                              <span>{{ item.name }}</span>
+                              @if (item.user_count) {
+                                <span class="chip chip--xs chip--solid">{{ item.user_count }}</span>
                               }
                             </div>
                           </ng-template>
@@ -407,9 +433,7 @@
                     <!-- Commune -->
                     @if (selectedDaira()) {
                       <div class="admin-form-field">
-                        <label>{{
-                          "admin.notifications.audience.commune" | translate
-                        }}</label>
+                        <label>{{ "admin.notifications.audience.commune" | translate }}</label>
                         <p-select
                           [options]="communes()"
                           [ngModel]="selectedCommune()"
@@ -418,21 +442,23 @@
                           optionValue="name"
                           [showClear]="true"
                           [filter]="true"
-                          [placeholder]="
-                            'admin.notifications.audience.select_commune'
-                              | translate
-                          "
+                          [placeholder]="'admin.notifications.audience.select_commune' | translate"
                           styleClass="w-full"
+                          appendTo="body"
                         >
-                          <ng-template pTemplate="item" let-item>
-                            <div
-                              class="flex align-items-center justify-content-between w-full"
-                            >
+                          <ng-template pTemplate="selectedItem" let-item>
+                            <div class="flex align-items-center justify-content-between w-full">
                               <span>{{ item.name }}</span>
                               @if (item.user_count) {
-                                <span class="chip chip--xs">{{
-                                  item.user_count
-                                }}</span>
+                                <span class="chip chip--xs chip--solid">{{ item.user_count }}</span>
+                              }
+                            </div>
+                          </ng-template>
+                          <ng-template pTemplate="item" let-item>
+                            <div class="flex align-items-center justify-content-between w-full">
+                              <span>{{ item.name }}</span>
+                              @if (item.user_count) {
+                                <span class="chip chip--xs chip--solid">{{ item.user_count }}</span>
                               }
                             </div>
                           </ng-template>
@@ -555,27 +581,26 @@
                 <div class="target-selection-row">
                   <!-- Left: Dropdown -->
                   <div class="admin-form-field">
-                    <label>{{
-                      "admin.notifications.content.select_" + notificationType()
-                        | translate
-                    }}</label>
+                    <label>{{ "admin.notifications.content.select_" + notificationType() | translate }}</label>
                     <p-select
                       [options]="currentTargetOptions()"
                       [ngModel]="selectedTargetId()"
                       (ngModelChange)="onTargetSelect($event)"
                       optionValue="id"
-                      [placeholder]="
-                        'admin.notifications.content.select_' +
-                          notificationType() | translate
-                      "
+                      [placeholder]="'admin.notifications.content.select_' + notificationType() | translate"
                       styleClass="w-full"
                       [filter]="true"
+                      appendTo="body"
                     >
                       <ng-template pTemplate="selectedItem" let-item>
-                        {{ getTargetName(item) }}
+                        <div class="flex align-items-center justify-content-between w-full">
+                          <span>{{ getTargetName(item) }}</span>
+                        </div>
                       </ng-template>
                       <ng-template pTemplate="item" let-item>
-                        {{ getTargetName(item) }}
+                        <div class="flex align-items-center justify-content-between w-full">
+                          <span>{{ getTargetName(item) }}</span>
+                        </div>
                       </ng-template>
                     </p-select>
                   </div>
@@ -954,6 +979,14 @@
                             />
                           }
                           <span>{{ getTargetName(selectedTargetItem()) }}</span>
+                        </div>
+                      }
+
+                      <!-- User Groups -->
+                      @for (group of selectedUserGroups(); track group.id) {
+                        <div class="summary-pill" [style.--pill-color]="group.color || '#3b82f6'">
+                          <i class="pi pi-users"></i>
+                          <span>{{ group.name }}</span>
                         </div>
                       }
                     </div>

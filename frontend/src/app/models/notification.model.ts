@@ -76,6 +76,7 @@ export interface TargetedNotificationRequest {
   notification_type: NotificationType;
   target_id?: number;
   scheduled_at?: string;
+  user_group_ids?: number[];
 }
 
 // Response from send notification

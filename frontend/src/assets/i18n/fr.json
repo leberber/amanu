@@ -777,7 +777,10 @@
         "commune": "Commune",
         "select_commune": "Toutes les communes...",
         "will_reach": "Cette notification atteindra",
-        "users": "utilisateurs"
+        "users": "utilisateurs",
+        "user_groups": "Groupes d'utilisateurs",
+        "select_user_groups": "Sélectionner les groupes...",
+        "user_groups_hint": "Optionnel : Ciblez des groupes spécifiques"
       },
       "segments": {
         "all": "Tous les Utilisateurs",

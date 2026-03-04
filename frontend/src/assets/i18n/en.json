@@ -780,7 +780,10 @@
         "commune": "Commune",
         "select_commune": "All communes...",
         "will_reach": "This notification will reach",
-        "users": "users"
+        "users": "users",
+        "user_groups": "User Groups",
+        "select_user_groups": "Select user groups...",
+        "user_groups_hint": "Optional: Target specific user groups"
       },
       "segments": {
         "all": "All Users",
