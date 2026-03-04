@@ -61,6 +61,12 @@ export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
     adminOnly: true
   },
   {
+    labelKey: 'admin.navigation.user_groups',
+    icon: 'pi pi-th-large',
+    route: ROUTES.ADMIN.USER_GROUPS,
+    adminOnly: true
+  },
+  {
     labelKey: 'admin.navigation.notifications',
     icon: 'pi pi-bell',
     route: ROUTES.ADMIN.NOTIFICATIONS,
