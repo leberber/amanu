@@ -215,7 +215,7 @@ export class AdminNotificationsComponent implements OnInit {
   // Get selected user groups as full objects
   selectedUserGroups = computed(() => {
     const ids = this.selectedUserGroupIds();
-    if (!ids.length) return [];
+    if (!ids || !ids.length) return [];
     return this.userGroups().filter(g => ids.includes(g.id));
   });
 
@@ -326,8 +326,8 @@ export class AdminNotificationsComponent implements OnInit {
     this.updateRecipientCount();
   }
 
-  onUserGroupsChange(groupIds: number[]) {
-    this.selectedUserGroupIds.set(groupIds);
+  onUserGroupsChange(groupIds: number[] | null) {
+    this.selectedUserGroupIds.set(groupIds || []);
     this.updateRecipientCount();
   }
 
