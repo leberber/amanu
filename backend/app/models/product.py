@@ -31,7 +31,7 @@ class ProductBase(SQLModel):
     """Base product model with common fields"""
     # Core
     name: str = Field(min_length=1, max_length=100, index=True)
-    price: float = Field(gt=0)
+    price: float = Field(ge=0)
     unit: ProductUnit
     pieces_per_box: Optional[int] = Field(default=None, ge=1)
     packaging_type: Optional[PackagingType] = Field(default=PackagingType.CARTON)
@@ -80,7 +80,7 @@ class ProductUpdate(SQLModel):
     """Model for updating products"""
     # Core
     name: Optional[str] = Field(default=None, min_length=1, max_length=100)
-    price: Optional[float] = Field(default=None, gt=0)
+    price: Optional[float] = Field(default=None, ge=0)
     unit: Optional[ProductUnit] = None
     pieces_per_box: Optional[int] = Field(default=None, ge=1)
     packaging_type: Optional[PackagingType] = Field(default=None)
