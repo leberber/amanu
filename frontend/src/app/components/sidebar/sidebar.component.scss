@@ -319,15 +319,15 @@
     min-width: 22px;
     height: 22px;
     padding: 0 var(--space-2);
-    background: var(--primary-gradient);
-    color: var(--color-white);
+    background: #ef4444;
+    color: white;
     border-radius: var(--radius-full);
     font-size: var(--font-size-xs);
     font-weight: var(--font-weight-bold);
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 2px 8px rgba(var(--primary-rgb), 0.3);
+    box-shadow: 0 2px 6px rgba(239, 68, 68, 0.4);
   }
 
   // View Toggle

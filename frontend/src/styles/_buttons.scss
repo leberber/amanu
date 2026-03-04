@@ -471,6 +471,25 @@
     transition: color 0.15s ease;
   }
 
+  .badge {
+    position: absolute;
+    top: -4px;
+    inset-inline-end: -4px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    font-size: 10px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #ef4444;
+    color: white;
+    border-radius: 9999px;
+    box-shadow: 0 2px 6px rgba(239, 68, 68, 0.4);
+    animation: badge-pop 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
   &--sm {
     @include square(40px);
     border-radius: var(--radius-md);
