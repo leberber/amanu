@@ -54,12 +54,6 @@
   100% { background-position: 200% 0; }
 }
 
-// Accent glow
-@keyframes accentGlow {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.6; }
-}
-
 // ---------------------------------------------------------------------------
 // TOAST BASE
 // ---------------------------------------------------------------------------
@@ -68,7 +62,7 @@
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 16px 20px 16px 28px;
+  padding: 16px 20px;
   background: rgba(255, 255, 255, 0.98);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
@@ -87,23 +81,6 @@
   &--warn {
     background: rgba(255, 251, 235, 0.98);
   }
-}
-
-// ---------------------------------------------------------------------------
-// ACCENT STRIPE
-// ---------------------------------------------------------------------------
-.toast__accent {
-  position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  width: 4px;
-  animation: accentGlow 2s ease-in-out infinite;
-
-  .toast--success & { background: #22c55e; }
-  .toast--error & { background: #ef4444; }
-  .toast--warn & { background: #f59e0b; }
-  .toast--info & { background: var(--primary-color, #3b82f6); }
 }
 
 // ---------------------------------------------------------------------------
@@ -259,7 +236,7 @@
 // ---------------------------------------------------------------------------
 @media (max-width: 640px) {
   .toast {
-    padding: 14px 16px 14px 24px;
+    padding: 14px 16px;
     gap: 12px;
   }
 

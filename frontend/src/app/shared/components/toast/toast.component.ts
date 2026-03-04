@@ -15,9 +15,6 @@ import { CustomToastService, ToastMessage } from '../../../core/services/custom-
         [@toastAnimation]="toast.state"
         (@toastAnimation.done)="onAnimationDone($event, toast)">
 
-        <!-- Left accent stripe -->
-        <div class="toast__accent"></div>
-
         <!-- Icon -->
         <div class="toast__icon" [ngClass]="'toast__icon--' + toast.severity">
           @switch (toast.severity) {
