@@ -535,7 +535,12 @@
     "default_address_line3": "France",
     "confirm_order": "Confirmer la commande",
     "order_note": "En commandant, vous acceptez nos",
-    "terms_link": "Conditions Générales"
+    "terms_link": "Conditions Générales",
+    "empty": {
+      "title": "Votre panier est vide",
+      "subtitle": "Ajoutez des produits à votre panier pour continuer",
+      "browse_products": "Parcourir les produits"
+    }
   },
   "orders": {
     "title": "Mes Commandes",

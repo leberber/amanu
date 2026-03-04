@@ -538,7 +538,12 @@
     "default_address_line3": "United States",
     "confirm_order": "Confirm Order",
     "order_note": "By ordering, you accept our",
-    "terms_link": "Terms & Conditions"
+    "terms_link": "Terms & Conditions",
+    "empty": {
+      "title": "Your Cart is Empty",
+      "subtitle": "Add some products to your cart to proceed with checkout",
+      "browse_products": "Browse Products"
+    }
   },
   "orders": {
     "title": "My Orders",

@@ -5,7 +5,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { switchMap, catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 
-import { ToastModule } from 'primeng/toast';
 import { TimelineModule } from 'primeng/timeline';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
@@ -32,7 +31,6 @@ import { getOrderCartonDisplay } from '../../../shared/utils/quantity.utils';
   standalone: true,
   imports: [
     NgClass,
-    ToastModule,
     TimelineModule,
     TranslateModule,
     PageLayoutComponent,
@@ -89,7 +87,6 @@ export class OrderDetailComponent implements OnInit {
   mobileSubtitle = computed(() => this.orderDate());
 
   ngOnInit(): void {
-    this.checkSuccessParam();
     this.subscribeToLanguageChanges();
     this.loadOrderDetails();
   }
@@ -132,16 +129,6 @@ export class OrderDetailComponent implements OnInit {
   }
 
   // Private methods
-  private checkSuccessParam(): void {
-    this.route.queryParams
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(params => {
-        if (params['success'] === 'true') {
-          this.toast.showSuccess('orders.detail.order_placed_success_message');
-        }
-      });
-  }
-
   private subscribeToLanguageChanges(): void {
     this.translationService.currentLanguage$
       .pipe(takeUntilDestroyed(this.destroyRef))

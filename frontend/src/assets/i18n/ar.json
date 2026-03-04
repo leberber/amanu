@@ -540,7 +540,12 @@
     "default_address_line3": "المملكة العربية السعودية",
     "confirm_order": "تأكيد الطلب",
     "order_note": "بالطلب، توافق على",
-    "terms_link": "الشروط والأحكام"
+    "terms_link": "الشروط والأحكام",
+    "empty": {
+      "title": "سلة التسوق فارغة",
+      "subtitle": "أضف منتجات إلى سلتك للمتابعة",
+      "browse_products": "تصفح المنتجات"
+    }
   },
   "orders": {
     "title": "طلباتي",

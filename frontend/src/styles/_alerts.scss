@@ -182,32 +182,61 @@
 
 
 // =============================================================================
-// 3. PRIMENG TOAST
+// 3. PRIMENG TOAST - Modern Full-Width Top Banner
 // =============================================================================
 
+// Slide down animation
+@keyframes toastSlideDown {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+// Progress bar animation
+@keyframes toastProgress {
+  from { transform: scaleX(1); }
+  to { transform: scaleX(0); }
+}
+
+// Toast container - full width at top
 .p-toast {
   opacity: 1 !important;
   z-index: 99999 !important;
   position: fixed !important;
+
+  // Top center positioning - full width
+  &.p-toast-top-center {
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    transform: none !important;
+    padding: 0 !important;
+  }
 }
 
+// Individual toast message
 .p-toast-message {
-  margin: 0 0 var(--space-3) 0 !important;
-  border-radius: var(--radius-lg) !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
   overflow: hidden !important;
-  background: var(--surface-card) !important;
-  border: 1px solid var(--surface-200) !important;
-  box-shadow: var(--shadow-lg) !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border: none !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06) !important;
+  box-shadow: 0 4px 24px -4px rgba(0, 0, 0, 0.1) !important;
   position: relative !important;
-  backdrop-filter: blur(8px) !important;
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast) !important;
+  animation: toastSlideDown 0.35s cubic-bezier(0.21, 1.02, 0.73, 1) forwards !important;
 
-  &:hover {
-    transform: translateY(-2px) !important;
-    box-shadow: 0 12px 30px -5px rgba(0, 0, 0, 0.15) !important;
-  }
-
-  &::before {
+  // Progress bar at bottom
+  &::after {
     content: '' !important;
     position: absolute !important;
     bottom: 0 !important;
@@ -215,73 +244,102 @@
     right: 0 !important;
     height: 3px !important;
     transform-origin: left !important;
-    border-radius: 0 0 var(--radius-lg) var(--radius-lg) !important;
+  }
+
+  // Left accent stripe
+  &::before {
+    content: '' !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    bottom: 0 !important;
+    width: 4px !important;
   }
 }
 
+// Toast content layout
 .p-toast-message-content {
-  padding: var(--space-4) !important;
+  padding: 14px 20px 14px 24px !important;
   border: none !important;
   background: transparent !important;
   display: flex !important;
   align-items: center !important;
-  gap: var(--space-3) !important;
+  gap: 14px !important;
+  max-width: 1200px !important;
+  margin: 0 auto !important;
 }
 
+// Icon styling
 .p-toast-message-icon {
   flex-shrink: 0 !important;
-  width: 24px !important;
-  height: 24px !important;
-  min-width: 24px !important;
+  width: 22px !important;
+  height: 22px !important;
+  min-width: 22px !important;
   background: transparent !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
 
   .p-icon {
-    width: 22px !important;
-    height: 22px !important;
+    width: 20px !important;
+    height: 20px !important;
   }
 
   &::before, &::after { display: none !important; }
 }
 
+// Text container
 .p-toast-message-text {
   flex: 1 !important;
   min-width: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
 }
 
+// Summary text (main message)
 .p-toast-summary {
-  font-weight: var(--font-weight-semibold) !important;
-  font-size: var(--font-size-base) !important;
-  color: var(--text-color) !important;
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  color: #1a1a1a !important;
   margin: 0 !important;
   line-height: 1.4 !important;
+  letter-spacing: -0.01em !important;
 }
 
+// Detail text (secondary)
 .p-toast-detail {
-  font-size: var(--font-size-sm) !important;
-  color: var(--text-color-secondary) !important;
-  margin: var(--space-1) 0 0 0 !important;
-  line-height: 1.5 !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  color: #666 !important;
+  margin: 0 !important;
+  line-height: 1.4 !important;
+
+  &::before {
+    content: '—' !important;
+    margin-right: 8px !important;
+    color: #ccc !important;
+  }
 }
 
+// Close button
 .p-toast-icon-close {
-  width: 28px !important;
-  height: 28px !important;
-  border-radius: var(--radius-md) !important;
-  color: var(--text-color-secondary) !important;
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 8px !important;
+  color: #999 !important;
   background: transparent !important;
   border: none !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  transition: all var(--transition-fast) !important;
-  margin-inline-start: var(--space-2) !important;
+  transition: all 0.2s ease !important;
+  margin-inline-start: 8px !important;
+  flex-shrink: 0 !important;
 
   &:hover {
-    background: var(--surface-100) !important;
-    color: var(--text-color) !important;
+    background: rgba(0, 0, 0, 0.05) !important;
+    color: #333 !important;
   }
 
   .p-icon {
@@ -290,35 +348,98 @@
   }
 }
 
-@keyframes toastProgress {
-  from { transform: scaleX(1); }
-  to { transform: scaleX(0); }
-}
+// =============================================================================
+// SEVERITY VARIANTS
+// =============================================================================
 
+// Success toast
 .p-toast-message-success {
+  &::before { background: #22c55e !important; }
+  &::after { background: #22c55e !important; animation: toastProgress 4s linear forwards !important; }
   .p-toast-message-icon .p-icon { color: #22c55e !important; }
-  &::before { background: #22c55e !important; animation: toastProgress 3s linear forwards !important; }
 }
 
+// Error toast
 .p-toast-message-error {
+  background: rgba(254, 242, 242, 0.95) !important;
+  &::before { background: #ef4444 !important; }
+  &::after { background: #ef4444 !important; animation: toastProgress 5s linear forwards !important; }
   .p-toast-message-icon .p-icon { color: #ef4444 !important; }
-  &::before { background: #ef4444 !important; animation: toastProgress 5s linear forwards !important; }
+  .p-toast-summary { color: #991b1b !important; }
 }
 
+// Warning toast
 .p-toast-message-warn {
+  background: rgba(255, 251, 235, 0.95) !important;
+  &::before { background: #f59e0b !important; }
+  &::after { background: #f59e0b !important; animation: toastProgress 4s linear forwards !important; }
   .p-toast-message-icon .p-icon { color: #f59e0b !important; }
-  &::before { background: #f59e0b !important; animation: toastProgress 4s linear forwards !important; }
+  .p-toast-summary { color: #92400e !important; }
 }
 
+// Info toast
 .p-toast-message-info {
-  .p-toast-message-icon .p-icon { color: var(--primary-color) !important; }
-  &::before { background: var(--primary-color) !important; animation: toastProgress 4s linear forwards !important; }
+  &::before { background: var(--primary-color, #3b82f6) !important; }
+  &::after { background: var(--primary-color, #3b82f6) !important; animation: toastProgress 4s linear forwards !important; }
+  .p-toast-message-icon .p-icon { color: var(--primary-color, #3b82f6) !important; }
 }
 
-// Mobile toast
-@media (max-width: 480px) {
-  .p-toast { width: calc(100% - 2rem) !important; left: 1rem !important; right: 1rem !important; }
-  .p-toast-message { border-radius: 12px !important; }
-  .p-toast-message-content { padding: 0.875rem 1rem !important; }
-  .p-toast-message::before { border-radius: 0 0 12px 12px !important; }
+// =============================================================================
+// MOBILE RESPONSIVE
+// =============================================================================
+@media (max-width: 640px) {
+  .p-toast-message-content {
+    padding: 12px 16px 12px 20px !important;
+    gap: 12px !important;
+  }
+
+  .p-toast-summary {
+    font-size: 13px !important;
+  }
+
+  .p-toast-detail {
+    display: none !important;
+  }
+
+  .p-toast-icon-close {
+    width: 28px !important;
+    height: 28px !important;
+  }
+}
+
+// =============================================================================
+// DARK MODE SUPPORT
+// =============================================================================
+.my-app-dark {
+  .p-toast-message {
+    background: rgba(30, 30, 30, 0.95) !important;
+    border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+  }
+
+  .p-toast-summary {
+    color: #f5f5f5 !important;
+  }
+
+  .p-toast-detail {
+    color: #999 !important;
+  }
+
+  .p-toast-icon-close {
+    color: #888 !important;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.1) !important;
+      color: #fff !important;
+    }
+  }
+
+  .p-toast-message-error {
+    background: rgba(50, 20, 20, 0.95) !important;
+    .p-toast-summary { color: #fca5a5 !important; }
+  }
+
+  .p-toast-message-warn {
+    background: rgba(50, 40, 20, 0.95) !important;
+    .p-toast-summary { color: #fcd34d !important; }
+  }
 }
