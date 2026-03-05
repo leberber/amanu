@@ -32,7 +32,6 @@ import { isOutOfStock as checkOutOfStock } from '../../shared/utils/stock.utils'
   selector: 'app-cart-page',
   standalone: true,
   imports: [
-    RouterLink,
     FormsModule,
     ToastModule,
     TooltipModule,

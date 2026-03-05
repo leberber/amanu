@@ -1,5 +1,5 @@
 import { Component, computed, inject, OnInit, signal, DestroyRef, ViewChild, ElementRef } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Observable, of } from 'rxjs';
 import { switchMap, tap } from 'rxjs/operators';
@@ -55,6 +55,7 @@ import { ImageFallbackDirective } from '../../../shared/directives/image-fallbac
 export class ProductListComponent implements OnInit {
 
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
   private productService = inject(ProductService);
   private brandService = inject(BrandService);
   private cartService = inject(CartService);
@@ -173,6 +174,7 @@ export class ProductListComponent implements OnInit {
   selectCategoryFromBar(categoryId: number | null): void {
     if (categoryId === null) return;
     this.activeCategoryId.set(categoryId);
+    this.updateUrlParams({ category: categoryId, brand: null });
     this.reloadWithAnimation();
   }
 
@@ -181,6 +183,7 @@ export class ProductListComponent implements OnInit {
 
     this.activeBrandId.set(brandId);
     this.filters.update(f => ({ ...f, brand_id: brandId }));
+    this.updateUrlParams({ brand: brandId, category: null });
     this.reloadWithAnimation();
   }
 
@@ -312,25 +315,23 @@ export class ProductListComponent implements OnInit {
       next: (categories) => {
         this.categories.set(categories);
 
-        if (!this.activeCategoryId() && !this.activeBrandId() && categories.length > 0) {
-          this.setDefaultCategory(categories);
-        }
-
         this.updateCategoryCounts();
 
         this.route.queryParams.pipe(
           tap(params => {
-            if (!this.activeCategoryId() && !this.activeBrandId()) {
-              if (params['brand']) {
-                const brandId = Number(params['brand']);
-                this.filterMode.set('brands');
-                this.activeBrandId.set(brandId);
-                this.filters.update(f => ({ ...f, brand_id: brandId }));
-              } else if (params['category']) {
-                const categoryId = Number(params['category']);
-                this.filterMode.set('categories');
-                this.activeCategoryId.set(categoryId);
-              }
+            // Read URL params first, before setting defaults
+            if (params['brand']) {
+              const brandId = Number(params['brand']);
+              this.filterMode.set('brands');
+              this.activeBrandId.set(brandId);
+              this.filters.update(f => ({ ...f, brand_id: brandId }));
+            } else if (params['category']) {
+              const categoryId = Number(params['category']);
+              this.filterMode.set('categories');
+              this.activeCategoryId.set(categoryId);
+            } else if (!this.activeCategoryId() && !this.activeBrandId() && categories.length > 0) {
+              // Only set default if no URL params AND no active filter
+              this.setDefaultCategory(categories);
             }
 
             if (params['search']) {
@@ -426,6 +427,15 @@ export class ProductListComponent implements OnInit {
     this.brandService.getBrands(true).subscribe({
       next: (brands) => this.brands.set(brands),
       error: () => this.toast.showError('brands.error_loading')
+    });
+  }
+
+  private updateUrlParams(params: { category?: number | null; brand?: number | null }): void {
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: params,
+      queryParamsHandling: 'merge',
+      replaceUrl: true
     });
   }
 }
