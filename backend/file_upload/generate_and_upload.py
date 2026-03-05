@@ -35,18 +35,19 @@ import argparse
 import boto3
 
 # S3 Configuration
-S3_BUCKET = "agroclik-eu"
+S3_BUCKET = "agroclik"
 S3_REGION = "eu-west-3"
 
 # Stock multiplier (stock_quantity = pieces_per_box * STOCK_MULTIPLIER)
 STOCK_MULTIPLIER = 5
 
-# Category translations
+# Category translations (keys normalized to lowercase with spaces replaced by hyphens)
 CATEGORY_TRANSLATIONS = {
     "pates": {"en": "Pasta", "fr": "Pâtes", "ar": "معكرونة"},
     "riz": {"en": "Rice", "fr": "Riz", "ar": "أرز"},
     "farine": {"en": "Flour", "fr": "Farine", "ar": "دقيق"},
     "sucre": {"en": "Sugar", "fr": "Sucre", "ar": "سكر"},
+    "huile": {"en": "Oil", "fr": "Huile", "ar": "زيت"},
     "huiles": {"en": "Oils", "fr": "Huiles", "ar": "زيوت"},
     "cafe": {"en": "Coffee & Cocoa", "fr": "Café & Cacao", "ar": "قهوة وكاكاو"},
     "the": {"en": "Tea", "fr": "Thé", "ar": "شاي"},
@@ -58,6 +59,7 @@ CATEGORY_TRANSLATIONS = {
     "tomate": {"en": "Tomato Products", "fr": "Produits de Tomate", "ar": "منتجات الطماطم"},
     "harissa": {"en": "Harissa", "fr": "Harissa", "ar": "هريسة"},
     "legumes-secs": {"en": "Dried Legumes", "fr": "Légumes Secs", "ar": "بقوليات جافة"},
+    "legumes secs": {"en": "Dried Legumes", "fr": "Légumes Secs", "ar": "بقوليات جافة"},
     "epices": {"en": "Spices & Seasonings", "fr": "Épices & Assaisonnements", "ar": "توابل وبهارات"},
     "sauces": {"en": "Sauces", "fr": "Sauces", "ar": "صلصات"},
     "boissons": {"en": "Beverages", "fr": "Boissons", "ar": "مشروبات"},
@@ -135,9 +137,9 @@ PRODUCT_TYPES = {
     "trimoline": {"en": "Trimoline", "fr": "Trimoline", "ar": "تريمولين", "category": "sucre", "price_per_kg": 150},
 
     # === HUILES (Oils) ===
-    "huile": {"en": "Oil", "fr": "Huile", "ar": "زيت", "category": "huiles", "price_per_kg": 200},
-    "huile-olive": {"en": "Olive Oil", "fr": "Huile d'Olive", "ar": "زيت الزيتون", "category": "huiles", "price_per_kg": 800},
-    "huile-tournesol": {"en": "Sunflower Oil", "fr": "Huile de Tournesol", "ar": "زيت دوار الشمس", "category": "huiles", "price_per_kg": 180},
+    "huile": {"en": "Oil", "fr": "Huile", "ar": "زيت", "category": "huile", "price_per_kg": 200},
+    "huile-olive": {"en": "Olive Oil", "fr": "Huile d'Olive", "ar": "زيت الزيتون", "category": "huile", "price_per_kg": 800},
+    "huile-tournesol": {"en": "Sunflower Oil", "fr": "Huile de Tournesol", "ar": "زيت دوار الشمس", "category": "huile", "price_per_kg": 180},
 
     # === CAFE (Coffee/Cocoa) ===
     "cafe": {"en": "Coffee", "fr": "Café", "ar": "قهوة", "category": "cafe", "price_per_kg": 1200},
@@ -174,6 +176,26 @@ PRODUCT_TYPES = {
     "gaufrettes": {"en": "Wafers", "fr": "Gaufrettes", "ar": "ويفر", "category": "biscuits", "price_per_kg": 350},
     "cookies": {"en": "Cookies", "fr": "Cookies", "ar": "كوكيز", "category": "biscuits", "price_per_kg": 400},
     "galette": {"en": "Biscuits", "fr": "Galette", "ar": "غاليت", "category": "biscuits", "price_per_kg": 280},
+    "galette-cacao": {"en": "Cocoa Biscuits", "fr": "Galette Cacao", "ar": "غاليت كاكاو", "category": "biscuits", "price_per_kg": 300},
+    "wafer": {"en": "Wafer", "fr": "Wafer", "ar": "ويفر", "category": "biscuits", "price_per_kg": 350},
+    "tango": {"en": "Tango", "fr": "Tango", "ar": "تانغو", "category": "biscuits", "price_per_kg": 350},
+    "pesos": {"en": "Pesos", "fr": "Pesos", "ar": "بيسوس", "category": "biscuits", "price_per_kg": 350},
+    "twist-nuevo": {"en": "Twist Nuevo", "fr": "Twist Nuevo", "ar": "تويست نويفو", "category": "biscuits", "price_per_kg": 350},
+    "bennito": {"en": "Bennito", "fr": "Bennito", "ar": "بينيتو", "category": "biscuits", "price_per_kg": 300},
+    "besto": {"en": "Besto", "fr": "Besto", "ar": "بيستو", "category": "biscuits", "price_per_kg": 300},
+    "dadey": {"en": "Dadey", "fr": "Dadey", "ar": "داداي", "category": "biscuits", "price_per_kg": 300},
+    "famelio": {"en": "Famelio", "fr": "Famelio", "ar": "فاميليو", "category": "biscuits", "price_per_kg": 300},
+    "rigolo": {"en": "Rigolo", "fr": "Rigolo", "ar": "ريغولو", "category": "biscuits", "price_per_kg": 300},
+    "filou": {"en": "Filou", "fr": "Filou", "ar": "فيلو", "category": "biscuits", "price_per_kg": 320},
+    "big-filou": {"en": "Big Filou", "fr": "Big Filou", "ar": "بيغ فيلو", "category": "biscuits", "price_per_kg": 350},
+    "gouter-matinal": {"en": "Morning Snack", "fr": "Goûter Matinal", "ar": "وجبة صباحية", "category": "biscuits", "price_per_kg": 280},
+    "lomdja-matinal": {"en": "Morning Lomdja", "fr": "Lomdja Matinal", "ar": "لمجة صباحية", "category": "biscuits", "price_per_kg": 280},
+    "mister-biscuit": {"en": "Mister Biscuit", "fr": "Mister Biscuit", "ar": "مستر بسكويت", "category": "biscuits", "price_per_kg": 300},
+    "misti-amigos": {"en": "Misti Amigos", "fr": "Misti Amigos", "ar": "مستي أميغوس", "category": "biscuits", "price_per_kg": 300},
+    "misti-cacao": {"en": "Misti Cacao", "fr": "Misti Cacao", "ar": "مستي كاكاو", "category": "biscuits", "price_per_kg": 300},
+    "misti-cafe": {"en": "Misti Coffee", "fr": "Misti Café", "ar": "مستي قهوة", "category": "biscuits", "price_per_kg": 300},
+    "misti-citron": {"en": "Misti Lemon", "fr": "Misti Citron", "ar": "مستي ليمون", "category": "biscuits", "price_per_kg": 300},
+    "misti-vanille": {"en": "Misti Vanilla", "fr": "Misti Vanille", "ar": "مستي فانيلا", "category": "biscuits", "price_per_kg": 300},
 
     # === CONSERVES (Canned Goods) ===
     "thon": {"en": "Tuna", "fr": "Thon", "ar": "تونة", "category": "conserves", "price_per_kg": 800},
@@ -192,17 +214,19 @@ PRODUCT_TYPES = {
     "harissa": {"en": "Harissa", "fr": "Harissa", "ar": "هريسة", "category": "harissa", "price_per_kg": 200},
 
     # === LEGUMES-SECS (Dried Legumes) ===
-    "lentilles": {"en": "Lentils", "fr": "Lentilles", "ar": "عدس", "category": "legumes-secs", "price_per_kg": 180},
-    "lentilles-corail": {"en": "Red Lentils", "fr": "Lentilles Corail", "ar": "عدس أحمر", "category": "legumes-secs", "price_per_kg": 200},
-    "lentilles-royales": {"en": "Royal Lentils", "fr": "Lentilles Royales", "ar": "عدس ملكي", "category": "legumes-secs", "price_per_kg": 220},
-    "lentille-rouge": {"en": "Red Lentils", "fr": "Lentille Rouge", "ar": "عدس أحمر", "category": "legumes-secs", "price_per_kg": 200},
-    "haricots": {"en": "Beans", "fr": "Haricots", "ar": "فاصوليا", "category": "legumes-secs", "price_per_kg": 200},
-    "haricots-blanc": {"en": "White Beans", "fr": "Haricots Blancs", "ar": "فاصوليا بيضاء", "category": "legumes-secs", "price_per_kg": 200},
-    "haricots-rouge": {"en": "Red Beans", "fr": "Haricots Rouges", "ar": "فاصوليا حمراء", "category": "legumes-secs", "price_per_kg": 200},
-    "pois-chiches": {"en": "Chickpeas", "fr": "Pois Chiches", "ar": "حمص", "category": "legumes-secs", "price_per_kg": 180},
-    "borghol-gros": {"en": "Bulgur", "fr": "Borghol Gros", "ar": "برغل", "category": "legumes-secs", "price_per_kg": 150},
-    "guisantes": {"en": "Peas", "fr": "Petits Pois", "ar": "بازلاء", "category": "legumes-secs", "price_per_kg": 180},
-    "popcorn": {"en": "Popcorn", "fr": "Pop-corn", "ar": "فشار", "category": "legumes-secs", "price_per_kg": 120},
+    "lentilles": {"en": "Lentils", "fr": "Lentilles", "ar": "عدس", "category": "legumes secs", "price_per_kg": 180},
+    "lentilles-corail": {"en": "Red Lentils", "fr": "Lentilles Corail", "ar": "عدس أحمر", "category": "legumes secs", "price_per_kg": 200},
+    "lentilles-royales": {"en": "Royal Lentils", "fr": "Lentilles Royales", "ar": "عدس ملكي", "category": "legumes secs", "price_per_kg": 220},
+    "lentille-rouge": {"en": "Red Lentils", "fr": "Lentille Rouge", "ar": "عدس أحمر", "category": "legumes secs", "price_per_kg": 200},
+    "haricots": {"en": "Beans", "fr": "Haricots", "ar": "فاصوليا", "category": "legumes secs", "price_per_kg": 200},
+    "haricots-blanc": {"en": "White Beans", "fr": "Haricots Blancs", "ar": "فاصوليا بيضاء", "category": "legumes secs", "price_per_kg": 200},
+    "haricots-rouge": {"en": "Red Beans", "fr": "Haricots Rouges", "ar": "فاصوليا حمراء", "category": "legumes secs", "price_per_kg": 200},
+    "haricots-oeil-noir": {"en": "Black-Eyed Beans", "fr": "Haricots Oeil Noir", "ar": "فاصوليا عين سوداء", "category": "legumes secs", "price_per_kg": 220},
+    "pois-chiches": {"en": "Chickpeas", "fr": "Pois Chiches", "ar": "حمص", "category": "legumes secs", "price_per_kg": 180},
+    "petitts-cassees": {"en": "Split Peas", "fr": "Pois Cassés", "ar": "بازلاء مجروشة", "category": "legumes secs", "price_per_kg": 160},
+    "borghol-gros": {"en": "Bulgur", "fr": "Borghol Gros", "ar": "برغل", "category": "legumes secs", "price_per_kg": 150},
+    "guisantes": {"en": "Peas", "fr": "Petits Pois", "ar": "بازلاء", "category": "legumes secs", "price_per_kg": 180},
+    "popcorn": {"en": "Popcorn", "fr": "Pop-corn", "ar": "فشار", "category": "legumes secs", "price_per_kg": 120},
 
     # === EPICES (Spices/Seasonings) ===
     "sel": {"en": "Salt", "fr": "Sel", "ar": "ملح", "category": "epices", "price_per_kg": 30},
@@ -290,8 +314,27 @@ def upload_to_s3(local_path, s3_key):
     elif local_path.endswith('.webp'):
         content_type = 'image/webp'
 
-    s3.upload_file(local_path, S3_BUCKET, s3_key, ExtraArgs={'ContentType': content_type})
+    # Cache for 1 hour (3600 seconds), then revalidate
+    s3.upload_file(local_path, S3_BUCKET, s3_key, ExtraArgs={
+        'ContentType': content_type,
+        'CacheControl': 'public, max-age=3600'
+    })
     return f"https://{S3_BUCKET}.s3.{S3_REGION}.amazonaws.com/{s3_key}"
+
+
+def normalize_name(name):
+    """Normalize name by removing extensions and cleaning up."""
+    name = name.lower()
+    # Remove all image extensions (handle double extensions like .webp.png)
+    while True:
+        changed = False
+        for ext in ['.png', '.jpg', '.jpeg', '.webp']:
+            if name.endswith(ext):
+                name = name[:-len(ext)]
+                changed = True
+        if not changed:
+            break
+    return name
 
 
 def parse_product_filename(filename, brand):
@@ -299,9 +342,7 @@ def parse_product_filename(filename, brand):
     # Expected format: brand_category_product-name-size.png
     # Example: sim_pates_couscous-fin-sim-1kg.png
 
-    name = filename.lower()
-    for ext in ['.png', '.jpg', '.jpeg', '.webp']:
-        name = name.replace(ext, '')
+    name = normalize_name(filename)
 
     # Split by underscore
     parts = name.split('_')
@@ -395,11 +436,25 @@ def main():
     # Process categories
     print("\n[1/3] Processing categories...")
     categories_data = []
+    seen_categories = set()
     for img_file in sorted(os.listdir(categories_path)):
         if not img_file.lower().endswith(('.png', '.jpg', '.jpeg', '.webp')):
             continue
 
-        cat_name = os.path.splitext(img_file)[0].lower()
+        # Get category name from filename (remove extension only, keep original case)
+        cat_name = os.path.splitext(img_file)[0]
+        # Handle double extensions like .webp.png
+        while cat_name.lower().endswith(('.png', '.jpg', '.jpeg', '.webp')):
+            cat_name = os.path.splitext(cat_name)[0]
+
+        cat_key = cat_name.lower()
+
+        # Skip duplicates
+        if cat_key in seen_categories:
+            print(f"  Skipping duplicate category: {cat_name}")
+            continue
+        seen_categories.add(cat_key)
+
         img_path = os.path.join(categories_path, img_file)
         s3_key = f"categories/{img_file}"
 
@@ -409,11 +464,12 @@ def main():
             print(f"  Uploading {img_file}...")
             image_url = upload_to_s3(img_path, s3_key)
 
-        translations = CATEGORY_TRANSLATIONS.get(cat_name, {"en": cat_name.title(), "fr": cat_name.title(), "ar": cat_name})
+        # Use original name as-is for display (title case)
+        display_name = cat_name.replace('-', ' ').title()
 
         categories_data.append({
-            "name": cat_name,
-            "name_translations": translations,
+            "name": cat_key,
+            "name_translations": {"en": display_name, "fr": display_name, "ar": display_name},
             "image_url": image_url,
             "is_active": True
         })
@@ -423,11 +479,25 @@ def main():
     # Process brands
     print("\n[2/3] Processing brands...")
     brands_data = []
+    seen_brands = set()
     for img_file in sorted(os.listdir(brands_path)):
         if not img_file.lower().endswith(('.png', '.jpg', '.jpeg', '.webp')):
             continue
 
-        brand_name = os.path.splitext(img_file)[0].lower()
+        # Get brand name from filename (remove extension only)
+        brand_name = os.path.splitext(img_file)[0]
+        # Handle double extensions like .webp.png
+        while brand_name.lower().endswith(('.png', '.jpg', '.jpeg', '.webp')):
+            brand_name = os.path.splitext(brand_name)[0]
+
+        brand_key = brand_name.lower()
+
+        # Skip duplicates
+        if brand_key in seen_brands:
+            print(f"  Skipping duplicate brand: {brand_name}")
+            continue
+        seen_brands.add(brand_key)
+
         img_path = os.path.join(brands_path, img_file)
         s3_key = f"brands/{img_file}"
 
@@ -437,9 +507,11 @@ def main():
             print(f"  Uploading {img_file}...")
             image_url = upload_to_s3(img_path, s3_key)
 
+        # Use original name as-is for display (title case)
+        display_name = brand_name.replace('-', ' ').title()
         brands_data.append({
-            "name": brand_name.replace('-', ' ').title(),
-            "name_translations": {"en": brand_name.replace('-', ' ').title(), "fr": brand_name.replace('-', ' ').title(), "ar": brand_name},
+            "name": display_name,
+            "name_translations": {"en": display_name, "fr": display_name, "ar": display_name},
             "image_url": image_url,
             "is_active": True
         })
@@ -448,11 +520,15 @@ def main():
 
     # Build lookup maps
     category_names = {c['name'] for c in categories_data}
-    brand_names = {b['name'].lower().replace(' ', '-'): b['name'] for b in brands_data}
+    brand_names = {b['name'].lower(): b['name'] for b in brands_data}
+    # Also map with hyphens for lookup
+    for b in brands_data:
+        brand_names[b['name'].lower().replace(' ', '-')] = b['name']
 
     # Process products
     print("\n[3/3] Processing products...")
     products_data = []
+    seen_products = set()
 
     for brand_folder in sorted(os.listdir(products_path)):
         brand_path = os.path.join(products_path, brand_folder)
@@ -460,7 +536,7 @@ def main():
             continue
 
         brand = brand_folder.lower()
-        brand_display = brand_names.get(brand, brand.replace('-', ' ').title())
+        brand_display = brand_names.get(brand, brand_names.get(brand.replace(' ', '-'), brand.replace('-', ' ').title()))
 
         print(f"\n  Brand: {brand_display}")
 
@@ -468,17 +544,26 @@ def main():
             if not img_file.lower().endswith(('.png', '.jpg', '.jpeg', '.webp')):
                 continue
 
+            # Check for duplicate products based on normalized filename
+            normalized_file = normalize_name(img_file)
+            product_key = f"{brand}_{normalized_file}"
+            if product_key in seen_products:
+                print(f"    Skipping duplicate: {img_file}")
+                continue
+            seen_products.add(product_key)
+
             img_path = os.path.join(brand_path, img_file)
-            s3_key = f"products/{brand}/{img_file}"
+            # Normalize s3 key (replace spaces with hyphens)
+            s3_key = f"products/{brand.replace(' ', '-')}/{img_file.replace(' ', '-')}"
 
             # Parse filename
-            parsed = parse_product_filename(img_file, brand)
+            parsed = parse_product_filename(img_file, brand.replace(' ', '-'))
             category = parsed['category']
             size = parsed['size']
             info = parsed['product_info']
 
-            # Validate category
-            if category not in category_names:
+            # Validate category (handle spaces in category names)
+            if category not in category_names and category.replace(' ', '-') not in category_names:
                 print(f"    WARNING: Unknown category '{category}' for {img_file}")
                 category = "autres"
 

@@ -3,9 +3,9 @@
     {
       "name": "beurre",
       "name_translations": {
-        "en": "Butter & Margarine",
-        "fr": "Beurre & Margarine",
-        "ar": "زبدة ومارغرين"
+        "en": "Beurre",
+        "fr": "Beurre",
+        "ar": "Beurre"
       },
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/categories/beurre.webp",
       "is_active": true
@@ -13,9 +13,9 @@
     {
       "name": "biscuits",
       "name_translations": {
-        "en": "Biscuits & Cookies",
-        "fr": "Biscuits & Gâteaux",
-        "ar": "بسكويت وكعك"
+        "en": "Biscuits",
+        "fr": "Biscuits",
+        "ar": "Biscuits"
       },
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/categories/biscuits.webp",
       "is_active": true
@@ -23,29 +23,29 @@
     {
       "name": "boissons",
       "name_translations": {
-        "en": "Beverages",
+        "en": "Boissons",
         "fr": "Boissons",
-        "ar": "مشروبات"
+        "ar": "Boissons"
       },
-      "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/categories/boissons.webp",
+      "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/categories/boissons.png",
       "is_active": true
     },
     {
       "name": "bouillon",
       "name_translations": {
-        "en": "Broths & Stock",
-        "fr": "Bouillons",
-        "ar": "مرق"
+        "en": "Bouillon",
+        "fr": "Bouillon",
+        "ar": "Bouillon"
       },
-      "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/categories/bouillon.webp",
+      "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/categories/bouillon.png",
       "is_active": true
     },
     {
       "name": "cafe",
       "name_translations": {
-        "en": "Coffee & Cocoa",
-        "fr": "Café & Cacao",
-        "ar": "قهوة وكاكاو"
+        "en": "Cafe",
+        "fr": "Cafe",
+        "ar": "Cafe"
       },
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/categories/cafe.webp",
       "is_active": true
@@ -53,9 +53,9 @@
     {
       "name": "confiture",
       "name_translations": {
-        "en": "Jams & Spreads",
-        "fr": "Confitures & Tartinables",
-        "ar": "مربى ودهون"
+        "en": "Confiture",
+        "fr": "Confiture",
+        "ar": "Confiture"
       },
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/categories/confiture.webp",
       "is_active": true
@@ -63,11 +63,11 @@
     {
       "name": "conserves",
       "name_translations": {
-        "en": "Canned Goods",
+        "en": "Conserves",
         "fr": "Conserves",
-        "ar": "معلبات"
+        "ar": "Conserves"
       },
-      "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/categories/conserves.webp",
+      "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/categories/conserves.png",
       "is_active": true
     },
     {
@@ -75,27 +75,27 @@
       "name_translations": {
         "en": "Desserts",
         "fr": "Desserts",
-        "ar": "حلويات"
+        "ar": "Desserts"
       },
-      "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/categories/desserts.webp",
+      "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/categories/desserts.png",
       "is_active": true
     },
     {
       "name": "epices",
       "name_translations": {
-        "en": "Spices & Seasonings",
-        "fr": "Épices & Assaisonnements",
-        "ar": "توابل وبهارات"
+        "en": "Epices",
+        "fr": "Epices",
+        "ar": "Epices"
       },
-      "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/categories/epices.webp",
+      "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/categories/epices.png",
       "is_active": true
     },
     {
       "name": "farine",
       "name_translations": {
-        "en": "Flour",
+        "en": "Farine",
         "fr": "Farine",
-        "ar": "دقيق"
+        "ar": "Farine"
       },
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/categories/farine.webp",
       "is_active": true
@@ -105,7 +105,7 @@
       "name_translations": {
         "en": "Harissa",
         "fr": "Harissa",
-        "ar": "هريسة"
+        "ar": "Harissa"
       },
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/categories/harissa.webp",
       "is_active": true
@@ -115,7 +115,7 @@
       "name_translations": {
         "en": "Huile",
         "fr": "Huile",
-        "ar": "huile"
+        "ar": "Huile"
       },
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/categories/huile.webp",
       "is_active": true
@@ -123,29 +123,29 @@
     {
       "name": "lait",
       "name_translations": {
-        "en": "Dairy",
-        "fr": "Produits Laitiers",
-        "ar": "منتجات الألبان"
+        "en": "Lait",
+        "fr": "Lait",
+        "ar": "Lait"
       },
-      "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/categories/lait.webp",
+      "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/categories/lait.png",
       "is_active": true
     },
     {
-      "name": "legumes-secs",
+      "name": "legumes secs",
       "name_translations": {
-        "en": "Dried Legumes",
-        "fr": "Légumes Secs",
-        "ar": "بقوليات جافة"
+        "en": "Legumes Secs",
+        "fr": "Legumes Secs",
+        "ar": "Legumes Secs"
       },
-      "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/categories/legumes-secs.webp",
+      "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/categories/legumes secs.png",
       "is_active": true
     },
     {
       "name": "pates",
       "name_translations": {
-        "en": "Pasta",
-        "fr": "Pâtes",
-        "ar": "معكرونة"
+        "en": "Pates",
+        "fr": "Pates",
+        "ar": "Pates"
       },
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/categories/pates.webp",
       "is_active": true
@@ -153,11 +153,11 @@
     {
       "name": "riz",
       "name_translations": {
-        "en": "Rice",
+        "en": "Riz",
         "fr": "Riz",
-        "ar": "أرز"
+        "ar": "Riz"
       },
-      "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/categories/riz.webp",
+      "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/categories/riz.png",
       "is_active": true
     },
     {
@@ -165,17 +165,17 @@
       "name_translations": {
         "en": "Sauces",
         "fr": "Sauces",
-        "ar": "صلصات"
+        "ar": "Sauces"
       },
-      "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/categories/sauces.webp",
+      "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/categories/sauces.png",
       "is_active": true
     },
     {
       "name": "sucre",
       "name_translations": {
-        "en": "Sugar",
+        "en": "Sucre",
         "fr": "Sucre",
-        "ar": "سكر"
+        "ar": "Sucre"
       },
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/categories/sucre.webp",
       "is_active": true
@@ -183,19 +183,19 @@
     {
       "name": "the",
       "name_translations": {
-        "en": "Tea",
-        "fr": "Thé",
-        "ar": "شاي"
+        "en": "The",
+        "fr": "The",
+        "ar": "The"
       },
-      "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/categories/the.webp",
+      "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/categories/the.webp.png",
       "is_active": true
     },
     {
       "name": "tomate",
       "name_translations": {
-        "en": "Tomato Products",
-        "fr": "Produits de Tomate",
-        "ar": "منتجات الطماطم"
+        "en": "Tomate",
+        "fr": "Tomate",
+        "ar": "Tomate"
       },
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/categories/tomate.webp",
       "is_active": true
@@ -217,7 +217,7 @@
       "name_translations": {
         "en": "Agrodiv",
         "fr": "Agrodiv",
-        "ar": "agrodiv"
+        "ar": "Agrodiv"
       },
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/brands/agrodiv.webp",
       "is_active": true
@@ -227,9 +227,9 @@
       "name_translations": {
         "en": "Amor Benamor",
         "fr": "Amor Benamor",
-        "ar": "amor-benamor"
+        "ar": "Amor Benamor"
       },
-      "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/brands/amor-benamor.webp",
+      "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/brands/amor benamor.webp",
       "is_active": true
     },
     {
@@ -237,7 +237,7 @@
       "name_translations": {
         "en": "Atlantic",
         "fr": "Atlantic",
-        "ar": "atlantic"
+        "ar": "Atlantic"
       },
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/brands/atlantic.webp",
       "is_active": true
@@ -247,7 +247,7 @@
       "name_translations": {
         "en": "Auzia",
         "fr": "Auzia",
-        "ar": "auzia"
+        "ar": "Auzia"
       },
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/brands/auzia.webp",
       "is_active": true
@@ -257,7 +257,7 @@
       "name_translations": {
         "en": "Bifa",
         "fr": "Bifa",
-        "ar": "bifa"
+        "ar": "Bifa"
       },
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/brands/bifa.webp",
       "is_active": true
@@ -267,7 +267,7 @@
       "name_translations": {
         "en": "Bimo",
         "fr": "Bimo",
-        "ar": "bimo"
+        "ar": "Bimo"
       },
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/brands/bimo.webp",
       "is_active": true
@@ -277,7 +277,7 @@
       "name_translations": {
         "en": "Bista",
         "fr": "Bista",
-        "ar": "bista"
+        "ar": "Bista"
       },
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/brands/bista.webp",
       "is_active": true
@@ -287,7 +287,7 @@
       "name_translations": {
         "en": "Bono",
         "fr": "Bono",
-        "ar": "bono"
+        "ar": "Bono"
       },
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/brands/bono.webp",
       "is_active": true
@@ -297,7 +297,7 @@
       "name_translations": {
         "en": "Bouguelez",
         "fr": "Bouguelez",
-        "ar": "bouguelez"
+        "ar": "Bouguelez"
       },
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/brands/bouguelez.webp",
       "is_active": true
@@ -307,7 +307,7 @@
       "name_translations": {
         "en": "Cevital",
         "fr": "Cevital",
-        "ar": "cevital"
+        "ar": "Cevital"
       },
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/brands/cevital.webp",
       "is_active": true
@@ -317,7 +317,7 @@
       "name_translations": {
         "en": "Dima",
         "fr": "Dima",
-        "ar": "dima"
+        "ar": "Dima"
       },
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/brands/dima.webp",
       "is_active": true
@@ -327,19 +327,9 @@
       "name_translations": {
         "en": "Dylia",
         "fr": "Dylia",
-        "ar": "dylia"
+        "ar": "Dylia"
       },
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/brands/dylia.webp",
-      "is_active": true
-    },
-    {
-      "name": "Eanacel",
-      "name_translations": {
-        "en": "Eanacel",
-        "fr": "Eanacel",
-        "ar": "eanacel"
-      },
-      "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/brands/eanacel.webp",
       "is_active": true
     },
     {
@@ -347,7 +337,7 @@
       "name_translations": {
         "en": "Elmordjene",
         "fr": "Elmordjene",
-        "ar": "elmordjene"
+        "ar": "Elmordjene"
       },
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/brands/elmordjene.webp",
       "is_active": true
@@ -357,7 +347,7 @@
       "name_translations": {
         "en": "Enasel",
         "fr": "Enasel",
-        "ar": "enasel"
+        "ar": "Enasel"
       },
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/brands/enasel.webp",
       "is_active": true
@@ -367,7 +357,7 @@
       "name_translations": {
         "en": "Extra",
         "fr": "Extra",
-        "ar": "extra"
+        "ar": "Extra"
       },
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/brands/extra.webp",
       "is_active": true
@@ -377,7 +367,7 @@
       "name_translations": {
         "en": "Facto",
         "fr": "Facto",
-        "ar": "facto"
+        "ar": "Facto"
       },
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/brands/facto.webp",
       "is_active": true
@@ -387,7 +377,7 @@
       "name_translations": {
         "en": "Famico",
         "fr": "Famico",
-        "ar": "famico"
+        "ar": "Famico"
       },
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/brands/famico.webp",
       "is_active": true
@@ -397,7 +387,7 @@
       "name_translations": {
         "en": "Garrido",
         "fr": "Garrido",
-        "ar": "garrido"
+        "ar": "Garrido"
       },
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/brands/garrido.webp",
       "is_active": true
@@ -407,7 +397,7 @@
       "name_translations": {
         "en": "Guedila",
         "fr": "Guedila",
-        "ar": "guedila"
+        "ar": "Guedila"
       },
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/brands/guedila.webp",
       "is_active": true
@@ -417,9 +407,9 @@
       "name_translations": {
         "en": "Izdihar",
         "fr": "Izdihar",
-        "ar": "izdihar"
+        "ar": "Izdihar"
       },
-      "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/brands/izdihar.webp",
+      "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/brands/izdihar.webp.png",
       "is_active": true
     },
     {
@@ -427,7 +417,7 @@
       "name_translations": {
         "en": "Jumbo",
         "fr": "Jumbo",
-        "ar": "jumbo"
+        "ar": "Jumbo"
       },
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/brands/jumbo.webp",
       "is_active": true
@@ -437,7 +427,7 @@
       "name_translations": {
         "en": "Kouisel",
         "fr": "Kouisel",
-        "ar": "kouisel"
+        "ar": "Kouisel"
       },
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/brands/kouisel.webp",
       "is_active": true
@@ -447,9 +437,9 @@
       "name_translations": {
         "en": "Labelle",
         "fr": "Labelle",
-        "ar": "labelle"
+        "ar": "Labelle"
       },
-      "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/brands/labelle.webp",
+      "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/brands/labelle.png",
       "is_active": true
     },
     {
@@ -457,7 +447,7 @@
       "name_translations": {
         "en": "Mama",
         "fr": "Mama",
-        "ar": "mama"
+        "ar": "Mama"
       },
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/brands/mama.webp",
       "is_active": true
@@ -467,7 +457,7 @@
       "name_translations": {
         "en": "Many",
         "fr": "Many",
-        "ar": "many"
+        "ar": "Many"
       },
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/brands/many.webp",
       "is_active": true
@@ -477,7 +467,7 @@
       "name_translations": {
         "en": "Maratun",
         "fr": "Maratun",
-        "ar": "maratun"
+        "ar": "Maratun"
       },
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/brands/maratun.webp",
       "is_active": true
@@ -487,7 +477,7 @@
       "name_translations": {
         "en": "Maxon",
         "fr": "Maxon",
-        "ar": "maxon"
+        "ar": "Maxon"
       },
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/brands/maxon.webp",
       "is_active": true
@@ -497,7 +487,7 @@
       "name_translations": {
         "en": "Montdor",
         "fr": "Montdor",
-        "ar": "montdor"
+        "ar": "Montdor"
       },
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/brands/montdor.webp",
       "is_active": true
@@ -507,7 +497,7 @@
       "name_translations": {
         "en": "Nouara",
         "fr": "Nouara",
-        "ar": "nouara"
+        "ar": "Nouara"
       },
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/brands/nouara.webp",
       "is_active": true
@@ -517,7 +507,7 @@
       "name_translations": {
         "en": "Nova",
         "fr": "Nova",
-        "ar": "nova"
+        "ar": "Nova"
       },
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/brands/nova.webp",
       "is_active": true
@@ -527,7 +517,7 @@
       "name_translations": {
         "en": "Saf",
         "fr": "Saf",
-        "ar": "saf"
+        "ar": "Saf"
       },
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/brands/saf.webp",
       "is_active": true
@@ -537,9 +527,9 @@
       "name_translations": {
         "en": "Safia",
         "fr": "Safia",
-        "ar": "safia"
+        "ar": "Safia"
       },
-      "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/brands/safia.webp",
+      "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/brands/safia.png",
       "is_active": true
     },
     {
@@ -547,7 +537,7 @@
       "name_translations": {
         "en": "Safina",
         "fr": "Safina",
-        "ar": "safina"
+        "ar": "Safina"
       },
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/brands/safina.webp",
       "is_active": true
@@ -557,7 +547,7 @@
       "name_translations": {
         "en": "Serina",
         "fr": "Serina",
-        "ar": "serina"
+        "ar": "Serina"
       },
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/brands/serina.webp",
       "is_active": true
@@ -567,9 +557,9 @@
       "name_translations": {
         "en": "Sim",
         "fr": "Sim",
-        "ar": "sim"
+        "ar": "Sim"
       },
-      "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/brands/sim.webp",
+      "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/brands/sim.webp.png",
       "is_active": true
     },
     {
@@ -577,7 +567,7 @@
       "name_translations": {
         "en": "Telloise",
         "fr": "Telloise",
-        "ar": "telloise"
+        "ar": "Telloise"
       },
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/brands/telloise.webp",
       "is_active": true
@@ -587,7 +577,7 @@
       "name_translations": {
         "en": "Tournado",
         "fr": "Tournado",
-        "ar": "tournado"
+        "ar": "Tournado"
       },
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/brands/tournado.webp",
       "is_active": true
@@ -597,7 +587,7 @@
       "name_translations": {
         "en": "Twisco",
         "fr": "Twisco",
-        "ar": "twisco"
+        "ar": "Twisco"
       },
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/brands/twisco.webp",
       "is_active": true
@@ -983,7 +973,7 @@
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/agrodiv/agrodiv_legumes-secs_haricots-blanc-agrodiv-1kg.webp",
       "is_organic": false,
       "is_active": true,
-      "category": "legumes-secs",
+      "category": "legumes secs",
       "brand": "Agrodiv",
       "pieces_per_box": 12,
       "packaging_type": "CARTON"
@@ -1007,7 +997,7 @@
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/agrodiv/agrodiv_legumes-secs_lentilles-agrodiv-1kg.webp",
       "is_organic": false,
       "is_active": true,
-      "category": "legumes-secs",
+      "category": "legumes secs",
       "brand": "Agrodiv",
       "pieces_per_box": 12,
       "packaging_type": "CARTON"
@@ -1031,7 +1021,7 @@
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/agrodiv/agrodiv_legumes-secs_pois-chiches-agrodiv-1kg.webp",
       "is_organic": false,
       "is_active": true,
-      "category": "legumes-secs",
+      "category": "legumes secs",
       "brand": "Agrodiv",
       "pieces_per_box": 12,
       "packaging_type": "CARTON"
@@ -1349,6 +1339,270 @@
       "packaging_type": "CARTON"
     },
     {
+      "name": "Couscous Gros Amor Benamor 1kg",
+      "name_translations": {
+        "en": "Coarse Couscous Amor Benamor 1kg",
+        "fr": "Couscous Gros Amor Benamor 1kg",
+        "ar": "كسكس خشن Amor Benamor 1kg"
+      },
+      "description": "12 unités par carton",
+      "description_translations": {
+        "en": "12 units per box",
+        "fr": "12 unités par carton",
+        "ar": "12 وحدة في الصندوق"
+      },
+      "price": 145,
+      "unit": "PIECE",
+      "stock_quantity": 60,
+      "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/amor-benamor/amor-benamor_pates_Couscous-Gros-Amor-Benamor.jpg",
+      "is_organic": false,
+      "is_active": true,
+      "category": "pates",
+      "brand": "Amor Benamor",
+      "pieces_per_box": 12,
+      "packaging_type": "CARTON"
+    },
+    {
+      "name": "Couscous Moyen Amor Benamor 500g",
+      "name_translations": {
+        "en": "Medium Couscous Amor Benamor 500g",
+        "fr": "Couscous Moyen Amor Benamor 500g",
+        "ar": "كسكس متوسط Amor Benamor 500g"
+      },
+      "description": "20 unités par carton",
+      "description_translations": {
+        "en": "20 units per box",
+        "fr": "20 unités par carton",
+        "ar": "20 وحدة في الصندوق"
+      },
+      "price": 72,
+      "unit": "PIECE",
+      "stock_quantity": 100,
+      "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/amor-benamor/amor-benamor_pates_Couscous-Moyen-500g.png",
+      "is_organic": false,
+      "is_active": true,
+      "category": "pates",
+      "brand": "Amor Benamor",
+      "pieces_per_box": 20,
+      "packaging_type": "CARTON"
+    },
+    {
+      "name": "Couscous Fin Amor Benamor 1kg",
+      "name_translations": {
+        "en": "Fine Couscous Amor Benamor 1kg",
+        "fr": "Couscous Fin Amor Benamor 1kg",
+        "ar": "كسكس ناعم Amor Benamor 1kg"
+      },
+      "description": "12 unités par carton",
+      "description_translations": {
+        "en": "12 units per box",
+        "fr": "12 unités par carton",
+        "ar": "12 وحدة في الصندوق"
+      },
+      "price": 145,
+      "unit": "PIECE",
+      "stock_quantity": 60,
+      "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/amor-benamor/amor-benamor_pates_Couscous-fin-1Kg.png",
+      "is_organic": false,
+      "is_active": true,
+      "category": "pates",
+      "brand": "Amor Benamor",
+      "pieces_per_box": 12,
+      "packaging_type": "CARTON"
+    },
+    {
+      "name": "Coude Moyen Amor Benamor 500g",
+      "name_translations": {
+        "en": "Medium Elbow Amor Benamor 500g",
+        "fr": "Coude Moyen Amor Benamor 500g",
+        "ar": "كوع متوسط Amor Benamor 500g"
+      },
+      "description": "20 unités par carton",
+      "description_translations": {
+        "en": "20 units per box",
+        "fr": "20 unités par carton",
+        "ar": "20 وحدة في الصندوق"
+      },
+      "price": 70,
+      "unit": "PIECE",
+      "stock_quantity": 100,
+      "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/amor-benamor/amor-benamor_pates_coude-moyen-500g.jpg",
+      "is_organic": false,
+      "is_active": true,
+      "category": "pates",
+      "brand": "Amor Benamor",
+      "pieces_per_box": 20,
+      "packaging_type": "CARTON"
+    },
+    {
+      "name": "Langues D Oiseaux Amor Benamor 500g",
+      "name_translations": {
+        "en": "Langues D Oiseaux Amor Benamor 500g",
+        "fr": "Langues D Oiseaux Amor Benamor 500g",
+        "ar": "langues-d-oiseaux Amor Benamor 500g"
+      },
+      "description": "20 unités par carton",
+      "description_translations": {
+        "en": "20 units per box",
+        "fr": "20 unités par carton",
+        "ar": "20 وحدة في الصندوق"
+      },
+      "price": 50,
+      "unit": "PIECE",
+      "stock_quantity": 100,
+      "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/amor-benamor/amor-benamor_pates_langues-d-oiseaux-500g.png",
+      "is_organic": false,
+      "is_active": true,
+      "category": "pates",
+      "brand": "Amor Benamor",
+      "pieces_per_box": 20,
+      "packaging_type": "CARTON"
+    },
+    {
+      "name": "Penne Amor Benamor 500g",
+      "name_translations": {
+        "en": "Penne Amor Benamor 500g",
+        "fr": "Penne Amor Benamor 500g",
+        "ar": "بيني Amor Benamor 500g"
+      },
+      "description": "20 unités par carton",
+      "description_translations": {
+        "en": "20 units per box",
+        "fr": "20 unités par carton",
+        "ar": "20 وحدة في الصندوق"
+      },
+      "price": 70,
+      "unit": "PIECE",
+      "stock_quantity": 100,
+      "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/amor-benamor/amor-benamor_pates_penne-amor-benamor-500g.png",
+      "is_organic": false,
+      "is_active": true,
+      "category": "pates",
+      "brand": "Amor Benamor",
+      "pieces_per_box": 20,
+      "packaging_type": "CARTON"
+    },
+    {
+      "name": "Plombs Amorbenamor Amor Benamor 1kg",
+      "name_translations": {
+        "en": "Plombs Amorbenamor Amor Benamor 1kg",
+        "fr": "Plombs Amorbenamor Amor Benamor 1kg",
+        "ar": "plombs-amorbenamor Amor Benamor 1kg"
+      },
+      "description": "12 unités par carton",
+      "description_translations": {
+        "en": "12 units per box",
+        "fr": "12 unités par carton",
+        "ar": "12 وحدة في الصندوق"
+      },
+      "price": 100,
+      "unit": "PIECE",
+      "stock_quantity": 60,
+      "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/amor-benamor/amor-benamor_pates_plombs-1kg-amorbenamor.png",
+      "is_organic": false,
+      "is_active": true,
+      "category": "pates",
+      "brand": "Amor Benamor",
+      "pieces_per_box": 12,
+      "packaging_type": "CARTON"
+    },
+    {
+      "name": "Plombs Amorbenamor Amor Benamor 500g",
+      "name_translations": {
+        "en": "Plombs Amorbenamor Amor Benamor 500g",
+        "fr": "Plombs Amorbenamor Amor Benamor 500g",
+        "ar": "plombs-amorbenamor Amor Benamor 500g"
+      },
+      "description": "20 unités par carton",
+      "description_translations": {
+        "en": "20 units per box",
+        "fr": "20 unités par carton",
+        "ar": "20 وحدة في الصندوق"
+      },
+      "price": 50,
+      "unit": "PIECE",
+      "stock_quantity": 100,
+      "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/amor-benamor/amor-benamor_pates_plombs-500g-amorbenamor.png",
+      "is_organic": false,
+      "is_active": true,
+      "category": "pates",
+      "brand": "Amor Benamor",
+      "pieces_per_box": 20,
+      "packaging_type": "CARTON"
+    },
+    {
+      "name": "Spaghetti Amor Benamor 500g",
+      "name_translations": {
+        "en": "Spaghetti Amor Benamor 500g",
+        "fr": "Spaghetti Amor Benamor 500g",
+        "ar": "سباغيتي Amor Benamor 500g"
+      },
+      "description": "20 unités par carton",
+      "description_translations": {
+        "en": "20 units per box",
+        "fr": "20 unités par carton",
+        "ar": "20 وحدة في الصندوق"
+      },
+      "price": 70,
+      "unit": "PIECE",
+      "stock_quantity": 100,
+      "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/amor-benamor/amor-benamor_pates_spaghetti-amor-benamor-500g.png",
+      "is_organic": false,
+      "is_active": true,
+      "category": "pates",
+      "brand": "Amor Benamor",
+      "pieces_per_box": 20,
+      "packaging_type": "CARTON"
+    },
+    {
+      "name": "Torsades Amor Benamor 500g",
+      "name_translations": {
+        "en": "Torsades Amor Benamor 500g",
+        "fr": "Torsades Amor Benamor 500g",
+        "ar": "torsades Amor Benamor 500g"
+      },
+      "description": "20 unités par carton",
+      "description_translations": {
+        "en": "20 units per box",
+        "fr": "20 unités par carton",
+        "ar": "20 وحدة في الصندوق"
+      },
+      "price": 50,
+      "unit": "PIECE",
+      "stock_quantity": 100,
+      "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/amor-benamor/amor-benamor_pates_torsades-amor-benamor--500g.png",
+      "is_organic": false,
+      "is_active": true,
+      "category": "pates",
+      "brand": "Amor Benamor",
+      "pieces_per_box": 20,
+      "packaging_type": "CARTON"
+    },
+    {
+      "name": "Vermicelles Amor Benamor 500g",
+      "name_translations": {
+        "en": "Vermicelles Amor Benamor 500g",
+        "fr": "Vermicelles Amor Benamor 500g",
+        "ar": "vermicelles Amor Benamor 500g"
+      },
+      "description": "20 unités par carton",
+      "description_translations": {
+        "en": "20 units per box",
+        "fr": "20 unités par carton",
+        "ar": "20 وحدة في الصندوق"
+      },
+      "price": 50,
+      "unit": "PIECE",
+      "stock_quantity": 100,
+      "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/amor-benamor/amor-benamor_pates_vermicelles-500g.png",
+      "is_organic": false,
+      "is_active": true,
+      "category": "pates",
+      "brand": "Amor Benamor",
+      "pieces_per_box": 20,
+      "packaging_type": "CARTON"
+    },
+    {
       "name": "Farine de Maïs Auzia 5kg",
       "name_translations": {
         "en": "Corn Flour Auzia 5kg",
@@ -1439,7 +1693,7 @@
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/auzia/auzia_legumes-secs_lentille-rouge-auzia-1kg.webp",
       "is_organic": false,
       "is_active": true,
-      "category": "legumes-secs",
+      "category": "legumes secs",
       "brand": "Auzia",
       "pieces_per_box": 12,
       "packaging_type": "CARTON"
@@ -1497,7 +1751,7 @@
       "name_translations": {
         "en": "Bennito Bifa 1kg",
         "fr": "Bennito Bifa 1kg",
-        "ar": "bennito Bifa 1kg"
+        "ar": "بينيتو Bifa 1kg"
       },
       "description": "12 unités par carton",
       "description_translations": {
@@ -1505,7 +1759,7 @@
         "fr": "12 unités par carton",
         "ar": "12 وحدة في الصندوق"
       },
-      "price": 100,
+      "price": 300,
       "unit": "PIECE",
       "stock_quantity": 60,
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/bifa/bifa_biscuits_bennito-bifa.webp",
@@ -1521,7 +1775,7 @@
       "name_translations": {
         "en": "Besto Bifa 1kg",
         "fr": "Besto Bifa 1kg",
-        "ar": "besto Bifa 1kg"
+        "ar": "بيستو Bifa 1kg"
       },
       "description": "12 unités par carton",
       "description_translations": {
@@ -1529,7 +1783,7 @@
         "fr": "12 unités par carton",
         "ar": "12 وحدة في الصندوق"
       },
-      "price": 100,
+      "price": 300,
       "unit": "PIECE",
       "stock_quantity": 60,
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/bifa/bifa_biscuits_besto-bifa.webp",
@@ -1565,11 +1819,11 @@
       "packaging_type": "CARTON"
     },
     {
-      "name": "Dadey 12 Bifa 1kg",
+      "name": "Dadey Bifa 1kg",
       "name_translations": {
-        "en": "Dadey 12 Bifa 1kg",
-        "fr": "Dadey 12 Bifa 1kg",
-        "ar": "dadey-12 Bifa 1kg"
+        "en": "Dadey Bifa 1kg",
+        "fr": "Dadey Bifa 1kg",
+        "ar": "داداي Bifa 1kg"
       },
       "description": "12 unités par carton",
       "description_translations": {
@@ -1577,7 +1831,7 @@
         "fr": "12 unités par carton",
         "ar": "12 وحدة في الصندوق"
       },
-      "price": 100,
+      "price": 300,
       "unit": "PIECE",
       "stock_quantity": 60,
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/bifa/bifa_biscuits_dadey-12-bifa.webp",
@@ -1593,7 +1847,7 @@
       "name_translations": {
         "en": "Famelio Bifa 1kg",
         "fr": "Famelio Bifa 1kg",
-        "ar": "famelio Bifa 1kg"
+        "ar": "فاميليو Bifa 1kg"
       },
       "description": "12 unités par carton",
       "description_translations": {
@@ -1601,7 +1855,7 @@
         "fr": "12 unités par carton",
         "ar": "12 وحدة في الصندوق"
       },
-      "price": 100,
+      "price": 300,
       "unit": "PIECE",
       "stock_quantity": 60,
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/bifa/bifa_biscuits_famelio-bifa.webp",
@@ -1641,7 +1895,7 @@
       "name_translations": {
         "en": "Rigolo Bifa 1kg",
         "fr": "Rigolo Bifa 1kg",
-        "ar": "rigolo Bifa 1kg"
+        "ar": "ريغولو Bifa 1kg"
       },
       "description": "12 unités par carton",
       "description_translations": {
@@ -1649,7 +1903,7 @@
         "fr": "12 unités par carton",
         "ar": "12 وحدة في الصندوق"
       },
-      "price": 100,
+      "price": 300,
       "unit": "PIECE",
       "stock_quantity": 60,
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/bifa/bifa_biscuits_rigolo-bifa.webp",
@@ -1737,7 +1991,7 @@
       "name_translations": {
         "en": "Pesos Bimo 1kg",
         "fr": "Pesos Bimo 1kg",
-        "ar": "pesos Bimo 1kg"
+        "ar": "بيسوس Bimo 1kg"
       },
       "description": "12 unités par carton",
       "description_translations": {
@@ -1745,7 +1999,7 @@
         "fr": "12 unités par carton",
         "ar": "12 وحدة في الصندوق"
       },
-      "price": 100,
+      "price": 350,
       "unit": "PIECE",
       "stock_quantity": 60,
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/bimo/bimo_biscuits_pesos-bimo.webp",
@@ -1785,7 +2039,7 @@
       "name_translations": {
         "en": "Twist Nuevo Bimo 1kg",
         "fr": "Twist Nuevo Bimo 1kg",
-        "ar": "twist-nuevo Bimo 1kg"
+        "ar": "تويست نويفو Bimo 1kg"
       },
       "description": "12 unités par carton",
       "description_translations": {
@@ -1793,7 +2047,7 @@
         "fr": "12 unités par carton",
         "ar": "12 وحدة في الصندوق"
       },
-      "price": 100,
+      "price": 350,
       "unit": "PIECE",
       "stock_quantity": 60,
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/bimo/bimo_biscuits_twist-nuevo-bimo.webp",
@@ -1809,7 +2063,7 @@
       "name_translations": {
         "en": "Big Filou Bista 1kg",
         "fr": "Big Filou Bista 1kg",
-        "ar": "big-filou Bista 1kg"
+        "ar": "بيغ فيلو Bista 1kg"
       },
       "description": "12 unités par carton",
       "description_translations": {
@@ -1817,7 +2071,7 @@
         "fr": "12 unités par carton",
         "ar": "12 وحدة في الصندوق"
       },
-      "price": 100,
+      "price": 350,
       "unit": "PIECE",
       "stock_quantity": 60,
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/bista/bista_biscuits_big-filou-bista.webp",
@@ -1857,7 +2111,7 @@
       "name_translations": {
         "en": "Filou Bista 1kg",
         "fr": "Filou Bista 1kg",
-        "ar": "filou Bista 1kg"
+        "ar": "فيلو Bista 1kg"
       },
       "description": "12 unités par carton",
       "description_translations": {
@@ -1865,7 +2119,7 @@
         "fr": "12 unités par carton",
         "ar": "12 وحدة في الصندوق"
       },
-      "price": 100,
+      "price": 320,
       "unit": "PIECE",
       "stock_quantity": 60,
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/bista/bista_biscuits_filou-bista.webp",
@@ -2021,11 +2275,11 @@
       "packaging_type": "CARTON"
     },
     {
-      "name": "Gouter Matinal Bista 1kg",
+      "name": "Goûter Matinal Bista 1kg",
       "name_translations": {
-        "en": "Gouter Matinal Bista 1kg",
-        "fr": "Gouter Matinal Bista 1kg",
-        "ar": "gouter-matinal Bista 1kg"
+        "en": "Morning Snack Bista 1kg",
+        "fr": "Goûter Matinal Bista 1kg",
+        "ar": "وجبة صباحية Bista 1kg"
       },
       "description": "12 unités par carton",
       "description_translations": {
@@ -2033,7 +2287,7 @@
         "fr": "12 unités par carton",
         "ar": "12 وحدة في الصندوق"
       },
-      "price": 100,
+      "price": 280,
       "unit": "PIECE",
       "stock_quantity": 60,
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/bista/bista_biscuits_gouter-matinal-bista.webp",
@@ -2047,9 +2301,9 @@
     {
       "name": "Lomdja Matinal Bista 1kg",
       "name_translations": {
-        "en": "Lomdja Matinal Bista 1kg",
+        "en": "Morning Lomdja Bista 1kg",
         "fr": "Lomdja Matinal Bista 1kg",
-        "ar": "lomdja-matinal Bista 1kg"
+        "ar": "لمجة صباحية Bista 1kg"
       },
       "description": "12 unités par carton",
       "description_translations": {
@@ -2057,7 +2311,7 @@
         "fr": "12 unités par carton",
         "ar": "12 وحدة في الصندوق"
       },
-      "price": 100,
+      "price": 280,
       "unit": "PIECE",
       "stock_quantity": 60,
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/bista/bista_biscuits_lomdja-matinal-bista.webp",
@@ -2073,7 +2327,7 @@
       "name_translations": {
         "en": "Mister Biscuit Bista 1kg",
         "fr": "Mister Biscuit Bista 1kg",
-        "ar": "mister-biscuit Bista 1kg"
+        "ar": "مستر بسكويت Bista 1kg"
       },
       "description": "12 unités par carton",
       "description_translations": {
@@ -2081,7 +2335,7 @@
         "fr": "12 unités par carton",
         "ar": "12 وحدة في الصندوق"
       },
-      "price": 100,
+      "price": 300,
       "unit": "PIECE",
       "stock_quantity": 60,
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/bista/bista_biscuits_mister-biscuit-bista.webp",
@@ -2097,7 +2351,7 @@
       "name_translations": {
         "en": "Misti Amigos Bista 1kg",
         "fr": "Misti Amigos Bista 1kg",
-        "ar": "misti-amigos Bista 1kg"
+        "ar": "مستي أميغوس Bista 1kg"
       },
       "description": "12 unités par carton",
       "description_translations": {
@@ -2105,7 +2359,7 @@
         "fr": "12 unités par carton",
         "ar": "12 وحدة في الصندوق"
       },
-      "price": 100,
+      "price": 300,
       "unit": "PIECE",
       "stock_quantity": 60,
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/bista/bista_biscuits_misti-amigos-bista.webp",
@@ -2121,7 +2375,7 @@
       "name_translations": {
         "en": "Misti Cacao Bista 1kg",
         "fr": "Misti Cacao Bista 1kg",
-        "ar": "misti-cacao Bista 1kg"
+        "ar": "مستي كاكاو Bista 1kg"
       },
       "description": "12 unités par carton",
       "description_translations": {
@@ -2129,7 +2383,7 @@
         "fr": "12 unités par carton",
         "ar": "12 وحدة في الصندوق"
       },
-      "price": 100,
+      "price": 300,
       "unit": "PIECE",
       "stock_quantity": 60,
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/bista/bista_biscuits_misti-cacao-bista.webp",
@@ -2141,11 +2395,11 @@
       "packaging_type": "CARTON"
     },
     {
-      "name": "Misti Cafe Bista 1kg",
+      "name": "Misti Café Bista 1kg",
       "name_translations": {
-        "en": "Misti Cafe Bista 1kg",
-        "fr": "Misti Cafe Bista 1kg",
-        "ar": "misti-cafe Bista 1kg"
+        "en": "Misti Coffee Bista 1kg",
+        "fr": "Misti Café Bista 1kg",
+        "ar": "مستي قهوة Bista 1kg"
       },
       "description": "12 unités par carton",
       "description_translations": {
@@ -2153,7 +2407,7 @@
         "fr": "12 unités par carton",
         "ar": "12 وحدة في الصندوق"
       },
-      "price": 100,
+      "price": 300,
       "unit": "PIECE",
       "stock_quantity": 60,
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/bista/bista_biscuits_misti-cafe-bista.webp",
@@ -2167,9 +2421,9 @@
     {
       "name": "Misti Citron Bista 1kg",
       "name_translations": {
-        "en": "Misti Citron Bista 1kg",
+        "en": "Misti Lemon Bista 1kg",
         "fr": "Misti Citron Bista 1kg",
-        "ar": "misti-citron Bista 1kg"
+        "ar": "مستي ليمون Bista 1kg"
       },
       "description": "12 unités par carton",
       "description_translations": {
@@ -2177,7 +2431,7 @@
         "fr": "12 unités par carton",
         "ar": "12 وحدة في الصندوق"
       },
-      "price": 100,
+      "price": 300,
       "unit": "PIECE",
       "stock_quantity": 60,
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/bista/bista_biscuits_misti-citron-bista.webp",
@@ -2191,9 +2445,9 @@
     {
       "name": "Misti Vanille Bista 1kg",
       "name_translations": {
-        "en": "Misti Vanille Bista 1kg",
+        "en": "Misti Vanilla Bista 1kg",
         "fr": "Misti Vanille Bista 1kg",
-        "ar": "misti-vanille Bista 1kg"
+        "ar": "مستي فانيلا Bista 1kg"
       },
       "description": "12 unités par carton",
       "description_translations": {
@@ -2201,7 +2455,7 @@
         "fr": "12 unités par carton",
         "ar": "12 وحدة في الصندوق"
       },
-      "price": 100,
+      "price": 300,
       "unit": "PIECE",
       "stock_quantity": 60,
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/bista/bista_biscuits_misti-vanille-bista.webp",
@@ -2276,7 +2530,7 @@
       "price": 60,
       "unit": "PIECE",
       "stock_quantity": 120,
-      "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/bono/bono_tomate_tomate-bono-28%-400g.webp",
+      "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/bono/bono_tomate_tomate-bono-400g.webp",
       "is_organic": false,
       "is_active": true,
       "category": "tomate",
@@ -2300,7 +2554,7 @@
       "price": 114,
       "unit": "PIECE",
       "stock_quantity": 60,
-      "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/bono/bono_tomate_tomate-bono-28%-760g.webp",
+      "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/bono/bono_tomate_tomate-bono-760g.webp",
       "is_organic": false,
       "is_active": true,
       "category": "tomate",
@@ -2309,11 +2563,11 @@
       "packaging_type": "CARTON"
     },
     {
-      "name": "Eau Bouguelez 1.5L",
+      "name": "Eau Bouglez 1.5L",
       "name_translations": {
-        "en": "Water Bouguelez 1.5L",
-        "fr": "Eau Bouguelez 1.5L",
-        "ar": "ماء Bouguelez 1.5L"
+        "en": "Water Bouglez 1.5L",
+        "fr": "Eau Bouglez 1.5L",
+        "ar": "ماء Bouglez 1.5L"
       },
       "description": "6 unités par carton",
       "description_translations": {
@@ -2324,20 +2578,20 @@
       "price": 45,
       "unit": "PIECE",
       "stock_quantity": 30,
-      "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/bouguelez/bouguelez_boissons_eau-bouglez-1.5l.webp",
+      "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/bouglez/bouglez_boissons_eau-bouglez-1.5l.webp",
       "is_organic": false,
       "is_active": true,
       "category": "boissons",
-      "brand": "Bouguelez",
+      "brand": "Bouglez",
       "pieces_per_box": 6,
       "packaging_type": "CARTON"
     },
     {
-      "name": "Eau Bouguelez 1L",
+      "name": "Eau Bouglez 1L",
       "name_translations": {
-        "en": "Water Bouguelez 1L",
-        "fr": "Eau Bouguelez 1L",
-        "ar": "ماء Bouguelez 1L"
+        "en": "Water Bouglez 1L",
+        "fr": "Eau Bouglez 1L",
+        "ar": "ماء Bouglez 1L"
       },
       "description": "12 unités par carton",
       "description_translations": {
@@ -2348,11 +2602,83 @@
       "price": 30,
       "unit": "PIECE",
       "stock_quantity": 60,
-      "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/bouguelez/bouguelez_boissons_eau-bouglez-1l.webp",
+      "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/bouglez/bouglez_boissons_eau-bouglez-1l.webp",
       "is_organic": false,
       "is_active": true,
       "category": "boissons",
-      "brand": "Bouguelez",
+      "brand": "Bouglez",
+      "pieces_per_box": 12,
+      "packaging_type": "CARTON"
+    },
+    {
+      "name": "Eau Cevital 0.5L",
+      "name_translations": {
+        "en": "Water Cevital 0.5L",
+        "fr": "Eau Cevital 0.5L",
+        "ar": "ماء Cevital 0.5L"
+      },
+      "description": "12 unités par carton",
+      "description_translations": {
+        "en": "12 units per box",
+        "fr": "12 unités par carton",
+        "ar": "12 وحدة في الصندوق"
+      },
+      "price": 15,
+      "unit": "PIECE",
+      "stock_quantity": 60,
+      "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/cevital/cevital_boissons_eau-lala-khedidja-0.5l.webp",
+      "is_organic": false,
+      "is_active": true,
+      "category": "boissons",
+      "brand": "Cevital",
+      "pieces_per_box": 12,
+      "packaging_type": "CARTON"
+    },
+    {
+      "name": "Eau Cevital 1.5L",
+      "name_translations": {
+        "en": "Water Cevital 1.5L",
+        "fr": "Eau Cevital 1.5L",
+        "ar": "ماء Cevital 1.5L"
+      },
+      "description": "6 unités par carton",
+      "description_translations": {
+        "en": "6 units per box",
+        "fr": "6 unités par carton",
+        "ar": "6 وحدة في الصندوق"
+      },
+      "price": 45,
+      "unit": "PIECE",
+      "stock_quantity": 30,
+      "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/cevital/cevital_boissons_eau-lala-khedidja-1.5l.webp",
+      "is_organic": false,
+      "is_active": true,
+      "category": "boissons",
+      "brand": "Cevital",
+      "pieces_per_box": 6,
+      "packaging_type": "CARTON"
+    },
+    {
+      "name": "Eau Cevital 1L",
+      "name_translations": {
+        "en": "Water Cevital 1L",
+        "fr": "Eau Cevital 1L",
+        "ar": "ماء Cevital 1L"
+      },
+      "description": "12 unités par carton",
+      "description_translations": {
+        "en": "12 units per box",
+        "fr": "12 unités par carton",
+        "ar": "12 وحدة في الصندوق"
+      },
+      "price": 30,
+      "unit": "PIECE",
+      "stock_quantity": 60,
+      "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/cevital/cevital_boissons_eau-lala-khedidja-1l.webp",
+      "is_organic": false,
+      "is_active": true,
+      "category": "boissons",
+      "brand": "Cevital",
       "pieces_per_box": 12,
       "packaging_type": "CARTON"
     },
@@ -2663,7 +2989,7 @@
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/dylia/dylia_legumes-secs_borghol-gros-dylia-1kg.webp",
       "is_organic": false,
       "is_active": true,
-      "category": "legumes-secs",
+      "category": "legumes secs",
       "brand": "Dylia",
       "pieces_per_box": 12,
       "packaging_type": "CARTON"
@@ -2687,17 +3013,17 @@
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/dylia/dylia_legumes-secs_haricots-blanc-dylia-1kg.webp",
       "is_organic": false,
       "is_active": true,
-      "category": "legumes-secs",
+      "category": "legumes secs",
       "brand": "Dylia",
       "pieces_per_box": 12,
       "packaging_type": "CARTON"
     },
     {
-      "name": "Haricots Dylia 500g",
+      "name": "Haricots Oeil Noir Dylia 500g",
       "name_translations": {
-        "en": "Beans Dylia 500g",
-        "fr": "Haricots Dylia 500g",
-        "ar": "فاصوليا Dylia 500g"
+        "en": "Black-Eyed Beans Dylia 500g",
+        "fr": "Haricots Oeil Noir Dylia 500g",
+        "ar": "فاصوليا عين سوداء Dylia 500g"
       },
       "description": "20 unités par carton",
       "description_translations": {
@@ -2705,13 +3031,13 @@
         "fr": "20 unités par carton",
         "ar": "20 وحدة في الصندوق"
       },
-      "price": 100,
+      "price": 110,
       "unit": "PIECE",
       "stock_quantity": 100,
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/dylia/dylia_legumes-secs_haricots-oeil-noir-500g.webp",
       "is_organic": false,
       "is_active": true,
-      "category": "legumes-secs",
+      "category": "legumes secs",
       "brand": "Dylia",
       "pieces_per_box": 20,
       "packaging_type": "CARTON"
@@ -2735,7 +3061,7 @@
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/dylia/dylia_legumes-secs_haricots-rouge-dylia-1kg.webp",
       "is_organic": false,
       "is_active": true,
-      "category": "legumes-secs",
+      "category": "legumes secs",
       "brand": "Dylia",
       "pieces_per_box": 12,
       "packaging_type": "CARTON"
@@ -2759,7 +3085,7 @@
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/dylia/dylia_legumes-secs_lentilles-corail-dylia-1kg.webp",
       "is_organic": false,
       "is_active": true,
-      "category": "legumes-secs",
+      "category": "legumes secs",
       "brand": "Dylia",
       "pieces_per_box": 12,
       "packaging_type": "CARTON"
@@ -2783,17 +3109,17 @@
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/dylia/dylia_legumes-secs_lentilles-royales-dylia-1kg.webp",
       "is_organic": false,
       "is_active": true,
-      "category": "legumes-secs",
+      "category": "legumes secs",
       "brand": "Dylia",
       "pieces_per_box": 12,
       "packaging_type": "CARTON"
     },
     {
-      "name": "Petitts Cassees Kg Dylia 1kg",
+      "name": "Pois Cassés Dylia 1kg",
       "name_translations": {
-        "en": "Petitts Cassees Kg Dylia 1kg",
-        "fr": "Petitts Cassees Kg Dylia 1kg",
-        "ar": "petitts-cassees-kg Dylia 1kg"
+        "en": "Split Peas Dylia 1kg",
+        "fr": "Pois Cassés Dylia 1kg",
+        "ar": "بازلاء مجروشة Dylia 1kg"
       },
       "description": "12 unités par carton",
       "description_translations": {
@@ -2801,13 +3127,13 @@
         "fr": "12 unités par carton",
         "ar": "12 وحدة في الصندوق"
       },
-      "price": 100,
+      "price": 160,
       "unit": "PIECE",
       "stock_quantity": 60,
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/dylia/dylia_legumes-secs_petitts-cassees-dylia-kg.webp",
       "is_organic": false,
       "is_active": true,
-      "category": "legumes-secs",
+      "category": "legumes secs",
       "brand": "Dylia",
       "pieces_per_box": 12,
       "packaging_type": "CARTON"
@@ -2831,7 +3157,7 @@
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/dylia/dylia_legumes-secs_pois-chiches-dylia-500g.webp",
       "is_organic": false,
       "is_active": true,
-      "category": "legumes-secs",
+      "category": "legumes secs",
       "brand": "Dylia",
       "pieces_per_box": 20,
       "packaging_type": "CARTON"
@@ -4631,7 +4957,7 @@
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/garrido/garrido_legumes-secs_guisantes-garrido-1kg.webp",
       "is_organic": false,
       "is_active": true,
-      "category": "legumes-secs",
+      "category": "legumes secs",
       "brand": "Garrido",
       "pieces_per_box": 12,
       "packaging_type": "CARTON"
@@ -4655,7 +4981,7 @@
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/garrido/garrido_legumes-secs_haricots-blanc-garrido-1kg.webp",
       "is_organic": false,
       "is_active": true,
-      "category": "legumes-secs",
+      "category": "legumes secs",
       "brand": "Garrido",
       "pieces_per_box": 12,
       "packaging_type": "CARTON"
@@ -4679,7 +5005,7 @@
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/garrido/garrido_legumes-secs_haricots-garrido-1kg.webp",
       "is_organic": false,
       "is_active": true,
-      "category": "legumes-secs",
+      "category": "legumes secs",
       "brand": "Garrido",
       "pieces_per_box": 12,
       "packaging_type": "CARTON"
@@ -4703,7 +5029,7 @@
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/garrido/garrido_legumes-secs_haricots-rouge-garrido-1kg.webp",
       "is_organic": false,
       "is_active": true,
-      "category": "legumes-secs",
+      "category": "legumes secs",
       "brand": "Garrido",
       "pieces_per_box": 12,
       "packaging_type": "CARTON"
@@ -4727,7 +5053,7 @@
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/garrido/garrido_legumes-secs_lentilles-garrido-1000g.webp",
       "is_organic": false,
       "is_active": true,
-      "category": "legumes-secs",
+      "category": "legumes secs",
       "brand": "Garrido",
       "pieces_per_box": 12,
       "packaging_type": "CARTON"
@@ -4751,7 +5077,7 @@
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/garrido/garrido_legumes-secs_lentilles-garrido-1kg.webp",
       "is_organic": false,
       "is_active": true,
-      "category": "legumes-secs",
+      "category": "legumes secs",
       "brand": "Garrido",
       "pieces_per_box": 12,
       "packaging_type": "CARTON"
@@ -4775,7 +5101,7 @@
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/garrido/garrido_legumes-secs_lentilles-rouge-garrido-1kg.webp",
       "is_organic": false,
       "is_active": true,
-      "category": "legumes-secs",
+      "category": "legumes secs",
       "brand": "Garrido",
       "pieces_per_box": 12,
       "packaging_type": "CARTON"
@@ -4799,7 +5125,7 @@
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/garrido/garrido_legumes-secs_pois-chiches-garrido-1kg.webp",
       "is_organic": false,
       "is_active": true,
-      "category": "legumes-secs",
+      "category": "legumes secs",
       "brand": "Garrido",
       "pieces_per_box": 12,
       "packaging_type": "CARTON"
@@ -4823,7 +5149,7 @@
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/garrido/garrido_legumes-secs_popcorn-garrido-1kg.webp",
       "is_organic": false,
       "is_active": true,
-      "category": "legumes-secs",
+      "category": "legumes secs",
       "brand": "Garrido",
       "pieces_per_box": 12,
       "packaging_type": "CARTON"
@@ -6149,78 +6475,6 @@
       "packaging_type": "CARTON"
     },
     {
-      "name": "Eau Lalakhedija 0.5L",
-      "name_translations": {
-        "en": "Water Lalakhedija 0.5L",
-        "fr": "Eau Lalakhedija 0.5L",
-        "ar": "ماء Lalakhedija 0.5L"
-      },
-      "description": "12 unités par carton",
-      "description_translations": {
-        "en": "12 units per box",
-        "fr": "12 unités par carton",
-        "ar": "12 وحدة في الصندوق"
-      },
-      "price": 15,
-      "unit": "PIECE",
-      "stock_quantity": 60,
-      "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/lalakhedija/cevital_boissons_eau-lala-khedidja-0.5l.webp",
-      "is_organic": false,
-      "is_active": true,
-      "category": "boissons",
-      "brand": "Lalakhedija",
-      "pieces_per_box": 12,
-      "packaging_type": "CARTON"
-    },
-    {
-      "name": "Eau Lalakhedija 1.5L",
-      "name_translations": {
-        "en": "Water Lalakhedija 1.5L",
-        "fr": "Eau Lalakhedija 1.5L",
-        "ar": "ماء Lalakhedija 1.5L"
-      },
-      "description": "6 unités par carton",
-      "description_translations": {
-        "en": "6 units per box",
-        "fr": "6 unités par carton",
-        "ar": "6 وحدة في الصندوق"
-      },
-      "price": 45,
-      "unit": "PIECE",
-      "stock_quantity": 30,
-      "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/lalakhedija/cevital_boissons_eau-lala-khedidja-1.5l.webp",
-      "is_organic": false,
-      "is_active": true,
-      "category": "boissons",
-      "brand": "Lalakhedija",
-      "pieces_per_box": 6,
-      "packaging_type": "CARTON"
-    },
-    {
-      "name": "Eau Lalakhedija 1L",
-      "name_translations": {
-        "en": "Water Lalakhedija 1L",
-        "fr": "Eau Lalakhedija 1L",
-        "ar": "ماء Lalakhedija 1L"
-      },
-      "description": "12 unités par carton",
-      "description_translations": {
-        "en": "12 units per box",
-        "fr": "12 unités par carton",
-        "ar": "12 وحدة في الصندوق"
-      },
-      "price": 30,
-      "unit": "PIECE",
-      "stock_quantity": 60,
-      "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/lalakhedija/cevital_boissons_eau-lala-khedidja-1l.webp",
-      "is_organic": false,
-      "is_active": true,
-      "category": "boissons",
-      "brand": "Lalakhedija",
-      "pieces_per_box": 12,
-      "packaging_type": "CARTON"
-    },
-    {
       "name": "Farine T150 Mama 1kg",
       "name_translations": {
         "en": "Whole Wheat Flour Mama 1kg",
@@ -6941,11 +7195,11 @@
       "packaging_type": "CARTON"
     },
     {
-      "name": "Galette Maxon 1kg",
+      "name": "Galette Cacao Maxon 1kg",
       "name_translations": {
-        "en": "Biscuits Maxon 1kg",
-        "fr": "Galette Maxon 1kg",
-        "ar": "غاليت Maxon 1kg"
+        "en": "Cocoa Biscuits Maxon 1kg",
+        "fr": "Galette Cacao Maxon 1kg",
+        "ar": "غاليت كاكاو Maxon 1kg"
       },
       "description": "12 unités par carton",
       "description_translations": {
@@ -6953,7 +7207,7 @@
         "fr": "12 unités par carton",
         "ar": "12 وحدة في الصندوق"
       },
-      "price": 280,
+      "price": 300,
       "unit": "PIECE",
       "stock_quantity": 60,
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/maxon/maxon_biscuits_galette-cacao-maxon.webp",
@@ -7017,7 +7271,7 @@
       "name_translations": {
         "en": "Wafer Maxon 1kg",
         "fr": "Wafer Maxon 1kg",
-        "ar": "wafer Maxon 1kg"
+        "ar": "ويفر Maxon 1kg"
       },
       "description": "12 unités par carton",
       "description_translations": {
@@ -7025,7 +7279,7 @@
         "fr": "12 unités par carton",
         "ar": "12 وحدة في الصندوق"
       },
-      "price": 100,
+      "price": 350,
       "unit": "PIECE",
       "stock_quantity": 60,
       "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/maxon/maxon_biscuits_wafer-maxon.webp",
@@ -7964,7 +8218,7 @@
       "price": 20,
       "unit": "PIECE",
       "stock_quantity": 180,
-      "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/serina/serina_tomate_tomate-serina-22%-135g.webp",
+      "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/serina/serina_tomate_tomate-serina-135g.webp",
       "is_organic": false,
       "is_active": true,
       "category": "tomate",
@@ -7988,7 +8242,7 @@
       "price": 57,
       "unit": "PIECE",
       "stock_quantity": 100,
-      "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/serina/serina_tomate_tomate-serina-22%-380g.webp",
+      "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/serina/serina_tomate_tomate-serina-380g.webp",
       "is_organic": false,
       "is_active": true,
       "category": "tomate",
@@ -8012,7 +8266,7 @@
       "price": 117,
       "unit": "PIECE",
       "stock_quantity": 60,
-      "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/serina/serina_tomate_tomate-serina-22%-780g.webp",
+      "image_url": "https://agroclik.s3.eu-west-3.amazonaws.com/products/serina/serina_tomate_tomate-serina-780g.webp",
       "is_organic": false,
       "is_active": true,
       "category": "tomate",
