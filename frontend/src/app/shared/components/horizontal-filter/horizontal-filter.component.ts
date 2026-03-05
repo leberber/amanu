@@ -1,5 +1,6 @@
 import { Component, AfterViewInit, effect, computed, input, output, signal, viewChildren, ElementRef } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
+import { MultilinePipe } from '../../pipes/multiline.pipe';
 
 export interface FilterItem {
   id: number;
@@ -14,7 +15,7 @@ export type FilterType = 'categories' | 'brands';
 @Component({
   selector: 'app-horizontal-filter',
   standalone: true,
-  imports: [TranslateModule],
+  imports: [TranslateModule, MultilinePipe],
   templateUrl: './horizontal-filter.component.html',
   styleUrls: ['./horizontal-filter.component.scss']
 })
