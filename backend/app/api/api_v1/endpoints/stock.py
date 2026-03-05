@@ -1,92 +1,119 @@
-import csv
-import os
 from typing import List
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from sqlmodel import Session, select
 from pydantic import BaseModel
+from datetime import datetime, timezone
+
+from app.database import get_session
+from app.models.stock import StockItem
 
 router = APIRouter()
 
-DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))), "data")
-STOCK_CSV_PATH = os.path.join(DATA_DIR, "stock.csv")
+
+class StockItemRequest(BaseModel):
+    productId: int
+    image: str = ""
+    category: str = ""
+    brand: str = ""
+    product: str = ""
+    description: str = ""
+    supplier: str = ""
+    phone: str = ""
+    prixUnite: float = 0
+    uniteParCarton: int = 1
+    prixCarton: float = 0
+    nmbCarton: int = 0
+    carry: bool = False
+    priority: int = 0
 
 
-class StockItem(BaseModel):
+class StockItemResponse(BaseModel):
     productId: int
     image: str
     category: str
     brand: str
     product: str
     description: str
-    supplier: str = ''
-    phone: str = ''
+    supplier: str
+    phone: str
     prixUnite: float
     uniteParCarton: int
-    prixCarton: float = 0
+    prixCarton: float
     nmbCarton: int
-    carry: bool = False
+    carry: bool
+    priority: int
 
 
 class StockData(BaseModel):
-    items: List[StockItem]
+    items: List[StockItemResponse]
 
 
-def ensure_data_dir():
-    if not os.path.exists(DATA_DIR):
-        os.makedirs(DATA_DIR)
+class StockSaveRequest(BaseModel):
+    items: List[StockItemRequest]
+
+
+def db_to_response(item: StockItem) -> StockItemResponse:
+    """Convert database model to response model"""
+    return StockItemResponse(
+        productId=item.product_id,
+        image=item.image,
+        category=item.category,
+        brand=item.brand,
+        product=item.product,
+        description=item.description,
+        supplier=item.supplier,
+        phone=item.phone,
+        prixUnite=item.prix_unite,
+        uniteParCarton=item.unite_par_carton,
+        prixCarton=item.prix_carton,
+        nmbCarton=item.nmb_carton,
+        carry=item.carry,
+        priority=item.priority
+    )
 
 
 @router.get("", response_model=StockData)
-async def get_stock():
-    items = []
-    if os.path.exists(STOCK_CSV_PATH):
-        try:
-            with open(STOCK_CSV_PATH, 'r', newline='', encoding='utf-8') as f:
-                reader = csv.DictReader(f)
-                for row in reader:
-                    items.append(StockItem(
-                        productId=int(row['productId']),
-                        image=row.get('image', ''),
-                        category=row.get('category', ''),
-                        brand=row.get('brand', ''),
-                        product=row.get('product', ''),
-                        description=row.get('description', ''),
-                        supplier=row.get('supplier', ''),
-                        phone=row.get('phone', ''),
-                        prixUnite=float(row['prixUnite']) if row.get('prixUnite') else 0,
-                        uniteParCarton=int(row['uniteParCarton']) if row.get('uniteParCarton') else 0,
-                        prixCarton=float(row['prixCarton']) if row.get('prixCarton') else 0,
-                        nmbCarton=int(row['nmbCarton']) if row.get('nmbCarton') else 0,
-                        carry=row.get('carry', '').lower() == 'true'
-                    ))
-        except Exception as e:
-            print(f"Error reading stock CSV: {e}")
-    return StockData(items=items)
+async def get_stock(session: Session = Depends(get_session)):
+    """Get all stock items"""
+    statement = select(StockItem).order_by(StockItem.id)
+    items = session.exec(statement).all()
+    return StockData(items=[db_to_response(item) for item in items])
 
 
 @router.post("", response_model=dict)
-async def save_stock(data: StockData):
-    ensure_data_dir()
+async def save_stock(data: StockSaveRequest, session: Session = Depends(get_session)):
+    """Save stock items - replaces all existing items"""
+    print(f"Received {len(data.items)} items to save")
     try:
-        fieldnames = ['productId', 'image', 'category', 'brand', 'product', 'description', 'supplier', 'phone', 'prixUnite', 'uniteParCarton', 'prixCarton', 'nmbCarton', 'carry']
-        with open(STOCK_CSV_PATH, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.DictWriter(f, fieldnames=fieldnames)
-            writer.writeheader()
-            for item in data.items:
-                writer.writerow({
-                    'productId': item.productId,
-                    'image': item.image,
-                    'category': item.category,
-                    'brand': item.brand,
-                    'product': item.product,
-                    'description': item.description,
-                    'supplier': item.supplier,
-                    'phone': item.phone,
-                    'prixUnite': item.prixUnite,
-                    'uniteParCarton': item.uniteParCarton,
-                    'prixCarton': item.prixCarton,
-                    'nmbCarton': item.nmbCarton,
-                    'carry': item.carry
-                })
+        # Delete all existing items
+        statement = select(StockItem)
+        existing_items = session.exec(statement).all()
+        for item in existing_items:
+            session.delete(item)
+
+        # Add new items
+        for item_data in data.items:
+            db_item = StockItem(
+                product_id=item_data.productId,
+                image=item_data.image,
+                category=item_data.category,
+                brand=item_data.brand,
+                product=item_data.product,
+                description=item_data.description,
+                supplier=item_data.supplier,
+                phone=item_data.phone,
+                prix_unite=item_data.prixUnite,
+                unite_par_carton=item_data.uniteParCarton,
+                prix_carton=item_data.prixCarton,
+                nmb_carton=item_data.nmbCarton,
+                carry=item_data.carry,
+                priority=item_data.priority,
+                created_at=datetime.now(timezone.utc)
+            )
+            session.add(db_item)
+
+        session.commit()
         return {"success": True, "message": f"Saved {len(data.items)} items"}
     except Exception as e:
+        session.rollback()
         return {"success": False, "message": str(e)}

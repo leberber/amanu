@@ -29,3 +29,4 @@ from app.models.notification_history import NotificationHistory
 from app.models.user_notification import UserNotification
 from app.models.password_reset import PasswordResetToken
 from app.models.email_verification import EmailVerificationToken
+from app.models.stock import StockItem

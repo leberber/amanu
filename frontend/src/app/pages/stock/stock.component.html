@@ -39,6 +39,10 @@
             />
           </div>
           <div class="table-actions">
+            <button class="btn-add" (click)="addRow()" pTooltip="Ajouter une ligne">
+              <i class="pi pi-plus"></i>
+              <span class="btn-text">Ajouter</span>
+            </button>
             <button class="btn-invoice" (click)="openInvoicePreview()" pTooltip="Générer Bon de Commande">
               <i class="pi pi-file-pdf"></i>
               <span class="btn-text">Commande</span>
@@ -105,6 +109,34 @@
                 <tr>
                   @if (isColumnVisible('carry')) {
                     <th class="col-carry">À Vendre</th>
+                  }
+                  @if (isColumnVisible('priority')) {
+                    <th class="col-priority-filter">
+                      <div class="filter-sort-row">
+                        <div class="filter-dropdown-wrapper">
+                          @if (priorityFilter() && priorityFilter().length > 0) {
+                            <span class="filter-badge" (click)="clearPriorityFilter(); $event.stopPropagation()" pTooltip="Effacer le filtre">
+                              {{ priorityFilter().length }}
+                              <i class="pi pi-times"></i>
+                            </span>
+                          }
+                          <p-multiSelect
+                            [options]="priorityOptions"
+                            [ngModel]="priorityFilter()"
+                            (ngModelChange)="onPriorityChange($event)"
+                            optionLabel="label"
+                            optionValue="value"
+                            placeholder="Priorité"
+                            [showClear]="false"
+                            selectedItemsLabel="Priorité"
+                            [maxSelectedLabels]="0"
+                          />
+                        </div>
+                        <button class="sort-btn" (click)="sort('priority')" [class.active]="sortField() === 'priority'">
+                          <i class="pi" [class.pi-sort-amount-up]="sortField() === 'priority' && sortOrder() === 'asc'" [class.pi-sort-amount-down]="sortField() === 'priority' && sortOrder() === 'desc'" [class.pi-sort-alt]="sortField() !== 'priority'"></i>
+                        </button>
+                      </div>
+                    </th>
                   }
                   @if (isColumnVisible('image')) {
                     <th class="col-image">Image</th>
@@ -227,6 +259,7 @@
                       }
                     </th>
                   }
+                  <th class="col-actions"></th>
                 </tr>
               </thead>
               <tbody>
@@ -236,6 +269,20 @@
                     @if (isColumnVisible('carry')) {
                       <td class="col-carry">
                         <p-toggleSwitch [(ngModel)]="row.carry" (ngModelChange)="onCarryChange()" />
+                      </td>
+                    }
+
+                    <!-- Priority -->
+                    @if (isColumnVisible('priority')) {
+                      <td class="col-priority">
+                        <p-select
+                          [(ngModel)]="row.priority"
+                          [options]="priorityOptions"
+                          optionLabel="label"
+                          optionValue="value"
+                          appendTo="body"
+                          styleClass="priority-select"
+                        />
                       </td>
                     }
 
@@ -254,24 +301,61 @@
                       </td>
                     }
 
-                    <!-- Product Name -->
+                    <!-- Product Name (editable) -->
                     @if (isColumnVisible('product')) {
-                      <td>
-                        <span class="product-name">{{ row.product }}</span>
+                      <td class="col-product-input">
+                        <input
+                          type="text"
+                          [(ngModel)]="row.product"
+                          class="stock-input product-name-input"
+                          placeholder="Nom du produit"
+                        />
                       </td>
                     }
 
                     <!-- Brand -->
                     @if (isColumnVisible('brand')) {
                       <td>
-                        <span class="brand-pill" [style.background]="getBrandColor(row.brand).bg" [style.color]="getBrandColor(row.brand).text">{{ row.brand }}</span>
+                        @if (isNewRow(row)) {
+                          <p-select
+                            [options]="brandOptions()"
+                            [(ngModel)]="row.brandId"
+                            (ngModelChange)="onBrandSelect(row, $event)"
+                            optionLabel="label"
+                            optionValue="value"
+                            placeholder="Marque"
+                            [filter]="true"
+                            filterPlaceholder="Rechercher..."
+                            [showClear]="false"
+                            appendTo="body"
+                            styleClass="stock-select"
+                          />
+                        } @else {
+                          <span class="brand-pill" [style.background]="getBrandColor(row.brand).bg" [style.color]="getBrandColor(row.brand).text">{{ row.brand }}</span>
+                        }
                       </td>
                     }
 
                     <!-- Category -->
                     @if (isColumnVisible('category')) {
                       <td>
-                        <span class="category-pill" [style.background]="getCategoryColor(row.category).bg" [style.color]="getCategoryColor(row.category).text">{{ row.category }}</span>
+                        @if (isNewRow(row)) {
+                          <p-select
+                            [options]="categoryOptions()"
+                            [(ngModel)]="row.categoryId"
+                            (ngModelChange)="onCategorySelect(row, $event)"
+                            optionLabel="label"
+                            optionValue="value"
+                            placeholder="Catégorie"
+                            [filter]="true"
+                            filterPlaceholder="Rechercher..."
+                            [showClear]="false"
+                            appendTo="body"
+                            styleClass="stock-select"
+                          />
+                        } @else {
+                          <span class="category-pill" [style.background]="getCategoryColor(row.category).bg" [style.color]="getCategoryColor(row.category).text">{{ row.category }}</span>
+                        }
                       </td>
                     }
 
@@ -320,6 +404,7 @@
                           [style]="{'width': '70px'}"
                           inputStyleClass="text-center"
                           (ngModelChange)="onPrixUniteChange(row)"
+                          (onFocus)="selectOnFocus($event)"
                         />
                       </td>
                     }
@@ -333,6 +418,7 @@
                           [style]="{'width': '70px'}"
                           inputStyleClass="text-center"
                           (ngModelChange)="onUniteParCartonChange(row)"
+                          (onFocus)="selectOnFocus($event)"
                         />
                       </td>
                     }
@@ -348,6 +434,7 @@
                           [style]="{'width': '70px'}"
                           inputStyleClass="text-center input-prix-carton"
                           (ngModelChange)="onPrixCartonChange(row)"
+                          (onFocus)="selectOnFocus($event)"
                         />
                       </td>
                     }
@@ -361,6 +448,7 @@
                           [style]="{'width': '70px'}"
                           inputStyleClass="text-center"
                           (ngModelChange)="onNmbCartonChange(row)"
+                          (onFocus)="selectOnFocus($event)"
                         />
                       </td>
                     }
@@ -371,6 +459,13 @@
                         <span class="value-total">{{ row.prixCarton * row.nmbCarton | number:'1.0-0' }}</span>
                       </td>
                     }
+
+                    <!-- Delete Action -->
+                    <td class="col-actions">
+                      <button class="btn-delete" (click)="deleteRow(row)" pTooltip="Supprimer">
+                        <i class="pi pi-trash"></i>
+                      </button>
+                    </td>
                   </tr>
                 }
               </tbody>

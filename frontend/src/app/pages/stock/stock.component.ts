@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { forkJoin, catchError, of } from 'rxjs';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { MultiSelectModule } from 'primeng/multiselect';
+import { SelectModule } from 'primeng/select';
 import { PopoverModule } from 'primeng/popover';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { DialogModule } from 'primeng/dialog';
@@ -35,6 +36,7 @@ interface StockItem {
   prixCarton: number;
   nmbCarton: number;
   carry: boolean;
+  priority: number;
 }
 
 interface StockData {
@@ -62,6 +64,7 @@ interface StockRow {
   prixCarton: number;
   nmbCarton: number;
   carry: boolean;
+  priority: number;
 }
 
 @Component({
@@ -74,6 +77,7 @@ interface StockRow {
     DatePipe,
     InputNumberModule,
     MultiSelectModule,
+    SelectModule,
     PopoverModule,
     ToggleSwitchModule,
     DialogModule,
@@ -113,14 +117,26 @@ export class StockComponent implements OnInit, OnDestroy {
   // Filters (multi-select)
   categoryFilter = signal<number[]>([]);
   brandFilter = signal<number[]>([]);
+  priorityFilter = signal<number[]>([]);
 
   // Sorting
   sortField = signal<string>('product');
   sortOrder = signal<'asc' | 'desc'>('asc');
 
+  // Priority options for dropdown
+  priorityOptions = [
+    { label: '-', value: 0 },
+    { label: '1', value: 1 },
+    { label: '2', value: 2 },
+    { label: '3', value: 3 },
+    { label: '4', value: 4 },
+    { label: '5', value: 5 }
+  ];
+
   // Column visibility options
   columnOptions = [
     { field: 'carry', label: 'À Vendre', visible: true },
+    { field: 'priority', label: 'Priorité', visible: true },
     { field: 'image', label: 'Image', visible: true },
     { field: 'product', label: 'Produit', visible: true },
     { field: 'brand', label: 'Marque', visible: true },
@@ -152,6 +168,7 @@ export class StockComponent implements OnInit, OnDestroy {
     let rows = [...this.allRows()];
     const catFilter = this.categoryFilter();
     const brandFilter = this.brandFilter();
+    const prioFilter = this.priorityFilter();
 
     if (catFilter && catFilter.length > 0) {
       rows = rows.filter(r => catFilter.includes(r.categoryId));
@@ -159,6 +176,10 @@ export class StockComponent implements OnInit, OnDestroy {
 
     if (brandFilter && brandFilter.length > 0) {
       rows = rows.filter(r => brandFilter.includes(r.brandId));
+    }
+
+    if (prioFilter && prioFilter.length > 0) {
+      rows = rows.filter(r => prioFilter.includes(r.priority));
     }
 
     if (this.searchQuery().trim()) {
@@ -309,7 +330,8 @@ export class StockComponent implements OnInit, OnDestroy {
             uniteParCarton,
             prixCarton,
             nmbCarton: saved?.nmbCarton ?? 0,
-            carry: saved?.carry ?? false
+            carry: saved?.carry ?? false,
+            priority: saved?.priority ?? 0
           };
         });
 
@@ -332,10 +354,15 @@ export class StockComponent implements OnInit, OnDestroy {
     this.brandFilter.set(value ?? []);
   }
 
+  onPriorityChange(value: number[] | null): void {
+    this.priorityFilter.set(value ?? []);
+  }
+
   clearFilters(): void {
     this.searchQuery.set('');
     this.categoryFilter.set([]);
     this.brandFilter.set([]);
+    this.priorityFilter.set([]);
   }
 
   clearCategoryFilter(): void {
@@ -346,10 +373,15 @@ export class StockComponent implements OnInit, OnDestroy {
     this.brandFilter.set([]);
   }
 
+  clearPriorityFilter(): void {
+    this.priorityFilter.set([]);
+  }
+
   hasActiveFilters(): boolean {
     const catFilter = this.categoryFilter();
     const brandFilter = this.brandFilter();
-    return this.searchQuery().trim() !== '' || (catFilter?.length ?? 0) > 0 || (brandFilter?.length ?? 0) > 0;
+    const prioFilter = this.priorityFilter();
+    return this.searchQuery().trim() !== '' || (catFilter?.length ?? 0) > 0 || (brandFilter?.length ?? 0) > 0 || (prioFilter?.length ?? 0) > 0;
   }
 
   saveStock(): void {
@@ -368,7 +400,8 @@ export class StockComponent implements OnInit, OnDestroy {
       uniteParCarton: row.uniteParCarton,
       prixCarton: row.prixCarton,
       nmbCarton: row.nmbCarton,
-      carry: row.carry
+      carry: row.carry,
+      priority: row.priority
     }));
 
     this.api.post<StockSaveResponse>('/stock', { items }).pipe(
@@ -394,6 +427,11 @@ export class StockComponent implements OnInit, OnDestroy {
     if (!img.src.includes('product-placeholder')) {
       img.src = 'assets/images/product-placeholder.png';
     }
+  }
+
+  selectOnFocus(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    input?.select();
   }
 
   // When Prix Unité changes, recalculate Prix Carton
@@ -430,6 +468,59 @@ export class StockComponent implements OnInit, OnDestroy {
 
   refresh(): void {
     this.loadData();
+  }
+
+  addRow(): void {
+    // Generate a new unique ID (negative to distinguish from real product IDs)
+    const newId = -Date.now();
+
+    const newRow: StockRow = {
+      productId: newId,
+      image: '',
+      category: '',
+      categoryId: 0,
+      brand: '',
+      brandId: 0,
+      product: '',
+      description: '',
+      supplier: '',
+      phone: '',
+      prixUnite: 0,
+      uniteParCarton: 1,
+      prixCarton: 0,
+      nmbCarton: 0,
+      carry: false,
+      priority: 0
+    };
+
+    // Add to the beginning of the list
+    this.allRows.update(rows => [newRow, ...rows]);
+    this.toast.showSuccess('Nouvelle ligne ajoutée');
+  }
+
+  deleteRow(row: StockRow): void {
+    this.allRows.update(rows => rows.filter(r => r.productId !== row.productId));
+    this.toast.showSuccess('Ligne supprimée');
+  }
+
+  isNewRow(row: StockRow): boolean {
+    return row.productId < 0;
+  }
+
+  onBrandSelect(row: StockRow, brandId: number): void {
+    const brand = this.brands().find(b => b.id === brandId);
+    if (brand) {
+      row.brand = brand.name;
+      row.brandId = brandId;
+    }
+  }
+
+  onCategorySelect(row: StockRow, categoryId: number): void {
+    const category = this.categories().find(c => c.id === categoryId);
+    if (category) {
+      row.category = category.name;
+      row.categoryId = categoryId;
+    }
   }
 
   downloadStock(): void {
