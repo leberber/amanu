@@ -11,12 +11,83 @@ from app.models.order import (
 )
 from app.models.product import Product
 from app.models.promotion import Promotion, PromotionUsage, PromotionScope
+from app.models.cross_sell_promotion import CrossSellPromotion, DiscountType as CrossSellDiscountType
 from app.core.security import get_current_active_user, get_current_staff_user
 from app.models.user import User, UserRole
 from app.api.utils.common import format_price
 from app.core.notification_service import NotificationService
 
 router = APIRouter()
+
+
+def calculate_cross_sell_discounts(
+    order_items: List[dict],
+    session: Session
+) -> float:
+    """
+    Calculate cross-sell discounts based on cart items.
+    Returns the total cross-sell discount amount.
+    """
+    from datetime import datetime, timezone
+
+    # Get all active cross-sell promotions
+    now = datetime.now(timezone.utc)
+    promotions = session.exec(
+        select(CrossSellPromotion).where(CrossSellPromotion.is_active == True)
+    ).all()
+
+    if not promotions:
+        return 0.0
+
+    # Build a map of product_id -> quantity for easy lookup
+    product_quantities = {}
+    product_prices = {}
+    for item in order_items:
+        product_quantities[item["product_id"]] = product_quantities.get(item["product_id"], 0) + item["quantity"]
+        product_prices[item["product_id"]] = item["unit_price"]
+
+    total_cross_sell_discount = 0.0
+
+    # Track which target products have received discounts (each target can only get one discount)
+    discounted_targets = set()
+
+    for promo in promotions:
+        # Check date validity
+        if promo.start_date and now < promo.start_date:
+            continue
+        if promo.end_date and now > promo.end_date:
+            continue
+
+        # Check if target product is in the cart
+        if promo.target_product_id not in product_quantities:
+            continue
+
+        # Skip if this target already got a better discount
+        if promo.target_product_id in discounted_targets:
+            continue
+
+        # Check if any trigger product is in the cart with enough quantity
+        trigger_found = False
+        for trigger_id in promo.trigger_product_ids:
+            if trigger_id in product_quantities and product_quantities[trigger_id] >= promo.min_trigger_quantity:
+                trigger_found = True
+                break
+
+        if not trigger_found:
+            continue
+
+        # Calculate discount for ONE unit of the target product
+        target_price = product_prices.get(promo.target_product_id, 0)
+
+        if promo.discount_type == CrossSellDiscountType.PERCENTAGE:
+            discount = target_price * (promo.discount_value / 100)
+        else:  # FIXED_AMOUNT
+            discount = min(promo.discount_value, target_price)  # Can't discount more than the price
+
+        total_cross_sell_discount += discount
+        discounted_targets.add(promo.target_product_id)
+
+    return total_cross_sell_discount
 
 
 def calculate_promotion_discount(
@@ -131,6 +202,10 @@ def create_order(
     # Format subtotal
     subtotal = format_price(subtotal)
 
+    # Calculate cross-sell discounts
+    cross_sell_discount = calculate_cross_sell_discounts(order_items_data, session)
+    cross_sell_discount = format_price(cross_sell_discount)
+
     # Handle promotion if provided
     promotion = None
     discount_amount = 0
@@ -158,8 +233,8 @@ def create_order(
         )
         discount_amount = format_price(discount_amount)
 
-    # Calculate final total
-    total_amount = format_price(subtotal - discount_amount)
+    # Calculate final total (subtract both promo code discount and cross-sell discount)
+    total_amount = format_price(subtotal - discount_amount - cross_sell_discount)
 
     # Create order
     order = Order(
@@ -169,6 +244,7 @@ def create_order(
         contact_phone=order_in.contact_phone,
         subtotal=subtotal,
         discount_amount=discount_amount,
+        cross_sell_discount_amount=cross_sell_discount,
         total_amount=total_amount,
         promotion_id=promotion.id if promotion else None
     )

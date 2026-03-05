@@ -15,6 +15,7 @@ import { LightboxService } from '../../core/services/lightbox.service';
 import { TranslationService } from '../../services/translation.service';
 import { CartTranslationService } from '../../core/services/cart-translation.service';
 import { PromotionService } from '../../services/promotion.service';
+import { CrossSellPromotionService } from '../../services/cross-sell-promotion.service';
 import { PageLayoutComponent } from '../../shared/components/page-layout/page-layout.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { ImageLightboxComponent } from '../../shared/components/image-lightbox/image-lightbox.component';
@@ -59,6 +60,7 @@ export class CartComponent implements OnInit {
   private packagingTypeService = inject(PackagingTypeService);
   private translationService = inject(TranslationService);
   private promotionService = inject(PromotionService);
+  private crossSellService = inject(CrossSellPromotionService);
   private cartTranslation = inject(CartTranslationService);
   private destroyRef = inject(DestroyRef);
 
@@ -75,6 +77,8 @@ export class CartComponent implements OnInit {
   // Computed
   cartSubtotal = this.cartService.subtotal;
   appliedPromotion = this.cartService.appliedPromotion;
+  crossSellDiscounts = this.cartService.crossSellDiscounts;
+  crossSellSavings = this.cartService.crossSellSavings;
   cartItemCount = computed(() => this.cartItems().length);
 
   pageSubtitle = computed(() => {
@@ -205,10 +209,16 @@ export class CartComponent implements OnInit {
 
   private handlePromotionChange(items: CartItem[]): void {
     const promo = this.cartService.appliedPromotion();
-    if (items.length === 0 && promo) {
-      this.cartService.removePromotion();
-    } else if (promo && items.length > 0) {
-      this.recalculateDiscount(promo.code);
+    if (items.length === 0) {
+      if (promo) {
+        this.cartService.removePromotion();
+      }
+      this.cartService.clearCrossSellDiscounts();
+    } else {
+      if (promo) {
+        this.recalculateDiscount(promo.code);
+      }
+      this.calculateCrossSellDiscounts();
     }
   }
 
@@ -229,6 +239,23 @@ export class CartComponent implements OnInit {
         }
       },
       error: () => this.cartService.removePromotion()
+    });
+  }
+
+  private calculateCrossSellDiscounts(): void {
+    const items = this.cartService.getItemsForCrossSellCalculation();
+    if (items.length === 0) {
+      this.cartService.clearCrossSellDiscounts();
+      return;
+    }
+
+    this.crossSellService.calculateDiscounts({ cart_items: items }).subscribe({
+      next: (response) => {
+        this.cartService.setCrossSellDiscounts(response.cross_sell_discounts);
+      },
+      error: () => {
+        this.cartService.clearCrossSellDiscounts();
+      }
     });
   }
 }

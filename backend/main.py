@@ -17,6 +17,7 @@ from app.models.password_reset import PasswordResetToken  # Register model for t
 from app.models.notification_history import NotificationHistory  # Register model for table creation
 from app.models.email_verification import EmailVerificationToken  # Register model for table creation
 from app.models.user_notification import UserNotification  # Register model for table creation
+from app.models.cross_sell_promotion import CrossSellPromotion  # Register model for table creation
 
 app = FastAPI(
     title=settings.PROJECT_NAME,

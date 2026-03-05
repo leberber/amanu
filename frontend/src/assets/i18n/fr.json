@@ -338,7 +338,8 @@
     "min_order_required": "Commande minimum de {{amount}} requise",
     "usage_limit_reached": "Ce code promo a atteint sa limite d'utilisation",
     "sale": "PROMO",
-    "off": "DE RÉDUCTION"
+    "off": "DE RÉDUCTION",
+    "bundle_savings": "Économies groupées"
   },
   "order_summary": {
     "delivery_method": "Mode de livraison",
@@ -699,6 +700,64 @@
         "no_match": "Aucune promotion ne correspond à votre recherche",
         "get_started": "Commencez par ajouter votre première promotion",
         "try_adjusting": "Essayez d'ajuster vos termes de recherche"
+      },
+      "tabs": {
+        "promo_codes": "Codes Promo",
+        "bundle_deals": "Offres Groupées"
+      },
+      "cross_sell": {
+        "add": "Ajouter une Offre Groupée",
+        "edit": "Modifier l'Offre Groupée",
+        "products": "produits",
+        "load_error": "Échec du chargement des offres groupées",
+        "create_success": "Offre groupée créée avec succès!",
+        "create_failed": "Échec de la création de l'offre groupée",
+        "update_success": "Offre groupée mise à jour avec succès!",
+        "update_failed": "Échec de la mise à jour de l'offre groupée",
+        "delete_success": "Offre groupée supprimée avec succès!",
+        "delete_failed": "Échec de la suppression de l'offre groupée",
+        "add_first": "Ajouter la Première Offre Groupée",
+        "table": {
+          "name": "Nom",
+          "target_product": "Produit Cible",
+          "triggers": "Produits Déclencheurs",
+          "discount": "Réduction",
+          "min_qty": "Qté Min",
+          "status": "Statut",
+          "actions": "Actions"
+        },
+        "empty": {
+          "title": "Aucune offre groupée trouvée",
+          "description": "Créez des offres groupées pour appliquer automatiquement des réductions sur les achats combinés"
+        },
+        "form": {
+          "add_subtitle": "Créer une nouvelle offre groupée pour des réductions automatiques",
+          "edit_subtitle": "Modifier les détails de cette offre groupée",
+          "name": "Nom de l'Offre",
+          "name_placeholder": "ex: Achetez des Pommes, Oranges en Promotion",
+          "name_required": "Le nom de l'offre est requis",
+          "target_product": "Produit Cible (Recevra la Réduction)",
+          "select_target_product": "Sélectionner le produit qui sera en promotion",
+          "target_product_required": "Le produit cible est requis",
+          "trigger_products": "Produits Déclencheurs (À Acheter)",
+          "select_trigger_products": "Sélectionner les produits qui déclenchent la réduction",
+          "trigger_products_required": "Au moins un produit déclencheur est requis",
+          "trigger_products_hint": "Le client doit acheter l'un de ces produits pour débloquer la réduction",
+          "discount_settings": "Paramètres de Réduction",
+          "discount_type": "Type de Réduction",
+          "discount_value": "Valeur de la Réduction",
+          "min_trigger_quantity": "Quantité Minimum Requise",
+          "min_trigger_quantity_hint": "Nombre de produits déclencheurs nécessaires pour activer l'offre",
+          "validity_period": "Période de Validité",
+          "start_date": "Date de Début",
+          "end_date": "Date de Fin",
+          "date_hint": "Laissez vide pour aucune restriction de temps",
+          "is_active": "Offre Groupée Active",
+          "bundle_visible": "L'offre groupée est active et disponible",
+          "bundle_hidden": "L'offre groupée est inactive",
+          "submit_add": "Créer l'Offre Groupée",
+          "submit_update": "Mettre à Jour l'Offre Groupée"
+        }
       },
       "form": {
         "add_subtitle": "Créer une nouvelle offre promotionnelle pour vos clients",

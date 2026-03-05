@@ -1,6 +1,7 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
 import { Product } from '../models/product.model';
 import { AppliedPromotion } from '../models/promotion.model';
+import { CrossSellDiscountItem } from '../models/cross-sell-promotion.model';
 import { StorageService } from '../core/services/storage.service';
 
 export interface CartItem {
@@ -30,17 +31,20 @@ export class CartService {
   // State
   private readonly _items = signal<CartItem[]>([]);
   private readonly _promotion = signal<AppliedPromotion | null>(null);
+  private readonly _crossSellDiscounts = signal<CrossSellDiscountItem[]>([]);
 
   // Public signals
   readonly items = this._items.asReadonly();
   readonly appliedPromotion = this._promotion.asReadonly();
+  readonly crossSellDiscounts = this._crossSellDiscounts.asReadonly();
 
   // Computed
   readonly itemCount = computed(() => this._items().length);
   readonly totalQuantity = computed(() => this._items().reduce((sum, item) => sum + item.quantity, 0));
   readonly subtotal = computed(() => this._items().reduce((sum, item) => sum + item.product_price * item.quantity, 0));
   readonly discountAmount = computed(() => this._promotion()?.discount_amount ?? 0);
-  readonly finalTotal = computed(() => Math.max(0, this.subtotal() - this.discountAmount()));
+  readonly crossSellSavings = computed(() => this._crossSellDiscounts().reduce((sum, d) => sum + d.total_discount, 0));
+  readonly finalTotal = computed(() => Math.max(0, this.subtotal() - this.discountAmount() - this.crossSellSavings()));
   readonly canCheckout = computed(() => this._items().length > 0);
 
   constructor() {
@@ -147,6 +151,7 @@ export class CartService {
   clearAll(): void {
     this._items.set([]);
     this._promotion.set(null);
+    this._crossSellDiscounts.set([]);
     this.persist();
   }
 
@@ -159,6 +164,27 @@ export class CartService {
   removePromotion(): void {
     this._promotion.set(null);
     this.persist();
+  }
+
+  // Cross-sell discount mutations
+  setCrossSellDiscounts(discounts: CrossSellDiscountItem[]): void {
+    this._crossSellDiscounts.set(discounts);
+  }
+
+  clearCrossSellDiscounts(): void {
+    this._crossSellDiscounts.set([]);
+  }
+
+  getCrossSellDiscountForProduct(productId: number): CrossSellDiscountItem | undefined {
+    return this._crossSellDiscounts().find(d => d.target_product_id === productId);
+  }
+
+  getItemsForCrossSellCalculation() {
+    return this._items().map(item => ({
+      product_id: item.product_id,
+      quantity: item.quantity,
+      unit_price: item.product_price
+    }));
   }
 
   // Private

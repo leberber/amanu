@@ -58,18 +58,23 @@ export class OrderSummaryComponent {
   cartItems = this.cartService.items;
   cartSubtotal = this.cartService.subtotal;
   discountAmount = this.cartService.discountAmount;
+  crossSellSavings = this.cartService.crossSellSavings;
   appliedPromotion = this.cartService.appliedPromotion;
   cartItemCount = computed(() => this.cartItems().length);
 
   // Computed delivery cost
   deliveryCost = computed(() => this.deliveryMethod() === 'delivery' ? SHIPPING.STANDARD_COST : 0);
 
+  // Computed total discount (promo + cross-sell)
+  totalDiscount = computed(() => this.discountAmount() + this.crossSellSavings());
+
   // Computed final total including delivery
   finalTotal = computed(() => {
     const subtotal = this.cartSubtotal();
     const discount = this.discountAmount();
+    const crossSell = this.crossSellSavings();
     const delivery = this.deliveryCost();
-    return subtotal - discount + delivery;
+    return subtotal - discount - crossSell + delivery;
   });
 
   constructor() {

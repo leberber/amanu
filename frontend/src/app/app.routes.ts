@@ -18,6 +18,7 @@ import { AdminBrandsComponent } from './pages/admin/admin-brands/admin-brands.co
 import { AdminAddBrandComponent } from './pages/admin/admin-add-brand/admin-add-brand.component';
 import { AdminPromotionsComponent } from './pages/admin/admin-promotions/admin-promotions.component';
 import { AdminAddPromotionComponent } from './pages/admin/admin-add-promotion/admin-add-promotion.component';
+import { AdminAddCrossSellPromotionComponent } from './pages/admin/admin-add-cross-sell-promotion/admin-add-cross-sell-promotion.component';
 
 export const routes: Routes = [
   // Public Routes - No auth required
@@ -111,6 +112,19 @@ export const routes: Routes = [
   {
     path: 'admin/promotions/edit/:id',
     component: AdminAddPromotionComponent,
+    canActivate: [adminGuard],
+    data: { mode: 'edit', hideBottomNav: true }
+  },
+  // Cross-Sell Promotions Routes
+  {
+    path: 'admin/cross-sell-promotions/add',
+    component: AdminAddCrossSellPromotionComponent,
+    canActivate: [adminGuard],
+    data: { mode: 'add', hideBottomNav: true }
+  },
+  {
+    path: 'admin/cross-sell-promotions/edit/:id',
+    component: AdminAddCrossSellPromotionComponent,
     canActivate: [adminGuard],
     data: { mode: 'edit', hideBottomNav: true }
   },

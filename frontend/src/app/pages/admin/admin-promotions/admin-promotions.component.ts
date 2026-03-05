@@ -2,6 +2,7 @@ import { Component, OnInit, inject, DestroyRef, signal, computed } from '@angula
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ConfirmationService } from 'primeng/api';
 import { PopoverModule } from 'primeng/popover';
+import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'primeng/tabs';
 import { TranslateService } from '@ngx-translate/core';
 
 import { ADMIN_LIST_IMPORTS, ADMIN_DIALOG_IMPORTS } from '../../../shared/imports/admin-shared.imports';
@@ -11,8 +12,10 @@ import { ROUTES, RouteHelpers } from '../../../core/constants/routes.constants';
 import { BreakpointService } from '../../../core/services/breakpoint.service';
 import { onLanguageChange } from '../../../core/utils/language-change.util';
 import { PromotionService } from '../../../services/promotion.service';
+import { CrossSellPromotionService } from '../../../services/cross-sell-promotion.service';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { Promotion } from '../../../models/promotion.model';
+import { CrossSellPromotion } from '../../../models/cross-sell-promotion.model';
 import { ConfirmationDialogService } from '../../../core/services/confirmation-dialog.service';
 import { BaseAdminListComponent, ColumnOption } from '../../../shared/base/base-admin-list.component';
 
@@ -23,6 +26,11 @@ import { BaseAdminListComponent, ColumnOption } from '../../../shared/base/base-
     ...ADMIN_LIST_IMPORTS,
     ...ADMIN_DIALOG_IMPORTS,
     PopoverModule,
+    Tabs,
+    TabList,
+    Tab,
+    TabPanels,
+    TabPanel,
     TableSkeletonComponent,
     AgroclikPageContainerComponent
   ],
@@ -31,18 +39,32 @@ import { BaseAdminListComponent, ColumnOption } from '../../../shared/base/base-
   styleUrl: './admin-promotions.component.scss'
 })
 export class AdminPromotionsComponent extends BaseAdminListComponent implements OnInit {
-  // Data signals
+  // Active tab
+  activeTabIndex = signal(0);
+
+  // Data signals - Promo Codes
   allPromotions = signal<Promotion[]>([]);
   promotions = signal<Promotion[]>([]);
   paginatedPromotions = signal<Promotion[]>([]);
 
+  // Data signals - Cross-Sell (Bundle Deals)
+  allCrossSellPromotions = signal<CrossSellPromotion[]>([]);
+  crossSellPromotions = signal<CrossSellPromotion[]>([]);
+  paginatedCrossSellPromotions = signal<CrossSellPromotion[]>([]);
+  crossSellLoading = signal(false);
+
   // Override status filter type for promotions (different from default active/inactive)
   override statusFilter: string = 'all';
+  crossSellStatusFilter = 'all';
 
-  // Computed counts
+  // Computed counts - Promo Codes
   activeCount = computed(() => this.allPromotions().filter(p => this.getPromotionStatus(p) === 'active').length);
   expiredCount = computed(() => this.allPromotions().filter(p => this.getPromotionStatus(p) === 'expired').length);
   scheduledCount = computed(() => this.allPromotions().filter(p => this.getPromotionStatus(p) === 'scheduled').length);
+
+  // Computed counts - Cross-Sell
+  crossSellActiveCount = computed(() => this.allCrossSellPromotions().filter(p => this.getCrossSellStatus(p) === 'active').length);
+  crossSellInactiveCount = computed(() => this.allCrossSellPromotions().filter(p => !p.is_active).length);
 
   // Skeleton configuration
   skeletonColumns: SkeletonColumn[] = [
@@ -78,6 +100,7 @@ export class AdminPromotionsComponent extends BaseAdminListComponent implements 
 
   // Services
   private promotionService = inject(PromotionService);
+  private crossSellService = inject(CrossSellPromotionService);
   private confirmationService = inject(ConfirmationService);
   private confirmDialog = inject(ConfirmationDialogService);
   private translateService = inject(TranslateService);
@@ -88,7 +111,15 @@ export class AdminPromotionsComponent extends BaseAdminListComponent implements 
   ngOnInit() {
     this.columnOptions = this.getInitialColumnOptions();
     this.loadAllPromotions();
-    onLanguageChange(this.translateService, this.destroyRef, () => this.filterItems());
+    this.loadAllCrossSellPromotions();
+    onLanguageChange(this.translateService, this.destroyRef, () => {
+      this.filterItems();
+      this.filterCrossSellItems();
+    });
+  }
+
+  onTabChange(index: number | string): void {
+    this.activeTabIndex.set(typeof index === 'number' ? index : parseInt(index, 10));
   }
 
   hasActiveFilters(): boolean {
@@ -239,5 +270,133 @@ export class AdminPromotionsComponent extends BaseAdminListComponent implements 
       return `${promotion.usage_count} / ${promotion.usage_limit}`;
     }
     return `${promotion.usage_count}`;
+  }
+
+  // ============================================
+  // Cross-Sell (Bundle Deals) Methods
+  // ============================================
+
+  loadAllCrossSellPromotions(): void {
+    this.crossSellLoading.set(true);
+    this.crossSellService.getAllPromotions()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (promotions) => {
+          this.allCrossSellPromotions.set(promotions);
+          this.crossSellPromotions.set(promotions);
+          this.updatePaginatedCrossSellItems();
+          this.crossSellLoading.set(false);
+        },
+        error: () => {
+          this.allCrossSellPromotions.set([]);
+          this.crossSellPromotions.set([]);
+          this.crossSellLoading.set(false);
+          this.baseToast.showError('admin.promotions.cross_sell.load_error');
+        }
+      });
+  }
+
+  filterCrossSellItems(): void {
+    let filtered = [...this.allCrossSellPromotions()];
+
+    if (this.crossSellStatusFilter !== 'all') {
+      if (this.crossSellStatusFilter === 'active') {
+        filtered = filtered.filter(p => this.getCrossSellStatus(p) === 'active');
+      } else if (this.crossSellStatusFilter === 'inactive') {
+        filtered = filtered.filter(p => !p.is_active);
+      }
+    }
+
+    if (this.hasSearchQuery()) {
+      const search = this.searchQuery.toLowerCase();
+      filtered = filtered.filter(promotion =>
+        promotion.name.toLowerCase().includes(search) ||
+        promotion.target_product_name?.toLowerCase().includes(search)
+      );
+    }
+
+    this.crossSellPromotions.set(filtered);
+    this.updatePaginatedCrossSellItems();
+  }
+
+  updatePaginatedCrossSellItems(): void {
+    this.paginatedCrossSellPromotions.set(
+      this.crossSellPromotions().slice(this.first, this.first + this.rows)
+    );
+  }
+
+  onCrossSellStatusFilterChange(status: string): void {
+    this.crossSellStatusFilter = status;
+    this.resetPagination();
+    this.filterCrossSellItems();
+  }
+
+  getCrossSellStatus(promotion: CrossSellPromotion): 'active' | 'inactive' | 'scheduled' | 'expired' {
+    if (!promotion.is_active) return 'inactive';
+
+    const now = new Date();
+
+    if (promotion.start_date) {
+      const startDate = new Date(promotion.start_date);
+      if (now < startDate) return 'scheduled';
+    }
+
+    if (promotion.end_date) {
+      const endDate = new Date(promotion.end_date);
+      if (now > endDate) return 'expired';
+    }
+
+    return 'active';
+  }
+
+  getCrossSellStatusClass(promotion: CrossSellPromotion): string {
+    return this.getCrossSellStatus(promotion);
+  }
+
+  getCrossSellStatusLabel(promotion: CrossSellPromotion): string {
+    const status = this.getCrossSellStatus(promotion);
+    return this.translateService.instant(`admin.promotions.status.${status}`);
+  }
+
+  getCrossSellDiscountDisplay(promotion: CrossSellPromotion): string {
+    if (promotion.discount_type === 'percentage') {
+      return `${promotion.discount_value}%`;
+    }
+    return this.currencyService.formatCurrency(promotion.discount_value);
+  }
+
+  createNewCrossSellPromotion(): void {
+    this.baseRouter.navigate([ROUTES.ADMIN.ADD_CROSS_SELL_PROMOTION]);
+  }
+
+  editCrossSellPromotion(promotion: CrossSellPromotion): void {
+    this.baseRouter.navigate([RouteHelpers.adminEditCrossSellPromotion(promotion.id)]);
+  }
+
+  confirmDeleteCrossSellPromotion(promotion: CrossSellPromotion): void {
+    this.confirmDialog.confirmDelete(
+      this.confirmationService,
+      promotion.name,
+      () => this.deleteCrossSellPromotion(promotion)
+    );
+  }
+
+  deleteCrossSellPromotion(promotion: CrossSellPromotion): void {
+    this.crossSellService.deletePromotion(promotion.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.allCrossSellPromotions.update(promos => promos.filter(p => p.id !== promotion.id));
+          this.filterCrossSellItems();
+          this.baseToast.showSuccess('admin.promotions.cross_sell.delete_success');
+        },
+        error: (error) => {
+          this.baseToast.showApiError(error, 'admin.promotions.cross_sell.delete_failed');
+        }
+      });
+  }
+
+  refreshCrossSellData(): void {
+    this.loadAllCrossSellPromotions();
   }
 }

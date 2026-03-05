@@ -2,7 +2,7 @@
 <app-agroclik-page-container>
   <p-confirmDialog></p-confirmDialog>
 
-  <!-- Top Section: Header + Filters -->
+  <!-- Top Section: Header -->
   <div pageTop [class.initialized]="tableInitialized()">
     <!-- Page Header -->
     <div class="admin-list-header animate-item" style="--item-delay: 0ms;">
@@ -19,268 +19,462 @@
         </div>
       </div>
     </div>
-
-    <!-- Status Segmented Control with Add Button -->
-    <div class="flex align-items-center justify-content-between gap-3 flex-wrap mt-3 mb-4 animate-item" style="--item-delay: 50ms;">
-      <div class="segment-control segment-control--glass">
-        <button
-          class="segment-control__item"
-          [class.active]="statusFilter === 'all'"
-          (click)="onStatusFilterChange('all')">
-          <span>{{ 'common.all' | translate }}</span>
-          <span class="count">{{ allPromotions().length }}</span>
-        </button>
-        <button
-          class="segment-control__item"
-          [class.active]="statusFilter === 'active'"
-          (click)="onStatusFilterChange('active')">
-          <span>{{ 'admin.promotions.status.active' | translate }}</span>
-          <span class="count active">{{ activeCount() }}</span>
-        </button>
-        <button
-          class="segment-control__item"
-          [class.active]="statusFilter === 'expired'"
-          (click)="onStatusFilterChange('expired')">
-          <span>{{ 'admin.promotions.status.expired' | translate }}</span>
-          <span class="count inactive">{{ expiredCount() }}</span>
-        </button>
-        <button
-          class="segment-control__item"
-          [class.active]="statusFilter === 'scheduled'"
-          (click)="onStatusFilterChange('scheduled')">
-          <span>{{ 'admin.promotions.status.scheduled' | translate }}</span>
-          <span class="count scheduled">{{ scheduledCount() }}</span>
-        </button>
-      </div>
-
-      <button class="btn-add" (click)="createNewPromotion()">
-        <i class="pi pi-plus"></i>
-        <span>{{ 'admin.promotions.add_promotion' | translate }}</span>
-      </button>
-    </div>
   </div>
 
-  <!-- Main Section: Table -->
+  <!-- Main Section with Tabs -->
   <div pageMain>
-    <!-- Loading State - Skeleton Table -->
-    @if (loading) {
-      <app-table-skeleton
-        [columns]="skeletonColumns"
-        [rows]="6"
-        [actionCount]="2"
-      />
-    } @else if (promotions().length === 0 && !hasActiveFilters()) {
-      <!-- Empty State - No Promotions -->
-      <div class="empty-state animate-item" style="--item-delay: 100ms;">
-        <div class="empty-state__icon">
-          <i class="pi pi-tag"></i>
-        </div>
-        <h3 class="empty-state__title">{{ 'admin.promotions.empty.no_promotions' | translate }}</h3>
-        <p class="empty-state__description">{{ 'admin.promotions.empty.get_started' | translate }}</p>
-        <button class="btn-primary" (click)="createNewPromotion()">
-          <i class="pi pi-plus"></i>
-          {{ 'admin.promotions.add_first_promotion' | translate }}
-        </button>
-      </div>
-    } @else {
-      <!-- Promotions Table -->
-      <div class="table-container animate-item" [class.fullscreen]="isFullscreen()" style="--item-delay: 100ms;">
-        <div class="table-header">
-          <app-table-search
-            [(query)]="searchQuery"
-            (search)="onSearchInput()"
-            (clear)="filterItems()"
-          />
-          <div class="table-actions">
-            @if (hasActiveFilters()) {
-              <button class="clear-filters-btn" (click)="clearFilters()" [pTooltip]="'admin.promotions.clear_filters' | translate">
-                <i class="pi pi-filter-slash"></i>
-              </button>
-            }
-            <button class="table-action-btn refresh-btn" (click)="refreshPromotionData()" [pTooltip]="'admin.promotions.refresh' | translate">
-              <i class="pi pi-refresh"></i>
+    <p-tabs [(value)]="activeTabIndex" (valueChange)="onTabChange($event)">
+      <p-tablist>
+        <p-tab [value]="0">{{ 'admin.promotions.tabs.promo_codes' | translate }}</p-tab>
+        <p-tab [value]="1">{{ 'admin.promotions.tabs.bundle_deals' | translate }}</p-tab>
+      </p-tablist>
+      <p-tabpanels>
+        <!-- Tab 1: Promo Codes -->
+        <p-tabpanel [value]="0">
+        <!-- Status Segmented Control with Add Button -->
+        <div class="flex align-items-center justify-content-between gap-3 flex-wrap mb-4">
+          <div class="segment-control segment-control--glass">
+            <button
+              class="segment-control__item"
+              [class.active]="statusFilter === 'all'"
+              (click)="onStatusFilterChange('all')">
+              <span>{{ 'common.all' | translate }}</span>
+              <span class="count">{{ allPromotions().length }}</span>
             </button>
-            <button class="table-action-btn" (click)="toggleFullscreen()" [pTooltip]="(isFullscreen() ? 'common.exit_fullscreen' : 'common.fullscreen') | translate">
-              <i [class]="isFullscreen() ? 'pi pi-window-minimize' : 'pi pi-window-maximize'"></i>
+            <button
+              class="segment-control__item"
+              [class.active]="statusFilter === 'active'"
+              (click)="onStatusFilterChange('active')">
+              <span>{{ 'admin.promotions.status.active' | translate }}</span>
+              <span class="count active">{{ activeCount() }}</span>
             </button>
-            <button class="table-action-btn" (click)="tableOptionsMenu.toggle($event)" [pTooltip]="'admin.promotions.table_options' | translate" tooltipPosition="left">
-              <i class="pi pi-ellipsis-v"></i>
+            <button
+              class="segment-control__item"
+              [class.active]="statusFilter === 'expired'"
+              (click)="onStatusFilterChange('expired')">
+              <span>{{ 'admin.promotions.status.expired' | translate }}</span>
+              <span class="count inactive">{{ expiredCount() }}</span>
             </button>
-            <p-popover #tableOptionsMenu>
-              <div class="table-options-menu">
-                <div class="table-options-section">
-                  <span class="table-options-label">{{ 'admin.promotions.rows_per_page' | translate }}</span>
-                  <div class="table-options-rows">
-                    @for (option of rowsPerPageOptions; track option) {
-                      <button
-                        class="rows-option"
-                        [class.active]="rows === option"
-                        (click)="setRowsPerPage(option)">
-                        {{ option }}
-                      </button>
-                    }
-                  </div>
-                </div>
-                <div class="table-options-divider"></div>
-                <div class="table-options-section">
-                  <span class="table-options-label">{{ 'admin.promotions.visible_columns' | translate }}</span>
-                  <div class="table-options-columns">
-                    @for (col of columnOptions; track col.field) {
-                      <label class="column-toggle">
-                        <input
-                          type="checkbox"
-                          [checked]="col.visible"
-                          (change)="toggleColumn(col.field)">
-                        <span>{{ col.label | translate }}</span>
-                      </label>
-                    }
-                  </div>
-                </div>
-              </div>
-            </p-popover>
+            <button
+              class="segment-control__item"
+              [class.active]="statusFilter === 'scheduled'"
+              (click)="onStatusFilterChange('scheduled')">
+              <span>{{ 'admin.promotions.status.scheduled' | translate }}</span>
+              <span class="count scheduled">{{ scheduledCount() }}</span>
+            </button>
           </div>
+
+          <button class="btn-add" (click)="createNewPromotion()">
+            <i class="pi pi-plus"></i>
+            <span>{{ 'admin.promotions.add_promotion' | translate }}</span>
+          </button>
         </div>
 
-        @if (promotions().length === 0) {
-          <!-- Empty State - No Match -->
+        <!-- Loading State - Skeleton Table -->
+        @if (loading) {
+          <app-table-skeleton
+            [columns]="skeletonColumns"
+            [rows]="6"
+            [actionCount]="2"
+          />
+        } @else if (promotions().length === 0 && !hasActiveFilters()) {
+          <!-- Empty State - No Promotions -->
           <div class="empty-state">
-            <div class="empty-state__icon empty-state__icon--warning">
-              <i class="pi pi-filter"></i>
+            <div class="empty-state__icon">
+              <i class="pi pi-tag"></i>
             </div>
-            <h3 class="empty-state__title">{{ 'admin.promotions.empty.no_match' | translate }}</h3>
-            <p class="empty-state__description">{{ 'admin.promotions.empty.try_adjusting' | translate }}</p>
-            <button class="btn-secondary" (click)="clearFilters()">
-              <i class="pi pi-filter-slash"></i>
-              {{ 'admin.promotions.clear_filters' | translate }}
+            <h3 class="empty-state__title">{{ 'admin.promotions.empty.no_promotions' | translate }}</h3>
+            <p class="empty-state__description">{{ 'admin.promotions.empty.get_started' | translate }}</p>
+            <button class="btn-primary" (click)="createNewPromotion()">
+              <i class="pi pi-plus"></i>
+              {{ 'admin.promotions.add_first_promotion' | translate }}
             </button>
           </div>
         } @else {
-          <div class="table-wrapper">
-            <table class="table">
-              <thead>
-                <tr>
-                  @if (isColumnVisible('name')) { <th style="width: 22%">{{ 'admin.promotions.table.name' | translate }}</th> }
-                  @if (isColumnVisible('code')) { <th style="width: 12%" class="text-center">{{ 'admin.promotions.table.code' | translate }}</th> }
-                  @if (isColumnVisible('discount')) { <th style="width: 10%" class="text-center">{{ 'admin.promotions.table.discount' | translate }}</th> }
-                  @if (isColumnVisible('scope')) { <th style="width: 10%" class="text-center">{{ 'admin.promotions.table.scope' | translate }}</th> }
-                  @if (isColumnVisible('validity')) { <th style="width: 14%" class="text-center">{{ 'admin.promotions.table.validity' | translate }}</th> }
-                  @if (isColumnVisible('usage')) { <th style="width: 10%" class="text-center">{{ 'admin.promotions.table.usage' | translate }}</th> }
-                  @if (isColumnVisible('status')) { <th style="width: 12%" class="text-center">{{ 'admin.promotions.table.status' | translate }}</th> }
-                  @if (isColumnVisible('actions')) { <th style="width: 10%" class="text-center">{{ 'admin.promotions.table.actions' | translate }}</th> }
-                </tr>
-              </thead>
-              <tbody>
-                @for (promotion of paginatedPromotions(); track promotion.id; let i = $index) {
-                  <tr class="table-row-animate clickable-row" [style.--row-delay]="(i * 40) + 'ms'" (click)="editPromotion(promotion)">
-                    <!-- Name -->
-                    @if (isColumnVisible('name')) {
-                      <td>
-                        <div class="info-display">
-                          <span class="info-display__name">{{ promotion.name }}</span>
-                          @if (promotion.description) {
-                            <span class="info-display__secondary">
-                              {{ promotion.description | slice:0:50 }}{{ promotion.description.length > 50 ? '...' : '' }}
-                            </span>
-                          }
-                        </div>
-                      </td>
-                    }
-
-                    <!-- Code -->
-                    @if (isColumnVisible('code')) {
-                      <td class="text-center">
-                        @if (promotion.code) {
-                          <span class="code-badge">{{ promotion.code }}</span>
-                        } @else {
-                          <span class="text-muted">{{ 'admin.promotions.no_code' | translate }}</span>
-                        }
-                      </td>
-                    }
-
-                    <!-- Discount -->
-                    @if (isColumnVisible('discount')) {
-                      <td class="text-center">
-                        <span class="discount-badge" [class.percentage]="promotion.discount_type === 'percentage'" [class.fixed-amount]="promotion.discount_type !== 'percentage'">
-                          {{ getDiscountDisplay(promotion) }}
-                        </span>
-                      </td>
-                    }
-
-                    <!-- Scope -->
-                    @if (isColumnVisible('scope')) {
-                      <td class="text-center">
-                        <span class="pill secondary">{{ getScopeDisplay(promotion) }}</span>
-                      </td>
-                    }
-
-                    <!-- Validity -->
-                    @if (isColumnVisible('validity')) {
-                      <td class="text-center">
-                        <div class="info-display align-items-center">
-                          <span class="info-display__name">{{ promotion.start_date | appDate:'dateOnly' }}</span>
-                          <span class="info-display__secondary">→ {{ promotion.end_date | appDate:'dateOnly' }}</span>
-                        </div>
-                      </td>
-                    }
-
-                    <!-- Usage -->
-                    @if (isColumnVisible('usage')) {
-                      <td class="text-center">
-                        <span class="pill purple">{{ getUsageDisplay(promotion) }}</span>
-                      </td>
-                    }
-
-                    <!-- Status -->
-                    @if (isColumnVisible('status')) {
-                      <td class="text-center">
-                        <span class="status-badge" [ngClass]="getStatusClass(promotion)">
-                          <i [class]="getStatusIcon(promotion)"></i>
-                          {{ getStatusLabel(promotion) }}
-                        </span>
-                      </td>
-                    }
-
-                    <!-- Actions -->
-                    @if (isColumnVisible('actions')) {
-                      <td class="text-center" (click)="$event.stopPropagation()">
-                        <div class="table-cell-actions justify-content-center">
-                          <button class="action-btn edit" (click)="editPromotion(promotion)" [pTooltip]="'admin.promotions.actions.edit' | translate" tooltipPosition="top">
-                            <i class="pi pi-pencil"></i>
-                          </button>
-                          <button class="action-btn delete" (click)="confirmDeletePromotion(promotion)" [pTooltip]="'admin.promotions.actions.delete' | translate" tooltipPosition="top">
-                            <i class="pi pi-trash"></i>
-                          </button>
-                        </div>
-                      </td>
-                    }
-                  </tr>
+          <!-- Promotions Table -->
+          <div class="table-container" [class.fullscreen]="isFullscreen()">
+            <div class="table-header">
+              <app-table-search
+                [(query)]="searchQuery"
+                (search)="onSearchInput()"
+                (clear)="filterItems()"
+              />
+              <div class="table-actions">
+                @if (hasActiveFilters()) {
+                  <button class="clear-filters-btn" (click)="clearFilters()" [pTooltip]="'admin.promotions.clear_filters' | translate">
+                    <i class="pi pi-filter-slash"></i>
+                  </button>
                 }
-              </tbody>
-            </table>
+                <button class="table-action-btn refresh-btn" (click)="refreshPromotionData()" [pTooltip]="'admin.promotions.refresh' | translate">
+                  <i class="pi pi-refresh"></i>
+                </button>
+                <button class="table-action-btn" (click)="toggleFullscreen()" [pTooltip]="(isFullscreen() ? 'common.exit_fullscreen' : 'common.fullscreen') | translate">
+                  <i [class]="isFullscreen() ? 'pi pi-window-minimize' : 'pi pi-window-maximize'"></i>
+                </button>
+                <button class="table-action-btn" (click)="tableOptionsMenu.toggle($event)" [pTooltip]="'admin.promotions.table_options' | translate" tooltipPosition="left">
+                  <i class="pi pi-ellipsis-v"></i>
+                </button>
+                <p-popover #tableOptionsMenu>
+                  <div class="table-options-menu">
+                    <div class="table-options-section">
+                      <span class="table-options-label">{{ 'admin.promotions.rows_per_page' | translate }}</span>
+                      <div class="table-options-rows">
+                        @for (option of rowsPerPageOptions; track option) {
+                          <button
+                            class="rows-option"
+                            [class.active]="rows === option"
+                            (click)="setRowsPerPage(option)">
+                            {{ option }}
+                          </button>
+                        }
+                      </div>
+                    </div>
+                    <div class="table-options-divider"></div>
+                    <div class="table-options-section">
+                      <span class="table-options-label">{{ 'admin.promotions.visible_columns' | translate }}</span>
+                      <div class="table-options-columns">
+                        @for (col of columnOptions; track col.field) {
+                          <label class="column-toggle">
+                            <input
+                              type="checkbox"
+                              [checked]="col.visible"
+                              (change)="toggleColumn(col.field)">
+                            <span>{{ col.label | translate }}</span>
+                          </label>
+                        }
+                      </div>
+                    </div>
+                  </div>
+                </p-popover>
+              </div>
+            </div>
+
+            @if (promotions().length === 0) {
+              <!-- Empty State - No Match -->
+              <div class="empty-state">
+                <div class="empty-state__icon empty-state__icon--warning">
+                  <i class="pi pi-filter"></i>
+                </div>
+                <h3 class="empty-state__title">{{ 'admin.promotions.empty.no_match' | translate }}</h3>
+                <p class="empty-state__description">{{ 'admin.promotions.empty.try_adjusting' | translate }}</p>
+                <button class="btn-secondary" (click)="clearFilters()">
+                  <i class="pi pi-filter-slash"></i>
+                  {{ 'admin.promotions.clear_filters' | translate }}
+                </button>
+              </div>
+            } @else {
+              <div class="table-wrapper">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      @if (isColumnVisible('name')) { <th style="width: 22%">{{ 'admin.promotions.table.name' | translate }}</th> }
+                      @if (isColumnVisible('code')) { <th style="width: 12%" class="text-center">{{ 'admin.promotions.table.code' | translate }}</th> }
+                      @if (isColumnVisible('discount')) { <th style="width: 10%" class="text-center">{{ 'admin.promotions.table.discount' | translate }}</th> }
+                      @if (isColumnVisible('scope')) { <th style="width: 10%" class="text-center">{{ 'admin.promotions.table.scope' | translate }}</th> }
+                      @if (isColumnVisible('validity')) { <th style="width: 14%" class="text-center">{{ 'admin.promotions.table.validity' | translate }}</th> }
+                      @if (isColumnVisible('usage')) { <th style="width: 10%" class="text-center">{{ 'admin.promotions.table.usage' | translate }}</th> }
+                      @if (isColumnVisible('status')) { <th style="width: 12%" class="text-center">{{ 'admin.promotions.table.status' | translate }}</th> }
+                      @if (isColumnVisible('actions')) { <th style="width: 10%" class="text-center">{{ 'admin.promotions.table.actions' | translate }}</th> }
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (promotion of paginatedPromotions(); track promotion.id; let i = $index) {
+                      <tr class="table-row-animate clickable-row" [style.--row-delay]="(i * 40) + 'ms'" (click)="editPromotion(promotion)">
+                        <!-- Name -->
+                        @if (isColumnVisible('name')) {
+                          <td>
+                            <div class="info-display">
+                              <span class="info-display__name">{{ promotion.name }}</span>
+                              @if (promotion.description) {
+                                <span class="info-display__secondary">
+                                  {{ promotion.description | slice:0:50 }}{{ promotion.description.length > 50 ? '...' : '' }}
+                                </span>
+                              }
+                            </div>
+                          </td>
+                        }
+
+                        <!-- Code -->
+                        @if (isColumnVisible('code')) {
+                          <td class="text-center">
+                            @if (promotion.code) {
+                              <span class="code-badge">{{ promotion.code }}</span>
+                            } @else {
+                              <span class="text-muted">{{ 'admin.promotions.no_code' | translate }}</span>
+                            }
+                          </td>
+                        }
+
+                        <!-- Discount -->
+                        @if (isColumnVisible('discount')) {
+                          <td class="text-center">
+                            <span class="discount-badge" [class.percentage]="promotion.discount_type === 'percentage'" [class.fixed-amount]="promotion.discount_type !== 'percentage'">
+                              {{ getDiscountDisplay(promotion) }}
+                            </span>
+                          </td>
+                        }
+
+                        <!-- Scope -->
+                        @if (isColumnVisible('scope')) {
+                          <td class="text-center">
+                            <span class="pill secondary">{{ getScopeDisplay(promotion) }}</span>
+                          </td>
+                        }
+
+                        <!-- Validity -->
+                        @if (isColumnVisible('validity')) {
+                          <td class="text-center">
+                            <div class="info-display align-items-center">
+                              <span class="info-display__name">{{ promotion.start_date | appDate:'dateOnly' }}</span>
+                              <span class="info-display__secondary">→ {{ promotion.end_date | appDate:'dateOnly' }}</span>
+                            </div>
+                          </td>
+                        }
+
+                        <!-- Usage -->
+                        @if (isColumnVisible('usage')) {
+                          <td class="text-center">
+                            <span class="pill purple">{{ getUsageDisplay(promotion) }}</span>
+                          </td>
+                        }
+
+                        <!-- Status -->
+                        @if (isColumnVisible('status')) {
+                          <td class="text-center">
+                            <span class="status-badge" [ngClass]="getStatusClass(promotion)">
+                              <i [class]="getStatusIcon(promotion)"></i>
+                              {{ getStatusLabel(promotion) }}
+                            </span>
+                          </td>
+                        }
+
+                        <!-- Actions -->
+                        @if (isColumnVisible('actions')) {
+                          <td class="text-center" (click)="$event.stopPropagation()">
+                            <div class="table-cell-actions justify-content-center">
+                              <button class="action-btn edit" (click)="editPromotion(promotion)" [pTooltip]="'admin.promotions.actions.edit' | translate" tooltipPosition="top">
+                                <i class="pi pi-pencil"></i>
+                              </button>
+                              <button class="action-btn delete" (click)="confirmDeletePromotion(promotion)" [pTooltip]="'admin.promotions.actions.delete' | translate" tooltipPosition="top">
+                                <i class="pi pi-trash"></i>
+                              </button>
+                            </div>
+                          </td>
+                        }
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Pagination -->
+              @if (promotions().length > rows) {
+                <div class="table-footer">
+                  <p-paginator
+                    [first]="first"
+                    [rows]="rows"
+                    [totalRecords]="promotions().length"
+                    (onPageChange)="onPageChange($event)"
+                    [showCurrentPageReport]="true"
+                    currentPageReportTemplate="{{ 'admin.promotions.showing' | translate }} {first} - {last} {{ 'admin.promotions.of' | translate }} {totalRecords}"
+                  ></p-paginator>
+                </div>
+              }
+
+              <!-- Results Info -->
+              @if (promotions().length <= rows) {
+                <div class="table-footer results-info">
+                  <span>{{ 'admin.promotions.showing' | translate }} {{ promotions().length }} {{ 'admin.promotions.of' | translate }} {{ allPromotions().length }} {{ 'admin.promotions.promotions' | translate }}</span>
+                </div>
+              }
+            }
+          </div>
+        }
+        </p-tabpanel>
+
+        <!-- Tab 2: Bundle Deals (Cross-Sell) -->
+        <p-tabpanel [value]="1">
+        <!-- Status Segmented Control with Add Button -->
+        <div class="flex align-items-center justify-content-between gap-3 flex-wrap mb-4">
+          <div class="segment-control segment-control--glass">
+            <button
+              class="segment-control__item"
+              [class.active]="crossSellStatusFilter === 'all'"
+              (click)="onCrossSellStatusFilterChange('all')">
+              <span>{{ 'common.all' | translate }}</span>
+              <span class="count">{{ allCrossSellPromotions().length }}</span>
+            </button>
+            <button
+              class="segment-control__item"
+              [class.active]="crossSellStatusFilter === 'active'"
+              (click)="onCrossSellStatusFilterChange('active')">
+              <span>{{ 'admin.promotions.status.active' | translate }}</span>
+              <span class="count active">{{ crossSellActiveCount() }}</span>
+            </button>
+            <button
+              class="segment-control__item"
+              [class.active]="crossSellStatusFilter === 'inactive'"
+              (click)="onCrossSellStatusFilterChange('inactive')">
+              <span>{{ 'admin.promotions.status.inactive' | translate }}</span>
+              <span class="count inactive">{{ crossSellInactiveCount() }}</span>
+            </button>
           </div>
 
-          <!-- Pagination -->
-          @if (promotions().length > rows) {
-            <div class="table-footer">
-              <p-paginator
-                [first]="first"
-                [rows]="rows"
-                [totalRecords]="promotions().length"
-                (onPageChange)="onPageChange($event)"
-                [showCurrentPageReport]="true"
-                currentPageReportTemplate="{{ 'admin.promotions.showing' | translate }} {first} - {last} {{ 'admin.promotions.of' | translate }} {totalRecords}"
-              ></p-paginator>
-            </div>
-          }
+          <button class="btn-add" (click)="createNewCrossSellPromotion()">
+            <i class="pi pi-plus"></i>
+            <span>{{ 'admin.promotions.cross_sell.add' | translate }}</span>
+          </button>
+        </div>
 
-          <!-- Results Info -->
-          @if (promotions().length <= rows) {
-            <div class="table-footer results-info">
-              <span>{{ 'admin.promotions.showing' | translate }} {{ promotions().length }} {{ 'admin.promotions.of' | translate }} {{ allPromotions().length }} {{ 'admin.promotions.promotions' | translate }}</span>
+        <!-- Loading State -->
+        @if (crossSellLoading()) {
+          <app-table-skeleton
+            [columns]="skeletonColumns"
+            [rows]="6"
+            [actionCount]="2"
+          />
+        } @else if (crossSellPromotions().length === 0 && crossSellStatusFilter === 'all' && !hasSearchQuery()) {
+          <!-- Empty State - No Cross-Sell Promotions -->
+          <div class="empty-state">
+            <div class="empty-state__icon">
+              <i class="pi pi-box"></i>
             </div>
-          }
+            <h3 class="empty-state__title">{{ 'admin.promotions.cross_sell.empty.title' | translate }}</h3>
+            <p class="empty-state__description">{{ 'admin.promotions.cross_sell.empty.description' | translate }}</p>
+            <button class="btn-primary" (click)="createNewCrossSellPromotion()">
+              <i class="pi pi-plus"></i>
+              {{ 'admin.promotions.cross_sell.add_first' | translate }}
+            </button>
+          </div>
+        } @else {
+          <!-- Cross-Sell Table -->
+          <div class="table-container" [class.fullscreen]="isFullscreen()">
+            <div class="table-header">
+              <app-table-search
+                [(query)]="searchQuery"
+                (search)="filterCrossSellItems()"
+                (clear)="filterCrossSellItems()"
+              />
+              <div class="table-actions">
+                <button class="table-action-btn refresh-btn" (click)="refreshCrossSellData()" [pTooltip]="'admin.promotions.refresh' | translate">
+                  <i class="pi pi-refresh"></i>
+                </button>
+              </div>
+            </div>
+
+            @if (crossSellPromotions().length === 0) {
+              <!-- Empty State - No Match -->
+              <div class="empty-state">
+                <div class="empty-state__icon empty-state__icon--warning">
+                  <i class="pi pi-filter"></i>
+                </div>
+                <h3 class="empty-state__title">{{ 'admin.promotions.empty.no_match' | translate }}</h3>
+                <p class="empty-state__description">{{ 'admin.promotions.empty.try_adjusting' | translate }}</p>
+              </div>
+            } @else {
+              <div class="table-wrapper">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th style="width: 20%">{{ 'admin.promotions.cross_sell.table.name' | translate }}</th>
+                      <th style="width: 20%">{{ 'admin.promotions.cross_sell.table.target_product' | translate }}</th>
+                      <th style="width: 20%">{{ 'admin.promotions.cross_sell.table.triggers' | translate }}</th>
+                      <th style="width: 12%" class="text-center">{{ 'admin.promotions.table.discount' | translate }}</th>
+                      <th style="width: 10%" class="text-center">{{ 'admin.promotions.cross_sell.table.min_qty' | translate }}</th>
+                      <th style="width: 10%" class="text-center">{{ 'admin.promotions.table.status' | translate }}</th>
+                      <th style="width: 8%" class="text-center">{{ 'admin.promotions.table.actions' | translate }}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (promotion of paginatedCrossSellPromotions(); track promotion.id; let i = $index) {
+                      <tr class="table-row-animate clickable-row" [style.--row-delay]="(i * 40) + 'ms'" (click)="editCrossSellPromotion(promotion)">
+                        <!-- Name -->
+                        <td>
+                          <span class="info-display__name">{{ promotion.name }}</span>
+                        </td>
+
+                        <!-- Target Product -->
+                        <td>
+                          <span class="pill primary">{{ promotion.target_product_name || 'Product #' + promotion.target_product_id }}</span>
+                        </td>
+
+                        <!-- Trigger Products -->
+                        <td>
+                          <div class="trigger-pills">
+                            @if (promotion.trigger_product_names && promotion.trigger_product_names.length > 0) {
+                              @for (name of promotion.trigger_product_names.slice(0, 2); track name) {
+                                <span class="pill secondary">{{ name }}</span>
+                              }
+                              @if (promotion.trigger_product_names.length > 2) {
+                                <span class="pill muted">+{{ promotion.trigger_product_names.length - 2 }}</span>
+                              }
+                            } @else {
+                              <span class="text-muted">{{ promotion.trigger_product_ids.length }} {{ 'admin.promotions.cross_sell.products' | translate }}</span>
+                            }
+                          </div>
+                        </td>
+
+                        <!-- Discount -->
+                        <td class="text-center">
+                          <span class="discount-badge" [class.percentage]="promotion.discount_type === 'percentage'" [class.fixed-amount]="promotion.discount_type !== 'percentage'">
+                            {{ getCrossSellDiscountDisplay(promotion) }}
+                          </span>
+                        </td>
+
+                        <!-- Min Quantity -->
+                        <td class="text-center">
+                          <span class="pill purple">{{ promotion.min_trigger_quantity }}</span>
+                        </td>
+
+                        <!-- Status -->
+                        <td class="text-center">
+                          <span class="status-badge" [ngClass]="getCrossSellStatusClass(promotion)">
+                            {{ getCrossSellStatusLabel(promotion) }}
+                          </span>
+                        </td>
+
+                        <!-- Actions -->
+                        <td class="text-center" (click)="$event.stopPropagation()">
+                          <div class="table-cell-actions justify-content-center">
+                            <button class="action-btn edit" (click)="editCrossSellPromotion(promotion)" [pTooltip]="'admin.promotions.actions.edit' | translate" tooltipPosition="top">
+                              <i class="pi pi-pencil"></i>
+                            </button>
+                            <button class="action-btn delete" (click)="confirmDeleteCrossSellPromotion(promotion)" [pTooltip]="'admin.promotions.actions.delete' | translate" tooltipPosition="top">
+                              <i class="pi pi-trash"></i>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Pagination -->
+              @if (crossSellPromotions().length > rows) {
+                <div class="table-footer">
+                  <p-paginator
+                    [first]="first"
+                    [rows]="rows"
+                    [totalRecords]="crossSellPromotions().length"
+                    (onPageChange)="onPageChange($event); updatePaginatedCrossSellItems()"
+                    [showCurrentPageReport]="true"
+                    currentPageReportTemplate="{{ 'admin.promotions.showing' | translate }} {first} - {last} {{ 'admin.promotions.of' | translate }} {totalRecords}"
+                  ></p-paginator>
+                </div>
+              }
+
+              <!-- Results Info -->
+              @if (crossSellPromotions().length <= rows) {
+                <div class="table-footer results-info">
+                  <span>{{ 'admin.promotions.showing' | translate }} {{ crossSellPromotions().length }} {{ 'admin.promotions.of' | translate }} {{ allCrossSellPromotions().length }}</span>
+                </div>
+              }
+            }
+          </div>
         }
-      </div>
-    }
+        </p-tabpanel>
+      </p-tabpanels>
+    </p-tabs>
   </div>
 </app-agroclik-page-container>

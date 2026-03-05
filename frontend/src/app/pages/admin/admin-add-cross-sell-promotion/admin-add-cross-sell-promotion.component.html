@@ -1,0 +1,261 @@
+<app-page-layout
+  [title]="pageTitle()"
+  [subtitle]="pageSubtitle()"
+  [mobileTitle]="mobileTitle() || 'admin.promotions.cross_sell.add'"
+  [mobileSubtitle]="mobileSubtitle()"
+  icon="pi pi-box"
+  [hideMobileIcon]="true"
+  [showBackButton]="true"
+  [backRoute]="ROUTES.ADMIN.PROMOTIONS"
+  [fullscreen]="true">
+
+
+  @if (!formInitialized()) {
+    <div class="mt-6">
+      <div class="grid">
+        @for (_ of [0, 1]; track $index) {
+          <div class="col-12 lg:col-6 item-animate" [style.animation-delay]="($index * ANIMATION.STAGGER_DELAY) + 'ms'">
+            <div class="skeleton-card form-card">
+              <div class="card-header">
+                <div class="skeleton skeleton-avatar"></div>
+                <div class="skeleton skeleton-text skeleton-text--w70"></div>
+              </div>
+              <div class="card-body">
+                @for (_ of [0, 1, 2]; track $index) {
+                  <div class="field-box mb-4">
+                    <div class="skeleton skeleton-avatar"></div>
+                    <div class="flex-1">
+                      <div class="skeleton skeleton-text skeleton-text--w40 mb-2"></div>
+                      <div class="skeleton skeleton-input"></div>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  @if (formInitialized()) {
+    <form [formGroup]="promotionForm" (ngSubmit)="onSubmit()">
+      <div class="form-wizard form-wizard--fullpage">
+        <div class="form-wizard__body">
+          <div class="grid">
+            <!-- Left Column: Basic Info & Products -->
+            <div class="col-12 lg:col-6 item-animate">
+              <div class="form-card">
+                <div class="card-header">
+                  <div class="card-header__icon card-header__icon--primary">
+                    <i class="pi pi-info-circle"></i>
+                  </div>
+                  <h3 class="card-header__title">{{ 'admin.promotions.form.basic_info' | translate }}</h3>
+                </div>
+                <div class="card-body">
+                  <div class="form-field">
+                    <div class="field-box" [class.filled]="promotionForm.get('name')?.value">
+                      <div class="field-box__icon field-box__icon--primary">
+                        <i class="pi pi-tag"></i>
+                      </div>
+                      <div class="field-box__content">
+                        <label>{{ 'admin.promotions.cross_sell.form.name' | translate }} <span class="required">*</span></label>
+                        <input type="text" formControlName="name" [placeholder]="'admin.promotions.cross_sell.form.name_placeholder' | translate">
+                      </div>
+                    </div>
+                    @if (promotionForm.get('name')?.invalid && promotionForm.get('name')?.touched) {
+                      <span class="field-error">{{ 'admin.promotions.cross_sell.form.name_required' | translate }}</span>
+                    }
+                  </div>
+
+                  <div class="form-field">
+                    <div class="field-box" [class.filled]="promotionForm.get('target_product_id')?.value">
+                      <div class="field-box__icon field-box__icon--success">
+                        <i class="pi pi-box"></i>
+                      </div>
+                      <div class="field-box__content">
+                        <label>{{ 'admin.promotions.cross_sell.form.target_product' | translate }} <span class="required">*</span></label>
+                        <p-select
+                          formControlName="target_product_id"
+                          [options]="productOptions()"
+                          optionLabel="label"
+                          optionValue="value"
+                          [placeholder]="'admin.promotions.cross_sell.form.select_target_product' | translate"
+                          [filter]="true"
+                          styleClass="w-full"
+                          appendTo="body" />
+                      </div>
+                    </div>
+                    @if (promotionForm.get('target_product_id')?.invalid && promotionForm.get('target_product_id')?.touched) {
+                      <span class="field-error">{{ 'admin.promotions.cross_sell.form.target_product_required' | translate }}</span>
+                    }
+                  </div>
+
+                  <div class="form-field">
+                    <div class="field-box" [class.filled]="promotionForm.get('trigger_product_ids')?.value?.length">
+                      <div class="field-box__icon field-box__icon--warning">
+                        <i class="pi pi-shopping-cart"></i>
+                      </div>
+                      <div class="field-box__content">
+                        <label>{{ 'admin.promotions.cross_sell.form.trigger_products' | translate }} <span class="required">*</span></label>
+                        <p-multiselect
+                          formControlName="trigger_product_ids"
+                          [options]="productOptions()"
+                          optionLabel="label"
+                          optionValue="value"
+                          [placeholder]="'admin.promotions.cross_sell.form.select_trigger_products' | translate"
+                          [filter]="true"
+                          display="chip"
+                          styleClass="w-full"
+                          appendTo="body" />
+                      </div>
+                    </div>
+                    <span class="field-hint">{{ 'admin.promotions.cross_sell.form.trigger_products_hint' | translate }}</span>
+                    @if (promotionForm.get('trigger_product_ids')?.invalid && promotionForm.get('trigger_product_ids')?.touched) {
+                      <span class="field-error">{{ 'admin.promotions.cross_sell.form.trigger_products_required' | translate }}</span>
+                    }
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Column: Discount Settings & Schedule -->
+            <div class="col-12 lg:col-6 item-animate" [style.animation-delay]="ANIMATION.STAGGER_DELAY + 'ms'">
+              <div class="form-card">
+                <div class="card-header">
+                  <div class="card-header__icon card-header__icon--success">
+                    <i class="pi pi-percentage"></i>
+                  </div>
+                  <h3 class="card-header__title">{{ 'admin.promotions.cross_sell.form.discount_settings' | translate }}</h3>
+                </div>
+                <div class="card-body">
+                  <div class="form-field">
+                    <div class="field-box" [class.filled]="promotionForm.get('discount_type')?.value">
+                      <div class="field-box__icon field-box__icon--success">
+                        <i class="pi pi-sliders-h"></i>
+                      </div>
+                      <div class="field-box__content">
+                        <label>{{ 'admin.promotions.cross_sell.form.discount_type' | translate }} <span class="required">*</span></label>
+                        <p-select formControlName="discount_type" [options]="discountTypeOptions()" optionLabel="label" optionValue="value" styleClass="w-full" appendTo="body" />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="form-field">
+                    <div class="field-box" [class.filled]="promotionForm.get('discount_value')?.value">
+                      <div class="field-box__icon field-box__icon--purple">
+                        <i class="pi pi-calculator"></i>
+                      </div>
+                      <div class="field-box__content">
+                        <label>{{ 'admin.promotions.cross_sell.form.discount_value' | translate }} <span class="required">*</span></label>
+                        <p-inputNumber formControlName="discount_value" [min]="MIN_DISCOUNT" [max]="maxDiscountValue()" [suffix]="discountSuffix()" styleClass="w-full" />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="form-field">
+                    <div class="field-box" [class.filled]="promotionForm.get('min_trigger_quantity')?.value">
+                      <div class="field-box__icon field-box__icon--info">
+                        <i class="pi pi-hashtag"></i>
+                      </div>
+                      <div class="field-box__content">
+                        <label>{{ 'admin.promotions.cross_sell.form.min_trigger_quantity' | translate }} <span class="required">*</span></label>
+                        <p-inputNumber formControlName="min_trigger_quantity" [min]="1" [showButtons]="true" styleClass="w-full" />
+                      </div>
+                    </div>
+                    <span class="field-hint">{{ 'admin.promotions.cross_sell.form.min_trigger_quantity_hint' | translate }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-card mt-4">
+                <div class="card-header">
+                  <div class="card-header__icon card-header__icon--orange">
+                    <i class="pi pi-calendar"></i>
+                  </div>
+                  <h3 class="card-header__title">{{ 'admin.promotions.cross_sell.form.validity_period' | translate }}</h3>
+                </div>
+                <div class="card-body">
+                  <div class="form-field">
+                    <div class="field-box" [class.filled]="promotionForm.get('start_date')?.value">
+                      <div class="field-box__icon field-box__icon--success">
+                        <i class="pi pi-calendar-plus"></i>
+                      </div>
+                      <div class="field-box__content">
+                        <label>{{ 'admin.promotions.cross_sell.form.start_date' | translate }}</label>
+                        <p-datepicker formControlName="start_date" [showTime]="true" [showIcon]="true" [dateFormat]="DATE_FORMAT" appendTo="body" styleClass="w-full" />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="form-field">
+                    <div class="field-box" [class.filled]="promotionForm.get('end_date')?.value">
+                      <div class="field-box__icon field-box__icon--danger">
+                        <i class="pi pi-calendar-minus"></i>
+                      </div>
+                      <div class="field-box__content">
+                        <label>{{ 'admin.promotions.cross_sell.form.end_date' | translate }}</label>
+                        <p-datepicker formControlName="end_date" [showTime]="true" [showIcon]="true" [dateFormat]="DATE_FORMAT" appendTo="body" styleClass="w-full" />
+                      </div>
+                    </div>
+                    <span class="field-hint">{{ 'admin.promotions.cross_sell.form.date_hint' | translate }}</span>
+                  </div>
+
+                  <div class="active-switch-container mt-5">
+                    <div
+                      class="active-switch"
+                      [class.active-switch--on]="promotionForm.get('is_active')?.value"
+                      (click)="toggleActive()"
+                      (keydown.enter)="toggleActive()"
+                      (keydown.space)="toggleActive(); $event.preventDefault()"
+                      role="switch"
+                      [attr.aria-checked]="promotionForm.get('is_active')?.value"
+                      [attr.aria-label]="'admin.promotions.cross_sell.form.is_active' | translate"
+                      tabindex="0">
+                      <div class="active-switch__track">
+                        <div class="active-switch__thumb">
+                          <i [class]="promotionForm.get('is_active')?.value ? 'pi pi-check' : 'pi pi-times'"></i>
+                        </div>
+                      </div>
+                      <div class="active-switch__label">
+                        <span class="active-switch__title">{{ 'admin.promotions.cross_sell.form.is_active' | translate }}</span>
+                        <span class="active-switch__description">{{ promotionForm.get('is_active')?.value ? ('admin.promotions.cross_sell.form.bundle_visible' | translate) : ('admin.promotions.cross_sell.form.bundle_hidden' | translate) }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-wizard__footer">
+          <span class="chip chip--primary">
+            <i class="pi pi-box"></i>
+            {{ 'admin.promotions.cross_sell.add' | translate }}
+          </span>
+          <div class="step-nav">
+            <button type="submit" class="step-nav__btn step-nav__btn--finish" [disabled]="promotionForm.invalid || loading()">
+              @if (loading()) {
+                <i class="pi pi-spin pi-spinner"></i>
+              } @else {
+                <i class="pi pi-check"></i>
+              }
+              <span>{{ submitButtonLabel() | translate }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </form>
+  }
+
+  @if (loading() && isEditMode()) {
+    <div class="admin-loading-overlay">
+      <div class="loading-content">
+        <i class="pi pi-spin pi-spinner"></i>
+        <span>{{ 'common.loading' | translate }}</span>
+      </div>
+    </div>
+  }
+
+</app-page-layout>

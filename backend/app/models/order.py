@@ -47,6 +47,8 @@ class OrderBase(SQLModel):
     subtotal: Optional[float] = Field(default=None)
     discount_amount: float = Field(default=0)
     promotion_id: Optional[int] = Field(default=None, foreign_key="promotions.id")
+    # Cross-sell discount fields
+    cross_sell_discount_amount: float = Field(default=0)
 
 
 class Order(OrderBase, table=True):
@@ -102,6 +104,7 @@ class OrderRead(OrderBase):
     updated_at: Optional[datetime] = None
     subtotal: Optional[float] = None
     discount_amount: float = 0
+    cross_sell_discount_amount: float = 0
     promotion_id: Optional[int] = None
     user: Optional[UserInfo] = None
 

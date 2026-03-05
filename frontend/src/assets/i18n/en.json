@@ -341,7 +341,8 @@
     "min_order_required": "Minimum order of {{amount}} required",
     "usage_limit_reached": "This promo code has reached its usage limit",
     "sale": "SALE",
-    "off": "OFF"
+    "off": "OFF",
+    "bundle_savings": "Bundle Savings"
   },
   "order_summary": {
     "delivery_method": "Delivery Method",
@@ -702,6 +703,64 @@
         "no_match": "No promotions match your search",
         "get_started": "Get started by adding your first promotion",
         "try_adjusting": "Try adjusting your search terms"
+      },
+      "tabs": {
+        "promo_codes": "Promo Codes",
+        "bundle_deals": "Bundle Deals"
+      },
+      "cross_sell": {
+        "add": "Add Bundle Deal",
+        "edit": "Edit Bundle Deal",
+        "products": "products",
+        "load_error": "Failed to load bundle deals",
+        "create_success": "Bundle deal created successfully!",
+        "create_failed": "Failed to create bundle deal",
+        "update_success": "Bundle deal updated successfully!",
+        "update_failed": "Failed to update bundle deal",
+        "delete_success": "Bundle deal deleted successfully!",
+        "delete_failed": "Failed to delete bundle deal",
+        "add_first": "Add First Bundle Deal",
+        "table": {
+          "name": "Name",
+          "target_product": "Target Product",
+          "triggers": "Trigger Products",
+          "discount": "Discount",
+          "min_qty": "Min Qty",
+          "status": "Status",
+          "actions": "Actions"
+        },
+        "empty": {
+          "title": "No bundle deals found",
+          "description": "Create bundle deals to automatically discount products when purchased together"
+        },
+        "form": {
+          "add_subtitle": "Create a new bundle deal for automatic discounts",
+          "edit_subtitle": "Modify the details of this bundle deal",
+          "name": "Bundle Name",
+          "name_placeholder": "e.g., Buy Apples Get Oranges Discount",
+          "name_required": "Bundle name is required",
+          "target_product": "Target Product (Gets Discount)",
+          "select_target_product": "Select the product that will be discounted",
+          "target_product_required": "Target product is required",
+          "trigger_products": "Trigger Products (Must Buy)",
+          "select_trigger_products": "Select products that trigger the discount",
+          "trigger_products_required": "At least one trigger product is required",
+          "trigger_products_hint": "Customer must buy any of these products to unlock the discount",
+          "discount_settings": "Discount Settings",
+          "discount_type": "Discount Type",
+          "discount_value": "Discount Value",
+          "min_trigger_quantity": "Minimum Trigger Quantity",
+          "min_trigger_quantity_hint": "Number of trigger products needed to activate the deal",
+          "validity_period": "Validity Period",
+          "start_date": "Start Date",
+          "end_date": "End Date",
+          "date_hint": "Leave empty for no time restriction",
+          "is_active": "Active Bundle Deal",
+          "bundle_visible": "Bundle deal is active and available",
+          "bundle_hidden": "Bundle deal is inactive",
+          "submit_add": "Create Bundle Deal",
+          "submit_update": "Update Bundle Deal"
+        }
       },
       "form": {
         "add_subtitle": "Create a new promotional offer for your customers",

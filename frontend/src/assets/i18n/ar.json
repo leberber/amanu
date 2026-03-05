@@ -339,7 +339,8 @@
     "min_order_required": "الحد الأدنى للطلب {{amount}}",
     "usage_limit_reached": "وصل رمز الخصم إلى حد الاستخدام",
     "sale": "خصم",
-    "off": "تخفيض"
+    "off": "تخفيض",
+    "bundle_savings": "توفير الحزمة"
   },
   "order_summary": {
     "delivery_method": "طريقة التوصيل",
@@ -704,6 +705,64 @@
         "no_match": "لا توجد عروض مطابقة لبحثك",
         "get_started": "ابدأ بإضافة أول عرض ترويجي",
         "try_adjusting": "حاول تعديل مصطلحات البحث"
+      },
+      "tabs": {
+        "promo_codes": "أكواد الخصم",
+        "bundle_deals": "العروض المجمّعة"
+      },
+      "cross_sell": {
+        "add": "إضافة عرض مجمّع",
+        "edit": "تعديل العرض المجمّع",
+        "products": "منتجات",
+        "load_error": "فشل في تحميل العروض المجمّعة",
+        "create_success": "تم إنشاء العرض المجمّع بنجاح!",
+        "create_failed": "فشل في إنشاء العرض المجمّع",
+        "update_success": "تم تحديث العرض المجمّع بنجاح!",
+        "update_failed": "فشل في تحديث العرض المجمّع",
+        "delete_success": "تم حذف العرض المجمّع بنجاح!",
+        "delete_failed": "فشل في حذف العرض المجمّع",
+        "add_first": "إضافة أول عرض مجمّع",
+        "table": {
+          "name": "الاسم",
+          "target_product": "المنتج المستهدف",
+          "triggers": "المنتجات المُشغّلة",
+          "discount": "الخصم",
+          "min_qty": "الحد الأدنى",
+          "status": "الحالة",
+          "actions": "الإجراءات"
+        },
+        "empty": {
+          "title": "لا توجد عروض مجمّعة",
+          "description": "أنشئ عروضاً مجمّعة لتطبيق الخصومات تلقائياً عند شراء المنتجات معاً"
+        },
+        "form": {
+          "add_subtitle": "إنشاء عرض مجمّع جديد للخصومات التلقائية",
+          "edit_subtitle": "تعديل تفاصيل هذا العرض المجمّع",
+          "name": "اسم العرض",
+          "name_placeholder": "مثال: اشترِ تفاح واحصل على خصم على البرتقال",
+          "name_required": "اسم العرض مطلوب",
+          "target_product": "المنتج المستهدف (يحصل على الخصم)",
+          "select_target_product": "اختر المنتج الذي سيحصل على الخصم",
+          "target_product_required": "المنتج المستهدف مطلوب",
+          "trigger_products": "المنتجات المُشغّلة (يجب شراؤها)",
+          "select_trigger_products": "اختر المنتجات التي تُشغّل الخصم",
+          "trigger_products_required": "يجب تحديد منتج مُشغّل واحد على الأقل",
+          "trigger_products_hint": "يجب على العميل شراء أي من هذه المنتجات لتفعيل الخصم",
+          "discount_settings": "إعدادات الخصم",
+          "discount_type": "نوع الخصم",
+          "discount_value": "قيمة الخصم",
+          "min_trigger_quantity": "الحد الأدنى للكمية المُشغّلة",
+          "min_trigger_quantity_hint": "عدد المنتجات المُشغّلة المطلوبة لتفعيل العرض",
+          "validity_period": "فترة الصلاحية",
+          "start_date": "تاريخ البدء",
+          "end_date": "تاريخ الانتهاء",
+          "date_hint": "اتركه فارغاً لعدم وجود قيود زمنية",
+          "is_active": "عرض مجمّع نشط",
+          "bundle_visible": "العرض المجمّع نشط ومتاح",
+          "bundle_hidden": "العرض المجمّع غير نشط",
+          "submit_add": "إنشاء العرض المجمّع",
+          "submit_update": "تحديث العرض المجمّع"
+        }
       },
       "form": {
         "add_subtitle": "إنشاء عرض ترويجي جديد لعملائك",

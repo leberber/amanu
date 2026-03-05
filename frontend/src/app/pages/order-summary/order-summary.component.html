@@ -87,7 +87,15 @@
             </span>
           </div>
 
-          <!-- Discount (if applied) -->
+          <!-- Cross-Sell Savings (if any) -->
+          @if (crossSellSavings() > 0) {
+            <div class="breakdown-row">
+              <span class="breakdown-row__label">{{ 'promotions.bundle_savings' | translate }}</span>
+              <span class="breakdown-row__value breakdown-row__value--discount">-{{ crossSellSavings() | appCurrency }}</span>
+            </div>
+          }
+
+          <!-- Promo Code Discount (if applied) -->
           @if (appliedPromotion()) {
             <div class="breakdown-row">
               <span class="breakdown-row__label">{{ 'promotions.discount' | translate }}</span>
