@@ -187,6 +187,25 @@ export class CartComponent implements OnInit {
     return this.packagingTypeService.getPackagingTypeForCount(item.packaging_type || 'carton', count);
   }
 
+  // Cross-sell discount helpers
+  getCrossSellDiscount(productId: number) {
+    return this.cartService.getCrossSellDiscountForProduct(productId);
+  }
+
+  hasDiscount(item: CartItem): boolean {
+    return !!this.getCrossSellDiscount(item.product_id);
+  }
+
+  getDiscountedTotal(item: CartItem): number {
+    const discount = this.getCrossSellDiscount(item.product_id);
+    const originalTotal = item.product_price * item.quantity;
+    if (discount) {
+      // Discount applies to 1 unit only
+      return originalTotal - discount.total_discount;
+    }
+    return originalTotal;
+  }
+
   // Lightbox
   openImage(item: CartItem): void {
     this.lightbox.openImage(item);

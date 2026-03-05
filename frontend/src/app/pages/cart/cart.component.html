@@ -145,7 +145,14 @@
                       </div>
                     </td>
                     <td class="text-right">
-                      <span class="text-bold">{{ item.product_price * item.quantity | appCurrency }}</span>
+                      @if (hasDiscount(item)) {
+                        <div class="price-with-discount">
+                          <span class="price-original">{{ item.product_price * item.quantity | appCurrency }}</span>
+                          <span class="price-discounted">{{ getDiscountedTotal(item) | appCurrency }}</span>
+                        </div>
+                      } @else {
+                        <span class="text-bold">{{ item.product_price * item.quantity | appCurrency }}</span>
+                      }
                     </td>
                     <td class="text-center">
                       <button class="icon-btn icon-btn--danger" (click)="removeItem(item.id)" [pTooltip]="'cart.remove_item' | translate" tooltipPosition="left">
@@ -206,7 +213,14 @@
                         (click)="updateItemQuantity(item.id, productQuantities[item.id] + getQuantityStep(item))">
                       </button>
                     </div>
-                    <span class="cart-item-mobile__total">{{ item.product_price * item.quantity | appCurrency }}</span>
+                    @if (hasDiscount(item)) {
+                      <div class="price-with-discount">
+                        <span class="price-original">{{ item.product_price * item.quantity | appCurrency }}</span>
+                        <span class="price-discounted">{{ getDiscountedTotal(item) | appCurrency }}</span>
+                      </div>
+                    } @else {
+                      <span class="cart-item-mobile__total">{{ item.product_price * item.quantity | appCurrency }}</span>
+                    }
                   </div>
                 </div>
               </div>
@@ -218,10 +232,21 @@
     </div>
   }
 
+  <!-- Bundle Savings Banner (when cross-sell discounts apply) -->
+  @if (crossSellSavings() > 0) {
+    <div class="savings-banner">
+      <div class="savings-banner__content">
+        <i class="pi pi-gift"></i>
+        <span class="savings-banner__text">{{ 'promotions.bundle_savings' | translate }}</span>
+        <span class="savings-banner__amount">-{{ crossSellSavings() | appCurrency }}</span>
+      </div>
+    </div>
+  }
+
   <!-- Sticky Footer (All screens) -->
   @if (cartItemCount() > 0) {
     <app-sticky-footer
-      [amount]="cartSubtotal()"
+      [amount]="cartSubtotal() - crossSellSavings()"
       buttonLabel="cart.continue"
       (buttonClick)="openOrderSummary()" />
   }
