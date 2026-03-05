@@ -186,6 +186,12 @@ export const routes: Routes = [
     data: { hideBottomNav: true }
   },
 
+  // Stock Page (public - no auth required)
+  {
+    path: 'stock',
+    loadComponent: () => import('./pages/stock/stock.component').then(m => m.StockComponent)
+  },
+
   // Public Routes
   {
     path: 'privacy-policy',

@@ -61,7 +61,8 @@
             "stylePreprocessorOptions": {
               "includePaths": ["node_modules/"]
             },
-            "scripts": []
+            "scripts": [],
+            "externalDependencies": ["canvg"]
           },
           "configurations": {
             "production": {

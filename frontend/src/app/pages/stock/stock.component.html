@@ -1,0 +1,520 @@
+<app-agroclik-page-container>
+  <!-- Top Section: Header + Filters -->
+  <div pageTop [class.initialized]="tableInitialized()">
+    <!-- Page Header -->
+    <div class="admin-list-header animate-item" style="--item-delay: 0ms;">
+      <div class="header-title">
+        <div class="admin-icon-wrapper">
+          <div class="icon-bg"></div>
+          <div class="icon-circle">
+            <i class="pi pi-box"></i>
+          </div>
+        </div>
+        <div class="title-text">
+          <h1>Gestion du Stock</h1>
+          <p>Suivre l'inventaire et gérer les niveaux de stock</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Main Section: Table -->
+  <div pageMain>
+    <!-- Loading State - Skeleton Table -->
+    @if (loading()) {
+      <app-table-skeleton
+        [columns]="skeletonColumns"
+        [rows]="8"
+        [actionCount]="0"
+      />
+    } @else {
+      <!-- Stock Table -->
+      <div class="table-container animate-item" [class.fullscreen]="isFullscreen()" style="--item-delay: 100ms;">
+        <div class="table-header">
+          <div class="table-header-search">
+            <app-table-search
+              [query]="searchQuery()"
+              (queryChange)="searchQuery.set($event)"
+            />
+          </div>
+          <div class="table-actions">
+            <button class="btn-invoice" (click)="openInvoicePreview()" pTooltip="Générer Bon de Commande">
+              <i class="pi pi-file-pdf"></i>
+              <span class="btn-text">Commande</span>
+              @if (selectedCount() > 0) {
+                <span class="badge">{{ selectedCount() }}</span>
+              }
+            </button>
+            <button class="btn-save" (click)="saveStock()" [disabled]="saving()" pTooltip="Enregistrer">
+              @if (saving()) {
+                <i class="pi pi-spin pi-spinner"></i>
+              } @else {
+                <i class="pi pi-save"></i>
+              }
+              <span class="btn-text">Enregistrer</span>
+            </button>
+            <button class="btn-download" (click)="downloadStock()" pTooltip="Télécharger CSV">
+              <i class="pi pi-download"></i>
+            </button>
+            @if (hasActiveFilters()) {
+              <button class="clear-filters-btn" (click)="clearFilters()" pTooltip="Effacer les Filtres">
+                <i class="pi pi-filter-slash"></i>
+              </button>
+            }
+            <button class="table-action-btn refresh-btn" (click)="refresh()" pTooltip="Actualiser">
+              <i class="pi pi-refresh"></i>
+            </button>
+            <button class="table-action-btn" (click)="toggleFullscreen()" [pTooltip]="isFullscreen() ? 'Quitter Plein Écran' : 'Plein Écran'">
+              <i [class]="isFullscreen() ? 'pi pi-window-minimize' : 'pi pi-window-maximize'"></i>
+            </button>
+            <button class="table-action-btn" (click)="tableOptionsMenu.toggle($event)" pTooltip="Options">
+              <i class="pi pi-ellipsis-v"></i>
+            </button>
+            <p-popover #tableOptionsMenu>
+              <div class="table-options-menu">
+                <div class="table-options-section">
+                  <span class="table-options-label">Colonnes Visibles</span>
+                  <div class="table-options-columns">
+                    @for (col of columnOptions; track col.field) {
+                      <label class="column-toggle">
+                        <input type="checkbox" [checked]="col.visible" (change)="toggleColumn(col.field)">
+                        <span>{{ col.label }}</span>
+                      </label>
+                    }
+                  </div>
+                </div>
+              </div>
+            </p-popover>
+          </div>
+        </div>
+
+        @if (filteredRows().length === 0) {
+          <!-- Empty State -->
+          <div class="empty-state">
+            <div class="empty-state__icon">
+              <i class="pi pi-box"></i>
+            </div>
+            <h3 class="empty-state__title">Aucun Produit Trouvé</h3>
+            <p class="empty-state__description">Aucun produit ne correspond aux filtres actuels</p>
+          </div>
+        } @else {
+          <div class="table-wrapper">
+            <table class="table table-fixed">
+              <thead>
+                <tr>
+                  @if (isColumnVisible('carry')) {
+                    <th class="col-carry">À Vendre</th>
+                  }
+                  @if (isColumnVisible('image')) {
+                    <th class="col-image">Image</th>
+                  }
+                  @if (isColumnVisible('product')) {
+                    <th class="col-product sortable" (click)="sort('product')">
+                      <span>Produit</span>
+                      @if (sortField() === 'product') {
+                        <i class="pi" [class.pi-sort-amount-up]="sortOrder() === 'asc'" [class.pi-sort-amount-down]="sortOrder() === 'desc'"></i>
+                      }
+                    </th>
+                  }
+                  @if (isColumnVisible('brand')) {
+                    <th class="col-filter">
+                      <div class="filter-sort-row">
+                        <div class="filter-dropdown-wrapper">
+                          @if (brandFilter() && brandFilter().length > 0) {
+                            <span class="filter-badge" (click)="clearBrandFilter(); $event.stopPropagation()" pTooltip="Effacer le filtre">
+                              {{ brandFilter().length }}
+                              <i class="pi pi-times"></i>
+                            </span>
+                          }
+                          <p-multiSelect
+                            [options]="brandOptions()"
+                            [ngModel]="brandFilter()"
+                            (ngModelChange)="onBrandChange($event)"
+                            optionLabel="label"
+                            optionValue="value"
+                            placeholder="Marque"
+                            [showClear]="false"
+                            [filter]="true"
+                            filterPlaceholder="Rechercher..."
+                            selectedItemsLabel="Marque"
+                            [maxSelectedLabels]="0"
+                          />
+                        </div>
+                        <button class="sort-btn" (click)="sort('brand')" [class.active]="sortField() === 'brand'">
+                          <i class="pi" [class.pi-sort-amount-up]="sortField() === 'brand' && sortOrder() === 'asc'" [class.pi-sort-amount-down]="sortField() === 'brand' && sortOrder() === 'desc'" [class.pi-sort-alt]="sortField() !== 'brand'"></i>
+                        </button>
+                      </div>
+                    </th>
+                  }
+                  @if (isColumnVisible('category')) {
+                    <th class="col-filter">
+                      <div class="filter-sort-row">
+                        <div class="filter-dropdown-wrapper">
+                          @if (categoryFilter() && categoryFilter().length > 0) {
+                            <span class="filter-badge" (click)="clearCategoryFilter(); $event.stopPropagation()" pTooltip="Effacer le filtre">
+                              {{ categoryFilter().length }}
+                              <i class="pi pi-times"></i>
+                            </span>
+                          }
+                          <p-multiSelect
+                            [options]="categoryOptions()"
+                            [ngModel]="categoryFilter()"
+                            (ngModelChange)="onCategoryChange($event)"
+                            optionLabel="label"
+                            optionValue="value"
+                            placeholder="Catégorie"
+                            [showClear]="false"
+                            [filter]="true"
+                            filterPlaceholder="Rechercher..."
+                            selectedItemsLabel="Catégorie"
+                            [maxSelectedLabels]="0"
+                          />
+                        </div>
+                        <button class="sort-btn" (click)="sort('category')" [class.active]="sortField() === 'category'">
+                          <i class="pi" [class.pi-sort-amount-up]="sortField() === 'category' && sortOrder() === 'asc'" [class.pi-sort-amount-down]="sortField() === 'category' && sortOrder() === 'desc'" [class.pi-sort-alt]="sortField() !== 'category'"></i>
+                        </button>
+                      </div>
+                    </th>
+                  }
+                  @if (isColumnVisible('supplier')) {
+                    <th class="col-input sortable" (click)="sort('supplier')">
+                      <span>Fournisseur</span>
+                      @if (sortField() === 'supplier') {
+                        <i class="pi" [class.pi-sort-amount-up]="sortOrder() === 'asc'" [class.pi-sort-amount-down]="sortOrder() === 'desc'"></i>
+                      }
+                    </th>
+                  }
+                  @if (isColumnVisible('phone')) {
+                    <th class="col-input">Téléphone</th>
+                  }
+                  @if (isColumnVisible('description')) {
+                    <th>Description</th>
+                  }
+                  <th class="col-spacer"></th>
+                  @if (isColumnVisible('prixUnite')) {
+                    <th class="col-number text-center sortable" (click)="sort('prixUnite')">
+                      <span>Prix Unité</span>
+                      @if (sortField() === 'prixUnite') {
+                        <i class="pi" [class.pi-sort-amount-up]="sortOrder() === 'asc'" [class.pi-sort-amount-down]="sortOrder() === 'desc'"></i>
+                      }
+                    </th>
+                  }
+                  @if (isColumnVisible('uniteParCarton')) {
+                    <th class="col-number text-center sortable" (click)="sort('uniteParCarton')">
+                      <span>Unité/Carton</span>
+                      @if (sortField() === 'uniteParCarton') {
+                        <i class="pi" [class.pi-sort-amount-up]="sortOrder() === 'asc'" [class.pi-sort-amount-down]="sortOrder() === 'desc'"></i>
+                      }
+                    </th>
+                  }
+                  @if (isColumnVisible('prixCarton')) {
+                    <th class="col-number text-center">Prix Carton</th>
+                  }
+                  @if (isColumnVisible('nmbCarton')) {
+                    <th class="col-number text-center sortable" (click)="sort('nmbCarton')">
+                      <span>Nmb Carton</span>
+                      @if (sortField() === 'nmbCarton') {
+                        <i class="pi" [class.pi-sort-amount-up]="sortOrder() === 'asc'" [class.pi-sort-amount-down]="sortOrder() === 'desc'"></i>
+                      }
+                    </th>
+                  }
+                  @if (isColumnVisible('total')) {
+                    <th class="col-total text-center sortable" (click)="sort('total')">
+                      <span>Total</span>
+                      @if (sortField() === 'total') {
+                        <i class="pi" [class.pi-sort-amount-up]="sortOrder() === 'asc'" [class.pi-sort-amount-down]="sortOrder() === 'desc'"></i>
+                      }
+                    </th>
+                  }
+                </tr>
+              </thead>
+              <tbody>
+                @for (row of filteredRows(); track row.productId; let i = $index) {
+                  <tr class="table-row-animate" [style.--row-delay]="(i * 30) + 'ms'">
+                    <!-- Carry Switch -->
+                    @if (isColumnVisible('carry')) {
+                      <td class="col-carry">
+                        <p-toggleSwitch [(ngModel)]="row.carry" (ngModelChange)="onCarryChange()" />
+                      </td>
+                    }
+
+                    <!-- Image -->
+                    @if (isColumnVisible('image')) {
+                      <td class="col-image">
+                        <img
+                          [src]="row.image"
+                          [alt]="row.product"
+                          class="product-thumbnail"
+                          [class.clickable]="row.image && !row.image.includes('placeholder')"
+                          loading="lazy"
+                          (error)="onImageError($event)"
+                          (click)="openLightbox(row.image)"
+                        />
+                      </td>
+                    }
+
+                    <!-- Product Name -->
+                    @if (isColumnVisible('product')) {
+                      <td>
+                        <span class="product-name">{{ row.product }}</span>
+                      </td>
+                    }
+
+                    <!-- Brand -->
+                    @if (isColumnVisible('brand')) {
+                      <td>
+                        <span class="brand-pill" [style.background]="getBrandColor(row.brand).bg" [style.color]="getBrandColor(row.brand).text">{{ row.brand }}</span>
+                      </td>
+                    }
+
+                    <!-- Category -->
+                    @if (isColumnVisible('category')) {
+                      <td>
+                        <span class="category-pill" [style.background]="getCategoryColor(row.category).bg" [style.color]="getCategoryColor(row.category).text">{{ row.category }}</span>
+                      </td>
+                    }
+
+                    <!-- Supplier (editable) -->
+                    @if (isColumnVisible('supplier')) {
+                      <td class="col-input">
+                        <input
+                          type="text"
+                          [(ngModel)]="row.supplier"
+                          placeholder="Fournisseur"
+                          class="stock-input"
+                        />
+                      </td>
+                    }
+
+                    <!-- Phone (editable) -->
+                    @if (isColumnVisible('phone')) {
+                      <td class="col-input">
+                        <input
+                          type="text"
+                          [(ngModel)]="row.phone"
+                          placeholder="Téléphone"
+                          class="stock-input"
+                        />
+                      </td>
+                    }
+
+                    <!-- Description -->
+                    @if (isColumnVisible('description')) {
+                      <td>
+                        <span class="description-text">{{ row.description || '-' }}</span>
+                      </td>
+                    }
+
+                    <!-- Spacer -->
+                    <td class="col-spacer"></td>
+
+                    <!-- Prix Unite (editable) -->
+                    @if (isColumnVisible('prixUnite')) {
+                      <td class="col-number">
+                        <p-inputNumber
+                          [(ngModel)]="row.prixUnite"
+                          [min]="0"
+                          [maxFractionDigits]="2"
+                          mode="decimal"
+                          [style]="{'width': '70px'}"
+                          inputStyleClass="text-center"
+                          (ngModelChange)="onPrixUniteChange(row)"
+                        />
+                      </td>
+                    }
+
+                    <!-- Unite par Carton (editable) -->
+                    @if (isColumnVisible('uniteParCarton')) {
+                      <td class="col-number">
+                        <p-inputNumber
+                          [(ngModel)]="row.uniteParCarton"
+                          [min]="0"
+                          [style]="{'width': '70px'}"
+                          inputStyleClass="text-center"
+                          (ngModelChange)="onUniteParCartonChange(row)"
+                        />
+                      </td>
+                    }
+
+                    <!-- Prix Carton (editable) -->
+                    @if (isColumnVisible('prixCarton')) {
+                      <td class="col-number">
+                        <p-inputNumber
+                          [(ngModel)]="row.prixCarton"
+                          [min]="0"
+                          [maxFractionDigits]="0"
+                          mode="decimal"
+                          [style]="{'width': '70px'}"
+                          inputStyleClass="text-center input-prix-carton"
+                          (ngModelChange)="onPrixCartonChange(row)"
+                        />
+                      </td>
+                    }
+
+                    <!-- Nmb Carton (editable) -->
+                    @if (isColumnVisible('nmbCarton')) {
+                      <td class="col-number">
+                        <p-inputNumber
+                          [(ngModel)]="row.nmbCarton"
+                          [min]="0"
+                          [style]="{'width': '70px'}"
+                          inputStyleClass="text-center"
+                          (ngModelChange)="onNmbCartonChange(row)"
+                        />
+                      </td>
+                    }
+
+                    <!-- Total (calculated) -->
+                    @if (isColumnVisible('total')) {
+                      <td class="col-total">
+                        <span class="value-total">{{ row.prixCarton * row.nmbCarton | number:'1.0-0' }}</span>
+                      </td>
+                    }
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Footer with totals -->
+          <div class="table-footer">
+            <div class="stock-totals">
+              <div class="total-item">
+                <strong>Total Cartons:</strong>
+                <span>{{ totalCartons() | number }}</span>
+              </div>
+            </div>
+            <div class="total-item total-main">
+              <strong>Total:</strong>
+              <span>{{ totalValue() | number:'1.0-0' }}</span>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</app-agroclik-page-container>
+
+<!-- Invoice Preview Dialog -->
+<p-dialog
+  [(visible)]="showInvoiceDialog"
+  header="Aperçu Bon de Commande"
+  [modal]="true"
+  [style]="{ width: '90vw', maxWidth: '900px' }"
+  [contentStyle]="{ 'max-height': '70vh', 'overflow': 'auto' }"
+  [draggable]="false"
+  [resizable]="false"
+>
+  <div class="invoice-preview">
+    <!-- Invoice Header -->
+    <div class="invoice-header">
+      <div class="invoice-company">
+        <h2>Bon de Commande</h2>
+        <p>Date: {{ invoiceDate | date:'dd/MM/yyyy HH:mm' }}</p>
+      </div>
+      <div class="invoice-summary">
+        <span class="summary-item">{{ selectedCount() }} produits</span>
+        <span class="summary-total">{{ selectedTotalValue() | number:'1.0-0' }} DA</span>
+      </div>
+    </div>
+
+    <!-- Grouped by Supplier -->
+    @if (groupBySupplier()) {
+      @for (entry of rowsGroupedBySupplier() | keyvalue; track entry.key) {
+        <div class="supplier-group">
+          <div class="supplier-header">
+            <h3><i class="pi pi-truck"></i> {{ entry.key }}</h3>
+            @if (entry.value[0].phone) {
+              <span class="supplier-phone"><i class="pi pi-phone"></i> {{ entry.value[0].phone }}</span>
+            }
+          </div>
+          <table class="invoice-table">
+            <thead>
+              <tr>
+                <th>Produit</th>
+                <th>Marque</th>
+                <th class="text-center">Qté</th>
+                <th class="text-right">Prix/Carton</th>
+                <th class="text-right">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of entry.value; track row.productId) {
+                <tr>
+                  <td>{{ row.product }}</td>
+                  <td><span class="brand-pill small" [style.background]="getBrandColor(row.brand).bg" [style.color]="getBrandColor(row.brand).text">{{ row.brand }}</span></td>
+                  <td class="text-center">{{ row.nmbCarton }}</td>
+                  <td class="text-right">{{ row.prixCarton | number:'1.0-0' }}</td>
+                  <td class="text-right font-semibold">{{ row.prixCarton * row.nmbCarton | number:'1.0-0' }}</td>
+                </tr>
+              }
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="4" class="text-right"><strong>Sous-total:</strong></td>
+                <td class="text-right font-semibold">{{ getSupplierTotal(entry.value) | number:'1.0-0' }} DA</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      }
+    } @else {
+      <!-- Not Grouped -->
+      <table class="invoice-table">
+        <thead>
+          <tr>
+            <th>Produit</th>
+            <th>Marque</th>
+            <th>Fournisseur</th>
+            <th class="text-center">Qté</th>
+            <th class="text-right">Prix/Carton</th>
+            <th class="text-right">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of selectedForInvoice(); track row.productId) {
+            <tr>
+              <td>{{ row.product }}</td>
+              <td><span class="brand-pill small" [style.background]="getBrandColor(row.brand).bg" [style.color]="getBrandColor(row.brand).text">{{ row.brand }}</span></td>
+              <td>{{ row.supplier || '-' }}</td>
+              <td class="text-center">{{ row.nmbCarton }}</td>
+              <td class="text-right">{{ row.prixCarton | number:'1.0-0' }}</td>
+              <td class="text-right font-semibold">{{ row.prixCarton * row.nmbCarton | number:'1.0-0' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+
+    <!-- Grand Total -->
+    <div class="invoice-grand-total">
+      <span>Total Général:</span>
+      <span class="total-value">{{ selectedTotalValue() | number:'1.0-0' }} DA</span>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="invoice-actions">
+      <button class="btn-secondary" (click)="closeInvoiceDialog()">
+        <i class="pi pi-times"></i>
+        Fermer
+      </button>
+      <button class="btn-primary" (click)="downloadInvoicePDF()">
+        <i class="pi pi-download"></i>
+        Télécharger PDF
+      </button>
+    </div>
+  </div>
+</p-dialog>
+
+<!-- Image Lightbox -->
+@if (lightboxImage()) {
+  <div class="lightbox-overlay" (click)="closeLightbox()">
+    <div class="lightbox-content" (click)="$event.stopPropagation()">
+      <button class="lightbox-close" (click)="closeLightbox()">
+        <i class="pi pi-times"></i>
+      </button>
+      <img [src]="lightboxImage()" alt="Product Image" />
+    </div>
+  </div>
+}

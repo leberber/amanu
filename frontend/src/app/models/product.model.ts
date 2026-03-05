@@ -46,4 +46,6 @@ export interface Product {
     max_price?: number;
     sort_by?: 'name' | 'price' | 'created_at';
     sort_order?: 'asc' | 'desc';
+    limit?: number;
+    skip?: number;
   }
