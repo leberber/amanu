@@ -111,10 +111,20 @@ export class ProductCardComponent {
   discountLabel = computed(() => formatDiscountLabel(this.product().promotion, this.currencyService, this.product().pieces_per_box || 1));
   effectivePrice = computed(() => getEffectivePrice(this.product().price, this.product().promotion));
 
-  // Computed - volume discount (free units)
-  hasFreeUnitsPromotion = computed(() => {
+  // Computed - volume discount
+  volumeDiscount = computed(() => {
     const discounts = this.volumeDiscountService.getCachedDiscounts();
-    return discounts.some(d => d.product_id === this.product().id && d.discount_type === 'free_units');
+    return discounts.find(d => d.product_id === this.product().id) || null;
+  });
+
+  hasFreeUnitsPromotion = computed(() => {
+    const vd = this.volumeDiscount();
+    return vd?.discount_type === 'free_units';
+  });
+
+  hasVolumeDiscountPromotion = computed(() => {
+    const vd = this.volumeDiscount();
+    return vd && vd.discount_type !== 'free_units';
   });
 
   // Computed - packaging

@@ -160,6 +160,7 @@
   "products": {
     "title": "منتجاتنا",
     "free_gift": "+1 مجاني",
+    "volume_deal": "عرض الكمية",
     "volume_promo": {
       "title": "عرض خاص",
       "buy": "اشترِ",

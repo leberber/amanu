@@ -160,6 +160,7 @@
   "products": {
     "title": "Our Products",
     "free_gift": "+1 Free",
+    "volume_deal": "Volume Deal",
     "volume_promo": {
       "title": "Special Offer",
       "buy": "Buy",

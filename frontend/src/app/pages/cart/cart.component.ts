@@ -215,6 +215,12 @@ export class CartComponent implements OnInit {
       total -= crossSell.total_discount;
     }
 
+    // Volume discount (percentage/fixed_amount) - subtract saved amount
+    const volumeDiscount = this.getVolumeDiscount(item.product_id);
+    if (volumeDiscount && volumeDiscount.discountType !== 'free_units') {
+      total -= volumeDiscount.savedAmount;
+    }
+
     return total;
   }
 
@@ -228,13 +234,19 @@ export class CartComponent implements OnInit {
     return orderedCartons;
   }
 
-  // Get original price as if paying for all cartons (including free)
+  // Get original price (before any volume discount)
   getOriginalPriceWithFree(item: CartItem): number {
     const volumeDiscount = this.getVolumeDiscount(item.product_id);
-    if (volumeDiscount && volumeDiscount.discountType === 'free_units') {
-      const totalCartons = this.getTotalCartonsWithFree(item);
-      const pricePerCarton = item.product_price * (item.pieces_per_box || 1);
-      return totalCartons * pricePerCarton;
+    if (volumeDiscount) {
+      if (volumeDiscount.discountType === 'free_units') {
+        // For free units: show price as if paying for all cartons including free ones
+        const totalCartons = this.getTotalCartonsWithFree(item);
+        const pricePerCarton = item.product_price * (item.pieces_per_box || 1);
+        return totalCartons * pricePerCarton;
+      } else {
+        // For percentage/fixed_amount: show original price before discount
+        return item.product_price * item.quantity;
+      }
     }
     return item.product_price * item.quantity;
   }

@@ -16,6 +16,7 @@ export interface CartItemForDiscount {
   product_id: number;
   quantity: number;
   unit_price: number;
+  pieces_per_box: number;
 }
 
 @Injectable({
@@ -182,14 +183,17 @@ export class VolumeDiscountService implements OnDestroy {
     const appliedDiscounts: AppliedVolumeDiscount[] = [];
 
     for (const item of cartItems) {
+      // Convert quantity to cartons for comparison (min_quantity is in cartons)
+      const cartonsOrdered = Math.floor(item.quantity / item.pieces_per_box);
+
       // Find applicable discount for this product
       const discount = discounts.find(d =>
         d.product_id === item.product_id &&
-        item.quantity >= d.min_quantity
+        cartonsOrdered >= d.min_quantity
       );
 
       if (discount) {
-        const applied = this.calculateSingleDiscount(discount, item);
+        const applied = this.calculateSingleDiscount(discount, item, cartonsOrdered);
         if (applied) {
           appliedDiscounts.push(applied);
         }
@@ -204,8 +208,12 @@ export class VolumeDiscountService implements OnDestroy {
    */
   private calculateSingleDiscount(
     discount: VolumeDiscount,
-    item: CartItemForDiscount
+    item: CartItemForDiscount,
+    cartonsOrdered: number
   ): AppliedVolumeDiscount | null {
+    // Calculate how many qualifying sets (e.g., if min is 3 cartons and ordered 6, sets = 2)
+    const sets = Math.floor(cartonsOrdered / discount.min_quantity);
+
     switch (discount.discount_type) {
       case 'percentage': {
         const totalPrice = item.quantity * item.unit_price;
@@ -219,8 +227,8 @@ export class VolumeDiscountService implements OnDestroy {
       }
 
       case 'fixed_amount': {
-        // Fixed amount per unit
-        const savedAmount = item.quantity * discount.discount_value;
+        // Fixed amount discount per qualifying set (e.g., buy 3 cartons, get 50 DZD off total)
+        const savedAmount = sets * discount.discount_value;
         return {
           discount,
           freeUnits: 0,
@@ -230,9 +238,10 @@ export class VolumeDiscountService implements OnDestroy {
       }
 
       case 'free_units': {
-        // Calculate how many free units based on quantity
-        // e.g., Buy 5 get 1 free: for 10 items, user gets 2 free
-        const freeUnits = Math.floor(item.quantity / discount.min_quantity) * discount.discount_value;
+        // Free cartons per qualifying set (e.g., buy 5 cartons get 1 free)
+        // discount_value is in cartons, convert to pieces for savedAmount
+        const freeCartons = sets * discount.discount_value;
+        const freeUnits = freeCartons * item.pieces_per_box;
         const savedAmount = freeUnits * item.unit_price;
         return {
           discount,

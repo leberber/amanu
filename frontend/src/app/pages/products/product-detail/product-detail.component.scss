@@ -431,7 +431,8 @@
     }
   }
 
-  &--free-units {
+  &--free-units,
+  &--volume-discount {
     background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(5, 150, 105, 0.04) 100%);
     border: 2px solid #10b981;
 
@@ -440,7 +441,8 @@
     }
   }
 
-  &__free {
+  &__free,
+  &__discount {
     font-size: 0.7rem;
     font-weight: 600;
     color: #059669;

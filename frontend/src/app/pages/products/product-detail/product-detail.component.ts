@@ -203,6 +203,39 @@ export class ProductDetailComponent implements OnInit {
     return totalCartons * pricePerCarton;
   });
 
+  // Computed - check if qualifies for percentage/fixed_amount volume discount
+  qualifiesForVolumeDiscount = computed(() => {
+    const vd = this.volumeDiscount();
+    if (!vd || vd.discount_type === 'free_units') return false;
+    return this.selectedCartons() >= vd.min_quantity;
+  });
+
+  // Computed - volume discount savings (for percentage/fixed_amount)
+  volumeDiscountSavings = computed(() => {
+    if (!this.qualifiesForVolumeDiscount()) return 0;
+    const vd = this.volumeDiscount();
+    const p = this.product();
+    if (!vd || !p) return 0;
+
+    const totalPrice = this.selectedQuantity() * p.price;
+    const sets = Math.floor(this.selectedCartons() / vd.min_quantity);
+
+    if (vd.discount_type === 'percentage') {
+      return totalPrice * (vd.discount_value / 100);
+    } else {
+      // fixed_amount - flat discount per qualifying set (e.g., 50 DZD off when buying 3 cartons)
+      return sets * vd.discount_value;
+    }
+  });
+
+  // Computed - price after volume discount
+  priceAfterVolumeDiscount = computed(() => {
+    const p = this.product();
+    if (!p) return 0;
+    const totalPrice = this.selectedQuantity() * p.price;
+    return totalPrice - this.volumeDiscountSavings();
+  });
+
   // Computed - stock percentage
   stockPercentage = computed(() => {
     const p = this.product();

@@ -197,8 +197,10 @@
                       <span class="badge volume-discount">
                         @if (vd.discountType === 'free_units') {
                           +{{ getFreeCartons(vd.freeUnits, item.pieces_per_box) }} {{ 'cart.free' | translate }}
+                        } @else if (vd.discountType === 'percentage') {
+                          -{{ vd.discount.discount_value }}%
                         } @else {
-                          -{{ vd.discount.discount_value }}{{ vd.discountType === 'percentage' ? '%' : '' }}
+                          -{{ vd.savedAmount | appCurrency }}
                         }
                       </span>
                     }
