@@ -18,6 +18,7 @@ from app.models.notification_history import NotificationHistory  # Register mode
 from app.models.email_verification import EmailVerificationToken  # Register model for table creation
 from app.models.user_notification import UserNotification  # Register model for table creation
 from app.models.cross_sell_promotion import CrossSellPromotion  # Register model for table creation
+from app.models.volume_discount import VolumeDiscount  # Register model for table creation
 from app.models.stock import StockItem  # Register model for table creation
 
 app = FastAPI(

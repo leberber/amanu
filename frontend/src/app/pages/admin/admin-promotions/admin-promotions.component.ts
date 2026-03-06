@@ -13,9 +13,11 @@ import { BreakpointService } from '../../../core/services/breakpoint.service';
 import { onLanguageChange } from '../../../core/utils/language-change.util';
 import { PromotionService } from '../../../services/promotion.service';
 import { CrossSellPromotionService } from '../../../services/cross-sell-promotion.service';
+import { VolumeDiscountService } from '../../../services/volume-discount.service';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { Promotion } from '../../../models/promotion.model';
 import { CrossSellPromotion } from '../../../models/cross-sell-promotion.model';
+import { VolumeDiscount } from '../../../models/volume-discount.model';
 import { ConfirmationDialogService } from '../../../core/services/confirmation-dialog.service';
 import { BaseAdminListComponent, ColumnOption } from '../../../shared/base/base-admin-list.component';
 
@@ -53,9 +55,16 @@ export class AdminPromotionsComponent extends BaseAdminListComponent implements 
   paginatedCrossSellPromotions = signal<CrossSellPromotion[]>([]);
   crossSellLoading = signal(false);
 
+  // Data signals - Volume Discounts
+  allVolumeDiscounts = signal<VolumeDiscount[]>([]);
+  volumeDiscounts = signal<VolumeDiscount[]>([]);
+  paginatedVolumeDiscounts = signal<VolumeDiscount[]>([]);
+  volumeDiscountLoading = signal(false);
+
   // Override status filter type for promotions (different from default active/inactive)
   override statusFilter: string = 'all';
   crossSellStatusFilter = 'all';
+  volumeDiscountStatusFilter = 'all';
 
   // Computed counts - Promo Codes
   activeCount = computed(() => this.allPromotions().filter(p => this.getPromotionStatus(p) === 'active').length);
@@ -65,6 +74,10 @@ export class AdminPromotionsComponent extends BaseAdminListComponent implements 
   // Computed counts - Cross-Sell
   crossSellActiveCount = computed(() => this.allCrossSellPromotions().filter(p => this.getCrossSellStatus(p) === 'active').length);
   crossSellInactiveCount = computed(() => this.allCrossSellPromotions().filter(p => !p.is_active).length);
+
+  // Computed counts - Volume Discounts
+  volumeDiscountActiveCount = computed(() => this.allVolumeDiscounts().filter(d => this.getVolumeDiscountStatus(d) === 'active').length);
+  volumeDiscountInactiveCount = computed(() => this.allVolumeDiscounts().filter(d => !d.is_active).length);
 
   // Skeleton configuration
   skeletonColumns: SkeletonColumn[] = [
@@ -101,6 +114,7 @@ export class AdminPromotionsComponent extends BaseAdminListComponent implements 
   // Services
   private promotionService = inject(PromotionService);
   private crossSellService = inject(CrossSellPromotionService);
+  private volumeDiscountService = inject(VolumeDiscountService);
   private confirmationService = inject(ConfirmationService);
   private confirmDialog = inject(ConfirmationDialogService);
   private translateService = inject(TranslateService);
@@ -112,9 +126,11 @@ export class AdminPromotionsComponent extends BaseAdminListComponent implements 
     this.columnOptions = this.getInitialColumnOptions();
     this.loadAllPromotions();
     this.loadAllCrossSellPromotions();
+    this.loadAllVolumeDiscounts();
     onLanguageChange(this.translateService, this.destroyRef, () => {
       this.filterItems();
       this.filterCrossSellItems();
+      this.filterVolumeDiscountItems();
     });
   }
 
@@ -398,5 +414,144 @@ export class AdminPromotionsComponent extends BaseAdminListComponent implements 
 
   refreshCrossSellData(): void {
     this.loadAllCrossSellPromotions();
+  }
+
+  // ============================================
+  // Volume Discounts Methods
+  // ============================================
+
+  loadAllVolumeDiscounts(): void {
+    this.volumeDiscountLoading.set(true);
+    this.volumeDiscountService.getAll()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (discounts) => {
+          this.allVolumeDiscounts.set(discounts);
+          this.volumeDiscounts.set(discounts);
+          this.updatePaginatedVolumeDiscountItems();
+          this.volumeDiscountLoading.set(false);
+        },
+        error: () => {
+          this.allVolumeDiscounts.set([]);
+          this.volumeDiscounts.set([]);
+          this.volumeDiscountLoading.set(false);
+          this.baseToast.showError('admin.promotions.volume_discount.load_error');
+        }
+      });
+  }
+
+  filterVolumeDiscountItems(): void {
+    let filtered = [...this.allVolumeDiscounts()];
+
+    if (this.volumeDiscountStatusFilter !== 'all') {
+      if (this.volumeDiscountStatusFilter === 'active') {
+        filtered = filtered.filter(d => this.getVolumeDiscountStatus(d) === 'active');
+      } else if (this.volumeDiscountStatusFilter === 'inactive') {
+        filtered = filtered.filter(d => !d.is_active);
+      }
+    }
+
+    if (this.hasSearchQuery()) {
+      const search = this.searchQuery.toLowerCase();
+      filtered = filtered.filter(discount =>
+        discount.name.toLowerCase().includes(search) ||
+        discount.product_name?.toLowerCase().includes(search) ||
+        discount.description?.toLowerCase().includes(search)
+      );
+    }
+
+    this.volumeDiscounts.set(filtered);
+    this.updatePaginatedVolumeDiscountItems();
+  }
+
+  updatePaginatedVolumeDiscountItems(): void {
+    this.paginatedVolumeDiscounts.set(
+      this.volumeDiscounts().slice(this.first, this.first + this.rows)
+    );
+  }
+
+  onVolumeDiscountStatusFilterChange(status: string): void {
+    this.volumeDiscountStatusFilter = status;
+    this.resetPagination();
+    this.filterVolumeDiscountItems();
+  }
+
+  getVolumeDiscountStatus(discount: VolumeDiscount): 'active' | 'inactive' | 'scheduled' | 'expired' {
+    if (!discount.is_active) return 'inactive';
+
+    const now = new Date();
+
+    if (discount.start_date) {
+      const startDate = new Date(discount.start_date);
+      if (now < startDate) return 'scheduled';
+    }
+
+    if (discount.end_date) {
+      const endDate = new Date(discount.end_date);
+      if (now > endDate) return 'expired';
+    }
+
+    return 'active';
+  }
+
+  getVolumeDiscountStatusClass(discount: VolumeDiscount): string {
+    return this.getVolumeDiscountStatus(discount);
+  }
+
+  getVolumeDiscountStatusLabel(discount: VolumeDiscount): string {
+    const status = this.getVolumeDiscountStatus(discount);
+    return this.translateService.instant(`admin.promotions.status.${status}`);
+  }
+
+  getVolumeDiscountDisplay(discount: VolumeDiscount): string {
+    switch (discount.discount_type) {
+      case 'percentage':
+        return `${discount.discount_value}%`;
+      case 'fixed_amount':
+        return this.currencyService.formatCurrency(discount.discount_value);
+      case 'free_units':
+        return `+${discount.discount_value}`;
+      default:
+        return `${discount.discount_value}`;
+    }
+  }
+
+  getVolumeDiscountTypeLabel(discount: VolumeDiscount): string {
+    return this.translateService.instant(`admin.promotions.volume_discount.type.${discount.discount_type}`);
+  }
+
+  createNewVolumeDiscount(): void {
+    this.baseRouter.navigate([ROUTES.ADMIN.ADD_VOLUME_DISCOUNT]);
+  }
+
+  editVolumeDiscount(discount: VolumeDiscount): void {
+    this.baseRouter.navigate([RouteHelpers.adminEditVolumeDiscount(discount.id)]);
+  }
+
+  confirmDeleteVolumeDiscount(discount: VolumeDiscount): void {
+    this.confirmDialog.confirmDelete(
+      this.confirmationService,
+      discount.name,
+      () => this.deleteVolumeDiscount(discount)
+    );
+  }
+
+  deleteVolumeDiscount(discount: VolumeDiscount): void {
+    this.volumeDiscountService.delete(discount.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.allVolumeDiscounts.update(discounts => discounts.filter(d => d.id !== discount.id));
+          this.filterVolumeDiscountItems();
+          this.baseToast.showSuccess('admin.promotions.volume_discount.delete_success');
+        },
+        error: (error) => {
+          this.baseToast.showApiError(error, 'admin.promotions.volume_discount.delete_failed');
+        }
+      });
+  }
+
+  refreshVolumeDiscountData(): void {
+    this.loadAllVolumeDiscounts();
   }
 }

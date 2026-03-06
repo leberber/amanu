@@ -50,6 +50,9 @@ export const ROUTES = {
     CROSS_SELL_PROMOTIONS: '/admin/cross-sell-promotions',
     ADD_CROSS_SELL_PROMOTION: '/admin/cross-sell-promotions/add',
     EDIT_CROSS_SELL_PROMOTION: '/admin/cross-sell-promotions/edit/:id',
+    VOLUME_DISCOUNTS: '/admin/volume-discounts',
+    ADD_VOLUME_DISCOUNT: '/admin/volume-discounts/add',
+    EDIT_VOLUME_DISCOUNT: '/admin/volume-discounts/edit/:id',
     ORDERS: '/admin/orders',
     ORDER_DETAIL: '/admin/orders/:id',
     USERS: '/admin/users',
@@ -74,6 +77,7 @@ export const RouteHelpers = {
   adminEditBrand: (id: number | string) => `/admin/brands/edit/${id}`,
   adminEditPromotion: (id: number | string) => `/admin/promotions/edit/${id}`,
   adminEditCrossSellPromotion: (id: number | string) => `/admin/cross-sell-promotions/edit/${id}`,
+  adminEditVolumeDiscount: (id: number | string) => `/admin/volume-discounts/edit/${id}`,
   adminEditUser: (id: number | string) => `/admin/users/${id}/edit`,
   adminEditUserGroup: (id: number | string) => `/admin/user-groups/edit/${id}`
 };

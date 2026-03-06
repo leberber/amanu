@@ -7,12 +7,14 @@ import { TagModule } from 'primeng/tag';
 import { SkeletonModule } from 'primeng/skeleton';
 import { PromotionService } from '../../services/promotion.service';
 import { CrossSellPromotionService } from '../../services/cross-sell-promotion.service';
+import { VolumeDiscountService } from '../../services/volume-discount.service';
 import { DateService } from '../../core/services/date.service';
 import { CurrencyService } from '../../core/services/currency.service';
 import { LightboxService } from '../../core/services/lightbox.service';
 import { PackagingTypeService } from '../../core/services/packaging-type.service';
 import { Promotion } from '../../models/promotion.model';
 import { CrossSellPromotion } from '../../models/cross-sell-promotion.model';
+import { VolumeDiscount } from '../../models/volume-discount.model';
 import { ROUTES } from '../../core/constants/routes.constants';
 import { SCOPE_LABELS, SCOPE_SEVERITIES, ScopeType } from '../../core/constants/promotion.constants';
 import { PageLayoutComponent } from '../../shared/components/page-layout/page-layout.component';
@@ -39,6 +41,7 @@ import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
 export class PromotionsComponent implements OnInit {
   private promotionService = inject(PromotionService);
   private crossSellService = inject(CrossSellPromotionService);
+  private volumeDiscountService = inject(VolumeDiscountService);
   private dateService = inject(DateService);
   private currencyService = inject(CurrencyService);
   private packagingTypeService = inject(PackagingTypeService);
@@ -50,6 +53,7 @@ export class PromotionsComponent implements OnInit {
 
   promotions = signal<Promotion[]>([]);
   crossSellPromotions = signal<CrossSellPromotion[]>([]);
+  volumeDiscounts = signal<VolumeDiscount[]>([]);
   loading = signal(true);
   error = signal(false);
 
@@ -63,13 +67,15 @@ export class PromotionsComponent implements OnInit {
 
     forkJoin({
       promos: this.promotionService.getActivePromotions(),
-      crossSell: this.crossSellService.getActivePromotionsPublic()
+      crossSell: this.crossSellService.getActivePromotionsPublic(),
+      volume: this.volumeDiscountService.getActive()
     })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: ({ promos, crossSell }) => {
+        next: ({ promos, crossSell, volume }) => {
           this.promotions.set(promos);
           this.crossSellPromotions.set(crossSell);
+          this.volumeDiscounts.set(volume);
           this.loading.set(false);
         },
         error: () => {
@@ -80,7 +86,7 @@ export class PromotionsComponent implements OnInit {
   }
 
   hasNoPromotions(): boolean {
-    return this.promotions().length === 0 && this.crossSellPromotions().length === 0;
+    return this.promotions().length === 0 && this.crossSellPromotions().length === 0 && this.volumeDiscounts().length === 0;
   }
 
   getScopeLabel(scope: string): string {
@@ -172,5 +178,47 @@ export class PromotionsComponent implements OnInit {
 
     // For global/category/brand promotions, show "per piece"
     return this.translateService.instant('promotions_page.per_piece');
+  }
+
+  getVolumeDiscountLabel(discount: VolumeDiscount): string {
+    const packagingType = discount.product_packaging_type
+      ? this.packagingTypeService.getPackagingTypeForCount(discount.product_packaging_type, discount.min_quantity)
+      : this.translateService.instant('common.cartons');
+
+    switch (discount.discount_type) {
+      case 'percentage':
+        return this.translateService.instant('promotions_page.volume.percentage', {
+          qty: discount.min_quantity,
+          unit: packagingType,
+          percent: discount.discount_value
+        });
+      case 'fixed_amount':
+        return this.translateService.instant('promotions_page.volume.fixed_amount', {
+          qty: discount.min_quantity,
+          unit: packagingType,
+          amount: this.currencyService.formatCurrency(discount.discount_value)
+        });
+      case 'free_units':
+        return this.translateService.instant('promotions_page.volume.free_units', {
+          qty: discount.min_quantity,
+          free: discount.discount_value,
+          unit: packagingType
+        });
+      default:
+        return '';
+    }
+  }
+
+  getVolumeDiscountBadge(discount: VolumeDiscount): string {
+    switch (discount.discount_type) {
+      case 'percentage':
+        return `-${discount.discount_value}%`;
+      case 'fixed_amount':
+        return `-${this.currencyService.formatCurrency(discount.discount_value)}`;
+      case 'free_units':
+        return `+${discount.discount_value}`;
+      default:
+        return '';
+    }
   }
 }

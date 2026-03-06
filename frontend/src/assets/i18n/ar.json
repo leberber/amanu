@@ -9,6 +9,7 @@
     "item": "عنصر",
     "items": "عناصر",
     "cart": "السلة",
+    "cartons": "كراتين",
     "login": "تسجيل الدخول",
     "register": "إنشاء حساب",
     "logout": "تسجيل الخروج",
@@ -711,7 +712,8 @@
       },
       "tabs": {
         "promo_codes": "أكواد الخصم",
-        "bundle_deals": "العروض المجمّعة"
+        "bundle_deals": "العروض المجمّعة",
+        "volume_discounts": "خصومات الكمية"
       },
       "cross_sell": {
         "add": "إضافة عرض مجمّع",
@@ -765,6 +767,61 @@
           "bundle_hidden": "العرض المجمّع غير نشط",
           "submit_add": "إنشاء العرض المجمّع",
           "submit_update": "تحديث العرض المجمّع"
+        }
+      },
+      "volume_discount": {
+        "add": "إضافة خصم كمية",
+        "edit": "تعديل خصم الكمية",
+        "load_error": "فشل في تحميل خصومات الكمية",
+        "create_success": "تم إنشاء خصم الكمية بنجاح!",
+        "create_failed": "فشل في إنشاء خصم الكمية",
+        "update_success": "تم تحديث خصم الكمية بنجاح!",
+        "update_failed": "فشل في تحديث خصم الكمية",
+        "delete_success": "تم حذف خصم الكمية بنجاح!",
+        "delete_failed": "فشل في حذف خصم الكمية",
+        "add_first": "إضافة أول خصم كمية",
+        "table": {
+          "name": "الاسم",
+          "product": "المنتج",
+          "min_qty": "الحد الأدنى",
+          "type": "النوع",
+          "discount": "الخصم",
+          "status": "الحالة",
+          "actions": "الإجراءات"
+        },
+        "type": {
+          "percentage": "نسبة مئوية",
+          "fixed_amount": "مبلغ ثابت",
+          "free_units": "وحدات مجانية"
+        },
+        "empty": {
+          "title": "لا توجد خصومات كمية",
+          "description": "أنشئ خصومات كمية لمكافأة الشراء بالجملة بتوفير تلقائي"
+        },
+        "form": {
+          "add_subtitle": "إنشاء خصم كمية جديد للشراء بالجملة",
+          "edit_subtitle": "تعديل تفاصيل خصم الكمية هذا",
+          "name": "اسم الخصم",
+          "name_placeholder": "مثال: اشترِ 5 واحصل على 10% خصم",
+          "name_required": "اسم الخصم مطلوب",
+          "description": "الوصف",
+          "description_placeholder": "وصف اختياري",
+          "product": "المنتج",
+          "select_product": "اختر المنتج لهذا الخصم",
+          "product_required": "المنتج مطلوب",
+          "min_quantity": "الحد الأدنى للكمية",
+          "min_quantity_hint": "عدد الوحدات المطلوبة لتفعيل الخصم",
+          "discount_type": "نوع الخصم",
+          "discount_value": "قيمة الخصم",
+          "free_units_hint": "عدد الوحدات المجانية التي يحصل عليها العميل",
+          "validity_period": "فترة الصلاحية",
+          "start_date": "تاريخ البدء",
+          "end_date": "تاريخ الانتهاء",
+          "is_active": "خصم نشط",
+          "discount_visible": "الخصم نشط ومتاح",
+          "discount_hidden": "الخصم غير نشط",
+          "submit_add": "إنشاء خصم الكمية",
+          "submit_update": "تحديث خصم الكمية"
         }
       },
       "form": {
@@ -1830,6 +1887,11 @@
     "auto_applied": "يُطبق تلقائياً",
     "per_piece": "لكل قطعة",
     "per_unit": "لكل {{unit}}",
+    "volume": {
+      "percentage": "اشترِ {{qty}}+ {{unit}}، وفّر {{percent}}%",
+      "fixed_amount": "اشترِ {{qty}}+ {{unit}}، وفّر {{amount}}",
+      "free_units": "اشترِ {{qty}} {{unit}}، احصل على {{free}} مجاناً"
+    },
     "days_left": " يوم متبقي",
     "scope": {
       "global": "جميع المنتجات",

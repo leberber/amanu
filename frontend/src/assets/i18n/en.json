@@ -9,6 +9,7 @@
     "item": "item",
     "items": "items",
     "cart": "Cart",
+    "cartons": "cartons",
     "login": "Login",
     "register": "Register",
     "logout": "Logout",
@@ -709,7 +710,8 @@
       },
       "tabs": {
         "promo_codes": "Promo Codes",
-        "bundle_deals": "Bundle Deals"
+        "bundle_deals": "Bundle Deals",
+        "volume_discounts": "Volume Discounts"
       },
       "cross_sell": {
         "add": "Add Bundle Deal",
@@ -763,6 +765,61 @@
           "bundle_hidden": "Bundle deal is inactive",
           "submit_add": "Create Bundle Deal",
           "submit_update": "Update Bundle Deal"
+        }
+      },
+      "volume_discount": {
+        "add": "Add Volume Discount",
+        "edit": "Edit Volume Discount",
+        "load_error": "Failed to load volume discounts",
+        "create_success": "Volume discount created successfully!",
+        "create_failed": "Failed to create volume discount",
+        "update_success": "Volume discount updated successfully!",
+        "update_failed": "Failed to update volume discount",
+        "delete_success": "Volume discount deleted successfully!",
+        "delete_failed": "Failed to delete volume discount",
+        "add_first": "Add First Volume Discount",
+        "table": {
+          "name": "Name",
+          "product": "Product",
+          "min_qty": "Min Qty",
+          "type": "Type",
+          "discount": "Discount",
+          "status": "Status",
+          "actions": "Actions"
+        },
+        "type": {
+          "percentage": "Percentage",
+          "fixed_amount": "Fixed Amount",
+          "free_units": "Free Units"
+        },
+        "empty": {
+          "title": "No volume discounts found",
+          "description": "Create volume discounts to reward bulk purchases with automatic savings"
+        },
+        "form": {
+          "add_subtitle": "Create a new volume discount for bulk purchases",
+          "edit_subtitle": "Modify the details of this volume discount",
+          "name": "Discount Name",
+          "name_placeholder": "e.g., Buy 5 Get 10% Off",
+          "name_required": "Discount name is required",
+          "description": "Description",
+          "description_placeholder": "Optional description",
+          "product": "Product",
+          "select_product": "Select the product for this discount",
+          "product_required": "Product is required",
+          "min_quantity": "Minimum Quantity",
+          "min_quantity_hint": "Number of units needed to activate the discount",
+          "discount_type": "Discount Type",
+          "discount_value": "Discount Value",
+          "free_units_hint": "Number of free units the customer receives",
+          "validity_period": "Validity Period",
+          "start_date": "Start Date",
+          "end_date": "End Date",
+          "is_active": "Active Discount",
+          "discount_visible": "Discount is active and available",
+          "discount_hidden": "Discount is inactive",
+          "submit_add": "Create Volume Discount",
+          "submit_update": "Update Volume Discount"
         }
       },
       "form": {
@@ -1822,6 +1879,11 @@
     "auto_applied": "Auto-applied at checkout",
     "per_piece": "per piece",
     "per_unit": "per {{unit}}",
+    "volume": {
+      "percentage": "Buy {{qty}}+ {{unit}}, save {{percent}}%",
+      "fixed_amount": "Buy {{qty}}+ {{unit}}, save {{amount}}",
+      "free_units": "Buy {{qty}} {{unit}}, get {{free}} free"
+    },
     "days_left": "d left",
     "scope": {
       "global": "All products",

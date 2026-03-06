@@ -110,6 +110,45 @@
         </div>
       }
 
+      <!-- Volume Discounts Section -->
+      @if (volumeDiscounts().length > 0) {
+        <div class="section">
+          <div class="volume-list">
+            @for (discount of volumeDiscounts(); track discount.id) {
+              <div class="volume-card">
+                <!-- Left: Product Image -->
+                <div class="volume-card__left" (click)="openLightbox(discount.product_image, discount.product_name || '')">
+                  @if (discount.product_image) {
+                    <img [src]="discount.product_image" [alt]="discount.product_name" loading="lazy" (error)="onImageError($event)" />
+                  } @else {
+                    <div class="volume-card__placeholder">
+                      <i class="pi pi-box"></i>
+                    </div>
+                  }
+                </div>
+
+                <!-- Right: Content -->
+                <div class="volume-card__right">
+                  <!-- Badge -->
+                  <div class="volume-card__badge" [class.volume-card__badge--free]="discount.discount_type === 'free_units'">
+                    @if (discount.discount_type === 'free_units') {
+                      <i class="pi pi-gift"></i>
+                    }
+                    {{ getVolumeDiscountBadge(discount) }}
+                  </div>
+
+                  <!-- Product Name -->
+                  <h3 class="volume-card__product">{{ discount.product_name }}</h3>
+
+                  <!-- Offer Description -->
+                  <p class="volume-card__offer">{{ getVolumeDiscountLabel(discount) }}</p>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
       <!-- Promo Codes Section -->
       @if (promotions().length > 0) {
         <div class="section">

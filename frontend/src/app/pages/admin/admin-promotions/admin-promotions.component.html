@@ -27,6 +27,7 @@
       <p-tablist>
         <p-tab [value]="0">{{ 'admin.promotions.tabs.promo_codes' | translate }}</p-tab>
         <p-tab [value]="1">{{ 'admin.promotions.tabs.bundle_deals' | translate }}</p-tab>
+        <p-tab [value]="2">{{ 'admin.promotions.tabs.volume_discounts' | translate }}</p-tab>
       </p-tablist>
       <p-tabpanels>
         <!-- Tab 1: Promo Codes -->
@@ -468,6 +469,188 @@
               @if (crossSellPromotions().length <= rows) {
                 <div class="table-footer results-info">
                   <span>{{ 'admin.promotions.showing' | translate }} {{ crossSellPromotions().length }} {{ 'admin.promotions.of' | translate }} {{ allCrossSellPromotions().length }}</span>
+                </div>
+              }
+            }
+          </div>
+        }
+        </p-tabpanel>
+
+        <!-- Tab 3: Volume Discounts -->
+        <p-tabpanel [value]="2">
+        <!-- Status Segmented Control with Add Button -->
+        <div class="flex align-items-center justify-content-between gap-3 flex-wrap mb-4">
+          <div class="segment-control segment-control--glass">
+            <button
+              class="segment-control__item"
+              [class.active]="volumeDiscountStatusFilter === 'all'"
+              (click)="onVolumeDiscountStatusFilterChange('all')">
+              <span>{{ 'common.all' | translate }}</span>
+              <span class="count">{{ allVolumeDiscounts().length }}</span>
+            </button>
+            <button
+              class="segment-control__item"
+              [class.active]="volumeDiscountStatusFilter === 'active'"
+              (click)="onVolumeDiscountStatusFilterChange('active')">
+              <span>{{ 'admin.promotions.status.active' | translate }}</span>
+              <span class="count active">{{ volumeDiscountActiveCount() }}</span>
+            </button>
+            <button
+              class="segment-control__item"
+              [class.active]="volumeDiscountStatusFilter === 'inactive'"
+              (click)="onVolumeDiscountStatusFilterChange('inactive')">
+              <span>{{ 'admin.promotions.status.inactive' | translate }}</span>
+              <span class="count inactive">{{ volumeDiscountInactiveCount() }}</span>
+            </button>
+          </div>
+
+          <button class="btn-add" (click)="createNewVolumeDiscount()">
+            <i class="pi pi-plus"></i>
+            <span>{{ 'admin.promotions.volume_discount.add' | translate }}</span>
+          </button>
+        </div>
+
+        <!-- Loading State -->
+        @if (volumeDiscountLoading()) {
+          <app-table-skeleton
+            [columns]="skeletonColumns"
+            [rows]="6"
+            [actionCount]="2"
+          />
+        } @else if (volumeDiscounts().length === 0 && volumeDiscountStatusFilter === 'all' && !hasSearchQuery()) {
+          <!-- Empty State - No Volume Discounts -->
+          <div class="empty-state">
+            <div class="empty-state__icon">
+              <i class="pi pi-box"></i>
+            </div>
+            <h3 class="empty-state__title">{{ 'admin.promotions.volume_discount.empty.title' | translate }}</h3>
+            <p class="empty-state__description">{{ 'admin.promotions.volume_discount.empty.description' | translate }}</p>
+            <button class="btn-primary" (click)="createNewVolumeDiscount()">
+              <i class="pi pi-plus"></i>
+              {{ 'admin.promotions.volume_discount.add_first' | translate }}
+            </button>
+          </div>
+        } @else {
+          <!-- Volume Discounts Table -->
+          <div class="table-container" [class.fullscreen]="isFullscreen()">
+            <div class="table-header">
+              <app-table-search
+                [(query)]="searchQuery"
+                (search)="filterVolumeDiscountItems()"
+                (clear)="filterVolumeDiscountItems()"
+              />
+              <div class="table-actions">
+                <button class="table-action-btn refresh-btn" (click)="refreshVolumeDiscountData()" [pTooltip]="'admin.promotions.refresh' | translate">
+                  <i class="pi pi-refresh"></i>
+                </button>
+              </div>
+            </div>
+
+            @if (volumeDiscounts().length === 0) {
+              <!-- Empty State - No Match -->
+              <div class="empty-state">
+                <div class="empty-state__icon empty-state__icon--warning">
+                  <i class="pi pi-filter"></i>
+                </div>
+                <h3 class="empty-state__title">{{ 'admin.promotions.empty.no_match' | translate }}</h3>
+                <p class="empty-state__description">{{ 'admin.promotions.empty.try_adjusting' | translate }}</p>
+              </div>
+            } @else {
+              <div class="table-wrapper">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th style="width: 20%">{{ 'admin.promotions.volume_discount.table.name' | translate }}</th>
+                      <th style="width: 20%">{{ 'admin.promotions.volume_discount.table.product' | translate }}</th>
+                      <th style="width: 12%" class="text-center">{{ 'admin.promotions.volume_discount.table.min_qty' | translate }}</th>
+                      <th style="width: 12%" class="text-center">{{ 'admin.promotions.volume_discount.table.type' | translate }}</th>
+                      <th style="width: 12%" class="text-center">{{ 'admin.promotions.table.discount' | translate }}</th>
+                      <th style="width: 12%" class="text-center">{{ 'admin.promotions.table.status' | translate }}</th>
+                      <th style="width: 10%" class="text-center">{{ 'admin.promotions.table.actions' | translate }}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (discount of paginatedVolumeDiscounts(); track discount.id; let i = $index) {
+                      <tr class="table-row-animate clickable-row" [style.--row-delay]="(i * 40) + 'ms'" (click)="editVolumeDiscount(discount)">
+                        <!-- Name -->
+                        <td>
+                          <div class="info-display">
+                            <span class="info-display__name">{{ discount.name }}</span>
+                            @if (discount.description) {
+                              <span class="info-display__secondary">
+                                {{ discount.description | slice:0:40 }}{{ discount.description.length > 40 ? '...' : '' }}
+                              </span>
+                            }
+                          </div>
+                        </td>
+
+                        <!-- Product -->
+                        <td>
+                          <span class="pill primary">{{ discount.product_name || 'Product #' + discount.product_id }}</span>
+                        </td>
+
+                        <!-- Min Quantity -->
+                        <td class="text-center">
+                          <span class="pill purple">{{ discount.min_quantity }}+</span>
+                        </td>
+
+                        <!-- Type -->
+                        <td class="text-center">
+                          <span class="pill secondary">{{ getVolumeDiscountTypeLabel(discount) }}</span>
+                        </td>
+
+                        <!-- Discount -->
+                        <td class="text-center">
+                          <span class="discount-badge"
+                            [class.percentage]="discount.discount_type === 'percentage'"
+                            [class.fixed-amount]="discount.discount_type === 'fixed_amount'"
+                            [class.free-units]="discount.discount_type === 'free_units'">
+                            {{ getVolumeDiscountDisplay(discount) }}
+                          </span>
+                        </td>
+
+                        <!-- Status -->
+                        <td class="text-center">
+                          <span class="status-badge" [ngClass]="getVolumeDiscountStatusClass(discount)">
+                            {{ getVolumeDiscountStatusLabel(discount) }}
+                          </span>
+                        </td>
+
+                        <!-- Actions -->
+                        <td class="text-center" (click)="$event.stopPropagation()">
+                          <div class="table-cell-actions justify-content-center">
+                            <button class="action-btn edit" (click)="editVolumeDiscount(discount)" [pTooltip]="'admin.promotions.actions.edit' | translate" tooltipPosition="top">
+                              <i class="pi pi-pencil"></i>
+                            </button>
+                            <button class="action-btn delete" (click)="confirmDeleteVolumeDiscount(discount)" [pTooltip]="'admin.promotions.actions.delete' | translate" tooltipPosition="top">
+                              <i class="pi pi-trash"></i>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Pagination -->
+              @if (volumeDiscounts().length > rows) {
+                <div class="table-footer">
+                  <p-paginator
+                    [first]="first"
+                    [rows]="rows"
+                    [totalRecords]="volumeDiscounts().length"
+                    (onPageChange)="onPageChange($event); updatePaginatedVolumeDiscountItems()"
+                    [showCurrentPageReport]="true"
+                    currentPageReportTemplate="{{ 'admin.promotions.showing' | translate }} {first} - {last} {{ 'admin.promotions.of' | translate }} {totalRecords}"
+                  ></p-paginator>
+                </div>
+              }
+
+              <!-- Results Info -->
+              @if (volumeDiscounts().length <= rows) {
+                <div class="table-footer results-info">
+                  <span>{{ 'admin.promotions.showing' | translate }} {{ volumeDiscounts().length }} {{ 'admin.promotions.of' | translate }} {{ allVolumeDiscounts().length }}</span>
                 </div>
               }
             }

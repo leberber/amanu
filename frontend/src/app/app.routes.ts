@@ -19,6 +19,7 @@ import { AdminAddBrandComponent } from './pages/admin/admin-add-brand/admin-add-
 import { AdminPromotionsComponent } from './pages/admin/admin-promotions/admin-promotions.component';
 import { AdminAddPromotionComponent } from './pages/admin/admin-add-promotion/admin-add-promotion.component';
 import { AdminAddCrossSellPromotionComponent } from './pages/admin/admin-add-cross-sell-promotion/admin-add-cross-sell-promotion.component';
+import { AdminAddVolumeDiscountComponent } from './pages/admin/admin-add-volume-discount/admin-add-volume-discount.component';
 
 export const routes: Routes = [
   // Public Routes - No auth required
@@ -125,6 +126,19 @@ export const routes: Routes = [
   {
     path: 'admin/cross-sell-promotions/edit/:id',
     component: AdminAddCrossSellPromotionComponent,
+    canActivate: [adminGuard],
+    data: { mode: 'edit', hideBottomNav: true }
+  },
+  // Volume Discounts Routes
+  {
+    path: 'admin/volume-discounts/add',
+    component: AdminAddVolumeDiscountComponent,
+    canActivate: [adminGuard],
+    data: { mode: 'add', hideBottomNav: true }
+  },
+  {
+    path: 'admin/volume-discounts/edit/:id',
+    component: AdminAddVolumeDiscountComponent,
     canActivate: [adminGuard],
     data: { mode: 'edit', hideBottomNav: true }
   },

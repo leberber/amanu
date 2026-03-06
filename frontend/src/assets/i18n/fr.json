@@ -9,6 +9,7 @@
     "item": "article",
     "items": "articles",
     "cart": "Panier",
+    "cartons": "cartons",
     "login": "Connexion",
     "register": "S'inscrire",
     "logout": "Déconnexion",
@@ -706,7 +707,8 @@
       },
       "tabs": {
         "promo_codes": "Codes Promo",
-        "bundle_deals": "Offres Groupées"
+        "bundle_deals": "Offres Groupées",
+        "volume_discounts": "Remises Volume"
       },
       "cross_sell": {
         "add": "Ajouter une Offre Groupée",
@@ -760,6 +762,61 @@
           "bundle_hidden": "L'offre groupée est inactive",
           "submit_add": "Créer l'Offre Groupée",
           "submit_update": "Mettre à Jour l'Offre Groupée"
+        }
+      },
+      "volume_discount": {
+        "add": "Ajouter une Remise Volume",
+        "edit": "Modifier la Remise Volume",
+        "load_error": "Échec du chargement des remises volume",
+        "create_success": "Remise volume créée avec succès!",
+        "create_failed": "Échec de la création de la remise volume",
+        "update_success": "Remise volume mise à jour avec succès!",
+        "update_failed": "Échec de la mise à jour de la remise volume",
+        "delete_success": "Remise volume supprimée avec succès!",
+        "delete_failed": "Échec de la suppression de la remise volume",
+        "add_first": "Ajouter la Première Remise Volume",
+        "table": {
+          "name": "Nom",
+          "product": "Produit",
+          "min_qty": "Qté Min",
+          "type": "Type",
+          "discount": "Remise",
+          "status": "Statut",
+          "actions": "Actions"
+        },
+        "type": {
+          "percentage": "Pourcentage",
+          "fixed_amount": "Montant Fixe",
+          "free_units": "Unités Gratuites"
+        },
+        "empty": {
+          "title": "Aucune remise volume trouvée",
+          "description": "Créez des remises volume pour récompenser les achats en gros avec des économies automatiques"
+        },
+        "form": {
+          "add_subtitle": "Créer une nouvelle remise volume pour les achats en gros",
+          "edit_subtitle": "Modifier les détails de cette remise volume",
+          "name": "Nom de la Remise",
+          "name_placeholder": "ex: Achetez 5, obtenez 10% de réduction",
+          "name_required": "Le nom de la remise est requis",
+          "description": "Description",
+          "description_placeholder": "Description optionnelle",
+          "product": "Produit",
+          "select_product": "Sélectionner le produit pour cette remise",
+          "product_required": "Le produit est requis",
+          "min_quantity": "Quantité Minimum",
+          "min_quantity_hint": "Nombre d'unités nécessaires pour activer la remise",
+          "discount_type": "Type de Remise",
+          "discount_value": "Valeur de la Remise",
+          "free_units_hint": "Nombre d'unités gratuites que le client reçoit",
+          "validity_period": "Période de Validité",
+          "start_date": "Date de Début",
+          "end_date": "Date de Fin",
+          "is_active": "Remise Active",
+          "discount_visible": "La remise est active et disponible",
+          "discount_hidden": "La remise est inactive",
+          "submit_add": "Créer la Remise Volume",
+          "submit_update": "Mettre à Jour la Remise Volume"
         }
       },
       "form": {
@@ -1842,6 +1899,11 @@
     "auto_applied": "Appliqué automatiquement",
     "per_piece": "par pièce",
     "per_unit": "par {{unit}}",
+    "volume": {
+      "percentage": "Achetez {{qty}}+ {{unit}}, économisez {{percent}}%",
+      "fixed_amount": "Achetez {{qty}}+ {{unit}}, économisez {{amount}}",
+      "free_units": "Achetez {{qty}} {{unit}}, obtenez {{free}} gratuit"
+    },
     "days_left": "j restants",
     "scope": {
       "global": "Tous les produits",
