@@ -1,6 +1,7 @@
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
+from sqlalchemy import text
 from pydantic import BaseModel
 from datetime import datetime, timezone
 
@@ -96,8 +97,14 @@ async def save_stock(data: StockSaveRequest, session: Session = Depends(get_sess
 
         # Add new items
         for item_data in data.items:
+            # Generate new ID from sequence if product_id is negative (new row)
+            product_id = item_data.productId
+            if product_id < 0:
+                result = session.execute(text("SELECT nextval('stock_product_id_seq')"))
+                product_id = result.scalar()
+
             db_item = StockItem(
-                product_id=item_data.productId,
+                product_id=product_id,
                 image=item_data.image,
                 category=item_data.category,
                 brand=item_data.brand,

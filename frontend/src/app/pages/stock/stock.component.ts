@@ -483,9 +483,13 @@ export class StockComponent implements OnInit, OnDestroy {
     this.loadData();
   }
 
+  // Counter for new row IDs
+  private newRowCounter = 0;
+
   addRow(): void {
-    // Generate a new unique ID (negative to distinguish from real product IDs)
-    const newId = -Date.now();
+    // Generate a new unique negative ID (within integer range)
+    this.newRowCounter++;
+    const newId = -this.newRowCounter;
 
     const newRow: StockRow = {
       productId: newId,
@@ -509,7 +513,6 @@ export class StockComponent implements OnInit, OnDestroy {
 
     // Add to the beginning of the list
     this.allRows.update(rows => [newRow, ...rows]);
-    this.toast.showSuccess('Nouvelle ligne ajoutée');
   }
 
   hideRow(row: StockRow): void {
