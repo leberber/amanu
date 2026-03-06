@@ -1819,7 +1819,13 @@
       "category": "Category",
       "brand": "Brand",
       "product": "Product"
-    }
+    },
+    "bundle_deals": "Bundle Deals",
+    "bundle_deal": "Bundle Deal",
+    "promo_codes": "Promo Codes",
+    "buy": "Buy",
+    "get": "Get",
+    "or": "or"
   },
   "about": {
     "title": "About Us",

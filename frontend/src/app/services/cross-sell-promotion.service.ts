@@ -31,10 +31,17 @@ export class CrossSellPromotionService {
   }
 
   /**
-   * Get active cross-sell promotions only
+   * Get active cross-sell promotions only (staff endpoint)
    */
   getActivePromotions(): Observable<CrossSellPromotion[]> {
     return this.getPromotions(true);
+  }
+
+  /**
+   * Get active cross-sell promotions (public endpoint for customers)
+   */
+  getActivePromotionsPublic(): Observable<CrossSellPromotion[]> {
+    return this.apiService.get<CrossSellPromotion[]>('/cross-sell-promotions/active');
   }
 
   /**

@@ -2,11 +2,14 @@ import { Component, inject, signal, OnInit, DestroyRef } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { forkJoin } from 'rxjs';
 import { TagModule } from 'primeng/tag';
 import { SkeletonModule } from 'primeng/skeleton';
 import { PromotionService } from '../../services/promotion.service';
+import { CrossSellPromotionService } from '../../services/cross-sell-promotion.service';
 import { DateService } from '../../core/services/date.service';
 import { Promotion } from '../../models/promotion.model';
+import { CrossSellPromotion } from '../../models/cross-sell-promotion.model';
 import { ROUTES } from '../../core/constants/routes.constants';
 import { SCOPE_LABELS, SCOPE_SEVERITIES, ScopeType } from '../../core/constants/promotion.constants';
 import { PageLayoutComponent } from '../../shared/components/page-layout/page-layout.component';
@@ -30,12 +33,14 @@ import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
 })
 export class PromotionsComponent implements OnInit {
   private promotionService = inject(PromotionService);
+  private crossSellService = inject(CrossSellPromotionService);
   private dateService = inject(DateService);
   private destroyRef = inject(DestroyRef);
 
   readonly routes = ROUTES;
 
   promotions = signal<Promotion[]>([]);
+  crossSellPromotions = signal<CrossSellPromotion[]>([]);
   loading = signal(true);
   error = signal(false);
 
@@ -46,11 +51,16 @@ export class PromotionsComponent implements OnInit {
   loadPromotions(): void {
     this.loading.set(true);
     this.error.set(false);
-    this.promotionService.getActivePromotions()
+
+    forkJoin({
+      promos: this.promotionService.getActivePromotions(),
+      crossSell: this.crossSellService.getActivePromotionsPublic()
+    })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (promotions) => {
-          this.promotions.set(promotions);
+        next: ({ promos, crossSell }) => {
+          this.promotions.set(promos);
+          this.crossSellPromotions.set(crossSell);
           this.loading.set(false);
         },
         error: () => {
@@ -58,6 +68,10 @@ export class PromotionsComponent implements OnInit {
           this.loading.set(false);
         }
       });
+  }
+
+  hasNoPromotions(): boolean {
+    return this.promotions().length === 0 && this.crossSellPromotions().length === 0;
   }
 
   getScopeLabel(scope: string): string {

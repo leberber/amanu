@@ -32,7 +32,7 @@
         actionLabel="common.refresh"
         actionIcon="pi pi-refresh"
         (actionClick)="loadPromotions()" />
-    } @else if (promotions().length === 0) {
+    } @else if (hasNoPromotions()) {
       <app-empty-state
         icon="pi-tag"
         iconVariant="purple"
@@ -42,6 +42,97 @@
         [actionLink]="routes.PRODUCTS"
         actionIcon="pi pi-shopping-bag" />
     } @else {
+      <!-- Cross-Sell / Bundle Deals Section -->
+      @if (crossSellPromotions().length > 0) {
+        <div class="section-header">
+          <h2 class="section-title">
+            <i class="pi pi-box"></i>
+            {{ 'promotions_page.bundle_deals' | translate }}
+          </h2>
+        </div>
+        @for (deal of crossSellPromotions(); track deal.id) {
+          <div class="banner banner--bundle">
+            <div class="banner__bg"></div>
+            <div class="banner__content">
+              <!-- Top badge -->
+              <div class="banner__top">
+                <span class="banner__badge banner__badge--bundle">
+                  {{ 'promotions_page.bundle_deal' | translate }}
+                </span>
+              </div>
+
+              <!-- Big discount -->
+              <div class="banner__discount">
+                @if (deal.discount_type === 'percentage') {
+                  <span class="banner__discount-value">{{ deal.discount_value }}%</span>
+                  <span class="banner__discount-text">{{ 'promotions_page.off' | translate }}</span>
+                } @else {
+                  <span class="banner__discount-value">{{ deal.discount_value | appCurrency }}</span>
+                  <span class="banner__discount-text">{{ 'promotions_page.off' | translate }}</span>
+                }
+              </div>
+
+              <!-- Name -->
+              <h3 class="banner__name">{{ deal.name }}</h3>
+
+              <!-- Bundle description -->
+              <div class="banner__bundle-info">
+                <div class="bundle-trigger">
+                  <span class="bundle-label">{{ 'promotions_page.buy' | translate }}</span>
+                  <div class="bundle-products">
+                    @for (name of deal.trigger_product_names; track name; let i = $index) {
+                      <span class="bundle-product">{{ name }}</span>
+                      @if (i < deal.trigger_product_names!.length - 1) {
+                        <span class="bundle-or">{{ 'promotions_page.or' | translate }}</span>
+                      }
+                    }
+                  </div>
+                </div>
+                <div class="bundle-arrow">
+                  <i class="pi pi-arrow-right"></i>
+                </div>
+                <div class="bundle-target">
+                  <span class="bundle-label">{{ 'promotions_page.get' | translate }}</span>
+                  <span class="bundle-product bundle-product--target">{{ deal.target_product_name }}</span>
+                  <span class="bundle-discount">
+                    @if (deal.discount_type === 'percentage') {
+                      {{ deal.discount_value }}% {{ 'promotions_page.off' | translate }}
+                    } @else {
+                      -{{ deal.discount_value | appCurrency }}
+                    }
+                  </span>
+                </div>
+              </div>
+
+              <!-- Auto applied badge -->
+              <div class="banner__auto">
+                <i class="pi pi-check-circle"></i>
+                {{ 'promotions_page.auto_applied' | translate }}
+              </div>
+
+              @if (deal.end_date) {
+                <div class="banner__footer">
+                  <span>
+                    <i class="pi pi-calendar"></i>
+                    {{ deal.end_date | date:'dd/MM/yyyy' }}
+                  </span>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      }
+
+      <!-- Regular Promo Codes Section -->
+      @if (promotions().length > 0) {
+        @if (crossSellPromotions().length > 0) {
+          <div class="section-header">
+            <h2 class="section-title">
+              <i class="pi pi-tag"></i>
+              {{ 'promotions_page.promo_codes' | translate }}
+            </h2>
+          </div>
+        }
       @for (promo of promotions(); track promo.id; let i = $index) {
         <div class="banner" [class.banner--hot]="getDaysRemaining(promo.end_date) <= 3" [class.banner--fresh]="i % 3 === 1" [class.banner--gold]="i % 3 === 2">
           <div class="banner__bg"></div>
@@ -148,6 +239,7 @@
           </div>
         </div>
       }
+      } <!-- Close @if (promotions().length > 0) -->
     }
   </div>
 </app-page-layout>

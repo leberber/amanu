@@ -1839,7 +1839,13 @@
       "category": "Catégorie",
       "brand": "Marque",
       "product": "Produit"
-    }
+    },
+    "bundle_deals": "Offres Groupées",
+    "bundle_deal": "Offre Groupée",
+    "promo_codes": "Codes Promo",
+    "buy": "Achetez",
+    "get": "Obtenez",
+    "or": "ou"
   },
   "about": {
     "title": "À Propos de Nous",

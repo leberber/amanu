@@ -61,6 +61,27 @@ def promotion_to_read(promotion: CrossSellPromotion, session: Session) -> CrossS
     )
 
 
+@router.get("/active", response_model=List[CrossSellPromotionRead])
+def read_active_cross_sell_promotions(
+    session: Session = Depends(get_session),
+) -> Any:
+    """
+    Retrieve active cross-sell promotions (public endpoint for customers).
+    """
+    now = datetime.now(timezone.utc)
+    query = select(CrossSellPromotion).where(CrossSellPromotion.is_active == True)
+    query = query.where(
+        (CrossSellPromotion.start_date == None) | (CrossSellPromotion.start_date <= now)
+    )
+    query = query.where(
+        (CrossSellPromotion.end_date == None) | (CrossSellPromotion.end_date >= now)
+    )
+    query = query.order_by(CrossSellPromotion.created_at.desc())
+
+    promotions = session.exec(query).all()
+    return [promotion_to_read(p, session) for p in promotions]
+
+
 @router.get("/", response_model=List[CrossSellPromotionRead])
 def read_cross_sell_promotions(
     active_only: bool = Query(False),
