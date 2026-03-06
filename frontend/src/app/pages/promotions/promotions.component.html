@@ -115,93 +115,91 @@
         <div class="section">
           <div class="promo-list">
             @for (promo of promotions(); track promo.id) {
-              <div class="promo-card" [class.promo-card--ending]="getDaysRemaining(promo.end_date) <= 3" [class.promo-card--with-image]="getPromoImage(promo)">
-                <!-- Entity Image (for non-global promos) -->
-                @if (getPromoImage(promo)) {
-                  <div class="promo-card__image" (click)="openLightbox(getPromoImage(promo)!, getPromoEntityName(promo))">
-                    <img [src]="getPromoImage(promo)" [alt]="getPromoEntityName(promo)" loading="lazy" (error)="onImageError($event)" />
-                    <div class="promo-card__image-overlay">
-                      <span class="promo-card__discount-tag">
-                        {{ getPromoDiscountLabel(promo, true) }}
-                      </span>
-                    </div>
-                  </div>
-                }
-
-                <div class="promo-card__body">
-                  <!-- Discount Badge (only if no image) -->
-                  @if (!getPromoImage(promo)) {
-                    <div class="promo-card__badge">
-                      {{ getPromoDiscountLabel(promo) }} {{ 'promotions_page.off' | translate }}
-                    </div>
-                  }
-
-                  <!-- Scope Tag -->
-                  <div class="promo-card__scope">
-                    @switch (promo.scope) {
-                      @case ('global') {
-                        <i class="pi pi-globe"></i>
-                        {{ 'promotions_page.scope.global' | translate }}
-                      }
-                      @case ('category') {
-                        <i class="pi pi-th-large"></i>
-                        {{ promo.category_name }}
-                      }
-                      @case ('brand') {
-                        <i class="pi pi-bookmark"></i>
-                        {{ promo.brand_name }}
-                      }
-                      @case ('product') {
-                        <i class="pi pi-box"></i>
-                        {{ promo.product_name }}
-                      }
+              <div class="promo-card" [class.promo-card--ending]="getDaysRemaining(promo.end_date) <= 3">
+                <div class="promo-card__main">
+                  <!-- Left: Image -->
+                  <div class="promo-card__left">
+                    @if (getPromoImage(promo)) {
+                      <div class="promo-card__thumb" (click)="openLightbox(getPromoImage(promo)!, getPromoEntityName(promo))">
+                        <img [src]="getPromoImage(promo)" [alt]="getPromoEntityName(promo)" loading="lazy" (error)="onImageError($event)" />
+                      </div>
+                    } @else {
+                      <div class="promo-card__icon">
+                        <i class="pi pi-percentage"></i>
+                      </div>
                     }
+                    <div class="promo-card__badge">
+                      {{ getPromoDiscountLabel(promo, true) }}
+                    </div>
                   </div>
 
-                  <!-- Content -->
-                  <div class="promo-card__content">
+                  <!-- Right: Content -->
+                  <div class="promo-card__right">
                     <h3 class="promo-card__title">{{ promo.name }}</h3>
+
+                    <!-- Scope Tag -->
+                    <div class="promo-card__scope">
+                      @switch (promo.scope) {
+                        @case ('global') {
+                          <i class="pi pi-globe"></i>
+                          {{ 'promotions_page.scope.global' | translate }}
+                        }
+                        @case ('category') {
+                          <i class="pi pi-th-large"></i>
+                          {{ promo.category_name }}
+                        }
+                        @case ('brand') {
+                          <i class="pi pi-bookmark"></i>
+                          {{ promo.brand_name }}
+                        }
+                        @case ('product') {
+                          <i class="pi pi-box"></i>
+                          {{ promo.product_name }}
+                        }
+                      }
+                    </div>
+
                     @if (promo.description) {
                       <p class="promo-card__desc">{{ promo.description }}</p>
                     }
 
                     <!-- Conditions -->
-                    <div class="promo-card__conditions">
-                      @if (promo.min_order_amount > 0) {
-                        <span class="condition">
-                          <i class="pi pi-shopping-cart"></i>
-                          {{ 'promotions_page.min_order' | translate }}: {{ promo.min_order_amount | appCurrency }}
-                        </span>
-                      }
-                      @if (promo.max_discount) {
-                      <span class="condition">
-                        <i class="pi pi-wallet"></i>
-                        Max: {{ promo.max_discount | appCurrency }}
-                      </span>
+                    @if (promo.min_order_amount > 0 || promo.max_discount) {
+                      <div class="promo-card__conditions">
+                        @if (promo.min_order_amount > 0) {
+                          <span class="condition">
+                            <i class="pi pi-shopping-cart"></i>
+                            {{ 'promotions_page.min_order' | translate }}: {{ promo.min_order_amount | appCurrency }}
+                          </span>
+                        }
+                        @if (promo.max_discount) {
+                          <span class="condition">
+                            <i class="pi pi-wallet"></i>
+                            Max: {{ promo.max_discount | appCurrency }}
+                          </span>
+                        }
+                      </div>
                     }
                   </div>
                 </div>
 
-                  <!-- Auto Applied -->
-                  <div class="promo-card__action">
-                    <div class="promo-auto">
-                      <i class="pi pi-check-circle"></i>
-                      {{ 'promotions_page.auto_applied' | translate }}
-                    </div>
-                  </div>
-
-                  <!-- Footer -->
-                  <div class="promo-card__footer">
-                    <span class="promo-card__date">
-                      <i class="pi pi-calendar"></i>
-                      {{ promo.end_date | date:'dd/MM/yyyy' }}
-                    </span>
+                <!-- Footer -->
+                <div class="promo-card__footer">
+                  <span class="promo-card__date">
+                    <i class="pi pi-calendar"></i>
+                    {{ promo.end_date | date:'dd/MM/yyyy' }}
+                  </span>
+                  <div class="promo-card__footer-right">
                     @if (getDaysRemaining(promo.end_date) <= 3) {
                       <span class="promo-card__urgent">
                         <i class="pi pi-clock"></i>
                         {{ getDaysRemaining(promo.end_date) }}{{ 'promotions_page.days_left' | translate }}
                       </span>
                     }
+                    <span class="promo-card__auto">
+                      <i class="pi pi-check-circle"></i>
+                      {{ 'promotions_page.auto_applied' | translate }}
+                    </span>
                   </div>
                 </div>
               </div>
