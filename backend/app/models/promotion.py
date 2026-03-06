@@ -198,6 +198,7 @@ class PromotionRead(PromotionBase):
     category_image: Optional[str] = None
     brand_image: Optional[str] = None
     product_image: Optional[str] = None
+    product_pieces_per_box: Optional[int] = None
 
 
 class PromotionValidation(SQLModel):

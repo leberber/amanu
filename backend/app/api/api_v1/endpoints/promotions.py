@@ -60,6 +60,7 @@ def promotion_to_read(promotion: Promotion) -> PromotionRead:
         category_image=promotion.category.image_url if promotion.category else None,
         brand_image=promotion.brand.logo_url if promotion.brand else None,
         product_image=promotion.product.image_url if promotion.product else None,
+        product_pieces_per_box=promotion.product.pieces_per_box if promotion.product else None,
     )
 
 

@@ -20,6 +20,7 @@ export interface Promotion {
   category_image?: string;
   brand_image?: string;
   product_image?: string;
+  product_pieces_per_box?: number;
   min_order_amount: number;
   max_discount?: number;
   usage_limit?: number;

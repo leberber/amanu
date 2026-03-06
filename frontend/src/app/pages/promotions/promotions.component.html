@@ -118,11 +118,7 @@
                     <img [src]="getPromoImage(promo)" [alt]="getPromoEntityName(promo)" loading="lazy" (error)="onImageError($event)" />
                     <div class="promo-card__image-overlay">
                       <span class="promo-card__discount-tag">
-                        @if (promo.discount_type === 'percentage') {
-                          -{{ promo.discount_value }}%
-                        } @else {
-                          -{{ promo.discount_value | appCurrency }}
-                        }
+                        {{ getPromoDiscountLabel(promo, true) }}
                       </span>
                     </div>
                   </div>
@@ -132,11 +128,7 @@
                   <!-- Discount Badge (only if no image) -->
                   @if (!getPromoImage(promo)) {
                     <div class="promo-card__badge">
-                      @if (promo.discount_type === 'percentage') {
-                        {{ promo.discount_value }}% {{ 'promotions_page.off' | translate }}
-                      } @else {
-                        {{ promo.discount_value | appCurrency }} {{ 'promotions_page.off' | translate }}
-                      }
+                      {{ getPromoDiscountLabel(promo) }} {{ 'promotions_page.off' | translate }}
                     </div>
                   }
 

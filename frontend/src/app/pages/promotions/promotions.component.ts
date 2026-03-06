@@ -131,4 +131,17 @@ export class PromotionsComponent implements OnInit {
     const totalDiscount = deal.discount_value * piecesPerBox;
     return `-${this.currencyService.formatCurrency(totalDiscount)}`;
   }
+
+  getPromoDiscountLabel(promo: Promotion, withMinus = false): string {
+    const prefix = withMinus ? '-' : '';
+    if (promo.discount_type === 'percentage') {
+      return `${prefix}${promo.discount_value}%`;
+    }
+    // Only show per-carton for product-scoped promotions
+    if (promo.scope === 'product' && promo.product_pieces_per_box) {
+      const totalDiscount = promo.discount_value * promo.product_pieces_per_box;
+      return `${prefix}${this.currencyService.formatCurrency(totalDiscount)}`;
+    }
+    return `${prefix}${this.currencyService.formatCurrency(promo.discount_value)}`;
+  }
 }
