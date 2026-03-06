@@ -194,7 +194,8 @@ export class CartService {
     return this._items().map(item => ({
       product_id: item.product_id,
       quantity: item.quantity,
-      unit_price: item.product_price
+      unit_price: item.product_price,
+      pieces_per_box: item.pieces_per_box || 1
     }));
   }
 

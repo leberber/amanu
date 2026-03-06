@@ -273,9 +273,13 @@ def calculate_cross_sell_discounts(
     if not promotions:
         return CrossSellCalculationResponse(cross_sell_discounts=[], total_savings=0)
 
-    # Build cart lookup: product_id -> {quantity, unit_price}
+    # Build cart lookup: product_id -> {quantity, unit_price, pieces_per_box}
     cart_lookup = {
-        item.product_id: {"quantity": item.quantity, "unit_price": item.unit_price}
+        item.product_id: {
+            "quantity": item.quantity,
+            "unit_price": item.unit_price,
+            "pieces_per_box": item.pieces_per_box or 1
+        }
         for item in request.cart_items
     }
     cart_product_ids = set(cart_lookup.keys())
@@ -323,19 +327,31 @@ def calculate_cross_sell_discounts(
 
     for target_id, info in best_discounts.items():
         promotion = info["promotion"]
-        target_quantity = cart_lookup[target_id]["quantity"]
-        discount_per_unit = info["discount"]
+        triggered_by = info["triggered_by"]
 
-        # Total discount applies to all units of the target product
-        total_discount = discount_per_unit * target_quantity
+        # Get quantities and pieces_per_box
+        trigger_data = cart_lookup[triggered_by]
+        target_data = cart_lookup[target_id]
+
+        # Convert to cartons for comparison (1 trigger carton = 1 discounted target carton)
+        trigger_cartons = trigger_data["quantity"] // trigger_data["pieces_per_box"]
+        target_cartons = target_data["quantity"] // target_data["pieces_per_box"]
+
+        # Limit discounted cartons: 1 trigger carton = 1 discounted target carton
+        cartons_to_discount = min(trigger_cartons, target_cartons)
+
+        # Calculate units (pieces) to discount
+        units_to_discount = cartons_to_discount * target_data["pieces_per_box"]
+        discount_per_unit = info["discount"]
+        total_discount = discount_per_unit * units_to_discount
 
         discount_item = CrossSellDiscountItem(
             target_product_id=target_id,
-            triggered_by_product_id=info["triggered_by"],
+            triggered_by_product_id=triggered_by,
             promotion_id=promotion.id,
             promotion_name=promotion.name,
             discount_per_unit=discount_per_unit,
-            units_discounted=target_quantity,
+            units_discounted=units_to_discount,
             total_discount=total_discount,
         )
         discounts.append(discount_item)

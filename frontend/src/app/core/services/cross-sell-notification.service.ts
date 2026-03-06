@@ -136,14 +136,30 @@ export class CrossSellNotificationService implements OnDestroy {
     triggerProductName: string
   ): void {
     // Calculate savings based on target item
+    // Limit to 1 trigger carton = 1 discounted target carton
     let savingsAmount = 0;
     const targetPrice = targetItem.product_price;
-    const targetQuantity = targetItem.quantity;
+    const targetPiecesPerBox = targetItem.pieces_per_box || 1;
+
+    // Find trigger in cart
+    const cartItems = this.cartService.items();
+    const triggerItem = cartItems.find(item =>
+      promo.trigger_product_ids.includes(item.product_id)
+    );
+    const triggerPiecesPerBox = triggerItem?.pieces_per_box || 1;
+
+    // Convert to cartons for comparison
+    const triggerCartons = Math.floor((triggerItem?.quantity || 1) / triggerPiecesPerBox);
+    const targetCartons = Math.floor(targetItem.quantity / targetPiecesPerBox);
+
+    // 1 trigger carton = 1 discounted target carton
+    const cartonsToDiscount = Math.min(triggerCartons, targetCartons);
+    const unitsToDiscount = cartonsToDiscount * targetPiecesPerBox;
 
     if (promo.discount_type === 'percentage') {
-      savingsAmount = (targetPrice * targetQuantity * promo.discount_value) / 100;
+      savingsAmount = (targetPrice * unitsToDiscount * promo.discount_value) / 100;
     } else {
-      savingsAmount = promo.discount_value * targetQuantity;
+      savingsAmount = promo.discount_value * unitsToDiscount;
     }
 
     const notification: CrossSellNotification = {

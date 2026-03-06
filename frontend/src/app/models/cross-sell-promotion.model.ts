@@ -50,6 +50,7 @@ export interface CrossSellCartItem {
   product_id: number;
   quantity: number;
   unit_price: number;
+  pieces_per_box: number;
 }
 
 export interface CrossSellCalculationRequest {

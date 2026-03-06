@@ -135,6 +135,7 @@ class CrossSellCartItem(SQLModel):
     product_id: int
     quantity: int = Field(gt=0)
     unit_price: float = Field(gt=0)
+    pieces_per_box: int = Field(default=1, ge=1)
 
 
 class CrossSellCalculationRequest(SQLModel):
