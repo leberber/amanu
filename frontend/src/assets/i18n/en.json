@@ -342,7 +342,8 @@
     "usage_limit_reached": "This promo code has reached its usage limit",
     "sale": "SALE",
     "off": "OFF",
-    "bundle_savings": "Bundle Savings"
+    "bundle_savings": "Bundle Savings",
+    "cross_sell_message": "You saved {{savings}} on {{target}} because you added {{trigger}}!"
   },
   "order_summary": {
     "delivery_method": "Delivery Method",
@@ -1797,6 +1798,10 @@
     "error_message": "Unable to load notifications. Please try again.",
     "browse_products": "Browse Products",
     "mark_all_read": "Mark all as read"
+  },
+  "cross_sell": {
+    "potential_discount": "Get {{discount}} off if you buy {{triggers}}!",
+    "discount_earned": "You saved {{savings}} on {{target}}!"
   },
   "promotions_page": {
     "title": "Current Offers",

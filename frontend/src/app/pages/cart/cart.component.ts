@@ -73,7 +73,6 @@ export class CartComponent implements OnInit {
   cartItems = signal<CartItem[]>([]);
   loading = signal(false);
   productQuantities: Record<string, number> = {};
-
   // Computed
   cartSubtotal = this.cartService.subtotal;
   appliedPromotion = this.cartService.appliedPromotion;
@@ -91,7 +90,7 @@ export class CartComponent implements OnInit {
 
   // Private
   private prevTotalQuantity = 0;
-  private isFirstLoad = true;
+    private isFirstLoad = true;
 
   constructor() {
     effect(() => {
@@ -111,7 +110,7 @@ export class CartComponent implements OnInit {
       }
     });
 
-  }
+      }
 
   ngOnInit(): void {
     this.loadTranslatedNames();

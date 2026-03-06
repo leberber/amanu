@@ -29,6 +29,7 @@ import { BrandService } from '../../../core/services/brand.service';
 import { ImageFallbackDirective } from '../../../shared/directives/image-fallback.directive';
 import { isOutOfStock as checkOutOfStock, isLowStock as checkLowStock } from '../../../shared/utils/stock.utils';
 import { formatDiscountLabel, getEffectivePrice, hasPromotion as checkHasPromotion } from '../../../shared/utils/discount.utils';
+import { CrossSellNotificationService } from '../../../core/services/cross-sell-notification.service';
 
 @Component({
   selector: 'app-product-detail',
@@ -73,6 +74,7 @@ export class ProductDetailComponent implements OnInit {
   private translationService = inject(TranslationService);
   private flyToCartService = inject(FlyToCartService);
   private brandService = inject(BrandService);
+  private crossSellNotification = inject(CrossSellNotificationService);
   private destroyRef = inject(DestroyRef);
   private packagingTypeService = inject(PackagingTypeService);
 
@@ -185,7 +187,9 @@ export class ProductDetailComponent implements OnInit {
       this.flyToCartService.animate(event.currentTarget as HTMLElement, p.image_url);
     }
 
-    if (!this.cartService.setQuantity(p, this.selectedQuantity())) {
+    if (this.cartService.setQuantity(p, this.selectedQuantity())) {
+      this.crossSellNotification.checkAndNotify(p.id, p.name);
+    } else {
       this.toast.showError('products.cart.error');
     }
   }

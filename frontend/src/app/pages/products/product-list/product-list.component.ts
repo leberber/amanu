@@ -19,6 +19,7 @@ import { BrandService } from '../../../core/services/brand.service';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
 import { UserPreferencesService, ViewMode } from '../../../core/services/user-preferences.service';
 import { OverlayService } from '../../../core/services/overlay.service';
+import { CrossSellNotificationService } from '../../../core/services/cross-sell-notification.service';
 import { Product, Category, ProductFilter } from '../../../models/product.model';
 import { Brand } from '../../../models/brand.model';
 import { ProductCardComponent, AddToCartEvent, QuantitySelectorEvent } from '../components/product-card/product-card.component';
@@ -68,6 +69,7 @@ export class ProductListComponent implements OnInit {
   protected searchService = inject(SearchService);
   private elementRef = inject(ElementRef);
   private overlayService = inject(OverlayService);
+  private crossSellNotification = inject(CrossSellNotificationService);
   private destroyRef = inject(DestroyRef);
 
   products = signal<Product[]>([]);
@@ -392,7 +394,9 @@ export class ProductListComponent implements OnInit {
 
   private handleAddToCart(product: Product, quantity: number): void {
     const result = this.cartService.setQuantity(product, quantity);
-    if (!result) {
+    if (result) {
+      this.crossSellNotification.checkAndNotify(product.id, product.name);
+    } else {
       this.toast.showError('products.cart.error');
     }
   }

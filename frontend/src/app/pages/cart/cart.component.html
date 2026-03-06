@@ -232,28 +232,6 @@
     </div>
   }
 
-  <!-- Auto-Applied Promotion Banner -->
-  @if (appliedPromotion()) {
-    <div class="savings-banner savings-banner--promo">
-      <div class="savings-banner__content">
-        <i class="pi pi-percentage"></i>
-        <span class="savings-banner__text">{{ appliedPromotion()!.promotion.name }}</span>
-        <span class="savings-banner__amount">-{{ discountAmount() | appCurrency }}</span>
-      </div>
-    </div>
-  }
-
-  <!-- Bundle Savings Banner (when cross-sell discounts apply) -->
-  @if (crossSellSavings() > 0) {
-    <div class="savings-banner">
-      <div class="savings-banner__content">
-        <i class="pi pi-gift"></i>
-        <span class="savings-banner__text">{{ 'promotions.bundle_savings' | translate }}</span>
-        <span class="savings-banner__amount">-{{ crossSellSavings() | appCurrency }}</span>
-      </div>
-    </div>
-  }
-
   <!-- Sticky Footer (All screens) -->
   @if (cartItemCount() > 0) {
     <app-sticky-footer

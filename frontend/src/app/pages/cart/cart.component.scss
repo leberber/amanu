@@ -195,63 +195,70 @@
 }
 
 // =============================================================================
-// Savings Banner
+// Cross-sell Notification
 // =============================================================================
 
-.savings-banner {
+.cross-sell-notification {
   position: fixed;
-  bottom: 80px;
+  top: 0;
   left: 0;
   right: 0;
-  z-index: 99;
-  padding: 0 1rem;
-  animation: slideUp 0.3s ease-out;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.875rem 1rem;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: #ffffff;
+  animation: slideDown 0.3s ease-out;
 
   &__content {
     display: flex;
     align-items: center;
-    justify-content: center;
     gap: 0.75rem;
-    padding: 0.75rem 1rem;
-    background: linear-gradient(135deg, #22c55e, #16a34a);
-    border-radius: 12px;
-    color: #ffffff;
-    font-weight: 600;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    flex: 1;
 
     i {
-      font-size: 1.125rem;
+      font-size: 1.25rem;
+      flex-shrink: 0;
     }
   }
 
   &__text {
     font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1.4;
   }
 
-  &__amount {
-    font-size: 1rem;
-    font-weight: 700;
-  }
+  &__dismiss {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.2s;
 
-  // Promo discount variant - purple gradient
-  &--promo {
-    bottom: 140px; // Stack above bundle savings banner
-
-    .savings-banner__content {
-      background: linear-gradient(135deg, #667eea, #764ba2);
+    &:hover {
+      background: rgba(255, 255, 255, 0.3);
     }
-  }
 
-  // When both banners are present, adjust spacing
-  &--promo + & {
-    bottom: 80px;
+    i {
+      font-size: 0.875rem;
+      color: #ffffff;
+    }
   }
 }
 
-@keyframes slideUp {
+@keyframes slideDown {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(-10px);
   }
   to {
     opacity: 1;

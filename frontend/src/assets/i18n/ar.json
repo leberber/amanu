@@ -340,7 +340,8 @@
     "usage_limit_reached": "وصل رمز الخصم إلى حد الاستخدام",
     "sale": "خصم",
     "off": "تخفيض",
-    "bundle_savings": "توفير الحزمة"
+    "bundle_savings": "توفير الحزمة",
+    "cross_sell_message": "وفرت {{savings}} على {{target}} لأنك أضفت {{trigger}}!"
   },
   "order_summary": {
     "delivery_method": "طريقة التوصيل",
@@ -1805,6 +1806,10 @@
     "error_message": "تعذر تحميل الإشعارات. يرجى المحاولة مرة أخرى.",
     "browse_products": "تصفح المنتجات",
     "mark_all_read": "تحديد الكل كمقروء"
+  },
+  "cross_sell": {
+    "potential_discount": "احصل على خصم {{discount}} إذا اشتريت {{triggers}}!",
+    "discount_earned": "وفّرت {{savings}} على {{target}}!"
   },
   "promotions_page": {
     "title": "العروض الحالية",

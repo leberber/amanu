@@ -339,7 +339,8 @@
     "usage_limit_reached": "Ce code promo a atteint sa limite d'utilisation",
     "sale": "PROMO",
     "off": "DE RÉDUCTION",
-    "bundle_savings": "Économies groupées"
+    "bundle_savings": "Économies groupées",
+    "cross_sell_message": "Vous économisez {{savings}} sur {{target}} grâce à {{trigger}} !"
   },
   "order_summary": {
     "delivery_method": "Mode de livraison",
@@ -1817,6 +1818,10 @@
     "error_message": "Impossible de charger les notifications. Veuillez réessayer.",
     "browse_products": "Parcourir les Produits",
     "mark_all_read": "Tout marquer comme lu"
+  },
+  "cross_sell": {
+    "potential_discount": "Obtenez {{discount}} de réduction si vous achetez {{triggers}} !",
+    "discount_earned": "Vous avez économisé {{savings}} sur {{target}} !"
   },
   "promotions_page": {
     "title": "Offres en Cours",
