@@ -444,11 +444,29 @@
   border-radius: var(--radius-md);
 }
 
+.quantity-total-prices {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.quantity-total-original {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #ef4444;
+  text-decoration: line-through;
+}
+
 .quantity-total-price {
   font-size: 1.75rem;
   font-weight: 700;
   color: var(--primary-color);
   line-height: 1;
+
+  &--promo {
+    color: #16a34a;
+  }
 }
 
 .quantity-pieces-info {

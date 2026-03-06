@@ -321,7 +321,10 @@
               <!-- Total price display -->
               <div class="quantity-total-section">
                 @if (hasPromotion()) {
-                  <span class="quantity-total-price">{{ selectedQuantity() * discountedPrice() | appCurrency }}</span>
+                  <div class="quantity-total-prices">
+                    <span class="quantity-total-original">{{ selectedQuantity() * (product()?.price || 0) | appCurrency }}</span>
+                    <span class="quantity-total-price quantity-total-price--promo">{{ selectedQuantity() * discountedPrice() | appCurrency }}</span>
+                  </div>
                 } @else {
                   <span class="quantity-total-price">{{ selectedQuantity() * (product()?.price || 0) | appCurrency }}</span>
                 }
