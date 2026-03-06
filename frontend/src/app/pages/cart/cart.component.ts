@@ -16,6 +16,7 @@ import { TranslationService } from '../../services/translation.service';
 import { CartTranslationService } from '../../core/services/cart-translation.service';
 import { PromotionService } from '../../services/promotion.service';
 import { CrossSellPromotionService } from '../../services/cross-sell-promotion.service';
+import { VolumeDiscountService } from '../../services/volume-discount.service';
 import { PageLayoutComponent } from '../../shared/components/page-layout/page-layout.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { ImageLightboxComponent } from '../../shared/components/image-lightbox/image-lightbox.component';
@@ -61,6 +62,7 @@ export class CartComponent implements OnInit {
   private translationService = inject(TranslationService);
   private promotionService = inject(PromotionService);
   private crossSellService = inject(CrossSellPromotionService);
+  private volumeDiscountService = inject(VolumeDiscountService);
   private cartTranslation = inject(CartTranslationService);
   private destroyRef = inject(DestroyRef);
 
@@ -79,6 +81,9 @@ export class CartComponent implements OnInit {
   discountAmount = this.cartService.discountAmount;
   crossSellDiscounts = this.cartService.crossSellDiscounts;
   crossSellSavings = this.cartService.crossSellSavings;
+  volumeDiscounts = this.cartService.volumeDiscounts;
+  volumeDiscountSavings = this.cartService.volumeDiscountSavings;
+  volumeDiscountFreeUnits = this.cartService.volumeDiscountFreeUnits;
   cartItemCount = computed(() => this.cartItems().length);
 
   pageSubtitle = computed(() => {
@@ -193,7 +198,9 @@ export class CartComponent implements OnInit {
   }
 
   hasDiscount(item: CartItem): boolean {
-    return !!item.product_discounted_price || !!this.getCrossSellDiscount(item.product_id);
+    return !!item.product_discounted_price ||
+           !!this.getCrossSellDiscount(item.product_id) ||
+           !!this.getVolumeDiscount(item.product_id);
   }
 
   getDiscountedTotal(item: CartItem): number {
@@ -205,6 +212,12 @@ export class CartComponent implements OnInit {
     const crossSell = this.getCrossSellDiscount(item.product_id);
     if (crossSell) {
       total -= crossSell.total_discount;
+    }
+
+    // Volume discount on top
+    const volumeDiscount = this.getVolumeDiscount(item.product_id);
+    if (volumeDiscount) {
+      total -= volumeDiscount.savedAmount;
     }
 
     return total;
@@ -234,9 +247,11 @@ export class CartComponent implements OnInit {
     if (items.length === 0) {
       this.cartService.removePromotion();
       this.cartService.clearCrossSellDiscounts();
+      this.cartService.clearVolumeDiscounts();
     } else {
       this.autoApplyBestPromotion();
       this.calculateCrossSellDiscounts();
+      this.calculateVolumeDiscounts();
     }
   }
 
@@ -278,5 +293,32 @@ export class CartComponent implements OnInit {
         this.cartService.clearCrossSellDiscounts();
       }
     });
+  }
+
+  private calculateVolumeDiscounts(): void {
+    const items = this.cartService.getItemsForVolumeDiscountCalculation();
+    if (items.length === 0) {
+      this.cartService.clearVolumeDiscounts();
+      return;
+    }
+
+    // Fetch cached discounts (with TTL check) and calculate
+    this.volumeDiscountService.getActiveCached()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          // Calculate discounts using cached data
+          const appliedDiscounts = this.volumeDiscountService.calculateDiscounts(items);
+          this.cartService.setVolumeDiscounts(appliedDiscounts);
+        },
+        error: () => {
+          this.cartService.clearVolumeDiscounts();
+        }
+      });
+  }
+
+  // Volume discount helpers
+  getVolumeDiscount(productId: number) {
+    return this.cartService.getVolumeDiscountForProduct(productId);
   }
 }

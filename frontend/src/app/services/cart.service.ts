@@ -2,6 +2,7 @@ import { Injectable, signal, computed, inject } from '@angular/core';
 import { Product } from '../models/product.model';
 import { AppliedPromotion } from '../models/promotion.model';
 import { CrossSellDiscountItem } from '../models/cross-sell-promotion.model';
+import { AppliedVolumeDiscount } from './volume-discount.service';
 import { StorageService } from '../core/services/storage.service';
 
 export interface CartItem {
@@ -33,11 +34,13 @@ export class CartService {
   private readonly _items = signal<CartItem[]>([]);
   private readonly _promotion = signal<AppliedPromotion | null>(null);
   private readonly _crossSellDiscounts = signal<CrossSellDiscountItem[]>([]);
+  private readonly _volumeDiscounts = signal<AppliedVolumeDiscount[]>([]);
 
   // Public signals
   readonly items = this._items.asReadonly();
   readonly appliedPromotion = this._promotion.asReadonly();
   readonly crossSellDiscounts = this._crossSellDiscounts.asReadonly();
+  readonly volumeDiscounts = this._volumeDiscounts.asReadonly();
 
   // Computed
   readonly itemCount = computed(() => this._items().length);
@@ -49,7 +52,9 @@ export class CartService {
   }, 0));
   readonly discountAmount = computed(() => this._promotion()?.discount_amount ?? 0);
   readonly crossSellSavings = computed(() => this._crossSellDiscounts().reduce((sum, d) => sum + d.total_discount, 0));
-  readonly finalTotal = computed(() => Math.max(0, this.discountedSubtotal() - this.crossSellSavings()));
+  readonly volumeDiscountSavings = computed(() => this._volumeDiscounts().reduce((sum, d) => sum + d.savedAmount, 0));
+  readonly volumeDiscountFreeUnits = computed(() => this._volumeDiscounts().reduce((sum, d) => sum + d.freeUnits, 0));
+  readonly finalTotal = computed(() => Math.max(0, this.discountedSubtotal() - this.crossSellSavings() - this.volumeDiscountSavings()));
   readonly canCheckout = computed(() => this._items().length > 0);
 
   constructor() {
@@ -157,6 +162,7 @@ export class CartService {
     this._items.set([]);
     this._promotion.set(null);
     this._crossSellDiscounts.set([]);
+    this._volumeDiscounts.set([]);
     this.persist();
   }
 
@@ -185,6 +191,27 @@ export class CartService {
   }
 
   getItemsForCrossSellCalculation() {
+    return this._items().map(item => ({
+      product_id: item.product_id,
+      quantity: item.quantity,
+      unit_price: item.product_price
+    }));
+  }
+
+  // Volume discount mutations
+  setVolumeDiscounts(discounts: AppliedVolumeDiscount[]): void {
+    this._volumeDiscounts.set(discounts);
+  }
+
+  clearVolumeDiscounts(): void {
+    this._volumeDiscounts.set([]);
+  }
+
+  getVolumeDiscountForProduct(productId: number): AppliedVolumeDiscount | undefined {
+    return this._volumeDiscounts().find(d => d.discount.product_id === productId);
+  }
+
+  getItemsForVolumeDiscountCalculation() {
     return this._items().map(item => ({
       product_id: item.product_id,
       quantity: item.quantity,

@@ -12,6 +12,7 @@ from app.models.order import (
 from app.models.product import Product
 from app.models.promotion import Promotion, PromotionUsage, PromotionScope
 from app.models.cross_sell_promotion import CrossSellPromotion, DiscountType as CrossSellDiscountType
+from app.models.volume_discount import VolumeDiscount, VolumeDiscountType
 from app.core.security import get_current_active_user, get_current_staff_user
 from app.models.user import User, UserRole
 from app.api.utils.common import format_price
@@ -126,6 +127,71 @@ def calculate_promotion_discount(
 
     return 0
 
+
+def calculate_volume_discounts(
+    order_items: List[dict],
+    session: Session
+) -> float:
+    """
+    Calculate volume discounts based on cart items.
+    Returns the total volume discount amount.
+    """
+    now = datetime.now(timezone.utc)
+
+    # Get all active volume discounts
+    query = select(VolumeDiscount).where(VolumeDiscount.is_active == True)
+    query = query.where(VolumeDiscount.start_date <= now)
+    query = query.where(VolumeDiscount.end_date >= now)
+    discounts = session.exec(query).all()
+
+    if not discounts:
+        return 0.0
+
+    # Build product lookup
+    product_data = {}
+    for item in order_items:
+        pid = item["product_id"]
+        product_data[pid] = {
+            "quantity": item["quantity"],
+            "unit_price": item["unit_price"]
+        }
+
+    total_volume_discount = 0.0
+
+    for discount in discounts:
+        # Check if product is in cart
+        if discount.product_id not in product_data:
+            continue
+
+        data = product_data[discount.product_id]
+        quantity = data["quantity"]
+        unit_price = data["unit_price"]
+
+        # Check if quantity meets minimum
+        if quantity < discount.min_quantity:
+            continue
+
+        # Calculate discount based on type
+        if discount.discount_type == VolumeDiscountType.PERCENTAGE:
+            item_total = quantity * unit_price
+            savings = item_total * (discount.discount_value / 100)
+            total_volume_discount += savings
+
+        elif discount.discount_type == VolumeDiscountType.FIXED_AMOUNT:
+            # Fixed amount per unit
+            savings = quantity * discount.discount_value
+            total_volume_discount += savings
+
+        elif discount.discount_type == VolumeDiscountType.FREE_UNITS:
+            # Free units based on quantity
+            # e.g., Buy 5 get 1 free: for 10 items, user gets 2 free
+            free_units = int(quantity // discount.min_quantity) * int(discount.discount_value)
+            savings = free_units * unit_price
+            total_volume_discount += savings
+
+    return total_volume_discount
+
+
 @router.post("", response_model=OrderRead)
 def create_order(
     order_in: OrderCreate,
@@ -206,6 +272,10 @@ def create_order(
     cross_sell_discount = calculate_cross_sell_discounts(order_items_data, session)
     cross_sell_discount = format_price(cross_sell_discount)
 
+    # Calculate volume discounts
+    volume_discount = calculate_volume_discounts(order_items_data, session)
+    volume_discount = format_price(volume_discount)
+
     # Handle promotion if provided
     promotion = None
     discount_amount = 0
@@ -233,8 +303,8 @@ def create_order(
         )
         discount_amount = format_price(discount_amount)
 
-    # Calculate final total (subtract both promo code discount and cross-sell discount)
-    total_amount = format_price(subtotal - discount_amount - cross_sell_discount)
+    # Calculate final total (subtract all discounts)
+    total_amount = format_price(subtotal - discount_amount - cross_sell_discount - volume_discount)
 
     # Create order
     order = Order(
@@ -245,6 +315,7 @@ def create_order(
         subtotal=subtotal,
         discount_amount=discount_amount,
         cross_sell_discount_amount=cross_sell_discount,
+        volume_discount_amount=volume_discount,
         total_amount=total_amount,
         promotion_id=promotion.id if promotion else None
     )

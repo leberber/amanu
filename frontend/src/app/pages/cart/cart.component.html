@@ -106,11 +106,22 @@
                         </div>
                         <div class="table-item-info">
                           <span class="table-item-name">{{ item.product_name }}</span>
-                          @if (item.is_organic) {
-                            <div class="table-item-badges">
+                          <div class="table-item-badges">
+                            @if (item.is_organic) {
                               <span class="badge organic">{{ 'products.product.organic' | translate }}</span>
-                            </div>
-                          }
+                            }
+                            @if (getVolumeDiscount(item.product_id); as vd) {
+                              <span class="badge volume-discount">
+                                @if (vd.discountType === 'free_units') {
+                                  <i class="pi pi-gift"></i> +{{ vd.freeUnits }} {{ 'cart.free' | translate }}
+                                } @else if (vd.discountType === 'percentage') {
+                                  <i class="pi pi-percentage"></i> -{{ vd.discount.discount_value }}%
+                                } @else {
+                                  <i class="pi pi-tag"></i> -{{ vd.savedAmount | appCurrency }}
+                                }
+                              </span>
+                            }
+                          </div>
                         </div>
                       </div>
                     </td>
@@ -181,6 +192,15 @@
                     <span class="cart-item-mobile__title">{{ item.product_name }}</span>
                     @if (item.is_organic) {
                       <span class="badge organic">O</span>
+                    }
+                    @if (getVolumeDiscount(item.product_id); as vd) {
+                      <span class="badge volume-discount">
+                        @if (vd.discountType === 'free_units') {
+                          +{{ vd.freeUnits }} {{ 'cart.free' | translate }}
+                        } @else {
+                          -{{ vd.discount.discount_value }}{{ vd.discountType === 'percentage' ? '%' : '' }}
+                        }
+                      </span>
                     }
                   </div>
                   <button class="icon-btn icon-btn--danger icon-btn--sm" (click)="removeItem(item.id)">
