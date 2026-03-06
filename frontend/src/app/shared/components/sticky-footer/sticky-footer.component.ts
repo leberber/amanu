@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { Component, input, output, computed } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { CurrencyPipe } from '../../pipes/currency.pipe';
 
@@ -13,6 +13,7 @@ export class StickyFooterComponent {
   // Inputs
   label = input<string>('common.total');
   amount = input<number>(0);
+  originalAmount = input<number | undefined>(undefined);
   buttonLabel = input<string>('cart.checkout');
   buttonIcon = input<string>('pi pi-arrow-right');
   showAmount = input<boolean>(true);
@@ -24,6 +25,22 @@ export class StickyFooterComponent {
 
   // Outputs
   buttonClick = output<void>();
+
+  // Computed
+  hasDiscount = computed(() => {
+    const original = this.originalAmount();
+    const current = this.amount();
+    return original !== undefined && original > current;
+  });
+
+  savings = computed(() => {
+    const original = this.originalAmount();
+    const current = this.amount();
+    if (original !== undefined && original > current) {
+      return original - current;
+    }
+    return 0;
+  });
 
   onButtonClick(): void {
     if (!this.disabled()) {

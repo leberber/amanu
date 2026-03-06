@@ -33,17 +33,45 @@
     gap: 2px;
   }
 
+  &__main-row {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-3);
+  }
+
   &__label {
-    font-size: var(--font-size-xs);
+    font-size: var(--font-size-sm);
     color: var(--text-color-secondary);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
   }
 
   &__amount {
     font-size: var(--font-size-xl);
     font-weight: var(--font-weight-bold);
     color: var(--text-color);
+
+    &--discounted {
+      color: #22c55e;
+    }
+  }
+
+  &__savings-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 2px;
+    padding-top: 2px;
+    border-top: 1px dashed var(--surface-300);
+
+    i {
+      font-size: 10px;
+      color: #22c55e;
+    }
+  }
+
+  &__savings {
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    color: #22c55e;
   }
 
   &__button {

@@ -236,6 +236,7 @@
   @if (cartItemCount() > 0) {
     <app-sticky-footer
       [amount]="cartService.finalTotal()"
+      [originalAmount]="cartService.subtotal()"
       buttonLabel="cart.continue"
       (buttonClick)="openOrderSummary()" />
   }

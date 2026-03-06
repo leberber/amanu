@@ -317,6 +317,7 @@
     "empty_checkout_message": "Please add some products to your cart before checkout",
     "item_removed_message": "Item has been removed from your cart",
     "cart_cleared_message": "All items have been removed from your cart",
+    "you_save": "You save",
     "table": {
       "product": "Product",
       "actions": "Actions"

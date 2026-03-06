@@ -1,8 +1,16 @@
 <div class="sticky-footer" [class.sticky-footer--no-border]="!showBorder()" [class.sticky-footer--no-shadow]="!showShadow()" [class.sticky-footer--full-width]="fullWidthButton()" [style.padding-bottom]="paddingBottom() || null">
   @if (showAmount()) {
     <div class="sticky-footer__total">
-      <span class="sticky-footer__label">{{ label() | translate }}</span>
-      <span class="sticky-footer__amount">{{ amount() | appCurrency }}</span>
+      <div class="sticky-footer__main-row">
+        <span class="sticky-footer__label">{{ label() | translate }}</span>
+        <span class="sticky-footer__amount">{{ amount() | appCurrency }}</span>
+      </div>
+      @if (hasDiscount()) {
+        <div class="sticky-footer__savings-row">
+          <span class="sticky-footer__savings">{{ 'cart.you_save' | translate }} {{ savings() | appCurrency }}</span>
+          <i class="pi pi-check"></i>
+        </div>
+      }
     </div>
   }
   <button

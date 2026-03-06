@@ -314,6 +314,7 @@
     "empty_checkout_message": "Veuillez ajouter des produits à votre panier avant de passer commande",
     "item_removed_message": "L'article a été retiré de votre panier",
     "cart_cleared_message": "Tous les articles ont été supprimés de votre panier",
+    "you_save": "Vous économisez",
     "table": {
       "product": "Produit",
       "actions": "Actions"
