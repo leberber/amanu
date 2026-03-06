@@ -128,36 +128,30 @@
                         <i class="pi pi-percentage"></i>
                       </div>
                     }
-                    <div class="promo-card__badge">
-                      {{ getPromoDiscountLabel(promo, true) }}
-                    </div>
+                    <!-- Scope Label under image -->
+                    <span class="promo-card__scope-label" [attr.data-scope]="promo.scope">
+                      @switch (promo.scope) {
+                        @case ('global') { {{ 'promotions_page.scope.global' | translate }} }
+                        @case ('category') { {{ 'promotions_page.scope.category' | translate }} }
+                        @case ('brand') { {{ 'promotions_page.scope.brand' | translate }} }
+                        @case ('product') { {{ 'promotions_page.scope.product' | translate }} }
+                      }
+                    </span>
                   </div>
 
                   <!-- Right: Content -->
                   <div class="promo-card__right">
-                    <h3 class="promo-card__title">{{ promo.name }}</h3>
-
-                    <!-- Scope Tag -->
-                    <div class="promo-card__scope">
-                      @switch (promo.scope) {
-                        @case ('global') {
-                          <i class="pi pi-globe"></i>
-                          {{ 'promotions_page.scope.global' | translate }}
-                        }
-                        @case ('category') {
-                          <i class="pi pi-th-large"></i>
-                          {{ promo.category_name }}
-                        }
-                        @case ('brand') {
-                          <i class="pi pi-bookmark"></i>
-                          {{ promo.brand_name }}
-                        }
-                        @case ('product') {
-                          <i class="pi pi-box"></i>
-                          {{ promo.product_name }}
-                        }
-                      }
+                    <!-- Badge -->
+                    <div class="promo-card__badge">
+                      {{ getPromoDiscountLabel(promo, true) }}
                     </div>
+
+                    <!-- Entity Name (brand/product/category name) -->
+                    @if (promo.scope !== 'global') {
+                      <h3 class="promo-card__entity">{{ getPromoEntityName(promo) }}</h3>
+                    }
+
+                    <p class="promo-card__title">{{ promo.name }}</p>
 
                     @if (promo.description) {
                       <p class="promo-card__desc">{{ promo.description }}</p>
