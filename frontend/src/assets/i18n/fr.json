@@ -313,6 +313,8 @@
     "order_summary": "Résumé de Commande",
     "shipping": "Livraison",
     "free": "Gratuit",
+    "free_carton": "carton gratuit",
+    "free_cartons": "cartons gratuits",
     "empty_checkout_message": "Veuillez ajouter des produits à votre panier avant de passer commande",
     "item_removed_message": "L'article a été retiré de votre panier",
     "cart_cleared_message": "Tous les articles ont été supprimés de votre panier",

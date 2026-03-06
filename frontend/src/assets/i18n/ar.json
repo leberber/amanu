@@ -313,6 +313,8 @@
     "order_summary": "ملخص الطلب",
     "shipping": "الشحن",
     "free": "مجاني",
+    "free_carton": "كرتون مجاني",
+    "free_cartons": "كراتين مجانية",
     "empty_checkout_message": "يرجى إضافة منتجات إلى سلتك قبل إتمام الطلب",
     "item_removed_message": "تم إزالة العنصر من سلتك",
     "cart_cleared_message": "تم حذف جميع العناصر من سلتك",

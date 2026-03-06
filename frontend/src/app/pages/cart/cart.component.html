@@ -113,7 +113,7 @@
                             @if (getVolumeDiscount(item.product_id); as vd) {
                               <span class="badge volume-discount">
                                 @if (vd.discountType === 'free_units') {
-                                  <i class="pi pi-gift"></i> +{{ vd.freeUnits }} {{ 'cart.free' | translate }}
+                                  <i class="pi pi-gift"></i> +{{ getFreeCartons(vd.freeUnits, item.pieces_per_box) }} {{ 'cart.free' | translate }}
                                 } @else if (vd.discountType === 'percentage') {
                                   <i class="pi pi-percentage"></i> -{{ vd.discount.discount_value }}%
                                 } @else {
@@ -139,9 +139,9 @@
                             [disabled]="productQuantities[item.id] <= 1 || isOutOfStock(item)"
                             (click)="updateItemQuantity(item.id, productQuantities[item.id] - getQuantityStep(item))">
                           </button>
-                          @let cartonCount = getCartonCount(item);
+                          @let totalCartons = getTotalCartonsWithFree(item);
                           <div class="quantity-display">
-                            <span class="quantity-display__primary">{{ cartonCount }} {{ getPackagingTypeForCount(item, cartonCount) }}</span>
+                            <span class="quantity-display__primary">{{ totalCartons }} {{ getPackagingTypeForCount(item, totalCartons) }}</span>
                             <span class="quantity-display__secondary">{{ productQuantities[item.id] }} {{ item.product_unit | appUnit }}</span>
                           </div>
                           <button
@@ -158,7 +158,7 @@
                     <td class="text-right">
                       @if (hasDiscount(item)) {
                         <div class="price-with-discount">
-                          <span class="price-original">{{ item.product_price * item.quantity | appCurrency }}</span>
+                          <span class="price-original">{{ getOriginalPriceWithFree(item) | appCurrency }}</span>
                           <span class="price-discounted">{{ getDiscountedTotal(item) | appCurrency }}</span>
                         </div>
                       } @else {
@@ -196,7 +196,7 @@
                     @if (getVolumeDiscount(item.product_id); as vd) {
                       <span class="badge volume-discount">
                         @if (vd.discountType === 'free_units') {
-                          +{{ vd.freeUnits }} {{ 'cart.free' | translate }}
+                          +{{ getFreeCartons(vd.freeUnits, item.pieces_per_box) }} {{ 'cart.free' | translate }}
                         } @else {
                           -{{ vd.discount.discount_value }}{{ vd.discountType === 'percentage' ? '%' : '' }}
                         }
@@ -219,9 +219,9 @@
                         [disabled]="productQuantities[item.id] <= 1 || isOutOfStock(item)"
                         (click)="updateItemQuantity(item.id, productQuantities[item.id] - getQuantityStep(item))">
                       </button>
-                      @let mobileCartonCount = getCartonCount(item);
+                      @let mobileTotalCartons = getTotalCartonsWithFree(item);
                       <div class="quantity-display">
-                        <span class="quantity-display__cartons">{{ mobileCartonCount }} {{ getPackagingTypeForCount(item, mobileCartonCount) }}</span>
+                        <span class="quantity-display__cartons">{{ mobileTotalCartons }} {{ getPackagingTypeForCount(item, mobileTotalCartons) }}</span>
                         <span class="quantity-display__pieces">{{ productQuantities[item.id] }} {{ item.product_unit | appUnit }}</span>
                       </div>
                       <button
@@ -235,7 +235,7 @@
                     </div>
                     @if (hasDiscount(item)) {
                       <div class="price-with-discount">
-                        <span class="price-original">{{ item.product_price * item.quantity | appCurrency }}</span>
+                        <span class="price-original">{{ getOriginalPriceWithFree(item) | appCurrency }}</span>
                         <span class="price-discounted">{{ getDiscountedTotal(item) | appCurrency }}</span>
                       </div>
                     } @else {

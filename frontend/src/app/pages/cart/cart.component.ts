@@ -206,6 +206,7 @@ export class CartComponent implements OnInit {
   getDiscountedTotal(item: CartItem): number {
     // Use discounted price if exists, otherwise original
     const price = item.product_discounted_price ?? item.product_price;
+    // Pay for ordered quantity only
     let total = price * item.quantity;
 
     // Cross-sell discount on top
@@ -214,13 +215,28 @@ export class CartComponent implements OnInit {
       total -= crossSell.total_discount;
     }
 
-    // Volume discount on top
-    const volumeDiscount = this.getVolumeDiscount(item.product_id);
-    if (volumeDiscount) {
-      total -= volumeDiscount.savedAmount;
-    }
-
     return total;
+  }
+
+  // Get total cartons including free units from volume discount
+  getTotalCartonsWithFree(item: CartItem): number {
+    const orderedCartons = this.getCartonCount(item);
+    const volumeDiscount = this.getVolumeDiscount(item.product_id);
+    if (volumeDiscount && volumeDiscount.discountType === 'free_units') {
+      return orderedCartons + this.getFreeCartons(volumeDiscount.freeUnits, item.pieces_per_box);
+    }
+    return orderedCartons;
+  }
+
+  // Get original price as if paying for all cartons (including free)
+  getOriginalPriceWithFree(item: CartItem): number {
+    const volumeDiscount = this.getVolumeDiscount(item.product_id);
+    if (volumeDiscount && volumeDiscount.discountType === 'free_units') {
+      const totalCartons = this.getTotalCartonsWithFree(item);
+      const pricePerCarton = item.product_price * (item.pieces_per_box || 1);
+      return totalCartons * pricePerCarton;
+    }
+    return item.product_price * item.quantity;
   }
 
   // Lightbox
@@ -320,5 +336,10 @@ export class CartComponent implements OnInit {
   // Volume discount helpers
   getVolumeDiscount(productId: number) {
     return this.cartService.getVolumeDiscountForProduct(productId);
+  }
+
+  getFreeCartons(freeUnits: number, piecesPerBox: number | null | undefined): number {
+    if (!piecesPerBox || piecesPerBox <= 0) return freeUnits;
+    return Math.floor(freeUnits / piecesPerBox);
   }
 }

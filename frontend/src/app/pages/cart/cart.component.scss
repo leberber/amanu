@@ -289,15 +289,15 @@
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;
-  padding: 0.25rem 0.5rem;
+  padding: 0.2rem 0.4rem;
   background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(5, 150, 105, 0.15));
   color: #059669;
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   font-weight: 600;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-sm);
   white-space: nowrap;
 
   i {
-    font-size: 0.65rem;
+    font-size: 0.6rem;
   }
 }
