@@ -103,26 +103,6 @@
             </div>
           }
 
-          <!-- Promo Code Button -->
-          <div class="promo-row">
-            @if (appliedPromotion()) {
-              <div class="promo-applied">
-                <div class="promo-applied__info">
-                  <i class="pi pi-check-circle"></i>
-                  <span class="promo-applied__code">{{ appliedPromotion()?.code }}</span>
-                </div>
-                <button class="promo-applied__remove" (click)="removePromoCode()">
-                  <i class="pi pi-times"></i>
-                </button>
-              </div>
-            } @else {
-              <button class="promo-btn" (click)="openPromoDialog()">
-                <i class="pi pi-tag"></i>
-                <span>{{ 'order_summary.add_promo' | translate }}</span>
-                <i class="pi pi-chevron-right"></i>
-              </button>
-            }
-          </div>
         </div>
       </div>
     </div>
@@ -152,56 +132,3 @@
     (buttonClick)="proceedToCheckout()" />
 
 </app-page-layout>
-
-<!-- Promo Code Dialog -->
-<p-dialog
-  [(visible)]="showPromoDialog"
-  [modal]="true"
-  [draggable]="false"
-  [resizable]="false"
-  [closable]="true"
-  [showHeader]="false"
-  styleClass="promo-dialog"
-  [style]="{ width: '90vw', maxWidth: '400px' }">
-
-  <div class="promo-dialog-content">
-    <div class="promo-dialog__header">
-      <div class="promo-dialog__icon">
-        <i class="pi pi-tag"></i>
-      </div>
-      <h3 class="promo-dialog__title">{{ 'promotions.have_code' | translate }}</h3>
-      <p class="promo-dialog__subtitle">{{ 'promotions.enter_code_desc' | translate }}</p>
-    </div>
-
-    <div class="promo-dialog__body">
-      <input
-        type="text"
-        class="promo-input"
-        [ngModel]="promoCode()"
-        (ngModelChange)="promoCode.set($event)"
-        [placeholder]="'promotions.enter_code' | translate"
-        [disabled]="promoLoading()"
-        (keyup.enter)="applyPromoCode()">
-
-      @if (promoError()) {
-        <span class="promo-error">{{ promoError() }}</span>
-      }
-    </div>
-
-    <div class="promo-dialog__actions">
-      <button class="promo-dialog__btn promo-dialog__btn--cancel" (click)="closePromoDialog()">
-        {{ 'common.cancel' | translate }}
-      </button>
-      <button
-        class="promo-dialog__btn promo-dialog__btn--apply"
-        [disabled]="promoLoading() || !promoCode()"
-        (click)="applyPromoCode()">
-        @if (promoLoading()) {
-          <i class="pi pi-spin pi-spinner"></i>
-        } @else {
-          {{ 'promotions.apply' | translate }}
-        }
-      </button>
-    </div>
-  </div>
-</p-dialog>

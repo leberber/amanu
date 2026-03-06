@@ -77,6 +77,7 @@ export class CartComponent implements OnInit {
   // Computed
   cartSubtotal = this.cartService.subtotal;
   appliedPromotion = this.cartService.appliedPromotion;
+  discountAmount = this.cartService.discountAmount;
   crossSellDiscounts = this.cartService.crossSellDiscounts;
   crossSellSavings = this.cartService.crossSellSavings;
   cartItemCount = computed(() => this.cartItems().length);
@@ -193,17 +194,83 @@ export class CartComponent implements OnInit {
   }
 
   hasDiscount(item: CartItem): boolean {
-    return !!this.getCrossSellDiscount(item.product_id);
+    return !!this.getCrossSellDiscount(item.product_id) || this.hasPromoDiscount(item);
+  }
+
+  // Check if item is affected by the applied promotion
+  hasPromoDiscount(item: CartItem): boolean {
+    const promo = this.appliedPromotion();
+    if (!promo) return false;
+
+    const promotion = promo.promotion;
+    switch (promotion.scope) {
+      case 'global':
+        return true;
+      case 'category':
+        return item.category_id === promotion.category_id;
+      case 'brand':
+        return item.brand_id === promotion.brand_id;
+      case 'product':
+        return item.product_id === promotion.product_id;
+      default:
+        return false;
+    }
+  }
+
+  // Calculate promo discount for a specific item
+  getPromoDiscountForItem(item: CartItem): number {
+    const promo = this.appliedPromotion();
+    if (!promo || !this.hasPromoDiscount(item)) return 0;
+
+    const promotion = promo.promotion;
+    const itemTotal = item.product_price * item.quantity;
+
+    // Calculate the proportional discount for this item
+    let applicableTotal = 0;
+    const items = this.cartItems();
+
+    for (const cartItem of items) {
+      if (this.itemMatchesPromoScope(cartItem, promotion)) {
+        applicableTotal += cartItem.product_price * cartItem.quantity;
+      }
+    }
+
+    if (applicableTotal === 0) return 0;
+
+    // This item's share of the total discount
+    const itemShare = itemTotal / applicableTotal;
+    return promo.discount_amount * itemShare;
+  }
+
+  private itemMatchesPromoScope(item: CartItem, promotion: any): boolean {
+    switch (promotion.scope) {
+      case 'global':
+        return true;
+      case 'category':
+        return item.category_id === promotion.category_id;
+      case 'brand':
+        return item.brand_id === promotion.brand_id;
+      case 'product':
+        return item.product_id === promotion.product_id;
+      default:
+        return false;
+    }
   }
 
   getDiscountedTotal(item: CartItem): number {
-    const discount = this.getCrossSellDiscount(item.product_id);
     const originalTotal = item.product_price * item.quantity;
-    if (discount) {
-      // Discount applies to 1 unit only
-      return originalTotal - discount.total_discount;
+    let totalDiscount = 0;
+
+    // Cross-sell discount (applies to 1 unit only)
+    const crossSellDiscount = this.getCrossSellDiscount(item.product_id);
+    if (crossSellDiscount) {
+      totalDiscount += crossSellDiscount.total_discount;
     }
-    return originalTotal;
+
+    // Promo discount
+    totalDiscount += this.getPromoDiscountForItem(item);
+
+    return originalTotal - totalDiscount;
   }
 
   // Lightbox
@@ -227,31 +294,29 @@ export class CartComponent implements OnInit {
   }
 
   private handlePromotionChange(items: CartItem[]): void {
-    const promo = this.cartService.appliedPromotion();
     if (items.length === 0) {
-      if (promo) {
-        this.cartService.removePromotion();
-      }
+      this.cartService.removePromotion();
       this.cartService.clearCrossSellDiscounts();
     } else {
-      if (promo) {
-        this.recalculateDiscount(promo.code);
-      }
+      this.autoApplyBestPromotion();
       this.calculateCrossSellDiscounts();
     }
   }
 
-  private recalculateDiscount(code: string): void {
-    this.promotionService.calculateDiscount({
-      promotion_code: code,
-      cart_items: this.cartService.getItemsForDiscount()
-    }).subscribe({
+  private autoApplyBestPromotion(): void {
+    const items = this.cartService.getItemsForDiscount();
+    if (items.length === 0) {
+      this.cartService.removePromotion();
+      return;
+    }
+
+    this.promotionService.autoApplyPromotions({ cart_items: items }).subscribe({
       next: (response) => {
-        if (response.promotion && response.discount_amount > 0) {
+        if (response.best_promotion && response.best_discount_amount > 0) {
           this.cartService.applyPromotion({
-            code,
-            promotion: response.promotion,
-            discount_amount: response.discount_amount
+            code: '',
+            promotion: response.best_promotion,
+            discount_amount: response.best_discount_amount
           });
         } else {
           this.cartService.removePromotion();

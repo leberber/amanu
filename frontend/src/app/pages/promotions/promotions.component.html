@@ -194,21 +194,12 @@
                   </div>
                 </div>
 
-                  <!-- Code or Auto -->
+                  <!-- Auto Applied -->
                   <div class="promo-card__action">
-                    @if (promo.code) {
-                      <div class="promo-code">
-                        <span class="promo-code__value">{{ promo.code }}</span>
-                        <button class="promo-code__copy" (click)="copyCode(promo.code)">
-                          <i class="pi pi-copy"></i>
-                        </button>
-                      </div>
-                    } @else {
-                      <div class="promo-auto">
-                        <i class="pi pi-check-circle"></i>
-                        {{ 'promotions_page.auto_applied' | translate }}
-                      </div>
-                    }
+                    <div class="promo-auto">
+                      <i class="pi pi-check-circle"></i>
+                      {{ 'promotions_page.auto_applied' | translate }}
+                    </div>
                   </div>
 
                   <!-- Footer -->

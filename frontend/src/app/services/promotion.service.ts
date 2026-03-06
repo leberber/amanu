@@ -8,7 +8,9 @@ import {
   PromotionUpdate,
   PromotionValidation,
   DiscountCalculationRequest,
-  DiscountCalculationResponse
+  DiscountCalculationResponse,
+  AutoApplyRequest,
+  AutoApplyResponse
 } from '../models/promotion.model';
 
 @Injectable({
@@ -57,6 +59,10 @@ export class PromotionService {
 
   calculateDiscount(request: DiscountCalculationRequest): Observable<DiscountCalculationResponse> {
     return this.apiService.post<DiscountCalculationResponse>('/promotions/calculate', request);
+  }
+
+  autoApplyPromotions(request: AutoApplyRequest): Observable<AutoApplyResponse> {
+    return this.apiService.post<AutoApplyResponse>('/promotions/auto-apply', request);
   }
 
   createPromotion(promotion: PromotionCreate): Observable<Promotion> {

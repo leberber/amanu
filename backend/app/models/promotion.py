@@ -229,3 +229,28 @@ class DiscountCalculationResponse(SQLModel):
     total: float
     promotion: Optional[PromotionRead] = None
     error: Optional[str] = None
+
+
+class AutoApplyRequest(SQLModel):
+    """Request model for auto-applying best promotions"""
+    cart_items: List[CartItem]
+
+
+class AppliedPromotionItem(SQLModel):
+    """A single applied promotion with its discount"""
+    promotion_id: int
+    promotion_name: str
+    discount_type: DiscountType
+    discount_value: float
+    scope: PromotionScope
+    discount_amount: float
+
+
+class AutoApplyResponse(SQLModel):
+    """Response model for auto-applied promotions"""
+    subtotal: float
+    total_discount: float
+    final_total: float
+    applied_promotions: List[AppliedPromotionItem] = []
+    best_promotion: Optional[PromotionRead] = None
+    best_discount_amount: float = 0

@@ -118,6 +118,10 @@
 // =============================================================================
 
 .icon-btn.icon-btn--danger {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+
   i {
     color: #ef4444 !important;
   }
@@ -171,13 +175,13 @@
 
   .price-original {
     font-size: 0.8125rem;
-    color: #9ca3af;
+    color: #ef4444;
     text-decoration: line-through;
   }
 
   .price-discounted {
-    font-size: 1rem;
-    font-weight: 700;
+    font-size: 0.875rem;
+    font-weight: 600;
     color: #22c55e;
   }
 }
@@ -227,6 +231,20 @@
   &__amount {
     font-size: 1rem;
     font-weight: 700;
+  }
+
+  // Promo discount variant - purple gradient
+  &--promo {
+    bottom: 140px; // Stack above bundle savings banner
+
+    .savings-banner__content {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+    }
+  }
+
+  // When both banners are present, adjust spacing
+  &--promo + & {
+    bottom: 80px;
   }
 }
 

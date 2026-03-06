@@ -13,6 +13,9 @@ from app.models.promotion import (
     PromotionValidation,
     DiscountCalculationRequest,
     DiscountCalculationResponse,
+    AutoApplyRequest,
+    AutoApplyResponse,
+    AppliedPromotionItem,
     DiscountType,
     PromotionScope,
 )
@@ -438,4 +441,159 @@ def calculate_discount(
         discount_amount=round(discount_amount, 2),
         total=round(total, 2),
         promotion=promotion
+    )
+
+
+@router.post("/auto-apply", response_model=AutoApplyResponse)
+def auto_apply_promotions(
+    request: AutoApplyRequest,
+    session: Session = Depends(get_session),
+) -> Any:
+    """
+    Automatically find and apply the best eligible promotions for a cart (public).
+    Returns the best applicable promotion based on cart contents.
+    """
+    # Calculate subtotal
+    subtotal = sum(item.unit_price * item.quantity for item in request.cart_items)
+
+    if not request.cart_items or subtotal == 0:
+        return AutoApplyResponse(
+            subtotal=0,
+            total_discount=0,
+            final_total=0,
+            applied_promotions=[],
+            best_promotion=None,
+            best_discount_amount=0
+        )
+
+    # Get all active promotions
+    now = datetime.now(timezone.utc)
+    query = (
+        select(Promotion)
+        .options(
+            selectinload(Promotion.category),
+            selectinload(Promotion.brand),
+            selectinload(Promotion.product),
+        )
+        .where(
+            Promotion.is_active == True,
+            Promotion.start_date <= now,
+            Promotion.end_date >= now
+        )
+    )
+    promotions = session.exec(query).all()
+
+    # Filter valid promotions (not reached usage limit)
+    valid_promotions = [
+        p for p in promotions
+        if p.usage_limit is None or p.usage_count < p.usage_limit
+    ]
+
+    if not valid_promotions:
+        return AutoApplyResponse(
+            subtotal=round(subtotal, 2),
+            total_discount=0,
+            final_total=round(subtotal, 2),
+            applied_promotions=[],
+            best_promotion=None,
+            best_discount_amount=0
+        )
+
+    # Build lookup for cart items
+    cart_by_product = {item.product_id: item for item in request.cart_items}
+    cart_by_category: dict = {}
+    cart_by_brand: dict = {}
+
+    for item in request.cart_items:
+        if item.category_id:
+            if item.category_id not in cart_by_category:
+                cart_by_category[item.category_id] = []
+            cart_by_category[item.category_id].append(item)
+        if item.brand_id:
+            if item.brand_id not in cart_by_brand:
+                cart_by_brand[item.brand_id] = []
+            cart_by_brand[item.brand_id].append(item)
+
+    # Calculate discount for each applicable promotion
+    applicable_promotions: list = []
+
+    for promotion in valid_promotions:
+        discount_amount = 0
+        applicable_amount = 0
+
+        if promotion.scope == PromotionScope.GLOBAL:
+            # Apply to entire order if meets min amount
+            if subtotal >= promotion.min_order_amount:
+                applicable_amount = subtotal
+                discount_amount = promotion.calculate_discount(subtotal)
+
+        elif promotion.scope == PromotionScope.CATEGORY:
+            # Apply to items in the category
+            if promotion.category_id in cart_by_category:
+                category_items = cart_by_category[promotion.category_id]
+                category_total = sum(i.unit_price * i.quantity for i in category_items)
+                if category_total >= promotion.min_order_amount:
+                    applicable_amount = category_total
+                    discount_amount = promotion.calculate_discount(category_total)
+
+        elif promotion.scope == PromotionScope.BRAND:
+            # Apply to items from the brand
+            if promotion.brand_id in cart_by_brand:
+                brand_items = cart_by_brand[promotion.brand_id]
+                brand_total = sum(i.unit_price * i.quantity for i in brand_items)
+                if brand_total >= promotion.min_order_amount:
+                    applicable_amount = brand_total
+                    discount_amount = promotion.calculate_discount(brand_total)
+
+        elif promotion.scope == PromotionScope.PRODUCT:
+            # Apply to specific product
+            if promotion.product_id in cart_by_product:
+                item = cart_by_product[promotion.product_id]
+                product_total = item.unit_price * item.quantity
+                if product_total >= promotion.min_order_amount:
+                    applicable_amount = product_total
+                    discount_amount = promotion.calculate_discount(product_total)
+
+        if discount_amount > 0:
+            applicable_promotions.append({
+                "promotion": promotion,
+                "discount_amount": round(discount_amount, 2),
+                "applicable_amount": applicable_amount
+            })
+
+    if not applicable_promotions:
+        return AutoApplyResponse(
+            subtotal=round(subtotal, 2),
+            total_discount=0,
+            final_total=round(subtotal, 2),
+            applied_promotions=[],
+            best_promotion=None,
+            best_discount_amount=0
+        )
+
+    # Find the best promotion (highest discount)
+    best = max(applicable_promotions, key=lambda x: x["discount_amount"])
+    best_promotion = best["promotion"]
+    best_discount = best["discount_amount"]
+
+    # Build response with all applicable promotions
+    applied_items = [
+        AppliedPromotionItem(
+            promotion_id=p["promotion"].id,
+            promotion_name=p["promotion"].name,
+            discount_type=p["promotion"].discount_type,
+            discount_value=p["promotion"].discount_value,
+            scope=p["promotion"].scope,
+            discount_amount=p["discount_amount"]
+        )
+        for p in applicable_promotions
+    ]
+
+    return AutoApplyResponse(
+        subtotal=round(subtotal, 2),
+        total_discount=best_discount,
+        final_total=round(subtotal - best_discount, 2),
+        applied_promotions=applied_items,
+        best_promotion=promotion_to_read(best_promotion),
+        best_discount_amount=best_discount
     )

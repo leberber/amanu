@@ -156,7 +156,7 @@
                     </td>
                     <td class="text-center">
                       <button class="icon-btn icon-btn--danger" (click)="removeItem(item.id)" [pTooltip]="'cart.remove_item' | translate" tooltipPosition="left">
-                        <i class="pi pi-trash"></i>
+                        <i class="pi pi-times"></i>
                       </button>
                     </td>
                   </tr>
@@ -184,7 +184,7 @@
                     }
                   </div>
                   <button class="icon-btn icon-btn--danger icon-btn--sm" (click)="removeItem(item.id)">
-                    <i class="pi pi-trash"></i>
+                    <i class="pi pi-times"></i>
                   </button>
                 </div>
                 <div class="cart-item-mobile__row2">
@@ -232,6 +232,17 @@
     </div>
   }
 
+  <!-- Auto-Applied Promotion Banner -->
+  @if (appliedPromotion()) {
+    <div class="savings-banner savings-banner--promo">
+      <div class="savings-banner__content">
+        <i class="pi pi-percentage"></i>
+        <span class="savings-banner__text">{{ appliedPromotion()!.promotion.name }}</span>
+        <span class="savings-banner__amount">-{{ discountAmount() | appCurrency }}</span>
+      </div>
+    </div>
+  }
+
   <!-- Bundle Savings Banner (when cross-sell discounts apply) -->
   @if (crossSellSavings() > 0) {
     <div class="savings-banner">
@@ -246,7 +257,7 @@
   <!-- Sticky Footer (All screens) -->
   @if (cartItemCount() > 0) {
     <app-sticky-footer
-      [amount]="cartSubtotal() - crossSellSavings()"
+      [amount]="cartSubtotal() - crossSellSavings() - discountAmount()"
       buttonLabel="cart.continue"
       (buttonClick)="openOrderSummary()" />
   }

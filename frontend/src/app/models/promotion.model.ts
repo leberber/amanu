@@ -104,3 +104,25 @@ export interface AppliedPromotion {
   promotion: Promotion;
   discount_amount: number;
 }
+
+export interface AutoApplyRequest {
+  cart_items: CartItemForDiscount[];
+}
+
+export interface AppliedPromotionItem {
+  promotion_id: number;
+  promotion_name: string;
+  discount_type: DiscountType;
+  discount_value: number;
+  scope: PromotionScope;
+  discount_amount: number;
+}
+
+export interface AutoApplyResponse {
+  subtotal: number;
+  total_discount: number;
+  final_total: number;
+  applied_promotions: AppliedPromotionItem[];
+  best_promotion: Promotion | null;
+  best_discount_amount: number;
+}
