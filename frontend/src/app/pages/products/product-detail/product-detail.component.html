@@ -190,6 +190,27 @@
             <div class="price-unit mt-2">{{ 'common.per' | translate }} {{ unitDisplay() }}</div>
           </div>
 
+          <!-- Regular Promotion Card -->
+          @if (hasPromotion() && product()?.promotion) {
+            <div class="card card--no-hover promotion-info-card" @slideUp>
+              <div class="promotion-info-card__badge">
+                @if (product()?.promotion?.discount_type === 'percentage') {
+                  -{{ product()?.promotion?.discount_value }}%
+                } @else {
+                  -{{ product()!.promotion!.discount_value * (product()!.pieces_per_box || 1) | appCurrency }}
+                }
+                <span class="promotion-info-card__per-carton">/ {{ getPackagingTypeForCount(1) }}</span>
+              </div>
+              <div class="promotion-info-card__content">
+                <span class="promotion-info-card__name">{{ product()?.promotion?.name }}</span>
+                <span class="promotion-info-card__auto">
+                  <i class="pi pi-check-circle"></i>
+                  {{ 'promotions_page.auto_applied' | translate }}
+                </span>
+              </div>
+            </div>
+          }
+
           <!-- Volume Discount Promotion Card -->
           @if (volumeDiscount()) {
             <div class="card card--no-hover promo-card" @slideUp>

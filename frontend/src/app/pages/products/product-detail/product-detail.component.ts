@@ -154,14 +154,15 @@ export class ProductDetailComponent implements OnInit {
 
   volumeDiscountMinCartons = computed(() => {
     const vd = this.volumeDiscount();
-    const p = this.product();
-    if (!vd || !p) return 0;
-    return Math.ceil(vd.min_quantity / (p.pieces_per_box || 1));
+    if (!vd) return 0;
+    // min_quantity is already in cartons
+    return vd.min_quantity;
   });
 
   volumeDiscountFreeCartons = computed(() => {
     const vd = this.volumeDiscount();
     if (!vd || vd.discount_type !== 'free_units') return 0;
+    // discount_value for free_units is already in cartons
     return vd.discount_value;
   });
 
