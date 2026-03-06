@@ -70,8 +70,8 @@
   }
 }
 
-// Delete row button
-.btn-delete {
+// Hide row button
+.btn-hide {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -85,13 +85,109 @@
   transition: all 0.15s ease;
 
   &:hover {
-    background: rgba(239, 68, 68, 0.1);
-    color: #ef4444;
-    border-color: rgba(239, 68, 68, 0.2);
+    background: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+    border-color: rgba(245, 158, 11, 0.2);
   }
 
   i {
     font-size: 0.9rem;
+  }
+}
+
+// Unhide row button
+.btn-unhide {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: rgba(16, 185, 129, 0.2);
+    color: #059669;
+    border-color: rgba(16, 185, 129, 0.3);
+  }
+
+  i {
+    font-size: 0.9rem;
+  }
+}
+
+// Toggle hidden items button
+.btn-toggle-hidden {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  width: 36px;
+  height: 36px;
+  background: var(--surface-100);
+  color: var(--text-color-secondary);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: var(--surface-200);
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+  }
+
+  &.active {
+    background: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+    border-color: rgba(245, 158, 11, 0.3);
+  }
+
+  i {
+    font-size: 1rem;
+  }
+
+  .badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    background: #f59e0b;
+    color: white;
+    font-size: 0.65rem;
+    font-weight: 600;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+// Hidden row styling
+.row-hidden {
+  opacity: 0.5;
+  background: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 10px,
+    rgba(245, 158, 11, 0.03) 10px,
+    rgba(245, 158, 11, 0.03) 20px
+  );
+
+  td {
+    color: var(--text-color-secondary);
+  }
+
+  .brand-pill,
+  .category-pill {
+    opacity: 0.6;
   }
 }
 

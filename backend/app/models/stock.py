@@ -19,6 +19,7 @@ class StockItemBase(SQLModel):
     nmb_carton: int = Field(default=0)
     carry: bool = Field(default=False)
     priority: int = Field(default=0)
+    hidden: bool = Field(default=False)
 
 
 class StockItem(StockItemBase, table=True):
@@ -49,6 +50,7 @@ class StockItemUpdate(SQLModel):
     nmb_carton: Optional[int] = None
     carry: Optional[bool] = None
     priority: Optional[int] = None
+    hidden: Optional[bool] = None
 
 
 class StockItemRead(StockItemBase):

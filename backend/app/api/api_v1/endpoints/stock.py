@@ -1,5 +1,5 @@
 from typing import List
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
 from pydantic import BaseModel
 from datetime import datetime, timezone
@@ -25,6 +25,7 @@ class StockItemRequest(BaseModel):
     nmbCarton: int = 0
     carry: bool = False
     priority: int = 0
+    hidden: bool = False
 
 
 class StockItemResponse(BaseModel):
@@ -42,6 +43,7 @@ class StockItemResponse(BaseModel):
     nmbCarton: int
     carry: bool
     priority: int
+    hidden: bool
 
 
 class StockData(BaseModel):
@@ -68,7 +70,8 @@ def db_to_response(item: StockItem) -> StockItemResponse:
         prixCarton=item.prix_carton,
         nmbCarton=item.nmb_carton,
         carry=item.carry,
-        priority=item.priority
+        priority=item.priority,
+        hidden=item.hidden
     )
 
 
@@ -82,7 +85,7 @@ async def get_stock(session: Session = Depends(get_session)):
 
 @router.post("", response_model=dict)
 async def save_stock(data: StockSaveRequest, session: Session = Depends(get_session)):
-    """Save stock items - replaces all existing items"""
+    """Save stock items - replaces all existing items (stock_items is source of truth)"""
     print(f"Received {len(data.items)} items to save")
     try:
         # Delete all existing items
@@ -108,12 +111,14 @@ async def save_stock(data: StockSaveRequest, session: Session = Depends(get_sess
                 nmb_carton=item_data.nmbCarton,
                 carry=item_data.carry,
                 priority=item_data.priority,
+                hidden=item_data.hidden,
                 created_at=datetime.now(timezone.utc)
             )
             session.add(db_item)
 
         session.commit()
+        print(f"Saved {len(data.items)} stock items")
         return {"success": True, "message": f"Saved {len(data.items)} items"}
     except Exception as e:
         session.rollback()
-        return {"success": False, "message": str(e)}
+        raise HTTPException(status_code=422, detail=str(e))

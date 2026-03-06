@@ -61,6 +61,17 @@
             <button class="btn-download" (click)="downloadStock()" pTooltip="Télécharger CSV">
               <i class="pi pi-download"></i>
             </button>
+            <button
+              class="btn-toggle-hidden"
+              [class.active]="showHidden()"
+              (click)="toggleShowHidden()"
+              [pTooltip]="showHidden() ? 'Masquer les produits cachés' : 'Afficher les produits cachés'"
+            >
+              <i [class]="showHidden() ? 'pi pi-eye' : 'pi pi-eye-slash'"></i>
+              @if (hiddenCount() > 0) {
+                <span class="badge">{{ hiddenCount() }}</span>
+              }
+            </button>
             @if (hasActiveFilters()) {
               <button class="clear-filters-btn" (click)="clearFilters()" pTooltip="Effacer les Filtres">
                 <i class="pi pi-filter-slash"></i>
@@ -264,7 +275,7 @@
               </thead>
               <tbody>
                 @for (row of filteredRows(); track row.productId; let i = $index) {
-                  <tr class="table-row-animate" [style.--row-delay]="(i * 30) + 'ms'">
+                  <tr class="table-row-animate" [class.row-hidden]="row.hidden" [style.--row-delay]="(i * 30) + 'ms'">
                     <!-- Carry Switch -->
                     @if (isColumnVisible('carry')) {
                       <td class="col-carry">
@@ -306,7 +317,8 @@
                       <td class="col-product-input">
                         <input
                           type="text"
-                          [(ngModel)]="row.product"
+                          [ngModel]="row.product"
+                          (ngModelChange)="onProductNameChange(row, $event)"
                           class="stock-input product-name-input"
                           placeholder="Nom du produit"
                         />
@@ -319,12 +331,13 @@
                         @if (isNewRow(row)) {
                           <p-select
                             [options]="brandOptions()"
-                            [(ngModel)]="row.brandId"
+                            [(ngModel)]="row.brand"
                             (ngModelChange)="onBrandSelect(row, $event)"
                             optionLabel="label"
                             optionValue="value"
                             placeholder="Marque"
                             [filter]="true"
+                            [editable]="true"
                             filterPlaceholder="Rechercher..."
                             [showClear]="false"
                             appendTo="body"
@@ -342,12 +355,13 @@
                         @if (isNewRow(row)) {
                           <p-select
                             [options]="categoryOptions()"
-                            [(ngModel)]="row.categoryId"
+                            [(ngModel)]="row.category"
                             (ngModelChange)="onCategorySelect(row, $event)"
                             optionLabel="label"
                             optionValue="value"
                             placeholder="Catégorie"
                             [filter]="true"
+                            [editable]="true"
                             filterPlaceholder="Rechercher..."
                             [showClear]="false"
                             appendTo="body"
@@ -401,6 +415,7 @@
                           [min]="0"
                           [maxFractionDigits]="2"
                           mode="decimal"
+                          [showButtons]="false"
                           [style]="{'width': '70px'}"
                           inputStyleClass="text-center"
                           (ngModelChange)="onPrixUniteChange(row)"
@@ -415,6 +430,7 @@
                         <p-inputNumber
                           [(ngModel)]="row.uniteParCarton"
                           [min]="0"
+                          [showButtons]="false"
                           [style]="{'width': '70px'}"
                           inputStyleClass="text-center"
                           (ngModelChange)="onUniteParCartonChange(row)"
@@ -431,6 +447,7 @@
                           [min]="0"
                           [maxFractionDigits]="0"
                           mode="decimal"
+                          [showButtons]="false"
                           [style]="{'width': '70px'}"
                           inputStyleClass="text-center input-prix-carton"
                           (ngModelChange)="onPrixCartonChange(row)"
@@ -445,6 +462,7 @@
                         <p-inputNumber
                           [(ngModel)]="row.nmbCarton"
                           [min]="0"
+                          [showButtons]="false"
                           [style]="{'width': '70px'}"
                           inputStyleClass="text-center"
                           (ngModelChange)="onNmbCartonChange(row)"
@@ -460,11 +478,17 @@
                       </td>
                     }
 
-                    <!-- Delete Action -->
+                    <!-- Hide/Unhide Action -->
                     <td class="col-actions">
-                      <button class="btn-delete" (click)="deleteRow(row)" pTooltip="Supprimer">
-                        <i class="pi pi-trash"></i>
-                      </button>
+                      @if (row.hidden) {
+                        <button class="btn-unhide" (click)="unhideRow(row)" pTooltip="Afficher">
+                          <i class="pi pi-eye"></i>
+                        </button>
+                      } @else {
+                        <button class="btn-hide" (click)="hideRow(row)" pTooltip="Masquer">
+                          <i class="pi pi-eye-slash"></i>
+                        </button>
+                      }
                     </td>
                   </tr>
                 }

@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, inject, signal, computed, DestroyRef } fr
 import { DecimalPipe, DatePipe } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
-import { forkJoin, catchError, of } from 'rxjs';
+import { catchError, of } from 'rxjs';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { SelectModule } from 'primeng/select';
@@ -16,11 +16,7 @@ import { ADMIN_LIST_IMPORTS } from '../../shared/imports/admin-shared.imports';
 import { TableSkeletonComponent, SkeletonColumn } from '../../shared/components/table-skeleton/table-skeleton.component';
 import { AgroclikPageContainerComponent } from '../../shared/components/agroclik-page-container/agroclik-page-container.component';
 import { ToastMessageService } from '../../core/services/toast-message.service';
-import { ProductService } from '../../services/product.service';
-import { BrandService } from '../../core/services/brand.service';
 import { ApiService } from '../../services/api.service';
-import { Category } from '../../models/product.model';
-import { Brand } from '../../models/brand.model';
 
 interface StockItem {
   productId: number;
@@ -37,6 +33,7 @@ interface StockItem {
   nmbCarton: number;
   carry: boolean;
   priority: number;
+  hidden: boolean;
 }
 
 interface StockData {
@@ -65,6 +62,7 @@ interface StockRow {
   nmbCarton: number;
   carry: boolean;
   priority: number;
+  hidden: boolean;
 }
 
 @Component({
@@ -88,8 +86,6 @@ interface StockRow {
   styleUrl: './stock.component.scss'
 })
 export class StockComponent implements OnInit, OnDestroy {
-  private productService = inject(ProductService);
-  private brandService = inject(BrandService);
   private api = inject(ApiService);
   private toast = inject(ToastMessageService);
   private destroyRef = inject(DestroyRef);
@@ -100,6 +96,7 @@ export class StockComponent implements OnInit, OnDestroy {
   tableInitialized = signal(false);
   isFullscreen = signal(true);
   searchQuery = signal('');
+  showHidden = signal(false);
 
   // Invoice state
   showInvoiceDialog = false;
@@ -111,12 +108,10 @@ export class StockComponent implements OnInit, OnDestroy {
 
   // Data
   allRows = signal<StockRow[]>([]);
-  categories = signal<Category[]>([]);
-  brands = signal<Brand[]>([]);
 
-  // Filters (multi-select)
-  categoryFilter = signal<number[]>([]);
-  brandFilter = signal<number[]>([]);
+  // Filters (multi-select) - using names since stock_items is source of truth
+  categoryFilter = signal<string[]>([]);
+  brandFilter = signal<string[]>([]);
   priorityFilter = signal<number[]>([]);
 
   // Sorting
@@ -170,12 +165,17 @@ export class StockComponent implements OnInit, OnDestroy {
     const brandFilter = this.brandFilter();
     const prioFilter = this.priorityFilter();
 
+    // Filter hidden items unless showHidden is true
+    if (!this.showHidden()) {
+      rows = rows.filter(r => !r.hidden);
+    }
+
     if (catFilter && catFilter.length > 0) {
-      rows = rows.filter(r => catFilter.includes(r.categoryId));
+      rows = rows.filter(r => catFilter.includes(r.category));
     }
 
     if (brandFilter && brandFilter.length > 0) {
-      rows = rows.filter(r => brandFilter.includes(r.brandId));
+      rows = rows.filter(r => brandFilter.includes(r.brand));
     }
 
     if (prioFilter && prioFilter.length > 0) {
@@ -234,14 +234,28 @@ export class StockComponent implements OnInit, OnDestroy {
     }, 0);
   });
 
-  // Category options for dropdown
+  // Category options for dropdown (will be populated by sync mechanism later)
   categoryOptions = computed(() => {
-    return this.categories().map(c => ({ label: c.name, value: c.id }));
+    // Extract unique categories from stock rows
+    const categories = new Map<string, string>();
+    this.allRows().forEach(row => {
+      if (row.category && row.category !== '-') {
+        categories.set(row.category, row.category);
+      }
+    });
+    return Array.from(categories.values()).map(name => ({ label: name, value: name }));
   });
 
-  // Brand options for dropdown
+  // Brand options for dropdown (will be populated by sync mechanism later)
   brandOptions = computed(() => {
-    return this.brands().map(b => ({ label: b.name, value: b.id }));
+    // Extract unique brands from stock rows
+    const brands = new Map<string, string>();
+    this.allRows().forEach(row => {
+      if (row.brand && row.brand !== '-') {
+        brands.set(row.brand, row.brand);
+      }
+    });
+    return Array.from(brands.values()).map(name => ({ label: name, value: name }));
   });
 
   // Computed: rows selected for invoice (carry = true)
@@ -257,6 +271,11 @@ export class StockComponent implements OnInit, OnDestroy {
   // Computed: selected rows total value
   selectedTotalValue = computed(() => {
     return this.selectedForInvoice().reduce((sum, r) => sum + (r.prixCarton * r.nmbCarton), 0);
+  });
+
+  // Computed: hidden items count
+  hiddenCount = computed(() => {
+    return this.allRows().filter(r => r.hidden).length;
   });
 
   // Computed: rows grouped by supplier
@@ -289,51 +308,32 @@ export class StockComponent implements OnInit, OnDestroy {
   loadData(): void {
     this.loading.set(true);
 
-    forkJoin({
-      products: this.productService.getProducts({ active_only: false, limit: 1000 }).pipe(catchError(() => of([]))),
-      categories: this.productService.getCategories(false).pipe(catchError(() => of([]))),
-      brands: this.brandService.getBrands(false).pipe(catchError(() => of([]))),
-      stockData: this.api.get<StockData>('/stock').pipe(catchError(() => of({ items: [] })))
-    }).pipe(
-      takeUntilDestroyed(this.destroyRef)
+    // Load only from stock_items table - it's the source of truth
+    this.api.get<StockData>('/stock').pipe(
+      takeUntilDestroyed(this.destroyRef),
+      catchError(() => of({ items: [] }))
     ).subscribe({
-      next: ({ products, categories, brands, stockData }) => {
-        this.categories.set(categories);
-        this.brands.set(brands);
-
-        // Create stock map from saved data
-        const stockMap = new Map<number, StockItem>();
-        stockData.items.forEach(item => stockMap.set(item.productId, item));
-
-        // Build rows from products
-        const rows: StockRow[] = products.map(product => {
-          const saved = stockMap.get(product.id);
-          const category = categories.find(c => c.id === product.category_id);
-          const brand = brands.find(b => b.id === product.brand_id);
-
-          const prixUnite = saved?.prixUnite ?? 0;
-          const uniteParCarton = saved?.uniteParCarton ?? (product.pieces_per_box || 0);
-          const prixCarton = saved?.prixCarton ?? (prixUnite * uniteParCarton);
-
-          return {
-            productId: product.id,
-            image: product.image_url || '',
-            category: category?.name || '-',
-            categoryId: product.category_id,
-            brand: brand?.name || '-',
-            brandId: product.brand_id || 0,
-            product: product.name,
-            description: product.description || '',
-            supplier: saved?.supplier ?? '',
-            phone: saved?.phone ?? '',
-            prixUnite,
-            uniteParCarton,
-            prixCarton,
-            nmbCarton: saved?.nmbCarton ?? 0,
-            carry: saved?.carry ?? false,
-            priority: saved?.priority ?? 0
-          };
-        });
+      next: (stockData) => {
+        // Build rows directly from stock items
+        const rows: StockRow[] = stockData.items.map(item => ({
+          productId: item.productId,
+          image: item.image,
+          category: item.category || '-',
+          categoryId: 0, // Not used when stock_items is source of truth
+          brand: item.brand || '-',
+          brandId: 0, // Not used when stock_items is source of truth
+          product: item.product,
+          description: item.description || '',
+          supplier: item.supplier || '',
+          phone: item.phone || '',
+          prixUnite: item.prixUnite,
+          uniteParCarton: item.uniteParCarton,
+          prixCarton: item.prixCarton,
+          nmbCarton: item.nmbCarton,
+          carry: item.carry,
+          priority: item.priority,
+          hidden: item.hidden
+        }));
 
         this.allRows.set(rows);
         this.loading.set(false);
@@ -346,11 +346,11 @@ export class StockComponent implements OnInit, OnDestroy {
     });
   }
 
-  onCategoryChange(value: number[] | null): void {
+  onCategoryChange(value: string[] | null): void {
     this.categoryFilter.set(value ?? []);
   }
 
-  onBrandChange(value: number[] | null): void {
+  onBrandChange(value: string[] | null): void {
     this.brandFilter.set(value ?? []);
   }
 
@@ -401,8 +401,10 @@ export class StockComponent implements OnInit, OnDestroy {
       prixCarton: row.prixCarton,
       nmbCarton: row.nmbCarton,
       carry: row.carry,
-      priority: row.priority
+      priority: row.priority,
+      hidden: row.hidden
     }));
+
 
     this.api.post<StockSaveResponse>('/stock', { items }).pipe(
       takeUntilDestroyed(this.destroyRef)
@@ -415,8 +417,19 @@ export class StockComponent implements OnInit, OnDestroy {
         }
         this.saving.set(false);
       },
-      error: () => {
-        this.toast.showError('Échec de l\'enregistrement du stock');
+      error: (err) => {
+        // Show full error trace for debugging
+        let errorMessage = 'Échec de l\'enregistrement du stock';
+        if (err.error?.detail) {
+          errorMessage += ': ' + err.error.detail;
+        } else if (err.message) {
+          errorMessage += ': ' + err.message;
+        }
+        if (err.status) {
+          errorMessage += ` (HTTP ${err.status})`;
+        }
+        this.toast.showError(errorMessage);
+        console.error('Stock save error:', err);
         this.saving.set(false);
       }
     });
@@ -490,7 +503,8 @@ export class StockComponent implements OnInit, OnDestroy {
       prixCarton: 0,
       nmbCarton: 0,
       carry: false,
-      priority: 0
+      priority: 0,
+      hidden: false
     };
 
     // Add to the beginning of the list
@@ -498,28 +512,38 @@ export class StockComponent implements OnInit, OnDestroy {
     this.toast.showSuccess('Nouvelle ligne ajoutée');
   }
 
-  deleteRow(row: StockRow): void {
-    this.allRows.update(rows => rows.filter(r => r.productId !== row.productId));
-    this.toast.showSuccess('Ligne supprimée');
+  hideRow(row: StockRow): void {
+    row.hidden = true;
+    this.allRows.update(rows => [...rows]);
+  }
+
+  unhideRow(row: StockRow): void {
+    row.hidden = false;
+    this.allRows.update(rows => [...rows]);
+  }
+
+  toggleShowHidden(): void {
+    this.showHidden.update(v => !v);
   }
 
   isNewRow(row: StockRow): boolean {
     return row.productId < 0;
   }
 
-  onBrandSelect(row: StockRow, brandId: number): void {
-    const brand = this.brands().find(b => b.id === brandId);
-    if (brand) {
-      row.brand = brand.name;
-      row.brandId = brandId;
-    }
+  onBrandSelect(row: StockRow, brandName: string): void {
+    row.brand = brandName;
   }
 
-  onCategorySelect(row: StockRow, categoryId: number): void {
-    const category = this.categories().find(c => c.id === categoryId);
-    if (category) {
-      row.category = category.name;
-      row.categoryId = categoryId;
+  onCategorySelect(row: StockRow, categoryName: string): void {
+    row.category = categoryName;
+  }
+
+  onProductNameChange(row: StockRow, newName: string): void {
+    // Find the row in allRows and update it directly
+    const allRows = this.allRows();
+    const targetRow = allRows.find(r => r.productId === row.productId);
+    if (targetRow) {
+      targetRow.product = newName;
     }
   }
 
