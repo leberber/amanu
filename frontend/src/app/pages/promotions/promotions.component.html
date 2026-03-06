@@ -52,21 +52,24 @@
 
                 <div class="bundle-card__products">
                   <!-- Trigger Products -->
-                  <div class="bundle-product bundle-product--trigger">
-                    <div class="bundle-product__image">
-                      @if (deal.trigger_product_images && deal.trigger_product_images[0]) {
-                        <img [src]="deal.trigger_product_images[0]" [alt]="deal.trigger_product_names ? deal.trigger_product_names[0] : ''" loading="lazy" (error)="onImageError($event)" />
-                      } @else {
-                        <div class="bundle-product__placeholder">
-                          <i class="pi pi-box"></i>
-                        </div>
+                  <div class="bundle-triggers">
+                    <span class="bundle-triggers__label">{{ 'promotions_page.buy' | translate }}</span>
+                    <div class="bundle-triggers__list">
+                      @if (deal.trigger_product_names) {
+                        @for (name of deal.trigger_product_names; track name; let i = $index) {
+                          <div class="bundle-trigger-item">
+                            <div class="bundle-trigger-item__image">
+                              @if (deal.trigger_product_images && deal.trigger_product_images[i]) {
+                                <img [src]="deal.trigger_product_images[i]" [alt]="name" loading="lazy" (error)="onImageError($event)" />
+                              } @else {
+                                <i class="pi pi-box"></i>
+                              }
+                            </div>
+                            <span class="bundle-trigger-item__name">{{ name }}</span>
+                          </div>
+                        }
                       }
                     </div>
-                    <span class="bundle-product__label">{{ 'promotions_page.buy' | translate }}</span>
-                    <span class="bundle-product__name">{{ deal.trigger_product_names ? deal.trigger_product_names[0] : '' }}</span>
-                    @if (deal.trigger_product_names && deal.trigger_product_names.length > 1) {
-                      <span class="bundle-product__more">+{{ deal.trigger_product_names.length - 1 }} {{ 'promotions_page.more' | translate }}</span>
-                    }
                   </div>
 
                   <!-- Arrow -->
