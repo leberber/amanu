@@ -20,6 +20,7 @@ class StockItemRequest(BaseModel):
     description: str = ""
     supplier: str = ""
     phone: str = ""
+    packageType: str = ""
     prixUnite: float = 0
     uniteParCarton: int = 1
     prixCarton: float = 0
@@ -38,6 +39,7 @@ class StockItemResponse(BaseModel):
     description: str
     supplier: str
     phone: str
+    packageType: str
     prixUnite: float
     uniteParCarton: int
     prixCarton: float
@@ -59,20 +61,21 @@ def db_to_response(item: StockItem) -> StockItemResponse:
     """Convert database model to response model"""
     return StockItemResponse(
         productId=item.product_id,
-        image=item.image,
-        category=item.category,
-        brand=item.brand,
-        product=item.product,
-        description=item.description,
-        supplier=item.supplier,
-        phone=item.phone,
-        prixUnite=item.prix_unite,
-        uniteParCarton=item.unite_par_carton,
-        prixCarton=item.prix_carton,
-        nmbCarton=item.nmb_carton,
-        carry=item.carry,
-        priority=item.priority,
-        hidden=item.hidden
+        image=item.image or "",
+        category=item.category or "",
+        brand=item.brand or "",
+        product=item.product or "",
+        description=item.description or "",
+        supplier=item.supplier or "",
+        phone=item.phone or "",
+        packageType=getattr(item, 'package_type', '') or "",
+        prixUnite=item.prix_unite or 0,
+        uniteParCarton=item.unite_par_carton or 1,
+        prixCarton=item.prix_carton or 0,
+        nmbCarton=item.nmb_carton or 0,
+        carry=item.carry if item.carry is not None else False,
+        priority=item.priority or 0,
+        hidden=item.hidden if item.hidden is not None else False
     )
 
 
@@ -129,6 +132,7 @@ async def save_stock_item(item: StockItemRequest, session: Session = Depends(get
             existing.description = item.description
             existing.supplier = item.supplier
             existing.phone = item.phone
+            existing.package_type = item.packageType
             existing.prix_unite = item.prixUnite
             existing.unite_par_carton = item.uniteParCarton
             existing.prix_carton = item.prixCarton
@@ -149,6 +153,7 @@ async def save_stock_item(item: StockItemRequest, session: Session = Depends(get
                 description=item.description,
                 supplier=item.supplier,
                 phone=item.phone,
+                package_type=item.packageType,
                 prix_unite=item.prixUnite,
                 unite_par_carton=item.uniteParCarton,
                 prix_carton=item.prixCarton,
@@ -195,6 +200,7 @@ async def save_stock(data: StockSaveRequest, session: Session = Depends(get_sess
                 description=item_data.description,
                 supplier=item_data.supplier,
                 phone=item_data.phone,
+                package_type=item_data.packageType,
                 prix_unite=item_data.prixUnite,
                 unite_par_carton=item_data.uniteParCarton,
                 prix_carton=item_data.prixCarton,

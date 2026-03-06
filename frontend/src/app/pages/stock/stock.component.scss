@@ -11,6 +11,13 @@
   padding: 0 1.5rem;
 }
 
+// Table header left section (search + filter indicator)
+.table-header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 // Table header search wrapper
 .table-header-search {
   display: contents;
@@ -109,22 +116,36 @@
   justify-content: center;
   width: 32px;
   height: 32px;
-  background: rgba(16, 185, 129, 0.1);
-  color: #10b981;
-  border: 1px solid rgba(16, 185, 129, 0.2);
+  background: transparent;
+  color: var(--text-color-secondary);
+  border: 1px solid transparent;
   border-radius: var(--radius-md);
   cursor: pointer;
   transition: all 0.15s ease;
 
   &:hover:not(:disabled) {
-    background: rgba(16, 185, 129, 0.2);
-    color: #059669;
-    border-color: rgba(16, 185, 129, 0.3);
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+    border-color: rgba(16, 185, 129, 0.2);
   }
 
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
+  }
+
+  // Dirty state - solid green like Ajouter button, very noticeable
+  &.dirty {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    color: white;
+    border-color: #16a34a;
+    box-shadow: 0 2px 8px rgba(34, 197, 94, 0.4);
+
+    &:hover:not(:disabled) {
+      filter: brightness(1.1);
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px rgba(34, 197, 94, 0.5);
+    }
   }
 
   i {
@@ -309,12 +330,12 @@
   }
 
   .col-product {
-    width: 200px;
+    width: 220px;
     white-space: normal;
   }
 
   .col-product-input {
-    width: 200px;
+    width: 220px;
     padding: 0.25rem 0.5rem !important;
   }
 
@@ -491,7 +512,9 @@
 // =============================================================================
 
 .category-pill,
-.brand-pill {
+.brand-pill,
+.priority-pill,
+.package-type-pill {
   display: inline-block;
   padding: 0.25rem 0.5rem;
   border-radius: var(--radius-sm);
@@ -513,6 +536,11 @@
   }
 }
 
+.priority-pill {
+  min-width: 1.5rem;
+  text-align: center;
+}
+
 // =============================================================================
 // PRODUCT NAME
 // =============================================================================
@@ -524,6 +552,19 @@
   white-space: normal;
   word-wrap: break-word;
   line-height: 1.4;
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-sm);
+  transition: all 0.15s ease;
+
+  &.clickable {
+    cursor: pointer;
+
+    &:hover {
+      background: rgba(59, 130, 246, 0.08);
+      color: var(--primary-color);
+    }
+  }
 }
 
 // =============================================================================
@@ -789,6 +830,7 @@
 
   &.total-main {
     font-size: 1.1rem;
+    margin-right: 120px;
 
     span {
       font-size: 1.25rem;

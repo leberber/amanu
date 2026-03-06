@@ -18,7 +18,7 @@ export interface ToastMessage {
 export class CustomToastService {
   private translateService = inject(TranslateService);
 
-  private readonly DEFAULT_LIFE = 4000;
+  private readonly DEFAULT_LIFE = 1000;
   private toastList = signal<ToastMessage[]>([]);
 
   toasts = this.toastList.asReadonly();
@@ -55,7 +55,7 @@ export class CustomToastService {
       severity: 'success',
       summary: this.translateService.instant('common.success'),
       detail: this.translateService.instant(detail, params),
-      life: this.DEFAULT_LIFE
+      life: 500
     });
   }
 
@@ -64,7 +64,7 @@ export class CustomToastService {
       severity: 'error',
       summary: this.translateService.instant('common.error'),
       detail: this.translateService.instant(detail, params),
-      life: this.DEFAULT_LIFE + 1000
+      life: this.DEFAULT_LIFE + 500
     });
   }
 
@@ -111,7 +111,7 @@ export class CustomToastService {
       severity: 'error',
       summary: this.translateService.instant('common.error'),
       detail: detail,
-      life: this.DEFAULT_LIFE + 1000
+      life: this.DEFAULT_LIFE + 500
     });
   }
 

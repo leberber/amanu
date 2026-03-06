@@ -13,6 +13,7 @@ class StockItemBase(SQLModel):
     description: str = Field(default="")
     supplier: str = Field(default="")
     phone: str = Field(default="")
+    package_type: Optional[str] = Field(default="")
     prix_unite: float = Field(default=0)
     unite_par_carton: int = Field(default=1)
     prix_carton: float = Field(default=0)
@@ -44,6 +45,7 @@ class StockItemUpdate(SQLModel):
     description: Optional[str] = None
     supplier: Optional[str] = None
     phone: Optional[str] = None
+    package_type: Optional[str] = None
     prix_unite: Optional[float] = None
     unite_par_carton: Optional[int] = None
     prix_carton: Optional[float] = None
