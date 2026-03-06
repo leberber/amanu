@@ -27,7 +27,7 @@ router = APIRouter()
 
 
 def promotion_to_read(promotion: Promotion) -> PromotionRead:
-    """Convert Promotion to PromotionRead with entity names from relationships"""
+    """Convert Promotion to PromotionRead with entity names and images from relationships"""
     return PromotionRead(
         id=promotion.id,
         name=promotion.name,
@@ -54,6 +54,9 @@ def promotion_to_read(promotion: Promotion) -> PromotionRead:
         category_name=promotion.category.name if promotion.category else None,
         brand_name=promotion.brand.name if promotion.brand else None,
         product_name=promotion.product.name if promotion.product else None,
+        category_image=promotion.category.image_url if promotion.category else None,
+        brand_image=promotion.brand.logo_url if promotion.brand else None,
+        product_image=promotion.product.image_url if promotion.product else None,
     )
 
 

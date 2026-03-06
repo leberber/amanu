@@ -122,7 +122,9 @@ class CrossSellPromotionRead(CrossSellPromotionBase):
     updated_at: Optional[datetime] = None
     # For display purposes
     target_product_name: Optional[str] = None
+    target_product_image: Optional[str] = None
     trigger_product_names: Optional[List[str]] = None
+    trigger_product_images: Optional[List[str]] = None
 
 
 # Request/Response models for cart calculation

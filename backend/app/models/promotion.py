@@ -194,6 +194,10 @@ class PromotionRead(PromotionBase):
     category_name: Optional[str] = None
     brand_name: Optional[str] = None
     product_name: Optional[str] = None
+    # Entity images for display
+    category_image: Optional[str] = None
+    brand_image: Optional[str] = None
+    product_image: Optional[str] = None
 
 
 class PromotionValidation(SQLModel):

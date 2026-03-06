@@ -21,27 +21,32 @@ from app.core.security import get_current_staff_user
 router = APIRouter()
 
 
-def get_product_names(session: Session, product_ids: List[int]) -> dict:
-    """Get product names by IDs"""
+def get_product_info(session: Session, product_ids: List[int]) -> dict:
+    """Get product names and images by IDs"""
     if not product_ids:
         return {}
     products = session.exec(
         select(Product).where(Product.id.in_(product_ids))
     ).all()
-    return {p.id: p.name for p in products}
+    return {p.id: {"name": p.name, "image": p.image_url} for p in products}
 
 
 def promotion_to_read(promotion: CrossSellPromotion, session: Session) -> CrossSellPromotionRead:
-    """Convert CrossSellPromotion to CrossSellPromotionRead with product names"""
-    # Get target product name
+    """Convert CrossSellPromotion to CrossSellPromotionRead with product names and images"""
+    # Get target product info
     target_product = session.get(Product, promotion.target_product_id)
     target_name = target_product.name if target_product else None
+    target_image = target_product.image_url if target_product else None
 
-    # Get trigger product names
+    # Get trigger product info
     trigger_names = []
+    trigger_images = []
     if promotion.trigger_product_ids:
-        product_names = get_product_names(session, promotion.trigger_product_ids)
-        trigger_names = [product_names.get(pid, f"Product {pid}") for pid in promotion.trigger_product_ids]
+        product_info = get_product_info(session, promotion.trigger_product_ids)
+        for pid in promotion.trigger_product_ids:
+            info = product_info.get(pid, {"name": f"Product {pid}", "image": None})
+            trigger_names.append(info["name"])
+            trigger_images.append(info["image"])
 
     return CrossSellPromotionRead(
         id=promotion.id,
@@ -57,7 +62,9 @@ def promotion_to_read(promotion: CrossSellPromotion, session: Session) -> CrossS
         created_at=promotion.created_at,
         updated_at=promotion.updated_at,
         target_product_name=target_name,
+        target_product_image=target_image,
         trigger_product_names=trigger_names,
+        trigger_product_images=trigger_images,
     )
 
 

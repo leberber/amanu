@@ -1842,10 +1842,13 @@
     },
     "bundle_deals": "Offres Groupées",
     "bundle_deal": "Offre Groupée",
+    "bundle_subtitle": "Achetez ensemble et économisez plus",
     "promo_codes": "Codes Promo",
+    "promo_subtitle": "Entrez à la caisse pour économiser",
     "buy": "Achetez",
     "get": "Obtenez",
-    "or": "ou"
+    "or": "ou",
+    "more": "de plus"
   },
   "about": {
     "title": "À Propos de Nous",

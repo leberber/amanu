@@ -1822,10 +1822,13 @@
     },
     "bundle_deals": "Bundle Deals",
     "bundle_deal": "Bundle Deal",
+    "bundle_subtitle": "Buy together and save more",
     "promo_codes": "Promo Codes",
+    "promo_subtitle": "Enter at checkout to save",
     "buy": "Buy",
     "get": "Get",
-    "or": "or"
+    "or": "or",
+    "more": "more"
   },
   "about": {
     "title": "About Us",

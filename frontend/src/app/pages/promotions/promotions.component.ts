@@ -89,4 +89,35 @@ export class PromotionsComponent implements OnInit {
   copyCode(code: string): void {
     navigator.clipboard.writeText(code);
   }
+
+  onImageError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    img.style.display = 'none';
+  }
+
+  getPromoImage(promo: Promotion): string | null {
+    switch (promo.scope) {
+      case 'category':
+        return promo.category_image || null;
+      case 'brand':
+        return promo.brand_image || null;
+      case 'product':
+        return promo.product_image || null;
+      default:
+        return null;
+    }
+  }
+
+  getPromoEntityName(promo: Promotion): string {
+    switch (promo.scope) {
+      case 'category':
+        return promo.category_name || '';
+      case 'brand':
+        return promo.brand_name || '';
+      case 'product':
+        return promo.product_name || '';
+      default:
+        return '';
+    }
+  }
 }
