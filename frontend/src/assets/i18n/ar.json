@@ -159,6 +159,7 @@
   },
   "products": {
     "title": "منتجاتنا",
+    "free_gift": "+1 مجاني",
     "filters": {
       "title": "المرشحات",
       "category_filter": "مرشح الفئة",

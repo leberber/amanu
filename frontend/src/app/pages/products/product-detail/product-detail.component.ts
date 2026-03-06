@@ -30,6 +30,7 @@ import { ImageFallbackDirective } from '../../../shared/directives/image-fallbac
 import { isOutOfStock as checkOutOfStock, isLowStock as checkLowStock } from '../../../shared/utils/stock.utils';
 import { formatDiscountLabel, getEffectivePrice, hasPromotion as checkHasPromotion } from '../../../shared/utils/discount.utils';
 import { CrossSellNotificationService } from '../../../core/services/cross-sell-notification.service';
+import { VolumeDiscountService } from '../../../services/volume-discount.service';
 
 @Component({
   selector: 'app-product-detail',
@@ -75,6 +76,7 @@ export class ProductDetailComponent implements OnInit {
   private flyToCartService = inject(FlyToCartService);
   private brandService = inject(BrandService);
   private crossSellNotification = inject(CrossSellNotificationService);
+  private volumeDiscountService = inject(VolumeDiscountService);
   private destroyRef = inject(DestroyRef);
   private packagingTypeService = inject(PackagingTypeService);
 
@@ -137,6 +139,14 @@ export class ProductDetailComponent implements OnInit {
     return p.price - this.discountedPrice();
   });
 
+  // Computed - volume discount (free units)
+  hasFreeUnitsPromotion = computed(() => {
+    const p = this.product();
+    if (!p) return false;
+    const discounts = this.volumeDiscountService.getCachedDiscounts();
+    return discounts.some(d => d.product_id === p.id && d.discount_type === 'free_units');
+  });
+
   // Computed - stock percentage
   stockPercentage = computed(() => {
     const p = this.product();
@@ -152,6 +162,11 @@ export class ProductDetailComponent implements OnInit {
   mobileSubtitle = computed(() => this.brand()?.name || '');
 
   ngOnInit(): void {
+    // Fetch volume discounts for gift badge display
+    this.volumeDiscountService.getActiveCached()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe();
+
     this.subscribeToLanguageChanges();
     this.subscribeToRouteChanges();
   }

@@ -119,6 +119,12 @@
                     {{ discountLabel() }}
                   </span>
                 }
+                @if (hasFreeUnitsPromotion()) {
+                  <span class="product-badge product-badge--gift">
+                    <i class="pi pi-gift"></i>
+                    {{ 'products.free_gift' | translate }}
+                  </span>
+                }
                 @if (product()?.is_organic) {
                   <span class="product-badge product-badge--organic">
                     <i class="pi pi-leaf"></i>

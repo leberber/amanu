@@ -13,6 +13,9 @@
       @if (hasPromotion()) {
         <p-tag severity="danger" [value]="discountLabel()" icon="pi pi-tag"></p-tag>
       }
+      @if (hasFreeUnitsPromotion()) {
+        <p-tag severity="success" [value]="'products.free_gift' | translate" icon="pi pi-gift"></p-tag>
+      }
       @if (isLowStock() && !isOutOfStock()) {
         <p-tag severity="warning" [value]="'products.stock.low_stock_title' | translate" icon="pi pi-exclamation-triangle"></p-tag>
       }

@@ -10,6 +10,7 @@ import { CurrencyService } from '../../../../core/services/currency.service';
 import { PackagingTypeService } from '../../../../core/services/packaging-type.service';
 import { FlyToCartService } from '../../../../core/services/fly-to-cart.service';
 import { CartService } from '../../../../services/cart.service';
+import { VolumeDiscountService } from '../../../../services/volume-discount.service';
 import { CurrencyPipe } from '../../../../shared/pipes/currency.pipe';
 import { UnitPipe } from '../../../../shared/pipes/unit.pipe';
 import { ImageFallbackDirective } from '../../../../shared/directives/image-fallback.directive';
@@ -67,6 +68,7 @@ export class ProductCardComponent {
   private flyToCartService = inject(FlyToCartService);
   private translateService = inject(TranslateService);
   private packagingTypeService = inject(PackagingTypeService);
+  private volumeDiscountService = inject(VolumeDiscountService);
 
   // Computed - cart
   isInCart = computed(() => {
@@ -108,6 +110,12 @@ export class ProductCardComponent {
   hasPromotion = computed(() => checkHasPromotion(this.product().promotion));
   discountLabel = computed(() => formatDiscountLabel(this.product().promotion, this.currencyService, this.product().pieces_per_box || 1));
   effectivePrice = computed(() => getEffectivePrice(this.product().price, this.product().promotion));
+
+  // Computed - volume discount (free units)
+  hasFreeUnitsPromotion = computed(() => {
+    const discounts = this.volumeDiscountService.getCachedDiscounts();
+    return discounts.some(d => d.product_id === this.product().id && d.discount_type === 'free_units');
+  });
 
   // Computed - packaging
   piecesPerBox = computed(() => this.product().pieces_per_box || 1);

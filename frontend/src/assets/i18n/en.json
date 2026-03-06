@@ -159,6 +159,7 @@
   },
   "products": {
     "title": "Our Products",
+    "free_gift": "+1 Free",
     "filters": {
       "title": "Filters",
       "category_filter": "Category Filter",
