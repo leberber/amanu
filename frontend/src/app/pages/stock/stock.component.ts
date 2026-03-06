@@ -6,7 +6,6 @@ import { catchError, of } from 'rxjs';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { SelectModule } from 'primeng/select';
-import { SelectButtonModule } from 'primeng/selectbutton';
 import { PopoverModule } from 'primeng/popover';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { DialogModule } from 'primeng/dialog';
@@ -77,7 +76,6 @@ interface StockRow {
     InputNumberModule,
     MultiSelectModule,
     SelectModule,
-    SelectButtonModule,
     PopoverModule,
     ToggleSwitchModule,
     DialogModule,
@@ -99,6 +97,9 @@ export class StockComponent implements OnInit, OnDestroy {
   tableInitialized = signal(false);
   isFullscreen = signal(true);
   searchQuery = signal('');
+
+  // Inline editing state: tracks which cell is being edited
+  editingCell = signal<{ rowId: number; field: 'brand' | 'category' } | null>(null);
 
   // Invoice state
   showInvoiceDialog = false;
@@ -130,11 +131,7 @@ export class StockComponent implements OnInit, OnDestroy {
     { label: '5', value: 5 }
   ];
 
-  // Page view options for segment control
-  viewOptions = [
-    { label: 'Actif', value: 'active' },
-    { label: 'Inactif', value: 'inactive' }
-  ];
+  // Page view state
   currentView = signal<'active' | 'inactive'>('active');
 
   // Column visibility options
@@ -287,6 +284,11 @@ export class StockComponent implements OnInit, OnDestroy {
   // Computed: hidden items count
   hiddenCount = computed(() => {
     return this.allRows().filter(r => r.hidden).length;
+  });
+
+  // Computed: active items count
+  activeCount = computed(() => {
+    return this.allRows().filter(r => !r.hidden).length;
   });
 
   // Computed: rows grouped by supplier
@@ -617,11 +619,25 @@ export class StockComponent implements OnInit, OnDestroy {
     return row.productId < 0;
   }
 
+  startEditing(rowId: number, field: 'brand' | 'category'): void {
+    this.editingCell.set({ rowId, field });
+  }
+
+  stopEditing(): void {
+    this.editingCell.set(null);
+  }
+
+  isEditing(rowId: number, field: 'brand' | 'category'): boolean {
+    const editing = this.editingCell();
+    return editing !== null && editing.rowId === rowId && editing.field === field;
+  }
+
   onBrandSelect(row: StockRow, brandName: string): void {
     row.brand = brandName;
     if (this.isNewRow(row)) {
       row.image = this.generateImageUrl(row);
     }
+    this.stopEditing();
   }
 
   onCategorySelect(row: StockRow, categoryName: string): void {
@@ -629,6 +645,7 @@ export class StockComponent implements OnInit, OnDestroy {
     if (this.isNewRow(row)) {
       row.image = this.generateImageUrl(row);
     }
+    this.stopEditing();
   }
 
   onProductNameChange(row: StockRow, newName: string): void {

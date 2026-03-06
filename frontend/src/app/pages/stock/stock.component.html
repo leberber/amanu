@@ -39,14 +39,22 @@
             />
           </div>
           <div class="table-actions">
-            <p-selectButton
-              [options]="viewOptions"
-              [ngModel]="currentView()"
-              (ngModelChange)="currentView.set($event)"
-              optionLabel="label"
-              optionValue="value"
-              styleClass="view-segment"
-            />
+            <div class="segment-control segment-control--glass">
+              <button
+                class="segment-control__item"
+                [class.active]="currentView() === 'active'"
+                (click)="currentView.set('active')">
+                <span>Actif</span>
+                <span class="count active">{{ activeCount() }}</span>
+              </button>
+              <button
+                class="segment-control__item"
+                [class.active]="currentView() === 'inactive'"
+                (click)="currentView.set('inactive')">
+                <span>Inactif</span>
+                <span class="count inactive">{{ hiddenCount() }}</span>
+              </button>
+            </div>
             <button class="btn-add" (click)="addRow()" pTooltip="Ajouter une ligne">
               <i class="pi pi-plus"></i>
               <span class="btn-text">Ajouter</span>
@@ -325,23 +333,25 @@
                     <!-- Brand -->
                     @if (isColumnVisible('brand')) {
                       <td>
-                        @if (isNewRow(row)) {
+                        @if (isNewRow(row) || isEditing(row.productId, 'brand')) {
                           <p-select
                             [options]="brandOptions()"
                             [(ngModel)]="row.brand"
                             (ngModelChange)="onBrandSelect(row, $event)"
+                            (onHide)="stopEditing()"
                             optionLabel="label"
                             optionValue="value"
                             placeholder="Marque"
                             [filter]="true"
                             [editable]="true"
+                            [autofocus]="true"
                             filterPlaceholder="Rechercher..."
                             [showClear]="false"
                             appendTo="body"
                             styleClass="stock-select"
                           />
                         } @else {
-                          <span class="brand-pill" [style.background]="getBrandColor(row.brand).bg" [style.color]="getBrandColor(row.brand).text">{{ row.brand }}</span>
+                          <span class="brand-pill clickable" [style.background]="getBrandColor(row.brand).bg" [style.color]="getBrandColor(row.brand).text" (click)="startEditing(row.productId, 'brand')">{{ row.brand }}</span>
                         }
                       </td>
                     }
@@ -349,23 +359,25 @@
                     <!-- Category -->
                     @if (isColumnVisible('category')) {
                       <td>
-                        @if (isNewRow(row)) {
+                        @if (isNewRow(row) || isEditing(row.productId, 'category')) {
                           <p-select
                             [options]="categoryOptions()"
                             [(ngModel)]="row.category"
                             (ngModelChange)="onCategorySelect(row, $event)"
+                            (onHide)="stopEditing()"
                             optionLabel="label"
                             optionValue="value"
                             placeholder="Catégorie"
                             [filter]="true"
                             [editable]="true"
+                            [autofocus]="true"
                             filterPlaceholder="Rechercher..."
                             [showClear]="false"
                             appendTo="body"
                             styleClass="stock-select"
                           />
                         } @else {
-                          <span class="category-pill" [style.background]="getCategoryColor(row.category).bg" [style.color]="getCategoryColor(row.category).text">{{ row.category }}</span>
+                          <span class="category-pill clickable" [style.background]="getCategoryColor(row.category).bg" [style.color]="getCategoryColor(row.category).text" (click)="startEditing(row.productId, 'category')">{{ row.category }}</span>
                         }
                       </td>
                     }
