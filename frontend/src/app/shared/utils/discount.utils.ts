@@ -12,10 +12,12 @@ export interface PromotionInfo {
 
 /**
  * Format discount label for display (e.g., "-10%" or "-100 DZD")
+ * For fixed amount discounts, multiplies by piecesPerBox to show per-carton savings
  */
 export function formatDiscountLabel(
   promotion: PromotionInfo | null | undefined,
-  currencyService: CurrencyService
+  currencyService: CurrencyService,
+  piecesPerBox: number = 1
 ): string {
   if (!promotion) return '';
 
@@ -23,7 +25,8 @@ export function formatDiscountLabel(
     return `-${promotion.discount_value}%`;
   }
 
-  return `-${currencyService.formatCurrency(promotion.discount_value)}`;
+  const totalDiscount = promotion.discount_value * piecesPerBox;
+  return `-${currencyService.formatCurrency(totalDiscount)}`;
 }
 
 /**

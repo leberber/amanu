@@ -106,7 +106,7 @@ export class ProductCardComponent {
 
   // Computed - promotion
   hasPromotion = computed(() => checkHasPromotion(this.product().promotion));
-  discountLabel = computed(() => formatDiscountLabel(this.product().promotion, this.currencyService));
+  discountLabel = computed(() => formatDiscountLabel(this.product().promotion, this.currencyService, this.product().pieces_per_box || 1));
   effectivePrice = computed(() => getEffectivePrice(this.product().price, this.product().promotion));
 
   // Computed - packaging

@@ -126,7 +126,7 @@ export class ProductDetailComponent implements OnInit {
 
   // Computed - promotion
   hasPromotion = computed(() => checkHasPromotion(this.product()?.promotion));
-  discountLabel = computed(() => formatDiscountLabel(this.product()?.promotion, this.currencyService));
+  discountLabel = computed(() => formatDiscountLabel(this.product()?.promotion, this.currencyService, this.product()?.pieces_per_box || 1));
   discountedPrice = computed(() => {
     const p = this.product();
     return getEffectivePrice(p?.price || 0, p?.promotion);
