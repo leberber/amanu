@@ -188,89 +188,27 @@ export class CartComponent implements OnInit {
     return this.packagingTypeService.getPackagingTypeForCount(item.packaging_type || 'carton', count);
   }
 
-  // Cross-sell discount helpers
+  // Discount helpers
   getCrossSellDiscount(productId: number) {
     return this.cartService.getCrossSellDiscountForProduct(productId);
   }
 
   hasDiscount(item: CartItem): boolean {
-    return !!this.getCrossSellDiscount(item.product_id) || this.hasPromoDiscount(item);
-  }
-
-  // Check if item is affected by the applied promotion
-  hasPromoDiscount(item: CartItem): boolean {
-    const promo = this.appliedPromotion();
-    if (!promo) return false;
-
-    const promotion = promo.promotion;
-    switch (promotion.scope) {
-      case 'global':
-        return true;
-      case 'category':
-        return item.category_id === promotion.category_id;
-      case 'brand':
-        return item.brand_id === promotion.brand_id;
-      case 'product':
-        return item.product_id === promotion.product_id;
-      default:
-        return false;
-    }
-  }
-
-  // Calculate promo discount for a specific item
-  getPromoDiscountForItem(item: CartItem): number {
-    const promo = this.appliedPromotion();
-    if (!promo || !this.hasPromoDiscount(item)) return 0;
-
-    const promotion = promo.promotion;
-    const itemTotal = item.product_price * item.quantity;
-
-    // Calculate the proportional discount for this item
-    let applicableTotal = 0;
-    const items = this.cartItems();
-
-    for (const cartItem of items) {
-      if (this.itemMatchesPromoScope(cartItem, promotion)) {
-        applicableTotal += cartItem.product_price * cartItem.quantity;
-      }
-    }
-
-    if (applicableTotal === 0) return 0;
-
-    // This item's share of the total discount
-    const itemShare = itemTotal / applicableTotal;
-    return promo.discount_amount * itemShare;
-  }
-
-  private itemMatchesPromoScope(item: CartItem, promotion: any): boolean {
-    switch (promotion.scope) {
-      case 'global':
-        return true;
-      case 'category':
-        return item.category_id === promotion.category_id;
-      case 'brand':
-        return item.brand_id === promotion.brand_id;
-      case 'product':
-        return item.product_id === promotion.product_id;
-      default:
-        return false;
-    }
+    return !!item.product_discounted_price || !!this.getCrossSellDiscount(item.product_id);
   }
 
   getDiscountedTotal(item: CartItem): number {
-    const originalTotal = item.product_price * item.quantity;
-    let totalDiscount = 0;
+    // Use discounted price if exists, otherwise original
+    const price = item.product_discounted_price ?? item.product_price;
+    let total = price * item.quantity;
 
-    // Cross-sell discount (applies to 1 unit only)
-    const crossSellDiscount = this.getCrossSellDiscount(item.product_id);
-    if (crossSellDiscount) {
-      totalDiscount += crossSellDiscount.total_discount;
+    // Cross-sell discount on top
+    const crossSell = this.getCrossSellDiscount(item.product_id);
+    if (crossSell) {
+      total -= crossSell.total_discount;
     }
 
-    // Promo discount
-    totalDiscount += this.getPromoDiscountForItem(item);
-
-    return originalTotal - totalDiscount;
+    return total;
   }
 
   // Lightbox
