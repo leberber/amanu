@@ -217,11 +217,13 @@ export class ProductDetailComponent implements OnInit {
     const p = this.product();
     if (!vd || !p) return 0;
 
-    const totalPrice = this.selectedQuantity() * p.price;
     const sets = Math.floor(this.selectedCartons() / vd.min_quantity);
 
     if (vd.discount_type === 'percentage') {
-      return totalPrice * (vd.discount_value / 100);
+      // Percentage discount per qualifying set (e.g., buy 3 cartons, get 10% off those cartons)
+      const qualifyingPieces = sets * vd.min_quantity * (p.pieces_per_box || 1);
+      const qualifyingPrice = qualifyingPieces * p.price;
+      return qualifyingPrice * (vd.discount_value / 100);
     } else {
       // fixed_amount - flat discount per qualifying set (e.g., 50 DZD off when buying 3 cartons)
       return sets * vd.discount_value;

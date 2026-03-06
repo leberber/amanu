@@ -216,8 +216,10 @@ export class VolumeDiscountService implements OnDestroy {
 
     switch (discount.discount_type) {
       case 'percentage': {
-        const totalPrice = item.quantity * item.unit_price;
-        const savedAmount = totalPrice * (discount.discount_value / 100);
+        // Percentage discount per qualifying set (e.g., buy 3 cartons, get 10% off those cartons)
+        const qualifyingPieces = sets * discount.min_quantity * item.pieces_per_box;
+        const qualifyingPrice = qualifyingPieces * item.unit_price;
+        const savedAmount = qualifyingPrice * (discount.discount_value / 100);
         return {
           discount,
           freeUnits: 0,
