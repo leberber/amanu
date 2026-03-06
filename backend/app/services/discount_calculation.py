@@ -92,10 +92,10 @@ def calculate_volume_discount(
     sets = floor(cartons_ordered / discount.min_quantity)
 
     if discount.discount_type == VolumeDiscountType.PERCENTAGE:
-        # Percentage discount applies to qualifying sets only
-        qualifying_pieces = sets * discount.min_quantity * pieces_per_box
-        qualifying_price = qualifying_pieces * unit_price
-        saved_amount = qualifying_price * (discount.discount_value / 100)
+        # Percentage discount applies to ALL cartons once minimum is met
+        total_pieces = cartons_ordered * pieces_per_box
+        total_price = total_pieces * unit_price
+        saved_amount = total_price * (discount.discount_value / 100)
         return VolumeDiscountResult(
             qualifies=True,
             sets=sets,

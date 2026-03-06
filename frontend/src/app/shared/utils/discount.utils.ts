@@ -88,9 +88,10 @@ export function calculateVolumeDiscount(
 
   switch (discount.discount_type) {
     case 'percentage': {
-      const qualifyingPieces = sets * discount.min_quantity * piecesPerBox;
-      const qualifyingPrice = qualifyingPieces * unitPrice;
-      const savedAmount = qualifyingPrice * (discount.discount_value / 100);
+      // Percentage discount applies to ALL cartons once minimum is met
+      const totalPieces = cartonsOrdered * piecesPerBox;
+      const totalPrice = totalPieces * unitPrice;
+      const savedAmount = totalPrice * (discount.discount_value / 100);
       return { qualifies: true, sets, savedAmount, freeCartons: 0, freeUnits: 0 };
     }
 
