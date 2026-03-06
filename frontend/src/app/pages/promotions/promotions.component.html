@@ -57,7 +57,7 @@
                     <div class="bundle-triggers__list">
                       @if (deal.trigger_product_names) {
                         @for (name of deal.trigger_product_names; track name; let i = $index) {
-                          <div class="bundle-trigger-item">
+                          <div class="bundle-trigger-item" (click)="openLightbox(deal.trigger_product_images && deal.trigger_product_images[i], name)">
                             <div class="bundle-trigger-item__image">
                               @if (deal.trigger_product_images && deal.trigger_product_images[i]) {
                                 <img [src]="deal.trigger_product_images[i]" [alt]="name" loading="lazy" (error)="onImageError($event)" />
@@ -72,13 +72,18 @@
                     </div>
                   </div>
 
-                  <!-- Arrow -->
-                  <div class="bundle-arrow">
-                    <i class="pi pi-arrow-right"></i>
+                  <!-- Arrow with Save amount (mobile) -->
+                  <div class="bundle-arrow-section">
+                    <div class="bundle-arrow">
+                      <i class="pi pi-arrow-right"></i>
+                    </div>
+                    <span class="bundle-save-label">
+                      {{ 'promotions_page.save' | translate }} {{ getCrossSellDiscountLabel(deal) }}
+                    </span>
                   </div>
 
                   <!-- Target Product -->
-                  <div class="bundle-product bundle-product--target">
+                  <div class="bundle-product bundle-product--target" (click)="openLightbox(deal.target_product_image, deal.target_product_name || '')">
                     <div class="bundle-product__image">
                       @if (deal.target_product_image) {
                         <img [src]="deal.target_product_image" [alt]="deal.target_product_name" loading="lazy" (error)="onImageError($event)" />
@@ -87,11 +92,7 @@
                           <i class="pi pi-box"></i>
                         </div>
                       }
-                      <div class="bundle-product__discount-tag">
-                        {{ getCrossSellDiscountLabel(deal) }}
-                      </div>
                     </div>
-                    <span class="bundle-product__label">{{ 'promotions_page.get' | translate }}</span>
                     <span class="bundle-product__name">{{ deal.target_product_name }}</span>
                   </div>
                 </div>
@@ -117,7 +118,7 @@
               <div class="promo-card" [class.promo-card--ending]="getDaysRemaining(promo.end_date) <= 3" [class.promo-card--with-image]="getPromoImage(promo)">
                 <!-- Entity Image (for non-global promos) -->
                 @if (getPromoImage(promo)) {
-                  <div class="promo-card__image">
+                  <div class="promo-card__image" (click)="openLightbox(getPromoImage(promo)!, getPromoEntityName(promo))">
                     <img [src]="getPromoImage(promo)" [alt]="getPromoEntityName(promo)" loading="lazy" (error)="onImageError($event)" />
                     <div class="promo-card__image-overlay">
                       <span class="promo-card__discount-tag">
@@ -211,3 +212,11 @@
     }
   </div>
 </app-page-layout>
+
+<!-- Image Lightbox -->
+@if (lightboxService.isOpen()) {
+  <app-image-lightbox
+    [imageUrl]="lightboxService.selectedImage()"
+    [title]="lightboxService.title()"
+    (close)="lightboxService.closeImage()" />
+}

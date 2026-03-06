@@ -9,12 +9,14 @@ import { PromotionService } from '../../services/promotion.service';
 import { CrossSellPromotionService } from '../../services/cross-sell-promotion.service';
 import { DateService } from '../../core/services/date.service';
 import { CurrencyService } from '../../core/services/currency.service';
+import { LightboxService } from '../../core/services/lightbox.service';
 import { Promotion } from '../../models/promotion.model';
 import { CrossSellPromotion } from '../../models/cross-sell-promotion.model';
 import { ROUTES } from '../../core/constants/routes.constants';
 import { SCOPE_LABELS, SCOPE_SEVERITIES, ScopeType } from '../../core/constants/promotion.constants';
 import { PageLayoutComponent } from '../../shared/components/page-layout/page-layout.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
+import { ImageLightboxComponent } from '../../shared/components/image-lightbox/image-lightbox.component';
 import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
 
 @Component({
@@ -27,7 +29,8 @@ import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
     TagModule,
     SkeletonModule,
     PageLayoutComponent,
-    EmptyStateComponent
+    EmptyStateComponent,
+    ImageLightboxComponent
   ],
   templateUrl: './promotions.component.html',
   styleUrl: './promotions.component.scss'
@@ -38,6 +41,7 @@ export class PromotionsComponent implements OnInit {
   private dateService = inject(DateService);
   private currencyService = inject(CurrencyService);
   private destroyRef = inject(DestroyRef);
+  readonly lightboxService = inject(LightboxService);
 
   readonly routes = ROUTES;
 
@@ -95,6 +99,12 @@ export class PromotionsComponent implements OnInit {
   onImageError(event: Event): void {
     const img = event.target as HTMLImageElement;
     img.style.display = 'none';
+  }
+
+  openLightbox(imageUrl: string | undefined, name: string): void {
+    if (imageUrl) {
+      this.lightboxService.openSimple(imageUrl, name);
+    }
   }
 
   getPromoImage(promo: Promotion): string | null {

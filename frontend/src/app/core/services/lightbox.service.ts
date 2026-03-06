@@ -76,6 +76,21 @@ export class LightboxService {
   }
 
   /**
+   * Open lightbox with just image and title (for simple preview)
+   */
+  openSimple(imageUrl: string, title: string): void {
+    if (!imageUrl) return;
+
+    this.selectedImage.set(imageUrl);
+    this.title.set(title);
+    this.details.set([]);
+    this.packagingType.set(null);
+    this.piecesPerBox.set(null);
+    this.unit.set(null);
+    this.cartonsCount.set(null);
+  }
+
+  /**
    * Close lightbox and reset all state
    */
   closeImage(): void {

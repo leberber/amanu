@@ -115,6 +115,7 @@
   text-align: center;
   flex: 1;
   max-width: 140px;
+  cursor: pointer;
 }
 
 .bundle-product__image {
@@ -222,6 +223,7 @@
   flex-direction: column;
   align-items: center;
   width: 70px;
+  cursor: pointer;
 
   &__image {
     width: 56px;
@@ -262,6 +264,19 @@
   }
 }
 
+.bundle-arrow-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+
+  @media (max-width: 400px) {
+    width: 100%;
+    padding: 12px 0;
+  }
+}
+
 .bundle-arrow {
   width: 36px;
   height: 36px;
@@ -279,6 +294,19 @@
 
   @media (max-width: 400px) {
     transform: rotate(90deg);
+  }
+}
+
+.bundle-save-label {
+  display: none;
+  font-size: 14px;
+  font-weight: 700;
+  color: #11998e;
+  text-align: center;
+  white-space: nowrap;
+
+  @media (max-width: 400px) {
+    display: block;
   }
 }
 
@@ -359,6 +387,7 @@
   position: relative;
   flex-shrink: 0;
   background: var(--surface-100);
+  cursor: pointer;
 
   img {
     width: 100%;
