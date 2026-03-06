@@ -323,17 +323,23 @@ def calculate_cross_sell_discounts(
 
     for target_id, info in best_discounts.items():
         promotion = info["promotion"]
+        target_quantity = cart_lookup[target_id]["quantity"]
+        discount_per_unit = info["discount"]
+
+        # Total discount applies to all units of the target product
+        total_discount = discount_per_unit * target_quantity
+
         discount_item = CrossSellDiscountItem(
             target_product_id=target_id,
             triggered_by_product_id=info["triggered_by"],
             promotion_id=promotion.id,
             promotion_name=promotion.name,
-            discount_per_unit=info["discount"],
-            units_discounted=1,  # Always 1 as per requirements
-            total_discount=info["discount"],
+            discount_per_unit=discount_per_unit,
+            units_discounted=target_quantity,
+            total_discount=total_discount,
         )
         discounts.append(discount_item)
-        total_savings += info["discount"]
+        total_savings += total_discount
 
     return CrossSellCalculationResponse(
         cross_sell_discounts=discounts,
