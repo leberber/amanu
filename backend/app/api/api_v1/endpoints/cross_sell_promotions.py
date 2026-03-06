@@ -17,6 +17,12 @@ from app.models.product import Product
 from app.models.promotion import DiscountType
 from app.models.user import User
 from app.core.security import get_current_staff_user
+from app.services.discount_validation import (
+    validate_date_range,
+    validate_percentage_discount,
+    validate_target_not_in_triggers,
+)
+from app.services.discount_calculation import calculate_cross_sell_discount
 
 router = APIRouter()
 
@@ -152,28 +158,13 @@ def create_cross_sell_promotion(
         if not trigger_product:
             raise HTTPException(status_code=400, detail=f"Trigger product {trigger_id} not found")
 
-    # Validate target is not in triggers
-    if promotion_in.target_product_id in promotion_in.trigger_product_ids:
-        raise HTTPException(
-            status_code=400,
-            detail="Target product cannot be in the trigger products list"
-        )
+    # Use shared validation utilities
+    validate_target_not_in_triggers(promotion_in.target_product_id, promotion_in.trigger_product_ids)
 
-    # Validate date range
     if promotion_in.start_date and promotion_in.end_date:
-        if promotion_in.end_date <= promotion_in.start_date:
-            raise HTTPException(
-                status_code=400,
-                detail="End date must be after start date"
-            )
+        validate_date_range(promotion_in.start_date, promotion_in.end_date)
 
-    # Validate percentage discount
-    if promotion_in.discount_type == DiscountType.PERCENTAGE:
-        if promotion_in.discount_value > 100:
-            raise HTTPException(
-                status_code=400,
-                detail="Percentage discount cannot exceed 100%"
-            )
+    validate_percentage_discount(promotion_in.discount_type, promotion_in.discount_value)
 
     promotion = CrossSellPromotion.model_validate(promotion_in)
     session.add(promotion)
@@ -211,32 +202,21 @@ def update_cross_sell_promotion(
             if not trigger_product:
                 raise HTTPException(status_code=400, detail=f"Trigger product {trigger_id} not found")
 
-    # Validate target is not in triggers
+    # Get effective values for validation
     target_id = update_data.get("target_product_id", promotion.target_product_id)
     trigger_ids = update_data.get("trigger_product_ids", promotion.trigger_product_ids)
-    if target_id in trigger_ids:
-        raise HTTPException(
-            status_code=400,
-            detail="Target product cannot be in the trigger products list"
-        )
-
-    # Validate date range
     start_date = update_data.get("start_date", promotion.start_date)
     end_date = update_data.get("end_date", promotion.end_date)
-    if start_date and end_date and end_date <= start_date:
-        raise HTTPException(
-            status_code=400,
-            detail="End date must be after start date"
-        )
-
-    # Validate percentage discount
     discount_type = update_data.get("discount_type", promotion.discount_type)
     discount_value = update_data.get("discount_value", promotion.discount_value)
-    if discount_type == DiscountType.PERCENTAGE and discount_value > 100:
-        raise HTTPException(
-            status_code=400,
-            detail="Percentage discount cannot exceed 100%"
-        )
+
+    # Use shared validation utilities
+    validate_target_not_in_triggers(target_id, trigger_ids)
+
+    if start_date and end_date:
+        validate_date_range(start_date, end_date)
+
+    validate_percentage_discount(discount_type, discount_value)
 
     # Update fields
     for field, value in update_data.items():
@@ -320,9 +300,13 @@ def calculate_cross_sell_discounts(
         if not triggered_by:
             continue
 
-        # Calculate discount
+        # Calculate discount using shared utility
         target_price = cart_lookup[promotion.target_product_id]["unit_price"]
-        discount_amount = promotion.calculate_discount(target_price)
+        discount_amount = calculate_cross_sell_discount(
+            target_price,
+            promotion.discount_type,
+            promotion.discount_value
+        )
 
         # Check if this is the best discount for this target
         target_id = promotion.target_product_id

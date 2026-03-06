@@ -14,9 +14,7 @@ import { AuthService } from '../../services/auth.service';
 import { LightboxService } from '../../core/services/lightbox.service';
 import { TranslationService } from '../../services/translation.service';
 import { CartTranslationService } from '../../core/services/cart-translation.service';
-import { PromotionService } from '../../services/promotion.service';
-import { CrossSellPromotionService } from '../../services/cross-sell-promotion.service';
-import { VolumeDiscountService } from '../../services/volume-discount.service';
+import { DiscountOrchestrationService } from '../../core/services/discount-orchestration.service';
 import { PageLayoutComponent } from '../../shared/components/page-layout/page-layout.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { ImageLightboxComponent } from '../../shared/components/image-lightbox/image-lightbox.component';
@@ -60,9 +58,7 @@ export class CartComponent implements OnInit {
   private translateService = inject(TranslateService);
   private packagingTypeService = inject(PackagingTypeService);
   private translationService = inject(TranslationService);
-  private promotionService = inject(PromotionService);
-  private crossSellService = inject(CrossSellPromotionService);
-  private volumeDiscountService = inject(VolumeDiscountService);
+  private discountOrchestration = inject(DiscountOrchestrationService);
   private cartTranslation = inject(CartTranslationService);
   private destroyRef = inject(DestroyRef);
 
@@ -192,63 +188,25 @@ export class CartComponent implements OnInit {
     return this.packagingTypeService.getPackagingTypeForCount(item.packaging_type || 'carton', count);
   }
 
-  // Discount helpers
+  // Discount helpers - delegated to orchestration service
   getCrossSellDiscount(productId: number) {
     return this.cartService.getCrossSellDiscountForProduct(productId);
   }
 
   hasDiscount(item: CartItem): boolean {
-    return !!item.product_discounted_price ||
-           !!this.getCrossSellDiscount(item.product_id) ||
-           !!this.getVolumeDiscount(item.product_id);
+    return this.discountOrchestration.itemHasDiscount(item);
   }
 
   getDiscountedTotal(item: CartItem): number {
-    // Use discounted price if exists, otherwise original
-    const price = item.product_discounted_price ?? item.product_price;
-    // Pay for ordered quantity only
-    let total = price * item.quantity;
-
-    // Cross-sell discount on top
-    const crossSell = this.getCrossSellDiscount(item.product_id);
-    if (crossSell) {
-      total -= crossSell.total_discount;
-    }
-
-    // Volume discount (percentage/fixed_amount) - subtract saved amount
-    const volumeDiscount = this.getVolumeDiscount(item.product_id);
-    if (volumeDiscount && volumeDiscount.discountType !== 'free_units') {
-      total -= volumeDiscount.savedAmount;
-    }
-
-    return total;
+    return this.discountOrchestration.getItemDiscountedTotal(item);
   }
 
-  // Get total cartons including free units from volume discount
   getTotalCartonsWithFree(item: CartItem): number {
-    const orderedCartons = this.getCartonCount(item);
-    const volumeDiscount = this.getVolumeDiscount(item.product_id);
-    if (volumeDiscount && volumeDiscount.discountType === 'free_units') {
-      return orderedCartons + this.getFreeCartons(volumeDiscount.freeUnits, item.pieces_per_box);
-    }
-    return orderedCartons;
+    return this.discountOrchestration.getItemTotalCartons(item);
   }
 
-  // Get original price (before any volume discount)
   getOriginalPriceWithFree(item: CartItem): number {
-    const volumeDiscount = this.getVolumeDiscount(item.product_id);
-    if (volumeDiscount) {
-      if (volumeDiscount.discountType === 'free_units') {
-        // For free units: show price as if paying for all cartons including free ones
-        const totalCartons = this.getTotalCartonsWithFree(item);
-        const pricePerCarton = item.product_price * (item.pieces_per_box || 1);
-        return totalCartons * pricePerCarton;
-      } else {
-        // For percentage/fixed_amount: show original price before discount
-        return item.product_price * item.quantity;
-      }
-    }
-    return item.product_price * item.quantity;
+    return this.discountOrchestration.getItemOriginalTotal(item);
   }
 
   // Lightbox
@@ -273,66 +231,11 @@ export class CartComponent implements OnInit {
 
   private handlePromotionChange(items: CartItem[]): void {
     if (items.length === 0) {
-      this.cartService.removePromotion();
-      this.cartService.clearCrossSellDiscounts();
-      this.cartService.clearVolumeDiscounts();
+      this.discountOrchestration.clearAllDiscounts();
     } else {
-      this.autoApplyBestPromotion();
-      this.calculateCrossSellDiscounts();
-      this.calculateVolumeDiscounts();
+      // Calculate all discounts using the orchestration service
+      this.discountOrchestration.calculateAllDiscounts().subscribe();
     }
-  }
-
-  private autoApplyBestPromotion(): void {
-    const items = this.cartService.getItemsForDiscount();
-    if (items.length === 0) {
-      this.cartService.removePromotion();
-      return;
-    }
-
-    this.promotionService.autoApplyPromotions({ cart_items: items }).subscribe({
-      next: (response) => {
-        if (response.best_promotion && response.best_discount_amount > 0) {
-          this.cartService.applyPromotion({
-            code: '',
-            promotion: response.best_promotion,
-            discount_amount: response.best_discount_amount
-          });
-        } else {
-          this.cartService.removePromotion();
-        }
-      },
-      error: () => this.cartService.removePromotion()
-    });
-  }
-
-  private calculateCrossSellDiscounts(): void {
-    const items = this.cartService.getItemsForCrossSellCalculation();
-    if (items.length === 0) {
-      this.cartService.clearCrossSellDiscounts();
-      return;
-    }
-
-    this.crossSellService.calculateDiscounts({ cart_items: items }).subscribe({
-      next: (response) => {
-        this.cartService.setCrossSellDiscounts(response.cross_sell_discounts);
-      },
-      error: () => {
-        this.cartService.clearCrossSellDiscounts();
-      }
-    });
-  }
-
-  private calculateVolumeDiscounts(): void {
-    const items = this.cartService.getItemsForVolumeDiscountCalculation();
-    if (items.length === 0) {
-      this.cartService.clearVolumeDiscounts();
-      return;
-    }
-
-    // Calculate discounts using cached data (initialized at app start)
-    const appliedDiscounts = this.volumeDiscountService.calculateDiscounts(items);
-    this.cartService.setVolumeDiscounts(appliedDiscounts);
   }
 
   // Volume discount helpers

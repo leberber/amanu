@@ -4,6 +4,7 @@ import { Observable, of, tap, interval, Subscription } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { VolumeDiscount, VolumeDiscountCreate, VolumeDiscountUpdate } from '../models/volume-discount.model';
 import { CACHE_TTL, isCacheExpired } from '../core/constants/cache.constants';
+import { calculateVolumeDiscount } from '../shared/utils/discount.utils';
 
 export interface AppliedVolumeDiscount {
   discount: VolumeDiscount;
@@ -204,58 +205,34 @@ export class VolumeDiscountService implements OnDestroy {
   }
 
   /**
-   * Calculate discount for a single cart item
+   * Calculate discount for a single cart item using shared utility
    */
   private calculateSingleDiscount(
     discount: VolumeDiscount,
     item: CartItemForDiscount,
     cartonsOrdered: number
   ): AppliedVolumeDiscount | null {
-    // Calculate how many qualifying sets (e.g., if min is 3 cartons and ordered 6, sets = 2)
-    const sets = Math.floor(cartonsOrdered / discount.min_quantity);
+    const result = calculateVolumeDiscount(
+      cartonsOrdered,
+      {
+        discount_type: discount.discount_type,
+        discount_value: discount.discount_value,
+        min_quantity: discount.min_quantity
+      },
+      item.unit_price,
+      item.pieces_per_box
+    );
 
-    switch (discount.discount_type) {
-      case 'percentage': {
-        // Percentage discount per qualifying set (e.g., buy 3 cartons, get 10% off those cartons)
-        const qualifyingPieces = sets * discount.min_quantity * item.pieces_per_box;
-        const qualifyingPrice = qualifyingPieces * item.unit_price;
-        const savedAmount = qualifyingPrice * (discount.discount_value / 100);
-        return {
-          discount,
-          freeUnits: 0,
-          savedAmount,
-          discountType: 'percentage'
-        };
-      }
-
-      case 'fixed_amount': {
-        // Fixed amount discount per qualifying set (e.g., buy 3 cartons, get 50 DZD off total)
-        const savedAmount = sets * discount.discount_value;
-        return {
-          discount,
-          freeUnits: 0,
-          savedAmount,
-          discountType: 'fixed_amount'
-        };
-      }
-
-      case 'free_units': {
-        // Free cartons per qualifying set (e.g., buy 5 cartons get 1 free)
-        // discount_value is in cartons, convert to pieces for savedAmount
-        const freeCartons = sets * discount.discount_value;
-        const freeUnits = freeCartons * item.pieces_per_box;
-        const savedAmount = freeUnits * item.unit_price;
-        return {
-          discount,
-          freeUnits,
-          savedAmount,
-          discountType: 'free_units'
-        };
-      }
-
-      default:
-        return null;
+    if (!result.qualifies) {
+      return null;
     }
+
+    return {
+      discount,
+      freeUnits: result.freeUnits,
+      savedAmount: result.savedAmount,
+      discountType: discount.discount_type
+    };
   }
 
   /**

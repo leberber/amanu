@@ -28,7 +28,7 @@ import { ToastMessageService } from '../../../core/services/toast-message.servic
 import { BrandService } from '../../../core/services/brand.service';
 import { ImageFallbackDirective } from '../../../shared/directives/image-fallback.directive';
 import { isOutOfStock as checkOutOfStock, isLowStock as checkLowStock } from '../../../shared/utils/stock.utils';
-import { formatDiscountLabel, getEffectivePrice, hasPromotion as checkHasPromotion } from '../../../shared/utils/discount.utils';
+import { formatDiscountLabel, getEffectivePrice, hasPromotion as checkHasPromotion, calculateVolumeDiscount } from '../../../shared/utils/discount.utils';
 import { CrossSellNotificationService } from '../../../core/services/cross-sell-notification.service';
 import { VolumeDiscountService } from '../../../services/volume-discount.service';
 
@@ -139,7 +139,7 @@ export class ProductDetailComponent implements OnInit {
     return p.price - this.discountedPrice();
   });
 
-  // Computed - volume discount (free units)
+  // Computed - volume discount config
   volumeDiscount = computed(() => {
     const p = this.product();
     if (!p) return null;
@@ -154,15 +154,12 @@ export class ProductDetailComponent implements OnInit {
 
   volumeDiscountMinCartons = computed(() => {
     const vd = this.volumeDiscount();
-    if (!vd) return 0;
-    // min_quantity is already in cartons
-    return vd.min_quantity;
+    return vd?.min_quantity ?? 0;
   });
 
   volumeDiscountFreeCartons = computed(() => {
     const vd = this.volumeDiscount();
     if (!vd || vd.discount_type !== 'free_units') return 0;
-    // discount_value for free_units is already in cartons
     return vd.discount_value;
   });
 
@@ -173,28 +170,32 @@ export class ProductDetailComponent implements OnInit {
     return Math.floor(this.selectedQuantity() / (p.pieces_per_box || 1));
   });
 
-  // Computed - check if current selection qualifies for free units
+  // Computed - volume discount calculation using shared utility
+  private volumeDiscountCalc = computed(() => {
+    const vd = this.volumeDiscount();
+    const p = this.product();
+    if (!vd || !p) {
+      return { qualifies: false, sets: 0, savedAmount: 0, freeCartons: 0, freeUnits: 0 };
+    }
+    return calculateVolumeDiscount(
+      this.selectedCartons(),
+      { discount_type: vd.discount_type, discount_value: vd.discount_value, min_quantity: vd.min_quantity },
+      p.price,
+      p.pieces_per_box || 1
+    );
+  });
+
+  // Computed - derived from shared calculation
   qualifiesForFreeUnits = computed(() => {
-    if (!this.hasFreeUnitsPromotion()) return false;
-    return this.selectedCartons() >= this.volumeDiscountMinCartons();
+    return this.hasFreeUnitsPromotion() && this.volumeDiscountCalc().qualifies;
   });
 
-  // Computed - how many free cartons earned
-  freeCartonsEarned = computed(() => {
-    if (!this.qualifiesForFreeUnits()) return 0;
-    const minCartons = this.volumeDiscountMinCartons();
-    const freePerSet = this.volumeDiscountFreeCartons();
-    // Calculate how many complete sets of min_quantity
-    const sets = Math.floor(this.selectedCartons() / minCartons);
-    return sets * freePerSet;
-  });
+  freeCartonsEarned = computed(() => this.volumeDiscountCalc().freeCartons);
 
-  // Computed - total cartons including free ones
   totalCartonsWithFree = computed(() => {
     return this.selectedCartons() + this.freeCartonsEarned();
   });
 
-  // Computed - original price as if paying for all cartons (including free)
   originalPriceWithFree = computed(() => {
     const p = this.product();
     if (!p) return 0;
@@ -203,34 +204,18 @@ export class ProductDetailComponent implements OnInit {
     return totalCartons * pricePerCarton;
   });
 
-  // Computed - check if qualifies for percentage/fixed_amount volume discount
   qualifiesForVolumeDiscount = computed(() => {
     const vd = this.volumeDiscount();
     if (!vd || vd.discount_type === 'free_units') return false;
-    return this.selectedCartons() >= vd.min_quantity;
+    return this.volumeDiscountCalc().qualifies;
   });
 
-  // Computed - volume discount savings (for percentage/fixed_amount)
   volumeDiscountSavings = computed(() => {
-    if (!this.qualifiesForVolumeDiscount()) return 0;
     const vd = this.volumeDiscount();
-    const p = this.product();
-    if (!vd || !p) return 0;
-
-    const sets = Math.floor(this.selectedCartons() / vd.min_quantity);
-
-    if (vd.discount_type === 'percentage') {
-      // Percentage discount per qualifying set (e.g., buy 3 cartons, get 10% off those cartons)
-      const qualifyingPieces = sets * vd.min_quantity * (p.pieces_per_box || 1);
-      const qualifyingPrice = qualifyingPieces * p.price;
-      return qualifyingPrice * (vd.discount_value / 100);
-    } else {
-      // fixed_amount - flat discount per qualifying set (e.g., 50 DZD off when buying 3 cartons)
-      return sets * vd.discount_value;
-    }
+    if (!vd || vd.discount_type === 'free_units') return 0;
+    return this.volumeDiscountCalc().savedAmount;
   });
 
-  // Computed - price after volume discount
   priceAfterVolumeDiscount = computed(() => {
     const p = this.product();
     if (!p) return 0;

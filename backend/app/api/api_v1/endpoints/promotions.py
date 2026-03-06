@@ -25,6 +25,15 @@ from app.models.brand import Brand
 from app.models.user import User
 from app.core.security import get_current_staff_user, get_current_active_user
 from app.core.translation import TranslationService
+from app.services.discount_validation import (
+    validate_date_range,
+    validate_percentage_discount,
+)
+from app.services.discount_calculation import (
+    calculate_scope_based_discount,
+    CartItem as CalcCartItem,
+    PromotionScope as CalcPromotionScope,
+)
 
 router = APIRouter()
 
@@ -213,19 +222,9 @@ def create_promotion(
     """
     Create a new promotion (staff only).
     """
-    # Validate dates
-    if promotion_in.end_date <= promotion_in.start_date:
-        raise HTTPException(
-            status_code=400,
-            detail="End date must be after start date"
-        )
-
-    # Validate discount value for percentage
-    if promotion_in.discount_type == DiscountType.PERCENTAGE and promotion_in.discount_value > 100:
-        raise HTTPException(
-            status_code=400,
-            detail="Percentage discount cannot exceed 100%"
-        )
+    # Use shared validation utilities
+    validate_date_range(promotion_in.start_date, promotion_in.end_date)
+    validate_percentage_discount(promotion_in.discount_type, promotion_in.discount_value)
 
     # Check if code already exists (if provided)
     if promotion_in.code:
@@ -285,23 +284,15 @@ def update_promotion(
     # Update fields
     update_data = promotion_in.model_dump(exclude_unset=True)
 
-    # Validate dates if both are being updated
+    # Get effective values for validation
     new_start = update_data.get("start_date", promotion.start_date)
     new_end = update_data.get("end_date", promotion.end_date)
-    if new_end <= new_start:
-        raise HTTPException(
-            status_code=400,
-            detail="End date must be after start date"
-        )
-
-    # Validate discount value for percentage
     new_type = update_data.get("discount_type", promotion.discount_type)
     new_value = update_data.get("discount_value", promotion.discount_value)
-    if new_type == DiscountType.PERCENTAGE and new_value > 100:
-        raise HTTPException(
-            status_code=400,
-            detail="Percentage discount cannot exceed 100%"
-        )
+
+    # Use shared validation utilities
+    validate_date_range(new_start, new_end)
+    validate_percentage_discount(new_type, new_value)
 
     # Check if code already exists (if being changed)
     if "code" in update_data and update_data["code"]:
