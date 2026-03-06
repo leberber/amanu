@@ -39,6 +39,7 @@
     "phone": "الهاتف",
     "address": "العنوان",
     "menu": "القائمة",
+    "offers": "العروض",
     "back": "العودة",
     "continue": "المتابعة",
     "confirm": "تأكيد",
@@ -1827,6 +1828,8 @@
     "ending_soon": "ينتهي قريباً",
     "active": "نشط",
     "auto_applied": "يُطبق تلقائياً",
+    "per_piece": "لكل قطعة",
+    "per_unit": "لكل {{unit}}",
     "days_left": " يوم متبقي",
     "scope": {
       "global": "جميع المنتجات",

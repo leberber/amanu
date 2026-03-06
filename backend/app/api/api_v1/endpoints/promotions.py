@@ -61,6 +61,7 @@ def promotion_to_read(promotion: Promotion) -> PromotionRead:
         brand_image=promotion.brand.logo_url if promotion.brand else None,
         product_image=promotion.product.image_url if promotion.product else None,
         product_pieces_per_box=promotion.product.pieces_per_box if promotion.product else None,
+        product_packaging_type=promotion.product.packaging_type if promotion.product else None,
     )
 
 

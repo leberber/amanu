@@ -39,6 +39,7 @@
     "phone": "Téléphone",
     "address": "Adresse",
     "menu": "Menu",
+    "offers": "Offres",
     "back": "Retour",
     "continue": "Continuer",
     "confirm": "Confirmer",
@@ -1839,6 +1840,8 @@
     "ending_soon": "Se termine bientôt",
     "active": "Actif",
     "auto_applied": "Appliqué automatiquement",
+    "per_piece": "par pièce",
+    "per_unit": "par {{unit}}",
     "days_left": "j restants",
     "scope": {
       "global": "Tous les produits",

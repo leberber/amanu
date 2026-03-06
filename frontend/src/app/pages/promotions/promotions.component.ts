@@ -1,6 +1,6 @@
 import { Component, inject, signal, OnInit, DestroyRef } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { forkJoin } from 'rxjs';
 import { TagModule } from 'primeng/tag';
@@ -10,6 +10,7 @@ import { CrossSellPromotionService } from '../../services/cross-sell-promotion.s
 import { DateService } from '../../core/services/date.service';
 import { CurrencyService } from '../../core/services/currency.service';
 import { LightboxService } from '../../core/services/lightbox.service';
+import { PackagingTypeService } from '../../core/services/packaging-type.service';
 import { Promotion } from '../../models/promotion.model';
 import { CrossSellPromotion } from '../../models/cross-sell-promotion.model';
 import { ROUTES } from '../../core/constants/routes.constants';
@@ -40,6 +41,8 @@ export class PromotionsComponent implements OnInit {
   private crossSellService = inject(CrossSellPromotionService);
   private dateService = inject(DateService);
   private currencyService = inject(CurrencyService);
+  private packagingTypeService = inject(PackagingTypeService);
+  private translateService = inject(TranslateService);
   private destroyRef = inject(DestroyRef);
   readonly lightboxService = inject(LightboxService);
 
@@ -153,5 +156,21 @@ export class PromotionsComponent implements OnInit {
       return `${prefix}${this.currencyService.formatCurrency(totalDiscount)}`;
     }
     return `${prefix}${this.currencyService.formatCurrency(promo.discount_value)}`;
+  }
+
+  getPromoPerUnitLabel(promo: Promotion): string {
+    // For percentage discounts, no per-unit label needed
+    if (promo.discount_type === 'percentage') {
+      return '';
+    }
+
+    // For product-scoped promotions, show "per carton/box/etc"
+    if (promo.scope === 'product' && promo.product_packaging_type) {
+      const packagingType = this.packagingTypeService.getPackagingTypeTranslated(promo.product_packaging_type);
+      return this.translateService.instant('promotions_page.per_unit', { unit: packagingType });
+    }
+
+    // For global/category/brand promotions, show "per piece"
+    return this.translateService.instant('promotions_page.per_piece');
   }
 }

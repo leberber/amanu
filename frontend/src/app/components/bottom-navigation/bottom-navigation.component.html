@@ -8,6 +8,14 @@
     <span>{{ 'common.products' | translate }}</span>
   </a>
 
+  <!-- Offers (for customers) -->
+  @if (!isAdminOrStaff()) {
+    <a #navItem class="bottom-nav__item" [routerLink]="routes.PROMOTIONS" routerLinkActive="active">
+      <i class="pi pi-percentage"></i>
+      <span>{{ 'common.offers' | translate }}</span>
+    </a>
+  }
+
   <!-- Cart (only for customers) -->
   @if (!isAdminOrStaff()) {
     <a #navItem class="bottom-nav__item" [routerLink]="routes.CART" routerLinkActive="active">

@@ -467,9 +467,15 @@
   gap: 8px;
 }
 
+.promo-card__discount {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
 .promo-card__badge {
   display: inline-flex;
-  align-self: flex-start;
   background: linear-gradient(135deg, #667eea, #764ba2);
   color: #fff;
   padding: 6px 14px;
@@ -482,6 +488,15 @@
     background: linear-gradient(135deg, #f5576c, #f093fb);
     box-shadow: 0 2px 8px rgba(245, 87, 108, 0.3);
   }
+}
+
+.promo-card__per-unit {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--surface-100);
+  padding: 4px 10px;
+  border-radius: 12px;
 }
 
 .promo-card__entity {

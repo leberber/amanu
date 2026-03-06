@@ -21,6 +21,7 @@ export interface Promotion {
   brand_image?: string;
   product_image?: string;
   product_pieces_per_box?: number;
+  product_packaging_type?: string;
   min_order_amount: number;
   max_discount?: number;
   usage_limit?: number;

@@ -39,6 +39,7 @@
     "phone": "Phone",
     "address": "Address",
     "menu": "Menu",
+    "offers": "Offers",
     "back": "Back",
     "continue": "Continue",
     "confirm": "Confirm",
@@ -1819,6 +1820,8 @@
     "ending_soon": "Ending soon",
     "active": "Active",
     "auto_applied": "Auto-applied at checkout",
+    "per_piece": "per piece",
+    "per_unit": "per {{unit}}",
     "days_left": "d left",
     "scope": {
       "global": "All products",

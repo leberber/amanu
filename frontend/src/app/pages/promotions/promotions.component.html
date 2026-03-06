@@ -141,9 +141,14 @@
 
                   <!-- Right: Content -->
                   <div class="promo-card__right">
-                    <!-- Badge -->
-                    <div class="promo-card__badge">
-                      {{ getPromoDiscountLabel(promo, true) }}
+                    <!-- Badge with per-unit label -->
+                    <div class="promo-card__discount">
+                      <div class="promo-card__badge">
+                        {{ getPromoDiscountLabel(promo, true) }}
+                      </div>
+                      @if (getPromoPerUnitLabel(promo)) {
+                        <span class="promo-card__per-unit">{{ getPromoPerUnitLabel(promo) }}</span>
+                      }
                     </div>
 
                     <!-- Entity Name (brand/product/category name) -->
