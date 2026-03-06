@@ -6,6 +6,7 @@ import { catchError, of } from 'rxjs';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { SelectModule } from 'primeng/select';
+import { SelectButtonModule } from 'primeng/selectbutton';
 import { PopoverModule } from 'primeng/popover';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { DialogModule } from 'primeng/dialog';
@@ -76,6 +77,7 @@ interface StockRow {
     InputNumberModule,
     MultiSelectModule,
     SelectModule,
+    SelectButtonModule,
     PopoverModule,
     ToggleSwitchModule,
     DialogModule,
@@ -93,10 +95,10 @@ export class StockComponent implements OnInit, OnDestroy {
   // State
   loading = signal(true);
   saving = signal(false);
+  savingRow = signal<number | null>(null);
   tableInitialized = signal(false);
   isFullscreen = signal(true);
   searchQuery = signal('');
-  showHidden = signal(false);
 
   // Invoice state
   showInvoiceDialog = false;
@@ -127,6 +129,13 @@ export class StockComponent implements OnInit, OnDestroy {
     { label: '4', value: 4 },
     { label: '5', value: 5 }
   ];
+
+  // Page view options for segment control
+  viewOptions = [
+    { label: 'Actif', value: 'active' },
+    { label: 'Inactif', value: 'inactive' }
+  ];
+  currentView = signal<'active' | 'inactive'>('active');
 
   // Column visibility options
   columnOptions = [
@@ -165,9 +174,11 @@ export class StockComponent implements OnInit, OnDestroy {
     const brandFilter = this.brandFilter();
     const prioFilter = this.priorityFilter();
 
-    // Filter hidden items unless showHidden is true
-    if (!this.showHidden()) {
+    // Filter based on current view (active or inactive)
+    if (this.currentView() === 'active') {
       rows = rows.filter(r => !r.hidden);
+    } else {
+      rows = rows.filter(r => r.hidden);
     }
 
     if (catFilter && catFilter.length > 0) {
@@ -515,18 +526,91 @@ export class StockComponent implements OnInit, OnDestroy {
     this.allRows.update(rows => [newRow, ...rows]);
   }
 
+  saveRow(row: StockRow): void {
+    if (!row.product || !row.brand || !row.category) {
+      this.toast.showWarn('Veuillez remplir le produit, la marque et la catégorie');
+      return;
+    }
+
+    this.savingRow.set(row.productId);
+
+    const item: StockItem = {
+      productId: row.productId,
+      image: row.image,
+      category: row.category,
+      brand: row.brand,
+      product: row.product,
+      description: row.description,
+      supplier: row.supplier,
+      phone: row.phone,
+      prixUnite: row.prixUnite,
+      uniteParCarton: row.uniteParCarton,
+      prixCarton: row.prixCarton,
+      nmbCarton: row.nmbCarton,
+      carry: row.carry,
+      priority: row.priority,
+      hidden: row.hidden
+    };
+
+    this.api.post<{ success: boolean; productId: number }>('/stock/item', item).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
+      next: (response) => {
+        if (response.success) {
+          // Update the row with the new productId from the database
+          row.productId = response.productId;
+          this.allRows.update(rows => [...rows]);
+          this.toast.showSuccess('Produit enregistré');
+        }
+        this.savingRow.set(null);
+      },
+      error: (err) => {
+        let errorMessage = 'Échec de l\'enregistrement';
+        if (err.error?.detail) {
+          errorMessage += ': ' + err.error.detail;
+        }
+        this.toast.showError(errorMessage);
+        this.savingRow.set(null);
+      }
+    });
+  }
+
+  deleteRow(row: StockRow): void {
+    if (this.isNewRow(row)) {
+      // Just remove from UI for new rows
+      this.allRows.update(rows => rows.filter(r => r.productId !== row.productId));
+      this.toast.showSuccess('Produit supprimé');
+    } else {
+      // Delete from database for existing rows
+      this.api.delete<{ success: boolean }>(`/stock/item/${row.productId}`).pipe(
+        takeUntilDestroyed(this.destroyRef)
+      ).subscribe({
+        next: () => {
+          this.allRows.update(rows => rows.filter(r => r.productId !== row.productId));
+          this.toast.showSuccess('Produit supprimé');
+        },
+        error: (err) => {
+          console.error('Delete error:', err);
+          let errorMessage = 'Échec de la suppression';
+          if (err.error?.detail) {
+            errorMessage += ': ' + err.error.detail;
+          } else if (err.status) {
+            errorMessage += ` (HTTP ${err.status})`;
+          }
+          this.toast.showError(errorMessage);
+        }
+      });
+    }
+  }
+
   hideRow(row: StockRow): void {
     row.hidden = true;
     this.allRows.update(rows => [...rows]);
   }
 
-  unhideRow(row: StockRow): void {
+  activateRow(row: StockRow): void {
     row.hidden = false;
     this.allRows.update(rows => [...rows]);
-  }
-
-  toggleShowHidden(): void {
-    this.showHidden.update(v => !v);
   }
 
   isNewRow(row: StockRow): boolean {
@@ -535,10 +619,16 @@ export class StockComponent implements OnInit, OnDestroy {
 
   onBrandSelect(row: StockRow, brandName: string): void {
     row.brand = brandName;
+    if (this.isNewRow(row)) {
+      row.image = this.generateImageUrl(row);
+    }
   }
 
   onCategorySelect(row: StockRow, categoryName: string): void {
     row.category = categoryName;
+    if (this.isNewRow(row)) {
+      row.image = this.generateImageUrl(row);
+    }
   }
 
   onProductNameChange(row: StockRow, newName: string): void {
@@ -547,7 +637,32 @@ export class StockComponent implements OnInit, OnDestroy {
     const targetRow = allRows.find(r => r.productId === row.productId);
     if (targetRow) {
       targetRow.product = newName;
+      // Auto-generate image URL for new rows
+      if (this.isNewRow(row)) {
+        targetRow.image = this.generateImageUrl(targetRow);
+      }
     }
+  }
+
+  generateImageUrl(row: StockRow): string {
+    if (!row.brand || !row.category || !row.product) {
+      return '';
+    }
+
+    const slugify = (str: string): string => {
+      return str
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '') // Remove accents
+        .replace(/[^a-z0-9]+/g, '-') // Replace non-alphanumeric with hyphens
+        .replace(/^-+|-+$/g, ''); // Trim hyphens
+    };
+
+    const brand = slugify(row.brand);
+    const category = slugify(row.category);
+    const product = slugify(row.product);
+
+    return `https://agroclik.s3.eu-west-3.amazonaws.com/products/${brand}/${brand}_${category}_${product}.webp`;
   }
 
   downloadStock(): void {

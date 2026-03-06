@@ -32,13 +32,21 @@
       <!-- Stock Table -->
       <div class="table-container animate-item" [class.fullscreen]="isFullscreen()" style="--item-delay: 100ms;">
         <div class="table-header">
-          <div class="table-header-search">
+          <div class="table-header-left">
             <app-table-search
               [query]="searchQuery()"
               (queryChange)="searchQuery.set($event)"
             />
           </div>
           <div class="table-actions">
+            <p-selectButton
+              [options]="viewOptions"
+              [ngModel]="currentView()"
+              (ngModelChange)="currentView.set($event)"
+              optionLabel="label"
+              optionValue="value"
+              styleClass="view-segment"
+            />
             <button class="btn-add" (click)="addRow()" pTooltip="Ajouter une ligne">
               <i class="pi pi-plus"></i>
               <span class="btn-text">Ajouter</span>
@@ -60,17 +68,6 @@
             </button>
             <button class="btn-download" (click)="downloadStock()" pTooltip="Télécharger CSV">
               <i class="pi pi-download"></i>
-            </button>
-            <button
-              class="btn-toggle-hidden"
-              [class.active]="showHidden()"
-              (click)="toggleShowHidden()"
-              [pTooltip]="showHidden() ? 'Masquer les produits cachés' : 'Afficher les produits cachés'"
-            >
-              <i [class]="showHidden() ? 'pi pi-eye' : 'pi pi-eye-slash'"></i>
-              @if (hiddenCount() > 0) {
-                <span class="badge">{{ hiddenCount() }}</span>
-              }
             </button>
             @if (hasActiveFilters()) {
               <button class="clear-filters-btn" (click)="clearFilters()" pTooltip="Effacer les Filtres">
@@ -478,17 +475,31 @@
                       </td>
                     }
 
-                    <!-- Hide/Unhide Action -->
+                    <!-- Actions -->
                     <td class="col-actions">
-                      @if (row.hidden) {
-                        <button class="btn-unhide" (click)="unhideRow(row)" pTooltip="Afficher">
-                          <i class="pi pi-eye"></i>
+                      <div class="action-buttons">
+                        @if (isNewRow(row)) {
+                          <button class="btn-save-row" (click)="saveRow(row)" [disabled]="savingRow() === row.productId" pTooltip="Enregistrer">
+                            @if (savingRow() === row.productId) {
+                              <i class="pi pi-spin pi-spinner"></i>
+                            } @else {
+                              <i class="pi pi-check"></i>
+                            }
+                          </button>
+                        }
+                        @if (currentView() === 'active') {
+                          <button class="btn-hide" (click)="hideRow(row)" pTooltip="Désactiver">
+                            <i class="pi pi-eye-slash"></i>
+                          </button>
+                        } @else {
+                          <button class="btn-activate" (click)="activateRow(row)" pTooltip="Activer">
+                            <i class="pi pi-eye"></i>
+                          </button>
+                        }
+                        <button class="btn-delete" (click)="deleteRow(row)" pTooltip="Supprimer">
+                          <i class="pi pi-trash"></i>
                         </button>
-                      } @else {
-                        <button class="btn-hide" (click)="hideRow(row)" pTooltip="Masquer">
-                          <i class="pi pi-eye-slash"></i>
-                        </button>
-                      }
+                      </div>
                     </td>
                   </tr>
                 }

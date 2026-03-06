@@ -84,6 +84,89 @@ async def get_stock(session: Session = Depends(get_session)):
     return StockData(items=[db_to_response(item) for item in items])
 
 
+@router.delete("/item/{product_id}", response_model=dict)
+async def delete_stock_item(product_id: int, session: Session = Depends(get_session)):
+    """Delete a single stock item"""
+    try:
+        item = session.exec(
+            select(StockItem).where(StockItem.product_id == product_id)
+        ).first()
+
+        if not item:
+            raise HTTPException(status_code=404, detail="Item not found")
+
+        session.delete(item)
+        session.commit()
+        return {"success": True}
+    except HTTPException:
+        raise
+    except Exception as e:
+        session.rollback()
+        raise HTTPException(status_code=422, detail=str(e))
+
+
+@router.post("/item", response_model=dict)
+async def save_stock_item(item: StockItemRequest, session: Session = Depends(get_session)):
+    """Save a single stock item"""
+    try:
+        # Generate new ID from sequence if product_id is negative (new row)
+        product_id = item.productId
+        if product_id < 0:
+            result = session.execute(text("SELECT nextval('stock_product_id_seq')"))
+            product_id = result.scalar()
+
+        # Check if item already exists
+        existing = session.exec(
+            select(StockItem).where(StockItem.product_id == product_id)
+        ).first()
+
+        if existing:
+            # Update existing item
+            existing.image = item.image
+            existing.category = item.category
+            existing.brand = item.brand
+            existing.product = item.product
+            existing.description = item.description
+            existing.supplier = item.supplier
+            existing.phone = item.phone
+            existing.prix_unite = item.prixUnite
+            existing.unite_par_carton = item.uniteParCarton
+            existing.prix_carton = item.prixCarton
+            existing.nmb_carton = item.nmbCarton
+            existing.carry = item.carry
+            existing.priority = item.priority
+            existing.hidden = item.hidden
+            existing.updated_at = datetime.now(timezone.utc)
+            session.add(existing)
+        else:
+            # Create new item
+            db_item = StockItem(
+                product_id=product_id,
+                image=item.image,
+                category=item.category,
+                brand=item.brand,
+                product=item.product,
+                description=item.description,
+                supplier=item.supplier,
+                phone=item.phone,
+                prix_unite=item.prixUnite,
+                unite_par_carton=item.uniteParCarton,
+                prix_carton=item.prixCarton,
+                nmb_carton=item.nmbCarton,
+                carry=item.carry,
+                priority=item.priority,
+                hidden=item.hidden,
+                created_at=datetime.now(timezone.utc)
+            )
+            session.add(db_item)
+
+        session.commit()
+        return {"success": True, "productId": product_id}
+    except Exception as e:
+        session.rollback()
+        raise HTTPException(status_code=422, detail=str(e))
+
+
 @router.post("", response_model=dict)
 async def save_stock(data: StockSaveRequest, session: Session = Depends(get_session)):
     """Save stock items - replaces all existing items (stock_items is source of truth)"""
