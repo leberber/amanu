@@ -16,6 +16,7 @@ export interface CrossSellPromotion {
   // Display fields
   target_product_name?: string;
   target_product_image?: string;
+  target_product_pieces_per_box?: number;
   trigger_product_names?: string[];
   trigger_product_images?: string[];
 }

@@ -8,6 +8,7 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { PromotionService } from '../../services/promotion.service';
 import { CrossSellPromotionService } from '../../services/cross-sell-promotion.service';
 import { DateService } from '../../core/services/date.service';
+import { CurrencyService } from '../../core/services/currency.service';
 import { Promotion } from '../../models/promotion.model';
 import { CrossSellPromotion } from '../../models/cross-sell-promotion.model';
 import { ROUTES } from '../../core/constants/routes.constants';
@@ -35,6 +36,7 @@ export class PromotionsComponent implements OnInit {
   private promotionService = inject(PromotionService);
   private crossSellService = inject(CrossSellPromotionService);
   private dateService = inject(DateService);
+  private currencyService = inject(CurrencyService);
   private destroyRef = inject(DestroyRef);
 
   readonly routes = ROUTES;
@@ -119,5 +121,14 @@ export class PromotionsComponent implements OnInit {
       default:
         return '';
     }
+  }
+
+  getCrossSellDiscountLabel(deal: CrossSellPromotion): string {
+    if (deal.discount_type === 'percentage') {
+      return `-${deal.discount_value}%`;
+    }
+    const piecesPerBox = deal.target_product_pieces_per_box || 1;
+    const totalDiscount = deal.discount_value * piecesPerBox;
+    return `-${this.currencyService.formatCurrency(totalDiscount)}`;
   }
 }

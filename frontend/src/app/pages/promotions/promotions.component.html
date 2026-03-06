@@ -47,11 +47,7 @@
             @for (deal of crossSellPromotions(); track deal.id) {
               <div class="bundle-card">
                 <div class="bundle-card__badge">
-                  @if (deal.discount_type === 'percentage') {
-                    -{{ deal.discount_value }}%
-                  } @else {
-                    -{{ deal.discount_value | appCurrency }}
-                  }
+                  {{ getCrossSellDiscountLabel(deal) }}
                 </div>
 
                 <div class="bundle-card__products">
@@ -89,11 +85,7 @@
                         </div>
                       }
                       <div class="bundle-product__discount-tag">
-                        @if (deal.discount_type === 'percentage') {
-                          -{{ deal.discount_value }}%
-                        } @else {
-                          -{{ deal.discount_value | appCurrency }}
-                        }
+                        {{ getCrossSellDiscountLabel(deal) }}
                       </div>
                     </div>
                     <span class="bundle-product__label">{{ 'promotions_page.get' | translate }}</span>

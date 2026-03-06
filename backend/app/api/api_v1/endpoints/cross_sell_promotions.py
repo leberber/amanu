@@ -37,6 +37,7 @@ def promotion_to_read(promotion: CrossSellPromotion, session: Session) -> CrossS
     target_product = session.get(Product, promotion.target_product_id)
     target_name = target_product.name if target_product else None
     target_image = target_product.image_url if target_product else None
+    target_pieces_per_box = target_product.pieces_per_box if target_product else None
 
     # Get trigger product info
     trigger_names = []
@@ -63,6 +64,7 @@ def promotion_to_read(promotion: CrossSellPromotion, session: Session) -> CrossS
         updated_at=promotion.updated_at,
         target_product_name=target_name,
         target_product_image=target_image,
+        target_product_pieces_per_box=target_pieces_per_box,
         trigger_product_names=trigger_names,
         trigger_product_images=trigger_images,
     )

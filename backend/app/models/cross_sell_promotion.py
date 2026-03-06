@@ -123,6 +123,7 @@ class CrossSellPromotionRead(CrossSellPromotionBase):
     # For display purposes
     target_product_name: Optional[str] = None
     target_product_image: Optional[str] = None
+    target_product_pieces_per_box: Optional[int] = None
     trigger_product_names: Optional[List[str]] = None
     trigger_product_images: Optional[List[str]] = None
 
