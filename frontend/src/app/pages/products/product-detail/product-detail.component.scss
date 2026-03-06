@@ -430,6 +430,25 @@
       color: #c2410c;
     }
   }
+
+  &--free-units {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(5, 150, 105, 0.04) 100%);
+    border: 2px solid #10b981;
+
+    .quantity-display__value {
+      color: #059669;
+    }
+  }
+
+  &__free {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #059669;
+    background: rgba(16, 185, 129, 0.15);
+    padding: 0.125rem 0.5rem;
+    border-radius: 1rem;
+    margin-top: 0.25rem;
+  }
 }
 
 // Total price section - big centered price with small pieces info

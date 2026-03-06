@@ -305,9 +305,16 @@
                 </button>
                 <div class="quantity-display"
                   [class.quantity-display--in-cart]="quantityMatchesCart()"
-                  [class.quantity-display--update]="isInCart() && !quantityMatchesCart()">
-                  <span class="quantity-display__value">{{ selectedQuantity() / (product()?.pieces_per_box || 1) }}</span>
-                  <span class="quantity-display__label">{{ getPackagingTypeForCount(selectedQuantity() / (product()?.pieces_per_box || 1)) }}</span>
+                  [class.quantity-display--update]="isInCart() && !quantityMatchesCart()"
+                  [class.quantity-display--free-units]="qualifiesForFreeUnits()">
+                  @if (qualifiesForFreeUnits()) {
+                    <span class="quantity-display__value">{{ totalCartonsWithFree() }}</span>
+                    <span class="quantity-display__label">{{ getPackagingTypeForCount(totalCartonsWithFree()) }}</span>
+                    <span class="quantity-display__free">+{{ freeCartonsEarned() }} {{ 'cart.free' | translate }}</span>
+                  } @else {
+                    <span class="quantity-display__value">{{ selectedCartons() }}</span>
+                    <span class="quantity-display__label">{{ getPackagingTypeForCount(selectedCartons()) }}</span>
+                  }
                 </div>
                 <button
                   pButton
@@ -320,15 +327,22 @@
               </div>
               <!-- Total price display -->
               <div class="quantity-total-section">
-                @if (hasPromotion()) {
+                @if (qualifiesForFreeUnits()) {
+                  <div class="quantity-total-prices">
+                    <span class="quantity-total-original">{{ originalPriceWithFree() | appCurrency }}</span>
+                    <span class="quantity-total-price quantity-total-price--promo">{{ selectedQuantity() * (product()?.price || 0) | appCurrency }}</span>
+                  </div>
+                  <span class="quantity-pieces-info">{{ totalCartonsWithFree() }} {{ getPackagingTypeForCount(totalCartonsWithFree()) }} ({{ freeCartonsEarned() }} {{ 'cart.free' | translate }})</span>
+                } @else if (hasPromotion()) {
                   <div class="quantity-total-prices">
                     <span class="quantity-total-original">{{ selectedQuantity() * (product()?.price || 0) | appCurrency }}</span>
                     <span class="quantity-total-price quantity-total-price--promo">{{ selectedQuantity() * discountedPrice() | appCurrency }}</span>
                   </div>
+                  <span class="quantity-pieces-info">{{ selectedQuantity() }} {{ unitDisplay() }}</span>
                 } @else {
                   <span class="quantity-total-price">{{ selectedQuantity() * (product()?.price || 0) | appCurrency }}</span>
+                  <span class="quantity-pieces-info">{{ selectedQuantity() }} {{ unitDisplay() }}</span>
                 }
-                <span class="quantity-pieces-info">{{ selectedQuantity() }} {{ unitDisplay() }}</span>
               </div>
             </div>
 

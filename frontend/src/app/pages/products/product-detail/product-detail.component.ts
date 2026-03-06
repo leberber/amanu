@@ -166,6 +166,43 @@ export class ProductDetailComponent implements OnInit {
     return vd.discount_value;
   });
 
+  // Computed - selected quantity in cartons
+  selectedCartons = computed(() => {
+    const p = this.product();
+    if (!p) return 0;
+    return Math.floor(this.selectedQuantity() / (p.pieces_per_box || 1));
+  });
+
+  // Computed - check if current selection qualifies for free units
+  qualifiesForFreeUnits = computed(() => {
+    if (!this.hasFreeUnitsPromotion()) return false;
+    return this.selectedCartons() >= this.volumeDiscountMinCartons();
+  });
+
+  // Computed - how many free cartons earned
+  freeCartonsEarned = computed(() => {
+    if (!this.qualifiesForFreeUnits()) return 0;
+    const minCartons = this.volumeDiscountMinCartons();
+    const freePerSet = this.volumeDiscountFreeCartons();
+    // Calculate how many complete sets of min_quantity
+    const sets = Math.floor(this.selectedCartons() / minCartons);
+    return sets * freePerSet;
+  });
+
+  // Computed - total cartons including free ones
+  totalCartonsWithFree = computed(() => {
+    return this.selectedCartons() + this.freeCartonsEarned();
+  });
+
+  // Computed - original price as if paying for all cartons (including free)
+  originalPriceWithFree = computed(() => {
+    const p = this.product();
+    if (!p) return 0;
+    const totalCartons = this.totalCartonsWithFree();
+    const pricePerCarton = p.price * (p.pieces_per_box || 1);
+    return totalCartons * pricePerCarton;
+  });
+
   // Computed - stock percentage
   stockPercentage = computed(() => {
     const p = this.product();
