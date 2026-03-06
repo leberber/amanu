@@ -16,6 +16,7 @@ import { StorageService } from './core/services/storage.service';
 import { ROUTES } from './core/constants/routes.constants';
 import { ANIMATION } from './core/constants/ui.constants';
 import { BreakpointService } from './core/services/breakpoint.service';
+import { VolumeDiscountService } from './services/volume-discount.service';
 
 // Base styles for route animations
 const baseStyles = [
@@ -96,6 +97,7 @@ export class AppComponent implements OnInit {
   private readonly sidebarService = inject(SidebarService);
   private readonly navigationService = inject(NavigationService);
   private readonly breakpoint = inject(BreakpointService);
+  private readonly volumeDiscountService = inject(VolumeDiscountService);
 
   showNavigation = signal(false);
   hideBottomNav = signal(false);
@@ -124,6 +126,9 @@ export class AppComponent implements OnInit {
   ];
 
   ngOnInit() {
+    // Initialize volume discounts (fetch + auto-refresh every 20min)
+    this.volumeDiscountService.init();
+
     // Splash screen animation sequence (only if not showing onboarding)
     if (this.hasSeenOnboarding) {
       this.initSplashScreen();

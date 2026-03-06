@@ -10,7 +10,6 @@ import { TranslateModule } from '@ngx-translate/core';
 
 import { CartService } from '../../../services/cart.service';
 import { ProductService } from '../../../services/product.service';
-import { VolumeDiscountService } from '../../../services/volume-discount.service';
 import { TranslationService } from '../../../services/translation.service';
 import { SearchService } from '../../../services/search.service';
 import { CurrencyService } from '../../../core/services/currency.service';
@@ -71,7 +70,6 @@ export class ProductListComponent implements OnInit {
   private elementRef = inject(ElementRef);
   private overlayService = inject(OverlayService);
   private crossSellNotification = inject(CrossSellNotificationService);
-  private volumeDiscountService = inject(VolumeDiscountService);
   private destroyRef = inject(DestroyRef);
 
   products = signal<Product[]>([]);
@@ -102,11 +100,6 @@ export class ProductListComponent implements OnInit {
   readonly skeletonListItems = Array.from({ length: UI.SKELETON_LIST_COUNT }, (_, i) => i + 1);
 
   ngOnInit(): void {
-    // Fetch volume discounts for gift badge display
-    this.volumeDiscountService.getActiveCached()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe();
-
     this.translationService.currentLanguage$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {

@@ -140,11 +140,29 @@ export class ProductDetailComponent implements OnInit {
   });
 
   // Computed - volume discount (free units)
-  hasFreeUnitsPromotion = computed(() => {
+  volumeDiscount = computed(() => {
     const p = this.product();
-    if (!p) return false;
+    if (!p) return null;
     const discounts = this.volumeDiscountService.getCachedDiscounts();
-    return discounts.some(d => d.product_id === p.id && d.discount_type === 'free_units');
+    return discounts.find(d => d.product_id === p.id) || null;
+  });
+
+  hasFreeUnitsPromotion = computed(() => {
+    const vd = this.volumeDiscount();
+    return vd?.discount_type === 'free_units';
+  });
+
+  volumeDiscountMinCartons = computed(() => {
+    const vd = this.volumeDiscount();
+    const p = this.product();
+    if (!vd || !p) return 0;
+    return Math.ceil(vd.min_quantity / (p.pieces_per_box || 1));
+  });
+
+  volumeDiscountFreeCartons = computed(() => {
+    const vd = this.volumeDiscount();
+    if (!vd || vd.discount_type !== 'free_units') return 0;
+    return vd.discount_value;
   });
 
   // Computed - stock percentage
@@ -162,11 +180,6 @@ export class ProductDetailComponent implements OnInit {
   mobileSubtitle = computed(() => this.brand()?.name || '');
 
   ngOnInit(): void {
-    // Fetch volume discounts for gift badge display
-    this.volumeDiscountService.getActiveCached()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe();
-
     this.subscribeToLanguageChanges();
     this.subscribeToRouteChanges();
   }

@@ -190,6 +190,47 @@
             <div class="price-unit mt-2">{{ 'common.per' | translate }} {{ unitDisplay() }}</div>
           </div>
 
+          <!-- Volume Discount Promotion Card -->
+          @if (volumeDiscount()) {
+            <div class="card card--no-hover promo-card" @slideUp>
+              <div class="promo-card__header">
+                <div class="promo-card__icon">
+                  <i class="pi pi-gift"></i>
+                </div>
+                <span class="promo-card__title">{{ 'products.volume_promo.title' | translate }}</span>
+              </div>
+              <div class="promo-card__content">
+                @if (hasFreeUnitsPromotion()) {
+                  <span class="promo-card__text">
+                    {{ 'products.volume_promo.buy' | translate }}
+                    <strong>{{ volumeDiscountMinCartons() }}</strong>
+                    {{ getPackagingTypeForCount(volumeDiscountMinCartons()) }},
+                    {{ 'products.volume_promo.get' | translate }}
+                    <strong>{{ volumeDiscountFreeCartons() }}</strong>
+                    {{ 'products.volume_promo.free' | translate }}
+                  </span>
+                } @else if (volumeDiscount()?.discount_type === 'percentage') {
+                  <span class="promo-card__text">
+                    {{ 'products.volume_promo.buy' | translate }}
+                    <strong>{{ volumeDiscountMinCartons() }}</strong>
+                    {{ getPackagingTypeForCount(volumeDiscountMinCartons()) }},
+                    {{ 'products.volume_promo.get' | translate }}
+                    <strong>{{ volumeDiscount()?.discount_value }}%</strong>
+                    {{ 'products.volume_promo.off' | translate }}
+                  </span>
+                } @else {
+                  <span class="promo-card__text">
+                    {{ 'products.volume_promo.buy' | translate }}
+                    <strong>{{ volumeDiscountMinCartons() }}</strong>
+                    {{ getPackagingTypeForCount(volumeDiscountMinCartons()) }},
+                    {{ 'products.volume_promo.save' | translate }}
+                    <strong>{{ volumeDiscount()?.discount_value | appCurrency }}</strong>
+                  </span>
+                }
+              </div>
+            </div>
+          }
+
           <!-- Stock Info Card -->
           <div class="card card--no-hover stock-card" @slideUp>
             <div class="flex align-items-center justify-content-between mb-3">

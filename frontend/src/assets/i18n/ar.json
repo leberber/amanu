@@ -160,6 +160,14 @@
   "products": {
     "title": "منتجاتنا",
     "free_gift": "+1 مجاني",
+    "volume_promo": {
+      "title": "عرض خاص",
+      "buy": "اشترِ",
+      "get": "واحصل على",
+      "free": "مجاناً",
+      "off": "خصم",
+      "save": "وفّر"
+    },
     "filters": {
       "title": "المرشحات",
       "category_filter": "مرشح الفئة",

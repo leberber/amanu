@@ -160,6 +160,14 @@
   "products": {
     "title": "Nos Produits",
     "free_gift": "+1 Gratuit",
+    "volume_promo": {
+      "title": "Offre Spéciale",
+      "buy": "Achetez",
+      "get": "obtenez",
+      "free": "gratuit",
+      "off": "de réduction",
+      "save": "économisez"
+    },
     "filters": {
       "title": "Filtres",
       "category_filter": "Filtre par Catégorie",

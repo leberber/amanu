@@ -318,19 +318,9 @@ export class CartComponent implements OnInit {
       return;
     }
 
-    // Fetch cached discounts (with TTL check) and calculate
-    this.volumeDiscountService.getActiveCached()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => {
-          // Calculate discounts using cached data
-          const appliedDiscounts = this.volumeDiscountService.calculateDiscounts(items);
-          this.cartService.setVolumeDiscounts(appliedDiscounts);
-        },
-        error: () => {
-          this.cartService.clearVolumeDiscounts();
-        }
-      });
+    // Calculate discounts using cached data (initialized at app start)
+    const appliedDiscounts = this.volumeDiscountService.calculateDiscounts(items);
+    this.cartService.setVolumeDiscounts(appliedDiscounts);
   }
 
   // Volume discount helpers

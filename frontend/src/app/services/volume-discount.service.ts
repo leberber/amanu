@@ -1,6 +1,6 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { Injectable, inject, signal, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of, tap } from 'rxjs';
+import { Observable, of, tap, interval, Subscription } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { VolumeDiscount, VolumeDiscountCreate, VolumeDiscountUpdate } from '../models/volume-discount.model';
 import { CACHE_TTL, isCacheExpired } from '../core/constants/cache.constants';
@@ -21,13 +21,48 @@ export interface CartItemForDiscount {
 @Injectable({
   providedIn: 'root'
 })
-export class VolumeDiscountService {
+export class VolumeDiscountService implements OnDestroy {
   private http = inject(HttpClient);
   private baseUrl = `${environment.apiUrl}/volume-discounts`;
 
   // Cache for active volume discounts
   private cachedDiscounts = signal<VolumeDiscount[]>([]);
   private lastFetchTime: number | null = null;
+  private refreshSubscription: Subscription | null = null;
+  private initialized = false;
+
+  /**
+   * Initialize the service - fetch data and start auto-refresh
+   * Call this once from AppComponent
+   */
+  init(): void {
+    if (this.initialized) return;
+    this.initialized = true;
+
+    // Initial fetch
+    this.fetchAndCache();
+
+    // Set up auto-refresh every 20 minutes
+    this.refreshSubscription = interval(CACHE_TTL.VOLUME_DISCOUNTS).subscribe(() => {
+      this.fetchAndCache();
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.refreshSubscription?.unsubscribe();
+  }
+
+  private fetchAndCache(): void {
+    this.getActive().subscribe({
+      next: (discounts) => {
+        this.cachedDiscounts.set(discounts);
+        this.lastFetchTime = Date.now();
+      },
+      error: () => {
+        // Silent fail - keep existing cache
+      }
+    });
+  }
 
   /**
    * Get all volume discounts (staff only)
