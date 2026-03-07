@@ -189,11 +189,11 @@
                             (ngModelChange)="onBrandChange($event)"
                             optionLabel="label"
                             optionValue="value"
-                            placeholder="Marque"
+                            placeholder="M"
                             [showClear]="false"
                             [filter]="true"
                             filterPlaceholder="Rechercher..."
-                            selectedItemsLabel="Marque"
+                            selectedItemsLabel="M"
                             [maxSelectedLabels]="0"
                           />
                         </div>
@@ -219,11 +219,11 @@
                             (ngModelChange)="onCategoryChange($event)"
                             optionLabel="label"
                             optionValue="value"
-                            placeholder="Catégorie"
+                            placeholder="C"
                             [showClear]="false"
                             [filter]="true"
                             filterPlaceholder="Rechercher..."
-                            selectedItemsLabel="Catégorie"
+                            selectedItemsLabel="C"
                             [maxSelectedLabels]="0"
                           />
                         </div>
@@ -306,19 +306,19 @@
                     <!-- Sync Status -->
                     @if (isColumnVisible('synced')) {
                       <td class="col-sync text-center">
-                        @if (row.synced) {
-                          <span class="sync-badge synced" pTooltip="Synchronisé avec les produits">
-                            <i class="pi pi-check-circle"></i>
-                          </span>
-                        } @else {
-                          <button class="btn-sync" (click)="syncRow(row)" [disabled]="syncingRow() === row.id || isNewRow(row)" pTooltip="Synchroniser vers produits">
-                            @if (syncingRow() === row.id) {
-                              <i class="pi pi-spin pi-spinner"></i>
-                            } @else {
-                              <i class="pi pi-sync"></i>
-                            }
-                          </button>
-                        }
+                        <button
+                          class="btn-sync"
+                          [class.synced]="row.synced"
+                          (click)="syncRow(row)"
+                          [disabled]="syncingRow() === row.id || isNewRow(row)"
+                          [pTooltip]="row.synced ? 'Re-synchroniser' : 'Synchroniser vers produits'"
+                        >
+                          @if (syncingRow() === row.id) {
+                            <i class="pi pi-spin pi-spinner"></i>
+                          } @else {
+                            <i class="pi pi-sync"></i>
+                          }
+                        </button>
                       </td>
                     }
 

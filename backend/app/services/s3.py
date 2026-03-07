@@ -138,3 +138,103 @@ class S3Service:
             return True, "Deleted successfully"
         except ClientError as e:
             return False, str(e)
+
+    @classmethod
+    def object_exists(cls, key: str) -> bool:
+        """Check if an S3 object exists"""
+        try:
+            client = cls.get_client()
+            client.head_object(Bucket=settings.AWS_S3_BUCKET, Key=key)
+            return True
+        except ClientError:
+            return False
+
+    @classmethod
+    def rename_image(
+        cls,
+        old_brand: str,
+        old_name: str,
+        new_brand: str,
+        new_name: str
+    ) -> Tuple[bool, Optional[str], str]:
+        """
+        Rename/move an image in S3 by copying to new key and deleting old.
+
+        Args:
+            old_brand: Original brand name
+            old_name: Original product name
+            new_brand: New brand name
+            new_name: New product name
+
+        Returns:
+            Tuple of (success, new_url_or_none, message)
+        """
+        old_key = cls.generate_product_key(old_brand, old_name)
+        new_key = cls.generate_product_key(new_brand, new_name)
+
+        # Same key, no rename needed
+        if old_key == new_key:
+            return True, cls.get_public_url(new_key), "No rename needed"
+
+        # Check if old object exists
+        if not cls.object_exists(old_key):
+            return False, None, f"Source image not found: {old_key}"
+
+        try:
+            client = cls.get_client()
+
+            # Copy to new location
+            client.copy_object(
+                Bucket=settings.AWS_S3_BUCKET,
+                CopySource={'Bucket': settings.AWS_S3_BUCKET, 'Key': old_key},
+                Key=new_key,
+                ContentType='image/webp',
+                CacheControl='max-age=31536000',
+                MetadataDirective='REPLACE'
+            )
+
+            # Delete old object
+            client.delete_object(
+                Bucket=settings.AWS_S3_BUCKET,
+                Key=old_key
+            )
+
+            new_url = cls.get_public_url(new_key)
+            return True, new_url, "Image renamed successfully"
+
+        except ClientError as e:
+            return False, None, f"S3 rename failed: {str(e)}"
+
+    @classmethod
+    def extract_brand_name_from_url(cls, url: str) -> Tuple[Optional[str], Optional[str]]:
+        """
+        Extract brand and product name from S3 URL.
+
+        Expected format: .../products/{brand}/{name}.webp
+
+        Returns:
+            Tuple of (brand, name) or (None, None) if parsing fails
+        """
+        if not url:
+            return None, None
+
+        try:
+            # Remove query params
+            url = url.split('?')[0]
+
+            # Extract path after /products/
+            if '/products/' not in url:
+                return None, None
+
+            path = url.split('/products/')[-1]
+            parts = path.split('/')
+
+            if len(parts) != 2:
+                return None, None
+
+            brand = parts[0]
+            name = parts[1].replace('.webp', '')
+
+            return brand, name
+        except Exception:
+            return None, None

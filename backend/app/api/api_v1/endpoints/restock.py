@@ -272,7 +272,7 @@ async def delete_restock_item(item_id: int, session: Session = Depends(get_sessi
 
 @router.post("/sync/{item_id}", response_model=SyncResult)
 async def sync_restock_item(item_id: int, session: Session = Depends(get_session)):
-    """Sync a single restock item to products table"""
+    """Sync a single restock item to products table (smart update - only changed fields)"""
     try:
         restock_item = session.get(RestockItem, item_id)
         if not restock_item:
@@ -284,37 +284,122 @@ async def sync_restock_item(item_id: int, session: Session = Depends(get_session
         if not restock_item.category_id:
             return SyncResult(success=False, restockId=item_id, message="Category is required")
 
-        # Check if already synced
+        # Get brand name for S3 operations
+        new_brand_name = ""
+        if restock_item.brand_id:
+            brand = session.get(Brand, restock_item.brand_id)
+            if brand:
+                new_brand_name = brand.name
+
+        # Check if already synced - update existing product
         if restock_item.product_id:
-            # Update existing product
             product = session.get(Product, restock_item.product_id)
             if product:
-                product.name = restock_item.name
-                product.price = restock_item.prix_unite_vente
-                product.unit = map_product_unit(restock_item.product_unit or "box")
-                product.category_id = restock_item.category_id
-                product.brand_id = restock_item.brand_id
-                product.description = restock_item.description
-                product.image_url = restock_item.image
-                product.packaging_type = map_package_type(restock_item.package_type or "Carton")
-                product.pieces_per_box = restock_item.unite_par_carton
-                product.stock_quantity = restock_item.nmb_carton
-                product.is_active = not restock_item.hidden
-                product.updated_at = datetime.now(timezone.utc)
-                session.add(product)
-                session.commit()
+                changes = []
+                image_renamed = False
+
+                # Get old brand name for comparison
+                old_brand_name = ""
+                if product.brand_id:
+                    old_brand = session.get(Brand, product.brand_id)
+                    if old_brand:
+                        old_brand_name = old_brand.name
+
+                # Check if brand or name changed (need to rename S3)
+                brand_changed = product.brand_id != restock_item.brand_id
+                name_changed = product.name != restock_item.name
+
+                if (brand_changed or name_changed) and restock_item.image:
+                    # Try to rename S3 image
+                    old_name = product.name or ""
+                    new_name = restock_item.name or ""
+
+                    if old_brand_name and old_name and new_brand_name and new_name:
+                        success, new_url, msg = S3Service.rename_image(
+                            old_brand=old_brand_name,
+                            old_name=old_name,
+                            new_brand=new_brand_name,
+                            new_name=new_name
+                        )
+                        if success and new_url:
+                            restock_item.image = new_url
+                            image_renamed = True
+                            changes.append("image_renamed")
+
+                # Update only changed fields
+                if product.name != restock_item.name:
+                    product.name = restock_item.name
+                    changes.append("name")
+
+                if product.price != restock_item.prix_unite_vente:
+                    product.price = restock_item.prix_unite_vente
+                    changes.append("price")
+
+                new_unit = map_product_unit(restock_item.product_unit or "piece")
+                if product.unit != new_unit:
+                    product.unit = new_unit
+                    changes.append("unit")
+
+                if product.category_id != restock_item.category_id:
+                    product.category_id = restock_item.category_id
+                    changes.append("category")
+
+                if product.brand_id != restock_item.brand_id:
+                    product.brand_id = restock_item.brand_id
+                    changes.append("brand")
+
+                if product.description != restock_item.description:
+                    product.description = restock_item.description
+                    changes.append("description")
+
+                if product.image_url != restock_item.image:
+                    product.image_url = restock_item.image
+                    changes.append("image_url")
+
+                new_packaging = map_package_type(restock_item.package_type or "Carton")
+                if product.packaging_type != new_packaging:
+                    product.packaging_type = new_packaging
+                    changes.append("packaging_type")
+
+                if product.pieces_per_box != restock_item.unite_par_carton:
+                    product.pieces_per_box = restock_item.unite_par_carton
+                    changes.append("pieces_per_box")
+
+                if product.stock_quantity != restock_item.nmb_carton:
+                    product.stock_quantity = restock_item.nmb_carton
+                    changes.append("stock_quantity")
+
+                new_active = not restock_item.hidden
+                if product.is_active != new_active:
+                    product.is_active = new_active
+                    changes.append("is_active")
+
+                if changes:
+                    product.updated_at = datetime.now(timezone.utc)
+                    session.add(product)
+
+                    # Update restock item image if renamed
+                    if image_renamed:
+                        restock_item.updated_at = datetime.now(timezone.utc)
+                        session.add(restock_item)
+
+                    session.commit()
+                    message = f"Updated: {', '.join(changes)}"
+                else:
+                    message = "No changes"
+
                 return SyncResult(
                     success=True,
                     restockId=item_id,
                     productId=product.id,
-                    message="Product updated"
+                    message=message
                 )
 
         # Create new product
         product = Product(
             name=restock_item.name,
             price=restock_item.prix_unite_vente,
-            unit=map_product_unit(restock_item.product_unit or "box"),
+            unit=map_product_unit(restock_item.product_unit or "piece"),
             pieces_per_box=restock_item.unite_par_carton,
             packaging_type=map_package_type(restock_item.package_type or "Carton"),
             stock_quantity=restock_item.nmb_carton,
@@ -351,12 +436,13 @@ async def sync_restock_item(item_id: int, session: Session = Depends(get_session
 
 @router.post("/sync-all", response_model=dict)
 async def sync_all_restock(session: Session = Depends(get_session)):
-    """Sync all restock items to products table"""
+    """Sync all restock items to products table (smart update - only changed fields)"""
     try:
         restock_items = session.exec(select(RestockItem)).all()
         results = []
         success_count = 0
         error_count = 0
+        no_change_count = 0
 
         for restock_item in restock_items:
             try:
@@ -369,35 +455,119 @@ async def sync_all_restock(session: Session = Depends(get_session)):
                     error_count += 1
                     continue
 
+                # Get brand name for S3 operations
+                new_brand_name = ""
+                if restock_item.brand_id:
+                    brand = session.get(Brand, restock_item.brand_id)
+                    if brand:
+                        new_brand_name = brand.name
+
                 if restock_item.product_id:
                     product = session.get(Product, restock_item.product_id)
                     if product:
-                        product.name = restock_item.name
-                        product.price = restock_item.prix_unite_vente
-                        product.unit = map_product_unit(restock_item.product_unit or "box")
-                        product.category_id = restock_item.category_id
-                        product.brand_id = restock_item.brand_id
-                        product.description = restock_item.description
-                        product.image_url = restock_item.image
-                        product.packaging_type = map_package_type(restock_item.package_type or "Carton")
-                        product.pieces_per_box = restock_item.unite_par_carton
-                        product.stock_quantity = restock_item.nmb_carton
-                        product.is_active = not restock_item.hidden
-                        product.updated_at = datetime.now(timezone.utc)
-                        session.add(product)
-                        results.append({
-                            "restockId": restock_item.id,
-                            "productId": product.id,
-                            "success": True,
-                            "message": "Updated"
-                        })
-                        success_count += 1
+                        changes = []
+
+                        # Get old brand name
+                        old_brand_name = ""
+                        if product.brand_id:
+                            old_brand = session.get(Brand, product.brand_id)
+                            if old_brand:
+                                old_brand_name = old_brand.name
+
+                        # Check if brand or name changed (need to rename S3)
+                        brand_changed = product.brand_id != restock_item.brand_id
+                        name_changed = product.name != restock_item.name
+
+                        if (brand_changed or name_changed) and restock_item.image:
+                            old_name = product.name or ""
+                            new_name = restock_item.name or ""
+                            if old_brand_name and old_name and new_brand_name and new_name:
+                                success, new_url, _ = S3Service.rename_image(
+                                    old_brand=old_brand_name,
+                                    old_name=old_name,
+                                    new_brand=new_brand_name,
+                                    new_name=new_name
+                                )
+                                if success and new_url:
+                                    restock_item.image = new_url
+                                    changes.append("image_renamed")
+
+                        # Update only changed fields
+                        if product.name != restock_item.name:
+                            product.name = restock_item.name
+                            changes.append("name")
+
+                        if product.price != restock_item.prix_unite_vente:
+                            product.price = restock_item.prix_unite_vente
+                            changes.append("price")
+
+                        new_unit = map_product_unit(restock_item.product_unit or "piece")
+                        if product.unit != new_unit:
+                            product.unit = new_unit
+                            changes.append("unit")
+
+                        if product.category_id != restock_item.category_id:
+                            product.category_id = restock_item.category_id
+                            changes.append("category")
+
+                        if product.brand_id != restock_item.brand_id:
+                            product.brand_id = restock_item.brand_id
+                            changes.append("brand")
+
+                        if product.description != restock_item.description:
+                            product.description = restock_item.description
+                            changes.append("description")
+
+                        if product.image_url != restock_item.image:
+                            product.image_url = restock_item.image
+                            changes.append("image_url")
+
+                        new_packaging = map_package_type(restock_item.package_type or "Carton")
+                        if product.packaging_type != new_packaging:
+                            product.packaging_type = new_packaging
+                            changes.append("packaging_type")
+
+                        if product.pieces_per_box != restock_item.unite_par_carton:
+                            product.pieces_per_box = restock_item.unite_par_carton
+                            changes.append("pieces_per_box")
+
+                        if product.stock_quantity != restock_item.nmb_carton:
+                            product.stock_quantity = restock_item.nmb_carton
+                            changes.append("stock_quantity")
+
+                        new_active = not restock_item.hidden
+                        if product.is_active != new_active:
+                            product.is_active = new_active
+                            changes.append("is_active")
+
+                        if changes:
+                            product.updated_at = datetime.now(timezone.utc)
+                            session.add(product)
+                            if "image_renamed" in changes:
+                                restock_item.updated_at = datetime.now(timezone.utc)
+                                session.add(restock_item)
+                            results.append({
+                                "restockId": restock_item.id,
+                                "productId": product.id,
+                                "success": True,
+                                "message": f"Updated: {len(changes)} fields"
+                            })
+                            success_count += 1
+                        else:
+                            results.append({
+                                "restockId": restock_item.id,
+                                "productId": product.id,
+                                "success": True,
+                                "message": "No changes"
+                            })
+                            no_change_count += 1
                         continue
 
+                # Create new product
                 product = Product(
                     name=restock_item.name,
                     price=restock_item.prix_unite_vente,
-                    unit=map_product_unit(restock_item.product_unit or "box"),
+                    unit=map_product_unit(restock_item.product_unit or "piece"),
                     pieces_per_box=restock_item.unite_par_carton,
                     packaging_type=map_package_type(restock_item.package_type or "Carton"),
                     stock_quantity=restock_item.nmb_carton,
@@ -437,6 +607,7 @@ async def sync_all_restock(session: Session = Depends(get_session)):
             "success": True,
             "total": len(restock_items),
             "synced": success_count,
+            "unchanged": no_change_count,
             "errors": error_count,
             "results": results
         }
