@@ -4,6 +4,8 @@ import { ApiService } from './api.service';
 import { PAGINATION } from '../core/constants';
 import { UserNotification, UnreadCountResponse } from '../models/user-notification.model';
 import { TranslationService } from './translation.service';
+import { StorageService } from '../core/services/storage.service';
+import { User } from '../models/user.model';
 
 @Injectable({
   providedIn: 'root'
@@ -11,6 +13,7 @@ import { TranslationService } from './translation.service';
 export class UserNotificationService {
   private api = inject(ApiService);
   private translationService = inject(TranslationService);
+  private storage = inject(StorageService);
 
   // Signal for unread count (can be used for badge)
   unreadCount = signal(0);
@@ -71,12 +74,18 @@ export class UserNotificationService {
 
   /**
    * Refresh unread count (call this on app init or when needed)
-   * Silently fails for inactive/unverified users
+   * Skips API call for inactive users to avoid 400 errors
    */
   refreshUnreadCount(): void {
+    // Check if user is active before making API call
+    const user = this.storage.getUser<User>();
+    if (!user?.is_active) {
+      this.unreadCount.set(0);
+      return;
+    }
+
     this.getUnreadCount().pipe(
       catchError(() => {
-        // Silently fail for inactive users or other errors
         this.unreadCount.set(0);
         return of({ count: 0 });
       })

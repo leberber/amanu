@@ -13,6 +13,7 @@ import { ROUTES, RouteHelpers } from '../../../core/constants/routes.constants';
 import { UI, ANIMATION, TIME_FILTER_DAYS, TIME_FILTER_OPTIONS } from '../../../core/constants/ui.constants';
 import { PAGINATION } from '../../../core/constants';
 import { OrderService } from '../../../services/order.service';
+import { AuthService } from '../../../services/auth.service';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
 import { Order } from '../../../models/order.model';
 import { StatusSeverityService } from '../../../core/services/status-severity.service';
@@ -111,8 +112,14 @@ export class OrderListComponent implements OnInit {
   readonly statusSeverity = inject(StatusSeverityService); // Public for template access
   private translateService = inject(TranslateService);
   private destroyRef = inject(DestroyRef);
+  private authService = inject(AuthService);
 
   ngOnInit(): void {
+    // Skip loading for inactive users to avoid 400 errors
+    if (!this.authService.currentUserValue?.is_active) {
+      this.loading.set(false);
+      return;
+    }
     this.loadOrders();
   }
 
