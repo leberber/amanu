@@ -124,7 +124,11 @@ export class CheckoutComponent implements OnInit {
         this.toast.showSuccess('checkout.order_placed_message', { orderNumber: order.id });
         this.cartService.clearAll();
         setTimeout(() => {
-          this.router.navigate([RouteHelpers.orderDetail(order.id)], { queryParams: { success: 'true' } });
+          // replaceUrl to clear checkout from history - back button goes to products
+          this.router.navigate([RouteHelpers.orderDetail(order.id)], {
+            queryParams: { success: 'true' },
+            replaceUrl: true
+          });
         }, UI_DELAY.TOAST_BEFORE_NAVIGATE);
       },
       error: (err) => {
@@ -160,6 +164,12 @@ export class CheckoutComponent implements OnInit {
   }
 
   private checkAuthentication(): void {
+    // Redirect to products if cart is empty (e.g., after order placed and user presses back)
+    if (this.cartService.items().length === 0) {
+      this.router.navigate([ROUTES.PRODUCTS], { replaceUrl: true });
+      return;
+    }
+
     const user = this.authService.currentUserValue;
     this.currentUser.set(user);
 

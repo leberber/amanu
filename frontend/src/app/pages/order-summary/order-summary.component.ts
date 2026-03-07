@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastModule } from 'primeng/toast';
@@ -27,7 +27,7 @@ export type DeliveryMethod = 'delivery' | 'pickup';
   templateUrl: './order-summary.component.html',
   styleUrl: './order-summary.component.scss'
 })
-export class OrderSummaryComponent {
+export class OrderSummaryComponent implements OnInit {
   // Services
   private cartService = inject(CartService);
   private authService = inject(AuthService);
@@ -40,6 +40,13 @@ export class OrderSummaryComponent {
 
   // State
   deliveryMethod = signal<DeliveryMethod>('delivery');
+
+  ngOnInit(): void {
+    // Redirect to products if cart is empty (e.g., after order placed and user presses back)
+    if (this.cartService.items().length === 0) {
+      this.router.navigate([ROUTES.PRODUCTS], { replaceUrl: true });
+    }
+  }
 
   // Computed from CartService
   cartItems = this.cartService.items;
@@ -76,7 +83,8 @@ export class OrderSummaryComponent {
     }
 
     if (this.authService.isLoggedIn) {
-      this.router.navigate([ROUTES.CHECKOUT]);
+      // replaceUrl to keep history clean during checkout flow
+      this.router.navigate([ROUTES.CHECKOUT], { replaceUrl: true });
     } else {
       this.toast.showInfo('cart.login_message');
       this.router.navigate([ROUTES.LOGIN], { queryParams: { returnUrl: ROUTES.CHECKOUT } });

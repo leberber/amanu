@@ -166,9 +166,9 @@ export class CartComponent implements OnInit {
     this.router.navigate([ROUTES.PRODUCTS]);
   }
 
-  // Order Summary - Navigate to separate page
+  // Order Summary - Navigate to separate page (replaceUrl to keep history clean)
   openOrderSummary(): void {
-    this.router.navigate([ROUTES.ORDER_SUMMARY]);
+    this.router.navigate([ROUTES.ORDER_SUMMARY], { replaceUrl: true });
   }
 
   // Item utilities
