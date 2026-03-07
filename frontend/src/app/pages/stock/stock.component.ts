@@ -3,7 +3,7 @@ import { DecimalPipe } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { catchError, of, finalize } from 'rxjs';
+import { catchError, of, finalize, forkJoin } from 'rxjs';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { SelectModule } from 'primeng/select';
@@ -18,27 +18,42 @@ import { AgroclikPageContainerComponent } from '../../shared/components/agroclik
 import { ToastMessageService } from '../../core/services/toast-message.service';
 import { ApiService } from '../../services/api.service';
 
-interface StockRow {
-  productId: number;
-  image: string;
-  category: string;
+interface RestockRow {
+  id: number;
+  productId: number | null;
+  brandId: number | null;
+  categoryId: number | null;
   brand: string;
-  product: string;
+  category: string;
+  name: string;
+  image: string;
   description: string;
   supplier: string;
   phone: string;
   packageType: string;
-  prixUnite: number;
+  prixUniteAchat: number;
+  prixUniteVente: number;
   uniteParCarton: number;
   prixCarton: number;
   nmbCarton: number;
   carry: boolean;
   priority: number;
   hidden: boolean;
+  synced: boolean;
 }
 
-interface StockData {
-  items: StockRow[];
+interface RestockData {
+  items: RestockRow[];
+}
+
+interface BrandOption {
+  id: number;
+  name: string;
+}
+
+interface CategoryOption {
+  id: number;
+  name: string;
 }
 
 @Component({
@@ -74,15 +89,19 @@ export class StockComponent implements OnInit, OnDestroy {
   isFullscreen = signal(true);
   searchQuery = signal('');
   dirtyRows = signal<Set<number>>(new Set());
-  editingCell = signal<{ rowId: number; field: 'brand' | 'category' | 'priority' | 'packageType' | 'product' } | null>(null);
+  editingCell = signal<{ rowId: number; field: 'brand' | 'category' | 'priority' | 'packageType' | 'name' } | null>(null);
   showInvoiceDialog = false;
   groupBySupplier = signal(true);
   invoiceDate = new Date();
   lightboxImage = signal<string | null>(null);
-  lightboxRow = signal<StockRow | null>(null);
+  lightboxRow = signal<RestockRow | null>(null);
   isDragging = signal(false);
   isUploading = signal(false);
-  allRows = signal<StockRow[]>([]);
+  syncingRow = signal<number | null>(null);
+  syncingAll = signal(false);
+  allRows = signal<RestockRow[]>([]);
+  brandsList = signal<BrandOption[]>([]);
+  categoriesList = signal<CategoryOption[]>([]);
   categoryFilter = signal<string[]>([]);
   brandFilter = signal<string[]>([]);
   priorityFilter = signal<number[]>([]);
@@ -111,16 +130,18 @@ export class StockComponent implements OnInit, OnDestroy {
   currentView = signal<'active' | 'inactive'>('active');
 
   columnOptions = [
+    { field: 'synced', label: 'Sync', visible: true },
     { field: 'priority', label: 'P', visible: true },
     { field: 'image', label: 'Image', visible: true },
-    { field: 'product', label: 'Produit', visible: true },
+    { field: 'name', label: 'Produit', visible: true },
     { field: 'brand', label: 'Marque', visible: true },
     { field: 'category', label: 'Catégorie', visible: true },
     { field: 'packageType', label: 'Type Emballage', visible: true },
     { field: 'supplier', label: 'Fournisseur', visible: false },
     { field: 'phone', label: 'Téléphone', visible: false },
     { field: 'description', label: 'Description', visible: false },
-    { field: 'prixUnite', label: 'Prix Unité', visible: true },
+    { field: 'prixUniteAchat', label: 'Prix Achat', visible: true },
+    { field: 'prixUniteVente', label: 'Prix Vente', visible: true },
     { field: 'uniteParCarton', label: 'Unité/Carton', visible: true },
     { field: 'prixCarton', label: 'Prix Carton', visible: true },
     { field: 'nmbCarton', label: 'Nmb Carton', visible: true },
@@ -165,7 +186,7 @@ export class StockComponent implements OnInit, OnDestroy {
     if (this.searchQuery().trim()) {
       const search = this.searchQuery().toLowerCase();
       rows = rows.filter(r =>
-        r.product.toLowerCase().includes(search) ||
+        r.name.toLowerCase().includes(search) ||
         r.category.toLowerCase().includes(search) ||
         r.brand.toLowerCase().includes(search)
       );
@@ -181,8 +202,8 @@ export class StockComponent implements OnInit, OnDestroy {
         compareA = a.prixCarton * a.nmbCarton;
         compareB = b.prixCarton * b.nmbCarton;
       } else {
-        const valA = a[field as keyof StockRow];
-        const valB = b[field as keyof StockRow];
+        const valA = a[field as keyof RestockRow];
+        const valB = b[field as keyof RestockRow];
 
         if (typeof valA === 'string') compareA = valA.toLowerCase();
         else if (typeof valA === 'number') compareA = valA;
@@ -205,7 +226,17 @@ export class StockComponent implements OnInit, OnDestroy {
 
   totalValue = computed(() => this.filteredRows().reduce((sum, r) => sum + ((r.prixCarton || 0) * (r.nmbCarton || 0)), 0));
 
-  categoryOptions = computed(() => {
+  // Options from API for dropdowns (selecting by ID)
+  categorySelectOptions = computed(() => {
+    return this.categoriesList().map(c => ({ label: c.name, value: c.id }));
+  });
+
+  brandSelectOptions = computed(() => {
+    return this.brandsList().map(b => ({ label: b.name, value: b.id }));
+  });
+
+  // Filter options (by name for filtering)
+  categoryFilterOptions = computed(() => {
     const categories = new Set<string>();
     this.allRows().forEach(row => {
       if (row.category && row.category !== '-') categories.add(row.category);
@@ -213,7 +244,7 @@ export class StockComponent implements OnInit, OnDestroy {
     return Array.from(categories).map(name => ({ label: name, value: name }));
   });
 
-  brandOptions = computed(() => {
+  brandFilterOptions = computed(() => {
     const brands = new Set<string>();
     this.allRows().forEach(row => {
       if (row.brand && row.brand !== '-') brands.add(row.brand);
@@ -233,7 +264,7 @@ export class StockComponent implements OnInit, OnDestroy {
 
   rowsGroupedBySupplier = computed(() => {
     const rows = this.selectedForInvoice();
-    const groups = new Map<string, StockRow[]>();
+    const groups = new Map<string, RestockRow[]>();
 
     rows.forEach(row => {
       const supplier = row.supplier || 'Non spécifié';
@@ -246,6 +277,8 @@ export class StockComponent implements OnInit, OnDestroy {
     return groups;
   });
 
+  unsyncedCount = computed(() => this.allRows().filter(r => !r.synced).length);
+
   ngOnInit(): void {
     document.body.classList.add('fullscreen-active');
     this.loadData();
@@ -257,28 +290,40 @@ export class StockComponent implements OnInit, OnDestroy {
 
   loadData(): void {
     this.loading.set(true);
-    this.api.get<StockData>('/stock').pipe(
-      takeUntilDestroyed(this.destroyRef),
-      catchError(() => of({ items: [] }))
+
+    forkJoin({
+      restock: this.api.get<RestockData>('/restock').pipe(catchError(() => of({ items: [] }))),
+      brands: this.api.get<BrandOption[]>('/brands').pipe(catchError(() => of([]))),
+      categories: this.api.get<CategoryOption[]>('/categories').pipe(catchError(() => of([])))
+    }).pipe(
+      takeUntilDestroyed(this.destroyRef)
     ).subscribe({
-      next: (stockData) => {
-        const rows: StockRow[] = stockData.items.map(item => ({
-          productId: item.productId,
-          image: item.image,
-          category: item.category || '-',
+      next: ({ restock, brands, categories }) => {
+        this.brandsList.set(brands);
+        this.categoriesList.set(categories);
+
+        const rows: RestockRow[] = restock.items.map(item => ({
+          id: item.id,
+          productId: item.productId ?? null,
+          brandId: item.brandId ?? null,
+          categoryId: item.categoryId ?? null,
           brand: item.brand || '-',
-          product: item.product,
+          category: item.category || '-',
+          name: item.name || '',
+          image: item.image || '',
           description: item.description || '',
           supplier: item.supplier || '',
           phone: item.phone || '',
           packageType: item.packageType || 'Carton',
-          prixUnite: item.prixUnite,
-          uniteParCarton: item.uniteParCarton,
-          prixCarton: item.prixCarton,
-          nmbCarton: item.nmbCarton,
-          carry: item.carry,
-          priority: item.priority,
-          hidden: item.hidden
+          prixUniteAchat: item.prixUniteAchat || 0,
+          prixUniteVente: item.prixUniteVente || 0,
+          uniteParCarton: item.uniteParCarton || 1,
+          prixCarton: item.prixCarton || 0,
+          nmbCarton: item.nmbCarton || 0,
+          carry: item.carry ?? false,
+          priority: item.priority || 0,
+          hidden: item.hidden ?? false,
+          synced: item.synced ?? false
         }));
 
         this.allRows.set(rows);
@@ -331,47 +376,74 @@ export class StockComponent implements OnInit, OnDestroy {
   }
 
   saveStock(): void {
+    // Save all dirty rows one by one
+    const dirtyRowIds = Array.from(this.dirtyRows());
+    if (dirtyRowIds.length === 0) {
+      this.toast.showInfo('Aucune modification à enregistrer');
+      return;
+    }
+
     this.saving.set(true);
+    let savedCount = 0;
+    let errorCount = 0;
 
-    const items: StockRow[] = this.allRows().map(row => ({
-      productId: row.productId,
-      image: row.image,
-      category: row.category,
-      brand: row.brand,
-      product: row.product,
-      description: row.description,
-      supplier: row.supplier,
-      phone: row.phone,
-      packageType: row.packageType,
-      prixUnite: row.prixUnite,
-      uniteParCarton: row.uniteParCarton,
-      prixCarton: row.prixCarton,
-      nmbCarton: row.nmbCarton,
-      carry: row.carry,
-      priority: row.priority,
-      hidden: row.hidden
-    }));
+    dirtyRowIds.forEach(rowId => {
+      const row = this.allRows().find(r => r.id === rowId);
+      if (!row) return;
 
-    this.api.post<{ success: boolean; message: string }>('/stock', { items }).pipe(
-      takeUntilDestroyed(this.destroyRef)
-    ).subscribe({
-      next: (response) => {
-        if (response.success) {
-          this.toast.showSuccess('Stock enregistré avec succès');
-        } else {
-          this.toast.showError('Échec de l\'enregistrement du stock');
+      const payload = {
+        id: row.id > 0 ? row.id : null,
+        brandId: row.brandId,
+        categoryId: row.categoryId,
+        name: row.name,
+        image: row.image,
+        description: row.description,
+        supplier: row.supplier,
+        phone: row.phone,
+        packageType: row.packageType,
+        prixUniteAchat: row.prixUniteAchat,
+        prixUniteVente: row.prixUniteVente,
+        uniteParCarton: row.uniteParCarton,
+        prixCarton: row.prixCarton,
+        nmbCarton: row.nmbCarton,
+        carry: row.carry,
+        priority: row.priority,
+        hidden: row.hidden
+      };
+
+      this.api.post<{ success: boolean; id: number }>('/restock/item', payload).pipe(
+        takeUntilDestroyed(this.destroyRef)
+      ).subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.clearRowDirty(rowId);
+            if (row.id < 0) {
+              row.id = response.id;
+            }
+            savedCount++;
+          } else {
+            errorCount++;
+          }
+          this.checkSaveComplete(dirtyRowIds.length, savedCount, errorCount);
+        },
+        error: () => {
+          errorCount++;
+          this.checkSaveComplete(dirtyRowIds.length, savedCount, errorCount);
         }
-        this.saving.set(false);
-      },
-      error: (err) => {
-        let errorMessage = 'Échec de l\'enregistrement du stock';
-        if (err.error?.detail) {
-          errorMessage += ': ' + err.error.detail;
-        }
-        this.toast.showError(errorMessage);
-        this.saving.set(false);
-      }
+      });
     });
+  }
+
+  private checkSaveComplete(total: number, saved: number, errors: number): void {
+    if (saved + errors === total) {
+      this.saving.set(false);
+      if (errors === 0) {
+        this.toast.showSuccess('Stock enregistré avec succès');
+      } else {
+        this.toast.showWarn(`${saved} enregistré(s), ${errors} erreur(s)`);
+      }
+      this.allRows.update(rows => [...rows]);
+    }
   }
 
   onImageError(event: Event): void {
@@ -386,18 +458,18 @@ export class StockComponent implements OnInit, OnDestroy {
     input?.select();
   }
 
-  onPriceChange(row: StockRow): void {
-    row.prixCarton = row.prixUnite * row.uniteParCarton;
-    this.markRowDirty(row.productId);
+  onPriceChange(row: RestockRow): void {
+    row.prixCarton = row.prixUniteVente * row.uniteParCarton;
+    this.markRowDirty(row.id);
   }
 
-  onFieldChange(row: StockRow): void {
-    this.markRowDirty(row.productId);
+  onFieldChange(row: RestockRow): void {
+    this.markRowDirty(row.id);
   }
 
-  onNmbCartonChange(row: StockRow): void {
+  onNmbCartonChange(row: RestockRow): void {
     row.carry = row.nmbCarton > 0;
-    this.markRowDirty(row.productId);
+    this.markRowDirty(row.id);
     this.allRows.update(rows => [...rows]);
   }
 
@@ -411,23 +483,28 @@ export class StockComponent implements OnInit, OnDestroy {
     this.newRowCounter++;
     const newId = -this.newRowCounter;
 
-    const newRow: StockRow = {
-      productId: newId,
-      image: '',
-      category: '',
+    const newRow: RestockRow = {
+      id: newId,
+      productId: null,
+      brandId: null,
+      categoryId: null,
       brand: '',
-      product: '',
+      category: '',
+      name: '',
+      image: '',
       description: '',
       supplier: '',
       phone: '',
       packageType: 'Carton',
-      prixUnite: 0,
+      prixUniteAchat: 0,
+      prixUniteVente: 0,
       uniteParCarton: 1,
       prixCarton: 0,
       nmbCarton: 0,
       carry: false,
       priority: 0,
-      hidden: false
+      hidden: false,
+      synced: false
     };
 
     this.allRows.update(rows => [newRow, ...rows]);
@@ -438,21 +515,43 @@ export class StockComponent implements OnInit, OnDestroy {
     }, 50);
   }
 
-  saveRow(row: StockRow): void {
-    if (!row.product || !row.brand || !row.category) {
+  saveRow(row: RestockRow): void {
+    if (!row.name || !row.brandId || !row.categoryId) {
       this.toast.showWarn('Veuillez remplir le produit, la marque et la catégorie');
       return;
     }
 
-    this.savingRow.set(row.productId);
+    this.savingRow.set(row.id);
 
-    this.api.post<{ success: boolean; productId: number }>('/stock/item', row).pipe(
+    const payload = {
+      id: row.id > 0 ? row.id : null,
+      brandId: row.brandId,
+      categoryId: row.categoryId,
+      name: row.name,
+      image: row.image,
+      description: row.description,
+      supplier: row.supplier,
+      phone: row.phone,
+      packageType: row.packageType,
+      prixUniteAchat: row.prixUniteAchat,
+      prixUniteVente: row.prixUniteVente,
+      uniteParCarton: row.uniteParCarton,
+      prixCarton: row.prixCarton,
+      nmbCarton: row.nmbCarton,
+      carry: row.carry,
+      priority: row.priority,
+      hidden: row.hidden
+    };
+
+    this.api.post<{ success: boolean; id: number }>('/restock/item', payload).pipe(
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
       next: (response) => {
         if (response.success) {
-          this.clearRowDirty(row.productId);
-          row.productId = response.productId;
+          this.clearRowDirty(row.id);
+          if (row.id < 0) {
+            row.id = response.id;
+          }
           this.allRows.update(rows => [...rows]);
           this.toast.showSuccess('Produit enregistré');
         }
@@ -469,16 +568,16 @@ export class StockComponent implements OnInit, OnDestroy {
     });
   }
 
-  deleteRow(row: StockRow): void {
+  deleteRow(row: RestockRow): void {
     if (this.isNewRow(row)) {
-      this.allRows.update(rows => rows.filter(r => r.productId !== row.productId));
+      this.allRows.update(rows => rows.filter(r => r.id !== row.id));
       this.toast.showSuccess('Produit supprimé');
     } else {
-      this.api.delete<{ success: boolean }>(`/stock/item/${row.productId}`).pipe(
+      this.api.delete<{ success: boolean }>(`/restock/item/${row.id}`).pipe(
         takeUntilDestroyed(this.destroyRef)
       ).subscribe({
         next: () => {
-          this.allRows.update(rows => rows.filter(r => r.productId !== row.productId));
+          this.allRows.update(rows => rows.filter(r => r.id !== row.id));
           this.toast.showSuccess('Produit supprimé');
         },
         error: (err) => {
@@ -492,13 +591,75 @@ export class StockComponent implements OnInit, OnDestroy {
     }
   }
 
-  setRowHidden(row: StockRow, hidden: boolean): void {
+  setRowHidden(row: RestockRow, hidden: boolean): void {
     row.hidden = hidden;
+    this.markRowDirty(row.id);
     this.allRows.update(rows => [...rows]);
   }
 
-  isNewRow(row: StockRow): boolean {
-    return row.productId < 0;
+  isNewRow(row: RestockRow): boolean {
+    return row.id < 0;
+  }
+
+  // Sync single row to products
+  syncRow(row: RestockRow): void {
+    if (!row.name || !row.categoryId) {
+      this.toast.showWarn('Le produit doit avoir un nom et une catégorie pour être synchronisé');
+      return;
+    }
+
+    this.syncingRow.set(row.id);
+
+    this.api.post<{ success: boolean; restockId: number; productId?: number; message: string }>(`/restock/sync/${row.id}`, {}).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
+      next: (response) => {
+        if (response.success) {
+          row.synced = true;
+          row.productId = response.productId ?? null;
+          this.allRows.update(rows => [...rows]);
+          this.toast.showSuccess(response.message || 'Produit synchronisé');
+        } else {
+          this.toast.showError(response.message || 'Échec de la synchronisation');
+        }
+        this.syncingRow.set(null);
+      },
+      error: (err) => {
+        let errorMessage = 'Échec de la synchronisation';
+        if (err.error?.detail) {
+          errorMessage += ': ' + err.error.detail;
+        }
+        this.toast.showError(errorMessage);
+        this.syncingRow.set(null);
+      }
+    });
+  }
+
+  // Sync all rows to products
+  syncAll(): void {
+    this.syncingAll.set(true);
+
+    this.api.post<{ success: boolean; total: number; synced: number; errors: number }>('/restock/sync-all', {}).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.toast.showSuccess(`${response.synced} produit(s) synchronisé(s)`);
+          this.loadData(); // Reload to get updated sync status
+        } else {
+          this.toast.showError('Échec de la synchronisation');
+        }
+        this.syncingAll.set(false);
+      },
+      error: (err) => {
+        let errorMessage = 'Échec de la synchronisation';
+        if (err.error?.detail) {
+          errorMessage += ': ' + err.error.detail;
+        }
+        this.toast.showError(errorMessage);
+        this.syncingAll.set(false);
+      }
+    });
   }
 
   markRowDirty(rowId: number): void {
@@ -521,7 +682,7 @@ export class StockComponent implements OnInit, OnDestroy {
     return this.dirtyRows().has(rowId);
   }
 
-  startEditing(rowId: number, field: 'brand' | 'category' | 'priority' | 'packageType' | 'product'): void {
+  startEditing(rowId: number, field: 'brand' | 'category' | 'priority' | 'packageType' | 'name'): void {
     this.editingCell.set({ rowId, field });
   }
 
@@ -529,17 +690,36 @@ export class StockComponent implements OnInit, OnDestroy {
     this.editingCell.set(null);
   }
 
-  isEditing(rowId: number, field: 'brand' | 'category' | 'priority' | 'packageType' | 'product'): boolean {
+  isEditing(rowId: number, field: 'brand' | 'category' | 'priority' | 'packageType' | 'name'): boolean {
     const editing = this.editingCell();
     return editing !== null && editing.rowId === rowId && editing.field === field;
   }
 
-  onInlineSelect(row: StockRow, field: 'brand' | 'category' | 'priority' | 'packageType', value: string | number): void {
-    (row as any)[field] = value;
-    if ((field === 'brand' || field === 'category') && this.isNewRow(row)) {
+  onBrandSelect(row: RestockRow, brandId: number): void {
+    row.brandId = brandId;
+    const brand = this.brandsList().find(b => b.id === brandId);
+    row.brand = brand?.name || '';
+    if (this.isNewRow(row)) {
       row.image = this.generateImageUrl(row);
     }
-    this.markRowDirty(row.productId);
+    this.markRowDirty(row.id);
+    this.stopEditing();
+  }
+
+  onCategorySelect(row: RestockRow, categoryId: number): void {
+    row.categoryId = categoryId;
+    const category = this.categoriesList().find(c => c.id === categoryId);
+    row.category = category?.name || '';
+    if (this.isNewRow(row)) {
+      row.image = this.generateImageUrl(row);
+    }
+    this.markRowDirty(row.id);
+    this.stopEditing();
+  }
+
+  onInlineSelect(row: RestockRow, field: 'priority' | 'packageType', value: string | number): void {
+    (row as any)[field] = value;
+    this.markRowDirty(row.id);
     this.stopEditing();
   }
 
@@ -572,38 +752,40 @@ export class StockComponent implements OnInit, OnDestroy {
     return colors[packageType] || this.DEFAULT_COLOR;
   }
 
-  onProductNameChange(row: StockRow, newName: string): void {
-    const targetRow = this.allRows().find(r => r.productId === row.productId);
+  onProductNameChange(row: RestockRow, newName: string): void {
+    const targetRow = this.allRows().find(r => r.id === row.id);
     if (targetRow) {
-      targetRow.product = newName;
+      targetRow.name = newName;
       if (this.isNewRow(row)) {
         targetRow.image = this.generateImageUrl(targetRow);
       }
-      this.markRowDirty(row.productId);
+      this.markRowDirty(row.id);
     }
   }
 
-  generateImageUrl(row: StockRow): string {
-    if (!row.brand || !row.category || !row.product) return '';
+  generateImageUrl(row: RestockRow): string {
+    if (!row.brand || !row.category || !row.name) return '';
     const slugify = (str: string) => str.toLowerCase().normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-    return `https://agroclik.s3.eu-west-3.amazonaws.com/products/${slugify(row.brand)}/${slugify(row.brand)}_${slugify(row.category)}_${slugify(row.product)}.webp`;
+    return `https://agroclik.s3.eu-west-3.amazonaws.com/products/${slugify(row.brand)}/${slugify(row.brand)}_${slugify(row.category)}_${slugify(row.name)}.webp`;
   }
 
   downloadStock(): void {
     const rows = this.filteredRows();
-    const headers = ['À Vendre', 'Produit', 'Marque', 'Catégorie', 'Fournisseur', 'Téléphone', 'Prix Unité', 'Unité/Carton', 'Prix Carton', 'Nmb Carton', 'Total'];
+    const headers = ['À Vendre', 'Sync', 'Produit', 'Marque', 'Catégorie', 'Fournisseur', 'Téléphone', 'Prix Achat', 'Prix Vente', 'Unité/Carton', 'Prix Carton', 'Nmb Carton', 'Total'];
 
     const csvContent = [
       headers.join(','),
       ...rows.map(row => [
         row.carry ? 'Oui' : 'Non',
-        `"${row.product}"`,
+        row.synced ? 'Oui' : 'Non',
+        `"${row.name}"`,
         `"${row.brand}"`,
         `"${row.category}"`,
         `"${row.supplier}"`,
         `"${row.phone}"`,
-        row.prixUnite,
+        row.prixUniteAchat,
+        row.prixUniteVente,
         row.uniteParCarton,
         row.prixCarton,
         row.nmbCarton,
@@ -615,7 +797,7 @@ export class StockComponent implements OnInit, OnDestroy {
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
     link.setAttribute('href', url);
-    link.setAttribute('download', `stock_${new Date().toISOString().split('T')[0]}.csv`);
+    link.setAttribute('download', `restock_${new Date().toISOString().split('T')[0]}.csv`);
     link.style.visibility = 'hidden';
     document.body.appendChild(link);
     link.click();
@@ -728,7 +910,7 @@ export class StockComponent implements OnInit, OnDestroy {
     this.showInvoiceDialog = false;
   }
 
-  openLightbox(imageUrl: string, row?: StockRow): void {
+  openLightbox(imageUrl: string, row?: RestockRow): void {
     if (imageUrl && !imageUrl.includes('placeholder')) {
       this.lightboxImage.set(imageUrl);
       this.lightboxRow.set(row ?? null);
@@ -793,7 +975,7 @@ export class StockComponent implements OnInit, OnDestroy {
     }
 
     // Validate row has required fields
-    if (!row.brand || !row.category || !row.product) {
+    if (!row.brand || !row.category || !row.name) {
       this.toast.showError('Le produit doit avoir une marque, catégorie et nom');
       return;
     }
@@ -804,10 +986,10 @@ export class StockComponent implements OnInit, OnDestroy {
     formData.append('file', file);
     formData.append('brand', row.brand);
     formData.append('category', row.category);
-    formData.append('product', row.product);
-    formData.append('productId', row.productId.toString());
+    formData.append('name', row.name);
+    formData.append('restockId', row.id.toString());
 
-    this.http.post<{ success: boolean; url: string; productId: number }>('/api/v1/stock/upload-image', formData)
+    this.http.post<{ success: boolean; url: string; restockId: number }>('/api/v1/restock/upload-image', formData)
       .pipe(
         finalize(() => this.isUploading.set(false)),
         takeUntilDestroyed(this.destroyRef)
@@ -816,13 +998,13 @@ export class StockComponent implements OnInit, OnDestroy {
         next: (response) => {
           if (response.success) {
             // Update the row's image URL
-            const targetRow = this.allRows().find(r => r.productId === response.productId);
+            const targetRow = this.allRows().find(r => r.id === response.restockId);
             if (targetRow) {
               // Add timestamp to bust cache
               targetRow.image = response.url + '?t=' + Date.now();
               this.allRows.update(rows => [...rows]);
               this.lightboxImage.set(targetRow.image);
-              this.markRowDirty(targetRow.productId);
+              this.markRowDirty(targetRow.id);
             }
             this.toast.showSuccess('Image téléchargée avec succès');
           }
@@ -873,7 +1055,7 @@ export class StockComponent implements OnInit, OnDestroy {
           yPosition += 10;
 
           const tableData = rows.map(row => [
-            row.product,
+            row.name,
             row.brand,
             row.nmbCarton.toString(),
             this.formatNumber(row.prixCarton),
@@ -909,7 +1091,7 @@ export class StockComponent implements OnInit, OnDestroy {
         doc.text(`Total Général: ${this.formatNumber(this.selectedTotalValue())} DA`, pageWidth - 14, yPosition, { align: 'right' });
       } else {
         const tableData = this.selectedForInvoice().map(row => [
-          row.product,
+          row.name,
           row.brand,
           row.supplier || '-',
           row.nmbCarton.toString(),
@@ -946,7 +1128,7 @@ export class StockComponent implements OnInit, OnDestroy {
     return new Date(dateStr).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
   }
 
-  getSupplierTotal(rows: StockRow[]): number {
+  getSupplierTotal(rows: RestockRow[]): number {
     return rows.reduce((sum, r) => sum + (r.prixCarton * r.nmbCarton), 0);
   }
 }

@@ -61,6 +61,17 @@
               <i class="pi pi-plus"></i>
               <span class="btn-text">Ajouter</span>
             </button>
+            <button class="btn-sync-all" (click)="syncAll()" [disabled]="syncingAll()" pTooltip="Synchroniser tous les produits">
+              @if (syncingAll()) {
+                <i class="pi pi-spin pi-spinner"></i>
+              } @else {
+                <i class="pi pi-sync"></i>
+              }
+              <span class="btn-text">Sync All</span>
+              @if (unsyncedCount() > 0) {
+                <span class="badge warning">{{ unsyncedCount() }}</span>
+              }
+            </button>
             <button class="btn-invoice" (click)="openInvoicePreview()" pTooltip="Générer Bon de Commande">
               <i class="pi pi-file-pdf"></i>
               <span class="btn-text">Commande</span>
@@ -120,6 +131,9 @@
             <table class="table table-fixed">
               <thead>
                 <tr>
+                  @if (isColumnVisible('synced')) {
+                    <th class="col-sync text-center">Sync</th>
+                  }
                   @if (isColumnVisible('priority')) {
                     <th class="col-priority-filter">
                       <div class="filter-sort-row">
@@ -151,10 +165,10 @@
                   @if (isColumnVisible('image')) {
                     <th class="col-image">Image</th>
                   }
-                  @if (isColumnVisible('product')) {
-                    <th class="col-product sortable" (click)="sort('product')">
+                  @if (isColumnVisible('name')) {
+                    <th class="col-product sortable" (click)="sort('name')">
                       <span>Produit</span>
-                      @if (sortField() === 'product') {
+                      @if (sortField() === 'name') {
                         <i class="pi" [class.pi-sort-amount-up]="sortOrder() === 'asc'" [class.pi-sort-amount-down]="sortOrder() === 'desc'"></i>
                       }
                     </th>
@@ -170,7 +184,7 @@
                             </span>
                           }
                           <p-multiSelect
-                            [options]="brandOptions()"
+                            [options]="brandFilterOptions()"
                             [ngModel]="brandFilter()"
                             (ngModelChange)="onBrandChange($event)"
                             optionLabel="label"
@@ -200,7 +214,7 @@
                             </span>
                           }
                           <p-multiSelect
-                            [options]="categoryOptions()"
+                            [options]="categoryFilterOptions()"
                             [ngModel]="categoryFilter()"
                             (ngModelChange)="onCategoryChange($event)"
                             optionLabel="label"
@@ -237,10 +251,18 @@
                     <th>Description</th>
                   }
                   <th class="col-spacer"></th>
-                  @if (isColumnVisible('prixUnite')) {
-                    <th class="col-number text-center sortable" (click)="sort('prixUnite')">
-                      <span>Prix Unité</span>
-                      @if (sortField() === 'prixUnite') {
+                  @if (isColumnVisible('prixUniteAchat')) {
+                    <th class="col-number text-center sortable" (click)="sort('prixUniteAchat')">
+                      <span>Prix Achat</span>
+                      @if (sortField() === 'prixUniteAchat') {
+                        <i class="pi" [class.pi-sort-amount-up]="sortOrder() === 'asc'" [class.pi-sort-amount-down]="sortOrder() === 'desc'"></i>
+                      }
+                    </th>
+                  }
+                  @if (isColumnVisible('prixUniteVente')) {
+                    <th class="col-number text-center sortable" (click)="sort('prixUniteVente')">
+                      <span>Prix Vente</span>
+                      @if (sortField() === 'prixUniteVente') {
                         <i class="pi" [class.pi-sort-amount-up]="sortOrder() === 'asc'" [class.pi-sort-amount-down]="sortOrder() === 'desc'"></i>
                       }
                     </th>
@@ -276,12 +298,31 @@
                 </tr>
               </thead>
               <tbody>
-                @for (row of filteredRows(); track row.productId; let i = $index) {
-                  <tr class="table-row-animate" [class.row-hidden]="row.hidden" [style.--row-delay]="(i * 30) + 'ms'">
+                @for (row of filteredRows(); track row.id; let i = $index) {
+                  <tr class="table-row-animate" [class.row-hidden]="row.hidden" [class.row-synced]="row.synced" [style.--row-delay]="(i * 30) + 'ms'">
+                    <!-- Sync Status -->
+                    @if (isColumnVisible('synced')) {
+                      <td class="col-sync text-center">
+                        @if (row.synced) {
+                          <span class="sync-badge synced" pTooltip="Synchronisé avec les produits">
+                            <i class="pi pi-check-circle"></i>
+                          </span>
+                        } @else {
+                          <button class="btn-sync" (click)="syncRow(row)" [disabled]="syncingRow() === row.id || isNewRow(row)" pTooltip="Synchroniser vers produits">
+                            @if (syncingRow() === row.id) {
+                              <i class="pi pi-spin pi-spinner"></i>
+                            } @else {
+                              <i class="pi pi-sync"></i>
+                            }
+                          </button>
+                        }
+                      </td>
+                    }
+
                     <!-- Priority -->
                     @if (isColumnVisible('priority')) {
                       <td class="col-priority">
-                        @if (isNewRow(row) || isEditing(row.productId, 'priority')) {
+                        @if (isNewRow(row) || isEditing(row.id, 'priority')) {
                           <p-select
                             [(ngModel)]="row.priority"
                             [options]="priorityOptions"
@@ -294,7 +335,7 @@
                             styleClass="priority-select"
                           />
                         } @else {
-                          <span class="priority-pill clickable" [style.background]="getPriorityColor(row.priority).bg" [style.color]="getPriorityColor(row.priority).text" (click)="startEditing(row.productId, 'priority')">{{ getPriorityLabel(row.priority) }}</span>
+                          <span class="priority-pill clickable" [style.background]="getPriorityColor(row.priority).bg" [style.color]="getPriorityColor(row.priority).text" (click)="startEditing(row.id, 'priority')">{{ getPriorityLabel(row.priority) }}</span>
                         }
                       </td>
                     }
@@ -304,7 +345,7 @@
                       <td class="col-image">
                         <img
                           [src]="row.image"
-                          [alt]="row.product"
+                          [alt]="row.name"
                           class="product-thumbnail"
                           [class.clickable]="row.image && !row.image.includes('placeholder')"
                           loading="lazy"
@@ -315,12 +356,12 @@
                     }
 
                     <!-- Product Name (inline editable) -->
-                    @if (isColumnVisible('product')) {
+                    @if (isColumnVisible('name')) {
                       <td class="col-product-input">
-                        @if (isNewRow(row) || isEditing(row.productId, 'product')) {
+                        @if (isNewRow(row) || isEditing(row.id, 'name')) {
                           <input
                             type="text"
-                            [ngModel]="row.product"
+                            [ngModel]="row.name"
                             (ngModelChange)="onProductNameChange(row, $event)"
                             (blur)="stopEditing()"
                             (keyup.enter)="stopEditing()"
@@ -329,7 +370,7 @@
                             #productInput
                           />
                         } @else {
-                          <span class="product-name clickable" (click)="startEditing(row.productId, 'product')">{{ row.product || '-' }}</span>
+                          <span class="product-name clickable" (click)="startEditing(row.id, 'name')">{{ row.name || '-' }}</span>
                         }
                       </td>
                     }
@@ -337,17 +378,16 @@
                     <!-- Brand -->
                     @if (isColumnVisible('brand')) {
                       <td>
-                        @if (isNewRow(row) || isEditing(row.productId, 'brand')) {
+                        @if (isNewRow(row) || isEditing(row.id, 'brand')) {
                           <p-select
-                            [options]="brandOptions()"
-                            [(ngModel)]="row.brand"
-                            (ngModelChange)="onInlineSelect(row, 'brand', $event)"
+                            [options]="brandSelectOptions()"
+                            [(ngModel)]="row.brandId"
+                            (ngModelChange)="onBrandSelect(row, $event)"
                             (onHide)="stopEditing()"
                             optionLabel="label"
                             optionValue="value"
                             placeholder="Marque"
                             [filter]="true"
-                            [editable]="true"
                             [autofocus]="true"
                             filterPlaceholder="Rechercher..."
                             [showClear]="true"
@@ -355,7 +395,7 @@
                             styleClass="stock-select"
                           />
                         } @else {
-                          <span class="brand-pill clickable" [style.background]="getBrandColor(row.brand).bg" [style.color]="getBrandColor(row.brand).text" (click)="startEditing(row.productId, 'brand')">{{ row.brand }}</span>
+                          <span class="brand-pill clickable" [style.background]="getBrandColor(row.brand).bg" [style.color]="getBrandColor(row.brand).text" (click)="startEditing(row.id, 'brand')">{{ row.brand || '-' }}</span>
                         }
                       </td>
                     }
@@ -363,17 +403,16 @@
                     <!-- Category -->
                     @if (isColumnVisible('category')) {
                       <td>
-                        @if (isNewRow(row) || isEditing(row.productId, 'category')) {
+                        @if (isNewRow(row) || isEditing(row.id, 'category')) {
                           <p-select
-                            [options]="categoryOptions()"
-                            [(ngModel)]="row.category"
-                            (ngModelChange)="onInlineSelect(row, 'category', $event)"
+                            [options]="categorySelectOptions()"
+                            [(ngModel)]="row.categoryId"
+                            (ngModelChange)="onCategorySelect(row, $event)"
                             (onHide)="stopEditing()"
                             optionLabel="label"
                             optionValue="value"
                             placeholder="Catégorie"
                             [filter]="true"
-                            [editable]="true"
                             [autofocus]="true"
                             filterPlaceholder="Rechercher..."
                             [showClear]="true"
@@ -381,7 +420,7 @@
                             styleClass="stock-select"
                           />
                         } @else {
-                          <span class="category-pill clickable" [style.background]="getCategoryColor(row.category).bg" [style.color]="getCategoryColor(row.category).text" (click)="startEditing(row.productId, 'category')">{{ row.category }}</span>
+                          <span class="category-pill clickable" [style.background]="getCategoryColor(row.category).bg" [style.color]="getCategoryColor(row.category).text" (click)="startEditing(row.id, 'category')">{{ row.category || '-' }}</span>
                         }
                       </td>
                     }
@@ -389,7 +428,7 @@
                     <!-- Package Type -->
                     @if (isColumnVisible('packageType')) {
                       <td>
-                        @if (isNewRow(row) || isEditing(row.productId, 'packageType')) {
+                        @if (isNewRow(row) || isEditing(row.id, 'packageType')) {
                           <p-select
                             [options]="packageTypeOptions"
                             [(ngModel)]="row.packageType"
@@ -398,14 +437,13 @@
                             optionLabel="label"
                             optionValue="value"
                             placeholder="Type"
-                            [editable]="true"
                             [autofocus]="true"
                             [showClear]="true"
                             appendTo="body"
                             styleClass="stock-select"
                           />
                         } @else {
-                          <span class="package-type-pill clickable" [style.background]="getPackageTypeColor(row.packageType).bg" [style.color]="getPackageTypeColor(row.packageType).text" (click)="startEditing(row.productId, 'packageType')">{{ row.packageType }}</span>
+                          <span class="package-type-pill clickable" [style.background]="getPackageTypeColor(row.packageType).bg" [style.color]="getPackageTypeColor(row.packageType).text" (click)="startEditing(row.id, 'packageType')">{{ row.packageType }}</span>
                         }
                       </td>
                     }
@@ -416,6 +454,7 @@
                         <input
                           type="text"
                           [(ngModel)]="row.supplier"
+                          (ngModelChange)="onFieldChange(row)"
                           placeholder="Fournisseur"
                           class="stock-input"
                         />
@@ -428,6 +467,7 @@
                         <input
                           type="text"
                           [(ngModel)]="row.phone"
+                          (ngModelChange)="onFieldChange(row)"
                           placeholder="Téléphone"
                           class="stock-input"
                         />
@@ -444,11 +484,28 @@
                     <!-- Spacer -->
                     <td class="col-spacer"></td>
 
-                    <!-- Prix Unite (editable) -->
-                    @if (isColumnVisible('prixUnite')) {
+                    <!-- Prix Unite Achat (editable) -->
+                    @if (isColumnVisible('prixUniteAchat')) {
                       <td class="col-number">
                         <p-inputNumber
-                          [(ngModel)]="row.prixUnite"
+                          [(ngModel)]="row.prixUniteAchat"
+                          [min]="0"
+                          [maxFractionDigits]="2"
+                          mode="decimal"
+                          [showButtons]="false"
+                          [style]="{'width': '70px'}"
+                          inputStyleClass="text-center"
+                          (ngModelChange)="onFieldChange(row)"
+                          (onFocus)="selectOnFocus($event)"
+                        />
+                      </td>
+                    }
+
+                    <!-- Prix Unite Vente (editable) -->
+                    @if (isColumnVisible('prixUniteVente')) {
+                      <td class="col-number">
+                        <p-inputNumber
+                          [(ngModel)]="row.prixUniteVente"
                           [min]="0"
                           [maxFractionDigits]="2"
                           mode="decimal"
@@ -518,8 +575,8 @@
                     <!-- Actions -->
                     <td class="col-actions">
                       <div class="action-buttons">
-                        <button class="btn-save-row" [class.dirty]="isRowDirty(row.productId) || isNewRow(row)" (click)="saveRow(row)" [disabled]="savingRow() === row.productId" pTooltip="Enregistrer">
-                          @if (savingRow() === row.productId) {
+                        <button class="btn-save-row" [class.dirty]="isRowDirty(row.id) || isNewRow(row)" (click)="saveRow(row)" [disabled]="savingRow() === row.id" pTooltip="Enregistrer">
+                          @if (savingRow() === row.id) {
                             <i class="pi pi-spin pi-spinner"></i>
                           } @else {
                             <i class="pi pi-check"></i>
@@ -608,9 +665,9 @@
               </tr>
             </thead>
             <tbody>
-              @for (row of entry.value; track row.productId) {
+              @for (row of entry.value; track row.id) {
                 <tr>
-                  <td>{{ row.product }}</td>
+                  <td>{{ row.name }}</td>
                   <td><span class="brand-pill small" [style.background]="getBrandColor(row.brand).bg" [style.color]="getBrandColor(row.brand).text">{{ row.brand }}</span></td>
                   <td class="text-center">{{ row.nmbCarton }}</td>
                   <td class="text-right">{{ row.prixCarton | number:'1.0-0' }}</td>
@@ -641,9 +698,9 @@
           </tr>
         </thead>
         <tbody>
-          @for (row of selectedForInvoice(); track row.productId) {
+          @for (row of selectedForInvoice(); track row.id) {
             <tr>
-              <td>{{ row.product }}</td>
+              <td>{{ row.name }}</td>
               <td><span class="brand-pill small" [style.background]="getBrandColor(row.brand).bg" [style.color]="getBrandColor(row.brand).text">{{ row.brand }}</span></td>
               <td>{{ row.supplier || '-' }}</td>
               <td class="text-center">{{ row.nmbCarton }}</td>
