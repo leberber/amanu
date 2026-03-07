@@ -76,13 +76,21 @@
         <div class="item-grid">
           @for (i of skeletonGridItems; track i) {
             <div class="skeleton-product-card">
-              <div class="skeleton skeleton-image"></div>
+              <!-- Image with badge and product icon -->
+              <div class="skeleton-image-wrapper">
+                <div class="skeleton skeleton-badge"></div>
+                <i class="pi pi-image skeleton-icon"></i>
+              </div>
+              <!-- Content -->
               <div class="skeleton-content">
-                <div class="skeleton skeleton-text skeleton-text--w60"></div>
-                <div class="skeleton skeleton-text skeleton-text--w80"></div>
-                <div class="skeleton-row">
-                  <div class="skeleton skeleton-text skeleton-text--w40"></div>
-                  <div class="skeleton skeleton-button"></div>
+                <!-- Name -->
+                <div class="skeleton skeleton-name"></div>
+                <!-- Price -->
+                <div class="skeleton skeleton-price-text"></div>
+                <!-- Actions row -->
+                <div class="skeleton-actions-row">
+                  <div class="skeleton skeleton-qty-btn"></div>
+                  <div class="skeleton skeleton-cart-btn"></div>
                 </div>
               </div>
             </div>

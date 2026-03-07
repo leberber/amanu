@@ -272,13 +272,35 @@
 
 .skeleton-product-card {
   background: var(--surface-card);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   overflow: hidden;
-  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--surface-200);
 
-  .skeleton-image {
+  // Image wrapper with badge
+  .skeleton-image-wrapper {
+    position: relative;
     aspect-ratio: 1;
-    width: 100%;
+    background: var(--surface-100);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  // Product icon placeholder
+  .skeleton-icon {
+    font-size: 3rem;
+    color: var(--surface-300);
+    opacity: 0.6;
+  }
+
+  .skeleton-badge {
+    position: absolute;
+    top: var(--space-2);
+    left: var(--space-2);
+    width: 50px;
+    height: 22px;
+    border-radius: var(--radius-sm);
+    z-index: 1;
   }
 
   .skeleton-content {
@@ -286,13 +308,43 @@
     display: flex;
     flex-direction: column;
     gap: var(--space-2);
+
+    @media (max-width: 768px) {
+      padding: var(--space-2);
+    }
   }
 
-  .skeleton-row {
+  // Name
+  .skeleton-name {
+    height: 1rem;
+    width: 80%;
+  }
+
+  // Price
+  .skeleton-price-text {
+    height: 1rem;
+    width: 90px;
+  }
+
+  // Actions row
+  .skeleton-actions-row {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-top: var(--space-2);
+    gap: var(--space-2);
+    margin-top: var(--space-1);
+  }
+
+  .skeleton-qty-btn {
+    flex: 1;
+    height: 40px;
+    border-radius: 14px;
+  }
+
+  .skeleton-cart-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-md);
+    flex-shrink: 0;
   }
 }
 
