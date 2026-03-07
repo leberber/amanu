@@ -134,6 +134,16 @@
 .notification-card__date {
   font-size: 11px;
   color: #9ca3af;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.notification-card__unread-badge {
+  font-size: 10px;
+  font-weight: 600;
+  color: #ef4444;
+  text-transform: uppercase;
 }
 
 // Actions column (X button + checkmarks)

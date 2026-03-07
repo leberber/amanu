@@ -54,6 +54,9 @@
               <p class="notification-card__message">{{ notif.message }}</p>
               <span class="notification-card__date">
                 {{ notif.created_at | date:'dd/MM/yyyy HH:mm' }}
+                @if (!notif.is_read) {
+                  <span class="notification-card__unread-badge">{{ 'notifications_page.unread' | translate }}</span>
+                }
               </span>
             </div>
             <div class="notification-card__actions">

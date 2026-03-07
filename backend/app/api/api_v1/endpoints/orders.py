@@ -53,10 +53,12 @@ def calculate_cross_sell_discounts(
     discounted_targets = set()
 
     for promo in promotions:
-        # Check date validity
-        if promo.start_date and now < promo.start_date:
+        # Check date validity (handle both naive and aware datetimes)
+        start_date = promo.start_date.replace(tzinfo=timezone.utc) if promo.start_date and promo.start_date.tzinfo is None else promo.start_date
+        end_date = promo.end_date.replace(tzinfo=timezone.utc) if promo.end_date and promo.end_date.tzinfo is None else promo.end_date
+        if start_date and now < start_date:
             continue
-        if promo.end_date and now > promo.end_date:
+        if end_date and now > end_date:
             continue
 
         # Check if target product is in the cart

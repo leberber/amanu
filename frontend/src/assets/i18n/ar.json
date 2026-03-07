@@ -1876,7 +1876,8 @@
     "empty_message": "ستظهر هنا تحديثات الطلبات والعروض الترويجية والتنبيهات المهمة",
     "error_message": "تعذر تحميل الإشعارات. يرجى المحاولة مرة أخرى.",
     "browse_products": "تصفح المنتجات",
-    "mark_all_read": "تحديد الكل كمقروء"
+    "mark_all_read": "تحديد الكل كمقروء",
+    "unread": "غير مقروء"
   },
   "cross_sell": {
     "potential_discount": "احصل على خصم {{discount}} إذا اشتريت {{triggers}}!",

@@ -61,10 +61,12 @@ export class UserNotificationService {
   }
 
   /**
-   * Delete a notification
+   * Delete a notification and refresh unread count
    */
   deleteNotification(notificationId: number): Observable<{ message: string }> {
-    return this.api.delete<{ message: string }>(`/notifications/${notificationId}`);
+    return this.api.delete<{ message: string }>(`/notifications/${notificationId}`).pipe(
+      tap(() => this.refreshUnreadCount())
+    );
   }
 
   /**

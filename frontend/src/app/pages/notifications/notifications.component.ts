@@ -30,6 +30,7 @@ export class NotificationsComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadNotifications();
+    this.notificationService.refreshUnreadCount();
   }
 
   loadNotifications(): void {
@@ -56,33 +57,34 @@ export class NotificationsComponent implements OnInit {
   }
 
   onNotificationClick(notification: UserNotification): void {
-    // Mark as read if not already
+    const navigate = () => {
+      if (notification.url) {
+        this.router.navigateByUrl(notification.url);
+      }
+    };
+
     if (!notification.is_read) {
-      this.notificationService.markAsRead(notification.id)
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe(() => {
-          // Update local state
+      this.notificationService.markAsRead(notification.id).subscribe({
+        next: () => {
           const updated = this.notifications().map(n =>
             n.id === notification.id ? { ...n, is_read: true } : n
           );
           this.notifications.set(updated);
-        });
-    }
-
-    // Navigate if URL is provided
-    if (notification.url) {
-      this.router.navigateByUrl(notification.url);
+          navigate();
+        },
+        error: () => navigate()
+      });
+    } else {
+      navigate();
     }
   }
 
   onDeleteClick(event: Event, notification: UserNotification): void {
-    // Prevent triggering the card click
     event.stopPropagation();
 
     this.notificationService.deleteNotification(notification.id)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
-        // Remove from local state
         const updated = this.notifications().filter(n => n.id !== notification.id);
         this.notifications.set(updated);
       });

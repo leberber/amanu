@@ -1868,7 +1868,8 @@
     "empty_message": "You'll see order updates, promotions, and important alerts here",
     "error_message": "Unable to load notifications. Please try again.",
     "browse_products": "Browse Products",
-    "mark_all_read": "Mark all as read"
+    "mark_all_read": "Mark all as read",
+    "unread": "Unread"
   },
   "cross_sell": {
     "potential_discount": "Get {{discount}} off if you buy {{triggers}}!",

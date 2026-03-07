@@ -1888,7 +1888,8 @@
     "empty_message": "Vous verrez ici les mises à jour de commandes, promotions et alertes importantes",
     "error_message": "Impossible de charger les notifications. Veuillez réessayer.",
     "browse_products": "Parcourir les Produits",
-    "mark_all_read": "Tout marquer comme lu"
+    "mark_all_read": "Tout marquer comme lu",
+    "unread": "Non lu"
   },
   "cross_sell": {
     "potential_discount": "Obtenez {{discount}} de réduction si vous achetez {{triggers}} !",
