@@ -30,6 +30,7 @@ interface RestockRow {
   description: string;
   supplier: string;
   phone: string;
+  productUnit: string;
   packageType: string;
   prixUniteAchat: number;
   prixUniteVente: number;
@@ -89,7 +90,7 @@ export class StockComponent implements OnInit, OnDestroy {
   isFullscreen = signal(true);
   searchQuery = signal('');
   dirtyRows = signal<Set<number>>(new Set());
-  editingCell = signal<{ rowId: number; field: 'brand' | 'category' | 'priority' | 'packageType' | 'name' } | null>(null);
+  editingCell = signal<{ rowId: number; field: 'brand' | 'category' | 'priority' | 'packageType' | 'productUnit' | 'name' } | null>(null);
   showInvoiceDialog = false;
   groupBySupplier = signal(true);
   invoiceDate = new Date();
@@ -127,6 +128,37 @@ export class StockComponent implements OnInit, OnDestroy {
     { label: 'Palette', value: 'Palette' }
   ];
 
+  productUnitOptions = [
+    // Piece / Individual
+    { label: 'Pièce', value: 'piece' },
+    { label: 'Unité', value: 'unit' },
+    { label: 'Portion', value: 'portion' },
+    { label: 'Tranche', value: 'slice' },
+    // Container
+    { label: 'Bouteille', value: 'bottle' },
+    { label: 'Canette', value: 'can' },
+    { label: 'Bocal', value: 'jar' },
+    { label: 'Boîte', value: 'box' },
+    { label: 'Sachet', value: 'sachet' },
+    { label: 'Barquette', value: 'tray' },
+    { label: 'Pot', value: 'pot' },
+    { label: 'Tube', value: 'tube' },
+    // Weight
+    { label: 'Kg', value: 'kg' },
+    { label: 'Gramme', value: 'g' },
+    // Volume
+    { label: 'Litre', value: 'L' },
+    { label: 'Millilitre', value: 'ml' },
+    { label: 'Centilitre', value: 'cl' },
+    // Bulk / Logistic
+    { label: 'Carton', value: 'carton' },
+    { label: 'Caisse', value: 'crate' },
+    { label: 'Pack', value: 'pack' },
+    { label: 'Douzaine', value: 'dozen' },
+    { label: 'Botte', value: 'bunch' },
+    { label: 'Livre', value: 'pound' }
+  ];
+
   currentView = signal<'active' | 'inactive'>('active');
 
   columnOptions = [
@@ -136,6 +168,7 @@ export class StockComponent implements OnInit, OnDestroy {
     { field: 'name', label: 'Produit', visible: true },
     { field: 'brand', label: 'Marque', visible: true },
     { field: 'category', label: 'Catégorie', visible: true },
+    { field: 'productUnit', label: 'Unité', visible: true },
     { field: 'packageType', label: 'Type Emballage', visible: true },
     { field: 'supplier', label: 'Fournisseur', visible: false },
     { field: 'phone', label: 'Téléphone', visible: false },
@@ -314,6 +347,7 @@ export class StockComponent implements OnInit, OnDestroy {
           description: item.description || '',
           supplier: item.supplier || '',
           phone: item.phone || '',
+          productUnit: item.productUnit || 'piece',
           packageType: item.packageType || 'Carton',
           prixUniteAchat: item.prixUniteAchat || 0,
           prixUniteVente: item.prixUniteVente || 0,
@@ -400,6 +434,7 @@ export class StockComponent implements OnInit, OnDestroy {
         description: row.description,
         supplier: row.supplier,
         phone: row.phone,
+        productUnit: row.productUnit,
         packageType: row.packageType,
         prixUniteAchat: row.prixUniteAchat,
         prixUniteVente: row.prixUniteVente,
@@ -495,6 +530,7 @@ export class StockComponent implements OnInit, OnDestroy {
       description: '',
       supplier: '',
       phone: '',
+      productUnit: 'piece',
       packageType: 'Carton',
       prixUniteAchat: 0,
       prixUniteVente: 0,
@@ -532,6 +568,7 @@ export class StockComponent implements OnInit, OnDestroy {
       description: row.description,
       supplier: row.supplier,
       phone: row.phone,
+      productUnit: row.productUnit,
       packageType: row.packageType,
       prixUniteAchat: row.prixUniteAchat,
       prixUniteVente: row.prixUniteVente,
@@ -682,7 +719,7 @@ export class StockComponent implements OnInit, OnDestroy {
     return this.dirtyRows().has(rowId);
   }
 
-  startEditing(rowId: number, field: 'brand' | 'category' | 'priority' | 'packageType' | 'name'): void {
+  startEditing(rowId: number, field: 'brand' | 'category' | 'priority' | 'packageType' | 'productUnit' | 'name'): void {
     this.editingCell.set({ rowId, field });
   }
 
@@ -690,7 +727,7 @@ export class StockComponent implements OnInit, OnDestroy {
     this.editingCell.set(null);
   }
 
-  isEditing(rowId: number, field: 'brand' | 'category' | 'priority' | 'packageType' | 'name'): boolean {
+  isEditing(rowId: number, field: 'brand' | 'category' | 'priority' | 'packageType' | 'productUnit' | 'name'): boolean {
     const editing = this.editingCell();
     return editing !== null && editing.rowId === rowId && editing.field === field;
   }
@@ -717,7 +754,7 @@ export class StockComponent implements OnInit, OnDestroy {
     this.stopEditing();
   }
 
-  onInlineSelect(row: RestockRow, field: 'priority' | 'packageType', value: string | number): void {
+  onInlineSelect(row: RestockRow, field: 'priority' | 'packageType' | 'productUnit', value: string | number): void {
     (row as any)[field] = value;
     this.markRowDirty(row.id);
     this.stopEditing();
@@ -750,6 +787,74 @@ export class StockComponent implements OnInit, OnDestroy {
       'Palette': { bg: 'rgba(16, 185, 129, 0.12)', text: '#059669' }
     };
     return colors[packageType] || this.DEFAULT_COLOR;
+  }
+
+  getUnitColor(unit: string): { bg: string; text: string } {
+    const colors: { [key: string]: { bg: string; text: string } } = {
+      // Piece / Individual - Green tones
+      'piece': { bg: 'rgba(34, 197, 94, 0.12)', text: '#22c55e' },
+      'unit': { bg: 'rgba(34, 197, 94, 0.12)', text: '#22c55e' },
+      'portion': { bg: 'rgba(16, 185, 129, 0.12)', text: '#10b981' },
+      'slice': { bg: 'rgba(20, 184, 166, 0.12)', text: '#14b8a6' },
+      // Container - Blue/Purple tones
+      'bottle': { bg: 'rgba(6, 182, 212, 0.12)', text: '#06b6d4' },
+      'can': { bg: 'rgba(14, 165, 233, 0.12)', text: '#0ea5e9' },
+      'jar': { bg: 'rgba(59, 130, 246, 0.12)', text: '#3b82f6' },
+      'box': { bg: 'rgba(99, 102, 241, 0.12)', text: '#6366f1' },
+      'sachet': { bg: 'rgba(234, 179, 8, 0.12)', text: '#ca8a04' },
+      'tray': { bg: 'rgba(139, 92, 246, 0.12)', text: '#8b5cf6' },
+      'pot': { bg: 'rgba(217, 70, 239, 0.12)', text: '#d946ef' },
+      'tube': { bg: 'rgba(236, 72, 153, 0.12)', text: '#ec4899' },
+      // Weight - Red/Orange tones
+      'kg': { bg: 'rgba(239, 68, 68, 0.12)', text: '#ef4444' },
+      'g': { bg: 'rgba(249, 115, 22, 0.12)', text: '#f97316' },
+      // Volume - Cyan tones
+      'L': { bg: 'rgba(8, 145, 178, 0.12)', text: '#0891b2' },
+      'ml': { bg: 'rgba(34, 211, 238, 0.12)', text: '#22d3ee' },
+      'cl': { bg: 'rgba(103, 232, 249, 0.12)', text: '#06b6d4' },
+      // Bulk / Logistic - Various
+      'carton': { bg: 'rgba(124, 58, 237, 0.12)', text: '#7c3aed' },
+      'crate': { bg: 'rgba(79, 70, 229, 0.12)', text: '#4f46e5' },
+      'pack': { bg: 'rgba(37, 99, 235, 0.12)', text: '#2563eb' },
+      'dozen': { bg: 'rgba(14, 165, 233, 0.12)', text: '#0ea5e9' },
+      'bunch': { bg: 'rgba(16, 185, 129, 0.12)', text: '#10b981' },
+      'pound': { bg: 'rgba(168, 85, 247, 0.12)', text: '#a855f7' }
+    };
+    return colors[unit] || this.DEFAULT_COLOR;
+  }
+
+  getUnitLabel(unit: string): string {
+    const labels: { [key: string]: string } = {
+      // Piece / Individual
+      'piece': 'Pièce',
+      'unit': 'Unité',
+      'portion': 'Portion',
+      'slice': 'Tranche',
+      // Container
+      'bottle': 'Bouteille',
+      'can': 'Canette',
+      'jar': 'Bocal',
+      'box': 'Boîte',
+      'sachet': 'Sachet',
+      'tray': 'Barquette',
+      'pot': 'Pot',
+      'tube': 'Tube',
+      // Weight
+      'kg': 'Kg',
+      'g': 'Gramme',
+      // Volume
+      'L': 'Litre',
+      'ml': 'Millilitre',
+      'cl': 'Centilitre',
+      // Bulk / Logistic
+      'carton': 'Carton',
+      'crate': 'Caisse',
+      'pack': 'Pack',
+      'dozen': 'Douzaine',
+      'bunch': 'Botte',
+      'pound': 'Livre'
+    };
+    return labels[unit] || unit;
   }
 
   onProductNameChange(row: RestockRow, newName: string): void {

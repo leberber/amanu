@@ -48,13 +48,39 @@ class ProductBase(SQLModel):
     is_organic: bool = Field(default=False)
     image_url: Optional[str] = Field(default=None, max_length=255)
 
-class Product(ProductBase, table=True):
+class Product(SQLModel, table=True):
     """Database model for products"""
     __tablename__ = "products"
+
+    # ID first
     id: Optional[int] = Field(default=None, primary_key=True)
+
+    # Core
+    name: str = Field(min_length=1, max_length=100, index=True)
+    price: float = Field(ge=0)
+    unit: ProductUnit = Field(default=ProductUnit.BOX)
+    pieces_per_box: Optional[int] = Field(default=None, ge=1)
+    packaging_type: Optional[PackagingType] = Field(default=PackagingType.CARTON)
+
+    # Inventory
+    stock_quantity: int = Field(default=0, ge=0)
+    is_active: bool = Field(default=True)
+
+    # Relations
+    category_id: int = Field(foreign_key="categories.id")
+    brand_id: Optional[int] = Field(default=None, foreign_key="brands.id")
+
+    # Details
+    description: Optional[str] = Field(default=None)
+    name_translations: Optional[Dict[str, str]] = Field(default_factory=dict, sa_column=Column(JSON))
+    description_translations: Optional[Dict[str, str]] = Field(default_factory=dict, sa_column=Column(JSON))
+    is_organic: bool = Field(default=False)
+    image_url: Optional[str] = Field(default=None, max_length=255)
+
+    # Timestamps
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: Optional[datetime] = Field(default=None)
-    
+
     # Relationships
     category: "Category" = Relationship(back_populates="products")
     brand: Optional["Brand"] = Relationship(back_populates="products")

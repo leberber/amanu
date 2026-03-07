@@ -27,6 +27,7 @@ class RestockItemRequest(BaseModel):
     description: str = ""
     supplier: str = ""
     phone: str = ""
+    productUnit: str = "piece"
     packageType: str = "Carton"
     prixUniteAchat: float = 0
     prixUniteVente: float = 0
@@ -50,6 +51,7 @@ class RestockItemResponse(BaseModel):
     description: str = ""
     supplier: str = ""
     phone: str = ""
+    productUnit: str = "piece"
     packageType: str = ""
     prixUniteAchat: float = 0
     prixUniteVente: float = 0
@@ -104,6 +106,7 @@ def db_to_response(item: RestockItem, session: Session) -> RestockItemResponse:
         description=item.description or "",
         supplier=item.supplier or "",
         phone=item.phone or "",
+        productUnit=item.product_unit or "box",
         packageType=item.package_type or "Carton",
         prixUniteAchat=item.prix_unite_achat or 0,
         prixUniteVente=item.prix_unite_vente or 0,
@@ -129,6 +132,42 @@ def map_package_type(restock_type: str) -> PackagingType:
         "Palette": PackagingType.CRATE,
     }
     return mapping.get(restock_type, PackagingType.CARTON)
+
+
+def map_product_unit(unit: str) -> ProductUnit:
+    """Map restock product unit to ProductUnit enum"""
+    mapping = {
+        # Individual units
+        "piece": ProductUnit.PIECE,
+        "unit": ProductUnit.PIECE,
+        "portion": ProductUnit.PIECE,
+        "slice": ProductUnit.PIECE,
+        # Container units
+        "bottle": ProductUnit.PIECE,
+        "can": ProductUnit.PIECE,
+        "jar": ProductUnit.PIECE,
+        "box": ProductUnit.BOX,
+        "sachet": ProductUnit.PIECE,
+        "tray": ProductUnit.PIECE,
+        "pot": ProductUnit.PIECE,
+        "tube": ProductUnit.PIECE,
+        # Weight units
+        "kg": ProductUnit.KG,
+        "g": ProductUnit.GRAM,
+        "gram": ProductUnit.GRAM,
+        # Volume units
+        "L": ProductUnit.PIECE,
+        "ml": ProductUnit.PIECE,
+        "cl": ProductUnit.PIECE,
+        # Bulk units
+        "carton": ProductUnit.BOX,
+        "crate": ProductUnit.BOX,
+        "pack": ProductUnit.BOX,
+        "dozen": ProductUnit.DOZEN,
+        "bunch": ProductUnit.BUNCH,
+        "pound": ProductUnit.POUND,
+    }
+    return mapping.get(unit, ProductUnit.PIECE)
 
 
 # =============================================================================
@@ -160,6 +199,7 @@ async def save_restock_item(item: RestockItemRequest, session: Session = Depends
             existing.description = item.description
             existing.supplier = item.supplier
             existing.phone = item.phone
+            existing.product_unit = item.productUnit
             existing.package_type = item.packageType
             existing.prix_unite_achat = item.prixUniteAchat
             existing.prix_unite_vente = item.prixUniteVente
@@ -185,6 +225,7 @@ async def save_restock_item(item: RestockItemRequest, session: Session = Depends
                 description=item.description,
                 supplier=item.supplier,
                 phone=item.phone,
+                product_unit=item.productUnit,
                 package_type=item.packageType,
                 prix_unite_achat=item.prixUniteAchat,
                 prix_unite_vente=item.prixUniteVente,
@@ -250,6 +291,7 @@ async def sync_restock_item(item_id: int, session: Session = Depends(get_session
             if product:
                 product.name = restock_item.name
                 product.price = restock_item.prix_unite_vente
+                product.unit = map_product_unit(restock_item.product_unit or "box")
                 product.category_id = restock_item.category_id
                 product.brand_id = restock_item.brand_id
                 product.description = restock_item.description
@@ -272,7 +314,7 @@ async def sync_restock_item(item_id: int, session: Session = Depends(get_session
         product = Product(
             name=restock_item.name,
             price=restock_item.prix_unite_vente,
-            unit=ProductUnit.BOX,
+            unit=map_product_unit(restock_item.product_unit or "box"),
             pieces_per_box=restock_item.unite_par_carton,
             packaging_type=map_package_type(restock_item.package_type or "Carton"),
             stock_quantity=restock_item.nmb_carton,
@@ -332,6 +374,7 @@ async def sync_all_restock(session: Session = Depends(get_session)):
                     if product:
                         product.name = restock_item.name
                         product.price = restock_item.prix_unite_vente
+                        product.unit = map_product_unit(restock_item.product_unit or "box")
                         product.category_id = restock_item.category_id
                         product.brand_id = restock_item.brand_id
                         product.description = restock_item.description
@@ -354,7 +397,7 @@ async def sync_all_restock(session: Session = Depends(get_session)):
                 product = Product(
                     name=restock_item.name,
                     price=restock_item.prix_unite_vente,
-                    unit=ProductUnit.BOX,
+                    unit=map_product_unit(restock_item.product_unit or "box"),
                     pieces_per_box=restock_item.unite_par_carton,
                     packaging_type=map_package_type(restock_item.package_type or "Carton"),
                     stock_quantity=restock_item.nmb_carton,

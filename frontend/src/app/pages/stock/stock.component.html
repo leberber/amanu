@@ -233,6 +233,9 @@
                       </div>
                     </th>
                   }
+                  @if (isColumnVisible('productUnit')) {
+                    <th class="col-input">Unité</th>
+                  }
                   @if (isColumnVisible('packageType')) {
                     <th class="col-input">Type Emballage</th>
                   }
@@ -421,6 +424,29 @@
                           />
                         } @else {
                           <span class="category-pill clickable" [style.background]="getCategoryColor(row.category).bg" [style.color]="getCategoryColor(row.category).text" (click)="startEditing(row.id, 'category')">{{ row.category || '-' }}</span>
+                        }
+                      </td>
+                    }
+
+                    <!-- Product Unit -->
+                    @if (isColumnVisible('productUnit')) {
+                      <td>
+                        @if (isNewRow(row) || isEditing(row.id, 'productUnit')) {
+                          <p-select
+                            [options]="productUnitOptions"
+                            [(ngModel)]="row.productUnit"
+                            (ngModelChange)="onInlineSelect(row, 'productUnit', $event)"
+                            (onHide)="stopEditing()"
+                            optionLabel="label"
+                            optionValue="value"
+                            placeholder="Unité"
+                            [autofocus]="true"
+                            [showClear]="true"
+                            appendTo="body"
+                            styleClass="stock-select"
+                          />
+                        } @else {
+                          <span class="unit-pill clickable" [style.background]="getUnitColor(row.productUnit).bg" [style.color]="getUnitColor(row.productUnit).text" (click)="startEditing(row.id, 'productUnit')">{{ getUnitLabel(row.productUnit) }}</span>
                         }
                       </td>
                     }
