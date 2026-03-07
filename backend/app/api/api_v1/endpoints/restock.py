@@ -309,6 +309,7 @@ async def sync_restock_item(item_id: int, session: Session = Depends(get_session
                 brand_changed = product.brand_id != restock_item.brand_id
                 name_changed = product.name != restock_item.name
 
+                s3_rename_error = None
                 if (brand_changed or name_changed) and restock_item.image:
                     # Try to rename S3 image
                     old_name = product.name or ""
@@ -325,13 +326,16 @@ async def sync_restock_item(item_id: int, session: Session = Depends(get_session
                             restock_item.image = new_url
                             image_renamed = True
                             changes.append("image_renamed")
+                        elif not success:
+                            s3_rename_error = msg
 
                 # Update only changed fields
                 if product.name != restock_item.name:
                     product.name = restock_item.name
                     changes.append("name")
 
-                if product.price != restock_item.prix_unite_vente:
+                # Use round for float comparison to avoid precision issues
+                if round(product.price or 0, 2) != round(restock_item.prix_unite_vente or 0, 2):
                     product.price = restock_item.prix_unite_vente
                     changes.append("price")
 
@@ -385,8 +389,13 @@ async def sync_restock_item(item_id: int, session: Session = Depends(get_session
 
                     session.commit()
                     message = f"Updated: {', '.join(changes)}"
+                    # Include S3 rename error if any
+                    if s3_rename_error:
+                        message += f" (Warning: image rename failed: {s3_rename_error})"
                 else:
                     message = "No changes"
+                    if s3_rename_error:
+                        message = f"No changes (Warning: image rename failed: {s3_rename_error})"
 
                 return SyncResult(
                     success=True,
@@ -394,6 +403,27 @@ async def sync_restock_item(item_id: int, session: Session = Depends(get_session
                     productId=product.id,
                     message=message
                 )
+
+        # Check for duplicate product (same name and brand)
+        duplicate_query = select(Product).where(
+            Product.name == restock_item.name,
+            Product.brand_id == restock_item.brand_id
+        )
+        existing_product = session.exec(duplicate_query).first()
+
+        if existing_product:
+            # Link to existing product instead of creating duplicate
+            restock_item.product_id = existing_product.id
+            restock_item.updated_at = datetime.now(timezone.utc)
+            session.add(restock_item)
+            session.commit()
+
+            return SyncResult(
+                success=True,
+                restockId=item_id,
+                productId=existing_product.id,
+                message=f"Linked to existing product (ID: {existing_product.id})"
+            )
 
         # Create new product
         product = Product(
@@ -497,7 +527,8 @@ async def sync_all_restock(session: Session = Depends(get_session)):
                             product.name = restock_item.name
                             changes.append("name")
 
-                        if product.price != restock_item.prix_unite_vente:
+                        # Use round for float comparison to avoid precision issues
+                        if round(product.price or 0, 2) != round(restock_item.prix_unite_vente or 0, 2):
                             product.price = restock_item.prix_unite_vente
                             changes.append("price")
 
@@ -563,6 +594,27 @@ async def sync_all_restock(session: Session = Depends(get_session)):
                             no_change_count += 1
                         continue
 
+                # Check for duplicate product (same name and brand)
+                duplicate_query = select(Product).where(
+                    Product.name == restock_item.name,
+                    Product.brand_id == restock_item.brand_id
+                )
+                existing_product = session.exec(duplicate_query).first()
+
+                if existing_product:
+                    # Link to existing product instead of creating duplicate
+                    restock_item.product_id = existing_product.id
+                    restock_item.updated_at = datetime.now(timezone.utc)
+                    session.add(restock_item)
+                    results.append({
+                        "restockId": restock_item.id,
+                        "productId": existing_product.id,
+                        "success": True,
+                        "message": f"Linked to existing product"
+                    })
+                    success_count += 1
+                    continue
+
                 # Create new product
                 product = Product(
                     name=restock_item.name,
@@ -626,9 +678,10 @@ async def upload_restock_image(
     file: UploadFile = File(...),
     brand: str = Form(...),
     name: str = Form(...),
-    restockId: int = Form(...)
+    restockId: int = Form(...),
+    session: Session = Depends(get_session)
 ):
-    """Upload product image to S3"""
+    """Upload product image to S3 and persist URL to restock item"""
     allowed_types = {'image/jpeg', 'image/png', 'image/webp', 'image/gif'}
     if file.content_type not in allowed_types:
         raise HTTPException(
@@ -649,6 +702,14 @@ async def upload_restock_image(
 
     if not success:
         raise HTTPException(status_code=500, detail=result)
+
+    # Persist image URL to restock item in database
+    restock_item = session.get(RestockItem, restockId)
+    if restock_item:
+        restock_item.image = result
+        restock_item.updated_at = datetime.now(timezone.utc)
+        session.add(restock_item)
+        session.commit()
 
     return {
         "success": True,

@@ -316,13 +316,16 @@
                       <td class="col-sync text-center">
                         <button
                           class="btn-sync"
-                          [class.synced]="row.synced"
+                          [class.synced]="row.synced && !isRowSyncDirty(row.id)"
+                          [class.sync-dirty]="isRowSyncDirty(row.id)"
                           (click)="syncRow(row)"
                           [disabled]="syncingRow() === row.id || isNewRow(row)"
-                          [pTooltip]="row.synced ? 'Re-synchroniser' : 'Synchroniser vers produits'"
+                          [pTooltip]="isNewRow(row) ? 'Enregistrer d\'abord' : isRowSyncDirty(row.id) ? 'Modifié - Re-synchroniser' : row.synced ? 'Re-synchroniser' : 'Synchroniser vers produits'"
                         >
                           @if (syncingRow() === row.id) {
                             <i class="pi pi-spin pi-spinner"></i>
+                          } @else if (isRowSyncDirty(row.id)) {
+                            <i class="pi pi-exclamation-triangle"></i>
                           } @else {
                             <i class="pi pi-sync"></i>
                           }

@@ -101,6 +101,7 @@ export class StockComponent implements OnInit, OnDestroy {
   syncingRow = signal<number | null>(null);
   syncingAll = signal(false);
   private flashingRows = new Set<number>();
+  syncDirtyRows = signal<Set<number>>(new Set()); // Tracks rows edited after sync
   allRows = signal<RestockRow[]>([]);
   brandsList = signal<BrandOption[]>([]);
   categoriesList = signal<CategoryOption[]>([]);
@@ -585,9 +586,9 @@ export class StockComponent implements OnInit, OnDestroy {
         this.savingRow.set(null);
         const originalId = row.id; // Store original ID for DOM lookup
         if (response.success) {
-          this.clearRowDirty(row.id);
+          this.clearRowDirty(originalId); // Clear with original ID
           this.flashRow(originalId, 'success', 'Enregistré'); // Flash before ID change
-          if (row.id < 0) {
+          if (originalId < 0) {
             row.id = response.id;
             this.allRows.update(rows => [...rows]); // Trigger update for new ID
           }
@@ -803,6 +804,12 @@ export class StockComponent implements OnInit, OnDestroy {
         if (response.success) {
           row.synced = true;
           row.productId = response.productId ?? null;
+          // Clear sync dirty state
+          this.syncDirtyRows.update(set => {
+            const newSet = new Set(set);
+            newSet.delete(row.id);
+            return newSet;
+          });
           this.allRows.update(rows => [...rows]);
           this.flashRow(row.id, 'success', 'Synchronisé');
         } else {
@@ -872,6 +879,16 @@ export class StockComponent implements OnInit, OnDestroy {
       newSet.add(rowId);
       return newSet;
     });
+
+    // Also mark as sync dirty if row was synced
+    const row = this.allRows().find(r => r.id === rowId);
+    if (row?.synced) {
+      this.syncDirtyRows.update(set => {
+        const newSet = new Set(set);
+        newSet.add(rowId);
+        return newSet;
+      });
+    }
   }
 
   clearRowDirty(rowId: number): void {
@@ -884,6 +901,10 @@ export class StockComponent implements OnInit, OnDestroy {
 
   isRowDirty(rowId: number): boolean {
     return this.dirtyRows().has(rowId);
+  }
+
+  isRowSyncDirty(rowId: number): boolean {
+    return this.syncDirtyRows().has(rowId);
   }
 
   startEditing(rowId: number, field: 'brand' | 'category' | 'priority' | 'packageType' | 'productUnit' | 'name'): void {
