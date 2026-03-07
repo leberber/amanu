@@ -2,7 +2,8 @@ import { Component, OnInit, OnDestroy, inject, signal, computed, DestroyRef } fr
 import { DecimalPipe } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
-import { catchError, of } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { catchError, of, finalize } from 'rxjs';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { SelectModule } from 'primeng/select';
@@ -62,6 +63,7 @@ export class StockComponent implements OnInit, OnDestroy {
   private readonly DEFAULT_COLOR = { bg: 'rgba(100, 116, 139, 0.12)', text: '#64748b' };
 
   private api = inject(ApiService);
+  private http = inject(HttpClient);
   private toast = inject(ToastMessageService);
   private destroyRef = inject(DestroyRef);
 
@@ -77,6 +79,9 @@ export class StockComponent implements OnInit, OnDestroy {
   groupBySupplier = signal(true);
   invoiceDate = new Date();
   lightboxImage = signal<string | null>(null);
+  lightboxRow = signal<StockRow | null>(null);
+  isDragging = signal(false);
+  isUploading = signal(false);
   allRows = signal<StockRow[]>([]);
   categoryFilter = signal<string[]>([]);
   brandFilter = signal<string[]>([]);
@@ -723,14 +728,110 @@ export class StockComponent implements OnInit, OnDestroy {
     this.showInvoiceDialog = false;
   }
 
-  openLightbox(imageUrl: string): void {
+  openLightbox(imageUrl: string, row?: StockRow): void {
     if (imageUrl && !imageUrl.includes('placeholder')) {
       this.lightboxImage.set(imageUrl);
+      this.lightboxRow.set(row ?? null);
     }
   }
 
   closeLightbox(): void {
     this.lightboxImage.set(null);
+    this.lightboxRow.set(null);
+    this.isDragging.set(false);
+  }
+
+  // Drag & Drop handlers
+  onDragOver(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging.set(true);
+  }
+
+  onDragLeave(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging.set(false);
+  }
+
+  onDrop(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging.set(false);
+
+    const files = event.dataTransfer?.files;
+    if (files && files.length > 0) {
+      this.uploadImage(files[0]);
+    }
+  }
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.uploadImage(input.files[0]);
+      input.value = ''; // Reset for same file selection
+    }
+  }
+
+  private uploadImage(file: File): void {
+    const row = this.lightboxRow();
+    if (!row) {
+      this.toast.showError('Aucun produit sélectionné');
+      return;
+    }
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      this.toast.showError('Veuillez sélectionner une image');
+      return;
+    }
+
+    // Validate file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      this.toast.showError('L\'image est trop grande (max 10MB)');
+      return;
+    }
+
+    // Validate row has required fields
+    if (!row.brand || !row.category || !row.product) {
+      this.toast.showError('Le produit doit avoir une marque, catégorie et nom');
+      return;
+    }
+
+    this.isUploading.set(true);
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('brand', row.brand);
+    formData.append('category', row.category);
+    formData.append('product', row.product);
+    formData.append('productId', row.productId.toString());
+
+    this.http.post<{ success: boolean; url: string; productId: number }>('/api/v1/stock/upload-image', formData)
+      .pipe(
+        finalize(() => this.isUploading.set(false)),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            // Update the row's image URL
+            const targetRow = this.allRows().find(r => r.productId === response.productId);
+            if (targetRow) {
+              // Add timestamp to bust cache
+              targetRow.image = response.url + '?t=' + Date.now();
+              this.allRows.update(rows => [...rows]);
+              this.lightboxImage.set(targetRow.image);
+              this.markRowDirty(targetRow.productId);
+            }
+            this.toast.showSuccess('Image téléchargée avec succès');
+          }
+        },
+        error: (err) => {
+          const message = err.error?.detail || 'Échec du téléchargement';
+          this.toast.showError(message);
+        }
+      });
   }
 
   downloadInvoicePDF(): void {

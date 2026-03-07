@@ -1,5 +1,5 @@
 from typing import List
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
 from sqlmodel import Session, select
 from sqlalchemy import text
 from pydantic import BaseModel
@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 
 from app.database import get_session
 from app.models.stock import StockItem
+from app.services.s3 import S3Service
 
 router = APIRouter()
 
@@ -218,3 +219,46 @@ async def save_stock(data: StockSaveRequest, session: Session = Depends(get_sess
     except Exception as e:
         session.rollback()
         raise HTTPException(status_code=422, detail=str(e))
+
+
+@router.post("/upload-image", response_model=dict)
+async def upload_stock_image(
+    file: UploadFile = File(...),
+    brand: str = Form(...),
+    category: str = Form(...),
+    product: str = Form(...),
+    productId: int = Form(...)
+):
+    """Upload product image to S3"""
+    # Validate file type
+    allowed_types = {'image/jpeg', 'image/png', 'image/webp', 'image/gif'}
+    if file.content_type not in allowed_types:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid file type. Allowed: {', '.join(allowed_types)}"
+        )
+
+    # Read file content
+    image_data = await file.read()
+
+    # Validate file size (max 10MB)
+    if len(image_data) > 10 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="File too large. Max size: 10MB")
+
+    # Upload to S3
+    success, result, key = S3Service.upload_image(
+        image_data=image_data,
+        brand=brand,
+        category=category,
+        product=product
+    )
+
+    if not success:
+        raise HTTPException(status_code=500, detail=result)
+
+    return {
+        "success": True,
+        "url": result,
+        "key": key,
+        "productId": productId
+    }

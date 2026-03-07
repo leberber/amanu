@@ -1137,6 +1137,83 @@
 }
 
 // =============================================================================
+// LIGHTBOX DROP ZONE
+// =============================================================================
+
+.lightbox-dropzone {
+  position: absolute;
+  bottom: -60px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px dashed rgba(255, 255, 255, 0.3);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 280px;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.5);
+  }
+
+  &.dragover {
+    background: rgba(59, 130, 246, 0.2);
+    border-color: var(--primary-color);
+    border-style: solid;
+    transform: translateX(-50%) scale(1.02);
+
+    .dropzone-content {
+      i {
+        color: var(--primary-color);
+        animation: bounce 0.5s ease infinite;
+      }
+    }
+  }
+
+  &.uploading {
+    pointer-events: none;
+    background: rgba(59, 130, 246, 0.15);
+    border-color: var(--primary-color);
+    border-style: solid;
+  }
+}
+
+.dropzone-content,
+.dropzone-uploading {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: rgba(255, 255, 255, 0.8);
+
+  i {
+    font-size: 1.25rem;
+    transition: all 0.2s ease;
+  }
+
+  span {
+    font-size: 0.875rem;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+}
+
+.dropzone-uploading {
+  i {
+    color: var(--primary-color);
+  }
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+// =============================================================================
 // INVOICE PREVIEW DIALOG
 // =============================================================================
 

@@ -309,7 +309,7 @@
                           [class.clickable]="row.image && !row.image.includes('placeholder')"
                           loading="lazy"
                           (error)="onImageError($event)"
-                          (click)="openLightbox(row.image)"
+                          (click)="openLightbox(row.image, row)"
                         />
                       </td>
                     }
@@ -675,14 +675,44 @@
   </div>
 </p-dialog>
 
-<!-- Image Lightbox -->
+<!-- Image Lightbox with Upload -->
 @if (lightboxImage()) {
   <div class="lightbox-overlay" (click)="closeLightbox()">
     <div class="lightbox-content" (click)="$event.stopPropagation()">
       <button class="lightbox-close" (click)="closeLightbox()">
         <i class="pi pi-times"></i>
       </button>
-      <img [src]="lightboxImage()" alt="Product Image" />
+      <img [src]="lightboxImage()" alt="Product Image" (error)="onImageError($event)" />
+
+      <!-- Drop Zone -->
+      <div
+        class="lightbox-dropzone"
+        [class.dragover]="isDragging()"
+        [class.uploading]="isUploading()"
+        (dragover)="onDragOver($event)"
+        (dragleave)="onDragLeave($event)"
+        (drop)="onDrop($event)"
+        (click)="fileInput.click()"
+      >
+        <input
+          #fileInput
+          type="file"
+          accept="image/*"
+          (change)="onFileSelected($event)"
+          style="display: none"
+        />
+        @if (isUploading()) {
+          <div class="dropzone-uploading">
+            <i class="pi pi-spin pi-spinner"></i>
+            <span>Envoi en cours...</span>
+          </div>
+        } @else {
+          <div class="dropzone-content">
+            <i class="pi pi-cloud-upload"></i>
+            <span>{{ isDragging() ? 'Déposez l\'image ici' : 'Glisser ou cliquer pour remplacer' }}</span>
+          </div>
+        }
+      </div>
     </div>
   </div>
 }

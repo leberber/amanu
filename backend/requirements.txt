@@ -14,3 +14,5 @@ pywebpush
 fastapi-mail
 google-auth
 httpx
+boto3
+pillow
