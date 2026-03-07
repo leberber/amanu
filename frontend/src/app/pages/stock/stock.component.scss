@@ -11,6 +11,11 @@
   padding: 0 1.5rem;
 }
 
+// Table header with bottom margin
+.table-header {
+  margin-bottom: 7px;
+}
+
 // Table header left section (search + filter indicator)
 .table-header-left {
   display: flex;
@@ -57,7 +62,7 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.5rem 1rem;
+  padding: 0.625rem 1rem;
   background: linear-gradient(135deg, #22c55e, #16a34a);
   color: white;
   border: none;
@@ -74,6 +79,15 @@
 
   i {
     font-size: 0.9rem;
+  }
+}
+
+// Segment control - smaller padding for stock page
+.segment-control--glass {
+  padding: var(--space-2);
+
+  .segment-control__item {
+    padding: var(--space-2) var(--space-4);
   }
 }
 
@@ -1161,8 +1175,8 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  background: linear-gradient(135deg, #10b981, #059669);
+  padding: 0.625rem 1rem;
+  background: linear-gradient(135deg, #f59e0b, #d97706);
   color: white;
   border: none;
   border-radius: var(--radius-md);

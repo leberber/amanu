@@ -254,7 +254,7 @@
                   <th class="col-group-toggle" (click)="purchaseColumnsExpanded.set(!purchaseColumnsExpanded())">
                     <div class="group-toggle-btn" [class.expanded]="purchaseColumnsExpanded()">
                       <i class="pi" [class.pi-chevron-right]="!purchaseColumnsExpanded()" [class.pi-chevron-left]="purchaseColumnsExpanded()"></i>
-                      <span>Achat</span>
+                      <span>{{ purchaseColumnsExpanded() ? 'Ajouter' : 'Achat' }}</span>
                     </div>
                   </th>
                   @if (purchaseColumnsExpanded()) {

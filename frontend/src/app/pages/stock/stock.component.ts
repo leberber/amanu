@@ -1198,6 +1198,7 @@ export class StockComponent implements OnInit, OnDestroy {
               this.markRowDirty(targetRow.id);
             }
             this.toast.showSuccess('Image téléchargée avec succès');
+            this.closeLightbox();
           }
         },
         error: (err) => {
