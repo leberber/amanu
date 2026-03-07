@@ -55,7 +55,7 @@ export class CustomToastService {
       severity: 'success',
       summary: this.translateService.instant('common.success'),
       detail: this.translateService.instant(detail, params),
-      life: 500
+      life: 1500
     });
   }
 

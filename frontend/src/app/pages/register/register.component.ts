@@ -13,7 +13,7 @@ import { UserService } from '../../services/user.service';
 import { UserRole, AuthProvider } from '../../models/user.model';
 import { MapPickerComponent, LocationData } from '../../shared/components/map-picker/map-picker.component';
 import { VALIDATION } from '../../core/constants/validation.constants';
-import { UI_DELAY, ANIMATION, UI } from '../../core/constants/ui.constants';
+import { ANIMATION, UI } from '../../core/constants/ui.constants';
 import { FormBuilderService } from '../../core/services/form-builder.service';
 import { PhoneFormatDirective } from '../../directives/phone-format.directive';
 import { ToastMessageService } from '../../core/services/toast-message.service';
@@ -63,12 +63,16 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild(MapPickerComponent) mapPicker!: MapPickerComponent;
   googleButton = viewChild<GoogleSignInButtonComponent>('googleButton');
 
+  // Storage key for persisting registration state
+  private readonly STORAGE_KEY = 'registration_state';
+  stateRestored = false;
+
   // State signals
   loading = signal(false);
-  activeStep = signal(0);
+  activeStep = signal(this.getSavedStep());
   focusedField = signal('');
   isInputFocused = signal(false);
-  pageReady = signal(false);
+  pageReady = signal(this.hasSavedState());
   showPassword = signal(false);
   showConfirmPassword = signal(false);
 
@@ -124,27 +128,36 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
   private elementRef = inject(ElementRef);
 
   constructor() {
-    // Step 1: Personal Info (with test defaults for development)
+    // Get saved state for form initialization
+    const savedState = this.getSavedState();
+
+    // Step 1: Personal Info
     this.personalInfoForm = this.fb.group({
-      full_name: ['Test User', [Validators.required, Validators.minLength(VALIDATION.MIN_NAME_LENGTH)]],
-      email: ['test@example.com', [Validators.required, Validators.email]],
-      phone: ['0555 12 34 56', [Validators.required]]
+      full_name: [savedState?.personalInfo?.full_name || '', [Validators.required, Validators.minLength(VALIDATION.MIN_NAME_LENGTH)]],
+      email: [savedState?.personalInfo?.email || '', [Validators.required, Validators.email]],
+      phone: [savedState?.personalInfo?.phone || '', [Validators.required]]
     });
 
-    // Step 2: Password (with test defaults for development)
+    // Step 2: Password
     this.passwordForm = this.fb.group({
-      password: ['Test1234', [Validators.required, Validators.minLength(VALIDATION.MIN_PASSWORD_LENGTH)]],
-      confirmPassword: ['Test1234', [Validators.required]]
+      password: ['', [Validators.required, Validators.minLength(VALIDATION.MIN_PASSWORD_LENGTH)]],
+      confirmPassword: ['', [Validators.required]]
     }, { validators: FormBuilderService.createPasswordMatchValidator('password', 'confirmPassword') });
 
     // Step 4: Store Details (after map)
     this.storeDetailsForm = this.fb.group({
-      phone: [''], // Required for Google users, will be validated conditionally
+      phone: [''],
       store_name: [''],
       wilaya: ['', Validators.required],
       daira: [{ value: '', disabled: true }, Validators.required],
       commune: [{ value: '', disabled: true }, Validators.required]
     });
+
+    // Restore verification state from saved state
+    if (savedState) {
+      this.verificationSent.set(savedState.verificationSent || false);
+      this.emailVerified.set(savedState.emailVerified || false);
+    }
   }
 
   ngOnInit() {
@@ -157,10 +170,16 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
     if (isFromGoogle) {
       this.initGoogleFlow();
     } else {
-      // Set initial validity for pre-filled forms (development defaults)
+      // Restore state and start resend countdown if needed
+      this.restoreState();
+
+      // Set initial form validity
       this.personalInfoValid.set(this.personalInfoForm.valid);
       this.passwordFormValid.set(this.passwordForm.valid);
     }
+
+    // Listen for visibility changes to handle iOS background/foreground
+    this.setupVisibilityListener();
   }
 
   private initGoogleFlow(): void {
@@ -192,10 +211,11 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    // Trigger animation sequence - logo starts centered then moves to top
-    setTimeout(() => {
-      this.pageReady.set(true);
-    }, ANIMATION.VERY_SLOW);
+    // Skip animation if state was restored (pageReady already true)
+    if (this.stateRestored) return;
+
+    // Trigger intro animation
+    setTimeout(() => this.pageReady.set(true), ANIMATION.VERY_SLOW);
   }
 
   onGoogleCredential(credential: string): void {
@@ -344,6 +364,71 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
     if (this.resendTimer) {
       clearInterval(this.resendTimer);
     }
+    // Remove visibility listener
+    document.removeEventListener('visibilitychange', this.onVisibilityChange);
+  }
+
+  private setupVisibilityListener(): void {
+    this.onVisibilityChange = this.onVisibilityChange.bind(this);
+    document.addEventListener('visibilitychange', this.onVisibilityChange);
+  }
+
+  private onVisibilityChange = (): void => {
+    if (document.visibilityState === 'hidden') {
+      // Save state when app goes to background
+      this.saveState();
+    }
+  };
+
+  private saveState(): void {
+    // Only save if we're past step 0 (user has started the flow)
+    if (this.activeStep() > 0 || this.verificationSent()) {
+      const state = {
+        activeStep: this.activeStep(),
+        verificationSent: this.verificationSent(),
+        emailVerified: this.emailVerified(),
+        personalInfo: this.personalInfoForm.value,
+        timestamp: Date.now()
+      };
+      sessionStorage.setItem(this.STORAGE_KEY, JSON.stringify(state));
+    }
+  }
+
+  private restoreState(): void {
+    // State is already restored in constructor and property initializers
+    // Just need to start resend countdown if on verification step
+    if (this.stateRestored && this.activeStep() === 1 && this.verificationSent() && !this.emailVerified()) {
+      this.startResendCountdown();
+    }
+  }
+
+  private clearSavedState(): void {
+    sessionStorage.removeItem(this.STORAGE_KEY);
+  }
+
+  private hasSavedState(): boolean {
+    return this.getSavedState() !== null;
+  }
+
+  private getSavedState(): { activeStep: number; verificationSent: boolean; emailVerified: boolean; personalInfo: any; timestamp: number } | null {
+    const saved = sessionStorage.getItem(this.STORAGE_KEY);
+    if (!saved) return null;
+    try {
+      const state = JSON.parse(saved);
+      const tenMinutes = 10 * 60 * 1000;
+      if (Date.now() - state.timestamp < tenMinutes) {
+        this.stateRestored = true;
+        return state;
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  }
+
+  private getSavedStep(): number {
+    const state = this.getSavedState();
+    return state?.activeStep || 0;
   }
 
   onLocationSelected(location: LocationData) {
@@ -470,6 +555,7 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
           this.verificationSent.set(true);
           this.startResendCountdown();
           this.activeStep.set(1); // Move to verification step
+          this.saveState(); // Save state for iOS background handling
         },
         error: (error) => {
           this.verificationLoading.set(false);
@@ -540,6 +626,7 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
           if (response.verified) {
             this.emailVerified.set(true);
             this.activeStep.set(2); // Move to password step
+            this.saveState(); // Save verified state
           }
         },
         error: (error) => {
@@ -811,11 +898,13 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
           }).subscribe({
             next: () => {
               this.loading.set(false);
+              this.clearSavedState();
               this.activeStep.set(6); // Show success screen
             },
             error: () => {
               // Login failed, still show success screen
               this.loading.set(false);
+              this.clearSavedState();
               this.activeStep.set(6);
             }
           });
@@ -847,6 +936,7 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
       .subscribe({
         next: (updatedUser) => {
           this.loading.set(false);
+          this.clearSavedState();
           this.authService.updateCurrentUser(updatedUser);
           // Show success screen (user is already logged in)
           this.activeStep.set(6);

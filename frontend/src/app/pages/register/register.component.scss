@@ -10,6 +10,14 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
 
 .register-carousel { @include auth.auth-page; }
 
+// Disable all animations when returning from background
+.register-carousel--no-animation {
+  &, & * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
 
 // =============================================================================
 // 1b. MODERN STEP STYLES (Step 1 - Personal Info with animated logo)

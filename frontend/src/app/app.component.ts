@@ -102,9 +102,10 @@ export class AppComponent implements OnInit {
   showNavigation = signal(false);
   hideBottomNav = signal(false);
 
-  // Splash screen state - hide initially if onboarding will show
+  // Splash screen state - hide initially if onboarding will show or returning from background
   private hasSeenOnboarding = this.storage.hasSeenOnboarding();
-  showSplash = signal(this.hasSeenOnboarding);
+  private isReturningFromBackground = this.checkReturningFromBackground();
+  showSplash = signal(this.hasSeenOnboarding && !this.isReturningFromBackground);
   splashExiting = signal(false);
 
   // Expose breakpoint service for template
@@ -129,8 +130,8 @@ export class AppComponent implements OnInit {
     // Initialize volume discounts (fetch + auto-refresh every 20min)
     this.volumeDiscountService.init();
 
-    // Splash screen animation sequence (only if not showing onboarding)
-    if (this.hasSeenOnboarding) {
+    // Splash screen animation sequence (only if not showing onboarding and not returning from background)
+    if (this.hasSeenOnboarding && !this.isReturningFromBackground) {
       this.initSplashScreen();
     }
 
@@ -205,5 +206,18 @@ export class AppComponent implements OnInit {
     this.showSplash.set(true);
     this.splashExiting.set(false);
     this.initSplashScreen();
+  }
+
+  private checkReturningFromBackground(): boolean {
+    // Check if there's saved registration state (user was in middle of registration)
+    const saved = sessionStorage.getItem('registration_state');
+    if (!saved) return false;
+    try {
+      const state = JSON.parse(saved);
+      const tenMinutes = 10 * 60 * 1000;
+      return Date.now() - state.timestamp < tenMinutes;
+    } catch {
+      return false;
+    }
   }
 }

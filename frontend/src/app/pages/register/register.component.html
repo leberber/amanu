@@ -1,5 +1,5 @@
 <!-- src/app/pages/register/register.component.html -->
-<div class="register-carousel" [class.register-carousel--ready]="pageReady()">
+<div class="register-carousel" [class.register-carousel--ready]="pageReady()" [class.register-carousel--no-animation]="stateRestored">
 
   <!-- Progress Bar Fixed at Top (hidden on steps 0, 3=map, 6=success, or when input focused) -->
   <div class="progress-header" [class.hidden]="activeStep() === 0 || activeStep() === 3 || activeStep() === 6 || isInputFocused()">
