@@ -169,7 +169,7 @@ export class StockComponent implements OnInit, OnDestroy {
     { field: 'brand', label: 'Marque', visible: true },
     { field: 'category', label: 'Catégorie', visible: true },
     { field: 'productUnit', label: 'Unité', visible: true },
-    { field: 'packageType', label: 'Type Emballage', visible: true },
+    { field: 'packageType', label: 'Emballage', visible: true },
     { field: 'supplier', label: 'Fournisseur', visible: false },
     { field: 'phone', label: 'Téléphone', visible: false },
     { field: 'description', label: 'Description', visible: false },
@@ -268,21 +268,13 @@ export class StockComponent implements OnInit, OnDestroy {
     return this.brandsList().map(b => ({ label: b.name, value: b.id }));
   });
 
-  // Filter options (by name for filtering)
+  // Filter options (from category/brand tables)
   categoryFilterOptions = computed(() => {
-    const categories = new Set<string>();
-    this.allRows().forEach(row => {
-      if (row.category && row.category !== '-') categories.add(row.category);
-    });
-    return Array.from(categories).map(name => ({ label: name, value: name }));
+    return this.categoriesList().map(c => ({ label: c.name, value: c.name }));
   });
 
   brandFilterOptions = computed(() => {
-    const brands = new Set<string>();
-    this.allRows().forEach(row => {
-      if (row.brand && row.brand !== '-') brands.add(row.brand);
-    });
-    return Array.from(brands).map(name => ({ label: name, value: name }));
+    return this.brandsList().map(b => ({ label: b.name, value: b.name }));
   });
 
   selectedForInvoice = computed(() => this.allRows().filter(r => r.carry));

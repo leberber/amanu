@@ -237,7 +237,7 @@
                     <th class="col-input">Unité</th>
                   }
                   @if (isColumnVisible('packageType')) {
-                    <th class="col-input">Type Emballage</th>
+                    <th class="col-input">Emballage</th>
                   }
                   @if (isColumnVisible('supplier')) {
                     <th class="col-input sortable" (click)="sort('supplier')">
@@ -253,19 +253,19 @@
                   @if (isColumnVisible('description')) {
                     <th>Description</th>
                   }
+                  @if (isColumnVisible('prixUniteVente')) {
+                    <th class="col-number text-center sortable" (click)="sort('prixUniteVente')">
+                      <span>Prix Vente</span>
+                      @if (sortField() === 'prixUniteVente') {
+                        <i class="pi" [class.pi-sort-amount-up]="sortOrder() === 'asc'" [class.pi-sort-amount-down]="sortOrder() === 'desc'"></i>
+                      }
+                    </th>
+                  }
                   <th class="col-spacer"></th>
                   @if (isColumnVisible('prixUniteAchat')) {
                     <th class="col-number text-center sortable" (click)="sort('prixUniteAchat')">
                       <span>Prix Achat</span>
                       @if (sortField() === 'prixUniteAchat') {
-                        <i class="pi" [class.pi-sort-amount-up]="sortOrder() === 'asc'" [class.pi-sort-amount-down]="sortOrder() === 'desc'"></i>
-                      }
-                    </th>
-                  }
-                  @if (isColumnVisible('prixUniteVente')) {
-                    <th class="col-number text-center sortable" (click)="sort('prixUniteVente')">
-                      <span>Prix Vente</span>
-                      @if (sortField() === 'prixUniteVente') {
                         <i class="pi" [class.pi-sort-amount-up]="sortOrder() === 'asc'" [class.pi-sort-amount-down]="sortOrder() === 'desc'"></i>
                       }
                     </th>
@@ -507,6 +507,23 @@
                       </td>
                     }
 
+                    <!-- Prix Unite Vente (editable) -->
+                    @if (isColumnVisible('prixUniteVente')) {
+                      <td class="col-number">
+                        <p-inputNumber
+                          [(ngModel)]="row.prixUniteVente"
+                          [min]="0"
+                          [maxFractionDigits]="2"
+                          mode="decimal"
+                          [showButtons]="false"
+                          [style]="{'width': '70px'}"
+                          inputStyleClass="text-center"
+                          (ngModelChange)="onPriceChange(row)"
+                          (onFocus)="selectOnFocus($event)"
+                        />
+                      </td>
+                    }
+
                     <!-- Spacer -->
                     <td class="col-spacer"></td>
 
@@ -522,23 +539,6 @@
                           [style]="{'width': '70px'}"
                           inputStyleClass="text-center"
                           (ngModelChange)="onFieldChange(row)"
-                          (onFocus)="selectOnFocus($event)"
-                        />
-                      </td>
-                    }
-
-                    <!-- Prix Unite Vente (editable) -->
-                    @if (isColumnVisible('prixUniteVente')) {
-                      <td class="col-number">
-                        <p-inputNumber
-                          [(ngModel)]="row.prixUniteVente"
-                          [min]="0"
-                          [maxFractionDigits]="2"
-                          mode="decimal"
-                          [showButtons]="false"
-                          [style]="{'width': '70px'}"
-                          inputStyleClass="text-center"
-                          (ngModelChange)="onPriceChange(row)"
                           (onFocus)="selectOnFocus($event)"
                         />
                       </td>
