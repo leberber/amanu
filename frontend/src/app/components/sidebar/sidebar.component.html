@@ -294,7 +294,12 @@
               @if (currentUser()?.is_active) {
                 <span class="mobile-menu__user-status mobile-menu__user-status--active">{{ 'common.active' | translate }}</span>
               } @else {
-                <span class="mobile-menu__user-status mobile-menu__user-status--inactive">{{ 'common.inactive' | translate }}</span>
+                <span class="mobile-menu__user-status mobile-menu__user-status--inactive">
+                  {{ 'common.inactive' | translate }}
+                  <button class="mobile-menu__refresh-btn" (click)="refreshUserStatus($event)" [disabled]="refreshingStatus()">
+                    <i [class]="refreshingStatus() ? 'pi pi-spin pi-spinner' : 'pi pi-refresh'"></i>
+                  </button>
+                </span>
               }
             </div>
             <button class="icon-btn icon-btn-danger" (click)="logout()">

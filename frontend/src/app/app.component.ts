@@ -13,6 +13,7 @@ import { CrossSellNotificationComponent } from './shared/components/cross-sell-n
 import { SidebarService } from './services/sidebar.service';
 import { NavigationService } from './core/services/navigation.service';
 import { StorageService } from './core/services/storage.service';
+import { AuthService } from './services/auth.service';
 import { ROUTES } from './core/constants/routes.constants';
 import { ANIMATION } from './core/constants/ui.constants';
 import { BreakpointService } from './core/services/breakpoint.service';
@@ -98,6 +99,7 @@ export class AppComponent implements OnInit {
   private readonly navigationService = inject(NavigationService);
   private readonly breakpoint = inject(BreakpointService);
   private readonly volumeDiscountService = inject(VolumeDiscountService);
+  private readonly authService = inject(AuthService);
 
   showNavigation = signal(false);
   hideBottomNav = signal(false);
@@ -129,6 +131,13 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     // Initialize volume discounts (fetch + auto-refresh every 20min)
     this.volumeDiscountService.init();
+
+    // Refresh user data from server if logged in (ensures fresh status)
+    if (this.authService.isLoggedIn) {
+      this.authService.loadCurrentUser()
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe();
+    }
 
     // Splash screen animation sequence (only if not showing onboarding and not returning from background)
     if (this.hasSeenOnboarding && !this.isReturningFromBackground) {

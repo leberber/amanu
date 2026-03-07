@@ -4,12 +4,14 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DrawerModule } from 'primeng/drawer';
 import { TooltipModule } from 'primeng/tooltip';
-import { filter } from 'rxjs/operators';
+import { filter, switchMap, tap, finalize, catchError } from 'rxjs/operators';
+import { of } from 'rxjs';
 
 import { AuthService } from '../../services/auth.service';
 import { CartService } from '../../services/cart.service';
 import { SidebarService } from '../../services/sidebar.service';
 import { UserNotificationService } from '../../services/user-notification.service';
+import { UserService } from '../../services/user.service';
 import { LanguageSelectorComponent } from '../language-selector/language-selector.component';
 import { UserPreferencesService } from '../../core/services/user-preferences.service';
 import { onLanguageChange } from '../../core/utils/language-change.util';
@@ -47,12 +49,15 @@ export class SidebarComponent implements OnInit {
   private sidebarService = inject(SidebarService);
   private notificationService = inject(UserNotificationService);
   private breakpoint = inject(BreakpointService);
+  private userService = inject(UserService);
 
   // State (drawer visibility comes from service)
   mobileDrawerVisible = this.sidebarService.drawerVisible;
   collapsed = this.sidebarService.collapsed;
   isMobile = this.breakpoint.isMobile;
   isLoggedIn = signal(this.authService.isLoggedIn);
+  refreshingStatus = signal(false);
+  private currentUserSignal = signal(this.authService.currentUserValue);
 
   constructor() {
     // Close drawer when switching to desktop
@@ -72,7 +77,7 @@ export class SidebarComponent implements OnInit {
   // Computed
   isAdmin = computed(() => this.authService.isAdmin());
   isAdminOrStaff = computed(() => this.authService.isAdminOrStaff());
-  currentUser = computed(() => this.authService.currentUserValue);
+  currentUser = this.currentUserSignal.asReadonly();
   userInitials = computed(() => getInitials(this.currentUser()?.full_name));
   currentViewMode = computed(() => this.preferencesService.productViewMode());
 
@@ -93,10 +98,13 @@ export class SidebarComponent implements OnInit {
         }
       });
 
-    // Subscribe to auth changes to rebuild nav
+    // Subscribe to auth changes to rebuild nav and update user signal
     this.authService.currentUser$
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.buildNavItems());
+      .subscribe((user) => {
+        this.currentUserSignal.set(user);
+        this.buildNavItems();
+      });
 
     // Rebuild nav on language change
     onLanguageChange(this.translateService, this.destroyRef, () => {
@@ -205,5 +213,28 @@ export class SidebarComponent implements OnInit {
   logout() {
     this.authService.logout();
     this.closeMobileDrawer();
+  }
+
+  refreshUserStatus(event: Event): void {
+    event.stopPropagation();
+    this.refreshingStatus.set(true);
+
+    // Use UserService to check status, then load full user if active
+    this.userService.getCurrentUser().pipe(
+      tap(user => {
+        // Update our local signal immediately with fresh data
+        this.currentUserSignal.set(user);
+      }),
+      switchMap(user => {
+        if (user.is_active) {
+          // User is now active, reload via AuthService to trigger notifications
+          return this.authService.loadCurrentUser();
+        }
+        return of(user);
+      }),
+      catchError(() => of(null)),
+      finalize(() => this.refreshingStatus.set(false)),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe();
   }
 }
