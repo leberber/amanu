@@ -43,6 +43,7 @@ export class HorizontalFilterComponent implements AfterViewInit {
   // State
   indicatorLeft = signal(0);
   indicatorWidth = signal(0);
+  indicatorReady = signal(false);
 
   // Computed
   allLabel = computed(() => {
@@ -115,6 +116,11 @@ export class HorizontalFilterComponent implements AfterViewInit {
         const itemWidth = activeElement.offsetWidth;
         const scrollPosition = itemLeft - (containerWidth / 2) + (itemWidth / 2);
         container.scrollLeft = Math.max(0, scrollPosition);
+      }
+
+      // Show indicator after positioning (prevents flying animation on load)
+      if (!this.indicatorReady()) {
+        requestAnimationFrame(() => this.indicatorReady.set(true));
       }
     }
   }

@@ -48,12 +48,14 @@
     </div>
   }
 
-  <!-- Sliding Indicator -->
-  <div
-    class="filter-indicator"
-    [style.left.px]="indicatorLeft()"
-    [style.width.px]="indicatorWidth()">
-  </div>
+  <!-- Sliding Indicator (hidden until positioned to prevent flying animation) -->
+  @if (indicatorReady()) {
+    <div
+      class="filter-indicator"
+      [style.left.px]="indicatorLeft()"
+      [style.width.px]="indicatorWidth()">
+    </div>
+  }
 
   <!-- Search Toggle -->
   @if (showSearchIcon()) {
