@@ -41,6 +41,7 @@ interface RestockRow {
   priority: number;
   hidden: boolean;
   synced: boolean;
+  _flash?: 'success' | 'error';
 }
 
 interface RestockData {
@@ -576,23 +577,26 @@ export class StockComponent implements OnInit, OnDestroy {
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
       next: (response) => {
+        this.savingRow.set(null);
         if (response.success) {
           this.clearRowDirty(row.id);
           if (row.id < 0) {
             row.id = response.id;
           }
+          row._flash = 'success';
           this.allRows.update(rows => [...rows]);
-          this.toast.showSuccess('Produit enregistré');
+          setTimeout(() => { row._flash = undefined; this.allRows.update(r => [...r]); }, 1000);
+        } else {
+          row._flash = 'error';
+          this.allRows.update(rows => [...rows]);
+          setTimeout(() => { row._flash = undefined; this.allRows.update(r => [...r]); }, 1000);
         }
-        this.savingRow.set(null);
       },
-      error: (err) => {
-        let errorMessage = 'Échec de l\'enregistrement';
-        if (err.error?.detail) {
-          errorMessage += ': ' + err.error.detail;
-        }
-        this.toast.showError(errorMessage);
+      error: () => {
         this.savingRow.set(null);
+        row._flash = 'error';
+        this.allRows.update(rows => [...rows]);
+        setTimeout(() => { row._flash = undefined; this.allRows.update(r => [...r]); }, 1000);
       }
     });
   }
@@ -633,7 +637,9 @@ export class StockComponent implements OnInit, OnDestroy {
   // Sync single row to products
   syncRow(row: RestockRow): void {
     if (!row.name || !row.categoryId) {
-      this.toast.showWarn('Le produit doit avoir un nom et une catégorie pour être synchronisé');
+      row._flash = 'error';
+      this.allRows.update(rows => [...rows]);
+      setTimeout(() => { row._flash = undefined; this.allRows.update(r => [...r]); }, 1000);
       return;
     }
 
@@ -643,23 +649,24 @@ export class StockComponent implements OnInit, OnDestroy {
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
       next: (response) => {
+        this.syncingRow.set(null);
         if (response.success) {
           row.synced = true;
           row.productId = response.productId ?? null;
+          row._flash = 'success';
           this.allRows.update(rows => [...rows]);
-          this.toast.showSuccess(response.message || 'Produit synchronisé');
+          setTimeout(() => { row._flash = undefined; this.allRows.update(r => [...r]); }, 1000);
         } else {
-          this.toast.showError(response.message || 'Échec de la synchronisation');
+          row._flash = 'error';
+          this.allRows.update(rows => [...rows]);
+          setTimeout(() => { row._flash = undefined; this.allRows.update(r => [...r]); }, 1000);
         }
-        this.syncingRow.set(null);
       },
-      error: (err) => {
-        let errorMessage = 'Échec de la synchronisation';
-        if (err.error?.detail) {
-          errorMessage += ': ' + err.error.detail;
-        }
-        this.toast.showError(errorMessage);
+      error: () => {
         this.syncingRow.set(null);
+        row._flash = 'error';
+        this.allRows.update(rows => [...rows]);
+        setTimeout(() => { row._flash = undefined; this.allRows.update(r => [...r]); }, 1000);
       }
     });
   }
