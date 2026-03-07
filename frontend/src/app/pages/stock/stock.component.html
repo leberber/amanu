@@ -214,10 +214,10 @@
                       </div>
                     </th>
                   }
-                  @if (isColumnVisible('productUnit')) {
+                  @if (isColumnVisible('productUnit') && !purchaseColumnsExpanded()) {
                     <th class="col-input">Unité</th>
                   }
-                  @if (isColumnVisible('packageType')) {
+                  @if (isColumnVisible('packageType') && !purchaseColumnsExpanded()) {
                     <th class="col-input">Emballage</th>
                   }
                   @if (isColumnVisible('supplier')) {
@@ -234,7 +234,7 @@
                   @if (isColumnVisible('description')) {
                     <th>Description</th>
                   }
-                  @if (isColumnVisible('prixUniteVente')) {
+                  @if (isColumnVisible('prixUniteVente') && !purchaseColumnsExpanded()) {
                     <th class="col-number text-center sortable" (click)="sort('prixUniteVente')">
                       <span>Prix Vente</span>
                       @if (sortField() === 'prixUniteVente') {
@@ -421,7 +421,7 @@
                     }
 
                     <!-- Product Unit -->
-                    @if (isColumnVisible('productUnit')) {
+                    @if (isColumnVisible('productUnit') && !purchaseColumnsExpanded()) {
                       <td>
                         @if (isNewRow(row) || isEditing(row.id, 'productUnit')) {
                           <p-select
@@ -444,7 +444,7 @@
                     }
 
                     <!-- Package Type -->
-                    @if (isColumnVisible('packageType')) {
+                    @if (isColumnVisible('packageType') && !purchaseColumnsExpanded()) {
                       <td>
                         @if (isNewRow(row) || isEditing(row.id, 'packageType')) {
                           <p-select
@@ -500,7 +500,7 @@
                     }
 
                     <!-- Prix Unite Vente (editable) -->
-                    @if (isColumnVisible('prixUniteVente')) {
+                    @if (isColumnVisible('prixUniteVente') && !purchaseColumnsExpanded()) {
                       <td class="col-number">
                         <p-inputNumber
                           [(ngModel)]="row.prixUniteVente"
