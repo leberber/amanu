@@ -41,7 +41,6 @@ interface RestockRow {
   priority: number;
   hidden: boolean;
   synced: boolean;
-  _flash?: 'success' | 'error';
 }
 
 interface RestockData {
@@ -546,7 +545,11 @@ export class StockComponent implements OnInit, OnDestroy {
 
   saveRow(row: RestockRow): void {
     if (!row.name || !row.brandId || !row.categoryId) {
-      this.toast.showWarn('Veuillez remplir le produit, la marque et la catégorie');
+      const missing = [];
+      if (!row.name) missing.push('nom');
+      if (!row.brandId) missing.push('marque');
+      if (!row.categoryId) missing.push('catégorie');
+      this.flashRow(row.id, 'error', `Manque: ${missing.join(', ')}`);
       return;
     }
 
@@ -583,22 +586,161 @@ export class StockComponent implements OnInit, OnDestroy {
           if (row.id < 0) {
             row.id = response.id;
           }
-          row._flash = 'success';
-          this.allRows.update(rows => [...rows]);
-          setTimeout(() => { row._flash = undefined; this.allRows.update(r => [...r]); }, 1000);
+          this.flashRow(row.id, 'success', 'Enregistré');
         } else {
-          row._flash = 'error';
-          this.allRows.update(rows => [...rows]);
-          setTimeout(() => { row._flash = undefined; this.allRows.update(r => [...r]); }, 1000);
+          this.flashRow(row.id, 'error', 'Échec sauvegarde');
         }
       },
-      error: () => {
+      error: (err) => {
         this.savingRow.set(null);
-        row._flash = 'error';
-        this.allRows.update(rows => [...rows]);
-        setTimeout(() => { row._flash = undefined; this.allRows.update(r => [...r]); }, 1000);
+        const errorMsg = this.extractErrorMessage(err);
+        this.flashRow(row.id, 'error', errorMsg);
       }
     });
+  }
+
+  private flashRow(rowId: number, type: 'success' | 'error', message: string): void {
+    const rowElement = document.querySelector(`tr[data-row-id="${rowId}"]`) as HTMLElement;
+    if (!rowElement) return;
+
+    const isSuccess = type === 'success';
+    const primaryColor = isSuccess ? '34, 197, 94' : '239, 68, 68';
+    const gradientColors = isSuccess
+      ? 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)'
+      : 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
+
+    // Add swing animation to row
+    rowElement.style.transition = 'transform 0.1s ease-out';
+    rowElement.style.transformOrigin = 'center';
+
+    // Swing sequence
+    const swingKeyframes = isSuccess
+      ? [
+          { transform: 'translateX(0)', offset: 0 },
+          { transform: 'translateX(-6px)', offset: 0.15 },
+          { transform: 'translateX(5px)', offset: 0.3 },
+          { transform: 'translateX(-4px)', offset: 0.45 },
+          { transform: 'translateX(3px)', offset: 0.6 },
+          { transform: 'translateX(-2px)', offset: 0.75 },
+          { transform: 'translateX(0)', offset: 1 }
+        ]
+      : [
+          { transform: 'translateX(0)', offset: 0 },
+          { transform: 'translateX(-8px)', offset: 0.1 },
+          { transform: 'translateX(8px)', offset: 0.2 },
+          { transform: 'translateX(-8px)', offset: 0.3 },
+          { transform: 'translateX(8px)', offset: 0.4 },
+          { transform: 'translateX(-4px)', offset: 0.6 },
+          { transform: 'translateX(4px)', offset: 0.8 },
+          { transform: 'translateX(0)', offset: 1 }
+        ];
+
+    rowElement.animate(swingKeyframes, {
+      duration: isSuccess ? 400 : 500,
+      easing: 'ease-out'
+    });
+
+    // Create overlay element for smooth animation
+    const overlay = document.createElement('div');
+    overlay.style.cssText = `
+      position: absolute;
+      inset: 0;
+      background: rgba(${primaryColor}, 0.25);
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0;
+      transition: opacity 0.15s ease-out;
+    `;
+
+    // Create shine sweep effect
+    const shine = document.createElement('div');
+    shine.style.cssText = `
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 60%;
+      height: 100%;
+      background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.4) 50%,
+        transparent 100%
+      );
+      pointer-events: none;
+      z-index: 2;
+      transform: skewX(-20deg);
+    `;
+
+    // Create badge
+    const badge = document.createElement('div');
+    badge.innerHTML = `<i class="pi ${isSuccess ? 'pi-check' : 'pi-times'}" style="margin-right: 6px; font-size: 0.7rem;"></i>${message}`;
+    badge.style.cssText = `
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%) scale(0.8);
+      padding: 0.4rem 0.85rem;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      color: white;
+      background: ${gradientColors};
+      box-shadow: 0 4px 15px rgba(${primaryColor}, 0.4);
+      z-index: 100;
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      display: flex;
+      align-items: center;
+    `;
+
+    rowElement.style.position = 'relative';
+    rowElement.style.overflow = 'hidden';
+    rowElement.appendChild(overlay);
+    rowElement.appendChild(shine);
+    rowElement.appendChild(badge);
+
+    // Trigger animation (next frame)
+    requestAnimationFrame(() => {
+      overlay.style.opacity = '1';
+      badge.style.opacity = '1';
+      badge.style.transform = 'translate(-50%, -50%) scale(1)';
+
+      // Animate shine sweep
+      shine.animate([
+        { left: '-100%' },
+        { left: '200%' }
+      ], {
+        duration: 600,
+        easing: 'ease-in-out'
+      });
+    });
+
+    // Timing based on type - errors stay longer
+    const overlayFadeTime = isSuccess ? 500 : 800;
+    const badgeFadeTime = isSuccess ? 1200 : 3000;
+    const cleanupTime = isSuccess ? 1600 : 3500;
+
+    // Fade out overlay
+    setTimeout(() => {
+      overlay.style.opacity = '0';
+    }, overlayFadeTime);
+
+    // Fade out badge
+    setTimeout(() => {
+      badge.style.opacity = '0';
+      badge.style.transform = 'translate(-50%, -50%) scale(0.8)';
+    }, badgeFadeTime);
+
+    // Clean up
+    setTimeout(() => {
+      overlay.remove();
+      shine.remove();
+      badge.remove();
+      rowElement.style.transition = '';
+      rowElement.style.transformOrigin = '';
+      rowElement.style.overflow = '';
+    }, cleanupTime);
   }
 
   deleteRow(row: RestockRow): void {
@@ -637,9 +779,7 @@ export class StockComponent implements OnInit, OnDestroy {
   // Sync single row to products
   syncRow(row: RestockRow): void {
     if (!row.name || !row.categoryId) {
-      row._flash = 'error';
-      this.allRows.update(rows => [...rows]);
-      setTimeout(() => { row._flash = undefined; this.allRows.update(r => [...r]); }, 1000);
+      this.flashRow(row.id, 'error', 'Nom et catégorie requis');
       return;
     }
 
@@ -653,22 +793,40 @@ export class StockComponent implements OnInit, OnDestroy {
         if (response.success) {
           row.synced = true;
           row.productId = response.productId ?? null;
-          row._flash = 'success';
           this.allRows.update(rows => [...rows]);
-          setTimeout(() => { row._flash = undefined; this.allRows.update(r => [...r]); }, 1000);
+          this.flashRow(row.id, 'success', 'Synchronisé');
         } else {
-          row._flash = 'error';
-          this.allRows.update(rows => [...rows]);
-          setTimeout(() => { row._flash = undefined; this.allRows.update(r => [...r]); }, 1000);
+          this.flashRow(row.id, 'error', response.message || 'Échec sync');
         }
       },
-      error: () => {
+      error: (err) => {
         this.syncingRow.set(null);
-        row._flash = 'error';
-        this.allRows.update(rows => [...rows]);
-        setTimeout(() => { row._flash = undefined; this.allRows.update(r => [...r]); }, 1000);
+        const errorMsg = this.extractErrorMessage(err);
+        this.flashRow(row.id, 'error', errorMsg);
       }
     });
+  }
+
+  private extractErrorMessage(err: any): string {
+    if (typeof err?.error?.detail === 'string') {
+      return err.error.detail;
+    }
+    if (Array.isArray(err?.error?.detail)) {
+      const firstError = err.error.detail[0];
+      if (firstError) {
+        const field = firstError.loc?.slice(-1)[0] || '';
+        const msg = firstError.msg || 'Erreur validation';
+        return field ? `${field}: ${msg}` : msg;
+      }
+      return 'Erreur validation';
+    }
+    if (typeof err?.error === 'string') {
+      return err.error;
+    }
+    if (typeof err?.message === 'string') {
+      return err.message;
+    }
+    return 'Erreur serveur';
   }
 
   // Sync all rows to products

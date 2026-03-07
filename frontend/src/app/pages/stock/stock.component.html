@@ -261,19 +261,19 @@
                       }
                     </th>
                   }
+                  @if (isColumnVisible('uniteParCarton')) {
+                    <th class="col-number text-center sortable" (click)="sort('uniteParCarton')">
+                      <span>Unité/Carton</span>
+                      @if (sortField() === 'uniteParCarton') {
+                        <i class="pi" [class.pi-sort-amount-up]="sortOrder() === 'asc'" [class.pi-sort-amount-down]="sortOrder() === 'desc'"></i>
+                      }
+                    </th>
+                  }
                   <th class="col-spacer"></th>
                   @if (isColumnVisible('prixUniteAchat')) {
                     <th class="col-number text-center sortable" (click)="sort('prixUniteAchat')">
                       <span>Prix Achat</span>
                       @if (sortField() === 'prixUniteAchat') {
-                        <i class="pi" [class.pi-sort-amount-up]="sortOrder() === 'asc'" [class.pi-sort-amount-down]="sortOrder() === 'desc'"></i>
-                      }
-                    </th>
-                  }
-                  @if (isColumnVisible('uniteParCarton')) {
-                    <th class="col-number text-center sortable" (click)="sort('uniteParCarton')">
-                      <span>Unité/Carton</span>
-                      @if (sortField() === 'uniteParCarton') {
                         <i class="pi" [class.pi-sort-amount-up]="sortOrder() === 'asc'" [class.pi-sort-amount-down]="sortOrder() === 'desc'"></i>
                       }
                     </th>
@@ -302,7 +302,7 @@
               </thead>
               <tbody>
                 @for (row of filteredRows(); track row.id; let i = $index) {
-                  <tr class="table-row-animate" [class.row-hidden]="row.hidden" [class.row-synced]="row.synced" [style.--row-delay]="(i * 30) + 'ms'" [style.background-color]="row._flash === 'success' ? 'rgba(34, 197, 94, 0.3)' : row._flash === 'error' ? 'rgba(239, 68, 68, 0.3)' : null" [style.transition]="'background-color 0.3s ease'">
+                  <tr class="table-row-animate" [class.row-hidden]="row.hidden" [class.row-synced]="row.synced" [attr.data-row-id]="row.id" [style.--row-delay]="(i * 30) + 'ms'">
                     <!-- Sync Status -->
                     @if (isColumnVisible('synced')) {
                       <td class="col-sync text-center">
@@ -524,6 +524,21 @@
                       </td>
                     }
 
+                    <!-- Unite par Carton (editable) -->
+                    @if (isColumnVisible('uniteParCarton')) {
+                      <td class="col-number">
+                        <p-inputNumber
+                          [(ngModel)]="row.uniteParCarton"
+                          [min]="0"
+                          [showButtons]="false"
+                          [style]="{'width': '70px'}"
+                          inputStyleClass="text-center"
+                          (ngModelChange)="onPriceChange(row)"
+                          (onFocus)="selectOnFocus($event)"
+                        />
+                      </td>
+                    }
+
                     <!-- Spacer -->
                     <td class="col-spacer"></td>
 
@@ -539,21 +554,6 @@
                           [style]="{'width': '70px'}"
                           inputStyleClass="text-center"
                           (ngModelChange)="onFieldChange(row)"
-                          (onFocus)="selectOnFocus($event)"
-                        />
-                      </td>
-                    }
-
-                    <!-- Unite par Carton (editable) -->
-                    @if (isColumnVisible('uniteParCarton')) {
-                      <td class="col-number">
-                        <p-inputNumber
-                          [(ngModel)]="row.uniteParCarton"
-                          [min]="0"
-                          [showButtons]="false"
-                          [style]="{'width': '70px'}"
-                          inputStyleClass="text-center"
-                          (ngModelChange)="onPriceChange(row)"
                           (onFocus)="selectOnFocus($event)"
                         />
                       </td>
