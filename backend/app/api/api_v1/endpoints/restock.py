@@ -171,6 +171,96 @@ def map_product_unit(unit: str) -> ProductUnit:
 
 
 # =============================================================================
+# Translation Helpers
+# =============================================================================
+
+# Product unit translations: restock_unit -> {en, fr, ar}
+UNIT_TRANSLATIONS = {
+    # Individual units
+    "piece": {"en": "pieces", "fr": "pièces", "ar": "قطعة"},
+    "unit": {"en": "units", "fr": "unités", "ar": "وحدة"},
+    "portion": {"en": "portions", "fr": "portions", "ar": "حصة"},
+    "slice": {"en": "slices", "fr": "tranches", "ar": "شريحة"},
+    # Container units
+    "bottle": {"en": "bottles", "fr": "bouteilles", "ar": "زجاجة"},
+    "can": {"en": "cans", "fr": "canettes", "ar": "علبة"},
+    "jar": {"en": "jars", "fr": "bocaux", "ar": "برطمان"},
+    "box": {"en": "boxes", "fr": "boîtes", "ar": "صندوق"},
+    "sachet": {"en": "sachets", "fr": "sachets", "ar": "كيس"},
+    "tray": {"en": "trays", "fr": "barquettes", "ar": "صينية"},
+    "pot": {"en": "pots", "fr": "pots", "ar": "وعاء"},
+    "tube": {"en": "tubes", "fr": "tubes", "ar": "أنبوب"},
+    # Weight units
+    "kg": {"en": "kg", "fr": "kg", "ar": "كغ"},
+    "g": {"en": "g", "fr": "g", "ar": "غ"},
+    "gram": {"en": "grams", "fr": "grammes", "ar": "غرام"},
+    # Volume units
+    "L": {"en": "L", "fr": "L", "ar": "ل"},
+    "ml": {"en": "ml", "fr": "ml", "ar": "مل"},
+    "cl": {"en": "cl", "fr": "cl", "ar": "سل"},
+    # Bulk units
+    "carton": {"en": "cartons", "fr": "cartons", "ar": "كرتون"},
+    "crate": {"en": "crates", "fr": "caisses", "ar": "صندوق"},
+    "pack": {"en": "packs", "fr": "packs", "ar": "عبوة"},
+    "dozen": {"en": "dozens", "fr": "douzaines", "ar": "دزينة"},
+    "bunch": {"en": "bunches", "fr": "bottes", "ar": "حزمة"},
+    "pound": {"en": "pounds", "fr": "livres", "ar": "رطل"},
+}
+
+# Package type translations: restock_package_type -> {en, fr, ar}
+PACKAGE_TRANSLATIONS = {
+    "Carton": {"en": "carton", "fr": "carton", "ar": "كرتون"},
+    "Paquet": {"en": "pack", "fr": "paquet", "ar": "عبوة"},
+    "Fardeau": {"en": "bundle", "fr": "fardeau", "ar": "حزمة"},
+    "Bouteille": {"en": "bottle", "fr": "bouteille", "ar": "زجاجة"},
+    "Sachet": {"en": "sachet", "fr": "sachet", "ar": "كيس"},
+    "Boîte": {"en": "box", "fr": "boîte", "ar": "صندوق"},
+    "Palette": {"en": "pallet", "fr": "palette", "ar": "منصة"},
+}
+
+
+def generate_name_translations(french_name: str) -> dict:
+    """
+    Generate name translations from French name.
+    EN/FR use the same name, AR uses placeholder for manual fix.
+    """
+    return {
+        "en": french_name,
+        "fr": french_name,
+        "ar": "اسم المنتج"  # Placeholder: "product name" in Arabic
+    }
+
+
+def generate_description_translations(
+    unite_par_carton: int,
+    product_unit: str,
+    package_type: str
+) -> dict:
+    """
+    Generate description translations using template:
+    "{unite_par_carton} {product_unit} par {package_type}"
+    """
+    # Get translations with fallbacks
+    unit_trans = UNIT_TRANSLATIONS.get(product_unit, {
+        "en": product_unit,
+        "fr": product_unit,
+        "ar": product_unit
+    })
+
+    package_trans = PACKAGE_TRANSLATIONS.get(package_type, {
+        "en": package_type.lower(),
+        "fr": package_type.lower(),
+        "ar": package_type
+    })
+
+    return {
+        "en": f"{unite_par_carton} {unit_trans['en']} per {package_trans['en']}",
+        "fr": f"{unite_par_carton} {unit_trans['fr']} par {package_trans['fr']}",
+        "ar": f"{unite_par_carton} {unit_trans['ar']} في {package_trans['ar']}"
+    }
+
+
+# =============================================================================
 # CRUD Endpoints
 # =============================================================================
 
@@ -378,6 +468,21 @@ async def sync_restock_item(item_id: int, session: Session = Depends(get_session
                     product.is_active = new_active
                     changes.append("is_active")
 
+                # Update translations
+                new_name_translations = generate_name_translations(restock_item.name)
+                if product.name_translations != new_name_translations:
+                    product.name_translations = new_name_translations
+                    changes.append("name_translations")
+
+                new_description_translations = generate_description_translations(
+                    unite_par_carton=restock_item.unite_par_carton or 1,
+                    product_unit=restock_item.product_unit or "piece",
+                    package_type=restock_item.package_type or "Carton"
+                )
+                if product.description_translations != new_description_translations:
+                    product.description_translations = new_description_translations
+                    changes.append("description_translations")
+
                 if changes:
                     product.updated_at = datetime.now(timezone.utc)
                     session.add(product)
@@ -425,6 +530,14 @@ async def sync_restock_item(item_id: int, session: Session = Depends(get_session
                 message=f"Linked to existing product (ID: {existing_product.id})"
             )
 
+        # Generate translations
+        name_translations = generate_name_translations(restock_item.name)
+        description_translations = generate_description_translations(
+            unite_par_carton=restock_item.unite_par_carton or 1,
+            product_unit=restock_item.product_unit or "piece",
+            package_type=restock_item.package_type or "Carton"
+        )
+
         # Create new product
         product = Product(
             name=restock_item.name,
@@ -437,6 +550,8 @@ async def sync_restock_item(item_id: int, session: Session = Depends(get_session
             category_id=restock_item.category_id,
             brand_id=restock_item.brand_id,
             description=restock_item.description,
+            description_translations=description_translations,
+            name_translations=name_translations,
             image_url=restock_item.image,
             created_at=datetime.now(timezone.utc)
         )
@@ -571,6 +686,21 @@ async def sync_all_restock(session: Session = Depends(get_session)):
                             product.is_active = new_active
                             changes.append("is_active")
 
+                        # Update translations
+                        new_name_translations = generate_name_translations(restock_item.name)
+                        if product.name_translations != new_name_translations:
+                            product.name_translations = new_name_translations
+                            changes.append("name_translations")
+
+                        new_description_translations = generate_description_translations(
+                            unite_par_carton=restock_item.unite_par_carton or 1,
+                            product_unit=restock_item.product_unit or "piece",
+                            package_type=restock_item.package_type or "Carton"
+                        )
+                        if product.description_translations != new_description_translations:
+                            product.description_translations = new_description_translations
+                            changes.append("description_translations")
+
                         if changes:
                             product.updated_at = datetime.now(timezone.utc)
                             session.add(product)
@@ -615,6 +745,14 @@ async def sync_all_restock(session: Session = Depends(get_session)):
                     success_count += 1
                     continue
 
+                # Generate translations
+                name_translations = generate_name_translations(restock_item.name)
+                description_translations = generate_description_translations(
+                    unite_par_carton=restock_item.unite_par_carton or 1,
+                    product_unit=restock_item.product_unit or "piece",
+                    package_type=restock_item.package_type or "Carton"
+                )
+
                 # Create new product
                 product = Product(
                     name=restock_item.name,
@@ -627,6 +765,8 @@ async def sync_all_restock(session: Session = Depends(get_session)):
                     category_id=restock_item.category_id,
                     brand_id=restock_item.brand_id,
                     description=restock_item.description,
+                    description_translations=description_translations,
+                    name_translations=name_translations,
                     image_url=restock_item.image,
                     created_at=datetime.now(timezone.utc)
                 )
