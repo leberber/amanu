@@ -100,6 +100,7 @@ export class StockComponent implements OnInit, OnDestroy {
   isUploading = signal(false);
   syncingRow = signal<number | null>(null);
   syncingAll = signal(false);
+  private flashingRows = new Set<number>();
   allRows = signal<RestockRow[]>([]);
   brandsList = signal<BrandOption[]>([]);
   categoriesList = signal<CategoryOption[]>([]);
@@ -539,8 +540,8 @@ export class StockComponent implements OnInit, OnDestroy {
     this.allRows.update(rows => [newRow, ...rows]);
 
     setTimeout(() => {
-      const tableBody = document.querySelector('.stock-table tbody');
-      tableBody?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      const tableWrapper = document.querySelector('.table-wrapper');
+      tableWrapper?.scrollTo({ top: 0, behavior: 'smooth' });
     }, 50);
   }
 
@@ -582,14 +583,16 @@ export class StockComponent implements OnInit, OnDestroy {
     ).subscribe({
       next: (response) => {
         this.savingRow.set(null);
+        const originalId = row.id; // Store original ID for DOM lookup
         if (response.success) {
           this.clearRowDirty(row.id);
+          this.flashRow(originalId, 'success', 'Enregistré'); // Flash before ID change
           if (row.id < 0) {
             row.id = response.id;
+            this.allRows.update(rows => [...rows]); // Trigger update for new ID
           }
-          this.flashRow(row.id, 'success', 'Enregistré');
         } else {
-          this.flashRow(row.id, 'error', 'Échec sauvegarde');
+          this.flashRow(originalId, 'error', 'Échec sauvegarde');
         }
       },
       error: (err) => {
@@ -601,8 +604,15 @@ export class StockComponent implements OnInit, OnDestroy {
   }
 
   private flashRow(rowId: number, type: 'success' | 'error', message: string): void {
+    // Prevent stacking animations on same row
+    if (this.flashingRows.has(rowId)) return;
+    this.flashingRows.add(rowId);
+
     const rowElement = document.querySelector(`tr[data-row-id="${rowId}"]`) as HTMLElement;
-    if (!rowElement) return;
+    if (!rowElement) {
+      this.flashingRows.delete(rowId);
+      return;
+    }
 
     const isSuccess = type === 'success';
     const primaryColor = isSuccess ? '34, 197, 94' : '239, 68, 68';
@@ -696,7 +706,6 @@ export class StockComponent implements OnInit, OnDestroy {
     `;
 
     rowElement.style.position = 'relative';
-    rowElement.style.overflow = 'hidden';
     rowElement.appendChild(overlay);
     rowElement.appendChild(shine);
     rowElement.appendChild(badge);
@@ -740,7 +749,7 @@ export class StockComponent implements OnInit, OnDestroy {
       badge.remove();
       rowElement.style.transition = '';
       rowElement.style.transformOrigin = '';
-      rowElement.style.overflow = '';
+      this.flashingRows.delete(rowId);
     }, cleanupTime);
   }
 
@@ -1262,10 +1271,11 @@ export class StockComponent implements OnInit, OnDestroy {
             // Update the row's image URL
             const targetRow = this.allRows().find(r => r.id === response.restockId);
             if (targetRow) {
-              // Add timestamp to bust cache
-              targetRow.image = response.url + '?t=' + Date.now();
+              // Store clean URL in data, use timestamp only for display
+              targetRow.image = response.url;
               this.allRows.update(rows => [...rows]);
-              this.lightboxImage.set(targetRow.image);
+              // Use timestamp only for lightbox to bust cache
+              this.lightboxImage.set(response.url + '?t=' + Date.now());
               this.markRowDirty(targetRow.id);
             }
             this.toast.showSuccess('Image téléchargée avec succès');
