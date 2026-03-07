@@ -1197,8 +1197,9 @@ export class StockComponent implements OnInit, OnDestroy {
               this.lightboxImage.set(response.url + '?t=' + Date.now());
               this.markRowDirty(targetRow.id);
             }
-            this.toast.showSuccess('Image téléchargée avec succès');
             this.closeLightbox();
+            // Bounce the image in the table
+            this.bounceImage(response.restockId);
           }
         },
         error: (err) => {
@@ -1206,6 +1207,21 @@ export class StockComponent implements OnInit, OnDestroy {
           this.toast.showError(message);
         }
       });
+  }
+
+  private bounceImage(rowId: number): void {
+    setTimeout(() => {
+      const row = document.querySelector(`tr[data-row-id="${rowId}"]`);
+      if (!row) return;
+
+      const img = row.querySelector('.product-thumbnail') as HTMLElement;
+      if (!img) return;
+
+      img.classList.add('image-bounce');
+      setTimeout(() => {
+        img.classList.remove('image-bounce');
+      }, 600);
+    }, 100);
   }
 
   downloadInvoicePDF(): void {
