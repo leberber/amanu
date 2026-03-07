@@ -1559,17 +1559,20 @@
 // Column Group Toggle (Collapsible Columns)
 // =============================================================================
 
+$group-bg: rgba(59, 130, 246, 0.08);
+$group-border: rgba(59, 130, 246, 0.2);
+
 .col-group-toggle {
   width: 70px !important;
   padding: 0.25rem 0.5rem !important;
   cursor: pointer;
   user-select: none;
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.08), rgba(59, 130, 246, 0.04)) !important;
-  border-left: 2px solid rgba(59, 130, 246, 0.3) !important;
+  background: $group-bg !important;
+  border-left: 2px solid $group-border !important;
   transition: all 0.2s ease;
 
   &:hover {
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(59, 130, 246, 0.08)) !important;
+    background: rgba(59, 130, 246, 0.12) !important;
   }
 }
 
@@ -1579,7 +1582,7 @@
   gap: 0.35rem;
   padding: 0.35rem 0.5rem;
   border-radius: 6px;
-  background: rgba(59, 130, 246, 0.1);
+  background: rgba(59, 130, 246, 0.12);
   color: #3b82f6;
   font-size: 0.7rem;
   font-weight: 600;
@@ -1590,31 +1593,24 @@
 
   i {
     font-size: 0.65rem;
-    transition: transform 0.2s ease;
-  }
-
-  &.expanded {
-    background: rgba(59, 130, 246, 0.15);
   }
 
   &:hover {
-    background: rgba(59, 130, 246, 0.2);
-    transform: scale(1.02);
+    background: rgba(59, 130, 246, 0.18);
   }
 }
 
-// Expandable columns animation
+// Expandable columns - unified background
 .col-expandable {
   animation: colExpand 0.25s ease-out forwards;
+  background: $group-bg !important;
 }
 
 @keyframes colExpand {
   0% {
     opacity: 0;
-    transform: scaleX(0.8);
   }
   100% {
     opacity: 1;
-    transform: scaleX(1);
   }
 }
