@@ -1,4 +1,4 @@
-<div class="filter-bar" [class.compact]="compact()" [attr.data-filter-type]="filterType()">
+<div #filterContainer class="filter-bar" [class.compact]="compact()" [attr.data-filter-type]="filterType()">
   <!-- Mode Toggle -->
   @if (showModeToggle()) {
     <div class="filter-item mode-toggle" (click)="toggleMode()">

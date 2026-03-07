@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, effect, computed, input, output, signal, viewChildren, ElementRef } from '@angular/core';
+import { Component, AfterViewInit, effect, computed, input, output, signal, viewChildren, viewChild, ElementRef } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { MultilinePipe } from '../../pipes/multiline.pipe';
 
@@ -38,6 +38,7 @@ export class HorizontalFilterComponent implements AfterViewInit {
 
   // View queries
   filterItems = viewChildren<ElementRef>('filterItem');
+  filterContainer = viewChild<ElementRef>('filterContainer');
 
   // State
   indicatorLeft = signal(0);
@@ -105,6 +106,16 @@ export class HorizontalFilterComponent implements AfterViewInit {
       const activeElement = items[activeIndex].nativeElement;
       this.indicatorLeft.set(activeElement.offsetLeft);
       this.indicatorWidth.set(activeElement.offsetWidth);
+
+      // Scroll container to center the active item
+      const container = this.filterContainer()?.nativeElement;
+      if (container) {
+        const containerWidth = container.offsetWidth;
+        const itemLeft = activeElement.offsetLeft;
+        const itemWidth = activeElement.offsetWidth;
+        const scrollPosition = itemLeft - (containerWidth / 2) + (itemWidth / 2);
+        container.scrollLeft = Math.max(0, scrollPosition);
+      }
     }
   }
 
