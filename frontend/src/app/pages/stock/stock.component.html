@@ -269,33 +269,41 @@
                       }
                     </th>
                   }
-                  <th class="col-spacer"></th>
-                  @if (isColumnVisible('prixUniteAchat')) {
-                    <th class="col-number text-center sortable" (click)="sort('prixUniteAchat')">
-                      <span>Prix Achat</span>
-                      @if (sortField() === 'prixUniteAchat') {
-                        <i class="pi" [class.pi-sort-amount-up]="sortOrder() === 'asc'" [class.pi-sort-amount-down]="sortOrder() === 'desc'"></i>
-                      }
-                    </th>
-                  }
-                  @if (isColumnVisible('prixCarton')) {
-                    <th class="col-number text-center">Prix Carton</th>
-                  }
-                  @if (isColumnVisible('nmbCarton')) {
-                    <th class="col-number text-center sortable" (click)="sort('nmbCarton')">
-                      <span>Nmb Carton</span>
-                      @if (sortField() === 'nmbCarton') {
-                        <i class="pi" [class.pi-sort-amount-up]="sortOrder() === 'asc'" [class.pi-sort-amount-down]="sortOrder() === 'desc'"></i>
-                      }
-                    </th>
-                  }
-                  @if (isColumnVisible('total')) {
-                    <th class="col-total text-center sortable" (click)="sort('total')">
-                      <span>Total</span>
-                      @if (sortField() === 'total') {
-                        <i class="pi" [class.pi-sort-amount-up]="sortOrder() === 'asc'" [class.pi-sort-amount-down]="sortOrder() === 'desc'"></i>
-                      }
-                    </th>
+                  <!-- Purchase Group Toggle -->
+                  <th class="col-group-toggle" (click)="purchaseColumnsExpanded.set(!purchaseColumnsExpanded())">
+                    <div class="group-toggle-btn" [class.expanded]="purchaseColumnsExpanded()">
+                      <i class="pi" [class.pi-chevron-right]="!purchaseColumnsExpanded()" [class.pi-chevron-left]="purchaseColumnsExpanded()"></i>
+                      <span>Achat</span>
+                    </div>
+                  </th>
+                  @if (purchaseColumnsExpanded()) {
+                    @if (isColumnVisible('prixUniteAchat')) {
+                      <th class="col-number text-center sortable col-expandable" (click)="sort('prixUniteAchat')">
+                        <span>Prix Achat</span>
+                        @if (sortField() === 'prixUniteAchat') {
+                          <i class="pi" [class.pi-sort-amount-up]="sortOrder() === 'asc'" [class.pi-sort-amount-down]="sortOrder() === 'desc'"></i>
+                        }
+                      </th>
+                    }
+                    @if (isColumnVisible('prixCarton')) {
+                      <th class="col-number text-center col-expandable">Prix Carton</th>
+                    }
+                    @if (isColumnVisible('nmbCarton')) {
+                      <th class="col-number text-center sortable col-expandable" (click)="sort('nmbCarton')">
+                        <span>Nmb Carton</span>
+                        @if (sortField() === 'nmbCarton') {
+                          <i class="pi" [class.pi-sort-amount-up]="sortOrder() === 'asc'" [class.pi-sort-amount-down]="sortOrder() === 'desc'"></i>
+                        }
+                      </th>
+                    }
+                    @if (isColumnVisible('total')) {
+                      <th class="col-total text-center sortable col-expandable" (click)="sort('total')">
+                        <span>Total</span>
+                        @if (sortField() === 'total') {
+                          <i class="pi" [class.pi-sort-amount-up]="sortOrder() === 'asc'" [class.pi-sort-amount-down]="sortOrder() === 'desc'"></i>
+                        }
+                      </th>
+                    }
                   }
                   <th class="col-actions"></th>
                 </tr>
@@ -539,63 +547,65 @@
                       </td>
                     }
 
-                    <!-- Spacer -->
-                    <td class="col-spacer"></td>
+                    <!-- Purchase Group Toggle Cell -->
+                    <td class="col-group-toggle"></td>
 
-                    <!-- Prix Unite Achat (editable) -->
-                    @if (isColumnVisible('prixUniteAchat')) {
-                      <td class="col-number">
-                        <p-inputNumber
-                          [(ngModel)]="row.prixUniteAchat"
-                          [min]="0"
-                          [maxFractionDigits]="2"
-                          mode="decimal"
-                          [showButtons]="false"
-                          [style]="{'width': '70px'}"
-                          inputStyleClass="text-center"
-                          (ngModelChange)="onFieldChange(row)"
-                          (onFocus)="selectOnFocus($event)"
-                        />
-                      </td>
-                    }
+                    @if (purchaseColumnsExpanded()) {
+                      <!-- Prix Unite Achat (editable) -->
+                      @if (isColumnVisible('prixUniteAchat')) {
+                        <td class="col-number col-expandable">
+                          <p-inputNumber
+                            [(ngModel)]="row.prixUniteAchat"
+                            [min]="0"
+                            [maxFractionDigits]="2"
+                            mode="decimal"
+                            [showButtons]="false"
+                            [style]="{'width': '70px'}"
+                            inputStyleClass="text-center"
+                            (ngModelChange)="onFieldChange(row)"
+                            (onFocus)="selectOnFocus($event)"
+                          />
+                        </td>
+                      }
 
-                    <!-- Prix Carton (editable) -->
-                    @if (isColumnVisible('prixCarton')) {
-                      <td class="col-number">
-                        <p-inputNumber
-                          [(ngModel)]="row.prixCarton"
-                          [min]="0"
-                          [maxFractionDigits]="0"
-                          mode="decimal"
-                          [showButtons]="false"
-                          [style]="{'width': '70px'}"
-                          inputStyleClass="text-center input-prix-carton"
-                          (ngModelChange)="onFieldChange(row)"
-                          (onFocus)="selectOnFocus($event)"
-                        />
-                      </td>
-                    }
+                      <!-- Prix Carton (editable) -->
+                      @if (isColumnVisible('prixCarton')) {
+                        <td class="col-number col-expandable">
+                          <p-inputNumber
+                            [(ngModel)]="row.prixCarton"
+                            [min]="0"
+                            [maxFractionDigits]="0"
+                            mode="decimal"
+                            [showButtons]="false"
+                            [style]="{'width': '70px'}"
+                            inputStyleClass="text-center input-prix-carton"
+                            (ngModelChange)="onFieldChange(row)"
+                            (onFocus)="selectOnFocus($event)"
+                          />
+                        </td>
+                      }
 
-                    <!-- Nmb Carton (editable) -->
-                    @if (isColumnVisible('nmbCarton')) {
-                      <td class="col-number">
-                        <p-inputNumber
-                          [(ngModel)]="row.nmbCarton"
-                          [min]="0"
-                          [showButtons]="false"
-                          [style]="{'width': '70px'}"
-                          inputStyleClass="text-center"
-                          (ngModelChange)="onNmbCartonChange(row)"
-                          (onFocus)="selectOnFocus($event)"
-                        />
-                      </td>
-                    }
+                      <!-- Nmb Carton (editable) -->
+                      @if (isColumnVisible('nmbCarton')) {
+                        <td class="col-number col-expandable">
+                          <p-inputNumber
+                            [(ngModel)]="row.nmbCarton"
+                            [min]="0"
+                            [showButtons]="false"
+                            [style]="{'width': '70px'}"
+                            inputStyleClass="text-center"
+                            (ngModelChange)="onNmbCartonChange(row)"
+                            (onFocus)="selectOnFocus($event)"
+                          />
+                        </td>
+                      }
 
-                    <!-- Total (calculated) -->
-                    @if (isColumnVisible('total')) {
-                      <td class="col-total">
-                        <span class="value-total">{{ row.prixCarton * row.nmbCarton | number:'1.0-0' }}</span>
-                      </td>
+                      <!-- Total (calculated) -->
+                      @if (isColumnVisible('total')) {
+                        <td class="col-total col-expandable">
+                          <span class="value-total">{{ row.prixCarton * row.nmbCarton | number:'1.0-0' }}</span>
+                        </td>
+                      }
                     }
 
                     <!-- Actions -->

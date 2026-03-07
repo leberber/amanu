@@ -108,6 +108,7 @@ export class StockComponent implements OnInit, OnDestroy {
   priorityFilter = signal<number[]>([]);
   sortField = signal<string>('brand');
   sortOrder = signal<'asc' | 'desc'>('asc');
+  purchaseColumnsExpanded = signal(true);
 
   priorityOptions = [
     { label: '-', value: 0 },
