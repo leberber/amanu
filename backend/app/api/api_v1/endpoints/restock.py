@@ -454,7 +454,6 @@ async def sync_all_restock(session: Session = Depends(get_session)):
 async def upload_restock_image(
     file: UploadFile = File(...),
     brand: str = Form(...),
-    category: str = Form(...),
     name: str = Form(...),
     restockId: int = Form(...)
 ):
@@ -474,7 +473,6 @@ async def upload_restock_image(
     success, result, key = S3Service.upload_image(
         image_data=image_data,
         brand=brand,
-        category=category,
         product=name
     )
 

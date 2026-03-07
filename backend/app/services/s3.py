@@ -42,12 +42,11 @@ class S3Service:
         return text.strip('-')
 
     @classmethod
-    def generate_product_key(cls, brand: str, category: str, product: str) -> str:
+    def generate_product_key(cls, brand: str, product: str) -> str:
         """Generate S3 key for product image"""
         brand_slug = cls.slugify(brand)
-        category_slug = cls.slugify(category)
         product_slug = cls.slugify(product)
-        return f"products/{brand_slug}/{brand_slug}_{category_slug}_{product_slug}.webp"
+        return f"products/{brand_slug}/{product_slug}.webp"
 
     @classmethod
     def get_public_url(cls, key: str) -> str:
@@ -85,7 +84,6 @@ class S3Service:
         cls,
         image_data: bytes,
         brand: str,
-        category: str,
         product: str,
         process: bool = True
     ) -> Tuple[bool, str, Optional[str]]:
@@ -95,7 +93,6 @@ class S3Service:
         Args:
             image_data: Raw image bytes
             brand: Product brand name
-            category: Product category name
             product: Product name
             process: Whether to process/convert image to WebP
 
@@ -108,7 +105,7 @@ class S3Service:
                 image_data = cls.process_image(image_data)
 
             # Generate key
-            key = cls.generate_product_key(brand, category, product)
+            key = cls.generate_product_key(brand, product)
 
             # Upload to S3
             client = cls.get_client()

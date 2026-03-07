@@ -869,10 +869,10 @@ export class StockComponent implements OnInit, OnDestroy {
   }
 
   generateImageUrl(row: RestockRow): string {
-    if (!row.brand || !row.category || !row.name) return '';
+    if (!row.brand || !row.name) return '';
     const slugify = (str: string) => str.toLowerCase().normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-    return `https://agroclik.s3.eu-west-3.amazonaws.com/products/${slugify(row.brand)}/${slugify(row.brand)}_${slugify(row.category)}_${slugify(row.name)}.webp`;
+    return `https://agroclik.s3.eu-west-3.amazonaws.com/products/${slugify(row.brand)}/${slugify(row.name)}.webp`;
   }
 
   downloadStock(): void {
@@ -1080,8 +1080,8 @@ export class StockComponent implements OnInit, OnDestroy {
     }
 
     // Validate row has required fields
-    if (!row.brand || !row.category || !row.name) {
-      this.toast.showError('Le produit doit avoir une marque, catégorie et nom');
+    if (!row.brand || !row.name) {
+      this.toast.showError('Le produit doit avoir une marque et un nom');
       return;
     }
 
@@ -1090,7 +1090,6 @@ export class StockComponent implements OnInit, OnDestroy {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('brand', row.brand);
-    formData.append('category', row.category);
     formData.append('name', row.name);
     formData.append('restockId', row.id.toString());
 
