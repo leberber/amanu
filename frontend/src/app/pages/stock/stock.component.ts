@@ -546,36 +546,47 @@ export class StockComponent implements OnInit, OnDestroy {
       ? 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)'
       : 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
 
-    // Add swing animation to row
-    rowElement.style.transition = 'transform 0.1s ease-out';
-    rowElement.style.transformOrigin = 'center';
+    // Get row position for fixed overlay (doesn't affect table layout)
+    const rect = rowElement.getBoundingClientRect();
 
-    // Swing sequence
+    // Swing animation on row cells (transform doesn't affect layout)
+    const cells = rowElement.querySelectorAll('td');
     const swingKeyframes = isSuccess
       ? [
-          { transform: 'translateX(0)', offset: 0 },
-          { transform: 'translateX(-6px)', offset: 0.15 },
-          { transform: 'translateX(5px)', offset: 0.3 },
-          { transform: 'translateX(-4px)', offset: 0.45 },
-          { transform: 'translateX(3px)', offset: 0.6 },
-          { transform: 'translateX(-2px)', offset: 0.75 },
-          { transform: 'translateX(0)', offset: 1 }
+          { transform: 'translateX(0)' },
+          { transform: 'translateX(-4px)' },
+          { transform: 'translateX(3px)' },
+          { transform: 'translateX(-2px)' },
+          { transform: 'translateX(0)' }
         ]
       : [
-          { transform: 'translateX(0)', offset: 0 },
-          { transform: 'translateX(-8px)', offset: 0.1 },
-          { transform: 'translateX(8px)', offset: 0.2 },
-          { transform: 'translateX(-8px)', offset: 0.3 },
-          { transform: 'translateX(8px)', offset: 0.4 },
-          { transform: 'translateX(-4px)', offset: 0.6 },
-          { transform: 'translateX(4px)', offset: 0.8 },
-          { transform: 'translateX(0)', offset: 1 }
+          { transform: 'translateX(0)' },
+          { transform: 'translateX(-6px)' },
+          { transform: 'translateX(6px)' },
+          { transform: 'translateX(-4px)' },
+          { transform: 'translateX(4px)' },
+          { transform: 'translateX(0)' }
         ];
 
-    rowElement.animate(swingKeyframes, {
-      duration: isSuccess ? 400 : 500,
-      easing: 'ease-out'
+    cells.forEach(cell => {
+      cell.animate(swingKeyframes, {
+        duration: isSuccess ? 300 : 400,
+        easing: 'ease-out'
+      });
     });
+
+    // Create container for overlay elements (fixed position, outside table)
+    const container = document.createElement('div');
+    container.style.cssText = `
+      position: fixed;
+      top: ${rect.top}px;
+      left: ${rect.left}px;
+      width: ${rect.width}px;
+      height: ${rect.height}px;
+      pointer-events: none;
+      z-index: 1000;
+      overflow: hidden;
+    `;
 
     // Create overlay element for smooth animation
     const overlay = document.createElement('div');
@@ -584,7 +595,6 @@ export class StockComponent implements OnInit, OnDestroy {
       inset: 0;
       background: rgba(${primaryColor}, 0.25);
       pointer-events: none;
-      z-index: 1;
       opacity: 0;
       transition: opacity 0.15s ease-out;
     `;
@@ -604,7 +614,6 @@ export class StockComponent implements OnInit, OnDestroy {
         transparent 100%
       );
       pointer-events: none;
-      z-index: 2;
       transform: skewX(-20deg);
     `;
 
@@ -631,10 +640,10 @@ export class StockComponent implements OnInit, OnDestroy {
       align-items: center;
     `;
 
-    rowElement.style.position = 'relative';
-    rowElement.appendChild(overlay);
-    rowElement.appendChild(shine);
-    rowElement.appendChild(badge);
+    container.appendChild(overlay);
+    container.appendChild(shine);
+    container.appendChild(badge);
+    document.body.appendChild(container);
 
     // Trigger animation (next frame)
     requestAnimationFrame(() => {
@@ -670,11 +679,7 @@ export class StockComponent implements OnInit, OnDestroy {
 
     // Clean up
     setTimeout(() => {
-      overlay.remove();
-      shine.remove();
-      badge.remove();
-      rowElement.style.transition = '';
-      rowElement.style.transformOrigin = '';
+      container.remove();
       this.flashingRows.delete(rowId);
     }, cleanupTime);
   }
