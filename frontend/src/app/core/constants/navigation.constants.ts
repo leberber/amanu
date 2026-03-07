@@ -5,6 +5,21 @@
 
 import { ROUTES } from './routes.constants';
 
+/**
+ * Routes that should close the mobile drawer permanently when navigated to.
+ * For these routes, pressing back will NOT reopen the drawer.
+ * Routes NOT in this list will allow the drawer to reopen on back navigation.
+ */
+export const DRAWER_CLOSE_ROUTES: string[] = [
+  ROUTES.PRODUCTS,
+  ROUTES.CART,
+  ROUTES.ORDERS,
+  ROUTES.CHECKOUT,
+  ROUTES.ORDER_SUMMARY,
+  // Admin routes
+  ...Object.values(ROUTES.ADMIN)
+];
+
 export interface AdminNavItem {
   labelKey: string;
   icon: string;

@@ -182,7 +182,7 @@
               @for (item of visibleAdminItems(); track item.route; let last = $last) {
                 <a [routerLink]="item.route" routerLinkActive="active"
                    [routerLinkActiveOptions]="{exact: item.route === routes.ADMIN.DASHBOARD}"
-                   (click)="closeMobileDrawer()"
+                   (click)="onMenuNavigate(item.route)"
                    class="mobile-menu__item" [class.mobile-menu__item--last]="last">
                   <div class="mobile-menu__item-icon mobile-menu__item-icon--admin">
                     <i [class]="item.icon"></i>
@@ -202,7 +202,8 @@
           }
           <div class="mobile-menu__card">
             @for (item of visibleNavItems(); track item.route; let last = $last) {
-              <a [routerLink]="item.route" routerLinkActive="active" (click)="closeMobileDrawer()"
+              <a [routerLink]="item.route" routerLinkActive="active"
+                 (click)="onMenuNavigate(item.route)"
                  class="mobile-menu__item" [class.mobile-menu__item--last]="last">
                 <div class="mobile-menu__item-icon">
                   <i [class]="item.icon"></i>
@@ -252,28 +253,28 @@
         <div class="mobile-menu__section">
           <div class="mobile-menu__section-title">{{ 'about.info' | translate }}</div>
           <div class="mobile-menu__card">
-            <a [routerLink]="routes.ABOUT" (click)="closeMobileDrawer()" class="mobile-menu__item">
+            <a [routerLink]="routes.ABOUT" (click)="onMenuNavigate(routes.ABOUT)" class="mobile-menu__item">
               <div class="mobile-menu__item-icon mobile-menu__item-icon--muted">
                 <i class="pi pi-building"></i>
               </div>
               <span class="mobile-menu__item-label">{{ 'about.title' | translate }}</span>
               <i class="pi pi-chevron-right mobile-menu__item-arrow"></i>
             </a>
-            <a [routerLink]="routes.CONTACT" (click)="closeMobileDrawer()" class="mobile-menu__item">
+            <a [routerLink]="routes.CONTACT" (click)="onMenuNavigate(routes.CONTACT)" class="mobile-menu__item">
               <div class="mobile-menu__item-icon mobile-menu__item-icon--muted">
                 <i class="pi pi-envelope"></i>
               </div>
               <span class="mobile-menu__item-label">{{ 'contact.title' | translate }}</span>
               <i class="pi pi-chevron-right mobile-menu__item-arrow"></i>
             </a>
-            <a [routerLink]="routes.TERMS" (click)="closeMobileDrawer()" class="mobile-menu__item">
+            <a [routerLink]="routes.TERMS" (click)="onMenuNavigate(routes.TERMS)" class="mobile-menu__item">
               <div class="mobile-menu__item-icon mobile-menu__item-icon--muted">
                 <i class="pi pi-file"></i>
               </div>
               <span class="mobile-menu__item-label">{{ 'terms.title' | translate }}</span>
               <i class="pi pi-chevron-right mobile-menu__item-arrow"></i>
             </a>
-            <a [routerLink]="routes.PRIVACY" (click)="closeMobileDrawer()" class="mobile-menu__item mobile-menu__item--last">
+            <a [routerLink]="routes.PRIVACY" (click)="onMenuNavigate(routes.PRIVACY)" class="mobile-menu__item mobile-menu__item--last">
               <div class="mobile-menu__item-icon mobile-menu__item-icon--muted">
                 <i class="pi pi-shield"></i>
               </div>
@@ -308,11 +309,11 @@
           </div>
         } @else {
           <div class="mobile-menu__auth">
-            <a [routerLink]="routes.LOGIN" (click)="closeMobileDrawer()" class="mobile-menu__auth-btn mobile-menu__auth-btn--primary">
+            <a [routerLink]="routes.LOGIN" (click)="onMenuNavigate(routes.LOGIN)" class="mobile-menu__auth-btn mobile-menu__auth-btn--primary">
               <i class="pi pi-sign-in"></i>
               <span>{{ 'common.login' | translate }}</span>
             </a>
-            <a [routerLink]="routes.REGISTER" (click)="closeMobileDrawer()" class="mobile-menu__auth-link">
+            <a [routerLink]="routes.REGISTER" (click)="onMenuNavigate(routes.REGISTER)" class="mobile-menu__auth-link">
               {{ 'auth.no_account' | translate }} <span>{{ 'common.register' | translate }}</span>
             </a>
           </div>

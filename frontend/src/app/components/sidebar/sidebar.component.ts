@@ -16,7 +16,7 @@ import { LanguageSelectorComponent } from '../language-selector/language-selecto
 import { UserPreferencesService } from '../../core/services/user-preferences.service';
 import { onLanguageChange } from '../../core/utils/language-change.util';
 import { ROUTES } from '../../core/constants/routes.constants';
-import { ADMIN_NAV_ITEMS } from '../../core/constants/navigation.constants';
+import { ADMIN_NAV_ITEMS, DRAWER_CLOSE_ROUTES } from '../../core/constants/navigation.constants';
 import { BreakpointService } from '../../core/services/breakpoint.service';
 import { getInitials } from '../../core/utils/format.util';
 
@@ -111,13 +111,17 @@ export class SidebarComponent implements OnInit {
       this.buildNavItems();
     });
 
-    // Close drawer on navigation
+    // Fallback: close drawer on navigation if click handler didn't catch it
     this.router.events
       .pipe(
         filter(event => event instanceof NavigationEnd),
         takeUntilDestroyed(this.destroyRef)
       )
-      .subscribe(() => this.closeMobileDrawer());
+      .subscribe(() => {
+        if (this.mobileDrawerVisible()) {
+          this.sidebarService.closeDrawer();
+        }
+      });
   }
 
   private buildNavItems() {
@@ -198,6 +202,12 @@ export class SidebarComponent implements OnInit {
   // Mobile drawer controls (via service)
   closeMobileDrawer() {
     this.sidebarService.closeDrawer();
+  }
+
+  // Close drawer when navigating from menu, with smart back behavior
+  onMenuNavigate(route: string): void {
+    const shouldCloseForGood = DRAWER_CLOSE_ROUTES.includes(route);
+    this.sidebarService.closeDrawerWithBackBehavior(!shouldCloseForGood);
   }
 
   // Desktop collapse controls
