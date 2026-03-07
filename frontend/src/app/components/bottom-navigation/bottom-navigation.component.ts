@@ -6,6 +6,7 @@ import { filter } from 'rxjs/operators';
 import { AuthService } from '../../services/auth.service';
 import { CartService } from '../../services/cart.service';
 import { SidebarService } from '../../services/sidebar.service';
+import { UserNotificationService } from '../../services/user-notification.service';
 import { MobileAdminMenuComponent } from '../mobile-admin-menu/mobile-admin-menu.component';
 import { ROUTES } from '../../core/constants/routes.constants';
 
@@ -22,9 +23,10 @@ export class BottomNavigationComponent implements OnInit, AfterViewInit {
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
   private sidebarService = inject(SidebarService);
+  private notificationService = inject(UserNotificationService);
 
-  // Routes constant for template
   readonly routes = ROUTES;
+  notificationCount = this.notificationService.unreadCount;
 
   // Signal-based view children
   navItems = viewChildren<ElementRef>('navItem');
@@ -63,6 +65,14 @@ export class BottomNavigationComponent implements OnInit, AfterViewInit {
         this.currentUrl.set(event.urlAfterRedirects || event.url);
         setTimeout(() => this.updateIndicator(), 0);
       });
+
+    if (this.authService.isLoggedIn) {
+      this.notificationService.refreshUnreadCount();
+    }
+  }
+
+  goToNotifications(): void {
+    this.router.navigate([ROUTES.NOTIFICATIONS]);
   }
 
   ngAfterViewInit() {

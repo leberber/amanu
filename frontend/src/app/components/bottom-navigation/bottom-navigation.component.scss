@@ -1,12 +1,54 @@
 // =============================================================================
 // BOTTOM NAVIGATION COMPONENT
 // =============================================================================
-// Main styles are in: src/styles/_components.scss (section 43)
-// This file only contains component-specific overrides if needed
-// =============================================================================
 
-// Component uses global styles from _components.scss:
-// - .bottom-nav
-// - .bottom-nav__item
-// - .bottom-nav__indicator
-// - .bottom-nav__cart-icon
+// Floating Notification Bell
+.notification-fab {
+  position: fixed;
+  bottom: calc(var(--bottom-nav-height, 60px) + 16px);
+  right: 16px;
+  z-index: 999;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: none;
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 16px rgba(59, 130, 246, 0.5);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  i {
+    font-size: 1.25rem;
+  }
+
+  &__badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 10px;
+    background: #ef4444;
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+}

@@ -1,3 +1,11 @@
+<!-- Floating Notification Bell -->
+@if (authService.isLoggedIn && notificationCount() > 0) {
+  <button class="notification-fab" (click)="goToNotifications()">
+    <i class="pi pi-bell"></i>
+    <span class="notification-fab__badge">{{ notificationCount() > 99 ? '99+' : notificationCount() }}</span>
+  </button>
+}
+
 <div class="bottom-nav">
   <!-- Sliding Indicator -->
   <div class="bottom-nav__indicator" [style.left.px]="indicatorLeft()" [style.width.px]="indicatorWidth()"></div>
