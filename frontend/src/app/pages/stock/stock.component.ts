@@ -84,7 +84,6 @@ export class StockComponent implements OnInit, OnDestroy {
   private destroyRef = inject(DestroyRef);
 
   loading = signal(true);
-  saving = signal(false);
   savingRow = signal<number | null>(null);
   tableInitialized = signal(false);
   isFullscreen = signal(true);
@@ -99,7 +98,6 @@ export class StockComponent implements OnInit, OnDestroy {
   isDragging = signal(false);
   isUploading = signal(false);
   syncingRow = signal<number | null>(null);
-  syncingAll = signal(false);
   private flashingRows = new Set<number>();
   syncDirtyRows = signal<Set<number>>(new Set()); // Tracks rows edited after sync
   allRows = signal<RestockRow[]>([]);
@@ -305,7 +303,6 @@ export class StockComponent implements OnInit, OnDestroy {
     return groups;
   });
 
-  unsyncedCount = computed(() => this.allRows().filter(r => !r.synced).length);
 
   ngOnInit(): void {
     document.body.classList.add('fullscreen-active');
@@ -402,78 +399,6 @@ export class StockComponent implements OnInit, OnDestroy {
     const brandFilter = this.brandFilter();
     const prioFilter = this.priorityFilter();
     return this.searchQuery().trim() !== '' || (catFilter?.length ?? 0) > 0 || (brandFilter?.length ?? 0) > 0 || (prioFilter?.length ?? 0) > 0;
-  }
-
-  saveStock(): void {
-    // Save all dirty rows one by one
-    const dirtyRowIds = Array.from(this.dirtyRows());
-    if (dirtyRowIds.length === 0) {
-      this.toast.showInfo('Aucune modification à enregistrer');
-      return;
-    }
-
-    this.saving.set(true);
-    let savedCount = 0;
-    let errorCount = 0;
-
-    dirtyRowIds.forEach(rowId => {
-      const row = this.allRows().find(r => r.id === rowId);
-      if (!row) return;
-
-      const payload = {
-        id: row.id > 0 ? row.id : null,
-        brandId: row.brandId,
-        categoryId: row.categoryId,
-        name: row.name,
-        image: row.image,
-        description: row.description,
-        supplier: row.supplier,
-        phone: row.phone,
-        productUnit: row.productUnit,
-        packageType: row.packageType,
-        prixUniteAchat: row.prixUniteAchat,
-        prixUniteVente: row.prixUniteVente,
-        uniteParCarton: row.uniteParCarton,
-        prixCarton: row.prixCarton,
-        nmbCarton: row.nmbCarton,
-        carry: row.carry,
-        priority: row.priority,
-        hidden: row.hidden
-      };
-
-      this.api.post<{ success: boolean; id: number }>('/restock/item', payload).pipe(
-        takeUntilDestroyed(this.destroyRef)
-      ).subscribe({
-        next: (response) => {
-          if (response.success) {
-            this.clearRowDirty(rowId);
-            if (row.id < 0) {
-              row.id = response.id;
-            }
-            savedCount++;
-          } else {
-            errorCount++;
-          }
-          this.checkSaveComplete(dirtyRowIds.length, savedCount, errorCount);
-        },
-        error: () => {
-          errorCount++;
-          this.checkSaveComplete(dirtyRowIds.length, savedCount, errorCount);
-        }
-      });
-    });
-  }
-
-  private checkSaveComplete(total: number, saved: number, errors: number): void {
-    if (saved + errors === total) {
-      this.saving.set(false);
-      if (errors === 0) {
-        this.toast.showSuccess('Stock enregistré avec succès');
-      } else {
-        this.toast.showWarn(`${saved} enregistré(s), ${errors} erreur(s)`);
-      }
-      this.allRows.update(rows => [...rows]);
-    }
   }
 
   onImageError(event: Event): void {
@@ -844,33 +769,6 @@ export class StockComponent implements OnInit, OnDestroy {
       return err.message;
     }
     return 'Erreur serveur';
-  }
-
-  // Sync all rows to products
-  syncAll(): void {
-    this.syncingAll.set(true);
-
-    this.api.post<{ success: boolean; total: number; synced: number; errors: number }>('/restock/sync-all', {}).pipe(
-      takeUntilDestroyed(this.destroyRef)
-    ).subscribe({
-      next: (response) => {
-        if (response.success) {
-          this.toast.showSuccess(`${response.synced} produit(s) synchronisé(s)`);
-          this.loadData(); // Reload to get updated sync status
-        } else {
-          this.toast.showError('Échec de la synchronisation');
-        }
-        this.syncingAll.set(false);
-      },
-      error: (err) => {
-        let errorMessage = 'Échec de la synchronisation';
-        if (err.error?.detail) {
-          errorMessage += ': ' + err.error.detail;
-        }
-        this.toast.showError(errorMessage);
-        this.syncingAll.set(false);
-      }
-    });
   }
 
   markRowDirty(rowId: number): void {

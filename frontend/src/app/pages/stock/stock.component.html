@@ -61,31 +61,12 @@
               <i class="pi pi-plus"></i>
               <span class="btn-text">Ajouter</span>
             </button>
-            <button class="btn-sync-all" (click)="syncAll()" [disabled]="syncingAll()" pTooltip="Synchroniser tous les produits">
-              @if (syncingAll()) {
-                <i class="pi pi-spin pi-spinner"></i>
-              } @else {
-                <i class="pi pi-sync"></i>
-              }
-              <span class="btn-text">Sync All</span>
-              @if (unsyncedCount() > 0) {
-                <span class="badge warning">{{ unsyncedCount() }}</span>
-              }
-            </button>
             <button class="btn-invoice" (click)="openInvoicePreview()" pTooltip="Générer Bon de Commande">
               <i class="pi pi-file-pdf"></i>
               <span class="btn-text">Commande</span>
               @if (selectedCount() > 0) {
                 <span class="badge">{{ selectedCount() }}</span>
               }
-            </button>
-            <button class="btn-save" (click)="saveStock()" [disabled]="saving()" pTooltip="Enregistrer">
-              @if (saving()) {
-                <i class="pi pi-spin pi-spinner"></i>
-              } @else {
-                <i class="pi pi-save"></i>
-              }
-              <span class="btn-text">Enregistrer</span>
             </button>
             <button class="btn-download" (click)="downloadStock()" pTooltip="Télécharger CSV">
               <i class="pi pi-download"></i>

@@ -222,12 +222,12 @@ PACKAGE_TRANSLATIONS = {
 def generate_name_translations(french_name: str) -> dict:
     """
     Generate name translations from French name.
-    EN/FR use the same name, AR uses placeholder for manual fix.
+    All languages use the French name.
     """
     return {
         "en": french_name,
         "fr": french_name,
-        "ar": "اسم المنتج"  # Placeholder: "product name" in Arabic
+        "ar": french_name
     }
 
 
