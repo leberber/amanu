@@ -263,5 +263,12 @@ export const routes: Routes = [
     data: { hideBottomNav: true }
   },
 
+  // Example components (for development/testing)
+  {
+    path: 'example/maps',
+    loadComponent: () => import('./examples/maps-navigation/maps-navigation.component').then(m => m.MapsNavigationExampleComponent),
+    data: { hideBottomNav: true }
+  },
+
   { path: '**', redirectTo: '' }
 ];
