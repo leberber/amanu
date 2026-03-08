@@ -1198,19 +1198,28 @@ export class StockComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (response) => {
           if (response.success) {
-            // Update the row's image URL
+            // Update the row's image URL with cache buster
             const targetRow = this.allRows().find(r => r.id === response.restockId);
             if (targetRow) {
-              // Store clean URL in data, use timestamp only for display
-              targetRow.image = response.url;
-              this.allRows.update(rows => [...rows]);
-              // Use timestamp only for lightbox to bust cache
-              this.lightboxImage.set(response.url + '?t=' + Date.now());
+              // Add timestamp to bust browser cache
+              const cacheBuster = '?t=' + Date.now();
+              targetRow.image = response.url + cacheBuster;
+              // Move row to top of list
+              this.allRows.update(rows => {
+                const filtered = rows.filter(r => r.id !== response.restockId);
+                return [targetRow, ...filtered];
+              });
+              this.lightboxImage.set(response.url + cacheBuster);
               this.markRowDirty(targetRow.id);
             }
             this.closeLightbox();
-            // Bounce the image in the table
-            this.bounceImage(response.restockId);
+            // Scroll to top and bounce the image
+            setTimeout(() => {
+              const tableWrapper = document.querySelector('.table-wrapper');
+              tableWrapper?.scrollTo({ top: 0, behavior: 'smooth' });
+              this.bounceImage(response.restockId);
+            }, 50);
+            this.toast.showSuccess('Image mise à jour');
           }
         },
         error: (err) => {
