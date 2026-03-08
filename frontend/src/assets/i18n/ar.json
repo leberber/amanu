@@ -1507,9 +1507,9 @@
         "pieces_per_box_placeholder": "مثال: 12",
         "pieces_per_box_hint": "عدد القطع الفردية في الكرتون الواحد",
         "volume": "الحجم",
-        "volume_placeholder": "مثال: 500مل، 1ل",
+        "volume_placeholder": "مثال: 1.5",
         "weight": "الوزن",
-        "weight_placeholder": "مثال: 250غ، 1كغ",
+        "weight_placeholder": "مثال: 0.5",
         "configure_packaging_first": "قم بإعداد التغليف أولاً",
         "configure_packaging_hint": "اختر نوع التغليف وعدد القطع للتفعيل"
       },

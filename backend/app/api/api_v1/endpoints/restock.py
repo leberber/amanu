@@ -29,8 +29,9 @@ class RestockItemRequest(BaseModel):
     phone: str = ""
     productUnit: str = "piece"
     packageType: str = "Carton"
+    volume: Optional[float] = None  # in liters (L)
+    weight: Optional[float] = None  # in kilograms (kg)
     prixUniteAchat: float = 0
-    prixUniteVente: float = 0
     uniteParCarton: int = 1
     prixCarton: float = 0
     nmbCarton: int = 0
@@ -53,8 +54,9 @@ class RestockItemResponse(BaseModel):
     phone: str = ""
     productUnit: str = "piece"
     packageType: str = ""
+    volume: Optional[float] = None  # in liters (L)
+    weight: Optional[float] = None  # in kilograms (kg)
     prixUniteAchat: float = 0
-    prixUniteVente: float = 0
     uniteParCarton: int = 1
     prixCarton: float = 0
     nmbCarton: int = 0
@@ -108,8 +110,9 @@ def db_to_response(item: RestockItem, session: Session) -> RestockItemResponse:
         phone=item.phone or "",
         productUnit=item.product_unit or "box",
         packageType=item.package_type or "Carton",
+        volume=item.volume,
+        weight=item.weight,
         prixUniteAchat=item.prix_unite_achat or 0,
-        prixUniteVente=item.prix_unite_vente or 0,
         uniteParCarton=item.unite_par_carton or 1,
         prixCarton=item.prix_carton or 0,
         nmbCarton=item.nmb_carton or 0,
@@ -291,8 +294,9 @@ async def save_restock_item(item: RestockItemRequest, session: Session = Depends
             existing.phone = item.phone
             existing.product_unit = item.productUnit
             existing.package_type = item.packageType
+            existing.volume = item.volume
+            existing.weight = item.weight
             existing.prix_unite_achat = item.prixUniteAchat
-            existing.prix_unite_vente = item.prixUniteVente
             existing.unite_par_carton = item.uniteParCarton
             existing.prix_carton = item.prixCarton
             existing.nmb_carton = item.nmbCarton
@@ -317,8 +321,9 @@ async def save_restock_item(item: RestockItemRequest, session: Session = Depends
                 phone=item.phone,
                 product_unit=item.productUnit,
                 package_type=item.packageType,
+                volume=item.volume,
+                weight=item.weight,
                 prix_unite_achat=item.prixUniteAchat,
-                prix_unite_vente=item.prixUniteVente,
                 unite_par_carton=item.uniteParCarton,
                 prix_carton=item.prixCarton,
                 nmb_carton=item.nmbCarton,
@@ -425,8 +430,8 @@ async def sync_restock_item(item_id: int, session: Session = Depends(get_session
                     changes.append("name")
 
                 # Use round for float comparison to avoid precision issues
-                if round(product.price or 0, 2) != round(restock_item.prix_unite_vente or 0, 2):
-                    product.price = restock_item.prix_unite_vente
+                if round(product.price or 0, 2) != round(restock_item.prix_unite_achat or 0, 2):
+                    product.price = restock_item.prix_unite_achat
                     changes.append("price")
 
                 new_unit = map_product_unit(restock_item.product_unit or "piece")
@@ -454,6 +459,14 @@ async def sync_restock_item(item_id: int, session: Session = Depends(get_session
                 if product.packaging_type != new_packaging:
                     product.packaging_type = new_packaging
                     changes.append("packaging_type")
+
+                if product.volume != restock_item.volume:
+                    product.volume = restock_item.volume
+                    changes.append("volume")
+
+                if product.weight != restock_item.weight:
+                    product.weight = restock_item.weight
+                    changes.append("weight")
 
                 if product.pieces_per_box != restock_item.unite_par_carton:
                     product.pieces_per_box = restock_item.unite_par_carton
@@ -541,10 +554,12 @@ async def sync_restock_item(item_id: int, session: Session = Depends(get_session
         # Create new product
         product = Product(
             name=restock_item.name,
-            price=restock_item.prix_unite_vente,
+            price=restock_item.prix_unite_achat,
             unit=map_product_unit(restock_item.product_unit or "piece"),
             pieces_per_box=restock_item.unite_par_carton,
             packaging_type=map_package_type(restock_item.package_type or "Carton"),
+            volume=restock_item.volume,
+            weight=restock_item.weight,
             stock_quantity=restock_item.nmb_carton,
             is_active=not restock_item.hidden,
             category_id=restock_item.category_id,
@@ -643,8 +658,8 @@ async def sync_all_restock(session: Session = Depends(get_session)):
                             changes.append("name")
 
                         # Use round for float comparison to avoid precision issues
-                        if round(product.price or 0, 2) != round(restock_item.prix_unite_vente or 0, 2):
-                            product.price = restock_item.prix_unite_vente
+                        if round(product.price or 0, 2) != round(restock_item.prix_unite_achat or 0, 2):
+                            product.price = restock_item.prix_unite_achat
                             changes.append("price")
 
                         new_unit = map_product_unit(restock_item.product_unit or "piece")
@@ -672,6 +687,14 @@ async def sync_all_restock(session: Session = Depends(get_session)):
                         if product.packaging_type != new_packaging:
                             product.packaging_type = new_packaging
                             changes.append("packaging_type")
+
+                        if product.volume != restock_item.volume:
+                            product.volume = restock_item.volume
+                            changes.append("volume")
+
+                        if product.weight != restock_item.weight:
+                            product.weight = restock_item.weight
+                            changes.append("weight")
 
                         if product.pieces_per_box != restock_item.unite_par_carton:
                             product.pieces_per_box = restock_item.unite_par_carton
@@ -756,10 +779,12 @@ async def sync_all_restock(session: Session = Depends(get_session)):
                 # Create new product
                 product = Product(
                     name=restock_item.name,
-                    price=restock_item.prix_unite_vente,
+                    price=restock_item.prix_unite_achat,
                     unit=map_product_unit(restock_item.product_unit or "piece"),
                     pieces_per_box=restock_item.unite_par_carton,
                     packaging_type=map_package_type(restock_item.package_type or "Carton"),
+                    volume=restock_item.volume,
+                    weight=restock_item.weight,
                     stock_quantity=restock_item.nmb_carton,
                     is_active=not restock_item.hidden,
                     category_id=restock_item.category_id,

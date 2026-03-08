@@ -170,11 +170,11 @@
                             (ngModelChange)="onBrandChange($event)"
                             optionLabel="label"
                             optionValue="value"
-                            placeholder="M"
+                            placeholder="Marque"
                             [showClear]="false"
                             [filter]="true"
                             filterPlaceholder="Rechercher..."
-                            selectedItemsLabel="M"
+                            selectedItemsLabel="Marque"
                             [maxSelectedLabels]="0"
                           />
                         </div>
@@ -200,11 +200,11 @@
                             (ngModelChange)="onCategoryChange($event)"
                             optionLabel="label"
                             optionValue="value"
-                            placeholder="C"
+                            placeholder="Catégorie"
                             [showClear]="false"
                             [filter]="true"
                             filterPlaceholder="Rechercher..."
-                            selectedItemsLabel="C"
+                            selectedItemsLabel="Catégorie"
                             [maxSelectedLabels]="0"
                           />
                         </div>
@@ -220,6 +220,12 @@
                   @if (isColumnVisible('packageType') && !purchaseColumnsExpanded()) {
                     <th class="col-input">Emballage</th>
                   }
+                  @if (isColumnVisible('volume') && !purchaseColumnsExpanded()) {
+                    <th class="col-number text-center">Vol (L)</th>
+                  }
+                  @if (isColumnVisible('weight') && !purchaseColumnsExpanded()) {
+                    <th class="col-number text-center">Poids (kg)</th>
+                  }
                   @if (isColumnVisible('supplier')) {
                     <th class="col-input sortable" (click)="sort('supplier')">
                       <span>Fournisseur</span>
@@ -233,14 +239,6 @@
                   }
                   @if (isColumnVisible('description')) {
                     <th>Description</th>
-                  }
-                  @if (isColumnVisible('prixUniteVente') && !purchaseColumnsExpanded()) {
-                    <th class="col-number text-center sortable" (click)="sort('prixUniteVente')">
-                      <span>Prix Vente</span>
-                      @if (sortField() === 'prixUniteVente') {
-                        <i class="pi" [class.pi-sort-amount-up]="sortOrder() === 'asc'" [class.pi-sort-amount-down]="sortOrder() === 'desc'"></i>
-                      }
-                    </th>
                   }
                   @if (isColumnVisible('uniteParCarton')) {
                     <th class="col-number text-center sortable" (click)="sort('uniteParCarton')">
@@ -466,6 +464,42 @@
                       </td>
                     }
 
+                    <!-- Volume in liters (editable) -->
+                    @if (isColumnVisible('volume') && !purchaseColumnsExpanded()) {
+                      <td class="col-number">
+                        <p-inputNumber
+                          [(ngModel)]="row.volume"
+                          [min]="0"
+                          [maxFractionDigits]="2"
+                          mode="decimal"
+                          [showButtons]="false"
+                          [style]="{'width': '70px'}"
+                          inputStyleClass="text-center"
+                          (ngModelChange)="onFieldChange(row)"
+                          (onFocus)="selectOnFocus($event)"
+                          placeholder="L"
+                        />
+                      </td>
+                    }
+
+                    <!-- Weight in kilograms (editable) -->
+                    @if (isColumnVisible('weight') && !purchaseColumnsExpanded()) {
+                      <td class="col-number">
+                        <p-inputNumber
+                          [(ngModel)]="row.weight"
+                          [min]="0"
+                          [maxFractionDigits]="2"
+                          mode="decimal"
+                          [showButtons]="false"
+                          [style]="{'width': '70px'}"
+                          inputStyleClass="text-center"
+                          (ngModelChange)="onFieldChange(row)"
+                          (onFocus)="selectOnFocus($event)"
+                          placeholder="kg"
+                        />
+                      </td>
+                    }
+
                     <!-- Supplier (editable) -->
                     @if (isColumnVisible('supplier')) {
                       <td class="col-input">
@@ -496,23 +530,6 @@
                     @if (isColumnVisible('description')) {
                       <td>
                         <span class="description-text">{{ row.description || '-' }}</span>
-                      </td>
-                    }
-
-                    <!-- Prix Unite Vente (editable) -->
-                    @if (isColumnVisible('prixUniteVente') && !purchaseColumnsExpanded()) {
-                      <td class="col-number">
-                        <p-inputNumber
-                          [(ngModel)]="row.prixUniteVente"
-                          [min]="0"
-                          [maxFractionDigits]="2"
-                          mode="decimal"
-                          [showButtons]="false"
-                          [style]="{'width': '70px'}"
-                          inputStyleClass="text-center"
-                          (ngModelChange)="onPriceChange(row)"
-                          (onFocus)="selectOnFocus($event)"
-                        />
                       </td>
                     }
 

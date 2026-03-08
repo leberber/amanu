@@ -34,8 +34,8 @@ class ProductBase(SQLModel):
     unit: ProductUnit
     pieces_per_box: Optional[int] = Field(default=None, ge=1)
     packaging_type: Optional[PackagingType] = Field(default=PackagingType.CARTON)
-    volume: Optional[str] = Field(default=None, max_length=50)
-    weight: Optional[str] = Field(default=None, max_length=50)
+    volume: Optional[float] = Field(default=None)  # in liters (L)
+    weight: Optional[float] = Field(default=None)  # in kilograms (kg)
     # Pricing
     price: float = Field(ge=0)
     # Inventory
@@ -63,8 +63,8 @@ class Product(SQLModel, table=True):
     unit: ProductUnit = Field(default=ProductUnit.BOX)
     pieces_per_box: Optional[int] = Field(default=None, ge=1)
     packaging_type: Optional[PackagingType] = Field(default=PackagingType.CARTON)
-    volume: Optional[str] = Field(default=None, max_length=50)
-    weight: Optional[str] = Field(default=None, max_length=50)
+    volume: Optional[float] = Field(default=None)  # in liters (L)
+    weight: Optional[float] = Field(default=None)  # in kilograms (kg)
 
     # Pricing
     price: float = Field(ge=0)
@@ -116,8 +116,8 @@ class ProductUpdate(SQLModel):
     unit: Optional[ProductUnit] = None
     pieces_per_box: Optional[int] = Field(default=None, ge=1)
     packaging_type: Optional[PackagingType] = Field(default=None)
-    volume: Optional[str] = Field(default=None, max_length=50)
-    weight: Optional[str] = Field(default=None, max_length=50)
+    volume: Optional[float] = Field(default=None)  # in liters (L)
+    weight: Optional[float] = Field(default=None)  # in kilograms (kg)
     # Pricing
     price: Optional[float] = Field(default=None, ge=0)
     # Inventory

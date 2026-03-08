@@ -1513,9 +1513,9 @@
         "pieces_per_box_placeholder": "e.g., 12",
         "pieces_per_box_hint": "Number of individual pieces in one box/carton",
         "volume": "Volume",
-        "volume_placeholder": "e.g., 500ml, 1L",
+        "volume_placeholder": "e.g., 1.5",
         "weight": "Weight",
-        "weight_placeholder": "e.g., 250g, 1kg",
+        "weight_placeholder": "e.g., 0.5",
         "configure_packaging_first": "Configure packaging first",
         "configure_packaging_hint": "Select packaging type and pieces per package to enable"
       },

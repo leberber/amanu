@@ -291,8 +291,8 @@
                             <i class="pi pi-filter"></i>
                           </div>
                           <div class="field-box__content">
-                            <label>{{ 'admin.products.form.volume' | translate }}</label>
-                            <input pInputText type="text" formControlName="volume" [placeholder]="'admin.products.form.volume_placeholder' | translate">
+                            <label>{{ 'admin.products.form.volume' | translate }} (L)</label>
+                            <p-inputNumber formControlName="volume" [min]="0" [maxFractionDigits]="2" mode="decimal" [placeholder]="'admin.products.form.volume_placeholder' | translate" styleClass="w-full" />
                           </div>
                         </div>
                       </div>
@@ -302,8 +302,8 @@
                             <i class="pi pi-chart-bar"></i>
                           </div>
                           <div class="field-box__content">
-                            <label>{{ 'admin.products.form.weight' | translate }}</label>
-                            <input pInputText type="text" formControlName="weight" [placeholder]="'admin.products.form.weight_placeholder' | translate">
+                            <label>{{ 'admin.products.form.weight' | translate }} (kg)</label>
+                            <p-inputNumber formControlName="weight" [min]="0" [maxFractionDigits]="2" mode="decimal" [placeholder]="'admin.products.form.weight_placeholder' | translate" styleClass="w-full" />
                           </div>
                         </div>
                       </div>

@@ -143,8 +143,8 @@ export class AdminAddProductComponent implements OnInit {
       is_active: [true],
       pieces_per_box: [null, [Validators.required, Validators.min(1)]],
       packaging_type: [null, Validators.required],
-      volume: [''],
-      weight: ['']
+      volume: [null],
+      weight: [null]
     });
 
     this.loadCategories();

@@ -32,8 +32,9 @@ interface RestockRow {
   phone: string;
   productUnit: string;
   packageType: string;
+  volume: number | null;  // in liters (L)
+  weight: number | null;  // in kilograms (kg)
   prixUniteAchat: number;
-  prixUniteVente: number;
   uniteParCarton: number;
   prixCarton: number;
   nmbCarton: number;
@@ -171,11 +172,12 @@ export class StockComponent implements OnInit, OnDestroy {
     { field: 'category', label: 'Catégorie', visible: true },
     { field: 'productUnit', label: 'Unité', visible: true },
     { field: 'packageType', label: 'Emballage', visible: true },
+    { field: 'volume', label: 'Volume', visible: true },
+    { field: 'weight', label: 'Poids', visible: true },
     { field: 'supplier', label: 'Fournisseur', visible: false },
     { field: 'phone', label: 'Téléphone', visible: false },
     { field: 'description', label: 'Description', visible: false },
     { field: 'prixUniteAchat', label: 'Prix Achat', visible: true },
-    { field: 'prixUniteVente', label: 'Prix Vente', visible: true },
     { field: 'uniteParCarton', label: 'Unité/Carton', visible: true },
     { field: 'prixCarton', label: 'Prix Carton', visible: true },
     { field: 'nmbCarton', label: 'Nmb Carton', visible: true },
@@ -341,8 +343,9 @@ export class StockComponent implements OnInit, OnDestroy {
           phone: item.phone || '',
           productUnit: item.productUnit || 'piece',
           packageType: item.packageType || 'Carton',
+          volume: item.volume ?? null,
+          weight: item.weight ?? null,
           prixUniteAchat: item.prixUniteAchat || 0,
-          prixUniteVente: item.prixUniteVente || 0,
           uniteParCarton: item.uniteParCarton || 1,
           prixCarton: item.prixCarton || 0,
           nmbCarton: item.nmbCarton || 0,
@@ -414,7 +417,7 @@ export class StockComponent implements OnInit, OnDestroy {
   }
 
   onPriceChange(row: RestockRow): void {
-    row.prixCarton = row.prixUniteVente * row.uniteParCarton;
+    row.prixCarton = row.prixUniteAchat * row.uniteParCarton;
     this.markRowDirty(row.id);
   }
 
@@ -452,8 +455,9 @@ export class StockComponent implements OnInit, OnDestroy {
       phone: '',
       productUnit: 'piece',
       packageType: 'Carton',
+      volume: null,
+      weight: null,
       prixUniteAchat: 0,
-      prixUniteVente: 0,
       uniteParCarton: 1,
       prixCarton: 0,
       nmbCarton: 0,
@@ -494,8 +498,9 @@ export class StockComponent implements OnInit, OnDestroy {
       phone: row.phone,
       productUnit: row.productUnit,
       packageType: row.packageType,
+      volume: row.volume,
+      weight: row.weight,
       prixUniteAchat: row.prixUniteAchat,
-      prixUniteVente: row.prixUniteVente,
       uniteParCarton: row.uniteParCarton,
       prixCarton: row.prixCarton,
       nmbCarton: row.nmbCarton,
@@ -968,7 +973,7 @@ export class StockComponent implements OnInit, OnDestroy {
 
   downloadStock(): void {
     const rows = this.filteredRows();
-    const headers = ['À Vendre', 'Sync', 'Produit', 'Marque', 'Catégorie', 'Fournisseur', 'Téléphone', 'Prix Achat', 'Prix Vente', 'Unité/Carton', 'Prix Carton', 'Nmb Carton', 'Total'];
+    const headers = ['À Vendre', 'Sync', 'Produit', 'Marque', 'Catégorie', 'Volume', 'Poids', 'Fournisseur', 'Téléphone', 'Prix Achat', 'Unité/Carton', 'Prix Carton', 'Nmb Carton', 'Total'];
 
     const csvContent = [
       headers.join(','),
@@ -978,10 +983,11 @@ export class StockComponent implements OnInit, OnDestroy {
         `"${row.name}"`,
         `"${row.brand}"`,
         `"${row.category}"`,
+        `"${row.volume}"`,
+        `"${row.weight}"`,
         `"${row.supplier}"`,
         `"${row.phone}"`,
         row.prixUniteAchat,
-        row.prixUniteVente,
         row.uniteParCarton,
         row.prixCarton,
         row.nmbCarton,

@@ -24,8 +24,9 @@ class RestockItemBase(SQLModel):
     # Pricing
     product_unit: str = Field(default="piece")  # piece, bottle, can, box, sachet, kg, g, L, ml, carton, pack
     package_type: str = Field(default="Carton")
+    volume: Optional[float] = Field(default=None)  # in liters (L)
+    weight: Optional[float] = Field(default=None)  # in kilograms (kg)
     prix_unite_achat: float = Field(default=0)  # Purchase price per unit
-    prix_unite_vente: float = Field(default=0)  # Selling price per unit
     unite_par_carton: int = Field(default=1)
     prix_carton: float = Field(default=0)
     nmb_carton: int = Field(default=0)
@@ -65,8 +66,9 @@ class RestockItemUpdate(SQLModel):
     phone: Optional[str] = None
     product_unit: Optional[str] = None
     package_type: Optional[str] = None
+    volume: Optional[float] = None  # in liters (L)
+    weight: Optional[float] = None  # in kilograms (kg)
     prix_unite_achat: Optional[float] = None
-    prix_unite_vente: Optional[float] = None
     unite_par_carton: Optional[int] = None
     prix_carton: Optional[float] = None
     nmb_carton: Optional[int] = None
