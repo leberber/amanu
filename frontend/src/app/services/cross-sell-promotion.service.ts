@@ -20,7 +20,7 @@ export class CrossSellPromotionService {
    */
   getPromotions(activeOnly = false): Observable<CrossSellPromotion[]> {
     const params = { active_only: activeOnly };
-    return this.apiService.get<CrossSellPromotion[]>('/cross-sell-promotions/', { params });
+    return this.apiService.get<CrossSellPromotion[]>('/cross-sell-promotions', { params });
   }
 
   /**
@@ -55,7 +55,7 @@ export class CrossSellPromotionService {
    * Create a new cross-sell promotion (staff only)
    */
   createPromotion(promotion: CrossSellPromotionCreate): Observable<CrossSellPromotion> {
-    return this.apiService.post<CrossSellPromotion>('/cross-sell-promotions/', promotion);
+    return this.apiService.post<CrossSellPromotion>('/cross-sell-promotions', promotion);
   }
 
   /**

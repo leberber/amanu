@@ -19,7 +19,7 @@ from app.core.security import get_current_active_user
 router = APIRouter()
 
 
-@router.get("/", response_model=List[UserNotificationRead])
+@router.get("", response_model=List[UserNotificationRead])
 def get_my_notifications(
     skip: int = Query(0, ge=0),
     limit: int = Query(20, ge=1, le=100),

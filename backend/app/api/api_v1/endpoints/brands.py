@@ -54,7 +54,7 @@ def read_brand(
 
     return brand
 
-@router.post("/", response_model=BrandRead)
+@router.post("", response_model=BrandRead)
 def create_brand(
     brand_in: BrandCreate,
     current_user: User = Depends(get_current_staff_user),

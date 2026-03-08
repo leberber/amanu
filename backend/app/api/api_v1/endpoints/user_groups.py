@@ -13,7 +13,7 @@ from app.core.security import get_current_staff_user
 router = APIRouter()
 
 
-@router.get("/", response_model=List[UserGroupRead])
+@router.get("", response_model=List[UserGroupRead])
 def read_user_groups(
     active_only: bool = Query(False),
     session: Session = Depends(get_session),
@@ -70,7 +70,7 @@ def read_user_group(
     return result
 
 
-@router.post("/", response_model=UserGroupRead)
+@router.post("", response_model=UserGroupRead)
 def create_user_group(
     group_in: UserGroupCreate,
     current_user: User = Depends(get_current_staff_user),

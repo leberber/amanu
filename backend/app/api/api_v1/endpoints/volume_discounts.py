@@ -92,7 +92,7 @@ def volume_discount_to_read(discount: VolumeDiscount) -> VolumeDiscountRead:
     )
 
 
-@router.get("/", response_model=List[VolumeDiscountRead])
+@router.get("", response_model=List[VolumeDiscountRead])
 def read_volume_discounts(
     active_only: bool = Query(False),
     session: Session = Depends(get_session),
@@ -164,7 +164,7 @@ def read_volume_discount(
     return volume_discount_to_read(discount)
 
 
-@router.post("/", response_model=VolumeDiscountRead)
+@router.post("", response_model=VolumeDiscountRead)
 def create_volume_discount(
     discount_in: VolumeDiscountCreate,
     current_user: User = Depends(get_current_staff_user),

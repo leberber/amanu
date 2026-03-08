@@ -88,7 +88,7 @@ def get_promotion_status(promotion: Promotion) -> str:
     return "active"
 
 
-@router.get("/", response_model=List[PromotionRead])
+@router.get("", response_model=List[PromotionRead])
 def read_promotions(
     active_only: bool = Query(False),
     lang: str = Query("en", description="Language for translations (en, fr, ar)"),
@@ -213,7 +213,7 @@ def read_promotion(
     return promotion
 
 
-@router.post("/", response_model=PromotionRead)
+@router.post("", response_model=PromotionRead)
 def create_promotion(
     promotion_in: PromotionCreate,
     current_user: User = Depends(get_current_staff_user),

@@ -97,7 +97,7 @@ def read_active_cross_sell_promotions(
     return [promotion_to_read(p, session) for p in promotions]
 
 
-@router.get("/", response_model=List[CrossSellPromotionRead])
+@router.get("", response_model=List[CrossSellPromotionRead])
 def read_cross_sell_promotions(
     active_only: bool = Query(False),
     session: Session = Depends(get_session),
@@ -138,7 +138,7 @@ def read_cross_sell_promotion(
     return promotion_to_read(promotion, session)
 
 
-@router.post("/", response_model=CrossSellPromotionRead)
+@router.post("", response_model=CrossSellPromotionRead)
 def create_cross_sell_promotion(
     promotion_in: CrossSellPromotionCreate,
     session: Session = Depends(get_session),

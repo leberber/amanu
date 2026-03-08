@@ -25,7 +25,7 @@ export class PromotionService {
       active_only: activeOnly,
       lang: this.translationService.getCurrentLanguage()
     };
-    return this.apiService.get<Promotion[]>('/promotions/', { params });
+    return this.apiService.get<Promotion[]>('/promotions', { params });
   }
 
   getAllPromotions(): Observable<Promotion[]> {
@@ -33,7 +33,7 @@ export class PromotionService {
       active_only: false,
       lang: this.translationService.getCurrentLanguage()
     };
-    return this.apiService.get<Promotion[]>('/promotions/', { params });
+    return this.apiService.get<Promotion[]>('/promotions', { params });
   }
 
   getActivePromotions(): Observable<Promotion[]> {
@@ -66,7 +66,7 @@ export class PromotionService {
   }
 
   createPromotion(promotion: PromotionCreate): Observable<Promotion> {
-    return this.apiService.post<Promotion>('/promotions/', promotion);
+    return this.apiService.post<Promotion>('/promotions', promotion);
   }
 
   updatePromotion(id: number, promotion: PromotionUpdate): Observable<Promotion> {

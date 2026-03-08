@@ -27,7 +27,7 @@ export class UserGroupService {
   getGroups(activeOnly: boolean = false): Observable<UserGroup[]> {
     let params = new HttpParams().set('active_only', activeOnly.toString());
 
-    return this.http.get<UserGroup[]>(`${this.apiUrl}/`, { params }).pipe(
+    return this.http.get<UserGroup[]>(`${this.apiUrl}`, { params }).pipe(
       map(groups => groups.sort((a, b) => a.name.localeCompare(b.name))),
       tap(groups => this.groupsCache$.next(groups))
     );
@@ -44,7 +44,7 @@ export class UserGroupService {
    * Create new group (staff only)
    */
   createGroup(group: UserGroupCreate): Observable<UserGroup> {
-    return this.http.post<UserGroup>(`${this.apiUrl}/`, group);
+    return this.http.post<UserGroup>(`${this.apiUrl}`, group);
   }
 
   /**

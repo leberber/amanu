@@ -23,7 +23,7 @@ export class UserNotificationService {
    */
   getNotifications(skip = 0, limit = PAGINATION.DEFAULT_NOTIFICATION_LIMIT, unreadOnly = false): Observable<UserNotification[]> {
     const lang = this.translationService.getCurrentLanguage();
-    let url = `/notifications/?skip=${skip}&limit=${limit}&lang=${lang}`;
+    let url = `/notifications?skip=${skip}&limit=${limit}&lang=${lang}`;
     if (unreadOnly) {
       url += '&unread_only=true';
     }
