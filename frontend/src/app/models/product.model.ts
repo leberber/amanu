@@ -31,6 +31,8 @@ export interface Product {
     description_translations?: { [key: string]: string };
     pieces_per_box?: number;  // Number of pieces per box for dropdown selection
     packaging_type?: PackagingType;  // Type of packaging (box, carton, crate, etc.)
+    volume?: string;  // Product volume (e.g., "500ml", "1L")
+    weight?: string;  // Product weight (e.g., "250g", "1kg")
     promotion?: ProductPromotion;  // Active promotion applied to this product
   }
   

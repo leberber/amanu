@@ -102,7 +102,7 @@
         </p-select>
       </div>
 
-      <button class="btn-add" (click)="createNewProduct()">
+      <button class="btn-add" (click)="createNewProduct()" [disabled]="true">
         <i class="pi pi-plus"></i>
         <span>{{ 'admin.products.add_product' | translate }}</span>
       </button>
@@ -133,7 +133,7 @@
           </button>
         }
         @if (!hasActiveFilters()) {
-          <button class="btn-primary" (click)="createNewProduct()">
+          <button class="btn-primary" (click)="createNewProduct()" [disabled]="true">
             <i class="pi pi-plus"></i>
             <span>{{ 'admin.products.add_first_product' | translate }}</span>
           </button>
@@ -205,6 +205,8 @@
                 @if (isColumnVisible('name')) { <th style="width: 22%">{{ 'admin.products.table.product_name' | translate }}</th> }
                 @if (isColumnVisible('category')) { <th style="width: 12%" class="text-center">{{ 'admin.products.table.category' | translate }}</th> }
                 @if (isColumnVisible('brand')) { <th style="width: 10%" class="text-center">{{ 'admin.products.table.brand' | translate }}</th> }
+                @if (isColumnVisible('volume')) { <th style="width: 8%" class="text-center">{{ 'admin.products.table.volume' | translate }}</th> }
+                @if (isColumnVisible('weight')) { <th style="width: 8%" class="text-center">{{ 'admin.products.table.weight' | translate }}</th> }
                 @if (isColumnVisible('price')) { <th style="width: 10%" class="text-center">{{ 'admin.products.table.price' | translate }}</th> }
                 @if (isColumnVisible('stock')) { <th style="width: 14%" class="text-center">{{ 'admin.products.table.stock' | translate }}</th> }
                 @if (isColumnVisible('status')) { <th style="width: 12%" class="text-center">{{ 'admin.products.table.status' | translate }}</th> }
@@ -258,6 +260,28 @@
                     <td class="text-center">
                       @if (product.brand_id) {
                         <span class="pill purple">{{ getBrandName(product.brand_id) }}</span>
+                      } @else {
+                        <span class="text-muted">-</span>
+                      }
+                    </td>
+                  }
+
+                  <!-- Volume -->
+                  @if (isColumnVisible('volume')) {
+                    <td class="text-center">
+                      @if (product.volume) {
+                        <span>{{ product.volume }}</span>
+                      } @else {
+                        <span class="text-muted">-</span>
+                      }
+                    </td>
+                  }
+
+                  <!-- Weight -->
+                  @if (isColumnVisible('weight')) {
+                    <td class="text-center">
+                      @if (product.weight) {
+                        <span>{{ product.weight }}</span>
                       } @else {
                         <span class="text-muted">-</span>
                       }

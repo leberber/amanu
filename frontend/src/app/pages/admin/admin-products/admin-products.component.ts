@@ -109,6 +109,8 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
       { field: 'name', label: 'admin.products.table.product_name', visible: true },
       { field: 'category', label: 'admin.products.table.category', visible: !isMobile },
       { field: 'brand', label: 'admin.products.table.brand', visible: !isMobile },
+      { field: 'volume', label: 'admin.products.table.volume', visible: !isMobile },
+      { field: 'weight', label: 'admin.products.table.weight', visible: !isMobile },
       { field: 'price', label: 'admin.products.table.price', visible: true },
       { field: 'stock', label: 'admin.products.table.stock', visible: true },
       { field: 'status', label: 'admin.products.table.status', visible: !isMobile },
@@ -119,13 +121,15 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
   // Skeleton configuration
   skeletonColumns: SkeletonColumn[] = [
     { width: '5%', type: 'image' },
-    { width: '22%', type: 'text-multi', headerWidth: '100px' },
-    { width: '12%', type: 'pill', headerWidth: '70px' },
-    { width: '10%', type: 'pill-sm', headerWidth: '50px' },
-    { width: '12%', type: 'price', headerWidth: '50px' },
-    { width: '15%', type: 'stock', headerWidth: '50px' },
-    { width: '12%', type: 'toggle', headerWidth: '60px' },
-    { width: '12%', type: 'actions', headerWidth: '60px' }
+    { width: '18%', type: 'text-multi', headerWidth: '100px' },
+    { width: '10%', type: 'pill', headerWidth: '70px' },
+    { width: '8%', type: 'pill-sm', headerWidth: '50px' },
+    { width: '6%', type: 'text', headerWidth: '50px' },
+    { width: '6%', type: 'text', headerWidth: '50px' },
+    { width: '10%', type: 'price', headerWidth: '50px' },
+    { width: '13%', type: 'stock', headerWidth: '50px' },
+    { width: '10%', type: 'toggle', headerWidth: '60px' },
+    { width: '10%', type: 'actions', headerWidth: '60px' }
   ];
 
   // Services

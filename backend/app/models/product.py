@@ -31,10 +31,13 @@ class ProductBase(SQLModel):
     """Base product model with common fields"""
     # Core
     name: str = Field(min_length=1, max_length=100, index=True)
-    price: float = Field(ge=0)
     unit: ProductUnit
     pieces_per_box: Optional[int] = Field(default=None, ge=1)
     packaging_type: Optional[PackagingType] = Field(default=PackagingType.CARTON)
+    volume: Optional[str] = Field(default=None, max_length=50)
+    weight: Optional[str] = Field(default=None, max_length=50)
+    # Pricing
+    price: float = Field(ge=0)
     # Inventory
     stock_quantity: int = Field(ge=0)
     is_active: bool = Field(default=True)
@@ -57,10 +60,14 @@ class Product(SQLModel, table=True):
 
     # Core
     name: str = Field(min_length=1, max_length=100, index=True)
-    price: float = Field(ge=0)
     unit: ProductUnit = Field(default=ProductUnit.BOX)
     pieces_per_box: Optional[int] = Field(default=None, ge=1)
     packaging_type: Optional[PackagingType] = Field(default=PackagingType.CARTON)
+    volume: Optional[str] = Field(default=None, max_length=50)
+    weight: Optional[str] = Field(default=None, max_length=50)
+
+    # Pricing
+    price: float = Field(ge=0)
 
     # Inventory
     stock_quantity: int = Field(default=0, ge=0)
@@ -106,10 +113,13 @@ class ProductUpdate(SQLModel):
     """Model for updating products"""
     # Core
     name: Optional[str] = Field(default=None, min_length=1, max_length=100)
-    price: Optional[float] = Field(default=None, ge=0)
     unit: Optional[ProductUnit] = None
     pieces_per_box: Optional[int] = Field(default=None, ge=1)
     packaging_type: Optional[PackagingType] = Field(default=None)
+    volume: Optional[str] = Field(default=None, max_length=50)
+    weight: Optional[str] = Field(default=None, max_length=50)
+    # Pricing
+    price: Optional[float] = Field(default=None, ge=0)
     # Inventory
     stock_quantity: Optional[int] = Field(default=None, ge=0)
     is_active: Optional[bool] = Field(default=None)

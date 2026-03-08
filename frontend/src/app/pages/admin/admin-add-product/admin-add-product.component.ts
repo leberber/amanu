@@ -142,7 +142,9 @@ export class AdminAddProductComponent implements OnInit {
       is_organic: [false],
       is_active: [true],
       pieces_per_box: [null, [Validators.required, Validators.min(1)]],
-      packaging_type: [null, Validators.required]
+      packaging_type: [null, Validators.required],
+      volume: [''],
+      weight: ['']
     });
 
     this.loadCategories();
@@ -247,7 +249,9 @@ export class AdminAddProductComponent implements OnInit {
             is_organic: product.is_organic,
             is_active: product.is_active,
             pieces_per_box: product.pieces_per_box || null,
-            packaging_type: product.packaging_type || null
+            packaging_type: product.packaging_type || null,
+            volume: product.volume || '',
+            weight: product.weight || ''
           });
 
           this.packagingTypeValue.set(product.packaging_type || null);
@@ -290,7 +294,9 @@ export class AdminAddProductComponent implements OnInit {
         is_organic: formValues.is_organic,
         is_active: formValues.is_active,
         pieces_per_box: formValues.pieces_per_box || null,
-        packaging_type: formValues.packaging_type || null
+        packaging_type: formValues.packaging_type || null,
+        volume: formValues.volume || null,
+        weight: formValues.weight || null
       }
     );
 
