@@ -26,6 +26,7 @@ app = FastAPI(
     description="API for AgroClik - wholesale supplier platform. Store owners order, we deliver or they pick up.",
     version="1.0.0",
     openapi_url=f"{settings.API_V1_STR}/openapi.json",
+    redirect_slashes=False,
 )
 
 # Configure CORS - Allow all local IPs and production

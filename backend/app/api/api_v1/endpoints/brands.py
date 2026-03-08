@@ -11,7 +11,7 @@ from app.core.translation import TranslationService
 
 router = APIRouter()
 
-@router.get("/", response_model=List[BrandRead])
+@router.get("", response_model=List[BrandRead])
 def read_brands(
     active_only: bool = Query(True),
     lang: str = Query("en", description="Language for translations (en, fr, ar)"),
