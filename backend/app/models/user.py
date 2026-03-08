@@ -34,6 +34,7 @@ class UserBase(SQLModel):
     store_name: Optional[str] = Field(default=None, max_length=100)
     role: UserRole = Field(default=UserRole.CUSTOMER)
     is_active: bool = Field(default=True)
+    h3_index: Optional[str] = Field(default=None, max_length=20, index=True)
     # Location
     address: Optional[str] = Field(default=None, max_length=200)
     wilaya: Optional[str] = Field(default=None, max_length=50)
@@ -72,6 +73,7 @@ class UserUpdate(SQLModel):
     store_name: Optional[str] = Field(default=None, max_length=100)
     is_active: Optional[bool] = Field(default=None)
     role: Optional[UserRole] = Field(default=None)
+    h3_index: Optional[str] = Field(default=None, max_length=20)
     # Location
     address: Optional[str] = Field(default=None, max_length=200)
     wilaya: Optional[str] = Field(default=None, max_length=50)
@@ -94,6 +96,7 @@ class UserGroupBasic(SQLModel):
 class UserRead(UserBase):
     """Model for reading users"""
     id: int
+    h3_index: Optional[str] = None
     user_preferences: Optional[Dict[str, Any]] = None
     created_at: datetime
     updated_at: Optional[datetime] = None

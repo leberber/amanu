@@ -221,6 +221,168 @@ class TripOrder(SQLModel, table=True):
 
 ---
 
+## H3 Hexagonal Grid System (Recommended Approach)
+
+Instead of calling Google Maps API for every distance calculation, use Uber's H3 system - a hexagonal grid that covers your delivery area with pre-calculated distances.
+
+### Why Hexagons > Squares?
+
+```
+SQUARES (Geohash):              HEXAGONS (H3):
+┌───┬───┬───┐                    ⬡ ⬡ ⬡
+│   │ X │   │  Neighbors at      ⬡ X ⬡   All 6 neighbors are
+├───┼───┼───┤  different        ⬡ ⬡ ⬡   SAME distance from center
+│   │   │   │  distances
+└───┴───┴───┘
+```
+
+### Step 1: Divide Your Delivery Area
+
+Lay a honeycomb grid over Algiers:
+
+```
+        ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡
+       ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡
+      ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡
+       ⬡ ⬡ ⬡ [W] ⬡ ⬡ ⬡ ⬡      [W] = Warehouse
+      ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡
+       ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡
+        ⬡ ⬡ ⬡ ⬡ ⬡ ⬡ ⬡
+```
+
+Each hexagon is ~174 meters wide (at resolution 9). Every hexagon has a unique ID like `893754a6437ffff`.
+
+### Step 2: One-Time Setup (Do Once)
+
+**Before your app goes live:**
+
+1. Define your delivery area boundary (Algiers, or specific wilayas)
+2. H3 fills that area with hexagons (~15,000 for Algiers)
+3. For each hexagon, calculate distance from warehouse to its center
+4. Save this as a lookup table (JSON file or database)
+
+```
+Cell ID             │ Distance to Warehouse │ Zone
+────────────────────┼───────────────────────┼──────
+893754a6437ffff     │ 2.3 km                │ zone_1
+893754a6439ffff     │ 5.1 km                │ zone_2
+893754a643bffff     │ 12.4 km               │ zone_3
+...                 │ ...                   │ ...
+```
+
+This takes 5 minutes to generate. You do it once.
+
+### Step 3: Runtime (Every Order)
+
+When customer places order:
+
+1. Take their address coordinates (lat/lng)
+2. Convert to H3 cell ID → instant, just math
+3. Look up that cell in your table → instant, O(1)
+4. Get pre-calculated distance and zone
+5. Calculate shipping cost
+
+```
+Customer at (36.7312, 3.0982)
+        ↓
+H3 cell: 893754a6437ffff
+        ↓
+Lookup table: 2.3 km, zone_1
+        ↓
+Shipping: 200 DA + (weight × 10)
+```
+
+**No API calls. No internet needed. Instant.**
+
+### Step 4: Trip Batching (Grouping Deliveries)
+
+Use larger hexagons (resolution 7 = ~1km) to group nearby orders:
+
+```
+      ┌─────────────────┐
+      │    Large hex    │
+      │   ⬡ ⬡ ⬡        │  Orders A, B, C all fall
+      │  ⬡ A ⬡ B       │  in the same large hex
+      │   ⬡ C ⬡        │  → Group into one trip
+      └─────────────────┘
+```
+
+### Resolution Levels
+
+```
+Resolution │ Cell Size    │ Use Case
+───────────┼──────────────┼─────────────────────
+    4      │ 22 km        │ "Do we deliver there?"
+    7      │ 1.2 km       │ Trip batching
+    9      │ 174 m        │ Distance/pricing ← Recommended
+   10      │ 65 m         │ Building-level
+```
+
+### What You Store
+
+**Option A: JSON file** (simple, ~200KB)
+```json
+{
+  "893754a6437ffff": {"km": 2.3, "zone": "zone_1"},
+  "893754a6439ffff": {"km": 5.1, "zone": "zone_2"}
+}
+```
+Load at app startup. Done.
+
+**Option B: Database table** (if you need to update zones)
+```
+Table: delivery_cells
+- cell_id (primary key)
+- distance_km
+- zone
+- is_deliverable
+```
+
+### The Workflow Summary
+
+```
+ONE TIME (setup):
+┌─────────────────────────────────────────────┐
+│ 1. Define delivery area                     │
+│ 2. Generate all H3 cells                    │
+│ 3. Calculate warehouse → each cell center   │
+│ 4. Save lookup table                        │
+└─────────────────────────────────────────────┘
+
+EVERY ORDER (runtime):
+┌─────────────────────────────────────────────┐
+│ 1. Customer lat/lng → H3 cell (math only)  │
+│ 2. Lookup cell → get distance/zone          │
+│ 3. Apply pricing formula                    │
+└─────────────────────────────────────────────┘
+
+TRIP BATCHING:
+┌─────────────────────────────────────────────┐
+│ 1. All orders → H3 cells (larger res)       │
+│ 2. Group orders with same cell              │
+│ 3. Check total weight/volume fits vehicle   │
+│ 4. Create trip                              │
+└─────────────────────────────────────────────┘
+```
+
+### Why H3
+
+| Without H3 | With H3 |
+|------------|---------|
+| Call Google Maps API every order | No API calls |
+| Pay per request | Free forever |
+| Slow (network) | Instant (local lookup) |
+| Depends on internet | Works offline |
+| Complex distance logic | Just a table lookup |
+
+### Python Library
+
+```bash
+pip install h3
+```
+
+---
+
 ## Architecture: Built for Extension
 
 The system uses **Strategy Pattern** - start simple, swap implementations later without changing other code.

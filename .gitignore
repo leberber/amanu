@@ -1,0 +1,5 @@
+# Jupyter Notebooks (local development/experimentation)
+notebooks/
+
+# Jupyter checkpoint files
+.ipynb_checkpoints/
