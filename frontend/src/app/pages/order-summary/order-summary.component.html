@@ -31,12 +31,16 @@
               <span class="delivery-option__label">{{ 'order_summary.delivery' | translate }}</span>
               <span class="delivery-option__desc">{{ 'order_summary.delivery_desc' | translate }}</span>
             </div>
-            <span class="delivery-option__price">
+            <div class="delivery-option__price">
               @if (shippingLoading()) {
                 <i class="pi pi-spin pi-spinner"></i>
               } @else if (shippingResponse()) {
                 @if (shippingResponse()!.free_shipping) {
+                  <span class="delivery-option__price--original">{{ shippingResponse()!.original_cost | appCurrency }}</span>
                   <span class="delivery-option__price--free">{{ 'cart.free' | translate }}</span>
+                } @else if (shippingResponse()!.discount_applied) {
+                  <span class="delivery-option__price--original">{{ shippingResponse()!.original_cost | appCurrency }}</span>
+                  <span class="delivery-option__price--discounted">{{ shippingResponse()!.shipping_cost | appCurrency }}</span>
                 } @else {
                   {{ shippingResponse()!.shipping_cost | appCurrency }}
                 }
@@ -45,7 +49,7 @@
               } @else {
                 --
               }
-            </span>
+            </div>
           </button>
 
           <button
