@@ -19,14 +19,14 @@
 
   &__text {
     h1 {
-      font-size: var(--font-size-xl);
+      font-size: var(--font-size-2xl);
       font-weight: var(--font-weight-bold);
       color: var(--text-color);
       margin: 0 0 var(--space-1);
     }
 
     p {
-      font-size: var(--font-size-sm);
+      font-size: var(--font-size-base);
       color: var(--text-color-secondary);
       margin: 0;
     }
@@ -86,13 +86,13 @@
   }
 
   &__id {
-    font-size: var(--font-size-sm);
+    font-size: var(--font-size-base);
     font-weight: var(--font-weight-semibold);
     color: var(--text-color);
   }
 
   &__amount {
-    font-size: var(--font-size-base);
+    font-size: var(--font-size-lg);
     font-weight: var(--font-weight-bold);
     color: var(--primary-color);
   }
@@ -110,14 +110,14 @@
     gap: var(--space-2);
 
     i {
-      font-size: 0.875rem;
+      font-size: 1rem;
       color: var(--text-color-secondary);
       margin-top: 2px;
       flex-shrink: 0;
     }
 
     span {
-      font-size: var(--font-size-sm);
+      font-size: var(--font-size-base);
       color: var(--text-color);
       line-height: 1.4;
     }
@@ -136,7 +136,7 @@
     gap: var(--space-2);
     padding: var(--space-3);
     border-radius: var(--radius-md);
-    font-size: var(--font-size-sm);
+    font-size: var(--font-size-base);
     font-weight: var(--font-weight-semibold);
     cursor: pointer;
     transition: all 0.15s ease;
@@ -231,14 +231,14 @@
   }
 
   h3 {
-    font-size: var(--font-size-lg);
+    font-size: var(--font-size-xl);
     font-weight: var(--font-weight-semibold);
     color: var(--text-color);
     margin: 0 0 var(--space-2);
   }
 
   p {
-    font-size: var(--font-size-sm);
+    font-size: var(--font-size-base);
     color: var(--text-color-secondary);
     margin: 0 0 var(--space-4);
     max-width: 280px;
@@ -253,7 +253,7 @@
     color: white;
     border: none;
     border-radius: var(--radius-lg);
-    font-size: var(--font-size-sm);
+    font-size: var(--font-size-base);
     font-weight: var(--font-weight-semibold);
     cursor: pointer;
     transition: all 0.15s ease;

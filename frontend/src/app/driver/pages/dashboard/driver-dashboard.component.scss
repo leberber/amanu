@@ -12,7 +12,7 @@
 // =============================================================================
 
 .section-title {
-  font-size: var(--font-size-base);
+  font-size: var(--font-size-lg);
   font-weight: var(--font-weight-semibold);
   color: var(--text-color);
   margin: 0 0 var(--space-3);
@@ -33,13 +33,13 @@
   display: flex;
   align-items: center;
   gap: var(--space-1);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-base);
   font-weight: var(--font-weight-medium);
   color: var(--primary-color);
   text-decoration: none;
 
   i {
-    font-size: 0.7rem;
+    font-size: 0.85rem;
   }
 }
 
@@ -99,16 +99,16 @@
   }
 
   &__value {
-    font-size: var(--font-size-xl);
+    font-size: var(--font-size-2xl);
     font-weight: var(--font-weight-bold);
     color: var(--text-color);
     line-height: 1;
   }
 
   &__label {
-    font-size: var(--font-size-xs);
+    font-size: var(--font-size-sm);
     color: var(--text-color-secondary);
-    margin-top: 2px;
+    margin-top: 4px;
   }
 }
 
@@ -143,14 +143,14 @@
 
   &__content {
     h3 {
-      font-size: var(--font-size-lg);
+      font-size: var(--font-size-xl);
       font-weight: var(--font-weight-semibold);
       color: var(--text-color);
       margin: 0 0 var(--space-2);
     }
 
     p {
-      font-size: var(--font-size-sm);
+      font-size: var(--font-size-base);
       color: var(--text-color-secondary);
       margin: 0;
     }
@@ -167,7 +167,7 @@
     color: white;
     border: none;
     border-radius: var(--radius-lg);
-    font-size: var(--font-size-base);
+    font-size: var(--font-size-lg);
     font-weight: var(--font-weight-semibold);
     cursor: pointer;
     transition: all 0.2s ease;
@@ -236,13 +236,13 @@
   }
 
   &__id {
-    font-size: var(--font-size-sm);
+    font-size: var(--font-size-base);
     font-weight: var(--font-weight-semibold);
     color: var(--text-color);
   }
 
   &__address {
-    font-size: var(--font-size-xs);
+    font-size: var(--font-size-sm);
     color: var(--text-color-secondary);
     white-space: nowrap;
     overflow: hidden;
@@ -250,14 +250,14 @@
   }
 
   &__amount {
-    font-size: var(--font-size-sm);
+    font-size: var(--font-size-base);
     font-weight: var(--font-weight-semibold);
     color: var(--text-color);
     flex-shrink: 0;
   }
 
   &__chevron {
-    font-size: 0.75rem;
+    font-size: 0.85rem;
     color: var(--text-color-secondary);
     flex-shrink: 0;
   }
@@ -282,13 +282,13 @@
   text-align: center;
 
   i {
-    font-size: 2rem;
+    font-size: 2.5rem;
     color: var(--text-color-secondary);
     margin-bottom: var(--space-3);
   }
 
   p {
-    font-size: var(--font-size-sm);
+    font-size: var(--font-size-base);
     color: var(--text-color-secondary);
     margin: 0 0 var(--space-4);
   }
@@ -297,13 +297,13 @@
     display: flex;
     align-items: center;
     gap: var(--space-2);
-    font-size: var(--font-size-sm);
+    font-size: var(--font-size-base);
     font-weight: var(--font-weight-medium);
     color: var(--primary-color);
     text-decoration: none;
 
     i {
-      font-size: 0.75rem;
+      font-size: 0.85rem;
       margin: 0;
       color: var(--primary-color);
     }
