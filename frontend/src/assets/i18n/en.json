@@ -2260,6 +2260,8 @@
       "settings": "Settings",
       "support": "Support",
       "contact_support": "Contact Support",
+      "notifications": "Notifications",
+      "notifications_desc": "Receive alerts for new orders",
       "version": "Version"
     },
     "cancel_dialog": {
@@ -2285,7 +2287,9 @@
       "max_orders_reached": "Maximum active orders reached",
       "account_suspended": "Your account is suspended",
       "trip_load_failed": "Failed to load trip details",
-      "feature_coming_soon": "This feature is coming soon"
+      "feature_coming_soon": "This feature is coming soon",
+      "notifications_enabled": "Notifications enabled",
+      "notifications_disabled": "Notifications disabled"
     },
     "navigation": {
       "dashboard": "Home",

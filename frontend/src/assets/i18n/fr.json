@@ -2277,6 +2277,8 @@
       "settings": "Paramètres",
       "support": "Support",
       "contact_support": "Contacter le Support",
+      "notifications": "Notifications",
+      "notifications_desc": "Recevoir des alertes pour les nouvelles commandes",
       "version": "Version"
     },
     "cancel_dialog": {
@@ -2302,7 +2304,9 @@
       "max_orders_reached": "Nombre maximum de commandes actives atteint",
       "account_suspended": "Votre compte est suspendu",
       "trip_load_failed": "Échec du chargement des détails du trajet",
-      "feature_coming_soon": "Cette fonctionnalité arrive bientôt"
+      "feature_coming_soon": "Cette fonctionnalité arrive bientôt",
+      "notifications_enabled": "Notifications activées",
+      "notifications_disabled": "Notifications désactivées"
     },
     "navigation": {
       "dashboard": "Accueil",

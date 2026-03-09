@@ -2265,6 +2265,8 @@
       "settings": "الإعدادات",
       "support": "الدعم",
       "contact_support": "التواصل مع الدعم",
+      "notifications": "الإشعارات",
+      "notifications_desc": "تلقي تنبيهات للطلبات الجديدة",
       "version": "الإصدار"
     },
     "cancel_dialog": {
@@ -2290,7 +2292,9 @@
       "max_orders_reached": "تم الوصول للحد الأقصى من الطلبات النشطة",
       "account_suspended": "حسابك موقوف",
       "trip_load_failed": "فشل تحميل تفاصيل الرحلة",
-      "feature_coming_soon": "هذه الميزة قادمة قريباً"
+      "feature_coming_soon": "هذه الميزة قادمة قريباً",
+      "notifications_enabled": "تم تفعيل الإشعارات",
+      "notifications_disabled": "تم تعطيل الإشعارات"
     },
     "navigation": {
       "dashboard": "الرئيسية",

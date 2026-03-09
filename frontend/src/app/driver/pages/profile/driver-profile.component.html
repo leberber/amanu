@@ -45,35 +45,38 @@
         <i class="pi pi-chevron-right profile-card__chevron"></i>
       </div>
 
-      <div class="profile-card__stats">
-        <div class="profile-stat">
-          <span class="profile-stat__value">{{ stats()?.total_deliveries || 0 }}</span>
-          <span class="profile-stat__label">{{ 'driver.profile.deliveries' | translate }}</span>
+      <div class="profile-card__actions">
+        <div class="profile-action">
+          <span class="profile-action__value">{{ stats()?.total_deliveries || 0 }}</span>
+          <span class="profile-action__label">{{ 'driver.profile.deliveries' | translate }}</span>
         </div>
-        <div class="profile-stat">
-          <span class="profile-stat__value">{{ driverProfile()?.vehicle_type || '-' }}</span>
-          <span class="profile-stat__label">{{ 'driver.profile.vehicle' | translate }}</span>
+        <div class="profile-action" routerLink="/driver/earnings">
+          <i class="pi pi-wallet"></i>
+          <span class="profile-action__label">{{ 'driver.navigation.earnings' | translate }}</span>
         </div>
-        <div class="profile-stat">
-          <span class="profile-stat__value" [style.color]="getStatusColor()">
-            <span class="status-dot" [style.background]="getStatusColor()"></span>
-            {{ getStatusLabel() | translate }}
-          </span>
-          <span class="profile-stat__label">{{ 'driver.status.title' | translate }}</span>
+        <div class="profile-action" (click)="toggleStatus(); $event.stopPropagation()">
+          <i class="pi pi-power-off"></i>
+          <span class="profile-action__label">{{ isOnline() ? ('driver.status.go_offline' | translate) : ('driver.status.go_online' | translate) }}</span>
         </div>
       </div>
     </div>
 
-    <!-- Quick Actions -->
-    <div class="quick-actions">
-      <button class="quick-action" (click)="toggleStatus()">
-        <i class="pi pi-power-off"></i>
-        <span>{{ isOnline() ? ('driver.status.go_offline' | translate) : ('driver.status.go_online' | translate) }}</span>
-      </button>
-      <button class="quick-action" routerLink="/driver/earnings">
-        <i class="pi pi-wallet"></i>
-        <span>{{ 'driver.navigation.earnings' | translate }}</span>
-      </button>
+    <!-- Divider -->
+    <div class="profile-divider"></div>
+
+    <!-- Notifications Toggle -->
+    <div class="toggle-item">
+      <div class="toggle-item__icon">
+        <i class="pi pi-bell"></i>
+      </div>
+      <div class="toggle-item__content">
+        <span class="toggle-item__label">{{ 'driver.profile.notifications' | translate }}</span>
+        <span class="toggle-item__description">{{ 'driver.profile.notifications_desc' | translate }}</span>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" [checked]="notificationsEnabled()" (change)="toggleNotifications()">
+        <span class="toggle-switch__slider"></span>
+      </label>
     </div>
 
     <!-- Menu Sections -->

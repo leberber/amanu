@@ -38,6 +38,7 @@ export class DriverProfileComponent implements OnInit {
   driverProfile = this.driverService.driverProfile;
   stats = this.driverService.stats;
   loading = signal(true);
+  notificationsEnabled = signal(true);
 
   // Computed
   isOnline = computed(() => {
@@ -47,6 +48,24 @@ export class DriverProfileComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadProfile();
+    this.loadNotificationPreference();
+  }
+
+  loadNotificationPreference(): void {
+    const stored = localStorage.getItem('driver_notifications_enabled');
+    this.notificationsEnabled.set(stored !== 'false');
+  }
+
+  toggleNotifications(): void {
+    const newValue = !this.notificationsEnabled();
+    this.notificationsEnabled.set(newValue);
+    localStorage.setItem('driver_notifications_enabled', String(newValue));
+
+    if (newValue) {
+      this.toast.showSuccess('driver.messages.notifications_enabled');
+    } else {
+      this.toast.showInfo('driver.messages.notifications_disabled');
+    }
   }
 
   loadProfile(): void {
