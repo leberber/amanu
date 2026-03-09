@@ -16,6 +16,12 @@ import { Order } from '../../../models/order.model';
   templateUrl: './driver-active.component.html',
   styleUrl: './driver-active.component.scss',
   animations: [
+    trigger('fadeIn', [
+      transition(':enter', [
+        style({ opacity: 0 }),
+        animate('250ms ease-out', style({ opacity: 1 }))
+      ])
+    ]),
     trigger('listAnimation', [
       transition(':enter', [
         query('.order-card', [
@@ -26,7 +32,10 @@ import { Order } from '../../../models/order.model';
         ], { optional: true })
       ])
     ])
-  ]
+  ],
+  host: {
+    '[@fadeIn]': ''
+  }
 })
 export class DriverActiveComponent implements OnInit {
   private readonly router = inject(Router);
@@ -37,14 +46,31 @@ export class DriverActiveComponent implements OnInit {
 
   // State from service
   activeTrips = this.driverService.activeTrips;
-  loading = this.driverService.loading;
+
+  // Local loading state - only shows if request takes > 300ms
+  loading = signal(false);
+  private loadingTimeout: ReturnType<typeof setTimeout> | null = null;
 
   ngOnInit(): void {
     this.refresh();
   }
 
   refresh(): void {
-    this.driverService.getActiveTrips().subscribe();
+    // Only show skeleton if request takes longer than 300ms
+    this.loadingTimeout = setTimeout(() => {
+      this.loading.set(true);
+    }, 300);
+
+    this.driverService.getActiveTrips().subscribe({
+      next: () => {
+        if (this.loadingTimeout) clearTimeout(this.loadingTimeout);
+        this.loading.set(false);
+      },
+      error: () => {
+        if (this.loadingTimeout) clearTimeout(this.loadingTimeout);
+        this.loading.set(false);
+      }
+    });
   }
 
   viewDetails(order: Order): void {

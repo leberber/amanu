@@ -16,6 +16,12 @@ import { Order } from '../../../models/order.model';
   templateUrl: './driver-available.component.html',
   styleUrl: './driver-available.component.scss',
   animations: [
+    trigger('fadeIn', [
+      transition(':enter', [
+        style({ opacity: 0 }),
+        animate('250ms ease-out', style({ opacity: 1 }))
+      ])
+    ]),
     trigger('listAnimation', [
       transition(':enter', [
         query('.trip-card', [
@@ -26,7 +32,10 @@ import { Order } from '../../../models/order.model';
         ], { optional: true })
       ])
     ])
-  ]
+  ],
+  host: {
+    '[@fadeIn]': ''
+  }
 })
 export class DriverAvailableComponent implements OnInit {
   private readonly router = inject(Router);
@@ -35,18 +44,33 @@ export class DriverAvailableComponent implements OnInit {
 
   // State from service
   availableTrips = this.driverService.availableTrips;
-  loading = this.driverService.loading;
   canAcceptOrders = this.driverService.canAcceptOrders;
 
   // Local state
+  loading = signal(false);
   accepting = signal<number | null>(null);
+  private loadingTimeout: ReturnType<typeof setTimeout> | null = null;
 
   ngOnInit(): void {
     this.refresh();
   }
 
   refresh(): void {
-    this.driverService.getAvailableTrips().subscribe();
+    // Only show skeleton if request takes longer than 300ms
+    this.loadingTimeout = setTimeout(() => {
+      this.loading.set(true);
+    }, 300);
+
+    this.driverService.getAvailableTrips().subscribe({
+      next: () => {
+        if (this.loadingTimeout) clearTimeout(this.loadingTimeout);
+        this.loading.set(false);
+      },
+      error: () => {
+        if (this.loadingTimeout) clearTimeout(this.loadingTimeout);
+        this.loading.set(false);
+      }
+    });
   }
 
   acceptTrip(order: Order): void {

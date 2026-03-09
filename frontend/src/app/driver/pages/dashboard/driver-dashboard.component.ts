@@ -17,6 +17,12 @@ import { Order } from '../../../models/order.model';
   templateUrl: './driver-dashboard.component.html',
   styleUrl: './driver-dashboard.component.scss',
   animations: [
+    trigger('fadeIn', [
+      transition(':enter', [
+        style({ opacity: 0 }),
+        animate('250ms ease-out', style({ opacity: 1 }))
+      ])
+    ]),
     trigger('listAnimation', [
       transition(':enter', [
         query('.stat-card, .order-card', [
@@ -27,7 +33,10 @@ import { Order } from '../../../models/order.model';
         ], { optional: true })
       ])
     ])
-  ]
+  ],
+  host: {
+    '[@fadeIn]': ''
+  }
 })
 export class DriverDashboardComponent implements OnInit {
   private readonly router = inject(Router);

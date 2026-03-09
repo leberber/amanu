@@ -17,6 +17,12 @@ import { DecimalPipe } from '@angular/common';
   templateUrl: './driver-history.component.html',
   styleUrl: './driver-history.component.scss',
   animations: [
+    trigger('fadeIn', [
+      transition(':enter', [
+        style({ opacity: 0 }),
+        animate('250ms ease-out', style({ opacity: 1 }))
+      ])
+    ]),
     trigger('listAnimation', [
       transition(':enter', [
         query('.history-item', [
@@ -27,7 +33,10 @@ import { DecimalPipe } from '@angular/common';
         ], { optional: true })
       ])
     ])
-  ]
+  ],
+  host: {
+    '[@fadeIn]': ''
+  }
 })
 export class DriverHistoryComponent implements OnInit {
   private readonly router = inject(Router);
@@ -37,8 +46,9 @@ export class DriverHistoryComponent implements OnInit {
 
   // State
   history = signal<Order[]>([]);
-  loading = signal(true);
-  
+  loading = signal(false);
+  private loadingTimeout: ReturnType<typeof setTimeout> | null = null;
+
   // Filter state
   selectedPeriod = signal<'week' | 'month' | 'all'>('month');
 
@@ -47,13 +57,19 @@ export class DriverHistoryComponent implements OnInit {
   }
 
   loadHistory(): void {
-    this.loading.set(true);
+    // Only show skeleton if request takes longer than 300ms
+    this.loadingTimeout = setTimeout(() => {
+      this.loading.set(true);
+    }, 300);
+
     this.driverService.getTripHistory(this.selectedPeriod()).subscribe({
       next: (orders) => {
+        if (this.loadingTimeout) clearTimeout(this.loadingTimeout);
         this.history.set(orders);
         this.loading.set(false);
       },
       error: () => {
+        if (this.loadingTimeout) clearTimeout(this.loadingTimeout);
         this.loading.set(false);
       }
     });

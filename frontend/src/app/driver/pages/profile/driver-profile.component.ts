@@ -16,13 +16,16 @@ import { DRIVER_STATUS, DRIVER_STATUS_CONFIG } from '../../../core/constants/dri
   templateUrl: './driver-profile.component.html',
   styleUrl: './driver-profile.component.scss',
   animations: [
-    trigger('pageAnimation', [
+    trigger('fadeIn', [
       transition(':enter', [
-        style({ opacity: 0, transform: 'translateY(10px)' }),
-        animate('200ms ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
+        style({ opacity: 0 }),
+        animate('250ms ease-out', style({ opacity: 1 }))
       ])
     ])
-  ]
+  ],
+  host: {
+    '[@fadeIn]': ''
+  }
 })
 export class DriverProfileComponent implements OnInit {
   private readonly router = inject(Router);

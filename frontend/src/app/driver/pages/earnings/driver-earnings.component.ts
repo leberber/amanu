@@ -27,8 +27,9 @@ export class DriverEarningsComponent implements OnInit {
 
   // State
   stats = this.driverService.stats;
-  loading = signal(true);
+  loading = signal(false);
   selectedPeriod = signal<'today' | 'week' | 'month'>('week');
+  private loadingTimeout: ReturnType<typeof setTimeout> | null = null;
 
   // Computed
   periodEarnings = computed(() => {
@@ -70,12 +71,18 @@ export class DriverEarningsComponent implements OnInit {
   }
 
   loadStats(): void {
-    this.loading.set(true);
+    // Only show skeleton if request takes longer than 300ms
+    this.loadingTimeout = setTimeout(() => {
+      this.loading.set(true);
+    }, 300);
+
     this.driverService.getStats().subscribe({
       next: () => {
+        if (this.loadingTimeout) clearTimeout(this.loadingTimeout);
         this.loading.set(false);
       },
       error: () => {
+        if (this.loadingTimeout) clearTimeout(this.loadingTimeout);
         this.loading.set(false);
       }
     });
