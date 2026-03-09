@@ -51,6 +51,9 @@
                     <i class="pi pi-money-bill"></i>
                   </div>
                   <h3 class="card-header__title">{{ 'admin.shipping.base_pricing' | translate }}</h3>
+                  <button type="button" class="help-btn" (click)="showAlgorithmDialog.set(true)">
+                    <i class="pi pi-question-circle"></i>
+                  </button>
                 </div>
                 <div class="card-body">
                   <div class="grid">
@@ -259,5 +262,109 @@
       </div>
     </form>
   }
+
+  <!-- Algorithm Explanation Drawer -->
+  <p-drawer
+    [(visible)]="showAlgorithmDialog"
+    position="right"
+    [style]="{ width: 'calc(100vw - 350px)' }"
+    styleClass="algorithm-drawer">
+    <ng-template pTemplate="header">
+      <span class="algorithm-title">{{ 'admin.shipping.algorithm.title' | translate }}</span>
+      <span class="algorithm-title-mobile">{{ 'admin.shipping.algorithm.title_mobile' | translate }}</span>
+    </ng-template>
+
+    <div class="algorithm-content">
+      <div class="algorithm-layout">
+        <!-- Left Column -->
+        <div class="algorithm-column">
+          <!-- Intro -->
+          <p class="text-secondary">{{ 'admin.shipping.algorithm.intro' | translate }}</p>
+
+          <!-- Formula -->
+          <div class="algorithm-section">
+            <h4><i class="pi pi-calculator"></i> {{ 'admin.shipping.algorithm.formula_title' | translate }}</h4>
+            <div class="algorithm-formula">
+              {{ 'admin.shipping.algorithm.formula' | translate }}
+            </div>
+          </div>
+
+          <!-- Components (Cost Constants) -->
+          <div class="algorithm-section">
+            <h4><i class="pi pi-list"></i> {{ 'admin.shipping.algorithm.components_title' | translate }}</h4>
+
+            <div class="algorithm-item">
+              <i class="pi pi-wallet"></i>
+              <div>
+                <strong>{{ 'admin.shipping.base_cost' | translate }}</strong>
+                <p>{{ 'admin.shipping.algorithm.base_cost_desc' | translate }}</p>
+              </div>
+            </div>
+
+            <div class="algorithm-item">
+              <i class="pi pi-map-marker"></i>
+              <div>
+                <strong>{{ 'admin.shipping.algorithm.distance_cost' | translate }}</strong>
+                <p>{{ 'admin.shipping.algorithm.distance_cost_desc' | translate }}</p>
+              </div>
+            </div>
+
+            <div class="algorithm-item">
+              <i class="pi pi-box"></i>
+              <div>
+                <strong>{{ 'admin.shipping.algorithm.weight_cost' | translate }}</strong>
+                <p>{{ 'admin.shipping.algorithm.weight_cost_desc' | translate }}</p>
+              </div>
+            </div>
+
+            <div class="algorithm-item">
+              <i class="pi pi-th-large"></i>
+              <div>
+                <strong>{{ 'admin.shipping.algorithm.volume_cost' | translate }}</strong>
+                <p>{{ 'admin.shipping.algorithm.volume_cost_desc' | translate }}</p>
+              </div>
+            </div>
+
+            <div class="algorithm-item">
+              <i class="pi pi-clock"></i>
+              <div>
+                <strong>{{ 'admin.shipping.algorithm.time_cost' | translate }}</strong>
+                <p>{{ 'admin.shipping.algorithm.time_cost_desc' | translate }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="algorithm-column">
+          <!-- Bounds -->
+          <div class="algorithm-section">
+            <h4><i class="pi pi-sliders-h"></i> {{ 'admin.shipping.algorithm.bounds_title' | translate }}</h4>
+            <p>{{ 'admin.shipping.algorithm.bounds_desc' | translate }}</p>
+          </div>
+
+          <!-- Discounts -->
+          <div class="algorithm-section">
+            <h4><i class="pi pi-percentage"></i> {{ 'admin.shipping.algorithm.discounts_title' | translate }}</h4>
+            <p>{{ 'admin.shipping.algorithm.discounts_desc' | translate }}</p>
+          </div>
+
+          <!-- Example -->
+          <div class="algorithm-section algorithm-section--highlight">
+            <h4><i class="pi pi-info-circle"></i> {{ 'admin.shipping.algorithm.example_title' | translate }}</h4>
+            <p>{{ 'admin.shipping.algorithm.example_desc' | translate }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="algorithm-footer">
+        <button type="button" class="algorithm-btn" (click)="showAlgorithmDialog.set(false)">
+          <i class="pi pi-check"></i>
+          {{ 'common.understood' | translate }}
+        </button>
+      </div>
+    </div>
+  </p-drawer>
 
 </app-page-layout>

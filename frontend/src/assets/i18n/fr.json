@@ -1790,7 +1790,35 @@
       "create_success": "Configuration de livraison créée avec succès",
       "create_failed": "Échec de la création de la configuration",
       "update_success": "Configuration de livraison mise à jour avec succès",
-      "update_failed": "Échec de la mise à jour de la configuration"
+      "update_failed": "Échec de la mise à jour de la configuration",
+      "algorithm": {
+        "title": "Comment le Coût de Livraison est Calculé",
+        "title_mobile": "Calcul Livraison",
+        "intro": "Notre calculateur de livraison utilise plusieurs facteurs pour déterminer des coûts de livraison justes et précis pour vos clients.",
+        "formula_title": "Formule",
+        "formula": "Coût = Base + (Distance × Prix/km) + (Poids × Prix/kg) + (Volume × Prix/m³) + (Temps × Prix/min)",
+        "shipping_cost": "Coût de Livraison",
+        "distance": "Distance",
+        "weight": "Poids",
+        "volume": "Volume",
+        "time": "Temps",
+        "components_title": "Composants du Coût",
+        "base_cost_desc": "Frais fixe appliqué à chaque livraison, quelle que soit la distance ou la taille.",
+        "distance_cost": "Coût de Distance",
+        "distance_cost_desc": "Calculé avec les zones géospatiales H3. Le système détermine la distance la plus courte de l'entrepôt au client.",
+        "weight_cost": "Coût de Poids",
+        "weight_cost_desc": "Basé sur le poids total de tous les articles. Les commandes plus lourdes coûtent plus cher.",
+        "volume_cost": "Coût de Volume",
+        "volume_cost_desc": "Basé sur le volume total (mètres cubes) de tous les articles. Les articles volumineux prennent plus d'espace.",
+        "time_cost": "Coût de Temps",
+        "time_cost_desc": "Frais optionnel basé sur le temps de livraison estimé. Utile pour la livraison express.",
+        "bounds_title": "Limites Min/Max",
+        "bounds_desc": "Le coût final calculé est limité entre les valeurs minimum et maximum. Cela garantit que les clients ne paient ni trop peu (en dessous du coût) ni trop (prix injuste).",
+        "discounts_title": "Réductions sur Commande",
+        "discounts_desc": "Les clients peuvent obtenir des réductions sur la livraison selon le total de leur commande. Des commandes plus élevées débloquent des réductions plus importantes, jusqu'à 100% (livraison gratuite).",
+        "example_title": "Exemple",
+        "example_desc": "Un client à 15km commandant 5kg de produits : Base (200) + Distance (15×30=450) + Poids (5×10=50) = 700 DZD. Si sa commande est de 8 000 DZD avec une réduction de 50% à partir de 5 000 DZD, il paie 350 DZD."
+      }
     }
   },
   "footer": {

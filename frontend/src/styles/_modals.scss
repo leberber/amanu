@@ -57,3 +57,33 @@
 .p-dialog-mask {
   backdrop-filter: var(--blur-xs);
 }
+
+// =============================================================================
+// PRIMENG DRAWER - Algorithm Drawer (full width minus sidebar)
+// =============================================================================
+
+.algorithm-drawer.p-drawer {
+  width: calc(100vw - 350px) !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
+
+  .p-drawer-content {
+    padding: 0 !important;
+    overflow-y: auto;
+  }
+}
+
+// Backdrop with blur for algorithm drawer
+.p-drawer-mask {
+  background: rgba(255, 255, 255, 0.85) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+}
+
+@media (max-width: 991px) {
+  .algorithm-drawer.p-drawer {
+    width: 100vw !important;
+    height: 100vh !important;
+    max-height: 100vh !important;
+  }
+}

@@ -1792,7 +1792,35 @@
       "create_success": "Shipping config created successfully",
       "create_failed": "Failed to create shipping config",
       "update_success": "Shipping config updated successfully",
-      "update_failed": "Failed to update shipping config"
+      "update_failed": "Failed to update shipping config",
+      "algorithm": {
+        "title": "How Shipping Cost is Calculated",
+        "title_mobile": "Shipping Formula",
+        "intro": "Our shipping calculator uses multiple factors to determine fair and accurate delivery costs for your customers.",
+        "formula_title": "Formula",
+        "formula": "Shipping Cost = Base + (Distance × Price/km) + (Weight × Price/kg) + (Volume × Price/m³) + (Time × Price/min)",
+        "shipping_cost": "Shipping Cost",
+        "distance": "Distance",
+        "weight": "Weight",
+        "volume": "Volume",
+        "time": "Time",
+        "components_title": "Cost Components",
+        "base_cost_desc": "Fixed fee applied to every delivery regardless of distance or size.",
+        "distance_cost": "Distance Cost",
+        "distance_cost_desc": "Calculated using H3 geospatial zones. The system determines the shortest route distance from warehouse to customer location.",
+        "weight_cost": "Weight Cost",
+        "weight_cost_desc": "Based on total weight of all items in the order. Heavier orders cost more to deliver.",
+        "volume_cost": "Volume Cost",
+        "volume_cost_desc": "Based on the total volume (cubic meters) of all items. Bulky items take up more delivery space.",
+        "time_cost": "Time Cost",
+        "time_cost_desc": "Optional charge based on estimated delivery time. Useful for express delivery pricing.",
+        "bounds_title": "Min/Max Limits",
+        "bounds_desc": "The final calculated cost is bounded between minimum and maximum values. This ensures customers aren't charged too little (below cost) or too much (unfair pricing).",
+        "discounts_title": "Order-Based Discounts",
+        "discounts_desc": "Customers can earn shipping discounts based on their order total. Higher order values unlock bigger discounts, up to 100% (free shipping). This encourages larger orders.",
+        "example_title": "Example",
+        "example_desc": "A customer 15km away ordering 5kg of products: Base (200) + Distance (15×30=450) + Weight (5×10=50) = 700 DZD. If their order total is 8,000 DZD and there's a 50% discount tier at 5,000 DZD, they pay 350 DZD."
+      }
     }
   },
   "footer": {

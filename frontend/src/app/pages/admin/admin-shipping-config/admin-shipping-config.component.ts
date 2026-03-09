@@ -8,6 +8,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { ToastModule } from 'primeng/toast';
 import { ButtonModule } from 'primeng/button';
+import { DrawerModule } from 'primeng/drawer';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { ROUTES } from '../../../core/constants/routes.constants';
@@ -28,6 +29,7 @@ import { ShippingPriceConfig, ShippingDiscountTier, DeliveryZoneStats } from '..
     InputNumberModule,
     ToastModule,
     ButtonModule,
+    DrawerModule,
     TranslateModule,
     PageLayoutComponent
   ],
@@ -50,6 +52,7 @@ export class AdminShippingConfigComponent implements OnInit {
   readonly formInitialized = signal(false);
   readonly configExists = signal(false);
   readonly zoneStats = signal<DeliveryZoneStats | null>(null);
+  readonly showAlgorithmDialog = signal(false);
 
   readonly currencySuffix = computed(() => ` ${this.currencyService.getCurrencySymbol()}`);
 
