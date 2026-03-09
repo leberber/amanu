@@ -4,12 +4,22 @@
       <i class="pi pi-times"></i>
     </button>
   }
+
   <div class="inactive-message__icon">
-    <i class="pi pi-clock"></i>
+    <i class="pi" [class.pi-clock]="userType() === 'customer'" [class.pi-truck]="userType() === 'driver'"></i>
   </div>
-  <h2>{{ 'register.step6_title' | translate }}</h2>
-  <p>{{ 'register.account_pending_review' | translate }}</p>
-  <p class="inactive-message__browse-hint">{{ 'auth.can_browse_not_order' | translate }}</p>
+
+  @if (userType() === 'driver') {
+    <!-- Driver messaging -->
+    <h2>{{ 'register.driver_step6_title' | translate }}</h2>
+    <p>{{ 'register.driver_account_pending_review' | translate }}</p>
+    <p class="inactive-message__browse-hint">{{ 'register.driver_will_contact' | translate }}</p>
+  } @else {
+    <!-- Customer messaging -->
+    <h2>{{ 'register.step6_title' | translate }}</h2>
+    <p>{{ 'register.account_pending_review' | translate }}</p>
+    <p class="inactive-message__browse-hint">{{ 'auth.can_browse_not_order' | translate }}</p>
+  }
 
   <div class="inactive-message__contact">
     <span>{{ 'auth.contact_us' | translate }}</span>

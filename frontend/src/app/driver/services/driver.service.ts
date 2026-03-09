@@ -18,6 +18,14 @@ export interface DriverRegisterRequest {
   capacity_volume?: number;
 }
 
+export interface ConvertToDriverRequest {
+  full_name: string;
+  phone: string;
+  vehicle_type: VehicleType;
+  capacity_kg?: number;
+  capacity_volume?: number;
+}
+
 export interface DriverProfile {
   id: number;
   user_id: number;
@@ -49,6 +57,10 @@ export class DriverService {
 
   register(data: DriverRegisterRequest): Observable<DriverWithProfile> {
     return this.http.post<DriverWithProfile>(`${this.API_URL}/register`, data);
+  }
+
+  convertToDriver(data: ConvertToDriverRequest): Observable<DriverWithProfile> {
+    return this.http.post<DriverWithProfile>(`${this.API_URL}/convert`, data);
   }
 
   getProfile(): Observable<DriverWithProfile> {

@@ -12,6 +12,9 @@ export class InactiveUserMessageComponent {
   // Which button to show: 'login', 'understood', 'home', or 'none' to hide
   buttonType = input<'login' | 'understood' | 'home' | 'none'>('understood');
 
+  // User type: 'customer' or 'driver' for different messaging
+  userType = input<'customer' | 'driver'>('customer');
+
   // Emit when button is clicked
   buttonClick = output<void>();
 

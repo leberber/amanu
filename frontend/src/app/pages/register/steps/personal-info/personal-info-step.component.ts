@@ -106,8 +106,8 @@ import { ROUTES } from '../../../../core/constants/routes.constants';
         }
       </button>
 
-      <!-- Google Sign-Up (only for customers, not Google flow or driver) -->
-      @if (!state.fromGoogle() && !state.isDriverMode()) {
+      <!-- Google Sign-Up (not shown if already in Google flow) -->
+      @if (!state.fromGoogle()) {
         <div class="register-divider">
           <span>{{ 'common.or' | translate }}</span>
         </div>

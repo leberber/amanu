@@ -18,6 +18,7 @@ from app.models.driver import (
     DriverRegister,
     VehicleType,
 )
+from sqlmodel import SQLModel
 
 router = APIRouter()
 
@@ -25,6 +26,65 @@ router = APIRouter()
 class DriverWithProfile(UserRead):
     """User with driver profile included"""
     driver_profile: DriverProfileRead | None = None
+
+
+class ConvertToDriver(SQLModel):
+    """Model for converting existing user to driver"""
+    full_name: str
+    phone: str
+    vehicle_type: VehicleType
+    capacity_kg: float | None = None
+    capacity_volume: float | None = None
+
+
+@router.post("/convert", response_model=DriverWithProfile)
+def convert_to_driver(
+    driver_in: ConvertToDriver,
+    current_user: User = Depends(get_current_user),
+    session: Session = Depends(get_session),
+) -> Any:
+    """
+    Convert current user (e.g., Google OAuth user) to a driver.
+    Creates driver profile and changes role to DRIVER.
+    Driver will be inactive until admin approval.
+    """
+    # Check if user already has a driver profile
+    existing_profile = session.exec(
+        select(DriverProfile).where(DriverProfile.user_id == current_user.id)
+    ).first()
+
+    if existing_profile:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="User already has a driver profile",
+        )
+
+    # Update user info and role
+    current_user.full_name = driver_in.full_name
+    current_user.phone = driver_in.phone
+    current_user.role = UserRole.DRIVER
+    current_user.is_active = False  # Requires admin approval
+    current_user.updated_at = datetime.now(timezone.utc)
+    session.add(current_user)
+    session.commit()
+    session.refresh(current_user)
+
+    # Create driver profile
+    driver_profile = DriverProfile(
+        user_id=current_user.id,
+        vehicle_type=driver_in.vehicle_type,
+        capacity_kg=driver_in.capacity_kg,
+        capacity_volume=driver_in.capacity_volume,
+    )
+    session.add(driver_profile)
+    session.commit()
+    session.refresh(driver_profile)
+
+    # Return combined response
+    return DriverWithProfile(
+        **UserRead.model_validate(current_user).model_dump(),
+        driver_profile=DriverProfileRead.model_validate(driver_profile)
+    )
 
 
 @router.post("/register", response_model=DriverWithProfile)

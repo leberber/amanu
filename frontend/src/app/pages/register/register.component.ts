@@ -91,8 +91,13 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
 
   // Step navigation
   get stepDots(): number[] {
+    // Google + Driver: Personal info → Vehicle → Confirmation
+    if (this.state.fromGoogle() && this.state.isDriverMode()) return [0, 4, 5];
+    // Google + Customer: Personal info → Location → Store → Confirmation
     if (this.state.fromGoogle()) return [0, 3, 4, 5];
+    // Normal Driver: Personal info → Email → Password → Vehicle → Confirmation
     if (this.state.isDriverMode()) return [0, 1, 2, 4, 5];
+    // Normal Customer: All steps
     return [0, 1, 2, 3, 4, 5];
   }
 
@@ -107,7 +112,13 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
   nextStep(): void {
     const current = this.state.activeStep();
 
-    // Google flow: Step 0 -> 3
+    // Google + Driver flow: Step 0 -> 4 (vehicle details)
+    if (this.state.fromGoogle() && this.state.isDriverMode() && current === 0) {
+      this.state.activeStep.set(4);
+      return;
+    }
+
+    // Google + Customer flow: Step 0 -> 3 (map)
     if (this.state.fromGoogle() && current === 0) {
       this.state.activeStep.set(3);
       return;
@@ -133,13 +144,19 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
 
     if (current === 0) return;
 
-    // Google flow: 3 -> 0
+    // Google + Driver flow: 4 -> 0
+    if (this.state.fromGoogle() && this.state.isDriverMode() && current === 4) {
+      this.state.activeStep.set(0);
+      return;
+    }
+
+    // Google + Customer flow: 3 -> 0
     if (this.state.fromGoogle() && current === 3) {
       this.state.activeStep.set(0);
       return;
     }
 
-    // Driver flow: 4 -> 2
+    // Normal Driver flow: 4 -> 2
     if (this.state.isDriverMode() && current === 4) {
       this.state.activeStep.set(2);
       return;
@@ -155,6 +172,15 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   canAccessStep(step: number): boolean {
+    // Google + Driver flow
+    if (this.state.fromGoogle() && this.state.isDriverMode()) {
+      if (step === 0) return true;
+      if (step === 1 || step === 2 || step === 3) return false;
+      if (step === 4) return this.state.isPersonalInfoValid();
+      if (step === 5) return this.state.isPersonalInfoValid() && this.state.isVehicleFormValid();
+    }
+
+    // Google + Customer flow
     if (this.state.fromGoogle()) {
       if (step === 0) return true;
       if (step === 1 || step === 2) return false;
@@ -163,6 +189,7 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
       if (step === 5) return this.state.isPersonalInfoValid() && this.state.locationSelected() && this.state.isStoreDetailsValid();
     }
 
+    // Normal Driver flow
     if (this.state.isDriverMode()) {
       if (step === 0) return true;
       if (step === 1) return this.state.isPersonalInfoValid();
@@ -337,16 +364,25 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
 
   // Final submission
   onRegister(): void {
+    // Google + Driver: Convert Google user to driver
+    if (this.state.fromGoogle() && this.state.isDriverMode()) {
+      this.submitGoogleDriverRegistration();
+      return;
+    }
+
+    // Google + Customer: Update profile
     if (this.state.fromGoogle()) {
       this.submitGoogleProfileUpdate();
       return;
     }
 
+    // Normal Driver
     if (this.state.isDriverMode()) {
       this.submitDriverRegistration();
       return;
     }
 
+    // Normal Customer
     this.submitCustomerRegistration();
   }
 
@@ -396,6 +432,33 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
     };
 
     this.driverService.register(driverData)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.state.loading.set(false);
+          this.state.clearSavedState();
+          this.state.activeStep.set(6);
+        },
+        error: (error) => {
+          this.state.loading.set(false);
+          this.handleServerError(error);
+        }
+      });
+  }
+
+  private submitGoogleDriverRegistration(): void {
+    this.state.loading.set(true);
+    const vehicleData = this.state.vehicleForm.value;
+
+    const driverData = {
+      full_name: this.state.personalInfoForm.value.full_name,
+      phone: this.state.personalInfoForm.value.phone,
+      vehicle_type: vehicleData.vehicle_type,
+      capacity_kg: vehicleData.capacity_kg || null,
+      capacity_volume: vehicleData.capacity_volume || null
+    };
+
+    this.driverService.convertToDriver(driverData)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
