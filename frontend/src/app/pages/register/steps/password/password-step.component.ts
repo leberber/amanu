@@ -1,4 +1,4 @@
-import { Component, inject, output, signal, computed } from '@angular/core';
+import { Component, inject, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -49,20 +49,20 @@ import { RegisterStateService } from '../../register-state.service';
 
       <!-- Password Requirements -->
       <div class="register-requirements">
-        <div class="register-requirements__item" [class.register-requirements__item--met]="hasMinLength()">
-          <i class="pi" [ngClass]="hasMinLength() ? 'pi-check-circle' : 'pi-circle'"></i>
+        <div class="register-requirements__item" [class.register-requirements__item--met]="hasMinLength">
+          <i class="pi" [ngClass]="hasMinLength ? 'pi-check-circle' : 'pi-circle'"></i>
           <span>{{ 'register.password_min_chars' | translate }}</span>
         </div>
-        <div class="register-requirements__item" [class.register-requirements__item--met]="hasLetter()">
-          <i class="pi" [ngClass]="hasLetter() ? 'pi-check-circle' : 'pi-circle'"></i>
+        <div class="register-requirements__item" [class.register-requirements__item--met]="hasLetter">
+          <i class="pi" [ngClass]="hasLetter ? 'pi-check-circle' : 'pi-circle'"></i>
           <span>{{ 'register.password_has_letter' | translate }}</span>
         </div>
-        <div class="register-requirements__item" [class.register-requirements__item--met]="hasNumber()">
-          <i class="pi" [ngClass]="hasNumber() ? 'pi-check-circle' : 'pi-circle'"></i>
+        <div class="register-requirements__item" [class.register-requirements__item--met]="hasNumber">
+          <i class="pi" [ngClass]="hasNumber ? 'pi-check-circle' : 'pi-circle'"></i>
           <span>{{ 'register.password_has_number' | translate }}</span>
         </div>
-        <div class="register-requirements__item" [class.register-requirements__item--met]="passwordsMatch()">
-          <i class="pi" [ngClass]="passwordsMatch() ? 'pi-check-circle' : 'pi-circle'"></i>
+        <div class="register-requirements__item" [class.register-requirements__item--met]="passwordsMatch">
+          <i class="pi" [ngClass]="passwordsMatch ? 'pi-check-circle' : 'pi-circle'"></i>
           <span>{{ 'register.passwords_must_match' | translate }}</span>
         </div>
       </div>
@@ -87,26 +87,26 @@ export class PasswordStepComponent {
   showPassword = signal(false);
   showConfirmPassword = signal(false);
 
-  hasMinLength = computed(() => {
+  get hasMinLength(): boolean {
     const password = this.state.passwordForm?.get('password')?.value || '';
     return password.length >= 8;
-  });
+  }
 
-  hasLetter = computed(() => {
+  get hasLetter(): boolean {
     const password = this.state.passwordForm?.get('password')?.value || '';
     return /[a-zA-Z]/.test(password);
-  });
+  }
 
-  hasNumber = computed(() => {
+  get hasNumber(): boolean {
     const password = this.state.passwordForm?.get('password')?.value || '';
     return /[0-9]/.test(password);
-  });
+  }
 
-  passwordsMatch = computed(() => {
+  get passwordsMatch(): boolean {
     const password = this.state.passwordForm?.get('password')?.value || '';
     const confirmPassword = this.state.passwordForm?.get('confirmPassword')?.value || '';
     return password.length > 0 && confirmPassword.length > 0 && password === confirmPassword;
-  });
+  }
 
   togglePassword(): void {
     this.showPassword.update(v => !v);
