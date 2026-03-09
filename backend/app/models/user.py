@@ -48,16 +48,41 @@ class UserBase(SQLModel):
     auth_provider: AuthProvider = Field(default=AuthProvider.EMAIL, sa_type=String(20))
     profile_picture: Optional[str] = Field(default=None, max_length=500)
 
-class User(UserBase, table=True):
+class User(SQLModel, table=True):
     """Database model for users"""
     __tablename__ = "users"
+
+    # ID first
     id: Optional[int] = Field(default=None, primary_key=True)
+
+    # Core identity (from UserBase)
+    email: EmailStr = Field(index=True)
+    full_name: str = Field(min_length=1, max_length=100)
+    phone: Optional[str] = Field(default=None, max_length=20)
+    store_name: Optional[str] = Field(default=None, max_length=100)
+    role: UserRole = Field(default=UserRole.CUSTOMER)
+    is_active: bool = Field(default=True)
+    h3_index: Optional[str] = Field(default=None, max_length=20, index=True)
+
+    # Location
+    address: Optional[str] = Field(default=None, max_length=200)
+    wilaya: Optional[str] = Field(default=None, max_length=50)
+    daira: Optional[str] = Field(default=None, max_length=50)
+    commune: Optional[str] = Field(default=None, max_length=50)
+    latitude: Optional[float] = Field(default=None)
+    longitude: Optional[float] = Field(default=None)
+
+    # Auth
+    auth_provider: AuthProvider = Field(default=AuthProvider.EMAIL, sa_type=String(20))
+    profile_picture: Optional[str] = Field(default=None, max_length=500)
     hashed_password: Optional[str] = Field(default=None)
     google_id: Optional[str] = Field(default=None, max_length=100, index=True)
+
+    # Preferences & timestamps
     user_preferences: Optional[Dict[str, Any]] = Field(default=None, sa_type=JSON)
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: Optional[datetime] = Field(default=None)
-    
+
     # Relationships
     orders: List["Order"] = Relationship(back_populates="user", sa_relationship_kwargs={"cascade": "all, delete-orphan"})
     notifications: List["UserNotification"] = Relationship(sa_relationship_kwargs={"cascade": "all, delete-orphan", "foreign_keys": "[UserNotification.user_id]"})

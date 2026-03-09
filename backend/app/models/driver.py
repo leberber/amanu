@@ -21,12 +21,20 @@ class DriverProfileBase(SQLModel):
     capacity_volume: Optional[float] = Field(default=None, description="Volume capacity in m³")
 
 
-class DriverProfile(DriverProfileBase, table=True):
+class DriverProfile(SQLModel, table=True):
     """Database model for driver profiles"""
     __tablename__ = "driver_profiles"
 
+    # ID and user_id first
     id: Optional[int] = Field(default=None, primary_key=True)
     user_id: int = Field(foreign_key="users.id", unique=True, index=True)
+
+    # Vehicle info (from DriverProfileBase)
+    vehicle_type: VehicleType
+    capacity_kg: Optional[float] = Field(default=None, description="Weight capacity in kg")
+    capacity_volume: Optional[float] = Field(default=None, description="Volume capacity in m³")
+
+    # Status & timestamps
     is_available: bool = Field(default=True, description="Driver availability status")
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: Optional[datetime] = Field(default=None)
