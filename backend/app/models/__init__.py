@@ -25,7 +25,14 @@ from app.models.order import Order, OrderItem
 # Driver models
 from app.models.driver import (
     DriverProfile, DriverProfileBase, DriverProfileCreate,
-    DriverProfileRead, DriverProfileUpdate, DriverRegister, VehicleType
+    DriverProfileRead, DriverProfileUpdate, DriverProfileWithFlags,
+    DriverProfileAdminUpdate, DriverRegister, VehicleType, DriverStatus,
+    DriverStats, DriverEarning, DriverEarningsResponse
+)
+
+# Driver config models
+from app.models.driver_config import (
+    DriverSystemConfig, DriverSystemConfigRead, DriverSystemConfigUpdate
 )
 
 # Other models

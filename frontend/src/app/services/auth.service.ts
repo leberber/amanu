@@ -118,7 +118,16 @@ export class AuthService {
     const user = this.currentUserValue;
     return user?.role === UserRole.CUSTOMER;
   }
-  
+
+  /**
+   * Check if user is a driver
+   * @returns boolean
+   */
+  isDriver(): boolean {
+    const user = this.currentUserValue;
+    return user?.role === UserRole.DRIVER;
+  }
+
   /**
    * Check if user is admin or staff
    * @returns boolean

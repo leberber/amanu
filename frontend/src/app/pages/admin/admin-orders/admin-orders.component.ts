@@ -37,7 +37,7 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
   // Computed counts
   pendingCount = computed(() => this.allOrders().filter(o => o.status === ORDER_STATUS.PENDING).length);
   confirmedCount = computed(() => this.allOrders().filter(o => o.status === ORDER_STATUS.CONFIRMED).length);
-  shippedCount = computed(() => this.allOrders().filter(o => o.status === ORDER_STATUS.SHIPPED).length);
+  inTransitCount = computed(() => this.allOrders().filter(o => o.status === ORDER_STATUS.IN_TRANSIT).length);
   deliveredCount = computed(() => this.allOrders().filter(o => o.status === ORDER_STATUS.DELIVERED).length);
   cancelledCount = computed(() => this.allOrders().filter(o => o.status === ORDER_STATUS.CANCELLED).length);
 

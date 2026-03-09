@@ -28,7 +28,9 @@ export class OrderTimelineService {
 
   generateTimeline(order: Order): TimelineStatus[] {
     const confirmedConfig = ORDER_STATUS_CONFIG[ORDER_STATUS.CONFIRMED];
-    const shippedConfig = ORDER_STATUS_CONFIG[ORDER_STATUS.SHIPPED];
+    const assignedConfig = ORDER_STATUS_CONFIG[ORDER_STATUS.ASSIGNED];
+    const pickedUpConfig = ORDER_STATUS_CONFIG[ORDER_STATUS.PICKED_UP];
+    const inTransitConfig = ORDER_STATUS_CONFIG[ORDER_STATUS.IN_TRANSIT];
     const deliveredConfig = ORDER_STATUS_CONFIG[ORDER_STATUS.DELIVERED];
     const cancelledConfig = ORDER_STATUS_CONFIG[ORDER_STATUS.CANCELLED];
 
@@ -44,15 +46,25 @@ export class OrderTimelineService {
         break;
 
       case ORDER_STATUS.CONFIRMED:
-      case ORDER_STATUS.SHIPPED:
+      case ORDER_STATUS.ASSIGNED:
+      case ORDER_STATUS.PICKED_UP:
+      case ORDER_STATUS.IN_TRANSIT:
       case ORDER_STATUS.DELIVERED:
         statuses.push(this.createStatus('orders.detail.timeline.order_confirmed', statusDate, confirmedConfig.icon, confirmedConfig.color));
 
-        if (order.status === ORDER_STATUS.SHIPPED || order.status === ORDER_STATUS.DELIVERED) {
-          statuses.push(this.createStatus('orders.detail.timeline.order_shipped', statusDate, shippedConfig.icon, shippedConfig.color));
+        if (order.status !== ORDER_STATUS.CONFIRMED) {
+          statuses.push(this.createStatus('orders.detail.timeline.driver_assigned', statusDate, assignedConfig.icon, assignedConfig.color));
 
-          if (order.status === ORDER_STATUS.DELIVERED) {
-            statuses.push(this.createStatus('orders.detail.timeline.order_delivered', statusDate, deliveredConfig.icon, deliveredConfig.color));
+          if (order.status !== ORDER_STATUS.ASSIGNED) {
+            statuses.push(this.createStatus('orders.detail.timeline.order_picked_up', statusDate, pickedUpConfig.icon, pickedUpConfig.color));
+
+            if (order.status === ORDER_STATUS.IN_TRANSIT || order.status === ORDER_STATUS.DELIVERED) {
+              statuses.push(this.createStatus('orders.detail.timeline.order_shipped', statusDate, inTransitConfig.icon, inTransitConfig.color));
+
+              if (order.status === ORDER_STATUS.DELIVERED) {
+                statuses.push(this.createStatus('orders.detail.timeline.order_delivered', statusDate, deliveredConfig.icon, deliveredConfig.color));
+              }
+            }
           }
         }
         break;

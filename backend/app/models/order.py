@@ -8,14 +8,17 @@ if TYPE_CHECKING:
     from app.models.user import User
     from app.models.product import Product
     from app.models.promotion import Promotion
+    from app.models.driver import DriverProfile
 
 class OrderStatus(str, Enum):
     """Order status enumeration"""
-    PENDING = "pending"
-    CONFIRMED = "confirmed"
-    SHIPPED = "shipped"
-    DELIVERED = "delivered"
-    CANCELLED = "cancelled"
+    PENDING = "PENDING"
+    CONFIRMED = "CONFIRMED"      # Ready for driver pool
+    ASSIGNED = "ASSIGNED"        # Driver has claimed
+    PICKED_UP = "PICKED_UP"      # Driver has items
+    IN_TRANSIT = "IN_TRANSIT"    # Driver is delivering
+    DELIVERED = "DELIVERED"
+    CANCELLED = "CANCELLED"
 
 class OrderItemBase(SQLModel):
     """Base model for order items"""
@@ -38,6 +41,8 @@ class OrderItem(OrderItemBase, table=True):
 
 class OrderBase(SQLModel):
     """Base order model with common fields"""
+    model_config = {"use_enum_values": True}
+
     user_id: int = Field(foreign_key="users.id")
     status: OrderStatus = Field(default=OrderStatus.PENDING)
     shipping_address: str
@@ -60,10 +65,29 @@ class Order(OrderBase, table=True):
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: Optional[datetime] = Field(default=None)
 
+    # Driver assignment fields
+    driver_id: Optional[int] = Field(default=None, foreign_key="users.id", index=True)
+    assigned_at: Optional[datetime] = Field(default=None)
+    assignment_expires_at: Optional[datetime] = Field(default=None)
+    picked_up_at: Optional[datetime] = Field(default=None)
+    in_transit_at: Optional[datetime] = Field(default=None)
+    delivered_at: Optional[datetime] = Field(default=None)
+
+    # Driver cancellation tracking
+    driver_cancelled_at: Optional[datetime] = Field(default=None)
+    driver_cancel_reason: Optional[str] = Field(default=None, max_length=500)
+    cancellation_count: int = Field(default=0)
+
+    # Delivery info
+    delivery_notes: Optional[str] = Field(default=None, max_length=500)
+    estimated_delivery_minutes: Optional[int] = Field(default=None)
+    actual_delivery_minutes: Optional[int] = Field(default=None)
+
     # Relationships
-    user: "User" = Relationship(back_populates="orders")
+    user: "User" = Relationship(back_populates="orders", sa_relationship_kwargs={"foreign_keys": "[Order.user_id]"})
     items: List[OrderItem] = Relationship(back_populates="order", sa_relationship_kwargs={"cascade": "all, delete-orphan"})
     promotion: Optional["Promotion"] = Relationship()
+    driver: Optional["User"] = Relationship(sa_relationship_kwargs={"foreign_keys": "[Order.driver_id]"})
 
 class OrderCreateItem(SQLModel):
     """Model for item in order creation"""
@@ -99,8 +123,19 @@ class UserInfo(SQLModel):
 
     model_config = {"from_attributes": True}
 
+
+class DriverInfo(SQLModel):
+    """Minimal driver info for order display"""
+    id: int
+    full_name: str
+    phone: Optional[str] = None
+
+    model_config = {"from_attributes": True}
+
 class OrderRead(OrderBase):
     """Model for reading orders"""
+    model_config = {"from_attributes": True, "use_enum_values": True}
+
     id: int
     created_at: datetime
     updated_at: Optional[datetime] = None
@@ -111,7 +146,17 @@ class OrderRead(OrderBase):
     promotion_id: Optional[int] = None
     user: Optional[UserInfo] = None
 
-    model_config = {"from_attributes": True}
+    # Driver fields
+    driver_id: Optional[int] = None
+    driver: Optional[DriverInfo] = None
+    assigned_at: Optional[datetime] = None
+    assignment_expires_at: Optional[datetime] = None
+    picked_up_at: Optional[datetime] = None
+    in_transit_at: Optional[datetime] = None
+    delivered_at: Optional[datetime] = None
+    delivery_notes: Optional[str] = None
+    estimated_delivery_minutes: Optional[int] = None
+    actual_delivery_minutes: Optional[int] = None
 
 
 # Create a new Pydantic model that explicitly includes items

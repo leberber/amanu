@@ -6,6 +6,7 @@
 // User Roles
 export const USER_ROLES = {
   CUSTOMER: 'customer',
+  DRIVER: 'driver',
   STAFF: 'staff',
   ADMIN: 'admin'
 } as const;

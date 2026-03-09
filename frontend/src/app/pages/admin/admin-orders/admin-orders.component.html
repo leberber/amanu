@@ -45,10 +45,10 @@
         </button>
         <button
           class="segment-control__item"
-          [class.active]="statusFilter === 'shipped'"
-          (click)="onStatusFilterChange('shipped')">
-          <span>{{ 'admin.orders.status.shipped' | translate }}</span>
-          <span class="count shipped">{{ shippedCount() }}</span>
+          [class.active]="statusFilter === 'in_transit'"
+          (click)="onStatusFilterChange('in_transit')">
+          <span>{{ 'admin.orders.status.in_transit' | translate }}</span>
+          <span class="count shipped">{{ inTransitCount() }}</span>
         </button>
         <button
           class="segment-control__item"

@@ -120,12 +120,17 @@ export class AppComponent implements OnInit {
   private navigationDirection = 'forward-0';
   private navCounter = 0;
 
-  // Routes where navigation should be hidden (auth pages)
+  // Routes where navigation should be hidden (auth pages and driver app)
   private readonly publicRoutes = [
     ROUTES.LOGIN,
     ROUTES.REGISTER,
     ROUTES.FORGOT_PASSWORD,
     ROUTES.RESET_PASSWORD
+  ];
+
+  // Routes with their own navigation (driver app has its own layout)
+  private readonly selfContainedRoutes = [
+    ROUTES.DRIVER.BASE
   ];
 
   ngOnInit() {
@@ -189,8 +194,9 @@ export class AppComponent implements OnInit {
 
   private updateNavigation(url: string): void {
     const isPublicRoute = this.publicRoutes.some(route => url.startsWith(route));
+    const isSelfContained = this.selfContainedRoutes.some(route => url.startsWith(route));
 
-    this.showNavigation.set(!isPublicRoute);
+    this.showNavigation.set(!isPublicRoute && !isSelfContained);
   }
 
   // Get animation direction for route transitions

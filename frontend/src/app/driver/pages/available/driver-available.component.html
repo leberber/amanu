@@ -1,0 +1,85 @@
+<div class="driver-available">
+  <!-- Header -->
+  <header class="page-header">
+    <div class="page-header__text">
+      <h1>{{ 'driver.available.title' | translate }}</h1>
+      <p>{{ 'driver.available.subtitle' | translate }}</p>
+    </div>
+    <button class="refresh-btn" (click)="refresh()" [disabled]="loading()">
+      <i class="pi pi-refresh" [class.pi-spin]="loading()"></i>
+    </button>
+  </header>
+
+  <!-- Content -->
+  @if (loading()) {
+    <!-- Skeleton Loading -->
+    <div class="trips-list">
+      @for (i of [1, 2, 3]; track i) {
+        <div class="trip-card trip-card--skeleton">
+          <div class="skeleton skeleton-text" style="width: 60%"></div>
+          <div class="skeleton skeleton-text short" style="width: 80%"></div>
+          <div class="skeleton skeleton-button"></div>
+        </div>
+      }
+    </div>
+  } @else if (availableTrips().length === 0) {
+    <!-- Empty State -->
+    <div class="empty-state">
+      <div class="empty-state__icon">
+        <i class="pi pi-inbox"></i>
+      </div>
+      <h3>{{ 'driver.available.empty_title' | translate }}</h3>
+      <p>{{ 'driver.available.empty_desc' | translate }}</p>
+      <button class="empty-state__btn" (click)="refresh()">
+        <i class="pi pi-refresh"></i>
+        {{ 'driver.available.refresh' | translate }}
+      </button>
+    </div>
+  } @else {
+    <!-- Trips List -->
+    <div class="trips-list" @listAnimation>
+      @for (trip of availableTrips(); track trip.id) {
+        <div class="trip-card">
+          <div class="trip-card__header">
+            <span class="trip-card__id">#{{ trip.id }}</span>
+            <span class="trip-card__amount">{{ trip.total_amount | number:'1.0-0' }} DA</span>
+          </div>
+
+          <div class="trip-card__body">
+            <div class="trip-card__row">
+              <i class="pi pi-map-marker"></i>
+              <span>{{ trip.shipping_address }}</span>
+            </div>
+            <div class="trip-card__row">
+              <i class="pi pi-phone"></i>
+              <span>{{ trip.contact_phone }}</span>
+            </div>
+            <div class="trip-card__row">
+              <i class="pi pi-box"></i>
+              <span>{{ getItemsCount(trip) }} {{ 'common.items' | translate }}</span>
+            </div>
+          </div>
+
+          <div class="trip-card__footer">
+            <button
+              class="trip-card__btn trip-card__btn--details"
+              (click)="viewDetails(trip)">
+              {{ 'driver.trip.view_details' | translate }}
+            </button>
+            <button
+              class="trip-card__btn trip-card__btn--accept"
+              [disabled]="accepting() === trip.id || !canAcceptOrders()"
+              (click)="acceptTrip(trip)">
+              @if (accepting() === trip.id) {
+                <i class="pi pi-spin pi-spinner"></i>
+              } @else {
+                <i class="pi pi-check"></i>
+              }
+              {{ 'driver.action.accept' | translate }}
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

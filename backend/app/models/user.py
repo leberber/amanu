@@ -29,6 +29,8 @@ class AuthProvider(str, Enum):
 
 class UserBase(SQLModel):
     """Base user model with common fields"""
+    model_config = {"use_enum_values": True}
+
     # Core identity
     email: EmailStr = Field(index=True)
     full_name: str = Field(min_length=1, max_length=100)
@@ -84,10 +86,10 @@ class User(SQLModel, table=True):
     updated_at: Optional[datetime] = Field(default=None)
 
     # Relationships
-    orders: List["Order"] = Relationship(back_populates="user", sa_relationship_kwargs={"cascade": "all, delete-orphan"})
+    orders: List["Order"] = Relationship(back_populates="user", sa_relationship_kwargs={"cascade": "all, delete-orphan", "foreign_keys": "[Order.user_id]"})
     notifications: List["UserNotification"] = Relationship(sa_relationship_kwargs={"cascade": "all, delete-orphan", "foreign_keys": "[UserNotification.user_id]"})
     groups: List["UserGroup"] = Relationship(back_populates="users", link_model=UserGroupLink)
-    driver_profile: Optional["DriverProfile"] = Relationship(back_populates="user", sa_relationship_kwargs={"cascade": "all, delete-orphan", "uselist": False})
+    driver_profile: Optional["DriverProfile"] = Relationship(back_populates="user", sa_relationship_kwargs={"cascade": "all, delete-orphan", "uselist": False, "foreign_keys": "[DriverProfile.user_id]"})
 
 class UserCreate(UserBase):
     """Model for creating a new user"""
@@ -123,6 +125,8 @@ class UserGroupBasic(SQLModel):
 
 class UserRead(UserBase):
     """Model for reading users"""
+    model_config = {"use_enum_values": True, "from_attributes": True}
+
     id: int
     h3_index: Optional[str] = None
     user_preferences: Optional[Dict[str, Any]] = None

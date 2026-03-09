@@ -20,6 +20,7 @@ export * from './user.constants';
 export * from './cart.constants';
 export * from './promotion.constants';
 export * from './notification.constants';
+export * from './driver.constants';
 
 // Technical constants
 export * from './api.constants';

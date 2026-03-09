@@ -1,0 +1,167 @@
+@if (loading()) {
+  <!-- Loading Skeleton -->
+  <div class="trip-detail trip-detail--loading">
+    <header class="detail-header">
+      <button class="back-btn">
+        <i class="pi pi-arrow-left"></i>
+      </button>
+      <div class="skeleton skeleton-text" style="width: 120px; height: 20px;"></div>
+    </header>
+    
+    <div class="detail-content">
+      <div class="skeleton skeleton-card" style="height: 200px;"></div>
+      <div class="skeleton skeleton-card" style="height: 100px;"></div>
+      <div class="skeleton skeleton-card" style="height: 80px;"></div>
+    </div>
+  </div>
+} @else if (order()) {
+  <div class="trip-detail" @pageAnimation>
+    <!-- Header -->
+    <header class="detail-header">
+      <button class="back-btn" (click)="goBack()">
+        <i class="pi pi-arrow-left"></i>
+      </button>
+      <div class="detail-header__title">
+        <span class="order-id">#{{ order()!.id }}</span>
+        <div 
+          class="status-badge" 
+          [style.--status-color]="getStatusColor(order()!.status)">
+          <i [class]="getStatusIcon(order()!.status)"></i>
+          {{ getStatusLabel(order()!.status) | translate }}
+        </div>
+      </div>
+      <button class="menu-btn" (click)="reportIssue()">
+        <i class="pi pi-ellipsis-v"></i>
+      </button>
+    </header>
+
+    <!-- Progress -->
+    <div class="progress-section">
+      <div class="progress-bar">
+        <div class="progress-bar__fill" [style.width.%]="statusProgress()"></div>
+      </div>
+      <div class="progress-steps">
+        <span [class.active]="statusProgress() >= 25">{{ 'driver.status.assigned' | translate }}</span>
+        <span [class.active]="statusProgress() >= 50">{{ 'driver.status.picked_up' | translate }}</span>
+        <span [class.active]="statusProgress() >= 75">{{ 'driver.status.in_transit' | translate }}</span>
+        <span [class.active]="statusProgress() >= 100">{{ 'driver.status.delivered' | translate }}</span>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="detail-content">
+      <!-- Customer Card -->
+      <div class="info-card">
+        <div class="info-card__header">
+          <h3>{{ 'driver.trip.customer_info' | translate }}</h3>
+        </div>
+        <div class="info-card__body">
+          <div class="info-row">
+            <i class="pi pi-user"></i>
+            <span>{{ order()!.user?.full_name || 'Customer' }}</span>
+          </div>
+          <div class="info-row info-row--clickable" (click)="callCustomer()">
+            <i class="pi pi-phone"></i>
+            <span>{{ order()!.contact_phone }}</span>
+            <i class="pi pi-external-link action-icon"></i>
+          </div>
+          <div class="info-row info-row--clickable" (click)="openNavigation()">
+            <i class="pi pi-map-marker"></i>
+            <span>{{ order()!.shipping_address }}</span>
+            <i class="pi pi-external-link action-icon"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Order Details Card -->
+      <div class="info-card">
+        <div class="info-card__header">
+          <h3>{{ 'driver.trip.order_details' | translate }}</h3>
+          <button class="view-items-btn" (click)="toggleItemsModal()">
+            {{ 'driver.trip.view_items' | translate }}
+            <i class="pi pi-chevron-right"></i>
+          </button>
+        </div>
+        <div class="info-card__body">
+          <div class="order-summary">
+            <div class="summary-item">
+              <span class="summary-label">{{ 'common.items' | translate }}</span>
+              <span class="summary-value">{{ getItemsCount() }} ({{ getTotalQuantity() }} {{ 'common.units' | translate }})</span>
+            </div>
+            <div class="summary-item summary-item--total">
+              <span class="summary-label">{{ 'common.total' | translate }}</span>
+              <span class="summary-value">{{ order()!.total_amount | number:'1.0-0' }} DA</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="quick-actions">
+        <button class="quick-action" (click)="callCustomer()">
+          <i class="pi pi-phone"></i>
+          <span>{{ 'driver.action.call' | translate }}</span>
+        </button>
+        <button class="quick-action" (click)="openNavigation()">
+          <i class="pi pi-map"></i>
+          <span>{{ 'driver.action.navigate' | translate }}</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Bottom Action -->
+    @if (canUpdateStatus()) {
+      <div class="action-footer" @slideUp>
+        <button 
+          class="action-btn"
+          [disabled]="updating()"
+          (click)="updateStatus()">
+          @if (updating()) {
+            <i class="pi pi-spin pi-spinner"></i>
+          } @else {
+            <i class="pi pi-check-circle"></i>
+          }
+          {{ getNextStatusLabel() | translate }}
+        </button>
+      </div>
+    } @else if (order()!.status === ORDER_STATUS.DELIVERED) {
+      <div class="action-footer action-footer--completed" @slideUp>
+        <div class="completed-badge">
+          <i class="pi pi-check-circle"></i>
+          {{ 'driver.trip.delivery_completed' | translate }}
+        </div>
+      </div>
+    }
+
+    <!-- Items Modal -->
+    @if (showItemsModal()) {
+      <div class="modal-overlay" (click)="toggleItemsModal()">
+        <div class="modal-content" (click)="$event.stopPropagation()" @slideUp>
+          <div class="modal-header">
+            <h3>{{ 'driver.trip.order_items' | translate }}</h3>
+            <button class="modal-close" (click)="toggleItemsModal()">
+              <i class="pi pi-times"></i>
+            </button>
+          </div>
+          <div class="modal-body">
+            @for (item of order()!.items; track item.id) {
+              <div class="item-row">
+                <div class="item-info">
+                  <span class="item-name">{{ item.product_name }}</span>
+                  <span class="item-price">{{ item.unit_price | number:'1.0-0' }} DA</span>
+                </div>
+                <span class="item-quantity">x{{ item.quantity }}</span>
+              </div>
+            }
+          </div>
+          <div class="modal-footer">
+            <div class="total-row">
+              <span>{{ 'common.total' | translate }}</span>
+              <span class="total-amount">{{ order()!.total_amount | number:'1.0-0' }} DA</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+}

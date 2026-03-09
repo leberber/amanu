@@ -31,6 +31,19 @@ export const ROUTES = {
   NOTIFICATIONS: '/notifications',
   COMPLETE_PROFILE: '/complete-profile',
   
+  // Driver routes
+  DRIVER: {
+    BASE: '/driver',
+    DASHBOARD: '/driver',
+    AVAILABLE: '/driver/available',
+    ACTIVE: '/driver/active',
+    TRIP_DETAIL: '/driver/trip/:id',
+    HISTORY: '/driver/history',
+    EARNINGS: '/driver/earnings',
+    PROFILE: '/driver/profile',
+    SETTINGS: '/driver/settings'
+  },
+
   // Admin routes
   ADMIN: {
     BASE: '/admin',
@@ -62,7 +75,9 @@ export const ROUTES = {
     ADD_USER_GROUP: '/admin/user-groups/add',
     EDIT_USER_GROUP: '/admin/user-groups/edit/:id',
     NOTIFICATIONS: '/admin/notifications',
-    SHIPPING: '/admin/shipping'
+    SHIPPING: '/admin/shipping',
+    DRIVER_MANAGEMENT: '/admin/drivers',
+    DRIVER_CONFIG: '/admin/drivers/config'
   }
 } as const;
 
@@ -80,7 +95,8 @@ export const RouteHelpers = {
   adminEditCrossSellPromotion: (id: number | string) => `/admin/cross-sell-promotions/edit/${id}`,
   adminEditVolumeDiscount: (id: number | string) => `/admin/volume-discounts/edit/${id}`,
   adminEditUser: (id: number | string) => `/admin/users/${id}/edit`,
-  adminEditUserGroup: (id: number | string) => `/admin/user-groups/edit/${id}`
+  adminEditUserGroup: (id: number | string) => `/admin/user-groups/edit/${id}`,
+  driverTripDetail: (id: number | string) => `/driver/trip/${id}`
 };
 
 /**
@@ -101,6 +117,7 @@ export const RouteGroups = {
     ROUTES.ORDER_DETAIL,
     ROUTES.CHECKOUT
   ],
+  DRIVER: Object.values(ROUTES.DRIVER),
   ADMIN: Object.values(ROUTES.ADMIN),
   GUEST_ONLY: [
     ROUTES.LOGIN,
@@ -117,5 +134,6 @@ export const DefaultRedirects = {
   UNAUTHORIZED: ROUTES.HOME,
   NOT_FOUND: ROUTES.HOME,
   ADMIN_DEFAULT: ROUTES.ADMIN.DASHBOARD,
-  STAFF_DEFAULT: ROUTES.ADMIN.ORDERS
+  STAFF_DEFAULT: ROUTES.ADMIN.ORDERS,
+  DRIVER_DEFAULT: ROUTES.DRIVER.DASHBOARD
 };

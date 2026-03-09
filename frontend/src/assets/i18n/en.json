@@ -69,6 +69,11 @@
     "previous": "Previous",
     "next": "Next",
     "skip": "Skip",
+    "today": "Today",
+    "this_week": "This Week",
+    "this_month": "This Month",
+    "all_time": "All Time",
+    "units": "units",
     "expand": "Expand",
     "collapse": "Collapse",
     "store": "Store"
@@ -1145,7 +1150,9 @@
       "status": {
         "pending": "Pending",
         "confirmed": "Confirmed",
-        "shipped": "Shipped",
+        "assigned": "Assigned",
+        "picked_up": "Picked Up",
+        "in_transit": "In Transit",
         "delivered": "Delivered",
         "cancelled": "Cancelled"
       },
@@ -1661,6 +1668,7 @@
       "dashboard": "Dashboard",
       "orders": "Orders",
       "users": "Users",
+      "drivers": "Drivers",
       "products": "Products",
       "categories": "Categories",
       "brands": "Brands",
@@ -2122,5 +2130,169 @@
     "slide6_title": "Order History",
     "slide6_desc": "View all your past orders and easily reorder your favorite products.",
     "get_started": "Get Started"
+  },
+  "driver": {
+    "dashboard": {
+      "title": "Driver Dashboard",
+      "welcome": "Welcome, Driver",
+      "today_stats": "Today's Stats",
+      "deliveries": "Deliveries",
+      "earnings": "Earnings",
+      "rating": "Rating",
+      "active_orders": "Active Orders",
+      "available_trips": "Available Trips",
+      "no_active_orders": "No active orders",
+      "no_available_trips": "No available trips"
+    },
+    "status": {
+      "available": "Available",
+      "busy": "Busy",
+      "offline": "Offline",
+      "suspended": "Suspended",
+      "go_online": "Go Online",
+      "go_offline": "Go Offline",
+      "assigned": "Assigned",
+      "picked_up": "Picked Up",
+      "in_transit": "In Transit",
+      "delivered": "Delivered"
+    },
+    "vehicle": {
+      "truck": "Truck",
+      "van": "Van",
+      "mini_van": "Mini Van"
+    },
+    "trip": {
+      "view_details": "View Details",
+      "accept": "Accept Trip",
+      "pickup": "Mark Picked Up",
+      "start_delivery": "Start Delivery",
+      "complete": "Complete Delivery",
+      "cancel": "Cancel Trip",
+      "customer": "Customer",
+      "customer_info": "Customer Info",
+      "order_details": "Order Details",
+      "view_items": "View Items",
+      "order_items": "Order Items",
+      "delivery_completed": "Delivery Completed",
+      "address": "Delivery Address",
+      "phone": "Phone",
+      "items": "Items",
+      "total": "Order Total",
+      "notes": "Delivery Notes",
+      "estimated_time": "Estimated Time",
+      "assigned_at": "Assigned At",
+      "expires_at": "Expires At"
+    },
+    "action": {
+      "accept": "Accept",
+      "pickup": "Pick Up",
+      "start_delivery": "Start Delivery",
+      "complete": "Complete",
+      "cancel": "Cancel",
+      "call": "Call",
+      "navigate": "Navigate",
+      "mark_picked_up": "Mark Picked Up",
+      "mark_delivered": "Mark Delivered",
+      "update_status": "Update Status"
+    },
+    "order_status": {
+      "assigned": "Assigned",
+      "picked_up": "Picked Up",
+      "in_transit": "In Transit",
+      "delivered": "Delivered"
+    },
+    "available": {
+      "title": "Available Trips",
+      "subtitle": "Accept orders to start delivering",
+      "empty_title": "No available trips",
+      "empty_desc": "New orders will appear here when available",
+      "refresh": "Refresh"
+    },
+    "active": {
+      "title": "Active Orders",
+      "subtitle": "Your current deliveries",
+      "empty_title": "No active orders",
+      "empty_desc": "Accept a trip to start delivering"
+    },
+    "history": {
+      "title": "Delivery History",
+      "subtitle": "Your completed deliveries",
+      "empty_title": "No deliveries yet",
+      "empty_desc": "Completed deliveries will appear here",
+      "total_deliveries": "Total Deliveries",
+      "total_earnings": "Total Earnings"
+    },
+    "earnings": {
+      "title": "My Earnings",
+      "subtitle": "Track your delivery earnings",
+      "today": "Today",
+      "this_week": "This Week",
+      "this_month": "This Month",
+      "total": "Total Earnings",
+      "recent": "Recent Earnings",
+      "empty_title": "No earnings yet",
+      "empty_desc": "Complete deliveries to earn money",
+      "deliveries": "Deliveries",
+      "avg_per_delivery": "Avg/Delivery",
+      "rating": "Rating",
+      "all_time": "All Time",
+      "total_deliveries": "Total Deliveries",
+      "total_earnings": "Total Earnings",
+      "today_earnings": "Today's Earnings",
+      "week_earnings": "This Week's Earnings",
+      "month_earnings": "This Month's Earnings"
+    },
+    "profile": {
+      "title": "Driver Profile",
+      "vehicle_info": "Vehicle Information",
+      "stats": "Statistics",
+      "total_deliveries": "Total Deliveries",
+      "average_rating": "Average Rating",
+      "member_since": "Driver Since",
+      "capacity": "Vehicle Capacity",
+      "deliveries": "Deliveries",
+      "rating": "Rating",
+      "vehicle": "Vehicle",
+      "account": "Account",
+      "edit_profile": "Edit Profile",
+      "documents": "Documents",
+      "settings": "Settings",
+      "support": "Support",
+      "contact_support": "Contact Support",
+      "version": "Version"
+    },
+    "cancel_dialog": {
+      "title": "Cancel Trip",
+      "message": "Please provide a reason for cancelling this trip:",
+      "reason_placeholder": "Enter cancellation reason",
+      "confirm": "Confirm Cancel",
+      "warning": "Frequent cancellations may affect your account"
+    },
+    "messages": {
+      "trip_accepted": "Trip accepted successfully",
+      "trip_accept_failed": "Failed to accept trip",
+      "pickup_success": "Order marked as picked up",
+      "pickup_failed": "Failed to mark pickup",
+      "delivery_started": "Delivery started",
+      "delivery_start_failed": "Failed to start delivery",
+      "delivery_completed": "Delivery completed successfully",
+      "delivery_complete_failed": "Failed to complete delivery",
+      "trip_cancelled": "Trip cancelled",
+      "trip_cancel_failed": "Failed to cancel trip",
+      "status_updated": "Status updated",
+      "status_update_failed": "Failed to update status",
+      "max_orders_reached": "Maximum active orders reached",
+      "account_suspended": "Your account is suspended",
+      "trip_load_failed": "Failed to load trip details",
+      "feature_coming_soon": "This feature is coming soon"
+    },
+    "navigation": {
+      "dashboard": "Dashboard",
+      "available": "Available",
+      "active": "Active",
+      "history": "History",
+      "earnings": "Earnings",
+      "profile": "Profile"
+    }
   }
 }

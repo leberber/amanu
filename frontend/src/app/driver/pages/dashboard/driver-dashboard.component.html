@@ -1,0 +1,130 @@
+<div class="driver-dashboard" @listAnimation>
+  <!-- Stats Cards -->
+  <section class="stats-section">
+    <h2 class="section-title">{{ 'driver.dashboard.today_stats' | translate }}</h2>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-card__icon stat-card__icon--deliveries">
+          <i class="pi pi-truck"></i>
+        </div>
+        <div class="stat-card__content">
+          <span class="stat-card__value">{{ todayDeliveries() }}</span>
+          <span class="stat-card__label">{{ 'driver.dashboard.deliveries' | translate }}</span>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-card__icon stat-card__icon--earnings">
+          <i class="pi pi-wallet"></i>
+        </div>
+        <div class="stat-card__content">
+          <span class="stat-card__value">{{ todayEarnings() | number:'1.0-0' }}</span>
+          <span class="stat-card__label">{{ 'driver.dashboard.earnings' | translate }}</span>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-card__icon stat-card__icon--rating">
+          <i class="pi pi-star-fill"></i>
+        </div>
+        <div class="stat-card__content">
+          <span class="stat-card__value">{{ averageRating() }}</span>
+          <span class="stat-card__label">{{ 'driver.dashboard.rating' | translate }}</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Go Online/Offline Section -->
+  @if (!isOnline()) {
+    <section class="online-section">
+      <div class="online-card">
+        <div class="online-card__icon">
+          <i class="pi pi-power-off"></i>
+        </div>
+        <div class="online-card__content">
+          <h3>{{ 'driver.status.offline' | translate }}</h3>
+          <p>{{ 'driver.available.empty_desc' | translate }}</p>
+        </div>
+        <button class="online-card__btn" (click)="goOnline()">
+          <i class="pi pi-play"></i>
+          {{ 'driver.status.go_online' | translate }}
+        </button>
+      </div>
+    </section>
+  }
+
+  <!-- Active Orders Section -->
+  @if (activeTrips().length > 0) {
+    <section class="orders-section">
+      <div class="section-header">
+        <h2 class="section-title">{{ 'driver.dashboard.active_orders' | translate }}</h2>
+        <a [routerLink]="routes.DRIVER.ACTIVE" class="section-link">
+          {{ 'common.view' | translate }}
+          <i class="pi pi-chevron-right"></i>
+        </a>
+      </div>
+      <div class="orders-list">
+        @for (order of activeTrips(); track order.id) {
+          <div class="order-card" (click)="viewTrip(order)">
+            <div class="order-card__status" [style.--status-color]="getStatusColor(order.status)">
+              <i [class]="getStatusIcon(order.status)"></i>
+            </div>
+            <div class="order-card__content">
+              <span class="order-card__id">#{{ order.id }}</span>
+              <span class="order-card__address">{{ order.shipping_address }}</span>
+            </div>
+            <div class="order-card__amount">
+              {{ order.total_amount | number:'1.0-0' }} DA
+            </div>
+            <i class="pi pi-chevron-right order-card__chevron"></i>
+          </div>
+        }
+      </div>
+    </section>
+  } @else if (isOnline()) {
+    <section class="orders-section">
+      <div class="section-header">
+        <h2 class="section-title">{{ 'driver.dashboard.active_orders' | translate }}</h2>
+      </div>
+      <div class="empty-state">
+        <i class="pi pi-inbox"></i>
+        <p>{{ 'driver.dashboard.no_active_orders' | translate }}</p>
+        <a [routerLink]="routes.DRIVER.AVAILABLE" class="empty-state__link">
+          {{ 'driver.available.title' | translate }}
+          <i class="pi pi-arrow-right"></i>
+        </a>
+      </div>
+    </section>
+  }
+
+  <!-- Available Trips Preview -->
+  @if (isOnline() && availableTrips().length > 0) {
+    <section class="orders-section">
+      <div class="section-header">
+        <h2 class="section-title">{{ 'driver.dashboard.available_trips' | translate }}</h2>
+        <a [routerLink]="routes.DRIVER.AVAILABLE" class="section-link">
+          {{ 'common.view' | translate }} ({{ availableTrips().length }})
+          <i class="pi pi-chevron-right"></i>
+        </a>
+      </div>
+      <div class="orders-list">
+        @for (order of availableTrips().slice(0, 3); track order.id) {
+          <div class="order-card order-card--available" (click)="viewTrip(order)">
+            <div class="order-card__status order-card__status--new">
+              <i class="pi pi-bolt"></i>
+            </div>
+            <div class="order-card__content">
+              <span class="order-card__id">#{{ order.id }}</span>
+              <span class="order-card__address">{{ order.shipping_address }}</span>
+            </div>
+            <div class="order-card__amount">
+              {{ order.total_amount | number:'1.0-0' }} DA
+            </div>
+            <i class="pi pi-chevron-right order-card__chevron"></i>
+          </div>
+        }
+      </div>
+    </section>
+  }
+</div>

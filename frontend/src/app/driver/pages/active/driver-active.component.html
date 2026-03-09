@@ -1,0 +1,78 @@
+<div class="driver-active">
+  <!-- Header -->
+  <header class="page-header">
+    <div class="page-header__text">
+      <h1>{{ 'driver.active.title' | translate }}</h1>
+      <p>{{ 'driver.active.subtitle' | translate }}</p>
+    </div>
+    <button class="refresh-btn" (click)="refresh()" [disabled]="loading()">
+      <i class="pi pi-refresh" [class.pi-spin]="loading()"></i>
+    </button>
+  </header>
+
+  <!-- Content -->
+  @if (loading()) {
+    <!-- Skeleton Loading -->
+    <div class="orders-list">
+      @for (i of [1, 2, 3]; track i) {
+        <div class="order-card order-card--skeleton">
+          <div class="skeleton skeleton-badge"></div>
+          <div class="skeleton skeleton-text" style="width: 40%"></div>
+          <div class="skeleton skeleton-text" style="width: 80%"></div>
+          <div class="skeleton skeleton-text short" style="width: 60%"></div>
+        </div>
+      }
+    </div>
+  } @else if (activeTrips().length === 0) {
+    <!-- Empty State -->
+    <div class="empty-state">
+      <div class="empty-state__icon">
+        <i class="pi pi-truck"></i>
+      </div>
+      <h3>{{ 'driver.active.empty_title' | translate }}</h3>
+      <p>{{ 'driver.active.empty_desc' | translate }}</p>
+    </div>
+  } @else {
+    <!-- Orders List -->
+    <div class="orders-list" @listAnimation>
+      @for (order of activeTrips(); track order.id) {
+        <div class="order-card" (click)="viewDetails(order)">
+          <div class="order-card__header">
+            <div 
+              class="order-card__status" 
+              [style.--status-color]="getStatusColor(order.status)">
+              <i [class]="getStatusIcon(order.status)"></i>
+              <span>{{ getStatusLabel(order.status) | translate }}</span>
+            </div>
+            <span class="order-card__id">#{{ order.id }}</span>
+          </div>
+
+          <div class="order-card__body">
+            <div class="order-card__row">
+              <i class="pi pi-map-marker"></i>
+              <span>{{ order.shipping_address }}</span>
+            </div>
+            <div class="order-card__row">
+              <i class="pi pi-phone"></i>
+              <span>{{ order.contact_phone }}</span>
+            </div>
+            <div class="order-card__meta">
+              <span class="order-card__items">
+                <i class="pi pi-box"></i>
+                {{ getItemsCount(order) }} {{ 'common.items' | translate }}
+              </span>
+              <span class="order-card__amount">{{ order.total_amount | number:'1.0-0' }} DA</span>
+            </div>
+          </div>
+
+          <div class="order-card__footer">
+            <span class="order-card__action">
+              {{ 'driver.trip.view_details' | translate }}
+              <i class="pi pi-chevron-right"></i>
+            </span>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

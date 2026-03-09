@@ -69,6 +69,11 @@
     "previous": "السابق",
     "next": "التالي",
     "skip": "تخطي",
+    "today": "اليوم",
+    "this_week": "هذا الأسبوع",
+    "this_month": "هذا الشهر",
+    "all_time": "كل الوقت",
+    "units": "وحدات",
     "expand": "توسيع",
     "collapse": "طي",
     "store": "المتجر"
@@ -2130,5 +2135,169 @@
     "slide6_desc": "اطلع على كل طلباتك السابقة وأعد طلب منتجاتك المفضلة بسهولة.",
     "get_started": "ابدأ الآن",
     "welcome_to": "مرحباً بك في"
+  },
+  "driver": {
+    "dashboard": {
+      "title": "لوحة تحكم السائق",
+      "welcome": "مرحباً، سائق",
+      "today_stats": "إحصائيات اليوم",
+      "deliveries": "التوصيلات",
+      "earnings": "الأرباح",
+      "rating": "التقييم",
+      "active_orders": "الطلبات النشطة",
+      "available_trips": "الرحلات المتاحة",
+      "no_active_orders": "لا توجد طلبات نشطة",
+      "no_available_trips": "لا توجد رحلات متاحة"
+    },
+    "status": {
+      "available": "متاح",
+      "busy": "مشغول",
+      "offline": "غير متصل",
+      "suspended": "موقوف",
+      "go_online": "الاتصال",
+      "go_offline": "قطع الاتصال",
+      "assigned": "مُعيّن",
+      "picked_up": "تم الاستلام",
+      "in_transit": "في الطريق",
+      "delivered": "تم التوصيل"
+    },
+    "vehicle": {
+      "truck": "شاحنة",
+      "van": "فان",
+      "mini_van": "فان صغير"
+    },
+    "trip": {
+      "view_details": "عرض التفاصيل",
+      "accept": "قبول الرحلة",
+      "pickup": "تأكيد الاستلام",
+      "start_delivery": "بدء التوصيل",
+      "complete": "إتمام التوصيل",
+      "cancel": "إلغاء الرحلة",
+      "customer": "العميل",
+      "customer_info": "معلومات العميل",
+      "order_details": "تفاصيل الطلب",
+      "view_items": "عرض المنتجات",
+      "order_items": "منتجات الطلب",
+      "delivery_completed": "تم التوصيل",
+      "address": "عنوان التوصيل",
+      "phone": "الهاتف",
+      "items": "المنتجات",
+      "total": "إجمالي الطلب",
+      "notes": "ملاحظات التوصيل",
+      "estimated_time": "الوقت المقدر",
+      "assigned_at": "تم التعيين في",
+      "expires_at": "ينتهي في"
+    },
+    "action": {
+      "accept": "قبول",
+      "pickup": "استلام",
+      "start_delivery": "بدء التوصيل",
+      "complete": "إتمام",
+      "cancel": "إلغاء",
+      "call": "اتصال",
+      "navigate": "التنقل",
+      "mark_picked_up": "تأكيد الاستلام",
+      "mark_delivered": "تأكيد التوصيل",
+      "update_status": "تحديث الحالة"
+    },
+    "order_status": {
+      "assigned": "مُعيّن",
+      "picked_up": "تم الاستلام",
+      "in_transit": "في الطريق",
+      "delivered": "تم التوصيل"
+    },
+    "available": {
+      "title": "الرحلات المتاحة",
+      "subtitle": "اقبل الطلبات لبدء التوصيل",
+      "empty_title": "لا توجد رحلات متاحة",
+      "empty_desc": "ستظهر الطلبات الجديدة هنا",
+      "refresh": "تحديث"
+    },
+    "active": {
+      "title": "الطلبات النشطة",
+      "subtitle": "توصيلاتك الحالية",
+      "empty_title": "لا توجد طلبات نشطة",
+      "empty_desc": "اقبل رحلة لبدء التوصيل"
+    },
+    "history": {
+      "title": "سجل التوصيلات",
+      "subtitle": "توصيلاتك المكتملة",
+      "empty_title": "لا توجد توصيلات",
+      "empty_desc": "ستظهر التوصيلات المكتملة هنا",
+      "total_deliveries": "إجمالي التوصيلات",
+      "total_earnings": "إجمالي الأرباح"
+    },
+    "earnings": {
+      "title": "أرباحي",
+      "subtitle": "تتبع أرباح التوصيل",
+      "today": "اليوم",
+      "this_week": "هذا الأسبوع",
+      "this_month": "هذا الشهر",
+      "total": "إجمالي الأرباح",
+      "recent": "الأرباح الأخيرة",
+      "empty_title": "لا توجد أرباح",
+      "empty_desc": "أكمل التوصيلات لكسب المال",
+      "deliveries": "التوصيلات",
+      "avg_per_delivery": "المتوسط/توصيل",
+      "rating": "التقييم",
+      "all_time": "كل الوقت",
+      "total_deliveries": "إجمالي التوصيلات",
+      "total_earnings": "إجمالي الأرباح",
+      "today_earnings": "أرباح اليوم",
+      "week_earnings": "أرباح الأسبوع",
+      "month_earnings": "أرباح الشهر"
+    },
+    "profile": {
+      "title": "ملف السائق",
+      "vehicle_info": "معلومات المركبة",
+      "stats": "الإحصائيات",
+      "total_deliveries": "إجمالي التوصيلات",
+      "average_rating": "متوسط التقييم",
+      "member_since": "سائق منذ",
+      "capacity": "سعة المركبة",
+      "deliveries": "التوصيلات",
+      "rating": "التقييم",
+      "vehicle": "المركبة",
+      "account": "الحساب",
+      "edit_profile": "تعديل الملف",
+      "documents": "المستندات",
+      "settings": "الإعدادات",
+      "support": "الدعم",
+      "contact_support": "التواصل مع الدعم",
+      "version": "الإصدار"
+    },
+    "cancel_dialog": {
+      "title": "إلغاء الرحلة",
+      "message": "يرجى تقديم سبب لإلغاء هذه الرحلة:",
+      "reason_placeholder": "أدخل سبب الإلغاء",
+      "confirm": "تأكيد الإلغاء",
+      "warning": "الإلغاءات المتكررة قد تؤثر على حسابك"
+    },
+    "messages": {
+      "trip_accepted": "تم قبول الرحلة بنجاح",
+      "trip_accept_failed": "فشل قبول الرحلة",
+      "pickup_success": "تم تأكيد استلام الطلب",
+      "pickup_failed": "فشل تأكيد الاستلام",
+      "delivery_started": "بدأ التوصيل",
+      "delivery_start_failed": "فشل بدء التوصيل",
+      "delivery_completed": "تم التوصيل بنجاح",
+      "delivery_complete_failed": "فشل إتمام التوصيل",
+      "trip_cancelled": "تم إلغاء الرحلة",
+      "trip_cancel_failed": "فشل إلغاء الرحلة",
+      "status_updated": "تم تحديث الحالة",
+      "status_update_failed": "فشل تحديث الحالة",
+      "max_orders_reached": "تم الوصول للحد الأقصى من الطلبات النشطة",
+      "account_suspended": "حسابك موقوف",
+      "trip_load_failed": "فشل تحميل تفاصيل الرحلة",
+      "feature_coming_soon": "هذه الميزة قادمة قريباً"
+    },
+    "navigation": {
+      "dashboard": "الرئيسية",
+      "available": "المتاحة",
+      "active": "النشطة",
+      "history": "السجل",
+      "earnings": "الأرباح",
+      "profile": "الملف"
+    }
   }
 }

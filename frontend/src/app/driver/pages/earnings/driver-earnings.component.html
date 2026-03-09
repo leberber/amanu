@@ -1,0 +1,111 @@
+<div class="driver-earnings" @pageAnimation>
+  <!-- Header -->
+  <header class="page-header">
+    <h1>{{ 'driver.earnings.title' | translate }}</h1>
+    <p>{{ 'driver.earnings.subtitle' | translate }}</p>
+  </header>
+
+  <!-- Period Filter -->
+  <div class="period-filter">
+    <button 
+      class="period-btn"
+      [class.active]="selectedPeriod() === 'today'"
+      (click)="changePeriod('today')">
+      {{ 'common.today' | translate }}
+    </button>
+    <button 
+      class="period-btn"
+      [class.active]="selectedPeriod() === 'week'"
+      (click)="changePeriod('week')">
+      {{ 'common.this_week' | translate }}
+    </button>
+    <button 
+      class="period-btn"
+      [class.active]="selectedPeriod() === 'month'"
+      (click)="changePeriod('month')">
+      {{ 'common.this_month' | translate }}
+    </button>
+  </div>
+
+  @if (loading()) {
+    <!-- Loading State -->
+    <div class="earnings-card earnings-card--skeleton">
+      <div class="skeleton skeleton-large"></div>
+      <div class="skeleton skeleton-text"></div>
+    </div>
+    <div class="stats-grid">
+      @for (i of [1, 2, 3]; track i) {
+        <div class="stat-card stat-card--skeleton">
+          <div class="skeleton skeleton-icon"></div>
+          <div class="skeleton skeleton-text"></div>
+          <div class="skeleton skeleton-text short"></div>
+        </div>
+      }
+    </div>
+  } @else {
+    <!-- Main Earnings Card -->
+    <div class="earnings-card">
+      <div class="earnings-amount">
+        {{ periodEarnings() | number:'1.0-0' }}
+        <span class="currency">DA</span>
+      </div>
+      <div class="earnings-label">
+        @switch (selectedPeriod()) {
+          @case ('today') {
+            {{ 'driver.earnings.today_earnings' | translate }}
+          }
+          @case ('week') {
+            {{ 'driver.earnings.week_earnings' | translate }}
+          }
+          @case ('month') {
+            {{ 'driver.earnings.month_earnings' | translate }}
+          }
+        }
+      </div>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-card__icon stat-card__icon--deliveries">
+          <i class="pi pi-truck"></i>
+        </div>
+        <span class="stat-card__value">{{ periodDeliveries() }}</span>
+        <span class="stat-card__label">{{ 'driver.earnings.deliveries' | translate }}</span>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-card__icon stat-card__icon--average">
+          <i class="pi pi-chart-line"></i>
+        </div>
+        <span class="stat-card__value">{{ averagePerDelivery() | number:'1.0-0' }}</span>
+        <span class="stat-card__label">{{ 'driver.earnings.avg_per_delivery' | translate }}</span>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-card__icon stat-card__icon--rating">
+          <i class="pi pi-star-fill"></i>
+        </div>
+        <span class="stat-card__value">{{ stats()?.average_rating?.toFixed(1) || '-' }}</span>
+        <span class="stat-card__label">{{ 'driver.earnings.rating' | translate }}</span>
+      </div>
+    </div>
+
+    <!-- All Time Stats -->
+    <div class="all-time-section">
+      <h2 class="section-title">{{ 'driver.earnings.all_time' | translate }}</h2>
+      <div class="all-time-card">
+        <div class="all-time-row">
+          <span class="all-time-label">{{ 'driver.earnings.total_deliveries' | translate }}</span>
+          <span class="all-time-value">{{ stats()?.total_deliveries || 0 }}</span>
+        </div>
+        <div class="all-time-row">
+          <span class="all-time-label">{{ 'driver.earnings.total_earnings' | translate }}</span>
+          <span class="all-time-value all-time-value--highlight">
+            {{ stats()?.total_earnings || 0 | number:'1.0-0' }} DA
+          </span>
+        </div>
+      </div>
+    </div>
+  }
+</div>

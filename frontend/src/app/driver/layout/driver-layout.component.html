@@ -1,0 +1,44 @@
+<div class="driver-layout">
+  <!-- Top Status Bar -->
+  <header class="driver-header">
+    <div class="driver-header__left">
+      <span class="driver-header__greeting">{{ profile()?.full_name || 'Driver' }}</span>
+    </div>
+    <div class="driver-header__right">
+      <button
+        class="driver-header__status"
+        [style.--status-color]="statusColor()"
+        [class.driver-header__status--clickable]="canToggleStatus()"
+        (click)="canToggleStatus() && toggleStatus()">
+        <span class="driver-header__status-dot"></span>
+        <span class="driver-header__status-label">{{ statusLabel() | translate }}</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content Area -->
+  <main class="driver-content" @pageAnimation>
+    <router-outlet></router-outlet>
+  </main>
+
+  <!-- Bottom Navigation -->
+  @if (!hideBottomNav()) {
+    <nav class="driver-nav">
+      @for (item of navItems; track item.path) {
+        <a
+          class="driver-nav__item"
+          [routerLink]="item.path"
+          routerLinkActive="driver-nav__item--active"
+          [routerLinkActiveOptions]="{ exact: item.exact }">
+          <span class="driver-nav__icon-wrap">
+            <i [class]="item.icon"></i>
+            @if (item.showBadge && activeOrdersCount() > 0) {
+              <span class="driver-nav__badge">{{ activeOrdersCount() }}</span>
+            }
+          </span>
+          <span class="driver-nav__label">{{ item.label | translate }}</span>
+        </a>
+      }
+    </nav>
+  }
+</div>

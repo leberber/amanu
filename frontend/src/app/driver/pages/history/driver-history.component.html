@@ -1,0 +1,90 @@
+<div class="driver-history">
+  <!-- Header -->
+  <header class="page-header">
+    <h1>{{ 'driver.history.title' | translate }}</h1>
+    <p>{{ 'driver.history.subtitle' | translate }}</p>
+  </header>
+
+  <!-- Period Filter -->
+  <div class="period-filter">
+    <button 
+      class="period-btn"
+      [class.active]="selectedPeriod() === 'week'"
+      (click)="changePeriod('week')">
+      {{ 'common.this_week' | translate }}
+    </button>
+    <button 
+      class="period-btn"
+      [class.active]="selectedPeriod() === 'month'"
+      (click)="changePeriod('month')">
+      {{ 'common.this_month' | translate }}
+    </button>
+    <button 
+      class="period-btn"
+      [class.active]="selectedPeriod() === 'all'"
+      (click)="changePeriod('all')">
+      {{ 'common.all_time' | translate }}
+    </button>
+  </div>
+
+  <!-- Summary Card -->
+  @if (!loading() && history().length > 0) {
+    <div class="summary-card">
+      <div class="summary-stat">
+        <span class="summary-value">{{ history().length }}</span>
+        <span class="summary-label">{{ 'driver.history.total_deliveries' | translate }}</span>
+      </div>
+      <div class="summary-divider"></div>
+      <div class="summary-stat">
+        <span class="summary-value">{{ getTotalEarnings() | number:'1.0-0' }} DA</span>
+        <span class="summary-label">{{ 'driver.history.total_earnings' | translate }}</span>
+      </div>
+    </div>
+  }
+
+  <!-- Content -->
+  @if (loading()) {
+    <div class="history-list">
+      @for (i of [1, 2, 3, 4, 5]; track i) {
+        <div class="history-item history-item--skeleton">
+          <div class="skeleton skeleton-circle"></div>
+          <div class="skeleton-content">
+            <div class="skeleton skeleton-text" style="width: 40%"></div>
+            <div class="skeleton skeleton-text" style="width: 70%"></div>
+          </div>
+          <div class="skeleton skeleton-text" style="width: 60px"></div>
+        </div>
+      }
+    </div>
+  } @else if (history().length === 0) {
+    <div class="empty-state">
+      <div class="empty-state__icon">
+        <i class="pi pi-history"></i>
+      </div>
+      <h3>{{ 'driver.history.empty_title' | translate }}</h3>
+      <p>{{ 'driver.history.empty_desc' | translate }}</p>
+    </div>
+  } @else {
+    <div class="history-list" @listAnimation>
+      @for (order of history(); track order.id) {
+        <div class="history-item" (click)="viewDetails(order)">
+          <div 
+            class="history-item__icon"
+            [style.--status-color]="getStatusColor(order.status)">
+            <i [class]="getStatusIcon(order.status)"></i>
+          </div>
+          <div class="history-item__content">
+            <div class="history-item__header">
+              <span class="history-item__id">#{{ order.id }}</span>
+              <span class="history-item__date">{{ (order.updated_at || order.created_at) | appDate }}</span>
+            </div>
+            <span class="history-item__address">{{ order.shipping_address }}</span>
+          </div>
+          <div class="history-item__amount">
+            {{ order.total_amount | number:'1.0-0' }} DA
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

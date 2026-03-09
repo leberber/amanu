@@ -69,6 +69,11 @@
     "previous": "Précédent",
     "next": "Suivant",
     "skip": "Passer",
+    "today": "Aujourd'hui",
+    "this_week": "Cette Semaine",
+    "this_month": "Ce Mois",
+    "all_time": "Tout le Temps",
+    "units": "unités",
     "expand": "Agrandir",
     "collapse": "Réduire",
     "store": "Boutique"
@@ -2142,5 +2147,169 @@
     "slide6_desc": "Consultez toutes vos commandes passées et recommandez facilement vos produits favoris.",
     "get_started": "Commencer",
     "welcome_to": "Bienvenue sur"
+  },
+  "driver": {
+    "dashboard": {
+      "title": "Tableau de Bord Chauffeur",
+      "welcome": "Bienvenue, Chauffeur",
+      "today_stats": "Statistiques du Jour",
+      "deliveries": "Livraisons",
+      "earnings": "Gains",
+      "rating": "Note",
+      "active_orders": "Commandes Actives",
+      "available_trips": "Trajets Disponibles",
+      "no_active_orders": "Aucune commande active",
+      "no_available_trips": "Aucun trajet disponible"
+    },
+    "status": {
+      "available": "Disponible",
+      "busy": "Occupé",
+      "offline": "Hors ligne",
+      "suspended": "Suspendu",
+      "go_online": "Se Connecter",
+      "go_offline": "Se Déconnecter",
+      "assigned": "Assigné",
+      "picked_up": "Récupéré",
+      "in_transit": "En Transit",
+      "delivered": "Livré"
+    },
+    "vehicle": {
+      "truck": "Camion",
+      "van": "Fourgon",
+      "mini_van": "Mini Fourgon"
+    },
+    "trip": {
+      "view_details": "Voir Détails",
+      "accept": "Accepter le Trajet",
+      "pickup": "Marquer Récupéré",
+      "start_delivery": "Commencer la Livraison",
+      "complete": "Terminer la Livraison",
+      "cancel": "Annuler le Trajet",
+      "customer": "Client",
+      "customer_info": "Infos Client",
+      "order_details": "Détails de la Commande",
+      "view_items": "Voir les Articles",
+      "order_items": "Articles de la Commande",
+      "delivery_completed": "Livraison Terminée",
+      "address": "Adresse de Livraison",
+      "phone": "Téléphone",
+      "items": "Articles",
+      "total": "Total de la Commande",
+      "notes": "Notes de Livraison",
+      "estimated_time": "Temps Estimé",
+      "assigned_at": "Assigné à",
+      "expires_at": "Expire à"
+    },
+    "action": {
+      "accept": "Accepter",
+      "pickup": "Récupérer",
+      "start_delivery": "Commencer la Livraison",
+      "complete": "Terminer",
+      "cancel": "Annuler",
+      "call": "Appeler",
+      "navigate": "Naviguer",
+      "mark_picked_up": "Marquer Récupéré",
+      "mark_delivered": "Marquer Livré",
+      "update_status": "Mettre à Jour le Statut"
+    },
+    "order_status": {
+      "assigned": "Assigné",
+      "picked_up": "Récupéré",
+      "in_transit": "En Transit",
+      "delivered": "Livré"
+    },
+    "available": {
+      "title": "Trajets Disponibles",
+      "subtitle": "Acceptez des commandes pour commencer à livrer",
+      "empty_title": "Aucun trajet disponible",
+      "empty_desc": "Les nouvelles commandes apparaîtront ici",
+      "refresh": "Actualiser"
+    },
+    "active": {
+      "title": "Commandes Actives",
+      "subtitle": "Vos livraisons en cours",
+      "empty_title": "Aucune commande active",
+      "empty_desc": "Acceptez un trajet pour commencer à livrer"
+    },
+    "history": {
+      "title": "Historique des Livraisons",
+      "subtitle": "Vos livraisons terminées",
+      "empty_title": "Aucune livraison",
+      "empty_desc": "Les livraisons terminées apparaîtront ici",
+      "total_deliveries": "Total Livraisons",
+      "total_earnings": "Total Gains"
+    },
+    "earnings": {
+      "title": "Mes Gains",
+      "subtitle": "Suivez vos gains de livraison",
+      "today": "Aujourd'hui",
+      "this_week": "Cette Semaine",
+      "this_month": "Ce Mois",
+      "total": "Total des Gains",
+      "recent": "Gains Récents",
+      "empty_title": "Aucun gain",
+      "empty_desc": "Terminez des livraisons pour gagner de l'argent",
+      "deliveries": "Livraisons",
+      "avg_per_delivery": "Moy/Livraison",
+      "rating": "Note",
+      "all_time": "Tout le Temps",
+      "total_deliveries": "Total Livraisons",
+      "total_earnings": "Total Gains",
+      "today_earnings": "Gains d'Aujourd'hui",
+      "week_earnings": "Gains de la Semaine",
+      "month_earnings": "Gains du Mois"
+    },
+    "profile": {
+      "title": "Profil Chauffeur",
+      "vehicle_info": "Informations du Véhicule",
+      "stats": "Statistiques",
+      "total_deliveries": "Total Livraisons",
+      "average_rating": "Note Moyenne",
+      "member_since": "Chauffeur Depuis",
+      "capacity": "Capacité du Véhicule",
+      "deliveries": "Livraisons",
+      "rating": "Note",
+      "vehicle": "Véhicule",
+      "account": "Compte",
+      "edit_profile": "Modifier le Profil",
+      "documents": "Documents",
+      "settings": "Paramètres",
+      "support": "Support",
+      "contact_support": "Contacter le Support",
+      "version": "Version"
+    },
+    "cancel_dialog": {
+      "title": "Annuler le Trajet",
+      "message": "Veuillez fournir une raison pour l'annulation de ce trajet :",
+      "reason_placeholder": "Entrez la raison de l'annulation",
+      "confirm": "Confirmer l'Annulation",
+      "warning": "Les annulations fréquentes peuvent affecter votre compte"
+    },
+    "messages": {
+      "trip_accepted": "Trajet accepté avec succès",
+      "trip_accept_failed": "Échec de l'acceptation du trajet",
+      "pickup_success": "Commande marquée comme récupérée",
+      "pickup_failed": "Échec du marquage de récupération",
+      "delivery_started": "Livraison commencée",
+      "delivery_start_failed": "Échec du démarrage de la livraison",
+      "delivery_completed": "Livraison terminée avec succès",
+      "delivery_complete_failed": "Échec de la finalisation de la livraison",
+      "trip_cancelled": "Trajet annulé",
+      "trip_cancel_failed": "Échec de l'annulation du trajet",
+      "status_updated": "Statut mis à jour",
+      "status_update_failed": "Échec de la mise à jour du statut",
+      "max_orders_reached": "Nombre maximum de commandes actives atteint",
+      "account_suspended": "Votre compte est suspendu",
+      "trip_load_failed": "Échec du chargement des détails du trajet",
+      "feature_coming_soon": "Cette fonctionnalité arrive bientôt"
+    },
+    "navigation": {
+      "dashboard": "Tableau de Bord",
+      "available": "Disponible",
+      "active": "Actif",
+      "history": "Historique",
+      "earnings": "Gains",
+      "profile": "Profil"
+    }
   }
 }
