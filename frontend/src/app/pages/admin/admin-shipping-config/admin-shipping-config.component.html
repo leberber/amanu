@@ -43,7 +43,7 @@
         <div class="form-wizard__body">
           <div class="grid">
 
-            <!-- Left Column: Base Pricing -->
+            <!-- Left Column: Pricing Configuration -->
             <div class="col-12 lg:col-6 item-animate">
               <div class="form-card">
                 <div class="card-header">
@@ -53,106 +53,109 @@
                   <h3 class="card-header__title">{{ 'admin.shipping.base_pricing' | translate }}</h3>
                 </div>
                 <div class="card-body">
-                  <div class="form-field">
-                    <div class="field-box" [class.filled]="configForm.get('base_cost')?.value">
-                      <div class="field-box__icon field-box__icon--primary">
-                        <i class="pi pi-wallet"></i>
-                      </div>
-                      <div class="field-box__content">
-                        <label>{{ 'admin.shipping.base_cost' | translate }} <span class="required">*</span></label>
-                        <p-inputNumber formControlName="base_cost" [min]="0" [suffix]="currencySuffix()" styleClass="w-full" />
+                  <div class="grid">
+                    <div class="col-12 md:col-6">
+                      <div class="form-field">
+                        <div class="field-box" [class.filled]="configForm.get('base_cost')?.value">
+                          <div class="field-box__icon field-box__icon--primary">
+                            <i class="pi pi-wallet"></i>
+                          </div>
+                          <div class="field-box__content">
+                            <label>{{ 'admin.shipping.base_cost' | translate }} <span class="required">*</span></label>
+                            <p-inputNumber formControlName="base_cost" [min]="0" [suffix]="currencySuffix()" styleClass="w-full" />
+                          </div>
+                        </div>
                       </div>
                     </div>
-                    <span class="field-hint">{{ 'admin.shipping.base_cost_hint' | translate }}</span>
-                  </div>
 
-                  <div class="form-field">
-                    <div class="field-box" [class.filled]="configForm.get('price_per_km')?.value">
-                      <div class="field-box__icon field-box__icon--success">
-                        <i class="pi pi-map-marker"></i>
-                      </div>
-                      <div class="field-box__content">
-                        <label>{{ 'admin.shipping.price_per_km' | translate }} <span class="required">*</span></label>
-                        <p-inputNumber formControlName="price_per_km" [min]="0" [suffix]="currencySuffix()" styleClass="w-full" />
+                    <div class="col-12 md:col-6">
+                      <div class="form-field">
+                        <div class="field-box" [class.filled]="configForm.get('price_per_km')?.value">
+                          <div class="field-box__icon field-box__icon--success">
+                            <i class="pi pi-map-marker"></i>
+                          </div>
+                          <div class="field-box__content">
+                            <label>{{ 'admin.shipping.price_per_km' | translate }} <span class="required">*</span></label>
+                            <p-inputNumber formControlName="price_per_km" [min]="0" [suffix]="currencySuffix()" styleClass="w-full" />
+                          </div>
+                        </div>
                       </div>
                     </div>
-                    <span class="field-hint">{{ 'admin.shipping.price_per_km_hint' | translate }}</span>
-                  </div>
 
-                  <div class="form-field">
-                    <div class="field-box" [class.filled]="configForm.get('price_per_kg')?.value">
-                      <div class="field-box__icon field-box__icon--warning">
-                        <i class="pi pi-box"></i>
-                      </div>
-                      <div class="field-box__content">
-                        <label>{{ 'admin.shipping.price_per_kg' | translate }} <span class="required">*</span></label>
-                        <p-inputNumber formControlName="price_per_kg" [min]="0" [suffix]="currencySuffix()" styleClass="w-full" />
+                    <div class="col-12 md:col-6">
+                      <div class="form-field">
+                        <div class="field-box" [class.filled]="configForm.get('price_per_kg')?.value">
+                          <div class="field-box__icon field-box__icon--warning">
+                            <i class="pi pi-box"></i>
+                          </div>
+                          <div class="field-box__content">
+                            <label>{{ 'admin.shipping.price_per_kg' | translate }} <span class="required">*</span></label>
+                            <p-inputNumber formControlName="price_per_kg" [min]="0" [suffix]="currencySuffix()" styleClass="w-full" />
+                          </div>
+                        </div>
                       </div>
                     </div>
-                    <span class="field-hint">{{ 'admin.shipping.price_per_kg_hint' | translate }}</span>
-                  </div>
 
-                  <div class="form-field">
-                    <div class="field-box" [class.filled]="configForm.get('price_per_m3')?.value">
-                      <div class="field-box__icon field-box__icon--purple">
-                        <i class="pi pi-th-large"></i>
-                      </div>
-                      <div class="field-box__content">
-                        <label>{{ 'admin.shipping.price_per_m3' | translate }} <span class="required">*</span></label>
-                        <p-inputNumber formControlName="price_per_m3" [min]="0" [suffix]="currencySuffix()" styleClass="w-full" />
+                    <div class="col-12 md:col-6">
+                      <div class="form-field">
+                        <div class="field-box" [class.filled]="configForm.get('price_per_m3')?.value">
+                          <div class="field-box__icon field-box__icon--purple">
+                            <i class="pi pi-th-large"></i>
+                          </div>
+                          <div class="field-box__content">
+                            <label>{{ 'admin.shipping.price_per_m3' | translate }} <span class="required">*</span></label>
+                            <p-inputNumber formControlName="price_per_m3" [min]="0" [suffix]="currencySuffix()" styleClass="w-full" />
+                          </div>
+                        </div>
                       </div>
                     </div>
-                    <span class="field-hint">{{ 'admin.shipping.price_per_m3_hint' | translate }}</span>
-                  </div>
 
-                  <div class="form-field">
-                    <div class="field-box" [class.filled]="configForm.get('price_per_min')?.value">
-                      <div class="field-box__icon field-box__icon--secondary">
-                        <i class="pi pi-clock"></i>
-                      </div>
-                      <div class="field-box__content">
-                        <label>{{ 'admin.shipping.price_per_min' | translate }}</label>
-                        <p-inputNumber formControlName="price_per_min" [min]="0" [suffix]="currencySuffix()" styleClass="w-full" />
+                    <div class="col-12 md:col-6">
+                      <div class="form-field">
+                        <div class="field-box" [class.filled]="configForm.get('price_per_min')?.value">
+                          <div class="field-box__icon field-box__icon--secondary">
+                            <i class="pi pi-clock"></i>
+                          </div>
+                          <div class="field-box__content">
+                            <label>{{ 'admin.shipping.price_per_min' | translate }}</label>
+                            <p-inputNumber formControlName="price_per_min" [min]="0" [suffix]="currencySuffix()" styleClass="w-full" />
+                          </div>
+                        </div>
                       </div>
                     </div>
-                    <span class="field-hint">{{ 'admin.shipping.price_per_min_hint' | translate }}</span>
-                  </div>
-                </div>
-              </div>
 
-              <!-- Limits Card -->
-              <div class="form-card mt-4">
-                <div class="card-header">
-                  <div class="card-header__icon card-header__icon--orange">
-                    <i class="pi pi-sliders-h"></i>
-                  </div>
-                  <h3 class="card-header__title">{{ 'admin.shipping.limits' | translate }}</h3>
-                </div>
-                <div class="card-body">
-                  <div class="form-field">
-                    <div class="field-box" [class.filled]="configForm.get('min_shipping_cost')?.value">
-                      <div class="field-box__icon field-box__icon--success">
-                        <i class="pi pi-arrow-down"></i>
-                      </div>
-                      <div class="field-box__content">
-                        <label>{{ 'admin.shipping.min_cost' | translate }} <span class="required">*</span></label>
-                        <p-inputNumber formControlName="min_shipping_cost" [min]="0" [suffix]="currencySuffix()" styleClass="w-full" />
-                      </div>
+                    <!-- Divider -->
+                    <div class="col-12">
+                      <hr class="my-3 border-none surface-border" style="height: 1px; background: var(--surface-border);">
                     </div>
-                    <span class="field-hint">{{ 'admin.shipping.min_cost_hint' | translate }}</span>
-                  </div>
 
-                  <div class="form-field">
-                    <div class="field-box" [class.filled]="configForm.get('max_shipping_cost')?.value">
-                      <div class="field-box__icon field-box__icon--danger">
-                        <i class="pi pi-arrow-up"></i>
-                      </div>
-                      <div class="field-box__content">
-                        <label>{{ 'admin.shipping.max_cost' | translate }} <span class="required">*</span></label>
-                        <p-inputNumber formControlName="max_shipping_cost" [min]="0" [suffix]="currencySuffix()" styleClass="w-full" />
+                    <div class="col-12 md:col-6">
+                      <div class="form-field">
+                        <div class="field-box" [class.filled]="configForm.get('min_shipping_cost')?.value">
+                          <div class="field-box__icon field-box__icon--orange">
+                            <i class="pi pi-arrow-down"></i>
+                          </div>
+                          <div class="field-box__content">
+                            <label>{{ 'admin.shipping.min_cost' | translate }} <span class="required">*</span></label>
+                            <p-inputNumber formControlName="min_shipping_cost" [min]="0" [suffix]="currencySuffix()" styleClass="w-full" />
+                          </div>
+                        </div>
                       </div>
                     </div>
-                    <span class="field-hint">{{ 'admin.shipping.max_cost_hint' | translate }}</span>
+
+                    <div class="col-12 md:col-6">
+                      <div class="form-field">
+                        <div class="field-box" [class.filled]="configForm.get('max_shipping_cost')?.value">
+                          <div class="field-box__icon field-box__icon--danger">
+                            <i class="pi pi-arrow-up"></i>
+                          </div>
+                          <div class="field-box__content">
+                            <label>{{ 'admin.shipping.max_cost' | translate }} <span class="required">*</span></label>
+                            <p-inputNumber formControlName="max_shipping_cost" [min]="0" [suffix]="currencySuffix()" styleClass="w-full" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -207,41 +210,9 @@
                     <i class="pi pi-plus"></i>
                     <span>{{ 'admin.shipping.add_tier' | translate }}</span>
                   </button>
-                </div>
-              </div>
 
-              <!-- Zone Stats Card -->
-              @if (zoneStats()) {
-                <div class="form-card mt-4">
-                  <div class="card-header">
-                    <div class="card-header__icon card-header__icon--secondary">
-                      <i class="pi pi-map"></i>
-                    </div>
-                    <h3 class="card-header__title">{{ 'admin.shipping.zone_stats' | translate }}</h3>
-                  </div>
-                  <div class="card-body">
-                    <div class="stats-grid">
-                      <div class="stat-item">
-                        <span class="stat-item__label">{{ 'admin.shipping.total_zones' | translate }}</span>
-                        <span class="stat-item__value">{{ zoneStats()?.total_zones | number }}</span>
-                      </div>
-                      <div class="stat-item">
-                        <span class="stat-item__label">{{ 'admin.shipping.distance_range' | translate }}</span>
-                        <span class="stat-item__value">{{ zoneStats()?.distance_range?.min_km }} - {{ zoneStats()?.distance_range?.max_km }} km</span>
-                      </div>
-                      <div class="stat-item">
-                        <span class="stat-item__label">{{ 'admin.shipping.duration_range' | translate }}</span>
-                        <span class="stat-item__value">{{ zoneStats()?.duration_range?.min_min }} - {{ zoneStats()?.duration_range?.max_min }} min</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              }
-
-              <!-- Active Switch -->
-              <div class="form-card mt-4">
-                <div class="card-body">
-                  <div class="active-switch-container">
+                  <!-- Active Switch -->
+                  <div class="active-switch-container mt-4">
                     <div
                       class="active-switch"
                       [class.active-switch--on]="configForm.get('is_active')?.value"
