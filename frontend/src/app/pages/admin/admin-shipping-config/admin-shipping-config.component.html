@@ -285,7 +285,19 @@
           <div class="algorithm-section">
             <h4><i class="pi pi-calculator"></i> {{ 'admin.shipping.algorithm.formula_title' | translate }}</h4>
             <div class="algorithm-formula">
-              {{ 'admin.shipping.algorithm.formula' | translate }}
+              <div class="formula">
+                <span class="formula__result">{{ 'admin.shipping.algorithm.formula_cost' | translate }}</span>
+                <span class="formula__equals">=</span>
+                <span class="formula__term formula__term--base">{{ 'admin.shipping.algorithm.formula_base' | translate }}</span>
+                <span class="formula__operator">+</span>
+                <span class="formula__term formula__term--distance">{{ 'admin.shipping.algorithm.formula_distance' | translate }}</span>
+                <span class="formula__operator">+</span>
+                <span class="formula__term formula__term--weight">{{ 'admin.shipping.algorithm.formula_weight' | translate }}</span>
+                <span class="formula__operator">+</span>
+                <span class="formula__term formula__term--volume">{{ 'admin.shipping.algorithm.formula_volume' | translate }}</span>
+                <span class="formula__operator">+</span>
+                <span class="formula__term formula__term--time">{{ 'admin.shipping.algorithm.formula_time' | translate }}</span>
+              </div>
             </div>
           </div>
 
