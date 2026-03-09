@@ -236,16 +236,23 @@ $sticky-footer-height: 60px;
 // -----------------------------------------------------------------------------
 .page-content {
   flex: 1;
-  overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: none;
   // Account for bottom navigation
   padding-bottom: calc(#{$bottom-nav-height} + env(safe-area-inset-bottom, 0));
 
-  // Fullscreen mode - account for sticky footer
+  // Fullscreen mode - no extra padding, let form-wizard handle its own footer
   .page-layout--fullscreen & {
-    padding-bottom: $sticky-footer-height !important;
+    padding-bottom: 0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  // Non-fullscreen mode - enable scroll
+  .page-layout:not(.page-layout--fullscreen) & {
+    overflow-y: auto;
   }
 
   // Bordered variant

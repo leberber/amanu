@@ -57,14 +57,13 @@
   &--fullpage {
     display: flex;
     flex-direction: column;
-    min-height: calc(100vh - 140px);
+    flex: 1;
 
     .form-wizard__body {
       flex: 1;
-      overflow-y: auto;
       display: flex;
       flex-direction: column;
-      justify-content: center;
+      justify-content: flex-start;
     }
 
     .form-wizard__footer {
@@ -73,9 +72,6 @@
 
     // Mobile: sticky header/footer with scrollable content
     @media (max-width: 768px) {
-      min-height: auto;
-      height: calc(100vh - 64px); // Account for topbar
-      height: calc(100dvh - 64px);
       border-radius: 0;
       display: flex;
       flex-direction: column;
