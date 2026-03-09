@@ -1,5 +1,5 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, inject, OnInit, signal, computed } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { trigger, transition, style, animate } from '@angular/animations';
 
@@ -8,12 +8,11 @@ import { AuthService } from '../../../services/auth.service';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
 import { ROUTES } from '../../../core/constants/routes.constants';
 import { DRIVER_STATUS, DRIVER_STATUS_CONFIG } from '../../../core/constants/driver.constants';
-import { DriverProfile } from '../../../models/driver.model';
 
 @Component({
   selector: 'app-driver-profile',
   standalone: true,
-  imports: [TranslateModule],
+  imports: [TranslateModule, RouterLink],
   templateUrl: './driver-profile.component.html',
   styleUrl: './driver-profile.component.scss',
   animations: [
@@ -39,6 +38,12 @@ export class DriverProfileComponent implements OnInit {
   driverProfile = this.driverService.driverProfile;
   stats = this.driverService.stats;
   loading = signal(true);
+
+  // Computed
+  isOnline = computed(() => {
+    const status = this.driverProfile()?.status;
+    return status === DRIVER_STATUS.AVAILABLE || status === DRIVER_STATUS.BUSY;
+  });
 
   ngOnInit(): void {
     this.loadProfile();

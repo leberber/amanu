@@ -2145,6 +2145,7 @@
       "no_available_trips": "No available trips"
     },
     "status": {
+      "title": "Status",
       "available": "Available",
       "busy": "Busy",
       "offline": "Offline",

@@ -2150,6 +2150,7 @@
       "no_available_trips": "لا توجد رحلات متاحة"
     },
     "status": {
+      "title": "الحالة",
       "available": "متاح",
       "busy": "مشغول",
       "offline": "غير متصل",
