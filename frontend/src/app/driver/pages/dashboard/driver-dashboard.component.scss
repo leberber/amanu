@@ -15,7 +15,7 @@
   font-size: var(--font-size-lg);
   font-weight: var(--font-weight-semibold);
   color: var(--text-color);
-  margin: 0 0 var(--space-3);
+  margin: 0 0 var(--space-4);
 }
 
 .section-header {
@@ -44,8 +44,13 @@
 }
 
 // =============================================================================
-// STATS GRID
+// STATS SECTION
 // =============================================================================
+
+.stats-section {
+  margin-top: var(--space-6);
+  margin-bottom: var(--space-6);
+}
 
 .stats-grid {
   display: grid;
@@ -55,13 +60,12 @@
 
 .stat-card {
   background: white;
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-xl);
   padding: var(--space-4);
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: var(--space-2);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 
   &__icon {
     width: 40px;
@@ -118,7 +122,7 @@
 
 .online-card {
   background: white;
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-xl);
   padding: var(--space-5);
   display: flex;
   flex-direction: column;
@@ -163,10 +167,10 @@
     gap: var(--space-2);
     width: 100%;
     padding: var(--space-4);
-    background: var(--primary-color);
+    background: #1a1a1a;
     color: white;
     border: none;
-    border-radius: var(--radius-lg);
+    border-radius: var(--radius-xl);
     font-size: var(--font-size-lg);
     font-weight: var(--font-weight-semibold);
     cursor: pointer;
@@ -195,7 +199,7 @@
   gap: var(--space-3);
   padding: var(--space-3) var(--space-4);
   background: white;
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-xl);
   cursor: pointer;
   transition: all 0.15s ease;
 
@@ -278,7 +282,7 @@
   align-items: center;
   padding: var(--space-6);
   background: white;
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-xl);
   text-align: center;
 
   i {
