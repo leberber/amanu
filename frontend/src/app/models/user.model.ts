@@ -20,6 +20,7 @@ export interface User {
   address?: string;
   latitude?: number;
   longitude?: number;
+  h3_index?: string;
   store_name?: string;
   wilaya?: string;
   daira?: string;

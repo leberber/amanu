@@ -365,7 +365,20 @@
     "pickup": "استلام",
     "pickup_desc": "استلم من موقعنا",
     "summary": "الملخص",
-    "add_promo": "أضف كود خصم"
+    "add_promo": "أضف كود خصم",
+    "no_location": "يرجى تحديد عنوان التوصيل في ملفك الشخصي",
+    "not_deliverable": "عذراً، لا نقوم بالتوصيل إلى منطقتك حالياً",
+    "shipping_error": "تعذر حساب تكلفة الشحن. يرجى المحاولة مرة أخرى.",
+    "shipping_discount": "وفّرت {{percent}}% على الشحن!",
+    "shipping_discount_label": "خصم ({{percent}}%)",
+    "shipping_savings": "خصم الشحن",
+    "shipping_details": "تفاصيل الشحن",
+    "base_cost": "التكلفة الأساسية",
+    "distance_cost": "تكلفة المسافة",
+    "weight_cost": "تكلفة الوزن",
+    "volume_cost": "تكلفة الحجم",
+    "time_cost": "تكلفة الوقت",
+    "next_tier_hint": "أضف {{amount}} دج للحصول على خصم {{percent}}% على الشحن!"
   },
   "register": {
     "step1_label": "المعلومات",

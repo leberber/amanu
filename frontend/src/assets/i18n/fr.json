@@ -364,7 +364,20 @@
     "pickup": "Retrait",
     "pickup_desc": "Récupérez à notre point de retrait",
     "summary": "Récapitulatif",
-    "add_promo": "Ajouter un code promo"
+    "add_promo": "Ajouter un code promo",
+    "no_location": "Veuillez définir votre adresse de livraison dans votre profil",
+    "not_deliverable": "Désolé, nous ne livrons pas encore dans votre zone",
+    "shipping_error": "Impossible de calculer les frais de livraison. Veuillez réessayer.",
+    "shipping_discount": "Vous économisez {{percent}}% sur la livraison !",
+    "shipping_discount_label": "Remise ({{percent}}%)",
+    "shipping_savings": "Remise livraison",
+    "shipping_details": "Détails de livraison",
+    "base_cost": "Coût de base",
+    "distance_cost": "Coût distance",
+    "weight_cost": "Coût poids",
+    "volume_cost": "Coût volume",
+    "time_cost": "Coût temps",
+    "next_tier_hint": "Ajoutez {{amount}} DZD pour obtenir {{percent}}% de réduction sur la livraison !"
   },
   "register": {
     "step1_label": "Info",

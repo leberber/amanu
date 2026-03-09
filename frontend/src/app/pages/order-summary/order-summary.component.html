@@ -31,7 +31,21 @@
               <span class="delivery-option__label">{{ 'order_summary.delivery' | translate }}</span>
               <span class="delivery-option__desc">{{ 'order_summary.delivery_desc' | translate }}</span>
             </div>
-            <span class="delivery-option__price">{{ SHIPPING.STANDARD_COST | appCurrency }}</span>
+            <span class="delivery-option__price">
+              @if (shippingLoading()) {
+                <i class="pi pi-spin pi-spinner"></i>
+              } @else if (shippingResponse()) {
+                @if (shippingResponse()!.free_shipping) {
+                  <span class="delivery-option__price--free">{{ 'cart.free' | translate }}</span>
+                } @else {
+                  {{ shippingResponse()!.shipping_cost | appCurrency }}
+                }
+              } @else if (shippingError()) {
+                <i class="pi pi-exclamation-circle text-orange-500"></i>
+              } @else {
+                --
+              }
+            </span>
           </button>
 
           <button
@@ -51,6 +65,91 @@
             <span class="delivery-option__price delivery-option__price--free">{{ 'cart.free' | translate }}</span>
           </button>
         </div>
+
+        <!-- Shipping Error/Info Message -->
+        @if (deliveryMethod() === 'delivery' && shippingError()) {
+          <div class="shipping-message shipping-message--warning">
+            <i class="pi pi-exclamation-triangle"></i>
+            <span>{{ shippingError()! | translate }}</span>
+          </div>
+        }
+
+        <!-- Shipping Breakdown (when delivery selected and calculated) -->
+        @if (deliveryMethod() === 'delivery' && shippingResponse() && !shippingLoading()) {
+          <div class="shipping-breakdown">
+            <div class="shipping-breakdown__header" (click)="toggleShippingDetails()">
+              <span>{{ 'order_summary.shipping_details' | translate }}</span>
+              <i [class]="showShippingDetails() ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"></i>
+            </div>
+
+            @if (showShippingDetails()) {
+              <div class="shipping-breakdown__content">
+                <!-- Distance & Time Info -->
+                <div class="shipping-breakdown__info">
+                  <span><i class="pi pi-map-marker"></i> {{ shippingResponse()!.distance_km }} km</span>
+                  <span><i class="pi pi-clock"></i> ~{{ shippingResponse()!.duration_min | number:'1.0-0' }} min</span>
+                </div>
+
+                <!-- Cost Breakdown -->
+                <div class="shipping-breakdown__items">
+                  <div class="shipping-breakdown__item">
+                    <span>{{ 'order_summary.base_cost' | translate }}</span>
+                    <span>{{ shippingResponse()!.breakdown.base_cost | appCurrency }}</span>
+                  </div>
+                  @if (shippingResponse()!.breakdown.distance_cost > 0) {
+                    <div class="shipping-breakdown__item">
+                      <span>{{ 'order_summary.distance_cost' | translate }}</span>
+                      <span>{{ shippingResponse()!.breakdown.distance_cost | appCurrency }}</span>
+                    </div>
+                  }
+                  @if (shippingResponse()!.breakdown.weight_cost > 0) {
+                    <div class="shipping-breakdown__item">
+                      <span>{{ 'order_summary.weight_cost' | translate }}</span>
+                      <span>{{ shippingResponse()!.breakdown.weight_cost | appCurrency }}</span>
+                    </div>
+                  }
+                  @if (shippingResponse()!.breakdown.volume_cost > 0) {
+                    <div class="shipping-breakdown__item">
+                      <span>{{ 'order_summary.volume_cost' | translate }}</span>
+                      <span>{{ shippingResponse()!.breakdown.volume_cost | appCurrency }}</span>
+                    </div>
+                  }
+                  @if (shippingResponse()!.breakdown.time_cost && shippingResponse()!.breakdown.time_cost > 0) {
+                    <div class="shipping-breakdown__item">
+                      <span>{{ 'order_summary.time_cost' | translate }}</span>
+                      <span>{{ shippingResponse()!.breakdown.time_cost | appCurrency }}</span>
+                    </div>
+                  }
+
+                  <!-- Discount if applied -->
+                  @if (shippingResponse()!.discount_applied) {
+                    <div class="shipping-breakdown__item shipping-breakdown__item--discount">
+                      <span>{{ 'order_summary.shipping_discount_label' | translate: { percent: shippingResponse()!.discount_percent } }}</span>
+                      <span>-{{ shippingResponse()!.breakdown.discount_amount | appCurrency }}</span>
+                    </div>
+                  }
+
+                  <!-- Total -->
+                  <div class="shipping-breakdown__item shipping-breakdown__item--total">
+                    <span>{{ 'common.total' | translate }}</span>
+                    <span>{{ shippingResponse()!.shipping_cost | appCurrency }}</span>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        }
+
+        <!-- Next Tier Hint -->
+        @if (deliveryMethod() === 'delivery' && shippingResponse()?.next_tier && shippingResponse()!.next_tier!.amount_needed > 0) {
+          <div class="shipping-message shipping-message--info">
+            <i class="pi pi-info-circle"></i>
+            <span>{{ 'order_summary.next_tier_hint' | translate: {
+              amount: shippingResponse()!.next_tier!.amount_needed,
+              percent: shippingResponse()!.next_tier!.discount_percent
+            } }}</span>
+          </div>
+        }
       </div>
     </div>
 
@@ -78,14 +177,26 @@
                 {{ 'order_summary.pickup' | translate }}
               }
             </span>
-            <span class="breakdown-row__value" [class.breakdown-row__value--free]="deliveryCost() === 0">
-              @if (deliveryCost() === 0) {
+            <span class="breakdown-row__value" [class.breakdown-row__value--free]="deliveryCost() === 0 && !shippingLoading()">
+              @if (shippingLoading() && deliveryMethod() === 'delivery') {
+                <i class="pi pi-spin pi-spinner"></i>
+              } @else if (deliveryCost() === 0) {
                 {{ 'cart.free' | translate }}
               } @else {
                 {{ deliveryCost() | appCurrency }}
               }
             </span>
           </div>
+
+          <!-- Shipping Discount (if applied) -->
+          @if (deliveryMethod() === 'delivery' && shippingResponse()?.discount_applied && shippingResponse()!.discount_percent < 100) {
+            <div class="breakdown-row">
+              <span class="breakdown-row__label">{{ 'order_summary.shipping_savings' | translate }}</span>
+              <span class="breakdown-row__value breakdown-row__value--discount">
+                -{{ (shippingResponse()!.original_cost - shippingResponse()!.shipping_cost) | appCurrency }}
+              </span>
+            </div>
+          }
 
           <!-- Cross-Sell Savings (if any) -->
           @if (crossSellSavings() > 0) {

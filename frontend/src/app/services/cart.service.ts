@@ -20,6 +20,8 @@ export interface CartItem {
   packaging_type?: string;
   category_id?: number;
   brand_id?: number;
+  weight?: number;  // in kg
+  volume?: number;  // in liters
 }
 
 /**
@@ -56,6 +58,14 @@ export class CartService {
   readonly volumeDiscountFreeUnits = computed(() => this._volumeDiscounts().reduce((sum, d) => sum + d.freeUnits, 0));
   readonly finalTotal = computed(() => Math.max(0, this.discountedSubtotal() - this.crossSellSavings() - this.volumeDiscountSavings()));
   readonly canCheckout = computed(() => this._items().length > 0);
+
+  // Shipping calculations
+  readonly totalWeight = computed(() =>
+    this._items().reduce((sum, item) => sum + (item.weight ?? 0) * item.quantity, 0)
+  );
+  readonly totalVolume = computed(() =>
+    this._items().reduce((sum, item) => sum + (item.volume ?? 0) * item.quantity, 0)
+  );
 
   constructor() {
     this.loadFromStorage();
@@ -247,6 +257,8 @@ export class CartService {
       packaging_type: product.packaging_type,
       category_id: product.category_id,
       brand_id: product.brand_id,
+      weight: product.weight,
+      volume: product.volume,
       quantity
     };
   }

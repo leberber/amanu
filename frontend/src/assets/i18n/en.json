@@ -367,7 +367,20 @@
     "pickup": "Pickup",
     "pickup_desc": "Pick up at our location",
     "summary": "Summary",
-    "add_promo": "Add promo code"
+    "add_promo": "Add promo code",
+    "no_location": "Please set your delivery address in your profile",
+    "not_deliverable": "Sorry, we don't deliver to your area yet",
+    "shipping_error": "Unable to calculate shipping. Please try again.",
+    "shipping_discount": "You save {{percent}}% on shipping!",
+    "shipping_discount_label": "Discount ({{percent}}%)",
+    "shipping_savings": "Shipping discount",
+    "shipping_details": "Shipping details",
+    "base_cost": "Base cost",
+    "distance_cost": "Distance cost",
+    "weight_cost": "Weight cost",
+    "volume_cost": "Volume cost",
+    "time_cost": "Time cost",
+    "next_tier_hint": "Add {{amount}} DZD more to get {{percent}}% off shipping!"
   },
   "register": {
     "step1_label": "Info",

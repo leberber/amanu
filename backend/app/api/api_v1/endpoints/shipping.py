@@ -187,23 +187,24 @@ def calculate_shipping(
     Calculate shipping cost for a given H3 location.
     Public endpoint - no authentication required.
     """
-    # Find delivery zone for customer's H3 index
-    delivery_zone = session.exec(
-        select(H3DeliveryZone).where(
-            H3DeliveryZone.h3_index == request.h3_index,
-            H3DeliveryZone.warehouse_id == request.warehouse_id
-        )
-    ).first()
+    delivery_zone = None
 
+    # If a specific warehouse is requested, try that first
+    if request.warehouse_id and request.warehouse_id != "default":
+        delivery_zone = session.exec(
+            select(H3DeliveryZone).where(
+                H3DeliveryZone.h3_index == request.h3_index,
+                H3DeliveryZone.warehouse_id == request.warehouse_id
+            )
+        ).first()
+
+    # If no specific warehouse or not found, find ANY warehouse that delivers here
     if not delivery_zone:
-        # Try with default warehouse
-        if request.warehouse_id != "default":
-            delivery_zone = session.exec(
-                select(H3DeliveryZone).where(
-                    H3DeliveryZone.h3_index == request.h3_index,
-                    H3DeliveryZone.warehouse_id == "default"
-                )
-            ).first()
+        delivery_zone = session.exec(
+            select(H3DeliveryZone).where(
+                H3DeliveryZone.h3_index == request.h3_index
+            ).order_by(H3DeliveryZone.distance_km)  # Prefer closest warehouse
+        ).first()
 
     if not delivery_zone:
         return ShippingCostResponse(
@@ -220,8 +221,8 @@ def calculate_shipping(
             message="Sorry, delivery is not available to your location."
         )
 
-    # Get pricing config
-    config = get_pricing_config(request.warehouse_id, session)
+    # Get pricing config for the warehouse that will fulfill this delivery
+    config = get_pricing_config(delivery_zone.warehouse_id, session)
 
     # Calculate and return shipping cost
     return calculate_shipping_cost(
