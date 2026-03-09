@@ -16,3 +16,4 @@ google-auth
 httpx
 boto3
 pillow
+h3

@@ -14,6 +14,7 @@ from app.core.security import (
     get_current_admin_user,
     get_password_hash,
 )
+from app.core.geo import lat_lng_to_h3
 
 router = APIRouter()
 
@@ -46,20 +47,26 @@ def update_user_me(
             status_code=400,
             detail="Changing your own role is not allowed",
         )
-    
+
     # Update user fields
     update_data = user_in.model_dump(exclude_unset=True)
-    
+
     # Handle password update
     if "password" in update_data:
         update_data["hashed_password"] = get_password_hash(update_data.pop("password"))
-    
+
+    # Calculate H3 index if coordinates are being updated
+    new_lat = update_data.get("latitude", current_user.latitude)
+    new_lng = update_data.get("longitude", current_user.longitude)
+    if "latitude" in update_data or "longitude" in update_data:
+        update_data["h3_index"] = lat_lng_to_h3(new_lat, new_lng)
+
     # Apply updates
     for field, value in update_data.items():
         setattr(current_user, field, value)
-    
+
     current_user.updated_at = datetime.now(timezone.utc)
-    
+
     session.add(current_user)
     session.commit()
     session.refresh(current_user)
@@ -149,20 +156,26 @@ def update_user(
             status_code=404,
             detail="User not found",
         )
-    
+
     # Update user fields
     update_data = user_in.model_dump(exclude_unset=True)
-    
+
     # Handle password update
     if "password" in update_data:
         update_data["hashed_password"] = get_password_hash(update_data.pop("password"))
-    
+
+    # Calculate H3 index if coordinates are being updated
+    new_lat = update_data.get("latitude", user.latitude)
+    new_lng = update_data.get("longitude", user.longitude)
+    if "latitude" in update_data or "longitude" in update_data:
+        update_data["h3_index"] = lat_lng_to_h3(new_lat, new_lng)
+
     # Apply updates
     for field, value in update_data.items():
         setattr(user, field, value)
-    
+
     user.updated_at = datetime.now(timezone.utc)
-    
+
     session.add(user)
     session.commit()
     session.refresh(user)

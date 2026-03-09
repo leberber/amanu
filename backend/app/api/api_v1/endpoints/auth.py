@@ -17,6 +17,7 @@ from app.core.security import (
     verify_password,
 )
 from app.core.config import settings
+from app.core.geo import lat_lng_to_h3
 from app.models.user import User, UserCreate, UserRead, AuthProvider
 from app.models.password_reset import PasswordResetToken, ForgotPasswordRequest, ResetPasswordRequest
 from app.models.email_verification import EmailVerificationToken, SendVerificationCodeRequest, VerifyEmailRequest
@@ -89,13 +90,22 @@ def register_new_user(
             status_code=400,
             detail="The user with this email already exists.",
         )
-    
+
+    # Calculate H3 index from coordinates
+    h3_index = lat_lng_to_h3(user_in.latitude, user_in.longitude)
+
     new_user = User(
         email=user_in.email,
         hashed_password=get_password_hash(user_in.password),
         full_name=user_in.full_name,
         phone=user_in.phone,
         address=user_in.address,
+        wilaya=user_in.wilaya,
+        daira=user_in.daira,
+        commune=user_in.commune,
+        latitude=user_in.latitude,
+        longitude=user_in.longitude,
+        h3_index=h3_index,
         role=user_in.role,
         is_active=False,
     )
