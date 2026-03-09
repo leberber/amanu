@@ -436,7 +436,6 @@
   height: var(--auth-icon-wrapper-size);
   border-radius: var(--radius-full);
   background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.15) 0%, rgba(var(--primary-rgb), 0.15) 100%);
-  animation: pulse 3s ease-in-out infinite;
 
   @media (min-width: 768px) {
     width: var(--auth-icon-wrapper-size-lg);
