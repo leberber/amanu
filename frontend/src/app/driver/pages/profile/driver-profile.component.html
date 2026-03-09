@@ -30,7 +30,7 @@
     </div>
   } @else {
     <!-- Profile Card (Uber style) -->
-    <div class="profile-card" (click)="editProfile()">
+    <div class="profile-card">
       <div class="profile-card__main">
         <div class="profile-avatar">
           <i class="pi pi-user"></i>
@@ -42,7 +42,6 @@
             <span>{{ stats()?.average_rating?.toFixed(2) || '5.00' }}</span>
           </div>
         </div>
-        <i class="pi pi-chevron-right profile-card__chevron"></i>
       </div>
 
       <div class="profile-card__actions">

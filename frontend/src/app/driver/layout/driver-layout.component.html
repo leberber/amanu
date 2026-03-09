@@ -1,20 +1,13 @@
 <div class="driver-layout">
-  <!-- Top Status Bar -->
-  <header class="driver-header">
-    <div class="driver-header__left">
-      <span class="driver-header__greeting">{{ profile()?.full_name || 'Driver' }}</span>
-    </div>
-    <div class="driver-header__right">
-      <button
-        class="driver-header__status"
-        [style.--status-color]="statusColor()"
-        [class.driver-header__status--clickable]="canToggleStatus()"
-        (click)="canToggleStatus() && toggleStatus()">
-        <span class="driver-header__status-dot"></span>
-        <span class="driver-header__status-label">{{ statusLabel() | translate }}</span>
-      </button>
-    </div>
-  </header>
+  <!-- Floating Status Indicator -->
+  <button
+    class="driver-status-float"
+    [style.--status-color]="statusColor()"
+    [class.driver-status-float--clickable]="canToggleStatus()"
+    (click)="canToggleStatus() && toggleStatus()">
+    <span class="driver-status-float__dot"></span>
+    <span class="driver-status-float__label">{{ statusLabel() | translate }}</span>
+  </button>
 
   <!-- Main Content Area -->
   <main class="driver-content" @pageAnimation>

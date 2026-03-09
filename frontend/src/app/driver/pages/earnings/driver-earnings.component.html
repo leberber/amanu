@@ -1,11 +1,11 @@
-<div class="driver-earnings" @pageAnimation>
-  <!-- Header -->
-  <header class="page-header">
-    <h1>{{ 'driver.earnings.title' | translate }}</h1>
-    <p>{{ 'driver.earnings.subtitle' | translate }}</p>
-  </header>
+<app-page-layout
+  [title]="'driver.earnings.title'"
+  [showBackButton]="true"
+  [backRoute]="'/driver/profile'"
+  [fullscreen]="true">
 
-  <!-- Period Filter -->
+  <div class="driver-earnings" @pageAnimation>
+    <!-- Period Filter -->
   <div class="period-filter">
     <button 
       class="period-btn"
@@ -108,4 +108,5 @@
       </div>
     </div>
   }
-</div>
+  </div>
+</app-page-layout>

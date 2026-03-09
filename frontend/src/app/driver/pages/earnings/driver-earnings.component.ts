@@ -5,11 +5,12 @@ import { trigger, transition, style, animate } from '@angular/animations';
 
 import { DriverService } from '../../../services/driver.service';
 import { DriverStats } from '../../../models/driver.model';
+import { PageLayoutComponent } from '../../../shared/components/page-layout/page-layout.component';
 
 @Component({
   selector: 'app-driver-earnings',
   standalone: true,
-  imports: [TranslateModule, DecimalPipe],
+  imports: [TranslateModule, DecimalPipe, PageLayoutComponent],
   templateUrl: './driver-earnings.component.html',
   styleUrl: './driver-earnings.component.scss',
   animations: [

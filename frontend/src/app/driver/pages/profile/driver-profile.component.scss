@@ -17,28 +17,17 @@
   background: white;
   border-radius: var(--radius-xl);
   overflow: hidden;
-  cursor: pointer;
-  transition: all 0.15s ease;
-
-  &:active {
-    transform: scale(0.99);
-  }
 
   &__main {
     display: flex;
     align-items: center;
-    gap: var(--space-4);
+    gap: var(--space-3);
     padding: var(--space-4);
   }
 
   &__info {
     flex: 1;
     min-width: 0;
-  }
-
-  &__chevron {
-    font-size: 1.25rem;
-    color: var(--text-color-secondary);
   }
 }
 
@@ -70,16 +59,14 @@
 }
 
 .profile-rating {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   gap: var(--space-1);
-  background: var(--surface-ground);
-  padding: var(--space-1) var(--space-2);
-  border-radius: var(--radius-md);
+  margin-top: var(--space-1);
 
   i {
     font-size: 0.875rem;
-    color: #1a1a1a;
+    color: #f59e0b;
   }
 
   span {
@@ -108,10 +95,6 @@
   text-align: center;
   cursor: pointer;
   transition: background 0.15s ease;
-
-  &:not(:last-child) {
-    border-right: 1px solid var(--border-color);
-  }
 
   &:active {
     background: var(--surface-hover);
@@ -142,8 +125,8 @@
 
 .profile-divider {
   height: 1px;
-  background: var(--border-color);
-  margin: 0 var(--space-2);
+  background: rgba(0, 0, 0, 0.08);
+  margin: var(--space-4) 0 var(--space-5);
 }
 
 // =============================================================================

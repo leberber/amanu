@@ -76,17 +76,17 @@ export class DriverLayoutComponent implements OnInit {
     // Initialize driver data
     this.driverService.initializeDriver();
 
-    // Track route changes to hide bottom nav on trip detail
+    // Track route changes to hide bottom nav on certain pages
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe((event: NavigationEnd) => {
       const url = event.urlAfterRedirects || event.url;
-      this.hideBottomNav.set(url.includes('/driver/trip/'));
+      this.hideBottomNav.set(this.shouldHideBottomNav(url));
     });
 
     // Initial check
-    this.hideBottomNav.set(this.router.url.includes('/driver/trip/'));
+    this.hideBottomNav.set(this.shouldHideBottomNav(this.router.url));
   }
 
   toggleStatus(): void {
@@ -102,6 +102,11 @@ export class DriverLayoutComponent implements OnInit {
   canToggleStatus(): boolean {
     const status = this.currentStatus();
     return status === DRIVER_STATUS.AVAILABLE || status === DRIVER_STATUS.OFFLINE;
+  }
+
+  private shouldHideBottomNav(url: string): boolean {
+    // Hide bottom nav on detail pages
+    return url.includes('/driver/trip/') || url.includes('/driver/earnings');
   }
 
   logout(): void {
