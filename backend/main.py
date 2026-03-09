@@ -12,6 +12,7 @@ from app.api.api_v1.api import api_router
 from app.core.config import settings
 from app.core.admin import create_admin_user
 from app.seed_data import seed_data
+from app.seed_test_users import seed_test_users
 from app.models.push_subscription import PushSubscription  # Register model for table creation
 from app.models.password_reset import PasswordResetToken  # Register model for table creation
 from app.models.notification_history import NotificationHistory  # Register model for table creation
@@ -74,6 +75,9 @@ def on_startup():
     
     # Seed data
     seed_data()
+
+    # Seed test users (drivers, customers, staff)
+    seed_test_users()
 
 @app.get("/")
 def root():
