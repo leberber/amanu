@@ -287,15 +287,7 @@ def create_pricing_config(
             detail=f"Pricing config for warehouse '{config_in.warehouse_id}' already exists"
         )
 
-    # Convert tiers to dict format for JSON storage
-    config_data = config_in.model_dump()
-    if config_data.get("shipping_discount_tiers"):
-        config_data["shipping_discount_tiers"] = [
-            tier if isinstance(tier, dict) else tier.model_dump()
-            for tier in config_data["shipping_discount_tiers"]
-        ]
-
-    config = ShippingPriceConfig(**config_data)
+    config = ShippingPriceConfig(**config_in.model_dump())
     session.add(config)
     session.commit()
     session.refresh(config)
@@ -323,13 +315,6 @@ def update_pricing_config(
         )
 
     update_data = config_in.model_dump(exclude_unset=True)
-
-    # Convert tiers to dict format for JSON storage
-    if "shipping_discount_tiers" in update_data and update_data["shipping_discount_tiers"]:
-        update_data["shipping_discount_tiers"] = [
-            tier if isinstance(tier, dict) else tier.model_dump()
-            for tier in update_data["shipping_discount_tiers"]
-        ]
 
     for field, value in update_data.items():
         setattr(config, field, value)

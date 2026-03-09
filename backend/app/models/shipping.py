@@ -83,7 +83,7 @@ class ShippingPriceConfigCreate(SQLModel):
     price_per_min: float = 0.0
     min_shipping_cost: float = 200.0
     max_shipping_cost: float = 5000.0
-    shipping_discount_tiers: Optional[List[ShippingDiscountTier]] = None
+    shipping_discount_tiers: Optional[List[dict]] = None
 
 
 class ShippingPriceConfigUpdate(SQLModel):
@@ -95,7 +95,7 @@ class ShippingPriceConfigUpdate(SQLModel):
     price_per_min: Optional[float] = None
     min_shipping_cost: Optional[float] = None
     max_shipping_cost: Optional[float] = None
-    shipping_discount_tiers: Optional[List[ShippingDiscountTier]] = None
+    shipping_discount_tiers: Optional[List[dict]] = None
     is_active: Optional[bool] = None
 
 
@@ -110,7 +110,7 @@ class ShippingPriceConfigRead(SQLModel):
     price_per_min: float
     min_shipping_cost: float
     max_shipping_cost: float
-    shipping_discount_tiers: Optional[List[ShippingDiscountTier]]
+    shipping_discount_tiers: Optional[List[dict]] = None
     is_active: bool
     created_at: datetime
     updated_at: Optional[datetime]

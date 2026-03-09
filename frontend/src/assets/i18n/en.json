@@ -1655,7 +1655,8 @@
       "notifications": "Notifications",
       "user_groups": "User Groups",
       "reports": "Reports",
-      "settings": "Settings"
+      "settings": "Settings",
+      "shipping": "Shipping"
     },
     "brands": {
       "title": "Brands",
@@ -1751,6 +1752,47 @@
         "french_name_required": "French name is required",
         "arabic_name_required": "Arabic name is required"
       }
+    },
+    "shipping": {
+      "title": "Shipping Config",
+      "subtitle": "Configure shipping costs and discount tiers",
+      "mobile_subtitle": "Settings",
+      "base_pricing": "Base Pricing",
+      "base_cost": "Base Cost",
+      "base_cost_hint": "Fixed delivery fee charged on every order",
+      "price_per_km": "Price per KM",
+      "price_per_km_hint": "Cost added per kilometer of travel distance",
+      "price_per_kg": "Price per KG",
+      "price_per_kg_hint": "Cost added per kilogram of order weight",
+      "price_per_m3": "Price per m³",
+      "price_per_m3_hint": "Cost added per cubic meter of volume",
+      "price_per_min": "Price per Minute",
+      "price_per_min_hint": "Cost per minute of travel time (optional)",
+      "limits": "Cost Limits",
+      "min_cost": "Minimum Cost",
+      "min_cost_hint": "Never charge less than this amount",
+      "max_cost": "Maximum Cost",
+      "max_cost_hint": "Never charge more than this amount",
+      "discount_tiers": "Discount Tiers",
+      "discount_tiers_hint": "Configure discounts based on order total. Customers who reach higher order amounts get bigger shipping discounts.",
+      "no_tiers": "No discount tiers configured",
+      "min_order": "Min Order",
+      "discount": "Discount",
+      "free_shipping": "Free Shipping",
+      "add_tier": "Add Discount Tier",
+      "zone_stats": "Delivery Zone Stats",
+      "total_zones": "Total Zones",
+      "distance_range": "Distance Range",
+      "duration_range": "Duration Range",
+      "is_active": "Configuration Active",
+      "config_active": "Shipping calculations are enabled",
+      "config_inactive": "Shipping calculations are disabled",
+      "create": "Create Config",
+      "update": "Save Changes",
+      "create_success": "Shipping config created successfully",
+      "create_failed": "Failed to create shipping config",
+      "update_success": "Shipping config updated successfully",
+      "update_failed": "Failed to update shipping config"
     }
   },
   "footer": {

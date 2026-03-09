@@ -61,7 +61,8 @@ export const ROUTES = {
     USER_GROUPS: '/admin/user-groups',
     ADD_USER_GROUP: '/admin/user-groups/add',
     EDIT_USER_GROUP: '/admin/user-groups/edit/:id',
-    NOTIFICATIONS: '/admin/notifications'
+    NOTIFICATIONS: '/admin/notifications',
+    SHIPPING: '/admin/shipping'
   }
 } as const;
 

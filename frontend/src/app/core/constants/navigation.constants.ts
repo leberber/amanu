@@ -86,5 +86,11 @@ export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
     icon: 'pi pi-bell',
     route: ROUTES.ADMIN.NOTIFICATIONS,
     adminOnly: true
+  },
+  {
+    labelKey: 'admin.navigation.shipping',
+    icon: 'pi pi-truck',
+    route: ROUTES.ADMIN.SHIPPING,
+    adminOnly: true
   }
 ];

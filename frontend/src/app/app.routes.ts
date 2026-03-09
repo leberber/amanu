@@ -188,6 +188,13 @@ export const routes: Routes = [
     canActivate: [adminGuard],
     data: { mode: 'edit', hideBottomNav: true }
   },
+  // Shipping Config Route
+  {
+    path: 'admin/shipping',
+    loadComponent: () => import('./pages/admin/admin-shipping-config/admin-shipping-config.component').then(m => m.AdminShippingConfigComponent),
+    canActivate: [adminOnlyGuard],
+    data: { hideBottomNav: true }
+  },
 
   // User Routes
   {
