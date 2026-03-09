@@ -16,8 +16,8 @@ import { PageLayoutComponent } from '../../../shared/components/page-layout/page
   animations: [
     trigger('pageAnimation', [
       transition(':enter', [
-        style({ opacity: 0, transform: 'translateY(10px)' }),
-        animate('200ms ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
+        style({ transform: 'translateX(100%)' }),
+        animate('300ms ease-out', style({ transform: 'translateX(0)' }))
       ])
     ])
   ]
