@@ -20,6 +20,7 @@ from app.models.user_notification import UserNotification  # Register model for 
 from app.models.cross_sell_promotion import CrossSellPromotion  # Register model for table creation
 from app.models.volume_discount import VolumeDiscount  # Register model for table creation
 from app.models.restock import RestockItem  # Register model for table creation
+from app.models.driver import DriverProfile  # Register model for table creation
 
 app = FastAPI(
     title=settings.PROJECT_NAME,

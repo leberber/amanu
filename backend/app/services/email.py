@@ -35,9 +35,13 @@ async def send_password_reset_email(email: str, code: str) -> bool:
                 <div style="background: white; border-radius: 16px; padding: 40px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
                     <!-- Header -->
                     <div style="text-align: center; margin-bottom: 32px;">
-                        <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #2E6CB7 0%, #0F3C82 100%); border-radius: 50%; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center;">
-                            <span style="font-size: 28px; color: white;">🔐</span>
-                        </div>
+                        <table role="presentation" style="margin: 0 auto 16px;">
+                            <tr>
+                                <td style="width: 64px; height: 64px; background: linear-gradient(135deg, #2E6CB7 0%, #0F3C82 100%); border-radius: 50%; text-align: center; vertical-align: middle;">
+                                    <span style="font-size: 28px; line-height: 1;">🔐</span>
+                                </td>
+                            </tr>
+                        </table>
                         <h1 style="margin: 0; color: #1a1a1a; font-size: 24px; font-weight: 700;">Password Reset</h1>
                     </div>
 
@@ -104,9 +108,13 @@ async def send_email_verification_email(email: str, code: str) -> bool:
                 <div style="background: white; border-radius: 16px; padding: 40px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
                     <!-- Header -->
                     <div style="text-align: center; margin-bottom: 32px;">
-                        <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #2E6CB7 0%, #0F3C82 100%); border-radius: 50%; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center;">
-                            <span style="font-size: 28px; color: white;">✉️</span>
-                        </div>
+                        <table role="presentation" style="margin: 0 auto 16px;">
+                            <tr>
+                                <td style="width: 64px; height: 64px; background: linear-gradient(135deg, #2E6CB7 0%, #0F3C82 100%); border-radius: 50%; text-align: center; vertical-align: middle;">
+                                    <span style="font-size: 28px; line-height: 1;">✉️</span>
+                                </td>
+                            </tr>
+                        </table>
                         <h1 style="margin: 0; color: #1a1a1a; font-size: 24px; font-weight: 700;">Verify Your Email</h1>
                     </div>
 
