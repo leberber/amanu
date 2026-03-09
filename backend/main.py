@@ -21,6 +21,7 @@ from app.models.cross_sell_promotion import CrossSellPromotion  # Register model
 from app.models.volume_discount import VolumeDiscount  # Register model for table creation
 from app.models.restock import RestockItem  # Register model for table creation
 from app.models.driver import DriverProfile  # Register model for table creation
+from app.models.shipping import H3DeliveryZone, ShippingPriceConfig  # Register models for table creation
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
