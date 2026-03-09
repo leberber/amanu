@@ -48,8 +48,7 @@
 // =============================================================================
 
 .stats-section {
-  margin-top: var(--space-6);
-  margin-bottom: var(--space-6);
+  // No extra margins - uses gap from parent
 }
 
 .stats-grid {

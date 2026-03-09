@@ -1,13 +1,22 @@
 <div class="driver-layout">
-  <!-- Floating Status Indicator -->
-  <button
-    class="driver-status-float"
-    [style.--status-color]="statusColor()"
-    [class.driver-status-float--clickable]="canToggleStatus()"
-    (click)="canToggleStatus() && toggleStatus()">
-    <span class="driver-status-float__dot"></span>
-    <span class="driver-status-float__label">{{ statusLabel() | translate }}</span>
-  </button>
+  <!-- Top Bar Header -->
+  <header class="driver-header">
+    <div class="driver-header__left">
+      <!-- Empty for now, can add back button for detail pages -->
+    </div>
+
+    <div class="driver-header__right">
+      <!-- Status Badge -->
+      <button
+        class="status-badge"
+        [style.--status-color]="statusColor()"
+        [class.status-badge--clickable]="canToggleStatus()"
+        (click)="canToggleStatus() && toggleStatus()">
+        <span class="status-badge__dot"></span>
+        <span class="status-badge__label">{{ statusLabel() | translate }}</span>
+      </button>
+    </div>
+  </header>
 
   <!-- Main Content Area -->
   <main class="driver-content" @pageAnimation>
