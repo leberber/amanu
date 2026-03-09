@@ -1,0 +1,8 @@
+export { TypeChoiceStepComponent } from './type-choice/type-choice-step.component';
+export { PersonalInfoStepComponent } from './personal-info/personal-info-step.component';
+export { EmailVerificationStepComponent } from './email-verification/email-verification-step.component';
+export { PasswordStepComponent } from './password/password-step.component';
+export { LocationMapStepComponent } from './location-map/location-map-step.component';
+export { StoreDetailsStepComponent } from './store-details/store-details-step.component';
+export { VehicleDetailsStepComponent } from './vehicle-details/vehicle-details-step.component';
+export { ConfirmationStepComponent } from './confirmation/confirmation-step.component';

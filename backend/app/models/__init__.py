@@ -22,6 +22,12 @@ from app.models.brand import Brand
 # Order models
 from app.models.order import Order, OrderItem
 
+# Driver models
+from app.models.driver import (
+    DriverProfile, DriverProfileBase, DriverProfileCreate,
+    DriverProfileRead, DriverProfileUpdate, DriverRegister, VehicleType
+)
+
 # Other models
 from app.models.promotion import Promotion
 from app.models.push_subscription import PushSubscription

@@ -1,34 +1,21 @@
-<!-- src/app/pages/register/register.component.html -->
-<div class="register-carousel" [class.register-carousel--ready]="pageReady()" [class.register-carousel--no-animation]="stateRestored">
+<div class="register-carousel" [class.register-carousel--ready]="state.pageReady()" [class.register-carousel--no-animation]="state.stateRestored">
 
-  <!-- Progress Bar Fixed at Top (hidden on steps 0, 3=map, 6=success, or when input focused) -->
-  <div class="progress-header" [class.hidden]="activeStep() === 0 || activeStep() === 3 || activeStep() === 6 || isInputFocused()">
+  <!-- Progress Header (hidden on steps 0, 3=map, 6=success, or when input focused) -->
+  <div class="progress-header" [class.hidden]="state.activeStep() === 0 || state.activeStep() === 3 || state.activeStep() === 6 || state.isInputFocused()">
     <div class="progress-content">
-      @if (activeStep() > 0) {
+      @if (state.activeStep() > 0) {
         <button class="back-nav" (click)="prevStep()">
           <i class="pi pi-arrow-left"></i>
         </button>
       }
       <div class="progress-info">
         <div class="step-dots">
-          @if (fromGoogle()) {
-            <!-- Google flow: show steps 0, 3, 4, 5 (skip verification and password) -->
-            @for (step of [0,3,4,5]; track step) {
-              <span class="dot"
-                    [class.active]="activeStep() === step"
-                    [class.completed]="activeStep() > step || (step === 0 && activeStep() >= 3)"
-                    [class.accessible]="canAccessStep(step) || step <= activeStep() || (step === 0 && activeStep() >= 3)"
-                    (click)="goToStep(step)"></span>
-            }
-          } @else {
-            <!-- Normal flow: show all steps -->
-            @for (step of [0,1,2,3,4,5]; track step) {
-              <span class="dot"
-                    [class.active]="activeStep() === step"
-                    [class.completed]="activeStep() > step"
-                    [class.accessible]="canAccessStep(step) || step <= activeStep()"
-                    (click)="goToStep(step)"></span>
-            }
+          @for (step of stepDots; track step) {
+            <span class="dot"
+                  [class.active]="state.activeStep() === step"
+                  [class.completed]="state.activeStep() > step"
+                  [class.accessible]="canAccessStep(step) || step <= state.activeStep()"
+                  (click)="goToStep(step)"></span>
           }
         </div>
       </div>
@@ -37,546 +24,85 @@
 
   <!-- Carousel Container -->
   <div class="carousel-container">
-    <div class="carousel-track" [style.transform]="'translateX(-' + (activeStep() * 100) + '%)'">
+    <div class="carousel-track" [style.transform]="'translateX(-' + (state.activeStep() * 100) + '%)'">
 
-      <!-- Step 1: Personal Info (Modern animated style like login) -->
+      <!-- Step 0: Type Choice / Personal Info -->
       <div class="carousel-slide carousel-slide--step0">
-        <div class="register-page" [class.register-page--ready]="pageReady()">
-          <!-- Animated Logo -->
+        <div class="register-page" [class.register-page--ready]="state.pageReady()">
           <div class="register-logo">
             <img src="/logo.png" alt="Logo">
           </div>
 
-          <!-- Content (fades in after logo animation) -->
           <div class="register-content">
-            <!-- Header -->
-            <div class="register-header" [class.hidden]="isInputFocused()">
-              <h1>{{ 'register.step1_title' | translate }}</h1>
-              <p>{{ 'auth.register_subtitle' | translate }}</p>
-            </div>
-
-            <!-- Form -->
-            <form [formGroup]="personalInfoForm" class="register-form">
-              <!-- Full Name Field -->
-              <div class="register-input"
-                   [class.register-input--focused]="focusedField() === 'full_name'"
-                   [class.register-input--filled]="personalInfoForm.get('full_name')?.value">
-                <input
-                  #fullNameInput
-                  type="text"
-                  name="name"
-                  formControlName="full_name"
-                  autocomplete="name"
-                  [placeholder]="'auth.full_name_placeholder' | translate"
-                  (focus)="onInputFocus('full_name')"
-                  (blur)="onInputBlur()">
-              </div>
-
-              <!-- Email Field -->
-              <div class="register-field-wrapper">
-                <div class="register-input"
-                     [class.register-input--focused]="focusedField() === 'email'"
-                     [class.register-input--filled]="personalInfoForm.get('email')?.value"
-                     [class.register-input--error]="serverErrors()['email']"
-                     [class.register-input--readonly]="fromGoogle()">
-                  <input
-                    #emailInput
-                    type="email"
-                    inputmode="email"
-                    name="email"
-                    formControlName="email"
-                    autocomplete="email"
-                    [placeholder]="'auth.email_placeholder' | translate"
-                    [readonly]="fromGoogle()"
-                    (focus)="onInputFocus('email')"
-                    (blur)="onInputBlur()"
-                    (input)="clearServerError('email')">
-                </div>
-                @if (serverErrors()['email']) {
-                  <small class="register-error">{{ serverErrors()['email'] }}</small>
-                }
-              </div>
-
-              <!-- Phone Field -->
-              <div class="register-field-wrapper">
-                <div class="register-input"
-                     [class.register-input--focused]="focusedField() === 'phone'"
-                     [class.register-input--filled]="personalInfoForm.get('phone')?.value"
-                     [class.register-input--error]="serverErrors()['phone']">
-                  <input
-                    #phoneInput
-                    type="tel"
-                    inputmode="tel"
-                    name="phone"
-                    formControlName="phone"
-                    autocomplete="tel"
-                    appPhoneFormat
-                    [placeholder]="'auth.phone_placeholder' | translate"
-                    (focus)="onInputFocus('phone')"
-                    (blur)="onInputBlur()"
-                    (input)="clearServerError('phone')">
-                </div>
-                @if (serverErrors()['phone']) {
-                  <small class="register-error">{{ serverErrors()['phone'] }}</small>
-                }
-              </div>
-
-              <!-- Login Link -->
-              <div class="register-links">
-                <span>{{ 'auth.already_have_account' | translate }}</span>
-                <a [routerLink]="ROUTES.LOGIN">{{ 'auth.login_now' | translate }}</a>
-              </div>
-
-              <!-- Continue Button (inline like login) -->
-              <button
-                type="button"
-                class="register-btn"
-                [disabled]="!canProceedCurrentStep() || verificationLoading()"
-                (click)="nextStep()">
-                @if (verificationLoading()) {
-                  <i class="pi pi-spin pi-spinner"></i>
-                } @else {
-                  <span>{{ 'common.continue' | translate }}</span>
-                }
-              </button>
-
-              <!-- Google Sign-Up Button (only show for normal registration, not Google flow) -->
-              @if (!fromGoogle()) {
-                <div class="register-divider">
-                  <span>{{ 'common.or' | translate }}</span>
-                </div>
-                <div class="register-google">
-                  <app-google-signin-button
-                    #googleButton
-                    buttonText="signup_with"
-                    (credentialReceived)="onGoogleCredential($event)"
-                  />
-                </div>
-              }
-            </form>
+            @if (state.registrationType() === null && !state.fromGoogle()) {
+              <app-type-choice-step
+                (typeSelected)="onTypeSelected($event)" />
+            } @else {
+              <app-personal-info-step
+                (continue)="nextStep()"
+                (backToChoice)="onBackToChoice()"
+                (googleCredential)="onGoogleCredential($event)" />
+            }
           </div>
         </div>
       </div>
 
-      <!-- Step 2: Email Verification -->
+      <!-- Step 1: Email Verification -->
       <div class="carousel-slide carousel-slide--modern">
         <div class="register-step">
-          <!-- Header -->
-          <div class="register-header">
-            <div class="verification-icon">
-              <i class="pi pi-envelope"></i>
-            </div>
-            <h1>{{ 'register.verify_email_title' | translate }}</h1>
-            <p>{{ 'register.verify_email_subtitle' | translate }}</p>
-            <span class="verification-email">{{ personalInfoForm.value.email }}</span>
-          </div>
-
-          <!-- Code Input -->
-          <div class="verification-code-container">
-            <div class="code-inputs">
-              @for (i of [0,1,2,3,4,5]; track i) {
-                <div class="code-input">
-                  <input
-                    type="text"
-                    inputmode="numeric"
-                    maxlength="1"
-                    [value]="verificationCode()[i] || ''"
-                    (input)="onCodeInput($event, i)"
-                    (keydown)="onCodeKeydown($event, i)"
-                    (paste)="onCodePaste($event)"
-                    [class.filled]="verificationCode()[i]"
-                    [class.error]="verificationError()">
-                </div>
-              }
-            </div>
-
-            @if (verificationError()) {
-              <small class="verification-error">{{ verificationError() }}</small>
-            }
-          </div>
-
-          <!-- Resend Link -->
-          <div class="verification-resend">
-            @if (resendCountdown() > 0) {
-              <span class="resend-countdown">{{ 'register.resend_code_in' | translate }} {{ resendCountdown() }}s</span>
-            } @else {
-              <button type="button" class="resend-btn" (click)="resendVerificationCode()" [disabled]="verificationLoading()">
-                {{ 'register.resend_code' | translate }}
-              </button>
-            }
-          </div>
-
-          <!-- Verify Button -->
-          <button
-            type="button"
-            class="register-btn"
-            [disabled]="verificationCode().length !== 6 || verificationLoading()"
-            (click)="verifyEmailCode()">
-            @if (verificationLoading()) {
-              <i class="pi pi-spin pi-spinner"></i>
-            } @else {
-              <span>{{ 'register.verify_code' | translate }}</span>
-            }
-          </button>
+          <app-email-verification-step
+            (verify)="onVerifyCode()"
+            (resendCode)="onResendCode()" />
         </div>
       </div>
 
-      <!-- Step 3: Password (Modern style) -->
+      <!-- Step 2: Password -->
       <div class="carousel-slide carousel-slide--modern">
         <div class="register-step">
-          <!-- Header -->
-          <div class="register-header" [class.hidden]="isInputFocused()">
-            <h1>{{ 'register.step2_title' | translate }}</h1>
-            <p>{{ 'auth.password_minlength' | translate }}</p>
-          </div>
-
-          <!-- Form -->
-          <form [formGroup]="passwordForm" class="register-form">
-            <!-- Password Field -->
-            <div class="register-input"
-                 [class.register-input--focused]="focusedField() === 'password'"
-                 [class.register-input--filled]="passwordForm.get('password')?.value">
-              <input
-                [type]="showPassword() ? 'text' : 'password'"
-                formControlName="password"
-                autocomplete="new-password"
-                [placeholder]="'auth.password_placeholder' | translate"
-                (focus)="onInputFocus('password')"
-                (blur)="onInputBlur()">
-              <button type="button" class="register-input__toggle" (click)="togglePassword()" tabindex="-1">
-                <i class="pi" [class.pi-eye]="!showPassword()" [class.pi-eye-slash]="showPassword()"></i>
-              </button>
-            </div>
-
-            <!-- Confirm Password Field -->
-            <div class="register-input"
-                 [class.register-input--focused]="focusedField() === 'confirmPassword'"
-                 [class.register-input--filled]="passwordForm.get('confirmPassword')?.value">
-              <input
-                [type]="showConfirmPassword() ? 'text' : 'password'"
-                formControlName="confirmPassword"
-                autocomplete="new-password"
-                [placeholder]="'register.confirm_password_placeholder' | translate"
-                (focus)="onInputFocus('confirmPassword')"
-                (blur)="onInputBlur()">
-              <button type="button" class="register-input__toggle" (click)="toggleConfirmPassword()" tabindex="-1">
-                <i class="pi" [class.pi-eye]="!showConfirmPassword()" [class.pi-eye-slash]="showConfirmPassword()"></i>
-              </button>
-            </div>
-
-            <!-- Password Requirements -->
-            <div class="register-requirements">
-              <div class="register-requirements__item" [class.register-requirements__item--met]="passwordHasMinLength()">
-                <i class="pi" [ngClass]="passwordHasMinLength() ? 'pi-check-circle' : 'pi-circle'"></i>
-                <span>{{ 'register.password_min_chars' | translate }}</span>
-              </div>
-              <div class="register-requirements__item" [class.register-requirements__item--met]="passwordHasLetter()">
-                <i class="pi" [ngClass]="passwordHasLetter() ? 'pi-check-circle' : 'pi-circle'"></i>
-                <span>{{ 'register.password_has_letter' | translate }}</span>
-              </div>
-              <div class="register-requirements__item" [class.register-requirements__item--met]="passwordHasNumber()">
-                <i class="pi" [ngClass]="passwordHasNumber() ? 'pi-check-circle' : 'pi-circle'"></i>
-                <span>{{ 'register.password_has_number' | translate }}</span>
-              </div>
-              <div class="register-requirements__item" [class.register-requirements__item--met]="passwordsMatch()">
-                <i class="pi" [ngClass]="passwordsMatch() ? 'pi-check-circle' : 'pi-circle'"></i>
-                <span>{{ 'register.passwords_must_match' | translate }}</span>
-              </div>
-            </div>
-
-            <!-- Continue Button -->
-            <button
-              type="button"
-              class="register-btn"
-              [disabled]="!canProceedCurrentStep()"
-              (click)="nextStep()">
-              <span>{{ 'common.continue' | translate }}</span>
-            </button>
-          </form>
+          <app-password-step
+            (continue)="nextStep()" />
         </div>
       </div>
 
-      <!-- Step 4: Location (Full Screen Map) -->
+      <!-- Step 3: Location Map (Customer only) -->
       <div class="carousel-slide">
-        <div class="fullscreen-map-slide">
-          <!-- Map Background -->
-          <div class="map-fullscreen">
-            <app-map-picker [fullscreen]="true" (locationSelected)="onLocationSelected($event)" (locationError)="onLocationError($event)"></app-map-picker>
-          </div>
-
-          <!-- Overlay Header -->
-          <div class="map-overlay-header">
-            <div class="map-top-nav">
-              <button class="map-back-btn" (click)="prevStep()">
-                <i class="pi pi-arrow-left"></i>
-              </button>
-              <div class="map-step-dots">
-                @if (fromGoogle()) {
-                  <!-- Google flow: show steps 0, 3, 4, 5 -->
-                  @for (step of [0,3,4,5]; track step) {
-                    <span class="dot"
-                          [class.active]="activeStep() === step"
-                          [class.completed]="activeStep() > step || (step === 0 && activeStep() >= 3)"
-                          [class.accessible]="canAccessStep(step) || step <= activeStep() || (step === 0 && activeStep() >= 3)"
-                          (click)="goToStep(step)"></span>
-                  }
-                } @else {
-                  <!-- Normal flow: show all steps -->
-                  @for (step of [0,1,2,3,4,5]; track step) {
-                    <span class="dot"
-                          [class.active]="activeStep() === step"
-                          [class.completed]="activeStep() > step"
-                          [class.accessible]="canAccessStep(step) || step <= activeStep()"
-                          (click)="goToStep(step)"></span>
-                  }
-                }
-              </div>
-              <div class="map-spacer"></div>
-            </div>
-          </div>
-
-          <!-- Address Card at Bottom -->
-          <div class="map-address-footer">
-            <div class="map-address-card">
-              <div class="map-address-icon">
-                <i class="pi pi-map-marker"></i>
-              </div>
-              @if (locationData?.address) {
-                <span class="map-address-text">{{ locationData?.address }}</span>
-              } @else {
-                <span class="map-address-text">{{ 'register.step3_title' | translate }}</span>
-              }
-            </div>
-            @if (locationSelected()) {
-              <button class="register-btn" (click)="confirmLocation()">
-                <span>{{ 'register.confirm_location' | translate }}</span>
-              </button>
-            }
-          </div>
-        </div>
+        @if (state.activeStep() === 3) {
+          <app-location-map-step
+            [currentStep]="state.activeStep()"
+            [stepDots]="stepDots"
+            (back)="prevStep()"
+            (confirm)="onConfirmLocation()"
+            (locationError)="onLocationError($event)" />
+        }
       </div>
 
-      <!-- Step 5: Store Details (Modern style) -->
+      <!-- Step 4: Store Details (Customer) OR Vehicle Details (Driver) -->
       <div class="carousel-slide carousel-slide--modern">
         <div class="register-step">
-          <!-- Header -->
-          <div class="register-header" [class.hidden]="isInputFocused()">
-            <h1>{{ 'register.step4_store_title' | translate }}</h1>
-            <p>{{ 'register.step4_store_subtitle' | translate }}</p>
-          </div>
-
-          <!-- Form -->
-          <form [formGroup]="storeDetailsForm" class="register-form">
-            <!-- Store Name (Optional) -->
-            <div class="register-field">
-              <label class="register-field__label">{{ 'register.store_name' | translate }} <span class="register-field__optional">({{ 'common.optional' | translate }})</span></label>
-              <div class="register-input"
-                   [class.register-input--focused]="focusedField() === 'store_name'"
-                   [class.register-input--filled]="storeDetailsForm.get('store_name')?.value">
-                <input
-                  type="text"
-                  formControlName="store_name"
-                  [placeholder]="'register.store_name_placeholder' | translate"
-                  (focus)="onInputFocus('store_name')"
-                  (blur)="onInputBlur()">
-              </div>
-            </div>
-
-            <!-- Wilaya Dropdown -->
-            <div class="register-field">
-              <label class="register-field__label">{{ 'register.wilaya' | translate }}</label>
-              <div class="register-select"
-                   [class.register-select--focused]="focusedField() === 'wilaya'"
-                   [class.register-select--filled]="storeDetailsForm.get('wilaya')?.value">
-                <p-select
-                  formControlName="wilaya"
-                  [options]="wilayas"
-                  optionLabel="label"
-                  optionValue="value"
-                  [placeholder]="'register.select_wilaya' | translate"
-                  [showClear]="false"
-                  (onFocus)="onInputFocus('wilaya')"
-                  (onBlur)="onInputBlur()">
-                </p-select>
-              </div>
-            </div>
-
-            <!-- Daira Dropdown -->
-            <div class="register-field">
-              <label class="register-field__label">{{ 'register.daira' | translate }}</label>
-              <div class="register-select"
-                   [class.register-select--focused]="focusedField() === 'daira'"
-                   [class.register-select--filled]="storeDetailsForm.get('daira')?.value">
-                <p-select
-                  formControlName="daira"
-                  [options]="dairas"
-                  optionLabel="label"
-                  optionValue="value"
-                  [placeholder]="'register.select_daira' | translate"
-                  [showClear]="false"
-                  (onFocus)="onInputFocus('daira')"
-                  (onBlur)="onInputBlur()">
-                </p-select>
-              </div>
-            </div>
-
-            <!-- Commune Dropdown -->
-            <div class="register-field">
-              <label class="register-field__label">{{ 'register.commune' | translate }}</label>
-              <div class="register-select"
-                   [class.register-select--focused]="focusedField() === 'commune'"
-                   [class.register-select--filled]="storeDetailsForm.get('commune')?.value">
-                <p-select
-                  formControlName="commune"
-                  [options]="communes"
-                  optionLabel="label"
-                  optionValue="value"
-                  [placeholder]="'register.select_commune' | translate"
-                  [showClear]="false"
-                  (onFocus)="onInputFocus('commune')"
-                  (onBlur)="onInputBlur()">
-                </p-select>
-              </div>
-            </div>
-
-            <!-- Continue Button -->
-            <button
-              type="button"
-              class="register-btn"
-              [disabled]="!canProceedCurrentStep()"
-              (click)="nextStep()">
-              <span>{{ 'common.continue' | translate }}</span>
-            </button>
-          </form>
+          @if (state.isDriverMode()) {
+            <app-vehicle-details-step
+              (continue)="nextStep()" />
+          } @else {
+            <app-store-details-step
+              (continue)="nextStep()" />
+          }
         </div>
       </div>
 
-      <!-- Step 6: Confirmation -->
+      <!-- Step 5: Confirmation -->
       <div class="carousel-slide carousel-slide--modern">
         <div class="slide-content">
-          <div class="slide-header">
-            <div class="icon-wrapper success">
-              <div class="icon-bg"></div>
-              <div class="icon-circle">
-                <i class="pi pi-check"></i>
-              </div>
-              <div class="success-ring"></div>
-            </div>
-            <h1>{{ 'register.step5_title' | translate }}</h1>
-            <p>{{ 'register.step5_subtitle' | translate }}</p>
-          </div>
-
-          <div class="summary-cards">
-            @if (!fromGoogle()) {
-              <!-- Normal registration: show editable personal info -->
-              <div class="summary-card" (click)="goToStep(0)">
-                <div class="card-icon">
-                  <i class="pi pi-user"></i>
-                </div>
-                <div class="card-info">
-                  <span class="card-label">{{ 'auth.full_name' | translate }}</span>
-                  <span class="card-value">{{ personalInfoForm.value.full_name }}</span>
-                </div>
-                <i class="pi pi-chevron-right card-arrow"></i>
-              </div>
-
-              <div class="summary-card" (click)="goToStep(0)">
-                <div class="card-icon">
-                  <i class="pi pi-envelope"></i>
-                </div>
-                <div class="card-info">
-                  <span class="card-label">{{ 'common.email' | translate }}</span>
-                  <span class="card-value">{{ personalInfoForm.value.email }}</span>
-                </div>
-                <i class="pi pi-chevron-right card-arrow"></i>
-              </div>
-
-              <div class="summary-card" (click)="goToStep(0)">
-                <div class="card-icon">
-                  <i class="pi pi-phone"></i>
-                </div>
-                <div class="card-info">
-                  <span class="card-label">{{ 'common.phone' | translate }}</span>
-                  <span class="card-value">{{ personalInfoForm.value.phone }}</span>
-                </div>
-                <i class="pi pi-chevron-right card-arrow"></i>
-              </div>
-            } @else {
-              <!-- Google flow: show Google profile info (name/phone editable via step 0) -->
-              <div class="summary-card" (click)="goToStep(0)">
-                <div class="card-icon">
-                  <i class="pi pi-user"></i>
-                </div>
-                <div class="card-info">
-                  <span class="card-label">{{ 'auth.full_name' | translate }}</span>
-                  <span class="card-value">{{ personalInfoForm.value.full_name }}</span>
-                </div>
-                <i class="pi pi-chevron-right card-arrow"></i>
-              </div>
-
-              <div class="summary-card">
-                <div class="card-icon">
-                  <i class="pi pi-envelope"></i>
-                </div>
-                <div class="card-info">
-                  <span class="card-label">{{ 'common.email' | translate }}</span>
-                  <span class="card-value">{{ personalInfoForm.value.email }}</span>
-                </div>
-              </div>
-
-              <div class="summary-card" (click)="goToStep(0)">
-                <div class="card-icon">
-                  <i class="pi pi-phone"></i>
-                </div>
-                <div class="card-info">
-                  <span class="card-label">{{ 'common.phone' | translate }}</span>
-                  <span class="card-value">{{ personalInfoForm.value.phone }}</span>
-                </div>
-                <i class="pi pi-chevron-right card-arrow"></i>
-              </div>
-            }
-
-            <div class="summary-card location" (click)="goToStep(3)">
-              <div class="card-icon">
-                <i class="pi pi-map-marker"></i>
-              </div>
-              <div class="card-info">
-                <span class="card-label">{{ 'register.delivery_location' | translate }}</span>
-                <span class="card-value">{{ locationData?.address || ('register.location_selected' | translate) }}</span>
-              </div>
-              <i class="pi pi-chevron-right card-arrow"></i>
-            </div>
-
-            <div class="summary-card" (click)="goToStep(4)">
-              <div class="card-icon">
-                <i class="pi pi-building"></i>
-              </div>
-              <div class="card-info">
-                <span class="card-label">{{ 'register.store_details' | translate }}</span>
-                <span class="card-value">{{ storeDetailsForm.value.commune }}, {{ storeDetailsForm.value.daira }}</span>
-              </div>
-              <i class="pi pi-chevron-right card-arrow"></i>
-            </div>
-          </div>
-
-          <div class="terms-text">
-            <small>
-              {{ 'auth.terms_agreement' | translate }}
-              <a href="#">{{ 'auth.terms_of_service' | translate }}</a>
-              {{ 'common.and' | translate }}
-              <a href="#">{{ 'auth.privacy_policy' | translate }}</a>
-            </small>
-          </div>
+          <app-confirmation-step
+            (goToStep)="goToStep($event)" />
         </div>
       </div>
 
-      <!-- Step 7: Registration Submitted -->
+      <!-- Step 6: Success -->
       <div class="carousel-slide">
         <div class="slide-content">
           <app-inactive-user-message
             buttonType="home"
-            (buttonClick)="goToHome()"
-          />
+            (buttonClick)="goToHome()" />
         </div>
       </div>
 
@@ -584,10 +110,10 @@
   </div>
 
   <!-- Fixed Footer - Only for step 5 (confirmation) -->
-  <div class="fixed-footer" [class.hidden]="activeStep() !== 5">
-    <button class="register-btn" [disabled]="loading()" (click)="onRegister()">
-      @if (!loading()) {
-        <span>{{ fromGoogle() ? ('common.save' | translate) : ('auth.register' | translate) }}</span>
+  <div class="fixed-footer" [class.hidden]="state.activeStep() !== 5">
+    <button class="register-btn" [disabled]="state.loading()" (click)="onRegister()">
+      @if (!state.loading()) {
+        <span>{{ state.fromGoogle() ? ('common.save' | translate) : ('auth.register' | translate) }}</span>
       } @else {
         <i class="pi pi-spin pi-spinner"></i>
       }

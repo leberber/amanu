@@ -1,235 +1,311 @@
-import { Component, inject, ViewChild, ElementRef, OnInit, OnDestroy, AfterViewInit, DestroyRef, signal, computed, viewChild, NgZone } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, AfterViewInit, DestroyRef, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
-import { Router, RouterLink, ActivatedRoute } from '@angular/router';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { Router, ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ToastModule } from 'primeng/toast';
-import { InputTextModule } from 'primeng/inputtext';
-import { SelectModule } from 'primeng/select';
 import { TranslateModule } from '@ngx-translate/core';
+import { finalize } from 'rxjs';
+
 import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
 import { UserRole, AuthProvider } from '../../models/user.model';
-import { MapPickerComponent, LocationData } from '../../shared/components/map-picker/map-picker.component';
-import { VALIDATION } from '../../core/constants/validation.constants';
-import { ANIMATION, UI } from '../../core/constants/ui.constants';
-import { FormBuilderService } from '../../core/services/form-builder.service';
-import { PhoneFormatDirective } from '../../directives/phone-format.directive';
+import { DriverService } from '../../driver/services/driver.service';
 import { ToastMessageService } from '../../core/services/toast-message.service';
 import { ROUTES } from '../../core/constants/routes.constants';
+import { ANIMATION } from '../../core/constants/ui.constants';
 import { InactiveUserMessageComponent } from '../../components/inactive-user-message/inactive-user-message.component';
-import { GoogleSignInButtonComponent } from '../../shared/components/google-signin-button/google-signin-button.component';
-import { finalize } from 'rxjs';
 
-// Interfaces for wilaya data
-interface Commune {
-  code: number;
-  name: string;
-}
-
-interface Daira {
-  daira_name: string;
-  daira_code: number;
-  communes: Commune[];
-}
-
-interface WilayaData {
-  wilaya: string;
-  wilaya_code: number;
-  dairas: Daira[];
-}
+import { RegisterStateService, RegistrationType } from './register-state.service';
+import {
+  TypeChoiceStepComponent,
+  PersonalInfoStepComponent,
+  EmailVerificationStepComponent,
+  PasswordStepComponent,
+  LocationMapStepComponent,
+  StoreDetailsStepComponent,
+  VehicleDetailsStepComponent,
+  ConfirmationStepComponent
+} from './steps';
 
 @Component({
   selector: 'app-register',
   standalone: true,
   imports: [
     CommonModule,
-    ReactiveFormsModule,
-    ToastModule,
-    InputTextModule,
-    SelectModule,
-    RouterLink,
     TranslateModule,
-    MapPickerComponent,
-    PhoneFormatDirective,
     InactiveUserMessageComponent,
-    GoogleSignInButtonComponent
+    TypeChoiceStepComponent,
+    PersonalInfoStepComponent,
+    EmailVerificationStepComponent,
+    PasswordStepComponent,
+    LocationMapStepComponent,
+    StoreDetailsStepComponent,
+    VehicleDetailsStepComponent,
+    ConfirmationStepComponent
   ],
-    templateUrl: './register.component.html',
+  providers: [RegisterStateService],
+  templateUrl: './register.component.html',
   styleUrl: './register.component.scss'
 })
 export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
-  @ViewChild(MapPickerComponent) mapPicker!: MapPickerComponent;
-  googleButton = viewChild<GoogleSignInButtonComponent>('googleButton');
-
-  // Storage key for persisting registration state
-  private readonly STORAGE_KEY = 'registration_state';
-  stateRestored = false;
-
-  // State signals
-  loading = signal(false);
-  activeStep = signal(this.getSavedStep());
-  focusedField = signal('');
-  isInputFocused = signal(false);
-  pageReady = signal(this.hasSavedState());
-  showPassword = signal(false);
-  showConfirmPassword = signal(false);
-
-  // Form validity signals (synced via statusChanges)
-  personalInfoValid = signal(false);
-  passwordFormValid = signal(false);
-  storeDetailsValid = signal(false);
-  locationSelected = signal(false);
-
-  // Email verification state
-  verificationCode = signal('');
-  verificationSent = signal(false);
-  verificationLoading = signal(false);
-  emailVerified = signal(false);
-  verificationError = signal('');
-  resendCountdown = signal(0);
-  private resendTimer: ReturnType<typeof setInterval> | null = null;
-
-  // Server-side field errors
-  serverErrors = signal<{ [key: string]: string }>({});
-
-  // Form groups for each step
-  personalInfoForm: FormGroup;
-  passwordForm: FormGroup;
-  storeDetailsForm: FormGroup;
-
-  // Location data from map
-  locationData?: LocationData;
-
-  // Wilaya data
-  wilayaDataList: WilayaData[] = [];
-  wilayas: { label: string; value: string }[] = [];
-  dairas: { label: string; value: string }[] = [];
-  communes: { label: string; value: string }[] = [];
-
-  // Google OAuth flow
-  fromGoogle = signal(false);
-
-  // Constants
-  readonly ROUTES = ROUTES;
-
-  private http = inject(HttpClient);
-  private destroyRef = inject(DestroyRef);
-  private ngZone = inject(NgZone);
-
-  // Services
+  state = inject(RegisterStateService);
   private authService = inject(AuthService);
   private userService = inject(UserService);
+  private driverService = inject(DriverService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private toast = inject(ToastMessageService);
-  private fb = inject(FormBuilder);
-  private elementRef = inject(ElementRef);
+  private destroyRef = inject(DestroyRef);
+  private ngZone = inject(NgZone);
 
-  constructor() {
-    // Get saved state for form initialization
-    const savedState = this.getSavedState();
+  private resendTimer: ReturnType<typeof setInterval> | null = null;
 
-    // Step 1: Personal Info
-    this.personalInfoForm = this.fb.group({
-      full_name: [savedState?.personalInfo?.full_name || '', [Validators.required, Validators.minLength(VALIDATION.MIN_NAME_LENGTH)]],
-      email: [savedState?.personalInfo?.email || '', [Validators.required, Validators.email]],
-      phone: [savedState?.personalInfo?.phone || '', [Validators.required]]
-    });
+  readonly ROUTES = ROUTES;
 
-    // Step 2: Password
-    this.passwordForm = this.fb.group({
-      password: ['', [Validators.required, Validators.minLength(VALIDATION.MIN_PASSWORD_LENGTH)]],
-      confirmPassword: ['', [Validators.required]]
-    }, { validators: FormBuilderService.createPasswordMatchValidator('password', 'confirmPassword') });
-
-    // Step 4: Store Details (after map)
-    this.storeDetailsForm = this.fb.group({
-      phone: [''],
-      store_name: [''],
-      wilaya: ['', Validators.required],
-      daira: [{ value: '', disabled: true }, Validators.required],
-      commune: [{ value: '', disabled: true }, Validators.required]
-    });
-
-    // Restore verification state from saved state
-    if (savedState) {
-      this.verificationSent.set(savedState.verificationSent || false);
-      this.emailVerified.set(savedState.emailVerified || false);
-    }
-  }
-
-  ngOnInit() {
-    this.loadWilayaData();
-    this.setupFormSubscriptions();
-    this.setupFormValiditySignals();
+  ngOnInit(): void {
+    this.state.loadWilayaData();
 
     // Check for Google OAuth flow
     const isFromGoogle = this.route.snapshot.queryParams['fromGoogle'] === 'true';
+
     if (isFromGoogle) {
       this.initGoogleFlow();
-    } else {
-      // Restore state and start resend countdown if needed
-      this.restoreState();
-
-      // Set initial form validity
-      this.personalInfoValid.set(this.personalInfoForm.valid);
-      this.passwordFormValid.set(this.passwordForm.valid);
+    } else if (this.state.stateRestored && this.state.activeStep() === 1) {
+      this.startResendCountdown();
     }
 
-    // Listen for visibility changes to handle iOS background/foreground
     this.setupVisibilityListener();
   }
 
-  private initGoogleFlow(): void {
-    const user = this.authService.currentUserValue;
-    if (!user || user.auth_provider !== AuthProvider.GOOGLE) {
-      // Not a Google user or not logged in, redirect to login
-      this.router.navigate([ROUTES.LOGIN]);
+  ngAfterViewInit(): void {
+    if (!this.state.stateRestored) {
+      setTimeout(() => this.state.pageReady.set(true), ANIMATION.VERY_SLOW);
+    }
+  }
+
+  ngOnDestroy(): void {
+    if (this.resendTimer) {
+      clearInterval(this.resendTimer);
+    }
+    document.removeEventListener('visibilitychange', this.onVisibilityChange);
+  }
+
+  // Step navigation
+  get stepDots(): number[] {
+    if (this.state.fromGoogle()) return [0, 3, 4, 5];
+    if (this.state.isDriverMode()) return [0, 1, 2, 4, 5];
+    return [0, 1, 2, 3, 4, 5];
+  }
+
+  onTypeSelected(type: RegistrationType): void {
+    this.state.registrationType.set(type);
+  }
+
+  onBackToChoice(): void {
+    this.state.registrationType.set(null);
+  }
+
+  nextStep(): void {
+    const current = this.state.activeStep();
+
+    // Google flow: Step 0 -> 3
+    if (this.state.fromGoogle() && current === 0) {
+      this.state.activeStep.set(3);
       return;
     }
 
-    this.fromGoogle.set(true);
+    // Normal flow: Step 0 -> 1 (send verification)
+    if (current === 0) {
+      this.sendVerificationCode();
+      return;
+    }
 
-    // Pre-fill personal info from Google user data
-    // Name is editable, email is read-only, phone is empty for user to enter
-    this.personalInfoForm.patchValue({
-      full_name: user.full_name || '',
-      email: user.email || '',
-      phone: '' // User must enter phone
-    });
+    // Driver flow: Step 2 -> 4 (skip map)
+    if (this.state.isDriverMode() && current === 2) {
+      this.state.activeStep.set(4);
+      return;
+    }
 
-    // Mark email as verified (Google handles this)
-    this.emailVerified.set(true);
-    this.verificationSent.set(true);
-    // Mark password as valid (not needed for OAuth users)
-    this.passwordFormValid.set(true);
-
-    // Start at step 0 (personal info) - user needs to enter phone
-    this.activeStep.set(0);
+    this.state.activeStep.update(v => v + 1);
   }
 
-  ngAfterViewInit() {
-    // Skip animation if state was restored (pageReady already true)
-    if (this.stateRestored) return;
+  prevStep(): void {
+    const current = this.state.activeStep();
 
-    // Trigger intro animation
-    setTimeout(() => this.pageReady.set(true), ANIMATION.VERY_SLOW);
+    if (current === 0) return;
+
+    // Google flow: 3 -> 0
+    if (this.state.fromGoogle() && current === 3) {
+      this.state.activeStep.set(0);
+      return;
+    }
+
+    // Driver flow: 4 -> 2
+    if (this.state.isDriverMode() && current === 4) {
+      this.state.activeStep.set(2);
+      return;
+    }
+
+    this.state.activeStep.update(v => v - 1);
   }
 
+  goToStep(step: number): void {
+    if (step <= this.state.activeStep() || this.canAccessStep(step)) {
+      this.state.activeStep.set(step);
+    }
+  }
+
+  canAccessStep(step: number): boolean {
+    if (this.state.fromGoogle()) {
+      if (step === 0) return true;
+      if (step === 1 || step === 2) return false;
+      if (step === 3) return this.state.isPersonalInfoValid();
+      if (step === 4) return this.state.isPersonalInfoValid() && this.state.locationSelected();
+      if (step === 5) return this.state.isPersonalInfoValid() && this.state.locationSelected() && this.state.isStoreDetailsValid();
+    }
+
+    if (this.state.isDriverMode()) {
+      if (step === 0) return true;
+      if (step === 1) return this.state.isPersonalInfoValid();
+      if (step === 2) return this.state.isPersonalInfoValid() && this.state.emailVerified();
+      if (step === 3) return false;
+      if (step === 4) return this.state.isPersonalInfoValid() && this.state.emailVerified() && this.state.isPasswordValid();
+      if (step === 5) return this.state.isPersonalInfoValid() && this.state.emailVerified() && this.state.isPasswordValid() && this.state.isVehicleFormValid();
+    }
+
+    // Customer flow
+    if (step === 0) return true;
+    if (step === 1) return this.state.isPersonalInfoValid();
+    if (step === 2) return this.state.isPersonalInfoValid() && this.state.emailVerified();
+    if (step === 3) return this.state.isPersonalInfoValid() && this.state.emailVerified() && this.state.isPasswordValid();
+    if (step === 4) return this.state.isPersonalInfoValid() && this.state.emailVerified() && this.state.isPasswordValid() && this.state.locationSelected();
+    if (step === 5) return this.state.isPersonalInfoValid() && this.state.emailVerified() && this.state.isPasswordValid() && this.state.locationSelected() && this.state.isStoreDetailsValid();
+
+    return false;
+  }
+
+  onConfirmLocation(): void {
+    if (this.state.locationSelected()) {
+      this.autoPopulateStoreDetails();
+      this.state.activeStep.set(4);
+    }
+  }
+
+  onLocationError(errorType: string): void {
+    const messageKey = this.getLocationErrorKey(errorType);
+    this.toast.showWarn(messageKey);
+  }
+
+  // Email verification
+  private sendVerificationCode(): void {
+    const email = this.state.personalInfoForm.value.email;
+    if (!email) return;
+
+    this.state.verificationLoading.set(true);
+    this.state.verificationError.set('');
+    this.state.serverErrors.set({});
+
+    this.authService.sendVerificationCode(email)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.state.verificationLoading.set(false);
+          this.state.verificationSent.set(true);
+          this.startResendCountdown();
+          this.state.activeStep.set(1);
+          this.state.saveState();
+        },
+        error: (error) => {
+          this.state.verificationLoading.set(false);
+          const detail = error.error?.detail;
+          if (typeof detail === 'string') {
+            this.state.serverErrors.set({ email: detail });
+          } else {
+            this.toast.showApiError(error, 'register.verification_send_failed');
+          }
+        }
+      });
+  }
+
+  onVerifyCode(): void {
+    const email = this.state.personalInfoForm.value.email;
+    const code = this.state.verificationCode();
+
+    if (!email || code.length !== 6) return;
+
+    this.state.verificationLoading.set(true);
+    this.state.verificationError.set('');
+
+    this.authService.verifyEmail(email, code)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          this.state.verificationLoading.set(false);
+          if (response.verified) {
+            this.state.emailVerified.set(true);
+            this.state.activeStep.set(2);
+            this.state.saveState();
+          }
+        },
+        error: (error) => {
+          this.state.verificationLoading.set(false);
+          const detail = error.error?.detail;
+          if (typeof detail === 'string') {
+            this.state.verificationError.set(detail);
+          } else {
+            this.toast.showApiError(error, 'register.verification_failed');
+          }
+        }
+      });
+  }
+
+  onResendCode(): void {
+    if (this.state.resendCountdown() > 0) return;
+
+    const email = this.state.personalInfoForm.value.email;
+    if (!email) return;
+
+    this.state.verificationLoading.set(true);
+    this.state.verificationError.set('');
+
+    this.authService.sendVerificationCode(email)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.state.verificationLoading.set(false);
+          this.startResendCountdown();
+          this.toast.showSuccess('register.verification_code_resent');
+        },
+        error: (error) => {
+          this.state.verificationLoading.set(false);
+          this.toast.showApiError(error, 'register.verification_send_failed');
+        }
+      });
+  }
+
+  private startResendCountdown(): void {
+    this.state.resendCountdown.set(60);
+    if (this.resendTimer) clearInterval(this.resendTimer);
+
+    this.resendTimer = setInterval(() => {
+      if (this.state.resendCountdown() > 0) {
+        this.state.resendCountdown.update(v => v - 1);
+      } else if (this.resendTimer) {
+        clearInterval(this.resendTimer);
+        this.resendTimer = null;
+      }
+    }, 1000);
+  }
+
+  // Google OAuth
   onGoogleCredential(credential: string): void {
     this.ngZone.run(() => {
-      this.googleButton()?.setLoading(true);
       this.authService.googleAuth(credential)
-        .pipe(finalize(() => this.googleButton()?.setLoading(false)))
+        .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
-          next: (authResponse) => {
-            if (authResponse.is_new_user || !authResponse.profile_complete) {
-              // New user - stay on registration to complete profile
+          next: (response) => {
+            if (response.is_new_user || !response.profile_complete) {
               this.initGoogleFlow();
             } else {
-              // Existing user with complete profile - go to home
               this.toast.showSuccess('auth.login_success');
               this.router.navigate([ROUTES.HOME]);
             }
@@ -241,646 +317,52 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
     });
   }
 
-  private setupFormValiditySignals(): void {
-    // Sync form validity to signals via statusChanges
-    this.personalInfoForm.statusChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.personalInfoValid.set(this.personalInfoForm.valid));
-
-    this.passwordForm.statusChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.passwordFormValid.set(this.passwordForm.valid));
-
-    this.storeDetailsForm.statusChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.storeDetailsValid.set(this.canProceedStep4()));
-
-    // Also update on value changes for store details (since disabled fields don't trigger status)
-    this.storeDetailsForm.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.storeDetailsValid.set(this.canProceedStep4()));
-  }
-
-  private loadWilayaData() {
-    this.http.get<WilayaData>('assets/tizi_ouzou_wilaya_full.json').subscribe({
-      next: (data) => {
-        this.wilayaDataList = [data];
-        this.wilayas = this.wilayaDataList.map(w => ({
-          label: w.wilaya,
-          value: w.wilaya
-        }));
-
-        // Set test defaults after data loads
-        this.setTestLocationDefaults();
-      },
-      error: () => {
-        this.toast.showError('register.wilaya_load_failed');
-      }
-    });
-  }
-
-  private setTestLocationDefaults(): void {
-    // Set default wilaya (triggers daira options via valueChanges subscription)
-    const defaultWilaya = this.wilayas[0]?.value;
-    if (defaultWilaya) {
-      this.storeDetailsForm.patchValue({ wilaya: defaultWilaya });
-
-      // Wait for dairas to populate, then set default daira
-      setTimeout(() => {
-        const defaultDaira = this.dairas[0]?.value;
-        if (defaultDaira) {
-          this.storeDetailsForm.patchValue({ daira: defaultDaira });
-
-          // Wait for communes to populate, then set default commune
-          setTimeout(() => {
-            const defaultCommune = this.communes[0]?.value;
-            if (defaultCommune) {
-              this.storeDetailsForm.patchValue({ commune: defaultCommune });
-              // Update validity signal after all defaults are set
-              this.storeDetailsValid.set(this.canProceedStep4());
-            }
-          }, ANIMATION.STAGGER_DELAY);
-        }
-      }, ANIMATION.STAGGER_DELAY);
-    }
-  }
-
-  private setupFormSubscriptions() {
-    const dairaControl = this.storeDetailsForm.get('daira');
-    const communeControl = this.storeDetailsForm.get('commune');
-
-    // Listen for wilaya changes - properly cleaned up on destroy
-    this.storeDetailsForm.get('wilaya')?.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(selectedWilaya => {
-        // Reset and disable dependent fields
-        dairaControl?.setValue('', { emitEvent: false });
-        communeControl?.setValue('', { emitEvent: false });
-        this.communes = [];
-
-        const wilayaData = this.wilayaDataList.find(w => w.wilaya === selectedWilaya);
-        if (wilayaData && selectedWilaya) {
-          this.dairas = wilayaData.dairas.map(d => ({
-            label: d.daira_name,
-            value: d.daira_name
-          }));
-          dairaControl?.enable({ emitEvent: false });
-        } else {
-          this.dairas = [];
-          dairaControl?.disable({ emitEvent: false });
-        }
-        communeControl?.disable({ emitEvent: false });
-      });
-
-    // Listen for daira changes - properly cleaned up on destroy
-    dairaControl?.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(selectedDaira => {
-        communeControl?.setValue('', { emitEvent: false });
-
-        const selectedWilaya = this.storeDetailsForm.get('wilaya')?.value;
-        const wilayaData = this.wilayaDataList.find(w => w.wilaya === selectedWilaya);
-        if (wilayaData && selectedDaira) {
-          const dairaData = wilayaData.dairas.find(d => d.daira_name === selectedDaira);
-          if (dairaData) {
-            this.communes = dairaData.communes.map(c => ({
-              label: c.name,
-              value: c.name
-            }));
-            communeControl?.enable({ emitEvent: false });
-          } else {
-            this.communes = [];
-            communeControl?.disable({ emitEvent: false });
-          }
-        } else {
-          this.communes = [];
-          communeControl?.disable({ emitEvent: false });
-        }
-      });
-  }
-
-  ngOnDestroy(): void {
-    // Subscriptions are automatically cleaned up by takeUntilDestroyed
-    if (this.resendTimer) {
-      clearInterval(this.resendTimer);
-    }
-    // Remove visibility listener
-    document.removeEventListener('visibilitychange', this.onVisibilityChange);
-  }
-
-  private setupVisibilityListener(): void {
-    this.onVisibilityChange = this.onVisibilityChange.bind(this);
-    document.addEventListener('visibilitychange', this.onVisibilityChange);
-  }
-
-  private onVisibilityChange = (): void => {
-    if (document.visibilityState === 'hidden') {
-      // Save state when app goes to background
-      this.saveState();
-    }
-  };
-
-  private saveState(): void {
-    // Only save if we're past step 0 (user has started the flow)
-    if (this.activeStep() > 0 || this.verificationSent()) {
-      const state = {
-        activeStep: this.activeStep(),
-        verificationSent: this.verificationSent(),
-        emailVerified: this.emailVerified(),
-        personalInfo: this.personalInfoForm.value,
-        timestamp: Date.now()
-      };
-      sessionStorage.setItem(this.STORAGE_KEY, JSON.stringify(state));
-    }
-  }
-
-  private restoreState(): void {
-    // State is already restored in constructor and property initializers
-    // Just need to start resend countdown if on verification step
-    if (this.stateRestored && this.activeStep() === 1 && this.verificationSent() && !this.emailVerified()) {
-      this.startResendCountdown();
-    }
-  }
-
-  private clearSavedState(): void {
-    sessionStorage.removeItem(this.STORAGE_KEY);
-  }
-
-  private hasSavedState(): boolean {
-    return this.getSavedState() !== null;
-  }
-
-  private getSavedState(): { activeStep: number; verificationSent: boolean; emailVerified: boolean; personalInfo: any; timestamp: number } | null {
-    const saved = sessionStorage.getItem(this.STORAGE_KEY);
-    if (!saved) return null;
-    try {
-      const state = JSON.parse(saved);
-      const tenMinutes = 10 * 60 * 1000;
-      if (Date.now() - state.timestamp < tenMinutes) {
-        this.stateRestored = true;
-        return state;
-      }
-      return null;
-    } catch {
-      return null;
-    }
-  }
-
-  private getSavedStep(): number {
-    const state = this.getSavedState();
-    return state?.activeStep || 0;
-  }
-
-  onLocationSelected(location: LocationData) {
-    this.locationData = location;
-    this.locationSelected.set(true);
-
-    // Auto-populate store details from geocoder data and then move to next step
-    this.autoPopulateStoreDetails(location);
-  }
-
-  private autoPopulateStoreDetails(location: LocationData) {
-    // Try to match wilaya from geocoder with available wilayas
-    if (location.wilaya) {
-      const matchedWilaya = this.findMatchingOption(this.wilayas, location.wilaya);
-      if (matchedWilaya) {
-        this.storeDetailsForm.patchValue({ wilaya: matchedWilaya }, { emitEvent: true });
-
-        // Wait for dairas to load, then try to match daira
-        setTimeout(() => {
-          if (location.daira && this.dairas.length > 0) {
-            const matchedDaira = this.findMatchingOption(this.dairas, location.daira);
-            if (matchedDaira) {
-              this.storeDetailsForm.patchValue({ daira: matchedDaira }, { emitEvent: true });
-
-              // Wait for communes to load, then try to match commune
-              setTimeout(() => {
-                if (location.commune && this.communes.length > 0) {
-                  const matchedCommune = this.findMatchingOption(this.communes, location.commune);
-                  if (matchedCommune) {
-                    this.storeDetailsForm.patchValue({ commune: matchedCommune }, { emitEvent: false });
-                  }
-                }
-                // Update validity after populating (no auto-advance)
-                this.storeDetailsValid.set(this.canProceedStep4());
-              }, 150);
-            } else {
-              this.storeDetailsValid.set(this.canProceedStep4());
-            }
-          } else {
-            this.storeDetailsValid.set(this.canProceedStep4());
-          }
-        }, 150);
-      } else {
-        this.storeDetailsValid.set(this.canProceedStep4());
-      }
-    } else {
-      this.storeDetailsValid.set(this.canProceedStep4());
-    }
-  }
-
-  confirmLocation(): void {
-    if (this.activeStep() === 3 && this.locationSelected()) {
-      this.activeStep.set(4);
-      this.onStepChange();
-    }
-  }
-
-  private findMatchingOption(options: { label: string; value: string }[], searchValue: string): string | null {
-    if (!searchValue || !options.length) return null;
-
-    const normalizedSearch = this.normalizeString(searchValue);
-
-    // Try exact match first
-    const exactMatch = options.find(opt =>
-      this.normalizeString(opt.value) === normalizedSearch ||
-      this.normalizeString(opt.label) === normalizedSearch
-    );
-    if (exactMatch) return exactMatch.value;
-
-    // Try partial match (contains)
-    const partialMatch = options.find(opt =>
-      this.normalizeString(opt.value).includes(normalizedSearch) ||
-      this.normalizeString(opt.label).includes(normalizedSearch) ||
-      normalizedSearch.includes(this.normalizeString(opt.value)) ||
-      normalizedSearch.includes(this.normalizeString(opt.label))
-    );
-    if (partialMatch) return partialMatch.value;
-
-    return null;
-  }
-
-  private normalizeString(str: string): string {
-    return str
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '') // Remove accents
-      .replace(/[-_]/g, ' ')
-      .trim();
-  }
-
-  onLocationError(errorType: string) {
-    let messageKey = 'register.location_error';
-    switch (errorType) {
-      case 'permission_denied':
-        messageKey = 'register.location_permission_denied';
-        break;
-      case 'position_unavailable':
-        messageKey = 'register.location_unavailable';
-        break;
-      case 'timeout':
-        messageKey = 'register.location_timeout';
-        break;
-      case 'geolocation_not_supported':
-        messageKey = 'register.geolocation_not_supported';
-        break;
-    }
-    this.toast.showWarn(messageKey);
-  }
-
-  // Email verification methods
-  sendVerificationCode(): void {
-    const email = this.personalInfoForm.value.email;
-    if (!email) return;
-
-    this.verificationLoading.set(true);
-    this.verificationError.set('');
-    this.serverErrors.set({});
-
-    this.authService.sendVerificationCode(email)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => {
-          this.verificationLoading.set(false);
-          this.verificationSent.set(true);
-          this.startResendCountdown();
-          this.activeStep.set(1); // Move to verification step
-          this.saveState(); // Save state for iOS background handling
-        },
-        error: (error) => {
-          this.verificationLoading.set(false);
-          const errorDetail = error.error?.detail;
-          if (typeof errorDetail === 'string') {
-            // Show email-related errors on step 0
-            this.serverErrors.set({ email: errorDetail });
-          } else {
-            this.toast.showApiError(error, 'register.verification_send_failed');
-          }
-        }
-      });
-  }
-
-  resendVerificationCode(): void {
-    if (this.resendCountdown() > 0) return;
-
-    const email = this.personalInfoForm.value.email;
-    if (!email) return;
-
-    this.verificationLoading.set(true);
-    this.verificationError.set('');
-
-    this.authService.sendVerificationCode(email)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => {
-          this.verificationLoading.set(false);
-          this.startResendCountdown();
-          this.toast.showSuccess('register.verification_code_resent');
-        },
-        error: (error) => {
-          this.verificationLoading.set(false);
-          this.toast.showApiError(error, 'register.verification_send_failed');
-        }
-      });
-  }
-
-  private startResendCountdown(): void {
-    this.resendCountdown.set(60);
-    if (this.resendTimer) {
-      clearInterval(this.resendTimer);
-    }
-    this.resendTimer = setInterval(() => {
-      if (this.resendCountdown() > 0) {
-        this.resendCountdown.update(v => v - 1);
-      } else if (this.resendTimer) {
-        clearInterval(this.resendTimer);
-        this.resendTimer = null;
-      }
-    }, 1000);
-  }
-
-  verifyEmailCode(): void {
-    const email = this.personalInfoForm.value.email;
-    const code = this.verificationCode();
-
-    if (!email || code.length !== 6) return;
-
-    this.verificationLoading.set(true);
-    this.verificationError.set('');
-
-    this.authService.verifyEmail(email, code)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (response) => {
-          this.verificationLoading.set(false);
-          if (response.verified) {
-            this.emailVerified.set(true);
-            this.activeStep.set(2); // Move to password step
-            this.saveState(); // Save verified state
-          }
-        },
-        error: (error) => {
-          this.verificationLoading.set(false);
-          const errorDetail = error.error?.detail;
-          if (typeof errorDetail === 'string') {
-            this.verificationError.set(errorDetail);
-          } else {
-            this.toast.showApiError(error, 'register.verification_failed');
-          }
-        }
-      });
-  }
-
-  onCodeInput(event: Event, index: number): void {
-    const input = event.target as HTMLInputElement;
-    const value = input.value.replace(/[^0-9]/g, '');
-    input.value = value;
-
-    // Update the verification code
-    const currentCode = this.verificationCode().split('');
-    while (currentCode.length < 6) currentCode.push('');
-    currentCode[index] = value;
-    this.verificationCode.set(currentCode.join(''));
-    this.verificationError.set('');
-
-    // Auto-focus next input
-    if (value && index < 5) {
-      const nextInput = this.elementRef.nativeElement.querySelector(
-        `.code-input:nth-child(${index + 2}) input`
-      ) as HTMLInputElement;
-      if (nextInput) nextInput.focus();
-    }
-  }
-
-  onCodeKeydown(event: KeyboardEvent, index: number): void {
-    const input = event.target as HTMLInputElement;
-
-    if (event.key === 'Backspace' && !input.value && index > 0) {
-      const prevInput = this.elementRef.nativeElement.querySelector(
-        `.code-input:nth-child(${index}) input`
-      ) as HTMLInputElement;
-      if (prevInput) {
-        prevInput.focus();
-        prevInput.value = '';
-        const currentCode = this.verificationCode().split('');
-        currentCode[index - 1] = '';
-        this.verificationCode.set(currentCode.join(''));
-      }
-    }
-  }
-
-  onCodePaste(event: ClipboardEvent): void {
-    event.preventDefault();
-    const pastedData = event.clipboardData?.getData('text') || '';
-    const digits = pastedData.replace(/[^0-9]/g, '').slice(0, 6);
-
-    if (digits) {
-      this.verificationCode.set(digits.padEnd(6, ''));
-
-      // Fill all inputs
-      const inputs = this.elementRef.nativeElement.querySelectorAll('.code-input input');
-      inputs.forEach((input: HTMLInputElement, i: number) => {
-        input.value = digits[i] || '';
-      });
-
-      // Focus appropriate input
-      const focusIndex = Math.min(digits.length, 5);
-      (inputs[focusIndex] as HTMLInputElement)?.focus();
-    }
-  }
-
-  // Step navigation (Step indices: 0=Personal, 1=Verification, 2=Password, 3=Map, 4=Store, 5=Confirmation, 6=Success)
-  canProceedStep0(): boolean {
-    return this.personalInfoForm.valid;
-  }
-
-  canProceedStep1(): boolean {
-    return this.emailVerified();
-  }
-
-  canProceedStep2(): boolean {
-    return this.passwordForm.valid;
-  }
-
-  canProceedStep3(): boolean {
-    return this.locationSelected();
-  }
-
-  canProceedStep4(): boolean {
-    // Check all required fields have values (using getRawValue to include disabled controls)
-    const values = this.storeDetailsForm.getRawValue();
-    return !!(values.wilaya && values.daira && values.commune);
-  }
-
-  // Computed signal for canProceedCurrentStep (uses validity signals)
-  canProceedCurrentStep = computed(() => {
-    switch (this.activeStep()) {
-      case 0:
-        return this.personalInfoValid();
-      case 1:
-        return this.emailVerified();
-      case 2:
-        return this.passwordFormValid();
-      case 3:
-        return this.locationSelected();
-      case 4:
-        return this.storeDetailsValid();
-      default:
-        return true;
-    }
-  });
-
-  // Check if a specific step can be accessed (all previous steps must be valid)
-  canAccessStep(step: number): boolean {
-    // Google flow: step 0 -> skip 1,2 -> steps 3,4,5
-    if (this.fromGoogle()) {
-      if (step === 0) return true;
-      if (step === 1 || step === 2) return false; // Skip verification and password
-      if (step === 3) return this.canProceedStep0();
-      if (step === 4) return this.canProceedStep0() && this.canProceedStep3();
-      if (step === 5) return this.canProceedStep0() && this.canProceedStep3() && this.canProceedStep4();
-      return false;
-    }
-
-    // Normal registration flow
-    if (step === 0) return true;
-    if (step === 1) return this.canProceedStep0();
-    if (step === 2) return this.canProceedStep0() && this.canProceedStep1();
-    if (step === 3) return this.canProceedStep0() && this.canProceedStep1() && this.canProceedStep2();
-    if (step === 4) return this.canProceedStep0() && this.canProceedStep1() && this.canProceedStep2() && this.canProceedStep3();
-    if (step === 5) return this.canProceedStep0() && this.canProceedStep1() && this.canProceedStep2() && this.canProceedStep3() && this.canProceedStep4();
-    return false;
-  }
-
-  goToStep(step: number) {
-    // Only allow going to steps that are accessible (previous steps completed)
-    // Or going back to previous steps
-    if (step <= this.activeStep() || this.canAccessStep(step)) {
-      this.activeStep.set(step);
-      this.onStepChange();
-    }
-  }
-
-  nextStep() {
-    // Only proceed if current step is valid
-    if (this.activeStep() < 5 && this.canProceedCurrentStep()) {
-      // Google flow: Step 0 -> 3 (skip verification and password)
-      if (this.fromGoogle() && this.activeStep() === 0) {
-        this.activeStep.set(3);
-        this.onStepChange();
-        return;
-      }
-
-      // Normal flow: Step 0 -> 1: Send verification code
-      if (this.activeStep() === 0) {
-        this.sendVerificationCode();
-        return;
-      }
-      this.activeStep.update(v => v + 1);
-      this.onStepChange();
-    }
-  }
-
-  private onStepChange() {
-    // Invalidate map size when entering map step (step 3)
-    if (this.activeStep() === 3 && this.mapPicker) {
-      setTimeout(() => {
-        // Map will show "Use My Location" button for user to click
-      }, ANIMATION.NORMAL);
-    }
-  }
-
-  prevStep() {
-    if (this.activeStep() === 0) return;
-
-    // Google flow: from step 3 go back to step 0 (skip 1,2)
-    if (this.fromGoogle() && this.activeStep() === 3) {
-      this.activeStep.set(0);
+  private initGoogleFlow(): void {
+    const user = this.authService.currentUserValue;
+    if (!user || user.auth_provider !== AuthProvider.GOOGLE) {
+      this.router.navigate([ROUTES.LOGIN]);
       return;
     }
 
-    this.activeStep.update(v => v - 1);
+    this.state.fromGoogle.set(true);
+    this.state.personalInfoForm.patchValue({
+      full_name: user.full_name || '',
+      email: user.email || '',
+      phone: ''
+    });
+    this.state.emailVerified.set(true);
+    this.state.verificationSent.set(true);
+    this.state.activeStep.set(0);
   }
 
   // Final submission
-  onRegister() {
-    // Mark all fields as touched to show validation errors
-    this.storeDetailsForm.markAllAsTouched();
-
-    // Google flow: only validate steps 3-4
-    if (this.fromGoogle()) {
-      if (!this.canProceedStep3()) {
-        this.toast.showWarn('register.select_location');
-        this.goToStep(3);
-        return;
-      }
-
-      if (!this.canProceedStep4()) {
-        this.toast.showWarn('register.complete_store_details');
-        this.goToStep(4);
-        return;
-      }
-
+  onRegister(): void {
+    if (this.state.fromGoogle()) {
       this.submitGoogleProfileUpdate();
       return;
     }
 
-    // Normal registration flow
-    this.personalInfoForm.markAllAsTouched();
-    this.passwordForm.markAllAsTouched();
-
-    // Check if all steps are valid
-    if (!this.canProceedStep0()) {
-      this.toast.showWarn('register.complete_personal_info');
-      this.goToStep(0);
+    if (this.state.isDriverMode()) {
+      this.submitDriverRegistration();
       return;
     }
 
-    if (!this.canProceedStep1()) {
-      this.toast.showWarn('register.verify_email_first');
-      this.goToStep(1);
-      return;
-    }
+    this.submitCustomerRegistration();
+  }
 
-    if (!this.canProceedStep2()) {
-      this.toast.showWarn('register.complete_password');
-      this.goToStep(2);
-      return;
-    }
+  private submitCustomerRegistration(): void {
+    this.state.loading.set(true);
+    const storeDetails = this.state.storeDetailsForm.getRawValue();
+    const location = this.state.locationData();
 
-    if (!this.canProceedStep3()) {
-      this.toast.showWarn('register.select_location');
-      this.goToStep(3);
-      return;
-    }
-
-    if (!this.canProceedStep4()) {
-      this.toast.showWarn('register.complete_store_details');
-      this.goToStep(4);
-      return;
-    }
-
-    this.loading.set(true);
-
-    const storeDetails = this.storeDetailsForm.getRawValue();
     const registerData = {
-      full_name: this.personalInfoForm.value.full_name,
-      email: this.personalInfoForm.value.email,
-      phone: this.personalInfoForm.value.phone,
-      password: this.passwordForm.value.password,
-      address: this.locationData?.address || '',
-      latitude: this.locationData?.latitude,
-      longitude: this.locationData?.longitude,
+      full_name: this.state.personalInfoForm.value.full_name,
+      email: this.state.personalInfoForm.value.email,
+      phone: this.state.personalInfoForm.value.phone,
+      password: this.state.passwordForm.value.password,
+      address: location?.address || '',
+      latitude: location?.latitude,
+      longitude: location?.longitude,
       store_name: storeDetails.store_name || null,
       wilaya: storeDetails.wilaya,
       daira: storeDetails.daira,
@@ -889,43 +371,56 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
     };
 
     this.authService.register(registerData)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => this.autoLoginAfterRegister(),
+        error: (error) => {
+          this.state.loading.set(false);
+          this.handleServerError(error);
+        }
+      });
+  }
+
+  private submitDriverRegistration(): void {
+    this.state.loading.set(true);
+    const vehicleData = this.state.vehicleForm.value;
+
+    const driverData = {
+      email: this.state.personalInfoForm.value.email,
+      full_name: this.state.personalInfoForm.value.full_name,
+      phone: this.state.personalInfoForm.value.phone,
+      password: this.state.passwordForm.value.password,
+      vehicle_type: vehicleData.vehicle_type,
+      capacity_kg: vehicleData.capacity_kg || null,
+      capacity_volume: vehicleData.capacity_volume || null
+    };
+
+    this.driverService.register(driverData)
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
-          // Auto-login after successful registration
-          this.authService.login({
-            username: this.personalInfoForm.value.email,
-            password: this.passwordForm.value.password
-          }).subscribe({
-            next: () => {
-              this.loading.set(false);
-              this.clearSavedState();
-              this.activeStep.set(6); // Show success screen
-            },
-            error: () => {
-              // Login failed, still show success screen
-              this.loading.set(false);
-              this.clearSavedState();
-              this.activeStep.set(6);
-            }
-          });
+          this.state.loading.set(false);
+          this.state.clearSavedState();
+          this.state.activeStep.set(6);
         },
         error: (error) => {
-          this.loading.set(false);
+          this.state.loading.set(false);
           this.handleServerError(error);
         }
       });
   }
 
   private submitGoogleProfileUpdate(): void {
-    this.loading.set(true);
+    this.state.loading.set(true);
+    const storeDetails = this.state.storeDetailsForm.getRawValue();
+    const location = this.state.locationData();
 
-    const storeDetails = this.storeDetailsForm.getRawValue();
     const profileData = {
-      full_name: this.personalInfoForm.value.full_name,
-      phone: this.personalInfoForm.value.phone,
-      address: this.locationData?.address || '',
-      latitude: this.locationData?.latitude,
-      longitude: this.locationData?.longitude,
+      full_name: this.state.personalInfoForm.value.full_name,
+      phone: this.state.personalInfoForm.value.phone,
+      address: location?.address || '',
+      latitude: location?.latitude,
+      longitude: location?.longitude,
       store_name: storeDetails.store_name || null,
       wilaya: storeDetails.wilaya,
       daira: storeDetails.daira,
@@ -933,157 +428,145 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
     };
 
     this.userService.updateProfile(profileData)
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (updatedUser) => {
-          this.loading.set(false);
-          this.clearSavedState();
+          this.state.loading.set(false);
+          this.state.clearSavedState();
           this.authService.updateCurrentUser(updatedUser);
-          // Show success screen (user is already logged in)
-          this.activeStep.set(6);
+          this.state.activeStep.set(6);
         },
         error: (error) => {
-          this.loading.set(false);
+          this.state.loading.set(false);
           this.toast.showApiError(error, 'account.profile_update_failed');
         }
       });
   }
 
-  private handleServerError(error: { error?: { detail?: string | { msg?: string }[] } }): void {
-    const errorDetail = error.error?.detail;
-    let errorMessage = '';
-    let originalMessage = '';
-
-    if (typeof errorDetail === 'string') {
-      errorMessage = errorDetail.toLowerCase();
-      originalMessage = errorDetail;
-    } else if (Array.isArray(errorDetail) && errorDetail.length > 0) {
-      errorMessage = (errorDetail[0]?.msg || '').toLowerCase();
-      originalMessage = errorDetail[0]?.msg || '';
-    }
-
-    // Clear previous server errors
-    this.serverErrors.set({});
-
-    // Check for email-related errors (slide 0)
-    if (errorMessage.includes('email')) {
-      this.serverErrors.set({ email: originalMessage });
-      this.goToStep(0);
-      return;
-    }
-
-    // Check for phone-related errors (slide 0)
-    if (errorMessage.includes('phone')) {
-      this.serverErrors.set({ phone: originalMessage });
-      this.goToStep(0);
-      return;
-    }
-
-    // Check for password-related errors (slide 2)
-    if (errorMessage.includes('password')) {
-      this.serverErrors.set({ password: originalMessage });
-      this.goToStep(2);
-      return;
-    }
-
-    // Fallback: show toast for unhandled errors
-    this.toast.showApiError(error, 'auth.register_failed');
-  }
-
-  clearServerError(field: string): void {
-    const current = this.serverErrors();
-    if (current[field]) {
-      const updated = { ...current };
-      delete updated[field];
-      this.serverErrors.set(updated);
-    }
+  private autoLoginAfterRegister(): void {
+    this.authService.login({
+      username: this.state.personalInfoForm.value.email,
+      password: this.state.passwordForm.value.password
+    }).subscribe({
+      next: () => {
+        this.state.loading.set(false);
+        this.state.clearSavedState();
+        this.state.activeStep.set(6);
+      },
+      error: () => {
+        this.state.loading.set(false);
+        this.state.clearSavedState();
+        this.state.activeStep.set(6);
+      }
+    });
   }
 
   goToHome(): void {
     this.router.navigate([ROUTES.HOME]);
   }
 
-  // Password validation checks using computed signals
-  passwordHasMinLength = computed(() => {
-    const password = this.passwordForm?.get('password')?.value || '';
-    return password.length >= 8;
-  });
+  // Helpers
+  private autoPopulateStoreDetails(): void {
+    const location = this.state.locationData();
+    if (!location?.wilaya) return;
 
-  passwordHasLetter = computed(() => {
-    const password = this.passwordForm?.get('password')?.value || '';
-    return /[a-zA-Z]/.test(password);
-  });
+    const matchedWilaya = this.findMatch(this.state.wilayas(), location.wilaya);
+    if (matchedWilaya) {
+      this.state.storeDetailsForm.patchValue({ wilaya: matchedWilaya });
+      this.state.updateDairas(matchedWilaya);
 
-  passwordHasNumber = computed(() => {
-    const password = this.passwordForm?.get('password')?.value || '';
-    return /[0-9]/.test(password);
-  });
+      setTimeout(() => {
+        if (location.daira) {
+          const matchedDaira = this.findMatch(this.state.dairas(), location.daira);
+          if (matchedDaira) {
+            this.state.storeDetailsForm.patchValue({ daira: matchedDaira });
+            this.state.updateCommunes(matchedDaira);
 
-  passwordsMatch = computed(() => {
-    const password = this.passwordForm?.get('password')?.value || '';
-    const confirmPassword = this.passwordForm?.get('confirmPassword')?.value || '';
-    return password.length > 0 && confirmPassword.length > 0 && password === confirmPassword;
-  });
-
-  // Scroll input into view when focused
-  onInputFocus(fieldName: string): void {
-    this.focusedField.set(fieldName);
-    this.isInputFocused.set(true);
-
-    // Scroll the focused input to top with offset
-    setTimeout(() => {
-      const fieldContainer = this.elementRef.nativeElement.querySelector(
-        `[data-field="${fieldName}"]`
-      ) as HTMLElement;
-      if (fieldContainer) {
-        const slideContent = fieldContainer.closest('.carousel-slide') as HTMLElement;
-        if (slideContent) {
-          // Get the field's position relative to the slide content
-          const slideRect = slideContent.getBoundingClientRect();
-          const fieldRect = fieldContainer.getBoundingClientRect();
-          const relativeTop = fieldRect.top - slideRect.top + slideContent.scrollTop;
-          // Scroll to position with 20px from top
-          slideContent.scrollTo({ top: relativeTop - 20, behavior: 'smooth' });
+            setTimeout(() => {
+              if (location.commune) {
+                const matchedCommune = this.findMatch(this.state.communes(), location.commune);
+                if (matchedCommune) {
+                  this.state.storeDetailsForm.patchValue({ commune: matchedCommune });
+                }
+              }
+            }, 100);
+          }
         }
-      }
-    }, ANIMATION.NORMAL); // Delay to let keyboard open first
+      }, 100);
+    }
   }
 
-  onInputBlur(): void {
-    this.focusedField.set('');
-    // Small delay to prevent flicker when switching between inputs
-    setTimeout(() => {
-      if (!this.focusedField()) {
-        this.isInputFocused.set(false);
-      }
-    }, UI.FOCUS_DELAY);
+  private findMatch(options: { label: string; value: string }[], search: string): string | null {
+    if (!search || !options.length) return null;
+
+    const normalized = this.normalize(search);
+    const match = options.find(opt =>
+      this.normalize(opt.value) === normalized ||
+      this.normalize(opt.label) === normalized ||
+      this.normalize(opt.value).includes(normalized) ||
+      normalized.includes(this.normalize(opt.value))
+    );
+
+    return match?.value || null;
   }
 
-  togglePassword(): void {
-    this.showPassword.update(v => !v);
+  private normalize(str: string): string {
+    return str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[-_]/g, ' ').trim();
   }
 
-  toggleConfirmPassword(): void {
-    this.showConfirmPassword.update(v => !v);
-  }
+  private handleServerError(error: { error?: { detail?: string | { msg?: string }[] } }): void {
+    const detail = error.error?.detail;
+    let message = '';
+    let original = '';
 
-  // Focus input when clicking anywhere on the field container
-  focusField(fieldName: string): void {
-    // Try regular input or password input first
-    let selector = `[data-field="${fieldName}"] input, [data-field="${fieldName}"] .p-password-input`;
-    let input = this.elementRef.nativeElement.querySelector(selector) as HTMLInputElement;
-    if (input) {
-      input.focus();
+    if (typeof detail === 'string') {
+      message = detail.toLowerCase();
+      original = detail;
+    } else if (Array.isArray(detail) && detail.length > 0) {
+      message = (detail[0]?.msg || '').toLowerCase();
+      original = detail[0]?.msg || '';
+    }
+
+    this.state.serverErrors.set({});
+
+    if (message.includes('email')) {
+      this.state.serverErrors.set({ email: original });
+      this.goToStep(0);
       return;
     }
 
-    // Try p-select component
-    const selectElement = this.elementRef.nativeElement.querySelector(`[data-field="${fieldName}"] p-select`);
-    if (selectElement) {
-      // Click on the select to open it
-      const selectTrigger = selectElement.querySelector('.p-select, .p-select-label') as HTMLElement;
-      if (selectTrigger) {
-        selectTrigger.click();
-      }
+    if (message.includes('phone')) {
+      this.state.serverErrors.set({ phone: original });
+      this.goToStep(0);
+      return;
+    }
+
+    if (message.includes('password')) {
+      this.state.serverErrors.set({ password: original });
+      this.goToStep(2);
+      return;
+    }
+
+    this.toast.showApiError(error, 'auth.register_failed');
+  }
+
+  private getLocationErrorKey(errorType: string): string {
+    switch (errorType) {
+      case 'permission_denied': return 'register.location_permission_denied';
+      case 'position_unavailable': return 'register.location_unavailable';
+      case 'timeout': return 'register.location_timeout';
+      case 'geolocation_not_supported': return 'register.geolocation_not_supported';
+      default: return 'register.location_error';
     }
   }
+
+  private setupVisibilityListener(): void {
+    document.addEventListener('visibilitychange', this.onVisibilityChange);
+  }
+
+  private onVisibilityChange = (): void => {
+    if (document.visibilityState === 'hidden') {
+      this.state.saveState();
+    }
+  };
 }

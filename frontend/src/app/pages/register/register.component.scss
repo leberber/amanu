@@ -1,4 +1,3 @@
-
 @use '../../../styles/auth' as auth;
 
 $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
@@ -18,11 +17,6 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
   }
 }
 
-
-// =============================================================================
-// 1b. MODERN STEP STYLES (Step 1 - Personal Info with animated logo)
-// =============================================================================
-
 // Modern slides - full height without carousel padding
 .carousel-slide--step0,
 .carousel-slide--modern {
@@ -36,11 +30,11 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
 .register-page {
   min-height: 100%;
   height: 100%;
-  padding-bottom: 100px; // Space for fixed footer
+  padding-bottom: 100px;
   @include auth.auth-page-modern;
 }
 
-// Animated logo (starts centered, moves to top)
+// Animated logo
 .register-logo {
   @include auth.auth-logo;
 
@@ -50,7 +44,7 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
   }
 }
 
-// Content container (fades in after logo animation)
+// Content container
 .register-content {
   @include auth.auth-content-modern;
 
@@ -58,156 +52,6 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
     opacity: 1;
     transform: translateY(0);
   }
-}
-
-.register-header {
-  @include auth.auth-header-modern;
-
-  &.hidden {
-    opacity: 0;
-    visibility: hidden;
-    height: 0;
-    margin: 0;
-    overflow: hidden;
-  }
-}
-
-.register-form {
-  @include auth.auth-form-modern;
-}
-
-.register-input {
-  @include auth.auth-input-pill;
-
-  &--error {
-    border-color: var(--color-error) !important;
-
-    &:hover {
-      border-color: var(--color-error) !important;
-    }
-  }
-
-  &--readonly {
-    background: var(--surface-100);
-    cursor: not-allowed;
-
-    input {
-      cursor: not-allowed;
-      color: var(--text-color-secondary);
-    }
-
-    &:hover {
-      border-color: var(--surface-200);
-    }
-  }
-}
-
-.register-field-wrapper {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-}
-
-.register-error {
-  color: var(--color-error);
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-medium);
-  padding-left: var(--space-5);
-}
-
-.register-btn {
-  @include auth.auth-btn-pill;
-
-  &--no-shadow {
-    box-shadow: none;
-
-    &:hover:not(:disabled) {
-      box-shadow: none;
-    }
-  }
-}
-
-// Field wrapper with label
-.register-field {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-
-  &__label {
-    font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-medium);
-    color: var(--text-color-secondary);
-    padding-left: var(--space-4);
-  }
-
-  &__optional {
-    font-weight: var(--font-weight-normal);
-    color: var(--text-color-secondary);
-    opacity: 0.7;
-  }
-}
-
-// Select dropdown - pill style
-.register-select {
-  position: relative;
-  display: flex;
-  align-items: center;
-  height: 52px;
-  background: var(--surface-card);
-  border: 1px solid var(--surface-200);
-  border-radius: 26px;
-  padding: 0 var(--space-5);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-
-  &:hover {
-    border-color: var(--surface-300);
-  }
-
-  &--focused {
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
-  }
-
-  p-select,
-  .p-select {
-    width: 100%;
-    border: none !important;
-    background: transparent !important;
-    box-shadow: none !important;
-
-    .p-select-label {
-      padding: 0 !important;
-      font-size: 16px;
-      font-weight: var(--font-weight-medium);
-      color: var(--text-color);
-
-      &.p-placeholder {
-        color: var(--text-color-secondary);
-        font-weight: var(--font-weight-normal);
-      }
-    }
-
-    .p-select-trigger {
-      width: auto;
-      color: var(--text-color-secondary);
-    }
-  }
-}
-
-// Dark mode for select
-:host-context(.my-app-dark) {
-  .register-select {
-    background: var(--surface-card);
-    border-color: var(--surface-300);
-
-    &:hover {
-      border-color: var(--surface-400);
-    }
-  }
-}
-
-.map-spacer {
-  width: 44px;
 }
 
 // Back button for modern steps
@@ -226,108 +70,6 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
 
   @media (min-width: 768px) {
     padding-top: 90px;
-  }
-}
-
-// Password requirements (modern style)
-.register-requirements {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  padding: var(--space-3) var(--space-4);
-  background: var(--surface-card);
-  border-radius: var(--radius-xl);
-  border: 1px solid var(--surface-200);
-
-  &__item {
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-    font-size: var(--font-size-sm);
-    color: var(--color-error);
-    transition: all 0.2s ease;
-
-    i {
-      font-size: var(--font-size-sm);
-      transition: all 0.2s ease;
-    }
-
-    span {
-      font-weight: var(--font-weight-medium);
-    }
-
-    &--met {
-      color: var(--color-success);
-
-      i {
-        color: var(--color-success);
-      }
-    }
-  }
-}
-
-.register-links {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-2);
-  margin-top: var(--space-2);
-  font-size: var(--font-size-sm);
-
-  span {
-    color: var(--text-color-secondary);
-  }
-
-  a {
-    color: var(--primary-color);
-    font-weight: var(--font-weight-semibold);
-    text-decoration: none;
-
-    &:active {
-      opacity: 0.7;
-    }
-  }
-}
-
-// =============================================================================
-// DIVIDER & GOOGLE SIGN-IN
-// =============================================================================
-
-.register-divider {
-  display: flex;
-  align-items: center;
-  gap: var(--space-4);
-  margin: var(--space-5) 0;
-
-  &::before,
-  &::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--surface-200);
-  }
-
-  span {
-    font-size: var(--font-size-sm);
-    color: var(--text-color-secondary);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-}
-
-.register-google {
-  width: 100%;
-}
-
-// Dark mode for modern inputs
-:host-context(.my-app-dark) {
-  .register-input {
-    background: var(--surface-card);
-    border-color: var(--surface-300);
-
-    &:hover {
-      border-color: var(--surface-400);
-    }
   }
 }
 
@@ -388,13 +130,12 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
 
 
 // =============================================================================
-// 3. FORM ELEMENTS
+// 3. FORM ELEMENTS (used by orchestrator for footer button)
 // =============================================================================
 
 .fancy-field { @include auth.fancy-field; }
 .field-error { @include auth.field-error; }
 .fancy-btn { @include auth.fancy-btn; }
-.password-requirements { @include auth.password-requirements; }
 
 @include auth.fancy-password-override;
 
@@ -408,22 +149,11 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
   background: transparent;
 
   .register-btn {
+    @include auth.auth-btn-pill;
     box-shadow: none;
 
     &:hover:not(:disabled) {
       box-shadow: none;
-    }
-  }
-}
-
-// Leaflet controls - scoped to map slide only
-.fullscreen-map-slide {
-  ::ng-deep {
-    .leaflet-bottom {
-    }
-
-    .leaflet-control-attribution {
-      display: none;
     }
   }
 }
@@ -448,16 +178,6 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
 
 .hidden {
   display: none !important;
-}
-
-.slide-header {
-  transition: opacity 0.2s ease, visibility 0.2s ease;
-
-  &.hidden {
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-  }
 }
 
 
@@ -582,6 +302,10 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
   }
 }
 
+.map-spacer {
+  width: 44px;
+}
+
 
 // =============================================================================
 // 8. CAROUSEL
@@ -643,7 +367,6 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
     padding-bottom: 100px;
   }
 
-  // Add top padding when inside modern slide (has progress header)
   .carousel-slide--modern & {
     padding-top: 80px;
   }
@@ -657,6 +380,7 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
 .slide-header {
   text-align: center;
   margin-bottom: 1.5rem;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
 
   h1 {
     font-size: 1.25rem;
@@ -679,6 +403,12 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
     color: var(--text-color-secondary);
     font-size: 0.8rem;
     line-height: 1.4;
+  }
+
+  &.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
   }
 }
 
@@ -722,64 +452,8 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
 
 
 // =============================================================================
-// 12. SELECT OVERRIDE
+// 12. SELECT OVERLAY (Global PrimeNG Override)
 // =============================================================================
-
-:host ::ng-deep {
-  .fancy-field {
-    p-select,
-    .p-select,
-    .p-select-filled,
-    .p-inputwrapper {
-      width: 100%;
-      border: none !important;
-      background: transparent !important;
-      box-shadow: none !important;
-      padding: 0 !important;
-      min-height: auto !important;
-      outline: none !important;
-      border-radius: 0 !important;
-
-      &:hover,
-      &:focus,
-      &.p-focus,
-      &.p-inputwrapper-focus {
-        border: none !important;
-        box-shadow: none !important;
-        outline: none !important;
-        background: transparent !important;
-      }
-    }
-
-    .p-select-label {
-      padding: 0 !important;
-      font-size: 1rem;
-      font-weight: 500;
-      color: var(--text-color);
-      background: transparent !important;
-      border: none !important;
-
-      &.p-placeholder {
-        color: #adb3bd;
-        font-weight: 400;
-        font-size: 0.9rem;
-      }
-    }
-
-    .p-select-dropdown,
-    .p-select-trigger {
-      width: 1.5rem !important;
-      color: var(--text-color-secondary);
-      background: transparent !important;
-      padding: 0 !important;
-      border: none !important;
-    }
-
-    .p-select-clear-icon {
-      color: var(--text-color-secondary);
-    }
-  }
-}
 
 ::ng-deep .p-select-overlay,
 ::ng-deep .p-select-panel {
@@ -821,566 +495,8 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
 
 
 // =============================================================================
-// 13. FULLSCREEN MAP SLIDE
+// 13. TERMS FOOTER
 // =============================================================================
-
-.fullscreen-map-slide {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-}
-
-.map-fullscreen {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  width: 100%;
-  height: 100%;
-
-  :host ::ng-deep {
-    app-map-picker {
-      display: block;
-      width: 100%;
-      height: 100%;
-    }
-  }
-}
-
-.map-overlay-header {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  padding: 1rem;
-  padding-top: calc(1rem + env(safe-area-inset-top, 0px));
-  z-index: 1000;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-
-  .map-top-nav {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .map-back-btn {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    border: none;
-    background: var(--surface-card);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    color: var(--text-color);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    transition: all 0.2s ease;
-
-    &:hover {
-      background: var(--surface-100);
-      transform: translateX(-2px);
-    }
-
-    &:active {
-      transform: scale(0.95);
-    }
-
-    i {
-      font-size: 1.1rem;
-    }
-  }
-
-  .map-step-dots {
-    display: flex;
-    gap: 0.5rem;
-
-    .dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: rgba(0, 0, 0, 0.2);
-      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-      cursor: not-allowed;
-      opacity: 0.5;
-
-      &.accessible {
-        cursor: pointer;
-        opacity: 1;
-
-        &:hover {
-          transform: scale(1.2);
-          background: rgba(0, 0, 0, 0.3);
-        }
-      }
-
-      &.active {
-        width: 28px;
-        height: 10px;
-        border-radius: 5px;
-        background: var(--primary-gradient);
-        box-shadow: 0 2px 8px rgba(46, 108, 183, 0.5);
-        cursor: default;
-        opacity: 1;
-      }
-
-      &.completed {
-        background: rgba(46, 108, 183, 0.5);
-        opacity: 1;
-      }
-    }
-  }
-
-  .map-login-link {
-    display: flex;
-    align-items: center;
-    gap: 0.375rem;
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: var(--primary-color);
-    text-decoration: none;
-    padding: 0.5rem 0.75rem;
-    border-radius: 12px;
-    background: rgba(255, 255, 255, 0.9);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
-
-    &:hover {
-      background: white;
-    }
-
-    i {
-      font-size: 0.75rem;
-      transition: transform 0.3s ease;
-    }
-
-    &:hover i {
-      transform: translateX(3px);
-    }
-  }
-
-  .map-title-card {
-    display: flex;
-    align-items: center;
-    gap: 0.625rem;
-    background: rgba(255, 255, 255, 0.55);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    padding: 0.5rem 0.875rem;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-
-    .title-icon {
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
-      background: var(--primary-gradient);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-
-      i {
-        font-size: 0.9rem;
-        color: white;
-      }
-    }
-
-    h2 {
-      font-size: 0.875rem;
-      font-weight: 600;
-      margin: 0;
-      color: var(--text-color);
-    }
-
-    .map-address {
-      font-size: 0.875rem;
-      font-weight: 500;
-      color: var(--text-color);
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-      line-height: 1.3;
-    }
-  }
-}
-
-.map-overlay-footer {
-  position: absolute;
-  bottom: 90px;
-  left: 0;
-  right: 0;
-  padding: 0 1.5rem;
-  z-index: 999;
-  display: flex;
-  flex-direction: column;
-
-  .location-preview {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 1rem 1.25rem;
-    background: rgba(var(--surface-0-rgb, 255, 255, 255), 0.95);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-radius: 14px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    animation: slideUp 0.3s ease;
-    max-width: 440px;
-    margin: 0 auto;
-    width: 100%;
-
-    i {
-      color: var(--primary-color);
-      font-size: 1.25rem;
-      flex-shrink: 0;
-    }
-
-    span {
-      font-size: 0.9rem;
-      font-weight: 500;
-      color: var(--text-color);
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-  }
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-// Address footer at bottom of map
-.map-address-footer {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: var(--space-4);
-  padding-bottom: calc(var(--space-4) + env(safe-area-inset-bottom, 0px));
-  z-index: 1000;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  max-width: 440px;
-  margin: 0 auto;
-}
-
-.map-address-card {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-4) var(--space-5);
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-radius: var(--radius-xl);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  width: 100%;
-}
-
-.map-address-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: var(--radius-lg);
-  background: var(--primary-gradient);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-
-  i {
-    font-size: 1.1rem;
-    color: white;
-  }
-}
-
-.map-address-text {
-  flex: 1;
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-  color: var(--text-color);
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  line-height: 1.4;
-}
-
-
-// =============================================================================
-// 14. EMAIL VERIFICATION
-// =============================================================================
-
-.verification-icon {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  background: var(--primary-gradient);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto var(--space-5);
-  box-shadow: 0 8px 24px rgba(46, 108, 183, 0.3);
-
-  i {
-    font-size: 2rem;
-    color: white;
-  }
-}
-
-.verification-email {
-  display: block;
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
-  color: var(--primary-color);
-  margin-top: var(--space-2);
-}
-
-.verification-code-container {
-  margin: var(--space-6) 0;
-}
-
-.code-inputs {
-  display: flex;
-  justify-content: center;
-  gap: var(--space-2);
-
-  @media (max-width: 380px) {
-    gap: var(--space-1);
-  }
-}
-
-.code-input {
-  input {
-    width: 48px;
-    height: 56px;
-    text-align: center;
-    font-size: 1.5rem;
-    font-weight: var(--font-weight-bold);
-    border: 2px solid var(--surface-200);
-    border-radius: var(--radius-lg);
-    background: var(--surface-card);
-    color: var(--text-color);
-    transition: all 0.2s ease;
-    caret-color: var(--primary-color);
-
-    @media (max-width: 380px) {
-      width: 42px;
-      height: 50px;
-      font-size: 1.25rem;
-    }
-
-    &:focus {
-      outline: none;
-      border-color: var(--primary-color);
-      box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.15);
-    }
-
-    &.filled {
-      border-color: var(--primary-color);
-      background: rgba(var(--primary-rgb), 0.05);
-    }
-
-    &.error {
-      border-color: var(--color-error);
-      animation: shake 0.4s ease;
-    }
-  }
-}
-
-@keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  20%, 60% { transform: translateX(-4px); }
-  40%, 80% { transform: translateX(4px); }
-}
-
-.verification-error {
-  display: block;
-  text-align: center;
-  color: var(--color-error);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-  margin-top: var(--space-3);
-}
-
-.verification-resend {
-  text-align: center;
-  margin-bottom: var(--space-5);
-
-  .resend-countdown {
-    font-size: var(--font-size-sm);
-    color: var(--text-color-secondary);
-  }
-
-  .resend-btn {
-    background: none;
-    border: none;
-    color: var(--primary-color);
-    font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-semibold);
-    cursor: pointer;
-    padding: var(--space-2) var(--space-3);
-    border-radius: var(--radius-md);
-    transition: all 0.2s ease;
-
-    &:hover:not(:disabled) {
-      background: rgba(var(--primary-rgb), 0.1);
-    }
-
-    &:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-  }
-}
-
-// Dark mode for verification inputs
-:host-context(.my-app-dark) {
-  .code-input input {
-    background: var(--surface-card);
-    border-color: var(--surface-300);
-
-    &:focus {
-      border-color: var(--primary-color);
-    }
-
-    &.filled {
-      background: rgba(var(--primary-rgb), 0.1);
-    }
-  }
-}
-
-
-// =============================================================================
-// 15. SUMMARY CARDS (was 14)
-// =============================================================================
-
-.summary-cards {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-}
-
-.summary-card {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-5) var(--space-5);
-  background: var(--surface-card);
-  border: 1px solid var(--surface-100);
-  border-radius: 14px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-
-  &:active {
-    transform: scale(0.98);
-  }
-
-  .card-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 10px;
-    background: linear-gradient(135deg, rgba(46, 108, 183, 0.1) 0%, rgba(30, 79, 154, 0.15) 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-
-    i {
-      font-size: 1rem;
-      color: var(--primary-color);
-    }
-  }
-
-  .card-info {
-    flex: 1;
-    min-width: 0;
-
-    .card-label {
-      display: block;
-      font-size: var(--font-size-xs);
-      font-weight: var(--font-weight-medium);
-      color: var(--text-color-secondary);
-      margin-bottom: 2px;
-    }
-
-    .card-value {
-      display: block;
-      font-size: var(--font-size-sm);
-      font-weight: var(--font-weight-semibold);
-      color: var(--text-color);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-  }
-
-  &.location .card-info .card-value {
-    white-space: normal;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
-  .card-arrow {
-    font-size: 12px;
-    color: var(--text-color-secondary);
-    flex-shrink: 0;
-  }
-}
-
-// Dark mode for summary cards
-:host-context(.my-app-dark) {
-  .summary-card {
-    background: var(--surface-card);
-    border-color: var(--surface-200);
-  }
-}
-
-
-// =============================================================================
-// 15. TERMS TEXT
-// =============================================================================
-
-.terms-text {
-  text-align: center;
-  margin-top: 1.5rem;
-  padding: 0 1rem;
-
-  small {
-    font-size: 0.75rem;
-    color: var(--text-color-secondary);
-    line-height: 1.6;
-
-    a {
-      color: var(--primary-color);
-      text-decoration: none;
-      font-weight: 600;
-
-      &:hover {
-        text-decoration: underline;
-      }
-    }
-  }
-}
 
 .terms-footer {
   position: fixed;

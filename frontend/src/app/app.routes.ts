@@ -270,5 +270,11 @@ export const routes: Routes = [
     data: { hideBottomNav: true }
   },
 
+  // Driver Routes (separate module for future extraction)
+  {
+    path: 'driver',
+    loadChildren: () => import('./driver/driver.routes').then(m => m.DRIVER_ROUTES)
+  },
+
   { path: '**', redirectTo: '' }
 ];
