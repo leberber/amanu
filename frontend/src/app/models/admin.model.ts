@@ -1,4 +1,5 @@
 import { UserGroupBasic } from './user-group.model';
+import { DriverInfo } from './order.model';
 
 export interface DashboardStats {
     total_users: number;
@@ -80,6 +81,10 @@ export interface DashboardStats {
       full_name: string;
       email: string;
     };
+    // Driver fields
+    driver_id?: number;
+    driver?: DriverInfo;
+    assigned_at?: string;
   }
   
   export interface OrderItem {

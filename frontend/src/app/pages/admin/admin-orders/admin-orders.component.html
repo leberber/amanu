@@ -161,12 +161,13 @@
             <table class="table">
               <thead>
                 <tr>
-                  @if (isColumnVisible('order_id')) { <th style="width: 10%">{{ 'admin.orders.table.order_id' | translate }}</th> }
-                  @if (isColumnVisible('customer')) { <th style="width: 25%">{{ 'admin.orders.table.customer' | translate }}</th> }
-                  @if (isColumnVisible('date')) { <th style="width: 15%" class="text-center">{{ 'admin.orders.table.date' | translate }}</th> }
-                  @if (isColumnVisible('status')) { <th style="width: 15%" class="text-center">{{ 'admin.orders.table.status' | translate }}</th> }
-                  @if (isColumnVisible('total')) { <th style="width: 15%" class="text-center">{{ 'admin.orders.table.total' | translate }}</th> }
-                  @if (isColumnVisible('actions')) { <th style="width: 20%" class="text-center">{{ 'admin.orders.table.actions' | translate }}</th> }
+                  @if (isColumnVisible('order_id')) { <th style="width: 8%">{{ 'admin.orders.table.order_id' | translate }}</th> }
+                  @if (isColumnVisible('customer')) { <th style="width: 20%">{{ 'admin.orders.table.customer' | translate }}</th> }
+                  @if (isColumnVisible('date')) { <th style="width: 12%" class="text-center">{{ 'admin.orders.table.date' | translate }}</th> }
+                  @if (isColumnVisible('status')) { <th style="width: 12%" class="text-center">{{ 'admin.orders.table.status' | translate }}</th> }
+                  @if (isColumnVisible('driver')) { <th style="width: 18%">{{ 'admin.orders.table.driver' | translate }}</th> }
+                  @if (isColumnVisible('total')) { <th style="width: 12%" class="text-center">{{ 'admin.orders.table.total' | translate }}</th> }
+                  @if (isColumnVisible('actions')) { <th style="width: 18%" class="text-center">{{ 'admin.orders.table.actions' | translate }}</th> }
                 </tr>
               </thead>
               <tbody>
@@ -248,6 +249,34 @@
                               </button>
                             </div>
                           </div>
+                        }
+                      </td>
+                    }
+
+                    <!-- Driver -->
+                    @if (isColumnVisible('driver')) {
+                      <td>
+                        @if (order.driver) {
+                          <div class="info-display">
+                            <span class="info-display__name">{{ order.driver.full_name }}</span>
+                            <div class="flex align-items-center gap-2">
+                              @if (order.driver.phone) {
+                                <span class="info-display__tertiary">{{ order.driver.phone | appPhone }}</span>
+                              }
+                              @if (order.driver.vehicle_type) {
+                                <span class="vehicle-pill" [class]="order.driver.vehicle_type">
+                                  {{ 'driver.vehicle.' + order.driver.vehicle_type | translate }}
+                                </span>
+                              }
+                            </div>
+                          </div>
+                        } @else if (order.status === 'confirmed') {
+                          <span class="waiting-driver-badge">
+                            <i class="pi pi-clock"></i>
+                            {{ 'admin.orders.waiting_for_driver' | translate }}
+                          </span>
+                        } @else {
+                          <span class="text-secondary">—</span>
                         }
                       </td>
                     }

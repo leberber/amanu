@@ -73,3 +73,47 @@
   align-items: stretch;
   padding: var(--space-3) var(--space-4);
 }
+
+// Vehicle type pill
+.vehicle-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
+
+  &.truck {
+    background: rgba(var(--blue-500-rgb, 59, 130, 246), 0.12);
+    color: var(--blue-500, #3b82f6);
+  }
+
+  &.van {
+    background: rgba(var(--purple-500-rgb, 168, 85, 247), 0.12);
+    color: var(--purple-500, #a855f7);
+  }
+
+  &.mini_van {
+    background: rgba(var(--teal-500-rgb, 20, 184, 166), 0.12);
+    color: var(--teal-500, #14b8a6);
+  }
+}
+
+// Waiting for driver badge
+.waiting-driver-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 4px 10px;
+  border-radius: 16px;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  background: rgba(var(--warning-rgb, 245, 158, 11), 0.12);
+  color: var(--orange-500, #f59e0b);
+  white-space: nowrap;
+
+  i {
+    font-size: 12px;
+  }
+}

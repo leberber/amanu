@@ -91,6 +91,140 @@
   }
 }
 
+// Driver info in stat card
+.driver-info {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+
+  &__name {
+    font-weight: var(--font-weight-medium);
+  }
+}
+
+// Stat card sub value (for phone, etc)
+.stat-card__sub-value {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--font-size-xs);
+  color: var(--text-color-secondary);
+  margin-top: 2px;
+
+  i {
+    font-size: 11px;
+  }
+}
+
+// Additional stat card icon colors
+.stat-card__icon--teal {
+  background: linear-gradient(135deg, rgba(20, 184, 166, 0.2) 0%, rgba(20, 184, 166, 0.1) 100%);
+  i { color: #14b8a6; }
+}
+
+.stat-card__icon--gray {
+  background: rgba(156, 163, 175, 0.15);
+  i { color: var(--text-color-secondary); }
+}
+
+// Vehicle type pill
+.vehicle-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
+
+  &.truck {
+    background: rgba(59, 130, 246, 0.12);
+    color: #3b82f6;
+  }
+
+  &.van {
+    background: rgba(168, 85, 247, 0.12);
+    color: #a855f7;
+  }
+
+  &.mini_van {
+    background: rgba(20, 184, 166, 0.12);
+    color: #14b8a6;
+  }
+}
+
+// Driver assignment form
+.driver-assign-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.driver-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+
+  &__name {
+    font-weight: var(--font-weight-medium);
+  }
+
+  &__details {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  &__orders {
+    font-size: var(--font-size-xs);
+    color: var(--text-color-secondary);
+  }
+}
+
+.assign-btn,
+.unassign-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border: none;
+  border-radius: var(--radius-lg);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.assign-btn {
+  background: var(--color-success);
+  color: white;
+
+  &:hover:not(:disabled) {
+    background: var(--color-success-dark, #16a34a);
+    transform: translateY(-1px);
+  }
+}
+
+.unassign-btn {
+  background: rgba(var(--color-error-rgb), 0.1);
+  color: var(--color-error);
+
+  &:hover:not(:disabled) {
+    background: rgba(var(--color-error-rgb), 0.2);
+  }
+}
+
+.driver-unassign-section {
+  text-align: center;
+}
+
 // Order total footer
 .order-total-footer {
   display: flex;

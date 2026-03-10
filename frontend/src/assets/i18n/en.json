@@ -1186,13 +1186,26 @@
         "customer": "Customer Details",
         "date": "Order Date",
         "status": "Status",
+        "driver": "Driver",
         "total": "Total",
         "actions": "Actions",
         "product": "Product",
         "unit_price": "Unit Price",
         "quantity": "Quantity",
         "unit": "Unit"
-      }
+      },
+      "waiting_for_driver": "Waiting for driver",
+      "assign_driver": "Assign Driver",
+      "select_driver": "Select a driver",
+      "confirm_assign": "Assign",
+      "unassign_driver": "Unassign Driver",
+      "currently_assigned_to": "Currently assigned to:",
+      "active_orders": "orders",
+      "driver_assigned": "Driver assigned successfully",
+      "driver_unassigned": "Driver unassigned successfully",
+      "assign_error": "Failed to assign driver",
+      "unassign_error": "Failed to unassign driver",
+      "load_drivers_error": "Failed to load drivers"
     },
     "users": {
       "title": "User Management",

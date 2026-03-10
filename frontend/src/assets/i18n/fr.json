@@ -1185,13 +1185,26 @@
         "customer": "Détails Client",
         "date": "Date de Commande",
         "status": "Statut",
+        "driver": "Livreur",
         "total": "Total",
         "actions": "Actions",
         "product": "Produit",
         "unit_price": "Prix Unitaire",
         "quantity": "Quantité",
         "unit": "Unité"
-      }
+      },
+      "waiting_for_driver": "En attente d'un livreur",
+      "assign_driver": "Assigner un livreur",
+      "select_driver": "Sélectionner un livreur",
+      "confirm_assign": "Assigner",
+      "unassign_driver": "Retirer le livreur",
+      "currently_assigned_to": "Actuellement assigné à :",
+      "active_orders": "commandes",
+      "driver_assigned": "Livreur assigné avec succès",
+      "driver_unassigned": "Livreur retiré avec succès",
+      "assign_error": "Échec de l'assignation du livreur",
+      "unassign_error": "Échec du retrait du livreur",
+      "load_drivers_error": "Échec du chargement des livreurs"
     },
     "users": {
       "title": "Gestion des Utilisateurs",

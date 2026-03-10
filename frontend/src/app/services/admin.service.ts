@@ -5,15 +5,20 @@ import { PAGINATION } from '../core/constants';
 
 import { map } from 'rxjs/operators';
 
-import { 
-  DashboardStats, 
-  SalesReport, 
+import {
+  DashboardStats,
+  SalesReport,
   LowStockProduct,
   Order,
   UserManage,
   UsersResponse,
   OrdersResponse
 } from '../models/admin.model';
+import {
+  DriverProfileWithFlags,
+  AssignOrderRequest,
+  AssignOrderResponse
+} from '../models/driver.model';
 
 @Injectable({
   providedIn: 'root'
@@ -91,5 +96,22 @@ export class AdminService {
 
   createUser(userData: any): Observable<UserManage> {
     return this.apiService.post<UserManage>('/auth/register', userData);
+  }
+
+  // Driver management
+  getAvailableDrivers(): Observable<DriverProfileWithFlags[]> {
+    return this.apiService.get<DriverProfileWithFlags[]>('/admin/drivers/profiles');
+  }
+
+  assignOrderToDriver(orderId: number, request: AssignOrderRequest): Observable<AssignOrderResponse> {
+    return this.apiService.post<AssignOrderResponse>(`/admin/drivers/orders/${orderId}/assign`, request);
+  }
+
+  unassignOrder(orderId: number): Observable<AssignOrderResponse> {
+    return this.apiService.post<AssignOrderResponse>(`/admin/drivers/orders/${orderId}/unassign`, {});
+  }
+
+  reassignOrder(orderId: number, request: AssignOrderRequest): Observable<AssignOrderResponse> {
+    return this.apiService.post<AssignOrderResponse>(`/admin/drivers/orders/${orderId}/reassign`, request);
   }
 }

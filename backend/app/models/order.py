@@ -142,6 +142,7 @@ class DriverInfo(SQLModel):
     id: int
     full_name: str
     phone: Optional[str] = None
+    vehicle_type: Optional[str] = None  # truck, van, mini_van
 
     model_config = {"from_attributes": True}
 

@@ -1189,13 +1189,26 @@
         "customer": "تفاصيل العميل",
         "date": "تاريخ الطلب",
         "status": "الحالة",
+        "driver": "السائق",
         "total": "المجموع",
         "actions": "الإجراءات",
         "product": "المنتج",
         "unit_price": "سعر الوحدة",
         "quantity": "الكمية",
         "unit": "الوحدة"
-      }
+      },
+      "waiting_for_driver": "في انتظار السائق",
+      "assign_driver": "تعيين سائق",
+      "select_driver": "اختر سائقاً",
+      "confirm_assign": "تعيين",
+      "unassign_driver": "إلغاء تعيين السائق",
+      "currently_assigned_to": "معين حالياً إلى:",
+      "active_orders": "طلبات",
+      "driver_assigned": "تم تعيين السائق بنجاح",
+      "driver_unassigned": "تم إلغاء تعيين السائق بنجاح",
+      "assign_error": "فشل في تعيين السائق",
+      "unassign_error": "فشل في إلغاء تعيين السائق",
+      "load_drivers_error": "فشل في تحميل السائقين"
     },
     "users": {
       "title": "إدارة المستخدمين",

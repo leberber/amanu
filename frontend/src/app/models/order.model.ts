@@ -46,6 +46,7 @@ export interface DriverInfo {
   id: number;
   full_name: string;
   phone?: string;
+  vehicle_type?: string;  // truck, van, mini_van
 }
 
 export interface Order {

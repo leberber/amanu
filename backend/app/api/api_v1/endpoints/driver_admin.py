@@ -36,10 +36,14 @@ def order_to_response(order: Order, session: Session) -> OrderWithItems:
 
     driver_info = None
     if order.driver:
+        vehicle_type = None
+        if order.driver.driver_profile:
+            vehicle_type = order.driver.driver_profile.vehicle_type
         driver_info = DriverInfo(
             id=order.driver.id,
             full_name=order.driver.full_name,
-            phone=order.driver.phone
+            phone=order.driver.phone,
+            vehicle_type=vehicle_type
         )
 
     items = [

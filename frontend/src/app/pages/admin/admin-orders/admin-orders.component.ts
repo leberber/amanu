@@ -59,12 +59,13 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
 
   // Skeleton configuration
   skeletonColumns: SkeletonColumn[] = [
-    { width: '10%', type: 'text', headerWidth: '80px' },
-    { width: '25%', type: 'text-multi', headerWidth: '100px' },
-    { width: '15%', type: 'text', headerWidth: '60px' },
-    { width: '15%', type: 'pill', headerWidth: '60px' },
-    { width: '15%', type: 'text', headerWidth: '60px' },
-    { width: '20%', type: 'actions', headerWidth: '80px' }
+    { width: '8%', type: 'text', headerWidth: '60px' },     // order_id
+    { width: '20%', type: 'text-multi', headerWidth: '80px' }, // customer
+    { width: '12%', type: 'text', headerWidth: '60px' },    // date
+    { width: '12%', type: 'pill', headerWidth: '60px' },    // status
+    { width: '18%', type: 'text-multi', headerWidth: '60px' }, // driver
+    { width: '12%', type: 'text', headerWidth: '60px' },    // total
+    { width: '18%', type: 'actions', headerWidth: '60px' }  // actions
   ];
 
   // Column visibility options - with mobile defaults (initialized in ngOnInit)
@@ -88,6 +89,7 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
       { field: 'customer', label: 'admin.orders.table.customer', visible: true },
       { field: 'date', label: 'admin.orders.table.date', visible: !isMobile },
       { field: 'status', label: 'admin.orders.table.status', visible: true },
+      { field: 'driver', label: 'admin.orders.table.driver', visible: !isMobile },
       { field: 'total', label: 'admin.orders.table.total', visible: true },
       { field: 'actions', label: 'admin.orders.table.actions', visible: !isMobile }
     ];
