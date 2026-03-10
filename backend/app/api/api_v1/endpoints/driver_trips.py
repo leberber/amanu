@@ -747,9 +747,27 @@ def get_driver_stats(
         .where(Order.delivered_at >= week_start)
     ).one()
 
-    # TODO: Calculate actual earnings when earnings model is implemented
-    earnings_today = 0.0
-    earnings_this_week = 0.0
+    # Calculate earnings based on shipping cost and commission
+    shipping_config = get_shipping_config(session)
+    commission_rate = shipping_config.driver_commission_percent / 100
+
+    # Today's earnings
+    earnings_today_sum = session.exec(
+        select(func.coalesce(func.sum(Order.shipping_cost), 0))
+        .where(Order.driver_id == driver.id)
+        .where(Order.status == OrderStatus.DELIVERED)
+        .where(Order.delivered_at >= today_start)
+    ).one()
+    earnings_today = (earnings_today_sum or 0) * commission_rate
+
+    # This week's earnings
+    earnings_this_week_sum = session.exec(
+        select(func.coalesce(func.sum(Order.shipping_cost), 0))
+        .where(Order.driver_id == driver.id)
+        .where(Order.status == OrderStatus.DELIVERED)
+        .where(Order.delivered_at >= week_start)
+    ).one()
+    earnings_this_week = (earnings_this_week_sum or 0) * commission_rate
 
     return DriverStats(
         total_deliveries=profile.total_deliveries,
