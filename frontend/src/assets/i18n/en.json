@@ -624,6 +624,9 @@
     "status": {
       "pending": "Pending",
       "confirmed": "Confirmed",
+      "assigned": "Assigned",
+      "picked_up": "Picked Up",
+      "in_transit": "In Transit",
       "shipped": "Shipped",
       "delivered": "Delivered",
       "cancelled": "Cancelled"

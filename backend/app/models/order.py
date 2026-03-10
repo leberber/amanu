@@ -2,7 +2,7 @@ from sqlmodel import SQLModel, Field, Relationship
 from typing import Optional, List, Dict, Any, TYPE_CHECKING
 from datetime import datetime, timezone
 from enum import Enum
-from pydantic import field_validator
+from pydantic import field_validator, field_serializer
 
 if TYPE_CHECKING:
     from app.models.user import User
@@ -157,6 +157,13 @@ class OrderRead(OrderBase):
     delivery_notes: Optional[str] = None
     estimated_delivery_minutes: Optional[int] = None
     actual_delivery_minutes: Optional[int] = None
+
+    @field_serializer('status')
+    def serialize_status(self, status: OrderStatus) -> str:
+        """Serialize status to lowercase for frontend compatibility"""
+        if isinstance(status, OrderStatus):
+            return status.value.lower()
+        return str(status).lower()
 
 
 # Create a new Pydantic model that explicitly includes items

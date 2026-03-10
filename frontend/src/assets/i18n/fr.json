@@ -621,6 +621,9 @@
     "status": {
       "pending": "En attente",
       "confirmed": "Confirmée",
+      "assigned": "Assignée",
+      "picked_up": "Récupérée",
+      "in_transit": "En transit",
       "shipped": "Expédiée",
       "delivered": "Livrée",
       "cancelled": "Annulée"

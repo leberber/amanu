@@ -54,14 +54,10 @@ export class AdminService {
     }
     
     return this.apiService.get<Order[]>('/orders', { params }).pipe(
-      map(response => {
-        // The API returns an array of orders, but we need to transform it
-        // to an object with orders and total properties
-        return {
-          orders: response,
-          total: response.length // For now we'll use the array length as the total
-        };
-      })
+      map(response => ({
+        orders: response,
+        total: response.length
+      }))
     );
   }
   
