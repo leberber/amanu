@@ -141,7 +141,10 @@ export class AppComponent implements OnInit {
     if (this.authService.isLoggedIn) {
       this.authService.loadCurrentUser()
         .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe();
+        .subscribe(() => {
+          // Redirect driver to driver app if they're on a client route
+          this.redirectDriverIfNeeded();
+        });
     }
 
     // Splash screen animation sequence (only if not showing onboarding and not returning from background)
@@ -234,5 +237,26 @@ export class AppComponent implements OnInit {
     } catch {
       return false;
     }
+  }
+
+  /**
+   * Redirect driver users to driver app if they're currently on a client route
+   */
+  private redirectDriverIfNeeded(): void {
+    if (!this.authService.isDriver()) {
+      return;
+    }
+
+    const currentUrl = this.router.url;
+
+    // Don't redirect if already in driver area or on auth pages
+    if (currentUrl.startsWith('/driver') ||
+        currentUrl.startsWith('/login') ||
+        currentUrl.startsWith('/register')) {
+      return;
+    }
+
+    // Driver is on a client route, redirect to driver app
+    this.router.navigate([ROUTES.DRIVER.BASE]);
   }
 }
