@@ -21,33 +21,115 @@
 .status-card {
   &--pending { background: rgba(var(--color-warning-rgb), 0.08); border-color: rgba(var(--color-warning-rgb), 0.2); }
   &--confirmed { background: rgba(var(--color-info-rgb), 0.08); border-color: rgba(var(--color-info-rgb), 0.2); }
+  &--assigned { background: rgba(124, 58, 237, 0.08); border-color: rgba(124, 58, 237, 0.2); }
+  &--picked_up { background: rgba(8, 145, 178, 0.08); border-color: rgba(8, 145, 178, 0.2); }
+  &--in_transit { background: rgba(var(--color-purple-rgb), 0.08); border-color: rgba(var(--color-purple-rgb), 0.2); }
   &--shipped { background: rgba(var(--color-purple-rgb), 0.08); border-color: rgba(var(--color-purple-rgb), 0.2); }
   &--delivered { background: rgba(var(--color-success-rgb), 0.08); border-color: rgba(var(--color-success-rgb), 0.2); }
   &--cancelled { background: rgba(var(--color-error-rgb), 0.08); border-color: rgba(var(--color-error-rgb), 0.2); }
 }
 
-// Confirm button
+// Status options section
+.status-options-section {
+  padding: var(--space-4) var(--space-5);
+}
+
+.status-options-label {
+  display: block;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-color-secondary);
+  margin-bottom: var(--space-3);
+}
+
+.status-options-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+// Driver selection section (for status change)
+.status-driver-section {
+  padding: var(--space-4) var(--space-5);
+  padding-top: 0;
+  border-top: 1px solid var(--border-color-light);
+  margin-top: var(--space-3);
+  padding-top: var(--space-4);
+}
+
+.status-driver-label {
+  display: block;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-color-secondary);
+  margin-bottom: var(--space-3);
+}
+
+.driver-loading,
+.driver-empty {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  background: var(--surface-ground);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  color: var(--text-color-secondary);
+
+  i {
+    font-size: 1rem;
+  }
+}
+
+.driver-empty {
+  color: var(--color-warning);
+
+  i {
+    color: var(--color-warning);
+  }
+}
+
+// Confirm section
+.status-confirm-section {
+  padding: var(--space-4) var(--space-5);
+  padding-top: var(--space-3);
+}
+
 .status-confirm-btn {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.75rem;
   width: 100%;
-  margin-top: var(--space-4);
-  padding: var(--space-6) var(--space-6);
+  padding: var(--space-4) var(--space-5);
   border: none;
-  border-radius: var(--radius-xl);
-  font-size: var(--font-size-lg);
-  font-weight: var(--font-weight-bold);
+  border-radius: var(--radius-lg);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
   cursor: pointer;
   background: var(--color-success);
   color: white;
   transition: all var(--transition-fast);
   animation: scaleIn 0.3s ease;
 
-  i { font-size: 1.25rem; }
-  &:hover { background: var(--color-success-dark, #16a34a); transform: translateY(-2px); box-shadow: var(--shadow-lg); }
-  &:active { transform: translateY(0); }
+  i { font-size: 1.1rem; }
+  &:hover:not(:disabled) { background: var(--color-success-dark, #16a34a); transform: translateY(-1px); box-shadow: var(--shadow-md); }
+  &:active:not(:disabled) { transform: translateY(0); }
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 // Order items list
@@ -125,6 +207,16 @@
 .stat-card__icon--gray {
   background: rgba(156, 163, 175, 0.15);
   i { color: var(--text-color-secondary); }
+}
+
+.stat-card__icon--purple {
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.2) 0%, rgba(124, 58, 237, 0.1) 100%);
+  i { color: #7c3aed; }
+}
+
+.stat-card__icon--cyan {
+  background: linear-gradient(135deg, rgba(8, 145, 178, 0.2) 0%, rgba(8, 145, 178, 0.1) 100%);
+  i { color: #0891b2; }
 }
 
 // Vehicle type pill

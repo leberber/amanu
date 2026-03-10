@@ -19,6 +19,7 @@ import { PhoneFormatPipe } from '../../../shared/pipes/phone-format.pipe';
 import { UnitPipe } from '../../../shared/pipes/unit.pipe';
 import { DateService } from '../../../core/services/date.service';
 import { DRIVER_STATUS } from '../../../core/constants/driver.constants';
+import { ORDER_STATUS } from '../../../core/constants/order.constants';
 
 @Component({
   selector: 'app-admin-order-detail',
@@ -59,7 +60,6 @@ export class AdminOrderDetailComponent implements OnInit {
   // Driver assignment state
   availableDrivers = signal<DriverProfileWithFlags[]>([]);
   loadingDrivers = signal(false);
-  selectedDriverId: number | null = null;  // Regular property for ngModel
   assigning = signal(false);
 
   // Computed values
@@ -73,30 +73,24 @@ export class AdminOrderDetailComponent implements OnInit {
     return order ? this.dateService.formatDate(order.created_at) : '';
   });
 
-  // Check if order can be assigned to a driver
-  canAssignDriver = computed(() => {
-    const order = this.order();
-    if (!order) return false;
-    return ['pending', 'confirmed'].includes(order.status) && !order.driver;
-  });
-
-  // Check if order can be unassigned
-  canUnassignDriver = computed(() => {
-    const order = this.order();
-    if (!order) return false;
-    return order.driver && !['delivered', 'cancelled'].includes(order.status);
-  });
-
   // Driver options for dropdown
   driverOptions = computed(() => {
     return this.availableDrivers()
-      .filter(d => d.status !== DRIVER_STATUS.SUSPENDED)
+      .filter(d => d.status !== DRIVER_STATUS.SUSPENDED && d.is_available)
       .map(d => ({
-        label: `${d.user_id} - ${d.vehicle_type}`,
+        label: d.full_name
+          ? `${d.full_name} (${this.translateService.instant('driver.vehicle.' + d.vehicle_type)}) - ${d.active_orders_count}/${d.max_active_orders}`
+          : `${this.translateService.instant('driver.vehicle.' + d.vehicle_type)} - ${d.active_orders_count}/${d.max_active_orders}`,
         value: d.user_id,
         driver: d
       }));
   });
+
+  // Check if driver selection is required (when "assigned" status is selected)
+  needsDriverSelection = computed(() => this.selectedNewStatus() === ORDER_STATUS.ASSIGNED);
+
+  // Selected driver for status change flow
+  selectedStatusDriverId = signal<number | null>(null);
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
@@ -143,18 +137,67 @@ export class AdminOrderDetailComponent implements OnInit {
     return this.statusSeverity.getNextOrderStatuses(currentStatus);
   }
 
+  getStatusIndex(status: string): number {
+    const statusOrder = ['pending', 'confirmed', 'assigned', 'picked_up', 'in_transit', 'delivered'];
+    return statusOrder.indexOf(status);
+  }
+
   selectStatus(status: string): void {
     this.selectedNewStatus.set(status);
+    this.selectedStatusDriverId.set(null);
+  }
+
+  onStatusDriverSelect(driverId: number): void {
+    this.selectedStatusDriverId.set(driverId);
+  }
+
+  canConfirmStatusChange(): boolean {
+    if (!this.selectedNewStatus()) return false;
+    if (this.needsDriverSelection() && !this.selectedStatusDriverId()) return false;
+    return true;
   }
 
   confirmStatusChange(): void {
     const order = this.order();
     const newStatus = this.selectedNewStatus();
 
-    if (order && newStatus) {
+    if (!order || !newStatus) return;
+
+    // If assigning to a driver, use the assign API
+    if (newStatus === ORDER_STATUS.ASSIGNED) {
+      const driverId = this.selectedStatusDriverId();
+      if (!driverId) return;
+      this.assignOrderToDriverFromStatus(order.id, driverId);
+    } else {
       this.selectedNewStatus.set(null);
+      this.selectedStatusDriverId.set(null);
       this.updateOrderStatus(order.id, newStatus);
     }
+  }
+
+  private assignOrderToDriverFromStatus(orderId: number, driverId: number): void {
+    this.assigning.set(true);
+    this.adminService.assignOrderToDriver(orderId, { driver_id: driverId })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          if (response.success && response.order) {
+            const currentOrder = this.order();
+            this.order.set({
+              ...response.order,
+              items: currentOrder?.items
+            });
+            this.selectedNewStatus.set(null);
+            this.selectedStatusDriverId.set(null);
+            this.toast.showSuccess('admin.orders.driver_assigned');
+          }
+          this.assigning.set(false);
+        },
+        error: (error) => {
+          this.assigning.set(false);
+          this.toast.showApiError(error, 'admin.orders.assign_error');
+        }
+      });
   }
 
   private updateOrderStatus(orderId: number, newStatus: string): void {
@@ -178,7 +221,7 @@ export class AdminOrderDetailComponent implements OnInit {
       });
   }
 
-  // Driver assignment methods
+  // Driver loading
   loadAvailableDrivers(): void {
     this.loadingDrivers.set(true);
     this.adminService.getAvailableDrivers()
@@ -190,62 +233,6 @@ export class AdminOrderDetailComponent implements OnInit {
         },
         error: () => {
           this.loadingDrivers.set(false);
-          this.toast.showError('admin.orders.load_drivers_error');
-        }
-      });
-  }
-
-  assignToDriver(): void {
-    const order = this.order();
-    const driverId = this.selectedDriverId;
-
-    if (!order || !driverId) return;
-
-    this.assigning.set(true);
-    this.adminService.assignOrderToDriver(order.id, { driver_id: driverId })
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (response) => {
-          if (response.success && response.order) {
-            const currentOrder = this.order();
-            this.order.set({
-              ...response.order,
-              items: currentOrder?.items
-            });
-            this.selectedDriverId = null;
-            this.toast.showSuccess('admin.orders.driver_assigned');
-          }
-          this.assigning.set(false);
-        },
-        error: (error) => {
-          this.assigning.set(false);
-          this.toast.showApiError(error, 'admin.orders.assign_error');
-        }
-      });
-  }
-
-  unassignDriver(): void {
-    const order = this.order();
-    if (!order) return;
-
-    this.assigning.set(true);
-    this.adminService.unassignOrder(order.id)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (response) => {
-          if (response.success && response.order) {
-            const currentOrder = this.order();
-            this.order.set({
-              ...response.order,
-              items: currentOrder?.items
-            });
-            this.toast.showSuccess('admin.orders.driver_unassigned');
-          }
-          this.assigning.set(false);
-        },
-        error: (error) => {
-          this.assigning.set(false);
-          this.toast.showApiError(error, 'admin.orders.unassign_error');
         }
       });
   }

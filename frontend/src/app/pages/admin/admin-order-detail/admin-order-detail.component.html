@@ -64,7 +64,9 @@
             <span class="stat-card__icon" [ngClass]="{
               'stat-card__icon--warning': order.status === 'pending',
               'stat-card__icon--info': order.status === 'confirmed',
-              'stat-card__icon--primary': order.status === 'shipped',
+              'stat-card__icon--purple': order.status === 'assigned',
+              'stat-card__icon--cyan': order.status === 'picked_up',
+              'stat-card__icon--primary': order.status === 'in_transit' || order.status === 'shipped',
               'stat-card__icon--success': order.status === 'delivered',
               'stat-card__icon--red': order.status === 'cancelled'
             }">
@@ -170,79 +172,6 @@
       </div>
     </div>
 
-    <!-- Driver Assignment Widget -->
-    @if (canAssignDriver() || canUnassignDriver()) {
-      <div class="widget animate-item" style="--item-delay: 375ms;">
-        <div class="widget__header">
-          <h3 class="widget__title">
-            <i class="pi pi-car"></i>
-            {{ 'admin.orders.assign_driver' | translate }}
-          </h3>
-        </div>
-        <div class="widget__body">
-          @if (canAssignDriver()) {
-            <div class="driver-assign-form">
-              <p-select
-                [options]="driverOptions()"
-                [(ngModel)]="selectedDriverId"
-                optionLabel="label"
-                optionValue="value"
-                [placeholder]="'admin.orders.select_driver' | translate"
-                [filter]="true"
-                filterBy="label"
-                [showClear]="true"
-                styleClass="w-full">
-                <ng-template let-driver pTemplate="item">
-                  <div class="driver-option">
-                    <span class="driver-option__name">{{ driver.driver.user_id }}</span>
-                    <div class="driver-option__details">
-                      <span class="vehicle-pill" [class]="driver.driver.vehicle_type">
-                        {{ 'driver.vehicle.' + driver.driver.vehicle_type | translate }}
-                      </span>
-                      <span class="driver-option__orders">
-                        {{ driver.driver.active_orders_count }}/{{ driver.driver.max_active_orders }} {{ 'admin.orders.active_orders' | translate }}
-                      </span>
-                    </div>
-                  </div>
-                </ng-template>
-              </p-select>
-              @if (selectedDriverId) {
-                <button
-                  class="assign-btn"
-                  [disabled]="assigning()"
-                  (click)="assignToDriver()">
-                  @if (assigning()) {
-                    <i class="pi pi-spin pi-spinner"></i>
-                  } @else {
-                    <i class="pi pi-check"></i>
-                  }
-                  {{ 'admin.orders.confirm_assign' | translate }}
-                </button>
-              }
-            </div>
-          } @else if (canUnassignDriver()) {
-            <div class="driver-unassign-section">
-              <p class="text-secondary mb-3">
-                {{ 'admin.orders.currently_assigned_to' | translate }}
-                <strong>{{ order.driver?.full_name }}</strong>
-              </p>
-              <button
-                class="unassign-btn"
-                [disabled]="assigning()"
-                (click)="unassignDriver()">
-                @if (assigning()) {
-                  <i class="pi pi-spin pi-spinner"></i>
-                } @else {
-                  <i class="pi pi-times"></i>
-                }
-                {{ 'admin.orders.unassign_driver' | translate }}
-              </button>
-            </div>
-          }
-        </div>
-      </div>
-    }
-
     <!-- Status Change Actions -->
     @if (canEditStatus(order.status)) {
       <div class="widget animate-item" style="--item-delay: 400ms;">
@@ -252,29 +181,103 @@
             {{ 'admin.orders.change_status' | translate }}
           </h3>
         </div>
-        <div class="widget__body">
-          <div class="select-cards">
-            @for (status of getNextStatuses(order.status); track status.value) {
-              <button
-                class="select-card"
-                [class.select-card--info]="status.value === 'confirmed'"
-                [class.select-card--purple]="status.value === 'shipped'"
-                [class.select-card--success]="status.value === 'delivered'"
-                [class.select-card--danger]="status.value === 'cancelled'"
-                [class.active]="selectedNewStatus() === status.value"
-                (click)="selectStatus(status.value)">
-                <div class="select-card__icon">
-                  <i [class]="status.icon"></i>
-                </div>
-                <span class="select-card__title">{{ status.label }}</span>
-              </button>
-            }
+        <div class="widget__body p-0">
+          <!-- Mini Timeline -->
+          <div class="status-timeline">
+            <div class="status-timeline__step" [class.completed]="getStatusIndex(order.status) >= 0" [class.current]="order.status === 'pending'">
+              <div class="status-timeline__dot"><i class="pi pi-clock"></i></div>
+              <span class="status-timeline__label">{{ 'admin.orders.status.pending' | translate }}</span>
+            </div>
+            <div class="status-timeline__line" [class.completed]="getStatusIndex(order.status) >= 1"></div>
+            <div class="status-timeline__step" [class.completed]="getStatusIndex(order.status) >= 1" [class.current]="order.status === 'confirmed'">
+              <div class="status-timeline__dot"><i class="pi pi-check-circle"></i></div>
+              <span class="status-timeline__label">{{ 'admin.orders.status.confirmed' | translate }}</span>
+            </div>
+            <div class="status-timeline__line" [class.completed]="getStatusIndex(order.status) >= 2"></div>
+            <div class="status-timeline__step" [class.completed]="getStatusIndex(order.status) >= 2" [class.current]="order.status === 'assigned' || order.status === 'picked_up'">
+              <div class="status-timeline__dot"><i class="pi pi-user"></i></div>
+              <span class="status-timeline__label">{{ 'admin.orders.status.assigned' | translate }}</span>
+            </div>
+            <div class="status-timeline__line" [class.completed]="getStatusIndex(order.status) >= 4"></div>
+            <div class="status-timeline__step" [class.completed]="getStatusIndex(order.status) >= 4" [class.current]="order.status === 'in_transit'">
+              <div class="status-timeline__dot"><i class="pi pi-truck"></i></div>
+              <span class="status-timeline__label">{{ 'admin.orders.status.in_transit' | translate }}</span>
+            </div>
+            <div class="status-timeline__line" [class.completed]="getStatusIndex(order.status) >= 5"></div>
+            <div class="status-timeline__step" [class.completed]="getStatusIndex(order.status) >= 5" [class.current]="order.status === 'delivered'">
+              <div class="status-timeline__dot"><i class="pi pi-check"></i></div>
+              <span class="status-timeline__label">{{ 'admin.orders.status.delivered' | translate }}</span>
+            </div>
           </div>
+
+          <!-- Status Options -->
+          <div class="status-options-section">
+            <span class="status-options-label">{{ 'admin.orders.select_next_status' | translate }}</span>
+            <div class="status-options-list">
+              @for (status of getNextStatuses(order.status); track status.value) {
+                <button
+                  class="status-option-card"
+                  [class]="status.value"
+                  [class.selected]="selectedNewStatus() === status.value"
+                  (click)="selectStatus(status.value)">
+                  <div class="status-option-card__icon">
+                    <i [class]="status.icon"></i>
+                  </div>
+                  <div class="status-option-card__content">
+                    <span class="status-option-card__title">{{ status.label }}</span>
+                    <span class="status-option-card__desc">{{ 'admin.orders.status_desc.' + status.value | translate }}</span>
+                  </div>
+                  @if (selectedNewStatus() === status.value) {
+                    <i class="pi pi-check status-option-card__check"></i>
+                  }
+                </button>
+              }
+            </div>
+          </div>
+
+          <!-- Driver Selection (when Assigned is selected) -->
+          @if (needsDriverSelection()) {
+            <div class="status-driver-section">
+              <span class="status-driver-label">{{ 'admin.orders.select_driver' | translate }}</span>
+              @if (loadingDrivers()) {
+                <div class="driver-loading">
+                  <i class="pi pi-spin pi-spinner"></i>
+                  <span>{{ 'common.loading' | translate }}</span>
+                </div>
+              } @else if (driverOptions().length === 0) {
+                <div class="driver-empty">
+                  <i class="pi pi-info-circle"></i>
+                  <span>{{ 'admin.orders.no_available_drivers' | translate }}</span>
+                </div>
+              } @else {
+                <p-select
+                  [options]="driverOptions()"
+                  [ngModel]="selectedStatusDriverId()"
+                  (ngModelChange)="onStatusDriverSelect($event)"
+                  [placeholder]="'admin.orders.select_driver' | translate"
+                  styleClass="w-full"
+                  [filter]="driverOptions().length > 5"
+                  appendTo="body">
+                </p-select>
+              }
+            </div>
+          }
+
+          <!-- Confirm Button -->
           @if (selectedNewStatus()) {
-            <button class="status-confirm-btn" (click)="confirmStatusChange()">
-              <i class="pi pi-check"></i>
-              <span>{{ 'common.confirm' | translate }}</span>
-            </button>
+            <div class="status-confirm-section">
+              <button
+                class="status-confirm-btn"
+                [disabled]="!canConfirmStatusChange() || assigning()"
+                (click)="confirmStatusChange()">
+                @if (assigning()) {
+                  <i class="pi pi-spin pi-spinner"></i>
+                } @else {
+                  <i class="pi pi-check"></i>
+                }
+                <span>{{ 'admin.orders.confirm_change' | translate }}</span>
+              </button>
+            </div>
           }
         </div>
       </div>
