@@ -1,6 +1,6 @@
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { DecimalPipe } from '@angular/common';
+import { DecimalPipe, Location } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { trigger, transition, style, animate } from '@angular/animations';
 
@@ -34,6 +34,7 @@ import { Order } from '../../../models/order.model';
 export class DriverTripDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly location = inject(Location);
   private readonly driverService = inject(DriverService);
   private readonly toast = inject(ToastMessageService);
 
@@ -99,7 +100,7 @@ export class DriverTripDetailComponent implements OnInit {
   }
 
   goBack(): void {
-    this.router.navigate([ROUTES.DRIVER.ACTIVE]);
+    this.location.back();
   }
 
   updateStatus(): void {
