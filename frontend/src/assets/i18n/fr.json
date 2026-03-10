@@ -1194,6 +1194,15 @@
         "unit": "Unité"
       },
       "waiting_for_driver": "En attente d'un livreur",
+      "update_status": "Mettre à jour le statut",
+      "select_next_status": "Sélectionner le prochain statut",
+      "confirm_change": "Confirmer",
+      "status_desc": {
+        "confirmed": "Commande vérifiée et prête pour le livreur",
+        "in_transit": "Le livreur est en route pour la livraison",
+        "delivered": "Commande livrée au client",
+        "cancelled": "Annuler cette commande"
+      },
       "assign_driver": "Assigner un livreur",
       "select_driver": "Sélectionner un livreur",
       "confirm_assign": "Assigner",

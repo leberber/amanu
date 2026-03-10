@@ -1,6 +1,8 @@
-import { Component, OnInit, inject, DestroyRef, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, DestroyRef, signal, computed, viewChild } from '@angular/core';
+import { Popover } from 'primeng/popover';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PopoverModule } from 'primeng/popover';
+import { DialogModule } from 'primeng/dialog';
 import { TranslateService } from '@ngx-translate/core';
 
 import { ADMIN_LIST_IMPORTS } from '../../../shared/imports/admin-shared.imports';
@@ -22,6 +24,7 @@ import { BaseAdminListComponent, ColumnOption } from '../../../shared/base/base-
   imports: [
     ...ADMIN_LIST_IMPORTS,
     PopoverModule,
+    DialogModule,
     TableSkeletonComponent,
     AgroclikPageContainerComponent
   ],
@@ -49,10 +52,12 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
   // Display orders - uses mobile list on mobile, paginated on desktop
   displayOrders = computed(() => this.isMobile() ? this.mobileOrders() : this.paginatedOrders());
 
-  // Inline status editing signals
+  // Status editing signals
   editingStatusOrderId = signal<number | null>(null);
+  editingOrder = signal<Order | null>(null);
   selectedNewStatus = signal<string | null>(null);
   pulseConfirm = signal(false);
+  showStatusDialog = signal(false);
 
   // Override status filter type for orders
   override statusFilter: string = 'all';
@@ -80,6 +85,9 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
 
   // Expose breakpoint signal for template and computed properties
   isMobile = this.breakpoint.isMobile;
+
+  // ViewChild for status popover
+  statusPopover = viewChild<Popover>('statusPopover');
 
   private getInitialColumnOptions(): ColumnOption[] {
     const isMobile = this.breakpoint.isMobile();
@@ -189,6 +197,12 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
     return this.statusSeverity.getOrderStatusIcon(status);
   }
 
+  // Get status index for timeline visualization
+  getStatusIndex(status: string): number {
+    const statusOrder = ['pending', 'confirmed', 'in_transit', 'delivered'];
+    return statusOrder.indexOf(status);
+  }
+
   // Status editing - delegate to service
   getNextStatuses(currentStatus: string): { value: string; label: string; icon: string }[] {
     return this.statusSeverity.getNextOrderStatuses(currentStatus);
@@ -198,8 +212,16 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
     return this.statusSeverity.canEditOrderStatus(status);
   }
 
+  openStatusPopover(event: Event, order: Order): void {
+    this.editingOrder.set(order);
+    this.editingStatusOrderId.set(order.id);
+    this.selectedNewStatus.set(null);
+    this.statusPopover()?.toggle(event);
+  }
+
   startEditStatus(order: Order): void {
     if (this.canEditStatus(order.status)) {
+      this.editingOrder.set(order);
       this.editingStatusOrderId.set(order.id);
       this.selectedNewStatus.set(null);
     }
@@ -207,6 +229,7 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
 
   cancelEditStatus(): void {
     this.editingStatusOrderId.set(null);
+    this.editingOrder.set(null);
     this.selectedNewStatus.set(null);
   }
 

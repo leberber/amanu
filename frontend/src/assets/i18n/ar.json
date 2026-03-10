@@ -1198,6 +1198,15 @@
         "unit": "الوحدة"
       },
       "waiting_for_driver": "في انتظار السائق",
+      "update_status": "تحديث الحالة",
+      "select_next_status": "اختر الحالة التالية",
+      "confirm_change": "تأكيد",
+      "status_desc": {
+        "confirmed": "تم التحقق من الطلب وجاهز للاستلام",
+        "in_transit": "السائق في الطريق للتوصيل",
+        "delivered": "تم توصيل الطلب للعميل",
+        "cancelled": "إلغاء هذا الطلب"
+      },
       "assign_driver": "تعيين سائق",
       "select_driver": "اختر سائقاً",
       "confirm_assign": "تعيين",

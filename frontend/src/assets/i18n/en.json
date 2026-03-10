@@ -1195,6 +1195,15 @@
         "unit": "Unit"
       },
       "waiting_for_driver": "Waiting for driver",
+      "update_status": "Update Status",
+      "select_next_status": "Select next status",
+      "confirm_change": "Confirm Change",
+      "status_desc": {
+        "confirmed": "Order verified and ready for driver pickup",
+        "in_transit": "Driver is on the way to deliver",
+        "delivered": "Order has been delivered to customer",
+        "cancelled": "Cancel this order"
+      },
       "assign_driver": "Assign Driver",
       "select_driver": "Select a driver",
       "confirm_assign": "Assign",

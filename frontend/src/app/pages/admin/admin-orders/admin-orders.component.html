@@ -201,55 +201,20 @@
                       </td>
                     }
 
-                    <!-- Status - Inline Editable (Desktop only) -->
+                    <!-- Status - Clickable to open popover -->
                     @if (isColumnVisible('status')) {
                       <td class="text-center status-cell" (click)="$event.stopPropagation()">
-                        <!-- Desktop: Inline editable -->
-                        <div class="status-display desktop-only"
-                             [class.editable]="canEditStatus(order.status) && !isEditingStatus(order.id)"
-                             [class.disabled]="isEditingStatus(order.id)"
-                             (click)="!isEditingStatus(order.id) && startEditStatus(order)">
+                        <div class="status-display"
+                             [class.editable]="canEditStatus(order.status)"
+                             (click)="canEditStatus(order.status) && openStatusPopover($event, order)">
                           <span class="status-badge" [class]="order.status">
                             <i [class]="getStatusIcon(order.status)"></i>
                             {{ 'admin.orders.status.' + order.status | translate }}
                           </span>
-                          @if (canEditStatus(order.status) && !isEditingStatus(order.id)) {
+                          @if (canEditStatus(order.status)) {
                             <i class="pi pi-chevron-down edit-hint"></i>
                           }
                         </div>
-                        <!-- Mobile: View only -->
-                        <div class="status-display mobile-only">
-                          <span class="status-badge" [class]="order.status">
-                            <i [class]="getStatusIcon(order.status)"></i>
-                            {{ 'admin.orders.status.' + order.status | translate }}
-                          </span>
-                        </div>
-                        @if (isEditingStatus(order.id)) {
-                          <div class="status-edit desktop-only">
-                            <div class="status-options">
-                              @for (status of getNextStatuses(order.status); track status.value) {
-                                <button
-                                  class="status-option"
-                                  [class]="status.value"
-                                  [class.selected]="isStatusSelected(status.value)"
-                                  (click)="selectNewStatus(status.value)">
-                                  <i [class]="status.icon"></i>
-                                  <span>{{ status.label }}</span>
-                                </button>
-                              }
-                            </div>
-                            <div class="status-edit-actions">
-                              @if (selectedNewStatus()) {
-                                <button class="cell-edit__btn cell-edit__btn--confirm" [class.pulse]="pulseConfirm()" (click)="confirmStatusChange()">
-                                  <i class="pi pi-check"></i>
-                                </button>
-                              }
-                              <button class="cell-edit__btn cell-edit__btn--cancel" (click)="cancelEditStatus()">
-                                <i class="pi pi-times"></i>
-                              </button>
-                            </div>
-                          </div>
-                        }
                       </td>
                     }
 
@@ -355,3 +320,75 @@
     }
   </div>
 </app-agroclik-page-container>
+
+<!-- Status Update Popover -->
+<p-popover #statusPopover styleClass="status-update-popover">
+  @if (editingOrder(); as order) {
+    <div class="status-popup">
+      <!-- Header -->
+      <div class="status-popup__header">
+        <span class="status-popup__title">{{ 'admin.orders.update_status' | translate }}</span>
+        <span class="status-popup__order-id">#{{ order.id }}</span>
+      </div>
+
+      <!-- Mini Timeline -->
+      <div class="status-timeline">
+        <div class="status-timeline__step" [class.completed]="getStatusIndex(order.status) >= 0" [class.current]="order.status === 'pending'">
+          <div class="status-timeline__dot"><i class="pi pi-clock"></i></div>
+          <span class="status-timeline__label">{{ 'admin.orders.status.pending' | translate }}</span>
+        </div>
+        <div class="status-timeline__line" [class.completed]="getStatusIndex(order.status) >= 1"></div>
+        <div class="status-timeline__step" [class.completed]="getStatusIndex(order.status) >= 1" [class.current]="order.status === 'confirmed'">
+          <div class="status-timeline__dot"><i class="pi pi-check-circle"></i></div>
+          <span class="status-timeline__label">{{ 'admin.orders.status.confirmed' | translate }}</span>
+        </div>
+        <div class="status-timeline__line" [class.completed]="getStatusIndex(order.status) >= 2"></div>
+        <div class="status-timeline__step" [class.completed]="getStatusIndex(order.status) >= 2" [class.current]="order.status === 'in_transit'">
+          <div class="status-timeline__dot"><i class="pi pi-truck"></i></div>
+          <span class="status-timeline__label">{{ 'admin.orders.status.in_transit' | translate }}</span>
+        </div>
+        <div class="status-timeline__line" [class.completed]="getStatusIndex(order.status) >= 3"></div>
+        <div class="status-timeline__step" [class.completed]="getStatusIndex(order.status) >= 3" [class.current]="order.status === 'delivered'">
+          <div class="status-timeline__dot"><i class="pi pi-check"></i></div>
+          <span class="status-timeline__label">{{ 'admin.orders.status.delivered' | translate }}</span>
+        </div>
+      </div>
+
+      <!-- Status Options -->
+      <div class="status-popup__options">
+        <span class="status-popup__label">{{ 'admin.orders.select_next_status' | translate }}</span>
+        @for (status of getNextStatuses(order.status); track status.value) {
+          <button
+            class="status-option-card"
+            [class]="status.value"
+            [class.selected]="isStatusSelected(status.value)"
+            (click)="selectNewStatus(status.value)">
+            <div class="status-option-card__icon">
+              <i [class]="status.icon"></i>
+            </div>
+            <div class="status-option-card__content">
+              <span class="status-option-card__title">{{ status.label }}</span>
+              <span class="status-option-card__desc">{{ 'admin.orders.status_desc.' + status.value | translate }}</span>
+            </div>
+            @if (isStatusSelected(status.value)) {
+              <i class="pi pi-check status-option-card__check"></i>
+            }
+          </button>
+        }
+      </div>
+
+      <!-- Actions -->
+      @if (selectedNewStatus()) {
+        <div class="status-popup__actions">
+          <button class="status-popup__btn status-popup__btn--cancel" (click)="cancelEditStatus(); statusPopover.hide()">
+            {{ 'common.cancel' | translate }}
+          </button>
+          <button class="status-popup__btn status-popup__btn--confirm" (click)="confirmStatusChange(); statusPopover.hide()">
+            <i class="pi pi-check"></i>
+            {{ 'admin.orders.confirm_change' | translate }}
+          </button>
+        </div>
+      }
+    </div>
+  }
+</p-popover>
