@@ -18,6 +18,7 @@ export interface ShippingPriceConfig {
   min_shipping_cost: number;
   max_shipping_cost: number;
   shipping_discount_tiers: ShippingDiscountTier[] | null;
+  driver_commission_percent: number;
   is_active: boolean;
   created_at: string;
   updated_at: string | null;
@@ -33,6 +34,7 @@ export interface ShippingPriceConfigCreate {
   min_shipping_cost?: number;
   max_shipping_cost?: number;
   shipping_discount_tiers?: ShippingDiscountTier[];
+  driver_commission_percent?: number;
 }
 
 export interface ShippingPriceConfigUpdate {
@@ -44,6 +46,7 @@ export interface ShippingPriceConfigUpdate {
   min_shipping_cost?: number;
   max_shipping_cost?: number;
   shipping_discount_tiers?: ShippingDiscountTier[];
+  driver_commission_percent?: number;
   is_active?: boolean;
 }
 

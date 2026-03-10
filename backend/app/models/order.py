@@ -56,6 +56,8 @@ class OrderBase(SQLModel):
     cross_sell_discount_amount: float = Field(default=0)
     # Volume discount fields
     volume_discount_amount: float = Field(default=0)
+    # Shipping cost (used for driver earnings calculation)
+    shipping_cost: float = Field(default=0)
 
 
 class Order(OrderBase, table=True):
@@ -101,6 +103,7 @@ class OrderCreate(SQLModel):
     contact_phone: str
     items: List[OrderCreateItem]
     promotion_code: Optional[str] = None  # Optional promo code
+    shipping_cost: float = 0  # Shipping cost calculated by frontend
 
     @field_validator("items")
     def validate_items(cls, v):
@@ -153,6 +156,7 @@ class OrderRead(OrderBase):
     discount_amount: float = 0
     cross_sell_discount_amount: float = 0
     volume_discount_amount: float = 0
+    shipping_cost: float = 0
     promotion_id: Optional[int] = None
     user: Optional[UserInfo] = None
 

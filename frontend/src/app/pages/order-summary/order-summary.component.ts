@@ -162,6 +162,8 @@ export class OrderSummaryComponent implements OnInit {
     }
 
     if (this.authService.isLoggedIn) {
+      // Save shipping cost for checkout to use
+      this.shippingService.setShippingCost(this.deliveryCost());
       // replaceUrl to keep history clean during checkout flow
       this.router.navigate([ROUTES.CHECKOUT], { replaceUrl: true });
     } else {

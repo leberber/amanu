@@ -10,6 +10,7 @@ import { ROUTES, RouteHelpers } from '../../core/constants/routes.constants';
 import { AuthService } from '../../services/auth.service';
 import { CartService, CartItem } from '../../services/cart.service';
 import { OrderService } from '../../services/order.service';
+import { ShippingService } from '../../services/shipping.service';
 import { TranslationService } from '../../services/translation.service';
 import { CartTranslationService } from '../../core/services/cart-translation.service';
 import { LightboxService } from '../../core/services/lightbox.service';
@@ -61,6 +62,7 @@ export class CheckoutComponent implements OnInit {
   private authService = inject(AuthService);
   private cartService = inject(CartService);
   private orderService = inject(OrderService);
+  private shippingService = inject(ShippingService);
   private toast = inject(ToastMessageService);
   private translationService = inject(TranslationService);
   private cartTranslation = inject(CartTranslationService);
@@ -116,13 +118,15 @@ export class CheckoutComponent implements OnInit {
       shipping_address: this.checkoutForm.value.address,
       contact_phone: this.checkoutForm.value.phone,
       items: this.orderService.cartItemsToOrderItems(this.cartItems()),
-      promotion_code: this.appliedPromotion()?.code
+      promotion_code: this.appliedPromotion()?.code,
+      shipping_cost: this.shippingService.lastShippingCost()
     };
 
     this.orderService.createOrder(orderData).subscribe({
       next: (order) => {
         this.toast.showSuccess('checkout.order_placed_message', { orderNumber: order.id });
         this.cartService.clearAll();
+        this.shippingService.clearShippingCost();
         setTimeout(() => {
           // replaceUrl to clear checkout from history - back button goes to products
           this.router.navigate([RouteHelpers.orderDetail(order.id)], {

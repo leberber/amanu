@@ -16,6 +16,7 @@ from app.models.driver import (
     DriverEarning, DriverEarningsResponse
 )
 from app.models.driver_config import DriverSystemConfig
+from app.models.shipping import ShippingPriceConfig
 from sqlmodel import SQLModel
 
 
@@ -52,6 +53,20 @@ def get_system_config(session: Session) -> DriverSystemConfig:
     config = session.exec(select(DriverSystemConfig)).first()
     if not config:
         config = DriverSystemConfig()
+        session.add(config)
+        session.commit()
+        session.refresh(config)
+    return config
+
+
+def get_shipping_config(session: Session) -> ShippingPriceConfig:
+    """Get shipping price config (default warehouse)"""
+    config = session.exec(
+        select(ShippingPriceConfig).where(ShippingPriceConfig.warehouse_id == "default")
+    ).first()
+    if not config:
+        # Create default config if not exists
+        config = ShippingPriceConfig(warehouse_id="default")
         session.add(config)
         session.commit()
         session.refresh(config)
@@ -260,6 +275,113 @@ def accept_trip(
 class TripStatusUpdate(SQLModel):
     """Request body for trip status updates"""
     notes: Optional[str] = None
+    status: Optional[str] = None
+
+
+@router.post("/{order_id}/status", response_model=AcceptTripResponse)
+def update_trip_status(
+    order_id: int,
+    update: TripStatusUpdate,
+    current_user: User = Depends(get_current_user),
+    session: Session = Depends(get_session),
+) -> Any:
+    """
+    Generic endpoint to update trip status.
+    Accepts status: picked_up, in_transit, delivered
+    """
+    driver, profile = get_driver_user(current_user, session)
+    config = get_system_config(session)
+
+    order = session.get(Order, order_id)
+    if not order:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Order not found"
+        )
+
+    if order.driver_id != driver.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Order not assigned to you"
+        )
+
+    now = datetime.now(timezone.utc)
+    new_status = update.status.upper() if update.status else None
+
+    if new_status == "PICKED_UP":
+        if order.status != OrderStatus.ASSIGNED:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Cannot pickup order with status: {order.status}"
+            )
+        order.status = OrderStatus.PICKED_UP
+        order.picked_up_at = now
+        message = "Order marked as picked up"
+
+    elif new_status == "IN_TRANSIT":
+        if order.status != OrderStatus.PICKED_UP:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Cannot start delivery for order with status: {order.status}"
+            )
+        order.status = OrderStatus.IN_TRANSIT
+        order.in_transit_at = now
+        message = "Delivery started"
+
+    elif new_status == "DELIVERED":
+        if order.status != OrderStatus.IN_TRANSIT:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Cannot complete order with status: {order.status}"
+            )
+        # Calculate delivery time
+        actual_minutes = None
+        if order.assigned_at:
+            assigned_at = order.assigned_at
+            if assigned_at.tzinfo is None:
+                assigned_at = assigned_at.replace(tzinfo=timezone.utc)
+            delta = now - assigned_at
+            actual_minutes = int(delta.total_seconds() / 60)
+
+        order.status = OrderStatus.DELIVERED
+        order.delivered_at = now
+        order.actual_delivery_minutes = actual_minutes
+
+        # Calculate driver earnings from shipping cost
+        shipping_config = get_shipping_config(session)
+        driver_earnings = order.shipping_cost * (shipping_config.driver_commission_percent / 100)
+
+        # Update driver stats
+        profile.active_orders_count = max(0, profile.active_orders_count - 1)
+        profile.total_deliveries += 1
+        profile.total_earnings += driver_earnings
+
+        if profile.active_orders_count == 0:
+            profile.status = DriverStatus.AVAILABLE
+
+        profile.updated_at = now
+        session.add(profile)
+        message = "Order delivered successfully"
+
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid status: {update.status}"
+        )
+
+    order.updated_at = now
+    if update.notes:
+        order.delivery_notes = update.notes
+
+    session.add(order)
+    session.commit()
+    session.refresh(order)
+
+    return AcceptTripResponse(
+        success=True,
+        message=message,
+        order=order_to_response(order, session)
+    )
 
 
 @router.post("/{order_id}/pickup", response_model=AcceptTripResponse)
@@ -411,13 +533,14 @@ def complete_delivery(
     if update and update.notes:
         order.delivery_notes = update.notes
 
+    # Calculate driver earnings from shipping cost
+    shipping_config = get_shipping_config(session)
+    driver_earnings = order.shipping_cost * (shipping_config.driver_commission_percent / 100)
+
     # Update driver stats
     profile.active_orders_count = max(0, profile.active_orders_count - 1)
     profile.total_deliveries += 1
-
-    # Calculate earnings (simple model for now)
-    earnings = config.base_delivery_fee
-    profile.total_earnings += earnings
+    profile.total_earnings += driver_earnings
 
     # Update driver status if no more active orders
     if profile.active_orders_count == 0:
@@ -658,6 +781,10 @@ def get_driver_earnings(
     week_start = today_start - timedelta(days=today_start.weekday())
     month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
 
+    # Get shipping config for commission percentage
+    shipping_config = get_shipping_config(session)
+    commission_rate = shipping_config.driver_commission_percent / 100
+
     # Get recent delivered orders
     recent_orders = session.exec(
         select(Order)
@@ -667,31 +794,28 @@ def get_driver_earnings(
         .limit(10)
     ).all()
 
-    # Calculate earnings per period (simple model: base_delivery_fee per order)
-    def count_deliveries_since(since: datetime) -> int:
+    # Calculate earnings per period based on shipping cost * commission
+    def sum_earnings_since(since: datetime) -> float:
         result = session.exec(
-            select(func.count(Order.id))
+            select(func.coalesce(func.sum(Order.shipping_cost), 0))
             .where(Order.driver_id == driver.id)
             .where(Order.status == OrderStatus.DELIVERED)
             .where(Order.delivered_at >= since)
         ).one()
-        return result or 0
+        return (result or 0) * commission_rate
 
-    deliveries_today = count_deliveries_since(today_start)
-    deliveries_this_week = count_deliveries_since(week_start)
-    deliveries_this_month = count_deliveries_since(month_start)
-
-    earnings_today = deliveries_today * config.base_delivery_fee
-    earnings_this_week = deliveries_this_week * config.base_delivery_fee
-    earnings_this_month = deliveries_this_month * config.base_delivery_fee
+    earnings_today = sum_earnings_since(today_start)
+    earnings_this_week = sum_earnings_since(week_start)
+    earnings_this_month = sum_earnings_since(month_start)
 
     # Build recent earnings list
     recent_earnings = []
     for order in recent_orders:
         customer_name = order.user.full_name if order.user else "Unknown"
+        driver_earning = order.shipping_cost * commission_rate
         recent_earnings.append(DriverEarning(
             order_id=order.id,
-            amount=config.base_delivery_fee,
+            amount=driver_earning,
             delivered_at=order.delivered_at,
             customer_name=customer_name,
             delivery_address=order.shipping_address
@@ -784,7 +908,10 @@ def get_trip_detail(
     session: Session = Depends(get_session),
 ) -> Any:
     """
-    Get details of a specific trip/order assigned to the driver.
+    Get details of a specific trip/order.
+    Allows viewing:
+    - Available orders (CONFIRMED, no driver) - so drivers can see before accepting
+    - Orders assigned to this driver
     """
     driver, profile = get_driver_user(current_user, session)
 
@@ -795,8 +922,13 @@ def get_trip_detail(
             detail="Order not found"
         )
 
-    # Verify driver owns this order
-    if order.driver_id != driver.id:
+    # Allow viewing if:
+    # 1. Order is available (CONFIRMED and no driver assigned)
+    # 2. Order is assigned to this driver
+    is_available = order.status == OrderStatus.CONFIRMED and order.driver_id is None
+    is_assigned_to_me = order.driver_id == driver.id
+
+    if not is_available and not is_assigned_to_me:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Order not assigned to you"

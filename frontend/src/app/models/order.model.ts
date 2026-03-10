@@ -25,6 +25,7 @@ export interface OrderCreate {
   contact_phone: string;
   items: OrderCreateItem[];
   promotion_code?: string;
+  shipping_cost?: number;
 }
 
 export interface PromotionInfo {
@@ -57,6 +58,7 @@ export interface Order {
   discount_amount?: number;
   cross_sell_discount_amount?: number;
   volume_discount_amount?: number;
+  shipping_cost?: number;
   total_amount: number;
   promotion_id?: number;
   promotion_info?: PromotionInfo;

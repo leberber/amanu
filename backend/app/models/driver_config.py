@@ -43,7 +43,7 @@ class DriverSystemConfig(SQLModel, table=True):
 
     # Earnings settings
     base_delivery_fee: float = Field(
-        default=0.0,
+        default=100.0,
         description="Base fee paid to driver per delivery"
     )
     per_km_rate: float = Field(

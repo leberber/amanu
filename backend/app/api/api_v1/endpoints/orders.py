@@ -318,6 +318,7 @@ def create_order(
         discount_amount=discount_amount,
         cross_sell_discount_amount=cross_sell_discount,
         volume_discount_amount=volume_discount,
+        shipping_cost=order_in.shipping_cost,
         total_amount=total_amount,
         promotion_id=promotion.id if promotion else None
     )

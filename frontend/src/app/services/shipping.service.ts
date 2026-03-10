@@ -1,6 +1,6 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 import { environment } from '../../environments/environment';
 import {
   ShippingPriceConfig,
@@ -17,6 +17,24 @@ import {
 export class ShippingService {
   private http = inject(HttpClient);
   private baseUrl = `${environment.apiUrl}/shipping`;
+
+  // Cache the last calculated shipping cost for use in checkout
+  private readonly _lastShippingCost = signal<number>(0);
+  readonly lastShippingCost = this._lastShippingCost.asReadonly();
+
+  /**
+   * Set the shipping cost (called from order-summary)
+   */
+  setShippingCost(cost: number): void {
+    this._lastShippingCost.set(cost);
+  }
+
+  /**
+   * Clear shipping cost (called after order is placed)
+   */
+  clearShippingCost(): void {
+    this._lastShippingCost.set(0);
+  }
 
   /**
    * Calculate shipping cost for a location (public)
