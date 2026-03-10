@@ -2132,6 +2132,14 @@
     "get_started": "Get Started"
   },
   "driver": {
+    "titles": {
+      "home": "Home",
+      "available": "Trips",
+      "active": "Current",
+      "history": "History",
+      "profile": "Profile",
+      "earnings": "Earnings"
+    },
     "dashboard": {
       "title": "Driver Dashboard",
       "welcome": "Welcome, Driver",

@@ -13,6 +13,10 @@
 // =============================================================================
 
 .driver-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -25,6 +29,13 @@
     flex: 1;
     display: flex;
     align-items: center;
+  }
+
+  &__title {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--text-color);
+    margin: 0;
   }
 
   &__right {
@@ -85,6 +96,7 @@
 .driver-content {
   flex: 1;
   overflow-y: auto;
+  padding-top: 60px; // Space for fixed header
   padding-bottom: 80px; // Space for bottom nav
 }
 

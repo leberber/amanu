@@ -63,6 +63,9 @@ export class DriverLayoutComponent implements OnInit {
   // Track if on trip detail page to hide bottom nav
   hideBottomNav = signal(false);
 
+  // Current page title
+  pageTitle = signal('Home');
+
   // Navigation items
   readonly navItems = [
     { path: '/driver', icon: 'pi pi-home', label: 'driver.navigation.dashboard', exact: true },
@@ -83,10 +86,12 @@ export class DriverLayoutComponent implements OnInit {
     ).subscribe((event: NavigationEnd) => {
       const url = event.urlAfterRedirects || event.url;
       this.hideBottomNav.set(this.shouldHideBottomNav(url));
+      this.pageTitle.set(this.getPageTitle(url));
     });
 
     // Initial check
     this.hideBottomNav.set(this.shouldHideBottomNav(this.router.url));
+    this.pageTitle.set(this.getPageTitle(this.router.url));
   }
 
   toggleStatus(): void {
@@ -107,6 +112,16 @@ export class DriverLayoutComponent implements OnInit {
   private shouldHideBottomNav(url: string): boolean {
     // Hide bottom nav on detail pages
     return url.includes('/driver/trip/') || url.includes('/driver/earnings');
+  }
+
+  private getPageTitle(url: string): string {
+    if (url === '/driver' || url === '/driver/') return 'driver.titles.home';
+    if (url.includes('/driver/available')) return 'driver.titles.available';
+    if (url.includes('/driver/active')) return 'driver.titles.active';
+    if (url.includes('/driver/history')) return 'driver.titles.history';
+    if (url.includes('/driver/profile')) return 'driver.titles.profile';
+    if (url.includes('/driver/earnings')) return 'driver.titles.earnings';
+    return 'driver.titles.home';
   }
 
   logout(): void {

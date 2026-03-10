@@ -2137,6 +2137,14 @@
     "welcome_to": "مرحباً بك في"
   },
   "driver": {
+    "titles": {
+      "home": "الرئيسية",
+      "available": "الرحلات",
+      "active": "الحالية",
+      "history": "السجل",
+      "profile": "الملف",
+      "earnings": "الأرباح"
+    },
     "dashboard": {
       "title": "لوحة تحكم السائق",
       "welcome": "مرحباً، سائق",

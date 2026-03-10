@@ -2149,6 +2149,14 @@
     "welcome_to": "Bienvenue sur"
   },
   "driver": {
+    "titles": {
+      "home": "Accueil",
+      "available": "Trajets",
+      "active": "Actuel",
+      "history": "Historique",
+      "profile": "Profil",
+      "earnings": "Gains"
+    },
     "dashboard": {
       "title": "Tableau de Bord Chauffeur",
       "welcome": "Bienvenue, Chauffeur",

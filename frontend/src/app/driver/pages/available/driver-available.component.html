@@ -1,15 +1,4 @@
 <div class="driver-available">
-  <!-- Header -->
-  <header class="page-header">
-    <div class="page-header__text">
-      <h1>{{ 'driver.available.title' | translate }}</h1>
-      <p>{{ 'driver.available.subtitle' | translate }}</p>
-    </div>
-    <button class="refresh-btn" (click)="refresh()" [disabled]="loading()">
-      <i class="pi pi-refresh" [class.pi-spin]="loading()"></i>
-    </button>
-  </header>
-
   <!-- Content -->
   @if (loading()) {
     <!-- Skeleton Loading -->
