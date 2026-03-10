@@ -1215,7 +1215,8 @@
       "driver_unassigned": "Livreur retiré avec succès",
       "assign_error": "Échec de l'assignation du livreur",
       "unassign_error": "Échec du retrait du livreur",
-      "load_drivers_error": "Échec du chargement des livreurs"
+      "load_drivers_error": "Échec du chargement des livreurs",
+      "no_available_drivers": "Aucun livreur disponible pour le moment"
     },
     "users": {
       "title": "Gestion des Utilisateurs",

@@ -427,7 +427,8 @@ def list_driver_profiles(
     """
     List all driver profiles with full details (admin/staff).
     """
-    query = select(DriverProfile)
+    # Single query with JOIN to get profiles + user info
+    query = select(DriverProfile, User).join(User, DriverProfile.user_id == User.id)
 
     if status_filter:
         query = query.where(DriverProfile.status == status_filter)
@@ -437,8 +438,18 @@ def list_driver_profiles(
 
     query = query.offset(skip).limit(limit)
 
-    profiles = session.exec(query).all()
-    return profiles
+    results = session.exec(query).all()
+
+    # Build response with user info included
+    response = []
+    for profile, user in results:
+        profile_dict = profile.model_dump()
+        profile_dict["full_name"] = user.full_name
+        profile_dict["phone"] = user.phone
+        profile_dict["email"] = user.email
+        response.append(DriverProfileWithFlags(**profile_dict))
+
+    return response
 
 
 @router.get("/profiles/{driver_id}", response_model=DriverProfileWithFlags)

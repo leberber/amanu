@@ -1219,7 +1219,8 @@
       "driver_unassigned": "تم إلغاء تعيين السائق بنجاح",
       "assign_error": "فشل في تعيين السائق",
       "unassign_error": "فشل في إلغاء تعيين السائق",
-      "load_drivers_error": "فشل في تحميل السائقين"
+      "load_drivers_error": "فشل في تحميل السائقين",
+      "no_available_drivers": "لا يوجد سائقون متاحون حالياً"
     },
     "users": {
       "title": "إدارة المستخدمين",

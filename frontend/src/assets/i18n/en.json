@@ -1216,7 +1216,8 @@
       "driver_unassigned": "Driver unassigned successfully",
       "assign_error": "Failed to assign driver",
       "unassign_error": "Failed to unassign driver",
-      "load_drivers_error": "Failed to load drivers"
+      "load_drivers_error": "Failed to load drivers",
+      "no_available_drivers": "No available drivers at the moment"
     },
     "users": {
       "title": "User Management",

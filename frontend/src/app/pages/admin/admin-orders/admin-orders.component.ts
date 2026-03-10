@@ -3,6 +3,7 @@ import { Popover } from 'primeng/popover';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PopoverModule } from 'primeng/popover';
 import { DialogModule } from 'primeng/dialog';
+import { SelectModule } from 'primeng/select';
 import { TranslateService } from '@ngx-translate/core';
 
 import { ADMIN_LIST_IMPORTS } from '../../../shared/imports/admin-shared.imports';
@@ -10,11 +11,13 @@ import { TableSkeletonComponent, SkeletonColumn } from '../../../shared/componen
 import { AgroclikPageContainerComponent } from '../../../shared/components/agroclik-page-container/agroclik-page-container.component';
 import { ROUTES, RouteHelpers } from '../../../core/constants/routes.constants';
 import { ORDER_STATUS } from '../../../core/constants/order.constants';
+import { DRIVER_STATUS } from '../../../core/constants/driver.constants';
 import { PAGINATION } from '../../../core/constants';
 import { BreakpointService } from '../../../core/services/breakpoint.service';
 import { onLanguageChange } from '../../../core/utils/language-change.util';
 import { AdminService } from '../../../services/admin.service';
 import { Order } from '../../../models/admin.model';
+import { DriverProfileWithFlags } from '../../../models/driver.model';
 import { StatusSeverityService } from '../../../core/services/status-severity.service';
 import { BaseAdminListComponent, ColumnOption } from '../../../shared/base/base-admin-list.component';
 
@@ -25,6 +28,7 @@ import { BaseAdminListComponent, ColumnOption } from '../../../shared/base/base-
     ...ADMIN_LIST_IMPORTS,
     PopoverModule,
     DialogModule,
+    SelectModule,
     TableSkeletonComponent,
     AgroclikPageContainerComponent
   ],
@@ -58,6 +62,27 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
   selectedNewStatus = signal<string | null>(null);
   pulseConfirm = signal(false);
   showStatusDialog = signal(false);
+
+  // Driver assignment signals
+  availableDrivers = signal<DriverProfileWithFlags[]>([]);
+  loadingDrivers = signal(false);
+  selectedDriverId = signal<number | null>(null);
+  assigning = signal(false);
+
+  // Driver options for dropdown
+  driverOptions = computed(() => {
+    return this.availableDrivers()
+      .filter(d => d.status !== DRIVER_STATUS.SUSPENDED && d.is_available)
+      .map(d => ({
+        label: d.full_name
+          ? `${d.full_name} (${this.translateService.instant('driver.vehicle.' + d.vehicle_type)}) - ${d.active_orders_count}/${d.max_active_orders}`
+          : `${this.translateService.instant('driver.vehicle.' + d.vehicle_type)} - ${d.active_orders_count}/${d.max_active_orders}`,
+        value: d.id
+      }));
+  });
+
+  // Check if driver selection is required (when "assigned" status is selected)
+  needsDriverSelection = computed(() => this.selectedNewStatus() === ORDER_STATUS.ASSIGNED);
 
   // Override status filter type for orders
   override statusFilter: string = 'all';
@@ -216,6 +241,8 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
     this.editingOrder.set(order);
     this.editingStatusOrderId.set(order.id);
     this.selectedNewStatus.set(null);
+    this.selectedDriverId.set(null);
+    this.loadAvailableDrivers();
     this.statusPopover()?.toggle(event);
   }
 
@@ -224,6 +251,7 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
       this.editingOrder.set(order);
       this.editingStatusOrderId.set(order.id);
       this.selectedNewStatus.set(null);
+      this.selectedDriverId.set(null);
     }
   }
 
@@ -231,6 +259,7 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
     this.editingStatusOrderId.set(null);
     this.editingOrder.set(null);
     this.selectedNewStatus.set(null);
+    this.selectedDriverId.set(null);
   }
 
   isEditingStatus(orderId: number): boolean {
@@ -243,17 +272,82 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
 
   selectNewStatus(newStatus: string): void {
     this.selectedNewStatus.set(newStatus);
+    this.selectedDriverId.set(null);
     this.pulseConfirm.set(false);
     setTimeout(() => this.pulseConfirm.set(true), 10);
+  }
+
+  onDriverSelect(driverId: number): void {
+    this.selectedDriverId.set(driverId);
+  }
+
+  canConfirmStatusChange(): boolean {
+    if (!this.selectedNewStatus()) return false;
+    if (this.needsDriverSelection() && !this.selectedDriverId()) return false;
+    return true;
   }
 
   confirmStatusChange(): void {
     const orderId = this.editingStatusOrderId();
     const newStatus = this.selectedNewStatus();
-    if (orderId && newStatus) {
+
+    if (!orderId || !newStatus) return;
+
+    // If assigning to a driver, use the assign API
+    if (newStatus === ORDER_STATUS.ASSIGNED) {
+      const driverId = this.selectedDriverId();
+      if (!driverId) return;
+      this.assignOrderToDriver(orderId, driverId);
+    } else {
       this.cancelEditStatus();
       this.updateOrderStatus(orderId, newStatus);
     }
+  }
+
+  private loadAvailableDrivers(): void {
+    this.loadingDrivers.set(true);
+    this.adminService.getAvailableDrivers()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (drivers) => {
+          this.availableDrivers.set(drivers);
+          this.loadingDrivers.set(false);
+        },
+        error: () => {
+          this.loadingDrivers.set(false);
+          this.availableDrivers.set([]);
+        }
+      });
+  }
+
+  private assignOrderToDriver(orderId: number, driverId: number): void {
+    this.assigning.set(true);
+    this.adminService.assignOrderToDriver(orderId, { driver_id: driverId })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          this.assigning.set(false);
+          if (response.order) {
+            this.allOrders.update(orders => {
+              const index = orders.findIndex(o => o.id === orderId);
+              if (index !== -1) {
+                const updated = [...orders];
+                updated[index] = response.order!;
+                return updated;
+              }
+              return orders;
+            });
+            this.filterItems();
+          }
+          this.statusPopover()?.hide();
+          this.cancelEditStatus();
+          this.baseToast.showSuccess('admin.orders.driver_assigned');
+        },
+        error: (error) => {
+          this.assigning.set(false);
+          this.baseToast.showApiError(error, 'admin.orders.assign_error');
+        }
+      });
   }
 
   private updateOrderStatus(orderId: number, newStatus: string): void {

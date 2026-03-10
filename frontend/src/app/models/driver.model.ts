@@ -32,6 +32,10 @@ export interface DriverProfileWithFlags extends DriverProfile {
   flag_reason?: string;
   flagged_at?: string;
   suspended_until?: string;
+  // User info (populated by endpoint)
+  full_name?: string;
+  phone?: string;
+  email?: string;
 }
 
 export interface DriverProfileUpdate {

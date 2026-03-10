@@ -201,9 +201,48 @@
       background: var(--primary-color);
       color: white;
 
-      &:hover {
+      &:hover:not(:disabled) {
         background: var(--primary-600);
       }
+
+      &:disabled,
+      &.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
     }
+  }
+
+  &__driver-select {
+    padding: var(--space-3) var(--space-4);
+    border-top: 1px solid var(--border-color-light);
+    background: var(--surface-ground);
+  }
+}
+
+// Driver selection states
+.driver-loading,
+.driver-empty {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  color: var(--text-color-secondary);
+  font-size: var(--font-size-sm);
+
+  i {
+    font-size: var(--font-size-base);
+  }
+}
+
+.driver-empty {
+  background: rgba(var(--warning-rgb, 245, 158, 11), 0.08);
+  border-radius: var(--radius-md);
+  color: var(--orange-600, #d97706);
+}
+
+::ng-deep .driver-dropdown {
+  .p-select {
+    width: 100%;
   }
 }

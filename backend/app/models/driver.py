@@ -111,6 +111,10 @@ class DriverProfileWithFlags(DriverProfileRead):
     flag_reason: Optional[str] = None
     flagged_at: Optional[datetime] = None
     suspended_until: Optional[datetime] = None
+    # User info (populated by endpoint)
+    full_name: Optional[str] = None
+    phone: Optional[str] = None
+    email: Optional[str] = None
 
 
 class DriverProfileUpdate(SQLModel):
