@@ -331,7 +331,7 @@
         <span class="status-popup__order-id">#{{ order.id }}</span>
       </div>
 
-      <!-- Mini Timeline -->
+      <!-- Mini Timeline (simplified 5-step view) -->
       <div class="status-timeline">
         <div class="status-timeline__step" [class.completed]="getStatusIndex(order.status) >= 0" [class.current]="order.status === 'pending'">
           <div class="status-timeline__dot"><i class="pi pi-clock"></i></div>
@@ -343,12 +343,17 @@
           <span class="status-timeline__label">{{ 'admin.orders.status.confirmed' | translate }}</span>
         </div>
         <div class="status-timeline__line" [class.completed]="getStatusIndex(order.status) >= 2"></div>
-        <div class="status-timeline__step" [class.completed]="getStatusIndex(order.status) >= 2" [class.current]="order.status === 'in_transit'">
+        <div class="status-timeline__step" [class.completed]="getStatusIndex(order.status) >= 2" [class.current]="order.status === 'assigned' || order.status === 'picked_up'">
+          <div class="status-timeline__dot"><i class="pi pi-user"></i></div>
+          <span class="status-timeline__label">{{ 'admin.orders.status.assigned' | translate }}</span>
+        </div>
+        <div class="status-timeline__line" [class.completed]="getStatusIndex(order.status) >= 4"></div>
+        <div class="status-timeline__step" [class.completed]="getStatusIndex(order.status) >= 4" [class.current]="order.status === 'in_transit'">
           <div class="status-timeline__dot"><i class="pi pi-truck"></i></div>
           <span class="status-timeline__label">{{ 'admin.orders.status.in_transit' | translate }}</span>
         </div>
-        <div class="status-timeline__line" [class.completed]="getStatusIndex(order.status) >= 3"></div>
-        <div class="status-timeline__step" [class.completed]="getStatusIndex(order.status) >= 3" [class.current]="order.status === 'delivered'">
+        <div class="status-timeline__line" [class.completed]="getStatusIndex(order.status) >= 5"></div>
+        <div class="status-timeline__step" [class.completed]="getStatusIndex(order.status) >= 5" [class.current]="order.status === 'delivered'">
           <div class="status-timeline__dot"><i class="pi pi-check"></i></div>
           <span class="status-timeline__label">{{ 'admin.orders.status.delivered' | translate }}</span>
         </div>

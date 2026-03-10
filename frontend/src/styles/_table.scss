@@ -970,6 +970,36 @@
     }
   }
 
+  &.assigned {
+    .status-option-card__icon {
+      background: rgba(124, 58, 237, 0.12);
+      color: #7c3aed;
+    }
+
+    &.selected, &:hover {
+      border-color: #7c3aed;
+    }
+
+    &.selected {
+      background: rgba(124, 58, 237, 0.05);
+    }
+  }
+
+  &.picked_up {
+    .status-option-card__icon {
+      background: rgba(8, 145, 178, 0.12);
+      color: #0891b2;
+    }
+
+    &.selected, &:hover {
+      border-color: #0891b2;
+    }
+
+    &.selected {
+      background: rgba(8, 145, 178, 0.05);
+    }
+  }
+
   &.in_transit {
     .status-option-card__icon {
       background: rgba(139, 92, 246, 0.12);

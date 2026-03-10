@@ -1198,7 +1198,9 @@
       "select_next_status": "Sélectionner le prochain statut",
       "confirm_change": "Confirmer",
       "status_desc": {
-        "confirmed": "Commande vérifiée et prête pour le livreur",
+        "confirmed": "Commande vérifiée et prête pour l'assignation",
+        "assigned": "Assigner un livreur à cette commande",
+        "picked_up": "Le livreur a récupéré la commande",
         "in_transit": "Le livreur est en route pour la livraison",
         "delivered": "Commande livrée au client",
         "cancelled": "Annuler cette commande"

@@ -199,7 +199,7 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
 
   // Get status index for timeline visualization
   getStatusIndex(status: string): number {
-    const statusOrder = ['pending', 'confirmed', 'in_transit', 'delivered'];
+    const statusOrder = ['pending', 'confirmed', 'assigned', 'picked_up', 'in_transit', 'delivered'];
     return statusOrder.indexOf(status);
   }
 
