@@ -6,22 +6,21 @@
         <div class="skeleton skeleton-avatar"></div>
         <div class="profile-card__info">
           <div class="skeleton" style="width: 120px; height: 22px; margin-bottom: 8px;"></div>
-          <div class="skeleton" style="width: 80px; height: 18px;"></div>
+          <div class="skeleton" style="width: 60px; height: 16px;"></div>
         </div>
-        <div class="skeleton" style="width: 24px; height: 24px;"></div>
       </div>
-      <div class="profile-card__stats">
+      <div class="profile-card__actions">
         @for (i of [1, 2, 3]; track i) {
-          <div class="profile-stat">
-            <div class="skeleton" style="width: 40px; height: 24px; margin-bottom: 4px;"></div>
-            <div class="skeleton" style="width: 60px; height: 14px;"></div>
+          <div class="profile-action">
+            <div class="skeleton" style="width: 32px; height: 24px; margin-bottom: 4px;"></div>
+            <div class="skeleton" style="width: 50px; height: 12px;"></div>
           </div>
         }
       </div>
     </div>
 
     <div class="menu-section">
-      @for (i of [1, 2, 3]; track i) {
+      @for (i of [1, 2, 3, 4]; track i) {
         <div class="menu-item menu-item--skeleton">
           <div class="skeleton skeleton-icon"></div>
           <div class="skeleton skeleton-text" style="width: 120px;"></div>
@@ -29,7 +28,7 @@
       }
     </div>
   } @else {
-    <!-- Profile Card (Uber style) -->
+    <!-- Profile Card -->
     <div class="profile-card">
       <div class="profile-card__main">
         <div class="profile-avatar">
@@ -39,13 +38,13 @@
           <h1 class="profile-name">{{ profile()?.full_name || 'Driver' }}</h1>
           <div class="profile-rating">
             <i class="pi pi-star-fill"></i>
-            <span>{{ stats()?.average_rating?.toFixed(2) || '5.00' }}</span>
+            <span>{{ stats()?.average_rating?.toFixed(1) || '5.0' }}</span>
           </div>
         </div>
       </div>
 
       <div class="profile-card__actions">
-        <div class="profile-action">
+        <div class="profile-action" routerLink="/driver/earnings">
           <span class="profile-action__value">{{ stats()?.total_deliveries || 0 }}</span>
           <span class="profile-action__label">{{ 'driver.profile.deliveries' | translate }}</span>
         </div>
@@ -60,25 +59,7 @@
       </div>
     </div>
 
-    <!-- Divider -->
-    <div class="profile-divider"></div>
-
-    <!-- Notifications Toggle -->
-    <div class="toggle-item">
-      <div class="toggle-item__icon">
-        <i class="pi pi-bell"></i>
-      </div>
-      <div class="toggle-item__content">
-        <span class="toggle-item__label">{{ 'driver.profile.notifications' | translate }}</span>
-        <span class="toggle-item__description">{{ 'driver.profile.notifications_desc' | translate }}</span>
-      </div>
-      <label class="toggle-switch">
-        <input type="checkbox" [checked]="notificationsEnabled()" (change)="toggleNotifications()">
-        <span class="toggle-switch__slider"></span>
-      </label>
-    </div>
-
-    <!-- Menu Sections -->
+    <!-- Menu Section -->
     <div class="menu-section">
       <button class="menu-item" (click)="editProfile()">
         <div class="menu-item__icon">
@@ -103,7 +84,25 @@
         <span class="menu-item__label">{{ 'driver.profile.settings' | translate }}</span>
         <i class="pi pi-chevron-right menu-item__chevron"></i>
       </button>
+    </div>
 
+    <!-- Notifications Toggle -->
+    <div class="toggle-item">
+      <div class="toggle-item__icon">
+        <i class="pi pi-bell"></i>
+      </div>
+      <div class="toggle-item__content">
+        <span class="toggle-item__label">{{ 'driver.profile.notifications' | translate }}</span>
+        <span class="toggle-item__description">{{ 'driver.profile.notifications_desc' | translate }}</span>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" [checked]="notificationsEnabled()" (change)="toggleNotifications()">
+        <span class="toggle-switch__slider"></span>
+      </label>
+    </div>
+
+    <!-- Support -->
+    <div class="menu-section">
       <button class="menu-item" (click)="contactSupport()">
         <div class="menu-item__icon menu-item__icon--support">
           <i class="pi pi-headphones"></i>
@@ -120,8 +119,6 @@
     </button>
 
     <!-- Version Info -->
-    <div class="version-info">
-      v1.0.0
-    </div>
+    <p class="version-info">v1.0.0</p>
   }
 </div>

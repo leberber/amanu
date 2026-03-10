@@ -5,7 +5,7 @@
   padding-bottom: calc(var(--space-6) + env(safe-area-inset-bottom, 0px));
   display: flex;
   flex-direction: column;
-  gap: var(--space-5);
+  gap: var(--space-4);
 }
 
 // =============================================================================
@@ -13,8 +13,8 @@
 // =============================================================================
 
 .section-title {
-  font-size: var(--font-size-lg);
-  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
   color: var(--text-color);
   margin: 0 0 var(--space-3);
 }
@@ -35,7 +35,7 @@
   align-items: center;
   gap: var(--space-1);
   font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-semibold);
   color: #1a1a1a;
   text-decoration: none;
 
@@ -80,7 +80,7 @@
     }
 
     &--deliveries {
-      background: rgba(26, 26, 26, 0.08);
+      background: var(--surface-ground);
       i { color: #1a1a1a; }
     }
 
@@ -148,7 +148,7 @@
   &__content {
     h3 {
       font-size: var(--font-size-xl);
-      font-weight: var(--font-weight-semibold);
+      font-weight: var(--font-weight-bold);
       color: var(--text-color);
       margin: 0 0 var(--space-2);
     }
@@ -209,12 +209,10 @@
   }
 
   &__status {
-    --status-color: #6b7280;
-
     width: 40px;
     height: 40px;
     border-radius: var(--radius-lg);
-    background: color-mix(in srgb, var(--status-color) 10%, transparent);
+    background: var(--surface-ground);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -222,7 +220,7 @@
 
     i {
       font-size: 1.1rem;
-      color: var(--status-color);
+      color: #1a1a1a;
     }
 
     &--new {
@@ -255,7 +253,7 @@
 
   &__amount {
     font-size: var(--font-size-base);
-    font-weight: var(--font-weight-semibold);
+    font-weight: var(--font-weight-bold);
     color: var(--text-color);
     flex-shrink: 0;
   }

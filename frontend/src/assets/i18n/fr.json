@@ -2150,7 +2150,7 @@
   },
   "driver": {
     "titles": {
-      "home": "Accueil",
+      "home": "Tableau",
       "available": "Trajets",
       "active": "Actuel",
       "history": "Historique",
