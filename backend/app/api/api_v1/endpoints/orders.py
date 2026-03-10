@@ -501,7 +501,7 @@ def update_order(
     # Send notification if status changed
     if "status" in update_data and update_data["status"] != old_status:
         new_status = update_data["status"]
-        if new_status in [OrderStatus.CONFIRMED, OrderStatus.SHIPPED, OrderStatus.DELIVERED, OrderStatus.CANCELLED]:
+        if new_status in [OrderStatus.CONFIRMED, OrderStatus.ASSIGNED, OrderStatus.IN_TRANSIT, OrderStatus.DELIVERED, OrderStatus.CANCELLED]:
             NotificationService.notify_order_status(
                 session=session,
                 user_id=order.user_id,

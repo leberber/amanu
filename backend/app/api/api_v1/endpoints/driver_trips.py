@@ -771,3 +771,35 @@ def update_driver_status(
         "status": profile.status,
         "is_available": profile.is_available
     }
+
+
+# =============================================================================
+# TRIP DETAIL (must be last to avoid matching /stats, /active, etc.)
+# =============================================================================
+
+@router.get("/{order_id}", response_model=OrderWithItems)
+def get_trip_detail(
+    order_id: int,
+    current_user: User = Depends(get_current_user),
+    session: Session = Depends(get_session),
+) -> Any:
+    """
+    Get details of a specific trip/order assigned to the driver.
+    """
+    driver, profile = get_driver_user(current_user, session)
+
+    order = session.get(Order, order_id)
+    if not order:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Order not found"
+        )
+
+    # Verify driver owns this order
+    if order.driver_id != driver.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Order not assigned to you"
+        )
+
+    return order_to_response(order, session)
