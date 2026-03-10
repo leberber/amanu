@@ -1,7 +1,8 @@
-// Driver History Styles
+// Driver History Styles - Uber Style
 
 .driver-history {
   padding: var(--space-4);
+  padding-bottom: calc(var(--space-6) + env(safe-area-inset-bottom, 0px));
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
@@ -35,15 +36,15 @@
   gap: var(--space-2);
   padding: var(--space-1);
   background: white;
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-xl);
 }
 
 .period-btn {
   flex: 1;
-  padding: var(--space-2) var(--space-3);
+  padding: var(--space-3) var(--space-3);
   background: transparent;
   border: none;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
   color: var(--text-color-secondary);
@@ -51,7 +52,7 @@
   transition: all 0.15s ease;
 
   &.active {
-    background: var(--primary-color);
+    background: #1a1a1a;
     color: white;
   }
 
@@ -67,9 +68,9 @@
 .summary-card {
   display: flex;
   align-items: center;
-  padding: var(--space-4);
+  padding: var(--space-5);
   background: white;
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-xl);
 }
 
 .summary-stat {
@@ -81,22 +82,22 @@
 }
 
 .summary-value {
-  font-size: var(--font-size-xl);
+  font-size: var(--font-size-2xl);
   font-weight: var(--font-weight-bold);
   color: var(--text-color);
 }
 
 .summary-label {
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-sm);
   color: var(--text-color-secondary);
   margin-top: var(--space-1);
 }
 
 .summary-divider {
   width: 1px;
-  height: 40px;
+  height: 48px;
   background: var(--border-color);
-  margin: 0 var(--space-3);
+  margin: 0 var(--space-4);
 }
 
 // =============================================================================
@@ -106,30 +107,33 @@
 .history-list {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  background: white;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
 }
 
 .history-item {
   display: flex;
   align-items: center;
   gap: var(--space-3);
-  padding: var(--space-3) var(--space-4);
-  background: white;
-  border-radius: var(--radius-lg);
+  padding: var(--space-4);
   cursor: pointer;
   transition: all 0.15s ease;
 
+  &:not(:last-child) {
+    border-bottom: 1px solid var(--border-color);
+  }
+
   &:active {
-    transform: scale(0.99);
     background: var(--surface-hover);
   }
 
   &__icon {
     --status-color: #6b7280;
-    
+
     width: 40px;
     height: 40px;
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-lg);
     background: color-mix(in srgb, var(--status-color) 10%, transparent);
     display: flex;
     align-items: center;
@@ -137,7 +141,7 @@
     flex-shrink: 0;
 
     i {
-      font-size: 1rem;
+      font-size: 1.1rem;
       color: var(--status-color);
     }
   }
@@ -151,11 +155,11 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 2px;
+    margin-bottom: 4px;
   }
 
   &__id {
-    font-size: var(--font-size-sm);
+    font-size: var(--font-size-base);
     font-weight: var(--font-weight-semibold);
     color: var(--text-color);
   }
@@ -166,7 +170,7 @@
   }
 
   &__address {
-    font-size: var(--font-size-xs);
+    font-size: var(--font-size-sm);
     color: var(--text-color-secondary);
     white-space: nowrap;
     overflow: hidden;
@@ -175,9 +179,9 @@
   }
 
   &__amount {
-    font-size: var(--font-size-sm);
+    font-size: var(--font-size-base);
     font-weight: var(--font-weight-semibold);
-    color: var(--primary-color);
+    color: var(--text-color);
     flex-shrink: 0;
   }
 
@@ -192,7 +196,7 @@
     .skeleton-circle {
       width: 40px;
       height: 40px;
-      border-radius: var(--radius-md);
+      border-radius: var(--radius-lg);
       flex-shrink: 0;
     }
 
@@ -229,14 +233,14 @@
   align-items: center;
   padding: var(--space-8) var(--space-4);
   background: white;
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-xl);
   text-align: center;
 
   &__icon {
     width: 80px;
     height: 80px;
     border-radius: 50%;
-    background: rgba(107, 114, 128, 0.1);
+    background: rgba(26, 26, 26, 0.08);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -244,19 +248,19 @@
 
     i {
       font-size: 2rem;
-      color: #6b7280;
+      color: #1a1a1a;
     }
   }
 
   h3 {
-    font-size: var(--font-size-lg);
+    font-size: var(--font-size-xl);
     font-weight: var(--font-weight-semibold);
     color: var(--text-color);
     margin: 0 0 var(--space-2);
   }
 
   p {
-    font-size: var(--font-size-sm);
+    font-size: var(--font-size-base);
     color: var(--text-color-secondary);
     margin: 0;
     max-width: 280px;

@@ -1,7 +1,8 @@
-// Driver Dashboard Styles
+// Driver Dashboard Styles - Uber Style
 
 .driver-dashboard {
   padding: var(--space-4);
+  padding-bottom: calc(var(--space-6) + env(safe-area-inset-bottom, 0px));
   display: flex;
   flex-direction: column;
   gap: var(--space-5);
@@ -15,7 +16,7 @@
   font-size: var(--font-size-lg);
   font-weight: var(--font-weight-semibold);
   color: var(--text-color);
-  margin: 0 0 var(--space-4);
+  margin: 0 0 var(--space-3);
 }
 
 .section-header {
@@ -33,23 +34,23 @@
   display: flex;
   align-items: center;
   gap: var(--space-1);
-  font-size: var(--font-size-base);
+  font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
-  color: var(--primary-color);
+  color: #1a1a1a;
   text-decoration: none;
 
   i {
-    font-size: 0.85rem;
+    font-size: 0.75rem;
+  }
+
+  &:active {
+    opacity: 0.7;
   }
 }
 
 // =============================================================================
 // STATS SECTION
 // =============================================================================
-
-.stats-section {
-  // No extra margins - uses gap from parent
-}
 
 .stats-grid {
   display: grid;
@@ -69,7 +70,7 @@
   &__icon {
     width: 40px;
     height: 40px;
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-lg);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -79,8 +80,8 @@
     }
 
     &--deliveries {
-      background: rgba(59, 130, 246, 0.1);
-      i { color: #3b82f6; }
+      background: rgba(26, 26, 26, 0.08);
+      i { color: #1a1a1a; }
     }
 
     &--earnings {
@@ -109,7 +110,7 @@
   }
 
   &__label {
-    font-size: var(--font-size-sm);
+    font-size: var(--font-size-xs);
     color: var(--text-color-secondary);
     margin-top: 4px;
   }
@@ -133,14 +134,14 @@
     width: 64px;
     height: 64px;
     border-radius: 50%;
-    background: rgba(107, 114, 128, 0.1);
+    background: rgba(26, 26, 26, 0.08);
     display: flex;
     align-items: center;
     justify-content: center;
 
     i {
       font-size: 1.75rem;
-      color: #6b7280;
+      color: #1a1a1a;
     }
   }
 
@@ -173,7 +174,7 @@
     font-size: var(--font-size-lg);
     font-weight: var(--font-weight-semibold);
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.15s ease;
 
     &:active {
       transform: scale(0.98);
@@ -196,7 +197,7 @@
   display: flex;
   align-items: center;
   gap: var(--space-3);
-  padding: var(--space-3) var(--space-4);
+  padding: var(--space-4);
   background: white;
   border-radius: var(--radius-xl);
   cursor: pointer;
@@ -210,9 +211,9 @@
   &__status {
     --status-color: #6b7280;
 
-    width: 36px;
-    height: 36px;
-    border-radius: var(--radius-md);
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-lg);
     background: color-mix(in srgb, var(--status-color) 10%, transparent);
     display: flex;
     align-items: center;
@@ -220,7 +221,7 @@
     flex-shrink: 0;
 
     i {
-      font-size: 1rem;
+      font-size: 1.1rem;
       color: var(--status-color);
     }
 
@@ -302,13 +303,17 @@
     gap: var(--space-2);
     font-size: var(--font-size-base);
     font-weight: var(--font-weight-medium);
-    color: var(--primary-color);
+    color: #1a1a1a;
     text-decoration: none;
 
     i {
       font-size: 0.85rem;
       margin: 0;
-      color: var(--primary-color);
+      color: #1a1a1a;
+    }
+
+    &:active {
+      opacity: 0.7;
     }
   }
 }
