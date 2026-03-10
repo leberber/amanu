@@ -118,6 +118,8 @@
     text-decoration: none;
     color: var(--text-color-secondary, #6b7280);
     transition: color 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+    outline: none;
 
     &--active {
       color: #1a1a1a;
