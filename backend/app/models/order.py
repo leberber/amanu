@@ -115,6 +115,16 @@ class OrderUpdate(SQLModel):
     shipping_address: Optional[str] = None
     contact_phone: Optional[str] = None
 
+    @field_validator("status", mode="before")
+    @classmethod
+    def normalize_status(cls, v):
+        """Convert lowercase status to uppercase for enum matching"""
+        if v is None:
+            return v
+        if isinstance(v, str):
+            return v.upper()
+        return v
+
 class UserInfo(SQLModel):
     """Minimal user info for order display"""
     id: int

@@ -440,7 +440,7 @@ def read_order(
 
     return response
 
-@router.patch("/{order_id}", response_model=Order)
+@router.patch("/{order_id}", response_model=OrderRead)
 def update_order(
     order_id: int,
     order_in: OrderUpdate,

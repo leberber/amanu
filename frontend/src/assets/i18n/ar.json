@@ -1155,6 +1155,9 @@
       "status": {
         "pending": "قيد الانتظار",
         "confirmed": "مؤكد",
+        "assigned": "مُعيّن",
+        "picked_up": "تم الاستلام",
+        "in_transit": "في الطريق",
         "shipped": "مُرسل",
         "delivered": "مُسلم",
         "cancelled": "ملغي"
