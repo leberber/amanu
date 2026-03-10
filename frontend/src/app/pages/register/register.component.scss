@@ -150,10 +150,10 @@ $success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
 
   .register-btn {
     @include auth.auth-btn-pill;
-    box-shadow: none;
+    
 
     &:hover:not(:disabled) {
-      box-shadow: none;
+    
     }
   }
 }

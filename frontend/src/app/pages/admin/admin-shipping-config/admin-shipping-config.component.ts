@@ -1,5 +1,5 @@
 import { Component, OnInit, signal, inject, computed, DestroyRef } from '@angular/core';
-import { DecimalPipe } from '@angular/common';
+
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormGroup, FormArray, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -23,7 +23,6 @@ import { ShippingPriceConfig, ShippingDiscountTier, DeliveryZoneStats } from '..
   selector: 'app-admin-shipping-config',
   standalone: true,
   imports: [
-    DecimalPipe,
     ReactiveFormsModule,
     InputTextModule,
     InputNumberModule,
