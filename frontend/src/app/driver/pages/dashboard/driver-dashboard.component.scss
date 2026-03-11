@@ -340,12 +340,17 @@
 // =============================================================================
 
 :host ::ng-deep .trip-drawer--fullscreen {
+  // Remove dark overlay - looks more like native page transition
+  .p-drawer-mask {
+    background: transparent !important;
+  }
+
   .p-drawer {
     width: 100vw !important;
     max-width: 100vw !important;
     height: 100vh !important;
     border-radius: 0 !important;
-    box-shadow: none !important;
+    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.1) !important;
   }
 
   .p-drawer-header {
