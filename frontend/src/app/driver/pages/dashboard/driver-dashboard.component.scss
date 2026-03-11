@@ -259,12 +259,18 @@
     color: var(--text-color);
   }
 
-  &__address {
+  &__address,
+  &__location {
     font-size: var(--font-size-sm);
     color: var(--text-color-secondary);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+
+  &__weight {
+    font-size: var(--font-size-xs);
+    color: var(--text-color-secondary);
   }
 
   &__amount {

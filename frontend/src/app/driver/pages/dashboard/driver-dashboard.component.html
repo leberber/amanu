@@ -71,14 +71,22 @@
           @for (order of availableTrips(); track order.id) {
             <div class="order-card order-card--available" (click)="openTripDrawer(order)">
               <div class="order-card__status order-card__status--new">
-                <i class="pi pi-bolt"></i>
+                <i class="pi pi-map-marker"></i>
               </div>
               <div class="order-card__content">
-                <span class="order-card__id">#{{ order.id }}</span>
-                <span class="order-card__address">{{ order.shipping_address }}</span>
+                <span class="order-card__location">
+                  @if (order.user?.commune || order.user?.daira) {
+                    {{ order.user?.commune }}@if (order.user?.commune && order.user?.daira) {, }{{ order.user?.daira }}
+                  } @else {
+                    {{ order.shipping_address }}
+                  }
+                </span>
+                @if (order.total_weight) {
+                  <span class="order-card__weight">{{ order.total_weight | number:'1.1-1' }} kg</span>
+                }
               </div>
               <div class="order-card__amount">
-                {{ order.total_amount | number:'1.0-0' }} DA
+                {{ order.shipping_cost || 0 | number:'1.0-0' }} DA
               </div>
               <i class="pi pi-chevron-right order-card__chevron"></i>
             </div>
@@ -117,9 +125,9 @@
       </div>
 
       <div class="drawer-body">
-        <!-- Amount -->
+        <!-- Delivery Fee -->
         <div class="drawer-amount">
-          {{ order.total_amount | number:'1.0-0' }} DA
+          {{ order.shipping_cost || 0 | number:'1.0-0' }} DA
         </div>
 
         <!-- Address -->
@@ -155,6 +163,19 @@
             <div class="drawer-section__content">
               <span class="drawer-section__label">{{ 'driver.trip.items' | translate }}</span>
               <span class="drawer-section__value">{{ order.items?.length || 0 }}</span>
+            </div>
+          </div>
+        }
+
+        <!-- Weight -->
+        @if (order.total_weight) {
+          <div class="drawer-section">
+            <div class="drawer-section__icon">
+              <i class="pi pi-box"></i>
+            </div>
+            <div class="drawer-section__content">
+              <span class="drawer-section__label">{{ 'common.weight' | translate }}</span>
+              <span class="drawer-section__value">{{ order.total_weight | number:'1.1-1' }} kg</span>
             </div>
           </div>
         }

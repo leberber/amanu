@@ -14,6 +14,7 @@ from app.models.driver import (
 from app.models.driver_config import (
     DriverSystemConfig, DriverSystemConfigRead, DriverSystemConfigUpdate
 )
+from app.models.product import Product
 from sqlmodel import SQLModel
 
 
@@ -31,7 +32,9 @@ def order_to_response(order: Order, session: Session) -> OrderWithItems:
         user_info = UserInfo(
             id=order.user.id,
             full_name=order.user.full_name,
-            email=order.user.email
+            email=order.user.email,
+            daira=order.user.daira,
+            commune=order.user.commune
         )
 
     driver_info = None
@@ -67,6 +70,23 @@ def order_to_response(order: Order, session: Session) -> OrderWithItems:
         for item in order.items
     ]
 
+    # Calculate total weight and volume from products
+    total_weight = 0.0
+    total_volume = 0.0
+    if order.items:
+        product_ids = [item.product_id for item in order.items]
+        products = session.exec(
+            select(Product).where(Product.id.in_(product_ids))
+        ).all()
+        product_map = {p.id: p for p in products}
+        for item in order.items:
+            product = product_map.get(item.product_id)
+            if product:
+                if product.weight:
+                    total_weight += product.weight * item.quantity
+                if product.volume:
+                    total_volume += product.volume * item.quantity
+
     return OrderWithItems(
         id=order.id,
         user_id=order.user_id,
@@ -93,7 +113,9 @@ def order_to_response(order: Order, session: Session) -> OrderWithItems:
         estimated_delivery_minutes=order.estimated_delivery_minutes,
         actual_delivery_minutes=order.actual_delivery_minutes,
         items=items,
-        promotion_info=None
+        promotion_info=None,
+        total_weight=total_weight if total_weight > 0 else None,
+        total_volume=total_volume if total_volume > 0 else None
     )
 
 

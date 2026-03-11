@@ -133,6 +133,8 @@ class UserInfo(SQLModel):
     id: int
     full_name: str
     email: str
+    daira: Optional[str] = None
+    commune: Optional[str] = None
 
     model_config = {"from_attributes": True}
 
@@ -207,3 +209,5 @@ class OrderWithItems(OrderRead):
     """Extended order model that includes items"""
     items: List[OrderItemRead] = []
     promotion_info: Optional[PromotionInfo] = None
+    total_weight: Optional[float] = None  # Total weight in kg
+    total_volume: Optional[float] = None  # Total volume in liters

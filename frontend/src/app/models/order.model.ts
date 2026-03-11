@@ -40,6 +40,8 @@ export interface UserInfo {
   id: number;
   full_name: string;
   email: string;
+  daira?: string;
+  commune?: string;
 }
 
 export interface DriverInfo {
@@ -66,6 +68,8 @@ export interface Order {
   created_at: string;
   updated_at?: string;
   items?: OrderItem[];
+  total_weight?: number;  // Total weight in kg
+  total_volume?: number;  // Total volume in liters
 
   // User info
   user?: UserInfo;
