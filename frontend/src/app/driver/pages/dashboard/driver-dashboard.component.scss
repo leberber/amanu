@@ -501,8 +501,14 @@
   }
 
   &__address {
+    font-size: var(--font-size-sm);
+    font-weight: 400;
+    color: var(--text-color-secondary);
+  }
+
+  &__customer {
     font-size: var(--font-size-base);
-    font-weight: 500;
+    font-weight: 600;
     color: #1a1a1a;
   }
 }

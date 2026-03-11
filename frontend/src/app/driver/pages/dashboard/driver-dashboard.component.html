@@ -157,6 +157,9 @@
             <div class="itinerary__marker itinerary__marker--destination"></div>
             <div class="itinerary__content">
               <span class="itinerary__label">{{ 'driver.trip.destination' | translate }}</span>
+              @if (order.user?.store_name || order.user?.full_name) {
+                <span class="itinerary__customer">{{ order.user?.store_name || order.user?.full_name }}</span>
+              }
               <span class="itinerary__address">{{ order.shipping_address }}</span>
             </div>
           </div>
@@ -166,19 +169,6 @@
         <div class="drawer-amount">
           {{ order.shipping_cost || 0 | number:'1.0-0' }} DA
         </div>
-
-        <!-- Customer/Store Name -->
-        @if (order.user?.store_name || order.user?.full_name) {
-          <div class="drawer-section">
-            <div class="drawer-section__icon">
-              <i class="pi pi-user"></i>
-            </div>
-            <div class="drawer-section__content">
-              <span class="drawer-section__label">{{ 'driver.trip.customer' | translate }}</span>
-              <span class="drawer-section__value">{{ order.user?.store_name || order.user?.full_name }}</span>
-            </div>
-          </div>
-        }
 
         <!-- Phone -->
         @if (order.contact_phone) {
