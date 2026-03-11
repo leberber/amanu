@@ -77,7 +77,7 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
         label: d.full_name
           ? `${d.full_name} (${this.translateService.instant('driver.vehicle.' + d.vehicle_type)}) - ${d.active_orders_count}/${d.max_active_orders}`
           : `${this.translateService.instant('driver.vehicle.' + d.vehicle_type)} - ${d.active_orders_count}/${d.max_active_orders}`,
-        value: d.id
+        value: d.user_id
       }));
   });
 
