@@ -2195,6 +2195,7 @@
       "deliveries": "Livraisons",
       "earnings": "Gains",
       "rating": "Note",
+      "active": "Actives",
       "active_orders": "Commandes Actives",
       "available_trips": "Trajets Disponibles",
       "no_active_orders": "Aucune commande active",

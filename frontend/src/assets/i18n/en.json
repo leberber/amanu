@@ -2175,6 +2175,7 @@
       "deliveries": "Deliveries",
       "earnings": "Earnings",
       "rating": "Rating",
+      "active": "Active",
       "active_orders": "Active Orders",
       "available_trips": "Available Trips",
       "no_active_orders": "No active orders",

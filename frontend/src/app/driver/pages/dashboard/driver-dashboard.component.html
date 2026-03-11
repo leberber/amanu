@@ -23,15 +23,15 @@
         </div>
       </div>
 
-      <div class="stat-card">
-        <div class="stat-card__icon stat-card__icon--rating">
-          <i class="pi pi-star-fill"></i>
+      <a [routerLink]="routes.DRIVER.ACTIVE" class="stat-card stat-card--clickable">
+        <div class="stat-card__icon stat-card__icon--active">
+          <i class="pi pi-box"></i>
         </div>
         <div class="stat-card__content">
-          <span class="stat-card__value">{{ averageRating() }}</span>
-          <span class="stat-card__label">{{ 'driver.dashboard.rating' | translate }}</span>
+          <span class="stat-card__value">{{ activeCount() }}</span>
+          <span class="stat-card__label">{{ 'driver.dashboard.active' | translate }}</span>
         </div>
-      </div>
+      </a>
     </div>
   </section>
 
@@ -54,49 +54,6 @@
     </section>
   }
 
-  <!-- Active Orders Section -->
-  @if (activeTrips().length > 0) {
-    <section class="orders-section">
-      <div class="section-header">
-        <h2 class="section-title">{{ 'driver.dashboard.active_orders' | translate }}</h2>
-        <a [routerLink]="routes.DRIVER.ACTIVE" class="section-link">
-          {{ 'common.view' | translate }}
-          <i class="pi pi-chevron-right"></i>
-        </a>
-      </div>
-      <div class="orders-list">
-        @for (order of activeTrips(); track order.id) {
-          <div class="order-card" (click)="viewTrip(order)">
-            <div class="order-card__status" [style.--status-color]="getStatusColor(order.status)">
-              <i [class]="getStatusIcon(order.status)"></i>
-            </div>
-            <div class="order-card__content">
-              <span class="order-card__id">#{{ order.id }}</span>
-              <span class="order-card__address">{{ order.shipping_address }}</span>
-            </div>
-            <div class="order-card__amount">
-              {{ order.total_amount | number:'1.0-0' }} DA
-            </div>
-            <i class="pi pi-chevron-right order-card__chevron"></i>
-          </div>
-        }
-      </div>
-    </section>
-  } @else if (isOnline()) {
-    <section class="orders-section">
-      <div class="section-header">
-        <h2 class="section-title">{{ 'driver.dashboard.active_orders' | translate }}</h2>
-      </div>
-      <div class="empty-state">
-        <i class="pi pi-inbox"></i>
-        <p>{{ 'driver.dashboard.no_active_orders' | translate }}</p>
-        <a [routerLink]="routes.DRIVER.AVAILABLE" class="empty-state__link">
-          {{ 'driver.available.title' | translate }}
-          <i class="pi pi-arrow-right"></i>
-        </a>
-      </div>
-    </section>
-  }
 
   <!-- Available Trips Preview -->
   @if (isOnline() && availableTrips().length > 0) {
