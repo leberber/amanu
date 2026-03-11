@@ -69,26 +69,39 @@
       @if (availableTrips().length > 0) {
         <div class="orders-list">
           @for (order of availableTrips(); track order.id) {
-            <div class="order-card order-card--available" (click)="openTripDrawer(order)">
-              <div class="order-card__status order-card__status--new">
-                <i class="pi pi-map-marker"></i>
+            <div class="trip-card" (click)="openTripDrawer(order)">
+              <div class="trip-card__left">
+                <div class="trip-card__icon">
+                  <i class="pi pi-map-marker"></i>
+                </div>
               </div>
-              <div class="order-card__content">
-                <span class="order-card__location">
+              <div class="trip-card__center">
+                <span class="trip-card__location">
                   @if (order.user?.commune || order.user?.daira) {
                     {{ order.user?.commune }}@if (order.user?.commune && order.user?.daira) {, }{{ order.user?.daira }}
                   } @else {
                     {{ order.shipping_address }}
                   }
                 </span>
-                @if (order.total_weight) {
-                  <span class="order-card__weight">{{ order.total_weight | number:'1.1-1' }} kg</span>
-                }
+                <div class="trip-card__meta">
+                  @if (order.items?.length) {
+                    <span class="trip-card__meta-item">
+                      <i class="pi pi-box"></i>
+                      {{ order.items?.length }}
+                    </span>
+                  }
+                  @if (order.total_weight) {
+                    <span class="trip-card__meta-item">
+                      <i class="pi pi-briefcase"></i>
+                      {{ order.total_weight | number:'1.0-1' }} kg
+                    </span>
+                  }
+                </div>
               </div>
-              <div class="order-card__amount">
-                {{ order.shipping_cost || 0 | number:'1.0-0' }} DA
+              <div class="trip-card__right">
+                <span class="trip-card__fee">{{ order.shipping_cost || 0 | number:'1.0-0' }}</span>
+                <span class="trip-card__currency">DA</span>
               </div>
-              <i class="pi pi-chevron-right order-card__chevron"></i>
             </div>
           }
         </div>
