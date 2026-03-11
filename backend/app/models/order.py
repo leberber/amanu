@@ -133,6 +133,7 @@ class UserInfo(SQLModel):
     id: int
     full_name: str
     email: str
+    store_name: Optional[str] = None
     daira: Optional[str] = None
     commune: Optional[str] = None
 

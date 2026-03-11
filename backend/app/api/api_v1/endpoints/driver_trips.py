@@ -93,6 +93,7 @@ def order_to_response(order: Order, session: Session) -> OrderWithItems:
             id=order.user.id,
             full_name=order.user.full_name,
             email=order.user.email,
+            store_name=order.user.store_name,
             daira=order.user.daira,
             commune=order.user.commune
         )

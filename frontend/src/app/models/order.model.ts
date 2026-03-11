@@ -40,6 +40,7 @@ export interface UserInfo {
   id: number;
   full_name: string;
   email: string;
+  store_name?: string;
   daira?: string;
   commune?: string;
 }

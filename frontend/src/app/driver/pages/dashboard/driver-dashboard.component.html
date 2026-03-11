@@ -141,21 +141,42 @@
         <!-- Map -->
         <app-trip-map [destination]="order.shipping_address" />
 
+        <!-- Itinerary -->
+        <div class="itinerary">
+          <div class="itinerary__item">
+            <div class="itinerary__marker itinerary__marker--origin"></div>
+            <div class="itinerary__line"></div>
+            <div class="itinerary__content">
+              <span class="itinerary__label">{{ 'driver.trip.origin' | translate }}</span>
+              <span class="itinerary__address">{{ 'driver.trip.warehouse' | translate }}</span>
+            </div>
+          </div>
+          <div class="itinerary__item">
+            <div class="itinerary__marker itinerary__marker--destination"></div>
+            <div class="itinerary__content">
+              <span class="itinerary__label">{{ 'driver.trip.destination' | translate }}</span>
+              <span class="itinerary__address">{{ order.shipping_address }}</span>
+            </div>
+          </div>
+        </div>
+
         <!-- Delivery Fee -->
         <div class="drawer-amount">
           {{ order.shipping_cost || 0 | number:'1.0-0' }} DA
         </div>
 
-        <!-- Address -->
-        <div class="drawer-section">
-          <div class="drawer-section__icon">
-            <i class="pi pi-map-marker"></i>
+        <!-- Customer/Store Name -->
+        @if (order.user?.store_name || order.user?.full_name) {
+          <div class="drawer-section">
+            <div class="drawer-section__icon">
+              <i class="pi pi-user"></i>
+            </div>
+            <div class="drawer-section__content">
+              <span class="drawer-section__label">{{ 'driver.trip.customer' | translate }}</span>
+              <span class="drawer-section__value">{{ order.user?.store_name || order.user?.full_name }}</span>
+            </div>
           </div>
-          <div class="drawer-section__content">
-            <span class="drawer-section__label">{{ 'driver.trip.address' | translate }}</span>
-            <span class="drawer-section__value">{{ order.shipping_address }}</span>
-          </div>
-        </div>
+        }
 
         <!-- Phone -->
         @if (order.contact_phone) {
