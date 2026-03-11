@@ -66,17 +66,20 @@ export class DriverService {
   readonly activeTrips = this._activeTrips.asReadonly();
   readonly loading = this._loading.asReadonly();
 
-  readonly driverProfile = computed(() => this._profile()?.driver_profile);
-  readonly isAvailable = computed(() => this.driverProfile()?.status === DRIVER_STATUS.AVAILABLE);
-  readonly isBusy = computed(() => this.driverProfile()?.status === DRIVER_STATUS.BUSY);
-  readonly isOffline = computed(() => this.driverProfile()?.status === DRIVER_STATUS.OFFLINE);
-  readonly isSuspended = computed(() => this.driverProfile()?.status === DRIVER_STATUS.SUSPENDED);
+  // Access driver data - supports both 'driver' (new) and 'driver_profile' (deprecated)
+  readonly driverData = computed(() => this._profile()?.driver ?? this._profile()?.driver_profile);
+  /** @deprecated Use driverData instead */
+  readonly driverProfile = computed(() => this.driverData());
+  readonly isAvailable = computed(() => this.driverData()?.status === DRIVER_STATUS.AVAILABLE);
+  readonly isBusy = computed(() => this.driverData()?.status === DRIVER_STATUS.BUSY);
+  readonly isOffline = computed(() => this.driverData()?.status === DRIVER_STATUS.OFFLINE);
+  readonly isSuspended = computed(() => this.driverData()?.status === DRIVER_STATUS.SUSPENDED);
   readonly canAcceptOrders = computed(() => {
-    const profile = this.driverProfile();
-    if (!profile) return false;
+    const driver = this.driverData();
+    if (!driver) return false;
     return (
-      profile.status !== DRIVER_STATUS.SUSPENDED &&
-      profile.active_orders_count < profile.max_active_orders
+      driver.status !== DRIVER_STATUS.SUSPENDED &&
+      driver.active_orders_count < driver.max_active_orders
     );
   });
 
@@ -106,12 +109,13 @@ export class DriverService {
 
   updateProfile(data: DriverProfileUpdate): Observable<DriverProfile> {
     return this.api.patch<DriverProfile>(ENDPOINTS.UPDATE_ME, data).pipe(
-      tap(updatedProfile => {
+      tap(updatedDriver => {
         const currentProfile = this._profile();
         if (currentProfile) {
           this._profile.set({
             ...currentProfile,
-            driver_profile: updatedProfile
+            driver: updatedDriver,
+            driver_profile: updatedDriver // Keep for backward compatibility
           });
         }
       })
@@ -242,14 +246,17 @@ export class DriverService {
       tap(response => {
         if (response.success) {
           const profile = this._profile();
-          if (profile?.driver_profile) {
+          const currentDriver = profile?.driver ?? profile?.driver_profile;
+          if (profile && currentDriver) {
+            const updatedDriver = {
+              ...currentDriver,
+              status: response.status,
+              is_available: response.is_available
+            };
             this._profile.set({
               ...profile,
-              driver_profile: {
-                ...profile.driver_profile,
-                status: response.status,
-                is_available: response.is_available
-              }
+              driver: updatedDriver,
+              driver_profile: updatedDriver // Keep for backward compatibility
             });
           }
         }

@@ -49,26 +49,20 @@ def get_driver_stats(session: Session, driver_id: int) -> dict:
         .where(Order.status.in_([OrderStatus.ASSIGNED, OrderStatus.PICKED_UP, OrderStatus.IN_TRANSIT]))
     ).one()
 
-    # Total deliveries and earnings
+    # Total deliveries and earnings (using shipping_cost)
     delivered_stats = session.exec(
-        select(func.count(Order.id), func.coalesce(func.sum(Order.delivery_fee), 0))
+        select(func.count(Order.id), func.coalesce(func.sum(Order.shipping_cost), 0))
         .where(Order.driver_id == driver_id)
         .where(Order.status == OrderStatus.DELIVERED)
     ).one()
 
-    # Ratings
-    rating_stats = session.exec(
-        select(func.avg(Order.rating), func.count(Order.rating))
-        .where(Order.driver_id == driver_id)
-        .where(Order.rating.isnot(None))
-    ).one()
-
+    # Note: Rating system not implemented yet - returning None/0
     return {
         "active_orders_count": active_orders or 0,
         "total_deliveries": delivered_stats[0] or 0,
         "total_earnings": float(delivered_stats[1] or 0),
-        "average_rating": float(rating_stats[0]) if rating_stats[0] else None,
-        "total_ratings": rating_stats[1] or 0,
+        "average_rating": None,
+        "total_ratings": 0,
     }
 
 

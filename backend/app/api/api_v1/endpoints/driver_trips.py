@@ -12,7 +12,7 @@ from app.models.order import (
     UserInfo, DriverInfo
 )
 from app.models.driver import (
-    DriverProfile, DriverStatus, DriverStats,
+    Driver, DriverVehicle, DriverStatus, DriverStats,
     DriverEarning, DriverEarningsResponse
 )
 from app.models.driver_config import DriverSystemConfig
@@ -27,25 +27,35 @@ router = APIRouter()
 # HELPER FUNCTIONS
 # =============================================================================
 
-def get_driver_user(current_user: User, session: Session) -> tuple[User, DriverProfile]:
-    """Verify user is a driver and get their profile"""
+def get_driver_user(current_user: User, session: Session) -> tuple[User, Driver]:
+    """Verify user is a driver and get their driver record"""
     if current_user.role != UserRole.DRIVER:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="User is not a driver"
         )
 
-    profile = session.exec(
-        select(DriverProfile).where(DriverProfile.user_id == current_user.id)
+    driver = session.exec(
+        select(Driver).where(Driver.user_id == current_user.id)
     ).first()
 
-    if not profile:
+    if not driver:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Driver profile not found"
+            detail="Driver record not found"
         )
 
-    return current_user, profile
+    return current_user, driver
+
+
+def get_active_orders_count(session: Session, driver_id: int) -> int:
+    """Compute active orders count from orders table"""
+    count = session.exec(
+        select(func.count(Order.id))
+        .where(Order.driver_id == driver_id)
+        .where(Order.status.in_([OrderStatus.ASSIGNED, OrderStatus.PICKED_UP, OrderStatus.IN_TRANSIT]))
+    ).one()
+    return count or 0
 
 
 def get_system_config(session: Session) -> DriverSystemConfig:
@@ -88,8 +98,15 @@ def order_to_response(order: Order, session: Session) -> OrderWithItems:
     driver_info = None
     if order.driver:
         vehicle_type = None
-        if order.driver.driver_profile:
-            vehicle_type = order.driver.driver_profile.vehicle_type
+        # Get primary vehicle from driver's vehicles
+        if order.driver.driver:
+            primary_vehicle = session.exec(
+                select(DriverVehicle)
+                .where(DriverVehicle.driver_id == order.driver.driver.id)
+                .where(DriverVehicle.is_primary == True)
+            ).first()
+            if primary_vehicle:
+                vehicle_type = primary_vehicle.vehicle_type
         driver_info = DriverInfo(
             id=order.driver.id,
             full_name=order.driver.full_name,
@@ -155,21 +172,21 @@ def get_available_trips(
     Get available orders for driver to accept.
     Returns orders with status CONFIRMED (ready for driver pool).
     """
-    driver, profile = get_driver_user(current_user, session)
+    user, driver = get_driver_user(current_user, session)
 
     # Check if driver is available
-    if profile.status == DriverStatus.SUSPENDED:
+    if driver.status == DriverStatus.SUSPENDED:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Driver account is suspended"
         )
 
     # Check if driver has reached max active orders
-    config = get_system_config(session)
-    if profile.active_orders_count >= profile.max_active_orders:
+    active_count = get_active_orders_count(session, user.id)
+    if active_count >= driver.max_active_orders:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Maximum active orders ({profile.max_active_orders}) reached"
+            detail=f"Maximum active orders ({driver.max_active_orders}) reached"
         )
 
     # Get confirmed orders not assigned to any driver
@@ -203,11 +220,11 @@ def accept_trip(
     """
     Accept an available order (self-assign from pool).
     """
-    driver, profile = get_driver_user(current_user, session)
+    user, driver = get_driver_user(current_user, session)
     config = get_system_config(session)
 
     # Verify driver can accept orders
-    if profile.status == DriverStatus.SUSPENDED:
+    if driver.status == DriverStatus.SUSPENDED:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Driver account is suspended"
@@ -219,10 +236,11 @@ def accept_trip(
             detail="Self-assignment is not allowed. Contact admin."
         )
 
-    if profile.active_orders_count >= profile.max_active_orders:
+    active_count = get_active_orders_count(session, user.id)
+    if active_count >= driver.max_active_orders:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Maximum active orders ({profile.max_active_orders}) reached"
+            detail=f"Maximum active orders ({driver.max_active_orders}) reached"
         )
 
     # Get order
@@ -248,20 +266,19 @@ def accept_trip(
 
     # Assign order to driver
     now = datetime.now(timezone.utc)
-    order.driver_id = driver.id
+    order.driver_id = user.id
     order.status = OrderStatus.ASSIGNED
     order.assigned_at = now
     order.assignment_expires_at = now + timedelta(minutes=config.assignment_timeout_minutes)
     order.updated_at = now
 
-    # Update driver profile
-    profile.active_orders_count += 1
-    if profile.status == DriverStatus.AVAILABLE:
-        profile.status = DriverStatus.BUSY
-    profile.updated_at = now
+    # Update driver status to BUSY (will have at least one active order now)
+    if driver.status == DriverStatus.AVAILABLE:
+        driver.status = DriverStatus.BUSY
+        driver.updated_at = now
+        session.add(driver)
 
     session.add(order)
-    session.add(profile)
     session.commit()
     session.refresh(order)
 
@@ -293,8 +310,7 @@ def update_trip_status(
     Generic endpoint to update trip status.
     Accepts status: picked_up, in_transit, delivered
     """
-    driver, profile = get_driver_user(current_user, session)
-    config = get_system_config(session)
+    user, driver = get_driver_user(current_user, session)
 
     order = session.get(Order, order_id)
     if not order:
@@ -303,7 +319,7 @@ def update_trip_status(
             detail="Order not found"
         )
 
-    if order.driver_id != driver.id:
+    if order.driver_id != user.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Order not assigned to you"
@@ -351,20 +367,13 @@ def update_trip_status(
         order.delivered_at = now
         order.actual_delivery_minutes = actual_minutes
 
-        # Calculate driver earnings from shipping cost
-        shipping_config = get_shipping_config(session)
-        driver_earnings = order.shipping_cost * (shipping_config.driver_commission_percent / 100)
+        # Update driver status if no more active orders
+        active_count = get_active_orders_count(session, user.id) - 1  # -1 for this order being delivered
+        if active_count <= 0 and driver.status == DriverStatus.BUSY:
+            driver.status = DriverStatus.AVAILABLE
+            driver.updated_at = now
+            session.add(driver)
 
-        # Update driver stats
-        profile.active_orders_count = max(0, profile.active_orders_count - 1)
-        profile.total_deliveries += 1
-        profile.total_earnings += driver_earnings
-
-        if profile.active_orders_count == 0:
-            profile.status = DriverStatus.AVAILABLE
-
-        profile.updated_at = now
-        session.add(profile)
         message = "Order delivered successfully"
 
     else:
@@ -398,7 +407,7 @@ def pickup_order(
     """
     Mark order as picked up from warehouse.
     """
-    driver, profile = get_driver_user(current_user, session)
+    user, driver = get_driver_user(current_user, session)
 
     order = session.get(Order, order_id)
     if not order:
@@ -408,7 +417,7 @@ def pickup_order(
         )
 
     # Verify driver owns this order
-    if order.driver_id != driver.id:
+    if order.driver_id != user.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Order not assigned to you"
@@ -450,7 +459,7 @@ def start_delivery(
     """
     Mark order as in transit (started delivery).
     """
-    driver, profile = get_driver_user(current_user, session)
+    user, driver = get_driver_user(current_user, session)
 
     order = session.get(Order, order_id)
     if not order:
@@ -459,7 +468,7 @@ def start_delivery(
             detail="Order not found"
         )
 
-    if order.driver_id != driver.id:
+    if order.driver_id != user.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Order not assigned to you"
@@ -499,8 +508,7 @@ def complete_delivery(
     """
     Mark order as delivered (complete the trip).
     """
-    driver, profile = get_driver_user(current_user, session)
-    config = get_system_config(session)
+    user, driver = get_driver_user(current_user, session)
 
     order = session.get(Order, order_id)
     if not order:
@@ -509,7 +517,7 @@ def complete_delivery(
             detail="Order not found"
         )
 
-    if order.driver_id != driver.id:
+    if order.driver_id != user.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Order not assigned to you"
@@ -537,23 +545,14 @@ def complete_delivery(
     if update and update.notes:
         order.delivery_notes = update.notes
 
-    # Calculate driver earnings from shipping cost
-    shipping_config = get_shipping_config(session)
-    driver_earnings = order.shipping_cost * (shipping_config.driver_commission_percent / 100)
-
-    # Update driver stats
-    profile.active_orders_count = max(0, profile.active_orders_count - 1)
-    profile.total_deliveries += 1
-    profile.total_earnings += driver_earnings
-
     # Update driver status if no more active orders
-    if profile.active_orders_count == 0:
-        profile.status = DriverStatus.AVAILABLE
-
-    profile.updated_at = now
+    active_count = get_active_orders_count(session, user.id) - 1  # -1 for this order being delivered
+    if active_count <= 0 and driver.status == DriverStatus.BUSY:
+        driver.status = DriverStatus.AVAILABLE
+        driver.updated_at = now
+        session.add(driver)
 
     session.add(order)
-    session.add(profile)
     session.commit()
     session.refresh(order)
 
@@ -583,7 +582,7 @@ def cancel_trip(
     """
     Cancel an accepted order (return to pool).
     """
-    driver, profile = get_driver_user(current_user, session)
+    user, driver = get_driver_user(current_user, session)
     config = get_system_config(session)
 
     order = session.get(Order, order_id)
@@ -593,7 +592,7 @@ def cancel_trip(
             detail="Order not found"
         )
 
-    if order.driver_id != driver.id:
+    if order.driver_id != user.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Order not assigned to you"
@@ -620,40 +619,34 @@ def cancel_trip(
     order.cancellation_count += 1
     order.updated_at = now
 
-    # Update driver stats
-    profile.active_orders_count = max(0, profile.active_orders_count - 1)
-    profile.cancellation_count += 1
+    # Check cancellation count for this driver in the period
+    period_start = now - timedelta(days=config.cancellation_period_days)
+    cancellation_count = session.exec(
+        select(func.count(Order.id))
+        .where(Order.driver_cancelled_at >= period_start)
+        .where(Order.driver_cancel_reason.isnot(None))
+    ).one() or 0
 
-    # Check if in current period
-    period_start = profile.period_start
-    if period_start is None or (now - period_start).days >= config.cancellation_period_days:
-        # Start new period
-        profile.period_start = now
-        profile.cancellation_count_period = 1
-    else:
-        profile.cancellation_count_period += 1
-
-    profile.last_cancellation_at = now
-
-    # Check if should flag/suspend
-    if profile.cancellation_count_period >= config.max_cancellations_per_period:
+    # Auto-flag/suspend based on cancellation count
+    if cancellation_count >= config.max_cancellations_per_period:
         if config.auto_flag_on_max_cancellations:
-            profile.is_flagged = True
-            profile.flag_reason = f"Auto-flagged: {profile.cancellation_count_period} cancellations in period"
-            profile.flagged_at = now
+            driver.is_flagged = True
+            driver.flag_reason = f"Auto-flagged: {cancellation_count} cancellations in {config.cancellation_period_days} days"
+            driver.flagged_at = now
 
         if config.auto_suspend_on_max_cancellations:
-            profile.status = DriverStatus.SUSPENDED
-            profile.suspended_until = now + timedelta(hours=config.suspension_duration_hours)
+            driver.status = DriverStatus.SUSPENDED
+            driver.suspended_until = now + timedelta(hours=config.suspension_duration_hours)
 
-    # Update status if no more active orders
-    if profile.active_orders_count == 0 and profile.status != DriverStatus.SUSPENDED:
-        profile.status = DriverStatus.AVAILABLE
+    # Update driver status if no more active orders and not suspended
+    active_count = get_active_orders_count(session, user.id) - 1  # -1 for this order being cancelled
+    if active_count <= 0 and driver.status != DriverStatus.SUSPENDED:
+        driver.status = DriverStatus.AVAILABLE
 
-    profile.updated_at = now
+    driver.updated_at = now
 
     session.add(order)
-    session.add(profile)
+    session.add(driver)
     session.commit()
     session.refresh(order)
 
@@ -676,11 +669,11 @@ def get_active_trips(
     """
     Get driver's current active orders.
     """
-    driver, profile = get_driver_user(current_user, session)
+    user, driver = get_driver_user(current_user, session)
 
     orders = session.exec(
         select(Order)
-        .where(Order.driver_id == driver.id)
+        .where(Order.driver_id == user.id)
         .where(Order.status.in_([
             OrderStatus.ASSIGNED,
             OrderStatus.PICKED_UP,
@@ -702,11 +695,11 @@ def get_trip_history(
     """
     Get driver's completed order history.
     """
-    driver, profile = get_driver_user(current_user, session)
+    user, driver = get_driver_user(current_user, session)
 
     orders = session.exec(
         select(Order)
-        .where(Order.driver_id == driver.id)
+        .where(Order.driver_id == user.id)
         .where(Order.status == OrderStatus.DELIVERED)
         .order_by(Order.delivered_at.desc())
         .offset(skip)
@@ -721,44 +714,67 @@ def get_trip_history(
 # =============================================================================
 
 @router.get("/stats", response_model=DriverStats)
-def get_driver_stats(
+def get_driver_stats_endpoint(
     current_user: User = Depends(get_current_user),
     session: Session = Depends(get_session),
 ) -> Any:
     """
-    Get driver's statistics.
+    Get driver's statistics (computed from orders).
     """
-    driver, profile = get_driver_user(current_user, session)
+    user, driver = get_driver_user(current_user, session)
 
-    # Calculate period stats
     now = datetime.now(timezone.utc)
     today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
     week_start = today_start - timedelta(days=today_start.weekday())
 
+    # Active orders count
+    active_orders_count = get_active_orders_count(session, user.id)
+
+    # Total deliveries
+    total_deliveries = session.exec(
+        select(func.count(Order.id))
+        .where(Order.driver_id == user.id)
+        .where(Order.status == OrderStatus.DELIVERED)
+    ).one() or 0
+
     # Today's deliveries
     deliveries_today = session.exec(
         select(func.count(Order.id))
-        .where(Order.driver_id == driver.id)
+        .where(Order.driver_id == user.id)
         .where(Order.status == OrderStatus.DELIVERED)
         .where(Order.delivered_at >= today_start)
-    ).one()
+    ).one() or 0
 
     # This week's deliveries
     deliveries_this_week = session.exec(
         select(func.count(Order.id))
-        .where(Order.driver_id == driver.id)
+        .where(Order.driver_id == user.id)
         .where(Order.status == OrderStatus.DELIVERED)
         .where(Order.delivered_at >= week_start)
-    ).one()
+    ).one() or 0
+
+    # Cancellation count (orders where driver cancelled)
+    cancellation_count = session.exec(
+        select(func.count(Order.id))
+        .where(Order.driver_cancel_reason.isnot(None))
+    ).one() or 0
 
     # Calculate earnings based on shipping cost and commission
     shipping_config = get_shipping_config(session)
     commission_rate = shipping_config.driver_commission_percent / 100
 
+    # Total earnings
+    total_earnings_sum = session.exec(
+        select(func.coalesce(func.sum(Order.shipping_cost), 0))
+        .where(Order.driver_id == user.id)
+        .where(Order.status == OrderStatus.DELIVERED)
+    ).one()
+    total_earnings = (total_earnings_sum or 0) * commission_rate
+
     # Today's earnings
     earnings_today_sum = session.exec(
         select(func.coalesce(func.sum(Order.shipping_cost), 0))
-        .where(Order.driver_id == driver.id)
+        .where(Order.driver_id == user.id)
         .where(Order.status == OrderStatus.DELIVERED)
         .where(Order.delivered_at >= today_start)
     ).one()
@@ -767,22 +783,23 @@ def get_driver_stats(
     # This week's earnings
     earnings_this_week_sum = session.exec(
         select(func.coalesce(func.sum(Order.shipping_cost), 0))
-        .where(Order.driver_id == driver.id)
+        .where(Order.driver_id == user.id)
         .where(Order.status == OrderStatus.DELIVERED)
         .where(Order.delivered_at >= week_start)
     ).one()
     earnings_this_week = (earnings_this_week_sum or 0) * commission_rate
 
+    # Note: Rating system not implemented yet - returning None/0
     return DriverStats(
-        total_deliveries=profile.total_deliveries,
-        total_earnings=profile.total_earnings,
-        average_rating=profile.average_rating,
-        total_ratings=profile.total_ratings,
-        active_orders_count=profile.active_orders_count,
-        cancellation_count=profile.cancellation_count,
-        deliveries_today=deliveries_today or 0,
+        total_deliveries=total_deliveries,
+        total_earnings=total_earnings,
+        average_rating=None,
+        total_ratings=0,
+        active_orders_count=active_orders_count,
+        cancellation_count=cancellation_count,
+        deliveries_today=deliveries_today,
         earnings_today=earnings_today,
-        deliveries_this_week=deliveries_this_week or 0,
+        deliveries_this_week=deliveries_this_week,
         earnings_this_week=earnings_this_week,
     )
 
@@ -793,10 +810,9 @@ def get_driver_earnings(
     session: Session = Depends(get_session),
 ) -> Any:
     """
-    Get driver's earnings breakdown.
+    Get driver's earnings breakdown (computed from orders).
     """
-    driver, profile = get_driver_user(current_user, session)
-    config = get_system_config(session)
+    user, driver = get_driver_user(current_user, session)
 
     now = datetime.now(timezone.utc)
     today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
@@ -810,7 +826,7 @@ def get_driver_earnings(
     # Get recent delivered orders
     recent_orders = session.exec(
         select(Order)
-        .where(Order.driver_id == driver.id)
+        .where(Order.driver_id == user.id)
         .where(Order.status == OrderStatus.DELIVERED)
         .order_by(Order.delivered_at.desc())
         .limit(10)
@@ -820,11 +836,19 @@ def get_driver_earnings(
     def sum_earnings_since(since: datetime) -> float:
         result = session.exec(
             select(func.coalesce(func.sum(Order.shipping_cost), 0))
-            .where(Order.driver_id == driver.id)
+            .where(Order.driver_id == user.id)
             .where(Order.status == OrderStatus.DELIVERED)
             .where(Order.delivered_at >= since)
         ).one()
         return (result or 0) * commission_rate
+
+    # Total earnings (all time)
+    total_earnings_sum = session.exec(
+        select(func.coalesce(func.sum(Order.shipping_cost), 0))
+        .where(Order.driver_id == user.id)
+        .where(Order.status == OrderStatus.DELIVERED)
+    ).one()
+    total_earnings = (total_earnings_sum or 0) * commission_rate
 
     earnings_today = sum_earnings_since(today_start)
     earnings_this_week = sum_earnings_since(week_start)
@@ -844,7 +868,7 @@ def get_driver_earnings(
         ))
 
     return DriverEarningsResponse(
-        total_earnings=profile.total_earnings,
+        total_earnings=total_earnings,
         earnings_today=earnings_today,
         earnings_this_week=earnings_this_week,
         earnings_this_month=earnings_this_month,
@@ -870,16 +894,16 @@ def update_driver_status(
     """
     Update driver's availability status (go online/offline).
     """
-    driver, profile = get_driver_user(current_user, session)
+    user, driver = get_driver_user(current_user, session)
 
     # Can't change status if suspended
-    if profile.status == DriverStatus.SUSPENDED:
+    if driver.status == DriverStatus.SUSPENDED:
         # Check if suspension has expired
-        if profile.suspended_until and datetime.now(timezone.utc) >= profile.suspended_until:
-            profile.status = DriverStatus.OFFLINE
-            profile.suspended_until = None
-            profile.is_flagged = False
-            profile.flag_reason = None
+        if driver.suspended_until and datetime.now(timezone.utc) >= driver.suspended_until:
+            driver.status = DriverStatus.OFFLINE
+            driver.suspended_until = None
+            driver.is_flagged = False
+            driver.flag_reason = None
         else:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -899,23 +923,26 @@ def update_driver_status(
             detail="Busy status is set automatically when accepting orders"
         )
 
+    # Check active orders count
+    active_count = get_active_orders_count(session, user.id)
+
     # Can only go online if no active orders
-    if status_update.status == DriverStatus.AVAILABLE and profile.active_orders_count > 0:
-        profile.status = DriverStatus.BUSY
+    if status_update.status == DriverStatus.AVAILABLE and active_count > 0:
+        driver.status = DriverStatus.BUSY
     else:
-        profile.status = status_update.status
+        driver.status = status_update.status
 
-    profile.is_available = status_update.status == DriverStatus.AVAILABLE
-    profile.updated_at = datetime.now(timezone.utc)
+    driver.is_available = status_update.status == DriverStatus.AVAILABLE
+    driver.updated_at = datetime.now(timezone.utc)
 
-    session.add(profile)
+    session.add(driver)
     session.commit()
-    session.refresh(profile)
+    session.refresh(driver)
 
     return {
         "success": True,
-        "status": profile.status,
-        "is_available": profile.is_available
+        "status": driver.status,
+        "is_available": driver.is_available
     }
 
 
@@ -935,7 +962,7 @@ def get_trip_detail(
     - Available orders (CONFIRMED, no driver) - so drivers can see before accepting
     - Orders assigned to this driver
     """
-    driver, profile = get_driver_user(current_user, session)
+    user, driver = get_driver_user(current_user, session)
 
     order = session.get(Order, order_id)
     if not order:
@@ -948,7 +975,7 @@ def get_trip_detail(
     # 1. Order is available (CONFIRMED and no driver assigned)
     # 2. Order is assigned to this driver
     is_available = order.status == OrderStatus.CONFIRMED and order.driver_id is None
-    is_assigned_to_me = order.driver_id == driver.id
+    is_assigned_to_me = order.driver_id == user.id
 
     if not is_available and not is_assigned_to_me:
         raise HTTPException(

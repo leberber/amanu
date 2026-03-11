@@ -9,7 +9,7 @@ from app.core.security import get_current_admin_user, get_current_staff_user
 from app.models.user import User, UserRole
 from app.models.order import Order, OrderStatus, OrderWithItems, OrderItemRead, UserInfo, DriverInfo
 from app.models.driver import (
-    DriverProfile, DriverProfileWithFlags, DriverProfileAdminUpdate, DriverStatus
+    Driver, DriverVehicle, DriverReadWithFlags, DriverAdminUpdate, DriverStatus
 )
 from app.models.driver_config import (
     DriverSystemConfig, DriverSystemConfigRead, DriverSystemConfigUpdate
@@ -37,8 +37,15 @@ def order_to_response(order: Order, session: Session) -> OrderWithItems:
     driver_info = None
     if order.driver:
         vehicle_type = None
-        if order.driver.driver_profile:
-            vehicle_type = order.driver.driver_profile.vehicle_type
+        # Get primary vehicle from driver's vehicles
+        if order.driver.driver:
+            primary_vehicle = session.exec(
+                select(DriverVehicle)
+                .where(DriverVehicle.driver_id == order.driver.driver.id)
+                .where(DriverVehicle.is_primary == True)
+            ).first()
+            if primary_vehicle:
+                vehicle_type = primary_vehicle.vehicle_type
         driver_info = DriverInfo(
             id=order.driver.id,
             full_name=order.driver.full_name,
@@ -99,6 +106,16 @@ def get_system_config(session: Session) -> DriverSystemConfig:
         session.commit()
         session.refresh(config)
     return config
+
+
+def get_active_orders_count(session: Session, driver_user_id: int) -> int:
+    """Compute active orders count from orders table"""
+    count = session.exec(
+        select(func.count(Order.id))
+        .where(Order.driver_id == driver_user_id)
+        .where(Order.status.in_([OrderStatus.ASSIGNED, OrderStatus.PICKED_UP, OrderStatus.IN_TRANSIT]))
+    ).one()
+    return count or 0
 
 
 # =============================================================================
@@ -186,63 +203,63 @@ def assign_order_to_driver(
             detail=f"Cannot assign order with status: {order.status}"
         )
 
-    # Get driver
-    driver = session.get(User, assign_request.driver_id)
-    if not driver or driver.role != UserRole.DRIVER:
+    # Get driver user
+    driver_user = session.get(User, assign_request.driver_id)
+    if not driver_user or driver_user.role != UserRole.DRIVER:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Driver not found"
         )
 
-    # Get driver profile
-    profile = session.exec(
-        select(DriverProfile).where(DriverProfile.user_id == driver.id)
+    # Get driver record
+    driver = session.exec(
+        select(Driver).where(Driver.user_id == driver_user.id)
     ).first()
 
-    if not profile:
+    if not driver:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Driver profile not found"
+            detail="Driver record not found"
         )
 
     # Check driver status
-    if profile.status == DriverStatus.SUSPENDED:
+    if driver.status == DriverStatus.SUSPENDED:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Cannot assign to suspended driver"
         )
 
     # Check max active orders
-    if profile.active_orders_count >= profile.max_active_orders:
+    active_count = get_active_orders_count(session, driver_user.id)
+    if active_count >= driver.max_active_orders:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Driver has reached max active orders ({profile.max_active_orders})"
+            detail=f"Driver has reached max active orders ({driver.max_active_orders})"
         )
 
     now = datetime.now(timezone.utc)
 
     # Assign order
-    order.driver_id = driver.id
+    order.driver_id = driver_user.id
     order.status = OrderStatus.ASSIGNED
     order.assigned_at = now
     order.assignment_expires_at = now + timedelta(minutes=config.assignment_timeout_minutes)
     order.estimated_delivery_minutes = assign_request.estimated_delivery_minutes
     order.updated_at = now
 
-    # Update driver profile
-    profile.active_orders_count += 1
-    if profile.status == DriverStatus.AVAILABLE:
-        profile.status = DriverStatus.BUSY
-    profile.updated_at = now
+    # Update driver status to BUSY
+    if driver.status == DriverStatus.AVAILABLE:
+        driver.status = DriverStatus.BUSY
+        driver.updated_at = now
+        session.add(driver)
 
     session.add(order)
-    session.add(profile)
     session.commit()
     session.refresh(order)
 
     return AssignOrderResponse(
         success=True,
-        message=f"Order assigned to {driver.full_name}",
+        message=f"Order assigned to {driver_user.full_name}",
         order=order_to_response(order, session)
     )
 
@@ -276,11 +293,12 @@ def unassign_order(
             detail="Cannot unassign a delivered order"
         )
 
-    # Get driver profile
-    profile = session.exec(
-        select(DriverProfile).where(DriverProfile.user_id == order.driver_id)
+    # Get driver record
+    driver = session.exec(
+        select(Driver).where(Driver.user_id == order.driver_id)
     ).first()
 
+    old_driver_id = order.driver_id
     now = datetime.now(timezone.utc)
 
     # Unassign order
@@ -292,16 +310,18 @@ def unassign_order(
     order.in_transit_at = None
     order.updated_at = now
 
-    # Update driver profile
-    if profile:
-        profile.active_orders_count = max(0, profile.active_orders_count - 1)
-        if profile.active_orders_count == 0 and profile.status == DriverStatus.BUSY:
-            profile.status = DriverStatus.AVAILABLE
-        profile.updated_at = now
-        session.add(profile)
-
     session.add(order)
     session.commit()
+
+    # Update driver status if no more active orders
+    if driver:
+        active_count = get_active_orders_count(session, old_driver_id)
+        if active_count == 0 and driver.status == DriverStatus.BUSY:
+            driver.status = DriverStatus.AVAILABLE
+            driver.updated_at = now
+            session.add(driver)
+            session.commit()
+
     session.refresh(order)
 
     return AssignOrderResponse(
@@ -334,56 +354,50 @@ def reassign_order(
             detail="Cannot reassign a delivered order"
         )
 
-    # Get old driver profile
-    old_profile = None
+    # Get old driver record
+    old_driver = None
+    old_driver_user_id = order.driver_id
     if order.driver_id:
-        old_profile = session.exec(
-            select(DriverProfile).where(DriverProfile.user_id == order.driver_id)
+        old_driver = session.exec(
+            select(Driver).where(Driver.user_id == order.driver_id)
         ).first()
 
-    # Get new driver
-    new_driver = session.get(User, assign_request.driver_id)
-    if not new_driver or new_driver.role != UserRole.DRIVER:
+    # Get new driver user
+    new_driver_user = session.get(User, assign_request.driver_id)
+    if not new_driver_user or new_driver_user.role != UserRole.DRIVER:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="New driver not found"
         )
 
-    new_profile = session.exec(
-        select(DriverProfile).where(DriverProfile.user_id == new_driver.id)
+    new_driver = session.exec(
+        select(Driver).where(Driver.user_id == new_driver_user.id)
     ).first()
 
-    if not new_profile:
+    if not new_driver:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="New driver profile not found"
+            detail="New driver record not found"
         )
 
-    if new_profile.status == DriverStatus.SUSPENDED:
+    if new_driver.status == DriverStatus.SUSPENDED:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Cannot assign to suspended driver"
         )
 
-    if new_profile.active_orders_count >= new_profile.max_active_orders:
+    new_driver_active_count = get_active_orders_count(session, new_driver_user.id)
+    if new_driver_active_count >= new_driver.max_active_orders:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"New driver has reached max active orders ({new_profile.max_active_orders})"
+            detail=f"New driver has reached max active orders ({new_driver.max_active_orders})"
         )
 
     config = get_system_config(session)
     now = datetime.now(timezone.utc)
 
-    # Update old driver
-    if old_profile:
-        old_profile.active_orders_count = max(0, old_profile.active_orders_count - 1)
-        if old_profile.active_orders_count == 0 and old_profile.status == DriverStatus.BUSY:
-            old_profile.status = DriverStatus.AVAILABLE
-        old_profile.updated_at = now
-        session.add(old_profile)
-
     # Reassign order
-    order.driver_id = new_driver.id
+    order.driver_id = new_driver_user.id
     order.status = OrderStatus.ASSIGNED
     order.assigned_at = now
     order.assignment_expires_at = now + timedelta(minutes=config.assignment_timeout_minutes)
@@ -393,20 +407,30 @@ def reassign_order(
         order.estimated_delivery_minutes = assign_request.estimated_delivery_minutes
     order.updated_at = now
 
-    # Update new driver
-    new_profile.active_orders_count += 1
-    if new_profile.status == DriverStatus.AVAILABLE:
-        new_profile.status = DriverStatus.BUSY
-    new_profile.updated_at = now
-
     session.add(order)
-    session.add(new_profile)
+
+    # Update new driver status
+    if new_driver.status == DriverStatus.AVAILABLE:
+        new_driver.status = DriverStatus.BUSY
+        new_driver.updated_at = now
+        session.add(new_driver)
+
     session.commit()
+
+    # Update old driver status if no more active orders
+    if old_driver and old_driver_user_id:
+        old_active_count = get_active_orders_count(session, old_driver_user_id)
+        if old_active_count == 0 and old_driver.status == DriverStatus.BUSY:
+            old_driver.status = DriverStatus.AVAILABLE
+            old_driver.updated_at = now
+            session.add(old_driver)
+            session.commit()
+
     session.refresh(order)
 
     return AssignOrderResponse(
         success=True,
-        message=f"Order reassigned to {new_driver.full_name}",
+        message=f"Order reassigned to {new_driver_user.full_name}",
         order=order_to_response(order, session)
     )
 
@@ -415,7 +439,7 @@ def reassign_order(
 # DRIVER MANAGEMENT
 # =============================================================================
 
-@router.get("/profiles", response_model=List[DriverProfileWithFlags])
+@router.get("/profiles", response_model=List[DriverReadWithFlags])
 def list_driver_profiles(
     skip: int = 0,
     limit: int = 100,
@@ -425,34 +449,73 @@ def list_driver_profiles(
     session: Session = Depends(get_session),
 ) -> Any:
     """
-    List all driver profiles with full details (admin/staff).
+    List all drivers with full details (admin/staff).
     """
-    # Single query with JOIN to get profiles + user info
-    query = select(DriverProfile, User).join(User, DriverProfile.user_id == User.id)
+    # Single query with JOIN to get drivers + user info
+    query = select(Driver, User).join(User, Driver.user_id == User.id)
 
     if status_filter:
-        query = query.where(DriverProfile.status == status_filter)
+        query = query.where(Driver.status == status_filter)
 
     if flagged_only:
-        query = query.where(DriverProfile.is_flagged == True)
+        query = query.where(Driver.is_flagged == True)
 
     query = query.offset(skip).limit(limit)
 
     results = session.exec(query).all()
 
-    # Build response with user info included
+    # Build response with user info and computed stats
     response = []
-    for profile, user in results:
-        profile_dict = profile.model_dump()
-        profile_dict["full_name"] = user.full_name
-        profile_dict["phone"] = user.phone
-        profile_dict["email"] = user.email
-        response.append(DriverProfileWithFlags(**profile_dict))
+    for driver, user in results:
+        # Get primary vehicle
+        primary_vehicle = session.exec(
+            select(DriverVehicle)
+            .where(DriverVehicle.driver_id == driver.id)
+            .where(DriverVehicle.is_primary == True)
+        ).first()
+
+        # Compute stats from orders
+        active_count = get_active_orders_count(session, user.id)
+
+        total_deliveries = session.exec(
+            select(func.count(Order.id))
+            .where(Order.driver_id == user.id)
+            .where(Order.status == OrderStatus.DELIVERED)
+        ).one() or 0
+
+        cancellation_count = session.exec(
+            select(func.count(Order.id))
+            .where(Order.driver_cancel_reason.isnot(None))
+        ).one() or 0
+
+        response.append(DriverReadWithFlags(
+            id=driver.id,
+            user_id=driver.user_id,
+            status=driver.status,
+            is_available=driver.is_available,
+            max_active_orders=driver.max_active_orders,
+            created_at=driver.created_at,
+            updated_at=driver.updated_at,
+            vehicle_type=primary_vehicle.vehicle_type if primary_vehicle else None,
+            capacity_kg=primary_vehicle.capacity_kg if primary_vehicle else None,
+            capacity_volume=primary_vehicle.capacity_volume if primary_vehicle else None,
+            active_orders_count=active_count,
+            total_deliveries=total_deliveries,
+            total_earnings=0.0,  # Could compute if needed
+            cancellation_count=cancellation_count,
+            is_flagged=driver.is_flagged,
+            flag_reason=driver.flag_reason,
+            flagged_at=driver.flagged_at,
+            suspended_until=driver.suspended_until,
+            full_name=user.full_name,
+            phone=user.phone,
+            email=user.email,
+        ))
 
     return response
 
 
-@router.get("/profiles/{driver_id}", response_model=DriverProfileWithFlags)
+@router.get("/profiles/{driver_id}", response_model=DriverReadWithFlags)
 def get_driver_profile(
     driver_id: int,
     current_user: User = Depends(get_current_staff_user),
@@ -461,61 +524,142 @@ def get_driver_profile(
     """
     Get a driver's full profile with flags (admin/staff).
     """
-    profile = session.exec(
-        select(DriverProfile).where(DriverProfile.user_id == driver_id)
+    driver = session.exec(
+        select(Driver).where(Driver.user_id == driver_id)
     ).first()
 
-    if not profile:
+    if not driver:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Driver profile not found"
+            detail="Driver record not found"
         )
 
-    return profile
+    user = session.get(User, driver_id)
+
+    # Get primary vehicle
+    primary_vehicle = session.exec(
+        select(DriverVehicle)
+        .where(DriverVehicle.driver_id == driver.id)
+        .where(DriverVehicle.is_primary == True)
+    ).first()
+
+    # Compute stats
+    active_count = get_active_orders_count(session, driver_id)
+    total_deliveries = session.exec(
+        select(func.count(Order.id))
+        .where(Order.driver_id == driver_id)
+        .where(Order.status == OrderStatus.DELIVERED)
+    ).one() or 0
+
+    cancellation_count = session.exec(
+        select(func.count(Order.id))
+        .where(Order.driver_cancel_reason.isnot(None))
+    ).one() or 0
+
+    return DriverReadWithFlags(
+        id=driver.id,
+        user_id=driver.user_id,
+        status=driver.status,
+        is_available=driver.is_available,
+        max_active_orders=driver.max_active_orders,
+        created_at=driver.created_at,
+        updated_at=driver.updated_at,
+        vehicle_type=primary_vehicle.vehicle_type if primary_vehicle else None,
+        capacity_kg=primary_vehicle.capacity_kg if primary_vehicle else None,
+        capacity_volume=primary_vehicle.capacity_volume if primary_vehicle else None,
+        active_orders_count=active_count,
+        total_deliveries=total_deliveries,
+        total_earnings=0.0,
+        cancellation_count=cancellation_count,
+        is_flagged=driver.is_flagged,
+        flag_reason=driver.flag_reason,
+        flagged_at=driver.flagged_at,
+        suspended_until=driver.suspended_until,
+        full_name=user.full_name if user else None,
+        phone=user.phone if user else None,
+        email=user.email if user else None,
+    )
 
 
-@router.patch("/profiles/{driver_id}", response_model=DriverProfileWithFlags)
+@router.patch("/profiles/{driver_id}", response_model=DriverReadWithFlags)
 def update_driver_profile(
     driver_id: int,
-    profile_update: DriverProfileAdminUpdate,
+    driver_update: DriverAdminUpdate,
     current_user: User = Depends(get_current_admin_user),
     session: Session = Depends(get_session),
 ) -> Any:
     """
     Update a driver's profile (admin only).
     """
-    profile = session.exec(
-        select(DriverProfile).where(DriverProfile.user_id == driver_id)
+    driver = session.exec(
+        select(Driver).where(Driver.user_id == driver_id)
     ).first()
 
-    if not profile:
+    if not driver:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Driver profile not found"
+            detail="Driver record not found"
         )
 
-    update_data = profile_update.model_dump(exclude_unset=True)
+    update_data = driver_update.model_dump(exclude_unset=True)
     now = datetime.now(timezone.utc)
 
     # Handle flagging
     if "is_flagged" in update_data:
-        if update_data["is_flagged"] and not profile.is_flagged:
-            profile.flagged_at = now
-            profile.flagged_by_id = current_user.id
-        elif not update_data["is_flagged"] and profile.is_flagged:
-            profile.flagged_at = None
-            profile.flagged_by_id = None
-            profile.flag_reason = None
+        if update_data["is_flagged"] and not driver.is_flagged:
+            driver.flagged_at = now
+            driver.flagged_by_id = current_user.id
+        elif not update_data["is_flagged"] and driver.is_flagged:
+            driver.flagged_at = None
+            driver.flagged_by_id = None
+            driver.flag_reason = None
 
     for field, value in update_data.items():
-        setattr(profile, field, value)
+        setattr(driver, field, value)
 
-    profile.updated_at = now
-    session.add(profile)
+    driver.updated_at = now
+    session.add(driver)
     session.commit()
-    session.refresh(profile)
+    session.refresh(driver)
 
-    return profile
+    # Build response
+    user = session.get(User, driver_id)
+    primary_vehicle = session.exec(
+        select(DriverVehicle)
+        .where(DriverVehicle.driver_id == driver.id)
+        .where(DriverVehicle.is_primary == True)
+    ).first()
+
+    active_count = get_active_orders_count(session, driver_id)
+    total_deliveries = session.exec(
+        select(func.count(Order.id))
+        .where(Order.driver_id == driver_id)
+        .where(Order.status == OrderStatus.DELIVERED)
+    ).one() or 0
+
+    return DriverReadWithFlags(
+        id=driver.id,
+        user_id=driver.user_id,
+        status=driver.status,
+        is_available=driver.is_available,
+        max_active_orders=driver.max_active_orders,
+        created_at=driver.created_at,
+        updated_at=driver.updated_at,
+        vehicle_type=primary_vehicle.vehicle_type if primary_vehicle else None,
+        capacity_kg=primary_vehicle.capacity_kg if primary_vehicle else None,
+        capacity_volume=primary_vehicle.capacity_volume if primary_vehicle else None,
+        active_orders_count=active_count,
+        total_deliveries=total_deliveries,
+        total_earnings=0.0,
+        cancellation_count=0,
+        is_flagged=driver.is_flagged,
+        flag_reason=driver.flag_reason,
+        flagged_at=driver.flagged_at,
+        suspended_until=driver.suspended_until,
+        full_name=user.full_name if user else None,
+        phone=user.phone if user else None,
+        email=user.email if user else None,
+    )
 
 
 class FlagDriverRequest(SQLModel):
@@ -523,7 +667,7 @@ class FlagDriverRequest(SQLModel):
     reason: str
 
 
-@router.post("/profiles/{driver_id}/flag", response_model=DriverProfileWithFlags)
+@router.post("/profiles/{driver_id}/flag", response_model=DriverReadWithFlags)
 def flag_driver(
     driver_id: int,
     flag_request: FlagDriverRequest,
@@ -533,31 +677,61 @@ def flag_driver(
     """
     Flag a driver for review.
     """
-    profile = session.exec(
-        select(DriverProfile).where(DriverProfile.user_id == driver_id)
+    driver = session.exec(
+        select(Driver).where(Driver.user_id == driver_id)
     ).first()
 
-    if not profile:
+    if not driver:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Driver profile not found"
+            detail="Driver record not found"
         )
 
     now = datetime.now(timezone.utc)
-    profile.is_flagged = True
-    profile.flag_reason = flag_request.reason
-    profile.flagged_at = now
-    profile.flagged_by_id = current_user.id
-    profile.updated_at = now
+    driver.is_flagged = True
+    driver.flag_reason = flag_request.reason
+    driver.flagged_at = now
+    driver.flagged_by_id = current_user.id
+    driver.updated_at = now
 
-    session.add(profile)
+    session.add(driver)
     session.commit()
-    session.refresh(profile)
+    session.refresh(driver)
 
-    return profile
+    # Build response
+    user = session.get(User, driver_id)
+    primary_vehicle = session.exec(
+        select(DriverVehicle)
+        .where(DriverVehicle.driver_id == driver.id)
+        .where(DriverVehicle.is_primary == True)
+    ).first()
+
+    return DriverReadWithFlags(
+        id=driver.id,
+        user_id=driver.user_id,
+        status=driver.status,
+        is_available=driver.is_available,
+        max_active_orders=driver.max_active_orders,
+        created_at=driver.created_at,
+        updated_at=driver.updated_at,
+        vehicle_type=primary_vehicle.vehicle_type if primary_vehicle else None,
+        capacity_kg=primary_vehicle.capacity_kg if primary_vehicle else None,
+        capacity_volume=primary_vehicle.capacity_volume if primary_vehicle else None,
+        active_orders_count=get_active_orders_count(session, driver_id),
+        total_deliveries=0,
+        total_earnings=0.0,
+        cancellation_count=0,
+        is_flagged=driver.is_flagged,
+        flag_reason=driver.flag_reason,
+        flagged_at=driver.flagged_at,
+        suspended_until=driver.suspended_until,
+        full_name=user.full_name if user else None,
+        phone=user.phone if user else None,
+        email=user.email if user else None,
+    )
 
 
-@router.post("/profiles/{driver_id}/unflag", response_model=DriverProfileWithFlags)
+@router.post("/profiles/{driver_id}/unflag", response_model=DriverReadWithFlags)
 def unflag_driver(
     driver_id: int,
     current_user: User = Depends(get_current_staff_user),
@@ -566,27 +740,57 @@ def unflag_driver(
     """
     Remove flag from a driver.
     """
-    profile = session.exec(
-        select(DriverProfile).where(DriverProfile.user_id == driver_id)
+    driver = session.exec(
+        select(Driver).where(Driver.user_id == driver_id)
     ).first()
 
-    if not profile:
+    if not driver:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Driver profile not found"
+            detail="Driver record not found"
         )
 
-    profile.is_flagged = False
-    profile.flag_reason = None
-    profile.flagged_at = None
-    profile.flagged_by_id = None
-    profile.updated_at = datetime.now(timezone.utc)
+    driver.is_flagged = False
+    driver.flag_reason = None
+    driver.flagged_at = None
+    driver.flagged_by_id = None
+    driver.updated_at = datetime.now(timezone.utc)
 
-    session.add(profile)
+    session.add(driver)
     session.commit()
-    session.refresh(profile)
+    session.refresh(driver)
 
-    return profile
+    # Build response
+    user = session.get(User, driver_id)
+    primary_vehicle = session.exec(
+        select(DriverVehicle)
+        .where(DriverVehicle.driver_id == driver.id)
+        .where(DriverVehicle.is_primary == True)
+    ).first()
+
+    return DriverReadWithFlags(
+        id=driver.id,
+        user_id=driver.user_id,
+        status=driver.status,
+        is_available=driver.is_available,
+        max_active_orders=driver.max_active_orders,
+        created_at=driver.created_at,
+        updated_at=driver.updated_at,
+        vehicle_type=primary_vehicle.vehicle_type if primary_vehicle else None,
+        capacity_kg=primary_vehicle.capacity_kg if primary_vehicle else None,
+        capacity_volume=primary_vehicle.capacity_volume if primary_vehicle else None,
+        active_orders_count=get_active_orders_count(session, driver_id),
+        total_deliveries=0,
+        total_earnings=0.0,
+        cancellation_count=0,
+        is_flagged=driver.is_flagged,
+        flag_reason=driver.flag_reason,
+        flagged_at=driver.flagged_at,
+        suspended_until=driver.suspended_until,
+        full_name=user.full_name if user else None,
+        phone=user.phone if user else None,
+        email=user.email if user else None,
+    )
 
 
 class SuspendDriverRequest(SQLModel):
@@ -595,7 +799,7 @@ class SuspendDriverRequest(SQLModel):
     duration_hours: int = 24
 
 
-@router.post("/profiles/{driver_id}/suspend", response_model=DriverProfileWithFlags)
+@router.post("/profiles/{driver_id}/suspend", response_model=DriverReadWithFlags)
 def suspend_driver(
     driver_id: int,
     suspend_request: SuspendDriverRequest,
@@ -605,33 +809,63 @@ def suspend_driver(
     """
     Suspend a driver (admin only).
     """
-    profile = session.exec(
-        select(DriverProfile).where(DriverProfile.user_id == driver_id)
+    driver = session.exec(
+        select(Driver).where(Driver.user_id == driver_id)
     ).first()
 
-    if not profile:
+    if not driver:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Driver profile not found"
+            detail="Driver record not found"
         )
 
     now = datetime.now(timezone.utc)
-    profile.status = DriverStatus.SUSPENDED
-    profile.suspended_until = now + timedelta(hours=suspend_request.duration_hours)
-    profile.is_flagged = True
-    profile.flag_reason = f"Suspended: {suspend_request.reason}"
-    profile.flagged_at = now
-    profile.flagged_by_id = current_user.id
-    profile.updated_at = now
+    driver.status = DriverStatus.SUSPENDED
+    driver.suspended_until = now + timedelta(hours=suspend_request.duration_hours)
+    driver.is_flagged = True
+    driver.flag_reason = f"Suspended: {suspend_request.reason}"
+    driver.flagged_at = now
+    driver.flagged_by_id = current_user.id
+    driver.updated_at = now
 
-    session.add(profile)
+    session.add(driver)
     session.commit()
-    session.refresh(profile)
+    session.refresh(driver)
 
-    return profile
+    # Build response
+    user = session.get(User, driver_id)
+    primary_vehicle = session.exec(
+        select(DriverVehicle)
+        .where(DriverVehicle.driver_id == driver.id)
+        .where(DriverVehicle.is_primary == True)
+    ).first()
+
+    return DriverReadWithFlags(
+        id=driver.id,
+        user_id=driver.user_id,
+        status=driver.status,
+        is_available=driver.is_available,
+        max_active_orders=driver.max_active_orders,
+        created_at=driver.created_at,
+        updated_at=driver.updated_at,
+        vehicle_type=primary_vehicle.vehicle_type if primary_vehicle else None,
+        capacity_kg=primary_vehicle.capacity_kg if primary_vehicle else None,
+        capacity_volume=primary_vehicle.capacity_volume if primary_vehicle else None,
+        active_orders_count=get_active_orders_count(session, driver_id),
+        total_deliveries=0,
+        total_earnings=0.0,
+        cancellation_count=0,
+        is_flagged=driver.is_flagged,
+        flag_reason=driver.flag_reason,
+        flagged_at=driver.flagged_at,
+        suspended_until=driver.suspended_until,
+        full_name=user.full_name if user else None,
+        phone=user.phone if user else None,
+        email=user.email if user else None,
+    )
 
 
-@router.post("/profiles/{driver_id}/unsuspend", response_model=DriverProfileWithFlags)
+@router.post("/profiles/{driver_id}/unsuspend", response_model=DriverReadWithFlags)
 def unsuspend_driver(
     driver_id: int,
     current_user: User = Depends(get_current_admin_user),
@@ -640,29 +874,59 @@ def unsuspend_driver(
     """
     Remove suspension from a driver (admin only).
     """
-    profile = session.exec(
-        select(DriverProfile).where(DriverProfile.user_id == driver_id)
+    driver = session.exec(
+        select(Driver).where(Driver.user_id == driver_id)
     ).first()
 
-    if not profile:
+    if not driver:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Driver profile not found"
+            detail="Driver record not found"
         )
 
-    profile.status = DriverStatus.OFFLINE
-    profile.suspended_until = None
-    profile.is_flagged = False
-    profile.flag_reason = None
-    profile.flagged_at = None
-    profile.flagged_by_id = None
-    profile.updated_at = datetime.now(timezone.utc)
+    driver.status = DriverStatus.OFFLINE
+    driver.suspended_until = None
+    driver.is_flagged = False
+    driver.flag_reason = None
+    driver.flagged_at = None
+    driver.flagged_by_id = None
+    driver.updated_at = datetime.now(timezone.utc)
 
-    session.add(profile)
+    session.add(driver)
     session.commit()
-    session.refresh(profile)
+    session.refresh(driver)
 
-    return profile
+    # Build response
+    user = session.get(User, driver_id)
+    primary_vehicle = session.exec(
+        select(DriverVehicle)
+        .where(DriverVehicle.driver_id == driver.id)
+        .where(DriverVehicle.is_primary == True)
+    ).first()
+
+    return DriverReadWithFlags(
+        id=driver.id,
+        user_id=driver.user_id,
+        status=driver.status,
+        is_available=driver.is_available,
+        max_active_orders=driver.max_active_orders,
+        created_at=driver.created_at,
+        updated_at=driver.updated_at,
+        vehicle_type=primary_vehicle.vehicle_type if primary_vehicle else None,
+        capacity_kg=primary_vehicle.capacity_kg if primary_vehicle else None,
+        capacity_volume=primary_vehicle.capacity_volume if primary_vehicle else None,
+        active_orders_count=get_active_orders_count(session, driver_id),
+        total_deliveries=0,
+        total_earnings=0.0,
+        cancellation_count=0,
+        is_flagged=driver.is_flagged,
+        flag_reason=driver.flag_reason,
+        flagged_at=driver.flagged_at,
+        suspended_until=driver.suspended_until,
+        full_name=user.full_name if user else None,
+        phone=user.phone if user else None,
+        email=user.email if user else None,
+    )
 
 
 # =============================================================================
@@ -741,27 +1005,27 @@ def get_system_stats(
     """
     # Driver counts
     total_drivers = session.exec(
-        select(func.count(DriverProfile.id))
+        select(func.count(Driver.id))
     ).one() or 0
 
     available_drivers = session.exec(
-        select(func.count(DriverProfile.id))
-        .where(DriverProfile.status == DriverStatus.AVAILABLE)
+        select(func.count(Driver.id))
+        .where(Driver.status == DriverStatus.AVAILABLE)
     ).one() or 0
 
     busy_drivers = session.exec(
-        select(func.count(DriverProfile.id))
-        .where(DriverProfile.status == DriverStatus.BUSY)
+        select(func.count(Driver.id))
+        .where(Driver.status == DriverStatus.BUSY)
     ).one() or 0
 
     suspended_drivers = session.exec(
-        select(func.count(DriverProfile.id))
-        .where(DriverProfile.status == DriverStatus.SUSPENDED)
+        select(func.count(Driver.id))
+        .where(Driver.status == DriverStatus.SUSPENDED)
     ).one() or 0
 
     flagged_drivers = session.exec(
-        select(func.count(DriverProfile.id))
-        .where(DriverProfile.is_flagged == True)
+        select(func.count(Driver.id))
+        .where(Driver.is_flagged == True)
     ).one() or 0
 
     active_drivers = available_drivers + busy_drivers

@@ -2,32 +2,53 @@ import { DRIVER_STATUS, VEHICLE_TYPE, DriverStatus, VehicleType } from '../core/
 import { Order } from './order.model';
 
 /**
- * Driver Profile interfaces
+ * Driver Vehicle interface
  */
-export interface DriverProfile {
+export interface DriverVehicle {
   id: number;
-  user_id: number;
+  driver_id: number;
   vehicle_type: VehicleType;
   capacity_kg?: number;
   capacity_volume?: number;
+  license_plate?: string;
+  is_primary: boolean;
+  is_active: boolean;
+  created_at: string;
+}
+
+/**
+ * Driver Read interface (from API)
+ * Stats are computed from orders, not stored
+ */
+export interface DriverRead {
+  id: number;
+  user_id: number;
   status: DriverStatus;
   is_available: boolean;
+  max_active_orders: number;
   created_at: string;
   updated_at?: string;
 
-  // Stats
+  // Primary vehicle info (convenience fields from endpoint)
+  vehicle_type?: VehicleType;
+  capacity_kg?: number;
+  capacity_volume?: number;
+
+  // Computed stats (populated by endpoint from orders)
+  active_orders_count: number;
   total_deliveries: number;
   total_earnings: number;
   average_rating?: number;
   total_ratings: number;
-  active_orders_count: number;
-  max_active_orders: number;
 }
 
-export interface DriverProfileWithFlags extends DriverProfile {
+/**
+ * @deprecated Use DriverRead instead
+ */
+export type DriverProfile = DriverRead;
+
+export interface DriverReadWithFlags extends DriverRead {
   cancellation_count: number;
-  cancellation_count_period: number;
-  last_cancellation_at?: string;
   is_flagged: boolean;
   flag_reason?: string;
   flagged_at?: string;
@@ -38,15 +59,22 @@ export interface DriverProfileWithFlags extends DriverProfile {
   email?: string;
 }
 
-export interface DriverProfileUpdate {
-  vehicle_type?: VehicleType;
-  capacity_kg?: number;
-  capacity_volume?: number;
+/**
+ * @deprecated Use DriverReadWithFlags instead
+ */
+export type DriverProfileWithFlags = DriverReadWithFlags;
+
+export interface DriverUpdate {
   is_available?: boolean;
   status?: DriverStatus;
 }
 
-export interface DriverProfileAdminUpdate extends DriverProfileUpdate {
+/**
+ * @deprecated Use DriverUpdate instead
+ */
+export type DriverProfileUpdate = DriverUpdate;
+
+export interface DriverAdminUpdate extends DriverUpdate {
   max_active_orders?: number;
   is_flagged?: boolean;
   flag_reason?: string;
@@ -54,7 +82,12 @@ export interface DriverProfileAdminUpdate extends DriverProfileUpdate {
 }
 
 /**
- * Driver with User info
+ * @deprecated Use DriverAdminUpdate instead
+ */
+export type DriverProfileAdminUpdate = DriverAdminUpdate;
+
+/**
+ * Driver with User info (API response)
  */
 export interface DriverWithProfile {
   id: number;
@@ -63,7 +96,9 @@ export interface DriverWithProfile {
   phone?: string;
   is_active: boolean;
   created_at: string;
-  driver_profile?: DriverProfile;
+  driver?: DriverRead;
+  /** @deprecated Use driver instead */
+  driver_profile?: DriverRead;
 }
 
 /**
