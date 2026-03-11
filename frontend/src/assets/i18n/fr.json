@@ -383,7 +383,9 @@
     "weight_cost": "Coût poids",
     "volume_cost": "Coût volume",
     "time_cost": "Coût temps",
-    "next_tier_hint": "Ajoutez {{amount}} DZD pour obtenir {{percent}}% de réduction sur la livraison !"
+    "next_tier_hint": "Ajoutez {{amount}} DZD pour obtenir {{percent}}% de réduction sur la livraison !",
+    "current_savings_next_tier": "Vous économisez {{currentPercent}}% ! Ajoutez {{amount}} DZD pour {{nextPercent}}% de réduction !",
+    "max_savings_reached": "Vous économisez {{percent}}% sur la livraison - réduction maximale !"
   },
   "register": {
     "step1_label": "Info",
@@ -575,6 +577,11 @@
     "confirm_order": "Confirmer la commande",
     "order_note": "En commandant, vous acceptez nos",
     "terms_link": "Conditions Générales",
+    "delivery_type": "Option de Livraison",
+    "standard_delivery": "Livraison Standard",
+    "standard_delivery_desc": "Peut être groupée avec des commandes voisines",
+    "priority_delivery": "Livraison Prioritaire",
+    "priority_delivery_desc": "Livraison dédiée immédiate",
     "empty": {
       "title": "Votre panier est vide",
       "subtitle": "Ajoutez des produits à votre panier pour continuer",

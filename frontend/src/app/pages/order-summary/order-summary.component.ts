@@ -1,4 +1,5 @@
 import { Component, OnInit, inject, signal, computed, effect, DestroyRef } from '@angular/core';
+import { trigger, state, style, animate, transition } from '@angular/animations';
 import { Router } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
@@ -14,6 +15,7 @@ import { PageLayoutComponent } from '../../shared/components/page-layout/page-la
 import { StickyFooterComponent } from '../../shared/components/sticky-footer/sticky-footer.component';
 import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
 import { ShippingCostResponse } from '../../models/shipping.model';
+import { DeliveryType } from '../../models/order.model';
 
 export type DeliveryMethod = 'delivery' | 'pickup';
 
@@ -29,7 +31,14 @@ export type DeliveryMethod = 'delivery' | 'pickup';
     CurrencyPipe
   ],
   templateUrl: './order-summary.component.html',
-  styleUrl: './order-summary.component.scss'
+  styleUrl: './order-summary.component.scss',
+  animations: [
+    trigger('expandCollapse', [
+      state('collapsed', style({ height: '0', opacity: '0', overflow: 'hidden' })),
+      state('expanded', style({ height: '*', opacity: '1' })),
+      transition('collapsed <=> expanded', animate('200ms ease-out'))
+    ])
+  ]
 })
 export class OrderSummaryComponent implements OnInit {
   // Services
@@ -45,10 +54,16 @@ export class OrderSummaryComponent implements OnInit {
 
   // State
   deliveryMethod = signal<DeliveryMethod>('delivery');
+  deliveryType = signal<DeliveryType>('standard');
   shippingLoading = signal(false);
   shippingResponse = signal<ShippingCostResponse | null>(null);
   shippingError = signal<string | null>(null);
   showShippingDetails = signal(false);
+
+  // Computed pricing based on delivery type
+  priorityPrice = computed(() => this.shippingResponse()?.priority_price ?? null);
+  standardPrice = computed(() => this.shippingResponse()?.standard_price ?? null);
+  hasDeliveryOptions = computed(() => !!(this.priorityPrice() || this.standardPrice()));
 
   constructor() {
     // Calculate shipping when delivery method changes to 'delivery'
@@ -77,9 +92,20 @@ export class OrderSummaryComponent implements OnInit {
   appliedPromotion = this.cartService.appliedPromotion;
   cartItemCount = computed(() => this.cartItems().length);
 
-  // Computed delivery cost - use API response or 0 for pickup
+  // Computed delivery cost - use selected delivery type pricing or fallback to API response
   deliveryCost = computed(() => {
     if (this.deliveryMethod() === 'pickup') return 0;
+
+    // Use pricing based on selected delivery type
+    const type = this.deliveryType();
+    if (type === 'priority' && this.priorityPrice()) {
+      return this.priorityPrice()!.cost;
+    }
+    if (type === 'standard' && this.standardPrice()) {
+      return this.standardPrice()!.cost;
+    }
+
+    // Fallback to the default shipping cost from response
     return this.shippingResponse()?.shipping_cost ?? 0;
   });
 
@@ -103,6 +129,11 @@ export class OrderSummaryComponent implements OnInit {
   // Delivery method
   setDeliveryMethod(method: DeliveryMethod): void {
     this.deliveryMethod.set(method);
+  }
+
+  // Delivery type (standard vs priority)
+  selectDeliveryType(type: DeliveryType): void {
+    this.deliveryType.set(type);
   }
 
   // Toggle shipping details
@@ -162,8 +193,10 @@ export class OrderSummaryComponent implements OnInit {
     }
 
     if (this.authService.isLoggedIn) {
-      // Save shipping cost for checkout to use
+      // Save shipping cost, delivery type, and pricing for checkout to use
       this.shippingService.setShippingCost(this.deliveryCost());
+      this.shippingService.setDeliveryType(this.deliveryType());
+      this.shippingService.setDeliveryPricing(this.priorityPrice(), this.standardPrice());
       // replaceUrl to keep history clean during checkout flow
       this.router.navigate([ROUTES.CHECKOUT], { replaceUrl: true });
     } else {

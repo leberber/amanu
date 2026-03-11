@@ -8,8 +8,10 @@ import {
   ShippingPriceConfigUpdate,
   ShippingCostRequest,
   ShippingCostResponse,
-  DeliveryZoneStats
+  DeliveryZoneStats,
+  DeliveryPricing
 } from '../models/shipping.model';
+import { DeliveryType } from '../models/order.model';
 
 @Injectable({
   providedIn: 'root'
@@ -22,6 +24,16 @@ export class ShippingService {
   private readonly _lastShippingCost = signal<number>(0);
   readonly lastShippingCost = this._lastShippingCost.asReadonly();
 
+  // Selected delivery type (standard or priority)
+  private readonly _deliveryType = signal<DeliveryType>('standard');
+  readonly deliveryType = this._deliveryType.asReadonly();
+
+  // Pricing for each delivery type
+  private readonly _priorityPrice = signal<DeliveryPricing | null>(null);
+  private readonly _standardPrice = signal<DeliveryPricing | null>(null);
+  readonly priorityPrice = this._priorityPrice.asReadonly();
+  readonly standardPrice = this._standardPrice.asReadonly();
+
   /**
    * Set the shipping cost (called from order-summary)
    */
@@ -30,10 +42,28 @@ export class ShippingService {
   }
 
   /**
+   * Set delivery type and pricing (called from order-summary)
+   */
+  setDeliveryType(type: DeliveryType): void {
+    this._deliveryType.set(type);
+  }
+
+  /**
+   * Set delivery pricing options (called from order-summary)
+   */
+  setDeliveryPricing(priority: DeliveryPricing | null, standard: DeliveryPricing | null): void {
+    this._priorityPrice.set(priority);
+    this._standardPrice.set(standard);
+  }
+
+  /**
    * Clear shipping cost (called after order is placed)
    */
   clearShippingCost(): void {
     this._lastShippingCost.set(0);
+    this._deliveryType.set('standard');
+    this._priorityPrice.set(null);
+    this._standardPrice.set(null);
   }
 
   /**

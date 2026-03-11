@@ -80,6 +80,11 @@ export class CheckoutComponent implements OnInit {
   isSubmitting = signal(false);
   showOrderDetails = signal(false);
 
+  // Delivery type from ShippingService (set in order-summary)
+  deliveryType = this.shippingService.deliveryType;
+  priorityPrice = this.shippingService.priorityPrice;
+  standardPrice = this.shippingService.standardPrice;
+
   // Form value signals (updated when form is prefilled)
   fullName = signal('');
   phone = signal('');
@@ -93,6 +98,20 @@ export class CheckoutComponent implements OnInit {
   discountAmount = this.cartService.discountAmount;
   finalTotal = this.cartService.finalTotal;
   appliedPromotion = this.cartService.appliedPromotion;
+
+  // Computed shipping cost based on delivery type
+  selectedShippingCost = computed(() => {
+    const type = this.deliveryType();
+    if (type === 'priority') {
+      return this.priorityPrice()?.cost ?? this.shippingService.lastShippingCost();
+    }
+    return this.standardPrice()?.cost ?? this.shippingService.lastShippingCost();
+  });
+
+  // Total with selected shipping
+  totalWithShipping = computed(() => {
+    return this.finalTotal() + this.selectedShippingCost();
+  });
 
   ngOnInit(): void {
     this.initForm();
@@ -119,7 +138,8 @@ export class CheckoutComponent implements OnInit {
       contact_phone: this.checkoutForm.value.phone,
       items: this.orderService.cartItemsToOrderItems(this.cartItems()),
       promotion_code: this.appliedPromotion()?.code,
-      shipping_cost: this.shippingService.lastShippingCost()
+      shipping_cost: this.selectedShippingCost(),
+      delivery_type: this.deliveryType()
     };
 
     this.orderService.createOrder(orderData).subscribe({

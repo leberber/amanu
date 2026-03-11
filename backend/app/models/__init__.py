@@ -20,7 +20,14 @@ from app.models.category import Category
 from app.models.brand import Brand
 
 # Order models
-from app.models.order import Order, OrderItem
+from app.models.order import Order, OrderItem, DeliveryType
+
+# Trip models
+from app.models.trip import (
+    Trip, TripStop, TripStatus, StopStatus,
+    TripRead, TripWithStops, TripStopRead,
+    TripCreate, TripUpdate, TripStopUpdate
+)
 
 # Driver models
 from app.models.driver import (

@@ -386,7 +386,9 @@
     "weight_cost": "Weight cost",
     "volume_cost": "Volume cost",
     "time_cost": "Time cost",
-    "next_tier_hint": "Add {{amount}} DZD more to get {{percent}}% off shipping!"
+    "next_tier_hint": "Add {{amount}} DZD more to get {{percent}}% off shipping!",
+    "current_savings_next_tier": "You're saving {{currentPercent}}%! Add {{amount}} DZD more for {{nextPercent}}% off!",
+    "max_savings_reached": "You're saving {{percent}}% on shipping - maximum discount!"
   },
   "register": {
     "step1_label": "Info",
@@ -578,6 +580,11 @@
     "confirm_order": "Confirm Order",
     "order_note": "By ordering, you accept our",
     "terms_link": "Terms & Conditions",
+    "delivery_type": "Delivery Option",
+    "standard_delivery": "Standard Delivery",
+    "standard_delivery_desc": "May be grouped with nearby orders",
+    "priority_delivery": "Priority Delivery",
+    "priority_delivery_desc": "Immediate dedicated delivery",
     "empty": {
       "title": "Your Cart is Empty",
       "subtitle": "Add some products to your cart to proceed with checkout",

@@ -3,6 +3,9 @@ import { ORDER_STATUS } from '../core/constants/order.constants';
 // Derive OrderStatus type from ORDER_STATUS constant
 export type OrderStatus = typeof ORDER_STATUS[keyof typeof ORDER_STATUS];
 
+// Delivery type for routing optimization
+export type DeliveryType = 'standard' | 'priority';
+
 export interface OrderItem {
   id: number;
   product_id: number;
@@ -26,6 +29,7 @@ export interface OrderCreate {
   items: OrderCreateItem[];
   promotion_code?: string;
   shipping_cost?: number;
+  delivery_type?: DeliveryType;
 }
 
 export interface PromotionInfo {
@@ -86,4 +90,10 @@ export interface Order {
   delivery_notes?: string;
   estimated_delivery_minutes?: number;
   actual_delivery_minutes?: number;
+
+  // Routing & batching fields
+  delivery_type?: DeliveryType;
+  is_full_load?: boolean;
+  min_vehicle_capacity_kg?: number;
+  trip_id?: number;
 }

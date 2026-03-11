@@ -58,6 +58,13 @@ export interface ShippingCostRequest {
   warehouse_id?: string;
 }
 
+export interface DeliveryPricing {
+  cost: number;
+  original_cost: number;
+  discount_percent: number;
+  description: string;
+}
+
 export interface ShippingCostResponse {
   deliverable: boolean;
   shipping_cost: number;
@@ -70,6 +77,10 @@ export interface ShippingCostResponse {
   breakdown: ShippingBreakdown;
   next_tier: ShippingNextTier | null;
   message: string | null;
+
+  // Delivery type pricing
+  priority_price: DeliveryPricing | null;
+  standard_price: DeliveryPricing | null;
 }
 
 export interface ShippingBreakdown {

@@ -17,6 +17,7 @@ from app.models.shipping import (
     ShippingPriceConfigRead,
     ShippingCostRequest,
     ShippingCostResponse,
+    DeliveryPricing,
 )
 from app.core.security import get_current_active_user, get_current_admin_user
 
@@ -155,6 +156,25 @@ def calculate_shipping_cost(
         else:
             message = f"Add {next_tier['amount_needed']} DZD more to get {int(next_tier['discount_percent'])}% off shipping!"
 
+    # Calculate standard delivery price (discounted for batching)
+    STANDARD_DISCOUNT_PERCENT = 30  # 30% discount for standard delivery
+    standard_cost = round(final_cost * (1 - STANDARD_DISCOUNT_PERCENT / 100), 2)
+
+    # Build delivery type pricing
+    priority_pricing = DeliveryPricing(
+        cost=round(final_cost, 2),
+        original_cost=round(original_cost, 2),
+        discount_percent=discount_percent,
+        description="Immediate dedicated delivery"
+    )
+
+    standard_pricing = DeliveryPricing(
+        cost=standard_cost,
+        original_cost=round(final_cost, 2),
+        discount_percent=STANDARD_DISCOUNT_PERCENT,
+        description="May be grouped with nearby orders"
+    )
+
     return ShippingCostResponse(
         deliverable=True,
         shipping_cost=round(final_cost, 2),
@@ -174,7 +194,9 @@ def calculate_shipping_cost(
             "discount_amount": round(discount_amount, 2),
         },
         next_tier=next_tier,
-        message=message
+        message=message,
+        priority_price=priority_pricing,
+        standard_price=standard_pricing,
     )
 
 

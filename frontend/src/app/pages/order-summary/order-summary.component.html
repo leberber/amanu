@@ -16,58 +16,103 @@
         </div>
       </div>
       <div class="card-body card-body--compact">
-        <div class="delivery-options">
-          <button
-            class="delivery-option"
-            [class.delivery-option--selected]="deliveryMethod() === 'delivery'"
+        <div class="delivery-box">
+          <!-- Livraison Option -->
+          <div
+            class="delivery-row"
+            [class.delivery-row--selected]="deliveryMethod() === 'delivery'"
             (click)="setDeliveryMethod('delivery')">
-            <div class="delivery-option__radio">
-              <div class="delivery-option__radio-inner"></div>
+            <div class="delivery-row__radio">
+              <div class="delivery-row__radio-inner"></div>
             </div>
-            <div class="delivery-option__icon delivery-option__icon--delivery">
+            <div class="delivery-row__icon delivery-row__icon--delivery">
               <i class="pi pi-truck"></i>
             </div>
-            <div class="delivery-option__content">
-              <span class="delivery-option__label">{{ 'order_summary.delivery' | translate }}</span>
-              <span class="delivery-option__desc">{{ 'order_summary.delivery_desc' | translate }}</span>
+            <div class="delivery-row__content">
+              <span class="delivery-row__label">{{ 'order_summary.delivery' | translate }}</span>
+              <span class="delivery-row__desc">{{ 'order_summary.delivery_desc' | translate }}</span>
             </div>
-            <div class="delivery-option__price">
+            <div class="delivery-row__price">
               @if (shippingLoading()) {
                 <i class="pi pi-spin pi-spinner"></i>
-              } @else if (shippingResponse()) {
-                @if (shippingResponse()!.free_shipping) {
-                  <span class="delivery-option__price--original">{{ shippingResponse()!.original_cost | appCurrency }}</span>
-                  <span class="delivery-option__price--free">{{ 'cart.free' | translate }}</span>
-                } @else if (shippingResponse()!.discount_applied) {
-                  <span class="delivery-option__price--original">{{ shippingResponse()!.original_cost | appCurrency }}</span>
-                  <span class="delivery-option__price--discounted">{{ shippingResponse()!.shipping_cost | appCurrency }}</span>
-                } @else {
-                  {{ shippingResponse()!.shipping_cost | appCurrency }}
-                }
               } @else if (shippingError()) {
                 <i class="pi pi-exclamation-circle text-orange-500"></i>
-              } @else {
-                --
               }
             </div>
-          </button>
+          </div>
 
-          <button
-            class="delivery-option"
-            [class.delivery-option--selected]="deliveryMethod() === 'pickup'"
-            (click)="setDeliveryMethod('pickup')">
-            <div class="delivery-option__radio">
-              <div class="delivery-option__radio-inner"></div>
+          <!-- Delivery Type Options (expand under Livraison) -->
+          <div
+            [@expandCollapse]="deliveryMethod() === 'delivery' && shippingResponse() && !shippingLoading() && hasDeliveryOptions() ? 'expanded' : 'collapsed'"
+            class="delivery-type-section">
+            <!-- Standard Delivery -->
+            <div
+              class="delivery-type-row"
+              [class.delivery-type-row--selected]="deliveryType() === 'standard'"
+              (click)="selectDeliveryType('standard'); $event.stopPropagation()">
+              <div class="delivery-type-row__radio">
+                <div class="delivery-type-row__radio-inner"></div>
+              </div>
+              <div class="delivery-type-row__content">
+                <div class="delivery-type-row__header">
+                  <span class="delivery-type-row__title">{{ 'checkout.standard_delivery' | translate }}</span>
+                  @if (standardPrice()?.discount_percent) {
+                    <span class="delivery-type-row__badge">-{{ standardPrice()?.discount_percent }}%</span>
+                  }
+                </div>
+                <span class="delivery-type-row__desc">{{ 'checkout.standard_delivery_desc' | translate }}</span>
+              </div>
+              <div class="delivery-type-row__price-stack">
+                @if (standardPrice()?.original_cost && standardPrice()!.original_cost > standardPrice()!.cost) {
+                  <span class="delivery-type-row__price--original">{{ standardPrice()?.original_cost | appCurrency }}</span>
+                }
+                <span class="delivery-type-row__price--discounted">{{ standardPrice()?.cost | appCurrency }}</span>
+              </div>
             </div>
-            <div class="delivery-option__icon delivery-option__icon--pickup">
+
+            <!-- Priority Delivery -->
+            <div
+              class="delivery-type-row"
+              [class.delivery-type-row--selected]="deliveryType() === 'priority'"
+              (click)="selectDeliveryType('priority'); $event.stopPropagation()">
+              <div class="delivery-type-row__radio">
+                <div class="delivery-type-row__radio-inner"></div>
+              </div>
+              <div class="delivery-type-row__content">
+                <div class="delivery-type-row__header">
+                  <span class="delivery-type-row__title">{{ 'checkout.priority_delivery' | translate }}</span>
+                </div>
+                <span class="delivery-type-row__desc">{{ 'checkout.priority_delivery_desc' | translate }}</span>
+              </div>
+              <div class="delivery-type-row__price-stack">
+                @if (priorityPrice()?.original_cost && priorityPrice()!.original_cost > priorityPrice()!.cost) {
+                  <span class="delivery-type-row__price--original">{{ priorityPrice()?.original_cost | appCurrency }}</span>
+                }
+                <span class="delivery-type-row__price--discounted">{{ priorityPrice()?.cost | appCurrency }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Divider -->
+          <div class="delivery-divider"></div>
+
+          <!-- Retrait Option -->
+          <div
+            class="delivery-row"
+            [class.delivery-row--selected]="deliveryMethod() === 'pickup'"
+            (click)="setDeliveryMethod('pickup')">
+            <div class="delivery-row__radio">
+              <div class="delivery-row__radio-inner"></div>
+            </div>
+            <div class="delivery-row__icon delivery-row__icon--pickup">
               <i class="pi pi-map-marker"></i>
             </div>
-            <div class="delivery-option__content">
-              <span class="delivery-option__label">{{ 'order_summary.pickup' | translate }}</span>
-              <span class="delivery-option__desc">{{ 'order_summary.pickup_desc' | translate }}</span>
+            <div class="delivery-row__content">
+              <span class="delivery-row__label">{{ 'order_summary.pickup' | translate }}</span>
+              <span class="delivery-row__desc">{{ 'order_summary.pickup_desc' | translate }}</span>
             </div>
-            <span class="delivery-option__price delivery-option__price--free">{{ 'cart.free' | translate }}</span>
-          </button>
+            <span class="delivery-row__price delivery-row__price--free">{{ 'cart.free' | translate }}</span>
+          </div>
         </div>
 
         <!-- Shipping Error/Info Message -->
@@ -78,7 +123,7 @@
           </div>
         }
 
-        <!-- Shipping Breakdown (when delivery selected and calculated) -->
+        <!-- Shipping Breakdown (collapsible details) -->
         @if (deliveryMethod() === 'delivery' && shippingResponse() && !shippingLoading()) {
           <div class="shipping-breakdown">
             <div class="shipping-breakdown__header" (click)="toggleShippingDetails()">
@@ -144,15 +189,36 @@
           </div>
         }
 
-        <!-- Next Tier Hint -->
-        @if (deliveryMethod() === 'delivery' && shippingResponse()?.next_tier && shippingResponse()!.next_tier!.amount_needed > 0) {
-          <div class="shipping-message shipping-message--info">
-            <i class="pi pi-info-circle"></i>
-            <span>{{ 'order_summary.next_tier_hint' | translate: {
-              amount: shippingResponse()!.next_tier!.amount_needed,
-              percent: shippingResponse()!.next_tier!.discount_percent
-            } }}</span>
-          </div>
+        <!-- Current Savings + Next Tier Hint -->
+        @if (deliveryMethod() === 'delivery' && shippingResponse() && !shippingLoading()) {
+          @if (shippingResponse()!.discount_applied && shippingResponse()!.next_tier && shippingResponse()!.next_tier!.amount_needed > 0) {
+            <!-- Has current discount AND next tier available -->
+            <div class="shipping-message shipping-message--success">
+              <i class="pi pi-check-circle"></i>
+              <span>{{ 'order_summary.current_savings_next_tier' | translate: {
+                currentPercent: shippingResponse()!.discount_percent,
+                amount: shippingResponse()!.next_tier!.amount_needed,
+                nextPercent: shippingResponse()!.next_tier!.discount_percent
+              } }}</span>
+            </div>
+          } @else if (shippingResponse()!.discount_applied && !shippingResponse()!.next_tier) {
+            <!-- Has current discount, no more tiers -->
+            <div class="shipping-message shipping-message--success">
+              <i class="pi pi-check-circle"></i>
+              <span>{{ 'order_summary.max_savings_reached' | translate: {
+                percent: shippingResponse()!.discount_percent
+              } }}</span>
+            </div>
+          } @else if (!shippingResponse()!.discount_applied && shippingResponse()!.next_tier && shippingResponse()!.next_tier!.amount_needed > 0) {
+            <!-- No current discount, but next tier available -->
+            <div class="shipping-message shipping-message--info">
+              <i class="pi pi-info-circle"></i>
+              <span>{{ 'order_summary.next_tier_hint' | translate: {
+                amount: shippingResponse()!.next_tier!.amount_needed,
+                percent: shippingResponse()!.next_tier!.discount_percent
+              } }}</span>
+            </div>
+          }
         }
       </div>
     </div>

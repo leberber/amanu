@@ -384,7 +384,9 @@
     "weight_cost": "تكلفة الوزن",
     "volume_cost": "تكلفة الحجم",
     "time_cost": "تكلفة الوقت",
-    "next_tier_hint": "أضف {{amount}} دج للحصول على خصم {{percent}}% على الشحن!"
+    "next_tier_hint": "أضف {{amount}} دج للحصول على خصم {{percent}}% على الشحن!",
+    "current_savings_next_tier": "أنت توفر {{currentPercent}}%! أضف {{amount}} دج للحصول على خصم {{nextPercent}}%!",
+    "max_savings_reached": "أنت توفر {{percent}}% على الشحن - الحد الأقصى للخصم!"
   },
   "register": {
     "step1_label": "المعلومات",
@@ -580,6 +582,11 @@
     "confirm_order": "تأكيد الطلب",
     "order_note": "بالطلب، توافق على",
     "terms_link": "الشروط والأحكام",
+    "delivery_type": "خيار التوصيل",
+    "standard_delivery": "التوصيل العادي",
+    "standard_delivery_desc": "قد يتم دمجها مع طلبات قريبة",
+    "priority_delivery": "التوصيل الأولوي",
+    "priority_delivery_desc": "توصيل مخصص فوري",
     "empty": {
       "title": "سلة التسوق فارغة",
       "subtitle": "أضف منتجات إلى سلتك للمتابعة",

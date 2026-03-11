@@ -80,18 +80,31 @@
       <!-- Total Card -->
       <div class="card card--no-hover total-card">
         <div class="card-body">
+          <div class="total-breakdown">
+            <div class="total-row">
+              <span>{{ 'checkout.subtotal' | translate }}</span>
+              <span>{{ finalTotal() | appCurrency }}</span>
+            </div>
+            <div class="total-row">
+              <span>{{ 'checkout.shipping' | translate }}</span>
+              <span>{{ selectedShippingCost() | appCurrency }}</span>
+            </div>
+            @if (appliedPromotion()) {
+              <div class="total-row total-row--discount">
+                <span>
+                  <i class="pi pi-tag"></i>
+                  {{ appliedPromotion()?.code }}
+                </span>
+                <span>-{{ discountAmount() | appCurrency }}</span>
+              </div>
+            }
+          </div>
           <div class="total-display">
             <span class="total-display__label">{{ 'common.total' | translate }}</span>
-            <span class="total-display__amount">{{ finalTotal() | appCurrency }}</span>
+            <span class="total-display__amount">{{ totalWithShipping() | appCurrency }}</span>
           </div>
           <div class="total-meta">
             <span>{{ cartItemCount() }} {{ (cartItemCount() === 1 ? 'common.item' : 'common.items') | translate }}</span>
-            @if (appliedPromotion()) {
-              <span class="promo-tag">
-                <i class="pi pi-tag"></i>
-                {{ appliedPromotion()?.code }} (-{{ discountAmount() | appCurrency }})
-              </span>
-            }
           </div>
         </div>
       </div>

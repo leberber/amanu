@@ -9,42 +9,46 @@
 }
 
 // =============================================================================
-// DELIVERY OPTIONS
+// DELIVERY BOX (unified container for all options)
 // =============================================================================
 
-.delivery-options {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-}
-
-.delivery-option {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 14px 16px;
+.delivery-box {
   background: #fff;
   border: 1px solid #e5e7eb;
-  border-radius: 10px;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.delivery-divider {
+  height: 1px;
+  background: #e5e7eb;
+}
+
+// =============================================================================
+// DELIVERY ROW (Livraison / Retrait)
+// =============================================================================
+
+.delivery-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
   cursor: pointer;
-  transition: all 0.15s ease;
-  text-align: left;
-  width: 100%;
+  transition: background 0.15s ease;
 
   &:active {
-    transform: scale(0.99);
+    background: #f9fafb;
   }
 
   &--selected {
-    border-color: var(--primary-color);
     background: #fafbff;
 
-    .delivery-option__radio {
+    .delivery-row__radio {
       border-color: var(--primary-color);
       background: var(--primary-color);
     }
 
-    .delivery-option__radio-inner {
+    .delivery-row__radio-inner {
       transform: scale(1);
       opacity: 1;
     }
@@ -74,8 +78,8 @@
   }
 
   &__icon {
-    width: 42px;
-    height: 42px;
+    width: 40px;
+    height: 40px;
     border-radius: 10px;
     display: flex;
     align-items: center;
@@ -83,7 +87,7 @@
     flex-shrink: 0;
 
     i {
-      font-size: 1.2rem;
+      font-size: 1.1rem;
     }
 
     &--delivery {
@@ -117,28 +121,127 @@
   }
 
   &__price {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 0.125rem;
     font-size: 0.9rem;
     font-weight: 600;
     color: #374151;
 
-    &--original {
-      font-size: 0.75rem;
-      font-weight: 500;
-      color: #9ca3af;
-      text-decoration: line-through;
-    }
-
-    &--discounted {
-      color: #059669;
-    }
-
     &--free {
       color: #059669;
     }
+  }
+}
+
+// =============================================================================
+// DELIVERY TYPE SECTION (Standard vs Priority - nested under Livraison)
+// =============================================================================
+
+.delivery-type-section {
+  overflow: hidden;
+  background: #f8fafc;
+}
+
+.delivery-type-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px 14px 72px; // Indent to align under Livraison content
+  cursor: pointer;
+  transition: background 0.15s ease;
+  border-top: 1px solid #e5e7eb;
+
+  &:active {
+    background: #f1f5f9;
+  }
+
+  &--selected {
+    background: rgba(var(--primary-color-rgb), 0.06);
+
+    .delivery-type-row__radio {
+      border-color: var(--primary-color);
+      background: var(--primary-color);
+    }
+
+    .delivery-type-row__radio-inner {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  &__radio {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 2px solid #d1d5db;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.15s ease;
+    background: #fff;
+  }
+
+  &__radio-inner {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #fff;
+    transform: scale(0);
+    opacity: 0;
+    transition: all 0.15s ease;
+  }
+
+  &__content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  &__title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #111827;
+  }
+
+  &__badge {
+    padding: 2px 6px;
+    background: rgba(34, 197, 94, 0.1);
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #059669;
+  }
+
+  &__desc {
+    display: block;
+    font-size: 0.7rem;
+    color: #6b7280;
+    margin-top: 2px;
+  }
+
+  &__price-stack {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    flex-shrink: 0;
+    gap: 2px;
+  }
+
+  &__price--original {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #9ca3af;
+    text-decoration: line-through;
+  }
+
+  &__price--discounted {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #059669;
   }
 }
 

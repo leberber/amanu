@@ -3,6 +3,13 @@ import { Observable, tap } from 'rxjs';
 import { ApiService } from './api.service';
 import { Order } from '../models/order.model';
 import {
+  AvailableOrder,
+  PickupOrderResponse,
+  TripWithStops,
+  TripStop,
+  StopStatus
+} from '../models/trip.model';
+import {
   DriverProfile,
   DriverProfileUpdate,
   DriverWithProfile,
@@ -44,6 +51,17 @@ const ENDPOINTS = {
   complete: (orderId: number) => `/driver/trips/${orderId}/complete`,
   cancel: (orderId: number) => `/driver/trips/${orderId}/cancel`,
   updateStatus: (orderId: number) => `/driver/trips/${orderId}/status`,
+
+  // New routing endpoints
+  AVAILABLE_ORDERS: '/drivers/available-orders',
+  pickupOrder: (orderId: number) => `/drivers/orders/${orderId}/pickup`,
+
+  // Multi-stop trip endpoints
+  MULTI_TRIPS: '/driver/multi-trips',
+  multiTripDetail: (tripId: number) => `/driver/multi-trips/${tripId}`,
+  updateStopStatus: (tripId: number, stopId: number) => `/driver/multi-trips/${tripId}/stops/${stopId}`,
+  startMultiTrip: (tripId: number) => `/driver/multi-trips/${tripId}/start`,
+  completeMultiTrip: (tripId: number) => `/driver/multi-trips/${tripId}/complete`,
 } as const;
 
 @Injectable({
@@ -59,12 +77,20 @@ export class DriverService {
   private readonly _activeTrips = signal<Order[]>([]);
   private readonly _loading = signal(false);
 
+  // Routing-specific state
+  private readonly _availableOrders = signal<AvailableOrder[]>([]);
+  private readonly _activeMultiTrips = signal<TripWithStops[]>([]);
+
   // Public computed signals
   readonly profile = this._profile.asReadonly();
   readonly stats = this._stats.asReadonly();
   readonly availableTrips = this._availableTrips.asReadonly();
   readonly activeTrips = this._activeTrips.asReadonly();
   readonly loading = this._loading.asReadonly();
+
+  // Routing signals
+  readonly availableOrders = this._availableOrders.asReadonly();
+  readonly activeMultiTrips = this._activeMultiTrips.asReadonly();
 
   // Access driver data - supports both 'driver' (new) and 'driver_profile' (deprecated)
   readonly driverData = computed(() => this._profile()?.driver ?? this._profile()?.driver_profile);
@@ -287,6 +313,124 @@ export class DriverService {
   }
 
   // ==========================================================================
+  // ROUTING - AVAILABLE ORDERS (Capacity Filtered)
+  // ==========================================================================
+
+  /**
+   * Get orders available for pickup, filtered by driver's vehicle capacity.
+   * Full load orders are only shown to drivers with sufficient capacity.
+   */
+  getAvailableOrders(): Observable<AvailableOrder[]> {
+    this._loading.set(true);
+    return this.api.get<AvailableOrder[]>(ENDPOINTS.AVAILABLE_ORDERS).pipe(
+      tap(orders => {
+        this._availableOrders.set(orders);
+        this._loading.set(false);
+      })
+    );
+  }
+
+  /**
+   * Driver picks up (accepts) an available order.
+   */
+  pickupAvailableOrder(orderId: number): Observable<PickupOrderResponse> {
+    return this.api.post<PickupOrderResponse>(ENDPOINTS.pickupOrder(orderId), {}).pipe(
+      tap(response => {
+        if (response.success && response.order) {
+          // Remove from available orders
+          this._availableOrders.update(orders =>
+            orders.filter(o => o.order.id !== orderId)
+          );
+          // Add to active trips
+          this._activeTrips.update(trips => [...trips, response.order!]);
+          // Refresh profile stats
+          this.refreshProfile();
+        }
+      })
+    );
+  }
+
+  // ==========================================================================
+  // MULTI-STOP TRIPS (Batched Orders)
+  // ==========================================================================
+
+  /**
+   * Get active multi-stop trips for the driver.
+   */
+  getActiveMultiTrips(): Observable<TripWithStops[]> {
+    return this.api.get<TripWithStops[]>(ENDPOINTS.MULTI_TRIPS).pipe(
+      tap(trips => this._activeMultiTrips.set(trips))
+    );
+  }
+
+  /**
+   * Get details of a specific multi-stop trip.
+   */
+  getMultiTripDetail(tripId: number): Observable<TripWithStops> {
+    return this.api.get<TripWithStops>(ENDPOINTS.multiTripDetail(tripId));
+  }
+
+  /**
+   * Start a multi-stop trip.
+   */
+  startMultiTrip(tripId: number): Observable<TripWithStops> {
+    return this.api.post<TripWithStops>(ENDPOINTS.startMultiTrip(tripId), {}).pipe(
+      tap(trip => {
+        this._activeMultiTrips.update(trips =>
+          trips.map(t => t.id === tripId ? trip : t)
+        );
+      })
+    );
+  }
+
+  /**
+   * Update the status of a stop within a trip.
+   */
+  updateStopStatus(tripId: number, stopId: number, status: StopStatus, notes?: string): Observable<TripWithStops> {
+    return this.api.put<TripWithStops>(
+      ENDPOINTS.updateStopStatus(tripId, stopId),
+      { status, notes }
+    ).pipe(
+      tap(trip => {
+        this._activeMultiTrips.update(trips =>
+          trips.map(t => t.id === tripId ? trip : t)
+        );
+      })
+    );
+  }
+
+  /**
+   * Mark a stop as arrived.
+   */
+  markStopArrived(tripId: number, stopId: number): Observable<TripWithStops> {
+    return this.updateStopStatus(tripId, stopId, 'arrived');
+  }
+
+  /**
+   * Mark a stop as delivered.
+   */
+  markStopDelivered(tripId: number, stopId: number, notes?: string): Observable<TripWithStops> {
+    return this.updateStopStatus(tripId, stopId, 'delivered', notes);
+  }
+
+  /**
+   * Complete a multi-stop trip (all stops delivered).
+   */
+  completeMultiTrip(tripId: number): Observable<TripWithStops> {
+    return this.api.post<TripWithStops>(ENDPOINTS.completeMultiTrip(tripId), {}).pipe(
+      tap(() => {
+        // Remove from active multi-trips
+        this._activeMultiTrips.update(trips =>
+          trips.filter(t => t.id !== tripId)
+        );
+        // Refresh stats
+        this.refreshStats();
+        this.refreshProfile();
+      })
+    );
+  }
+
+  // ==========================================================================
   // HELPERS
   // ==========================================================================
 
@@ -321,5 +465,7 @@ export class DriverService {
     this._stats.set(null);
     this._availableTrips.set([]);
     this._activeTrips.set([]);
+    this._availableOrders.set([]);
+    this._activeMultiTrips.set([]);
   }
 }

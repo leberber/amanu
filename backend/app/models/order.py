@@ -9,6 +9,7 @@ if TYPE_CHECKING:
     from app.models.product import Product
     from app.models.promotion import Promotion
     from app.models.driver import DriverProfile
+    from app.models.trip import Trip
 
 class OrderStatus(str, Enum):
     """Order status enumeration"""
@@ -19,6 +20,12 @@ class OrderStatus(str, Enum):
     IN_TRANSIT = "IN_TRANSIT"    # Driver is delivering
     DELIVERED = "DELIVERED"
     CANCELLED = "CANCELLED"
+
+
+class DeliveryType(str, Enum):
+    """Delivery type enumeration for routing optimization"""
+    STANDARD = "STANDARD"    # Can be batched with other orders
+    PRIORITY = "PRIORITY"    # Immediate dedicated delivery
 
 class OrderItemBase(SQLModel):
     """Base model for order items"""
@@ -85,11 +92,18 @@ class Order(OrderBase, table=True):
     estimated_delivery_minutes: Optional[int] = Field(default=None)
     actual_delivery_minutes: Optional[int] = Field(default=None)
 
+    # Routing & batching fields
+    delivery_type: DeliveryType = Field(default=DeliveryType.STANDARD, description="STANDARD can be batched, PRIORITY is immediate")
+    is_full_load: bool = Field(default=False, description="True if order fills >=80% of a vehicle capacity")
+    min_vehicle_capacity_kg: Optional[float] = Field(default=None, description="Minimum vehicle capacity needed in kg")
+    trip_id: Optional[int] = Field(default=None, foreign_key="trips.id", index=True, description="Trip this order belongs to (if batched)")
+
     # Relationships
     user: "User" = Relationship(back_populates="orders", sa_relationship_kwargs={"foreign_keys": "[Order.user_id]"})
     items: List[OrderItem] = Relationship(back_populates="order", sa_relationship_kwargs={"cascade": "all, delete-orphan"})
     promotion: Optional["Promotion"] = Relationship()
     driver: Optional["User"] = Relationship(sa_relationship_kwargs={"foreign_keys": "[Order.driver_id]"})
+    trip: Optional["Trip"] = Relationship(sa_relationship_kwargs={"foreign_keys": "[Order.trip_id]"})
 
 class OrderCreateItem(SQLModel):
     """Model for item in order creation"""
@@ -104,6 +118,7 @@ class OrderCreate(SQLModel):
     items: List[OrderCreateItem]
     promotion_code: Optional[str] = None  # Optional promo code
     shipping_cost: float = 0  # Shipping cost calculated by frontend
+    delivery_type: DeliveryType = DeliveryType.STANDARD  # STANDARD or PRIORITY
 
     @field_validator("items")
     def validate_items(cls, v):
@@ -176,12 +191,25 @@ class OrderRead(OrderBase):
     estimated_delivery_minutes: Optional[int] = None
     actual_delivery_minutes: Optional[int] = None
 
+    # Routing fields
+    delivery_type: DeliveryType = DeliveryType.STANDARD
+    is_full_load: bool = False
+    min_vehicle_capacity_kg: Optional[float] = None
+    trip_id: Optional[int] = None
+
     @field_serializer('status')
     def serialize_status(self, status: OrderStatus) -> str:
         """Serialize status to lowercase for frontend compatibility"""
         if isinstance(status, OrderStatus):
             return status.value.lower()
         return str(status).lower()
+
+    @field_serializer('delivery_type')
+    def serialize_delivery_type(self, delivery_type: DeliveryType) -> str:
+        """Serialize delivery_type to lowercase for frontend compatibility"""
+        if isinstance(delivery_type, DeliveryType):
+            return delivery_type.value.lower()
+        return str(delivery_type).lower()
 
 
 # Create a new Pydantic model that explicitly includes items

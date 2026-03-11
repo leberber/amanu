@@ -261,6 +261,28 @@ def assign_order_to_driver(
             detail=f"Driver has reached max active orders ({driver.max_active_orders})"
         )
 
+    # Check vehicle capacity for full load orders
+    if order.is_full_load and order.min_vehicle_capacity_kg:
+        # Get driver's primary vehicle
+        primary_vehicle = session.exec(
+            select(DriverVehicle)
+            .where(DriverVehicle.driver_id == driver.id)
+            .where(DriverVehicle.is_primary == True)
+            .where(DriverVehicle.is_active == True)
+        ).first()
+
+        if not primary_vehicle:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Driver has no active primary vehicle"
+            )
+
+        if primary_vehicle.capacity_kg and primary_vehicle.capacity_kg < order.min_vehicle_capacity_kg:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Driver's vehicle capacity ({primary_vehicle.capacity_kg}kg) is insufficient for this order (requires {order.min_vehicle_capacity_kg}kg)"
+            )
+
     now = datetime.now(timezone.utc)
 
     # Assign order
@@ -416,6 +438,28 @@ def reassign_order(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"New driver has reached max active orders ({new_driver.max_active_orders})"
         )
+
+    # Check vehicle capacity for full load orders
+    if order.is_full_load and order.min_vehicle_capacity_kg:
+        # Get new driver's primary vehicle
+        primary_vehicle = session.exec(
+            select(DriverVehicle)
+            .where(DriverVehicle.driver_id == new_driver.id)
+            .where(DriverVehicle.is_primary == True)
+            .where(DriverVehicle.is_active == True)
+        ).first()
+
+        if not primary_vehicle:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="New driver has no active primary vehicle"
+            )
+
+        if primary_vehicle.capacity_kg and primary_vehicle.capacity_kg < order.min_vehicle_capacity_kg:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"New driver's vehicle capacity ({primary_vehicle.capacity_kg}kg) is insufficient for this order (requires {order.min_vehicle_capacity_kg}kg)"
+            )
 
     config = get_system_config(session)
     now = datetime.now(timezone.utc)

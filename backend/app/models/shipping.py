@@ -135,10 +135,18 @@ class ShippingCostRequest(BaseModel):
     warehouse_id: str = "default"  # Which warehouse to ship from
 
 
+class DeliveryPricing(BaseModel):
+    """Pricing for a specific delivery type"""
+    cost: float
+    original_cost: float
+    discount_percent: float = 0.0
+    description: str = ""
+
+
 class ShippingCostResponse(BaseModel):
     """Response model for shipping cost calculation"""
     deliverable: bool
-    shipping_cost: float  # Final cost after discount
+    shipping_cost: float  # Final cost after discount (priority price for backwards compat)
     original_cost: float  # Cost before discount
     distance_km: float
     duration_min: float
@@ -148,3 +156,7 @@ class ShippingCostResponse(BaseModel):
     breakdown: dict  # Detailed cost breakdown
     next_tier: Optional[dict] = None  # Info about next discount tier
     message: Optional[str] = None
+
+    # New: Delivery type pricing
+    priority_price: Optional[DeliveryPricing] = None  # Immediate dedicated delivery
+    standard_price: Optional[DeliveryPricing] = None  # Batchable, discounted
