@@ -21,7 +21,7 @@ declare const google: any;
   styles: [`
     .map-container {
       width: 100%;
-      height: 180px;
+      height: 250px;
       border-radius: var(--radius-lg);
       overflow: hidden;
       background: var(--surface-ground);
