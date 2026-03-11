@@ -55,33 +55,125 @@
   }
 
 
-  <!-- Available Trips Preview -->
-  @if (isOnline() && availableTrips().length > 0) {
+  <!-- Available Trips -->
+  @if (isOnline()) {
     <section class="orders-section">
       <div class="section-header">
-        <h2 class="section-title">{{ 'driver.dashboard.available_trips' | translate }}</h2>
-        <a [routerLink]="routes.DRIVER.AVAILABLE" class="section-link">
-          {{ 'common.view' | translate }} ({{ availableTrips().length }})
-          <i class="pi pi-chevron-right"></i>
-        </a>
+        <h2 class="section-title">
+          {{ 'driver.dashboard.available_trips' | translate }}
+          @if (availableCount() > 0) {
+            <span class="count-badge">{{ availableCount() }}</span>
+          }
+        </h2>
       </div>
-      <div class="orders-list">
-        @for (order of availableTrips().slice(0, 3); track order.id) {
-          <div class="order-card order-card--available" (click)="viewTrip(order)">
-            <div class="order-card__status order-card__status--new">
-              <i class="pi pi-bolt"></i>
+      @if (availableTrips().length > 0) {
+        <div class="orders-list">
+          @for (order of availableTrips(); track order.id) {
+            <div class="order-card order-card--available" (click)="openTripDrawer(order)">
+              <div class="order-card__status order-card__status--new">
+                <i class="pi pi-bolt"></i>
+              </div>
+              <div class="order-card__content">
+                <span class="order-card__id">#{{ order.id }}</span>
+                <span class="order-card__address">{{ order.shipping_address }}</span>
+              </div>
+              <div class="order-card__amount">
+                {{ order.total_amount | number:'1.0-0' }} DA
+              </div>
+              <i class="pi pi-chevron-right order-card__chevron"></i>
             </div>
-            <div class="order-card__content">
-              <span class="order-card__id">#{{ order.id }}</span>
-              <span class="order-card__address">{{ order.shipping_address }}</span>
-            </div>
-            <div class="order-card__amount">
-              {{ order.total_amount | number:'1.0-0' }} DA
-            </div>
-            <i class="pi pi-chevron-right order-card__chevron"></i>
-          </div>
-        }
-      </div>
+          }
+        </div>
+      } @else {
+        <div class="empty-state">
+          <i class="pi pi-inbox"></i>
+          <p>{{ 'driver.dashboard.no_available_trips' | translate }}</p>
+        </div>
+      }
     </section>
   }
 </div>
+
+<!-- Trip Details Drawer -->
+<p-drawer
+  [visible]="drawerVisible()"
+  (visibleChange)="drawerVisible.set($event)"
+  position="bottom"
+  [style]="{ height: 'auto', maxHeight: '85vh' }"
+  [modal]="true"
+  [showCloseIcon]="false"
+  styleClass="trip-drawer"
+>
+  @if (selectedOrder(); as order) {
+    <div class="drawer-content">
+      <div class="drawer-header">
+        <div class="drawer-title">
+          <span class="order-number">#{{ order.id }}</span>
+          <span class="order-date">{{ order.created_at | date:'dd/MM/yyyy HH:mm' }}</span>
+        </div>
+        <button class="drawer-close" (click)="closeDrawer()">
+          <i class="pi pi-times"></i>
+        </button>
+      </div>
+
+      <div class="drawer-body">
+        <!-- Amount -->
+        <div class="drawer-amount">
+          {{ order.total_amount | number:'1.0-0' }} DA
+        </div>
+
+        <!-- Address -->
+        <div class="drawer-section">
+          <div class="drawer-section__icon">
+            <i class="pi pi-map-marker"></i>
+          </div>
+          <div class="drawer-section__content">
+            <span class="drawer-section__label">{{ 'driver.trip.address' | translate }}</span>
+            <span class="drawer-section__value">{{ order.shipping_address }}</span>
+          </div>
+        </div>
+
+        <!-- Phone -->
+        @if (order.contact_phone) {
+          <div class="drawer-section">
+            <div class="drawer-section__icon">
+              <i class="pi pi-phone"></i>
+            </div>
+            <div class="drawer-section__content">
+              <span class="drawer-section__label">{{ 'driver.trip.phone' | translate }}</span>
+              <span class="drawer-section__value">{{ order.contact_phone }}</span>
+            </div>
+          </div>
+        }
+
+        <!-- Items count -->
+        @if (order.items?.length) {
+          <div class="drawer-section">
+            <div class="drawer-section__icon">
+              <i class="pi pi-box"></i>
+            </div>
+            <div class="drawer-section__content">
+              <span class="drawer-section__label">{{ 'driver.trip.items' | translate }}</span>
+              <span class="drawer-section__value">{{ order.items?.length || 0 }}</span>
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="drawer-footer">
+        <button
+          class="accept-btn"
+          (click)="acceptTrip()"
+          [disabled]="accepting()"
+        >
+          @if (accepting()) {
+            <i class="pi pi-spinner pi-spin"></i>
+          } @else {
+            <i class="pi pi-check"></i>
+          }
+          {{ 'driver.trip.accept' | translate }}
+        </button>
+      </div>
+    </div>
+  }
+</p-drawer>

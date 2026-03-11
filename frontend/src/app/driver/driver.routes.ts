@@ -12,10 +12,6 @@ export const DRIVER_ROUTES: Routes = [
         loadComponent: () => import('./pages/dashboard/driver-dashboard.component').then(m => m.DriverDashboardComponent)
       },
       {
-        path: 'available',
-        loadComponent: () => import('./pages/available/driver-available.component').then(m => m.DriverAvailableComponent)
-      },
-      {
         path: 'active',
         loadComponent: () => import('./pages/active/driver-active.component').then(m => m.DriverActiveComponent)
       },

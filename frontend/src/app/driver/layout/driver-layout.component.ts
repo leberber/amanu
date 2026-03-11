@@ -69,7 +69,6 @@ export class DriverLayoutComponent implements OnInit {
   // Navigation items
   readonly navItems = [
     { path: '/driver', icon: 'pi pi-home', label: 'driver.navigation.dashboard', exact: true },
-    { path: '/driver/available', icon: 'pi pi-list', label: 'driver.navigation.available', exact: false },
     { path: '/driver/active', icon: 'pi pi-truck', label: 'driver.navigation.active', exact: false, showBadge: true },
     { path: '/driver/history', icon: 'pi pi-history', label: 'driver.navigation.history', exact: false },
     { path: '/driver/profile', icon: 'pi pi-user', label: 'driver.navigation.profile', exact: false }
@@ -116,7 +115,6 @@ export class DriverLayoutComponent implements OnInit {
 
   private getPageTitle(url: string): string {
     if (url === '/driver' || url === '/driver/') return 'driver.titles.home';
-    if (url.includes('/driver/available')) return 'driver.titles.available';
     if (url.includes('/driver/active')) return 'driver.titles.active';
     if (url.includes('/driver/history')) return 'driver.titles.history';
     if (url.includes('/driver/profile')) return 'driver.titles.profile';

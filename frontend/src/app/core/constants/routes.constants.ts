@@ -35,7 +35,6 @@ export const ROUTES = {
   DRIVER: {
     BASE: '/driver',
     DASHBOARD: '/driver',
-    AVAILABLE: '/driver/available',
     ACTIVE: '/driver/active',
     TRIP_DETAIL: '/driver/trip/:id',
     HISTORY: '/driver/history',

@@ -1,8 +1,10 @@
-import { Component, inject, OnInit, computed } from '@angular/core';
+import { Component, inject, OnInit, computed, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { DecimalPipe } from '@angular/common';
+import { DecimalPipe, DatePipe } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { trigger, transition, style, animate, stagger, query } from '@angular/animations';
+import { DrawerModule } from 'primeng/drawer';
+import { ButtonModule } from 'primeng/button';
 
 import { DriverService } from '../../../services/driver.service';
 import { ROUTES, RouteHelpers } from '../../../core/constants/routes.constants';
@@ -13,7 +15,7 @@ import { Order } from '../../../models/order.model';
 @Component({
   selector: 'app-driver-dashboard',
   standalone: true,
-  imports: [RouterLink, TranslateModule, DecimalPipe],
+  imports: [RouterLink, TranslateModule, DecimalPipe, DatePipe, DrawerModule, ButtonModule],
   templateUrl: './driver-dashboard.component.html',
   styleUrl: './driver-dashboard.component.scss',
   animations: [
@@ -67,6 +69,12 @@ export class DriverDashboardComponent implements OnInit {
   todayEarnings = computed(() => this.stats()?.earnings_today || 0);
   averageRating = computed(() => this.stats()?.average_rating?.toFixed(1) || '-');
   activeCount = computed(() => this.activeTrips().length);
+  availableCount = computed(() => this.availableTrips().length);
+
+  // Drawer state
+  drawerVisible = signal(false);
+  selectedOrder = signal<Order | null>(null);
+  accepting = signal(false);
 
   ngOnInit(): void {
     this.loadData();
@@ -86,8 +94,31 @@ export class DriverDashboardComponent implements OnInit {
     this.driverService.goOffline().subscribe();
   }
 
-  viewTrip(order: Order): void {
-    this.router.navigate([RouteHelpers.driverTripDetail(order.id)]);
+  openTripDrawer(order: Order): void {
+    this.selectedOrder.set(order);
+    this.drawerVisible.set(true);
+  }
+
+  closeDrawer(): void {
+    this.drawerVisible.set(false);
+    this.selectedOrder.set(null);
+  }
+
+  acceptTrip(): void {
+    const order = this.selectedOrder();
+    if (!order) return;
+
+    this.accepting.set(true);
+    this.driverService.acceptTrip(order.id).subscribe({
+      next: () => {
+        this.accepting.set(false);
+        this.closeDrawer();
+        this.loadData();
+      },
+      error: () => {
+        this.accepting.set(false);
+      }
+    });
   }
 
   getStatusIcon(status: string): string {
