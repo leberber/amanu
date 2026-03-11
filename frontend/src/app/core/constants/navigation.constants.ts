@@ -92,5 +92,11 @@ export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
     icon: 'pi pi-truck',
     route: ROUTES.ADMIN.SHIPPING,
     adminOnly: true
+  },
+  {
+    labelKey: 'admin.navigation.batching',
+    icon: 'pi pi-sitemap',
+    route: ROUTES.ADMIN.BATCHING,
+    adminOnly: true
   }
 ];

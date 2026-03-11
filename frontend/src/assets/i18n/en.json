@@ -1713,7 +1713,8 @@
       "user_groups": "User Groups",
       "reports": "Reports",
       "settings": "Settings",
-      "shipping": "Shipping"
+      "shipping": "Shipping",
+      "batching": "Batching"
     },
     "brands": {
       "title": "Brands",

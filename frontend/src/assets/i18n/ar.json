@@ -1699,7 +1699,8 @@
       "user_groups": "مجموعات المستخدمين",
       "reports": "التقارير",
       "settings": "الإعدادات",
-      "shipping": "الشحن"
+      "shipping": "الشحن",
+      "batching": "التجميع"
     },
     "brands": {
       "title": "العلامات التجارية",

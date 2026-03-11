@@ -1711,7 +1711,8 @@
       "user_groups": "Groupes d'utilisateurs",
       "reports": "Rapports",
       "settings": "Paramètres",
-      "shipping": "Livraison"
+      "shipping": "Livraison",
+      "batching": "Groupage de trajet"
     },
     "brands": {
       "title": "Marques",
