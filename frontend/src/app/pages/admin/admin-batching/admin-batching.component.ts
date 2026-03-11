@@ -21,6 +21,7 @@ import { User } from '../../../models/user.model';
 import { ROUTES, RouteHelpers } from '../../../core/constants/routes.constants';
 
 type TabType = 'overview' | 'trips' | 'preview';
+type PreviewSubTab = 'proposed' | 'unbatched';
 
 @Component({
   selector: 'app-admin-batching',
@@ -47,6 +48,7 @@ export class AdminBatchingComponent implements OnInit {
   loadingPreview = signal(false);
   runningBatching = signal(false);
   activeTab = signal<TabType>('overview');
+  previewSubTab = signal<PreviewSubTab>('proposed');
 
   // Data from service
   stats = this.batchingService.stats;

@@ -85,6 +85,16 @@ export interface BatchingPreviewResponse {
   proposed_trips: ProposedTrip[];
   orders_to_batch: number;
   unbatched_orders: number;
+  unbatched_orders_list: UnbatchedOrder[];
+}
+
+export interface UnbatchedOrder {
+  order_id: number;
+  customer_name: string;
+  address: string;
+  zone: string;
+  reason: string;
+  shipping_cost: number;
 }
 
 export interface ProposedTrip {

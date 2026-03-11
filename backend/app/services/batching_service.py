@@ -282,14 +282,23 @@ def preview_batching(session: Session) -> dict:
 
     proposed_trips = []
     batched_count = 0
-    unbatched_count = 0
+    unbatched_orders_list = []
 
     for zone, zone_orders in clusters.items():
         for i in range(0, len(zone_orders), MAX_STOPS_PER_TRIP):
             batch = zone_orders[i:i + MAX_STOPS_PER_TRIP]
 
             if len(batch) < 2:
-                unbatched_count += len(batch)
+                # Track unbatched orders with details
+                for o in batch:
+                    unbatched_orders_list.append({
+                        "order_id": o.id,
+                        "customer_name": o.user.full_name if o.user else "Unknown",
+                        "address": o.shipping_address,
+                        "zone": zone,
+                        "reason": "only_one_in_zone",
+                        "shipping_cost": float(o.shipping_cost) if o.shipping_cost else 0
+                    })
                 continue
 
             total_weight = sum(calculate_order_weight(o, session) for o in batch)
@@ -316,7 +325,8 @@ def preview_batching(session: Session) -> dict:
         "orders_available": len(orders),
         "proposed_trips": proposed_trips,
         "orders_to_batch": batched_count,
-        "unbatched_orders": unbatched_count,
+        "unbatched_orders": len(unbatched_orders_list),
+        "unbatched_orders_list": unbatched_orders_list,
     }
 
 

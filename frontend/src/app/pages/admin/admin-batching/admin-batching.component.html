@@ -243,25 +243,25 @@
             } @else if (preview()) {
               <!-- Preview Stats -->
               <div class="stats-grid stats-grid--compact mb-4">
-                <div class="stat-card stat-card--compact">
+                <div class="stat-card stat-card--compact" (click)="previewSubTab.set('proposed')">
                   <div class="stat-card__content">
                     <span class="stat-card__value">{{ preview()!.orders_available }}</span>
                     <span class="stat-card__label">{{ 'admin.batching.orders_available' | translate }}</span>
                   </div>
                 </div>
-                <div class="stat-card stat-card--compact">
+                <div class="stat-card stat-card--compact" (click)="previewSubTab.set('proposed')">
                   <div class="stat-card__content">
                     <span class="stat-card__value">{{ preview()!.proposed_trips.length }}</span>
                     <span class="stat-card__label">{{ 'admin.batching.proposed_trips' | translate }}</span>
                   </div>
                 </div>
-                <div class="stat-card stat-card--compact">
+                <div class="stat-card stat-card--compact" (click)="previewSubTab.set('proposed')">
                   <div class="stat-card__content">
                     <span class="stat-card__value">{{ preview()!.orders_to_batch }}</span>
                     <span class="stat-card__label">{{ 'admin.batching.will_batch' | translate }}</span>
                   </div>
                 </div>
-                <div class="stat-card stat-card--compact">
+                <div class="stat-card stat-card--compact" (click)="previewSubTab.set('unbatched')">
                   <div class="stat-card__content">
                     <span class="stat-card__value text-warning">{{ preview()!.unbatched_orders }}</span>
                     <span class="stat-card__label">{{ 'admin.batching.wont_batch' | translate }}</span>
@@ -269,9 +269,13 @@
                 </div>
               </div>
 
+              <!-- Proposed Trips -->
               @if (preview()!.proposed_trips.length > 0) {
-                <!-- Proposed Trips List -->
-                <div class="proposed-trips">
+                <h4 class="section-title">
+                  <i class="pi pi-sitemap"></i>
+                  {{ 'admin.batching.proposed_trips' | translate }}
+                </h4>
+                <div class="proposed-trips mb-4">
                   @for (trip of preview()!.proposed_trips; track $index) {
                     <div class="proposed-trip animate-item" [style.--item-delay]="($index * 50) + 'ms'">
                       <div class="proposed-trip__header">
@@ -283,9 +287,10 @@
                       </div>
                       <div class="proposed-trip__customers">
                         @for (customer of trip.customers; track customer.order_id) {
-                          <div class="proposed-trip__customer">
+                          <div class="proposed-trip__customer" (click)="goToOrder(customer.order_id)">
                             <span class="customer-name">{{ customer.name }}</span>
                             <span class="customer-address">{{ customer.address }}</span>
+                            <span class="customer-order">#{{ customer.order_id }}</span>
                           </div>
                         }
                       </div>
@@ -302,7 +307,7 @@
                   }
                 </div>
 
-                <div class="flex justify-content-end mt-4">
+                <div class="flex justify-content-end mb-4">
                   <button
                     pButton
                     [label]="'admin.batching.create_trips' | translate"
@@ -311,7 +316,42 @@
                     (click)="runBatching()">
                   </button>
                 </div>
-              } @else {
+              }
+
+              <!-- Unbatched Orders -->
+              @if (preview()!.unbatched_orders_list && preview()!.unbatched_orders_list.length > 0) {
+                <h4 class="section-title section-title--warning">
+                  <i class="pi pi-exclamation-circle"></i>
+                  {{ 'admin.batching.wont_batch' | translate }} ({{ preview()!.unbatched_orders }})
+                </h4>
+                <div class="unbatched-orders">
+                  @for (order of preview()!.unbatched_orders_list; track order.order_id) {
+                    <div class="unbatched-order animate-item" [style.--item-delay]="($index * 50) + 'ms'" (click)="goToOrder(order.order_id)">
+                      <div class="unbatched-order__header">
+                        <span class="unbatched-order__id">#{{ order.order_id }}</span>
+                        <span class="unbatched-order__zone">
+                          <i class="pi pi-map-marker"></i>
+                          {{ formatZone(order.zone) }}
+                        </span>
+                      </div>
+                      <div class="unbatched-order__content">
+                        <span class="unbatched-order__customer">{{ order.customer_name }}</span>
+                        <span class="unbatched-order__address">{{ order.address }}</span>
+                      </div>
+                      <div class="unbatched-order__footer">
+                        <span class="unbatched-order__reason">
+                          <i class="pi pi-info-circle"></i>
+                          {{ 'admin.batching.reason_only_one' | translate }}
+                        </span>
+                        <span class="amount-display">{{ order.shipping_cost | number:'1.0-0' }} DA</span>
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+
+              <!-- No trips possible -->
+              @if (preview()!.proposed_trips.length === 0 && preview()!.unbatched_orders === 0) {
                 <div class="empty-state empty-state--compact">
                   <div class="empty-state__icon">
                     <i class="pi pi-inbox"></i>
