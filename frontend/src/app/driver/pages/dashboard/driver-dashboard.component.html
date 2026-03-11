@@ -121,8 +121,10 @@
   (visibleChange)="drawerVisible.set($event)"
   position="right"
   [style]="{ width: '100vw' }"
-  [modal]="true"
+  [modal]="false"
   [showCloseIcon]="false"
+  [dismissible]="false"
+  transitionOptions="300ms ease-out"
   styleClass="trip-drawer trip-drawer--fullscreen"
 >
   <ng-template pTemplate="header">

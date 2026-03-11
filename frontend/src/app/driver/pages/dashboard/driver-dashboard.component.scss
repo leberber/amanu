@@ -1,11 +1,20 @@
 // Driver Dashboard Styles - Uber Style
 
+// Ensure dashboard is always visible (even behind drawer)
+:host {
+  display: block;
+  min-height: 100vh;
+  background: var(--surface-ground);
+}
+
 .driver-dashboard {
   padding: var(--space-4);
   padding-bottom: calc(var(--space-6) + env(safe-area-inset-bottom, 0px));
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
+  background: var(--surface-ground);
+  min-height: 100vh;
 }
 
 // =============================================================================
@@ -339,13 +348,21 @@
 // TRIP DRAWER - Fullscreen
 // =============================================================================
 
+// Prevent PrimeNG from hiding content when drawer is open
+:host ::ng-deep body.p-overflow-hidden {
+  overflow: visible !important;
+}
+
 :host ::ng-deep .trip-drawer--fullscreen {
-  // Remove dark overlay - looks more like native page transition
+  // No mask needed - drawer slides over content
   .p-drawer-mask {
     background: transparent !important;
+    pointer-events: none;
+    transition: none !important;
   }
 
   .p-drawer {
+    pointer-events: auto;
     width: 100vw !important;
     max-width: 100vw !important;
     height: 100vh !important;
