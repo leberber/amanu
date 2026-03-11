@@ -2214,6 +2214,7 @@
       "accept": "قبول الرحلة",
       "origin": "نقطة الانطلاق",
       "destination": "الوجهة",
+      "itinerary": "المسار",
       "warehouse": "مستودع أغروكليك",
       "pickup": "تأكيد الاستلام",
       "start_delivery": "بدء التوصيل",

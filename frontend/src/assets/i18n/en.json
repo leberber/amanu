@@ -2206,6 +2206,7 @@
       "accept": "Accept Trip",
       "origin": "Pickup",
       "destination": "Dropoff",
+      "itinerary": "Itinerary",
       "warehouse": "AgroClik Warehouse",
       "pickup": "Mark Picked Up",
       "start_delivery": "Start Delivery",
