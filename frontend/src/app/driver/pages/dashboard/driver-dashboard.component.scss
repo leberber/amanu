@@ -453,7 +453,20 @@
   font-weight: var(--font-weight-bold);
   color: var(--text-color);
   text-transform: uppercase;
-  margin: 0 0 var(--space-3);
+  margin: 0;
+}
+
+.itinerary-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-3);
+
+  &__fee {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+    color: #1a1a1a;
+  }
 }
 
 .drawer-body {
@@ -518,25 +531,25 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: var(--space-1);
   }
 
   &__label {
-    font-size: var(--font-size-xs);
-    font-weight: 500;
+    font-size: var(--font-size-sm);
+    font-weight: 600;
     color: var(--text-color-secondary);
     text-transform: uppercase;
     letter-spacing: 0.5px;
   }
 
   &__address {
-    font-size: var(--font-size-sm);
+    font-size: var(--font-size-base);
     font-weight: 400;
     color: var(--text-color-secondary);
   }
 
   &__customer {
-    font-size: var(--font-size-base);
+    font-size: var(--font-size-lg);
     font-weight: 600;
     color: #1a1a1a;
   }
@@ -592,6 +605,35 @@
     font-size: var(--font-size-base);
     font-weight: var(--font-weight-medium);
     color: var(--text-color);
+  }
+}
+
+// Info Cards Row (items + weight)
+.info-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+
+.info-card {
+  background: white;
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+
+  &__value {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+    color: #1a1a1a;
+  }
+
+  &__label {
+    font-size: var(--font-size-sm);
+    color: var(--text-color-secondary);
+    margin-top: var(--space-1);
   }
 }
 

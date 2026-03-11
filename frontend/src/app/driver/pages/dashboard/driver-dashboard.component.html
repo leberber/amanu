@@ -145,8 +145,11 @@
 
         <!-- Content below map -->
         <div class="drawer-details">
-          <!-- Itinerary -->
-          <h3 class="drawer-section-title">{{ 'driver.trip.itinerary' | translate }}</h3>
+          <!-- Itinerary Header -->
+          <div class="itinerary-header">
+            <h3 class="drawer-section-title">{{ 'driver.trip.itinerary' | translate }}</h3>
+            <span class="itinerary-header__fee">{{ order.shipping_cost || 0 | number:'1.0-0' }} DA</span>
+          </div>
           <div class="itinerary">
             <div class="itinerary__item">
               <div class="itinerary__marker itinerary__marker--origin"></div>
@@ -168,49 +171,17 @@
             </div>
           </div>
 
-          <!-- Delivery Fee -->
-          <div class="drawer-amount">
-            {{ order.shipping_cost || 0 | number:'1.0-0' }} DA
+          <!-- Items & Weight Cards -->
+          <div class="info-cards">
+            <div class="info-card">
+              <span class="info-card__value">{{ order.items?.length || 0 }}</span>
+              <span class="info-card__label">{{ 'driver.trip.items' | translate }}</span>
+            </div>
+            <div class="info-card">
+              <span class="info-card__value">{{ order.total_weight | number:'1.0-1' }} kg</span>
+              <span class="info-card__label">{{ 'common.weight' | translate }}</span>
+            </div>
           </div>
-
-          <!-- Phone -->
-          @if (order.contact_phone) {
-            <div class="drawer-section">
-              <div class="drawer-section__icon">
-                <i class="pi pi-phone"></i>
-              </div>
-              <div class="drawer-section__content">
-                <span class="drawer-section__label">{{ 'driver.trip.phone' | translate }}</span>
-                <span class="drawer-section__value">{{ order.contact_phone }}</span>
-              </div>
-            </div>
-          }
-
-          <!-- Items count -->
-          @if (order.items?.length) {
-            <div class="drawer-section">
-              <div class="drawer-section__icon">
-                <i class="pi pi-box"></i>
-              </div>
-              <div class="drawer-section__content">
-                <span class="drawer-section__label">{{ 'driver.trip.items' | translate }}</span>
-                <span class="drawer-section__value">{{ order.items?.length || 0 }}</span>
-              </div>
-            </div>
-          }
-
-          <!-- Weight -->
-          @if (order.total_weight) {
-            <div class="drawer-section">
-              <div class="drawer-section__icon">
-                <i class="pi pi-box"></i>
-              </div>
-              <div class="drawer-section__content">
-                <span class="drawer-section__label">{{ 'common.weight' | translate }}</span>
-                <span class="drawer-section__value">{{ order.total_weight | number:'1.1-1' }} kg</span>
-              </div>
-            </div>
-          }
         </div>
       </div>
 
