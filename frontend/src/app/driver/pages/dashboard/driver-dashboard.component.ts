@@ -106,7 +106,7 @@ export class DriverDashboardComponent implements OnInit {
       next: () => {
         this.accepting.set(false);
         this.closeDrawer();
-        this.loadData();
+        this.router.navigate([this.routes.DRIVER.ACTIVE]);
       },
       error: () => {
         this.accepting.set(false);
