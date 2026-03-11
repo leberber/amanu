@@ -112,9 +112,30 @@
   background: rgba(var(--warning-rgb, 245, 158, 11), 0.12);
   color: var(--orange-500, #f59e0b);
   white-space: nowrap;
+  border: none;
 
   i {
     font-size: 12px;
+  }
+
+  &--clickable {
+    cursor: pointer;
+    transition: all var(--transition-fast);
+
+    .pi-chevron-down {
+      font-size: 10px;
+      margin-left: 2px;
+      opacity: 0.7;
+    }
+
+    &:hover {
+      background: rgba(var(--warning-rgb, 245, 158, 11), 0.2);
+      transform: translateY(-1px);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
   }
 }
 
@@ -244,5 +265,83 @@
 ::ng-deep .driver-dropdown {
   .p-select {
     width: 100%;
+  }
+}
+
+// Driver Assignment Popover
+::ng-deep .driver-assign-popover {
+  .p-popover-content {
+    padding: 0 !important;
+  }
+}
+
+.driver-popup {
+  width: 340px;
+  max-width: 90vw;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-4);
+    border-bottom: 1px solid var(--border-color-light);
+    background: var(--surface-ground);
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-color);
+
+    i {
+      color: var(--primary-color);
+    }
+  }
+
+  &__content {
+    padding: var(--space-4);
+  }
+
+  &__actions {
+    display: flex;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    border-top: 1px solid var(--border-color-light);
+    background: var(--surface-ground);
+  }
+
+  &__btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-3);
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+
+    &--cancel {
+      background: var(--surface-hover);
+      color: var(--text-color-secondary);
+
+      &:hover {
+        background: var(--surface-border);
+      }
+    }
+
+    &--confirm {
+      background: var(--color-success);
+      color: white;
+
+      &:hover:not(:disabled) {
+        background: var(--color-success-dark, #16a34a);
+      }
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
   }
 }

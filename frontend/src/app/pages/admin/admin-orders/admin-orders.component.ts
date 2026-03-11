@@ -114,6 +114,12 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
   // ViewChild for status popover
   statusPopover = viewChild<Popover>('statusPopover');
 
+  // ViewChild for driver assignment popover
+  driverPopover = viewChild<Popover>('driverPopover');
+
+  // Driver assignment from driver column
+  assigningOrderId = signal<number | null>(null);
+
   private getInitialColumnOptions(): ColumnOption[] {
     const isMobile = this.breakpoint.isMobile();
 
@@ -374,5 +380,56 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
           this.baseToast.showApiError(error, 'admin.orders.update_error');
         }
       });
+  }
+
+  // Driver column popover methods
+  openDriverPopover(event: Event, order: Order): void {
+    event.stopPropagation();
+    this.assigningOrderId.set(order.id);
+    this.selectedDriverId.set(null);
+    this.loadAvailableDrivers();
+    this.driverPopover()?.toggle(event);
+  }
+
+  assignDriverFromColumn(): void {
+    const orderId = this.assigningOrderId();
+    const driverId = this.selectedDriverId();
+
+    if (!orderId || !driverId) return;
+
+    this.assigning.set(true);
+    this.adminService.assignOrderToDriver(orderId, { driver_id: driverId })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          this.assigning.set(false);
+          if (response.order) {
+            this.allOrders.update(orders => {
+              const index = orders.findIndex(o => o.id === orderId);
+              if (index !== -1) {
+                const updated = [...orders];
+                updated[index] = response.order!;
+                return updated;
+              }
+              return orders;
+            });
+            this.filterItems();
+          }
+          this.driverPopover()?.hide();
+          this.assigningOrderId.set(null);
+          this.selectedDriverId.set(null);
+          this.baseToast.showSuccess('admin.orders.driver_assigned');
+        },
+        error: (error) => {
+          this.assigning.set(false);
+          this.baseToast.showApiError(error, 'admin.orders.assign_error');
+        }
+      });
+  }
+
+  cancelDriverAssignment(): void {
+    this.driverPopover()?.hide();
+    this.assigningOrderId.set(null);
+    this.selectedDriverId.set(null);
   }
 }

@@ -235,11 +235,14 @@
                               }
                             </div>
                           </div>
-                        } @else if (order.status === 'confirmed') {
-                          <span class="waiting-driver-badge">
+                        } @else if (order.status === 'confirmed' || order.status === 'pending') {
+                          <button
+                            class="waiting-driver-badge waiting-driver-badge--clickable"
+                            (click)="openDriverPopover($event, order)">
                             <i class="pi pi-clock"></i>
                             {{ 'admin.orders.waiting_for_driver' | translate }}
-                          </span>
+                            <i class="pi pi-chevron-down"></i>
+                          </button>
                         } @else {
                           <span class="text-secondary">—</span>
                         }
@@ -433,4 +436,55 @@
       }
     </div>
   }
+</p-popover>
+
+<!-- Driver Assignment Popover -->
+<p-popover #driverPopover styleClass="driver-assign-popover">
+  <div class="driver-popup">
+    <div class="driver-popup__header">
+      <i class="pi pi-car"></i>
+      <span>{{ 'admin.orders.assign_driver' | translate }}</span>
+    </div>
+
+    <div class="driver-popup__content">
+      @if (loadingDrivers()) {
+        <div class="driver-loading">
+          <i class="pi pi-spin pi-spinner"></i>
+          <span>{{ 'common.loading' | translate }}</span>
+        </div>
+      } @else if (driverOptions().length === 0) {
+        <div class="driver-empty">
+          <i class="pi pi-info-circle"></i>
+          <span>{{ 'admin.orders.no_available_drivers' | translate }}</span>
+        </div>
+      } @else {
+        <p-select
+          [options]="driverOptions()"
+          [ngModel]="selectedDriverId()"
+          (ngModelChange)="onDriverSelect($event)"
+          [placeholder]="'admin.orders.select_driver' | translate"
+          styleClass="w-full"
+          [filter]="driverOptions().length > 5"
+          appendTo="body">
+        </p-select>
+      }
+    </div>
+
+    <div class="driver-popup__actions">
+      <button class="driver-popup__btn driver-popup__btn--cancel" (click)="cancelDriverAssignment()">
+        {{ 'common.cancel' | translate }}
+      </button>
+      <button
+        class="driver-popup__btn driver-popup__btn--confirm"
+        [disabled]="!selectedDriverId() || assigning()"
+        (click)="assignDriverFromColumn()">
+        @if (assigning()) {
+          <i class="pi pi-spin pi-spinner"></i>
+        } @else {
+          <i class="pi pi-check"></i>
+        }
+        {{ 'admin.orders.confirm_assign' | translate }}
+      </button>
+    </div>
+  </div>
 </p-popover>
