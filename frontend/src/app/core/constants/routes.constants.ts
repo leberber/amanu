@@ -77,6 +77,7 @@ export const ROUTES = {
     EDIT_USER_GROUP: '/admin/user-groups/edit/:id',
     NOTIFICATIONS: '/admin/notifications',
     SHIPPING: '/admin/shipping',
+    BATCHING: '/admin/batching',
     DRIVER_MANAGEMENT: '/admin/drivers',
     DRIVER_CONFIG: '/admin/drivers/config'
   }

@@ -195,6 +195,12 @@ export const routes: Routes = [
     canActivate: [adminOnlyGuard],
     data: { hideBottomNav: true }
   },
+  // Batching Route
+  {
+    path: 'admin/batching',
+    loadComponent: () => import('./pages/admin/admin-batching/admin-batching.component').then(m => m.AdminBatchingComponent),
+    canActivate: [adminGuard]
+  },
 
   // User Routes
   {
