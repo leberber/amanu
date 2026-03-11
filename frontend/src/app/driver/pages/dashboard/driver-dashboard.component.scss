@@ -336,59 +336,77 @@
 }
 
 // =============================================================================
-// TRIP DRAWER
+// TRIP DRAWER - Fullscreen
 // =============================================================================
+
+:host ::ng-deep .trip-drawer--fullscreen {
+  .p-drawer {
+    height: 100vh !important;
+    max-height: 100vh !important;
+    border-radius: 0 !important;
+  }
+
+  .p-drawer-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-4);
+    padding-top: calc(var(--space-3) + env(safe-area-inset-top, 0px));
+    background: white;
+    border-bottom: 1px solid var(--surface-border);
+  }
+
+  .p-drawer-content {
+    flex: 1;
+    padding: 0;
+    overflow-y: auto;
+  }
+}
+
+// Header title and ID (used inside p-drawer header template)
+.drawer-header__title {
+  flex: 1;
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.drawer-header__id {
+  font-size: var(--font-size-sm);
+  color: var(--text-color-secondary);
+}
+
+// Back button - using global .btn-back class
+.btn-back {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: transparent;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  margin-left: -8px;
+
+  i {
+    font-size: 1.25rem;
+    color: #1a1a1a;
+  }
+
+  &:active {
+    opacity: 0.7;
+  }
+}
 
 .drawer-content {
   display: flex;
   flex-direction: column;
   padding: var(--space-4);
   padding-bottom: calc(var(--space-4) + env(safe-area-inset-bottom, 0px));
-}
-
-.drawer-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: var(--space-4);
-}
-
-.drawer-title {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-
-  .order-number {
-    font-size: var(--font-size-xl);
-    font-weight: var(--font-weight-bold);
-    color: var(--text-color);
-  }
-
-  .order-date {
-    font-size: var(--font-size-sm);
-    color: var(--text-color-secondary);
-  }
-}
-
-.drawer-close {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: var(--surface-ground);
-  border: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-
-  i {
-    font-size: 1rem;
-    color: var(--text-color);
-  }
-
-  &:active {
-    opacity: 0.7;
-  }
+  flex: 1;
+  overflow-y: auto;
 }
 
 .drawer-body {
@@ -451,7 +469,8 @@
 }
 
 .drawer-footer {
-  margin-top: var(--space-4);
+  margin-top: auto;
+  padding-top: var(--space-4);
 }
 
 .accept-btn {

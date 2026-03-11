@@ -2220,6 +2220,7 @@
       "mini_van": "Mini Fourgon"
     },
     "trip": {
+      "details": "Détails du Trajet",
       "view_details": "Voir Détails",
       "accept": "Accepter le Trajet",
       "pickup": "Marquer Récupéré",

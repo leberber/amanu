@@ -2200,6 +2200,7 @@
       "mini_van": "Mini Van"
     },
     "trip": {
+      "details": "Trip Details",
       "view_details": "View Details",
       "accept": "Accept Trip",
       "pickup": "Mark Picked Up",

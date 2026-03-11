@@ -1,10 +1,11 @@
 import { Component, inject, OnInit, computed, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { DecimalPipe, DatePipe } from '@angular/common';
+import { DecimalPipe } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { trigger, transition, style, animate, stagger, query } from '@angular/animations';
 import { DrawerModule } from 'primeng/drawer';
 import { ButtonModule } from 'primeng/button';
+import { SharedModule } from 'primeng/api';
 
 import { DriverService } from '../../../services/driver.service';
 import { ROUTES, RouteHelpers } from '../../../core/constants/routes.constants';
@@ -16,7 +17,7 @@ import { TripMapComponent } from '../../components/trip-map/trip-map.component';
 @Component({
   selector: 'app-driver-dashboard',
   standalone: true,
-  imports: [RouterLink, TranslateModule, DecimalPipe, DatePipe, DrawerModule, ButtonModule, TripMapComponent],
+  imports: [RouterLink, TranslateModule, DecimalPipe, DrawerModule, ButtonModule, SharedModule, TripMapComponent],
   templateUrl: './driver-dashboard.component.html',
   styleUrl: './driver-dashboard.component.scss',
   animations: [

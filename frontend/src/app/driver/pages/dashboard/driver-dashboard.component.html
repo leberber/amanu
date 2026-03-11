@@ -120,23 +120,23 @@
   [visible]="drawerVisible()"
   (visibleChange)="drawerVisible.set($event)"
   position="bottom"
-  [style]="{ height: 'auto', maxHeight: '85vh' }"
+  [style]="{ height: '100vh' }"
   [modal]="true"
   [showCloseIcon]="false"
-  styleClass="trip-drawer"
+  styleClass="trip-drawer trip-drawer--fullscreen"
 >
+  <ng-template pTemplate="header">
+    @if (selectedOrder(); as order) {
+      <button class="btn-back" (click)="closeDrawer()">
+        <i class="pi pi-arrow-left"></i>
+      </button>
+      <span class="drawer-header__title">{{ 'driver.trip.details' | translate }}</span>
+      <span class="drawer-header__id">#{{ order.id }}</span>
+    }
+  </ng-template>
+
   @if (selectedOrder(); as order) {
     <div class="drawer-content">
-      <div class="drawer-header">
-        <div class="drawer-title">
-          <span class="order-number">#{{ order.id }}</span>
-          <span class="order-date">{{ order.created_at | date:'dd/MM/yyyy HH:mm' }}</span>
-        </div>
-        <button class="drawer-close" (click)="closeDrawer()">
-          <i class="pi pi-times"></i>
-        </button>
-      </div>
-
       <div class="drawer-body">
         <!-- Map -->
         <app-trip-map [destination]="order.shipping_address" />
