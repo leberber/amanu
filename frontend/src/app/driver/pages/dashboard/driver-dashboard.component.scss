@@ -209,7 +209,7 @@
   gap: var(--space-3);
 }
 
-// New Trip Card Design
+// Uber-style Trip Card
 .trip-card {
   display: flex;
   align-items: center;
@@ -218,12 +218,10 @@
   background: white;
   border-radius: var(--radius-xl);
   cursor: pointer;
-  transition: all 0.15s ease;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: background 0.1s ease;
 
   &:active {
-    transform: scale(0.98);
-    background: var(--surface-hover);
+    background: var(--surface-ground);
   }
 
   &__left {
@@ -231,17 +229,17 @@
   }
 
   &__icon {
-    width: 48px;
-    height: 48px;
-    border-radius: var(--radius-xl);
-    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #f3f3f3;
     display: flex;
     align-items: center;
     justify-content: center;
 
     i {
-      font-size: 1.25rem;
-      color: white;
+      font-size: 1.1rem;
+      color: #1a1a1a;
     }
   }
 
@@ -250,13 +248,13 @@
     min-width: 0;
     display: flex;
     flex-direction: column;
-    gap: var(--space-2);
+    gap: 4px;
   }
 
   &__location {
-    font-size: var(--font-size-base);
-    font-weight: var(--font-weight-semibold);
-    color: var(--text-color);
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    color: #1a1a1a;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -272,11 +270,11 @@
     display: flex;
     align-items: center;
     gap: 4px;
-    font-size: var(--font-size-sm);
-    color: var(--text-color-secondary);
+    font-size: var(--font-size-base);
+    color: #6b6b6b;
 
     i {
-      font-size: 0.75rem;
+      font-size: 0.8rem;
     }
   }
 
@@ -288,15 +286,16 @@
   }
 
   &__fee {
-    font-size: var(--font-size-xl);
-    font-weight: var(--font-weight-bold);
-    color: #22c55e;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1a1a1a;
     line-height: 1;
   }
 
   &__currency {
-    font-size: var(--font-size-xs);
-    color: var(--text-color-secondary);
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #6b6b6b;
     margin-top: 2px;
   }
 }
