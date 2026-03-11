@@ -143,72 +143,75 @@
         <!-- Map -->
         <app-trip-map [destination]="order.shipping_address" />
 
-        <!-- Itinerary -->
-        <h3 class="drawer-section-title">{{ 'driver.trip.itinerary' | translate }}</h3>
-        <div class="itinerary">
-          <div class="itinerary__item">
-            <div class="itinerary__marker itinerary__marker--origin"></div>
-            <div class="itinerary__line"></div>
-            <div class="itinerary__content">
-              <span class="itinerary__label">{{ 'driver.trip.origin' | translate }}</span>
-              <span class="itinerary__address">{{ 'driver.trip.warehouse' | translate }}</span>
+        <!-- Content below map -->
+        <div class="drawer-details">
+          <!-- Itinerary -->
+          <h3 class="drawer-section-title">{{ 'driver.trip.itinerary' | translate }}</h3>
+          <div class="itinerary">
+            <div class="itinerary__item">
+              <div class="itinerary__marker itinerary__marker--origin"></div>
+              <div class="itinerary__line"></div>
+              <div class="itinerary__content">
+                <span class="itinerary__label">{{ 'driver.trip.origin' | translate }}</span>
+                <span class="itinerary__address">{{ 'driver.trip.warehouse' | translate }}</span>
+              </div>
+            </div>
+            <div class="itinerary__item">
+              <div class="itinerary__marker itinerary__marker--destination"></div>
+              <div class="itinerary__content">
+                <span class="itinerary__label">{{ 'driver.trip.destination' | translate }}</span>
+                @if (order.user?.store_name || order.user?.full_name) {
+                  <span class="itinerary__customer">{{ order.user?.store_name || order.user?.full_name }}</span>
+                }
+                <span class="itinerary__address">{{ order.shipping_address }}</span>
+              </div>
             </div>
           </div>
-          <div class="itinerary__item">
-            <div class="itinerary__marker itinerary__marker--destination"></div>
-            <div class="itinerary__content">
-              <span class="itinerary__label">{{ 'driver.trip.destination' | translate }}</span>
-              @if (order.user?.store_name || order.user?.full_name) {
-                <span class="itinerary__customer">{{ order.user?.store_name || order.user?.full_name }}</span>
-              }
-              <span class="itinerary__address">{{ order.shipping_address }}</span>
-            </div>
+
+          <!-- Delivery Fee -->
+          <div class="drawer-amount">
+            {{ order.shipping_cost || 0 | number:'1.0-0' }} DA
           </div>
+
+          <!-- Phone -->
+          @if (order.contact_phone) {
+            <div class="drawer-section">
+              <div class="drawer-section__icon">
+                <i class="pi pi-phone"></i>
+              </div>
+              <div class="drawer-section__content">
+                <span class="drawer-section__label">{{ 'driver.trip.phone' | translate }}</span>
+                <span class="drawer-section__value">{{ order.contact_phone }}</span>
+              </div>
+            </div>
+          }
+
+          <!-- Items count -->
+          @if (order.items?.length) {
+            <div class="drawer-section">
+              <div class="drawer-section__icon">
+                <i class="pi pi-box"></i>
+              </div>
+              <div class="drawer-section__content">
+                <span class="drawer-section__label">{{ 'driver.trip.items' | translate }}</span>
+                <span class="drawer-section__value">{{ order.items?.length || 0 }}</span>
+              </div>
+            </div>
+          }
+
+          <!-- Weight -->
+          @if (order.total_weight) {
+            <div class="drawer-section">
+              <div class="drawer-section__icon">
+                <i class="pi pi-box"></i>
+              </div>
+              <div class="drawer-section__content">
+                <span class="drawer-section__label">{{ 'common.weight' | translate }}</span>
+                <span class="drawer-section__value">{{ order.total_weight | number:'1.1-1' }} kg</span>
+              </div>
+            </div>
+          }
         </div>
-
-        <!-- Delivery Fee -->
-        <div class="drawer-amount">
-          {{ order.shipping_cost || 0 | number:'1.0-0' }} DA
-        </div>
-
-        <!-- Phone -->
-        @if (order.contact_phone) {
-          <div class="drawer-section">
-            <div class="drawer-section__icon">
-              <i class="pi pi-phone"></i>
-            </div>
-            <div class="drawer-section__content">
-              <span class="drawer-section__label">{{ 'driver.trip.phone' | translate }}</span>
-              <span class="drawer-section__value">{{ order.contact_phone }}</span>
-            </div>
-          </div>
-        }
-
-        <!-- Items count -->
-        @if (order.items?.length) {
-          <div class="drawer-section">
-            <div class="drawer-section__icon">
-              <i class="pi pi-box"></i>
-            </div>
-            <div class="drawer-section__content">
-              <span class="drawer-section__label">{{ 'driver.trip.items' | translate }}</span>
-              <span class="drawer-section__value">{{ order.items?.length || 0 }}</span>
-            </div>
-          </div>
-        }
-
-        <!-- Weight -->
-        @if (order.total_weight) {
-          <div class="drawer-section">
-            <div class="drawer-section__icon">
-              <i class="pi pi-box"></i>
-            </div>
-            <div class="drawer-section__content">
-              <span class="drawer-section__label">{{ 'common.weight' | translate }}</span>
-              <span class="drawer-section__value">{{ order.total_weight | number:'1.1-1' }} kg</span>
-            </div>
-          </div>
-        }
       </div>
 
       <div class="drawer-footer">
