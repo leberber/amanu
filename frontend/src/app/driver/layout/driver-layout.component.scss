@@ -91,7 +91,8 @@
 
 .driver-content {
   flex: 1;
-  overflow-y: auto;
+  position: relative;
+  overflow: hidden;
   padding-bottom: 80px; // Space for bottom nav
 }
 

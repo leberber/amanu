@@ -1,7 +1,8 @@
 import { Component, inject, OnInit, signal, computed, DestroyRef } from '@angular/core';
-import { Router, RouterOutlet, RouterLink, RouterLinkActive, NavigationEnd } from '@angular/router';
+import { Router, RouterOutlet, RouterLink, RouterLinkActive, NavigationEnd, NavigationStart } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TranslateModule } from '@ngx-translate/core';
+import { trigger, transition, style, animate, query, group } from '@angular/animations';
 import { filter } from 'rxjs';
 
 import { DriverService } from '../../services/driver.service';
@@ -9,12 +10,61 @@ import { AuthService } from '../../services/auth.service';
 import { ROUTES } from '../../core/constants/routes.constants';
 import { DRIVER_STATUS, DRIVER_STATUS_CONFIG } from '../../core/constants/driver.constants';
 
+// Base styles for route animations
+const baseStyles = [
+  query(':enter, :leave', [
+    style({
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%'
+    })
+  ], { optional: true })
+];
+
+// Forward animation - slide in from right
+const slideForward = [
+  ...baseStyles,
+  group([
+    query(':leave', [
+      animate('300ms ease-in-out', style({ transform: 'translateX(-100%)' }))
+    ], { optional: true }),
+    query(':enter', [
+      style({ transform: 'translateX(100%)' }),
+      animate('300ms ease-in-out', style({ transform: 'translateX(0)' }))
+    ], { optional: true })
+  ])
+];
+
+// Backward animation - slide in from left
+const slideBackward = [
+  ...baseStyles,
+  group([
+    query(':leave', [
+      animate('300ms ease-in-out', style({ transform: 'translateX(100%)' }))
+    ], { optional: true }),
+    query(':enter', [
+      style({ transform: 'translateX(-100%)' }),
+      animate('300ms ease-in-out', style({ transform: 'translateX(0)' }))
+    ], { optional: true })
+  ])
+];
+
+// Slide animation with direction support
+const slideAnimation = trigger('driverRouteAnimation', [
+  transition((from, to) => to?.toString().startsWith('backward'), slideBackward),
+  transition((from, to) => to?.toString().startsWith('forward'), slideForward),
+  transition('* <=> *', slideForward)
+]);
+
 @Component({
   selector: 'app-driver-layout',
   standalone: true,
   imports: [RouterOutlet, RouterLink, RouterLinkActive, TranslateModule],
   templateUrl: './driver-layout.component.html',
-  styleUrl: './driver-layout.component.scss'
+  styleUrl: './driver-layout.component.scss',
+  animations: [slideAnimation]
 })
 export class DriverLayoutComponent implements OnInit {
   private readonly router = inject(Router);
@@ -60,6 +110,11 @@ export class DriverLayoutComponent implements OnInit {
   // Current page title
   pageTitle = signal('Home');
 
+  // Animation state tracking
+  private animationCounter = 0;
+  private nextDirection: 'forward' | 'backward' = 'forward';
+  animationState = signal('forward-0');
+
   // Navigation items
   readonly navItems = [
     { path: '/driver', icon: 'pi pi-home', label: 'driver.navigation.dashboard', exact: true },
@@ -72,6 +127,16 @@ export class DriverLayoutComponent implements OnInit {
     // Initialize driver data
     this.driverService.initializeDriver();
 
+    // Detect browser back button (popstate) for backward animation
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationStart),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe((event: NavigationStart) => {
+      if (event.navigationTrigger === 'popstate') {
+        this.nextDirection = 'backward';
+      }
+    });
+
     // Track route changes to hide bottom nav on certain pages
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd),
@@ -81,6 +146,10 @@ export class DriverLayoutComponent implements OnInit {
       this.hideBottomNav.set(this.shouldHideBottomNav(url));
       this.showBackButton.set(this.shouldShowBackButton(url));
       this.pageTitle.set(this.getPageTitle(url));
+      // Update animation state for route transitions
+      this.animationCounter++;
+      this.animationState.set(`${this.nextDirection}-${this.animationCounter}`);
+      this.nextDirection = 'forward'; // Reset to forward after navigation
     });
 
     // Initial check
@@ -90,6 +159,7 @@ export class DriverLayoutComponent implements OnInit {
   }
 
   goBack(): void {
+    this.nextDirection = 'backward';
     this.router.navigate(['/driver']);
   }
 

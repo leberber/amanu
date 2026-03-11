@@ -157,6 +157,15 @@ export class AppComponent implements OnInit {
       filter(event => event instanceof NavigationStart),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe((event: NavigationStart) => {
+      const currentUrl = this.router.url;
+      const targetUrl = event.url;
+
+      // Skip animation for navigation within driver module (child routes)
+      const isWithinDriver = currentUrl.startsWith('/driver') && targetUrl.startsWith('/driver');
+      if (isWithinDriver) {
+        return;
+      }
+
       this.navCounter++;
 
       // Priority: 1) NavigationService explicit direction, 2) popstate detection, 3) default forward
