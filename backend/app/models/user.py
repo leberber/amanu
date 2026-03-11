@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from app.models.order import Order
     from app.models.user_notification import UserNotification
     from app.models.user_group import UserGroup
-    from app.models.driver import DriverProfile
+    from app.models.driver import Driver
 
 class UserRole(str, Enum):
     """User role enumeration"""
@@ -89,7 +89,7 @@ class User(SQLModel, table=True):
     orders: List["Order"] = Relationship(back_populates="user", sa_relationship_kwargs={"cascade": "all, delete-orphan", "foreign_keys": "[Order.user_id]"})
     notifications: List["UserNotification"] = Relationship(sa_relationship_kwargs={"cascade": "all, delete-orphan", "foreign_keys": "[UserNotification.user_id]"})
     groups: List["UserGroup"] = Relationship(back_populates="users", link_model=UserGroupLink)
-    driver_profile: Optional["DriverProfile"] = Relationship(back_populates="user", sa_relationship_kwargs={"cascade": "all, delete-orphan", "uselist": False, "foreign_keys": "[DriverProfile.user_id]"})
+    driver: Optional["Driver"] = Relationship(back_populates="user", sa_relationship_kwargs={"cascade": "all, delete-orphan", "uselist": False, "foreign_keys": "[Driver.user_id]"})
 
 class UserCreate(UserBase):
     """Model for creating a new user"""

@@ -7,7 +7,7 @@ import logging
 from sqlmodel import Session, select
 from app.database import engine
 from app.models.user import User, UserRole, AuthProvider
-from app.models.driver import DriverProfile, VehicleType, DriverStatus
+from app.models.driver import Driver, DriverVehicle, VehicleType, DriverStatus
 from app.core.security import get_password_hash
 
 logging.basicConfig(level=logging.INFO)
@@ -29,19 +29,22 @@ TEST_USERS = [
         "phone": "0555123401",
         "store_name": None,
         "role": UserRole.DRIVER,
+        "h3_index": "8938748992bffff",
         "address": "12 Rue Didouche Mourad, Alger Centre",
         "wilaya": "Alger",
         "daira": "Sidi M'Hamed",
         "commune": "Alger Centre",
         "latitude": 36.7580,  # ~500m north of store
         "longitude": 3.0550,
-        "driver_profile": {
-            "vehicle_type": VehicleType.TRUCK,
-            "capacity_kg": 2000.0,
-            "capacity_volume": 15.0,
+        "driver_data": {
             "status": DriverStatus.AVAILABLE,
             "is_available": True,
             "max_active_orders": 5,
+        },
+        "vehicle_data": {
+            "vehicle_type": VehicleType.TRUCK,
+            "capacity_kg": 2000.0,
+            "capacity_volume": 15.0,
         }
     },
     {
@@ -50,19 +53,22 @@ TEST_USERS = [
         "phone": "0555123402",
         "store_name": None,
         "role": UserRole.DRIVER,
+        "h3_index": "8938748992bffff",
         "address": "45 Boulevard Mohamed V, Hussein Dey",
         "wilaya": "Alger",
         "daira": "Hussein Dey",
         "commune": "Hussein Dey",
         "latitude": 36.7450,  # ~1km south of store
         "longitude": 3.0700,
-        "driver_profile": {
-            "vehicle_type": VehicleType.VAN,
-            "capacity_kg": 800.0,
-            "capacity_volume": 8.0,
+        "driver_data": {
             "status": DriverStatus.AVAILABLE,
             "is_available": True,
             "max_active_orders": 3,
+        },
+        "vehicle_data": {
+            "vehicle_type": VehicleType.VAN,
+            "capacity_kg": 800.0,
+            "capacity_volume": 8.0,
         }
     },
     {
@@ -77,13 +83,15 @@ TEST_USERS = [
         "commune": "Bab El Oued",
         "latitude": 36.7900,  # ~4km north of store
         "longitude": 3.0480,
-        "driver_profile": {
-            "vehicle_type": VehicleType.MINI_VAN,
-            "capacity_kg": 400.0,
-            "capacity_volume": 4.0,
+        "driver_data": {
             "status": DriverStatus.OFFLINE,
             "is_available": False,
             "max_active_orders": 2,
+        },
+        "vehicle_data": {
+            "vehicle_type": VehicleType.MINI_VAN,
+            "capacity_kg": 400.0,
+            "capacity_volume": 4.0,
         }
     },
 
@@ -94,13 +102,13 @@ TEST_USERS = [
         "phone": "0555123411",
         "store_name": "Épicerie Amina",
         "role": UserRole.CUSTOMER,
+        "h3_index": "893874c6143ffff",
         "address": "23 Rue Hassiba Ben Bouali, El Biar",
         "wilaya": "Alger",
         "daira": "Bir Mourad Rais",
         "commune": "El Biar",
         "latitude": 36.7650,  # ~1.5km northwest of store
         "longitude": 3.0350,
-        "driver_profile": None
     },
     {
         "email": "client2@test.com",
@@ -115,7 +123,6 @@ TEST_USERS = [
         "commune": "Kouba",
         "latitude": 36.7200,  # ~3km south of store
         "longitude": 3.0800,
-        "driver_profile": None
     },
 
     # ==================== STAFF ====================
@@ -132,7 +139,6 @@ TEST_USERS = [
         "commune": "Alger Centre",
         "latitude": STORE_CENTER_LAT,  # At store location
         "longitude": STORE_CENTER_LNG,
-        "driver_profile": None
     },
 ]
 
@@ -156,23 +162,25 @@ def seed_test_users():
                 skipped_count += 1
                 continue
 
-            # Extract driver profile data if present
-            driver_profile_data = user_data.pop("driver_profile", None)
+            # Extract driver and vehicle data if present
+            driver_data = user_data.pop("driver_data", None)
+            vehicle_data = user_data.pop("vehicle_data", None)
 
             # Create user
             user = User(
                 email=user_data["email"],
                 full_name=user_data["full_name"],
                 phone=user_data["phone"],
-                store_name=user_data["store_name"],
+                store_name=user_data.get("store_name"),
                 role=user_data["role"],
                 is_active=True,
-                address=user_data["address"],
-                wilaya=user_data["wilaya"],
-                daira=user_data["daira"],
-                commune=user_data["commune"],
-                latitude=user_data["latitude"],
-                longitude=user_data["longitude"],
+                h3_index=user_data.get("h3_index"),
+                address=user_data.get("address"),
+                wilaya=user_data.get("wilaya"),
+                daira=user_data.get("daira"),
+                commune=user_data.get("commune"),
+                latitude=user_data.get("latitude"),
+                longitude=user_data.get("longitude"),
                 auth_provider=AuthProvider.EMAIL,
                 hashed_password=get_password_hash(DEFAULT_PASSWORD),
             )
@@ -180,19 +188,28 @@ def seed_test_users():
             session.add(user)
             session.flush()  # Get user ID
 
-            # Create driver profile if this is a driver
-            if driver_profile_data and user_data["role"] == UserRole.DRIVER:
-                driver_profile = DriverProfile(
+            # Create driver and vehicle if this is a driver
+            if driver_data and vehicle_data and user_data["role"] == UserRole.DRIVER:
+                # Create driver
+                driver = Driver(
                     user_id=user.id,
-                    vehicle_type=driver_profile_data["vehicle_type"],
-                    capacity_kg=driver_profile_data["capacity_kg"],
-                    capacity_volume=driver_profile_data["capacity_volume"],
-                    status=driver_profile_data["status"],
-                    is_available=driver_profile_data["is_available"],
-                    max_active_orders=driver_profile_data["max_active_orders"],
+                    status=driver_data["status"],
+                    is_available=driver_data["is_available"],
+                    max_active_orders=driver_data["max_active_orders"],
                 )
-                session.add(driver_profile)
-                logger.info(f"Created driver with {driver_profile_data['vehicle_type'].value} vehicle: {user.full_name}")
+                session.add(driver)
+                session.flush()  # Get driver ID
+
+                # Create vehicle
+                vehicle = DriverVehicle(
+                    driver_id=driver.id,
+                    vehicle_type=vehicle_data["vehicle_type"],
+                    capacity_kg=vehicle_data["capacity_kg"],
+                    capacity_volume=vehicle_data["capacity_volume"],
+                    is_primary=True,
+                )
+                session.add(vehicle)
+                logger.info(f"Created driver with {vehicle_data['vehicle_type'].value} vehicle: {user.full_name}")
             else:
                 logger.info(f"Created {user_data['role'].value}: {user.full_name}")
 
@@ -228,13 +245,13 @@ def delete_test_users():
     with Session(engine) as session:
         for user_data in TEST_USERS:
             user = session.exec(
-                select(User).where(User.email == user_data["email"])
+                select(User).where(User.email == user_data.get("email"))
             ).first()
 
             if user:
-                # Driver profile will be deleted via cascade
+                # Driver and vehicles will be deleted via cascade
                 session.delete(user)
-                logger.info(f"Deleted user: {user_data['email']}")
+                logger.info(f"Deleted user: {user_data.get('email')}")
 
         session.commit()
 

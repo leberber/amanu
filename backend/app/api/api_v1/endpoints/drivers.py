@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 from typing import Any, List
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlmodel import Session, select
+from sqlmodel import Session, select, func
 
 from app.database import get_session
 from app.core.security import (
@@ -12,20 +12,23 @@ from app.core.security import (
 )
 from app.models.user import User, UserRole, UserRead
 from app.models.driver import (
-    DriverProfile,
-    DriverProfileRead,
-    DriverProfileUpdate,
+    Driver,
+    DriverVehicle,
+    DriverRead,
+    DriverUpdate,
     DriverRegister,
+    DriverVehicleRead,
     VehicleType,
 )
+from app.models.order import Order, OrderStatus
 from sqlmodel import SQLModel
 
 router = APIRouter()
 
 
 class DriverWithProfile(UserRead):
-    """User with driver profile included"""
-    driver_profile: DriverProfileRead | None = None
+    """User with driver info included"""
+    driver: DriverRead | None = None
 
 
 class ConvertToDriver(SQLModel):
@@ -37,6 +40,55 @@ class ConvertToDriver(SQLModel):
     capacity_volume: float | None = None
 
 
+def get_driver_stats(session: Session, driver_id: int) -> dict:
+    """Compute driver stats from orders"""
+    # Active orders count
+    active_orders = session.exec(
+        select(func.count(Order.id))
+        .where(Order.driver_id == driver_id)
+        .where(Order.status.in_([OrderStatus.ASSIGNED, OrderStatus.PICKED_UP, OrderStatus.IN_TRANSIT]))
+    ).one()
+
+    # Total deliveries and earnings
+    delivered_stats = session.exec(
+        select(func.count(Order.id), func.coalesce(func.sum(Order.delivery_fee), 0))
+        .where(Order.driver_id == driver_id)
+        .where(Order.status == OrderStatus.DELIVERED)
+    ).one()
+
+    # Ratings
+    rating_stats = session.exec(
+        select(func.avg(Order.rating), func.count(Order.rating))
+        .where(Order.driver_id == driver_id)
+        .where(Order.rating.isnot(None))
+    ).one()
+
+    return {
+        "active_orders_count": active_orders or 0,
+        "total_deliveries": delivered_stats[0] or 0,
+        "total_earnings": float(delivered_stats[1] or 0),
+        "average_rating": float(rating_stats[0]) if rating_stats[0] else None,
+        "total_ratings": rating_stats[1] or 0,
+    }
+
+
+def build_driver_read(driver: Driver, vehicle: DriverVehicle | None, stats: dict) -> DriverRead:
+    """Build DriverRead from driver, vehicle, and stats"""
+    return DriverRead(
+        id=driver.id,
+        user_id=driver.user_id,
+        status=driver.status,
+        is_available=driver.is_available,
+        max_active_orders=driver.max_active_orders,
+        created_at=driver.created_at,
+        updated_at=driver.updated_at,
+        vehicle_type=vehicle.vehicle_type if vehicle else None,
+        capacity_kg=vehicle.capacity_kg if vehicle else None,
+        capacity_volume=vehicle.capacity_volume if vehicle else None,
+        **stats
+    )
+
+
 @router.post("/convert", response_model=DriverWithProfile)
 def convert_to_driver(
     driver_in: ConvertToDriver,
@@ -45,15 +97,15 @@ def convert_to_driver(
 ) -> Any:
     """
     Convert current user (e.g., Google OAuth user) to a driver.
-    Creates driver profile and changes role to DRIVER.
+    Creates driver + vehicle and changes role to DRIVER.
     Driver will be inactive until admin approval.
     """
-    # Check if user already has a driver profile
-    existing_profile = session.exec(
-        select(DriverProfile).where(DriverProfile.user_id == current_user.id)
+    # Check if user already has a driver record
+    existing_driver = session.exec(
+        select(Driver).where(Driver.user_id == current_user.id)
     ).first()
 
-    if existing_profile:
+    if existing_driver:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="User already has a driver profile",
@@ -69,21 +121,31 @@ def convert_to_driver(
     session.commit()
     session.refresh(current_user)
 
-    # Create driver profile
-    driver_profile = DriverProfile(
-        user_id=current_user.id,
+    # Create driver
+    driver = Driver(user_id=current_user.id)
+    session.add(driver)
+    session.commit()
+    session.refresh(driver)
+
+    # Create vehicle
+    vehicle = DriverVehicle(
+        driver_id=driver.id,
         vehicle_type=driver_in.vehicle_type,
         capacity_kg=driver_in.capacity_kg,
         capacity_volume=driver_in.capacity_volume,
+        is_primary=True,
     )
-    session.add(driver_profile)
+    session.add(vehicle)
     session.commit()
-    session.refresh(driver_profile)
+    session.refresh(vehicle)
 
-    # Return combined response
+    # Get stats (will be all zeros for new driver)
+    stats = get_driver_stats(session, driver.id)
+    driver_read = build_driver_read(driver, vehicle, stats)
+
     return DriverWithProfile(
         **UserRead.model_validate(current_user).model_dump(),
-        driver_profile=DriverProfileRead.model_validate(driver_profile)
+        driver=driver_read
     )
 
 
@@ -93,7 +155,7 @@ def register_driver(
     session: Session = Depends(get_session),
 ) -> Any:
     """
-    Register a new driver (creates user + driver profile).
+    Register a new driver (creates user + driver + vehicle).
     Driver will be inactive until admin approval.
     """
     # Check if email already exists
@@ -120,21 +182,31 @@ def register_driver(
     session.commit()
     session.refresh(new_user)
 
-    # Create driver profile
-    driver_profile = DriverProfile(
-        user_id=new_user.id,
+    # Create driver
+    driver = Driver(user_id=new_user.id)
+    session.add(driver)
+    session.commit()
+    session.refresh(driver)
+
+    # Create vehicle
+    vehicle = DriverVehicle(
+        driver_id=driver.id,
         vehicle_type=driver_in.vehicle_type,
         capacity_kg=driver_in.capacity_kg,
         capacity_volume=driver_in.capacity_volume,
+        is_primary=True,
     )
-    session.add(driver_profile)
+    session.add(vehicle)
     session.commit()
-    session.refresh(driver_profile)
+    session.refresh(vehicle)
 
-    # Return combined response
+    # Get stats
+    stats = get_driver_stats(session, driver.id)
+    driver_read = build_driver_read(driver, vehicle, stats)
+
     return DriverWithProfile(
         **UserRead.model_validate(new_user).model_dump(),
-        driver_profile=DriverProfileRead.model_validate(driver_profile)
+        driver=driver_read
     )
 
 
@@ -152,19 +224,35 @@ def get_current_driver(
             detail="User is not a driver",
         )
 
-    driver_profile = session.exec(
-        select(DriverProfile).where(DriverProfile.user_id == current_user.id)
+    driver = session.exec(
+        select(Driver).where(Driver.user_id == current_user.id)
     ).first()
+
+    if not driver:
+        return DriverWithProfile(
+            **UserRead.model_validate(current_user).model_dump(),
+            driver=None
+        )
+
+    # Get primary vehicle
+    vehicle = session.exec(
+        select(DriverVehicle)
+        .where(DriverVehicle.driver_id == driver.id)
+        .where(DriverVehicle.is_primary == True)
+    ).first()
+
+    stats = get_driver_stats(session, driver.id)
+    driver_read = build_driver_read(driver, vehicle, stats)
 
     return DriverWithProfile(
         **UserRead.model_validate(current_user).model_dump(),
-        driver_profile=DriverProfileRead.model_validate(driver_profile) if driver_profile else None
+        driver=driver_read
     )
 
 
-@router.patch("/me", response_model=DriverProfileRead)
-def update_driver_profile(
-    profile_in: DriverProfileUpdate,
+@router.patch("/me", response_model=DriverRead)
+def update_driver(
+    driver_update: DriverUpdate,
     current_user: User = Depends(get_current_user),
     session: Session = Depends(get_session),
 ) -> Any:
@@ -177,27 +265,35 @@ def update_driver_profile(
             detail="User is not a driver",
         )
 
-    driver_profile = session.exec(
-        select(DriverProfile).where(DriverProfile.user_id == current_user.id)
+    driver = session.exec(
+        select(Driver).where(Driver.user_id == current_user.id)
     ).first()
 
-    if not driver_profile:
+    if not driver:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Driver profile not found",
         )
 
     # Update fields
-    update_data = profile_in.model_dump(exclude_unset=True)
+    update_data = driver_update.model_dump(exclude_unset=True)
     for field, value in update_data.items():
-        setattr(driver_profile, field, value)
+        setattr(driver, field, value)
 
-    driver_profile.updated_at = datetime.now(timezone.utc)
-    session.add(driver_profile)
+    driver.updated_at = datetime.now(timezone.utc)
+    session.add(driver)
     session.commit()
-    session.refresh(driver_profile)
+    session.refresh(driver)
 
-    return driver_profile
+    # Get primary vehicle
+    vehicle = session.exec(
+        select(DriverVehicle)
+        .where(DriverVehicle.driver_id == driver.id)
+        .where(DriverVehicle.is_primary == True)
+    ).first()
+
+    stats = get_driver_stats(session, driver.id)
+    return build_driver_read(driver, vehicle, stats)
 
 
 # Admin endpoints
@@ -220,14 +316,25 @@ def list_drivers(
     ).all()
 
     result = []
-    for driver in drivers:
-        profile = session.exec(
-            select(DriverProfile).where(DriverProfile.user_id == driver.id)
+    for user in drivers:
+        driver = session.exec(
+            select(Driver).where(Driver.user_id == user.id)
         ).first()
 
+        if driver:
+            vehicle = session.exec(
+                select(DriverVehicle)
+                .where(DriverVehicle.driver_id == driver.id)
+                .where(DriverVehicle.is_primary == True)
+            ).first()
+            stats = get_driver_stats(session, driver.id)
+            driver_read = build_driver_read(driver, vehicle, stats)
+        else:
+            driver_read = None
+
         result.append(DriverWithProfile(
-            **UserRead.model_validate(driver).model_dump(),
-            driver_profile=DriverProfileRead.model_validate(profile) if profile else None
+            **UserRead.model_validate(user).model_dump(),
+            driver=driver_read
         ))
 
     return result
@@ -242,21 +349,32 @@ def get_driver(
     """
     Get a specific driver by ID (admin only).
     """
-    driver = session.get(User, driver_id)
+    user = session.get(User, driver_id)
 
-    if not driver or driver.role != UserRole.DRIVER:
+    if not user or user.role != UserRole.DRIVER:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Driver not found",
         )
 
-    profile = session.exec(
-        select(DriverProfile).where(DriverProfile.user_id == driver.id)
+    driver = session.exec(
+        select(Driver).where(Driver.user_id == user.id)
     ).first()
 
+    if driver:
+        vehicle = session.exec(
+            select(DriverVehicle)
+            .where(DriverVehicle.driver_id == driver.id)
+            .where(DriverVehicle.is_primary == True)
+        ).first()
+        stats = get_driver_stats(session, driver.id)
+        driver_read = build_driver_read(driver, vehicle, stats)
+    else:
+        driver_read = None
+
     return DriverWithProfile(
-        **UserRead.model_validate(driver).model_dump(),
-        driver_profile=DriverProfileRead.model_validate(profile) if profile else None
+        **UserRead.model_validate(user).model_dump(),
+        driver=driver_read
     )
 
 
@@ -269,27 +387,38 @@ def activate_driver(
     """
     Activate a driver (admin approval).
     """
-    driver = session.get(User, driver_id)
+    user = session.get(User, driver_id)
 
-    if not driver or driver.role != UserRole.DRIVER:
+    if not user or user.role != UserRole.DRIVER:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Driver not found",
         )
 
-    driver.is_active = True
-    driver.updated_at = datetime.now(timezone.utc)
-    session.add(driver)
+    user.is_active = True
+    user.updated_at = datetime.now(timezone.utc)
+    session.add(user)
     session.commit()
-    session.refresh(driver)
+    session.refresh(user)
 
-    profile = session.exec(
-        select(DriverProfile).where(DriverProfile.user_id == driver.id)
+    driver = session.exec(
+        select(Driver).where(Driver.user_id == user.id)
     ).first()
 
+    if driver:
+        vehicle = session.exec(
+            select(DriverVehicle)
+            .where(DriverVehicle.driver_id == driver.id)
+            .where(DriverVehicle.is_primary == True)
+        ).first()
+        stats = get_driver_stats(session, driver.id)
+        driver_read = build_driver_read(driver, vehicle, stats)
+    else:
+        driver_read = None
+
     return DriverWithProfile(
-        **UserRead.model_validate(driver).model_dump(),
-        driver_profile=DriverProfileRead.model_validate(profile) if profile else None
+        **UserRead.model_validate(user).model_dump(),
+        driver=driver_read
     )
 
 
@@ -302,27 +431,38 @@ def deactivate_driver(
     """
     Deactivate a driver.
     """
-    driver = session.get(User, driver_id)
+    user = session.get(User, driver_id)
 
-    if not driver or driver.role != UserRole.DRIVER:
+    if not user or user.role != UserRole.DRIVER:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Driver not found",
         )
 
-    driver.is_active = False
-    driver.updated_at = datetime.now(timezone.utc)
-    session.add(driver)
+    user.is_active = False
+    user.updated_at = datetime.now(timezone.utc)
+    session.add(user)
     session.commit()
-    session.refresh(driver)
+    session.refresh(user)
 
-    profile = session.exec(
-        select(DriverProfile).where(DriverProfile.user_id == driver.id)
+    driver = session.exec(
+        select(Driver).where(Driver.user_id == user.id)
     ).first()
 
+    if driver:
+        vehicle = session.exec(
+            select(DriverVehicle)
+            .where(DriverVehicle.driver_id == driver.id)
+            .where(DriverVehicle.is_primary == True)
+        ).first()
+        stats = get_driver_stats(session, driver.id)
+        driver_read = build_driver_read(driver, vehicle, stats)
+    else:
+        driver_read = None
+
     return DriverWithProfile(
-        **UserRead.model_validate(driver).model_dump(),
-        driver_profile=DriverProfileRead.model_validate(profile) if profile else None
+        **UserRead.model_validate(user).model_dump(),
+        driver=driver_read
     )
 
 
@@ -335,16 +475,16 @@ def delete_driver(
     """
     Delete a driver (admin only).
     """
-    driver = session.get(User, driver_id)
+    user = session.get(User, driver_id)
 
-    if not driver or driver.role != UserRole.DRIVER:
+    if not user or user.role != UserRole.DRIVER:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Driver not found",
         )
 
-    # Profile will be deleted via cascade
-    session.delete(driver)
+    # Driver and vehicles will be deleted via cascade
+    session.delete(user)
     session.commit()
 
     return {"message": "Driver deleted successfully"}
