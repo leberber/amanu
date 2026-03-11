@@ -7,6 +7,7 @@ import { DriverService } from '../../../services/driver.service';
 import { RouteHelpers } from '../../../core/constants/routes.constants';
 import { ORDER_STATUS, ORDER_STATUS_CONFIG } from '../../../core/constants/order.constants';
 import { Order } from '../../../models/order.model';
+import { TripWithStops } from '../../../models/trip.model';
 
 @Component({
   selector: 'app-driver-active',
@@ -24,6 +25,7 @@ export class DriverActiveComponent implements OnInit {
 
   // State from service
   activeTrips = this.driverService.activeTrips;
+  activeMultiTrips = this.driverService.activeMultiTrips;
 
   // Local loading state - only shows if request takes > 300ms
   loading = signal(false);
@@ -39,6 +41,7 @@ export class DriverActiveComponent implements OnInit {
       this.loading.set(true);
     }, 300);
 
+    // Fetch both single orders and multi-trips
     this.driverService.getActiveTrips().subscribe({
       next: () => {
         if (this.loadingTimeout) clearTimeout(this.loadingTimeout);
@@ -49,10 +52,15 @@ export class DriverActiveComponent implements OnInit {
         this.loading.set(false);
       }
     });
+    this.driverService.getActiveMultiTrips().subscribe();
   }
 
   viewDetails(order: Order): void {
     this.router.navigate([RouteHelpers.driverTripDetail(order.id)]);
+  }
+
+  viewMultiTripDetails(trip: TripWithStops): void {
+    this.router.navigate([RouteHelpers.driverMultiTripDetail(trip.id)]);
   }
 
   getStatusIcon(status: string): string {

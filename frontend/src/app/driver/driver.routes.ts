@@ -21,6 +21,11 @@ export const DRIVER_ROUTES: Routes = [
         data: { hideBottomNav: true }
       },
       {
+        path: 'multi-trip/:id',
+        loadComponent: () => import('./pages/multi-trip-detail/driver-multi-trip-detail.component').then(m => m.DriverMultiTripDetailComponent),
+        data: { hideBottomNav: true }
+      },
+      {
         path: 'history',
         loadComponent: () => import('./pages/history/driver-history.component').then(m => m.DriverHistoryComponent)
       },

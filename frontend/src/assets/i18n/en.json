@@ -2245,7 +2245,31 @@
       "navigate": "Navigate",
       "mark_picked_up": "Mark Picked Up",
       "mark_delivered": "Mark Delivered",
-      "update_status": "Update Status"
+      "update_status": "Update Status",
+      "mark_arrived": "Mark Arrived",
+      "start_trip": "Start Trip",
+      "complete_trip": "Complete Trip"
+    },
+    "trip_status": {
+      "pending": "Pending",
+      "assigned": "Assigned",
+      "in_progress": "In Progress",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    },
+    "stop_status": {
+      "pending": "Pending",
+      "arrived": "Arrived",
+      "delivered": "Delivered",
+      "failed": "Failed"
+    },
+    "multi_trip": {
+      "trip": "Trip",
+      "stops": "stops",
+      "completed": "completed",
+      "delivery_stops": "Delivery Stops",
+      "trip_completed": "Trip Completed",
+      "complete_all_stops": "Complete all stops to finish trip"
     },
     "order_status": {
       "assigned": "Assigned",
@@ -2340,7 +2364,12 @@
       "trip_load_failed": "Failed to load trip details",
       "feature_coming_soon": "This feature is coming soon",
       "notifications_enabled": "Notifications enabled",
-      "notifications_disabled": "Notifications disabled"
+      "notifications_disabled": "Notifications disabled",
+      "trip_started": "Trip started",
+      "trip_start_failed": "Failed to start trip",
+      "arrived_at_stop": "Marked as arrived",
+      "trip_completed": "Trip completed successfully",
+      "trip_complete_failed": "Failed to complete trip"
     },
     "navigation": {
       "dashboard": "Home",

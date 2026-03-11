@@ -96,6 +96,7 @@ TEST_USERS = [
     },
 
     # ==================== CUSTOMERS ====================
+    # --- Zone A: El Biar (h3_index: 893874c6143ffff) ---
     {
         "email": "client1@test.com",
         "full_name": "Amina Khelifa",
@@ -107,9 +108,53 @@ TEST_USERS = [
         "wilaya": "Alger",
         "daira": "Bir Mourad Rais",
         "commune": "El Biar",
-        "latitude": 36.7650,  # ~1.5km northwest of store
+        "latitude": 36.7650,
         "longitude": 3.0350,
     },
+    {
+        "email": "client3@test.com",
+        "full_name": "Rachid Hamdi",
+        "phone": "0555123413",
+        "store_name": "Mini Market Hamdi",
+        "role": UserRole.CUSTOMER,
+        "h3_index": "893874c6143ffff",  # Same zone as client1
+        "address": "45 Rue Ahmed Ouaked, El Biar",
+        "wilaya": "Alger",
+        "daira": "Bir Mourad Rais",
+        "commune": "El Biar",
+        "latitude": 36.7660,
+        "longitude": 3.0340,
+    },
+    {
+        "email": "client4@test.com",
+        "full_name": "Salima Benzerga",
+        "phone": "0555123414",
+        "store_name": "Alimentation Salima",
+        "role": UserRole.CUSTOMER,
+        "h3_index": "893874c6143ffff",  # Same zone as client1
+        "address": "12 Rue des Frères Bouadou, El Biar",
+        "wilaya": "Alger",
+        "daira": "Bir Mourad Rais",
+        "commune": "El Biar",
+        "latitude": 36.7640,
+        "longitude": 3.0360,
+    },
+    {
+        "email": "client5@test.com",
+        "full_name": "Nadir Bensalem",
+        "phone": "0555123415",
+        "store_name": "Superette Bensalem",
+        "role": UserRole.CUSTOMER,
+        "h3_index": "893874c6143ffff",  # Same zone as client1
+        "address": "78 Boulevard Krim Belkacem, El Biar",
+        "wilaya": "Alger",
+        "daira": "Bir Mourad Rais",
+        "commune": "El Biar",
+        "latitude": 36.7670,
+        "longitude": 3.0330,
+    },
+
+    # --- Zone B: Kouba (h3_index: 8938748b137ffff) ---
     {
         "email": "client2@test.com",
         "full_name": "Mohamed Boudiaf",
@@ -121,8 +166,66 @@ TEST_USERS = [
         "wilaya": "Alger",
         "daira": "Hussein Dey",
         "commune": "Kouba",
-        "latitude": 36.7200,  # ~3km south of store
+        "latitude": 36.7200,
         "longitude": 3.0800,
+    },
+    {
+        "email": "client6@test.com",
+        "full_name": "Karima Ait Ahmed",
+        "phone": "0555123416",
+        "store_name": "Épicerie Ait Ahmed",
+        "role": UserRole.CUSTOMER,
+        "h3_index": "8938748b137ffff",  # Same zone as client2
+        "address": "23 Rue Colonel Amirouche, Kouba",
+        "wilaya": "Alger",
+        "daira": "Hussein Dey",
+        "commune": "Kouba",
+        "latitude": 36.7210,
+        "longitude": 3.0790,
+    },
+    {
+        "email": "client7@test.com",
+        "full_name": "Yassine Meziane",
+        "phone": "0555123417",
+        "store_name": "Alimentation Meziane",
+        "role": UserRole.CUSTOMER,
+        "h3_index": "8938748b137ffff",  # Same zone as client2
+        "address": "89 Rue Didouche Mourad, Kouba",
+        "wilaya": "Alger",
+        "daira": "Hussein Dey",
+        "commune": "Kouba",
+        "latitude": 36.7190,
+        "longitude": 3.0810,
+    },
+
+    # --- Zone C: Bab El Oued (different zone - h3_index: 8938749a8a7ffff) ---
+    {
+        "email": "client8@test.com",
+        "full_name": "Sofiane Brahimi",
+        "phone": "0555123418",
+        "store_name": "Mini Market Brahimi",
+        "role": UserRole.CUSTOMER,
+        "h3_index": "8938749a8a7ffff",  # Different zone
+        "address": "15 Rue de la Liberté, Bab El Oued",
+        "wilaya": "Alger",
+        "daira": "Bab El Oued",
+        "commune": "Bab El Oued",
+        "latitude": 36.7900,
+        "longitude": 3.0500,
+    },
+    {
+        "email": "client9@test.com",
+        "full_name": "Djamila Haddad",
+        "phone": "0555123419",
+        "store_name": "Superette Haddad",
+        "role": UserRole.CUSTOMER,
+        "h3_index": "8938749a8a7ffff",  # Same as client8 (Bab El Oued zone)
+        "address": "34 Boulevard Colonel Bougara, Bab El Oued",
+        "wilaya": "Alger",
+        "daira": "Bab El Oued",
+        "commune": "Bab El Oued",
+        "latitude": 36.7910,
+        "longitude": 3.0490,
     },
 
     # ==================== STAFF ====================
@@ -230,9 +333,18 @@ def seed_test_users():
     print("  - driver1@test.com (Truck, 2000kg)")
     print("  - driver2@test.com (Van, 800kg)")
     print("  - driver3@test.com (Mini Van, 400kg - Offline)")
-    print("\nCUSTOMERS:")
+    print("\nCUSTOMERS - Zone A (El Biar - 893874c6143ffff):")
     print("  - client1@test.com (Épicerie Amina)")
+    print("  - client3@test.com (Mini Market Hamdi)")
+    print("  - client4@test.com (Alimentation Salima)")
+    print("  - client5@test.com (Superette Bensalem)")
+    print("\nCUSTOMERS - Zone B (Kouba - 8938748b137ffff):")
     print("  - client2@test.com (Superette Boudiaf)")
+    print("  - client6@test.com (Épicerie Ait Ahmed)")
+    print("  - client7@test.com (Alimentation Meziane)")
+    print("\nCUSTOMERS - Zone C (Bab El Oued - 8938749a8a7ffff):")
+    print("  - client8@test.com (Mini Market Brahimi)")
+    print("  - client9@test.com (Superette Haddad)")
     print("\nSTAFF:")
     print("  - staff@test.com")
     print("="*60 + "\n")

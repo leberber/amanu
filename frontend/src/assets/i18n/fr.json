@@ -2265,7 +2265,31 @@
       "navigate": "Naviguer",
       "mark_picked_up": "Marquer Récupéré",
       "mark_delivered": "Marquer Livré",
-      "update_status": "Mettre à Jour le Statut"
+      "update_status": "Mettre à Jour le Statut",
+      "mark_arrived": "Marquer Arrivé",
+      "start_trip": "Démarrer le Trajet",
+      "complete_trip": "Terminer le Trajet"
+    },
+    "trip_status": {
+      "pending": "En Attente",
+      "assigned": "Assigné",
+      "in_progress": "En Cours",
+      "completed": "Terminé",
+      "cancelled": "Annulé"
+    },
+    "stop_status": {
+      "pending": "En Attente",
+      "arrived": "Arrivé",
+      "delivered": "Livré",
+      "failed": "Échoué"
+    },
+    "multi_trip": {
+      "trip": "Trajet",
+      "stops": "arrêts",
+      "completed": "terminés",
+      "delivery_stops": "Arrêts de Livraison",
+      "trip_completed": "Trajet Terminé",
+      "complete_all_stops": "Terminez tous les arrêts pour finir"
     },
     "order_status": {
       "assigned": "Assigné",
@@ -2360,7 +2384,12 @@
       "trip_load_failed": "Échec du chargement des détails du trajet",
       "feature_coming_soon": "Cette fonctionnalité arrive bientôt",
       "notifications_enabled": "Notifications activées",
-      "notifications_disabled": "Notifications désactivées"
+      "notifications_disabled": "Notifications désactivées",
+      "trip_started": "Trajet démarré",
+      "trip_start_failed": "Échec du démarrage du trajet",
+      "arrived_at_stop": "Marqué comme arrivé",
+      "trip_completed": "Trajet terminé avec succès",
+      "trip_complete_failed": "Échec de la finalisation du trajet"
     },
     "navigation": {
       "dashboard": "Accueil",

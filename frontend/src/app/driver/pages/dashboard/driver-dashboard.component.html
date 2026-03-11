@@ -55,6 +55,41 @@
   }
 
 
+  <!-- Active Multi-Stop Trips -->
+  @if (activeMultiTrips().length > 0) {
+    <section class="orders-section orders-section--multi">
+      <div class="section-header">
+        <h2 class="section-title">
+          {{ 'driver.multi_trip.delivery_stops' | translate }}
+          <span class="count-inline">({{ multiTripCount() }})</span>
+        </h2>
+      </div>
+      <div class="orders-list">
+        @for (trip of activeMultiTrips(); track trip.id) {
+          <div class="multi-trip-card" (click)="openMultiTripDetail(trip)">
+            <div class="multi-trip-card__header">
+              <span class="multi-trip-card__id">{{ 'driver.multi_trip.trip' | translate }} #{{ trip.id }}</span>
+              <span class="multi-trip-card__progress">{{ trip.completed_stops }}/{{ trip.total_stops }}</span>
+            </div>
+            <div class="multi-trip-card__progress-bar">
+              <div
+                class="multi-trip-card__progress-fill"
+                [style.width.%]="(trip.completed_stops / trip.total_stops) * 100">
+              </div>
+            </div>
+            <div class="multi-trip-card__footer">
+              <span class="multi-trip-card__stops">
+                <i class="pi pi-map-marker"></i>
+                {{ trip.total_stops }} {{ 'driver.multi_trip.stops' | translate }}
+              </span>
+              <span class="multi-trip-card__earnings">{{ trip.total_earnings | number:'1.0-0' }} DA</span>
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+  }
+
   <!-- Available Trips -->
   @if (isOnline()) {
     <section class="orders-section">

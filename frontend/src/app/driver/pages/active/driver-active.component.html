@@ -12,7 +12,7 @@
         </div>
       }
     </div>
-  } @else if (activeTrips().length === 0) {
+  } @else if (activeTrips().length === 0 && activeMultiTrips().length === 0) {
     <!-- Empty State -->
     <div class="empty-state">
       <div class="empty-state__icon">
@@ -22,9 +22,49 @@
       <p>{{ 'driver.active.empty_desc' | translate }}</p>
     </div>
   } @else {
-    <!-- Orders List -->
-    <div class="orders-list">
-      @for (order of activeTrips(); track order.id) {
+    <!-- Multi-Stop Trips -->
+    @if (activeMultiTrips().length > 0) {
+      <div class="section-header">
+        <h3 class="section-title">{{ 'driver.multi_trip.delivery_stops' | translate }}</h3>
+      </div>
+      <div class="orders-list orders-list--multi">
+        @for (trip of activeMultiTrips(); track trip.id) {
+          <div class="multi-trip-card" (click)="viewMultiTripDetails(trip)">
+            <div class="multi-trip-card__header">
+              <span class="multi-trip-card__id">{{ 'driver.multi_trip.trip' | translate }} #{{ trip.id }}</span>
+              <span class="multi-trip-card__progress">{{ trip.completed_stops }}/{{ trip.total_stops }}</span>
+            </div>
+            <div class="multi-trip-card__progress-bar">
+              <div
+                class="multi-trip-card__progress-fill"
+                [style.width.%]="(trip.completed_stops / trip.total_stops) * 100">
+              </div>
+            </div>
+            <div class="multi-trip-card__footer">
+              <span class="multi-trip-card__stops">
+                <i class="pi pi-map-marker"></i>
+                {{ trip.total_stops }} {{ 'driver.multi_trip.stops' | translate }}
+              </span>
+              <span class="multi-trip-card__earnings">{{ trip.total_earnings | number:'1.0-0' }} DA</span>
+            </div>
+            <div class="multi-trip-card__action">
+              <span>{{ 'driver.trip.view_details' | translate }}</span>
+              <i class="pi pi-chevron-right"></i>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Single Orders -->
+    @if (activeTrips().length > 0) {
+      @if (activeMultiTrips().length > 0) {
+        <div class="section-header">
+          <h3 class="section-title">{{ 'driver.active.title' | translate }}</h3>
+        </div>
+      }
+      <div class="orders-list">
+        @for (order of activeTrips(); track order.id) {
         <div class="order-card" (click)="viewDetails(order)">
           <div class="order-card__header">
             <div 
@@ -61,7 +101,8 @@
             </span>
           </div>
         </div>
-      }
-    </div>
+        }
+      </div>
+    }
   }
 </div>

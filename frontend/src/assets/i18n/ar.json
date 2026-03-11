@@ -2253,7 +2253,31 @@
       "navigate": "التنقل",
       "mark_picked_up": "تأكيد الاستلام",
       "mark_delivered": "تأكيد التوصيل",
-      "update_status": "تحديث الحالة"
+      "update_status": "تحديث الحالة",
+      "mark_arrived": "تأكيد الوصول",
+      "start_trip": "بدء الرحلة",
+      "complete_trip": "إنهاء الرحلة"
+    },
+    "trip_status": {
+      "pending": "في الانتظار",
+      "assigned": "مُعيّن",
+      "in_progress": "قيد التنفيذ",
+      "completed": "مكتمل",
+      "cancelled": "ملغى"
+    },
+    "stop_status": {
+      "pending": "في الانتظار",
+      "arrived": "وصل",
+      "delivered": "تم التوصيل",
+      "failed": "فشل"
+    },
+    "multi_trip": {
+      "trip": "رحلة",
+      "stops": "محطات",
+      "completed": "مكتملة",
+      "delivery_stops": "محطات التوصيل",
+      "trip_completed": "اكتملت الرحلة",
+      "complete_all_stops": "أكمل جميع المحطات لإنهاء الرحلة"
     },
     "order_status": {
       "assigned": "مُعيّن",
@@ -2348,7 +2372,12 @@
       "trip_load_failed": "فشل تحميل تفاصيل الرحلة",
       "feature_coming_soon": "هذه الميزة قادمة قريباً",
       "notifications_enabled": "تم تفعيل الإشعارات",
-      "notifications_disabled": "تم تعطيل الإشعارات"
+      "notifications_disabled": "تم تعطيل الإشعارات",
+      "trip_started": "بدأت الرحلة",
+      "trip_start_failed": "فشل بدء الرحلة",
+      "arrived_at_stop": "تم تأكيد الوصول",
+      "trip_completed": "اكتملت الرحلة بنجاح",
+      "trip_complete_failed": "فشل إنهاء الرحلة"
     },
     "navigation": {
       "dashboard": "الرئيسية",

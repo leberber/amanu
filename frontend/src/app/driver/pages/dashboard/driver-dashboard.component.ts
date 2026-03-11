@@ -11,6 +11,7 @@ import { ROUTES, RouteHelpers } from '../../../core/constants/routes.constants';
 import { DRIVER_STATUS, DRIVER_STATUS_CONFIG } from '../../../core/constants/driver.constants';
 import { ORDER_STATUS, ORDER_STATUS_CONFIG } from '../../../core/constants/order.constants';
 import { Order } from '../../../models/order.model';
+import { TripWithStops } from '../../../models/trip.model';
 import { TripMapComponent } from '../../components/trip-map/trip-map.component';
 
 @Component({
@@ -35,6 +36,7 @@ export class DriverDashboardComponent implements OnInit {
   driverProfile = this.driverService.driverProfile;
   activeTrips = this.driverService.activeTrips;
   availableTrips = this.driverService.availableTrips;
+  activeMultiTrips = this.driverService.activeMultiTrips;
   loading = this.driverService.loading;
 
   // Computed values
@@ -48,8 +50,9 @@ export class DriverDashboardComponent implements OnInit {
   todayDeliveries = computed(() => this.stats()?.deliveries_today || 0);
   todayEarnings = computed(() => this.stats()?.earnings_today || 0);
   averageRating = computed(() => this.stats()?.average_rating?.toFixed(1) || '-');
-  activeCount = computed(() => this.activeTrips().length);
+  activeCount = computed(() => this.activeTrips().length + this.activeMultiTrips().length);
   availableCount = computed(() => this.availableTrips().length);
+  multiTripCount = computed(() => this.activeMultiTrips().length);
 
   // Drawer state
   drawerVisible = signal(false);
@@ -64,6 +67,7 @@ export class DriverDashboardComponent implements OnInit {
     this.driverService.getStats().subscribe();
     this.driverService.getActiveTrips().subscribe();
     this.driverService.getAvailableTrips().subscribe();
+    this.driverService.getActiveMultiTrips().subscribe();
   }
 
   goOnline(): void {
@@ -107,5 +111,9 @@ export class DriverDashboardComponent implements OnInit {
 
   getStatusColor(status: string): string {
     return this.orderStatusConfig[status as keyof typeof this.orderStatusConfig]?.color || '#6b7280';
+  }
+
+  openMultiTripDetail(trip: TripWithStops): void {
+    this.router.navigate([RouteHelpers.driverMultiTripDetail(trip.id)]);
   }
 }
