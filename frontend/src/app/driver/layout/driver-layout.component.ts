@@ -104,6 +104,9 @@ export class DriverLayoutComponent implements OnInit {
   // Track if on trip detail page to hide bottom nav
   hideBottomNav = signal(false);
 
+  // Track if page has its own header (hide driver-layout header)
+  hideHeader = signal(false);
+
   // Show back button instead of title on certain pages
   showBackButton = signal(false);
 
@@ -144,6 +147,7 @@ export class DriverLayoutComponent implements OnInit {
     ).subscribe((event: NavigationEnd) => {
       const url = event.urlAfterRedirects || event.url;
       this.hideBottomNav.set(this.shouldHideBottomNav(url));
+      this.hideHeader.set(this.shouldHideHeader(url));
       this.showBackButton.set(this.shouldShowBackButton(url));
       this.pageTitle.set(this.getPageTitle(url));
       // Update animation state for route transitions
@@ -154,6 +158,7 @@ export class DriverLayoutComponent implements OnInit {
 
     // Initial check
     this.hideBottomNav.set(this.shouldHideBottomNav(this.router.url));
+    this.hideHeader.set(this.shouldHideHeader(this.router.url));
     this.showBackButton.set(this.shouldShowBackButton(this.router.url));
     this.pageTitle.set(this.getPageTitle(this.router.url));
   }
@@ -184,6 +189,11 @@ export class DriverLayoutComponent implements OnInit {
 
   private shouldHideBottomNav(url: string): boolean {
     // Hide bottom nav on detail pages
+    return url.includes('/driver/trip/') || url.includes('/driver/earnings');
+  }
+
+  private shouldHideHeader(url: string): boolean {
+    // Hide header on pages that have their own header
     return url.includes('/driver/trip/') || url.includes('/driver/earnings');
   }
 

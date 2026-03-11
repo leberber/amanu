@@ -1,28 +1,30 @@
 <div class="driver-layout">
   <!-- Top Bar Header -->
-  <header class="driver-header">
-    <div class="driver-header__left">
-      @if (showBackButton()) {
-        <button class="back-btn" (click)="goBack()">
-          <i class="pi pi-arrow-left"></i>
-        </button>
-      } @else {
-        <h1 class="driver-header__title">{{ pageTitle() | translate }}</h1>
-      }
-    </div>
+  @if (!hideHeader()) {
+    <header class="driver-header">
+      <div class="driver-header__left">
+        @if (showBackButton()) {
+          <button class="back-btn" (click)="goBack()">
+            <i class="pi pi-arrow-left"></i>
+          </button>
+        } @else {
+          <h1 class="driver-header__title">{{ pageTitle() | translate }}</h1>
+        }
+      </div>
 
-    <div class="driver-header__right">
-      <!-- Status Badge -->
-      <button
-        class="status-badge"
-        [style.--status-color]="statusColor()"
-        [class.status-badge--clickable]="canToggleStatus()"
-        (click)="canToggleStatus() && toggleStatus()">
-        <span class="status-badge__dot"></span>
-        <span class="status-badge__label">{{ statusLabel() | translate }}</span>
-      </button>
-    </div>
-  </header>
+      <div class="driver-header__right">
+        <!-- Status Badge -->
+        <button
+          class="status-badge"
+          [style.--status-color]="statusColor()"
+          [class.status-badge--clickable]="canToggleStatus()"
+          (click)="canToggleStatus() && toggleStatus()">
+          <span class="status-badge__dot"></span>
+          <span class="status-badge__label">{{ statusLabel() | translate }}</span>
+        </button>
+      </div>
+    </header>
+  }
 
   <!-- Main Content Area -->
   <main class="driver-content" [@driverRouteAnimation]="animationState()">

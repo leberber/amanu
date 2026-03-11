@@ -37,4 +37,7 @@ export class PageLayoutComponent {
 
   // Optional: hide icon on mobile and center text
   hideMobileIcon = input(false);
+
+  // Optional: use static header instead of fixed (for use inside animated containers)
+  staticHeader = input(false);
 }

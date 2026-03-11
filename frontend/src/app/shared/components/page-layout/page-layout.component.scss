@@ -50,6 +50,15 @@ $sticky-footer-height: 60px;
       padding-bottom: env(safe-area-inset-bottom, 0);
     }
   }
+
+  // Static header variant - no padding-top offset needed
+  &--static-header {
+    .page-content {
+      @media (max-width: 767px) {
+        padding-top: var(--space-3);
+      }
+    }
+  }
 }
 
 // Page content wrapper
@@ -92,6 +101,14 @@ $sticky-footer-height: 60px;
     left: 0;
     right: 0;
     z-index: 100;
+  }
+
+  // Static header variant (for use inside animated containers)
+  &--static {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
   }
 
   // Left section (back button on mobile, icon+title on desktop)

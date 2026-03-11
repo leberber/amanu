@@ -1,8 +1,8 @@
 <!-- Page Layout - Consistent structure for all pages -->
-<div class="page-layout" [class.page-layout--fullscreen]="fullscreen()" [class.page-layout--enhanced]="icon()" [class.page-layout--hide-mobile-icon]="hideMobileIcon()">
+<div class="page-layout" [class.page-layout--fullscreen]="fullscreen()" [class.page-layout--enhanced]="icon()" [class.page-layout--hide-mobile-icon]="hideMobileIcon()" [class.page-layout--static-header]="staticHeader()">
 
   <!-- Top Bar - Back button and page title -->
-  <header class="page-topbar">
+  <header class="page-topbar" [class.page-topbar--static]="staticHeader()">
     <!-- Left: Back button (mobile) / Icon + Title (desktop with icon) -->
     <div class="page-topbar__left">
       @if (showBackButton()) {
