@@ -2184,7 +2184,7 @@
     "titles": {
       "home": "Tableau",
       "available": "Trajets",
-      "active": "Actuel",
+      "active": "Mes trajets",
       "history": "Historique",
       "profile": "Profil",
       "earnings": "Gains"
@@ -2358,7 +2358,7 @@
     "navigation": {
       "dashboard": "Accueil",
       "available": "Disponible",
-      "active": "Actif",
+      "active": "Mes trajets",
       "history": "Historique",
       "earnings": "Gains",
       "profile": "Profil"

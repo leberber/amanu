@@ -2164,7 +2164,7 @@
     "titles": {
       "home": "Home",
       "available": "Trips",
-      "active": "Current",
+      "active": "My Trips",
       "history": "History",
       "profile": "Profile",
       "earnings": "Earnings"
@@ -2338,7 +2338,7 @@
     "navigation": {
       "dashboard": "Home",
       "available": "Available",
-      "active": "Active",
+      "active": "My Trips",
       "history": "History",
       "earnings": "Earnings",
       "profile": "Profile"

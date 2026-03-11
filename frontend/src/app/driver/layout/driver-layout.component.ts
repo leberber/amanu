@@ -3,7 +3,6 @@ import { Router, RouterOutlet, RouterLink, RouterLinkActive, NavigationEnd } fro
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TranslateModule } from '@ngx-translate/core';
 import { filter } from 'rxjs';
-import { trigger, transition, style, animate } from '@angular/animations';
 
 import { DriverService } from '../../services/driver.service';
 import { AuthService } from '../../services/auth.service';
@@ -15,15 +14,7 @@ import { DRIVER_STATUS, DRIVER_STATUS_CONFIG } from '../../core/constants/driver
   standalone: true,
   imports: [RouterOutlet, RouterLink, RouterLinkActive, TranslateModule],
   templateUrl: './driver-layout.component.html',
-  styleUrl: './driver-layout.component.scss',
-  animations: [
-    trigger('pageAnimation', [
-      transition(':enter', [
-        style({ opacity: 0, transform: 'translateY(10px)' }),
-        animate('200ms ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
-      ])
-    ])
-  ]
+  styleUrl: './driver-layout.component.scss'
 })
 export class DriverLayoutComponent implements OnInit {
   private readonly router = inject(Router);
@@ -63,6 +54,9 @@ export class DriverLayoutComponent implements OnInit {
   // Track if on trip detail page to hide bottom nav
   hideBottomNav = signal(false);
 
+  // Show back button instead of title on certain pages
+  showBackButton = signal(false);
+
   // Current page title
   pageTitle = signal('Home');
 
@@ -85,12 +79,22 @@ export class DriverLayoutComponent implements OnInit {
     ).subscribe((event: NavigationEnd) => {
       const url = event.urlAfterRedirects || event.url;
       this.hideBottomNav.set(this.shouldHideBottomNav(url));
+      this.showBackButton.set(this.shouldShowBackButton(url));
       this.pageTitle.set(this.getPageTitle(url));
     });
 
     // Initial check
     this.hideBottomNav.set(this.shouldHideBottomNav(this.router.url));
+    this.showBackButton.set(this.shouldShowBackButton(this.router.url));
     this.pageTitle.set(this.getPageTitle(this.router.url));
+  }
+
+  goBack(): void {
+    this.router.navigate(['/driver']);
+  }
+
+  private shouldShowBackButton(url: string): boolean {
+    return url.includes('/driver/active');
   }
 
   toggleStatus(): void {

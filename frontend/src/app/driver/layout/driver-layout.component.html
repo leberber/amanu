@@ -2,7 +2,13 @@
   <!-- Top Bar Header -->
   <header class="driver-header">
     <div class="driver-header__left">
-      <h1 class="driver-header__title">{{ pageTitle() | translate }}</h1>
+      @if (showBackButton()) {
+        <button class="back-btn" (click)="goBack()">
+          <i class="pi pi-arrow-left"></i>
+        </button>
+      } @else {
+        <h1 class="driver-header__title">{{ pageTitle() | translate }}</h1>
+      }
     </div>
 
     <div class="driver-header__right">
@@ -19,7 +25,7 @@
   </header>
 
   <!-- Main Content Area -->
-  <main class="driver-content" @pageAnimation>
+  <main class="driver-content">
     <router-outlet></router-outlet>
   </main>
 

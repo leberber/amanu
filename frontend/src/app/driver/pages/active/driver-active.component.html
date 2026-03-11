@@ -23,7 +23,7 @@
     </div>
   } @else {
     <!-- Orders List -->
-    <div class="orders-list" @listAnimation>
+    <div class="orders-list">
       @for (order of activeTrips(); track order.id) {
         <div class="order-card" (click)="viewDetails(order)">
           <div class="order-card__header">

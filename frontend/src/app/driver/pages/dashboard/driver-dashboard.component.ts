@@ -2,7 +2,6 @@ import { Component, inject, OnInit, computed, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
-import { trigger, transition, style, animate, stagger, query } from '@angular/animations';
 import { DrawerModule } from 'primeng/drawer';
 import { ButtonModule } from 'primeng/button';
 import { SharedModule } from 'primeng/api';
@@ -19,19 +18,7 @@ import { TripMapComponent } from '../../components/trip-map/trip-map.component';
   standalone: true,
   imports: [RouterLink, TranslateModule, DecimalPipe, DrawerModule, ButtonModule, SharedModule, TripMapComponent],
   templateUrl: './driver-dashboard.component.html',
-  styleUrl: './driver-dashboard.component.scss',
-  animations: [
-    trigger('listAnimation', [
-      transition(':enter', [
-        query('.stat-card, .order-card', [
-          style({ opacity: 0, transform: 'translateY(10px)' }),
-          stagger(50, [
-            animate('200ms ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
-          ])
-        ], { optional: true })
-      ])
-    ])
-  ]
+  styleUrl: './driver-dashboard.component.scss'
 })
 export class DriverDashboardComponent implements OnInit {
   private readonly router = inject(Router);

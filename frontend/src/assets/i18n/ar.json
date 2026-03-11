@@ -2172,7 +2172,7 @@
     "titles": {
       "home": "الرئيسية",
       "available": "الرحلات",
-      "active": "الحالية",
+      "active": "رحلاتي",
       "history": "السجل",
       "profile": "الملف",
       "earnings": "الأرباح"
@@ -2346,7 +2346,7 @@
     "navigation": {
       "dashboard": "الرئيسية",
       "available": "المتاحة",
-      "active": "النشطة",
+      "active": "رحلاتي",
       "history": "السجل",
       "earnings": "الأرباح",
       "profile": "الملف"
