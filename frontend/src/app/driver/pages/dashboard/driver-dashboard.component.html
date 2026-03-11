@@ -138,6 +138,9 @@
       </div>
 
       <div class="drawer-body">
+        <!-- Map -->
+        <app-trip-map [destination]="order.shipping_address" />
+
         <!-- Delivery Fee -->
         <div class="drawer-amount">
           {{ order.shipping_cost || 0 | number:'1.0-0' }} DA

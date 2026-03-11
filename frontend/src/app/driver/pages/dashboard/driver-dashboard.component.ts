@@ -11,11 +11,12 @@ import { ROUTES, RouteHelpers } from '../../../core/constants/routes.constants';
 import { DRIVER_STATUS, DRIVER_STATUS_CONFIG } from '../../../core/constants/driver.constants';
 import { ORDER_STATUS, ORDER_STATUS_CONFIG } from '../../../core/constants/order.constants';
 import { Order } from '../../../models/order.model';
+import { TripMapComponent } from '../../components/trip-map/trip-map.component';
 
 @Component({
   selector: 'app-driver-dashboard',
   standalone: true,
-  imports: [RouterLink, TranslateModule, DecimalPipe, DatePipe, DrawerModule, ButtonModule],
+  imports: [RouterLink, TranslateModule, DecimalPipe, DatePipe, DrawerModule, ButtonModule, TripMapComponent],
   templateUrl: './driver-dashboard.component.html',
   styleUrl: './driver-dashboard.component.scss',
   animations: [
