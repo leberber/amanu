@@ -96,6 +96,7 @@ def order_to_response(order: Order, session: Session) -> OrderWithItems:
         total_amount=order.total_amount,
         subtotal=order.subtotal,
         discount_amount=order.discount_amount,
+        shipping_cost=order.shipping_cost,
         promotion_id=order.promotion_id,
         cross_sell_discount_amount=order.cross_sell_discount_amount,
         volume_discount_amount=order.volume_discount_amount,
