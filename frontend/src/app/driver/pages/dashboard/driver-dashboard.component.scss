@@ -363,17 +363,17 @@
   }
 }
 
-// Header title and ID (used inside p-drawer header template)
+// Header title (used inside p-drawer header template)
 .drawer-header__title {
   flex: 1;
   font-size: var(--font-size-lg);
   font-weight: 600;
   color: #1a1a1a;
+  text-align: center;
 }
 
-.drawer-header__id {
-  font-size: var(--font-size-sm);
-  color: var(--text-color-secondary);
+.drawer-header__spacer {
+  width: 40px; // Same as back button to balance centering
 }
 
 // Back button - using global .btn-back class
