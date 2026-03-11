@@ -48,8 +48,8 @@
             <!-- Standard Delivery -->
             <div
               class="delivery-type-row"
-              [class.delivery-type-row--selected]="deliveryType() === 'standard'"
-              (click)="selectDeliveryType('standard'); $event.stopPropagation()">
+              [class.delivery-type-row--selected]="deliveryType() === 'STANDARD'"
+              (click)="selectDeliveryType('STANDARD'); $event.stopPropagation()">
               <div class="delivery-type-row__radio">
                 <div class="delivery-type-row__radio-inner"></div>
               </div>
@@ -73,8 +73,8 @@
             <!-- Priority Delivery -->
             <div
               class="delivery-type-row"
-              [class.delivery-type-row--selected]="deliveryType() === 'priority'"
-              (click)="selectDeliveryType('priority'); $event.stopPropagation()">
+              [class.delivery-type-row--selected]="deliveryType() === 'PRIORITY'"
+              (click)="selectDeliveryType('PRIORITY'); $event.stopPropagation()">
               <div class="delivery-type-row__radio">
                 <div class="delivery-type-row__radio-inner"></div>
               </div>

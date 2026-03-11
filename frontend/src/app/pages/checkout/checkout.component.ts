@@ -102,7 +102,7 @@ export class CheckoutComponent implements OnInit {
   // Computed shipping cost based on delivery type
   selectedShippingCost = computed(() => {
     const type = this.deliveryType();
-    if (type === 'priority') {
+    if (type === 'PRIORITY') {
       return this.priorityPrice()?.cost ?? this.shippingService.lastShippingCost();
     }
     return this.standardPrice()?.cost ?? this.shippingService.lastShippingCost();

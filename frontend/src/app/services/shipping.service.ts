@@ -24,8 +24,8 @@ export class ShippingService {
   private readonly _lastShippingCost = signal<number>(0);
   readonly lastShippingCost = this._lastShippingCost.asReadonly();
 
-  // Selected delivery type (standard or priority)
-  private readonly _deliveryType = signal<DeliveryType>('standard');
+  // Selected delivery type (STANDARD or PRIORITY)
+  private readonly _deliveryType = signal<DeliveryType>('STANDARD');
   readonly deliveryType = this._deliveryType.asReadonly();
 
   // Pricing for each delivery type
@@ -61,7 +61,7 @@ export class ShippingService {
    */
   clearShippingCost(): void {
     this._lastShippingCost.set(0);
-    this._deliveryType.set('standard');
+    this._deliveryType.set('STANDARD');
     this._priorityPrice.set(null);
     this._standardPrice.set(null);
   }

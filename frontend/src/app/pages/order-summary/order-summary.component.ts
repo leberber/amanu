@@ -34,7 +34,7 @@ export type DeliveryMethod = 'delivery' | 'pickup';
   styleUrl: './order-summary.component.scss',
   animations: [
     trigger('expandCollapse', [
-      state('collapsed', style({ height: '0', opacity: '0', overflow: 'hidden' })),
+      state('collapsed', style({ height: '0', opacity: '0' })),
       state('expanded', style({ height: '*', opacity: '1' })),
       transition('collapsed <=> expanded', animate('200ms ease-out'))
     ])
@@ -54,7 +54,7 @@ export class OrderSummaryComponent implements OnInit {
 
   // State
   deliveryMethod = signal<DeliveryMethod>('delivery');
-  deliveryType = signal<DeliveryType>('standard');
+  deliveryType = signal<DeliveryType>('STANDARD');
   shippingLoading = signal(false);
   shippingResponse = signal<ShippingCostResponse | null>(null);
   shippingError = signal<string | null>(null);
@@ -98,10 +98,10 @@ export class OrderSummaryComponent implements OnInit {
 
     // Use pricing based on selected delivery type
     const type = this.deliveryType();
-    if (type === 'priority' && this.priorityPrice()) {
+    if (type === 'PRIORITY' && this.priorityPrice()) {
       return this.priorityPrice()!.cost;
     }
-    if (type === 'standard' && this.standardPrice()) {
+    if (type === 'STANDARD' && this.standardPrice()) {
       return this.standardPrice()!.cost;
     }
 

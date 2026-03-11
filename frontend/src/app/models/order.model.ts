@@ -3,8 +3,8 @@ import { ORDER_STATUS } from '../core/constants/order.constants';
 // Derive OrderStatus type from ORDER_STATUS constant
 export type OrderStatus = typeof ORDER_STATUS[keyof typeof ORDER_STATUS];
 
-// Delivery type for routing optimization
-export type DeliveryType = 'standard' | 'priority';
+// Delivery type for routing optimization (must match backend enum)
+export type DeliveryType = 'STANDARD' | 'PRIORITY';
 
 export interface OrderItem {
   id: number;
