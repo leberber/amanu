@@ -15,7 +15,7 @@
     </div>
   </div>
 } @else if (order()) {
-  <div class="trip-detail" @pageAnimation>
+  <div class="trip-detail">
     <!-- Header -->
     <header class="detail-header">
       <button class="back-btn" (click)="goBack()">
@@ -111,7 +111,7 @@
 
     <!-- Bottom Action -->
     @if (canUpdateStatus()) {
-      <div class="action-footer" @slideUp>
+      <div class="action-footer">
         <button 
           class="action-btn"
           [disabled]="updating()"
@@ -125,7 +125,7 @@
         </button>
       </div>
     } @else if (order()!.status === ORDER_STATUS.DELIVERED) {
-      <div class="action-footer action-footer--completed" @slideUp>
+      <div class="action-footer action-footer--completed">
         <div class="completed-badge">
           <i class="pi pi-check-circle"></i>
           {{ 'driver.trip.delivery_completed' | translate }}
@@ -136,7 +136,7 @@
     <!-- Items Modal -->
     @if (showItemsModal()) {
       <div class="modal-overlay" (click)="toggleItemsModal()">
-        <div class="modal-content" (click)="$event.stopPropagation()" @slideUp>
+        <div class="modal-content" (click)="$event.stopPropagation()">
           <div class="modal-header">
             <h3>{{ 'driver.trip.order_items' | translate }}</h3>
             <button class="modal-close" (click)="toggleItemsModal()">

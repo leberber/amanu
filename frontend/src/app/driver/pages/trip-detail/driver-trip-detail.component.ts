@@ -2,7 +2,6 @@ import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DecimalPipe, Location } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
-import { trigger, transition, style, animate } from '@angular/animations';
 
 import { DriverService } from '../../../services/driver.service';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
@@ -15,21 +14,7 @@ import { Order } from '../../../models/order.model';
   standalone: true,
   imports: [TranslateModule, DecimalPipe],
   templateUrl: './driver-trip-detail.component.html',
-  styleUrl: './driver-trip-detail.component.scss',
-  animations: [
-    trigger('pageAnimation', [
-      transition(':enter', [
-        style({ opacity: 0, transform: 'translateY(10px)' }),
-        animate('200ms ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
-      ])
-    ]),
-    trigger('slideUp', [
-      transition(':enter', [
-        style({ opacity: 0, transform: 'translateY(20px)' }),
-        animate('250ms ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
-      ])
-    ])
-  ]
+  styleUrl: './driver-trip-detail.component.scss'
 })
 export class DriverTripDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);

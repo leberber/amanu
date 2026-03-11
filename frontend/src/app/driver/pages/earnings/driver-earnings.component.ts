@@ -1,7 +1,6 @@
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
-import { trigger, transition, style, animate } from '@angular/animations';
 
 import { DriverService } from '../../../services/driver.service';
 import { DriverStats } from '../../../models/driver.model';
@@ -12,15 +11,7 @@ import { PageLayoutComponent } from '../../../shared/components/page-layout/page
   standalone: true,
   imports: [TranslateModule, DecimalPipe, PageLayoutComponent],
   templateUrl: './driver-earnings.component.html',
-  styleUrl: './driver-earnings.component.scss',
-  animations: [
-    trigger('pageAnimation', [
-      transition(':enter', [
-        style({ transform: 'translateX(100%)' }),
-        animate('300ms ease-out', style({ transform: 'translateX(0)' }))
-      ])
-    ])
-  ]
+  styleUrl: './driver-earnings.component.scss'
 })
 export class DriverEarningsComponent implements OnInit {
   private readonly driverService = inject(DriverService);

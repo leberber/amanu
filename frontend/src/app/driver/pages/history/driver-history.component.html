@@ -59,7 +59,7 @@
       <p>{{ 'driver.history.empty_desc' | translate }}</p>
     </div>
   } @else {
-    <div class="history-list" @listAnimation>
+    <div class="history-list">
       @for (order of history(); track order.id) {
         <div class="history-item" (click)="viewDetails(order)">
           <div 

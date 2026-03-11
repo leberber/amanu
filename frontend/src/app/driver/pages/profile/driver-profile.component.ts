@@ -1,7 +1,6 @@
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { trigger, transition, style, animate } from '@angular/animations';
 
 import { DriverService } from '../../../services/driver.service';
 import { AuthService } from '../../../services/auth.service';
@@ -14,18 +13,7 @@ import { DRIVER_STATUS, DRIVER_STATUS_CONFIG } from '../../../core/constants/dri
   standalone: true,
   imports: [TranslateModule, RouterLink],
   templateUrl: './driver-profile.component.html',
-  styleUrl: './driver-profile.component.scss',
-  animations: [
-    trigger('fadeIn', [
-      transition(':enter', [
-        style({ opacity: 0 }),
-        animate('250ms ease-out', style({ opacity: 1 }))
-      ])
-    ])
-  ],
-  host: {
-    '[@fadeIn]': ''
-  }
+  styleUrl: './driver-profile.component.scss'
 })
 export class DriverProfileComponent implements OnInit {
   private readonly router = inject(Router);

@@ -13,17 +13,13 @@
 // =============================================================================
 
 .driver-header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: var(--space-3) var(--space-4);
   padding-top: calc(var(--space-3) + env(safe-area-inset-top, 0px));
   background: var(--surface-ground, #f8fafc);
-  z-index: 50;
+  flex-shrink: 0;
 
   &__left {
     flex: 1;
@@ -96,7 +92,6 @@
 .driver-content {
   flex: 1;
   overflow-y: auto;
-  padding-top: 60px; // Space for fixed header
   padding-bottom: 80px; // Space for bottom nav
 }
 
