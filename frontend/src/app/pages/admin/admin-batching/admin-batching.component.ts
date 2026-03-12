@@ -26,6 +26,20 @@ interface MapCluster {
   boundary: [number, number][];
 }
 
+interface ClusteringParams {
+  minOrdersPerBatch: number;
+  maxOrdersPerBatch: number;
+  maxWeightPerBatch: number; // 0 = no limit
+  h3Resolution: number;
+}
+
+const DEFAULT_CLUSTERING_PARAMS: ClusteringParams = {
+  minOrdersPerBatch: 2,
+  maxOrdersPerBatch: 3,
+  maxWeightPerBatch: 0,
+  h3Resolution: 7
+};
+
 // Constants
 const CLUSTER_COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#06B6D4', '#84CC16', '#F97316', '#6366F1'];
 const DEFAULT_MARKER_COLOR = '#6366F1';
@@ -62,6 +76,9 @@ export class AdminBatchingComponent implements OnInit {
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
 
+  // Expose Math for template
+  protected Math = Math;
+
   // Map
   private h3ColorMap = new Map<string, string>();
   private map: L.Map | null = null;
@@ -78,8 +95,11 @@ export class AdminBatchingComponent implements OnInit {
   mapInitialized = signal(false);
   mapClusteringActive = signal(false);
   mapClusters = signal<MapCluster[]>([]);
-  clusterResolution = signal(7);
   pendingOrders = signal<PendingOrder[]>([]);
+
+  // Clustering parameters
+  showClusterSettings = signal(false);
+  clusterParams = signal<ClusteringParams>({ ...DEFAULT_CLUSTERING_PARAMS });
   statusFilter = signal<TripStatus | null>(null);
 
   // Dialogs
@@ -269,7 +289,7 @@ export class AdminBatchingComponent implements OnInit {
 
   private groupOrdersByH3(): Map<string, PendingOrder[]> {
     const groups = new Map<string, PendingOrder[]>();
-    const resolution = this.clusterResolution();
+    const resolution = this.clusterParams().h3Resolution;
 
     this.pendingOrders().forEach(order => {
       if (!order.h3_index || !isValidCell(order.h3_index) || !order.latitude || !order.longitude) return;
@@ -365,13 +385,37 @@ export class AdminBatchingComponent implements OnInit {
     const clusters = this.mapClusters();
     if (!clusters.length) return;
 
+    const params = this.clusterParams();
     const batches: { order_ids: number[] }[] = [];
 
     clusters.forEach(cluster => {
       const sorted = [...cluster.orders].sort((a, b) => (b.weight_kg || 0) - (a.weight_kg || 0));
-      for (let i = 0; i < sorted.length; i += 3) {
-        const batch = sorted.slice(i, i + 3);
-        if (batch.length >= 2) batches.push({ order_ids: batch.map(o => o.id) });
+
+      let currentBatch: PendingOrder[] = [];
+      let currentWeight = 0;
+
+      for (const order of sorted) {
+        const orderWeight = order.weight_kg || 0;
+        const wouldExceedWeight = params.maxWeightPerBatch > 0 &&
+          currentWeight + orderWeight > params.maxWeightPerBatch;
+        const wouldExceedCount = currentBatch.length >= params.maxOrdersPerBatch;
+
+        // Start new batch if limits exceeded
+        if (wouldExceedWeight || wouldExceedCount) {
+          if (currentBatch.length >= params.minOrdersPerBatch) {
+            batches.push({ order_ids: currentBatch.map(o => o.id) });
+          }
+          currentBatch = [];
+          currentWeight = 0;
+        }
+
+        currentBatch.push(order);
+        currentWeight += orderWeight;
+      }
+
+      // Don't forget the last batch
+      if (currentBatch.length >= params.minOrdersPerBatch) {
+        batches.push({ order_ids: currentBatch.map(o => o.id) });
       }
     });
 
@@ -395,8 +439,20 @@ export class AdminBatchingComponent implements OnInit {
     });
   }
 
-  setClusterResolution(resolution: number): void {
-    this.clusterResolution.set(resolution);
+  updateClusterParam<K extends keyof ClusteringParams>(key: K, value: ClusteringParams[K]): void {
+    this.clusterParams.update(params => ({ ...params, [key]: value }));
+    if (this.mapClusteringActive()) {
+      this.deactivateMapClustering();
+      this.activateMapClustering();
+    }
+  }
+
+  toggleClusterSettings(): void {
+    this.showClusterSettings.update(v => !v);
+  }
+
+  resetClusterParams(): void {
+    this.clusterParams.set({ ...DEFAULT_CLUSTERING_PARAMS });
     if (this.mapClusteringActive()) {
       this.deactivateMapClustering();
       this.activateMapClustering();

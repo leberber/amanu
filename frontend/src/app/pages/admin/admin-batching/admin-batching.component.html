@@ -77,6 +77,139 @@
 
           @if (activeTab() === 'map') {
             <div class="header-cluster-actions">
+              <!-- Settings Button -->
+              <div class="cluster-settings-wrapper">
+                <button
+                  pButton
+                  icon="pi pi-cog"
+                  class="p-button-text p-button-sm p-button-rounded"
+                  [class.active]="showClusterSettings()"
+                  pTooltip="{{ 'admin.batching.settings' | translate }}"
+                  (click)="toggleClusterSettings()">
+                </button>
+
+                <!-- Settings Panel -->
+                @if (showClusterSettings()) {
+                  <div class="cluster-settings-panel" @fadeIn>
+                    <div class="cluster-settings-panel__header">
+                      <span>{{ 'admin.batching.clustering_params' | translate }}</span>
+                      <button
+                        pButton
+                        icon="pi pi-refresh"
+                        class="p-button-text p-button-sm p-button-rounded"
+                        pTooltip="{{ 'admin.batching.reset_params' | translate }}"
+                        (click)="resetClusterParams()">
+                      </button>
+                    </div>
+
+                    <div class="cluster-settings-panel__body">
+                      <!-- Min Orders -->
+                      <div class="param-row">
+                        <label>{{ 'admin.batching.min_orders' | translate }}</label>
+                        <div class="param-controls">
+                          <button
+                            pButton
+                            icon="pi pi-minus"
+                            class="p-button-text p-button-sm p-button-rounded"
+                            [disabled]="clusterParams().minOrdersPerBatch <= 1"
+                            (click)="updateClusterParam('minOrdersPerBatch', clusterParams().minOrdersPerBatch - 1)">
+                          </button>
+                          <span class="param-value">{{ clusterParams().minOrdersPerBatch }}</span>
+                          <button
+                            pButton
+                            icon="pi pi-plus"
+                            class="p-button-text p-button-sm p-button-rounded"
+                            [disabled]="clusterParams().minOrdersPerBatch >= clusterParams().maxOrdersPerBatch"
+                            (click)="updateClusterParam('minOrdersPerBatch', clusterParams().minOrdersPerBatch + 1)">
+                          </button>
+                        </div>
+                      </div>
+
+                      <!-- Max Orders -->
+                      <div class="param-row">
+                        <label>{{ 'admin.batching.max_orders' | translate }}</label>
+                        <div class="param-controls">
+                          <button
+                            pButton
+                            icon="pi pi-minus"
+                            class="p-button-text p-button-sm p-button-rounded"
+                            [disabled]="clusterParams().maxOrdersPerBatch <= clusterParams().minOrdersPerBatch"
+                            (click)="updateClusterParam('maxOrdersPerBatch', clusterParams().maxOrdersPerBatch - 1)">
+                          </button>
+                          <span class="param-value">{{ clusterParams().maxOrdersPerBatch }}</span>
+                          <button
+                            pButton
+                            icon="pi pi-plus"
+                            class="p-button-text p-button-sm p-button-rounded"
+                            [disabled]="clusterParams().maxOrdersPerBatch >= 10"
+                            (click)="updateClusterParam('maxOrdersPerBatch', clusterParams().maxOrdersPerBatch + 1)">
+                          </button>
+                        </div>
+                      </div>
+
+                      <!-- Max Weight -->
+                      <div class="param-row">
+                        <label>{{ 'admin.batching.max_weight' | translate }}</label>
+                        <div class="param-controls">
+                          <button
+                            pButton
+                            icon="pi pi-minus"
+                            class="p-button-text p-button-sm p-button-rounded"
+                            [disabled]="clusterParams().maxWeightPerBatch <= 0"
+                            (click)="updateClusterParam('maxWeightPerBatch', Math.max(0, clusterParams().maxWeightPerBatch - 10))">
+                          </button>
+                          <span class="param-value">
+                            @if (clusterParams().maxWeightPerBatch === 0) {
+                              ∞
+                            } @else {
+                              {{ clusterParams().maxWeightPerBatch }} kg
+                            }
+                          </span>
+                          <button
+                            pButton
+                            icon="pi pi-plus"
+                            class="p-button-text p-button-sm p-button-rounded"
+                            [disabled]="clusterParams().maxWeightPerBatch >= 200"
+                            (click)="updateClusterParam('maxWeightPerBatch', clusterParams().maxWeightPerBatch + 10)">
+                          </button>
+                        </div>
+                      </div>
+
+                      <!-- H3 Resolution -->
+                      <div class="param-row">
+                        <label>{{ 'admin.batching.zone_size' | translate }}</label>
+                        <div class="param-controls">
+                          <button
+                            pButton
+                            icon="pi pi-minus"
+                            class="p-button-text p-button-sm p-button-rounded"
+                            [disabled]="clusterParams().h3Resolution <= 5"
+                            (click)="updateClusterParam('h3Resolution', clusterParams().h3Resolution - 1)">
+                          </button>
+                          <span class="param-value">{{ clusterParams().h3Resolution }}</span>
+                          <button
+                            pButton
+                            icon="pi pi-plus"
+                            class="p-button-text p-button-sm p-button-rounded"
+                            [disabled]="clusterParams().h3Resolution >= 9"
+                            (click)="updateClusterParam('h3Resolution', clusterParams().h3Resolution + 1)">
+                          </button>
+                        </div>
+                        <small class="param-hint">
+                          @switch (clusterParams().h3Resolution) {
+                            @case (5) { ~250 km² }
+                            @case (6) { ~36 km² }
+                            @case (7) { ~5 km² }
+                            @case (8) { ~0.7 km² }
+                            @case (9) { ~0.1 km² }
+                          }
+                        </small>
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+
               @if (!mapClusteringActive()) {
                 <button
                   pButton

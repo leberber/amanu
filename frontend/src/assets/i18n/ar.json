@@ -1965,7 +1965,14 @@
       "h3_cluster_success": "تم إنشاء {{batches}} مجموعات من {{clusters}} مناطق جغرافية",
       "create_batches": "إنشاء الدفعات",
       "cluster_size": "حجم المنطقة",
-      "clusters": "مجموعات"
+      "clusters": "مجموعات",
+      "settings": "الإعدادات",
+      "clustering_params": "معايير التجميع",
+      "reset_params": "إعادة تعيين",
+      "min_orders": "الحد الأدنى",
+      "max_orders": "الحد الأقصى",
+      "max_weight": "الوزن الأقصى",
+      "zone_size": "حجم المنطقة"
     }
   },
   "footer": {

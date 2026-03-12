@@ -1979,7 +1979,14 @@
       "h3_cluster_success": "Created {{batches}} batches from {{clusters}} geographic clusters",
       "create_batches": "Create Batches",
       "cluster_size": "Cluster Size",
-      "clusters": "clusters"
+      "clusters": "clusters",
+      "settings": "Settings",
+      "clustering_params": "Clustering Parameters",
+      "reset_params": "Reset",
+      "min_orders": "Min. orders",
+      "max_orders": "Max. orders",
+      "max_weight": "Max. weight",
+      "zone_size": "Zone size"
     }
   },
   "footer": {

@@ -1977,7 +1977,14 @@
       "h3_cluster_success": "{{batches}} lots créés à partir de {{clusters}} groupes géographiques",
       "create_batches": "Créer les lots",
       "cluster_size": "Taille des zones",
-      "clusters": "groupes"
+      "clusters": "groupes",
+      "settings": "Paramètres",
+      "clustering_params": "Paramètres de regroupement",
+      "reset_params": "Réinitialiser",
+      "min_orders": "Min. commandes",
+      "max_orders": "Max. commandes",
+      "max_weight": "Poids max.",
+      "zone_size": "Taille zone"
     }
   },
   "footer": {
