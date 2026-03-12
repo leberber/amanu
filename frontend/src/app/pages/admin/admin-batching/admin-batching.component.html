@@ -4,41 +4,23 @@
   <div pageTop>
     @if (loading()) {
       <!-- Header Skeleton -->
-      <div class="admin-list-header animate-item" style="--item-delay: 0ms;">
+      <div class="header-row">
         <div class="header-title">
-          <div class="admin-icon-wrapper">
-            <div class="icon-bg"></div>
-            <div class="icon-circle skeleton"></div>
-          </div>
+          <div class="skeleton" style="width: 48px; height: 48px; border-radius: 50%;"></div>
           <div class="title-text">
-            <div class="skeleton skeleton-text" style="width: 180px; height: 28px;"></div>
-            <div class="skeleton skeleton-text" style="width: 240px; height: 16px; margin-top: 8px;"></div>
+            <div class="skeleton" style="width: 150px; height: 24px;"></div>
+            <div class="skeleton" style="width: 200px; height: 14px; margin-top: 6px;"></div>
           </div>
         </div>
-      </div>
-
-      <!-- KPI Cards Skeleton -->
-      <div class="stats-grid stats-grid--compact animate-item" style="--item-delay: 50ms;">
-        @for (i of [1,2,3,4]; track i) {
-          <div class="stat-card stat-card--compact">
-            <div class="stat-card__content">
-              <span class="stat-card__value">
-                <span class="skeleton" style="width: 32px; height: 32px; border-radius: var(--radius-md);"></span>
-                <span class="skeleton skeleton-text" style="width: 60px; height: 24px;"></span>
-              </span>
-              <span class="skeleton skeleton-text" style="width: 80px; height: 12px; margin-top: 8px;"></span>
-            </div>
-          </div>
-        }
-      </div>
-
-      <!-- Tabs Skeleton -->
-      <div class="dashboard-tabs animate-item" style="--item-delay: 100ms;">
-        <div class="skeleton" style="width: 300px; height: 44px; border-radius: var(--radius-xl);"></div>
+        <div class="header-stats">
+          @for (i of [1,2,3,4]; track i) {
+            <div class="skeleton" style="width: 120px; height: 40px; border-radius: var(--radius-lg);"></div>
+          }
+        </div>
       </div>
     } @else if (stats()) {
-      <!-- Header -->
-      <div class="admin-list-header animate-item" style="--item-delay: 0ms;">
+      <!-- Header with Stats -->
+      <div class="header-row">
         <div class="header-title">
           <div class="admin-icon-wrapper">
             <div class="icon-bg"></div>
@@ -51,103 +33,83 @@
             <p>{{ 'admin.batching.subtitle' | translate }}</p>
           </div>
         </div>
-      </div>
 
-      <!-- Compact KPI Row -->
-      <div class="stats-grid stats-grid--compact">
-        <div class="stat-card stat-card--compact animate-item" style="--item-delay: 50ms;" (click)="setActiveTab('overview')">
-          <div class="stat-card__content">
-            <span class="stat-card__value">
-              <span class="stat-card__icon stat-card__icon--primary"><i class="pi pi-inbox"></i></span>
-              {{ stats()!.pending_batchable_orders }}
-            </span>
-            <span class="stat-card__label">{{ 'admin.batching.pending_orders' | translate }}</span>
-          </div>
-        </div>
-
-        <div class="stat-card stat-card--compact animate-item" style="--item-delay: 100ms;" (click)="filterByStatus('pending'); setActiveTab('trips')">
-          <div class="stat-card__content">
-            <span class="stat-card__value">
-              <span class="stat-card__icon stat-card__icon--warning"><i class="pi pi-clock"></i></span>
-              {{ stats()!.pending_trips }}
-            </span>
-            <span class="stat-card__label">{{ 'admin.batching.pending_trips' | translate }}</span>
-          </div>
-        </div>
-
-        <div class="stat-card stat-card--compact animate-item" style="--item-delay: 150ms;" (click)="filterByStatus('assigned'); setActiveTab('trips')">
-          <div class="stat-card__content">
-            <span class="stat-card__value">
-              <span class="stat-card__icon stat-card__icon--info"><i class="pi pi-user"></i></span>
-              {{ stats()!.assigned_trips }}
-            </span>
-            <span class="stat-card__label">{{ 'admin.batching.assigned_trips' | translate }}</span>
-          </div>
-        </div>
-
-        <div class="stat-card stat-card--compact animate-item" style="--item-delay: 200ms;" (click)="filterByStatus('in_progress'); setActiveTab('trips')">
-          <div class="stat-card__content">
-            <span class="stat-card__value">
-              <span class="stat-card__icon stat-card__icon--success"><i class="pi pi-truck"></i></span>
-              {{ stats()!.in_progress_trips }}
-            </span>
-            <span class="stat-card__label">{{ 'admin.batching.in_progress' | translate }}</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Tab Buttons -->
-      <div class="dashboard-tabs animate-item" style="--item-delay: 250ms;">
-        <div class="tabs-header">
-          <div class="tabs-header__left">
-            <div class="segment-control segment-control--glass">
-              <button
-                class="segment-control__item"
-                [class.active]="activeTab() === 'overview'"
-                (click)="setActiveTab('overview')">
-                <i class="pi pi-th-large"></i>
-                <span>{{ 'admin.batching.tab_overview' | translate }}</span>
-              </button>
-              <button
-                class="segment-control__item"
-                [class.active]="activeTab() === 'trips'"
-                (click)="setActiveTab('trips')">
-                <i class="pi pi-list"></i>
-                <span>{{ 'admin.batching.tab_trips' | translate }}</span>
-              </button>
-              <button
-                class="segment-control__item"
-                [class.active]="activeTab() === 'map'"
-                (click)="setActiveTab('map')">
-                <i class="pi pi-map"></i>
-                <span>{{ 'admin.batching.tab_map' | translate }}</span>
-              </button>
+        <div class="header-actions">
+          <div class="header-stats">
+            <div class="stat-pill">
+              <i class="pi pi-inbox"></i>
+              <span class="stat-pill__value">{{ stats()!.pending_batchable_orders }}</span>
+              <span class="stat-pill__label">{{ 'admin.batching.pending_orders' | translate }}</span>
+            </div>
+            <div class="stat-pill stat-pill--warning">
+              <i class="pi pi-clock"></i>
+              <span class="stat-pill__value">{{ stats()!.pending_trips }}</span>
+              <span class="stat-pill__label">{{ 'admin.batching.pending_trips' | translate }}</span>
+            </div>
+            <div class="stat-pill stat-pill--info">
+              <i class="pi pi-user"></i>
+              <span class="stat-pill__value">{{ stats()!.assigned_trips }}</span>
+              <span class="stat-pill__label">{{ 'admin.batching.assigned_trips' | translate }}</span>
+            </div>
+            <div class="stat-pill stat-pill--success">
+              <i class="pi pi-truck"></i>
+              <span class="stat-pill__value">{{ stats()!.in_progress_trips }}</span>
+              <span class="stat-pill__label">{{ 'admin.batching.in_progress' | translate }}</span>
             </div>
           </div>
-          @if ((activeTab() === 'overview' || activeTab() === 'map') && batchingState() === 'orders') {
-            <div class="tabs-header__actions">
-              <button
-                pButton
-                icon="pi pi-refresh"
-                class="p-button-outlined p-button-sm"
-                [loading]="loadingOrders()"
-                (click)="loadPendingOrders()">
-              </button>
-              <button
-                pButton
-                [label]="'admin.batching.organize_batches' | translate"
-                icon="pi pi-bolt"
-                [loading]="organizingBatches()"
-                [disabled]="pendingOrders().length < 2 && tripBuilderOrders().length < 2"
-                (click)="activeTab() === 'map' ? animateClusteringOnMap() : organizeIntoBatches()">
-              </button>
+
+          <div class="tab-buttons">
+            <button
+              class="tab-btn"
+              [class.active]="activeTab() === 'map'"
+              (click)="setActiveTab('map')">
+              <i class="pi pi-map"></i>
+              {{ 'admin.batching.tab_map' | translate }}
+            </button>
+            <button
+              class="tab-btn"
+              [class.active]="activeTab() === 'trips'"
+              (click)="setActiveTab('trips')">
+              <i class="pi pi-list"></i>
+              {{ 'admin.batching.tab_trips' | translate }}
+            </button>
+          </div>
+
+          @if (activeTab() === 'map') {
+            <div class="header-cluster-actions">
+              @if (!mapClusteringActive()) {
+                <button
+                  pButton
+                  [label]="'admin.batching.auto_cluster' | translate"
+                  icon="pi pi-sitemap"
+                  class="p-button-success p-button-sm"
+                  [loading]="organizingBatches()"
+                  [disabled]="pendingOrders().length < 2"
+                  (click)="activateMapClustering()">
+                </button>
+              } @else {
+                <button
+                  pButton
+                  [label]="'admin.batching.reset_clusters' | translate"
+                  icon="pi pi-times"
+                  class="p-button-outlined p-button-sm"
+                  (click)="deactivateMapClustering()">
+                </button>
+                <button
+                  pButton
+                  [label]="'admin.batching.create_batches' | translate"
+                  icon="pi pi-check"
+                  class="p-button-success p-button-sm"
+                  (click)="createBatchesFromMapClusters()">
+                </button>
+              }
             </div>
           }
         </div>
       </div>
     } @else {
       <!-- Error State -->
-      <div class="empty-state animate-item" style="--item-delay: 100ms;">
+      <div class="empty-state">
         <div class="empty-state__icon empty-state__icon--danger">
           <i class="pi pi-exclamation-circle"></i>
         </div>
@@ -167,510 +129,173 @@
 
     @if (loading()) {
       <!-- Content Skeleton -->
-      <div class="orders-grid">
-        @for (i of [1, 2, 3, 4, 5, 6]; track i) {
-          <div class="order-card order-card--skeleton">
-            <div class="skeleton" style="width: 60%; height: 16px;"></div>
-            <div class="skeleton" style="width: 100%; height: 14px; margin-top: 8px;"></div>
-            <div class="skeleton" style="width: 40%; height: 14px; margin-top: 8px;"></div>
-          </div>
-        }
+      <div class="map-section">
+        <div class="map-controls">
+          <div class="skeleton" style="width: 150px; height: 38px; border-radius: var(--radius-md);"></div>
+          <div class="skeleton" style="width: 100px; height: 24px; border-radius: var(--radius-md);"></div>
+        </div>
+        <div class="map-container map-container--loading">
+          <div class="skeleton" style="width: 100%; height: 100%;"></div>
+        </div>
       </div>
     } @else if (stats()) {
-      <!-- Overview Tab -->
-      @if (activeTab() === 'overview') {
-        <!-- State: Orders View (before batching) -->
-        @if (batchingState() === 'orders') {
-          <div class="overview-layout">
-            <!-- Orders List (Left Side) -->
-            <div class="orders-panel">
-              @if (loadingOrders()) {
-                <div class="orders-grid">
-                  @for (i of [1, 2, 3, 4, 5, 6]; track i) {
-                    <div class="order-card order-card--skeleton">
-                      <div class="skeleton" style="width: 60%; height: 16px;"></div>
-                      <div class="skeleton" style="width: 100%; height: 14px; margin-top: 8px;"></div>
-                      <div class="skeleton" style="width: 40%; height: 14px; margin-top: 8px;"></div>
-                    </div>
-                  }
-                </div>
-              } @else if (pendingOrders().length === 0 && tripBuilderOrders().length === 0) {
-                <div class="empty-state empty-state--compact animate-item" style="--item-delay: 150ms;">
-                  <div class="empty-state__icon">
-                    <i class="pi pi-inbox"></i>
-                  </div>
-                  <h3 class="empty-state__title">{{ 'admin.batching.no_pending_orders' | translate }}</h3>
-                  <p class="empty-state__description">{{ 'admin.batching.no_pending_orders_desc' | translate }}</p>
-                </div>
-              } @else {
-                <!-- Draggable Orders Grid -->
-                <div
-                  cdkDropList
-                  id="orders-list"
-                  [cdkDropListData]="pendingOrders()"
-                  [cdkDropListConnectedTo]="['trip-builder-list']"
-                  class="orders-scroll-container"
-                  (cdkDropListDropped)="dropInOrdersList($event)">
-                  <div class="orders-grid">
-                    @for (order of pendingOrders(); track order.id; let i = $index) {
-                      <div
-                        class="order-card order-card--draggable animate-item"
-                        cdkDrag
-                        [cdkDragData]="order"
-                        [style.--item-delay]="(i * 30) + 'ms'">
-                        <div class="order-card__drag-indicator">
-                          <i class="pi pi-bars"></i>
-                        </div>
-                        <div class="order-card__header">
-                          <span class="order-card__id">#{{ order.id }}</span>
-                          <span class="order-card__zone">
-                            <i class="pi pi-map-marker"></i>
-                            {{ formatZone(order.zone) }}
-                          </span>
-                        </div>
-                        <div class="order-card__content">
-                          <span class="order-card__customer">{{ order.customer_name }}</span>
-                          <span class="order-card__address">{{ order.address }}</span>
-                        </div>
-                        <div class="order-card__footer">
-                          <span class="order-card__weight">
-                            <i class="pi pi-box"></i>
-                            {{ order.weight_kg | number:'1.0-1' }} kg
-                          </span>
-                          <span class="order-card__price">{{ order.shipping_cost | number:'1.0-0' }} DA</span>
-                        </div>
-                        <!-- Custom drag preview rendered at body level -->
-                        <div *cdkDragPreview class="drag-preview">
-                          <span class="drag-preview__id">#{{ order.id }}</span>
-                          <span class="drag-preview__name">{{ order.customer_name }}</span>
-                          <span class="drag-preview__weight">{{ order.weight_kg | number:'1.0-1' }} kg</span>
-                        </div>
-                        <div *cdkDragPlaceholder class="order-card order-card--placeholder"></div>
-                      </div>
-                    }
-                  </div>
-                </div>
-              }
-            </div>
-
-            <!-- Trip Builder Sidebar (Right Side) -->
-            <div class="trip-builder-sidebar">
-              <div class="trip-builder">
-                <div class="trip-builder__header">
-                  <h3>
-                    <i class="pi pi-truck"></i>
-                    {{ 'admin.batching.trip_builder' | translate }}
-                  </h3>
-                  @if (tripBuilderOrders().length > 0) {
-                    <button
-                      pButton
-                      icon="pi pi-times"
-                      class="p-button-text p-button-sm p-button-rounded"
-                      pTooltip="{{ 'common.clear' | translate }}"
-                      (click)="clearTripBuilder()">
-                    </button>
-                  }
-                </div>
-
-                <!-- Drop Zone for Orders -->
-                <div
-                  cdkDropList
-                  id="trip-builder-list"
-                  [cdkDropListData]="tripBuilderOrders()"
-                  [cdkDropListConnectedTo]="['orders-list']"
-                  class="trip-builder__dropzone"
-                  [class.trip-builder__dropzone--empty]="tripBuilderOrders().length === 0"
-                  (cdkDropListDropped)="dropInTripBuilder($event)">
-
-                  @if (tripBuilderOrders().length === 0) {
-                    <div class="trip-builder__empty">
-                      <i class="pi pi-inbox"></i>
-                      <span>{{ 'admin.batching.drag_orders_here' | translate }}</span>
-                    </div>
-                  } @else {
-                    @for (order of tripBuilderOrders(); track order.id) {
-                      <div class="trip-builder__order" cdkDrag [cdkDragData]="order">
-                        <div class="trip-builder__order-content">
-                          <span class="trip-builder__order-id">#{{ order.id }}</span>
-                          <span class="trip-builder__order-name">{{ order.customer_name }}</span>
-                          <span class="trip-builder__order-weight">{{ order.weight_kg | number:'1.0-1' }} kg</span>
-                        </div>
-                        <button
-                          class="trip-builder__order-remove"
-                          (click)="removeFromTripBuilder(order)">
-                          <i class="pi pi-times"></i>
-                        </button>
-                        <!-- Custom drag preview -->
-                        <div *cdkDragPreview class="drag-preview">
-                          <span class="drag-preview__id">#{{ order.id }}</span>
-                          <span class="drag-preview__name">{{ order.customer_name }}</span>
-                          <span class="drag-preview__weight">{{ order.weight_kg | number:'1.0-1' }} kg</span>
-                        </div>
-                        <div *cdkDragPlaceholder class="trip-builder__order trip-builder__order--placeholder"></div>
-                      </div>
-                    }
-                  }
-                </div>
-
-                <!-- Weight & Earnings Summary -->
-                <div class="trip-builder__summary">
-                  <div class="trip-builder__stat">
-                    <i class="pi pi-box"></i>
-                    <span class="trip-builder__stat-value">{{ tripBuilderTotalWeight() | number:'1.0-1' }} kg</span>
-                  </div>
-                  <div class="trip-builder__stat trip-builder__stat--earnings">
-                    <span class="trip-builder__stat-value">{{ tripBuilderTotalEarnings() | number:'1.0-0' }} DA</span>
-                  </div>
-                </div>
-
-                <!-- Driver Selection -->
-                <div class="trip-builder__driver">
-                  <label>{{ 'admin.batching.select_driver' | translate }}</label>
-                  <p-select
-                    [options]="drivers()"
-                    [(ngModel)]="tripBuilderDriverId"
-                    optionLabel="full_name"
-                    optionValue="id"
-                    [placeholder]="'admin.batching.select_driver_placeholder' | translate"
-                    [style]="{ width: '100%' }">
-                    <ng-template pTemplate="item" let-driver>
-                      <div class="driver-option">
-                        <span>{{ driver.full_name }}</span>
-                        <small>{{ driver.phone }}</small>
-                      </div>
-                    </ng-template>
-                  </p-select>
-                </div>
-
-                <!-- Action Buttons -->
-                <div class="trip-builder__actions">
-                  <button
-                    pButton
-                    [label]="'admin.batching.assign_to_driver' | translate"
-                    icon="pi pi-user-plus"
-                    class="p-button-success"
-                    [loading]="creatingTrip()"
-                    [disabled]="tripBuilderOrders().length < 2 || !tripBuilderDriverId"
-                    (click)="assignTripToDriver()">
-                  </button>
-                  <button
-                    pButton
-                    [label]="'admin.batching.send_to_pool' | translate"
-                    icon="pi pi-send"
-                    class="p-button-outlined"
-                    [loading]="creatingTrip()"
-                    [disabled]="tripBuilderOrders().length < 2"
-                    (click)="sendTripToPool()">
-                  </button>
-                </div>
-
-                @if (tripBuilderOrders().length > 0 && tripBuilderOrders().length < 2) {
-                  <div class="trip-builder__hint">
-                    <i class="pi pi-info-circle"></i>
-                    {{ 'admin.batching.need_two_orders' | translate }}
-                  </div>
-                }
-              </div>
-            </div>
-          </div>
-        }
-
-        <!-- State: Batches View (after organizing) -->
-        @if (batchingState() === 'batches') {
-          <div class="batching-section">
-            <!-- Action Bar -->
-            <div class="batching-action-bar animate-item" style="--item-delay: 100ms;">
-              <div class="batching-action-bar__info">
-                <h3>{{ 'admin.batching.proposed_batches' | translate }}</h3>
-                <span class="pill primary">{{ customBatches().length }} {{ 'admin.batching.batches' | translate }}</span>
-                <span class="pill secondary">{{ totalOrdersInBatches() }} {{ 'admin.batching.orders' | translate }}</span>
-              </div>
-              <div class="batching-action-bar__actions">
-                <button
-                  pButton
-                  [label]="'admin.batching.reset' | translate"
-                  icon="pi pi-refresh"
-                  class="p-button-outlined"
-                  (click)="resetBatching()">
-                </button>
-                <button
-                  pButton
-                  [label]="'admin.batching.approve_create' | translate"
-                  icon="pi pi-check"
-                  class="p-button-success p-button-lg"
-                  [loading]="submittingBatches()"
-                  [disabled]="customBatches().length === 0"
-                  (click)="approveAndCreateTrips()">
-                </button>
-              </div>
-            </div>
-
-            <!-- Drag-drop hint -->
-            <div class="hint-box mb-4 animate-item" style="--item-delay: 150ms;">
-              <i class="pi pi-arrows-alt"></i>
-              <span>{{ 'admin.batching.drag_hint' | translate }}</span>
-            </div>
-
-            <!-- Batches Grid -->
-            <div class="batches-container">
-              @for (batch of customBatches(); track $index; let i = $index) {
-                <div class="batch-card animate-item" [style.--item-delay]="(i * 100) + 200 + 'ms'" @batchAnimation>
-                  <div class="batch-card__header">
-                    <span class="batch-card__zone">
-                      <i class="pi pi-map-marker"></i>
-                      {{ formatZone(batch.zone) }}
-                    </span>
-                    <span class="batch-card__count">{{ batch.orders.length }}/3</span>
-                  </div>
-
-                  <!-- Drop zone for orders -->
-                  <div
-                    cdkDropList
-                    [id]="'batch-' + i"
-                    [cdkDropListData]="batch.orders"
-                    [cdkDropListConnectedTo]="allDropListIds()"
-                    class="batch-card__orders"
-                    (cdkDropListDropped)="dropInBatch($event, i)">
-
-                    @for (order of batch.orders; track order.id) {
-                      <div
-                        class="order-chip"
-                        cdkDrag
-                        [cdkDragData]="order">
-                        <div class="order-chip__drag-handle">
-                          <i class="pi pi-bars"></i>
-                        </div>
-                        <div class="order-chip__content">
-                          <span class="order-chip__id">#{{ order.id }}</span>
-                          <span class="order-chip__name">{{ order.customer_name }}</span>
-                        </div>
-                        <span class="order-chip__price">{{ order.shipping_cost | number:'1.0-0' }} DA</span>
-
-                        <!-- Drag preview -->
-                        <div *cdkDragPlaceholder class="order-chip order-chip--placeholder"></div>
-                      </div>
-                    }
-                  </div>
-
-                  <div class="batch-card__footer">
-                    <span class="batch-card__weight">
-                      <i class="pi pi-box"></i>
-                      {{ getBatchTotalWeight(batch) | number:'1.0-1' }} kg
-                    </span>
-                    <span class="batch-card__earnings">{{ getBatchTotalEarnings(batch) | number:'1.0-0' }} DA</span>
-                  </div>
-                </div>
-              }
-            </div>
-
-            <!-- Unbatched Orders Section -->
-            @if (unbatchedOrders().length > 0 || customBatches().length > 0) {
-              <div class="unbatched-section animate-item" style="--item-delay: 400ms;">
-                <div class="unbatched-section__header">
-                  <h4 class="section-title section-title--warning">
-                    <i class="pi pi-exclamation-circle"></i>
-                    {{ 'admin.batching.unbatched' | translate }}
-                    <span class="pill warning">{{ unbatchedOrders().length }}</span>
-                  </h4>
-                  @if (unbatchedOrders().length >= 2) {
-                    <button
-                      pButton
-                      [label]="'admin.batching.create_batch' | translate"
-                      icon="pi pi-plus"
-                      class="p-button-outlined p-button-sm"
-                      (click)="createNewBatch()">
-                    </button>
-                  }
-                </div>
-
-                @if (unbatchedOrders().length === 0) {
-                  <div class="unbatched-empty">
-                    <i class="pi pi-check-circle"></i>
-                    <span>{{ 'admin.batching.all_batched' | translate }}</span>
-                  </div>
-                } @else {
-                  <div
-                    cdkDropList
-                    id="unbatched-list"
-                    [cdkDropListData]="unbatchedOrders()"
-                    [cdkDropListConnectedTo]="batchDropListIds()"
-                    class="unbatched-orders-list"
-                    (cdkDropListDropped)="dropInUnbatched($event)">
-
-                    @for (order of unbatchedOrders(); track order.id) {
-                      <div
-                        class="order-chip order-chip--warning"
-                        cdkDrag
-                        [cdkDragData]="order">
-                        <div class="order-chip__drag-handle">
-                          <i class="pi pi-bars"></i>
-                        </div>
-                        <div class="order-chip__content">
-                          <span class="order-chip__id">#{{ order.id }}</span>
-                          <span class="order-chip__name">{{ order.customer_name }}</span>
-                          <span class="order-chip__zone">{{ formatZone(order.zone) }}</span>
-                        </div>
-                        <span class="order-chip__price">{{ order.shipping_cost | number:'1.0-0' }} DA</span>
-
-                        <div *cdkDragPlaceholder class="order-chip order-chip--placeholder"></div>
-                      </div>
-                    }
-                  </div>
-
-                  <p class="unbatched-hint">{{ 'admin.batching.unbatched_hint' | translate }}</p>
-                }
-              </div>
-            }
-          </div>
-        }
-      }
-
-      <!-- Trips Tab -->
-      @if (activeTab() === 'trips') {
-        <div class="card card--no-hover animate-item" style="--item-delay: 100ms;">
-          <div class="card-header">
-            <div class="card-header__icon card-header__icon--info">
-              <i class="pi pi-list"></i>
-            </div>
-            <h3 class="card-header__title">{{ 'admin.batching.tab_trips' | translate }}</h3>
-          </div>
-          <div class="card-body card-body--compact">
-            <!-- Filters -->
-            <div class="segment-control segment-control--glass mb-4">
-              <button
-                class="segment-control__item"
-                [class.active]="statusFilter() === null"
-                (click)="filterByStatus(null)">
-                {{ 'admin.batching.all' | translate }}
-              </button>
-              <button
-                class="segment-control__item"
-                [class.active]="statusFilter() === 'pending'"
-                (click)="filterByStatus('pending')">
-                {{ 'admin.batching.pending' | translate }}
-              </button>
-              <button
-                class="segment-control__item"
-                [class.active]="statusFilter() === 'assigned'"
-                (click)="filterByStatus('assigned')">
-                {{ 'admin.batching.assigned' | translate }}
-              </button>
-              <button
-                class="segment-control__item"
-                [class.active]="statusFilter() === 'in_progress'"
-                (click)="filterByStatus('in_progress')">
-                {{ 'admin.batching.in_progress_short' | translate }}
-              </button>
-            </div>
-
-            <!-- Trips Table -->
-            @if (filteredTrips().length > 0) {
-              <div class="table-wrapper">
-                <table class="table">
-                  <thead>
-                    <tr>
-                      <th>ID</th>
-                      <th>{{ 'admin.batching.zone' | translate }}</th>
-                      <th>{{ 'admin.batching.stops' | translate }}</th>
-                      <th>{{ 'admin.batching.status' | translate }}</th>
-                      <th>{{ 'admin.batching.driver' | translate }}</th>
-                      <th>{{ 'admin.batching.earnings' | translate }}</th>
-                      <th>{{ 'admin.batching.actions' | translate }}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    @for (trip of filteredTrips(); track trip.id; let i = $index) {
-                      <tr class="table-row-animate" [style.--row-delay]="(i * 40) + 'ms'">
-                        <td>
-                          <span class="link-primary" (click)="viewTripDetails(trip)">#{{ trip.id }}</span>
-                        </td>
-                        <td>{{ formatZone(trip.h3_zone) }}</td>
-                        <td>
-                          <span class="pill secondary">{{ trip.completed_stops }}/{{ trip.total_stops }}</span>
-                        </td>
-                        <td>
-                          <p-tag
-                            [value]="getStatusLabel(trip.status)"
-                            [severity]="getStatusSeverity(trip.status)">
-                          </p-tag>
-                        </td>
-                        <td>
-                          @if (trip.driver_name) {
-                            <div class="driver-info">
-                              <span>{{ trip.driver_name }}</span>
-                              <small>{{ trip.driver_phone }}</small>
-                            </div>
-                          } @else {
-                            <span class="text-muted">-</span>
-                          }
-                        </td>
-                        <td>
-                          <span class="amount-display">{{ trip.total_earnings | number:'1.0-0' }} DA</span>
-                        </td>
-                        <td>
-                          <div class="actions-group">
-                            <button
-                              pButton
-                              icon="pi pi-eye"
-                              class="p-button-text p-button-sm p-button-rounded"
-                              pTooltip="{{ 'common.view' | translate }}"
-                              (click)="viewTripDetails(trip)">
-                            </button>
-                            @if (trip.status === 'pending') {
-                              <button
-                                pButton
-                                icon="pi pi-user-plus"
-                                class="p-button-text p-button-sm p-button-rounded p-button-success"
-                                pTooltip="{{ 'admin.batching.assign' | translate }}"
-                                (click)="openAssignDialog(trip)">
-                              </button>
-                            }
-                            @if (trip.status === 'assigned') {
-                              <button
-                                pButton
-                                icon="pi pi-user-minus"
-                                class="p-button-text p-button-sm p-button-rounded p-button-warning"
-                                pTooltip="{{ 'admin.batching.unassign' | translate }}"
-                                (click)="unassignTrip(trip)">
-                              </button>
-                            }
-                            @if (trip.status === 'pending' || trip.status === 'assigned') {
-                              <button
-                                pButton
-                                icon="pi pi-times"
-                                class="p-button-text p-button-sm p-button-rounded p-button-danger"
-                                pTooltip="{{ 'admin.batching.unbatch' | translate }}"
-                                (click)="cancelTrip(trip)">
-                              </button>
-                            }
-                          </div>
-                        </td>
-                      </tr>
-                    }
-                  </tbody>
-                </table>
-              </div>
-            } @else {
-              <div class="empty-state empty-state--compact">
-                <div class="empty-state__icon">
-                  <i class="pi pi-list"></i>
-                </div>
-                <h3 class="empty-state__title">{{ 'admin.batching.no_trips' | translate }}</h3>
-              </div>
-            }
-          </div>
-        </div>
-      }
-
       <!-- Map Tab -->
       @if (activeTab() === 'map') {
-        <div class="map-section animate-item" style="--item-delay: 100ms;">
+        <div class="map-section">
           @if (loadingOrders()) {
             <div class="map-container map-container--loading">
               <div class="skeleton" style="width: 100%; height: 100%;"></div>
             </div>
           } @else {
-            <div class="map-container" id="batching-map"></div>
+            <div class="map-wrapper">
+              <div class="map-container" id="batching-map"></div>
+
+              <!-- Cluster Legend -->
+              @if (mapClusteringActive() && mapClusters().length > 0) {
+                <div class="map-legend" @fadeIn>
+                  <div class="map-legend__header">
+                    <i class="pi pi-sitemap"></i>
+                    <span>{{ mapClusters().length }} {{ 'admin.batching.clusters' | translate }}</span>
+                  </div>
+                  <div class="map-legend__items">
+                    @for (cluster of mapClusters(); track cluster.h3Index) {
+                      <div class="map-legend__item">
+                        <span class="map-legend__color" [style.background]="cluster.color"></span>
+                        <span class="map-legend__count">{{ cluster.orders.length }}</span>
+                        <span class="map-legend__weight">{{ getClusterTotalWeight(cluster) | number:'1.0-1' }} kg</span>
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Trips Tab -->
+      @if (activeTab() === 'trips') {
+        <div class="trips-section">
+          <div class="trips-filters">
+            <div class="filter-buttons">
+              <button
+                class="filter-btn"
+                [class.active]="statusFilter() === null"
+                (click)="filterByStatus(null)">
+                {{ 'admin.batching.all' | translate }}
+              </button>
+              <button
+                class="filter-btn"
+                [class.active]="statusFilter() === 'pending'"
+                (click)="filterByStatus('pending')">
+                {{ 'admin.batching.pending' | translate }}
+              </button>
+              <button
+                class="filter-btn"
+                [class.active]="statusFilter() === 'assigned'"
+                (click)="filterByStatus('assigned')">
+                {{ 'admin.batching.assigned' | translate }}
+              </button>
+              <button
+                class="filter-btn"
+                [class.active]="statusFilter() === 'in_progress'"
+                (click)="filterByStatus('in_progress')">
+                {{ 'admin.batching.in_progress_short' | translate }}
+              </button>
+            </div>
+          </div>
+
+          @if (filteredTrips().length > 0) {
+            <div class="trips-table-wrapper">
+              <table class="trips-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>{{ 'admin.batching.zone' | translate }}</th>
+                    <th>{{ 'admin.batching.stops' | translate }}</th>
+                    <th>{{ 'admin.batching.status' | translate }}</th>
+                    <th>{{ 'admin.batching.driver' | translate }}</th>
+                    <th>{{ 'admin.batching.earnings' | translate }}</th>
+                    <th>{{ 'admin.batching.actions' | translate }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (trip of filteredTrips(); track trip.id) {
+                    <tr>
+                      <td>
+                        <span class="trip-id" (click)="viewTripDetails(trip)">#{{ trip.id }}</span>
+                      </td>
+                      <td>{{ formatZone(trip.h3_zone) }}</td>
+                      <td>
+                        <span class="stops-badge">{{ trip.completed_stops }}/{{ trip.total_stops }}</span>
+                      </td>
+                      <td>
+                        <p-tag
+                          [value]="getStatusLabel(trip.status)"
+                          [severity]="getStatusSeverity(trip.status)">
+                        </p-tag>
+                      </td>
+                      <td>
+                        @if (trip.driver_name) {
+                          <div class="driver-info">
+                            <span>{{ trip.driver_name }}</span>
+                            <small>{{ trip.driver_phone }}</small>
+                          </div>
+                        } @else {
+                          <span class="text-muted">-</span>
+                        }
+                      </td>
+                      <td>
+                        <span class="earnings">{{ trip.total_earnings | number:'1.0-0' }} DA</span>
+                      </td>
+                      <td>
+                        <div class="actions">
+                          <button
+                            pButton
+                            icon="pi pi-eye"
+                            class="p-button-text p-button-sm p-button-rounded"
+                            pTooltip="{{ 'common.view' | translate }}"
+                            (click)="viewTripDetails(trip)">
+                          </button>
+                          @if (trip.status === 'pending') {
+                            <button
+                              pButton
+                              icon="pi pi-user-plus"
+                              class="p-button-text p-button-sm p-button-rounded p-button-success"
+                              pTooltip="{{ 'admin.batching.assign' | translate }}"
+                              (click)="openAssignDialog(trip)">
+                            </button>
+                          }
+                          @if (trip.status === 'assigned') {
+                            <button
+                              pButton
+                              icon="pi pi-user-minus"
+                              class="p-button-text p-button-sm p-button-rounded p-button-warning"
+                              pTooltip="{{ 'admin.batching.unassign' | translate }}"
+                              (click)="unassignTrip(trip)">
+                            </button>
+                          }
+                          @if (trip.status === 'pending' || trip.status === 'assigned') {
+                            <button
+                              pButton
+                              icon="pi pi-times"
+                              class="p-button-text p-button-sm p-button-rounded p-button-danger"
+                              pTooltip="{{ 'admin.batching.unbatch' | translate }}"
+                              (click)="cancelTrip(trip)">
+                            </button>
+                          }
+                        </div>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          } @else {
+            <div class="empty-state">
+              <i class="pi pi-list"></i>
+              <h3>{{ 'admin.batching.no_trips' | translate }}</h3>
+            </div>
           }
         </div>
       }
@@ -744,7 +369,6 @@
         </div>
       </div>
 
-      <!-- Actions -->
       @if (selectedTrip()!.status === 'pending' || selectedTrip()!.status === 'assigned') {
         <div class="trip-detail__actions">
           @if (selectedTrip()!.status === 'pending') {

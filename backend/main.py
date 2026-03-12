@@ -83,7 +83,7 @@ def on_startup():
     seed_test_users()
 
     # Seed test orders for batching testing
-    seed_test_orders()
+    # seed_test_orders()  # Commented out to prevent generating new orders on every restart
 
 @app.get("/")
 def root():

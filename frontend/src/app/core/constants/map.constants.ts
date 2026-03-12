@@ -6,8 +6,8 @@
 // Default location (Ouadhia, Tizi Ouzou - Store/Warehouse location)
 export const MAP_DEFAULTS = {
   // Default center coordinates (Ouadhia Centre)
-  LATITUDE: 36.5550,
-  LONGITUDE: 4.0850,
+  LATITUDE: 36.549608,
+  LONGITUDE: 4.099934,
   ZOOM: 15,
   OVERVIEW_ZOOM: 10,
 
@@ -34,6 +34,18 @@ export const LEAFLET_TILES = {
     MAX_ZOOM: 24,
     SUBDOMAINS: ['mt0', 'mt1', 'mt2', 'mt3'] as string[],
     ATTRIBUTION: '&copy; Google Maps'
+  },
+  CARTODB_LIGHT: {
+    URL: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+    MAX_ZOOM: 20,
+    SUBDOMAINS: ['a', 'b', 'c', 'd'] as string[],
+    ATTRIBUTION: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
+  },
+  CARTODB_DARK: {
+    URL: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+    MAX_ZOOM: 20,
+    SUBDOMAINS: ['a', 'b', 'c', 'd'] as string[],
+    ATTRIBUTION: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
   },
   OSM: {
     URL: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',

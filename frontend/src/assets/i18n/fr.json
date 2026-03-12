@@ -1948,6 +1948,7 @@
       "select_driver_placeholder": "Choisir un livreur...",
       "unbatch": "Dégrouper",
       "organize_batches": "Organiser en tournées",
+      "reset_clusters": "Réinitialiser",
       "organize_hint": "Cliquez sur 'Organiser en tournées' pour grouper ces commandes par zone",
       "no_pending_orders": "Aucune commande en attente",
       "no_pending_orders_desc": "Toutes les commandes groupables ont été traitées",
@@ -1970,7 +1971,13 @@
       "send_to_pool": "Envoyer au pool",
       "trip_assigned_success": "Tournée créée et assignée avec succès",
       "trip_created_success": "Tournée créée et envoyée au pool",
-      "select_driver_required": "Veuillez sélectionner un chauffeur"
+      "select_driver_required": "Veuillez sélectionner un chauffeur",
+      "auto_cluster": "Regrouper Auto",
+      "auto_cluster_tooltip": "Regrouper automatiquement les commandes par proximité géographique (hexagones H3)",
+      "h3_cluster_success": "{{batches}} lots créés à partir de {{clusters}} groupes géographiques",
+      "create_batches": "Créer les lots",
+      "cluster_size": "Taille des zones",
+      "clusters": "groupes"
     }
   },
   "footer": {

@@ -1950,6 +1950,7 @@
       "select_driver_placeholder": "Choose a driver...",
       "unbatch": "Unbatch",
       "organize_batches": "Organize into Batches",
+      "reset_clusters": "Reset",
       "organize_hint": "Click 'Organize into Batches' to group these orders by zone",
       "no_pending_orders": "No Pending Orders",
       "no_pending_orders_desc": "All batchable orders have been processed",
@@ -1972,7 +1973,13 @@
       "send_to_pool": "Send to Pool",
       "trip_assigned_success": "Trip created and assigned successfully",
       "trip_created_success": "Trip created and sent to pool",
-      "select_driver_required": "Please select a driver"
+      "select_driver_required": "Please select a driver",
+      "auto_cluster": "Auto Cluster",
+      "auto_cluster_tooltip": "Automatically group orders by geographic proximity using H3 hexagons",
+      "h3_cluster_success": "Created {{batches}} batches from {{clusters}} geographic clusters",
+      "create_batches": "Create Batches",
+      "cluster_size": "Cluster Size",
+      "clusters": "clusters"
     }
   },
   "footer": {

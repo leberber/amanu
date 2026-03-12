@@ -161,6 +161,7 @@ export interface PendingOrder {
   created_at?: string;
   latitude?: number;
   longitude?: number;
+  h3_index?: string;
 }
 
 export interface PendingOrdersResponse {

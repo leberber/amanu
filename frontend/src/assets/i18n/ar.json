@@ -1936,6 +1936,7 @@
       "select_driver_placeholder": "اختر سائقاً...",
       "unbatch": "إلغاء التجميع",
       "organize_batches": "تنظيم في رحلات",
+      "reset_clusters": "إعادة تعيين",
       "organize_hint": "انقر على 'تنظيم في رحلات' لتجميع هذه الطلبات حسب المنطقة",
       "no_pending_orders": "لا توجد طلبات معلقة",
       "no_pending_orders_desc": "تمت معالجة جميع الطلبات القابلة للتجميع",
@@ -1958,7 +1959,13 @@
       "send_to_pool": "إرسال للمجمع",
       "trip_assigned_success": "تم إنشاء الرحلة وتعيينها بنجاح",
       "trip_created_success": "تم إنشاء الرحلة وإرسالها للمجمع",
-      "select_driver_required": "يرجى اختيار سائق"
+      "select_driver_required": "يرجى اختيار سائق",
+      "auto_cluster": "تجميع تلقائي",
+      "auto_cluster_tooltip": "تجميع الطلبات تلقائياً حسب القرب الجغرافي باستخدام H3",
+      "h3_cluster_success": "تم إنشاء {{batches}} مجموعات من {{clusters}} مناطق جغرافية",
+      "create_batches": "إنشاء الدفعات",
+      "cluster_size": "حجم المنطقة",
+      "clusters": "مجموعات"
     }
   },
   "footer": {

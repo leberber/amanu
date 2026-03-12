@@ -17,50 +17,62 @@ logger = logging.getLogger(__name__)
 
 # Test customer emails (from seed_test_users.py)
 TEST_CUSTOMER_EMAILS = [
-    # Original customers
-    "client1@test.com",   # Amina Khelifa - Ouadhia
-    "client2@test.com",   # Mohamed Boudiaf - Agouni Gueghrane
-    "client3@test.com",   # Rachid Hamdi - Ouadhia
-    "client4@test.com",   # Salima Benzerga - Ouadhia
-    "client5@test.com",   # Nadir Bensalem - Agouni Gueghrane
-    "client6@test.com",   # Karima Ait Ahmed - Agouni Gueghrane
-    "client7@test.com",   # Yassine Meziane - Ait Bouadou
-    "client8@test.com",   # Sofiane Brahimi - Ait Bouadou
-    "client9@test.com",   # Djamila Haddad - Tizi N'Tlata
-    "client10@test.com",  # Mourad Oukaci - Tizi N'Tlata
-    "client11@test.com",  # Djafer Mekhtoub - Agouni Gueghrane
-    # Additional customers - Ouadhia
-    "client12@test.com",  # Karim Belkacem - Ouadhia
-    "client13@test.com",  # Lynda Ould Ali - Ouadhia
-    "client14@test.com",  # Hakim Bouzid - Ouadhia
-    "client15@test.com",  # Samira Cherifi - Ouadhia
-    "client16@test.com",  # Farid Ait Saadi - Ouadhia
-    # Additional customers - Agouni Gueghrane
-    "client17@test.com",  # Nassim Ouali - Agouni Gueghrane
-    "client18@test.com",  # Malika Idir - Agouni Gueghrane
-    "client19@test.com",  # Arezki Mohand - Agouni Gueghrane
-    "client20@test.com",  # Zahia Belkadi - Agouni Gueghrane
-    "client21@test.com",  # Toufik Hamrani - Agouni Gueghrane
-    # Additional customers - Ait Bouadou
-    "client22@test.com",  # Smail Kaci - Ait Bouadou
-    "client23@test.com",  # Nadia Amrouche - Ait Bouadou
-    "client24@test.com",  # Rabah Slimani - Ait Bouadou
-    "client25@test.com",  # Farida Ait Ouali - Ait Bouadou
-    "client26@test.com",  # Mouloud Ziane - Ait Bouadou
-    # Additional customers - Tizi N'Tlata
-    "client27@test.com",  # Lyes Boudjema - Tizi N'Tlata
-    "client28@test.com",  # Sabrina Taleb - Tizi N'Tlata
-    "client29@test.com",  # Ahmed Belhocine - Tizi N'Tlata
-    "client30@test.com",  # Kahina Yahi - Tizi N'Tlata
-    "client31@test.com",  # Djamel Saidani - Tizi N'Tlata
+    # Zone A - Agouni Gueghrane (9 stores)
+    "djafer.mekhtoub@test.com",
+    "mesrouk.malik@test.com",
+    "assam.moumouh@test.com",
+    "amar.bota@test.com",
+    "djafer.mekhtoub2@test.com",
+    "melaz.nourdine@test.com",
+    "menad@test.com",
+    "bedrane.amirouche@test.com",
+    "moukah@test.com",
+    # Zone B - Ouadhia Centre (20 stores)
+    "hopital@test.com",
+    "client.ouadhia1@test.com",
+    "ali.ouremdhane@test.com",
+    "superette.juba@test.com",
+    "client.ouadhia2@test.com",
+    "client.ouadhia3@test.com",
+    "client.ouadhia4@test.com",
+    "client.ouadhia5@test.com",
+    "client.ouadhia6@test.com",
+    "metarfi@test.com",
+    "superette.azem@test.com",
+    "arret.tizi@test.com",
+    "client.ouadhia7@test.com",
+    "client.ouadhia8@test.com",
+    "client.ouadhia9@test.com",
+    "client.ouadhia10@test.com",
+    "client.ouadhia11@test.com",
+    "client.ouadhia12@test.com",
+    "client.ouadhia13@test.com",
+    "client.ouadhia14@test.com",
+    # Zone C - Tizi N'Tlata (7 stores)
+    "client.tizintlata1@test.com",
+    "client.tizintlata2@test.com",
+    "client.tizintlata3@test.com",
+    "client.tizintlata4@test.com",
+    "client.tizintlata5@test.com",
+    "client.tizintlata6@test.com",
+    "client.tizintlata7@test.com",
+    # Zone D - Ait Bouadou (8 stores)
+    "client.aitbouadou1@test.com",
+    "client.aitbouadou2@test.com",
+    "client.aitbouadou3@test.com",
+    "client.aitbouadou4@test.com",
+    "client.aitbouadou5@test.com",
+    "client.aitbouadou6@test.com",
+    "client.aitbouadou7@test.com",
+    "client.aitbouadou8@test.com",
 ]
 
 # Shipping costs by zone (in DZD)
 SHIPPING_COSTS = {
     "Ouadhia": 300,
     "Agouni Gueghrane": 350,
-    "Ait Bouadou": 400,
-    "Tizi N'Tlata": 450,
+    "Tizi N'Tlata": 400,
+    "Ait Bouadou": 450,
 }
 
 
@@ -97,68 +109,65 @@ def seed_test_orders():
 
         created_count = 0
 
-        # Create 1-2 orders per customer
+        # Create 1 order per customer
         for customer in customers:
-            num_orders = random.randint(1, 2)
+            # Select 2-5 random products for the order
+            num_items = random.randint(2, min(5, len(products)))
+            order_products = random.sample(list(products), num_items)
 
-            for _ in range(num_orders):
-                # Select 2-5 random products for the order
-                num_items = random.randint(2, min(5, len(products)))
-                order_products = random.sample(list(products), num_items)
+            # Calculate order totals
+            subtotal = 0
+            order_items_data = []
 
-                # Calculate order totals
-                subtotal = 0
-                order_items_data = []
+            for product in order_products:
+                quantity = random.randint(1, 10)
+                item_total = product.price * quantity
+                subtotal += item_total
 
-                for product in order_products:
-                    quantity = random.randint(1, 10)
-                    item_total = product.price * quantity
-                    subtotal += item_total
+                order_items_data.append({
+                    "product": product,
+                    "quantity": quantity,
+                    "unit_price": product.price,
+                })
 
-                    order_items_data.append({
-                        "product": product,
-                        "quantity": quantity,
-                        "unit_price": product.price,
-                    })
+            # Get shipping cost based on commune
+            shipping_cost = SHIPPING_COSTS.get(customer.commune, 350)
+            total_amount = subtotal + shipping_cost
 
-                # Get shipping cost based on commune
-                shipping_cost = SHIPPING_COSTS.get(customer.commune, 350)
-                total_amount = subtotal + shipping_cost
+            # Create order with random created_at in the last 3 days
+            hours_ago = random.randint(1, 72)
+            created_at = datetime.now(timezone.utc) - timedelta(hours=hours_ago)
 
-                # Create order with random created_at in the last 3 days
-                hours_ago = random.randint(1, 72)
-                created_at = datetime.now(timezone.utc) - timedelta(hours=hours_ago)
+            order = Order(
+                user_id=customer.id,
+                status=OrderStatus.CONFIRMED,
+                shipping_address=customer.address or f"{customer.commune}, Ouadhia",
+                contact_phone=customer.phone or "0555000000",
+                subtotal=subtotal,
+                total_amount=total_amount,
+                shipping_cost=shipping_cost,
+                created_at=created_at,
+            )
 
-                order = Order(
-                    user_id=customer.id,
-                    status=OrderStatus.CONFIRMED,
-                    shipping_address=customer.address or f"{customer.commune}, Ouadhia",
-                    contact_phone=customer.phone or "0555000000",
-                    subtotal=subtotal,
-                    total_amount=total_amount,
-                    shipping_cost=shipping_cost,
-                    created_at=created_at,
+            session.add(order)
+            session.flush()  # Get order ID
+
+            # Create order items
+            for item_data in order_items_data:
+                product = item_data["product"]
+                order_item = OrderItem(
+                    order_id=order.id,
+                    product_id=product.id,
+                    quantity=item_data["quantity"],
+                    unit_price=item_data["unit_price"],
+                    product_name=product.name,
+                    product_unit=product.unit.value if hasattr(product.unit, 'value') else str(product.unit),
+                    pieces_per_box=product.pieces_per_box,
                 )
+                session.add(order_item)
 
-                session.add(order)
-                session.flush()  # Get order ID
-
-                # Create order items
-                for item_data in order_items_data:
-                    product = item_data["product"]
-                    order_item = OrderItem(
-                        order_id=order.id,
-                        product_id=product.id,
-                        quantity=item_data["quantity"],
-                        unit_price=item_data["unit_price"],
-                        product_name=product.name,
-                        product_unit=product.unit.value if hasattr(product.unit, 'value') else str(product.unit),
-                        pieces_per_box=product.pieces_per_box,
-                    )
-                    session.add(order_item)
-
-                created_count += 1
-                logger.info(f"Created order #{order.id} for {customer.full_name} ({customer.commune}) - {len(order_items_data)} items, {total_amount} DZD")
+            created_count += 1
+            logger.info(f"Created order #{order.id} for {customer.full_name} ({customer.commune}) - {len(order_items_data)} items, {total_amount} DZD")
 
         session.commit()
 
@@ -168,13 +177,13 @@ def seed_test_orders():
     print("\n" + "="*60)
     print("TEST ORDERS CREATED")
     print("="*60)
-    print(f"Total orders: {created_count}")
+    print(f"Total orders: {created_count} (1 per customer)")
     print("-"*60)
-    print("Orders distributed across communes (31 customers):")
-    print("  - Ouadhia Centre: ~16-32 orders (8 customers)")
-    print("  - Agouni Gueghrane: ~18-36 orders (9 customers)")
-    print("  - Ait Bouadou: ~14-28 orders (7 customers)")
-    print("  - Tizi N'Tlata: ~14-28 orders (7 customers)")
+    print("Orders distributed across 4 zones (44 stores):")
+    print("  - Zone A (Agouni Gueghrane): 9 orders")
+    print("  - Zone B (Ouadhia Centre): 20 orders")
+    print("  - Zone C (Tizi N'Tlata): 7 orders")
+    print("  - Zone D (Ait Bouadou): 8 orders")
     print("\nAll orders are in CONFIRMED status for batching testing.")
     print("="*60 + "\n")
 

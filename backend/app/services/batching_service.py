@@ -361,6 +361,7 @@ def get_pending_orders_with_details(session: Session) -> list[dict]:
             "created_at": order.created_at.isoformat() if order.created_at else None,
             "latitude": order.user.latitude if order.user else None,
             "longitude": order.user.longitude if order.user else None,
+            "h3_index": order.user.h3_index if order.user else None,
         })
 
     return result
