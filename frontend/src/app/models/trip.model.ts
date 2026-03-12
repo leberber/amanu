@@ -159,6 +159,8 @@ export interface PendingOrder {
   shipping_cost: number;
   weight_kg: number;
   created_at?: string;
+  latitude?: number;
+  longitude?: number;
 }
 
 export interface PendingOrdersResponse {

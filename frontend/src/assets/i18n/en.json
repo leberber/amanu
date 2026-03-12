@@ -1963,7 +1963,9 @@
       "create_batch": "Create Batch",
       "no_batches_to_create": "No batches to create",
       "max_orders_batch": "Maximum 3 orders per batch. Excess moved to unbatched.",
-      "need_two_orders": "Need at least 2 orders to create a batch"
+      "need_two_orders": "Need at least 2 orders to create a batch",
+      "tab_map": "Map",
+      "zones": "Zones"
     }
   },
   "footer": {

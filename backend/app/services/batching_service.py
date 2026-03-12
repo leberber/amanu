@@ -342,7 +342,7 @@ def calculate_standard_shipping_discount(original_cost: float) -> float:
 def get_pending_orders_with_details(session: Session) -> list[dict]:
     """
     Get all pending batchable orders with details for the UI.
-    Returns order info needed for drag-drop interface.
+    Returns order info needed for drag-drop interface including coordinates for map display.
     """
     orders = get_pending_batchable_orders(session)
 
@@ -359,6 +359,8 @@ def get_pending_orders_with_details(session: Session) -> list[dict]:
             "shipping_cost": float(order.shipping_cost) if order.shipping_cost else 0,
             "weight_kg": round(weight_kg, 2),
             "created_at": order.created_at.isoformat() if order.created_at else None,
+            "latitude": order.user.latitude if order.user else None,
+            "longitude": order.user.longitude if order.user else None,
         })
 
     return result

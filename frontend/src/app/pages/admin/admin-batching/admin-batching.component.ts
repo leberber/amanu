@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed, DestroyRef } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, DestroyRef, AfterViewInit, effect } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { DialogModule } from 'primeng/dialog';
@@ -11,6 +11,7 @@ import {
   transferArrayItem,
 } from '@angular/cdk/drag-drop';
 import { trigger, transition, style, animate, query, stagger, keyframes } from '@angular/animations';
+import * as L from 'leaflet';
 
 import { ADMIN_LIST_IMPORTS } from '../../../shared/imports/admin-shared.imports';
 import { AgroclikPageContainerComponent } from '../../../shared/components/agroclik-page-container/agroclik-page-container.component';
@@ -26,8 +27,9 @@ import {
 } from '../../../models/trip.model';
 import { User } from '../../../models/user.model';
 import { ROUTES, RouteHelpers } from '../../../core/constants/routes.constants';
+import { MAP_DEFAULTS, LEAFLET_TILES, LEAFLET_ASSETS } from '../../../core/constants/map.constants';
 
-type TabType = 'overview' | 'trips';
+type TabType = 'overview' | 'trips' | 'map';
 type BatchingState = 'orders' | 'batches';
 
 @Component({
@@ -83,12 +85,29 @@ type BatchingState = 'orders' | 'batches';
     ])
   ]
 })
-export class AdminBatchingComponent implements OnInit {
+export class AdminBatchingComponent implements OnInit, AfterViewInit {
   private batchingService = inject(BatchingService);
   private toast = inject(ToastMessageService);
   private confirmationService = inject(ConfirmationService);
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
+
+  // Zone colors palette for map markers
+  private readonly ZONE_COLORS = [
+    '#3B82F6', // Blue
+    '#10B981', // Green
+    '#F59E0B', // Amber
+    '#EF4444', // Red
+    '#8B5CF6', // Purple
+    '#EC4899', // Pink
+    '#06B6D4', // Cyan
+    '#84CC16', // Lime
+    '#F97316', // Orange
+    '#6366F1'  // Indigo
+  ];
+  private zoneColorMap = new Map<string, string>();
+  private map: L.Map | null = null;
+  private markersLayer: L.LayerGroup | null = null;
 
   // State
   loading = signal(true);
@@ -97,6 +116,7 @@ export class AdminBatchingComponent implements OnInit {
   submittingBatches = signal(false);
   activeTab = signal<TabType>('overview');
   batchingState = signal<BatchingState>('orders');
+  mapInitialized = signal(false);
 
   // Data from service
   stats = this.batchingService.stats;
@@ -150,8 +170,171 @@ export class AdminBatchingComponent implements OnInit {
     [...this.batchDropListIds(), 'unbatched-list']
   );
 
+  constructor() {
+    // Watch for tab changes to initialize/destroy map
+    effect(() => {
+      const tab = this.activeTab();
+      if (tab === 'map') {
+        // Delay to ensure DOM is ready, then initialize
+        setTimeout(() => this.initMap(), 100);
+      } else {
+        // Destroy map when leaving map tab
+        this.destroyMap();
+      }
+    });
+
+    // Watch for orders/batches changes to update markers
+    effect(() => {
+      const orders = this.pendingOrders();
+      const batches = this.customBatches();
+      const state = this.batchingState();
+      if (this.map && this.markersLayer && this.mapInitialized()) {
+        this.updateMapMarkers();
+      }
+    });
+  }
+
   ngOnInit(): void {
     this.loadData();
+  }
+
+  ngAfterViewInit(): void {
+    // Map will be initialized when tab is selected
+  }
+
+  private initMap(): void {
+    // Already initialized
+    if (this.mapInitialized() && this.map) return;
+
+    const mapElement = document.getElementById('batching-map');
+    if (!mapElement) return;
+
+    // Fix Leaflet icon paths
+    L.Icon.Default.mergeOptions({
+      iconRetinaUrl: LEAFLET_ASSETS.MARKER_ICON_RETINA,
+      iconUrl: LEAFLET_ASSETS.MARKER_ICON,
+      shadowUrl: LEAFLET_ASSETS.MARKER_SHADOW
+    });
+
+    // Initialize map
+    this.map = L.map('batching-map', {
+      center: [MAP_DEFAULTS.LATITUDE, MAP_DEFAULTS.LONGITUDE],
+      zoom: MAP_DEFAULTS.OVERVIEW_ZOOM
+    });
+
+    // Add tile layer
+    L.tileLayer(LEAFLET_TILES.GOOGLE.URL, {
+      maxZoom: LEAFLET_TILES.GOOGLE.MAX_ZOOM,
+      subdomains: LEAFLET_TILES.GOOGLE.SUBDOMAINS,
+      attribution: LEAFLET_TILES.GOOGLE.ATTRIBUTION
+    }).addTo(this.map);
+
+    // Create markers layer
+    this.markersLayer = L.layerGroup().addTo(this.map);
+
+    this.mapInitialized.set(true);
+
+    // Add initial markers
+    this.updateMapMarkers();
+  }
+
+  private destroyMap(): void {
+    if (this.map) {
+      this.map.remove();
+      this.map = null;
+      this.markersLayer = null;
+      this.mapInitialized.set(false);
+    }
+  }
+
+  private updateMapMarkers(): void {
+    if (!this.map || !this.markersLayer) return;
+
+    // Clear existing markers
+    this.markersLayer.clearLayers();
+
+    const state = this.batchingState();
+    const orders = state === 'batches'
+      ? this.getAllOrdersFromBatches()
+      : this.pendingOrders();
+
+    if (orders.length === 0) return;
+
+    const bounds: L.LatLngBounds = L.latLngBounds([]);
+
+    orders.forEach(order => {
+      if (order.latitude && order.longitude) {
+        const color = state === 'batches'
+          ? this.getBatchColor(order)
+          : this.getZoneColor(order.zone);
+
+        const marker = this.createOrderMarker(order, color);
+        marker.addTo(this.markersLayer!);
+        bounds.extend([order.latitude, order.longitude]);
+      }
+    });
+
+    // Fit map to bounds if we have valid bounds
+    if (bounds.isValid()) {
+      this.map.fitBounds(bounds, { padding: [50, 50] });
+    }
+  }
+
+  private getAllOrdersFromBatches(): PendingOrder[] {
+    const orders: PendingOrder[] = [];
+    this.customBatches().forEach(batch => {
+      orders.push(...batch.orders);
+    });
+    // Also include unbatched orders
+    orders.push(...this.unbatchedOrders());
+    return orders;
+  }
+
+  private getZoneColor(zone: string): string {
+    if (!this.zoneColorMap.has(zone)) {
+      const colorIndex = this.zoneColorMap.size % this.ZONE_COLORS.length;
+      this.zoneColorMap.set(zone, this.ZONE_COLORS[colorIndex]);
+    }
+    return this.zoneColorMap.get(zone)!;
+  }
+
+  private getBatchColor(order: PendingOrder): string {
+    const batches = this.customBatches();
+    for (let i = 0; i < batches.length; i++) {
+      if (batches[i].order_ids.includes(order.id)) {
+        return this.ZONE_COLORS[i % this.ZONE_COLORS.length];
+      }
+    }
+    // Unbatched order - use gray
+    return '#6B7280';
+  }
+
+  private createOrderMarker(order: PendingOrder, color: string): L.CircleMarker {
+    const marker = L.circleMarker([order.latitude!, order.longitude!], {
+      radius: 10,
+      fillColor: color,
+      color: '#fff',
+      weight: 2,
+      opacity: 1,
+      fillOpacity: 0.8
+    });
+
+    const popupContent = `
+      <div style="min-width: 200px;">
+        <strong>#${order.id}</strong> - ${order.customer_name}<br>
+        <span style="color: #666; font-size: 12px;">${order.address}</span><br>
+        <div style="margin-top: 8px; display: flex; justify-content: space-between;">
+          <span><i class="pi pi-box" style="font-size: 11px;"></i> ${order.weight_kg.toFixed(1)} kg</span>
+          <span style="color: #10B981; font-weight: 600;">${order.shipping_cost} DA</span>
+        </div>
+        <div style="margin-top: 4px; padding: 4px 8px; background: ${color}; color: white; border-radius: 4px; text-align: center; font-size: 11px;">
+          ${this.formatZone(order.zone)}
+        </div>
+      </div>
+    `;
+
+    marker.bindPopup(popupContent);
+    return marker;
   }
 
   loadData(): void {
@@ -188,6 +371,10 @@ export class AdminBatchingComponent implements OnInit {
     this.activeTab.set(tab);
 
     if (tab === 'overview' && this.batchingState() === 'orders' && this.pendingOrders().length === 0) {
+      this.loadPendingOrders();
+    }
+
+    if (tab === 'map' && this.pendingOrders().length === 0 && this.batchingState() === 'orders') {
       this.loadPendingOrders();
     }
   }

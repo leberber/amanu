@@ -115,13 +115,14 @@
                 <i class="pi pi-list"></i>
                 <span>{{ 'admin.batching.tab_trips' | translate }}</span>
               </button>
+              <button
+                class="segment-control__item"
+                [class.active]="activeTab() === 'map'"
+                (click)="setActiveTab('map')">
+                <i class="pi pi-map"></i>
+                <span>{{ 'admin.batching.tab_map' | translate }}</span>
+              </button>
             </div>
-            @if (activeTab() === 'overview' && batchingState() === 'orders' && pendingOrders().length > 0) {
-              <span class="tabs-header__hint">
-                <i class="pi pi-info-circle"></i>
-                {{ 'admin.batching.organize_hint' | translate }}
-              </span>
-            }
           </div>
           @if (activeTab() === 'overview' && batchingState() === 'orders') {
             <div class="tabs-header__actions">
@@ -200,13 +201,6 @@
                 <p class="empty-state__description">{{ 'admin.batching.no_pending_orders_desc' | translate }}</p>
               </div>
             } @else {
-              <!-- Orders Count Badge -->
-              <div class="orders-count-badge">
-                <i class="pi pi-inbox"></i>
-                <span class="orders-count-badge__number">{{ pendingOrders().length }}</span>
-                <span class="orders-count-badge__label">{{ 'admin.batching.pending_orders' | translate }}</span>
-              </div>
-
               <!-- Orders Grid (scrollable container) -->
               <div class="orders-scroll-container">
                 <div class="orders-grid" [@staggerAnimation]="pendingOrders().length">
@@ -525,6 +519,19 @@
               </div>
             }
           </div>
+        </div>
+      }
+
+      <!-- Map Tab -->
+      @if (activeTab() === 'map') {
+        <div class="map-section animate-item" style="--item-delay: 100ms;">
+          @if (loadingOrders()) {
+            <div class="map-container map-container--loading">
+              <div class="skeleton" style="width: 100%; height: 100%;"></div>
+            </div>
+          } @else {
+            <div class="map-container" id="batching-map"></div>
+          }
         </div>
       }
     }

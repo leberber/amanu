@@ -1961,7 +1961,9 @@
       "create_batch": "Créer une tournée",
       "no_batches_to_create": "Aucune tournée à créer",
       "max_orders_batch": "Maximum 3 commandes par tournée. L'excédent a été déplacé.",
-      "need_two_orders": "Il faut au moins 2 commandes pour créer une tournée"
+      "need_two_orders": "Il faut au moins 2 commandes pour créer une tournée",
+      "tab_map": "Carte",
+      "zones": "Zones"
     }
   },
   "footer": {
