@@ -161,7 +161,11 @@ export class AdminBatchingComponent implements OnInit {
     this.batchingService.getStats()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: () => this.loading.set(false),
+        next: () => {
+          this.loading.set(false);
+          // Load pending orders for the overview tab
+          this.loadPendingOrders();
+        },
         error: () => {
           this.loading.set(false);
           this.toast.showError('admin.batching.load_error');

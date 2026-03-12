@@ -98,21 +98,50 @@
 
       <!-- Tab Buttons -->
       <div class="dashboard-tabs animate-item" style="--item-delay: 250ms;">
-        <div class="segment-control segment-control--glass">
-          <button
-            class="segment-control__item"
-            [class.active]="activeTab() === 'overview'"
-            (click)="setActiveTab('overview')">
-            <i class="pi pi-th-large"></i>
-            <span>{{ 'admin.batching.tab_overview' | translate }}</span>
-          </button>
-          <button
-            class="segment-control__item"
-            [class.active]="activeTab() === 'trips'"
-            (click)="setActiveTab('trips')">
-            <i class="pi pi-list"></i>
-            <span>{{ 'admin.batching.tab_trips' | translate }}</span>
-          </button>
+        <div class="tabs-header">
+          <div class="tabs-header__left">
+            <div class="segment-control segment-control--glass">
+              <button
+                class="segment-control__item"
+                [class.active]="activeTab() === 'overview'"
+                (click)="setActiveTab('overview')">
+                <i class="pi pi-th-large"></i>
+                <span>{{ 'admin.batching.tab_overview' | translate }}</span>
+              </button>
+              <button
+                class="segment-control__item"
+                [class.active]="activeTab() === 'trips'"
+                (click)="setActiveTab('trips')">
+                <i class="pi pi-list"></i>
+                <span>{{ 'admin.batching.tab_trips' | translate }}</span>
+              </button>
+            </div>
+            @if (activeTab() === 'overview' && batchingState() === 'orders' && pendingOrders().length > 0) {
+              <span class="tabs-header__hint">
+                <i class="pi pi-info-circle"></i>
+                {{ 'admin.batching.organize_hint' | translate }}
+              </span>
+            }
+          </div>
+          @if (activeTab() === 'overview' && batchingState() === 'orders') {
+            <div class="tabs-header__actions">
+              <button
+                pButton
+                icon="pi pi-refresh"
+                class="p-button-outlined p-button-sm"
+                [loading]="loadingOrders()"
+                (click)="loadPendingOrders()">
+              </button>
+              <button
+                pButton
+                [label]="'admin.batching.organize_batches' | translate"
+                icon="pi pi-bolt"
+                [loading]="organizingBatches()"
+                [disabled]="pendingOrders().length < 2"
+                (click)="organizeIntoBatches()">
+              </button>
+            </div>
+          }
         </div>
       </div>
     } @else {
@@ -152,32 +181,6 @@
         <!-- State: Orders View (before batching) -->
         @if (batchingState() === 'orders') {
           <div class="batching-section" [@organizeAnimation]="batchingState()">
-            <!-- Action Bar -->
-            <div class="batching-action-bar animate-item" style="--item-delay: 100ms;">
-              <div class="batching-action-bar__info">
-                <h3>{{ 'admin.batching.pending_orders' | translate }}</h3>
-                <span class="pill secondary">{{ pendingOrders().length }} {{ 'admin.batching.orders' | translate }}</span>
-              </div>
-              <div class="batching-action-bar__actions">
-                <button
-                  pButton
-                  icon="pi pi-refresh"
-                  class="p-button-outlined p-button-sm"
-                  [loading]="loadingOrders()"
-                  (click)="loadPendingOrders()">
-                </button>
-                <button
-                  pButton
-                  [label]="'admin.batching.organize_batches' | translate"
-                  icon="pi pi-bolt"
-                  class="p-button-lg"
-                  [loading]="organizingBatches()"
-                  [disabled]="pendingOrders().length < 2"
-                  (click)="organizeIntoBatches()">
-                </button>
-              </div>
-            </div>
-
             @if (loadingOrders()) {
               <div class="orders-grid">
                 @for (i of [1, 2, 3, 4, 5, 6]; track i) {
@@ -197,42 +200,43 @@
                 <p class="empty-state__description">{{ 'admin.batching.no_pending_orders_desc' | translate }}</p>
               </div>
             } @else {
-              <!-- Orders Grid -->
-              <div class="orders-grid" [@staggerAnimation]="pendingOrders().length">
-                @for (order of pendingOrders(); track order.id; let i = $index) {
-                  <div
-                    class="order-card animate-item"
-                    [style.--item-delay]="(i * 30) + 'ms'"
-                    (click)="goToOrder(order.id)">
-                    <div class="order-card__header">
-                      <span class="order-card__id">#{{ order.id }}</span>
-                      <span class="order-card__zone">
-                        <i class="pi pi-map-marker"></i>
-                        {{ formatZone(order.zone) }}
-                      </span>
-                    </div>
-                    <div class="order-card__content">
-                      <span class="order-card__customer">{{ order.customer_name }}</span>
-                      <span class="order-card__address">{{ order.address }}</span>
-                    </div>
-                    <div class="order-card__footer">
-                      <span class="order-card__weight">
-                        <i class="pi pi-box"></i>
-                        {{ order.weight_kg | number:'1.0-1' }} kg
-                      </span>
-                      <span class="order-card__price">{{ order.shipping_cost | number:'1.0-0' }} DA</span>
-                    </div>
-                  </div>
-                }
+              <!-- Orders Count Badge -->
+              <div class="orders-count-badge">
+                <i class="pi pi-inbox"></i>
+                <span class="orders-count-badge__number">{{ pendingOrders().length }}</span>
+                <span class="orders-count-badge__label">{{ 'admin.batching.pending_orders' | translate }}</span>
               </div>
 
-              <!-- Hint -->
-              @if (pendingOrders().length >= 2) {
-                <div class="hint-box mt-4 animate-item" style="--item-delay: 200ms;">
-                  <i class="pi pi-info-circle"></i>
-                  <span>{{ 'admin.batching.organize_hint' | translate }}</span>
+              <!-- Orders Grid (scrollable container) -->
+              <div class="orders-scroll-container">
+                <div class="orders-grid" [@staggerAnimation]="pendingOrders().length">
+                  @for (order of pendingOrders(); track order.id; let i = $index) {
+                    <div
+                      class="order-card animate-item"
+                      [style.--item-delay]="(i * 30) + 'ms'"
+                      (click)="goToOrder(order.id)">
+                      <div class="order-card__header">
+                        <span class="order-card__id">#{{ order.id }}</span>
+                        <span class="order-card__zone">
+                          <i class="pi pi-map-marker"></i>
+                          {{ formatZone(order.zone) }}
+                        </span>
+                      </div>
+                      <div class="order-card__content">
+                        <span class="order-card__customer">{{ order.customer_name }}</span>
+                        <span class="order-card__address">{{ order.address }}</span>
+                      </div>
+                      <div class="order-card__footer">
+                        <span class="order-card__weight">
+                          <i class="pi pi-box"></i>
+                          {{ order.weight_kg | number:'1.0-1' }} kg
+                        </span>
+                        <span class="order-card__price">{{ order.shipping_cost | number:'1.0-0' }} DA</span>
+                      </div>
+                    </div>
+                  }
                 </div>
-              }
+              </div>
             }
           </div>
         }

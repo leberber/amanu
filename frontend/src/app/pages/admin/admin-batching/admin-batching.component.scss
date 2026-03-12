@@ -5,11 +5,50 @@
   margin-top: var(--space-4);
 }
 
+.tabs-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+
+  &__left {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+  }
+
+  &__hint {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--font-size-sm);
+    color: var(--text-color-secondary);
+
+    i {
+      color: var(--color-info);
+    }
+
+    @media (max-width: 768px) {
+      display: none;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+}
+
 // Batching Section
 .batching-section {
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
+  flex: 1;
+  min-height: 0;
 }
 
 // Action Bar
@@ -49,11 +88,69 @@
   }
 }
 
+// Orders Count Badge
+.orders-count-badge {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface-card);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  width: fit-content;
+
+  i {
+    color: var(--primary-color);
+    font-size: var(--font-size-lg);
+  }
+
+  &__number {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--primary-color);
+  }
+
+  &__label {
+    font-size: var(--font-size-sm);
+    color: var(--text-color-secondary);
+  }
+}
+
+// Orders Scroll Container
+.orders-scroll-container {
+  flex: 1;
+  overflow-y: auto;
+  max-height: calc(100vh - 380px);
+  padding: var(--space-1);
+  margin: calc(-1 * var(--space-1));
+
+  // Custom scrollbar
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: var(--surface-ground);
+    border-radius: var(--radius-full);
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: var(--radius-full);
+
+    &:hover {
+      background: var(--text-color-secondary);
+    }
+  }
+}
+
 // Orders Grid
 .orders-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: var(--space-3);
+  align-content: start;
 }
 
 // Order Card
