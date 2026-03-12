@@ -26,6 +26,10 @@ from app.models.driver import DriverProfile  # Register model for table creation
 from app.models.shipping import H3DeliveryZone, ShippingPriceConfig  # Register models for table creation
 from app.models.trip import Trip, TripStop  # Register models for table creation
 from app.models.order import Order  # Ensure Order model with new columns is registered
+from app.models.customer_route import CustomerRoute  # Register model for table creation
+from app.services.customer_route_service import fetch_and_save_route, get_gmaps_client
+from sqlmodel import select
+from app.models.user import User
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -84,6 +88,58 @@ def on_startup():
 
     # Seed test orders for batching testing
     # seed_test_orders()  # Commented out to prevent generating new orders on every restart
+
+    # Fetch routes for customers without routes (if Google API key is configured)
+    fetch_missing_customer_routes()
+
+
+def fetch_missing_customer_routes():
+    """
+    Fetch routes from Google for all customers who have coordinates but no stored route.
+    Runs on startup. Only fetches for users without existing routes.
+    """
+    # Check if Google API key is configured
+    if not get_gmaps_client():
+        print("⚠️  GOOGLE_MAPS_API_KEY not configured - skipping route fetching")
+        return
+
+    with Session(engine) as session:
+        # Get users with coordinates who don't have routes
+        existing_route_ids = session.exec(select(CustomerRoute.user_id)).all()
+        existing_ids = set(existing_route_ids)
+
+        users_without_routes = session.exec(
+            select(User).where(
+                User.latitude.isnot(None),
+                User.longitude.isnot(None)
+            )
+        ).all()
+
+        users_to_fetch = [u for u in users_without_routes if u.id not in existing_ids]
+
+        if not users_to_fetch:
+            print("✓ All customers already have routes stored")
+            return
+
+        print(f"📍 Fetching routes for {len(users_to_fetch)} customers...")
+
+        fetched = 0
+        failed = 0
+
+        for user in users_to_fetch:
+            try:
+                route = fetch_and_save_route(session, user.id, user.latitude, user.longitude)
+                if route:
+                    fetched += 1
+                    print(f"  ✓ {user.store_name or user.full_name}: {route.distance_meters/1000:.1f} km ({route.corridor})")
+                else:
+                    failed += 1
+                    print(f"  ✗ {user.store_name or user.full_name}: No route found")
+            except Exception as e:
+                failed += 1
+                print(f"  ✗ {user.store_name or user.full_name}: Error - {e}")
+
+        print(f"📍 Routes fetched: {fetched} success, {failed} failed")
 
 @app.get("/")
 def root():

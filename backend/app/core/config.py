@@ -61,4 +61,12 @@ class Settings(BaseSettings):
     AWS_S3_BUCKET: str = os.getenv("AWS_S3_BUCKET", "agroclik")
     AWS_S3_REGION: str = os.getenv("AWS_S3_REGION", "eu-west-3")
 
+    # Google Maps API settings (for route fetching)
+    GOOGLE_MAPS_API_KEY: str = os.getenv("GOOGLE_MAPS_API_KEY", "")
+
+    # Depot location (warehouse)
+    DEPOT_LATITUDE: float = float(os.getenv("DEPOT_LATITUDE", "36.549608"))
+    DEPOT_LONGITUDE: float = float(os.getenv("DEPOT_LONGITUDE", "4.099945"))
+    DEPOT_NAME: str = os.getenv("DEPOT_NAME", "Entrepôt Elsuq - Ouadhia")
+
 settings = Settings()

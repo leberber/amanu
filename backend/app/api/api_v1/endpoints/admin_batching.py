@@ -21,6 +21,9 @@ from app.services.batching_service import (
     run_batching, preview_batching, set_order_full_load_status,
     get_pending_orders_with_details, create_trips_from_custom_batches
 )
+from app.services.smart_batching_service import (
+    SmartBatchingService, preview_smart_batching, run_smart_batching
+)
 from sqlmodel import SQLModel
 
 
@@ -154,6 +157,90 @@ def run_order_batching(
     """
     result = run_batching(session, created_by_id=current_user.id)
     return result
+
+
+# =============================================================================
+# SMART BATCHING ENDPOINTS (Corridor-based, capacity-aware)
+# =============================================================================
+
+class SmartBatchingStrategy(SQLModel):
+    """Strategy options for smart batching"""
+    strategy: str = "farthest_first"  # or "nearest_first"
+    max_weight_per_batch: Optional[float] = None
+
+
+@router.get("/smart-preview")
+def preview_smart_order_batching(
+    strategy: str = "farthest_first",
+    current_user: User = Depends(get_current_staff_user),
+    session: Session = Depends(get_session),
+) -> Any:
+    """
+    Preview smart corridor-based batching.
+
+    Strategy options:
+    - farthest_first: Go to farthest customer first, deliver on way back (recommended)
+    - nearest_first: Start with nearest customer, work outward
+
+    This uses:
+    - Stored route data (corridors: TIZI_OUZOU, AGOUNI_GUEGHRANE)
+    - Driver vehicle capacity
+    - Distance-based ordering (no circles!)
+    """
+    result = preview_smart_batching(session, strategy=strategy)
+    return result
+
+
+@router.post("/smart-run")
+def run_smart_order_batching(
+    strategy: str = "farthest_first",
+    current_user: User = Depends(get_current_admin_user),
+    session: Session = Depends(get_session),
+) -> Any:
+    """
+    Run smart corridor-based batching and create trips.
+
+    This creates optimized trips:
+    - Groups orders by corridor (same road)
+    - Sorts by distance (farthest first = no backtracking)
+    - Respects driver vehicle capacity
+    - Assigns drivers automatically
+    """
+    result = run_smart_batching(
+        session,
+        created_by_id=current_user.id,
+        strategy=strategy
+    )
+    return result
+
+
+@router.get("/smart-drivers")
+def get_available_drivers_for_batching(
+    current_user: User = Depends(get_current_staff_user),
+    session: Session = Depends(get_session),
+) -> Any:
+    """
+    Get available drivers with their vehicle capacity.
+    Useful for planning batches manually.
+    """
+    service = SmartBatchingService(session)
+    drivers = service.get_active_drivers()
+
+    return {
+        "drivers": [
+            {
+                "id": d.driver_id,
+                "name": d.driver_name,
+                "phone": d.phone,
+                "capacity_kg": d.capacity_kg,
+                "vehicle_type": d.vehicle_type,
+            }
+            for d in drivers
+        ],
+        "total": len(drivers),
+        "min_capacity_kg": min(d.capacity_kg for d in drivers) if drivers else 0,
+        "max_capacity_kg": max(d.capacity_kg for d in drivers) if drivers else 0,
+    }
 
 
 # =============================================================================
@@ -595,4 +682,83 @@ def get_batching_stats(
         in_progress_trips=in_progress_trips,
         completed_trips_today=completed_today,
         total_trips=total_trips,
+    )
+
+
+# =============================================================================
+# RESET ALL TRIPS
+# =============================================================================
+
+class ResetTripsResponse(SQLModel):
+    """Response for resetting all trips"""
+    success: bool
+    message: str
+    trips_deleted: int
+    orders_reset: int
+
+
+@router.post("/reset", response_model=ResetTripsResponse)
+def reset_all_trips(
+    current_user: User = Depends(get_current_admin_user),
+    session: Session = Depends(get_session),
+) -> Any:
+    """
+    Reset all trips and return orders to pending state.
+    This deletes all trip_stops, all trips, and resets orders.
+    Used to reinitialize the smart batching system.
+    Admin only.
+    """
+    now = datetime.now(timezone.utc)
+
+    # Get all trips (excluding completed ones)
+    trips_to_delete = session.exec(
+        select(Trip).where(Trip.status != TripStatus.COMPLETED)
+    ).all()
+
+    if not trips_to_delete:
+        return ResetTripsResponse(
+            success=True,
+            message="No trips to reset",
+            trips_deleted=0,
+            orders_reset=0
+        )
+
+    trip_ids = [t.id for t in trips_to_delete]
+    orders_reset = 0
+
+    # Reset all orders linked to these trips
+    orders_to_reset = session.exec(
+        select(Order).where(Order.trip_id.in_(trip_ids))
+    ).all()
+
+    for order in orders_to_reset:
+        order.trip_id = None
+        order.driver_id = None
+        order.status = OrderStatus.CONFIRMED
+        order.assigned_at = None
+        order.picked_up_at = None
+        order.in_transit_at = None
+        order.updated_at = now
+        session.add(order)
+        orders_reset += 1
+
+    # Delete all trip stops for these trips
+    stops_to_delete = session.exec(
+        select(TripStop).where(TripStop.trip_id.in_(trip_ids))
+    ).all()
+
+    for stop in stops_to_delete:
+        session.delete(stop)
+
+    # Delete the trips
+    for trip in trips_to_delete:
+        session.delete(trip)
+
+    session.commit()
+
+    return ResetTripsResponse(
+        success=True,
+        message=f"Reset {len(trips_to_delete)} trips and {orders_reset} orders",
+        trips_deleted=len(trips_to_delete),
+        orders_reset=orders_reset
     )

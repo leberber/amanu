@@ -1984,7 +1984,24 @@
       "min_orders": "Min. commandes",
       "max_orders": "Max. commandes",
       "max_weight": "Poids max.",
-      "zone_size": "Taille zone"
+      "zone_size": "Taille zone",
+      "smart_route": "Itinéraire intelligent",
+      "smart_route_tooltip": "Regrouper les commandes par corridor et optimiser l'itinéraire par distance",
+      "smart_preview_success": "{{batches}} corridors trouvés avec {{orders}} commandes",
+      "smart_preview_error": "Échec de l'aperçu des itinéraires intelligents",
+      "smart_run_success": "{{trips}} tournées créées avec {{orders}} commandes",
+      "smart_run_error": "Échec de la création des itinéraires intelligents",
+      "reset_smart": "Réinitialiser",
+      "corridors": "corridors",
+      "show_routes": "Afficher les itinéraires",
+      "routes_load_error": "Échec du chargement des données d'itinéraire",
+      "no_orders_to_batch": "Aucune commande disponible pour le regroupement",
+      "total": "Total",
+      "reinitialize": "Réinitialiser",
+      "reinitialize_confirm": "Réinitialiser toutes les tournées? Les commandes seront remises en attente.",
+      "reinitialize_header": "Réinitialiser les tournées",
+      "reset_success": "{{orders}} commandes réinitialisées avec succès",
+      "reset_error": "Échec de la réinitialisation des tournées"
     }
   },
   "footer": {

@@ -25,11 +25,18 @@ const API_ENDPOINTS = {
   ORDERS: '/admin/batching/orders',
   STATS: '/admin/batching/stats',
   TRIPS: '/admin/batching/trips',
+  RESET: '/admin/batching/reset',
   tripDetail: (tripId: number) => `/admin/batching/trips/${tripId}`,
   assignTrip: (tripId: number) => `/admin/batching/trips/${tripId}/assign`,
   unassignTrip: (tripId: number) => `/admin/batching/trips/${tripId}/unassign`,
   cancelTrip: (tripId: number) => `/admin/batching/trips/${tripId}`,
-  DRIVERS: '/users?role=DRIVER'
+  DRIVERS: '/users?role=DRIVER',
+  // Smart batching endpoints
+  SMART_PREVIEW: '/admin/batching/smart-preview',
+  SMART_RUN: '/admin/batching/smart-run',
+  SMART_DRIVERS: '/admin/batching/smart-drivers',
+  // Customer routes (for polylines)
+  CUSTOMER_ROUTES: '/admin/routes'
 };
 
 @Injectable({
@@ -239,4 +246,152 @@ export class BatchingService {
   clearPendingOrders(): void {
     this._pendingOrders.set([]);
   }
+
+  // ==================== Smart Batching ====================
+
+  /**
+   * Preview smart corridor-based batching
+   * Groups orders by corridor (road) and sorts by distance
+   */
+  previewSmartBatching(strategy: 'farthest_first' | 'nearest_first' = 'farthest_first'): Observable<SmartBatchingResponse> {
+    return this.http.get<SmartBatchingResponse>(
+      `${this.apiUrl}${API_ENDPOINTS.SMART_PREVIEW}?strategy=${strategy}`
+    );
+  }
+
+  /**
+   * Run smart batching and create trips
+   * Uses corridors, driver capacity, and distance-based ordering
+   */
+  runSmartBatching(strategy: 'farthest_first' | 'nearest_first' = 'farthest_first'): Observable<SmartBatchingResponse> {
+    return this.http.post<SmartBatchingResponse>(
+      `${this.apiUrl}${API_ENDPOINTS.SMART_RUN}?strategy=${strategy}`,
+      {}
+    ).pipe(
+      tap(() => {
+        this.getStats().subscribe();
+        this.getTrips().subscribe();
+        this._pendingOrders.set([]);
+      })
+    );
+  }
+
+  /**
+   * Get available drivers with their vehicle capacity
+   */
+  getSmartDrivers(): Observable<SmartDriversResponse> {
+    return this.http.get<SmartDriversResponse>(`${this.apiUrl}${API_ENDPOINTS.SMART_DRIVERS}`);
+  }
+
+  /**
+   * Get all customer routes with polylines
+   */
+  getCustomerRoutes(): Observable<CustomerRoute[]> {
+    return this.http.get<CustomerRoute[]>(`${this.apiUrl}${API_ENDPOINTS.CUSTOMER_ROUTES}`);
+  }
+
+  /**
+   * Reset all trips - delete trips/stops and return orders to pending
+   * Used to reinitialize smart batching
+   */
+  resetAllTrips(): Observable<ResetTripsResponse> {
+    return this.http.post<ResetTripsResponse>(
+      `${this.apiUrl}${API_ENDPOINTS.RESET}`,
+      {}
+    ).pipe(
+      tap(() => {
+        this._trips.set([]);
+        this._pendingOrders.set([]);
+        this.getStats().subscribe();
+      })
+    );
+  }
+}
+
+// ==================== Smart Batching Interfaces ====================
+
+export interface SmartBatchStop {
+  sequence: number;
+  order_id: number;
+  customer_name: string;
+  address: string;
+  phone: string;
+  weight_kg: number;
+  distance_km: number;
+  latitude?: number;
+  longitude?: number;
+}
+
+export interface SmartBatch {
+  corridor: string;
+  order_count: number;
+  order_ids: number[];
+  total_weight_kg: number;
+  total_distance_km: number;
+  total_earnings: number;
+  assigned_driver?: {
+    id: number;
+    name: string;
+    capacity_kg: number;
+    vehicle_type: string;
+  };
+  stops: SmartBatchStop[];
+}
+
+export interface SmartBatchingResponse {
+  success: boolean;
+  message?: string;
+  error?: string;
+  batches: SmartBatch[];
+  summary: {
+    total_orders: number;
+    total_batches: number;
+    by_corridor?: Record<string, number>;
+    drivers_available?: number;
+    batch_capacity_kg?: number;
+    strategy?: string;
+  };
+  trips_created?: number;
+  trips?: Array<{
+    id: number;
+    corridor: string;
+    stops: number;
+    driver_id?: number;
+    status: string;
+  }>;
+}
+
+export interface SmartDriver {
+  id: number;
+  name: string;
+  phone: string;
+  capacity_kg: number;
+  vehicle_type: string;
+}
+
+export interface SmartDriversResponse {
+  drivers: SmartDriver[];
+  total: number;
+  min_capacity_kg: number;
+  max_capacity_kg: number;
+}
+
+export interface CustomerRoute {
+  id: number;
+  user_id: number;
+  distance_meters: number;
+  duration_seconds: number;
+  distance_km: number;
+  duration_min: number;
+  initial_heading?: number;
+  corridor?: string;
+  end_address?: string;
+  route_polyline?: string;
+}
+
+export interface ResetTripsResponse {
+  success: boolean;
+  message: string;
+  trips_deleted: number;
+  orders_reset: number;
 }

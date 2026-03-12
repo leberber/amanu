@@ -50,3 +50,8 @@ from app.models.user_notification import UserNotification
 from app.models.password_reset import PasswordResetToken
 from app.models.email_verification import EmailVerificationToken
 from app.models.restock import RestockItem
+
+# Customer route models (for delivery optimization)
+from app.models.customer_route import (
+    CustomerRoute, CustomerRouteCreate, CustomerRouteRead
+)

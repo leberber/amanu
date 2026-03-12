@@ -1986,7 +1986,24 @@
       "min_orders": "Min. orders",
       "max_orders": "Max. orders",
       "max_weight": "Max. weight",
-      "zone_size": "Zone size"
+      "zone_size": "Zone size",
+      "smart_route": "Smart Route",
+      "smart_route_tooltip": "Group orders by corridor and optimize route by distance",
+      "smart_preview_success": "Found {{batches}} corridors with {{orders}} orders",
+      "smart_preview_error": "Failed to preview smart routing",
+      "smart_run_success": "Created {{trips}} trips with {{orders}} orders",
+      "smart_run_error": "Failed to create smart routes",
+      "reset_smart": "Reset",
+      "corridors": "corridors",
+      "show_routes": "Show routes",
+      "routes_load_error": "Failed to load route data",
+      "no_orders_to_batch": "No orders available for batching",
+      "total": "Total",
+      "reinitialize": "Reinitialize",
+      "reinitialize_confirm": "Reset all trips? Orders will be returned to pending.",
+      "reinitialize_header": "Reset Trips",
+      "reset_success": "{{orders}} orders reset successfully",
+      "reset_error": "Failed to reset trips"
     }
   },
   "footer": {

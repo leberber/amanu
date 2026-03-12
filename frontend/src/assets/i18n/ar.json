@@ -1972,7 +1972,24 @@
       "min_orders": "الحد الأدنى",
       "max_orders": "الحد الأقصى",
       "max_weight": "الوزن الأقصى",
-      "zone_size": "حجم المنطقة"
+      "zone_size": "حجم المنطقة",
+      "smart_route": "مسار ذكي",
+      "smart_route_tooltip": "تجميع الطلبات حسب الممر وتحسين المسار بالمسافة",
+      "smart_preview_success": "تم العثور على {{batches}} ممرات مع {{orders}} طلبات",
+      "smart_preview_error": "فشل في معاينة المسارات الذكية",
+      "smart_run_success": "تم إنشاء {{trips}} رحلات مع {{orders}} طلبات",
+      "smart_run_error": "فشل في إنشاء المسارات الذكية",
+      "reset_smart": "إعادة تعيين",
+      "corridors": "ممرات",
+      "show_routes": "عرض المسارات",
+      "routes_load_error": "فشل في تحميل بيانات المسار",
+      "no_orders_to_batch": "لا توجد طلبات للتجميع",
+      "total": "المجموع",
+      "reinitialize": "إعادة التهيئة",
+      "reinitialize_confirm": "إعادة تعيين جميع الرحلات؟ سيتم إرجاع الطلبات إلى قيد الانتظار.",
+      "reinitialize_header": "إعادة تعيين الرحلات",
+      "reset_success": "تمت إعادة تعيين {{orders}} طلبات بنجاح",
+      "reset_error": "فشل في إعادة تعيين الرحلات"
     }
   },
   "footer": {

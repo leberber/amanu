@@ -5,12 +5,12 @@ import { DialogModule } from 'primeng/dialog';
 import { SelectModule } from 'primeng/select';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { trigger, transition, style, animate } from '@angular/animations';
+import { TranslateService } from '@ngx-translate/core';
 import * as L from 'leaflet';
-import { cellToParent, isValidCell, cellToBoundary } from 'h3-js';
 
 import { ADMIN_LIST_IMPORTS } from '../../../shared/imports/admin-shared.imports';
 import { AgroclikPageContainerComponent } from '../../../shared/components/agroclik-page-container/agroclik-page-container.component';
-import { BatchingService } from '../../../services/batching.service';
+import { BatchingService, SmartBatch, CustomerRoute } from '../../../services/batching.service';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
 import { Trip, TripWithStops, TripStatus, PendingOrder } from '../../../models/trip.model';
 import { RouteHelpers } from '../../../core/constants/routes.constants';
@@ -18,30 +18,12 @@ import { MAP_DEFAULTS, LEAFLET_TILES, LEAFLET_ASSETS } from '../../../core/const
 
 type TabType = 'map' | 'trips';
 
-interface MapCluster {
-  h3Index: string;
-  orders: PendingOrder[];
-  color: string;
-  center: [number, number];
-  boundary: [number, number][];
-}
-
-interface ClusteringParams {
-  minOrdersPerBatch: number;
-  maxOrdersPerBatch: number;
-  maxWeightPerBatch: number; // 0 = no limit
-  h3Resolution: number;
-}
-
-const DEFAULT_CLUSTERING_PARAMS: ClusteringParams = {
-  minOrdersPerBatch: 2,
-  maxOrdersPerBatch: 3,
-  maxWeightPerBatch: 0,
-  h3Resolution: 7
-};
-
 // Constants
-const CLUSTER_COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#06B6D4', '#84CC16', '#F97316', '#6366F1'];
+const CORRIDOR_COLORS: Record<string, string> = {
+  'TIZI_OUZOU': '#3B82F6',      // Blue - Northwest corridor
+  'AGOUNI_GUEGHRANE': '#10B981', // Green - Southeast corridor
+  'OTHER': '#9CA3AF'             // Gray - Uncategorized
+};
 const DEFAULT_MARKER_COLOR = '#6366F1';
 const MARKER_STYLES = { default: { radius: 8, weight: 2 }, clustered: { radius: 12, weight: 3 } };
 
@@ -73,33 +55,33 @@ export class AdminBatchingComponent implements OnInit {
   private batchingService = inject(BatchingService);
   private toast = inject(ToastMessageService);
   private confirmationService = inject(ConfirmationService);
+  private translate = inject(TranslateService);
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
 
-  // Expose Math for template
-  protected Math = Math;
-
   // Map
-  private h3ColorMap = new Map<string, string>();
   private map: L.Map | null = null;
   private markersLayer: L.LayerGroup | null = null;
-  private clustersLayer: L.LayerGroup | null = null;
   private connectionsLayer: L.LayerGroup | null = null;
+  private routesLayer: L.LayerGroup | null = null;
 
   // State
   loading = signal(true);
   loadingOrders = signal(false);
-  organizingBatches = signal(false);
   submittingBatches = signal(false);
   activeTab = signal<TabType>('map');
   mapInitialized = signal(false);
-  mapClusteringActive = signal(false);
-  mapClusters = signal<MapCluster[]>([]);
   pendingOrders = signal<PendingOrder[]>([]);
 
-  // Clustering parameters
-  showClusterSettings = signal(false);
-  clusterParams = signal<ClusteringParams>({ ...DEFAULT_CLUSTERING_PARAMS });
+  // Smart batching state
+  smartBatchingActive = signal(false);
+  runningSmartBatch = signal(false);
+  smartBatches = signal<SmartBatch[]>([]);
+  customerRoutes = signal<CustomerRoute[]>([]);
+  showRoutePolylines = signal(false);
+  resettingBatches = signal(false);
+
+  // Filter
   statusFilter = signal<TripStatus | null>(null);
 
   // Dialogs
@@ -161,7 +143,7 @@ export class AdminBatchingComponent implements OnInit {
     });
 
     this.setupTileLayers();
-    this.clustersLayer = L.layerGroup().addTo(this.map);
+    this.routesLayer = L.layerGroup().addTo(this.map);
     this.connectionsLayer = L.layerGroup().addTo(this.map);
     this.markersLayer = L.layerGroup().addTo(this.map);
     this.addWarehouseMarker();
@@ -204,10 +186,11 @@ export class AdminBatchingComponent implements OnInit {
   private destroyMap(): void {
     if (!this.map) return;
     this.map.remove();
-    this.map = this.markersLayer = this.clustersLayer = this.connectionsLayer = null;
+    this.map = this.markersLayer = this.connectionsLayer = this.routesLayer = null;
     this.mapInitialized.set(false);
-    this.mapClusteringActive.set(false);
-    this.mapClusters.set([]);
+    this.smartBatchingActive.set(false);
+    this.smartBatches.set([]);
+    this.showRoutePolylines.set(false);
   }
 
   private updateMapMarkers(): void {
@@ -261,202 +244,253 @@ export class AdminBatchingComponent implements OnInit {
     `;
   }
 
-  private getH3Color(h3Index: string): string {
-    if (!this.h3ColorMap.has(h3Index)) {
-      this.h3ColorMap.set(h3Index, CLUSTER_COLORS[this.h3ColorMap.size % CLUSTER_COLORS.length]);
-    }
-    return this.h3ColorMap.get(h3Index)!;
-  }
+  // ==================== Smart Batching ====================
 
-  // ==================== Clustering ====================
-
-  activateMapClustering(): void {
-    if (!this.map) return;
-    this.organizingBatches.set(true);
-
-    const h3Groups = this.groupOrdersByH3();
-    const clusters = this.createClustersFromGroups(h3Groups);
-    this.mapClusters.set(clusters);
-
-    setTimeout(() => {
-      this.mapClusteringActive.set(true);
-      this.drawClusterBoundaries();
-      this.drawClusteredMarkers();
-      this.organizingBatches.set(false);
-      this.toast.showSuccess('admin.batching.h3_cluster_success', { batches: clusters.length, clusters: clusters.length });
-    }, 300);
-  }
-
-  private groupOrdersByH3(): Map<string, PendingOrder[]> {
-    const groups = new Map<string, PendingOrder[]>();
-    const resolution = this.clusterParams().h3Resolution;
-
-    this.pendingOrders().forEach(order => {
-      if (!order.h3_index || !isValidCell(order.h3_index) || !order.latitude || !order.longitude) return;
-      try {
-        const parentCell = cellToParent(order.h3_index, resolution);
-        if (!groups.has(parentCell)) groups.set(parentCell, []);
-        groups.get(parentCell)!.push(order);
-      } catch { /* Skip invalid */ }
+  previewSmartBatching(): void {
+    this.runningSmartBatch.set(true);
+    this.batchingService.previewSmartBatching('farthest_first').pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (response) => {
+        this.runningSmartBatch.set(false);
+        if (response.success && response.batches.length > 0) {
+          this.smartBatches.set(response.batches);
+          this.smartBatchingActive.set(true);
+          this.drawSmartBatchMarkers();
+          this.toast.showSuccess('admin.batching.smart_preview_success', {
+            batches: response.batches.length,
+            orders: response.summary.total_orders
+          });
+        } else {
+          this.toast.showWarn('admin.batching.no_orders_to_batch');
+        }
+      },
+      error: (err) => {
+        this.runningSmartBatch.set(false);
+        this.toast.showApiError(err, 'admin.batching.smart_preview_error');
+      }
     });
-
-    return groups;
   }
 
-  private createClustersFromGroups(groups: Map<string, PendingOrder[]>): MapCluster[] {
-    this.h3ColorMap.clear();
-    const clusters: MapCluster[] = [];
-
-    groups.forEach((orders, h3Index) => {
-      const boundary = cellToBoundary(h3Index, true).map(([lat, lng]): [number, number] => [lat, lng]);
-      const center: [number, number] = [
-        orders.reduce((sum, o) => sum + (o.latitude || 0), 0) / orders.length,
-        orders.reduce((sum, o) => sum + (o.longitude || 0), 0) / orders.length
-      ];
-
-      clusters.push({ h3Index, orders, color: this.getH3Color(h3Index), center, boundary });
+  runSmartBatching(): void {
+    this.submittingBatches.set(true);
+    this.batchingService.runSmartBatching('farthest_first').pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (response) => {
+        this.submittingBatches.set(false);
+        if (response.success) {
+          this.toast.showSuccess('admin.batching.smart_run_success', {
+            trips: response.trips_created || 0,
+            orders: response.summary.total_orders
+          });
+          this.deactivateSmartBatching();
+          this.refreshAllData();
+        }
+      },
+      error: (err) => {
+        this.submittingBatches.set(false);
+        this.toast.showApiError(err, 'admin.batching.smart_run_error');
+      }
     });
-
-    return clusters;
   }
 
-  deactivateMapClustering(): void {
-    this.mapClusteringActive.set(false);
-    this.mapClusters.set([]);
-    this.h3ColorMap.clear();
-    this.clustersLayer?.clearLayers();
+  deactivateSmartBatching(): void {
+    this.smartBatchingActive.set(false);
+    this.smartBatches.set([]);
+    this.routesLayer?.clearLayers();
     this.connectionsLayer?.clearLayers();
     this.updateMapMarkers();
   }
 
-  private drawClusterBoundaries(): void {
-    if (!this.clustersLayer) return;
-    this.clustersLayer.clearLayers();
-
-    this.mapClusters().forEach((cluster, i) => {
-      setTimeout(() => {
-        const polygon = L.polygon(cluster.boundary, {
-          color: cluster.color, weight: 3, opacity: 0.8,
-          fillColor: cluster.color, fillOpacity: 0.15
+  reinitializeSmartBatching(): void {
+    this.confirmationService.confirm({
+      message: this.translate.instant('admin.batching.reinitialize_confirm'),
+      header: this.translate.instant('admin.batching.reinitialize_header'),
+      icon: 'pi pi-exclamation-triangle',
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: () => {
+        this.resettingBatches.set(true);
+        this.batchingService.resetAllTrips().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+          next: (response) => {
+            this.resettingBatches.set(false);
+            this.toast.showSuccess('admin.batching.reset_success', { orders: response.orders_reset || 0 });
+            this.deactivateSmartBatching();
+            this.refreshAllData();
+          },
+          error: (err) => {
+            this.resettingBatches.set(false);
+            this.toast.showApiError(err, 'admin.batching.reset_error');
+          }
         });
-
-        const weight = cluster.orders.reduce((s, o) => s + o.weight_kg, 0).toFixed(1);
-        polygon.bindTooltip(`<div style="text-align:center;"><strong>${cluster.orders.length} commandes</strong><br><span style="color:#666;font-size:11px;">${weight} kg</span></div>`, { direction: 'center' });
-        polygon.addTo(this.clustersLayer!);
-      }, i * 100);
+      }
     });
   }
 
-  private drawClusteredMarkers(): void {
-    if (!this.markersLayer || !this.connectionsLayer) return;
+  private drawSmartBatchMarkers(): void {
+    if (!this.map || !this.markersLayer || !this.connectionsLayer) return;
     this.markersLayer.clearLayers();
     this.connectionsLayer.clearLayers();
 
-    const clusters = this.mapClusters();
+    const batches = this.smartBatches();
     const bounds = L.latLngBounds([]);
+    const depotLatLng: [number, number] = [MAP_DEFAULTS.LATITUDE, MAP_DEFAULTS.LONGITUDE];
 
-    clusters.forEach((cluster, ci) => {
+    batches.forEach((batch, batchIndex) => {
+      const color = CORRIDOR_COLORS[batch.corridor] || CORRIDOR_COLORS['OTHER'];
+
+      // Draw delivery route lines connecting depot -> stops in sequence
+      const routePoints: [number, number][] = [depotLatLng];
+
+      batch.stops.forEach((stop, stopIndex) => {
+        if (!stop.latitude || !stop.longitude) return;
+
+        routePoints.push([stop.latitude, stop.longitude]);
+        bounds.extend([stop.latitude, stop.longitude]);
+
+        // Create marker with sequence number
+        setTimeout(() => {
+          const marker = L.circleMarker([stop.latitude!, stop.longitude!], {
+            radius: 12,
+            fillColor: color,
+            color: '#fff',
+            weight: 3,
+            opacity: 1,
+            fillOpacity: 0.9
+          });
+
+          // Popup with stop details
+          marker.bindPopup(`
+            <div style="min-width:200px;">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+                <span style="width:24px;height:24px;border-radius:50%;background:${color};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:12px;">${stop.sequence}</span>
+                <strong>#${stop.order_id}</strong>
+              </div>
+              <span style="font-weight:500;">${stop.customer_name}</span><br>
+              <span style="color:#666;font-size:12px;">${stop.address}</span>
+              <div style="margin-top:8px;display:flex;justify-content:space-between;">
+                <span>${stop.weight_kg.toFixed(1)} kg</span>
+                <span style="color:#10B981;font-weight:600;">${stop.distance_km.toFixed(1)} km</span>
+              </div>
+              <div style="margin-top:4px;color:#666;font-size:11px;">
+                <i class="pi pi-road"></i> ${this.formatCorridor(batch.corridor)}
+              </div>
+            </div>
+          `);
+
+          marker.addTo(this.markersLayer!);
+        }, batchIndex * 100 + stopIndex * 30);
+      });
+
+      // Draw route line from depot through all stops
       setTimeout(() => {
-        cluster.orders.forEach((order, oi) => {
-          if (!order.latitude || !order.longitude) return;
-
-          // Connection line
-          L.polyline([cluster.center, [order.latitude, order.longitude]], {
-            color: cluster.color, weight: 2, opacity: 0.5, dashArray: '5, 5'
+        if (routePoints.length > 1) {
+          L.polyline(routePoints, {
+            color: color,
+            weight: 3,
+            opacity: 0.7,
+            dashArray: '10, 5'
           }).addTo(this.connectionsLayer!);
-
-          // Marker with delay
-          setTimeout(() => {
-            const marker = this.createOrderMarker(order, cluster.color, MARKER_STYLES.clustered, true);
-            marker.addTo(this.markersLayer!);
-            bounds.extend([order.latitude!, order.longitude!]);
-
-            // Fit bounds after last marker
-            if (ci === clusters.length - 1 && oi === cluster.orders.length - 1 && bounds.isValid()) {
-              this.map!.fitBounds(bounds, { padding: [50, 50] });
-            }
-          }, oi * 50);
-        });
-      }, ci * 150);
-    });
-  }
-
-  createBatchesFromMapClusters(): void {
-    const clusters = this.mapClusters();
-    if (!clusters.length) return;
-
-    const params = this.clusterParams();
-    const batches: { order_ids: number[] }[] = [];
-
-    clusters.forEach(cluster => {
-      const sorted = [...cluster.orders].sort((a, b) => (b.weight_kg || 0) - (a.weight_kg || 0));
-
-      let currentBatch: PendingOrder[] = [];
-      let currentWeight = 0;
-
-      for (const order of sorted) {
-        const orderWeight = order.weight_kg || 0;
-        const wouldExceedWeight = params.maxWeightPerBatch > 0 &&
-          currentWeight + orderWeight > params.maxWeightPerBatch;
-        const wouldExceedCount = currentBatch.length >= params.maxOrdersPerBatch;
-
-        // Start new batch if limits exceeded
-        if (wouldExceedWeight || wouldExceedCount) {
-          if (currentBatch.length >= params.minOrdersPerBatch) {
-            batches.push({ order_ids: currentBatch.map(o => o.id) });
-          }
-          currentBatch = [];
-          currentWeight = 0;
         }
-
-        currentBatch.push(order);
-        currentWeight += orderWeight;
-      }
-
-      // Don't forget the last batch
-      if (currentBatch.length >= params.minOrdersPerBatch) {
-        batches.push({ order_ids: currentBatch.map(o => o.id) });
-      }
+      }, batchIndex * 100 + batch.stops.length * 30);
     });
 
-    if (!batches.length) {
-      this.toast.showWarn('admin.batching.no_batches_to_create');
-      return;
-    }
+    // Fit bounds after all markers drawn
+    setTimeout(() => {
+      if (bounds.isValid()) {
+        this.map!.fitBounds(bounds, { padding: [50, 50] });
+      }
+    }, batches.length * 100 + 200);
+  }
 
-    this.submittingBatches.set(true);
-    this.batchingService.runCustomBatching(batches).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (res) => {
-        this.submittingBatches.set(false);
-        this.toast.showSuccess('admin.batching.run_success', { trips: res.trips_created, orders: res.orders_processed });
-        this.deactivateMapClustering();
-        this.refreshAllData();
+  loadCustomerRoutes(): void {
+    this.batchingService.getCustomerRoutes().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (routes) => {
+        this.customerRoutes.set(routes);
+        if (routes.length > 0) {
+          this.showRoutePolylines.set(true);
+          this.drawRoutePolylines();
+        }
       },
-      error: (err) => {
-        this.submittingBatches.set(false);
-        this.toast.showApiError(err, 'admin.batching.run_error');
+      error: () => this.toast.showError('admin.batching.routes_load_error')
+    });
+  }
+
+  toggleRoutePolylines(): void {
+    if (this.showRoutePolylines()) {
+      this.showRoutePolylines.set(false);
+      this.routesLayer?.clearLayers();
+    } else {
+      if (this.customerRoutes().length === 0) {
+        this.loadCustomerRoutes();
+      } else {
+        this.showRoutePolylines.set(true);
+        this.drawRoutePolylines();
+      }
+    }
+  }
+
+  private drawRoutePolylines(): void {
+    if (!this.map || !this.routesLayer) return;
+    this.routesLayer.clearLayers();
+
+    const routes = this.customerRoutes();
+    routes.forEach(route => {
+      if (!route.route_polyline) return;
+
+      try {
+        const coordinates = this.decodePolyline(route.route_polyline);
+        if (coordinates.length > 0) {
+          const color = CORRIDOR_COLORS[route.corridor || 'OTHER'] || CORRIDOR_COLORS['OTHER'];
+          L.polyline(coordinates, {
+            color: color,
+            weight: 2,
+            opacity: 0.4
+          }).addTo(this.routesLayer!);
+        }
+      } catch (e) {
+        // Skip invalid polylines
       }
     });
   }
 
-  updateClusterParam<K extends keyof ClusteringParams>(key: K, value: ClusteringParams[K]): void {
-    this.clusterParams.update(params => ({ ...params, [key]: value }));
-    if (this.mapClusteringActive()) {
-      this.deactivateMapClustering();
-      this.activateMapClustering();
+  private decodePolyline(encoded: string): [number, number][] {
+    // Google polyline decoding algorithm
+    const coordinates: [number, number][] = [];
+    let index = 0, lat = 0, lng = 0;
+
+    while (index < encoded.length) {
+      let b, shift = 0, result = 0;
+      do {
+        b = encoded.charCodeAt(index++) - 63;
+        result |= (b & 0x1f) << shift;
+        shift += 5;
+      } while (b >= 0x20);
+      const dlat = (result & 1) ? ~(result >> 1) : (result >> 1);
+      lat += dlat;
+
+      shift = 0;
+      result = 0;
+      do {
+        b = encoded.charCodeAt(index++) - 63;
+        result |= (b & 0x1f) << shift;
+        shift += 5;
+      } while (b >= 0x20);
+      const dlng = (result & 1) ? ~(result >> 1) : (result >> 1);
+      lng += dlng;
+
+      coordinates.push([lat / 1e5, lng / 1e5]);
     }
+
+    return coordinates;
   }
 
-  toggleClusterSettings(): void {
-    this.showClusterSettings.update(v => !v);
+  formatCorridor(corridor: string): string {
+    return corridor.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
   }
 
-  resetClusterParams(): void {
-    this.clusterParams.set({ ...DEFAULT_CLUSTERING_PARAMS });
-    if (this.mapClusteringActive()) {
-      this.deactivateMapClustering();
-      this.activateMapClustering();
-    }
+  getCorridorColor(corridor: string): string {
+    return CORRIDOR_COLORS[corridor] || CORRIDOR_COLORS['OTHER'];
+  }
+
+  getSmartBatchTotalWeight(): number {
+    return this.smartBatches().reduce((sum, b) => sum + b.total_weight_kg, 0);
   }
 
   // ==================== Data ====================
@@ -591,7 +625,6 @@ export class AdminBatchingComponent implements OnInit {
 
   getStatusSeverity(status: TripStatus) { return STATUS_CONFIG[status]?.severity || 'secondary'; }
   getStatusLabel(status: TripStatus) { return STATUS_CONFIG[status]?.label || status; }
-  getClusterTotalWeight(cluster: MapCluster) { return cluster.orders.reduce((sum, o) => sum + (o.weight_kg || 0), 0); }
 
   filterByStatus(status: TripStatus | null): void {
     this.statusFilter.set(status);

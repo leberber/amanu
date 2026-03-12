@@ -76,164 +76,53 @@
           </div>
 
           @if (activeTab() === 'map') {
-            <div class="header-cluster-actions">
-              <!-- Settings Button -->
-              <div class="cluster-settings-wrapper">
+            <div class="flex align-items-center gap-2">
+              @if (!smartBatchingActive()) {
+                <!-- Reinitialize Button -->
                 <button
                   pButton
-                  icon="pi pi-cog"
-                  class="p-button-text p-button-sm p-button-rounded"
-                  [class.active]="showClusterSettings()"
-                  pTooltip="{{ 'admin.batching.settings' | translate }}"
-                  (click)="toggleClusterSettings()">
+                  icon="pi pi-refresh"
+                  class="p-button-outlined p-button-danger p-button-sm"
+                  [loading]="resettingBatches()"
+                  pTooltip="{{ 'admin.batching.reinitialize' | translate }}"
+                  (click)="reinitializeSmartBatching()">
                 </button>
 
-                <!-- Settings Panel -->
-                @if (showClusterSettings()) {
-                  <div class="cluster-settings-panel" @fadeIn>
-                    <div class="cluster-settings-panel__header">
-                      <span>{{ 'admin.batching.clustering_params' | translate }}</span>
-                      <button
-                        pButton
-                        icon="pi pi-refresh"
-                        class="p-button-text p-button-sm p-button-rounded"
-                        pTooltip="{{ 'admin.batching.reset_params' | translate }}"
-                        (click)="resetClusterParams()">
-                      </button>
-                    </div>
-
-                    <div class="cluster-settings-panel__body">
-                      <!-- Min Orders -->
-                      <div class="param-row">
-                        <label>{{ 'admin.batching.min_orders' | translate }}</label>
-                        <div class="param-controls">
-                          <button
-                            pButton
-                            icon="pi pi-minus"
-                            class="p-button-text p-button-sm p-button-rounded"
-                            [disabled]="clusterParams().minOrdersPerBatch <= 1"
-                            (click)="updateClusterParam('minOrdersPerBatch', clusterParams().minOrdersPerBatch - 1)">
-                          </button>
-                          <span class="param-value">{{ clusterParams().minOrdersPerBatch }}</span>
-                          <button
-                            pButton
-                            icon="pi pi-plus"
-                            class="p-button-text p-button-sm p-button-rounded"
-                            [disabled]="clusterParams().minOrdersPerBatch >= clusterParams().maxOrdersPerBatch"
-                            (click)="updateClusterParam('minOrdersPerBatch', clusterParams().minOrdersPerBatch + 1)">
-                          </button>
-                        </div>
-                      </div>
-
-                      <!-- Max Orders -->
-                      <div class="param-row">
-                        <label>{{ 'admin.batching.max_orders' | translate }}</label>
-                        <div class="param-controls">
-                          <button
-                            pButton
-                            icon="pi pi-minus"
-                            class="p-button-text p-button-sm p-button-rounded"
-                            [disabled]="clusterParams().maxOrdersPerBatch <= clusterParams().minOrdersPerBatch"
-                            (click)="updateClusterParam('maxOrdersPerBatch', clusterParams().maxOrdersPerBatch - 1)">
-                          </button>
-                          <span class="param-value">{{ clusterParams().maxOrdersPerBatch }}</span>
-                          <button
-                            pButton
-                            icon="pi pi-plus"
-                            class="p-button-text p-button-sm p-button-rounded"
-                            [disabled]="clusterParams().maxOrdersPerBatch >= 10"
-                            (click)="updateClusterParam('maxOrdersPerBatch', clusterParams().maxOrdersPerBatch + 1)">
-                          </button>
-                        </div>
-                      </div>
-
-                      <!-- Max Weight -->
-                      <div class="param-row">
-                        <label>{{ 'admin.batching.max_weight' | translate }}</label>
-                        <div class="param-controls">
-                          <button
-                            pButton
-                            icon="pi pi-minus"
-                            class="p-button-text p-button-sm p-button-rounded"
-                            [disabled]="clusterParams().maxWeightPerBatch <= 0"
-                            (click)="updateClusterParam('maxWeightPerBatch', Math.max(0, clusterParams().maxWeightPerBatch - 10))">
-                          </button>
-                          <span class="param-value">
-                            @if (clusterParams().maxWeightPerBatch === 0) {
-                              ∞
-                            } @else {
-                              {{ clusterParams().maxWeightPerBatch }} kg
-                            }
-                          </span>
-                          <button
-                            pButton
-                            icon="pi pi-plus"
-                            class="p-button-text p-button-sm p-button-rounded"
-                            [disabled]="clusterParams().maxWeightPerBatch >= 200"
-                            (click)="updateClusterParam('maxWeightPerBatch', clusterParams().maxWeightPerBatch + 10)">
-                          </button>
-                        </div>
-                      </div>
-
-                      <!-- H3 Resolution -->
-                      <div class="param-row">
-                        <label>{{ 'admin.batching.zone_size' | translate }}</label>
-                        <div class="param-controls">
-                          <button
-                            pButton
-                            icon="pi pi-minus"
-                            class="p-button-text p-button-sm p-button-rounded"
-                            [disabled]="clusterParams().h3Resolution <= 5"
-                            (click)="updateClusterParam('h3Resolution', clusterParams().h3Resolution - 1)">
-                          </button>
-                          <span class="param-value">{{ clusterParams().h3Resolution }}</span>
-                          <button
-                            pButton
-                            icon="pi pi-plus"
-                            class="p-button-text p-button-sm p-button-rounded"
-                            [disabled]="clusterParams().h3Resolution >= 9"
-                            (click)="updateClusterParam('h3Resolution', clusterParams().h3Resolution + 1)">
-                          </button>
-                        </div>
-                        <small class="param-hint">
-                          @switch (clusterParams().h3Resolution) {
-                            @case (5) { ~250 km² }
-                            @case (6) { ~36 km² }
-                            @case (7) { ~5 km² }
-                            @case (8) { ~0.7 km² }
-                            @case (9) { ~0.1 km² }
-                          }
-                        </small>
-                      </div>
-                    </div>
-                  </div>
-                }
-              </div>
-
-              @if (!mapClusteringActive()) {
+                <!-- Toggle Route Polylines -->
                 <button
                   pButton
-                  [label]="'admin.batching.auto_cluster' | translate"
-                  icon="pi pi-sitemap"
+                  icon="pi pi-map"
+                  class="p-button-text p-button-sm p-button-rounded"
+                  [class.active]="showRoutePolylines()"
+                  pTooltip="{{ 'admin.batching.show_routes' | translate }}"
+                  (click)="toggleRoutePolylines()">
+                </button>
+
+                <!-- Smart Route Button -->
+                <button
+                  pButton
+                  [label]="'admin.batching.smart_route' | translate"
+                  icon="pi pi-directions"
                   class="p-button-success p-button-sm"
-                  [loading]="organizingBatches()"
-                  [disabled]="pendingOrders().length < 2"
-                  (click)="activateMapClustering()">
+                  [loading]="runningSmartBatch()"
+                  [disabled]="pendingOrders().length < 1"
+                  (click)="previewSmartBatching()">
                 </button>
               } @else {
                 <button
                   pButton
-                  [label]="'admin.batching.reset_clusters' | translate"
+                  [label]="'admin.batching.reset_smart' | translate"
                   icon="pi pi-times"
                   class="p-button-outlined p-button-sm"
-                  (click)="deactivateMapClustering()">
+                  (click)="deactivateSmartBatching()">
                 </button>
                 <button
                   pButton
-                  [label]="'admin.batching.create_batches' | translate"
-                  icon="pi pi-check"
+                  [label]="'admin.batching.create_trips' | translate"
+                  icon="pi pi-truck"
                   class="p-button-success p-button-sm"
-                  (click)="createBatchesFromMapClusters()">
+                  [loading]="submittingBatches()"
+                  (click)="runSmartBatching()">
                 </button>
               }
             </div>
@@ -283,21 +172,25 @@
             <div class="map-wrapper">
               <div class="map-container" id="batching-map"></div>
 
-              <!-- Cluster Legend -->
-              @if (mapClusteringActive() && mapClusters().length > 0) {
-                <div class="map-legend" @fadeIn>
+              <!-- Smart Batch Legend -->
+              @if (smartBatchingActive() && smartBatches().length > 0) {
+                <div class="map-legend map-legend--smart" @fadeIn>
                   <div class="map-legend__header">
-                    <i class="pi pi-sitemap"></i>
-                    <span>{{ mapClusters().length }} {{ 'admin.batching.clusters' | translate }}</span>
+                    <i class="pi pi-directions"></i>
+                    <span>{{ smartBatches().length }} {{ 'admin.batching.corridors' | translate }}</span>
                   </div>
                   <div class="map-legend__items">
-                    @for (cluster of mapClusters(); track cluster.h3Index) {
+                    @for (batch of smartBatches(); track $index) {
                       <div class="map-legend__item">
-                        <span class="map-legend__color" [style.background]="cluster.color"></span>
-                        <span class="map-legend__count">{{ cluster.orders.length }}</span>
-                        <span class="map-legend__weight">{{ getClusterTotalWeight(cluster) | number:'1.0-1' }} kg</span>
+                        <span class="map-legend__color" [style.background]="getCorridorColor(batch.corridor)"></span>
+                        <span class="map-legend__label">{{ formatCorridor(batch.corridor) }}</span>
+                        <span class="map-legend__count">{{ batch.order_count }}</span>
+                        <span class="map-legend__weight">{{ batch.total_weight_kg | number:'1.0-1' }} kg</span>
                       </div>
                     }
+                  </div>
+                  <div class="map-legend__summary">
+                    <span>{{ 'admin.batching.total' | translate }}: {{ getSmartBatchTotalWeight() | number:'1.0-1' }} kg</span>
                   </div>
                 </div>
               }
