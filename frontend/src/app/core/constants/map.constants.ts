@@ -3,11 +3,11 @@
  * Contains default location settings and Leaflet configurations
  */
 
-// Default location (Algeria - Bordj Bou Arréridj)
+// Default location (Ouadhia, Tizi Ouzou - Store/Warehouse location)
 export const MAP_DEFAULTS = {
-  // Default center coordinates
-  LATITUDE: 36.5554,
-  LONGITUDE: 4.0844,
+  // Default center coordinates (Ouadhia Centre)
+  LATITUDE: 36.5550,
+  LONGITUDE: 4.0850,
   ZOOM: 15,
   OVERVIEW_ZOOM: 10,
 

@@ -13,6 +13,7 @@ from app.core.config import settings
 from app.core.admin import create_admin_user
 from app.seed_data import seed_data
 from app.seed_test_users import seed_test_users
+from app.seed_test_orders import seed_test_orders
 from app.models.push_subscription import PushSubscription  # Register model for table creation
 from app.models.password_reset import PasswordResetToken  # Register model for table creation
 from app.models.notification_history import NotificationHistory  # Register model for table creation
@@ -80,6 +81,9 @@ def on_startup():
 
     # Seed test users (drivers, customers, staff)
     seed_test_users()
+
+    # Seed test orders for batching testing
+    seed_test_orders()
 
 @app.get("/")
 def root():
