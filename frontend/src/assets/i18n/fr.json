@@ -1946,7 +1946,22 @@
       "assign_trip_info": "Assigner la tournée #{{id}} avec {{stops}} arrêts à un livreur",
       "select_driver": "Sélectionner un livreur",
       "select_driver_placeholder": "Choisir un livreur...",
-      "unbatch": "Dégrouper"
+      "unbatch": "Dégrouper",
+      "organize_batches": "Organiser en tournées",
+      "organize_hint": "Cliquez sur 'Organiser en tournées' pour grouper ces commandes par zone",
+      "no_pending_orders": "Aucune commande en attente",
+      "no_pending_orders_desc": "Toutes les commandes groupables ont été traitées",
+      "proposed_batches": "Tournées proposées",
+      "batches": "tournées",
+      "reset": "Réinitialiser",
+      "approve_create": "Approuver et créer",
+      "drag_hint": "Glissez les commandes entre les tournées pour réorganiser. Les tournées nécessitent 2-3 commandes.",
+      "unbatched": "Commandes non groupées",
+      "unbatched_hint": "Ces commandes n'ont pas assez de commandes proches. Glissez-les vers des tournées ou créez une nouvelle tournée.",
+      "create_batch": "Créer une tournée",
+      "no_batches_to_create": "Aucune tournée à créer",
+      "max_orders_batch": "Maximum 3 commandes par tournée. L'excédent a été déplacé.",
+      "need_two_orders": "Il faut au moins 2 commandes pour créer une tournée"
     }
   },
   "footer": {

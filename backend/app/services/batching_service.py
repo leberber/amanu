@@ -337,3 +337,157 @@ def calculate_standard_shipping_discount(original_cost: float) -> float:
     """
     discount = original_cost * (STANDARD_DISCOUNT_PERCENT / 100)
     return round(original_cost - discount, 2)
+
+
+def get_pending_orders_with_details(session: Session) -> list[dict]:
+    """
+    Get all pending batchable orders with details for the UI.
+    Returns order info needed for drag-drop interface.
+    """
+    orders = get_pending_batchable_orders(session)
+
+    result = []
+    for order in orders:
+        weight_kg = calculate_order_weight(order, session)
+        zone = get_order_h3_zone(order, session)
+
+        result.append({
+            "id": order.id,
+            "customer_name": order.user.full_name if order.user else "Unknown",
+            "address": order.shipping_address,
+            "zone": zone or "unknown",
+            "shipping_cost": float(order.shipping_cost) if order.shipping_cost else 0,
+            "weight_kg": round(weight_kg, 2),
+            "created_at": order.created_at.isoformat() if order.created_at else None,
+        })
+
+    return result
+
+
+def create_trips_from_custom_batches(
+    batches: list[dict],
+    session: Session,
+    created_by_id: Optional[int] = None
+) -> dict:
+    """
+    Create trips from custom user-defined batches.
+    Each batch contains order_ids to group together.
+
+    Args:
+        batches: List of dicts with 'order_ids' key
+        session: Database session
+        created_by_id: ID of admin creating trips
+
+    Returns:
+        Summary of the operation with created trips
+    """
+    # Validate all orders exist and are batchable
+    all_order_ids = set()
+    for batch in batches:
+        for order_id in batch.get("order_ids", []):
+            if order_id in all_order_ids:
+                return {
+                    "success": False,
+                    "message": f"Order {order_id} appears in multiple batches",
+                    "orders_processed": 0,
+                    "trips_created": 0,
+                    "trips": []
+                }
+            all_order_ids.add(order_id)
+
+    # Get valid batchable orders
+    valid_orders = get_pending_batchable_orders(session)
+    valid_order_ids = {o.id for o in valid_orders}
+    valid_order_map = {o.id: o for o in valid_orders}
+
+    # Check all requested orders are valid
+    invalid_orders = all_order_ids - valid_order_ids
+    if invalid_orders:
+        return {
+            "success": False,
+            "message": f"Invalid or non-batchable order IDs: {list(invalid_orders)}",
+            "orders_processed": 0,
+            "trips_created": 0,
+            "trips": []
+        }
+
+    # Create trips from batches
+    created_trips = []
+    total_batched = 0
+
+    for batch in batches:
+        order_ids = batch.get("order_ids", [])
+
+        if len(order_ids) < 2:
+            # Skip single orders - they don't benefit from batching
+            continue
+
+        if len(order_ids) > MAX_STOPS_PER_TRIP:
+            return {
+                "success": False,
+                "message": f"Batch exceeds maximum stops ({MAX_STOPS_PER_TRIP}): {order_ids}",
+                "orders_processed": 0,
+                "trips_created": 0,
+                "trips": []
+            }
+
+        # Get orders for this batch
+        batch_orders = [valid_order_map[oid] for oid in order_ids]
+
+        # Calculate totals
+        total_weight = sum(calculate_order_weight(o, session) for o in batch_orders)
+        total_volume = sum(calculate_order_volume(o, session) for o in batch_orders)
+        total_earnings = sum(o.shipping_cost for o in batch_orders)
+
+        # Determine zone (use first order's zone or mixed)
+        zones = set(get_order_h3_zone(o, session) for o in batch_orders)
+        zone = zones.pop() if len(zones) == 1 else "mixed"
+
+        # Create trip
+        trip = Trip(
+            status=TripStatus.PENDING,
+            total_weight_kg=total_weight,
+            total_volume_m3=total_volume,
+            total_earnings=total_earnings,
+            h3_zone=zone if zone not in ("unknown", "mixed") else None,
+            created_by_id=created_by_id,
+        )
+        session.add(trip)
+        session.commit()
+        session.refresh(trip)
+
+        # Create stops for each order
+        for sequence, order in enumerate(batch_orders, start=1):
+            stop = TripStop(
+                trip_id=trip.id,
+                order_id=order.id,
+                sequence=sequence,
+                status=StopStatus.PENDING,
+            )
+            session.add(stop)
+
+            # Update order to link to trip
+            order.trip_id = trip.id
+            order.updated_at = datetime.now(timezone.utc)
+            session.add(order)
+
+        session.commit()
+        created_trips.append(trip)
+        total_batched += len(batch_orders)
+
+    return {
+        "success": True,
+        "message": f"Created {len(created_trips)} trips from {total_batched} orders",
+        "orders_processed": total_batched,
+        "trips_created": len(created_trips),
+        "trips": [
+            {
+                "id": t.id,
+                "zone": t.h3_zone,
+                "stops": len(t.stops),
+                "total_weight_kg": t.total_weight_kg,
+                "total_earnings": t.total_earnings,
+            }
+            for t in created_trips
+        ]
+    }

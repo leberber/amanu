@@ -55,7 +55,7 @@
 
       <!-- Compact KPI Row -->
       <div class="stats-grid stats-grid--compact">
-        <div class="stat-card stat-card--compact animate-item" style="--item-delay: 50ms;" (click)="setActiveTab('preview')">
+        <div class="stat-card stat-card--compact animate-item" style="--item-delay: 50ms;" (click)="setActiveTab('overview')">
           <div class="stat-card__content">
             <span class="stat-card__value">
               <span class="stat-card__icon stat-card__icon--primary"><i class="pi pi-inbox"></i></span>
@@ -103,15 +103,8 @@
             class="segment-control__item"
             [class.active]="activeTab() === 'overview'"
             (click)="setActiveTab('overview')">
-            <i class="pi pi-chart-bar"></i>
+            <i class="pi pi-th-large"></i>
             <span>{{ 'admin.batching.tab_overview' | translate }}</span>
-          </button>
-          <button
-            class="segment-control__item"
-            [class.active]="activeTab() === 'preview'"
-            (click)="setActiveTab('preview')">
-            <i class="pi pi-eye"></i>
-            <span>{{ 'admin.batching.tab_preview' | translate }}</span>
           </button>
           <button
             class="segment-control__item"
@@ -144,224 +137,254 @@
 
     @if (loading()) {
       <!-- Content Skeleton -->
-      <div class="charts-grid">
-        @for (i of [1, 2]; track i) {
-          <div class="card card--no-hover">
-            <div class="card-header">
-              <div class="skeleton" style="width: 32px; height: 32px; border-radius: var(--radius-md);"></div>
-              <div class="skeleton skeleton-text" style="width: 140px; height: 20px;"></div>
-            </div>
-            <div class="card-body">
-              <div class="skeleton" style="width: 100%; height: 150px; border-radius: var(--radius-md);"></div>
-            </div>
+      <div class="orders-grid">
+        @for (i of [1, 2, 3, 4, 5, 6]; track i) {
+          <div class="order-card order-card--skeleton">
+            <div class="skeleton" style="width: 60%; height: 16px;"></div>
+            <div class="skeleton" style="width: 100%; height: 14px; margin-top: 8px;"></div>
+            <div class="skeleton" style="width: 40%; height: 14px; margin-top: 8px;"></div>
           </div>
         }
       </div>
     } @else if (stats()) {
       <!-- Overview Tab -->
       @if (activeTab() === 'overview') {
-        <div class="charts-grid">
-          <!-- Run Batching Card -->
-          <div class="card card--no-hover animate-item" style="--item-delay: 300ms;">
-            <div class="card-header">
-              <div class="card-header__icon card-header__icon--primary">
-                <i class="pi pi-bolt"></i>
+        <!-- State: Orders View (before batching) -->
+        @if (batchingState() === 'orders') {
+          <div class="batching-section" [@organizeAnimation]="batchingState()">
+            <!-- Action Bar -->
+            <div class="batching-action-bar animate-item" style="--item-delay: 100ms;">
+              <div class="batching-action-bar__info">
+                <h3>{{ 'admin.batching.pending_orders' | translate }}</h3>
+                <span class="pill secondary">{{ pendingOrders().length }} {{ 'admin.batching.orders' | translate }}</span>
               </div>
-              <div class="card-header__text">
-                <h3 class="card-header__title">{{ 'admin.batching.run_batching' | translate }}</h3>
-                <p class="card-header__subtitle">{{ 'admin.batching.run_batching_desc' | translate }}</p>
+              <div class="batching-action-bar__actions">
+                <button
+                  pButton
+                  icon="pi pi-refresh"
+                  class="p-button-outlined p-button-sm"
+                  [loading]="loadingOrders()"
+                  (click)="loadPendingOrders()">
+                </button>
+                <button
+                  pButton
+                  [label]="'admin.batching.organize_batches' | translate"
+                  icon="pi pi-bolt"
+                  class="p-button-lg"
+                  [loading]="organizingBatches()"
+                  [disabled]="pendingOrders().length < 2"
+                  (click)="organizeIntoBatches()">
+                </button>
               </div>
             </div>
-            <div class="card-body">
-              <button
-                pButton
-                [label]="'admin.batching.run_now' | translate"
-                icon="pi pi-play"
-                class="p-button-lg w-full"
-                [loading]="runningBatching()"
-                [disabled]="!stats() || stats()!.pending_batchable_orders < 2"
-                (click)="runBatching()">
-              </button>
-              @if (stats() && stats()!.pending_batchable_orders < 2) {
-                <div class="hint-box mt-4">
+
+            @if (loadingOrders()) {
+              <div class="orders-grid">
+                @for (i of [1, 2, 3, 4, 5, 6]; track i) {
+                  <div class="order-card order-card--skeleton">
+                    <div class="skeleton" style="width: 60%; height: 16px;"></div>
+                    <div class="skeleton" style="width: 100%; height: 14px; margin-top: 8px;"></div>
+                    <div class="skeleton" style="width: 40%; height: 14px; margin-top: 8px;"></div>
+                  </div>
+                }
+              </div>
+            } @else if (pendingOrders().length === 0) {
+              <div class="empty-state empty-state--compact animate-item" style="--item-delay: 150ms;">
+                <div class="empty-state__icon">
+                  <i class="pi pi-inbox"></i>
+                </div>
+                <h3 class="empty-state__title">{{ 'admin.batching.no_pending_orders' | translate }}</h3>
+                <p class="empty-state__description">{{ 'admin.batching.no_pending_orders_desc' | translate }}</p>
+              </div>
+            } @else {
+              <!-- Orders Grid -->
+              <div class="orders-grid" [@staggerAnimation]="pendingOrders().length">
+                @for (order of pendingOrders(); track order.id; let i = $index) {
+                  <div
+                    class="order-card animate-item"
+                    [style.--item-delay]="(i * 30) + 'ms'"
+                    (click)="goToOrder(order.id)">
+                    <div class="order-card__header">
+                      <span class="order-card__id">#{{ order.id }}</span>
+                      <span class="order-card__zone">
+                        <i class="pi pi-map-marker"></i>
+                        {{ formatZone(order.zone) }}
+                      </span>
+                    </div>
+                    <div class="order-card__content">
+                      <span class="order-card__customer">{{ order.customer_name }}</span>
+                      <span class="order-card__address">{{ order.address }}</span>
+                    </div>
+                    <div class="order-card__footer">
+                      <span class="order-card__weight">
+                        <i class="pi pi-box"></i>
+                        {{ order.weight_kg | number:'1.0-1' }} kg
+                      </span>
+                      <span class="order-card__price">{{ order.shipping_cost | number:'1.0-0' }} DA</span>
+                    </div>
+                  </div>
+                }
+              </div>
+
+              <!-- Hint -->
+              @if (pendingOrders().length >= 2) {
+                <div class="hint-box mt-4 animate-item" style="--item-delay: 200ms;">
                   <i class="pi pi-info-circle"></i>
-                  <span>{{ 'admin.batching.min_orders_hint' | translate }}</span>
-                </div>
-              }
-            </div>
-          </div>
-
-          <!-- Today's Summary Card -->
-          <div class="card card--no-hover animate-item" style="--item-delay: 400ms;">
-            <div class="card-header">
-              <div class="card-header__icon card-header__icon--success">
-                <i class="pi pi-chart-line"></i>
-              </div>
-              <h3 class="card-header__title">{{ 'admin.batching.today_summary' | translate }}</h3>
-            </div>
-            <div class="card-body">
-              <div class="stat-inline">
-                <div class="stat-inline__item">
-                  <span class="stat-inline__value">{{ stats()?.completed_trips_today || 0 }}</span>
-                  <span class="stat-inline__label">{{ 'admin.batching.completed_today' | translate }}</span>
-                </div>
-                <div class="stat-inline__item">
-                  <span class="stat-inline__value">{{ stats()?.total_trips || 0 }}</span>
-                  <span class="stat-inline__label">{{ 'admin.batching.total_trips' | translate }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      }
-
-      <!-- Preview Tab -->
-      @if (activeTab() === 'preview') {
-        <div class="card card--no-hover animate-item" style="--item-delay: 100ms;">
-          <div class="card-header">
-            <div class="card-header__icon card-header__icon--purple">
-              <i class="pi pi-eye"></i>
-            </div>
-            <h3 class="card-header__title">{{ 'admin.batching.preview_title' | translate }}</h3>
-            <div class="ml-auto">
-              <button
-                pButton
-                [label]="'admin.batching.refresh' | translate"
-                icon="pi pi-refresh"
-                class="p-button-outlined p-button-sm"
-                [loading]="loadingPreview()"
-                (click)="loadPreview()">
-              </button>
-            </div>
-          </div>
-          <div class="card-body">
-            @if (loadingPreview()) {
-              <div class="empty-state empty-state--compact">
-                <i class="pi pi-spin pi-spinner" style="font-size: 2rem; color: var(--primary-color);"></i>
-                <p class="empty-state__description">{{ 'admin.batching.loading_preview' | translate }}</p>
-              </div>
-            } @else if (preview()) {
-              <!-- Preview Stats -->
-              <div class="stats-grid stats-grid--compact mb-4">
-                <div class="stat-card stat-card--compact" (click)="previewSubTab.set('proposed')">
-                  <div class="stat-card__content">
-                    <span class="stat-card__value">{{ preview()!.orders_available }}</span>
-                    <span class="stat-card__label">{{ 'admin.batching.orders_available' | translate }}</span>
-                  </div>
-                </div>
-                <div class="stat-card stat-card--compact" (click)="previewSubTab.set('proposed')">
-                  <div class="stat-card__content">
-                    <span class="stat-card__value">{{ preview()!.proposed_trips.length }}</span>
-                    <span class="stat-card__label">{{ 'admin.batching.proposed_trips' | translate }}</span>
-                  </div>
-                </div>
-                <div class="stat-card stat-card--compact" (click)="previewSubTab.set('proposed')">
-                  <div class="stat-card__content">
-                    <span class="stat-card__value">{{ preview()!.orders_to_batch }}</span>
-                    <span class="stat-card__label">{{ 'admin.batching.will_batch' | translate }}</span>
-                  </div>
-                </div>
-                <div class="stat-card stat-card--compact" (click)="previewSubTab.set('unbatched')">
-                  <div class="stat-card__content">
-                    <span class="stat-card__value text-warning">{{ preview()!.unbatched_orders }}</span>
-                    <span class="stat-card__label">{{ 'admin.batching.wont_batch' | translate }}</span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Proposed Trips -->
-              @if (preview()!.proposed_trips.length > 0) {
-                <h4 class="section-title">
-                  <i class="pi pi-sitemap"></i>
-                  {{ 'admin.batching.proposed_trips' | translate }}
-                </h4>
-                <div class="proposed-trips mb-4">
-                  @for (trip of preview()!.proposed_trips; track $index) {
-                    <div class="proposed-trip animate-item" [style.--item-delay]="($index * 50) + 'ms'">
-                      <div class="proposed-trip__header">
-                        <span class="proposed-trip__zone">
-                          <i class="pi pi-map-marker"></i>
-                          {{ formatZone(trip.zone) }}
-                        </span>
-                        <span class="pill secondary">{{ trip.order_count }} {{ 'admin.batching.orders' | translate }}</span>
-                      </div>
-                      <div class="proposed-trip__customers">
-                        @for (customer of trip.customers; track customer.order_id) {
-                          <div class="proposed-trip__customer" (click)="goToOrder(customer.order_id)">
-                            <span class="customer-name">{{ customer.name }}</span>
-                            <span class="customer-address">{{ customer.address }}</span>
-                            <span class="customer-order">#{{ customer.order_id }}</span>
-                          </div>
-                        }
-                      </div>
-                      <div class="proposed-trip__footer">
-                        <span class="proposed-trip__weight">
-                          <i class="pi pi-box"></i>
-                          {{ trip.total_weight_kg | number:'1.0-0' }} kg
-                        </span>
-                        <span class="amount-display amount-display--success">
-                          {{ trip.total_earnings | number:'1.0-0' }} DA
-                        </span>
-                      </div>
-                    </div>
-                  }
-                </div>
-
-                <div class="flex justify-content-end mb-4">
-                  <button
-                    pButton
-                    [label]="'admin.batching.create_trips' | translate"
-                    icon="pi pi-check"
-                    [loading]="runningBatching()"
-                    (click)="runBatching()">
-                  </button>
-                </div>
-              }
-
-              <!-- Unbatched Orders -->
-              @if (preview()!.unbatched_orders_list && preview()!.unbatched_orders_list.length > 0) {
-                <h4 class="section-title section-title--warning">
-                  <i class="pi pi-exclamation-circle"></i>
-                  {{ 'admin.batching.wont_batch' | translate }} ({{ preview()!.unbatched_orders }})
-                </h4>
-                <div class="unbatched-orders">
-                  @for (order of preview()!.unbatched_orders_list; track order.order_id) {
-                    <div class="unbatched-order animate-item" [style.--item-delay]="($index * 50) + 'ms'" (click)="goToOrder(order.order_id)">
-                      <div class="unbatched-order__header">
-                        <span class="unbatched-order__id">#{{ order.order_id }}</span>
-                        <span class="unbatched-order__zone">
-                          <i class="pi pi-map-marker"></i>
-                          {{ formatZone(order.zone) }}
-                        </span>
-                      </div>
-                      <div class="unbatched-order__content">
-                        <span class="unbatched-order__customer">{{ order.customer_name }}</span>
-                        <span class="unbatched-order__address">{{ order.address }}</span>
-                      </div>
-                      <div class="unbatched-order__footer">
-                        <span class="unbatched-order__reason">
-                          <i class="pi pi-info-circle"></i>
-                          {{ 'admin.batching.reason_only_one' | translate }}
-                        </span>
-                        <span class="amount-display">{{ order.shipping_cost | number:'1.0-0' }} DA</span>
-                      </div>
-                    </div>
-                  }
-                </div>
-              }
-
-              <!-- No trips possible -->
-              @if (preview()!.proposed_trips.length === 0 && preview()!.unbatched_orders === 0) {
-                <div class="empty-state empty-state--compact">
-                  <div class="empty-state__icon">
-                    <i class="pi pi-inbox"></i>
-                  </div>
-                  <h3 class="empty-state__title">{{ 'admin.batching.no_trips_preview' | translate }}</h3>
+                  <span>{{ 'admin.batching.organize_hint' | translate }}</span>
                 </div>
               }
             }
           </div>
-        </div>
+        }
+
+        <!-- State: Batches View (after organizing) -->
+        @if (batchingState() === 'batches') {
+          <div class="batching-section">
+            <!-- Action Bar -->
+            <div class="batching-action-bar animate-item" style="--item-delay: 100ms;">
+              <div class="batching-action-bar__info">
+                <h3>{{ 'admin.batching.proposed_batches' | translate }}</h3>
+                <span class="pill primary">{{ customBatches().length }} {{ 'admin.batching.batches' | translate }}</span>
+                <span class="pill secondary">{{ totalOrdersInBatches() }} {{ 'admin.batching.orders' | translate }}</span>
+              </div>
+              <div class="batching-action-bar__actions">
+                <button
+                  pButton
+                  [label]="'admin.batching.reset' | translate"
+                  icon="pi pi-refresh"
+                  class="p-button-outlined"
+                  (click)="resetBatching()">
+                </button>
+                <button
+                  pButton
+                  [label]="'admin.batching.approve_create' | translate"
+                  icon="pi pi-check"
+                  class="p-button-success p-button-lg"
+                  [loading]="submittingBatches()"
+                  [disabled]="customBatches().length === 0"
+                  (click)="approveAndCreateTrips()">
+                </button>
+              </div>
+            </div>
+
+            <!-- Drag-drop hint -->
+            <div class="hint-box mb-4 animate-item" style="--item-delay: 150ms;">
+              <i class="pi pi-arrows-alt"></i>
+              <span>{{ 'admin.batching.drag_hint' | translate }}</span>
+            </div>
+
+            <!-- Batches Grid -->
+            <div class="batches-container">
+              @for (batch of customBatches(); track $index; let i = $index) {
+                <div class="batch-card animate-item" [style.--item-delay]="(i * 100) + 200 + 'ms'" @batchAnimation>
+                  <div class="batch-card__header">
+                    <span class="batch-card__zone">
+                      <i class="pi pi-map-marker"></i>
+                      {{ formatZone(batch.zone) }}
+                    </span>
+                    <span class="batch-card__count">{{ batch.orders.length }}/3</span>
+                  </div>
+
+                  <!-- Drop zone for orders -->
+                  <div
+                    cdkDropList
+                    [id]="'batch-' + i"
+                    [cdkDropListData]="batch.orders"
+                    [cdkDropListConnectedTo]="allDropListIds()"
+                    class="batch-card__orders"
+                    (cdkDropListDropped)="dropInBatch($event, i)">
+
+                    @for (order of batch.orders; track order.id) {
+                      <div
+                        class="order-chip"
+                        cdkDrag
+                        [cdkDragData]="order">
+                        <div class="order-chip__drag-handle">
+                          <i class="pi pi-bars"></i>
+                        </div>
+                        <div class="order-chip__content">
+                          <span class="order-chip__id">#{{ order.id }}</span>
+                          <span class="order-chip__name">{{ order.customer_name }}</span>
+                        </div>
+                        <span class="order-chip__price">{{ order.shipping_cost | number:'1.0-0' }} DA</span>
+
+                        <!-- Drag preview -->
+                        <div *cdkDragPlaceholder class="order-chip order-chip--placeholder"></div>
+                      </div>
+                    }
+                  </div>
+
+                  <div class="batch-card__footer">
+                    <span class="batch-card__weight">
+                      <i class="pi pi-box"></i>
+                      {{ getBatchTotalWeight(batch) | number:'1.0-1' }} kg
+                    </span>
+                    <span class="batch-card__earnings">{{ getBatchTotalEarnings(batch) | number:'1.0-0' }} DA</span>
+                  </div>
+                </div>
+              }
+            </div>
+
+            <!-- Unbatched Orders Section -->
+            @if (unbatchedOrders().length > 0 || customBatches().length > 0) {
+              <div class="unbatched-section animate-item" style="--item-delay: 400ms;">
+                <div class="unbatched-section__header">
+                  <h4 class="section-title section-title--warning">
+                    <i class="pi pi-exclamation-circle"></i>
+                    {{ 'admin.batching.unbatched' | translate }}
+                    <span class="pill warning">{{ unbatchedOrders().length }}</span>
+                  </h4>
+                  @if (unbatchedOrders().length >= 2) {
+                    <button
+                      pButton
+                      [label]="'admin.batching.create_batch' | translate"
+                      icon="pi pi-plus"
+                      class="p-button-outlined p-button-sm"
+                      (click)="createNewBatch()">
+                    </button>
+                  }
+                </div>
+
+                @if (unbatchedOrders().length === 0) {
+                  <div class="unbatched-empty">
+                    <i class="pi pi-check-circle"></i>
+                    <span>{{ 'admin.batching.all_batched' | translate }}</span>
+                  </div>
+                } @else {
+                  <div
+                    cdkDropList
+                    id="unbatched-list"
+                    [cdkDropListData]="unbatchedOrders()"
+                    [cdkDropListConnectedTo]="batchDropListIds()"
+                    class="unbatched-orders-list"
+                    (cdkDropListDropped)="dropInUnbatched($event)">
+
+                    @for (order of unbatchedOrders(); track order.id) {
+                      <div
+                        class="order-chip order-chip--warning"
+                        cdkDrag
+                        [cdkDragData]="order">
+                        <div class="order-chip__drag-handle">
+                          <i class="pi pi-bars"></i>
+                        </div>
+                        <div class="order-chip__content">
+                          <span class="order-chip__id">#{{ order.id }}</span>
+                          <span class="order-chip__name">{{ order.customer_name }}</span>
+                          <span class="order-chip__zone">{{ formatZone(order.zone) }}</span>
+                        </div>
+                        <span class="order-chip__price">{{ order.shipping_cost | number:'1.0-0' }} DA</span>
+
+                        <div *cdkDragPlaceholder class="order-chip order-chip--placeholder"></div>
+                      </div>
+                    }
+                  </div>
+
+                  <p class="unbatched-hint">{{ 'admin.batching.unbatched_hint' | translate }}</p>
+                }
+              </div>
+            }
+          </div>
+        }
       }
 
       <!-- Trips Tab -->

@@ -11,13 +11,18 @@ import {
   BatchingRunResponse,
   BatchingStats,
   AssignTripRequest,
-  AssignTripResponse
+  AssignTripResponse,
+  PendingOrder,
+  PendingOrdersResponse,
+  CustomBatchingRequest
 } from '../models/trip.model';
 import { User } from '../models/user.model';
 
 const API_ENDPOINTS = {
   PREVIEW: '/admin/batching/preview',
   RUN: '/admin/batching/run',
+  RUN_CUSTOM: '/admin/batching/run-custom',
+  ORDERS: '/admin/batching/orders',
   STATS: '/admin/batching/stats',
   TRIPS: '/admin/batching/trips',
   tripDetail: (tripId: number) => `/admin/batching/trips/${tripId}`,
@@ -39,12 +44,14 @@ export class BatchingService {
   private _trips = signal<Trip[]>([]);
   private _preview = signal<BatchingPreviewResponse | null>(null);
   private _drivers = signal<User[]>([]);
+  private _pendingOrders = signal<PendingOrder[]>([]);
 
   // Public readonly signals
   readonly stats = this._stats.asReadonly();
   readonly trips = this._trips.asReadonly();
   readonly preview = this._preview.asReadonly();
   readonly drivers = this._drivers.asReadonly();
+  readonly pendingOrders = this._pendingOrders.asReadonly();
 
   /**
    * Get batching statistics
@@ -194,5 +201,42 @@ export class BatchingService {
     return this.http.get<User[]>(`${this.apiUrl}${API_ENDPOINTS.DRIVERS}`).pipe(
       tap(drivers => this._drivers.set(drivers))
     );
+  }
+
+  /**
+   * Get all pending batchable orders for drag-drop UI
+   */
+  getPendingOrders(): Observable<PendingOrder[]> {
+    return this.http.get<PendingOrdersResponse>(`${this.apiUrl}${API_ENDPOINTS.ORDERS}`).pipe(
+      map(response => response.orders),
+      tap(orders => this._pendingOrders.set(orders))
+    );
+  }
+
+  /**
+   * Run custom batching with user-defined batches
+   */
+  runCustomBatching(batches: { order_ids: number[] }[]): Observable<BatchingRunResponse> {
+    const request: CustomBatchingRequest = { batches };
+    return this.http.post<BatchingRunResponse>(
+      `${this.apiUrl}${API_ENDPOINTS.RUN_CUSTOM}`,
+      request
+    ).pipe(
+      tap(() => {
+        // Refresh stats and trips after batching
+        this.getStats().subscribe();
+        this.getTrips().subscribe();
+        // Clear pending orders and preview
+        this._pendingOrders.set([]);
+        this._preview.set(null);
+      })
+    );
+  }
+
+  /**
+   * Clear pending orders state
+   */
+  clearPendingOrders(): void {
+    this._pendingOrders.set([]);
   }
 }

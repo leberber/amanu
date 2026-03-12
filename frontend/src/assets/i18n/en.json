@@ -1948,7 +1948,22 @@
       "assign_trip_info": "Assign trip #{{id}} with {{stops}} stops to a driver",
       "select_driver": "Select Driver",
       "select_driver_placeholder": "Choose a driver...",
-      "unbatch": "Unbatch"
+      "unbatch": "Unbatch",
+      "organize_batches": "Organize into Batches",
+      "organize_hint": "Click 'Organize into Batches' to group these orders by zone",
+      "no_pending_orders": "No Pending Orders",
+      "no_pending_orders_desc": "All batchable orders have been processed",
+      "proposed_batches": "Proposed Batches",
+      "batches": "batches",
+      "reset": "Reset",
+      "approve_create": "Approve & Create Trips",
+      "drag_hint": "Drag orders between batches to reorganize. Batches need 2-3 orders.",
+      "unbatched": "Unbatched Orders",
+      "unbatched_hint": "These orders don't have enough nearby orders. Drag them to batches or create a new batch.",
+      "create_batch": "Create Batch",
+      "no_batches_to_create": "No batches to create",
+      "max_orders_batch": "Maximum 3 orders per batch. Excess moved to unbatched.",
+      "need_two_orders": "Need at least 2 orders to create a batch"
     }
   },
   "footer": {

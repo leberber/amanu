@@ -4,6 +4,13 @@ import { Router } from '@angular/router';
 import { DialogModule } from 'primeng/dialog';
 import { SelectModule } from 'primeng/select';
 import { ConfirmationService, MessageService } from 'primeng/api';
+import {
+  CdkDragDrop,
+  DragDropModule,
+  moveItemInArray,
+  transferArrayItem,
+} from '@angular/cdk/drag-drop';
+import { trigger, transition, style, animate, query, stagger, keyframes } from '@angular/animations';
 
 import { ADMIN_LIST_IMPORTS } from '../../../shared/imports/admin-shared.imports';
 import { AgroclikPageContainerComponent } from '../../../shared/components/agroclik-page-container/agroclik-page-container.component';
@@ -13,15 +20,15 @@ import {
   Trip,
   TripWithStops,
   TripStatus,
-  BatchingPreviewResponse,
   BatchingStats,
-  ProposedTrip
+  PendingOrder,
+  CustomBatch,
 } from '../../../models/trip.model';
 import { User } from '../../../models/user.model';
 import { ROUTES, RouteHelpers } from '../../../core/constants/routes.constants';
 
-type TabType = 'overview' | 'trips' | 'preview';
-type PreviewSubTab = 'proposed' | 'unbatched';
+type TabType = 'overview' | 'trips';
+type BatchingState = 'orders' | 'batches';
 
 @Component({
   selector: 'app-admin-batching',
@@ -30,11 +37,51 @@ type PreviewSubTab = 'proposed' | 'unbatched';
     ...ADMIN_LIST_IMPORTS,
     AgroclikPageContainerComponent,
     DialogModule,
-    SelectModule
+    SelectModule,
+    DragDropModule
   ],
   templateUrl: './admin-batching.component.html',
   styleUrl: './admin-batching.component.scss',
-  providers: [ConfirmationService, MessageService]
+  providers: [ConfirmationService, MessageService],
+  animations: [
+    trigger('batchAnimation', [
+      transition(':enter', [
+        style({ opacity: 0, transform: 'scale(0.8)' }),
+        animate('300ms ease-out', style({ opacity: 1, transform: 'scale(1)' }))
+      ]),
+      transition(':leave', [
+        animate('200ms ease-in', style({ opacity: 0, transform: 'scale(0.8)' }))
+      ])
+    ]),
+    trigger('orderCardAnimation', [
+      transition(':enter', [
+        style({ opacity: 0, transform: 'translateY(20px)' }),
+        animate('200ms ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
+      ])
+    ]),
+    trigger('staggerAnimation', [
+      transition('* => *', [
+        query(':enter', [
+          style({ opacity: 0, transform: 'translateY(10px)' }),
+          stagger('50ms', [
+            animate('200ms ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
+          ])
+        ], { optional: true })
+      ])
+    ]),
+    trigger('organizeAnimation', [
+      transition('orders => batches', [
+        query('.order-card', [
+          animate('400ms ease-in-out', keyframes([
+            style({ transform: 'scale(1)', offset: 0 }),
+            style({ transform: 'scale(0.85)', offset: 0.3 }),
+            style({ transform: 'scale(0.85) translateY(-10px)', offset: 0.6 }),
+            style({ transform: 'scale(1) translateY(0)', offset: 1 })
+          ]))
+        ], { optional: true })
+      ])
+    ])
+  ]
 })
 export class AdminBatchingComponent implements OnInit {
   private batchingService = inject(BatchingService);
@@ -45,16 +92,23 @@ export class AdminBatchingComponent implements OnInit {
 
   // State
   loading = signal(true);
-  loadingPreview = signal(false);
-  runningBatching = signal(false);
+  loadingOrders = signal(false);
+  organizingBatches = signal(false);
+  submittingBatches = signal(false);
   activeTab = signal<TabType>('overview');
-  previewSubTab = signal<PreviewSubTab>('proposed');
+  batchingState = signal<BatchingState>('orders');
 
   // Data from service
   stats = this.batchingService.stats;
   trips = this.batchingService.trips;
-  preview = this.batchingService.preview;
   drivers = this.batchingService.drivers;
+
+  // Pending orders for drag-drop
+  pendingOrders = signal<PendingOrder[]>([]);
+
+  // Custom batches after organizing
+  customBatches = signal<CustomBatch[]>([]);
+  unbatchedOrders = signal<PendingOrder[]>([]);
 
   // Filters
   statusFilter = signal<TripStatus | null>(null);
@@ -81,6 +135,20 @@ export class AdminBatchingComponent implements OnInit {
   pendingTrips = computed(() => this.trips().filter(t => t.status === 'pending'));
   assignedTrips = computed(() => this.trips().filter(t => t.status === 'assigned'));
   inProgressTrips = computed(() => this.trips().filter(t => t.status === 'in_progress'));
+
+  // Computed for batch summary
+  totalOrdersInBatches = computed(() =>
+    this.customBatches().reduce((sum, b) => sum + b.orders.length, 0)
+  );
+
+  // Generate drop list IDs for CDK
+  batchDropListIds = computed(() =>
+    this.customBatches().map((_, i) => `batch-${i}`)
+  );
+
+  allDropListIds = computed(() =>
+    [...this.batchDropListIds(), 'unbatched-list']
+  );
 
   ngOnInit(): void {
     this.loadData();
@@ -115,51 +183,216 @@ export class AdminBatchingComponent implements OnInit {
   setActiveTab(tab: TabType): void {
     this.activeTab.set(tab);
 
-    if (tab === 'preview' && !this.preview()) {
-      this.loadPreview();
+    if (tab === 'overview' && this.batchingState() === 'orders' && this.pendingOrders().length === 0) {
+      this.loadPendingOrders();
     }
   }
 
-  // Preview batching
-  loadPreview(): void {
-    this.loadingPreview.set(true);
-    this.batchingService.previewBatching()
+  // Load pending orders for drag-drop
+  loadPendingOrders(): void {
+    this.loadingOrders.set(true);
+    this.batchingService.getPendingOrders()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: () => this.loadingPreview.set(false),
+        next: (orders) => {
+          this.pendingOrders.set(orders);
+          this.loadingOrders.set(false);
+        },
         error: () => {
-          this.loadingPreview.set(false);
-          this.toast.showError('admin.batching.preview_error');
+          this.loadingOrders.set(false);
+          this.toast.showError('admin.batching.load_error');
         }
       });
   }
 
-  // Run batching
-  runBatching(): void {
+  // Organize orders into batches (run algorithm)
+  organizeIntoBatches(): void {
+    this.organizingBatches.set(true);
+
+    // Simulate algorithm running with a short delay for animation
+    setTimeout(() => {
+      const orders = this.pendingOrders();
+
+      // Group orders by zone
+      const zoneGroups = new Map<string, PendingOrder[]>();
+      orders.forEach(order => {
+        const zone = order.zone || 'unknown';
+        if (!zoneGroups.has(zone)) {
+          zoneGroups.set(zone, []);
+        }
+        zoneGroups.get(zone)!.push(order);
+      });
+
+      // Create batches (max 3 orders per batch, min 2 to be a batch)
+      const batches: CustomBatch[] = [];
+      const unbatched: PendingOrder[] = [];
+
+      zoneGroups.forEach((zoneOrders, zone) => {
+        for (let i = 0; i < zoneOrders.length; i += 3) {
+          const batchOrders = zoneOrders.slice(i, i + 3);
+
+          if (batchOrders.length >= 2) {
+            batches.push({
+              order_ids: batchOrders.map(o => o.id),
+              orders: batchOrders,
+              zone: zone
+            });
+          } else {
+            unbatched.push(...batchOrders);
+          }
+        }
+      });
+
+      this.customBatches.set(batches);
+      this.unbatchedOrders.set(unbatched);
+      this.batchingState.set('batches');
+      this.organizingBatches.set(false);
+    }, 600);
+  }
+
+  // Reset to orders view
+  resetBatching(): void {
+    this.batchingState.set('orders');
+    this.customBatches.set([]);
+    this.unbatchedOrders.set([]);
+    this.loadPendingOrders();
+  }
+
+  // Approve and create trips
+  approveAndCreateTrips(): void {
+    const batches = this.customBatches();
+
+    if (batches.length === 0) {
+      this.toast.showWarn('admin.batching.no_batches_to_create');
+      return;
+    }
+
     this.confirmationService.confirm({
-      message: 'This will create trips from pending orders. Continue?',
-      header: 'Run Batching',
-      icon: 'pi pi-exclamation-triangle',
+      message: `Create ${batches.length} trips from ${this.totalOrdersInBatches()} orders?`,
+      header: 'Approve Batches',
+      icon: 'pi pi-check-circle',
       accept: () => {
-        this.runningBatching.set(true);
-        this.batchingService.runBatching()
+        this.submittingBatches.set(true);
+
+        const batchData = batches.map(b => ({ order_ids: b.order_ids }));
+
+        this.batchingService.runCustomBatching(batchData)
           .pipe(takeUntilDestroyed(this.destroyRef))
           .subscribe({
             next: (response) => {
-              this.runningBatching.set(false);
+              this.submittingBatches.set(false);
               this.toast.showSuccess('admin.batching.run_success', {
                 trips: response.trips_created,
                 orders: response.orders_processed
               });
+              // Reset and switch to trips tab
+              this.batchingState.set('orders');
+              this.customBatches.set([]);
+              this.unbatchedOrders.set([]);
+              this.pendingOrders.set([]);
               this.setActiveTab('trips');
+              this.batchingService.getStats().subscribe();
             },
-            error: () => {
-              this.runningBatching.set(false);
-              this.toast.showError('admin.batching.run_error');
+            error: (err) => {
+              this.submittingBatches.set(false);
+              this.toast.showApiError(err, 'admin.batching.run_error');
             }
           });
       }
     });
+  }
+
+  // Drag-drop handlers
+  dropInBatch(event: CdkDragDrop<PendingOrder[]>, batchIndex: number): void {
+    if (event.previousContainer === event.container) {
+      // Reorder within same batch
+      moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+    } else {
+      // Move from another batch or unbatched
+      transferArrayItem(
+        event.previousContainer.data,
+        event.container.data,
+        event.previousIndex,
+        event.currentIndex
+      );
+
+      // Update the batches
+      this.updateBatchAfterDrop(batchIndex);
+      this.cleanupEmptyBatches();
+    }
+  }
+
+  dropInUnbatched(event: CdkDragDrop<PendingOrder[]>): void {
+    if (event.previousContainer === event.container) {
+      moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+    } else {
+      transferArrayItem(
+        event.previousContainer.data,
+        event.container.data,
+        event.previousIndex,
+        event.currentIndex
+      );
+
+      this.cleanupEmptyBatches();
+    }
+  }
+
+  private updateBatchAfterDrop(batchIndex: number): void {
+    const batches = this.customBatches();
+    if (batches[batchIndex]) {
+      const batch = batches[batchIndex];
+      batch.order_ids = batch.orders.map(o => o.id);
+
+      // Check if batch exceeds max (3 orders)
+      if (batch.orders.length > 3) {
+        // Move excess to unbatched
+        const excess = batch.orders.splice(3);
+        batch.order_ids = batch.orders.map(o => o.id);
+        this.unbatchedOrders.update(orders => [...orders, ...excess]);
+        this.toast.showWarn('admin.batching.max_orders_batch');
+      }
+    }
+  }
+
+  private cleanupEmptyBatches(): void {
+    // Remove batches with less than 2 orders
+    const batches = this.customBatches();
+    const toRemove: PendingOrder[] = [];
+
+    const validBatches = batches.filter(b => {
+      if (b.orders.length < 2) {
+        toRemove.push(...b.orders);
+        return false;
+      }
+      return true;
+    });
+
+    if (toRemove.length > 0) {
+      this.customBatches.set(validBatches);
+      this.unbatchedOrders.update(orders => [...orders, ...toRemove]);
+    }
+  }
+
+  // Create new batch from unbatched orders
+  createNewBatch(): void {
+    const unbatched = this.unbatchedOrders();
+    if (unbatched.length < 2) {
+      this.toast.showWarn('admin.batching.need_two_orders');
+      return;
+    }
+
+    // Take first 2-3 orders to create new batch
+    const newBatchOrders = unbatched.slice(0, Math.min(3, unbatched.length));
+    const remaining = unbatched.slice(newBatchOrders.length);
+
+    const newBatch: CustomBatch = {
+      order_ids: newBatchOrders.map(o => o.id),
+      orders: newBatchOrders,
+      zone: newBatchOrders[0]?.zone
+    };
+
+    this.customBatches.update(batches => [...batches, newBatch]);
+    this.unbatchedOrders.set(remaining);
   }
 
   // View trip details
@@ -305,5 +538,15 @@ export class AdminBatchingComponent implements OnInit {
   formatZone(zone: string | undefined): string {
     if (!zone) return 'Unknown';
     return zone.replace('zone_', '').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+  }
+
+  // Calculate batch total earnings
+  getBatchTotalEarnings(batch: CustomBatch): number {
+    return batch.orders.reduce((sum, o) => sum + (o.shipping_cost || 0), 0);
+  }
+
+  // Calculate batch total weight
+  getBatchTotalWeight(batch: CustomBatch): number {
+    return batch.orders.reduce((sum, o) => sum + (o.weight_kg || 0), 0);
   }
 }

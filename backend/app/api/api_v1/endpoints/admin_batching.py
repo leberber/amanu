@@ -18,7 +18,8 @@ from app.models.trip import (
 from app.models.driver import Driver, DriverVehicle, DriverStatus
 from app.models.product import Product
 from app.services.batching_service import (
-    run_batching, preview_batching, set_order_full_load_status
+    run_batching, preview_batching, set_order_full_load_status,
+    get_pending_orders_with_details, create_trips_from_custom_batches
 )
 from sqlmodel import SQLModel
 
@@ -152,6 +153,84 @@ def run_order_batching(
     Groups STANDARD delivery orders by zone (max 3 per trip).
     """
     result = run_batching(session, created_by_id=current_user.id)
+    return result
+
+
+# =============================================================================
+# PENDING ORDERS ENDPOINT
+# =============================================================================
+
+class PendingOrderResponse(SQLModel):
+    """Response for a pending batchable order"""
+    id: int
+    customer_name: str
+    address: Optional[str]
+    zone: str
+    shipping_cost: float
+    weight_kg: float
+    created_at: Optional[str]
+
+
+class PendingOrdersListResponse(SQLModel):
+    """Response for listing pending orders"""
+    orders: List[dict]
+    total: int
+
+
+@router.get("/orders", response_model=PendingOrdersListResponse)
+def get_pending_orders(
+    current_user: User = Depends(get_current_staff_user),
+    session: Session = Depends(get_session),
+) -> Any:
+    """
+    Get all pending batchable orders for the drag-drop UI.
+    Returns orders that can be grouped into trips.
+    """
+    orders = get_pending_orders_with_details(session)
+    return {
+        "orders": orders,
+        "total": len(orders)
+    }
+
+
+# =============================================================================
+# CUSTOM BATCHING ENDPOINT
+# =============================================================================
+
+class CustomBatch(SQLModel):
+    """A single batch definition"""
+    order_ids: List[int]
+
+
+class CustomBatchingRequest(SQLModel):
+    """Request to create trips from custom batches"""
+    batches: List[CustomBatch]
+
+
+@router.post("/run-custom", response_model=BatchingRunResponse)
+def run_custom_batching(
+    request: CustomBatchingRequest,
+    current_user: User = Depends(get_current_admin_user),
+    session: Session = Depends(get_session),
+) -> Any:
+    """
+    Create trips from custom user-defined batches.
+    Allows admins to manually group orders before creating trips.
+
+    Rules:
+    - Each batch must have 2-3 orders
+    - Same order cannot appear in multiple batches
+    - All orders must be valid pending batchable orders
+    """
+    batches = [{"order_ids": b.order_ids} for b in request.batches]
+    result = create_trips_from_custom_batches(batches, session, created_by_id=current_user.id)
+
+    if not result.get("success"):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=result.get("message", "Custom batching failed")
+        )
+
     return result
 
 

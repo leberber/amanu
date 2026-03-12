@@ -149,3 +149,29 @@ export interface PickupOrderResponse {
   message: string;
   order?: import('./order.model').Order;
 }
+
+// Drag-drop batching models
+export interface PendingOrder {
+  id: number;
+  customer_name: string;
+  address: string;
+  zone: string;
+  shipping_cost: number;
+  weight_kg: number;
+  created_at?: string;
+}
+
+export interface PendingOrdersResponse {
+  orders: PendingOrder[];
+  total: number;
+}
+
+export interface CustomBatch {
+  order_ids: number[];
+  orders: PendingOrder[];  // For UI display
+  zone?: string;           // Optional zone label
+}
+
+export interface CustomBatchingRequest {
+  batches: { order_ids: number[] }[];
+}
