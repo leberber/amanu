@@ -36,7 +36,7 @@ const API_ENDPOINTS = {
   SMART_RUN: '/admin/batching/smart-run',
   SMART_DRIVERS: '/admin/batching/smart-drivers',
   // Customer routes (for polylines)
-  CUSTOMER_ROUTES: '/admin/routes'
+  CUSTOMER_ROUTES: '/admin/routes/'
 };
 
 @Injectable({
