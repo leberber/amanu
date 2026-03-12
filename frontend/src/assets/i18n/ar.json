@@ -1951,7 +1951,14 @@
       "max_orders_batch": "الحد الأقصى 3 طلبات لكل رحلة. تم نقل الزيادة.",
       "need_two_orders": "يجب توفر طلبين على الأقل لإنشاء رحلة",
       "tab_map": "الخريطة",
-      "zones": "المناطق"
+      "zones": "المناطق",
+      "trip_builder": "إنشاء رحلة",
+      "drag_orders_here": "اسحب الطلبات هنا لإنشاء رحلة",
+      "assign_to_driver": "تعيين للسائق",
+      "send_to_pool": "إرسال للمجمع",
+      "trip_assigned_success": "تم إنشاء الرحلة وتعيينها بنجاح",
+      "trip_created_success": "تم إنشاء الرحلة وإرسالها للمجمع",
+      "select_driver_required": "يرجى اختيار سائق"
     }
   },
   "footer": {

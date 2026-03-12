@@ -1965,7 +1965,14 @@
       "max_orders_batch": "Maximum 3 orders per batch. Excess moved to unbatched.",
       "need_two_orders": "Need at least 2 orders to create a batch",
       "tab_map": "Map",
-      "zones": "Zones"
+      "zones": "Zones",
+      "trip_builder": "Trip Builder",
+      "drag_orders_here": "Drag orders here to build a trip",
+      "assign_to_driver": "Assign to Driver",
+      "send_to_pool": "Send to Pool",
+      "trip_assigned_success": "Trip created and assigned successfully",
+      "trip_created_success": "Trip created and sent to pool",
+      "select_driver_required": "Please select a driver"
     }
   },
   "footer": {

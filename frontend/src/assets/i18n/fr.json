@@ -1963,7 +1963,14 @@
       "max_orders_batch": "Maximum 3 commandes par tournée. L'excédent a été déplacé.",
       "need_two_orders": "Il faut au moins 2 commandes pour créer une tournée",
       "tab_map": "Carte",
-      "zones": "Zones"
+      "zones": "Zones",
+      "trip_builder": "Créer une tournée",
+      "drag_orders_here": "Glissez les commandes ici pour créer une tournée",
+      "assign_to_driver": "Assigner au chauffeur",
+      "send_to_pool": "Envoyer au pool",
+      "trip_assigned_success": "Tournée créée et assignée avec succès",
+      "trip_created_success": "Tournée créée et envoyée au pool",
+      "select_driver_required": "Veuillez sélectionner un chauffeur"
     }
   },
   "footer": {

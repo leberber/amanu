@@ -144,6 +144,11 @@ export class AdminBatchingComponent implements OnInit, AfterViewInit {
   selectedDriverId: number | null = null;
   assigning = signal(false);
 
+  // Trip builder sidebar
+  tripBuilderOrders = signal<PendingOrder[]>([]);
+  tripBuilderDriverId: number | null = null;
+  creatingTrip = signal(false);
+
   // Computed
   filteredTrips = computed(() => {
     const allTrips = this.trips();
@@ -169,6 +174,18 @@ export class AdminBatchingComponent implements OnInit, AfterViewInit {
   allDropListIds = computed(() =>
     [...this.batchDropListIds(), 'unbatched-list']
   );
+
+  // Trip builder computed values
+  tripBuilderTotalWeight = computed(() =>
+    this.tripBuilderOrders().reduce((sum, o) => sum + (o.weight_kg || 0), 0)
+  );
+
+  tripBuilderTotalEarnings = computed(() =>
+    this.tripBuilderOrders().reduce((sum, o) => sum + (o.shipping_cost || 0), 0)
+  );
+
+  // Drop list IDs for overview tab (orders grid + trip builder)
+  overviewDropListIds = computed(() => ['orders-list', 'trip-builder-list']);
 
   constructor() {
     // Watch for tab changes to initialize/destroy map
@@ -447,6 +464,151 @@ export class AdminBatchingComponent implements OnInit, AfterViewInit {
     this.customBatches.set([]);
     this.unbatchedOrders.set([]);
     this.loadPendingOrders();
+  }
+
+  // Trip builder drag-drop handlers
+  dropInTripBuilder(event: CdkDragDrop<PendingOrder[]>): void {
+    if (event.previousContainer === event.container) {
+      // Reorder within trip builder
+      const orders = [...this.tripBuilderOrders()];
+      moveItemInArray(orders, event.previousIndex, event.currentIndex);
+      this.tripBuilderOrders.set(orders);
+    } else {
+      // Check max 3 orders
+      if (this.tripBuilderOrders().length >= 3) {
+        this.toast.showWarn('admin.batching.max_orders_batch');
+        return;
+      }
+
+      // Add from orders list - manually update both signals
+      const pendingList = [...this.pendingOrders()];
+      const builderList = [...this.tripBuilderOrders()];
+      const [movedOrder] = pendingList.splice(event.previousIndex, 1);
+      builderList.splice(event.currentIndex, 0, movedOrder);
+
+      this.pendingOrders.set(pendingList);
+      this.tripBuilderOrders.set(builderList);
+    }
+  }
+
+  dropInOrdersList(event: CdkDragDrop<PendingOrder[]>): void {
+    if (event.previousContainer === event.container) {
+      // Reorder within orders list
+      const orders = [...this.pendingOrders()];
+      moveItemInArray(orders, event.previousIndex, event.currentIndex);
+      this.pendingOrders.set(orders);
+    } else {
+      // Move back from trip builder to orders list
+      const pendingList = [...this.pendingOrders()];
+      const builderList = [...this.tripBuilderOrders()];
+      const [movedOrder] = builderList.splice(event.previousIndex, 1);
+      pendingList.splice(event.currentIndex, 0, movedOrder);
+
+      this.pendingOrders.set(pendingList);
+      this.tripBuilderOrders.set(builderList);
+    }
+  }
+
+  removeFromTripBuilder(order: PendingOrder): void {
+    const orders = this.tripBuilderOrders();
+    const index = orders.findIndex(o => o.id === order.id);
+    if (index > -1) {
+      orders.splice(index, 1);
+      this.tripBuilderOrders.set([...orders]);
+      this.pendingOrders.update(list => [...list, order]);
+    }
+  }
+
+  clearTripBuilder(): void {
+    const orders = this.tripBuilderOrders();
+    this.pendingOrders.update(list => [...list, ...orders]);
+    this.tripBuilderOrders.set([]);
+    this.tripBuilderDriverId = null;
+  }
+
+  // Create and assign trip to driver
+  assignTripToDriver(): void {
+    const orders = this.tripBuilderOrders();
+    const driverId = this.tripBuilderDriverId;
+
+    if (orders.length < 2) {
+      this.toast.showWarn('admin.batching.need_two_orders');
+      return;
+    }
+
+    if (!driverId) {
+      this.toast.showWarn('admin.batching.select_driver_required');
+      return;
+    }
+
+    this.creatingTrip.set(true);
+
+    // First create the trip
+    const batchData = [{ order_ids: orders.map(o => o.id) }];
+
+    this.batchingService.runCustomBatching(batchData)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          if (response.trips && response.trips.length > 0) {
+            const tripId = response.trips[0].id;
+            // Now assign to driver
+            this.batchingService.assignTrip(tripId, driverId)
+              .pipe(takeUntilDestroyed(this.destroyRef))
+              .subscribe({
+                next: (assignResponse) => {
+                  this.creatingTrip.set(false);
+                  this.toast.showSuccess('admin.batching.trip_assigned_success');
+                  this.tripBuilderOrders.set([]);
+                  this.tripBuilderDriverId = null;
+                  this.loadPendingOrders();
+                  this.batchingService.getStats().subscribe();
+                  this.batchingService.getTrips().subscribe();
+                },
+                error: (err) => {
+                  this.creatingTrip.set(false);
+                  this.toast.showApiError(err, 'admin.batching.assign_error');
+                }
+              });
+          }
+        },
+        error: (err) => {
+          this.creatingTrip.set(false);
+          this.toast.showApiError(err, 'admin.batching.run_error');
+        }
+      });
+  }
+
+  // Create trip and send to pool (no driver assigned)
+  sendTripToPool(): void {
+    const orders = this.tripBuilderOrders();
+
+    if (orders.length < 2) {
+      this.toast.showWarn('admin.batching.need_two_orders');
+      return;
+    }
+
+    this.creatingTrip.set(true);
+
+    const batchData = [{ order_ids: orders.map(o => o.id) }];
+
+    this.batchingService.runCustomBatching(batchData)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          this.creatingTrip.set(false);
+          this.toast.showSuccess('admin.batching.trip_created_success');
+          this.tripBuilderOrders.set([]);
+          this.tripBuilderDriverId = null;
+          this.loadPendingOrders();
+          this.batchingService.getStats().subscribe();
+          this.batchingService.getTrips().subscribe();
+        },
+        error: (err) => {
+          this.creatingTrip.set(false);
+          this.toast.showApiError(err, 'admin.batching.run_error');
+        }
+      });
   }
 
   // Approve and create trips

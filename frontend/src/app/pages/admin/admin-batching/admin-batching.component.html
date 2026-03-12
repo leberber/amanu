@@ -181,57 +181,197 @@
       @if (activeTab() === 'overview') {
         <!-- State: Orders View (before batching) -->
         @if (batchingState() === 'orders') {
-          <div class="batching-section" [@organizeAnimation]="batchingState()">
-            @if (loadingOrders()) {
-              <div class="orders-grid">
-                @for (i of [1, 2, 3, 4, 5, 6]; track i) {
-                  <div class="order-card order-card--skeleton">
-                    <div class="skeleton" style="width: 60%; height: 16px;"></div>
-                    <div class="skeleton" style="width: 100%; height: 14px; margin-top: 8px;"></div>
-                    <div class="skeleton" style="width: 40%; height: 14px; margin-top: 8px;"></div>
-                  </div>
-                }
-              </div>
-            } @else if (pendingOrders().length === 0) {
-              <div class="empty-state empty-state--compact animate-item" style="--item-delay: 150ms;">
-                <div class="empty-state__icon">
-                  <i class="pi pi-inbox"></i>
-                </div>
-                <h3 class="empty-state__title">{{ 'admin.batching.no_pending_orders' | translate }}</h3>
-                <p class="empty-state__description">{{ 'admin.batching.no_pending_orders_desc' | translate }}</p>
-              </div>
-            } @else {
-              <!-- Orders Grid (scrollable container) -->
-              <div class="orders-scroll-container">
-                <div class="orders-grid" [@staggerAnimation]="pendingOrders().length">
-                  @for (order of pendingOrders(); track order.id; let i = $index) {
-                    <div
-                      class="order-card animate-item"
-                      [style.--item-delay]="(i * 30) + 'ms'"
-                      (click)="goToOrder(order.id)">
-                      <div class="order-card__header">
-                        <span class="order-card__id">#{{ order.id }}</span>
-                        <span class="order-card__zone">
-                          <i class="pi pi-map-marker"></i>
-                          {{ formatZone(order.zone) }}
-                        </span>
-                      </div>
-                      <div class="order-card__content">
-                        <span class="order-card__customer">{{ order.customer_name }}</span>
-                        <span class="order-card__address">{{ order.address }}</span>
-                      </div>
-                      <div class="order-card__footer">
-                        <span class="order-card__weight">
-                          <i class="pi pi-box"></i>
-                          {{ order.weight_kg | number:'1.0-1' }} kg
-                        </span>
-                        <span class="order-card__price">{{ order.shipping_cost | number:'1.0-0' }} DA</span>
-                      </div>
+          <div class="overview-layout">
+            <!-- Orders List (Left Side) -->
+            <div class="orders-panel">
+              @if (loadingOrders()) {
+                <div class="orders-grid">
+                  @for (i of [1, 2, 3, 4, 5, 6]; track i) {
+                    <div class="order-card order-card--skeleton">
+                      <div class="skeleton" style="width: 60%; height: 16px;"></div>
+                      <div class="skeleton" style="width: 100%; height: 14px; margin-top: 8px;"></div>
+                      <div class="skeleton" style="width: 40%; height: 14px; margin-top: 8px;"></div>
                     </div>
                   }
                 </div>
+              } @else if (pendingOrders().length === 0 && tripBuilderOrders().length === 0) {
+                <div class="empty-state empty-state--compact animate-item" style="--item-delay: 150ms;">
+                  <div class="empty-state__icon">
+                    <i class="pi pi-inbox"></i>
+                  </div>
+                  <h3 class="empty-state__title">{{ 'admin.batching.no_pending_orders' | translate }}</h3>
+                  <p class="empty-state__description">{{ 'admin.batching.no_pending_orders_desc' | translate }}</p>
+                </div>
+              } @else {
+                <!-- Draggable Orders Grid -->
+                <div
+                  cdkDropList
+                  id="orders-list"
+                  [cdkDropListData]="pendingOrders()"
+                  [cdkDropListConnectedTo]="['trip-builder-list']"
+                  class="orders-scroll-container"
+                  (cdkDropListDropped)="dropInOrdersList($event)">
+                  <div class="orders-grid">
+                    @for (order of pendingOrders(); track order.id; let i = $index) {
+                      <div
+                        class="order-card order-card--draggable animate-item"
+                        cdkDrag
+                        [cdkDragData]="order"
+                        [style.--item-delay]="(i * 30) + 'ms'">
+                        <div class="order-card__drag-indicator">
+                          <i class="pi pi-bars"></i>
+                        </div>
+                        <div class="order-card__header">
+                          <span class="order-card__id">#{{ order.id }}</span>
+                          <span class="order-card__zone">
+                            <i class="pi pi-map-marker"></i>
+                            {{ formatZone(order.zone) }}
+                          </span>
+                        </div>
+                        <div class="order-card__content">
+                          <span class="order-card__customer">{{ order.customer_name }}</span>
+                          <span class="order-card__address">{{ order.address }}</span>
+                        </div>
+                        <div class="order-card__footer">
+                          <span class="order-card__weight">
+                            <i class="pi pi-box"></i>
+                            {{ order.weight_kg | number:'1.0-1' }} kg
+                          </span>
+                          <span class="order-card__price">{{ order.shipping_cost | number:'1.0-0' }} DA</span>
+                        </div>
+                        <!-- Custom drag preview rendered at body level -->
+                        <div *cdkDragPreview class="drag-preview">
+                          <span class="drag-preview__id">#{{ order.id }}</span>
+                          <span class="drag-preview__name">{{ order.customer_name }}</span>
+                          <span class="drag-preview__weight">{{ order.weight_kg | number:'1.0-1' }} kg</span>
+                        </div>
+                        <div *cdkDragPlaceholder class="order-card order-card--placeholder"></div>
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+
+            <!-- Trip Builder Sidebar (Right Side) -->
+            <div class="trip-builder-sidebar">
+              <div class="trip-builder">
+                <div class="trip-builder__header">
+                  <h3>
+                    <i class="pi pi-truck"></i>
+                    {{ 'admin.batching.trip_builder' | translate }}
+                  </h3>
+                  @if (tripBuilderOrders().length > 0) {
+                    <button
+                      pButton
+                      icon="pi pi-times"
+                      class="p-button-text p-button-sm p-button-rounded"
+                      pTooltip="{{ 'common.clear' | translate }}"
+                      (click)="clearTripBuilder()">
+                    </button>
+                  }
+                </div>
+
+                <!-- Drop Zone for Orders -->
+                <div
+                  cdkDropList
+                  id="trip-builder-list"
+                  [cdkDropListData]="tripBuilderOrders()"
+                  [cdkDropListConnectedTo]="['orders-list']"
+                  class="trip-builder__dropzone"
+                  [class.trip-builder__dropzone--empty]="tripBuilderOrders().length === 0"
+                  (cdkDropListDropped)="dropInTripBuilder($event)">
+
+                  @if (tripBuilderOrders().length === 0) {
+                    <div class="trip-builder__empty">
+                      <i class="pi pi-inbox"></i>
+                      <span>{{ 'admin.batching.drag_orders_here' | translate }}</span>
+                    </div>
+                  } @else {
+                    @for (order of tripBuilderOrders(); track order.id) {
+                      <div class="trip-builder__order" cdkDrag [cdkDragData]="order">
+                        <div class="trip-builder__order-content">
+                          <span class="trip-builder__order-id">#{{ order.id }}</span>
+                          <span class="trip-builder__order-name">{{ order.customer_name }}</span>
+                          <span class="trip-builder__order-weight">{{ order.weight_kg | number:'1.0-1' }} kg</span>
+                        </div>
+                        <button
+                          class="trip-builder__order-remove"
+                          (click)="removeFromTripBuilder(order)">
+                          <i class="pi pi-times"></i>
+                        </button>
+                        <!-- Custom drag preview -->
+                        <div *cdkDragPreview class="drag-preview">
+                          <span class="drag-preview__id">#{{ order.id }}</span>
+                          <span class="drag-preview__name">{{ order.customer_name }}</span>
+                          <span class="drag-preview__weight">{{ order.weight_kg | number:'1.0-1' }} kg</span>
+                        </div>
+                        <div *cdkDragPlaceholder class="trip-builder__order trip-builder__order--placeholder"></div>
+                      </div>
+                    }
+                  }
+                </div>
+
+                <!-- Weight & Earnings Summary -->
+                <div class="trip-builder__summary">
+                  <div class="trip-builder__stat">
+                    <i class="pi pi-box"></i>
+                    <span class="trip-builder__stat-value">{{ tripBuilderTotalWeight() | number:'1.0-1' }} kg</span>
+                  </div>
+                  <div class="trip-builder__stat trip-builder__stat--earnings">
+                    <span class="trip-builder__stat-value">{{ tripBuilderTotalEarnings() | number:'1.0-0' }} DA</span>
+                  </div>
+                </div>
+
+                <!-- Driver Selection -->
+                <div class="trip-builder__driver">
+                  <label>{{ 'admin.batching.select_driver' | translate }}</label>
+                  <p-select
+                    [options]="drivers()"
+                    [(ngModel)]="tripBuilderDriverId"
+                    optionLabel="full_name"
+                    optionValue="id"
+                    [placeholder]="'admin.batching.select_driver_placeholder' | translate"
+                    [style]="{ width: '100%' }">
+                    <ng-template pTemplate="item" let-driver>
+                      <div class="driver-option">
+                        <span>{{ driver.full_name }}</span>
+                        <small>{{ driver.phone }}</small>
+                      </div>
+                    </ng-template>
+                  </p-select>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="trip-builder__actions">
+                  <button
+                    pButton
+                    [label]="'admin.batching.assign_to_driver' | translate"
+                    icon="pi pi-user-plus"
+                    class="p-button-success"
+                    [loading]="creatingTrip()"
+                    [disabled]="tripBuilderOrders().length < 2 || !tripBuilderDriverId"
+                    (click)="assignTripToDriver()">
+                  </button>
+                  <button
+                    pButton
+                    [label]="'admin.batching.send_to_pool' | translate"
+                    icon="pi pi-send"
+                    class="p-button-outlined"
+                    [loading]="creatingTrip()"
+                    [disabled]="tripBuilderOrders().length < 2"
+                    (click)="sendTripToPool()">
+                  </button>
+                </div>
+
+                @if (tripBuilderOrders().length > 0 && tripBuilderOrders().length < 2) {
+                  <div class="trip-builder__hint">
+                    <i class="pi pi-info-circle"></i>
+                    {{ 'admin.batching.need_two_orders' | translate }}
+                  </div>
+                }
               </div>
-            }
+            </div>
           </div>
         }
 
