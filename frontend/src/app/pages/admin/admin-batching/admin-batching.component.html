@@ -124,7 +124,7 @@
               </button>
             </div>
           </div>
-          @if (activeTab() === 'overview' && batchingState() === 'orders') {
+          @if ((activeTab() === 'overview' || activeTab() === 'map') && batchingState() === 'orders') {
             <div class="tabs-header__actions">
               <button
                 pButton
@@ -138,8 +138,8 @@
                 [label]="'admin.batching.organize_batches' | translate"
                 icon="pi pi-bolt"
                 [loading]="organizingBatches()"
-                [disabled]="pendingOrders().length < 2"
-                (click)="organizeIntoBatches()">
+                [disabled]="pendingOrders().length < 2 && tripBuilderOrders().length < 2"
+                (click)="activeTab() === 'map' ? animateClusteringOnMap() : organizeIntoBatches()">
               </button>
             </div>
           }

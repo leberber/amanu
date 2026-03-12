@@ -200,11 +200,12 @@ export class AdminBatchingComponent implements OnInit, AfterViewInit {
       }
     });
 
-    // Watch for orders/batches changes to update markers
+    // Watch for orders/batches/tripBuilder changes to update markers
     effect(() => {
       const orders = this.pendingOrders();
       const batches = this.customBatches();
       const state = this.batchingState();
+      const tripBuilderOrders = this.tripBuilderOrders();
       if (this.map && this.markersLayer && this.mapInitialized()) {
         this.updateMapMarkers();
       }
@@ -249,10 +250,53 @@ export class AdminBatchingComponent implements OnInit, AfterViewInit {
     // Create markers layer
     this.markersLayer = L.layerGroup().addTo(this.map);
 
+    // Add warehouse marker
+    this.addWarehouseMarker();
+
     this.mapInitialized.set(true);
 
     // Add initial markers
     this.updateMapMarkers();
+  }
+
+  private addWarehouseMarker(): void {
+    if (!this.map) return;
+
+    // Create custom warehouse icon
+    const warehouseIcon = L.divIcon({
+      className: 'warehouse-marker',
+      html: `
+        <div style="
+          width: 40px;
+          height: 40px;
+          background: linear-gradient(135deg, #F59E0B, #D97706);
+          border-radius: 50%;
+          border: 3px solid #fff;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        ">
+          <i class="pi pi-warehouse" style="color: white; font-size: 18px;"></i>
+        </div>
+      `,
+      iconSize: [40, 40],
+      iconAnchor: [20, 20]
+    });
+
+    const warehouseMarker = L.marker(
+      [MAP_DEFAULTS.LATITUDE, MAP_DEFAULTS.LONGITUDE],
+      { icon: warehouseIcon, zIndexOffset: 1000 }
+    );
+
+    warehouseMarker.bindPopup(`
+      <div style="text-align: center; padding: 8px;">
+        <strong style="font-size: 14px;">Entrepôt</strong><br>
+        <span style="color: #666; font-size: 12px;">Point de départ des livraisons</span>
+      </div>
+    `);
+
+    warehouseMarker.addTo(this.map);
   }
 
   private destroyMap(): void {
@@ -273,7 +317,7 @@ export class AdminBatchingComponent implements OnInit, AfterViewInit {
     const state = this.batchingState();
     const orders = state === 'batches'
       ? this.getAllOrdersFromBatches()
-      : this.pendingOrders();
+      : [...this.pendingOrders(), ...this.tripBuilderOrders()]; // Include trip builder orders
 
     if (orders.length === 0) return;
 
@@ -281,9 +325,16 @@ export class AdminBatchingComponent implements OnInit, AfterViewInit {
 
     orders.forEach(order => {
       if (order.latitude && order.longitude) {
-        const color = state === 'batches'
-          ? this.getBatchColor(order)
-          : this.getZoneColor(order.zone);
+        let color: string;
+
+        if (state === 'batches') {
+          // Color by batch assignment
+          color = this.getBatchColor(order);
+        } else {
+          // In orders mode: check if order is in trip builder
+          const inTripBuilder = this.tripBuilderOrders().some(o => o.id === order.id);
+          color = inTripBuilder ? '#10B981' : '#3B82F6'; // Green if in builder, blue otherwise
+        }
 
         const marker = this.createOrderMarker(order, color);
         marker.addTo(this.markersLayer!);
@@ -352,6 +403,339 @@ export class AdminBatchingComponent implements OnInit, AfterViewInit {
 
     marker.bindPopup(popupContent);
     return marker;
+  }
+
+  // Animate clustering on map
+  animateClusteringOnMap(): void {
+    if (!this.map || !this.markersLayer) return;
+
+    this.organizingBatches.set(true);
+
+    // Get all orders
+    const allOrders = [...this.pendingOrders(), ...this.tripBuilderOrders()];
+    if (allOrders.length < 2) {
+      this.organizingBatches.set(false);
+      return;
+    }
+
+    // Group orders by zone
+    const zoneGroups = new Map<string, PendingOrder[]>();
+    allOrders.forEach(order => {
+      const zone = order.zone || 'unknown';
+      if (!zoneGroups.has(zone)) {
+        zoneGroups.set(zone, []);
+      }
+      zoneGroups.get(zone)!.push(order);
+    });
+
+    // Calculate zone centers
+    const zoneCenters = new Map<string, { lat: number; lng: number }>();
+    zoneGroups.forEach((orders, zone) => {
+      const validOrders = orders.filter(o => o.latitude && o.longitude);
+      if (validOrders.length > 0) {
+        const centerLat = validOrders.reduce((sum, o) => sum + o.latitude!, 0) / validOrders.length;
+        const centerLng = validOrders.reduce((sum, o) => sum + o.longitude!, 0) / validOrders.length;
+        zoneCenters.set(zone, { lat: centerLat, lng: centerLng });
+      }
+    });
+
+    // Clear existing markers
+    this.markersLayer.clearLayers();
+
+    // Create animation layer for effects
+    const animationLayer = L.layerGroup().addTo(this.map);
+
+    // Prepare marker data
+    interface AnimatedMarker {
+      marker: L.CircleMarker;
+      order: PendingOrder;
+      startLat: number;
+      startLng: number;
+      targetLat: number;
+      targetLng: number;
+      color: string;
+      zone: string;
+      delay: number;
+    }
+
+    const animatedMarkers: AnimatedMarker[] = [];
+    let markerIndex = 0;
+
+    allOrders.forEach(order => {
+      if (order.latitude && order.longitude) {
+        const zone = order.zone || 'unknown';
+        const color = this.getZoneColor(zone);
+        const center = zoneCenters.get(zone);
+
+        // Create marker at original position
+        const marker = L.circleMarker([order.latitude, order.longitude], {
+          radius: 8,
+          fillColor: '#94A3B8', // Start with gray
+          color: '#fff',
+          weight: 2,
+          opacity: 1,
+          fillOpacity: 0.6
+        });
+
+        marker.addTo(this.markersLayer!);
+
+        if (center) {
+          const targetLat = order.latitude + (center.lat - order.latitude) * 0.35;
+          const targetLng = order.longitude + (center.lng - order.longitude) * 0.35;
+
+          animatedMarkers.push({
+            marker,
+            order,
+            startLat: order.latitude,
+            startLng: order.longitude,
+            targetLat,
+            targetLng,
+            color,
+            zone,
+            delay: markerIndex * 50 // Staggered delay
+          });
+          markerIndex++;
+        }
+      }
+    });
+
+    // Easing function for smooth animation
+    const easeOutElastic = (t: number): number => {
+      const p = 0.3;
+      return Math.pow(2, -10 * t) * Math.sin((t - p / 4) * (2 * Math.PI) / p) + 1;
+    };
+
+    const easeOutCubic = (t: number): number => {
+      return 1 - Math.pow(1 - t, 3);
+    };
+
+    // Phase 1: Initial pulse wave (staggered)
+    animatedMarkers.forEach(({ marker, delay }) => {
+      setTimeout(() => {
+        marker.setRadius(12);
+        marker.setStyle({ fillOpacity: 0.9 });
+        setTimeout(() => {
+          marker.setRadius(8);
+          marker.setStyle({ fillOpacity: 0.6 });
+        }, 150);
+      }, delay);
+    });
+
+    // Phase 2: Draw animated circles around clusters
+    const totalPulseTime = animatedMarkers.length * 50 + 200;
+    setTimeout(() => {
+      zoneCenters.forEach((center, zone) => {
+        const color = this.getZoneColor(zone);
+        const zoneOrders = zoneGroups.get(zone) || [];
+        const validOrders = zoneOrders.filter(o => o.latitude && o.longitude);
+
+        if (validOrders.length >= 2) {
+          // Calculate radius to encompass all orders in zone + padding
+          let maxDist = 0;
+          validOrders.forEach(o => {
+            const dist = Math.sqrt(
+              Math.pow((o.latitude! - center.lat) * 111000, 2) +
+              Math.pow((o.longitude! - center.lng) * 111000 * Math.cos(center.lat * Math.PI / 180), 2)
+            );
+            maxDist = Math.max(maxDist, dist);
+          });
+
+          const targetRadius = maxDist + 150; // Add 150m padding
+
+          // Create circle starting from 0 radius
+          const circle = L.circle([center.lat, center.lng], {
+            radius: 0,
+            fillColor: color,
+            fillOpacity: 0,
+            color: color,
+            weight: 3,
+            opacity: 0
+          });
+          circle.addTo(animationLayer);
+
+          // Animate circle expansion with easing
+          const duration = 600;
+          const startTime = performance.now();
+
+          const animateCircle = () => {
+            const elapsed = performance.now() - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+
+            // Elastic easing for bouncy effect
+            const eased = progress < 1
+              ? 1 - Math.pow(2, -10 * progress) * Math.cos((progress * 10 - 0.75) * (2 * Math.PI) / 3)
+              : 1;
+
+            const currentRadius = targetRadius * eased;
+            circle.setRadius(currentRadius);
+            circle.setStyle({
+              opacity: 0.6 + progress * 0.2,
+              fillOpacity: progress * 0.12
+            });
+
+            if (progress < 1) {
+              requestAnimationFrame(animateCircle);
+            } else {
+              // Pulse effect at the end
+              circle.setStyle({ weight: 4, opacity: 0.9 });
+              setTimeout(() => {
+                circle.setStyle({ weight: 2, opacity: 0.5, fillOpacity: 0.08 });
+              }, 150);
+            }
+          };
+
+          requestAnimationFrame(animateCircle);
+        }
+      });
+    }, totalPulseTime);
+
+    // Phase 3: Move markers and change colors (smooth animation)
+    const moveStartTime = totalPulseTime + 400;
+    setTimeout(() => {
+      const duration = 800;
+      const startTime = performance.now();
+
+      const animate = () => {
+        const elapsed = performance.now() - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const easedProgress = easeOutCubic(progress);
+
+        animatedMarkers.forEach(({ marker, startLat, startLng, targetLat, targetLng, color }) => {
+          // Interpolate position
+          const currentLat = startLat + (targetLat - startLat) * easedProgress;
+          const currentLng = startLng + (targetLng - startLng) * easedProgress;
+          marker.setLatLng([currentLat, currentLng]);
+
+          // Interpolate color (blue -> zone color)
+          if (progress > 0.3) {
+            const colorProgress = (progress - 0.3) / 0.7;
+            marker.setStyle({
+              fillColor: color,
+              fillOpacity: 0.6 + colorProgress * 0.2
+            });
+          }
+
+          // Grow slightly during movement
+          const sizeProgress = Math.sin(progress * Math.PI);
+          marker.setRadius(8 + sizeProgress * 3);
+        });
+
+        if (progress < 1) {
+          requestAnimationFrame(animate);
+        }
+      };
+
+      requestAnimationFrame(animate);
+    }, moveStartTime);
+
+    // Phase 4: Final bounce and glow
+    const finalPhaseTime = moveStartTime + 900;
+    setTimeout(() => {
+      // Bounce effect
+      animatedMarkers.forEach(({ marker, color }, index) => {
+        setTimeout(() => {
+          marker.setRadius(14);
+          marker.setStyle({
+            fillOpacity: 1,
+            weight: 3,
+            color: color
+          });
+
+          setTimeout(() => {
+            marker.setRadius(11);
+            marker.setStyle({ weight: 2, color: '#fff' });
+          }, 100);
+
+          setTimeout(() => {
+            marker.setRadius(10);
+            marker.setStyle({ fillOpacity: 0.85 });
+          }, 200);
+        }, index * 30);
+      });
+    }, finalPhaseTime);
+
+    // Phase 5: Draw connecting lines between clustered orders
+    const linesPhaseTime = finalPhaseTime + animatedMarkers.length * 30 + 300;
+    setTimeout(() => {
+      zoneCenters.forEach((center, zone) => {
+        const color = this.getZoneColor(zone);
+        const zoneMarkers = animatedMarkers.filter(m => m.zone === zone);
+
+        if (zoneMarkers.length >= 2) {
+          // Draw lines from each marker to next
+          for (let i = 0; i < zoneMarkers.length; i++) {
+            const current = zoneMarkers[i];
+            const next = zoneMarkers[(i + 1) % zoneMarkers.length];
+
+            setTimeout(() => {
+              const line = L.polyline(
+                [[current.targetLat, current.targetLng], [next.targetLat, next.targetLng]],
+                {
+                  color: color,
+                  weight: 2,
+                  opacity: 0.4,
+                  dashArray: '4, 4'
+                }
+              );
+              line.addTo(animationLayer);
+            }, i * 100);
+          }
+        }
+      });
+    }, linesPhaseTime);
+
+    // Phase 6: Cleanup and transition
+    const cleanupTime = linesPhaseTime + 800;
+    setTimeout(() => {
+      // Fade out animation layer
+      animationLayer.remove();
+
+      this.organizingBatches.set(false);
+
+      // Run the actual batching logic
+      this.organizeIntoBatches();
+    }, cleanupTime);
+  }
+
+  // Calculate convex hull using Graham scan algorithm
+  private calculateConvexHull(points: [number, number][]): [number, number][] {
+    if (points.length < 3) return points;
+
+    // Find the point with lowest y (and leftmost if tie)
+    let start = 0;
+    for (let i = 1; i < points.length; i++) {
+      if (points[i][0] < points[start][0] ||
+          (points[i][0] === points[start][0] && points[i][1] < points[start][1])) {
+        start = i;
+      }
+    }
+
+    // Swap start point to beginning
+    [points[0], points[start]] = [points[start], points[0]];
+    const pivot = points[0];
+
+    // Sort points by polar angle with pivot
+    const sorted = points.slice(1).sort((a, b) => {
+      const angleA = Math.atan2(a[0] - pivot[0], a[1] - pivot[1]);
+      const angleB = Math.atan2(b[0] - pivot[0], b[1] - pivot[1]);
+      return angleA - angleB;
+    });
+
+    // Cross product to determine turn direction
+    const cross = (o: [number, number], a: [number, number], b: [number, number]) => {
+      return (a[1] - o[1]) * (b[0] - o[0]) - (a[0] - o[0]) * (b[1] - o[1]);
+    };
+
+    // Build hull
+    const hull: [number, number][] = [pivot];
+    for (const point of sorted) {
+      while (hull.length > 1 && cross(hull[hull.length - 2], hull[hull.length - 1], point) <= 0) {
+        hull.pop();
+      }
+      hull.push(point);
+    }
+
+    return hull;
   }
 
   loadData(): void {
