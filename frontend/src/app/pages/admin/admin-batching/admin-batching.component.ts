@@ -81,6 +81,10 @@ export class AdminBatchingComponent implements OnInit {
   showRoutePolylines = signal(false);
   resettingBatches = signal(false);
 
+  // Corridor visibility toggle (for legend)
+  corridorVisibility = signal<Record<string, boolean>>({});
+  private corridorLayers: Record<string, { markers: L.Layer[], polyline: L.Polyline | null }> = {};
+
   // Filter
   statusFilter = signal<TripStatus | null>(null);
 
@@ -104,19 +108,13 @@ export class AdminBatchingComponent implements OnInit {
   });
 
   constructor() {
+    // Initialize map when on map tab
     effect(() => {
       const tab = this.activeTab();
-      if (tab === 'map' && !this.loading() && this.stats() && !this.loadingOrders()) {
+      if (tab === 'map' && !this.loading() && this.stats()) {
         setTimeout(() => this.initMap(), 100);
       } else if (tab !== 'map') {
         this.destroyMap();
-      }
-    });
-
-    effect(() => {
-      this.pendingOrders(); // Track changes
-      if (this.map && this.markersLayer && this.mapInitialized()) {
-        this.updateMapMarkers();
       }
     });
   }
@@ -148,7 +146,6 @@ export class AdminBatchingComponent implements OnInit {
     this.markersLayer = L.layerGroup().addTo(this.map);
     this.addWarehouseMarker();
     this.mapInitialized.set(true);
-    this.updateMapMarkers();
     setTimeout(() => this.map?.invalidateSize(), 200);
   }
 
@@ -294,9 +291,11 @@ export class AdminBatchingComponent implements OnInit {
   deactivateSmartBatching(): void {
     this.smartBatchingActive.set(false);
     this.smartBatches.set([]);
+    this.corridorLayers = {};
+    this.corridorVisibility.set({});
     this.routesLayer?.clearLayers();
     this.connectionsLayer?.clearLayers();
-    this.updateMapMarkers();
+    this.markersLayer?.clearLayers();
   }
 
   reinitializeSmartBatching(): void {
@@ -328,14 +327,23 @@ export class AdminBatchingComponent implements OnInit {
     this.markersLayer.clearLayers();
     this.connectionsLayer.clearLayers();
 
+    // Reset corridor tracking
+    this.corridorLayers = {};
+    const visibility: Record<string, boolean> = {};
+
     const batches = this.smartBatches();
     const bounds = L.latLngBounds([]);
     const depotLatLng: [number, number] = [MAP_DEFAULTS.LATITUDE, MAP_DEFAULTS.LONGITUDE];
 
     batches.forEach((batch, batchIndex) => {
+      const corridorKey = `${batch.corridor}_${batchIndex}`;
       const color = CORRIDOR_COLORS[batch.corridor] || CORRIDOR_COLORS['OTHER'];
 
-      // Draw delivery route lines connecting depot -> stops in sequence
+      // Initialize corridor visibility and layers
+      visibility[corridorKey] = true;
+      this.corridorLayers[corridorKey] = { markers: [], polyline: null };
+
+      // Collect route points for polyline
       const routePoints: [number, number][] = [depotLatLng];
 
       batch.stops.forEach((stop, stopIndex) => {
@@ -344,8 +352,10 @@ export class AdminBatchingComponent implements OnInit {
         routePoints.push([stop.latitude, stop.longitude]);
         bounds.extend([stop.latitude, stop.longitude]);
 
-        // Create marker with sequence number
+        // Create marker with animation delay
         setTimeout(() => {
+          if (!this.markersLayer) return;
+
           const marker = L.circleMarker([stop.latitude!, stop.longitude!], {
             radius: 12,
             fillColor: color,
@@ -355,7 +365,6 @@ export class AdminBatchingComponent implements OnInit {
             fillOpacity: 0.9
           });
 
-          // Popup with stop details
           marker.bindPopup(`
             <div style="min-width:200px;">
               <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
@@ -375,28 +384,77 @@ export class AdminBatchingComponent implements OnInit {
           `);
 
           marker.addTo(this.markersLayer!);
-        }, batchIndex * 100 + stopIndex * 30);
+          this.corridorLayers[corridorKey].markers.push(marker);
+        }, batchIndex * 150 + stopIndex * 50);
       });
 
-      // Draw route line from depot through all stops
+      // Draw animated route line
       setTimeout(() => {
-        if (routePoints.length > 1) {
-          L.polyline(routePoints, {
-            color: color,
-            weight: 3,
-            opacity: 0.7,
-            dashArray: '10, 5'
-          }).addTo(this.connectionsLayer!);
-        }
-      }, batchIndex * 100 + batch.stops.length * 30);
+        if (!this.connectionsLayer || routePoints.length <= 1) return;
+
+        const polyline = L.polyline(routePoints, {
+          color: color,
+          weight: 4,
+          opacity: 0.8,
+          dashArray: '10, 5'
+        });
+
+        polyline.addTo(this.connectionsLayer!);
+        this.corridorLayers[corridorKey].polyline = polyline;
+      }, batchIndex * 150 + batch.stops.length * 50);
     });
+
+    // Set visibility state
+    this.corridorVisibility.set(visibility);
 
     // Fit bounds after all markers drawn
     setTimeout(() => {
-      if (bounds.isValid()) {
-        this.map!.fitBounds(bounds, { padding: [50, 50] });
+      if (bounds.isValid() && this.map) {
+        this.map.fitBounds(bounds, { padding: [50, 50] });
       }
-    }, batches.length * 100 + 200);
+    }, batches.length * 150 + 300);
+  }
+
+  // Toggle corridor visibility from legend
+  toggleCorridorVisibility(corridorKey: string): void {
+    const current = this.corridorVisibility();
+    const isVisible = current[corridorKey];
+    const layers = this.corridorLayers[corridorKey];
+
+    if (!layers) return;
+
+    if (isVisible) {
+      // Hide corridor
+      layers.markers.forEach(marker => {
+        if (this.markersLayer?.hasLayer(marker)) {
+          this.markersLayer.removeLayer(marker);
+        }
+      });
+      if (layers.polyline && this.connectionsLayer?.hasLayer(layers.polyline)) {
+        this.connectionsLayer.removeLayer(layers.polyline);
+      }
+    } else {
+      // Show corridor
+      layers.markers.forEach(marker => {
+        marker.addTo(this.markersLayer!);
+      });
+      if (layers.polyline) {
+        layers.polyline.addTo(this.connectionsLayer!);
+      }
+    }
+
+    // Update visibility state
+    this.corridorVisibility.set({ ...current, [corridorKey]: !isVisible });
+  }
+
+  // Get corridor key for a batch
+  getCorridorKey(batch: SmartBatch, index: number): string {
+    return `${batch.corridor}_${index}`;
+  }
+
+  // Check if corridor is visible
+  isCorridorVisible(corridorKey: string): boolean {
+    return this.corridorVisibility()[corridorKey] ?? true;
   }
 
   loadCustomerRoutes(): void {

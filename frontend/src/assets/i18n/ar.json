@@ -1973,7 +1973,7 @@
       "max_orders": "الحد الأقصى",
       "max_weight": "الوزن الأقصى",
       "zone_size": "حجم المنطقة",
-      "smart_route": "مسار ذكي",
+      "smart_route": "توليد المسارات",
       "smart_route_tooltip": "تجميع الطلبات حسب الممر وتحسين المسار بالمسافة",
       "smart_preview_success": "تم العثور على {{batches}} ممرات مع {{orders}} طلبات",
       "smart_preview_error": "فشل في معاينة المسارات الذكية",

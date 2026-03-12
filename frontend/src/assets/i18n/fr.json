@@ -1985,7 +1985,7 @@
       "max_orders": "Max. commandes",
       "max_weight": "Poids max.",
       "zone_size": "Taille zone",
-      "smart_route": "Itinéraire intelligent",
+      "smart_route": "Générer les itinéraires",
       "smart_route_tooltip": "Regrouper les commandes par corridor et optimiser l'itinéraire par distance",
       "smart_preview_success": "{{batches}} corridors trouvés avec {{orders}} commandes",
       "smart_preview_error": "Échec de l'aperçu des itinéraires intelligents",

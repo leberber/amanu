@@ -164,38 +164,41 @@
       <!-- Map Tab -->
       @if (activeTab() === 'map') {
         <div class="map-section">
-          @if (loadingOrders()) {
-            <div class="map-container map-container--loading">
-              <div class="skeleton" style="width: 100%; height: 100%;"></div>
-            </div>
-          } @else {
-            <div class="map-wrapper">
-              <div class="map-container" id="batching-map"></div>
+          <div class="map-wrapper">
+            <div class="map-container" id="batching-map"></div>
 
-              <!-- Smart Batch Legend -->
-              @if (smartBatchingActive() && smartBatches().length > 0) {
-                <div class="map-legend map-legend--smart" @fadeIn>
-                  <div class="map-legend__header">
-                    <i class="pi pi-directions"></i>
-                    <span>{{ smartBatches().length }} {{ 'admin.batching.corridors' | translate }}</span>
-                  </div>
-                  <div class="map-legend__items">
-                    @for (batch of smartBatches(); track $index) {
-                      <div class="map-legend__item">
-                        <span class="map-legend__color" [style.background]="getCorridorColor(batch.corridor)"></span>
-                        <span class="map-legend__label">{{ formatCorridor(batch.corridor) }}</span>
-                        <span class="map-legend__count">{{ batch.order_count }}</span>
-                        <span class="map-legend__weight">{{ batch.total_weight_kg | number:'1.0-1' }} kg</span>
-                      </div>
-                    }
-                  </div>
-                  <div class="map-legend__summary">
-                    <span>{{ 'admin.batching.total' | translate }}: {{ getSmartBatchTotalWeight() | number:'1.0-1' }} kg</span>
-                  </div>
+            <!-- Smart Batch Legend with Toggle -->
+            @if (smartBatchingActive() && smartBatches().length > 0) {
+              <div class="map-legend map-legend--smart" @fadeIn>
+                <div class="map-legend__header">
+                  <i class="pi pi-directions"></i>
+                  <span>{{ smartBatches().length }} {{ 'admin.batching.corridors' | translate }}</span>
                 </div>
-              }
-            </div>
-          }
+                <div class="map-legend__items">
+                  @for (batch of smartBatches(); track $index) {
+                    <div
+                      class="map-legend__item"
+                      [class.map-legend__item--hidden]="!isCorridorVisible(getCorridorKey(batch, $index))"
+                      (click)="toggleCorridorVisibility(getCorridorKey(batch, $index))">
+                      <i
+                        class="map-legend__toggle"
+                        [class.pi-eye]="isCorridorVisible(getCorridorKey(batch, $index))"
+                        [class.pi-eye-slash]="!isCorridorVisible(getCorridorKey(batch, $index))"
+                        [class.pi]="true">
+                      </i>
+                      <span class="map-legend__color" [style.background]="getCorridorColor(batch.corridor)"></span>
+                      <span class="map-legend__label">{{ formatCorridor(batch.corridor) }}</span>
+                      <span class="map-legend__count">{{ batch.order_count }}</span>
+                      <span class="map-legend__weight">{{ batch.total_weight_kg | number:'1.0-1' }} kg</span>
+                    </div>
+                  }
+                </div>
+                <div class="map-legend__summary">
+                  <span>{{ 'admin.batching.total' | translate }}: {{ getSmartBatchTotalWeight() | number:'1.0-1' }} kg</span>
+                </div>
+              </div>
+            }
+          </div>
         </div>
       }
 
