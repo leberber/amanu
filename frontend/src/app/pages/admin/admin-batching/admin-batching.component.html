@@ -88,17 +88,7 @@
                   (click)="reinitializeSmartBatching()">
                 </button>
 
-                <!-- Toggle Route Polylines -->
-                <button
-                  pButton
-                  icon="pi pi-map"
-                  class="p-button-text p-button-sm p-button-rounded"
-                  [class.active]="showRoutePolylines()"
-                  pTooltip="{{ 'admin.batching.show_routes' | translate }}"
-                  (click)="toggleRoutePolylines()">
-                </button>
-
-                <!-- Smart Route Button -->
+                <!-- Generate Routes Button -->
                 <button
                   pButton
                   [label]="'admin.batching.smart_route' | translate"
@@ -186,7 +176,7 @@
                         [class.pi-eye-slash]="!isCorridorVisible(getCorridorKey(batch, $index))"
                         [class.pi]="true">
                       </i>
-                      <span class="map-legend__color" [style.background]="getCorridorColor(batch.corridor)"></span>
+                      <span class="map-legend__color" [style.background]="getBatchColor($index)"></span>
                       <span class="map-legend__label">{{ formatCorridor(batch.corridor) }}</span>
                       <span class="map-legend__count">{{ batch.order_count }}</span>
                       <span class="map-legend__weight">{{ batch.total_weight_kg | number:'1.0-1' }} kg</span>

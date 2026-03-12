@@ -130,20 +130,6 @@
   background: var(--surface-card);
   border-radius: var(--radius-lg);
   border: 1px solid var(--border-color);
-
-  &__left, &__right {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-
-  &__count {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.875rem;
-    color: var(--text-color-secondary);
-  }
 }
 
 .map-wrapper {
@@ -204,49 +190,6 @@
     width: 12px;
     height: 12px;
     border-radius: 50%;
-  }
-}
-
-.resolution-selector {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.875rem;
-
-  label {
-    color: var(--text-color-secondary);
-  }
-}
-
-.resolution-buttons {
-  display: flex;
-  gap: 0.25rem;
-}
-
-.resolution-btn {
-  width: 32px;
-  height: 32px;
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  background: var(--surface-card);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.15s ease;
-
-  &:hover {
-    background: var(--surface-hover);
-  }
-
-  &.active {
-    background: var(--primary-color);
-    color: white;
-    border-color: var(--primary-color);
-  }
-
-  i {
-    font-size: 0.5rem;
   }
 }
 

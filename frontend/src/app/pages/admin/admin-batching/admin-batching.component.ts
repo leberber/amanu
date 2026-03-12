@@ -18,12 +18,20 @@ import { MAP_DEFAULTS, LEAFLET_TILES, LEAFLET_ASSETS } from '../../../core/const
 
 type TabType = 'map' | 'trips';
 
-// Constants
-const CORRIDOR_COLORS: Record<string, string> = {
-  'TIZI_OUZOU': '#3B82F6',      // Blue - Northwest corridor
-  'AGOUNI_GUEGHRANE': '#10B981', // Green - Southeast corridor
-  'OTHER': '#9CA3AF'             // Gray - Uncategorized
-};
+// Distinct colors for batches (10 colors)
+const BATCH_COLORS = [
+  '#3B82F6', // Blue
+  '#10B981', // Green
+  '#F59E0B', // Amber
+  '#EF4444', // Red
+  '#8B5CF6', // Purple
+  '#EC4899', // Pink
+  '#06B6D4', // Cyan
+  '#84CC16', // Lime
+  '#F97316', // Orange
+  '#6366F1'  // Indigo
+];
+
 const DEFAULT_MARKER_COLOR = '#6366F1';
 const MARKER_STYLES = { default: { radius: 8, weight: 2 }, clustered: { radius: 12, weight: 3 } };
 
@@ -63,7 +71,6 @@ export class AdminBatchingComponent implements OnInit {
   private map: L.Map | null = null;
   private markersLayer: L.LayerGroup | null = null;
   private connectionsLayer: L.LayerGroup | null = null;
-  private routesLayer: L.LayerGroup | null = null;
 
   // State
   loading = signal(true);
@@ -78,12 +85,11 @@ export class AdminBatchingComponent implements OnInit {
   runningSmartBatch = signal(false);
   smartBatches = signal<SmartBatch[]>([]);
   customerRoutes = signal<CustomerRoute[]>([]);
-  showRoutePolylines = signal(false);
   resettingBatches = signal(false);
 
   // Corridor visibility toggle (for legend)
   corridorVisibility = signal<Record<string, boolean>>({});
-  private corridorLayers: Record<string, { markers: L.Layer[], polyline: L.Polyline | null }> = {};
+  private corridorLayers: Record<string, { markers: L.Layer[], polyline: L.Polyline | null, polylines?: L.Polyline[] }> = {};
 
   // Filter
   statusFilter = signal<TripStatus | null>(null);
@@ -117,6 +123,14 @@ export class AdminBatchingComponent implements OnInit {
         this.destroyMap();
       }
     });
+
+    // Show initial order dots (only when not in smart batching mode)
+    effect(() => {
+      this.pendingOrders(); // Track changes
+      if (this.map && this.markersLayer && this.mapInitialized() && !this.smartBatchingActive()) {
+        this.updateMapMarkers();
+      }
+    });
   }
 
   ngOnInit(): void {
@@ -141,11 +155,11 @@ export class AdminBatchingComponent implements OnInit {
     });
 
     this.setupTileLayers();
-    this.routesLayer = L.layerGroup().addTo(this.map);
     this.connectionsLayer = L.layerGroup().addTo(this.map);
     this.markersLayer = L.layerGroup().addTo(this.map);
     this.addWarehouseMarker();
     this.mapInitialized.set(true);
+    this.updateMapMarkers(); // Show initial order dots
     setTimeout(() => this.map?.invalidateSize(), 200);
   }
 
@@ -183,11 +197,10 @@ export class AdminBatchingComponent implements OnInit {
   private destroyMap(): void {
     if (!this.map) return;
     this.map.remove();
-    this.map = this.markersLayer = this.connectionsLayer = this.routesLayer = null;
+    this.map = this.markersLayer = this.connectionsLayer = null;
     this.mapInitialized.set(false);
     this.smartBatchingActive.set(false);
     this.smartBatches.set([]);
-    this.showRoutePolylines.set(false);
   }
 
   private updateMapMarkers(): void {
@@ -245,18 +258,37 @@ export class AdminBatchingComponent implements OnInit {
 
   previewSmartBatching(): void {
     this.runningSmartBatch.set(true);
+
+    // Load both batches and customer routes
     this.batchingService.previewSmartBatching('farthest_first').pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (response) => {
-        this.runningSmartBatch.set(false);
         if (response.success && response.batches.length > 0) {
           this.smartBatches.set(response.batches);
           this.smartBatchingActive.set(true);
-          this.drawSmartBatchMarkers();
-          this.toast.showSuccess('admin.batching.smart_preview_success', {
-            batches: response.batches.length,
-            orders: response.summary.total_orders
+
+          // Load customer routes to get real polylines
+          this.batchingService.getCustomerRoutes().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+            next: (routes) => {
+              this.customerRoutes.set(routes);
+              this.runningSmartBatch.set(false);
+              this.drawCorridorRoutes();
+              this.toast.showSuccess('admin.batching.smart_preview_success', {
+                batches: response.batches.length,
+                orders: response.summary.total_orders
+              });
+            },
+            error: () => {
+              this.runningSmartBatch.set(false);
+              // Still show batches even if routes fail
+              this.drawCorridorRoutes();
+              this.toast.showSuccess('admin.batching.smart_preview_success', {
+                batches: response.batches.length,
+                orders: response.summary.total_orders
+              });
+            }
           });
         } else {
+          this.runningSmartBatch.set(false);
           this.toast.showWarn('admin.batching.no_orders_to_batch');
         }
       },
@@ -293,7 +325,6 @@ export class AdminBatchingComponent implements OnInit {
     this.smartBatches.set([]);
     this.corridorLayers = {};
     this.corridorVisibility.set({});
-    this.routesLayer?.clearLayers();
     this.connectionsLayer?.clearLayers();
     this.markersLayer?.clearLayers();
   }
@@ -322,53 +353,54 @@ export class AdminBatchingComponent implements OnInit {
     });
   }
 
-  private drawSmartBatchMarkers(): void {
-    if (!this.map || !this.markersLayer || !this.connectionsLayer) return;
-    this.markersLayer.clearLayers();
+  /**
+   * Draw real road routes for each corridor/batch
+   * Uses actual polylines from customer routes, not straight lines
+   * Also colors markers by corridor
+   */
+  private drawCorridorRoutes(): void {
+    if (!this.map || !this.connectionsLayer || !this.markersLayer) return;
     this.connectionsLayer.clearLayers();
+    this.markersLayer.clearLayers();
 
     // Reset corridor tracking
     this.corridorLayers = {};
     const visibility: Record<string, boolean> = {};
 
+    // Build lookup: lat_lng -> route_polyline
+    const routeLookup = this.buildRouteLookup();
+
     const batches = this.smartBatches();
-    const bounds = L.latLngBounds([]);
-    const depotLatLng: [number, number] = [MAP_DEFAULTS.LATITUDE, MAP_DEFAULTS.LONGITUDE];
 
     batches.forEach((batch, batchIndex) => {
       const corridorKey = `${batch.corridor}_${batchIndex}`;
-      const color = CORRIDOR_COLORS[batch.corridor] || CORRIDOR_COLORS['OTHER'];
+      const color = BATCH_COLORS[batchIndex % BATCH_COLORS.length];
 
-      // Initialize corridor visibility and layers
+      // Initialize corridor visibility and polylines array
       visibility[corridorKey] = true;
-      this.corridorLayers[corridorKey] = { markers: [], polyline: null };
+      this.corridorLayers[corridorKey] = { markers: [], polyline: null, polylines: [] };
 
-      // Collect route points for polyline
-      const routePoints: [number, number][] = [depotLatLng];
-
+      // Draw colored markers and real routes for each stop
       batch.stops.forEach((stop, stopIndex) => {
         if (!stop.latitude || !stop.longitude) return;
 
-        routePoints.push([stop.latitude, stop.longitude]);
-        bounds.extend([stop.latitude, stop.longitude]);
-
-        // Create marker with animation delay
+        // Create colored marker for this stop
         setTimeout(() => {
           if (!this.markersLayer) return;
 
           const marker = L.circleMarker([stop.latitude!, stop.longitude!], {
-            radius: 12,
+            radius: 10,
             fillColor: color,
             color: '#fff',
-            weight: 3,
+            weight: 2,
             opacity: 1,
             fillOpacity: 0.9
           });
 
           marker.bindPopup(`
-            <div style="min-width:200px;">
+            <div style="min-width:180px;">
               <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
-                <span style="width:24px;height:24px;border-radius:50%;background:${color};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:12px;">${stop.sequence}</span>
+                <span style="width:20px;height:20px;border-radius:50%;background:${color};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:11px;">${stop.sequence}</span>
                 <strong>#${stop.order_id}</strong>
               </div>
               <span style="font-weight:500;">${stop.customer_name}</span><br>
@@ -377,42 +409,68 @@ export class AdminBatchingComponent implements OnInit {
                 <span>${stop.weight_kg.toFixed(1)} kg</span>
                 <span style="color:#10B981;font-weight:600;">${stop.distance_km.toFixed(1)} km</span>
               </div>
-              <div style="margin-top:4px;color:#666;font-size:11px;">
-                <i class="pi pi-road"></i> ${this.formatCorridor(batch.corridor)}
-              </div>
             </div>
           `);
 
           marker.addTo(this.markersLayer!);
           this.corridorLayers[corridorKey].markers.push(marker);
-        }, batchIndex * 150 + stopIndex * 50);
+        }, batchIndex * 200 + stopIndex * 80);
+
+        // Find matching route polyline and draw it
+        const coordKey = `${stop.latitude.toFixed(4)}_${stop.longitude.toFixed(4)}`;
+        const routePolyline = routeLookup.get(coordKey);
+
+        if (routePolyline) {
+          setTimeout(() => {
+            if (!this.connectionsLayer) return;
+
+            try {
+              const coordinates = this.decodePolyline(routePolyline);
+              if (coordinates.length > 0) {
+                const polyline = L.polyline(coordinates, {
+                  color: color,
+                  weight: 4,
+                  opacity: 0.7
+                });
+                polyline.addTo(this.connectionsLayer!);
+                this.corridorLayers[corridorKey].polylines?.push(polyline);
+              }
+            } catch (e) {
+              // Skip invalid polylines
+            }
+          }, batchIndex * 200 + stopIndex * 80 + 50);
+        }
       });
-
-      // Draw animated route line
-      setTimeout(() => {
-        if (!this.connectionsLayer || routePoints.length <= 1) return;
-
-        const polyline = L.polyline(routePoints, {
-          color: color,
-          weight: 4,
-          opacity: 0.8,
-          dashArray: '10, 5'
-        });
-
-        polyline.addTo(this.connectionsLayer!);
-        this.corridorLayers[corridorKey].polyline = polyline;
-      }, batchIndex * 150 + batch.stops.length * 50);
     });
 
     // Set visibility state
     this.corridorVisibility.set(visibility);
+  }
 
-    // Fit bounds after all markers drawn
-    setTimeout(() => {
-      if (bounds.isValid() && this.map) {
-        this.map.fitBounds(bounds, { padding: [50, 50] });
+  /**
+   * Build a lookup map from coordinates to route polyline
+   */
+  private buildRouteLookup(): Map<string, string> {
+    const lookup = new Map<string, string>();
+    const routes = this.customerRoutes();
+
+    routes.forEach(route => {
+      if (!route.route_polyline) return;
+
+      // Decode polyline to get end coordinates (customer location)
+      try {
+        const coords = this.decodePolyline(route.route_polyline);
+        if (coords.length > 0) {
+          const endCoord = coords[coords.length - 1];
+          const key = `${endCoord[0].toFixed(4)}_${endCoord[1].toFixed(4)}`;
+          lookup.set(key, route.route_polyline);
+        }
+      } catch (e) {
+        // Skip invalid routes
       }
-    }, batches.length * 150 + 300);
+    });
+
+    return lookup;
   }
 
   // Toggle corridor visibility from legend
@@ -424,23 +482,25 @@ export class AdminBatchingComponent implements OnInit {
     if (!layers) return;
 
     if (isVisible) {
-      // Hide corridor
+      // Hide corridor markers and polylines
       layers.markers.forEach(marker => {
         if (this.markersLayer?.hasLayer(marker)) {
           this.markersLayer.removeLayer(marker);
         }
       });
-      if (layers.polyline && this.connectionsLayer?.hasLayer(layers.polyline)) {
-        this.connectionsLayer.removeLayer(layers.polyline);
-      }
+      layers.polylines?.forEach(polyline => {
+        if (this.connectionsLayer?.hasLayer(polyline)) {
+          this.connectionsLayer.removeLayer(polyline);
+        }
+      });
     } else {
-      // Show corridor
+      // Show corridor markers and polylines
       layers.markers.forEach(marker => {
         marker.addTo(this.markersLayer!);
       });
-      if (layers.polyline) {
-        layers.polyline.addTo(this.connectionsLayer!);
-      }
+      layers.polylines?.forEach(polyline => {
+        polyline.addTo(this.connectionsLayer!);
+      });
     }
 
     // Update visibility state
@@ -455,57 +515,6 @@ export class AdminBatchingComponent implements OnInit {
   // Check if corridor is visible
   isCorridorVisible(corridorKey: string): boolean {
     return this.corridorVisibility()[corridorKey] ?? true;
-  }
-
-  loadCustomerRoutes(): void {
-    this.batchingService.getCustomerRoutes().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (routes) => {
-        this.customerRoutes.set(routes);
-        if (routes.length > 0) {
-          this.showRoutePolylines.set(true);
-          this.drawRoutePolylines();
-        }
-      },
-      error: () => this.toast.showError('admin.batching.routes_load_error')
-    });
-  }
-
-  toggleRoutePolylines(): void {
-    if (this.showRoutePolylines()) {
-      this.showRoutePolylines.set(false);
-      this.routesLayer?.clearLayers();
-    } else {
-      if (this.customerRoutes().length === 0) {
-        this.loadCustomerRoutes();
-      } else {
-        this.showRoutePolylines.set(true);
-        this.drawRoutePolylines();
-      }
-    }
-  }
-
-  private drawRoutePolylines(): void {
-    if (!this.map || !this.routesLayer) return;
-    this.routesLayer.clearLayers();
-
-    const routes = this.customerRoutes();
-    routes.forEach(route => {
-      if (!route.route_polyline) return;
-
-      try {
-        const coordinates = this.decodePolyline(route.route_polyline);
-        if (coordinates.length > 0) {
-          const color = CORRIDOR_COLORS[route.corridor || 'OTHER'] || CORRIDOR_COLORS['OTHER'];
-          L.polyline(coordinates, {
-            color: color,
-            weight: 2,
-            opacity: 0.4
-          }).addTo(this.routesLayer!);
-        }
-      } catch (e) {
-        // Skip invalid polylines
-      }
-    });
   }
 
   private decodePolyline(encoded: string): [number, number][] {
@@ -543,8 +552,8 @@ export class AdminBatchingComponent implements OnInit {
     return corridor.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
   }
 
-  getCorridorColor(corridor: string): string {
-    return CORRIDOR_COLORS[corridor] || CORRIDOR_COLORS['OTHER'];
+  getBatchColor(index: number): string {
+    return BATCH_COLORS[index % BATCH_COLORS.length];
   }
 
   getSmartBatchTotalWeight(): number {
