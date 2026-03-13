@@ -10,7 +10,7 @@
       </h2>
       <span class="subtitle">
         @if (editingRoad()) {
-          Editing "{{ editingRoad()!.name }}" - drag markers to move, right-click to delete
+          Editing "{{ editingRoad()!.ref }}" - drag markers or add new points
         } @else {
           Click on map to add points, then generate route
         }
@@ -95,17 +95,17 @@
           </div>
         } @else {
           <div class="roads-list">
-            @for (road of savedRoads(); track road.ref) {
+            @for (road of savedRoads(); track road.id) {
               <div
                 class="road-item"
-                [class.selected]="editingRoad()?.ref === road.ref"
-                (click)="loadRoadForEdit(road.ref)"
+                [class.selected]="editingRoad()?.id === road.id"
+                (click)="loadRoadForEdit(road.id)"
               >
                 <div class="road-color" [style.background]="road.color"></div>
                 <div class="road-info">
-                  <span class="road-name">{{ road.name }}</span>
+                  <span class="road-name">{{ road.ref }}</span>
                   <span class="road-meta">
-                    {{ road.ref }} &middot; {{ road.length_km.toFixed(1) }} km
+                    {{ road.place_start || '?' }} → {{ road.place_end || '?' }} &middot; {{ road.length_km.toFixed(1) }} km
                   </span>
                 </div>
                 <p-button
@@ -113,7 +113,7 @@
                   [text]="true"
                   severity="danger"
                   size="small"
-                  (onClick)="deleteRoad(road.ref, $event)"
+                  (onClick)="deleteRoad(road.id, $event)"
                   pTooltip="Delete"
                 />
               </div>
@@ -149,45 +149,133 @@
 
     @if (currentRoute()) {
       <div class="route-info">
-        <span class="route-distance">
+        <span class="route-stat">
           <i class="pi pi-map"></i>
           {{ currentRoute()!.distance_km.toFixed(2) }} km
         </span>
-        <span class="route-duration">
+        <span class="route-stat">
           <i class="pi pi-clock"></i>
           {{ currentRoute()!.duration_min.toFixed(0) }} min
         </span>
       </div>
 
-      <div class="save-section">
-        <input
-          type="text"
-          pInputText
-          placeholder="Road name..."
-          [ngModel]="roadName()"
-          (ngModelChange)="roadName.set($event)"
-          class="road-name-input"
-        />
-        <p-button
-          [label]="editingRoad() ? 'Update Road' : 'Save to Database'"
-          icon="pi pi-save"
-          (onClick)="saveRoad()"
-          [disabled]="!roadName() || saving()"
-          [loading]="saving()"
-          severity="success"
-        />
-        @if (editingRoad()) {
-          <p-button
-            label="Cancel Edit"
-            icon="pi pi-times"
-            [text]="true"
-            severity="secondary"
-            (onClick)="cancelEdit()"
-          />
-        }
-      </div>
+      <p-button
+        label="Save Road"
+        icon="pi pi-save"
+        (onClick)="openSaveDialog()"
+        severity="success"
+      />
     }
   </div>
 </div>
+
+<!-- Save/Edit Dialog -->
+<p-dialog
+  [header]="editingRoad() ? 'Edit Road' : 'Save Road'"
+  [visible]="showDialog()"
+  (visibleChange)="showDialog.set($event)"
+  [modal]="false"
+  [style]="{ width: '500px' }"
+  [draggable]="true"
+  [resizable]="false"
+>
+  <div class="dialog-content">
+    <!-- Route stats -->
+    @if (currentRoute()) {
+      <div class="route-stats-box">
+        <div class="stat">
+          <span class="stat-label">Distance</span>
+          <span class="stat-value">{{ currentRoute()!.distance_km.toFixed(2) }} km</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Duration</span>
+          <span class="stat-value">{{ currentRoute()!.duration_min.toFixed(0) }} min</span>
+        </div>
+      </div>
+    }
+
+    <!-- Form -->
+    <div class="form-grid">
+      <!-- Road Type -->
+      <div class="form-field">
+        <label>Road Type *</label>
+        <p-select
+          [options]="refShortOptions"
+          [ngModel]="formRefShort()"
+          (ngModelChange)="formRefShort.set($event)"
+          optionLabel="label"
+          optionValue="value"
+          [style]="{ width: '100%' }"
+        />
+        <div class="color-preview" [style.background]="getRefShortColor(formRefShort())"></div>
+      </div>
+
+      <!-- Reference -->
+      <div class="form-field">
+        <label>Reference *</label>
+        <input
+          type="text"
+          pInputText
+          placeholder="e.g. CW 11, RN 30"
+          [ngModel]="formRef()"
+          (ngModelChange)="onRefInput($event)"
+        />
+      </div>
+
+      <!-- Place Start -->
+      <div class="form-field">
+        <label>Place Start</label>
+        <input
+          type="text"
+          pInputText
+          placeholder="e.g. Bejaia"
+          [ngModel]="formPlaceStart()"
+          (ngModelChange)="formPlaceStart.set($event)"
+        />
+      </div>
+
+      <!-- Place End -->
+      <div class="form-field">
+        <label>Place End</label>
+        <input
+          type="text"
+          pInputText
+          placeholder="e.g. Akbou"
+          [ngModel]="formPlaceEnd()"
+          (ngModelChange)="formPlaceEnd.set($event)"
+        />
+      </div>
+
+      <!-- Name (full width) -->
+      <div class="form-field full-width">
+        <label>Display Name</label>
+        <input
+          type="text"
+          pInputText
+          placeholder="e.g. Route de Akbou"
+          [ngModel]="formName()"
+          (ngModelChange)="formName.set($event)"
+        />
+      </div>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <p-button
+      label="Cancel"
+      icon="pi pi-times"
+      [text]="true"
+      severity="secondary"
+      (onClick)="closeDialog()"
+    />
+    <p-button
+      [label]="editingRoad() ? 'Update' : 'Save'"
+      icon="pi pi-check"
+      (onClick)="saveRoad()"
+      [loading]="saving()"
+      [disabled]="!formRef()"
+    />
+  </ng-template>
+</p-dialog>
 
 <p-toast position="top-right" />

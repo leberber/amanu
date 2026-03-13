@@ -11,11 +11,20 @@ import { ToastModule } from 'primeng/toast';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { TooltipModule } from 'primeng/tooltip';
 import { BadgeModule } from 'primeng/badge';
+import { SelectModule } from 'primeng/select';
+import { DialogModule } from 'primeng/dialog';
 import { MessageService } from 'primeng/api';
 
 // App
 import { MAP_DEFAULTS, LEAFLET_TILES, LEAFLET_ASSETS, LEAFLET_ICON } from '../../core/constants/map.constants';
-import { RoadBuilderService, RouteResult, SavedRoad, SavedRoadDetail } from '../../services/road-builder.service';
+import {
+  RoadBuilderService,
+  RouteResult,
+  SavedRoad,
+  SavedRoadDetail,
+  SaveRoadRequest,
+  RefShort
+} from '../../services/road-builder.service';
 
 @Component({
   selector: 'app-graph-builder',
@@ -29,6 +38,8 @@ import { RoadBuilderService, RouteResult, SavedRoad, SavedRoadDetail } from '../
     SelectButtonModule,
     TooltipModule,
     BadgeModule,
+    SelectModule,
+    DialogModule,
   ],
   providers: [MessageService],
   templateUrl: './graph-builder.component.html',
@@ -64,22 +75,39 @@ export class GraphBuilderComponent implements OnInit, OnDestroy {
   // State
   points = signal<L.LatLng[]>([]);
   currentRoute = signal<RouteResult | null>(null);
-  roadName = signal('');
   loading = signal(false);
   saving = signal(false);
+
+  // Dialog state
+  showDialog = signal(false);
+  editingRoad = signal<SavedRoadDetail | null>(null);
+
+  // Form fields
+  formRefShort = signal<RefShort>('CW');
+  formRef = signal('');
+  formPlaceStart = signal('');
+  formPlaceEnd = signal('');
+  formName = signal('');
+
+  // Road type options
+  refShortOptions = [
+    { label: 'A (Autoroute)', value: 'A' },
+    { label: 'RN (Route Nationale)', value: 'RN' },
+    { label: 'CW (Chemin Wilaya)', value: 'CW' },
+    { label: 'CC (Chemin Communal)', value: 'CC' }
+  ];
 
   // Roads panel state
   showRoadsPanel = signal(false);
   savedRoads = signal<SavedRoad[]>([]);
   loadingRoads = signal(false);
-  editingRoad = signal<SavedRoadDetail | null>(null);
 
   // Map layer options
   layerOptions = [
     { label: 'Google', value: 'google' },
     { label: 'CartoDB', value: 'cartodb' }
   ];
-  selectedLayer = signal('cartodb');
+  selectedLayer = signal('google');
 
   ngOnInit(): void {
     this.initMap();
@@ -113,7 +141,7 @@ export class GraphBuilderComponent implements OnInit, OnDestroy {
     });
 
     // Add default tile layer
-    this.setTileLayer('cartodb');
+    this.setTileLayer('google');
 
     // Add layer groups
     this.markersLayer.addTo(this.map);
@@ -224,8 +252,16 @@ export class GraphBuilderComponent implements OnInit, OnDestroy {
     this.points.set([]);
     this.markersLayer.clearLayers();
     this.clearRoute();
-    this.roadName.set('');
+    this.resetForm();
     this.editingRoad.set(null);
+  }
+
+  private resetForm(): void {
+    this.formRefShort.set('CW');
+    this.formRef.set('');
+    this.formPlaceStart.set('');
+    this.formPlaceEnd.set('');
+    this.formName.set('');
   }
 
   removeLastPoint(): void {
@@ -247,7 +283,6 @@ export class GraphBuilderComponent implements OnInit, OnDestroy {
     this.showRoadsPanel.set(!this.showRoadsPanel());
     if (this.showRoadsPanel()) {
       this.loadSavedRoads();
-      // Invalidate map size after panel animation
       setTimeout(() => this.map.invalidateSize(), 250);
     } else {
       setTimeout(() => this.map.invalidateSize(), 200);
@@ -259,7 +294,7 @@ export class GraphBuilderComponent implements OnInit, OnDestroy {
     try {
       const roads = await this.roadBuilderService.getSavedRoads();
       this.savedRoads.set(roads);
-    } catch (error: any) {
+    } catch (error: unknown) {
       this.messageService.add({
         severity: 'error',
         summary: 'Error',
@@ -270,11 +305,11 @@ export class GraphBuilderComponent implements OnInit, OnDestroy {
     }
   }
 
-  async loadRoadForEdit(ref: string): Promise<void> {
+  async loadRoadForEdit(id: number): Promise<void> {
     try {
-      const road = await this.roadBuilderService.getRoad(ref);
+      const road = await this.roadBuilderService.getRoad(id);
 
-      // Clear current state (but don't reset editingRoad yet)
+      // Clear current state
       this.points.set([]);
       this.markersLayer.clearLayers();
       this.routeLayer.clearLayers();
@@ -282,7 +317,13 @@ export class GraphBuilderComponent implements OnInit, OnDestroy {
 
       // Set editing state
       this.editingRoad.set(road);
-      this.roadName.set(road.name);
+
+      // Populate form
+      this.formRefShort.set(road.ref_short);
+      this.formRef.set(road.ref);
+      this.formPlaceStart.set(road.place_start || '');
+      this.formPlaceEnd.set(road.place_end || '');
+      this.formName.set(road.name || '');
 
       // Draw the road on map
       if (road.coordinates.length > 0) {
@@ -301,7 +342,7 @@ export class GraphBuilderComponent implements OnInit, OnDestroy {
         this.currentRoute.set({
           coordinates: road.coordinates,
           distance_km: road.length_km,
-          duration_min: 0,
+          duration_min: road.time_minutes,
           provider: 'osrm'
         });
 
@@ -312,12 +353,10 @@ export class GraphBuilderComponent implements OnInit, OnDestroy {
         this.rebuildMarkers();
       }
 
-      this.messageService.add({
-        severity: 'info',
-        summary: 'Editing mode',
-        detail: `Loaded "${road.name}" - drag markers or add new points`
-      });
-    } catch (error: any) {
+      // Open dialog for editing
+      this.showDialog.set(true);
+
+    } catch (error: unknown) {
       this.messageService.add({
         severity: 'error',
         summary: 'Error',
@@ -326,16 +365,17 @@ export class GraphBuilderComponent implements OnInit, OnDestroy {
     }
   }
 
-  async deleteRoad(ref: string, event: Event): Promise<void> {
+  async deleteRoad(id: number, event: Event): Promise<void> {
     event.stopPropagation();
 
     try {
-      await this.roadBuilderService.deleteRoad(ref);
-      this.savedRoads.set(this.savedRoads().filter(r => r.ref !== ref));
+      await this.roadBuilderService.deleteRoad(id);
+      this.savedRoads.set(this.savedRoads().filter(r => r.id !== id));
 
       // Clear if we were editing this road
-      if (this.editingRoad()?.ref === ref) {
+      if (this.editingRoad()?.id === id) {
         this.clearPoints();
+        this.showDialog.set(false);
       }
 
       this.messageService.add({
@@ -343,7 +383,7 @@ export class GraphBuilderComponent implements OnInit, OnDestroy {
         summary: 'Road deleted',
         detail: 'Road has been removed'
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       this.messageService.add({
         severity: 'error',
         summary: 'Error',
@@ -353,6 +393,7 @@ export class GraphBuilderComponent implements OnInit, OnDestroy {
   }
 
   cancelEdit(): void {
+    this.showDialog.set(false);
     this.editingRoad.set(null);
     this.clearPoints();
   }
@@ -394,20 +435,41 @@ export class GraphBuilderComponent implements OnInit, OnDestroy {
         summary: 'Route generated',
         detail: `${result.distance_km.toFixed(2)} km via ${provider.toUpperCase()}`
       });
-    } catch (error: any) {
+
+      // Open dialog to fill in details
+      this.showDialog.set(true);
+
+    } catch (error: unknown) {
+      const err = error as Error;
       this.messageService.add({
         severity: 'error',
         summary: 'Error',
-        detail: error.message || 'Failed to generate route'
+        detail: err.message || 'Failed to generate route'
       });
     } finally {
       this.loading.set(false);
     }
   }
 
+  openSaveDialog(): void {
+    if (!this.currentRoute()) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'No route',
+        detail: 'Generate a route first'
+      });
+      return;
+    }
+    this.showDialog.set(true);
+  }
+
+  closeDialog(): void {
+    this.showDialog.set(false);
+  }
+
   async saveRoad(): Promise<void> {
     const route = this.currentRoute();
-    const name = this.roadName().trim();
+    const ref = this.formRef().trim();
 
     if (!route) {
       this.messageService.add({
@@ -418,11 +480,11 @@ export class GraphBuilderComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (!name) {
+    if (!ref) {
       this.messageService.add({
         severity: 'warn',
-        summary: 'Name required',
-        detail: 'Enter a name for this road'
+        summary: 'Ref required',
+        detail: 'Enter a reference for this road (e.g., CW 11)'
       });
       return;
     }
@@ -430,29 +492,82 @@ export class GraphBuilderComponent implements OnInit, OnDestroy {
     this.saving.set(true);
 
     try {
-      await this.roadBuilderService.saveRoad(name, route);
+      const request: SaveRoadRequest = {
+        ref_short: this.formRefShort(),
+        ref,
+        coordinates: route.coordinates,
+        length_km: route.distance_km,
+        time_minutes: route.duration_min,
+        place_start: this.formPlaceStart().trim() || undefined,
+        place_end: this.formPlaceEnd().trim() || undefined,
+        name: this.formName().trim() || undefined,
+      };
 
-      const isUpdate = this.editingRoad() !== null;
+      const isEditing = this.editingRoad() !== null;
+
+      if (isEditing) {
+        await this.roadBuilderService.updateRoad(this.editingRoad()!.id, request);
+      } else {
+        await this.roadBuilderService.saveRoad(request);
+      }
 
       this.messageService.add({
         severity: 'success',
-        summary: isUpdate ? 'Road updated' : 'Road saved',
-        detail: `"${name}" has been ${isUpdate ? 'updated' : 'added to the database'}`
+        summary: isEditing ? 'Road updated' : 'Road saved',
+        detail: `"${ref}" has been ${isEditing ? 'updated' : 'added to the database'}`
       });
 
       // Reload roads list
       await this.loadSavedRoads();
 
-      // Clear everything for next road
+      // Close dialog and clear
+      this.showDialog.set(false);
       this.clearPoints();
-    } catch (error: any) {
+
+    } catch (error: unknown) {
+      const err = error as Error;
       this.messageService.add({
         severity: 'error',
         summary: 'Error',
-        detail: error.message || 'Failed to save road'
+        detail: err.message || 'Failed to save road'
       });
     } finally {
       this.saving.set(false);
     }
+  }
+
+  // Helper to get color preview
+  getRefShortColor(refShort: RefShort): string {
+    const colors: Record<RefShort, string> = {
+      'A': '#E74C3C',
+      'RN': '#E67E22',
+      'CW': '#F1C40F',
+      'CC': '#3498DB'
+    };
+    return colors[refShort];
+  }
+
+  // Format ref as user types: "cw12" → "CW 12"
+  onRefInput(value: string): void {
+    const formatted = this.formatRef(value);
+    this.formRef.set(formatted);
+  }
+
+  private formatRef(value: string): string {
+    if (!value) return '';
+
+    // Remove extra spaces and trim
+    let cleaned = value.replace(/\s+/g, '').toUpperCase();
+
+    // Find where letters end and numbers begin
+    const match = cleaned.match(/^([A-Z]+)(\d+)$/);
+
+    if (match) {
+      // Format as "XX DDD" (letters + space + numbers)
+      return `${match[1]} ${match[2]}`;
+    }
+
+    // If it's just letters or just numbers, return uppercase
+    return value.toUpperCase();
   }
 }

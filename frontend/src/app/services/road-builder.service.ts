@@ -26,29 +26,41 @@ interface OSRMResponse {
   }>;
 }
 
-interface GoogleDirectionsResponse {
-  status: string;
-  routes: Array<{
-    overview_polyline: {
-      points: string;
-    };
-    legs: Array<{
-      distance: { value: number };
-      duration: { value: number };
-    }>;
-  }>;
-}
+// Road type options
+export type RefShort = 'A' | 'RN' | 'CW' | 'CC';
 
 export interface SavedRoad {
+  id: number;
+  ref_short: RefShort;
   ref: string;
-  name: string;
-  highway_type: string;
   length_km: number;
+  time_minutes: number;
   color: string;
+  place_start: string | null;
+  place_end: string | null;
+  name: string | null;
 }
 
 export interface SavedRoadDetail extends SavedRoad {
   coordinates: Coordinate[];
+}
+
+export interface SaveRoadRequest {
+  ref_short: RefShort;
+  ref: string;
+  coordinates: Coordinate[];
+  length_km: number;
+  time_minutes: number;
+  place_start?: string;
+  place_end?: string;
+  name?: string;
+}
+
+export interface RoadColors {
+  A: string;
+  RN: string;
+  CW: string;
+  CC: string;
 }
 
 @Injectable({
@@ -115,16 +127,29 @@ export class RoadBuilderService {
   }
 
   /**
+   * Get road colors by type
+   */
+  async getColors(): Promise<RoadColors> {
+    return firstValueFrom(
+      this.http.get<RoadColors>(`${environment.apiUrl}/roads/colors`)
+    );
+  }
+
+  /**
    * Save road to database
    */
-  async saveRoad(name: string, route: RouteResult): Promise<void> {
+  async saveRoad(request: SaveRoadRequest): Promise<{ id: number; ref: string }> {
+    return firstValueFrom(
+      this.http.post<{ message: string; id: number; ref: string }>(`${environment.apiUrl}/roads/save`, request)
+    );
+  }
+
+  /**
+   * Update road by ID
+   */
+  async updateRoad(id: number, request: SaveRoadRequest): Promise<void> {
     await firstValueFrom(
-      this.http.post(`${environment.apiUrl}/roads/save`, {
-        name,
-        coordinates: route.coordinates,
-        distance_km: route.distance_km,
-        highway_type: 'tertiary'
-      })
+      this.http.put(`${environment.apiUrl}/roads/${id}`, request)
     );
   }
 
@@ -140,18 +165,18 @@ export class RoadBuilderService {
   /**
    * Get a single road with coordinates
    */
-  async getRoad(ref: string): Promise<SavedRoadDetail> {
+  async getRoad(id: number): Promise<SavedRoadDetail> {
     return firstValueFrom(
-      this.http.get<SavedRoadDetail>(`${environment.apiUrl}/roads/${encodeURIComponent(ref)}`)
+      this.http.get<SavedRoadDetail>(`${environment.apiUrl}/roads/${id}`)
     );
   }
 
   /**
    * Delete a road
    */
-  async deleteRoad(ref: string): Promise<void> {
+  async deleteRoad(id: number): Promise<void> {
     await firstValueFrom(
-      this.http.delete(`${environment.apiUrl}/roads/${encodeURIComponent(ref)}`)
+      this.http.delete(`${environment.apiUrl}/roads/${id}`)
     );
   }
 }

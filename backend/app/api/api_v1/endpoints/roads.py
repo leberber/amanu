@@ -2,14 +2,13 @@
 Roads API endpoints for the graph/road builder.
 """
 import os
-import re
 import requests
 from typing import List
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from sqlmodel import Session, text
-from app.core.config import settings
 from app.database import engine
+from app.models.major_road import get_road_color, ROAD_COLORS
 
 router = APIRouter()
 
@@ -30,26 +29,29 @@ class RouteResponse(BaseModel):
 
 
 class SaveRoadRequest(BaseModel):
-    name: str
+    ref_short: str  # A, RN, CW, CC
+    ref: str  # Full reference like "CW 11"
     coordinates: List[Coordinate]
-    distance_km: float
-    highway_type: str = 'tertiary'
+    length_km: float
+    time_minutes: float
+    place_start: str | None = None
+    place_end: str | None = None
+    name: str | None = None
 
 
 class RoadResponse(BaseModel):
+    id: int
+    ref_short: str
     ref: str
-    name: str
-    highway_type: str
     length_km: float
+    time_minutes: float
     color: str
+    place_start: str | None
+    place_end: str | None
+    name: str | None
 
 
-class RoadDetailResponse(BaseModel):
-    ref: str
-    name: str
-    highway_type: str
-    length_km: float
-    color: str
+class RoadDetailResponse(RoadResponse):
     coordinates: List[Coordinate]
 
 
@@ -104,30 +106,27 @@ async def get_google_route(request: RouteRequest):
     )
 
 
+@router.get("/colors")
+async def get_colors():
+    """Get available road colors by type."""
+    return ROAD_COLORS
+
+
 @router.post("/save")
 async def save_road(request: SaveRoadRequest):
     """Save a road to the major_roads table."""
-    # Generate ref
-    ref = f"MAN_{request.name[:40].replace(' ', '_')}"
+    # Get color based on road type
+    color = get_road_color(request.ref_short)
 
     # Build LineString WKT (PostGIS uses lng, lat order)
     coords_str = ', '.join([f"{c.lng} {c.lat}" for c in request.coordinates])
     linestring_wkt = f"LINESTRING({coords_str})"
 
-    # Color based on highway type
-    colors = {
-        'tertiary': '#3498DB',
-        'secondary': '#F1C40F',
-        'primary': '#E67E22',
-        'trunk': '#E74C3C',
-    }
-    color = colors.get(request.highway_type, '#3498DB')
-
     with Session(engine) as session:
         # Check if exists
         existing = session.execute(
             text("SELECT id FROM major_roads WHERE ref = :ref"),
-            {'ref': ref[:50]}
+            {'ref': request.ref[:50]}
         ).fetchone()
 
         if existing:
@@ -135,45 +134,108 @@ async def save_road(request: SaveRoadRequest):
             session.execute(
                 text("""
                     UPDATE major_roads
-                    SET name = :name,
-                        highway_type = :highway_type,
+                    SET ref_short = :ref_short,
                         length_km = :length_km,
+                        time_minutes = :time_minutes,
                         color = :color,
+                        place_start = :place_start,
+                        place_end = :place_end,
+                        name = :name,
                         geom = ST_GeomFromText(:geom, 4326),
                         updated_at = NOW()
                     WHERE ref = :ref
                 """),
                 {
-                    'ref': ref[:50],
-                    'name': request.name[:200],
-                    'highway_type': request.highway_type,
-                    'length_km': round(request.distance_km, 2),
+                    'ref': request.ref[:50],
+                    'ref_short': request.ref_short[:10],
+                    'length_km': round(request.length_km, 2),
+                    'time_minutes': round(request.time_minutes, 1),
                     'color': color,
+                    'place_start': request.place_start[:100] if request.place_start else None,
+                    'place_end': request.place_end[:100] if request.place_end else None,
+                    'name': request.name[:200] if request.name else None,
                     'geom': linestring_wkt,
                 }
             )
+            road_id = existing[0]
         else:
             # Insert
-            session.execute(
+            result = session.execute(
                 text("""
                     INSERT INTO major_roads
-                    (ref, name, highway_type, length_km, color, is_active, geom, created_at, updated_at)
-                    VALUES (:ref, :name, :highway_type, :length_km, :color, true,
+                    (ref_short, ref, length_km, time_minutes, color, place_start, place_end, name, is_active, geom, created_at, updated_at)
+                    VALUES (:ref_short, :ref, :length_km, :time_minutes, :color, :place_start, :place_end, :name, true,
                             ST_GeomFromText(:geom, 4326), NOW(), NOW())
+                    RETURNING id
                 """),
                 {
-                    'ref': ref[:50],
-                    'name': request.name[:200],
-                    'highway_type': request.highway_type,
-                    'length_km': round(request.distance_km, 2),
+                    'ref_short': request.ref_short[:10],
+                    'ref': request.ref[:50],
+                    'length_km': round(request.length_km, 2),
+                    'time_minutes': round(request.time_minutes, 1),
                     'color': color,
+                    'place_start': request.place_start[:100] if request.place_start else None,
+                    'place_end': request.place_end[:100] if request.place_end else None,
+                    'name': request.name[:200] if request.name else None,
                     'geom': linestring_wkt,
                 }
             )
+            road_id = result.fetchone()[0]
 
         session.commit()
 
-    return {"message": "Road saved", "ref": ref}
+    return {"message": "Road saved", "id": road_id, "ref": request.ref}
+
+
+@router.put("/{road_id}")
+async def update_road(road_id: int, request: SaveRoadRequest):
+    """Update a road by ID."""
+    color = get_road_color(request.ref_short)
+
+    # Build LineString WKT
+    coords_str = ', '.join([f"{c.lng} {c.lat}" for c in request.coordinates])
+    linestring_wkt = f"LINESTRING({coords_str})"
+
+    with Session(engine) as session:
+        existing = session.execute(
+            text("SELECT id FROM major_roads WHERE id = :id"),
+            {'id': road_id}
+        ).fetchone()
+
+        if not existing:
+            raise HTTPException(status_code=404, detail="Road not found")
+
+        session.execute(
+            text("""
+                UPDATE major_roads
+                SET ref_short = :ref_short,
+                    ref = :ref,
+                    length_km = :length_km,
+                    time_minutes = :time_minutes,
+                    color = :color,
+                    place_start = :place_start,
+                    place_end = :place_end,
+                    name = :name,
+                    geom = ST_GeomFromText(:geom, 4326),
+                    updated_at = NOW()
+                WHERE id = :id
+            """),
+            {
+                'id': road_id,
+                'ref_short': request.ref_short[:10],
+                'ref': request.ref[:50],
+                'length_km': round(request.length_km, 2),
+                'time_minutes': round(request.time_minutes, 1),
+                'color': color,
+                'place_start': request.place_start[:100] if request.place_start else None,
+                'place_end': request.place_end[:100] if request.place_end else None,
+                'name': request.name[:200] if request.name else None,
+                'geom': linestring_wkt,
+            }
+        )
+        session.commit()
+
+    return {"message": "Road updated", "id": road_id}
 
 
 @router.get("", response_model=List[RoadResponse])
@@ -181,45 +243,36 @@ async def list_roads():
     """List all saved roads."""
     with Session(engine) as session:
         result = session.execute(text("""
-            SELECT ref, name, highway_type, length_km, color
+            SELECT id, ref_short, ref, length_km, time_minutes, color,
+                   place_start, place_end, name
             FROM major_roads
-            ORDER BY highway_type, length_km DESC
+            WHERE is_active = true
+            ORDER BY ref_short, ref
         """)).fetchall()
 
         return [
             RoadResponse(
-                ref=row[0],
-                name=row[1] or '',
-                highway_type=row[2],
+                id=row[0],
+                ref_short=row[1],
+                ref=row[2],
                 length_km=row[3],
-                color=row[4]
+                time_minutes=row[4],
+                color=row[5],
+                place_start=row[6],
+                place_end=row[7],
+                name=row[8]
             )
             for row in result
         ]
 
 
 def parse_wkt_coordinates(geom_wkt: str) -> List[Coordinate]:
-    """Parse WKT geometry to list of coordinates. Handles LINESTRING and MULTILINESTRING."""
+    """Parse WKT LINESTRING to list of coordinates."""
     coordinates = []
     if not geom_wkt:
         return coordinates
 
-    # Handle MULTILINESTRING - take the first linestring or merge all
-    if geom_wkt.startswith('MULTILINESTRING'):
-        # MULTILINESTRING((lng lat, lng lat), (lng lat, lng lat))
-        # Extract content between outer parentheses
-        import re
-        matches = re.findall(r'\(([^()]+)\)', geom_wkt)
-        for match in matches:
-            for coord in match.split(','):
-                parts = coord.strip().split(' ')
-                if len(parts) >= 2:
-                    try:
-                        coordinates.append(Coordinate(lat=float(parts[1]), lng=float(parts[0])))
-                    except ValueError:
-                        continue
-
-    elif geom_wkt.startswith('LINESTRING'):
+    if geom_wkt.startswith('LINESTRING'):
         # LINESTRING(lng lat, lng lat, ...)
         coords_str = geom_wkt.replace('LINESTRING(', '').replace(')', '')
         for coord in coords_str.split(','):
@@ -233,43 +286,46 @@ def parse_wkt_coordinates(geom_wkt: str) -> List[Coordinate]:
     return coordinates
 
 
-@router.get("/{ref}", response_model=RoadDetailResponse)
-async def get_road(ref: str):
+@router.get("/{road_id}", response_model=RoadDetailResponse)
+async def get_road(road_id: int):
     """Get a road with its coordinates."""
     with Session(engine) as session:
         result = session.execute(
             text("""
-                SELECT ref, name, highway_type, length_km, color,
-                       ST_AsText(geom) as geom_wkt
+                SELECT id, ref_short, ref, length_km, time_minutes, color,
+                       place_start, place_end, name, ST_AsText(geom) as geom_wkt
                 FROM major_roads
-                WHERE ref = :ref
+                WHERE id = :id
             """),
-            {'ref': ref}
+            {'id': road_id}
         ).fetchone()
 
         if not result:
             raise HTTPException(status_code=404, detail="Road not found")
 
-        geom_wkt = result[5]
-        coordinates = parse_wkt_coordinates(geom_wkt)
+        coordinates = parse_wkt_coordinates(result[9])
 
         return RoadDetailResponse(
-            ref=result[0],
-            name=result[1] or '',
-            highway_type=result[2],
+            id=result[0],
+            ref_short=result[1],
+            ref=result[2],
             length_km=result[3],
-            color=result[4],
+            time_minutes=result[4],
+            color=result[5],
+            place_start=result[6],
+            place_end=result[7],
+            name=result[8],
             coordinates=coordinates
         )
 
 
-@router.delete("/{ref}")
-async def delete_road(ref: str):
-    """Delete a road by ref."""
+@router.delete("/{road_id}")
+async def delete_road(road_id: int):
+    """Delete a road by ID."""
     with Session(engine) as session:
         result = session.execute(
-            text("DELETE FROM major_roads WHERE ref = :ref RETURNING name"),
-            {'ref': ref}
+            text("DELETE FROM major_roads WHERE id = :id RETURNING ref"),
+            {'id': road_id}
         ).fetchone()
 
         if not result:
@@ -277,4 +333,4 @@ async def delete_road(ref: str):
 
         session.commit()
 
-    return {"message": "Road deleted", "name": result[0]}
+    return {"message": "Road deleted", "ref": result[0]}
