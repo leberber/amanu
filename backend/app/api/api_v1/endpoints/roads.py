@@ -49,6 +49,10 @@ class RoadResponse(BaseModel):
     place_start: str | None
     place_end: str | None
     name: str | None
+    start_lat: float | None
+    start_lng: float | None
+    end_lat: float | None
+    end_lng: float | None
 
 
 class RoadDetailResponse(RoadResponse):
@@ -122,6 +126,12 @@ async def save_road(request: SaveRoadRequest):
     coords_str = ', '.join([f"{c.lng} {c.lat}" for c in request.coordinates])
     linestring_wkt = f"LINESTRING({coords_str})"
 
+    # Build POINT WKT for start and end points
+    start_coord = request.coordinates[0]
+    end_coord = request.coordinates[-1]
+    start_point_wkt = f"POINT({start_coord.lng} {start_coord.lat})"
+    end_point_wkt = f"POINT({end_coord.lng} {end_coord.lat})"
+
     with Session(engine) as session:
         # Check if exists
         existing = session.execute(
@@ -142,6 +152,8 @@ async def save_road(request: SaveRoadRequest):
                         place_end = :place_end,
                         name = :name,
                         geom = ST_GeomFromText(:geom, 4326),
+                        start_point = ST_GeomFromText(:start_point, 4326),
+                        end_point = ST_GeomFromText(:end_point, 4326),
                         updated_at = NOW()
                     WHERE ref = :ref
                 """),
@@ -155,6 +167,8 @@ async def save_road(request: SaveRoadRequest):
                     'place_end': request.place_end[:100] if request.place_end else None,
                     'name': request.name[:200] if request.name else None,
                     'geom': linestring_wkt,
+                    'start_point': start_point_wkt,
+                    'end_point': end_point_wkt,
                 }
             )
             road_id = existing[0]
@@ -163,9 +177,9 @@ async def save_road(request: SaveRoadRequest):
             result = session.execute(
                 text("""
                     INSERT INTO major_roads
-                    (ref_short, ref, length_km, time_minutes, color, place_start, place_end, name, is_active, geom, created_at, updated_at)
+                    (ref_short, ref, length_km, time_minutes, color, place_start, place_end, name, is_active, geom, start_point, end_point, created_at, updated_at)
                     VALUES (:ref_short, :ref, :length_km, :time_minutes, :color, :place_start, :place_end, :name, true,
-                            ST_GeomFromText(:geom, 4326), NOW(), NOW())
+                            ST_GeomFromText(:geom, 4326), ST_GeomFromText(:start_point, 4326), ST_GeomFromText(:end_point, 4326), NOW(), NOW())
                     RETURNING id
                 """),
                 {
@@ -178,6 +192,8 @@ async def save_road(request: SaveRoadRequest):
                     'place_end': request.place_end[:100] if request.place_end else None,
                     'name': request.name[:200] if request.name else None,
                     'geom': linestring_wkt,
+                    'start_point': start_point_wkt,
+                    'end_point': end_point_wkt,
                 }
             )
             road_id = result.fetchone()[0]
@@ -195,6 +211,12 @@ async def update_road(road_id: int, request: SaveRoadRequest):
     # Build LineString WKT
     coords_str = ', '.join([f"{c.lng} {c.lat}" for c in request.coordinates])
     linestring_wkt = f"LINESTRING({coords_str})"
+
+    # Build POINT WKT for start and end points
+    start_coord = request.coordinates[0]
+    end_coord = request.coordinates[-1]
+    start_point_wkt = f"POINT({start_coord.lng} {start_coord.lat})"
+    end_point_wkt = f"POINT({end_coord.lng} {end_coord.lat})"
 
     with Session(engine) as session:
         existing = session.execute(
@@ -217,6 +239,8 @@ async def update_road(road_id: int, request: SaveRoadRequest):
                     place_end = :place_end,
                     name = :name,
                     geom = ST_GeomFromText(:geom, 4326),
+                    start_point = ST_GeomFromText(:start_point, 4326),
+                    end_point = ST_GeomFromText(:end_point, 4326),
                     updated_at = NOW()
                 WHERE id = :id
             """),
@@ -231,6 +255,8 @@ async def update_road(road_id: int, request: SaveRoadRequest):
                 'place_end': request.place_end[:100] if request.place_end else None,
                 'name': request.name[:200] if request.name else None,
                 'geom': linestring_wkt,
+                'start_point': start_point_wkt,
+                'end_point': end_point_wkt,
             }
         )
         session.commit()
@@ -244,7 +270,9 @@ async def list_roads():
     with Session(engine) as session:
         result = session.execute(text("""
             SELECT id, ref_short, ref, length_km, time_minutes, color,
-                   place_start, place_end, name
+                   place_start, place_end, name,
+                   ST_Y(start_point) as start_lat, ST_X(start_point) as start_lng,
+                   ST_Y(end_point) as end_lat, ST_X(end_point) as end_lng
             FROM major_roads
             WHERE is_active = true
             ORDER BY ref_short, ref
@@ -260,7 +288,11 @@ async def list_roads():
                 color=row[5],
                 place_start=row[6],
                 place_end=row[7],
-                name=row[8]
+                name=row[8],
+                start_lat=row[9],
+                start_lng=row[10],
+                end_lat=row[11],
+                end_lng=row[12]
             )
             for row in result
         ]
@@ -293,7 +325,9 @@ async def get_road(road_id: int):
         result = session.execute(
             text("""
                 SELECT id, ref_short, ref, length_km, time_minutes, color,
-                       place_start, place_end, name, ST_AsText(geom) as geom_wkt
+                       place_start, place_end, name, ST_AsText(geom) as geom_wkt,
+                       ST_Y(start_point) as start_lat, ST_X(start_point) as start_lng,
+                       ST_Y(end_point) as end_lat, ST_X(end_point) as end_lng
                 FROM major_roads
                 WHERE id = :id
             """),
@@ -315,7 +349,11 @@ async def get_road(road_id: int):
             place_start=result[6],
             place_end=result[7],
             name=result[8],
-            coordinates=coordinates
+            coordinates=coordinates,
+            start_lat=result[10],
+            start_lng=result[11],
+            end_lat=result[12],
+            end_lng=result[13]
         )
 
 

@@ -39,6 +39,10 @@ export interface SavedRoad {
   place_start: string | null;
   place_end: string | null;
   name: string | null;
+  start_lat: number | null;
+  start_lng: number | null;
+  end_lat: number | null;
+  end_lng: number | null;
 }
 
 export interface SavedRoadDetail extends SavedRoad {

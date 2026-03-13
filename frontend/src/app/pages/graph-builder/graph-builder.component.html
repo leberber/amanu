@@ -12,7 +12,7 @@
         @if (editingRoad()) {
           Editing "{{ editingRoad()!.ref }}" - drag markers or add new points
         } @else {
-          Click on map to add points, then generate route
+          Click on map or snap to endpoints, then generate route
         }
       </span>
     </div>
@@ -169,17 +169,16 @@
   </div>
 </div>
 
-<!-- Save/Edit Dialog -->
-<p-dialog
-  [header]="editingRoad() ? 'Edit Road' : 'Save Road'"
+<!-- Save/Edit Drawer -->
+<p-drawer
+  [header]="editingRoad() ? 'Edit Road' : 'New Road'"
   [visible]="showDialog()"
   (visibleChange)="showDialog.set($event)"
+  position="left"
   [modal]="false"
-  [style]="{ width: '500px' }"
-  [draggable]="true"
-  [resizable]="false"
+  [style]="{ width: '400px' }"
 >
-  <div class="dialog-content">
+  <div class="drawer-content">
     <!-- Route stats -->
     @if (currentRoute()) {
       <div class="route-stats-box">
@@ -195,19 +194,21 @@
     }
 
     <!-- Form -->
-    <div class="form-grid">
+    <div class="drawer-form">
       <!-- Road Type -->
       <div class="form-field">
         <label>Road Type *</label>
-        <p-select
-          [options]="refShortOptions"
-          [ngModel]="formRefShort()"
-          (ngModelChange)="formRefShort.set($event)"
-          optionLabel="label"
-          optionValue="value"
-          [style]="{ width: '100%' }"
-        />
-        <div class="color-preview" [style.background]="getRefShortColor(formRefShort())"></div>
+        <div class="field-with-preview">
+          <p-select
+            [options]="refShortOptions"
+            [ngModel]="formRefShort()"
+            (ngModelChange)="formRefShort.set($event)"
+            optionLabel="label"
+            optionValue="value"
+            [style]="{ width: '100%' }"
+          />
+          <div class="color-preview-inline" [style.background]="getRefShortColor(formRefShort())"></div>
+        </div>
       </div>
 
       <!-- Reference -->
@@ -219,6 +220,7 @@
           placeholder="e.g. CW 11, RN 30"
           [ngModel]="formRef()"
           (ngModelChange)="onRefInput($event)"
+          class="w-full"
         />
       </div>
 
@@ -231,6 +233,7 @@
           placeholder="e.g. Bejaia"
           [ngModel]="formPlaceStart()"
           (ngModelChange)="formPlaceStart.set($event)"
+          class="w-full"
         />
       </div>
 
@@ -243,11 +246,12 @@
           placeholder="e.g. Akbou"
           [ngModel]="formPlaceEnd()"
           (ngModelChange)="formPlaceEnd.set($event)"
+          class="w-full"
         />
       </div>
 
-      <!-- Name (full width) -->
-      <div class="form-field full-width">
+      <!-- Name -->
+      <div class="form-field">
         <label>Display Name</label>
         <input
           type="text"
@@ -255,27 +259,29 @@
           placeholder="e.g. Route de Akbou"
           [ngModel]="formName()"
           (ngModelChange)="formName.set($event)"
+          class="w-full"
         />
       </div>
     </div>
-  </div>
 
-  <ng-template pTemplate="footer">
-    <p-button
-      label="Cancel"
-      icon="pi pi-times"
-      [text]="true"
-      severity="secondary"
-      (onClick)="closeDialog()"
-    />
-    <p-button
-      [label]="editingRoad() ? 'Update' : 'Save'"
-      icon="pi pi-check"
-      (onClick)="saveRoad()"
-      [loading]="saving()"
-      [disabled]="!formRef()"
-    />
-  </ng-template>
-</p-dialog>
+    <!-- Actions -->
+    <div class="drawer-actions">
+      <p-button
+        label="Cancel"
+        icon="pi pi-times"
+        [text]="true"
+        severity="secondary"
+        (onClick)="closeDialog()"
+      />
+      <p-button
+        [label]="editingRoad() ? 'Update' : 'Save'"
+        icon="pi pi-check"
+        (onClick)="saveRoad()"
+        [loading]="saving()"
+        [disabled]="!formRef()"
+      />
+    </div>
+  </div>
+</p-drawer>
 
 <p-toast position="top-right" />

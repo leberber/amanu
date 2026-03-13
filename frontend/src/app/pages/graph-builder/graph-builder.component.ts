@@ -12,7 +12,7 @@ import { SelectButtonModule } from 'primeng/selectbutton';
 import { TooltipModule } from 'primeng/tooltip';
 import { BadgeModule } from 'primeng/badge';
 import { SelectModule } from 'primeng/select';
-import { DialogModule } from 'primeng/dialog';
+import { DrawerModule } from 'primeng/drawer';
 import { MessageService } from 'primeng/api';
 
 // App
@@ -39,7 +39,7 @@ import {
     TooltipModule,
     BadgeModule,
     SelectModule,
-    DialogModule,
+    DrawerModule,
   ],
   providers: [MessageService],
   templateUrl: './graph-builder.component.html',
@@ -70,6 +70,8 @@ export class GraphBuilderComponent implements OnInit, OnDestroy {
   private map!: L.Map;
   private markersLayer = L.layerGroup();
   private routeLayer = L.layerGroup();
+  private existingRoadsLayer = L.layerGroup();
+  private endpointsLayer = L.layerGroup();
   private currentTileLayer!: L.TileLayer;
 
   // State
@@ -143,9 +145,11 @@ export class GraphBuilderComponent implements OnInit, OnDestroy {
     // Add default tile layer
     this.setTileLayer('google');
 
-    // Add layer groups
-    this.markersLayer.addTo(this.map);
+    // Add layer groups (order matters - later = on top)
+    this.existingRoadsLayer.addTo(this.map);
     this.routeLayer.addTo(this.map);
+    this.markersLayer.addTo(this.map);
+    this.endpointsLayer.addTo(this.map);  // Endpoints on top for easy snapping
 
     // Click handler to add points
     this.map.on('click', (e: L.LeafletMouseEvent) => {
@@ -294,6 +298,7 @@ export class GraphBuilderComponent implements OnInit, OnDestroy {
     try {
       const roads = await this.roadBuilderService.getSavedRoads();
       this.savedRoads.set(roads);
+      await this.drawExistingRoads();
     } catch (error: unknown) {
       this.messageService.add({
         severity: 'error',
@@ -302,6 +307,118 @@ export class GraphBuilderComponent implements OnInit, OnDestroy {
       });
     } finally {
       this.loadingRoads.set(false);
+    }
+  }
+
+  private async drawExistingRoads(): Promise<void> {
+    this.existingRoadsLayer.clearLayers();
+    this.endpointsLayer.clearLayers();
+
+    for (const road of this.savedRoads()) {
+      try {
+        const roadDetail = await this.roadBuilderService.getRoad(road.id);
+        if (roadDetail.coordinates.length > 0) {
+          const coords = roadDetail.coordinates.map(c => L.latLng(c.lat, c.lng));
+          const polyline = L.polyline(coords, {
+            color: road.color,
+            weight: 4,
+            opacity: 0.7
+          });
+
+          // Tooltip with road info
+          polyline.bindTooltip(`${road.ref}`, {
+            permanent: false,
+            direction: 'center'
+          });
+
+          polyline.addTo(this.existingRoadsLayer);
+
+          // Add endpoint markers for snapping
+          if (road.start_lat && road.start_lng) {
+            this.createEndpointMarker(
+              L.latLng(road.start_lat, road.start_lng),
+              road.color,
+              `${road.ref} (Start)`,
+              road.place_start || ''
+            ).addTo(this.endpointsLayer);
+          }
+          if (road.end_lat && road.end_lng) {
+            this.createEndpointMarker(
+              L.latLng(road.end_lat, road.end_lng),
+              road.color,
+              `${road.ref} (End)`,
+              road.place_end || ''
+            ).addTo(this.endpointsLayer);
+          }
+        }
+      } catch {
+        // Skip if can't load road details
+      }
+    }
+  }
+
+  private createEndpointMarker(latlng: L.LatLng, color: string, label: string, placeName: string): L.CircleMarker {
+    const marker = L.circleMarker(latlng, {
+      radius: 12,
+      fillColor: color,
+      fillOpacity: 1,
+      color: '#fff',
+      weight: 3
+    });
+
+    // Click to snap - use this point for new segment
+    marker.on('click', (e: L.LeafletMouseEvent) => {
+      L.DomEvent.stopPropagation(e);
+      this.snapToEndpoint(latlng, label, placeName);
+    });
+
+    // Tooltip
+    marker.bindTooltip(`Click to connect: ${label}`, {
+      permanent: false,
+      direction: 'top'
+    });
+
+    return marker;
+  }
+
+  private snapToEndpoint(latlng: L.LatLng, label: string, placeName: string): void {
+    const hasPoints = this.points().length > 0;
+
+    // Clear editing state - we're creating a NEW road when snapping
+    this.editingRoad.set(null);
+
+    if (!hasPoints) {
+      // No points yet - this is the START of a new road
+      this.clearRoute();
+      this.resetForm();
+      this.addPoint(latlng);
+
+      // Set place_start
+      if (placeName) {
+        this.formPlaceStart.set(placeName);
+      }
+
+      this.messageService.add({
+        severity: 'info',
+        summary: 'Start point set',
+        detail: `Starting from ${placeName || label}. Click on map to add more points.`,
+        life: 3000
+      });
+    } else {
+      // Already have points - this is the END connection
+      this.addPoint(latlng);
+
+      // Set place_end
+      if (placeName) {
+        this.formPlaceEnd.set(placeName);
+      }
+
+      this.messageService.add({
+        severity: 'success',
+        summary: 'End point connected',
+        detail: `Connected to ${placeName || label}. Generate route when ready.`,
+        life: 3000
+      });
     }
   }
 
@@ -377,6 +494,9 @@ export class GraphBuilderComponent implements OnInit, OnDestroy {
         this.clearPoints();
         this.showDialog.set(false);
       }
+
+      // Refresh roads on map
+      await this.drawExistingRoads();
 
       this.messageService.add({
         severity: 'success',

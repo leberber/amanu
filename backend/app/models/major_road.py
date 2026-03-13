@@ -45,6 +45,8 @@ class MajorRoad(SQLModel, table=True):
     place_end: Optional[str] = Field(default=None, max_length=100,
                                      description="End location name")
 
+    # Note: start_point and end_point are POINT geometry columns added below
+
     # Display name
     name: Optional[str] = Field(default=None, max_length=200,
                                 description="Road display name")
@@ -58,16 +60,27 @@ class MajorRoad(SQLModel, table=True):
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
-# Add geometry column separately (SQLModel doesn't support it directly)
+# Add geometry columns separately (SQLModel doesn't support them directly)
+# POINT columns first, then LINESTRING last
+MajorRoad.__table__.append_column(
+    Column('start_point', Geometry('POINT', srid=4326), nullable=True)
+)
+MajorRoad.__table__.append_column(
+    Column('end_point', Geometry('POINT', srid=4326), nullable=True)
+)
 MajorRoad.__table__.append_column(
     Column('geom', Geometry('LINESTRING', srid=4326), nullable=True)
 )
 
-# Create spatial index after table creation
+# Create spatial indices after table creation
 event.listen(
     MajorRoad.__table__,
     'after_create',
-    DDL('CREATE INDEX IF NOT EXISTS idx_major_roads_geom ON major_roads USING GIST (geom)')
+    DDL('''
+        CREATE INDEX IF NOT EXISTS idx_major_roads_geom ON major_roads USING GIST (geom);
+        CREATE INDEX IF NOT EXISTS idx_major_roads_start_point ON major_roads USING GIST (start_point);
+        CREATE INDEX IF NOT EXISTS idx_major_roads_end_point ON major_roads USING GIST (end_point);
+    ''')
 )
 
 
@@ -107,6 +120,10 @@ class MajorRoadRead(SQLModel):
     place_start: Optional[str]
     place_end: Optional[str]
     name: Optional[str]
+    start_lat: Optional[float]
+    start_lng: Optional[float]
+    end_lat: Optional[float]
+    end_lng: Optional[float]
     is_active: bool
 
 
