@@ -722,6 +722,190 @@ TEST_USERS = [
         "longitude": 4.045843,
     },
 
+    # ==================== ZONE F: AIT MALEM / AIT KHELFA AREA (13 stores) ====================
+    {
+        "email": "client.aitmalem1@test.com",
+        "full_name": "Hamid Ait Malem",
+        "phone": "0555206001",
+        "store_name": "Alimentation Ait Malem",
+        "role": UserRole.CUSTOMER,
+        "h3_index": "8938749a8a7ffff",
+        "address": "Centre, Ait Malem",
+        "wilaya": "Tizi Ouzou",
+        "daira": "Ouadhia",
+        "commune": "Ait Malem",
+        "latitude": 36.538293,
+        "longitude": 4.088375,
+    },
+    {
+        "email": "client.aitmalem2@test.com",
+        "full_name": "Said Bouzid",
+        "phone": "0555206002",
+        "store_name": "Epicerie Bouzid",
+        "role": UserRole.CUSTOMER,
+        "h3_index": "8938749a8a7ffff",
+        "address": "Route Principale, Ait Malem",
+        "wilaya": "Tizi Ouzou",
+        "daira": "Ouadhia",
+        "commune": "Ait Malem",
+        "latitude": 36.529757,
+        "longitude": 4.083192,
+    },
+    {
+        "email": "client.aitmalem3@test.com",
+        "full_name": "Lounis Mekhtoub",
+        "phone": "0555206003",
+        "store_name": "Superette Mekhtoub",
+        "role": UserRole.CUSTOMER,
+        "h3_index": "8938749a8a7ffff",
+        "address": "Quartier Nord, Ait Malem",
+        "wilaya": "Tizi Ouzou",
+        "daira": "Ouadhia",
+        "commune": "Ait Malem",
+        "latitude": 36.533511,
+        "longitude": 4.091767,
+    },
+    {
+        "email": "client.aitkhelfa1@test.com",
+        "full_name": "Mohand Ait Khelfa",
+        "phone": "0555206004",
+        "store_name": "Alimentation Ait Khelfa",
+        "role": UserRole.CUSTOMER,
+        "h3_index": "8938749a8a7ffff",
+        "address": "Centre, Ait Khelfa",
+        "wilaya": "Tizi Ouzou",
+        "daira": "Ouadhia",
+        "commune": "Ait Khelfa",
+        "latitude": 36.522557,
+        "longitude": 4.099510,
+    },
+    {
+        "email": "client.aitkhelfa2@test.com",
+        "full_name": "Rachid Oubraham",
+        "phone": "0555206005",
+        "store_name": "Mini Market Oubraham",
+        "role": UserRole.CUSTOMER,
+        "h3_index": "8938749a8a7ffff",
+        "address": "Route Sud, Ait Khelfa",
+        "wilaya": "Tizi Ouzou",
+        "daira": "Ouadhia",
+        "commune": "Ait Khelfa",
+        "latitude": 36.511254,
+        "longitude": 4.103063,
+    },
+    {
+        "email": "client.aitkhelfa3@test.com",
+        "full_name": "Belaid Ould Said",
+        "phone": "0555206006",
+        "store_name": "Epicerie Ould Said",
+        "role": UserRole.CUSTOMER,
+        "h3_index": "8938749a8a7ffff",
+        "address": "Quartier Sud, Ait Khelfa",
+        "wilaya": "Tizi Ouzou",
+        "daira": "Ouadhia",
+        "commune": "Ait Khelfa",
+        "latitude": 36.500664,
+        "longitude": 4.078865,
+    },
+    {
+        "email": "client.aitkhelfa4@test.com",
+        "full_name": "Yacine Ait Yahia",
+        "phone": "0555206007",
+        "store_name": "Superette Ait Yahia",
+        "role": UserRole.CUSTOMER,
+        "h3_index": "8938749a8a7ffff",
+        "address": "Place du Village, Ait Khelfa",
+        "wilaya": "Tizi Ouzou",
+        "daira": "Ouadhia",
+        "commune": "Ait Khelfa",
+        "latitude": 36.503083,
+        "longitude": 4.081106,
+    },
+    {
+        "email": "client.aitkhelfa5@test.com",
+        "full_name": "Tarik Meziani",
+        "phone": "0555206008",
+        "store_name": "Alimentation Meziani",
+        "role": UserRole.CUSTOMER,
+        "h3_index": "8938749a8a7ffff",
+        "address": "Route de Ait Bouadou, Ait Khelfa",
+        "wilaya": "Tizi Ouzou",
+        "daira": "Ouadhia",
+        "commune": "Ait Khelfa",
+        "latitude": 36.520596,
+        "longitude": 4.075607,
+    },
+    {
+        "email": "client.aitkhelfa6@test.com",
+        "full_name": "Nasser Boulahia",
+        "phone": "0555206009",
+        "store_name": "Mini Market Boulahia",
+        "role": UserRole.CUSTOMER,
+        "h3_index": "8938749a8a7ffff",
+        "address": "Quartier Ouest, Ait Khelfa",
+        "wilaya": "Tizi Ouzou",
+        "daira": "Ouadhia",
+        "commune": "Ait Khelfa",
+        "latitude": 36.522058,
+        "longitude": 4.071233,
+    },
+    {
+        "email": "client.aitkhelfa7@test.com",
+        "full_name": "Amar Ait Moussa",
+        "phone": "0555206010",
+        "store_name": "Epicerie Ait Moussa",
+        "role": UserRole.CUSTOMER,
+        "h3_index": "8938749a8a7ffff",
+        "address": "Sortie Ouest, Ait Khelfa",
+        "wilaya": "Tizi Ouzou",
+        "daira": "Ouadhia",
+        "commune": "Ait Khelfa",
+        "latitude": 36.525840,
+        "longitude": 4.073370,
+    },
+    {
+        "email": "client.aitkhelfa8@test.com",
+        "full_name": "Lamine Hadji",
+        "phone": "0555206011",
+        "store_name": "Superette Hadji",
+        "role": UserRole.CUSTOMER,
+        "h3_index": "8938749a8a7ffff",
+        "address": "Route de Tizi N'Tlata, Ait Khelfa",
+        "wilaya": "Tizi Ouzou",
+        "daira": "Ouadhia",
+        "commune": "Ait Khelfa",
+        "latitude": 36.521483,
+        "longitude": 4.064841,
+    },
+    {
+        "email": "client.aitkhelfa9@test.com",
+        "full_name": "Kamel Ould Ahmed",
+        "phone": "0555206012",
+        "store_name": "Alimentation Ould Ahmed",
+        "role": UserRole.CUSTOMER,
+        "h3_index": "8938749a8a7ffff",
+        "address": "Quartier Nord-Ouest, Ait Khelfa",
+        "wilaya": "Tizi Ouzou",
+        "daira": "Ouadhia",
+        "commune": "Ait Khelfa",
+        "latitude": 36.526942,
+        "longitude": 4.063852,
+    },
+    {
+        "email": "client.aitkhelfa10@test.com",
+        "full_name": "Omar Bensaid",
+        "phone": "0555206013",
+        "store_name": "Mini Market Bensaid",
+        "role": UserRole.CUSTOMER,
+        "h3_index": "8938749a8a7ffff",
+        "address": "Sortie Sud, Ait Khelfa",
+        "wilaya": "Tizi Ouzou",
+        "daira": "Ouadhia",
+        "commune": "Ait Khelfa",
+        "latitude": 36.512126,
+        "longitude": 4.061246,
+    },
+
     # ==================== STAFF ====================
     {
         "email": "staff@test.com",
@@ -787,26 +971,34 @@ def seed_test_users():
 
             # Create driver and vehicle if this is a driver
             if driver_data and vehicle_data and user_data["role"] == UserRole.DRIVER:
-                # Create driver
-                driver = Driver(
-                    user_id=user.id,
-                    status=driver_data["status"],
-                    is_available=driver_data["is_available"],
-                    max_active_orders=driver_data["max_active_orders"],
-                )
-                session.add(driver)
-                session.flush()  # Get driver ID
+                # Check if driver already exists for this user
+                existing_driver = session.exec(
+                    select(Driver).where(Driver.user_id == user.id)
+                ).first()
 
-                # Create vehicle
-                vehicle = DriverVehicle(
-                    driver_id=driver.id,
-                    vehicle_type=vehicle_data["vehicle_type"],
-                    capacity_kg=vehicle_data["capacity_kg"],
-                    capacity_volume=vehicle_data["capacity_volume"],
-                    is_primary=True,
-                )
-                session.add(vehicle)
-                logger.info(f"Created driver with {vehicle_data['vehicle_type'].value} vehicle: {user.full_name}")
+                if existing_driver:
+                    logger.info(f"Driver already exists for user {user.id} - skipping driver creation")
+                else:
+                    # Create driver
+                    driver = Driver(
+                        user_id=user.id,
+                        status=driver_data["status"],
+                        is_available=driver_data["is_available"],
+                        max_active_orders=driver_data["max_active_orders"],
+                    )
+                    session.add(driver)
+                    session.flush()  # Get driver ID
+
+                    # Create vehicle
+                    vehicle = DriverVehicle(
+                        driver_id=driver.id,
+                        vehicle_type=vehicle_data["vehicle_type"],
+                        capacity_kg=vehicle_data["capacity_kg"],
+                        capacity_volume=vehicle_data["capacity_volume"],
+                        is_primary=True,
+                    )
+                    session.add(vehicle)
+                    logger.info(f"Created driver with {vehicle_data['vehicle_type'].value} vehicle: {user.full_name}")
             else:
                 logger.info(f"Created {user_data['role'].value}: {user.full_name}")
 
@@ -832,7 +1024,8 @@ def seed_test_users():
     print("  Zone B - Ouadhia Centre: 20 stores")
     print("  Zone C - Tizi N'Tlata: 7 stores")
     print("  Zone D - Ait Bouadou: 8 stores")
-    print("\nTOTAL: 44 stores + 3 drivers + 1 staff")
+    print("  Zone E - Ait Malem / Ait Khelfa: 13 stores")
+    print("\nTOTAL: 57 stores + 3 drivers + 1 staff")
     print("\nSTAFF:")
     print("  - staff@test.com (Entrepot Ouadhia)")
     print("="*60 + "\n")

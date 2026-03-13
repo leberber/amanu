@@ -65,6 +65,21 @@ TEST_CUSTOMER_EMAILS = [
     "client.aitbouadou6@test.com",
     "client.aitbouadou7@test.com",
     "client.aitbouadou8@test.com",
+    # Zone E - Ait Malem (3 stores)
+    "client.aitmalem1@test.com",
+    "client.aitmalem2@test.com",
+    "client.aitmalem3@test.com",
+    # Zone F - Ait Khelfa (10 stores)
+    "client.aitkhelfa1@test.com",
+    "client.aitkhelfa2@test.com",
+    "client.aitkhelfa3@test.com",
+    "client.aitkhelfa4@test.com",
+    "client.aitkhelfa5@test.com",
+    "client.aitkhelfa6@test.com",
+    "client.aitkhelfa7@test.com",
+    "client.aitkhelfa8@test.com",
+    "client.aitkhelfa9@test.com",
+    "client.aitkhelfa10@test.com",
 ]
 
 # Shipping costs by zone (in DZD)
@@ -179,11 +194,13 @@ def seed_test_orders():
     print("="*60)
     print(f"Total orders: {created_count} (1 per customer)")
     print("-"*60)
-    print("Orders distributed across 4 zones (44 stores):")
+    print("Orders distributed across 6 zones (57 stores):")
     print("  - Zone A (Agouni Gueghrane): 9 orders")
     print("  - Zone B (Ouadhia Centre): 20 orders")
     print("  - Zone C (Tizi N'Tlata): 7 orders")
     print("  - Zone D (Ait Bouadou): 8 orders")
+    print("  - Zone E (Ait Malem): 3 orders")
+    print("  - Zone F (Ait Khelfa): 10 orders")
     print("\nAll orders are in CONFIRMED status for batching testing.")
     print("="*60 + "\n")
 
