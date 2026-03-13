@@ -8,7 +8,7 @@ Centralizes validation logic to avoid duplication across:
 
 from fastapi import HTTPException
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
 from enum import Enum
 
 
@@ -118,7 +118,7 @@ def validate_discount_value(
 
 def validate_target_not_in_triggers(
     target_product_id: int,
-    trigger_product_ids: list[int]
+    trigger_product_ids: List[int]
 ) -> None:
     """
     Validate target product is not in trigger products list.

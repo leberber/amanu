@@ -4,6 +4,8 @@ Routes are fetched from Google Directions API.
 Used for delivery route optimization and batching.
 """
 from sqlmodel import SQLModel, Field
+from sqlalchemy import Column
+from geoalchemy2 import Geometry
 from typing import Optional
 from datetime import datetime, timezone
 
@@ -21,7 +23,13 @@ class CustomerRoute(SQLModel, table=True):
     # === Route data from Google ===
     distance_meters: int = Field(default=0, description="Route distance in meters")
     duration_seconds: int = Field(default=0, description="Estimated travel time in seconds")
-    route_polyline: Optional[str] = Field(default=None, description="Encoded polyline from Google")
+
+    # === Route geometry (PostGIS LINESTRING) ===
+    route_geom: Optional[str] = Field(
+        default=None,
+        sa_column=Column(Geometry("LINESTRING", srid=4326)),
+        description="Route path from depot to customer"
+    )
 
     # === Direction/Heading ===
     heading: Optional[float] = Field(

@@ -13,6 +13,19 @@ from app.core.config import settings
 from app.models.customer_route import CustomerRoute
 from app.models.user import User, UserRole
 
+
+def coords_to_wkt_linestring(coords: List[tuple]) -> str:
+    """
+    Convert list of (lat, lng) tuples to WKT LINESTRING.
+    Note: WKT uses (lng, lat) order, not (lat, lng).
+    """
+    if not coords or len(coords) < 2:
+        return None
+
+    # Convert (lat, lng) to "lng lat" format for WKT
+    points = [f"{lng} {lat}" for lat, lng in coords]
+    return f"SRID=4326;LINESTRING({', '.join(points)})"
+
 # Try to import polyline, fallback to manual decode
 try:
     from polyline import decode as decode_polyline
@@ -127,6 +140,7 @@ def fetch_route_from_google(
             "distance_meters": leg["distance"]["value"],
             "duration_seconds": leg["duration"]["value"],
             "polyline": polyline,
+            "coords": coords,  # Decoded coordinates for geometry
             "heading": round(heading, 1),
         }
 
@@ -169,6 +183,9 @@ def fetch_and_save_route(
     # Build corridor name
     corridor = f"Direction {commune}" if commune else None
 
+    # Convert coords to WKT geometry
+    route_geom = coords_to_wkt_linestring(route_data["coords"])
+
     # Check if route already exists
     existing = session.exec(
         select(CustomerRoute).where(CustomerRoute.user_id == user_id)
@@ -178,7 +195,7 @@ def fetch_and_save_route(
         # Update existing record
         existing.distance_meters = route_data["distance_meters"]
         existing.duration_seconds = route_data["duration_seconds"]
-        existing.route_polyline = route_data["polyline"]
+        existing.route_geom = route_geom
         existing.heading = route_data["heading"]
         existing.corridor = corridor
         existing.fetched_at = datetime.now(timezone.utc)
@@ -192,7 +209,7 @@ def fetch_and_save_route(
             user_id=user_id,
             distance_meters=route_data["distance_meters"],
             duration_seconds=route_data["duration_seconds"],
-            route_polyline=route_data["polyline"],
+            route_geom=route_geom,
             heading=route_data["heading"],
             corridor=corridor,
         )
