@@ -43,7 +43,7 @@ TEST_USERS = [
         },
         "vehicle_data": {
             "vehicle_type": VehicleType.TRUCK,
-            "capacity_kg": 30000.0,
+            "capacity_kg": 20000.0,
             "capacity_volume": 50.0,
         }
     },
@@ -67,7 +67,7 @@ TEST_USERS = [
         },
         "vehicle_data": {
             "vehicle_type": VehicleType.VAN,
-            "capacity_kg": 18000.0,
+            "capacity_kg": 15000.0,
             "capacity_volume": 30.0,
         }
     },

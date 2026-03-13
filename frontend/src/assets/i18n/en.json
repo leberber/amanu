@@ -2003,7 +2003,22 @@
       "reinitialize_confirm": "Reset all trips? Orders will be returned to pending.",
       "reinitialize_header": "Reset Trips",
       "reset_success": "{{orders}} orders reset successfully",
-      "reset_error": "Failed to reset trips"
+      "reset_error": "Failed to reset trips",
+      "available_trucks": "Available Trucks",
+      "total_capacity": "Total Capacity",
+      "no_trucks": "No trucks available",
+      "orders_weight": "Orders Weight",
+      "algorithm_settings": "Algorithm Settings",
+      "settings": {
+        "strategy": "Route Strategy",
+        "grouping_mode": "Grouping Mode",
+        "max_orders": "Max Orders per Batch",
+        "max_weight": "Max Weight per Batch",
+        "heading_tolerance": "Direction Tolerance",
+        "heading_hint": "Angle variance allowed for grouping orders going in similar directions",
+        "unlimited": "Unlimited",
+        "auto": "Auto (driver capacity)"
+      }
     }
   },
   "footer": {

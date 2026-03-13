@@ -163,42 +163,70 @@ def run_order_batching(
 # SMART BATCHING ENDPOINTS (Corridor-based, capacity-aware)
 # =============================================================================
 
-class SmartBatchingStrategy(SQLModel):
-    """Strategy options for smart batching"""
+class SmartBatchingParams(SQLModel):
+    """Parameters for smart batching algorithm"""
     strategy: str = "farthest_first"  # or "nearest_first"
     max_weight_per_batch: Optional[float] = None
+    max_orders_per_batch: Optional[int] = None
+    grouping_mode: str = "corridor_and_heading"  # corridor_only, heading_only
+    heading_tolerance: float = 30.0
 
 
 @router.get("/smart-preview")
 def preview_smart_order_batching(
     strategy: str = "farthest_first",
+    max_weight: Optional[float] = None,
+    max_orders: Optional[int] = None,
+    grouping_mode: str = "corridor_and_heading",
+    heading_tolerance: float = 30.0,
     current_user: User = Depends(get_current_staff_user),
     session: Session = Depends(get_session),
 ) -> Any:
     """
     Preview smart corridor-based batching.
 
-    Strategy options:
-    - farthest_first: Go to farthest customer first, deliver on way back (recommended)
-    - nearest_first: Start with nearest customer, work outward
+    Parameters:
+    - strategy: "farthest_first" (recommended) or "nearest_first"
+    - max_weight: Maximum weight per batch in kg (default: smallest driver capacity)
+    - max_orders: Maximum orders per batch (default: unlimited)
+    - grouping_mode: "corridor_and_heading" (default), "corridor_only", or "heading_only"
+    - heading_tolerance: Degrees tolerance for heading grouping (default: 30)
 
     This uses:
-    - Stored route data (corridors: TIZI_OUZOU, AGOUNI_GUEGHRANE)
+    - Stored route data (corridors)
     - Driver vehicle capacity
-    - Distance-based ordering (no circles!)
+    - Distance-based ordering
     """
-    result = preview_smart_batching(session, strategy=strategy)
+    result = preview_smart_batching(
+        session,
+        strategy=strategy,
+        max_weight_per_batch=max_weight,
+        max_orders_per_batch=max_orders,
+        grouping_mode=grouping_mode,
+        heading_tolerance=heading_tolerance
+    )
     return result
 
 
 @router.post("/smart-run")
 def run_smart_order_batching(
     strategy: str = "farthest_first",
+    max_weight: Optional[float] = None,
+    max_orders: Optional[int] = None,
+    grouping_mode: str = "corridor_and_heading",
+    heading_tolerance: float = 30.0,
     current_user: User = Depends(get_current_admin_user),
     session: Session = Depends(get_session),
 ) -> Any:
     """
     Run smart corridor-based batching and create trips.
+
+    Parameters:
+    - strategy: "farthest_first" (recommended) or "nearest_first"
+    - max_weight: Maximum weight per batch in kg
+    - max_orders: Maximum orders per batch
+    - grouping_mode: "corridor_and_heading", "corridor_only", or "heading_only"
+    - heading_tolerance: Degrees tolerance for heading grouping
 
     This creates optimized trips:
     - Groups orders by corridor (same road)
@@ -209,7 +237,11 @@ def run_smart_order_batching(
     result = run_smart_batching(
         session,
         created_by_id=current_user.id,
-        strategy=strategy
+        strategy=strategy,
+        max_weight_per_batch=max_weight,
+        max_orders_per_batch=max_orders,
+        grouping_mode=grouping_mode,
+        heading_tolerance=heading_tolerance
     )
     return result
 

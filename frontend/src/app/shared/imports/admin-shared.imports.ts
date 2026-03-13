@@ -21,6 +21,8 @@ import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { InputTextModule } from 'primeng/inputtext';
+import { InputGroupModule } from 'primeng/inputgroup';
+import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { CardModule } from 'primeng/card';
 
 // Translation
@@ -63,6 +65,8 @@ export const ADMIN_LIST_IMPORTS = [
   PaginatorModule,
   ConfirmDialogModule,
   InputTextModule,
+  InputGroupModule,
+  InputGroupAddonModule,
   ProgressSpinnerModule,
   IconFieldModule,
   InputIconModule,

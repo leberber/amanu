@@ -167,6 +167,147 @@
           <div class="map-wrapper">
             <div class="map-container" id="batching-map"></div>
 
+            <!-- Trucks & Weight Info (Top Left) -->
+            @if (smartDrivers().length > 0 || pendingOrders().length > 0) {
+              <div class="map-info-panel" @fadeIn>
+                <div class="map-info-panel__section">
+                  <div class="map-info-panel__header">
+                    <i class="pi pi-truck"></i>
+                    <span>{{ 'admin.batching.available_trucks' | translate }}</span>
+                  </div>
+                  @if (smartDrivers().length > 0) {
+                    <div class="map-info-panel__items">
+                      @for (driver of smartDrivers(); track driver.id) {
+                        <div class="map-info-panel__item">
+                          <span class="map-info-panel__driver">{{ driver.name }}</span>
+                          <span class="map-info-panel__capacity">{{ driver.capacity_kg }} kg</span>
+                        </div>
+                      }
+                    </div>
+                    <div class="map-info-panel__total">
+                      <span>{{ 'admin.batching.total_capacity' | translate }}:</span>
+                      <strong>{{ totalTruckCapacity() | number:'1.0-0' }} kg</strong>
+                    </div>
+                  } @else {
+                    <div class="map-info-panel__empty">
+                      <span>{{ 'admin.batching.no_trucks' | translate }}</span>
+                    </div>
+                  }
+                </div>
+
+                <div class="map-info-panel__divider"></div>
+
+                <div class="map-info-panel__section">
+                  <div class="map-info-panel__header">
+                    <i class="pi pi-box"></i>
+                    <span>{{ 'admin.batching.orders_weight' | translate }}</span>
+                  </div>
+                  <div class="map-info-panel__weight">
+                    <span class="map-info-panel__weight-value">{{ totalOrdersWeight() | number:'1.0-1' }} kg</span>
+                    <span class="map-info-panel__weight-count">{{ pendingOrders().length }} {{ 'admin.batching.orders' | translate }}</span>
+                  </div>
+                </div>
+              </div>
+            }
+
+            <!-- Algorithm Settings Panel (Top Right) -->
+            <div class="map-settings" @fadeIn>
+              <button
+                class="map-settings__toggle"
+                (click)="toggleSettings()"
+                pTooltip="{{ 'admin.batching.algorithm_settings' | translate }}"
+                tooltipPosition="left">
+                <i class="pi pi-cog"></i>
+              </button>
+
+              @if (showSettings()) {
+                <div class="map-settings__panel" @fadeIn>
+                  <div class="map-settings__header">
+                    <span>{{ 'admin.batching.algorithm_settings' | translate }}</span>
+                    <button class="map-settings__close" (click)="toggleSettings()">
+                      <i class="pi pi-times"></i>
+                    </button>
+                  </div>
+
+                  <div class="map-settings__body">
+                    <!-- Strategy -->
+                    <div class="map-settings__field">
+                      <label>{{ 'admin.batching.settings.strategy' | translate }}</label>
+                      <p-select
+                        [options]="strategyOptions"
+                        [ngModel]="algorithmSettings().strategy"
+                        (ngModelChange)="updateSetting('strategy', $event)"
+                        optionLabel="label"
+                        optionValue="value"
+                        [style]="{ width: '100%' }">
+                      </p-select>
+                    </div>
+
+                    <!-- Grouping Mode -->
+                    <div class="map-settings__field">
+                      <label>{{ 'admin.batching.settings.grouping_mode' | translate }}</label>
+                      <p-select
+                        [options]="groupingModeOptions"
+                        [ngModel]="algorithmSettings().groupingMode"
+                        (ngModelChange)="updateSetting('groupingMode', $event)"
+                        optionLabel="label"
+                        optionValue="value"
+                        [style]="{ width: '100%' }">
+                      </p-select>
+                    </div>
+
+                    <!-- Max Orders per Batch -->
+                    <div class="map-settings__field">
+                      <label>{{ 'admin.batching.settings.max_orders' | translate }}</label>
+                      <input
+                        pInputText
+                        type="number"
+                        [ngModel]="algorithmSettings().maxOrders"
+                        (ngModelChange)="updateSetting('maxOrders', $event)"
+                        [placeholder]="'admin.batching.settings.unlimited' | translate"
+                        min="1"
+                        max="20"
+                        class="w-full">
+                    </div>
+
+                    <!-- Max Weight per Batch -->
+                    <div class="map-settings__field">
+                      <label>{{ 'admin.batching.settings.max_weight' | translate }}</label>
+                      <p-inputgroup>
+                        <input
+                          pInputText
+                          type="number"
+                          [ngModel]="algorithmSettings().maxWeight"
+                          (ngModelChange)="updateSetting('maxWeight', $event)"
+                          [placeholder]="'admin.batching.settings.auto' | translate"
+                          min="50"
+                          max="2000">
+                        <p-inputgroup-addon>kg</p-inputgroup-addon>
+                      </p-inputgroup>
+                    </div>
+
+                    <!-- Heading Tolerance (angle variance for grouping) -->
+                    @if (algorithmSettings().groupingMode !== 'corridor_only') {
+                      <div class="map-settings__field">
+                        <label>{{ 'admin.batching.settings.heading_tolerance' | translate }}</label>
+                        <p-inputgroup>
+                          <input
+                            pInputText
+                            type="number"
+                            [ngModel]="algorithmSettings().headingTolerance"
+                            (ngModelChange)="updateSetting('headingTolerance', $event)"
+                            min="10"
+                            max="90">
+                          <p-inputgroup-addon>°</p-inputgroup-addon>
+                        </p-inputgroup>
+                        <small class="map-settings__hint">{{ 'admin.batching.settings.heading_hint' | translate }}</small>
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+
             <!-- Smart Batch Legend with Toggle -->
             @if (smartBatchingActive() && smartBatches().length > 0) {
               <div class="map-legend map-legend--smart" @fadeIn>

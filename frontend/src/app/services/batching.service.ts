@@ -251,12 +251,26 @@ export class BatchingService {
   // ==================== Smart Batching ====================
 
   /**
+   * Smart batching algorithm parameters
+   */
+  buildSmartBatchingParams(params: SmartBatchingParams): string {
+    const queryParams: string[] = [];
+    if (params.strategy) queryParams.push(`strategy=${params.strategy}`);
+    if (params.maxWeight) queryParams.push(`max_weight=${params.maxWeight}`);
+    if (params.maxOrders) queryParams.push(`max_orders=${params.maxOrders}`);
+    if (params.groupingMode) queryParams.push(`grouping_mode=${params.groupingMode}`);
+    if (params.headingTolerance) queryParams.push(`heading_tolerance=${params.headingTolerance}`);
+    return queryParams.length > 0 ? '?' + queryParams.join('&') : '';
+  }
+
+  /**
    * Preview smart corridor-based batching
    * Groups orders by corridor (road) and sorts by distance
    */
-  previewSmartBatching(strategy: 'farthest_first' | 'nearest_first' = 'farthest_first'): Observable<SmartBatchingResponse> {
+  previewSmartBatching(params: SmartBatchingParams = {}): Observable<SmartBatchingResponse> {
+    const queryString = this.buildSmartBatchingParams(params);
     return this.http.get<SmartBatchingResponse>(
-      `${this.apiUrl}${API_ENDPOINTS.SMART_PREVIEW}?strategy=${strategy}`
+      `${this.apiUrl}${API_ENDPOINTS.SMART_PREVIEW}${queryString}`
     );
   }
 
@@ -264,9 +278,10 @@ export class BatchingService {
    * Run smart batching and create trips
    * Uses corridors, driver capacity, and distance-based ordering
    */
-  runSmartBatching(strategy: 'farthest_first' | 'nearest_first' = 'farthest_first'): Observable<SmartBatchingResponse> {
+  runSmartBatching(params: SmartBatchingParams = {}): Observable<SmartBatchingResponse> {
+    const queryString = this.buildSmartBatchingParams(params);
     return this.http.post<SmartBatchingResponse>(
-      `${this.apiUrl}${API_ENDPOINTS.SMART_RUN}?strategy=${strategy}`,
+      `${this.apiUrl}${API_ENDPOINTS.SMART_RUN}${queryString}`,
       {}
     ).pipe(
       tap(() => {
@@ -399,4 +414,12 @@ export interface ResetTripsResponse {
   message: string;
   trips_deleted: number;
   orders_reset: number;
+}
+
+export interface SmartBatchingParams {
+  strategy?: 'farthest_first' | 'nearest_first';
+  maxWeight?: number;
+  maxOrders?: number;
+  groupingMode?: 'corridor_and_heading' | 'corridor_only' | 'heading_only';
+  headingTolerance?: number;
 }

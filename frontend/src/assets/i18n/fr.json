@@ -2001,7 +2001,22 @@
       "reinitialize_confirm": "Réinitialiser toutes les tournées? Les commandes seront remises en attente.",
       "reinitialize_header": "Réinitialiser les tournées",
       "reset_success": "{{orders}} commandes réinitialisées avec succès",
-      "reset_error": "Échec de la réinitialisation des tournées"
+      "reset_error": "Échec de la réinitialisation des tournées",
+      "available_trucks": "Camions Disponibles",
+      "total_capacity": "Capacité Totale",
+      "no_trucks": "Aucun camion disponible",
+      "orders_weight": "Poids des Commandes",
+      "algorithm_settings": "Paramètres de l'Algorithme",
+      "settings": {
+        "strategy": "Stratégie de Route",
+        "grouping_mode": "Mode de Groupement",
+        "max_orders": "Commandes Max par Lot",
+        "max_weight": "Poids Max par Lot",
+        "heading_tolerance": "Tolérance de Direction",
+        "heading_hint": "Angle de variance autorisé pour grouper les commandes allant dans la même direction",
+        "unlimited": "Illimité",
+        "auto": "Auto (capacité véhicule)"
+      }
     }
   },
   "footer": {

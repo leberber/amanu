@@ -111,11 +111,46 @@ export class AdminBatchingComponent implements OnInit {
   stats = this.batchingService.stats;
   trips = this.batchingService.trips;
   drivers = this.batchingService.drivers;
+  smartDrivers = signal<{ id: number; name: string; capacity_kg: number; vehicle_type: string }[]>([]);
 
   filteredTrips = computed(() => {
     const status = this.statusFilter();
     return status ? this.trips().filter(t => t.status === status) : this.trips();
   });
+
+  // Total weight of all pending orders
+  totalOrdersWeight = computed(() => {
+    return this.pendingOrders().reduce((sum, order) => sum + order.weight_kg, 0);
+  });
+
+  // Total capacity of all available trucks
+  totalTruckCapacity = computed(() => {
+    return this.smartDrivers().reduce((sum, driver) => sum + driver.capacity_kg, 0);
+  });
+
+  // ==================== Algorithm Settings ====================
+  showSettings = signal(false);
+
+  // Algorithm parameters with defaults
+  algorithmSettings = signal({
+    strategy: 'farthest_first' as 'farthest_first' | 'nearest_first',
+    maxOrders: null as number | null,
+    maxWeight: null as number | null,
+    groupingMode: 'corridor_and_heading' as 'corridor_and_heading' | 'corridor_only' | 'heading_only',
+    headingTolerance: 30
+  });
+
+  // Options for dropdowns
+  strategyOptions = [
+    { label: 'Farthest First (Recommended)', value: 'farthest_first' },
+    { label: 'Nearest First', value: 'nearest_first' }
+  ];
+
+  groupingModeOptions = [
+    { label: 'Corridor + Heading', value: 'corridor_and_heading' },
+    { label: 'Corridor Only', value: 'corridor_only' },
+    { label: 'Heading Only', value: 'heading_only' }
+  ];
 
   constructor() {
     // Initialize map when on map tab
@@ -229,16 +264,36 @@ export class AdminBatchingComponent implements OnInit {
     if (bounds.isValid()) this.map.fitBounds(bounds, { padding: [50, 50] });
   }
 
-  private createOrderMarker(order: PendingOrder, color: string, style: typeof MARKER_STYLES.default, showColorDot = false): L.CircleMarker {
-    const marker = L.circleMarker([order.latitude!, order.longitude!], {
-      radius: style.radius,
-      fillColor: color,
-      color: '#fff',
-      weight: style.weight,
-      opacity: 1,
-      fillOpacity: 0.9
+  private createOrderMarker(order: PendingOrder, color: string, _style: typeof MARKER_STYLES.default, showColorDot = false): L.Marker {
+    // Format weight for display
+    const weightDisplay = order.weight_kg >= 10
+      ? Math.round(order.weight_kg).toString()
+      : order.weight_kg.toFixed(1);
+
+    // Use same size as smart batch markers (36px)
+    const icon = L.divIcon({
+      className: 'weight-marker',
+      html: `
+        <div style="
+          width: 36px;
+          height: 36px;
+          background: ${color};
+          border: 3px solid #fff;
+          border-radius: 50%;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #fff;
+          font-size: 10px;
+          font-weight: 700;
+        ">${weightDisplay}</div>
+      `,
+      iconSize: [36, 36],
+      iconAnchor: [18, 18]
     });
 
+    const marker = L.marker([order.latitude!, order.longitude!], { icon });
     marker.bindPopup(this.createOrderPopup(order, showColorDot ? color : undefined));
     return marker;
   }
@@ -262,11 +317,30 @@ export class AdminBatchingComponent implements OnInit {
 
   // ==================== Smart Batching ====================
 
+  toggleSettings(): void {
+    this.showSettings.update(v => !v);
+  }
+
+  updateSetting(key: string, value: unknown): void {
+    this.algorithmSettings.update(settings => ({ ...settings, [key]: value }));
+  }
+
+  private getSmartBatchingParams() {
+    const settings = this.algorithmSettings();
+    return {
+      strategy: settings.strategy,
+      maxOrders: settings.maxOrders || undefined,
+      maxWeight: settings.maxWeight || undefined,
+      groupingMode: settings.groupingMode,
+      headingTolerance: settings.headingTolerance
+    };
+  }
+
   previewSmartBatching(): void {
     this.runningSmartBatch.set(true);
 
     // Load both batches and customer routes
-    this.batchingService.previewSmartBatching('farthest_first').pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+    this.batchingService.previewSmartBatching(this.getSmartBatchingParams()).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (response) => {
         if (response.success && response.batches.length > 0) {
           this.smartBatches.set(response.batches);
@@ -307,7 +381,7 @@ export class AdminBatchingComponent implements OnInit {
 
   runSmartBatching(): void {
     this.submittingBatches.set(true);
-    this.batchingService.runSmartBatching('farthest_first').pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+    this.batchingService.runSmartBatching(this.getSmartBatchingParams()).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (response) => {
         this.submittingBatches.set(false);
         if (response.success) {
@@ -390,18 +464,38 @@ export class AdminBatchingComponent implements OnInit {
       batch.stops.forEach((stop, stopIndex) => {
         if (!stop.latitude || !stop.longitude) return;
 
-        // Create colored marker for this stop
+        // Create colored marker for this stop with weight displayed
         setTimeout(() => {
           if (!this.markersLayer) return;
 
-          const marker = L.circleMarker([stop.latitude!, stop.longitude!], {
-            radius: 10,
-            fillColor: color,
-            color: '#fff',
-            weight: 2,
-            opacity: 1,
-            fillOpacity: 0.9
+          // Format weight for display (round to nearest integer if >= 10, else 1 decimal)
+          const weightDisplay = stop.weight_kg >= 10
+            ? Math.round(stop.weight_kg).toString()
+            : stop.weight_kg.toFixed(1);
+
+          const icon = L.divIcon({
+            className: 'weight-marker',
+            html: `
+              <div style="
+                width: 36px;
+                height: 36px;
+                background: ${color};
+                border: 3px solid #fff;
+                border-radius: 50%;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: #fff;
+                font-size: 10px;
+                font-weight: 700;
+              ">${weightDisplay}</div>
+            `,
+            iconSize: [36, 36],
+            iconAnchor: [18, 18]
           });
+
+          const marker = L.marker([stop.latitude!, stop.longitude!], { icon });
 
           marker.bindPopup(`
             <div style="min-width:180px;">
@@ -632,6 +726,12 @@ export class AdminBatchingComponent implements OnInit {
     });
     this.batchingService.getTrips().pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
     this.batchingService.getDrivers().pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
+    // Load smart drivers with capacity info
+    this.batchingService.getSmartDrivers().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (response) => {
+        this.smartDrivers.set(response.drivers);
+      }
+    });
   }
 
   loadPendingOrders(): void {

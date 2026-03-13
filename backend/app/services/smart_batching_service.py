@@ -190,16 +190,25 @@ class SmartBatchingService:
     def create_smart_batches(
         self,
         max_weight_per_batch: Optional[float] = None,
-        strategy: str = "farthest_first"
+        max_orders_per_batch: Optional[int] = None,
+        strategy: str = "farthest_first",
+        grouping_mode: str = "corridor_and_heading",
+        heading_tolerance: float = 30.0
     ) -> Dict:
         """
         Create optimized batches from pending orders.
 
         Args:
             max_weight_per_batch: Override driver capacity (optional)
+            max_orders_per_batch: Maximum orders per batch (optional, default unlimited)
             strategy: "farthest_first" (default) or "nearest_first"
                 - farthest_first: Go to farthest customer first, deliver on way back
                 - nearest_first: Start with nearest, work outward
+            grouping_mode: How to group orders
+                - "corridor_and_heading": Group by corridor then sort by heading (default)
+                - "corridor_only": Group by corridor, sort by distance only
+                - "heading_only": Ignore corridor, group by heading ranges
+            heading_tolerance: Degrees tolerance for heading-based grouping (default 30)
 
         Returns:
             Dict with batches grouped by corridor
@@ -228,28 +237,36 @@ class SmartBatchingService:
                 "summary": {"total_orders": 0, "total_batches": 0}
             }
 
-        # Group by corridor
-        corridors = defaultdict(list)
-        for order in orders:
-            corridors[order.corridor].append(order)
+        # Group orders based on grouping_mode
+        if grouping_mode == "heading_only":
+            # Group by heading ranges (ignoring corridor)
+            corridors = self._group_by_heading(orders, heading_tolerance)
+        else:
+            # Group by corridor (default)
+            corridors = defaultdict(list)
+            for order in orders:
+                corridors[order.corridor].append(order)
 
-        # Sort each corridor by heading first, then by distance
-        # This groups customers going in similar directions together
-        # farthest_first: descending distance (farthest first = first stop)
-        # nearest_first: ascending distance (nearest first = first stop)
+        # Sort each corridor based on mode
         reverse_distance = (strategy == "farthest_first")
         for corridor in corridors:
-            # Sort by heading (to group similar directions), then by distance
-            corridors[corridor].sort(
-                key=lambda x: (x.heading, -x.distance_meters if reverse_distance else x.distance_meters)
-            )
+            if grouping_mode == "corridor_only":
+                # Sort by distance only
+                corridors[corridor].sort(
+                    key=lambda x: -x.distance_meters if reverse_distance else x.distance_meters
+                )
+            else:
+                # Sort by heading (to group similar directions), then by distance
+                corridors[corridor].sort(
+                    key=lambda x: (x.heading, -x.distance_meters if reverse_distance else x.distance_meters)
+                )
 
-        # Create batches respecting capacity
+        # Create batches respecting capacity and max orders
         all_batches = []
 
         for corridor, corridor_orders in corridors.items():
             corridor_batches = self._create_batches_for_corridor(
-                corridor, corridor_orders, batch_capacity
+                corridor, corridor_orders, batch_capacity, max_orders_per_batch
             )
             all_batches.extend(corridor_batches)
 
@@ -275,23 +292,91 @@ class SmartBatchingService:
                 },
                 "drivers_available": len(drivers),
                 "batch_capacity_kg": batch_capacity,
-                "strategy": strategy
+                "max_orders_per_batch": max_orders_per_batch,
+                "strategy": strategy,
+                "grouping_mode": grouping_mode,
+                "heading_tolerance": heading_tolerance
             }
         }
+
+    def _group_by_heading(
+        self,
+        orders: List[OrderWithRoute],
+        tolerance: float
+    ) -> Dict[str, List[OrderWithRoute]]:
+        """
+        Group orders by heading ranges instead of corridor.
+
+        Args:
+            orders: List of orders with route data
+            tolerance: Degrees tolerance for grouping (e.g., 30 means ±15 degrees)
+
+        Returns:
+            Dict with heading-based group names as keys
+        """
+        if not orders:
+            return {}
+
+        # Sort orders by heading
+        sorted_orders = sorted(orders, key=lambda x: x.heading)
+
+        groups = defaultdict(list)
+        current_group_heading = None
+        current_group_name = None
+
+        for order in sorted_orders:
+            if current_group_heading is None:
+                # Start first group
+                current_group_heading = order.heading
+                current_group_name = self._heading_to_direction(order.heading)
+                groups[current_group_name].append(order)
+            elif abs(order.heading - current_group_heading) <= tolerance:
+                # Add to current group
+                groups[current_group_name].append(order)
+            else:
+                # Start new group
+                current_group_heading = order.heading
+                current_group_name = self._heading_to_direction(order.heading)
+                groups[current_group_name].append(order)
+
+        return groups
+
+    def _heading_to_direction(self, heading: float) -> str:
+        """Convert heading (0-360) to cardinal direction name."""
+        if heading < 22.5 or heading >= 337.5:
+            return "Direction Nord"
+        elif heading < 67.5:
+            return "Direction Nord-Est"
+        elif heading < 112.5:
+            return "Direction Est"
+        elif heading < 157.5:
+            return "Direction Sud-Est"
+        elif heading < 202.5:
+            return "Direction Sud"
+        elif heading < 247.5:
+            return "Direction Sud-Ouest"
+        elif heading < 292.5:
+            return "Direction Ouest"
+        else:
+            return "Direction Nord-Ouest"
 
     def _create_batches_for_corridor(
         self,
         corridor: str,
         orders: List[OrderWithRoute],
-        capacity_kg: float
+        capacity_kg: float,
+        max_orders: Optional[int] = None
     ) -> List[SmartBatch]:
-        """Create batches for a single corridor, respecting capacity."""
+        """Create batches for a single corridor, respecting capacity and max orders."""
         batches = []
         current_batch = SmartBatch(corridor=corridor)
 
         for order in orders:
-            # Check if order fits in current batch
-            if current_batch.total_weight_kg + order.weight_kg > capacity_kg:
+            # Check if order fits in current batch (weight and order count)
+            weight_exceeded = current_batch.total_weight_kg + order.weight_kg > capacity_kg
+            orders_exceeded = max_orders and current_batch.order_count >= max_orders
+
+            if weight_exceeded or orders_exceeded:
                 # Save current batch if it has orders
                 if current_batch.orders:
                     batches.append(current_batch)
@@ -439,19 +524,36 @@ class SmartBatchingService:
         }
 
 
-def preview_smart_batching(session: Session, strategy: str = "farthest_first") -> Dict:
+def preview_smart_batching(
+    session: Session,
+    strategy: str = "farthest_first",
+    max_weight_per_batch: Optional[float] = None,
+    max_orders_per_batch: Optional[int] = None,
+    grouping_mode: str = "corridor_and_heading",
+    heading_tolerance: float = 30.0
+) -> Dict:
     """
     Preview smart batching without creating trips.
     Useful for admin to review before confirming.
     """
     service = SmartBatchingService(session)
-    return service.create_smart_batches(strategy=strategy)
+    return service.create_smart_batches(
+        max_weight_per_batch=max_weight_per_batch,
+        max_orders_per_batch=max_orders_per_batch,
+        strategy=strategy,
+        grouping_mode=grouping_mode,
+        heading_tolerance=heading_tolerance
+    )
 
 
 def run_smart_batching(
     session: Session,
     created_by_id: Optional[int] = None,
-    strategy: str = "farthest_first"
+    strategy: str = "farthest_first",
+    max_weight_per_batch: Optional[float] = None,
+    max_orders_per_batch: Optional[int] = None,
+    grouping_mode: str = "corridor_and_heading",
+    heading_tolerance: float = 30.0
 ) -> Dict:
     """
     Run smart batching and create trips.
@@ -459,7 +561,13 @@ def run_smart_batching(
     service = SmartBatchingService(session)
 
     # Create batches
-    result = service.create_smart_batches(strategy=strategy)
+    result = service.create_smart_batches(
+        max_weight_per_batch=max_weight_per_batch,
+        max_orders_per_batch=max_orders_per_batch,
+        strategy=strategy,
+        grouping_mode=grouping_mode,
+        heading_tolerance=heading_tolerance
+    )
 
     if not result.get("success") or not result.get("batches"):
         return result
