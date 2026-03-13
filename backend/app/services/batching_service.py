@@ -13,6 +13,7 @@ from app.models.trip import Trip, TripStop, TripStatus, StopStatus
 from app.models.driver import Driver, DriverVehicle, DriverStatus
 from app.models.product import Product
 from app.models.shipping import H3DeliveryZone
+from app.models.customer_route import CustomerRoute
 
 
 # Configuration constants
@@ -343,6 +344,7 @@ def get_pending_orders_with_details(session: Session) -> list[dict]:
     """
     Get all pending batchable orders with details for the UI.
     Returns order info needed for drag-drop interface including coordinates for map display.
+    Includes corridor and heading from pre-computed customer routes.
     """
     orders = get_pending_batchable_orders(session)
 
@@ -351,11 +353,20 @@ def get_pending_orders_with_details(session: Session) -> list[dict]:
         weight_kg = calculate_order_weight(order, session)
         zone = get_order_h3_zone(order, session)
 
+        # Get customer route data
+        route = session.exec(
+            select(CustomerRoute).where(CustomerRoute.user_id == order.user_id)
+        ).first()
+
         result.append({
             "id": order.id,
             "customer_name": order.user.full_name if order.user else "Unknown",
             "address": order.shipping_address,
             "zone": zone or "unknown",
+            "corridor": route.corridor if route else None,
+            "heading": round(route.heading, 1) if route and route.heading else None,
+            "distance_km": route.distance_km if route else None,
+            "duration_min": route.duration_min if route else None,
             "shipping_cost": float(order.shipping_cost) if order.shipping_cost else 0,
             "weight_kg": round(weight_kg, 2),
             "created_at": order.created_at.isoformat() if order.created_at else None,

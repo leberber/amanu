@@ -77,6 +77,16 @@
 
           @if (activeTab() === 'map') {
             <div class="flex align-items-center gap-2">
+              <!-- Toggle Customer Paths -->
+              <button
+                pButton
+                [icon]="showCustomerPaths() ? 'pi pi-eye-slash' : 'pi pi-eye'"
+                class="p-button-outlined p-button-sm"
+                [class.p-button-info]="showCustomerPaths()"
+                pTooltip="{{ showCustomerPaths() ? 'Hide Routes' : 'Show All Routes' }}"
+                (click)="toggleCustomerPaths()">
+              </button>
+
               @if (!smartBatchingActive()) {
                 <!-- Reinitialize Button -->
                 <button

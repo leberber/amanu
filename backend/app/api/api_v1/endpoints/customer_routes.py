@@ -2,8 +2,9 @@
 Customer Routes API endpoints.
 Fetch and manage routes from depot to customers using Google Directions API.
 """
+import json
 from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel import Session, select
+from sqlmodel import Session, select, text
 from typing import List, Optional
 from pydantic import BaseModel
 
@@ -67,6 +68,19 @@ class CorridorStats(BaseModel):
     avg_distance_km: float
 
 
+class CustomerRouteWithGeometry(BaseModel):
+    """Route with coordinates for map display."""
+    id: int
+    user_id: int
+    distance_meters: int
+    duration_seconds: int
+    distance_km: float
+    duration_min: float
+    heading: Optional[float] = None
+    corridor: Optional[str] = None
+    coordinates: List[List[float]] = []  # [[lng, lat], [lng, lat], ...]
+
+
 # Endpoints
 
 @router.get("/", response_model=List[CustomerRouteResponse])
@@ -85,6 +99,52 @@ def list_routes(
         routes = get_all_customer_routes(session)
 
     return [CustomerRouteResponse.from_route(r) for r in routes]
+
+
+@router.get("/with-geometry", response_model=List[CustomerRouteWithGeometry])
+def list_routes_with_geometry(
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    List all customer routes with geometry coordinates for map display.
+    Returns coordinates as [[lng, lat], ...] arrays.
+    Admin only.
+    """
+    if current_user.role != UserRole.ADMIN:
+        raise HTTPException(status_code=403, detail="Admin access required")
+
+    # Query routes with geometry as GeoJSON
+    result = session.exec(text("""
+        SELECT
+            id, user_id, distance_meters, duration_seconds,
+            heading, corridor,
+            ST_AsGeoJSON(route_geom)::json as geojson
+        FROM customer_routes
+        WHERE route_geom IS NOT NULL
+        ORDER BY corridor, heading
+    """))
+
+    routes = []
+    for row in result:
+        coordinates = []
+        if row[6]:  # geojson
+            geojson = row[6] if isinstance(row[6], dict) else json.loads(row[6])
+            coordinates = geojson.get('coordinates', [])
+
+        routes.append(CustomerRouteWithGeometry(
+            id=row[0],
+            user_id=row[1],
+            distance_meters=row[2],
+            duration_seconds=row[3],
+            distance_km=round(row[2] / 1000, 2),
+            duration_min=round(row[3] / 60, 1),
+            heading=row[4],
+            corridor=row[5],
+            coordinates=coordinates
+        ))
+
+    return routes
 
 
 @router.get("/stats", response_model=List[CorridorStats])

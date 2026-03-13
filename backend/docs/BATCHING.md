@@ -42,28 +42,59 @@ The `corridor` is a human-readable label combining direction with the customer's
 
 ## Batching Logic
 
-### 1. Group by Corridor
+The smart batching system uses **corridor + heading + distance** for optimal grouping.
+
+### 1. Group by Corridor (Primary)
 Orders are first grouped by corridor (destination commune area).
+- "Direction Ouadhia" - all customers in Ouadhia
+- "Direction Tizi-Ouzou" - all customers in Tizi-Ouzou
 
-### 2. Sort by Heading within Corridor
-Within each corridor, customers are sorted by heading to create a logical route order.
+### 2. Sort by Heading (Secondary)
+Within each corridor, customers are sorted by heading (bearing from depot).
+This groups customers going in similar directions together.
 
-### 3. Sort by Distance
-Finally, sort by distance (nearest or farthest first depending on strategy).
+### 3. Sort by Distance (Tertiary)
+Finally, sort by distance based on strategy:
+- `farthest_first`: Farthest customer first, deliver on way back (recommended)
+- `nearest_first`: Nearest customer first, work outward
+
+### 4. Respect Vehicle Capacity
+Batches are split when they exceed driver vehicle capacity.
 
 ### Example
 
 ```
 Corridor: "Direction Ouadhia" (27 customers)
-├── Customer A: 2.5 km, heading 125°
-├── Customer B: 3.2 km, heading 128°
-├── Customer C: 4.1 km, heading 130°
-└── ... sorted by heading, then distance
+├── Batch 1 (heading 124-130°, 450kg)
+│   ├── Customer A: 12 km, heading 124°
+│   ├── Customer B: 10 km, heading 126°
+│   └── Customer C: 8 km, heading 130°
+├── Batch 2 (heading 295-302°, 380kg)
+│   ├── Customer D: 5 km, heading 295°
+│   └── Customer E: 3 km, heading 302°
+└── ...
 
 Corridor: "Direction Tizi-Ouzou" (10 customers)
-├── Customer X: 5.0 km, heading 302°
-├── Customer Y: 6.3 km, heading 305°
+├── Batch 1 (heading 302-308°, 420kg)
+│   ├── Customer X: 6 km, heading 302°
+│   └── Customer Y: 4 km, heading 308°
 └── ...
+```
+
+### Response includes heading info
+
+```json
+{
+  "corridor": "Direction Ouadhia",
+  "order_count": 3,
+  "heading_range": {"min": 124.0, "max": 130.0},
+  "total_distance_km": 12.5,
+  "stops": [
+    {"customer_name": "A", "heading": 124.0, "distance_km": 12.0},
+    {"customer_name": "B", "heading": 126.0, "distance_km": 10.0},
+    {"customer_name": "C", "heading": 130.0, "distance_km": 8.0}
+  ]
+}
 ```
 
 ## API Endpoints

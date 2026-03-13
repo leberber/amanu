@@ -91,6 +91,10 @@ export class AdminBatchingComponent implements OnInit {
   corridorVisibility = signal<Record<string, boolean>>({});
   private corridorLayers: Record<string, { markers: L.Layer[], polyline: L.Polyline | null, polylines?: L.Polyline[] }> = {};
 
+  // Customer paths layer toggle
+  showCustomerPaths = signal(false);
+  private customerPathsLayer: L.LayerGroup | null = null;
+
   // Filter
   statusFilter = signal<TripStatus | null>(null);
 
@@ -155,6 +159,7 @@ export class AdminBatchingComponent implements OnInit {
     });
 
     this.setupTileLayers();
+    this.customerPathsLayer = L.layerGroup(); // Not added by default
     this.connectionsLayer = L.layerGroup().addTo(this.map);
     this.markersLayer = L.layerGroup().addTo(this.map);
     this.addWarehouseMarker();
@@ -197,10 +202,11 @@ export class AdminBatchingComponent implements OnInit {
   private destroyMap(): void {
     if (!this.map) return;
     this.map.remove();
-    this.map = this.markersLayer = this.connectionsLayer = null;
+    this.map = this.markersLayer = this.connectionsLayer = this.customerPathsLayer = null;
     this.mapInitialized.set(false);
     this.smartBatchingActive.set(false);
     this.smartBatches.set([]);
+    this.showCustomerPaths.set(false);
   }
 
   private updateMapMarkers(): void {
@@ -416,28 +422,21 @@ export class AdminBatchingComponent implements OnInit {
           this.corridorLayers[corridorKey].markers.push(marker);
         }, batchIndex * 200 + stopIndex * 80);
 
-        // Find matching route polyline and draw it
+        // Find matching route coordinates and draw it
         const coordKey = `${stop.latitude.toFixed(4)}_${stop.longitude.toFixed(4)}`;
-        const routePolyline = routeLookup.get(coordKey);
+        const routeCoords = routeLookup.get(coordKey);
 
-        if (routePolyline) {
+        if (routeCoords && routeCoords.length > 0) {
           setTimeout(() => {
             if (!this.connectionsLayer) return;
 
-            try {
-              const coordinates = this.decodePolyline(routePolyline);
-              if (coordinates.length > 0) {
-                const polyline = L.polyline(coordinates, {
-                  color: color,
-                  weight: 4,
-                  opacity: 0.7
-                });
-                polyline.addTo(this.connectionsLayer!);
-                this.corridorLayers[corridorKey].polylines?.push(polyline);
-              }
-            } catch (e) {
-              // Skip invalid polylines
-            }
+            const polyline = L.polyline(routeCoords, {
+              color: color,
+              weight: 4,
+              opacity: 0.7
+            });
+            polyline.addTo(this.connectionsLayer!);
+            this.corridorLayers[corridorKey].polylines?.push(polyline);
           }, batchIndex * 200 + stopIndex * 80 + 50);
         }
       });
@@ -448,26 +447,26 @@ export class AdminBatchingComponent implements OnInit {
   }
 
   /**
-   * Build a lookup map from coordinates to route polyline
+   * Build a lookup map from coordinates to route coordinates array
    */
-  private buildRouteLookup(): Map<string, string> {
-    const lookup = new Map<string, string>();
+  private buildRouteLookup(): Map<string, [number, number][]> {
+    const lookup = new Map<string, [number, number][]>();
     const routes = this.customerRoutes();
 
     routes.forEach(route => {
-      if (!route.route_polyline) return;
+      if (!route.coordinates || route.coordinates.length < 2) return;
 
-      // Decode polyline to get end coordinates (customer location)
-      try {
-        const coords = this.decodePolyline(route.route_polyline);
-        if (coords.length > 0) {
-          const endCoord = coords[coords.length - 1];
-          const key = `${endCoord[0].toFixed(4)}_${endCoord[1].toFixed(4)}`;
-          lookup.set(key, route.route_polyline);
-        }
-      } catch (e) {
-        // Skip invalid routes
-      }
+      // Get end coordinates (customer location) - coordinates are [lng, lat]
+      const endCoord = route.coordinates[route.coordinates.length - 1];
+      // Convert to [lat, lng] for the key
+      const key = `${endCoord[1].toFixed(4)}_${endCoord[0].toFixed(4)}`;
+
+      // Convert all coordinates to [lat, lng] for Leaflet
+      const latLngs: [number, number][] = route.coordinates.map(
+        coord => [coord[1], coord[0]] as [number, number]
+      );
+
+      lookup.set(key, latLngs);
     });
 
     return lookup;
@@ -546,6 +545,63 @@ export class AdminBatchingComponent implements OnInit {
     }
 
     return coordinates;
+  }
+
+  /**
+   * Toggle showing all customer paths on the map
+   */
+  toggleCustomerPaths(): void {
+    const show = !this.showCustomerPaths();
+    this.showCustomerPaths.set(show);
+
+    if (!this.map || !this.customerPathsLayer) return;
+
+    if (show) {
+      // Load and display customer routes
+      this.batchingService.getCustomerRoutes().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+        next: (routes) => {
+          this.customerPathsLayer?.clearLayers();
+
+          routes.forEach((route, index) => {
+            if (!route.coordinates || route.coordinates.length < 2) return;
+
+            // Convert [lng, lat] to [lat, lng] for Leaflet
+            const latLngs: [number, number][] = route.coordinates.map(
+              coord => [coord[1], coord[0]] as [number, number]
+            );
+
+            const color = BATCH_COLORS[index % BATCH_COLORS.length];
+            const polyline = L.polyline(latLngs, {
+              color: color,
+              weight: 3,
+              opacity: 0.6
+            });
+
+            polyline.bindPopup(`
+              <div style="min-width:150px;">
+                <strong>${route.corridor || 'Unknown'}</strong><br>
+                <span style="color:#666;">Distance: ${route.distance_km} km</span><br>
+                <span style="color:#666;">Duration: ${route.duration_min} min</span><br>
+                <span style="color:#666;">Heading: ${route.heading?.toFixed(1) || 'N/A'}°</span>
+              </div>
+            `);
+
+            polyline.addTo(this.customerPathsLayer!);
+          });
+
+          this.customerPathsLayer?.addTo(this.map!);
+          this.toast.showSuccess('admin.batching.paths_loaded', { count: routes.length });
+        },
+        error: () => {
+          this.showCustomerPaths.set(false);
+          this.toast.showError('admin.batching.paths_error');
+        }
+      });
+    } else {
+      // Hide customer paths
+      this.map.removeLayer(this.customerPathsLayer);
+      this.customerPathsLayer.clearLayers();
+    }
   }
 
   formatCorridor(corridor: string): string {

@@ -31,6 +31,7 @@ class OrderWithRoute:
     corridor: str
     distance_meters: int
     duration_seconds: int
+    heading: float = 0.0  # Direction from depot (0-360 degrees)
     latitude: Optional[float] = None
     longitude: Optional[float] = None
 
@@ -62,6 +63,20 @@ class SmartBatch:
     @property
     def order_ids(self) -> List[int]:
         return [o.order_id for o in self.orders]
+
+    @property
+    def min_heading(self) -> float:
+        """Minimum heading in this batch."""
+        if not self.orders:
+            return 0.0
+        return min(o.heading for o in self.orders)
+
+    @property
+    def max_heading(self) -> float:
+        """Maximum heading in this batch."""
+        if not self.orders:
+            return 0.0
+        return max(o.heading for o in self.orders)
 
 
 class SmartBatchingService:
@@ -144,6 +159,7 @@ class SmartBatchingService:
                 corridor=route.corridor if route else "OTHER",
                 distance_meters=route.distance_meters if route else 0,
                 duration_seconds=route.duration_seconds if route else 0,
+                heading=route.heading if route and route.heading else 0.0,
                 latitude=order.user.latitude if order.user else None,
                 longitude=order.user.longitude if order.user else None,
             ))
@@ -217,12 +233,16 @@ class SmartBatchingService:
         for order in orders:
             corridors[order.corridor].append(order)
 
-        # Sort each corridor by distance
-        # farthest_first: descending (farthest first in list = first stop)
-        # nearest_first: ascending (nearest first in list = first stop)
-        reverse = (strategy == "farthest_first")
+        # Sort each corridor by heading first, then by distance
+        # This groups customers going in similar directions together
+        # farthest_first: descending distance (farthest first = first stop)
+        # nearest_first: ascending distance (nearest first = first stop)
+        reverse_distance = (strategy == "farthest_first")
         for corridor in corridors:
-            corridors[corridor].sort(key=lambda x: x.distance_meters, reverse=reverse)
+            # Sort by heading (to group similar directions), then by distance
+            corridors[corridor].sort(
+                key=lambda x: (x.heading, -x.distance_meters if reverse_distance else x.distance_meters)
+            )
 
         # Create batches respecting capacity
         all_batches = []
@@ -301,6 +321,10 @@ class SmartBatchingService:
             "total_weight_kg": round(batch.total_weight_kg, 2),
             "total_distance_km": round(batch.total_distance_meters / 1000, 1),
             "total_earnings": round(batch.total_earnings, 2),
+            "heading_range": {
+                "min": round(batch.min_heading, 1),
+                "max": round(batch.max_heading, 1),
+            },
             "assigned_driver": {
                 "id": batch.assigned_driver.driver_id,
                 "name": batch.assigned_driver.driver_name,
@@ -316,6 +340,7 @@ class SmartBatchingService:
                     "phone": o.phone,
                     "weight_kg": round(o.weight_kg, 2),
                     "distance_km": round(o.distance_meters / 1000, 1),
+                    "heading": round(o.heading, 1),
                     "latitude": o.latitude,
                     "longitude": o.longitude,
                 }

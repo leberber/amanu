@@ -35,8 +35,9 @@ const API_ENDPOINTS = {
   SMART_PREVIEW: '/admin/batching/smart-preview',
   SMART_RUN: '/admin/batching/smart-run',
   SMART_DRIVERS: '/admin/batching/smart-drivers',
-  // Customer routes (for polylines)
-  CUSTOMER_ROUTES: '/admin/routes/'
+  // Customer routes (for map display)
+  CUSTOMER_ROUTES: '/admin/routes/',
+  CUSTOMER_ROUTES_WITH_GEOMETRY: '/admin/routes/with-geometry'
 };
 
 @Injectable({
@@ -284,10 +285,10 @@ export class BatchingService {
   }
 
   /**
-   * Get all customer routes with polylines
+   * Get all customer routes with geometry coordinates for map display
    */
   getCustomerRoutes(): Observable<CustomerRoute[]> {
-    return this.http.get<CustomerRoute[]>(`${this.apiUrl}${API_ENDPOINTS.CUSTOMER_ROUTES}`);
+    return this.http.get<CustomerRoute[]>(`${this.apiUrl}${API_ENDPOINTS.CUSTOMER_ROUTES_WITH_GEOMETRY}`);
   }
 
   /**
@@ -318,6 +319,7 @@ export interface SmartBatchStop {
   phone: string;
   weight_kg: number;
   distance_km: number;
+  heading: number;
   latitude?: number;
   longitude?: number;
 }
@@ -329,6 +331,10 @@ export interface SmartBatch {
   total_weight_kg: number;
   total_distance_km: number;
   total_earnings: number;
+  heading_range?: {
+    min: number;
+    max: number;
+  };
   assigned_driver?: {
     id: number;
     name: string;
@@ -383,10 +389,9 @@ export interface CustomerRoute {
   duration_seconds: number;
   distance_km: number;
   duration_min: number;
-  initial_heading?: number;
+  heading?: number;
   corridor?: string;
-  end_address?: string;
-  route_polyline?: string;
+  coordinates: [number, number][];  // [[lng, lat], [lng, lat], ...]
 }
 
 export interface ResetTripsResponse {
