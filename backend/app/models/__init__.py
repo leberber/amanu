@@ -52,11 +52,4 @@ from app.models.email_verification import EmailVerificationToken
 from app.models.restock import RestockItem
 
 # Customer route models (for delivery optimization)
-from app.models.customer_route import (
-    CustomerRoute, CustomerRouteCreate, CustomerRouteRead
-)
-
-# Major road models (for corridor-based batching)
-from app.models.major_road import (
-    MajorRoad, MajorRoadCreate, MajorRoadRead, MajorRoadUpdate
-)
+from app.models.customer_route import CustomerRoute

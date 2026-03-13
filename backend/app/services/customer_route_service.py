@@ -1,170 +1,173 @@
 """
 Customer Route Service
-Handles routing using OSMnx and PostGIS for corridor assignment.
+Fetches routes from Google Directions API and stores in database.
 """
-import osmnx as ox
-from shapely.geometry import LineString
-from shapely import wkb
-from geoalchemy2.shape import from_shape, to_shape
-from typing import Optional, List, Dict, Tuple
+import os
+import math
+import requests
+from typing import Optional, List, Dict
 from datetime import datetime, timezone
 from sqlmodel import Session, select
-from sqlalchemy import text
-from functools import lru_cache
 
 from app.core.config import settings
 from app.models.customer_route import CustomerRoute
-from app.models.major_road import MajorRoad
+from app.models.user import User, UserRole
+
+# Try to import polyline, fallback to manual decode
+try:
+    from polyline import decode as decode_polyline
+except ImportError:
+    def decode_polyline(encoded: str) -> List[tuple]:
+        """Decode Google polyline to list of (lat, lng) tuples."""
+        coords = []
+        index = 0
+        lat = 0
+        lng = 0
+        while index < len(encoded):
+            # Decode latitude
+            shift = 0
+            result = 0
+            while True:
+                b = ord(encoded[index]) - 63
+                index += 1
+                result |= (b & 0x1f) << shift
+                shift += 5
+                if b < 0x20:
+                    break
+            lat += (~(result >> 1) if result & 1 else result >> 1)
+
+            # Decode longitude
+            shift = 0
+            result = 0
+            while True:
+                b = ord(encoded[index]) - 63
+                index += 1
+                result |= (b & 0x1f) << shift
+                shift += 5
+                if b < 0x20:
+                    break
+            lng += (~(result >> 1) if result & 1 else result >> 1)
+
+            coords.append((lat / 1e5, lng / 1e5))
+        return coords
 
 
-# Cache for OSM graph (loaded once)
-_osm_graph = None
-_osm_graph_loaded = False
-
-
-def get_osm_graph():
+def calculate_heading(lat1: float, lng1: float, lat2: float, lng2: float) -> float:
     """
-    Get OSMnx graph for the depot area.
-    Loaded once and cached for performance.
+    Calculate initial heading (bearing) from point 1 to point 2.
+    Returns degrees (0-360, where 0=North, 90=East, 180=South, 270=West)
     """
-    global _osm_graph, _osm_graph_loaded
+    lat1_rad = math.radians(lat1)
+    lat2_rad = math.radians(lat2)
+    delta_lng = math.radians(lng2 - lng1)
 
-    if _osm_graph_loaded:
-        return _osm_graph
+    x = math.sin(delta_lng) * math.cos(lat2_rad)
+    y = math.cos(lat1_rad) * math.sin(lat2_rad) - \
+        math.sin(lat1_rad) * math.cos(lat2_rad) * math.cos(delta_lng)
+
+    heading = math.degrees(math.atan2(x, y))
+    return (heading + 360) % 360
+
+
+def fetch_route_from_google(
+    depot_lat: float,
+    depot_lng: float,
+    customer_lat: float,
+    customer_lng: float
+) -> Optional[Dict]:
+    """
+    Fetch route from depot to customer using Google Directions API.
+
+    Returns dict with:
+        - distance_meters
+        - duration_seconds
+        - polyline
+        - heading
+    """
+    api_key = os.getenv("GOOGLE_MAPS_API_KEY")
+    if not api_key:
+        print("ERROR: GOOGLE_MAPS_API_KEY not set")
+        return None
+
+    params = {
+        "origin": f"{depot_lat},{depot_lng}",
+        "destination": f"{customer_lat},{customer_lng}",
+        "key": api_key,
+    }
 
     try:
-        print("Loading OSM graph...")
-        # Download road network around depot (25km radius)
-        _osm_graph = ox.graph_from_point(
-            (settings.DEPOT_LATITUDE, settings.DEPOT_LONGITUDE),
-            dist=25000,  # 25km radius
-            network_type='drive'
+        response = requests.get(
+            "https://maps.googleapis.com/maps/api/directions/json",
+            params=params,
+            timeout=10
         )
-        # Add travel times for routing
-        _osm_graph = ox.add_edge_speeds(_osm_graph)
-        _osm_graph = ox.add_edge_travel_times(_osm_graph)
-        _osm_graph_loaded = True
-        print(f"OSM graph loaded: {len(_osm_graph.nodes)} nodes, {len(_osm_graph.edges)} edges")
-        return _osm_graph
-    except Exception as e:
-        print(f"Error loading OSM graph: {e}")
-        _osm_graph_loaded = True  # Don't retry on error
-        return None
+        data = response.json()
 
-
-def clear_osm_cache():
-    """Clear the OSM graph cache to force reload."""
-    global _osm_graph, _osm_graph_loaded
-    _osm_graph = None
-    _osm_graph_loaded = False
-
-
-def route_to_depot(lat: float, lng: float) -> Optional[Dict]:
-    """
-    Route from a location to the depot using OSMnx.
-
-    Returns dict with route data or None if failed.
-    """
-    graph = get_osm_graph()
-    if graph is None:
-        return None
-
-    try:
-        # Find nearest nodes
-        customer_node = ox.nearest_nodes(graph, lng, lat)
-        depot_node = ox.nearest_nodes(graph, settings.DEPOT_LONGITUDE, settings.DEPOT_LATITUDE)
-
-        # Calculate shortest route by travel time
-        route_nodes = ox.shortest_path(graph, customer_node, depot_node, weight='travel_time')
-
-        if not route_nodes:
+        if data["status"] != "OK":
+            print(f"Google API error: {data['status']}")
             return None
 
-        # Build route geometry and calculate stats
-        coords = []
-        total_distance = 0
-        total_time = 0
+        route = data["routes"][0]
+        leg = route["legs"][0]
 
-        for i in range(len(route_nodes) - 1):
-            u, v = route_nodes[i], route_nodes[i + 1]
-            # Get node coordinates
-            coords.append((graph.nodes[u]['x'], graph.nodes[u]['y']))
+        # Get encoded polyline
+        polyline = route["overview_polyline"]["points"]
 
-            # Get edge data
-            edge_data = graph.get_edge_data(u, v)
-            if edge_data:
-                edge = edge_data[0] if isinstance(edge_data, dict) and 0 in edge_data else edge_data
-                total_distance += edge.get('length', 0)
-                total_time += edge.get('travel_time', 0)
+        # Decode to get first segment for heading calculation
+        coords = decode_polyline(polyline)
 
-        # Add last node
-        last_node = route_nodes[-1]
-        coords.append((graph.nodes[last_node]['x'], graph.nodes[last_node]['y']))
-
-        # Create LineString geometry
-        route_geom = LineString(coords)
+        # Calculate heading from first two points of route
+        if len(coords) >= 2:
+            heading = calculate_heading(coords[0][0], coords[0][1], coords[1][0], coords[1][1])
+        else:
+            # Fallback: direct heading from depot to customer
+            heading = calculate_heading(depot_lat, depot_lng, customer_lat, customer_lng)
 
         return {
-            'geometry': route_geom,
-            'distance_meters': int(total_distance),
-            'duration_seconds': int(total_time),
+            "distance_meters": leg["distance"]["value"],
+            "duration_seconds": leg["duration"]["value"],
+            "polyline": polyline,
+            "heading": round(heading, 1),
         }
 
     except Exception as e:
-        print(f"Error routing to depot: {e}")
+        print(f"Error fetching route from Google: {e}")
         return None
-
-
-def find_corridor(session: Session, route_geom: LineString) -> Tuple[Optional[int], Optional[str]]:
-    """
-    Find which major road the route uses most.
-    Uses PostGIS ST_Intersects to find intersecting roads,
-    then picks the one with longest intersection.
-
-    Returns (major_road_id, corridor_ref) or (None, None) if no match.
-    """
-    # Convert shapely geometry to WKT for SQL
-    route_wkt = route_geom.wkt
-
-    # Query to find intersecting major roads, ordered by intersection length
-    query = text("""
-        SELECT
-            id,
-            ref,
-            ST_Length(ST_Intersection(geom, ST_GeomFromText(:route_wkt, 4326))::geography) as intersection_length
-        FROM major_roads
-        WHERE ST_Intersects(geom, ST_GeomFromText(:route_wkt, 4326))
-          AND is_active = true
-        ORDER BY intersection_length DESC
-        LIMIT 1
-    """)
-
-    result = session.execute(query, {'route_wkt': route_wkt}).fetchone()
-
-    if result:
-        return result[0], result[1]  # id, ref
-
-    return None, None
 
 
 def fetch_and_save_route(
     session: Session,
     user_id: int,
     lat: float,
-    lng: float
+    lng: float,
+    commune: Optional[str] = None
 ) -> Optional[CustomerRoute]:
     """
-    Route from customer to depot using OSMnx and save to database.
-    Assigns corridor using PostGIS spatial intersection.
+    Fetch route from depot to customer using Google and save to database.
+
+    Args:
+        session: Database session
+        user_id: Customer user ID
+        lat: Customer latitude
+        lng: Customer longitude
+        commune: Customer commune (for corridor name)
+
+    Returns:
+        CustomerRoute or None if failed
     """
-    # Get route from OSMnx
-    route_data = route_to_depot(lat, lng)
+    # Fetch from Google
+    route_data = fetch_route_from_google(
+        settings.DEPOT_LATITUDE,
+        settings.DEPOT_LONGITUDE,
+        lat,
+        lng
+    )
 
     if route_data is None:
         return None
 
-    # Find corridor using PostGIS
-    major_road_id, corridor = find_corridor(session, route_data['geometry'])
+    # Build corridor name
+    corridor = f"Direction {commune}" if commune else None
 
     # Check if route already exists
     existing = session.exec(
@@ -173,16 +176,13 @@ def fetch_and_save_route(
 
     if existing:
         # Update existing record
-        existing.distance_meters = route_data['distance_meters']
-        existing.duration_seconds = route_data['duration_seconds']
-        existing.major_road_id = major_road_id
+        existing.distance_meters = route_data["distance_meters"]
+        existing.duration_seconds = route_data["duration_seconds"]
+        existing.route_polyline = route_data["polyline"]
+        existing.heading = route_data["heading"]
         existing.corridor = corridor
         existing.fetched_at = datetime.now(timezone.utc)
-        # Update geometry using raw SQL (SQLModel doesn't handle geometry well)
-        session.execute(
-            text("UPDATE customer_routes SET geom = ST_GeomFromText(:wkt, 4326) WHERE id = :id"),
-            {'wkt': route_data['geometry'].wkt, 'id': existing.id}
-        )
+        session.add(existing)
         session.commit()
         session.refresh(existing)
         return existing
@@ -190,23 +190,76 @@ def fetch_and_save_route(
         # Create new record
         new_route = CustomerRoute(
             user_id=user_id,
-            distance_meters=route_data['distance_meters'],
-            duration_seconds=route_data['duration_seconds'],
-            major_road_id=major_road_id,
+            distance_meters=route_data["distance_meters"],
+            duration_seconds=route_data["duration_seconds"],
+            route_polyline=route_data["polyline"],
+            heading=route_data["heading"],
             corridor=corridor,
         )
         session.add(new_route)
         session.commit()
         session.refresh(new_route)
-
-        # Update geometry using raw SQL
-        session.execute(
-            text("UPDATE customer_routes SET geom = ST_GeomFromText(:wkt, 4326) WHERE id = :id"),
-            {'wkt': route_data['geometry'].wkt, 'id': new_route.id}
-        )
-        session.commit()
-
         return new_route
+
+
+def fetch_all_customer_routes(session: Session, only_missing: bool = True) -> Dict:
+    """
+    Fetch routes for all customers with coordinates.
+
+    Args:
+        session: Database session
+        only_missing: If True, skip customers who already have routes
+
+    Returns:
+        Dict with stats (fetched, failed, skipped)
+    """
+    # Get customers with coordinates
+    customers = session.exec(
+        select(User).where(
+            User.role == UserRole.CUSTOMER,
+            User.latitude.isnot(None),
+            User.longitude.isnot(None)
+        )
+    ).all()
+
+    # Get existing routes if only_missing
+    existing_user_ids = set()
+    if only_missing:
+        existing = session.exec(select(CustomerRoute.user_id)).all()
+        existing_user_ids = set(existing)
+
+    fetched = 0
+    failed = 0
+    skipped = 0
+
+    for customer in customers:
+        if customer.id in existing_user_ids:
+            skipped += 1
+            continue
+
+        print(f"Fetching route for {customer.full_name}...")
+
+        route = fetch_and_save_route(
+            session,
+            customer.id,
+            customer.latitude,
+            customer.longitude,
+            customer.commune
+        )
+
+        if route:
+            print(f"  OK: {route.distance_km} km, heading {route.heading}°")
+            fetched += 1
+        else:
+            print(f"  FAILED")
+            failed += 1
+
+    return {
+        "total_customers": len(customers),
+        "fetched": fetched,
+        "failed": failed,
+        "skipped": skipped,
+    }
 
 
 def get_customer_route(session: Session, user_id: int) -> Optional[CustomerRoute]:
@@ -241,70 +294,11 @@ def delete_customer_route(session: Session, user_id: int) -> bool:
     return False
 
 
-def reassign_all_corridors(session: Session) -> Dict:
-    """
-    Reassign corridors for all existing customer routes.
-    Uses PostGIS to find which major road each route intersects.
-    """
+def delete_all_customer_routes(session: Session) -> int:
+    """Delete all customer routes. Returns count deleted."""
     routes = session.exec(select(CustomerRoute)).all()
-
-    if not routes:
-        return {'total_routes': 0, 'updated': 0, 'by_corridor': {}}
-
-    updated = 0
-    corridor_counts = {}
-
+    count = len(routes)
     for route in routes:
-        # Get route geometry
-        result = session.execute(
-            text("SELECT ST_AsText(geom) FROM customer_routes WHERE id = :id"),
-            {'id': route.id}
-        ).fetchone()
-
-        if result and result[0]:
-            from shapely import wkt
-            route_geom = wkt.loads(result[0])
-
-            # Find corridor
-            new_road_id, new_corridor = find_corridor(session, route_geom)
-
-            if route.corridor != new_corridor or route.major_road_id != new_road_id:
-                route.corridor = new_corridor
-                route.major_road_id = new_road_id
-                session.add(route)
-                updated += 1
-
-            corridor_name = new_corridor or 'UNKNOWN'
-            corridor_counts[corridor_name] = corridor_counts.get(corridor_name, 0) + 1
-
+        session.delete(route)
     session.commit()
-
-    return {
-        'total_routes': len(routes),
-        'updated': updated,
-        'by_corridor': corridor_counts
-    }
-
-
-def get_all_corridors(session: Session) -> List[Dict]:
-    """Get all corridors from the major_roads table."""
-    roads = session.exec(
-        select(MajorRoad).where(MajorRoad.is_active == True)
-    ).all()
-
-    return [
-        {
-            'id': road.id,
-            'ref': road.ref,
-            'name': road.name,
-            'highway_type': road.highway_type,
-            'length_km': road.length_km,
-            'color': road.color,
-        }
-        for road in roads
-    ]
-
-
-def clear_corridor_cache():
-    """No cache to clear in new implementation."""
-    pass
+    return count
