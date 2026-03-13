@@ -152,10 +152,13 @@ export class GraphBuilderComponent implements OnInit, OnDestroy {
   private addPoint(latlng: L.LatLng): void {
     const points = [...this.points(), latlng];
     this.points.set(points);
+    this.rebuildMarkers();
+    this.clearRoute();
+  }
 
-    // Add numbered marker
-    const index = points.length;
+  private createMarker(latlng: L.LatLng, index: number): L.Marker {
     const marker = L.marker(latlng, {
+      draggable: true,
       icon: L.divIcon({
         className: 'point-marker',
         html: `<div class="point-marker-inner">${index}</div>`,
@@ -164,11 +167,57 @@ export class GraphBuilderComponent implements OnInit, OnDestroy {
       })
     });
 
-    marker.bindPopup(`Point ${index}<br>${latlng.lat.toFixed(6)}, ${latlng.lng.toFixed(6)}`);
-    marker.addTo(this.markersLayer);
+    // Drag end - update point position
+    marker.on('dragend', () => {
+      const newLatLng = marker.getLatLng();
+      const points = this.points();
+      points[index - 1] = newLatLng;
+      this.points.set([...points]);
+      this.clearRoute();
+      this.messageService.add({
+        severity: 'info',
+        summary: 'Point moved',
+        detail: 'Generate route again to update',
+        life: 2000
+      });
+    });
 
-    // Clear current route when points change
-    this.clearRoute();
+    // Right-click to delete
+    marker.on('contextmenu', (e: L.LeafletMouseEvent) => {
+      if (e.originalEvent) {
+        e.originalEvent.preventDefault();
+      }
+      this.deletePoint(index - 1);
+    });
+
+    // Popup with delete option
+    marker.bindPopup(`
+      <div style="text-align: center;">
+        <b>Point ${index}</b><br>
+        ${latlng.lat.toFixed(6)}, ${latlng.lng.toFixed(6)}<br>
+        <small style="color: #666;">Drag to move · Right-click to delete</small>
+      </div>
+    `);
+
+    return marker;
+  }
+
+  private rebuildMarkers(): void {
+    this.markersLayer.clearLayers();
+    this.points().forEach((p, i) => {
+      const marker = this.createMarker(p, i + 1);
+      marker.addTo(this.markersLayer);
+    });
+  }
+
+  deletePoint(index: number): void {
+    const points = this.points();
+    if (points.length > 0) {
+      points.splice(index, 1);
+      this.points.set([...points]);
+      this.rebuildMarkers();
+      this.clearRoute();
+    }
   }
 
   clearPoints(): void {
@@ -183,19 +232,7 @@ export class GraphBuilderComponent implements OnInit, OnDestroy {
     const points = this.points();
     if (points.length > 0) {
       this.points.set(points.slice(0, -1));
-      // Rebuild markers
-      this.markersLayer.clearLayers();
-      this.points().forEach((p, i) => {
-        const marker = L.marker(p, {
-          icon: L.divIcon({
-            className: 'point-marker',
-            html: `<div class="point-marker-inner">${i + 1}</div>`,
-            iconSize: [30, 30],
-            iconAnchor: [15, 15]
-          })
-        });
-        marker.addTo(this.markersLayer);
-      });
+      this.rebuildMarkers();
       this.clearRoute();
     }
   }
@@ -236,12 +273,15 @@ export class GraphBuilderComponent implements OnInit, OnDestroy {
   async loadRoadForEdit(ref: string): Promise<void> {
     try {
       const road = await this.roadBuilderService.getRoad(ref);
+
+      // Clear current state (but don't reset editingRoad yet)
+      this.points.set([]);
+      this.markersLayer.clearLayers();
+      this.routeLayer.clearLayers();
+      this.currentRoute.set(null);
+
+      // Set editing state
       this.editingRoad.set(road);
-
-      // Clear current state
-      this.clearPoints();
-
-      // Set road name
       this.roadName.set(road.name);
 
       // Draw the road on map
@@ -265,35 +305,17 @@ export class GraphBuilderComponent implements OnInit, OnDestroy {
           provider: 'osrm'
         });
 
-        // Add start and end markers
-        const startMarker = L.marker(routeCoords[0], {
-          icon: L.divIcon({
-            className: 'point-marker',
-            html: `<div class="point-marker-inner">1</div>`,
-            iconSize: [30, 30],
-            iconAnchor: [15, 15]
-          })
-        });
-        startMarker.addTo(this.markersLayer);
-
-        const endMarker = L.marker(routeCoords[routeCoords.length - 1], {
-          icon: L.divIcon({
-            className: 'point-marker',
-            html: `<div class="point-marker-inner">2</div>`,
-            iconSize: [30, 30],
-            iconAnchor: [15, 15]
-          })
-        });
-        endMarker.addTo(this.markersLayer);
-
-        // Set points for re-routing
-        this.points.set([routeCoords[0], routeCoords[routeCoords.length - 1]]);
+        // Set start and end points (draggable)
+        const startPoint = routeCoords[0];
+        const endPoint = routeCoords[routeCoords.length - 1];
+        this.points.set([startPoint, endPoint]);
+        this.rebuildMarkers();
       }
 
       this.messageService.add({
         severity: 'info',
-        summary: 'Road loaded',
-        detail: `Editing "${road.name}"`
+        summary: 'Editing mode',
+        detail: `Loaded "${road.name}" - drag markers or add new points`
       });
     } catch (error: any) {
       this.messageService.add({

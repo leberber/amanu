@@ -27,6 +27,18 @@
   font-size: 1.25rem;
   font-weight: 600;
   color: var(--text-color);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.editing-badge {
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.2rem 0.5rem;
+  background: var(--primary-color);
+  color: white;
+  border-radius: 4px;
 }
 
 .subtitle {
@@ -232,6 +244,18 @@
   font-size: 14px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   border: 2px solid white;
+  cursor: grab;
+  transition: transform 0.15s, box-shadow 0.15s;
+
+  &:hover {
+    transform: scale(1.1);
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.4);
+  }
+
+  &:active {
+    cursor: grabbing;
+    transform: scale(1.15);
+  }
 }
 
 // Crosshair cursor on map
@@ -241,6 +265,14 @@
 
 ::ng-deep .leaflet-interactive {
   cursor: pointer !important;
+}
+
+::ng-deep .leaflet-marker-draggable {
+  cursor: grab !important;
+
+  &:active {
+    cursor: grabbing !important;
+  }
 }
 
 // Skeleton loading

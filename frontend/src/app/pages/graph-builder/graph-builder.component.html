@@ -2,8 +2,19 @@
   <!-- Top toolbar -->
   <div class="toolbar">
     <div class="toolbar-left">
-      <h2 class="title">Road Builder</h2>
-      <span class="subtitle">Click on map to add points, then generate route</span>
+      <h2 class="title">
+        Road Builder
+        @if (editingRoad()) {
+          <span class="editing-badge">Editing</span>
+        }
+      </h2>
+      <span class="subtitle">
+        @if (editingRoad()) {
+          Editing "{{ editingRoad()!.name }}" - drag markers to move, right-click to delete
+        } @else {
+          Click on map to add points, then generate route
+        }
+      </span>
     </div>
 
     <div class="toolbar-center">
