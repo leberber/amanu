@@ -9,11 +9,13 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { ToastModule } from 'primeng/toast';
 import { SelectButtonModule } from 'primeng/selectbutton';
+import { TooltipModule } from 'primeng/tooltip';
+import { BadgeModule } from 'primeng/badge';
 import { MessageService } from 'primeng/api';
 
 // App
 import { MAP_DEFAULTS, LEAFLET_TILES, LEAFLET_ASSETS, LEAFLET_ICON } from '../../core/constants/map.constants';
-import { RoadBuilderService, RouteResult } from '../../services/road-builder.service';
+import { RoadBuilderService, RouteResult, SavedRoad, SavedRoadDetail } from '../../services/road-builder.service';
 
 @Component({
   selector: 'app-graph-builder',
@@ -25,6 +27,8 @@ import { RoadBuilderService, RouteResult } from '../../services/road-builder.ser
     InputTextModule,
     ToastModule,
     SelectButtonModule,
+    TooltipModule,
+    BadgeModule,
   ],
   providers: [MessageService],
   templateUrl: './graph-builder.component.html',
@@ -34,6 +38,15 @@ import { RoadBuilderService, RouteResult } from '../../services/road-builder.ser
       transition(':enter', [
         style({ opacity: 0 }),
         animate('200ms ease-out', style({ opacity: 1 }))
+      ])
+    ]),
+    trigger('slideIn', [
+      transition(':enter', [
+        style({ transform: 'translateX(-100%)', opacity: 0 }),
+        animate('200ms ease-out', style({ transform: 'translateX(0)', opacity: 1 }))
+      ]),
+      transition(':leave', [
+        animate('150ms ease-in', style({ transform: 'translateX(-100%)', opacity: 0 }))
       ])
     ])
   ]
@@ -55,6 +68,12 @@ export class GraphBuilderComponent implements OnInit, OnDestroy {
   loading = signal(false);
   saving = signal(false);
 
+  // Roads panel state
+  showRoadsPanel = signal(false);
+  savedRoads = signal<SavedRoad[]>([]);
+  loadingRoads = signal(false);
+  editingRoad = signal<SavedRoadDetail | null>(null);
+
   // Map layer options
   layerOptions = [
     { label: 'Google', value: 'google' },
@@ -64,6 +83,7 @@ export class GraphBuilderComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.initMap();
+    this.loadSavedRoads();
   }
 
   ngOnDestroy(): void {
@@ -156,6 +176,7 @@ export class GraphBuilderComponent implements OnInit, OnDestroy {
     this.markersLayer.clearLayers();
     this.clearRoute();
     this.roadName.set('');
+    this.editingRoad.set(null);
   }
 
   removeLastPoint(): void {
@@ -182,6 +203,136 @@ export class GraphBuilderComponent implements OnInit, OnDestroy {
   private clearRoute(): void {
     this.routeLayer.clearLayers();
     this.currentRoute.set(null);
+  }
+
+  // Roads panel methods
+  toggleRoadsPanel(): void {
+    this.showRoadsPanel.set(!this.showRoadsPanel());
+    if (this.showRoadsPanel()) {
+      this.loadSavedRoads();
+      // Invalidate map size after panel animation
+      setTimeout(() => this.map.invalidateSize(), 250);
+    } else {
+      setTimeout(() => this.map.invalidateSize(), 200);
+    }
+  }
+
+  async loadSavedRoads(): Promise<void> {
+    this.loadingRoads.set(true);
+    try {
+      const roads = await this.roadBuilderService.getSavedRoads();
+      this.savedRoads.set(roads);
+    } catch (error: any) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Failed to load saved roads'
+      });
+    } finally {
+      this.loadingRoads.set(false);
+    }
+  }
+
+  async loadRoadForEdit(ref: string): Promise<void> {
+    try {
+      const road = await this.roadBuilderService.getRoad(ref);
+      this.editingRoad.set(road);
+
+      // Clear current state
+      this.clearPoints();
+
+      // Set road name
+      this.roadName.set(road.name);
+
+      // Draw the road on map
+      if (road.coordinates.length > 0) {
+        const routeCoords = road.coordinates.map(c => L.latLng(c.lat, c.lng));
+        const polyline = L.polyline(routeCoords, {
+          color: road.color || '#3B82F6',
+          weight: 5,
+          opacity: 0.8
+        });
+        polyline.addTo(this.routeLayer);
+
+        // Fit map to road
+        this.map.fitBounds(polyline.getBounds(), { padding: [50, 50] });
+
+        // Set current route for editing
+        this.currentRoute.set({
+          coordinates: road.coordinates,
+          distance_km: road.length_km,
+          duration_min: 0,
+          provider: 'osrm'
+        });
+
+        // Add start and end markers
+        const startMarker = L.marker(routeCoords[0], {
+          icon: L.divIcon({
+            className: 'point-marker',
+            html: `<div class="point-marker-inner">1</div>`,
+            iconSize: [30, 30],
+            iconAnchor: [15, 15]
+          })
+        });
+        startMarker.addTo(this.markersLayer);
+
+        const endMarker = L.marker(routeCoords[routeCoords.length - 1], {
+          icon: L.divIcon({
+            className: 'point-marker',
+            html: `<div class="point-marker-inner">2</div>`,
+            iconSize: [30, 30],
+            iconAnchor: [15, 15]
+          })
+        });
+        endMarker.addTo(this.markersLayer);
+
+        // Set points for re-routing
+        this.points.set([routeCoords[0], routeCoords[routeCoords.length - 1]]);
+      }
+
+      this.messageService.add({
+        severity: 'info',
+        summary: 'Road loaded',
+        detail: `Editing "${road.name}"`
+      });
+    } catch (error: any) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Failed to load road'
+      });
+    }
+  }
+
+  async deleteRoad(ref: string, event: Event): Promise<void> {
+    event.stopPropagation();
+
+    try {
+      await this.roadBuilderService.deleteRoad(ref);
+      this.savedRoads.set(this.savedRoads().filter(r => r.ref !== ref));
+
+      // Clear if we were editing this road
+      if (this.editingRoad()?.ref === ref) {
+        this.clearPoints();
+      }
+
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Road deleted',
+        detail: 'Road has been removed'
+      });
+    } catch (error: any) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Failed to delete road'
+      });
+    }
+  }
+
+  cancelEdit(): void {
+    this.editingRoad.set(null);
+    this.clearPoints();
   }
 
   async generateRoute(provider: 'osrm' | 'google'): Promise<void> {
@@ -259,11 +410,16 @@ export class GraphBuilderComponent implements OnInit, OnDestroy {
     try {
       await this.roadBuilderService.saveRoad(name, route);
 
+      const isUpdate = this.editingRoad() !== null;
+
       this.messageService.add({
         severity: 'success',
-        summary: 'Road saved',
-        detail: `"${name}" has been added to the database`
+        summary: isUpdate ? 'Road updated' : 'Road saved',
+        detail: `"${name}" has been ${isUpdate ? 'updated' : 'added to the database'}`
       });
+
+      // Reload roads list
+      await this.loadSavedRoads();
 
       // Clear everything for next road
       this.clearPoints();

@@ -19,6 +19,16 @@
     </div>
 
     <div class="toolbar-right">
+      <!-- Toggle roads panel -->
+      <p-button
+        icon="pi pi-list"
+        [text]="true"
+        severity="secondary"
+        (onClick)="toggleRoadsPanel()"
+        pTooltip="Saved roads"
+        [badge]="savedRoads().length > 0 ? savedRoads().length.toString() : ''"
+      />
+
       <!-- Point counter -->
       <span class="point-count">
         {{ points().length }} point{{ points().length !== 1 ? 's' : '' }}
@@ -44,8 +54,67 @@
     </div>
   </div>
 
-  <!-- Map container -->
-  <div id="graph-builder-map" class="map-container"></div>
+  <!-- Main content area -->
+  <div class="content-area">
+    <!-- Roads sidebar panel -->
+    @if (showRoadsPanel()) {
+      <div class="roads-panel" @slideIn>
+        <div class="panel-header">
+          <h3>Saved Roads</h3>
+          <p-button
+            icon="pi pi-refresh"
+            [text]="true"
+            size="small"
+            (onClick)="loadSavedRoads()"
+            [loading]="loadingRoads()"
+            pTooltip="Refresh"
+          />
+        </div>
+
+        @if (loadingRoads()) {
+          <div class="p-3">
+            @for (i of [1,2,3]; track i) {
+              <div class="skeleton skeleton-text mb-2"></div>
+            }
+          </div>
+        } @else if (savedRoads().length === 0) {
+          <div class="empty-state">
+            <i class="pi pi-map"></i>
+            <p>No roads saved yet</p>
+          </div>
+        } @else {
+          <div class="roads-list">
+            @for (road of savedRoads(); track road.ref) {
+              <div
+                class="road-item"
+                [class.selected]="editingRoad()?.ref === road.ref"
+                (click)="loadRoadForEdit(road.ref)"
+              >
+                <div class="road-color" [style.background]="road.color"></div>
+                <div class="road-info">
+                  <span class="road-name">{{ road.name }}</span>
+                  <span class="road-meta">
+                    {{ road.ref }} &middot; {{ road.length_km.toFixed(1) }} km
+                  </span>
+                </div>
+                <p-button
+                  icon="pi pi-trash"
+                  [text]="true"
+                  severity="danger"
+                  size="small"
+                  (onClick)="deleteRoad(road.ref, $event)"
+                  pTooltip="Delete"
+                />
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Map container -->
+    <div id="graph-builder-map" class="map-container"></div>
+  </div>
 
   <!-- Bottom panel -->
   <div class="bottom-panel">
@@ -89,13 +158,22 @@
           class="road-name-input"
         />
         <p-button
-          label="Save to Database"
+          [label]="editingRoad() ? 'Update Road' : 'Save to Database'"
           icon="pi pi-save"
           (onClick)="saveRoad()"
           [disabled]="!roadName() || saving()"
           [loading]="saving()"
           severity="success"
         />
+        @if (editingRoad()) {
+          <p-button
+            label="Cancel Edit"
+            icon="pi pi-times"
+            [text]="true"
+            severity="secondary"
+            (onClick)="cancelEdit()"
+          />
+        }
       </div>
     }
   </div>

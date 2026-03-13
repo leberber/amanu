@@ -39,6 +39,18 @@ interface GoogleDirectionsResponse {
   }>;
 }
 
+export interface SavedRoad {
+  ref: string;
+  name: string;
+  highway_type: string;
+  length_km: number;
+  color: string;
+}
+
+export interface SavedRoadDetail extends SavedRoad {
+  coordinates: Coordinate[];
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -119,9 +131,18 @@ export class RoadBuilderService {
   /**
    * Get all saved roads
    */
-  async getSavedRoads(): Promise<any[]> {
+  async getSavedRoads(): Promise<SavedRoad[]> {
     return firstValueFrom(
-      this.http.get<any[]>(`${environment.apiUrl}/roads`)
+      this.http.get<SavedRoad[]>(`${environment.apiUrl}/roads`)
+    );
+  }
+
+  /**
+   * Get a single road with coordinates
+   */
+  async getRoad(ref: string): Promise<SavedRoadDetail> {
+    return firstValueFrom(
+      this.http.get<SavedRoadDetail>(`${environment.apiUrl}/roads/${encodeURIComponent(ref)}`)
     );
   }
 
@@ -130,7 +151,7 @@ export class RoadBuilderService {
    */
   async deleteRoad(ref: string): Promise<void> {
     await firstValueFrom(
-      this.http.delete(`${environment.apiUrl}/roads/${ref}`)
+      this.http.delete(`${environment.apiUrl}/roads/${encodeURIComponent(ref)}`)
     );
   }
 }

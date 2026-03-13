@@ -2,6 +2,7 @@
 Roads API endpoints for the graph/road builder.
 """
 import os
+import re
 import requests
 from typing import List
 from fastapi import APIRouter, HTTPException
@@ -41,6 +42,15 @@ class RoadResponse(BaseModel):
     highway_type: str
     length_km: float
     color: str
+
+
+class RoadDetailResponse(BaseModel):
+    ref: str
+    name: str
+    highway_type: str
+    length_km: float
+    color: str
+    coordinates: List[Coordinate]
 
 
 @router.post("/route/google", response_model=RouteResponse)
@@ -186,6 +196,71 @@ async def list_roads():
             )
             for row in result
         ]
+
+
+def parse_wkt_coordinates(geom_wkt: str) -> List[Coordinate]:
+    """Parse WKT geometry to list of coordinates. Handles LINESTRING and MULTILINESTRING."""
+    coordinates = []
+    if not geom_wkt:
+        return coordinates
+
+    # Handle MULTILINESTRING - take the first linestring or merge all
+    if geom_wkt.startswith('MULTILINESTRING'):
+        # MULTILINESTRING((lng lat, lng lat), (lng lat, lng lat))
+        # Extract content between outer parentheses
+        import re
+        matches = re.findall(r'\(([^()]+)\)', geom_wkt)
+        for match in matches:
+            for coord in match.split(','):
+                parts = coord.strip().split(' ')
+                if len(parts) >= 2:
+                    try:
+                        coordinates.append(Coordinate(lat=float(parts[1]), lng=float(parts[0])))
+                    except ValueError:
+                        continue
+
+    elif geom_wkt.startswith('LINESTRING'):
+        # LINESTRING(lng lat, lng lat, ...)
+        coords_str = geom_wkt.replace('LINESTRING(', '').replace(')', '')
+        for coord in coords_str.split(','):
+            parts = coord.strip().split(' ')
+            if len(parts) >= 2:
+                try:
+                    coordinates.append(Coordinate(lat=float(parts[1]), lng=float(parts[0])))
+                except ValueError:
+                    continue
+
+    return coordinates
+
+
+@router.get("/{ref}", response_model=RoadDetailResponse)
+async def get_road(ref: str):
+    """Get a road with its coordinates."""
+    with Session(engine) as session:
+        result = session.execute(
+            text("""
+                SELECT ref, name, highway_type, length_km, color,
+                       ST_AsText(geom) as geom_wkt
+                FROM major_roads
+                WHERE ref = :ref
+            """),
+            {'ref': ref}
+        ).fetchone()
+
+        if not result:
+            raise HTTPException(status_code=404, detail="Road not found")
+
+        geom_wkt = result[5]
+        coordinates = parse_wkt_coordinates(geom_wkt)
+
+        return RoadDetailResponse(
+            ref=result[0],
+            name=result[1] or '',
+            highway_type=result[2],
+            length_km=result[3],
+            color=result[4],
+            coordinates=coordinates
+        )
 
 
 @router.delete("/{ref}")
