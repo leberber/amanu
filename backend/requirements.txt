@@ -17,3 +17,7 @@ httpx
 boto3
 pillow
 h3
+geoalchemy2
+osmnx
+shapely
+polyline

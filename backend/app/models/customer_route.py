@@ -1,88 +1,81 @@
 """
-Customer Route model for storing pre-fetched routes from depot to customers.
-Routes are fetched once from Google Directions API and stored permanently.
-Used for delivery route optimization without additional API calls.
+Customer Route model for storing routes from depot to customers.
+Routes are fetched from OSMnx and stored with PostGIS geometry.
+Used for delivery route optimization.
 """
-from sqlmodel import SQLModel, Field, Column
-from sqlalchemy import Text, JSON
-from typing import Optional, List
+from sqlmodel import SQLModel, Field
+from sqlalchemy import Column, event
+from sqlalchemy.schema import DDL
+from geoalchemy2 import Geometry
+from typing import Optional
 from datetime import datetime, timezone
 
 
 class CustomerRoute(SQLModel, table=True):
     """
     Stores the route from depot to each customer.
-    Fetched once from Google Directions API, used forever for routing optimization.
+    Fetched from OSMnx, geometry stored as PostGIS LineString.
     """
     __tablename__ = "customer_routes"
 
+    # === Primary key and foreign keys ===
     id: Optional[int] = Field(default=None, primary_key=True)
-
-    # Link to customer (user_id from users table)
     user_id: int = Field(foreign_key="users.id", unique=True, index=True)
+    major_road_id: Optional[int] = Field(
+        default=None,
+        foreign_key="major_roads.id",
+        index=True,
+        description="Main corridor this route uses"
+    )
 
-    # Route polyline (encoded string from Google Directions API)
-    # Decode with: polyline.decode(route_polyline) -> [(lat, lng), ...]
-    route_polyline: str = Field(sa_column=Column(Text))
-
-    # Distance and duration from depot
-    distance_meters: int = Field(description="Distance from depot in meters")
+    # === Route data ===
+    distance_meters: int = Field(description="Route distance in meters")
     duration_seconds: int = Field(description="Estimated travel time in seconds")
 
-    # Initial heading (compass direction from depot, 0-360)
-    # Used for corridor grouping: 0=N, 90=E, 180=S, 270=W
-    initial_heading: Optional[int] = Field(
-        default=None,
-        description="Initial compass heading from depot (0-360)"
-    )
-
-    # Corridor assignment (NORTH, NORTHEAST, EAST, SOUTHEAST, SOUTH, SOUTHWEST, WEST, NORTHWEST)
+    # === Corridor (denormalized for convenience) ===
     corridor: Optional[str] = Field(
         default=None,
-        max_length=20,
+        max_length=50,
         index=True,
-        description="Route corridor for grouping similar routes"
+        description="Road ref from major_roads (e.g., 'RN 30')"
     )
 
-    # First 20 points of decoded route for corridor analysis
-    # Stored as JSON array: [[lat, lng], [lat, lng], ...]
-    path_points_sample: Optional[List[List[float]]] = Field(
-        default=None,
-        sa_column=Column(JSON),
-        description="First 20 points of decoded route for analysis"
-    )
-
-    # Address info from Google
-    end_address: Optional[str] = Field(default=None, max_length=300)
-
-    # Metadata
+    # === Timestamp ===
     fetched_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
+# Add geometry column separately (SQLModel doesn't support it directly)
+CustomerRoute.__table__.append_column(
+    Column('geom', Geometry('LINESTRING', srid=4326), nullable=True)
+)
+
+# Create spatial index after table creation
+event.listen(
+    CustomerRoute.__table__,
+    'after_create',
+    DDL('CREATE INDEX IF NOT EXISTS idx_customer_routes_geom ON customer_routes USING GIST (geom)')
+)
+
+
 class CustomerRouteCreate(SQLModel):
-    """Model for creating a customer route (internal use)"""
+    """Model for creating a customer route."""
     user_id: int
-    route_polyline: str
+    major_road_id: Optional[int] = None
     distance_meters: int
     duration_seconds: int
-    initial_heading: Optional[int] = None
     corridor: Optional[str] = None
-    path_points_sample: Optional[List[List[float]]] = None
-    end_address: Optional[str] = None
 
 
 class CustomerRouteRead(SQLModel):
-    """Model for reading customer routes"""
+    """Model for reading customer routes."""
     id: int
     user_id: int
+    major_road_id: Optional[int]
     distance_meters: int
     duration_seconds: int
-    initial_heading: Optional[int] = None
-    corridor: Optional[str] = None
-    end_address: Optional[str] = None
+    corridor: Optional[str]
     fetched_at: datetime
 
-    # Computed fields for convenience
     @property
     def distance_km(self) -> float:
         return round(self.distance_meters / 1000, 2)

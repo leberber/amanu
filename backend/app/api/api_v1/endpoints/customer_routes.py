@@ -1,8 +1,8 @@
 """
 Customer Routes API endpoints.
-Manages pre-fetched routes from depot to customers for delivery optimization.
+Manages routes from depot to customers using OSMnx and PostGIS.
 """
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
 from typing import List, Optional
 from pydantic import BaseModel
@@ -17,7 +17,9 @@ from app.services.customer_route_service import (
     get_all_customer_routes,
     get_routes_by_corridor,
     delete_customer_route,
-    get_gmaps_client,
+    reassign_all_corridors,
+    get_all_corridors,
+    clear_osm_cache,
 )
 
 router = APIRouter()
@@ -27,28 +29,24 @@ router = APIRouter()
 class CustomerRouteResponse(BaseModel):
     id: int
     user_id: int
+    major_road_id: Optional[int] = None
     distance_meters: int
     duration_seconds: int
     distance_km: float
     duration_min: float
-    initial_heading: Optional[int] = None
     corridor: Optional[str] = None
-    end_address: Optional[str] = None
-    route_polyline: Optional[str] = None
 
     @classmethod
     def from_route(cls, route: CustomerRoute) -> "CustomerRouteResponse":
         return cls(
             id=route.id,
             user_id=route.user_id,
+            major_road_id=route.major_road_id,
             distance_meters=route.distance_meters,
             duration_seconds=route.duration_seconds,
             distance_km=round(route.distance_meters / 1000, 2),
             duration_min=round(route.duration_seconds / 60, 1),
-            initial_heading=route.initial_heading,
             corridor=route.corridor,
-            end_address=route.end_address,
-            route_polyline=route.route_polyline,
         )
 
 
@@ -57,7 +55,7 @@ class FetchRouteRequest(BaseModel):
 
 
 class FetchAllRoutesRequest(BaseModel):
-    user_ids: Optional[List[int]] = None  # If None, fetch for all users with coordinates
+    user_ids: Optional[List[int]] = None
 
 
 class FetchRoutesResponse(BaseModel):
@@ -72,6 +70,21 @@ class CorridorStats(BaseModel):
     count: int
     total_distance_km: float
     avg_distance_km: float
+
+
+class MajorRoadResponse(BaseModel):
+    id: int
+    ref: str
+    name: Optional[str]
+    highway_type: str
+    length_km: float
+    color: Optional[str]
+
+
+class ReassignCorridorsResponse(BaseModel):
+    total_routes: int
+    updated: int
+    by_corridor: dict
 
 
 # Endpoints
@@ -158,17 +171,12 @@ def fetch_single_route(
     current_user: User = Depends(get_current_user)
 ):
     """
-    Fetch route from Google for a single customer and save to database.
-    Admin only. Cost: ~$0.005 per call.
+    Fetch route for a single customer using OSMnx and save to database.
+    Admin only.
     """
     if current_user.role != UserRole.ADMIN:
         raise HTTPException(status_code=403, detail="Admin access required")
 
-    # Check if Google API key is configured
-    if not get_gmaps_client():
-        raise HTTPException(status_code=500, detail="Google Maps API key not configured")
-
-    # Get user with coordinates
     user = session.get(User, request.user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -176,11 +184,10 @@ def fetch_single_route(
     if not user.latitude or not user.longitude:
         raise HTTPException(status_code=400, detail="User has no coordinates")
 
-    # Fetch and save route
     route = fetch_and_save_route(session, user.id, user.latitude, user.longitude)
 
     if not route:
-        raise HTTPException(status_code=500, detail="Failed to fetch route from Google")
+        raise HTTPException(status_code=500, detail="Failed to calculate route")
 
     return CustomerRouteResponse.from_route(route)
 
@@ -192,26 +199,19 @@ def fetch_all_routes(
     current_user: User = Depends(get_current_user)
 ):
     """
-    Fetch routes from Google for multiple customers and save to database.
-    Admin only. Cost: ~$0.005 per customer.
+    Fetch routes for multiple customers using OSMnx and save to database.
+    Admin only.
 
     If user_ids is empty/null, fetches for all users with coordinates who don't have routes yet.
     """
     if current_user.role != UserRole.ADMIN:
         raise HTTPException(status_code=403, detail="Admin access required")
 
-    # Check if Google API key is configured
-    gmaps = get_gmaps_client()
-    if not gmaps:
-        raise HTTPException(status_code=500, detail="Google Maps API key not configured")
-
-    # Get users to fetch
     if request.user_ids:
         users = session.exec(
             select(User).where(User.id.in_(request.user_ids))
         ).all()
     else:
-        # Get all users with coordinates who don't have routes
         existing_routes = session.exec(select(CustomerRoute.user_id)).all()
         existing_ids = set(existing_routes)
 
@@ -269,3 +269,125 @@ def delete_route(
         return {"message": "Route deleted"}
     else:
         raise HTTPException(status_code=404, detail="Route not found")
+
+
+# ==================== Corridor Management ====================
+
+@router.get("/corridors/list", response_model=List[MajorRoadResponse])
+def list_corridors(
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    List all active corridors from the major_roads table.
+    Admin only.
+    """
+    if current_user.role != UserRole.ADMIN:
+        raise HTTPException(status_code=403, detail="Admin access required")
+
+    corridors = get_all_corridors(session)
+    return corridors
+
+
+@router.post("/corridors/reassign", response_model=ReassignCorridorsResponse)
+def reassign_corridors(
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Reassign corridors for all existing customer routes using PostGIS spatial intersection.
+    Admin only.
+    """
+    if current_user.role != UserRole.ADMIN:
+        raise HTTPException(status_code=403, detail="Admin access required")
+
+    result = reassign_all_corridors(session)
+
+    if 'error' in result:
+        raise HTTPException(status_code=400, detail=result['error'])
+
+    return ReassignCorridorsResponse(
+        total_routes=result['total_routes'],
+        updated=result['updated'],
+        by_corridor=result['by_corridor']
+    )
+
+
+@router.post("/corridors/refresh-cache")
+def refresh_osm_cache(
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Clear the OSM graph cache to force reload.
+    Admin only.
+    """
+    if current_user.role != UserRole.ADMIN:
+        raise HTTPException(status_code=403, detail="Admin access required")
+
+    clear_osm_cache()
+    return {"message": "OSM cache cleared"}
+
+
+# ==================== Reset & Re-fetch ====================
+
+class ResetAndRefetchResponse(BaseModel):
+    deleted: int
+    fetched: int
+    failed: int
+    skipped: int
+
+
+@router.post("/reset-and-refetch", response_model=ResetAndRefetchResponse)
+def reset_and_refetch_all_routes(
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Delete ALL existing customer routes and re-fetch using OSMnx.
+    Use this after updating major_roads to get fresh corridor assignments.
+    Admin only.
+    """
+    if current_user.role != UserRole.ADMIN:
+        raise HTTPException(status_code=403, detail="Admin access required")
+
+    # Delete all existing routes
+    existing_routes = session.exec(select(CustomerRoute)).all()
+    deleted_count = len(existing_routes)
+
+    for route in existing_routes:
+        session.delete(route)
+    session.commit()
+
+    # Get all users with coordinates
+    users = session.exec(
+        select(User).where(
+            User.latitude.isnot(None),
+            User.longitude.isnot(None)
+        )
+    ).all()
+
+    fetched = 0
+    failed = 0
+    skipped = 0
+
+    for user in users:
+        if not user.latitude or not user.longitude:
+            skipped += 1
+            continue
+
+        try:
+            route = fetch_and_save_route(session, user.id, user.latitude, user.longitude)
+            if route:
+                fetched += 1
+            else:
+                failed += 1
+        except Exception as e:
+            print(f"Error fetching route for user {user.id}: {e}")
+            failed += 1
+
+    return ResetAndRefetchResponse(
+        deleted=deleted_count,
+        fetched=fetched,
+        failed=failed,
+        skipped=skipped,
+    )

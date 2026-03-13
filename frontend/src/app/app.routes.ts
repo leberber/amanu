@@ -233,6 +233,13 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/stock/stock.component').then(m => m.StockComponent)
   },
 
+  // Graph Builder (public - for adding missing roads)
+  {
+    path: 'graph-builder',
+    loadComponent: () => import('./pages/graph-builder/graph-builder.component').then(m => m.GraphBuilderComponent),
+    data: { hideBottomNav: true }
+  },
+
   // Public Routes
   {
     path: 'privacy-policy',

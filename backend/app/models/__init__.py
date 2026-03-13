@@ -55,3 +55,8 @@ from app.models.restock import RestockItem
 from app.models.customer_route import (
     CustomerRoute, CustomerRouteCreate, CustomerRouteRead
 )
+
+# Major road models (for corridor-based batching)
+from app.models.major_road import (
+    MajorRoad, MajorRoadCreate, MajorRoadRead, MajorRoadUpdate
+)

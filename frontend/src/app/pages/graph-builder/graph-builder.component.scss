@@ -1,0 +1,168 @@
+.graph-builder {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
+  position: relative;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background: var(--surface-card);
+  border-bottom: 1px solid var(--surface-border);
+  z-index: 1000;
+}
+
+.toolbar-left {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.subtitle {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.toolbar-center {
+  display: flex;
+  align-items: center;
+}
+
+.toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.point-count {
+  padding: 0.25rem 0.75rem;
+  background: var(--surface-100);
+  border-radius: 1rem;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.map-container {
+  flex: 1;
+  width: 100%;
+  z-index: 1;
+  cursor: crosshair !important;
+
+  // Override Leaflet's default cursor
+  &.leaflet-container {
+    cursor: crosshair !important;
+  }
+}
+
+.bottom-panel {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1rem;
+  background: var(--surface-card);
+  border-top: 1px solid var(--surface-border);
+  z-index: 1000;
+}
+
+.generate-section {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.route-info {
+  display: flex;
+  gap: 1rem;
+  padding: 0 1rem;
+  border-left: 1px solid var(--surface-border);
+}
+
+.route-distance,
+.route-duration {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--text-color);
+
+  i {
+    color: var(--primary-color);
+  }
+}
+
+.save-section {
+  display: flex;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+
+.road-name-input {
+  width: 200px;
+}
+
+// Point markers - use ::ng-deep for Leaflet elements
+::ng-deep .point-marker {
+  background: transparent !important;
+  border: none !important;
+}
+
+::ng-deep .point-marker-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  background: #3B82F6;
+  color: white;
+  border-radius: 50%;
+  font-weight: 600;
+  font-size: 14px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  border: 2px solid white;
+}
+
+// Crosshair cursor on map
+::ng-deep .leaflet-container {
+  cursor: crosshair !important;
+}
+
+::ng-deep .leaflet-interactive {
+  cursor: pointer !important;
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .toolbar {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .toolbar-center {
+    order: 3;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .bottom-panel {
+    flex-wrap: wrap;
+  }
+
+  .save-section {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .road-name-input {
+    flex: 1;
+  }
+}
