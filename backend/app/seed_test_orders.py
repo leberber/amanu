@@ -80,6 +80,14 @@ TEST_CUSTOMER_EMAILS = [
     "client.aitkhelfa8@test.com",
     "client.aitkhelfa9@test.com",
     "client.aitkhelfa10@test.com",
+    # Zone G - Test Customers (7 stores)
+    "test.customer1@test.com",
+    "test.customer2@test.com",
+    "test.customer3@test.com",
+    "test.customer4@test.com",
+    "test.customer5@test.com",
+    "test.customer6@test.com",
+    "test.customer7@test.com",
 ]
 
 # Shipping costs by zone (in DZD)
