@@ -2028,7 +2028,12 @@
         "priority_direction": "Direction Prioritaire",
         "priority_hint": "Cliquez sur une direction pour prioriser les commandes allant dans cette direction",
         "unlimited": "Illimité",
-        "auto": "Auto (capacité véhicule)"
+        "auto": "Auto (capacité véhicule)",
+        "disabled": "Désactivé",
+        "max_capacity_percent": "Utilisation Max Capacité",
+        "max_capacity_percent_hint": "Pourcentage max de la capacité du véhicule à remplir",
+        "min_efficiency_threshold": "Seuil Min d'Efficacité",
+        "min_efficiency_hint": "Arrêter la route si capacité restante / distance est en dessous de ce ratio"
       },
       "edit_route": "Modifier le Trajet",
       "customer": "Client",

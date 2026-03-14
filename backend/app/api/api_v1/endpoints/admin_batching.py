@@ -177,6 +177,7 @@ def preview_smart_order_batching(
     max_orders: Optional[int] = None,
     simulation_limit: Optional[int] = None,
     corridor_filter: Optional[str] = None,
+    max_capacity_percent: float = 90.0,
     current_user: User = Depends(get_current_staff_user),
     session: Session = Depends(get_session),
 ) -> Any:
@@ -189,8 +190,13 @@ def preview_smart_order_batching(
     - max_orders: Maximum orders per batch (default: unlimited)
     - simulation_limit: Limit orders for simulation/testing
     - corridor_filter: Only batch orders from this specific corridor
+    - max_capacity_percent: Max % of vehicle capacity to use (default: 90%)
 
-    Groups orders by corridor (road name) and sorts by distance.
+    Uses SMART selection:
+    - Groups orders by corridor (road name)
+    - Sorts by distance
+    - Excludes orders where extra distance isn't worth the weight gain
+    - Skips orders that are too far for their weight
     """
     result = preview_smart_batching(
         session,
@@ -198,7 +204,8 @@ def preview_smart_order_batching(
         max_weight_per_batch=max_weight,
         max_orders_per_batch=max_orders,
         simulation_limit=simulation_limit,
-        corridor_filter=corridor_filter
+        corridor_filter=corridor_filter,
+        max_capacity_percent=max_capacity_percent
     )
     return result
 
@@ -209,6 +216,7 @@ def run_smart_order_batching(
     max_weight: Optional[float] = None,
     max_orders: Optional[int] = None,
     corridor_filter: Optional[str] = None,
+    max_capacity_percent: float = 90.0,
     current_user: User = Depends(get_current_admin_user),
     session: Session = Depends(get_session),
 ) -> Any:
@@ -220,10 +228,12 @@ def run_smart_order_batching(
     - max_weight: Maximum weight per batch in kg
     - max_orders: Maximum orders per batch
     - corridor_filter: Only batch orders from this specific corridor
+    - max_capacity_percent: Max % of vehicle capacity to use (default: 90%)
 
-    Groups orders by corridor (road name) and creates optimized trips:
+    Uses SMART selection to create optimized trips:
     - Groups orders on the same road
     - Sorts by distance (nearest first = efficient routing)
+    - Excludes inefficient orders (too far for their weight)
     - Respects driver vehicle capacity
     - Assigns drivers automatically
     """
@@ -233,7 +243,8 @@ def run_smart_order_batching(
         strategy=strategy,
         max_weight_per_batch=max_weight,
         max_orders_per_batch=max_orders,
-        corridor_filter=corridor_filter
+        corridor_filter=corridor_filter,
+        max_capacity_percent=max_capacity_percent
     )
     return result
 

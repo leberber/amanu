@@ -724,6 +724,22 @@
               <p-inputgroup-addon>kg</p-inputgroup-addon>
             </p-inputgroup>
           </div>
+
+          <div class="flex flex-column gap-1">
+            <label class="text-xs text-secondary">{{ 'admin.batching.settings.max_capacity_percent' | translate }}</label>
+            <p-inputgroup>
+              <input
+                pInputText
+                type="number"
+                [ngModel]="algorithmSettings().maxCapacityPercent"
+                (ngModelChange)="updateSetting('maxCapacityPercent', $event)"
+                min="50"
+                max="100"
+                step="5">
+              <p-inputgroup-addon>%</p-inputgroup-addon>
+            </p-inputgroup>
+            <small class="text-xs text-secondary">{{ 'admin.batching.settings.max_capacity_percent_hint' | translate }}</small>
+          </div>
         </div>
       </p-accordion-content>
     </p-accordion-panel>

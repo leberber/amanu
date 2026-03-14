@@ -207,7 +207,8 @@ export class AdminBatchingComponent implements OnInit {
   algorithmSettings = signal({
     strategy: 'nearest_first' as 'farthest_first' | 'nearest_first',
     maxOrders: null as number | null,
-    maxWeight: null as number | null
+    maxWeight: null as number | null,
+    maxCapacityPercent: 90 as number // Max % of vehicle capacity to use (default 90%)
   });
 
   // Options for simulation limit dropdown
@@ -480,6 +481,7 @@ export class AdminBatchingComponent implements OnInit {
       strategy: settings.strategy,
       maxOrders: settings.maxOrders || undefined,
       maxWeight: settings.maxWeight || undefined,
+      maxCapacityPercent: settings.maxCapacityPercent || undefined,
       simulationLimit: simLimit || undefined,
       // Pass multiple corridors as comma-separated string
       corridorFilter: corridorFilters.length > 0 ? corridorFilters.join(',') : undefined

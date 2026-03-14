@@ -274,6 +274,7 @@ export class BatchingService {
     if (params.maxOrders) queryParams.push(`max_orders=${params.maxOrders}`);
     if (params.simulationLimit) queryParams.push(`simulation_limit=${params.simulationLimit}`);
     if (params.corridorFilter) queryParams.push(`corridor_filter=${encodeURIComponent(params.corridorFilter)}`);
+    if (params.maxCapacityPercent) queryParams.push(`max_capacity_percent=${params.maxCapacityPercent}`);
     return queryParams.length > 0 ? '?' + queryParams.join('&') : '';
   }
 
@@ -390,7 +391,8 @@ export interface LeftoverOrder {
   weight_kg: number;
   corridor: string;
   distance_km: number;
-  reason: 'no_capacity';
+  efficiency_kg_km?: number;
+  reason: 'no_capacity' | 'low_efficiency';
 }
 
 export interface SmartBatchingResponse {
@@ -465,4 +467,5 @@ export interface SmartBatchingParams {
   maxOrders?: number;
   simulationLimit?: number;
   corridorFilter?: string;
+  maxCapacityPercent?: number;
 }
