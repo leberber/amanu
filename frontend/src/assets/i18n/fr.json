@@ -2006,14 +2006,21 @@
       "total_capacity": "Capacité Totale",
       "no_trucks": "Aucun camion disponible",
       "orders_weight": "Poids des Commandes",
+      "trucks_assigned": "camions assignés",
+      "orders_leftover": "commandes non assignées",
+      "leftover_warning": "{{assigned}} commandes assignées, {{leftover}} non assignées (capacité insuffisante)",
       "algorithm_settings": "Paramètres de l'Algorithme",
       "settings": {
+        "simulation_limit": "Échantillon de Simulation",
+        "simulation_hint": "Sélectionner des commandes aléatoires pour tester l'algorithme",
         "strategy": "Stratégie de Route",
         "grouping_mode": "Mode de Groupement",
         "max_orders": "Commandes Max par Lot",
         "max_weight": "Poids Max par Lot",
         "heading_tolerance": "Tolérance de Direction",
         "heading_hint": "Angle de variance autorisé pour grouper les commandes allant dans la même direction",
+        "priority_direction": "Direction Prioritaire",
+        "priority_hint": "Cliquez sur une direction pour prioriser les commandes allant dans cette direction",
         "unlimited": "Illimité",
         "auto": "Auto (capacité véhicule)"
       }

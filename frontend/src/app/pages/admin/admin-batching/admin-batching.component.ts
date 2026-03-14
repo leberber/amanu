@@ -10,7 +10,7 @@ import * as L from 'leaflet';
 
 import { ADMIN_LIST_IMPORTS } from '../../../shared/imports/admin-shared.imports';
 import { AgroclikPageContainerComponent } from '../../../shared/components/agroclik-page-container/agroclik-page-container.component';
-import { BatchingService, SmartBatch, CustomerRoute } from '../../../services/batching.service';
+import { BatchingService, SmartBatch, CustomerRoute, LeftoverOrder } from '../../../services/batching.service';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
 import { Trip, TripWithStops, TripStatus, PendingOrder } from '../../../models/trip.model';
 import { RouteHelpers } from '../../../core/constants/routes.constants';
@@ -71,6 +71,7 @@ export class AdminBatchingComponent implements OnInit {
   private map: L.Map | null = null;
   private markersLayer: L.LayerGroup | null = null;
   private connectionsLayer: L.LayerGroup | null = null;
+  private directionLayer: L.LayerGroup | null = null;
 
   // State
   loading = signal(true);
@@ -84,6 +85,7 @@ export class AdminBatchingComponent implements OnInit {
   smartBatchingActive = signal(false);
   runningSmartBatch = signal(false);
   smartBatches = signal<SmartBatch[]>([]);
+  leftoverOrders = signal<LeftoverOrder[]>([]);
   customerRoutes = signal<CustomerRoute[]>([]);
   resettingBatches = signal(false);
 
@@ -131,26 +133,59 @@ export class AdminBatchingComponent implements OnInit {
   // ==================== Algorithm Settings ====================
   showSettings = signal(false);
 
+  // Simulation limit for testing
+  simulationLimit = signal<number | null>(null);
+
   // Algorithm parameters with defaults
   algorithmSettings = signal({
-    strategy: 'farthest_first' as 'farthest_first' | 'nearest_first',
+    strategy: 'nearest_first' as 'farthest_first' | 'nearest_first',
     maxOrders: null as number | null,
     maxWeight: null as number | null,
-    groupingMode: 'corridor_and_heading' as 'corridor_and_heading' | 'corridor_only' | 'heading_only',
+    groupingMode: 'heading_only' as 'corridor_and_heading' | 'corridor_only' | 'heading_only',
     headingTolerance: 30
   });
 
+  // Options for simulation limit dropdown
+  simulationLimitOptions = [
+    { label: 'All Orders', value: null },
+    { label: '5 Random Orders', value: 5 },
+    { label: '10 Random Orders', value: 10 },
+    { label: '15 Random Orders', value: 15 },
+    { label: '20 Random Orders', value: 20 },
+    { label: '30 Random Orders', value: 30 },
+    { label: '50 Random Orders', value: 50 }
+  ];
+
   // Options for dropdowns
   strategyOptions = [
-    { label: 'Farthest First (Recommended)', value: 'farthest_first' },
-    { label: 'Nearest First', value: 'nearest_first' }
+    { label: 'Nearest First (Recommended)', value: 'nearest_first' },
+    { label: 'Farthest First', value: 'farthest_first' }
   ];
 
   groupingModeOptions = [
+    { label: 'Heading Only (Recommended)', value: 'heading_only' },
     { label: 'Corridor + Heading', value: 'corridor_and_heading' },
-    { label: 'Corridor Only', value: 'corridor_only' },
-    { label: 'Heading Only', value: 'heading_only' }
+    { label: 'Corridor Only', value: 'corridor_only' }
   ];
+
+  // Priority heading for compass direction picker
+  priorityHeading = signal<number | null>(null);
+
+  // Compass directions (8 cardinal + intercardinal directions)
+  compassDirections = [
+    { value: 'N', label: 'North', heading: 0, rotation: 0 },
+    { value: 'NE', label: 'Northeast', heading: 45, rotation: 45 },
+    { value: 'E', label: 'East', heading: 90, rotation: 90 },
+    { value: 'SE', label: 'Southeast', heading: 135, rotation: 135 },
+    { value: 'S', label: 'South', heading: 180, rotation: 180 },
+    { value: 'SW', label: 'Southwest', heading: 225, rotation: 225 },
+    { value: 'W', label: 'West', heading: 270, rotation: 270 },
+    { value: 'NW', label: 'Northwest', heading: 315, rotation: 315 }
+  ];
+
+  setPriorityHeading(heading: number | null): void {
+    this.priorityHeading.set(heading);
+  }
 
   constructor() {
     // Initialize map when on map tab
@@ -168,6 +203,14 @@ export class AdminBatchingComponent implements OnInit {
       this.pendingOrders(); // Track changes
       if (this.map && this.markersLayer && this.mapInitialized() && !this.smartBatchingActive()) {
         this.updateMapMarkers();
+      }
+    });
+
+    // Update direction indicator when priority heading changes
+    effect(() => {
+      const heading = this.priorityHeading();
+      if (this.map && this.directionLayer && this.mapInitialized()) {
+        this.updateDirectionIndicator(heading);
       }
     });
   }
@@ -194,6 +237,7 @@ export class AdminBatchingComponent implements OnInit {
     });
 
     this.setupTileLayers();
+    this.directionLayer = L.layerGroup().addTo(this.map); // Direction indicator (below other layers)
     this.customerPathsLayer = L.layerGroup(); // Not added by default
     this.connectionsLayer = L.layerGroup().addTo(this.map);
     this.markersLayer = L.layerGroup().addTo(this.map);
@@ -237,11 +281,74 @@ export class AdminBatchingComponent implements OnInit {
   private destroyMap(): void {
     if (!this.map) return;
     this.map.remove();
-    this.map = this.markersLayer = this.connectionsLayer = this.customerPathsLayer = null;
+    this.map = this.markersLayer = this.connectionsLayer = this.customerPathsLayer = this.directionLayer = null;
     this.mapInitialized.set(false);
     this.smartBatchingActive.set(false);
     this.smartBatches.set([]);
     this.showCustomerPaths.set(false);
+  }
+
+  private updateDirectionIndicator(heading: number | null): void {
+    if (!this.directionLayer) return;
+    this.directionLayer.clearLayers();
+
+    if (heading === null) return;
+
+    // Get heading tolerance from settings
+    const tolerance = this.algorithmSettings().headingTolerance || 30;
+
+    // Create a wedge/sector polygon from the warehouse pointing in the selected direction
+    const center: [number, number] = [MAP_DEFAULTS.LATITUDE, MAP_DEFAULTS.LONGITUDE];
+    const radius = 25; // km - large enough to show direction on map
+    const startAngle = heading - tolerance;
+    const endAngle = heading + tolerance;
+
+    // Generate points for the wedge
+    const points: [number, number][] = [center];
+    const numPoints = 30;
+
+    for (let i = 0; i <= numPoints; i++) {
+      const angle = startAngle + (endAngle - startAngle) * (i / numPoints);
+      // Convert angle to radians (geographic: 0=N, 90=E)
+      // Leaflet uses lat/lng, so we need to adjust: N=0° means +lat, E=90° means +lng
+      const radians = (90 - angle) * Math.PI / 180;
+      const lat = center[0] + (radius / 111) * Math.sin(radians);
+      const lng = center[1] + (radius / (111 * Math.cos(center[0] * Math.PI / 180))) * Math.cos(radians);
+      points.push([lat, lng]);
+    }
+
+    points.push(center); // Close the wedge
+
+    // Create the wedge polygon
+    const wedge = L.polygon(points, {
+      color: '#3b82f6',
+      fillColor: '#3b82f6',
+      fillOpacity: 0.15,
+      weight: 2,
+      dashArray: '5, 5'
+    });
+
+    wedge.addTo(this.directionLayer);
+
+    // Add direction label at the edge
+    const labelAngle = heading;
+    const labelRadians = (90 - labelAngle) * Math.PI / 180;
+    const labelDistance = radius * 0.7;
+    const labelLat = center[0] + (labelDistance / 111) * Math.sin(labelRadians);
+    const labelLng = center[1] + (labelDistance / (111 * Math.cos(center[0] * Math.PI / 180))) * Math.cos(labelRadians);
+
+    const directionName = this.compassDirections.find(d => d.heading === heading)?.label || '';
+    const directionIcon = L.divIcon({
+      className: 'direction-label',
+      html: `<div style="background:rgba(59,130,246,0.9);color:white;padding:4px 8px;border-radius:4px;font-size:12px;font-weight:600;white-space:nowrap;box-shadow:0 2px 4px rgba(0,0,0,0.2);">
+        <i class="pi pi-arrow-up" style="transform:rotate(${heading}deg);display:inline-block;margin-right:4px;"></i>
+        ${directionName}
+      </div>`,
+      iconSize: [80, 24],
+      iconAnchor: [40, 12]
+    });
+
+    L.marker([labelLat, labelLng], { icon: directionIcon, interactive: false }).addTo(this.directionLayer);
   }
 
   private updateMapMarkers(): void {
@@ -325,14 +432,24 @@ export class AdminBatchingComponent implements OnInit {
     this.algorithmSettings.update(settings => ({ ...settings, [key]: value }));
   }
 
+  onSimulationLimitChange(limit: number | null): void {
+    this.simulationLimit.set(limit);
+    // Reload orders with new limit
+    this.loadPendingOrders();
+  }
+
   private getSmartBatchingParams() {
     const settings = this.algorithmSettings();
+    const simLimit = this.simulationLimit();
+    const priorityHead = this.priorityHeading();
     return {
       strategy: settings.strategy,
       maxOrders: settings.maxOrders || undefined,
       maxWeight: settings.maxWeight || undefined,
       groupingMode: settings.groupingMode,
-      headingTolerance: settings.headingTolerance
+      headingTolerance: settings.headingTolerance,
+      simulationLimit: simLimit || undefined,
+      priorityHeading: priorityHead !== null ? priorityHead : undefined
     };
   }
 
@@ -344,6 +461,7 @@ export class AdminBatchingComponent implements OnInit {
       next: (response) => {
         if (response.success && response.batches.length > 0) {
           this.smartBatches.set(response.batches);
+          this.leftoverOrders.set(response.leftover_orders || []);
           this.smartBatchingActive.set(true);
 
           // Load customer routes to get real polylines
@@ -352,10 +470,19 @@ export class AdminBatchingComponent implements OnInit {
               this.customerRoutes.set(routes);
               this.runningSmartBatch.set(false);
               this.drawCorridorRoutes();
-              this.toast.showSuccess('admin.batching.smart_preview_success', {
-                batches: response.batches.length,
-                orders: response.summary.total_orders
-              });
+
+              // Show warning if there are leftover orders
+              if (response.leftover_orders?.length > 0) {
+                this.toast.showWarn('admin.batching.leftover_warning', {
+                  assigned: response.summary.orders_assigned,
+                  leftover: response.summary.orders_leftover
+                });
+              } else {
+                this.toast.showSuccess('admin.batching.smart_preview_success', {
+                  batches: response.batches.length,
+                  orders: response.summary.orders_assigned
+                });
+              }
             },
             error: () => {
               this.runningSmartBatch.set(false);
@@ -363,12 +490,13 @@ export class AdminBatchingComponent implements OnInit {
               this.drawCorridorRoutes();
               this.toast.showSuccess('admin.batching.smart_preview_success', {
                 batches: response.batches.length,
-                orders: response.summary.total_orders
+                orders: response.summary.orders_assigned || response.summary.total_orders
               });
             }
           });
         } else {
           this.runningSmartBatch.set(false);
+          this.leftoverOrders.set([]);
           this.toast.showWarn('admin.batching.no_orders_to_batch');
         }
       },
@@ -403,6 +531,7 @@ export class AdminBatchingComponent implements OnInit {
   deactivateSmartBatching(): void {
     this.smartBatchingActive.set(false);
     this.smartBatches.set([]);
+    this.leftoverOrders.set([]);
     this.corridorLayers = {};
     this.corridorVisibility.set({});
     this.connectionsLayer?.clearLayers();
@@ -447,8 +576,9 @@ export class AdminBatchingComponent implements OnInit {
     this.corridorLayers = {};
     const visibility: Record<string, boolean> = {};
 
-    // Build lookup: lat_lng -> route_polyline
+    // Build lookups: user_id -> route coordinates, order_id -> user_id
     const routeLookup = this.buildRouteLookup();
+    const orderToUserLookup = this.buildOrderToUserLookup();
 
     const batches = this.smartBatches();
 
@@ -516,9 +646,9 @@ export class AdminBatchingComponent implements OnInit {
           this.corridorLayers[corridorKey].markers.push(marker);
         }, batchIndex * 200 + stopIndex * 80);
 
-        // Find matching route coordinates and draw it
-        const coordKey = `${stop.latitude.toFixed(4)}_${stop.longitude.toFixed(4)}`;
-        const routeCoords = routeLookup.get(coordKey);
+        // Find matching route coordinates using order_id -> user_id -> route
+        const userId = orderToUserLookup.get(stop.order_id);
+        const routeCoords = userId ? routeLookup.get(userId) : undefined;
 
         if (routeCoords && routeCoords.length > 0) {
           setTimeout(() => {
@@ -541,28 +671,35 @@ export class AdminBatchingComponent implements OnInit {
   }
 
   /**
-   * Build a lookup map from coordinates to route coordinates array
+   * Build a lookup map from user_id to route coordinates array
    */
-  private buildRouteLookup(): Map<string, [number, number][]> {
-    const lookup = new Map<string, [number, number][]>();
+  private buildRouteLookup(): Map<number, [number, number][]> {
+    const lookup = new Map<number, [number, number][]>();
     const routes = this.customerRoutes();
 
     routes.forEach(route => {
       if (!route.coordinates || route.coordinates.length < 2) return;
-
-      // Get end coordinates (customer location) - coordinates are [lng, lat]
-      const endCoord = route.coordinates[route.coordinates.length - 1];
-      // Convert to [lat, lng] for the key
-      const key = `${endCoord[1].toFixed(4)}_${endCoord[0].toFixed(4)}`;
 
       // Convert all coordinates to [lat, lng] for Leaflet
       const latLngs: [number, number][] = route.coordinates.map(
         coord => [coord[1], coord[0]] as [number, number]
       );
 
-      lookup.set(key, latLngs);
+      // Use user_id as the key for reliable matching
+      lookup.set(route.user_id, latLngs);
     });
 
+    return lookup;
+  }
+
+  /**
+   * Build a lookup map from order_id to user_id
+   */
+  private buildOrderToUserLookup(): Map<number, number> {
+    const lookup = new Map<number, number>();
+    this.pendingOrders().forEach(order => {
+      lookup.set(order.id, order.user_id);
+    });
     return lookup;
   }
 
@@ -736,7 +873,8 @@ export class AdminBatchingComponent implements OnInit {
 
   loadPendingOrders(): void {
     this.loadingOrders.set(true);
-    this.batchingService.getPendingOrders().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+    const limit = this.simulationLimit();
+    this.batchingService.getPendingOrders(limit ?? undefined).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (orders) => {
         this.pendingOrders.set(orders);
         this.loadingOrders.set(false);

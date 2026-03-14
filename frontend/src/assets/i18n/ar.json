@@ -1994,14 +1994,21 @@
       "total_capacity": "السعة الإجمالية",
       "no_trucks": "لا توجد شاحنات متاحة",
       "orders_weight": "وزن الطلبات",
+      "trucks_assigned": "شاحنات مخصصة",
+      "orders_leftover": "طلبات لم يتم تخصيصها",
+      "leftover_warning": "{{assigned}} طلب مخصص، {{leftover}} لم يتم تخصيصها (سعة غير كافية)",
       "algorithm_settings": "إعدادات الخوارزمية",
       "settings": {
+        "simulation_limit": "عينة المحاكاة",
+        "simulation_hint": "اختر طلبات عشوائية لاختبار الخوارزمية",
         "strategy": "استراتيجية المسار",
         "grouping_mode": "وضع التجميع",
         "max_orders": "الحد الأقصى للطلبات لكل دفعة",
         "max_weight": "الحد الأقصى للوزن لكل دفعة",
         "heading_tolerance": "تسامح الاتجاه",
         "heading_hint": "زاوية التباين المسموح بها لتجميع الطلبات المتجهة في نفس الاتجاه",
+        "priority_direction": "الاتجاه الأولوي",
+        "priority_hint": "انقر على اتجاه لإعطاء الأولوية للطلبات المتجهة في ذلك الاتجاه",
         "unlimited": "غير محدود",
         "auto": "تلقائي (سعة المركبة)"
       }

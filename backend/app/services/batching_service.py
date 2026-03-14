@@ -340,13 +340,31 @@ def calculate_standard_shipping_discount(original_cost: float) -> float:
     return round(original_cost - discount, 2)
 
 
-def get_pending_orders_with_details(session: Session) -> list[dict]:
+def get_pending_orders_with_details(
+    session: Session,
+    limit: Optional[int] = None,
+    random_sample: bool = False
+) -> list[dict]:
     """
     Get all pending batchable orders with details for the UI.
     Returns order info needed for drag-drop interface including coordinates for map display.
     Includes corridor and heading from pre-computed customer routes.
+
+    Args:
+        session: Database session
+        limit: Maximum number of orders to return (for simulation testing)
+        random_sample: If True with limit, returns random orders instead of first N
     """
+    import random as rand
+
     orders = get_pending_batchable_orders(session)
+
+    # Apply limit and random sampling for simulation
+    if limit and limit > 0 and len(orders) > limit:
+        if random_sample:
+            orders = rand.sample(list(orders), limit)
+        else:
+            orders = orders[:limit]
 
     result = []
     for order in orders:
@@ -360,6 +378,7 @@ def get_pending_orders_with_details(session: Session) -> list[dict]:
 
         result.append({
             "id": order.id,
+            "user_id": order.user_id,
             "customer_name": order.user.full_name if order.user else "Unknown",
             "address": order.shipping_address,
             "zone": zone or "unknown",

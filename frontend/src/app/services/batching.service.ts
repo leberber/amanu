@@ -213,9 +213,23 @@ export class BatchingService {
 
   /**
    * Get all pending batchable orders for drag-drop UI
+   * @param limit Optional limit for simulation (5, 10, 15, etc.)
+   * @param randomSample If true with limit, returns random orders
    */
-  getPendingOrders(): Observable<PendingOrder[]> {
-    return this.http.get<PendingOrdersResponse>(`${this.apiUrl}${API_ENDPOINTS.ORDERS}`).pipe(
+  getPendingOrders(limit?: number, randomSample = true): Observable<PendingOrder[]> {
+    let url = `${this.apiUrl}${API_ENDPOINTS.ORDERS}`;
+    const params: string[] = [];
+
+    if (limit && limit > 0) {
+      params.push(`limit=${limit}`);
+      params.push(`random_sample=${randomSample}`);
+    }
+
+    if (params.length > 0) {
+      url += '?' + params.join('&');
+    }
+
+    return this.http.get<PendingOrdersResponse>(url).pipe(
       map(response => response.orders),
       tap(orders => this._pendingOrders.set(orders))
     );
@@ -260,6 +274,8 @@ export class BatchingService {
     if (params.maxOrders) queryParams.push(`max_orders=${params.maxOrders}`);
     if (params.groupingMode) queryParams.push(`grouping_mode=${params.groupingMode}`);
     if (params.headingTolerance) queryParams.push(`heading_tolerance=${params.headingTolerance}`);
+    if (params.simulationLimit) queryParams.push(`simulation_limit=${params.simulationLimit}`);
+    if (params.priorityHeading !== undefined) queryParams.push(`priority_heading=${params.priorityHeading}`);
     return queryParams.length > 0 ? '?' + queryParams.join('&') : '';
   }
 
@@ -346,6 +362,8 @@ export interface SmartBatch {
   total_weight_kg: number;
   total_distance_km: number;
   total_earnings: number;
+  capacity_kg: number;
+  capacity_used_pct: number;
   heading_range?: {
     min: number;
     max: number;
@@ -359,18 +377,33 @@ export interface SmartBatch {
   stops: SmartBatchStop[];
 }
 
+export interface LeftoverOrder {
+  order_id: number;
+  customer_name: string;
+  address: string;
+  weight_kg: number;
+  heading: number;
+  distance_km: number;
+  reason: 'no_capacity' | 'heading_mismatch';
+}
+
 export interface SmartBatchingResponse {
   success: boolean;
   message?: string;
   error?: string;
   batches: SmartBatch[];
+  leftover_orders: LeftoverOrder[];
   summary: {
     total_orders: number;
+    orders_assigned: number;
+    orders_leftover: number;
     total_batches: number;
-    by_corridor?: Record<string, number>;
-    drivers_available?: number;
-    batch_capacity_kg?: number;
+    trucks_available: number;
+    trucks_used: number;
+    by_direction?: Record<string, number>;
     strategy?: string;
+    grouping_mode?: string;
+    heading_tolerance?: number;
   };
   trips_created?: number;
   trips?: Array<{
@@ -422,4 +455,6 @@ export interface SmartBatchingParams {
   maxOrders?: number;
   groupingMode?: 'corridor_and_heading' | 'corridor_only' | 'heading_only';
   headingTolerance?: number;
+  simulationLimit?: number;
+  priorityHeading?: number;
 }

@@ -1998,6 +1998,9 @@
       "show_routes": "Show routes",
       "routes_load_error": "Failed to load route data",
       "no_orders_to_batch": "No orders available for batching",
+      "trucks_assigned": "trucks assigned",
+      "orders_leftover": "orders couldn't fit",
+      "leftover_warning": "{{assigned}} orders assigned, {{leftover}} couldn't fit (no truck capacity)",
       "total": "Total",
       "reinitialize": "Reinitialize",
       "reinitialize_confirm": "Reset all trips? Orders will be returned to pending.",
@@ -2010,12 +2013,16 @@
       "orders_weight": "Orders Weight",
       "algorithm_settings": "Algorithm Settings",
       "settings": {
+        "simulation_limit": "Simulation Sample",
+        "simulation_hint": "Select random orders for testing the algorithm",
         "strategy": "Route Strategy",
         "grouping_mode": "Grouping Mode",
         "max_orders": "Max Orders per Batch",
         "max_weight": "Max Weight per Batch",
         "heading_tolerance": "Direction Tolerance",
         "heading_hint": "Angle variance allowed for grouping orders going in similar directions",
+        "priority_direction": "Priority Direction",
+        "priority_hint": "Click a direction to prioritize orders going that way first",
         "unlimited": "Unlimited",
         "auto": "Auto (driver capacity)"
       }

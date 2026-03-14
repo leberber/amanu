@@ -174,11 +174,13 @@ class SmartBatchingParams(SQLModel):
 
 @router.get("/smart-preview")
 def preview_smart_order_batching(
-    strategy: str = "farthest_first",
+    strategy: str = "nearest_first",
     max_weight: Optional[float] = None,
     max_orders: Optional[int] = None,
     grouping_mode: str = "corridor_and_heading",
     heading_tolerance: float = 30.0,
+    simulation_limit: Optional[int] = None,
+    priority_heading: Optional[float] = None,
     current_user: User = Depends(get_current_staff_user),
     session: Session = Depends(get_session),
 ) -> Any:
@@ -186,11 +188,12 @@ def preview_smart_order_batching(
     Preview smart corridor-based batching.
 
     Parameters:
-    - strategy: "farthest_first" (recommended) or "nearest_first"
+    - strategy: "nearest_first" (recommended) or "farthest_first"
     - max_weight: Maximum weight per batch in kg (default: smallest driver capacity)
     - max_orders: Maximum orders per batch (default: unlimited)
     - grouping_mode: "corridor_and_heading" (default), "corridor_only", or "heading_only"
     - heading_tolerance: Degrees tolerance for heading grouping (default: 30)
+    - priority_heading: Direction to prioritize (0=N, 90=E, 180=S, 270=W)
 
     This uses:
     - Stored route data (corridors)
@@ -203,18 +206,21 @@ def preview_smart_order_batching(
         max_weight_per_batch=max_weight,
         max_orders_per_batch=max_orders,
         grouping_mode=grouping_mode,
-        heading_tolerance=heading_tolerance
+        heading_tolerance=heading_tolerance,
+        simulation_limit=simulation_limit,
+        priority_heading=priority_heading
     )
     return result
 
 
 @router.post("/smart-run")
 def run_smart_order_batching(
-    strategy: str = "farthest_first",
+    strategy: str = "nearest_first",
     max_weight: Optional[float] = None,
     max_orders: Optional[int] = None,
     grouping_mode: str = "corridor_and_heading",
     heading_tolerance: float = 30.0,
+    priority_heading: Optional[float] = None,
     current_user: User = Depends(get_current_admin_user),
     session: Session = Depends(get_session),
 ) -> Any:
@@ -222,15 +228,16 @@ def run_smart_order_batching(
     Run smart corridor-based batching and create trips.
 
     Parameters:
-    - strategy: "farthest_first" (recommended) or "nearest_first"
+    - strategy: "nearest_first" (recommended) or "farthest_first"
     - max_weight: Maximum weight per batch in kg
     - max_orders: Maximum orders per batch
     - grouping_mode: "corridor_and_heading", "corridor_only", or "heading_only"
     - heading_tolerance: Degrees tolerance for heading grouping
+    - priority_heading: Direction to prioritize (0=N, 90=E, 180=S, 270=W)
 
     This creates optimized trips:
     - Groups orders by corridor (same road)
-    - Sorts by distance (farthest first = no backtracking)
+    - Sorts by distance (nearest first = efficient routing)
     - Respects driver vehicle capacity
     - Assigns drivers automatically
     """
@@ -241,7 +248,8 @@ def run_smart_order_batching(
         max_weight_per_batch=max_weight,
         max_orders_per_batch=max_orders,
         grouping_mode=grouping_mode,
-        heading_tolerance=heading_tolerance
+        heading_tolerance=heading_tolerance,
+        priority_heading=priority_heading
     )
     return result
 
@@ -298,14 +306,20 @@ class PendingOrdersListResponse(SQLModel):
 
 @router.get("/orders", response_model=PendingOrdersListResponse)
 def get_pending_orders(
+    limit: Optional[int] = None,
+    random_sample: bool = False,
     current_user: User = Depends(get_current_staff_user),
     session: Session = Depends(get_session),
 ) -> Any:
     """
     Get all pending batchable orders for the drag-drop UI.
     Returns orders that can be grouped into trips.
+
+    Parameters:
+    - limit: Maximum number of orders to return (for simulation)
+    - random_sample: If True with limit, returns random orders instead of first N
     """
-    orders = get_pending_orders_with_details(session)
+    orders = get_pending_orders_with_details(session, limit=limit, random_sample=random_sample)
     return {
         "orders": orders,
         "total": len(orders)

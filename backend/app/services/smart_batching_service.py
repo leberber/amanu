@@ -191,27 +191,33 @@ class SmartBatchingService:
         self,
         max_weight_per_batch: Optional[float] = None,
         max_orders_per_batch: Optional[int] = None,
-        strategy: str = "farthest_first",
+        strategy: str = "nearest_first",
         grouping_mode: str = "corridor_and_heading",
-        heading_tolerance: float = 30.0
+        heading_tolerance: float = 30.0,
+        simulation_limit: Optional[int] = None,
+        priority_heading: Optional[float] = None
     ) -> Dict:
         """
         Create optimized batches from pending orders.
 
+        New logic:
+        1. Get available trucks (drivers) with their capacities
+        2. Sort orders by heading (direction) and distance
+        3. For each truck, fill with orders going same direction until capacity
+        4. Create only as many batches as trucks available
+        5. Track leftover orders that couldn't fit
+
         Args:
             max_weight_per_batch: Override driver capacity (optional)
-            max_orders_per_batch: Maximum orders per batch (optional, default unlimited)
-            strategy: "farthest_first" (default) or "nearest_first"
-                - farthest_first: Go to farthest customer first, deliver on way back
-                - nearest_first: Start with nearest, work outward
-            grouping_mode: How to group orders
-                - "corridor_and_heading": Group by corridor then sort by heading (default)
-                - "corridor_only": Group by corridor, sort by distance only
-                - "heading_only": Ignore corridor, group by heading ranges
-            heading_tolerance: Degrees tolerance for heading-based grouping (default 30)
+            max_orders_per_batch: Maximum orders per batch (optional)
+            strategy: "farthest_first" or "nearest_first"
+            grouping_mode: "heading_only", "corridor_and_heading", "corridor_only"
+            heading_tolerance: Degrees tolerance for heading grouping (default 30)
+            simulation_limit: Limit orders for testing
+            priority_heading: Direction to prioritize first (0-360 degrees, e.g., 0=N, 90=E)
 
         Returns:
-            Dict with batches grouped by corridor
+            Dict with batches, leftover orders, and capacity info
         """
         # Get drivers and their capacities
         drivers = self.get_active_drivers()
@@ -220,12 +226,9 @@ class SmartBatchingService:
                 "success": False,
                 "error": "No active drivers available",
                 "batches": [],
+                "leftover_orders": [],
                 "summary": {}
             }
-
-        # Use smallest driver capacity as default batch limit (or override)
-        default_capacity = min(d.capacity_kg for d in drivers)
-        batch_capacity = max_weight_per_batch or default_capacity
 
         # Get orders with routes
         orders = self.get_pending_orders_with_routes()
@@ -234,69 +237,163 @@ class SmartBatchingService:
                 "success": True,
                 "message": "No pending orders to batch",
                 "batches": [],
+                "leftover_orders": [],
                 "summary": {"total_orders": 0, "total_batches": 0}
             }
 
-        # Group orders based on grouping_mode
-        if grouping_mode == "heading_only":
-            # Group by heading ranges (ignoring corridor)
-            corridors = self._group_by_heading(orders, heading_tolerance)
-        else:
-            # Group by corridor (default)
-            corridors = defaultdict(list)
-            for order in orders:
-                corridors[order.corridor].append(order)
+        # Apply simulation limit (random sample for testing)
+        if simulation_limit and simulation_limit > 0 and len(orders) > simulation_limit:
+            import random
+            orders = random.sample(orders, simulation_limit)
 
-        # Sort each corridor based on mode
+        # Sort orders by heading first, then by distance (for same heading)
         reverse_distance = (strategy == "farthest_first")
-        for corridor in corridors:
-            if grouping_mode == "corridor_only":
-                # Sort by distance only
-                corridors[corridor].sort(
-                    key=lambda x: -x.distance_meters if reverse_distance else x.distance_meters
-                )
+
+        def heading_sort_key(order):
+            """Sort by angular distance from priority heading, then by distance."""
+            if priority_heading is not None:
+                # Calculate angular distance from priority heading (0-180 degrees)
+                diff = abs(order.heading - priority_heading)
+                angular_distance = min(diff, 360 - diff)
             else:
-                # Sort by heading (to group similar directions), then by distance
-                corridors[corridor].sort(
-                    key=lambda x: (x.heading, -x.distance_meters if reverse_distance else x.distance_meters)
-                )
+                # No priority - just use raw heading
+                angular_distance = order.heading
 
-        # Create batches respecting capacity and max orders
+            distance_key = -order.distance_meters if reverse_distance else order.distance_meters
+            return (angular_distance, distance_key)
+
+        orders.sort(key=heading_sort_key)
+
+        # Create batches - one per available truck
         all_batches = []
-
-        for corridor, corridor_orders in corridors.items():
-            corridor_batches = self._create_batches_for_corridor(
-                corridor, corridor_orders, batch_capacity, max_orders_per_batch
-            )
-            all_batches.extend(corridor_batches)
-
-        # Assign drivers to batches (simple round-robin for now)
+        assigned_order_ids = set()
         available_drivers = list(drivers)
-        for i, batch in enumerate(all_batches):
-            if available_drivers:
-                # Find a driver with enough capacity
-                for driver in available_drivers:
-                    if driver.capacity_kg >= batch.total_weight_kg:
-                        batch.assigned_driver = driver
-                        break
+
+        for driver in available_drivers:
+            driver_capacity = max_weight_per_batch or driver.capacity_kg
+
+            # Find orders that fit in this truck
+            # Group by similar heading (within tolerance)
+            batch = SmartBatch(corridor="")
+            batch.assigned_driver = driver
+            current_weight = 0.0
+            batch_headings = []
+
+            for order in orders:
+                # Skip already assigned orders
+                if order.order_id in assigned_order_ids:
+                    continue
+
+                # Check if order fits (weight and count)
+                if current_weight + order.weight_kg > driver_capacity:
+                    continue
+                if max_orders_per_batch and len(batch.orders) >= max_orders_per_batch:
+                    break
+
+                # Check heading compatibility (if batch has orders)
+                if batch.orders:
+                    avg_batch_heading = sum(batch_headings) / len(batch_headings)
+                    heading_diff = abs(order.heading - avg_batch_heading)
+                    # Handle wrap-around (e.g., 350° vs 10°)
+                    if heading_diff > 180:
+                        heading_diff = 360 - heading_diff
+
+                    if heading_diff > heading_tolerance:
+                        continue  # Skip orders going different direction
+
+                # Add order to batch
+                batch.orders.append(order)
+                batch.total_weight_kg += order.weight_kg
+                batch.total_earnings += order.shipping_cost
+                current_weight += order.weight_kg
+                batch_headings.append(order.heading)
+                assigned_order_ids.add(order.order_id)
+
+                if order.distance_meters > batch.total_distance_meters:
+                    batch.total_distance_meters = order.distance_meters
+
+            # Finalize batch if it has orders
+            if batch.orders:
+                avg_heading = sum(o.heading for o in batch.orders) / len(batch.orders)
+                batch.corridor = self._heading_to_direction(avg_heading)
+                all_batches.append(batch)
+
+        # Collect leftover orders (not assigned to any batch)
+        leftover_orders = []
+        for order in orders:
+            if order.order_id not in assigned_order_ids:
+                leftover_orders.append({
+                    "order_id": order.order_id,
+                    "customer_name": order.customer_name,
+                    "address": order.address,
+                    "weight_kg": round(order.weight_kg, 2),
+                    "heading": round(order.heading, 1),
+                    "distance_km": round(order.distance_meters / 1000, 1),
+                    "reason": "no_capacity" if len(all_batches) >= len(drivers) else "heading_mismatch"
+                })
+
+        # Build summary
+        by_direction = {}
+        for batch in all_batches:
+            by_direction[batch.corridor] = by_direction.get(batch.corridor, 0) + 1
 
         return {
             "success": True,
-            "batches": [self._batch_to_dict(b) for b in all_batches],
+            "batches": [self._batch_to_dict_with_capacity(b, drivers) for b in all_batches],
+            "leftover_orders": leftover_orders,
             "summary": {
                 "total_orders": len(orders),
+                "orders_assigned": len(assigned_order_ids),
+                "orders_leftover": len(leftover_orders),
                 "total_batches": len(all_batches),
-                "by_corridor": {
-                    corridor: len([b for b in all_batches if b.corridor == corridor])
-                    for corridor in corridors.keys()
-                },
-                "drivers_available": len(drivers),
-                "batch_capacity_kg": batch_capacity,
-                "max_orders_per_batch": max_orders_per_batch,
+                "trucks_available": len(drivers),
+                "trucks_used": len(all_batches),
+                "by_direction": by_direction,
                 "strategy": strategy,
                 "grouping_mode": grouping_mode,
                 "heading_tolerance": heading_tolerance
             }
+        }
+
+    def _batch_to_dict_with_capacity(self, batch: SmartBatch, drivers: List[DriverCapacity]) -> Dict:
+        """Convert batch to dictionary with capacity utilization info."""
+        driver_capacity = batch.assigned_driver.capacity_kg if batch.assigned_driver else 500
+        capacity_used_pct = round((batch.total_weight_kg / driver_capacity) * 100, 1) if driver_capacity > 0 else 0
+
+        return {
+            "corridor": batch.corridor,
+            "order_count": batch.order_count,
+            "order_ids": batch.order_ids,
+            "total_weight_kg": round(batch.total_weight_kg, 2),
+            "total_distance_km": round(batch.total_distance_meters / 1000, 1),
+            "total_earnings": round(batch.total_earnings, 2),
+            "capacity_kg": driver_capacity,
+            "capacity_used_pct": capacity_used_pct,
+            "heading_range": {
+                "min": round(batch.min_heading, 1),
+                "max": round(batch.max_heading, 1),
+            },
+            "assigned_driver": {
+                "id": batch.assigned_driver.driver_id,
+                "name": batch.assigned_driver.driver_name,
+                "capacity_kg": batch.assigned_driver.capacity_kg,
+                "vehicle_type": batch.assigned_driver.vehicle_type
+            } if batch.assigned_driver else None,
+            "stops": [
+                {
+                    "sequence": i + 1,
+                    "order_id": o.order_id,
+                    "customer_name": o.customer_name,
+                    "address": o.address,
+                    "phone": o.phone,
+                    "weight_kg": round(o.weight_kg, 2),
+                    "distance_km": round(o.distance_meters / 1000, 1),
+                    "heading": round(o.heading, 1),
+                    "latitude": o.latitude,
+                    "longitude": o.longitude,
+                }
+                for i, o in enumerate(batch.orders)
+            ]
         }
 
     def _group_by_heading(
@@ -526,11 +623,13 @@ class SmartBatchingService:
 
 def preview_smart_batching(
     session: Session,
-    strategy: str = "farthest_first",
+    strategy: str = "nearest_first",
     max_weight_per_batch: Optional[float] = None,
     max_orders_per_batch: Optional[int] = None,
     grouping_mode: str = "corridor_and_heading",
-    heading_tolerance: float = 30.0
+    heading_tolerance: float = 30.0,
+    simulation_limit: Optional[int] = None,
+    priority_heading: Optional[float] = None
 ) -> Dict:
     """
     Preview smart batching without creating trips.
@@ -542,18 +641,21 @@ def preview_smart_batching(
         max_orders_per_batch=max_orders_per_batch,
         strategy=strategy,
         grouping_mode=grouping_mode,
-        heading_tolerance=heading_tolerance
+        heading_tolerance=heading_tolerance,
+        simulation_limit=simulation_limit,
+        priority_heading=priority_heading
     )
 
 
 def run_smart_batching(
     session: Session,
     created_by_id: Optional[int] = None,
-    strategy: str = "farthest_first",
+    strategy: str = "nearest_first",
     max_weight_per_batch: Optional[float] = None,
     max_orders_per_batch: Optional[int] = None,
     grouping_mode: str = "corridor_and_heading",
-    heading_tolerance: float = 30.0
+    heading_tolerance: float = 30.0,
+    priority_heading: Optional[float] = None
 ) -> Dict:
     """
     Run smart batching and create trips.
@@ -566,7 +668,8 @@ def run_smart_batching(
         max_orders_per_batch=max_orders_per_batch,
         strategy=strategy,
         grouping_mode=grouping_mode,
-        heading_tolerance=heading_tolerance
+        heading_tolerance=heading_tolerance,
+        priority_heading=priority_heading
     )
 
     if not result.get("success") or not result.get("batches"):

@@ -153,6 +153,7 @@ export interface PickupOrderResponse {
 // Drag-drop batching models
 export interface PendingOrder {
   id: number;
+  user_id: number;
   customer_name: string;
   address: string;
   zone: string;
