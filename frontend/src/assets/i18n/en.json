@@ -2012,6 +2012,7 @@
       "capacity_exceeded": "Vehicle capacity exceeded",
       "no_orders_selected": "No orders selected",
       "batch_created": "Batch created successfully",
+      "batch_create_error": "Failed to create batch",
       "available_trucks": "Available Trucks",
       "total_capacity": "Total Capacity",
       "no_trucks": "No trucks available",

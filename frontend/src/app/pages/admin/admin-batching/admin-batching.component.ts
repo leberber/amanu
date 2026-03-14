@@ -707,6 +707,75 @@ export class AdminBatchingComponent implements OnInit {
 
     // Set visibility state
     this.corridorVisibility.set(visibility);
+
+    // Draw ghost markers for leftover orders (orders in selected corridors that weren't assigned)
+    this.drawLeftoverOrderMarkers();
+  }
+
+  /**
+   * Draw ghost markers for leftover orders that weren't assigned to any batch
+   */
+  private drawLeftoverOrderMarkers(): void {
+    const leftoverOrders = this.leftoverOrders();
+    if (!leftoverOrders.length || !this.markersLayer) return;
+
+    // Get coordinates from pending orders
+    const pendingOrdersMap = new Map(
+      this.pendingOrders().map(o => [o.id, o])
+    );
+
+    // Only show leftover orders that are in selected corridors
+    const selectedCorridors = this.selectedCorridorFilters();
+
+    leftoverOrders.forEach((leftover, index) => {
+      // Skip if not in selected corridors (when filter is active)
+      if (selectedCorridors.length > 0 && !selectedCorridors.includes(leftover.corridor)) {
+        return;
+      }
+
+      const pendingOrder = pendingOrdersMap.get(leftover.order_id);
+      if (!pendingOrder || !pendingOrder.latitude || !pendingOrder.longitude) return;
+
+      // Create ghost marker (dashed gray style)
+      setTimeout(() => {
+        if (!this.markersLayer) return;
+
+        const weightDisplay = leftover.weight_kg >= 10
+          ? Math.round(leftover.weight_kg).toString()
+          : leftover.weight_kg.toFixed(1);
+
+        const icon = L.divIcon({
+          className: 'ghost-marker',
+          html: `
+            <div style="
+              width: 36px;
+              height: 36px;
+              background: rgba(100, 100, 100, 0.4);
+              border: 2px dashed #999;
+              border-radius: 50%;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              color: #666;
+              font-size: 10px;
+              font-weight: 700;
+            ">${weightDisplay}</div>
+          `,
+          iconSize: [36, 36],
+          iconAnchor: [18, 18]
+        });
+
+        const marker = L.marker([pendingOrder.latitude!, pendingOrder.longitude!], { icon });
+        marker.bindPopup(`
+          <div style="text-align:center;padding:8px;">
+            <strong style="color:#666;">${leftover.customer_name}</strong><br>
+            <span style="color:#999;font-size:12px;">Non assigné - ${weightDisplay} kg</span><br>
+            <span style="color:#999;font-size:11px;">${leftover.corridor}</span>
+          </div>
+        `);
+        marker.addTo(this.markersLayer!);
+      }, index * 50);
+    });
   }
 
   /**
@@ -1344,17 +1413,32 @@ export class AdminBatchingComponent implements OnInit {
       return;
     }
 
-    // TODO: Call API to create the batch/trip
-    this.toast.showSuccess('admin.batching.batch_created');
+    // Create batch with order IDs
+    const orderIds = orders.map(o => o.id);
 
-    // Clear the vehicle batch and ghost markers
-    orders.forEach(order => this.removeGhostMarker(order.id));
+    this.batchingService.runCustomBatching([{ order_ids: orderIds }])
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          if (response.trips_created > 0) {
+            this.toast.showSuccess('admin.batching.batch_created');
 
-    const batches = { ...this.vehicleBatches() };
-    delete batches[driverId];
-    this.vehicleBatches.set(batches);
+            // Clear the vehicle batch and ghost markers
+            orders.forEach(order => this.removeGhostMarker(order.id));
 
-    // Refresh data
-    this.loadPendingOrders();
+            const batches = { ...this.vehicleBatches() };
+            delete batches[driverId];
+            this.vehicleBatches.set(batches);
+
+            // Refresh all data
+            this.refreshAllData();
+          } else {
+            this.toast.showError('admin.batching.batch_create_error');
+          }
+        },
+        error: (err) => {
+          this.toast.showApiError(err, 'admin.batching.batch_create_error');
+        }
+      });
   }
 }

@@ -1995,6 +1995,7 @@
       "capacity_exceeded": "تم تجاوز سعة المركبة",
       "no_orders_selected": "لم يتم تحديد أي طلبات",
       "batch_created": "تم إنشاء الدفعة بنجاح",
+      "batch_create_error": "فشل في إنشاء الدفعة",
       "available_trucks": "الشاحنات المتاحة",
       "total_capacity": "السعة الإجمالية",
       "no_trucks": "لا توجد شاحنات متاحة",

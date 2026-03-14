@@ -2007,6 +2007,7 @@
       "capacity_exceeded": "Capacité du véhicule dépassée",
       "no_orders_selected": "Aucune commande sélectionnée",
       "batch_created": "Lot créé avec succès",
+      "batch_create_error": "Échec de la création du lot",
       "available_trucks": "Camions Disponibles",
       "total_capacity": "Capacité Totale",
       "no_trucks": "Aucun camion disponible",
