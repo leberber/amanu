@@ -91,45 +91,25 @@
           <div class="map-wrapper">
             <div class="map-container" id="batching-map"></div>
 
-            <!-- Trucks & Weight Info -->
-            @if (smartDrivers().length > 0 || pendingOrders().length > 0) {
-              <div class="map-info-panel" @fadeIn>
-                <div class="map-info-panel__section">
-                  <div class="map-info-panel__header">
-                    <i class="pi pi-truck"></i>
-                    <span>{{ 'admin.batching.available_trucks' | translate }}</span>
-                  </div>
-                  @if (smartDrivers().length > 0) {
-                    <div class="map-info-panel__items">
-                      @for (driver of smartDrivers(); track driver.id) {
-                        <div class="map-info-panel__item">
-                          <span class="map-info-panel__driver">{{ driver.name }}</span>
-                          <span class="map-info-panel__capacity">{{ driver.capacity_kg }} kg</span>
-                        </div>
-                      }
-                    </div>
-                    <div class="map-info-panel__total">
-                      <span>{{ 'admin.batching.total_capacity' | translate }}:</span>
-                      <strong>{{ totalTruckCapacity() | number:'1.0-0' }} kg</strong>
-                    </div>
-                  } @else {
-                    <div class="map-info-panel__empty">
-                      <span>{{ 'admin.batching.no_trucks' | translate }}</span>
+            <!-- Available Vehicles Cards -->
+            @if (smartDrivers().length > 0) {
+              <div class="map-vehicles">
+                <div class="map-vehicles__scroll">
+                  @for (driver of smartDrivers(); track driver.id) {
+                    <div class="map-vehicles__card" [class.map-vehicles__card--truck]="driver.vehicle_type === 'truck'" [class.map-vehicles__card--van]="driver.vehicle_type !== 'truck'">
+                      <div class="map-vehicles__icon">
+                        @if (driver.vehicle_type === 'truck') {
+                          <i class="pi pi-truck"></i>
+                        } @else {
+                          <i class="pi pi-car"></i>
+                        }
+                      </div>
+                      <div class="map-vehicles__info">
+                        <span class="map-vehicles__name">{{ driver.name }}</span>
+                        <span class="map-vehicles__capacity">{{ driver.capacity_kg }} kg</span>
+                      </div>
                     </div>
                   }
-                </div>
-
-                <div class="map-info-panel__divider"></div>
-
-                <div class="map-info-panel__section">
-                  <div class="map-info-panel__header">
-                    <i class="pi pi-box"></i>
-                    <span>{{ 'admin.batching.orders_weight' | translate }}</span>
-                  </div>
-                  <div class="map-info-panel__weight">
-                    <span class="map-info-panel__weight-value">{{ totalOrdersWeight() | number:'1.0-1' }} kg</span>
-                    <span class="map-info-panel__weight-count">{{ pendingOrders().length }} {{ 'admin.batching.orders' | translate }}</span>
-                  </div>
                 </div>
               </div>
             }

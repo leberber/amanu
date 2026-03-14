@@ -2031,7 +2031,7 @@
       "customer": "Customer",
       "corridor": "Corridor",
       "select_corridor": "Select or type corridor...",
-      "filter_corridor": "Filter by corridor",
+      "filter_corridor": "Filter by commune/village",
       "configuration": "Configuration",
       "distance": "Distance",
       "duration": "Duration",

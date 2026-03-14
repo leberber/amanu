@@ -2029,7 +2029,7 @@
       "customer": "Client",
       "corridor": "Corridor",
       "select_corridor": "Sélectionner ou saisir corridor...",
-      "filter_corridor": "Filtrer par corridor",
+      "filter_corridor": "Filtrer par commune/village",
       "configuration": "Configuration",
       "distance": "Distance",
       "duration": "Durée",
