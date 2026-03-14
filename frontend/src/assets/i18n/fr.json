@@ -1994,6 +1994,7 @@
       "reset_smart": "Réinitialiser",
       "corridors": "corridors",
       "show_routes": "Afficher les itinéraires",
+      "hide_routes": "Masquer les itinéraires",
       "routes_load_error": "Échec du chargement des données d'itinéraire",
       "no_orders_to_batch": "Aucune commande disponible pour le regroupement",
       "total": "Total",

@@ -1982,6 +1982,7 @@
       "reset_smart": "إعادة تعيين",
       "corridors": "ممرات",
       "show_routes": "عرض المسارات",
+      "hide_routes": "إخفاء المسارات",
       "routes_load_error": "فشل في تحميل بيانات المسار",
       "no_orders_to_batch": "لا توجد طلبات للتجميع",
       "total": "المجموع",

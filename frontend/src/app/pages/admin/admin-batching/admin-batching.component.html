@@ -5,13 +5,6 @@
     @if (loading()) {
       <!-- Header Skeleton -->
       <div class="header-row">
-        <div class="header-title">
-          <div class="skeleton" style="width: 48px; height: 48px; border-radius: 50%;"></div>
-          <div class="title-text">
-            <div class="skeleton" style="width: 150px; height: 24px;"></div>
-            <div class="skeleton" style="width: 200px; height: 14px; margin-top: 6px;"></div>
-          </div>
-        </div>
         <div class="header-stats">
           @for (i of [1,2,3,4]; track i) {
             <div class="skeleton" style="width: 120px; height: 40px; border-radius: var(--radius-lg);"></div>
@@ -21,123 +14,44 @@
     } @else if (stats()) {
       <!-- Header with Stats -->
       <div class="header-row">
-        <div class="header-title">
-          <div class="admin-icon-wrapper">
-            <div class="icon-bg"></div>
-            <div class="icon-circle">
-              <i class="pi pi-sitemap"></i>
-            </div>
-          </div>
-          <div class="title-text">
-            <h1>{{ 'admin.batching.title' | translate }}</h1>
-            <p>{{ 'admin.batching.subtitle' | translate }}</p>
-          </div>
-        </div>
-
-        <div class="header-actions">
-          <div class="header-stats">
-            <div class="stat-pill">
-              <i class="pi pi-inbox"></i>
+        <div class="header-stats">
+          <div class="stat-pill">
+            <i class="pi pi-inbox"></i>
+            <div class="stat-pill__content">
               <span class="stat-pill__value">{{ stats()!.pending_batchable_orders }}</span>
               <span class="stat-pill__label">{{ 'admin.batching.pending_orders' | translate }}</span>
             </div>
-            <div class="stat-pill stat-pill--warning">
-              <i class="pi pi-clock"></i>
+          </div>
+          <div class="stat-pill stat-pill--warning">
+            <i class="pi pi-clock"></i>
+            <div class="stat-pill__content">
               <span class="stat-pill__value">{{ stats()!.pending_trips }}</span>
               <span class="stat-pill__label">{{ 'admin.batching.pending_trips' | translate }}</span>
             </div>
-            <div class="stat-pill stat-pill--info">
-              <i class="pi pi-user"></i>
+          </div>
+          <div class="stat-pill stat-pill--info">
+            <i class="pi pi-user"></i>
+            <div class="stat-pill__content">
               <span class="stat-pill__value">{{ stats()!.assigned_trips }}</span>
               <span class="stat-pill__label">{{ 'admin.batching.assigned_trips' | translate }}</span>
             </div>
-            <div class="stat-pill stat-pill--success">
-              <i class="pi pi-truck"></i>
+          </div>
+          <div class="stat-pill stat-pill--success">
+            <i class="pi pi-truck"></i>
+            <div class="stat-pill__content">
               <span class="stat-pill__value">{{ stats()!.in_progress_trips }}</span>
               <span class="stat-pill__label">{{ 'admin.batching.in_progress' | translate }}</span>
             </div>
           </div>
-
-          <div class="tab-buttons">
-            <button
-              class="tab-btn"
-              [class.active]="activeTab() === 'map'"
-              (click)="setActiveTab('map')">
-              <i class="pi pi-map"></i>
-              {{ 'admin.batching.tab_map' | translate }}
-            </button>
-            <button
-              class="tab-btn"
-              [class.active]="activeTab() === 'trips'"
-              (click)="setActiveTab('trips')">
-              <i class="pi pi-list"></i>
-              {{ 'admin.batching.tab_trips' | translate }}
-            </button>
-          </div>
-
-          @if (activeTab() === 'map') {
-            <div class="flex align-items-center gap-2">
-              <!-- Configuration Button -->
-              <button
-                pButton
-                [label]="'admin.batching.configuration' | translate"
-                icon="pi pi-cog"
-                class="p-button-outlined p-button-sm"
-                [class.p-button-info]="showSettingsDialog"
-                (click)="toggleSettings()">
-              </button>
-
-              <!-- Toggle Customer Paths -->
-              <button
-                pButton
-                [icon]="showCustomerPaths() ? 'pi pi-eye-slash' : 'pi pi-eye'"
-                class="p-button-outlined p-button-sm"
-                [class.p-button-info]="showCustomerPaths()"
-                pTooltip="{{ showCustomerPaths() ? 'Hide Routes' : 'Show All Routes' }}"
-                (click)="toggleCustomerPaths()">
-              </button>
-
-              @if (!smartBatchingActive()) {
-                <!-- Reinitialize Button -->
-                <button
-                  pButton
-                  icon="pi pi-refresh"
-                  class="p-button-outlined p-button-danger p-button-sm"
-                  [loading]="resettingBatches()"
-                  pTooltip="{{ 'admin.batching.reinitialize' | translate }}"
-                  (click)="reinitializeSmartBatching()">
-                </button>
-
-                <!-- Generate Routes Button -->
-                <button
-                  pButton
-                  [label]="'admin.batching.smart_route' | translate"
-                  icon="pi pi-directions"
-                  class="p-button-success p-button-sm"
-                  [loading]="runningSmartBatch()"
-                  [disabled]="pendingOrders().length < 1"
-                  (click)="previewSmartBatching()">
-                </button>
-              } @else {
-                <button
-                  pButton
-                  [label]="'admin.batching.reset_smart' | translate"
-                  icon="pi pi-times"
-                  class="p-button-outlined p-button-sm"
-                  (click)="deactivateSmartBatching()">
-                </button>
-                <button
-                  pButton
-                  [label]="'admin.batching.create_trips' | translate"
-                  icon="pi pi-truck"
-                  class="p-button-success p-button-sm"
-                  [loading]="submittingBatches()"
-                  (click)="runSmartBatching()">
-                </button>
-              }
+          <div class="stat-pill stat-pill--weight">
+            <i class="pi pi-box"></i>
+            <div class="stat-pill__content">
+              <span class="stat-pill__value">{{ totalOrdersWeight() | number:'1.0-0' }} kg</span>
+              <span class="stat-pill__label">{{ 'admin.batching.total_weight' | translate }}</span>
             </div>
-          }
+          </div>
         </div>
+
       </div>
     } @else {
       <!-- Error State -->
@@ -177,47 +91,7 @@
           <div class="map-wrapper">
             <div class="map-container" id="batching-map"></div>
 
-            <!-- Corridor Filter (Top Left) -->
-            <div class="map-corridor-filter" @fadeIn>
-              <div class="map-corridor-filter__header">
-                <i class="pi pi-filter"></i>
-                <span>{{ 'admin.batching.filter_corridor' | translate }}</span>
-                @if (selectedCorridorFilters().length > 0) {
-                  <button class="map-corridor-filter__clear" (click)="clearCorridorFilters()" pTooltip="Clear filters">
-                    <i class="pi pi-times"></i>
-                  </button>
-                }
-              </div>
-              <div class="map-corridor-filter__list">
-                @for (option of corridorOptions(); track option.value) {
-                  <div
-                    class="map-corridor-filter__item"
-                    [class.map-corridor-filter__item--selected]="isCorridorFilterSelected(option.value)"
-                    (click)="toggleCorridorFilter(option.value)">
-                    <span class="map-corridor-filter__checkbox" [class.map-corridor-filter__checkbox--checked]="isCorridorFilterSelected(option.value)">
-                      @if (isCorridorFilterSelected(option.value)) {
-                        <i class="pi pi-check"></i>
-                      }
-                    </span>
-                    <span>{{ option.label }}</span>
-                  </div>
-                }
-                @empty {
-                  <span class="text-secondary text-sm p-2">No corridors available</span>
-                }
-              </div>
-              @if (selectedCorridorFilters().length > 0) {
-                <div class="map-corridor-filter__info">
-                  <span class="font-semibold">{{ filteredPendingOrders().length }}</span>
-                  <span class="text-secondary">{{ 'admin.batching.orders' | translate }}</span>
-                  <span class="mx-2">•</span>
-                  <span class="font-semibold">{{ filteredOrdersWeight() | number:'1.0-1' }}</span>
-                  <span class="text-secondary">kg</span>
-                </div>
-              }
-            </div>
-
-            <!-- Trucks & Weight Info (Below Filter) -->
+            <!-- Trucks & Weight Info -->
             @if (smartDrivers().length > 0 || pendingOrders().length > 0) {
               <div class="map-info-panel" @fadeIn>
                 <div class="map-info-panel__section">
@@ -301,6 +175,107 @@
                 }
               </div>
             }
+          </div>
+
+          <!-- Action Buttons Bar -->
+          <div class="map-actions">
+            <!-- Corridor Filter (Left) -->
+            <div class="map-actions__filter" [class.map-actions__filter--expanded]="corridorFilterExpanded()">
+              <button
+                pButton
+                [label]="selectedCorridorFilters().length > 0
+                  ? ('admin.batching.filter_corridor' | translate) + ' (' + selectedCorridorFilters().length + ')'
+                  : ('admin.batching.filter_corridor' | translate)"
+                icon="pi pi-filter"
+                class="p-button-outlined"
+                (click)="toggleCorridorFilterPanel()">
+              </button>
+              @if (corridorFilterExpanded()) {
+                <div class="map-actions__filter-dropdown">
+                  <div class="map-actions__filter-list">
+                    @for (option of corridorOptions(); track option.value) {
+                      <div
+                        class="map-actions__filter-item"
+                        [class.map-actions__filter-item--selected]="isCorridorFilterSelected(option.value)"
+                        (click)="toggleCorridorFilter(option.value); $event.stopPropagation()">
+                        <span class="map-actions__filter-checkbox" [class.map-actions__filter-checkbox--checked]="isCorridorFilterSelected(option.value)">
+                          @if (isCorridorFilterSelected(option.value)) {
+                            <i class="pi pi-check"></i>
+                          }
+                        </span>
+                        <span>{{ option.label }}</span>
+                      </div>
+                    }
+                    @empty {
+                      <span class="text-secondary text-sm p-2">No corridors available</span>
+                    }
+                  </div>
+                  @if (selectedCorridorFilters().length > 0) {
+                    <div class="map-actions__filter-footer">
+                      <span class="text-sm">
+                        <strong>{{ filteredPendingOrders().length }}</strong> {{ 'admin.batching.orders' | translate }} •
+                        <strong>{{ filteredOrdersWeight() | number:'1.0-1' }}</strong> kg
+                      </span>
+                      <button class="map-actions__filter-clear" (click)="clearCorridorFilters(); $event.stopPropagation()">
+                        <i class="pi pi-times"></i>
+                      </button>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+
+            <!-- Action Buttons (Right) -->
+            <div class="map-actions__buttons">
+              <!-- Toggle Customer Paths -->
+              <button
+                pButton
+                [label]="showCustomerPaths() ? ('admin.batching.hide_routes' | translate) : ('admin.batching.show_routes' | translate)"
+                [icon]="showCustomerPaths() ? 'pi pi-eye-slash' : 'pi pi-eye'"
+                class="p-button-outlined"
+                [class.p-button-info]="showCustomerPaths()"
+                (click)="toggleCustomerPaths()">
+              </button>
+
+              <!-- Reinitialize Button -->
+              <button
+                pButton
+                [label]="'admin.batching.reinitialize' | translate"
+                icon="pi pi-refresh"
+                class="p-button-outlined p-button-danger"
+                [loading]="resettingBatches()"
+                (click)="reinitializeSmartBatching()">
+              </button>
+
+              @if (!smartBatchingActive()) {
+                <!-- Generate Routes Button -->
+                <button
+                  pButton
+                  [label]="'admin.batching.smart_route' | translate"
+                  icon="pi pi-directions"
+                  class="p-button-success"
+                  [loading]="runningSmartBatch()"
+                  [disabled]="pendingOrders().length < 1"
+                  (click)="previewSmartBatching()">
+                </button>
+              } @else {
+                <button
+                  pButton
+                  [label]="'admin.batching.reset_smart' | translate"
+                  icon="pi pi-times"
+                  class="p-button-outlined"
+                  (click)="deactivateSmartBatching()">
+                </button>
+                <button
+                  pButton
+                  [label]="'admin.batching.create_trips' | translate"
+                  icon="pi pi-truck"
+                  class="p-button-success"
+                  [loading]="submittingBatches()"
+                  (click)="runSmartBatching()">
+                </button>
+              }
+            </div>
           </div>
         </div>
       }
@@ -661,79 +636,91 @@
   }
 </p-dialog>
 
-<!-- Configuration Dialog -->
-<p-dialog
-  [(visible)]="showSettingsDialog"
+<!-- Settings Drawer -->
+<p-drawer
+  [(visible)]="showSettingsDrawer"
   [header]="'admin.batching.configuration' | translate"
-  [modal]="true"
-  [style]="{ width: '400px', maxWidth: '95vw' }"
-  [closable]="true">
+  position="left"
+  [modal]="false"
+  styleClass="shadow-none border-right-1 surface-border"
+  [style]="{ width: '350px' }">
 
-  <div class="flex flex-column gap-3">
-    <!-- Simulation Limit -->
-    <div class="flex flex-column gap-1">
-      <label class="font-medium text-sm">{{ 'admin.batching.settings.simulation_limit' | translate }}</label>
-      <p-select
-        [options]="simulationLimitOptions"
-        [ngModel]="simulationLimit()"
-        (ngModelChange)="onSimulationLimitChange($event)"
-        optionLabel="label"
-        optionValue="value"
-        [style]="{ width: '100%' }">
-      </p-select>
-      <small class="text-secondary text-xs">{{ 'admin.batching.settings.simulation_hint' | translate }}</small>
+  <!-- Navigation Links -->
+  <div class="drawer-nav">
+    <div
+      class="drawer-nav__item"
+      [class.drawer-nav__item--active]="activeTab() === 'map'"
+      (click)="setActiveTab('map')">
+      <i class="pi pi-map"></i>
+      <span>{{ 'admin.batching.tab_map' | translate }}</span>
     </div>
-
-    <!-- Strategy -->
-    <div class="flex flex-column gap-1">
-      <label class="font-medium text-sm">{{ 'admin.batching.settings.strategy' | translate }}</label>
-      <p-select
-        [options]="strategyOptions"
-        [ngModel]="algorithmSettings().strategy"
-        (ngModelChange)="updateSetting('strategy', $event)"
-        optionLabel="label"
-        optionValue="value"
-        [style]="{ width: '100%' }">
-      </p-select>
-    </div>
-
-    <!-- Max Orders per Batch -->
-    <div class="flex flex-column gap-1">
-      <label class="font-medium text-sm">{{ 'admin.batching.settings.max_orders' | translate }}</label>
-      <input
-        pInputText
-        type="number"
-        [ngModel]="algorithmSettings().maxOrders"
-        (ngModelChange)="updateSetting('maxOrders', $event)"
-        [placeholder]="'admin.batching.settings.unlimited' | translate"
-        min="1"
-        max="20"
-        class="w-full">
-    </div>
-
-    <!-- Max Weight per Batch -->
-    <div class="flex flex-column gap-1">
-      <label class="font-medium text-sm">{{ 'admin.batching.settings.max_weight' | translate }}</label>
-      <p-inputgroup>
-        <input
-          pInputText
-          type="number"
-          [ngModel]="algorithmSettings().maxWeight"
-          (ngModelChange)="updateSetting('maxWeight', $event)"
-          [placeholder]="'admin.batching.settings.auto' | translate"
-          min="50"
-          max="2000">
-        <p-inputgroup-addon>kg</p-inputgroup-addon>
-      </p-inputgroup>
-    </div>
-
-    <div class="flex justify-content-end gap-2 mt-2">
-      <button
-        pButton
-        [label]="'common.close' | translate"
-        class="p-button-text"
-        (click)="toggleSettings()">
-      </button>
+    <div
+      class="drawer-nav__item"
+      [class.drawer-nav__item--active]="activeTab() === 'trips'"
+      (click)="setActiveTab('trips')">
+      <i class="pi pi-list"></i>
+      <span>{{ 'admin.batching.tab_trips' | translate }}</span>
     </div>
   </div>
-</p-dialog>
+
+  <p-accordion>
+    <p-accordion-panel value="algorithm">
+      <p-accordion-header>{{ 'admin.batching.algorithm_settings' | translate }}</p-accordion-header>
+      <p-accordion-content>
+        <div class="flex flex-column gap-3">
+          <div class="flex flex-column gap-1">
+            <label class="text-xs text-secondary">{{ 'admin.batching.settings.simulation_limit' | translate }}</label>
+            <p-select
+              [options]="simulationLimitOptions"
+              [ngModel]="simulationLimit()"
+              (ngModelChange)="onSimulationLimitChange($event)"
+              optionLabel="label"
+              optionValue="value"
+              [style]="{ width: '100%' }">
+            </p-select>
+          </div>
+
+          <div class="flex flex-column gap-1">
+            <label class="text-xs text-secondary">{{ 'admin.batching.settings.strategy' | translate }}</label>
+            <p-select
+              [options]="strategyOptions"
+              [ngModel]="algorithmSettings().strategy"
+              (ngModelChange)="updateSetting('strategy', $event)"
+              optionLabel="label"
+              optionValue="value"
+              [style]="{ width: '100%' }">
+            </p-select>
+          </div>
+
+          <div class="flex flex-column gap-1">
+            <label class="text-xs text-secondary">{{ 'admin.batching.settings.max_orders' | translate }}</label>
+            <input
+              pInputText
+              type="number"
+              [ngModel]="algorithmSettings().maxOrders"
+              (ngModelChange)="updateSetting('maxOrders', $event)"
+              [placeholder]="'admin.batching.settings.unlimited' | translate"
+              min="1"
+              max="20"
+              class="w-full">
+          </div>
+
+          <div class="flex flex-column gap-1">
+            <label class="text-xs text-secondary">{{ 'admin.batching.settings.max_weight' | translate }}</label>
+            <p-inputgroup>
+              <input
+                pInputText
+                type="number"
+                [ngModel]="algorithmSettings().maxWeight"
+                (ngModelChange)="updateSetting('maxWeight', $event)"
+                [placeholder]="'admin.batching.settings.auto' | translate"
+                min="50"
+                max="2000">
+              <p-inputgroup-addon>kg</p-inputgroup-addon>
+            </p-inputgroup>
+          </div>
+        </div>
+      </p-accordion-content>
+    </p-accordion-panel>
+  </p-accordion>
+</p-drawer>

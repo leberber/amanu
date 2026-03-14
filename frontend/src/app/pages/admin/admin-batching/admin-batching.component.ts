@@ -3,6 +3,9 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { DialogModule } from 'primeng/dialog';
 import { SelectModule } from 'primeng/select';
+import { DrawerModule } from 'primeng/drawer';
+import { AccordionModule } from 'primeng/accordion';
+import { BadgeModule } from 'primeng/badge';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { trigger, transition, style, animate } from '@angular/animations';
 import { TranslateService } from '@ngx-translate/core';
@@ -46,7 +49,7 @@ const STATUS_CONFIG: Record<TripStatus, { severity: 'secondary' | 'info' | 'warn
 @Component({
   selector: 'app-admin-batching',
   standalone: true,
-  imports: [...ADMIN_LIST_IMPORTS, AgroclikPageContainerComponent, DialogModule, SelectModule],
+  imports: [...ADMIN_LIST_IMPORTS, AgroclikPageContainerComponent, DialogModule, SelectModule, DrawerModule, AccordionModule, BadgeModule],
   templateUrl: './admin-batching.component.html',
   styleUrl: './admin-batching.component.scss',
   providers: [ConfirmationService, MessageService],
@@ -94,6 +97,7 @@ export class AdminBatchingComponent implements OnInit {
 
   // Corridor filter for map and batching (multi-select)
   selectedCorridorFilters = signal<string[]>([]);
+  corridorFilterExpanded = signal(false);
 
   // Customer paths layer toggle
   showCustomerPaths = signal(false);
@@ -169,7 +173,7 @@ export class AdminBatchingComponent implements OnInit {
   });
 
   // ==================== Algorithm Settings ====================
-  showSettingsDialog = false;
+  showSettingsDrawer = true; // Open by default
 
   // Simulation limit for testing
   simulationLimit = signal<number | null>(null);
@@ -417,7 +421,7 @@ export class AdminBatchingComponent implements OnInit {
   // ==================== Smart Batching ====================
 
   toggleSettings(): void {
-    this.showSettingsDialog = !this.showSettingsDialog;
+    this.showSettingsDrawer = !this.showSettingsDrawer;
   }
 
   updateSetting(key: string, value: unknown): void {
@@ -455,6 +459,10 @@ export class AdminBatchingComponent implements OnInit {
 
   clearCorridorFilters(): void {
     this.selectedCorridorFilters.set([]);
+  }
+
+  toggleCorridorFilterPanel(): void {
+    this.corridorFilterExpanded.update(v => !v);
   }
 
   isCorridorFilterSelected(corridor: string): boolean {
