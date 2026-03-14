@@ -127,6 +127,11 @@ export class AdminBatchingComponent implements OnInit {
   drivers = this.batchingService.drivers;
   smartDrivers = signal<{ id: number; name: string; capacity_kg: number; vehicle_type: string }[]>([]);
 
+  // Manual batching with drag and drop
+  vehicleBatches = signal<Record<number, PendingOrder[]>>({}); // driverId -> orders
+  draggingOrder = signal<PendingOrder | null>(null);
+  dragOverVehicle = signal<number | null>(null); // driverId being hovered
+
   filteredTrips = computed(() => {
     const status = this.statusFilter();
     return status ? this.trips().filter(t => t.status === status) : this.trips();
@@ -140,6 +145,26 @@ export class AdminBatchingComponent implements OnInit {
   // Total capacity of all available trucks
   totalTruckCapacity = computed(() => {
     return this.smartDrivers().reduce((sum, driver) => sum + driver.capacity_kg, 0);
+  });
+
+  // Get weight assigned to a specific vehicle
+  getVehicleWeight(driverId: number): number {
+    const orders = this.vehicleBatches()[driverId] || [];
+    return orders.reduce((sum, order) => sum + order.weight_kg, 0);
+  }
+
+  // Get order count for a specific vehicle
+  getVehicleOrderCount(driverId: number): number {
+    return (this.vehicleBatches()[driverId] || []).length;
+  }
+
+  // Unassigned orders (not in any vehicle batch)
+  unassignedOrders = computed(() => {
+    const batches = this.vehicleBatches();
+    const assignedIds = new Set(
+      Object.values(batches).flat().map(o => o.id)
+    );
+    return this.filteredPendingOrders().filter(o => !assignedIds.has(o.id));
   });
 
   // Unique corridors for dropdown
@@ -305,12 +330,25 @@ export class AdminBatchingComponent implements OnInit {
 
     const bounds = L.latLngBounds([]);
 
+    // Clear existing order markers
+    this.orderMarkers.clear();
+
+    // Only show unassigned orders on the map
+    const assignedIds = new Set(
+      Object.values(this.vehicleBatches()).flat().map(o => o.id)
+    );
+
     orders.forEach(order => {
       if (!order.latitude || !order.longitude) return;
+      if (assignedIds.has(order.id)) return; // Skip assigned orders
 
       const marker = this.createOrderMarker(order, DEFAULT_MARKER_COLOR, MARKER_STYLES.default);
       marker.addTo(this.markersLayer!);
       bounds.extend([order.latitude, order.longitude]);
+
+      // Store marker reference and attach drag events
+      this.orderMarkers.set(order.id, marker);
+      setTimeout(() => this.attachDragToMarker(marker, order), 100);
     });
 
     if (bounds.isValid()) this.map.fitBounds(bounds, { padding: [50, 50] });
@@ -1076,5 +1114,247 @@ export class AdminBatchingComponent implements OnInit {
 
   formatZone(zone?: string): string {
     return zone ? zone.replace('zone_', '').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) : 'Inconnu';
+  }
+
+  // ==================== Drag and Drop for Manual Batching ====================
+
+  private dragClone: HTMLElement | null = null;
+  private dragStartPos = { x: 0, y: 0 };
+
+  /**
+   * Start dragging an order from the map
+   */
+  startDragOrder(order: PendingOrder, event: MouseEvent): void {
+    event.preventDefault();
+    this.draggingOrder.set(order);
+
+    // Create a visual clone to follow the cursor
+    this.dragClone = document.createElement('div');
+    this.dragClone.className = 'drag-order-clone';
+    this.dragClone.innerHTML = `
+      <i class="pi pi-box"></i>
+      <span>#${order.id}</span>
+    `;
+    this.dragClone.style.cssText = `
+      position: fixed;
+      left: ${event.clientX - 25}px;
+      top: ${event.clientY - 25}px;
+      width: 50px;
+      height: 50px;
+      background: var(--primary-color);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      pointer-events: none;
+      z-index: 10000;
+      cursor: grabbing;
+    `;
+    document.body.appendChild(this.dragClone);
+
+    // Track mouse movement
+    const moveHandler = (e: MouseEvent) => this.onDragMove(e);
+    const upHandler = (e: MouseEvent) => {
+      this.onDragEnd(e);
+      document.removeEventListener('mousemove', moveHandler);
+      document.removeEventListener('mouseup', upHandler);
+    };
+
+    document.addEventListener('mousemove', moveHandler);
+    document.addEventListener('mouseup', upHandler);
+  }
+
+  private onDragMove(event: MouseEvent): void {
+    if (!this.dragClone) return;
+    this.dragClone.style.left = `${event.clientX - 25}px`;
+    this.dragClone.style.top = `${event.clientY - 25}px`;
+
+    // Check if over a vehicle card
+    const vehicleCard = document.elementFromPoint(event.clientX, event.clientY)?.closest('.map-vehicles__card');
+    if (vehicleCard) {
+      const driverId = parseInt(vehicleCard.getAttribute('data-driver-id') || '0', 10);
+      this.dragOverVehicle.set(driverId);
+    } else {
+      this.dragOverVehicle.set(null);
+    }
+  }
+
+  private onDragEnd(event: MouseEvent): void {
+    const order = this.draggingOrder();
+    const targetDriverId = this.dragOverVehicle();
+
+    // Clean up drag clone
+    if (this.dragClone) {
+      this.dragClone.remove();
+      this.dragClone = null;
+    }
+
+    // If dropped on a vehicle, assign the order
+    if (order && targetDriverId) {
+      this.assignOrderToVehicle(order, targetDriverId);
+    }
+
+    this.draggingOrder.set(null);
+    this.dragOverVehicle.set(null);
+  }
+
+  /**
+   * Assign an order to a vehicle batch
+   */
+  assignOrderToVehicle(order: PendingOrder, driverId: number): void {
+    const batches = { ...this.vehicleBatches() };
+    const driver = this.smartDrivers().find(d => d.id === driverId);
+
+    if (!driver) return;
+
+    // Check capacity
+    const currentWeight = this.getVehicleWeight(driverId);
+    if (currentWeight + order.weight_kg > driver.capacity_kg) {
+      this.toast.showError('admin.batching.capacity_exceeded');
+      return;
+    }
+
+    // Add order to vehicle batch
+    if (!batches[driverId]) {
+      batches[driverId] = [];
+    }
+    batches[driverId] = [...batches[driverId], order];
+    this.vehicleBatches.set(batches);
+
+    // Remove marker from map
+    this.removeOrderMarkerFromMap(order);
+
+    this.toast.showSuccess('admin.batching.order_assigned');
+  }
+
+  /**
+   * Remove an order from a vehicle batch (put back on map)
+   */
+  removeOrderFromVehicle(order: PendingOrder, driverId: number): void {
+    const batches = { ...this.vehicleBatches() };
+    if (batches[driverId]) {
+      batches[driverId] = batches[driverId].filter(o => o.id !== order.id);
+      if (batches[driverId].length === 0) {
+        delete batches[driverId];
+      }
+      this.vehicleBatches.set(batches);
+
+      // Re-add marker to map
+      this.addOrderMarkerToMap(order);
+    }
+  }
+
+  private orderMarkers = new Map<number, L.Marker>();
+  private ghostMarkers = new Map<number, L.Marker>();
+
+  private removeOrderMarkerFromMap(order: PendingOrder): void {
+    const marker = this.orderMarkers.get(order.id);
+    if (marker && this.markersLayer) {
+      this.markersLayer.removeLayer(marker);
+      this.orderMarkers.delete(order.id);
+
+      // Create ghost marker to show order is assigned
+      this.createGhostMarker(order);
+    }
+  }
+
+  private createGhostMarker(order: PendingOrder): void {
+    if (!this.map || !this.markersLayer || !order.latitude || !order.longitude) return;
+
+    const weightDisplay = order.weight_kg >= 10
+      ? Math.round(order.weight_kg).toString()
+      : order.weight_kg.toFixed(1);
+
+    const icon = L.divIcon({
+      className: 'ghost-marker',
+      html: `
+        <div style="
+          width: 36px;
+          height: 36px;
+          background: rgba(100, 100, 100, 0.4);
+          border: 2px dashed #999;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #666;
+          font-size: 10px;
+          font-weight: 700;
+        ">${weightDisplay}</div>
+      `,
+      iconSize: [36, 36],
+      iconAnchor: [18, 18]
+    });
+
+    const ghostMarker = L.marker([order.latitude, order.longitude], { icon, interactive: false });
+    ghostMarker.addTo(this.markersLayer);
+    this.ghostMarkers.set(order.id, ghostMarker);
+  }
+
+  private removeGhostMarker(orderId: number): void {
+    const ghost = this.ghostMarkers.get(orderId);
+    if (ghost && this.markersLayer) {
+      this.markersLayer.removeLayer(ghost);
+      this.ghostMarkers.delete(orderId);
+    }
+  }
+
+  private addOrderMarkerToMap(order: PendingOrder): void {
+    if (!this.map || !this.markersLayer || !order.latitude || !order.longitude) return;
+
+    // Remove ghost marker first
+    this.removeGhostMarker(order.id);
+
+    const marker = this.createOrderMarker(order, DEFAULT_MARKER_COLOR, MARKER_STYLES.default);
+    marker.addTo(this.markersLayer);
+    this.orderMarkers.set(order.id, marker);
+
+    // Add drag event to the new marker
+    setTimeout(() => this.attachDragToMarker(marker, order), 100);
+  }
+
+  /**
+   * Attach drag events to a marker
+   */
+  attachDragToMarker(marker: L.Marker, order: PendingOrder): void {
+    const el = marker.getElement();
+    if (el) {
+      el.style.cursor = 'grab';
+      el.addEventListener('mousedown', (e: MouseEvent) => {
+        e.stopPropagation();
+        this.startDragOrder(order, e);
+      });
+    }
+  }
+
+  /**
+   * Create batch/trip for a vehicle with its assigned orders
+   */
+  createBatchForVehicle(driverId: number): void {
+    const orders = this.vehicleBatches()[driverId];
+    const driver = this.smartDrivers().find(d => d.id === driverId);
+
+    if (!orders || orders.length === 0 || !driver) {
+      this.toast.showError('admin.batching.no_orders_selected');
+      return;
+    }
+
+    // TODO: Call API to create the batch/trip
+    this.toast.showSuccess('admin.batching.batch_created');
+
+    // Clear the vehicle batch and ghost markers
+    orders.forEach(order => this.removeGhostMarker(order.id));
+
+    const batches = { ...this.vehicleBatches() };
+    delete batches[driverId];
+    this.vehicleBatches.set(batches);
+
+    // Refresh data
+    this.loadPendingOrders();
   }
 }

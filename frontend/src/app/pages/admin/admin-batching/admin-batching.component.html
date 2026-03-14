@@ -96,7 +96,13 @@
               <div class="map-vehicles">
                 <div class="map-vehicles__scroll">
                   @for (driver of smartDrivers(); track driver.id) {
-                    <div class="map-vehicles__card" [class.map-vehicles__card--truck]="driver.vehicle_type === 'truck'" [class.map-vehicles__card--van]="driver.vehicle_type !== 'truck'">
+                    <div
+                      class="map-vehicles__card"
+                      [class.map-vehicles__card--truck]="driver.vehicle_type === 'truck'"
+                      [class.map-vehicles__card--van]="driver.vehicle_type !== 'truck'"
+                      [class.map-vehicles__card--drag-over]="dragOverVehicle() === driver.id"
+                      [class.map-vehicles__card--has-orders]="getVehicleOrderCount(driver.id) > 0"
+                      [attr.data-driver-id]="driver.id">
                       <div class="map-vehicles__icon">
                         @if (driver.vehicle_type === 'truck') {
                           <i class="pi pi-truck"></i>
@@ -106,8 +112,27 @@
                       </div>
                       <div class="map-vehicles__info">
                         <span class="map-vehicles__name">{{ driver.name }}</span>
-                        <span class="map-vehicles__capacity">{{ driver.capacity_kg }} kg</span>
+                        <span class="map-vehicles__capacity">
+                          {{ getVehicleWeight(driver.id) | number:'1.0-0' }}/{{ driver.capacity_kg }} kg
+                        </span>
                       </div>
+                      <!-- Orders inside the card -->
+                      @if (getVehicleOrderCount(driver.id) > 0) {
+                        <div class="map-vehicles__orders">
+                          @for (order of vehicleBatches()[driver.id]; track order.id) {
+                            <div class="map-vehicles__order" (click)="removeOrderFromVehicle(order, driver.id); $event.stopPropagation()">
+                              <span>{{ order.weight_kg | number:'1.0-0' }}</span>
+                            </div>
+                          }
+                        </div>
+                        <button
+                          pButton
+                          icon="pi pi-check"
+                          class="p-button-success p-button-sm map-vehicles__create-btn"
+                          pTooltip="Create Batch"
+                          (click)="createBatchForVehicle(driver.id); $event.stopPropagation()">
+                        </button>
+                      }
                     </div>
                   }
                 </div>
