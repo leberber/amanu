@@ -2025,7 +2025,17 @@
         "priority_hint": "Click a direction to prioritize orders going that way first",
         "unlimited": "Unlimited",
         "auto": "Auto (driver capacity)"
-      }
+      },
+      "edit_route": "Edit Route",
+      "customer": "Customer",
+      "corridor": "Corridor",
+      "select_corridor": "Select or type corridor...",
+      "filter_corridor": "Filter by corridor",
+      "configuration": "Configuration",
+      "distance": "Distance",
+      "duration": "Duration",
+      "route_updated": "Route updated successfully",
+      "route_update_error": "Failed to update route"
     }
   },
   "footer": {

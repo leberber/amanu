@@ -2011,7 +2011,17 @@
         "priority_hint": "انقر على اتجاه لإعطاء الأولوية للطلبات المتجهة في ذلك الاتجاه",
         "unlimited": "غير محدود",
         "auto": "تلقائي (سعة المركبة)"
-      }
+      },
+      "edit_route": "تعديل المسار",
+      "customer": "العميل",
+      "corridor": "الممر",
+      "select_corridor": "اختر أو اكتب الممر...",
+      "filter_corridor": "تصفية حسب الممر",
+      "configuration": "الإعدادات",
+      "distance": "المسافة",
+      "duration": "المدة",
+      "route_updated": "تم تحديث المسار بنجاح",
+      "route_update_error": "فشل تحديث المسار"
     }
   },
   "footer": {

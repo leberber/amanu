@@ -77,6 +77,16 @@
 
           @if (activeTab() === 'map') {
             <div class="flex align-items-center gap-2">
+              <!-- Configuration Button -->
+              <button
+                pButton
+                [label]="'admin.batching.configuration' | translate"
+                icon="pi pi-cog"
+                class="p-button-outlined p-button-sm"
+                [class.p-button-info]="showSettingsDialog"
+                (click)="toggleSettings()">
+              </button>
+
               <!-- Toggle Customer Paths -->
               <button
                 pButton
@@ -167,7 +177,47 @@
           <div class="map-wrapper">
             <div class="map-container" id="batching-map"></div>
 
-            <!-- Trucks & Weight Info (Top Left) -->
+            <!-- Corridor Filter (Top Left) -->
+            <div class="map-corridor-filter" @fadeIn>
+              <div class="map-corridor-filter__header">
+                <i class="pi pi-filter"></i>
+                <span>{{ 'admin.batching.filter_corridor' | translate }}</span>
+                @if (selectedCorridorFilters().length > 0) {
+                  <button class="map-corridor-filter__clear" (click)="clearCorridorFilters()" pTooltip="Clear filters">
+                    <i class="pi pi-times"></i>
+                  </button>
+                }
+              </div>
+              <div class="map-corridor-filter__list">
+                @for (option of corridorOptions(); track option.value) {
+                  <div
+                    class="map-corridor-filter__item"
+                    [class.map-corridor-filter__item--selected]="isCorridorFilterSelected(option.value)"
+                    (click)="toggleCorridorFilter(option.value)">
+                    <span class="map-corridor-filter__checkbox" [class.map-corridor-filter__checkbox--checked]="isCorridorFilterSelected(option.value)">
+                      @if (isCorridorFilterSelected(option.value)) {
+                        <i class="pi pi-check"></i>
+                      }
+                    </span>
+                    <span>{{ option.label }}</span>
+                  </div>
+                }
+                @empty {
+                  <span class="text-secondary text-sm p-2">No corridors available</span>
+                }
+              </div>
+              @if (selectedCorridorFilters().length > 0) {
+                <div class="map-corridor-filter__info">
+                  <span class="font-semibold">{{ filteredPendingOrders().length }}</span>
+                  <span class="text-secondary">{{ 'admin.batching.orders' | translate }}</span>
+                  <span class="mx-2">•</span>
+                  <span class="font-semibold">{{ filteredOrdersWeight() | number:'1.0-1' }}</span>
+                  <span class="text-secondary">kg</span>
+                </div>
+              }
+            </div>
+
+            <!-- Trucks & Weight Info (Below Filter) -->
             @if (smartDrivers().length > 0 || pendingOrders().length > 0) {
               <div class="map-info-panel" @fadeIn>
                 <div class="map-info-panel__section">
@@ -209,152 +259,6 @@
                 </div>
               </div>
             }
-
-            <!-- Algorithm Settings Panel (Top Right) -->
-            <div class="map-settings" @fadeIn>
-              <button
-                class="map-settings__toggle"
-                (click)="toggleSettings()"
-                pTooltip="{{ 'admin.batching.algorithm_settings' | translate }}"
-                tooltipPosition="left">
-                <i class="pi pi-cog"></i>
-              </button>
-
-              @if (showSettings()) {
-                <div class="map-settings__panel" @fadeIn>
-                  <div class="map-settings__header">
-                    <span>{{ 'admin.batching.algorithm_settings' | translate }}</span>
-                    <button class="map-settings__close" (click)="toggleSettings()">
-                      <i class="pi pi-times"></i>
-                    </button>
-                  </div>
-
-                  <div class="map-settings__body">
-                    <!-- Simulation Limit -->
-                    <div class="map-settings__field">
-                      <label>{{ 'admin.batching.settings.simulation_limit' | translate }}</label>
-                      <p-select
-                        [options]="simulationLimitOptions"
-                        [ngModel]="simulationLimit()"
-                        (ngModelChange)="onSimulationLimitChange($event)"
-                        optionLabel="label"
-                        optionValue="value"
-                        [style]="{ width: '100%' }">
-                      </p-select>
-                      <small class="map-settings__hint">{{ 'admin.batching.settings.simulation_hint' | translate }}</small>
-                    </div>
-
-                    <div class="map-settings__divider"></div>
-
-                    <!-- Strategy -->
-                    <div class="map-settings__field">
-                      <label>{{ 'admin.batching.settings.strategy' | translate }}</label>
-                      <p-select
-                        [options]="strategyOptions"
-                        [ngModel]="algorithmSettings().strategy"
-                        (ngModelChange)="updateSetting('strategy', $event)"
-                        optionLabel="label"
-                        optionValue="value"
-                        [style]="{ width: '100%' }">
-                      </p-select>
-                    </div>
-
-                    <!-- Grouping Mode -->
-                    <div class="map-settings__field">
-                      <label>{{ 'admin.batching.settings.grouping_mode' | translate }}</label>
-                      <p-select
-                        [options]="groupingModeOptions"
-                        [ngModel]="algorithmSettings().groupingMode"
-                        (ngModelChange)="updateSetting('groupingMode', $event)"
-                        optionLabel="label"
-                        optionValue="value"
-                        [style]="{ width: '100%' }">
-                      </p-select>
-                    </div>
-
-                    <!-- Max Orders per Batch -->
-                    <div class="map-settings__field">
-                      <label>{{ 'admin.batching.settings.max_orders' | translate }}</label>
-                      <input
-                        pInputText
-                        type="number"
-                        [ngModel]="algorithmSettings().maxOrders"
-                        (ngModelChange)="updateSetting('maxOrders', $event)"
-                        [placeholder]="'admin.batching.settings.unlimited' | translate"
-                        min="1"
-                        max="20"
-                        class="w-full">
-                    </div>
-
-                    <!-- Max Weight per Batch -->
-                    <div class="map-settings__field">
-                      <label>{{ 'admin.batching.settings.max_weight' | translate }}</label>
-                      <p-inputgroup>
-                        <input
-                          pInputText
-                          type="number"
-                          [ngModel]="algorithmSettings().maxWeight"
-                          (ngModelChange)="updateSetting('maxWeight', $event)"
-                          [placeholder]="'admin.batching.settings.auto' | translate"
-                          min="50"
-                          max="2000">
-                        <p-inputgroup-addon>kg</p-inputgroup-addon>
-                      </p-inputgroup>
-                    </div>
-
-                    <!-- Heading Tolerance (angle variance for grouping) -->
-                    @if (algorithmSettings().groupingMode !== 'corridor_only') {
-                      <div class="map-settings__field">
-                        <label>{{ 'admin.batching.settings.heading_tolerance' | translate }}</label>
-                        <p-inputgroup>
-                          <input
-                            pInputText
-                            type="number"
-                            [ngModel]="algorithmSettings().headingTolerance"
-                            (ngModelChange)="updateSetting('headingTolerance', $event)"
-                            min="10"
-                            max="90">
-                          <p-inputgroup-addon>°</p-inputgroup-addon>
-                        </p-inputgroup>
-                        <small class="map-settings__hint">{{ 'admin.batching.settings.heading_hint' | translate }}</small>
-                      </div>
-                    }
-
-                    <div class="map-settings__divider"></div>
-
-                    <!-- Priority Direction Compass -->
-                    <div class="map-settings__field">
-                      <label>{{ 'admin.batching.settings.priority_direction' | translate }}</label>
-                      <div class="compass">
-                        <div class="compass__ring">
-                          @for (dir of compassDirections; track dir.value) {
-                            <button
-                              class="compass__segment"
-                              [class.compass__segment--active]="priorityHeading() === dir.heading"
-                              [style.--rotation]="dir.rotation + 'deg'"
-                              (click)="setPriorityHeading(dir.heading)"
-                              [pTooltip]="dir.label"
-                              tooltipPosition="top">
-                              <span class="compass__label">{{ dir.value }}</span>
-                            </button>
-                          }
-                          <div class="compass__center">
-                            <i class="pi pi-compass"></i>
-                          </div>
-                        </div>
-                        @if (priorityHeading() !== null) {
-                          <button class="compass__clear" (click)="setPriorityHeading(null)">
-                            <i class="pi pi-times"></i>
-                            {{ 'common.clear' | translate }}
-                          </button>
-                        }
-                      </div>
-                      <small class="map-settings__hint">{{ 'admin.batching.settings.priority_hint' | translate }}</small>
-                    </div>
-                  </div>
-                </div>
-              }
-            </div>
 
             <!-- Smart Batch Legend with Toggle -->
             @if (smartBatchingActive() && smartBatches().length > 0) {
@@ -681,4 +585,155 @@
       </div>
     </div>
   }
+</p-dialog>
+
+<!-- Edit Route Dialog -->
+<p-dialog
+  [(visible)]="showEditRouteDialog"
+  [header]="'admin.batching.edit_route' | translate"
+  [modal]="true"
+  [style]="{ width: '400px', maxWidth: '95vw' }"
+  [closable]="true"
+  (onHide)="closeEditRouteDialog()">
+
+  @if (editingRoute()) {
+    <div class="flex flex-column gap-3">
+      <div class="flex flex-column gap-1">
+        <label class="font-medium text-sm">{{ 'admin.batching.customer' | translate }}</label>
+        <span class="text-lg">{{ editingRoute()!.customerName }}</span>
+      </div>
+
+      <div class="flex flex-column gap-1">
+        <label class="font-medium text-sm">{{ 'admin.batching.corridor' | translate }}</label>
+        <p-select
+          [options]="corridorOptions()"
+          [(ngModel)]="editRouteForm.corridor"
+          [editable]="true"
+          optionLabel="label"
+          optionValue="value"
+          [placeholder]="'admin.batching.select_corridor' | translate"
+          [style]="{ width: '100%' }">
+        </p-select>
+      </div>
+
+      <div class="flex flex-column gap-1">
+        <label class="font-medium text-sm">{{ 'admin.batching.distance' | translate }}</label>
+        <p-inputgroup>
+          <input
+            pInputText
+            type="number"
+            [(ngModel)]="editRouteForm.distance_km"
+            min="0"
+            step="0.1">
+          <p-inputgroup-addon>km</p-inputgroup-addon>
+        </p-inputgroup>
+      </div>
+
+      <div class="flex flex-column gap-1">
+        <label class="font-medium text-sm">{{ 'admin.batching.duration' | translate }}</label>
+        <p-inputgroup>
+          <input
+            pInputText
+            type="number"
+            [(ngModel)]="editRouteForm.duration_min"
+            min="0"
+            step="1">
+          <p-inputgroup-addon>min</p-inputgroup-addon>
+        </p-inputgroup>
+      </div>
+
+      <div class="flex justify-content-end gap-2 mt-3">
+        <button
+          pButton
+          [label]="'common.cancel' | translate"
+          class="p-button-text"
+          (click)="closeEditRouteDialog()">
+        </button>
+        <button
+          pButton
+          [label]="'common.save' | translate"
+          icon="pi pi-check"
+          [loading]="savingRoute()"
+          (click)="saveRouteChanges()">
+        </button>
+      </div>
+    </div>
+  }
+</p-dialog>
+
+<!-- Configuration Dialog -->
+<p-dialog
+  [(visible)]="showSettingsDialog"
+  [header]="'admin.batching.configuration' | translate"
+  [modal]="true"
+  [style]="{ width: '400px', maxWidth: '95vw' }"
+  [closable]="true">
+
+  <div class="flex flex-column gap-3">
+    <!-- Simulation Limit -->
+    <div class="flex flex-column gap-1">
+      <label class="font-medium text-sm">{{ 'admin.batching.settings.simulation_limit' | translate }}</label>
+      <p-select
+        [options]="simulationLimitOptions"
+        [ngModel]="simulationLimit()"
+        (ngModelChange)="onSimulationLimitChange($event)"
+        optionLabel="label"
+        optionValue="value"
+        [style]="{ width: '100%' }">
+      </p-select>
+      <small class="text-secondary text-xs">{{ 'admin.batching.settings.simulation_hint' | translate }}</small>
+    </div>
+
+    <!-- Strategy -->
+    <div class="flex flex-column gap-1">
+      <label class="font-medium text-sm">{{ 'admin.batching.settings.strategy' | translate }}</label>
+      <p-select
+        [options]="strategyOptions"
+        [ngModel]="algorithmSettings().strategy"
+        (ngModelChange)="updateSetting('strategy', $event)"
+        optionLabel="label"
+        optionValue="value"
+        [style]="{ width: '100%' }">
+      </p-select>
+    </div>
+
+    <!-- Max Orders per Batch -->
+    <div class="flex flex-column gap-1">
+      <label class="font-medium text-sm">{{ 'admin.batching.settings.max_orders' | translate }}</label>
+      <input
+        pInputText
+        type="number"
+        [ngModel]="algorithmSettings().maxOrders"
+        (ngModelChange)="updateSetting('maxOrders', $event)"
+        [placeholder]="'admin.batching.settings.unlimited' | translate"
+        min="1"
+        max="20"
+        class="w-full">
+    </div>
+
+    <!-- Max Weight per Batch -->
+    <div class="flex flex-column gap-1">
+      <label class="font-medium text-sm">{{ 'admin.batching.settings.max_weight' | translate }}</label>
+      <p-inputgroup>
+        <input
+          pInputText
+          type="number"
+          [ngModel]="algorithmSettings().maxWeight"
+          (ngModelChange)="updateSetting('maxWeight', $event)"
+          [placeholder]="'admin.batching.settings.auto' | translate"
+          min="50"
+          max="2000">
+        <p-inputgroup-addon>kg</p-inputgroup-addon>
+      </p-inputgroup>
+    </div>
+
+    <div class="flex justify-content-end gap-2 mt-2">
+      <button
+        pButton
+        [label]="'common.close' | translate"
+        class="p-button-text"
+        (click)="toggleSettings()">
+      </button>
+    </div>
+  </div>
 </p-dialog>

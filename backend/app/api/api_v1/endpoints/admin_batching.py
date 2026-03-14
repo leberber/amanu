@@ -165,11 +165,9 @@ def run_order_batching(
 
 class SmartBatchingParams(SQLModel):
     """Parameters for smart batching algorithm"""
-    strategy: str = "farthest_first"  # or "nearest_first"
+    strategy: str = "nearest_first"  # or "farthest_first"
     max_weight_per_batch: Optional[float] = None
     max_orders_per_batch: Optional[int] = None
-    grouping_mode: str = "corridor_and_heading"  # corridor_only, heading_only
-    heading_tolerance: float = 30.0
 
 
 @router.get("/smart-preview")
@@ -177,10 +175,8 @@ def preview_smart_order_batching(
     strategy: str = "nearest_first",
     max_weight: Optional[float] = None,
     max_orders: Optional[int] = None,
-    grouping_mode: str = "corridor_and_heading",
-    heading_tolerance: float = 30.0,
     simulation_limit: Optional[int] = None,
-    priority_heading: Optional[float] = None,
+    corridor_filter: Optional[str] = None,
     current_user: User = Depends(get_current_staff_user),
     session: Session = Depends(get_session),
 ) -> Any:
@@ -191,24 +187,18 @@ def preview_smart_order_batching(
     - strategy: "nearest_first" (recommended) or "farthest_first"
     - max_weight: Maximum weight per batch in kg (default: smallest driver capacity)
     - max_orders: Maximum orders per batch (default: unlimited)
-    - grouping_mode: "corridor_and_heading" (default), "corridor_only", or "heading_only"
-    - heading_tolerance: Degrees tolerance for heading grouping (default: 30)
-    - priority_heading: Direction to prioritize (0=N, 90=E, 180=S, 270=W)
+    - simulation_limit: Limit orders for simulation/testing
+    - corridor_filter: Only batch orders from this specific corridor
 
-    This uses:
-    - Stored route data (corridors)
-    - Driver vehicle capacity
-    - Distance-based ordering
+    Groups orders by corridor (road name) and sorts by distance.
     """
     result = preview_smart_batching(
         session,
         strategy=strategy,
         max_weight_per_batch=max_weight,
         max_orders_per_batch=max_orders,
-        grouping_mode=grouping_mode,
-        heading_tolerance=heading_tolerance,
         simulation_limit=simulation_limit,
-        priority_heading=priority_heading
+        corridor_filter=corridor_filter
     )
     return result
 
@@ -218,9 +208,7 @@ def run_smart_order_batching(
     strategy: str = "nearest_first",
     max_weight: Optional[float] = None,
     max_orders: Optional[int] = None,
-    grouping_mode: str = "corridor_and_heading",
-    heading_tolerance: float = 30.0,
-    priority_heading: Optional[float] = None,
+    corridor_filter: Optional[str] = None,
     current_user: User = Depends(get_current_admin_user),
     session: Session = Depends(get_session),
 ) -> Any:
@@ -231,12 +219,10 @@ def run_smart_order_batching(
     - strategy: "nearest_first" (recommended) or "farthest_first"
     - max_weight: Maximum weight per batch in kg
     - max_orders: Maximum orders per batch
-    - grouping_mode: "corridor_and_heading", "corridor_only", or "heading_only"
-    - heading_tolerance: Degrees tolerance for heading grouping
-    - priority_heading: Direction to prioritize (0=N, 90=E, 180=S, 270=W)
+    - corridor_filter: Only batch orders from this specific corridor
 
-    This creates optimized trips:
-    - Groups orders by corridor (same road)
+    Groups orders by corridor (road name) and creates optimized trips:
+    - Groups orders on the same road
     - Sorts by distance (nearest first = efficient routing)
     - Respects driver vehicle capacity
     - Assigns drivers automatically
@@ -247,9 +233,7 @@ def run_smart_order_batching(
         strategy=strategy,
         max_weight_per_batch=max_weight,
         max_orders_per_batch=max_orders,
-        grouping_mode=grouping_mode,
-        heading_tolerance=heading_tolerance,
-        priority_heading=priority_heading
+        corridor_filter=corridor_filter
     )
     return result
 

@@ -2023,7 +2023,17 @@
         "priority_hint": "Cliquez sur une direction pour prioriser les commandes allant dans cette direction",
         "unlimited": "Illimité",
         "auto": "Auto (capacité véhicule)"
-      }
+      },
+      "edit_route": "Modifier le Trajet",
+      "customer": "Client",
+      "corridor": "Corridor",
+      "select_corridor": "Sélectionner ou saisir corridor...",
+      "filter_corridor": "Filtrer par corridor",
+      "configuration": "Configuration",
+      "distance": "Distance",
+      "duration": "Durée",
+      "route_updated": "Trajet mis à jour avec succès",
+      "route_update_error": "Échec de la mise à jour du trajet"
     }
   },
   "footer": {

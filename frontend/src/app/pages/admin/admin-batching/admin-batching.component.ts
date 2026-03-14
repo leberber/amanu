@@ -10,7 +10,7 @@ import * as L from 'leaflet';
 
 import { ADMIN_LIST_IMPORTS } from '../../../shared/imports/admin-shared.imports';
 import { AgroclikPageContainerComponent } from '../../../shared/components/agroclik-page-container/agroclik-page-container.component';
-import { BatchingService, SmartBatch, CustomerRoute, LeftoverOrder } from '../../../services/batching.service';
+import { BatchingService, SmartBatch, SmartBatchStop, CustomerRoute, LeftoverOrder } from '../../../services/batching.service';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
 import { Trip, TripWithStops, TripStatus, PendingOrder } from '../../../models/trip.model';
 import { RouteHelpers } from '../../../core/constants/routes.constants';
@@ -71,7 +71,6 @@ export class AdminBatchingComponent implements OnInit {
   private map: L.Map | null = null;
   private markersLayer: L.LayerGroup | null = null;
   private connectionsLayer: L.LayerGroup | null = null;
-  private directionLayer: L.LayerGroup | null = null;
 
   // State
   loading = signal(true);
@@ -93,6 +92,9 @@ export class AdminBatchingComponent implements OnInit {
   corridorVisibility = signal<Record<string, boolean>>({});
   private corridorLayers: Record<string, { markers: L.Layer[], polyline: L.Polyline | null, polylines?: L.Polyline[] }> = {};
 
+  // Corridor filter for map and batching (multi-select)
+  selectedCorridorFilters = signal<string[]>([]);
+
   // Customer paths layer toggle
   showCustomerPaths = signal(false);
   private customerPathsLayer: L.LayerGroup | null = null;
@@ -108,6 +110,12 @@ export class AdminBatchingComponent implements OnInit {
   tripToAssign = signal<Trip | null>(null);
   selectedDriverId: number | null = null;
   assigning = signal(false);
+
+  // Edit Route Dialog
+  showEditRouteDialog = signal(false);
+  editingRoute = signal<{ userId: number; customerName: string } | null>(null);
+  savingRoute = signal(false);
+  editRouteForm = { corridor: '', distance_km: 0, duration_min: 0 };
 
   // Data from service
   stats = this.batchingService.stats;
@@ -130,8 +138,38 @@ export class AdminBatchingComponent implements OnInit {
     return this.smartDrivers().reduce((sum, driver) => sum + driver.capacity_kg, 0);
   });
 
+  // Unique corridors for dropdown
+  corridorOptions = computed(() => {
+    const corridors = this.customerRoutes()
+      .map(r => r.corridor)
+      .filter((c): c is string => !!c);
+    const unique = [...new Set(corridors)].sort();
+    return unique.map(c => ({ label: c, value: c }));
+  });
+
+  // Filtered pending orders based on corridor selection (multi-select)
+  filteredPendingOrders = computed(() => {
+    const filters = this.selectedCorridorFilters();
+    const orders = this.pendingOrders();
+    if (filters.length === 0) return orders;
+
+    // Get user IDs that belong to any of the selected corridors
+    const userIdsInCorridors = new Set(
+      this.customerRoutes()
+        .filter(r => r.corridor && filters.includes(r.corridor))
+        .map(r => r.user_id)
+    );
+
+    return orders.filter(o => userIdsInCorridors.has(o.user_id));
+  });
+
+  // Filtered orders weight
+  filteredOrdersWeight = computed(() => {
+    return this.filteredPendingOrders().reduce((sum, order) => sum + order.weight_kg, 0);
+  });
+
   // ==================== Algorithm Settings ====================
-  showSettings = signal(false);
+  showSettingsDialog = false;
 
   // Simulation limit for testing
   simulationLimit = signal<number | null>(null);
@@ -140,9 +178,7 @@ export class AdminBatchingComponent implements OnInit {
   algorithmSettings = signal({
     strategy: 'nearest_first' as 'farthest_first' | 'nearest_first',
     maxOrders: null as number | null,
-    maxWeight: null as number | null,
-    groupingMode: 'heading_only' as 'corridor_and_heading' | 'corridor_only' | 'heading_only',
-    headingTolerance: 30
+    maxWeight: null as number | null
   });
 
   // Options for simulation limit dropdown
@@ -162,31 +198,6 @@ export class AdminBatchingComponent implements OnInit {
     { label: 'Farthest First', value: 'farthest_first' }
   ];
 
-  groupingModeOptions = [
-    { label: 'Heading Only (Recommended)', value: 'heading_only' },
-    { label: 'Corridor + Heading', value: 'corridor_and_heading' },
-    { label: 'Corridor Only', value: 'corridor_only' }
-  ];
-
-  // Priority heading for compass direction picker
-  priorityHeading = signal<number | null>(null);
-
-  // Compass directions (8 cardinal + intercardinal directions)
-  compassDirections = [
-    { value: 'N', label: 'North', heading: 0, rotation: 0 },
-    { value: 'NE', label: 'Northeast', heading: 45, rotation: 45 },
-    { value: 'E', label: 'East', heading: 90, rotation: 90 },
-    { value: 'SE', label: 'Southeast', heading: 135, rotation: 135 },
-    { value: 'S', label: 'South', heading: 180, rotation: 180 },
-    { value: 'SW', label: 'Southwest', heading: 225, rotation: 225 },
-    { value: 'W', label: 'West', heading: 270, rotation: 270 },
-    { value: 'NW', label: 'Northwest', heading: 315, rotation: 315 }
-  ];
-
-  setPriorityHeading(heading: number | null): void {
-    this.priorityHeading.set(heading);
-  }
-
   constructor() {
     // Initialize map when on map tab
     effect(() => {
@@ -199,18 +210,11 @@ export class AdminBatchingComponent implements OnInit {
     });
 
     // Show initial order dots (only when not in smart batching mode)
+    // Also react to corridor filter changes
     effect(() => {
-      this.pendingOrders(); // Track changes
+      this.filteredPendingOrders(); // Track changes (includes pendingOrders and filter)
       if (this.map && this.markersLayer && this.mapInitialized() && !this.smartBatchingActive()) {
         this.updateMapMarkers();
-      }
-    });
-
-    // Update direction indicator when priority heading changes
-    effect(() => {
-      const heading = this.priorityHeading();
-      if (this.map && this.directionLayer && this.mapInitialized()) {
-        this.updateDirectionIndicator(heading);
       }
     });
   }
@@ -237,7 +241,6 @@ export class AdminBatchingComponent implements OnInit {
     });
 
     this.setupTileLayers();
-    this.directionLayer = L.layerGroup().addTo(this.map); // Direction indicator (below other layers)
     this.customerPathsLayer = L.layerGroup(); // Not added by default
     this.connectionsLayer = L.layerGroup().addTo(this.map);
     this.markersLayer = L.layerGroup().addTo(this.map);
@@ -281,81 +284,19 @@ export class AdminBatchingComponent implements OnInit {
   private destroyMap(): void {
     if (!this.map) return;
     this.map.remove();
-    this.map = this.markersLayer = this.connectionsLayer = this.customerPathsLayer = this.directionLayer = null;
+    this.map = this.markersLayer = this.connectionsLayer = this.customerPathsLayer = null;
     this.mapInitialized.set(false);
     this.smartBatchingActive.set(false);
     this.smartBatches.set([]);
     this.showCustomerPaths.set(false);
   }
 
-  private updateDirectionIndicator(heading: number | null): void {
-    if (!this.directionLayer) return;
-    this.directionLayer.clearLayers();
-
-    if (heading === null) return;
-
-    // Get heading tolerance from settings
-    const tolerance = this.algorithmSettings().headingTolerance || 30;
-
-    // Create a wedge/sector polygon from the warehouse pointing in the selected direction
-    const center: [number, number] = [MAP_DEFAULTS.LATITUDE, MAP_DEFAULTS.LONGITUDE];
-    const radius = 25; // km - large enough to show direction on map
-    const startAngle = heading - tolerance;
-    const endAngle = heading + tolerance;
-
-    // Generate points for the wedge
-    const points: [number, number][] = [center];
-    const numPoints = 30;
-
-    for (let i = 0; i <= numPoints; i++) {
-      const angle = startAngle + (endAngle - startAngle) * (i / numPoints);
-      // Convert angle to radians (geographic: 0=N, 90=E)
-      // Leaflet uses lat/lng, so we need to adjust: N=0° means +lat, E=90° means +lng
-      const radians = (90 - angle) * Math.PI / 180;
-      const lat = center[0] + (radius / 111) * Math.sin(radians);
-      const lng = center[1] + (radius / (111 * Math.cos(center[0] * Math.PI / 180))) * Math.cos(radians);
-      points.push([lat, lng]);
-    }
-
-    points.push(center); // Close the wedge
-
-    // Create the wedge polygon
-    const wedge = L.polygon(points, {
-      color: '#3b82f6',
-      fillColor: '#3b82f6',
-      fillOpacity: 0.15,
-      weight: 2,
-      dashArray: '5, 5'
-    });
-
-    wedge.addTo(this.directionLayer);
-
-    // Add direction label at the edge
-    const labelAngle = heading;
-    const labelRadians = (90 - labelAngle) * Math.PI / 180;
-    const labelDistance = radius * 0.7;
-    const labelLat = center[0] + (labelDistance / 111) * Math.sin(labelRadians);
-    const labelLng = center[1] + (labelDistance / (111 * Math.cos(center[0] * Math.PI / 180))) * Math.cos(labelRadians);
-
-    const directionName = this.compassDirections.find(d => d.heading === heading)?.label || '';
-    const directionIcon = L.divIcon({
-      className: 'direction-label',
-      html: `<div style="background:rgba(59,130,246,0.9);color:white;padding:4px 8px;border-radius:4px;font-size:12px;font-weight:600;white-space:nowrap;box-shadow:0 2px 4px rgba(0,0,0,0.2);">
-        <i class="pi pi-arrow-up" style="transform:rotate(${heading}deg);display:inline-block;margin-right:4px;"></i>
-        ${directionName}
-      </div>`,
-      iconSize: [80, 24],
-      iconAnchor: [40, 12]
-    });
-
-    L.marker([labelLat, labelLng], { icon: directionIcon, interactive: false }).addTo(this.directionLayer);
-  }
-
   private updateMapMarkers(): void {
     if (!this.map || !this.markersLayer) return;
     this.markersLayer.clearLayers();
 
-    const orders = this.pendingOrders();
+    // Use filtered orders based on corridor selection
+    const orders = this.filteredPendingOrders();
     if (!orders.length) return;
 
     const bounds = L.latLngBounds([]);
@@ -405,27 +346,78 @@ export class AdminBatchingComponent implements OnInit {
     return marker;
   }
 
-  private createOrderPopup(order: PendingOrder, color?: string): string {
-    const colorDot = color ? `<span style="width:12px;height:12px;border-radius:50%;background:${color};"></span>` : '';
-    return `
-      <div style="min-width:180px;">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
-          ${colorDot}<strong>#${order.id}</strong>${!color ? ` - ${order.customer_name}` : ''}
-        </div>
-        ${color ? `<span style="font-weight:500;">${order.customer_name}</span><br>` : ''}
-        <span style="color:#666;font-size:12px;">${order.address}</span>
-        <div style="margin-top:8px;display:flex;justify-content:space-between;">
-          <span>${order.weight_kg.toFixed(1)} kg</span>
-          <span style="color:#10B981;font-weight:600;">${order.shipping_cost} DA</span>
-        </div>
+  /**
+   * Create popup for smart batch stop with edit button
+   */
+  private createStopPopup(stop: SmartBatchStop, color: string): L.Popup {
+    const corridor = stop.corridor || 'Unknown';
+
+    const container = document.createElement('div');
+    container.style.minWidth = '180px';
+    container.innerHTML = `
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+        <span style="width:20px;height:20px;border-radius:50%;background:${color};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:11px;">${stop.sequence}</span>
+        <strong>#${stop.order_id}</strong>
+      </div>
+      <span style="font-weight:500;">${stop.customer_name}</span><br>
+      <span style="color:#666;font-size:12px;">${stop.address}</span>
+      <div style="margin-top:6px;padding:4px 8px;background:#f0f9ff;border-radius:4px;font-size:11px;color:#0369a1;">
+        <i class="pi pi-directions" style="font-size:10px;margin-right:4px;"></i>${corridor}
+      </div>
+      <div style="margin-top:8px;display:flex;justify-content:space-between;">
+        <span>${stop.weight_kg.toFixed(1)} kg</span>
+        <span style="color:#10B981;font-weight:600;">${stop.distance_km.toFixed(1)} km</span>
       </div>
     `;
+
+    // Add edit button
+    const editBtn = document.createElement('button');
+    editBtn.innerHTML = '<i class="pi pi-pencil"></i> Edit Route';
+    editBtn.style.cssText = 'margin-top:10px;width:100%;padding:6px 10px;background:#3B82F6;color:white;border:none;border-radius:4px;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;gap:6px;';
+    editBtn.onclick = () => this.openEditRouteDialogFromStop(stop);
+    container.appendChild(editBtn);
+
+    return L.popup().setContent(container);
+  }
+
+  private createOrderPopup(order: PendingOrder, color?: string): L.Popup {
+    const colorDot = color ? `<span style="width:12px;height:12px;border-radius:50%;background:${color};display:inline-block;"></span>` : '';
+
+    // Look up corridor from customer routes
+    const route = this.customerRoutes().find(r => r.user_id === order.user_id);
+    const corridor = route?.corridor || 'Unknown';
+
+    const container = document.createElement('div');
+    container.style.minWidth = '180px';
+    container.innerHTML = `
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+        ${colorDot}<strong>#${order.id}</strong>${!color ? ` - ${order.customer_name}` : ''}
+      </div>
+      ${color ? `<span style="font-weight:500;">${order.customer_name}</span><br>` : ''}
+      <span style="color:#666;font-size:12px;">${order.address}</span>
+      <div style="margin-top:6px;padding:4px 8px;background:#f0f9ff;border-radius:4px;font-size:11px;color:#0369a1;">
+        <i class="pi pi-directions" style="font-size:10px;margin-right:4px;"></i>${corridor}
+      </div>
+      <div style="margin-top:8px;display:flex;justify-content:space-between;align-items:center;">
+        <span>${order.weight_kg.toFixed(1)} kg</span>
+        <span style="color:#10B981;font-weight:600;">${order.shipping_cost} DA</span>
+      </div>
+    `;
+
+    // Add edit button
+    const editBtn = document.createElement('button');
+    editBtn.innerHTML = '<i class="pi pi-pencil"></i> Edit Route';
+    editBtn.style.cssText = 'margin-top:10px;width:100%;padding:6px 10px;background:#3B82F6;color:white;border:none;border-radius:4px;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;gap:6px;';
+    editBtn.onclick = () => this.openEditRouteDialog(order);
+    container.appendChild(editBtn);
+
+    return L.popup().setContent(container);
   }
 
   // ==================== Smart Batching ====================
 
   toggleSettings(): void {
-    this.showSettings.update(v => !v);
+    this.showSettingsDialog = !this.showSettingsDialog;
   }
 
   updateSetting(key: string, value: unknown): void {
@@ -441,16 +433,32 @@ export class AdminBatchingComponent implements OnInit {
   private getSmartBatchingParams() {
     const settings = this.algorithmSettings();
     const simLimit = this.simulationLimit();
-    const priorityHead = this.priorityHeading();
+    const corridorFilters = this.selectedCorridorFilters();
     return {
       strategy: settings.strategy,
       maxOrders: settings.maxOrders || undefined,
       maxWeight: settings.maxWeight || undefined,
-      groupingMode: settings.groupingMode,
-      headingTolerance: settings.headingTolerance,
       simulationLimit: simLimit || undefined,
-      priorityHeading: priorityHead !== null ? priorityHead : undefined
+      // Pass multiple corridors as comma-separated string
+      corridorFilter: corridorFilters.length > 0 ? corridorFilters.join(',') : undefined
     };
+  }
+
+  toggleCorridorFilter(corridor: string): void {
+    const current = this.selectedCorridorFilters();
+    if (current.includes(corridor)) {
+      this.selectedCorridorFilters.set(current.filter(c => c !== corridor));
+    } else {
+      this.selectedCorridorFilters.set([...current, corridor]);
+    }
+  }
+
+  clearCorridorFilters(): void {
+    this.selectedCorridorFilters.set([]);
+  }
+
+  isCorridorFilterSelected(corridor: string): boolean {
+    return this.selectedCorridorFilters().includes(corridor);
   }
 
   previewSmartBatching(): void {
@@ -626,22 +634,7 @@ export class AdminBatchingComponent implements OnInit {
           });
 
           const marker = L.marker([stop.latitude!, stop.longitude!], { icon });
-
-          marker.bindPopup(`
-            <div style="min-width:180px;">
-              <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
-                <span style="width:20px;height:20px;border-radius:50%;background:${color};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:11px;">${stop.sequence}</span>
-                <strong>#${stop.order_id}</strong>
-              </div>
-              <span style="font-weight:500;">${stop.customer_name}</span><br>
-              <span style="color:#666;font-size:12px;">${stop.address}</span>
-              <div style="margin-top:8px;display:flex;justify-content:space-between;">
-                <span>${stop.weight_kg.toFixed(1)} kg</span>
-                <span style="color:#10B981;font-weight:600;">${stop.distance_km.toFixed(1)} km</span>
-              </div>
-            </div>
-          `);
-
+          marker.bindPopup(this.createStopPopup(stop, color));
           marker.addTo(this.markersLayer!);
           this.corridorLayers[corridorKey].markers.push(marker);
         }, batchIndex * 200 + stopIndex * 80);
@@ -694,6 +687,7 @@ export class AdminBatchingComponent implements OnInit {
 
   /**
    * Build a lookup map from order_id to user_id
+   * Uses all pending orders (not filtered) since batches may contain any order
    */
   private buildOrderToUserLookup(): Map<number, number> {
     const lookup = new Map<number, number>();
@@ -869,6 +863,12 @@ export class AdminBatchingComponent implements OnInit {
         this.smartDrivers.set(response.drivers);
       }
     });
+    // Load customer routes for edit dialog
+    this.batchingService.getCustomerRoutes().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (routes) => {
+        this.customerRoutes.set(routes);
+      }
+    });
   }
 
   loadPendingOrders(): void {
@@ -945,6 +945,80 @@ export class AdminBatchingComponent implements OnInit {
       },
       error: (err) => { this.assigning.set(false); this.toast.showApiError(err, 'admin.batching.assign_error'); }
     });
+  }
+
+  // ==================== Edit Route Dialog ====================
+
+  openEditRouteDialog(order: PendingOrder): void {
+    this.editingRoute.set({
+      userId: order.user_id,
+      customerName: order.customer_name
+    });
+    // Pre-fill form with current values (if available from routes)
+    const route = this.customerRoutes().find(r => r.user_id === order.user_id);
+    this.editRouteForm = {
+      corridor: route?.corridor || '',
+      distance_km: route?.distance_km || 0,
+      duration_min: route?.duration_min || 0
+    };
+    this.showEditRouteDialog.set(true);
+  }
+
+  openEditRouteDialogFromStop(stop: SmartBatchStop): void {
+    // Get user_id from stop, or look it up from pending orders
+    let userId = stop.user_id;
+    if (!userId) {
+      const order = this.pendingOrders().find(o => o.id === stop.order_id);
+      userId = order?.user_id || 0;
+    }
+
+    this.editingRoute.set({
+      userId: userId,
+      customerName: stop.customer_name
+    });
+
+    // Try to get data from customerRoutes (most accurate)
+    const route = this.customerRoutes().find(r => r.user_id === userId);
+
+    // Pre-fill form - prefer customerRoutes data, fallback to stop data
+    this.editRouteForm = {
+      corridor: route?.corridor || stop.corridor || '',
+      distance_km: route?.distance_km || stop.distance_km || 0,
+      duration_min: route?.duration_min || stop.duration_min || 0
+    };
+    this.showEditRouteDialog.set(true);
+  }
+
+  closeEditRouteDialog(): void {
+    this.showEditRouteDialog.set(false);
+    this.editingRoute.set(null);
+  }
+
+  saveRouteChanges(): void {
+    const route = this.editingRoute();
+    if (!route) return;
+
+    this.savingRoute.set(true);
+    this.batchingService.updateCustomerRoute(route.userId, {
+      corridor: this.editRouteForm.corridor,
+      distance_km: this.editRouteForm.distance_km,
+      duration_min: this.editRouteForm.duration_min
+    })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.savingRoute.set(false);
+          this.toast.showSuccess('admin.batching.route_updated');
+          this.closeEditRouteDialog();
+          // Reload routes and orders to reflect changes
+          this.batchingService.getCustomerRoutes().subscribe(routes => this.customerRoutes.set(routes));
+          this.loadPendingOrders();
+        },
+        error: (err) => {
+          this.savingRoute.set(false);
+          this.toast.showApiError(err, 'admin.batching.route_update_error');
+        }
+      });
   }
 
   // ==================== Trip Actions ====================

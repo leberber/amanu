@@ -81,6 +81,13 @@ class CustomerRouteWithGeometry(BaseModel):
     coordinates: List[List[float]] = []  # [[lng, lat], [lng, lat], ...]
 
 
+class UpdateRouteRequest(BaseModel):
+    """Request to update route data manually."""
+    corridor: Optional[str] = None
+    distance_km: Optional[float] = None
+    duration_min: Optional[float] = None
+
+
 # Endpoints
 
 @router.get("/", response_model=List[CustomerRouteResponse])
@@ -191,6 +198,36 @@ def get_route(
     route = get_customer_route(session, user_id)
     if not route:
         raise HTTPException(status_code=404, detail="Route not found for this user")
+
+    return CustomerRouteResponse.from_route(route)
+
+
+@router.patch("/{user_id}", response_model=CustomerRouteResponse)
+def update_route(
+    user_id: int,
+    request: UpdateRouteRequest,
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_user)
+):
+    """Update route data manually (corridor, distance, duration). Admin only."""
+    if current_user.role != UserRole.ADMIN:
+        raise HTTPException(status_code=403, detail="Admin access required")
+
+    route = get_customer_route(session, user_id)
+    if not route:
+        raise HTTPException(status_code=404, detail="Route not found for this user")
+
+    # Update fields if provided
+    if request.corridor is not None:
+        route.corridor = request.corridor
+    if request.distance_km is not None:
+        route.distance_meters = int(request.distance_km * 1000)
+    if request.duration_min is not None:
+        route.duration_seconds = int(request.duration_min * 60)
+
+    session.add(route)
+    session.commit()
+    session.refresh(route)
 
     return CustomerRouteResponse.from_route(route)
 

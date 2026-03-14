@@ -272,10 +272,8 @@ export class BatchingService {
     if (params.strategy) queryParams.push(`strategy=${params.strategy}`);
     if (params.maxWeight) queryParams.push(`max_weight=${params.maxWeight}`);
     if (params.maxOrders) queryParams.push(`max_orders=${params.maxOrders}`);
-    if (params.groupingMode) queryParams.push(`grouping_mode=${params.groupingMode}`);
-    if (params.headingTolerance) queryParams.push(`heading_tolerance=${params.headingTolerance}`);
     if (params.simulationLimit) queryParams.push(`simulation_limit=${params.simulationLimit}`);
-    if (params.priorityHeading !== undefined) queryParams.push(`priority_heading=${params.priorityHeading}`);
+    if (params.corridorFilter) queryParams.push(`corridor_filter=${encodeURIComponent(params.corridorFilter)}`);
     return queryParams.length > 0 ? '?' + queryParams.join('&') : '';
   }
 
@@ -323,6 +321,16 @@ export class BatchingService {
   }
 
   /**
+   * Update a customer route (corridor, distance, duration)
+   */
+  updateCustomerRoute(userId: number, data: UpdateRouteRequest): Observable<CustomerRoute> {
+    return this.http.patch<CustomerRoute>(
+      `${this.apiUrl}${API_ENDPOINTS.CUSTOMER_ROUTES}${userId}`,
+      data
+    );
+  }
+
+  /**
    * Reset all trips - delete trips/stops and return orders to pending
    * Used to reinitialize smart batching
    */
@@ -345,12 +353,14 @@ export class BatchingService {
 export interface SmartBatchStop {
   sequence: number;
   order_id: number;
+  user_id: number;
   customer_name: string;
   address: string;
   phone: string;
   weight_kg: number;
   distance_km: number;
-  heading: number;
+  corridor?: string;
+  duration_min?: number;
   latitude?: number;
   longitude?: number;
 }
@@ -364,10 +374,6 @@ export interface SmartBatch {
   total_earnings: number;
   capacity_kg: number;
   capacity_used_pct: number;
-  heading_range?: {
-    min: number;
-    max: number;
-  };
   assigned_driver?: {
     id: number;
     name: string;
@@ -382,9 +388,9 @@ export interface LeftoverOrder {
   customer_name: string;
   address: string;
   weight_kg: number;
-  heading: number;
+  corridor: string;
   distance_km: number;
-  reason: 'no_capacity' | 'heading_mismatch';
+  reason: 'no_capacity';
 }
 
 export interface SmartBatchingResponse {
@@ -400,10 +406,8 @@ export interface SmartBatchingResponse {
     total_batches: number;
     trucks_available: number;
     trucks_used: number;
-    by_direction?: Record<string, number>;
+    by_corridor?: Record<string, number>;
     strategy?: string;
-    grouping_mode?: string;
-    heading_tolerance?: number;
   };
   trips_created?: number;
   trips?: Array<{
@@ -442,6 +446,12 @@ export interface CustomerRoute {
   coordinates: [number, number][];  // [[lng, lat], [lng, lat], ...]
 }
 
+export interface UpdateRouteRequest {
+  corridor?: string;
+  distance_km?: number;
+  duration_min?: number;
+}
+
 export interface ResetTripsResponse {
   success: boolean;
   message: string;
@@ -453,8 +463,6 @@ export interface SmartBatchingParams {
   strategy?: 'farthest_first' | 'nearest_first';
   maxWeight?: number;
   maxOrders?: number;
-  groupingMode?: 'corridor_and_heading' | 'corridor_only' | 'heading_only';
-  headingTolerance?: number;
   simulationLimit?: number;
-  priorityHeading?: number;
+  corridorFilter?: string;
 }
