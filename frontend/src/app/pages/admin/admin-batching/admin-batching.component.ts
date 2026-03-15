@@ -1184,7 +1184,7 @@ export class AdminBatchingComponent implements OnInit {
   }
 
   formatZone(zone?: string): string {
-    return zone ? zone.replace('zone_', '').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) : 'Inconnu';
+    return zone ? zone.replace('zone_', '').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) : 'Personnalisé';
   }
 
   // ==================== Drag and Drop for Manual Batching ====================
