@@ -22,21 +22,21 @@
               <span class="stat-pill__label">{{ 'admin.batching.pending_orders' | translate }}</span>
             </div>
           </div>
-          <div class="stat-pill stat-pill--warning">
+          <div class="stat-pill stat-pill--warning stat-pill--clickable" (click)="goToTripsTab('pending')">
             <i class="pi pi-clock"></i>
             <div class="stat-pill__content">
               <span class="stat-pill__value">{{ stats()!.pending_trips }}</span>
               <span class="stat-pill__label">{{ 'admin.batching.pending_trips' | translate }}</span>
             </div>
           </div>
-          <div class="stat-pill stat-pill--info">
+          <div class="stat-pill stat-pill--info stat-pill--clickable" (click)="goToTripsTab('assigned')">
             <i class="pi pi-user"></i>
             <div class="stat-pill__content">
               <span class="stat-pill__value">{{ stats()!.assigned_trips }}</span>
               <span class="stat-pill__label">{{ 'admin.batching.assigned_trips' | translate }}</span>
             </div>
           </div>
-          <div class="stat-pill stat-pill--success">
+          <div class="stat-pill stat-pill--success stat-pill--clickable" (click)="goToTripsTab('in_progress')">
             <i class="pi pi-truck"></i>
             <div class="stat-pill__content">
               <span class="stat-pill__value">{{ stats()!.in_progress_trips }}</span>
@@ -61,6 +61,16 @@
           }
         </div>
 
+        <!-- Map button (right side) -->
+        @if (activeTab() !== 'map') {
+          <button
+            pButton
+            [label]="'admin.batching.tab_map' | translate"
+            icon="pi pi-map"
+            class="header-map-btn"
+            (click)="setActiveTab('map')">
+          </button>
+        }
       </div>
     } @else {
       <!-- Error State -->
@@ -388,35 +398,6 @@
       <!-- Trips Tab -->
       @if (activeTab() === 'trips') {
         <div class="trips-section">
-          <div class="trips-filters">
-            <div class="filter-buttons">
-              <button
-                class="filter-btn"
-                [class.active]="statusFilter() === null"
-                (click)="filterByStatus(null)">
-                {{ 'admin.batching.all' | translate }}
-              </button>
-              <button
-                class="filter-btn"
-                [class.active]="statusFilter() === 'pending'"
-                (click)="filterByStatus('pending')">
-                {{ 'admin.batching.pending' | translate }}
-              </button>
-              <button
-                class="filter-btn"
-                [class.active]="statusFilter() === 'assigned'"
-                (click)="filterByStatus('assigned')">
-                {{ 'admin.batching.assigned' | translate }}
-              </button>
-              <button
-                class="filter-btn"
-                [class.active]="statusFilter() === 'in_progress'"
-                (click)="filterByStatus('in_progress')">
-                {{ 'admin.batching.in_progress_short' | translate }}
-              </button>
-            </div>
-          </div>
-
           @if (filteredTrips().length > 0) {
             <div class="trips-table-wrapper">
               <table class="trips-table">
@@ -754,24 +735,6 @@
   [modal]="false"
   styleClass="shadow-none border-right-1 surface-border"
   [style]="{ width: '350px' }">
-
-  <!-- Navigation Links -->
-  <div class="drawer-nav">
-    <div
-      class="drawer-nav__item"
-      [class.drawer-nav__item--active]="activeTab() === 'map'"
-      (click)="setActiveTab('map')">
-      <i class="pi pi-map"></i>
-      <span>{{ 'admin.batching.tab_map' | translate }}</span>
-    </div>
-    <div
-      class="drawer-nav__item"
-      [class.drawer-nav__item--active]="activeTab() === 'trips'"
-      (click)="setActiveTab('trips')">
-      <i class="pi pi-list"></i>
-      <span>{{ 'admin.batching.tab_trips' | translate }}</span>
-    </div>
-  </div>
 
   <p-accordion [value]="['algorithm']" [multiple]="true">
     <p-accordion-panel value="algorithm">

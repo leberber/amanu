@@ -1237,6 +1237,11 @@ export class AdminBatchingComponent implements OnInit {
     if (tab === 'trips') this.batchingService.getTrips().subscribe();
   }
 
+  goToTripsTab(status: TripStatus): void {
+    this.setActiveTab('trips');
+    this.filterByStatus(status);
+  }
+
   // ==================== Trip Dialog ====================
 
   viewTripDetails(trip: Trip): void {
