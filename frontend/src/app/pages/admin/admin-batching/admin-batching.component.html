@@ -339,6 +339,11 @@
                             <span>{{ trip.driver_name }}</span>
                             <small>{{ trip.driver_phone }}</small>
                           </div>
+                        } @else if (trip.suggested_driver_name) {
+                          <div class="driver-info driver-info--suggested">
+                            <span class="suggested-label">{{ 'admin.batching.suggested' | translate }}</span>
+                            <span>{{ trip.suggested_driver_name }}</span>
+                          </div>
                         } @else {
                           <span class="text-muted">-</span>
                         }

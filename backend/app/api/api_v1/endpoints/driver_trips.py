@@ -18,6 +18,7 @@ from app.models.driver import (
 from app.models.driver_config import DriverSystemConfig
 from app.models.shipping import ShippingPriceConfig
 from app.models.product import Product
+from app.models.trip import Trip, TripStop, TripStatus, TripRead, TripWithStops, TripStopRead, StopStatus
 from sqlmodel import SQLModel
 
 
@@ -181,6 +182,330 @@ def order_to_response(order: Order, session: Session) -> OrderWithItems:
         total_weight=total_weight if total_weight > 0 else None,
         total_volume=total_volume if total_volume > 0 else None
     )
+
+
+# =============================================================================
+# BATCHED TRIPS (Multi-stop trips from smart batching)
+# =============================================================================
+
+def trip_to_response(trip: Trip, session: Session) -> TripWithStops:
+    """Convert Trip to TripWithStops response with all details."""
+    # Get driver info
+    driver_name = None
+    driver_phone = None
+    if trip.driver_id:
+        driver_user = session.get(User, trip.driver_id)
+        if driver_user:
+            driver_name = driver_user.full_name
+            driver_phone = driver_user.phone
+
+    # Get suggested driver info
+    suggested_driver_name = None
+    if trip.suggested_driver_id:
+        suggested_user = session.get(User, trip.suggested_driver_id)
+        if suggested_user:
+            suggested_driver_name = suggested_user.full_name
+
+    # Get stops with order details
+    stops_read = []
+    completed_stops = 0
+    for stop in trip.stops:
+        order = session.get(Order, stop.order_id)
+        customer_name = None
+        shipping_address = None
+        contact_phone = None
+        order_total = None
+        if order:
+            customer_name = order.user.full_name if order.user else None
+            shipping_address = order.shipping_address
+            contact_phone = order.contact_phone
+            order_total = float(order.total_amount) if order.total_amount else None
+
+        if stop.status == StopStatus.DELIVERED:
+            completed_stops += 1
+
+        stops_read.append(TripStopRead(
+            id=stop.id,
+            trip_id=stop.trip_id,
+            order_id=stop.order_id,
+            sequence=stop.sequence,
+            status=stop.status,
+            estimated_arrival=stop.estimated_arrival,
+            arrived_at=stop.arrived_at,
+            delivered_at=stop.delivered_at,
+            notes=stop.notes,
+            customer_name=customer_name,
+            shipping_address=shipping_address,
+            contact_phone=contact_phone,
+            order_total=order_total,
+        ))
+
+    return TripWithStops(
+        id=trip.id,
+        driver_id=trip.driver_id,
+        suggested_driver_id=trip.suggested_driver_id,
+        status=trip.status,
+        corridor=trip.corridor,
+        total_weight_kg=trip.total_weight_kg,
+        total_volume_m3=trip.total_volume_m3,
+        estimated_distance_km=trip.estimated_distance_km,
+        estimated_duration_min=trip.estimated_duration_min,
+        h3_zone=trip.h3_zone,
+        total_earnings=trip.total_earnings,
+        created_at=trip.created_at,
+        updated_at=trip.updated_at,
+        assigned_at=trip.assigned_at,
+        started_at=trip.started_at,
+        completed_at=trip.completed_at,
+        total_stops=len(trip.stops),
+        completed_stops=completed_stops,
+        driver_name=driver_name,
+        driver_phone=driver_phone,
+        suggested_driver_name=suggested_driver_name,
+        stops=stops_read,
+    )
+
+
+@router.get("/batched/pending", response_model=List[TripWithStops])
+def get_pending_batched_trips(
+    current_user: User = Depends(get_current_user),
+    session: Session = Depends(get_session),
+) -> Any:
+    """
+    Get pending batched trips suggested to this driver.
+    Returns trips where:
+    - Status is PENDING (not yet accepted)
+    - suggested_driver_id matches the current driver OR trip has no suggested driver
+    """
+    user, driver = get_driver_user(current_user, session)
+
+    # Check if driver is available
+    if driver.status == DriverStatus.SUSPENDED:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Driver account is suspended"
+        )
+
+    # Get pending trips suggested to this driver (or without a suggested driver)
+    trips = session.exec(
+        select(Trip)
+        .where(Trip.status == TripStatus.PENDING)
+        .where(or_(
+            Trip.suggested_driver_id == user.id,
+            Trip.suggested_driver_id == None
+        ))
+        .order_by(Trip.created_at.desc())
+    ).all()
+
+    return [trip_to_response(trip, session) for trip in trips]
+
+
+class AcceptBatchedTripResponse(SQLModel):
+    """Response after accepting a batched trip"""
+    success: bool
+    message: str
+    trip: Optional[TripWithStops] = None
+
+
+@router.post("/batched/{trip_id}/accept", response_model=AcceptBatchedTripResponse)
+def accept_batched_trip(
+    trip_id: int,
+    current_user: User = Depends(get_current_user),
+    session: Session = Depends(get_session),
+) -> Any:
+    """
+    Accept a batched trip (multi-stop delivery).
+    Assigns the driver to the trip and all its orders.
+    """
+    user, driver = get_driver_user(current_user, session)
+    config = get_system_config(session)
+
+    # Verify driver can accept trips
+    if driver.status == DriverStatus.SUSPENDED:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Driver account is suspended"
+        )
+
+    # Get trip
+    trip = session.get(Trip, trip_id)
+    if not trip:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Trip not found"
+        )
+
+    # Verify trip is pending
+    if trip.status != TripStatus.PENDING:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Trip is not available (status: {trip.status})"
+        )
+
+    # Verify trip is suggested to this driver or has no suggestion
+    if trip.suggested_driver_id and trip.suggested_driver_id != user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="This trip is suggested to another driver"
+        )
+
+    now = datetime.now(timezone.utc)
+
+    # Assign trip to driver
+    trip.driver_id = user.id
+    trip.status = TripStatus.ASSIGNED
+    trip.assigned_at = now
+    trip.updated_at = now
+    session.add(trip)
+
+    # Assign all orders in this trip to the driver
+    for stop in trip.stops:
+        order = session.get(Order, stop.order_id)
+        if order:
+            order.driver_id = user.id
+            order.status = OrderStatus.ASSIGNED
+            order.assigned_at = now
+            order.assignment_expires_at = now + timedelta(minutes=config.assignment_timeout_minutes)
+            order.updated_at = now
+            session.add(order)
+
+    # Update driver status to BUSY
+    if driver.status == DriverStatus.AVAILABLE:
+        driver.status = DriverStatus.BUSY
+        driver.updated_at = now
+        session.add(driver)
+
+    session.commit()
+    session.refresh(trip)
+
+    return AcceptBatchedTripResponse(
+        success=True,
+        message=f"Trip accepted with {len(trip.stops)} stops",
+        trip=trip_to_response(trip, session)
+    )
+
+
+class DeclineBatchedTripRequest(SQLModel):
+    """Request body for declining a batched trip"""
+    reason: Optional[str] = None
+
+
+@router.post("/batched/{trip_id}/decline", response_model=AcceptBatchedTripResponse)
+def decline_batched_trip(
+    trip_id: int,
+    decline_request: Optional[DeclineBatchedTripRequest] = None,
+    current_user: User = Depends(get_current_user),
+    session: Session = Depends(get_session),
+) -> Any:
+    """
+    Decline a batched trip.
+    Cancels the trip and returns all orders to pending status.
+    """
+    user, driver = get_driver_user(current_user, session)
+
+    # Get trip
+    trip = session.get(Trip, trip_id)
+    if not trip:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Trip not found"
+        )
+
+    # Verify trip is pending and suggested to this driver
+    if trip.status != TripStatus.PENDING:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Trip is not pending (status: {trip.status})"
+        )
+
+    if trip.suggested_driver_id and trip.suggested_driver_id != user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="This trip is not suggested to you"
+        )
+
+    now = datetime.now(timezone.utc)
+
+    # Return all orders to pending status (CONFIRMED, no driver, no trip)
+    for stop in trip.stops:
+        order = session.get(Order, stop.order_id)
+        if order:
+            order.driver_id = None
+            order.trip_id = None
+            order.status = OrderStatus.CONFIRMED
+            order.assigned_at = None
+            order.assignment_expires_at = None
+            order.updated_at = now
+            session.add(order)
+
+    # Cancel the trip
+    trip.status = TripStatus.CANCELLED
+    trip.updated_at = now
+    session.add(trip)
+
+    session.commit()
+
+    return AcceptBatchedTripResponse(
+        success=True,
+        message=f"Trip declined. {len(trip.stops)} orders returned to pending.",
+        trip=None
+    )
+
+
+@router.get("/batched/active", response_model=List[TripWithStops])
+def get_active_batched_trips(
+    current_user: User = Depends(get_current_user),
+    session: Session = Depends(get_session),
+) -> Any:
+    """
+    Get driver's active batched trips (ASSIGNED or IN_PROGRESS).
+    """
+    user, driver = get_driver_user(current_user, session)
+
+    trips = session.exec(
+        select(Trip)
+        .where(Trip.driver_id == user.id)
+        .where(Trip.status.in_([TripStatus.ASSIGNED, TripStatus.IN_PROGRESS]))
+        .order_by(Trip.assigned_at.desc())
+    ).all()
+
+    return [trip_to_response(trip, session) for trip in trips]
+
+
+@router.get("/batched/{trip_id}", response_model=TripWithStops)
+def get_batched_trip_detail(
+    trip_id: int,
+    current_user: User = Depends(get_current_user),
+    session: Session = Depends(get_session),
+) -> Any:
+    """
+    Get details of a specific batched trip.
+    """
+    user, driver = get_driver_user(current_user, session)
+
+    trip = session.get(Trip, trip_id)
+    if not trip:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Trip not found"
+        )
+
+    # Allow viewing if:
+    # 1. Trip is pending and suggested to this driver (or no suggestion)
+    # 2. Trip is assigned to this driver
+    is_pending_for_me = (
+        trip.status == TripStatus.PENDING and
+        (trip.suggested_driver_id == user.id or trip.suggested_driver_id is None)
+    )
+    is_assigned_to_me = trip.driver_id == user.id
+
+    if not is_pending_for_me and not is_assigned_to_me:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Trip not available to you"
+        )
+
+    return trip_to_response(trip, session)
 
 
 # =============================================================================

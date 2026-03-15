@@ -723,6 +723,21 @@
     color: var(--text-color-secondary);
     font-size: 0.75rem;
   }
+
+  &--suggested {
+    .suggested-label {
+      font-size: 0.65rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: var(--orange-500);
+      letter-spacing: 0.025em;
+    }
+
+    span:not(.suggested-label) {
+      color: var(--text-color-secondary);
+      font-style: italic;
+    }
+  }
 }
 
 .earnings {

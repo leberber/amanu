@@ -44,9 +44,13 @@ class Trip(SQLModel, table=True):
 
     # Driver assignment
     driver_id: Optional[int] = Field(default=None, foreign_key="users.id", index=True)
+    suggested_driver_id: Optional[int] = Field(default=None, foreign_key="users.id", index=True, description="Suggested driver based on corridor preference")
 
     # Trip status
     status: TripStatus = Field(default=TripStatus.PENDING)
+
+    # Corridor/Route info
+    corridor: Optional[str] = Field(default=None, max_length=100, description="Corridor/route name for this trip")
 
     # Capacity totals
     total_weight_kg: float = Field(default=0.0, description="Combined weight of all orders")
@@ -142,7 +146,9 @@ class TripRead(SQLModel):
     """Model for reading trips in API responses"""
     id: int
     driver_id: Optional[int] = None
+    suggested_driver_id: Optional[int] = None
     status: TripStatus
+    corridor: Optional[str] = None
     total_weight_kg: float
     total_volume_m3: float
     estimated_distance_km: float
@@ -162,6 +168,9 @@ class TripRead(SQLModel):
     # Driver info (populated by endpoint)
     driver_name: Optional[str] = None
     driver_phone: Optional[str] = None
+
+    # Suggested driver info (populated by endpoint)
+    suggested_driver_name: Optional[str] = None
 
     model_config = {"from_attributes": True, "use_enum_values": True}
 

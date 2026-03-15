@@ -451,23 +451,47 @@ class SmartBatchingService:
             if not orders:
                 continue
 
-            # Create trip
+            # Get corridor from batch
+            corridor = batch.get("corridor")
+
+            # Find suggested driver based on corridor preference
+            suggested_driver_id = None
+            driver_info = batch.get("assigned_driver")
+
+            if driver_info:
+                # Check if this driver prefers this corridor
+                driver = self.session.exec(
+                    select(Driver).where(Driver.user_id == driver_info.get("id"))
+                ).first()
+                if driver and driver.preferred_corridor == corridor:
+                    suggested_driver_id = driver_info.get("id")
+                elif driver:
+                    # Driver doesn't prefer this corridor, but still suggest based on capacity
+                    suggested_driver_id = driver_info.get("id")
+
+            # If no driver from batch, find one who prefers this corridor
+            if not suggested_driver_id and corridor:
+                preferred_driver = self.session.exec(
+                    select(Driver)
+                    .where(Driver.preferred_corridor == corridor)
+                    .where(Driver.status == DriverStatus.AVAILABLE)
+                ).first()
+                if preferred_driver:
+                    suggested_driver_id = preferred_driver.user_id
+
+            # Create trip (NOT assigned - driver must accept)
             trip = Trip(
                 status=TripStatus.PENDING,
+                corridor=corridor,
                 total_weight_kg=batch.get("total_weight_kg", 0),
-                total_volume_m3=0,  # TODO: calculate if needed
+                total_volume_m3=0,
                 total_earnings=batch.get("total_earnings", 0),
-                h3_zone=batch.get("corridor"),
+                h3_zone=corridor,  # Keep for backward compatibility
                 estimated_distance_km=batch.get("total_distance_km", 0),
                 created_by_id=created_by_id,
+                suggested_driver_id=suggested_driver_id,
+                # driver_id stays None - driver must accept
             )
-
-            # Assign driver if specified
-            driver_info = batch.get("assigned_driver")
-            if driver_info:
-                trip.driver_id = driver_info.get("id")
-                trip.status = TripStatus.ASSIGNED
-                trip.assigned_at = datetime.now(timezone.utc)
 
             self.session.add(trip)
             self.session.commit()
@@ -483,12 +507,11 @@ class SmartBatchingService:
                 )
                 self.session.add(stop)
 
-                # Update order to link to trip
+                # Update order to link to trip (but NOT assign driver yet)
                 order = self.session.get(Order, stop_data["order_id"])
                 if order:
                     order.trip_id = trip.id
-                    if driver_info:
-                        order.driver_id = driver_info.get("id")
+                    # driver_id stays None until driver accepts the trip
                     order.updated_at = datetime.now(timezone.utc)
                     self.session.add(order)
 

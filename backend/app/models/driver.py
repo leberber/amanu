@@ -38,6 +38,9 @@ class Driver(SQLModel, table=True):
     is_available: bool = Field(default=True, description="Driver availability for new orders")
     max_active_orders: int = Field(default=3, description="Maximum concurrent orders allowed")
 
+    # Route preferences
+    preferred_corridor: Optional[str] = Field(default=None, max_length=100, description="Driver's preferred corridor/route")
+
     # Flagging/suspension (simple for now)
     is_flagged: bool = Field(default=False, description="Driver is flagged for review")
     flag_reason: Optional[str] = Field(default=None, max_length=500)
@@ -105,6 +108,7 @@ class DriverRead(SQLModel):
     status: DriverStatus
     is_available: bool
     max_active_orders: int = 3
+    preferred_corridor: Optional[str] = None
     created_at: datetime
     updated_at: Optional[datetime] = None
 
@@ -178,6 +182,7 @@ class DriverVehicleUpdate(SQLModel):
 class DriverAdminUpdate(DriverUpdate):
     """Admin-only update fields"""
     max_active_orders: Optional[int] = None
+    preferred_corridor: Optional[str] = None
     is_flagged: Optional[bool] = None
     flag_reason: Optional[str] = None
     suspended_until: Optional[datetime] = None

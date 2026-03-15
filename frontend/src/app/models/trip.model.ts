@@ -27,7 +27,9 @@ export interface TripStop {
 export interface Trip {
   id: number;
   driver_id?: number;
+  suggested_driver_id?: number;
   status: TripStatus;
+  corridor?: string;
   total_weight_kg: number;
   total_volume_m3: number;
   estimated_distance_km: number;
@@ -47,6 +49,9 @@ export interface Trip {
   // Driver info (populated by endpoint)
   driver_name?: string;
   driver_phone?: string;
+
+  // Suggested driver info (populated by endpoint)
+  suggested_driver_name?: string;
 }
 
 export interface TripWithStops extends Trip {
