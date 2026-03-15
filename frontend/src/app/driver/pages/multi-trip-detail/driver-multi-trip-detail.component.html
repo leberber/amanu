@@ -1,204 +1,48 @@
 @if (loading()) {
-  <!-- Loading Skeleton -->
-  <div class="trip-detail trip-detail--loading">
-    <div class="map-skeleton">
-      <div class="map-skeleton__content">
-        <i class="pi pi-map"></i>
-        <span>{{ 'common.loading' | translate }}...</span>
-      </div>
+  <div class="page">
+    <div class="loading">
+      <i class="pi pi-spin pi-spinner"></i>
     </div>
   </div>
 } @else if (trip()) {
-  <div class="trip-detail" [class.trip-detail--fullscreen-map]="showFullScreenMap()">
-    <!-- Back Button (always visible) -->
+  <div class="page">
+    <!-- Back Button -->
     <button class="back-btn" (click)="goBack()">
       <i class="pi pi-arrow-left"></i>
     </button>
 
-    <!-- Map Section -->
-    <div class="map-section" [class.map-section--fullscreen]="showFullScreenMap()">
+    <!-- TEST BUTTON - click to manually resize map -->
+    <button class="test-btn" (click)="shrinkMap()">
+      SHRINK MAP (test)
+    </button>
+
+    <!-- DEBUG: shows current value -->
+    <div class="debug-text">
+      showFullScreenMap = {{ showFullScreenMap() }}
+    </div>
+
+    <!-- Map: fullscreen initially, 30vh after animation -->
+    <div class="map" [style.height]="showFullScreenMap() ? '100vh' : '30vh'">
       @if (routeCoords().length >= 2) {
         <app-animated-route-map
+          #mapComponent
           [routeCoords]="routeCoords()"
           [stops]="sortedStops()"
           [autoStart]="true"
           [animationDuration]="4000"
           (animationComplete)="onAnimationComplete()"
         />
+      } @else {
+        <div class="map__placeholder">
+          <i class="pi pi-map"></i>
+        </div>
       }
     </div>
 
-    <!-- Content Section (hidden during fullscreen map) -->
-    @if (!showFullScreenMap() || animationComplete()) {
-      <div class="content-section" [class.content-section--visible]="!showFullScreenMap()">
-        <!-- Itinerary Header -->
-        <div class="itinerary-header">
-          <h3 class="section-title">{{ 'driver.trip.itinerary' | translate }}</h3>
-          <span class="itinerary-header__fee">{{ trip()!.total_earnings | number:'1.0-0' }} DA</span>
-        </div>
-
-        <!-- Itinerary Timeline -->
-        <div class="itinerary">
-          <!-- Origin (Warehouse) -->
-          <div class="itinerary__item">
-            <div class="itinerary__marker itinerary__marker--origin"></div>
-            <div class="itinerary__line"></div>
-            <div class="itinerary__content">
-              <span class="itinerary__label">{{ 'driver.trip.origin' | translate }}</span>
-              <span class="itinerary__address">{{ 'driver.trip.warehouse' | translate }}</span>
-            </div>
-          </div>
-
-          <!-- Stops -->
-          @for (stop of sortedStops(); track stop.id; let last = $last) {
-            <div
-              class="itinerary__item"
-              [class.itinerary__item--current]="currentStop()?.id === stop.id"
-              [class.itinerary__item--completed]="stop.status === 'delivered'">
-              <div
-                class="itinerary__marker itinerary__marker--stop"
-                [class.itinerary__marker--completed]="stop.status === 'delivered'">
-                @if (stop.status === 'delivered') {
-                  <i class="pi pi-check"></i>
-                } @else {
-                  {{ stop.sequence }}
-                }
-              </div>
-              @if (!last) {
-                <div class="itinerary__line"></div>
-              }
-              <div class="itinerary__content">
-                <span class="itinerary__label">{{ 'driver.trip.stop' | translate }} {{ stop.sequence }}</span>
-                @if (stop.customer_name) {
-                  <span class="itinerary__customer">{{ stop.customer_name }}</span>
-                }
-                <span class="itinerary__address">{{ stop.shipping_address || 'Address not available' }}</span>
-
-                <!-- Stop Actions (for in_progress trips) -->
-                @if (trip()!.status === 'in_progress') {
-                  <div class="itinerary__actions">
-                    @if (canMarkArrived(stop)) {
-                      <button
-                        class="action-chip action-chip--arrived"
-                        [disabled]="isStopUpdating(stop.id)"
-                        (click)="markArrived(stop)">
-                        @if (isStopUpdating(stop.id)) {
-                          <i class="pi pi-spin pi-spinner"></i>
-                        } @else {
-                          <i class="pi pi-map-marker"></i>
-                        }
-                        {{ 'driver.action.mark_arrived' | translate }}
-                      </button>
-                    } @else if (canMarkDelivered(stop)) {
-                      <button
-                        class="action-chip action-chip--delivered"
-                        [disabled]="isStopUpdating(stop.id)"
-                        (click)="markDelivered(stop)">
-                        @if (isStopUpdating(stop.id)) {
-                          <i class="pi pi-spin pi-spinner"></i>
-                        } @else {
-                          <i class="pi pi-check"></i>
-                        }
-                        {{ 'driver.action.mark_delivered' | translate }}
-                      </button>
-                    }
-
-                    <!-- Quick Actions -->
-                    <div class="quick-actions">
-                      @if (stop.contact_phone) {
-                        <button class="quick-action" (click)="callCustomer(stop.contact_phone)">
-                          <i class="pi pi-phone"></i>
-                        </button>
-                      }
-                      <button class="quick-action" (click)="openNavigation(stop.shipping_address)">
-                        <i class="pi pi-directions"></i>
-                      </button>
-                    </div>
-                  </div>
-                }
-              </div>
-            </div>
-          }
-        </div>
-
-        <!-- Info Cards -->
-        <div class="info-cards">
-          <div class="info-card">
-            <div class="info-card__icon info-card__icon--stops">
-              <i class="pi pi-map-marker"></i>
-            </div>
-            <div class="info-card__content">
-              <span class="info-card__value">{{ trip()!.stops.length }}</span>
-              <span class="info-card__label">{{ 'driver.multi_trip.stops' | translate }}</span>
-            </div>
-          </div>
-          <div class="info-card">
-            <div class="info-card__icon info-card__icon--weight">
-              <i class="pi pi-box"></i>
-            </div>
-            <div class="info-card__content">
-              <span class="info-card__value">{{ trip()!.total_weight_kg | number:'1.0-0' }} kg</span>
-              <span class="info-card__label">{{ 'common.weight' | translate }}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    }
-
-    <!-- Bottom Action -->
-    @if (!showFullScreenMap() || animationComplete()) {
-      <div class="action-footer" [class.action-footer--visible]="!showFullScreenMap()">
-        @if (isPendingTrip()) {
-          <button
-            class="accept-btn"
-            [disabled]="accepting()"
-            (click)="acceptTrip()">
-            @if (accepting()) {
-              <i class="pi pi-spin pi-spinner"></i>
-            } @else {
-              <i class="pi pi-check"></i>
-            }
-            {{ 'driver.trip.accept' | translate }}
-          </button>
-        } @else if (canStartTrip()) {
-          <button
-            class="accept-btn accept-btn--start"
-            [disabled]="updating()"
-            (click)="startTrip()">
-            @if (updating()) {
-              <i class="pi pi-spin pi-spinner"></i>
-            } @else {
-              <i class="pi pi-play"></i>
-            }
-            {{ 'driver.action.start_trip' | translate }}
-          </button>
-        } @else if (canCompleteTrip()) {
-          <button
-            class="accept-btn accept-btn--complete"
-            [disabled]="updating()"
-            (click)="completeTrip()">
-            @if (updating()) {
-              <i class="pi pi-spin pi-spinner"></i>
-            } @else {
-              <i class="pi pi-check-circle"></i>
-            }
-            {{ 'driver.action.complete_trip' | translate }}
-          </button>
-        } @else if (trip()!.status === 'in_progress') {
-          <div class="progress-indicator">
-            <div class="progress-bar">
-              <div class="progress-bar__fill" [style.width.%]="tripProgress()"></div>
-            </div>
-            <span class="progress-text">
-              {{ trip()!.completed_stops }}/{{ trip()!.total_stops }} {{ 'driver.multi_trip.completed' | translate }}
-            </span>
-          </div>
-        } @else if (trip()!.status === 'completed') {
-          <div class="completed-badge">
-            <i class="pi pi-check-circle"></i>
-            {{ 'driver.multi_trip.trip_completed' | translate }}
-          </div>
-        }
+    <!-- Content: shows after animation -->
+    @if (!showFullScreenMap()) {
+      <div class="content">
+        <p>Content here - map is now 30vh</p>
       </div>
     }
   </div>

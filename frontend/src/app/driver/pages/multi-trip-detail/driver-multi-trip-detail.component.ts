@@ -1,6 +1,6 @@
-import { Component, inject, OnInit, signal, computed } from '@angular/core';
+import { Component, inject, OnInit, signal, computed, ChangeDetectorRef, viewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { DecimalPipe, Location } from '@angular/common';
+import { DecimalPipe, Location, NgClass } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { DriverService } from '../../../services/driver.service';
@@ -28,7 +28,7 @@ const STOP_STATUS_CONFIG: Record<StopStatus, { icon: string; color: string; labe
 @Component({
   selector: 'app-driver-multi-trip-detail',
   standalone: true,
-  imports: [TranslateModule, DecimalPipe, AnimatedRouteMapComponent],
+  imports: [TranslateModule, DecimalPipe, NgClass, AnimatedRouteMapComponent],
   templateUrl: './driver-multi-trip-detail.component.html',
   styleUrl: './driver-multi-trip-detail.component.scss'
 })
@@ -38,6 +38,7 @@ export class DriverMultiTripDetailComponent implements OnInit {
   private readonly location = inject(Location);
   private readonly driverService = inject(DriverService);
   private readonly toast = inject(ToastMessageService);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   readonly tripStatusConfig = TRIP_STATUS_CONFIG;
   readonly stopStatusConfig = STOP_STATUS_CONFIG;
@@ -52,6 +53,9 @@ export class DriverMultiTripDetailComponent implements OnInit {
   // Animation state
   animationComplete = signal(false);
   showFullScreenMap = signal(true);
+
+  // Reference to map component
+  mapComponent = viewChild<AnimatedRouteMapComponent>('mapComponent');
 
   // Computed values
   isPendingTrip = computed(() => {
@@ -107,8 +111,24 @@ export class DriverMultiTripDetailComponent implements OnInit {
       next: (trip) => {
         this.trip.set(trip);
         this.loading.set(false);
-        // Always show fullscreen map initially with animation
-        // Animation will trigger the transition to shrunk map
+
+        // Check if we have route coords for animation
+        const hasRouteCoords = trip.route_coords && trip.route_coords.length >= 2;
+
+        if (!hasRouteCoords) {
+          // No route data - skip animation and show content immediately
+          console.log('No route coords, skipping animation');
+          this.showFullScreenMap.set(false);
+          this.animationComplete.set(true);
+        } else {
+          // Fallback timeout in case animation doesn't complete
+          setTimeout(() => {
+            if (this.showFullScreenMap()) {
+              console.log('Animation timeout - forcing resize');
+              this.onAnimationComplete();
+            }
+          }, 6000); // 6 seconds fallback (4s animation + 2s buffer)
+        }
       },
       error: () => {
         this.toast.showError('driver.messages.trip_load_failed');
@@ -119,11 +139,27 @@ export class DriverMultiTripDetailComponent implements OnInit {
   }
 
   onAnimationComplete(): void {
+    if (this.animationComplete()) return; // Already completed
+
+    console.log('>>> Animation complete - setting showFullScreenMap to FALSE');
     this.animationComplete.set(true);
-    // Delay before transitioning map
+    this.showFullScreenMap.set(false);
+    this.cdr.detectChanges(); // Force change detection
+
+    // Resize map after container shrinks
     setTimeout(() => {
-      this.showFullScreenMap.set(false);
-    }, 500);
+      this.mapComponent()?.resizeMap();
+    }, 600); // Wait for CSS transition to complete
+
+    console.log('>>> showFullScreenMap is now:', this.showFullScreenMap());
+  }
+
+  // Test method for button
+  shrinkMap(): void {
+    console.log('>>> SHRINK MAP CLICKED');
+    this.showFullScreenMap.set(false);
+    this.cdr.detectChanges();
+    console.log('>>> showFullScreenMap is now:', this.showFullScreenMap());
   }
 
   goBack(): void {

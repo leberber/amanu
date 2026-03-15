@@ -1,478 +1,92 @@
-// Multi-Trip Detail - Drawer-like Design
+// Super simple - just map resize
 
-:host {
-  display: block;
-  min-height: 100vh;
-  background: var(--surface-ground);
-}
-
-.trip-detail {
-  min-height: 100vh;
+.page {
+  height: 100vh;
   display: flex;
   flex-direction: column;
-  position: relative;
-
-  &--fullscreen-map {
-    .map-section {
-      height: 100vh;
-    }
-  }
-
-  &--loading {
-    .map-skeleton {
-      height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: linear-gradient(135deg, #f0f0f0 0%, #e8e8e8 100%);
-
-      &__content {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: var(--space-3);
-
-        i {
-          font-size: 2rem;
-          color: #6b6b6b;
-        }
-
-        span {
-          color: #6b6b6b;
-        }
-      }
-    }
-  }
+  background: #f5f5f5;
 }
 
-// Back Button
+.loading {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+}
+
 .back-btn {
-  position: fixed;
-  top: calc(var(--space-3) + env(safe-area-inset-top, 0px));
-  left: var(--space-3);
+  position: absolute;
+  top: 16px;
+  left: 16px;
   z-index: 100;
   width: 44px;
   height: 44px;
   border-radius: 50%;
   background: white;
   border: none;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-
-  i {
-    font-size: 1.25rem;
-    color: #1a1a1a;
-  }
-
-  &:active {
-    transform: scale(0.95);
-  }
 }
 
-// Map Section
-.map-section {
+// TEST BUTTON - remove after testing
+.test-btn {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 9999;
+  padding: 10px 15px;
+  background: red;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+// DEBUG TEXT
+.debug-text {
+  position: fixed;
+  top: 70px;
+  right: 16px;
+  z-index: 9999;
+  padding: 10px;
+  background: yellow;
+  color: black;
+  font-weight: bold;
+  border-radius: 4px;
+}
+
+// THE MAP
+.map {
   width: 100%;
-  height: 250px;
-  transition: height 0.4s ease-out;
-  position: relative;
+  background: #ccc;
+  transition: height 0.5s ease;
+  overflow: hidden;
 
-  &--fullscreen {
-    height: 100vh;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 10;
-  }
-
-  // Ensure child components fill the space
   app-animated-route-map {
     display: block;
     width: 100%;
     height: 100%;
   }
-}
 
-// Content Section
-.content-section {
-  flex: 1;
-  padding: var(--space-4);
-  padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px));
-  opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 0.3s ease, transform 0.3s ease;
-
-  &--visible {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-// Itinerary Header
-.itinerary-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: var(--space-3);
-
-  .section-title {
-    font-size: var(--font-size-xl);
-    font-weight: var(--font-weight-bold);
-    color: var(--text-color);
-    text-transform: uppercase;
-    margin: 0;
-  }
-
-  &__fee {
-    font-size: 1.75rem;
-    font-weight: var(--font-weight-bold);
-    color: #1a1a1a;
-  }
-}
-
-// Itinerary Timeline
-.itinerary {
-  background: white;
-  border-radius: var(--radius-lg);
-  padding: var(--space-4);
-  margin-bottom: var(--space-4);
-
-  &__item {
-    display: flex;
-    align-items: flex-start;
-    gap: var(--space-3);
-    position: relative;
-    padding-bottom: var(--space-4);
-
-    &:last-child {
-      padding-bottom: 0;
-    }
-
-    &--current {
-      .itinerary__marker--stop {
-        background: var(--primary-color);
-        transform: scale(1.1);
-      }
-    }
-
-    &--completed {
-      .itinerary__content {
-        opacity: 0.6;
-      }
-    }
-  }
-
-  &__marker {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: white;
-    position: relative;
-    z-index: 1;
-    transition: transform 0.2s ease;
-
-    &--origin {
-      background: #1a1a1a;
-    }
-
-    &--stop {
-      background: #22c55e;
-    }
-
-    &--completed {
-      background: #22c55e;
-
-      i {
-        font-size: 0.75rem;
-      }
-    }
-  }
-
-  &__line {
-    position: absolute;
-    left: 13px;
-    top: 28px;
-    bottom: 0;
-    width: 2px;
-    background: #e5e5e5;
-  }
-
-  &__content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-1);
-    min-width: 0;
-  }
-
-  &__label {
-    font-size: var(--font-size-xs);
-    font-weight: 600;
-    color: var(--text-color-secondary);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  &__customer {
-    font-size: var(--font-size-lg);
-    font-weight: 600;
-    color: #1a1a1a;
-  }
-
-  &__address {
-    font-size: var(--font-size-base);
-    color: var(--text-color-secondary);
-    word-break: break-word;
-  }
-
-  &__actions {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    margin-top: var(--space-2);
-    flex-wrap: wrap;
-  }
-}
-
-// Action Chips
-.action-chip {
-  display: flex;
-  align-items: center;
-  gap: var(--space-1);
-  padding: var(--space-2) var(--space-3);
-  border: none;
-  border-radius: var(--radius-full);
-  font-size: var(--font-size-sm);
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.15s ease;
-
-  &--arrived {
-    background: rgba(59, 130, 246, 0.1);
-    color: #3b82f6;
-
-    &:hover {
-      background: rgba(59, 130, 246, 0.2);
-    }
-  }
-
-  &--delivered {
-    background: rgba(34, 197, 94, 0.1);
-    color: #22c55e;
-
-    &:hover {
-      background: rgba(34, 197, 94, 0.2);
-    }
-  }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-}
-
-// Quick Actions
-.quick-actions {
-  display: flex;
-  gap: var(--space-2);
-  margin-left: auto;
-}
-
-.quick-action {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: var(--surface-ground);
-  border: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: background 0.15s ease;
-
-  i {
-    font-size: 1rem;
-    color: #6b6b6b;
-  }
-
-  &:hover {
-    background: var(--surface-hover);
-  }
-
-  &:active {
-    transform: scale(0.95);
-  }
-}
-
-// Info Cards
-.info-cards {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-3);
-}
-
-.info-card {
-  background: white;
-  border-radius: var(--radius-xl);
-  padding: var(--space-4);
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-
-  &__icon {
-    width: 48px;
-    height: 48px;
-    border-radius: var(--radius-lg);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-
-    i {
-      font-size: 1.25rem;
-    }
-
-    &--stops {
-      background: rgba(59, 130, 246, 0.1);
-      i { color: #3b82f6; }
-    }
-
-    &--weight {
-      background: rgba(234, 179, 8, 0.1);
-      i { color: #eab308; }
-    }
-  }
-
-  &__content {
-    display: flex;
-    flex-direction: column;
-  }
-
-  &__value {
-    font-size: var(--font-size-xl);
-    font-weight: var(--font-weight-bold);
-    color: #1a1a1a;
-    line-height: 1.2;
-  }
-
-  &__label {
-    font-size: var(--font-size-sm);
-    color: var(--text-color-secondary);
-  }
-}
-
-// Action Footer
-.action-footer {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: var(--space-4) var(--space-5);
-  padding-bottom: calc(var(--space-6) + env(safe-area-inset-bottom, 0px));
-  background: var(--surface-ground);
-  z-index: 50;
-  opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 0.3s ease, transform 0.3s ease;
-
-  &--visible {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.accept-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-2);
-  width: 100%;
-  padding: var(--space-5) var(--space-4);
-  background: #1a1a1a;
-  color: white;
-  border: none;
-  border-radius: var(--radius-lg);
-  font-size: var(--font-size-lg);
-  font-weight: var(--font-weight-semibold);
-  cursor: pointer;
-  transition: all 0.15s ease;
-
-  &:active:not(:disabled) {
-    transform: scale(0.98);
-    background: #333;
-  }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  &--start {
-    background: #3b82f6;
-
-    &:active:not(:disabled) {
-      background: #2563eb;
-    }
-  }
-
-  &--complete {
-    background: #22c55e;
-
-    &:active:not(:disabled) {
-      background: #16a34a;
-    }
-  }
-}
-
-// Progress Indicator
-.progress-indicator {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-}
-
-.progress-bar {
-  height: 8px;
-  background: var(--surface-hover);
-  border-radius: var(--radius-full);
-  overflow: hidden;
-
-  &__fill {
+  &__placeholder {
+    width: 100%;
     height: 100%;
-    background: var(--primary-color);
-    border-radius: var(--radius-full);
-    transition: width 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    color: #999;
   }
 }
 
-.progress-text {
-  text-align: center;
-  font-size: var(--font-size-sm);
-  color: var(--text-color-secondary);
-}
-
-// Completed Badge
-.completed-badge {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-2);
-  padding: var(--space-4);
-  background: rgba(34, 197, 94, 0.1);
-  border-radius: var(--radius-lg);
-  color: #22c55e;
-  font-weight: 600;
-
-  i {
-    font-size: 1.25rem;
-  }
+// Content below map
+.content {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
 }
