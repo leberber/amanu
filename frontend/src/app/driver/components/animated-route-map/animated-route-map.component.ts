@@ -12,6 +12,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import * as L from 'leaflet';
+import { LEAFLET_TILES } from '../../../core/constants/map.constants';
 
 @Component({
   selector: 'app-animated-route-map',
@@ -28,7 +29,7 @@ export class AnimatedRouteMapComponent implements AfterViewInit, OnDestroy, OnCh
   stops = input<{ sequence: number; latitude?: number; longitude?: number }[]>([]);
 
   // Animation duration in milliseconds (total time for animation)
-  animationDuration = input<number>(3000);
+  animationDuration = input<number>(4000);
 
   // Whether to start animation automatically
   autoStart = input<boolean>(true);
@@ -43,10 +44,12 @@ export class AnimatedRouteMapComponent implements AfterViewInit, OnDestroy, OnCh
 
   private map: L.Map | null = null;
   private routeLine: L.Polyline | null = null;
+  private trailLine: L.Polyline | null = null;
   private truckMarker: L.Marker | null = null;
   private stopMarkers: L.Marker[] = [];
   private depotMarker: L.Marker | null = null;
   private animationFrameId: number | null = null;
+  private animationStartTime: number = 0;
   private initialized = false;
 
   // Custom icons
@@ -55,14 +58,14 @@ export class AnimatedRouteMapComponent implements AfterViewInit, OnDestroy, OnCh
       className: 'truck-marker',
       html: `
         <div class="truck-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24">
-            <circle cx="12" cy="12" r="11" fill="#1a1a1a"/>
+          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="11" fill="#3B82F6"/>
             <path fill="#ffffff" d="M18 18.5c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5-1.5.67-1.5 1.5.67 1.5 1.5 1.5zm1.5-9l-3-3H6c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h1c0 1.1.9 2 2 2s2-.9 2-2h6c0 1.1.9 2 2 2s2-.9 2-2h1c.55 0 1-.45 1-1v-4.5h-3.5zM9 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm8-7.5h2.5l2.25 2.25H17V11z"/>
           </svg>
         </div>
       `,
-      iconSize: [40, 40],
-      iconAnchor: [20, 20]
+      iconSize: [48, 48],
+      iconAnchor: [24, 24]
     });
   }
 
@@ -71,14 +74,14 @@ export class AnimatedRouteMapComponent implements AfterViewInit, OnDestroy, OnCh
       className: 'depot-marker',
       html: `
         <div class="depot-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24">
-            <circle cx="12" cy="12" r="10" fill="#1a1a1a" stroke="#ffffff" stroke-width="2"/>
-            <path fill="#ffffff" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+          <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24">
+            <circle cx="12" cy="14" r="10" fill="#F59E0B" stroke="#ffffff" stroke-width="2"/>
+            <path fill="#ffffff" d="M12 3L4 9v12h16V9l-8-6zm6 16h-3v-5H9v5H6v-9l6-4.5 6 4.5v9z"/>
           </svg>
         </div>
       `,
-      iconSize: [36, 36],
-      iconAnchor: [18, 36]
+      iconSize: [40, 40],
+      iconAnchor: [20, 40]
     });
   }
 
@@ -97,7 +100,6 @@ export class AnimatedRouteMapComponent implements AfterViewInit, OnDestroy, OnCh
 
   ngAfterViewInit(): void {
     this.initialized = true;
-    // Delay to ensure container has dimensions
     setTimeout(() => this.tryInitMap(), 200);
   }
 
@@ -110,7 +112,6 @@ export class AnimatedRouteMapComponent implements AfterViewInit, OnDestroy, OnCh
   private tryInitMap(): void {
     const coords = this.routeCoords();
     const container = this.mapContainer()?.nativeElement;
-
 
     if (!container || this.map || !coords || coords.length < 2) {
       return;
@@ -126,28 +127,36 @@ export class AnimatedRouteMapComponent implements AfterViewInit, OnDestroy, OnCh
     const coords = this.routeCoords();
     if (!coords || coords.length < 2) return;
 
-
     // Create map
     this.map = L.map(container, {
       zoomControl: false,
       attributionControl: false
     });
 
-    // Add OpenStreetMap tiles
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19
+    // Add Google Maps tiles (using Leaflet)
+    L.tileLayer(LEAFLET_TILES.GOOGLE.URL, {
+      maxZoom: LEAFLET_TILES.GOOGLE.MAX_ZOOM,
+      subdomains: LEAFLET_TILES.GOOGLE.SUBDOMAINS,
+      attribution: LEAFLET_TILES.GOOGLE.ATTRIBUTION
     }).addTo(this.map);
 
     // Calculate bounds
     const bounds = L.latLngBounds(coords.map(([lat, lng]) => [lat, lng] as L.LatLngTuple));
     this.map.fitBounds(bounds, { padding: [60, 60] });
 
-    // Draw route line
+    // Draw route line (light gray, will be colored by trail)
     const latLngs = coords.map(([lat, lng]) => [lat, lng] as L.LatLngTuple);
     this.routeLine = L.polyline(latLngs, {
-      color: '#3b82f6',
-      weight: 5,
+      color: '#E5E7EB',
+      weight: 6,
       opacity: 0.8
+    }).addTo(this.map);
+
+    // Create trail line (will show the path traveled)
+    this.trailLine = L.polyline([], {
+      color: '#3B82F6',
+      weight: 6,
+      opacity: 1
     }).addTo(this.map);
 
     // Add depot marker (first point)
@@ -190,66 +199,86 @@ export class AnimatedRouteMapComponent implements AfterViewInit, OnDestroy, OnCh
 
     // Start animation if autoStart is true
     if (this.autoStart()) {
-      setTimeout(() => {
-  this.startAnimation();
-      }, 800);
+      setTimeout(() => this.startAnimation(), 800);
     }
   }
 
   startAnimation(): void {
     if (this.animating() || this.animationDone() || !this.truckMarker || !this.map) {
-return;
+      return;
     }
 
     const coords = this.routeCoords();
     if (!coords || coords.length < 2) return;
 
     this.animating.set(true);
+    this.animationStartTime = performance.now();
 
-    // Create interpolated path for smooth animation
-    const interpolatedPath: L.LatLng[] = [];
-    const totalDuration = this.animationDuration();
+    // Use requestAnimationFrame for smooth animation
+    this.animateFrame();
+  }
 
-    // Calculate total route length for proportional timing
+  private animateFrame(): void {
+    if (!this.animating() || !this.truckMarker || !this.map) return;
+
+    const coords = this.routeCoords();
+    const elapsed = performance.now() - this.animationStartTime;
+    const duration = this.animationDuration();
+    const progress = Math.min(elapsed / duration, 1);
+
+    // Get current position along route
+    const position = this.getPointAtFraction(coords, progress);
+    this.truckMarker.setLatLng([position[0], position[1]]);
+
+    // Update trail line to show path traveled
+    if (this.trailLine) {
+      const trailCoords = this.getTrailCoords(coords, progress);
+      this.trailLine.setLatLngs(trailCoords);
+    }
+
+    if (progress < 1) {
+      this.animationFrameId = requestAnimationFrame(() => this.animateFrame());
+    } else {
+      // Animation complete
+      this.animating.set(false);
+      this.animationDone.set(true);
+      this.animationComplete.emit();
+    }
+  }
+
+  // Get trail coordinates up to current progress
+  private getTrailCoords(coords: number[][], progress: number): L.LatLngTuple[] {
+    if (progress <= 0) return [];
+
+    const result: L.LatLngTuple[] = [];
+
+    // Calculate total distance
     let totalDistance = 0;
+    const distances: number[] = [0];
+
     for (let i = 0; i < coords.length - 1; i++) {
       const start = L.latLng(coords[i][0], coords[i][1]);
       const end = L.latLng(coords[i + 1][0], coords[i + 1][1]);
       totalDistance += start.distanceTo(end);
+      distances.push(totalDistance);
     }
 
-    // Create interpolated points based on distance
-    const pointsPerMeter = 0.01; // Adjust for smoothness
-    const minPoints = 100;
-    const maxPoints = 500;
-    const numPoints = Math.min(maxPoints, Math.max(minPoints, Math.floor(totalDistance * pointsPerMeter)));
+    const targetDistance = progress * totalDistance;
 
-    for (let i = 0; i <= numPoints; i++) {
-      const t = i / numPoints;
-      const point = this.getPointAtFraction(coords, t);
-      interpolatedPath.push(L.latLng(point[0], point[1]));
-    }
-
-
-    let currentIndex = 0;
-    const frameInterval = totalDuration / interpolatedPath.length;
-
-    const animate = () => {
-      if (currentIndex >= interpolatedPath.length) {
-        this.animating.set(false);
-        this.animationDone.set(true);
-        this.animationComplete.emit();
-        return;
+    // Add all points up to current position
+    for (let i = 0; i < coords.length; i++) {
+      if (distances[i] <= targetDistance) {
+        result.push([coords[i][0], coords[i][1]]);
+      } else {
+        break;
       }
+    }
 
-      const pos = interpolatedPath[currentIndex];
-      this.truckMarker?.setLatLng(pos);
-      currentIndex++;
+    // Add interpolated current position
+    const currentPos = this.getPointAtFraction(coords, progress);
+    result.push([currentPos[0], currentPos[1]]);
 
-      this.animationFrameId = window.setTimeout(animate, frameInterval);
-    };
-
-    animate();
+    return result;
   }
 
   // Get a point along the route at a given fraction (0 to 1)
@@ -273,7 +302,9 @@ return;
     // Find the segment containing this distance
     for (let i = 0; i < distances.length - 1; i++) {
       if (targetDistance >= distances[i] && targetDistance <= distances[i + 1]) {
-        const segmentFraction = (targetDistance - distances[i]) / (distances[i + 1] - distances[i]);
+        const segmentLength = distances[i + 1] - distances[i];
+        if (segmentLength === 0) continue;
+        const segmentFraction = (targetDistance - distances[i]) / segmentLength;
         const lat = coords[i][0] + (coords[i + 1][0] - coords[i][0]) * segmentFraction;
         const lng = coords[i][1] + (coords[i + 1][1] - coords[i][1]) * segmentFraction;
         return [lat, lng];
@@ -285,7 +316,7 @@ return;
 
   ngOnDestroy(): void {
     if (this.animationFrameId) {
-      clearTimeout(this.animationFrameId);
+      cancelAnimationFrame(this.animationFrameId);
     }
     if (this.map) {
       this.map.remove();

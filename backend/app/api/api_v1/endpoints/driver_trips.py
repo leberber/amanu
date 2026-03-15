@@ -214,12 +214,16 @@ def trip_to_response(trip: Trip, session: Session) -> TripWithStops:
     completed_stops = 0
     all_route_coords = []
 
-    # Start with depot coordinates
-    depot_coords = [settings.DEPOT_LATITUDE, settings.DEPOT_LONGITUDE]
-    all_route_coords.append(depot_coords)
-
     # Sort stops by sequence for proper route order
     sorted_stops = sorted(trip.stops, key=lambda s: s.sequence)
+
+    # Build route using actual road polylines from customer_routes
+    # Strategy: For multi-stop trips, combine depot→customer routes intelligently
+    # 1. First stop: use full depot → stop1 polyline
+    # 2. Subsequent stops: find closest point in their route to previous stop, use from there
+
+    # First, collect all route polylines for stops
+    stop_routes = []  # List of (user_id, lat, lng, route_coords)
 
     for stop in sorted_stops:
         order = session.get(Order, stop.order_id)
@@ -229,6 +233,7 @@ def trip_to_response(trip: Trip, session: Session) -> TripWithStops:
         order_total = None
         latitude = None
         longitude = None
+        route_coords = None
 
         if order:
             customer_name = order.user.full_name if order.user else None
@@ -236,14 +241,28 @@ def trip_to_response(trip: Trip, session: Session) -> TripWithStops:
             contact_phone = order.contact_phone
             order_total = float(order.total_amount) if order.total_amount else None
 
-            # Get customer coordinates from User
             if order.user:
                 latitude = order.user.latitude
                 longitude = order.user.longitude
 
-                # Add to route coords if we have valid coordinates
-                if latitude and longitude:
-                    all_route_coords.append([latitude, longitude])
+                # Get route polyline for this customer
+                customer_route = session.exec(
+                    select(CustomerRoute).where(CustomerRoute.user_id == order.user.id)
+                ).first()
+
+                if customer_route and customer_route.route_geom:
+                    try:
+                        shape = to_shape(customer_route.route_geom)
+                        # Convert [(lng, lat), ...] to [[lat, lng], ...]
+                        route_coords = [[coord[1], coord[0]] for coord in shape.coords]
+                    except Exception:
+                        route_coords = None
+
+                stop_routes.append({
+                    'lat': latitude,
+                    'lng': longitude,
+                    'route': route_coords
+                })
 
         if stop.status == StopStatus.DELIVERED:
             completed_stops += 1
@@ -265,6 +284,53 @@ def trip_to_response(trip: Trip, session: Session) -> TripWithStops:
             latitude=latitude,
             longitude=longitude,
         ))
+
+    # Build combined route from all stop routes
+    # Helper function to find closest point index in a route to a given location
+    def find_closest_point_index(route: list, target_lat: float, target_lng: float) -> int:
+        min_dist = float('inf')
+        min_idx = 0
+        for i, coord in enumerate(route):
+            # Simple euclidean distance (sufficient for nearby points)
+            dist = (coord[0] - target_lat) ** 2 + (coord[1] - target_lng) ** 2
+            if dist < min_dist:
+                min_dist = dist
+                min_idx = i
+        return min_idx
+
+    prev_lat = settings.DEPOT_LATITUDE
+    prev_lng = settings.DEPOT_LONGITUDE
+
+    for i, stop_data in enumerate(stop_routes):
+        route = stop_data.get('route')
+        lat = stop_data.get('lat')
+        lng = stop_data.get('lng')
+
+        if route and len(route) > 0:
+            if i == 0:
+                # First stop: use full depot → stop route
+                all_route_coords.extend(route)
+            else:
+                # Subsequent stops: find closest point to previous stop, use from there
+                closest_idx = find_closest_point_index(route, prev_lat, prev_lng)
+                # Use route from closest point to the end (customer location)
+                segment = route[closest_idx:]
+                if len(segment) > 0:
+                    all_route_coords.extend(segment)
+                elif lat and lng:
+                    # Fallback: straight line
+                    all_route_coords.append([lat, lng])
+        else:
+            # No route data - use straight line
+            if i == 0:
+                all_route_coords.append([settings.DEPOT_LATITUDE, settings.DEPOT_LONGITUDE])
+            if lat and lng:
+                all_route_coords.append([lat, lng])
+
+        # Update previous location for next iteration
+        if lat and lng:
+            prev_lat = lat
+            prev_lng = lng
 
     return TripWithStops(
         id=trip.id,
