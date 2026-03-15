@@ -2454,6 +2454,16 @@
       "accepted": "Trip accepted",
       "declined": "Trip declined"
     },
+    "priority": {
+      "available_orders": "Priority Orders",
+      "urgent": "Urgent",
+      "accept": "Accept Order"
+    },
+    "badges": {
+      "suggested": "Suggested",
+      "priority": "Priority",
+      "standard": "Standard"
+    },
     "order_status": {
       "assigned": "Assigned",
       "picked_up": "Picked Up",
@@ -2530,6 +2540,8 @@
       "warning": "Frequent cancellations may affect your account"
     },
     "messages": {
+      "order_accepted": "Order accepted successfully",
+      "accept_failed": "Failed to accept order",
       "trip_accepted": "Trip accepted successfully",
       "trip_accept_failed": "Failed to accept trip",
       "pickup_success": "Order marked as picked up",

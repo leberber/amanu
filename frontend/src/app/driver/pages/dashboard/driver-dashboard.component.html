@@ -54,100 +54,89 @@
     </section>
   }
 
-
   <!-- Active Multi-Stop Trips -->
   @if (activeMultiTrips().length > 0) {
-    <section class="orders-section orders-section--multi">
+    <section class="orders-section">
       <div class="section-header">
         <h2 class="section-title">
           {{ 'driver.multi_trip.delivery_stops' | translate }}
           <span class="count-inline">({{ multiTripCount() }})</span>
         </h2>
       </div>
-      <div class="orders-list">
+      <div class="itinerary-list">
         @for (trip of activeMultiTrips(); track trip.id) {
-          <div class="multi-trip-card" (click)="openMultiTripDetail(trip)">
-            <div class="multi-trip-card__header">
-              <span class="multi-trip-card__id">{{ 'driver.multi_trip.trip' | translate }} #{{ trip.id }}</span>
-              <span class="multi-trip-card__progress">{{ trip.completed_stops }}/{{ trip.total_stops }}</span>
+          <div class="itinerary-item itinerary-item--active" (click)="openMultiTripDetail(trip)">
+            <div class="itinerary-item__marker">
+              <i class="pi pi-truck"></i>
             </div>
-            <div class="multi-trip-card__progress-bar">
-              <div
-                class="multi-trip-card__progress-fill"
-                [style.width.%]="(trip.completed_stops / trip.total_stops) * 100">
+            <div class="itinerary-item__content">
+              <div class="itinerary-item__header">
+                <span class="itinerary-item__title">{{ 'driver.multi_trip.trip' | translate }} #{{ trip.id }}</span>
+                <span class="itinerary-item__badge itinerary-item__badge--active">
+                  {{ trip.completed_stops }}/{{ trip.total_stops }}
+                </span>
               </div>
+              <span class="itinerary-item__subtitle">{{ trip.corridor || trip.h3_zone }}</span>
             </div>
-            <div class="multi-trip-card__footer">
-              <span class="multi-trip-card__stops">
-                <i class="pi pi-map-marker"></i>
-                {{ trip.total_stops }} {{ 'driver.multi_trip.stops' | translate }}
-              </span>
-              <span class="multi-trip-card__earnings">{{ trip.total_earnings | number:'1.0-0' }} DA</span>
-            </div>
+            <div class="itinerary-item__earnings">{{ trip.total_earnings | number:'1.0-0' }} DA</div>
+            <i class="pi pi-chevron-right itinerary-item__arrow"></i>
           </div>
         }
       </div>
     </section>
   }
 
-  <!-- Suggested Batched Trips (suggested to this driver) -->
-  @if (suggestedBatchedTrips().length > 0) {
-    <section class="orders-section orders-section--suggested">
+  <!-- Available Trips & Orders (unified list) -->
+  @if (availableItems().length > 0) {
+    <section class="orders-section">
       <div class="section-header">
         <h2 class="section-title">
-          {{ 'driver.batched.suggested_trips' | translate }}
-          <span class="count-inline">({{ suggestedBatchedTrips().length }})</span>
+          {{ 'driver.available.title' | translate }}
+          <span class="count-inline">({{ availableItems().length }})</span>
         </h2>
       </div>
-      <div class="orders-list">
-        @for (trip of suggestedBatchedTrips(); track trip.id) {
-          <div class="batched-trip-card batched-trip-card--suggested" (click)="openMultiTripDetail(trip)">
-            <div class="batched-trip-card__header">
-              <span class="batched-trip-card__corridor">{{ trip.corridor || trip.h3_zone }}</span>
-              <span class="batched-trip-card__earnings">{{ trip.total_earnings | number:'1.0-0' }} DA</span>
-            </div>
-            <div class="batched-trip-card__info">
-              <span class="batched-trip-card__stops">
+      <div class="itinerary-list">
+        @for (item of availableItems(); track item.id + '-' + item.type) {
+          <div class="itinerary-item" (click)="openTripDetail(item)">
+            <div class="itinerary-item__marker" [class.itinerary-item__marker--suggested]="item.type === 'suggested'" [class.itinerary-item__marker--priority]="item.type === 'priority'">
+              @if (item.type === 'priority') {
+                <i class="pi pi-bolt"></i>
+              } @else {
                 <i class="pi pi-map-marker"></i>
-                {{ trip.total_stops }} {{ 'driver.multi_trip.stops' | translate }}
-              </span>
-              <span class="batched-trip-card__weight">
-                <i class="pi pi-box"></i>
-                {{ trip.total_weight_kg | number:'1.0-0' }} kg
+              }
+            </div>
+            <div class="itinerary-item__content">
+              <div class="itinerary-item__header">
+                <span class="itinerary-item__title">
+                  @if (item.type === 'priority') {
+                    {{ item.customerName || item.address }}
+                  } @else {
+                    {{ item.address }}
+                  }
+                </span>
+                @if (item.type === 'suggested') {
+                  <span class="itinerary-item__badge itinerary-item__badge--suggested">
+                    {{ 'driver.badges.suggested' | translate }}
+                  </span>
+                } @else if (item.type === 'priority') {
+                  <span class="itinerary-item__badge itinerary-item__badge--priority">
+                    {{ 'driver.badges.priority' | translate }}
+                  </span>
+                }
+              </div>
+              <span class="itinerary-item__subtitle">
+                @if (item.stops) {
+                  {{ item.stops }} {{ 'driver.multi_trip.stops' | translate }}
+                  @if (item.weight) {
+                    · {{ item.weight | number:'1.0-0' }} kg
+                  }
+                } @else {
+                  {{ item.address }}
+                }
               </span>
             </div>
-          </div>
-        }
-      </div>
-    </section>
-  }
-
-  <!-- Available Batched Trips (not specifically suggested to this driver) -->
-  @if (availableBatchedTrips().length > 0) {
-    <section class="orders-section orders-section--available">
-      <div class="section-header">
-        <h2 class="section-title">
-          {{ 'driver.batched.available_trips' | translate }}
-          <span class="count-inline">({{ availableBatchedTrips().length }})</span>
-        </h2>
-      </div>
-      <div class="orders-list">
-        @for (trip of availableBatchedTrips(); track trip.id) {
-          <div class="batched-trip-card" (click)="openMultiTripDetail(trip)">
-            <div class="batched-trip-card__header">
-              <span class="batched-trip-card__corridor">{{ trip.corridor || trip.h3_zone }}</span>
-              <span class="batched-trip-card__earnings">{{ trip.total_earnings | number:'1.0-0' }} DA</span>
-            </div>
-            <div class="batched-trip-card__info">
-              <span class="batched-trip-card__stops">
-                <i class="pi pi-map-marker"></i>
-                {{ trip.total_stops }} {{ 'driver.multi_trip.stops' | translate }}
-              </span>
-              <span class="batched-trip-card__weight">
-                <i class="pi pi-box"></i>
-                {{ trip.total_weight_kg | number:'1.0-0' }} kg
-              </span>
-            </div>
+            <div class="itinerary-item__earnings">{{ item.earnings | number:'1.0-0' }} DA</div>
+            <i class="pi pi-chevron-right itinerary-item__arrow"></i>
           </div>
         }
       </div>

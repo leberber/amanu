@@ -2460,6 +2460,16 @@
       "accepted": "تم قبول الرحلة",
       "declined": "تم رفض الرحلة"
     },
+    "priority": {
+      "available_orders": "طلبات عاجلة",
+      "urgent": "عاجل",
+      "accept": "قبول الطلب"
+    },
+    "badges": {
+      "suggested": "مقترح",
+      "priority": "عاجل",
+      "standard": "عادي"
+    },
     "order_status": {
       "assigned": "مُعيّن",
       "picked_up": "تم الاستلام",
@@ -2536,6 +2546,8 @@
       "warning": "الإلغاءات المتكررة قد تؤثر على حسابك"
     },
     "messages": {
+      "order_accepted": "تم قبول الطلب بنجاح",
+      "accept_failed": "فشل القبول",
       "trip_accepted": "تم قبول الرحلة بنجاح",
       "trip_accept_failed": "فشل قبول الرحلة",
       "pickup_success": "تم تأكيد استلام الطلب",

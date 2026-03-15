@@ -185,159 +185,123 @@
 }
 
 // =============================================================================
-// ORDER CARDS
+// ITINERARY LIST (Simple unified list)
 // =============================================================================
 
-.orders-list {
+.itinerary-list {
   display: flex;
   flex-direction: column;
+  gap: var(--space-2);
+}
+
+.itinerary-item {
+  display: flex;
+  align-items: center;
   gap: var(--space-3);
-}
-
-// =============================================================================
-// MULTI-TRIP CARD (Active trips)
-// =============================================================================
-
-.orders-section--multi {
-  margin-bottom: var(--space-2);
-}
-
-.multi-trip-card {
   padding: var(--space-4);
   background: white;
-  border-radius: var(--radius-xl);
+  border-radius: var(--radius-lg);
   cursor: pointer;
   transition: background 0.1s ease;
-  border-left: 4px solid var(--primary-color);
 
   &:active {
     background: var(--surface-ground);
   }
 
+  &--active {
+    border-left: 3px solid var(--primary-color);
+  }
+
+  &__marker {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--surface-ground);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    i {
+      font-size: 1rem;
+      color: #6b6b6b;
+    }
+
+    &--suggested {
+      background: rgba(59, 130, 246, 0.1);
+      i { color: #3b82f6; }
+    }
+
+    &--priority {
+      background: rgba(245, 158, 11, 0.1);
+      i { color: #f59e0b; }
+    }
+  }
+
+  &__content {
+    flex: 1;
+    min-width: 0;
+  }
+
   &__header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: var(--space-2);
+    gap: var(--space-2);
+    margin-bottom: 2px;
   }
 
-  &__id {
-    font-size: var(--font-size-lg);
-    font-weight: 600;
-    color: #1a1a1a;
-  }
-
-  &__progress {
+  &__title {
     font-size: var(--font-size-base);
     font-weight: 600;
-    color: var(--primary-color);
-    background: rgba(var(--primary-color-rgb), 0.1);
-    padding: 2px 8px;
-    border-radius: var(--radius-md);
-  }
-
-  &__progress-bar {
-    height: 6px;
-    background: var(--surface-hover);
-    border-radius: var(--radius-full);
+    color: #1a1a1a;
+    white-space: nowrap;
     overflow: hidden;
-    margin-bottom: var(--space-3);
+    text-overflow: ellipsis;
   }
 
-  &__progress-fill {
-    height: 100%;
-    background: var(--primary-color);
-    border-radius: var(--radius-full);
-    transition: width 0.3s ease;
-  }
-
-  &__footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  &__stops {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    font-size: var(--font-size-base);
-    color: #6b6b6b;
-
-    i {
-      color: var(--primary-color);
-    }
-  }
-
-  &__earnings {
-    font-size: var(--font-size-lg);
-    font-weight: 700;
-    color: #1a1a1a;
-  }
-}
-
-// =============================================================================
-// BATCHED TRIP CARD (Pending trips)
-// =============================================================================
-
-.batched-trip-card {
-  padding: var(--space-4);
-  background: white;
-  border-radius: var(--radius-xl);
-  border-left: 4px solid var(--orange-500);
-  cursor: pointer;
-  transition: background 0.1s ease;
-
-  &:active {
-    background: var(--surface-ground);
-  }
-
-  &--suggested {
-    border-left-color: var(--primary-color);
-  }
-
-  &__header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: var(--space-2);
-  }
-
-  &__corridor {
-    font-size: var(--font-size-lg);
+  &__badge {
+    font-size: 10px;
     font-weight: 600;
-    color: #1a1a1a;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border-radius: var(--radius-sm);
+    flex-shrink: 0;
+
+    &--suggested {
+      background: rgba(59, 130, 246, 0.1);
+      color: #3b82f6;
+    }
+
+    &--priority {
+      background: rgba(245, 158, 11, 0.1);
+      color: #f59e0b;
+    }
+
+    &--active {
+      background: rgba(34, 197, 94, 0.1);
+      color: #22c55e;
+    }
+  }
+
+  &__subtitle {
+    font-size: var(--font-size-sm);
+    color: var(--text-color-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   &__earnings {
-    font-size: var(--font-size-lg);
-    font-weight: 700;
-    color: var(--green-600);
-  }
-
-  &__info {
-    display: flex;
-    gap: var(--space-4);
-  }
-
-  &__stops,
-  &__weight {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
     font-size: var(--font-size-base);
-    color: #6b6b6b;
-
-    i {
-      color: var(--orange-500);
-    }
+    font-weight: 700;
+    color: #1a1a1a;
+    flex-shrink: 0;
   }
-}
 
-.orders-section--suggested {
-  .batched-trip-card__stops i,
-  .batched-trip-card__weight i {
-    color: var(--primary-color);
+  &__arrow {
+    font-size: 0.875rem;
+    color: #c4c4c4;
+    flex-shrink: 0;
   }
 }
 

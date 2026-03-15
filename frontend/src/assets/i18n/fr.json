@@ -2474,6 +2474,16 @@
       "accepted": "Tournée acceptée",
       "declined": "Tournée refusée"
     },
+    "priority": {
+      "available_orders": "Commandes Prioritaires",
+      "urgent": "Urgent",
+      "accept": "Accepter"
+    },
+    "badges": {
+      "suggested": "Suggéré",
+      "priority": "Prioritaire",
+      "standard": "Standard"
+    },
     "order_status": {
       "assigned": "Assigné",
       "picked_up": "Récupéré",
@@ -2550,6 +2560,8 @@
       "warning": "Les annulations fréquentes peuvent affecter votre compte"
     },
     "messages": {
+      "order_accepted": "Commande acceptée avec succès",
+      "accept_failed": "Échec de l'acceptation",
       "trip_accepted": "Trajet accepté avec succès",
       "trip_accept_failed": "Échec de l'acceptation du trajet",
       "pickup_success": "Commande marquée comme récupérée",
