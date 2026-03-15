@@ -55,11 +55,11 @@
             <div
               class="itinerary__item"
               [class.itinerary__item--current]="currentStop()?.id === stop.id"
-              [class.itinerary__item--completed]="stop.status === 'delivered'">
+              [class.itinerary__item--completed]="isStopDelivered(stop)">
               <div
                 class="itinerary__marker itinerary__marker--stop"
-                [class.itinerary__marker--completed]="stop.status === 'delivered'">
-                @if (stop.status === 'delivered') {
+                [class.itinerary__marker--completed]="isStopDelivered(stop)">
+                @if (isStopDelivered(stop)) {
                   <i class="pi pi-check"></i>
                 } @else {
                   {{ stop.sequence }}
@@ -76,7 +76,7 @@
                 <span class="itinerary__address">{{ stop.shipping_address || 'Address not available' }}</span>
 
                 <!-- Stop Actions -->
-                @if (trip()!.status === 'in_progress') {
+                @if (isTripInProgress()) {
                   <div class="itinerary__actions">
                     @if (canMarkArrived(stop)) {
                       <button
@@ -173,7 +173,7 @@
               }
               {{ 'driver.action.complete_trip' | translate }}
             </button>
-          } @else if (trip()!.status === 'in_progress') {
+          } @else if (isTripInProgress()) {
             <div class="progress-indicator">
               <div class="progress-bar">
                 <div class="progress-bar__fill" [style.width.%]="tripProgress()"></div>
@@ -182,7 +182,7 @@
                 {{ trip()!.completed_stops }}/{{ trip()!.total_stops }} {{ 'driver.multi_trip.completed' | translate }}
               </span>
             </div>
-          } @else if (trip()!.status === 'completed') {
+          } @else if (isTripCompleted()) {
             <div class="completed-badge">
               <i class="pi pi-check-circle"></i>
               {{ 'driver.multi_trip.trip_completed' | translate }}

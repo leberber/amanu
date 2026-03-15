@@ -60,31 +60,31 @@ export class DriverMultiTripDetailComponent implements OnInit {
   // Computed values
   isPendingTrip = computed(() => {
     const t = this.trip();
-    return t?.status === 'pending' && !t?.driver_id;
+    return t?.status?.toLowerCase() === 'pending';
   });
 
   canStartTrip = computed(() => {
     const t = this.trip();
-    return t?.status === 'assigned';
+    return t?.status?.toLowerCase() === 'assigned';
   });
 
   canCompleteTrip = computed(() => {
     const t = this.trip();
-    if (!t || t.status !== 'in_progress') return false;
-    return t.stops.every(s => s.status === 'delivered');
+    if (!t || t.status?.toLowerCase() !== 'in_progress') return false;
+    return t.stops.every(s => s.status?.toLowerCase() === 'delivered');
   });
 
   tripProgress = computed(() => {
     const t = this.trip();
     if (!t || t.stops.length === 0) return 0;
-    const delivered = t.stops.filter(s => s.status === 'delivered').length;
+    const delivered = t.stops.filter(s => s.status?.toLowerCase() === 'delivered').length;
     return (delivered / t.stops.length) * 100;
   });
 
   currentStop = computed(() => {
     const t = this.trip();
     if (!t) return null;
-    return t.stops.find(s => s.status !== 'delivered') || null;
+    return t.stops.find(s => s.status?.toLowerCase() !== 'delivered') || null;
   });
 
   sortedStops = computed(() => {
@@ -280,17 +280,29 @@ export class DriverMultiTripDetailComponent implements OnInit {
 
   canMarkArrived(stop: TripStop): boolean {
     const t = this.trip();
-    if (!t || t.status !== 'in_progress') return false;
-    return stop.status === 'pending';
+    if (!t || t.status?.toLowerCase() !== 'in_progress') return false;
+    return stop.status?.toLowerCase() === 'pending';
   }
 
   canMarkDelivered(stop: TripStop): boolean {
     const t = this.trip();
-    if (!t || t.status !== 'in_progress') return false;
-    return stop.status === 'arrived';
+    if (!t || t.status?.toLowerCase() !== 'in_progress') return false;
+    return stop.status?.toLowerCase() === 'arrived';
   }
 
   isStopUpdating(stopId: number): boolean {
     return this.updatingStopId() === stopId;
+  }
+
+  isStopDelivered(stop: TripStop): boolean {
+    return stop.status?.toLowerCase() === 'delivered';
+  }
+
+  isTripInProgress(): boolean {
+    return this.trip()?.status?.toLowerCase() === 'in_progress';
+  }
+
+  isTripCompleted(): boolean {
+    return this.trip()?.status?.toLowerCase() === 'completed';
   }
 }

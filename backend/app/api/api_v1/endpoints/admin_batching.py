@@ -519,9 +519,8 @@ def assign_trip_to_driver(
 
     now = datetime.now(timezone.utc)
 
-    # Assign trip
+    # Assign trip (status stays PENDING until driver accepts)
     trip.driver_id = driver_user.id
-    trip.status = TripStatus.ASSIGNED
     trip.assigned_at = now
     trip.updated_at = now
     session.add(trip)
