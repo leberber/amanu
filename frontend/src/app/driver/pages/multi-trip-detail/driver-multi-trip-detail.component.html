@@ -144,51 +144,52 @@
           </div>
         </div>
 
-        <!-- Action Footer -->
-        <div class="action-footer">
-          @if (isPendingTrip()) {
-            <button class="action-btn" [disabled]="accepting()" (click)="acceptTrip()">
-              @if (accepting()) {
-                <i class="pi pi-spin pi-spinner"></i>
-              } @else {
-                <i class="pi pi-check"></i>
-              }
-              {{ 'driver.trip.accept' | translate }}
-            </button>
-          } @else if (canStartTrip()) {
-            <button class="action-btn action-btn--start" [disabled]="updating()" (click)="startTrip()">
-              @if (updating()) {
-                <i class="pi pi-spin pi-spinner"></i>
-              } @else {
-                <i class="pi pi-play"></i>
-              }
-              {{ 'driver.action.start_trip' | translate }}
-            </button>
-          } @else if (canCompleteTrip()) {
-            <button class="action-btn action-btn--complete" [disabled]="updating()" (click)="completeTrip()">
-              @if (updating()) {
-                <i class="pi pi-spin pi-spinner"></i>
-              } @else {
-                <i class="pi pi-check-circle"></i>
-              }
-              {{ 'driver.action.complete_trip' | translate }}
-            </button>
-          } @else if (isTripInProgress()) {
-            <div class="progress-indicator">
-              <div class="progress-bar">
-                <div class="progress-bar__fill" [style.width.%]="tripProgress()"></div>
-              </div>
-              <span class="progress-text">
-                {{ trip()!.completed_stops }}/{{ trip()!.total_stops }} {{ 'driver.multi_trip.completed' | translate }}
-              </span>
-            </div>
-          } @else if (isTripCompleted()) {
-            <div class="completed-badge">
+      </div>
+
+      <!-- Action Footer (fixed at bottom) -->
+      <div class="action-footer">
+        @if (isPendingTrip()) {
+          <button class="action-btn" [disabled]="accepting()" (click)="acceptTrip()">
+            @if (accepting()) {
+              <i class="pi pi-spin pi-spinner"></i>
+            } @else {
+              <i class="pi pi-check"></i>
+            }
+            {{ 'driver.trip.accept' | translate }}
+          </button>
+        } @else if (canStartTrip()) {
+          <button class="action-btn action-btn--start" [disabled]="updating()" (click)="startTrip()">
+            @if (updating()) {
+              <i class="pi pi-spin pi-spinner"></i>
+            } @else {
+              <i class="pi pi-play"></i>
+            }
+            {{ 'driver.action.start_trip' | translate }}
+          </button>
+        } @else if (canCompleteTrip()) {
+          <button class="action-btn action-btn--complete" [disabled]="updating()" (click)="completeTrip()">
+            @if (updating()) {
+              <i class="pi pi-spin pi-spinner"></i>
+            } @else {
               <i class="pi pi-check-circle"></i>
-              {{ 'driver.multi_trip.trip_completed' | translate }}
+            }
+            {{ 'driver.action.complete_trip' | translate }}
+          </button>
+        } @else if (isTripInProgress()) {
+          <div class="progress-indicator">
+            <div class="progress-bar">
+              <div class="progress-bar__fill" [style.width.%]="tripProgress()"></div>
             </div>
-          }
-        </div>
+            <span class="progress-text">
+              {{ trip()!.completed_stops }}/{{ trip()!.total_stops }} {{ 'driver.multi_trip.completed' | translate }}
+            </span>
+          </div>
+        } @else if (isTripCompleted()) {
+          <div class="completed-badge">
+            <i class="pi pi-check-circle"></i>
+            {{ 'driver.multi_trip.trip_completed' | translate }}
+          </div>
+        }
       </div>
     }
   </div>
