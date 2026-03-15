@@ -117,7 +117,6 @@ export class DriverMultiTripDetailComponent implements OnInit {
 
         if (!hasRouteCoords) {
           // No route data - skip animation and show content immediately
-          console.log('No route coords, skipping animation');
           this.showFullScreenMap.set(false);
           this.animationComplete.set(true);
         } else {
@@ -126,7 +125,7 @@ export class DriverMultiTripDetailComponent implements OnInit {
             if (this.showFullScreenMap()) {
               this.onAnimationComplete();
             }
-          }, 6000); // 6 seconds fallback (4s animation + 2s buffer)
+          }, 7000); // 7 seconds fallback (4s animation + buffer)
         }
       },
       error: () => {

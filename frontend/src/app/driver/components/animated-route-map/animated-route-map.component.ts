@@ -34,7 +34,7 @@ export class AnimatedRouteMapComponent implements AfterViewInit, OnDestroy, OnCh
       if (coords && coords.length >= 2) {
         const bounds = L.latLngBounds(coords.map(([lat, lng]) => [lat, lng] as L.LatLngTuple));
         this.map.flyToBounds(bounds, {
-          padding: [60, 60],
+          padding: [100, 100],
           duration: 0.5 // 500ms smooth animation
         });
       }
@@ -66,6 +66,7 @@ export class AnimatedRouteMapComponent implements AfterViewInit, OnDestroy, OnCh
   private truckMarker: L.Marker | null = null;
   private stopMarkers: L.Marker[] = [];
   private depotMarker: L.Marker | null = null;
+  private finalMarker: L.Marker | null = null;
   private animationFrameId: number | null = null;
   private animationStartTime: number = 0;
   private initialized = false;
@@ -76,30 +77,23 @@ export class AnimatedRouteMapComponent implements AfterViewInit, OnDestroy, OnCh
       className: 'truck-marker',
       html: `
         <div class="truck-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24">
+          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
             <circle cx="12" cy="12" r="11" fill="#3B82F6"/>
             <path fill="#ffffff" d="M18 18.5c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5-1.5.67-1.5 1.5.67 1.5 1.5 1.5zm1.5-9l-3-3H6c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h1c0 1.1.9 2 2 2s2-.9 2-2h6c0 1.1.9 2 2 2s2-.9 2-2h1c.55 0 1-.45 1-1v-4.5h-3.5zM9 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm8-7.5h2.5l2.25 2.25H17V11z"/>
           </svg>
         </div>
       `,
-      iconSize: [48, 48],
-      iconAnchor: [24, 24]
+      iconSize: [32, 32],
+      iconAnchor: [16, 16]
     });
   }
 
   private createDepotIcon(): L.DivIcon {
     return L.divIcon({
       className: 'depot-marker',
-      html: `
-        <div class="depot-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24">
-            <circle cx="12" cy="14" r="10" fill="#F59E0B" stroke="#ffffff" stroke-width="2"/>
-            <path fill="#ffffff" d="M12 3L4 9v12h16V9l-8-6zm6 16h-3v-5H9v5H6v-9l6-4.5 6 4.5v9z"/>
-          </svg>
-        </div>
-      `,
+      html: `<div style="width:40px;height:40px;background:linear-gradient(135deg,#F59E0B,#D97706);border-radius:50%;border:3px solid #fff;box-shadow:0 4px 12px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;"><i class="pi pi-warehouse" style="color:white;font-size:18px;"></i></div>`,
       iconSize: [40, 40],
-      iconAnchor: [20, 40]
+      iconAnchor: [20, 20]
     });
   }
 
@@ -113,6 +107,15 @@ export class AnimatedRouteMapComponent implements AfterViewInit, OnDestroy, OnCh
       `,
       iconSize: [32, 32],
       iconAnchor: [16, 16]
+    });
+  }
+
+  private createFinalIcon(): L.DivIcon {
+    return L.divIcon({
+      className: 'final-marker',
+      html: `<div style="width:40px;height:40px;background:linear-gradient(135deg,#22c55e,#16a34a);border-radius:50%;border:3px solid #fff;box-shadow:0 4px 12px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;"><i class="pi pi-check" style="color:white;font-size:18px;"></i></div>`,
+      iconSize: [40, 40],
+      iconAnchor: [20, 20]
     });
   }
 
@@ -160,7 +163,7 @@ export class AnimatedRouteMapComponent implements AfterViewInit, OnDestroy, OnCh
 
     // Calculate bounds
     const bounds = L.latLngBounds(coords.map(([lat, lng]) => [lat, lng] as L.LatLngTuple));
-    this.map.fitBounds(bounds, { padding: [60, 60] });
+    this.map.fitBounds(bounds, { padding: [100, 100] });
 
     // Draw route line (light gray, will be colored by trail)
     const latLngs = coords.map(([lat, lng]) => [lat, lng] as L.LatLngTuple);
@@ -257,7 +260,23 @@ export class AnimatedRouteMapComponent implements AfterViewInit, OnDestroy, OnCh
     if (progress < 1) {
       this.animationFrameId = requestAnimationFrame(() => this.animateFrame());
     } else {
-      // Animation complete
+      // Animation complete - remove truck and add final marker
+      const coords = this.routeCoords();
+      const lastCoord = coords[coords.length - 1];
+
+      if (this.truckMarker && this.map) {
+        this.map.removeLayer(this.truckMarker);
+        this.truckMarker = null;
+      }
+
+      // Add final destination marker
+      if (this.map && lastCoord) {
+        this.finalMarker = L.marker([lastCoord[0], lastCoord[1]], {
+          icon: this.createFinalIcon(),
+          zIndexOffset: 200
+        }).addTo(this.map);
+      }
+
       this.animating.set(false);
       this.animationDone.set(true);
       this.animationComplete.emit();
