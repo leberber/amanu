@@ -1,18 +1,34 @@
-import { Component, inject, OnInit, signal, computed } from '@angular/core';
+import { Component, inject, OnInit, signal, computed, ChangeDetectorRef, viewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DecimalPipe, Location } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { DriverService } from '../../../services/driver.service';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
-import { RouteHelpers, ROUTES } from '../../../core/constants/routes.constants';
-import { ORDER_STATUS, ORDER_STATUS_CONFIG, DRIVER_ORDER_TRANSITIONS } from '../../../core/constants/order.constants';
-import { Order } from '../../../models/order.model';
+import { ROUTES, RouteHelpers } from '../../../core/constants/routes.constants';
+import { TripWithStops, TripStop, TripStatus, StopStatus } from '../../../models/trip.model';
+import { AnimatedRouteMapComponent } from '../../components/animated-route-map/animated-route-map.component';
+
+// Trip status configuration
+const TRIP_STATUS_CONFIG: Record<TripStatus, { icon: string; color: string; label: string }> = {
+  pending: { icon: 'pi pi-clock', color: '#6b7280', label: 'driver.trip_status.pending' },
+  assigned: { icon: 'pi pi-user', color: '#3b82f6', label: 'driver.trip_status.assigned' },
+  in_progress: { icon: 'pi pi-truck', color: '#f59e0b', label: 'driver.trip_status.in_progress' },
+  completed: { icon: 'pi pi-check-circle', color: '#22c55e', label: 'driver.trip_status.completed' },
+  cancelled: { icon: 'pi pi-times-circle', color: '#ef4444', label: 'driver.trip_status.cancelled' }
+};
+
+const STOP_STATUS_CONFIG: Record<StopStatus, { icon: string; color: string; label: string }> = {
+  pending: { icon: 'pi pi-circle', color: '#6b7280', label: 'driver.stop_status.pending' },
+  arrived: { icon: 'pi pi-map-marker', color: '#3b82f6', label: 'driver.stop_status.arrived' },
+  delivered: { icon: 'pi pi-check-circle', color: '#22c55e', label: 'driver.stop_status.delivered' },
+  failed: { icon: 'pi pi-times-circle', color: '#ef4444', label: 'driver.stop_status.failed' }
+};
 
 @Component({
   selector: 'app-driver-trip-detail',
   standalone: true,
-  imports: [TranslateModule, DecimalPipe],
+  imports: [TranslateModule, DecimalPipe, AnimatedRouteMapComponent],
   templateUrl: './driver-trip-detail.component.html',
   styleUrl: './driver-trip-detail.component.scss'
 })
@@ -22,59 +38,95 @@ export class DriverTripDetailComponent implements OnInit {
   private readonly location = inject(Location);
   private readonly driverService = inject(DriverService);
   private readonly toast = inject(ToastMessageService);
+  private readonly cdr = inject(ChangeDetectorRef);
 
-  readonly ORDER_STATUS = ORDER_STATUS;
-  readonly orderStatusConfig = ORDER_STATUS_CONFIG;
-  readonly driverTransitions = DRIVER_ORDER_TRANSITIONS;
+  readonly tripStatusConfig = TRIP_STATUS_CONFIG;
+  readonly stopStatusConfig = STOP_STATUS_CONFIG;
 
   // State
-  order = signal<Order | null>(null);
+  trip = signal<TripWithStops | null>(null);
   loading = signal(true);
   updating = signal(false);
-  showItemsModal = signal(false);
+  updatingStopId = signal<number | null>(null);
+  accepting = signal(false);
+
+  // Animation state
+  animationComplete = signal(false);
+  showFullScreenMap = signal(true);
+
+  // Reference to map component
+  mapComponent = viewChild<AnimatedRouteMapComponent>('mapComponent');
 
   // Computed values
-  canUpdateStatus = computed(() => {
-    const current = this.order()?.status;
-    if (!current) return false;
-    return !!this.getNextStatus(current);
+  isPendingTrip = computed(() => {
+    const t = this.trip();
+    return t?.status?.toLowerCase() === 'pending';
   });
 
-  nextStatus = computed(() => {
-    const current = this.order()?.status;
-    if (!current) return null;
-    return this.getNextStatus(current);
+  canStartTrip = computed(() => {
+    const t = this.trip();
+    return t?.status?.toLowerCase() === 'assigned';
   });
 
-  statusProgress = computed(() => {
-    const status = this.order()?.status;
-    if (!status) return 0;
+  canCompleteTrip = computed(() => {
+    const t = this.trip();
+    if (!t || t.status?.toLowerCase() !== 'in_progress') return false;
+    return t.stops.every(s => s.status?.toLowerCase() === 'delivered');
+  });
 
-    const statuses: string[] = [
-      ORDER_STATUS.ASSIGNED,
-      ORDER_STATUS.PICKED_UP,
-      ORDER_STATUS.IN_TRANSIT,
-      ORDER_STATUS.DELIVERED
-    ];
+  tripProgress = computed(() => {
+    const t = this.trip();
+    if (!t || t.stops.length === 0) return 0;
+    const delivered = t.stops.filter(s => s.status?.toLowerCase() === 'delivered').length;
+    return (delivered / t.stops.length) * 100;
+  });
 
-    const index = statuses.indexOf(status);
-    if (index === -1) return 0;
-    return ((index + 1) / statuses.length) * 100;
+  currentStop = computed(() => {
+    const t = this.trip();
+    if (!t) return null;
+    return t.stops.find(s => s.status?.toLowerCase() !== 'delivered') || null;
+  });
+
+  sortedStops = computed(() => {
+    const t = this.trip();
+    if (!t) return [];
+    return [...t.stops].sort((a, b) => a.sequence - b.sequence);
+  });
+
+  routeCoords = computed(() => {
+    const t = this.trip();
+    return t?.route_coords || [];
   });
 
   ngOnInit(): void {
-    const orderId = this.route.snapshot.paramMap.get('id');
-    if (orderId) {
-      this.loadOrder(+orderId);
+    const tripId = this.route.snapshot.paramMap.get('id');
+    if (tripId) {
+      this.loadTrip(+tripId);
     }
   }
 
-  loadOrder(id: number): void {
+  loadTrip(id: number): void {
     this.loading.set(true);
-    this.driverService.getTripDetail(id).subscribe({
-      next: (order) => {
-        this.order.set(order);
+    this.driverService.getMultiTripDetail(id).subscribe({
+      next: (trip) => {
+        this.trip.set(trip);
         this.loading.set(false);
+
+        // Check if we have route coords for animation
+        const hasRouteCoords = trip.route_coords && trip.route_coords.length >= 2;
+
+        if (!hasRouteCoords) {
+          // No route data - skip animation and show content immediately
+          this.showFullScreenMap.set(false);
+          this.animationComplete.set(true);
+        } else {
+          // Fallback timeout in case animation doesn't complete
+          setTimeout(() => {
+            if (this.showFullScreenMap()) {
+              this.onAnimationComplete();
+            }
+          }, 7000); // 7 seconds fallback (4s animation + buffer)
+        }
       },
       error: () => {
         this.toast.showError('driver.messages.trip_load_failed');
@@ -84,93 +136,172 @@ export class DriverTripDetailComponent implements OnInit {
     });
   }
 
+  onAnimationComplete(): void {
+    if (this.animationComplete()) return;
+
+    this.animationComplete.set(true);
+    this.showFullScreenMap.set(false);
+    this.cdr.detectChanges();
+
+    // Resize map after container shrinks
+    setTimeout(() => {
+      this.mapComponent()?.resizeMap();
+    }, 300);
+  }
+
   goBack(): void {
     this.location.back();
   }
 
-  updateStatus(): void {
-    const next = this.nextStatus();
-    const orderId = this.order()?.id;
-    
-    if (!next || !orderId || this.updating()) return;
+  acceptTrip(): void {
+    const tripId = this.trip()?.id;
+    if (!tripId || this.accepting()) return;
+
+    this.accepting.set(true);
+    this.driverService.acceptBatchedTrip(tripId).subscribe({
+      next: () => {
+        this.accepting.set(false);
+        this.toast.showSuccess('driver.batched.accepted');
+        // Reload trip to get updated status
+        this.loadTrip(tripId);
+      },
+      error: (err) => {
+        this.accepting.set(false);
+        this.toast.showError(err.error?.detail || 'driver.messages.accept_failed');
+      }
+    });
+  }
+
+  startTrip(): void {
+    const tripId = this.trip()?.id;
+    if (!tripId || this.updating()) return;
 
     this.updating.set(true);
-
-    this.driverService.updateTripStatus(orderId, next).subscribe({
-      next: (response) => {
+    this.driverService.startMultiTrip(tripId).subscribe({
+      next: (trip) => {
+        this.trip.set(trip);
         this.updating.set(false);
-        if (response.success) {
-          this.toast.showSuccess('driver.messages.status_updated');
-          // Reload order to get fresh data
-          this.loadOrder(orderId);
-        }
+        this.toast.showSuccess('driver.messages.trip_started');
       },
       error: (err) => {
         this.updating.set(false);
+        this.toast.showError(err.error?.detail || 'driver.messages.trip_start_failed');
+      }
+    });
+  }
+
+  markArrived(stop: TripStop): void {
+    const tripId = this.trip()?.id;
+    if (!tripId || this.updatingStopId()) return;
+
+    this.updatingStopId.set(stop.id);
+    this.driverService.markStopArrived(tripId, stop.id).subscribe({
+      next: (trip) => {
+        this.trip.set(trip);
+        this.updatingStopId.set(null);
+        this.toast.showSuccess('driver.messages.arrived_at_stop');
+      },
+      error: (err) => {
+        this.updatingStopId.set(null);
         this.toast.showError(err.error?.detail || 'driver.messages.status_update_failed');
       }
     });
   }
 
-  reportIssue(): void {
-    // TODO: Implement issue reporting dialog
-    this.toast.showInfo('driver.messages.feature_coming_soon');
+  markDelivered(stop: TripStop): void {
+    const tripId = this.trip()?.id;
+    if (!tripId || this.updatingStopId()) return;
+
+    this.updatingStopId.set(stop.id);
+    this.driverService.markStopDelivered(tripId, stop.id).subscribe({
+      next: (trip) => {
+        this.trip.set(trip);
+        this.updatingStopId.set(null);
+        this.toast.showSuccess('driver.messages.delivery_completed');
+      },
+      error: (err) => {
+        this.updatingStopId.set(null);
+        this.toast.showError(err.error?.detail || 'driver.messages.status_update_failed');
+      }
+    });
   }
 
-  callCustomer(): void {
-    const phone = this.order()?.contact_phone;
+  completeTrip(): void {
+    const tripId = this.trip()?.id;
+    if (!tripId || this.updating()) return;
+
+    this.updating.set(true);
+    this.driverService.completeMultiTrip(tripId).subscribe({
+      next: () => {
+        this.updating.set(false);
+        this.toast.showSuccess('driver.messages.trip_completed');
+        this.router.navigate([ROUTES.DRIVER.ROOT]);
+      },
+      error: (err) => {
+        this.updating.set(false);
+        this.toast.showError(err.error?.detail || 'driver.messages.trip_complete_failed');
+      }
+    });
+  }
+
+  callCustomer(phone: string | undefined): void {
     if (phone) {
       window.location.href = `tel:${phone}`;
     }
   }
 
-  openNavigation(): void {
-    const address = this.order()?.shipping_address;
+  openNavigation(address: string | undefined): void {
     if (address) {
-      // Open in Google Maps
       const encodedAddress = encodeURIComponent(address);
       window.open(`https://www.google.com/maps/search/?api=1&query=${encodedAddress}`, '_blank');
     }
   }
 
-  toggleItemsModal(): void {
-    this.showItemsModal.update(v => !v);
+  getStopStatusIcon(status: StopStatus): string {
+    return this.stopStatusConfig[status]?.icon || 'pi pi-circle';
   }
 
-  getStatusIcon(status: string): string {
-    return this.orderStatusConfig[status as keyof typeof this.orderStatusConfig]?.icon || 'pi pi-circle';
+  getStopStatusColor(status: StopStatus): string {
+    return this.stopStatusConfig[status]?.color || '#6b7280';
   }
 
-  getStatusColor(status: string): string {
-    return this.orderStatusConfig[status as keyof typeof this.orderStatusConfig]?.color || '#6b7280';
+  getTripStatusIcon(status: TripStatus): string {
+    return this.tripStatusConfig[status]?.icon || 'pi pi-circle';
   }
 
-  getStatusLabel(status: string): string {
-    return this.orderStatusConfig[status as keyof typeof this.orderStatusConfig]?.label || status;
+  getTripStatusColor(status: TripStatus): string {
+    return this.tripStatusConfig[status]?.color || '#6b7280';
   }
 
-  getNextStatus(current: string): string | null {
-    return this.driverTransitions[current as keyof typeof this.driverTransitions] || null;
+  getTripStatusLabel(status: TripStatus): string {
+    return this.tripStatusConfig[status]?.label || status;
   }
 
-  getNextStatusLabel(): string {
-    const next = this.nextStatus();
-    if (!next) return '';
-    
-    const labels: Record<string, string> = {
-      [ORDER_STATUS.PICKED_UP]: 'driver.action.mark_picked_up',
-      [ORDER_STATUS.IN_TRANSIT]: 'driver.action.start_delivery',
-      [ORDER_STATUS.DELIVERED]: 'driver.action.mark_delivered'
-    };
-    
-    return labels[next] || 'driver.action.update_status';
+  canMarkArrived(stop: TripStop): boolean {
+    const t = this.trip();
+    if (!t || t.status?.toLowerCase() !== 'in_progress') return false;
+    return stop.status?.toLowerCase() === 'pending';
   }
 
-  getItemsCount(): number {
-    return this.order()?.items?.length || 0;
+  canMarkDelivered(stop: TripStop): boolean {
+    const t = this.trip();
+    if (!t || t.status?.toLowerCase() !== 'in_progress') return false;
+    return stop.status?.toLowerCase() === 'arrived';
   }
 
-  getTotalQuantity(): number {
-    return this.order()?.items?.reduce((sum, item) => sum + item.quantity, 0) || 0;
+  isStopUpdating(stopId: number): boolean {
+    return this.updatingStopId() === stopId;
+  }
+
+  isStopDelivered(stop: TripStop): boolean {
+    return stop.status?.toLowerCase() === 'delivered';
+  }
+
+  isTripInProgress(): boolean {
+    return this.trip()?.status?.toLowerCase() === 'in_progress';
+  }
+
+  isTripCompleted(): boolean {
+    return this.trip()?.status?.toLowerCase() === 'completed';
   }
 }

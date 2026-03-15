@@ -77,6 +77,6 @@ export class DriverDashboardComponent implements OnInit {
   }
 
   openMultiTripDetail(trip: TripWithStops): void {
-    this.router.navigate([RouteHelpers.driverMultiTripDetail(trip.id)]);
+    this.router.navigate([RouteHelpers.driverTripDetail(trip.id)]);
   }
 }

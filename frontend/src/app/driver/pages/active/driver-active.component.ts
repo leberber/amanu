@@ -60,7 +60,7 @@ export class DriverActiveComponent implements OnInit {
   }
 
   viewMultiTripDetails(trip: TripWithStops): void {
-    this.router.navigate([RouteHelpers.driverMultiTripDetail(trip.id)]);
+    this.router.navigate([RouteHelpers.driverTripDetail(trip.id)]);
   }
 
   getStatusIcon(status: string): string {

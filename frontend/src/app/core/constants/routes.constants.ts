@@ -38,7 +38,6 @@ export const ROUTES = {
     DASHBOARD: '/driver',
     ACTIVE: '/driver/active',
     TRIP_DETAIL: '/driver/trip/:id',
-    MULTI_TRIP_DETAIL: '/driver/multi-trip/:id',
     HISTORY: '/driver/history',
     EARNINGS: '/driver/earnings',
     PROFILE: '/driver/profile',
@@ -98,8 +97,7 @@ export const RouteHelpers = {
   adminEditVolumeDiscount: (id: number | string) => `/admin/volume-discounts/edit/${id}`,
   adminEditUser: (id: number | string) => `/admin/users/${id}/edit`,
   adminEditUserGroup: (id: number | string) => `/admin/user-groups/edit/${id}`,
-  driverTripDetail: (id: number | string) => `/driver/trip/${id}`,
-  driverMultiTripDetail: (id: number | string) => `/driver/multi-trip/${id}`
+  driverTripDetail: (id: number | string) => `/driver/trip/${id}`
 };
 
 /**
