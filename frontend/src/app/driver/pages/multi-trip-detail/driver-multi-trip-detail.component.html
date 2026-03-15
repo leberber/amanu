@@ -20,7 +20,9 @@
       @if (routeCoords().length >= 2) {
         <app-animated-route-map
           [routeCoords]="routeCoords()"
-          [autoStart]="isPendingTrip()"
+          [stops]="sortedStops()"
+          [autoStart]="true"
+          [animationDuration]="4000"
           (animationComplete)="onAnimationComplete()"
         />
       }

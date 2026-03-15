@@ -1,13 +1,11 @@
-@if (enabled) {
-  <div class="map-wrapper" [class.map-wrapper--animating]="animating()">
-    @if (loading()) {
-      <div class="map-skeleton">
-        <div class="map-skeleton__icon">
-          <i class="pi pi-map"></i>
-        </div>
-        <span class="map-skeleton__text">Loading map...</span>
+<div class="map-wrapper" [class.map-wrapper--animating]="animating()">
+  @if (loading()) {
+    <div class="map-skeleton">
+      <div class="map-skeleton__icon">
+        <i class="pi pi-spin pi-spinner"></i>
       </div>
-    }
-    <div #mapElement class="map"></div>
-  </div>
-}
+      <span class="map-skeleton__text">Loading map...</span>
+    </div>
+  }
+  <div #mapContainer class="map"></div>
+</div>

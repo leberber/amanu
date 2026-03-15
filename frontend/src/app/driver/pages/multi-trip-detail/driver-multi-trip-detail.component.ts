@@ -107,11 +107,8 @@ export class DriverMultiTripDetailComponent implements OnInit {
       next: (trip) => {
         this.trip.set(trip);
         this.loading.set(false);
-        // If trip is already assigned/in_progress, skip animation
-        if (trip.status !== 'pending') {
-          this.animationComplete.set(true);
-          this.showFullScreenMap.set(false);
-        }
+        // Always show fullscreen map initially with animation
+        // Animation will trigger the transition to shrunk map
       },
       error: () => {
         this.toast.showError('driver.messages.trip_load_failed');
