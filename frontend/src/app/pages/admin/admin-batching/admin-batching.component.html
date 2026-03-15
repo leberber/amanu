@@ -112,6 +112,8 @@
                       [class.map-vehicles__card--drag-over]="dragOverVehicle() === driver.id"
                       [class.map-vehicles__card--has-orders]="getVehicleOrderCount(driver.id) > 0"
                       [class.map-vehicles__card--unusable]="isDriverUnusable(driver.id)"
+                      [class.map-vehicles__card--has-pending]="hasDriverPendingSuggestions(driver.id)"
+                      [class.map-vehicles__card--busy]="isDriverBusy(driver.id)"
                       [attr.data-driver-id]="driver.id">
                       <div class="map-vehicles__icon">
                         @if (driver.vehicle_type === 'truck') {
@@ -122,7 +124,11 @@
                       </div>
                       <div class="map-vehicles__info">
                         <span class="map-vehicles__name">{{ driver.name }}</span>
-                        @if (isDriverUnusable(driver.id)) {
+                        @if (isDriverBusy(driver.id)) {
+                          <span class="map-vehicles__busy-label">{{ getDriverActiveTrips(driver.id) }} tournée(s) active(s)</span>
+                        } @else if (hasDriverPendingSuggestions(driver.id)) {
+                          <span class="map-vehicles__pending-label">{{ getPendingSuggestedCount(driver.id) }} tournée(s) en attente</span>
+                        } @else if (isDriverUnusable(driver.id)) {
                           <span class="map-vehicles__no-fit">{{ 'admin.batching.no_order_fits' | translate }}</span>
                           <span class="map-vehicles__capacity">{{ driver.capacity_kg }} kg</span>
                         } @else {

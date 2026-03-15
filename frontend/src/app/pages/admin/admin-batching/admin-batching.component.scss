@@ -268,6 +268,64 @@
         color: #664D03;
       }
     }
+
+    // Has pending suggestions - orange theme
+    &--has-pending {
+      opacity: 1;
+      background: linear-gradient(135deg, #FFF7ED, #FFEDD5);
+      border: 2px solid #F97316;
+
+      .map-vehicles__icon {
+        background: #FFEDD5;
+        color: #EA580C;
+      }
+    }
+
+    // Busy with active trips - blue theme
+    &--busy {
+      opacity: 1;
+      background: linear-gradient(135deg, #EFF6FF, #DBEAFE);
+      border: 2px solid #3B82F6;
+
+      .map-vehicles__icon {
+        background: #DBEAFE;
+        color: #2563EB;
+      }
+    }
+  }
+
+  // Busy label
+  &__busy-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #2563EB;
+  }
+
+  // Pending badge
+  &__pending-badge {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 6px;
+    background: #F97316;
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 700;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 6px rgba(249, 115, 22, 0.4);
+    z-index: 10;
+  }
+
+  // Pending label
+  &__pending-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #EA580C;
   }
 
   &__no-fit {

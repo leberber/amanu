@@ -123,7 +123,7 @@ export class AdminBatchingComponent implements OnInit {
   stats = this.batchingService.stats;
   trips = this.batchingService.trips;
   drivers = this.batchingService.drivers;
-  smartDrivers = signal<{ id: number; name: string; capacity_kg: number; vehicle_type: string }[]>([]);
+  smartDrivers = signal<{ id: number; name: string; capacity_kg: number; vehicle_type: string; status?: string; active_trips?: number }[]>([]);
   unusableTruckIds = signal<Set<number>>(new Set());
   smallestOrderKg = signal<number>(0);
 
@@ -162,6 +162,31 @@ export class AdminBatchingComponent implements OnInit {
   getVehicleCorridor(driverId: number): string | null {
     const batch = this.smartBatches().find(b => b.assigned_driver?.id === driverId);
     return batch?.corridor || null;
+  }
+
+  // Get count of pending trips suggested to a specific driver
+  getPendingSuggestedCount(driverId: number): number {
+    return this.trips().filter(t =>
+      t.suggested_driver_id === driverId &&
+      t.status === 'pending'
+    ).length;
+  }
+
+  // Check if driver has any pending suggested trips
+  hasDriverPendingSuggestions(driverId: number): boolean {
+    return this.getPendingSuggestedCount(driverId) > 0;
+  }
+
+  // Check if driver is busy (has active trips)
+  isDriverBusy(driverId: number): boolean {
+    const driver = this.smartDrivers().find(d => d.id === driverId);
+    return driver?.status === 'busy' || (driver?.active_trips ?? 0) > 0;
+  }
+
+  // Get active trips count for a driver
+  getDriverActiveTrips(driverId: number): number {
+    const driver = this.smartDrivers().find(d => d.id === driverId);
+    return driver?.active_trips ?? 0;
   }
 
   // Unassigned orders (not in any vehicle batch)

@@ -264,26 +264,56 @@ def get_available_drivers_for_batching(
     session: Session = Depends(get_session),
 ) -> Any:
     """
-    Get available drivers with their vehicle capacity.
-    Useful for planning batches manually.
+    Get all online drivers (AVAILABLE + BUSY) with their vehicle capacity and status.
+    Useful for planning batches manually and seeing who has active trips.
     """
-    service = SmartBatchingService(session)
-    drivers = service.get_active_drivers()
+    from app.models.trip import Trip, TripStatus
+
+    # Get all online drivers (AVAILABLE or BUSY)
+    drivers = session.exec(
+        select(Driver, User)
+        .join(User, Driver.user_id == User.id)
+        .where(Driver.status.in_([DriverStatus.AVAILABLE, DriverStatus.BUSY]))
+        .where(User.is_active == True)
+    ).all()
+
+    result = []
+    for driver, user in drivers:
+        # Get primary vehicle for capacity
+        primary_vehicle = session.exec(
+            select(DriverVehicle)
+            .where(DriverVehicle.driver_id == driver.id)
+            .where(DriverVehicle.is_primary == True)
+            .where(DriverVehicle.is_active == True)
+        ).first()
+
+        capacity = primary_vehicle.capacity_kg if primary_vehicle and primary_vehicle.capacity_kg else 500.0
+        vehicle_type = primary_vehicle.vehicle_type.value if primary_vehicle and primary_vehicle.vehicle_type else "van"
+
+        # Count active trips for this driver
+        active_trips_count = session.exec(
+            select(func.count(Trip.id))
+            .where(Trip.driver_id == user.id)
+            .where(Trip.status.in_([TripStatus.ASSIGNED, TripStatus.IN_PROGRESS]))
+        ).one() or 0
+
+        result.append({
+            "id": user.id,
+            "name": user.full_name,
+            "phone": user.phone or "",
+            "capacity_kg": capacity,
+            "vehicle_type": vehicle_type,
+            "status": driver.status.value,
+            "active_trips": active_trips_count,
+        })
 
     return {
-        "drivers": [
-            {
-                "id": d.driver_id,
-                "name": d.driver_name,
-                "phone": d.phone,
-                "capacity_kg": d.capacity_kg,
-                "vehicle_type": d.vehicle_type,
-            }
-            for d in drivers
-        ],
-        "total": len(drivers),
-        "min_capacity_kg": min(d.capacity_kg for d in drivers) if drivers else 0,
-        "max_capacity_kg": max(d.capacity_kg for d in drivers) if drivers else 0,
+        "drivers": result,
+        "total": len(result),
+        "available_count": sum(1 for d in result if d["status"] == "available"),
+        "busy_count": sum(1 for d in result if d["status"] == "busy"),
+        "min_capacity_kg": min(d["capacity_kg"] for d in result) if result else 0,
+        "max_capacity_kg": max(d["capacity_kg"] for d in result) if result else 0,
     }
 
 
