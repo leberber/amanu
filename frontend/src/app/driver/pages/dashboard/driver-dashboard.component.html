@@ -106,24 +106,22 @@
               }
             </div>
             <div class="itinerary-item__content">
-              <div class="itinerary-item__header">
-                <span class="itinerary-item__title">
-                  @if (item.type === 'priority') {
-                    {{ item.customerName || item.address }}
-                  } @else {
-                    {{ item.address }}
-                  }
-                </span>
-                @if (item.type === 'suggested') {
-                  <span class="itinerary-item__badge itinerary-item__badge--suggested">
-                    {{ 'driver.badges.suggested' | translate }}
-                  </span>
-                } @else if (item.type === 'priority') {
-                  <span class="itinerary-item__badge itinerary-item__badge--priority">
-                    {{ 'driver.badges.priority' | translate }}
-                  </span>
+              <span class="itinerary-item__title">
+                @if (item.type === 'priority') {
+                  {{ item.customerName || item.address }}
+                } @else {
+                  {{ item.address }}
                 }
-              </div>
+              </span>
+              @if (item.type === 'suggested') {
+                <span class="itinerary-item__badge itinerary-item__badge--suggested">
+                  {{ 'driver.badges.suggested' | translate }}
+                </span>
+              } @else if (item.type === 'priority') {
+                <span class="itinerary-item__badge itinerary-item__badge--priority">
+                  {{ 'driver.badges.priority' | translate }}
+                </span>
+              }
               <span class="itinerary-item__subtitle">
                 @if (item.stops) {
                   {{ item.stops }} {{ 'driver.multi_trip.stops' | translate }}
