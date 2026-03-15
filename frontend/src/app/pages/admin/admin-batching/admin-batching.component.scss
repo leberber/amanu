@@ -317,6 +317,15 @@
     text-overflow: ellipsis;
   }
 
+  &__corridor {
+    font-size: 0.65rem;
+    color: var(--primary-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 120px;
+  }
+
   &__capacity {
     font-size: 0.75rem;
     color: var(--text-color-secondary);

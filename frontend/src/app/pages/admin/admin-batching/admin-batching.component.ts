@@ -158,6 +158,12 @@ export class AdminBatchingComponent implements OnInit {
     return (this.vehicleBatches()[driverId] || []).length;
   }
 
+  // Get corridor assigned to a specific driver (from smart batching)
+  getVehicleCorridor(driverId: number): string | null {
+    const batch = this.smartBatches().find(b => b.assigned_driver?.id === driverId);
+    return batch?.corridor || null;
+  }
+
   // Unassigned orders (not in any vehicle batch)
   unassignedOrders = computed(() => {
     const batches = this.vehicleBatches();

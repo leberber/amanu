@@ -112,6 +112,9 @@
                       </div>
                       <div class="map-vehicles__info">
                         <span class="map-vehicles__name">{{ driver.name }}</span>
+                        @if (getVehicleCorridor(driver.id)) {
+                          <span class="map-vehicles__corridor">{{ getVehicleCorridor(driver.id) }}</span>
+                        }
                         <span class="map-vehicles__capacity">
                           {{ getVehicleWeight(driver.id) | number:'1.0-0' }}/{{ driver.capacity_kg }} kg
                         </span>
