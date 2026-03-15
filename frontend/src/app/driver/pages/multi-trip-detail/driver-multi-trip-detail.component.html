@@ -34,7 +34,13 @@
       <div class="content">
         <!-- Itinerary Header -->
         <div class="itinerary-header">
-          <h3 class="section-title">{{ 'driver.trip.itinerary' | translate }}</h3>
+          <div class="itinerary-header__left">
+            <h3 class="section-title">{{ 'driver.trip.itinerary' | translate }}</h3>
+            <div class="trip-stats">
+              <span class="trip-stat"><i class="pi pi-map-marker"></i> {{ trip()!.stops.length }}</span>
+              <span class="trip-stat"><i class="pi pi-box"></i> {{ trip()!.total_weight_kg | number:'1.0-0' }} kg</span>
+            </div>
+          </div>
           <span class="itinerary-fee">{{ trip()!.total_earnings | number:'1.0-0' }} DA</span>
         </div>
 
@@ -120,28 +126,6 @@
               </div>
             </div>
           }
-        </div>
-
-        <!-- Info Cards -->
-        <div class="info-cards">
-          <div class="info-card">
-            <div class="info-card__icon info-card__icon--stops">
-              <i class="pi pi-map-marker"></i>
-            </div>
-            <div class="info-card__content">
-              <span class="info-card__value">{{ trip()!.stops.length }}</span>
-              <span class="info-card__label">{{ 'driver.multi_trip.stops' | translate }}</span>
-            </div>
-          </div>
-          <div class="info-card">
-            <div class="info-card__icon info-card__icon--weight">
-              <i class="pi pi-box"></i>
-            </div>
-            <div class="info-card__content">
-              <span class="info-card__value">{{ trip()!.total_weight_kg | number:'1.0-0' }} kg</span>
-              <span class="info-card__label">{{ 'common.weight' | translate }}</span>
-            </div>
-          </div>
         </div>
 
       </div>

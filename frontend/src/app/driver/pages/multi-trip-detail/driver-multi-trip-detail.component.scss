@@ -85,9 +85,15 @@
 // Itinerary Header
 .itinerary-header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  margin-bottom: var(--space-3);
+  margin-bottom: var(--space-4);
+
+  &__left {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
 
   .section-title {
     font-size: var(--font-size-lg);
@@ -268,59 +274,22 @@
   }
 }
 
-// Info Cards
-.info-cards {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-3);
-  margin-bottom: var(--space-4);
-}
-
-.info-card {
-  background: white;
-  border-radius: var(--radius-xl);
-  padding: var(--space-3);
+// Trip Stats
+.trip-stats {
   display: flex;
   align-items: center;
   gap: var(--space-3);
+}
 
-  &__icon {
-    width: 44px;
-    height: 44px;
-    border-radius: var(--radius-lg);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.trip-stat {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--font-size-sm);
+  color: var(--text-color-secondary);
 
-    i {
-      font-size: 1.25rem;
-    }
-
-    &--stops {
-      background: rgba(59, 130, 246, 0.1);
-      i { color: #3b82f6; }
-    }
-
-    &--weight {
-      background: rgba(234, 179, 8, 0.1);
-      i { color: #eab308; }
-    }
-  }
-
-  &__content {
-    display: flex;
-    flex-direction: column;
-  }
-
-  &__value {
-    font-size: var(--font-size-lg);
-    font-weight: var(--font-weight-bold);
-    color: #1a1a1a;
-  }
-
-  &__label {
-    font-size: var(--font-size-xs);
-    color: var(--text-color-secondary);
+  i {
+    font-size: 0.75rem;
   }
 }
 
