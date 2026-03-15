@@ -124,7 +124,6 @@ export class DriverMultiTripDetailComponent implements OnInit {
           // Fallback timeout in case animation doesn't complete
           setTimeout(() => {
             if (this.showFullScreenMap()) {
-              console.log('Animation timeout - forcing resize');
               this.onAnimationComplete();
             }
           }, 6000); // 6 seconds fallback (4s animation + 2s buffer)
@@ -139,27 +138,16 @@ export class DriverMultiTripDetailComponent implements OnInit {
   }
 
   onAnimationComplete(): void {
-    if (this.animationComplete()) return; // Already completed
+    if (this.animationComplete()) return;
 
-    console.log('>>> Animation complete - setting showFullScreenMap to FALSE');
     this.animationComplete.set(true);
     this.showFullScreenMap.set(false);
-    this.cdr.detectChanges(); // Force change detection
+    this.cdr.detectChanges();
 
     // Resize map after container shrinks
     setTimeout(() => {
       this.mapComponent()?.resizeMap();
-    }, 600); // Wait for CSS transition to complete
-
-    console.log('>>> showFullScreenMap is now:', this.showFullScreenMap());
-  }
-
-  // Test method for button
-  shrinkMap(): void {
-    console.log('>>> SHRINK MAP CLICKED');
-    this.showFullScreenMap.set(false);
-    this.cdr.detectChanges();
-    console.log('>>> showFullScreenMap is now:', this.showFullScreenMap());
+    }, 300);
   }
 
   goBack(): void {

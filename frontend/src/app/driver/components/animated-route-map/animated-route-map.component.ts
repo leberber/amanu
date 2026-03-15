@@ -26,15 +26,18 @@ export class AnimatedRouteMapComponent implements AfterViewInit, OnDestroy, OnCh
   // Public method to resize map (call after container size changes)
   public resizeMap(): void {
     if (this.map) {
-      setTimeout(() => {
-        this.map!.invalidateSize();
-        // Re-fit bounds to show all content
-        const coords = this.routeCoords();
-        if (coords && coords.length >= 2) {
-          const bounds = L.latLngBounds(coords.map(([lat, lng]) => [lat, lng] as L.LatLngTuple));
-          this.map!.fitBounds(bounds, { padding: [40, 40] });
-        }
-      }, 100);
+      // Invalidate size first
+      this.map.invalidateSize({ animate: true });
+
+      // Smoothly fly to bounds
+      const coords = this.routeCoords();
+      if (coords && coords.length >= 2) {
+        const bounds = L.latLngBounds(coords.map(([lat, lng]) => [lat, lng] as L.LatLngTuple));
+        this.map.flyToBounds(bounds, {
+          padding: [60, 60],
+          duration: 0.5 // 500ms smooth animation
+        });
+      }
     }
   }
   // Route coordinates [[lat, lng], ...]

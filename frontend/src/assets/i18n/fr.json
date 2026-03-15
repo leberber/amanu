@@ -2407,6 +2407,7 @@
       "accept": "Accepter le Trajet",
       "origin": "Départ",
       "destination": "Arrivée",
+      "stop": "Arrêt",
       "itinerary": "Itinéraire",
       "warehouse": "Entrepôt AgroClik",
       "pickup": "Marquer Récupéré",

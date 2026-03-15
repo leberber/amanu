@@ -2387,6 +2387,7 @@
       "accept": "Accept Trip",
       "origin": "Pickup",
       "destination": "Dropoff",
+      "stop": "Stop",
       "itinerary": "Itinerary",
       "warehouse": "AgroClik Warehouse",
       "pickup": "Mark Picked Up",
