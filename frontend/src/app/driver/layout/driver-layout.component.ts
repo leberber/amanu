@@ -189,12 +189,12 @@ export class DriverLayoutComponent implements OnInit {
 
   private shouldHideBottomNav(url: string): boolean {
     // Hide bottom nav on detail pages
-    return url.includes('/driver/trip/') || url.includes('/driver/earnings');
+    return url.includes('/driver/trip/') || url.includes('/driver/multi-trip/') || url.includes('/driver/earnings');
   }
 
   private shouldHideHeader(url: string): boolean {
     // Hide header on pages that have their own header
-    return url.includes('/driver/trip/') || url.includes('/driver/earnings');
+    return url.includes('/driver/trip/') || url.includes('/driver/multi-trip/') || url.includes('/driver/earnings');
   }
 
   private getPageTitle(url: string): string {
