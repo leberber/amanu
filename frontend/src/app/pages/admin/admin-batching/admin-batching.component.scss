@@ -356,13 +356,26 @@
     font-size: 0.55rem;
     font-weight: 700;
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: background 0.15s ease, transform 0.15s ease;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
     flex-shrink: 0;
 
+    &-remove {
+      display: none;
+      font-size: 14px;
+    }
+
     &:hover {
-      background: var(--red-500);
+      background: #EF4444;
       transform: scale(1.15);
+
+      .map-vehicles__order-weight {
+        display: none;
+      }
+
+      .map-vehicles__order-remove {
+        display: flex;
+      }
     }
   }
 

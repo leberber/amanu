@@ -22,10 +22,11 @@ import { MAP_DEFAULTS, LEAFLET_TILES, LEAFLET_ASSETS } from '../../../core/const
 
 type TabType = 'map' | 'trips';
 
-// Distinct colors for batches (10 colors)
+// Distinct colors for batches (50 colors)
 const BATCH_COLORS = [
+  // Primary palette
   '#3B82F6', // Blue
-  '#10B981', // Green
+  '#10B981', // Emerald
   '#F59E0B', // Amber
   '#EF4444', // Red
   '#8B5CF6', // Purple
@@ -33,7 +34,55 @@ const BATCH_COLORS = [
   '#06B6D4', // Cyan
   '#84CC16', // Lime
   '#F97316', // Orange
-  '#6366F1'  // Indigo
+  '#6366F1', // Indigo
+  // Extended palette
+  '#14B8A6', // Teal
+  '#F43F5E', // Rose
+  '#A855F7', // Violet
+  '#0EA5E9', // Sky
+  '#22C55E', // Green
+  '#EAB308', // Yellow
+  '#E11D48', // Ruby
+  '#7C3AED', // Purple dark
+  '#0891B2', // Cyan dark
+  '#65A30D', // Lime dark
+  // Warm tones
+  '#DC2626', // Red-600
+  '#EA580C', // Orange-600
+  '#D97706', // Amber-600
+  '#CA8A04', // Yellow-600
+  '#16A34A', // Green-600
+  // Cool tones
+  '#0284C7', // Sky-600
+  '#2563EB', // Blue-600
+  '#4F46E5', // Indigo-600
+  '#7C3AED', // Violet-600
+  '#9333EA', // Purple-600
+  // Vivid accents
+  '#DB2777', // Pink-600
+  '#BE185D', // Pink-700
+  '#059669', // Emerald-600
+  '#0D9488', // Teal-600
+  '#0369A1', // Sky-700
+  // Muted earth tones
+  '#B45309', // Amber-700
+  '#A16207', // Yellow-700
+  '#4D7C0F', // Lime-700
+  '#15803D', // Green-700
+  '#047857', // Emerald-700
+  // Deep jewel tones
+  '#1D4ED8', // Blue-700
+  '#4338CA', // Indigo-700
+  '#6D28D9', // Violet-700
+  '#7E22CE', // Purple-700
+  '#A21CAF', // Fuchsia-700
+  // Bright pastels
+  '#38BDF8', // Sky-400
+  '#4ADE80', // Green-400
+  '#FACC15', // Yellow-400
+  '#FB923C', // Orange-400
+  '#F472B6', // Pink-400
+  '#A78BFA', // Violet-400
 ];
 
 const DEFAULT_MARKER_COLOR = '#6366F1';

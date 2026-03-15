@@ -149,7 +149,8 @@
                               (click)="removeOrderFromVehicle(order, driver.id); $event.stopPropagation()"
                               [pTooltip]="'#' + order.id + ' - ' + order.customer_name + '\n' + order.address + '\n' + (order.weight_kg | number:'1.0-1') + ' kg'"
                               tooltipPosition="bottom">
-                              <span>{{ order.weight_kg | number:'1.0-0' }}</span>
+                              <span class="map-vehicles__order-weight">{{ order.weight_kg | number:'1.0-0' }}</span>
+                              <i class="pi pi-times map-vehicles__order-remove"></i>
                             </div>
                           }
                         </div>
