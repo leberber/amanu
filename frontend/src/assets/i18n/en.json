@@ -2446,6 +2446,8 @@
     },
     "batched": {
       "pending_trips": "Suggested Trips",
+      "suggested_trips": "Suggested Trips",
+      "available_trips": "Available Trips",
       "accept": "Accept",
       "decline": "Decline",
       "accepted": "Trip accepted",

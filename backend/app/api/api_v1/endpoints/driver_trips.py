@@ -272,10 +272,8 @@ def get_pending_batched_trips(
     session: Session = Depends(get_session),
 ) -> Any:
     """
-    Get pending batched trips suggested to this driver.
-    Returns trips where:
-    - Status is PENDING (not yet accepted)
-    - suggested_driver_id matches the current driver OR trip has no suggested driver
+    Get all pending batched trips.
+    Returns all trips with status PENDING that are available for drivers to accept.
     """
     user, driver = get_driver_user(current_user, session)
 
@@ -286,14 +284,10 @@ def get_pending_batched_trips(
             detail="Driver account is suspended"
         )
 
-    # Get pending trips suggested to this driver (or without a suggested driver)
+    # Get ALL pending trips (drivers can see and accept any pending trip)
     trips = session.exec(
         select(Trip)
         .where(Trip.status == TripStatus.PENDING)
-        .where(or_(
-            Trip.suggested_driver_id == user.id,
-            Trip.suggested_driver_id == None
-        ))
         .order_by(Trip.created_at.desc())
     ).all()
 

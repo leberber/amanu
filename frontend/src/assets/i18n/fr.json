@@ -2466,6 +2466,8 @@
     },
     "batched": {
       "pending_trips": "Tournées Suggérées",
+      "suggested_trips": "Tournées Suggérées",
+      "available_trips": "Tournées Disponibles",
       "accept": "Accepter",
       "decline": "Refuser",
       "accepted": "Tournée acceptée",

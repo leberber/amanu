@@ -59,6 +59,19 @@ export class DriverDashboardComponent implements OnInit {
   availableCount = computed(() => this.availableTrips().length);
   multiTripCount = computed(() => this.activeMultiTrips().length);
 
+  // Split batched trips into suggested (to this driver) and available (others)
+  suggestedBatchedTrips = computed(() => {
+    const userId = this.profile()?.id;
+    if (!userId) return [];
+    return this.pendingBatchedTrips().filter(t => t.suggested_driver_id === userId);
+  });
+
+  availableBatchedTrips = computed(() => {
+    const userId = this.profile()?.id;
+    if (!userId) return this.pendingBatchedTrips();
+    return this.pendingBatchedTrips().filter(t => t.suggested_driver_id !== userId);
+  });
+
   // Drawer state
   drawerVisible = signal(false);
   selectedOrder = signal<Order | null>(null);

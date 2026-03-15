@@ -2452,6 +2452,8 @@
     },
     "batched": {
       "pending_trips": "رحلات مقترحة",
+      "suggested_trips": "رحلات مقترحة",
+      "available_trips": "رحلات متاحة",
       "accept": "قبول",
       "decline": "رفض",
       "accepted": "تم قبول الرحلة",
