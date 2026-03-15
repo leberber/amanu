@@ -239,7 +239,8 @@ export class AdminBatchingComponent implements OnInit {
     strategy: 'nearest_first' as 'farthest_first' | 'nearest_first',
     maxOrders: null as number | null,
     maxWeight: null as number | null,
-    maxCapacityPercent: 90 as number // Max % of vehicle capacity to use (default 90%)
+    maxCapacityPercent: 90 as number, // Max % of vehicle capacity to use (default 90%)
+    batchingMode: 'all_drivers' as 'available' | 'all_drivers' // Default to all drivers
   });
 
   // Options for simulation limit dropdown
@@ -257,6 +258,11 @@ export class AdminBatchingComponent implements OnInit {
   strategyOptions = [
     { label: 'Nearest First (Recommended)', value: 'nearest_first' },
     { label: 'Farthest First', value: 'farthest_first' }
+  ];
+
+  batchingModeOptions = [
+    { label: 'Tous les livreurs (cycle)', value: 'all_drivers' },
+    { label: 'Livreurs en ligne uniquement', value: 'available' }
   ];
 
   constructor() {
@@ -511,6 +517,7 @@ export class AdminBatchingComponent implements OnInit {
       maxOrders: settings.maxOrders || undefined,
       maxWeight: settings.maxWeight || undefined,
       maxCapacityPercent: settings.maxCapacityPercent || undefined,
+      batchingMode: settings.batchingMode,
       simulationLimit: simLimit || undefined,
       // Pass multiple corridors as comma-separated string
       corridorFilter: corridorFilters.length > 0 ? corridorFilters.join(',') : undefined

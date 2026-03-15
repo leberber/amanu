@@ -112,6 +112,45 @@ class SmartBatchingService:
 
         return result
 
+    def get_all_drivers(self) -> List[DriverCapacity]:
+        """Get ALL drivers with their vehicle capacity (for 'all_drivers' batching mode)."""
+        # Get all drivers (regardless of status) with their primary vehicle
+        drivers = self.session.exec(
+            select(Driver, User)
+            .join(User, Driver.user_id == User.id)
+            .where(User.is_active == True)
+        ).all()
+
+        result = []
+        for driver, user in drivers:
+            # Get primary vehicle for capacity
+            primary_vehicle = self.session.exec(
+                select(DriverVehicle)
+                .where(DriverVehicle.driver_id == driver.id)
+                .where(DriverVehicle.is_primary == True)
+                .where(DriverVehicle.is_active == True)
+            ).first()
+
+            capacity = primary_vehicle.capacity_kg if primary_vehicle and primary_vehicle.capacity_kg else 500.0
+            vehicle_type = primary_vehicle.vehicle_type.value if primary_vehicle and primary_vehicle.vehicle_type else "van"
+
+            result.append(DriverCapacity(
+                driver_id=user.id,
+                driver_name=user.full_name,
+                phone=user.phone or "",
+                capacity_kg=capacity,
+                vehicle_type=vehicle_type
+            ))
+
+        return result
+
+    def get_average_capacity(self) -> float:
+        """Get the average vehicle capacity of all drivers."""
+        drivers = self.get_all_drivers()
+        if not drivers:
+            return 500.0  # Default capacity
+        return sum(d.capacity_kg for d in drivers) / len(drivers)
+
     def get_pending_orders_with_routes(self) -> List[OrderWithRoute]:
         """Get all pending batchable orders with their route data."""
         # Get pending orders that are CONFIRMED, not assigned, STANDARD delivery
@@ -179,20 +218,11 @@ class SmartBatchingService:
         strategy: str = "nearest_first",
         simulation_limit: Optional[int] = None,
         corridor_filter: Optional[str] = None,
-        max_capacity_percent: float = 90.0
+        max_capacity_percent: float = 90.0,
+        batching_mode: str = "available"
     ) -> Dict:
         """
         Create optimized batches from pending orders using corridor-based grouping.
-
-        Logic:
-        1. Get available trucks (drivers) with their capacities
-        2. Group orders by corridor (road name)
-        3. Within each corridor, sort by distance
-        4. Use SMART selection: consider efficiency (weight/distance) not just order
-        5. Skip orders where driving extra distance isn't worth the weight gain
-        6. Fill batches respecting truck capacity
-        7. Assign drivers to batches
-        8. Track leftover orders that couldn't fit
 
         Args:
             max_weight_per_batch: Override driver capacity (optional)
@@ -200,16 +230,25 @@ class SmartBatchingService:
             strategy: "farthest_first" or "nearest_first"
             simulation_limit: Limit orders for testing
             max_capacity_percent: Max % of vehicle capacity to use (default 90%)
+            batching_mode:
+                "available" = only online drivers, stop when all used
+                "all_drivers" = use ALL drivers capacities, cycle through them
 
         Returns:
             Dict with batches, leftover orders, and capacity info
         """
-        # Get drivers and their capacities
-        drivers = self.get_active_drivers()
+        # Get drivers based on mode
+        if batching_mode == "all_drivers":
+            drivers = self.get_all_drivers()
+            cycle_drivers = True  # Cycle through drivers if more orders
+        else:
+            drivers = self.get_active_drivers()
+            cycle_drivers = False  # Stop when all drivers used
+
         if not drivers:
             return {
                 "success": False,
-                "error": "No active drivers available",
+                "error": "No drivers found" if batching_mode == "all_drivers" else "No active drivers available",
                 "batches": [],
                 "leftover_orders": [],
                 "summary": {}
@@ -273,29 +312,33 @@ class SmartBatchingService:
         )
 
         for corridor in corridors_by_weight:
-            corridor_orders = corridor_groups[corridor]
+            corridor_orders = [o for o in corridor_groups[corridor] if o.order_id not in assigned_order_ids]
 
-            # Skip if no drivers left
-            while corridor_orders and driver_index < len(available_drivers):
-                driver = available_drivers[driver_index]
+            # Continue while we have orders and (cycling OR drivers left)
+            while corridor_orders:
+                # Check if we can continue
+                if not cycle_drivers and driver_index >= len(available_drivers):
+                    break  # No more drivers in "available" mode
+
+                # Get driver (cycle if needed)
+                actual_index = driver_index % len(available_drivers) if cycle_drivers else driver_index
+                driver = available_drivers[actual_index]
                 base_capacity = max_weight_per_batch or driver.capacity_kg
-                # Apply max capacity percentage (e.g., 90% of capacity)
                 driver_capacity = base_capacity * (max_capacity_percent / 100.0)
 
                 # Create batch for this corridor
                 batch = SmartBatch(corridor=corridor)
-                batch.assigned_driver = driver
+                # In "all_drivers" mode, don't suggest to specific driver (all open)
+                batch.assigned_driver = None if cycle_drivers else driver
                 current_weight = 0.0
 
                 # Fill batch with orders that fit
                 remaining_orders = []
 
                 for order in corridor_orders:
-                    # Skip already assigned orders
                     if order.order_id in assigned_order_ids:
                         continue
 
-                    # Check if order fits by weight
                     if current_weight + order.weight_kg > driver_capacity:
                         remaining_orders.append(order)
                         continue
@@ -303,7 +346,6 @@ class SmartBatchingService:
                         remaining_orders.append(order)
                         continue
 
-                    # Add order to batch
                     batch.orders.append(order)
                     batch.total_weight_kg += order.weight_kg
                     batch.total_earnings += order.shipping_cost
@@ -313,18 +355,15 @@ class SmartBatchingService:
                     if order.distance_meters > batch.total_distance_meters:
                         batch.total_distance_meters = order.distance_meters
 
-                # Save batch if it has orders
                 if batch.orders:
                     all_batches.append(batch)
                     driver_index += 1
-                    # Continue with remaining orders if any
                     corridor_orders = remaining_orders
-                    if not corridor_orders:
-                        break
                 else:
-                    # No orders added to batch - all don't fit in this driver's capacity
-                    # Break out to try next corridor
-                    break
+                    # No orders fit this driver's capacity, try next driver
+                    driver_index += 1
+                    if not cycle_drivers and driver_index >= len(available_drivers):
+                        break
 
         # Collect leftover orders (not assigned to any batch)
         leftover_orders = []
@@ -364,8 +403,8 @@ class SmartBatchingService:
             "orders_assigned": len(assigned_order_ids),
             "orders_leftover": len(leftover_orders),
             "total_batches": len(all_batches),
-            "trucks_available": len(drivers),
-            "trucks_used": len(all_batches),
+            "drivers_count": len(drivers),
+            "batching_mode": batching_mode,
             "by_corridor": by_corridor,
             "strategy": strategy,
             "smallest_order_kg": round(smallest_order_weight, 1),
@@ -542,17 +581,16 @@ def preview_smart_batching(
     max_orders_per_batch: Optional[int] = None,
     simulation_limit: Optional[int] = None,
     corridor_filter: Optional[str] = None,
-    max_capacity_percent: float = 90.0
+    max_capacity_percent: float = 90.0,
+    batching_mode: str = "available"
 ) -> Dict:
     """
     Preview smart batching without creating trips.
-    Groups orders by corridor (road name) and sorts by distance.
-    Uses smart selection to exclude inefficient orders (too far for too little weight).
-    Useful for admin to review before confirming.
 
     Args:
         corridor_filter: Only batch orders from this specific corridor
         max_capacity_percent: Max % of vehicle capacity to use (default 90%)
+        batching_mode: "available" = online drivers only, "all_drivers" = cycle through all
     """
     service = SmartBatchingService(session)
     return service.create_smart_batches(
@@ -561,7 +599,8 @@ def preview_smart_batching(
         strategy=strategy,
         simulation_limit=simulation_limit,
         corridor_filter=corridor_filter,
-        max_capacity_percent=max_capacity_percent
+        max_capacity_percent=max_capacity_percent,
+        batching_mode=batching_mode
     )
 
 
@@ -572,16 +611,16 @@ def run_smart_batching(
     max_weight_per_batch: Optional[float] = None,
     max_orders_per_batch: Optional[int] = None,
     corridor_filter: Optional[str] = None,
-    max_capacity_percent: float = 90.0
+    max_capacity_percent: float = 90.0,
+    batching_mode: str = "available"
 ) -> Dict:
     """
     Run smart batching and create trips.
-    Groups orders by corridor (road name) and creates optimized trips.
-    Uses smart selection to exclude inefficient orders.
 
     Args:
         corridor_filter: Only batch orders from this specific corridor
         max_capacity_percent: Max % of vehicle capacity to use (default 90%)
+        batching_mode: "available" = online drivers only, "all_drivers" = cycle through all
     """
     service = SmartBatchingService(session)
 
@@ -591,7 +630,8 @@ def run_smart_batching(
         max_orders_per_batch=max_orders_per_batch,
         strategy=strategy,
         corridor_filter=corridor_filter,
-        max_capacity_percent=max_capacity_percent
+        max_capacity_percent=max_capacity_percent,
+        batching_mode=batching_mode
     )
 
     if not result.get("success") or not result.get("batches"):

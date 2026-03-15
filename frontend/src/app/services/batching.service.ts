@@ -275,6 +275,7 @@ export class BatchingService {
     if (params.simulationLimit) queryParams.push(`simulation_limit=${params.simulationLimit}`);
     if (params.corridorFilter) queryParams.push(`corridor_filter=${encodeURIComponent(params.corridorFilter)}`);
     if (params.maxCapacityPercent) queryParams.push(`max_capacity_percent=${params.maxCapacityPercent}`);
+    if (params.batchingMode) queryParams.push(`batching_mode=${params.batchingMode}`);
     return queryParams.length > 0 ? '?' + queryParams.join('&') : '';
   }
 
@@ -479,4 +480,5 @@ export interface SmartBatchingParams {
   simulationLimit?: number;
   corridorFilter?: string;
   maxCapacityPercent?: number;
+  batchingMode?: 'available' | 'all_drivers';
 }

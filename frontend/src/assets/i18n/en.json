@@ -2043,7 +2043,9 @@
         "max_capacity_percent": "Max Capacity Usage",
         "max_capacity_percent_hint": "Maximum % of vehicle capacity to fill",
         "min_efficiency_threshold": "Min Efficiency Threshold",
-        "min_efficiency_hint": "Stop route if remaining capacity / distance is below this ratio"
+        "min_efficiency_hint": "Stop route if remaining capacity / distance is below this ratio",
+        "batching_mode": "Batching Mode",
+        "batching_mode_hint": "All drivers: cycle through capacities. Online: only available drivers"
       },
       "edit_route": "Edit Route",
       "customer": "Customer",

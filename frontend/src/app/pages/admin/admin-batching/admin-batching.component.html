@@ -665,11 +665,24 @@
     </div>
   </div>
 
-  <p-accordion>
+  <p-accordion [value]="['algorithm']" [multiple]="true">
     <p-accordion-panel value="algorithm">
       <p-accordion-header>{{ 'admin.batching.algorithm_settings' | translate }}</p-accordion-header>
       <p-accordion-content>
         <div class="flex flex-column gap-3">
+          <div class="flex flex-column gap-1">
+            <label class="text-xs text-secondary">{{ 'admin.batching.settings.batching_mode' | translate }}</label>
+            <p-select
+              [options]="batchingModeOptions"
+              [ngModel]="algorithmSettings().batchingMode"
+              (ngModelChange)="updateSetting('batchingMode', $event)"
+              optionLabel="label"
+              optionValue="value"
+              [style]="{ width: '100%' }">
+            </p-select>
+            <small class="text-xs text-secondary">{{ 'admin.batching.settings.batching_mode_hint' | translate }}</small>
+          </div>
+
           <div class="flex flex-column gap-1">
             <label class="text-xs text-secondary">{{ 'admin.batching.settings.simulation_limit' | translate }}</label>
             <p-select

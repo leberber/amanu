@@ -2041,7 +2041,9 @@
         "max_capacity_percent": "Utilisation Max Capacité",
         "max_capacity_percent_hint": "Pourcentage max de la capacité du véhicule à remplir",
         "min_efficiency_threshold": "Seuil Min d'Efficacité",
-        "min_efficiency_hint": "Arrêter la route si capacité restante / distance est en dessous de ce ratio"
+        "min_efficiency_hint": "Arrêter la route si capacité restante / distance est en dessous de ce ratio",
+        "batching_mode": "Mode de Groupage",
+        "batching_mode_hint": "Tous les livreurs: cycle à travers les capacités. En ligne: seulement les livreurs disponibles"
       },
       "edit_route": "Modifier le Trajet",
       "customer": "Client",
