@@ -62,6 +62,13 @@ const ENDPOINTS = {
   updateStopStatus: (tripId: number, stopId: number) => `/driver/multi-trips/${tripId}/stops/${stopId}`,
   startMultiTrip: (tripId: number) => `/driver/multi-trips/${tripId}/start`,
   completeMultiTrip: (tripId: number) => `/driver/multi-trips/${tripId}/complete`,
+
+  // Batched trip endpoints (pending trips suggested to driver)
+  BATCHED_PENDING: '/driver/trips/batched/pending',
+  BATCHED_ACTIVE: '/driver/trips/batched/active',
+  batchedTripDetail: (tripId: number) => `/driver/trips/batched/${tripId}`,
+  acceptBatchedTrip: (tripId: number) => `/driver/trips/batched/${tripId}/accept`,
+  declineBatchedTrip: (tripId: number) => `/driver/trips/batched/${tripId}/decline`,
 } as const;
 
 @Injectable({
@@ -80,6 +87,7 @@ export class DriverService {
   // Routing-specific state
   private readonly _availableOrders = signal<AvailableOrder[]>([]);
   private readonly _activeMultiTrips = signal<TripWithStops[]>([]);
+  private readonly _pendingBatchedTrips = signal<TripWithStops[]>([]);
 
   // Public computed signals
   readonly profile = this._profile.asReadonly();
@@ -91,6 +99,7 @@ export class DriverService {
   // Routing signals
   readonly availableOrders = this._availableOrders.asReadonly();
   readonly activeMultiTrips = this._activeMultiTrips.asReadonly();
+  readonly pendingBatchedTrips = this._pendingBatchedTrips.asReadonly();
 
   // Access driver data - supports both 'driver' (new) and 'driver_profile' (deprecated)
   readonly driverData = computed(() => this._profile()?.driver ?? this._profile()?.driver_profile);
@@ -426,6 +435,56 @@ export class DriverService {
         // Refresh stats
         this.refreshStats();
         this.refreshProfile();
+      })
+    );
+  }
+
+  // ==========================================================================
+  // BATCHED TRIPS (Pending trips suggested to driver)
+  // ==========================================================================
+
+  /**
+   * Get pending batched trips suggested to this driver.
+   */
+  getPendingBatchedTrips(): Observable<TripWithStops[]> {
+    return this.api.get<TripWithStops[]>(ENDPOINTS.BATCHED_PENDING).pipe(
+      tap(trips => this._pendingBatchedTrips.set(trips))
+    );
+  }
+
+  /**
+   * Accept a batched trip (multi-stop delivery).
+   */
+  acceptBatchedTrip(tripId: number): Observable<{ success: boolean; message: string; trip?: TripWithStops }> {
+    return this.api.post<{ success: boolean; message: string; trip?: TripWithStops }>(
+      ENDPOINTS.acceptBatchedTrip(tripId), {}
+    ).pipe(
+      tap(response => {
+        if (response.success && response.trip) {
+          // Remove from pending
+          this._pendingBatchedTrips.update(trips => trips.filter(t => t.id !== tripId));
+          // Add to active multi-trips
+          this._activeMultiTrips.update(trips => [...trips, response.trip!]);
+          // Refresh profile
+          this.refreshProfile();
+        }
+      })
+    );
+  }
+
+  /**
+   * Decline a batched trip (cancels trip, orders return to pending).
+   */
+  declineBatchedTrip(tripId: number, reason?: string): Observable<{ success: boolean; message: string }> {
+    return this.api.post<{ success: boolean; message: string }>(
+      ENDPOINTS.declineBatchedTrip(tripId),
+      { reason }
+    ).pipe(
+      tap(response => {
+        if (response.success) {
+          // Remove from pending
+          this._pendingBatchedTrips.update(trips => trips.filter(t => t.id !== tripId));
+        }
       })
     );
   }

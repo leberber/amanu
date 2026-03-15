@@ -37,7 +37,12 @@ export class DriverDashboardComponent implements OnInit {
   activeTrips = this.driverService.activeTrips;
   availableTrips = this.driverService.availableTrips;
   activeMultiTrips = this.driverService.activeMultiTrips;
+  pendingBatchedTrips = this.driverService.pendingBatchedTrips;
   loading = this.driverService.loading;
+
+  // Batched trip action states
+  acceptingTrip = signal<number | null>(null);
+  decliningTrip = signal<number | null>(null);
 
   // Computed values
   currentStatus = computed(() => this.driverProfile()?.status || DRIVER_STATUS.OFFLINE);
@@ -68,6 +73,7 @@ export class DriverDashboardComponent implements OnInit {
     this.driverService.getActiveTrips().subscribe();
     this.driverService.getAvailableTrips().subscribe();
     this.driverService.getActiveMultiTrips().subscribe();
+    this.driverService.getPendingBatchedTrips().subscribe();
   }
 
   goOnline(): void {
@@ -115,5 +121,30 @@ export class DriverDashboardComponent implements OnInit {
 
   openMultiTripDetail(trip: TripWithStops): void {
     this.router.navigate([RouteHelpers.driverMultiTripDetail(trip.id)]);
+  }
+
+  acceptBatchedTrip(trip: TripWithStops): void {
+    this.acceptingTrip.set(trip.id);
+    this.driverService.acceptBatchedTrip(trip.id).subscribe({
+      next: () => {
+        this.acceptingTrip.set(null);
+        this.router.navigate([RouteHelpers.driverMultiTripDetail(trip.id)]);
+      },
+      error: () => {
+        this.acceptingTrip.set(null);
+      }
+    });
+  }
+
+  declineBatchedTrip(trip: TripWithStops): void {
+    this.decliningTrip.set(trip.id);
+    this.driverService.declineBatchedTrip(trip.id).subscribe({
+      next: () => {
+        this.decliningTrip.set(null);
+      },
+      error: () => {
+        this.decliningTrip.set(null);
+      }
+    });
   }
 }

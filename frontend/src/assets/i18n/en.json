@@ -2442,6 +2442,13 @@
       "trip_completed": "Trip Completed",
       "complete_all_stops": "Complete all stops to finish trip"
     },
+    "batched": {
+      "pending_trips": "Suggested Trips",
+      "accept": "Accept",
+      "decline": "Decline",
+      "accepted": "Trip accepted",
+      "declined": "Trip declined"
+    },
     "order_status": {
       "assigned": "Assigned",
       "picked_up": "Picked Up",

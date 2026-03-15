@@ -2450,6 +2450,13 @@
       "trip_completed": "اكتملت الرحلة",
       "complete_all_stops": "أكمل جميع المحطات لإنهاء الرحلة"
     },
+    "batched": {
+      "pending_trips": "رحلات مقترحة",
+      "accept": "قبول",
+      "decline": "رفض",
+      "accepted": "تم قبول الرحلة",
+      "declined": "تم رفض الرحلة"
+    },
     "order_status": {
       "assigned": "مُعيّن",
       "picked_up": "تم الاستلام",

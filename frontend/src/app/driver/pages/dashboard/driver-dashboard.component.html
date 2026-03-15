@@ -90,6 +90,62 @@
     </section>
   }
 
+  <!-- Pending Batched Trips (Suggested to driver) -->
+  @if (pendingBatchedTrips().length > 0) {
+    <section class="orders-section orders-section--pending">
+      <div class="section-header">
+        <h2 class="section-title">
+          {{ 'driver.batched.pending_trips' | translate }}
+          <span class="count-inline">({{ pendingBatchedTrips().length }})</span>
+        </h2>
+      </div>
+      <div class="orders-list">
+        @for (trip of pendingBatchedTrips(); track trip.id) {
+          <div class="batched-trip-card">
+            <div class="batched-trip-card__header">
+              <span class="batched-trip-card__corridor">{{ trip.corridor || trip.h3_zone }}</span>
+              <span class="batched-trip-card__earnings">{{ trip.total_earnings | number:'1.0-0' }} DA</span>
+            </div>
+            <div class="batched-trip-card__info">
+              <span class="batched-trip-card__stops">
+                <i class="pi pi-map-marker"></i>
+                {{ trip.total_stops }} {{ 'driver.multi_trip.stops' | translate }}
+              </span>
+              <span class="batched-trip-card__weight">
+                <i class="pi pi-box"></i>
+                {{ trip.total_weight_kg | number:'1.0-0' }} kg
+              </span>
+            </div>
+            <div class="batched-trip-card__actions">
+              <button
+                class="batched-trip-card__btn batched-trip-card__btn--decline"
+                (click)="declineBatchedTrip(trip)"
+                [disabled]="decliningTrip() === trip.id">
+                @if (decliningTrip() === trip.id) {
+                  <i class="pi pi-spinner pi-spin"></i>
+                } @else {
+                  <i class="pi pi-times"></i>
+                }
+                {{ 'driver.batched.decline' | translate }}
+              </button>
+              <button
+                class="batched-trip-card__btn batched-trip-card__btn--accept"
+                (click)="acceptBatchedTrip(trip)"
+                [disabled]="acceptingTrip() === trip.id">
+                @if (acceptingTrip() === trip.id) {
+                  <i class="pi pi-spinner pi-spin"></i>
+                } @else {
+                  <i class="pi pi-check"></i>
+                }
+                {{ 'driver.batched.accept' | translate }}
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+  }
+
   <!-- Available Trips -->
   @if (isOnline()) {
     <section class="orders-section">

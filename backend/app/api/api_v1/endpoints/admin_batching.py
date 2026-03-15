@@ -49,10 +49,19 @@ def build_trip_read(trip: Trip, session: Session) -> TripRead:
             driver_name = driver_user.full_name
             driver_phone = driver_user.phone
 
+    # Get suggested driver info
+    suggested_driver_name = None
+    if trip.suggested_driver_id:
+        suggested_user = session.get(User, trip.suggested_driver_id)
+        if suggested_user:
+            suggested_driver_name = suggested_user.full_name
+
     return TripRead(
         id=trip.id,
         driver_id=trip.driver_id,
+        suggested_driver_id=trip.suggested_driver_id,
         status=trip.status,
+        corridor=trip.corridor,
         total_weight_kg=trip.total_weight_kg,
         total_volume_m3=trip.total_volume_m3,
         estimated_distance_km=trip.estimated_distance_km,
@@ -68,6 +77,7 @@ def build_trip_read(trip: Trip, session: Session) -> TripRead:
         completed_stops=completed_stops,
         driver_name=driver_name,
         driver_phone=driver_phone,
+        suggested_driver_name=suggested_driver_name,
     )
 
 

@@ -2462,6 +2462,13 @@
       "trip_completed": "Trajet Terminé",
       "complete_all_stops": "Terminez tous les arrêts pour finir"
     },
+    "batched": {
+      "pending_trips": "Tournées Suggérées",
+      "accept": "Accepter",
+      "decline": "Refuser",
+      "accepted": "Tournée acceptée",
+      "declined": "Tournée refusée"
+    },
     "order_status": {
       "assigned": "Assigné",
       "picked_up": "Récupéré",

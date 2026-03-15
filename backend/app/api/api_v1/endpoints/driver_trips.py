@@ -538,11 +538,12 @@ def get_available_trips(
             detail=f"Maximum active orders ({driver.max_active_orders}) reached"
         )
 
-    # Get confirmed orders not assigned to any driver
+    # Get confirmed orders not assigned to any driver AND not part of a trip
     orders = session.exec(
         select(Order)
         .where(Order.status == OrderStatus.CONFIRMED)
         .where(Order.driver_id == None)
+        .where(Order.trip_id == None)  # Exclude orders already in a trip
         .order_by(Order.created_at.asc())
     ).all()
 
