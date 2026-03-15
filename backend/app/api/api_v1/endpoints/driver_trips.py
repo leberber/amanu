@@ -9,7 +9,7 @@ from app.core.security import get_current_user
 from app.models.user import User, UserRole
 from app.models.order import (
     Order, OrderStatus, OrderRead, OrderWithItems, OrderItemRead,
-    UserInfo, DriverInfo
+    UserInfo, DriverInfo, DeliveryType
 )
 from app.models.driver import (
     Driver, DriverVehicle, DriverStatus, DriverStats,
@@ -518,8 +518,9 @@ def get_available_trips(
     session: Session = Depends(get_session),
 ) -> Any:
     """
-    Get available orders for driver to accept.
-    Returns orders with status CONFIRMED (ready for driver pool).
+    Get available orders for driver to accept (individual pickup).
+    Only returns PRIORITY delivery orders - these are urgent and need immediate pickup.
+    STANDARD orders must be batched by admin first and appear in /batched/pending.
     """
     user, driver = get_driver_user(current_user, session)
 
@@ -538,12 +539,14 @@ def get_available_trips(
             detail=f"Maximum active orders ({driver.max_active_orders}) reached"
         )
 
-    # Get confirmed orders not assigned to any driver AND not part of a trip
+    # Get PRIORITY orders only - these are urgent and available for immediate pickup
+    # STANDARD orders must wait for admin batching
     orders = session.exec(
         select(Order)
         .where(Order.status == OrderStatus.CONFIRMED)
         .where(Order.driver_id == None)
         .where(Order.trip_id == None)  # Exclude orders already in a trip
+        .where(Order.delivery_type == DeliveryType.PRIORITY)  # Only PRIORITY for individual pickup
         .order_by(Order.created_at.asc())
     ).all()
 
