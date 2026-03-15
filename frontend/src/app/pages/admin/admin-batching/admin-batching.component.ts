@@ -146,7 +146,7 @@ export class AdminBatchingComponent implements OnInit {
   animationPaused = signal(false);
   currentAnimationBatchIndex = signal(0);
   currentAnimationStopIndex = signal(0);
-  animationSpeed = signal(1); // 1x, 2x, 4x
+  animationSpeed = signal(3); // 1x, 2x, 3x, 4x
   currentDeliveryMessage = signal<string | null>(null);
   deliveredStops = signal<{ name: string; weight: number }[]>([]);
   completedBatchIndices = signal<number[]>([]);
@@ -158,6 +158,7 @@ export class AdminBatchingComponent implements OnInit {
   private currentTrailPolyline: L.Polyline | null = null;
   private completedTripLayers: L.LayerGroup | null = null;
   private savedMapState: { markers: L.Layer[], polylines: L.Layer[] } | null = null;
+  private currentBatchMarkers: L.Marker[] = []; // Track markers added during current batch
 
   // Corridor visibility toggle (for legend)
   corridorVisibility = signal<Record<string, boolean>>({});
@@ -2006,8 +2007,8 @@ export class AdminBatchingComponent implements OnInit {
       if (stop.latitude && stop.longitude) {
         this.truckMarker?.setLatLng([stop.latitude, stop.longitude]);
       }
-      this.showDeliveryMessage(stop);
-      setTimeout(() => this.moveToNextStop(), 1500 / this.animationSpeed());
+      this.trackDelivery(stop);
+      setTimeout(() => this.moveToNextStop(), 400 / this.animationSpeed());
     }
   }
 
@@ -2085,33 +2086,24 @@ export class AdminBatchingComponent implements OnInit {
       const batch = this.getCurrentAnimationBatch();
       const stop = batch?.stops[this.currentAnimationStopIndex()];
       if (stop) {
-        this.showDeliveryMessage(stop);
+        this.trackDelivery(stop);
         this.addStopMarkerOnArrival(stop);
       }
 
       // Move to next stop after showing message
-      setTimeout(() => this.moveToNextStop(), 1800 / this.animationSpeed());
+      setTimeout(() => this.moveToNextStop(), 500 / this.animationSpeed());
     }
   }
 
   /**
-   * Show delivery message for a stop
+   * Track delivery for a stop (update delivered stops list)
    */
-  private showDeliveryMessage(stop: SmartBatchStop): void {
-    this.currentDeliveryMessage.set(stop.customer_name);
-
-    // Add to delivered stops
+  private trackDelivery(stop: SmartBatchStop): void {
+    // Add to delivered stops list for timeline
     this.deliveredStops.update(stops => [
       ...stops,
       { name: stop.customer_name, weight: stop.weight_kg }
     ]);
-
-    // Clear message after delay
-    setTimeout(() => {
-      if (this.currentDeliveryMessage() === stop.customer_name) {
-        this.currentDeliveryMessage.set(null);
-      }
-    }, 1500 / this.animationSpeed());
   }
 
   /**
@@ -2152,6 +2144,7 @@ export class AdminBatchingComponent implements OnInit {
 
     const marker = L.marker([stop.latitude, stop.longitude], { icon });
     marker.addTo(this.completedTripLayers);
+    this.currentBatchMarkers.push(marker); // Track for ghosting when batch completes
   }
 
   /**
@@ -2167,7 +2160,7 @@ export class AdminBatchingComponent implements OnInit {
 
     if (nextStopIndex >= batch.stops.length) {
       // All stops in this batch done
-      setTimeout(() => this.moveToNextBatch(), 1000 / this.animationSpeed());
+      setTimeout(() => this.moveToNextBatch(), 400 / this.animationSpeed());
     } else {
       this.currentAnimationStopIndex.set(nextStopIndex);
       setTimeout(() => this.animateCurrentBatch(), 400 / this.animationSpeed());
@@ -2197,8 +2190,20 @@ export class AdminBatchingComponent implements OnInit {
       this.currentTrailPolyline = null;
     }
 
-    // Note: Markers are already added during arrival (addStopMarkerOnArrival)
-    // They stay colored - no need to add ghost markers
+    // Convert current batch markers to ghost style
+    this.currentBatchMarkers.forEach(marker => {
+      const el = marker.getElement();
+      if (el) {
+        const markerDiv = el.querySelector('div') as HTMLElement;
+        if (markerDiv) {
+          markerDiv.style.background = 'rgba(100, 100, 100, 0.4)';
+          markerDiv.style.border = '2px dashed #999';
+          markerDiv.style.color = '#666';
+          markerDiv.style.boxShadow = 'none';
+        }
+      }
+    });
+    this.currentBatchMarkers = []; // Clear for next batch
   }
 
   /**

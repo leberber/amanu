@@ -136,6 +136,9 @@
                     [class.active]="animationSpeed() === 2"
                     (click)="setAnimationSpeed(2)">2x</button>
                   <button
+                    [class.active]="animationSpeed() === 3"
+                    (click)="setAnimationSpeed(3)">3x</button>
+                  <button
                     [class.active]="animationSpeed() === 4"
                     (click)="setAnimationSpeed(4)">4x</button>
                 </div>
@@ -193,16 +196,6 @@
                 </div>
               }
 
-              <!-- Delivery message overlay -->
-              @if (currentDeliveryMessage()) {
-                <div class="delivery-message" @fadeIn>
-                  <div class="delivery-message__content">
-                    <i class="pi pi-box"></i>
-                    <span>Livraison</span>
-                    <strong>{{ currentDeliveryMessage() }}</strong>
-                  </div>
-                </div>
-              }
             }
 
             <!-- Available Vehicles Cards -->
