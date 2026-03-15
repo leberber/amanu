@@ -100,6 +100,111 @@
           <div class="map-wrapper">
             <div class="map-container" id="batching-map"></div>
 
+            <!-- Route Animation Controls (Top Right) -->
+            @if (animationPlaying()) {
+              <div class="animation-controls" @fadeIn>
+                <div class="animation-controls__trip">
+                  <span class="animation-controls__label">Tournée</span>
+                  <span class="animation-controls__number">{{ currentAnimationBatchIndex() + 1 }}/{{ smartBatches().length }}</span>
+                </div>
+                <div class="animation-controls__btns">
+                  <button
+                    class="animation-controls__btn"
+                    [class.animation-controls__btn--active]="!animationPaused()"
+                    pTooltip="Pause/Play"
+                    (click)="togglePauseAnimation()">
+                    <i [class]="animationPaused() ? 'pi pi-play' : 'pi pi-pause'"></i>
+                  </button>
+                  <button
+                    class="animation-controls__btn"
+                    pTooltip="Suivant"
+                    (click)="skipToNextBatch()">
+                    <i class="pi pi-forward"></i>
+                  </button>
+                  <button
+                    class="animation-controls__btn animation-controls__btn--danger"
+                    pTooltip="Arrêter"
+                    (click)="stopAnimation()">
+                    <i class="pi pi-stop"></i>
+                  </button>
+                </div>
+                <div class="animation-controls__speed">
+                  <button
+                    [class.active]="animationSpeed() === 1"
+                    (click)="setAnimationSpeed(1)">1x</button>
+                  <button
+                    [class.active]="animationSpeed() === 2"
+                    (click)="setAnimationSpeed(2)">2x</button>
+                  <button
+                    [class.active]="animationSpeed() === 4"
+                    (click)="setAnimationSpeed(4)">4x</button>
+                </div>
+              </div>
+
+              <!-- Animation Timeline (Bottom Left) -->
+              @if (getCurrentAnimationBatch(); as batch) {
+                <div class="animation-timeline" @fadeIn>
+                  <div class="animation-timeline__header" [style.border-left-color]="getBatchColor(currentAnimationBatchIndex())">
+                    <span class="animation-timeline__corridor">{{ batch.corridor }}</span>
+                    <div class="animation-timeline__stats">
+                      <span><i class="pi pi-map-marker"></i> {{ batch.stops.length }}</span>
+                      <span><i class="pi pi-box"></i> {{ batch.total_weight_kg | number:'1.0-0' }} kg</span>
+                    </div>
+                  </div>
+
+                  <!-- Stops list -->
+                  <div class="animation-timeline__stops">
+                    @for (stop of batch.stops; track stop.order_id; let i = $index) {
+                      <div
+                        class="animation-timeline__stop"
+                        [class.animation-timeline__stop--completed]="i < currentAnimationStopIndex()"
+                        [class.animation-timeline__stop--current]="i === currentAnimationStopIndex()"
+                        [class.animation-timeline__stop--pending]="i > currentAnimationStopIndex()">
+                        <div class="animation-timeline__stop-icon">
+                          @if (i < currentAnimationStopIndex()) {
+                            <i class="pi pi-check"></i>
+                          } @else if (i === currentAnimationStopIndex()) {
+                            <i class="pi pi-truck"></i>
+                          } @else {
+                            <span>{{ i + 1 }}</span>
+                          }
+                        </div>
+                        <div class="animation-timeline__stop-info">
+                          <span class="animation-timeline__stop-name">{{ stop.customer_name }}</span>
+                          <span class="animation-timeline__stop-weight">{{ stop.weight_kg | number:'1.0-0' }} kg</span>
+                        </div>
+                      </div>
+                    }
+                  </div>
+
+                  <!-- Progress bar -->
+                  <div class="animation-timeline__progress">
+                    <div class="animation-timeline__progress-bar">
+                      <div
+                        class="animation-timeline__progress-fill"
+                        [style.width.%]="(currentAnimationStopIndex() / batch.stops.length) * 100"
+                        [style.background]="getBatchColor(currentAnimationBatchIndex())">
+                      </div>
+                    </div>
+                    <div class="animation-timeline__progress-text">
+                      {{ getTotalDeliveredWeight() | number:'1.0-0' }} / {{ batch.total_weight_kg | number:'1.0-0' }} kg livrés
+                    </div>
+                  </div>
+                </div>
+              }
+
+              <!-- Delivery message overlay -->
+              @if (currentDeliveryMessage()) {
+                <div class="delivery-message" @fadeIn>
+                  <div class="delivery-message__content">
+                    <i class="pi pi-box"></i>
+                    <span>Livraison</span>
+                    <strong>{{ currentDeliveryMessage() }}</strong>
+                  </div>
+                </div>
+              }
+            }
+
             <!-- Available Vehicles Cards -->
             @if (smartDrivers().length > 0) {
               <div class="map-vehicles">
@@ -264,6 +369,15 @@
                   (click)="previewSmartBatching()">
                 </button>
               } @else {
+                <!-- Preview Animation Button -->
+                <button
+                  pButton
+                  icon="pi pi-play"
+                  class="p-button-info"
+                  pTooltip="Prévisualiser les tournées"
+                  [disabled]="animationPlaying()"
+                  (click)="startRouteAnimation()">
+                </button>
                 <button
                   pButton
                   [label]="'admin.batching.create_trips' | translate"

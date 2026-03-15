@@ -141,9 +141,30 @@ export class AdminBatchingComponent implements OnInit {
   customerRoutes = signal<CustomerRoute[]>([]);
   resettingBatches = signal(false);
 
+  // Route animation state
+  animationPlaying = signal(false);
+  animationPaused = signal(false);
+  currentAnimationBatchIndex = signal(0);
+  currentAnimationStopIndex = signal(0);
+  animationSpeed = signal(1); // 1x, 2x, 4x
+  currentDeliveryMessage = signal<string | null>(null);
+  deliveredStops = signal<{ name: string; weight: number }[]>([]);
+  completedBatchIndices = signal<number[]>([]);
+  private truckMarker: L.Marker | null = null;
+  private animationFrameId: number | null = null;
+  private animationStartTime: number = 0;
+  private currentRouteCoords: [number, number][] = [];
+  private routeDuration: number = 4000; // Base duration per route in ms
+  private currentTrailPolyline: L.Polyline | null = null;
+  private completedTripLayers: L.LayerGroup | null = null;
+  private savedMapState: { markers: L.Layer[], polylines: L.Layer[] } | null = null;
+
   // Corridor visibility toggle (for legend)
   corridorVisibility = signal<Record<string, boolean>>({});
-  private corridorLayers: Record<string, { markers: L.Layer[], polyline: L.Polyline | null, polylines?: L.Polyline[] }> = {};
+  private corridorLayers: Record<string, { markers: L.Layer[], polyline: L.Polyline | null, polylines?: L.Polyline[], color?: string }> = {};
+
+  // Batch highlight state (click marker to highlight that batch)
+  highlightedBatchKey = signal<string | null>(null);
 
   // Corridor filter for map and batching (multi-select)
   selectedCorridorFilters = signal<string[]>([]);
@@ -362,6 +383,14 @@ export class AdminBatchingComponent implements OnInit {
     this.addWarehouseMarker();
     this.mapInitialized.set(true);
     this.updateMapMarkers(); // Show initial order dots
+
+    // Click on map (empty space) to clear batch highlight
+    this.map.on('click', () => {
+      if (this.highlightedBatchKey()) {
+        this.clearBatchHighlight();
+      }
+    });
+
     setTimeout(() => this.map?.invalidateSize(), 200);
   }
 
@@ -726,6 +755,7 @@ export class AdminBatchingComponent implements OnInit {
     this.vehicleBatches.set({});  // Clear vehicle cards
     this.unusableTruckIds.set(new Set());  // Clear warnings
     this.smallestOrderKg.set(0);
+    this.highlightedBatchKey.set(null);  // Clear highlight
     this.corridorLayers = {};
     this.corridorVisibility.set({});
     this.connectionsLayer?.clearLayers();
@@ -782,7 +812,7 @@ export class AdminBatchingComponent implements OnInit {
 
       // Initialize corridor visibility and polylines array
       visibility[corridorKey] = true;
-      this.corridorLayers[corridorKey] = { markers: [], polyline: null, polylines: [] };
+      this.corridorLayers[corridorKey] = { markers: [], polyline: null, polylines: [], color };
 
       // Draw colored markers and real routes for each stop
       batch.stops.forEach((stop, stopIndex) => {
@@ -823,6 +853,9 @@ export class AdminBatchingComponent implements OnInit {
           marker.bindPopup(this.createStopPopup(stop, color));
           marker.addTo(this.markersLayer!);
           this.corridorLayers[corridorKey].markers.push(marker);
+
+          // Add click handler for highlight feature
+          marker.on('click', () => this.toggleBatchHighlight(corridorKey));
         }, batchIndex * 200 + stopIndex * 80);
 
         // Find matching route coordinates using order_id -> user_id -> route
@@ -994,6 +1027,111 @@ export class AdminBatchingComponent implements OnInit {
   // Check if corridor is visible
   isCorridorVisible(corridorKey: string): boolean {
     return this.corridorVisibility()[corridorKey] ?? true;
+  }
+
+  /**
+   * Toggle highlight for a batch - click to highlight, click again to reset
+   */
+  toggleBatchHighlight(corridorKey: string): void {
+    const current = this.highlightedBatchKey();
+
+    if (current === corridorKey) {
+      // Clicking same batch - clear highlight
+      this.clearBatchHighlight();
+    } else {
+      // Highlight this batch, ghost others
+      this.applyBatchHighlight(corridorKey);
+    }
+  }
+
+  /**
+   * Apply highlight to one batch, ghost all others
+   */
+  private applyBatchHighlight(corridorKey: string): void {
+    this.highlightedBatchKey.set(corridorKey);
+
+    Object.entries(this.corridorLayers).forEach(([key, layers]) => {
+      const isHighlighted = key === corridorKey;
+      const color = layers.color || '#888';
+
+      // Update polylines
+      layers.polylines?.forEach(polyline => {
+        if (isHighlighted) {
+          // Highlighted: bright, thick
+          polyline.setStyle({
+            color: color,
+            weight: 6,
+            opacity: 1
+          });
+        } else {
+          // Ghosted: dashed, faded
+          polyline.setStyle({
+            color: '#888',
+            weight: 3,
+            opacity: 0.4,
+            dashArray: '8, 8'
+          });
+        }
+      });
+
+      // Update markers
+      layers.markers.forEach(marker => {
+        const el = (marker as L.Marker).getElement();
+        if (el) {
+          const markerDiv = el.querySelector('div') as HTMLElement;
+          if (markerDiv) {
+            if (isHighlighted) {
+              // Highlighted: original style with glow
+              markerDiv.style.background = color;
+              markerDiv.style.border = '3px solid #fff';
+              markerDiv.style.opacity = '1';
+              markerDiv.style.boxShadow = `0 0 12px 4px ${color}`;
+            } else {
+              // Ghosted: faded with dashed border
+              markerDiv.style.background = 'rgba(100, 100, 100, 0.4)';
+              markerDiv.style.border = '2px dashed #999';
+              markerDiv.style.opacity = '0.5';
+              markerDiv.style.boxShadow = 'none';
+            }
+          }
+        }
+      });
+    });
+  }
+
+  /**
+   * Clear all highlights, restore normal styles
+   */
+  clearBatchHighlight(): void {
+    this.highlightedBatchKey.set(null);
+
+    Object.entries(this.corridorLayers).forEach(([_key, layers]) => {
+      const color = layers.color || '#888';
+
+      // Restore polylines to normal
+      layers.polylines?.forEach(polyline => {
+        polyline.setStyle({
+          color: color,
+          weight: 4,
+          opacity: 0.7,
+          dashArray: undefined
+        });
+      });
+
+      // Restore markers to normal
+      layers.markers.forEach(marker => {
+        const el = (marker as L.Marker).getElement();
+        if (el) {
+          const markerDiv = el.querySelector('div') as HTMLElement;
+          if (markerDiv) {
+            markerDiv.style.background = color;
+            markerDiv.style.border = '3px solid #fff';
+            markerDiv.style.opacity = '1';
+            markerDiv.style.boxShadow = '0 2px 8px rgba(0,0,0,0.3)';
+          }
+        }
+      });
+    });
   }
 
   private decodePolyline(encoded: string): [number, number][] {
@@ -1523,5 +1661,584 @@ export class AdminBatchingComponent implements OnInit {
           this.toast.showApiError(err, 'admin.batching.batch_create_error');
         }
       });
+  }
+
+  // ==================== Route Animation ====================
+
+  /**
+   * Start the route animation playback
+   */
+  startRouteAnimation(): void {
+    const batches = this.smartBatches();
+    if (!batches.length) {
+      this.toast.showError('Aucune tournée à animer');
+      return;
+    }
+
+    // Reset state
+    this.currentAnimationBatchIndex.set(0);
+    this.currentAnimationStopIndex.set(0);
+    this.animationPlaying.set(true);
+    this.animationPaused.set(false);
+    this.currentDeliveryMessage.set(null);
+    this.deliveredStops.set([]);
+    this.completedBatchIndices.set([]);
+
+    // Clear the map and save state
+    this.clearMapForAnimation();
+
+    // Create completed trips layer
+    this.completedTripLayers = L.layerGroup().addTo(this.map!);
+
+    // Create truck marker
+    this.createTruckMarker();
+
+    // Start animating the first batch
+    this.animateCurrentBatch();
+  }
+
+  /**
+   * Clear map for animation (hide all markers and routes)
+   */
+  private clearMapForAnimation(): void {
+    if (!this.markersLayer || !this.connectionsLayer) return;
+
+    // Save current layers to restore later
+    this.savedMapState = {
+      markers: [],
+      polylines: []
+    };
+
+    // Hide markers layer
+    this.markersLayer.eachLayer(layer => {
+      this.savedMapState!.markers.push(layer);
+    });
+    this.markersLayer.clearLayers();
+
+    // Hide connections layer
+    this.connectionsLayer.eachLayer(layer => {
+      this.savedMapState!.polylines.push(layer);
+    });
+    this.connectionsLayer.clearLayers();
+
+    // Add warehouse marker
+    this.addWarehouseMarker();
+  }
+
+  /**
+   * Restore map state after animation
+   */
+  private restoreMapState(): void {
+    if (!this.savedMapState || !this.markersLayer || !this.connectionsLayer) return;
+
+    // Clear current layers
+    this.markersLayer.clearLayers();
+    this.connectionsLayer.clearLayers();
+
+    // Restore markers
+    this.savedMapState.markers.forEach(layer => {
+      this.markersLayer!.addLayer(layer);
+    });
+
+    // Restore polylines
+    this.savedMapState.polylines.forEach(layer => {
+      this.connectionsLayer!.addLayer(layer);
+    });
+
+    this.savedMapState = null;
+
+    // Remove completed trip layers
+    if (this.completedTripLayers && this.map) {
+      this.map.removeLayer(this.completedTripLayers);
+      this.completedTripLayers = null;
+    }
+  }
+
+  /**
+   * Toggle pause/resume animation
+   */
+  togglePauseAnimation(): void {
+    if (!this.animationPlaying()) return;
+
+    if (this.animationPaused()) {
+      this.animationPaused.set(false);
+      this.animationStartTime = performance.now() - (this.animationPausedAt || 0);
+      this.animateTruckAlongRoute();
+    } else {
+      this.animationPaused.set(true);
+      this.animationPausedAt = performance.now() - this.animationStartTime;
+      if (this.animationFrameId) {
+        cancelAnimationFrame(this.animationFrameId);
+        this.animationFrameId = null;
+      }
+    }
+  }
+
+  private animationPausedAt: number = 0;
+
+  /**
+   * Stop animation completely
+   */
+  stopAnimation(): void {
+    this.animationPlaying.set(false);
+    this.animationPaused.set(false);
+    this.currentAnimationBatchIndex.set(0);
+    this.currentAnimationStopIndex.set(0);
+    this.currentDeliveryMessage.set(null);
+    this.deliveredStops.set([]);
+    this.completedBatchIndices.set([]);
+
+    if (this.animationFrameId) {
+      cancelAnimationFrame(this.animationFrameId);
+      this.animationFrameId = null;
+    }
+
+    // Remove truck marker
+    if (this.truckMarker && this.map) {
+      this.map.removeLayer(this.truckMarker);
+      this.truckMarker = null;
+    }
+
+    // Remove trail polyline
+    if (this.currentTrailPolyline && this.map) {
+      this.map.removeLayer(this.currentTrailPolyline);
+      this.currentTrailPolyline = null;
+    }
+
+    // Restore original map state
+    this.restoreMapState();
+  }
+
+  /**
+   * Skip to next batch
+   */
+  skipToNextBatch(): void {
+    if (!this.animationPlaying()) return;
+
+    // Mark current batch as complete
+    this.markCurrentBatchComplete();
+
+    const batches = this.smartBatches();
+    const nextIndex = this.currentAnimationBatchIndex() + 1;
+
+    if (nextIndex >= batches.length) {
+      this.stopAnimation();
+      this.toast.showSuccess('Animation terminée');
+      return;
+    }
+
+    // Cancel current animation
+    if (this.animationFrameId) {
+      cancelAnimationFrame(this.animationFrameId);
+      this.animationFrameId = null;
+    }
+
+    // Clear trail
+    if (this.currentTrailPolyline && this.map) {
+      this.map.removeLayer(this.currentTrailPolyline);
+      this.currentTrailPolyline = null;
+    }
+
+    this.currentAnimationBatchIndex.set(nextIndex);
+    this.currentAnimationStopIndex.set(0);
+    this.deliveredStops.set([]);
+    this.currentDeliveryMessage.set(null);
+
+    // Reset truck to warehouse
+    const warehousePos: L.LatLngExpression = [MAP_DEFAULTS.LATITUDE, MAP_DEFAULTS.LONGITUDE];
+    this.truckMarker?.setLatLng(warehousePos);
+
+    setTimeout(() => this.animateCurrentBatch(), 500 / this.animationSpeed());
+  }
+
+  /**
+   * Set animation speed
+   */
+  setAnimationSpeed(speed: number): void {
+    this.animationSpeed.set(speed);
+  }
+
+  /**
+   * Get current animation batch info
+   */
+  getCurrentAnimationBatch(): SmartBatch | null {
+    const batches = this.smartBatches();
+    const index = this.currentAnimationBatchIndex();
+    return batches[index] || null;
+  }
+
+  /**
+   * Create the animated truck marker
+   */
+  private createTruckMarker(): void {
+    if (this.truckMarker) {
+      this.map?.removeLayer(this.truckMarker);
+    }
+
+    const icon = L.divIcon({
+      className: 'truck-animation-marker',
+      html: `
+        <div style="
+          width: 52px;
+          height: 52px;
+          background: linear-gradient(135deg, #3B82F6, #1D4ED8);
+          border: 4px solid #fff;
+          border-radius: 50%;
+          box-shadow: 0 4px 20px rgba(59, 130, 246, 0.6);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        ">
+          <i class="pi pi-truck" style="color: white; font-size: 22px;"></i>
+        </div>
+      `,
+      iconSize: [52, 52],
+      iconAnchor: [26, 26]
+    });
+
+    // Start at warehouse
+    const warehousePos: L.LatLngExpression = [MAP_DEFAULTS.LATITUDE, MAP_DEFAULTS.LONGITUDE];
+    this.truckMarker = L.marker(warehousePos, { icon, zIndexOffset: 1000 });
+    this.truckMarker.addTo(this.map!);
+  }
+
+  /**
+   * Animate the current batch
+   */
+  private animateCurrentBatch(): void {
+    if (this.animationPaused() || !this.animationPlaying()) return;
+
+    const batch = this.getCurrentAnimationBatch();
+    if (!batch) {
+      this.stopAnimation();
+      return;
+    }
+
+    const stopIndex = this.currentAnimationStopIndex();
+    const stop = batch.stops[stopIndex];
+
+    if (!stop) {
+      // Move to next batch
+      this.moveToNextBatch();
+      return;
+    }
+
+    // Create trail polyline for this batch if not exists
+    if (!this.currentTrailPolyline) {
+      const batchIndex = this.currentAnimationBatchIndex();
+      const color = this.getBatchColor(batchIndex);
+      this.currentTrailPolyline = L.polyline([], {
+        color: color,
+        weight: 5,
+        opacity: 0.9
+      }).addTo(this.map!);
+    }
+
+    // Get the route for this stop from the stored customer routes
+    const routeLookup = this.buildRouteLookup();
+    const orderToUserLookup = this.buildOrderToUserLookup();
+    const userId = orderToUserLookup.get(stop.order_id);
+    const routeCoords = userId ? routeLookup.get(userId) : undefined;
+
+    if (stopIndex === 0) {
+      // First stop: use full route from warehouse
+      if (routeCoords && routeCoords.length > 1) {
+        this.currentRouteCoords = routeCoords;
+      } else if (stop.latitude && stop.longitude) {
+        // Fallback: straight line from warehouse
+        this.currentRouteCoords = [
+          [MAP_DEFAULTS.LATITUDE, MAP_DEFAULTS.LONGITUDE],
+          [stop.latitude, stop.longitude]
+        ];
+      }
+    } else {
+      // Subsequent stops: try to use stored route, trim to relevant portion
+      const currentPos = this.truckMarker?.getLatLng();
+
+      if (routeCoords && routeCoords.length > 1 && currentPos) {
+        // Find the closest point on the route to current truck position
+        let closestIndex = 0;
+        let closestDist = Infinity;
+
+        for (let i = 0; i < routeCoords.length; i++) {
+          const [lat, lng] = routeCoords[i];
+          const dist = Math.sqrt(
+            Math.pow(lat - currentPos.lat, 2) +
+            Math.pow(lng - currentPos.lng, 2)
+          );
+          if (dist < closestDist) {
+            closestDist = dist;
+            closestIndex = i;
+          }
+        }
+
+        // Use route from closest point to destination
+        // Start with current position, then follow the route
+        const trimmedRoute = routeCoords.slice(closestIndex);
+        if (trimmedRoute.length > 1) {
+          this.currentRouteCoords = [[currentPos.lat, currentPos.lng], ...trimmedRoute];
+        } else {
+          // Route too short, use straight line
+          this.currentRouteCoords = [
+            [currentPos.lat, currentPos.lng],
+            [stop.latitude!, stop.longitude!]
+          ];
+        }
+      } else if (currentPos && stop.latitude && stop.longitude) {
+        // Fallback: straight line from current position
+        this.currentRouteCoords = [
+          [currentPos.lat, currentPos.lng],
+          [stop.latitude, stop.longitude]
+        ];
+      }
+    }
+
+    if (this.currentRouteCoords.length > 1) {
+      // Calculate duration based on route distance (1km = ~800ms at 1x speed)
+      const distance = this.calculateRouteDistance(this.currentRouteCoords);
+      this.currentRouteDuration = Math.max(1500, Math.min(6000, distance * 800));
+
+      this.animationStartTime = performance.now();
+      this.lastTrailIndex = 0;
+      this.animateTruckAlongRoute();
+    } else {
+      // No route, just move directly to stop
+      if (stop.latitude && stop.longitude) {
+        this.truckMarker?.setLatLng([stop.latitude, stop.longitude]);
+      }
+      this.showDeliveryMessage(stop);
+      setTimeout(() => this.moveToNextStop(), 1500 / this.animationSpeed());
+    }
+  }
+
+  private lastTrailIndex = 0;
+  private existingTrailCoords: [number, number][] = [];
+  private currentRouteDuration = 4000; // Dynamic duration based on distance
+
+  /**
+   * Calculate route distance in km
+   */
+  private calculateRouteDistance(coords: [number, number][]): number {
+    if (coords.length < 2) return 0;
+    let distance = 0;
+    for (let i = 1; i < coords.length; i++) {
+      const [lat1, lng1] = coords[i - 1];
+      const [lat2, lng2] = coords[i];
+      // Haversine formula (simplified)
+      const R = 6371; // Earth radius in km
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLng = (lng2 - lng1) * Math.PI / 180;
+      const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng / 2) ** 2;
+      distance += R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    }
+    return distance;
+  }
+
+  /**
+   * Animate truck along the route coordinates with trail effect
+   */
+  private animateTruckAlongRoute(): void {
+    if (this.animationPaused() || !this.animationPlaying()) return;
+
+    const elapsed = performance.now() - this.animationStartTime;
+    const duration = this.currentRouteDuration / this.animationSpeed();
+    const progress = Math.min(elapsed / duration, 1);
+
+    // Calculate current position along the route
+    const totalPoints = this.currentRouteCoords.length;
+    const currentPointIndex = Math.floor(progress * (totalPoints - 1));
+    const nextPointIndex = Math.min(currentPointIndex + 1, totalPoints - 1);
+
+    const segmentProgress = (progress * (totalPoints - 1)) - currentPointIndex;
+
+    const currentPoint = this.currentRouteCoords[currentPointIndex];
+    const nextPoint = this.currentRouteCoords[nextPointIndex];
+
+    // Interpolate between points
+    const lat = currentPoint[0] + (nextPoint[0] - currentPoint[0]) * segmentProgress;
+    const lng = currentPoint[1] + (nextPoint[1] - currentPoint[1]) * segmentProgress;
+
+    // Move truck
+    this.truckMarker?.setLatLng([lat, lng]);
+
+    // Draw trail BEHIND truck - add all points up to current position
+    if (this.currentTrailPolyline) {
+      // Get all route points up to (but not including) current position
+      const trailPoints = this.currentRouteCoords.slice(0, currentPointIndex + 1);
+      // Add interpolated current position
+      if (trailPoints.length > 0) {
+        const allCoords: [number, number][] = [...this.existingTrailCoords, ...trailPoints, [lat, lng]];
+        this.currentTrailPolyline.setLatLngs(allCoords);
+      }
+    }
+
+    if (progress < 1) {
+      this.animationFrameId = requestAnimationFrame(() => this.animateTruckAlongRoute());
+    } else {
+      // Complete the trail - add all route points to existing trail
+      this.existingTrailCoords = [...this.existingTrailCoords, ...this.currentRouteCoords];
+      if (this.currentTrailPolyline) {
+        this.currentTrailPolyline.setLatLngs(this.existingTrailCoords);
+      }
+
+      // Show delivery message and add marker at this stop
+      const batch = this.getCurrentAnimationBatch();
+      const stop = batch?.stops[this.currentAnimationStopIndex()];
+      if (stop) {
+        this.showDeliveryMessage(stop);
+        this.addStopMarkerOnArrival(stop);
+      }
+
+      // Move to next stop after showing message
+      setTimeout(() => this.moveToNextStop(), 1800 / this.animationSpeed());
+    }
+  }
+
+  /**
+   * Show delivery message for a stop
+   */
+  private showDeliveryMessage(stop: SmartBatchStop): void {
+    this.currentDeliveryMessage.set(stop.customer_name);
+
+    // Add to delivered stops
+    this.deliveredStops.update(stops => [
+      ...stops,
+      { name: stop.customer_name, weight: stop.weight_kg }
+    ]);
+
+    // Clear message after delay
+    setTimeout(() => {
+      if (this.currentDeliveryMessage() === stop.customer_name) {
+        this.currentDeliveryMessage.set(null);
+      }
+    }, 1500 / this.animationSpeed());
+  }
+
+  /**
+   * Add a marker at the stop location when truck arrives
+   */
+  private addStopMarkerOnArrival(stop: SmartBatchStop): void {
+    if (!stop.latitude || !stop.longitude || !this.completedTripLayers) return;
+
+    const batchIndex = this.currentAnimationBatchIndex();
+    const color = this.getBatchColor(batchIndex);
+
+    const weightDisplay = stop.weight_kg >= 10
+      ? Math.round(stop.weight_kg).toString()
+      : stop.weight_kg.toFixed(1);
+
+    const icon = L.divIcon({
+      className: 'arrived-marker',
+      html: `
+        <div style="
+          width: 36px;
+          height: 36px;
+          background: ${color};
+          border: 3px solid #fff;
+          border-radius: 50%;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #fff;
+          font-size: 10px;
+          font-weight: 700;
+          animation: marker-pop 0.3s ease;
+        ">${weightDisplay}</div>
+      `,
+      iconSize: [36, 36],
+      iconAnchor: [18, 18]
+    });
+
+    const marker = L.marker([stop.latitude, stop.longitude], { icon });
+    marker.addTo(this.completedTripLayers);
+  }
+
+  /**
+   * Move to the next stop in current batch
+   */
+  private moveToNextStop(): void {
+    if (!this.animationPlaying()) return;
+
+    const batch = this.getCurrentAnimationBatch();
+    if (!batch) return;
+
+    const nextStopIndex = this.currentAnimationStopIndex() + 1;
+
+    if (nextStopIndex >= batch.stops.length) {
+      // All stops in this batch done
+      setTimeout(() => this.moveToNextBatch(), 1000 / this.animationSpeed());
+    } else {
+      this.currentAnimationStopIndex.set(nextStopIndex);
+      setTimeout(() => this.animateCurrentBatch(), 400 / this.animationSpeed());
+    }
+  }
+
+  /**
+   * Mark current batch as complete with ghost style (line + markers)
+   */
+  private markCurrentBatchComplete(): void {
+    const batchIndex = this.currentAnimationBatchIndex();
+    const batch = this.getCurrentAnimationBatch();
+
+    // Add to completed indices
+    this.completedBatchIndices.update(indices => [...indices, batchIndex]);
+
+    // Convert trail polyline to ghost style (dashed, semi-transparent)
+    if (this.currentTrailPolyline && this.completedTripLayers) {
+      this.currentTrailPolyline.setStyle({
+        color: '#888',
+        opacity: 0.5,
+        weight: 3,
+        dashArray: '8, 8'
+      });
+      this.currentTrailPolyline.removeFrom(this.map!);
+      this.currentTrailPolyline.addTo(this.completedTripLayers);
+      this.currentTrailPolyline = null;
+    }
+
+    // Note: Markers are already added during arrival (addStopMarkerOnArrival)
+    // They stay colored - no need to add ghost markers
+  }
+
+  /**
+   * Move to the next batch
+   */
+  private moveToNextBatch(): void {
+    if (!this.animationPlaying()) return;
+
+    // Mark current batch as complete
+    this.markCurrentBatchComplete();
+
+    const batches = this.smartBatches();
+    const nextIndex = this.currentAnimationBatchIndex() + 1;
+
+    if (nextIndex >= batches.length) {
+      // All batches done
+      this.animationPlaying.set(false);
+      this.toast.showSuccess('Animation terminée');
+      return;
+    }
+
+    // Reset for next batch
+    this.currentAnimationBatchIndex.set(nextIndex);
+    this.currentAnimationStopIndex.set(0);
+    this.deliveredStops.set([]);
+    this.currentDeliveryMessage.set(null);
+    this.existingTrailCoords = []; // Reset trail coords for new batch
+
+    // Reset truck to warehouse
+    const warehousePos: L.LatLngExpression = [MAP_DEFAULTS.LATITUDE, MAP_DEFAULTS.LONGITUDE];
+    this.truckMarker?.setLatLng(warehousePos);
+
+    // Delay before starting next batch
+    setTimeout(() => this.animateCurrentBatch(), 1200 / this.animationSpeed());
+  }
+
+  /**
+   * Get total delivered weight for current batch
+   */
+  getTotalDeliveredWeight(): number {
+    return this.deliveredStops().reduce((sum, stop) => sum + stop.weight, 0);
   }
 }
