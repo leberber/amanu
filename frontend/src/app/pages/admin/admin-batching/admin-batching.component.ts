@@ -13,7 +13,7 @@ import * as L from 'leaflet';
 
 import { ADMIN_LIST_IMPORTS } from '../../../shared/imports/admin-shared.imports';
 import { AgroclikPageContainerComponent } from '../../../shared/components/agroclik-page-container/agroclik-page-container.component';
-import { BatchingService, SmartBatch, SmartBatchStop, CustomerRoute, LeftoverOrder } from '../../../services/batching.service';
+import { BatchingService, SmartBatch, SmartBatchStop, CustomerRoute, LeftoverOrder, SmartBatchingResponse } from '../../../services/batching.service';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
 import { Trip, TripWithStops, TripStatus, PendingOrder } from '../../../models/trip.model';
 import { RouteHelpers } from '../../../core/constants/routes.constants';
@@ -520,6 +520,9 @@ export class AdminBatchingComponent implements OnInit {
           this.leftoverOrders.set(response.leftover_orders || []);
           this.smartBatchingActive.set(true);
 
+          // Populate vehicle cards with assigned orders
+          this.populateVehicleBatchesFromSmartBatches(response.batches);
+
           // Load customer routes to get real polylines
           this.batchingService.getCustomerRoutes().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
             next: (routes) => {
@@ -563,6 +566,37 @@ export class AdminBatchingComponent implements OnInit {
     });
   }
 
+  /**
+   * Populate vehicle cards with orders from smart batching results
+   */
+  private populateVehicleBatchesFromSmartBatches(batches: SmartBatch[]): void {
+    const pendingOrdersMap = new Map(
+      this.pendingOrders().map(o => [o.id, o])
+    );
+
+    const newVehicleBatches: Record<number, PendingOrder[]> = {};
+
+    for (const batch of batches) {
+      if (!batch.assigned_driver) continue;
+
+      const driverId = batch.assigned_driver.id;
+      const orders: PendingOrder[] = [];
+
+      for (const stop of batch.stops) {
+        const pendingOrder = pendingOrdersMap.get(stop.order_id);
+        if (pendingOrder) {
+          orders.push(pendingOrder);
+        }
+      }
+
+      if (orders.length > 0) {
+        newVehicleBatches[driverId] = orders;
+      }
+    }
+
+    this.vehicleBatches.set(newVehicleBatches);
+  }
+
   runSmartBatching(): void {
     this.submittingBatches.set(true);
     this.batchingService.runSmartBatching(this.getSmartBatchingParams()).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
@@ -588,6 +622,7 @@ export class AdminBatchingComponent implements OnInit {
     this.smartBatchingActive.set(false);
     this.smartBatches.set([]);
     this.leftoverOrders.set([]);
+    this.vehicleBatches.set({});  // Clear vehicle cards
     this.corridorLayers = {};
     this.corridorVisibility.set({});
     this.connectionsLayer?.clearLayers();
