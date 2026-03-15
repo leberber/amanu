@@ -1,0 +1,50 @@
+.map-wrapper {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background: var(--surface-ground);
+  overflow: hidden;
+
+  &--animating {
+    .map {
+      // Optional: add subtle pulse effect during animation
+    }
+  }
+}
+
+.map {
+  width: 100%;
+  height: 100%;
+}
+
+.map-skeleton {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  background: linear-gradient(135deg, #f0f0f0 0%, #e8e8e8 100%);
+  z-index: 10;
+
+  &__icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: rgba(26, 26, 26, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    i {
+      font-size: 1.5rem;
+      color: #6b6b6b;
+    }
+  }
+
+  &__text {
+    font-size: var(--font-size-sm);
+    color: #6b6b6b;
+  }
+}

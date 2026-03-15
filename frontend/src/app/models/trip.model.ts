@@ -22,6 +22,10 @@ export interface TripStop {
   shipping_address?: string;
   contact_phone?: string;
   order_total?: number;
+
+  // Location coordinates (for map display)
+  latitude?: number;
+  longitude?: number;
 }
 
 export interface Trip {
@@ -56,6 +60,8 @@ export interface Trip {
 
 export interface TripWithStops extends Trip {
   stops: TripStop[];
+  // Route coordinates for map display [[lat, lng], ...]
+  route_coords?: number[][];
 }
 
 // Create/Update models

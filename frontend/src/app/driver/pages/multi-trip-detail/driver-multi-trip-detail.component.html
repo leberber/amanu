@@ -1,118 +1,83 @@
 @if (loading()) {
   <!-- Loading Skeleton -->
-  <div class="multi-trip-detail multi-trip-detail--loading">
-    <header class="detail-header">
-      <button class="back-btn">
-        <i class="pi pi-arrow-left"></i>
-      </button>
-      <div class="skeleton skeleton-text" style="width: 120px; height: 20px;"></div>
-    </header>
-
-    <div class="detail-content">
-      <div class="skeleton skeleton-card" style="height: 80px;"></div>
-      <div class="skeleton skeleton-card" style="height: 120px;"></div>
-      <div class="skeleton skeleton-card" style="height: 120px;"></div>
-      <div class="skeleton skeleton-card" style="height: 120px;"></div>
+  <div class="trip-detail trip-detail--loading">
+    <div class="map-skeleton">
+      <div class="map-skeleton__content">
+        <i class="pi pi-map"></i>
+        <span>{{ 'common.loading' | translate }}...</span>
+      </div>
     </div>
   </div>
 } @else if (trip()) {
-  <div class="multi-trip-detail">
-    <!-- Header -->
-    <header class="detail-header">
-      <button class="back-btn" (click)="goBack()">
-        <i class="pi pi-arrow-left"></i>
-      </button>
-      <div class="detail-header__title">
-        <span class="trip-id">{{ 'driver.multi_trip.trip' | translate }} #{{ trip()!.id }}</span>
-        <div
-          class="status-badge"
-          [style.--status-color]="getTripStatusColor(trip()!.status)">
-          <i [class]="getTripStatusIcon(trip()!.status)"></i>
-          {{ getTripStatusLabel(trip()!.status) | translate }}
-        </div>
-      </div>
-    </header>
+  <div class="trip-detail" [class.trip-detail--fullscreen-map]="showFullScreenMap()">
+    <!-- Back Button (always visible) -->
+    <button class="back-btn" (click)="goBack()">
+      <i class="pi pi-arrow-left"></i>
+    </button>
 
-    <!-- Trip Summary -->
-    <div class="trip-summary">
-      <div class="summary-stats">
-        <div class="stat-item">
-          <i class="pi pi-map-marker"></i>
-          <span>{{ trip()!.stops.length }} {{ 'driver.multi_trip.stops' | translate }}</span>
-        </div>
-        <div class="stat-item">
-          <i class="pi pi-box"></i>
-          <span>{{ trip()!.total_weight_kg | number:'1.0-0' }} kg</span>
-        </div>
-        <div class="stat-item">
-          <i class="pi pi-dollar"></i>
-          <span>{{ trip()!.total_earnings | number:'1.0-0' }} DA</span>
-        </div>
-      </div>
-
-      <!-- Progress -->
-      <div class="trip-progress">
-        <div class="progress-bar">
-          <div class="progress-bar__fill" [style.width.%]="tripProgress()"></div>
-        </div>
-        <span class="progress-text">
-          {{ trip()!.completed_stops }}/{{ trip()!.total_stops }} {{ 'driver.multi_trip.completed' | translate }}
-        </span>
-      </div>
+    <!-- Map Section -->
+    <div class="map-section" [class.map-section--fullscreen]="showFullScreenMap()">
+      @if (routeCoords().length >= 2) {
+        <app-animated-route-map
+          [routeCoords]="routeCoords()"
+          [autoStart]="isPendingTrip()"
+          (animationComplete)="onAnimationComplete()"
+        />
+      }
     </div>
 
-    <!-- Content -->
-    <div class="detail-content">
-      <!-- Stops List -->
-      <div class="stops-section">
-        <h3 class="section-title">
-          <i class="pi pi-list"></i>
-          {{ 'driver.multi_trip.delivery_stops' | translate }}
-        </h3>
+    <!-- Content Section (hidden during fullscreen map) -->
+    @if (!showFullScreenMap() || animationComplete()) {
+      <div class="content-section" [class.content-section--visible]="!showFullScreenMap()">
+        <!-- Itinerary Header -->
+        <div class="itinerary-header">
+          <h3 class="section-title">{{ 'driver.trip.itinerary' | translate }}</h3>
+          <span class="itinerary-header__fee">{{ trip()!.total_earnings | number:'1.0-0' }} DA</span>
+        </div>
 
-        <div class="stops-list">
-          @for (stop of sortedStops(); track stop.id) {
+        <!-- Itinerary Timeline -->
+        <div class="itinerary">
+          <!-- Origin (Warehouse) -->
+          <div class="itinerary__item">
+            <div class="itinerary__marker itinerary__marker--origin"></div>
+            <div class="itinerary__line"></div>
+            <div class="itinerary__content">
+              <span class="itinerary__label">{{ 'driver.trip.origin' | translate }}</span>
+              <span class="itinerary__address">{{ 'driver.trip.warehouse' | translate }}</span>
+            </div>
+          </div>
+
+          <!-- Stops -->
+          @for (stop of sortedStops(); track stop.id; let last = $last) {
             <div
-              class="stop-card"
-              [class.stop-card--current]="currentStop()?.id === stop.id"
-              [class.stop-card--completed]="stop.status === 'delivered'">
-
-              <!-- Stop Sequence Badge -->
+              class="itinerary__item"
+              [class.itinerary__item--current]="currentStop()?.id === stop.id"
+              [class.itinerary__item--completed]="stop.status === 'delivered'">
               <div
-                class="stop-sequence"
-                [style.--stop-color]="getStopStatusColor(stop.status)">
+                class="itinerary__marker itinerary__marker--stop"
+                [class.itinerary__marker--completed]="stop.status === 'delivered'">
                 @if (stop.status === 'delivered') {
                   <i class="pi pi-check"></i>
                 } @else {
                   {{ stop.sequence }}
                 }
               </div>
-
-              <!-- Stop Info -->
-              <div class="stop-info">
-                <div class="stop-header">
-                  <span class="stop-customer">{{ stop.customer_name || 'Customer' }}</span>
-                  <span class="stop-amount">{{ stop.order_total || 0 | number:'1.0-0' }} DA</span>
-                </div>
-
-                <div class="stop-address" (click)="openNavigation(stop.shipping_address)">
-                  <i class="pi pi-map-marker"></i>
-                  <span>{{ stop.shipping_address || 'Address not available' }}</span>
-                </div>
-
-                @if (stop.contact_phone) {
-                  <div class="stop-phone" (click)="callCustomer(stop.contact_phone)">
-                    <i class="pi pi-phone"></i>
-                    <span>{{ stop.contact_phone }}</span>
-                  </div>
+              @if (!last) {
+                <div class="itinerary__line"></div>
+              }
+              <div class="itinerary__content">
+                <span class="itinerary__label">{{ 'driver.trip.stop' | translate }} {{ stop.sequence }}</span>
+                @if (stop.customer_name) {
+                  <span class="itinerary__customer">{{ stop.customer_name }}</span>
                 }
+                <span class="itinerary__address">{{ stop.shipping_address || 'Address not available' }}</span>
 
-                <!-- Stop Actions -->
+                <!-- Stop Actions (for in_progress trips) -->
                 @if (trip()!.status === 'in_progress') {
-                  <div class="stop-actions">
+                  <div class="itinerary__actions">
                     @if (canMarkArrived(stop)) {
                       <button
-                        class="stop-action-btn stop-action-btn--arrived"
+                        class="action-chip action-chip--arrived"
                         [disabled]="isStopUpdating(stop.id)"
                         (click)="markArrived(stop)">
                         @if (isStopUpdating(stop.id)) {
@@ -124,7 +89,7 @@
                       </button>
                     } @else if (canMarkDelivered(stop)) {
                       <button
-                        class="stop-action-btn stop-action-btn--delivered"
+                        class="action-chip action-chip--delivered"
                         [disabled]="isStopUpdating(stop.id)"
                         (click)="markDelivered(stop)">
                         @if (isStopUpdating(stop.id)) {
@@ -134,63 +99,104 @@
                         }
                         {{ 'driver.action.mark_delivered' | translate }}
                       </button>
-                    } @else if (stop.status === 'delivered') {
-                      <span class="stop-completed-badge">
-                        <i class="pi pi-check-circle"></i>
-                        {{ 'driver.stop_status.delivered' | translate }}
-                      </span>
                     }
+
+                    <!-- Quick Actions -->
+                    <div class="quick-actions">
+                      @if (stop.contact_phone) {
+                        <button class="quick-action" (click)="callCustomer(stop.contact_phone)">
+                          <i class="pi pi-phone"></i>
+                        </button>
+                      }
+                      <button class="quick-action" (click)="openNavigation(stop.shipping_address)">
+                        <i class="pi pi-directions"></i>
+                      </button>
+                    </div>
                   </div>
                 }
               </div>
             </div>
           }
         </div>
+
+        <!-- Info Cards -->
+        <div class="info-cards">
+          <div class="info-card">
+            <div class="info-card__icon info-card__icon--stops">
+              <i class="pi pi-map-marker"></i>
+            </div>
+            <div class="info-card__content">
+              <span class="info-card__value">{{ trip()!.stops.length }}</span>
+              <span class="info-card__label">{{ 'driver.multi_trip.stops' | translate }}</span>
+            </div>
+          </div>
+          <div class="info-card">
+            <div class="info-card__icon info-card__icon--weight">
+              <i class="pi pi-box"></i>
+            </div>
+            <div class="info-card__content">
+              <span class="info-card__value">{{ trip()!.total_weight_kg | number:'1.0-0' }} kg</span>
+              <span class="info-card__label">{{ 'common.weight' | translate }}</span>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
+    }
 
     <!-- Bottom Action -->
-    @if (canStartTrip()) {
-      <div class="action-footer">
-        <button
-          class="action-btn action-btn--start"
-          [disabled]="updating()"
-          (click)="startTrip()">
-          @if (updating()) {
-            <i class="pi pi-spin pi-spinner"></i>
-          } @else {
-            <i class="pi pi-play"></i>
-          }
-          {{ 'driver.action.start_trip' | translate }}
-        </button>
-      </div>
-    } @else if (canCompleteTrip()) {
-      <div class="action-footer">
-        <button
-          class="action-btn action-btn--complete"
-          [disabled]="updating()"
-          (click)="completeTrip()">
-          @if (updating()) {
-            <i class="pi pi-spin pi-spinner"></i>
-          } @else {
+    @if (!showFullScreenMap() || animationComplete()) {
+      <div class="action-footer" [class.action-footer--visible]="!showFullScreenMap()">
+        @if (isPendingTrip()) {
+          <button
+            class="accept-btn"
+            [disabled]="accepting()"
+            (click)="acceptTrip()">
+            @if (accepting()) {
+              <i class="pi pi-spin pi-spinner"></i>
+            } @else {
+              <i class="pi pi-check"></i>
+            }
+            {{ 'driver.trip.accept' | translate }}
+          </button>
+        } @else if (canStartTrip()) {
+          <button
+            class="accept-btn accept-btn--start"
+            [disabled]="updating()"
+            (click)="startTrip()">
+            @if (updating()) {
+              <i class="pi pi-spin pi-spinner"></i>
+            } @else {
+              <i class="pi pi-play"></i>
+            }
+            {{ 'driver.action.start_trip' | translate }}
+          </button>
+        } @else if (canCompleteTrip()) {
+          <button
+            class="accept-btn accept-btn--complete"
+            [disabled]="updating()"
+            (click)="completeTrip()">
+            @if (updating()) {
+              <i class="pi pi-spin pi-spinner"></i>
+            } @else {
+              <i class="pi pi-check-circle"></i>
+            }
+            {{ 'driver.action.complete_trip' | translate }}
+          </button>
+        } @else if (trip()!.status === 'in_progress') {
+          <div class="progress-indicator">
+            <div class="progress-bar">
+              <div class="progress-bar__fill" [style.width.%]="tripProgress()"></div>
+            </div>
+            <span class="progress-text">
+              {{ trip()!.completed_stops }}/{{ trip()!.total_stops }} {{ 'driver.multi_trip.completed' | translate }}
+            </span>
+          </div>
+        } @else if (trip()!.status === 'completed') {
+          <div class="completed-badge">
             <i class="pi pi-check-circle"></i>
-          }
-          {{ 'driver.action.complete_trip' | translate }}
-        </button>
-      </div>
-    } @else if (trip()!.status === 'completed') {
-      <div class="action-footer action-footer--completed">
-        <div class="completed-badge">
-          <i class="pi pi-check-circle"></i>
-          {{ 'driver.multi_trip.trip_completed' | translate }}
-        </div>
-      </div>
-    } @else if (trip()!.status === 'in_progress') {
-      <div class="action-footer action-footer--info">
-        <div class="info-badge">
-          <i class="pi pi-info-circle"></i>
-          {{ 'driver.multi_trip.complete_all_stops' | translate }}
-        </div>
+            {{ 'driver.multi_trip.trip_completed' | translate }}
+          </div>
+        }
       </div>
     }
   </div>

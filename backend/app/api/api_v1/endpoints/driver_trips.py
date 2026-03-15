@@ -19,7 +19,10 @@ from app.models.driver_config import DriverSystemConfig
 from app.models.shipping import ShippingPriceConfig
 from app.models.product import Product
 from app.models.trip import Trip, TripStop, TripStatus, TripRead, TripWithStops, TripStopRead, StopStatus
+from app.models.customer_route import CustomerRoute
+from app.core.config import settings
 from sqlmodel import SQLModel
+from geoalchemy2.shape import to_shape
 
 
 router = APIRouter()
@@ -206,20 +209,41 @@ def trip_to_response(trip: Trip, session: Session) -> TripWithStops:
         if suggested_user:
             suggested_driver_name = suggested_user.full_name
 
-    # Get stops with order details
+    # Get stops with order details, sorted by sequence
     stops_read = []
     completed_stops = 0
-    for stop in trip.stops:
+    all_route_coords = []
+
+    # Start with depot coordinates
+    depot_coords = [settings.DEPOT_LATITUDE, settings.DEPOT_LONGITUDE]
+    all_route_coords.append(depot_coords)
+
+    # Sort stops by sequence for proper route order
+    sorted_stops = sorted(trip.stops, key=lambda s: s.sequence)
+
+    for stop in sorted_stops:
         order = session.get(Order, stop.order_id)
         customer_name = None
         shipping_address = None
         contact_phone = None
         order_total = None
+        latitude = None
+        longitude = None
+
         if order:
             customer_name = order.user.full_name if order.user else None
             shipping_address = order.shipping_address
             contact_phone = order.contact_phone
             order_total = float(order.total_amount) if order.total_amount else None
+
+            # Get customer coordinates from User
+            if order.user:
+                latitude = order.user.latitude
+                longitude = order.user.longitude
+
+                # Add to route coords if we have valid coordinates
+                if latitude and longitude:
+                    all_route_coords.append([latitude, longitude])
 
         if stop.status == StopStatus.DELIVERED:
             completed_stops += 1
@@ -238,6 +262,8 @@ def trip_to_response(trip: Trip, session: Session) -> TripWithStops:
             shipping_address=shipping_address,
             contact_phone=contact_phone,
             order_total=order_total,
+            latitude=latitude,
+            longitude=longitude,
         ))
 
     return TripWithStops(
@@ -263,6 +289,7 @@ def trip_to_response(trip: Trip, session: Session) -> TripWithStops:
         driver_phone=driver_phone,
         suggested_driver_name=suggested_driver_name,
         stops=stops_read,
+        route_coords=all_route_coords,
     )
 
 

@@ -139,6 +139,10 @@ class TripStopRead(SQLModel):
     contact_phone: Optional[str] = None
     order_total: Optional[float] = None
 
+    # Location coordinates (for map display)
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+
     model_config = {"from_attributes": True, "use_enum_values": True}
 
 
@@ -178,6 +182,8 @@ class TripRead(SQLModel):
 class TripWithStops(TripRead):
     """Extended trip model that includes all stops"""
     stops: List[TripStopRead] = []
+    # Route coordinates for map display [[lat, lng], ...]
+    route_coords: List[List[float]] = []
 
 
 # =============================================================================

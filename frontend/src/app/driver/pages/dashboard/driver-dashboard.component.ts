@@ -1,23 +1,17 @@
-import { Component, inject, OnInit, computed, signal } from '@angular/core';
+import { Component, inject, OnInit, computed } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
-import { DrawerModule } from 'primeng/drawer';
-import { ButtonModule } from 'primeng/button';
-import { SharedModule } from 'primeng/api';
 
 import { DriverService } from '../../../services/driver.service';
 import { ROUTES, RouteHelpers } from '../../../core/constants/routes.constants';
-import { DRIVER_STATUS, DRIVER_STATUS_CONFIG } from '../../../core/constants/driver.constants';
-import { ORDER_STATUS, ORDER_STATUS_CONFIG } from '../../../core/constants/order.constants';
-import { Order } from '../../../models/order.model';
+import { DRIVER_STATUS } from '../../../core/constants/driver.constants';
 import { TripWithStops } from '../../../models/trip.model';
-import { TripMapComponent } from '../../components/trip-map/trip-map.component';
 
 @Component({
   selector: 'app-driver-dashboard',
   standalone: true,
-  imports: [RouterLink, TranslateModule, DecimalPipe, DrawerModule, ButtonModule, SharedModule, TripMapComponent],
+  imports: [RouterLink, TranslateModule, DecimalPipe],
   templateUrl: './driver-dashboard.component.html',
   styleUrl: './driver-dashboard.component.scss'
 })
@@ -27,22 +21,15 @@ export class DriverDashboardComponent implements OnInit {
 
   readonly routes = ROUTES;
   readonly DRIVER_STATUS = DRIVER_STATUS;
-  readonly ORDER_STATUS = ORDER_STATUS;
-  readonly orderStatusConfig = ORDER_STATUS_CONFIG;
 
   // Data from service
   stats = this.driverService.stats;
   profile = this.driverService.profile;
   driverProfile = this.driverService.driverProfile;
   activeTrips = this.driverService.activeTrips;
-  availableTrips = this.driverService.availableTrips;
   activeMultiTrips = this.driverService.activeMultiTrips;
   pendingBatchedTrips = this.driverService.pendingBatchedTrips;
   loading = this.driverService.loading;
-
-  // Batched trip action states
-  acceptingTrip = signal<number | null>(null);
-  decliningTrip = signal<number | null>(null);
 
   // Computed values
   currentStatus = computed(() => this.driverProfile()?.status || DRIVER_STATUS.OFFLINE);
@@ -54,9 +41,7 @@ export class DriverDashboardComponent implements OnInit {
   // Stats display
   todayDeliveries = computed(() => this.stats()?.deliveries_today || 0);
   todayEarnings = computed(() => this.stats()?.earnings_today || 0);
-  averageRating = computed(() => this.stats()?.average_rating?.toFixed(1) || '-');
   activeCount = computed(() => this.activeTrips().length + this.activeMultiTrips().length);
-  availableCount = computed(() => this.availableTrips().length);
   multiTripCount = computed(() => this.activeMultiTrips().length);
 
   // Split batched trips into suggested (to this driver) and available (others)
@@ -72,11 +57,6 @@ export class DriverDashboardComponent implements OnInit {
     return this.pendingBatchedTrips().filter(t => t.suggested_driver_id !== userId);
   });
 
-  // Drawer state
-  drawerVisible = signal(false);
-  selectedOrder = signal<Order | null>(null);
-  accepting = signal(false);
-
   ngOnInit(): void {
     this.loadData();
   }
@@ -84,7 +64,6 @@ export class DriverDashboardComponent implements OnInit {
   loadData(): void {
     this.driverService.getStats().subscribe();
     this.driverService.getActiveTrips().subscribe();
-    this.driverService.getAvailableTrips().subscribe();
     this.driverService.getActiveMultiTrips().subscribe();
     this.driverService.getPendingBatchedTrips().subscribe();
   }
@@ -97,67 +76,7 @@ export class DriverDashboardComponent implements OnInit {
     this.driverService.goOffline().subscribe();
   }
 
-  openTripDrawer(order: Order): void {
-    this.selectedOrder.set(order);
-    this.drawerVisible.set(true);
-  }
-
-  closeDrawer(): void {
-    this.drawerVisible.set(false);
-    this.selectedOrder.set(null);
-  }
-
-  acceptTrip(): void {
-    const order = this.selectedOrder();
-    if (!order) return;
-
-    this.accepting.set(true);
-    this.driverService.acceptTrip(order.id).subscribe({
-      next: () => {
-        this.accepting.set(false);
-        this.closeDrawer();
-        this.router.navigate([this.routes.DRIVER.ACTIVE]);
-      },
-      error: () => {
-        this.accepting.set(false);
-      }
-    });
-  }
-
-  getStatusIcon(status: string): string {
-    return this.orderStatusConfig[status as keyof typeof this.orderStatusConfig]?.icon || 'pi pi-circle';
-  }
-
-  getStatusColor(status: string): string {
-    return this.orderStatusConfig[status as keyof typeof this.orderStatusConfig]?.color || '#6b7280';
-  }
-
   openMultiTripDetail(trip: TripWithStops): void {
     this.router.navigate([RouteHelpers.driverMultiTripDetail(trip.id)]);
-  }
-
-  acceptBatchedTrip(trip: TripWithStops): void {
-    this.acceptingTrip.set(trip.id);
-    this.driverService.acceptBatchedTrip(trip.id).subscribe({
-      next: () => {
-        this.acceptingTrip.set(null);
-        this.router.navigate([RouteHelpers.driverMultiTripDetail(trip.id)]);
-      },
-      error: () => {
-        this.acceptingTrip.set(null);
-      }
-    });
-  }
-
-  declineBatchedTrip(trip: TripWithStops): void {
-    this.decliningTrip.set(trip.id);
-    this.driverService.declineBatchedTrip(trip.id).subscribe({
-      next: () => {
-        this.decliningTrip.set(null);
-      },
-      error: () => {
-        this.decliningTrip.set(null);
-      }
-    });
   }
 }

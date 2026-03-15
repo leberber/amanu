@@ -5,8 +5,9 @@ import { TranslateModule } from '@ngx-translate/core';
 
 import { DriverService } from '../../../services/driver.service';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
-import { ROUTES } from '../../../core/constants/routes.constants';
+import { ROUTES, RouteHelpers } from '../../../core/constants/routes.constants';
 import { TripWithStops, TripStop, TripStatus, StopStatus } from '../../../models/trip.model';
+import { AnimatedRouteMapComponent } from '../../components/animated-route-map/animated-route-map.component';
 
 // Trip status configuration
 const TRIP_STATUS_CONFIG: Record<TripStatus, { icon: string; color: string; label: string }> = {
@@ -27,7 +28,7 @@ const STOP_STATUS_CONFIG: Record<StopStatus, { icon: string; color: string; labe
 @Component({
   selector: 'app-driver-multi-trip-detail',
   standalone: true,
-  imports: [TranslateModule, DecimalPipe],
+  imports: [TranslateModule, DecimalPipe, AnimatedRouteMapComponent],
   templateUrl: './driver-multi-trip-detail.component.html',
   styleUrl: './driver-multi-trip-detail.component.scss'
 })
@@ -46,11 +47,21 @@ export class DriverMultiTripDetailComponent implements OnInit {
   loading = signal(true);
   updating = signal(false);
   updatingStopId = signal<number | null>(null);
+  accepting = signal(false);
+
+  // Animation state
+  animationComplete = signal(false);
+  showFullScreenMap = signal(true);
 
   // Computed values
+  isPendingTrip = computed(() => {
+    const t = this.trip();
+    return t?.status === 'pending' && !t?.driver_id;
+  });
+
   canStartTrip = computed(() => {
     const t = this.trip();
-    return t?.status === 'assigned' || t?.status === 'pending';
+    return t?.status === 'assigned';
   });
 
   canCompleteTrip = computed(() => {
@@ -69,7 +80,6 @@ export class DriverMultiTripDetailComponent implements OnInit {
   currentStop = computed(() => {
     const t = this.trip();
     if (!t) return null;
-    // Find first non-delivered stop
     return t.stops.find(s => s.status !== 'delivered') || null;
   });
 
@@ -77,6 +87,11 @@ export class DriverMultiTripDetailComponent implements OnInit {
     const t = this.trip();
     if (!t) return [];
     return [...t.stops].sort((a, b) => a.sequence - b.sequence);
+  });
+
+  routeCoords = computed(() => {
+    const t = this.trip();
+    return t?.route_coords || [];
   });
 
   ngOnInit(): void {
@@ -92,6 +107,11 @@ export class DriverMultiTripDetailComponent implements OnInit {
       next: (trip) => {
         this.trip.set(trip);
         this.loading.set(false);
+        // If trip is already assigned/in_progress, skip animation
+        if (trip.status !== 'pending') {
+          this.animationComplete.set(true);
+          this.showFullScreenMap.set(false);
+        }
       },
       error: () => {
         this.toast.showError('driver.messages.trip_load_failed');
@@ -101,8 +121,35 @@ export class DriverMultiTripDetailComponent implements OnInit {
     });
   }
 
+  onAnimationComplete(): void {
+    this.animationComplete.set(true);
+    // Delay before transitioning map
+    setTimeout(() => {
+      this.showFullScreenMap.set(false);
+    }, 500);
+  }
+
   goBack(): void {
     this.location.back();
+  }
+
+  acceptTrip(): void {
+    const tripId = this.trip()?.id;
+    if (!tripId || this.accepting()) return;
+
+    this.accepting.set(true);
+    this.driverService.acceptBatchedTrip(tripId).subscribe({
+      next: () => {
+        this.accepting.set(false);
+        this.toast.showSuccess('driver.batched.accepted');
+        // Reload trip to get updated status
+        this.loadTrip(tripId);
+      },
+      error: (err) => {
+        this.accepting.set(false);
+        this.toast.showError(err.error?.detail || 'driver.messages.accept_failed');
+      }
+    });
   }
 
   startTrip(): void {
