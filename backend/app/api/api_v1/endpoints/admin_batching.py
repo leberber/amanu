@@ -198,7 +198,7 @@ def preview_smart_order_batching(
     - Excludes orders where extra distance isn't worth the weight gain
     - Skips orders that are too far for their weight
     """
-    result = preview_smart_batching(
+    return preview_smart_batching(
         session,
         strategy=strategy,
         max_weight_per_batch=max_weight,
@@ -207,7 +207,6 @@ def preview_smart_order_batching(
         corridor_filter=corridor_filter,
         max_capacity_percent=max_capacity_percent
     )
-    return result
 
 
 @router.post("/smart-run")

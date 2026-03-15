@@ -86,6 +86,15 @@ export class CustomToastService {
     });
   }
 
+  showWarnSticky(detail: string, params?: Record<string, any>): void {
+    this.add({
+      severity: 'warn',
+      summary: this.translateService.instant('common.warning'),
+      detail: this.translateService.instant(detail, params),
+      life: 60000 // 60 seconds - user must dismiss manually
+    });
+  }
+
   showCustom(severity: ToastSeverity, summary: string, detail: string, params?: Record<string, any>): void {
     this.add({
       severity,

@@ -1,6 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap, map } from 'rxjs';
+import { Observable, tap, map, timeout } from 'rxjs';
 
 import { environment } from '../../environments/environment';
 import {
@@ -286,6 +286,8 @@ export class BatchingService {
     const queryString = this.buildSmartBatchingParams(params);
     return this.http.get<SmartBatchingResponse>(
       `${this.apiUrl}${API_ENDPOINTS.SMART_PREVIEW}${queryString}`
+    ).pipe(
+      timeout(30000)
     );
   }
 
@@ -395,6 +397,13 @@ export interface LeftoverOrder {
   reason: 'no_capacity' | 'low_efficiency';
 }
 
+export interface UnusableTruck {
+  id: number;
+  name: string;
+  capacity_kg: number;
+  effective_capacity_kg: number;
+}
+
 export interface SmartBatchingResponse {
   success: boolean;
   message?: string;
@@ -410,6 +419,8 @@ export interface SmartBatchingResponse {
     trucks_used: number;
     by_corridor?: Record<string, number>;
     strategy?: string;
+    smallest_order_kg?: number;
+    unusable_trucks?: UnusableTruck[];
   };
   trips_created?: number;
   trips?: Array<{

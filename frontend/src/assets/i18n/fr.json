@@ -1887,6 +1887,7 @@
     "batching": {
       "title": "Groupage des commandes",
       "subtitle": "Regrouper les commandes en tournées multi-arrêts",
+      "trips": "Tournées",
       "load_error": "Échec du chargement des données de groupage",
       "preview_error": "Échec de l'aperçu du groupage",
       "run_error": "Échec de l'exécution du groupage",
@@ -1999,6 +2000,7 @@
       "no_orders_to_batch": "Aucune commande disponible pour le regroupement",
       "total": "Total",
       "reinitialize": "Réinitialiser",
+      "cancel_trips": "Annuler les tournées",
       "reinitialize_confirm": "Réinitialiser toutes les tournées? Les commandes seront remises en attente.",
       "reinitialize_header": "Réinitialiser les tournées",
       "reset_success": "{{orders}} commandes réinitialisées avec succès",
@@ -2015,6 +2017,11 @@
       "trucks_assigned": "camions assignés",
       "orders_leftover": "commandes non assignées",
       "leftover_warning": "{{assigned}} commandes assignées, {{leftover}} non assignées (capacité insuffisante)",
+      "trucks_too_small": "{{count}} camion(s) ne peuvent pas être utilisés - la plus petite commande ({{smallest_order}} kg) dépasse leur capacité",
+      "orders_no_capacity": "{{count}} commande(s) n'ont pas pu être assignées - capacité insuffisante",
+      "truck_capacity_too_small": "Capacité ({{capacity}} kg) insuffisante pour la plus petite commande ({{smallest}} kg)",
+      "no_order_fits": "Capacité insuffisante",
+      "all_trucks_insufficient": "Aucun camion n'a une capacité suffisante pour les commandes disponibles",
       "algorithm_settings": "Paramètres de l'Algorithme",
       "settings": {
         "simulation_limit": "Échantillon de Simulation",

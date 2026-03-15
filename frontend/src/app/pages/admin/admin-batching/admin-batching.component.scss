@@ -155,6 +155,11 @@
     background: var(--orange-100);
     color: var(--orange-600);
   }
+
+  &--assigned i {
+    background: var(--green-100);
+    color: var(--green-600);
+  }
 }
 
 .map-section {
@@ -252,6 +257,23 @@
     &--has-orders {
       opacity: 0.85;
     }
+
+    // Unusable truck - capacity too small
+    &--unusable {
+      background: #FFF3CD;
+      border: 2px solid #FFCA2C;
+
+      .map-vehicles__icon {
+        background: #FFCA2C;
+        color: #664D03;
+      }
+    }
+  }
+
+  &__no-fit {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #664D03;
   }
 
   &__orders {
@@ -306,6 +328,33 @@
     flex-direction: column;
     gap: 0.125rem;
     overflow: hidden;
+  }
+
+  &__total {
+    flex-shrink: 0;
+    min-width: 100px;
+    height: 75px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0 1rem;
+    background: var(--primary-color);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  &__total-value {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  &__total-label {
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.85);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
   }
 
   &__name {
@@ -484,6 +533,42 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
+  }
+}
+
+// Trips shortcut button (bottom right of map)
+.map-trips-btn {
+  position: absolute;
+  bottom: 15px;
+  right: 15px;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background: #1a1a1a;
+  color: #ffffff;
+  border: 2px solid #1a1a1a;
+  border-radius: 50px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: all 0.25s ease;
+
+  &:hover {
+    background: #ffffff;
+    color: #1a1a1a;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  i {
+    font-size: 1rem;
   }
 }
 
@@ -771,6 +856,51 @@
     i {
       color: var(--red-500);
     }
+  }
+}
+
+// Summary Card (replaces legend)
+.map-summary {
+  position: absolute;
+  bottom: 70px;
+  right: 1rem;
+  z-index: 1000;
+  display: flex;
+  gap: 0.5rem;
+
+  &__stat {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background: var(--surface-card);
+    border-radius: var(--radius-md);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    font-size: 0.8rem;
+
+    i {
+      color: var(--primary-color);
+      font-size: 0.9rem;
+    }
+
+    &--warning {
+      background: var(--yellow-50);
+      border: 1px solid var(--yellow-200);
+
+      i {
+        color: var(--yellow-600);
+      }
+    }
+  }
+
+  &__value {
+    font-weight: 600;
+    color: var(--text-color);
+  }
+
+  &__label {
+    color: var(--text-color-secondary);
+    font-size: 0.7rem;
   }
 }
 

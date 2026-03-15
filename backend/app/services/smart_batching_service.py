@@ -286,13 +286,9 @@ class SmartBatchingService:
                 batch = SmartBatch(corridor=corridor)
                 batch.assigned_driver = driver
                 current_weight = 0.0
-                last_distance_meters = 0
 
-                # SMART SELECTION: Fill batch considering efficiency
-                # Don't just take orders in distance order - consider if the extra
-                # distance is worth the weight gain
+                # Fill batch with orders that fit
                 remaining_orders = []
-                skipped_for_efficiency = []
 
                 for order in corridor_orders:
                     # Skip already assigned orders
@@ -307,33 +303,12 @@ class SmartBatchingService:
                         remaining_orders.append(order)
                         continue
 
-                    # SMART CHECK: Calculate marginal efficiency
-                    # How much extra distance do we need to drive for this order's weight?
-                    extra_distance_km = max((order.distance_meters - last_distance_meters) / 1000, 0)
-
-                    # If we already have some weight and this order requires significant extra distance,
-                    # check if it's worth it
-                    if current_weight > 0 and extra_distance_km > 2:  # More than 2km extra
-                        # Calculate marginal efficiency: kg gained per extra km driven
-                        marginal_efficiency = order.weight_kg / extra_distance_km
-
-                        # Threshold: Need at least 50 kg per extra km to justify the distance
-                        # This means: driving 8km extra for 270kg = 33.75 kg/km = NOT WORTH IT
-                        # But: driving 5km extra for 500kg = 100 kg/km = WORTH IT
-                        MIN_MARGINAL_EFFICIENCY = 50.0  # kg per km
-
-                        if marginal_efficiency < MIN_MARGINAL_EFFICIENCY:
-                            # This order is too far for its weight - skip it
-                            skipped_for_efficiency.append(order)
-                            continue
-
                     # Add order to batch
                     batch.orders.append(order)
                     batch.total_weight_kg += order.weight_kg
                     batch.total_earnings += order.shipping_cost
                     current_weight += order.weight_kg
                     assigned_order_ids.add(order.order_id)
-                    last_distance_meters = order.distance_meters
 
                     if order.distance_meters > batch.total_distance_meters:
                         batch.total_distance_meters = order.distance_meters
@@ -342,24 +317,20 @@ class SmartBatchingService:
                 if batch.orders:
                     all_batches.append(batch)
                     driver_index += 1
-
-                # Orders skipped for efficiency go back to remaining for potential other batches
-                remaining_orders.extend(skipped_for_efficiency)
-
-                # Continue with remaining orders if any
-                corridor_orders = remaining_orders
-                if not corridor_orders:
+                    # Continue with remaining orders if any
+                    corridor_orders = remaining_orders
+                    if not corridor_orders:
+                        break
+                else:
+                    # No orders added to batch - all don't fit in this driver's capacity
+                    # Break out to try next corridor
                     break
 
         # Collect leftover orders (not assigned to any batch)
         leftover_orders = []
         for order in orders:
             if order.order_id not in assigned_order_ids:
-                # Determine reason for being leftover
                 distance_km = order.distance_meters / 1000
-                efficiency = order.weight_kg / max(distance_km, 0.1)
-                reason = "low_efficiency" if efficiency < 50 else "no_capacity"
-
                 leftover_orders.append({
                     "order_id": order.order_id,
                     "customer_name": order.customer_name,
@@ -367,14 +338,26 @@ class SmartBatchingService:
                     "weight_kg": round(order.weight_kg, 2),
                     "corridor": order.corridor,
                     "distance_km": round(distance_km, 1),
-                    "efficiency_kg_km": round(efficiency, 1),
-                    "reason": reason
+                    "reason": "no_capacity"  # Only reason now is no truck capacity left
                 })
 
         # Build summary
         by_corridor = {}
         for batch in all_batches:
             by_corridor[batch.corridor] = by_corridor.get(batch.corridor, 0) + 1
+
+        # Find smallest order weight and trucks that can't handle it
+        smallest_order_weight = min((o.weight_kg for o in orders), default=0)
+        unusable_trucks = []
+        for driver in drivers:
+            effective_capacity = driver.capacity_kg * (max_capacity_percent / 100.0)
+            if effective_capacity < smallest_order_weight:
+                unusable_trucks.append({
+                    "id": driver.driver_id,
+                    "name": driver.driver_name,
+                    "capacity_kg": driver.capacity_kg,
+                    "effective_capacity_kg": round(effective_capacity, 1)
+                })
 
         summary = {
             "total_orders": len(orders),
@@ -384,7 +367,9 @@ class SmartBatchingService:
             "trucks_available": len(drivers),
             "trucks_used": len(all_batches),
             "by_corridor": by_corridor,
-            "strategy": strategy
+            "strategy": strategy,
+            "smallest_order_kg": round(smallest_order_weight, 1),
+            "unusable_trucks": unusable_trucks
         }
 
         if corridor_filter:

@@ -6,6 +6,7 @@ import { SelectModule } from 'primeng/select';
 import { DrawerModule } from 'primeng/drawer';
 import { AccordionModule } from 'primeng/accordion';
 import { BadgeModule } from 'primeng/badge';
+import { TooltipModule } from 'primeng/tooltip';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { trigger, transition, style, animate } from '@angular/animations';
 import { TranslateService } from '@ngx-translate/core';
@@ -49,7 +50,7 @@ const STATUS_CONFIG: Record<TripStatus, { severity: 'secondary' | 'info' | 'warn
 @Component({
   selector: 'app-admin-batching',
   standalone: true,
-  imports: [...ADMIN_LIST_IMPORTS, AgroclikPageContainerComponent, DialogModule, SelectModule, DrawerModule, AccordionModule, BadgeModule],
+  imports: [...ADMIN_LIST_IMPORTS, AgroclikPageContainerComponent, DialogModule, SelectModule, DrawerModule, AccordionModule, BadgeModule, TooltipModule],
   templateUrl: './admin-batching.component.html',
   styleUrl: './admin-batching.component.scss',
   providers: [ConfirmationService, MessageService],
@@ -99,9 +100,6 @@ export class AdminBatchingComponent implements OnInit {
   selectedCorridorFilters = signal<string[]>([]);
   corridorFilterExpanded = signal(false);
 
-  // Customer paths layer toggle
-  showCustomerPaths = signal(false);
-  private customerPathsLayer: L.LayerGroup | null = null;
 
   // Filter
   statusFilter = signal<TripStatus | null>(null);
@@ -126,6 +124,8 @@ export class AdminBatchingComponent implements OnInit {
   trips = this.batchingService.trips;
   drivers = this.batchingService.drivers;
   smartDrivers = signal<{ id: number; name: string; capacity_kg: number; vehicle_type: string }[]>([]);
+  unusableTruckIds = signal<Set<number>>(new Set());
+  smallestOrderKg = signal<number>(0);
 
   // Manual batching with drag and drop
   vehicleBatches = signal<Record<number, PendingOrder[]>>({}); // driverId -> orders
@@ -277,7 +277,6 @@ export class AdminBatchingComponent implements OnInit {
     });
 
     this.setupTileLayers();
-    this.customerPathsLayer = L.layerGroup(); // Not added by default
     this.connectionsLayer = L.layerGroup().addTo(this.map);
     this.markersLayer = L.layerGroup().addTo(this.map);
     this.addWarehouseMarker();
@@ -320,11 +319,10 @@ export class AdminBatchingComponent implements OnInit {
   private destroyMap(): void {
     if (!this.map) return;
     this.map.remove();
-    this.map = this.markersLayer = this.connectionsLayer = this.customerPathsLayer = null;
+    this.map = this.markersLayer = this.connectionsLayer = null;
     this.mapInitialized.set(false);
     this.smartBatchingActive.set(false);
     this.smartBatches.set([]);
-    this.showCustomerPaths.set(false);
   }
 
   private updateMapMarkers(): void {
@@ -516,9 +514,11 @@ export class AdminBatchingComponent implements OnInit {
   }
 
   previewSmartBatching(): void {
+    // Prevent multiple clicks
+    if (this.runningSmartBatch()) return;
+
     this.runningSmartBatch.set(true);
 
-    // Load both batches and customer routes
     this.batchingService.previewSmartBatching(this.getSmartBatchingParams()).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (response) => {
         if (response.success && response.batches.length > 0) {
@@ -529,40 +529,33 @@ export class AdminBatchingComponent implements OnInit {
           // Populate vehicle cards with assigned orders
           this.populateVehicleBatchesFromSmartBatches(response.batches);
 
+          // Update unusable trucks info for driver card warnings
+          this.updateUnusableTrucks(response);
+
           // Load customer routes to get real polylines
           this.batchingService.getCustomerRoutes().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
             next: (routes) => {
               this.customerRoutes.set(routes);
               this.runningSmartBatch.set(false);
               this.drawCorridorRoutes();
-
-              // Show warning if there are leftover orders
-              if (response.leftover_orders?.length > 0) {
-                this.toast.showWarn('admin.batching.leftover_warning', {
-                  assigned: response.summary.orders_assigned,
-                  leftover: response.summary.orders_leftover
-                });
-              } else {
-                this.toast.showSuccess('admin.batching.smart_preview_success', {
-                  batches: response.batches.length,
-                  orders: response.summary.orders_assigned
-                });
-              }
             },
             error: () => {
               this.runningSmartBatch.set(false);
-              // Still show batches even if routes fail
               this.drawCorridorRoutes();
-              this.toast.showSuccess('admin.batching.smart_preview_success', {
-                batches: response.batches.length,
-                orders: response.summary.orders_assigned || response.summary.total_orders
-              });
             }
           });
         } else {
           this.runningSmartBatch.set(false);
           this.leftoverOrders.set([]);
-          this.toast.showWarn('admin.batching.no_orders_to_batch');
+
+          // Still update unusable trucks to show warnings on driver cards
+          this.updateUnusableTrucks(response);
+
+          // Show warning if all trucks have insufficient capacity (sticky - user must dismiss)
+          const unusableTrucks = response.summary?.unusable_trucks || [];
+          if (unusableTrucks.length > 0 && response.batches.length === 0) {
+            this.toast.showWarnSticky('admin.batching.all_trucks_insufficient');
+          }
         }
       },
       error: (err) => {
@@ -570,6 +563,26 @@ export class AdminBatchingComponent implements OnInit {
         this.toast.showApiError(err, 'admin.batching.smart_preview_error');
       }
     });
+  }
+
+  /**
+   * Store unusable truck info for display on driver cards
+   */
+  private updateUnusableTrucks(response: SmartBatchingResponse): void {
+    const summary = response.summary;
+    const unusableTrucks = summary.unusable_trucks || [];
+
+    // Store IDs of trucks that can't handle the smallest order
+    const ids = new Set(unusableTrucks.map(t => t.id));
+    this.unusableTruckIds.set(ids);
+    this.smallestOrderKg.set(summary.smallest_order_kg || 0);
+  }
+
+  /**
+   * Check if a driver's truck is unusable (capacity too small)
+   */
+  isDriverUnusable(driverId: number): boolean {
+    return this.unusableTruckIds().has(driverId);
   }
 
   /**
@@ -625,10 +638,13 @@ export class AdminBatchingComponent implements OnInit {
   }
 
   deactivateSmartBatching(): void {
+    this.runningSmartBatch.set(false);  // Reset loading state
     this.smartBatchingActive.set(false);
     this.smartBatches.set([]);
     this.leftoverOrders.set([]);
     this.vehicleBatches.set({});  // Clear vehicle cards
+    this.unusableTruckIds.set(new Set());  // Clear warnings
+    this.smallestOrderKg.set(0);
     this.corridorLayers = {};
     this.corridorVisibility.set({});
     this.connectionsLayer?.clearLayers();
@@ -928,63 +944,6 @@ export class AdminBatchingComponent implements OnInit {
     }
 
     return coordinates;
-  }
-
-  /**
-   * Toggle showing all customer paths on the map
-   */
-  toggleCustomerPaths(): void {
-    const show = !this.showCustomerPaths();
-    this.showCustomerPaths.set(show);
-
-    if (!this.map || !this.customerPathsLayer) return;
-
-    if (show) {
-      // Load and display customer routes
-      this.batchingService.getCustomerRoutes().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-        next: (routes) => {
-          this.customerPathsLayer?.clearLayers();
-
-          routes.forEach((route, index) => {
-            if (!route.coordinates || route.coordinates.length < 2) return;
-
-            // Convert [lng, lat] to [lat, lng] for Leaflet
-            const latLngs: [number, number][] = route.coordinates.map(
-              coord => [coord[1], coord[0]] as [number, number]
-            );
-
-            const color = BATCH_COLORS[index % BATCH_COLORS.length];
-            const polyline = L.polyline(latLngs, {
-              color: color,
-              weight: 3,
-              opacity: 0.6
-            });
-
-            polyline.bindPopup(`
-              <div style="min-width:150px;">
-                <strong>${route.corridor || 'Unknown'}</strong><br>
-                <span style="color:#666;">Distance: ${route.distance_km} km</span><br>
-                <span style="color:#666;">Duration: ${route.duration_min} min</span><br>
-                <span style="color:#666;">Heading: ${route.heading?.toFixed(1) || 'N/A'}°</span>
-              </div>
-            `);
-
-            polyline.addTo(this.customerPathsLayer!);
-          });
-
-          this.customerPathsLayer?.addTo(this.map!);
-          this.toast.showSuccess('admin.batching.paths_loaded', { count: routes.length });
-        },
-        error: () => {
-          this.showCustomerPaths.set(false);
-          this.toast.showError('admin.batching.paths_error');
-        }
-      });
-    } else {
-      // Hide customer paths
-      this.map.removeLayer(this.customerPathsLayer);
-      this.customerPathsLayer.clearLayers();
-    }
   }
 
   formatCorridor(corridor: string): string {

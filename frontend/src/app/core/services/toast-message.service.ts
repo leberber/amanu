@@ -27,6 +27,10 @@ export class ToastMessageService {
     this.customToast.showWarn(detail, params);
   }
 
+  showWarnSticky(detail: string, params?: Record<string, any>): void {
+    this.customToast.showWarnSticky(detail, params);
+  }
+
   showCustom(severity: 'success' | 'info' | 'warn' | 'error', summary: string, detail: string, params?: Record<string, any>): void {
     this.customToast.showCustom(severity, summary, detail, params);
   }

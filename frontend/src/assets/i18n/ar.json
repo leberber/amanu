@@ -1875,6 +1875,7 @@
     "batching": {
       "title": "تجميع الطلبات",
       "subtitle": "تجميع الطلبات في رحلات توصيل متعددة النقاط",
+      "trips": "رحلات",
       "load_error": "فشل تحميل بيانات التجميع",
       "preview_error": "فشل معاينة التجميع",
       "run_error": "فشل تنفيذ التجميع",
@@ -1987,6 +1988,7 @@
       "no_orders_to_batch": "لا توجد طلبات للتجميع",
       "total": "المجموع",
       "reinitialize": "إعادة التهيئة",
+      "cancel_trips": "إلغاء الرحلات",
       "reinitialize_confirm": "إعادة تعيين جميع الرحلات؟ سيتم إرجاع الطلبات إلى قيد الانتظار.",
       "reinitialize_header": "إعادة تعيين الرحلات",
       "reset_success": "تمت إعادة تعيين {{orders}} طلبات بنجاح",
@@ -2003,6 +2005,11 @@
       "trucks_assigned": "شاحنات مخصصة",
       "orders_leftover": "طلبات لم يتم تخصيصها",
       "leftover_warning": "{{assigned}} طلب مخصص، {{leftover}} لم يتم تخصيصها (سعة غير كافية)",
+      "trucks_too_small": "{{count}} شاحنة لا يمكن استخدامها - أصغر طلب ({{smallest_order}} كغ) يتجاوز سعتها",
+      "orders_no_capacity": "{{count}} طلب لم يتم تخصيصها - لا توجد سعة متاحة",
+      "truck_capacity_too_small": "السعة ({{capacity}} كغ) غير كافية لأصغر طلب ({{smallest}} كغ)",
+      "no_order_fits": "سعة غير كافية",
+      "all_trucks_insufficient": "لا توجد شاحنة بسعة كافية للطلبات المتاحة",
       "algorithm_settings": "إعدادات الخوارزمية",
       "settings": {
         "simulation_limit": "عينة المحاكاة",

@@ -50,6 +50,15 @@
               <span class="stat-pill__label">{{ 'admin.batching.total_weight' | translate }}</span>
             </div>
           </div>
+          @if (smartBatchingActive() && getSmartBatchTotalWeight() > 0) {
+            <div class="stat-pill stat-pill--assigned" @fadeIn>
+              <i class="pi pi-check-circle"></i>
+              <div class="stat-pill__content">
+                <span class="stat-pill__value">{{ getSmartBatchTotalWeight() | number:'1.0-0' }} kg</span>
+                <span class="stat-pill__label">{{ 'admin.batching.assigned' | translate }}</span>
+              </div>
+            </div>
+          }
         </div>
 
       </div>
@@ -102,6 +111,7 @@
                       [class.map-vehicles__card--van]="driver.vehicle_type !== 'truck'"
                       [class.map-vehicles__card--drag-over]="dragOverVehicle() === driver.id"
                       [class.map-vehicles__card--has-orders]="getVehicleOrderCount(driver.id) > 0"
+                      [class.map-vehicles__card--unusable]="isDriverUnusable(driver.id)"
                       [attr.data-driver-id]="driver.id">
                       <div class="map-vehicles__icon">
                         @if (driver.vehicle_type === 'truck') {
@@ -112,18 +122,27 @@
                       </div>
                       <div class="map-vehicles__info">
                         <span class="map-vehicles__name">{{ driver.name }}</span>
-                        @if (getVehicleCorridor(driver.id)) {
-                          <span class="map-vehicles__corridor">{{ getVehicleCorridor(driver.id) }}</span>
+                        @if (isDriverUnusable(driver.id)) {
+                          <span class="map-vehicles__no-fit">{{ 'admin.batching.no_order_fits' | translate }}</span>
+                          <span class="map-vehicles__capacity">{{ driver.capacity_kg }} kg</span>
+                        } @else {
+                          @if (getVehicleCorridor(driver.id)) {
+                            <span class="map-vehicles__corridor">{{ getVehicleCorridor(driver.id) }}</span>
+                          }
+                          <span class="map-vehicles__capacity">
+                            {{ getVehicleWeight(driver.id) | number:'1.0-0' }}/{{ driver.capacity_kg }} kg
+                          </span>
                         }
-                        <span class="map-vehicles__capacity">
-                          {{ getVehicleWeight(driver.id) | number:'1.0-0' }}/{{ driver.capacity_kg }} kg
-                        </span>
                       </div>
                       <!-- Orders inside the card -->
                       @if (getVehicleOrderCount(driver.id) > 0) {
                         <div class="map-vehicles__orders">
                           @for (order of vehicleBatches()[driver.id]; track order.id) {
-                            <div class="map-vehicles__order" (click)="removeOrderFromVehicle(order, driver.id); $event.stopPropagation()">
+                            <div
+                              class="map-vehicles__order"
+                              (click)="removeOrderFromVehicle(order, driver.id); $event.stopPropagation()"
+                              [pTooltip]="'#' + order.id + ' - ' + order.customer_name + '\n' + order.address + '\n' + (order.weight_kg | number:'1.0-1') + ' kg'"
+                              tooltipPosition="bottom">
                               <span>{{ order.weight_kg | number:'1.0-0' }}</span>
                             </div>
                           }
@@ -142,47 +161,17 @@
               </div>
             }
 
-            <!-- Smart Batch Legend with Toggle -->
-            @if (smartBatchingActive() && smartBatches().length > 0) {
-              <div class="map-legend map-legend--smart" @fadeIn>
-                <div class="map-legend__header">
-                  <i class="pi pi-truck"></i>
-                  <span>{{ smartBatches().length }} {{ 'admin.batching.trucks_assigned' | translate }}</span>
-                </div>
-                <div class="map-legend__items">
-                  @for (batch of smartBatches(); track $index) {
-                    <div
-                      class="map-legend__item"
-                      [class.map-legend__item--hidden]="!isCorridorVisible(getCorridorKey(batch, $index))"
-                      (click)="toggleCorridorVisibility(getCorridorKey(batch, $index))">
-                      <i
-                        class="map-legend__toggle"
-                        [class.pi-eye]="isCorridorVisible(getCorridorKey(batch, $index))"
-                        [class.pi-eye-slash]="!isCorridorVisible(getCorridorKey(batch, $index))"
-                        [class.pi]="true">
-                      </i>
-                      <span class="map-legend__color" [style.background]="getBatchColor($index)"></span>
-                      <span class="map-legend__label">{{ batch.assigned_driver?.name || formatCorridor(batch.corridor) }}</span>
-                      <span class="map-legend__count">{{ batch.order_count }}</span>
-                      <span class="map-legend__capacity" [class.map-legend__capacity--full]="batch.capacity_used_pct >= 90">
-                        {{ batch.capacity_used_pct | number:'1.0-0' }}%
-                      </span>
-                    </div>
-                  }
-                </div>
-                <div class="map-legend__summary">
-                  <span>{{ 'admin.batching.total' | translate }}: {{ getSmartBatchTotalWeight() | number:'1.0-1' }} kg</span>
-                </div>
-
-                <!-- Leftover Orders Warning -->
-                @if (leftoverOrders().length > 0) {
-                  <div class="map-legend__warning">
-                    <i class="pi pi-exclamation-triangle"></i>
-                    <span>{{ leftoverOrders().length }} {{ 'admin.batching.orders_leftover' | translate }}</span>
-                  </div>
-                }
-              </div>
+            <!-- Trips shortcut button (bottom right) -->
+            @if (stats()?.pending_trips || stats()?.assigned_trips || stats()?.in_progress_trips) {
+              <button
+                class="map-trips-btn"
+                (click)="setActiveTab('trips')"
+                @fadeIn>
+                <i class="pi pi-list"></i>
+                <span>{{ (stats()?.pending_trips || 0) + (stats()?.assigned_trips || 0) + (stats()?.in_progress_trips || 0) }} {{ 'admin.batching.trips' | translate }}</span>
+              </button>
             }
+
           </div>
 
           <!-- Action Buttons Bar -->
@@ -235,25 +224,26 @@
 
             <!-- Action Buttons (Right) -->
             <div class="map-actions__buttons">
-              <!-- Toggle Customer Paths -->
-              <button
-                pButton
-                [label]="showCustomerPaths() ? ('admin.batching.hide_routes' | translate) : ('admin.batching.show_routes' | translate)"
-                [icon]="showCustomerPaths() ? 'pi pi-eye-slash' : 'pi pi-eye'"
-                class="p-button-outlined"
-                [class.p-button-info]="showCustomerPaths()"
-                (click)="toggleCustomerPaths()">
-              </button>
-
-              <!-- Reinitialize Button -->
+              <!-- Reset preview (always visible) -->
               <button
                 pButton
                 [label]="'admin.batching.reinitialize' | translate"
                 icon="pi pi-refresh"
-                class="p-button-outlined p-button-danger"
-                [loading]="resettingBatches()"
-                (click)="reinitializeSmartBatching()">
+                class="p-button-outlined"
+                (click)="deactivateSmartBatching(); loadPendingOrders()">
               </button>
+
+              <!-- Cancel trips (only when trips exist) -->
+              @if (stats()?.pending_trips || stats()?.assigned_trips) {
+                <button
+                  pButton
+                  [label]="'admin.batching.cancel_trips' | translate"
+                  icon="pi pi-times"
+                  class="p-button-outlined p-button-danger"
+                  [loading]="resettingBatches()"
+                  (click)="reinitializeSmartBatching()">
+                </button>
+              }
 
               @if (!smartBatchingActive()) {
                 <!-- Generate Routes Button -->
@@ -267,13 +257,6 @@
                   (click)="previewSmartBatching()">
                 </button>
               } @else {
-                <button
-                  pButton
-                  [label]="'admin.batching.reset_smart' | translate"
-                  icon="pi pi-times"
-                  class="p-button-outlined"
-                  (click)="deactivateSmartBatching()">
-                </button>
                 <button
                   pButton
                   [label]="'admin.batching.create_trips' | translate"
