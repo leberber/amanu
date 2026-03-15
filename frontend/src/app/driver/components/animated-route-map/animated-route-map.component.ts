@@ -34,7 +34,7 @@ export class AnimatedRouteMapComponent implements AfterViewInit, OnDestroy, OnCh
       if (coords && coords.length >= 2) {
         const bounds = L.latLngBounds(coords.map(([lat, lng]) => [lat, lng] as L.LatLngTuple));
         this.map.flyToBounds(bounds, {
-          padding: [100, 100],
+          padding: [70, 70],
           duration: 0.5 // 500ms smooth animation
         });
       }
@@ -163,7 +163,7 @@ export class AnimatedRouteMapComponent implements AfterViewInit, OnDestroy, OnCh
 
     // Calculate bounds
     const bounds = L.latLngBounds(coords.map(([lat, lng]) => [lat, lng] as L.LatLngTuple));
-    this.map.fitBounds(bounds, { padding: [100, 100] });
+    this.map.fitBounds(bounds, { padding: [70, 70] });
 
     // Draw route line (light gray, will be colored by trail)
     const latLngs = coords.map(([lat, lng]) => [lat, lng] as L.LatLngTuple);
