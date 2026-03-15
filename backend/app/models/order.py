@@ -71,10 +71,12 @@ class Order(OrderBase, table=True):
     """Database model for orders"""
     __tablename__ = "orders"
     id: Optional[int] = Field(default=None, primary_key=True)
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    updated_at: Optional[datetime] = Field(default=None)
 
-    # Driver assignment fields
+    # Routing & batching (grouped with inherited user_id, status)
+    trip_id: Optional[int] = Field(default=None, foreign_key="trips.id", index=True, description="Trip this order belongs to (if batched)")
+    delivery_type: DeliveryType = Field(default=DeliveryType.STANDARD, description="STANDARD can be batched, PRIORITY is immediate")
+
+    # Driver assignment
     driver_id: Optional[int] = Field(default=None, foreign_key="users.id", index=True)
     assigned_at: Optional[datetime] = Field(default=None)
     assignment_expires_at: Optional[datetime] = Field(default=None)
@@ -92,11 +94,14 @@ class Order(OrderBase, table=True):
     estimated_delivery_minutes: Optional[int] = Field(default=None)
     actual_delivery_minutes: Optional[int] = Field(default=None)
 
-    # Routing & batching fields
-    delivery_type: DeliveryType = Field(default=DeliveryType.STANDARD, description="STANDARD can be batched, PRIORITY is immediate")
+    # Weight & capacity
+    total_weight_kg: float = Field(default=0.0, description="Pre-calculated total weight of order in kg")
     is_full_load: bool = Field(default=False, description="True if order fills >=80% of a vehicle capacity")
     min_vehicle_capacity_kg: Optional[float] = Field(default=None, description="Minimum vehicle capacity needed in kg")
-    trip_id: Optional[int] = Field(default=None, foreign_key="trips.id", index=True, description="Trip this order belongs to (if batched)")
+
+    # Timestamps
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: Optional[datetime] = Field(default=None)
 
     # Relationships
     user: "User" = Relationship(back_populates="orders", sa_relationship_kwargs={"foreign_keys": "[Order.user_id]"})

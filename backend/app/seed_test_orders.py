@@ -21,12 +21,12 @@ TEST_CUSTOMER_EMAILS = [
     "djafer.mekhtoub@test.com",
     "mesrouk.malik@test.com",
     "assam.moumouh@test.com",
-    "amar.bota@test.com",
-    "djafer.mekhtoub2@test.com",
-    "melaz.nourdine@test.com",
-    "menad@test.com",
-    "bedrane.amirouche@test.com",
-    "moukah@test.com",
+    # "amar.bota@test.com",
+    # "djafer.mekhtoub2@test.com",
+    # "melaz.nourdine@test.com",
+    # "menad@test.com",
+    # "bedrane.amirouche@test.com",
+    # "moukah@test.com",
     # Zone B - Ouadhia Centre (20 stores)
     "hopital@test.com",
     "client.ouadhia1@test.com",
@@ -35,36 +35,36 @@ TEST_CUSTOMER_EMAILS = [
     "client.ouadhia2@test.com",
     "client.ouadhia3@test.com",
     "client.ouadhia4@test.com",
-    "client.ouadhia5@test.com",
-    "client.ouadhia6@test.com",
-    "metarfi@test.com",
-    "superette.azem@test.com",
-    "arret.tizi@test.com",
-    "client.ouadhia7@test.com",
-    "client.ouadhia8@test.com",
-    "client.ouadhia9@test.com",
-    "client.ouadhia10@test.com",
-    "client.ouadhia11@test.com",
-    "client.ouadhia12@test.com",
-    "client.ouadhia13@test.com",
-    "client.ouadhia14@test.com",
+    # "client.ouadhia5@test.com",
+    # "client.ouadhia6@test.com",
+    # "metarfi@test.com",
+    # "superette.azem@test.com",
+    # "arret.tizi@test.com",
+    # "client.ouadhia7@test.com",
+    # "client.ouadhia8@test.com",
+    # "client.ouadhia9@test.com",
+    # "client.ouadhia10@test.com",
+    # "client.ouadhia11@test.com",
+    # "client.ouadhia12@test.com",
+    # "client.ouadhia13@test.com",
+    # "client.ouadhia14@test.com",
     # Zone C - Tizi N'Tlata (7 stores)
     "client.tizintlata1@test.com",
     "client.tizintlata2@test.com",
     "client.tizintlata3@test.com",
     "client.tizintlata4@test.com",
-    "client.tizintlata5@test.com",
-    "client.tizintlata6@test.com",
-    "client.tizintlata7@test.com",
+    # "client.tizintlata5@test.com",
+    # "client.tizintlata6@test.com",
+    # "client.tizintlata7@test.com",
     # Zone D - Ait Bouadou (8 stores)
     "client.aitbouadou1@test.com",
     "client.aitbouadou2@test.com",
     "client.aitbouadou3@test.com",
     "client.aitbouadou4@test.com",
-    "client.aitbouadou5@test.com",
-    "client.aitbouadou6@test.com",
-    "client.aitbouadou7@test.com",
-    "client.aitbouadou8@test.com",
+    # "client.aitbouadou5@test.com",
+    # "client.aitbouadou6@test.com",
+    # "client.aitbouadou7@test.com",
+    # "client.aitbouadou8@test.com",
     # Zone E - Ait Malem (3 stores)
     "client.aitmalem1@test.com",
     "client.aitmalem2@test.com",
@@ -74,20 +74,20 @@ TEST_CUSTOMER_EMAILS = [
     "client.aitkhelfa2@test.com",
     "client.aitkhelfa3@test.com",
     "client.aitkhelfa4@test.com",
-    "client.aitkhelfa5@test.com",
-    "client.aitkhelfa6@test.com",
-    "client.aitkhelfa7@test.com",
-    "client.aitkhelfa8@test.com",
-    "client.aitkhelfa9@test.com",
-    "client.aitkhelfa10@test.com",
+    # "client.aitkhelfa5@test.com",
+    # "client.aitkhelfa6@test.com",
+    # "client.aitkhelfa7@test.com",
+    # "client.aitkhelfa8@test.com",
+    # "client.aitkhelfa9@test.com",
+    # "client.aitkhelfa10@test.com",
     # Zone G - Test Customers (7 stores)
     "test.customer1@test.com",
     "test.customer2@test.com",
     "test.customer3@test.com",
-    "test.customer4@test.com",
-    "test.customer5@test.com",
-    "test.customer6@test.com",
-    "test.customer7@test.com",
+    # "test.customer4@test.com",
+    # "test.customer5@test.com",
+    # "test.customer6@test.com",
+    # "test.customer7@test.com",
 ]
 
 # Shipping costs by zone (in DZD)
@@ -138,14 +138,19 @@ def seed_test_orders():
             num_items = random.randint(2, min(5, len(products)))
             order_products = random.sample(list(products), num_items)
 
-            # Calculate order totals
+            # Calculate order totals and weight
             subtotal = 0
+            total_weight_kg = 0.0
             order_items_data = []
 
             for product in order_products:
                 quantity = random.randint(1, 10)
                 item_total = product.price * quantity
                 subtotal += item_total
+
+                # Calculate weight (product.weight is in kg per unit)
+                if product.weight:
+                    total_weight_kg += product.weight * quantity
 
                 order_items_data.append({
                     "product": product,
@@ -169,6 +174,7 @@ def seed_test_orders():
                 subtotal=subtotal,
                 total_amount=total_amount,
                 shipping_cost=shipping_cost,
+                total_weight_kg=total_weight_kg,
                 created_at=created_at,
             )
 
@@ -190,7 +196,7 @@ def seed_test_orders():
                 session.add(order_item)
 
             created_count += 1
-            logger.info(f"Created order #{order.id} for {customer.full_name} ({customer.commune}) - {len(order_items_data)} items, {total_amount} DZD")
+            logger.info(f"Created order #{order.id} for {customer.full_name} ({customer.commune}) - {len(order_items_data)} items, {total_amount} DZD, {total_weight_kg:.1f} kg")
 
         session.commit()
 

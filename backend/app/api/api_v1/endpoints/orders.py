@@ -214,6 +214,7 @@ def create_order(
     order_items = []
     order_items_data = []  # For promotion calculation
     subtotal = 0
+    total_weight_kg = 0.0  # Calculate weight while processing items
 
     for item in order_in.items:
         # Check if product exists and is active
@@ -240,6 +241,10 @@ def create_order(
         # Calculate item total
         item_total = product.price * item.quantity
         subtotal += item_total
+
+        # Calculate weight (product.weight is in kg per unit)
+        if product.weight:
+            total_weight_kg += product.weight * item.quantity
 
         # Store item data for promotion calculation
         order_items_data.append({
@@ -320,7 +325,8 @@ def create_order(
         volume_discount_amount=volume_discount,
         shipping_cost=order_in.shipping_cost,
         total_amount=total_amount,
-        promotion_id=promotion.id if promotion else None
+        promotion_id=promotion.id if promotion else None,
+        total_weight_kg=total_weight_kg
     )
 
     session.add(order)

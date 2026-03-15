@@ -131,8 +131,8 @@ class SmartBatchingService:
                 select(CustomerRoute).where(CustomerRoute.user_id == order.user_id)
             ).first()
 
-            # Calculate order weight
-            weight_kg = self._calculate_order_weight(order)
+            # Use pre-calculated weight, fallback to calculation for old orders
+            weight_kg = order.total_weight_kg if order.total_weight_kg > 0 else self._calculate_order_weight(order)
 
             result.append(OrderWithRoute(
                 order_id=order.id,
