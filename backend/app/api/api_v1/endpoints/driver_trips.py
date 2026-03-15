@@ -485,15 +485,12 @@ def get_batched_trip_detail(
         )
 
     # Allow viewing if:
-    # 1. Trip is pending and suggested to this driver (or no suggestion)
+    # 1. Trip is pending (any driver can view pending trips)
     # 2. Trip is assigned to this driver
-    is_pending_for_me = (
-        trip.status == TripStatus.PENDING and
-        (trip.suggested_driver_id == user.id or trip.suggested_driver_id is None)
-    )
+    is_pending = trip.status == TripStatus.PENDING
     is_assigned_to_me = trip.driver_id == user.id
 
-    if not is_pending_for_me and not is_assigned_to_me:
+    if not is_pending and not is_assigned_to_me:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Trip not available to you"

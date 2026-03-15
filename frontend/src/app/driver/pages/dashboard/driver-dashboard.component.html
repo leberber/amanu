@@ -101,7 +101,7 @@
       </div>
       <div class="orders-list">
         @for (trip of suggestedBatchedTrips(); track trip.id) {
-          <div class="batched-trip-card batched-trip-card--suggested">
+          <div class="batched-trip-card batched-trip-card--suggested" (click)="openMultiTripDetail(trip)">
             <div class="batched-trip-card__header">
               <span class="batched-trip-card__corridor">{{ trip.corridor || trip.h3_zone }}</span>
               <span class="batched-trip-card__earnings">{{ trip.total_earnings | number:'1.0-0' }} DA</span>
@@ -115,30 +115,6 @@
                 <i class="pi pi-box"></i>
                 {{ trip.total_weight_kg | number:'1.0-0' }} kg
               </span>
-            </div>
-            <div class="batched-trip-card__actions">
-              <button
-                class="batched-trip-card__btn batched-trip-card__btn--decline"
-                (click)="declineBatchedTrip(trip)"
-                [disabled]="decliningTrip() === trip.id">
-                @if (decliningTrip() === trip.id) {
-                  <i class="pi pi-spinner pi-spin"></i>
-                } @else {
-                  <i class="pi pi-times"></i>
-                }
-                {{ 'driver.batched.decline' | translate }}
-              </button>
-              <button
-                class="batched-trip-card__btn batched-trip-card__btn--accept"
-                (click)="acceptBatchedTrip(trip)"
-                [disabled]="acceptingTrip() === trip.id">
-                @if (acceptingTrip() === trip.id) {
-                  <i class="pi pi-spinner pi-spin"></i>
-                } @else {
-                  <i class="pi pi-check"></i>
-                }
-                {{ 'driver.batched.accept' | translate }}
-              </button>
             </div>
           </div>
         }
@@ -157,7 +133,7 @@
       </div>
       <div class="orders-list">
         @for (trip of availableBatchedTrips(); track trip.id) {
-          <div class="batched-trip-card">
+          <div class="batched-trip-card" (click)="openMultiTripDetail(trip)">
             <div class="batched-trip-card__header">
               <span class="batched-trip-card__corridor">{{ trip.corridor || trip.h3_zone }}</span>
               <span class="batched-trip-card__earnings">{{ trip.total_earnings | number:'1.0-0' }} DA</span>
@@ -171,19 +147,6 @@
                 <i class="pi pi-box"></i>
                 {{ trip.total_weight_kg | number:'1.0-0' }} kg
               </span>
-            </div>
-            <div class="batched-trip-card__actions">
-              <button
-                class="batched-trip-card__btn batched-trip-card__btn--accept"
-                (click)="acceptBatchedTrip(trip)"
-                [disabled]="acceptingTrip() === trip.id">
-                @if (acceptingTrip() === trip.id) {
-                  <i class="pi pi-spinner pi-spin"></i>
-                } @else {
-                  <i class="pi pi-check"></i>
-                }
-                {{ 'driver.batched.accept' | translate }}
-              </button>
             </div>
           </div>
         }

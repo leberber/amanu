@@ -367,7 +367,7 @@ export class DriverService {
    * Get active multi-stop trips for the driver.
    */
   getActiveMultiTrips(): Observable<TripWithStops[]> {
-    return this.api.get<TripWithStops[]>(ENDPOINTS.MULTI_TRIPS).pipe(
+    return this.api.get<TripWithStops[]>(ENDPOINTS.BATCHED_ACTIVE).pipe(
       tap(trips => this._activeMultiTrips.set(trips))
     );
   }
@@ -376,7 +376,7 @@ export class DriverService {
    * Get details of a specific multi-stop trip.
    */
   getMultiTripDetail(tripId: number): Observable<TripWithStops> {
-    return this.api.get<TripWithStops>(ENDPOINTS.multiTripDetail(tripId));
+    return this.api.get<TripWithStops>(ENDPOINTS.batchedTripDetail(tripId));
   }
 
   /**
