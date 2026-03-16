@@ -89,7 +89,7 @@
                       <button
                         class="action-chip action-chip--arrived"
                         [disabled]="isStopUpdating(stop.id)"
-                        (click)="markArrived(stop)">
+                        (click)="updateStopStatus(stop, 'arrived')">
                         @if (isStopUpdating(stop.id)) {
                           <i class="pi pi-spin pi-spinner"></i>
                         } @else {
@@ -101,7 +101,7 @@
                       <button
                         class="action-chip action-chip--delivered"
                         [disabled]="isStopUpdating(stop.id)"
-                        (click)="markDelivered(stop)">
+                        (click)="updateStopStatus(stop, 'delivered')">
                         @if (isStopUpdating(stop.id)) {
                           <i class="pi pi-spin pi-spinner"></i>
                         } @else {

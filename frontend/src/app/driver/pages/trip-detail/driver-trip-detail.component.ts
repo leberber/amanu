@@ -6,12 +6,14 @@ import { TranslateModule } from '@ngx-translate/core';
 import { DriverService } from '../../../services/driver.service';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
 import { ROUTES } from '../../../core/constants/routes.constants';
-import { TripWithStops, TripStop } from '../../../models/trip.model';
+import { TripWithStops, TripStop, StopStatus } from '../../../models/trip.model';
 import { AnimatedRouteMapComponent } from '../../components/animated-route-map/animated-route-map.component';
 
 const ANIMATION_FALLBACK_MS = 7000;
 const MAP_RESIZE_DELAY_MS = 300;
 const MAP_ANIMATION_DURATION_MS = 4000;
+
+type StopAction = 'arrived' | 'delivered';
 
 @Component({
   selector: 'app-driver-trip-detail',
@@ -56,19 +58,19 @@ export class DriverTripDetailComponent implements OnInit {
   canCompleteTrip = computed(() => {
     if (!this.isTripInProgress()) return false;
     const stops = this.trip()?.stops || [];
-    return stops.every(s => s.status?.toLowerCase() === 'delivered');
+    return stops.every(s => this.isStopStatus(s, 'delivered'));
   });
 
   tripProgress = computed(() => {
     const stops = this.trip()?.stops || [];
     if (stops.length === 0) return 0;
-    const delivered = stops.filter(s => s.status?.toLowerCase() === 'delivered').length;
+    const delivered = stops.filter(s => this.isStopStatus(s, 'delivered')).length;
     return (delivered / stops.length) * 100;
   });
 
   currentStop = computed(() => {
     const stops = this.trip()?.stops || [];
-    return stops.find(s => s.status?.toLowerCase() !== 'delivered') || null;
+    return stops.find(s => !this.isStopStatus(s, 'delivered')) || null;
   });
 
   sortedStops = computed(() => {
@@ -110,7 +112,6 @@ export class DriverTripDetailComponent implements OnInit {
       return;
     }
 
-    // Fallback timeout in case animation doesn't complete
     setTimeout(() => {
       if (this.showFullScreenMap()) {
         this.onAnimationComplete();
@@ -145,7 +146,7 @@ export class DriverTripDetailComponent implements OnInit {
       },
       error: (err) => {
         this.accepting.set(false);
-        this.toast.showError(err.error?.detail || 'driver.messages.accept_failed');
+        this.toast.showError(this.getErrorMessage(err, 'driver.messages.accept_failed'));
       }
     });
   }
@@ -163,43 +164,34 @@ export class DriverTripDetailComponent implements OnInit {
       },
       error: (err) => {
         this.updating.set(false);
-        this.toast.showError(err.error?.detail || 'driver.messages.trip_start_failed');
+        this.toast.showError(this.getErrorMessage(err, 'driver.messages.trip_start_failed'));
       }
     });
   }
 
-  markArrived(stop: TripStop): void {
+  updateStopStatus(stop: TripStop, action: StopAction): void {
     const tripId = this.trip()?.id;
     if (!tripId || this.updatingStopId()) return;
 
     this.updatingStopId.set(stop.id);
-    this.driverService.markStopArrived(tripId, stop.id).subscribe({
+
+    const serviceCall = action === 'arrived'
+      ? this.driverService.markStopArrived(tripId, stop.id)
+      : this.driverService.markStopDelivered(tripId, stop.id);
+
+    const successMessage = action === 'arrived'
+      ? 'driver.messages.arrived_at_stop'
+      : 'driver.messages.delivery_completed';
+
+    serviceCall.subscribe({
       next: (trip) => {
         this.trip.set(trip);
         this.updatingStopId.set(null);
-        this.toast.showSuccess('driver.messages.arrived_at_stop');
+        this.toast.showSuccess(successMessage);
       },
       error: (err) => {
         this.updatingStopId.set(null);
-        this.toast.showError(err.error?.detail || 'driver.messages.status_update_failed');
-      }
-    });
-  }
-
-  markDelivered(stop: TripStop): void {
-    const tripId = this.trip()?.id;
-    if (!tripId || this.updatingStopId()) return;
-
-    this.updatingStopId.set(stop.id);
-    this.driverService.markStopDelivered(tripId, stop.id).subscribe({
-      next: (trip) => {
-        this.trip.set(trip);
-        this.updatingStopId.set(null);
-        this.toast.showSuccess('driver.messages.delivery_completed');
-      },
-      error: (err) => {
-        this.updatingStopId.set(null);
-        this.toast.showError(err.error?.detail || 'driver.messages.status_update_failed');
+        this.toast.showError(this.getErrorMessage(err, 'driver.messages.status_update_failed'));
       }
     });
   }
@@ -217,7 +209,7 @@ export class DriverTripDetailComponent implements OnInit {
       },
       error: (err) => {
         this.updating.set(false);
-        this.toast.showError(err.error?.detail || 'driver.messages.trip_complete_failed');
+        this.toast.showError(this.getErrorMessage(err, 'driver.messages.trip_complete_failed'));
       }
     });
   }
@@ -234,13 +226,17 @@ export class DriverTripDetailComponent implements OnInit {
     }
   }
 
-  // Stop status helpers (need stop parameter, can't be computed)
+  // Stop status helpers
+  isStopStatus(stop: TripStop, status: StopStatus): boolean {
+    return stop.status?.toLowerCase() === status;
+  }
+
   canMarkArrived(stop: TripStop): boolean {
-    return this.isTripInProgress() && stop.status?.toLowerCase() === 'pending';
+    return this.isTripInProgress() && this.isStopStatus(stop, 'pending');
   }
 
   canMarkDelivered(stop: TripStop): boolean {
-    return this.isTripInProgress() && stop.status?.toLowerCase() === 'arrived';
+    return this.isTripInProgress() && this.isStopStatus(stop, 'arrived');
   }
 
   isStopUpdating(stopId: number): boolean {
@@ -248,6 +244,10 @@ export class DriverTripDetailComponent implements OnInit {
   }
 
   isStopDelivered(stop: TripStop): boolean {
-    return stop.status?.toLowerCase() === 'delivered';
+    return this.isStopStatus(stop, 'delivered');
+  }
+
+  private getErrorMessage(err: { error?: { detail?: string } }, fallback: string): string {
+    return err.error?.detail || fallback;
   }
 }
