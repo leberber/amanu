@@ -2482,7 +2482,8 @@
     "badges": {
       "suggested": "Suggéré",
       "priority": "Prioritaire",
-      "standard": "Standard"
+      "standard": "Standard",
+      "tournee": "Tournée"
     },
     "order_status": {
       "assigned": "Assigné",

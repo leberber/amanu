@@ -2468,7 +2468,8 @@
     "badges": {
       "suggested": "مقترح",
       "priority": "عاجل",
-      "standard": "عادي"
+      "standard": "عادي",
+      "tournee": "جولة"
     },
     "order_status": {
       "assigned": "مُعيّن",

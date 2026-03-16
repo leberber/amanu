@@ -2462,7 +2462,8 @@
     "badges": {
       "suggested": "Suggested",
       "priority": "Priority",
-      "standard": "Standard"
+      "standard": "Standard",
+      "tournee": "Route"
     },
     "order_status": {
       "assigned": "Assigned",

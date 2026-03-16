@@ -304,6 +304,11 @@
       background: rgba(var(--color-success-rgb), 0.1);
       color: var(--color-success);
     }
+
+    &--tournee {
+      background: rgba(var(--color-info-rgb), 0.1);
+      color: var(--color-info);
+    }
   }
 
   &__subtitle {
