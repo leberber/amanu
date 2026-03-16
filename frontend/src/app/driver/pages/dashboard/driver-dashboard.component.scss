@@ -290,7 +290,8 @@
     border-radius: var(--radius-sm);
     align-self: flex-start;
 
-    &--suggested {
+    &--suggested,
+    &--tournee {
       background: rgba(var(--color-info-rgb), 0.1);
       color: var(--color-info);
     }
@@ -303,11 +304,6 @@
     &--active {
       background: rgba(var(--color-success-rgb), 0.1);
       color: var(--color-success);
-    }
-
-    &--tournee {
-      background: rgba(var(--color-info-rgb), 0.1);
-      color: var(--color-info);
     }
   }
 

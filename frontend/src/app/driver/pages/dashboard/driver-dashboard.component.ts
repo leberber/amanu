@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, computed, viewChild } from '@angular/core';
+import { Component, inject, OnInit, computed } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { DecimalPipe, NgClass } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
@@ -34,9 +34,6 @@ export class DriverDashboardComponent implements OnInit {
   private readonly driverService = inject(DriverService);
 
   readonly routes = ROUTES;
-
-  // Pull-to-refresh directive reference
-  readonly pullToRefresh = viewChild<PullToRefreshDirective>('pullToRefresh');
 
   // Data from service
   activeMultiTrips = this.driverService.activeMultiTrips;
