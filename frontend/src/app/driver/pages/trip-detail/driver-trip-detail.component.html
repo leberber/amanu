@@ -83,33 +83,23 @@
                 <span class="itinerary__address">{{ stop.shipping_address || ('driver.trip.no_address' | translate) }}</span>
 
                 <!-- Stop Actions -->
-                @if (isTripInProgress()) {
+                @let action = getAvailableStopAction(stop);
+                @if (action) {
+                  @let updating = isStopUpdating(stop.id);
                   <div class="itinerary__actions">
-                    @if (canMarkArrived(stop)) {
-                      <button
-                        class="action-chip action-chip--arrived"
-                        [disabled]="isStopUpdating(stop.id)"
-                        (click)="updateStopStatus(stop, 'arrived')">
-                        @if (isStopUpdating(stop.id)) {
-                          <i class="pi pi-spin pi-spinner"></i>
-                        } @else {
-                          <i class="pi pi-map-marker"></i>
-                        }
-                        {{ 'driver.action.mark_arrived' | translate }}
-                      </button>
-                    } @else if (canMarkDelivered(stop)) {
-                      <button
-                        class="action-chip action-chip--delivered"
-                        [disabled]="isStopUpdating(stop.id)"
-                        (click)="updateStopStatus(stop, 'delivered')">
-                        @if (isStopUpdating(stop.id)) {
-                          <i class="pi pi-spin pi-spinner"></i>
-                        } @else {
-                          <i class="pi pi-check"></i>
-                        }
-                        {{ 'driver.action.mark_delivered' | translate }}
-                      </button>
-                    }
+                    <button
+                      class="action-chip"
+                      [class.action-chip--arrived]="action === 'arrived'"
+                      [class.action-chip--delivered]="action === 'delivered'"
+                      [disabled]="updating"
+                      (click)="updateStopStatus(stop, action)">
+                      @if (updating) {
+                        <i class="pi pi-spin pi-spinner"></i>
+                      } @else {
+                        <i [class]="action === 'arrived' ? 'pi pi-map-marker' : 'pi pi-check'"></i>
+                      }
+                      {{ (action === 'arrived' ? 'driver.action.mark_arrived' : 'driver.action.mark_delivered') | translate }}
+                    </button>
 
                     <!-- Quick Actions -->
                     <div class="quick-actions">

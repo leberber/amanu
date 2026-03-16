@@ -228,12 +228,11 @@ export class DriverTripDetailComponent implements OnInit {
     return stop.status?.toLowerCase() === status;
   }
 
-  canMarkArrived(stop: TripStop): boolean {
-    return this.isTripInProgress() && this.isStopStatus(stop, 'pending');
-  }
-
-  canMarkDelivered(stop: TripStop): boolean {
-    return this.isTripInProgress() && this.isStopStatus(stop, 'arrived');
+  getAvailableStopAction(stop: TripStop): StopAction | null {
+    if (!this.isTripInProgress()) return null;
+    if (this.isStopStatus(stop, 'pending')) return 'arrived';
+    if (this.isStopStatus(stop, 'arrived')) return 'delivered';
+    return null;
   }
 
   isStopUpdating(stopId: number): boolean {
