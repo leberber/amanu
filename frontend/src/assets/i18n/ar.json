@@ -2429,7 +2429,8 @@
       "update_status": "تحديث الحالة",
       "mark_arrived": "تأكيد الوصول",
       "start_trip": "بدء الرحلة",
-      "complete_trip": "إنهاء الرحلة"
+      "complete_trip": "إنهاء الرحلة",
+      "cancel_trip": "إلغاء"
     },
     "trip_status": {
       "pending": "في الانتظار",

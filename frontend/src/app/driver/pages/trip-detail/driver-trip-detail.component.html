@@ -133,14 +133,24 @@
             {{ 'driver.trip.accept' | translate }}
           </button>
         } @else if (canStartTrip()) {
-          <button class="action-btn action-btn--start" [disabled]="updating()" (click)="startTrip()">
-            @if (updating()) {
-              <i class="pi pi-spin pi-spinner"></i>
-            } @else {
-              <i class="pi pi-play"></i>
-            }
-            {{ 'driver.action.start_trip' | translate }}
-          </button>
+          <div class="action-footer__buttons">
+            <button class="action-btn action-btn--cancel" [disabled]="cancelling()" (click)="cancelTrip()">
+              @if (cancelling()) {
+                <i class="pi pi-spin pi-spinner"></i>
+              } @else {
+                <i class="pi pi-times"></i>
+              }
+              {{ 'driver.action.cancel_trip' | translate }}
+            </button>
+            <button class="action-btn action-btn--start" [disabled]="updating()" (click)="startTrip()">
+              @if (updating()) {
+                <i class="pi pi-spin pi-spinner"></i>
+              } @else {
+                <i class="pi pi-play"></i>
+              }
+              {{ 'driver.action.start_trip' | translate }}
+            </button>
+          </div>
         } @else if (canCompleteTrip()) {
           <button class="action-btn action-btn--complete" [disabled]="updating()" (click)="completeTrip()">
             @if (updating()) {

@@ -2423,7 +2423,8 @@
       "update_status": "Update Status",
       "mark_arrived": "Mark Arrived",
       "start_trip": "Start Trip",
-      "complete_trip": "Complete Trip"
+      "complete_trip": "Complete Trip",
+      "cancel_trip": "Cancel"
     },
     "trip_status": {
       "pending": "Pending",

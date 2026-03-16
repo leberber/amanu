@@ -364,6 +364,13 @@
   padding-bottom: calc(var(--space-6) + env(safe-area-inset-bottom, 0px));
   background: var(--surface-ground);
   z-index: 50;
+
+  &__buttons {
+    display: flex;
+    gap: var(--space-3);
+    width: 95%;
+    margin: 0 auto;
+  }
 }
 
 .action-btn {
@@ -382,6 +389,13 @@
   font-weight: var(--font-weight-semibold);
   cursor: pointer;
 
+  // When inside buttons container
+  .action-footer__buttons & {
+    width: auto;
+    flex: 1;
+    margin: 0;
+  }
+
   &:active:not(:disabled) {
     transform: scale(0.98);
   }
@@ -389,6 +403,13 @@
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+  }
+
+  &--cancel {
+    background: var(--surface-hover);
+    color: var(--text-color);
+    flex: 0 0 auto;
+    padding: var(--space-7) var(--space-5);
   }
 
   &--start {

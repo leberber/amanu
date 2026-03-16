@@ -502,13 +502,12 @@
 
 </app-agroclik-page-container>
 
-<!-- Trip Detail Dialog -->
-<p-dialog
+<!-- Trip Detail Drawer -->
+<p-drawer
   [(visible)]="showTripDialog"
   [header]="'admin.batching.trip_details' | translate"
-  [modal]="true"
-  [style]="{ width: '600px', maxWidth: '95vw' }"
-  [closable]="true"
+  position="right"
+  styleClass="trip-detail-drawer"
   (onHide)="closeTripDialog()">
 
   @if (loadingTripDetail()) {
@@ -517,56 +516,111 @@
     </div>
   } @else if (selectedTrip()) {
     <div class="trip-detail">
+      <!-- Header with stats -->
       <div class="trip-detail__header">
-        <div class="trip-detail__info">
-          <span class="trip-detail__id">Trip #{{ selectedTrip()!.id }}</span>
+        <div class="trip-detail__stats">
+          <div class="trip-detail__stat">
+            <i class="pi pi-map-marker"></i>
+            <div>
+              <span class="trip-detail__stat-value">{{ selectedTrip()!.completed_stops }}/{{ selectedTrip()!.total_stops }}</span>
+              <span class="trip-detail__stat-label">{{ 'admin.batching.stops' | translate }}</span>
+            </div>
+          </div>
+          <div class="trip-detail__stat">
+            <i class="pi pi-box"></i>
+            <div>
+              <span class="trip-detail__stat-value">{{ selectedTrip()!.total_weight_kg | number:'1.0-0' }} kg</span>
+              <span class="trip-detail__stat-label">{{ 'admin.batching.total_weight' | translate }}</span>
+            </div>
+          </div>
+          <div class="trip-detail__stat">
+            <i class="pi pi-wallet"></i>
+            <div>
+              <span class="trip-detail__stat-value">{{ selectedTrip()!.total_earnings | number:'1.0-0' }} DA</span>
+              <span class="trip-detail__stat-label">{{ 'admin.batching.earnings' | translate }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="trip-detail__info-row">
           <p-tag
             [value]="getStatusLabel(selectedTrip()!.status)"
             [severity]="getStatusSeverity(selectedTrip()!.status)">
           </p-tag>
-        </div>
-        <div class="trip-detail__meta">
-          <span><i class="pi pi-map-marker"></i> {{ formatZone(selectedTrip()!.h3_zone) }}</span>
           @if (selectedTrip()!.driver_name) {
-            <span><i class="pi pi-user"></i> {{ selectedTrip()!.driver_name }}</span>
+            <span class="trip-detail__driver">
+              <i class="pi pi-user"></i>
+              {{ selectedTrip()!.driver_name }}
+            </span>
+          }
+          @if (formatZone(selectedTrip()!.h3_zone)) {
+            <span class="trip-detail__zone">
+              <i class="pi pi-directions"></i>
+              {{ formatZone(selectedTrip()!.h3_zone) }}
+            </span>
           }
         </div>
       </div>
 
+      <!-- Stops list -->
       <div class="trip-detail__stops">
-        <h4>{{ 'admin.batching.stops' | translate }} ({{ selectedTrip()!.stops.length }})</h4>
         @for (stop of selectedTrip()!.stops; track stop.id) {
-          <div class="stop-card" (click)="goToOrder(stop.order_id)">
-            <div class="stop-card__sequence">{{ stop.sequence }}</div>
+          <div
+            class="stop-card"
+            [class.stop-card--delivered]="stop.status === 'delivered'"
+            [class.stop-card--arrived]="stop.status === 'arrived'"
+            [class.stop-card--failed]="stop.status === 'failed'"
+            (click)="goToOrder(stop.order_id)">
+            <div class="stop-card__left">
+              <div
+                class="stop-card__sequence"
+                [class.stop-card__sequence--delivered]="stop.status === 'delivered'"
+                [class.stop-card__sequence--arrived]="stop.status === 'arrived'"
+                [class.stop-card__sequence--failed]="stop.status === 'failed'">
+                @if (stop.status === 'delivered') {
+                  <i class="pi pi-check"></i>
+                } @else if (stop.status === 'failed') {
+                  <i class="pi pi-times"></i>
+                } @else {
+                  {{ stop.sequence }}
+                }
+              </div>
+            </div>
             <div class="stop-card__content">
               <div class="stop-card__header">
                 <span class="stop-card__customer">{{ stop.customer_name }}</span>
-                <span class="stop-card__order">#{{ stop.order_id }}</span>
+                <div class="stop-card__badges">
+                  @if (stop.status && stop.status !== 'pending') {
+                    <span
+                      class="stop-card__status"
+                      [class.stop-card__status--delivered]="stop.status === 'delivered'"
+                      [class.stop-card__status--arrived]="stop.status === 'arrived'"
+                      [class.stop-card__status--failed]="stop.status === 'failed'">
+                      {{ 'driver.stop_status.' + stop.status | translate }}
+                    </span>
+                  }
+                  <span class="stop-card__order">#{{ stop.order_id }}</span>
+                </div>
               </div>
               <span class="stop-card__address">{{ stop.shipping_address }}</span>
               <div class="stop-card__footer">
-                <span class="stop-card__phone">
-                  <i class="pi pi-phone"></i>
-                  {{ stop.contact_phone }}
-                </span>
+                @if (stop.contact_phone) {
+                  <span class="stop-card__phone">
+                    <i class="pi pi-phone"></i>
+                    {{ stop.contact_phone }}
+                  </span>
+                }
                 <span class="stop-card__amount">{{ stop.order_total | number:'1.0-0' }} DA</span>
               </div>
+            </div>
+            <div class="stop-card__arrow">
+              <i class="pi pi-chevron-right"></i>
             </div>
           </div>
         }
       </div>
 
-      <div class="stat-inline">
-        <div class="stat-inline__item">
-          <span class="stat-inline__value">{{ selectedTrip()!.total_earnings | number:'1.0-0' }} DA</span>
-          <span class="stat-inline__label">{{ 'admin.batching.total_earnings' | translate }}</span>
-        </div>
-        <div class="stat-inline__item">
-          <span class="stat-inline__value">{{ selectedTrip()!.total_weight_kg | number:'1.0-0' }} kg</span>
-          <span class="stat-inline__label">{{ 'admin.batching.total_weight' | translate }}</span>
-        </div>
-      </div>
-
+      <!-- Actions -->
       @if (selectedTrip()!.status === 'pending' || selectedTrip()!.status === 'assigned') {
         <div class="trip-detail__actions">
           @if (selectedTrip()!.status === 'pending') {
@@ -598,7 +652,7 @@
       }
     </div>
   }
-</p-dialog>
+</p-drawer>
 
 <!-- Assign Dialog -->
 <p-dialog

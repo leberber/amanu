@@ -472,6 +472,324 @@ def accept_batched_trip(
     )
 
 
+@router.post("/batched/{trip_id}/start", response_model=AcceptBatchedTripResponse)
+def start_batched_trip(
+    trip_id: int,
+    current_user: User = Depends(get_current_user),
+    session: Session = Depends(get_session),
+) -> Any:
+    """
+    Start a batched trip (multi-stop delivery).
+    Changes trip status from ASSIGNED to IN_PROGRESS.
+    """
+    user, driver = get_driver_user(current_user, session)
+
+    # Get trip
+    trip = session.get(Trip, trip_id)
+    if not trip:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Trip not found"
+        )
+
+    # Verify trip belongs to this driver
+    if trip.driver_id != user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="This trip is not assigned to you"
+        )
+
+    # Verify trip is assigned (ready to start)
+    if trip.status != TripStatus.ASSIGNED:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Trip cannot be started (status: {trip.status})"
+        )
+
+    now = datetime.now(timezone.utc)
+
+    # Start the trip
+    trip.status = TripStatus.IN_PROGRESS
+    trip.started_at = now
+    trip.updated_at = now
+    session.add(trip)
+
+    # Update all orders to IN_TRANSIT
+    for stop in trip.stops:
+        order = session.get(Order, stop.order_id)
+        if order:
+            order.status = OrderStatus.IN_TRANSIT
+            order.updated_at = now
+            session.add(order)
+
+    session.commit()
+    session.refresh(trip)
+
+    return AcceptBatchedTripResponse(
+        success=True,
+        message="Trip started",
+        trip=trip_to_response(trip, session)
+    )
+
+
+class CancelBatchedTripRequest(SQLModel):
+    """Request body for cancelling a batched trip"""
+    reason: Optional[str] = None
+
+
+@router.post("/batched/{trip_id}/cancel", response_model=AcceptBatchedTripResponse)
+def cancel_batched_trip(
+    trip_id: int,
+    cancel_request: Optional[CancelBatchedTripRequest] = None,
+    current_user: User = Depends(get_current_user),
+    session: Session = Depends(get_session),
+) -> Any:
+    """
+    Cancel an accepted batched trip (unaccept).
+    Returns the trip to PENDING status so other drivers can accept it.
+    Only works for ASSIGNED trips (not started yet).
+    """
+    user, driver = get_driver_user(current_user, session)
+
+    # Get trip
+    trip = session.get(Trip, trip_id)
+    if not trip:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Trip not found"
+        )
+
+    # Verify trip belongs to this driver
+    if trip.driver_id != user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="This trip is not assigned to you"
+        )
+
+    # Can only cancel if trip is ASSIGNED (accepted but not started)
+    if trip.status != TripStatus.ASSIGNED:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Cannot cancel trip (status: {trip.status}). Only assigned trips can be cancelled."
+        )
+
+    now = datetime.now(timezone.utc)
+
+    # Return trip to PENDING status
+    trip.status = TripStatus.PENDING
+    trip.driver_id = None
+    trip.assigned_at = None
+    trip.updated_at = now
+    session.add(trip)
+
+    # Return all orders to CONFIRMED status (back to pool)
+    for stop in trip.stops:
+        order = session.get(Order, stop.order_id)
+        if order:
+            order.driver_id = None
+            order.status = OrderStatus.CONFIRMED
+            order.assigned_at = None
+            order.assignment_expires_at = None
+            order.updated_at = now
+            session.add(order)
+
+    # Update driver status to AVAILABLE if no other active trips
+    active_trips_count = session.exec(
+        select(func.count(Trip.id)).where(
+            Trip.driver_id == user.id,
+            Trip.status.in_([TripStatus.ASSIGNED, TripStatus.IN_PROGRESS])
+        )
+    ).one()
+
+    if active_trips_count == 0 and driver.status == DriverStatus.BUSY:
+        driver.status = DriverStatus.AVAILABLE
+        driver.updated_at = now
+        session.add(driver)
+
+    session.commit()
+
+    return AcceptBatchedTripResponse(
+        success=True,
+        message=f"Trip cancelled. {len(trip.stops)} orders returned to pool.",
+        trip=None
+    )
+
+
+@router.post("/batched/{trip_id}/complete", response_model=AcceptBatchedTripResponse)
+def complete_batched_trip(
+    trip_id: int,
+    current_user: User = Depends(get_current_user),
+    session: Session = Depends(get_session),
+) -> Any:
+    """
+    Complete a batched trip (multi-stop delivery).
+    All stops must be delivered before completing.
+    """
+    user, driver = get_driver_user(current_user, session)
+
+    # Get trip
+    trip = session.get(Trip, trip_id)
+    if not trip:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Trip not found"
+        )
+
+    # Verify trip belongs to this driver
+    if trip.driver_id != user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="This trip is not assigned to you"
+        )
+
+    # Verify trip is in progress
+    if trip.status != TripStatus.IN_PROGRESS:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Trip cannot be completed (status: {trip.status})"
+        )
+
+    # Verify all stops are delivered
+    for stop in trip.stops:
+        if stop.status != StopStatus.DELIVERED:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="All stops must be delivered before completing the trip"
+            )
+
+    now = datetime.now(timezone.utc)
+
+    # Complete the trip
+    trip.status = TripStatus.COMPLETED
+    trip.completed_at = now
+    trip.updated_at = now
+    session.add(trip)
+
+    # Update all orders to DELIVERED
+    for stop in trip.stops:
+        order = session.get(Order, stop.order_id)
+        if order:
+            order.status = OrderStatus.DELIVERED
+            order.delivered_at = now
+            order.updated_at = now
+            session.add(order)
+
+    # Update driver status to AVAILABLE if no other active trips
+    active_trips_count = session.exec(
+        select(func.count(Trip.id)).where(
+            Trip.driver_id == user.id,
+            Trip.status == TripStatus.IN_PROGRESS
+        )
+    ).one()
+
+    if active_trips_count == 0 and driver.status == DriverStatus.BUSY:
+        driver.status = DriverStatus.AVAILABLE
+        driver.updated_at = now
+        session.add(driver)
+
+    session.commit()
+    session.refresh(trip)
+
+    return AcceptBatchedTripResponse(
+        success=True,
+        message="Trip completed",
+        trip=trip_to_response(trip, session)
+    )
+
+
+class UpdateStopStatusRequest(SQLModel):
+    """Request body for updating stop status"""
+    status: StopStatus
+    notes: Optional[str] = None
+
+
+@router.put("/batched/{trip_id}/stops/{stop_id}", response_model=AcceptBatchedTripResponse)
+def update_batched_stop_status(
+    trip_id: int,
+    stop_id: int,
+    request: UpdateStopStatusRequest,
+    current_user: User = Depends(get_current_user),
+    session: Session = Depends(get_session),
+) -> Any:
+    """
+    Update the status of a stop within a batched trip.
+    Valid transitions: pending -> arrived -> delivered
+    """
+    user, driver = get_driver_user(current_user, session)
+
+    # Get trip
+    trip = session.get(Trip, trip_id)
+    if not trip:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Trip not found"
+        )
+
+    # Verify trip belongs to this driver
+    if trip.driver_id != user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="This trip is not assigned to you"
+        )
+
+    # Verify trip is in progress
+    if trip.status != TripStatus.IN_PROGRESS:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Trip must be in progress to update stops"
+        )
+
+    # Find the stop
+    stop = session.get(TripStop, stop_id)
+    if not stop or stop.trip_id != trip_id:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Stop not found"
+        )
+
+    # Validate status transition
+    valid_transitions = {
+        StopStatus.PENDING: [StopStatus.ARRIVED],
+        StopStatus.ARRIVED: [StopStatus.DELIVERED],
+        StopStatus.DELIVERED: [],  # Cannot change from delivered
+    }
+
+    if request.status not in valid_transitions.get(stop.status, []):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid status transition from {stop.status} to {request.status}"
+        )
+
+    now = datetime.now(timezone.utc)
+
+    # Update stop status
+    stop.status = request.status
+    stop.notes = request.notes
+    stop.updated_at = now
+
+    if request.status == StopStatus.ARRIVED:
+        stop.arrived_at = now
+    elif request.status == StopStatus.DELIVERED:
+        stop.delivered_at = now
+        # Update order status to DELIVERED
+        order = session.get(Order, stop.order_id)
+        if order:
+            order.status = OrderStatus.DELIVERED
+            order.delivered_at = now
+            order.updated_at = now
+            session.add(order)
+
+    session.add(stop)
+    session.commit()
+    session.refresh(trip)
+
+    return AcceptBatchedTripResponse(
+        success=True,
+        message=f"Stop marked as {request.status}",
+        trip=trip_to_response(trip, session)
+    )
+
+
 class DeclineBatchedTripRequest(SQLModel):
     """Request body for declining a batched trip"""
     reason: Optional[str] = None

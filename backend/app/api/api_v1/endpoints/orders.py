@@ -4,6 +4,8 @@ from sqlalchemy.orm import joinedload
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlmodel import Session, select
 
+from sqlmodel import func
+
 from app.database import get_session
 from app.models.order import (
     Order, OrderCreate, OrderUpdate, OrderRead, OrderItem,
@@ -13,6 +15,8 @@ from app.models.product import Product
 from app.models.promotion import Promotion, PromotionUsage, PromotionScope
 from app.models.cross_sell_promotion import CrossSellPromotion, DiscountType as CrossSellDiscountType
 from app.models.volume_discount import VolumeDiscount, VolumeDiscountType
+from app.models.trip import Trip, TripStop, TripStatus, StopStatus
+from app.models.driver import Driver, DriverStatus
 from app.core.security import get_current_active_user, get_current_staff_user
 from app.models.user import User, UserRole
 from app.api.utils.common import format_price
@@ -518,5 +522,131 @@ def update_order(
             session.commit()
             session.refresh(order)
 
+        # Handle trip cleanup when order is cancelled
+        if new_status == OrderStatus.CANCELLED:
+            _handle_order_cancellation_trip_cleanup(order, session)
+
     # Include order items in response
     return order
+
+
+def _handle_order_cancellation_trip_cleanup(order: Order, session: Session) -> None:
+    """
+    Handle trip-related cleanup when an order is cancelled.
+    - Marks the corresponding TripStop as FAILED
+    - Clears driver assignment from order
+    - Checks if trip should be completed or cancelled
+    - Updates driver status if needed
+    """
+    now = datetime.now(timezone.utc)
+
+    # Check if order is part of a trip
+    if not order.trip_id:
+        # Not part of a trip, just clear driver if assigned
+        if order.driver_id:
+            order.driver_id = None
+            order.assigned_at = None
+            order.assignment_expires_at = None
+            session.add(order)
+            session.commit()
+        return
+
+    # Get the trip
+    trip = session.get(Trip, order.trip_id)
+    if not trip:
+        return
+
+    # Store driver_id before clearing (for status update later)
+    driver_id = order.driver_id or trip.driver_id
+
+    # Find and update the corresponding TripStop
+    stop = session.exec(
+        select(TripStop).where(
+            TripStop.trip_id == trip.id,
+            TripStop.order_id == order.id
+        )
+    ).first()
+
+    if stop:
+        stop.status = StopStatus.FAILED
+        stop.notes = "Order cancelled by admin"
+        session.add(stop)
+
+    # Clear driver and trip from order
+    order.driver_id = None
+    order.trip_id = None
+    order.assigned_at = None
+    order.assignment_expires_at = None
+    session.add(order)
+
+    # Check remaining stops in the trip
+    remaining_stops = session.exec(
+        select(TripStop).where(TripStop.trip_id == trip.id)
+    ).all()
+
+    # Count stop statuses
+    pending_stops = [s for s in remaining_stops if s.status == StopStatus.PENDING]
+    arrived_stops = [s for s in remaining_stops if s.status == StopStatus.ARRIVED]
+    delivered_stops = [s for s in remaining_stops if s.status == StopStatus.DELIVERED]
+    failed_stops = [s for s in remaining_stops if s.status == StopStatus.FAILED]
+
+    active_stops = pending_stops + arrived_stops  # Stops that still need action
+    completed_stops = delivered_stops + failed_stops  # Stops that are done
+
+    # Determine trip status
+    if len(active_stops) == 0:
+        # All stops are done (delivered or failed)
+        if len(delivered_stops) > 0:
+            # At least one delivery was successful
+            trip.status = TripStatus.COMPLETED
+            trip.completed_at = now
+        else:
+            # All stops failed/cancelled - cancel the trip
+            trip.status = TripStatus.CANCELLED
+        trip.updated_at = now
+        session.add(trip)
+    elif len(failed_stops) == len(remaining_stops):
+        # All stops failed - cancel the trip
+        trip.status = TripStatus.CANCELLED
+        trip.updated_at = now
+        session.add(trip)
+
+    session.commit()
+
+    # Update driver status if they have no more active trips
+    if driver_id:
+        _update_driver_status_after_cancellation(driver_id, session)
+
+
+def _update_driver_status_after_cancellation(driver_user_id: int, session: Session) -> None:
+    """
+    Update driver status to AVAILABLE if they have no more active trips.
+    """
+    # Count active trips for this driver
+    active_trips_count = session.exec(
+        select(func.count(Trip.id)).where(
+            Trip.driver_id == driver_user_id,
+            Trip.status.in_([TripStatus.ASSIGNED, TripStatus.IN_PROGRESS])
+        )
+    ).one() or 0
+
+    # Count active individual orders (not part of trips)
+    active_orders_count = session.exec(
+        select(func.count(Order.id)).where(
+            Order.driver_id == driver_user_id,
+            Order.status.in_([OrderStatus.ASSIGNED, OrderStatus.PICKED_UP, OrderStatus.IN_TRANSIT]),
+            Order.trip_id == None
+        )
+    ).one() or 0
+
+    if active_trips_count == 0 and active_orders_count == 0:
+        # No more active work - set driver to available
+        driver = session.exec(
+            select(Driver).where(Driver.user_id == driver_user_id)
+        ).first()
+
+        if driver and driver.status == DriverStatus.BUSY:
+            driver.status = DriverStatus.AVAILABLE
+            driver.updated_at = datetime.now(timezone.utc)
+            session.add(driver)
+            session.commit()

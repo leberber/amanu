@@ -36,6 +36,7 @@ export class DriverTripDetailComponent implements OnInit {
   updating = signal(false);
   updatingStopId = signal<number | null>(null);
   accepting = signal(false);
+  cancelling = signal(false);
 
   // Animation state
   animationComplete = signal(false);
@@ -144,6 +145,24 @@ export class DriverTripDetailComponent implements OnInit {
       error: (err) => {
         this.accepting.set(false);
         this.toast.showError(this.getErrorMessage(err, 'driver.messages.accept_failed'));
+      }
+    });
+  }
+
+  cancelTrip(): void {
+    const tripId = this.trip()?.id;
+    if (!tripId || this.cancelling()) return;
+
+    this.cancelling.set(true);
+    this.driverService.cancelBatchedTrip(tripId).subscribe({
+      next: () => {
+        this.cancelling.set(false);
+        this.toast.showSuccess('driver.messages.trip_cancelled');
+        this.router.navigate([ROUTES.DRIVER.ROOT]);
+      },
+      error: (err) => {
+        this.cancelling.set(false);
+        this.toast.showError(this.getErrorMessage(err, 'driver.messages.trip_cancel_failed'));
       }
     });
   }

@@ -1,5 +1,5 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
-import { Observable, tap } from 'rxjs';
+import { Observable, tap, map } from 'rxjs';
 import { ApiService } from './api.service';
 import { Order } from '../models/order.model';
 import {
@@ -56,19 +56,16 @@ const ENDPOINTS = {
   AVAILABLE_ORDERS: '/drivers/available-orders',
   pickupOrder: (orderId: number) => `/drivers/orders/${orderId}/pickup`,
 
-  // Multi-stop trip endpoints
-  MULTI_TRIPS: '/driver/multi-trips',
-  multiTripDetail: (tripId: number) => `/driver/multi-trips/${tripId}`,
-  updateStopStatus: (tripId: number, stopId: number) => `/driver/multi-trips/${tripId}/stops/${stopId}`,
-  startMultiTrip: (tripId: number) => `/driver/multi-trips/${tripId}/start`,
-  completeMultiTrip: (tripId: number) => `/driver/multi-trips/${tripId}/complete`,
-
-  // Batched trip endpoints (pending trips suggested to driver)
+  // Batched trip endpoints (multi-stop trips)
   BATCHED_PENDING: '/driver/trips/batched/pending',
   BATCHED_ACTIVE: '/driver/trips/batched/active',
   batchedTripDetail: (tripId: number) => `/driver/trips/batched/${tripId}`,
   acceptBatchedTrip: (tripId: number) => `/driver/trips/batched/${tripId}/accept`,
   declineBatchedTrip: (tripId: number) => `/driver/trips/batched/${tripId}/decline`,
+  startBatchedTrip: (tripId: number) => `/driver/trips/batched/${tripId}/start`,
+  completeBatchedTrip: (tripId: number) => `/driver/trips/batched/${tripId}/complete`,
+  cancelBatchedTrip: (tripId: number) => `/driver/trips/batched/${tripId}/cancel`,
+  updateStopStatus: (tripId: number, stopId: number) => `/driver/trips/batched/${tripId}/stops/${stopId}`,
 } as const;
 
 @Injectable({
@@ -380,10 +377,13 @@ export class DriverService {
   }
 
   /**
-   * Start a multi-stop trip.
+   * Start a batched trip (multi-stop delivery).
    */
   startMultiTrip(tripId: number): Observable<TripWithStops> {
-    return this.api.post<TripWithStops>(ENDPOINTS.startMultiTrip(tripId), {}).pipe(
+    return this.api.post<{ success: boolean; message: string; trip: TripWithStops }>(
+      ENDPOINTS.startBatchedTrip(tripId), {}
+    ).pipe(
+      map(response => response.trip),
       tap(trip => {
         this._activeMultiTrips.update(trips =>
           trips.map(t => t.id === tripId ? trip : t)
@@ -396,10 +396,11 @@ export class DriverService {
    * Update the status of a stop within a trip.
    */
   updateStopStatus(tripId: number, stopId: number, status: StopStatus, notes?: string): Observable<TripWithStops> {
-    return this.api.put<TripWithStops>(
+    return this.api.put<{ success: boolean; message: string; trip: TripWithStops }>(
       ENDPOINTS.updateStopStatus(tripId, stopId),
       { status, notes }
     ).pipe(
+      map(response => response.trip),
       tap(trip => {
         this._activeMultiTrips.update(trips =>
           trips.map(t => t.id === tripId ? trip : t)
@@ -423,10 +424,13 @@ export class DriverService {
   }
 
   /**
-   * Complete a multi-stop trip (all stops delivered).
+   * Complete a batched trip (all stops delivered).
    */
   completeMultiTrip(tripId: number): Observable<TripWithStops> {
-    return this.api.post<TripWithStops>(ENDPOINTS.completeMultiTrip(tripId), {}).pipe(
+    return this.api.post<{ success: boolean; message: string; trip: TripWithStops }>(
+      ENDPOINTS.completeBatchedTrip(tripId), {}
+    ).pipe(
+      map(response => response.trip),
       tap(() => {
         // Remove from active multi-trips
         this._activeMultiTrips.update(trips =>
@@ -484,6 +488,26 @@ export class DriverService {
         if (response.success) {
           // Remove from pending
           this._pendingBatchedTrips.update(trips => trips.filter(t => t.id !== tripId));
+        }
+      })
+    );
+  }
+
+  /**
+   * Cancel an accepted batched trip (unaccept, return to pool).
+   * Only works for ASSIGNED trips (not started yet).
+   */
+  cancelBatchedTrip(tripId: number, reason?: string): Observable<{ success: boolean; message: string }> {
+    return this.api.post<{ success: boolean; message: string }>(
+      ENDPOINTS.cancelBatchedTrip(tripId),
+      { reason }
+    ).pipe(
+      tap(response => {
+        if (response.success) {
+          // Remove from active multi-trips
+          this._activeMultiTrips.update(trips => trips.filter(t => t.id !== tripId));
+          // Refresh profile
+          this.refreshProfile();
         }
       })
     );

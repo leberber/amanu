@@ -23,10 +23,10 @@ class TripStatus(str, Enum):
 
 class StopStatus(str, Enum):
     """Individual stop status enumeration"""
-    PENDING = "PENDING"      # Not yet reached
-    ARRIVED = "ARRIVED"      # Driver arrived at stop
-    DELIVERED = "DELIVERED"  # Order delivered at this stop
-    FAILED = "FAILED"        # Delivery failed at this stop
+    PENDING = "pending"      # Not yet reached
+    ARRIVED = "arrived"      # Driver arrived at stop
+    DELIVERED = "delivered"  # Order delivered at this stop
+    FAILED = "failed"        # Delivery failed at this stop
 
 
 # =============================================================================
