@@ -431,12 +431,8 @@ def accept_batched_trip(
             detail=f"Trip is not available (status: {trip.status})"
         )
 
-    # Verify trip is suggested to this driver or has no suggestion
-    if trip.suggested_driver_id and trip.suggested_driver_id != user.id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="This trip is suggested to another driver"
-        )
+    # Note: Any driver can accept any pending trip, even if suggested to another driver
+    # The suggested_driver_id is just a recommendation, not a restriction
 
     now = datetime.now(timezone.utc)
 

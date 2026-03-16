@@ -285,9 +285,12 @@ export class DriverTripDetailComponent implements OnInit {
     }
   }
 
-  openNavigation(address: string | undefined): void {
-    if (address) {
-      window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`, '_blank');
+  openNavigation(stop: TripStop): void {
+    // Use coordinates for precise navigation, fallback to address
+    if (stop.latitude && stop.longitude) {
+      window.open(`https://www.google.com/maps/dir/?api=1&destination=${stop.latitude},${stop.longitude}`, '_blank');
+    } else if (stop.shipping_address) {
+      window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(stop.shipping_address)}`, '_blank');
     }
   }
 
