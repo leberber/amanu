@@ -7,6 +7,7 @@ import { trigger, state, style, animate, transition } from '@angular/animations'
 import { DriverService } from '../../../services/driver.service';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
 import { ROUTES } from '../../../core/constants/routes.constants';
+import { MAP_DEFAULTS } from '../../../core/constants/map.constants';
 import { TripWithStops, TripStop, StopStatus } from '../../../models/trip.model';
 import { AnimatedRouteMapComponent } from '../../components/animated-route-map/animated-route-map.component';
 
@@ -295,10 +296,8 @@ export class DriverTripDetailComponent implements OnInit {
   }
 
   navigateToWarehouse(): void {
-    // AgroClik Depot coordinates
-    const depotLat = 36.549608;
-    const depotLng = 4.099945;
-    window.open(`https://www.google.com/maps/dir/?api=1&destination=${depotLat},${depotLng}`, '_blank');
+    // Use centralized depot coordinates from constants
+    window.open(`https://www.google.com/maps/dir/?api=1&destination=${MAP_DEFAULTS.LATITUDE},${MAP_DEFAULTS.LONGITUDE}`, '_blank');
   }
 
   // Stop status helpers

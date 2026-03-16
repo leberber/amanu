@@ -5,9 +5,9 @@
 
 // Default location (Ouadhia, Tizi Ouzou - Store/Warehouse location)
 export const MAP_DEFAULTS = {
-  // Default center coordinates (Ouadhia Centre)
+  // Default center coordinates (AgroClik Depot)
   LATITUDE: 36.549608,
-  LONGITUDE: 4.099934,
+  LONGITUDE: 4.099945,
   ZOOM: 15,
   OVERVIEW_ZOOM: 10,
 

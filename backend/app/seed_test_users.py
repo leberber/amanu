@@ -9,13 +9,14 @@ from app.database import engine
 from app.models.user import User, UserRole, AuthProvider
 from app.models.driver import Driver, DriverVehicle, VehicleType, DriverStatus
 from app.core.security import get_password_hash
+from app.core.config import settings
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Store center coordinates (Ouadhia, Tizi Ouzou)
-STORE_CENTER_LAT = 36.549608
-STORE_CENTER_LNG = 4.099945
+# Store center coordinates - use centralized depot settings
+STORE_CENTER_LAT = settings.DEPOT_LATITUDE
+STORE_CENTER_LNG = settings.DEPOT_LONGITUDE
 
 # Default password for all test users
 DEFAULT_PASSWORD = "test1234"
