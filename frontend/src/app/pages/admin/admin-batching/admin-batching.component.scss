@@ -855,6 +855,16 @@
   font-weight: 500;
 }
 
+.weight-badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  background: var(--blue-50);
+  color: var(--blue-700);
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
 .driver-info {
   display: flex;
   flex-direction: column;

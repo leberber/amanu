@@ -452,6 +452,7 @@
                     <th>ID</th>
                     <th>{{ 'admin.batching.zone' | translate }}</th>
                     <th>{{ 'admin.batching.stops' | translate }}</th>
+                    <th>{{ 'admin.batching.total_weight' | translate }}</th>
                     <th>{{ 'admin.batching.status' | translate }}</th>
                     <th>{{ 'admin.batching.driver' | translate }}</th>
                     <th>{{ 'admin.batching.earnings' | translate }}</th>
@@ -467,6 +468,9 @@
                       <td>{{ formatZone(trip.h3_zone) }}</td>
                       <td>
                         <span class="stops-badge">{{ trip.completed_stops }}/{{ trip.total_stops }}</span>
+                      </td>
+                      <td>
+                        <span class="weight-badge">{{ trip.total_weight_kg | number:'1.0-0' }} kg</span>
                       </td>
                       <td>
                         <p-tag
