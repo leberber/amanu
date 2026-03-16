@@ -116,6 +116,20 @@ export class DriverService {
     );
   });
 
+  // Check if driver has an active trip (limits accepting new trips)
+  readonly hasActiveTrip = computed(() => {
+    const trips = this._activeMultiTrips();
+    return trips.some(t =>
+      t.status === 'assigned' || t.status === 'in_progress'
+    );
+  });
+
+  readonly activeTrip = computed(() => {
+    return this._activeMultiTrips().find(t =>
+      t.status === 'assigned' || t.status === 'in_progress'
+    ) || null;
+  });
+
   // ==========================================================================
   // REGISTRATION
   // ==========================================================================

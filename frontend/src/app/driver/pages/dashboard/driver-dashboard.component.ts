@@ -37,6 +37,7 @@ export class DriverDashboardComponent implements OnInit {
 
   // Data from service
   activeMultiTrips = this.driverService.activeMultiTrips;
+  hasActiveTrip = this.driverService.hasActiveTrip;
 
   // Computed values
   isOnline = computed(() => {

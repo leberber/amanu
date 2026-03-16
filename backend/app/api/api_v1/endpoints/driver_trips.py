@@ -433,6 +433,19 @@ def accept_batched_trip(
             detail="Driver account is suspended"
         )
 
+    # Check active trips count against limit
+    active_trips_count = session.exec(
+        select(func.count(Trip.id))
+        .where(Trip.driver_id == user.id)
+        .where(Trip.status.in_([TripStatus.ASSIGNED, TripStatus.IN_PROGRESS]))
+    ).one() or 0
+
+    if active_trips_count >= config.max_active_trips_per_driver:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Maximum active trips ({config.max_active_trips_per_driver}) reached. Complete current trip first."
+        )
+
     # Get trip
     trip = session.get(Trip, trip_id)
     if not trip:
@@ -1083,6 +1096,19 @@ def accept_trip(
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Self-assignment is not allowed. Contact admin."
+        )
+
+    # Check active trips count against limit
+    active_trips_count = session.exec(
+        select(func.count(Trip.id))
+        .where(Trip.driver_id == user.id)
+        .where(Trip.status.in_([TripStatus.ASSIGNED, TripStatus.IN_PROGRESS]))
+    ).one() or 0
+
+    if active_trips_count >= config.max_active_trips_per_driver:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Maximum active trips ({config.max_active_trips_per_driver}) reached. Complete current trip first."
         )
 
     active_count = get_active_orders_count(session, user.id)

@@ -2483,6 +2483,8 @@
       "standard": "Standard",
       "tournee": "Route"
     },
+    "complete_current_trip": "Complete your current trip first",
+    "complete_current_trip_first": "Complete your current trip before accepting a new one",
     "order_status": {
       "assigned": "Assigned",
       "picked_up": "Picked Up",

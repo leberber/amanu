@@ -119,7 +119,7 @@
 
   <!-- Available Trips & Orders (unified list) -->
   @if (availableItems().length > 0) {
-    <section class="orders-section">
+    <section class="orders-section" [class.orders-section--disabled]="hasActiveTrip()">
       <div class="section-header">
         <h2 class="section-title">
           {{ 'driver.available.title' | translate }}
@@ -129,9 +129,21 @@
           <i class="pi pi-refresh"></i>
         </button>
       </div>
-      <div class="itinerary-list">
+
+      <!-- Message when driver has active trip -->
+      @if (hasActiveTrip()) {
+        <div class="trip-limit-message">
+          <i class="pi pi-info-circle"></i>
+          <span>{{ 'driver.complete_current_trip' | translate }}</span>
+        </div>
+      }
+
+      <div class="itinerary-list" [class.itinerary-list--disabled]="hasActiveTrip()">
         @for (item of availableItems(); track item.id + '-' + item.type) {
-          <div class="itinerary-item" (click)="openTripDetail(item)">
+          <div
+            class="itinerary-item"
+            [class.itinerary-item--disabled]="hasActiveTrip()"
+            (click)="!hasActiveTrip() && openTripDetail(item)">
             <div class="itinerary-item__marker" [class.itinerary-item__marker--suggested]="item.type === 'suggested'" [class.itinerary-item__marker--priority]="item.type === 'priority'">
               @if (item.type === 'priority') {
                 <i class="pi pi-bolt"></i>

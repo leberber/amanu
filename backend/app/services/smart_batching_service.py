@@ -256,6 +256,7 @@ class SmartBatchingService:
 
         # Get orders with routes
         orders = self.get_pending_orders_with_routes()
+
         if not orders:
             return {
                 "success": True,
@@ -314,6 +315,10 @@ class SmartBatchingService:
         for corridor in corridors_by_weight:
             corridor_orders = [o for o in corridor_groups[corridor] if o.order_id not in assigned_order_ids]
 
+            # Track iterations to prevent infinite loops
+            iterations_without_progress = 0
+            max_iterations_without_progress = len(available_drivers) + 1
+
             # Continue while we have orders and (cycling OR drivers left)
             while corridor_orders:
                 # Check if we can continue
@@ -334,6 +339,7 @@ class SmartBatchingService:
 
                 # Fill batch with orders that fit
                 remaining_orders = []
+                orders_assigned_this_round = 0
 
                 for order in corridor_orders:
                     if order.order_id in assigned_order_ids:
@@ -351,6 +357,7 @@ class SmartBatchingService:
                     batch.total_earnings += order.shipping_cost
                     current_weight += order.weight_kg
                     assigned_order_ids.add(order.order_id)
+                    orders_assigned_this_round += 1
 
                     if order.distance_meters > batch.total_distance_meters:
                         batch.total_distance_meters = order.distance_meters
@@ -359,9 +366,17 @@ class SmartBatchingService:
                     all_batches.append(batch)
                     driver_index += 1
                     corridor_orders = remaining_orders
+                    iterations_without_progress = 0  # Reset counter
                 else:
                     # No orders fit this driver's capacity, try next driver
                     driver_index += 1
+                    iterations_without_progress += 1
+
+                    # In cycle mode, if we've tried all drivers and none can fit remaining orders,
+                    # these orders are too heavy for any driver - break to avoid infinite loop
+                    if cycle_drivers and iterations_without_progress >= max_iterations_without_progress:
+                        break
+
                     if not cycle_drivers and driver_index >= len(available_drivers):
                         break
 

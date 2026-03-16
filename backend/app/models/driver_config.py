@@ -18,6 +18,12 @@ class DriverSystemConfig(SQLModel, table=True):
         default=3,
         description="Default maximum concurrent orders per driver"
     )
+    max_active_trips_per_driver: int = Field(
+        default=1,
+        ge=1,
+        le=10,
+        description="Maximum concurrent trips a driver can have"
+    )
 
     # Cancellation settings
     max_cancellations_per_period: int = Field(
@@ -80,6 +86,7 @@ class DriverSystemConfigRead(SQLModel):
     id: int
     assignment_timeout_minutes: int
     max_active_orders_default: int
+    max_active_trips_per_driver: int
     max_cancellations_per_period: int
     cancellation_period_days: int
     auto_flag_on_max_cancellations: bool
@@ -101,6 +108,7 @@ class DriverSystemConfigUpdate(SQLModel):
     """Update model for driver system config"""
     assignment_timeout_minutes: Optional[int] = None
     max_active_orders_default: Optional[int] = None
+    max_active_trips_per_driver: Optional[int] = None
     max_cancellations_per_period: Optional[int] = None
     cancellation_period_days: Optional[int] = None
     auto_flag_on_max_cancellations: Optional[bool] = None

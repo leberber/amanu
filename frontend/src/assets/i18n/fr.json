@@ -2503,6 +2503,8 @@
       "standard": "Standard",
       "tournee": "Tournée"
     },
+    "complete_current_trip": "Terminez votre trajet en cours",
+    "complete_current_trip_first": "Terminez votre trajet actuel avant d'en accepter un nouveau",
     "order_status": {
       "assigned": "Assigné",
       "picked_up": "Récupéré",

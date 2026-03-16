@@ -2489,6 +2489,8 @@
       "standard": "عادي",
       "tournee": "جولة"
     },
+    "complete_current_trip": "أكمل رحلتك الحالية أولاً",
+    "complete_current_trip_first": "أكمل رحلتك الحالية قبل قبول رحلة جديدة",
     "order_status": {
       "assigned": "مُعيّن",
       "picked_up": "تم الاستلام",
