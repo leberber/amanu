@@ -94,6 +94,9 @@
           {{ 'driver.available.title' | translate }}
           <span class="count-inline">({{ availableItems().length }})</span>
         </h2>
+        <button class="refresh-btn" (click)="loadData()">
+          <i class="pi pi-refresh"></i>
+        </button>
       </div>
       <div class="itinerary-list">
         @for (item of availableItems(); track item.id + '-' + item.type) {

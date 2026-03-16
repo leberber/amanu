@@ -39,6 +39,30 @@
   }
 }
 
+.refresh-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: white;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  i {
+    font-size: 1rem;
+    color: #6b7280;
+  }
+
+  &:active {
+    transform: scale(0.95);
+    i {
+      color: #1a1a1a;
+    }
+  }
+}
+
 // =============================================================================
 // STATS SECTION
 // =============================================================================
