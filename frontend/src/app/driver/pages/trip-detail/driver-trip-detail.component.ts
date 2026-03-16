@@ -288,16 +288,32 @@ export class DriverTripDetailComponent implements OnInit {
 
   openNavigation(stop: TripStop): void {
     // Use coordinates for precise navigation, fallback to address
+    let url: string;
     if (stop.latitude && stop.longitude) {
-      window.open(`https://www.google.com/maps/dir/?api=1&destination=${stop.latitude},${stop.longitude}`, '_blank');
+      url = `https://www.google.com/maps/dir/?api=1&destination=${stop.latitude},${stop.longitude}`;
     } else if (stop.shipping_address) {
-      window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(stop.shipping_address)}`, '_blank');
+      url = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(stop.shipping_address)}`;
+    } else {
+      return;
     }
+    this.openExternalMap(url);
   }
 
   navigateToWarehouse(): void {
     // Use centralized depot coordinates from constants
-    window.open(`https://www.google.com/maps/dir/?api=1&destination=${MAP_DEFAULTS.LATITUDE},${MAP_DEFAULTS.LONGITUDE}`, '_blank');
+    const url = `https://www.google.com/maps/dir/?api=1&destination=${MAP_DEFAULTS.LATITUDE},${MAP_DEFAULTS.LONGITUDE}`;
+    this.openExternalMap(url);
+  }
+
+  private openExternalMap(url: string): void {
+    // On iOS, window.open('_blank') causes blank page issue when returning from Maps app
+    // Use location.href instead which handles the redirect properly
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    if (isIOS) {
+      window.location.href = url;
+    } else {
+      window.open(url, '_blank');
+    }
   }
 
   // Stop status helpers
