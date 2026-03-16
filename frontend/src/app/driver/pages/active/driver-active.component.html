@@ -63,10 +63,15 @@
                     <div class="customer-item__info">
                       <span class="customer-item__status">{{ 'driver.stop_status.' + stop.status | translate }}</span>
                       <h4 class="customer-item__name">{{ stop.customer_name || ('driver.trip.stop' | translate) + ' ' + stop.sequence }}</h4>
-                      <p class="customer-item__address">{{ stop.shipping_address }}</p>
+                      @if (stop.contact_phone) {
+                        <span class="customer-item__phone">
+                          <i class="pi pi-phone"></i>
+                          {{ stop.contact_phone | appPhone }}
+                        </span>
+                      }
                     </div>
                     <div class="customer-item__right">
-                      <span class="customer-item__amount">{{ stop.order_total || 0 | number:'1.0-0' }} DA</span>
+                      <span class="customer-item__weight">{{ stop.order_weight_kg || 0 | number:'1.0-0' }} kg</span>
                       <i class="pi customer-item__chevron" [ngClass]="isStopExpanded(trip.id, stop.id) ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
                     </div>
                   </div>
@@ -79,9 +84,8 @@
                         <div class="order-items-list">
                           @for (item of stop.order_items; track item.id) {
                             <div class="order-item-row">
-                              <span class="order-item-row__qty">{{ item.quantity }}x</span>
                               <span class="order-item-row__name">{{ item.product_name }}</span>
-                              <span class="order-item-row__price">{{ item.quantity * item.unit_price | number:'1.0-0' }} DA</span>
+                              <span class="order-item-row__qty">{{ getCartonDisplay(item) }}</span>
                             </div>
                           }
                         </div>
@@ -89,17 +93,10 @@
                         <p class="no-items-text">{{ 'driver.trip.no_items' | translate }}</p>
                       }
 
-                      <div class="detail-row">
-                        <span class="detail-row__label">{{ 'driver.trip.total' | translate }}</span>
-                        <span class="detail-row__value">{{ stop.order_total || 0 | number:'1.0-0' }} DA</span>
+                      <div class="detail-row detail-row--total">
+                        <span class="detail-row__label">{{ 'driver.trip.weight' | translate }}</span>
+                        <span class="detail-row__value">{{ stop.order_weight_kg || 0 | number:'1.0-0' }} kg</span>
                       </div>
-
-                      @if (stop.contact_phone) {
-                        <div class="contact-info">
-                          <i class="pi pi-phone"></i>
-                          <a [href]="'tel:' + stop.contact_phone">{{ stop.contact_phone }}</a>
-                        </div>
-                      }
 
                       @if (stop.notes) {
                         <div class="notes-info">

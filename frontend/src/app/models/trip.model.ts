@@ -13,6 +13,7 @@ export interface TripStopOrderItem {
   unit_price: number;
   product_name: string;
   product_unit: string;
+  pieces_per_box?: number;
 }
 
 export interface TripStop {
@@ -31,6 +32,7 @@ export interface TripStop {
   shipping_address?: string;
   contact_phone?: string;
   order_total?: number;
+  order_weight_kg?: number;
 
   // Order items (populated by endpoint)
   order_items?: TripStopOrderItem[];

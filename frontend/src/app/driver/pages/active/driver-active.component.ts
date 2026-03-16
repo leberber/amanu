@@ -7,12 +7,14 @@ import { DriverService } from '../../../services/driver.service';
 import { RouteHelpers } from '../../../core/constants/routes.constants';
 import { ORDER_STATUS, ORDER_STATUS_CONFIG } from '../../../core/constants/order.constants';
 import { Order } from '../../../models/order.model';
-import { TripWithStops } from '../../../models/trip.model';
+import { TripWithStops, TripStopOrderItem } from '../../../models/trip.model';
+import { getOrderCartonDisplay } from '../../../shared/utils/quantity.utils';
+import { PhoneFormatPipe } from '../../../shared/pipes/phone-format.pipe';
 
 @Component({
   selector: 'app-driver-active',
   standalone: true,
-  imports: [TranslateModule, DecimalPipe, NgClass],
+  imports: [TranslateModule, DecimalPipe, NgClass, PhoneFormatPipe],
   templateUrl: './driver-active.component.html',
   styleUrl: './driver-active.component.scss'
 })
@@ -95,5 +97,9 @@ export class DriverActiveComponent implements OnInit {
 
   getItemsCount(order: Order): number {
     return order.items?.length || 0;
+  }
+
+  getCartonDisplay(item: TripStopOrderItem): string {
+    return getOrderCartonDisplay(item.quantity, item.pieces_per_box);
   }
 }

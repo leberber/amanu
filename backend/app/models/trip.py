@@ -131,6 +131,7 @@ class TripStopOrderItem(SQLModel):
     unit_price: float
     product_name: str
     product_unit: str
+    pieces_per_box: Optional[int] = None
 
 
 class TripStopRead(SQLModel):
@@ -150,6 +151,7 @@ class TripStopRead(SQLModel):
     shipping_address: Optional[str] = None
     contact_phone: Optional[str] = None
     order_total: Optional[float] = None
+    order_weight_kg: Optional[float] = None
 
     # Order items (populated by endpoint)
     order_items: List["TripStopOrderItem"] = []

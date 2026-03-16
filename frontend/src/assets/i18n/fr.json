@@ -2435,6 +2435,7 @@
       "phone": "Téléphone",
       "items": "Articles",
       "total": "Total de la Commande",
+      "weight": "Poids Total",
       "no_items": "Aucun article dans cette commande",
       "notes": "Notes de Livraison",
       "estimated_time": "Temps Estimé",

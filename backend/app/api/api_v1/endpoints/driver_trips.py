@@ -231,6 +231,7 @@ def trip_to_response(trip: Trip, session: Session) -> TripWithStops:
         shipping_address = None
         contact_phone = None
         order_total = None
+        order_weight_kg = None
         latitude = None
         longitude = None
         route_coords = None
@@ -241,6 +242,7 @@ def trip_to_response(trip: Trip, session: Session) -> TripWithStops:
             shipping_address = order.shipping_address
             contact_phone = order.contact_phone
             order_total = float(order.total_amount) if order.total_amount else None
+            order_weight_kg = float(order.total_weight_kg) if order.total_weight_kg else None
 
             # Build order items list
             for item in order.items:
@@ -251,6 +253,7 @@ def trip_to_response(trip: Trip, session: Session) -> TripWithStops:
                     unit_price=item.unit_price,
                     product_name=item.product_name,
                     product_unit=item.product_unit,
+                    pieces_per_box=item.pieces_per_box,
                 ))
 
             if order.user:
@@ -293,6 +296,7 @@ def trip_to_response(trip: Trip, session: Session) -> TripWithStops:
             shipping_address=shipping_address,
             contact_phone=contact_phone,
             order_total=order_total,
+            order_weight_kg=order_weight_kg,
             order_items=order_items,
             latitude=latitude,
             longitude=longitude,
