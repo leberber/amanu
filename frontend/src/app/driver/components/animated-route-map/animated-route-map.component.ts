@@ -90,9 +90,9 @@ export class AnimatedRouteMapComponent implements AfterViewInit, OnDestroy, OnCh
   private createDepotIcon(): L.DivIcon {
     return L.divIcon({
       className: 'depot-marker',
-      html: `<div style="width:12px;height:12px;background:#000;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.3);"></div>`,
-      iconSize: [18, 18],
-      iconAnchor: [9, 9]
+      html: `<div style="width:32px;height:32px;background:#000;border-radius:8px;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;"><i class="pi pi-warehouse" style="color:white;font-size:14px;"></i></div>`,
+      iconSize: [32, 32],
+      iconAnchor: [16, 16]
     });
   }
 
