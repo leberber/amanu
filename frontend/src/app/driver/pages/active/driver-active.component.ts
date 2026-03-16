@@ -57,7 +57,30 @@ export class DriverActiveComponent implements OnInit {
         this.loading.set(false);
       }
     });
-    this.driverService.getActiveMultiTrips().subscribe();
+    this.driverService.getActiveMultiTrips().subscribe({
+      next: (trips) => {
+        // Auto-expand the current stop (first non-delivered) for each trip
+        this.expandCurrentStops(trips);
+      }
+    });
+  }
+
+  /**
+   * Auto-expand the current stop (first non-delivered) for each trip
+   */
+  private expandCurrentStops(trips: TripWithStops[]): void {
+    const expanded = new Set<string>();
+    for (const trip of trips) {
+      if (trip.stops && trip.stops.length > 0) {
+        // Sort by sequence and find first non-delivered stop
+        const sortedStops = [...trip.stops].sort((a, b) => a.sequence - b.sequence);
+        const currentStop = sortedStops.find(s => s.status !== 'delivered');
+        if (currentStop) {
+          expanded.add(`${trip.id}-${currentStop.id}`);
+        }
+      }
+    }
+    this.expandedStops.set(expanded);
   }
 
   toggleStop(tripId: number, stopId: number): void {

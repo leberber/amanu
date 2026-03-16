@@ -48,9 +48,8 @@ export class DriverDashboardComponent implements OnInit {
   // Stats computed from service
   todayDeliveries = computed(() => this.driverService.stats()?.deliveries_today || 0);
   todayEarnings = computed(() => this.driverService.stats()?.earnings_today || 0);
-  activeCount = computed(() =>
-    this.driverService.activeTrips().length + this.driverService.activeMultiTrips().length
-  );
+  // Use active_orders_count from profile (backend source of truth)
+  activeCount = computed(() => this.driverService.driverData()?.active_orders_count || 0);
 
   availableItems = computed<AvailableItem[]>(() => {
     const userId = this.driverService.profile()?.id;

@@ -23,6 +23,7 @@ from app.models.driver import (
 from app.models.order import Order, OrderStatus, OrderWithItems, OrderItemRead, UserInfo, DriverInfo
 from app.models.product import Product
 from app.models.driver_config import DriverSystemConfig
+from app.models.trip import Trip, TripStatus, TripStop
 from sqlmodel import SQLModel
 from datetime import timedelta
 
@@ -44,24 +45,42 @@ class ConvertToDriver(SQLModel):
 
 
 def get_driver_stats(session: Session, driver_id: int) -> dict:
-    """Compute driver stats from orders"""
-    # Active orders count
-    active_orders = session.exec(
+    """Compute driver stats from orders and trips"""
+    # Get driver's user_id for trip queries
+    driver = session.exec(select(Driver).where(Driver.id == driver_id)).first()
+    driver_user_id = driver.user_id if driver else None
+
+    # Active orders count (direct assignment, NOT part of any trip)
+    active_orders_direct = session.exec(
         select(func.count(Order.id))
-        .where(Order.driver_id == driver_id)
+        .where(Order.driver_id == driver_user_id)
+        .where(Order.trip_id == None)  # Only orders NOT in a trip
         .where(Order.status.in_([OrderStatus.ASSIGNED, OrderStatus.PICKED_UP, OrderStatus.IN_TRANSIT]))
-    ).one()
+    ).one() or 0
+
+    # Active orders count from trips - single JOIN query
+    active_orders_from_trips = 0
+    if driver_user_id:
+        active_orders_from_trips = session.exec(
+            select(func.count(TripStop.id))
+            .join(Trip, TripStop.trip_id == Trip.id)
+            .where(Trip.driver_id == driver_user_id)
+            .where(Trip.status.in_([TripStatus.ASSIGNED, TripStatus.IN_PROGRESS]))
+            .where(TripStop.status != 'delivered')
+        ).one() or 0
+
+    total_active = active_orders_direct + active_orders_from_trips
 
     # Total deliveries and earnings (using shipping_cost)
     delivered_stats = session.exec(
         select(func.count(Order.id), func.coalesce(func.sum(Order.shipping_cost), 0))
-        .where(Order.driver_id == driver_id)
+        .where(Order.driver_id == driver_user_id)
         .where(Order.status == OrderStatus.DELIVERED)
     ).one()
 
     # Note: Rating system not implemented yet - returning None/0
     return {
-        "active_orders_count": active_orders or 0,
+        "active_orders_count": total_active,
         "total_deliveries": delivered_stats[0] or 0,
         "total_earnings": float(delivered_stats[1] or 0),
         "average_rating": None,
