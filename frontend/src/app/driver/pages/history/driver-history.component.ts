@@ -4,7 +4,6 @@ import { TranslateModule } from '@ngx-translate/core';
 
 import { DriverService } from '../../../services/driver.service';
 import { RouteHelpers } from '../../../core/constants/routes.constants';
-import { ORDER_STATUS_CONFIG } from '../../../core/constants/order.constants';
 import { Order } from '../../../models/order.model';
 import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
 import { DecimalPipe } from '@angular/common';
@@ -19,8 +18,6 @@ import { DecimalPipe } from '@angular/common';
 export class DriverHistoryComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly driverService = inject(DriverService);
-
-  readonly orderStatusConfig = ORDER_STATUS_CONFIG;
 
   // State
   history = signal<Order[]>([]);
@@ -62,15 +59,22 @@ export class DriverHistoryComponent implements OnInit {
     this.router.navigate([RouteHelpers.driverTripDetail(order.id)]);
   }
 
-  getStatusIcon(status: string): string {
-    return this.orderStatusConfig[status as keyof typeof this.orderStatusConfig]?.icon || 'pi pi-circle';
-  }
-
-  getStatusColor(status: string): string {
-    return this.orderStatusConfig[status as keyof typeof this.orderStatusConfig]?.color || '#6b7280';
+  getStatusLabel(status: string): string {
+    const key = String(status || '').toLowerCase();
+    return `orders.status.${key}`;
   }
 
   getTotalEarnings(): number {
-    return this.history().reduce((sum, order) => sum + (order.total_amount || 0), 0);
+    return this.history().reduce((sum, order) => sum + (order.shipping_cost || 0), 0);
+  }
+
+  isDelivered(order: Order): boolean {
+    const status = order.status?.toString().toLowerCase();
+    return status === 'delivered';
+  }
+
+  isCancelled(order: Order): boolean {
+    const status = order.status?.toString().toLowerCase();
+    return status === 'cancelled';
   }
 }

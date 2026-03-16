@@ -1,56 +1,60 @@
 <div class="driver-history">
-  <!-- Period Filter -->
+  <!-- Period Filter (Pill Style) -->
   <div class="period-filter">
-    <button 
+    <button
       class="period-btn"
-      [class.active]="selectedPeriod() === 'week'"
+      [class.period-btn--active]="selectedPeriod() === 'week'"
       (click)="changePeriod('week')">
       {{ 'common.this_week' | translate }}
     </button>
-    <button 
+    <button
       class="period-btn"
-      [class.active]="selectedPeriod() === 'month'"
+      [class.period-btn--active]="selectedPeriod() === 'month'"
       (click)="changePeriod('month')">
       {{ 'common.this_month' | translate }}
     </button>
-    <button 
+    <button
       class="period-btn"
-      [class.active]="selectedPeriod() === 'all'"
+      [class.period-btn--active]="selectedPeriod() === 'all'"
       (click)="changePeriod('all')">
       {{ 'common.all_time' | translate }}
     </button>
   </div>
 
-  <!-- Summary Card -->
+  <!-- Summary Card (Uber Style - Black) -->
   @if (!loading() && history().length > 0) {
     <div class="summary-card">
-      <div class="summary-stat">
-        <span class="summary-value">{{ history().length }}</span>
-        <span class="summary-label">{{ 'driver.history.total_deliveries' | translate }}</span>
+      <div class="summary-card__stat">
+        <span class="summary-card__value">{{ history().length }}</span>
+        <span class="summary-card__label">{{ 'driver.history.total_deliveries' | translate }}</span>
       </div>
-      <div class="summary-divider"></div>
-      <div class="summary-stat">
-        <span class="summary-value">{{ getTotalEarnings() | number:'1.0-0' }} DA</span>
-        <span class="summary-label">{{ 'driver.history.total_earnings' | translate }}</span>
+      <div class="summary-card__divider"></div>
+      <div class="summary-card__stat">
+        <span class="summary-card__value">{{ getTotalEarnings() | number:'1.0-0' }}</span>
+        <span class="summary-card__label">{{ 'driver.history.total_earnings' | translate }} (DA)</span>
       </div>
     </div>
   }
 
   <!-- Content -->
   @if (loading()) {
+    <!-- Skeleton Loading -->
     <div class="history-list">
       @for (i of [1, 2, 3, 4, 5]; track i) {
         <div class="history-item history-item--skeleton">
-          <div class="skeleton skeleton-circle"></div>
-          <div class="skeleton-content">
-            <div class="skeleton skeleton-text" style="width: 40%"></div>
-            <div class="skeleton skeleton-text" style="width: 70%"></div>
+          <div class="history-item__left">
+            <div class="skeleton skeleton-icon"></div>
+            <div class="skeleton-content">
+              <div class="skeleton skeleton-text"></div>
+              <div class="skeleton skeleton-text skeleton-text--short"></div>
+            </div>
           </div>
-          <div class="skeleton skeleton-text" style="width: 60px"></div>
+          <div class="skeleton skeleton-amount"></div>
         </div>
       }
     </div>
   } @else if (history().length === 0) {
+    <!-- Empty State -->
     <div class="empty-state">
       <div class="empty-state__icon">
         <i class="pi pi-history"></i>
@@ -59,23 +63,39 @@
       <p>{{ 'driver.history.empty_desc' | translate }}</p>
     </div>
   } @else {
+    <!-- History List -->
     <div class="history-list">
       @for (order of history(); track order.id) {
         <div class="history-item" (click)="viewDetails(order)">
-          <div 
-            class="history-item__icon"
-            [style.--status-color]="getStatusColor(order.status)">
-            <i [class]="getStatusIcon(order.status)"></i>
-          </div>
-          <div class="history-item__content">
-            <div class="history-item__header">
-              <span class="history-item__id">#{{ order.id }}</span>
-              <span class="history-item__date">{{ (order.updated_at || order.created_at) | appDate }}</span>
+          <!-- Left: Icon + Info -->
+          <div class="history-item__left">
+            <div class="history-item__icon" [class.history-item__icon--success]="isDelivered(order)">
+              @if (isDelivered(order)) {
+                <i class="pi pi-check"></i>
+              } @else if (isCancelled(order)) {
+                <i class="pi pi-times"></i>
+              } @else {
+                <i class="pi pi-truck"></i>
+              }
             </div>
-            <span class="history-item__address">{{ order.shipping_address }}</span>
+            <div class="history-item__info">
+              <div class="history-item__top">
+                <span class="history-item__corridor">{{ order.shipping_address || ('driver.history.delivery' | translate) }}</span>
+                <span class="history-item__status" [class.history-item__status--success]="isDelivered(order)" [class.history-item__status--cancelled]="isCancelled(order)">
+                  {{ getStatusLabel(order.status) | translate }}
+                </span>
+              </div>
+              <div class="history-item__meta">
+                <span class="history-item__date">{{ (order.updated_at || order.created_at) | appDate }}</span>
+                <span class="history-item__id">#{{ order.id }}</span>
+              </div>
+            </div>
           </div>
-          <div class="history-item__amount">
-            {{ order.total_amount | number:'1.0-0' }} DA
+
+          <!-- Right: Amount + Arrow -->
+          <div class="history-item__right">
+            <span class="history-item__amount">{{ order.shipping_cost || 0 | number:'1.0-0' }} DA</span>
+            <i class="pi pi-chevron-right history-item__arrow"></i>
           </div>
         </div>
       }
