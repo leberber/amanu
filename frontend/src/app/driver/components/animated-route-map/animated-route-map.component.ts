@@ -71,51 +71,46 @@ export class AnimatedRouteMapComponent implements AfterViewInit, OnDestroy, OnCh
   private animationStartTime: number = 0;
   private initialized = false;
 
-  // Custom icons
+  // Custom icons (Uber-style)
   private createTruckIcon(): L.DivIcon {
     return L.divIcon({
       className: 'truck-marker',
       html: `
-        <div class="truck-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
-            <circle cx="12" cy="12" r="11" fill="#3B82F6"/>
-            <path fill="#ffffff" d="M18 18.5c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5-1.5.67-1.5 1.5.67 1.5 1.5 1.5zm1.5-9l-3-3H6c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h1c0 1.1.9 2 2 2s2-.9 2-2h6c0 1.1.9 2 2 2s2-.9 2-2h1c.55 0 1-.45 1-1v-4.5h-3.5zM9 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm8-7.5h2.5l2.25 2.25H17V11z"/>
+        <div style="width:40px;height:40px;background:#000;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="#fff">
+            <path d="M18 18.5c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5-1.5.67-1.5 1.5.67 1.5 1.5 1.5zm1.5-9l-3-3H6c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h1c0 1.1.9 2 2 2s2-.9 2-2h6c0 1.1.9 2 2 2s2-.9 2-2h1c.55 0 1-.45 1-1v-4.5h-3.5zM9 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm8-7.5h2.5l2.25 2.25H17V11z"/>
           </svg>
         </div>
       `,
-      iconSize: [32, 32],
-      iconAnchor: [16, 16]
+      iconSize: [40, 40],
+      iconAnchor: [20, 20]
     });
   }
 
   private createDepotIcon(): L.DivIcon {
     return L.divIcon({
       className: 'depot-marker',
-      html: `<div style="width:40px;height:40px;background:linear-gradient(135deg,#F59E0B,#D97706);border-radius:50%;border:3px solid #fff;box-shadow:0 4px 12px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;"><i class="pi pi-warehouse" style="color:white;font-size:18px;"></i></div>`,
-      iconSize: [40, 40],
-      iconAnchor: [20, 20]
+      html: `<div style="width:12px;height:12px;background:#000;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.3);"></div>`,
+      iconSize: [18, 18],
+      iconAnchor: [9, 9]
     });
   }
 
   private createStopIcon(number: number): L.DivIcon {
     return L.divIcon({
       className: 'stop-marker',
-      html: `
-        <div class="stop-icon">
-          <span>${number}</span>
-        </div>
-      `,
-      iconSize: [32, 32],
-      iconAnchor: [16, 16]
+      html: `<div style="width:28px;height:28px;background:#000;border-radius:50%;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:700;">${number}</div>`,
+      iconSize: [28, 28],
+      iconAnchor: [14, 14]
     });
   }
 
   private createFinalIcon(): L.DivIcon {
     return L.divIcon({
       className: 'final-marker',
-      html: `<div style="width:40px;height:40px;background:linear-gradient(135deg,#22c55e,#16a34a);border-radius:50%;border:3px solid #fff;box-shadow:0 4px 12px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;"><i class="pi pi-check" style="color:white;font-size:18px;"></i></div>`,
-      iconSize: [40, 40],
-      iconAnchor: [20, 20]
+      html: `<div style="width:32px;height:32px;background:#000;border-radius:8px;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;"><i class="pi pi-flag-fill" style="color:white;font-size:14px;"></i></div>`,
+      iconSize: [32, 32],
+      iconAnchor: [16, 32]
     });
   }
 
@@ -168,15 +163,15 @@ export class AnimatedRouteMapComponent implements AfterViewInit, OnDestroy, OnCh
     // Draw route line (light gray, will be colored by trail)
     const latLngs = coords.map(([lat, lng]) => [lat, lng] as L.LatLngTuple);
     this.routeLine = L.polyline(latLngs, {
-      color: '#E5E7EB',
-      weight: 6,
-      opacity: 0.8
+      color: '#D1D5DB',
+      weight: 5,
+      opacity: 1
     }).addTo(this.map);
 
     // Create trail line (will show the path traveled)
     this.trailLine = L.polyline([], {
-      color: '#3B82F6',
-      weight: 6,
+      color: '#000000',
+      weight: 5,
       opacity: 1
     }).addTo(this.map);
 
