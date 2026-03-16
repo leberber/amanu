@@ -59,15 +59,20 @@
           <!-- Stops -->
           @for (stop of sortedStops(); track stop.id; let last = $last) {
             @let delivered = isStopDelivered(stop);
+            @let failed = isStopStatus(stop, 'failed');
             <div
               class="itinerary__item"
               [class.itinerary__item--current]="currentStop()?.id === stop.id"
-              [class.itinerary__item--completed]="delivered">
+              [class.itinerary__item--completed]="delivered"
+              [class.itinerary__item--failed]="failed">
               <div
                 class="itinerary__marker itinerary__marker--stop"
-                [class.itinerary__marker--completed]="delivered">
+                [class.itinerary__marker--completed]="delivered"
+                [class.itinerary__marker--failed]="failed">
                 @if (delivered) {
                   <i class="pi pi-check"></i>
+                } @else if (failed) {
+                  <i class="pi pi-times"></i>
                 } @else {
                   {{ stop.sequence }}
                 }
@@ -82,37 +87,45 @@
                 }
                 <span class="itinerary__address">{{ stop.shipping_address || ('driver.trip.no_address' | translate) }}</span>
 
-                <!-- Stop Actions -->
-                @let action = getAvailableStopAction(stop);
-                @if (action) {
-                  @let updating = isStopUpdating(stop.id);
-                  <div class="itinerary__actions">
-                    <button
-                      class="action-chip"
-                      [class.action-chip--arrived]="action === 'arrived'"
-                      [class.action-chip--delivered]="action === 'delivered'"
-                      [disabled]="updating"
-                      (click)="updateStopStatus(stop, action)">
-                      @if (updating) {
-                        <i class="pi pi-spin pi-spinner"></i>
-                      } @else {
-                        <i [class]="action === 'arrived' ? 'pi pi-map-marker' : 'pi pi-check'"></i>
-                      }
-                      {{ (action === 'arrived' ? 'driver.action.mark_arrived' : 'driver.action.mark_delivered') | translate }}
-                    </button>
-
-                    <!-- Quick Actions -->
-                    <div class="quick-actions">
-                      @if (stop.contact_phone) {
-                        <button class="quick-action" (click)="callCustomer(stop.contact_phone)">
-                          <i class="pi pi-phone"></i>
-                        </button>
-                      }
-                      <button class="quick-action" (click)="openNavigation(stop.shipping_address)">
-                        <i class="pi pi-directions"></i>
-                      </button>
-                    </div>
+                <!-- Failed/Cancelled indicator -->
+                @if (failed) {
+                  <div class="itinerary__cancelled">
+                    <i class="pi pi-ban"></i>
+                    {{ 'driver.stop_status.failed' | translate }}
                   </div>
+                } @else {
+                  <!-- Stop Actions -->
+                  @let action = getAvailableStopAction(stop);
+                  @if (action) {
+                    @let updating = isStopUpdating(stop.id);
+                    <div class="itinerary__actions">
+                      <button
+                        class="action-chip"
+                        [class.action-chip--arrived]="action === 'arrived'"
+                        [class.action-chip--delivered]="action === 'delivered'"
+                        [disabled]="updating"
+                        (click)="updateStopStatus(stop, action)">
+                        @if (updating) {
+                          <i class="pi pi-spin pi-spinner"></i>
+                        } @else {
+                          <i [class]="action === 'arrived' ? 'pi pi-map-marker' : 'pi pi-check'"></i>
+                        }
+                        {{ (action === 'arrived' ? 'driver.action.mark_arrived' : 'driver.action.mark_delivered') | translate }}
+                      </button>
+
+                      <!-- Quick Actions -->
+                      <div class="quick-actions">
+                        @if (stop.contact_phone) {
+                          <button class="quick-action" (click)="callCustomer(stop.contact_phone)">
+                            <i class="pi pi-phone"></i>
+                          </button>
+                        }
+                        <button class="quick-action" (click)="openNavigation(stop.shipping_address)">
+                          <i class="pi pi-directions"></i>
+                        </button>
+                      </div>
+                    </div>
+                  }
                 }
               </div>
             </div>

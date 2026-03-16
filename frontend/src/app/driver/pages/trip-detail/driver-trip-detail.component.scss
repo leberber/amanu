@@ -167,6 +167,16 @@
         background: var(--color-success);
       }
     }
+
+    &--failed {
+      .itinerary__content {
+        opacity: 0.6;
+      }
+
+      .itinerary__line {
+        background: var(--color-danger);
+      }
+    }
   }
 
   &__marker {
@@ -206,6 +216,20 @@
       i {
         font-size: 10px;
         color: var(--color-white);
+      }
+    }
+
+    &--failed {
+      background: #EF4444;
+      border: none;
+      width: 18px;
+      height: 18px;
+      margin-top: 1px;
+      margin-left: -3px;
+
+      i {
+        font-size: 10px;
+        color: #fff;
       }
     }
   }
@@ -248,6 +272,20 @@
     color: var(--text-color);
     word-break: break-word;
     line-height: 1.5;
+  }
+
+  &__cancelled {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: var(--space-2);
+    color: var(--color-danger);
+    font-size: 0.8125rem;
+    font-weight: var(--font-weight-semibold);
+
+    i {
+      font-size: 0.875rem;
+    }
   }
 
   &__actions {
