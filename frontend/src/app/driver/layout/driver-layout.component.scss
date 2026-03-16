@@ -95,12 +95,16 @@
 
 .driver-content {
   flex: 1;
-  position: relative;
   overflow-y: auto;
   overflow-x: hidden;
   padding-top: calc(56px + env(safe-area-inset-top, 0px)); // Space for fixed header
   padding-bottom: 80px; // Space for bottom nav
   -webkit-overflow-scrolling: touch; // Smooth scrolling on iOS
+}
+
+.route-animation-wrapper {
+  position: relative;
+  min-height: 100%;
 }
 
 // =============================================================================

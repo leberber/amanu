@@ -517,6 +517,17 @@ export class DriverService {
   }
 
   /**
+   * Load all dashboard data at once
+   */
+  loadDashboardData(): void {
+    this.getStats().subscribe();
+    this.getActiveTrips().subscribe();
+    this.getActiveMultiTrips().subscribe();
+    this.getPendingBatchedTrips().subscribe();
+    this.getAvailableTrips().subscribe();
+  }
+
+  /**
    * Clear driver state on logout
    */
   clearState(): void {

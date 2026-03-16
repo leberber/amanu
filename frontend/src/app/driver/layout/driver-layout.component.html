@@ -27,8 +27,10 @@
   }
 
   <!-- Main Content Area -->
-  <main class="driver-content" [@driverRouteAnimation]="animationState()">
-    <router-outlet></router-outlet>
+  <main class="driver-content">
+    <div class="route-animation-wrapper" [@driverRouteAnimation]="animationState()">
+      <router-outlet></router-outlet>
+    </div>
   </main>
 
   <!-- Bottom Navigation -->
