@@ -18,7 +18,7 @@
 .section-title {
   font-size: 1.125rem;
   font-weight: 700;
-  color: #1a1a1a;
+  color: var(--text-color);
   letter-spacing: -0.02em;
   margin: 0 0 var(--space-3);
 }
@@ -38,7 +38,7 @@
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: white;
+  background: var(--surface-card);
   border: none;
   display: flex;
   align-items: center;
@@ -47,13 +47,13 @@
 
   i {
     font-size: 1rem;
-    color: #6b7280;
+    color: var(--text-color-secondary);
   }
 
   &:active {
     transform: scale(0.95);
     i {
-      color: #1a1a1a;
+      color: var(--text-color);
     }
   }
 }
@@ -69,7 +69,7 @@
 }
 
 .stat-card {
-  background: white;
+  background: var(--surface-card);
   border-radius: var(--radius-xl);
   padding: var(--space-4);
   display: flex;
@@ -90,18 +90,18 @@
     }
 
     &--deliveries {
-      background: var(--surface-ground);
-      i { color: #1a1a1a; }
+      background: var(--surface-hover);
+      i { color: var(--text-color); }
     }
 
     &--earnings {
-      background: rgba(34, 197, 94, 0.1);
-      i { color: #22c55e; }
+      background: rgba(var(--color-success-rgb), 0.1);
+      i { color: var(--color-success); }
     }
 
     &--active {
-      background: rgba(59, 130, 246, 0.1);
-      i { color: #3b82f6; }
+      background: rgba(var(--color-info-rgb), 0.1);
+      i { color: var(--color-info); }
     }
   }
 
@@ -126,7 +126,7 @@
   &__value {
     font-size: 1.5rem;
     font-weight: 700;
-    color: #1a1a1a;
+    color: var(--text-color);
     line-height: 1;
     letter-spacing: -0.02em;
   }
@@ -134,7 +134,7 @@
   &__label {
     font-size: 0.75rem;
     font-weight: 500;
-    color: #6b7280;
+    color: var(--text-color-secondary);
     margin-top: 6px;
   }
 }
@@ -144,7 +144,7 @@
 // =============================================================================
 
 .online-card {
-  background: white;
+  background: var(--surface-card);
   border-radius: var(--radius-xl);
   padding: var(--space-5);
   display: flex;
@@ -157,14 +157,14 @@
     width: 64px;
     height: 64px;
     border-radius: 50%;
-    background: rgba(26, 26, 26, 0.08);
+    background: var(--overlay-medium);
     display: flex;
     align-items: center;
     justify-content: center;
 
     i {
       font-size: 1.75rem;
-      color: #1a1a1a;
+      color: var(--text-color);
     }
   }
 
@@ -172,14 +172,14 @@
     h3 {
       font-size: 1.25rem;
       font-weight: 700;
-      color: #1a1a1a;
+      color: var(--text-color);
       letter-spacing: -0.02em;
       margin: 0 0 var(--space-2);
     }
 
     p {
       font-size: 0.9375rem;
-      color: #6b7280;
+      color: var(--text-color-secondary);
       line-height: 1.5;
       margin: 0;
     }
@@ -192,8 +192,8 @@
     gap: var(--space-2);
     width: 100%;
     padding: var(--space-4);
-    background: #1a1a1a;
-    color: white;
+    background: var(--text-color);
+    color: var(--color-white);
     border: none;
     border-radius: var(--radius-xl);
     font-size: 1rem;
@@ -210,7 +210,7 @@
 }
 
 // =============================================================================
-// ITINERARY LIST (Simple unified list)
+// ITINERARY LIST
 // =============================================================================
 
 .itinerary-list {
@@ -224,13 +224,13 @@
   align-items: center;
   gap: var(--space-3);
   padding: var(--space-4);
-  background: white;
+  background: var(--surface-card);
   border-radius: var(--radius-lg);
   cursor: pointer;
   transition: background 0.1s ease;
 
   &:active {
-    background: var(--surface-ground);
+    background: var(--surface-hover);
   }
 
   &--active {
@@ -241,7 +241,7 @@
     width: 36px;
     height: 36px;
     border-radius: 50%;
-    background: rgba(26, 26, 26, 0.08);
+    background: var(--overlay-medium);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -249,17 +249,17 @@
 
     i {
       font-size: 1rem;
-      color: #1a1a1a;
+      color: var(--text-color);
     }
 
     &--suggested {
-      background: rgba(59, 130, 246, 0.1);
-      i { color: #3b82f6; }
+      background: rgba(var(--color-info-rgb), 0.1);
+      i { color: var(--color-info); }
     }
 
     &--priority {
-      background: rgba(245, 158, 11, 0.1);
-      i { color: #f59e0b; }
+      background: rgba(var(--color-warning-rgb), 0.1);
+      i { color: var(--color-warning); }
     }
   }
 
@@ -274,7 +274,7 @@
   &__title {
     font-size: 1rem;
     font-weight: 600;
-    color: #1a1a1a;
+    color: var(--text-color);
     letter-spacing: -0.01em;
     white-space: nowrap;
     overflow: hidden;
@@ -291,25 +291,25 @@
     align-self: flex-start;
 
     &--suggested {
-      background: rgba(59, 130, 246, 0.1);
-      color: #3b82f6;
+      background: rgba(var(--color-info-rgb), 0.1);
+      color: var(--color-info);
     }
 
     &--priority {
-      background: rgba(245, 158, 11, 0.1);
-      color: #f59e0b;
+      background: rgba(var(--color-warning-rgb), 0.1);
+      color: var(--color-warning);
     }
 
     &--active {
-      background: rgba(34, 197, 94, 0.1);
-      color: #22c55e;
+      background: rgba(var(--color-success-rgb), 0.1);
+      color: var(--color-success);
     }
   }
 
   &__subtitle {
     font-size: 0.875rem;
     font-weight: 500;
-    color: #6b7280;
+    color: var(--text-color-secondary);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -318,14 +318,14 @@
   &__earnings {
     font-size: 1rem;
     font-weight: 700;
-    color: #1a1a1a;
+    color: var(--text-color);
     letter-spacing: -0.01em;
     flex-shrink: 0;
   }
 
   &__arrow {
     font-size: 1rem;
-    color: #d1d5db;
+    color: var(--surface-border);
     flex-shrink: 0;
   }
 }
@@ -339,7 +339,10 @@
   font-weight: var(--font-weight-normal);
 }
 
-// Pull-to-refresh
+// =============================================================================
+// PULL-TO-REFRESH
+// =============================================================================
+
 .pull-indicator {
   display: flex;
   align-items: center;
@@ -348,6 +351,6 @@
 
   i {
     font-size: 1.25rem;
-    color: #6b7280;
+    color: var(--text-color-secondary);
   }
 }

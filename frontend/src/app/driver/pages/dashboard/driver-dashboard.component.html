@@ -1,13 +1,14 @@
 <div
   class="driver-dashboard"
-  (touchstart)="onTouchStart($event)"
-  (touchmove)="onTouchMove($event)"
-  (touchend)="onTouchEnd()">
+  appPullToRefresh
+  #pullToRefresh="pullToRefresh"
+  [scrollContainer]="'.driver-content'"
+  (refresh)="loadData()">
 
   <!-- Pull-to-refresh indicator -->
-  @if (pullDistance() > 0 || isRefreshing()) {
-    <div class="pull-indicator" [style.height.px]="pullDistance()">
-      <i class="pi" [ngClass]="isRefreshing() ? 'pi-spin pi-spinner' : 'pi-arrow-down'"></i>
+  @if (pullToRefresh.pullDistance() > 0 || pullToRefresh.isRefreshing()) {
+    <div class="pull-indicator" [style.height.px]="pullToRefresh.pullDistance()">
+      <i class="pi" [ngClass]="pullToRefresh.isRefreshing() ? 'pi-spin pi-spinner' : 'pi-arrow-down'"></i>
     </div>
   }
 
@@ -72,7 +73,7 @@
       <div class="section-header">
         <h2 class="section-title">
           {{ 'driver.multi_trip.delivery_stops' | translate }}
-          <span class="count-inline">({{ multiTripCount() }})</span>
+          <span class="count-inline">({{ activeMultiTrips().length }})</span>
         </h2>
       </div>
       <div class="itinerary-list">
