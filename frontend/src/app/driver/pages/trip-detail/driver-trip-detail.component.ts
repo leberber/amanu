@@ -294,6 +294,13 @@ export class DriverTripDetailComponent implements OnInit {
     }
   }
 
+  navigateToWarehouse(): void {
+    // AgroClik Depot coordinates
+    const depotLat = 36.549608;
+    const depotLng = 4.099945;
+    window.open(`https://www.google.com/maps/dir/?api=1&destination=${depotLat},${depotLng}`, '_blank');
+  }
+
   // Stop status helpers
   isStopStatus(stop: TripStop, status: StopStatus): boolean {
     return stop.status?.toLowerCase() === status;

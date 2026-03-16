@@ -2454,7 +2454,8 @@
       "start_trip": "Démarrer",
       "complete_trip": "Terminer",
       "cancel_trip": "Annuler",
-      "pickup_orders": "Récupérer"
+      "pickup_orders": "Récupérer",
+      "navigate_to_warehouse": "Naviguer vers le Dépôt"
     },
     "trip_status": {
       "pending": "En Attente",

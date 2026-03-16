@@ -2440,7 +2440,8 @@
       "start_trip": "بدء الرحلة",
       "complete_trip": "إنهاء الرحلة",
       "cancel_trip": "إلغاء",
-      "pickup_orders": "استلام الطلبات"
+      "pickup_orders": "استلام الطلبات",
+      "navigate_to_warehouse": "الانتقال إلى المستودع"
     },
     "trip_status": {
       "pending": "في الانتظار",

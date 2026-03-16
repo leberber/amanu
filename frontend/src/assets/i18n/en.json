@@ -2434,7 +2434,8 @@
       "start_trip": "Start Trip",
       "complete_trip": "Complete Trip",
       "cancel_trip": "Cancel",
-      "pickup_orders": "Pickup Orders"
+      "pickup_orders": "Pickup Orders",
+      "navigate_to_warehouse": "Navigate to Warehouse"
     },
     "trip_status": {
       "pending": "Pending",

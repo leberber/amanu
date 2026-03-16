@@ -492,6 +492,18 @@
   &--complete {
     background: var(--color-success);
   }
+
+  &--navigate {
+    background: transparent;
+    color: var(--text-color);
+    border: 2px solid var(--surface-border);
+    box-shadow: none;
+    margin-bottom: var(--space-3);
+
+    &:active {
+      background: var(--surface-hover);
+    }
+  }
 }
 
 // =============================================================================

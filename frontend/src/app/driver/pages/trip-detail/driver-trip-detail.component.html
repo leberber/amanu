@@ -178,6 +178,10 @@
             </button>
           </div>
         } @else if (needsPickup()) {
+          <button class="action-btn action-btn--navigate" (click)="navigateToWarehouse()">
+            <i class="pi pi-directions"></i>
+            {{ 'driver.action.navigate_to_warehouse' | translate }}
+          </button>
           <button class="action-btn" [disabled]="pickingUp()" (click)="pickupTrip()">
             @if (pickingUp()) {
               <i class="pi pi-spin pi-spinner"></i>
