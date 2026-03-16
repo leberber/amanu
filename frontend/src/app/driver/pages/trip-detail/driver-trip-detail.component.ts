@@ -47,36 +47,33 @@ export class DriverTripDetailComponent implements OnInit {
   // Constants for template
   readonly mapAnimationDuration = MAP_ANIMATION_DURATION_MS;
 
-  // Computed: trip status helpers
+  // Computed: derived from trip
   private tripStatus = computed(() => this.trip()?.status?.toLowerCase() || '');
+  private stops = computed(() => this.trip()?.stops || []);
 
+  // Trip status checks
   isPendingTrip = computed(() => this.tripStatus() === 'pending');
   canStartTrip = computed(() => this.tripStatus() === 'assigned');
   isTripInProgress = computed(() => this.tripStatus() === 'in_progress');
   isTripCompleted = computed(() => this.tripStatus() === 'completed');
 
-  canCompleteTrip = computed(() => {
-    if (!this.isTripInProgress()) return false;
-    const stops = this.trip()?.stops || [];
-    return stops.every(s => this.isStopStatus(s, 'delivered'));
-  });
+  canCompleteTrip = computed(() =>
+    this.isTripInProgress() && this.stops().every(s => this.isStopStatus(s, 'delivered'))
+  );
 
   tripProgress = computed(() => {
-    const stops = this.trip()?.stops || [];
+    const stops = this.stops();
     if (stops.length === 0) return 0;
-    const delivered = stops.filter(s => this.isStopStatus(s, 'delivered')).length;
-    return (delivered / stops.length) * 100;
+    return (stops.filter(s => this.isStopStatus(s, 'delivered')).length / stops.length) * 100;
   });
 
-  currentStop = computed(() => {
-    const stops = this.trip()?.stops || [];
-    return stops.find(s => !this.isStopStatus(s, 'delivered')) || null;
-  });
+  currentStop = computed(() =>
+    this.stops().find(s => !this.isStopStatus(s, 'delivered')) || null
+  );
 
-  sortedStops = computed(() => {
-    const stops = this.trip()?.stops || [];
-    return [...stops].sort((a, b) => a.sequence - b.sequence);
-  });
+  sortedStops = computed(() =>
+    [...this.stops()].sort((a, b) => a.sequence - b.sequence)
+  );
 
   routeCoords = computed(() => this.trip()?.route_coords || []);
 
