@@ -348,6 +348,7 @@ def trip_to_response(trip: Trip, session: Session) -> TripWithStops:
         updated_at=trip.updated_at,
         assigned_at=trip.assigned_at,
         started_at=trip.started_at,
+        picked_up_at=trip.picked_up_at,
         completed_at=trip.completed_at,
         cancelled_at=trip.cancelled_at,
         total_stops=len(trip.stops),
@@ -529,6 +530,73 @@ def start_batched_trip(
     return AcceptBatchedTripResponse(
         success=True,
         message="Trip started",
+        trip=trip_to_response(trip, session)
+    )
+
+
+@router.post("/batched/{trip_id}/pickup", response_model=AcceptBatchedTripResponse)
+def pickup_batched_trip(
+    trip_id: int,
+    current_user: User = Depends(get_current_user),
+    session: Session = Depends(get_session),
+) -> Any:
+    """
+    Mark orders as picked up from warehouse.
+    Driver must be at warehouse and have collected all packages.
+    """
+    user, driver = get_driver_user(current_user, session)
+
+    # Get trip
+    trip = session.get(Trip, trip_id)
+    if not trip:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Trip not found"
+        )
+
+    # Verify trip belongs to this driver
+    if trip.driver_id != user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="This trip is not assigned to you"
+        )
+
+    # Verify trip is in progress (started)
+    if trip.status != TripStatus.IN_PROGRESS:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Trip must be in progress to pickup (status: {trip.status})"
+        )
+
+    # Verify not already picked up
+    if trip.picked_up_at:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Orders already picked up"
+        )
+
+    now = datetime.now(timezone.utc)
+
+    # Mark as picked up
+    trip.picked_up_at = now
+    trip.updated_at = now
+    session.add(trip)
+
+    # Update all orders to PICKED_UP status
+    for stop in trip.stops:
+        order = session.get(Order, stop.order_id)
+        if order:
+            order.status = OrderStatus.PICKED_UP
+            order.picked_up_at = now
+            order.updated_at = now
+            session.add(order)
+
+    session.commit()
+    session.refresh(trip)
+
+    return AcceptBatchedTripResponse(
+        success=True,
+        message=f"Picked up {len(trip.stops)} orders from warehouse",
         trip=trip_to_response(trip, session)
     )
 
@@ -738,6 +806,13 @@ def update_batched_stop_status(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Trip must be in progress to update stops"
+        )
+
+    # Verify orders have been picked up
+    if not trip.picked_up_at:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Orders must be picked up before marking stops"
         )
 
     # Find the stop

@@ -2433,7 +2433,8 @@
       "mark_arrived": "Mark Arrived",
       "start_trip": "Start Trip",
       "complete_trip": "Complete Trip",
-      "cancel_trip": "Cancel"
+      "cancel_trip": "Cancel",
+      "pickup_orders": "Pickup Orders"
     },
     "trip_status": {
       "pending": "Pending",
@@ -2574,6 +2575,8 @@
       "notifications_disabled": "Notifications disabled",
       "trip_started": "Trip started",
       "trip_start_failed": "Failed to start trip",
+      "orders_picked_up": "Orders picked up",
+      "pickup_failed": "Failed to pickup orders",
       "arrived_at_stop": "Marked as arrived",
       "trip_completed": "Trip completed successfully",
       "trip_complete_failed": "Failed to complete trip"

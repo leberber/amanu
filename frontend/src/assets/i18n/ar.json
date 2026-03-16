@@ -2439,7 +2439,8 @@
       "mark_arrived": "تأكيد الوصول",
       "start_trip": "بدء الرحلة",
       "complete_trip": "إنهاء الرحلة",
-      "cancel_trip": "إلغاء"
+      "cancel_trip": "إلغاء",
+      "pickup_orders": "استلام الطلبات"
     },
     "trip_status": {
       "pending": "في الانتظار",
@@ -2580,6 +2581,8 @@
       "notifications_disabled": "تم تعطيل الإشعارات",
       "trip_started": "بدأت الرحلة",
       "trip_start_failed": "فشل بدء الرحلة",
+      "orders_picked_up": "تم استلام الطلبات",
+      "pickup_failed": "فشل استلام الطلبات",
       "arrived_at_stop": "تم تأكيد الوصول",
       "trip_completed": "اكتملت الرحلة بنجاح",
       "trip_complete_failed": "فشل إنهاء الرحلة"

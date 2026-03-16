@@ -2453,7 +2453,8 @@
       "mark_arrived": "Marquer Arrivé",
       "start_trip": "Démarrer le Trajet",
       "complete_trip": "Terminer le Trajet",
-      "cancel_trip": "Annuler"
+      "cancel_trip": "Annuler",
+      "pickup_orders": "Récupérer les Commandes"
     },
     "trip_status": {
       "pending": "En Attente",
@@ -2594,6 +2595,8 @@
       "notifications_disabled": "Notifications désactivées",
       "trip_started": "Trajet démarré",
       "trip_start_failed": "Échec du démarrage du trajet",
+      "orders_picked_up": "Commandes récupérées",
+      "pickup_failed": "Échec de la récupération des commandes",
       "arrived_at_stop": "Marqué comme arrivé",
       "trip_completed": "Trajet terminé avec succès",
       "trip_complete_failed": "Échec de la finalisation du trajet"

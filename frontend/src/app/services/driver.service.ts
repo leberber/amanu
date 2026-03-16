@@ -63,6 +63,7 @@ const ENDPOINTS = {
   acceptBatchedTrip: (tripId: number) => `/driver/trips/batched/${tripId}/accept`,
   declineBatchedTrip: (tripId: number) => `/driver/trips/batched/${tripId}/decline`,
   startBatchedTrip: (tripId: number) => `/driver/trips/batched/${tripId}/start`,
+  pickupBatchedTrip: (tripId: number) => `/driver/trips/batched/${tripId}/pickup`,
   completeBatchedTrip: (tripId: number) => `/driver/trips/batched/${tripId}/complete`,
   cancelBatchedTrip: (tripId: number) => `/driver/trips/batched/${tripId}/cancel`,
   updateStopStatus: (tripId: number, stopId: number) => `/driver/trips/batched/${tripId}/stops/${stopId}`,
@@ -382,6 +383,22 @@ export class DriverService {
   startMultiTrip(tripId: number): Observable<TripWithStops> {
     return this.api.post<{ success: boolean; message: string; trip: TripWithStops }>(
       ENDPOINTS.startBatchedTrip(tripId), {}
+    ).pipe(
+      map(response => response.trip),
+      tap(trip => {
+        this._activeMultiTrips.update(trips =>
+          trips.map(t => t.id === tripId ? trip : t)
+        );
+      })
+    );
+  }
+
+  /**
+   * Pickup orders from warehouse for a batched trip.
+   */
+  pickupBatchedTrip(tripId: number): Observable<TripWithStops> {
+    return this.api.post<{ success: boolean; message: string; trip: TripWithStops }>(
+      ENDPOINTS.pickupBatchedTrip(tripId), {}
     ).pipe(
       map(response => response.trip),
       tap(trip => {

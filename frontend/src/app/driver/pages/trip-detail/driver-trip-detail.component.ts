@@ -55,6 +55,7 @@ export class DriverTripDetailComponent implements OnInit {
   updatingStopId = signal<number | null>(null);
   accepting = signal(false);
   cancelling = signal(false);
+  pickingUp = signal(false);
 
   // Animation state
   animationComplete = signal(false);
@@ -76,6 +77,10 @@ export class DriverTripDetailComponent implements OnInit {
   canStartTrip = computed(() => this.tripStatus() === 'assigned');
   isTripInProgress = computed(() => this.tripStatus() === 'in_progress');
   isTripCompleted = computed(() => this.tripStatus() === 'completed');
+
+  // Pickup state
+  isPickedUp = computed(() => !!this.trip()?.picked_up_at);
+  needsPickup = computed(() => this.isTripInProgress() && !this.isPickedUp());
 
   // Show map only for pending trips (before accepting)
   shouldShowMap = computed(() => this.isPendingTrip() && this.mapVisible());
@@ -211,6 +216,24 @@ export class DriverTripDetailComponent implements OnInit {
     });
   }
 
+  pickupTrip(): void {
+    const tripId = this.trip()?.id;
+    if (!tripId || this.pickingUp()) return;
+
+    this.pickingUp.set(true);
+    this.driverService.pickupBatchedTrip(tripId).subscribe({
+      next: (trip) => {
+        this.trip.set(trip);
+        this.pickingUp.set(false);
+        this.toast.showSuccess('driver.messages.orders_picked_up');
+      },
+      error: (err) => {
+        this.pickingUp.set(false);
+        this.toast.showError(this.getErrorMessage(err, 'driver.messages.pickup_failed'));
+      }
+    });
+  }
+
   updateStopStatus(stop: TripStop, action: StopAction): void {
     const tripId = this.trip()?.id;
     if (!tripId || this.updatingStopId()) return;
@@ -275,6 +298,7 @@ export class DriverTripDetailComponent implements OnInit {
 
   getAvailableStopAction(stop: TripStop): StopAction | null {
     if (!this.isTripInProgress()) return null;
+    if (!this.isPickedUp()) return null; // Must pickup before marking stops
     if (this.isStopStatus(stop, 'pending')) return 'arrived';
     if (this.isStopStatus(stop, 'arrived')) return 'delivered';
     return null;

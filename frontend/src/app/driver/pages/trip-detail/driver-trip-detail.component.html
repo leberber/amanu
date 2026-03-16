@@ -177,6 +177,15 @@
               {{ 'driver.action.start_trip' | translate }}
             </button>
           </div>
+        } @else if (needsPickup()) {
+          <button class="action-btn" [disabled]="pickingUp()" (click)="pickupTrip()">
+            @if (pickingUp()) {
+              <i class="pi pi-spin pi-spinner"></i>
+            } @else {
+              <i class="pi pi-box"></i>
+            }
+            {{ 'driver.action.pickup_orders' | translate }}
+          </button>
         } @else if (canCompleteTrip()) {
           <button class="action-btn action-btn--complete" [disabled]="updating()" (click)="completeTrip()">
             @if (updating()) {

@@ -72,6 +72,7 @@ def build_trip_read(trip: Trip, session: Session) -> TripRead:
         updated_at=trip.updated_at,
         assigned_at=trip.assigned_at,
         started_at=trip.started_at,
+        picked_up_at=trip.picked_up_at,
         completed_at=trip.completed_at,
         cancelled_at=trip.cancelled_at,
         total_stops=total_stops,
@@ -588,6 +589,7 @@ def unassign_trip(
     trip.status = TripStatus.PENDING
     trip.assigned_at = None
     trip.started_at = None
+    trip.picked_up_at = None
     trip.updated_at = now
     session.add(trip)
 

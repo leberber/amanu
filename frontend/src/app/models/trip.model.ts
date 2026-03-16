@@ -44,6 +44,7 @@ export interface Trip {
   updated_at?: string;
   assigned_at?: string;
   started_at?: string;
+  picked_up_at?: string;
   completed_at?: string;
   cancelled_at?: string;
 

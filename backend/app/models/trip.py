@@ -71,6 +71,7 @@ class Trip(SQLModel, table=True):
     updated_at: Optional[datetime] = Field(default=None)
     assigned_at: Optional[datetime] = Field(default=None)
     started_at: Optional[datetime] = Field(default=None)
+    picked_up_at: Optional[datetime] = Field(default=None)
     completed_at: Optional[datetime] = Field(default=None)
     cancelled_at: Optional[datetime] = Field(default=None)
 
@@ -164,6 +165,7 @@ class TripRead(SQLModel):
     updated_at: Optional[datetime] = None
     assigned_at: Optional[datetime] = None
     started_at: Optional[datetime] = None
+    picked_up_at: Optional[datetime] = None
     completed_at: Optional[datetime] = None
     cancelled_at: Optional[datetime] = None
 
