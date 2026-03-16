@@ -130,6 +130,20 @@ export class DriverService {
     ) || null;
   });
 
+  // Driver's vehicle capacity (with 90% buffer for safety)
+  readonly effectiveCapacity = computed(() => {
+    const driver = this.driverData();
+    const capacity = driver?.capacity_kg ?? 500; // Default 500kg if not set
+    return capacity * 0.9; // 90% of capacity
+  });
+
+  // Filter pending trips to only show ones the driver can handle
+  readonly filteredPendingTrips = computed(() => {
+    const trips = this._pendingBatchedTrips();
+    const capacity = this.effectiveCapacity();
+    return trips.filter(trip => (trip.total_weight_kg ?? 0) <= capacity);
+  });
+
   // ==========================================================================
   // REGISTRATION
   // ==========================================================================

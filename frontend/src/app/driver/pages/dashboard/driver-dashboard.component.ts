@@ -57,7 +57,8 @@ export class DriverDashboardComponent implements OnInit {
     const suggested: AvailableItem[] = [];
     const standard: AvailableItem[] = [];
 
-    for (const trip of this.driverService.pendingBatchedTrips()) {
+    // Use filteredPendingTrips to only show trips the driver can handle (capacity check)
+    for (const trip of this.driverService.filteredPendingTrips()) {
       const isSuggested = trip.suggested_driver_id === userId;
       const item: AvailableItem = {
         id: trip.id,
