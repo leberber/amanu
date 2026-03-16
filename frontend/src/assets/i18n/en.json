@@ -2369,7 +2369,8 @@
       "active_orders": "Active Orders",
       "available_trips": "Available Trips",
       "no_active_orders": "No active orders",
-      "no_available_trips": "No available trips"
+      "no_available_trips": "No available trips",
+      "next_stop": "Next stop"
     },
     "status": {
       "title": "Status",
@@ -2435,12 +2436,14 @@
       "complete_trip": "Complete Trip",
       "cancel_trip": "Cancel",
       "pickup_orders": "Pickup Orders",
-      "navigate_to_warehouse": "Navigate to Warehouse"
+      "navigate_to_warehouse": "Navigate to Warehouse",
+      "continue_trip": "Continue Trip"
     },
     "trip_status": {
       "pending": "Pending",
       "assigned": "Assigned",
       "in_progress": "In Progress",
+      "heading_to_pickup": "Heading to Pickup",
       "completed": "Completed",
       "cancelled": "Cancelled"
     },

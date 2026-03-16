@@ -2389,7 +2389,8 @@
       "active_orders": "Commandes Actives",
       "available_trips": "Trajets Disponibles",
       "no_active_orders": "Aucune commande active",
-      "no_available_trips": "Aucun trajet disponible"
+      "no_available_trips": "Aucun trajet disponible",
+      "next_stop": "Prochain"
     },
     "status": {
       "title": "Statut",
@@ -2455,12 +2456,14 @@
       "complete_trip": "Terminer",
       "cancel_trip": "Annuler",
       "pickup_orders": "Récupérer",
-      "navigate_to_warehouse": "Naviguer vers le Dépôt"
+      "navigate_to_warehouse": "Naviguer vers le Dépôt",
+      "continue_trip": "Continuer"
     },
     "trip_status": {
       "pending": "En Attente",
       "assigned": "Assigné",
       "in_progress": "En Cours",
+      "heading_to_pickup": "Vers le Dépôt",
       "completed": "Terminé",
       "cancelled": "Annulé"
     },

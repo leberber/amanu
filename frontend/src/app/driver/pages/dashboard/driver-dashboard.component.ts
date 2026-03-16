@@ -6,7 +6,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { DriverService } from '../../../services/driver.service';
 import { ROUTES, RouteHelpers } from '../../../core/constants/routes.constants';
 import { DRIVER_STATUS } from '../../../core/constants/driver.constants';
-import { TripWithStops } from '../../../models/trip.model';
+import { TripWithStops, TripStop } from '../../../models/trip.model';
 import { Order } from '../../../models/order.model';
 import { PullToRefreshDirective } from '../../../shared/directives/pull-to-refresh.directive';
 
@@ -105,5 +105,24 @@ export class DriverDashboardComponent implements OnInit {
 
   openMultiTripDetail(trip: TripWithStops): void {
     this.navigateToTrip(trip.id);
+  }
+
+  getNextStop(trip: TripWithStops): TripStop | null {
+    if (!trip.stops) return null;
+    const sorted = [...trip.stops].sort((a, b) => a.sequence - b.sequence);
+    return sorted.find(s => s.status !== 'delivered') || null;
+  }
+
+  getTripProgress(trip: TripWithStops): number {
+    if (!trip.total_stops || trip.total_stops === 0) return 0;
+    return (trip.completed_stops / trip.total_stops) * 100;
+  }
+
+  getTripStatusKey(trip: TripWithStops): string {
+    const status = trip.status?.toLowerCase() || '';
+    if (!trip.picked_up_at && status === 'in_progress') return 'driver.trip_status.heading_to_pickup';
+    if (status === 'in_progress') return 'driver.trip_status.in_progress';
+    if (status === 'assigned') return 'driver.trip_status.assigned';
+    return 'driver.trip_status.' + status;
   }
 }

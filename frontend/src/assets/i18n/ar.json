@@ -2375,7 +2375,8 @@
       "active_orders": "الطلبات النشطة",
       "available_trips": "الرحلات المتاحة",
       "no_active_orders": "لا توجد طلبات نشطة",
-      "no_available_trips": "لا توجد رحلات متاحة"
+      "no_available_trips": "لا توجد رحلات متاحة",
+      "next_stop": "الوجهة التالية"
     },
     "status": {
       "title": "الحالة",
@@ -2441,12 +2442,14 @@
       "complete_trip": "إنهاء الرحلة",
       "cancel_trip": "إلغاء",
       "pickup_orders": "استلام الطلبات",
-      "navigate_to_warehouse": "الانتقال إلى المستودع"
+      "navigate_to_warehouse": "الانتقال إلى المستودع",
+      "continue_trip": "متابعة الرحلة"
     },
     "trip_status": {
       "pending": "في الانتظار",
       "assigned": "مُعيّن",
       "in_progress": "قيد التنفيذ",
+      "heading_to_pickup": "في الطريق للاستلام",
       "completed": "مكتمل",
       "cancelled": "ملغى"
     },

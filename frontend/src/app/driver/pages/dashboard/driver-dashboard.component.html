@@ -67,35 +67,53 @@
     </section>
   }
 
-  <!-- Active Multi-Stop Trips -->
+  <!-- Active Multi-Stop Trips (Uber-style) -->
   @if (activeMultiTrips().length > 0) {
-    <section class="orders-section">
-      <div class="section-header">
-        <h2 class="section-title">
-          {{ 'driver.multi_trip.delivery_stops' | translate }}
-          <span class="count-inline">({{ activeMultiTrips().length }})</span>
-        </h2>
-      </div>
-      <div class="itinerary-list">
-        @for (trip of activeMultiTrips(); track trip.id) {
-          <div class="itinerary-item itinerary-item--active" (click)="openMultiTripDetail(trip)">
-            <div class="itinerary-item__marker">
-              <i class="pi pi-truck"></i>
+    <section class="active-trip-section">
+      @for (trip of activeMultiTrips(); track trip.id) {
+        @let nextStop = getNextStop(trip);
+        @let progress = getTripProgress(trip);
+        <div class="active-trip-card" (click)="openMultiTripDetail(trip)">
+          <!-- Header -->
+          <div class="active-trip-card__header">
+            <div class="active-trip-card__status">
+              <span class="status-dot"></span>
+              {{ getTripStatusKey(trip) | translate }}
             </div>
-            <div class="itinerary-item__content">
-              <div class="itinerary-item__header">
-                <span class="itinerary-item__title">{{ 'driver.multi_trip.trip' | translate }} #{{ trip.id }}</span>
-                <span class="itinerary-item__badge itinerary-item__badge--active">
-                  {{ trip.completed_stops }}/{{ trip.total_stops }}
-                </span>
-              </div>
-              <span class="itinerary-item__subtitle">{{ trip.corridor || trip.h3_zone }}</span>
-            </div>
-            <div class="itinerary-item__earnings">{{ trip.total_earnings | number:'1.0-0' }} DA</div>
-            <i class="pi pi-chevron-right itinerary-item__arrow"></i>
+            <span class="active-trip-card__earnings">{{ trip.total_earnings | number:'1.0-0' }} DA</span>
           </div>
-        }
-      </div>
+
+          <!-- Next Stop Info -->
+          @if (nextStop) {
+            <div class="active-trip-card__next">
+              <span class="active-trip-card__next-label">{{ 'driver.dashboard.next_stop' | translate }}:</span>
+              <span class="active-trip-card__next-name">{{ nextStop.customer_name || ('driver.trip.stop' | translate) + ' ' + nextStop.sequence }}</span>
+            </div>
+            <div class="active-trip-card__address">
+              <i class="pi pi-map-marker"></i>
+              {{ nextStop.shipping_address || trip.corridor }}
+            </div>
+          } @else {
+            <div class="active-trip-card__next">
+              <span class="active-trip-card__next-name">{{ trip.corridor || trip.h3_zone }}</span>
+            </div>
+          }
+
+          <!-- Progress Bar -->
+          <div class="active-trip-card__progress">
+            <div class="progress-track">
+              <div class="progress-fill" [style.width.%]="progress"></div>
+            </div>
+            <span class="progress-label">{{ trip.completed_stops }}/{{ trip.total_stops }} {{ 'driver.multi_trip.stops' | translate }}</span>
+          </div>
+
+          <!-- Action Button -->
+          <button class="active-trip-card__btn">
+            {{ 'driver.action.continue_trip' | translate }}
+            <i class="pi pi-arrow-right"></i>
+          </button>
+        </div>
+      }
     </section>
   }
 
