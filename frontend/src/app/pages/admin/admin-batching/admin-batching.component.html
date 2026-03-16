@@ -398,6 +398,52 @@
       <!-- Trips Tab -->
       @if (activeTab() === 'trips') {
         <div class="trips-section">
+          <!-- Status Filter Chips -->
+          <div class="trips-filters">
+            <button
+              class="trips-filter"
+              [class.trips-filter--active]="statusFilter() === null"
+              (click)="filterByStatus(null)">
+              {{ 'admin.batching.all' | translate }}
+              <span class="trips-filter__count">{{ trips().length }}</span>
+            </button>
+            <button
+              class="trips-filter trips-filter--pending"
+              [class.trips-filter--active]="statusFilter() === 'pending'"
+              (click)="filterByStatus('pending')">
+              {{ 'admin.batching.pending' | translate }}
+              <span class="trips-filter__count">{{ stats()?.pending_trips || 0 }}</span>
+            </button>
+            <button
+              class="trips-filter trips-filter--assigned"
+              [class.trips-filter--active]="statusFilter() === 'assigned'"
+              (click)="filterByStatus('assigned')">
+              {{ 'admin.batching.assigned' | translate }}
+              <span class="trips-filter__count">{{ stats()?.assigned_trips || 0 }}</span>
+            </button>
+            <button
+              class="trips-filter trips-filter--in-progress"
+              [class.trips-filter--active]="statusFilter() === 'in_progress'"
+              (click)="filterByStatus('in_progress')">
+              {{ 'admin.batching.in_progress' | translate }}
+              <span class="trips-filter__count">{{ stats()?.in_progress_trips || 0 }}</span>
+            </button>
+            <button
+              class="trips-filter trips-filter--completed"
+              [class.trips-filter--active]="statusFilter() === 'completed'"
+              (click)="filterByStatus('completed')">
+              {{ 'admin.batching.completed' | translate }}
+              <span class="trips-filter__count">{{ stats()?.completed_trips || 0 }}</span>
+            </button>
+            <button
+              class="trips-filter trips-filter--cancelled"
+              [class.trips-filter--active]="statusFilter() === 'cancelled'"
+              (click)="filterByStatus('cancelled')">
+              {{ 'admin.batching.cancelled' | translate }}
+              <span class="trips-filter__count">{{ stats()?.cancelled_trips || 0 }}</span>
+            </button>
+          </div>
+
           @if (filteredTrips().length > 0) {
             <div class="trips-table-wrapper">
               <table class="trips-table">

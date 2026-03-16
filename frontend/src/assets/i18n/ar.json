@@ -1918,6 +1918,8 @@
       "pending": "معلقة",
       "assigned": "معينة",
       "in_progress_short": "قيد التنفيذ",
+      "completed": "مكتملة",
+      "cancelled": "ملغاة",
       "zone": "المنطقة",
       "stops": "النقاط",
       "status": "الحالة",

@@ -696,6 +696,8 @@ class BatchingStats(SQLModel):
     assigned_trips: int
     in_progress_trips: int
     completed_trips_today: int
+    cancelled_trips: int
+    completed_trips: int
     total_trips: int
 
 
@@ -743,6 +745,18 @@ def get_batching_stats(
         .where(Trip.completed_at >= today_start)
     ).one() or 0
 
+    # All completed trips
+    completed_trips = session.exec(
+        select(func.count(Trip.id))
+        .where(Trip.status == TripStatus.COMPLETED)
+    ).one() or 0
+
+    # Cancelled trips
+    cancelled_trips = session.exec(
+        select(func.count(Trip.id))
+        .where(Trip.status == TripStatus.CANCELLED)
+    ).one() or 0
+
     total_trips = session.exec(
         select(func.count(Trip.id))
     ).one() or 0
@@ -753,6 +767,8 @@ def get_batching_stats(
         assigned_trips=assigned_trips,
         in_progress_trips=in_progress_trips,
         completed_trips_today=completed_today,
+        cancelled_trips=cancelled_trips,
+        completed_trips=completed_trips,
         total_trips=total_trips,
     )
 

@@ -1930,6 +1930,8 @@
       "pending": "En attente",
       "assigned": "Assignées",
       "in_progress_short": "En cours",
+      "completed": "Terminées",
+      "cancelled": "Annulées",
       "zone": "Zone",
       "stops": "Arrêts",
       "status": "Statut",

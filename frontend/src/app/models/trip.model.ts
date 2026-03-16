@@ -145,6 +145,8 @@ export interface BatchingStats {
   assigned_trips: number;
   in_progress_trips: number;
   completed_trips_today: number;
+  cancelled_trips: number;
+  completed_trips: number;
   total_trips: number;
 }
 

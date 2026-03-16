@@ -1932,6 +1932,8 @@
       "pending": "Pending",
       "assigned": "Assigned",
       "in_progress_short": "In Progress",
+      "completed": "Completed",
+      "cancelled": "Cancelled",
       "zone": "Zone",
       "stops": "Stops",
       "status": "Status",
