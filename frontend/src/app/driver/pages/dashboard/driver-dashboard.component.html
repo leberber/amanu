@@ -1,4 +1,16 @@
-<div class="driver-dashboard">
+<div
+  class="driver-dashboard"
+  (touchstart)="onTouchStart($event)"
+  (touchmove)="onTouchMove($event)"
+  (touchend)="onTouchEnd()">
+
+  <!-- Pull-to-refresh indicator -->
+  @if (pullDistance() > 0 || isRefreshing()) {
+    <div class="pull-indicator" [style.height.px]="pullDistance()">
+      <i class="pi" [ngClass]="isRefreshing() ? 'pi-spin pi-spinner' : 'pi-arrow-down'"></i>
+    </div>
+  }
+
   <!-- Stats Cards -->
   <section class="stats-section">
     <h2 class="section-title">{{ 'driver.dashboard.today_stats' | translate }}</h2>

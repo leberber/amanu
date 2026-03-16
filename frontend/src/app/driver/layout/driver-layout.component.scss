@@ -13,13 +13,17 @@
 // =============================================================================
 
 .driver-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: var(--space-3) var(--space-4);
   padding-top: calc(var(--space-3) + env(safe-area-inset-top, 0px));
   background: var(--surface-ground, #f8fafc);
-  flex-shrink: 0;
 
   &__left {
     flex: 1;
@@ -94,6 +98,7 @@
   position: relative;
   overflow-y: auto;
   overflow-x: hidden;
+  padding-top: calc(56px + env(safe-area-inset-top, 0px)); // Space for fixed header
   padding-bottom: 80px; // Space for bottom nav
   -webkit-overflow-scrolling: touch; // Smooth scrolling on iOS
 }

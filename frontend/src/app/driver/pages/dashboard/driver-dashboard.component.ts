@@ -1,6 +1,6 @@
-import { Component, inject, OnInit, computed } from '@angular/core';
+import { Component, inject, OnInit, computed, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { DecimalPipe } from '@angular/common';
+import { DecimalPipe, NgClass } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { DriverService } from '../../../services/driver.service';
@@ -9,7 +9,6 @@ import { DRIVER_STATUS } from '../../../core/constants/driver.constants';
 import { TripWithStops } from '../../../models/trip.model';
 import { Order } from '../../../models/order.model';
 
-// Unified item type for the list
 export interface AvailableItem {
   id: number;
   type: 'suggested' | 'priority' | 'standard';
@@ -18,7 +17,6 @@ export interface AvailableItem {
   stops?: number;
   weight?: number;
   customerName?: string;
-  // Original data
   trip?: TripWithStops;
   order?: Order;
 }
@@ -26,7 +24,7 @@ export interface AvailableItem {
 @Component({
   selector: 'app-driver-dashboard',
   standalone: true,
-  imports: [RouterLink, TranslateModule, DecimalPipe],
+  imports: [RouterLink, TranslateModule, DecimalPipe, NgClass],
   templateUrl: './driver-dashboard.component.html',
   styleUrl: './driver-dashboard.component.scss'
 })
@@ -35,53 +33,47 @@ export class DriverDashboardComponent implements OnInit {
   private readonly driverService = inject(DriverService);
 
   readonly routes = ROUTES;
-  readonly DRIVER_STATUS = DRIVER_STATUS;
 
   // Data from service
-  stats = this.driverService.stats;
-  profile = this.driverService.profile;
-  driverProfile = this.driverService.driverProfile;
-  activeTrips = this.driverService.activeTrips;
   activeMultiTrips = this.driverService.activeMultiTrips;
-  pendingBatchedTrips = this.driverService.pendingBatchedTrips;
-  availableTrips = this.driverService.availableTrips;
-  loading = this.driverService.loading;
 
   // Computed values
-  currentStatus = computed(() => this.driverProfile()?.status || DRIVER_STATUS.OFFLINE);
   isOnline = computed(() => {
-    const status = this.currentStatus();
+    const status = this.driverService.driverProfile()?.status;
     return status === DRIVER_STATUS.AVAILABLE || status === DRIVER_STATUS.BUSY;
   });
 
-  // Stats display
-  todayDeliveries = computed(() => this.stats()?.deliveries_today || 0);
-  todayEarnings = computed(() => this.stats()?.earnings_today || 0);
-  activeCount = computed(() => this.activeTrips().length + this.activeMultiTrips().length);
+  todayDeliveries = computed(() => this.driverService.stats()?.deliveries_today || 0);
+  todayEarnings = computed(() => this.driverService.stats()?.earnings_today || 0);
+  activeCount = computed(() =>
+    this.driverService.activeTrips().length + this.activeMultiTrips().length
+  );
   multiTripCount = computed(() => this.activeMultiTrips().length);
 
-  // Unified available items list (sorted: suggested → priority → standard)
   availableItems = computed<AvailableItem[]>(() => {
-    const userId = this.profile()?.id;
+    const userId = this.driverService.profile()?.id;
     const items: AvailableItem[] = [];
 
-    // 1. Suggested trips (batched trips suggested to this driver)
-    for (const trip of this.pendingBatchedTrips()) {
+    // Helper to map trip to AvailableItem
+    const mapTrip = (trip: TripWithStops, type: 'suggested' | 'standard'): AvailableItem => ({
+      id: trip.id,
+      type,
+      address: trip.corridor || trip.h3_zone || '',
+      earnings: trip.total_earnings || 0,
+      stops: trip.total_stops,
+      weight: trip.total_weight_kg,
+      trip
+    });
+
+    // 1. Suggested trips
+    for (const trip of this.driverService.pendingBatchedTrips()) {
       if (trip.suggested_driver_id === userId) {
-        items.push({
-          id: trip.id,
-          type: 'suggested',
-          address: trip.corridor || trip.h3_zone || '',
-          earnings: trip.total_earnings || 0,
-          stops: trip.total_stops,
-          weight: trip.total_weight_kg,
-          trip
-        });
+        items.push(mapTrip(trip, 'suggested'));
       }
     }
 
-    // 2. Priority orders (individual urgent orders)
-    for (const order of this.availableTrips()) {
+    // 2. Priority orders
+    for (const order of this.driverService.availableTrips()) {
       items.push({
         id: order.id,
         type: 'priority',
@@ -92,26 +84,59 @@ export class DriverDashboardComponent implements OnInit {
       });
     }
 
-    // 3. Standard batched trips (not suggested to this driver)
-    for (const trip of this.pendingBatchedTrips()) {
+    // 3. Standard trips
+    for (const trip of this.driverService.pendingBatchedTrips()) {
       if (trip.suggested_driver_id !== userId) {
-        items.push({
-          id: trip.id,
-          type: 'standard',
-          address: trip.corridor || trip.h3_zone || '',
-          earnings: trip.total_earnings || 0,
-          stops: trip.total_stops,
-          weight: trip.total_weight_kg,
-          trip
-        });
+        items.push(mapTrip(trip, 'standard'));
       }
     }
 
     return items;
   });
 
+  // Pull-to-refresh state
+  pullDistance = signal(0);
+  isRefreshing = signal(false);
+  private isPulling = false;
+  private startY = 0;
+  private readonly PULL_THRESHOLD = 60;
+
   ngOnInit(): void {
     this.loadData();
+  }
+
+  onTouchStart(event: TouchEvent): void {
+    const scrollTop = document.querySelector('.driver-content')?.scrollTop || 0;
+    if (scrollTop === 0) {
+      this.startY = event.touches[0].clientY;
+      this.isPulling = true;
+    }
+  }
+
+  onTouchMove(event: TouchEvent): void {
+    if (!this.isPulling || this.isRefreshing()) return;
+
+    const diff = event.touches[0].clientY - this.startY;
+    if (diff > 0) {
+      this.pullDistance.set(Math.min(diff * 0.4, 80));
+    }
+  }
+
+  onTouchEnd(): void {
+    if (!this.isPulling) return;
+
+    if (this.pullDistance() >= this.PULL_THRESHOLD) {
+      this.isRefreshing.set(true);
+      this.pullDistance.set(40);
+      this.loadData();
+      setTimeout(() => {
+        this.pullDistance.set(0);
+        this.isRefreshing.set(false);
+      }, 1000);
+    } else {
+      this.pullDistance.set(0);
+    }
+    this.isPulling = false;
   }
 
   loadData(): void {
@@ -126,18 +151,10 @@ export class DriverDashboardComponent implements OnInit {
     this.driverService.goOnline().subscribe();
   }
 
-  goOffline(): void {
-    this.driverService.goOffline().subscribe();
-  }
-
   openTripDetail(item: AvailableItem): void {
-    // For trips (suggested/standard), navigate to trip detail
-    // For priority orders, also navigate to trip detail (will show order)
-    if (item.trip) {
-      this.router.navigate([RouteHelpers.driverTripDetail(item.trip.id)]);
-    } else if (item.order) {
-      // Priority orders use the same trip detail route
-      this.router.navigate([RouteHelpers.driverTripDetail(item.order.id)]);
+    const id = item.trip?.id || item.order?.id;
+    if (id) {
+      this.router.navigate([RouteHelpers.driverTripDetail(id)]);
     }
   }
 
