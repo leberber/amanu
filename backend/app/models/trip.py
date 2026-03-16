@@ -72,6 +72,7 @@ class Trip(SQLModel, table=True):
     assigned_at: Optional[datetime] = Field(default=None)
     started_at: Optional[datetime] = Field(default=None)
     completed_at: Optional[datetime] = Field(default=None)
+    cancelled_at: Optional[datetime] = Field(default=None)
 
     # Created by (admin who triggered batching)
     created_by_id: Optional[int] = Field(default=None, foreign_key="users.id")
@@ -164,6 +165,7 @@ class TripRead(SQLModel):
     assigned_at: Optional[datetime] = None
     started_at: Optional[datetime] = None
     completed_at: Optional[datetime] = None
+    cancelled_at: Optional[datetime] = None
 
     # Stop count
     total_stops: int = 0

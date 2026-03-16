@@ -1932,6 +1932,13 @@
       "cancel": "إلغاء",
       "no_trips": "لا توجد رحلات",
       "trip_details": "تفاصيل الرحلة",
+      "timeline": {
+        "created": "تم الإنشاء",
+        "assigned": "تم التعيين",
+        "started": "بدأت",
+        "completed": "اكتملت",
+        "cancelled": "ملغاة"
+      },
       "total_earnings": "إجمالي الأرباح",
       "total_weight": "إجمالي الوزن",
       "assign_driver": "تعيين سائق",

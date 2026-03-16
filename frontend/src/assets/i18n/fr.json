@@ -1944,6 +1944,13 @@
       "cancel": "Annuler",
       "no_trips": "Aucune tournée trouvée",
       "trip_details": "Détails de la tournée",
+      "timeline": {
+        "created": "Créée",
+        "assigned": "Assignée",
+        "started": "Démarrée",
+        "completed": "Terminée",
+        "cancelled": "Annulée"
+      },
       "total_earnings": "Gains totaux",
       "total_weight": "Poids total",
       "assign_driver": "Assigner un livreur",

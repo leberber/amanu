@@ -608,6 +608,67 @@
         </div>
       </div>
 
+      <!-- Timeline -->
+      <div class="trip-detail__timeline">
+        <div class="timeline-item">
+          <div class="timeline-item__icon timeline-item__icon--created">
+            <i class="pi pi-plus-circle"></i>
+          </div>
+          <div class="timeline-item__content">
+            <span class="timeline-item__label">{{ 'admin.batching.timeline.created' | translate }}</span>
+            <span class="timeline-item__date">{{ selectedTrip()!.created_at | date:'dd/MM/yyyy HH:mm' }}</span>
+          </div>
+        </div>
+
+        @if (selectedTrip()!.assigned_at) {
+          <div class="timeline-item">
+            <div class="timeline-item__icon timeline-item__icon--assigned">
+              <i class="pi pi-user"></i>
+            </div>
+            <div class="timeline-item__content">
+              <span class="timeline-item__label">{{ 'admin.batching.timeline.assigned' | translate }}</span>
+              <span class="timeline-item__date">{{ selectedTrip()!.assigned_at | date:'dd/MM/yyyy HH:mm' }}</span>
+            </div>
+          </div>
+        }
+
+        @if (selectedTrip()!.started_at) {
+          <div class="timeline-item">
+            <div class="timeline-item__icon timeline-item__icon--started">
+              <i class="pi pi-play"></i>
+            </div>
+            <div class="timeline-item__content">
+              <span class="timeline-item__label">{{ 'admin.batching.timeline.started' | translate }}</span>
+              <span class="timeline-item__date">{{ selectedTrip()!.started_at | date:'dd/MM/yyyy HH:mm' }}</span>
+            </div>
+          </div>
+        }
+
+        @if (selectedTrip()!.completed_at) {
+          <div class="timeline-item">
+            <div class="timeline-item__icon timeline-item__icon--completed">
+              <i class="pi pi-check-circle"></i>
+            </div>
+            <div class="timeline-item__content">
+              <span class="timeline-item__label">{{ 'admin.batching.timeline.completed' | translate }}</span>
+              <span class="timeline-item__date">{{ selectedTrip()!.completed_at | date:'dd/MM/yyyy HH:mm' }}</span>
+            </div>
+          </div>
+        }
+
+        @if (selectedTrip()!.cancelled_at) {
+          <div class="timeline-item">
+            <div class="timeline-item__icon timeline-item__icon--cancelled">
+              <i class="pi pi-times-circle"></i>
+            </div>
+            <div class="timeline-item__content">
+              <span class="timeline-item__label">{{ 'admin.batching.timeline.cancelled' | translate }}</span>
+              <span class="timeline-item__date">{{ selectedTrip()!.cancelled_at | date:'dd/MM/yyyy HH:mm' }}</span>
+            </div>
+          </div>
+        }
+      </div>
+
       <!-- Stops list -->
       <div class="trip-detail__stops">
         @for (stop of selectedTrip()!.stops; track stop.id) {

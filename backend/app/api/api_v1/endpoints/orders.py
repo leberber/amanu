@@ -603,11 +603,13 @@ def _handle_order_cancellation_trip_cleanup(order: Order, session: Session) -> N
         else:
             # All stops failed/cancelled - cancel the trip
             trip.status = TripStatus.CANCELLED
+            trip.cancelled_at = now
         trip.updated_at = now
         session.add(trip)
     elif len(failed_stops) == len(remaining_stops):
         # All stops failed - cancel the trip
         trip.status = TripStatus.CANCELLED
+        trip.cancelled_at = now
         trip.updated_at = now
         session.add(trip)
 

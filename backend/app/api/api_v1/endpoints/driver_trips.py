@@ -349,6 +349,7 @@ def trip_to_response(trip: Trip, session: Session) -> TripWithStops:
         assigned_at=trip.assigned_at,
         started_at=trip.started_at,
         completed_at=trip.completed_at,
+        cancelled_at=trip.cancelled_at,
         total_stops=len(trip.stops),
         completed_stops=completed_stops,
         driver_name=driver_name,
@@ -845,6 +846,7 @@ def decline_batched_trip(
 
     # Cancel the trip
     trip.status = TripStatus.CANCELLED
+    trip.cancelled_at = now
     trip.updated_at = now
     session.add(trip)
 

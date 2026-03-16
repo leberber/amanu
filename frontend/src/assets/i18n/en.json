@@ -1946,6 +1946,13 @@
       "cancel": "Cancel",
       "no_trips": "No trips found",
       "trip_details": "Trip Details",
+      "timeline": {
+        "created": "Created",
+        "assigned": "Assigned",
+        "started": "Started",
+        "completed": "Completed",
+        "cancelled": "Cancelled"
+      },
       "total_earnings": "Total Earnings",
       "total_weight": "Total Weight",
       "assign_driver": "Assign Driver",

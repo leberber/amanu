@@ -45,6 +45,7 @@ export interface Trip {
   assigned_at?: string;
   started_at?: string;
   completed_at?: string;
+  cancelled_at?: string;
 
   // Stop count
   total_stops: number;
