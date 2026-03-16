@@ -11,27 +11,32 @@
       <i class="pi pi-arrow-left"></i>
     </button>
 
-    <!-- Map Section -->
-    <div class="map-container" [style.height]="showFullScreenMap() ? '100vh' : '30vh'">
-      @if (routeCoords().length >= 2) {
-        <app-animated-route-map
-          #mapComponent
-          [routeCoords]="routeCoords()"
-          [stops]="sortedStops()"
-          [autoStart]="true"
-          [animationDuration]="mapAnimationDuration"
-          (animationComplete)="onAnimationComplete()"
-        />
-      } @else {
-        <div class="map-placeholder">
-          <i class="pi pi-map"></i>
-        </div>
-      }
-    </div>
+    <!-- Map Section (only for pending trips) -->
+    @if (shouldShowMap()) {
+      <div
+        class="map-container"
+        [@mapSlideOut]="mapVisible() ? 'visible' : 'hidden'"
+        [style.height]="showFullScreenMap() ? '100vh' : '30vh'">
+        @if (routeCoords().length >= 2) {
+          <app-animated-route-map
+            #mapComponent
+            [routeCoords]="routeCoords()"
+            [stops]="sortedStops()"
+            [autoStart]="true"
+            [animationDuration]="mapAnimationDuration"
+            (animationComplete)="onAnimationComplete()"
+          />
+        } @else {
+          <div class="map-placeholder">
+            <i class="pi pi-map"></i>
+          </div>
+        }
+      </div>
+    }
 
     <!-- Content Section -->
-    @if (!showFullScreenMap()) {
-      <div class="content">
+    @if (!showFullScreenMap() || !isPendingTrip()) {
+      <div class="content" [class.content--no-map]="!shouldShowMap()">
         <!-- Itinerary Header -->
         <div class="itinerary-header">
           <div class="itinerary-header__left">

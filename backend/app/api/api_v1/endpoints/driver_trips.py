@@ -766,7 +766,6 @@ def update_batched_stop_status(
     # Update stop status
     stop.status = request.status
     stop.notes = request.notes
-    stop.updated_at = now
 
     if request.status == StopStatus.ARRIVED:
         stop.arrived_at = now

@@ -29,10 +29,8 @@
   z-index: 1000;
   width: 44px;
   height: 44px;
-  border-radius: 50%;
-  background: var(--surface-card);
+  background: transparent;
   border: none;
-  box-shadow: var(--shadow-md);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -89,6 +87,11 @@
   -webkit-overflow-scrolling: touch;
   padding: var(--space-4);
   padding-bottom: calc(124px + env(safe-area-inset-bottom, 0px));
+
+  // When map is hidden, add top padding for back button
+  &--no-map {
+    padding-top: calc(var(--space-3) + env(safe-area-inset-top, 0px) + 44px + var(--space-4));
+  }
 }
 
 // =============================================================================

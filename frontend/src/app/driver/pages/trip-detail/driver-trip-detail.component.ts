@@ -2,6 +2,7 @@ import { Component, inject, OnInit, signal, computed, ChangeDetectorRef, viewChi
 import { ActivatedRoute, Router } from '@angular/router';
 import { DecimalPipe, Location } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
+import { trigger, state, style, animate, transition } from '@angular/animations';
 
 import { DriverService } from '../../../services/driver.service';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
@@ -20,7 +21,24 @@ type StopAction = 'arrived' | 'delivered';
   standalone: true,
   imports: [TranslateModule, DecimalPipe, AnimatedRouteMapComponent],
   templateUrl: './driver-trip-detail.component.html',
-  styleUrl: './driver-trip-detail.component.scss'
+  styleUrl: './driver-trip-detail.component.scss',
+  animations: [
+    trigger('mapSlideOut', [
+      state('visible', style({
+        height: '*',
+        opacity: 1,
+        transform: 'translateY(0)'
+      })),
+      state('hidden', style({
+        height: '0',
+        opacity: 0,
+        transform: 'translateY(-100%)'
+      })),
+      transition('visible => hidden', [
+        animate('400ms ease-out')
+      ])
+    ])
+  ]
 })
 export class DriverTripDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
@@ -41,6 +59,7 @@ export class DriverTripDetailComponent implements OnInit {
   // Animation state
   animationComplete = signal(false);
   showFullScreenMap = signal(true);
+  mapVisible = signal(true);
 
   // Reference to map component
   mapComponent = viewChild<AnimatedRouteMapComponent>('mapComponent');
@@ -57,6 +76,9 @@ export class DriverTripDetailComponent implements OnInit {
   canStartTrip = computed(() => this.tripStatus() === 'assigned');
   isTripInProgress = computed(() => this.tripStatus() === 'in_progress');
   isTripCompleted = computed(() => this.tripStatus() === 'completed');
+
+  // Show map only for pending trips (before accepting)
+  shouldShowMap = computed(() => this.isPendingTrip() && this.mapVisible());
 
   canCompleteTrip = computed(() =>
     this.isTripInProgress() && this.stops().every(s => this.isStopStatus(s, 'delivered'))
@@ -140,7 +162,11 @@ export class DriverTripDetailComponent implements OnInit {
       next: () => {
         this.accepting.set(false);
         this.toast.showSuccess('driver.batched.accepted');
-        this.loadTrip(tripId);
+        // Animate map out, then reload trip
+        this.mapVisible.set(false);
+        setTimeout(() => {
+          this.loadTrip(tripId);
+        }, 450); // Wait for animation to complete
       },
       error: (err) => {
         this.accepting.set(false);
